@@ -96,15 +96,17 @@
 
   /** the zone texture context: a subtree-scoped default for the
    *  physics axis, written by ButtonVariantScope (the same zero-DOM
-   *  boundary that scopes the variant) — a card/dialog FOOT zone sets
+   *  boundary that scopes the variant) and by the joined ButtonGroup
+   *  (its subtree rides flat while the root carries the one cluster
+   *  shadow, Owner 2026-09-04) — a card/dialog FOOT zone sets
    *  raised=false so its buttons ride flat unless an explicit prop
-   *  says otherwise (Owner 2026-09-04). A SEPARATE key from the paint
-   *  zone on purpose (the single-key law): PAINT_ZONE_KEY is paint
-   *  policy a ButtonGroup inherit-then-provides — shadows it only
-   *  when it declares a variant of its own — while physics is not
-   *  the group's to carry, so the texture flows THROUGH joined
-   *  groups untouched (the context face of "physics never changes
-   *  with paint") */
+   *  says otherwise. A SEPARATE key from the paint zone on purpose
+   *  (the single-key law): PAINT_ZONE_KEY is paint policy a
+   *  ButtonGroup inherit-then-provides — shadows it only when it
+   *  declares a variant of its own — while the group takes PHYSICS
+   *  over at its own boundary (the cluster-shadow law). The
+   *  per-button law stands: paint never modulates poses, and an
+   *  explicit prop still beats the zone */
   export interface PressTextureApi {
     /** the zone's raised default — consumed as explicit ?? zone ?? true */
     readonly raised: boolean | undefined;
@@ -276,9 +278,10 @@
      *  pose customs (press law, jixoai.css); the 1px border frame
      *  stays (an inset is never the sole affordance, r14-12). The
      *  link rung carries no jx-press — this prop is inert there.
-     *  No static default: a ButtonVariantScope zone (card/dialog
-     *  foot) may scope the default to false (Owner 2026-09-04) —
-     *  resolution is explicit ?? zone ?? true */
+     *  No static default: a zone (ButtonVariantScope, or the joined
+     *  ButtonGroup itself — its subtree rides flat while the root
+     *  carries the cluster shadow, Owner 2026-09-04) may scope the
+     *  default to false — resolution is explicit ?? zone ?? true */
     raised?: boolean;
     /** appended to the composed classes (same-family overrides need
      *  the consumer's `!` — same-property utility order is not
@@ -324,8 +327,9 @@
   // (flat × non-link; link carries no jx-press at all)
   const flat = $derived(!resolvedRaised && resolvedVariant !== 'link');
 
-  // the zone texture context — same read-once pattern, its own key (a
-  // joined ButtonGroup never shadows physics, see the module comment).
+  // the zone texture context — same read-once pattern, its own key
+  // (the joined ButtonGroup writes it flat — the cluster-shadow law,
+  // see the module comment).
   // Resolution mirrors the variant's: explicit prop → the zone's
   // default → the own convex default; the ladder of defaults never
   // changes the LAWS — a zone scopes which texture a bare button

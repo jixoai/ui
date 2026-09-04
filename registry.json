@@ -3984,6 +3984,7 @@
         "@jixoai/icons",
         "@jixoai/icon-button",
         "@jixoai/dropdown-menu",
+        "@jixoai/separator",
         "@jixoai/paint",
         "@jixoai/defaults"
       ],

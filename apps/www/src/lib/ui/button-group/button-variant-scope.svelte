@@ -20,9 +20,11 @@
   OWN context key (PRESS_TEXTURE_KEY, owned by press-button), not the
   paint zone: the zone is paint policy a ButtonGroup
   inherit-then-provides — shadows it only when it declares a variant
-  of its own — while physics must flow THROUGH joined groups
-  untouched. Inherit-then-provide here too — a paint-only scope
-  (variant, no raised) never un-flattens an enclosing zone.
+  of its own — while the joined ButtonGroup takes physics over at its
+  own boundary (its subtree rides flat; the one cluster shadow lives
+  on its root, Owner 2026-09-04). Inherit-then-provide here too — a
+  paint-only scope (variant, no raised) never un-flattens an
+  enclosing zone.
 
   Renders its children and nothing else — no element, no paint, no
   seams; it is a context boundary, not a container.

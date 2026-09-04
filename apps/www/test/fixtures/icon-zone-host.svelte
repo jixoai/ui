@@ -15,6 +15,7 @@
     raised = undefined,
     iconOnly = false,
     grouped = false,
+    bareGrouped = false,
   }: {
     /** the scope's raised seam — undefined = a paint-only scope */
     zoneRaised?: boolean;
@@ -24,19 +25,30 @@
     /** render the button joined in a ButtonGroup inside the zone —
         the ⋯ overflow-trigger path */
     grouped?: boolean;
+    /** render the button joined in a BARE ButtonGroup (no zone above) —
+        the cluster-shadow law's own write */
+    bareGrouped?: boolean;
   } = $props();
 </script>
 
-<ButtonVariantScope variant="ghost" raised={zoneRaised}>
-  {#if grouped}
-    <ButtonGroup label="zone actions">
-      <IconButton {raised} {iconOnly} text="deploy">
-        {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
-      </IconButton>
-    </ButtonGroup>
-  {:else}
+{#if bareGrouped}
+  <ButtonGroup label="bare actions">
     <IconButton {raised} {iconOnly} text="deploy">
       {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
     </IconButton>
-  {/if}
-</ButtonVariantScope>
+  </ButtonGroup>
+{:else}
+  <ButtonVariantScope variant="ghost" raised={zoneRaised}>
+    {#if grouped}
+      <ButtonGroup label="zone actions">
+        <IconButton {raised} {iconOnly} text="deploy">
+          {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
+        </IconButton>
+      </ButtonGroup>
+    {:else}
+      <IconButton {raised} {iconOnly} text="deploy">
+        {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
+      </IconButton>
+    {/if}
+  </ButtonVariantScope>
+{/if}

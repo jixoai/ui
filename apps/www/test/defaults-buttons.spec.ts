@@ -161,10 +161,13 @@ describe('button-group — the provider duties intact', () => {
   it('the divider\'s layout half (orientation) survives the confined read', () => {
     const { container } = render(Host);
     // a vertical group's divider is a HORIZONTAL hairline (the line,
-    // not the flow); the divider keeps role=separator
+    // not the flow); composed over Separator (2026-09-04) the
+    // horizontal line is the native <hr> branch — role=separator is
+    // the element's IMPLICIT semantics (zero ARIA, Separator's
+    // W3C-first law), not an attribute
     const divider = byTestid(container, 'v-ghost-group').querySelector('[data-jx-btngroup-divider]')!;
     expect(divider.getAttribute('aria-orientation')).toBe('horizontal');
-    expect(divider.getAttribute('role')).toBe('separator');
+    expect(divider.tagName).toBe('HR');
   });
 });
 

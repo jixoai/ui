@@ -11,7 +11,10 @@
  *  - orientation: the valued data-jx-btngroup hook carries the axis;
  *  - the divider part: role=separator whose aria-orientation
  *    describes the LINE (vertical inside a horizontal flow and vice
- *    versa) — context-driven;
+ *    versa) — context-driven; COMPOSED over Separator (Owner
+ *    2026-09-04): the root carries [data-jx-separator] (the ink
+ *    engine + the W3C-first hr/div form come with the composition)
+ *    while the family css keeps geometry only;
  *  - the seam structure: the sheet collapses adjacent DIRECT children
  *    onto one hairline (-1px margin, child-scoped so nested groups
  *    stay one child) and the divider REPLACES the collapsed seam —
@@ -22,6 +25,12 @@
  *  - r13 CONTEXT: the group's variant is adopted by child buttons
  *    that pass none (explicit child prop ALWAYS wins; the ladder
  *    itself is untouched);
+ *  - the CLUSTER SHADOW (Owner 2026-09-04): the joined row casts ONE
+ *    convex shadow from the root (--shadow-xs, the rest pose alone —
+ *    no active effects), the subtree rides FLAT through the group's
+ *    texture context write, raised={false} / a flat zone / a nested
+ *    position stamp the root flat, and an explicit child raised
+ *    still wins;
  *  - r13 SEPARATOR: the ghost default (on when the group variant is
  *    ghost), explicit on/off, and the css law — the seam slot painted
  *    with the separator ink engine (backdrop contrast ghost), the
@@ -83,6 +92,19 @@ describe('ButtonGroup · the divider part', () => {
     expect(divider?.getAttribute('role')).toBe('separator');
   });
 
+  it('is a COMPOSED Separator (Owner 2026-09-04): the engine stamp rides the divider root, the element form is W3C-first', () => {
+    const { container } = render(Host);
+    // horizontal group → vertical line → Separator's div branch
+    const row = container.querySelector('[data-testid="row-divider"]')!;
+    expect(row.hasAttribute('data-jx-separator')).toBe(true);
+    expect(row.getAttribute('data-orientation')).toBe('vertical');
+    // vertical group → horizontal line → the native <hr> branch
+    const col = container.querySelector('[data-testid="col-divider"]')!;
+    expect(col.tagName).toBe('HR');
+    expect(col.hasAttribute('data-jx-separator')).toBe(true);
+    expect(col.getAttribute('data-orientation')).toBe('horizontal');
+  });
+
   it('aria-orientation describes the LINE: vertical in a horizontal flow, horizontal in a vertical one', () => {
     const { container } = render(Host);
     expect(container.querySelector('[data-testid="row-divider"]')?.getAttribute('aria-orientation')).toBe(
@@ -111,27 +133,40 @@ describe('ButtonGroup · the seam structure (the css law)', () => {
     );
   });
 
-  it('the divider owns a REAL 1px track — flush junction edges, never a clamped zero-width track (grid-era law, Codex B1)', () => {
+  it('the divider keeps a REAL 1px track — flush junction edges, never a clamped zero-width track (grid-era law, Codex B1)', () => {
     // the flex-era -1px/-1px pair made the divider's margin-box
     // NEGATIVE → grid auto tracks clamped it to 0px (the audit's
-    // `72.8px 0px` readout). The junction is now flush on both sides
+    // `72.8px 0px` readout). The junction is flush on both sides
     expect(buttonGroupCss).toMatch(
       /\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-divider\],\s*\n\s*:where\(\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\+\s\*\s*\{\s*margin-inline-start:\s*0;/,
     );
     expect(buttonGroupCss).toMatch(
       /\[data-jx-btngroup='vertical'\]\)\s*>\s*\[data-jx-btngroup-divider\],\s*\n\s*:where\(\[data-jx-btngroup='vertical'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\+\s\*\s*\{\s*margin-block-start:\s*0;/,
     );
+    // the line LENGTH rides the family's stretch law (the cross-axis
+    // 1px is separator.css's on [data-jx-separator] now — the
+    // composed element carries both stamps, asserted in the DOM above)
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\{[^}]*inline-size:\s*1px;/s,
+      /\[data-jx-btngroup='horizontal'\]\)\s*>\s*\[data-jx-btngroup-divider\]\s*\{\s*align-self:\s*stretch;/,
     );
     // the old overlap geometry is RETIRED
     expect(buttonGroupCss).not.toMatch(/divider[^{]*\{[^}]*margin-inline-end:\s*-1px/s);
   });
 
-  it('the divider carries no border of its own (the hairline is paint, not a fifth edge)', () => {
-    expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup-divider\]\)\s*\{\s*flex:\s*none;\s*background:\s*var\(--border\);/,
-    );
+  it('the divider rides Separator\'s ink engine — the family css owns GEOMETRY ONLY (composed, Owner 2026-09-04)', () => {
+    // no color channel, no flex, no size declarations in any family
+    // divider rule: the contrast ghost and the cross-axis 1px live in
+    // separator.css on [data-jx-separator]; duplicating them here
+    // would put one property under two sheets' order-dependent rule
+    const rules = buttonGroupCss.replace(/\/\*[\s\S]*?\*\//g, '');
+    const dividerBlocks = rules.match(/\[data-jx-btngroup-divider\][^{]*\{[^}]*\}/g) ?? [];
+    expect(dividerBlocks.length).toBeGreaterThan(0);
+    for (const block of dividerBlocks) {
+      expect(block).not.toContain('background');
+      expect(block).not.toContain('flex');
+      expect(block).not.toContain('inline-size');
+      expect(block).not.toContain('block-size');
+    }
   });
 });
 
@@ -364,5 +399,61 @@ describe('ButtonGroup · the separator css law (the real-DOM era, source-pinned)
       /:where\(\[data-jx-btngroup\]:not\(\[data-jx-measuring\]\)\[data-jx-overflow='collapse'\]\)\s*>\s*\[data-jx-overflow-hidden='true'\]/,
     );
     expect(carveOut).toMatch(/display:\s*none;/);
+  });
+});
+
+describe('ButtonGroup · the cluster shadow (Owner 2026-09-04)', () => {
+  it('a bare group carries NO flat stamp — the root paints the ONE convex shadow (the press law\'s rest pose, source-pinned)', () => {
+    const { container } = render(LawsHost);
+    expect(
+      container.querySelector('[data-testid="plain-group"]')?.hasAttribute('data-jx-btngroup-flat'),
+    ).toBe(false);
+    // the css law: --shadow-xs behind :where() (zero specificity — a
+    // consumer shadow utility still wins), keyed off the flat stamp
+    expect(buttonGroupCss).toMatch(
+      /:where\(\[data-jx-btngroup\]:not\(\[data-jx-btngroup-flat\]\)\)\s*\{\s*box-shadow:\s*var\(--shadow-xs\);/,
+    );
+    // NO hover/active shadow pose exists on the root — it never
+    // presses ("不用做什么 actived 的效果，只需要去除阴影即可")
+    const rules = buttonGroupCss.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(rules).not.toMatch(/\[data-jx-btngroup[^\]]*\]:hover/);
+    expect(rules).not.toMatch(/\[data-jx-btngroup[^\]]*\]:active/);
+  });
+
+  it('raised={false} removes the root shadow and NOTHING else — the flat stamp', () => {
+    const { container } = render(LawsHost);
+    expect(
+      container.querySelector('[data-testid="flat-group"]')?.hasAttribute('data-jx-btngroup-flat'),
+    ).toBe(true);
+  });
+
+  it('a flat texture zone carries through to the cluster — no raised island inside a flat zone', () => {
+    const { container } = render(LawsHost);
+    expect(
+      container.querySelector('[data-testid="zone-flat-group"]')?.hasAttribute('data-jx-btngroup-flat'),
+    ).toBe(true);
+  });
+
+  it('a NESTED group defaults OFF — the outer cluster owns the one shadow', () => {
+    const { container } = render(LawsHost);
+    expect(
+      container.querySelector('[data-testid="nested-outer"]')?.hasAttribute('data-jx-btngroup-flat'),
+    ).toBe(false);
+    expect(
+      container.querySelector('[data-testid="nested-inner"]')?.hasAttribute('data-jx-btngroup-flat'),
+    ).toBe(true);
+  });
+
+  it('the joined subtree rides FLAT by default (the context write) — an explicit child raised still wins', () => {
+    const { container } = render(LawsHost);
+    // the zone resolution's context face: the group WRITES the texture
+    // default (raised=false) — the buttons adopt it with no prop
+    const flat = container.querySelector('[data-testid="plain-group"] [data-jx-press-button]')!;
+    expect(flat.className).toContain('[--jx-press-shadow:none]');
+    expect(flat.className).toContain('[--jx-press-move:none]');
+    // explicit beats the zone — the escape hatch stays open
+    const convex = container.querySelector('[data-testid="raised-child-group"] [data-jx-press-button]')!;
+    expect(convex.className).not.toContain('--jx-press-move');
+    expect(convex.className).not.toContain('engrave');
   });
 });

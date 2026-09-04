@@ -76,3 +76,31 @@
     {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
   </IconButton>
 </ButtonGroup>
+
+<!-- ── the cluster-shadow axis (Owner 2026-09-04): a bare group casts
+     the ONE convex shadow from its root while its subtree rides flat;
+     raised={false} removes the root shadow alone; a flat texture zone
+     carries through; a NESTED group defaults OFF (one member of the
+     outer cluster — one control, one shadow); an explicit raised on a
+     child still beats the group's flat write ── -->
+<ButtonGroup label="flat laws" raised={false} data-testid="flat-group">
+  <PressButton>one</PressButton>
+</ButtonGroup>
+
+<ButtonVariantScope raised={false}>
+  <ButtonGroup label="zone flat" data-testid="zone-flat-group">
+    <PressButton>one</PressButton>
+  </ButtonGroup>
+</ButtonVariantScope>
+
+<ButtonGroup label="outer cluster" data-testid="nested-outer">
+  <PressButton>save</PressButton>
+  <ButtonGroup label="inner cluster" data-testid="nested-inner">
+    <PressButton>undo</PressButton>
+    <PressButton>redo</PressButton>
+  </ButtonGroup>
+</ButtonGroup>
+
+<ButtonGroup label="raised child" data-testid="raised-child-group">
+  <PressButton raised>convex</PressButton>
+</ButtonGroup>

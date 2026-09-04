@@ -8,11 +8,12 @@
   an orientation/justify LAYOUT container that joins press-buttons
   (and icon-buttons) edge-to-edge over the hairline seam law. The
   container owns NOTHING but the layout and the seam — the buttons
-  keep their own paint (variant ladder, press physics, density tier):
-  the group paints no bezel of its own, so a joined row of outline
-  buttons reads as ONE control with 1px seams instead of a 2px double
-  border between neighbors (adjacent children collapse their borders
-  via a -1px margin — button-group.css).
+  keep their own paint (variant ladder, density tier; physics is the
+  one takeover, THE CLUSTER SHADOW below): the group paints no bezel
+  of its own, so a joined row of outline buttons reads as ONE control
+  with 1px seams instead of a 2px double border between neighbors
+  (adjacent children collapse their borders via a -1px margin —
+  button-group.css).
 
     <ButtonGroup label="export actions">
       <PressButton variant="outline">copy</PressButton>
@@ -30,6 +31,24 @@
   always wins — the stamped-attribute law's consumer face). The
   ladder itself is never touched; context selects rungs, never mints
   one.
+
+  THE CLUSTER SHADOW (Owner 2026-09-04): the joined row is ONE
+  control, so it casts ONE shadow — the convex law moves from the
+  buttons to the ROOT. The subtree rides FLAT by default (the group
+  writes the press-texture key with raised=false: per-button convex
+  shadows overlap at the -1px seams, the geometry defect this closes;
+  an explicit raised on any child still wins, the zone resolution's
+  explicit lane), and the root paints --shadow-xs — the press law's
+  REST pose alone, hard offset, no hover growth, no active engrave:
+  the root never presses ("不用做什么 actived 的效果，只需要去除阴影
+  即可" — the Owner's wording). The `raised` prop resolves like the
+  button's own: explicit ?? the enclosing texture zone (a card/dialog
+  foot's flat scope carries through — a raised island inside a flat
+  zone would be a defect) ?? the top-level convex default — with ONE
+  carve: a NESTED group defaults OFF (it is one member of the OUTER
+  cluster; one control, one shadow). raised={false} removes the root
+  shadow and nothing else — the subtree's flat default is
+  unconditional.
 
   THE SEPARATOR POLICY (ghost's seam): bordered rungs have the -1px
   seam law (their collapsed borders ARE the hairline), but ghost
@@ -49,13 +68,18 @@
   edges — a -1px overlap would clamp to a zero-width grid track);
   paint is the unchanged ink engine (backdrop-filter, no color
   channel); the elements are aria-hidden decorative carriers. DIVIDER
-  vs SEPARATOR ruling: ButtonGroupDivider is the group's SEMANTIC
-  boundary between consumer-authored clusters (role=separator, real
-  element, announced); the separator is the DECORATIVE seam between
-  adjacent joined buttons (policy-driven, invisible to AT). Both
-  coexist: dividers between clusters, separators between buttons
+  vs SEPARATOR ruling (composed era, Owner 2026-09-04): ButtonGroupDivider
+  is the group's SEMANTIC boundary between consumer-authored clusters
+  — a real, announced element COMPOSED over the Separator component
+  (the ink is the same contrast ghost; the element form is
+  Separator's W3C-first pair, the family adds only the junction
+  geometry); the separator is the DECORATIVE seam between adjacent
+  joined buttons (policy-driven, group-injected, invisible to AT).
+  Both coexist: dividers between clusters, separators between buttons
   within a cluster (and never adjacent to a divider — that junction
-  already has its line).
+  already has its line); the boundary's EXTRA weight is geometry, not
+  ink — flush border·line·border against the intra-cluster collapsed
+  1px seam.
 
   GRID, not flex (r13, Owner law — the 2D nature is accepted): the
   container is `inline-grid`. THE FLOW LAW (Codex B1 rework, pinned
@@ -178,6 +202,7 @@
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
+  import { PRESS_TEXTURE_KEY, type PressTextureApi } from '../press-button/press-button.svelte';
   import { ButtonGroupDefaults } from './button-group-defaults.svelte';
   import './button-group.css';
 
@@ -199,6 +224,17 @@
         variant="link">` (legal before) is now a compile error, the
         change's one syntactic breaking edge */
     variant?: ZonePaintVariant;
+    /** the CLUSTER shadow axis (Owner 2026-09-04): the joined row is
+     *  one control, so the ROOT carries the one convex shadow
+     *  (--shadow-xs, the press law's rest pose alone — no hover
+     *  growth, no active engrave; the root never presses).
+     *  Resolution mirrors the button's physics: explicit ?? the
+     *  enclosing texture zone ?? the top-level convex default — a
+     *  NESTED group defaults OFF (one member of the outer cluster;
+     *  one control, one shadow). raised={false} removes the root
+     *  shadow and NOTHING else; the subtree's flat default (the
+     *  texture write below) is unconditional */
+    raised?: boolean;
     /** the separator policy: a real 1px separator element in every
         seam slot (ghost's seam — bordered rungs already read through
         the -1px law). Explicit true/false; DEFAULT on when the group's
@@ -240,6 +276,7 @@
     justify = 'start',
     label,
     variant,
+    raised,
     separator,
     leadingSeam = false,
     overflow: overflowMode = 'wrap',
@@ -294,6 +331,29 @@
   // by the frozen provider duties, so only density flows through the
   // contract today
   const d = $derived(ButtonGroupDefaults.resolve({ density }));
+
+  // ── THE PHYSICS TAKEOVER (Owner 2026-09-04, the cluster-shadow
+  // law) — the joined subtree rides FLAT by default: per-button
+  // convex shadows overlap at the -1px seams, so the group scopes the
+  // press texture through the PHYSICS key (the same zero-DOM boundary
+  // the variant rides; an explicit raised on any child still wins).
+  // ALL THREE context reads run HERE, eagerly — ABOVE this group's
+  // own BUTTON_GROUP_KEY and PRESS_TEXTURE_KEY writes, or they would
+  // resolve to the group's OWN contexts and every top-level group
+  // would mistake itself for a nested one (the getPaintZone
+  // precedent, extended to the layout key)
+  const enclosingTexture = getContext<PressTextureApi | undefined>(PRESS_TEXTURE_KEY);
+  const enclosingGroup = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
+  setContext<PressTextureApi>(PRESS_TEXTURE_KEY, {
+    get raised() {
+      return false;
+    },
+  });
+  // the ROOT's own shadow: explicit ?? the enclosing texture zone (a
+  // card/dialog foot's flat scope carries through) ?? the top-level
+  // convex default — NESTED groups default OFF: the inner cluster is
+  // one member of the OUTER one, and one control casts one shadow
+  const clusterRaised = $derived(raised ?? enclosingTexture?.raised ?? !enclosingGroup);
 
   // the separator policy: explicit prop, else the ghost default —
   // the borderless row has no seam to collapse, so the separator IS
@@ -676,6 +736,7 @@
   {...rest}
   {role}
   data-jx-btngroup={orientation}
+  data-jx-btngroup-flat={!clusterRaised ? '' : undefined}
   data-jx-separator={separatorOn ? '' : undefined}
   data-jx-leading-seam={leadingSeam ? '' : undefined}
   data-density={d.density}

@@ -5,6 +5,15 @@
  *
  * The component-owned residue ONLY (the layout is markup utilities):
  *
+ *  - THE CLUSTER SHADOW (Owner 2026-09-04): the joined row is ONE
+ *    control → ONE convex shadow on the ROOT — the press law's rest
+ *    pose alone (--shadow-xs, hard offset), no hover growth, no
+ *    active pose (the root never presses). The buttons inside ride
+ *    flat (the group's texture write), so this shadow REPLACES their
+ *    overlapping per-button ones. data-jx-btngroup-flat (raised={false},
+ *    a flat enclosing zone, or a nested cluster) opts out — false
+ *    removes the shadow and nothing else.
+ *
  *  - THE SEAM: adjacent DIRECT children collapse their 1px borders
  *    into ONE hairline (a -1px margin pulls each neighbor onto the
  *    previous border — a joined row of outline buttons reads as one
@@ -15,16 +24,21 @@
  *    its item's margin-box, so each -1px overlap is exact and the
  *    group edges stay flush — the law never mentioned flex.
  *
- *  - THE DIVIDER: a 1px var(--border) block between the clusters.
- *    GRID-ERA LAW (Codex B1 rework, pinned on Chromium): the
+ *  - THE DIVIDER: a COMPOSED Separator (Owner 2026-09-04) — the ink
+ *    is the contrast ghost from separator.css (no color channel,
+ *    theme-agnostic over any ground) and the element form is
+ *    Separator's W3C-first pair (div[role=separator] / native <hr>).
+ *    The family owns GEOMETRY ONLY: the junction edges are FLUSH on
+ *    both sides, so the boundary reads border·line·border — heavier
+ *    than the 1px intra-cluster seam, which a cluster boundary
+ *    should — and the line LENGTH stretches. GRID-ERA LAW (Codex B1
+ *    rework, pinned on Chromium): the
  *    flex-era -1px/-1px pair (overlap both neighbors, total
  *    junction 1px) gives a 1px element a NEGATIVE margin-box, and
  *    grid auto tracks clamp that to a ZERO-WIDTH track — the
- *    audit's `72.8px 0px` readout. The divider now owns a REAL 1px
- *    track: both junction edges are FLUSH (the generic seam is
- *    suppressed on the divider and on the element after it), so the
- *    boundary reads border·line·border (3px) — heavier than the 1px
- *    intra-cluster seam, which a cluster boundary should be.
+ *    audit's `72.8px 0px` readout. The divider's margin-box is its
+ *    real 1px with flush junction edges, never a clamped zero-width
+ *    track.
  *
  *  - THE SEPARATOR (r13 → the REAL-DOM era, Owner 2026-09-04: "我更
  *    希望上真正的 DOM 来做分割线"): ghost's seam. The bordered rungs
@@ -57,6 +71,14 @@
 @layer theme, base, components, utilities;
 
 @layer components {
+  /* the cluster shadow: the joined row's ONE convex shadow (the press
+     law's rest pose alone — the root never presses, so no hover or
+     active pose exists here). Behind :where() at zero specificity: a
+     consumer shadow utility still wins */
+  :where([data-jx-btngroup]:not([data-jx-btngroup-flat])) {
+    box-shadow: var(--shadow-xs);
+  }
+
   /* the seam: every direct child after the first pulls onto the
      previous child's edge border */
   :where([data-jx-btngroup='horizontal']) > * + * {
@@ -66,21 +88,18 @@
     margin-block-start: -1px;
   }
 
-  /* the divider: the hairline paint, geometry follows the group axis.
-     The junction edges are FLUSH on both sides (source order after
-     the seam rules — same zero-specificity layer, later wins): the
-     divider's margin-box is its real 1px, never a clamped zero-width
-     track (see the header's grid-era law) */
-  :where([data-jx-btngroup-divider]) {
-    flex: none;
-    background: var(--border);
-  }
+  /* the divider: a composed Separator — the ink (contrast ghost) and
+     the cross-axis 1px live in separator.css on [data-jx-separator];
+     the family carries ONLY the geometry law. The junction edges are
+     FLUSH on both sides (source order after the seam rules — same
+     zero-specificity layer, later wins): the divider's margin-box is
+     its real 1px, never a clamped zero-width track (see the header's
+     grid-era law), and the line LENGTH stretches to the cluster */
   :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-divider],
   :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-divider] + * {
     margin-inline-start: 0;
   }
   :where([data-jx-btngroup='horizontal']) > [data-jx-btngroup-divider] {
-    inline-size: 1px;
     align-self: stretch;
   }
   :where([data-jx-btngroup='vertical']) > [data-jx-btngroup-divider],
@@ -88,7 +107,6 @@
     margin-block-start: 0;
   }
   :where([data-jx-btngroup='vertical']) > [data-jx-btngroup-divider] {
-    block-size: 1px;
     align-self: stretch;
   }
 

@@ -4,7 +4,9 @@
   the shapes the foot-flat law rides — bare, joined in a ButtonGroup,
   and nested under a PAINT-ONLY scope (the inherit-then-provide path:
   a scope that declares no raised of its own must never un-flatten
-  the enclosing zone).
+  the enclosing zone). bareGrouped renders the group OUTSIDE any
+  scope — the cluster-shadow law's own lane (the group WRITES the
+  flat texture for its subtree; no zone needed).
 -->
 <script lang="ts">
   import PressButton, {
@@ -19,6 +21,7 @@
     raised = undefined,
     grouped = false,
     nested = false,
+    bareGrouped = false,
   }: {
     /** the scope's raised seam — undefined = a paint-only scope */
     zoneRaised?: boolean;
@@ -28,19 +31,27 @@
     grouped?: boolean;
     /** wrap the button in a paint-only scope inside the zone */
     nested?: boolean;
+    /** render the button joined in a BARE ButtonGroup (no zone above) */
+    bareGrouped?: boolean;
   } = $props();
 </script>
 
-<ButtonVariantScope variant="ghost" raised={zoneRaised}>
-  {#if nested}
-    <ButtonVariantScope variant="outline">
-      <PressButton {variant} {raised}>deploy</PressButton>
-    </ButtonVariantScope>
-  {:else if grouped}
-    <ButtonGroup label="zone actions">
-      <PressButton {variant} {raised}>deploy</PressButton>
-    </ButtonGroup>
-  {:else}
+{#if bareGrouped}
+  <ButtonGroup label="bare actions">
     <PressButton {variant} {raised}>deploy</PressButton>
-  {/if}
-</ButtonVariantScope>
+  </ButtonGroup>
+{:else}
+  <ButtonVariantScope variant="ghost" raised={zoneRaised}>
+    {#if nested}
+      <ButtonVariantScope variant="outline">
+        <PressButton {variant} {raised}>deploy</PressButton>
+      </ButtonVariantScope>
+    {:else if grouped}
+      <ButtonGroup label="zone actions">
+        <PressButton {variant} {raised}>deploy</PressButton>
+      </ButtonGroup>
+    {:else}
+      <PressButton {variant} {raised}>deploy</PressButton>
+    {/if}
+  </ButtonVariantScope>
+{/if}

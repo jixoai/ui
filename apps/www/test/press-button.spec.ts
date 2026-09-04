@@ -182,9 +182,10 @@ describe('press-button raised axis — the flat texture', () => {
 
 /* ── THE ZONE TEXTURE (Owner 2026-09-04): a ButtonVariantScope may scope
       the raised DEFAULT to false — the card/dialog foot law. Resolution:
-      explicit ?? zone ?? true; the texture rides its OWN context key so a
-      joined ButtonGroup (which RESETS BUTTON_GROUP_KEY) never shadows
-      physics — the context face of "physics never changes with paint". ── */
+      explicit ?? zone ?? true; the texture rides its OWN context key.
+      The joined ButtonGroup is a zone WRITER on that key now (the
+      cluster-shadow law, Owner 2026-09-04): its subtree rides FLAT by
+      default while the group root carries the one convex shadow. ── */
 describe('press-button zone texture — the foot-flat context', () => {
   it('a raised={false} zone adopts the flat pose for a bare button with no explicit prop', () => {
     const { container } = render(ZoneHost, { props: { zoneRaised: false } });
@@ -204,12 +205,28 @@ describe('press-button zone texture — the foot-flat context', () => {
     expect(btn.className).not.toContain('engrave');
   });
 
-  it('the texture flows THROUGH a joined ButtonGroup — physics is not the group\'s to reset', () => {
+  it('a group inside a flat zone keeps the flat texture — the group WRITES it itself now (the cluster-shadow law)', () => {
     const { container } = render(ZoneHost, { props: { zoneRaised: false, grouped: true } });
     const btn = container.querySelector('button')!;
     expect(btn.className).toContain('[--jx-press-move:none]');
     // the group's PAINT policy still applied alongside (ghost via the scope)
     expect(btn.getAttribute('data-jx-press-button')).toBe('ghost');
+  });
+
+  it('a BARE group flattens its joined buttons by default — the context write, no zone needed', () => {
+    const { container } = render(ZoneHost, { props: { bareGrouped: true } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).toContain('[--jx-press-shadow:none]');
+    expect(btn.className).toContain('[--jx-press-move:none]');
+    // no variant anywhere: the own outline rung rides on top of the flat pose
+    expect(btn.getAttribute('data-jx-press-button')).toBe('outline');
+  });
+
+  it('an explicit raised=true stays convex inside a bare group — the escape hatch', () => {
+    const { container } = render(ZoneHost, { props: { bareGrouped: true, raised: true } });
+    const btn = container.querySelector('button')!;
+    expect(btn.className).not.toContain('--jx-press-move');
+    expect(btn.className).not.toContain('engrave');
   });
 
   it('a paint-only nested scope never un-flattens the zone (inherit-then-provide)', () => {
@@ -231,6 +248,27 @@ describe('press-button zone texture — the foot-flat context', () => {
     const { container } = render(ZoneHost, { props: { zoneRaised: false, variant: 'link' } });
     const btn = container.querySelector('button')!;
     expect(btn.className).not.toContain('jx-press');
+  });
+});
+
+describe('press-button theme scoping — the grammar slots', () => {
+  it('the four hue slots re-substitute per theme scope (the canvas border bug, Owner 2026-09-04)', () => {
+    // source-law gate (jsdom has no cascade): custom properties
+    // substitute their var() at the DECLARING element — a :root-only
+    // --jx-outline: var(--border) hands every descendant the root's
+    // already-substituted value, so a scoped .dark/.jx-light (the
+    // component-canvas stage, terminal-card, print) redefining
+    // --border never flipped the button border with it: it followed
+    // the GLOBAL site theme instead. The selector list must
+    // re-declare the slots ON each theme scope, so the substitution
+    // re-runs against the scope's own --primary/--border
+    const css = readFileSync(resolve('src/lib/jixoai.css'), 'utf8');
+    expect(css).toMatch(
+      /:root,\s*\.jx-light,\s*\.dark\s*\{[^}]*--jx-fill:\s*var\(--primary\);[^}]*--jx-outline:\s*var\(--border\);/s,
+    );
+    // and no :root-ONLY re-declaration survives anywhere else
+    const soloRootSlots = css.match(/:root\s*\{[^}]*--jx-outline[^}]*\}/g) ?? [];
+    expect(soloRootSlots).toHaveLength(0);
   });
 });
 

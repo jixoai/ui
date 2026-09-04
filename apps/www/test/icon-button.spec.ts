@@ -138,7 +138,7 @@ describe('icon-button physics axis — the foot-flat context through the composi
     expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(false);
   });
 
-  it('physics flows THROUGH a joined ButtonGroup (the ⋯ overflow-trigger path)', () => {
+  it('a joined group rides flat — the group\'s OWN texture write (the ⋯ overflow-trigger path)', () => {
     const { container } = render(IconZoneHost, { props: { zoneRaised: false, grouped: true } });
     expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(true);
   });
@@ -148,5 +148,15 @@ describe('icon-button physics axis — the foot-flat context through the composi
       props: { zoneRaised: false, grouped: true, iconOnly: true },
     });
     expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(true);
+  });
+
+  it('a BARE group flattens the square through the context write alone — no zone, no prop (uniform support)', () => {
+    const { container } = render(IconZoneHost, { props: { bareGrouped: true, iconOnly: true } });
+    expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(true);
+  });
+
+  it('an explicit raised=true stays convex inside a bare group — the chrome escape hatch', () => {
+    const { container } = render(IconZoneHost, { props: { bareGrouped: true, iconOnly: true, raised: true } });
+    expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(false);
   });
 });

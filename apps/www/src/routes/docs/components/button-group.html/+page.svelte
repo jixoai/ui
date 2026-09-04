@@ -88,11 +88,12 @@ ${close}
         tone="hero"
         eyebrow="registry:ui · General"
         title="button-group — joined actions, one hairline"
-        summary="The shadcn Button Group counterpart, native to this registry's laws: a layout container that joins press-buttons edge-to-edge. The group paints NO bezel of its own — adjacent children collapse their 1px borders into ONE hairline seam (a joined row of outline buttons reads as one control, never a 2px double border), and the ButtonGroupDivider replaces the seam wherever clusters need an explicit boundary. The buttons keep everything that makes them buttons: the variant ladder, the press physics, the density tier. ROLE LAW: the root is role=group — a named grouping of related actions, NOT a toolbar; and when the children express SELECTION (a pressed state, an active value), the component is wrong: segmented selection is toggle-group's law."
+        summary="The shadcn Button Group counterpart, native to this registry's laws: a layout container that joins press-buttons edge-to-edge. The group paints NO bezel of its own — adjacent children collapse their 1px borders into ONE hairline seam (a joined row of outline buttons reads as one control, never a 2px double border), and the ButtonGroupDivider replaces the seam wherever clusters need an explicit boundary. The buttons keep their paint ladder and density tier; PHYSICS is the one takeover (2026-09-04): the joined row is ONE control, so it casts ONE convex shadow from the ROOT — per-button convex shadows overlap at the seams, so the subtree rides raised=false by default through the texture context (an explicit raised on any child still wins; icon-buttons follow the same context for free). ROLE LAW: the root is role=group — a named grouping of related actions, NOT a toolbar; and when the children express SELECTION (a pressed state, an active value), the component is wrong: segmented selection is toggle-group's law."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">orientation · justify</span>
           <span class="pill">1px hairline seams</span>
+          <span class="pill">one cluster shadow · flat buttons</span>
           <span class="pill">ButtonGroupDivider</span>
           <span class="pill">role=group law</span>
           <span class="pill">zero deps · Svelte 5 runes</span>
@@ -258,7 +259,7 @@ ${close}
   <div id="btngroup-nesting" data-region="btngroup-nesting" data-family="btngroup-nesting" data-reveal="">
     <ComponentCanvas
       title="with nested clusters"
-      description="A nested ButtonGroup is ONE child for the outer seam — the inner seams never leak outward; fill and outline rungs join on the same hairline."
+      description="A nested ButtonGroup is ONE child for the outer seam — the inner seams never leak outward; fill and outline rungs join on the same hairline. The divider is a COMPOSED Separator (2026-09-04): the boundary line rides the same contrast-ghost ink engine as the internal seams — its extra weight is GEOMETRY (flush border·line·border junction against the collapsed 1px intra-cluster seam), never a heavier paint."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/button-group/button-group-divider.svelte"
       files={[
         { name: 'registry/files/ui/button-group/button-group-divider.svelte', content: buttonGroupDividerSource },
@@ -360,6 +361,7 @@ ${close}
           { name: 'justify', type: "'start' | 'center' | 'end'", default: "'start'", description: 'Cluster placement on the main axis.' },
           { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
           { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: 'ambient zone', description: 'The GROUP rung adopted by every child button that passes none of its own (explicit always wins; no rung is minted — context selects). Omitted → the enclosing scope’s variant (inherit-then-provide, r14-10); link is not a zone value — it stays reachable only through PressButton’s own explicit prop.' },
+          { name: 'raised', type: 'boolean', default: 'ambient zone ?? true', description: 'The CLUSTER shadow (2026-09-04): the root carries the joined row’s ONE convex shadow — --shadow-xs, the press law’s rest pose alone (no hover growth, no active engrave; the root never presses). Explicit ?? the enclosing texture zone (a flat card/dialog foot carries through) ?? the top-level convex default; a NESTED group defaults OFF (one member of the outer cluster — one control, one shadow). false removes the root shadow and nothing else; the inner buttons’ flat default stands regardless (an explicit raised on a child still wins).' },
           { name: 'separator', type: 'boolean', default: 'ghost ⇒ true', description: 'The seam policy: a 1px contrast-ghost separator in every collapsed seam slot. DEFAULT on when the group’s EFFECTIVE variant (own prop, else the inherited scope) is ghost — the borderless row has no other seam.' },
           { name: 'leadingSeam', type: 'boolean', default: 'false', description: 'The cluster’s opening bracket (r14-13): paint the seam in the leading slot too — the first button’s own flush ::before, never a sibling element a parent gap could detach. Only paints under an active seam policy (the dialog footer’s actions region is the canonical consumer).' },
           { name: 'density', type: 'Density', default: 'ambient scope', description: 'Density tier, provided to the subtree so joined buttons adopt it: explicit ?? the ambient scope (no opinion stamps nothing).' },
@@ -378,7 +380,7 @@ ${close}
       headerRegion="theming"
       eyebrow="theming"
       title="Density and tokens"
-      summary="The group paints nothing — the seams read var(--border) and the joined buttons ride the density ruler through the provided context."
+      summary="The group paints ONE thing — the cluster shadow (--shadow-xs on the root; raised={false}, a flat enclosing zone or a nested position removes it) — and the seams read var(--border); the joined buttons ride the density ruler through the provided context."
     >
       <div class="flex flex-col gap-5">
         <DensityDemo>
@@ -394,7 +396,7 @@ ${close}
             { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
             { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
             { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
-            { name: '--border', default: 'theme', source: 'seams + divider' },
+            { name: '--border', default: 'theme', source: 'joined button borders (via --jx-outline); the divider and seams paint no color' },
           ]}
         />
       </div>
