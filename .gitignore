@@ -27,3 +27,6 @@ registry/static/
 registry/test/
 registry/.tw-probe-fixture/
 registry/.tw-standard-probe/
+
+# tw4 standard probe scratch (generated, never commit — history-purged 2026-09-05)
+apps/www/.tw-standard-probe/
