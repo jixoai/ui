@@ -211,6 +211,44 @@
   :where([data-slot='item-content']) {
     min-width: 0;
   }
+
+  /* ── the size contract (2026-09-05): declared ladders, space picks
+     the rung — the md:/lg: idiom for slot composition. The LANE
+     carries the ladder (the end track's max-content growth resolves
+     the specified width); platform controls fill it, nothing sniffs
+     child structure. md: number/time-class; lg: text/long-select;
+     full: greedy. A sized lane is BY DECLARATION foldable, so the
+     narrow law's wrap=never exemption cannot apply to it. */
+  :where([data-slot='item-end'][data-fit='md']) {
+    --jx-item-end-w: 10rem;
+  }
+  :where([data-slot='item-end'][data-fit='lg']) {
+    --jx-item-end-w: 16rem;
+  }
+  :where([data-slot='item-end'][data-fit='full']) {
+    --jx-item-end-w: 100%;
+  }
+  :where([data-slot='item-end'][data-fit]) {
+    inline-size: var(--jx-item-end-w);
+  }
+  /* the fitted lane's children FILL the ladder rung — a fitted lane
+     holds the control by contract, so flex fill is the contract's own
+     semantics (no platform-tag guessing, no shell-class sniffing) */
+  :where([data-slot='item-end'][data-fit]) > :where(*) {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+  /* the mid tier: declared ladders step DOWN but keep the shared end
+     line (44rem — the wide settings pane collapsing toward a rail) */
+  @container jx-items (max-width: 44rem) {
+    :where([data-slot='item-end'][data-fit='md']) {
+      --jx-item-end-w: 7rem;
+    }
+    :where([data-slot='item-end'][data-fit='lg']) {
+      --jx-item-end-w: 11rem;
+    }
+  }
   :where([data-slot='item-content'][data-content-wrap='truncate'] > *) {
     min-width: 0;
     overflow: hidden;
@@ -607,10 +645,20 @@
     grid-column: 1 / -1;
   }
 
+  /* the folded rung (size contract): a declared lane spans its new
+     full row and starts at the content edge — the ladder's last step */
+  @container jx-items (max-width: 30rem) {
+    :where([data-slot='item-end'][data-fit]) {
+      --jx-item-end-w: 100%;
+      justify-content: flex-start;
+    }
+  }
+
   /* content-end narrow auto: content and end become full-width rows. */
   @container jx-items (max-width: 30rem) {
     :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-after'])),
-  :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-actions'])) {
+  :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-actions'])),
+  :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-fit])) {
       grid-template-areas:
         'header header header'
         'content . .'
@@ -629,7 +677,8 @@
     /* media-content-end narrow auto: the media host remains on the
        ruler, while content and end occupy explicit full-width rows. */
     :where([data-slot='item-list'][data-ruler='media-content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-after'])),
-  :where([data-slot='item-list'][data-ruler='media-content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-actions'])) {
+  :where([data-slot='item-list'][data-ruler='media-content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-actions'])),
+  :where([data-slot='item-list'][data-ruler='media-content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-fit])) {
       grid-template-areas:
         'header header header header header'
         'media . content . .'

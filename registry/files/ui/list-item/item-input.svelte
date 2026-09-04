@@ -8,6 +8,7 @@
   import type { ComponentProps } from 'svelte';
   import Input from '$lib/ui/input/input.svelte';
   import ItemField from './item-field.svelte';
+  import type { ItemEndFit } from './item-end.svelte';
   import type { ItemFieldContext } from './item-field.svelte';
   import type { ItemLayout, ItemVariant } from './index';
   import type { Density } from '$lib/density.svelte';
@@ -27,6 +28,8 @@
     variant?: ItemVariant;
     density?: Density;
     layout?: ItemLayout;
+    /** the declared end-lane width ladder (size contract 2026-09-05) */
+    fit?: ItemEndFit;
     disabled?: boolean;
     class?: string;
     type?: string;
@@ -42,6 +45,7 @@
     variant,
     density,
     layout = 'auto',
+    fit,
     disabled = false,
     class: className = '',
     type = 'text',
@@ -63,6 +67,7 @@
   variant={d.variant}
   density={d.density}
   {layout}
+  {fit}
   class={className}
 >
   {#snippet control(field: ItemFieldContext)}

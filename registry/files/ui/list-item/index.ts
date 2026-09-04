@@ -9,6 +9,7 @@ export type ItemGroupMode = 'default' | 'muted' | 'plain';
 export type ItemDividers = 'auto' | 'none';
 export type ItemLabelMode = 'for' | 'text';
 export type ItemMediaVariant = 'default' | 'icon' | 'image';
+export type ItemEndFit = 'md' | 'lg' | 'full';
 export { default as Item } from './item.svelte';
 export { default as ItemGroup } from './item-group.svelte';
 export { default as ItemEnd } from './item-end.svelte';

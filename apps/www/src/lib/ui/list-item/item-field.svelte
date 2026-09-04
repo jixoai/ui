@@ -18,6 +18,7 @@
   import Item from './item.svelte';
   import ItemContent from './item-content.svelte';
   import ItemEnd from './item-end.svelte';
+  import type { ItemEndFit } from './item-end.svelte';
   // the field lane law (design §5): a field's control lane NEVER splits
   import type { ItemLayout, ItemVariant } from './index';
   import type { Density } from '$lib/density.svelte';
@@ -48,6 +49,10 @@
     /** DENSITY override: omitted = nearest provider, then 'default' */
     density?: Density;
     layout?: ItemLayout;
+    /** the declared end-lane width ladder (size contract 2026-09-05):
+     *  a fitted field lane relaxes its never-split stance and joins the
+     *  narrow fold — number/select/text-class controls declare it */
+    fit?: ItemEndFit;
     class?: string;
     control: Snippet<[ItemFieldContext]>;
   }
@@ -64,6 +69,7 @@
     variant,
     density,
     layout = 'auto',
+    fit,
     class: className = '',
     control,
   }: Props = $props();
@@ -102,7 +108,10 @@
       <span class="jx-item-field-error" id={errorId}>{error}</span>
     {/if}
   </ItemContent>
-  <ItemEnd wrap="never">
+  <!-- the field lane law (design §5): a field's control lane NEVER
+       splits — UNLESS it declares a size ladder, which is exactly the
+       declaration that it MAY fold (the size contract's one carve-out) -->
+  <ItemEnd wrap={fit ? 'auto' : 'never'} {fit}>
     {@render control(field)}
   </ItemEnd>
 </Item>

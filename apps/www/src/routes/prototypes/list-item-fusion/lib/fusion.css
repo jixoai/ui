@@ -1,0 +1,80 @@
+/*
+ * FUSION — the single refined prototype (Owner ruling 2026-09-05:
+ * "先做好一套，再思考变体"; two laws added by the same ruling).
+ *
+ * LANE LAW: the end lane is a flex flow — any inline component drops
+ * in with one rhythm; content-lane inline stamps breathe with one
+ * measure. Presence matrix stays 4-bit; fusion happens INSIDE lanes.
+ *
+ * AUTO-STACK LAW (Owner): desktop-wide rows read left/right; when the
+ * list container runs narrow the row becomes top/bottom — the family's
+ * own narrow geometry ('media content' / 'end end'), but fired for
+ * EVERY end lane (the subgrid after/actions coverage gap and the
+ * ItemField wrap=never exemption both fall to it). No hungry stamps,
+ * no per-control opt-ins: space decides.
+ *
+ * INPUT-GROUP LAW (Owner): the row is a large input-group — the GROUP
+ * carries the border, in-row controls dissolve theirs. Placeholder,
+ * suffix icon buttons and the row frame are the visual anchors; the
+ * inset focus ring survives dissolution (it is outline-based).
+ */
+
+/* ── lane rhythm ─────────────────────────────────────────────── */
+.fusion :where([data-slot='item-end']) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.fusion :where([data-slot='item-content'] kbd),
+.fusion :where([data-slot='item-content'] [data-jx-inline-code]) {
+  margin-inline: 0.2em;
+}
+
+/* ── input-group law: in-row control shells go bare ──────────── */
+.fusion :where([data-slot='item-end'] .jx-html-control-shell),
+.fusion :where([data-slot='item-end'] .jx-html-select),
+.fusion :where([data-slot='item-end'] [data-jx-igroup]),
+.fusion :where([data-slot='item-end'] [data-jx-tags]),
+.fusion :where([data-slot='item-end'] [data-jx-number-input]),
+.fusion :where([data-slot='item-end'] textarea),
+.fusion :where([data-slot='item-end'] .jx-textarea) {
+  background: transparent;
+  border-color: transparent;
+}
+/* the checkbox box and the toggle track are the CONTROLS, not shells —
+   they keep their paint (affordance lives there) */
+
+/* ── rig ─────────────────────────────────────────────────────── */
+.fusion {
+  display: grid;
+  gap: 2.25rem;
+}
+.fusion-context {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+.fusion-ladder {
+  display: grid;
+  gap: 1.25rem;
+}
+.fusion :where(.p-ladder-caption) {
+  margin: 0 0 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.fusion-pane-mid {
+  max-inline-size: 36rem;
+}
+.fusion-pane-mid2 {
+  max-inline-size: 24rem;
+}
+.fusion-narrow {
+  max-inline-size: 17rem;
+}
