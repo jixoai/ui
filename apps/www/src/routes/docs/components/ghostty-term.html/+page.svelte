@@ -105,22 +105,29 @@ export default {
 
   // theme presets (owner request 2026-08-28: 2 dark + 2 light) + the
   // custom color knobs — every preset is JUST a param pack for the same
-  // extension points; `jixoai` rides the token defaults (theme=undefined)
+  // extension points. `jixoai` pins BOTH dark shell colors explicitly:
+  // --terminal-foreground follows the SITE's light/dark mode, so a
+  // bg-pinned-dark preset riding the token rendered black ink on black
+  // paper under a light site (2026-09-04).
   let themePreset = $state('jixoai');
   let customBg = $state('#161616');
   let customSel = $state('#3a3f4b');
   // switching presets RESEEDS the custom pickers with the preset's own
   // bg/selection colors (owner request 2026-08-28: the pickers follow the
-  // theme, tweaking one then overrides just that knob). jixoai's bg is the
-  // --terminal token's sRGB (#161616); its selection default is classic
-  // inverse, so the picker seeds a matching muted paper.
+  // theme, tweaking one then overrides just that knob). jixoai's pair is
+  // the dark-mode --terminal tokens in sRGB (#161616 / #ffffff); its
+  // selection default is classic inverse, so the picker seeds a matching
+  // muted paper.
   $effect(() => {
     const preset = themePresets[themePreset];
-    customBg = preset?.background ?? '#161616';
-    customSel = preset?.selectionBackground ?? '#3a3f4b';
+    customBg = preset.background;
+    customSel = preset.selectionBackground ?? '#3a3f4b';
   });
-  const themePresets: Record<string, Record<string, string> | undefined> = {
-    jixoai: undefined,
+  const themePresets: Record<string, Record<string, string>> = {
+    jixoai: {
+      background: '#161616',
+      foreground: '#ffffff',
+    },
     snazzy: {
       background: '#282a36',
       foreground: '#eff0eb',
@@ -141,13 +148,13 @@ export default {
     },
   };
   const themeOptions = [
-    { label: 'jxoai dark', value: 'jixoai' },
+    { label: 'jixoai dark', value: 'jixoai' },
     { label: 'snazzy dark', value: 'snazzy' },
     { label: 'paper light', value: 'paper' },
     { label: 'solarized light', value: 'solarized' },
   ];
   const themeProp = $derived.by(() => {
-    const preset = themePresets[themePreset] ?? {};
+    const preset = themePresets[themePreset];
     // customs are preset-seeded and user-tweaked — they ARE the bg/selection
     return {
       ...preset,
