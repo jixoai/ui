@@ -32,3 +32,9 @@
       state machine re-asserts, real tags hook, InputGroup excluded
 - [x] 4.4 test/list-item-control-chrome.spec.ts — stamp matrix + source pins
 - [x] 4.5 prototype private dissolve block retired (family owns the law)
+
+## 5. B6 cluster boundary (list-item half)
+
+- [x] 5.1 prototype Action rows: joined ButtonGroups (3-btn, 2-btn+icon)
+- [x] 5.2 list-item-end-cluster.spec.ts — verbatim children + sheet pins
+- [x] 5.3 boundary recorded: group-side radius policy = button-group's own

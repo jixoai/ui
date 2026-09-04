@@ -22,6 +22,7 @@
   import BadgeIndicator from '$lib/ui/badge-indicator/badge-indicator.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
@@ -149,6 +150,34 @@
             <ItemDescription>Every routing decision, with actors</ItemDescription>
           </ItemContent>
           <ItemEnd wrap="never"><ItemChevron /></ItemEnd>
+        </Item>
+        <Item>
+          <ItemContent>
+            <ItemTitle>Escalation actions</ItemTitle>
+            <ItemDescription>ButtonGroup owns its seams and radius; the lane only gives gap and alignment</ItemDescription>
+          </ItemContent>
+          <ItemEnd wrap="never">
+            <ButtonGroup label="Escalate">
+              <PressButton>Acknowledge</PressButton>
+              <PressButton>Snooze</PressButton>
+              <PressButton>Escalate</PressButton>
+            </ButtonGroup>
+          </ItemEnd>
+        </Item>
+        <Item>
+          <ItemContent>
+            <ItemTitle>Quick triage</ItemTitle>
+            <ItemDescription>Joined group beside a free control — two independent surfaces</ItemDescription>
+          </ItemContent>
+          <ItemEnd wrap="never">
+            <ButtonGroup label="Triage">
+              <PressButton>Merge</PressButton>
+              <PressButton>Close</PressButton>
+            </ButtonGroup>
+            <IconButton iconOnly text="More options">
+              {#snippet icon()}<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="3" cy="8" r="1" /><circle cx="8" cy="8" r="1" /><circle cx="13" cy="8" r="1" /></svg>{/snippet}
+            </IconButton>
+          </ItemEnd>
         </Item>
       </ItemGroup>
     </Zone>

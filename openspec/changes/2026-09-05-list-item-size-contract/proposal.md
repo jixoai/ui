@@ -60,7 +60,18 @@
   root hook `data-jx-tags-wrap`; InputGroup stays OUT (addon seam is
   internal structure).
 
-## Out of scope
+## B6 (list-item half): the cluster boundary
 
-- B6 ButtonGroup radius policy (the other session owns button-group).
+- The prototype's Action section grows joined clusters (3-button and
+  2-button+icon ButtonGroups) in wrap="never" end lanes.
+- `list-item-end-cluster.spec.ts` pins the lane's contract: gap/align/
+  wrap ONLY — children render verbatim (no injected separator nodes,
+  no style/margin/radius reach-into), proven with bare buttons so the
+  law is independent of button-group's implementation; source-pinned:
+  item.css matches zero btngroup/button-group internals.
+- The seam/radius POLICY inside a joined group belongs to button-group
+  (a parallel workstream owns that component) — the boundary is
+  recorded here, the group-side policy is out of this change.
+
+## Out of scope
 - Non-subgrid fallback behavior (stays the broader fold it is today).
