@@ -2326,8 +2326,13 @@
       --shadow-md-press: 3px 3px 0px 0px hsl(0 0% 100% / 1), 3px 1px 4px -1px hsl(0 0% 0% / 1);
       /* elevation grammar, dark side: same geometry rung for rung, the
          ink inverted to white (the white-shadow law); --shadow-paper is
-         theme-INDEPENDENT (paper stays white — see the light block) */
-      --shadow-engrave: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.4);
+         theme-INDEPENDENT (paper stays white — see the light block).
+         The engrave duet inverts BOTH inks (the law's mechanical face —
+         the glow wall's black on dark reads as the carved sheen) */
+      --jx-engrave-shade: hsl(0 0% 100% / 0.4);
+      --jx-engrave-glow: hsl(0 0% 0% / 0.96);
+      --shadow-engrave: inset 1px 1px 0px 0px var(--jx-engrave-shade),
+        inset -1px -1px 0px 0px var(--jx-engrave-glow);
       --shadow-well: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.12);
       --shadow-well-hover: inset 1px 1px 0px 0px hsl(0 0% 100% / 0.28);
 

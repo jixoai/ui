@@ -22,6 +22,14 @@
  *     friends compile their indexes client-side. The builder keeps
  *     zero dependencies beyond node builtins + the sibling module.
  *
+ * Ontology R2 (2026-09-05, document-ontology-r2-float-reference §4):
+ * the harvest consumes the float/reference emissions additively —
+ * data-number → block.number/section.number, data-ref-to →
+ * block.refids[] (two-pass pre-scan: referenceable-target index first,
+ * edge projection second), data-cited-in → block.citedIn. Unmarked
+ * pages stay byte-identical; every projected field is optional and
+ * omitted (never null) when absent.
+ *
  * The page-semantics schema carries the Owner's point/line/plane
  * dimensions: blocks (点, open `kind` enum + industry meta), sections
  * (线, the heading-tree law), document `preset` (面, reserved for
@@ -119,7 +127,18 @@ function classifyBlock(element) {
   if (declared !== undefined && declared !== '') return declared;
   if (element.name === 'pre') return KIND_CODE;
   if (element.name === 'table') return KIND_TABLE;
-  if (element.name === 'figure' && firstElement(element, 'pre')) return KIND_CODE;
+  // the tag-shape fallback covers the LEGACY CodeCard shape (a bare
+  // figure + direct pre) only — an R2 Figure wrapper ([data-jx-figure])
+  // is NEVER a block of its own: the wrapped point keeps its own
+  // marker (taxonomy priority — the line marks structure, the point
+  // keeps semantics; design §4)
+  if (
+    element.name === 'figure' &&
+    element.attrs?.['data-jx-figure'] === undefined &&
+    firstElement(element, 'pre')
+  ) {
+    return KIND_CODE;
+  }
   return null;
 }
 
@@ -161,6 +180,75 @@ function blockMeta(element, { decode }) {
   return Object.keys(meta).length > 0 ? meta : undefined;
 }
 
+/* ── ontology R2 (2026-09-05): the TWO-PASS pre-scan + number/edge
+   projection (additive — pre-R2 corpora parse unchanged, unmarked
+   pages stay byte-identical). Pass one builds the document-wide
+   REFERENCEABLE-TARGET index: every [data-jx-section][id] (numbered
+   OR NOT — an unnumbered Section is a legal target) ∪ every
+   [data-jx-figure][id][data-number] (an unnumbered Figure is not
+   referenceable and stays out); bare ids are never indexed. Pass two
+   projects the edges — a forward reference whose SSR form is the
+   ??(to) fallback anchor still carries data-ref-to, so its refids[]
+   edge harvests (not-yet is not missing); an edge whose target is
+   absent from the index is filtered — the harvester is the
+   static-completeness authority (design §4, Owner ruling P1-4=A). ── */
+
+/** a present non-empty attribute value, or undefined */
+const attr = (element, name) => {
+  const value = element.attrs?.[name];
+  return value !== undefined && value !== '' ? value : undefined;
+};
+
+/** the referenceable-target index (pass one) over the whole content tree */
+function buildReferenceableIndex(root) {
+  const ids = new Set();
+  for (const el of descendants(root, (node) => {
+    if (attr(node, 'id') === undefined) return false;
+    return (
+      node.attrs?.['data-jx-section'] !== undefined ||
+      (node.attrs?.['data-jx-figure'] !== undefined && attr(node, 'data-number') !== undefined)
+    );
+  })) {
+    ids.add(attr(el, 'id'));
+  }
+  return ids;
+}
+
+/** pass two's edge filter: the live target id, or null when the
+    reference's target never exists in the index (a dead edge) */
+const edgeTarget = (element, index) => {
+  const to = attr(element, 'data-ref-to');
+  return to !== undefined && index.has(to) ? to : null;
+};
+
+/** append with FIRST-OCCURRENCE dedup (stable order per block) */
+const pushRefid = (list, id) => {
+  if (!list.includes(id)) list.push(id);
+};
+
+/** gather the INLINE reference edges inside a stream item's subtree */
+function collectInlineRefs(node, index, sink) {
+  for (const el of descendants(node, (n) => n.attrs?.['data-ref-to'] !== undefined)) {
+    const id = edgeTarget(el, index);
+    if (id !== null) sink(id);
+  }
+}
+
+/** data-cited-in is a JSON array payload (design §1.1c) — fail loud on
+    malformed emission (a component-layer bug, never a corpus guess) */
+function parseCitedIn(raw) {
+  let value;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    throw new Error(`[search-corpus] data-cited-in is not valid JSON: ${raw}`);
+  }
+  if (!Array.isArray(value)) {
+    throw new Error(`[search-corpus] data-cited-in payload is not an array: ${raw}`);
+  }
+  return value;
+}
+
 /**
  * Walk the chrome-stripped content tree producing the ordered stream
  * the section fold consumes: headings (skipping data-toc-skip
@@ -191,9 +279,20 @@ function walkStream(node, { decode, skip }, out) {
     }
     if (/^(p|li|blockquote|dd|dt)$/.test(node.name) && !skipping) {
       // a paragraph root: the prose unit (block roots already returned
-      // above, so nesting inside code/tables never reaches here)
+      // above, so nesting inside code/tables never reaches here). The
+      // node rides along so the fold can gather INLINE data-ref-to
+      // edges (ontology R2) — text alone cannot carry an edge.
       const text = collapse(subtreeText(node, { decode }));
-      if (text !== '') out.push({ type: 'prose', text });
+      if (text !== '') out.push({ type: 'prose', text, node });
+      return;
+    }
+    // a BARE reference (R2): data-ref-to surfacing at stream level =
+    // inside a section body but under NO block root and no paragraph
+    // (heading/block/prose interceptions above guarantee exactly that
+    // reading). The anchor's label is not stream content — the fold
+    // hangs the edge on the nearest PRECEDING stream item.
+    if (!skipping && node.attrs?.['data-ref-to'] !== undefined) {
+      out.push({ type: 'bare-ref', node });
       return;
     }
   }
@@ -215,22 +314,45 @@ export async function harvestPage(html, rel, options = {}) {
   const outline = headings.filter((item) => levelsSet.has(item.level));
   const ids = headingIds(outline);
 
+  // pass one (R2): the document-wide referenceable-target index —
+  // every edge projection below resolves against THIS set, so a
+  // forward SSR fallback edge harvests while a dead edge cannot
+  const referenceable = buildReferenceableIndex(page.contentNode);
+
   const sections = [];
   let current = null;
   let proseBuffer = '';
+  // the R2 edge window: refids belonging to the not-yet-flushed prose
+  // aggregation (inline edges from its paragraphs + bare edges that
+  // landed while it was open — the aggregation IS their host block)
+  let pendingRefids = [];
+  // the nearest preceding FLUSHED stream item of the current section —
+  // the host for a bare edge arriving after the prose window closed
+  let lastStreamBlock = null;
+  // one number/citedIn per Figure wrapper: the FIRST point block only
+  const claimedFigures = new Set();
   const flushProse = () => {
-    if (current === null) return;
+    if (current === null) {
+      proseBuffer = '';
+      pendingRefids = [];
+      return;
+    }
     const text = collapse(proseBuffer);
     if (text !== '') {
-      current.blocks.push({ kind: KIND_PROSE, text: text.slice(0, TRUNCATE_TEXT) });
+      const block = { kind: KIND_PROSE, text: text.slice(0, TRUNCATE_TEXT) };
+      if (pendingRefids.length > 0) block.refids = pendingRefids;
+      current.blocks.push(block);
+      lastStreamBlock = block;
     }
     proseBuffer = '';
+    pendingRefids = [];
   };
   let outlineIndex = 0;
   for (const item of stream) {
     if (item.type === 'heading') {
       if (levelsSet.has(item.level)) {
         flushProse();
+        lastStreamBlock = null; // the new section has no stream items yet
         const section = {
           id: ids[outlineIndex],
           heading: item.label.slice(0, 200),
@@ -247,7 +369,28 @@ export async function harvestPage(html, rel, options = {}) {
       continue;
     }
     if (item.type === 'prose') {
-      if (current !== null) proseBuffer += `${item.text}\n`;
+      if (current !== null) {
+        proseBuffer += `${item.text}\n`;
+        collectInlineRefs(item.node, referenceable, (id) => pushRefid(pendingRefids, id));
+      }
+      continue;
+    }
+    if (item.type === 'bare-ref') {
+      // a dead edge filters silently here (the component layer already
+      // warns on settle); only a hostless edge is the harvester's warn
+      const id = edgeTarget(item.node, referenceable);
+      if (id === null) continue;
+      if (proseBuffer !== '') {
+        // the open prose window is the nearest preceding stream item
+        pushRefid(pendingRefids, id);
+      } else if (lastStreamBlock !== null) {
+        if (lastStreamBlock.refids === undefined) lastStreamBlock.refids = [];
+        pushRefid(lastStreamBlock.refids, id);
+      } else {
+        console.warn(
+          `[search-corpus] bare data-ref-to="${id}" has no preceding stream item in its section — the edge is skipped (never silently dropped)`,
+        );
+      }
       continue;
     }
     if (current === null) continue; // pre-heading content: no section yet
@@ -263,10 +406,28 @@ export async function harvestPage(html, rel, options = {}) {
           decode: llms.decodeEntities,
         }),
       );
-      current.blocks.push({
+      const block = {
         kind: item.kind,
         text: text.slice(0, TRUNCATE_TEXT),
         ...(blockMeta(item.node, { decode: llms.decodeEntities }) ?? {}),
+      };
+      // R2 number/citedIn projection: the Figure WRAPPER never becomes
+      // a block — its data-number/data-cited-in land on the wrapped
+      // point (first point block only; a Figure with no projectable
+      // child block projects nothing)
+      const figureHost = nearestAncestorWith(page.contentNode, item.node, 'data-jx-figure');
+      if (figureHost !== undefined && !claimedFigures.has(figureHost)) {
+        claimedFigures.add(figureHost);
+        const number = attr(figureHost, 'data-number');
+        if (number !== undefined) block.number = number;
+        const citedIn = attr(figureHost, 'data-cited-in');
+        if (citedIn !== undefined) block.citedIn = parseCitedIn(citedIn);
+      }
+      current.blocks.push(block);
+      lastStreamBlock = block;
+      collectInlineRefs(item.node, referenceable, (id) => {
+        if (block.refids === undefined) block.refids = [];
+        pushRefid(block.refids, id);
       });
     }
   }
@@ -283,6 +444,10 @@ export async function harvestPage(html, rel, options = {}) {
     if (host !== undefined) {
       sections[i].role = host.attrs?.['data-role'] ?? 'section';
       sections[i].ordering = host.attrs?.['data-ordering'] ?? null;
+      // R2: the section's own number rides the SAME host element the
+      // identity does (optional — an unnumbered section omits the field)
+      const sectionNumber = attr(host, 'data-number');
+      if (sectionNumber !== undefined) sections[i].number = sectionNumber;
       const header = descendants(host, (el) => el.attrs?.['data-jx-section-header'] !== undefined)[0];
       const titleBlock =
         header?.children.find((child) => child.type === 'element' && child.name === 'div') ?? undefined;

@@ -6,7 +6,7 @@
  * CONVERGES with the runtime outline derivation (the harvest reads
  * ids only because it computes exactly what the runtime stamps).
  */
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -157,7 +157,164 @@ describe('ontology R1 — declared markers win', () => {
   });
 });
 
+/* ── ontology R2 (2026-09-05): numbers, edges and the TWO-PASS
+      pre-scan (design §4). The harvest consumes the float/reference
+      emissions ADDITIVELY — number/refids/citedIn are optional fields,
+      omitted (never null) when absent; unmarked pages stay
+      byte-identical. Pass one indexes referenceable targets
+      ([data-jx-section][id] numbered-or-not ∪ [data-jx-figure][id]
+      [data-number]); pass two projects data-ref-to → refids[] with
+      first-occurrence dedup, filtering edges whose target is not in
+      the index (not-yet is not missing — a forward SSR fallback edge
+      still harvests). ── */
+describe('ontology R2 — numbers, edges and the two-pass pre-scan', () => {
+  it('a numbered page harvests numbers, citedIn and edges; the wrapper contributes no block', async () => {
+    const page = await harvestPage(
+      PAGE(`
+        <section data-jx-section id="method" data-number="3">
+          <div data-jx-section-header><div><h2>Method</h2><p>how we measure</p></div></div>
+          <div data-jx-section-body>
+            <p>see <a href="#eq-two" data-ref-to="eq-two">Eq (3.2)</a></p>
+            <figure data-jx-figure="equation" id="eq-one" data-number="3.1">
+              <figcaption><span data-jx-figure-label>Equation</span> <span data-jx-number>3.1</span></figcaption>
+              <pre data-lang="ts"><code>a = 1</code></pre>
+            </figure>
+            <figure data-jx-figure="equation" id="eq-two" data-number="3.2" data-cited-in='["§ 3.1"]'>
+              <figcaption><span data-jx-figure-label>Equation</span> <span data-jx-number>3.2</span></figcaption>
+              <pre data-lang="ts"><code>b = 2</code></pre>
+            </figure>
+          </div>
+        </section>`),
+      'r2-numbered.html',
+    );
+    const section = page.sections[0]!;
+    expect(section.number).toBe('3'); // the section number rides its host
+    // the [data-jx-figure] wrappers contribute NO blocks (taxonomy
+    // priority — the wrapped points keep their own markers)
+    expect(section.blocks.map((b) => b.kind)).toEqual(['prose', 'code', 'code']);
+    const [prose, eqOne, eqTwo] = section.blocks;
+    expect(eqOne!.number).toBe('3.1');
+    expect(eqTwo!.number).toBe('3.2');
+    expect(eqOne!.citedIn).toBeUndefined();
+    expect(eqTwo!.citedIn).toEqual(['§ 3.1']); // JSON array payload, order kept
+    expect(prose!.refids).toEqual(['eq-two']); // the edge projects onto its paragraph
+    expect(eqOne!.refids).toBeUndefined(); // no field when no edge
+  });
+
+  it('the five projection branches each hold (inline / bare-preceded / bare-hostless / missing target / two-block figure)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const page = await harvestPage(
+        PAGE(`
+          <h2>Branches</h2>
+          <p>inline <a href="#fig-2" data-ref-to="fig-2">Listing 7.1</a> twice <a href="#fig-2" data-ref-to="fig-2">it</a></p>
+          <p>dead <a href="#ghost" data-ref-to="ghost">??(ghost)</a></p>
+          <a href="#sec" data-ref-to="sec">bare after prose</a>
+          <figure data-jx-figure="listing" id="fig-2" data-number="7.1">
+            <pre data-lang="sh"><code>one</code></pre>
+            <pre data-lang="sh"><code>two</code></pre>
+          </figure>
+          <a href="#fig-2" data-ref-to="fig-2">bare after block</a>
+          <h2>Hostless</h2>
+          <a href="#sec" data-ref-to="sec">bare with no precedent</a>
+          <section data-jx-section id="sec"><div data-jx-section-header><div><h2>Sink</h2></div></div><div data-jx-section-body><p>sink body</p></div></section>`),
+        'r2-branches.html',
+      );
+      const [branches, hostless] = page.sections;
+      // branch 1 INLINE (deduped, first-occurrence order) + branch 4
+      // MISSING TARGET (ghost filtered) + branch 2 BARE-PRECEDED (the
+      // open prose window is the nearest preceding stream item)
+      expect(branches!.blocks[0]!.refids).toEqual(['fig-2', 'sec']);
+      // branch 5 TWO-BLOCK FIGURE: number on the FIRST point block only
+      expect(branches!.blocks[1]!.number).toBe('7.1');
+      expect(branches!.blocks[2]!.number).toBeUndefined();
+      // a bare edge after a block hangs on that block
+      expect(branches!.blocks[2]!.refids).toEqual(['fig-2']);
+      // branch 3 BARE-HOSTLESS: warns (naming the id) and contributes nothing
+      expect(hostless!.blocks).toEqual([]);
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn.mock.calls[0]![0]).toContain('sec');
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("a forward SSR edge survives the static harvest; a nowhere-target edge filters", async () => {
+    const page = await harvestPage(
+      PAGE(`
+        <h2>Forward</h2>
+        <p>see <a href="#eq-late" data-ref-to="eq-late">??(eq-late)</a> before it renders, and <a href="#nowhere" data-ref-to="nowhere">??(nowhere)</a> never</p>
+        <figure data-jx-figure="equation" id="eq-late" data-number="1.1">
+          <figcaption><span data-jx-figure-label>Equation</span> <span data-jx-number>1.1</span></figcaption>
+          <pre><code>e = mc^2</code></pre>
+        </figure>`),
+      'r2-forward.html',
+    );
+    // pass one indexed the LATER equation; pass two projected the edge —
+    // the fallback anchor's claim is complete without hydration, while
+    // the nowhere edge (target absent from the whole document) filters
+    expect(page.sections[0]!.blocks[0]!.refids).toEqual(['eq-late']);
+  });
+
+  it('an unnumbered Section is targetable; an unnumbered Figure is not (never a legal target)', async () => {
+    const page = await harvestPage(
+      PAGE(`
+        <section data-jx-section id="preface">
+          <div data-jx-section-header><div><h2>Preface</h2></div></div>
+          <div data-jx-section-body><p>see <a href="#preface" data-ref-to="preface">Preface</a> itself</p></div>
+        </section>
+        <figure data-jx-figure="figure" id="unnumbered-fig">
+          <figcaption><span data-jx-figure-label>Figure</span></figcaption>
+          <pre><code>z</code></pre>
+        </figure>
+        <h2>Appendix</h2>
+        <figure data-jx-figure="figure" id="unnumbered-fig-2">
+          <figcaption><span data-jx-figure-label>Figure</span></figcaption>
+          <pre><code>z</code></pre>
+        </figure>
+        <p>dead <a href="#unnumbered-fig-2" data-ref-to="unnumbered-fig-2">??(unnumbered-fig-2)</a></p>`),
+      'r2-unnumbered.html',
+    );
+    const [preface, tail] = page.sections;
+    // the index carries [data-jx-section][id] regardless of numbering…
+    expect(preface!.blocks[0]!.refids).toEqual(['preface']);
+    expect('number' in preface!).toBe(false); // unnumbered = field omitted, never null
+    // …but an unnumbered Figure stays out of the index: its edge
+    // filters and its wrapped block projects no number
+    expect(tail!.blocks.map((b) => b.kind)).toEqual(['code', 'prose']);
+    expect('number' in tail!.blocks[0]!).toBe(false);
+    expect(tail!.blocks[1]!.refids).toBeUndefined();  });
+
+  it('the projection is additive: unmarked pages keep the exact pre-R2 shape, R2 pages regenerate byte-stable', async () => {
+    // pre-R2 page: no R2 attribute anywhere — the schema is unchanged
+    const unmarked = await harvestPage(PAGE('<h2>Old</h2><p>plain page</p>'), 'r2-old.html');
+    expect(Object.keys(unmarked.sections[0]!)).toEqual([
+      'id',
+      'heading',
+      'level',
+      'role',
+      'ordering',
+      'summary',
+      'blocks',
+    ]);
+    expect(Object.keys(unmarked.sections[0]!.blocks[0]!)).toEqual(['kind', 'text']);
+    // the R2 page itself is deterministic across harvests (the sha
+    // stability gate's harvest-side floor; the corpus-level gate runs
+    // in "the corpus artifact" above)
+    const html = PAGE(
+      `<h2>Det</h2><p>x <a href="#d1" data-ref-to="d1">Eq (1)</a></p><figure data-jx-figure="equation" id="d1" data-number="1" data-cited-in='["§ 1"]'><pre><code>q</code></pre></figure>`,
+    );
+    const first = JSON.stringify(await harvestPage(html, 'r2-det.html'));
+    const second = JSON.stringify(await harvestPage(html, 'r2-det.html'));
+    expect(first).toBe(second);
+    expect(first).toContain('"number":"1"');
+    expect(first).toContain('"citedIn":["§ 1"]');
+    expect(first).toContain('"refids":["d1"]');
+  });
+});
+
 describe('the corpus artifact', () => {
+
   const write = (rel: string, html: string): void => {
     const full = join(dir, ...rel.split('/'));
     mkdirSync(join(full, '..'), { recursive: true });

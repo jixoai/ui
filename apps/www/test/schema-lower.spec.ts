@@ -48,6 +48,7 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
   hooks: [
     'data-jx-press-button',
     'data-jx-press-check',
+    'data-jx-press-flat',
     'data-jx-press-spin',
     'data-jx-press-state',
     'data-jx-pulse-host',

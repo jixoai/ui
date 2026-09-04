@@ -100,34 +100,34 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
 
 ## 4. 交叉门（依赖：1+2+3）
 
-- [ ] 4.1 「编号=显示货币」法则门（figure 与 section 双夹具）：
+- [x] 4.1 「编号=显示货币」法则门（figure 与 section 双夹具）：
       **keyed `{#each}` 数组换序驱动**（items.reverse()，实例保留
       仅移 DOM）；禁止静态标签换位弱夹具。断言：换序后编号重排、
       id 不动、**所有 Reference 显示值跟随新号**（引用跟随法则的
       门——注册项 number 非快照的可断言证明）；**keyed Section
       reorder 同律断言**（3 → 3.2.1 路径与多根/嵌套值表各有夹具）
-- [ ] 4.2 打印探针：冻结捕获编号 ≡ live DOM 编号（含前引后浮
+- [x] 4.2 打印探针：冻结捕获编号 ≡ live DOM 编号（含前引后浮
       用例，**keyed reorder 后立即打印**的 barrier 用例——
       MutationObserver→$derived→clone 的可测协议）；无重编号、
       无 print 侧特判
-- [ ] 4.3 **Reference 交互夹具**：真实 click fragment 跳转（原生
+- [x] 4.3 **Reference 交互夹具**：真实 click fragment 跳转（原生
       `<a href="#id">`）、键盘焦点走原生 anchor、SSR-hydrate 形态
       （前向引用回退态→水合跟随）；**注册表生命周期夹具**：路由
       切换后前页 id 不可解析、重复 id 先注册者胜 + dev warn、
       disposer 卸载注销
-- [ ] 4.4 docs 页（figure/reference 各一）+ 源侧门（vitest）；
+- [x] 4.4 docs 页（figure/reference 各一）+ 源侧门（vitest）；
       **全量 mirror/payload parity 门依赖批次 6 的生成物**（6 → 4.4
       尾段 / 5.2 sha 基线同理——生成物未落盘前不得宣称全量门通过）
 
 ## 5. 收割消费（依赖：2+3 的发射面；可与 4 并行）
 
-- [ ] 5.1 search-corpus.mjs 消费：data-number/data-ref-to/
+- [x] 5.1 search-corpus.mjs 消费：data-number/data-ref-to/
       data-jx-figure/data-cited-in → block.number/block.refids[]/
       block.citedIn/section number（投影 JSON 形状按 design §4
       冻结：optional number、refids 去重保首现序、裸 Reference
       挂最近前驱流项/无前驱 warn+跳过、多子块 Figure 投首个点块）；
       **tag-shape fallback 前显式排除 `data-jx-figure` 包裹层**
-- [ ] 5.2 corpus schema 加性扩展（旧语料不重写；无可投影子块的
+- [x] 5.2 corpus schema 加性扩展（旧语料不重写；无可投影子块的
       Figure 不投影 number——记档）+ 语料 sha 稳定门禁基线重生成
       + search-corpus.spec 夹具（**与 fixture 清单同构的六分支 +
       未编号 Section 可引 / 未编号 Figure 过滤断言**）；收尾跑一次
