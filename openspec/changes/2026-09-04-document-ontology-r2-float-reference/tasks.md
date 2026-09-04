@@ -15,7 +15,7 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
 
 ## 0. 接口先行（依赖：无；ui/figure/ 由 ZCode 统一落盘，子代理不得触碰）
 
-- [ ] 0.1 `ui/figure/numbering.svelte.ts` 按 design §1.2 的**可编译
+- [x] 0.1 `ui/figure/numbering.svelte.ts` 按 design §1.2 的**可编译
       签名块**落盘（**两阶段域生命周期**）：**三** Symbol.for key
       （NUMBERING_DOMAIN / DOCUMENT_TARGETS / DOCUMENT_DOMAINS）、
       FigureKind、FIGURE_LABELS 真实字面量表、FigureTargetEntry
@@ -29,7 +29,7 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       …})`（attach 前 el 可缺，模板序代理排序）、
       createDomainRegistry/domainRegistryFromContext +
       domainRevision/documentRevision 读法
-- [ ] 0.2 冻结面：上述签名定稿即冻结（批次 1/2/3 按此并行，
+- [x] 0.2 冻结面：上述签名定稿即冻结（批次 1/2/3 按此并行，
       不得各自修改）；门 = `tsc --noEmit` 过 + 一个导出面快照
       单测（断言导出名与形状——**含新工厂签名、attachRoot、
       可选 el**——防漂移）

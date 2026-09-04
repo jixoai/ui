@@ -216,6 +216,11 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
     readonly root: Element | undefined; // attach 前为 undefined
     readonly parent: NumberingDomain | null;  // parentDomain
     readonly floatScope: Partial<Record<FigureKind, 'chapter' | 'document'>>;
+    // Apply 批次 0 落盘时补齐的只读面（消费者派生序数的读源——
+    // 模块永不赋序，顺序恒由消费端 compareDocumentPosition 决定）：
+    readonly sections: readonly { el?: Element; id?: string }[];
+    readonly figures: readonly { el?: Element; kind: FigureKind; id?: string }[];
+    dispose(): void;  // 拥有者 Section 卸载时断开域根 observer
   }
   export function createNumberingDomain(opts: {
     parent: NumberingDomain | null;
@@ -231,6 +236,7 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
     registerDomain(domain: NumberingDomain): () => void;
     readonly domains: readonly NumberingDomain[];
     readonly documentRevision: number; // provider 的文档级 observer bump
+    notifyDocumentMutation(): void;    // provider 专用 bump 入口（SSR 恒 0）
   }
   export function createDomainRegistry(): DomainRegistry;
   export function domainRegistryFromContext(): DomainRegistry | undefined;
