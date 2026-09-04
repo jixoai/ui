@@ -63,7 +63,7 @@
 //               queries, fluid vw typography, freeze transitions)
 //
 // Run: node scripts/verify-print.mjs   (PORT=… to retarget)
-import { chromium } from '/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/playwright-core/index.mjs';
+import { chromium } from 'playwright-core';
 import { homedir } from 'node:os';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -71,9 +71,24 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = process.env.PORT ?? '4173';
+// playwright-core resolves from the root package.json's devDependencies (the
+// earlier absolute import path was a dev-machine artifact that broke CI).
+// The browser: CHROME_PATH wins, then the playwright cache (macOS), then the
+// GitHub-hosted runner's preinstalled Chrome/Chromium (linux).
 const CHROME =
-  homedir() +
-  '/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
+  process.env.CHROME_PATH ??
+  [
+    homedir() + '/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/google-chrome',
+    '/opt/google/chrome/chrome',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+  ].find((p) => existsSync(p));
+if (!CHROME) {
+  console.error('FAIL  no Chrome/Chromium executable found — set CHROME_PATH');
+  process.exit(1);
+}
 
 // ── self-serve: when nothing answers on PORT, spawn a static server over
 // the built dist and take it down after the probe. ──
