@@ -21,13 +21,15 @@
       <PressButton variant="outline">delete</PressButton>
     </ButtonGroup>
 
-  GROUP CONTEXT (r13, Owner acceptance): the group configures its
-  children through BUTTON_GROUP_KEY, so one prop styles the whole
-  joined row — `variant="ghost"` on the group is adopted by every
+  GROUP CONTEXT (r13, Owner acceptance; single-key law 2026-09-04):
+  the group configures its children's paint through the PAINT ZONE —
+  BUTTON_GROUP_KEY carries layout only — so one prop styles the whole
+  joined row: `variant="ghost"` on the group is adopted by every
   child button that does not pass its own (PressButton resolves
-  `explicit ?? group ?? 'outline'`: an EXPLICIT child prop always
-  wins — the stamped-attribute law's consumer face). The ladder
-  itself is never touched; context selects rungs, never mints one.
+  `explicit ?? ambient zone ?? 'outline'`: an EXPLICIT child prop
+  always wins — the stamped-attribute law's consumer face). The
+  ladder itself is never touched; context selects rungs, never mints
+  one.
 
   THE SEPARATOR POLICY (ghost's seam): bordered rungs have the -1px
   seam law (their collapsed borders ARE the hairline), but ghost

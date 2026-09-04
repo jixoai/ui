@@ -18,10 +18,11 @@
   declares raised={false} and its buttons ride flat (the engrave-tier
   inset press) unless an explicit prop says otherwise. It rides its
   OWN context key (PRESS_TEXTURE_KEY, owned by press-button), not the
-  paint zone: the zone is paint policy and every ButtonGroup resets
-  it, while physics must flow THROUGH joined groups untouched.
-  Inherit-then-provide here too — a paint-only scope (variant, no
-  raised) never un-flattens an enclosing zone.
+  paint zone: the zone is paint policy a ButtonGroup
+  inherit-then-provides — shadows it only when it declares a variant
+  of its own — while physics must flow THROUGH joined groups
+  untouched. Inherit-then-provide here too — a paint-only scope
+  (variant, no raised) never un-flattens an enclosing zone.
 
   Renders its children and nothing else — no element, no paint, no
   seams; it is a context boundary, not a container.

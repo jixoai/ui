@@ -98,11 +98,13 @@
    *  physics axis, written by ButtonVariantScope (the same zero-DOM
    *  boundary that scopes the variant) — a card/dialog FOOT zone sets
    *  raised=false so its buttons ride flat unless an explicit prop
-   *  says otherwise (Owner 2026-09-04). A SEPARATE key from
-   *  BUTTON_GROUP_KEY on purpose: the group's context is paint policy
-   *  and every ButtonGroup RESETS it — physics is not the group's to
-   *  carry, so the texture flows THROUGH joined groups untouched (the
-   *  context face of "physics never changes with paint") */
+   *  says otherwise (Owner 2026-09-04). A SEPARATE key from the paint
+   *  zone on purpose (the single-key law): PAINT_ZONE_KEY is paint
+   *  policy a ButtonGroup inherit-then-provides — shadows it only
+   *  when it declares a variant of its own — while physics is not
+   *  the group's to carry, so the texture flows THROUGH joined
+   *  groups untouched (the context face of "physics never changes
+   *  with paint") */
   export interface PressTextureApi {
     /** the zone's raised default — consumed as explicit ?? zone ?? true */
     readonly raised: boolean | undefined;

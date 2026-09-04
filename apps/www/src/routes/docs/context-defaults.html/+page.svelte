@@ -121,8 +121,9 @@ ${close}
      group, no seams, no DOM of its own. Every PressButton/IconButton
      inside that passes no variant adopts ghost; an explicit variant
      always wins (explicit ?? ambient ?? own). This is Dialog's own
-     maneuver, verbatim: the head and foot zones wrap their content
-     in exactly this scope. -->
+     maneuver, verbatim — Card's head and foot zones practice it too
+     (with raised={false} on the foot: the physics lane's zone
+     default): both wrap their content in exactly this scope. -->
 <ButtonVariantScope variant="ghost">
   <PressButton>adopts ghost</PressButton>
   <PressButton>adopts ghost</PressButton>
@@ -190,12 +191,12 @@ export const printDensityPlugin = definePlugin({
         tone="hero"
         eyebrow="design language · context &amp; defaults (context-defaults-economy, 2026-09-03)"
         title="five dialects became one language — Defaults is the organization layer"
-        summary="A button standing alone is outline; the same button inside a dialog footer is ghost, and neither site passes a prop. That is the ambient style contract, and until now it was written in five dialects — density had a key and a plugin seam, paint had a zone scope, entity depth accumulated, medium projected, hue adapted. This change does not add a new foundation: Svelte context, the ?? operator, undefined-as-sentinel and the setup window were all already there, exactly as CompositionLocal, takeOrElse, Color.Unspecified and @Composable are in Jetpack Compose. What was missing is what Compose has and we lacked — an organization layer. Every family now ships one XxxDefaults object: the single declared place that answers which props the environment may manage, audited by a gate, versioned by classification."
+        summary="A button standing alone is outline; the same button inside a dialog footer is ghost, and neither site passes a prop. That is the ambient style contract, and until now it was written in five dialects — density had a key and a plugin seam, paint had a zone scope, entity depth accumulated, medium projected, hue adapted. This change does not add a new foundation: Svelte context, the ?? operator, undefined-as-sentinel and the setup window were all already there, exactly as CompositionLocal, takeOrElse, Color.Unspecified and @Composable are in Jetpack Compose. What was missing is what Compose has and we lacked — an organization layer. Every family with a style vocabulary now ships one XxxDefaults object: the single declared place that answers which vocabulary props the environment may manage, audited by a gate, versioned by classification — the physics texture axis (raised) stays outside by ruling, on its own zone key."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">5 dialects → 1 language</span>
           <span class="pill">density + paint axes</span>
-          <span class="pill">every style prop has a slot</span>
+          <span class="pill">every vocabulary style prop has a slot</span>
           <span class="pill">explicit ?? ambient ?? own</span>
           <span class="pill">verify:context gate</span>
         </div>
@@ -587,7 +588,10 @@ export const printDensityPlugin = definePlugin({
               (class c — the open-axis protocol activates with the first real consumer); instance
               semantics are class d forever; and the paint axis is a single-key lane
               (PAINT_ZONE_KEY) — ButtonGroup's family key carries layout only,
-              never paint.
+              never paint. The physics texture axis (press-button's raised) also stays outside
+              this economy by ruling: it rides PRESS_TEXTURE_KEY — its own zone key, resolved
+              explicit&nbsp;??&nbsp;zone&nbsp;??&nbsp;true — never a Defaults slot, because physics must flow
+              through joined groups while paint does not.
             </p>
           </div>
         </div>

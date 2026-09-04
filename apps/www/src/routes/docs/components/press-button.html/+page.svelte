@@ -575,7 +575,7 @@ ${close}
         { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
         { name: 'ariaLabel', type: 'string', default: '—', description: 'Accessible name override for icon-only use.' },
         { name: 'square', type: 'boolean', default: 'false', description: 'Uses the square hit-target geometry.' },
-        { name: 'raised', type: 'boolean', default: 'true — zone-scoped: card/dialog footers default flat', description: 'The physics axis, orthogonal to paint: false is the FLAT texture — no rest/hover shadow, the body never moves, an engrave-tier inset alone creates the press. A ButtonVariantScope zone (the card/dialog foot) may scope the default to false; an explicit prop always wins. Inert on link.' },
+        { name: 'raised', type: 'boolean', default: "'true' · ambient zone", description: 'The physics axis, orthogonal to paint: false is the FLAT texture — no rest/hover shadow, the body never moves, an engrave-tier inset alone creates the press. A ButtonVariantScope zone (the card/dialog foot) may scope the default to false; an explicit prop always wins. Inert on link.' },
         { name: 'children', type: 'Snippet', required: true, description: 'Button label and optional inline icon content.' },
       ]} />
     </SectionCard>
