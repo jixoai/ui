@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-04T16:55:28.491Z",
+  "generatedAt": "2026-09-04T16:51:36.121Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -100,8 +100,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "b8616f1cf9c9ae1c38e6a6dbd415721c3e10cbf4a7b6a0363ff81e99d1f44476",
-          "mirrorSha": "b8616f1cf9c9ae1c38e6a6dbd415721c3e10cbf4a7b6a0363ff81e99d1f44476"
+          "sourceSha": "176fb216710e6697c6b0b1188dd0e0bff332d71ad0c7b9542385a6c3ff898203",
+          "mirrorSha": "176fb216710e6697c6b0b1188dd0e0bff332d71ad0c7b9542385a6c3ff898203"
         }
       ]
     },
@@ -127,8 +127,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "77ca6d5153b506c23f0b7f3c180765134349cb039f6001a611b3289e33d12d59",
-          "mirrorSha": "77ca6d5153b506c23f0b7f3c180765134349cb039f6001a611b3289e33d12d59"
+          "sourceSha": "abf06e74d1265f79c941717d2edf00be0269a8dffbb330c7f5821db692d1380e",
+          "mirrorSha": "abf06e74d1265f79c941717d2edf00be0269a8dffbb330c7f5821db692d1380e"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -3570,22 +3570,22 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "df462a5cb175be01b0fb0f136e6aad10df3298ae9d0726bf80acf878b52f085a",
-          "mirrorSha": "df462a5cb175be01b0fb0f136e6aad10df3298ae9d0726bf80acf878b52f085a"
+          "sourceSha": "081db0ac85fa88cd6f55bfa543bed0ecb22352d8c0ac6163696354416c5ab31b",
+          "mirrorSha": "081db0ac85fa88cd6f55bfa543bed0ecb22352d8c0ac6163696354416c5ab31b"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group-divider.svelte",
           "target": "@ui/button-group/button-group-divider.svelte",
-          "sourceSha": "f6c845cba9114a2980e414911d1e86802b0541c79a099e4ee1a52353f0b5891d",
-          "mirrorSha": "f6c845cba9114a2980e414911d1e86802b0541c79a099e4ee1a52353f0b5891d"
+          "sourceSha": "43b3f4da999c44a6165b4e1b696651b13249e49d2c2f706e3d4ac9d8a69f642c",
+          "mirrorSha": "43b3f4da999c44a6165b4e1b696651b13249e49d2c2f706e3d4ac9d8a69f642c"
         },
         {
           "source": "registry/files/ui/button-group/button-group.css",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.css",
           "target": "@ui/button-group/button-group.css",
-          "sourceSha": "0d6e6cab7e862e2500bb30ff30f26b279ba7d7abe84b7002a0da6577e9f3963f",
-          "mirrorSha": "0d6e6cab7e862e2500bb30ff30f26b279ba7d7abe84b7002a0da6577e9f3963f"
+          "sourceSha": "5f6de3a8b761ff7706fb4cd0f677d3b25ab192fb440bc84e3487ce0005dd3b2c",
+          "mirrorSha": "5f6de3a8b761ff7706fb4cd0f677d3b25ab192fb440bc84e3487ce0005dd3b2c"
         },
         {
           "source": "registry/files/ui/button-group/index.ts",
@@ -3598,8 +3598,8 @@
           "source": "registry/files/ui/button-group/button-variant-scope.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-variant-scope.svelte",
           "target": "@ui/button-group/button-variant-scope.svelte",
-          "sourceSha": "d45eec11689af7f0072f2fd597a7fa7fbfef5781d4e314e94df02a35c8c74df3",
-          "mirrorSha": "d45eec11689af7f0072f2fd597a7fa7fbfef5781d4e314e94df02a35c8c74df3"
+          "sourceSha": "00641fad74401747b61a9f2bd2cbfd27b49cf773f01c83dce72831c2f6d8f20f",
+          "mirrorSha": "00641fad74401747b61a9f2bd2cbfd27b49cf773f01c83dce72831c2f6d8f20f"
         },
         {
           "source": "registry/files/ui/button-group/button-group-defaults.svelte.ts",

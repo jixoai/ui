@@ -990,8 +990,18 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    destructive, status = error/success/warning/info), never expressed
    as variant names. Inheritable: a subtree or instance override
    retunes every ladder consumer inside. Ghost has no slot — it
-   derives its hover tint from --jx-tonal. Density-free: color only. */
-:root {
+   derives its hover tint from --jx-tonal. Density-free: color only.
+   THEME-SCOPED (Owner 2026-09-04, the canvas bug): custom properties
+   substitute their var() at the DECLARING element — a :root-only
+   declaration hands every descendant the root's already-substituted
+   value, so a scoped .dark/.jx-light (component-canvas stage,
+   terminal-card, print) redefining --border never flipped
+   --jx-outline with it. The selector list re-declares the slots ON
+   each theme scope, so the substitution re-runs against the scope's
+   own --primary/--border — one declaration point, zero duplicates. */
+:root,
+.jx-light,
+.dark {
   --jx-fill: var(--primary);
   --jx-fill-ink: var(--primary-foreground);
   --jx-tonal: var(--primary);
