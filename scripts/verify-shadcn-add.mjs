@@ -263,6 +263,29 @@ if (process.argv.includes('--lifecycle-self-test')) {
     pass(`group reap: leader died to TERM, immune descendant fell to group KILL in ${elapsed}ms, zero leaks`);
   }
 
+  // 2c. ENTRY RETIREMENT (r4 B1): (a) a naturally-exited group retires
+  //     on the next reap — no stale pgid survives for reapSync; (b) a
+  //     reapOne invoked through an EQUAL-VALUED but DISTINCT object
+  //     (the shape every timeout call site uses) still retires the
+  //     registered entry — reference identity removed nothing before
+  {
+    const shortLived = spawn(process.execPath, ['-e', 'process.exit(0)'], { stdio: 'ignore', detached: true });
+    CHILDREN.add(shortLived.pid, 'short-lived (natural exit) probe');
+    await new Promise((r) => setTimeout(r, 300)); // let it die on its own
+    await CHILDREN.reap();
+    if (CHILDREN.entries.some((c) => c.pid === shortLived.pid)) await fail('a naturally-exited entry survived reap() — reapSync would signal its stale pgid');
+    pass('natural exit: the dead entry retires on the next reap');
+
+    const retired = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1 << 30)'], { stdio: 'ignore', detached: true });
+    CHILDREN.add(retired.pid, 'timeout-style reap probe');
+    await new Promise((r) => setTimeout(r, 400));
+    const adHoc = { pid: retired.pid, pgid: retired.pid, command: 'ad-hoc equal-valued object' };
+    const rep = await CHILDREN.reapOne(adHoc, { graceMs: 800, pollMs: 50 });
+    if (rep.leaked.length) await fail(`timeout-style probe leaked: ${JSON.stringify(rep)}`);
+    if (CHILDREN.entries.some((c) => c.pid === retired.pid)) await fail('reapOne through an equal-valued ad-hoc object did not retire the registered entry (r4 B1)');
+    pass('timeout-style reap: entry retires through an equal-valued ad-hoc object');
+  }
+
   // 3. stale-lock takeover: a dead holder's lock is retired atomically
   releaseLock();
   const deadHolder = spawnSync(process.execPath, ['-e', 'process.exit(0)']);

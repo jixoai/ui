@@ -59,10 +59,13 @@ const groupAlive = (pgid) => {
 export class ChildRegistry {
   #children = [];
 
-  /** register a detached child; detached:true makes pid === pgid */
+  /** register a detached child; detached:true makes pid === pgid.
+   *  Returns the STORED entry — call sites may keep it, but removal is
+   *  keyed on pid+pgid so an equal-valued ad-hoc object works too */
   add(pid, command) {
-    this.#children.push({ pid, pgid: pid, command });
-    return pid;
+    const entry = { pid, pgid: pid, command };
+    this.#children.push(entry);
+    return entry;
   }
 
   get entries() {
@@ -73,11 +76,20 @@ export class ChildRegistry {
     return this.#children.filter((c) => groupAlive(c.pgid));
   }
 
+  /** remove by STABLE KEY, never by reference (r4 B1: call sites pass
+   *  equal-valued but distinct objects; reference identity removed
+   *  nothing and dead entries accumulated for reapSync to signal) */
+  #retire(child) {
+    this.#children = this.#children.filter((c) => !(c.pid === child.pid && c.pgid === child.pgid));
+  }
+
   /**
    * Reap ONE registered group: SIGTERM → poll group liveness for
    * graceMs → SIGKILL → verify. BOUNDED (~graceMs + ~2s worst case), so
    * timeout paths can await it against immune children. Returns
-   * { terminated, escalated, leaked } pid lists for this child.
+   * { terminated, escalated, leaked } pid lists for this child. A
+   * cleanly reaped entry RETIRES; a LEAKED entry stays registered — the
+   * final reapSync and the loud failure path still own it.
    */
   async reapOne(child, { graceMs = 2500, pollMs = 100 } = {}) {
     const killGroup = (sig) => {
@@ -87,8 +99,10 @@ export class ChildRegistry {
         /* group already gone */
       }
     };
-    try {
-      if (!groupAlive(child.pgid)) return { terminated: [], escalated: [], leaked: [] };
+    let result;
+    if (!groupAlive(child.pgid)) {
+      result = { terminated: [], escalated: [], leaked: [] };
+    } else {
       killGroup('SIGTERM');
       const groupGone = async (budgetMs) => {
         const deadline = Date.now() + budgetMs;
@@ -104,27 +118,26 @@ export class ChildRegistry {
         escalated = true;
       }
       const gone = await groupGone(2000);
-      return {
+      result = {
         terminated: [child.pid],
         escalated: escalated ? [child.pid] : [],
         leaked: gone ? [] : [child.pid],
       };
-    } finally {
-      // retire the entry once reaped (r3 S2): a long-lived registry
-      // holding dead pids risks killing an UNRELATED reused pid/pgid
-      // in a later reapSync — reaped entries have nothing left to do
-      this.#children = this.#children.filter((c) => c !== child);
     }
+    if (!result.leaked.length) this.#retire(child);
+    return result;
   }
 
   /**
-   * Reap every registered group (see reapOne). Returns merged
-   * { terminated, escalated, leaked } pid lists; a non-empty `leaked`
-   * after SIGKILL is a loud bug (unreapable descendants).
+   * Reap every registered group. Dead groups (natural exit since the
+   * last reap — r4 B1: the old loop never visited them, so their stale
+   * pgids lived in reapSync forever) retire immediately; alive groups
+   * go through reapOne; leaked groups stay registered.
    */
   async reap({ graceMs = 2500, pollMs = 100 } = {}) {
-    const pending = this.aliveEntries();
-    const reports = await Promise.all(pending.map((c) => this.reapOne(c, { graceMs, pollMs })));
+    const alive = this.aliveEntries();
+    this.#children = this.#children.filter((c) => alive.includes(c));
+    const reports = await Promise.all(alive.map((c) => this.reapOne(c, { graceMs, pollMs })));
     return {
       terminated: reports.flatMap((r) => r.terminated),
       escalated: reports.flatMap((r) => r.escalated),
