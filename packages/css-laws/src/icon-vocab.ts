@@ -23,6 +23,11 @@
  * inline sw-2 fallback — the slot now exists sheet-side, default
  * strokeWidth; the 2.5 weight stays valid-ink-exclusive). Frozen
  * order law: check rides the tail of every plain order.
+ *
+ * 2026-09-04 · THEME-SCOPED placeholder: --jx-placeholder moves out of
+ * the icons' :root block into its own :root,.jx-light,.dark rule (the
+ * canvas theme-scoping bug — see rootBlock's comment; the icons keep
+ * the frozen `  :root {` shape the byte-stability gate parses).
  */
 import { iconUri, iconSlot, jxGlyphs, type IconInk } from './icon-uris';
 
@@ -51,16 +56,32 @@ const varLine = (name: string, glyph: keyof typeof jxGlyphs, ink: IconInk, strok
 
 // ── the sheet builder ───────────────────────────────────────────────
 
+/** the placeholder ink (hand-authored value, not a glyph) */
+const PLACEHOLDER_LINE =
+  '  --jx-placeholder: color-mix(in oklab, var(--foreground) 40%, var(--background));';
+
 function rootBlock(): string {
   const lines = [
     ...ROOT_PLAIN_ORDER.map((slot) => varLine(slot, slot, '#000')),
-    // the placeholder rides the same :root (hand-authored value, not a glyph)
-    '  --jx-placeholder: color-mix(in oklab, var(--foreground) 40%, var(--background));',
     ...INK_QUARTET.map((q) => varLine(q.slot, q.glyph, '#000', q.strokeWidth)),
   ];
   return `@layer theme {
   :root {
 ${lines.join('\n')}
+}
+  /* THEME-SCOPED placeholder (canvas bug, Owner 2026-09-04 — same law
+     as the variant-grammar slots in jixoai.css): custom properties
+     substitute their var() at the DECLARING element — a :root-only
+     --jx-placeholder handed every descendant the root's
+     already-substituted mix, so a scoped .dark/.jx-light
+     (component-canvas stage, terminal-card, print) flipping
+     --foreground/--background never re-flipped the placeholder ink
+     with it. The selector list re-declares the slot ON each theme
+     scope: one declaration point, zero duplicates */
+  :root,
+  .jx-light,
+  .dark {
+${PLACEHOLDER_LINE}
 }
 }`;
 }
