@@ -10,8 +10,8 @@
 registry-lifecycle-host（路由切换/重复 id/**胜者注销后最早存活
 候选晋升**/disposer 幂等/**跨域移动仅销毁重建一途**负例）、
 reference-interaction-host（click/键盘/hydrate）、harvest-page
-（**六分支**：行内/裸/无前驱裸/缺失目标/**前向 SSR 边**/多子块）
-（行内/裸/无前驱裸/缺失目标/多子块五分支）。
+（**六分支**：行内/裸/无前驱裸/缺失目标/**前向 SSR 边**/多子块，
+**另加未编号 Section 目标与未编号 Figure 过滤两断言**）。
 
 ## 0. 接口先行（依赖：无；ui/figure/ 由 ZCode 统一落盘，子代理不得触碰）
 
@@ -122,8 +122,10 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       **tag-shape fallback 前显式排除 `data-jx-figure` 包裹层**
 - [ ] 5.2 corpus schema 加性扩展（旧语料不重写；无可投影子块的
       Figure 不投影 number——记档）+ 语料 sha 稳定门禁基线重生成
-      + search-corpus.spec 夹具（**行内/裸/无前驱裸/缺失目标/
-      多子块 Figure 五分支**各一）
+      + search-corpus.spec 夹具（**与 fixture 清单同构的六分支 +
+      未编号 Section 可引 / 未编号 Figure 过滤断言**）；收尾跑一次
+      全文 rg 门：旧目标索引措辞（data-number 全量索引）与未限定
+      的「缺失目标不发射」两种短语不得在任何文档残留
 
 ## 6. registry 串行整合（依赖：2+3；**整合者独占**——registry.json、
 mirror-manifest、catalog、public 生成物的唯一写入者，子代理不碰）

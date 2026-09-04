@@ -19,7 +19,7 @@ R2 裁决会话（grill，2026-09-04，全部 Owner 拍板）：
 | Q6a | 组件名 **`Figure`**——渲染 `<figure>` 元素，组件名 = DOM 契约；kind 轴承载图/表/式/清单区分；本体词条「浮」留在 specs |
 | Q7 | **引的目标自述语法**：Reference 零语法知识，解析完全跟随目标（Figure→`Eq (4.5)`；编号节→`§ 3.2.1`；无编号→目标标题）；children 槽为显式逃生门 |
 | Q8 | **反链自动态仅收割**（refids[] 倒排派生，组件不渲染、无反向注册机件）；`Figure` 另设 **`citedIn` 手动标注槽**（显式声明即渲染于图注尾 + 同步发射），代码注释必须说明缺口与回归条件 |
-| P1-4（Codex R4 轮裁决，2026-09-05） | **收割两趟预扫描（A）**：第一趟建全文档目标索引（所有 data-number id），第二趟投影 data-ref-to——前向引用的 SSR 回退态携带边主张，静态语料完整；真死边由收割侧索引过滤 |
+| P1-4（Codex R4 轮裁决，2026-09-05） | **收割两趟预扫描（A）**：第一趟建全文档**可引目标**索引——`[data-jx-section][id]`（编号与否）∪ `[data-jx-figure][id][data-number]`（bare id 排除、未编号 Figure 不可引）；第二趟投影 data-ref-to——前向引用的 SSR 回退态携带边主张，静态语料完整；真死边由收割侧索引过滤 |
 
 ## What Changes
 
@@ -51,7 +51,7 @@ R2 裁决会话（grill，2026-09-04，全部 Owner 拍板）：
   不动。
 - specs delta：component-authoring（线词汇扩展 + family-context
   例外/composition-first 窄例外的 MODIFIED）+ search-corpus（收割
-  字段与五分支投影细则）+ **paged-docs（CSS counters/PagedRef 退役
+  字段与投影细则）+ **paged-docs（CSS counters/PagedRef 退役
   的 MODIFIED）**——三份 delta 均已随 change 开档；目标注册表挂
   路由页面根 provider（TargetRegistry 实例 API，design §1.2 可编译
   签名块；DomainRecord 带 parentDomain，章序数仅计顶层根）；批次 0

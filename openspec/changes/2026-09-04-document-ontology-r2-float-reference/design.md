@@ -103,11 +103,13 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   重写作者 counter 规则（本仓 verify-print 的 jx-print-line 实证：
   多块时从 −N 起算），且 counter 计算值不在 DOM、收割器读不到
   （基座 §5 法则 4）。编号必须双落为 DOM 文本 + `data-number`。
-- (d) SSR 期无 MutationObserver，退化为实例化序（= 模板序 = 静态
-  文档的 DOM 序）；水合首帧解析必须与 SSR 输出一致（mismatch 即
-  测试失败）。CSR-only（无 SSR）场景：首帧可短暂无编号（注册序
-  永不赋序的原则下，编号等 observer 首批微任务交付后解析），
-  settle 后与 DOM 序一致——记档立场，不设门。
+- (d) SSR 期无 MutationObserver，退化为**模板序代理**（注意：这
+  不是第二条赋序法则——「注册顺序永不赋序」恒成立；模板序代理
+  只是**无 DOM 时**对「DOM 序」的代理实现，静态文档里二者同值）；
+  水合首帧解析必须与 SSR 输出一致（mismatch 即测试失败）。
+  CSR-only（无 SSR）场景：首帧可短暂无编号（编号等 observer
+  首批微任务交付后解析），settle 后与 DOM 序一致——记档立场，
+  不设门。
 - (e) 打印时序约束：编号解析在 effect flush 级完成，禁止混入
   setTimeout/requestIdleCallback/字体 readiness gate——冻结捕获
   （DOM-commit barrier → settleTransitions → clone）时刻的编号
@@ -201,28 +203,34 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   export function targetRegistryFromContext(): TargetRegistry | undefined;
 
   // ── NumberingDomain 侧（同批冻结，batch 0 唯一 owner）──
-  // 域 context payload（NUMBERING_DOMAIN_KEY 挂载）；floatScope 与
-  // 根元素经工厂参数进入可调用形状（document-scope 参与资格由此
-  // 判定，不从 DOM 猜测）：
+  // 两阶段生命周期（P1-A 裁决）：setContext 期（模板 DOM 尚不存在）
+  // 创建逻辑域；根元素产生后由 bind:this 时机 attach——SSR 期不
+  // attach，序数以模板序代理排序（见 §1.1(d)：水合后静态树的
+  // DOM 序 ≡ 模板序，首帧一致性由此成立；全员 attach 且首次
+  // mutation 前 compareDocumentPosition 与模板序同值，切换无感）。
   export interface NumberingDomain {
-    registerSection(rec: { el: Element; id?: string }): () => void;
-    registerFigure(rec: { el: Element; kind: FigureKind; id?: string }): () => void;
-    readonly domainRevision: number;   // 域根 observer bump
-    readonly root: Element;            // 域根（DomainRecord.el）
+    attachRoot(el: Element): void;   // bind:this 时机；幂等；SSR 不调用
+    registerSection(rec: { el?: Element; id?: string }): () => void;
+    registerFigure(rec: { el?: Element; kind: FigureKind; id?: string }): () => void;
+    readonly domainRevision: number;   // 域根 observer bump（attach 后启动）
+    readonly root: Element | undefined; // attach 前为 undefined
     readonly parent: NumberingDomain | null;  // parentDomain
     readonly floatScope: Partial<Record<FigureKind, 'chapter' | 'document'>>;
   }
   export function createNumberingDomain(opts: {
     parent: NumberingDomain | null;
-    root: Element;
     floatScope?: Partial<Record<FigureKind, 'chapter' | 'document'>>;
   }): NumberingDomain;
-  // 文档级域注册表——独立 context key（不与 TargetRegistry 混载）：
+  // 文档级域注册表——独立 context key（不与 TargetRegistry 混载）。
+  // observer 归属（P1-A）：路由页面根 provider（tasks 0.3）拥有
+  // 文档级 observer——onMount 时 attach 到 document.documentElement，
+  // onDestroy disconnect；SSR 期无 observer，documentRevision 恒 0
+  // （静态树模板序代理覆盖）。
   export const DOCUMENT_DOMAINS_KEY = Symbol.for('jx-document-domains');
   export interface DomainRegistry {
     registerDomain(domain: NumberingDomain): () => void;
     readonly domains: readonly NumberingDomain[];
-    readonly documentRevision: number; // 文档级 observer bump
+    readonly documentRevision: number; // provider 的文档级 observer bump
   }
   export function createDomainRegistry(): DomainRegistry;
   export function domainRegistryFromContext(): DomainRegistry | undefined;
@@ -343,7 +351,9 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   可见标记（**生产也渲染**：打印捕获的是生产 DOM，坏引用上纸面
   优于静默）；永不抛错。**缺失目标不发射 `data-ref-to`**（死锚是
   本仓已立案的 bug 类，基座 §5 法则 3）。
-- 发射 `data-ref-to`（正向面：本引用点 → 目标 id）。
+- 发射 `data-ref-to`（正向面：本引用点 → 目标 id；**属性值 = 单个
+  id 字符串**，HTML 标准序列化转义——无 JSON、无复合值，收割器
+  直读）。
 
 ## 4. 收割发射与消费（R1 车道）
 
