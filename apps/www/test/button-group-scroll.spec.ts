@@ -161,12 +161,33 @@ describe('ButtonGroup · the scroll-effect builders (the tabs convention)', () =
 describe('ButtonGroup · overflow=scroll · the css law (source-pinned)', () => {
   it('the run IS the scroller: hidden scrollbar, smooth travel, proximity snap, lane-clearing scroll-padding', () => {
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup-run\]\[data-jx-btngroup='horizontal'\]\)\s*\{[^}]*grid-area:\s*1\s*\/\s*1;[^}]*overflow-x:\s*auto;[^}]*scrollbar-width:\s*none;[^}]*scroll-padding-inline:[^;]*;[^}]*scroll-behavior:\s*smooth;[^}]*scroll-snap-type:\s*x\s+proximity;/s,
+      /\[data-jx-btngroup-run\]\[data-jx-btngroup='horizontal'\]\)\s*\{[^}]*grid-area:\s*1\s*\/\s*1;[^}]*position:\s*relative;[^}]*overflow-x:\s*auto;[^}]*scrollbar-width:\s*none;[^}]*scroll-padding-inline:[^;]*;[^}]*scroll-behavior:\s*smooth;[^}]*scroll-snap-type:\s*x\s+proximity;/s,
     );
     expect(buttonGroupCss).toMatch(
       /\[data-jx-btngroup-run\]\[data-jx-btngroup='vertical'\]\)\s*\{[^}]*overflow-y:\s*auto;/s,
     );
     expect(buttonGroupCss).toMatch(/\[data-jx-btngroup-run\]\)::\-webkit-scrollbar\s*\{\s*display:\s*none;/);
+  });
+
+  it('position:relative on the run is LOAD-BEARING — the offsetParent law (acceptance regression: without it the edge factors read a foreign coordinate space and the ramps clip the wrong members)', () => {
+    const block = buttonGroupCss.match(
+      /\[data-jx-btngroup-run\]\[data-jx-btngroup='horizontal'\]\)\s*\{([^}]*)\}/s,
+    )?.[1];
+    expect(block).toContain('position: relative;');
+  });
+
+  it('THE RESTRAINT RULING (Owner acceptance): compact-row scale — the chevron lane and the veil band ride half the tabs measures', () => {
+    // the veil band: inset·3 (tabs runs inset·6)
+    expect(buttonGroupCss).toMatch(/--jx-btngroup-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*3\);/);
+    // the chevron lane: inset·1.5 (tabs runs inset·2), a smaller glyph
+    // at a dimmed ink
+    expect(buttonGroupCss).toMatch(
+      /\[data-jx-btngroup-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-btngroup-chevron='inline-end'\]\)\s*\{[^}]*width:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/s,
+    );
+    expect(buttonGroupCss).toMatch(/--jx-btngroup-chevron-size:\s*calc\(var\(--jx-text-secondary\)\s*\*\s*0\.75\);/);
+    expect(buttonGroupCss).toMatch(
+      /background-color:\s*color-mix\(in oklab,\s*var\(--muted-foreground\)\s*65%,\s*transparent\);/,
+    );
   });
 
   it('the per-member ramps calc from the scroll handler\'s edge stamps (slide default, blur/blur+slide keyed per type)', () => {

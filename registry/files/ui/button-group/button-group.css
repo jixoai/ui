@@ -192,12 +192,20 @@
      keeps a focused member clear of the veil lanes. Children of a
      scroller scroll with its content, so the overlays (veil layer,
      chevrons) mount on the non-scrolling HOST outside the run; the
-     cluster shadow rides the run's own box and stays anchored ── */
+     cluster shadow rides the run's own box and stays anchored.
+     position:relative is LOAD-BEARING (the tabs law): the run is the
+     offsetParent its members' offsetLeft measure against — without
+     it the edge-factor window reads a foreign coordinate space and
+     the ramps clip the wrong members. THE RESTRAINT RULING (Owner
+     2026-09-04, acceptance): a button group is a COMPACT action row,
+     not a tab strip — the chevron lane and the veil band ride
+     inset·1.5 / inset·3 (tabs runs inset·2 / inset·6) ── */
   :where([data-jx-btngroup-run][data-jx-btngroup='horizontal']) {
     grid-area: 1 / 1;
+    position: relative;
     overflow-x: auto;
     scrollbar-width: none;
-    scroll-padding-inline: calc(var(--jx-inset) * 2);
+    scroll-padding-inline: calc(var(--jx-inset) * 1.5);
     scroll-behavior: smooth;
     scroll-snap-type: x proximity;
   }
@@ -216,29 +224,32 @@
   /* the host's shared var family (the overlays are the run's siblings
      — custom properties inherit downward only): the chevron glyphs
      (the LUCIDE chevron geometry, one glyph law with tabs) and the
-     veil width (lane + ramp) */
+     veil width — THE RESTRAINT RULING (Owner acceptance 2026-09-04):
+     compact-row scale, half the tabs band (inset·3 vs inset·6) */
   :where(.jx-btngroup-scroll-host) {
     --jx-btngroup-chevron-inline-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
     --jx-btngroup-chevron-inline-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
-    --jx-btngroup-chevron-size: var(--jx-text-secondary);
-    --jx-btngroup-veil: calc(var(--jx-inset) * 6);
+    --jx-btngroup-chevron-size: calc(var(--jx-text-secondary) * 0.75);
+    --jx-btngroup-veil: calc(var(--jx-inset) * 3);
   }
 
   /* the chevrons: REAL DOM BUTTONS on the host (z 2), masked glyphs;
      existence keys on the JS-stamped scroll-state (a direction that
      cannot travel NEVER paints), the fade calcs from the host's
-     --jx-btngroup-progress */
+     --jx-btngroup-progress. RESTRAINT (Owner acceptance): a slimmer
+     lane (inset·1.5) carrying a smaller glyph at a DIMMED ink — the
+     chevron whispers, it must not compete with the actions */
   :where([data-jx-btngroup-chevron='inline-start']),
   :where([data-jx-btngroup-chevron='inline-end']) {
     grid-area: 1 / 1;
     z-index: 2;
     align-self: stretch;
-    width: calc(var(--jx-inset) * 2);
+    width: calc(var(--jx-inset) * 1.5);
     margin-block: calc(var(--jx-inset) / 2);
     border: 0;
     padding: 0;
     appearance: none;
-    background-color: var(--muted-foreground);
+    background-color: color-mix(in oklab, var(--muted-foreground) 65%, transparent);
     cursor: pointer;
     opacity: min(1, calc(var(--jx-btngroup-progress, 0) / 0.15));
   }
@@ -253,7 +264,7 @@
   }
   :where([data-jx-btngroup-chevron='inline-start']):hover,
   :where([data-jx-btngroup-chevron='inline-end']):hover {
-    background-color: var(--foreground);
+    background-color: color-mix(in oklab, var(--foreground) 85%, transparent);
   }
   /* the scrollability verdict is the single truth: a direction that
      cannot travel NEVER paints its chevron */

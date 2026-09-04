@@ -916,14 +916,18 @@
     if (!run || !isScroll) return;
     syncSeps(); // the seams join the single scrolling line
     if (!scrollChrome) return;
-    let kids = [...run.children].filter(
-      (c): c is HTMLElement =>
-        c instanceof HTMLElement &&
-        !c.hasAttribute('popover') &&
-        c !== moreEl &&
-        !c.hasAttribute('data-jx-btngroup-sep') &&
-        c.getAttribute('data-jx-overflow-hidden') !== 'true',
-    );
+    // the ramp audience: every VISIBLE painted member — the buttons
+    // AND the separators (the ramp css keys `> *`; an un-stamped seam
+    // would float at full opacity between its fading neighbors)
+    const rampMembers = (): HTMLElement[] =>
+      [...run.children].filter(
+        (c): c is HTMLElement =>
+          c instanceof HTMLElement &&
+          !c.hasAttribute('popover') &&
+          c !== moreEl &&
+          c.getAttribute('data-jx-overflow-hidden') !== 'true',
+      );
+    let kids = rampMembers();
     const ramps =
       scrollEffect.type === 'slide' || scrollEffect.type === 'blur' || scrollEffect.type === 'blur+slide';
     const stamp = (el: HTMLElement, name: string, v: number) => {
@@ -935,14 +939,7 @@
     // callback would recurse on the jsdom sync-fire polyfill)
     const observed = new WeakSet<HTMLElement>();
     const update = () => {
-      kids = [...run.children].filter(
-        (c): c is HTMLElement =>
-          c instanceof HTMLElement &&
-          !c.hasAttribute('popover') &&
-          c !== moreEl &&
-          !c.hasAttribute('data-jx-btngroup-sep') &&
-          c.getAttribute('data-jx-overflow-hidden') !== 'true',
-      );
+      kids = rampMembers();
       const max = run.scrollWidth - run.clientWidth;
       // RTL normalization: the raw scrollLeft maps through the run's
       // probed engine into the canonical inline space [−max, 0]; the
@@ -1145,15 +1142,16 @@
            scroll-state verdict (button-group.css) -->
       <div class="jx-btngroup-veil-layer pointer-events-none grid [grid-area:1/1]">
         {#if scrollEffect.type === 'progressBlur'}
-          <!-- hold = the chevron lane's share of the band: lane inset·2
-               inside a veil inset·6 = 1/3 — the ladder's peak covers
-               exactly the blank lane snap parks content clear of -->
+          <!-- hold = the chevron lane's share of the band (the
+               restraint ruling): lane inset·1.5 inside a veil inset·3
+               = 50% — the ladder's peak covers exactly the blank lane
+               snap parks content clear of -->
           <ProgressiveBlur
             pin="grid"
             position="start"
             reveal="static"
             height="var(--jx-btngroup-veil)"
-            hold={100 / 3}
+            hold={50}
             blurLevels={scrollEffect.blurLevels}
             class="jx-btngroup-veil"
           />
@@ -1162,7 +1160,7 @@
             position="end"
             reveal="static"
             height="var(--jx-btngroup-veil)"
-            hold={100 / 3}
+            hold={50}
             blurLevels={scrollEffect.blurLevels}
             class="jx-btngroup-veil"
           />
