@@ -76,7 +76,12 @@ const finish = async (code, { label = '' } = {}) => {
     console.log(`[lifecycle] reaped ${report.terminated.length} child group(s): ${report.terminated.join(', ')}${label ? ` (${label})` : ''}`);
   }
   if (report.escalated.length) console.error(`[lifecycle] SIGKILL escalation needed for: ${report.escalated.join(', ')}`);
-  if (report.leaked.length) console.error(`[lifecycle] LEAKED after SIGKILL (unreapable): ${report.leaked.join(', ')}`);
+  if (report.leaked.length) {
+    // a leaked group after SIGKILL is a lifecycle-contract breach — it
+    // must fail the run, never ride a green exit code (r2 B2)
+    console.error(`[lifecycle] LEAKED after SIGKILL (unreapable): ${report.leaked.join(', ')}`);
+    code = 1;
+  }
   releaseLock();
   process.exit(code);
 };
@@ -94,15 +99,48 @@ const die = (msg) => {
   throw new DieSignal(msg);
 };
 
-// ── self-test modes (B2 fixtures, impl-review r1): drive the REAL kernel
-// with REAL signals and subprocesses — timeout-style escalation, SIGINT
-// reaping across processes, lock denial, stale-lock takeover. The kernel
-// is imported from lib/child-lifecycle.mjs, never re-implemented here.
+// ── self-test modes (impl-review r1+r2 fixtures): drive the REAL kernel
+// with REAL signals, REAL subprocesses and a cross-process contention
+// probe — timeout-style escalation with descendants, SIGINT reaping
+// across processes, lock denial, stale-lock takeover, atomic-publish
+// contention. The kernel is imported from lib/child-lifecycle.mjs,
+// never re-implemented here.
 if (process.argv.includes('--lock-deny')) {
   // internal: a probe that must die because someone else holds the lock
+  // (pre-acquire — no children, no lock held by us: a direct exit is safe)
   acquireLock(LOCK_DIR);
   console.error('[lock-deny] unexpectedly acquired — probe is broken');
   process.exit(42);
+}
+if (process.argv.includes('--lock-stress')) {
+  // internal: N acquire/release cycles under contention; the shared
+  // counter file is read-modify-written ONLY while holding the lock, so
+  // a max > 1 proves two processes held it simultaneously. Contenders
+  // WAIT for the lock (retry on live-holder) — contention is the point
+  const cycles = Number(process.argv[process.argv.indexOf('--lock-stress') + 1] ?? '25');
+  const counterFile = process.argv[process.argv.indexOf('--lock-stress') + 2];
+  const rmw = (fn) => {
+    const cur = JSON.parse(readFileSync(counterFile, 'utf8'));
+    const next = fn(cur);
+    writeFileSync(counterFile, JSON.stringify(next));
+  };
+  const acquireWaiting = () => {
+    for (;;) {
+      try {
+        return acquireLock(LOCK_DIR);
+      } catch (e) {
+        if (e instanceof DieSignal) continue; // someone else holds it — spin
+        throw e;
+      }
+    }
+  };
+  for (let i = 0; i < cycles; i++) {
+    const rl = acquireWaiting();
+    rmw((c) => ({ holders: c.holders + 1, max: Math.max(c.max, c.holders + 1) }));
+    rmw((c) => ({ ...c, holders: c.holders - 1 }));
+    rl();
+  }
+  process.exit(0);
 }
 if (process.argv.includes('--victim')) {
   // internal: hold the lock + two sleeper groups, report readiness — and
@@ -136,35 +174,85 @@ try {
 
 if (process.argv.includes('--lifecycle-self-test')) {
   const pass = (m) => console.log(`  PASS  ${m}`);
-  const fail = (m) => { console.error(`  FAIL  ${m}`); process.exit(1); };
+  // every failure exits through the spine (reap + release + exit 1) —
+  // a direct process.exit here would leak the very things under test
+  const fail = async (m) => {
+    console.error(`  FAIL  ${m}`);
+    await finish(1, { label: 'self-test failure' });
+  };
 
   // 1. the lock this process already holds is well-formed (owner = us)
   //    and denies a second instance cross-process (the real TOCTOU probe)
   {
     const owner = JSON.parse(readFileSync(join(LOCK_DIR, 'owner.json'), 'utf8'));
-    if (owner.pid !== process.pid) fail(`lock owner is ${owner.pid}, expected ${process.pid}`);
-    pass(`lock held: ${LOCK_DIR} (owner = self)`);
+    if (owner.pid !== process.pid) await fail(`lock owner is ${owner.pid}, expected ${process.pid}`);
+    pass(`lock held: ${LOCK_DIR} (owner = self, token-bound)`);
     const deny = spawnSync(process.execPath, [process.argv[1], '--lock-deny'], { encoding: 'utf8' });
-    if (deny.status === 0) fail('lock-deny probe unexpectedly succeeded');
-    if (!String(deny.stderr).includes('holds')) fail(`lock-deny probe died for the wrong reason:\n${deny.stderr}`);
+    if (deny.status === 0) await fail('lock-deny probe unexpectedly succeeded');
+    if (!String(deny.stderr).includes('holds')) await fail(`lock-deny probe died for the wrong reason:\n${deny.stderr}`);
     pass('a live holder denies a second instance (cross-process)');
   }
 
+  // readiness markers: a child is only reaped AFTER its SIGTERM handler
+  // is installed (a half-booted child proves nothing) — the handler
+  // scripts drop a marker file the moment they are armed
+  const markerFor = (name) => join(root, '.agents', 'fixtures', `lifecycle-selftest-${name}.ready`);
+  const waitMarker = async (name, what, ms = 8000) => {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      if (existsSync(markerFor(name))) return;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    await fail(`timeout waiting for ${what} to arm its SIGTERM handler`);
+  };
+  const armedSleeper = (name, immune) =>
+    spawn(
+      process.execPath,
+      [
+        '-e',
+        `require('node:fs').writeFileSync(${JSON.stringify(markerFor(name))}, '');${immune ? 'process.on("SIGTERM", () => {});' : ''}setInterval(() => {}, 1 << 30)`,
+      ],
+      { stdio: 'ignore', detached: true },
+    );
+
   // 2. escalation: a SIGTERM-immune sleeper must fall to SIGKILL, a
   //    well-behaved one to SIGTERM — and NOTHING may leak
-  const stub = spawn(process.execPath, ['-e', 'process.on("SIGTERM", () => {}); setInterval(() => {}, 1 << 30)'], { stdio: 'ignore', detached: true });
-  const nice = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1 << 30)'], { stdio: 'ignore', detached: true });
+  const stub = armedSleeper('stub', true);
+  const nice = armedSleeper('nice', false);
   CHILDREN.add(stub.pid, 'stubborn (SIGTERM-immune) sleeper');
   CHILDREN.add(nice.pid, 'well-behaved sleeper');
-  // boot settle: both children must finish node startup and INSTALL their
-  // signal dispositions before the TERM arrives — reaping a half-booted
-  // child proves nothing about the handler path
-  await new Promise((r) => setTimeout(r, 600));
+  await waitMarker('stub', 'the stubborn sleeper');
+  await waitMarker('nice', 'the well-behaved sleeper');
   const report = await CHILDREN.reap({ graceMs: 1200, pollMs: 50 });
-  if (!report.escalated.includes(stub.pid)) fail(`the SIGTERM-immune sleeper was not escalated: ${JSON.stringify(report)}`);
-  if (report.escalated.includes(nice.pid)) fail(`the well-behaved sleeper needed escalation: ${JSON.stringify(report)}`);
-  if (report.leaked.length) fail(`leaked after SIGKILL: ${report.leaked.join(', ')}`);
-  pass(`reap: TERM sufficed for the well-behaved, KILL for the stubborn, zero leaks`);
+  if (!report.escalated.includes(stub.pid)) await fail(`the SIGTERM-immune sleeper was not escalated: ${JSON.stringify(report)}`);
+  if (report.escalated.includes(nice.pid)) await fail(`the well-behaved sleeper needed escalation: ${JSON.stringify(report)}`);
+  if (report.leaked.length) await fail(`leaked after SIGKILL: ${report.leaked.join(', ')}`);
+  pass('reap: TERM sufficed for the well-behaved, KILL for the stubborn, zero leaks');
+
+  // 2b. GROUP reaping (r2 B2): a leader that dies on TERM while a
+  //     same-group DESCENDANT ignores it must still be escalated and
+  //     leave nothing behind — leader-PID-only liveness would miss it
+  {
+    const leader = spawn(
+      process.execPath,
+      [
+        '-e',
+        `const { spawn } = require('node:child_process');
+         spawn(process.execPath, ['-e', "require('node:fs').writeFileSync(process.env.MARKER, ''); process.on('SIGTERM', () => {}); setInterval(() => {}, 1 << 30)"], { stdio: 'ignore' });
+         setInterval(() => {}, 1 << 30);`,
+      ],
+      { stdio: 'ignore', detached: true, env: { ...process.env, MARKER: markerFor('descendant') } },
+    );
+    CHILDREN.add(leader.pid, 'leader (TERM-responsive) with immune descendant');
+    await waitMarker('descendant', 'the immune descendant');
+    const t0 = Date.now();
+    const rep = await CHILDREN.reapOne({ pid: leader.pid, pgid: leader.pid }, { graceMs: 1200, pollMs: 50 });
+    const elapsed = Date.now() - t0;
+    if (!rep.escalated.includes(leader.pid)) await fail(`the immune descendant did not force group escalation: ${JSON.stringify(rep)}`);
+    if (rep.leaked.length) await fail(`descendant leaked after group KILL: ${JSON.stringify(rep)}`);
+    if (elapsed > 8000) await fail(`reapOne not bounded (${elapsed}ms) against an immune group`);
+    pass(`group reap: leader died to TERM, immune descendant fell to group KILL in ${elapsed}ms, zero leaks`);
+  }
 
   // 3. stale-lock takeover: a dead holder's lock is retired atomically
   releaseLock();
@@ -173,12 +261,30 @@ if (process.argv.includes('--lifecycle-self-test')) {
   writeFileSync(join(LOCK_DIR, 'owner.json'), `${JSON.stringify({ pid: deadHolder.pid, started: 'long ago' })}\n`);
   const rl2 = acquireLock(LOCK_DIR);
   rl2();
-  if (existsSync(LOCK_DIR)) fail('release left the lock dir behind');
+  if (existsSync(LOCK_DIR)) await fail('release left the lock dir behind');
   pass('a stale lock (dead holder) is taken over via rename-retirement');
+
+  // 3b. ATOMIC PUBLISH under contention (r2 B1): concurrent contenders
+  //     acquire/release in tight loops; the counter file is only touched
+  //     under the lock, so max > 1 means the mutex failed
+  {
+    const counterFile = join(root, '.agents', 'fixtures', 'shadcn-add.lock-stress-counter.json');
+    writeFileSync(counterFile, JSON.stringify({ holders: 0, max: 0 }));
+    const contenders = [0, 1, 2, 3].map(() =>
+      spawn(process.execPath, [process.argv[1], '--lock-stress', '25', counterFile], { stdio: 'ignore' })
+    );
+    const codes = await Promise.all(contenders.map((c) => new Promise((r) => c.on('close', r))));
+    if (codes.some((c) => c !== 0)) await fail(`a stress contender exited non-zero: ${codes.join(', ')}`);
+    const { holders, max } = JSON.parse(readFileSync(counterFile, 'utf8'));
+    if (holders !== 0) await fail(`stress ended with holders=${holders} (a release was lost)`);
+    if (max > 1) await fail(`MUTEX BROKEN: ${max} concurrent holders observed under contention`);
+    pass('contention probe: 4 contenders × 25 cycles, exactly one holder at all times');
+  }
 
   // 4. SIGINT across processes: the victim's sleepers die and its lock
   //    releases before it exits 130
   const victim = spawn(process.execPath, [process.argv[1], '--victim'], { stdio: ['ignore', 'pipe', 'inherit'] });
+  CHILDREN.add(victim.pid, 'self-test SIGINT victim'); // reaped if a later step fails
   let ready = '';
   victim.stdout.on('data', (d) => (ready += d));
   const waitFor = async (pred, what, ms = 10_000) => {
@@ -187,7 +293,7 @@ if (process.argv.includes('--lifecycle-self-test')) {
       if (pred()) return true;
       await new Promise((r) => setTimeout(r, 100));
     }
-    fail(`timeout waiting for ${what}`);
+    await fail(`timeout waiting for ${what}`);
   };
   await waitFor(() => ready.includes('[victim] ready'), 'victim readiness');
   const sleeperPids = (ready.match(/sleepers=([0-9,]+)/)?.[1] ?? '').split(',').filter(Boolean).map(Number);
@@ -198,10 +304,10 @@ if (process.argv.includes('--lifecycle-self-test')) {
   await waitFor(() => !existsSync(LOCK_DIR), 'victim lock release');
   const sleeperDead = await waitFor(() => sleeperPids.every((p) => { try { process.kill(p, 0); return false; } catch { return true; } }), 'victim sleepers gone');
   if (sleeperDead) pass('SIGINT: victim exited, sleepers reaped, lock released');
-  if (vcode !== 130) fail(`victim exited ${vcode}, expected 130`);
+  if (vcode !== 130) await fail(`victim exited ${vcode}, expected 130`);
 
-  console.log('[lifecycle-self-test] GREEN — atomic lock, live denial, TERM/KILL escalation, stale takeover, cross-process SIGINT reap');
-  process.exit(0);
+  console.log('[lifecycle-self-test] GREEN — token-bound atomic lock, live denial, TERM/KILL escalation (leaders, descendants, immune groups), stale takeover, contention mutex, cross-process SIGINT reap');
+  await finish(0, { label: 'self-test complete' });
 }
 const templateDir = join(scratch, 'consumer-template');
 // A FREE port, probed at runtime: a fixed port gets squatted by a stale
@@ -631,23 +737,25 @@ for (const [p, c] of Object.entries(consumerFiles)) writeAt(templateDir, p, c);
 console.log('npm install (consumer template deps — installs once, 600s group-budget)…');
 {
   const child = spawn('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error'], { cwd: templateDir, stdio: 'pipe', detached: true });
-  CHILDREN.add(child.pid, 'npm install (consumer template)');
+  const entry = { pid: child.pid, pgid: child.pid, command: 'npm install (consumer template)' };
+  CHILDREN.add(child.pid, entry.command);
   let out = '';
   child.stdout?.on('data', (d) => (out += d));
   child.stderr?.on('data', (d) => (out += d));
   let timedOut = false;
+  // a HARD budget (r2 B3): on deadline the bounded single-group reap
+  // (TERM → grace → KILL → verify) runs, so the close below fires in
+  // finite time even against a SIGTERM-immune install — no infinite wait
   const timer = setTimeout(() => {
     timedOut = true;
-    // the group dies in finish()'s reap; the flag rides the diagnostic
-    try {
-      process.kill(-child.pid, 'SIGTERM');
-    } catch {
-      /* already gone */
-    }
+    void CHILDREN.reapOne(entry, { graceMs: 2000 });
   }, 600_000);
-  const code = await new Promise((resolveExit) => child.on('exit', resolveExit));
+  const code = await new Promise((resolveClose) => {
+    child.on('close', resolveClose); // fires for spawn errors too
+    child.on('error', () => resolveClose(null));
+  });
   clearTimeout(timer);
-  if (timedOut) die(`npm install exceeded the 600s group-budget — process group ${child.pid} SIGTERMed; tail:\n${out.slice(-1200)}`);
+  if (timedOut) die(`npm install exceeded the 600s group-budget — process group ${child.pid} TERM→KILLed; tail:\n${out.slice(-1200)}`);
   if (code !== 0) die(`npm install failed (exit ${code}):\n${out.slice(-1200)}`);
 }
 
@@ -686,22 +794,29 @@ const runIn = async (dir, cmd, args, { env = {}, timeoutMs = 300_000, label = ''
     // localhost — the earlier curl 502).
     env: { ...process.env, REGISTRY_URL: BASE, NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1', ...env },
   });
-  CHILDREN.add(child.pid, `${cmd} ${args.join(' ')}${label ? ` (${label})` : ''}`);
+  const entry = { pid: child.pid, pgid: child.pid, command: `${cmd} ${args.join(' ')}${label ? ` (${label})` : ''}` };
+  CHILDREN.add(child.pid, entry.command);
   let out = '';
   child.stdout?.on('data', (d) => (out += d));
   child.stderr?.on('data', (d) => (out += d));
+  let spawnError = null;
+  // HARD budget (r2 B3): the deadline runs the bounded single-group
+  // reap (TERM → grace → KILL → verify), so this resolves in finite
+  // time against immune children; 'close' also covers spawn errors
   let timedOut = false;
   const timer = setTimeout(() => {
     timedOut = true;
-    try {
-      process.kill(-child.pid, 'SIGTERM');
-    } catch {
-      /* already gone */
-    }
+    void CHILDREN.reapOne(entry, { graceMs: 2000 });
   }, timeoutMs);
-  const status = await new Promise((resolveExit) => child.on('exit', resolveExit));
+  const status = await new Promise((resolveClose) => {
+    child.on('close', resolveClose);
+    child.on('error', (e) => {
+      spawnError = e;
+      resolveClose(null);
+    });
+  });
   clearTimeout(timer);
-  return { status, stdout: out, stderr: out, timedOut };
+  return { status, stdout: out, stderr: out, timedOut, spawnError };
 };
 
 for (const testCase of CASES) {

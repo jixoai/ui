@@ -164,10 +164,15 @@ jobs:
           EOF
 
       # Offline self-check AFTER candidate assembly: this workflow is the
-      # pin's only writer, so it cannot gate on the committed manifest
-      # before mutating it — but whatever it proposes (or leaves intact)
-      # must pass the same offline sentinel every other workflow enforces:
-      # valid schema, canonical URLs, zero tracked wasm.
+      # pin's automatic proposer (its PRs are the canonical write path),
+      # with one documented exception — an emergency manual catch-up when
+      # a moving release tag re-ships assets and CI needs unblocking now
+      # (2abb6bf, 2026-09-04; re-serialized with this workflow's own
+      # 2-space serializer to stay byte-compatible). It cannot gate on
+      # the committed manifest before mutating it — but whatever it
+      # proposes (or leaves intact) must pass the same offline sentinel
+      # every other workflow enforces: valid schema, canonical URLs,
+      # zero tracked wasm.
       - name: Offline pin self-check (committed or candidate manifest)
         run: node scripts/verify-ghostty-pin.mjs --offline
 

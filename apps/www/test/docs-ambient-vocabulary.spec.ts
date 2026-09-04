@@ -170,18 +170,56 @@ function checkPage(sourceText: string, e: Entry): string[] {
 const MATRIX: Entry[] = JSON.parse(readFileSync(join(HERE, 'fixtures/docs-ambient-vocabulary.matrix.json'), 'utf8'));
 const ALLOWED_FIELDS = new Set(['route', 'batch', 'tableIndex', 'prop', 'occurrence', 'bareDefault', 'marker', 'defaultsFile', 'slotExport', 'exactDescription', 'note']);
 
+// the schema checker as a PURE function so negative fixtures can prove
+// it CATCHES violations (impl-review r2 S4: an own row missing its
+// lock fields must be a schema violation, never a silent skip)
+const schemaViolations = (matrix: Entry[]): string[] => {
+  const out: string[] = [];
+  for (const e of matrix) {
+    for (const k of Object.keys(e)) if (!ALLOWED_FIELDS.has(k)) out.push(`${e.route}: unknown field ${k}`);
+    if (!(e.tableIndex >= 0)) out.push(`${e.route}: tableIndex required`);
+    if (!(e.occurrence >= 1)) out.push(`${e.route}: occurrence is 1-based`);
+    if (!['A', 'B'].includes(e.batch)) out.push(`${e.route}: batch enum`);
+    if (!['own', 'scope'].includes(e.marker)) out.push(`${e.route}: marker enum`);
+    if (e.marker === 'own') {
+      if (typeof e.bareDefault !== 'string') out.push(`${e.route}: own rows require bareDefault`);
+      // the own↔defaults lock is not optional: omitting the pair would
+      // silently exempt a row from the factory cross-check
+      if (typeof e.defaultsFile !== 'string' || !e.defaultsFile) out.push(`${e.route}: own rows require defaultsFile`);
+      if (typeof e.slotExport !== 'string' || !e.slotExport) out.push(`${e.route}: own rows require slotExport`);
+    } else {
+      // the fixture convention: scope rows carry explicit nulls — any
+      // truthy smuggle is a violation
+      if (e.defaultsFile ?? null) out.push(`${e.route}: non-own rows must not carry defaultsFile`);
+      if (e.slotExport ?? null) out.push(`${e.route}: non-own rows must not carry slotExport`);
+    }
+    if ('owner' in e) out.push(`${e.route}: owner not allowed`);
+    if ('title' in e) out.push(`${e.route}: title not allowed`);
+  }
+  return out;
+};
+
 describe('matrix schema (the single machine source)', () => {
   it('every entry carries the frozen identity fields and nothing else', () => {
-    for (const e of MATRIX) {
-      for (const k of Object.keys(e)) expect(ALLOWED_FIELDS.has(k), `${e.route}: unknown field ${k}`).toBe(true);
-      expect(e.tableIndex, `${e.route}: tableIndex required`).toBeGreaterThanOrEqual(0);
-      expect(e.occurrence, `${e.route}: occurrence is 1-based`).toBeGreaterThanOrEqual(1);
-      expect(['A', 'B'], `${e.route}: batch enum`).toContain(e.batch);
-      expect(['own', 'scope'], `${e.route}: marker enum`).toContain(e.marker);
-      if (e.marker === 'own') expect(typeof e.bareDefault).toBe('string');
-      expect(e).not.toHaveProperty('owner');
-      expect(e).not.toHaveProperty('title');
-    }
+    expect(schemaViolations(MATRIX)).toEqual([]);
+  });
+
+  it('an own row missing its lock fields is a violation (no silent skip)', () => {
+    const mutated = structuredClone(MATRIX);
+    const target = mutated.find((e) => e.marker === 'own')!;
+    delete target.defaultsFile;
+    delete target.slotExport;
+    const v = schemaViolations(mutated);
+    expect(v.some((s) => s.includes('require defaultsFile'))).toBe(true);
+    expect(v.some((s) => s.includes('require slotExport'))).toBe(true);
+  });
+
+  it('a scope row smuggling lock fields is a violation', () => {
+    const mutated = structuredClone(MATRIX);
+    const target = mutated.find((e) => e.marker !== 'own')!;
+    target.defaultsFile = 'registry/files/ui/x/x-defaults.svelte.ts';
+    target.slotExport = 'X_SLOT';
+    expect(schemaViolations(mutated).some((s) => s.includes('must not carry'))).toBe(true);
   });
 
   it('tableIndex is unique per route+prop scope where tables differ (route-local identity)', () => {
@@ -372,16 +410,33 @@ describe('matrix↔tasks bijection', () => {
     .map((d) => d.name.slice(0, -'.html'.length))
     .filter((name) => existsSync(join(ROUTES, `${name}.html`, '+page.svelte')));
 
-  // tokens validated against the page universe — never filtered by MATRIX
-  const batchRoutes = (batch: 'A' | 'B'): string[] => {
-    const sec = tasksMd.split(`**批次 ${batch}**`)[1]?.split('\n- [')[0] ?? '';
-    const tokens = [...sec.matchAll(/([a-z][a-z0-9-]{2,})/g)].map((m) => m[1]);
-    return [...new Set(tokens.filter((t) => pageUniverse.includes(t)))];
+  // segment-based batch parsing (impl-review r2 S2): each 、/＋-separated
+  // segment names exactly ONE route (its first page-shaped token) — no
+  // Set-dedup, no silent filtering. A duplicated route or an unknown
+  // page token in a batch list is a PARSE VIOLATION, not a dropped entry
+  const parseBatches = (md: string): { A: string[]; B: string[]; violations: string[] } => {
+    const violations: string[] = [];
+    const parse = (batch: 'A' | 'B'): string[] => {
+      const sec = md.split(`**批次 ${batch}**`)[1]?.split('\n- [')[0] ?? '';
+      const routes: string[] = [];
+      for (const segment of sec.split(/[、＋]/)) {
+        const token = segment.match(/[a-z][a-z0-9-]{2,}/)?.[0];
+        if (!token) continue; // pure prose segments (「（12 页）」 etc.)
+        if (!pageUniverse.includes(token)) violations.push(`batch ${batch}: '${token}' is not a docs page`);
+        routes.push(token);
+      }
+      for (const r of new Set(routes)) {
+        const n = routes.filter((x) => x === r).length;
+        if (n > 1) violations.push(`batch ${batch}: '${r}' listed ${n} times`);
+      }
+      return routes;
+    };
+    return { A: parse('A'), B: parse('B'), violations };
   };
 
   // the bijection domain: exactly the batch-declared routes (tasks.md is
   // the frozen source; the filesystem validates it), never the matrix's
-  const tasksUniverse = [...batchRoutes('A'), ...batchRoutes('B')];
+  const tasksUniverse = [...parseBatches(tasksMd).A, ...parseBatches(tasksMd).B];
 
   const keyOf = (route: string, tableIndex: number, prop: string, occ: number) =>
     `${route}|${tableIndex}|${prop}|${occ}`;
@@ -426,14 +481,27 @@ describe('matrix↔tasks bijection', () => {
   };
 
   it('route→batch is page-level equal both ways', () => {
+    const parsed = parseBatches(tasksMd);
+    expect(parsed.violations, 'batch lists name real pages exactly once').toEqual([]);
     const byRoute = new Map<string, Set<string>>();
     for (const e of MATRIX) byRoute.set(e.route, (byRoute.get(e.route) ?? new Set()).add(e.batch));
     for (const [route, batches] of byRoute) expect(batches.size, `${route} spans one batch`).toBe(1);
-    for (const b of ['A', 'B'] as const) {
-      const listed = batchRoutes(b).sort();
+    for (const [b, listed] of [['A', parsed.A], ['B', parsed.B]] as const) {
       const matrixRoutes = [...new Set(MATRIX.filter((e) => e.batch === b).map((e) => e.route))].sort();
-      expect(listed, `batch ${b} list`).toEqual(matrixRoutes);
+      expect([...new Set(listed)].sort(), `batch ${b} list`).toEqual(matrixRoutes);
     }
+  });
+
+  it('a duplicated route in a batch list is a PARSE VIOLATION (not silently deduped)', () => {
+    const mutated = tasksMd.replace('**批次 A**（12 页）：alert-dialog、avatar', '**批次 A**（12 页）：alert-dialog、avatar、avatar');
+    expect(mutated).not.toBe(tasksMd); // the mutation must have landed
+    expect(parseBatches(mutated).violations.some((v) => v.includes("'avatar' listed 2 times"))).toBe(true);
+  });
+
+  it('an unknown page token in a batch list is a PARSE VIOLATION (not silently filtered)', () => {
+    const mutated = tasksMd.replace('**批次 A**（12 页）：alert-dialog、avatar', '**批次 A**（12 页）：alert-dialog、ghost-page');
+    expect(mutated).not.toBe(tasksMd); // the mutation must have landed
+    expect(parseBatches(mutated).violations.some((v) => v.includes("'ghost-page' is not a docs page"))).toBe(true);
   });
 
   it('every matrix route is a real docs page (no invented routes)', () => {

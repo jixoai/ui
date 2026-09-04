@@ -29,3 +29,15 @@
   same day's follow-up commits; see the drift spec's bijection section and
   scripts/lib/child-lifecycle.mjs + the --lifecycle-self-test mode for the re-verified
   state.
+- impl review r2 (later 2026-09-04, codex gpt-5.6-terra xhigh): **6.3/10** — r1's
+  fixes confirmed closed, but deeper probes found the owner-publish race, leader-only
+  reaping and soft timeouts. Processed same-evening: staging+rename atomic publish
+  with token-bound release (the contention probe caught release's rmSync racing a
+  concurrent publish — release is now a rename of its own inode), group-liveness
+  reaping (immune-descendant fixture), bounded per-group reap on every deadline,
+  self-test failures routed through the spine, segment-based batch parsing with
+  violation negatives, universal lock-trio schema with RED fixtures, the
+  registry/test mirror enforced by verify:all step 4b (14 drifted files synced).
+- the r2 follow-up chain: 8a976cf (B1-B3+S1-S4) → 1455fcf (manifest catch-up for
+  the parallel line's 1fbd1e8) → 16b4cde (lock parent bootstrap, CI-only ENOENT;
+  run 33886869056 green) → this commit.

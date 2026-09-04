@@ -1,27 +1,33 @@
-// The child-process lifecycle kernel (impl-review r1 B1+B2, 2026-09-04).
+// The child-process lifecycle kernel (impl-review r1 B1+B2, hardened in
+// r2). Two contracts live here:
 //
-// Shared by the harnesses that spawn long-lived children (servers, npm
-// installs, CLI adds). Two contracts live here:
+//   acquireLock — a single-instance mutex for scratch trees with an
+//     ATOMIC PUBLISH: the complete lock content (owner.json with a
+//     per-acquisition token) is staged in a unique sibling dir and
+//     published with ONE rename() — there is no window where the lock
+//     dir exists half-written. A live holder is a hard error; a dead
+//     holder is retired by rename (only one contender can win a
+//     rename); a dir with no readable owner is corruption from a
+//     crashed pre-rename-protocol run and gets bounded retries before
+//     retirement. release() is bound to the acquisition TOKEN: an
+//     unreadable or mismatched owner is a no-op — a holder can never
+//     delete a successor's lock.
 //
-//   ChildRegistry — every detached child is registered as
-//     {pid, pgid, command}; reap() SIGTERMs each process GROUP, waits a
-//     grace period polling liveness, escalates to SIGKILL per surviving
-//     group, then verifies every pid is gone and reports what happened.
-//     reapSync() is the process.on('exit') belt: no waits, TERM then KILL.
-//
-//   acquireLock — a real single-instance mutex for scratch trees, NOT a
-//     check-then-act pid file: mkdir() is the atomic acquire, owner.json
-//     records the holder, and stale takeover moves the whole lock dir out
-//     of the way with rename() first (only ONE contender can win a
-//     rename; the loser retries the acquire). release() is owner-checked
-//     and idempotent.
+//   ChildRegistry — every detached child registers {pid, pgid, command};
+//     liveness and reaping operate on the process GROUP (kill(-pgid)):
+//     a leader that exits on SIGTERM while a same-group descendant
+//     survives is still reaped (r2 B2). reap()/reapOne() are bounded —
+//     TERM, a grace poll, SIGKILL, a verify poll — so a deadline caller
+//     can await them and resolve in finite time even against
+//     SIGTERM-immune children (r2 B3).
 //
 // Both are exercised by `verify-shadcn-add --lifecycle-self-test` with
-// real signals and real subprocesses — the self-test imports this module,
-// never a re-implementation.
+// real signals, real subprocesses and a cross-process contention probe —
+// the self-test imports this module, never a re-implementation.
 
 import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 /** thrown by die() so the unified finally can reap before exiting */
 export class DieSignal extends Error {
@@ -34,6 +40,16 @@ export class DieSignal extends Error {
 const pidAlive = (pid) => {
   try {
     process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/** the group is the reaping unit — the leader may already be gone */
+const groupAlive = (pgid) => {
+  try {
+    process.kill(-pgid, 0);
     return true;
   } catch {
     return false;
@@ -54,44 +70,58 @@ export class ChildRegistry {
   }
 
   aliveEntries() {
-    return this.#children.filter((c) => pidAlive(c.pid));
+    return this.#children.filter((c) => groupAlive(c.pgid));
   }
 
   /**
-   * SIGTERM each group → poll liveness for graceMs → SIGKILL survivors →
-   * verify. Returns { terminated, escalated, leaked } pid lists; a non-
-   * empty `leaked` after SIGKILL is a loud bug (unreapable descendants).
+   * Reap ONE registered group: SIGTERM → poll group liveness for
+   * graceMs → SIGKILL → verify. BOUNDED (~graceMs + ~2s worst case), so
+   * timeout paths can await it against immune children. Returns
+   * { terminated, escalated, leaked } pid lists for this child.
    */
-  async reap({ graceMs = 2500, pollMs = 100 } = {}) {
-    const killGroup = (c, sig) => {
+  async reapOne(child, { graceMs = 2500, pollMs = 100 } = {}) {
+    const killGroup = (sig) => {
       try {
-        process.kill(-c.pgid, sig);
+        process.kill(-child.pgid, sig);
       } catch {
         /* group already gone */
       }
     };
-    const pending = this.aliveEntries();
-    for (const c of pending) killGroup(c, 'SIGTERM');
-    const deadline = Date.now() + graceMs;
-    let survivors = pending;
-    while (survivors.length && Date.now() < deadline) {
-      await new Promise((r) => setTimeout(r, pollMs));
-      survivors = survivors.filter((c) => pidAlive(c.pid));
-    }
-    const escalated = survivors;
-    for (const c of escalated) killGroup(c, 'SIGKILL');
-    if (escalated.length) {
-      // SIGKILL is decisive but not instantaneous — give the kernel a beat
-      const killDeadline = Date.now() + 2000;
-      while (survivors.length && Date.now() < killDeadline) {
+    if (!groupAlive(child.pgid)) return { terminated: [], escalated: [], leaked: [] };
+    killGroup('SIGTERM');
+    const groupGone = async (budgetMs) => {
+      const deadline = Date.now() + budgetMs;
+      while (groupAlive(child.pgid) && Date.now() < deadline) {
         await new Promise((r) => setTimeout(r, pollMs));
-        survivors = survivors.filter((c) => pidAlive(c.pid));
       }
+      return !groupAlive(child.pgid);
+    };
+    const terminatedGraceful = await groupGone(graceMs);
+    let escalated = false;
+    if (!terminatedGraceful) {
+      killGroup('SIGKILL');
+      escalated = true;
     }
+    const gone = await groupGone(2000);
     return {
-      terminated: pending.map((c) => c.pid),
-      escalated: escalated.map((c) => c.pid),
-      leaked: survivors.map((c) => c.pid),
+      terminated: [child.pid],
+      escalated: escalated ? [child.pid] : [],
+      leaked: gone ? [] : [child.pid],
+    };
+  }
+
+  /**
+   * Reap every registered group (see reapOne). Returns merged
+   * { terminated, escalated, leaked } pid lists; a non-empty `leaked`
+   * after SIGKILL is a loud bug (unreapable descendants).
+   */
+  async reap({ graceMs = 2500, pollMs = 100 } = {}) {
+    const pending = this.aliveEntries();
+    const reports = await Promise.all(pending.map((c) => this.reapOne(c, { graceMs, pollMs })));
+    return {
+      terminated: reports.flatMap((r) => r.terminated),
+      escalated: reports.flatMap((r) => r.escalated),
+      leaked: reports.flatMap((r) => r.leaked),
     };
   }
 
@@ -109,63 +139,105 @@ export class ChildRegistry {
   }
 }
 
+const OWNER_FILE = 'owner.json';
+const ownerOf = (dir) => {
+  try {
+    return JSON.parse(readFileSync(join(dir, OWNER_FILE), 'utf8'));
+  } catch {
+    return null;
+  }
+};
+
 /**
- * Atomically acquire the lock dir. A live holder is a hard error (the
- * caller decides how to die); a stale holder (dead pid or unreadable
- * owner) is taken over via rename-retirement — the rename is the atomic
- * hand-off point, so concurrent contenders cannot both win.
+ * Atomically acquire the lock dir (staging + single rename publish).
+ * A live holder throws DieSignal; a stale holder (dead pid) is taken
+ * over via rename-retirement; a corrupted dir (no readable owner)
+ * gets bounded retries before retirement.
  *
- * @returns {() => void} an idempotent, owner-checked release()
+ * @returns {() => void} an idempotent release() bound to THIS
+ *   acquisition's token — a mismatched or unreadable owner is a no-op
  */
 export const acquireLock = (lockDir) => {
-  const ownerFile = join(lockDir, 'owner.json');
-  for (;;) {
-    try {
-      // the PARENT is bootstrapped idempotently (it may not exist on a
-      // fresh checkout — .agents/ is gitignored); the lock dir itself
-      // stays NON-recursive so EEXIST remains the atomic acquire signal
-      mkdirSync(dirname(lockDir), { recursive: true });
-      mkdirSync(lockDir);
-      writeFileSync(ownerFile, `${JSON.stringify({ pid: process.pid, started: new Date().toISOString() })}\n`);
-      break;
-    } catch (e) {
-      if (e.code !== 'EEXIST') throw e;
-    }
-    // someone holds it — live or stale?
-    let holder = null;
-    try {
-      holder = JSON.parse(readFileSync(ownerFile, 'utf8'));
-    } catch {
-      /* unreadable owner = stale */
-    }
-    if (holder && pidAlive(holder.pid)) {
-      throw new DieSignal(
-        `another instance (pid ${holder.pid}, started ${holder?.started ?? '?'}) holds ${lockDir} — run one at a time`,
-      );
-    }
-    // stale: retire the dir by ATOMIC rename; the loser of the rename
-    // loops back to a fresh acquire
-    const retirement = `${lockDir}.stale-${process.pid}`;
+  const token = randomUUID();
+  // the PARENT is bootstrapped idempotently (it may not exist on a
+  // fresh checkout — .agents/ is gitignored)
+  mkdirSync(dirname(lockDir), { recursive: true });
+
+  const retire = (suffix) => {
+    const retirement = `${lockDir}.${suffix}-${process.pid}-${token.slice(0, 8)}`;
     try {
       renameSync(lockDir, retirement);
     } catch {
-      continue; // a concurrent contender retired it first — retry
+      return false; // a concurrent contender retired it first — retry
     }
     rmSync(retirement, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    return true;
+  };
+
+  let corruptRetries = 0;
+  for (;;) {
+    // stage the COMPLETE lock content first; the publish is one rename
+    const staging = `${lockDir}.staging-${process.pid}-${token.slice(0, 8)}`;
+    rmSync(staging, { recursive: true, force: true });
+    mkdirSync(staging);
+    writeFileSync(
+      join(staging, OWNER_FILE),
+      `${JSON.stringify({ pid: process.pid, token, started: new Date().toISOString() })}\n`,
+    );
+    try {
+      // atomic publish: replaces an EMPTY dir (a crashed initializer of
+      // the old mkdir-first protocol), ENOTEMPTY against a live one
+      renameSync(staging, lockDir);
+      break;
+    } catch (e) {
+      if (e.code !== 'ENOTEMPTY' && e.code !== 'EEXIST') {
+        rmSync(staging, { recursive: true, force: true });
+        throw e;
+      }
+      rmSync(staging, { recursive: true, force: true });
+    }
+
+    const holder = ownerOf(lockDir);
+    if (holder?.pid && pidAlive(holder.pid)) {
+      throw new DieSignal(
+        `another instance (pid ${holder.pid}, started ${holder.started ?? '?'}) holds ${lockDir} — run one at a time`,
+      );
+    }
+    if (holder?.pid && !pidAlive(holder.pid)) {
+      retire('retired'); // atomic hand-off; the rename loser loops back
+      continue;
+    }
+    // no readable owner: corruption from a crashed OLD-protocol run or
+    // external meddling — bounded retry, then retire as corrupt
+    if (++corruptRetries > 25) {
+      corruptRetries = 0;
+      retire('corrupt');
+      continue;
+    }
+    const spinUntil = Date.now() + 20; // rare path; a 20ms sync pause
+    while (Date.now() < spinUntil) {}
   }
 
   let released = false;
   return () => {
     if (released) return;
     released = true;
-    // owner-check: only the holder removes its own lock (a takeover that
-    // already moved this dir away leaves nothing — rmSync is force:no-op)
-    let mine = false;
+    // TOKEN-bound: only the acquisition that still owns the lock may
+    // remove it; unreadable/mismatched owner → no-op (never delete a
+    // successor's lock)
+    if (ownerOf(lockDir)?.token !== token) return;
+    // the removal itself is a RENAME first (r2 B1 contention probe: a
+    // plain rmSync races a concurrent publish — the publisher's rename
+    // can replace the half-deleted dir and the rm then destroys the
+    // successor's lock through the path). While this lock sits here
+    // non-empty no publish can land, so the rename below atomically
+    // moves OUR inode out of the way; the retirement dir is ours alone
+    const retirement = `${lockDir}.released-${process.pid}-${token.slice(0, 8)}`;
     try {
-      mine = JSON.parse(readFileSync(ownerFile, 'utf8')).pid === process.pid;
+      renameSync(lockDir, retirement);
     } catch {
-      mine = true; // gone already — nothing to enforce
+      return; // already moved/corrupted — nothing ours to remove
     }
-    if (mine) rmSync(lockDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    rmSync(retirement, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
   };
 };

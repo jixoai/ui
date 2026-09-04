@@ -14,8 +14,8 @@
 // Runs AFTER the regular build steps (payloads/dist must exist).
 // Any failure aborts the chain with the failing gate's name.
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -70,6 +70,36 @@ try {
   execFileSync('node', ['scripts/verify-ghostty-pin.mjs', '--offline'], { cwd: root, stdio: 'inherit' });
 } catch {
   die('ghostty-pin');
+}
+
+// ── 4b. registry/test local mirror (impl-review r2 S3): the directory is
+// gitignored (a LOCAL byte-mirror of apps/www/test, never executed in
+// CI), so nothing else would catch its drift — when it is present, every
+// file shared with apps/www/test must be byte-identical ──────────────
+{
+  const regTest = join(root, 'registry', 'test');
+  if (existsSync(regTest)) {
+    step('registry/test byte-mirror (local convention)');
+    const wwwTest = join(root, 'apps', 'www', 'test');
+    const regFiles = readdirSync(regTest, { recursive: true }).map(String);
+    const drift = [];
+    for (const rel of regFiles) {
+      const regPath = join(regTest, rel);
+      if (!statSync(regPath, { throwIfNoEntry: false })?.isFile()) continue;
+      const wwwPath = join(wwwTest, rel);
+      if (!existsSync(wwwPath)) {
+        drift.push(`${rel}: no apps/www/test counterpart`);
+        continue;
+      }
+      if (readFileSync(regPath).toString() !== readFileSync(wwwPath).toString()) drift.push(rel);
+    }
+    if (drift.length) {
+      console.error(`[registry-test-mirror] drifted (${drift.length}): ${drift.join(', ')}`);
+      console.error('  sync with: cp apps/www/test/<file> registry/test/<file>');
+      die('registry-test-mirror');
+    }
+    console.log(`[registry-test-mirror] ${regFiles.length} mirrored files byte-identical`);
+  }
 }
 
 // ── 5. real-consumer install contract ────────────────────────────────
