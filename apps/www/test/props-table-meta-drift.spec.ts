@@ -92,6 +92,7 @@ const LEGACY: Record<string, PropEntry[]> = {
   ],
   'card-grid': [
     { name: 'min', type: 'string', default: "'320px'", description: 'Minimum column width before the grid collapses a column (any CSS length).' },
+    { name: 'foot', type: 'boolean', default: 'false', description: '' },
     { name: 'children', type: 'Snippet', default: '—', description: 'The cards; each child spans the two shared rows.' },
     { name: 'class', type: 'string', default: "''", description: 'Forwarded to the grid container.' },
   ],
@@ -174,7 +175,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'card-grid',
     meta: cardGridMeta,
     docs: CARD_GRID_DOCS,
-    renderedOrder: ['min', 'class', 'children'],
+    renderedOrder: ['min', 'foot', 'class', 'children'],
   },
   {
     name: 'date-picker',

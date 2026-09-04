@@ -9,6 +9,10 @@ export const meta = defineComponentMeta(
         "kind": "string",
         "default": "320px"
       },
+      "foot": {
+        "kind": "boolean",
+        "default": false
+      },
       "class": {
         "kind": "string",
         "default": ""
