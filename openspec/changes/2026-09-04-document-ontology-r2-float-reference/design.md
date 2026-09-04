@@ -38,7 +38,7 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 
 - (a) 声明 `numbering` 的 Section 持响应式注册表；Figure 挂载注册
   `{ el, kind, id? }`、卸载注销。**注册顺序永不赋序。**
-- (b) 序数是 `$derived`：读域的 `revision` $state，按
+- (b) 序数是 `$derived`：读域的 `domainRevision` $state，按
   `compareDocumentPosition` 对同域同类已注册元素排序取位次。
 
 ### 1.1b Section 编号算法（P1-1 冻结）
@@ -54,21 +54,25 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
      heading；heading 是显示，不承载结构）；
   3. 同一结构父级下的子节位次 = 同父级已注册 SectionRecord 按
      `compareDocumentPosition` 的位次（深度优先等价于文档序）；
-  4. 嵌套声明域：内层根的编号在内层算法内重新起算（外层前缀
-     不延伸），内层子树 Figure 归内层。
+  4. 嵌套声明域（**数值裁决**）：内层根编号 = **局部重新起算的
+     `1`**（不取文档 registry 位次），后代 `1.1`、`1.2`；内层根
+     **不登记进外层的 SectionRecord 集合**（它是根，不是外层
+     后代——外层其余子节点的位次不受内层存在影响）；内层子树
+     Figure 归内层。数值样例：外层根 `1`（子 `1.1` = 嵌套根
+     `1`，孙 `1.1`），外层根后的兄弟根 = `2`（按文档级 registry
+     位次；嵌套域不消耗兄弟根序数）。
 - **document-scope 的域发现**：全篇连续 kind 的参与域迭代走
   **文档级域注册表**（不是各自域根的 observer）——跨兄弟域的
   全局顺序由此表唯一决定。
-- **更新信号**：Figure/Section 的增删移由所在域根的 observer
-  覆盖（域内 revision）；根域自身的增删移由文档级注册表的
-  observer 覆盖（文档级 revision）。两类 revision 各自驱动各
-  自的派生重算。
-  `revision` 仅由域根的 MutationObserver（childList + subtree）
-  bump——**DOM 增删移是重编号的唯一信号源**；effect 依赖 DOM
-  位置、setTimeout 轮询均禁止。嵌套域下外层 observer 会观察到
-  内层域的全部增删（双层 bump）——这是**冗余重算而非误信号**
-  （Figure 归属最近域、外层序数是对 DOM 位置的纯函数，内层元素
-  不在外层注册表，重算结果不变）；不要按 mutation target 过滤
+- **更新信号（两级矩阵，与 §1.1b 的 revision 命名一致）**：
+  域根 observer（childList + subtree）只 bump `domainRevision`
+  （域内 Section/Figure 成员与位置）；文档级域注册表的 observer
+  只 bump `documentRevision`（DomainRecord 顺序与 document-scope
+  参与域）。**DOM 增删移是重编号的唯一信号源**；effect 依赖
+  DOM 位置、setTimeout 轮询均禁止。嵌套域下外层 observer 会
+  观察到内层域的全部增删（双层 bump）——这是**冗余重算而非
+  误信号**（Figure 归属最近域、外层序数是对 DOM 位置的纯函数，
+  内层元素不在外层注册表，重算结果不变）；不要按 mutation target 过滤
   域去「修」这个不存在的 bug。
 - (c) **禁止 CSS counter 方案**：pagedjs 的 Counters handler 会
   重写作者 counter 规则（本仓 verify-print 的 jx-print-line 实证：
@@ -84,6 +88,21 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   （DOM-commit barrier → settleTransitions → clone）时刻的编号
   ≡ live DOM 编号。
 
+### 1.1c 可见 DOM 形状（P1-4 冻结——byte snapshot 与收割定位的锚）
+
+- **Section**：`data-number` 属性挂 **section-card 根元素**（收割
+  锚点，与 data-jx-section 同元素）；显示编号是现有 header 标题
+  节内的**前置专用节点**：
+  `<h…>…<span data-jx-number>3.2</span>&nbsp;标题文本…</h…>`
+  ——编号**不** aria-hidden（「3.2 方法」是可访问标题文本的
+  自然部分）；无编号时该节点**完全不存在**（域外节的逐字节
+  等价因此成立）。前缀词：无（裸 `3.2`；`§` 属引用形态）。
+- **Figure**：`data-number` 属性挂 `<figure>` 根；图注最小形状：
+  `<figcaption><span data-jx-figure-label>Table</span> <span
+  data-jx-number>6-1</span> <span>实测与预测对照</span><span
+  data-jx-cited-in> · 被引于 § 3.1</span></figcaption>`——label 与
+  number 以单空格连写（`Table 6-1`），caption 文本后置，citedIn
+  尾以「 · 」引导、无 citedIn 时该节点不存在。
 ### 1.2 context 机件与法则认领
 
 - 计数域 context：`Symbol.for('jx-numbering-domain')`，**key 由
@@ -102,14 +121,50 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   登记）。**reference → figure 同边登记**：显示词映射表与文档
   注册表 key 均由 figure 家族导出，Reference 消费不自建（单源，
   禁止 Reference 侧复制 kind→显示词映射）。
-- **接口先行（tasks 批次 0）**：域 context key、文档注册表、
-  显示词映射三件的模块落盘在 figure 家族文件夹
+- **接口先行（tasks 批次 0，冻结到可编译签名）**：模块
   **`ui/figure/numbering.svelte.ts`**，导出面冻结为：
-  `NUMBERING_DOMAIN_KEY`、`DOCUMENT_TARGETS_KEY`（均
-  `Symbol.for`）、`FigureKind` 类型、`FIGURE_LABELS`（kind→
-  图注全词/引用短词两列表）、`registerTarget()`（返回 disposer）、
-  `TargetEntry` 类型。由整合者统一落盘并冻结后，批次 1/2/3 才
-  并行——子代理不触碰该共享文件。
+
+  ```ts
+  export type FigureKind = 'figure' | 'table' | 'equation' | 'listing';
+  export const FIGURE_LABELS: Record<FigureKind,
+    { caption: string; reference: string }>;   // 图注全词 / 引用短词
+  export const NUMBERING_DOMAIN_KEY: unique symbol;   // Symbol.for
+  export const DOCUMENT_TARGETS_KEY: unique symbol;   // Symbol.for
+
+  // 真可辨识联合——约束由类型自身保证，非 prose：
+  export type FigureTargetEntry = {
+    id: string; kind: 'figure';
+    readonly number: string;        // 可引 figure 必有编号
+    readonly title: null;           // 图注不是标题
+  };
+  export type SectionTargetEntry = {
+    id: string; kind: 'section';
+    readonly number: string | null; // 未编号节为 null
+    readonly title: string;         // title prop
+  };
+  export type TargetEntry = FigureTargetEntry | SectionTargetEntry;
+
+  // number/title 是 accessor（getter 读派生 $state）——注册方
+  // 传 derived 引用，消费方读到的永远是现值，禁止快照。
+  export function registerTarget(
+    entry: TargetEntry,
+  ): () => void;   // disposer，幂等：二次调用无操作
+  export function getTarget(
+    id: string,
+  ): TargetEntry | undefined;   // 订阅走 $state 直读（$derived）
+  ```
+
+  provider 值 = `{ entries: SvelteMap<string, TargetEntry[]> }`
+  （同 id 多条按注册时序排列；**active winner = 首条存活项**）。
+  **胜者晋升规则（P1-3 裁决）**：winner 注销时，剩余候选中**最早
+  注册且仍存活者即时晋升**为 winner（不保持缺失态）——晋升是
+  响应式的，Reference 显示值与 warning 状态在同一 settle 内跟随。
+  由整合者统一落盘并冻结后，批次 1/2/3 才并行——子代理不触碰
+  该共享文件。
+  **文档身份（一页多 PagedDoc）**：document-scope 计数与目标
+  注册表均以**路由页面 provider 实例**为单位——同页多个 PagedDoc
+  共享一个注册表与一套 document-scope 计数（它们是同一「文档」
+  的不同面），跨页不共享；fixture 断言之。
 
 ## 2. Figure 家族（Q6 + Q6a + Q8）
 
@@ -172,18 +227,13 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   的标签文本**，锚点语义与 href 恒在。缺失态渲染 `<span>` +
   `??(to)` 标记（不可导航即不是锚点——坏目标不提供交互假象）。
   真实 click/fragment 跳转/SSR-hydrate 形态各有夹具。
-- **目标注册表（文档级，P1-2 冻结形状）**：`Symbol.for` key；
-  注册项为可辨识联合
-  `TargetEntry = { id: string; kind: 'figure' | 'section'; readonly number: string | null; readonly title: string | null }`
-  ——figure 的 `number` 恒非空（可引 figure 必有编号）、`title =
-  null`（图注不是标题）；section 的 `number` 可空（未编号节）、
-  `title` 取其 title prop。**number/title 是 getter/派生值引用，
-  禁止注册时快照**——目标换号，引用自动跟随（引用跟随法则的
-  机件前提）。`registerTarget()` 返回 **disposer**，组件卸载
-  必调（unregister）。**重复 id**：dev warn + **先注册者胜**
-  （确定性稳定，后到忽略）。**reparent**：Svelte 模板内的跨域
-  移动必然走实例销毁重建（keyed each/key/snippet move 均如此），
-  注册随生命周期自然迁移；纯 DOM `adoptNode` 式搬移不在模型内
+- **目标注册表（文档级，形状冻结于 §1.2 的可编译签名）**：
+  `registerTarget()` 返回**幂等 disposer**，组件卸载必调。
+  **重复 id**：dev warn + 首条存活项为 winner；winner 注销时
+  最早存活候选**即时晋升**（§1.2 晋升规则）。**reparent**：
+  Svelte 模板内的跨域移动必然走实例销毁重建（keyed each/key/
+  snippet move 均如此），注册随生命周期自然迁移——这是**唯一
+  允许的跨域移动模型**；纯 DOM `adoptNode` 式搬移不在模型内
   （记档）。**路由/文档边界**：注册表实例由**路由页面根**
   （+page 渲染树）的 provider 创建，SvelteKit 路由切换销毁页面
   组件即整表回收——**不放 root/docs layout**（它们跨路由长存，

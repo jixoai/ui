@@ -54,6 +54,26 @@ an implicit depth inference.
   children continue the decimal tree, and each Figure kind counts
   from 1 inside the domain
 
+#### Scenario: the number's visible DOM is frozen
+
+- WHEN a numbered Section renders
+- THEN `data-number` sits on the section root element and the display
+  number is a leading dedicated `<span data-jx-number>` inside the
+  header's title node (not aria-hidden — "3.2 Methods" is the natural
+  accessible heading text), asserted as full outerHTML
+- WHEN the section is unnumbered
+- THEN the span node does not exist at all
+
+#### Scenario: a nested domain restarts locally and never consumes a sibling ordinal
+
+- GIVEN an outer root with a child that declares `numbering` of its
+  own, followed by a sibling root of the outer
+- THEN the inner root renders its LOCAL restart `1` (not its document
+  registry position) with descendants `1.1`, the inner root is absent
+  from the outer's SectionRecord set (outer numbering continues past
+  it), and the following sibling root numbers `2` by document-order
+  position
+
 #### Scenario: renumbering follows a keyed reorder while the id never moves
 
 - GIVEN two Figures with explicit ids under one declared domain,
@@ -127,9 +147,11 @@ primitive named by its DOM contract.
 - WHEN a Figure declares `citedIn={['§ 3.1', '§ 5.2']}`
 - THEN the caption tail renders those strings and `data-cited-in`
   carries the JSON array for harvest
-- WHEN no `citedIn` is declared
-- THEN nothing renders and no registration machinery runs (the gap is
-  the documented default)
+- WHEN `citedIn` is absent or an empty array
+- THEN no `data-cited-in` node or attribute renders and no
+  backlink-only registration runs — while the Figure's normal
+  numbering-domain and target registration still run (the gap is the
+  documented default, not a registration opt-out)
 
 #### Scenario: an undomained Figure stays usable but unnumbered
 
@@ -143,20 +165,29 @@ primitive named by its DOM contract.
 The typed cross-link SHALL carry zero grammar knowledge of its own.
 
 - `<Reference to>` resolves through a DOCUMENT-LEVEL registry (a
-  `Symbol.for` key owned by the figure family, provided at the root
-  layout; entries `{ id, kind, number, title }` with `number` a
-  derived-value reference, NEVER a registration-time snapshot) —
-  domain context serves counting only, addressing always walks the
-  registry, so cross-domain references resolve. The rendered form
-  follows the TARGET: a Figure renders per its kind (`Eq (4.5)` /
-  `Fig 2-3` / `Table 6-1` / `Listing 3`), a numbered Section renders
-  `§ 3.2.1`, an unnumbered target renders its title (no connective —
-  author prose rides the children lane). Change the target's kind,
-  chapter, or order and every reference follows automatically — the
-  follow is gate-asserted (reorder scenario below). Referenceable
-  targets: numbered Figures and Sections (numbered or not); a bare
-  id element and an unnumbered Figure are NOT referenceable this
-  round (both resolve as the missing-id fallback).
+  `Symbol.for` key owned by the figure family, **provided at the
+  ROUTE-PAGE root** — never the root/docs layouts, which outlive
+  routes and would leak prior-page ids; the registry dies with the
+  page component on navigation). Entries are a real discriminated
+  union — `FigureTargetEntry { id, kind: 'figure', number: string,
+  title: null }` and `SectionTargetEntry { id, kind: 'section',
+  number: string | null, title: string }` — with `number`/`title`
+  accessor references to derived state, NEVER registration-time
+  snapshots. `registerTarget()` returns an idempotent disposer; a
+  duplicate id warns in dev with the FIRST live registration the
+  winner, and when the winner disposes the earliest still-live
+  candidate is promoted in the same settle. Domain context serves
+  counting only, addressing always walks the registry, so
+  cross-domain references resolve. The rendered form follows the
+  TARGET: a Figure renders per its kind (`Eq (4.5)` / `Fig 2-3` /
+  `Table 6-1` / `Listing 3`), a numbered Section renders `§ 3.2.1`,
+  an unnumbered target renders its title (no connective — author
+  prose rides the children lane). Change the target's kind, chapter,
+  or order and every reference follows automatically — the follow is
+  gate-asserted (reorder scenario below). Referenceable targets:
+  numbered Figures and Sections (numbered or not); a bare id element
+  and an unnumbered Figure are NOT referenceable this round (both
+  resolve as the missing-id fallback).
 - Forward references (the target renders later) are a distinct state
   from a missing target: the registry is reactive, so a late-registered
   target is adopted automatically, and the warning fires only when

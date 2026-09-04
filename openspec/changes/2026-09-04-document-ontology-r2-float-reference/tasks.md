@@ -6,19 +6,21 @@
 整合（整合者独占仓库级共享生成物）**；7 收尾。fixture 清单（host
 模式）：numbering-host、figure-host、reference-host、reorder-host
 （keyed each，figure+section 双形态）、section-tree-host（3/3.2.1/
-多根/嵌套值表）、registry-lifecycle-host（路由切换/重复 id/disposer）、
+多根/嵌套值表——**期望值按 design §1.1b 数值样例**）、
+registry-lifecycle-host（路由切换/重复 id/**胜者注销后最早存活
+候选晋升**/disposer 幂等/**跨域移动仅销毁重建一途**负例）、
 reference-interaction-host（click/键盘/hydrate）、harvest-page
 （行内/裸/无前驱裸/缺失目标/多子块五分支）。
 
 ## 0. 接口先行（依赖：无；ui/figure/ 由 ZCode 统一落盘，子代理不得触碰）
 
-- [ ] 0.1 域 context key 模块（figure 家族持有并 module 导出，
-      PRESS_TEXTURE_KEY 同律）+ 文档级目标注册表接口（Symbol.for
-      key、注册项 {id, kind, number, title}——number 为 getter/
-      派生值引用，**禁止注册时快照**）+ kind→显示词映射表导出
-      （Figure 与 Reference 共享单源）
-- [ ] 0.2 冻结面：上述模块的导出签名定稿（批次 1/2/3 按此并行，
-      不得各自修改）
+- [ ] 0.1 `ui/figure/numbering.svelte.ts` 按 design §1.2 的**可编译
+      签名块**落盘：双 Symbol.for key、FigureKind、FIGURE_LABELS
+      双列表、FigureTargetEntry/SectionTargetEntry 真联合、
+      registerTarget（幂等 disposer）/getTarget、provider 值
+      （SvelteMap + 首存活者胜 + 晋升规则）
+- [ ] 0.2 冻结面：上述签名定稿即冻结（批次 1/2/3 按此并行，
+      不得各自修改；实施前用一次 `tsc --noEmit` 证明可编译）
 
 ## 1. Section 编号树（依赖：0）
 
@@ -33,8 +35,10 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       输出快照；实现后断言——不在域子树内的节 outerHTML 逐字节
       全等 + 无 `data-number` + 无编号文本节点
 - [ ] 1.4 `data-number` 发射（R1 车道语法族；编号双落 DOM 文本 +
-      attr，禁 CSS counter——pagedjs 劫持实证见 design §1.1c）；
-      **Section 挂载注册进文档注册表**（0.1 接口：id/kind/number/
+      attr，可见 DOM 形状按 design §1.1c 冻结——根元素 attr +
+      标题内前置 `<span data-jx-number>`，无编号节点不存在；
+      禁 CSS counter——pagedjs 劫持实证）；**Section 挂载注册进
+      文档注册表**（0.1 的 SectionTargetEntry：number 可空/
       title= title prop）
 - [ ] 1.5 多根并列域矩阵项：兄弟章节各声明根域，章序数按文档序
       递增（design §5）
@@ -114,4 +118,5 @@ mirror-manifest、catalog、public 生成物的唯一写入者，子代理不碰
       MODIFIED、paged-docs 的 MODIFIED、search-corpus 的 ADDED——
       均已随 change 落档，实施后对齐 scenario 细节）；归档时
       MODIFIED 自然回写 living spec，无额外迁移
-- [ ] 7.2 verification 记录 + 归档准备
+- [ ] 7.2 verification 记录（文件、命令、证据**归属者**——每条
+      门写明由哪个批次的哪个 fixture/脚本产出）+ 归档准备

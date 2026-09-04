@@ -11,15 +11,21 @@ schema, additively — old corpora are never rewritten.
   `block.number` (the Figure wrapper never becomes a block of its
   own; the wrapped point keeps its own `data-kind` marker — taxonomy
   priority: the line marks structure, the point keeps semantics);
-  section `number` lands on `sections[]`.
+  section `number` lands on `sections[]`. Both fields are OPTIONAL
+  and OMITTED when unnumbered (never written as null).
 - `data-ref-to` on a reference point projects onto that block's
-  `refids[]` (an inline reference hangs on its nearest block root; a
-  block-level bare reference is never silently dropped by the
-  stream walk); a reference to a missing target emits nothing (dead
+  `refids[]` with FIRST-OCCURRENCE dedup and stable order (multiple
+  references to the same target in one block collapse to one entry).
+  An INLINE reference hangs on its containing block; a BARE reference
+  (directly in a section body, no block root) hangs on the nearest
+  PRECEDING stream item in the same section; a bare reference with
+  no preceding stream item warns and is skipped (never silently
+  dropped). A reference to a missing target emits nothing (dead
   anchors stay a filed bug class, never harvested).
 - `data-cited-in` (JSON array) projects onto the wrapped block's
   `citedIn`; a Figure whose content slot has no projectable child
-  block projects no `number` (recorded, not synthesized).
+  block projects no `number`; a Figure with multiple point-block
+  children projects `number` onto the FIRST point block only.
 - The schema extension is additive: corpora generated before R2
   parse unchanged; the corpus sha stability gate's baseline is
   regenerated with this batch.
@@ -33,3 +39,16 @@ schema, additively — old corpora are never rewritten.
   reference block carries `refids` containing the target id, the
   wrapper itself contributes no block, and a pre-R2 corpus still
   parses byte-stable under the regenerated baseline
+
+#### Scenario: the five projection branches each hold
+
+- GIVEN a harvest page exercising the five branches — an inline
+  reference inside a paragraph, a bare reference with a preceding
+  paragraph, a bare reference with no preceding stream item, a
+  reference to a missing target, and a Figure wrapping two point
+  blocks
+- THEN the inline refid lands on its paragraph block, the bare
+  refid lands on the preceding stream item, the no-precedent bare
+  reference warns and contributes nothing, the missing target
+  contributes nothing, and the two-block Figure's `number` lands on
+  the first block only
