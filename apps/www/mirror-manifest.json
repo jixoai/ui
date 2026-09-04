@@ -1,11 +1,13 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-04T18:37:27.416Z",
+  "generatedAt": "2026-09-04T19:51:12.855Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
     "section-card": "registry/files/ui/section-card/section-card.svelte",
+    "figure": "registry/files/ui/figure/figure.svelte",
+    "reference": "registry/files/ui/reference/reference.svelte",
     "terminal-header": "registry/files/ui/terminal-header/terminal-header.svelte",
     "terminal-footer": "registry/files/ui/terminal-footer/terminal-footer.svelte",
     "theme-toggle": "registry/files/ui/theme-toggle/theme-toggle.svelte",
@@ -330,8 +332,8 @@
           "source": "registry/files/ui/section-card/section-card.svelte",
           "mirror": "apps/www/src/lib/ui/section-card/section-card.svelte",
           "target": "@ui/section-card/section-card.svelte",
-          "sourceSha": "7b66bfff1ad4d21e446b56d463d63d373b693ee5ea02bd9f3dd5aef349fe80c7",
-          "mirrorSha": "7b66bfff1ad4d21e446b56d463d63d373b693ee5ea02bd9f3dd5aef349fe80c7"
+          "sourceSha": "77b0bc0f99901acaf97e47d6ad1db5cbbe8e71910d783fd6f182d394f52f60b2",
+          "mirrorSha": "77b0bc0f99901acaf97e47d6ad1db5cbbe8e71910d783fd6f182d394f52f60b2"
         },
         {
           "source": "registry/files/ui/section-card/section-card.css",
@@ -353,6 +355,62 @@
           "target": "@ui/section-card/section-card-defaults.svelte.ts",
           "sourceSha": "402de935a76fae64c41b5c166de85abee1f108a8dd59264858b5d608bab9db2f",
           "mirrorSha": "402de935a76fae64c41b5c166de85abee1f108a8dd59264858b5d608bab9db2f"
+        }
+      ]
+    },
+    {
+      "itemName": "figure",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/figure/figure.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/figure/figure.svelte",
+          "mirror": "apps/www/src/lib/ui/figure/figure.svelte",
+          "target": "@ui/figure/figure.svelte",
+          "sourceSha": "b494f07d5bd003a772d09a4c1ee4fd9bb068f3a4dc3fb1851e57c6f8b7c3262d",
+          "mirrorSha": "b494f07d5bd003a772d09a4c1ee4fd9bb068f3a4dc3fb1851e57c6f8b7c3262d"
+        },
+        {
+          "source": "registry/files/ui/figure/numbering.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/figure/numbering.svelte.ts",
+          "target": "@ui/figure/numbering.svelte.ts",
+          "sourceSha": "34aebd37ebd8196a6826875e859adf4889f9ebf0df6666b544dc7ec7d9e7c125",
+          "mirrorSha": "34aebd37ebd8196a6826875e859adf4889f9ebf0df6666b544dc7ec7d9e7c125"
+        },
+        {
+          "source": "registry/files/ui/figure/numbering-provider.svelte",
+          "mirror": "apps/www/src/lib/ui/figure/numbering-provider.svelte",
+          "target": "@ui/figure/numbering-provider.svelte",
+          "sourceSha": "382e0470eb16e105d48f11fb6ce6dc6b7864c720cc94476e7d2e345e999b352c",
+          "mirrorSha": "382e0470eb16e105d48f11fb6ce6dc6b7864c720cc94476e7d2e345e999b352c"
+        },
+        {
+          "source": "registry/files/ui/figure/index.ts",
+          "mirror": "apps/www/src/lib/ui/figure/index.ts",
+          "target": "@ui/figure/index.ts",
+          "sourceSha": "e125cd52d3079e72998d730525d9054e7711bd1301339c3beecdc5f4c72beec1",
+          "mirrorSha": "e125cd52d3079e72998d730525d9054e7711bd1301339c3beecdc5f4c72beec1"
+        }
+      ]
+    },
+    {
+      "itemName": "reference",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/reference/reference.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/reference/reference.svelte",
+          "mirror": "apps/www/src/lib/ui/reference/reference.svelte",
+          "target": "@ui/reference/reference.svelte",
+          "sourceSha": "a42f2c29edc4c6a85142e2d30636baa672c6acb6b6fd96675780a0f748772874",
+          "mirrorSha": "a42f2c29edc4c6a85142e2d30636baa672c6acb6b6fd96675780a0f748772874"
+        },
+        {
+          "source": "registry/files/ui/reference/index.ts",
+          "mirror": "apps/www/src/lib/ui/reference/index.ts",
+          "target": "@ui/reference/index.ts",
+          "sourceSha": "0dfe4d5dedc11bb57edf0d025d7d8df068447d79d7b0404b9bb2c1cd3e10c6aa",
+          "mirrorSha": "0dfe4d5dedc11bb57edf0d025d7d8df068447d79d7b0404b9bb2c1cd3e10c6aa"
         }
       ]
     },
@@ -1792,8 +1850,8 @@
           "source": "registry/files/ui/tabs/tabs-trigger.css",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-trigger.css",
           "target": "@ui/tabs/tabs-trigger.css",
-          "sourceSha": "561a1841d02042dd106b3416fc761c67c0fddb61979e29439c30ac54d3830835",
-          "mirrorSha": "561a1841d02042dd106b3416fc761c67c0fddb61979e29439c30ac54d3830835"
+          "sourceSha": "c5d28d5708f158e284ba2d008e4b00a83ae4b0564ace572d631491bb2ec57a43",
+          "mirrorSha": "c5d28d5708f158e284ba2d008e4b00a83ae4b0564ace572d631491bb2ec57a43"
         },
         {
           "source": "registry/files/ui/tabs/tabs-defaults.svelte.ts",
@@ -3570,8 +3628,8 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "820120c7aef789a59b559fd9da45beb0f3fad8d44601cb048b91f3ce4ac338bf",
-          "mirrorSha": "820120c7aef789a59b559fd9da45beb0f3fad8d44601cb048b91f3ce4ac338bf"
+          "sourceSha": "1189c69d27b476747e76fe54d58e0c87ec09b97bdd91c04382244a2ce0f46af9",
+          "mirrorSha": "1189c69d27b476747e76fe54d58e0c87ec09b97bdd91c04382244a2ce0f46af9"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",
@@ -3584,8 +3642,8 @@
           "source": "registry/files/ui/button-group/button-group.css",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.css",
           "target": "@ui/button-group/button-group.css",
-          "sourceSha": "36a17b8ebd9c891163ad3699fbeaa9a4f50797b0bf4000b6103079ea33533414",
-          "mirrorSha": "36a17b8ebd9c891163ad3699fbeaa9a4f50797b0bf4000b6103079ea33533414"
+          "sourceSha": "31353490c9fb83418e98ec8fdb6551f7b73ce74b00a002132242b63a2c61b208",
+          "mirrorSha": "31353490c9fb83418e98ec8fdb6551f7b73ce74b00a002132242b63a2c61b208"
         },
         {
           "source": "registry/files/ui/button-group/index.ts",

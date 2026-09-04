@@ -262,7 +262,68 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
-        "@jixoai/defaults"
+        "@jixoai/defaults",
+        "@jixoai/figure"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema.json",
+      "name": "figure",
+      "type": "registry:ui",
+      "title": "Figure",
+      "description": "The ontology's 浮 line primitive: a native <figure> that numbers itself from its Section's numbering domain — chapter-scoped per kind (Eq 4.5) or document-continuous by floatScope declaration. The wrapper owns structure (number/anchor/caption, the display currency of DOM order — reorder renumbers); any point nests inside as the content slot (composition-first: the line carries structure, the point carries industry semantics). citedIn is the manual backlink lane (display-currency strings rendered verbatim + emitted as JSON) while automatic backlink rendering stays a documented harvest-only gap. The family folder also ships the frozen R2 interface module (numbering.svelte.ts: TargetRegistry, NumberingDomain/DomainRegistry, the pure ordinal derivation) and the route-page NumberingProvider that owns the document-level observer lifecycle.",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/figure.html"
+      },
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/files/ui/figure/figure.svelte",
+          "target": "@ui/figure/figure.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/figure/numbering.svelte.ts",
+          "target": "@ui/figure/numbering.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/figure/numbering-provider.svelte",
+          "target": "@ui/figure/numbering-provider.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/figure/index.ts",
+          "target": "@ui/figure/index.ts",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema.json",
+      "name": "reference",
+      "type": "registry:ui",
+      "title": "Reference",
+      "description": "The ontology's 引 primitive: a typed cross-link with zero grammar knowledge of its own — resolution follows the target through the route-page document registry (an equation Figure renders Eq (4.5), a numbered Section § 3.2.1, an unnumbered one its title). The resolved state is a native fragment anchor (keyboard/ARIA ride the platform); a missing target degrades loudly to a visible ??(id) marker that never throws. Edge emission splits by state: not-yet-registered (the whole SSR pass) keeps the data-ref-to claim for the static harvester's two-pass pre-scan, while a settled miss drops the edge (dead anchors are a filed bug class). The children snippet replaces the anchor's label text only.",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/reference.html"
+      },
+      "registryDependencies": [
+        "@jixoai/figure"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/reference/reference.svelte",
+          "target": "@ui/reference/reference.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/reference/index.ts",
+          "target": "@ui/reference/index.ts",
+          "type": "registry:file"
+        }
       ]
     },
     {
