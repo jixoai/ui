@@ -16,9 +16,12 @@
   IS a press-button — this component wraps it and owns only the
   two-part contract + the icon-only posture. Every press-button
   capability passes through verbatim: the paint variants (fill …
-  link — the variant-grammar ladder, imported not re-declared), the
-  effect loops (shimmer/pulse/rainbow/ripple), href/
-  external anchoring, type, class, and the paint-zone context
+    link — the variant-grammar ladder, imported not re-declared), the
+    effect loops (shimmer/pulse/rainbow/ripple), href/
+    external anchoring, type, class, the raised physics axis (the
+    foot-flat zone reaches the square through the child's own ambient
+    read — same tree, same window, Owner 2026-09-04), and the
+    paint-zone context
   adoption (an absent variant adopts the zone/group's rung —
   explicit still wins). Since context-defaults-economy 2.1 the
   adoption resolves HERE, through IconButtonDefaults — the X2-11
@@ -56,6 +59,14 @@
      *  variant scope), else the restated own 'outline' — explicit
      *  still wins */
     variant?: PressButtonVariant;
+    /** THE PHYSICS AXIS, forwarded verbatim (Owner 2026-09-04): no
+     *  restate is needed — the wrapped press-button reads the SAME
+     *  ambient texture key in the SAME window, so a card/dialog foot
+     *  zone's flat default reaches the square by construction; this
+     *  prop is the EXPLICIT lane (explicit ?? zone ?? true) — the
+     *  escape hatch for chrome that must stay convex inside a flat
+     *  zone. Inert on the link rung (no jx-press there) */
+    raised?: boolean;
     /** collapse to the square: text moves to the tooltip + aria-label */
     iconOnly?: boolean;
     /** iconOnly: which side the tooltip leans */
@@ -87,6 +98,7 @@
     icon,
     text,
     variant = undefined,
+    raised = undefined,
     iconOnly = false,
     tip = true,
     placement,
@@ -113,6 +125,7 @@
   <PressButton
     density={d.density}
     variant={d.variant}
+    {raised}
     square={iconOnly}
     {effect}
     {href}

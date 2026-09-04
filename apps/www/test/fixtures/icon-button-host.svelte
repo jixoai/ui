@@ -12,6 +12,7 @@
   let {
     text = 'deploy',
     variant = undefined,
+    raised = undefined,
     iconOnly = false,
     placement = undefined,
     arrow = undefined,
@@ -22,6 +23,7 @@
   }: {
     text?: string;
     variant?: PressButtonVariant;
+    raised?: boolean;
     iconOnly?: boolean;
     placement?: 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
     arrow?: boolean;
@@ -33,11 +35,11 @@
 </script>
 
 {#if href}
-  <IconButton {variant} {iconOnly} {placement} {arrow} {effect} {href} class={className} {text}>
+  <IconButton {variant} {raised} {iconOnly} {placement} {arrow} {effect} {href} class={className} {text}>
     {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
   </IconButton>
 {:else}
-  <IconButton {variant} {iconOnly} {placement} {arrow} {effect} {popovertarget} class={className} {text}>
+  <IconButton {variant} {raised} {iconOnly} {placement} {arrow} {effect} {popovertarget} class={className} {text}>
     {#snippet icon()}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z" /></svg>{/snippet}
   </IconButton>
 {/if}

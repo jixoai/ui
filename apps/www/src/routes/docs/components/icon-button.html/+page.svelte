@@ -271,6 +271,8 @@ ${drivenNormal}${usageTail}`;
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
             <span>inheritance is composition: <code class="text-accent">variant</code> (paint),
               <code class="text-accent">effect</code> (shimmer / pulse / rainbow / ripple),
+              <code class="text-accent">raised</code> (physics — the foot-flat zone reaches the
+              square through the same ambient read),
               <code class="text-accent">href</code> and <code class="text-accent">class</code>
               pass straight through to press-button — one button, one law</span></li>
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
@@ -300,6 +302,16 @@ ${drivenNormal}${usageTail}`;
           <IconButton iconOnly text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
           <p class="mt-2 text-xs text-muted-foreground">icon-only: tooltip and aria-label</p>
         </div>
+      </div>
+      <div class="mt-3 flex flex-wrap items-center gap-x-8 gap-y-5 border-t border-border pt-4">
+        <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <span>flat — press me</span>
+          <IconButton text="deploy" raised={false}>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+        </label>
+        <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <span>flat square</span>
+          <IconButton iconOnly tip={false} text="deploy" raised={false}>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+        </label>
       </div>
     </SectionCard>
   </div>
@@ -344,6 +356,7 @@ ${drivenNormal}${usageTail}`;
         { name: 'text', type: 'string', required: true, description: 'Visible label, tooltip content, and accessible name.' },
         { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; resolved through IconButtonDefaults (the restated contract) and forwarded to press-button.' },
         { name: 'variant', type: 'PressButtonVariant', default: "'outline' · ambient zone", description: 'Press-button surface variant, ambient-manageable through the restated contract: omitted → the ambient paint zone (ButtonGroup / variant scope), else the restated own. Explicit still wins.' },
+        { name: 'raised', type: 'boolean', default: "'true' · ambient zone", description: 'The physics axis, forwarded verbatim: false is the FLAT texture (engrave-tier inset press, the body never moves). A card/dialog foot zone scopes the default to false through the same ambient read; an explicit prop always wins — the escape hatch for chrome that must stay convex. Inert on link.' },
         { name: 'iconOnly', type: 'boolean', default: 'false', description: 'Collapses into a square tooltip trigger.' },
         { name: 'placement', type: 'TooltipPlacement', default: "'top'", description: 'Icon-only tooltip placement.' },
         { name: 'arrow', type: 'boolean', default: 'true', description: 'Shows the tooltip pointer notch.' },

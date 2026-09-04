@@ -624,6 +624,13 @@ variant.
   inherit-then-provide: a paint-only scope (variant set, raised
   absent) passes the enclosing zone's texture through and never
   un-flattens it.
+- IconButton forwards `raised` verbatim (Owner 2026-09-04): the
+  composition needs NO restate — the wrapped press-button reads the
+  same ambient texture key in the same window, so the zone's flat
+  default reaches the square (and a joined ⋯ overflow trigger) by
+  construction; the explicit prop is the chrome escape hatch. The
+  dialog head's × sits OUTSIDE the flat zones and keeps the convex
+  law with no opt-out.
 - The FOOT zones of Dialog and Card declare `raised={false}` on
   their zone scope (Owner 2026-09-04): foot buttons ride the
   engrave-tier inset press by default. Head zones, standalone
@@ -684,6 +691,16 @@ variant.
 - THEN none of the flat block's seams ride (`--jx-press-move`
   absent, no engrave re-point) — a convex ghost keeps its own
   none-trio, which is r13 ghost law, not flat
+
+#### Scenario: the icon-only square rides the zone's physics
+
+- WHEN an IconButton renders inside a flat foot zone — text posture,
+  iconOnly square, or joined in the group (the overflow trigger) —
+  with no `raised` prop
+- THEN the wrapped press-button carries the flat texture (stamp +
+  four pose customs) exactly like its text-button siblings
+- WHEN it renders `raised={true}`
+- THEN the square stays convex — chrome escape inside a flat zone
 
 #### Scenario: the head stays convex and a bare button is unchanged
 

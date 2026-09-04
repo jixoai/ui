@@ -11,6 +11,7 @@ import { render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import IconButtonHost from './fixtures/icon-button-host.svelte';
+import IconZoneHost from './fixtures/icon-zone-host.svelte';
 import { shimmer } from '../src/lib/ui/press-button/press-button.svelte';
 
 describe('IconButton', () => {
@@ -94,5 +95,58 @@ describe('IconButton', () => {
     });
     await tick();
     expect(container.querySelector('button')!.getAttribute('popovertarget')).toBe('jx-menu-y');
+  });
+});
+
+describe('icon-button physics axis — the foot-flat context through the composition', () => {
+  // the axis is FORWARDED, not restated: the child press-button reads
+  // the same ambient texture key, so the zone lane reaches the square
+  // by construction and the prop is the explicit lane
+  // (explicit ?? zone ?? true, Owner 2026-09-04)
+  it('default: convex — no flat stamp, no flat seams', () => {
+    const { container } = render(IconButtonHost);
+    const btn = container.querySelector('button')!;
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(false);
+    expect(btn.className).not.toContain('--jx-press-move:none');
+    expect(btn.className).not.toContain('--jx-press-shadow-active:var(--shadow-engrave)');
+  });
+
+  it('raised={false}: the flat pose rides through the composition (stamp + four seams)', () => {
+    const { container } = render(IconButtonHost, { props: { raised: false } });
+    const btn = container.querySelector('button')!;
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
+    expect(btn.className).toContain('[--jx-press-shadow:none]');
+    expect(btn.className).toContain('[--jx-press-shadow-hover:none]');
+    expect(btn.className).toContain('[--jx-press-shadow-active:var(--shadow-engrave)]');
+    expect(btn.className).toContain('[--jx-press-move:none]');
+  });
+
+  it('the iconOnly square rides the same axis (flat stamp on the square band)', () => {
+    const { container } = render(IconButtonHost, { props: { iconOnly: true, raised: false } });
+    expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(true);
+  });
+
+  it('a raised={false} zone adopts the flat pose for a bare icon-button with no explicit prop', () => {
+    const { container } = render(IconZoneHost, { props: { zoneRaised: false } });
+    const btn = container.querySelector('button')!;
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
+    expect(btn.className).toContain('[--jx-press-move:none]');
+  });
+
+  it('an explicit raised={true} wins inside a flat zone — chrome stays convex', () => {
+    const { container } = render(IconZoneHost, { props: { zoneRaised: false, raised: true } });
+    expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(false);
+  });
+
+  it('physics flows THROUGH a joined ButtonGroup (the ⋯ overflow-trigger path)', () => {
+    const { container } = render(IconZoneHost, { props: { zoneRaised: false, grouped: true } });
+    expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(true);
+  });
+
+  it('the square joined in a group also rides flat (the real overflow shape)', () => {
+    const { container } = render(IconZoneHost, {
+      props: { zoneRaised: false, grouped: true, iconOnly: true },
+    });
+    expect(container.querySelector('button')!.hasAttribute('data-jx-press-flat')).toBe(true);
   });
 });

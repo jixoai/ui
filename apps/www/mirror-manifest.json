@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-04T08:02:56.059Z",
+  "generatedAt": "2026-09-04T13:21:49.739Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -100,8 +100,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "91ea2b1d0e9f9ce7988dc2a9c87f3fa439971515df89a963655922eb78e35f9d",
-          "mirrorSha": "91ea2b1d0e9f9ce7988dc2a9c87f3fa439971515df89a963655922eb78e35f9d"
+          "sourceSha": "b8616f1cf9c9ae1c38e6a6dbd415721c3e10cbf4a7b6a0363ff81e99d1f44476",
+          "mirrorSha": "b8616f1cf9c9ae1c38e6a6dbd415721c3e10cbf4a7b6a0363ff81e99d1f44476"
         }
       ]
     },
@@ -127,8 +127,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "ae9c9ab612e02217d55fafba6a5b5498a086f54ded05dd64031d73efc94ecfd2",
-          "mirrorSha": "ae9c9ab612e02217d55fafba6a5b5498a086f54ded05dd64031d73efc94ecfd2"
+          "sourceSha": "77ca6d5153b506c23f0b7f3c180765134349cb039f6001a611b3289e33d12d59",
+          "mirrorSha": "77ca6d5153b506c23f0b7f3c180765134349cb039f6001a611b3289e33d12d59"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -141,8 +141,8 @@
           "source": "registry/files/ui/press-button/press-button.css",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.css",
           "target": "@ui/press-button/press-button.css",
-          "sourceSha": "5c173dc4bdbe3b1a144ae34e9cee053d261b9457e7cdfb9d8f436f7b8b8d211d",
-          "mirrorSha": "5c173dc4bdbe3b1a144ae34e9cee053d261b9457e7cdfb9d8f436f7b8b8d211d"
+          "sourceSha": "77138cc5139190bc4db9f681f3f62b36435a90f8a21d8077792b23170936cff2",
+          "mirrorSha": "77138cc5139190bc4db9f681f3f62b36435a90f8a21d8077792b23170936cff2"
         },
         {
           "source": "registry/files/ui/press-button/ripple.svelte.ts",
@@ -3410,8 +3410,8 @@
           "source": "registry/files/ui/icon-button/icon-button.svelte",
           "mirror": "apps/www/src/lib/ui/icon-button/icon-button.svelte",
           "target": "@ui/icon-button/icon-button.svelte",
-          "sourceSha": "ebef9e516963adfe79672509bd6226723c98096c46f220e82d6d223f89c1bd17",
-          "mirrorSha": "ebef9e516963adfe79672509bd6226723c98096c46f220e82d6d223f89c1bd17"
+          "sourceSha": "77aa2e1e28ac1931624cb44ded6ac64c63022b8c8d1e68c1e052be5ea7d2f111",
+          "mirrorSha": "77aa2e1e28ac1931624cb44ded6ac64c63022b8c8d1e68c1e052be5ea7d2f111"
         },
         {
           "source": "registry/files/ui/icon-button/index.ts",
