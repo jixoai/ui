@@ -273,9 +273,9 @@
   }
   export interface BgProgressBlurOptions {
     /** per-layer blur px of the edge veil, inner-edge first (≥2 levels);
-     *  the DEFAULT ladder is the restraint ruling's — the veil band is
-     *  inset·3 (half tabs' inset·6), so the peak halves twice over:
-     *  16px melts a 24–36px band completely, 64px was overkill */
+     *  the DEFAULT ladder is the restraint ruling's — a button row's
+     *  height is limited, so the peak caps at 4px (Owner acceptance
+     *  round 2: tabs' 64px climb was thickness, not treatment) */
     blurLevels?: number[];
     /** the band width (any css length) — overrides the --jx-btngroup-veil default */
     width?: string;
@@ -286,7 +286,7 @@
     width?: string;
   }
   export function progressBlur({
-    blurLevels = [0.5, 1, 2, 4, 6, 8, 12, 16],
+    blurLevels = [0.25, 0.5, 1, 1.5, 2.5, 4],
     width,
   }: BgProgressBlurOptions = {}): BgProgressBlurEffect {
     return { type: 'progressBlur', blurLevels, width };
@@ -990,6 +990,13 @@
     update();
     run.addEventListener('scroll', update, { passive: true });
     ro?.observe(run);
+    // a backgrounded tab pauses the rendering pipeline — scroll events
+    // queue UNDELIVERED and the stamps go stale while the box keeps
+    // its position (the tabs source shares the hole, verified live);
+    // restamp when the page comes back to the foreground
+    const onWake = () => update();
+    document.addEventListener('visibilitychange', onWake);
+    window.addEventListener('focus', onWake);
     // late fonts re-widen labels: one quiet restamp when the font set
     // settles
     let alive = true;
@@ -999,6 +1006,8 @@
     return () => {
       alive = false;
       run.removeEventListener('scroll', update);
+      document.removeEventListener('visibilitychange', onWake);
+      window.removeEventListener('focus', onWake);
       ro?.disconnect();
     };
   });

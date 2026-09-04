@@ -199,7 +199,11 @@
      the ramps clip the wrong members. THE RESTRAINT RULING (Owner
      2026-09-04, acceptance): a button group is a COMPACT action row,
      not a tab strip — the chevron lane and the veil band ride
-     inset·1.5 / inset·3 (tabs runs inset·2 / inset·6) ── */
+     inset·1.5 / inset·3 (tabs runs inset·2 / inset·6). NO SNAP (the
+     acceptance ruling, a deliberate tabs divergence): proximity snap
+     yanked releases to member-flush positions where nothing clips
+     and the edge treatments POP off — a button row scrolls freely,
+     its treatments stay continuous ── */
   :where([data-jx-btngroup-run][data-jx-btngroup='horizontal']) {
     grid-area: 1 / 1;
     position: relative;
@@ -207,7 +211,6 @@
     scrollbar-width: none;
     scroll-padding-inline: calc(var(--jx-inset) * 1.5);
     scroll-behavior: smooth;
-    scroll-snap-type: x proximity;
   }
   :where([data-jx-btngroup-run][data-jx-btngroup='vertical']) {
     overflow-y: auto;
@@ -216,9 +219,6 @@
   }
   :where([data-jx-btngroup-run])::-webkit-scrollbar {
     display: none;
-  }
-  :where([data-jx-btngroup-run]) > * {
-    scroll-snap-align: start;
   }
 
   /* the host's shared var family (the overlays are the run's siblings
@@ -284,19 +284,25 @@
      scroll handler stamps --jx-edge-start/end (the clipped fraction
      of each member's own width) on every visible member; rest stamps
      0 = the natural self, by arithmetic. The treatments are keyed per
-     type so slide (the default) never pays for a filter */
+     type so slide (the default) never pays for a filter. THE EASED
+     CURVE (Owner acceptance 2026-09-04, round 2): the factor is
+     consumed SQUARED — a lightly clipped member (an edge sliver)
+     barely treats while a deeply clipped one ramps to full, so the
+     treatments read as continuous edges instead of popping on the
+     first clipped pixel (actions must stay readable; tab labels may
+     melt, buttons may not) */
   :where([data-jx-btngroup-run][data-scroll-effect='slide']) > * {
-    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
-    translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-btngroup-edge-slide, 0px)) 0;
+    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+    translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-slide, 0px)) 0;
   }
   :where([data-jx-btngroup-run][data-scroll-effect='blur']) > * {
-    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
-    filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-blur, 0px)));
+    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+    filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-blur, 0px)));
   }
   :where([data-jx-btngroup-run][data-scroll-effect='blur+slide']) > * {
-    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
-    filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-blur, 0px)));
-    translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * var(--jx-btngroup-edge-slide, 0px)) 0;
+    opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)));
+    filter: blur(calc(max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-blur, 0px)));
+    translate: calc((var(--jx-edge-end, 0) - var(--jx-edge-start, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * var(--jx-btngroup-edge-slide, 0px)) 0;
   }
 
   /* the merged veil layer (z 1, under the chevrons): ONE grid item

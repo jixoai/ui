@@ -155,21 +155,23 @@ describe('ButtonGroup · the scroll-effect builders (the tabs convention)', () =
     expect(shadow()).toEqual({ type: 'shadow', width: undefined });
     expect(shadow({ width: '48px' }).width).toBe('48px');
     expect(progressBlur({ blurLevels: [1, 2] }).blurLevels).toEqual([1, 2]);
-    // the restraint ruling's default ladder: the veil band is half
-    // tabs' width, so the peak melts at 16px (tabs climbs to 64)
-    expect(progressBlur().blurLevels).toEqual([0.5, 1, 2, 4, 6, 8, 12, 16]);
+    // the restraint ruling's default ladder (round 2): a button row's
+    // height is limited — the peak caps at 4px
+    expect(progressBlur().blurLevels).toEqual([0.25, 0.5, 1, 1.5, 2.5, 4]);
   });
 });
 
 describe('ButtonGroup · overflow=scroll · the css law (source-pinned)', () => {
-  it('the run IS the scroller: hidden scrollbar, smooth travel, proximity snap, lane-clearing scroll-padding', () => {
+  it('the run IS the scroller: hidden scrollbar, smooth travel, lane-clearing scroll-padding — and NO snap (the acceptance ruling: snap yanked releases to member-flush positions where the treatments pop off)', () => {
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup-run\]\[data-jx-btngroup='horizontal'\]\)\s*\{[^}]*grid-area:\s*1\s*\/\s*1;[^}]*position:\s*relative;[^}]*overflow-x:\s*auto;[^}]*scrollbar-width:\s*none;[^}]*scroll-padding-inline:[^;]*;[^}]*scroll-behavior:\s*smooth;[^}]*scroll-snap-type:\s*x\s+proximity;/s,
+      /\[data-jx-btngroup-run\]\[data-jx-btngroup='horizontal'\]\)\s*\{[^}]*grid-area:\s*1\s*\/\s*1;[^}]*position:\s*relative;[^}]*overflow-x:\s*auto;[^}]*scrollbar-width:\s*none;[^}]*scroll-padding-inline:[^;]*;[^}]*scroll-behavior:\s*smooth;/s,
     );
     expect(buttonGroupCss).toMatch(
       /\[data-jx-btngroup-run\]\[data-jx-btngroup='vertical'\]\)\s*\{[^}]*overflow-y:\s*auto;/s,
     );
     expect(buttonGroupCss).toMatch(/\[data-jx-btngroup-run\]\)::\-webkit-scrollbar\s*\{\s*display:\s*none;/);
+    const rules = buttonGroupCss.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(rules).not.toMatch(/scroll-snap/);
   });
 
   it('position:relative on the run is LOAD-BEARING — the offsetParent law (acceptance regression: without it the edge factors read a foreign coordinate space and the ramps clip the wrong members)', () => {
@@ -193,16 +195,26 @@ describe('ButtonGroup · overflow=scroll · the css law (source-pinned)', () => 
     );
   });
 
-  it('the per-member ramps calc from the scroll handler\'s edge stamps (slide default, blur/blur+slide keyed per type)', () => {
+  it('the per-member ramps calc from the scroll handler\'s edge stamps, consumed SQUARED (the eased curve — light clips barely treat, actions stay readable)', () => {
+    // the squared factor: max(s,e) * max(s,e) in every treatment
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup-run\]\[data-scroll-effect='slide'\]\)\s*>\s*\*\s*\{[^}]*opacity:\s*calc\(1\s*-\s*max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\);/s,
+      /\[data-jx-btngroup-run\]\[data-scroll-effect='slide'\]\)\s*>\s*\*\s*\{[^}]*opacity:\s*calc\(1\s*-\s*max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\s*\*\s*max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\);/s,
     );
     expect(buttonGroupCss).toMatch(
-      /\[data-jx-btngroup-run\]\[data-scroll-effect='blur'\]\)\s*>\s*\*\s*\{[^}]*filter:\s*blur\(/s,
+      /\[data-jx-btngroup-run\]\[data-scroll-effect='blur'\]\)\s*>\s*\*\s*\{[^}]*filter:\s*blur\(calc\(max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\s*\*\s*max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\s*\*\s*var\(--jx-btngroup-edge-blur,\s*0px\)\)\)/s,
     );
     expect(buttonGroupCss).toMatch(
       /\[data-jx-btngroup-run\]\[data-scroll-effect='blur\+slide'\]\)\s*>\s*\*\s*\{/s,
     );
+    // no LINEAR consumption survives anywhere (the acceptance bug:
+    // first clipped pixel popped to full treatment)
+    const rampBlocks = buttonGroupCss.match(
+      /\[data-jx-btngroup-run\]\[data-scroll-effect[^{]*\{[^}]*\}/gs,
+    ) ?? [];
+    expect(rampBlocks.length).toBeGreaterThan(0);
+    for (const block of rampBlocks) {
+      expect(block).not.toMatch(/opacity:\s*calc\(1\s*-\s*max\([^*]*\)\);/s);
+    }
   });
 
   it('the shadow veil paints NO color — backdrop contrast only (the separator INK law), masked per edge', () => {

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-04T18:16:37.997Z",
+  "generatedAt": "2026-09-04T18:37:27.416Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3570,8 +3570,8 @@
           "source": "registry/files/ui/button-group/button-group.svelte",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.svelte",
           "target": "@ui/button-group/button-group.svelte",
-          "sourceSha": "aacd112e28316b80afb8c0146b8f0518d7208906bbd120131c474c01e75d75e0",
-          "mirrorSha": "aacd112e28316b80afb8c0146b8f0518d7208906bbd120131c474c01e75d75e0"
+          "sourceSha": "820120c7aef789a59b559fd9da45beb0f3fad8d44601cb048b91f3ce4ac338bf",
+          "mirrorSha": "820120c7aef789a59b559fd9da45beb0f3fad8d44601cb048b91f3ce4ac338bf"
         },
         {
           "source": "registry/files/ui/button-group/button-group-divider.svelte",
@@ -3584,8 +3584,8 @@
           "source": "registry/files/ui/button-group/button-group.css",
           "mirror": "apps/www/src/lib/ui/button-group/button-group.css",
           "target": "@ui/button-group/button-group.css",
-          "sourceSha": "a8885ebed58485fceac6f44c6c34ae357c174d0970c508466954a6c8238b3e56",
-          "mirrorSha": "a8885ebed58485fceac6f44c6c34ae357c174d0970c508466954a6c8238b3e56"
+          "sourceSha": "36a17b8ebd9c891163ad3699fbeaa9a4f50797b0bf4000b6103079ea33533414",
+          "mirrorSha": "36a17b8ebd9c891163ad3699fbeaa9a4f50797b0bf4000b6103079ea33533414"
         },
         {
           "source": "registry/files/ui/button-group/index.ts",
