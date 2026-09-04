@@ -33,7 +33,7 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       不得各自修改）；门 = `tsc --noEmit` 过 + 一个导出面快照
       单测（断言导出名与形状——**含新工厂签名、attachRoot、
       可选 el**——防漂移）
-- [ ] 0.3 **路由页面根 provider 组件**（整合者 owner）：+page
+- [x] 0.3 **路由页面根 provider 组件**（整合者 owner）：+page
       渲染树接线 createTargetRegistry + setContext（含
       DomainRegistry 双 context）+ **文档级 observer 生命周期**
       （onMount observe document.documentElement / onDestroy

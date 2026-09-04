@@ -13,6 +13,8 @@ import {
   createTargetRegistry,
   createNumberingDomain,
   createDomainRegistry,
+  figureOrdinal,
+  sectionNumber,
   type TargetEntry,
 } from '../src/lib/ui/figure/numbering.svelte';
 
@@ -126,5 +128,144 @@ describe('DomainRegistry — provider-owned document revision', () => {
     dispose();
     dispose(); // idempotent
     expect(registry.domains).not.toContain(domain);
+  });
+});
+
+describe('pure ordinal derivation — the §1.1b value tables', () => {
+  const el = (parent: Element, tag = 'section') => {
+    const node = document.createElement(tag);
+    parent.appendChild(node);
+    return node;
+  };
+
+  it('the decimal tree and multi-root numbering hold (1 → 1.1 → 1.1.1; sibling root 2)', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    const registry = createDomainRegistry();
+    const outer = createNumberingDomain({ parent: null });
+    registry.registerDomain(outer);
+    const sibling = createNumberingDomain({ parent: null });
+    registry.registerDomain(sibling);
+
+    const r1 = { el: el(root), parent: null };
+    const r1a = { el: el(r1.el!), parent: r1 };
+    const r1a1 = { el: el(r1a.el!), parent: r1a };
+    const r2 = { el: el(root), parent: null };
+    outer.registerSection(r1);
+    outer.registerSection(r1a);
+    outer.registerSection(r1a1);
+    sibling.registerSection(r2);
+
+    expect(sectionNumber(r1, outer, registry)).toBe('1');
+    expect(sectionNumber(r1a, outer, registry)).toBe('1.1');
+    expect(sectionNumber(r1a1, outer, registry)).toBe('1.1.1');
+    expect(sectionNumber(r2, sibling, registry)).toBe('2'); // multi-root by document order
+
+    // DOM order, not registration order: r2 appended before r1a would renumber
+    const registry2 = createDomainRegistry();
+    const a = createNumberingDomain({ parent: null });
+    const b = createNumberingDomain({ parent: null });
+    registry2.registerDomain(a);
+    registry2.registerDomain(b);
+    const ea = el(root), eb = el(root);
+    root.insertBefore(eb, ea); // b's element BEFORE a's despite later registration
+    const ra = { el: ea, parent: null };
+    const rb = { el: eb, parent: null };
+    a.registerSection(ra);
+    b.registerSection(rb);
+    expect(sectionNumber(ra, a, registry2)).toBe('2'); // DOM order wins
+    expect(sectionNumber(rb, b, registry2)).toBe('1');
+    root.remove();
+  });
+
+  it('a nested domain restarts locally at 1 and never consumes a sibling ordinal', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    const registry = createDomainRegistry();
+    const outer = createNumberingDomain({ parent: null });
+    registry.registerDomain(outer);
+    const nested = createNumberingDomain({ parent: outer });
+    registry.registerDomain(nested);
+    const after = createNumberingDomain({ parent: null });
+    registry.registerDomain(after);
+
+    const outerRoot = { el: el(root), parent: null };
+    const nestedRoot = { el: el(outerRoot.el!), parent: null }; // inside outer's subtree…
+    outer.registerSection(outerRoot);
+    nested.registerSection(nestedRoot); // …but registered in the NESTED domain
+    const nestedChild = { el: el(nestedRoot.el!), parent: nestedRoot };
+    nested.registerSection(nestedChild);
+    const afterRoot = { el: el(root), parent: null };
+    after.registerSection(afterRoot);
+
+    expect(sectionNumber(outerRoot, outer, registry)).toBe('1');
+    expect(sectionNumber(nestedRoot, nested, registry)).toBe('1'); // local restart
+    expect(sectionNumber(nestedChild, nested, registry)).toBe('1.1');
+    expect(sectionNumber(afterRoot, after, registry)).toBe('2'); // unconsumed by the nested domain
+    root.remove();
+  });
+
+  it('figure ordinals: chapter scope counts per domain; document scope orders the union by document position', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    const registry = createDomainRegistry();
+    const domA = createNumberingDomain({ parent: null });
+    const domB = createNumberingDomain({ parent: null, floatScope: { equation: 'document' } });
+    registry.registerDomain(domA);
+    registry.registerDomain(domB);
+
+    const fA = { el: el(root, 'figure'), kind: 'equation' as const };
+    const fB = { el: el(root, 'figure'), kind: 'equation' as const };
+    domA.registerFigure(fA);
+    domA.registerFigure(fB);
+    domA.attachRoot(root);
+    const oA = figureOrdinal(fA, domA, registry);
+    expect(oA.scope).toBe('chapter');
+    expect(oA.ordinal).toBe(1);
+    expect(oA.domainOrdinal).toBe(1);
+    expect(figureOrdinal(fB, domA, registry).ordinal).toBe(2);
+
+    // document scope: F1 in domA?? — domA does not participate; only domB
+    const fB1 = { el: el(root, 'figure'), kind: 'equation' as const };
+    const fB2 = { el: el(root, 'figure'), kind: 'equation' as const };
+    domB.registerFigure(fB2); // registered FIRST…
+    domB.registerFigure(fB1); // …but appended EARLIER in the DOM
+    expect(figureOrdinal(fB1, domB, registry).ordinal).toBe(1); // document position wins
+    expect(figureOrdinal(fB2, domB, registry).ordinal).toBe(2);
+
+    // the nested+document union: F1 (outer) → F2 (nested) → F3 (outer, after)
+    const union = createDomainRegistry();
+    const outer = createNumberingDomain({ parent: null, floatScope: { equation: 'document' } });
+    const nested = createNumberingDomain({ parent: outer, floatScope: { equation: 'document' } });
+    union.registerDomain(outer);
+    union.registerDomain(nested);
+    const f1 = { el: el(root, 'figure'), kind: 'equation' as const };
+    const f2 = { el: el(root, 'figure'), kind: 'equation' as const };
+    const f3 = { el: el(root, 'figure'), kind: 'equation' as const };
+    outer.registerFigure(f1);
+    nested.registerFigure(f2);
+    outer.registerFigure(f3);
+    expect(figureOrdinal(f1, outer, union).ordinal).toBe(1);
+    expect(figureOrdinal(f2, nested, union).ordinal).toBe(2); // NOT domain-list order
+    expect(figureOrdinal(f3, outer, union).ordinal).toBe(3);
+    root.remove();
+  });
+
+  it('the template-order proxy: unattached records fall back to list order (SSR)', () => {
+    const registry = createDomainRegistry();
+    const domain = createNumberingDomain({ parent: null });
+    registry.registerDomain(domain);
+    const a = { kind: 'figure' as const };
+    const b = { kind: 'figure' as const };
+    domain.registerFigure(a);
+    domain.registerFigure(b);
+    expect(figureOrdinal(a, domain, registry).ordinal).toBe(1); // instantiation order
+    expect(figureOrdinal(b, domain, registry).ordinal).toBe(2);
+    const r = { parent: null };
+    const rc = { parent: r };
+    domain.registerSection(r);
+    domain.registerSection(rc);
+    expect(sectionNumber(r, domain, registry)).toBe('1');
+    expect(sectionNumber(rc, domain, registry)).toBe('1.1');
   });
 });
