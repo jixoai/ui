@@ -181,18 +181,24 @@ describe('ButtonGroup · overflow=scroll · the css law (source-pinned)', () => 
     expect(block).toContain('position: relative;');
   });
 
-  it('THE RESTRAINT RULING (Owner acceptance): compact-row scale — the chevron lane and the veil band ride half the tabs measures', () => {
-    // the veil band: inset·3 (tabs runs inset·6)
-    expect(buttonGroupCss).toMatch(/--jx-btngroup-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*3\);/);
-    // the chevron lane: inset·1.5 (tabs runs inset·2), a smaller glyph
-    // at a dimmed ink
+  it('THE RESTRAINT RULING (Owner acceptance): compact-row scale — the band halved twice, the glyph pinned at 14px under the blend law', () => {
+    // the veil band: inset·1.5 (tabs runs inset·6 — halved twice)
+    expect(buttonGroupCss).toMatch(/--jx-btngroup-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
+    // the chevron lane: inset·1.5 (tabs runs inset·2)
     expect(buttonGroupCss).toMatch(
       /\[data-jx-btngroup-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-btngroup-chevron='inline-end'\]\)\s*\{[^}]*width:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/s,
     );
-    expect(buttonGroupCss).toMatch(/--jx-btngroup-chevron-size:\s*calc\(var\(--jx-text-secondary\)\s*\*\s*0\.75\);/);
-    expect(buttonGroupCss).toMatch(
-      /background-color:\s*color-mix\(in oklab,\s*var\(--muted-foreground\)\s*65%,\s*transparent\);/,
-    );
+    // the glyph: 14px pinned (the text-derived size computed ~8px), and
+    // THE BLEND LAW — white through mix-blend-mode: difference inverts
+    // any ground (a solid ink glyph vanished over scrolling content);
+    // hover states are meaningless under difference
+    expect(buttonGroupCss).toMatch(/--jx-btngroup-chevron-size:\s*14px;/);
+    expect(buttonGroupCss).toMatch(/background-color:\s*#fff;\s*\n\s*mix-blend-mode:\s*difference;/);
+    const chevronBlock = buttonGroupCss.match(
+      /\[data-jx-btngroup-chevron='inline-start'\]\),[\s\S]{0,200}?\{([^}]*)\}/,
+    )?.[1] ?? '';
+    expect(chevronBlock).not.toContain('muted-foreground');
+    expect(buttonGroupCss).not.toMatch(/\[data-jx-btngroup-chevron[^\]]*\]\):hover/);
   });
 
   it('the per-member ramps calc from the scroll handler\'s edge stamps, consumed SQUARED (the eased curve — light clips barely treat, actions stay readable)', () => {

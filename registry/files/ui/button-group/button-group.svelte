@@ -1154,10 +1154,10 @@
            scroll-state verdict (button-group.css) -->
       <div class="jx-btngroup-veil-layer pointer-events-none grid [grid-area:1/1]">
         {#if scrollEffect.type === 'progressBlur'}
-          <!-- hold = the chevron lane's share of the band (the
-               restraint ruling): lane inset·1.5 inside a veil inset·3
-               = 50% — the ladder's peak covers exactly the blank lane
-               snap parks content clear of -->
+          <!-- hold = 50 (round 3): the band halved again to inset·1.5 —
+               with snap retired there is no flush lane to cover, so
+               the ramp simply owns half the band and the peak the
+               other half -->
           <ProgressiveBlur
             pin="grid"
             position="start"

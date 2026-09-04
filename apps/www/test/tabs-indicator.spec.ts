@@ -950,8 +950,10 @@ describe('Tabs · horizontal overflow contract (tabs-trigger.css, source-pinned)
     expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-inline-start:\s*url\(/);
     expect(tabsTriggerCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*mask:\\s*var\\(--jx-tabs-chevron-inline-end\\)`, 's'));
     expect(tabsTriggerCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*mask:\\s*var\\(--jx-tabs-chevron-inline-start\\)`, 's'));
-    // the glyph size rides the family's icon token (never a hardcoded px)
-    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-size:\s*var\(--jx-text-secondary\)/);
+    // the glyph size: 14px pinned (Owner 2026-09-04 — the text-derived
+    // size computed ~8–11px, an unreadable whisper; the mask still
+    // references the var, so the indirection stays swappable)
+    expect(tabsTriggerCss).toMatch(/--jx-tabs-chevron-size:\s*14px;/);
   });
 
   it('a direction that cannot travel NEVER paints: the JS-stamped data-jx-scroll-state is the truth the css keys on', () => {
