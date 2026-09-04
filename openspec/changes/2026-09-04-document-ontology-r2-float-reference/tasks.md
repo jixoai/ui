@@ -10,19 +10,22 @@
 registry-lifecycle-host（路由切换/重复 id/**胜者注销后最早存活
 候选晋升**/disposer 幂等/**跨域移动仅销毁重建一途**负例）、
 reference-interaction-host（click/键盘/hydrate）、harvest-page
+（**六分支**：行内/裸/无前驱裸/缺失目标/**前向 SSR 边**/多子块）
 （行内/裸/无前驱裸/缺失目标/多子块五分支）。
 
 ## 0. 接口先行（依赖：无；ui/figure/ 由 ZCode 统一落盘，子代理不得触碰）
 
 - [ ] 0.1 `ui/figure/numbering.svelte.ts` 按 design §1.2 的**可编译
-      签名块**落盘：双 Symbol.for key、FigureKind、FIGURE_LABELS
+      签名块**落盘：**三** Symbol.for key（NUMBERING_DOMAIN /
+      DOCUMENT_TARGETS / DOCUMENT_DOMAINS）、FigureKind、FIGURE_LABELS
       真实字面量表、FigureTargetEntry（含 figureKind 判别字段）/
       SectionTargetEntry 真联合（accessor thunk）、TargetRegistry
       实例 API（registerTarget 幂等 disposer/getTarget/
       createTargetRegistry/targetRegistryFromContext）、
-      **NumberingDomain/DomainRegistry 家族**（registerSection/
-      registerFigure/createNumberingDomain(parent)/createDomainRegistry
-      + domainRevision/documentRevision 读法）
+      **NumberingDomain/DomainRegistry 家族**（registerSection(id?)/
+      registerFigure/createNumberingDomain({parent, root, floatScope})/
+      createDomainRegistry/domainRegistryFromContext +
+      domainRevision/documentRevision 读法）
 - [ ] 0.2 冻结面：上述签名定稿即冻结（批次 1/2/3 按此并行，
       不得各自修改）；门 = `tsc --noEmit` 过 + 一个导出面快照
       单测（断言导出名与形状，防漂移）
@@ -77,11 +80,14 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       无连接词 / 缺失 id 响亮回退）+ children 逃生门 + 前向引用
       水合跟随（「尚未注册」≠「不存在」，warn 仅 settle 后触发；
       **settle 口径 = 水合完成 + 双 rAF 后目标仍缺席**）
-- [ ] 3.2 `data-ref-to` 发射（**缺失目标不发射**——死锚禁令）
+- [ ] 3.2 `data-ref-to` 发射（**状态分裂**：SSR 回退态携带边主张
+      ——「尚未注册≠不存在」；**settle 后真缺失才摘除**——死锚
+      禁令保持 settle 语义）
 - [ ] 3.3 测试：解析矩阵五态（equation/section/无编号/缺失 id/
       前向引用 SSR 形态 `??(to)`→水合跟随）+ 逃生门 + 回退断言
       （`vi.spyOn(console,'warn')` 按 settle 口径调用一次含目标
-      id + `??(to)` 在场 + 不抛错 + 无 data-ref-to）
+      id + `??(to)` 在场 + 不抛错 + **settle 后**无 data-ref-to +
+      **SSR 态保留 data-ref-to**（前向边主张））
 - [ ] 3.4 （组件层止于源文件与测试；registry/镜像/manifest 归
       批次 6 串行整合）
 
@@ -133,6 +139,6 @@ mirror-manifest、catalog、public 生成物的唯一写入者，子代理不碰
       MODIFIED、paged-docs 的 MODIFIED、search-corpus 的 ADDED——
       均已随 change 落档，实施后对齐 scenario 细节）；归档时
       MODIFIED 自然回写 living spec，无额外迁移
-- [ ] 7.2 verification 记录落 `openspec/changes/…本目录/verification.md`
+- [ ] 7.2 verification 记录落 `openspec/changes/2026-09-04-document-ontology-r2-float-reference/verification.md`
       ——每条门一行：命令、产物路径（fixture/spec/探针输出）、
       归属批次；归档前逐门对勾

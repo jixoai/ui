@@ -14,6 +14,12 @@ an implicit depth inference.
   3.2.1`). Descendant sections need NO declaration of their own —
   inside a domain they receive numbers; the byte-identity guarantee
   applies ONLY to sections outside every numbering domain subtree.
+- Section addressing is wired at the line: an optional `id?: string`
+  prop lands verbatim on the section root element (`<section
+  id="…">`, asserted in outerHTML alongside `data-jx-section`) and
+  registers a `SectionTargetEntry` under the SAME id; a Section
+  without an id still numbers but produces no registry entry (not
+  referenceable — same law as Figure's optional id).
 - Counter resolution is a DOM-derived AUTO mode and SHALL claim the
   family-context law's existing auto-mode exception (state-sharing
   context otherwise carries state and behavior, never membership
@@ -67,6 +73,15 @@ an implicit depth inference.
   accessible heading text), asserted as full outerHTML
 - WHEN the section is unnumbered
 - THEN the span node does not exist at all
+
+#### Scenario: the Section's id wires the root element and the registry alike
+
+- WHEN a Section renders with `id="methods"` (numbered or not)
+- THEN its outerHTML carries `<section id="methods" data-jx-section …>`
+  and a SectionTargetEntry registers under `methods`
+- WHEN a Section renders without an id
+- THEN it still numbers (inside a domain) but the registry holds no
+  entry — a Reference to it cannot resolve
 
 #### Scenario: a nested domain restarts locally and never consumes a sibling ordinal
 

@@ -14,12 +14,16 @@ schema, additively — old corpora are never rewritten.
   section `number` lands on `sections[]`. Both fields are OPTIONAL
   and OMITTED when unnumbered (never written as null).
 - The harvest runs as a TWO-PASS pre-scan (Owner ruling P1-4=A,
-  2026-09-05): pass one builds the document-wide target index (every
-  `data-number`-bearing id); pass two projects the edges — so a
-  forward reference whose SSR form is the `??(to)` fallback still
-  contributes its `refids[]` edge (not-yet is not missing), while an
-  edge whose target never exists in the index is filtered (the
-  harvester is the static-completeness authority).
+  2026-09-05): pass one builds the document-wide REFERENCEABLE-TARGET
+  index — every `[data-jx-section][id]` (numbered OR NOT: an
+  unnumbered Section is a legal target) plus every
+  `[data-jx-figure][id][data-number]` (an unnumbered Figure is not
+  referenceable and stays out of the index); bare ids are excluded.
+  Pass two projects the edges — so a forward reference whose SSR form
+  is the `??(to)` fallback still contributes its `refids[]` edge
+  (not-yet is not missing), while an edge whose target never exists
+  in the index is filtered (the harvester is the
+  static-completeness authority).
 - `data-ref-to` on a reference point projects onto that block's
   `refids[]` with FIRST-OCCURRENCE dedup and stable order (multiple
   references to the same target in one block collapse to one entry).
@@ -69,3 +73,13 @@ schema, additively — old corpora are never rewritten.
   paragraph's `refids` containing it — the edge is complete in the
   static corpus without hydration; an edge whose target id never
   exists anywhere in the document is filtered instead of harvested
+
+#### Scenario: an unnumbered Section is an indexable target
+
+- GIVEN a page with an unnumbered `Section id="preface"` and a
+  Reference pointing at it, plus a Figure without `data-number` that
+  a dangling reference mentions
+- WHEN the two-pass harvester runs
+- THEN the preface edge projects into `refids` (the index carries
+  `[data-jx-section][id]` regardless of numbering) while the
+  unnumbered-Figure edge is filtered (never a legal target)

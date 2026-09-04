@@ -51,3 +51,12 @@ contract clause.
 - GIVEN a nested domain declaring `numbering` inside an outer root
 - THEN its Figures count from 1 against the inner root's local
   numbering, never the outer chapter prefix
+
+#### Scenario: multiple PagedDocs share one connected document
+
+- GIVEN a route page rendering two PagedDocs (one shared target
+  registry and document numbering domain)
+- THEN both render into the same route document's ordinary DOM
+  (connected roots — `compareDocumentPosition` orders across them),
+  portal-split roots are a forbidden shape for numbered docs, and
+  the document-order numbering spans both

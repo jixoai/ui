@@ -133,11 +133,12 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   尾以「 · 」引导、无 citedIn 时该节点不存在。
 ### 1.2 context 机件与法则认领
 
-- 计数域 context：`Symbol.for('jx-numbering-domain')`，**key 由
+- 计数域 context：`NUMBERING_DOMAIN_KEY`，**key 由
   figure 家族持有并 module 导出**（PRESS_TEXTURE_KEY 同律）；section
   只提供，figure 消费。payload = `NumberingDomain`（§1.2 签名块：
-  注册表 + `domainRevision`）；文档级第二 context 的 payload =
-  `DomainRegistry`（domains + `documentRevision`）。
+  注册表 + `domainRevision` + root/parent/floatScope）；文档级
+  `DomainRegistry` 走**独立 key** `DOCUMENT_DOMAINS_KEY`（domains +
+  `documentRevision`，`domainRegistryFromContext()` 消费）。
 - **结构 props 不可变前置条件**：`numbering`/`floatScope`/`kind`
   声明为**挂载期结构参数**——变更等价于销毁重建（Svelte remount
   自然完成注册迁移）；组件对挂载后更新这些 props 走 dev warn +
@@ -200,21 +201,31 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   export function targetRegistryFromContext(): TargetRegistry | undefined;
 
   // ── NumberingDomain 侧（同批冻结，batch 0 唯一 owner）──
-  // 域 context payload（NumberingDomain_KEY 挂载）：
+  // 域 context payload（NUMBERING_DOMAIN_KEY 挂载）；floatScope 与
+  // 根元素经工厂参数进入可调用形状（document-scope 参与资格由此
+  // 判定，不从 DOM 猜测）：
   export interface NumberingDomain {
-    registerSection(rec: { el: Element }): () => void;
+    registerSection(rec: { el: Element; id?: string }): () => void;
     registerFigure(rec: { el: Element; kind: FigureKind; id?: string }): () => void;
     readonly domainRevision: number;   // 域根 observer bump
-    // parentDomain 经 createNumberingDomain(parent) 工厂参数绑定
+    readonly root: Element;            // 域根（DomainRecord.el）
+    readonly parent: NumberingDomain | null;  // parentDomain
+    readonly floatScope: Partial<Record<FigureKind, 'chapter' | 'document'>>;
   }
-  export function createNumberingDomain(parent: NumberingDomain | null): NumberingDomain;
-  // 文档级域注册表 payload（DOCUMENT_TARGETS 同级第二 context）：
+  export function createNumberingDomain(opts: {
+    parent: NumberingDomain | null;
+    root: Element;
+    floatScope?: Partial<Record<FigureKind, 'chapter' | 'document'>>;
+  }): NumberingDomain;
+  // 文档级域注册表——独立 context key（不与 TargetRegistry 混载）：
+  export const DOCUMENT_DOMAINS_KEY = Symbol.for('jx-document-domains');
   export interface DomainRegistry {
     registerDomain(domain: NumberingDomain): () => void;
     readonly domains: readonly NumberingDomain[];
     readonly documentRevision: number; // 文档级 observer bump
   }
   export function createDomainRegistry(): DomainRegistry;
+  export function domainRegistryFromContext(): DomainRegistry | undefined;
   ```
 
   实例归属唯一：`registerTarget`/`getTarget` 都是 **registry 实例
@@ -247,7 +258,9 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 - 渲染 `<figure data-jx-figure={kind} id?>` + `<figcaption>`：标签
   （kind 显示词，本期硬编码英文默认：Figure/Table/Equation/Listing；
   **显示词/locale/编号显示格式的定制轴归 R5 编号方案**，§6 记档）+
-  解析编号 + caption 槽。
+  解析编号 + **caption 文本**（`caption?: string` **prop**——是值
+  不是 snippet；文本序 = §1.1c 冻结的最小形状，缺省时只有
+  label+number）。
 - `kind: 'figure' | 'table' | 'equation' | 'listing'`（本期四值；
   值域是收割面 registry，开放给 R6 扩展）。
 - `id` 可选——无 id 仍编号（显示货币），但不可被引/不可寻址（寻址
@@ -342,18 +355,21 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   收割投影：**`number` 挂到被包块的 `block.number`**（基座 §3 推论
   1——线承载结构、点承载语义，编号随点入语料），figure 包裹层
   不单独成块。
-- **两趟预扫描（Owner 裁决 P1-4=A）**：收割器**第一趟**收集全
-  文档所有 `data-number` 目标 id（全文档目标索引），**第二趟**
-  再投影 `data-ref-to`——SSR 呈回退态的前向引用边因此完整进
-  语料；指向索引中不存在目标的边（真死边）被过滤（收割侧是
-  静态完备性的裁决者）。
+- **两趟预扫描（Owner 裁决 P1-4=A）**：收割器**第一趟**建全文档
+  **可引目标索引**——集合 = **所有 `[data-jx-section][id]`（编号
+  与否——未编号 Section 是合法目标）∪ 所有 `[data-jx-figure][id]
+  [data-number]`（未编号 Figure 不可引，不进索引）**，bare id 排除；
+  **第二趟**投影 `data-ref-to`——SSR 呈回退态的前向引用边因此
+  完整进语料；指向索引中不存在目标的边（真死边）被过滤（收割
+  侧是静态完备性的裁决者）。
 - **消费（本轮交付）**：search-corpus.mjs 读 `data-number` /
   `data-ref-to` / `data-jx-figure` / `data-cited-in` →
   `block.number` / `block.refids[]` / `block.citedIn` / section
   `number`。**投影 JSON 形状（P1-5 冻结）**：`sections[].number`
   与 `block.number` 均 **optional**（缺省 = 未编号，不写 null）；
   `refids[]` **去重保首现序**（同块多次引同一目标合并为一条）；
-  `citedIn` = JSON 数组原序保留。**行内 Reference 落点**：
+  `citedIn` = JSON 数组原序保留（多子块 Figure：**与 number 同投
+  首个点块**——citedIn 与 number 是同一浮的注脚，不拆块）。**行内 Reference 落点**：
   data-ref-to 在段落/点块内 → 挂该块；**裸 Reference**（直接位于
   section body、无最近块根）→ 挂**最近前驱流项**（同 section 内
   之前最近的段落/点块），section 内无前驱流项时 dev-warn + 跳过
