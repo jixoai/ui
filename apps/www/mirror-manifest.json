@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-04T20:46:04.102Z",
+  "generatedAt": "2026-09-04T21:05:46.994Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3572,8 +3572,8 @@
           "source": "registry/files/search-corpus/search-corpus.mjs",
           "mirror": "registry/files/search-corpus/search-corpus.mjs",
           "target": "vite-plugins/search-corpus.mjs",
-          "sourceSha": "8cd6b9df5622b32563448bc843109fc101c07e8c12740ef59c0e9bc0cb9a3d9b",
-          "mirrorSha": "8cd6b9df5622b32563448bc843109fc101c07e8c12740ef59c0e9bc0cb9a3d9b"
+          "sourceSha": "e639f9c4f33e11dd00ff0e960ec9081356c519db40260d737c8c9dd21e90d96b",
+          "mirrorSha": "e639f9c4f33e11dd00ff0e960ec9081356c519db40260d737c8c9dd21e90d96b"
         }
       ]
     },
@@ -3650,8 +3650,8 @@
           "source": "registry/files/lib/paint.svelte.ts",
           "mirror": "apps/www/src/lib/paint.svelte.ts",
           "target": "@lib/paint.svelte.ts",
-          "sourceSha": "92935357ebaaeaf12231bbc1a2184ae398ae2f908ee1ed49596a36752265cd68",
-          "mirrorSha": "92935357ebaaeaf12231bbc1a2184ae398ae2f908ee1ed49596a36752265cd68"
+          "sourceSha": "bc69d1c591561038b37393a4955e55822b269e5602d602df0c63ffe8246a4ea3",
+          "mirrorSha": "bc69d1c591561038b37393a4955e55822b269e5602d602df0c63ffe8246a4ea3"
         }
       ]
     },

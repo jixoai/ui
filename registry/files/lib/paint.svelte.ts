@@ -25,10 +25,11 @@
  *      capture the parent zone eagerly, the getDensityContext
  *      precedent)
  *   3. definePaintSlot — the axis slot `explicit ?? ambient ?? own`;
- *      the ambient domain is TRUSTED (ZonePaintVariant narrows at the
- *      provider; the values tuple is the family union's SOURCE and
- *      the gate's availability carrier, consumed by no runtime guard
- *      — D3-A)
+ *      the ambient domain is provider-narrowed (ZonePaintVariant) and
+ *      the values tuple additionally gates the AMBIENT lane at
+ *      runtime (B4, 2026-09-05: a zone value outside the family's
+ *      availability falls back to own — narrow unions like Badge's
+ *      fill/tonal/outline must never receive ghost)
  *   4. the 惰性律 — construction captures own only (values is a
  *      type/gate carrier the runtime never touches); the
  *      ambient read is this module's closure-held getter, lazily
@@ -113,18 +114,18 @@ export function providePaintZone(variant: () => ZonePaintVariant | undefined): v
 
 /**
  * The paint axis slot (slot-values-first D1, replacing the retired
- * the retired paintSlot(own, values) form): `explicit ?? ambient ?? own`, ambient =
+ * paintSlot(own, values) form): `explicit ?? ambient ?? own`, ambient =
  * the zone key. The values tuple is FIRST and is the family union's
  * SOURCE: `const T extends readonly PaintVariant[]` locks values ⊆
  * the axis domain at compile time, `own: OneOf<T>` locks own ∈
  * values, and const generic inference replaces the explicit type
  * argument (NoInfer/= never enforcement retired — omission of either
  * parameter cannot compile). Construction captures own only (惰性
- * 律); `values` is the type/gate carrier ONLY — the runtime ignores
- * it (D3-A: the ambient domain is trusted — ZonePaintVariant narrows
- * at the provider, and with the single-key law there is no second
- * write path to defend against at all). The resolver below is
- * byte-identical in semantics to the retired paintSlot's.
+ * 律); `values` is the type/gate carrier ONLY for the EXPLICIT lane —
+ * the ambient lane gates on it at runtime (B4, codex r1 2026-09-05):
+ * a zone value outside the family's availability tuple falls back to
+ * own instead of leaking into the family's class map as undefined
+ * (ghost under Badge/Kbd/InlineCode was the live crash vector).
  */
 export function definePaintSlot<const T extends readonly PaintVariant[]>(
   values: T,
@@ -134,6 +135,9 @@ export function definePaintSlot<const T extends readonly PaintVariant[]>(
     if (explicit !== undefined) return explicit;
     const ambient = readAmbientVariant();
     if (ambient === undefined) return own; // no opinion — the zone's silence
-    return ambient as OneOf<T>; // the trusted ambient domain (provider-narrowed)
+    // B4: the provider narrows to ZonePaintVariant, but a NARROW family
+    // (badge/kbd/inline-code lack ghost) can receive a value it cannot
+    // paint — availability gates the ambient lane; not-a-member → own
+    return (values as readonly PaintVariant[]).includes(ambient) ? (ambient as OneOf<T>) : own;
   });
 }
