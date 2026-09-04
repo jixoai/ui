@@ -263,10 +263,10 @@
 /* rainbow keyframes (registered percentage props) */
 @keyframes jx-rainbow-x {
   from {
-    --jx-rx: -8%;
+    --jx-rx: -4%;
   }
   to {
-    --jx-rx: 8%;
+    --jx-rx: 4%;
   }
 }
 @keyframes jx-rainbow-y {
