@@ -207,13 +207,34 @@ export interface CapturedAnimation {
   readonly transitionTarget?: Element;
 }
 
+/** the transition settle barrier's wait (print-determinism,
+ * 2026-09-04): css-transitions are FINITE by nature — wait them out
+ * (bounded; a pathological long/looped transition freezes as
+ * captured rather than blocking the print) so the capture's
+ * transition ledger is empty and layout-coupled mid-flight sets
+ * never bake window state into the clone */
+async function settleTransitions(root: HTMLElement, signal: AbortSignal | undefined): Promise<void> {
+  if (typeof root.getAnimations !== 'function') return;
+  const deadline = Date.now() + 600;
+  for (;;) {
+    const running = root
+      .getAnimations({ subtree: true })
+      .filter(
+        (a) =>
+          classifyAnimation(a) === 'css-transition' &&
+          (a.playState === 'running' || a.playState === 'pending'),
+      );
+    if (running.length === 0 || Date.now() > deadline || signal?.aborted) return;
+    await doubleRaf();
+  }
+}
+
 function classifyAnimation(anim: Animation): AnimationKind {
   const w = window as unknown as {
     CSSAnimation?: new () => Animation;
     CSSTransition?: new () => Animation;
     Animation?: new () => Animation;
-  };
-  if (w.CSSAnimation && anim instanceof w.CSSAnimation) return 'css-animation';
+  };  if (w.CSSAnimation && anim instanceof w.CSSAnimation) return 'css-animation';
   if (w.CSSTransition && anim instanceof w.CSSTransition) return 'css-transition';
   if (w.Animation && anim instanceof w.Animation) {
     // a KeyframeEffect-backed Animation = element.animate() (WAAPI);
@@ -1061,6 +1082,17 @@ export async function prepareSnapshot(
         );
       }
     }
+
+    // ── 1.5 the transition settle barrier (print-determinism,
+    //    2026-09-04): the density intervention starts CSS transitions,
+    //    and WHICH are mid-flight at capture is layout-coupled (the
+    //    narrow/wide canvas tiers transition different element sets —
+    //    the 800-vs-1600 freeze-stamp leak). The print face is a pure
+    //    function of the document, never of the window: wait (bounded)
+    //    for the subtree's css-transitions to finish; the clone then
+    //    renders their committed end state by construction, and the
+    //    capture's transition ledger is empty — deterministic ──
+    await settleTransitions(root, options.signal);
 
     // ── 2. scoped animation capture (post-barrier, per the ordering
     //    law above — the failure path still resumes what it paused) ──

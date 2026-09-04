@@ -698,12 +698,15 @@ describe('prepareSnapshot — P1-1: the capture lands AFTER the DOM-commit barri
     root.getAnimations = getAnimations as unknown as typeof root.getAnimations;
     const snapshot = await prepareSnapshot(root, { purpose: 'sim' });
     expect(snapshot.clone.querySelector('p')!.textContent).toBe('body');
-    // the capture ran exactly once, subtree-scoped, and it saw the
-    // committed density stamp — the pre-P1-1 order captured it here
-    // while the tree was still un-committed (the cross-frame mix)
-    expect(getAnimations).toHaveBeenCalledTimes(1);
+    // the capture ran subtree-scoped and it saw the committed density
+    // stamp — the pre-P1-1 order captured it here while the tree was
+    // still un-committed (the cross-frame mix). Since print-
+    // determinism (2026-09-04) a SETTLE PROBE precedes the capture
+    // (the transition settle barrier — same subtree question, one
+    // extra call, both strictly post-barrier)
+    expect(getAnimations).toHaveBeenCalledTimes(2);
     expect(getAnimations).toHaveBeenCalledWith({ subtree: true });
-    expect(observed).toEqual(['sm']);
+    expect(observed).toEqual(['sm', 'sm']);
   });
 });
 

@@ -272,6 +272,33 @@
         </p>
       </SectionCard>
     </div>
+
+    <div id="determinism" data-reveal="">
+      <SectionCard
+        family="usage"
+        headerRegion="usage"
+        eyebrow="determinism"
+        title="Print determinism — the best-practice contract"
+        summary="打印面是「文档 + printConfig」的纯函数，永不依赖窗口。管线自带视口改辖域通道（宽度媒体查询与视口单位在姿势内对页面内容盒求值），这里说明它为你挡了什么、以及你自己写内容时还需要避开什么。"
+      >
+        <div class="flex flex-col gap-3 text-[13.5px] leading-[1.7] text-muted-foreground">
+          <p>
+            <strong class="text-foreground">你仍然可以用</strong> 视口媒体查询（sm:/md:/lg:/max-* 与手写
+            @media）和视口单位（vw/vh/vmin/vmax，含流式字号 text-[clamp(…,Nvw,…)]）——它们在 web
+            面的行为不受任何影响。web 应用型项目完全可以无视本节。
+          </p>
+          <p>
+            <strong class="text-foreground">但不建议</strong> 让打印存活的内容依赖它们。管线分页发生在活窗口里：
+            尽管姿势内宽度查询已被改辖域到页面内容盒、视口单位被覆写为容器单位，仍有个别形态不可表达（height
+            族特征、screen 型宽度查询、被反转的怪异条件）——它们会被大声禁用并计入控制台告警，内容退回基础档。
+          </p>
+          <p>
+            <strong class="text-foreground">为什么</strong>：分页测量对窗口求值、浏览器最终渲染对纸张求值，两者错位即产物漂移——同一文档在窄窗与宽窗打印出不同的断页。验收门禁是双视口差分（800×600 ≡
+            1600×1200，逐字节一致）；写作侧的最佳实践是：打印存活内容的自适应用<strong class="text-foreground">容器查询</strong>（@container / cq 单位），尺寸用 rem/容器单位而非视口单位。
+          </p>
+        </div>
+      </SectionCard>
+    </div>
   </div>
 </div>
 

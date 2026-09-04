@@ -53,6 +53,14 @@
 //               washed leak), and the declared-dark stamp flips the
 //               kernel's dark-paper family (sheet ground paints,
 //               print-color-adjust exact, the ink scope follows)
+//   determinism print-determinism 2026-09-04: the print face is a
+//               pure function of the document, never of the window —
+//               the full pose at 800×600 and 1600×1200 produces
+//               byte-identical page boxes + content signatures, and
+//               the viewport channel's report shows re-scoped
+//               queries with zero fallbacks (accordion.html carries
+//               every leak family: sm:/lg: utilities, container
+//               queries, fluid vw typography, freeze transitions)
 //
 // Run: node scripts/verify-print.mjs   (PORT=… to retarget)
 import { chromium } from '/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/playwright-core/index.mjs';
@@ -1386,6 +1394,71 @@ await page.evaluate(() => {
   document.documentElement.classList.remove('dark');
   document.documentElement.style.colorScheme = '';
 });
+
+// ---- 2l. print determinism (print-determinism, 2026-09-04): the
+// print face is a pure function of the document + printConfig —
+// NEVER of the window. The differential is the acceptance
+// definition: the SAME document through the full print pose at
+// 800×600 and 1600×1200 must produce byte-identical page box
+// sequences, content signatures, and the viewport channel's report.
+// accordion.html is the reproduction carrier (it carries the page
+// wrapper's sm:/lg: utilities, the canvas container queries, the
+// fluid vw typography, and freeze-captured transitions — every leak
+// family the channel exists to close).
+{
+  const fingerprint = async (vw, vh) => {
+    const ctx = await browser.newContext({ viewport: { width: vw, height: vh } });
+    const p = await ctx.newPage();
+    await p.goto(`http://localhost:${PORT}/docs/components/accordion.html`, { waitUntil: 'domcontentloaded' });
+    await p.waitForSelector('[data-print-source] [data-jx-print-sim-toggle]', { timeout: 20000 });
+    await p.click('[data-print-source] [data-jx-print-sim-toggle]');
+    await p.waitForSelector('.pagedjs_page', { timeout: 30000 });
+    await p.waitForTimeout(2500); // settle: folio backfill + freeze stamps
+    const fp = await p.evaluate(() => {
+      const channelStyle = document.head.querySelector('[data-jx-print-viewport-rescope]');
+      const pages = [...document.querySelectorAll('.pagedjs_page')];
+      // durationMs is wall-clock — normalize it OUT of the byte-
+      // strict comparison (the counts are the contract, not the timing)
+      const report = channelStyle?.getAttribute('data-report') ?? null;
+      const normalized = report
+        ? JSON.stringify({ ...JSON.parse(report), durationMs: 0 })
+        : null;
+      return {
+        report: normalized,
+        boxes: pages.map((p2) => {
+          const r = p2.getBoundingClientRect();
+          return `${Math.round(r.width)}x${Math.round(r.height)}`;
+        }),
+        sig: pages.map((p2) => {
+          const els = [...p2.querySelectorAll('.pagedjs_page_content *')];
+          return `${els.length}/${els.filter((e) => e.getAttribute('style')).length}`;
+        }),
+        heroFont: (() => {
+          const h1 = document.querySelector('.pagedjs_page h1');
+          return h1 ? getComputedStyle(h1).fontSize : null;
+        })(),
+      };
+    });
+    await ctx.close();
+    return JSON.stringify(fp);
+  };
+  const narrow = await fingerprint(800, 600);
+  const wide = await fingerprint(1600, 1200);
+  const parse = (s) => JSON.parse(s);
+  const n = parse(narrow);
+  check(
+    'print determinism: 800×600 ≡ 1600×1200 — byte-identical pages, and the viewport channel armed (queries re-scoped, zero fallbacks)',
+    narrow === wide &&
+      n.report !== null &&
+      parse(n.report).rescopeCount > 0 &&
+      parse(n.report).fallbackCount === 0 &&
+      parse(n.report).unitOverrideCount > 0 &&
+      n.heroFont !== null,
+    narrow === wide
+      ? `identical across ${n.boxes.length} pages — channel ${n.report}`
+      : `DIVERGED — narrow=${narrow.slice(0, 220)} wide=${wide.slice(0, 220)}`,
+  );
+}
 
 await browser.close();
 

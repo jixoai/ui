@@ -76,6 +76,7 @@ import {
   type PrintProgress,
 } from './freeze.svelte';
 import { compilePageCss, parsePageConfig, type PrintPaperTheme } from './page-config';
+import { armPrintViewport } from './print-viewport.svelte';
 import {
   awaitSettledLayout,
   relocateStrandedKeeps,
@@ -210,6 +211,10 @@ export function createPrintPipeline(
 
   let artifact: Artifact | undefined;
   let inFlight: Promise<void> | undefined;
+  /** the armed viewport re-scope channel (print-determinism,
+   * 2026-09-04) — owned by stampActive: armed with the pose stamp,
+   * disarmed with its release, one unit across sim/direct/ambient */
+  let viewportChannel: { disarm: () => void } | undefined;
   /** PER-FLIGHT "preview entered" gate — reset at every guarded entry
    *  (a stale true left by a previous flight would misroute cancel()
    *  into the post-preview branch while the new attempt is still
@@ -356,8 +361,20 @@ export function createPrintPipeline(
   };
 
   const stampActive = (on: boolean): void => {
-    if (on) document.documentElement.setAttribute(ACTIVE_ATTR, '');
-    else document.documentElement.removeAttribute(ACTIVE_ATTR);
+    if (on) {
+      document.documentElement.setAttribute(ACTIVE_ATTR, '');
+      // THE VIEWPORT RE-SCOPE (print-determinism, 2026-09-04): the
+      // pose and the channel are one unit — armed at every pose stamp
+      // (sim, direct print, ambient), disarmed at every release. The
+      // standby preview is included by construction (a preview that
+      // differs from print is meaningless); the web face outside the
+      // pose never sees it, so its responsiveness stays whole
+      if (!viewportChannel) viewportChannel = armPrintViewport();
+    } else {
+      document.documentElement.removeAttribute(ACTIVE_ATTR);
+      viewportChannel?.disarm();
+      viewportChannel = undefined;
+    }
   };
 
   /** The ToC folio backfill (vision r3): page numbers are a static
