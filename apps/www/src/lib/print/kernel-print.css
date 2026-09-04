@@ -238,6 +238,15 @@
   overflow: visible;
   max-block-size: none;
 }
+/* canvas playground pane — its min(36rem,70vh) cap is the same
+   viewport-family leak (print-determinism, 2026-09-04): a vh cap
+   resolves against the WINDOW during standby fragmentation and
+   against the PAPER at render — the two disagree, so the pose lifts
+   it with the rest of the scrollport family */
+:where(.jx-canvas-playground) {
+  overflow: visible;
+  max-block-size: none;
+}
 /* code-card pre scrollport */
 :where([data-jx-code-card-pre]) {
   overflow: visible;
