@@ -41,3 +41,13 @@
 - the r2 follow-up chain: 8a976cf (B1-B3+S1-S4) → 1455fcf (manifest catch-up for
   the parallel line's 1fbd1e8) → 16b4cde (lock parent bootstrap, CI-only ENOENT;
   run 33886869056 green) → this commit.
+- impl review r3 (2026-09-05 00:14, codex gpt-5.6-terra xhigh): **7.6/10** — the r2
+  blockers independently verified closed (codex's own 8×100 lock-contention probe:
+  holders=0, max=1; immune-descendant group reap ~1.3s, leaked=[]; drift bijection
+  honored "no self-certification"). One residue blocker (fixed in the follow-up
+  commit): the self-test's fixed marker filenames let a second run read the first
+  run's readiness markers and TERM a half-booted sleeper — markers are now unique
+  per run with a startup sweep; plus the r3 suggestions: Buffer.equals mirror
+  comparison, registry entry retirement after reap (pid-reuse guard), the timeout
+  reap participates in promise resolution (pipe-hostage 'close' can no longer
+  stretch a budget), STATUS records ca3de59's CI 33892150033.

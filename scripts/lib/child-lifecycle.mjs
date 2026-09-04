@@ -87,27 +87,34 @@ export class ChildRegistry {
         /* group already gone */
       }
     };
-    if (!groupAlive(child.pgid)) return { terminated: [], escalated: [], leaked: [] };
-    killGroup('SIGTERM');
-    const groupGone = async (budgetMs) => {
-      const deadline = Date.now() + budgetMs;
-      while (groupAlive(child.pgid) && Date.now() < deadline) {
-        await new Promise((r) => setTimeout(r, pollMs));
+    try {
+      if (!groupAlive(child.pgid)) return { terminated: [], escalated: [], leaked: [] };
+      killGroup('SIGTERM');
+      const groupGone = async (budgetMs) => {
+        const deadline = Date.now() + budgetMs;
+        while (groupAlive(child.pgid) && Date.now() < deadline) {
+          await new Promise((r) => setTimeout(r, pollMs));
+        }
+        return !groupAlive(child.pgid);
+      };
+      const terminatedGraceful = await groupGone(graceMs);
+      let escalated = false;
+      if (!terminatedGraceful) {
+        killGroup('SIGKILL');
+        escalated = true;
       }
-      return !groupAlive(child.pgid);
-    };
-    const terminatedGraceful = await groupGone(graceMs);
-    let escalated = false;
-    if (!terminatedGraceful) {
-      killGroup('SIGKILL');
-      escalated = true;
+      const gone = await groupGone(2000);
+      return {
+        terminated: [child.pid],
+        escalated: escalated ? [child.pid] : [],
+        leaked: gone ? [] : [child.pid],
+      };
+    } finally {
+      // retire the entry once reaped (r3 S2): a long-lived registry
+      // holding dead pids risks killing an UNRELATED reused pid/pgid
+      // in a later reapSync — reaped entries have nothing left to do
+      this.#children = this.#children.filter((c) => c !== child);
     }
-    const gone = await groupGone(2000);
-    return {
-      terminated: [child.pid],
-      escalated: escalated ? [child.pid] : [],
-      leaked: gone ? [] : [child.pid],
-    };
   }
 
   /**

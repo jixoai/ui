@@ -195,8 +195,17 @@ if (process.argv.includes('--lifecycle-self-test')) {
 
   // readiness markers: a child is only reaped AFTER its SIGTERM handler
   // is installed (a half-booted child proves nothing) — the handler
-  // scripts drop a marker file the moment they are armed
-  const markerFor = (name) => join(root, '.agents', 'fixtures', `lifecycle-selftest-${name}.ready`);
+  // scripts drop a marker file the moment they are armed. Marker names
+  // are UNIQUE PER RUN (impl-review r3 B1: a fixed name let the second
+  // run see the first run's marker and TERM a half-booted child — the
+  // residue also faked readiness); stale markers from crashed runs are
+  // swept at self-test start
+  const fixturesDir = join(root, '.agents', 'fixtures');
+  const RUN_TOKEN = `${process.pid}-${Date.now().toString(36)}`;
+  for (const f of readdirSync(fixturesDir)) {
+    if (f.startsWith('lifecycle-selftest-')) rmSync(join(fixturesDir, f), { force: true });
+  }
+  const markerFor = (name) => join(fixturesDir, `lifecycle-selftest-${RUN_TOKEN}-${name}.ready`);
   const waitMarker = async (name, what, ms = 8000) => {
     const end = Date.now() + ms;
     while (Date.now() < end) {
@@ -306,6 +315,11 @@ if (process.argv.includes('--lifecycle-self-test')) {
   if (sleeperDead) pass('SIGINT: victim exited, sleepers reaped, lock released');
   if (vcode !== 130) await fail(`victim exited ${vcode}, expected 130`);
 
+  // sweep THIS run's markers (the next run's startup sweep is the hard
+  // guarantee; this keeps the fixtures dir clean in the happy path)
+  for (const f of readdirSync(fixturesDir)) {
+    if (f.startsWith('lifecycle-selftest-')) rmSync(join(fixturesDir, f), { force: true });
+  }
   console.log('[lifecycle-self-test] GREEN — token-bound atomic lock, live denial, TERM/KILL escalation (leaders, descendants, immune groups), stale takeover, contention mutex, cross-process SIGINT reap');
   await finish(0, { label: 'self-test complete' });
 }
@@ -743,17 +757,21 @@ console.log('npm install (consumer template deps — installs once, 600s group-b
   child.stdout?.on('data', (d) => (out += d));
   child.stderr?.on('data', (d) => (out += d));
   let timedOut = false;
-  // a HARD budget (r2 B3): on deadline the bounded single-group reap
-  // (TERM → grace → KILL → verify) runs, so the close below fires in
-  // finite time even against a SIGTERM-immune install — no infinite wait
+  // HARD budget (r2 B3 + r3 S3): resolve on close OR reap completion —
+  // a pipe-holding out-of-group descendant can hold 'close' hostage
+  let reapDone;
+  const reaped = new Promise((r) => (reapDone = r));
   const timer = setTimeout(() => {
     timedOut = true;
-    void CHILDREN.reapOne(entry, { graceMs: 2000 });
+    void CHILDREN.reapOne(entry, { graceMs: 2000 }).then(reapDone, reapDone);
   }, 600_000);
-  const code = await new Promise((resolveClose) => {
-    child.on('close', resolveClose); // fires for spawn errors too
-    child.on('error', () => resolveClose(null));
-  });
+  const code = await Promise.race([
+    new Promise((resolveClose) => {
+      child.on('close', resolveClose); // fires for spawn errors too
+      child.on('error', () => resolveClose(null));
+    }),
+    reaped.then(() => null),
+  ]);
   clearTimeout(timer);
   if (timedOut) die(`npm install exceeded the 600s group-budget — process group ${child.pid} TERM→KILLed; tail:\n${out.slice(-1200)}`);
   if (code !== 0) die(`npm install failed (exit ${code}):\n${out.slice(-1200)}`);
@@ -800,21 +818,29 @@ const runIn = async (dir, cmd, args, { env = {}, timeoutMs = 300_000, label = ''
   child.stdout?.on('data', (d) => (out += d));
   child.stderr?.on('data', (d) => (out += d));
   let spawnError = null;
-  // HARD budget (r2 B3): the deadline runs the bounded single-group
-  // reap (TERM → grace → KILL → verify), so this resolves in finite
-  // time against immune children; 'close' also covers spawn errors
+  // HARD budget (r2 B3 + r3 S3): the deadline runs the bounded single-
+  // group reap (TERM → grace → KILL → verify); the waiter resolves on
+  // EITHER the child's close OR the reap's completion — an out-of-group
+  // descendant holding the stdio pipes can hold 'close' hostage after
+  // the group is already dead, so reap completion is a resolution path
+  // of its own (bounded ≤ ~4s), never a fire-and-forget
   let timedOut = false;
+  let reapDone;
+  const reaped = new Promise((r) => (reapDone = r));
   const timer = setTimeout(() => {
     timedOut = true;
-    void CHILDREN.reapOne(entry, { graceMs: 2000 });
+    void CHILDREN.reapOne(entry, { graceMs: 2000 }).then(reapDone, reapDone);
   }, timeoutMs);
-  const status = await new Promise((resolveClose) => {
-    child.on('close', resolveClose);
-    child.on('error', (e) => {
-      spawnError = e;
-      resolveClose(null);
-    });
-  });
+  const status = await Promise.race([
+    new Promise((resolveClose) => {
+      child.on('close', resolveClose); // fires for spawn errors too
+      child.on('error', (e) => {
+        spawnError = e;
+        resolveClose(null);
+      });
+    }),
+    reaped.then(() => null),
+  ]);
   clearTimeout(timer);
   return { status, stdout: out, stderr: out, timedOut, spawnError };
 };

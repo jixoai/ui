@@ -91,7 +91,7 @@ try {
         drift.push(`${rel}: no apps/www/test counterpart`);
         continue;
       }
-      if (readFileSync(regPath).toString() !== readFileSync(wwwPath).toString()) drift.push(rel);
+      if (!readFileSync(regPath).equals(readFileSync(wwwPath))) drift.push(rel);
     }
     if (drift.length) {
       console.error(`[registry-test-mirror] drifted (${drift.length}): ${drift.join(', ')}`);
