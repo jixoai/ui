@@ -52,8 +52,9 @@ R2 裁决会话（grill，2026-09-04，全部 Owner 拍板）：
   例外/composition-first 窄例外的 MODIFIED）+ search-corpus（收割
   字段与五分支投影细则）+ **paged-docs（CSS counters/PagedRef 退役
   的 MODIFIED）**——三份 delta 均已随 change 开档；目标注册表挂
-  路由页面根 provider；批次 0 接口冻结于 `ui/figure/numbering.svelte.ts`
-  （design §1.2 可编译签名块）。
+  路由页面根 provider（TargetRegistry 实例 API，design §1.2 可编译
+  签名块；DomainRecord 带 parentDomain，章序数仅计顶层根）；批次 0
+  接口冻结于 `ui/figure/numbering.svelte.ts`。
 - 依赖：R1 的标记车道（section role/ordering）已在 main；figure 的
   kind/number/refids 发射沿用同一语法族。
 - R5（面预设）后向依赖本轮的 scope/kind 轴——预设只改默认，不改机制。

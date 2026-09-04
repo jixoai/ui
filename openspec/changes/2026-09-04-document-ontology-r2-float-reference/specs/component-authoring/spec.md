@@ -17,10 +17,14 @@ an implicit depth inference.
 - Counter resolution is a DOM-derived AUTO mode and SHALL claim the
   family-context law's existing auto-mode exception (state-sharing
   context otherwise carries state and behavior, never membership
-  order): ordinals derive from `compareDocumentPosition` order over a
-  reactive registry whose revision is bumped by a domain-root
-  MutationObserver — registration order NEVER assigns numbers, and
-  DOM mutation is the ONLY renumbering signal. The claim splits by
+  order): ordinals derive from `compareDocumentPosition` order over
+  a reactive registry driven by the TWO-LEVEL revision matrix — the
+  domain-root observer bumps `domainRevision` (in-domain members and
+  positions; sibling-root order, root moves, and document-scope
+  participants invalidate through `documentRevision`, bumped by the
+  document-level domain registry's observer) — registration order
+  NEVER assigns numbers, and DOM mutation is the ONLY renumbering
+  signal. The claim splits by
   shape: Reference resolution rides the exception's shell-plus-
   hydration form (forward references render the fallback in
   prerender, hydrate to the resolved form), while Figure numbering
@@ -94,12 +98,14 @@ an implicit depth inference.
 
 #### Scenario: the document-scope exception counts across domains
 
-- GIVEN two declared domains where the first sets
+- GIVEN two declared domains that BOTH set
   `floatScope={{ equation: 'document' }}` and both contain equation
   Figures
 - THEN the document-scoped counter is unique per document for that
-  kind, iterating only participating domains, while every other kind
-  keeps its per-domain counters (mixed regimes coexist, never added)
+  kind, iterating only the participating domains in document order,
+  while every other kind keeps its per-domain counters (mixed
+  regimes coexist, never added); a domain that declares no document
+  scope for the kind does not participate
 
 #### Scenario: a nested declaration shadows the outer domain
 
@@ -145,8 +151,9 @@ primitive named by its DOM contract.
 #### Scenario: the manual lane renders what the author declares
 
 - WHEN a Figure declares `citedIn={['§ 3.1', '§ 5.2']}`
-- THEN the caption tail renders those strings and `data-cited-in`
-  carries the JSON array for harvest
+- THEN the caption tail renders those strings and the tail node
+  carries `data-cited-in` (the harvest marker — one name everywhere,
+  never `data-jx-cited-in`) with the JSON array as its payload
 - WHEN `citedIn` is absent or an empty array
 - THEN no `data-cited-in` node or attribute renders and no
   backlink-only registration runs — while the Figure's normal
@@ -164,21 +171,28 @@ primitive named by its DOM contract.
 
 The typed cross-link SHALL carry zero grammar knowledge of its own.
 
-- `<Reference to>` resolves through a DOCUMENT-LEVEL registry (a
-  `Symbol.for` key owned by the figure family, **provided at the
-  ROUTE-PAGE root** — never the root/docs layouts, which outlive
-  routes and would leak prior-page ids; the registry dies with the
-  page component on navigation). Entries are a real discriminated
-  union — `FigureTargetEntry { id, kind: 'figure', number: string,
-  title: null }` and `SectionTargetEntry { id, kind: 'section',
-  number: string | null, title: string }` — with `number`/`title`
-  accessor references to derived state, NEVER registration-time
-  snapshots. `registerTarget()` returns an idempotent disposer; a
+- `<Reference to>` resolves through a DOCUMENT-LEVEL registry — a
+  `TargetRegistry` INSTANCE created per route page
+  (`createTargetRegistry()` + `setContext` at the page root; never
+  the root/docs layouts, which outlive routes and would leak
+  prior-page ids; the registry dies with the page component on
+  navigation, collapsing every reference to the missing state with
+  no dangling warnings). Entries are a real discriminated union
+  with derived fields registered as ACCESSOR THUNKS (read-on-call
+  values, reactive inside `$derived` — never registration-time
+  snapshots): `FigureTargetEntry { id, kind: 'figure', number: ()
+  => string, title: null }` and `SectionTargetEntry { id, kind:
+  'section', number: () => string | null, title: () => string }`.
+  `registry.registerTarget()` returns an idempotent disposer; a
   duplicate id warns in dev with the FIRST live registration the
-  winner, and when the winner disposes the earliest still-live
-  candidate is promoted in the same settle. Domain context serves
-  counting only, addressing always walks the registry, so
-  cross-domain references resolve. The rendered form follows the
+  winner, the earliest still-live candidate promoted in the same
+  settle when the winner disposes, and the target returning to the
+  missing state when the last entry disposes. Section/Figure/
+  Reference share ONE cross-domain move model: moves happen only
+  through Svelte instance destroy-and-rebuild — unmount disposes
+  (the old domain stops counting, the registry entry vanishes),
+  remount re-registers in the new domain; observer bumps recompute
+  ordinals but never migrate registry ownership. The rendered form follows the
   TARGET: a Figure renders per its kind (`Eq (4.5)` / `Fig 2-3` /
   `Table 6-1` / `Listing 3`), a numbered Section renders `§ 3.2.1`,
   an unnumbered target renders its title (no connective — author

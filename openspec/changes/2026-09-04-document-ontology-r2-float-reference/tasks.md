@@ -20,13 +20,18 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       registerTarget（幂等 disposer）/getTarget、provider 值
       （SvelteMap + 首存活者胜 + 晋升规则）
 - [ ] 0.2 冻结面：上述签名定稿即冻结（批次 1/2/3 按此并行，
-      不得各自修改；实施前用一次 `tsc --noEmit` 证明可编译）
+      不得各自修改）；门 = `tsc --noEmit` 过 + 一个导出面快照
+      单测（断言导出名与形状，防漂移）
 
 ## 1. Section 编号树（依赖：0）
 
 - [ ] 1.1 numbering context 机件（design §1.1 唯一许可实现）：域根
-      响应式注册表 + MutationObserver revision 信号 +
-      compareDocumentPosition 序数派生；**注册顺序永不赋序**；
+      响应式注册表 + **两级 revision 信号矩阵**（域根 observer →
+      domainRevision；文档级域注册表 observer → documentRevision，
+      各自驱动各自派生）+ compareDocumentPosition 序数派生
+      （DomainRecord 带 parentDomain，章序数仅过滤顶层根）；
+      **注册顺序永不赋序**；**跨域移动唯一模型=销毁重建**
+      （A→B 夹具：旧域不计数、新域立即计数、注册表单活动 entry）；
       SSR 退化实例化序 + 水合首帧一致（mismatch 即失败）；CSR-only
       首帧可短暂无编号（settle 后一致，记档立场）
 - [ ] 1.2 `floatScope` kind 轴配置（默认全 chapter；document 连续
@@ -118,5 +123,6 @@ mirror-manifest、catalog、public 生成物的唯一写入者，子代理不碰
       MODIFIED、paged-docs 的 MODIFIED、search-corpus 的 ADDED——
       均已随 change 落档，实施后对齐 scenario 细节）；归档时
       MODIFIED 自然回写 living spec，无额外迁移
-- [ ] 7.2 verification 记录（文件、命令、证据**归属者**——每条
-      门写明由哪个批次的哪个 fixture/脚本产出）+ 归档准备
+- [ ] 7.2 verification 记录落 `openspec/changes/…本目录/verification.md`
+      ——每条门一行：命令、产物路径（fixture/spec/探针输出）、
+      归属批次；归档前逐门对勾

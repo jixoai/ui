@@ -45,10 +45,15 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 
 - **记录形状**：域内注册表收 `SectionRecord { el }` 与
   `FigureRecord { el, kind, id? }` 两类；**文档级域注册表**收
-  `DomainRecord { el }`（每个声明 `numbering` 的根各一条）。
+  `DomainRecord { el, parentDomain: DomainRecord | null }`（每个
+  声明 `numbering` 的根各一条；顶层根 `parentDomain = null`，
+  嵌套域指向其外层域）。
 - **`deriveSectionNumber()`（唯一算法）**：
-  1. 根域章序数 = 该域的 `DomainRecord` 在文档级域注册表中按
-     `compareDocumentPosition` 的位次（多根并列即文档序递增）；
+  1. 根域章序数 = 该域的 `DomainRecord` 在文档级域注册表中**仅
+     过滤 `parentDomain === null` 的顶层根**、按
+     `compareDocumentPosition` 的位次（多根并列即文档序递增；
+     嵌套域虽登记但不参与章序数——这是「兄弟根为 2」与「每个
+     声明根各一条」同时成立的闭合规则）；
   2. 后代节编号 = `根章序数` + `.` + **结构路径**——结构父级 =
      最近祖先 **Section 宿主元素**（section-card 的根元素，非
      heading；heading 是显示，不承载结构）；
@@ -62,8 +67,17 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
      `1`，孙 `1.1`），外层根后的兄弟根 = `2`（按文档级 registry
      位次；嵌套域不消耗兄弟根序数）。
 - **document-scope 的域发现**：全篇连续 kind 的参与域迭代走
-  **文档级域注册表**（不是各自域根的 observer）——跨兄弟域的
+  **文档级域注册表**（不是各自域根的 observer）——遍历**所有**
+  为该 kind 声明了 `document` 的域（顶层与嵌套都算，各自声明
+  各自参与），参与域内的 Figure 按文档序连续计数；跨兄弟域的
   全局顺序由此表唯一决定。
+- **跨域移动唯一模型（提升到线原语层，Section/Figure/Reference
+  同律）**：跨 numbering 域的移动**只经 Svelte 实例销毁重建发生**
+  ——卸载即 disposer 注销（旧域注册表即时移除、不再计数；目标
+  注册表 entry 即时消失），重挂载即在新域重注册（新域立即计数）。
+  observer bump 只驱动序数重算，**不负责注册表归属迁移**；纯
+  DOM `adoptNode` 式搬移不在模型内（记档）。A→B 夹具断言：旧
+  域不计数、新域立即计数、目标注册表仅存一个活动 entry。
 - **更新信号（两级矩阵，与 §1.1b 的 revision 命名一致）**：
   域根 observer（childList + subtree）只 bump `domainRevision`
   （域内 Section/Figure 成员与位置）；文档级域注册表的 observer
@@ -100,7 +114,7 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
 - **Figure**：`data-number` 属性挂 `<figure>` 根；图注最小形状：
   `<figcaption><span data-jx-figure-label>Table</span> <span
   data-jx-number>6-1</span> <span>实测与预测对照</span><span
-  data-jx-cited-in> · 被引于 § 3.1</span></figcaption>`——label 与
+  data-cited-in> · 被引于 § 3.1</span></figcaption>`——label 与
   number 以单空格连写（`Table 6-1`），caption 文本后置，citedIn
   尾以「 · 」引导、无 citedIn 时该节点不存在。
 ### 1.2 context 机件与法则认领
@@ -128,43 +142,50 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   export type FigureKind = 'figure' | 'table' | 'equation' | 'listing';
   export const FIGURE_LABELS: Record<FigureKind,
     { caption: string; reference: string }>;   // 图注全词 / 引用短词
-  export const NUMBERING_DOMAIN_KEY: unique symbol;   // Symbol.for
-  export const DOCUMENT_TARGETS_KEY: unique symbol;   // Symbol.for
 
-  // 真可辨识联合——约束由类型自身保证，非 prose：
+  export const NUMBERING_DOMAIN_KEY = Symbol.for('jx-numbering-domain');
+  export const DOCUMENT_TARGETS_KEY = Symbol.for('jx-document-targets');
+
+  // 真可辨识联合；派生字段统一以 accessor thunk 注册（读即现值，
+  // 在 $derived 内调用即响应式——禁止快照）：
   export type FigureTargetEntry = {
     id: string; kind: 'figure';
-    readonly number: string;        // 可引 figure 必有编号
-    readonly title: null;           // 图注不是标题
+    readonly number: () => string;      // 可引 figure 必有编号
+    readonly title: null;               // 图注不是标题
   };
   export type SectionTargetEntry = {
     id: string; kind: 'section';
-    readonly number: string | null; // 未编号节为 null
-    readonly title: string;         // title prop
+    readonly number: () => string | null;  // 未编号节为 null
+    readonly title: () => string;          // title prop 活读
   };
   export type TargetEntry = FigureTargetEntry | SectionTargetEntry;
 
-  // number/title 是 accessor（getter 读派生 $state）——注册方
-  // 传 derived 引用，消费方读到的永远是现值，禁止快照。
-  export function registerTarget(
-    entry: TargetEntry,
-  ): () => void;   // disposer，幂等：二次调用无操作
-  export function getTarget(
-    id: string,
-  ): TargetEntry | undefined;   // 订阅走 $state 直读（$derived）
+  // 路由作用域实例 API——模块级函数不持有任何全局状态：
+  export interface TargetRegistry {
+    registerTarget(entry: TargetEntry): () => void; // 幂等 disposer
+    getTarget(id: string): TargetEntry | undefined; // $state 直读
+  }
+  export function createTargetRegistry(): TargetRegistry;
+  // 页面根 provider 用 createTargetRegistry() 建实例 +
+  // setContext(DOCUMENT_TARGETS_KEY, registry)；消费者经：
+  export function targetRegistryFromContext(): TargetRegistry | undefined;
   ```
 
-  provider 值 = `{ entries: SvelteMap<string, TargetEntry[]> }`
-  （同 id 多条按注册时序排列；**active winner = 首条存活项**）。
-  **胜者晋升规则（P1-3 裁决）**：winner 注销时，剩余候选中**最早
-  注册且仍存活者即时晋升**为 winner（不保持缺失态）——晋升是
-  响应式的，Reference 显示值与 warning 状态在同一 settle 内跟随。
+  实例归属唯一：`registerTarget`/`getTarget` 都是 **registry 实例
+  的方法**（无模块级全局表）——路由页面各建各的实例，跨页零共享。
+  实例内部持 `SvelteMap<string, TargetEntry[]>`（同 id 多条按注册
+  时序；**active winner = 首条存活项**）。**胜者晋升与终态**：
+  winner 注销时最早存活候选**即时晋升**（同 settle 内 Reference
+  跟随）；最后一条也注销后 `getTarget` 返回 undefined——目标
+  回到缺失态，warning 按各 Reference 的 settle 口径重新触发。
   由整合者统一落盘并冻结后，批次 1/2/3 才并行——子代理不触碰
   该共享文件。
   **文档身份（一页多 PagedDoc）**：document-scope 计数与目标
   注册表均以**路由页面 provider 实例**为单位——同页多个 PagedDoc
   共享一个注册表与一套 document-scope 计数（它们是同一「文档」
-  的不同面），跨页不共享；fixture 断言之。
+  的不同面；Section 根的文档序跨 PagedDoc DOM 边界连续计算），
+  跨页不共享；provider 销毁时所有 Reference 收束为缺失态（无
+  悬挂 warning）；fixture 断言之。
 
 ## 2. Figure 家族（Q6 + Q6a + Q8）
 

@@ -37,3 +37,18 @@ contract clause.
 - THEN it renders `Eq (4.5)` (kind short word + chapter-scoped
   number from the target registry) as a native anchor — the Figure
   path, not only the Section path, replaces PagedRef
+
+#### Scenario: document-scope equations count continuously across participating domains
+
+- GIVEN two sibling root domains both declaring
+  `floatScope={{ equation: 'document' }}`, each with one equation
+- THEN both render `Eq (1)` and `Eq (2)` in document order while a
+  non-participating sibling domain's equations keep chapter-scoped
+  numbers
+
+#### Scenario: a nested domain's floats count inside the inner restart
+
+- GIVEN a nested domain declaring `numbering` inside an outer root
+- THEN its Figures count from 1 against the inner root's local
+  numbering, never the outer chapter prefix
+
