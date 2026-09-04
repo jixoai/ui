@@ -56,7 +56,7 @@
     <div data-reveal="">
       <ComponentCanvas
         title="figure"
-        stage="flow"
+        stage="fill"
         description="Two kinds under one numbering domain; the paragraph's Reference resolves the second equation's number from the registry."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/figure/figure.svelte"
         files={canvasFiles}

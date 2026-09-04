@@ -50,7 +50,7 @@
     <div data-reveal="">
       <ComponentCanvas
         title="reference"
-        stage="flow"
+        stage="fill"
         description="The resolution matrix under one numbering domain: an equation, a numbered section, an unnumbered section, and a missing id."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/reference/reference.svelte"
         files={canvasFiles}
