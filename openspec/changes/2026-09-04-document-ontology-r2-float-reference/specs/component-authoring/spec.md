@@ -213,8 +213,13 @@ The typed cross-link SHALL carry zero grammar knowledge of its own.
 - A missing target id is a loud fallback: `console.warn` (never
   dev-gated — prerender builds must surface broken references) plus a
   visible `??(to)` marker rendered in production too; never a throw,
-  never a blocked print. A reference to a missing target emits NO
-  `data-ref-to` (dead anchors are a filed bug class).
+  never a blocked print. Edge emission splits by state (Owner ruling
+  P1-4=A, 2026-09-05): the SSR/prerender FALLBACK of a not-yet-
+  registered target still carries `data-ref-to` (not-yet is not
+  missing — the static edge claim feeds the harvest's document-wide
+  pre-pass), while a reference still missing after settle drops its
+  `data-ref-to` (dead anchors are a filed bug class; the harvester's
+  target index filters edges whose target never exists).
 - The reference emits its forward face (`data-ref-to`) for the
   harvest contract's `refids[]`.
 
@@ -224,9 +229,10 @@ The typed cross-link SHALL carry zero grammar knowledge of its own.
   unnumbered target, a nonexistent id, and a forward-positioned
   equation Figure (in that order)
 - THEN they render `Eq (4.5)`, `§ 3.2.1`, the target's title, the
-  visible `??(id)` marker with one console warning and no
+  visible `??(id)` marker with one console warning and no settled
   `data-ref-to`, and `Eq (4.5)` after hydration — while the
-  prerendered forward form reads `??(id)` without a settled warning
+  prerendered forward form reads `??(id)` carrying its `data-ref-to`
+  edge claim without a settled warning
 
 ## MODIFIED Requirements
 

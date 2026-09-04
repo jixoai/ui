@@ -317,9 +317,14 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   自动解析；**warn 仅在 settle 后目标仍缺席时触发**（避免前向引用
   的误报风暴）。
 - **SSR/prerender 形态裁决**：单趟渲染期前向目标必然未注册 →
-  前向引用的 SSR 形态 = `??(to)` 回退标记（同缺失态），客户端水合
-  后跟随为正确形态。反向引用（目标在前）SSR 即完备。此形态差是
-  显示货币法则在单向渲染下的诚实代价，spec 以 scenario 固化。
+  前向引用的 SSR 形态 = `??(to)` 回退标记，客户端水合后跟随为
+  正确形态。反向引用（目标在前）SSR 即完备。此形态差是显示
+  货币法则在单向渲染下的诚实代价，spec 以 scenario 固化。
+  **回退态的边主张（Owner 裁决 P1-4=A，2026-09-05）**：「尚未
+  注册 ≠ 不存在」——SSR 回退锚点**仍发射 `data-ref-to`**（静态
+  DOM 里的边主张）；「缺失目标不发射」法则保持在水合 **settle
+  后**的语义（真缺失锚点在 settle 时摘除 data-ref-to）。静态
+  收割的完整性由收割侧两趟预扫描保证（§4）。
 - **响亮回退语义**：缺失 id → `console.warn`（不 DEV 门控——
   prerender 走 prod build，坏引用须在产物上可见）+ 渲染 `??(to)`
   可见标记（**生产也渲染**：打印捕获的是生产 DOM，坏引用上纸面
@@ -337,6 +342,11 @@ scenario 量词收窄、收割消费批次补齐、context 法则例外认领。
   收割投影：**`number` 挂到被包块的 `block.number`**（基座 §3 推论
   1——线承载结构、点承载语义，编号随点入语料），figure 包裹层
   不单独成块。
+- **两趟预扫描（Owner 裁决 P1-4=A）**：收割器**第一趟**收集全
+  文档所有 `data-number` 目标 id（全文档目标索引），**第二趟**
+  再投影 `data-ref-to`——SSR 呈回退态的前向引用边因此完整进
+  语料；指向索引中不存在目标的边（真死边）被过滤（收割侧是
+  静态完备性的裁决者）。
 - **消费（本轮交付）**：search-corpus.mjs 读 `data-number` /
   `data-ref-to` / `data-jx-figure` / `data-cited-in` →
   `block.number` / `block.refids[]` / `block.citedIn` / section

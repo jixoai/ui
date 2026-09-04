@@ -13,6 +13,13 @@ schema, additively — old corpora are never rewritten.
   priority: the line marks structure, the point keeps semantics);
   section `number` lands on `sections[]`. Both fields are OPTIONAL
   and OMITTED when unnumbered (never written as null).
+- The harvest runs as a TWO-PASS pre-scan (Owner ruling P1-4=A,
+  2026-09-05): pass one builds the document-wide target index (every
+  `data-number`-bearing id); pass two projects the edges — so a
+  forward reference whose SSR form is the `??(to)` fallback still
+  contributes its `refids[]` edge (not-yet is not missing), while an
+  edge whose target never exists in the index is filtered (the
+  harvester is the static-completeness authority).
 - `data-ref-to` on a reference point projects onto that block's
   `refids[]` with FIRST-OCCURRENCE dedup and stable order (multiple
   references to the same target in one block collapse to one entry).
@@ -20,8 +27,7 @@ schema, additively — old corpora are never rewritten.
   (directly in a section body, no block root) hangs on the nearest
   PRECEDING stream item in the same section; a bare reference with
   no preceding stream item warns and is skipped (never silently
-  dropped). A reference to a missing target emits nothing (dead
-  anchors stay a filed bug class, never harvested).
+  dropped).
 - `data-cited-in` (JSON array) projects onto the wrapped block's
   `citedIn`; a Figure whose content slot has no projectable child
   block projects no `number`; a Figure with multiple point-block
@@ -52,3 +58,14 @@ schema, additively — old corpora are never rewritten.
   reference warns and contributes nothing, the missing target
   contributes nothing, and the two-block Figure's `number` lands on
   the first block only
+
+#### Scenario: a forward reference's edge survives the static harvest
+
+- GIVEN a prerendered page where a paragraph references an equation
+  Figure that renders LATER (the SSR form is the `??(to)` fallback
+  carrying `data-ref-to`)
+- WHEN the two-pass harvester runs
+- THEN pass one indexes the equation's id and pass two projects the
+  paragraph's `refids` containing it — the edge is complete in the
+  static corpus without hydration; an edge whose target id never
+  exists anywhere in the document is filtered instead of harvested
