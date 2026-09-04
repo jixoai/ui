@@ -1,0 +1,47 @@
+{
+  "$schema": "./context-coverage.exemptions.schema.json#/definitions/configMirror",
+  "_readme": "verify-context-coverage detection vocabulary + frozen references (context-defaults-economy task 1.4, design.md '门禁合同 — verify:context'). Versioned v1: the vocabulary is an EXACT enumeration (no wildcards) — extending it is a version bump, never an edit in place. frozenAvailability mirrors the variant grammar's frozen table (openspec/changes/archive/2026-08-27-variant-grammar/design.md §4, authoritative) — the gate asserts bidirectional equality (values ≡ table row) against this mirror, so a table change there must land here in the same change.",
+  "version": 1,
+  "vocabulary": [
+    "variant",
+    "density",
+    "elevation",
+    "size",
+    "shape",
+    "radius",
+    "tone",
+    "inset",
+    "bordered"
+  ],
+  "paintVariantUnion": ["fill", "tonal", "outline", "ghost", "link"],
+  "zonePaintExclusion": ["link"],
+  "slotFactories": {
+    "defineLiteralSlot": { "generic": false, "minArgs": 2, "maxArgs": 2 },
+    "defineOpenSlot": { "generic": true, "minArgs": 1, "maxArgs": 1 },
+    "absentSlot": { "generic": true, "minArgs": 0, "maxArgs": 0 },
+    "definePaintSlot": { "generic": false, "minArgs": 2, "maxArgs": 2 },
+    "densitySlot": { "generic": false, "minArgs": 0, "maxArgs": 1 }
+  },
+  "defaultsObjectFactory": "defineComponentDefaults",
+  "axisSlotConstructor": "defineAxisSlot",
+  "legacyHelpers": ["resolveDensity", "getDensityContext"],
+  "axisContextKeys": ["DENSITY_KEY", "PAINT_ZONE_KEY", "BUTTON_GROUP_KEY"],
+  "providerCallPrefix": "provide",
+  "frozenAvailability": {
+    "badge": { "variants": ["fill", "tonal", "outline"], "own": "tonal" },
+    "inline-code": { "variants": ["tonal", "outline"], "own": "tonal" },
+    "chip": { "variants": ["fill", "tonal", "outline", "ghost"], "own": "tonal" },
+    "press-button": { "variants": ["fill", "tonal", "outline", "ghost", "link"], "own": "outline" },
+    "alert": { "variants": ["outline", "tonal"], "own": "outline" }
+  },
+  "pilotFamilies": [
+    "press-button",
+    "icon-button",
+    "button-group",
+    "dialog",
+    "sheet",
+    "kbd",
+    "badge",
+    "chip"
+  ]
+}

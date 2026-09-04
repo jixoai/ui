@@ -37,10 +37,12 @@ describe('PropsTable — meta mode (the single source)', () => {
     const rows = [...container.querySelectorAll('tbody tr')];
     expect(rows.length).toBe(10);
 
-    // enum + default straight from the GENERATED zone
+    // enum + default straight from the GENERATED zone; the slot's
+    // literal family surfaces the frozen three-state marker
+    // (context-defaults-economy 4.3)
     const variant = rows.find((r) => r.textContent!.includes('variant'))!;
     expect(variant.textContent).toContain("'solid' | 'acrylic' | 'auto'");
-    expect(variant.textContent).toContain("'auto'");
+    expect(variant.textContent).toContain("'auto' · Own default, not ambient");
 
     // opaque typeText is the Type column
     const options = rows.find((r) => r.textContent!.includes('options'))!;
@@ -58,9 +60,12 @@ describe('PropsTable — meta mode (the single source)', () => {
     expect(names).not.toContain('rest');
     expect(names).not.toContain('id');
 
-    // hidden rows really render nothing (the em-dash default survives)
+    // hidden rows really render nothing; the density slot has no own —
+    // the ambient scope marker IS the Default cell (the `inherited`
+    // display override retired with 4.3)
     const density = rows.find((r) => r.cells[0].textContent!.trim().startsWith('density'))!;
-    expect(density.textContent).toContain('inherited');
+    expect(density.textContent).toContain('ambient scope');
+    expect(density.textContent).not.toContain('inherited');
   });
 });
 

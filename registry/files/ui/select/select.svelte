@@ -78,7 +78,8 @@
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { SelectDefaults } from './select-defaults.svelte';
   import './select.css';
 
   interface Props extends HTMLButtonAttributes {
@@ -130,8 +131,13 @@
 
   // form lifecycle: what jx-reset restores, and the form-disable mirror
   const initialValue = value;
-  const outerDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient/own per slot, one line, no legacy
+  // helper channels. variant keeps its inline default + inline union:
+  // this Props interface feeds the GENERATED meta chain (drift-locked),
+  // whose ambient annotation is the doc batch's 先破再立 — the
+  // contract's own 'auto' is the same value (select-defaults.svelte.ts)
+  const d = $derived(SelectDefaults.resolve({ variant, density }));
   let formDisabled = $state(false);
   const isDisabled = $derived(disabled || formDisabled);
 
@@ -267,7 +273,7 @@
   });
 </script>
 
-<div class="jx-field" data-density={resolvedDensity}>
+<div class="jx-field" data-density={d.density}>
   <!-- faceless form bridge (form-field.ts law): the committed value rides
        ElementInternals into FormData; jx-reset / jx-disabled bubble the
        form lifecycle back into this component. Owns no box, no content —
@@ -346,8 +352,8 @@
     id={panelId}
     popover="auto"
     class={cn('jx-sel-panel jx-surface', motion.supported && 'jx-waapi')}
-    data-variant={variant}
-    data-density={resolvedDensity}
+    data-variant={d.variant}
+    data-density={d.density}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >

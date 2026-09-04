@@ -1,0 +1,89 @@
+{
+  "$schema": "./context-coverage.exemptions.schema.json",
+  "version": 1,
+  "entries": [
+    {
+      "path": "registry/files/ui/button-group/button-group.svelte",
+      "kind": "provider",
+      "reason": "Structural provider, context-defaults-economy 2.1, two confined legacy reads: (1) the inherit-then-provide VARIANT keeps the LEGACY BUTTON_GROUP_KEY read by the frozen provider duties (r14-10 effective-variant logic intact, WIDE inherited domain — an external old-only provider's 'link' survives on the legacy key and narrows only at the providePaintZone call, the old-link fixture's frozen contract), confined to the effectiveVariant $derived initializer; (2) the DENSITY capture rides the provideDensity argument subtree — the one blessed position evaluating BEFORE the key write (a lazy read would resolve the key to the group's own context and self-reference, derived_references_self). The family contract stays the read point above the provider lane (ButtonGroupDefaults.resolve for the stamp; the variant slot is declaration-first)."
+    },
+    {
+      "path": "registry/files/ui/button-group/button-group-divider.svelte",
+      "kind": "provider",
+      "reason": "Family-state layout consumer on the provider side, context-defaults-economy 2.1: the divider reads the group's ORIENTATION (the layout half of BUTTON_GROUP_KEY — never an axis default, never paint); the read is confined to the lineOrientation $derived initializer, the provider-file boundary, with the api getters keeping it reactive."
+    },
+    {
+      "path": "registry/files/ui/input-group/input-group.svelte",
+      "kind": "provider",
+      "reason": "Density provider, context-defaults-economy task 3.1 (W1): the inherit-then-provide DENSITY lane keeps the r11 eager-capture form (the button-group precedent) — getDensityContext() rides the $derived.by ARGUMENT subtree, evaluated at the statement BEFORE provideDensity writes the key (a lazy read would resolve the key to the group's own write and self-reference, derived_references_self); resolveDensity stays inside the captured-parent getter. The family contract (InputGroupDefaults.resolve) rides ON TOP of the provider lane as the group's own audited read point."
+    },
+    {
+      "path": "registry/files/ui/button-group/button-variant-scope.svelte",
+      "kind": "passthrough",
+      "prop": "variant",
+      "reason": "Pure zero-DOM provider, context-defaults-economy 2.1: the scope renders nothing and consumes nothing — its variant prop passes VERBATIM into the dual context providers (BUTTON_GROUP_KEY + PAINT_ZONE_KEY, the r14 absolute-shadow law: the scope reads nothing inherited). Resolving it through ButtonGroupDefaults would manufacture inheritance the scope's contract forbids; the family contract (ButtonGroupDefaults.variant) remains the audited ambient face."
+    },
+    {
+      "path": "registry/files/ui/popconfirm/popconfirm.svelte",
+      "kind": "provider",
+      "reason": "Structural density provider, context-defaults-economy 3.2 (W2): the inherit-then-provide lane keeps the LEGACY density read by the frozen provider duties — the eager capture rides the resolvedDensity $derived.by ARGUMENT subtree (evaluating BEFORE provideDensity writes the key, so it captures the PARENT context — the r11 derived_references_self law), and resolveDensity stays inside the returned closure of that same blessed initializer. The family contract (PopconfirmDefaults.resolve) rides ON TOP as the single read point for the panel stamps (variant/density); a density provider cannot read its ambient through the slot without self-referencing its own write."
+    },
+    {
+      "path": "registry/files/ui/command/command.svelte",
+      "kind": "provider",
+      "reason": "Structural density provider, context-defaults-economy 3.2 (W2): the palette root inherits-then-provides density for its sub-parts (Input/List/Empty/Group/Item resolve through CommandDefaults slots); the eager capture rides the resolvedDensity $derived.by ARGUMENT subtree (before provideDensity writes the key — the r11 derived_references_self law), resolveDensity stays inside that initializer subtree. CommandApi (the family STATE context) keeps exposing the resolved value untouched; the family contract rides ON TOP as the single read point for the palette stamps."
+    },
+    {
+      "path": "registry/files/ui/tabs/tabs.svelte",
+      "kind": "provider",
+      "reason": "Structural provider, context-defaults-economy 3.3: the shared-selection tabs root inherit-then-provides density. One confined legacy read: the EAGER capture rides the $derived.by argument subtree (getDensityContext() evaluates at that statement, BEFORE provideDensity writes the key — a lazy read would resolve the key to the tabs' own write and self-reference through the very getter it feeds, derived_references_self, the r11 first contract; the pre-3.3 bare statement-position capture this replaces); resolveDensity stays inside the same $derived initializer subtree. The family contract remains the read point above the provider lane (TabsDefaults.resolve for the stamp)."
+    },
+    {
+      "path": "registry/files/ui/table/table.svelte",
+      "kind": "provider",
+      "reason": "Structural provider, context-defaults-economy 3.3: the table root inherit-then-provides density. One confined legacy read: the TODO-5 bare capture rewritten to the EAGER form — getDensityContext() rides the $derived.by argument subtree (evaluated at that statement, BEFORE provideDensity writes the key; a lazy read would self-reference through the table's own write, derived_references_self); resolveDensity stays inside the same $derived initializer subtree. The family own 'sm' lives in TableDefaults (densitySlot('sm'), the design-frozen local-fallback migration, resolveDensity's retired third argument); TableDefaults.resolve remains the stamp's read point."
+    },
+    {
+      "path": "registry/files/ui/breadcrumb/breadcrumb.svelte",
+      "kind": "provider",
+      "reason": "Structural provider, context-defaults-economy 3.3: the breadcrumb nav landmark inherit-then-provides density to the trail parts. One confined legacy read: the EAGER capture rides the $derived.by argument subtree (getDensityContext() evaluates at that statement, BEFORE provideDensity writes the key — a lazy read would resolve the key to the trail's own write and self-reference, derived_references_self, the r11 first contract); resolveDensity stays inside the same $derived initializer subtree. The parts resolve their inherited stamps through the family contract (BreadcrumbDefaults); the root's own stamp stays on BreadcrumbDefaults.resolve."
+    },
+    {
+      "path": "registry/files/ui/menubar/menubar.svelte",
+      "kind": "provider",
+      "reason": "Structural provider, context-defaults-economy 3.3: the menubar root inherit-then-provides density to the bar's triggers and panels. One confined legacy read: the EAGER capture rides the $derived.by argument subtree (getDensityContext() evaluates at that statement, BEFORE provideDensity writes the key — a lazy read would resolve the key to the bar's own write and self-reference through the very getter it feeds, derived_references_self, the r11 first contract); resolveDensity stays inside the same $derived initializer subtree. The floating-surface variant is a literal slot (MenubarDefaults, own 'auto', never a context read); MenubarDefaults.resolve remains the stamp and the MenubarApi variant getter's read point."
+    },
+    {
+      "path": "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "kind": "provider",
+      "reason": "Structural provider, context-defaults-economy 3.3: the dropdown menu root inherit-then-provides density to the panel and its items. One confined legacy read: the EAGER capture rides the $derived.by argument subtree (getDensityContext() evaluates at that statement, BEFORE provideDensity writes the key — a lazy read would resolve the key to the menu's own write and self-reference through the very getter it feeds, derived_references_self, the r11 first contract); resolveDensity stays inside the same $derived initializer subtree. The floating-surface variant is a literal slot (DropdownMenuDefaults, own 'auto', never a context read); the items resolve their own stamps through the same contract (an explicit item prop beats the provided tier)."
+    },
+    {
+      "path": "registry/files/ui/navigation-menu/navigation-menu.svelte",
+      "kind": "provider",
+      "reason": "Structural provider, context-defaults-economy 3.3: the nav-menu root inherit-then-provides density (the honest-opinion channel, chrome-density-tier r3). TWO confined legacy reads, both EAGER captures riding their own $derived.by argument subtrees (each getDensityContext() evaluates at its statement, BEFORE provideDensity writes the key — a lazy read would resolve the key to the nav's own write and self-reference through the very getter it feeds, derived_references_self, the r11 first contract): resolvedDensity (the terminal resolution) and densityOpinion (the opinion the provider carries — undefined flows down exactly like a missing context); resolveDensity stays inside the same $derived initializer subtree. The floating-surface variant is a literal slot (NavigationMenuDefaults, own 'auto', never a context read); NavigationMenuDefaults.resolve remains the stamp's read point."
+    },
+    {
+      "path": "registry/files/ui/chart/chart.svelte",
+      "kind": "provider",
+      "reason": "Ensemble density provider, context-defaults-economy 3.4 (W4): the inherit-then-provide capture is the r11 eager-capture form — getDensityContext() rides the $derived.by ARGUMENT subtree, which evaluates at that statement BEFORE provideDensity writes the key (a lazy read would resolve the very getter it feeds, derived_references_self); resolveDensity sits inside the same $derived.by initializer body. The STAMP resolves through the family contract (ChartDefaults.resolve({ density })) — the slot ambient lands on this ensemble's own provided policy, one resolution for the subtree."
+    },
+    {
+      "path": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "kind": "bindable",
+      "prop": "density",
+      "reason": "$bindable page-owned stage-preview toggle — instance semantics (class d), never ambient: the docs page owns the two-way comfortable/compact state and projects it onto the stage element as data-density; ambient adoption would fight the page's own toggle."
+    },
+    {
+      "path": "registry/files/ui/list-item/item-group.svelte",
+      "kind": "provider",
+      "reason": "List density provider, context-defaults-economy 3.4 (W4): the inherit-then-provide capture is the r11 eager-capture form — getDensityContext() rides the $derived.by ARGUMENT subtree, which evaluates at that statement BEFORE provideDensity writes the key (a lazy read would resolve the very getter it feeds, derived_references_self, the packet-D lesson pinned in defaults-buttons.spec.ts); resolveDensity sits inside the same $derived.by initializer body. The frame/list STAMPS resolve through the family contract (ListItemDefaults.resolve({ inset, density })) — the slot's ambient read lands on this group's own provided policy, one resolution for the whole list."
+    },
+    {
+      "path": "registry/files/ui/list-item/item-media.svelte",
+      "kind": "no-style",
+      "prop": "variant",
+      "reason": "item-media's variant is the media CONTENT-TYPE discriminator (default = avatar host, icon = 16px icon, image = fixed square img) — a structural selector choosing WHICH child renders, not a paint rung or geometry tier; its 'default'|'icon'|'image' domain is disjoint from the family's ItemVariant grammar, so it cannot ride the family contract's variant slot and renaming it would break the documented API. data-variant here is a content discriminator, never styling."
+    }
+  ]
+}

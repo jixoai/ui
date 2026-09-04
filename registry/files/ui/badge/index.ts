@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './badge.svelte';
 export * from './badge.svelte';
+export { BadgeDefaults, type BadgeVariant, type BadgeShape } from './badge-defaults.svelte';

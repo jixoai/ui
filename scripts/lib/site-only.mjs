@@ -49,7 +49,8 @@ export const SITE_ONLY_PREFIXES = [
   'apps/www/src/lib/ui/props-table/from-meta.ts', // docs-demo-standard: meta -> PropEntry projection (site-only)
   'apps/www/src/lib/print/', // print-pipeline: the paged.js layer (site-only docs infra)
   'apps/www/src/lib/medium.svelte.ts', // print-pipeline: the three-state medium context (site-only)
-  'apps/www/src/lib/context-plugin.svelte.ts', // context-plugin-system: the plugin kernel (site-only)
+  // context-plugin.svelte.ts left this list in context-plugin-v2: the kernel
+  // is a registry:lib item now (mirrored pair, density depends on it)
   'apps/www/src/lib/hue-runtime.svelte.ts', // context-plugin-system: hue adapter (runes need the .svelte.ts suffix)
   'apps/www/src/lib/__probe__/', // P0 scratch (removed when the probe retires)
 ];

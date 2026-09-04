@@ -8,7 +8,7 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
 > `apps/www/src/lib/ui/**`). Components are Svelte 5 runes-first,
 > native-element-first, and follow the Tier system below.
 
-## Current contract (state: 2026-09-03, adversarial-review rulings merged + the r14 tuning casebook)
+## Current contract (state: 2026-09-03, adversarial-review rulings + the r14 tuning casebook + 2026-09-03-context-defaults-economy)
 
 ## Requirements
 
@@ -455,12 +455,14 @@ design.md.
 
 Density is a TWO-CHANNEL contract. The Svelte channel resolves policy:
 a getter-backed `DensityContext` (one Symbol key, one stable object)
-with the law `explicit ?? inherited ?? 'default'`; providers are
-opt-in (no forced app root). The CSS channel injects values: providers
-and density-aware components stamp `data-density`, and ONLY the
-canonical theme sheet AND its byte-identical generated mirror carry
-density scopes, mapping the derived `--jx-density-*` vocabulary to
-inherited `--jx-*` aliases — never component css.
+with the law `explicit ?? inherited ?? own` (the manufactured-'default'
+fallback retires into the family's Defaults slot argument or
+no-opinion undefined); providers are opt-in (no forced app root). The
+CSS channel injects values: providers and density-aware components
+stamp `data-density`, and ONLY the canonical theme sheet AND its
+byte-identical generated mirror carry density scopes, mapping the
+derived `--jx-density-*` vocabulary to inherited `--jx-*` aliases —
+never component css.
 Components consume the aliases and MUST NOT branch on density values
 in their own css; `data-size` authority is removed (no alias). Every
 scale value is DERIVED from the ruler (`--jx-unit`, text base)
@@ -468,7 +470,11 @@ by written equations; the computed four-row table is gate-asserted.
 The balance invariant holds at every density: row inline-start inset
 == the media/content seam (one ruler mark); media boxes derive from
 the line (icon = one line, image = two — the seam never folds into
-the object); optical correction is ONE bounded token (±U/2).
+the object); optical correction is ONE bounded token (±U/2). Inline
+`resolveDensity`/`getDensityContext` calls in consumer bodies retire
+in favor of `densitySlot` wiring; the helpers remain, living only in
+the axis module and the gate's provider whitelist (structural
+providers and kind:`provider` inherit-then-provide containers).
 
 #### Scenario: a group changes density after mount
 
@@ -484,6 +490,13 @@ the object); optical correction is ONE bounded token (±U/2).
 - THEN no [data-density]/[data-size] selector exists and every
   density-owned declaration references --jx-* (or a family var
   derived from one) — literals fail with file/selector/property/value
+
+#### Scenario: a family fallback resolves through the slot
+
+- GIVEN Table's Defaults declares `density: densitySlot('sm')`
+- WHEN the table renders with no provider and no explicit prop
+- THEN data-density="sm" lands; with a parent provider's opinion, the
+  provider wins; with an explicit prop, the prop wins
 
 ### Requirement: the shared ruler (grouped list geometry)
 
@@ -528,14 +541,23 @@ ACTIONS inject `--destructive` (the fill pair), error STATUSES inject
 `--error` into the tonal slot. Variant paint rides token utilities in
 the markup (tw4 utility-authored law); press physics (`.jx-press`)
 never change with paint. Availability is per-component (see the
-frozen table in openspec/changes/variant-grammar/design.md §4):
+frozen table in
+openspec/changes/archive/2026-08-27-variant-grammar/design.md §4 —
+the table itself is authoritative):
 Badge fill/tonal/outline (default tonal, brand hue); InlineCode
 tonal/outline (default tonal, locally neutral); Chip all four
 (default tonal); PressButton fill/tonal/outline/ghost/link (default
 outline); Alert outline/tonal (default outline — no fill/ghost:
 banner readability). Valued `data-jx-*` hooks carry the variant
 (`data-jx-badge`, `data-jx-alert`, `data-jx-press-button`,
-`data-jx-chip`).
+`data-jx-chip`). The frozen table's per-component rows become the
+`definePaintSlot(values, own)` calls in each family's Defaults —
+the values array IS the family union's SOURCE (default ∈ values is
+compile-locked; the runtime consumes no value-domain guard; the AST
+gate asserts the array bidirectionally against the frozen table);
+the family's exposed union derives from the slot
+(`ReturnType<typeof slot>`); the previously implicit `??` chains
+are the paint slot's `explicit ?? ambient(zone) ?? own` resolution.
 
 The injection seam is TWO-LAYERED (hue-injection-utilities,
 2026-08-27): the CANONICAL form for the curated semantic set is the
@@ -576,6 +598,10 @@ the axis that was implicit is now recorded.
   from the well-at-rest law (input-class controls: hover changes
   intensity only, never tier). PressButton keeps the 1px border
   frame — an inset shadow is never the sole affordance (r14-12).
+- `raised` is a press-law physics prop, NOT a vocabulary style prop:
+  it never enters a family Defaults slot (the Defaults economy
+  governs the style vocabulary; the physics lane keeps its own
+  resolution below).
 
 THE ZONE RESOLUTION (Owner 2026-09-04): the flat texture's default
 is Context-scopable on the same zero-DOM boundary that scopes the
@@ -586,10 +612,13 @@ variant.
   Context-scoped zone default follows, the convex law is the resting
   default.
 - The zone default rides its OWN context key (`PRESS_TEXTURE_KEY`,
-  owned by press-button), NOT `BUTTON_GROUP_KEY` — every ButtonGroup
-  resets the group key (paint policy), while physics must flow
-  THROUGH joined groups untouched: a footer's grouped buttons ride
-  flat exactly like its free-floating ones.
+  owned by press-button) — a physics axis key OUTSIDE the single-key
+  paint law: `PAINT_ZONE_KEY` stays the ONE paint lane
+  (`BUTTON_GROUP_KEY` carries layout only), and a ButtonGroup
+  inherit-then-provides the paint zone (shadows it only when it
+  declares a variant of its own) while physics must flow THROUGH
+  joined groups untouched — a footer's grouped buttons ride flat
+  exactly like its free-floating ones.
 - `ButtonVariantScope` (the zero-DOM zone boundary that already
   scopes the variant) carries `raised?: boolean`,
   inherit-then-provide: a paint-only scope (variant set, raised
@@ -614,6 +643,15 @@ variant.
 - WHEN the source guard scans its markup
 - THEN every variant's paint consumes the four global slots and no
   variant name encodes a semantic hue
+
+#### Scenario: the frozen table reads through Defaults
+
+- GIVEN the frozen availability table and a migrated family
+- WHEN the family's Defaults is read
+- THEN every available variant in the table is addressable through
+  the paint slot's values array, the own default matches the table,
+  and the array contains no variant outside its table row (link
+  never reaches Badge/Chip/Alert)
 
 #### Scenario: a flat button presses inward without moving
 
@@ -640,7 +678,7 @@ variant.
   grouped path included — the texture flows through the
   ButtonGroup)
 
-#### Scenario: an explicit prop beats the zone
+#### Scenario: an explicit raised beats the zone
 
 - WHEN the same button renders `raised={true}`
 - THEN none of the flat block's seams ride (`--jx-press-move`
@@ -654,6 +692,257 @@ variant.
 - THEN the convex law holds byte-identically (no pose customs, the
   kernel's `1px 1px` fallback)
 
+### Requirement: every registered component family ships a Defaults contract
+
+Every registered component family with public STYLE props (per the
+pinned detection vocabulary) SHALL ship ONE `XxxDefaults` object (a
+`*-defaults.svelte.ts` file inside the family folder, a member file
+of the registry:ui item, byte-mirrored, zero kernel imports) — per
+family, not per part file. The Defaults object is the family's
+SINGLE declared ambient contract. Coverage means EVERY style prop
+has a slot, in exactly two kinds: an axis slot (ambient-manageable)
+or a literal-family slot — the literal kind has three forms:
+`defineLiteralSlot(values, default)` (closed scalar domain, default
+∈ values compile-locked), `defineOpenSlot<T>(own)` (an OPEN scalar
+domain — free lengths/numbers with no union to enumerate; explicit
+type argument, the absentSlot discipline), and `absentSlot`
+(absent-meaningful, undefined-capable) — all with ambient
+capability pending a future axis. Literal/paint slots SHALL
+be declared as NAMED exported constants (`const kbdVariantSlot =
+defineLiteralSlot(…)`) — the capability concentrates on the single
+slot value — with the family's union type derived from it
+(`type KbdVariant = ReturnType<typeof kbdVariantSlot>`; the values
+array is the one source of truth — the meta-feeding families
+(select/combobox/date-picker) keep their component-Props inline
+unions, the surviving half of the drift double-lock: Props ⊆ values
+is compile-checked at the resolve call site).
+Every style prop SHALL be classified (axis / literal / roadmap /
+never-ambient); the classification is versioned and gate-checked as
+a whole.
+
+#### Scenario: the standalone look vs the nested look
+
+- GIVEN `pressButtonVariantSlot = definePaintSlot(['fill', 'tonal',
+  'outline', 'ghost', 'link'], 'outline')` feeds `PressButtonDefaults`
+- WHEN a PressButton renders standalone
+- THEN its variant resolves to 'outline' (the frozen variant-grammar
+  default)
+- WHEN the same button renders inside a Dialog zone providing ghost
+- THEN its variant resolves to 'ghost' with no per-call-site code
+
+#### Scenario: a style prop with no axis yet
+
+- GIVEN Dialog exposes `variant?: 'solid' | 'acrylic' | 'auto'`
+- THEN its Defaults declares
+  `dialogSurfaceVariantSlot = defineLiteralSlot(['solid', 'acrylic',
+  'auto'], 'auto')` — auditable today, promotable to an axis slot
+  when an axis opens
+
+#### Scenario: an absent-meaningful style prop enters the contract
+
+- GIVEN a component's optional style prop whose absence IS the
+  meaningful state (native/unset rendering)
+- THEN its Defaults declares `absentSlot<ThatUnion>()` (the absent
+  overload — no values to infer from, the explicit type argument
+  stays) — the slot's resolved value may be undefined and the
+  component renders its absent-state path
+
+#### Scenario: the contract is auditable
+
+- GIVEN a reviewer asks which of a family's props respond to the
+  environment
+- THEN the answer is exactly the key set of its Defaults `slots`,
+  split by slot kind
+### Requirement: slots are branded factory products only
+
+A Defaults slot SHALL be a branded callable (module-private unique
+symbol) constructible ONLY by the slot factories exported from
+`lib/defaults.svelte.ts` and the axis modules. Bare functions, bare
+literals, and forged brand objects SHALL fail at compile time
+(negative type assertions are gate material);
+`defineComponentDefaults` SHALL additionally verify the brand at
+runtime IN DEV ONLY (the `import.meta.env?.DEV`-gated WeakSet check
+— vitest runs under vite so the guard stays test-assertable; the
+type brand is the production contract); the gate's AST check SHALL
+accept only registered factory calls as slot values — resolving a
+NAMED slot constant to its same-file factory-call initializer.
+
+#### Scenario: a bare function sneaks into slots
+
+- GIVEN `defineComponentDefaults({ variant: (v) => v ?? 'fill' })`
+- THEN the brand constraint rejects it at compile time and the gate
+  fails it at AST level
+### Requirement: explicit-wins sentinel discipline
+
+`undefined` SHALL be the only "unspecified" sentinel (TS optional
+props; `null` is not a sentinel and the slot signature rejects it).
+Slot resolution SHALL be `explicit ?? ambient ?? own default` with
+ambient read via getter closures (no snapshot caching). No-opinion
+axes (density) SHALL keep their fleet-law semantics: the slot's
+resolved value may BE undefined (no opinion → no stamp → the
+ambient css scope channel keeps flowing); a family's local fallback
+(e.g. Table's 'sm') SHALL be declared as the slot's own argument,
+never an inline component fallback. Instance semantics props
+(open/bind, callbacks, aria/data attributes, class, id) SHALL NEVER
+become ambient; bindable state-typed style props (page-owned
+toggles) are instance semantics and exempt.
+
+#### Scenario: explicit beats the zone
+
+- GIVEN a zone scope provides variant ghost
+- WHEN a button inside passes `variant="fill"`
+- THEN the button renders fill — the explicit prop wins
+
+#### Scenario: a family fallback migrates into the slot
+
+- GIVEN Table today resolves `density ?? 'sm'` inline
+- WHEN its Defaults declares `density: densitySlot('sm')`
+- THEN no-provider resolves 'sm', an explicit prop wins, and a
+  parent provider's opinion beats 'sm'
+
+#### Scenario: no-opinion stays unstamped
+
+- GIVEN a density slot resolving to undefined (no explicit, no
+  inherited opinion, no own)
+- WHEN the component stamps `data-density={d.density}`
+- THEN no data-density attribute lands and the ambient css scope
+  channel flows through
+
+### Requirement: slot factories are lazy; context reads happen at resolve time
+
+Slot factories SHALL be pure at construction (capturing only the
+own argument; module-level Defaults objects SHALL NOT touch
+context). Context reads SHALL happen only when `resolve` evaluates
+the slot — inside a component's initialization/`$derived` window
+(Svelte's runtime carries the creating component's ctx through
+derived recomputation). A read OUTSIDE that window SHALL throw the
+platform's `lifecycle_outside_component` error untouched — slots
+and axis modules SHALL NOT catch, normalize, or string-match
+lifecycle errors, and there SHALL be no ambient-skip degradation;
+axis-internal and plugin errors SHALL propagate the same way. Unit
+assertions of resolution SHALL mount a host component (the
+`unit-resolve-host` fixture and the per-suite host precedents).
+
+#### Scenario: pure unit call outside a component
+
+- GIVEN `PressButtonDefaults.resolve({})` must be asserted in a
+  plain unit test
+- WHEN the assertion renders the unit-resolve host (the resolve
+  runs inside the host's `$derived` window)
+- THEN the own-defaults projection is read from the host's echoed
+  value — the window contract is the test's shape, not a runtime
+  degradation
+
+#### Scenario: an axis bug is not swallowed
+
+- GIVEN an axis module whose ambient read throws a non-lifecycle
+  error
+- WHEN resolve evaluates the slot
+- THEN the error propagates (no silent identity)
+### Requirement: zone scopes are axis-level providers
+
+A zone scope SHALL be a zero-DOM, getter-backed boundary keeping ONE
+key per axis (never layout — the layout half stays in components
+like ButtonGroup); the paint axis key
+(`PAINT_ZONE_KEY`) SHALL be distinct from any family-state context
+key, and it is the ONE paint lane (the single-key law, Owner
+2026-09-04: pre-adoption, no release ever shipped a second paint
+key to be compatible WITH); nested zone scopes stack with the
+nearest winning. The shared helpers
+`providePaintZone(variant: () => ZonePaintVariant | undefined)` and
+`getPaintZone()` (exported from `lib/paint.svelte.ts`;
+ZonePaintVariant excludes 'link' — link is PressButton's
+interaction exception, never a zone value, and has no second key to
+ride) SHALL write and read the one key (payload:
+`{ get variant() }`, getter-backed); ButtonGroup provides paint
+through the helper ONLY — BUTTON_GROUP_KEY carries layout state
+(orientation/separator) and NO variant; ButtonVariantScope is the
+sanctioned two-axis host: paint through the helper, and the physics
+texture axis's zone default (`raised`) on its OWN key
+(`PRESS_TEXTURE_KEY`, owned by press-button, outside this paint
+lane). Their variant props are ZonePaintVariant (a
+`<ButtonGroup variant="link">` is a compile error; link stays
+reachable through PressButton's own explicit prop); ButtonGroup's
+inherit-then-provide captures the parent zone eagerly via
+getPaintZone (the getDensityContext precedent — read before its own
+write); a parent variant flip SHALL re-derive every consumer in the
+same frame (reactivity assertion); the paint SLOT reads the zone
+key and TRUSTS the typed domain (ZonePaintVariant narrows at the
+provider; the values array is the gate's availability carrier, not
+a runtime guard — an out-of-family ambient value is not clamped and
+does not warn).
+
+#### Scenario: nested zone scopes
+
+- GIVEN an outer zone providing tonal and an inner zone providing
+  ghost
+- WHEN a button inside the inner zone resolves its paint slot
+- THEN it sees ghost
+
+#### Scenario: the group provides through the one lane
+
+- GIVEN a ButtonGroup with its own variant containing a slot-based
+  consumer and a composed button
+- WHEN both resolve their variant
+- THEN the values agree (one effectiveVariant getter, one key)
+### Requirement: the context coverage gate
+
+`verify:context` (`scripts/verify-context-coverage.mjs`) SHALL take
+deterministic in-repo inputs (registry items, parsed component
+sources, the exemptions whitelist
+`scripts/context-coverage.exemptions.json` with kinds
+`bindable`/`passthrough`/`no-style`/`provider`/`roadmap` —
+`provider` exempts ONLY the legacy-helper bypass check, never
+Defaults existence, slot coverage, or resolve presence; `roadmap`
+entries (prop + target axis + reason) carry the class-c props
+awaiting their axis — and the versioned detection vocabulary in
+`scripts/context-coverage.config.json`) and enforce FAMILY-LEVEL
+coverage: (a) a family with style props has a Defaults object
+covering them (or an explicit exemption); (b) every slot value is a
+registered slot factory call (AST — resolved through a named slot
+constant's same-file factory-call initializer); (c) every consumer
+file of a family with a Defaults object CONTAINS a
+`XxxDefaults.resolve(` call AND contains NONE of the banned bypass
+channels (direct axis-symbol `getContext`, `resolveDensity`,
+`getDensityContext`, known scope reads) outside axis modules and
+whitelisted providers; (d) the paint family's values array (the
+slot's first argument) matches the frozen availability table
+bidirectionally (link stays PressButton-only). Per-prop dataflow
+beyond these clauses is OUTSIDE static decidability — the boundary
+is declared, not hidden, and belongs to code review. Output SHALL
+be machine-readable JSON plus a human list with exit codes; a
+`--scope=pilot` mode runs the pilot subset. The single
+full-enablement point is the final integration task.
+
+#### Scenario: a new component lands without a Defaults object
+
+- GIVEN a registry component exposes a public variant prop
+- WHEN `verify:context` (`scripts/verify-context-coverage.mjs`)
+  runs
+- THEN it fails naming the component and the uncovered prop
+
+#### Scenario: a legacy helper bypass
+
+- GIVEN a consumer component still calls
+  `resolveDensity(density, getDensityContext())` inline
+- WHEN the gate runs
+- THEN it fails naming the legacy-helper bypass
+
+#### Scenario: an inherit-then-provide container stays legal
+
+- GIVEN Table provides density derived from its inherited context
+  (the documented provider idiom) and is whitelisted kind `provider`
+- WHEN the gate runs
+- THEN the legacy helpers in its provider path do not fail the
+  gate, while its Defaults existence and slot coverage are still
+  checked
+
+#### Scenario: a badge tries to reach link
+
+- GIVEN Badge's Defaults declared a paint slot whose values array
+  contains 'link'
+- WHEN the gate runs
+- THEN it fails the availability-table consistency check
 ### Requirement: native-controls governs every custom control (2026-08-29)
 
 The Input component SHALL mount its custom controls by default for
@@ -1038,11 +1327,11 @@ GALLERY linking those canonical routes, never their replacement.
 ### Requirement: a floating surface's zones and its content faces are separate components
 
 A surface component (dialog, popover, sheet) renders the ZONES — the
-row ruler, the presence stamps, the variant scopes, the close
-contract, the motion — and offers per-zone SNIPPETS as the transport
-(the default children render inside the body cell; only a snippet
-reaches another row). The zone's standard CONTENT is a separate
-composition component that the snippet typically carries.
+row ruler, the presence stamps, the variant/texture scopes, the
+close contract, the motion — and offers per-zone SNIPPETS as the
+transport (the default children render inside the body cell; only a
+snippet reaches another row). The zone's standard CONTENT is a
+separate composition component that the snippet typically carries.
 
 #### Scenario: the dialog footer's slot architecture (r14-9)
 

@@ -24,7 +24,7 @@
  * cheap without snapshotting.
  */
 import fuzzysort from 'fuzzysort';
-import type { CommandMatch } from '$lib/ui/command/command.svelte';
+import type { CommandMatch } from '$lib/command-match';
 
 /** a page line the kernel understands (DocsPage-compatible) */
 export interface NavFilterPage {

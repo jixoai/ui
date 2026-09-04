@@ -36,6 +36,13 @@
 //   imported/complex → opaque with the source type text — never
 //   silently dropped. svelte2tsx is the documented upgrade path if
 //   gaps accumulate (design note, not a task).
+//
+// Ambient column (context-defaults-economy 4.3): a sibling
+// <family>/<family>-defaults.svelte.ts slot whose name matches an
+// extracted prop emits `ambient: 'zone' | 'scope' | 'own'` (paint axis
+// / density axis / literal family) appended to that prop's node — the
+// docs table's three-state Default-column marker. Slot facts come from
+// the family Defaults contract; slot owns never synthesize IR defaults.
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
@@ -234,6 +241,109 @@ function inferFromInitializer(init, sf) {
   return { kind: 'opaque', typeText: 'unknown' };
 }
 
+// ── ambient slots: the family Defaults contract (4.3) ────────────────
+//
+// The docs-facing ambient state rides the GENERATED zone, derived from
+// the family's *-defaults.svelte.ts — the SINGLE declared ambient
+// contract (scripts/verify-context-coverage.mjs is its legality gate;
+// scripts/context-coverage.config.json the slot-factory vocabulary,
+// read read-only here). Slot NAME = prop NAME; a slot whose name is not
+// an extracted prop (toast's per-item variant/material, popover's
+// prop-less density lane) honestly emits nothing. Slot VALUES are
+// named exported constants wired by reference (slot-values-first):
+// an Identifier resolves one hop to its same-file `export const <name>
+// = <factory>(…)` initializer — inline calls stay legal, resolution
+// never recurses. Classification per factory: definePaintSlot → the
+// paint axis zone; densitySlot → the ambient density scope; every
+// other registered factory (defineLiteralSlot / defineOpenSlot /
+// absentSlot today) → the literal family's declared own. The slot's
+// own VALUE never synthesizes an IR default (r13: owns that left the
+// statically-extractable zone ride required; the marker alone carries
+// the state).
+const COVERAGE_CONFIG_PATH = join(root, 'scripts/context-coverage.config.json');
+let SLOT_FACTORIES_CACHE;
+const AMBIENT_OF_FACTORY = {
+  definePaintSlot: 'zone',
+  densitySlot: 'scope',
+};
+
+function slotFactories() {
+  if (SLOT_FACTORIES_CACHE === undefined) {
+    try {
+      SLOT_FACTORIES_CACHE = new Set(
+        Object.keys(JSON.parse(readFileSync(COVERAGE_CONFIG_PATH, 'utf8')).slotFactories ?? {}),
+      );
+    } catch {
+      SLOT_FACTORIES_CACHE = new Set(); // config unreadable: no ambient emission
+    }
+  }
+  return SLOT_FACTORIES_CACHE;
+}
+
+/** the named-slot-constant resolution (slot-values-first B2): an
+ *  Identifier slot value resolves ONE hop to its same-file
+ *  `export const <name> = <factory>(…)` initializer — never
+ *  recursive; a wrong-shape or missing declaration resolves to
+ *  undefined and the slot honestly emits no ambient */
+function resolveNamedSlotCall(idName, sf) {
+  for (const stmt of sf.statements) {
+    if (!ts.isVariableStatement(stmt)) continue;
+    if (!stmt.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)) continue;
+    for (const decl of stmt.declarationList.declarations) {
+      if (!ts.isIdentifier(decl.name) || decl.name.text !== idName) continue;
+      const init = decl.initializer;
+      return init && ts.isCallExpression(init) && ts.isIdentifier(init.expression)
+        ? init
+        : undefined;
+    }
+  }
+  return undefined;
+}
+
+/** slotName → ambient kind, from the family defaults file (may be absent) */
+function ambientSlotsOf(sourcePath) {
+  const dir = dirname(sourcePath);
+  const family = basename(dir);
+  const defaultsPath = resolve(root, join(dir, `${family}-defaults.svelte.ts`));
+  const out = new Map();
+  if (!existsSync(defaultsPath)) return out;
+  const sf = parseTs(readFileSync(defaultsPath, 'utf8'));
+  for (const stmt of sf.statements) {
+    if (!ts.isVariableStatement(stmt)) continue;
+    for (const decl of stmt.declarationList.declarations) {
+      if (
+        !decl.initializer ||
+        !ts.isCallExpression(decl.initializer) ||
+        decl.initializer.expression.getText(sf) !== 'defineComponentDefaults'
+      ) {
+        continue;
+      }
+      const arg = decl.initializer.arguments[0];
+      if (!arg || !ts.isObjectLiteralExpression(arg)) continue;
+      for (const prop of arg.properties) {
+        if (!ts.isPropertyAssignment(prop)) continue;
+        const value = prop.initializer;
+        // inline factory call, or a named exported slot constant
+        // resolved one hop (slot-values-first B2)
+        const call =
+          ts.isCallExpression(value) && ts.isIdentifier(value.expression)
+            ? value
+            : ts.isIdentifier(value)
+              ? resolveNamedSlotCall(value.text, sf)
+              : undefined;
+        if (!call) continue;
+        const factory = call.expression.text;
+        if (!slotFactories().has(factory)) continue;
+        out.set(
+          prop.name.getText(sf).replace(/^['"]|['"]$/g, ''),
+          AMBIENT_OF_FACTORY[factory] ?? 'own',
+        );
+      }
+    }
+  }
+  return out;
+}
+
 function withDefault(node, init, sf) {
   const lit = literalValue(init, sf);
   if (!lit.present) return node;
@@ -248,7 +358,7 @@ function withDefault(node, init, sf) {
 }
 
 // ── the extractor ───────────────────────────────────────────────────
-function extractMeta(source, sourcePath) {
+function extractMeta(source, sourcePath, ambientSlots = new Map()) {
   const { module: moduleCode, instance: instanceCode } = splitScripts(source);
   const sfs = [moduleCode, instanceCode].filter(Boolean).map(parseTs);
   const locals = collectLocals(sfs);
@@ -295,6 +405,12 @@ function extractMeta(source, sourcePath) {
           : inferFromInitializer(e.initializer, sf);
       }
     }
+  }
+  // the ambient column facts: slot-carrying props only, appended last
+  // (deterministic key order; quoted interface spellings normalize the
+  // same way the extraction keys do)
+  for (const [slotName, ambient] of ambientSlots) {
+    if (slotName in props) props[slotName] = { ...props[slotName], ambient };
   }
   return { source: sourcePath, props, hooks };
 }
@@ -354,7 +470,7 @@ const metaTargetOf = (sourcePath) =>
 function generate(sourcePath) {
   const abs = resolve(root, sourcePath);
   if (!existsSync(abs)) die(`component source not found: ${sourcePath}`);
-  return extractMeta(readFileSync(abs, 'utf8'), sourcePath);
+  return extractMeta(readFileSync(abs, 'utf8'), sourcePath, ambientSlotsOf(sourcePath));
 }
 
 function writeOne(sourcePath) {
@@ -365,9 +481,11 @@ function writeOne(sourcePath) {
     : DEFAULT_ANNOTATIONS;
   mkdirSync(META_DIR, { recursive: true });
   writeFileSync(target, emitFile(meta, zone));
+  const ambientCount = Object.values(meta.props).filter((p) => p.ambient).length;
   console.log(
     `[component-metadata-gen] wrote ${join('apps/www/src/lib/meta', basename(target))} ` +
-      `(props: ${Object.keys(meta.props).length}, hooks: ${meta.hooks.length})`,
+      `(props: ${Object.keys(meta.props).length}, hooks: ${meta.hooks.length}` +
+      `${ambientCount ? `, ambient: ${ambientCount}` : ''})`,
   );
 }
 
@@ -484,6 +602,40 @@ const FIXTURES = [
       hooks: ['data-jx-infer'],
     },
   },
+  {
+    // 4.3: the ambient column facts — a slot map (ambientSlotsOf output)
+    // attaches `ambient` to slot-carrying props only; a slot whose name
+    // is not an extracted prop (toast's per-item fields) emits nothing;
+    // slot-less props carry no field
+    name: 'ambient slots (4.3)',
+    source: `<script lang="ts">
+  interface Props {
+    variant?: 'fill' | 'tonal' | 'outline';
+    density?: string;
+    shape?: 'square' | 'pill';
+    label?: string;
+  }
+  let { variant, density, shape = 'square', label }: Props = $props();
+</script>
+
+<div data-jx-ambient={variant}></div>`,
+    slots: new Map([
+      ['variant', 'zone'],
+      ['density', 'scope'],
+      ['shape', 'own'],
+      ['material', 'own'],
+    ]),
+    expected: {
+      source: 'fixture-ambient.svelte',
+      props: {
+        variant: { kind: 'enum', values: ['fill', 'tonal', 'outline'], ambient: 'zone' },
+        density: { kind: 'string', ambient: 'scope' },
+        shape: { kind: 'enum', values: ['square', 'pill'], default: 'square', ambient: 'own' },
+        label: { kind: 'string' },
+      },
+      hooks: ['data-jx-ambient'],
+    },
+  },
 ];
 
 // order-insensitive structural compare (key order feeds the emitted
@@ -499,8 +651,8 @@ const structurallyEqual = (a, b) =>
 
 function runSelfTest() {
   let failed = 0;
-  for (const { name, source, expected } of FIXTURES) {
-    const got = extractMeta(source, expected.source);
+  for (const { name, source, expected, slots } of FIXTURES) {
+    const got = extractMeta(source, expected.source, slots);
     const ok = structurallyEqual(got, expected);
     console.log(`${ok ? 'PASS' : 'FAIL'}  fixture: ${name}`);
     if (!ok) {

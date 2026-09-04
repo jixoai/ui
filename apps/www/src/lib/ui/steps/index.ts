@@ -13,3 +13,4 @@ export { default as StepsDescription } from './steps-description.svelte';
 export * from './steps-description.svelte';
 export { default as StepsSeparator } from './steps-separator.svelte';
 export * from './steps-separator.svelte';
+export { StepsDefaults } from './steps-defaults.svelte';

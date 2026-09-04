@@ -5,3 +5,4 @@ export { default } from './dialog.svelte';
 export * from './dialog.svelte';
 export { default as DialogHeader } from './dialog-header.svelte';
 export { default as DialogFooter } from './dialog-footer.svelte';
+export { DialogDefaults, type DialogSurfaceVariant } from './dialog-defaults.svelte';

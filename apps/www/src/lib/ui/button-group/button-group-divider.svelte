@@ -26,13 +26,18 @@
 
   let { class: className = '', ...rest }: Props = $props();
 
-  const group = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
   // aria-orientation describes the LINE, not the flow: a horizontal
   // group's divider is a vertical hairline (and vice versa); outside
-  // any group it defaults to the horizontal flow
-  const lineOrientation = $derived(
-    (group?.orientation ?? 'horizontal') === 'horizontal' ? 'vertical' : 'horizontal',
-  );
+  // any group it defaults to the horizontal flow. The family-state
+  // read (the family layout key — never an axis default) rides the
+  // gate's provider-file boundary: kind:provider files confine
+  // context reads to reactive declaration subtrees, so the
+  // getContext lives inside the $derived initializer, whose api
+  // getters keep it reactive under rerenders
+  const lineOrientation = $derived.by(() => {
+    const group = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
+    return (group?.orientation ?? 'horizontal') === 'horizontal' ? 'vertical' : 'horizontal';
+  });
 </script>
 
 <div

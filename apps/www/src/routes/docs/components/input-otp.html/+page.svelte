@@ -215,7 +215,7 @@ ${close}
           { name: 'label', type: 'string', default: '—', description: 'Reads above the slots; also the group aria-label.' },
           { name: 'error', type: 'string', default: '—', description: 'Error text: dashes every slot border (destructive) + the message line.' },
           { name: 'disabled', type: 'boolean', default: 'false', description: 'Dims and freezes the whole slot set.' },
-          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
+          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
         ]}
       />
     </SectionCard>

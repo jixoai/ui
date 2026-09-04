@@ -283,13 +283,18 @@
   /** ChartBar's variant grammar — the prominence ladder's three
    *  chart-applicable rungs, painted through the four global hue
    *  slots (never a semantic variant name) */
-  export type ChartVariant = 'fill' | 'tonal' | 'outline';
+  // The union lives in the family Defaults (r11 same-folder-literal
+  // convention) and is re-exported here so the public surface keeps
+  // its shape.
+  import type { ChartVariant } from './chart-defaults.svelte';
+  export type { ChartVariant };
 </script>
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { ChartDefaults } from './chart-defaults.svelte';
   import './chart.css';
 
   interface Props {
@@ -302,14 +307,24 @@
 
   let { density, class: className = '', children }: Props = $props();
 
-  // capture inherited BEFORE the derived (packet-D lesson): reading
-  // the context inside the same derived provideDensity exposes makes
-  // the getter reference itself
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // The CAPTURE is load-bearing and eager (r11 provider contract, the
+  // button-group form): getDensityContext() rides the $derived.by
+  // ARGUMENT subtree, which evaluates at this statement — BEFORE
+  // provideDensity writes the key — so it captures the PARENT's
+  // context (not the ensemble's own). Reading it lazily (in the
+  // $derived initializer body, or the getter itself) would resolve
+  // the very getter it feeds — derived_references_self.
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+  // the family Defaults is the single read point for the STAMP
+  // (context-defaults-economy 3.4): the slot's ambient read lands on
+  // this ensemble's own provided policy — exactly what the glyphs
+  // below see, one resolution for the whole subtree
+  const d = $derived(ChartDefaults.resolve({ density }));
 </script>
 
-<div data-jx-chart="" data-density={resolvedDensity} class={cn('contents', className)}>
+<div data-jx-chart="" data-density={d.density} class={cn('contents', className)}>
   {@render children()}
 </div>

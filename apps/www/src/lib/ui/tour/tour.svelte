@@ -66,6 +66,7 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { TourDefaults, type TourSurfaceVariant } from './tour-defaults.svelte';
   import './tour.css';
 
   export interface TourStep {
@@ -110,8 +111,9 @@
      *  default rendering (title/description/meta/nav) stays when absent */
     card?: Snippet<[TourApi]>;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
-        the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        the environment asks for reduced transparency) — literal slot,
+        own 'auto' */
+    variant?: TourSurfaceVariant;
     class?: string;
   }
 
@@ -126,10 +128,15 @@
     onfinish,
     onstep,
     card,
-    variant = 'auto',
+    variant,
     class: className = '',
     ...rest
   }: Props = $props();
+
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): variant rides a literal slot (own 'auto', never
+  // reads context — the floating-surface grammar, dialog/sheet kin)
+  const d = $derived(TourDefaults.resolve({ variant }));
 
   let index = $state(0);
   /** the resolved element of the CURRENT step (null = unavailable) */
@@ -338,7 +345,7 @@
     aria-modal="false"
     aria-label={step.title}
     class={cn('jx-tour jx-surface', motion.supported && 'jx-waapi', className)}
-    data-variant={variant}
+    data-variant={d.variant}
     style="position-anchor: {leaseName}"
     bind:this={panelEl}
     onkeydown={handleKeydown}

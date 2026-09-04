@@ -37,7 +37,8 @@
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { CheckboxDefaults } from './checkbox-defaults.svelte';
   import { cn } from '$lib/utils';
   import './checkbox.css';
 
@@ -75,8 +76,10 @@
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels
+  const d = $derived(CheckboxDefaults.resolve({ density }));
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
@@ -94,7 +97,7 @@
 <!-- bare posture: with no label/error to stack, the field wrapper
      is dead weight — a w-fit inline host instead (inside list-item end
      lanes the control must sit at inline-END, not stretch the lane) -->
-<div data-density={resolvedDensity} class={cn(!label && !error ? 'inline-flex w-fit' : 'jx-field')}>
+<div data-density={d.density} class={cn(!label && !error ? 'inline-flex w-fit' : 'jx-field')}>
   <span
     data-jx-check
     data-jx-check-left={labelSide === 'left' ? '' : undefined}

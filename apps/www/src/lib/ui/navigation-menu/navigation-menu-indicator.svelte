@@ -51,6 +51,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
+  import { NavigationMenuDefaults } from './navigation-menu-defaults.svelte';
 
   interface Props {
     /** the motion law: 'navigation' stamps a view-transition-name for
@@ -77,9 +78,15 @@
     name = 'jx-nav-indicator',
     duration = 240,
     easing = 'cubic-bezier(0.2, 0.8, 0.2, 1)',
-    inset = 0,
+    inset,
     class: className = '',
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // inset resolves through the family contract (the literal slot: own
+  // 0 declared in NavigationMenuDefaults, auditable in one place; the
+  // sheet size slot's number sibling)
+  const d = $derived(NavigationMenuDefaults.resolve({ inset }));
 
   let indEl = $state<HTMLSpanElement | null>(null);
 
@@ -156,10 +163,10 @@
     // clamped at 0: a degenerate box (jsdom's zero layout) still writes
     // a legal style instead of a dropped negative one
     const next: Geo = {
-      x: entry.offsetLeft + inset,
-      y: entry.offsetTop + inset,
-      w: Math.max(0, entry.offsetWidth - inset * 2),
-      h: Math.max(0, entry.offsetHeight - inset * 2),
+      x: entry.offsetLeft + d.inset,
+      y: entry.offsetTop + d.inset,
+      w: Math.max(0, entry.offsetWidth - d.inset * 2),
+      h: Math.max(0, entry.offsetHeight - d.inset * 2),
     };
     const reduce =
       typeof matchMedia === 'function' &&

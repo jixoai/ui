@@ -8,3 +8,4 @@ export { default } from './date-picker.svelte';
 export * from './date-picker.svelte';
 export { default as Calendar } from './calendar.svelte';
 export * from './calendar-math.ts';
+export { DatePickerDefaults, type DatePickerSurfaceVariant } from './date-picker-defaults.svelte';

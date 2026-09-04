@@ -36,6 +36,10 @@
 <script lang="ts">
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
+  import {
+    LanguageSwitcherDefaults,
+    type LanguageSwitcherVariant,
+  } from './language-switcher-defaults.svelte';
 
   export interface SwitcherLocale {
     code: string;
@@ -44,13 +48,17 @@
   }
 
   interface Props {
-    variant?: 'pair' | 'menu';
+    variant?: LanguageSwitcherVariant;
     locales: readonly SwitcherLocale[];
     current: string;
     ariaLabel?: string;
   }
 
-  let { variant = 'pair', locales, current, ariaLabel = 'Language' }: Props = $props();
+  let { variant, locales, current, ariaLabel = 'Language' }: Props = $props();
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): variant rides a literal slot (own 'pair', never
+  // reads context — a structural selector, not a paint rung)
+  const d = $derived(LanguageSwitcherDefaults.resolve({ variant }));
 
   // $props.id() must live in its own top-level initializer (compiler law)
   const autoId = $props.id();
@@ -71,7 +79,7 @@
        consuming-context CSS (the module bakes 16px / sw 2) -->
   <span class="inline-flex opacity-70 [&_svg]:h-3.5 [&_svg]:w-3.5">{@html icons.languages}</span>
 
-  {#if variant === 'pair'}
+  {#if d.variant === 'pair'}
     <div
       data-jx-lang-seg=""
       class="inline-flex w-fit max-w-full overflow-hidden border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)]"

@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './language-switcher.svelte';
 export * from './language-switcher.svelte';
+export { LanguageSwitcherDefaults, type LanguageSwitcherVariant } from './language-switcher-defaults.svelte';

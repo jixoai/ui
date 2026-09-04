@@ -26,8 +26,9 @@
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { ChartDefaults } from './chart-defaults.svelte';
   import { barRun, seriesBounds, type ChartVariant } from './chart.svelte';
   import './chart.css';
 
@@ -55,7 +56,7 @@
     data,
     label,
     labels,
-    variant = 'fill',
+    variant,
     cells = 20,
     values = true,
     table = false,
@@ -64,7 +65,10 @@
     ...rest
   }: Props = $props();
 
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): variant rides a literal slot (own 'fill'), density
+  // the no-opinion axis slot (the ensemble provides, the glyph stamps)
+  const d = $derived(ChartDefaults.resolve({ variant, density }));
   const max = $derived(seriesBounds(data)?.max ?? 0);
   const run = $derived((v: number) => barRun(v, max, cells));
 
@@ -79,8 +83,8 @@
   {...rest}
   role="img"
   aria-label={label}
-  data-jx-chart-bar={variant}
-  data-density={resolvedDensity}
+  data-jx-chart-bar={d.variant}
+  data-density={d.density}
   class={cn(
     'inline-flex flex-col [gap:var(--jx-gap)] [font-size:var(--jx-text)] tabular-nums',
     className,
@@ -89,7 +93,7 @@
   {#each data as v, i (i)}
     <div data-jx-chart-bar-row="" class="grid grid-cols-[auto_1fr_auto] items-baseline [gap:var(--jx-gap)]">
       <span data-jx-chart-bar-label="" class="min-w-0 truncate text-muted-foreground">{labels?.[i] ?? ''}</span>
-      <span data-jx-chart-bar-run="" class="jx-chart-glyphs {ink[variant]}">{run(v)}</span>
+      <span data-jx-chart-bar-run="" class="jx-chart-glyphs {ink[d.variant]}">{run(v)}</span>
       {#if values}
         <span data-jx-chart-bar-value="" class="text-foreground">{Number.isFinite(v) ? v : '—'}</span>
       {/if}

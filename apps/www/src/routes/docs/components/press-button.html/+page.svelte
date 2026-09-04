@@ -5,6 +5,8 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton, { pulse, rainbow, ripple, shimmer, type PressEffect } from '$lib/ui/press-button/press-button.svelte';
   import pressButtonSource from '$lib/ui/press-button/press-button.svelte?raw';
+  import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
+  import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { registrySourceUrl } from '$lib/registry-source';
@@ -61,6 +63,11 @@ ${close}
   // enum speaks names, the onvalue seam maps them) and is swapped into
   // the meta before the one lowering. The pane rows, the bound values
   // and the exported schema all come from that same lowering.
+  // 4.3: variant rides the same page-side swap — the Props type became
+  // the imported PressButtonVariant alias (task 1.2), which the
+  // extractor's same-file ceiling honestly reports as an opaque; the
+  // ladder's values are page knowledge, the ambient zone state kept
+  // verbatim from the regenerated meta.
   type Variant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link';
   type EffectName = 'none' | 'shimmer' | 'pulse' | 'rainbow' | 'ripple';
   const effectBuilders = {
@@ -71,10 +78,12 @@ ${close}
     ripple: () => ripple(),
   } as const;
   const effectNames: readonly EffectName[] = ['none', 'shimmer', 'pulse', 'rainbow', 'ripple'];
+  const variantLadder: readonly Variant[] = ['fill', 'tonal', 'outline', 'ghost', 'link'];
   const metaWithEffect: ComponentMeta = {
     ...meta,
     props: {
       ...meta.props,
+      variant: { kind: 'enum', values: [...variantLadder], ambient: 'zone' },
       effect: { kind: 'enum', values: [...effectNames], default: 'none' },
     },
   };
@@ -274,6 +283,53 @@ ${close}
           </div>
         </div>
       </ComponentCanvas>
+    </div>
+
+    <div id="zone" data-reveal="">
+      <SectionCard
+        family="zone"
+        headerRegion="zone"
+        eyebrow="context"
+        title="The ambient zone — variant by context"
+        summary="A lone button defaults to outline — the frozen own. The SAME button inside a zone scope defaults to the zone's variant with no prop passed anywhere: explicit ?? ambient zone ?? own, left to right, no exceptions. Two doors set the zone: ButtonVariantScope (zero-DOM — free-floating buttons keep their placement) and ButtonGroup (zone plus the hairline join). Dialog's head and foot zones are the canonical consumers: every unprefixed button inside a dialog is ghost, while the page floor stays outline."
+      >
+        <div class="flex flex-col gap-5">
+          <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
+            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+              <span>outside — own default</span>
+              <PressButton>cancel</PressButton>
+            </div>
+            <ButtonVariantScope variant="ghost">
+              <div class="flex flex-wrap items-center gap-2.5">
+                <span class="text-muted-foreground text-xs">inside the scope</span>
+                <PressButton>adopts ghost</PressButton>
+                <PressButton>adopts ghost</PressButton>
+                <PressButton variant="fill">keeps fill</PressButton>
+              </div>
+            </ButtonVariantScope>
+            <ButtonGroup variant="ghost" label="zone + join">
+              <PressButton>joined ghost</PressButton>
+              <PressButton variant="fill">keeps fill</PressButton>
+            </ButtonGroup>
+          </div>
+          <CodeBlock
+            code={`<!-- the zone changes the DEFAULT, not the paint — link is NOT a
+     zone value (the interaction exception keeps its only route
+     through the explicit prop); the system story lives in
+     /docs/context-defaults.html -->
+<ButtonVariantScope variant="ghost">
+  <PressButton>adopts ghost</PressButton>
+  <PressButton variant="fill">keeps fill</PressButton>
+</ButtonVariantScope>`}
+            lang="svelte"
+            meta="the zone door — ButtonVariantScope"
+          />
+          <div class="flex flex-wrap gap-3">
+            <a class="pill" href="/docs/components/button-group.html#variant-scope">button-group — the zone's family</a>
+            <a class="pill" href="/docs/context-defaults.html">context &amp; defaults — the recipes</a>
+          </div>
+        </div>
+      </SectionCard>
     </div>
 
     <div id="anchors" data-reveal="">
@@ -509,8 +565,8 @@ ${close}
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and one press effect builder.">
       <PropsTable props={[
-        { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the surrounding density scope.' },
-        { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost' | 'link'", default: "'outline'", description: 'Selects the ladder rung; link is the interaction exception. Semantic hue injects through --jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline classes at the call site.' },
+        { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
+        { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost' | 'link'", default: "'outline' · ambient zone", description: 'Selects the ladder rung; link is the interaction exception. Omitted → the ambient paint zone (ButtonGroup / variant scope), else the frozen own. Semantic hue injects through --jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline classes at the call site.' },
         { name: 'effect', type: 'PressEffect', default: '—', description: 'One shimmer, pulse, rainbow, or ripple builder.' },
         { name: 'href', type: 'string', default: '—', description: 'Renders an anchor and navigates to the target.' },
         { name: 'loading', type: 'boolean', default: 'false', description: 'The async pose: aria-disabled=true, pointer AND keyboard activation suppressed, href navigation blocked, spinner glyph in the leading lane. Press law holds unchanged. Pair with the one-shot flash() helper (bind:this) on settle.' },

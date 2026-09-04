@@ -1,5 +1,6 @@
 /**
- * The print plugin gates (print-pipeline, 2026-08-30):
+ * The print plugin gates (print-pipeline, 2026-08-30; def identity
+ * migration, context-plugin-v2 2026-09-03):
  *   - the three interventions: the medium gate (filter), density→the
  *     EXISTING sm tier, hue→pinned to the def default
  *   - the gate's reversibility: closed → identity (reference equal),
@@ -7,9 +8,16 @@
  *   - the immutability discipline (frozen input in, new value out)
  *   - the pure medium reducer priority (migrated from the retired
  *     paged-medium.spec.ts — medium.svelte.ts survives the family)
+ *
+ * DEF IDENTITY LAW: applyChain receives the SAME def objects the
+ * plugins target — DENSITY_DEF imported from the canonical density
+ * module (the identity printDensityPlugin binds; the print layer
+ * imports it from there too — one identity across the whole site),
+ * HUE_DEF from hue-runtime. An equal-key impostor would be a silent
+ * dead target.
  */
 import { describe, expect, it } from 'vitest';
-import { applyChain, definePlugin, type ContextEnv } from '../src/lib/context-plugin.svelte';
+import { applyChain, defineContextDef, definePlugin, type ContextEnv } from '../src/lib/context-plugin.svelte';
 import { deriveMedium, isPrintProjection, MEDIUM_DEF, type MediumState } from '../src/lib/medium.svelte';
 import {
   PRINT_PINNED_HUE,
@@ -18,13 +26,13 @@ import {
   printMediumGate,
   printPlugins,
 } from '../src/lib/print/context-plugin';
-import type { Density } from '../src/lib/density.svelte';
+import { DENSITY_DEF, type Density } from '../src/lib/density.svelte';
+import { HUE_DEF } from '../src/lib/hue-runtime.svelte';
 
 const envFor = (medium: MediumState): ContextEnv =>
   Object.freeze({ medium, root: undefined }) as unknown as ContextEnv;
 
-const DENSITY_DEF = { key: 'density', defaults: () => 'default' as Density, ssrSafe: 'default' as Density };
-const HUE_DEF = { key: 'hue', defaults: () => 0, ssrSafe: 0 };
+const PROBE_DEF = defineContextDef({ key: 'probe', defaults: () => 'p', ssrSafe: 'p' });
 
 // =========================================================================
 // the medium gate
@@ -87,7 +95,7 @@ describe('the chained projection (applyChain)', () => {
 
   it('immutability: a frozen value in cannot be mutated by the plugins', () => {
     const frozen = Object.freeze({ tier: 'lg' });
-    const out = applyChain({ key: 'probe' }, frozen, chain, envFor('sim'));
+    const out = applyChain(PROBE_DEF, frozen, chain, envFor('sim'));
     expect(() => Object.isFrozen(frozen)).not.toThrow();
     expect(Object.isFrozen(frozen)).toBe(true);
     // the print plugins return scalars/new values; the frozen input survives
@@ -97,14 +105,15 @@ describe('the chained projection (applyChain)', () => {
 });
 
 describe('the plugin set', () => {
-  it('two single-key plugins, both definePlugin products, frozen', () => {
+  it('two single-def plugins, both definePlugin products, frozen', () => {
     expect(printPlugins).toHaveLength(2);
     for (const plugin of printPlugins) {
       expect(plugin.targets).toHaveLength(1);
       expect(Object.isFrozen(plugin)).toBe(true);
     }
-    expect(printPlugins[0]!.targets).toEqual(['density']);
-    expect(printPlugins[1]!.targets).toEqual(['hue']);
+    // identity: each plugin binds exactly the def it was declared with
+    expect(printPlugins[0]!.targets[0]).toBe(DENSITY_DEF);
+    expect(printPlugins[1]!.targets[0]).toBe(HUE_DEF);
   });
 
   it('never targets medium (the read-only domain)', () => {
@@ -112,7 +121,7 @@ describe('the plugin set', () => {
       definePlugin({
         name: 'forge',
         // @ts-expect-error the medium context is a read-only projection
-        targets: ['medium'],
+        targets: [MEDIUM_DEF],
         before: (v: MediumState) => v,
       }),
     ).toThrow(/read-only projection/);

@@ -14,7 +14,7 @@
 -->
 <script lang="ts">
   import { getContext, onDestroy } from 'svelte';
-  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
+  import { CommandDefaults } from './command-defaults.svelte';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
@@ -28,7 +28,10 @@
   let { class: className = '', children, ...rest }: Props = $props();
 
   const cmd = getContext<CommandApi>(COMMAND_KEY);
-  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the density slot's ambient read lands the root's
+  // provided opinion; no opinion resolves undefined → no stamp
+  const d = $derived(CommandDefaults.resolve({}));
 
   let el = $state<HTMLDivElement | null>(null);
 
@@ -47,7 +50,7 @@
 <div
   bind:this={el}
   data-jx-command-list=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn(
     'overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-[0.375rem] [padding-inline:max(0.375rem-var(--jx-scrollbar-thin,0px),0px)]',
     className,

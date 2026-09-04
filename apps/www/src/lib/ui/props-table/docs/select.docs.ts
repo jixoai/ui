@@ -5,7 +5,11 @@
  *
  * Rows hidden by curation: heritage passthrough the table never showed
  * (`id`, the `'data-density`' pair, `class`, `...rest`). `density`'s
- * display default is runtime-resolved (`inherited`), not a literal.
+ * effective default is runtime-resolved: since 4.3
+ * (context-defaults-economy) the IR's ambient field carries it (the
+ * `ambient scope` Default-column marker) — the `inherited` display
+ * override retired, the union text stays (the imported Density type is
+ * the extractor's same-file ceiling).
  */
 import type { PropsDocs } from '../from-meta';
 
@@ -39,8 +43,7 @@ export const SELECT_DOCS: PropsDocs = {
     },
     density: {
       type: "'xs' | 'sm' | 'default' | 'lg'",
-      default: 'inherited',
-      description: 'Overrides the inherited density scope.',
+      description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.',
     },
     disabled: {
       description: 'Disables the trigger and the form-bridge field.',

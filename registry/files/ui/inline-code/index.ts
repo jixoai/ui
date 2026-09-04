@@ -4,3 +4,4 @@
 // detectInlineLang, InlineCodeVariant). No logic lives here.
 export { default } from './inline-code.svelte';
 export * from './inline-code.svelte';
+export { InlineCodeDefaults, type InlineCodeVariant } from './inline-code-defaults.svelte';

@@ -7,17 +7,13 @@ export const meta = defineComponentMeta(
     "props": {
       "density": {
         "kind": "opaque",
-        "typeText": "Density"
+        "typeText": "Density",
+        "ambient": "scope"
       },
       "variant": {
-        "kind": "enum",
-        "values": [
-          "fill",
-          "tonal",
-          "outline",
-          "ghost",
-          "link"
-        ]
+        "kind": "opaque",
+        "typeText": "PressButtonVariant",
+        "ambient": "zone"
       },
       "effect": {
         "kind": "opaque",

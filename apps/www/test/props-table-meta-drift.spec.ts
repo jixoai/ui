@@ -16,6 +16,23 @@
  * row — the hand-written table predated the prop (stale; the exact
  * drift this change exists to kill).
  *
+ * Snapshot edit 2026-09-03 (context-defaults-economy task 4.3 — the
+ * ambient column's deliberate 先破再立):
+ *   - PropNode carries an optional `ambient` field ('zone' | 'scope' |
+ *     'own'), written by component-metadata-gen from the family
+ *     Defaults slot facts; the cell projection below pins it as the
+ *     sixth content field.
+ *   - The density rows' `inherited` display default RETIRED: the
+ *     effective default is runtime-resolved and the IR ambient field
+ *     carries it (the Default column renders `ambient scope`); the
+ *     descriptions adopt the W-wave frozen phrasing.
+ *   - The slot-carrying variant rows pin `ambient: 'own'`.
+ *   - popover's variant Props type became the imported
+ *     PopoverSurfaceVariant alias (W2): the meta honestly degrades to
+ *     an opaque, so the union text + inline default live in the docs
+ *     override (the documented extraction ceiling) — content unchanged
+ *     byte-for-byte.
+ *
  * The curation-accountability matrix (which override fields each docs
  * module uses) is pinned too: a new correction can only land by
  * editing this file, which is the review seam for extractor ceilings.
@@ -49,14 +66,14 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the trigger and the form-bridge field.' },
     { name: 'multiple', type: 'boolean', default: 'false', description: 'Reserved extension direction — not implemented in v1 (warns).' },
-    { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the panel.' },
-    { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
+    { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the panel.', ambient: 'own' },
+    { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
   ],
   popover: [
     { name: 'id', type: 'string', default: '—', description: 'Popover id: popovertarget association + the CSS anchor name.', required: true },
     { name: 'triggerLabel', type: 'string', default: "''", description: 'Default trigger button label; ignored when a trigger snippet is given.' },
     { name: 'placement', type: "'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start' | 'left' | 'right' | 'center'", default: "'bottom-end'", description: 'The INITIAL anchored position; chosen once at open, never re-evaluated while open.' },
-    { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint.' },
+    { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint.', ambient: 'own' },
     { name: 'tryFallbacks', type: 'string', default: "''", description: 'Raw position-try value — custom @position-try idents replace the default flip series.' },
     { name: 'gap', type: 'number | string', default: '—', description: 'Anchor gap, margin semantics — number = uniform px; shorthand gaps only the facing side. Invalid input is ignored.' },
     { name: 'trigger', type: 'Snippet', default: '—', description: 'Custom trigger control; anchoring stays component-owned.' },
@@ -70,7 +87,7 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'labelSide', type: "'left' | 'right'", default: "'right'", description: 'Places the label before or after the control.' },
     { name: 'indeterminate', type: 'boolean', default: 'false', description: 'Sets the native indeterminate IDL state.' },
     { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and an associated message.' },
-    { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the inherited density scope.' },
+    { name: 'density', type: 'Density', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
     { name: 'checked', type: 'boolean', default: '—', description: 'Bindable controlled checked state.', bindable: true },
   ],
   'card-grid': [
@@ -93,7 +110,7 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'max', type: 'string', default: '—', description: 'ISO date; later days render disabled.' },
     { name: 'format', type: "'iso' | 'locale'", default: "'iso'", description: 'Display format — the committed value stays canonical regardless.' },
     { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' },
-    { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface variant for the panel fill.' },
+    { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface variant for the panel fill.', ambient: 'own' },
     { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' },
   ],
   toast: [
@@ -117,7 +134,7 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' },
     { name: 'allowCustom', type: 'boolean', default: 'true', description: 'Accept typed text that matches no option as the committed value (multiple: it joins the selection as a chip).' },
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable the input, the chips and the chevron together.' },
-    { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint of the panel.' },
+    { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint of the panel.', ambient: 'own' },
     { name: 'class', type: 'string', default: "''", description: 'Forwarded to the shell.' },
   ],
 };
@@ -180,7 +197,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
 ];
 
 const cell = (row: PropEntry): string =>
-  JSON.stringify([row.type, row.default ?? null, row.description, row.required ?? false, row.bindable ?? false]);
+  JSON.stringify([row.type, row.default ?? null, row.description, row.required ?? false, row.bindable ?? false, row.ambient ?? null]);
 
 describe('props-table meta migration — zero content drift (pilot seven)', () => {
   for (const pilot of PILOTS) {
@@ -236,7 +253,7 @@ const OVERRIDE_FIELDS_IN_PLAY = {
     error: ['description'],
     multiple: ['description'],
     variant: ['description'],
-    density: ['type', 'default', 'description'],
+    density: ['type', 'description'],
     disabled: ['description'],
     id: ['hide'],
     'data-density': ['hide'],
@@ -247,7 +264,7 @@ const OVERRIDE_FIELDS_IN_PLAY = {
     id: ['required', 'description'],
     triggerLabel: ['description'],
     placement: ['description'],
-    variant: ['description'],
+    variant: ['type', 'default', 'description'],
     tryFallbacks: ['description'],
     gap: ['description'],
     trigger: ['description'],
@@ -260,7 +277,7 @@ const OVERRIDE_FIELDS_IN_PLAY = {
     labelSide: ['description'],
     indeterminate: ['description'],
     error: ['description'],
-    density: ['default', 'description'],
+    density: ['description'],
     checked: ['bindable', 'description'],
     id: ['hide'],
     'data-density': ['hide'],

@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './tags-input.svelte';
 export * from './tags-input.svelte';
+export { TagsInputDefaults, type TagsInputSurfaceVariant } from './tags-input-defaults.svelte';

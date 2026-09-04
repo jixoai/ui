@@ -42,7 +42,8 @@
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import './steps.css';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { StepsDefaults } from './steps-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLOListElement> {
     density?: Density;
@@ -59,7 +60,11 @@
     children,
     ...rest
   }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // density resolves through the family contract (the no-opinion axis
+  // slot: explicit ?? inherited ?? undefined; no opinion stamps
+  // nothing, the ambient css scope channel keeps flowing)
+  const d = $derived(StepsDefaults.resolve({ density }));
 
   setContext<StepsApi>(STEPS_KEY, {
     get current() {
@@ -68,6 +73,6 @@
   });
 </script>
 
-<ol data-jx-steps="" data-density={resolvedDensity} class={cn('flex flex-wrap', className)} {...rest} role="list">
+<ol data-jx-steps="" data-density={d.density} class={cn('flex flex-wrap', className)} {...rest} role="list">
   {@render children()}
 </ol>

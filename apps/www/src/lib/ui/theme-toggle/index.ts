@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './theme-toggle.svelte';
 export * from './theme-toggle.svelte';
+export { ThemeToggleDefaults, type ThemeToggleVariant } from './theme-toggle-defaults.svelte';

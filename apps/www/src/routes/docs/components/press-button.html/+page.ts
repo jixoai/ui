@@ -4,6 +4,7 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
+  { id: 'zone', label: 'The ambient zone' },
   { id: 'anchors', label: 'Button or anchor' },
   { id: 'law', label: 'Why the shadow is the affordance' },
   { id: 'types', label: 'Types' },

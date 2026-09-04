@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './alert.svelte';
 export * from './alert.svelte';
+export { AlertDefaults, type AlertVariant } from './alert-defaults.svelte';

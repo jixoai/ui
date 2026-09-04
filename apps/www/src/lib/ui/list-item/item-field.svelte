@@ -21,6 +21,7 @@
   // the field lane law (design §5): a field's control lane NEVER splits
   import type { ItemLayout, ItemVariant } from './index';
   import type { Density } from '$lib/density.svelte';
+  import { ListItemDefaults } from './list-item-defaults.svelte';
   import './item.css';
 
   /** the wiring contract every control snippet receives */
@@ -60,12 +61,16 @@
     error,
     id,
     labelMode = 'for',
-    variant = 'auto',
+    variant,
     density,
     layout = 'auto',
     class: className = '',
     control,
   }: Props = $props();
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4, the X2-11 restate shape): the scaffold resolves the
+  // ambient policy once and hands Item the RESOLVED values
+  const d = $derived(ListItemDefaults.resolve({ variant, density }));
 
   const controlId = $derived(id ?? autoId);
   const labelId = $derived(`${controlId}-label`);
@@ -83,7 +88,7 @@
   });
 </script>
 
-<Item {variant} {density} {layout} class={cn('jx-item-field', className)} data-item-field={labelMode}>
+<Item variant={d.variant} density={d.density} {layout} class={cn('jx-item-field', className)} data-item-field={labelMode}>
   <ItemContent>
     {#if labelMode === 'for'}
       <label class="jx-item-field-label" id={labelId} for={controlId}>{label}</label>

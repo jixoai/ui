@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../../../../scripts/context-coverage.exemptions.schema.json",
+  "_readme": "SYNTHETIC GATE FIXTURE whitelist — exercises all five kinds plus the two A6 failure shapes (empty reason, stale entry). Never consulted outside the fixture run.",
+  "version": 1,
+  "entries": [
+    {
+      "path": "registry/files/ui/table/table.svelte",
+      "kind": "provider",
+      "reason": "inherit-then-provide container (the documented provider idiom) — legacy helpers confined to the two reactive-declaration subtrees"
+    },
+    {
+      "path": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "kind": "bindable",
+      "prop": "density",
+      "reason": "$bindable page-owned toggle — instance semantics (class d), never ambient"
+    },
+    {
+      "path": "registry/files/ui/icon-button/icon-button.svelte",
+      "kind": "passthrough",
+      "prop": "variant",
+      "reason": "forwards verbatim to PressButton's own contract"
+    },
+    {
+      "path": "registry/files/ui/section-card/section-card.svelte",
+      "kind": "roadmap",
+      "prop": "shape",
+      "targetAxis": "shape",
+      "reason": "class-c vocabulary hit awaiting the shape axis (appendix protocol — first real consumer opens it)"
+    },
+    {
+      "path": "registry/files/ui/spin/spin.svelte",
+      "kind": "no-style",
+      "prop": "variant",
+      "reason": ""
+    },
+    {
+      "path": "registry/files/ui/anchor/anchor.svelte",
+      "kind": "no-style",
+      "prop": "tone",
+      "reason": "stale-demo: anchor declares no tone prop, so this entry matches nothing"
+    }
+  ]
+}

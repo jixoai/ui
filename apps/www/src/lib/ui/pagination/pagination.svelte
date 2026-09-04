@@ -31,8 +31,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { PaginationDefaults } from './pagination-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     /** DENSITY override: explicit ?? inherited ?? default */
@@ -45,10 +46,13 @@
 
   let { density, 'data-density': _callerDensity, label = 'Pagination', class: className = '', children, ...rest }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // density resolves through the family contract (the no-opinion axis
+  // slot: explicit ?? inherited ?? undefined; no opinion stamps
+  // nothing, the ambient css scope channel keeps flowing)
+  const d = $derived(PaginationDefaults.resolve({ density }));
 </script>
 
-<nav data-jx-pagination="" data-density={resolvedDensity} class={cn('block', className)} aria-label={label} {...rest}>
+<nav data-jx-pagination="" data-density={d.density} class={cn('block', className)} aria-label={label} {...rest}>
   {@render children()}
 </nav>

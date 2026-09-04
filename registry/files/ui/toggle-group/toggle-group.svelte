@@ -52,7 +52,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { ToggleGroupDefaults } from './toggle-group-defaults.svelte';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
 
@@ -106,8 +107,11 @@
     );
   }
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels (the group provides family STATE on its own
+  // key — never the density axis)
+  const d = $derived(ToggleGroupDefaults.resolve({ density }));
 
   const activeValues = $derived(
     type === 'single'
@@ -181,7 +185,7 @@
 <div
   bind:this={root}
   data-jx-tgroup
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn('jx-html-tgroup', className)}
   {...rest}
   role={type === 'single' ? 'radiogroup' : 'group'}

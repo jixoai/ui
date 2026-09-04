@@ -47,6 +47,7 @@
   import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { DropdownMenuDefaults, type DropdownMenuSurfaceVariant } from './dropdown-menu-defaults.svelte';
   import './dropdown-menu.css';
 
   interface Props {
@@ -57,7 +58,7 @@
     placement?: 'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start';
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+    variant?: DropdownMenuSurfaceVariant;
     trigger?: Snippet;
     panelClass?: string;
     onToggle?: (open: boolean) => void;
@@ -69,16 +70,34 @@
     density,
     triggerLabel = '',
     placement = 'bottom-end',
-    variant = 'auto',
+    variant,
     trigger,
     panelClass = '',
     onToggle,
     children,
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // The CAPTURE is load-bearing and EAGER (r11 first contract,
+  // context-defaults-economy 3.3): getDensityContext() rides the
+  // $derived.by ARGUMENT subtree, which evaluates at this statement —
+  // BEFORE provideDensity writes the key — so it captures the PARENT's
+  // context object; a lazily-evaluated read would resolve the key to
+  // the menu's OWN write and self-reference through the very getter it
+  // feeds (derived_references_self — the pre-3.3 bare capture this
+  // replaces). The returned getter reads ONLY the captured object
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
+  // TOP of the provider lane as the family's single audited read point:
+  // the density slot's ambient read resolves the key to the menu's own
+  // write, whose getter is the captured-parent resolution above, so the
+  // chain TERMINATES; variant resolves through the literal slot (own
+  // 'auto' declared in DropdownMenuDefaults, auditable in one place)
+  const d = $derived(DropdownMenuDefaults.resolve({ density, variant }));
 
   // id is mount-stable by contract (popover ids + CSS anchors are wired
   // once); $derived keeps the anchor name truthful if it ever flips
@@ -232,7 +251,7 @@
   const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 </script>
 
-<span bind:this={anchorEl} data-density={resolvedDensity} class="jx-menu-anchor inline-flex" style="anchor-name: {anchorName}">
+<span bind:this={anchorEl} data-density={d.density} class="jx-menu-anchor inline-flex" style="anchor-name: {anchorName}">
   {#if trigger}
     {@render trigger()}
   {:else}
@@ -261,8 +280,8 @@
   role="menu"
   tabindex="-1"
   class={cn('jx-menu jx-surface', motion.supported && 'jx-waapi', panelClass)}
-  data-variant={variant}
-  data-density={resolvedDensity}
+  data-variant={d.variant}
+  data-density={d.density}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={onPanelToggle}

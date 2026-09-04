@@ -23,8 +23,9 @@
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { ChartDefaults } from './chart-defaults.svelte';
   import { sparkBlocks, sparkBraille } from './chart.svelte';
   import './chart.css';
 
@@ -51,7 +52,10 @@
     ...rest
   }: Props = $props();
 
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): density rides the no-opinion axis slot (the
+  // ensemble provides, the glyph stamps)
+  const d = $derived(ChartDefaults.resolve({ density }));
   const glyphs = $derived(cells === 'block' ? sparkBlocks(data) : sparkBraille(data));
 </script>
 
@@ -60,7 +64,7 @@
   role="img"
   aria-label={label}
   data-jx-chart-sparkline={cells}
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn('jx-chart-glyphs inline-block align-baseline text-primary', className)}
 >{glyphs}</span>
 

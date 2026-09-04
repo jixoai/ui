@@ -7,6 +7,12 @@
  * zone verbatim (the placement enum, the `number | string` union, the
  * snippet rows) — curation is prose, two required flags, and the
  * `bind:this` imperative-handle row the extractor cannot see.
+ *
+ * 4.3 (context-defaults-economy): variant's Props type became the
+ * imported PopoverSurfaceVariant alias (W2), which the extractor's
+ * same-file ceiling honestly reports as an opaque — the union text and
+ * the inline default moved here as documented override ceilings, and
+ * the ambient state (`own`) rides the IR's ambient field.
  */
 import type { PropsDocs } from '../from-meta';
 
@@ -23,6 +29,8 @@ export const POPOVER_DOCS: PropsDocs = {
       description: 'The INITIAL anchored position; chosen once at open, never re-evaluated while open.',
     },
     variant: {
+      type: "'solid' | 'acrylic' | 'auto'",
+      default: "'auto'",
       description: 'Floating-surface paint.',
     },
     tryFallbacks: {

@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './tooltip.svelte';
 export * from './tooltip.svelte';
+export { TooltipDefaults, type TooltipSurfaceVariant } from './tooltip-defaults.svelte';

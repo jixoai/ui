@@ -81,7 +81,8 @@
   import { onDestroy, onMount, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { GhosttyTermDefaults } from './ghostty-term-defaults.svelte';
   // type-only: erased at compile time.
   import type { GhosttyOsc52Request, RowSnapshot } from '$lib/ghostty-vt';
   // VALUE import: the xterm-convention Terminal facade (owner directive
@@ -349,13 +350,13 @@
   /** --jx-line / --jx-text probed unitless leading (0 = not probed). */
   let tokenLeading = $state(0);
 
-  const inheritedDensity = getDensityContext();
-  // merge alignment: this branch's density law resolves NO-opinion to
-// undefined (ambient scope flows through); the terminal family wants
-// its concrete stamp — the sanctioned local fallback ('default')
-// applies only when NO parent provider exists, matching the
-// always-concrete semantics this component was authored under
-const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensity, 'default'));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): density rides the axis slot with the family own
+  // 'default' — the design-frozen migration path for the terminal's
+  // always-concrete cell math (explicit ?? ambient scope ?? 'default';
+  // the plugin chain rides the terminal value inside the slot)
+  const d = $derived(GhosttyTermDefaults.resolve({ density }));
+  const resolvedDensity: Density = $derived(d.density ?? 'default');
 
   let warnedFontSize = '';
 
@@ -1557,7 +1558,7 @@ const resolvedDensity: Density = $derived(resolveDensity(density, inheritedDensi
   onfocus={handleRootFocus}
   onblur={handleFocusOut}
   {...rest}
-  data-density={resolvedDensity}
+  data-density={d.density}
   data-state={phase}
   data-jx-ghostty-term
 >

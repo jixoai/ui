@@ -11,3 +11,4 @@ export { default as MenubarPanel } from './menubar-panel.svelte';
 export * from './menubar-panel.svelte';
 export { default as MenubarMenuItem } from './menubar-menu-item.svelte';
 export * from './menubar-menu-item.svelte';
+export { MenubarDefaults, type MenubarSurfaceVariant } from './menubar-defaults.svelte';

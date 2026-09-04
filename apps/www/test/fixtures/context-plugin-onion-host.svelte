@@ -18,7 +18,7 @@
   import Root from './context-plugin-root.svelte';
   import Leaf from './density-leaf-host.svelte';
   import { definePlugin } from '../../src/lib/context-plugin.svelte';
-  import type { Density } from '../../src/lib/density.svelte';
+  import { DENSITY_DEF, type Density } from '../../src/lib/density.svelte';
 
   let {
     log,
@@ -39,7 +39,7 @@
   // svelte-ignore state_referenced_locally — plugin identity is fixed per mount
   const A = definePlugin({
     name: dup ? 'same' : 'A',
-    targets: ['density'],
+    targets: [DENSITY_DEF],
     before: (v: Density | undefined): Density | undefined => {
       log.push('beforeA');
       return v === undefined ? v : 'sm';
@@ -52,7 +52,7 @@
   // svelte-ignore state_referenced_locally — plugin identity is fixed per mount
   const B = definePlugin({
     name: dup ? 'same' : 'B',
-    targets: ['density'],
+    targets: [DENSITY_DEF],
     before: (v: Density | undefined): Density | undefined => {
       log.push('beforeB');
       return v;

@@ -42,6 +42,8 @@
   (props-discipline sweep, 2026-08-25)
 -->
 <script module lang="ts">
+  import type { MenubarSurfaceVariant } from './menubar-defaults.svelte';
+
   /** imperative panel surface — registered at INIT under the PANEL id */
   export interface MenubarPanelHandles {
     show(source?: HTMLElement): void;
@@ -67,7 +69,7 @@
     markOpen(panelId: string): void;
     markClosed(panelId: string): void;
     /** floating-surface variant for every panel in the bar */
-    readonly variant: 'solid' | 'acrylic' | 'auto';
+    readonly variant: MenubarSurfaceVariant;
   }
 
   /** context key — global symbol registry so the family files stay
@@ -81,6 +83,7 @@
   import { setContext } from 'svelte';
   import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { MenubarDefaults, type MenubarSurfaceVariant } from './menubar-defaults.svelte';
   import './menubar.css';
 
   interface Props extends HTMLAttributes<HTMLUListElement> {
@@ -89,7 +92,7 @@
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+    variant?: MenubarSurfaceVariant;
     class?: string;
     children: Snippet;
   }
@@ -97,15 +100,33 @@
   let {
     label = 'menu bar',
     density,
-    variant = 'auto',
+    variant,
     class: className = '',
     children,
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // The CAPTURE is load-bearing and EAGER (r11 first contract,
+  // context-defaults-economy 3.3): getDensityContext() rides the
+  // $derived.by ARGUMENT subtree, which evaluates at this statement —
+  // BEFORE provideDensity writes the key — so it captures the PARENT's
+  // context object; a lazily-evaluated read would resolve the key to
+  // the bar's OWN write and self-reference through the very getter it
+  // feeds (derived_references_self — the pre-3.3 bare capture this
+  // replaces). The returned getter reads ONLY the captured object
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
+  // TOP of the provider lane as the family's single audited read point:
+  // the density slot's ambient read resolves the key to the bar's own
+  // write, whose getter is the captured-parent resolution above, so the
+  // chain TERMINATES; variant resolves through the literal slot (own
+  // 'auto' declared in MenubarDefaults, auditable in one place)
+  const d = $derived(MenubarDefaults.resolve({ density, variant }));
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -173,7 +194,7 @@
       if (openPanelId === panelId) openPanelId = '';
     },
     get variant() {
-      return variant;
+      return d.variant;
     },
   });
 
@@ -290,7 +311,7 @@
     className,
   )}
   {...rest}
-  data-density={resolvedDensity}
+  data-density={d.density}
   role="menubar"
   aria-label={label}
   onkeydown={handleBarKeydown}

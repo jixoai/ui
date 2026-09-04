@@ -60,6 +60,7 @@
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import DialogHeader from './dialog-header.svelte';
+  import { DialogDefaults, type DialogSurfaceVariant } from './dialog-defaults.svelte';
   import './dialog.css';
 
   interface Props {
@@ -69,7 +70,7 @@
     open?: boolean;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+    variant?: DialogSurfaceVariant;
     /**
      * Platform-element utilities appended AFTER the law's own — for
      * GEOMETRY overrides only (a consumer's anchor/width, e.g. the
@@ -116,7 +117,7 @@
   let {
     title,
     open = $bindable(false),
-    variant = 'auto',
+    variant,
     class: platformClass = '',
     head,
     footer,
@@ -124,6 +125,13 @@
     cancelGuard,
     children,
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 2.2): one line —
+  // the family contract resolves the panel's style props (variant's
+  // own 'auto' lives in DialogDefaults, auditable in one place;
+  // density is the no-opinion axis slot — nothing stamps, the ambient
+  // css scope channel keeps flowing)
+  const d = $derived(DialogDefaults.resolve({ variant }));
 
   // THE ENTITY LAW (2026-09-01): the dialog panel IS the solid object —
   // form shells inside dissolve (border + ground transparent; the well
@@ -198,7 +206,7 @@
 <dialog
   bind:this={dialog}
   class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground @container/jx-dialog {motion.supported ? 'jx-waapi' : ''} {platformClass}"
-  data-variant={variant}
+  data-variant={d.variant}
   data-jx-entity={entityDepth}
   aria-label={title}
   onclose={handleClose}

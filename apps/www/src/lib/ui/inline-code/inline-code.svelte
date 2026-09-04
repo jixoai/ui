@@ -41,8 +41,11 @@
   long or dynamic belongs to code-card, which takes code as a prop.
 -->
 <script module lang="ts">
-  /** the ladder paint ids InlineCode ships (design.md §1/§4) */
-  export type InlineCodeVariant = 'tonal' | 'outline';
+  /** the ladder paint ids InlineCode ships — the frozen-table union
+   *  lives in the family Defaults (r11 same-folder-literal convention)
+   *  and is re-exported here so the public surface keeps its shape */
+  import type { InlineCodeVariant } from './inline-code-defaults.svelte';
+  export type { InlineCodeVariant };
 
   /**
    * Detection candidates: the grammar ids + aliases registered in
@@ -176,8 +179,9 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
   import { highlightTokens } from '$lib/shiki';
+  import { InlineCodeDefaults } from './inline-code-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     density?: Density;
@@ -192,13 +196,16 @@
 
   let {
     density,
-    variant = 'tonal',
+    variant,
     lang = 'auto',
     class: className = '',
     children,
     ...rest
   }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): variant rides the paint axis slot (zone ambient,
+  // frozen own 'tonal'), density the no-opinion axis slot
+  const d = $derived(InlineCodeDefaults.resolve({ variant, density }));
 
   /**
    * The design.md §1 recipes + the §6 forced-colors degradation
@@ -294,12 +301,12 @@
 
 <code
   bind:this={codeEl}
-  data-jx-inline-code={variant}
-  data-density={resolvedDensity}
+  data-jx-inline-code={d.variant}
+  data-density={d.density}
   class={cn(
     'inline-block font-mono [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] [padding-inline:var(--jx-inset)] border rounded-(--radius) whitespace-nowrap',
     tokenPalette,
-    variantUtilities[variant],
+    variantUtilities[d.variant],
     className,
   )}
   {...rest}

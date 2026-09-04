@@ -13,7 +13,8 @@
   import type { Snippet } from 'svelte';
   import { getContext } from 'svelte';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { TabsDefaults } from './tabs-defaults.svelte';
 
   interface Props {
     density?: Density;
@@ -28,7 +29,12 @@
   const tabs = getContext<TabsApi>(TABS_KEY);
 
   const active = $derived(tabs.selected === value);
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // density resolves through the family contract (the no-opinion axis
+  // slot; the panel inherits the tabs root's provided tier, an
+  // explicit prop beats it, no opinion stamps nothing)
+  const d = $derived(TabsDefaults.resolve({ density }));
 </script>
 
 <div
@@ -37,7 +43,7 @@
   aria-labelledby="{tabs.uid}-tab-{value}"
   tabindex="0"
   data-jx-tab-panel=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={className}
   hidden={!active}
 >

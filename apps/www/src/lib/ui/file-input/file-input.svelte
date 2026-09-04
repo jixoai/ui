@@ -63,7 +63,8 @@
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { FileInputDefaults, type FileInputVariant } from './file-input-defaults.svelte';
   import './file-input.css';
 
   type FileKind = 'image' | 'video' | 'audio' | 'pdf' | 'code' | 'doc';
@@ -90,8 +91,9 @@
     disabled?: boolean;
     /** selected files; $bindable — bound ⇒ controlled File[] */
     files?: File[];
-    /** drop (default): dashed drop zone · button: compact inline trigger */
-    variant?: 'drop' | 'button';
+    /** drop (default): dashed drop zone · button: compact inline trigger;
+        omitted → the contract's own 'drop' (FileInputDefaults) */
+    variant?: FileInputVariant;
     /** density policy: explicit, inherited, then default */
     density?: Density;
     /** overflow limit — renders an error, never truncates the array */
@@ -116,7 +118,7 @@
     error,
     disabled = false,
     files = $bindable([]),
-    variant = 'drop',
+    variant,
     density,
     'data-density': _callerDensity,
     maxFiles,
@@ -129,8 +131,10 @@
 
   // Family-local geometry names are one-line aliases to the closed control contract.
   const densityUtilities = '[--jx-file-h:var(--jx-hit)] [--jx-file-thumb:var(--jx-icon)] [--jx-file-icon:var(--jx-icon)] [--jx-file-text:var(--jx-text)] [--jx-file-zone-pad:var(--jx-inset)] [--jx-file-zone-glyph:var(--jx-icon)]';
-  const outerDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): variant rides the literal slot (own 'drop'), density
+  // the no-opinion axis slot
+  const d = $derived(FileInputDefaults.resolve({ variant, density }));
 
   const errorId = $derived(`${id}-error`);
   const listId = $derived(`${id}-list`);
@@ -348,7 +352,7 @@
 {/snippet}
 
 {#snippet triggerShell(triggerId: string)}
-  {#if variant === 'drop'}
+  {#if d.variant === 'drop'}
     <button
       type="button"
       id={triggerId}
@@ -425,7 +429,7 @@
   {/if}
 {/snippet}
 
-<div data-jx-file={disabled ? 'disabled' : undefined} data-density={resolvedDensity} class={cn('jx-file flex flex-col items-stretch gap-[var(--jx-gap)] w-full min-w-0 max-w-full', densityUtilities, disabled && 'opacity-50', className)}>
+<div data-jx-file={disabled ? 'disabled' : undefined} data-density={d.density} class={cn('jx-file flex flex-col items-stretch gap-[var(--jx-gap)] w-full min-w-0 max-w-full', densityUtilities, disabled && 'opacity-50', className)}>
   {#if label}<label class="jx-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap" for={id}>{label}</label>{/if}
 
   {@render triggerShell(id)}

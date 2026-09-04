@@ -46,7 +46,8 @@
   import type { HTMLTextareaAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { TextareaDefaults } from './textarea-defaults.svelte';
 
   interface Props extends HTMLTextareaAttributes {
     /** field label; renders label[for] above the control.
@@ -93,8 +94,10 @@
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
-  const outerDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels
+  const d = $derived(TextareaDefaults.resolve({ density }));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -126,7 +129,7 @@
   }
 </script>
 
-<div class="jx-field" data-density={resolvedDensity}>
+<div class="jx-field" data-density={d.density}>
   {#if outerBlockStart}
     <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
   {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}

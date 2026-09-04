@@ -72,6 +72,7 @@
   import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { PopoverDefaults, type PopoverSurfaceVariant } from './popover-defaults.svelte';
   import './popover.css';
 
   /** marker interface for kernel-owned WAAPI animations */
@@ -86,8 +87,10 @@
     triggerLabel?: string;
     placement?: 'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start' | 'left' | 'right' | 'center';
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
-        the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        the environment asks for reduced transparency). Omitted → the
+        contract own 'auto' (PopoverDefaults — a declared own, not
+        ambient) */
+    variant?: PopoverSurfaceVariant;
     /** position-try fallbacks as a raw CSS value — custom @position-try
         idents (space/comma list) replace the default flip series; pass
         e.g. '--try-top, --try-bottom-end' authored on the consumer side.
@@ -115,7 +118,7 @@
     id,
     triggerLabel = '',
     placement = 'bottom-end',
-    variant = 'auto',
+    variant,
     tryFallbacks = '',
     gap = undefined,
     trigger,
@@ -123,6 +126,13 @@
     onToggle,
     children,
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2): one line —
+  // the family contract resolves the panel's style props (variant's
+  // own 'auto' lives in PopoverDefaults, auditable in one place;
+  // density is the no-opinion axis slot — nothing stamps, the ambient
+  // css scope channel keeps flowing)
+  const d = $derived(PopoverDefaults.resolve({ variant }));
 
   // PHYSICAL placement map (r23): when tryFallbacks drives the try
   // chain, the INITIAL position is written with physical anchor()
@@ -286,7 +296,7 @@
   {id}
   popover="auto"
   class={cn('jx-pop jx-surface', motion.supported && 'jx-waapi', panelClass)}
-  data-variant={variant}
+  data-variant={d.variant}
   bind:this={panel}
   style="--jx-pop-gap: {gapValue || '0px'}; position-anchor: {anchorName}; --jx-surface-in-x: {dir.ix}; --jx-surface-in-y: {dir.iy}; --jx-surface-ox: {dir.ox}; --jx-surface-oy: {dir.oy}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"
   ontoggle={onPanelToggle}

@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './textarea.svelte';
 export * from './textarea.svelte';
+export { TextareaDefaults } from './textarea-defaults.svelte';

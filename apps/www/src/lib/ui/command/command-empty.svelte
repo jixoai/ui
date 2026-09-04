@@ -11,7 +11,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
+  import { CommandDefaults } from './command-defaults.svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -20,12 +20,15 @@
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the density slot's ambient read lands the root's
+  // provided opinion; no opinion resolves undefined → no stamp
+  const d = $derived(CommandDefaults.resolve({}));
 </script>
 
 <div
   data-jx-command-empty=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn('[min-block-size:var(--jx-hit)] px-[var(--jx-inset)] py-[var(--jx-stack)] text-center text-[length:var(--jx-text)] text-muted-foreground', className)}
   role="status"
   {...rest}

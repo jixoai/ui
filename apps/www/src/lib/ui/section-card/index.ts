@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './section-card.svelte';
 export * from './section-card.svelte';
+export { SectionCardDefaults, type SectionCardTone } from './section-card-defaults.svelte';

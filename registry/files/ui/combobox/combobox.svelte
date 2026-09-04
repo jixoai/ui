@@ -118,6 +118,7 @@
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { ComboboxDefaults } from './combobox-defaults.svelte';
   import './combobox.css';
 
   interface Props extends Omit<HTMLInputAttributes, 'value'> {
@@ -180,6 +181,13 @@
   // An array mount value is SNAPSHOT — the reset target never aliases
   // the caller's array.
   const initialValue = Array.isArray(value) ? [...value] : value;
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient/own per slot, one line, no legacy
+  // helper channels. variant keeps its inline default + inline union:
+  // this Props interface feeds the GENERATED meta chain (drift-locked),
+  // whose ambient annotation is the doc batch's 先破再立 — the
+  // contract's own 'auto' is the same value (combobox-defaults.svelte.ts)
+  const d = $derived(ComboboxDefaults.resolve({ variant }));
   let formDisabled = $state(false);
   const isDisabled = $derived(disabled || formDisabled);
 
@@ -656,7 +664,7 @@
     id={panelId}
     popover="auto"
     class={cn('jx-combobox-panel jx-surface', motion.supported && 'jx-waapi')}
-    data-variant={variant}
+    data-variant={d.variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >

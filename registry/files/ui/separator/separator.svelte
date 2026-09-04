@@ -27,26 +27,33 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { SeparatorDefaults, type SeparatorVariant } from './separator-defaults.svelte';
   import './separator.css';
-
-  type Variant = 'line' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade';
 
   interface Props extends HTMLAttributes<HTMLHRElement> {
     orientation?: 'horizontal' | 'vertical';
     /** the ink geometry: masks over the contrast ghost, or the blend
-     *  engine for fade (transparent → light → dark → light → transparent) */
-    variant?: Variant;
+     *  engine for fade (transparent → light → dark → light →
+     *  transparent); omitted → the contract own 'line'
+     *  (SeparatorDefaults — a declared own, not ambient) */
+    variant?: SeparatorVariant;
   }
 
-  let { orientation = 'horizontal', variant = 'line', class: className = '', ...rest }: Props =
+  let { orientation = 'horizontal', variant, class: className = '', ...rest }: Props =
     $props();
+
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the ink geometry rides its literal slot (own
+  // 'line'); density is the no-opinion slot — nothing stamps, the
+  // ambient css scope channel keeps flowing
+  const d = $derived(SeparatorDefaults.resolve({ variant }));
 </script>
 
 {#if orientation === 'vertical'}
   <!-- component-owned semantics land AFTER the spread: role/aria here
        are not overridable — the separator contract is the component's -->
   <div
-    data-jx-separator={variant}
+    data-jx-separator={d.variant}
     data-orientation="vertical"
     class={cn('inline-block self-stretch flex-none', className)}
     {...(rest as HTMLAttributes<HTMLDivElement>)}
@@ -55,7 +62,7 @@
   ></div>
 {:else}
   <hr
-    data-jx-separator={variant}
+    data-jx-separator={d.variant}
     data-orientation="horizontal"
     class={cn('flex-none m-0 border-0', className)}
     {...rest}

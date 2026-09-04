@@ -1,0 +1,115 @@
+{
+  "_readme": "SYNTHETIC GATE FIXTURE registry (context-defaults-economy task 1.4). Fake, minimal, NEVER installed — it exists only so verify-context-coverage.mjs --root=<here> has a deterministic tree to fail against. The real registry.json at the repo root is untouched.",
+  "name": "fixture-registry",
+  "items": [
+    {
+      "name": "defaults",
+      "type": "registry:lib",
+      "files": [{ "path": "registry/files/lib/defaults.svelte.ts", "target": "@lib/defaults.svelte.ts", "type": "registry:file" }]
+    },
+    {
+      "name": "paint",
+      "type": "registry:lib",
+      "files": [{ "path": "registry/files/lib/paint.svelte.ts", "target": "@lib/paint.svelte.ts", "type": "registry:file" }]
+    },
+    {
+      "name": "density",
+      "type": "registry:lib",
+      "files": [{ "path": "registry/files/lib/density.svelte.ts", "target": "@lib/density.svelte.ts", "type": "registry:file" }]
+    },
+    {
+      "name": "leaky-aid",
+      "type": "registry:lib",
+      "files": [{ "path": "registry/files/lib/leaky-aid.svelte.ts", "target": "@lib/leaky-aid.svelte.ts", "type": "registry:file" }]
+    },
+    {
+      "name": "press-button",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/press-button/press-button.svelte", "target": "@lib/ui/press-button/press-button.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/press-button/press-button-defaults.svelte.ts", "target": "@lib/ui/press-button/press-button-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    },
+    {
+      "name": "kbd",
+      "type": "registry:ui",
+      "files": [{ "path": "registry/files/ui/kbd/kbd.svelte", "target": "@lib/ui/kbd/kbd.svelte", "type": "registry:file" }]
+    },
+    {
+      "name": "spin",
+      "type": "registry:ui",
+      "files": [{ "path": "registry/files/ui/spin/spin.svelte", "target": "@lib/ui/spin/spin.svelte", "type": "registry:file" }]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/badge/badge.svelte", "target": "@lib/ui/badge/badge.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/badge/badge-defaults.svelte.ts", "target": "@lib/ui/badge/badge-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    },
+    {
+      "name": "chip",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/chip/chip.svelte", "target": "@lib/ui/chip/chip.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/chip/chip-defaults.svelte.ts", "target": "@lib/ui/chip/chip-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/dialog/dialog.svelte", "target": "@lib/ui/dialog/dialog.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/dialog/dialog-defaults.svelte.ts", "target": "@lib/ui/dialog/dialog-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/sheet/sheet.svelte", "target": "@lib/ui/sheet/sheet.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/sheet/sheet-defaults.svelte.ts", "target": "@lib/ui/sheet/sheet-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    },
+    {
+      "name": "anchor",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/anchor/anchor.svelte", "target": "@lib/ui/anchor/anchor.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/anchor/anchor-defaults.svelte.ts", "target": "@lib/ui/anchor/anchor-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/tooltip/tooltip.svelte", "target": "@lib/ui/tooltip/tooltip.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/tooltip/tooltip-defaults.svelte.ts", "target": "@lib/ui/tooltip/tooltip-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/table/table.svelte", "target": "@lib/ui/table/table.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/table/table-defaults.svelte.ts", "target": "@lib/ui/table/table-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    },
+    {
+      "name": "component-canvas",
+      "type": "registry:ui",
+      "files": [{ "path": "registry/files/ui/component-canvas/component-canvas.svelte", "target": "@lib/ui/component-canvas/component-canvas.svelte", "type": "registry:file" }]
+    },
+    {
+      "name": "icon-button",
+      "type": "registry:ui",
+      "files": [{ "path": "registry/files/ui/icon-button/icon-button.svelte", "target": "@lib/ui/icon-button/icon-button.svelte", "type": "registry:file" }]
+    },
+    {
+      "name": "section-card",
+      "type": "registry:ui",
+      "files": [{ "path": "registry/files/ui/section-card/section-card.svelte", "target": "@lib/ui/section-card/section-card.svelte", "type": "registry:file" }]
+    }
+  ]
+}

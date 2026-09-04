@@ -73,6 +73,11 @@
           "path": "registry/files/ui/press-button/ripple.svelte.ts",
           "target": "@ui/press-button/ripple.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/press-button/press-button-defaults.svelte.ts",
+          "target": "@ui/press-button/press-button-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -83,8 +88,9 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
-        "@jixoai/button-group",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/paint",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -197,6 +203,11 @@
           "path": "registry/files/ui/list-item/item-input.svelte",
           "target": "@ui/list-item/item-input.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/list-item-defaults.svelte.ts",
+          "target": "@ui/list-item/list-item-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
@@ -208,7 +219,8 @@
         "@jixoai/input",
         "@jixoai/icons",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "layout",
@@ -236,6 +248,11 @@
           "path": "registry/files/ui/section-card/index.ts",
           "target": "@ui/section-card/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/section-card/section-card-defaults.svelte.ts",
+          "target": "@ui/section-card/section-card-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -244,7 +261,8 @@
       },
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/separator"
+        "@jixoai/separator",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -333,6 +351,11 @@
           "path": "registry/files/ui/theme-toggle/index.ts",
           "target": "@ui/theme-toggle/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/theme-toggle/theme-toggle-defaults.svelte.ts",
+          "target": "@ui/theme-toggle/theme-toggle-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -342,7 +365,8 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -450,6 +474,11 @@
           "path": "registry/files/ui/ghostty-term/vt-deps.ts",
           "target": "@ui/ghostty-term/vt-deps.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/ghostty-term/ghostty-term-defaults.svelte.ts",
+          "target": "@ui/ghostty-term/ghostty-term-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: cols, rows, auto (default true; explicit cols/rows fixes the grid), fontSize (px, finite positive), wasmUrl, theme {background,foreground}, onData(bytes), onResize({cols,rows}), density, class, children (overlay + error-face owner), ...rest. bind:this: write(bytes) / reset() / resizeTo(cols,rows) / snapshot(). Install prerequisite: the jixoai vite plugin (virtual:jixoai-ghostty).",
@@ -462,7 +491,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/color-utils",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/defaults"
       ],
       "dependencies": []
     },
@@ -550,6 +580,11 @@
           "path": "registry/files/ui/language-switcher/index.ts",
           "target": "@ui/language-switcher/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/language-switcher/language-switcher-defaults.svelte.ts",
+          "target": "@ui/language-switcher/language-switcher-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: variant 'pair'|'menu', locales: { code, label, href }[], current (code), ariaLabel?. The menu closes on select, outside click, and Escape.",
@@ -560,7 +595,8 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -708,6 +744,11 @@
           "path": "registry/files/ui/input/index.ts",
           "target": "@ui/input/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input/input-defaults.svelte.ts",
+          "target": "@ui/input/input-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: type, label?, error?, clearable?, innerInlineStart/innerInlineEnd/outerBlockStart/outerBlockEnd snippets, id? (auto), class, value ($bindable), ...restProps passed to the native input.",
@@ -716,7 +757,9 @@
         "@jixoai/utils",
         "@jixoai/date-picker",
         "@jixoai/color-picker",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -744,12 +787,19 @@
           "path": "registry/files/ui/select/select.css",
           "target": "@ui/select/select.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/select/select-defaults.svelte.ts",
+          "target": "@ui/select/select-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -772,6 +822,11 @@
           "path": "registry/files/ui/textarea/index.ts",
           "target": "@ui/textarea/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/textarea/textarea-defaults.svelte.ts",
+          "target": "@ui/textarea/textarea-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -780,7 +835,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -846,6 +903,11 @@
           "path": "registry/files/ui/dialog/dialog.css",
           "target": "@ui/dialog/dialog.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/dialog/dialog-defaults.svelte.ts",
+          "target": "@ui/dialog/dialog-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title?, open ($bindable), variant?, class? (geometry-only), scroll? (default true — the body zone's scroll authority; false retires it with the stable both-edges gutter reservation), cancelGuard?; snippets children, head? (custom flush head, typically <DialogHeader>), footer? (the RAW full foot override — usually a <DialogFooter>: children auto-join one end-packed ButtonGroup with ghost seams and the leadingSeam bracket, ghost via the zone's Context scope; the end slot replaces the grouped arrangement). Escape goes through the cancel event and shares the animated close path.",
@@ -858,7 +920,9 @@
         "@jixoai/icon-button",
         "@jixoai/icons",
         "@jixoai/jixoai-theme",
-        "@jixoai/separator"
+        "@jixoai/separator",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -887,6 +951,11 @@
           "path": "registry/files/lib/surface-motion.ts",
           "target": "@lib/surface-motion.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/popover/popover-defaults.svelte.ts",
+          "target": "@ui/popover/popover-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively — still zero JS. Ships the WAAPI surface-motion kernel (lib/surface-motion.ts → @lib) — the panel's entry/exit timeline; clean consumers resolve $lib/surface-motion (Codex r1 blocking #2: the kernel was site-consumed only, breaking the install chain for every popover-dependent item).",
@@ -897,7 +966,9 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1024,6 +1095,11 @@
           "path": "registry/files/ui/table/table.css",
           "target": "@ui/table/table.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/table/table-defaults.svelte.ts",
+          "target": "@ui/table/table-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: caption?, dense=false, stack=true, style? (passthrough landing on the frame — the color-freedom seam); snippet children (write native thead/tbody/tfoot). Consumer cell opt-ins: data-label=\"…\" (stack-mode row label), data-sticky=\"start\"|\"end\" (pinned column in scroll mode — put it on the th AND its td's). Color freedom: override --jx-table-surface/head/hover/hairline/rule/edge per instance via style or CSS.",
@@ -1033,7 +1109,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1129,6 +1207,11 @@
           "path": "registry/files/ui/checkbox/checkbox.css",
           "target": "@ui/checkbox/checkbox.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/checkbox/checkbox-defaults.svelte.ts",
+          "target": "@ui/checkbox/checkbox-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1137,7 +1220,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1156,6 +1241,11 @@
           "path": "registry/files/ui/radio/index.ts",
           "target": "@ui/radio/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/radio/radio-defaults.svelte.ts",
+          "target": "@ui/radio/radio-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1165,7 +1255,9 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/checkbox"
+        "@jixoai/checkbox",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1184,6 +1276,11 @@
           "path": "registry/files/ui/toggle/index.ts",
           "target": "@ui/toggle/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toggle/toggle-defaults.svelte.ts",
+          "target": "@ui/toggle/toggle-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1192,7 +1289,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1211,6 +1310,11 @@
           "path": "registry/files/ui/native-select/index.ts",
           "target": "@ui/native-select/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/native-select/native-select-defaults.svelte.ts",
+          "target": "@ui/native-select/native-select-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1219,7 +1323,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1243,11 +1349,18 @@
           "path": "registry/files/ui/number-input/number-input.css",
           "target": "@ui/number-input/number-input.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/number-input/number-input-defaults.svelte.ts",
+          "target": "@ui/number-input/number-input-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -1280,12 +1393,19 @@
           "path": "registry/files/ui/range/range.css",
           "target": "@ui/range/range.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/range/range-defaults.svelte.ts",
+          "target": "@ui/range/range-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable), plus FULL native attribute passthrough (aria-label/title/data-* land on the input[type=range] itself — the Codex-round honesty pass). The control IS the native input: label[for] binding (never role=slider fiction), arrows/Home/End/PageUp/Down from the platform, stepped commits re-clamped into [min,max]; min/max are terminal snap points (a step-mismatched max stays native truth). The tick ruler rides the thumb's travel box (half-thumb inline inset): pointerdown snaps to the nearest mark, the wheel steps one notch at a time (ctrlKey pinch never hijacked).",
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -1338,6 +1458,11 @@
           "path": "registry/files/lib/locale.svelte.ts",
           "target": "@lib/locale.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/date-picker/date-picker-defaults.svelte.ts",
+          "target": "@ui/date-picker/date-picker-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, mode 'single'|'range', value ($bindable ISO string or {start?,end?}). Never a native input[type=date].",
@@ -1345,7 +1470,9 @@
         "@jixoai/popover",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -1373,6 +1500,11 @@
           "path": "registry/files/ui/file-input/file-input.css",
           "target": "@ui/file-input/file-input.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/file-input/file-input-defaults.svelte.ts",
+          "target": "@ui/file-input/file-input-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, hint?, accept?, multiple?, disabled?, maxFiles?, variant 'drop'|'button', size 'sm'|'md'|'lg', files ($bindable File[]), onreject? (rejected File[] from drops), zone? snippet (drop-zone content). Events: change forwards from the native input.",
@@ -1383,7 +1515,9 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1417,6 +1551,11 @@
           "path": "registry/files/ui/color-picker/editor.svelte",
           "target": "@ui/color-picker/editor.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/color-picker/color-picker-defaults.svelte.ts",
+          "target": "@ui/color-picker/color-picker-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1431,7 +1570,9 @@
         "@jixoai/input",
         "@jixoai/native-select",
         "@jixoai/icon-button",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1455,12 +1596,19 @@
           "path": "registry/files/ui/combobox/combobox.css",
           "target": "@ui/combobox/combobox.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/combobox/combobox-defaults.svelte.ts",
+          "target": "@ui/combobox/combobox-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -1488,13 +1636,20 @@
           "path": "registry/files/ui/tags-input/tags-input.css",
           "target": "@ui/tags-input/tags-input.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tags-input/tags-input-defaults.svelte.ts",
+          "target": "@ui/tags-input/tags-input-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/icons",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -1517,6 +1672,11 @@
           "path": "registry/files/ui/badge/index.ts",
           "target": "@ui/badge/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/badge/badge-defaults.svelte.ts",
+          "target": "@ui/badge/badge-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: variant? ('fill'|'tonal'|'outline', default 'tonal'), shape? ('square'|'pill', default 'square'), slotStart?/slotEnd? (Snippet icon lanes with adaptive padding), density? (Density), plus every <span> attribute passthrough. Hue seam: class=\"jx-hue-error\" (intent utilities; arbitrary form for unlisted hues).",
@@ -1526,7 +1686,10 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/paint",
+        "@jixoai/density"
       ]
     },
     {
@@ -1550,6 +1713,11 @@
           "path": "registry/files/ui/separator/index.ts",
           "target": "@ui/separator/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/separator/separator-defaults.svelte.ts",
+          "target": "@ui/separator/separator-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: orientation? ('horizontal' default | 'vertical').",
@@ -1559,7 +1727,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1583,6 +1753,11 @@
           "path": "registry/files/ui/skeleton/skeleton.css",
           "target": "@ui/skeleton/skeleton.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/skeleton/skeleton-defaults.svelte.ts",
+          "target": "@ui/skeleton/skeleton-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1591,7 +1766,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1610,12 +1787,18 @@
           "path": "registry/files/ui/avatar/index.ts",
           "target": "@ui/avatar/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/avatar/avatar-defaults.svelte.ts",
+          "target": "@ui/avatar/avatar-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
         "@jixoai/tooltip",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ],
       "docs": "Props: src?, name (required — fuels alt + initials + tooltip), size? ('sm'|'md'|'lg' = 24/32/40px; initials halve at sm), variant? ('bevel' default | 'rounded' | 'squircle'), tooltip? (true — full-name tooltip; false opts out), alt?, plus <img> attributes.",
       "meta": {
@@ -1644,6 +1827,11 @@
           "path": "registry/files/ui/alert/alert.css",
           "target": "@ui/alert/alert.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert/alert-defaults.svelte.ts",
+          "target": "@ui/alert/alert-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: variant? ('outline' default | 'tonal'), assertive?, title?, icon? (snippet), children? (body; omit for title-only). Hue seam: class=\"jx-hue-error\" (intent utilities; arbitrary form for unlisted hues).",
@@ -1653,7 +1841,10 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density",
+        "@jixoai/paint"
       ]
     },
     {
@@ -1735,6 +1926,11 @@
           "path": "registry/files/ui/tabs/tabs-trigger.css",
           "target": "@ui/tabs/tabs-trigger.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tabs/tabs-defaults.svelte.ts",
+          "target": "@ui/tabs/tabs-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Root: value ($bindable, '' = none), onchange, activation ('automatic'|'manual'), density. TabsList: orientation, indicator ('line'|'pill'|'outline'|'glass'|'liquid'|'none' or a Snippet<[TabsIndicatorGeo]> paint override), layout ('inline'|'grow'|'scroll'|'wrap'). TabsTrigger: value, disabled, icon?, iconEnd?, stack? (children optional — icon-only tabs pass aria-label). TabsContent: value.",
@@ -1745,7 +1941,9 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/progressive-blur"
+        "@jixoai/progressive-blur",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1769,6 +1967,11 @@
           "path": "registry/files/ui/progress/progress.css",
           "target": "@ui/progress/progress.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/progress/progress-defaults.svelte.ts",
+          "target": "@ui/progress/progress-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: value? (0..max; omitted = indeterminate), max? (default 1), label?, class?.",
@@ -1778,7 +1981,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1802,6 +2007,11 @@
           "path": "registry/files/ui/tooltip/tooltip.css",
           "target": "@ui/tooltip/tooltip.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tooltip/tooltip-defaults.svelte.ts",
+          "target": "@ui/tooltip/tooltip-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: id?, text, placement? ('top' default), openDelay? (400), closeDelay? (100); children snippet = the trigger content.",
@@ -1811,7 +2021,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1865,6 +2077,11 @@
           "path": "registry/files/ui/pagination/pagination.svelte",
           "target": "@ui/pagination/pagination.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pagination/pagination-defaults.svelte.ts",
+          "target": "@ui/pagination/pagination-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: page, pageCount, href (template fn), label?, siblings? (1), prevLabel?/nextLabel?. Module export: pageWindow(page, pageCount, siblings).",
@@ -1874,7 +2091,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1903,6 +2122,11 @@
           "path": "registry/files/ui/dropdown-menu/dropdown-menu.css",
           "target": "@ui/dropdown-menu/dropdown-menu.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/dropdown-menu/dropdown-menu-defaults.svelte.ts",
+          "target": "@ui/dropdown-menu/dropdown-menu-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Root props: id, triggerLabel?, placement? ('bottom-end'), trigger? (custom snippet), panelClass?, onToggle?. Item props: destructive?, plus <button> passthrough; separators are plain <hr>, labels plain markup.",
@@ -1913,7 +2137,9 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -1977,6 +2203,11 @@
           "path": "registry/files/ui/breadcrumb/index.ts",
           "target": "@ui/breadcrumb/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/breadcrumb/breadcrumb-defaults.svelte.ts",
+          "target": "@ui/breadcrumb/breadcrumb-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: crumbs ({label, href}[], last = current page), label?, collapse? (max visible before the middle folds, 0 = never). Dropdown: label, items ({label, href}[]), current? (href marked aria-current=page).",
@@ -1987,7 +2218,9 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/dropdown-menu"
+        "@jixoai/dropdown-menu",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2006,6 +2239,11 @@
           "path": "registry/files/ui/kbd/index.ts",
           "target": "@ui/kbd/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/kbd/kbd-defaults.svelte.ts",
+          "target": "@ui/kbd/kbd-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: any <kbd> attribute passthrough; children = the key label.",
@@ -2015,7 +2253,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2030,7 +2270,10 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/shiki",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/defaults",
+        "@jixoai/density",
+        "@jixoai/paint"
       ],
       "files": [
         {
@@ -2041,6 +2284,11 @@
         {
           "path": "registry/files/ui/inline-code/index.ts",
           "target": "@ui/inline-code/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/inline-code/inline-code-defaults.svelte.ts",
+          "target": "@ui/inline-code/inline-code-defaults.svelte.ts",
           "type": "registry:file"
         }
       ],
@@ -2066,6 +2314,11 @@
           "path": "registry/files/ui/chip/index.ts",
           "target": "@ui/chip/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chip/chip-defaults.svelte.ts",
+          "target": "@ui/chip/chip-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: density?, variant? ('fill'|'tonal'|'outline'|'ghost', default 'tonal'), shape? ('square'|'pill'), effect? (PressEffect | null — default ripple(), null disables), href?, external?, onclick?, type?, ariaLabel?, class?, slotStart?/slotEnd? (Snippet), children (required). Imports the effect builders, ripple runtime and effect-layer css from @ui/press-button.",
@@ -2076,7 +2329,10 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/press-button"
+        "@jixoai/press-button",
+        "@jixoai/defaults",
+        "@jixoai/paint",
+        "@jixoai/density"
       ]
     },
     {
@@ -2120,6 +2376,11 @@
           "path": "registry/files/ui/toast/toast-swipe.ts",
           "target": "@ui/toast/toast-swipe.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toast/toast-defaults.svelte.ts",
+          "target": "@ui/toast/toast-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "const toast = createToastStore(); <ToastViewport store={toast} /> … toast.api.push({ title, description?, variant? 'outline'|'tonal', material?, effect?, countdown?, duration?, assertive?, expandable?, swipeDirections? }). toast-v2/R3: nine float slots via pos (default right-bottom), the stack collapses with depth and expands on hover/touch (expand prop pins it; a touch tap lifts stickily until an outside tap), swipe dismisses toward the slot’s nearest screen edges (48px / 0.11 px·ms), a hidden page freezes every clock (pauseAll/resumeAll), and expandable toasts morph into a dialog through a view transition.",
@@ -2132,7 +2393,9 @@
         "@jixoai/jixoai-theme",
         "@jixoai/scaffold-float",
         "@jixoai/icons",
-        "@jixoai/website-scaffold"
+        "@jixoai/website-scaffold",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2191,6 +2454,11 @@
           "path": "registry/files/ui/alert-dialog/index.ts",
           "target": "@ui/alert-dialog/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-defaults.svelte.ts",
+          "target": "@ui/alert-dialog/alert-dialog-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title, description (both required), open ($bindable), confirmLabel, confirmTone? ('destructive' default | 'primary'), onconfirm?, cancelLabel?, children? (extra body).",
@@ -2200,7 +2468,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2224,6 +2494,11 @@
           "path": "registry/files/ui/sheet/sheet.css",
           "target": "@ui/sheet/sheet.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/sheet/sheet-defaults.svelte.ts",
+          "target": "@ui/sheet/sheet-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: open ($bindable), title, side? ('right' default), size? (CSS length, 24rem default), header?/footer? snippets, children.",
@@ -2234,7 +2509,9 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icons",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2258,6 +2535,11 @@
           "path": "registry/files/ui/hover-card/hover-card.css",
           "target": "@ui/hover-card/hover-card.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/hover-card/hover-card-defaults.svelte.ts",
+          "target": "@ui/hover-card/hover-card-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: trigger (snippet), children (the card), placement? ('bottom' default), openDelay? (300), closeDelay? (200).",
@@ -2267,7 +2549,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2291,13 +2575,20 @@
           "path": "registry/files/ui/input-otp/input-otp.css",
           "target": "@ui/input-otp/input-otp.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input-otp/input-otp-defaults.svelte.ts",
+          "target": "@ui/input-otp/input-otp-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: name?, length? (6), value ($bindable), numeric? (true), label?, error?, disabled?. Two-way slot/value sync is untracked on the slots side — slot mutations can never be re-synced against stale value. Requires the form-field bridge item (installed as its dependency).",
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -2325,12 +2616,19 @@
           "path": "registry/files/ui/toggle-group/toggle-group.svelte",
           "target": "@ui/toggle-group/toggle-group.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toggle-group/toggle-group-defaults.svelte.ts",
+          "target": "@ui/toggle-group/toggle-group-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: name (REQUIRED for type=single — radio grouping and arrow-walking are name-scoped; optional for multiple), type ('single'|'multiple'), value ($bindable string|string[]), label (required a11y name), required (single mode only — forwards to every input), disabled, density, onValueChange ((value) => void; native event forwarding rides the spread alongside, never instead). NATIVE contract: single rides label>input[type=radio] (arrow-walk, ONE tab stop, no re-press clear — an explicit none item is the optional-empty pattern); multiple rides checkboxes — FormData carries one entry per active value in DOM order (server reads getAll); the jx-form-field bridge is GONE. DOM checked is the uncontrolled truth; form.reset() re-syncs the projection via the reset event. The paint law is the shared Part A .jx-tgroup class (@jixoai/jx-native-contract); segments compose as ToggleGroupItem parts (label.jx-tgroup-item > input + span.jx-tgroup-content, slotStart/slotEnd snippets, no interactive descendants inside the label).",
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -2416,6 +2714,11 @@
           "path": "registry/files/ui/command/index.ts",
           "target": "@ui/command/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/command/command-defaults.svelte.ts",
+          "target": "@ui/command/command-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items (CommandItem[]), open ($bindable), onopenchange?, onselect? (single execution path — no dual run()), closeOnSelect? (true), placeholder?, label?, hotkey? (false — opt-in), filter? (pure function, default rankCommandItems export).",
@@ -2425,7 +2728,10 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/command-match",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2469,6 +2775,11 @@
           "path": "registry/files/ui/navigation-menu/navigation-menu.svelte",
           "target": "@ui/navigation-menu/navigation-menu.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/navigation-menu/navigation-menu-defaults.svelte.ts",
+          "target": "@ui/navigation-menu/navigation-menu-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({id,label,href?,current?,hasPanel?}[]), label?, panel? (snippet [item]), variant? ('auto' | 'solid' | 'acrylic'). The panel rides the popover primitive's motion kernel; open state mirrors the native toggle seam only. Indicator (optional part): motion ('navigation'|'waapi'), name (view-transition-name), duration.",
@@ -2479,7 +2790,9 @@
       "registryDependencies": [
         "@jixoai/popover",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2523,6 +2836,11 @@
           "path": "registry/files/ui/menubar/menubar.svelte",
           "target": "@ui/menubar/menubar.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/menubar/menubar-defaults.svelte.ts",
+          "target": "@ui/menubar/menubar-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({id,label}[]), label?, panel (snippet [item] — bring buttons/links with role=menuitem).",
@@ -2532,7 +2850,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2556,6 +2876,11 @@
           "path": "registry/files/ui/popconfirm/popconfirm.svelte",
           "target": "@ui/popconfirm/popconfirm.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/popconfirm/popconfirm-defaults.svelte.ts",
+          "target": "@ui/popconfirm/popconfirm-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title (required), description?, onconfirm?, oncancel?, confirmLabel/cancelLabel?, confirmTone? ('destructive' default), placement? ('top'). children = the trigger; the wrapper auto-wires the first button as popovertarget.",
@@ -2565,7 +2890,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2584,6 +2911,11 @@
           "path": "registry/files/ui/empty/index.ts",
           "target": "@ui/empty/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/empty/empty-defaults.svelte.ts",
+          "target": "@ui/empty/empty-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title (required), description?, illustration? (snippet), actions? (snippet). The illustration slot is decorative by contract (aria-hidden) — informational art belongs in the body.",
@@ -2593,7 +2925,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2622,6 +2956,11 @@
           "path": "registry/files/ui/descriptions/index.ts",
           "target": "@ui/descriptions/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/descriptions/descriptions-defaults.svelte.ts",
+          "target": "@ui/descriptions/descriptions-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({term, value?}[]), columns? (1-4, default 1), bordered?, value? (per-item rich cell snippet).",
@@ -2631,7 +2970,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2680,6 +3021,11 @@
           "path": "registry/files/ui/steps/steps.svelte",
           "target": "@ui/steps/steps.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/steps/steps-defaults.svelte.ts",
+          "target": "@ui/steps/steps-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: steps ({title, description?}[]), current (0-based), onstepclick? (fires for completed steps).",
@@ -2689,7 +3035,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2713,6 +3061,11 @@
           "path": "registry/files/ui/spin/spin.css",
           "target": "@ui/spin/spin.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/spin/spin-defaults.svelte.ts",
+          "target": "@ui/spin/spin-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label? ('loading'), children? (wrapping posture when given). reduced-motion freezes to the first frame.",
@@ -2722,7 +3075,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2741,6 +3096,11 @@
           "path": "registry/files/ui/statistic/index.ts",
           "target": "@ui/statistic/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/statistic/statistic-defaults.svelte.ts",
+          "target": "@ui/statistic/statistic-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title (required), value (string|number — formatting is yours), prefix?/suffix? (snippets), trend? ('up'|'down').",
@@ -2750,7 +3110,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2809,6 +3171,11 @@
           "path": "registry/files/ui/timeline/index.ts",
           "target": "@ui/timeline/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline-defaults.svelte.ts",
+          "target": "@ui/timeline/timeline-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Timeline props: axis ('vertical'|'horizontal'), direction ('ltr'|'revert'|'interlaced'), animation ('none'|'view'|'scroll'). TimelineDot: 8 logical snippet slots (blockStart/inlineStart/inlineEnd/blockEnd and the four corners) + center dot, variant square/round/ring. Line presets: TimelineLineDashed, TimelineLineBeam; or replace wholesale with a line(i) snippet.",
@@ -2818,7 +3185,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2837,6 +3206,11 @@
           "path": "registry/files/ui/result/index.ts",
           "target": "@ui/result/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/result/result-defaults.svelte.ts",
+          "target": "@ui/result/result-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: status? ('success'|'error'|'warning'|'info'), title (required), description?, icon? (snippet), actions? (snippet). The icon slot is decorative by contract (aria-hidden).",
@@ -2846,7 +3220,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -2904,13 +3280,20 @@
           "path": "registry/files/ui/cascader/cascader.css",
           "target": "@ui/cascader/cascader.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/cascader/cascader-defaults.svelte.ts",
+          "target": "@ui/cascader/cascader-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: options (CascaderOption tree), name?, value ($bindable string[]), separator?, disabled?, label?, placeholder?.",
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -2967,6 +3350,11 @@
           "path": "registry/files/ui/float-button/float-button.css",
           "target": "@ui/float-button/float-button.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/float-button/float-button-defaults.svelte.ts",
+          "target": "@ui/float-button/float-button-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label (required — icon-only buttons must say themselves), corner? ('bottom-right' default), onclick? (plain), actions? (snippet, menu idiom), children (icon/glyph). Menu idiom: the actions snippet must bring real buttons/links carrying role=menuitem (the walk contract is theirs).",
@@ -2976,7 +3364,9 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ]
     },
     {
@@ -3028,13 +3418,20 @@
           "path": "registry/files/ui/anchor/index.ts",
           "target": "@ui/anchor/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/anchor/anchor-defaults.svelte.ts",
+          "target": "@ui/anchor/anchor-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers).",
       "registryDependencies": [
         "@jixoai/scroll-spy",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density"
       ],
       "meta": {
         "group": "navigation",
@@ -3062,6 +3459,11 @@
           "path": "registry/files/ui/tour/tour.svelte",
           "target": "@ui/tour/tour.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tour/tour-defaults.svelte.ts",
+          "target": "@ui/tour/tour-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: steps ({target: selector | resolver, title, description?}[]), open ($bindable), startAt?, onfinish?(stoppedAtIndex), onstep?, nextLabel/prevLabel/skipLabel?.",
@@ -3071,7 +3473,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -3140,7 +3543,7 @@
       "registryDependencies": [
         "@jixoai/shiki"
       ],
-      "docs": "interface HighlightBackend { id; highlight(el, code, { lang, theme }) } — the backend owns painting the element; factories shiki() / prismjs() / microLighter() are runtime values (zero build step). The app side owns the default (site wiring uses createHighlightContext over the context kernel; installers read HIGHLIGHT_KEY via plain getContext — the shipped seam) (definePlugin({ targets: ['highlight'] })). See lib/highlight/backend.ts for the two output models and the print-freeze range limitation.",
+      "docs": "interface HighlightBackend { id; highlight(el, code, { lang, theme }) } — the backend owns painting the element; factories shiki() / prismjs() / microLighter() are runtime values (zero build step). The app side owns the default (site wiring uses createHighlightContext over the context kernel; installers read HIGHLIGHT_KEY via plain getContext — the shipped seam; a print plugin targets the def by reference — definePlugin({ targets: [HIGHLIGHT_DEF] })). See lib/highlight/backend.ts for the two output models and the print-freeze range limitation.",
       "meta": {
         "group": "engines",
         "href": "/docs/components/code-card.html"
@@ -3300,7 +3703,10 @@
       "registryDependencies": [
         "@jixoai/press-button",
         "@jixoai/tooltip",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/paint",
+        "@jixoai/density"
       ],
       "files": [
         {
@@ -3311,6 +3717,11 @@
         {
           "path": "registry/files/ui/icon-button/index.ts",
           "target": "@ui/icon-button/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/icon-button/icon-button-defaults.svelte.ts",
+          "target": "@ui/icon-button/icon-button-defaults.svelte.ts",
           "type": "registry:file"
         }
       ],
@@ -3433,7 +3844,92 @@
         }
       ],
       "dependencies": [],
+      "registryDependencies": [
+        "@jixoai/context-plugin",
+        "@jixoai/defaults"
+      ],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "context-plugin",
+      "type": "registry:lib",
+      "title": "Context plugin kernel",
+      "description": "The plugin kernel: identity-object context defs (defineContextDef / defineReadOnlyContextDef), definePlugin with def-referencing targets whose hook types bind the targeted def (a wrong-typed hook is a compile error), the onion-order chain (init/before/after with a reversible filter and vite-style enforce anchors), root-scoped stacking scopes, and the injected env (medium getter + root) — the kernel imports nothing beyond svelte and same-tree lib modules.",
+      "files": [
+        {
+          "path": "registry/files/lib/context-plugin.svelte.ts",
+          "target": "@lib/context-plugin.svelte.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [],
       "registryDependencies": [],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "defaults",
+      "type": "registry:lib",
+      "title": "Component Defaults toolkit",
+      "description": "The Defaults contract's composition tool: branded slots (type brand + a dev-only runtime guard), defineComponentDefaults with Partial-in/full-out resolution, defineLiteralSlot/defineOpenSlot/absentSlot (values-first — the arrays are the type source), and the axis-slot construction protocol.",
+      "files": [
+        {
+          "path": "registry/files/lib/defaults.svelte.ts",
+          "target": "@lib/defaults.svelte.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "command-match",
+      "type": "registry:lib",
+      "title": "Command match contract",
+      "description": "The command match payload + frozen match type, lib-side home (ui/command re-exports) — keeps the import graph lawful for lib consumers like nav-filter.",
+      "files": [
+        {
+          "path": "registry/files/lib/command-match.ts",
+          "target": "@lib/command-match.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "paint",
+      "type": "registry:lib",
+      "title": "Paint axis",
+      "description": "The paint axis's lib home: the PaintVariant union (link included), the ZonePaintVariant zone value domain (link excluded), PAINT_ZONE_KEY with its getter-backed payload, providePaintZone (new-key-only), and definePaintSlot (values-first) with the family values as the availability source (the gate's AST anchor — no runtime guard).",
+      "files": [
+        {
+          "path": "registry/files/lib/paint.svelte.ts",
+          "target": "@lib/paint.svelte.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "@jixoai/defaults"
+      ],
       "meta": {
         "group": "engines",
         "href": "/docs/components.html"
@@ -3470,6 +3966,11 @@
           "path": "registry/files/ui/button-group/button-variant-scope.svelte",
           "target": "@ui/button-group/button-variant-scope.svelte",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/button-group/button-group-defaults.svelte.ts",
+          "target": "@ui/button-group/button-group-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label (REQUIRED aria name), orientation ('horizontal'|'vertical'), justify ('start'|'end'|'center'|'between'), density, class. ROLE LAW: root is role=group — actions keep their own tab stops and activation; the group adds NO selection semantics (joined selection is toggle-group's contract). Composition: children are plain PressButton/icon-button instances; ButtonGroupDivider inserts a 1px seam member. Paint: the shared seam lives in button-group.css keyed on the data-jx-bgroup hook (Tier-2 vocabulary consumed-only).",
@@ -3480,7 +3981,9 @@
         "@jixoai/press-button",
         "@jixoai/icons",
         "@jixoai/icon-button",
-        "@jixoai/dropdown-menu"
+        "@jixoai/dropdown-menu",
+        "@jixoai/paint",
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "general",
@@ -3518,13 +4021,19 @@
           "path": "registry/files/ui/input-group/index.ts",
           "target": "@ui/input-group/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input-group/input-group-defaults.svelte.ts",
+          "target": "@ui/input-group/input-group-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props (root): label (REQUIRED a11y name), name/value/bind:value forwarded to the InputGroupInput member, disabled (native propagation: input renders disabled, addons render inert), invalid, density, class. Members: InputGroupAddon (align 'inline-start'|'inline-end', decorative lane), InputGroupInput (the native input — its own name= submits through the input family contract, MULTIVALUE-ready via the form-field seam when composed so). The shell is a composition frame: children compose freely inside the lane; seams are the addons' hairlines, the shell carries exactly one border.",
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "data-entry",
@@ -3572,6 +4081,11 @@
           "path": "registry/files/ui/chart/index.ts",
           "target": "@ui/chart/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/chart/chart-defaults.svelte.ts",
+          "target": "@ui/chart/chart-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props (all parts): data (readonly number[], required), label (string, REQUIRED accessible name — no default by contract), table? (opt-in visually-hidden data table fallback), density?, class?, ...rest. ChartBar: labels? (parallel label lane), variant? ('fill'|'tonal'|'outline' through the global hue slots), cells? (bar budget in character cells, default 20), values? (value lane, default true). ChartSparkline: cells? ('block'|'braille', default 'braille'). ChartLine: area?, markers? (default true), xAxis?/yAxis? (authored axis snippets). ChartDonut: size? (96), thickness? (12), children? (center slot). Chart root: density? (provided to the subtree). Pure math exported from the folder for tests.",
@@ -3582,7 +4096,8 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/defaults"
       ],
       "dependencies": []
     },

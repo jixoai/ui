@@ -14,6 +14,7 @@
   import type { ItemFieldContext } from './item-field.svelte';
   import type { ItemLayout, ItemVariant } from './index';
   import type { Density } from '$lib/density.svelte';
+  import { ListItemDefaults } from './list-item-defaults.svelte';
 
   type ControlProps = Omit<
     ComponentProps<typeof Radio>,
@@ -40,7 +41,7 @@
     error,
     id,
     labelMode = 'for',
-    variant = 'auto',
+    variant,
     density,
     layout = 'auto',
     disabled = false,
@@ -48,6 +49,10 @@
     group = $bindable(),
     ...controlProps
   }: Props = $props();
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4, the X2-11 restate shape): the adapter resolves the
+  // ambient policy once and hands ItemField the RESOLVED values
+  const d = $derived(ListItemDefaults.resolve({ variant, density }));
 </script>
 
 <ItemField
@@ -56,8 +61,8 @@
   {error}
   {id}
   {labelMode}
-  {variant}
-  {density}
+  variant={d.variant}
+  density={d.density}
   {layout}
   class={className}
 >

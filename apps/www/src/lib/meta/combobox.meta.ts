@@ -52,7 +52,8 @@ export const meta = defineComponentMeta(
           "acrylic",
           "auto"
         ],
-        "default": "auto"
+        "default": "auto",
+        "ambient": "own"
       },
       "class": {
         "kind": "string",

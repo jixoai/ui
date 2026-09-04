@@ -1,0 +1,6 @@
+{
+  "$schema": "../../../../../../scripts/context-coverage.exemptions.schema.json",
+  "_readme": "SYNTHETIC GATE FIXTURE whitelist for the legal root — empty by design (the clean tree needs no exemptions).",
+  "version": 1,
+  "entries": []
+}

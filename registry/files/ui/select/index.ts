@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './select.svelte';
 export * from './select.svelte';
+export { SelectDefaults, type SelectSurfaceVariant } from './select-defaults.svelte';

@@ -11,7 +11,8 @@ export const meta = defineComponentMeta(
       },
       "density": {
         "kind": "opaque",
-        "typeText": "Density"
+        "typeText": "Density",
+        "ambient": "scope"
       },
       "value": {
         "kind": "string"
@@ -43,7 +44,8 @@ export const meta = defineComponentMeta(
           "acrylic",
           "auto"
         ],
-        "default": "auto"
+        "default": "auto",
+        "ambient": "own"
       },
       "'data-density'": {
         "kind": "opaque",

@@ -145,16 +145,12 @@
   tier without per-button props.
 -->
 <script module lang="ts">
-  import type { PressButtonVariant } from '$lib/ui/press-button/press-button.svelte';
-
   /** the group's context surface: the seam/divider geometry switch +
-   *  the r13 policy pass-down (variant adoption + separator policy) */
+   *  the separator policy pass-down. LAYOUT ONLY since the single-key
+   *  law (Owner 2026-09-04): paint rides PAINT_ZONE_KEY, this key
+   *  carries no variant */
   export interface ButtonGroupApi {
     readonly orientation: 'horizontal' | 'vertical';
-    /** the group-configured variant — children without an EXPLICIT
-     *  variant adopt it (press-button resolves explicit ?? group ??
-     *  its own default; the ladder itself is untouched) */
-    readonly variant: PressButtonVariant | undefined;
     /** the separator policy as resolved on the group (explicit prop,
      *  or on by default under a ghost group) */
     readonly separator: boolean;
@@ -168,12 +164,19 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext, setContext } from 'svelte';
-  import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
+  import {
+    getDensityContext,
+    provideDensity,
+    resolveDensity,
+    type Density,
+  } from '$lib/density.svelte';
+  import { getPaintZone, providePaintZone, type ZonePaintVariant } from '$lib/paint.svelte';
   import { icons } from '$lib/icons';
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
+  import { ButtonGroupDefaults } from './button-group-defaults.svelte';
   import './button-group.css';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -187,8 +190,13 @@
     label?: string;
     /** the GROUP variant: adopted by every child button that passes
         no variant of its own (explicit child prop always wins). No
-        ladder is minted — context selects a press-button rung */
-    variant?: PressButtonVariant;
+        ladder is minted — context selects a press-button rung.
+        NARROWED to ZonePaintVariant (context-defaults-economy 1.2):
+        link is not a zone value — it stays reachable only through
+        PressButton's own explicit prop, so `<ButtonGroup
+        variant="link">` (legal before) is now a compile error, the
+        change's one syntactic breaking edge */
+    variant?: ZonePaintVariant;
     /** the separator policy: a real 1px separator element in every
         seam slot (ghost's seam — bordered rungs already read through
         the -1px law). Explicit true/false; DEFAULT on when the group's
@@ -243,16 +251,47 @@
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // The CAPTURE is load-bearing and eager: getDensityContext() rides
+  // the $derived.by ARGUMENT subtree, which evaluates at this
+  // statement — BEFORE provideDensity writes the key — so it captures
+  // the PARENT's context object. A lazily-evaluated read (a plain
+  // $derived initializer body, or the getter itself) would resolve
+  // the key to the group's OWN write and self-reference through the
+  // very getter it feeds — derived_references_self, pinned in
+  // defaults-buttons.spec. The returned getter reads ONLY the
+  // captured object (reactive through its getters, never re-entering
+  // the context machinery)
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
 
   // INHERIT-THEN-PROVIDE (r14 tuning 2, the density maneuver): a group
-  // with no variant of its own passes the enclosing scope's through —
+  // with no variant of its own passes the enclosing zone's through —
   // a ghost-scoped dialog footer's button group stays ghost without
-  // repeating itself; a group that sets one shadows the scope
-  const enclosingGroup = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
-  const effectiveVariant = $derived(variant ?? enclosingGroup?.variant);
+  // repeating itself; a group that sets one shadows the zone. ONE
+  // lane since the single-key law (Owner 2026-09-04): the eager
+  // capture reads the PARENT paint zone (getPaintZone, the
+  // getDensityContext precedent) — the getContext runs at this
+  // statement, before this group's own providePaintZone write below
+  // shadows the parent on the key; the domain is ZonePaintVariant
+  // end to end, 'link' never had a zone lane
+  const effectiveVariant = $derived.by(
+    ((enclosing) => () => variant ?? enclosing?.variant)(getPaintZone()),
+  );
+
+  // The family Defaults rides ON TOP of the provider lane as the
+  // group's single read point (its own stamp — the audited ambient
+  // face): the density slot's ambient read resolves the key to the
+  // group's own write, whose getter is the captured-parent
+  // resolution above, so the chain TERMINATES (it never re-enters
+  // this derived) and lands the same values on every lane. The
+  // VARIANT slot is declaration-first (button-group-defaults.svelte.
+  // ts): the group's own inherit-then-provide keeps the legacy lane
+  // by the frozen provider duties, so only density flows through the
+  // contract today
+  const d = $derived(ButtonGroupDefaults.resolve({ density }));
 
   // the separator policy: explicit prop, else the ghost default —
   // the borderless row has no seam to collapse, so the separator IS
@@ -266,13 +305,15 @@
     get orientation() {
       return orientation;
     },
-    get variant() {
-      return effectiveVariant;
-    },
     get separator() {
       return separatorOn;
     },
   });
+
+  // the paint axis's one key: the zone value domain is link-EXCLUDED
+  // at the type (the prop and the zone getter are both
+  // ZonePaintVariant) — no runtime narrowing lane exists
+  providePaintZone(() => effectiveVariant);
 
   const justifyClass = $derived(
     orientation === 'vertical'
@@ -635,7 +676,7 @@
   data-jx-btngroup={orientation}
   data-jx-separator={separatorOn ? '' : undefined}
   data-jx-leading-seam={leadingSeam ? '' : undefined}
-  data-density={resolvedDensity}
+  data-density={d.density}
   aria-label={ariaLabel ?? label}
   bind:this={groupEl}
   class={cn(

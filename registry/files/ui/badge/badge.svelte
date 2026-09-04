@@ -35,32 +35,37 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { type Density } from '$lib/density.svelte';
+  import { BadgeDefaults, type BadgeShape, type BadgeVariant } from './badge-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
-    /** prominence ladder: fill | tonal | outline (hue: global tokens) */
-    variant?: 'fill' | 'tonal' | 'outline';
+    /** prominence ladder: fill | tonal | outline (hue: global tokens);
+     *  omitted → the ambient paint zone, else the frozen own 'tonal' */
+    variant?: BadgeVariant;
     /** square = --radius corners (default); pill = rounded-full */
-    shape?: 'square' | 'pill';
+    shape?: BadgeShape;
     /** icon lane before the label (svg sized to the secondary text) */
     slotStart?: Snippet;
     /** icon lane after the label */
     slotEnd?: Snippet;
-    /** density policy: explicit, inherited, then default */
+    /** density policy: explicit ?? ambient scope, else unstamped */
     density?: Density;
   }
 
   let {
     density,
-    variant = 'tonal',
-    shape = 'square',
+    variant,
+    shape,
     slotStart,
     slotEnd,
     class: className = '',
     children,
     ...rest
   }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 2.3): variant rides the paint axis slot (zone ambient,
+  // frozen own 'tonal'), shape/density their literal/no-opinion slots
+  const d = $derived(BadgeDefaults.resolve({ variant, shape, density }));
 
   // deterministic per variant — each rung is the SOLE bg/border-color/color
   // source (typed arbitrary utilities; named utilities would sort after these
@@ -74,8 +79,8 @@
 </script>
 
 <span
-  data-jx-badge={variant}
-  data-density={resolvedDensity}
+  data-jx-badge={d.variant}
+  data-density={d.density}
   class={cn(
     'inline-flex items-center gap-[calc(var(--jx-gap)/2)] box-border max-w-full [padding-inline:var(--jx-inset)] border font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.14em] uppercase whitespace-nowrap rounded-(--radius) forced-color-adjust-auto [@media(forced-colors:active)]:bg-[Canvas] [@media(forced-colors:active)]:border-[CanvasText] [@media(forced-colors:active)]:text-[CanvasText]',
     // slot-vs-padding law (tabs-trigger dialect, F-6 2026-09-02): an
@@ -86,8 +91,8 @@
     children
       ? 'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]'
       : '',
-    shape === 'pill' && 'rounded-full',
-    variantUtilities[variant],
+    d.shape === 'pill' && 'rounded-full',
+    variantUtilities[d.variant],
     className,
   )}
   {...rest}

@@ -799,7 +799,7 @@ export default {
               { name: 'theme', type: '{ background?, foreground? }', default: 'terminal tokens', description: 'Shell overrides ONLY — ANSI/256/truecolor content colors are never themed through this prop.' },
               { name: 'onData', type: '(bytes: Uint8Array) => void', default: '—', description: 'Terminal INPUT out: encoded keys, gated pastes (bind:this write feeds OUTPUT in).' },
               { name: 'onResize', type: '(detail: { cols, rows }) => void', default: '—', description: 'Fires when the auto-mode grid derivation changes.' },
-              { name: 'density', type: 'Density', default: 'inherited', description: 'Explicit density for the cell metric kernels.' },
+              { name: 'density', type: 'Density', default: "'default' · ambient scope", description: 'Explicit density for the cell metric kernels. Omitted → the ambient density scope, else the family own \'default\' (the always-concrete cell math).' },
               { name: 'class', type: 'string', default: "''", description: 'Merged onto the root through cn().' },
               { name: 'children', type: 'Snippet', default: '—', description: 'Overlay slot; when provided it also replaces the default error fallback face.' },
             ]}

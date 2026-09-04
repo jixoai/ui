@@ -23,6 +23,10 @@
  *                   extractor does not emit `?` optionality, and
  *                   "no default ⇒ required" is wrong for optional
  *                   props like date-picker's `presets`)
+ *   - ambient     → passed through verbatim from the IR (the family
+ *                   Defaults slot facts, written by
+ *                   component-metadata-gen; the Default column renders
+ *                   the frozen three-state marker — 4.3)
  */
 import type { ComponentMeta, PropNode } from '$lib/schema/ir';
 import type { PropEntry } from './props-table.svelte';
@@ -105,6 +109,7 @@ export function propsFromMeta(meta: ComponentMeta, docs: PropsDocs = {}): PropEn
       description: override?.description ?? '',
       required: override?.required ?? false,
       bindable: override?.bindable ?? false,
+      ambient: node.ambient,
     });
   }
   return [...rows, ...(docs.extra ?? [])];

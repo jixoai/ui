@@ -34,7 +34,8 @@
 }
 :where(.data-table td.dim){
   color: var(--muted-foreground);
-  white-space: nowrap;
+  /* wrap: dim cells carry long explanatory prose (the coverage-class
+     Meaning column) — nowrap once blew a 706px layout to 1486px */
 }
 :where(.data-table tbody tr){
   transition: background-color 150ms ease-out;

@@ -43,7 +43,8 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { TimelineDefaults } from './timeline-defaults.svelte';
   import './timeline.css';
 
   /** the context surface: the line seam + the SSR-honest index counter
@@ -78,7 +79,11 @@
     children,
     ...rest
   }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // density resolves through the family contract (the no-opinion axis
+  // slot: explicit ?? inherited ?? undefined; no opinion stamps
+  // nothing, the ambient css scope channel keeps flowing)
+  const d = $derived(TimelineDefaults.resolve({ density }));
 
   let counter = 0;
   setContext<TimelineApi>('jx-timeline', {
@@ -97,7 +102,7 @@
   data-axis={axis}
   data-direction={direction}
   data-anim={animation}
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn('m-0 p-0 list-none', className)}
   {...rest}
   role="list"

@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './hover-card.svelte';
 export * from './hover-card.svelte';
+export { HoverCardDefaults, type HoverCardSurfaceVariant } from './hover-card-defaults.svelte';

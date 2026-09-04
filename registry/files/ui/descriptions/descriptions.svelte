@@ -35,7 +35,8 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { DescriptionsDefaults } from './descriptions-defaults.svelte';
   import './descriptions.css';
 
   interface Props extends HTMLAttributes<HTMLDListElement> {
@@ -48,24 +49,27 @@
     children: Snippet;
   }
 
-  let { density, columns = 1, bordered = false, class: className = '', children, ...rest }: Props = $props();
+  let { density, columns = 1, bordered, class: className = '', children, ...rest }: Props = $props();
 
   const cols = $derived(Math.max(1, Math.min(4, Math.trunc(columns))));
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): bordered rides the literal slot (own false), density
+  // the no-opinion axis slot — one line, no legacy helper channels
+  const d = $derived(DescriptionsDefaults.resolve({ density, bordered }));
 
   setContext<DescriptionsApi>(DESCRIPTIONS_KEY, {
     get bordered() {
-      return bordered;
+      return d.bordered;
     },
   });
 </script>
 
 <dl
-  data-jx-desc-bordered={bordered ? '' : undefined}
-  data-density={resolvedDensity}
+  data-jx-desc-bordered={d.bordered ? '' : undefined}
+  data-density={d.density}
   class={cn(
     'jx-desc grid grid-cols-[repeat(var(--jx-desc-cols),minmax(0,1fr))] gap-0 m-0 @container',
-    bordered && 'border border-border bg-card',
+    d.bordered && 'border border-border bg-card',
     className,
   )}
   {...rest}

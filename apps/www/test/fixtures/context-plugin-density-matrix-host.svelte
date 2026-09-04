@@ -15,7 +15,7 @@
   import Leaf from './context-plugin-density-leaf.svelte';
   import Root from './context-plugin-root.svelte';
   import { definePlugin } from '../../src/lib/context-plugin.svelte';
-  import type { Density } from '../../src/lib/density.svelte';
+  import { DENSITY_DEF, type Density } from '../../src/lib/density.svelte';
 
   let {
     plugins = false,
@@ -26,7 +26,7 @@
 
   const toSm = definePlugin({
     name: 'matrix-sm',
-    targets: ['density'],
+    targets: [DENSITY_DEF],
     before: (value: Density | undefined): Density | undefined =>
       value === undefined ? undefined : 'sm',
   });

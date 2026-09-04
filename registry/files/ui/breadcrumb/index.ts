@@ -20,3 +20,4 @@ export { default as BreadcrumbCollapse } from './breadcrumb-collapse.svelte';
 export * from './breadcrumb-collapse.svelte';
 export { default as BreadcrumbDropdown } from './breadcrumb-dropdown.svelte';
 export * from './breadcrumb-dropdown.svelte';
+export { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';

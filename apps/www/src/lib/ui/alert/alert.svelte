@@ -46,11 +46,14 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { AlertDefaults, type AlertVariant } from './alert-defaults.svelte';
   import './alert.css';
 
   interface Props {
-    /** ladder prominence: outline (plain notice) | tonal (tinted emphasis) */
-    variant?: 'outline' | 'tonal';
+    /** ladder prominence: outline (plain notice) | tonal (tinted
+     *  emphasis); omitted → the ambient paint zone, else the frozen
+     *  own 'outline' */
+    variant?: AlertVariant;
     /** true → role=alert (assertive); false → role=status (polite) */
     assertive?: boolean;
     /** one-line heading; omitted renders a bare body block */
@@ -62,8 +65,14 @@
     class?: string;
   }
 
-  let { variant = 'outline', assertive = false, title, icon, children, class: className = '' }: Props =
+  let { variant, assertive = false, title, icon, children, class: className = '' }: Props =
     $props();
+
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): variant rides the paint axis slot (zone ambient,
+  // frozen own 'outline'); density is the no-opinion slot — nothing
+  // stamps, the ambient css scope channel keeps flowing
+  const d = $derived(AlertDefaults.resolve({ variant }));
 
   // variant grounds (design.md §1 recipes, verbatim) — the ladder
   // surface REPLACES the card ground; the border + hard offset shadow
@@ -93,19 +102,19 @@
 <div
   class={cn(
     `flex flex-col gap-1.5 box-border border px-3.5 py-3 shadow-2xs rounded`,
-    surface[variant],
+    surface[d.variant],
     className,
   )}
-  data-jx-alert={variant}
+  data-jx-alert={d.variant}
   role={assertive ? 'alert' : 'status'}
 >
   {#if title}
-    <p data-jx-alert-title="" class={cn('flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[variant])}>
+    <p data-jx-alert-title="" class={cn('flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[d.variant])}>
       {#if icon}<span class="jx-alert-icon inline-flex">{@render icon()}</span>{/if}{title}
     </p>
   {/if}
   {#if children}
-    <div data-jx-alert-body="" class={cn('text-[0.8125rem] leading-[1.55]', bodyColor[variant])}>
+    <div data-jx-alert-body="" class={cn('text-[0.8125rem] leading-[1.55]', bodyColor[d.variant])}>
       {@render children()}
     </div>
   {/if}

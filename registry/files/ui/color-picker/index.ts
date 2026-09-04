@@ -5,3 +5,4 @@ export { default } from './color-picker.svelte';
 export { default as Editor } from './editor.svelte';
 export { default as Swatches } from './swatches.svelte';
 export * from './color-picker.svelte';
+export { ColorPickerDefaults, type ColorPickerSurfaceVariant } from './color-picker-defaults.svelte';

@@ -434,7 +434,7 @@ ${close}
       <PropsTable
         props={[
           { name: 'files', type: 'File[]', default: '[]', description: 'Selected files; bound ⇒ controlled — removal and drops write back.', bindable: true },
-          { name: 'variant', type: "'drop' | 'button'", default: "'drop'", description: 'Dashed drop zone or compact inline trigger; both are buttons AND drop targets.' },
+          { name: 'variant', type: "'drop' | 'button'", default: "'drop'", description: 'Dashed drop zone or compact inline trigger; both are buttons AND drop targets. Defaults: literal slot — own ’drop’, not ambient (a presentation mode, no axis).' },
           { name: 'accept', type: 'string', default: '—', description: 'Native accept attribute; dropped files violating it are gate-rejected.' },
           { name: 'multiple', type: 'boolean', default: 'false', description: 'Allow several files; the collection appends instead of replacing.' },
           { name: 'maxFiles', type: 'number', default: '—', description: 'Overflow limit — renders an error, never truncates the array.' },

@@ -14,7 +14,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { StatisticDefaults } from './statistic-defaults.svelte';
 
   interface Props {
     density?: Density;
@@ -30,12 +31,15 @@
   }
 
   let { density, title, value, prefix, suffix, trend, class: className = '' }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): density rides the no-opinion axis slot — explicit ??
+  // ambient scope, else unstamped
+  const d = $derived(StatisticDefaults.resolve({ density }));
 
   const trendColor = { up: 'text-primary', down: 'text-destructive' } as const;
 </script>
 
-<div data-jx-stat="" data-density={resolvedDensity} class={cn('flex flex-col [gap:var(--jx-stack)]', className)}>
+<div data-jx-stat="" data-density={d.density} class={cn('flex flex-col [gap:var(--jx-stack)]', className)}>
   <p data-jx-stat-title="" class="font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.14em] uppercase text-muted-foreground">{title}</p>
   <p data-jx-stat-value="" class="flex items-baseline [gap:var(--jx-gap)] text-foreground">
     {#if prefix}<span data-jx-stat-affix="" class="[font-size:var(--jx-text)] text-muted-foreground">{@render prefix()}</span>{/if}

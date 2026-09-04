@@ -39,12 +39,13 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import { createScrollSpy } from '$lib/scroll-spy';
+  import { AnchorDefaults } from './anchor-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
-    /** DENSITY override: explicit ?? inherited ?? default */
+    /** density policy: explicit ?? ambient scope, else unstamped */
     density?: Density;
     'data-density'?: string;
     /** nav landmark label */
@@ -57,8 +58,11 @@
 
   let { density, 'data-density': _callerDensity, label = 'on this page', offset = 96, class: className = '', children, ...rest }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the density slot resolves explicit ?? ambient
+  // scope; no opinion stamps nothing, the ambient css scope channel
+  // keeps flowing
+  const d = $derived(AnchorDefaults.resolve({ density }));
 
   let navEl = $state<HTMLElement | undefined>();
   let activeId = $state('');
@@ -144,7 +148,7 @@
 <nav
   bind:this={navEl}
   data-jx-anchor=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn('flex flex-col gap-[var(--jx-stack)] border-l border-border', className)}
   aria-label={label}
   onclick={handleClick}

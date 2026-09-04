@@ -47,6 +47,7 @@
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
+  import { TableDefaults } from './table-defaults.svelte';
   import './table.css';
 
   interface Props {
@@ -81,9 +82,28 @@
     style: styleAttribute = '',
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity, 'sm'));
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // The CAPTURE is load-bearing and EAGER (r11 first contract,
+  // context-defaults-economy 3.3 — the TODO-5 bare read this replaces):
+  // getDensityContext() rides the $derived.by ARGUMENT subtree, which
+  // evaluates at this statement — BEFORE provideDensity writes the key —
+  // so it captures the PARENT's context object; a lazily-evaluated read
+  // would resolve the key to the table's OWN write and self-reference
+  // through the very getter it feeds (derived_references_self). The
+  // family own 'sm' lives in TableDefaults (the design-frozen local
+  // fallback migration — resolveDensity's third argument is retired)
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
+  // TOP of the provider lane as the family's single audited read point:
+  // the density slot's ambient read resolves the key to the table's own
+  // write, whose getter is the captured-parent resolution above, so the
+  // chain TERMINATES; the slot's own 'sm' is the floor (explicit →
+  // inherited → 'sm', exactly the retired inline fallback)
+  const d = $derived(TableDefaults.resolve({ density }));
 </script>
 
 <figure
@@ -98,10 +118,10 @@
     className,
   )}
   style={styleAttribute}
-  data-density={resolvedDensity}
+  data-density={d.density}
 >
   <table
-    data-density={resolvedDensity}
+    data-density={d.density}
     class={cn('w-full min-w-fit border-separate border-spacing-0 [font-size:var(--jx-text)] [line-height:var(--jx-line)]', dense && 'dense')}
     data-stack={stack ? undefined : 'off'}
   >

@@ -1,0 +1,29 @@
+{
+  "_readme": "SYNTHETIC GATE FIXTURE registry — the LEGAL tree: one family exercising every passing path. verify-context-coverage.mjs --root=<here> must exit 0 GREEN.",
+  "name": "fixture-registry-legal",
+  "items": [
+    {
+      "name": "defaults",
+      "type": "registry:lib",
+      "files": [{ "path": "registry/files/lib/defaults.svelte.ts", "target": "@lib/defaults.svelte.ts", "type": "registry:file" }]
+    },
+    {
+      "name": "paint",
+      "type": "registry:lib",
+      "files": [{ "path": "registry/files/lib/paint.svelte.ts", "target": "@lib/paint.svelte.ts", "type": "registry:file" }]
+    },
+    {
+      "name": "density",
+      "type": "registry:lib",
+      "files": [{ "path": "registry/files/lib/density.svelte.ts", "target": "@lib/density.svelte.ts", "type": "registry:file" }]
+    },
+    {
+      "name": "press-button",
+      "type": "registry:ui",
+      "files": [
+        { "path": "registry/files/ui/press-button/press-button.svelte", "target": "@lib/ui/press-button/press-button.svelte", "type": "registry:file" },
+        { "path": "registry/files/ui/press-button/press-button-defaults.svelte.ts", "target": "@lib/ui/press-button/press-button-defaults.svelte.ts", "type": "registry:file" }
+      ]
+    }
+  ]
+}

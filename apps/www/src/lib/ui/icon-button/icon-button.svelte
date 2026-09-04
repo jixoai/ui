@@ -18,9 +18,14 @@
   capability passes through verbatim: the paint variants (fill …
   link — the variant-grammar ladder, imported not re-declared), the
   effect loops (shimmer/pulse/rainbow/ripple), href/
-  external anchoring, type, class, and the ButtonGroup context
-  adoption (an absent variant falls through to press-button, which
-  reads the group's — explicit still wins). Press law and shadow
+  external anchoring, type, class, and the paint-zone context
+  adoption (an absent variant adopts the zone/group's rung —
+  explicit still wins). Since context-defaults-economy 2.1 the
+  adoption resolves HERE, through IconButtonDefaults — the X2-11
+  restate: the family contract restates press-button's slots (same
+  ladder, same own) and the resolved values flow down as the child's
+  explicit props (both components read the same ambient in the same
+  window, so every path resolves identically). Press law and shadow
   tokens are therefore identical to a text button BY CONSTRUCTION
   (the square rides the same 42px band, not a smaller silhouette);
   the pre-composition copy had drifted its own markup and geometry.
@@ -33,6 +38,7 @@
     type PressEffect,
   } from '$lib/ui/press-button/press-button.svelte';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
+  import { IconButtonDefaults } from './icon-button-defaults.svelte';
 
   interface Props {
     /** DENSITY override forwarded to the press-button control root */
@@ -42,8 +48,13 @@
     /** the ONE label: visible text by default, tooltip + accessible name in iconOnly */
     text: string;
     /** paint — the press-button variant union, imported (not
-     *  re-declared); absent falls through to press-button's group
-     *  adoption (inside a ButtonGroup the group's variant applies) */
+     *  re-declared; the union itself belongs to the paint axis,
+     *  lib/paint.svelte, reaching here through press-button's
+     *  re-exported alias — context-defaults-economy 1.2).
+     *  Ambient-manageable through IconButtonDefaults (the restate):
+     *  an absent prop adopts the paint zone's rung (a ButtonGroup or
+     *  variant scope), else the restated own 'outline' — explicit
+     *  still wins */
     variant?: PressButtonVariant;
     /** collapse to the square: text moves to the tooltip + aria-label */
     iconOnly?: boolean;
@@ -88,12 +99,20 @@
     popovertarget = undefined,
     class: className = '',
   }: Props = $props();
+
+  // THE single read point (the restate lane, X2-11): the restated
+  // contract resolves in THIS component's $derived window — the paint
+  // slot's ambient lane (zone key → legacy ButtonGroup fallback)
+  // lands here, and the RESOLVED values flow down as press-button's
+  // explicit props (its own slots then short-circuit on the explicit
+  // lane — same ambient, same window, identical values on every path)
+  const d = $derived(IconButtonDefaults.resolve({ variant, density }));
 </script>
 
 {#snippet control()}
   <PressButton
-    {density}
-    {variant}
+    density={d.density}
+    variant={d.variant}
     square={iconOnly}
     {effect}
     {href}

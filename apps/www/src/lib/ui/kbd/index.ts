@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './kbd.svelte';
 export * from './kbd.svelte';
+export { KbdDefaults, type KbdVariant } from './kbd-defaults.svelte';

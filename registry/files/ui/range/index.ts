@@ -4,3 +4,4 @@
 export { default } from './range.svelte';
 export { default as RangeTick } from './range-tick.svelte';
 export * from './range.svelte';
+export { RangeDefaults } from './range-defaults.svelte';

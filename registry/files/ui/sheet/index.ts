@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './sheet.svelte';
 export * from './sheet.svelte';
+export { SheetDefaults, type SheetSurfaceVariant } from './sheet-defaults.svelte';

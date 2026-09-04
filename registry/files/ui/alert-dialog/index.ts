@@ -18,3 +18,4 @@ export { default as AlertDialogAction } from './alert-dialog-action.svelte';
 export * from './alert-dialog-action.svelte';
 export { default as AlertDialogCancel } from './alert-dialog-cancel.svelte';
 export * from './alert-dialog-cancel.svelte';
+export { AlertDialogDefaults, type AlertDialogSurfaceVariant, type AlertDialogActionVariant } from './alert-dialog-defaults.svelte';

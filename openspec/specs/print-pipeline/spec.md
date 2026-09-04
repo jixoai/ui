@@ -27,7 +27,9 @@ button stamps the doc, opening the plugin filters — beforeprint is a
 real-print signal only, never the async preparation entry; the
 transaction records whether IT created the stamp — an existing sim
 stamp is reused, not owned) → print
-plugin interventions landing on the live tree (density/hue stamps) →
+plugin interventions landing on the live tree (density/hue axis
+stamps — the runtime axis consumers' DOM effects, not the
+context-plugin kernel and not a vite plugin) →
 SCOPED animation capture (source-root subtree only via
 getAnimations({subtree:true}); per-animation {wasRunning, currentTime}
 recorded; ONLY running ones paused — pre-paused animations are never

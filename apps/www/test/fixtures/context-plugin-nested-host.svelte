@@ -17,13 +17,13 @@
   import Leaf from './density-leaf-host.svelte';
   import Root from './context-plugin-root.svelte';
   import { definePlugin } from '../../src/lib/context-plugin.svelte';
-  import type { Density } from '../../src/lib/density.svelte';
+  import { DENSITY_DEF, type Density } from '../../src/lib/density.svelte';
 
   let { direction = 'in' }: { direction?: 'in' | 'out' } = $props();
 
   const toSm = definePlugin({
     name: 'nested-sm',
-    targets: ['density'],
+    targets: [DENSITY_DEF],
     before: (v: Density | undefined): Density | undefined =>
       v === undefined ? v : 'sm',
   });

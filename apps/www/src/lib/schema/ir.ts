@@ -78,8 +78,21 @@ export type IRNode =
   | IRSnippetNode
   | IROpaqueNode;
 
+/**
+ * The defaults-contract ambient state (context-defaults-economy 4.3):
+ * how a slot-carrying prop's effective default resolves when the caller
+ * is silent — 'zone' (paint axis: providePaintZone ancestry), 'scope'
+ * (density axis: the ambient css scope channel), 'own' (literal family:
+ * a declared own, never ambient). The three spellings are the frozen
+ * docs vocabulary (design r11 #4). A prop without a Defaults slot
+ * carries no field. Docs-facing: from-meta reads it, lower.ts never
+ * exports it. Written by component-metadata-gen from the family's
+ * *-defaults.svelte.ts slot facts (drift-gated by --check).
+ */
+export type AmbientKind = 'zone' | 'scope' | 'own';
+
 /** One prop: an IR node plus optional hand-authored `x-ui` hints. */
-export type PropNode = IRNode & { 'x-ui'?: XUI };
+export type PropNode = IRNode & { 'x-ui'?: XUI; ambient?: AmbientKind };
 
 /** The component meta a `.meta.ts` file exports. */
 export interface ComponentMeta {

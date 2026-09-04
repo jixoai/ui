@@ -13,3 +13,4 @@ export { default as NavigationMenuLink } from './navigation-menu-link.svelte';
 export * from './navigation-menu-link.svelte';
 export { default as NavigationMenuIndicator } from './navigation-menu-indicator.svelte';
 export * from './navigation-menu-indicator.svelte';
+export { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './navigation-menu-defaults.svelte';

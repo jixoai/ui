@@ -1,4 +1,7 @@
-export type ItemVariant = 'auto' | 'default' | 'outline' | 'muted';
+// The variant/tone unions live in the family Defaults (r11
+// same-folder-literal convention) and are re-exported here so the
+// public surface keeps its shape.
+export type { ItemVariant, ItemTone } from './list-item-defaults.svelte';
 /** the RESOLVED chrome stamped as data-item-chrome (never 'auto' in DOM) */
 export type ItemChrome = 'surface' | 'none' | 'outline' | 'muted';
 export type ItemLayout = 'auto' | 'standard' | 'media';
@@ -26,3 +29,4 @@ export { default as ItemCheckbox } from './item-checkbox.svelte';
 export { default as ItemRadio } from './item-radio.svelte';
 export { default as ItemSelect } from './item-select.svelte';
 export { default as ItemInput } from './item-input.svelte';
+export { ListItemDefaults, type ItemVariant, type ItemTone } from './list-item-defaults.svelte';

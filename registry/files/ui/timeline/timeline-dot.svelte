@@ -28,10 +28,11 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { TimelineDefaults, type TimelineDotVariant } from './timeline-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     /** square (default) · round · ring */
-    variant?: 'square' | 'round' | 'ring';
+    variant?: TimelineDotVariant;
     /** the cell before the flow — a labeled cutout ON the spine */
     blockStart?: Snippet;
     /** the cell after the flow — a labeled cutout ON the spine */
@@ -48,7 +49,7 @@
   }
 
   let {
-    variant = 'square',
+    variant,
     blockStart,
     blockEnd,
     inlineStart,
@@ -60,6 +61,11 @@
     class: className = '',
     ...rest
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // variant resolves through the family contract (the literal slot:
+  // own 'square' declared in TimelineDefaults, auditable in one place)
+  const d = $derived(TimelineDefaults.resolve({ variant }));
 
   // one cell per snippet — a fragment of grid children placed by
   // timeline.css through the valued data-dir hook. $derived (2026-09-02):
@@ -85,7 +91,7 @@
 {/each}
 <span
   data-jx-tl-dot=""
-  data-variant={variant}
+  data-variant={d.variant}
   class={className}
   {...rest}
   aria-hidden="true"

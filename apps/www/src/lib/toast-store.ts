@@ -38,11 +38,25 @@
  * on the toast card through the viewport's cn() merge.
  */
 
-export type ToastVariant = 'outline' | 'tonal';
+/** the ladder prominence values — the SOLE declaration source of
+ *  ToastVariant (slot-values-first r12 #6: the family Defaults slot
+ *  imports this tuple — ui→lib is the legal direction — and const
+ *  generic inference recovers the union from it, so no handwritten
+ *  union may coexist) */
+export const TOAST_VARIANT_VALUES = ['outline', 'tonal'] as const;
+
+/** ladder prominence: outline (plain notice, default) | tonal (tinted
+ *  emphasis) — typeof 反查 the values tuple above */
+export type ToastVariant = (typeof TOAST_VARIANT_VALUES)[number];
+
+/** the surface MATERIAL values — the sole declaration source of
+ *  ToastMaterial (the twin of TOAST_VARIANT_VALUES above) */
+export const TOAST_MATERIAL_VALUES = ['popover', 'glass'] as const;
 
 /** the surface MATERIAL axis (float-button's model) — the ground the
- *  toast paints; variant stays the prominence ladder independently */
-export type ToastMaterial = 'popover' | 'glass';
+ *  toast paints; variant stays the prominence ladder independently.
+ *  typeof 反查 the values tuple above */
+export type ToastMaterial = (typeof TOAST_MATERIAL_VALUES)[number];
 
 /** the EFFECT loop axis — pulse (breathing ring) | sweep (traveling light) */
 export type ToastEffect = 'none' | 'pulse' | 'sweep';

@@ -40,6 +40,7 @@
   import { untrack } from 'svelte';
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
+  import { SheetDefaults, type SheetSurfaceVariant } from './sheet-defaults.svelte';
   import './sheet.css';
 
   interface Props {
@@ -59,7 +60,7 @@
     size?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+    variant?: SheetSurfaceVariant;
   }
 
   let {
@@ -69,9 +70,16 @@
     children,
     header,
     footer,
-    size = '24rem',
-    variant = 'auto',
+    size,
+    variant,
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 2.2): one line —
+  // variant and size resolve through the family contract (owns 'auto'
+  // and '24rem' live in SheetDefaults, auditable in one place; density
+  // is the no-opinion axis slot — nothing stamps, the ambient css
+  // scope channel keeps flowing)
+  const d = $derived(SheetDefaults.resolve({ variant, size }));
 
   let dialog = $state<HTMLDialogElement | null>(null);
   let closing = $state(false);
@@ -145,9 +153,9 @@
     axisUtilities[side],
     closing && 'closing',
   )}
-  data-variant={variant}
+  data-variant={d.variant}
   aria-label={title}
-  style="--jx-sheet-size: {size}"
+  style="--jx-sheet-size: {d.size}"
   onclose={handleClose}
   oncancel={handleCancel}
 >

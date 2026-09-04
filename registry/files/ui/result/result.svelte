@@ -18,9 +18,11 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { type Density } from '$lib/density.svelte';
+  import { ResultDefaults } from './result-defaults.svelte';
 
   interface Props {
+    /** density policy: explicit ?? ambient scope, else unstamped */
     density?: Density;
     /** success uses the brand voice (no green in this language) */
     status?: 'success' | 'error' | 'warning' | 'info';
@@ -33,7 +35,11 @@
   }
 
   let { density, status = 'info', title, description, icon, actions, class: className = '' }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the density slot resolves explicit ?? ambient
+  // scope; no opinion stamps nothing, the ambient css scope channel
+  // keeps flowing
+  const d = $derived(ResultDefaults.resolve({ density }));
 
   const glyph = $derived(
     status === 'success' ? '✓' : status === 'error' ? '✕' : status === 'warning' ? '!' : 'i',
@@ -52,7 +58,7 @@
   } as const;
 </script>
 
-<div data-jx-result={status} data-density={resolvedDensity} class={cn('flex flex-col items-center [gap:var(--jx-stack)] [padding-inline:calc(var(--jx-inset)*2)] [padding-block:calc(var(--jx-inset)*4)] text-center', className)}>
+<div data-jx-result={status} data-density={d.density} class={cn('flex flex-col items-center [gap:var(--jx-stack)] [padding-inline:calc(var(--jx-inset)*2)] [padding-block:calc(var(--jx-inset)*4)] text-center', className)}>
   <div
     data-jx-result-icon=""
     class={cn(

@@ -70,7 +70,8 @@
   import { setContext, untrack } from 'svelte';
   import type { HTMLInputAttributes, HTMLAttributes } from 'svelte/elements';
   import type { Snippet } from 'svelte';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { RangeDefaults } from './range-defaults.svelte';
   import { cn } from '$lib/utils';
   import RangeTick, { RANGE_TICK_CONTEXT, type RangeTickContext } from './range-tick.svelte';
   import './range.css';
@@ -161,8 +162,10 @@
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels
+  const d = $derived(RangeDefaults.resolve({ density }));
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
@@ -372,7 +375,7 @@
 </script>
 
 <div
-  data-density={resolvedDensity}
+  data-density={d.density}
   data-orient={vertical ? 'vertical' : undefined}
   class={cn('jx-field', className)}
 >

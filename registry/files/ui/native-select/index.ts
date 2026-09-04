@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './native-select.svelte';
 export * from './native-select.svelte';
+export { NativeSelectDefaults } from './native-select-defaults.svelte';

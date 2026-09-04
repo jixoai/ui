@@ -45,7 +45,8 @@
 <script lang="ts">
   import { cn } from '$lib/utils';
   import { icons } from '$lib/icons';
-  import { resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
   import DropdownMenu from '../dropdown-menu/dropdown-menu.svelte';
 
   interface Props {
@@ -64,7 +65,10 @@
 
   let { label, items, current, density, class: className = '' }: Props = $props();
 
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // the part's density opinion resolves through the family contract
+  // (explicit ?? inherited ?? undefined) and feeds the composed menu
+  const d = $derived(BreadcrumbDefaults.resolve({ density }));
 
   let host = $state<HTMLSpanElement | null>(null);
 
@@ -79,14 +83,14 @@
 </script>
 
 <span bind:this={host} class="inline-flex">
-  <DropdownMenu id={autoId} density={resolvedDensity} placement="bottom-start">
+  <DropdownMenu id={autoId} density={d.density} placement="bottom-start">
     {#snippet trigger()}
       <button
         type="button"
         popovertarget={autoId}
         aria-haspopup="menu"
         data-jx-breadcrumb-dropdown=""
-        data-density={resolvedDensity}
+        data-density={d.density}
         class={cn(
           'inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-muted-foreground transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-2',
           className,

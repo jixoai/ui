@@ -18,17 +18,21 @@
 <script lang="ts">
   import { icons } from '$lib/icons';
   import { cn } from '$lib/utils';
+  import { ThemeToggleDefaults, type ThemeToggleVariant } from './theme-toggle-defaults.svelte';
 
   type Theme = 'light' | 'dark' | 'system';
-  type Variant = 'full' | 'compact' | 'icon' | 'text';
 
   interface Props {
-    variant?: Variant;
+    variant?: ThemeToggleVariant;
     /** full variant only: hide the text labels, show icons alone. */
     hideLabels?: boolean;
   }
 
-  let { variant = 'compact', hideLabels = false }: Props = $props();
+  let { variant, hideLabels = false }: Props = $props();
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): variant rides a literal slot (own 'compact', never
+  // reads context — a structural selector, not a paint rung)
+  const d = $derived(ThemeToggleDefaults.resolve({ variant }));
 
   const ORDER: Theme[] = ['light', 'dark', 'system'];
   const LABEL: Record<Theme, string> = { light: 'light', dark: 'dark', system: 'system' };
@@ -78,7 +82,7 @@
   {/if}
 {/snippet}
 
-{#if variant === 'full'}
+{#if d.variant === 'full'}
   <div data-jx-theme-segmented="" class="font-nav inline-flex" role="group" aria-label="Color theme">
     {#each ORDER as theme, index (theme)}
       <button
@@ -111,10 +115,10 @@
     class={cn('font-nav px-2.5 py-1', bezel, 'hover:border-[color-mix(in_oklab,currentColor_70%,transparent)]')}
     aria-label={`theme: ${current}`}
   >
-    {#if variant === 'compact'}
+    {#if d.variant === 'compact'}
       {@render iconFor(current)}
       <span>{LABEL[current]}</span>
-    {:else if variant === 'icon'}
+    {:else if d.variant === 'icon'}
       {@render iconFor(current)}
     {:else}
       <span>{LABEL[current]}</span>

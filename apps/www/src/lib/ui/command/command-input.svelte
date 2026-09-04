@@ -10,7 +10,7 @@
 -->
 <script lang="ts">
   import { getContext } from 'svelte';
-  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
+  import { CommandDefaults } from './command-defaults.svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { COMMAND_KEY, type CommandApi } from './command.svelte';
@@ -22,7 +22,10 @@
   let { class: className = '', ...rest }: Props = $props();
 
   const cmd = getContext<CommandApi>(COMMAND_KEY);
-  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the density slot's ambient read lands the root's
+  // provided opinion; no opinion resolves undefined → no stamp
+  const d = $derived(CommandDefaults.resolve({}));
 
   let el = $state<HTMLInputElement | null>(null);
   let composing = false;
@@ -42,7 +45,7 @@
 <input
   bind:this={el}
   data-jx-command-input=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn(
     'box-border min-h-[var(--jx-hit)] w-full border-b border-border bg-transparent px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] leading-[var(--jx-line)] text-foreground placeholder:text-muted-foreground focus:outline-none',
     className,

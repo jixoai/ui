@@ -39,6 +39,7 @@ import { getContext, setContext } from 'svelte';
 import { get } from 'svelte/store';
 import { writable } from 'svelte/store';
 import {
+  defineContextDef,
   getContextPlugins,
   withPlugins,
   type ContextDef,
@@ -47,12 +48,14 @@ import {
 
 /** The hue def: 0–359 fractional degrees (rounded at the DOM seam).
  *  Exported so the print plugin can pin the projection to the def's
- *  OWN default (one source of truth for the pinned value). */
-export const HUE_DEF: ContextDef<'hue', number> = {
+ *  OWN default (one source of truth for the pinned value). A factory
+ *  product since context-plugin-v2: plugins bind THIS object's
+ *  identity, never the 'hue' string. */
+export const HUE_DEF: ContextDef<'hue', number> = defineContextDef({
   key: 'hue',
   defaults: () => 0,
   ssrSafe: 0,
-};
+});
 
 /** Read-only hue context (getter-backed; the exposed chained value). */
 export interface HueContext {

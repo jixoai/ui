@@ -20,7 +20,8 @@
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { ITEM_GROUP_KEY, type ItemGroupPolicy } from './item-group.svelte';
-  import { resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { ListItemDefaults } from './list-item-defaults.svelte';
   import './item.css';
 
   type ItemLayout = 'auto' | 'standard' | 'media';
@@ -41,7 +42,7 @@
   }
 
   let {
-    variant = 'auto',
+    variant,
     density,
     'data-density': _callerDensity,
     layout = 'auto',
@@ -52,15 +53,20 @@
     ...rest
   }: Props = $props();
 
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): variant rides a literal slot (own 'auto', the
+  // auto-chrome grammar), density the no-opinion axis slot (inside a
+  // group the slot's ambient read lands on ItemGroup's provided
+  // opinion)
+  const d = $derived(ListItemDefaults.resolve({ variant, density }));
+
   const policy = getContext<ItemGroupPolicy | undefined>(ITEM_GROUP_KEY);
-  const outerDensity = getDensityContext();
 
   // explicit 'default' normalizes to chrome 'none' (the transparent
   // escape hatch) — data-item-chrome never leaves its closed union
   const chrome = $derived(
-    variant === 'auto' ? (policy ? 'none' : 'surface') : variant === 'default' ? 'none' : variant,
+    d.variant === 'auto' ? (policy ? 'none' : 'surface') : d.variant === 'default' ? 'none' : d.variant,
   );
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
   const resolvedLayout = $derived(layout === 'auto' ? (policy?.layout ?? 'standard') : layout);
   const klass = $derived(cn('jx-item', className));
 </script>
@@ -71,9 +77,9 @@
     {href}
     {...rest}
     data-slot="item"
-    data-variant={variant}
+    data-variant={d.variant}
     data-item-chrome={chrome}
-    data-density={resolvedDensity}
+    data-density={d.density}
     data-layout={resolvedLayout}
     data-selected={selected ? 'true' : undefined}
     class={klass}

@@ -44,6 +44,7 @@
   import type { HTMLImgAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
+  import { AvatarDefaults, type AvatarSize, type AvatarVariant } from './avatar-defaults.svelte';
 
   interface Props extends Omit<HTMLImgAttributes, 'alt'> {
     /** image URL; empty/failed loads fall back to the initials block */
@@ -52,10 +53,11 @@
     name: string;
     /** defaults to `name`; pass "" for a decorative avatar */
     alt?: string;
-    /** sm 24px · md 32px (default) · lg 40px */
-    size?: 'sm' | 'md' | 'lg';
-    /** silhouette: bevel (default) | rounded (circle) | squircle */
-    variant?: 'bevel' | 'rounded' | 'squircle';
+    /** sm 24px · md 32px (default) · lg 40px — literal slot, own 'md' */
+    size?: AvatarSize;
+    /** silhouette: bevel (default) | rounded (circle) | squircle —
+     *  literal slot, own 'bevel' */
+    variant?: AvatarVariant;
     /** full name rides a tooltip by default; false opts out */
     tooltip?: boolean;
   }
@@ -64,13 +66,17 @@
     src,
     name,
     alt = name,
-    size = 'md',
-    variant = 'bevel',
+    size,
+    variant,
     tooltip = true,
     class: className = '',
     onerror,
     ...rest
   }: Props = $props();
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): size/variant ride literal slots (own 'md'/'bevel',
+  // never reads context — ambient capability pends a future axis)
+  const d = $derived(AvatarDefaults.resolve({ size, variant }));
 
   let failed = $state(false);
   // a changed src is a fresh chance: reset the failure state
@@ -90,7 +96,7 @@
   }
 
   const decorative = $derived(alt === '');
-  const px = $derived(size === 'sm' ? 24 : size === 'lg' ? 40 : 32);
+  const px = $derived(d.size === 'sm' ? 24 : d.size === 'lg' ? 40 : 32);
 
   // one geometry, deterministic per combination: the size owns the box,
   // the silhouette owns the corners (bevel's cut scales with the box —
@@ -122,7 +128,7 @@
     return (words[0][0] + words.at(-1)![0]).toUpperCase();
   });
   // icon size halves the block: one code point, no overflow, no wrap
-  const shown = $derived(size === 'sm' ? [...initials][0] : initials);
+  const shown = $derived(d.size === 'sm' ? [...initials][0] : initials);
 
   // nothing to tip on an empty name, whatever the flag says
   const tipped = $derived(tooltip && name.trim().length > 0);
@@ -130,8 +136,8 @@
   const shell = $derived(
     cn(
       'flex-none box-border object-cover border border-border bg-card text-muted-foreground',
-      sizeUtilities[size],
-      variantUtilities[variant][size],
+      sizeUtilities[d.size],
+      variantUtilities[d.variant][d.size],
     ),
   );
 </script>
@@ -139,8 +145,8 @@
 {#snippet body()}
   {#if src && !failed}
     <img
-      data-jx-avatar={size}
-      data-jx-avatar-variant={variant}
+      data-jx-avatar={d.size}
+      data-jx-avatar-variant={d.variant}
       class={cn(shell, 'inline-block', className)}
       {src}
       {alt}
@@ -153,8 +159,8 @@
     />
   {:else}
     <span
-      data-jx-avatar={size}
-      data-jx-avatar-variant={variant}
+      data-jx-avatar={d.size}
+      data-jx-avatar-variant={d.variant}
       data-jx-avatar-fallback
       class={cn(shell, 'inline-flex items-center justify-center bg-muted font-nav text-xs tracking-[0.06em] uppercase whitespace-nowrap overflow-hidden', className)}
       role={decorative ? undefined : 'img'}

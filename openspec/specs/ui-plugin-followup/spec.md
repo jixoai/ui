@@ -37,7 +37,7 @@ order) can override them at equal specificity.
 
 ### Requirement: opentype.js stays external in the plugin build
 
-The @jixoai/ui-plugin build SHALL keep the dynamic
+The @jixoai/vite-plugin build SHALL keep the dynamic
 `import('opentype.js')` as an external dependency in dist — it is a
 build-time-only tool (runs inside the vite plugin during
 `vite build`/`vite dev`), never ships to the consumer's browser. The
@@ -46,7 +46,7 @@ plugin package's dist SHALL NOT bundle opentype.js code.
 #### Scenario: a consumer without fontIconProvider installs the plugin
 
 - GIVEN a consumer using only lucideIconProvider
-- WHEN they install @jixoai/ui-plugin
+- WHEN they install @jixoai/vite-plugin
 - THEN opentype.js is NOT downloaded (it's an optionalDependency,
   dynamically imported only by fontIconProvider)
 

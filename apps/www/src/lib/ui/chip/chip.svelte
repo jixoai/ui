@@ -47,19 +47,21 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { type Density } from '$lib/density.svelte';
+  import { ChipDefaults, type ChipShape, type ChipVariant } from './chip-defaults.svelte';
   import { ripple, type PressEffect } from '../press-button/press-button.svelte';
   import { createRipple } from '../press-button/ripple.svelte';
   // the effect layers' paint (shimmer / pulse / ripple) — shared sheet
   import '../press-button/press-button.css';
 
   interface Props {
-    /** DENSITY override: explicit ?? inherited ?? default */
+    /** DENSITY override: explicit ?? ambient scope, else unstamped */
     density?: Density;
-    /** the grammar ladder — prominence, never semantic hue */
-    variant?: 'fill' | 'tonal' | 'outline' | 'ghost';
+    /** the grammar ladder — prominence, never semantic hue; omitted →
+     *  the ambient paint zone, else the frozen own 'tonal' */
+    variant?: ChipVariant;
     /** square keeps the site radius; pill rounds fully */
-    shape?: 'square' | 'pill';
+    shape?: ChipShape;
     /** one press-button effect builder per chip — undefined resolves
      *  to the ripple() defaults (ink from the activation point);
      *  null explicitly disables every loop */
@@ -83,8 +85,8 @@
 
   let {
     density,
-    variant = 'tonal',
-    shape = 'square',
+    variant,
+    shape,
     effect = undefined,
     href,
     external = undefined,
@@ -97,8 +99,10 @@
     children,
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 2.3): variant rides the paint axis slot (zone ambient,
+  // frozen own 'tonal'), shape/density their literal/no-opinion slots
+  const d = $derived(ChipDefaults.resolve({ variant, shape, density }));
 
   // undefined resolves to the ripple() defaults — press-point ink is
   // the chip's resting attention; null opts out of every loop
@@ -111,7 +115,7 @@
   // forced-colors ring: 2px Highlight, offset 2.
   const base =
     'inline-flex items-center justify-center gap-[calc(var(--jx-gap)/2)] box-border max-w-full [padding-inline:var(--jx-inset)] has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)] font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.14em] uppercase whitespace-nowrap forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-offset-2 forced-colors:focus-visible:[outline-color:Highlight]';
-  const silhouette = $derived(shape === 'pill' ? 'rounded-full' : 'rounded-(--radius)');
+  const silhouette = $derived(d.shape === 'pill' ? 'rounded-full' : 'rounded-(--radius)');
   // the bordered, shadow-bearing body (ghost presses without a shadow).
   // TW4 collision law (batch D probe, 2026-08-26): a rung is the SOLE
   // border-color source — named border paints (.border-border) sort
@@ -169,7 +173,7 @@
   // pointer.
   const rippleRuntime = createRipple(() => onclick?.());
 
-  const classes = $derived(cn(base, silhouette, variants[variant], effectClass, className));
+  const classes = $derived(cn(base, silhouette, variants[d.variant], effectClass, className));
   const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
 </script>
 
@@ -224,8 +228,8 @@
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
-    data-density={resolvedDensity}
-    data-jx-chip={variant}
+    data-density={d.density}
+    data-jx-chip={d.variant}
     data-jx-shimmer-host={activeEffect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={activeEffect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={activeEffect?.type === 'ripple' ? '' : undefined}
@@ -243,8 +247,8 @@
     {type}
     onclick={activeEffect?.type === 'ripple' ? rippleRuntime.onclick : onclick}
     aria-label={ariaLabel}
-    data-density={resolvedDensity}
-    data-jx-chip={variant}
+    data-density={d.density}
+    data-jx-chip={d.variant}
     data-jx-shimmer-host={activeEffect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={activeEffect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={activeEffect?.type === 'ripple' ? '' : undefined}

@@ -5,3 +5,4 @@ export { default } from './dropdown-menu.svelte';
 export * from './dropdown-menu.svelte';
 export { default as DropdownMenuItem } from './dropdown-menu-item.svelte';
 export * from './dropdown-menu-item.svelte';
+export { DropdownMenuDefaults, type DropdownMenuSurfaceVariant } from './dropdown-menu-defaults.svelte';

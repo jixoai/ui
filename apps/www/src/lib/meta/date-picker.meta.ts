@@ -67,7 +67,8 @@ export const meta = defineComponentMeta(
       },
       "variant": {
         "kind": "string",
-        "default": "auto"
+        "default": "auto",
+        "ambient": "own"
       },
       "class": {
         "kind": "string",

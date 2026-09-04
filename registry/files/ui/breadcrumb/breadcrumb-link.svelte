@@ -14,7 +14,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
+  import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
   interface Props extends HTMLAnchorAttributes {
     href: string;
@@ -30,7 +30,10 @@
     class: className = '',
     ...rest
   }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // the ambient density stamp resolves through the family contract
+  // (no-opinion slot: no explicit prop, inherited else nothing)
+  const d = $derived(BreadcrumbDefaults.resolve({}));
 
   const props = $derived({
     class: cn(
@@ -45,5 +48,5 @@
 {#if child}
   {@render child({ props })}
 {:else}
-  <a data-jx-breadcrumb-link="" data-density={resolvedDensity} {...props}>{@render children?.()}</a>
+  <a data-jx-breadcrumb-link="" data-density={d.density} {...props}>{@render children?.()}</a>
 {/if}

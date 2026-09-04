@@ -22,7 +22,7 @@
  * plugins this is the identity fast path — no chain is built.
  *
  * THE PLUGIN PAYOFF (available to the app layer, deliberately not
- * built here): a plugin targeting 'highlight' can gate on env.medium —
+ * built here): a plugin targeting HIGHLIGHT_DEF can gate on env.medium —
  * e.g. a print plugin whose filter is isPrintProjection(env.medium)
  * and whose before() returns a MARKUP backend would repair the one
  * known limitation of range backends under the print pipeline's DOM
@@ -32,6 +32,7 @@
 
 import { getContext, setContext } from 'svelte';
 import {
+  defineContextDef,
   getContextPlugins,
   withPlugins,
   type ContextDef,
@@ -41,12 +42,14 @@ import { DEFAULT_SHIKI_BACKEND } from './shiki';
 import { HIGHLIGHT_KEY, type HighlightContextValue } from './context-key';
 import type { HighlightBackend } from './backend';
 
-/** The def: an opinion value domain (unlike the read-only medium). */
-export const HIGHLIGHT_DEF: ContextDef<'highlight', HighlightBackend> = {
+/** The def: an opinion value domain (unlike the read-only medium). A
+ *  factory product since context-plugin-v2 — plugins bind THIS
+ *  object's identity, never the 'highlight' string. */
+export const HIGHLIGHT_DEF: ContextDef<'highlight', HighlightBackend> = defineContextDef({
   key: 'highlight',
   defaults: () => DEFAULT_SHIKI_BACKEND,
   ssrSafe: DEFAULT_SHIKI_BACKEND,
-};
+});
 
 /** The app-facing context API: read the projection, write the raw. */
 export interface HighlightContext extends HighlightContextValue {
@@ -85,16 +88,14 @@ export function createHighlightContext(initial?: HighlightBackend): HighlightCon
 }
 
 /**
- * The nearest provider's context — undefined outside any provider (the
- * card then falls back to the stock shiki default). Safe outside
- * component initialisation (pure unit calls).
+ * The nearest provider's context — undefined inside a component window
+ * with no provider around (the card then falls back to the stock shiki
+ * default). The window is a HARD CONTRACT (context-plugin-v2 D3-C):
+ * outside component initialisation Svelte's own
+ * `lifecycle_outside_component` propagates — never caught, never
+ * normalized. (CodeCard itself never rides this function — it reads
+ * HIGHLIGHT_KEY directly, always in-window.)
  */
 export function getHighlightContext(): HighlightContext | undefined {
-  try {
-    return getContext<HighlightContext | undefined>(HIGHLIGHT_KEY);
-  } catch {
-    // Svelte throws lifecycle_outside_component when no component
-    // context exists — that is simply "no provider around"
-    return undefined;
-  }
+  return getContext<HighlightContext | undefined>(HIGHLIGHT_KEY);
 }

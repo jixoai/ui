@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './statistic.svelte';
 export * from './statistic.svelte';
+export { StatisticDefaults } from './statistic-defaults.svelte';

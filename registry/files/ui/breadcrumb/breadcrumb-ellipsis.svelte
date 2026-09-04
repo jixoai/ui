@@ -10,19 +10,22 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
+  import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
   }
 
   let { class: className = '', ...rest }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // the ambient density stamp resolves through the family contract
+  // (no-opinion slot: no explicit prop, inherited else nothing)
+  const d = $derived(BreadcrumbDefaults.resolve({}));
 </script>
 
 <span
   data-jx-breadcrumb-ellipsis=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn('text-muted-foreground tracking-normal select-none', className)}
   {...rest}
   aria-hidden="true"

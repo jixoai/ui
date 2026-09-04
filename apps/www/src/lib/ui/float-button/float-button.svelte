@@ -30,14 +30,15 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { type Density } from '$lib/density.svelte';
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { FloatButtonDefaults, type FloatButtonSurfaceVariant } from './float-button-defaults.svelte';
   import './float-button.css';
 
   interface Props {
-    /** DENSITY override: explicit ?? inherited ?? default */
+    /** density policy: explicit ?? ambient scope, else unstamped */
     density?: Density;
     /** accessible name — required (an icon-only button must say itself) */
     label: string;
@@ -49,8 +50,10 @@
     actions?: Snippet;
     /** floating-surface variant for the MENU panel: solid | acrylic |
         auto (acrylic unless the environment asks for reduced
-        transparency) — the button itself keeps press-button physics */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        transparency) — the button itself keeps press-button physics.
+        Omitted → the contract own 'auto' (FloatButtonDefaults — a
+        declared own, not ambient) */
+    variant?: FloatButtonSurfaceVariant;
     /** button content — an icon snippet or a glyph */
     children: Snippet;
     class?: string;
@@ -62,13 +65,17 @@
     corner = 'bottom-right',
     onclick,
     actions,
-    variant = 'auto',
+    variant,
     children,
     class: className = '',
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): variant's own 'auto' lives in FloatButtonDefaults,
+  // auditable in one place; the density slot resolves
+  // explicit ?? ambient scope — no opinion stamps nothing, the
+  // ambient css scope channel keeps flowing
+  const d = $derived(FloatButtonDefaults.resolve({ variant, density }));
 
   const autoId = $props.id();
   const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -105,7 +112,7 @@
 {#if actions}
   <div
     data-jx-fab-stack=""
-    data-density={resolvedDensity}
+    data-density={d.density}
     data-jx-fab={corner}
     class={cn('fixed z-[80] flex flex-col items-center gap-2', corners[corner], className)}
     style="anchor-name: {anchorName}"
@@ -116,7 +123,7 @@
       popover="auto"
       role="menu"
       class={cn('jx-fab-menu jx-surface', motion.supported && 'jx-waapi')}
-      data-variant={variant}
+      data-variant={d.variant}
       bind:this={panel}
       style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;"
       ontoggle={(e: Event) => {
@@ -144,7 +151,7 @@
     <button
       type="button"
       class={cn(fabPaint, 'static z-[80]', className)}
-      data-density={resolvedDensity}
+      data-density={d.density}
       aria-label={label}
       aria-expanded={open}
       aria-haspopup={actions ? 'menu' : undefined}
@@ -158,7 +165,7 @@
   <button
     type="button"
     data-jx-fab={corner}
-    data-density={resolvedDensity}
+    data-density={d.density}
     class={cn(fabPaint, 'fixed z-[80]', corners[corner], className)}
     aria-label={label}
     {onclick}

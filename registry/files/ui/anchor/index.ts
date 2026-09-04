@@ -6,3 +6,4 @@ export { default } from './anchor.svelte';
 export * from './anchor.svelte';
 export { default as AnchorItem } from './anchor-item.svelte';
 export * from './anchor-item.svelte';
+export { AnchorDefaults } from './anchor-defaults.svelte';

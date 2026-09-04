@@ -27,6 +27,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     density?: Density;
@@ -37,11 +38,29 @@
   }
 
   let { label = 'Breadcrumb', density, class: className = '', children, ...rest }: Props = $props();
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // The CAPTURE is load-bearing and EAGER (r11 first contract,
+  // context-defaults-economy 3.3): getDensityContext() rides the
+  // $derived.by ARGUMENT subtree, which evaluates at this statement —
+  // BEFORE provideDensity writes the key — so it captures the PARENT's
+  // context object; a lazily-evaluated read would resolve the key to
+  // the trail's OWN write and self-reference through the very getter it
+  // feeds (derived_references_self — the pre-3.3 bare capture this
+  // replaces). The returned getter reads ONLY the captured object
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
+  // TOP of the provider lane as the family's single audited read point:
+  // the density slot's ambient read resolves the key to the trail's own
+  // write, whose getter is the captured-parent resolution above, so the
+  // chain TERMINATES (it never re-enters this derived)
+  const d = $derived(BreadcrumbDefaults.resolve({ density }));
 </script>
 
-<nav data-jx-breadcrumb="" class={cn(className)} {...rest} data-density={resolvedDensity} aria-label={label}>
+<nav data-jx-breadcrumb="" class={cn(className)} {...rest} data-density={d.density} aria-label={label}>
   {@render children()}
 </nav>

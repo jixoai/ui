@@ -34,14 +34,26 @@
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { ALERT_DIALOG_KEY, type AlertDialogApi } from './alert-dialog.svelte';
+  import {
+    AlertDialogDefaults,
+    type AlertDialogActionVariant,
+  } from './alert-dialog-defaults.svelte';
 
   interface Props extends HTMLButtonAttributes {
-    /** confirm paint on the ladder: fill (destructive pair by default) | tonal | outline */
-    variant?: 'fill' | 'tonal' | 'outline';
+    /** confirm paint on the ladder: fill (destructive pair by default) |
+     *  tonal | outline. Omitted → the contract own 'fill'
+     *  (AlertDialogDefaults.actionVariant — a declared own, not ambient) */
+    variant?: AlertDialogActionVariant;
     children: Snippet;
   }
 
-  let { variant = 'fill', class: className = '', children, onclick, ...rest }: Props = $props();
+  let { variant, class: className = '', children, onclick, ...rest }: Props = $props();
+
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the action's ladder prop rides its OWN slot
+  // (actionVariant — the family's second variant vocabulary; own
+  // 'fill' auditable in one place)
+  const d = $derived(AlertDialogDefaults.resolve({ actionVariant: variant }));
 
   const api = getContext<AlertDialogApi>(ALERT_DIALOG_KEY);
 
@@ -63,10 +75,10 @@
 <button
   type="button"
   data-jx-adlg-action=""
-  data-jx-alert-dialog-action={variant}
+  data-jx-alert-dialog-action={d.actionVariant}
   class={cn(
     'jx-press appearance-none px-4 py-2 border font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px] forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight]',
-    variants[variant],
+    variants[d.actionVariant],
     className,
   )}
   onclick={(event) => {

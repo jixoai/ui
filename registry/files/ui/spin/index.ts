@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './spin.svelte';
 export * from './spin.svelte';
+export { SpinDefaults } from './spin-defaults.svelte';

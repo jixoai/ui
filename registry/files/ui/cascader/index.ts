@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './cascader.svelte';
 export * from './cascader.svelte';
+export { CascaderDefaults } from './cascader-defaults.svelte';

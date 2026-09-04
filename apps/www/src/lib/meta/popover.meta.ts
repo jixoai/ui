@@ -28,13 +28,9 @@ export const meta = defineComponentMeta(
         "default": "bottom-end"
       },
       "variant": {
-        "kind": "enum",
-        "values": [
-          "solid",
-          "acrylic",
-          "auto"
-        ],
-        "default": "auto"
+        "kind": "opaque",
+        "typeText": "PopoverSurfaceVariant",
+        "ambient": "own"
       },
       "tryFallbacks": {
         "kind": "string",

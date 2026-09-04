@@ -133,6 +133,7 @@
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { DatePickerDefaults } from './date-picker-defaults.svelte';
   import {
     composeDateTime,
     dayLabel,
@@ -188,6 +189,14 @@
     variant = 'auto',
     class: className = '',
   }: Props = $props();
+
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient/own per slot, one line, no legacy
+  // helper channels. variant keeps its inline default + inline union:
+  // this Props interface feeds the GENERATED meta chain (drift-locked),
+  // whose ambient annotation is the doc batch's 先破再立 — the
+  // contract's own 'auto' is the same value (date-picker-defaults.svelte.ts)
+  const d = $derived(DatePickerDefaults.resolve({ variant }));
 
   // ---- committed state views ----------------------------------------------
   // single + showTime rides the datetime domain: the canonical value is
@@ -453,7 +462,7 @@
     id={panelId}
     popover="auto"
     class={cn('jx-date-panel jx-surface', motion.supported && 'jx-waapi')}
-    data-variant={variant}
+    data-variant={d.variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >

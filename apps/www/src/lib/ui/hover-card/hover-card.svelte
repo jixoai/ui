@@ -35,6 +35,7 @@
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { HoverCardDefaults, type HoverCardSurfaceVariant } from './hover-card-defaults.svelte';
   import './hover-card.css';
 
   interface Props {
@@ -48,8 +49,10 @@
     openDelay?: number;
     closeDelay?: number;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
-        the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        the environment asks for reduced transparency). Omitted → the
+        contract own 'auto' (HoverCardDefaults — a declared own, not
+        ambient) */
+    variant?: HoverCardSurfaceVariant;
     class?: string;
   }
 
@@ -62,9 +65,16 @@
     placement = 'bottom',
     openDelay = 300,
     closeDelay = 200,
-    variant = 'auto',
+    variant,
     class: className = '',
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2): one line —
+  // the family contract resolves the panel's style props (variant's
+  // own 'auto' lives in HoverCardDefaults, auditable in one place;
+  // density is the no-opinion axis slot — nothing stamps, the ambient
+  // css scope channel keeps flowing)
+  const d = $derived(HoverCardDefaults.resolve({ variant }));
 
   // id is mount-stable by contract; $derived keeps the name truthful
   const anchorName = $derived(`--jx-hover-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -162,7 +172,7 @@
     'jx-hover-card jx-surface fixed w-fit max-w-[min(88vw,20rem)] text-[0.8125rem] leading-[1.55] text-popover-foreground',
     motion.supported && 'jx-waapi',
   )}
-  data-variant={variant}
+  data-variant={d.variant}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   onpointerenter={() => clearTimeout(closeTimer)}

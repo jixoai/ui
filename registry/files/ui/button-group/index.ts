@@ -5,3 +5,6 @@ export { default } from './button-group.svelte';
 export * from './button-group.svelte';
 export { default as ButtonGroupDivider } from './button-group-divider.svelte';
 export * from './button-group-divider.svelte';
+export { default as ButtonVariantScope } from './button-variant-scope.svelte';
+export * from './button-variant-scope.svelte';
+export { ButtonGroupDefaults, type ButtonGroupVariant } from './button-group-defaults.svelte';

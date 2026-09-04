@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './progress.svelte';
 export * from './progress.svelte';
+export { ProgressDefaults } from './progress-defaults.svelte';

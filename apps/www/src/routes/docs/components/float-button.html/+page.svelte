@@ -273,11 +273,11 @@ ${close}
     <SectionCard eyebrow="api" title="Props" summary="FloatButton owns position and popover wiring while leaving command content to the caller.">
       <PropsTable props={[
         { name: 'label', type: 'string', required: true, description: 'Accessible name for the icon-only control.' },
-        { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the surrounding density scale.' },
+        { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
         { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control.' },
         { name: 'onclick', type: '() => void', default: '—', description: 'Plain-action handler.' },
         { name: 'actions', type: 'Snippet', default: '—', description: 'Turns the control into a popover menu trigger.' },
-        { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Menu panel surface treatment.' },
+        { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Menu panel surface treatment. Defaults: literal slot — own ’auto’, ambient when an axis opens.' },
         { name: 'children', type: 'Snippet', required: true, description: 'Decorative icon or glyph.' },
       ]} />
     </SectionCard>

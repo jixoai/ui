@@ -483,7 +483,7 @@ ${close}
             { name: 'data', type: 'readonly number[]', default: '—', description: 'The series — one row / point / segment per datum. A value-domain payload: the family renders it, never re-authors it.', required: true },
             { name: 'label', type: 'string', default: '—', description: 'The REQUIRED accessible name (role=img + aria-label). No default by contract.', required: true },
             { name: 'table', type: 'boolean', default: 'false', description: 'Opt-in visually-hidden data table fallback — a REAL sibling table mirroring the series.' },
-            { name: 'density', type: 'Density', default: 'inherited', description: 'Explicit tier ?? inherited; stamped as data-density only when an opinion exists.' },
+            { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit tier ?? ambient scope. The ensemble (Chart) resolves once and provides to its glyphs — the r11 eager-capture provider form; glyphs stamp only when an opinion exists.' },
             { name: 'class', type: 'string', default: "''", description: 'Merged into the part root (cn()) — constrain geometry with utilities; they win by the layer law.' },
             { name: '...rest', type: 'HTMLAttributes / SVGAttributes', default: '—', description: 'aria-*, data-*, handlers — land on the part root verbatim.' },
           ]}
@@ -491,14 +491,14 @@ ${close}
         <PropsTable
           props={[
             { name: 'labels (ChartBar)', type: 'readonly (string | number)[]', default: '—', description: 'Parallel label lane, zipped by index; absent entries render an empty lane.' },
-            { name: 'variant (ChartBar)', type: "'fill' | 'tonal' | 'outline'", default: "'fill'", description: 'The glyph ink through the four global hue slots — compose with jx-hue-* utilities like every painted surface.' },
+            { name: 'variant (ChartBar)', type: "'fill' | 'tonal' | 'outline'", default: "'fill'", description: 'The glyph ink through the four global hue slots — compose with jx-hue-* utilities like every painted surface. Defaults: literal slot — own \'fill\', ambient when a table freeze lands.' },
             { name: 'cells (ChartBar)', type: 'number', default: '20', description: 'The bar-length budget in character cells.' },
             { name: 'values (ChartBar)', type: 'boolean', default: 'true', description: 'The inline-end value lane (raw numbers; formatting is yours). Non-finite renders the em dash.' },
             { name: 'cells (ChartSparkline)', type: "'block' | 'braille'", default: "'braille'", description: 'The cell system: eighth-block glyphs (8 levels/point) or braille packing (2 points/cell, 4 levels).' },
             { name: 'area (ChartLine)', type: 'boolean', default: 'false', description: 'The 12% tonal wash under the curve (needs two finite points).' },
             { name: 'markers (ChartLine)', type: 'boolean', default: 'true', description: 'Round dot markers at every finite point — non-scaling, never ellipses.' },
             { name: 'xAxis / yAxis (ChartLine)', type: 'Snippet', default: '—', description: 'Authored axis slots, rendered inside the svg after the data — axes are never guessed.' },
-            { name: 'size / thickness (ChartDonut)', type: 'number', default: '96 / 12', description: 'The ring outer size and stroke thickness in px.' },
+            { name: 'size / thickness (ChartDonut)', type: 'number', default: '96 / 12', description: 'The ring outer size and stroke thickness in px. size defaults through a literal slot — own 96, ambient when an axis opens (thickness stays a plain prop).' },
             { name: 'children (ChartDonut)', type: 'Snippet', default: '—', description: 'The center slot — the total, a delta, your composition.' },
           ]}
         />

@@ -48,6 +48,7 @@
   import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { PopconfirmDefaults, type PopconfirmSurfaceVariant } from './popconfirm-defaults.svelte';
   import './popconfirm.css';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
@@ -70,8 +71,10 @@
     confirmTone?: 'destructive' | 'primary';
     placement?: 'top' | 'bottom' | 'left' | 'right';
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
-        the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        the environment asks for reduced transparency). Omitted → the
+        contract own 'auto' (PopconfirmDefaults — a declared own, not
+        ambient) */
+    variant?: PopconfirmSurfaceVariant;
     /** replaces the title/description area (the caller owns semantics) */
     content?: Snippet;
     /** replaces the confirm/cancel action row */
@@ -94,7 +97,7 @@
     cancelLabel = 'Cancel',
     confirmTone = 'destructive',
     placement = 'top',
-    variant = 'auto',
+    variant,
     content,
     actions,
     children,
@@ -102,9 +105,27 @@
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // (the button-group r11 idiom) The CAPTURE is load-bearing and
+  // eager: getDensityContext() rides the $derived.by ARGUMENT subtree,
+  // which evaluates at this statement — BEFORE provideDensity writes
+  // the key — so it captures the PARENT's context object. A lazily-
+  // evaluated read would resolve the key to the panel's OWN write and
+  // self-reference through the very getter it feeds
+  // (derived_references_self, pinned in defaults-buttons.spec)
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2) — ON TOP
+  // of the provider lane (the button-group law): the density slot's
+  // ambient read resolves the key to this panel's OWN write, whose
+  // getter is the captured-parent resolution above, so the chain
+  // TERMINATES (it never re-enters this derived) and lands the same
+  // values on every lane; variant's own 'auto' lives in
+  // PopconfirmDefaults, auditable in one place
+  const d = $derived(PopconfirmDefaults.resolve({ variant, density }));
 
   const anchorName = $derived(`--jx-pc-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   const area = $derived(
@@ -185,7 +206,7 @@
   data-jx-pc-anchor=""
   class={cn('inline-flex', className)}
   {...rest}
-  data-density={resolvedDensity}
+  data-density={d.density}
   style="anchor-name: {anchorName}"
 >
   {#if children}{@render children()}{/if}
@@ -201,8 +222,8 @@
     'jx-pc jx-surface fixed m-[var(--jx-pc-gap,8px)] [position-try-fallbacks:flip-block,flip-inline] [position-try:flip-block,flip-inline] [position-visibility:anchors-visible] w-fit max-w-[min(88vw,18rem)] text-popover-foreground',
     motion.supported && 'jx-waapi',
   )}
-  data-variant={variant}
-  data-density={resolvedDensity}
+  data-variant={d.variant}
+  data-density={d.density}
   bind:this={panel}
   style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
   ontoggle={handleToggle}

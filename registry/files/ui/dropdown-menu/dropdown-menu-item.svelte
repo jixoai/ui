@@ -24,8 +24,9 @@
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
-  import { resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { DropdownMenuDefaults } from './dropdown-menu-defaults.svelte';
   import './dropdown-menu.css';
 
   interface Props extends HTMLButtonAttributes {
@@ -37,7 +38,12 @@
   }
 
   let { destructive = false, density, class: className = '', onclick, children, ...rest }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // density resolves through the family contract (the item inherits
+  // the menu root's provided tier; an explicit prop beats it; no
+  // opinion stamps nothing — the item rides the ambient css scope)
+  const d = $derived(DropdownMenuDefaults.resolve({ density }));
 
   /** context surface from dropdown-menu.svelte; raw consumer items
       (not this component) manage their own close path */
@@ -52,7 +58,7 @@
 <button
   type="button"
   role="menuitem"
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn(
     'jx-menu-item flex w-full box-border items-center text-left font-sans transition-[background-color,color] duration-100 ease-out',
     destructive ? 'jx-menu-item-destructive text-destructive' : 'bg-transparent text-inherit',

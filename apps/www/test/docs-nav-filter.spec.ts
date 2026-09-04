@@ -82,9 +82,12 @@ describe('docs sections nav — fuzzy filter (sections mode)', () => {
     // 'dt' is a substring of NONE of these — pure fuzzy hits, in
     // data-source order (sections group first, then components; the
     // registry group empties and hides — and the components section
-    // only carries groups WITH ui entries, so no 'Docs Tooling')
+    // only carries groups WITH ui entries, so no 'Docs Tooling').
+    // 'context & defaults' joined with the context-defaults-economy
+    // guide page (dt spans "defaults" — same fuzzy class)
     expect(railTitles()).toEqual([
       'variant-grammar',
+      'context & defaults',
       'demo-standard',
       'Data Entry',
       'Data Display',

@@ -5,3 +5,4 @@ export { default } from './toggle-group.svelte';
 export * from './toggle-group.svelte';
 export { default as ToggleGroupItem } from './toggle-group-item.svelte';
 export * from './toggle-group-item.svelte';
+export { ToggleGroupDefaults } from './toggle-group-defaults.svelte';

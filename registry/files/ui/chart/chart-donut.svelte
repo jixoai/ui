@@ -26,8 +26,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { ChartDefaults } from './chart-defaults.svelte';
   import { donutGeometry } from './chart.svelte';
   import './chart.css';
 
@@ -51,7 +52,7 @@
   let {
     data,
     label,
-    size = 96,
+    size,
     thickness = 12,
     children,
     table = false,
@@ -60,8 +61,11 @@
     ...rest
   }: Props = $props();
 
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
-  const geo = $derived(donutGeometry(data, size, thickness));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): size rides a literal slot (own 96px), density the
+  // no-opinion axis slot (the ensemble provides, the glyph stamps)
+  const d = $derived(ChartDefaults.resolve({ size, density }));
+  const geo = $derived(donutGeometry(data, d.size, thickness));
 </script>
 
 <div
@@ -69,24 +73,24 @@
   role="img"
   aria-label={label}
   data-jx-chart-donut=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn('grid', className)}
 >
-  <svg viewBox="0 0 {size} {size}" width={size} height={size} fill="none" aria-hidden="true" class="[grid-area:1/1]">
-    <g transform="rotate(-90 {size / 2} {size / 2})">
+  <svg viewBox="0 0 {d.size} {d.size}" width={d.size} height={d.size} fill="none" aria-hidden="true" class="[grid-area:1/1]">
+    <g transform="rotate(-90 {d.size / 2} {d.size / 2})">
       <circle
         class="jx-chart-track"
-        cx={size / 2}
-        cy={size / 2}
-        r={geo?.radius ?? (size - thickness) / 2}
+        cx={d.size / 2}
+        cy={d.size / 2}
+        r={geo?.radius ?? (d.size - thickness) / 2}
         stroke-width={thickness}
       />
       {#if geo}
         {#each geo.segments as seg (seg.index)}
           <circle
             class="jx-chart-seg"
-            cx={size / 2}
-            cy={size / 2}
+            cx={d.size / 2}
+            cy={d.size / 2}
             r={geo.radius}
             stroke-width={thickness}
             stroke-dasharray={seg.dash}

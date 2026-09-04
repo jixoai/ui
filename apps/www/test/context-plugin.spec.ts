@@ -1,9 +1,10 @@
 /**
- * The ContextPlugin kernel lock (context-plugin-system, 2026-08-30).
+ * The ContextPlugin kernel lock (context-plugin-system, 2026-08-30;
+ * def identity migration, context-plugin-v2 2026-09-03).
  *
- * The full verification matrix against design.md r2 / verification.md:
- *   - type domain: definePlugin targets narrowing + the 'medium'
- *     rejection (compile-time fixture + runtime guards)
+ * The full verification matrix against design.md r3 / verification.md:
+ *   - type domain: definePlugin def-target narrowing + the read-only
+ *     medium rejection (compile-time fixture + runtime guards)
  *   - ordering: array order / pre-post stable anchors / same-name
  *     override (per root) / cross-root stacking parent-first
  *   - the onion law: hook call log === beforeA → beforeB → afterB →
@@ -18,6 +19,12 @@
  *     recomputes only the contexts whose plugins read it)
  *   - the three wirings: density's four-path matrix, medium's
  *     read-only domain, the hue adapter's wall clock + DOM stamp
+ *
+ * DEF IDENTITY LAW (v2): matching is object identity — the def a
+ * plugin TARGETS and the def a pipeline/applyChain RECEIVES must be
+ * the same object. The probe defs below are file-level shared consts
+ * for exactly that reason; an equal-key impostor is a silent dead
+ * target.
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +35,7 @@ import { get } from 'svelte/store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   applyChain,
+  defineContextDef,
   definePlugin,
   getContextPlugins,
   sortPlugins,
@@ -38,7 +46,6 @@ import {
 } from '../src/lib/context-plugin.svelte';
 import { MEDIUM_DEF, PRINT_SIM_ATTR, type MediumState } from '../src/lib/medium.svelte';
 import { currentHue, setHueManually, startHueRuntime, stopHueRuntime } from '../src/lib/hue-runtime.svelte';
-import { resolveDensity } from '../src/lib/density.svelte';
 import Root from './fixtures/context-plugin-root.svelte';
 import MatrixHost from './fixtures/context-plugin-density-matrix-host.svelte';
 import OnionHost from './fixtures/context-plugin-onion-host.svelte';
@@ -50,12 +57,23 @@ import HueContextHost from './fixtures/hue-context-host.svelte';
 const specDir = resolve(fileURLToPath(import.meta.url), '..');
 const kernelSource = readFileSync(resolve(specDir, '../src/lib/context-plugin.svelte.ts'), 'utf8');
 
+// ---- shared probe defs (ONE identity per key — see the header) ------------
+
+const PROBE_DEF = defineContextDef({ key: 'probe', defaults: () => 'raw', ssrSafe: 'raw' });
+const PROBE_NUM_DEF = defineContextDef({ key: 'probe-num', defaults: () => 0, ssrSafe: 0 });
+const PROBE_OBJ_DEF = defineContextDef({
+  key: 'probe-obj',
+  defaults: () => ({ a: 1, b: 1 }),
+  ssrSafe: { a: 1, b: 1 },
+});
+const PROBE_OTHER_DEF = defineContextDef({ key: 'other-key', defaults: () => 'x', ssrSafe: 'x' });
+
 // ---- shared plugin builders ---------------------------------------------
 
 const countingPlugin = (name: string, log: string[]): UnknownPlugin =>
   definePlugin({
     name,
-    targets: ['probe'],
+    targets: [PROBE_DEF],
     before: (v: string, _env): string => {
       log.push(`before:${name}`);
       return `${v}<${name}`;
@@ -70,13 +88,14 @@ const countingPlugin = (name: string, log: string[]): UnknownPlugin =>
 // 1 · definePlugin — the registration currency
 // =========================================================================
 describe('definePlugin — the only registration entry', () => {
-  it('freezes targets to the single context key and the product itself', () => {
+  it('freezes targets to the single def and the product itself', () => {
     const p = definePlugin({
       name: 'p',
-      targets: ['density'],
-      before: (v: 'lg' | 'default' | 'sm' | 'xs' | undefined, _env) => v,
+      targets: [PROBE_DEF],
+      before: (v: string, _env) => v,
     });
-    expect(p.targets).toEqual(['density']);
+    expect(p.targets).toHaveLength(1);
+    expect(p.targets[0]).toBe(PROBE_DEF); // identity — the def itself, frozen in
     expect(Object.isFrozen(p)).toBe(true);
     expect(Object.isFrozen(p.targets)).toBe(true);
     expect((p as { enforce?: unknown }).enforce).toBeUndefined();
@@ -85,9 +104,9 @@ describe('definePlugin — the only registration entry', () => {
   it('keeps enforce / hooks optional and carries them when given', () => {
     const p = definePlugin({
       name: 'p',
-      targets: ['hue'],
+      targets: [PROBE_DEF],
       enforce: 'pre',
-      init: () => (v: number) => v + 1,
+      init: () => (v: string) => `${v}!`,
     });
     expect((p as { enforce?: unknown }).enforce).toBe('pre');
     expect(typeof (p as UnknownPlugin).init).toBe('function');
@@ -102,13 +121,32 @@ describe('definePlugin — the only registration entry', () => {
     expect(typeof forgeMedium).toBe('function');
   });
 
-  it('rejects a medium target at RUNTIME (cast-forged spec)', () => {
+  it('rejects a medium target at RUNTIME (the real def trips READ_ONLY)', () => {
+    // the READ_ONLY registry is identity-based: only the real MEDIUM_DEF
+    // object (registered by defineReadOnlyContextDef) is a member — a
+    // forged string target is NOT, so the probe must use the real def
     const forged = {
       name: 'forged',
-      targets: ['medium'],
+      targets: [MEDIUM_DEF],
       before: (v: unknown) => v,
     } as never as Parameters<typeof definePlugin>[0];
     expect(() => definePlugin(forged)).toThrow(/medium/);
+  });
+
+  it('rejects a SPREAD COPY of the medium def (marker-or-identity, impl-review S3)', () => {
+    // the copy misses the READ_ONLY WeakSet but carries the enumerable
+    // readOnly marker — the guard is marker-or-identity, so the copy is
+    // rejected fail-closed; a forged marker is refused the same way
+    // (the safe direction)
+    const copy = { ...MEDIUM_DEF };
+    expect((copy as { readOnly?: unknown }).readOnly).toBe(true);
+    expect(() =>
+      definePlugin({
+        name: 'copy',
+        targets: [copy],
+        before: (v: unknown) => v,
+      } as never as Parameters<typeof definePlugin>[0]),
+    ).toThrow(/medium/);
   });
 
   it('the medium def exposes the read-only projection domain', () => {
@@ -128,10 +166,12 @@ describe('provideContextPlugins — runtime registration guards', () => {
   });
 
   it('refuses a medium-targeting plugin even with a stolen brand', () => {
-    const branded = definePlugin({ name: 'ok', targets: ['density'] });
+    const branded = definePlugin({ name: 'ok', targets: [PROBE_DEF] });
     // spread copies the module-private brand symbol — the registration
-    // guard must still refuse the medium target itself
-    const sneak = { ...branded, targets: ['medium'] } as unknown as UnknownPlugin;
+    // guard must still refuse the real read-only def in the targets
+    // (READ_ONLY is identity-based: swapping the target object in
+    // after the fact cannot smuggle it past)
+    const sneak = { ...branded, targets: [MEDIUM_DEF] } as unknown as UnknownPlugin;
     expect(() => render(Root, { plugins: [sneak] })).toThrow(/read-only projection/);
   });
 });
@@ -151,8 +191,8 @@ describe('sortPlugins — array order with stable anchors', () => {
   it('anchors pre before unanchored before post, stable inside each group', () => {
     const n1 = countingPlugin('n1', []);
     const n2 = countingPlugin('n2', []);
-    const pre = definePlugin({ name: 'pre', targets: ['probe'], enforce: 'pre' });
-    const post = definePlugin({ name: 'post', targets: ['probe'], enforce: 'post' });
+    const pre = definePlugin({ name: 'pre', targets: [PROBE_DEF], enforce: 'pre' });
+    const post = definePlugin({ name: 'post', targets: [PROBE_DEF], enforce: 'post' });
     expect(names(sortPlugins([post, n1, pre, n2]))).toEqual(['pre', 'n1', 'n2', 'post']);
   });
 
@@ -196,7 +236,7 @@ describe('withPlugins — the onion law (same root)', () => {
       env: { medium: 'screen' as MediumState, root: undefined },
       apply: (d: { key: string }, v: unknown) => v,
     };
-    const pipe = withPlugins({ key: 'probe', defaults: () => 'raw', ssrSafe: 'raw' }, scope as PluginScope);
+    const pipe = withPlugins(PROBE_DEF, scope as PluginScope);
     pipe.setRaw('v');
     // raw → beforeA → beforeB → afterB → afterA: the outer layer's
     // after closes over every inner projection
@@ -212,7 +252,7 @@ describe('withPlugins — init is an environment-free full-value reducer', () =>
       chain: [
         definePlugin({
           name: 'one',
-          targets: ['probe'],
+          targets: [PROBE_DEF],
           init: (def) => {
             log.push(`init-one:${def.key}`);
             return (v: string) => `${v}+one`;
@@ -220,15 +260,15 @@ describe('withPlugins — init is an environment-free full-value reducer', () =>
         }),
         definePlugin({
           name: 'two',
-          targets: ['probe'],
+          targets: [PROBE_DEF],
           init: () => (v: string) => `${v}+two`,
         }),
       ],
       env: { medium: 'screen' as MediumState, root: undefined },
       apply: (d: { key: string }, v: unknown) => v,
     };
-    const pipe = withPlugins({ key: 'probe', defaults: () => 'd', ssrSafe: 'd' }, scope as PluginScope);
-    expect(pipe.raw).toBe('d+one+two');
+    const pipe = withPlugins(PROBE_DEF, scope as PluginScope);
+    expect(pipe.raw).toBe('raw+one+two');
     expect(log).toEqual(['init-one:probe']);
     // one-time: setRaw never re-runs init
     pipe.setRaw('next');
@@ -238,13 +278,17 @@ describe('withPlugins — init is an environment-free full-value reducer', () =>
   it('number: reducers chain arithmetically (no string magic)', () => {
     const scope = {
       chain: [
-        definePlugin({ name: 'ten', targets: ['probe'], init: () => (v: number) => v + 10 }),
-        definePlugin({ name: 'double', targets: ['probe'], init: () => (v: number) => v * 2 }),
+        definePlugin({ name: 'ten', targets: [PROBE_NUM_DEF], init: () => (v: number) => v + 10 }),
+        definePlugin({
+          name: 'double',
+          targets: [PROBE_NUM_DEF],
+          init: () => (v: number) => v * 2,
+        }),
       ],
       env: { medium: 'screen' as MediumState, root: undefined },
       apply: (d: { key: string }, v: unknown) => v,
     };
-    const pipe = withPlugins({ key: 'probe', defaults: () => 0, ssrSafe: 0 }, scope as PluginScope);
+    const pipe = withPlugins(PROBE_NUM_DEF, scope as PluginScope);
     expect(pipe.raw).toBe(20);
   });
 
@@ -253,22 +297,19 @@ describe('withPlugins — init is an environment-free full-value reducer', () =>
       chain: [
         definePlugin({
           name: 'grow',
-          targets: ['probe'],
+          targets: [PROBE_OBJ_DEF],
           init: () => (v: { a: number; b: number }) => ({ ...v, a: v.a + 1 }),
         }),
         definePlugin({
           name: 'replace',
-          targets: ['probe'],
+          targets: [PROBE_OBJ_DEF],
           init: () => (_v: { a: number; b: number }) => ({ b: 99 }),
         }),
       ],
       env: { medium: 'screen' as MediumState, root: undefined },
       apply: (d: { key: string }, v: unknown) => v,
     };
-    const pipe = withPlugins(
-      { key: 'probe', defaults: () => ({ a: 1, b: 1 }), ssrSafe: { a: 1, b: 1 } },
-      scope as PluginScope,
-    );
+    const pipe = withPlugins(PROBE_OBJ_DEF, scope as PluginScope);
     expect(pipe.raw).toEqual({ b: 99 });
   });
 });
@@ -277,11 +318,19 @@ describe('withPlugins — immutability and raw ownership', () => {
   it('before/after take the frozen input and return a NEW value; raw keeps its reference', () => {
     const raw = Object.freeze({ tag: 'raw' });
     const seen: unknown[] = [];
+    // the def's defaults return THIS test's frozen object — a local
+    // factory product shared by the plugin target and the pipeline
+    // (one identity, the A6 law)
+    const def = defineContextDef({
+      key: 'probe-immutable',
+      defaults: () => raw,
+      ssrSafe: raw,
+    });
     const scope = {
       chain: [
         definePlugin({
           name: 'b',
-          targets: ['probe'],
+          targets: [def],
           before: (v: { tag: string }, _env) => {
             seen.push(v);
             return { tag: `${v.tag}!` };
@@ -292,10 +341,7 @@ describe('withPlugins — immutability and raw ownership', () => {
       env: { medium: 'screen' as MediumState, root: undefined },
       apply: (d: { key: string }, v: unknown) => v,
     };
-    const pipe = withPlugins(
-      { key: 'probe', defaults: () => raw, ssrSafe: raw },
-      scope as PluginScope,
-    );
+    const pipe = withPlugins(def, scope as PluginScope);
     // defaults pass through init untouched — the SAME frozen reference
     expect(pipe.raw).toBe(raw);
     const exposed = pipe.exposed;
@@ -311,7 +357,7 @@ describe('withPlugins — immutability and raw ownership', () => {
 describe('withPlugins — zero plugins is the identity fast path', () => {
   it('no scope → no chain is built (structural) and exposed === raw by reference', () => {
     const spy = { called: false };
-    const pipe = withPlugins({ key: 'probe', defaults: () => 'x', ssrSafe: 'x' }, undefined);
+    const pipe = withPlugins(PROBE_DEF, undefined);
     expect(pipe.targeting).toHaveLength(0);
     const obj = { tag: 'obj' };
     pipe.setRaw(obj as never);
@@ -323,7 +369,7 @@ describe('withPlugins — zero plugins is the identity fast path', () => {
     let ran = false;
     const foreign = definePlugin({
       name: 'foreign',
-      targets: ['other-key'],
+      targets: [PROBE_OTHER_DEF],
       before: () => {
         ran = true;
         return 'x';
@@ -334,12 +380,12 @@ describe('withPlugins — zero plugins is the identity fast path', () => {
       env: { medium: 'screen' as MediumState, root: undefined },
       apply: (d: { key: string }, v: unknown) => v,
     };
-    const pipe = withPlugins({ key: 'probe', defaults: () => 'v', ssrSafe: 'v' }, scope as PluginScope);
+    const pipe = withPlugins(PROBE_DEF, scope as PluginScope);
     expect(pipe.targeting).toHaveLength(0);
-    expect(pipe.exposed).toBe('v');
+    expect(pipe.exposed).toBe('raw'); // defaults untouched — no hook ran
     expect(ran).toBe(false);
-    // the pure chain application agrees (the density seam's fast path)
-    expect(applyChain({ key: 'probe' }, 'v', [foreign as UnknownPlugin], scope.env)).toBe('v');
+    // the pure chain application agrees (the identity fast path)
+    expect(applyChain(PROBE_DEF, 'raw', [foreign as UnknownPlugin], scope.env)).toBe('raw');
   });
 });
 
@@ -347,8 +393,17 @@ describe('withPlugins — zero plugins is the identity fast path', () => {
 // 5 · the scope — root-scoped registration, stacking, env
 // =========================================================================
 describe('the plugin scope — registration, stacking, env', () => {
-  it('getContextPlugins outside any root is undefined (identity, no singleton)', () => {
-    expect(getContextPlugins()).toBeUndefined();
+  it('outside the window the native lifecycle error propagates (the hard contract)', () => {
+    // D3-C: the kernel no longer degrades — Svelte's own
+    // lifecycle_outside_component passes through, un-normalized,
+    // un-message-matched. The rootless-window half of the old
+    // assertion (no root → undefined scope → identity path) lives in
+    // the host renders below: every hue/highlight context host in
+    // this file and code-card-backend.spec's no-provider lanes
+    // captures a rootless scope at init and stays the identity fast
+    // path. (Rendering a hue host HERE would poison hue-runtime's
+    // document-global pipeline sink for section 8's raw-path test.)
+    expect(() => getContextPlugins()).toThrow(/lifecycle_outside_component/);
   });
 
   it('provides at a root: children read the scope; env defaults are SSR-shaped', () => {
@@ -475,12 +530,18 @@ describe('the density wiring — resolveDensity terminal value goes through the 
   });
 
   it('no plugin root anywhere: resolveDensity is the pure identity (today pages)', () => {
-    // outside any component AND outside any root — the exact
-    // pre-plugin resolution law, unchanged
-    expect(resolveDensity('lg', undefined)).toBe('lg');
-    expect(resolveDensity(undefined, { density: 'sm' })).toBe('sm');
-    expect(resolveDensity(undefined, undefined, 'xs')).toBe('xs');
-    expect(resolveDensity(undefined, undefined)).toBeUndefined();
+    // inside a component window with NO plugin root above — the exact
+    // pre-plugin resolution law, unchanged. The matrix host's
+    // plugins:false renders ARE the rootless host: explicit leaf,
+    // inherited provider, local fallback, and no opinion at all.
+    const explicit = render(MatrixHost, { plugins: false, leaf: 'lg' });
+    expect(leafStamp(explicit.container)).toBe('lg');
+    const inherited = render(MatrixHost, { plugins: false, provider: 'sm' });
+    expect(leafStamp(inherited.container)).toBe('sm');
+    const fallback = render(MatrixHost, { plugins: false, fallback: 'xs' });
+    expect(leafStamp(fallback.container)).toBe('xs');
+    const none = render(MatrixHost, { plugins: false });
+    expect(leafStamp(none.container)).toBeNull();
   });
 });
 

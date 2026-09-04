@@ -22,10 +22,15 @@ import { toJSONSchema } from '$lib/schema/lower';
 const pressButtonFixture: ComponentMeta = defineComponentMeta({
   source: 'registry/files/ui/press-button/press-button.svelte',
   props: {
-    density: { kind: 'opaque', typeText: 'Density' },
+    // 4.3 (context-defaults-economy): the ambient field rides the
+    // GENERATED zone from the family Defaults slot facts; variant's
+    // Props type became the imported PressButtonVariant alias (task
+    // 1.2), honestly opaque under the same-file ceiling
+    density: { kind: 'opaque', typeText: 'Density', ambient: 'scope' },
     variant: {
-      kind: 'enum',
-      values: ['fill', 'tonal', 'outline', 'ghost', 'link'],
+      kind: 'opaque',
+      typeText: 'PressButtonVariant',
+      ambient: 'zone',
     },
     effect: { kind: 'opaque', typeText: 'PressEffect' },
     href: { kind: 'string' },
@@ -63,9 +68,7 @@ describe('toJSONSchema (press-button fixture)', () => {
       type: 'object',
       properties: {
         density: { 'x-ui': { control: 'none', sourceType: 'Density' } },
-        variant: {
-          enum: ['fill', 'tonal', 'outline', 'ghost', 'link'],
-        },
+        variant: { 'x-ui': { control: 'none', sourceType: 'PressButtonVariant' } },
         effect: { 'x-ui': { control: 'none', sourceType: 'PressEffect' } },
         href: { type: 'string' },
         external: { type: 'boolean' },

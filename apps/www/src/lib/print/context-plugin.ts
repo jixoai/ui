@@ -7,8 +7,10 @@
  * open) + **before** (the live-tree interventions) — and **no init**
  * (the print layer injects no defaults; it only projects).
  *
- * Two plugins because a plugin's targets tuple carries ONE context
- * key (the kernel's type-level identity law):
+ * Two plugins because a plugin's targets tuple carries ONE def
+ * (the kernel's type-level single-target identity law): targets bind
+ * DEF OBJECTS (identity matching, context-plugin-v2) — the hook value
+ * types flow from each def (`Density | undefined` / `number`).
  *
  *   density  → the EXISTING `sm` tier. No invented paper tier — the
  *              four-tier law holds (design.md «density 接线点与值域»);
@@ -31,7 +33,7 @@
 
 import { definePlugin, type ContextEnv } from '../context-plugin.svelte';
 import { isPrintProjection } from '../medium.svelte';
-import type { Density } from '../density.svelte';
+import { DENSITY_DEF, type Density } from '../density.svelte';
 import { HUE_DEF } from '../hue-runtime.svelte';
 
 /**
@@ -46,7 +48,7 @@ export const printMediumGate = (_def: unknown, env: ContextEnv): boolean =>
 /** the density intervention: any resolved density → the existing sm tier */
 export const printDensityPlugin = definePlugin({
   name: 'jx-print-density',
-  targets: ['density'],
+  targets: [DENSITY_DEF],
   filter: printMediumGate,
   before: (value: Density | undefined): Density => {
     void value; // the print projection does not care where density came from
@@ -64,7 +66,7 @@ export const PRINT_PINNED_HUE: number = HUE_DEF.defaults();
 /** the hue intervention: pin the chained projection to the def default */
 export const printHuePlugin = definePlugin({
   name: 'jx-print-hue',
-  targets: ['hue'],
+  targets: [HUE_DEF],
   filter: printMediumGate,
   before: (value: number): number => {
     void value; // the wall-clock writer keeps writing raw; the projection pins

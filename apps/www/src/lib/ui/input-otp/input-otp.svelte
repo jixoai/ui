@@ -28,7 +28,8 @@
   import { cn } from '$lib/utils';
   import '$lib/form-field';
   import './input-otp.css';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { InputOtpDefaults } from './input-otp-defaults.svelte';
 
   interface Props extends Omit<HTMLInputAttributes, 'value' | 'type' | 'maxlength'> {
     /** form field name — the joined code submits under this name */
@@ -68,8 +69,10 @@
   }: Props = $props();
 
   const slots = $derived(Math.max(1, Math.min(12, Math.trunc(length))));
-  const outerDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels
+  const d = $derived(InputOtpDefaults.resolve({ density }));
   /** per-slot chars, source of truth; value derives from the join */
   // eager from props so SSR paints all slots (no blank first frame)
   let chars = $state<string[]>(
@@ -178,7 +181,7 @@
   onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
 ></jx-form-field>
 
-<div data-jx-otp data-density={resolvedDensity} class={cn('flex flex-col gap-[var(--jx-gap)] w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
+<div data-jx-otp data-density={d.density} class={cn('flex flex-col gap-[var(--jx-gap)] w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
     {#if label}
       <label data-jx-otp-label class="font-nav text-[length:var(--jx-text-secondary)] tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
     {/if}

@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './input-otp.svelte';
 export * from './input-otp.svelte';
+export { InputOtpDefaults } from './input-otp-defaults.svelte';

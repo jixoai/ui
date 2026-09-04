@@ -120,7 +120,8 @@
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
     import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { InputDefaults } from './input-defaults.svelte';
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
   import { icons } from '$lib/icons';
@@ -241,8 +242,10 @@
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
-  const outerDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels
+  const d = $derived(InputDefaults.resolve({ density }));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
   const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
@@ -520,9 +523,9 @@
 
 {#if isHidden}
   <!-- hidden: bare native passthrough (value rides as a plain attribute) -->
-  <input {id} {type} {value} {placeholder} {...rest} data-density={resolvedDensity} />
+  <input {id} {type} {value} {placeholder} {...rest} data-density={d.density} />
 {:else}
-  <div class="jx-field" data-density={resolvedDensity}>
+  <div class="jx-field" data-density={d.density}>
     {#if outerBlockStart}
       <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
     {:else if label && !floating}<label class="jx-label" for={id}>{label}</label>{/if}

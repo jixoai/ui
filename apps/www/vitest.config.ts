@@ -39,5 +39,13 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
     include: ['test/**/*.spec.ts'],
+    typecheck: {
+      checker: 'tsc',
+      include: ['test/**/*.spec-d.ts'],
+      // 1.0 carrier scope: assert the FIXTURE files' types only — the
+      // codebase's ~693 pre-existing source errors are not this gate's
+      // duty (surfaced 2026-09-03, first-ever repo typecheck).
+      ignoreSourceErrors: true,
+    },
   },
 });

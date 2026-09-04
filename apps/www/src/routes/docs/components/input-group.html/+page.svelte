@@ -316,7 +316,7 @@ ${close}
           props={[
             { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
             { name: 'disabled', type: 'boolean', default: 'false', description: 'THE propagation rule: native disabled on the lane + inert on every addon.' },
-            { name: 'density', type: 'Density', default: 'inherited', description: 'Density tier, provided to the subtree so addon children adopt it.' },
+            { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; the resolved tier is PROVIDED to the subtree so addon children adopt it (inherit-then-provide).' },
             { name: 'role', type: 'string', default: "'group'", description: 'The group landmark — override only when you own the semantics.' },
             { name: 'class', type: 'string', default: "''", description: 'Merged into the root shell (cn()).' },
             { name: 'children', type: 'Snippet', default: 'required', description: 'Addon + input parts, authored in your tree.', required: true },

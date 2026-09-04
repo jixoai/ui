@@ -29,6 +29,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { provideDensity, resolveDensity, getDensityContext } from '$lib/density.svelte';
+  import { ListItemDefaults } from './list-item-defaults.svelte';
   import './item.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -56,7 +57,7 @@
 
   let {
     mode = 'default',
-    inset = false,
+    inset,
     density,
     layout = 'standard',
     ruler = 'content-end',
@@ -72,9 +73,23 @@
     ...rest
   }: Props = $props();
 
-  const outerDensity = getDensityContext();
-  const resolved = $derived(resolveDensity(density, outerDensity));
+  // The CAPTURE is load-bearing and eager (r11 provider contract, the
+  // button-group form): getDensityContext() rides the $derived.by
+  // ARGUMENT subtree, which evaluates at this statement — BEFORE
+  // provideDensity writes the key — so it captures the PARENT's
+  // context (not the group's own). Reading it lazily (in the
+  // $derived initializer body, or the getter itself) would resolve
+  // the very getter it feeds — derived_references_self.
+  const resolved = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolved);
+  // the family Defaults is the single read point for the STAMPS
+  // (context-defaults-economy 3.4): the slot's ambient read lands on
+  // this group's own provided policy — exactly what the rows see,
+  // one resolution for the whole list; inset rides a literal slot
+  // (own false)
+  const d = $derived(ListItemDefaults.resolve({ inset, density }));
 
   const labelId = $derived(`${id ?? autoId}-label`);
   const resolvedDividers = $derived(
@@ -99,9 +114,9 @@
   {...rest}
   id={id}
   data-slot="item-group"
-  data-density={resolved}
+  data-density={d.density}
   data-mode={mode}
-  data-inset={inset ? 'true' : undefined}
+  data-inset={d.inset ? 'true' : undefined}
   data-layout={layout}
   class={cn('jx-item-group', className)}
   aria-labelledby={label ? labelId : undefined}
@@ -112,7 +127,7 @@
   <ul
     data-slot="item-list"
     role="list"
-    data-density={resolved}
+    data-density={d.density}
     data-ruler={ruler}
     data-dividers={resolvedDividers}
   >

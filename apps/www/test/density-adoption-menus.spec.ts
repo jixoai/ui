@@ -1,4 +1,5 @@
 import { render } from '@testing-library/svelte';
+import { flushSync } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import DropdownMenu from '../src/lib/ui/dropdown-menu/dropdown-menu.svelte';
 import Menubar from '../src/lib/ui/menubar/menubar.svelte';
@@ -7,7 +8,8 @@ import Command from '../src/lib/ui/command/command.svelte';
 import Popconfirm from '../src/lib/ui/popconfirm/popconfirm.svelte';
 import Breadcrumb from '../src/lib/ui/breadcrumb/breadcrumb.svelte';
 import NavOpinionHost from './fixtures/nav-density-opinion-host.svelte';
-import { resolveDensity } from '../src/lib/density.svelte';
+import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
+import { resolveDensity, type DensityContext } from '../src/lib/density.svelte';
 
 const empty = (() => {}) as never;
 
@@ -46,12 +48,30 @@ describe('density adoption: menu roots', () => {
   });
 
   it('resolves all four scopes without shadowing an inherited parent', () => {
-    const inherited = { density: 'lg' as const };
-    expect((['xs', 'sm', 'default', 'lg'] as const).map((density) => resolveDensity(density, inherited)))
-      .toEqual(['xs', 'sm', 'default', 'lg']);
-    expect(resolveDensity(undefined, inherited)).toBe('lg');
-    // no opinion anywhere → undefined (no stamp, ambient css scope)
-    expect(resolveDensity(undefined, undefined)).toBeUndefined();
+    // context-plugin-v2 D3-C: resolveDensity reads the plugin scope,
+    // so the resolution runs inside a component window
+    // (unit-resolve-host — rootless, the identity path)
+    const inherited: DensityContext = { density: 'lg' };
+    const holder: { value?: unknown; error?: unknown } = {};
+    render(UnitResolveHost, {
+      props: {
+        compute: () => [
+          ...(['xs', 'sm', 'default', 'lg'] as const).map((density) =>
+            resolveDensity(density, inherited),
+          ),
+          resolveDensity(undefined, inherited),
+          // no opinion anywhere → undefined (no stamp, ambient css scope)
+          resolveDensity(undefined, undefined),
+        ],
+        onvalue: (value, error) => {
+          holder.value = value;
+          holder.error = error;
+        },
+      },
+    });
+    flushSync();
+    expect(holder.error).toBeUndefined();
+    expect(holder.value).toEqual(['xs', 'sm', 'default', 'lg', 'lg', undefined]);
   });
 });
 

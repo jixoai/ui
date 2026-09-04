@@ -1,5 +1,16 @@
 # Design: context-plugin-system (r2)
 
+> **SUPERSEDED in part (2026-09-04, reconcile r2)**: the def model
+> below is the string-key form (`ContextDef<K extends string, T>` +
+> `targets.includes(def.key)`). The shipped kernel
+> (`registry/files/lib/context-plugin.svelte.ts`, change
+> 2026-09-03-context-plugin-v2) is def-OBJECT identity — branded
+> `ContextDef` products, `definePlugin` targets bind def objects,
+> matching is SameValueZero identity, never a string comparison
+> (spec: openspec/specs/context-plugin/spec.md). The onion hook
+> model and env vocabulary below remain the governing intent; only
+> the identity mechanism aged out.
+
 r1 评审 codex-plan-review-print-r1.md 五阻塞全闭合；裁决记录标 [r1-n]。
 
 ## 类型域与身份 [r1-1]

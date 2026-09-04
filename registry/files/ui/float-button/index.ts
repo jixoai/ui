@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './float-button.svelte';
 export * from './float-button.svelte';
+export { FloatButtonDefaults, type FloatButtonSurfaceVariant } from './float-button-defaults.svelte';

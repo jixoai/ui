@@ -14,3 +14,4 @@ export { default as CommandGroup } from './command-group.svelte';
 export * from './command-group.svelte';
 export { default as CommandItem } from './command-item.svelte';
 export * from './command-item.svelte';
+export { CommandDefaults, type CommandSurfaceVariant } from './command-defaults.svelte';

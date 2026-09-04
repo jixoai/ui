@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './chip.svelte';
 export * from './chip.svelte';
+export { ChipDefaults, type ChipVariant, type ChipShape } from './chip-defaults.svelte';

@@ -67,7 +67,7 @@
     markOpen(panelId: string): void;
     markClosed(panelId: string): void;
     /** floating-surface variant for every panel in the bar */
-    readonly variant: 'solid' | 'acrylic' | 'auto';
+    readonly variant: import('./navigation-menu-defaults.svelte').NavigationMenuSurfaceVariant;
   }
 
   /** context key — global symbol registry (independent registry items) */
@@ -80,6 +80,7 @@
   import { setContext } from 'svelte';
   import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './navigation-menu-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     density?: Density;
@@ -87,12 +88,12 @@
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+    variant?: NavigationMenuSurfaceVariant;
     class?: string;
     children: Snippet;
   }
 
-  let { label = 'site', density, variant = 'auto', class: className = '', children, ...rest }: Props = $props();
+  let { label = 'site', density, variant, class: className = '', children, ...rest }: Props = $props();
 
   // Density stamping law (chrome-density-tier, 2026-08-26): the CSS
   // scope channel stamps ONLY an OPINION — the attribute lands when the
@@ -103,15 +104,36 @@
   // inheritance off. The context channel mirrors the law: no opinion →
   // nothing provided, so nested consumers never see a manufactured
   // inheritance.
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  //
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // Both CAPTURES are load-bearing and EAGER (r11 first contract,
+  // context-defaults-economy 3.3): each getDensityContext() rides a
+  // $derived.by ARGUMENT subtree, which evaluates at its own statement —
+  // BEFORE provideDensity writes the key below — so each captures the
+  // PARENT's context object; a lazily-evaluated read would resolve the
+  // key to the nav's OWN write and self-reference through the very
+  // getter it feeds (derived_references_self — the pre-3.3 bare capture
+  // this replaces). The returned getters read ONLY the captured object
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   // context is an OPINION channel too: the provider is ALWAYS on and
   // carries the honest opinion (undefined = none flows down — consumed
   // exactly like a missing context) — a conditional init-time provide
   // would not survive density prop rerenders in either direction
   // (Codex r2 P1)
-  const densityOpinion = $derived(density ?? inheritedDensity?.density);
+  const densityOpinion = $derived.by(
+    ((inherited) => () => density ?? inherited?.density)(getDensityContext()),
+  );
   provideDensity(() => densityOpinion);
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
+  // TOP of the provider lane as the family's single audited read point:
+  // the density slot's ambient read resolves the key to the nav's own
+  // write, whose getter is the captured-parent opinion above, so the
+  // chain TERMINATES; variant resolves through the literal slot (own
+  // 'auto' declared in NavigationMenuDefaults, auditable in one place)
+  const d = $derived(NavigationMenuDefaults.resolve({ density, variant }));
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -174,7 +196,7 @@
       if (openPanelId === panelId) openPanelId = '';
     },
     get variant() {
-      return variant;
+      return d.variant;
     },
   });
 
@@ -230,7 +252,7 @@
   data-jx-navmenu=""
   class={cn('flex flex-wrap items-stretch gap-1', className)}
   {...rest}
-  data-density={densityOpinion}
+  data-density={d.density}
   aria-label={label}
   onkeydown={handleKeydown}
 >

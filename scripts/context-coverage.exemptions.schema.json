@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "context-coverage.exemptions.schema.json",
+  "title": "context coverage gate — exemptions whitelist + config mirror",
+  "description": "Machine-checkable documentation for scripts/context-coverage.exemptions.json (and, via /definitions/configMirror, the shape contract of scripts/context-coverage.config.json). The five kinds are the ONE exemption list (design X2-5/X6-8): prop-level kinds (bindable / passthrough / no-style / roadmap) exempt a vocabulary-hit prop from the Defaults existence + slot-coverage assertions ONLY; kind provider exempts a FILE from the legacy-helper bypass check ONLY (statically bounded to two reactive-declaration subtrees — provider-call argument subtrees and $derived initializer subtrees — see verify-context-coverage.mjs). A provider entry NEVER exempts Defaults existence, slot coverage, or resolve presence.",
+  "type": "object",
+  "required": ["version", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/entry" }
+    }
+  },
+  "definitions": {
+    "entry": {
+      "type": "object",
+      "required": ["path", "kind", "reason"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^registry/files/",
+          "description": "Repo-root-relative path (relative to the tree the gate runs over — the fixture roots carry their own copies). Must point at a real file; entries that never match a finding are stale and FAIL the gate (assertion 6)."
+        },
+        "kind": {
+          "enum": ["bindable", "passthrough", "no-style", "provider", "roadmap"],
+          "description": "bindable: $bindable page-owned state toggle (class d). passthrough: prop forwarded verbatim to a child family's contract. no-style: vocabulary hit that is not a style prop. provider: inherit-then-provide container — legacy helpers legal ONLY inside provider-call argument subtrees or $derived initializer subtrees. roadmap: class-c prop awaiting its axis (appendix protocol)."
+        },
+        "prop": {
+          "type": "string",
+          "description": "Required for every prop-level kind (all but provider). Must be a vocabulary word the file actually declares, else the entry is stale."
+        },
+        "targetAxis": {
+          "type": "string",
+          "description": "Required for roadmap entries only — the future axis this prop is registered against (e.g. elevation, shape)."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Non-empty justification; empty reasons FAIL the gate and the exemption does not apply (fail-closed)."
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date",
+          "description": "Optional ISO date; past dates expire the entry (finding fires, exemption no longer applies)."
+        }
+      }
+    },
+    "configMirror": {
+      "type": "object",
+      "description": "Shape contract of scripts/context-coverage.config.json. version 1 fields: vocabulary (EXACT enumeration — the pinned detection vocabulary), paintVariantUnion (the shared paint axis union), slotFactories (registered factories with genericity + arity), legacyHelpers + axisContextKeys (banned bypass channels), frozenAvailability (mirror of the variant grammar's frozen table §4 — bidirectional-equality reference for paintSlot values), pilotFamilies (the --scope=pilot subset, tasks 2.x)."
+    }
+  }
+}

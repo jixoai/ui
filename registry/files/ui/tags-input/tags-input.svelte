@@ -98,7 +98,8 @@
   import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { TagsInputDefaults, type TagsInputSurfaceVariant } from './tags-input-defaults.svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
   import './tags-input.css';
 
@@ -128,8 +129,9 @@
     disabled?: boolean;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency; the bezel fill
-        follows the variant through the jx-surface fill props) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        follows the variant through the jx-surface fill props);
+        omitted → the contract's own 'auto' (TagsInputDefaults) */
+    variant?: TagsInputSurfaceVariant;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -148,7 +150,7 @@
     maxTags,
     allowDuplicates = false,
     disabled = false,
-    variant = 'auto',
+    variant,
     class: className = '',
     ...rest
   }: Props = $props();
@@ -165,8 +167,10 @@
   );
 
   const errorId = $derived(`${id}-error`);
-  const outerDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): variant rides the literal slot (own 'auto', ambient
+  // when a surface axis opens), density the no-opinion axis slot
+  const d = $derived(TagsInputDefaults.resolve({ variant, density }));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -371,7 +375,7 @@
   });
 </script>
 
-<div class="jx-field" data-density={resolvedDensity}>
+<div class="jx-field" data-density={d.density}>
   <!-- faceless form bridge (form-field.ts law): the tag VALUES ride
        ElementInternals into FormData as one JSON array string; the
        typing input carries NO name. jx-reset / jx-disabled bubble the
@@ -465,8 +469,8 @@
     id={panelId}
     popover="auto"
     class={cn('jx-tags-panel jx-surface', motion.supported && 'jx-waapi')}
-    data-variant={variant}
-    data-density={resolvedDensity}
+    data-variant={d.variant}
+    data-density={d.density}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >

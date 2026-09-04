@@ -122,6 +122,7 @@
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
   import { cn } from '$lib/utils';
+  import { TooltipDefaults, type TooltipSurfaceVariant } from './tooltip-defaults.svelte';
   import './tooltip.css';
 
   interface Props {
@@ -147,8 +148,9 @@
         the environment asks for reduced transparency). The shadow rides
         the law's static ::after veil, masked to the notch silhouette
         and offset to the panel's outward side (aimPin sets
-        --jx-surface-ox/oy at open). */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        --jx-surface-ox/oy at open). Omitted → the contract own 'auto'
+        (TooltipDefaults — a declared own, not ambient). */
+    variant?: TooltipSurfaceVariant;
     class?: string;
     /** the trigger content; the wrapper span carries the anchoring */
     children: Snippet;
@@ -163,10 +165,17 @@
     arrow = false,
     openDelay = 0,
     closeDelay = 100,
-    variant = 'auto',
+    variant,
     class: className = '',
     children,
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2): one line —
+  // the family contract resolves the panel's style props (variant's
+  // own 'auto' lives in TooltipDefaults, auditable in one place;
+  // density is the no-opinion axis slot — nothing stamps, the ambient
+  // css scope channel keeps flowing)
+  const d = $derived(TooltipDefaults.resolve({ variant }));
 
   // id is mount-stable by contract; $derived keeps the name truthful
   const anchorName = $derived(`--jx-tip-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -661,7 +670,7 @@
   popover="manual"
   role="tooltip"
   class="jx-tip jx-surface jx-waapi fixed w-fit max-w-[min(80vw,18rem)] text-xs leading-[1.5] text-center text-popover-foreground"
-  data-variant={variant}
+  data-variant={d.variant}
   data-arrow={arrow ? '' : undefined}
   data-border-ring={arrow ? '' : undefined}
   bind:this={panel}

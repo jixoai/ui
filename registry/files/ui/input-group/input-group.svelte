@@ -69,6 +69,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
+  import { InputGroupDefaults } from './input-group-defaults.svelte';
   import { cn } from '$lib/utils';
   import './input-group.css';
 
@@ -103,9 +104,29 @@
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // The CAPTURE is load-bearing and eager (r11 provider contract, the
+  // button-group precedent): getDensityContext() rides the $derived.by
+  // ARGUMENT subtree, which evaluates at this statement — BEFORE
+  // provideDensity writes the key — so it captures the PARENT's context
+  // object. A lazily-evaluated read (a plain $derived initializer body,
+  // or the getter itself) would resolve the key to the group's OWN
+  // write and self-reference through the very getter it feeds —
+  // derived_references_self. The returned getter reads ONLY the
+  // captured object (reactive through its getters, never re-entering
+  // the context machinery)
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+
+  // The family Defaults rides ON TOP of the provider lane as the
+  // group's single read point (its own stamp — the audited ambient
+  // face): the density slot's ambient read resolves the key to the
+  // group's own write, whose getter is the captured-parent resolution
+  // above, so the chain TERMINATES (it never re-enters this derived)
+  // and lands the same value on every lane
+  const d = $derived(InputGroupDefaults.resolve({ density }));
 
   setContext<InputGroupApi>(INPUT_GROUP_KEY, {
     get disabled() {
@@ -118,7 +139,7 @@
   {...rest}
   {role}
   data-jx-igroup
-  data-density={resolvedDensity}
+  data-density={d.density}
   aria-label={ariaLabel ?? label}
   class={cn(
     'flex items-stretch w-full max-w-full min-h-[var(--jx-hit)] border border-border rounded-none bg-background transition-[box-shadow] duration-150 ease-out',

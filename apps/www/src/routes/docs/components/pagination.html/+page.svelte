@@ -243,7 +243,7 @@ ${close}
     <SectionCard eyebrow="api" title="Props" summary="The root and links carry the core public contract; composition supplies list structure and page-window policy.">
       <div class="flex flex-col gap-6">
         <PropsTable title="Pagination" props={[
-          { name: 'density', type: 'Density', default: 'inherited', description: 'Overrides the surrounding density scale.' },
+          { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
           { name: 'label', type: 'string', default: "'Pagination'", description: 'Accessible nav landmark name.' },
           { name: 'children', type: 'Snippet', required: true, description: 'Composed pagination parts.' },
         ]} />

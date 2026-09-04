@@ -7,6 +7,7 @@ const toc: TocSection[] = [
   { id: 'install', label: 'Install' },
   { id: 'btngroup-demo', label: 'live demo' },
   { id: 'usage', label: 'Usage' },
+  { id: 'variant-scope', label: 'ButtonVariantScope — the zone half' },
   { id: 'examples', label: 'Examples' },
   { id: 'btngroup-nesting', label: 'with nested clusters' },
   { id: 'btngroup-boundary', label: 'the toggle-group boundary' },

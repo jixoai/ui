@@ -41,9 +41,13 @@
  * environment truth, not an opinion to resolve.
  */
 import { getContext, setContext } from 'svelte';
-import type { ContextDef } from './context-plugin.svelte';
+import { defineReadOnlyContextDef } from './context-plugin.svelte';
+import type { MediumState, ReadOnlyContextDef } from './context-plugin.svelte';
 
-export type MediumState = 'screen' | 'sim' | 'print';
+// the env vocabulary moved INTO the kernel (context-plugin-v2 D2 — the
+// kernel imports no provider, so it owns the shared word). Reverse
+// re-export keeps every existing MediumState consumer zero-change.
+export type { MediumState };
 
 /** The sim stamp attribute — the DOM side of the second signal source. */
 export const PRINT_SIM_ATTR = 'data-jx-print-sim' as const;
@@ -51,18 +55,19 @@ export const PRINT_SIM_ATTR = 'data-jx-print-sim' as const;
 /**
  * The medium's context-plugin def — a READ-ONLY value domain: the
  * derived MediumState string projection (context-plugin-system,
- * 2026-08-30). Plugins can never target 'medium' — definePlugin
- * rejects it at the type level and at runtime, and the plugin root's
- * registration guard re-checks it — the medium is environment truth,
- * not an opinion to intervene on. The def exists so the kernel's
- * ContextEnv can read the projection (env.medium) under the same
- * vocabulary every other context uses.
+ * 2026-08-30; def factory v2, 2026-09-03). Plugins can never target it
+ * — definePlugin rejects a ReadOnlyContextDef at the type level and at
+ * runtime (the READ_ONLY registry), and the plugin root's registration
+ * guard re-checks it — the medium is environment truth, not an opinion
+ * to intervene on. The annotation MUST stay the factory's return type
+ * (never a plain ContextDef): widening it would erase the read-only
+ * branch and defuse definePlugin's rejection lane.
  */
-export const MEDIUM_DEF: ContextDef<'medium', MediumState> = {
+export const MEDIUM_DEF: ReadOnlyContextDef<'medium', MediumState> = defineReadOnlyContextDef({
   key: 'medium',
   defaults: () => 'screen',
   ssrSafe: 'screen',
-};
+});
 
 /**
  * The pure derived reducer (the whole state machine in one

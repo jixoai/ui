@@ -23,6 +23,7 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import ButtonGroupDivider from '$lib/ui/button-group/button-group-divider.svelte';
+  import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import buttonGroupSource from '$lib/ui/button-group/button-group.svelte?raw';
@@ -105,7 +106,7 @@ ${close}
         headerRegion="install"
         eyebrow="install"
         title="Install"
-        summary="One registry item — the group and the divider ship together (the barrel exports both). Buttons come from press-button."
+        summary="One registry item — the group, the divider and the variant scope ship together (the barrel exports all three, plus the Defaults object). Buttons come from press-button."
       >
         <CodeBlock code={`npx jixoai-ui add button-group`} lang="sh" meta="install" />
       </SectionCard>
@@ -178,6 +179,67 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="variant-scope" data-reveal="">
+    <SectionCard
+      family="variant-scope"
+      headerRegion="variant-scope"
+      eyebrow="the zone half"
+      title="ButtonVariantScope — change the default, not the layout"
+      summary="The family's second face: a zero-DOM context boundary. ButtonGroup is layout + zone (the join, the seams); ButtonVariantScope is the zone alone — what Dialog wraps around its head and foot content so every PressButton and IconButton inside, joined or free-floating, defaults to the scope's variant while keeping its own placement. A button's explicit variant still wins (explicit ?? ambient ?? own), and a ButtonGroup inside inherits the scope's variant when it sets none of its own (inherit-then-provide). Renders its children and nothing else — no element, no paint, no seams."
+    >
+      <div class="flex flex-col gap-5">
+        <div class="grid grid-cols-1 gap-5 min-[760px]:grid-cols-2">
+          <div class="flex flex-col gap-3">
+            <p class="m-0 font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">the scope — zone only</p>
+            <div class="flex flex-wrap items-center gap-3">
+              <PressButton>lone — outline</PressButton>
+              <ButtonVariantScope variant="ghost">
+                <div class="flex flex-wrap items-center gap-3">
+                  <PressButton>adopts ghost</PressButton>
+                  <PressButton>adopts ghost</PressButton>
+                  <PressButton variant="fill">keeps fill</PressButton>
+                </div>
+              </ButtonVariantScope>
+            </div>
+            <span class="text-muted-foreground text-[12.5px]">free-floating: no seams, no group — only the default changed; the lone button outside never saw the zone.</span>
+            <p class="m-0 font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">the group — zone + join</p>
+            <ButtonGroup variant="ghost" label="row actions">
+              <PressButton>adopts ghost</PressButton>
+              <PressButton variant="fill">keeps fill</PressButton>
+            </ButtonGroup>
+            <span class="text-muted-foreground text-[12.5px]">same zone, plus the hairline join — one component when both are wanted.</span>
+          </div>
+          <div class="flex flex-col gap-3">
+            <CodeBlock
+              code={`<script lang="ts">
+  import PressButton from '@ui/press-button/press-button.svelte';
+  import { ButtonVariantScope } from '@ui/button-group/index';
+</script>
+
+<!-- the zone, layout-free — nothing renders but the buttons. Every
+     PressButton / IconButton inside that passes no variant adopts
+     ghost; an explicit variant always wins. Dialog's head and foot
+     zones use exactly this scope (dialog.svelte, real source). -->
+<ButtonVariantScope variant="ghost">
+  <PressButton>adopts ghost</PressButton>
+  <PressButton variant="fill">keeps fill</PressButton>
+</ButtonVariantScope>`}
+              lang="svelte"
+              meta="the scope — copy-paste"
+            />
+            <span class="text-muted-foreground text-[12.5px]">link is NOT a zone value — <code>variant="link"</code> is a compile error; the interaction exception keeps its only route through PressButton's own explicit prop.</span>
+          </div>
+        </div>
+        <PropsTable
+          props={[
+            { name: 'ButtonVariantScope · variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: '—', description: 'The variant buttons in this subtree adopt when they set none (ZonePaintVariant — link excluded by the union itself).' },
+            { name: 'ButtonVariantScope · children', type: 'Snippet', default: 'required', description: 'The scoped subtree — rendered as-is; the scope adds NO element, no paint, no seams.', required: true },
+          ]}
+        />
+      </div>
+    </SectionCard>
+  </div>
+
   <div id="examples" data-reveal="">
     <SectionCard
       family="examples"
@@ -235,7 +297,7 @@ ${close}
       title="the toggle-group boundary — selection is not this component"
       summary="A button group is ACTION-ONLY: press, effect, navigate — no pressed state, no active value, no form payload. The moment the children express SELECTION, the segmented-selection law applies and the component is toggle-group (native radios/checkboxes under one name — native exclusivity, arrow-walk, FormData). The two may look similar when joined; the difference is semantic, not paint: aria-pressed (or a pressed style) on these buttons is the recorded divergence trap."
     >
-      <div class="grid gap-5 min-[760px]:grid-cols-2">
+      <div class="grid grid-cols-1 gap-5 min-[760px]:grid-cols-2">
         <div class="flex flex-col gap-3">
           <p class="font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">actions → button-group</p>
           <ButtonGroup label="export actions">
@@ -297,9 +359,10 @@ ${close}
           { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'The join axis; carries the valued data-jx-btngroup hook.' },
           { name: 'justify', type: "'start' | 'center' | 'end'", default: "'start'", description: 'Cluster placement on the main axis.' },
           { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
+          { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: 'ambient zone', description: 'The GROUP rung adopted by every child button that passes none of its own (explicit always wins; no rung is minted — context selects). Omitted → the enclosing scope’s variant (inherit-then-provide, r14-10); link is not a zone value — it stays reachable only through PressButton’s own explicit prop.' },
           { name: 'separator', type: 'boolean', default: 'ghost ⇒ true', description: 'The seam policy: a 1px contrast-ghost separator in every collapsed seam slot. DEFAULT on when the group’s EFFECTIVE variant (own prop, else the inherited scope) is ghost — the borderless row has no other seam.' },
           { name: 'leadingSeam', type: 'boolean', default: 'false', description: 'The cluster’s opening bracket (r14-13): paint the seam in the leading slot too — the first button’s own flush ::before, never a sibling element a parent gap could detach. Only paints under an active seam policy (the dialog footer’s actions region is the canonical consumer).' },
-          { name: 'density', type: 'Density', default: 'inherited', description: 'Density tier, provided to the subtree so joined buttons adopt it.' },
+          { name: 'density', type: 'Density', default: 'ambient scope', description: 'Density tier, provided to the subtree so joined buttons adopt it: explicit ?? the ambient scope (no opinion stamps nothing).' },
           { name: 'role', type: 'string', default: "'group'", description: 'The group role — a labeled toolbar is the consumer’s explicit override.' },
           { name: 'class', type: 'string', default: "''", description: 'Merged into the root (cn()).' },
           { name: 'children', type: 'Snippet', default: 'required', description: 'The joined controls — authored in your tree.', required: true },
@@ -348,6 +411,7 @@ ${close}
     >
       <div class="flex flex-wrap gap-3">
         <a class="pill" href="/docs/components/press-button.html">press-button — the joined buttons</a>
+        <a class="pill" href="/docs/context-defaults.html">context &amp; defaults — the ambient economy</a>
         <a class="pill" href="/docs/components/toggle-group.html">toggle-group — the SELECTION law</a>
         <a class="pill" href="/docs/components/toggle.html">toggle — one standalone pressed state</a>
         <a class="pill" href="/docs/components/input-group.html">input-group — the joined field shell</a>

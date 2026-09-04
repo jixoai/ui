@@ -60,12 +60,16 @@
     ONE idiom, deliberately — declarative state toggles would invite
     half-wired two-step buttons.
 
-  GROUP CONTEXT (r13, ButtonGroup upgrade): inside a ButtonGroup the
-  button ADOPTS the group's variant when the consumer passes none —
-  `explicit ?? group ?? 'outline'` (the stamped-attribute law's
-  consumer face: an explicit prop ALWAYS wins, the group config is
-  the inherited default, the own default never changes). The ladder
-  itself is untouched — context selects a rung, never mints one.
+  GROUP CONTEXT (r13, ButtonGroup upgrade; the Defaults read since
+  context-defaults-economy 2.1): inside a ButtonGroup the button
+  ADOPTS the group's variant when the consumer passes none —
+  `explicit ?? ambient ?? 'outline'`, resolved through
+  PressButtonDefaults (the family's single read point): the ambient
+  lane reads the ONE paint zone key (the stamped-
+  attribute law's consumer face: an explicit prop ALWAYS wins, the
+  zone/group config is the inherited default, the own default never
+  changes). The ladder itself is untouched — context selects a rung,
+  never mints one.
 
   tw4 (2026-08-24): the button body was already utility-authored
   (variants + the --jx-press* pose wiring ride utilities — the press
@@ -77,10 +81,18 @@
   (relative z-0) became utilities.
 -->
 <script module lang="ts">
+  import type { pressButtonVariantSlot } from './press-button-defaults.svelte';
+
   /** the prominence ladder + the one interaction exception (link) —
-   *  the variant grammar's whole button union; pass-through consumers
-   *  (icon-button) import this instead of re-declaring it */
-  export type PressButtonVariant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link';
+   *  the variant grammar's whole button union. The VALUE DOMAIN
+   *  belongs to the paint axis since context-defaults-economy 1.2
+   *  (lib/paint.svelte owns the wide PaintVariant); since
+   *  slot-values-first the alias points at the FAMILY slot's
+   *  ReturnType — pressButtonVariantSlot's five-value tuple is the
+   *  union's single declaration point (声明点唯一化), and
+   *  pass-through consumers (icon-button) keep importing this —
+   *  lib→ui stays a one-way street, ui→lib is the legal direction */
+  export type PressButtonVariant = ReturnType<typeof pressButtonVariantSlot>;
 
   /** the zone texture context: a subtree-scoped default for the
    *  physics axis, written by ButtonVariantScope (the same zero-DOM
@@ -210,21 +222,24 @@
 </script>
 
 <script lang="ts">
-  import { onDestroy, getContext } from 'svelte';
+  import { getContext, onDestroy } from 'svelte';
   import type { Snippet } from 'svelte';
   import { icons } from '$lib/icons';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
-  import { BUTTON_GROUP_KEY, type ButtonGroupApi } from '$lib/ui/button-group/button-group.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { PressButtonDefaults } from './press-button-defaults.svelte';
   import { createRipple } from './ripple.svelte';
   import './press-button.css';
 
   interface Props {
-    /** DENSITY override: explicit ?? inherited ?? default */
+    /** DENSITY override: explicit ?? ambient ?? no-opinion — resolved
+     *  through PressButtonDefaults (the family contract); undefined
+     *  stamps nothing and the ambient css scope channel flows */
     density?: Density;
     /** the ladder rung; semantic hue is injected through the grammar
      *  tokens (--jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline) at
-     *  the call site, never a variant. Inside a ButtonGroup an absent
-     *  prop ADOPTS the group's variant (explicit always wins) */
+     *  the call site, never a variant. Ambient-manageable: an absent
+     *  prop adopts the paint zone's rung (a ButtonGroup or variant
+     *  scope), else the frozen own 'outline' — explicit always wins */
     variant?: PressButtonVariant;
     /** built by shimmer() / pulse() / rainbow() / ripple() — one loop per button */
     effect?: PressEffect;
@@ -287,12 +302,20 @@
     children,
   }: Props = $props();
 
-  // the group context is read ONCE at init (the density pattern); the
-  // api's getters keep the read reactive under rerenders. explicit
-  // prop → the group's variant → the own 'outline' default: the
+  // THE single read point (context-defaults-economy 2.1): the family
+  // Defaults resolves every style prop in one $derived window — the
+  // paint slot's ambient lane reads the zone key → the legacy
+  // ButtonGroup fallback inside THIS component's dependency graph
+  // (getter-endorsed: a parent variant flip re-derives the stamp in
+  // the same frame), the density slot wraps resolveDensity's full
+  // semantics (plugin chain included, no-opinion stays undefined).
+  // explicit prop → ambient → the frozen own 'outline': the
   // stamped-attribute law's consumer face (explicit ALWAYS wins)
-  const group = getContext<ButtonGroupApi | undefined>(BUTTON_GROUP_KEY);
-  const resolvedVariant = $derived(variant ?? group?.variant ?? 'outline');
+  const d = $derived(PressButtonDefaults.resolve({ variant, density }));
+  // the flat-pose block reads the resolved variant through this alias —
+  // same value as d.variant, named beside resolvedRaised for the
+  // pose-vs-texture pairing
+  const resolvedVariant = $derived(d.variant);
 
   // the zone texture context — same read-once pattern, its own key (a
   // joined ButtonGroup never shadows physics, see the module comment).
@@ -325,9 +348,6 @@
   onDestroy(() => {
     if (flashTimer !== undefined) clearTimeout(flashTimer);
   });
-
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
 
   // the square swaps ONLY geometry: one band (42px, the text button's
   // own height) with the glyph centered — paint, physics and effects
@@ -505,8 +525,8 @@
     aria-label={ariaLabel}
     aria-disabled={loading ? 'true' : undefined}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
-    data-density={resolvedDensity}
-    data-jx-press-button={resolvedVariant}
+    data-density={d.density}
+    data-jx-press-button={d.variant}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}
     data-jx-ripple-host={effect?.type === 'ripple' ? '' : undefined}
@@ -525,8 +545,8 @@
     aria-label={ariaLabel}
     aria-disabled={loading ? 'true' : undefined}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
-    data-density={resolvedDensity}
-    data-jx-press-button={resolvedVariant}
+    data-density={d.density}
+    data-jx-press-button={d.variant}
     popovertarget={popovertarget}
     data-jx-shimmer-host={effect?.type === 'shimmer' ? '' : undefined}
     data-jx-pulse-host={effect?.type === 'pulse' ? '' : undefined}

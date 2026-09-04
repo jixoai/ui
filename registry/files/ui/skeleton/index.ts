@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './skeleton.svelte';
 export * from './skeleton.svelte';
+export { SkeletonDefaults } from './skeleton-defaults.svelte';

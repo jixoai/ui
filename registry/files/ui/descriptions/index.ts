@@ -5,3 +5,4 @@ export { default } from './descriptions.svelte';
 export * from './descriptions.svelte';
 export { default as DescriptionsItem } from './descriptions-item.svelte';
 export * from './descriptions-item.svelte';
+export { DescriptionsDefaults } from './descriptions-defaults.svelte';

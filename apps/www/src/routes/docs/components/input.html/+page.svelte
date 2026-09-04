@@ -710,7 +710,7 @@
           { name: 'picker', type: 'Snippet', default: '—', description: 'Replaces the default embedded panel for any picker type (number is not a panel type); its ctx carries value, commit and close.' },
           { name: 'onselect', type: '(value: string) => void', default: '—', description: 'Fires when a custom panel commits a selection (date day-pick, color swatch…).' },
           { name: 'value', type: 'string | number', default: '—', description: 'Bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true },
-          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'inherited', description: 'Overrides the inherited density scope.' },
+          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
           { name: 'innerInlineStart', type: 'Snippet', default: '—', description: 'Inside the shell, left of the lane (prefix icon / unit).' },
           { name: 'innerInlineEnd', type: 'Snippet', default: '—', description: 'Inside the shell, right of the lane (suffix / unit / action).' },
           { name: 'outerBlockStart', type: 'Snippet', default: '—', description: 'Outside the shell, above — replaces the label row when given.' },

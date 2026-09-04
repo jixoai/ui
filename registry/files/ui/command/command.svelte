@@ -59,17 +59,10 @@
   (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts" module>
-  /** the match payload: label is REQUIRED — match text + accessible name */
-  export interface CommandMatchItem {
-    label: string;
-    /** extra match text (descriptions, aliases); never displayed */
-    keywords?: string;
-  }
-
-  /** the frozen match contract (composition-first-apis): a pure
-   *  inclusion predicate — it may only answer visible/hidden, never
-   *  reorder. Authored tree order is the walk order. */
-  export type CommandMatch = (item: CommandMatchItem, query: string) => boolean;
+  // the match contract lives lib-side now (r10/A5): re-exported here —
+  // ui→lib is the legal import direction, existing consumers unchanged.
+  import type { CommandMatch, CommandMatchItem } from '$lib/command-match';
+  export type { CommandMatch, CommandMatchItem };
 
   /** default match — the old ranking's boolean projection: the
    *  disjunction of text relations over the case-insensitive,
@@ -135,6 +128,7 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { CommandDefaults, type CommandSurfaceVariant } from './command-defaults.svelte';
   import './command.css';
 
   interface Props extends HTMLAttributes<HTMLDialogElement> {
@@ -156,8 +150,10 @@
     /** keep the palette open after a select (batch actions) */
     closeOnSelect?: boolean;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
-        the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        the environment asks for reduced transparency). Omitted → the
+        contract own 'auto' (CommandDefaults — a declared own, not
+        ambient) */
+    variant?: CommandSurfaceVariant;
     class?: string;
     children: Snippet;
   }
@@ -174,15 +170,35 @@
     density,
     match,
     closeOnSelect = true,
-    variant = 'auto',
+    variant,
     class: className = '',
     children,
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // (the button-group r11 idiom) The CAPTURE is load-bearing and
+  // eager: getDensityContext() rides the $derived.by ARGUMENT subtree,
+  // which evaluates at this statement — BEFORE provideDensity writes
+  // the key — so it captures the PARENT's context object. A lazily-
+  // evaluated read would resolve the key to the palette's OWN write
+  // and self-reference through the very getter it feeds
+  // (derived_references_self, pinned in defaults-buttons.spec). The
+  // CommandApi below keeps exposing this resolved value — the family
+  // STATE context is untouched by the migration
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2) — ON TOP
+  // of the provider lane (the button-group law): the density slot's
+  // ambient read resolves the key to this palette's OWN write, whose
+  // getter is the captured-parent resolution above, so the chain
+  // TERMINATES (it never re-enters this derived) and lands the same
+  // values on every lane; variant's own 'auto' lives in
+  // CommandDefaults, auditable in one place
+  const d = $derived(CommandDefaults.resolve({ variant, density }));
 
   let dialog = $state<HTMLDialogElement | null>(null);
   let inputEl = $state<HTMLInputElement | null>(null);
@@ -374,9 +390,9 @@
     motion.supported && 'jx-waapi',
     className,
   )}
-  data-variant={variant}
+  data-variant={d.variant}
   {...rest}
-  data-density={resolvedDensity}
+  data-density={d.density}
   aria-label={label}
   oncancel={handleCancel}
   onclose={handleClose}

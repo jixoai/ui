@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './file-input.svelte';
 export * from './file-input.svelte';
+export { FileInputDefaults, type FileInputVariant } from './file-input-defaults.svelte';

@@ -94,7 +94,8 @@
   import { onDestroy, type Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { ColorPickerDefaults, type ColorPickerSurfaceVariant } from './color-picker-defaults.svelte';
   import Editor from './editor.svelte';
   import './color-picker.css';
   import { formatColor, parseColor, type ColorFormat, type Oklch } from '$lib/color-utils';
@@ -118,8 +119,9 @@
     disabled?: boolean;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency; the bezel fill
-        follows the variant through the jx-surface fill props) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        follows the variant through the jx-surface fill props);
+        omitted → the contract's own 'auto' (ColorPickerDefaults) */
+    variant?: ColorPickerSurfaceVariant;
     /** mount the native input[type=color] swatch (default true) — the
         engine picker path on the lane */
     showSwatch?: boolean;
@@ -160,7 +162,7 @@
     showValue = true,
     lane = undefined,
     id = autoId,
-    variant = 'auto',
+    variant,
     class: className = '',
     density,
     'data-density': _callerDensity,
@@ -169,8 +171,10 @@
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): variant rides the literal slot (own 'auto', ambient
+  // when a surface axis opens), density the no-opinion axis slot
+  const d = $derived(ColorPickerDefaults.resolve({ variant, density }));
 
   const panelId = $derived(`${id}-panel`);
   // CSS custom-ident-safe anchor name (select.svelte law)
@@ -320,7 +324,7 @@
   onDestroy(() => motion.destroy());
 </script>
 
-<div data-density={resolvedDensity} class={'jx-field ' + className}>
+<div data-density={d.density} class={'jx-field ' + className}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
 
   <!-- the trigger lane: the shell owns the box law (input.svelte law);
@@ -401,7 +405,7 @@
     id={panelId}
     popover="auto"
     class={cn('jx-color-picker-panel jx-surface', motion.supported && 'jx-waapi')}
-    data-variant={variant}
+    data-variant={d.variant}
     role="group"
     aria-label="color picker"
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"

@@ -44,7 +44,8 @@
   import type { HTMLSelectAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { NativeSelectDefaults } from './native-select-defaults.svelte';
 
   interface Props extends HTMLSelectAttributes {
     /** field label; renders label[for] above the control */
@@ -77,14 +78,16 @@
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
-  const outerDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels
+  const d = $derived(NativeSelectDefaults.resolve({ density }));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
 </script>
 
-<div class="jx-field" data-density={resolvedDensity}>
+<div class="jx-field" data-density={d.density}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <span class="jx-select-wrap relative block w-full max-w-full">
     <select

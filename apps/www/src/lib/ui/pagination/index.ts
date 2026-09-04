@@ -18,3 +18,4 @@ export * from './pagination-next.svelte';
 export { default as PaginationEllipsis } from './pagination-ellipsis.svelte';
 export * from './pagination-ellipsis.svelte';
 export * from './pagination-range';
+export { PaginationDefaults } from './pagination-defaults.svelte';

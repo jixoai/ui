@@ -16,7 +16,8 @@
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { ToggleDefaults } from './toggle-defaults.svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLInputAttributes {
@@ -47,12 +48,14 @@
     ...rest
   }: Props = $props();
 
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels
+  const d = $derived(ToggleDefaults.resolve({ density }));
 </script>
 
 {#if label}
-  <label for={id} data-jx-toggle-label class="jx-label" data-density={resolvedDensity}>
+  <label for={id} data-jx-toggle-label class="jx-label" data-density={d.density}>
     {label}
   </label>
 {/if}
@@ -60,7 +63,7 @@
   {id}
   type="checkbox"
   role="switch"
-  data-density={resolvedDensity}
+  data-density={d.density}
   class={cn('jx-html-switch', disabled && 'opacity-50 cursor-not-allowed', className)}
   bind:checked
   {disabled}

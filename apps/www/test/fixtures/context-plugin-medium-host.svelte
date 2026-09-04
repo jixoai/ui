@@ -14,10 +14,18 @@
   drives the medium screen → sim → print → sim → screen through the
   real channels (DOM sim stamp + beforeprint/afterprint) and asserts
   values, references and hook-call counts at every step.
+
+  Identity matching (context-plugin-v2): the defs the plugins target
+  are the SAME objects the pipelines build on — file-level consts, one
+  identity per key. The medium is INJECTED (captured once below, its
+  derived property read by the getter — never a per-read getContext):
+  without the injection env.medium would sit at 'screen' forever and
+  the whole round-trip would test nothing.
 -->
 <script lang="ts">
   import { provideMedium } from '../../src/lib/medium.svelte';
   import {
+    defineContextDef,
     definePlugin,
     provideContextPlugins,
     withPlugins,
@@ -28,6 +36,13 @@
     tag: string;
   }
 
+  const PROBE_A_DEF = defineContextDef({
+    key: 'probe-a',
+    defaults: (): Probe => ({ tag: 'a' }),
+    ssrSafe: { tag: 'a' } as Probe,
+  });
+  const PROBE_B_DEF = defineContextDef({ key: 'probe-b', defaults: () => 'b', ssrSafe: 'b' });
+
   let {
     calls,
     holder,
@@ -37,36 +52,33 @@
   } = $props();
 
   let rootEl = $state<HTMLElement | undefined>(undefined);
-  provideMedium({ root: () => rootEl });
+  const medium = provideMedium({ root: () => rootEl });
 
-  const scope = provideContextPlugins([
-    definePlugin({
-      name: 'gated-a',
-      targets: ['probe-a'],
-      filter: (_def, env) => env.medium !== 'screen',
-      before: (v: Probe, _env): Probe => {
-        calls.a++;
-        return { tag: `A(${v.tag})` };
-      },
-    }),
-    definePlugin({
-      name: 'plain-b',
-      targets: ['probe-b'],
-      before: (v: string, _env): string => {
-        calls.b++;
-        return `B(${v})`;
-      },
-    }),
-  ]);
+  const scope = provideContextPlugins(
+    [
+      definePlugin({
+        name: 'gated-a',
+        targets: [PROBE_A_DEF],
+        filter: (_def, env) => env.medium !== 'screen',
+        before: (v: Probe, _env): Probe => {
+          calls.a++;
+          return { tag: `A(${v.tag})` };
+        },
+      }),
+      definePlugin({
+        name: 'plain-b',
+        targets: [PROBE_B_DEF],
+        before: (v: string, _env): string => {
+          calls.b++;
+          return `B(${v})`;
+        },
+      }),
+    ],
+    { medium: () => medium?.medium },
+  );
 
-  const pipeA = withPlugins(
-    { key: 'probe-a', defaults: (): Probe => ({ tag: 'a' }), ssrSafe: { tag: 'a' } },
-    scope,
-  );
-  const pipeB = withPlugins(
-    { key: 'probe-b', defaults: () => 'b', ssrSafe: 'b' },
-    scope,
-  );
+  const pipeA = withPlugins(PROBE_A_DEF, scope);
+  const pipeB = withPlugins(PROBE_B_DEF, scope);
   // svelte-ignore state_referenced_locally — report-out holders, fixed per mount
   holder.a = pipeA;
   // svelte-ignore state_referenced_locally — report-out holders, fixed per mount

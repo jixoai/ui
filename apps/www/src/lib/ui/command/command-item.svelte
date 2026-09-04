@@ -21,7 +21,7 @@
 -->
 <script lang="ts">
   import { getContext } from 'svelte';
-  import { resolveDensity, getDensityContext } from '$lib/density.svelte';
+  import { CommandDefaults } from './command-defaults.svelte';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
@@ -59,7 +59,10 @@
   }: Props = $props();
 
   const cmd = getContext<CommandApi>(COMMAND_KEY);
-  const resolvedDensity = $derived(resolveDensity(undefined, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the density slot's ambient read lands the root's
+  // provided opinion; no opinion resolves undefined → no stamp
+  const d = $derived(CommandDefaults.resolve({}));
 
   // SELF-MATCH: the predicate answers inclusion only — filtering
   // hides, never reorders; the authored tree order is the walk order
@@ -88,7 +91,7 @@
   aria-disabled={disabled || undefined}
   aria-label={children ? label : undefined}
   data-jx-command-item=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   data-jx-command-item-disabled={disabled ? '' : undefined}
   data-jx-command-item-active={active ? '' : undefined}
   hidden={!visible}

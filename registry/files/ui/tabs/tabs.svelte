@@ -44,6 +44,7 @@
   import type { Snippet } from 'svelte';
   import { setContext } from 'svelte';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
+  import { TabsDefaults } from './tabs-defaults.svelte';
 
   interface Props {
     density?: Density;
@@ -72,12 +73,31 @@
 
   // '' = "nothing focused yet" → the selected trigger is the tab stop
   let focused = $state('');
-  // capture inherited BEFORE the derived (packet-D lesson): reading the
-  // context inside the same derived that provideDensity exposes makes
-  // the getter reference itself
-  const inheritedDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, inheritedDensity));
+
+  // ---- the density lane: inherit-then-provide, boundary-legal ------
+  // The CAPTURE is load-bearing and EAGER (r11 first contract,
+  // context-defaults-economy 3.3): getDensityContext() rides the
+  // $derived.by ARGUMENT subtree, which evaluates at this statement —
+  // BEFORE provideDensity writes the key — so it captures the PARENT's
+  // context object. A lazily-evaluated read (a plain $derived
+  // initializer body, or the getter itself) would resolve the key to
+  // the tabs' OWN write and self-reference through the very getter it
+  // feeds — derived_references_self, the pre-3.3 bare capture this
+  // replaces (the packet-D lesson in its r11 form). The returned
+  // getter reads ONLY the captured object (reactive through its
+  // getters, never re-entering the context machinery)
+  const resolvedDensity = $derived.by(
+    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+  );
   provideDensity(() => resolvedDensity);
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
+  // TOP of the provider lane as the family's single audited read point:
+  // the density slot's ambient read resolves the key to the tabs' own
+  // write, whose getter is the captured-parent resolution above, so the
+  // chain TERMINATES (it never re-enters this derived) and lands the
+  // same value every lane stamps
+  const d = $derived(TabsDefaults.resolve({ density }));
 
   setContext<TabsApi>(TABS_KEY, {
     uid: autoId,
@@ -101,4 +121,4 @@
   });
 </script>
 
-<div data-jx-tabs="" data-density={resolvedDensity} class="contents">{@render children()}</div>
+<div data-jx-tabs="" data-density={d.density} class="contents">{@render children()}</div>

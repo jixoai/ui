@@ -35,12 +35,15 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { ALERT_DIALOG_KEY, type AlertDialogApi } from './alert-dialog.svelte';
+  import { AlertDialogDefaults, type AlertDialogSurfaceVariant } from './alert-dialog-defaults.svelte';
   import './alert-dialog.css';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
-        the environment asks for reduced transparency) */
-    variant?: 'solid' | 'acrylic' | 'auto';
+        the environment asks for reduced transparency). Omitted → the
+        contract own 'auto' (AlertDialogDefaults — a declared own, not
+        ambient) */
+    variant?: AlertDialogSurfaceVariant;
     children?: Snippet;
     class?: string;
   }
@@ -50,12 +53,19 @@
   // {...rest} before the fix let a consumer style attribute silently
   // drop the anchor geometry (D-4, 2026-09-02)
   let {
-    variant = 'auto',
+    variant,
     children,
     class: className = '',
     style = '',
     ...rest
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2): one line —
+  // the family contract resolves the panel's style props (variant's
+  // own 'auto' lives in AlertDialogDefaults, auditable in one place;
+  // density is the no-opinion axis slot — nothing stamps, the ambient
+  // css scope channel keeps flowing)
+  const d = $derived(AlertDialogDefaults.resolve({ variant }));
 
   const api = getContext<AlertDialogApi>(ALERT_DIALOG_KEY);
 
@@ -125,7 +135,7 @@
     motion.supported && 'jx-waapi',
     className,
   )}
-  data-variant={variant}
+  data-variant={d.variant}
   data-jx-adlg=""
   style="position-anchor: --{api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem); {style}"
   {...rest}

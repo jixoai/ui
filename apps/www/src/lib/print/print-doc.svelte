@@ -51,12 +51,12 @@
 
   let rootEl = $state<HTMLElement | undefined>(undefined);
 
-  // the medium first (the plugin root's env reads it at provide time)
+  // the medium first — its context object captured ONCE here (the
+  // injection reads the derived property, never a per-read getContext)
   const medium: MediumContext = provideMedium({ root: () => rootEl ?? undefined });
-  void medium;
   // then the plugin root — the print interventions live ABOVE every
   // density consumer inside the content
-  provideContextPlugins(printPlugins);
+  provideContextPlugins(printPlugins, { medium: () => medium?.medium });
 
   // the barrier's assertion target: this root's own density stamp
   // (undefined on the open web — no manufactured opinion)

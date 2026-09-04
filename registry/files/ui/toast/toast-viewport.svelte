@@ -99,6 +99,7 @@
   import type { TopLayerApi } from '$lib/ui/website-scaffold/website-scaffold.svelte';
   import ToastCountdown from './toast-countdown.svelte';
   import ToastDialog from './toast-dialog.svelte';
+  import { ToastDefaults } from './toast-defaults.svelte';
   import { frictionShift, judgeSwipe } from './toast-swipe';
   import './toast.css';
 
@@ -694,8 +695,13 @@
     outline: 'text-muted-foreground forced-colors:text-[CanvasText]',
     tonal: 'text-[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
   } as const;
-  const itemVariant = (item: ToastItem) => item.variant ?? 'outline';
-  const itemMaterial = (item: ToastItem) => item.material ?? 'popover';
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): a push IS the explicit lane — variant/material
+  // resolve `explicit ?? own` through the family contract (pure
+  // literal slots, zero context reads; the toast-v2 state machine is
+  // untouched — only the style-class fallbacks moved)
+  const itemVariant = (item: ToastItem) => ToastDefaults.resolve({ variant: item.variant }).variant;
+  const itemMaterial = (item: ToastItem) => ToastDefaults.resolve({ material: item.material }).material;
 </script>
 
 <!-- THE STACK — one snippet, two homes: adopted into the scaffold's

@@ -11,3 +11,4 @@ export { default as ChartLine } from './chart-line.svelte';
 export * from './chart-line.svelte';
 export { default as ChartDonut } from './chart-donut.svelte';
 export * from './chart-donut.svelte';
+export { ChartDefaults, type ChartVariant } from './chart-defaults.svelte';

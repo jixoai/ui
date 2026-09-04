@@ -307,10 +307,12 @@ describe('CodeCard — the backend seam', () => {
   it('the kernel endorsement: a plugin targeting highlight projects the default', async () => {
     // an app-side intervention in the print layer's own shape: the
     // plugin root sits ABOVE the context, its before() overrides the
-    // provided prism default with a markup backend
+    // provided prism default with a markup backend — the target is the
+    // CANONICAL HIGHLIGHT_DEF import (identity matching: the same
+    // object createHighlightContext's pipeline builds on)
     const forceShiki = definePlugin({
       name: 'test-force-shiki',
-      targets: ['highlight'],
+      targets: [HIGHLIGHT_DEF],
       before: () => shiki(),
     });
 

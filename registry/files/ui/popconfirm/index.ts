@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './popconfirm.svelte';
 export * from './popconfirm.svelte';
+export { PopconfirmDefaults, type PopconfirmSurfaceVariant } from './popconfirm-defaults.svelte';

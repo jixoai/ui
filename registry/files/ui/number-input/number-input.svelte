@@ -70,7 +70,8 @@
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { NumberInputDefaults } from './number-input-defaults.svelte';
   import './number-input.css';
 
   interface Props extends HTMLInputAttributes {
@@ -111,8 +112,10 @@
   }: Props = $props();
 
   const errorId = $derived(`${id}-error`);
-  const outerDensity = getDensityContext();
-  const resolvedDensity = $derived(resolveDensity(density, outerDensity));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.1): explicit ?? ambient scope per slot, one line, no
+  // legacy helper channels
+  const d = $derived(NumberInputDefaults.resolve({ density }));
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -189,7 +192,7 @@
   }
 </script>
 
-<div class="jx-field" data-density={resolvedDensity}>
+<div class="jx-field" data-density={d.density}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <div
     class={cn(

@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './result.svelte';
 export * from './result.svelte';
+export { ResultDefaults } from './result-defaults.svelte';

@@ -19,9 +19,11 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { type Density } from '$lib/density.svelte';
+  import { EmptyDefaults } from './empty-defaults.svelte';
 
   interface Props {
+    /** density policy: explicit ?? ambient scope, else unstamped */
     density?: Density;
     title: string;
     description?: string;
@@ -32,10 +34,14 @@
   }
 
   let { density, title, description, illustration, actions, class: className = '' }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2): the density slot resolves explicit ?? ambient
+  // scope; no opinion stamps nothing, the ambient css scope channel
+  // keeps flowing
+  const d = $derived(EmptyDefaults.resolve({ density }));
 </script>
 
-<figure data-jx-empty="" data-density={resolvedDensity} class={cn('flex flex-col items-center [gap:var(--jx-stack)] border border-dashed border-border bg-muted [padding:calc(var(--jx-inset)*2)]', className)}>
+<figure data-jx-empty="" data-density={d.density} class={cn('flex flex-col items-center [gap:var(--jx-stack)] border border-dashed border-border bg-muted [padding:calc(var(--jx-inset)*2)]', className)}>
   <div data-jx-empty-art="" class="flex flex-col [gap:var(--jx-stack)] border border-border bg-card [padding:var(--jx-inset)] shadow-2xs font-mono [font-size:var(--jx-text)]" aria-hidden="true">
     {#if illustration}
       {@render illustration()}

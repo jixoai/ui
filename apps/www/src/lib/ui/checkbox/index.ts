@@ -3,3 +3,4 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './checkbox.svelte';
 export * from './checkbox.svelte';
+export { CheckboxDefaults } from './checkbox-defaults.svelte';

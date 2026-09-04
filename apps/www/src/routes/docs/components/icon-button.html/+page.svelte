@@ -342,8 +342,8 @@ ${drivenNormal}${usageTail}`;
       <PropsTable props={[
         { name: 'icon', type: 'Snippet', required: true, description: 'Decorative glyph content.' },
         { name: 'text', type: 'string', required: true, description: 'Visible label, tooltip content, and accessible name.' },
-        { name: 'density', type: 'Density', default: 'inherited', description: 'Forwards to press-button.' },
-        { name: 'variant', type: 'PressButtonVariant', default: "'outline'", description: 'Press-button surface variant.' },
+        { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; resolved through IconButtonDefaults (the restated contract) and forwarded to press-button.' },
+        { name: 'variant', type: 'PressButtonVariant', default: "'outline' · ambient zone", description: 'Press-button surface variant, ambient-manageable through the restated contract: omitted → the ambient paint zone (ButtonGroup / variant scope), else the restated own. Explicit still wins.' },
         { name: 'iconOnly', type: 'boolean', default: 'false', description: 'Collapses into a square tooltip trigger.' },
         { name: 'placement', type: 'TooltipPlacement', default: "'top'", description: 'Icon-only tooltip placement.' },
         { name: 'arrow', type: 'boolean', default: 'true', description: 'Shows the tooltip pointer notch.' },

@@ -7,11 +7,18 @@
   see from-meta.ts) — OR the legacy hand-written `props` array kept as
   a fallback so unmigrated pages render unchanged. The table element
   carries data-doc-props-table: the skeleton lint's API-section marker.
+
+  Ambient column (context-defaults-economy 4.3): a slot-carrying prop's
+  `ambient` IR field renders in the Default column as the frozen
+  three-state marker — `ambient zone` / `ambient scope` /
+  `Own default, not ambient` — appended after the own value when one is
+  statically extractable, alone otherwise (the hand-written track's
+  foot-note wording, promoted to the meta chain).
 -->
 <script lang="ts">
   import { cn } from '$lib/utils';
   import { propsFromMeta, type PropsDocs } from './from-meta';
-  import type { ComponentMeta } from '$lib/schema/ir';
+  import type { AmbientKind, ComponentMeta } from '$lib/schema/ir';
 
   export interface PropEntry {
     name: string;
@@ -20,7 +27,28 @@
     description: string;
     required?: boolean;
     bindable?: boolean;
+    /** defaults-contract state — rendered as the Default-column marker
+     * (context-defaults-economy 4.3; the three frozen spellings) */
+    ambient?: AmbientKind;
   }
+
+  /** The frozen three-state wording (design r11 #4), verbatim. */
+  const AMBIENT_MARKER: Record<AmbientKind, string> = {
+    zone: 'ambient zone',
+    scope: 'ambient scope',
+    own: 'Own default, not ambient',
+  };
+
+  /** the Default cell: own value + marker when both exist, marker alone
+   * for the no-own slots (the ambient css scope lane), legacy path
+   * untouched — composed in one expression so Svelte never trims the
+   * separator edges */
+  const defaultCell = (prop: PropEntry): string =>
+    !prop.ambient
+      ? (prop.default ?? '—')
+      : prop.default !== undefined && prop.default !== '—'
+        ? `${prop.default} · ${AMBIENT_MARKER[prop.ambient]}`
+        : AMBIENT_MARKER[prop.ambient];
 
   interface Props {
     /** legacy hand-written rows (fallback; unmigrated pages) */
@@ -75,7 +103,7 @@
             {prop.type}
           </td>
           <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground">
-            {prop.default ?? '—'}
+            {defaultCell(prop)}
           </td>
           <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text)]">
             {prop.description}

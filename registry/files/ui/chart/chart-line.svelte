@@ -31,7 +31,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { SVGAttributes } from 'svelte/elements';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { ChartDefaults } from './chart-defaults.svelte';
   import { cn } from '$lib/utils';
   import { linePoints, markerPoints } from './chart.svelte';
   import './chart.css';
@@ -68,7 +69,10 @@
     ...rest
   }: Props = $props();
 
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.4): density rides the no-opinion axis slot (the
+  // ensemble provides, the glyph stamps)
+  const d = $derived(ChartDefaults.resolve({ density }));
 
   // viewBox constants — the 5:2 frame; y band [1, 39] (the documented
   // 1-unit marker-radius inset; the DATA range maps the full band)
@@ -93,7 +97,7 @@
   role="img"
   aria-label={label}
   data-jx-chart-line=""
-  data-density={resolvedDensity}
+  data-density={d.density}
   viewBox="0 0 {W} {H}"
   fill="none"
   class={cn('h-auto w-full max-w-full', className)}

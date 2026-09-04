@@ -29,6 +29,7 @@
   import type { Snippet } from 'svelte';
   import Separator from '../separator/separator.svelte';
   import './section-card.css';
+  import { SectionCardDefaults, type SectionCardTone } from './section-card-defaults.svelte';
 
   interface Props {
     eyebrow?: string;
@@ -37,7 +38,7 @@
     children: Snippet;
     class?: string;
     headingLevel?: 1 | 2;
-    tone?: 'default' | 'hero';
+    tone?: SectionCardTone;
     /** data-family on the section root (toc-engine parent extent). */
     family?: string;
     /** data-region on the section root (toc-engine leaf). */
@@ -63,7 +64,7 @@
     children,
     class: className = '',
     headingLevel = 2,
-    tone = 'default',
+    tone,
     family,
     region,
     headerRegion,
@@ -71,13 +72,18 @@
     ordering,
   }: Props = $props();
 
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
+  // tone resolves through the family contract (the literal slot: own
+  // 'default' declared in SectionCardDefaults, auditable in one place)
+  const d = $derived(SectionCardDefaults.resolve({ tone }));
+
   const titleClassName = $derived(
-    tone === 'hero'
+    d.tone === 'hero'
       ? 'font-nav max-w-[24ch] text-balance text-[clamp(1.58rem,2.55vw,2.7rem)] tracking-normal leading-[1.2] sm:max-w-[22ch] lg:max-w-[24ch]'
       : 'font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]',
   );
   const summaryClassName = $derived(
-    tone === 'hero'
+    d.tone === 'hero'
       ? 'max-w-[62ch] text-pretty text-[13px] leading-6 text-foreground/78 sm:text-[14px] sm:leading-6'
       : 'max-w-[64ch] text-pretty [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground',
   );

@@ -17,3 +17,4 @@ export { default as TimelineTime } from './timeline-time.svelte';
 export * from './timeline-time.svelte';
 export { default as TimelineTitle } from './timeline-title.svelte';
 export * from './timeline-title.svelte';
+export { TimelineDefaults, type TimelineDotVariant } from './timeline-defaults.svelte';

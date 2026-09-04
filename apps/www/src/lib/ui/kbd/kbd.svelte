@@ -28,23 +28,27 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { getDensityContext, resolveDensity, type Density } from '$lib/density.svelte';
+  import { type Density } from '$lib/density.svelte';
+  import { KbdDefaults, type KbdVariant } from './kbd-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     density?: Density;
-    /** the grammar's paint ladder — prominence, never semantic hue
+    /** the glyph's paint ladder — prominence, never semantic hue
      *  (inject with jx-hue-* utilities); tonal rides primary by default */
-    variant?: 'fill' | 'tonal' | 'outline';
+    variant?: KbdVariant;
   }
 
   let {
     density,
-    variant = 'tonal',
+    variant,
     class: className = '',
     children,
     ...rest
   }: Props = $props();
-  const resolvedDensity = $derived(resolveDensity(density, getDensityContext()));
+  // the family Defaults is the single read point (context-defaults-
+  // economy 2.3): explicit ?? ambient/own per slot, one line, no
+  // legacy helper channels
+  const d = $derived(KbdDefaults.resolve({ variant, density }));
 
   const variants = {
     fill: `[background:var(--jx-fill)] [border-color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:border-[ButtonText]`,
@@ -54,11 +58,11 @@
 </script>
 
 <kbd
-  data-jx-kbd={variant}
-  data-density={resolvedDensity}
+  data-jx-kbd={d.variant}
+  data-density={d.density}
   class={cn(
     'inline-block [padding-inline:var(--jx-gap)] border rounded-none shadow-engrave font-mono [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] whitespace-nowrap',
-    variants[variant],
+    variants[d.variant],
     className,
   )}
   {...rest}

@@ -7,3 +7,4 @@ export { default as InputGroupAddon } from './input-group-addon.svelte';
 export * from './input-group-addon.svelte';
 export { default as InputGroupInput } from './input-group-input.svelte';
 export * from './input-group-input.svelte';
+export { InputGroupDefaults } from './input-group-defaults.svelte';

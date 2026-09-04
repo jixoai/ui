@@ -59,14 +59,16 @@
   // The print layer's ROOT capture coordinates (print-pipeline,
   // 2026-08-30). Order is the contract: the document medium first
   // (its documentElement subtree sees the sim stamp wherever the
-  // print layer lands it), then the print plugin root — its
-  // env.medium getter endorses that medium — and only THEN the hue
-  // context, whose pipeline captures the plugin chain HERE (the
-  // kernel's provide-time capture coordinate). This is why the hue
-  // pin lives in the ROOT layout: a page-level plugin root could
-  // never be seen by the hue pipeline created above it.
-  provideMedium({ root: () => document.documentElement });
-  provideContextPlugins(printPlugins);
+  // print layer lands it), then the print plugin root — the medium is
+  // INJECTED here (capture the provider's context object once, read
+  // its derived property in the getter — never a per-read getContext)
+  // — and only THEN the hue context, whose pipeline captures the
+  // plugin chain HERE (the kernel's provide-time capture coordinate).
+  // This is why the hue pin lives in the ROOT layout: a page-level
+  // plugin root could never be seen by the hue pipeline created above
+  // it.
+  const medium = provideMedium({ root: () => document.documentElement });
+  provideContextPlugins(printPlugins, { medium: () => medium?.medium });
 
   // The hue context instance (context-plugin-system, 2026-08-30):
   // created at layout init so the plugin chain visible HERE is

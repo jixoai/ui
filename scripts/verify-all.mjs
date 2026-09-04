@@ -53,7 +53,7 @@ try {
 }
 
 // ── 1-3. the npm-script gates ────────────────────────────────────────
-for (const name of ['verify:laws', 'verify:icons', 'verify:mirror', 'verify:deps', 'verify:shadcn-add', 'verify:budgets', 'verify:docs', 'verify:meta', 'verify:print']) {
+for (const name of ['verify:laws', 'verify:icons', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:shadcn-add', 'verify:budgets', 'verify:docs', 'verify:meta', 'verify:print']) {
   step(name);
   try {
     execFileSync('npm', ['run', '--silent', name], { cwd: root, stdio: 'inherit' });
