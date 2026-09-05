@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-05T11:44:19.383Z",
+  "generatedAt": "2026-09-05T12:31:30.497Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3476,8 +3476,8 @@
           "source": "registry/files/ui/scroll-run/scroll-run.css",
           "mirror": "apps/www/src/lib/ui/scroll-run/scroll-run.css",
           "target": "@ui/scroll-run/scroll-run.css",
-          "sourceSha": "c45c5ef903609f0d6c0d5625daec2990584e6b411ac1e43e6e9e85ae54f5205d",
-          "mirrorSha": "c45c5ef903609f0d6c0d5625daec2990584e6b411ac1e43e6e9e85ae54f5205d"
+          "sourceSha": "2518e357ac6077ffd73745493c9c6a574f922dc256e97345795c1336bbf8f0b9",
+          "mirrorSha": "2518e357ac6077ffd73745493c9c6a574f922dc256e97345795c1336bbf8f0b9"
         },
         {
           "source": "registry/files/ui/scroll-run/scroll-chrome.svelte",

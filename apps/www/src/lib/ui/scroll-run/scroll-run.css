@@ -109,6 +109,7 @@
     --jx-scroll-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     --jx-scroll-chevron-size: 14px;
     --jx-scroll-chevron-chip: oklab(1 0 0 / 0.8);
+    --jx-scroll-chevron-chip-hover: oklab(1 0 0 / 0.95);
     --jx-scroll-veil: calc(var(--jx-inset) * 1.5);
   }
 
@@ -119,9 +120,10 @@
    * Placement is css — everything here rides :where() (zero
    * specificity), so a consumer re-places a chip with its own rule on
    * the chip attr (or re-tucks it against the edge). The chip is its
-   * own affordance — the cursor is the signal, hover stays retired;
-   * the fade near a closed boundary rides the host's progress var
-   * (axis-normalized by the machine) */
+   * own affordance — the cursor signals it and hover CONFIRMS it
+   * (Owner round 10, the retired-hover era ends); the fade near a
+   * closed boundary rides the host's progress var (axis-normalized by
+   * the machine) */
   :where([data-jx-scroll-chevron='start']),
   :where([data-jx-scroll-chevron='end']) {
     grid-area: 1 / 1;
@@ -142,6 +144,17 @@
     -webkit-backdrop-filter: blur(2px);
     cursor: pointer;
     opacity: min(1, calc(var(--jx-scroll-progress, 0) / 0.15));
+    /* only the hover pair transitions — the fade is scroll-driven
+     * (animating opacity here would fight the progress clock) */
+    transition: background-color 120ms ease-out, box-shadow 120ms ease-out;
+  }
+  /* hover CONFIRMS the affordance (Owner round 10): the frost raises
+   * toward opaque — a hair of translucency stays so the backdrop blur
+   * still reads — and the lift deepens; the ink is a host var, the
+   * same swap-the-VALUE law as the resting frost */
+  :where([data-jx-scroll-chevron]:hover) {
+    background-color: var(--jx-scroll-chevron-chip-hover);
+    box-shadow: 2px 2px 6px hsl(0 0% 0% / 0.3);
   }
   /* the horizontal placement: each chip flush against its inline edge
    * (IN-BOARD — the glyph stays fully visible), vertically centered;

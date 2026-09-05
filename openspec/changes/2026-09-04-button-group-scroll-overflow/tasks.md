@@ -109,3 +109,11 @@
       义撇号（js_parse_error，整页 500）。specs：替换测试改为垂直梯子测试
       （.jx-pblur×2 + 0 shadow 带 + top/bottom 戳记 + 入场臂列表 pin），水
       平梯子测试加 position 戳记断言
+- [x] 17. Owner round 10：chip 需要 hover 效果 —— "hover 上去背景更不透、阴影适
+      当加强"，推翻 tabs 参考法的 "hover stays retired" 时代。host 变量族新增
+      --jx-scroll-chevron-chip-hover: oklab(1 0 0 / 0.95)（换值不换名的同一法
+      则），:hover 臂漆近不透霜墨 + 抬升阴影 1px 1px 2px/0.2 → 2px 2px 6px/0.3；
+      transition 仅携 background-color + box-shadow（120ms ease-out）——滚动驱
+      动的 opacity 淡入永不动画。specs：button-group chip 法则的正负钉翻转
+      （存在性 + 变量 + 阴影 + transition 白名单），docs Theming 表补 hover 墨
+      行，registry 描述同步

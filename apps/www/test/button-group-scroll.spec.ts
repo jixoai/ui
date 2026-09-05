@@ -182,7 +182,7 @@ describe('the SHARED scroll-run css law (source-pinned, scroll-run.css)', () => 
     expect(rules).not.toMatch(/scroll-snap/);
   });
 
-  it('THE CHIP RULING: the frosted edge chip — inset·1.5 square, in-board, cross-axis centered, frosted, 14px canvas glyph, no mask/blend/hover', () => {
+  it('THE CHIP RULING: the frosted edge chip — inset·1.5 square, in-board, cross-axis centered, frosted, 14px canvas glyph, no mask/blend; hover RAISES it (round 10)', () => {
     expect(scrollRunCss).toMatch(/--jx-scroll-chevron-size:\s*14px;/);
     expect(scrollRunCss).toMatch(/--jx-scroll-chevron-chip:\s*oklab\(1\s*0\s*0\s*\/\s*0\.8\);/);
     const chip =
@@ -197,7 +197,15 @@ describe('the SHARED scroll-run css law (source-pinned, scroll-run.css)', () => 
     expect(chip).toMatch(/backdrop-filter:\s*blur\(2px\);/);
     expect(chip).not.toMatch(/mask/);
     expect(chip).not.toMatch(/mix-blend-mode/);
-    expect(scrollRunCss).not.toMatch(/\[data-jx-scroll-chevron[^\]]*\]\):hover/);
+    // round 10: the retired-hover era ENDS — hover raises the frost
+    // toward opaque and deepens the lift (the ink is a host var)
+    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-chip-hover:\s*oklab\(1\s+0\s+0\s*\/\s*0\.95\);/);
+    expect(scrollRunCss).toMatch(
+      /:where\(\[data-jx-scroll-chevron\]:hover\)\s*\{[^}]*background-color:\s*var\(--jx-scroll-chevron-chip-hover\);[^}]*box-shadow:\s*2px\s+2px\s+6px\s+hsl\(0\s+0%\s+0%\s*\/\s*0\.3\);/s,
+    );
+    // the transition carries ONLY the hover pair — the opacity fade is
+    // scroll-driven and must never animate
+    expect(scrollRunCss).toMatch(/transition:\s*background-color\s+120ms\s+ease-out,\s*box-shadow\s+120ms\s+ease-out;/);
     expect(scrollRunCss).toMatch(/--jx-scroll-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
     // round 3: IN-BOARD — the negative-edge tuck margins are gone
     expect(scrollRunCss).not.toMatch(/margin-(inline|block)-(start|end):\s*calc\(var\(--jx-inset\)\s*\*\s*-1/);
