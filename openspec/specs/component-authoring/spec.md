@@ -466,7 +466,16 @@ never component css.
 Components consume the aliases and MUST NOT branch on density values
 in their own css; `data-size` authority is removed (no alias). Every
 scale value is DERIVED from the ruler (`--jx-unit`, text base)
-by written equations; the computed four-row table is gate-asserted.
+by written equations; the computed five-row table is gate-asserted
+(the fifth rung 2xs — Owner 2026-09-05, pro-tool operation density:
+T 10px, L 14px, G=B 8px, S 4px, rowMin = hit = 24px — is OPT-IN ONLY
+for professional non-touch high-density operation surfaces, never a
+default; its ONE scoped law redeclares --jx-hit-floor at 6U = 24px,
+the WCAG 2.5.8 AA pointer floor, inside `[data-density='2xs']` — and
+because a :root-only hit-min token hands descendants the
+root-substituted 28px (the canvas-bug law), the scope redeclares BOTH
+the floor and --jx-density-hit-min-2xs; every other rung keeps the
+7U global guardrail).
 The balance invariant holds at every density: row inline-start inset
 == the media/content seam (one ruler mark); media boxes derive from
 the line (icon = one line, image = two — the seam never folds into
@@ -497,6 +506,15 @@ providers and kind:`provider` inherit-then-provide containers).
 - WHEN the table renders with no provider and no explicit prop
 - THEN data-density="sm" lands; with a parent provider's opinion, the
   provider wins; with an explicit prop, the prop wins
+
+#### Scenario: the 2xs rung's scoped hit floor
+
+- GIVEN the density kernel verifier probing `[data-density='2xs']`
+- WHEN it reads the used --jx-hit and --jx-row-min
+- THEN both resolve 24px (the WCAG 2.5.8 AA pointer floor) while the
+  :root guardrail --jx-hit-floor stays 7U = 28px for every other
+  rung — the ONE scoped floor in the kernel, the pro-density stance
+  for non-touch pointers
 
 ### Requirement: the shared ruler (grouped list geometry)
 
