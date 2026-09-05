@@ -853,8 +853,8 @@
           "source": "registry/files/ui/select/select.svelte",
           "mirror": "apps/www/src/lib/ui/select/select.svelte",
           "target": "@ui/select/select.svelte",
-          "sourceSha": "64d11dc70f30d914a6b7f126bb4fd2f998e53ff89963a9b175f49298cc067d80",
-          "mirrorSha": "64d11dc70f30d914a6b7f126bb4fd2f998e53ff89963a9b175f49298cc067d80"
+          "sourceSha": "cf3339bafab20e1f60ebece81ab97529f7ba02f45966ce418b2176750d814ef0",
+          "mirrorSha": "cf3339bafab20e1f60ebece81ab97529f7ba02f45966ce418b2176750d814ef0"
         },
         {
           "source": "registry/files/ui/select/index.ts",

@@ -309,7 +309,7 @@
       type="button"
       id={id}
       class={cn(
-        'jx-sel-trigger jx-html-input flex items-center gap-[var(--jx-gap)] text-start cursor-pointer',
+        'jx-sel-trigger jx-html-input flex items-center pe-[var(--jx-inset)] text-start cursor-pointer',
         className,
       )}
       popovertarget={panelId}
@@ -336,10 +336,15 @@
            through the mask on --jx-icon-chevron (the same slot
            jx-html-select reads), so a face/plugin override re-skins the
            composite and the native control with one variable. The inline
-           lucide SVG fallback default keeps the glyph without the sheet. -->
+           lucide SVG fallback default keeps the glyph without the sheet.
+           Size = var(--jx-icon) — the density kernel's icon law
+           (mediaIcon_d = line height), the same equation jx-html-select
+           paints its background glyph at; the glyph's own box padding is
+           the value→chevron optical gap (the native law's text reserve
+           inset+icon, no extra flex gap). -->
       <span
         class={cn(
-          'jx-sel-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
+          'jx-sel-chevron flex-none w-[var(--jx-icon)] h-[var(--jx-icon)] pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
           open && 'rotate-180',
         )}
         aria-hidden="true"
