@@ -138,17 +138,17 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
 ## 6. registry 串行整合（依赖：2+3；**整合者独占**——registry.json、
 mirror-manifest、catalog、public 生成物的唯一写入者，子代理不碰）
 
-- [ ] 6.1 figure 与 reference 双家族登记（registryDependencies：
+- [x] 6.1 figure 与 reference 双家族登记（registryDependencies：
       section-card → figure、reference → figure）+ 字节镜像 +
       gen-mirror-manifest + catalog/public 接线 + payload parity
       验证
 
 ## 7. 收尾
 
-- [ ] 7.1 specs delta 措辞校准（component-authoring 的 ADDED +
+- [x] 7.1 specs delta 措辞校准（component-authoring 的 ADDED +
       MODIFIED、paged-docs 的 MODIFIED、search-corpus 的 ADDED——
       均已随 change 落档，实施后对齐 scenario 细节）；归档时
       MODIFIED 自然回写 living spec，无额外迁移
-- [ ] 7.2 verification 记录落 `openspec/changes/2026-09-04-document-ontology-r2-float-reference/verification.md`
+- [x] 7.2 verification 记录落 `openspec/changes/2026-09-04-document-ontology-r2-float-reference/verification.md`
       ——每条门一行：命令、产物路径（fixture/spec/探针输出）、
       归属批次；归档前逐门对勾

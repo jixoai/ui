@@ -89,6 +89,7 @@ describe('docs sections nav — fuzzy filter (sections mode)', () => {
     // guide page (dt spans "defaults" — same fuzzy class)
     expect(railTitles()).toEqual([
       'variant-grammar',
+      'density-2xs',
       'context & defaults',
       'demo-standard',
       'Data Entry',
