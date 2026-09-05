@@ -103,8 +103,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "f9828e46f6ec113601d92a34c78fa88937d4cb31905c4713ffb6cf6101bce403",
-          "mirrorSha": "f9828e46f6ec113601d92a34c78fa88937d4cb31905c4713ffb6cf6101bce403"
+          "sourceSha": "66053c3cbc269f65d758d119252da2785294d78c75763ac5bf9e9f14ac6eea49",
+          "mirrorSha": "66053c3cbc269f65d758d119252da2785294d78c75763ac5bf9e9f14ac6eea49"
         }
       ]
     },
@@ -3598,8 +3598,8 @@
           "source": "registry/files/lib/density.svelte.ts",
           "mirror": "apps/www/src/lib/density.svelte.ts",
           "target": "@lib/density.svelte.ts",
-          "sourceSha": "f2505580aaa5dde0b6b8ca9702af2eb1f8df22a9c9bb053df9133d56da8e98b0",
-          "mirrorSha": "f2505580aaa5dde0b6b8ca9702af2eb1f8df22a9c9bb053df9133d56da8e98b0"
+          "sourceSha": "0918b62d4661521a9efbab35d27783d8de363a6f7aee086b41af1ec3a837e629",
+          "mirrorSha": "0918b62d4661521a9efbab35d27783d8de363a6f7aee086b41af1ec3a837e629"
         }
       ]
     },

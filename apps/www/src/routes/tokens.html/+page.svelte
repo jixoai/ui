@@ -261,16 +261,16 @@ playing.subscribe((v) => (isPlaying = v));
       headerRegion="density-kernel"
       eyebrow="Design Scale"
       title="The density kernel"
-      summary="One ruler, four densities. Every dimension is an equation from --jx-unit (4px) and --jx-text-base (13px) — no hand-picked values. Components consume the inherited --jx-* tokens; [data-density] scopes switch all values simultaneously. Context injection (Kotlin Compose-inspired): providers set the scope, every child inherits."
+      summary="One ruler, five densities (2xs: the opt-in pro-tool rung). Every dimension is an equation from --jx-unit (4px) and --jx-text-base (13px) — no hand-picked values. Components consume the inherited --jx-* tokens; [data-density] scopes switch all values simultaneously. Context injection (Kotlin Compose-inspired): providers set the scope, every child inherits."
     >
       <div class="flex flex-col gap-8">
         <div class="flex flex-col gap-3">
-          <h3 class="text-[15px] font-bold tracking-tight">Four densities, live</h3>
+          <h3 class="text-[15px] font-bold tracking-tight">Five densities, live</h3>
           <p class="text-muted-foreground text-pretty text-[13px] leading-6">
             The same component at every density — text, spacing, hit targets, and media all scale
             from the ruler. No per-size branches in component CSS.
           </p>
-          <DensityDemo>
+          <DensityDemo scopes={['2xs', 'xs', 'sm', 'default', 'lg']}>
             <Item>
               <ItemMedia variant="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -286,23 +286,26 @@ playing.subscribe((v) => (isPlaying = v));
         </div>
 
         <div class="flex flex-col gap-3">
-          <h3 class="text-[15px] font-bold tracking-tight">The four-row table</h3>
+          <h3 class="text-[15px] font-bold tracking-tight">The five-row table</h3>
           <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-            All dimensions computed at the 16px root. These are the RESOLVED values the kernel
-            gate asserts in real Chromium.
+            All dimensions computed at the 16px root, columns in ladder order 2xs / xs /
+            sm / default / lg. These are the RESOLVED values the kernel gate asserts in
+            real Chromium. Two honest footnotes at 2xs: its hit is the ONE scoped floor
+            (6U = 24px, the WCAG 2.5.8 AA minimum, inside [data-density='2xs'] only), and
+            its secondary text degenerates to the primary size (the 0.625rem floor binds).
           </p>
           <TokenTable
             tokens={[
-              { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
-              { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' },
-              { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' },
-              { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' },
-              { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
-              { name: '--jx-row-min', default: '28 / 32 / 40 / 48px', source: 'density' },
-              { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
-              { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' },
-              { name: '--jx-image', default: '32 / 36 / 40 / 48px', source: 'density' },
-              { name: '--jx-text-secondary', default: '10 / 11 / 12 / 14px', source: 'density' },
+              { name: '--jx-text', default: '10 / 11 / 12 / 13 / 15px', source: 'density' },
+              { name: '--jx-line', default: '14 / 16 / 18 / 20 / 24px', source: 'density' },
+              { name: '--jx-gap', default: '8 / 8 / 8 / 12 / 16px', source: 'density' },
+              { name: '--jx-stack', default: '4 / 4 / 4 / 8 / 8px', source: 'density' },
+              { name: '--jx-inset', default: '8 / 8 / 8 / 12 / 16px', source: 'density' },
+              { name: '--jx-row-min', default: '24 / 28 / 32 / 40 / 48px', source: 'density' },
+              { name: '--jx-hit', default: '24 / 28 / 32 / 40 / 48px', source: 'density' },
+              { name: '--jx-icon', default: '14 / 16 / 18 / 20 / 24px', source: 'density' },
+              { name: '--jx-image', default: '28 / 32 / 36 / 40 / 48px', source: 'density' },
+              { name: '--jx-text-secondary', default: '10 / 10 / 11 / 12 / 14px', source: 'density' },
               { name: '--jx-unit', default: '0.25rem (4px)', source: 'structural' },
               { name: '--jx-text-base', default: '0.8125rem (13px)', source: 'structural' },
             ]}

@@ -866,16 +866,23 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 /* ============================================================
-   The density scale (design-language-kernel appendix A, 2026-08-26)
+   The density scale (design-language-kernel appendix A, 2026-08-26;
+   2xs rung 2026-09-05-density-2xs)
    — 尺规思维: every dimension is an EQUATION from the ruler.
    U = --jx-unit (4px), T = --jx-text-base (13px).
-   Four densities (xs/sm/default/lg) with REAL differentiation:
-   text 11/12/13/15px, lines 16/18/20/24px, rows 28/32/40/48px.
+   Five densities (2xs/xs/sm/default/lg) with REAL differentiation:
+   text 10/11/12/13/15px, lines 14/16/18/20/24px,
+   rows 24/28/32/40/48px. 2xs is the pro-tool extreme (operation
+   surfaces: inspectors, data grids, tool palettes) — OPT-IN ONLY,
+   never default (the adoption law); its ONE scoped law: the hit
+   floor redeclares at 6U (24px, the WCAG 2.5.8 AA minimum) inside
+   [data-density='2xs'] — non-touch pointers, the deliberate
+   pro-density stance.
    Hit floor (Owner ruling, 2026-08-29 "彻底跟字"): the hit lane
    tracks the type scale; the 11U (44px) touch-first clamp is
    retired — the max() law survives as a guardrail at 7U (28px,
    above the WCAG 2.5.8 AA 24px lane floor), which never binds at
-   the current row-min values (28/32/40/48).
+   the other rungs' row-min values (28/32/40/48).
    Scopes exist ONLY here (and the byte-identical mirror) — never in
    component css; components consume the inherited --jx-* aliases.
    ============================================================ */
@@ -884,61 +891,77 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-text-base: 0.8125rem; /* T_base = 13px */
   --jx-hit-floor: calc(var(--jx-unit) * 7); /* 28px guardrail, not a clamp */
 
+  --jx-density-text-2xs: calc(var(--jx-text-base) - calc(var(--jx-unit) * 3 / 4));
   --jx-density-text-xs: calc(var(--jx-text-base) - calc(var(--jx-unit) / 2));
   --jx-density-text-sm: calc(var(--jx-text-base) - calc(var(--jx-unit) / 4));
   --jx-density-text-default: var(--jx-text-base);
   --jx-density-text-lg: calc(var(--jx-text-base) + calc(var(--jx-unit) / 2));
 
+  --jx-density-leading-2xs: calc(14 / 10);
   --jx-density-leading-xs: calc(16 / 11);
   --jx-density-leading-sm: 1.5;
   --jx-density-leading-default: calc(20 / 13);
   --jx-density-leading-lg: 1.6;
 
+  --jx-density-inline-factor-2xs: 2;
   --jx-density-inline-factor-xs: 2;
   --jx-density-inline-factor-sm: 2;
   --jx-density-inline-factor-default: 3;
   --jx-density-inline-factor-lg: 4;
+  --jx-density-stack-factor-2xs: 1;
   --jx-density-stack-factor-xs: 1;
   --jx-density-stack-factor-sm: 1;
   --jx-density-stack-factor-default: 2;
   --jx-density-stack-factor-lg: 2;
+  --jx-density-row-floor-2xs: 6;
   --jx-density-row-floor-xs: 7;
   --jx-density-row-floor-sm: 8;
   --jx-density-row-floor-default: 10;
   --jx-density-row-floor-lg: 12;
 
+  --jx-density-line-2xs: calc(var(--jx-density-text-2xs) * var(--jx-density-leading-2xs));
   --jx-density-line-xs: calc(var(--jx-density-text-xs) * var(--jx-density-leading-xs));
   --jx-density-line-sm: calc(var(--jx-density-text-sm) * var(--jx-density-leading-sm));
   --jx-density-line-default: calc(var(--jx-density-text-default) * var(--jx-density-leading-default));
   --jx-density-line-lg: calc(var(--jx-density-text-lg) * var(--jx-density-leading-lg));
 
+  --jx-density-inline-gap-2xs: calc(var(--jx-unit) * var(--jx-density-inline-factor-2xs));
   --jx-density-inline-gap-xs: calc(var(--jx-unit) * var(--jx-density-inline-factor-xs));
   --jx-density-inline-gap-sm: calc(var(--jx-unit) * var(--jx-density-inline-factor-sm));
   --jx-density-inline-gap-default: calc(var(--jx-unit) * var(--jx-density-inline-factor-default));
   --jx-density-inline-gap-lg: calc(var(--jx-unit) * var(--jx-density-inline-factor-lg));
+  --jx-density-media-gutter-2xs: var(--jx-density-inline-gap-2xs);
   --jx-density-media-gutter-xs: var(--jx-density-inline-gap-xs);
   --jx-density-media-gutter-sm: var(--jx-density-inline-gap-sm);
   --jx-density-media-gutter-default: var(--jx-density-inline-gap-default);
   --jx-density-media-gutter-lg: var(--jx-density-inline-gap-lg);
+  --jx-density-end-gap-2xs: var(--jx-density-inline-gap-2xs);
   --jx-density-end-gap-xs: var(--jx-density-inline-gap-xs);
   --jx-density-end-gap-sm: var(--jx-density-inline-gap-sm);
   --jx-density-end-gap-default: var(--jx-density-inline-gap-default);
   --jx-density-end-gap-lg: var(--jx-density-inline-gap-lg);
+  --jx-density-stack-gap-2xs: calc(var(--jx-unit) * var(--jx-density-stack-factor-2xs));
   --jx-density-stack-gap-xs: calc(var(--jx-unit) * var(--jx-density-stack-factor-xs));
   --jx-density-stack-gap-sm: calc(var(--jx-unit) * var(--jx-density-stack-factor-sm));
   --jx-density-stack-gap-default: calc(var(--jx-unit) * var(--jx-density-stack-factor-default));
   --jx-density-stack-gap-lg: calc(var(--jx-unit) * var(--jx-density-stack-factor-lg));
 
+  --jx-density-inline-inset-2xs: var(--jx-density-inline-gap-2xs);
   --jx-density-inline-inset-xs: var(--jx-density-inline-gap-xs);
   --jx-density-inline-inset-sm: var(--jx-density-inline-gap-sm);
   --jx-density-inline-inset-default: var(--jx-density-inline-gap-default);
   --jx-density-inline-inset-lg: var(--jx-density-inline-gap-lg);
 
+  --jx-density-content-gap-2xs: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-2xs) / 2));
   --jx-density-content-gap-xs: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-xs) / 2));
   --jx-density-content-gap-sm: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-sm) / 2));
   --jx-density-content-gap-default: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-default) / 2));
   --jx-density-content-gap-lg: max(calc(var(--jx-unit) / 2), calc(var(--jx-density-stack-gap-lg) / 2));
 
+  --jx-density-row-min-2xs: max(
+    calc(var(--jx-density-line-2xs) + var(--jx-density-stack-gap-2xs) + var(--jx-density-stack-gap-2xs)),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-2xs))
+  );
   --jx-density-row-min-xs: max(
     calc(var(--jx-density-line-xs) + var(--jx-density-stack-gap-xs) + var(--jx-density-stack-gap-xs)),
     calc(var(--jx-unit) * var(--jx-density-row-floor-xs))
@@ -956,26 +979,34 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
     calc(var(--jx-unit) * var(--jx-density-row-floor-lg))
   );
 
+  --jx-density-hit-min-2xs: max(var(--jx-density-row-min-2xs), var(--jx-hit-floor));
   --jx-density-hit-min-xs: max(var(--jx-density-row-min-xs), var(--jx-hit-floor));
   --jx-density-hit-min-sm: max(var(--jx-density-row-min-sm), var(--jx-hit-floor));
   --jx-density-hit-min-default: max(var(--jx-density-row-min-default), var(--jx-hit-floor));
   --jx-density-hit-min-lg: max(var(--jx-density-row-min-lg), var(--jx-hit-floor));
 
+  --jx-density-media-icon-2xs: var(--jx-density-line-2xs);
   --jx-density-media-icon-xs: var(--jx-density-line-xs);
   --jx-density-media-icon-sm: var(--jx-density-line-sm);
   --jx-density-media-icon-default: var(--jx-density-line-default);
   --jx-density-media-icon-lg: var(--jx-density-line-lg);
+  --jx-density-media-image-2xs: calc(var(--jx-density-line-2xs) * 2);
   --jx-density-media-image-xs: calc(var(--jx-density-line-xs) * 2);
   --jx-density-media-image-sm: calc(var(--jx-density-line-sm) * 2);
   --jx-density-media-image-default: calc(var(--jx-density-line-default) * 2);
   --jx-density-media-image-lg: calc(var(--jx-density-line-lg) * 2);
 
-  /* Secondary text stays a role, not a component literal. */
+  /* Secondary text stays a role, not a component literal. At 2xs it
+     DEGENERATES: max(0.625rem, 10px − 1px) = 10px = the primary size —
+     the role distinction collapses at its floor (differentiate by ink,
+     never by size, below xs). */
+  --jx-density-secondary-text-2xs: max(0.625rem, calc(var(--jx-density-text-2xs) - calc(var(--jx-unit) / 4)));
   --jx-density-secondary-text-xs: max(0.625rem, calc(var(--jx-density-text-xs) - calc(var(--jx-unit) / 4)));
   --jx-density-secondary-text-sm: max(0.625rem, calc(var(--jx-density-text-sm) - calc(var(--jx-unit) / 4)));
   --jx-density-secondary-text-default: max(0.625rem, calc(var(--jx-density-text-default) - calc(var(--jx-unit) / 4)));
   --jx-density-secondary-text-lg: max(0.625rem, calc(var(--jx-density-text-lg) - calc(var(--jx-unit) / 4)));
   --jx-density-secondary-leading: 1.5;
+  --jx-density-secondary-line-2xs: calc(var(--jx-density-secondary-text-2xs) * var(--jx-density-secondary-leading));
   --jx-density-secondary-line-xs: calc(var(--jx-density-secondary-text-xs) * var(--jx-density-secondary-leading));
   --jx-density-secondary-line-sm: calc(var(--jx-density-secondary-text-sm) * var(--jx-density-secondary-leading));
   --jx-density-secondary-line-default: calc(var(--jx-density-secondary-text-default) * var(--jx-density-secondary-leading));
@@ -2137,6 +2168,43 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-text-secondary: var(--jx-density-secondary-text-sm);
   --jx-leading-secondary: var(--jx-density-secondary-leading);
   --jx-line-secondary: var(--jx-density-secondary-line-sm);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+  --jx-slider-track: max(var(--jx-unit), calc(var(--jx-line) / 2));
+  --jx-textarea-min: max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px));
+  --jx-color-lane: max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px));
+}
+
+/* ── the 2xs scope (2026-09-05-density-2xs) — the pro-tool extreme.
+   The ONE scoped floor in the sheet (the canvas-bug law: custom
+   properties substitute their var() at the DECLARING element, so a
+   :root-only hit-min would hand descendants the root-substituted
+   28px whatever this scope says): the scope redeclares BOTH the
+   floor and the 2xs hit-min — inside it the guardrail is 6U = 24px,
+   the WCAG 2.5.8 AA minimum, the deliberate pro-pointer stance for
+   non-touch operation surfaces (the adoption law: opt-in only,
+   never default). Placement keeps the chrome scope pinned AFTER
+   every density scope (:where() source order). */
+:where([data-density='2xs']) {
+  --jx-hit-floor: calc(var(--jx-unit) * 6); /* scoped: 24px = WCAG 2.5.8 AA */
+  --jx-density-hit-min-2xs: max(var(--jx-density-row-min-2xs), var(--jx-hit-floor));
+  --jx-text: var(--jx-density-text-2xs);
+  --jx-leading: var(--jx-density-leading-2xs);
+  --jx-line: var(--jx-density-line-2xs);
+  --jx-gap: var(--jx-density-inline-gap-2xs);
+  --jx-media-gutter: var(--jx-density-media-gutter-2xs);
+  --jx-gap-end: var(--jx-density-end-gap-2xs);
+  --jx-stack: var(--jx-density-stack-gap-2xs);
+  --jx-inset: var(--jx-density-inline-inset-2xs);
+  --jx-gap-content: var(--jx-density-content-gap-2xs);
+  --jx-row-min: var(--jx-density-row-min-2xs);
+  --jx-hit: var(--jx-density-hit-min-2xs);
+  --jx-icon: var(--jx-density-media-icon-2xs);
+  --jx-image: var(--jx-density-media-image-2xs);
+  --jx-text-secondary: var(--jx-density-secondary-text-2xs);
+  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-line-secondary: var(--jx-density-secondary-line-2xs);
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
   --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));

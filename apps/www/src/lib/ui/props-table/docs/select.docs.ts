@@ -42,7 +42,7 @@ export const SELECT_DOCS: PropsDocs = {
       description: 'Floating-surface fill of the panel.',
     },
     density: {
-      type: "'xs' | 'sm' | 'default' | 'lg'",
+      type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'",
       description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.',
     },
     disabled: {

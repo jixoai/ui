@@ -53,6 +53,7 @@ export const docsSections: DocsSection[] = [
       { title: 'jx-pure', subtitle: 'the componentless face', href: '/docs/jx-pure.html' },
       { title: 'icons', subtitle: 'glyphs, slots, the pipeline', href: '/docs/icons.html' },
       { title: 'variant-grammar', subtitle: 'one ladder, four slots', href: '/docs/variant-grammar.html' },
+      { title: 'density-2xs', subtitle: 'the pro-tool rung', href: '/docs/density-2xs.html' },
       { title: 'context & defaults', subtitle: 'the ambient style contract', href: '/docs/context-defaults.html' },
       { title: 'demo-standard', subtitle: 'one skeleton, six sections', href: '/docs/demo-standard.html' },
       { title: 'paged', subtitle: 'the print pipeline', href: '/docs/paged.html' },

@@ -1,6 +1,9 @@
 <!--
-  jixoai DensityDemo — the four-scope live demo. Wraps children in
-  all four [data-density] wrappers side-by-side with scope labels.
+  jixoai DensityDemo — the multi-scope live demo. Wraps children in
+  [data-density] wrappers side-by-side with scope labels. The default
+  stays the four GENERAL rungs — 2xs (2026-09-05-density-2xs) is
+  opt-in only (pro-tool operation surfaces, never default docs UI);
+  pages documenting the full scale pass it explicitly.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -8,7 +11,7 @@
 
   interface Props {
     children: Snippet;
-    scopes?: ('xs' | 'sm' | 'default' | 'lg')[];
+    scopes?: ('2xs' | 'xs' | 'sm' | 'default' | 'lg')[];
     class?: string;
   }
 

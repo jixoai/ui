@@ -17,7 +17,9 @@ import { resolve } from 'node:path';
 import { render } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { describe, expect, it } from 'vitest';
+import type { Snippet } from 'svelte';
 import Host from './fixtures/density-context-host.svelte';
+import Provider from './fixtures/density-provider-host.svelte';
 import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
 import { resolveDensity, DEFAULT_DENSITY, type DensityContext } from '../src/lib/density.svelte';
 
@@ -56,9 +58,21 @@ describe('density context — the policy channel', () => {
         resolveDensity(undefined, undefined),
         // a local fallback is a REAL opinion (Table defaults sm)
         resolveDensity(undefined, undefined, 'sm'),
+        // 2xs (2026-09-05-density-2xs): the pro-tool rung is a
+        // first-class opinion — explicit beats an inherited sm
+        resolveDensity('2xs', inherited),
       ]),
-    ).toEqual(['lg', 'sm', undefined, 'sm']);
+    ).toEqual(['lg', 'sm', undefined, 'sm', '2xs']);
     expect(resolveInWindow(() => resolveDensity(undefined, undefined))).not.toBe(DEFAULT_DENSITY);
+  });
+
+  it('2xs resolves, stamps, and inherits like any rung — the opt-in pro-tool scope', () => {
+    // provider channel: a 2xs provider stamps the scope; the css scope
+    // channel then applies the rung's SCOPED 6U hit floor — that half
+    // is gated in real Chromium by verify-density-kernel.mjs
+    const empty: Snippet = (() => {}) as Snippet;
+    const { container } = render(Provider, { props: { density: '2xs', children: empty } });
+    expect(container.querySelector('[data-density]')!.getAttribute('data-density')).toBe('2xs');
   });
 
   it('an undefined opinion flows through exactly like no context (chrome-density-tier r3)', () => {

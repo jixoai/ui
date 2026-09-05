@@ -348,7 +348,7 @@
           { name: 'count', type: 'boolean', default: 'false', description: 'Appends an "N / maxLength" readout to the inner-block-end row.' },
           { name: 'rows', type: 'number', default: '4', description: 'Native rows attribute, passed through verbatim.' },
           { name: 'value', type: 'string | number', default: '—', description: 'Bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true },
-          { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
+          { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
           { name: 'innerBlockStart', type: 'Snippet', default: '—', description: 'Inside the shell, above the textarea (toolbar row, behind a hairline).' },
           { name: 'innerBlockEnd', type: 'Snippet', default: '—', description: 'Inside the shell, below the textarea (status row).' },
           { name: 'outerBlockStart', type: 'Snippet', default: '—', description: 'Outside the shell, above — replaces the label row when given.' },

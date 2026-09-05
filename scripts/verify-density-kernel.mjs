@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 // Density kernel gate — serves the compiled CSS with a probe page and
-// locks the four-row computed table + scope inheritance.
+// locks the five-row computed table + scope inheritance (2xs joined
+// 2026-09-05-density-2xs). The hit column follows the 2026-08-29
+// ruling — max(rowMin, 7U): 28/32/40/48 for the general rungs; the
+// 44/44/44 rows here were stale leftovers of the retired 11U touch
+// clamp (the sheet never computed them after e2a... 2026-08-29) and
+// are repaired with the 2xs landing. 2xs SCOPES its floor at 6U = 24px
+// (WCAG 2.5.8 AA) inside [data-density='2xs'] — the one scoped floor.
 import { createServer } from 'node:http';
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -11,9 +17,11 @@ const CHROME = homedir() + '/Library/Caches/ms-playwright/chromium-1228/chrome-m
 const TABLE_ONLY = process.argv.includes('--table-only');
 
 const TABLE = {
-  xs: [11, 16, 8, 4, 8, 28, 44, 16, 32, 2, 10, 15],
-  sm: [12, 18, 8, 4, 8, 32, 44, 18, 36, 2, 11, 16.5],
-  default: [13, 20, 12, 8, 12, 40, 44, 20, 40, 4, 12, 18],
+  //          text line gap stack inset row-min hit icon image gap-content text-secondary line-secondary
+  '2xs': [10, 14, 8, 4, 8, 24, 24, 14, 28, 2, 10, 15], // hit floor SCOPED at 6U
+  xs: [11, 16, 8, 4, 8, 28, 28, 16, 32, 2, 10, 15],
+  sm: [12, 18, 8, 4, 8, 32, 32, 18, 36, 2, 11, 16.5],
+  default: [13, 20, 12, 8, 12, 40, 40, 20, 40, 4, 12, 18],
   lg: [15, 24, 16, 8, 16, 48, 48, 24, 48, 4, 14, 21],
 };
 const KEYS = ['text', 'line', 'gap', 'stack', 'inset', 'row-min', 'hit', 'icon', 'image', 'gap-content', 'text-secondary', 'line-secondary'];
@@ -66,8 +74,10 @@ const probeHtml = `<!doctype html><html><head><meta charset="utf-8">
 .p-cgap { display: flex; row-gap: var(--jx-gap-content); }
 .p-stext { font-size: var(--jx-text-secondary); }
 .p-sline { line-height: var(--jx-line-secondary); font-size: var(--jx-text-secondary); }
+.p-floor { min-height: var(--jx-hit-floor); }
 </style></head><body>
-${Object.keys(TABLE).map((d) => `<div data-density="${d}" id="probe-${d}"><span class="p-text"></span><span class="p-line"></span><div class="p-gap"></div><div class="p-stack"></div><div class="p-inset"></div><div class="p-rowmin"></div><div class="p-hitmin"></div><div class="p-micon"></div><div class="p-mimage"></div><div class="p-cgap"></div><span class="p-stext"></span><span class="p-sline"></span></div>`).join('\n')}
+${Object.keys(TABLE).map((d) => `<div data-density="${d}" id="probe-${d}"><span class="p-text"></span><span class="p-line"></span><div class="p-gap"></div><div class="p-stack"></div><div class="p-inset"></div><div class="p-rowmin"></div><div class="p-hitmin"></div><div class="p-micon"></div><div class="p-mimage"></div><div class="p-cgap"></div><span class="p-stext"></span><span class="p-sline"></span><div class="p-floor"></div></div>`).join('\n')}
+<div class="p-floor" id="probe-rootfloor"></div>
 <div data-jx-chrome id="probe-chrome"><span class="p-text"></span><span class="p-line"></span><div class="p-gap"></div><div class="p-stack"></div><div class="p-inset"></div><div class="p-rowmin"></div><div class="p-hitmin"></div><div class="p-micon"></div><div class="p-mimage"></div></div>
 <div data-density="sm" id="probe-outer"><div data-density="xs" id="probe-inner"><span class="p-text" id="probe-nested"></span></div></div>
 <span class="p-text" id="probe-root"></span>
@@ -99,7 +109,7 @@ const read = await page.evaluate(() => {
     return { fs: cs.fontSize, lh: cs.lineHeight, cg: cs.columnGap, rg: cs.rowGap, pis: cs.paddingInlineStart, mh: cs.minHeight, w: cs.width };
   };
   const out = {};
-  for (const scope of ['xs', 'sm', 'default', 'lg']) {
+  for (const scope of ['2xs', 'xs', 'sm', 'default', 'lg']) {
     const id = `probe-${scope}`;
     out[scope] = {
       text: px(readOne(id, 'p-text').fs),
@@ -114,6 +124,7 @@ const read = await page.evaluate(() => {
       'gap-content': px(readOne(id, 'p-cgap').rg),
       'text-secondary': px(readOne(id, 'p-stext').fs),
       'line-secondary': px(readOne(id, 'p-sline').lh),
+      floor: px(readOne(id, 'p-floor').mh),
     };
   }
   // the chrome scope (chrome-density-tier): its OWN pinned band, not a
@@ -130,6 +141,7 @@ const read = await page.evaluate(() => {
     icon: px(readOne('probe-chrome', 'p-micon').w),
     image: px(readOne('probe-chrome', 'p-mimage').w),
   };
+  out.rootFloor = px(getComputedStyle(document.getElementById('probe-rootfloor')).minHeight);
   out.nested = px(getComputedStyle(document.getElementById('probe-nested')).fontSize);
   out.root = px(getComputedStyle(document.getElementById('probe-root')).fontSize);
   out.unit = getComputedStyle(document.documentElement).getPropertyValue('--jx-unit').trim();
@@ -137,6 +149,11 @@ const read = await page.evaluate(() => {
 });
 
 check('ruler unit computes', read.unit === '0.25rem', read.unit);
+// the ONE scoped floor: 6U (24px, WCAG 2.5.8 AA) inside the 2xs scope,
+// 7U (28px) everywhere else — the :root guardrail is untouched
+check('2xs scoped hit floor = 24px', read['2xs'].floor === 24, `got ${read['2xs'].floor}`);
+check('root hit floor guardrail stays 28px', read.rootFloor === 28, `got ${read.rootFloor}`);
+check('2xs hit == rowMin == the scoped floor', read['2xs'].hit === read['2xs']['row-min'] && read['2xs'].hit === 24);
 for (const [density, row] of Object.entries(TABLE)) {
   for (let i = 0; i < KEYS.length; i++) {
     const got = read[density][KEYS[i]];

@@ -37,6 +37,14 @@ describe('packet A form-text density adoption', () => {
       .toEqual(['xs', 'sm', 'default', 'lg', 'xs', 'sm', 'default', 'lg']);
   });
 
+  it('stamps the 2xs rung — the opt-in pro-tool operation scope (2026-09-05-density-2xs)', () => {
+    // 2xs widens the union, not the policy: one prop, one stamp — the
+    // scoped 6U hit floor it switches on is the css channel's business
+    // (verify-density-kernel.mjs), jsdom only proves the stamp
+    const { container } = render(Textarea, { props: { density: '2xs' } });
+    expect(container.querySelector('[data-density]')?.getAttribute('data-density')).toBe('2xs');
+  });
+
   it('keeps the public seam closed: density is the only policy prop', () => {
     for (const family of ['input', 'textarea', 'select', 'native-select', 'number-input', 'tags-input', 'input-otp', 'file-input']) {
       const source = readFileSync(resolve(sourceRoot, `registry/files/ui/${family}/${family}.svelte`), 'utf8');

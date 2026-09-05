@@ -197,8 +197,8 @@ ${close}
       title="form controls across the density ladder"
       summary="The same native control keeps its semantics while the inherited density scope changes its footprint. Each row is a real clickable control for physical hit-target probes."
     >
-      <div class="grid gap-4 min-[760px]:grid-cols-4" data-density-ladder>
-        {#each ['xs', 'sm', 'default', 'lg'] as density}
+      <div class="grid gap-4 min-[760px]:grid-cols-5" data-density-ladder>
+        {#each ['2xs', 'xs', 'sm', 'default', 'lg'] as density}
           <div data-density={density} data-density-scope={density} class="flex min-w-0 flex-col gap-[var(--jx-gap)]">
             <span class="font-nav text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">{density}</span>
             <Input label={`${density} input`} placeholder="click target" />

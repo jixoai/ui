@@ -67,7 +67,7 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the trigger and the form-bridge field.' },
     { name: 'multiple', type: 'boolean', default: 'false', description: 'Reserved extension direction — not implemented in v1 (warns).' },
     { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the panel.', ambient: 'own' },
-    { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
   ],
   popover: [
     { name: 'id', type: 'string', default: '—', description: 'Popover id: popovertarget association + the CSS anchor name.', required: true },

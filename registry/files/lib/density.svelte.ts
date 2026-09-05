@@ -19,7 +19,7 @@ import { getContext, setContext } from 'svelte';
 import { getContextPlugins, defineContextDef, type ContextDef } from './context-plugin.svelte';
 import { defineAxisSlot, type DefaultsSlot } from './defaults.svelte';
 
-export type Density = 'lg' | 'default' | 'sm' | 'xs';
+export type Density = 'lg' | 'default' | 'sm' | 'xs' | '2xs';
 
 export const DEFAULT_DENSITY: Density = 'default';
 
@@ -103,7 +103,8 @@ export function provideDensity(density: () => Density | undefined): DensityConte
 // window contract, D3-C — the read runs only where it is legal). A
 // family's local fallback (Table's 'sm', ghostty-term's 'default')
 // declares as the own argument, never an inline component fallback.
-// Density is a closed four-value union with no family narrowing, so
+// Density is a closed five-value union (2xs joined 2026-09-05-density-2xs:
+// opt-in pro-tool rung, never a default) with no family narrowing, so
 // the slot is deliberately non-generic (the gate's explicit-type-
 // argument rule exempts it).
 

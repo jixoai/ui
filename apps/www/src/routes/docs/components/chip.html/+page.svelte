@@ -458,7 +458,7 @@ ${close}
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The public contract: the ladder, the silhouette, one optional effect, navigation, and two snippet lanes around the required children.">
       <PropsTable props={[
-        { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the surrounding density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
+        { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the surrounding density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
         { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: "'tonal' · ambient zone", description: 'Selects the grammar ladder step. Omitted → the ambient paint zone (ButtonGroup / zone scope), else the frozen own.' },
         { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Square keeps the site radius; pill rounds fully. Own default, not ambient.' },
         { name: 'effect', type: 'PressEffect | null', default: 'ripple()', description: 'One press-button effect builder; undefined resolves to the ripple() defaults, null disables every loop.' },
