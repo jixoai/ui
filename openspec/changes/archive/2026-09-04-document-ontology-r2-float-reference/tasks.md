@@ -44,7 +44,7 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
 
 ## 1. Section 编号树（依赖：0）
 
-- [ ] 1.1 numbering context 机件（design §1.1 唯一许可实现）：域根
+- [x] 1.1 numbering context 机件（design §1.1 唯一许可实现）：域根
       响应式注册表 + **两级 revision 信号矩阵**（域根 observer →
       domainRevision；文档级域注册表 observer → documentRevision，
       各自驱动各自派生）+ compareDocumentPosition 序数派生
@@ -53,49 +53,49 @@ reference-interaction-host（click/键盘/hydrate）、harvest-page
       （A→B 夹具：旧域不计数、新域立即计数、注册表单活动 entry）；
       SSR 退化为模板序代理（与 design §1.1(d) 同词——不是第二条赋序法则） + 水合首帧一致（mismatch 即失败）；CSR-only
       首帧可短暂无编号（settle 后一致，记档立场）
-- [ ] 1.2 `floatScope` kind 轴配置（默认全 chapter；document 连续
+- [x] 1.2 `floatScope` kind 轴配置（默认全 chapter；document 连续
       例外；仅域级可声明；脱离 numbering = dev warn 后忽略）
-- [ ] 1.3 现状门（**基线先行**）：实现前落 fixture 的 section-card
+- [x] 1.3 现状门（**基线先行**）：实现前落 fixture 的 section-card
       输出快照；实现后断言——不在域子树内的节 outerHTML 逐字节
       全等 + 无 `data-number` + 无编号文本节点
-- [ ] 1.4 `data-number` 发射（R1 车道语法族；编号双落 DOM 文本 +
+- [x] 1.4 `data-number` 发射（R1 车道语法族；编号双落 DOM 文本 +
       attr，可见 DOM 形状按 design §1.1c 冻结——根元素 attr +
       标题内前置 `<span data-jx-number>`，无编号节点不存在；
       禁 CSS counter——pagedjs 劫持实证）；**Section 挂载注册进
       文档注册表**（0.1 的 SectionTargetEntry：number 可空/
       title= title prop）
-- [ ] 1.5 多根并列域矩阵项：兄弟章节各声明根域，章序数按文档序
+- [x] 1.5 多根并列域矩阵项：兄弟章节各声明根域，章序数按文档序
       递增（design §5）
 
 ## 2. Figure 家族（新 ui/figure/ 组件层；依赖：0、1 的域 context）
 
-- [ ] 2.1 组件：kind 四值 + 图注槽（英文默认显示词，消费 0.1 映射
+- [x] 2.1 组件：kind 四值 + 图注槽（英文默认显示词，消费 0.1 映射
       表）+ 计数渲染 + `citedIn` 手动标注（头注释含反链缺口说明、
       静态串腐化风险、回归条件）；裸用（无域）不编号 + dev warn；
       **Figure 挂载注册进文档注册表**（0.1 接口）
-- [ ] 2.2 收割发射：`data-jx-figure`/`data-number`/`data-cited-in`
+- [x] 2.2 收割发射：`data-jx-figure`/`data-number`/`data-cited-in`
       （JSON 数组）
-- [ ] 2.3 测试：计数矩阵（kind×scope×域嵌套，含嵌套域遮蔽、
+- [x] 2.3 测试：计数矩阵（kind×scope×域嵌套，含嵌套域遮蔽、
       document 混合态、多根并列）+ citedIn 渲染/发射 + 裸用行为
-- [ ] 2.4 （组件层止于源文件与测试；registry/镜像/manifest 归
+- [x] 2.4 （组件层止于源文件与测试；registry/镜像/manifest 归
       批次 6 串行整合，见下）
 
 ## 3. Reference 家族（新 ui/reference/；依赖：0——消费既有注册表）
 
-- [ ] 3.1 组件：`to` 寻址（**消费 0.1 冻结的文档注册表，不自建**）
+- [x] 3.1 组件：`to` 寻址（**消费 0.1 冻结的文档注册表，不自建**）
       + 目标自述解析（figure 按kind / 编号节 §N / 无编号标题——
       无连接词 / 缺失 id 响亮回退）+ children 逃生门 + 前向引用
       水合跟随（「尚未注册」≠「不存在」，warn 仅 settle 后触发；
       **settle 口径 = 水合完成 + 双 rAF 后目标仍缺席**）
-- [ ] 3.2 `data-ref-to` 发射（**状态分裂**：SSR 回退态携带边主张
+- [x] 3.2 `data-ref-to` 发射（**状态分裂**：SSR 回退态携带边主张
       ——「尚未注册≠不存在」；**settle 后真缺失才摘除**——死锚
       禁令保持 settle 语义）
-- [ ] 3.3 测试：解析矩阵五态（equation/section/无编号/缺失 id/
+- [x] 3.3 测试：解析矩阵五态（equation/section/无编号/缺失 id/
       前向引用 SSR 形态 `??(to)`→水合跟随）+ 逃生门 + 回退断言
       （`vi.spyOn(console,'warn')` 按 settle 口径调用一次含目标
       id + `??(to)` 在场 + 不抛错 + **settle 后**无 data-ref-to +
       **SSR 态保留 data-ref-to**（前向边主张））
-- [ ] 3.4 （组件层止于源文件与测试；registry/镜像/manifest 归
+- [x] 3.4 （组件层止于源文件与测试；registry/镜像/manifest 归
       批次 6 串行整合）
 
 ## 4. 交叉门（依赖：1+2+3）
