@@ -125,7 +125,8 @@ export const search = svg('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.
 
 // input semantic-glyph set (2026-09-05, Owner: url/phone etc.
 // default-support their glyph): link/phone/mail ride the Input
-// shell's semantic-icon lane — search reuses the r9 entry above.
+// shell's semantic-icon lane — search reuses the r9 entry above,
+// text reuses the Type entry below.
 export const link = svg(
   '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>'
 );
@@ -134,6 +135,12 @@ export const phone = svg(
 );
 export const mail = svg(
   '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'
+);
+
+// the text glyph (2026-09-05, Owner: "给 type-text 也加上默认
+// 图标") — the T marks the generic text lane in the same vocabulary.
+export const type = svg(
+  '<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/>'
 );
 
 /** named-access bag for {@html icons.<name>} consumption */
@@ -175,4 +182,5 @@ export const icons = {
   link,
   phone,
   mail,
+  type,
 };

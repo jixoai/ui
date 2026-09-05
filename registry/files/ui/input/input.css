@@ -410,3 +410,24 @@
   border-color: var(--ring);
 }
 
+
+/* ── ONE glyph, ONE owner — UNLAYERED ON PURPOSE ──────────────────────
+   (Owner catch 2026-09-05: "email 变成头尾都有图标" — 违背"首先默认
+   图标，然后默认图标位置"). jx-pure paints background glyphs on the
+   native lane for some types (email/search — Tier-1's default-icon
+   standard, leading position + a reserved padding-inline-start) and
+   those alias rules sit OUTSIDE every @layer in jx-pure.css — a
+   layered kill loses to an unlayered paint no matter its specificity,
+   so this block lives at the sheet's top level. The component's
+   semantic glyph lane IS that standard's component era: same geometry
+   (the shared icon set), a MOVABLE side (the order ladder — the
+   position axis the Owner asked for), snippet-overridable. Inside a
+   mounted component shell the painted background dies and its
+   reserved padding goes with it (the search-cancel kill's sibling law
+   — Tier-1 keeps painting BARE markup only); token customization
+   (--jx-icon-mail …) moves to the `icon` snippet on this lane */
+.jx-html-control-shell .jx-html-control-lane[type='email'],
+.jx-html-control-shell .jx-html-control-lane[type='search'] {
+  background-image: none;
+  padding-inline-start: 0;
+}

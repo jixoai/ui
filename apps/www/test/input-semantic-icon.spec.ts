@@ -31,9 +31,9 @@ const fieldOf = (container: HTMLElement, testid: string): HTMLElement => {
 };
 
 describe('the semantic glyph lane — DOM stamps', () => {
-  it('the four semantic types render their glyph by default, stamped auto', () => {
+  it('the five text-like types render their glyph by default, stamped auto', () => {
     const { container } = render(Host);
-    for (const id of ['sem-url', 'sem-tel', 'sem-email', 'sem-search']) {
+    for (const id of ['sem-url', 'sem-tel', 'sem-email', 'sem-search', 'sem-text']) {
       const shell = shellOf(container, id);
       const glyph = shell.querySelector('[data-jx-semantic-icon]');
       expect(glyph, id).not.toBeNull();
@@ -44,10 +44,14 @@ describe('the semantic glyph lane — DOM stamps', () => {
     }
   });
 
-  it('plain text and password carry no glyph (the map is semantic-only)', () => {
+  it('password stays glyph-less (the eye owns it) and icon={null} opts out explicitly', () => {
     const { container } = render(Host);
-    expect(shellOf(container, 'sem-text').querySelector('[data-jx-semantic-icon]')).toBeNull();
-    expect(shellOf(container, 'sem-text').getAttribute('data-icon-position')).toBeNull();
+    // password is not in the map — its end lane is the reveal eye's
+    expect(shellOf(container, 'sem-password').querySelector('[data-jx-semantic-icon]')).toBeNull();
+    expect(shellOf(container, 'sem-password').getAttribute('data-icon-position')).toBeNull();
+    // the tri-state off lane: null ≠ undefined — no glyph, no stamp
+    expect(shellOf(container, 'sem-optout').querySelector('[data-jx-semantic-icon]')).toBeNull();
+    expect(shellOf(container, 'sem-optout').getAttribute('data-icon-position')).toBeNull();
   });
 
   it('the icon snippet overrides the glyph; iconPosition pins the side', () => {
@@ -63,7 +67,7 @@ describe('the semantic glyph lane — DOM stamps', () => {
     const { container } = render(Host);
     // slotted: the shell carries the inline inset, the lane drops its padding
     expect(shellOf(container, 'sem-url').classList.contains('jx-slotted')).toBe(true);
-    expect(shellOf(container, 'sem-text').classList.contains('jx-slotted')).toBe(false);
+    expect(shellOf(container, 'sem-optout').classList.contains('jx-slotted')).toBe(false);
     // data-self-inset (the end-inset ownership law): auto/end may trail →
     // the lane yields; an explicit START never trails → no capability
     expect(fieldOf(container, 'sem-url').getAttribute('data-self-inset')).toBe('');
@@ -103,5 +107,15 @@ describe('the semantic glyph lane — the css axis (source-pinned)', () => {
     const block = css.slice(fold, css.indexOf('}', css.indexOf('[data-jx-semantic-icon]', fold)));
     expect(block).toContain("[data-slot='item-end'][data-wrap='auto']");
     expect(block).toMatch(/order: 2/);
+  });
+
+  it('ONE glyph, ONE owner (Owner catch: email doubled head+tail) — the component shell kills the Tier-1 painted lane glyphs', () => {
+    // jx-pure paints background icons on the native lane for email/search
+    // (Tier-1's default-icon standard, leading); the component's glyph
+    // lane supersedes it — same law as the search-cancel kill
+    expect(css).toMatch(
+      /\.jx-html-control-lane\[type='email'\][^}]*background-image: none/s,
+    );
+    expect(css).toMatch(/\.jx-html-control-lane\[type='search'\][^}]*background-image: none/s);
   });
 });

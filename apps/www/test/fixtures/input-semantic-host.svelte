@@ -12,6 +12,8 @@
   <Input data-testid="sem-email" type="email" label="Email" />
   <Input data-testid="sem-search" type="search" label="Search" />
   <Input data-testid="sem-text" type="text" label="Plain" />
+  <Input data-testid="sem-password" type="password" label="Secret" />
+  <Input data-testid="sem-optout" type="url" icon={null} label="Opted out" />
   <Input data-testid="sem-pinned-start" type="url" iconPosition="start" label="Pinned start" />
   <Input data-testid="sem-pinned-end" type="tel" iconPosition="end" label="Pinned end" />
   <Input data-testid="sem-custom" type="text" label="Custom glyph">

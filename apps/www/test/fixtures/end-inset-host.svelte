@@ -20,7 +20,11 @@
   </Item>
   <Item>
     <ItemContent><ItemTitle>input plain</ItemTitle></ItemContent>
-    <ItemEnd><Input aria-label="plain" bind:value={plain} /></ItemEnd>
+    <ItemEnd><Input aria-label="plain" icon={null} bind:value={plain} /></ItemEnd>
+  </Item>
+  <Item>
+    <ItemContent><ItemTitle>input glyph</ItemTitle></ItemContent>
+    <ItemEnd><Input aria-label="glyph" bind:value={plain} /></ItemEnd>
   </Item>
   <Item>
     <ItemContent><ItemTitle>input clearable</ItemTitle></ItemContent>

@@ -107,12 +107,17 @@ const GROUPS = [
   },
   {
     comment:
-      "// input semantic-glyph set (2026-09-05, Owner: url/phone etc.\n// default-support their glyph): link/phone/mail ride the Input\n// shell's semantic-icon lane — search reuses the r9 entry above.",
+      "// input semantic-glyph set (2026-09-05, Owner: url/phone etc.\n// default-support their glyph): link/phone/mail ride the Input\n// shell's semantic-icon lane — search reuses the r9 entry above,\n// text reuses the Type entry below.",
     icons: [
       ['link', 'Link'],
       ['phone', 'Phone'],
       ['mail', 'Mail'],
     ],
+  },
+  {
+    comment:
+      '// the text glyph (2026-09-05, Owner: "给 type-text 也加上默认\n// 图标") — the T marks the generic text lane in the same vocabulary.',
+    icons: [['type', 'Type']],
   },
 ];
 

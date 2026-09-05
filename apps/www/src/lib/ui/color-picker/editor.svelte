@@ -283,11 +283,14 @@
        FULL column so every edge flushes — no ragged 200px/256px mix.
        The format select takes its own compact row below. -->
   <div class="flex items-center gap-1.5">
+    <!-- icon={null}: the hex value lane is a notation field, not prose —
+         the Type T would be noise beside the swatch column -->
     <Input
       data-jx-color-picker-input
       class="font-mono text-[13px] min-w-[29ch]"
       bind:value={textDraft}
       onchange={commitText}
+      icon={null}
     />
     {#if canPick}
       <IconButton variant="outline" iconOnly text="Pick from screen" onclick={pickFromScreen}>

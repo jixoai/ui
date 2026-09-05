@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-05T12:31:30.497Z",
+  "generatedAt": "2026-09-05T12:42:47.437Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -818,15 +818,15 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "b8d6d7b314a1d016110f84b99253cc40eb64d809a3d1b61f3c7208a41422aee4",
-          "mirrorSha": "b8d6d7b314a1d016110f84b99253cc40eb64d809a3d1b61f3c7208a41422aee4"
+          "sourceSha": "7eb4cbcd3a892a7148b9b6fc2ff290dca2553e966f86470347bb0d2b1ff1e436",
+          "mirrorSha": "7eb4cbcd3a892a7148b9b6fc2ff290dca2553e966f86470347bb0d2b1ff1e436"
         },
         {
           "source": "registry/files/ui/input/input.css",
           "mirror": "apps/www/src/lib/ui/input/input.css",
           "target": "@ui/input/input.css",
-          "sourceSha": "6da1a69fdb937df9f993b6b17f010294c1b00a940406fa5e6ac5350a03b7e26b",
-          "mirrorSha": "6da1a69fdb937df9f993b6b17f010294c1b00a940406fa5e6ac5350a03b7e26b"
+          "sourceSha": "bdf97e12965eb88a799a22c664052afd5edca3cd0de73624f01c84f524554b21",
+          "mirrorSha": "bdf97e12965eb88a799a22c664052afd5edca3cd0de73624f01c84f524554b21"
         },
         {
           "source": "registry/files/ui/input/index.ts",
@@ -1075,8 +1075,8 @@
           "source": "registry/files/lib/icons.ts",
           "mirror": "apps/www/src/lib/icons.ts",
           "target": "@lib/icons.ts",
-          "sourceSha": "b113fec993000e528950870a8e0df97c9edea1cfa342bf2b29e6767399412b62",
-          "mirrorSha": "b113fec993000e528950870a8e0df97c9edea1cfa342bf2b29e6767399412b62"
+          "sourceSha": "8c3444ed032f15fa527da9e5e01e74b7b7245238f405583e68d371a917bb7d5c",
+          "mirrorSha": "8c3444ed032f15fa527da9e5e01e74b7b7245238f405583e68d371a917bb7d5c"
         }
       ]
     },
@@ -1522,8 +1522,8 @@
           "source": "registry/files/ui/color-picker/editor.svelte",
           "mirror": "apps/www/src/lib/ui/color-picker/editor.svelte",
           "target": "@ui/color-picker/editor.svelte",
-          "sourceSha": "adbf0862f7fbb8caf682fa5b8be9affd2ed9f680e2472d2d13731a347a62e671",
-          "mirrorSha": "adbf0862f7fbb8caf682fa5b8be9affd2ed9f680e2472d2d13731a347a62e671"
+          "sourceSha": "be706f286ec9e61bf4280f313752aa5b1611812311cf7fa787e03e8182eb6eab",
+          "mirrorSha": "be706f286ec9e61bf4280f313752aa5b1611812311cf7fa787e03e8182eb6eab"
         },
         {
           "source": "registry/files/ui/color-picker/color-picker-defaults.svelte.ts",

@@ -118,13 +118,17 @@
                  default stacked paint untouched.
 
   2026-09-05 · the semantic glyph lane (Owner: "url/phone 等，都应该
-  默认支持，并且支持配置 default-icon-position: start|end|null").
-  Semantic text types carry their recognition glyph by DEFAULT —
-  url→link, tel→phone, email→mail, search→magnifier; `icon` swaps the
-  glyph, `iconPosition` pins the side (absent = null = inherit
-  context). The unpinned side is CSS-OWNED (input.css order ladder):
-  base LEADS (the full-width industry norm), a list-item trailing end
-  lane rides the TRAILING edge (the lane's trailing-affordance line,
+  默认支持，并且支持配置 default-icon-position: start|end|null";
+  same day: "给 type-text 也加上默认图标"). EVERY text-like type
+  carries its recognition glyph by DEFAULT — url→link, tel→phone,
+  email→mail, search→magnifier, text→the Type T; `icon` is tri-state:
+  undefined = the per-type default, null = explicitly OFF (embedded
+  lanes that paint their own glyphs opt out — the search palette's
+  head, the color editor's value input), a snippet = custom.
+  `iconPosition` pins the side (absent = null = inherit context).
+  The unpinned side is CSS-OWNED (input.css order ladder): base LEADS
+  (the full-width industry norm), a list-item trailing end lane rides
+  the TRAILING edge (the lane's trailing-affordance line,
   select-chevron kin), and the lane's 30rem fold suspends back to
   leading — the inset-contract suspension precedent. The fold is a
   container-query state JS cannot see; that is exactly why this axis
@@ -185,10 +189,11 @@
     innerInlineStart?: Snippet;
     /** inside the shell, right of the input (suffix / unit / action) */
     innerInlineEnd?: Snippet;
-    /** the semantic glyph — a Snippet override for the per-type default
-     *  (url→link, tel→phone, email→mail, search→magnifier); any
-     *  text-like type may carry one */
-    icon?: Snippet;
+    /** the semantic glyph, tri-state: undefined = the per-type default
+     *  (url→link, tel→phone, email→mail, search→magnifier, text→the
+     *  Type T); null = explicitly OFF (embedded lanes that paint their
+     *  own glyphs opt out); a snippet = the custom glyph */
+    icon?: Snippet | null;
     /** pin the glyph's side; absent = null = inherit context — the
      *  shell's css leads by default, a list-item trailing lane rides
      *  the trailing edge, and the lane's 30rem fold suspends back to
@@ -322,17 +327,21 @@
 
   const shownValue = $derived(liveValue ?? (controlled ? String(value) : ''));
   // ---- the semantic glyph lane (Owner 2026-09-05) -----------------------
-  // per-type default glyphs: explicit `icon` snippet swaps the glyph,
-  // `iconPosition` pins the side; the unpinned side is resolved by the
-  // shell's css (see input.css — the order ladder + lane ambient)
+  // EVERY text-like type carries a glyph by default: url→link, tel→phone,
+  // email→mail, search→magnifier, text→the Type T (the Owner's same-day
+  // follow-up). `icon` is tri-state: undefined = the default, null =
+  // explicitly off (embedded self-painting lanes opt out), a snippet =
+  // custom; `iconPosition` pins the side; the unpinned side is resolved
+  // by the shell's css (see input.css — the order ladder + lane ambient)
   const SEMANTIC_GLYPHS: Partial<Record<string, keyof typeof icons>> = {
+    text: 'type',
     url: 'link',
     tel: 'phone',
     email: 'mail',
     search: 'search',
   };
   const semanticGlyphHtml = $derived.by(() => {
-    if (icon != null || !isTextLike) return undefined;
+    if (icon !== undefined || !isTextLike) return undefined;
     const glyph = SEMANTIC_GLYPHS[type];
     return glyph ? icons[glyph] : undefined;
   });

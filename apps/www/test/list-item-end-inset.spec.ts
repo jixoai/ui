@@ -4,7 +4,8 @@
  * optical tail has ONE owner: a self-insetting control at the lane's
  * terminal position declares data-self-inset at its ROOT face; the
  * row drops its trailing inset for that row. Silent controls
- * (checkbox/toggle/plain input) keep the row's inset.
+ * (checkbox/toggle/an input with no trailing affordance) keep the
+ * row's inset.
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -18,10 +19,14 @@ const laneOf = (container: HTMLElement, title: string) =>
     .querySelector('[data-slot="item-end"]')!;
 
 describe('end-inset ownership stamps', () => {
-  it('select always self-insets (the chevron reserve); plain input does not; clearable input does', () => {
+  it('select always self-insets (the chevron reserve); an input with no trailing affordance does not; the glyph/clear lanes do', () => {
     const { container } = render(EndInsetHost);
     expect(laneOf(container, 'select').firstElementChild.hasAttribute('data-self-inset')).toBe(true);
+    // the no-affordance probe opts OUT of the text glyph (icon={null}) —
+    // the semantic-glyph round (2026-09-05) made plain text carry the
+    // Type T, which may trail and therefore self-insets like any suffix
     expect(laneOf(container, 'input plain').firstElementChild.hasAttribute('data-self-inset')).toBe(false);
+    expect(laneOf(container, 'input glyph').firstElementChild.hasAttribute('data-self-inset')).toBe(true);
     expect(laneOf(container, 'input clearable').firstElementChild.hasAttribute('data-self-inset')).toBe(true);
   });
 

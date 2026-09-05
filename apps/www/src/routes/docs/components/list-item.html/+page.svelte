@@ -484,7 +484,7 @@ ${close}
               <option value="xs">xs</option>
             </ItemSelect>
             <ItemInput type="email" label="Alert email" description="url/tel/email/search carry their glyph by default — the trailing edge inside a list-item lane" bind:value={alertEmail} />
-            <ItemInput label="Project name" description="lowercase, dashes — plain text carries no glyph; pass the icon snippet to configure" bind:value={projectName} />
+            <ItemInput label="Project name" description="text carries the Type glyph by default — like every text-like type; icon={null} opts out" bind:value={projectName} />
           </ItemGroup>
           <p class="text-muted-foreground mt-3 text-[11px] uppercase tracking-[0.14em]">
             bound: {autoplay ? 'fast on' : 'fast off'} · {telemetry ? 'telemetry on' : 'telemetry off'} ·
