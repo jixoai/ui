@@ -29,3 +29,70 @@
       taxonomy 快照 general 9→10、canonicalMain override、A3 语境捕获
       改 $derived.by 参数子树（blessed 形状）、component-authoring spec
       新增 scroll-run 统一 Requirement（三场景）
+- [x] 10. Owner round 2（同日"完善 3 点 + 破坏性更新"）：(1) 垂直滚动 —— 机器按
+      data-axis 沿块轴测量（scrollTop/offsetTop，块轴无 RTL 漏斗）、nudgeRun 块轴
+      步进（scroll-padding-block 车道）、法则表垂直臂（chip 顶/底边 + up/down 字形
+      默认、veil 入口沿块轴、shadow 带横置、ramp 块轴 translate）、button-group
+      垂直 scroll 组获得完整 chrome；(2) 自定义 scroll-button —— ScrollChrome 的
+      backwardContent/forwardContent snippet 渲染在 frosted chip 按钮内部（霜/门
+      控/可聚焦按钮法保留，仅字形层退役 data-jx-scroll-chip-content），css var
+      字形替换仍是轻量通道；(3) 内容不足则 chip 不出现 —— none 裁决门既有 +
+      childList MutationObserver 跟随成员增删重盖裁决；(4) 破坏性合并
+      slide()/blur()/blurSlide() → ramp({opacity?=true, blur?=true,
+      translate?=true, distance, radius})，css 侧三个类型规则改为
+      data-ramp-* 旗标门控（关闭的待遇完全不付出其属性），ScrollChrome 接管
+      run 上的 data-scroll-effect/data-ramp-* 盖章（消费方不再手盖），chip 属性
+      值 inline-start/end → start/end（逻辑边）
+- [x] 11. Owner round 3（实机验收反馈 5 项）：(1) 四方向图标拆分 —— 字形从
+      start/end 双变量（垂直 host :has 重指向）改为四个物理方向槽
+      --jx-scroll-chevron-left/-right/-up/-down（每个可独立定制；轴+边+文页方向
+      选槽，RTL 交换水平对，:has 重指向块整体退役）；(2) 垂直 chip 水平居中 ——
+      根因：水平 per-edge 规则（justify-self: start/end）不限定轴，垂直 chip 沾
+      内联角；垂直臂显式 justify-self: center 修复，位置可被消费方零特异性覆写；
+      (3) 图标居中 —— chip 默认改 IN-BOARD（负 inset 外挂边距退役，chip 完全在
+      host 内、贴其服务的边、交叉轴居中），字形 background-position center 保持；
+      (4) ramp 幅值 chrome 接管 —— ScrollChrome 把 builder 的 distance/radius 盖
+      成 run 内联 --jx-scroll-edge-slide/blur（关闭的 toggle 不设其 var，非 ramp
+      清空；tabs/button-group 的手写 hostStyle 幅值退役），裸 ramp() 无消费方样
+      式也真实模糊/位移（此前 0px 回退导致 ramp() 与 ramp({blur:false}) 无差）；
+      (5) 自定义 chip 演示 —— 内容居中（display:grid + place-items:center）+ 逐
+      轴 SVG 字形（垂直时 up/down 而非 «»），并抓到真 bug：垂直放置规则的 :has
+      在 :where 外（0,2,0 特异性）压过内容规则 background-image:none → 垂直自
+      定义 chip 双图标；整个复合选择器包进 :where() 修复（零特异性法则回归，
+      源码序裁决）。规格：scroll-run.spec 20（四槽/居中/内板/幅值接管）、
+      tabs-indicator 66、button-group-scroll 17 全绿；mirror 干净工作树校验 GREEN
+- [x] 12. Owner round 4：scroll-button 可声明禁用 —— ScrollChrome 增加
+      backwardDisabled/forwardDisabled（默认启用），语义分离：verdict 管"存在"
+      （死方向永不渲染），disabled 管"可交互"（渲染但惰性：原生 disabled 属性
+      不可点不可聚焦 + css :disabled 惰性臂 —— 半墨霜 oklab(1 0 0 / 0.4)、无
+      抬升阴影、默认光标，进度淡入淡出 opacity 耦合保持）。demo 增加
+      "chips disabled" 开关，API 表 + registry 描述 + spec 场景同步
+- [x] 13. Owner round 5：(a) tabs 页实况 bug —— 水平 host 从 round 1 起漏盖
+      .jx-scroll-host（tabs-trigger.css 注释声称"this host carries the class"
+      但标记从未盖章），共享表全部 host 键控规则在 tabs 失效：chip 常显（无
+      裁决门/无预水合门）、霜墨与字形变量未定义 → 只剩静态 backdrop-blur +
+      box-shadow 的幽灵方块。修复：水平 host class 串补 jx-scroll-host；连带
+      消除两处同元素声明冲突的顺序脆弱性 —— tabs 的两条调优（veil inset·6、
+      snap 车道 inset·2）从 :where 升为挣得的 (0,1,0)（bundle 顺序不是法则
+      载体；utilities 层仍压 components 层，消费方覆写不受影响）。实机：
+      24 个 tabs host 全部带类，20 个放得下的 strip 裁决 none → chip 全隐，
+      4 个溢出 strip 正常显示（墨 80% + 字形）；veil=inset·6、
+      scroll-padding=24px 调优胜出。(b) demo 补"内容不足自动隐藏"演示 ——
+      content: overflows/fits 开关（14/3 lanes），fits 时裁决 none、chip 全退
+      （实机 0 chip），grow back 观察器重新武装（start-closed 复现）。tabs-
+      indicator.spec 新增幽灵回归钉（host 类 + 两条调优特异性 source-pin）
+- [x] 14. Owner round 6（验收反馈）：(a) 禁用信号太弱 —— 霜墨 0.8→0.4 在浅底
+      上几乎不可辨且黑色字形纹丝不动（验收只见阴影消失）。重构：边 缘淡入公
+      式收进 --jx-scroll-chip-fade 变量（start/end 各自公式，opacity 引用之），
+      :disabled 臂对整颗 chip（霜+字形）乘 0.5 —— 实机 opacity 1→0.5、原生
+      disabled、无抬升、默认光标。(b) 自定义演示"无效果" —— 首版自定义 SVG
+      与默认字形同为 chevron 同尺寸同墨色，切换后视觉等价。演示改用 lucide
+      ARROW（箭头+箭杆双 path，per-axis），与 chevron 一眼可辨；实机 svg 双
+      path 落地、背景字形退役。tabs-indicator fade 断言迁移到 fade-var 结构
+- [x] 15. Owner round 7（语义定案）："disable chips 应该是完全隐藏 chips" ——
+      禁用从"渲染但惰性"（round 4/6 的原生 disabled + 减淡漆面）改为**条件渲
+      染缺席**：{#if !backwardDisabled} 包裹按钮，禁用的 chip 无 DOM 节点、无
+      漆面、无 a11y 条目；:disabled 惰性臂与 --jx-scroll-chip-fade 间接层整
+      体退役（opacity 回直书公式）；verdict 仍是已渲染 chip 的自动门。
+      specs：禁用测试改为 DOM 缺席断言 + :disabled 负向 source-pin；fade 断
+      言回直式

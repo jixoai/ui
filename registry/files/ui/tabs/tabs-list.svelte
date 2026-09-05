@@ -81,17 +81,20 @@
    *  the container (css-owned, tabs-trigger.css) */
   export type TabsLayout = 'inline' | 'grow' | 'scroll' | 'wrap';
 
-  /** edge treatment for a scrolling run (Owner, 2026-09-01), built by
-   *  the typed builders below (the press-button effect convention —
-   *  builders keep options typed and discoverable). slide is the
-   *  DEFAULT (translate+opacity only, no filter cost):
-   *  - slide() / blur() / blurSlide(): each trigger ramps as it
+  /** edge treatment for a scrolling run (Owner, 2026-09-01; round 2
+   *  2026-09-04 — the merged builder), built by the typed builders
+   *  below (the press-button effect convention — builders keep
+   *  options typed and discoverable):
+   *  - ramp({ opacity, blur, translate }): the ONE member-ramp
+   *    builder, every toggle default ON — each trigger ramps as it
    *    clips under a run edge — scroll-following per-trigger factors
    *    (--jx-edge-start/end, the clipped fraction of the trigger's
-   *    own width) stamped by the scroll handler and calc'd in css;
-   *    rest is factor 0 by arithmetic, on every engine (view()
-   *    timelines were tried and rejected: Chromium 152 resolves
-   *    named ranges garbage at rest — the stuck-first-button bug)
+   *    own width) stamped by the scroll handler and calc'd in css,
+   *    consumed squared; rest is factor 0 by arithmetic, on every
+   *    engine (view() timelines were tried and rejected: Chromium 152
+   *    resolves named ranges garbage at rest — the stuck-first-button
+   *    bug). A toggle turned off never pays its property (ramp({
+   *    blur: false }) is the old cheapest slide posture)
    *  - progressBlur() / shadow(): the merged veil layer veils both
    *    inline edges, gated by scrollability and ENTERING by
    *    scroll-driven translate — progressBlur is the multi-layer
@@ -103,21 +106,22 @@
   // scroll machinery (stamp machine, RTL engine, nudge, effect
   // builders) is the SHARED scroll-run item. The family's public API
   // is preserved as re-exports (docs/specs import from here; import +
-  // re-export so the local destructure default `slide()` binds)
+  // re-export so the local destructure default `ramp()` binds).
+  // ROUND 2 (breaking, Owner 2026-09-04): slide()/blur()/blurSlide()
+  // merged into ramp({ opacity, blur, translate }) — the toggles
+  // replace the trio
   import {
-    blur,
-    blurSlide,
     detectRtlScrollModel,
     isRtlDirection,
     progressBlur,
+    ramp,
     rtlScrollFromCanonical,
     rtlScrollToCanonical,
     shadow,
-    slide,
     type RtlScrollModel,
     type ScrollEffect,
   } from '../scroll-run/scroll-run.svelte';
-  export { blur, blurSlide, detectRtlScrollModel, isRtlDirection, progressBlur, rtlScrollFromCanonical, rtlScrollToCanonical, shadow, slide };
+  export { detectRtlScrollModel, isRtlDirection, progressBlur, ramp, rtlScrollFromCanonical, rtlScrollToCanonical, shadow };
   export type { RtlScrollModel, ScrollEffect as TabsScrollEffect };
 </script>
 
@@ -139,9 +143,10 @@
     /** inline: natural sizes · grow: triggers share the strip · scroll: a
      *  declared overflow run · wrap: rows flow instead of scrolling */
     layout?: TabsLayout;
-    /** edge treatment while the run scrolls — built by slide() (the
-     *  default, cheapest) / blur() / blurSlide() / progressBlur() /
-     *  shadow() */
+    /** edge treatment while the run scrolls — built by ramp() (the
+     *  one member-ramp builder: opacity/blur/translate toggles, all
+     *  default on; ramp({ blur: false }) is the cheapest posture) /
+     *  progressBlur() / shadow() */
     scrollEffect?: TabsScrollEffect;
     children: Snippet;
   }
@@ -150,7 +155,7 @@
     orientation = 'horizontal',
     indicator = 'line',
     layout = 'inline',
-    scrollEffect = slide(),
+    scrollEffect = ramp(),
     class: className = '',
     style: consumerStyle,
     children,
@@ -351,8 +356,7 @@
       run,
       host: hostEl,
       members: cachedTabs,
-      ramps:
-        scrollEffect.type === 'slide' || scrollEffect.type === 'blur' || scrollEffect.type === 'blur+slide',
+      ramps: scrollEffect.type === 'ramp',
       mirrors: () => {
         const a = activeTab;
         const ind = indEl;
@@ -385,14 +389,11 @@
       '',
     ];
     switch (scrollEffect.type) {
-      case 'slide':
-        parts[1] = `--jx-scroll-edge-slide: ${scrollEffect.distance}`;
-        break;
-      case 'blur':
-        parts[1] = `--jx-scroll-edge-blur: ${scrollEffect.radius}`;
-        break;
-      case 'blur+slide':
-        parts[1] = `--jx-scroll-edge-blur: ${scrollEffect.radius}; --jx-scroll-edge-slide: ${scrollEffect.distance}`;
+      case 'ramp':
+        // round 3: the ramp's magnitudes are CHROME-OWNED (ScrollChrome
+        // stamps --jx-scroll-edge-slide/blur on the run from the
+        // builder's distance/radius) — the host carries no edge vars
+        parts[1] = '';
         break;
       case 'progressBlur':
       case 'shadow':
@@ -530,8 +531,11 @@
     // the ONE-CELL GRID HOST (Owner law): the tablist scroller, the
     // veil layer and the chevron buttons stack in the same cell —
     // grid positions them, z-index layers them, never position:*
+    // (horizontal strips carry .jx-scroll-host TOO: the shared sheet's
+    // var family + verdict gates key on it — caught live on the docs
+    // page as always-visible ghost chips with no ink and no glyph)
     orientation === 'horizontal'
-      ? 'jx-tabs-horizontal grid [grid-template-columns:minmax(0,1fr)]'
+      ? 'jx-scroll-host jx-tabs-horizontal grid [grid-template-columns:minmax(0,1fr)]'
       : 'jx-tabs-vertical flex flex-col items-stretch [gap:var(--jx-gap)]',
     material === 'line' && (orientation === 'vertical' ? 'border-r border-border' : 'border-b border-border'),
     orientation === 'vertical' && layout === 'wrap' && 'flex-wrap',
@@ -561,7 +565,6 @@
         : 'flex flex-col',
     )}
     data-layout={orientation === 'horizontal' ? layout : undefined}
-    data-scroll-effect={orientation === 'horizontal' ? scrollEffect.type : undefined}
     onkeydown={handleKeydown}
   >
     {@render children()}
@@ -571,6 +574,6 @@
     <!-- the chrome (veil layer + chevron chips) is the SHARED
          ScrollChrome — scroll-chrome.svelte; the paint laws in
          scroll-run.css -->
-    <ScrollChrome effect={scrollEffect} run={runEl} backwardLabel="Scroll tabs backward" forwardLabel="Scroll tabs forward" />
+    <ScrollChrome {scrollEffect} run={runEl} backwardLabel="Scroll tabs backward" forwardLabel="Scroll tabs forward" />
   {/if}
 </div>

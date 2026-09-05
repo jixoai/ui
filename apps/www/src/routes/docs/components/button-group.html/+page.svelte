@@ -22,11 +22,9 @@
   import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import ButtonGroup, {
-    blur,
-    blurSlide,
     progressBlur,
+    ramp,
     shadow,
-    slide,
     type ButtonGroupScrollEffect,
   } from '$lib/ui/button-group/button-group.svelte';
   import ButtonGroupDivider from '$lib/ui/button-group/button-group-divider.svelte';
@@ -42,18 +40,17 @@
 
   // ---- the scroll-overflow playground (the third mode, 2026-09-04) ------
   const effectOptions = [
-    { value: 'slide', label: 'slide', build: () => slide() },
-    { value: 'blur', label: 'blur', build: () => blur() },
-    { value: 'blur+slide', label: 'blur+slide', build: () => blurSlide() },
+    { value: 'ramp', label: 'ramp', build: () => ramp() },
+    { value: 'ramp-blurless', label: 'ramp({ blur: false })', build: () => ramp({ blur: false }) },
     { value: 'shadow', label: 'shadow', build: () => shadow() },
     { value: 'progressBlur', label: 'progressBlur', build: () => progressBlur() },
   ] as const;
-  const canvasInitial = { orientation: 'horizontal' as 'horizontal' | 'vertical', justify: 'start' as 'start' | 'center' | 'end', effect: 'slide' };
+  const canvasInitial = { orientation: 'horizontal' as 'horizontal' | 'vertical', justify: 'start' as 'start' | 'center' | 'end', effect: 'ramp' };
   let orientation = $state(canvasInitial.orientation);
   let justify = $state(canvasInitial.justify);
   let effectChoice = $state<string>(canvasInitial.effect);
   const scrollEffect = $derived<ButtonGroupScrollEffect>(
-    effectOptions.find((o) => o.value === effectChoice)?.build() ?? slide(),
+    effectOptions.find((o) => o.value === effectChoice)?.build() ?? ramp(),
   );
   function resetCanvas(): void {
     orientation = canvasInitial.orientation;
@@ -71,7 +68,7 @@
   // the scroll canvas's live sample: the effect choice tracks the
   // playground (slide() is the default — spelled out when chosen)
   const scrollUsageLive = $derived(
-    `<ButtonGroup label="editor actions" overflow="scroll"${effectChoice === 'slide' ? '' : ` scrollEffect={${effectChoice}()}`}>
+    `<ButtonGroup label="editor actions" overflow="scroll"${effectChoice === 'ramp' ? '' : ` scrollEffect={${effectChoice === 'ramp-blurless' ? "ramp({ blur: false })" : `${effectChoice}()`}}`}>
   <!-- enough members to overflow the constrained stage -->
   <PressButton variant="outline">format</PressButton>
   <PressButton variant="outline">rename</PressButton>
@@ -450,7 +447,7 @@ ${close}
           { name: 'separator', type: 'boolean', default: 'ghost ⇒ true', description: 'The seam policy: a 1px contrast-ghost separator in every collapsed seam slot. DEFAULT on when the group’s EFFECTIVE variant (own prop, else the inherited scope) is ghost — the borderless row has no other seam.' },
           { name: 'leadingSeam', type: 'boolean', default: 'false', description: 'The cluster’s opening bracket (r14-13): paint the seam in the leading slot too — the first button’s own flush ::before, never a sibling element a parent gap could detach. Only paints under an active seam policy (the dialog footer’s actions region is the canonical consumer).' },
           { name: 'overflow', type: "'wrap' | 'collapse' | 'scroll'", default: "'wrap'", description: 'The overflow policy when the joined row outgrows its inline space: wrap breaks measured rows (per-item grid cells, row leads reset the seam); collapse folds the tail into a DropdownMenu behind the ⋯ trigger; scroll (2026-09-04) rides a scroll run — the root becomes the scroller (hidden scrollbar, smooth, proximity snap), the line never breaks, and NO measurement runs (the chevrons/veil key on the JS-stamped scroll-state instead). Scroll’s effect chrome is the horizontal contract — a vertical group declaring scroll gets the bare block-axis scroller.' },
-          { name: 'scrollEffect', type: 'slide() | blur() | blurSlide() | shadow() | progressBlur()', default: 'slide()', description: 'The edge treatment while overflow=scroll scrolls (the tabs scrollEffect convention; inert elsewhere). slide/blur/blurSlide ramp each member as it clips a run edge; shadow/progressBlur veil the edges from the non-scrolling host — shadow is the separator ink law’s contrast ghost (no color channel), progressBlur mounts the ProgressiveBlur ladder. width overrides the band (--jx-btngroup-veil).' },
+          { name: 'scrollEffect', type: 'ramp() | shadow() | progressBlur()', default: 'ramp()', description: 'The edge treatment while overflow=scroll scrolls (the tabs scrollEffect convention; inert elsewhere), axis-aware: a vertical scroll group rides the same chrome against its block edges. ramp({ opacity, blur, translate, distance, radius }) is the ONE member-ramp builder — every toggle defaults ON, a toggle off never pays its property; shadow/progressBlur veil the edges from the non-scrolling host — shadow is the separator ink law’s contrast ghost (no color channel), progressBlur mounts the ProgressiveBlur ladder (inline axis; vertical substitutes shadow). width overrides the band.' },
           { name: 'density', type: 'Density', default: 'ambient scope', description: 'Density tier, provided to the subtree so joined buttons adopt it: explicit ?? the ambient scope (no opinion stamps nothing).' },
           { name: 'role', type: 'string', default: "'group'", description: 'The group role — a labeled toolbar is the consumer’s explicit override.' },
           { name: 'class', type: 'string', default: "''", description: 'Merged into the root (cn()).' },

@@ -88,33 +88,41 @@
  * engines; DOM buttons are standard, styleable and live OUTSIDE the
  * tablist so the a11y tree holds only tabs). Existence keys on the
  * JS-stamped data-jx-scroll-state; the fade calcs from the host's
- * --jx-tabs-progress. Positioning is GRID + z-index ONLY — never
+ * --jx-scroll-progress. Positioning is GRID + z-index ONLY — never
  * position:absolute/sticky (project law). */
 :where(.jx-tabs-horizontal) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  /* THE UNIFICATION (Owner 2026-09-04): the scroll chrome's var
-   * family lives in the SHARED sheet on .jx-scroll-host (this host
-   * carries the class); tabs keeps ONE tuning override — its wider
-   * veil band (the strip's accepted scale; the shared default is the
-   * compact inset·1.5) */
+}
+/* THE UNIFICATION (Owner 2026-09-04): the scroll chrome's var family
+ * lives in the SHARED sheet on .jx-scroll-host — the horizontal host
+ * carries the class, so this tuning rule is deliberately NOT :where():
+ * same element, same var, and a 0-specificity tie would hand the
+ * winner to css bundle order (not a law carrier). The earned (0,1,0)
+ * beats the shared default (0,0,0) deterministically; consumer
+ * utilities still win (the utilities layer outranks components) */
+.jx-tabs-horizontal {
+  /* tabs keeps ONE tuning override — its wider veil band (the strip's
+   * accepted scale; the shared default is the compact inset·1.5) */
   --jx-scroll-veil: calc(var(--jx-inset) * 6);
 }
-:where(.jx-tabs-run) {
+/* same earned-specificity seam for the RUN tuning: the tablist
+ * carries .jx-tabs-run AND data-jx-scroll-run — the snap lane must
+ * beat the shared sheet's inset·1.5 scroll-padding whatever the
+ * bundle order */
+.jx-tabs-run {
   grid-area: 1 / 1;
-  /* the run contract (scroller, offsetParent, hidden scrollbar,
-   * smooth) is the SHARED sheet's on [data-jx-scroll-run] — the
-   * tablist carries both hooks. Tabs' OWN tuning: the wider snap lane
-   * (inset·2, the focused-trigger clearing distance) and the SNAP
-   * itself (the tab strip keeps it: its triggers are pages; the
-   * button-group's retirement was a buttons-are-not-pages ruling) */
+  /* tabs' OWN tuning: the wider snap lane (inset·2, the
+   * focused-trigger clearing distance) and the SNAP itself (the tab
+   * strip keeps it: its triggers are pages; the button-group's
+   * retirement was a buttons-are-not-pages ruling) */
   scroll-padding-inline: calc(var(--jx-inset) * 2);
   scroll-snap-type: x proximity;
 }
 :where(.jx-tabs-run)::-webkit-scrollbar {
   display: none;
 }
-:where(.jx-tabs-run) > [role='tab'] {
+.jx-tabs-run > [role='tab'] {
   scroll-snap-align: start;
 }
 

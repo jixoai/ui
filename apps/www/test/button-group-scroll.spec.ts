@@ -27,11 +27,9 @@ import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/svelte';
 import Host from './fixtures/button-group-scroll-host.svelte';
 import {
-  blur,
-  blurSlide,
   progressBlur,
+  ramp,
   shadow,
-  slide,
 } from '../src/lib/ui/button-group/button-group.svelte';
 
 const scrollRunCss = readFileSync(resolve(process.cwd(), 'src/lib/ui/scroll-run/scroll-run.css'), 'utf8');
@@ -41,15 +39,18 @@ const buttonGroupCss = readFileSync(
 );
 
 describe('ButtonGroup · overflow=scroll · structure (the shared contract)', () => {
-  it('renders the HOST wrapping the RUN; the run carries the shared run + axis stamps', () => {
-    const { container } = render(Host, { props: { scrollEffect: slide({ distance: '12px' }) } });
+  it('renders the HOST wrapping the RUN; the run carries the shared run + axis stamps (ScrollChrome owns the effect attrs)', () => {
+    const { container } = render(Host, { props: { scrollEffect: ramp({ distance: '12px' }) } });
     const host = container.querySelector('[data-jx-btngroup-host]');
     expect(host).not.toBeNull();
     expect(host?.classList.contains('jx-scroll-host')).toBe(true);
     const run = container.querySelector('[data-testid="scroll-group"]')!;
     expect(run.hasAttribute('data-jx-scroll-run')).toBe(true);
     expect(run.getAttribute('data-axis')).toBe('horizontal');
-    expect(run.getAttribute('data-scroll-effect')).toBe('slide');
+    expect(run.getAttribute('data-scroll-effect')).toBe('ramp');
+    expect(run.hasAttribute('data-ramp-opacity')).toBe(true);
+    expect(run.hasAttribute('data-ramp-blur')).toBe(true);
+    expect(run.hasAttribute('data-ramp-translate')).toBe(true);
     expect(host?.contains(run)).toBe(true);
   });
 
@@ -98,8 +99,8 @@ describe('ButtonGroup · overflow=scroll · the chrome (the shared ScrollChrome)
   it('the chevron chips exist on the host, outside the run, with accessible names', () => {
     const { container } = render(Host);
     const host = container.querySelector('[data-jx-btngroup-host]')!;
-    const start = host.querySelector('[data-jx-scroll-chevron="inline-start"]');
-    const end = host.querySelector('[data-jx-scroll-chevron="inline-end"]');
+    const start = host.querySelector('[data-jx-scroll-chevron="start"]');
+    const end = host.querySelector('[data-jx-scroll-chevron="end"]');
     expect(start?.getAttribute('aria-label')).toBe('Scroll actions backward');
     expect(end?.getAttribute('aria-label')).toBe('Scroll actions forward');
     // scroll controls are not group actions: they live outside the run
@@ -118,38 +119,49 @@ describe('ButtonGroup · overflow=scroll · the chrome (the shared ScrollChrome)
     laddered.unmount();
 
     // the ramp effects carry no veil
-    const slid = render(Host, { props: { scrollEffect: slide() } });
-    expect(slid.container.querySelector('.jx-scroll-veil-layer')).toBeNull();
+    const ramped = render(Host, { props: { scrollEffect: ramp() } });
+    expect(ramped.container.querySelector('.jx-scroll-veil-layer')).toBeNull();
   });
 
-  it('the effect knobs ride the HOST inline (the shared --jx-scroll-* names)', () => {
-    const { container } = render(Host, { props: { scrollEffect: blurSlide({ radius: '6px', distance: '10px' }) } });
-    const style = container.querySelector('[data-jx-btngroup-host]')?.getAttribute('style') ?? '';
-    expect(style).toContain('--jx-scroll-edge-blur: 6px');
-    expect(style).toContain('--jx-scroll-edge-slide: 10px');
+  it('the ramp magnitudes are CHROME-STAMPED on the run (round 3) — the host carries no edge vars', () => {
+    const { container } = render(Host, { props: { scrollEffect: ramp({ radius: '6px', distance: '10px' }) } });
+    const run = container.querySelector('[data-testid="scroll-group"]')!;
+    expect(run.style.getPropertyValue('--jx-scroll-edge-blur')).toBe('6px');
+    expect(run.style.getPropertyValue('--jx-scroll-edge-slide')).toBe('10px');
+    expect(container.querySelector('[data-jx-btngroup-host]')?.getAttribute('style') ?? '').not.toContain('--jx-scroll-edge-');
     const { container: shadowed } = render(Host, { props: { scrollEffect: shadow({ width: '48px' }) } });
     expect(shadowed.querySelector('[data-jx-btngroup-host]')?.getAttribute('style')).toContain(
       '--jx-scroll-veil: 48px',
     );
   });
 
-  it('a VERTICAL scroll group gets the bare block-axis scroller — no host, no chrome', () => {
+  it('a VERTICAL scroll group rides the SAME chrome on the block axis (round 2: axis-aware)', () => {
     const { container } = render(Host, { props: { orientation: 'vertical' } });
-    expect(container.querySelector('[data-jx-btngroup-host]')).toBeNull();
-    expect(container.querySelector('[data-jx-scroll-chevron]')).toBeNull();
+    expect(container.querySelector('[data-jx-btngroup-host]')).not.toBeNull();
+    // the logical chips render for either axis (the css places them
+    // against the block edges on a vertical run)
+    expect(container.querySelectorAll('[data-jx-scroll-chevron="start"], [data-jx-scroll-chevron="end"]')).toHaveLength(2);
     const run = container.querySelector('[data-testid="scroll-group"]')!;
     expect(run.hasAttribute('data-jx-scroll-run')).toBe(true);
     expect(run.getAttribute('data-axis')).toBe('vertical');
-    expect(run.hasAttribute('data-scroll-effect')).toBe(false); // chrome is the horizontal contract
+    expect(run.getAttribute('data-scroll-effect')).toBe('ramp');
   });
 });
 
 describe('ButtonGroup · the scroll-effect builders (re-exported from the shared item)', () => {
-  it('export the typed descriptors with the restraint defaults', () => {
-    expect(slide()).toEqual({ type: 'slide', distance: '8px' });
-    expect(slide({ distance: '12px' }).distance).toBe('12px');
-    expect(blur()).toEqual({ type: 'blur', radius: '4px' });
-    expect(blurSlide({ radius: '6px' })).toEqual({ type: 'blur+slide', radius: '6px', distance: '8px' });
+  it('export the typed descriptors with the restraint defaults (round 2: the merged ramp)', () => {
+    // the ONE member-ramp builder: every toggle defaults ON
+    expect(ramp()).toEqual({
+      type: 'ramp',
+      opacity: true,
+      blur: true,
+      translate: true,
+      distance: '8px',
+      radius: '4px',
+    });
+    expect(ramp({ distance: '12px' }).distance).toBe('12px');
+    expect(ramp({ radius: '6px' }).radius).toBe('6px');
+    // the retired trio never returns
     expect(shadow()).toEqual({ type: 'shadow', width: undefined });
     expect(shadow({ width: '48px' }).width).toBe('48px');
     expect(progressBlur({ blurLevels: [1, 2] }).blurLevels).toEqual([1, 2]);
@@ -170,12 +182,12 @@ describe('the SHARED scroll-run css law (source-pinned, scroll-run.css)', () => 
     expect(rules).not.toMatch(/scroll-snap/);
   });
 
-  it('THE CHIP RULING: the frosted edge chip — inset·1.5 square, centered, tucked, frosted, 14px canvas glyph, no mask/blend/hover', () => {
+  it('THE CHIP RULING: the frosted edge chip — inset·1.5 square, in-board, cross-axis centered, frosted, 14px canvas glyph, no mask/blend/hover', () => {
     expect(scrollRunCss).toMatch(/--jx-scroll-chevron-size:\s*14px;/);
     expect(scrollRunCss).toMatch(/--jx-scroll-chevron-chip:\s*oklab\(1\s*0\s*0\s*\/\s*0\.8\);/);
     const chip =
       scrollRunCss.match(
-        /\[data-jx-scroll-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{([^}]*)\}/s,
+        /\[data-jx-scroll-chevron='start'\]\),\s*\n\s*:where\(\[data-jx-scroll-chevron='end'\]\)\s*\{([^}]*)\}/s,
       )?.[1] ?? '';
     expect(chip).toMatch(/align-self:\s*center;/);
     expect(chip).toMatch(/inline-size:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
@@ -187,15 +199,33 @@ describe('the SHARED scroll-run css law (source-pinned, scroll-run.css)', () => 
     expect(chip).not.toMatch(/mix-blend-mode/);
     expect(scrollRunCss).not.toMatch(/\[data-jx-scroll-chevron[^\]]*\]\):hover/);
     expect(scrollRunCss).toMatch(/--jx-scroll-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*1\.5\);/);
+    // round 3: IN-BOARD — the negative-edge tuck margins are gone
+    expect(scrollRunCss).not.toMatch(/margin-(inline|block)-(start|end):\s*calc\(var\(--jx-inset\)\s*\*\s*-1/);
   });
 
-  it('the per-member ramps consume the edge stamps SQUARED (the eased curve)', () => {
-    expect(scrollRunCss).toMatch(
-      /\[data-jx-scroll-run\]\[data-scroll-effect='slide'\]\)\s*>\s*\*\s*\{[^}]*opacity:\s*calc\(1\s*-\s*max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\s*\*\s*max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\);/s,
+  it('the per-member ramps consume the edge stamps SQUARED (the eased curve) — ONE builder, per-toggle flags', () => {
+    // rule-body extraction + plain containment: immune to regex-escape
+    // drift (the decl is calc(...) with nested parens)
+    const ruleFor = (flag: string) =>
+      scrollRunCss.match(
+        new RegExp(`\\[data-scroll-effect='ramp'\\]\\[data-ramp-${flag}\\]\\)\\s*>\\s*\\*\\s*\\{([^}]*)\\}`),
+      )?.[1] ?? '';
+    expect(ruleFor('opacity'), 'the opacity rule body').toContain(
+      'opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)))',
     );
-    expect(scrollRunCss).toMatch(
-      /\[data-jx-scroll-run\]\[data-scroll-effect='blur'\]\)\s*>\s*\*\s*\{[^}]*filter:\s*blur\(calc\(max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\s*\*\s*max\(var\(--jx-edge-start,\s*0\),\s*var\(--jx-edge-end,\s*0\)\)\s*\*\s*var\(--jx-scroll-edge-blur,\s*0px\)\)\)/s,
+    expect(ruleFor('blur'), 'the blur rule body').toMatch(
+      /filter:\s*blur\(calc\(max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\) \* max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\) \* var\(--jx-scroll-edge-blur, 0px\)\)\)/,
     );
+    expect(ruleFor('translate'), 'the translate rule body').toMatch(
+      /translate:\s*calc\(\(var\(--jx-edge-end, 0\) - var\(--jx-edge-start, 0\)\) \* max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\) \* var\(--jx-scroll-edge-slide, 0px\)\) 0/,
+    );
+    // each flag gates its OWN property: the siblings' declarations
+    // never ride along
+    expect(ruleFor('opacity')).not.toMatch(/filter|translate/);
+    expect(ruleFor('blur')).not.toMatch(/opacity|translate/);
+    expect(ruleFor('translate')).not.toMatch(/opacity|filter/);
+    // the retired trio's type keys never return
+    expect(scrollRunCss).not.toMatch(/data-scroll-effect='(slide|blur|blur\+slide)'/);
   });
 
   it('the verdict gates: chips and the veil layer never paint without travel (the veil gates sit UNLAYERED)', () => {

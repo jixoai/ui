@@ -53,15 +53,13 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 
 import {
-  blur,
-  blurSlide,
   detectRtlScrollModel,
   isRtlDirection,
   progressBlur,
+  ramp,
   rtlScrollFromCanonical,
   rtlScrollToCanonical,
   shadow,
-  slide,
   type RtlScrollModel,
 } from '../src/lib/ui/tabs/tabs-list.svelte';
 import IndicatorHost from './fixtures/tabs-indicator-host.svelte';
@@ -327,17 +325,31 @@ describe('Tabs · layout contract', () => {
 
   it('scrollEffect stamps the run and mounts the merged veil layer + DOM chevrons over it (one grid cell, position-free)', () => {
     const { list } = setup();
-    // default: slide (the cheapest) — stamped on the run, but no veil anywhere
-    expect(list('line').querySelector('[data-jx-tabs-run]')?.getAttribute('data-scroll-effect')).toBe('slide');
+    // default: ramp() — every toggle ON. The effect type + the ramp's
+    // toggle flags are stamped on the run by the SHARED ScrollChrome
+    // (round 2 ownership: the consumer never hand-stamps effect
+    // attributes); no veil anywhere under a ramp
+    const defaultRun = list('line').querySelector('[data-jx-tabs-run]')!;
+    expect(defaultRun.getAttribute('data-scroll-effect')).toBe('ramp');
+    expect(defaultRun.hasAttribute('data-ramp-opacity')).toBe(true);
+    expect(defaultRun.hasAttribute('data-ramp-blur')).toBe(true);
+    expect(defaultRun.hasAttribute('data-ramp-translate')).toBe(true);
     expect(list('line').querySelector('.jx-pblur')).toBeNull();
-    // the builder's knobs land as inline vars on the HOST (the overlays are
-    // the run's siblings — a var on the run never reaches them)
-    expect(list('line').getAttribute('style')).toContain('--jx-scroll-edge-slide: 8px');
-    // blur+slide: the type rides the run for the css wiring, both knobs on the host
+    // the builder's magnitude vars are CHROME-STAMPED on the RUN
+    // (round 3 ownership: ScrollChrome writes --jx-scroll-edge-* from
+    // the builder's distance/radius; the host carries no edge vars)
+    expect(defaultRun.style.getPropertyValue('--jx-scroll-edge-slide')).toBe('8px');
+    expect(defaultRun.style.getPropertyValue('--jx-scroll-edge-blur')).toBe('4px');
+    expect(list('line').getAttribute('style')).not.toContain('--jx-scroll-edge-');
+    // ramp({ blur: false }): the cheapest posture (the old slide) —
+    // blur flag gone, blur var gone
     const blurHost = list('effect-blur');
-    expect(blurHost.querySelector('[data-jx-tabs-run]')!.getAttribute('data-scroll-effect')).toBe('blur+slide');
-    expect(blurHost.getAttribute('style')).toContain('--jx-scroll-edge-blur: 4px');
-    expect(blurHost.getAttribute('style')).toContain('--jx-scroll-edge-slide: 8px');
+    const cheapRun = blurHost.querySelector('[data-jx-tabs-run]')!;
+    expect(cheapRun.getAttribute('data-scroll-effect')).toBe('ramp');
+    expect(cheapRun.hasAttribute('data-ramp-blur')).toBe(false);
+    expect(cheapRun.hasAttribute('data-ramp-translate')).toBe(true);
+    expect(cheapRun.style.getPropertyValue('--jx-scroll-edge-slide')).toBe('8px');
+    expect(cheapRun.style.getPropertyValue('--jx-scroll-edge-blur')).toBe('');
     // progressBlur: ONE merged veil layer over the run holding both bands —
     // painted AFTER the scroller (empirical Chromium: the bands' backdrop
     // only samples the scrolled content when they paint after it)
@@ -374,7 +386,7 @@ describe('Tabs · layout contract', () => {
     // the tablist (scroll controls are not tabs — the a11y tree stays clean)
     const chevrons = [...host.querySelectorAll(':scope > [data-jx-scroll-chevron]')];
     expect(chevrons).toHaveLength(2);
-    expect(chevrons.map((c) => c.getAttribute('data-jx-scroll-chevron')).sort()).toEqual(['inline-end', 'inline-start']);
+    expect(chevrons.map((c) => c.getAttribute('data-jx-scroll-chevron')).sort()).toEqual(['end', 'start']);
     for (const c of chevrons) {
       expect(c.tagName).toBe('BUTTON');
       expect(c.getAttribute('tabindex')).toBe('-1');
@@ -420,8 +432,8 @@ describe('Tabs · layout contract', () => {
       run.dispatchEvent(new Event('scroll'));
       return undefined;
     };
-    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-end"]') as HTMLButtonElement).click();
-    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-start"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="end"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="start"]') as HTMLButtonElement).click();
     expect(calls).toHaveLength(2);
     expect(calls[0]).toBeGreaterThan(0);
     expect(calls[1]).toBeLessThan(0);
@@ -527,11 +539,11 @@ describe('Tabs · layout contract', () => {
       calls.push(opts?.left ?? 0);
       return undefined;
     };
-    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-end"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="end"]') as HTMLButtonElement).click();
     // inline-back from a mid-scroll rest: the absolute target walks
     // TOWARD 0 (raw on the negative engine == canonical)
     run.scrollLeft = -350;
-    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-start"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="start"]') as HTMLButtonElement).click();
     expect(calls).toHaveLength(2);
     expect(calls[0]).toBeLessThan(0); // inline-forward: negative-space target
     expect(calls[1]).toBe(-150); // -350 + step(200), clamped inside [−max, 0]
@@ -772,7 +784,7 @@ describe('Tabs · RTL resolution (one truth, three engines)', () => {
       calls.push(opts?.left ?? 0);
       return undefined;
     };
-    (host.querySelector(':scope > [data-jx-scroll-chevron="inline-end"]') as HTMLButtonElement).click();
+    (host.querySelector(':scope > [data-jx-scroll-chevron="end"]') as HTMLButtonElement).click();
     expect(calls[0]).toBeGreaterThan(0);
   });
 
@@ -884,17 +896,27 @@ describe('Tabs · indicator css law (tabs-trigger.css, source-pinned)', () => {
   });
 });
 
-describe('Tabs · scrollEffect builders (the press-button effect convention)', () => {
-  it('slide is the cheapest — translate distance only', () => {
-    expect(slide()).toEqual({ type: 'slide', distance: '8px' });
-    expect(slide({ distance: '12px' })).toEqual({ type: 'slide', distance: '12px' });
+describe('Tabs · scrollEffect builders (the press-button effect convention; round 2 — the merged ramp)', () => {
+  it('ramp() is the ONE member-ramp builder — every toggle defaults ON', () => {
+    expect(ramp()).toEqual({
+      type: 'ramp',
+      opacity: true,
+      blur: true,
+      translate: true,
+      distance: '8px',
+      radius: '4px',
+    });
   });
-  it('blur and blurSlide carry the radius (+ distance)', () => {
-    expect(blur()).toEqual({ type: 'blur', radius: '4px' });
-    expect(blurSlide({ radius: '6px', distance: '10px' })).toEqual({
-      type: 'blur+slide',
+  it('the toggles replace the retired trio (each composes freely with the magnitudes)', () => {
+    // the cheapest posture = the old slide(): translate+opacity, no filter
+    expect(ramp({ blur: false })).toMatchObject({ blur: false, translate: true, opacity: true });
+    // the old blur(): blur+opacity, no translate
+    expect(ramp({ translate: false })).toMatchObject({ blur: true, translate: false });
+    // the old blurSlide(): blur+translate, opacity retired too
+    expect(ramp({ opacity: false })).toMatchObject({ opacity: false, blur: true, translate: true });
+    expect(ramp({ distance: '12px', radius: '6px' })).toMatchObject({
+      distance: '12px',
       radius: '6px',
-      distance: '10px',
     });
   });
   it('progressBlur carries the ladder (≥2 levels, normalized downstream) and the width knob', () => {
@@ -915,8 +937,8 @@ describe('Tabs · horizontal overflow contract (the SHARED scroll-run sheet, sou
   // laws live in the SHARED scroll-run.css (keyed on the
   // data-jx-scroll-* names); tabs keeps only its tuning — snap, the
   // wider lane padding, the wider veil band, the indicator fade
-  const startBtn = /\[data-jx-scroll-chevron='inline-start'\]/;
-  const endBtn = /\[data-jx-scroll-chevron='inline-end'\]/;
+  const startBtn = /\[data-jx-scroll-chevron='start'\]/;
+  const endBtn = /\[data-jx-scroll-chevron='end'\]/;
 
   it('the horizontal list is a ONE-CELL GRID HOST — the run, the veil layer and the chips stack in the same cell', () => {
     expect(tabsTriggerCss).toMatch(
@@ -940,12 +962,12 @@ describe('Tabs · horizontal overflow contract (the SHARED scroll-run sheet, sou
   });
 
   it('both chips are authored, pinned to their inline edges (justify-self), stacked above run AND veil', () => {
-    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{[^}]*justify-self:\s*end/s);
-    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-start'\]\)\s*\{[^}]*justify-self:\s*start/s);
-    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{[^}]*z-index:\s*2/s);
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='end'\]\)\s*\{[^}]*justify-self:\s*end/s);
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='start'\]\)\s*\{[^}]*justify-self:\s*start/s);
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='start'\]\),\s*\n\s*:where\(\[data-jx-scroll-chevron='end'\]\)\s*\{[^}]*z-index:\s*2/s);
   });
 
-  it('the chip is a FROSTED EDGE CHIP (the shared law): centered, tucked, blurred — the glyph in css vars the background references', () => {
+  it('the chip is a FROSTED EDGE CHIP (the shared law): in-board, cross-axis centered, blurred — the glyph in FOUR direction css vars the background references', () => {
     const chip =
       scrollRunCss.match(
         new RegExp(`${startBtn.source}[\\s\\S]{0,200}?${endBtn.source}[^{]*\\{([^}]*)\\}`, 's'),
@@ -955,13 +977,30 @@ describe('Tabs · horizontal overflow contract (the SHARED scroll-run sheet, sou
     expect(chip).toMatch(/background-color:\s*var\(--jx-scroll-chevron-chip\);/);
     expect(chip).toMatch(/backdrop-filter:\s*blur\(2px\);/);
     expect(scrollRunCss).toMatch(/--jx-scroll-chevron-chip:\s*oklab\(1\s*0\s*0\s*\/\s*0\.8\);/);
-    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-inline-end:\s*url\(/);
-    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-inline-start:\s*url\(/);
-    expect(scrollRunCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*margin-inline-end:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*-1\\);[^}]*background-image:\\s*var\\(--jx-scroll-chevron-inline-end\\)`, 's'));
-    expect(scrollRunCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*margin-inline-start:\\s*calc\\(var\\(--jx-inset\\)\\s*\\*\\s*-1\\);[^}]*background-image:\\s*var\\(--jx-scroll-chevron-inline-start\\)`, 's'));
+    // FOUR direction slots (round 3) — the horizontal chips read left/right
+    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-left:\s*url\(/);
+    expect(scrollRunCss).toMatch(/--jx-scroll-chevron-right:\s*url\(/);
+    expect(scrollRunCss).toMatch(new RegExp(`${endBtn.source}[^{]*\\{[^}]*justify-self:\\s*end;[^}]*background-image:\\s*var\\(--jx-scroll-chevron-right\\)`, 's'));
+    expect(scrollRunCss).toMatch(new RegExp(`${startBtn.source}[^{]*\\{[^}]*justify-self:\\s*start;[^}]*background-image:\\s*var\\(--jx-scroll-chevron-left\\)`, 's'));
+    // in-board (round 3): the negative-edge tuck margins are gone
+    expect(scrollRunCss).not.toMatch(/margin-inline-(start|end):\s*calc\(var\(--jx-inset\)\s*\*\s*-1/);
     expect(chip).not.toMatch(/mask/);
     expect(chip).not.toMatch(/mix-blend-mode/);
     expect(scrollRunCss).toMatch(/--jx-scroll-chevron-size:\s*14px;/);
+  });
+
+  it('the horizontal host CARRIES .jx-scroll-host — the shared var family and verdict gates key on it (the ghost-chip regression)', () => {
+    const { list } = setup();
+    // caught live on the docs page: without the class the chips paint
+    // as always-visible ghosts (no ink var, no glyph var, no verdict
+    // gate) — a backdrop-blur square with a shadow and nothing else
+    expect(list('line').classList.contains('jx-scroll-host')).toBe(true);
+    // and the family's tuning beats the shared defaults by EARNED
+    // specificity, not bundle order (same element, same declarations)
+    expect(tabsTriggerCss).toMatch(/\.jx-tabs-horizontal\s*\{[^}]*--jx-scroll-veil:\s*calc\(var\(--jx-inset\)\s*\*\s*6\);/s);
+    expect(tabsTriggerCss).not.toMatch(/:where\(\.jx-tabs-horizontal\)\s*\{[^}]*--jx-scroll-veil/s);
+    expect(tabsTriggerCss).toMatch(/\.jx-tabs-run\s*\{[^}]*scroll-padding-inline:\s*calc\(var\(--jx-inset\)\s*\*\s*2\);/s);
+    expect(tabsTriggerCss).not.toMatch(/:where\(\.jx-tabs-run\)\s*\{[^}]*scroll-padding-inline/s);
   });
 
   it('a direction that cannot travel NEVER paints: the JS-stamped data-jx-scroll-state is the truth the shared css keys on', () => {
@@ -999,19 +1038,30 @@ describe('Tabs · horizontal overflow contract (the SHARED scroll-run sheet, sou
     expect(overlayRules).not.toMatch(/position:\s*absolute/);
   });
 
-  it('scrollEffect #1 — the SHARED eased ramps: squared factors calc the treatment; NO view() timelines', () => {
-    for (const effect of ['blur', 'slide', 'blur+slide']) {
-      const escaped = effect.replace('+', '\\+');
-      const rule =
-        scrollRunCss.match(
-          new RegExp(`\\[data-scroll-effect='${escaped}'\\]\\)\\s*>\\s*\\*\\s*\\{[^}]*\\}`),
-        )?.[0] ?? '';
-      expect(rule, `the ${effect} rule`).toContain('opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)))');
-      if (effect !== 'slide') {
-        expect(rule).toMatch(/filter:\s*blur\(calc\(max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\s*\*\s*max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\s*\*\s*var\(--jx-scroll-edge-blur, 0px\)\)\)/);
-      }
-      if (effect === 'slide') expect(rule).not.toContain('filter');
-    }
+  it('scrollEffect #1 — the SHARED eased ramps: ONE builder, squared factors, per-toggle css flags; NO view() timelines', () => {
+    // ONE effect type ('ramp'), each treatment keyed on its OWN
+    // data-ramp-* presence flag — a toggle turned off never pays its
+    // property (blur off really is filter-less, the old
+    // slide-is-cheapest law survives as ramp({ blur: false }))
+    const rule = (flag: string) =>
+      scrollRunCss.match(
+        new RegExp(`\\[data-scroll-effect='ramp'\\]\\[data-ramp-${flag}\\]\\)\\s*>\\s*\\*\\s*\\{[^}]*\\}`),
+      )?.[0] ?? '';
+    const opacityRule = rule('opacity');
+    expect(opacityRule).toContain('opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)) * max(var(--jx-edge-start, 0), var(--jx-edge-end, 0)))');
+    const blurRule = rule('blur');
+    expect(blurRule).toMatch(/filter:\s*blur\(calc\(max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\s*\*\s*max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\s*\*\s*var\(--jx-scroll-edge-blur, 0px\)\)\)/);
+    expect(blurRule).not.toContain('opacity');
+    expect(blurRule).not.toContain('translate');
+    const translateRule = rule('translate');
+    expect(translateRule).toMatch(/translate:\s*calc\(\(var\(--jx-edge-end, 0\)\s*-\s*var\(--jx-edge-start, 0\)\)\s*\*\s*max\(var\(--jx-edge-start, 0\), var\(--jx-edge-end, 0\)\)\s*\*\s*var\(--jx-scroll-edge-slide, 0px\)\)\s*0/);
+    expect(translateRule).not.toContain('filter');
+    // the retired trio's type keys never return
+    expect(scrollRunCss).not.toMatch(/data-scroll-effect='(slide|blur|blur\+slide)'/);
+    // the vertical ramp translates along the BLOCK axis
+    expect(scrollRunCss).toMatch(
+      /\[data-ramp-translate\]\[data-axis='vertical'\]\)\s*>\s*\*\s*\{[^}]*translate:\s*0\s*calc\(/,
+    );
     expect(scrollRunCss).not.toMatch(/animation-timeline/);
     expect(scrollRunCss).not.toMatch(/animation-range/);
     // reduced motion keeps blur+opacity, kills the translate only
@@ -1050,8 +1100,8 @@ describe('Tabs · horizontal overflow contract (the SHARED scroll-run sheet, sou
   });
 
   it('the on-demand fade follows the host-stamped --jx-scroll-progress — the chips calc it directly (R4: no pseudos, no timelines)', () => {
-    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-start'\]\),\s*\n\s*:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{[^}]*opacity:\s*min\(1,\s*calc\(var\(--jx-scroll-progress,\s*0\)\s*\/\s*0\.15\)\)/s);
-    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='inline-end'\]\)\s*\{[^}]*justify-self:\s*end;[^}]*opacity:\s*min\(1,\s*calc\(\(1\s*-\s*var\(--jx-scroll-progress,\s*0\)\)\s*\/\s*0\.15\)\)/s);
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='start'\]\),\s*\n\s*:where\(\[data-jx-scroll-chevron='end'\]\)\s*\{[^}]*opacity:\s*min\(1,\s*calc\(var\(--jx-scroll-progress,\s*0\)\s*\/\s*0\.15\)\)/s);
+    expect(scrollRunCss).toMatch(/:where\(\[data-jx-scroll-chevron='end'\]\)\s*\{[^}]*justify-self:\s*end;[^}]*opacity:\s*min\(1,\s*calc\(\(1\s*-\s*var\(--jx-scroll-progress,\s*0\)\)\s*\/\s*0\.15\)\)/s);
   });
 
   it('pre-hydration hides EVERY overlay — no scroll verdict yet (or ever, JS-off): no chips, no veil layer, no click targets (A-10/B-7)', () => {
@@ -1075,9 +1125,9 @@ describe('Tabs · horizontal overflow contract (the SHARED scroll-run sheet, sou
     // run (`> *`) — the indicator span included, so the mirrored factors
     // consume the same squared curve as the triggers. The unification
     // deleted tabs' own fade rule; nothing tabs-local re-derives it
-    for (const effect of ['slide', 'blur', 'blur\\+slide']) {
+    for (const flag of ['opacity', 'blur', 'translate']) {
       expect(scrollRunCss).toMatch(
-        new RegExp(`\\[data-scroll-effect='${effect}'\\]\\)\\s*>\\s*\\*\\s*\\{`),
+        new RegExp(`\\[data-scroll-effect='ramp'\\]\\[data-ramp-${flag}\\]\\)\\s*>\\s*\\*\\s*\\{`),
       );
     }
     expect(tabsTriggerCss).not.toMatch(/\[data-jx-tabs-ind\][^{]*\{[^}]*opacity:\s*calc/);

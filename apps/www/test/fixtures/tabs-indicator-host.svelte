@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
   import Tabs from '../../src/lib/ui/tabs/tabs.svelte';
-  import TabsList, { blurSlide, progressBlur, shadow } from '../../src/lib/ui/tabs/tabs-list.svelte';
+  import TabsList, { progressBlur, ramp, shadow } from '../../src/lib/ui/tabs/tabs-list.svelte';
   import TabsTrigger from '../../src/lib/ui/tabs/tabs-trigger.svelte';
 </script>
 
@@ -103,7 +103,7 @@
 </Tabs>
 
 <Tabs value="alpha">
-  <TabsList data-list="effect-blur" layout="scroll" scrollEffect={blurSlide()}>
+  <TabsList data-list="effect-blur" layout="scroll" scrollEffect={ramp({ blur: false })}>
     <TabsTrigger value="alpha">Alpha</TabsTrigger>
     <TabsTrigger value="beta">Beta</TabsTrigger>
     <TabsTrigger value="gamma">Gamma</TabsTrigger>

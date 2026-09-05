@@ -208,18 +208,19 @@
   // and the scrollEffect builders) is the SHARED scroll-run item now,
   // one set for every scrollable region in the registry. Re-exported
   // here for the family's own API surface (docs and specs import the
-  // builders from this module; the alias keeps the public name)
+  // builders from this module; the alias keeps the public name).
+  // ROUND 2 (breaking, Owner 2026-09-04): slide()/blur()/blurSlide()
+  // merged into ramp({ opacity, blur, translate }) — the toggles
+  // replace the trio
   import {
-    blur,
-    blurSlide,
     progressBlur,
+    ramp,
     shadow,
-    slide,
     type ScrollEffect,
   } from '../scroll-run/scroll-run.svelte';
   // import + re-export (a bare `export {x} from` binds nothing locally,
-  // and the props' default `slide()` needs the local binding)
-  export { blur, blurSlide, progressBlur, shadow, slide };
+  // and the props' default `ramp()` needs the local binding)
+  export { progressBlur, ramp, shadow };
   export type { ScrollEffect as ButtonGroupScrollEffect };
 </script>
 
@@ -296,14 +297,16 @@
      *  third mode) rides a scroll run — the root becomes the
      *  scroller (hidden scrollbar, smooth, proximity snap) and the
      *  joined line never breaks; pair with scrollEffect for the edge
-     *  treatments. A VERTICAL group declaring scroll gets the bare
-     *  block-axis scroller only (the effect chrome is the horizontal
-     *  contract, the tabs law) */
+     *  treatments. A VERTICAL group declaring scroll rides the SAME
+     *  contract on the block axis (round 2: the shared chrome is
+     *  axis-aware — chips against the top/bottom edges, the veil
+     *  pair re-aimed) */
     overflow?: 'wrap' | 'collapse' | 'scroll';
     /** edge treatment while overflow='scroll' scrolls — built by
-     *  slide() (the default, cheapest) / blur() / blurSlide() /
-     *  shadow() / progressBlur() (the tabs scrollEffect convention).
-     *  Inert outside scroll mode */
+     *  ramp() (the one member-ramp builder: opacity/blur/translate
+     *  toggles, all default on; ramp({ blur: false }) is the cheapest
+     *  posture) / shadow() / progressBlur() (the tabs scrollEffect
+     *  convention). Inert outside scroll mode */
     scrollEffect?: ButtonGroupScrollEffect;
     /** accessible name of the collapse trigger (aria-label + tooltip) */
     moreLabel?: string;
@@ -330,7 +333,7 @@
     separator,
     leadingSeam = false,
     overflow: overflowMode = 'wrap',
-    scrollEffect = slide(),
+    scrollEffect = ramp(),
     moreLabel = 'more actions',
     density,
     'data-density': _callerDensity,
@@ -785,10 +788,11 @@
   // inside. NO measurement machine here — css scrolls the joined line
   // naturally; wrap/collapse stay this family's own machines
   const isScroll = $derived(overflowMode === 'scroll');
-  /** the full chrome (host overlays, effects, chips) is the
-   *  HORIZONTAL contract (the shared law); a vertical scroll group
-   *  gets the bare block-axis scroller */
-  const scrollChrome = $derived(isScroll && orientation === 'horizontal');
+  /** the full chrome (host overlays, effects, chips) rides BOTH axes —
+   *  the shared system is axis-aware (round 2): a vertical scroll
+   *  group gets its chips against the block edges, the veil pair
+   *  re-aimed, the same verdict law */
+  const scrollChrome = $derived(isScroll);
   let hostEl = $state<HTMLDivElement | null>(null);
 
   $effect(() => {
@@ -813,9 +817,7 @@
             c.getAttribute('data-jx-overflow-hidden') !== 'true',
         ),
       ramps:
-        scrollEffect.type === 'slide' ||
-        scrollEffect.type === 'blur' ||
-        scrollEffect.type === 'blur+slide',
+        scrollEffect.type === 'ramp',
     });
     return () => stamp.destroy();
   });
@@ -827,16 +829,10 @@
     if (!scrollChrome) return undefined;
     const parts: string[] = [];
     switch (scrollEffect.type) {
-      case 'slide':
-        parts.push(`--jx-scroll-edge-slide: ${scrollEffect.distance}`);
-        break;
-      case 'blur':
-        parts.push(`--jx-scroll-edge-blur: ${scrollEffect.radius}`);
-        break;
-      case 'blur+slide':
-        parts.push(
-          `--jx-scroll-edge-blur: ${scrollEffect.radius}; --jx-scroll-edge-slide: ${scrollEffect.distance}`,
-        );
+      case 'ramp':
+        // round 3: the ramp's magnitudes are CHROME-OWNED (ScrollChrome
+        // stamps --jx-scroll-edge-slide/blur on the run from the
+        // builder's distance/radius) — the host carries no edge vars
         break;
       case 'shadow':
       case 'progressBlur':
@@ -876,7 +872,6 @@
     data-jx-btngroup-flat={!clusterRaised ? '' : undefined}
     data-jx-separator={separatorOn ? '' : undefined}
     data-jx-leading-seam={leadingSeam ? '' : undefined}
-    data-scroll-effect={scrollChrome ? scrollEffect.type : undefined}
     data-density={d.density}
     aria-label={ariaLabel ?? label}
     bind:this={groupEl}
@@ -939,7 +934,7 @@
   >
     {@render runRoot()}
     <ScrollChrome
-      effect={scrollEffect}
+      {scrollEffect}
       run={groupEl}
       backwardLabel="Scroll actions backward"
       forwardLabel="Scroll actions forward"

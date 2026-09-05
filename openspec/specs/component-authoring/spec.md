@@ -1523,6 +1523,66 @@ tuning (band widths, snap, mirrors onto companion elements).
   builders behave identically to tabs — the family sheet carries
   NOTHING scroll-painted (a source-pinned negative test enforces it)
 
+#### Scenario: a vertical run rides the same contract (round 2)
+
+- GIVEN a strip declares data-axis='vertical' on its run
+- WHEN the machine measures and the chrome mounts
+- THEN the verdict and factors measure along the BLOCK axis (no RTL
+  funnel — scrollTop is canonical everywhere), the chips place against
+  the block edges — horizontally CENTERED (round 3) — painting the
+  up/down glyph slots, the veil entrance and the ramp translate slide
+  along the block axis, and the progressBlur ladder (inline-only)
+  yields to the shadow veil
+
+#### Scenario: content that cannot scroll paints no chrome — and the verdict follows the content
+
+- GIVEN a run whose content fits (or shrinks to fit — members removed)
+- WHEN the machine stamps or re-stamps (a childList MutationObserver
+  watches membership)
+- THEN the verdict is 'none' and BOTH chips and the veil layer stay
+  gated out; no dead control lingers after the content retires the
+  scroll distance
+
+#### Scenario: the merged ramp() builder (round 2, breaking)
+
+- GIVEN the retired trio slide()/blur()/blurSlide()
+- WHEN a consumer picks a member treatment
+- THEN it is ramp({ opacity, blur, translate, distance, radius }) with
+  every toggle defaulting ON, each css property gated on its OWN
+  data-ramp-* flag stamped by ScrollChrome (a toggle turned off never
+  pays its property — ramp({ blur: false }) is the old cheapest
+  slide), the magnitude vars (--jx-scroll-edge-slide/blur) are
+  chrome-stamped on the run from the builder's distance/radius (round
+  3 — a consumer never hand-writes them; a toggle off never sets its
+  var), and custom chip content rides backwardContent/forwardContent
+  snippets INSIDE the frosted buttons (frost, gating and the
+  focusable-button law stay; the glyph layer retires and the content
+  centers in the chip)
+
+#### Scenario: four direction glyph slots; the chips sit in-board (round 3)
+
+- GIVEN the chip glyphs were a start/end pair re-aimed per axis, and
+  the chips tucked half-out against their edges
+- WHEN a consumer wants to swap ONE arrow or re-place a chip
+- THEN the host carries FOUR physical glyph slots
+  (--jx-scroll-chevron-left/-right/-up/-down — one customization slot
+  per direction, each swappable independently; the run's axis + the
+  chip's logical edge + the page direction pick which slot paints, RTL
+  swapping the inline pair), and the chips sit IN-BOARD by default —
+  flush against the edge they serve, CENTERED on the cross axis (no
+  negative-edge tuck margins), every placement rule riding
+  zero-specificity :where() so a consumer override re-places them
+
+#### Scenario: a chip can be DECLARED disabled (round 4; semantics finalized round 7)
+
+- GIVEN a scrollable region whose consumer declares
+  backwardDisabled/forwardDisabled (default rendered)
+- WHEN the chrome mounts
+- THEN the disabled chip does not render AT ALL — no DOM node, no
+  paint, no a11y entry (consumer-declared absence) — while the
+  verdict stays the AUTOMATIC gate for rendered chips (a dead
+  direction or a cannot-scroll run never paints)
+
 #### Scenario: a NEW scrollable region adopts the raw contract
 
 - GIVEN any future strip (a chip rail, a palette row) needs overflow
