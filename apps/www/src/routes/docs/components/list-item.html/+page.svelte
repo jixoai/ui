@@ -107,6 +107,7 @@ ${close}
   let autoplay = $state(true);
   let telemetry = $state(false);
   let density = $state('default');
+  let alertEmail = $state('ops@jixoai.dev');
   let projectName = $state('');
   let retentionDays = $state(30);
   let channel = $state('Instantly');
@@ -482,11 +483,12 @@ ${close}
               <option value="sm">sm</option>
               <option value="xs">xs</option>
             </ItemSelect>
-            <ItemInput label="Project name" description="lowercase, dashes" bind:value={projectName} />
+            <ItemInput type="email" label="Alert email" description="url/tel/email/search carry their glyph by default — the trailing edge inside a list-item lane" bind:value={alertEmail} />
+            <ItemInput label="Project name" description="lowercase, dashes — plain text carries no glyph; pass the icon snippet to configure" bind:value={projectName} />
           </ItemGroup>
           <p class="text-muted-foreground mt-3 text-[11px] uppercase tracking-[0.14em]">
             bound: {autoplay ? 'fast on' : 'fast off'} · {telemetry ? 'telemetry on' : 'telemetry off'} ·
-            {density} · "{projectName}"
+            {density} · "{alertEmail}" · "{projectName}"
           </p>
         </div>
       </SectionCard>
