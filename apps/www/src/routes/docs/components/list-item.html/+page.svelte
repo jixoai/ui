@@ -104,6 +104,8 @@ ${close}
   let telemetry = $state(false);
   let density = $state('default');
   let projectName = $state('');
+  let retentionDays = $state(30);
+  let channel = $state('Instantly');
 
   // ToC outline: pairs with +page.ts, in page order.
 </script>
@@ -486,6 +488,44 @@ ${close}
             bound: {autoplay ? 'fast on' : 'fast off'} · {telemetry ? 'telemetry on' : 'telemetry off'} ·
             {density} · "{projectName}"
           </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- 5b ─ Size contract & control integration -->
+    <div id="size-contract" data-reveal="">
+      <SectionCard
+        family="size-contract"
+        headerRegion="size-contract"
+        eyebrow="proof"
+        title="Size contract & control integration"
+        summary="fit puts an end lane on a DECLARED responsive width ladder — md 10rem→7rem→stack+100% (number/time class), lg 16rem→11rem→stack+100% (text/long-select class), full always 100% — stepped by the list's own container tiers (44rem mid, 30rem narrow). wrap=never stays the fixed lane: toggle/checkbox/badge never restack, and fit + wrap=never is a contract error that throws. controlChrome integrates the row as one large input-group: the field row owns the frame and its controls render BARE (the control-chrome ambient, explicit ?? ambient ?? frame — each family's own sheet paints its bare state, so a select never loses its chevron). The optical tail has ONE owner: select/input reserve their own trailing inset (data-self-inset at the root) and the row yields its padding-inline-end there; checkbox/toggle stay silent and keep the row's."
+      >
+        <div class="grid w-full gap-6 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">wide · the ladder rungs</span>
+            <ItemGroup label="delivery">
+              <ItemSelect fit="lg" label="Digest channel" bind:value={channel}>
+                <option>Instantly</option>
+                <option>Daily digest</option>
+                <option>Off</option>
+              </ItemSelect>
+              <ItemInput fit="lg" label="Webhook URL" description="lg — text class" bind:value={projectName} placeholder="https://" />
+              <ItemInput type="number" fit="md" label="Auto-archive after" description="md — number class" bind:value={retentionDays} />
+              <ItemToggle label="Sync over cellular" description="fixed — never restacks" bind:checked={autoplay} />
+            </ItemGroup>
+          </div>
+          <div class="flex max-w-[17rem] flex-col gap-2">
+            <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">17rem pane · the narrow rung</span>
+            <ItemGroup label="narrow">
+              <ItemSelect fit="lg" label="Digest channel" bind:value={channel}>
+                <option>Instantly</option>
+                <option>Daily digest</option>
+              </ItemSelect>
+              <ItemInput type="number" fit="md" label="Auto-archive" bind:value={retentionDays} />
+              <ItemToggle label="Sync cellular" bind:checked={autoplay} />
+            </ItemGroup>
+          </div>
         </div>
       </SectionCard>
     </div>

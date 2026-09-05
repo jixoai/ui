@@ -534,7 +534,11 @@
   <!-- hidden: bare native passthrough (value rides as a plain attribute) -->
   <input {id} {type} {value} {placeholder} {...rest} data-density={d.density} />
 {:else}
-  <div class="jx-field" data-density={d.density}>
+  <div
+  class="jx-field"
+  data-density={d.density}
+  data-self-inset={showClear || customPicker || innerInlineEnd ? '' : undefined}
+>
     {#if outerBlockStart}
       <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
     {:else if label && !floating}<label class="jx-label" for={id}>{label}</label>{/if}

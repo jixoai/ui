@@ -93,7 +93,7 @@
   const invalidAttr = $derived(invalid ? 'true' : undefined);
 </script>
 
-<div class="jx-field" data-density={d.density}>
+<div class="jx-field" data-density={d.density} data-self-inset="">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <span class="jx-select-wrap relative block w-full max-w-full">
     <select

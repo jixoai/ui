@@ -198,7 +198,7 @@
   }
 </script>
 
-<div class="jx-field" data-density={d.density}>
+<div class="jx-field" data-density={d.density} data-self-inset="">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <div
     class={cn(

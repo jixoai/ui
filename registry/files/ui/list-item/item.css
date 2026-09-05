@@ -212,6 +212,19 @@
     min-width: 0;
   }
 
+  /* ── the END-INSET OWNERSHIP law, lane edition (2026-09-05): the
+     optical tail has exactly ONE owner. A self-insetting control at
+     the end lane's TERMINAL position — select's chevron reserve,
+     input's clear/picker/suffix hit-lane, number's + button —
+     declares data-self-inset (the component asserts its own trailing
+     inset; checkbox/toggle/color stay silent and keep the row's); the
+     row then drops its trailing inset for that row. The input shell's
+     own edge-zone law is the same ruling one level down; presence
+     inference is the family's native :has() — no JS, no measurement. */
+  :where(.jx-item:has(> [data-slot='item-end'] > [data-self-inset]:last-child)) {
+    padding-inline-end: 0;
+  }
+
   /* ── the size contract (2026-09-05): declared ladders, space picks
      the rung — the md:/lg: idiom for slot composition. The LANE
      carries the ladder (the end track's max-content growth resolves
