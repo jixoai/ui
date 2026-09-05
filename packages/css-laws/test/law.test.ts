@@ -257,8 +257,8 @@ describe('composeLaw — the retired @apply chain, in TS', () => {
     const css = serializeLaw(textarea, { format: 'utility' }).css;
     expect(css).toContain('resize: vertical');
     expect(css).toContain('min-height: var(--jx-textarea-min, 5rem)');
-    // input's base carried through
-    expect(css).toContain('padding-inline: 0.6em');
+    // input's base carried through (the ruler's inset token, Owner 2026-09-05)
+    expect(css).toContain('padding-inline: var(--jx-inset, 0.75rem)');
     // pseudo + media carried through
     expect(css).toContain('::placeholder');
     expect(css).toContain('@media (prefers-reduced-motion: reduce)');

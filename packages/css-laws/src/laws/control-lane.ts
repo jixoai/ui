@@ -59,8 +59,8 @@ export const controlLaneLaw: ComponentLaw = {
         height: '1.4em',
         /* the indicator's END inset is the INPUT's own padding-inline-end
          * (ownership symmetry with the prefix law): no margin-inline-end
-         * here — it would stack 0.6em + gap = 19.8px against the 7.8px
-         * text start. margin-inline-start stays: it is the value↔icon
+         * here — it would stack inset + gap (a double inset) against the
+         * start inset. margin-inline-start stays: it is the value↔icon
          * separation, the icon's own geometry, not a box inset */
         'margin-inline-start': 'var(--jx-gap, 0.5rem)',
         cursor: 'pointer',

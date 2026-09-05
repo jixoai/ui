@@ -22,10 +22,11 @@ export const controlShellLaw: ComponentLaw = {
     width: '100%',
     'min-height': 'var(--jx-hit, 2.5rem)',
     gap: 'var(--jx-gap, 0.5rem)',
-    /* inline inset — em-based (proportional to font-size → density);
-     * ALWAYS present (slotted or not) so text never touches the border */
+    /* inline inset — the density ruler's B_d = G_d invariant (was a
+     * hardcoded 0.6em, Owner 2026-09-05); ALWAYS present (slotted or
+     * not) so text never touches the border */
     'font-size': 'var(--jx-text, 0.875rem)',
-    'padding-inline': '0.6em',
+    'padding-inline': 'var(--jx-inset, 0.75rem)',
     border: '1px solid var(--border)',
     'border-radius': '0',
     background: 'var(--background)',
@@ -37,8 +38,8 @@ export const controlShellLaw: ComponentLaw = {
     transition: 'box-shadow 150ms ease-out, border-color 150ms ease-out',
   },
   states: [
-    /* END-INSET OWNERSHIP: the shell's 0.6em end padding is the inset
-     * for EVERY slim last child (the lane, suffix spans) — measured
+    /* END-INSET OWNERSHIP: the shell's end padding (--jx-inset) is the
+     * inset for EVERY slim last child (the lane, suffix spans) — measured
      * regression: suffix text sat 1px off the border under the old
      * "not the lane" drop. The ONLY self-insetting last child is the
      * clear button (.jx-html-clear carries the full --jx-hit lane);

@@ -37,7 +37,11 @@ export const inputLaw: ComponentLaw = {
     'max-width': '100%',
     'min-height': 'var(--jx-hit, 2.5rem)',
     'padding-block': 'var(--jx-gap, 0.5rem)',
-    'padding-inline': '0.6em',
+    /* inline inset = the density ruler's B_d = G_d invariant (Owner
+     * 2026-09-05: was a hardcoded 0.6em — proportional through the text
+     * scale but NOT through the ruler; the select law's end reserve
+     * already spoke --jx-inset, so the box's two axes disagreed) */
+    'padding-inline': 'var(--jx-inset, 0.75rem)',
     border: '1px solid var(--border)',
     'border-radius': '0',
     background: 'var(--background)',
@@ -103,8 +107,8 @@ export const inputLaw: ComponentLaw = {
         height: '1.4em',
         /* the indicator's END inset is the INPUT's own padding-inline-end
          * (ownership symmetry with the prefix law): no margin-inline-end
-         * here — it would stack 0.6em + gap = 19.8px against the 7.8px
-         * text start. margin-inline-start stays: it is the value↔icon
+         * here — it would stack inset + gap (a double inset) against the
+         * start inset. margin-inline-start stays: it is the value↔icon
          * separation, the icon's own geometry, not a box inset */
         'margin-inline-start': 'var(--jx-gap, 0.5rem)',
         cursor: 'pointer',
@@ -119,13 +123,15 @@ export const inputLaw: ComponentLaw = {
         'background-image': iconSlot('clock'),
       },
     },
-    /* inline-start icons for email/search — same law as the lane */
+    /* inline-start icons for email/search — same law as the lane; the
+       icon sits one --jx-inset inside, the text one gap past the icon */
     {
       selector: "[type='email']",
       declarations: {
-        'padding-inline': 'calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em',
+        'padding-inline':
+          'calc(var(--jx-inset, 0.75rem) + 1.4em + var(--jx-gap, 0.5rem)) var(--jx-inset, 0.75rem)',
         'background-image': iconSlot('mail'),
-        'background-position': 'left 0.6em center',
+        'background-position': 'left var(--jx-inset, 0.75rem) center',
         'background-size': '1.4em',
         'background-repeat': 'no-repeat',
       },
@@ -133,9 +139,10 @@ export const inputLaw: ComponentLaw = {
     {
       selector: "[type='search']",
       declarations: {
-        'padding-inline': 'calc(0.6em + 1.4em + var(--jx-gap, 0.5rem)) 0.6em',
+        'padding-inline':
+          'calc(var(--jx-inset, 0.75rem) + 1.4em + var(--jx-gap, 0.5rem)) var(--jx-inset, 0.75rem)',
         'background-image': iconSlot('search'),
-        'background-position': 'left 0.6em center',
+        'background-position': 'left var(--jx-inset, 0.75rem) center',
         'background-size': '1.4em',
         'background-repeat': 'no-repeat',
       },

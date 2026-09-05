@@ -103,8 +103,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "176fb216710e6697c6b0b1188dd0e0bff332d71ad0c7b9542385a6c3ff898203",
-          "mirrorSha": "176fb216710e6697c6b0b1188dd0e0bff332d71ad0c7b9542385a6c3ff898203"
+          "sourceSha": "f9828e46f6ec113601d92a34c78fa88937d4cb31905c4713ffb6cf6101bce403",
+          "mirrorSha": "f9828e46f6ec113601d92a34c78fa88937d4cb31905c4713ffb6cf6101bce403"
         }
       ]
     },
@@ -794,8 +794,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "4746056ab99cb3ab7bebc9219fae8718aa4edc149cf46124260685bcc48e65f0",
-          "mirrorSha": "4746056ab99cb3ab7bebc9219fae8718aa4edc149cf46124260685bcc48e65f0"
+          "sourceSha": "b18e3074213192ec7c0f6944416dd9f424f8c4db5251279f73693906dbde1a53",
+          "mirrorSha": "b18e3074213192ec7c0f6944416dd9f424f8c4db5251279f73693906dbde1a53"
         }
       ]
     },

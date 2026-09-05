@@ -6,10 +6,10 @@
  * 2026-08-29 · Tier-1 parity: the date/time picker indicator and the
  * email/search inline-start icons ride the SAME repaints as the input
  * law (the .jx-control alias is the bare-markup twin of jx-html-input —
- * "the same classes the components consume"). Padding adaptation: the
- * control's own inline inset is --jx-inset (not the input law's 0.6em
- * literal), so the prefix law grows start padding from the token and
- * the icon sits at the token's edge.
+ * "the same classes the components consume"). Padding: both laws take
+ * their inline inset from --jx-inset (the input law's 0.6em literal
+ * retired 2026-09-05), so the prefix law grows start padding from the
+ * token and the icon sits at the token's edge.
  *
  * 2026-09-02 · F-1 well sweep: same ruling as the input law — the
  * fillable single-box control sits on the WELL tier (resting inset,
