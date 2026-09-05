@@ -22,8 +22,9 @@
   either chip can be DECLARED disabled (backwardDisabled/forwardDisabled,
   default rendered — a disabled chip does not render AT ALL, Owner
   round 7); the veil mounts only under the veil effects (shadow /
-  progressBlur — the ramp scrollEffect carries no layer; progressBlur is
-  INLINE-axis only, a vertical run substitutes the shadow veil).
+  progressBlur — the ramp scrollEffect carries no layer; the ladder
+  rides EITHER axis — inline edges on a horizontal run, block edges
+  on a vertical one).
 
   OWNERSHIP (round 2, widened round 3): THIS component stamps the
   run's data-scroll-effect, the ramp's data-ramp-* toggle flags AND
@@ -123,11 +124,13 @@
     }
   });
 
-  // the veil layer mounts under the veil effects; progressBlur is the
-  // INLINE-axis ladder (pin='grid' has no block dialect) — a vertical
-  // run substitutes the shadow veil pair
+  // the veil layer mounts under the veil effects; the progressBlur
+  // LADDER rides either axis — inline edges (start/end) on a
+  // horizontal run, block edges (top/bottom) on a vertical one (the
+  // component's grid dialect; the old vertical shadow substitution
+  // retired — the two effects must read differently on either axis)
   const veil = $derived(scrollEffect.type === 'shadow' || scrollEffect.type === 'progressBlur');
-  const veilIsLadder = $derived(scrollEffect.type === 'progressBlur' && !vertical);
+  const veilIsLadder = $derived(scrollEffect.type === 'progressBlur');
 </script>
 
 {#if veil}
@@ -138,10 +141,12 @@
   <div class="jx-scroll-veil-layer pointer-events-none grid [grid-area:1/1]">
     {#if veilIsLadder}
       <!-- hold = 50: with snap retired there is no flush lane to cover —
-           the ramp owns half the band and the peak the other half -->
+           the ramp owns half the band and the peak the other half;
+           the positions ride the axis (inline start/end, block
+           top/bottom) -->
       <ProgressiveBlur
         pin="grid"
-        position="start"
+        position={vertical ? 'top' : 'start'}
         reveal="static"
         height="var(--jx-scroll-veil)"
         hold={50}
@@ -150,7 +155,7 @@
       />
       <ProgressiveBlur
         pin="grid"
-        position="end"
+        position={vertical ? 'bottom' : 'end'}
         reveal="static"
         height="var(--jx-scroll-veil)"
         hold={50}

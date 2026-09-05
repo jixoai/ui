@@ -1549,8 +1549,9 @@ tuning (band widths, snap, mirrors onto companion elements).
   funnel — scrollTop is canonical everywhere), the chips place against
   the block edges — horizontally CENTERED (round 3) — painting the
   up/down glyph slots, the veil entrance and the ramp translate slide
-  along the block axis, and the progressBlur ladder (inline-only)
-  yields to the shadow veil
+  along the block axis, and the progressBlur ladder rides the block
+  edges (top/bottom bands, the component's grid dialect — distinct
+  from the shadow veil)
 
 #### Scenario: content that cannot scroll paints no chrome — and the verdict follows the content
 

@@ -58,8 +58,9 @@
  *    over the outer 15% of travel along the run's axis (the host's
  *    --jx-scroll-progress is the clock). shadow = the separator INK
  *    law's contrast bands; progressBlur = the ProgressiveBlur ladder
- *    (scroll-chrome.svelte; inline axis only — a vertical run
- *    substitutes the shadow veil).
+ *    (scroll-chrome.svelte; EITHER axis — inline edges start/end on a
+ *    horizontal run, block edges top/bottom on a vertical one, the
+ *    component's grid dialect).
  *
  * Everything rides @layer components behind :where() — zero
  * specificity, consumer utilities always win; the veil gates sit
@@ -244,13 +245,20 @@
   }
   /* the vertical veil entrance slides along the BLOCK axis (the
    * layer is the run's sibling — the axis rides a :has on the host,
-   * the same funnel the verdict gates use) */
+   * the same funnel the verdict gates use). The ladder's block-edge
+   * bands stamp data-position top/bottom (the component's grid
+   * dialect) — they ride the same entrance law as the shadow pair's
+   * start/end */
   :where(.jx-scroll-host):has(> [data-jx-scroll-run][data-axis='vertical'])
-    > :where(.jx-scroll-veil-layer) > :where(.jx-scroll-veil)[data-position='start'] {
+    > :where(.jx-scroll-veil-layer) > :where(.jx-scroll-veil)[data-position='start'],
+  :where(.jx-scroll-host):has(> [data-jx-scroll-run][data-axis='vertical'])
+    > :where(.jx-scroll-veil-layer) > :where(.jx-scroll-veil)[data-position='top'] {
     translate: 0 calc((1 - min(1, var(--jx-scroll-progress, 0) / 0.15)) * -100%);
   }
   :where(.jx-scroll-host):has(> [data-jx-scroll-run][data-axis='vertical'])
-    > :where(.jx-scroll-veil-layer) > :where(.jx-scroll-veil)[data-position='end'] {
+    > :where(.jx-scroll-veil-layer) > :where(.jx-scroll-veil)[data-position='end'],
+  :where(.jx-scroll-host):has(> [data-jx-scroll-run][data-axis='vertical'])
+    > :where(.jx-scroll-veil-layer) > :where(.jx-scroll-veil)[data-position='bottom'] {
     translate: 0 calc(max(0, (var(--jx-scroll-progress, 0) - 0.85) / 0.15) * 100%);
   }
   /* RTL physicality: the positions are LOGICAL — the entrance signs

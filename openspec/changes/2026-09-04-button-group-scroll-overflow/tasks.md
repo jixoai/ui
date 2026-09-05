@@ -96,3 +96,16 @@
       体退役（opacity 回直书公式）；verdict 仍是已渲染 chip 的自动门。
       specs：禁用测试改为 DOM 缺席断言 + :disabled 负向 source-pin；fade 断
       言回直式
+- [x] 16. Owner round 9（验收反馈："vertical 下 progressBlur 看上去和 shadow 一样"）：
+      原设计是垂直替换为 shadow 带（round 2 时 ProgressiveBlur 的 pin='grid'
+      只有水平方言）。并行会话 d2259ca 为 docs-nav 给组件补齐了 block 边方言
+      （position 'top'|'bottom'，尺寸走 height，grid 方言自带放置），scroll-run
+      现在直接消费：veilIsLadder 不再排除垂直，两个 ProgressiveBlur 按
+      data-axis 选 position（inline start/end ↔ block top/bottom），替换逻辑
+      退役；法则表入场臂扩为选择器列表（start,top / end,bottom 沿块轴滑入）。
+      实机：垂直 progressBlur = 梯子带（top/bottom、6 层模糊、遮罩朝上/下、
+      全轨宽 500），shadow = contrast 带 —— 二者明确可辨；水平无回归（梯子
+      start/end 18×35 遮罩朝左右）。途中抓到并修掉 demo API 行替换文本的未转
+      义撇号（js_parse_error，整页 500）。specs：替换测试改为垂直梯子测试
+      （.jx-pblur×2 + 0 shadow 带 + top/bottom 戳记 + 入场臂列表 pin），水
+      平梯子测试加 position 戳记断言

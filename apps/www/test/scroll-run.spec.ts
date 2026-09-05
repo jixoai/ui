@@ -159,7 +159,7 @@ describe('scroll-run · the vertical axis', () => {
 
   it('the vertical veil entrance slides along the BLOCK axis; the shadow bands re-aim + STRETCH (source-pinned)', () => {
     expect(scrollRunCss).toMatch(
-      /:has\(\s*>\s*\[data-jx-scroll-run\]\[data-axis='vertical'\]\)\s*\n?\s*>\s*:where\(\.jx-scroll-veil-layer\)\s*>\s*:where\(\.jx-scroll-veil\)\[data-position='start'\]\s*\{[^}]*translate:\s*0\s*calc\(/s,
+      /:has\(\s*>\s*\[data-jx-scroll-run\]\[data-axis='vertical'\]\)\s*\n?\s*>\s*:where\(\.jx-scroll-veil-layer\)\s*>\s*:where\(\.jx-scroll-veil\)\[data-position='top'\]\s*\{[^}]*translate:\s*0\s*calc\(/s,
     );
     // the vertical bands span the full inline width: width auto + STRETCH
     // (stretch is load-bearing — the horizontal start/end rules match
@@ -184,21 +184,34 @@ describe('scroll-run · the vertical axis', () => {
     );
   });
 
-  it('a vertical run substitutes the SHADOW veil for the inline-only progressBlur ladder', async () => {
+  it('a vertical run mounts the BLOCK-EDGE ladder (top/bottom) under progressBlur — no shadow substitution', async () => {
     const { container } = render(Host, {
       props: { axis: 'vertical', scrollEffect: progressBlur() },
     });
     await tick();
     const layer = container.querySelector('.jx-scroll-veil-layer')!;
     expect(layer).not.toBeNull();
-    // the ladder never mounts on the block axis — the shadow bands do
-    expect(layer.querySelector('.jx-pblur')).toBeNull();
-    expect(layer.querySelectorAll('.jx-scroll-shadow')).toHaveLength(2);
+    // the ladder rides EITHER axis: block-edge bands, zero shadow bands
+    // (the old substitution made progressBlur read identical to shadow)
+    expect(layer.querySelectorAll('.jx-pblur')).toHaveLength(2);
+    expect(layer.querySelectorAll('.jx-scroll-shadow')).toHaveLength(0);
+    const positions = [...layer.querySelectorAll('[data-jx-pblur]')].map((b) => b.getAttribute('data-position'));
+    expect(positions.sort()).toEqual(['bottom', 'top']);
+    // the entrance arms cover the block-edge stamps (top/bottom ride
+    // the same block-axis translate law as the shadow pair's start/end)
+    expect(scrollRunCss).toMatch(
+      /\[data-position='start'\],\s*\n\s*:where\(\.jx-scroll-host\):has\(\s*>\s*\[data-jx-scroll-run\]\[data-axis='vertical'\]\)[\s\S]{0,300}?\[data-position='top'\]/s,
+    );
+    expect(scrollRunCss).toMatch(
+      /\[data-position='end'\],\s*\n\s*:where\(\.jx-scroll-host\):has\(\s*>\s*\[data-jx-scroll-run\]\[data-axis='vertical'\]\)[\s\S]{0,300}?\[data-position='bottom'\]/s,
+    );
   });
 
   it('a horizontal run mounts the ladder under progressBlur', () => {
     const { container } = render(Host, { props: { scrollEffect: progressBlur() } });
     expect(container.querySelectorAll('.jx-scroll-veil-layer .jx-pblur')).toHaveLength(2);
+    const positions = [...container.querySelectorAll('[data-jx-pblur]')].map((b) => b.getAttribute('data-position'));
+    expect(positions.sort()).toEqual(['end', 'start']);
   });
 });
 
