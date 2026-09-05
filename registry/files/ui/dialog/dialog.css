@@ -133,7 +133,19 @@
      platform's ceiling REACHES the ring; the ring's own max-h keeps
      guarding the centered default case. The body zone stays the only
      scroller (r14-3, unchanged). */
-  :where(.jx-dialog) {
+  /* OPEN dialogs only (2026-09-05): an author display declaration —
+     even :where() zero-specificity — outranks the UA sheet's
+     dialog:not([open]) { display: none } (author > UA origin), so the
+     ungated flex rendered every CLOSED dialog as an invisible
+     absolutely-positioned box below the viewport; on the site the
+     root-layout search palette's phantom box made the DOCUMENT itself
+     scrollable by its height, and wheel/keyboard scrolls over
+     non-scroller chrome slid the whole shell up with blank below.
+     The jx-waapi allow-discrete display transition still owns the
+     exit window on close ([open] removal flips the match, the discrete
+     flip lands at delay + 50%). */
+  :where(.jx-dialog[open]),
+  :where(.jx-dialog:popover-open) {
     display: flex;
     flex-direction: column;
   }

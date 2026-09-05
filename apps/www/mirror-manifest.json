@@ -972,8 +972,8 @@
           "source": "registry/files/ui/dialog/dialog.css",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.css",
           "target": "@ui/dialog/dialog.css",
-          "sourceSha": "9c1bc418afef7cbbabe962f6cb0613a128595aaa37bb693b3cf9c896777a2b38",
-          "mirrorSha": "9c1bc418afef7cbbabe962f6cb0613a128595aaa37bb693b3cf9c896777a2b38"
+          "sourceSha": "ef120776c707f7f16ffeed08cd7ef86dfe69027f5a25dfa25057751d646d43ba",
+          "mirrorSha": "ef120776c707f7f16ffeed08cd7ef86dfe69027f5a25dfa25057751d646d43ba"
         },
         {
           "source": "registry/files/ui/dialog/dialog-defaults.svelte.ts",

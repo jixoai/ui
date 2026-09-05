@@ -281,4 +281,20 @@ describe('the ruler — css source law', () => {
   it('no zone border paint creeps back into the family sheet', () => {
     expect(css).not.toMatch(/border-block|border-top|border-bottom/);
   });
+
+  it('the height-continuity flex is GATED on open dialogs — a closed dialog stays display:none (2026-09-05)', () => {
+    // an author display declaration — even :where() zero-specificity —
+    // outranks the UA sheet's dialog:not([open]) { display: none }
+    // (author > UA origin beats specificity). Ungated, every CLOSED
+    // dialog rendered as an invisible absolutely-positioned box below
+    // the viewport; the site's root-layout search palette made the
+    // DOCUMENT scrollable by its height, and wheel/keyboard scrolls
+    // over non-scroller chrome slid the whole 100dvh shell up (the
+    // page-shift bug). The jx-waapi allow-discrete display transition
+    // still owns the exit window on close.
+    expect(css).toMatch(/\.jx-dialog\[open\][\s\S]{0,80}display: flex/);
+    expect(css).toMatch(/\.jx-dialog:popover-open[\s\S]{0,80}display: flex/);
+    // the UNGATED platform selector must not exist
+    expect(css).not.toMatch(/:where\(\.jx-dialog\)\s*\{/);
+  });
 });
