@@ -7,10 +7,11 @@
  * frozen r1): tonal (the 12%/45% tint recipe over --jx-tonal, which
  * aliases primary at :root) is the DEFAULT rung; fill and outline sit
  * beside it. Semantic hue injects from outside via jx-hue-* utilities,
- * never as a variant name. The kbd geometry — 1px border, the
- * --shadow-engrave inset (a glyph incised into the plane, the
- * elevation grammar's engrave tier — never a lift), mono, secondary
- * text scale — rides every rung unchanged.
+ * never as a variant name. The kbd geometry — 1px border, 2px corner
+ * radius (Owner 2026-09-05), the --shadow-engrave inset (a glyph
+ * incised into the plane, the elevation grammar's engrave tier —
+ * never a lift), mono, secondary text scale — rides every rung
+ * unchanged.
  *
  * Assertion law: state is read back through the DOM the way a user or
  * assistive tech sees it (element, attributes, classes) — never through
@@ -30,10 +31,13 @@ describe('kbd variants', () => {
     // no density opinion → no stamp (fleet law: rides ambient css scope)
     expect(el.getAttribute('data-density')).toBeNull();
     // chip geometry rides every rung; the elevation is the ENGRAVE
-    // inset (incised into the plane), not a lift
+    // inset (incised into the plane), not a lift; corners carry the
+    // 2px radius (Owner 2026-09-05 — a hair of softening, still sharp)
     expect(el.className).toContain('shadow-engrave');
     expect(el.className).toContain('font-mono');
     expect(el.className).toContain('border');
+    expect(el.className).toContain('rounded-[2px]');
+    expect(el.className).not.toContain('rounded-none');
   });
 
   it('tonal is the 12%/45% tint recipe, text the hue itself', () => {

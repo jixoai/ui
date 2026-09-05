@@ -3,9 +3,9 @@
   The keyboard-input glyph: a native <kbd> — the element whose entire
   meaning is "this is keyboard input" — with the grammar's variant
   ladder (variant-grammar frozen r1) over the ENGRAVED geometry: 1px
-  border + the --shadow-engrave inset (the elevation grammar's engrave
-  tier, 2026-09-01 — a glyph incised into the plane, not lifted off
-  it), mono. TONAL is the default rung (12%/45% primary
+  border, 2px corner radius (Owner 2026-09-05) + the --shadow-engrave
+  inset (the elevation grammar's engrave tier, 2026-09-01 — a glyph
+  incised into the plane, not lifted off it), mono. TONAL is the default rung (12%/45% primary
   tint — --jx-tonal aliases primary at :root); fill and outline sit
   beside it. Semantic hue injects from the outside (class="jx-hue-error"),
   never as a variant name. restProps flow through, so title/data-* land
@@ -61,7 +61,7 @@
   data-jx-kbd={d.variant}
   data-density={d.density}
   class={cn(
-    'inline-block [padding-inline:var(--jx-gap)] border rounded-none shadow-engrave font-mono [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] whitespace-nowrap',
+    'inline-block [padding-inline:var(--jx-gap)] border rounded-[2px] shadow-engrave font-mono [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] whitespace-nowrap',
     variants[d.variant],
     className,
   )}

@@ -2159,8 +2159,8 @@
           "source": "registry/files/ui/kbd/kbd.svelte",
           "mirror": "apps/www/src/lib/ui/kbd/kbd.svelte",
           "target": "@ui/kbd/kbd.svelte",
-          "sourceSha": "6568a7b491d6e2536fc10da1f9335f35884fb925f76ac9001681f43315256b60",
-          "mirrorSha": "6568a7b491d6e2536fc10da1f9335f35884fb925f76ac9001681f43315256b60"
+          "sourceSha": "c8ec9a3cbe90d4e0d7dd81a34e3e1dd4a386dd003875051fdb3109859aefc6ae",
+          "mirrorSha": "c8ec9a3cbe90d4e0d7dd81a34e3e1dd4a386dd003875051fdb3109859aefc6ae"
         },
         {
           "source": "registry/files/ui/kbd/index.ts",
