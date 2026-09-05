@@ -96,6 +96,24 @@
   :where(.jx-number-shell) input {
     appearance: textfield;
     -moz-appearance: textfield;
+    /* the number lane centers its glyphs between the −/+ pair (the
+       pair frames the value; a ragged start-align reads as a text
+       field with buttons stuck on) */
+    text-align: center;
+  }
+
+  /* the stepper pair CLOSES the shell's flex gap (Owner catch
+     2026-09-05): the buttons' own square hit geometry is already the
+     optical inset (the edge-zone ownership law zeroes the shell
+     padding on their side), so the 0.5rem gap stacked a SECOND inset
+     between glyph and value. The pair hugs the lane directly — and
+     only when they are truly ADJACENT (snippet slots between button
+     and lane keep the gap as their breathing room) */
+  :where(.jx-number-shell) > .jx-input-prefix-icon-button + input {
+    margin-inline-start: calc(var(--jx-gap, 0.5rem) * -1);
+  }
+  :where(.jx-number-shell) > input + .jx-input-suffix-icon-button {
+    margin-inline-start: calc(var(--jx-gap, 0.5rem) * -1);
   }
 
   /* ---- edge-zone ownership (the END-INSET OWNERSHIP law,
