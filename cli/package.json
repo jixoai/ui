@@ -1,6 +1,6 @@
 {
   "name": "jixoai-ui",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Official jixoai design-language CLI: initializes the @jixoai shadcn registry namespace, manages the jixoai extension fields in components.json, applies the per-project brand hue, and performs locked idempotent upgrades.",
   "license": "MIT",
   "type": "module",
