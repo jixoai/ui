@@ -12,6 +12,8 @@
  * restoring the full list. Matched characters render as <mark> (the
  * search palette's own convention, transparent background + primary).
  */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { describe, expect, it } from 'vitest';
@@ -232,5 +234,78 @@ describe('docs sections nav — components-tree mode', () => {
     expect(lineMarks('select', 'title')).toEqual(['sel']);
     // skeleton's indexes scatter ([0,2,3]) — 's' then 'el', two marks
     expect(lineMarks('skeleton', 'title')).toEqual(['s', 'el']);
+  });
+});
+
+describe('docs sections nav — the ONE-CELL LAYER GRID (source law, 2026-09-05 r3)', () => {
+  // the sticky era retired: the rail grid is a single [stack] cell —
+  // the groups scroller spans it in full, the head and the blur band
+  // are OVERLAYS (z-10 over z-[5]); pinning is by construction. The
+  // scroller pads nothing inline (a padded scroller clipped the
+  // band's backdrop width); the head's clearance is the measured
+  // --jx-dsn-head-h (the RO var, the scaffold's --jx-header-h
+  // precedent); the band's reveal rides the named-timeline seam (the
+  // scroller is the band's SIBLING — scroll(nearest) cannot see it)
+  const source = readFileSync(
+    resolve(process.cwd(), 'src/lib/ui/docs-sections-nav.svelte'),
+    'utf8',
+  );
+  const container = () =>
+    source.slice(source.indexOf('@container jx-shell (min-width: 1200px)'));
+
+  it('the band mounts INSIDE the rail surface, in the grid dialect (dies with it below 1200px)', () => {
+    const navStart = source.indexOf('<nav class="jx-dsn"');
+    const railStart = source.indexOf('class="jx-dsn-rail"');
+    const bandMount = source.indexOf('<ProgressiveBlur pin="grid" position="top" reveal="scroll" height="7.5rem"');
+    expect(navStart).toBeGreaterThan(-1);
+    expect(railStart).toBeGreaterThan(navStart);
+    expect(bandMount).toBeGreaterThan(railStart); // inside the rail grid, not a nav sibling
+  });
+
+  it('ONE cell, three layers: head and groups share the [stack] area; the rail head carries no sticky', () => {
+    const css = container();
+    expect(css).toContain('grid-template-rows: [stack] minmax(0, 1fr)');
+    expect(css).toContain('grid-area: stack / rail'); // head AND groups — same cell, overlay + scroller
+    expect(css.match(/grid-area: stack \/ rail/g)?.length).toBe(2);
+    expect(css).toContain('z-index: 10'); // the head rides above the band's z-[5]
+    // the RAIL head is placement-only (the bar form's expand head keeps
+    // its own sticky — a band INSIDE its own scroller, the honest pin)
+    const headRule = css.match(/\.jx-dsn-head \{[\s\S]*?\}/)?.[0] ?? '';
+    expect(headRule).not.toContain('sticky');
+    expect(headRule).toContain('align-self: start');
+  });
+
+  it('the list IS the scroller: overflow + gutter + the timeline name moved inward', () => {
+    const css = container();
+    expect(css).toContain('overflow-y: auto');
+    expect(css).toContain('scrollbar-gutter: stable both-edges');
+    expect(css).toContain('scroll-timeline-name: --jx-dsn');
+    expect(css).toContain('timeline-scope: --jx-dsn'); // the bridge: the band reads the sibling scroller
+    expect(css).toContain('--jx-pblur-scroll-tl: --jx-dsn');
+  });
+
+  it('the band carries NO site className: [data-jx-pblur] is the anchor, and only the END edge steps aside (Owner, 2026-09-05)', () => {
+    // the component's own attribute is the stable hook; the scrollbar
+    // beneath the blur is noise to erase, not content to frost — the
+    // start-side gutter strip paints nothing, so its blur is free
+    expect(source).not.toContain('jx-dsn-band');
+    const bandRule =
+      container().match(/\.jx-dsn-rail :global\(\[data-jx-pblur\]\) \{[\s\S]*?\}/)?.[0] ?? '';
+    expect(bandRule).not.toBe('');
+    expect(bandRule).toContain('margin-inline-end: var(--jx-scrollbar-thin, 0px)');
+    expect(bandRule).not.toContain('margin-inline:'); // end-only — never the both-edges retreat
+  });
+
+  it('the clearance is MEASURED (the RO var), never hardcoded — with a no-JS css fallback', () => {
+    const css = container();
+    expect(css).toContain('padding-block-start: var(--jx-dsn-head-h, 5.375rem)');
+    expect(source).toContain("--jx-dsn-head-h");
+    expect(source).toContain('ResizeObserver'); // the scaffold's --jx-header-h precedent
+  });
+
+  it('the inline insets align head and list on one line: outside the scroller max(inset, thin), inside inset−thin', () => {
+    const css = container();
+    expect(css).toContain('padding-left: max(1.25rem, var(--jx-scrollbar-thin, 0px))'); // the head
+    expect(css).toContain('padding-left: max(1.25rem - var(--jx-scrollbar-thin, 0px), 0px)'); // the list
   });
 });

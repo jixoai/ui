@@ -78,16 +78,19 @@
 
   /** the grid dialect (Owner, 2026-09-01 — grid provides positioning,
    *  z-index the layering): the band is a sibling item in the
-   *  consumer's ONE-CELL grid host (grid-area 1/1 + justify-self per
-   *  edge), and the ladder layers stack as grid items of the band
-   *  itself. justify-self aims along the INLINE axis only, so the
-   *  position vocabulary narrows to start/end — a block-edge or pair
-   *  position has NO placement law in this dialect (Codex P2,
-   *  2026-09-02: the non-discriminated union made those combos
-   *  compile-legal and they rendered broken geometry) */
+   *  consumer's grid host, and the ladder layers stack as grid items
+   *  of the band itself — no position tech anywhere. INLINE edges aim
+   *  by justify-self in the ONE-CELL host; BLOCK edges (2026-09-05,
+   *  the dsn rail overlay) hang from the host's block extent —
+   *  grid-row 1/-1 + align-self per edge, the size on HEIGHT — the
+   *  vocabulary for the pinned-overlay architecture where the
+   *  scroller is a SIBLING (the band pins by never entering the
+   *  scroll flow). A PAIR position still has no single placement law
+   *  in this dialect and stays sticky-dialect-only (Codex P2,
+   *  2026-09-02) */
   interface ProgressiveBlurGridProps extends ProgressiveBlurBandProps {
     pin: 'grid';
-    position: 'start' | 'end';
+    position: 'start' | 'end' | 'top' | 'bottom';
     /** the outer share of the band (0–100, clamped to it, %) that
      *  HOLDS the ladder's peak instead of ramping — for strips whose
      *  readable content parks inboard of the clip edge (a control
@@ -115,11 +118,18 @@
    *  inline pair (start+end) — the horizontal-overflow strip shape.
    *  The runtime twin of the discriminated union (Codex P2,
    *  2026-09-02): JS callers bypass the types, so a grid band outside
-   *  its start/end vocabulary normalizes to 'start' (documented
-   *  fallback) instead of rendering the broken justify-self geometry
-   *  the type now forbids */
+   *  its single-edge vocabulary (the PAIRS — every single edge has a
+   *  placement law since the 2026-09-05 block-edge upgrade)
+   *  normalizes to 'start' (documented fallback) instead of rendering
+   *  broken geometry */
   const edges = $derived.by(() => {
-    if (pin === 'grid' && position !== 'start' && position !== 'end') {
+    if (
+      pin === 'grid' &&
+      position !== 'start' &&
+      position !== 'end' &&
+      position !== 'top' &&
+      position !== 'bottom'
+    ) {
       return ['start'] as const;
     }
     return (
@@ -195,24 +205,31 @@
 {#each edges as edge (edge)}
   {#if pin === 'grid'}
     <!-- the grid dialect (Owner, 2026-09-01): positioning by GRID and
-         layering by z-index — the band is a grid item of the
-         consumer's ONE-CELL host and the ladder layers are grid items
-         of the band ([grid-area:1/1] each) — no position tech
-         anywhere. PAINT LAW (empirical, Chromium 152): the band must
-         paint AFTER the scrolled content and carry a no-op
-         translateZ(0) — compositor isolation, never positioning —
-         which gives EACH band its own layer; without it a band at the
-         scroll-origin edge samples a dead backdrop and only the first
-         band after the scroller paints (the left-veil-is-invisible
-         bug, measured 2026-09-01; with translateZ the grid-item
-         layers paint full-strength — verified pixel-equal) -->
+         layering by z-index — the band is a grid item of the consumer's
+         host and the ladder layers are grid items of the band — no
+         position tech anywhere. INLINE edges ride [grid-area:1/1] +
+         justify-self in the ONE-CELL host; BLOCK edges (2026-09-05)
+         span the host's whole block extent ([grid-row:1/-1] +
+         [grid-column:1/-1], the scaffold's line-placement law) hanging
+         from the chosen edge by align-self — the size rides HEIGHT.
+         PAINT LAW (empirical, Chromium 152): the band must paint AFTER
+         the scrolled content and carry a no-op translateZ(0) —
+         compositor isolation, never positioning — which gives EACH band
+         its own layer; without it a band at the scroll-origin edge
+         samples a dead backdrop and only the first band after the
+         scroller paints (the left-veil-is-invisible bug, measured
+         2026-09-01; with translateZ the grid-item layers paint
+         full-strength — verified pixel-equal) -->
     <div
       class={cn(
-        'jx-pblur pointer-events-none grid [grid-area:1/1] self-stretch [transform:translateZ(0)]',
-        edge === 'start' ? 'justify-self-start' : 'justify-self-end',
+        'jx-pblur pointer-events-none grid [transform:translateZ(0)]',
+        edge === 'start' && '[grid-area:1/1] justify-self-start self-stretch',
+        edge === 'end' && '[grid-area:1/1] justify-self-end self-stretch',
+        edge === 'top' && 'self-start [grid-row:1/-1] [grid-column:1/-1]',
+        edge === 'bottom' && 'self-end [grid-row:1/-1] [grid-column:1/-1]',
         className,
       )}
-      style="width: {height}"
+      style="{edge === 'top' || edge === 'bottom' ? 'height' : 'width'}: {height}"
       data-jx-pblur=""
       data-position={edge}
       data-variant={reveal}

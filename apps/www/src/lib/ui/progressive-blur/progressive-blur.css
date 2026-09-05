@@ -26,14 +26,21 @@
   opacity: 0;
 }
 @supports (animation-timeline: scroll()) {
+  /* THE TIMELINE SEAM (2026-09-05): an OVERLAY band (grid dialect,
+     block edges) sits BESIDE its scroller — a sibling, not a
+     descendant — so scroll(nearest) cannot see it. The consumer
+     bridges: scroll-timeline-name on the scroller, timeline-scope on
+     the common host, and --jx-pblur-scroll-tl (set on the band)
+     retargets the ladder to the named timeline. Unset, the seam
+     falls back to the in-scroller default */
   :where(.jx-pblur[data-variant='scroll'][data-position='top']) .jx-pblur-layer {
     animation: jx-pblur-reveal linear both;
-    animation-timeline: scroll(nearest block);
+    animation-timeline: var(--jx-pblur-scroll-tl, scroll(nearest block));
     animation-range: 0px var(--jx-pblur-ramp, 72px);
   }
   :where(.jx-pblur[data-variant='scroll'][data-position='bottom']) .jx-pblur-layer {
     animation: jx-pblur-reveal linear both;
-    animation-timeline: scroll(nearest block);
+    animation-timeline: var(--jx-pblur-scroll-tl, scroll(nearest block));
     animation-range: calc(100% - var(--jx-pblur-ramp, 72px)) 100%;
   }
 }

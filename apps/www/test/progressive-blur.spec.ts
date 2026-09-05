@@ -127,25 +127,27 @@ describe('progressive-blur hold (grid dialect)', () => {
   });
 });
 
-describe('progressive-blur dialect discrimination (Codex P2, 2026-09-02)', () => {
-  // grid + a block-edge position rendered broken geometry (justify-
-  // self has no block-axis placement law). Two defenses: the Props
-  // type now DISCRIMINATES (grid narrows position to 'start'|'end' —
-  // invalid combos are compile errors), and a runtime twin normalizes
-  // JS callers that bypass the types to the documented 'start'
-  // fallback.
-  it('the Props type is a dialect-discriminated union: grid narrows position to start/end', () => {
+describe('progressive-blur dialect discrimination (Codex P2, 2026-09-02; block edges 2026-09-05)', () => {
+  // grid + a PAIR position renders broken geometry (a pair has no
+  // single placement law). Two defenses: the Props type DISCRIMINATES
+  // (grid narrows position to the four single edges — invalid combos
+  // are compile errors), and a runtime twin normalizes JS callers
+  // that bypass the types to the documented 'start' fallback. Block
+  // edges joined the grid vocabulary with the 2026-09-05 placement
+  // law (grid-row 1/-1 + align-self per edge) for the pinned-overlay
+  // architecture (the dsn rail: the scroller a SIBLING).
+  it('the Props type is a dialect-discriminated union: grid narrows position to the four single edges', () => {
     expect(svelteSrc).toContain(
       'export type ProgressiveBlurProps = ProgressiveBlurStickyProps | ProgressiveBlurGridProps;',
     );
-    // the grid branch's position vocabulary is exactly the inline pair
+    // the grid branch's position vocabulary is the four single edges
     const gridBranch = svelteSrc.match(
       /interface ProgressiveBlurGridProps[\s\S]*?\{([\s\S]*?)\n  \}/,
     )?.[1] ?? '';
     expect(gridBranch).not.toBe('');
-    expect(gridBranch).toContain("position: 'start' | 'end';");
-    expect(gridBranch).not.toContain("'top'");
+    expect(gridBranch).toContain("position: 'start' | 'end' | 'top' | 'bottom';");
     expect(gridBranch).not.toContain("'both'");
+    expect(gridBranch).not.toContain("'inline'");
     // the sticky branch keeps the full vocabulary
     const stickyBranch = svelteSrc.match(
       /interface ProgressiveBlurStickyProps[\s\S]*?\{([\s\S]*?)\n  \}/,
@@ -153,16 +155,29 @@ describe('progressive-blur dialect discrimination (Codex P2, 2026-09-02)', () =>
     expect(stickyBranch).toContain("'inline'");
   });
 
-  it('a JS caller passing grid + top normalizes to the start band, never broken geometry', () => {
+  it('a JS caller passing grid + a PAIR normalizes to the start band, never broken geometry', () => {
     const { container } = render(ProgressiveBlur, {
       // @ts-expect-error the combo IS the compile error this exercises —
       // the runtime twin serves the untyped caller
-      props: { pin: 'grid', position: 'top' },
+      props: { pin: 'grid', position: 'both' },
     });
     const bands = [...container.querySelectorAll('[data-jx-pblur]')];
     expect(bands.length).toBe(1);
     expect(bands[0]!.getAttribute('data-position')).toBe('start');
     expect(bands[0]!.className).toContain('justify-self-start');
+  });
+
+  it("grid + top renders the BLOCK-EDGE placement law: spans the host's rows/columns, size on height", () => {
+    const { container } = render(ProgressiveBlur, {
+      props: { pin: 'grid', position: 'top', height: '7.5rem' },
+    });
+    const band = container.querySelector('[data-jx-pblur]') as HTMLElement;
+    expect(band.getAttribute('data-position')).toBe('top');
+    expect(band.className).toContain('self-start');
+    expect(band.className).toContain('[grid-row:1/-1]');
+    expect(band.className).toContain('[grid-column:1/-1]');
+    expect(band.className).not.toContain('sticky');
+    expect(band.getAttribute('style')).toContain('height: 7.5rem');
   });
 });
 
@@ -202,7 +217,15 @@ describe('progressive-blur reveal gating + direction ownership (css source law)'
     expect(css).not.toMatch(/\[data-variant='scroll'\]\) \.jx-pblur-layer/);
     // the revival timelines stay block-scoped inside @supports
     expect(css).toMatch(/@supports \(animation-timeline: scroll\(\)\)/);
-    expect(css.match(/animation-timeline: scroll\(nearest block\)/g)?.length).toBe(2);
+    expect(css.match(/animation-timeline: var\(--jx-pblur-scroll-tl, scroll\(nearest block\)\)/g)?.length).toBe(2);
+  });
+
+  it('the timeline seam: an overlay band retargets the reveal via --jx-pblur-scroll-tl (2026-09-05)', () => {
+    // a grid-dialect block band sits BESIDE its scroller —
+    // scroll(nearest) cannot see it. The seam var swaps the timeline
+    // for a named one bridged by timeline-scope; unset, the
+    // in-scroller default stands
+    expect(css.match(/animation-timeline: var\(--jx-pblur-scroll-tl, scroll\(nearest block\)\)/g)?.length).toBe(2);
   });
 
   it('the ladder masks live in css keyed on data-position — with :dir(rtl) flipping the inline pair (CR-1 P2-1)', () => {

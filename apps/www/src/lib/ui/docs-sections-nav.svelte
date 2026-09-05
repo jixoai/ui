@@ -14,15 +14,14 @@
   Authored in the scaffold's `chrome` snippet with data-area="tree":
   SSR-rendered in its final grid cell, immersive hide laws inherited.
 
-  Scroll-edge blur (2026-08-25 r2, Owner feedback): the wide rail is a
-  STICKY-HEAD list — title + filter pin at the scrollport edge while
-  the sections scroll UNDER them through the progressive-blur band
-  (band z-[5] under the head's z-10, reveal riding the scroller so
-  nothing blurs at rest). The mobile expansion viewport wears the same
-  law (sticky filter + band). Two probed Blink laws shape the css: the
-  scroller carries NO top padding (sticky pins at the content-box top,
-  content clips at the padding-box edge — the inset lives inside the
-  sticky head), and the sticky offsets are load-bearing.
+  Scroll-edge blur (2026-08-25 r2 → the layer grid, 2026-09-05): the
+  wide rail is a ONE-CELL LAYER GRID — the groups scroller spans the
+  cell in full, the title/filter head and the progressive-blur band
+  are OVERLAYS (band z-[5] under the head's z-10, the list streaming
+  UNDER both through the band; reveal riding the scroller so nothing
+  blurs at rest — no sticky anywhere). The mobile expansion viewport
+  keeps the original sticky-head law (its band is INSIDE its own
+  scroller, where sticky is the honest pin).
 -->
 <script lang="ts">
   import './docs-sections-nav.css';
@@ -36,6 +35,7 @@
     type NavHighlightSegment,
   } from '$lib/search/nav-filter';
   import ProgressiveBlur from '$lib/ui/progressive-blur/progressive-blur.svelte';
+  import { onMount } from 'svelte';
 
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
@@ -91,6 +91,35 @@
   );
 
   let open = $state(false);
+
+  // ── the layer-grid clearance (2026-09-05, the scaffold's
+  // --jx-header-h precedent): the rail is a ONE-CELL layer grid — the
+  // head is an OVERLAY, the scroller spans the full cell behind it,
+  // so the list's flow needs the head's height as top clearance.
+  // Measured (RO), never hardcoded: fonts and theme shift the head's
+  // content height. The var lands on the RAIL (the layer host) and
+  // the groups' padding-block-start reads it; no-JS keeps the css
+  // fallback (≈ the authored head height)
+  let railEl = $state<HTMLElement | null>(null);
+  let headEl = $state<HTMLElement | null>(null);
+
+  onMount(() => {
+    if (!railEl || !headEl) return;
+    const rail = railEl;
+    const head = headEl;
+    let reserved = -1;
+    const reserve = () => {
+      const h = head.offsetHeight;
+      if (h !== reserved) {
+        reserved = h;
+        rail.style.setProperty('--jx-dsn-head-h', `${h}px`);
+      }
+    };
+    const ro = new ResizeObserver(reserve);
+    ro.observe(head);
+    reserve();
+    return () => ro.disconnect();
+  });
   const close = () => (open = false);
 
   // search filter (Owner request, 2026-08-25; fuzzy upgrade
@@ -129,16 +158,24 @@
 </script>
 
 <nav class="jx-dsn" data-area="tree" aria-label="docs sections">
-  <!-- sticky head + progressive blur (2026-08-25 r2, Owner feedback):
-       the title/filter PIN at the scrollport edge; the list scrolls
-       under them through the progressive-blur band (z-under the head,
-       reveal riding the scroller — nothing blurs while the list rests
-       at the top). The band hangs from the TRUE clip edge; the head's
-       own 1.25rem top inset lives inside the sticky box -->
-  <ProgressiveBlur position="top" reveal="scroll" height="7.5rem" class="z-[5]" />
   <!-- rail surface (wide form): the spine, always expanded -->
-  <div class="jx-dsn-rail">
-    <div class="jx-dsn-head">
+  <!-- THE ONE-CELL LAYER GRID (2026-09-05 r3 — the sticky era
+       retires): the rail grid is a single [stack] cell — the groups
+       scroller spans it in full (its content streaming under the
+       head, exactly as the sticky era rendered), the head and the
+       blur band are OVERLAYS (band z-[5] under the head's z-10).
+       Pinning is by construction — the overlays never enter the
+       scroll flow. The list's top clearance is the head's measured
+       height (the RO var --jx-dsn-head-h, the scaffold's
+       --jx-header-h precedent). The band (grid dialect, block edge)
+       hangs from the cell's top edge; its reveal timeline rides the
+       SEAM — the scroller is the band's SIBLING, so scroll(nearest)
+       cannot see it: the scroller's scroll-timeline is named and
+       lifted with timeline-scope (see the style block). The band
+       mounts INSIDE the rail surface (dying with it below 1200px) -->
+  <div class="jx-dsn-rail" bind:this={railEl}>
+    <ProgressiveBlur pin="grid" position="top" reveal="scroll" height="7.5rem" class="z-[5]" />
+    <div class="jx-dsn-head" bind:this={headEl}>
       <p class="jx-dsn-title">{railTitle}</p>
       <div class="jx-dsn-search">
         <input
@@ -290,34 +327,88 @@
     display: none;
   }
   @container jx-shell (min-width: 1200px) {
+    /* THE ONE-CELL LAYER GRID (2026-09-05 r3 — the sticky era
+       retires): the nav is a capped one-row grid passing a DEFINITE
+       height down (max-height on a plain block parent cannot bound a
+       percentage child); the rail is ONE cell — the scroller spans it
+       in full, the head and the blur band are OVERLAYS stacked on top
+       (band z-[5] under the head's z-10, the old z-ladder verbatim).
+       Pinning is by construction: the overlays never enter the scroll
+       flow. The list's content streams UNDER the head through the
+       band, exactly as the sticky era rendered it */
+    .jx-dsn {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr);
+      max-height: 100%;
+    }
+    /* the compaction growth law (shell immersive law, 2026-09-05):
+       while the shell hides its header the rail slides up by
+       --jx-header-h, so its cap must GROW by the same amount — the
+       shell's shared transition animates max-height alongside the
+       transform and a cap-bound rail's bottom edge stays pinned
+       (height +h cancels translateY −h). Without it a full-height
+       rail left a header-height hole at its foot. */
+    :global(.jx-shell-host[data-hidden]) .jx-dsn {
+      max-height: calc(100% + var(--jx-header-h, 64px));
+    }
     .jx-dsn-rail {
-      display: block;
+      grid-row: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: [rail-start] minmax(0, 1fr) [rail-end];
+      grid-template-rows: [stack] minmax(0, 1fr);
+      /* the timeline bridge: the list (a SIBLING of the band) names
+         its scroll timeline; the scope lifts the name to this grid so
+         the band's reveal can reference it (--jx-pblur-scroll-tl) */
+      timeline-scope: --jx-dsn;
     }
     .jx-dsn-bar {
       display: none;
     }
-    .jx-dsn {
-      max-height: 100%;
-      overflow: hidden auto;
-      scrollbar-width: thin;
-      scrollbar-gutter: stable both-edges;
-      padding-left: max(1.25rem - var(--jx-scrollbar-thin, 0px), 0px);
-      padding-right: max(0.5rem - var(--jx-scrollbar-thin, 0px), 0px);
+    /* the band: placement comes from the dialect (the block-edge law
+       — spanning rows/columns, self-start) and targeting from the
+       component's OWN [data-jx-pblur] anchor — no site className. The
+       consumer owns exactly two things: the END-side step-aside (the
+       scrollbar beneath the blur is noise to erase, not content to
+       frost — the start-side gutter strip carries nothing paintable,
+       so the blur there is free) and the timeline seam var */
+    .jx-dsn-rail :global([data-jx-pblur]) {
+      margin-inline-end: var(--jx-scrollbar-thin, 0px);
+      --jx-pblur-scroll-tl: --jx-dsn;
     }
-    /* THE STICKY HEAD (r2): title + filter pin at the scrollport
-       edge; the list scrolls under them through the blur band. Two
-       probed laws ride along: (1) the rail's 1.25rem top inset lives
-       INSIDE the sticky head, never as scroller padding — Blink pins
-       sticky at the content-box top while content clips at the
-       padding-box edge, so scroller padding would gap the band from
-       the clip edge; (2) the head out-z-indexes the band (z-10 over
-       the overlay's z-[5]) so the pinned text stays crisp ABOVE the
-       blurred content streaming beneath it */
+    /* THE HEAD OVERLAY: one cell with the scroller, aligned to the
+       stack's start, z-10 above the band. No sticky, no top offset —
+       the pin IS the placement. The inline inset compensates the
+       rail-edge distance to align with the list's content edge
+       (outside a scroller there is no gutter to subtract: the inset
+       is max(inset, thin), which is exactly thin + (inset − thin) —
+       the same line the in-scroller paddings land on) */
     .jx-dsn-head {
-      position: sticky;
-      top: 0;
+      grid-area: stack / rail;
+      align-self: start;
       z-index: 10;
       padding-block-start: 1.25rem;
+      padding-left: max(1.25rem, var(--jx-scrollbar-thin, 0px));
+      padding-right: max(0.5rem, var(--jx-scrollbar-thin, 0px));
+    }
+    /* THE LIST IS THE SCROLLER: overflow, the thin scrollbar and the
+       both-edges gutter moved inward with the scroll ownership;
+       min-height:0 kills the grid item's auto floor so the stack row
+       can actually bound it. The block-start clearance is the head
+       overlay's measured height (the RO var; the css fallback ≈ the
+       authored head height for no-JS). The timeline name is the
+       reveal seam's other half (see the rail grid's timeline-scope) */
+    [data-jx-dsn-groups] {
+      grid-area: stack / rail;
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-gutter: stable both-edges;
+      scroll-timeline-name: --jx-dsn;
+      scroll-timeline-axis: block;
+      padding-block-start: var(--jx-dsn-head-h, 5.375rem);
+      padding-left: max(1.25rem - var(--jx-scrollbar-thin, 0px), 0px);
+      padding-right: max(0.5rem - var(--jx-scrollbar-thin, 0px), 0px);
     }
   }
 
