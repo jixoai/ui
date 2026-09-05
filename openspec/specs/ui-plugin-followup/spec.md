@@ -71,3 +71,19 @@ corresponding icon slots (--jx-icon-chevron, --jx-icon-calendar).
 - WHEN the composite select renders
 - THEN its dropdown chevron uses the overridden icon (not a hardcoded
   inline SVG)
+
+#### Scenario: the composite select's chevron carries the suffix-icon geometry
+
+(Owner catch 2026-09-05: the trigger chevron had drifted to a fixed
+w-3/h-3 box while the standard layer paints its background glyph at
+var(--jx-icon) — the two siblings rendered different glyph weights.)
+
+- GIVEN the composite select trigger under any density scope
+- WHEN the closed trigger renders
+- THEN its chevron box is var(--jx-icon) — the density kernel's icon law
+  (mediaIcon = line height), the same size jx-html-select paints its
+  background glyph at
+- AND the chevron hugs the value lane with no flex gap (the glyph box's
+  own optical padding is the text gap), its right edge one
+  --jx-inset inside the trigger — pixel-parity with the native select's
+  text reserve (inset + icon) at every density
