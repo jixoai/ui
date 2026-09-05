@@ -179,8 +179,9 @@ describe('Item family — the CSS contract (source guard)', () => {
     expect(css).not.toMatch(/\[data-size=/);
     expect(css).toContain("[data-wrap='never']");
     expect(css).toMatch(/\[data-slot='item-list'\]\[data-dividers='auto'\] > \[data-slot='item-row'\] \+ \[data-slot='item-row'\]/);
-    // terminal law: chrome paints terminal-muted, never --card
-    expect(css).toContain(`background: var(--terminal-muted)`);
+    // terminal law (r3 fill upgrade): chrome paints the family-local
+    // clean fill — a breath of ink over the page background — never --card
+    expect(css).toContain('background: var(--jx-item-fill)');
     expect(css).toContain(`background: var(--terminal-hover)`);
     expect(css).toContain(`box-shadow: inset 2px 0 0 var(--primary)`);
     expect(css).not.toContain('var(--card)');

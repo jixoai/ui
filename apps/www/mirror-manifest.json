@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-05T05:37:39.979Z",
+  "generatedAt": "2026-09-05T05:54:19.408Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -235,15 +235,15 @@
           "source": "registry/files/ui/list-item/item.css",
           "mirror": "apps/www/src/lib/ui/list-item/item.css",
           "target": "@ui/list-item/item.css",
-          "sourceSha": "d39f63719337ca4f60afb13411c3b7a93bf2b7cff32597a2bd0d3144ad221854",
-          "mirrorSha": "d39f63719337ca4f60afb13411c3b7a93bf2b7cff32597a2bd0d3144ad221854"
+          "sourceSha": "4aba45e1d03183a23979459ecdd8a9b90456f42668683fde6243dd0a70a1189d",
+          "mirrorSha": "4aba45e1d03183a23979459ecdd8a9b90456f42668683fde6243dd0a70a1189d"
         },
         {
           "source": "registry/files/ui/list-item/index.ts",
           "mirror": "apps/www/src/lib/ui/list-item/index.ts",
           "target": "@ui/list-item/index.ts",
-          "sourceSha": "50f5a63cd5b520a195d2bd337cf7b6789aa46b8dc0fb740b21971e47d81d8696",
-          "mirrorSha": "50f5a63cd5b520a195d2bd337cf7b6789aa46b8dc0fb740b21971e47d81d8696"
+          "sourceSha": "97ea033aa57231190dd1381b4eae24b9bac461080db5c08484dcc01ea0910f1e",
+          "mirrorSha": "97ea033aa57231190dd1381b4eae24b9bac461080db5c08484dcc01ea0910f1e"
         },
         {
           "source": "registry/files/ui/list-item/item-end.svelte",
@@ -251,6 +251,13 @@
           "target": "@ui/list-item/item-end.svelte",
           "sourceSha": "4f8c6d9fcd7f2d7b8d2a70e33b216f3e580bfecc33aea18481bb8f61acde8691",
           "mirrorSha": "4f8c6d9fcd7f2d7b8d2a70e33b216f3e580bfecc33aea18481bb8f61acde8691"
+        },
+        {
+          "source": "registry/files/ui/list-item/item-actions-lane.svelte",
+          "mirror": "apps/www/src/lib/ui/list-item/item-actions-lane.svelte",
+          "target": "@ui/list-item/item-actions-lane.svelte",
+          "sourceSha": "edad3c13bc8b559c9717a8e2e1eda8774e7b99b0e4e1a3f8387ca863e1f89796",
+          "mirrorSha": "edad3c13bc8b559c9717a8e2e1eda8774e7b99b0e4e1a3f8387ca863e1f89796"
         },
         {
           "source": "registry/files/ui/list-item/item-after.svelte",

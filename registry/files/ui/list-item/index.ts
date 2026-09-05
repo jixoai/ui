@@ -15,6 +15,7 @@ export type ItemControlChrome = 'integrated' | 'self';
 export { default as Item } from './item.svelte';
 export { default as ItemGroup } from './item-group.svelte';
 export { default as ItemEnd } from './item-end.svelte';
+export { default as ItemActionsLane } from './item-actions-lane.svelte';
 export { default as ItemAfter } from './item-after.svelte';
 export { default as ItemChevron } from './item-chevron.svelte';
 export { default as ItemDivider } from './item-divider.svelte';

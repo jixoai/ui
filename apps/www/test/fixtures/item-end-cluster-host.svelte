@@ -7,7 +7,7 @@
   depending on the button-group implementation).
 -->
 <script lang="ts">
-  import { ItemGroup, Item, ItemContent, ItemTitle, ItemEnd } from '$lib/ui/list-item';
+  import { ItemGroup, Item, ItemContent, ItemTitle, ItemEnd, ItemActionsLane } from '$lib/ui/list-item';
 </script>
 
 <ItemGroup label="cluster host">
@@ -18,5 +18,12 @@
       <button type="button" data-probe="b">Snooze</button>
       <button type="button" data-probe="c">Escalate</button>
     </ItemEnd>
+  </Item>
+  <Item>
+    <ItemContent><ItemTitle>actions lane row</ItemTitle></ItemContent>
+    <ItemActionsLane label="host actions">
+      <button type="button" data-probe="x">Merge</button>
+      <button type="button" data-probe="y">Close</button>
+    </ItemActionsLane>
   </Item>
 </ItemGroup>

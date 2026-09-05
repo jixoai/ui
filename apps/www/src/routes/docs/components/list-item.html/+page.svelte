@@ -19,6 +19,8 @@
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { ItemActionsLane } from '$lib/ui/list-item';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { CATALOG } from '$lib/catalog';
@@ -513,6 +515,16 @@ ${close}
               <ItemInput fit="lg" label="Webhook URL" description="lg — text class" bind:value={projectName} placeholder="https://" />
               <ItemInput type="number" fit="md" label="Auto-archive after" description="md — number class" bind:value={retentionDays} />
               <ItemToggle label="Sync over cellular" description="fixed — never restacks" bind:checked={autoplay} />
+            </ItemGroup>
+            <ItemGroup label="actions">
+              <Item>
+                <ItemContent><ItemTitle>Escalation</ItemTitle><ItemDescription>ItemActionsLane: flat physics + a joined cluster, DialogFooter semantics</ItemDescription></ItemContent>
+                <ItemActionsLane label="Escalation actions">
+                  <PressButton>Acknowledge</PressButton>
+                  <PressButton>Snooze</PressButton>
+                  <PressButton variant="tonal">Escalate</PressButton>
+                </ItemActionsLane>
+              </Item>
             </ItemGroup>
           </div>
           <div class="flex max-w-[17rem] flex-col gap-2">

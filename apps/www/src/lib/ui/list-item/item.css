@@ -356,20 +356,28 @@
     align-self: start;
   }
 
-  /* ── resolved row paint (stamped chrome) ────────────────────────── */
+  /* ── resolved row paint (stamped chrome) ──────────────────────────
+     the family fill (Owner 2026-09-05 r3: the old --terminal-muted —
+     8% terminal-foreground into terminal — read muddy gray; the
+     upgrade is a breath of ink over the page background instead —
+     clean in light, auto-lifted in dark, theme-reciprocal by
+     construction) */
+  :where(.jx-item) {
+    --jx-item-fill: color-mix(in oklab, var(--foreground) 3.5%, var(--background));
+  }
   :where(.jx-item[data-item-chrome='surface']) {
     border: 1px solid var(--border);
-    background: var(--terminal-muted);
+    background: var(--jx-item-fill);
     box-shadow: var(--shadow-2xs);
     border-radius: var(--radius);
   }
   :where(.jx-item[data-item-chrome='outline']) {
     border: 1px solid var(--border);
-    background: var(--terminal-muted);
+    background: var(--jx-item-fill);
     border-radius: var(--radius);
   }
   :where(.jx-item[data-item-chrome='muted']) {
-    background: var(--terminal-muted);
+    background: var(--jx-item-fill);
     border-radius: var(--radius);
   }
   /* chrome="none" (grouped auto) and chrome="default" (explicit
@@ -405,7 +413,7 @@
     box-shadow: var(--shadow-xs);
   }
   :where(.jx-item-group[data-mode='muted']) {
-    background: var(--terminal-muted);
+    background: var(--jx-item-fill);
     border-radius: var(--radius);
   }
   /* plain: the host owns the surface — nothing painted here */
@@ -556,8 +564,11 @@
       grid-template-areas: 'content'
         'end';
     }
+    /* the folded lane stays END-aligned (Owner 2026-09-05 r3: a
+       left-hugging tail under left-aligned text reads unbalanced —
+       the lane's whole identity is the trailing edge) */
     :where([data-slot='item-end']) {
-      justify-content: flex-start;
+      justify-content: flex-end;
     }
   }
 
@@ -679,11 +690,12 @@
   }
 
   /* the folded rung (size contract): a declared lane spans its new
-     full row and starts at the content edge — the ladder's last step */
+     full row, END-aligned (Owner r3 — the trailing edge stays the
+     trailing edge even when it owns a row) */
   @container jx-items (max-width: 30rem) {
     :where([data-slot='item-end'][data-fit]) {
       --jx-item-end-w: 100%;
-      justify-content: flex-start;
+      justify-content: flex-end;
     }
   }
 
@@ -737,8 +749,9 @@
         'footer footer footer footer footer';
     }
 
+    /* folded lanes keep END alignment (Owner 2026-09-05 r3) */
     :where([data-slot='item-end'][data-wrap='auto']) {
-      justify-content: flex-start;
+      justify-content: flex-end;
     }
   }
 }

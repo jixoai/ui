@@ -31,6 +31,23 @@ describe('end lane cluster boundary (B6)', () => {
   });
 });
 
+describe('ItemActionsLane (the DialogFooter semantics, Owner r3)', () => {
+  it('renders a fixed end lane hosting ONE joined cluster with the label', () => {
+    const { container } = render(ItemEndClusterHost);
+    const row = [...container.querySelectorAll('.jx-item')].find((r) =>
+      r.textContent.includes('actions lane row'),
+    )!;
+    const lane = row.querySelector('[data-slot="item-end"]')!;
+    expect(lane.getAttribute('data-wrap')).toBe('never');
+    expect(lane.getAttribute('data-inset')).toBe('auto');
+    const group = lane.querySelector('[data-jx-btngroup]');
+    expect(group).not.toBeNull();
+    expect(group.getAttribute('aria-label')).toBe('host actions');
+    // the buttons live INSIDE the group — the cluster owns them
+    expect(group.querySelectorAll('[data-probe]')).toHaveLength(2);
+  });
+});
+
 describe('cluster boundary — the sheet is source-pinned', () => {
   const sheet = readFileSync(resolve(__dirname, '../src/lib/ui/list-item/item.css'), 'utf8');
 
