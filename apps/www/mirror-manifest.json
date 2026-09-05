@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-05T08:24:16.279Z",
+  "generatedAt": "2026-09-05T09:09:49.622Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3476,15 +3476,15 @@
           "source": "registry/files/ui/scroll-run/scroll-run.css",
           "mirror": "apps/www/src/lib/ui/scroll-run/scroll-run.css",
           "target": "@ui/scroll-run/scroll-run.css",
-          "sourceSha": "c5051ce4901ebd820b939d6456edcb0af2af00006ac61dff65436cc9fcb47778",
-          "mirrorSha": "c5051ce4901ebd820b939d6456edcb0af2af00006ac61dff65436cc9fcb47778"
+          "sourceSha": "7b4aedcbd1345d9cd36f26a682e182e2d52c03214185a568c1cbfcac78c534b2",
+          "mirrorSha": "7b4aedcbd1345d9cd36f26a682e182e2d52c03214185a568c1cbfcac78c534b2"
         },
         {
           "source": "registry/files/ui/scroll-run/scroll-chrome.svelte",
           "mirror": "apps/www/src/lib/ui/scroll-run/scroll-chrome.svelte",
           "target": "@ui/scroll-run/scroll-chrome.svelte",
-          "sourceSha": "b18a8a292791cee22d27043d5a0bc8665f23e035e331deb933d400e3bb499bf7",
-          "mirrorSha": "b18a8a292791cee22d27043d5a0bc8665f23e035e331deb933d400e3bb499bf7"
+          "sourceSha": "f7b28651af1124b47ffb89dede1994658b4b26b9943b99aee6853d92ab4e6d29",
+          "mirrorSha": "f7b28651af1124b47ffb89dede1994658b4b26b9943b99aee6853d92ab4e6d29"
         },
         {
           "source": "registry/files/ui/scroll-run/index.ts",

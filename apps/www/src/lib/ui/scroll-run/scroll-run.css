@@ -274,19 +274,25 @@
     -webkit-backdrop-filter: contrast(0.5);
   }
   :where(.jx-scroll-shadow)[data-position='start'] {
+    justify-self: start;
     mask: linear-gradient(to left, transparent, rgb(0, 0, 0));
     -webkit-mask-image: linear-gradient(to left, transparent, rgb(0, 0, 0));
   }
   :where(.jx-scroll-shadow)[data-position='end'] {
+    justify-self: end;
     mask: linear-gradient(to right, transparent, rgb(0, 0, 0));
     -webkit-mask-image: linear-gradient(to right, transparent, rgb(0, 0, 0));
   }
   /* the vertical shadow bands: full inline width against the block
-   * edges, the mask ramps re-aimed, the grid placement re-aimed */
+   * edges, the mask ramps re-aimed, the grid placement re-aimed —
+   * justify-self STRETCH is load-bearing (the horizontal rules above
+   * match these bands too and their start/end would collapse the
+   * auto width to 0; the earned (0,2,0) wins order-independently) */
   :where(.jx-scroll-host):has(> [data-jx-scroll-run][data-axis='vertical'])
     > :where(.jx-scroll-veil-layer) > :where(.jx-scroll-shadow) {
     width: auto;
     height: var(--jx-scroll-veil);
+    justify-self: stretch;
   }
   :where(.jx-scroll-host):has(> [data-jx-scroll-run][data-axis='vertical'])
     > :where(.jx-scroll-veil-layer) > .jx-scroll-shadow[data-position='start'] {

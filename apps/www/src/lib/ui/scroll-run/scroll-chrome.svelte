@@ -161,15 +161,19 @@
       <!-- the shadow veil: one band per edge — the separator's INK law
            (backdrop contrast SUBTRACTS color toward mid tone, never
            adds black; dark mode reverses itself, zero color tokens).
-           The block-axis placement/masks live in scroll-run.css keyed
-           on the host :has axis -->
+           The placement (inline edge on a horizontal run, full-width
+           block band on a vertical one) lives in scroll-run.css keyed
+           on the host :has axis — NEVER as utilities here: a
+           utilities-layer justify-self would beat the components-layer
+           vertical rules and collapse the auto-width bands to 0 (the
+           vertical no-paint bug, caught live) -->
       <div
-        class="jx-scroll-shadow jx-scroll-veil [grid-area:1/1] justify-self-start [transform:translateZ(0)]"
+        class="jx-scroll-shadow jx-scroll-veil [grid-area:1/1] [transform:translateZ(0)]"
         data-position="start"
         aria-hidden="true"
       ></div>
       <div
-        class="jx-scroll-shadow jx-scroll-veil [grid-area:1/1] justify-self-end [transform:translateZ(0)]"
+        class="jx-scroll-shadow jx-scroll-veil [grid-area:1/1] [transform:translateZ(0)]"
         data-position="end"
         aria-hidden="true"
       ></div>

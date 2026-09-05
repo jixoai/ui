@@ -39,6 +39,10 @@ const scrollRunCss = readFileSync(
   resolve(process.cwd(), 'src/lib/ui/scroll-run/scroll-run.css'),
   'utf8',
 );
+const chromeSource = readFileSync(
+  resolve(process.cwd(), 'src/lib/ui/scroll-run/scroll-chrome.svelte'),
+  'utf8',
+);
 
 // ---- the insufficient-content law (requirement 3) --------------------
 describe('scroll-run · the none-verdict law (content that cannot scroll paints NO chips)', () => {
@@ -153,13 +157,25 @@ describe('scroll-run · the vertical axis', () => {
     expect(scrollRunCss).not.toMatch(/margin-block-(start|end):\s*calc\(var\(--jx-inset\)\s*\*\s*-1/);
   });
 
-  it('the vertical veil entrance slides along the BLOCK axis; the shadow bands re-aim (source-pinned)', () => {
+  it('the vertical veil entrance slides along the BLOCK axis; the shadow bands re-aim + STRETCH (source-pinned)', () => {
     expect(scrollRunCss).toMatch(
-      /vertical'\]\)\s*\n?\s*>\s*:where\(\.jx-scroll-veil-layer\)\s*>\s*:where\(\.jx-scroll-veil\)\[data-position='start'\]\s*\{[^}]*translate:\s*0\s*calc\(/s,
+      /:has\(\s*>\s*\[data-jx-scroll-run\]\[data-axis='vertical'\]\)\s*\n?\s*>\s*:where\(\.jx-scroll-veil-layer\)\s*>\s*:where\(\.jx-scroll-veil\)\[data-position='start'\]\s*\{[^}]*translate:\s*0\s*calc\(/s,
+    );
+    // the vertical bands span the full inline width: width auto + STRETCH
+    // (stretch is load-bearing — the horizontal start/end rules match
+    // these bands too and would collapse the auto width to 0)
+    expect(scrollRunCss).toMatch(
+      /:has\(\s*>\s*\[data-jx-scroll-run\]\[data-axis='vertical'\]\)\s*\n?\s*>\s*:where\(\.jx-scroll-veil-layer\)\s*>\s*:where\(\.jx-scroll-shadow\)\s*\{[^}]*width:\s*auto;[^}]*height:\s*var\(--jx-scroll-veil\);[^}]*justify-self:\s*stretch;/s,
+    );
+    // the horizontal placement lives in the SHEET (never as markup
+    // utilities — the utilities layer would beat the vertical rules)
+    expect(scrollRunCss).toMatch(
+      /:where\(\.jx-scroll-shadow\)\[data-position='start'\]\s*\{[^}]*justify-self:\s*start;/s,
     );
     expect(scrollRunCss).toMatch(
-      /vertical'\]\)\s*\n?\s*>\s*:where\(\.jx-scroll-veil-layer\)\s*>\s*:where\(\.jx-scroll-shadow\)\s*\{[^}]*height:\s*var\(--jx-scroll-veil\)/s,
+      /:where\(\.jx-scroll-shadow\)\[data-position='end'\]\s*\{[^}]*justify-self:\s*end;/s,
     );
+    expect(chromeSource).not.toMatch(/jx-scroll-shadow[^"]*justify-self/);
   });
 
   it('the vertical ramp translates along the BLOCK axis (source-pinned)', () => {
