@@ -212,17 +212,26 @@
     min-width: 0;
   }
 
-  /* ── the END-INSET OWNERSHIP law, lane edition (2026-09-05): the
-     optical tail has exactly ONE owner. A self-insetting control at
-     the end lane's TERMINAL position — select's chevron reserve,
-     input's clear/picker/suffix hit-lane, number's + button —
-     declares data-self-inset (the component asserts its own trailing
-     inset; checkbox/toggle/color stay silent and keep the row's); the
-     row then drops its trailing inset for that row. The input shell's
-     own edge-zone law is the same ruling one level down; presence
-     inference is the family's native :has() — no JS, no measurement. */
-  :where(.jx-item:has(> [data-slot='item-end'] > [data-self-inset]:last-child)) {
+  /* ── the END-INSET OWNERSHIP law, lane edition (2026-09-05 r2, the
+     Owner vocabulary inset: 'auto' | number | boolean): the optical
+     tail has exactly ONE owner. auto (the lane's default) is presence
+     inference — a self-insetting control at the TERMINAL position
+     (select's chevron reserve, input's clear/picker/suffix hit-lane,
+     number's + button; declared as data-self-inset at the control's
+     root face) wins the tail and the row yields; 'on' forces the
+     yield, 'off' forbids it, and a number hands the tail to the LANE
+     itself with exactly N px of breathing (the explicit custom
+     property --jx-item-end-inset). The input shell's own edge-zone law
+     is the same ruling one level down — the vocabulary is the global
+     practice. No JS, no measurement; presence via the native :has(). */
+  :where(.jx-item:has(> [data-slot='item-end'][data-inset='on'])),
+  :where(.jx-item:has(> [data-slot='item-end'][data-inset='set'])),
+  :where(.jx-item:has(> [data-slot='item-end'][data-inset='auto'] > [data-self-inset]:last-child)) {
     padding-inline-end: 0;
+  }
+  /* the explicit tail: the lane carries exactly the declared px */
+  :where([data-slot='item-end'][data-inset='set']) {
+    padding-inline-end: var(--jx-item-end-inset, 0px);
   }
 
   /* ── the size contract (2026-09-05): declared ladders, space picks
@@ -488,6 +497,17 @@
      end-present combos only, wrap="never" opts out of the template
      switch (the lane simply never splits) */
   @container jx-items (max-width: 30rem) {
+    /* the inset contract SUSPENDS when stacked (Owner r2): a folded
+       full-width row keeps the default tail — auto's folded resolution
+       is 'keep', on/set lose their yield, the explicit px dissolves */
+    :where(.jx-item:has(> [data-slot='item-end'][data-inset='on'])),
+    :where(.jx-item:has(> [data-slot='item-end'][data-inset='set'])),
+    :where(.jx-item:has(> [data-slot='item-end'][data-inset='auto'] > [data-self-inset]:last-child)) {
+      padding-inline-end: var(--jx-inset);
+    }
+    :where([data-slot='item-end'][data-inset='set']) {
+      padding-inline-end: 0;
+    }
     :where(.jx-item:has(> [data-slot='item-end']:not([data-wrap='never']))) {
       grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
       grid-template-areas: 'header header'
@@ -669,6 +689,16 @@
 
   /* content-end narrow auto: content and end become full-width rows. */
   @container jx-items (max-width: 30rem) {
+    /* the inset contract suspends when stacked — same ruling as the
+       base block above, restated inside the subgrid geometry */
+    :where(.jx-item:has(> [data-slot='item-end'][data-inset='on'])),
+    :where(.jx-item:has(> [data-slot='item-end'][data-inset='set'])),
+    :where(.jx-item:has(> [data-slot='item-end'][data-inset='auto'] > [data-self-inset]:last-child)) {
+      padding-inline-end: var(--jx-inset);
+    }
+    :where([data-slot='item-end'][data-inset='set']) {
+      padding-inline-end: 0;
+    }
     :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-after'])),
   :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-actions'])),
   :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-fit])) {

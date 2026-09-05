@@ -10,7 +10,7 @@
   import type { ComponentProps } from 'svelte';
   import Toggle from '$lib/ui/toggle/toggle.svelte';
   import ItemField from './item-field.svelte';
-  import type { ItemEndFit } from './item-end.svelte';
+  import type { ItemEndFit, ItemEndInset } from './item-end.svelte';
   import type { ItemFieldContext } from './item-field.svelte';
   import type { ItemLayout, ItemVariant } from './index';
   import type { Density } from '$lib/density.svelte';
@@ -33,6 +33,8 @@
     layout?: ItemLayout;
     /** the declared end-lane width ladder (size contract 2026-09-05) */
     fit?: ItemEndFit;
+    /** the trailing-inset contract, forwarded to the end lane */
+    inset?: ItemEndInset;
     disabled?: boolean;
     class?: string;
     checked?: boolean;
@@ -48,6 +50,7 @@
     density,
     layout = 'auto',
     fit,
+    inset,
     disabled = false,
     class: className = '',
     checked = $bindable(false),
@@ -69,6 +72,7 @@
   density={d.density}
   {layout}
   {fit}
+  {inset}
   class={className}
 >
   {#snippet control(field: ItemFieldContext)}

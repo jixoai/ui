@@ -27,4 +27,16 @@
     <ItemEnd><Input aria-label="clear" clearable bind:value={withClear} /></ItemEnd>
   </Item>
   <ItemToggle label="toggle" bind:checked={withClear} />
+  <Item>
+    <ItemContent><ItemTitle>forced on</ItemTitle></ItemContent>
+    <ItemEnd inset={true}><Input aria-label="on" bind:value={plain} /></ItemEnd>
+  </Item>
+  <Item>
+    <ItemContent><ItemTitle>forced off</ItemTitle></ItemContent>
+    <ItemEnd inset={false}><NativeSelect aria-label="off"><option>x</option></NativeSelect></ItemEnd>
+  </Item>
+  <Item>
+    <ItemContent><ItemTitle>explicit 12</ItemTitle></ItemContent>
+    <ItemEnd inset={12}><Input aria-label="set" bind:value={plain} /></ItemEnd>
+  </Item>
 </ItemGroup>

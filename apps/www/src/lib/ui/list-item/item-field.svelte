@@ -18,7 +18,7 @@
   import Item from './item.svelte';
   import ItemContent from './item-content.svelte';
   import ItemEnd from './item-end.svelte';
-  import type { ItemEndFit } from './item-end.svelte';
+  import type { ItemEndFit, ItemEndInset } from './item-end.svelte';
   // the field lane law (design §5): a field's control lane NEVER splits
   import type { ItemLayout, ItemVariant } from './index';
   import type { Density } from '$lib/density.svelte';
@@ -55,6 +55,9 @@
      *  a fitted field lane relaxes its never-split stance and joins the
      *  narrow fold — number/select/text-class controls declare it */
     fit?: ItemEndFit;
+    /** the trailing-inset contract (2026-09-05 r2): 'auto' | number |
+     *  boolean — forwarded to the end lane verbatim */
+    inset?: ItemEndInset;
     /** control integration (B5, 2026-09-05): the outline field row IS
      *  the frame owner, so 'integrated' is the default — in-row shells
      *  dissolve; 'self' opts out */
@@ -76,6 +79,7 @@
     density,
     layout = 'auto',
     fit,
+    inset,
     controlChrome = 'integrated',
     class: className = '',
     control,
@@ -128,7 +132,7 @@
   <!-- the field lane law (design §5): a field's control lane NEVER
        splits — UNLESS it declares a size ladder, which is exactly the
        declaration that it MAY fold (the size contract's one carve-out) -->
-  <ItemEnd wrap={fit ? 'auto' : 'never'} {fit}>
+  <ItemEnd wrap={fit ? 'auto' : 'never'} {fit} {inset}>
     {@render control(field)}
   </ItemEnd>
 </Item>

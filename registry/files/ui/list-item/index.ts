@@ -10,6 +10,7 @@ export type ItemDividers = 'auto' | 'none';
 export type ItemLabelMode = 'for' | 'text';
 export type ItemMediaVariant = 'default' | 'icon' | 'image';
 export type ItemEndFit = 'md' | 'lg' | 'full';
+export type ItemEndInset = 'auto' | number | boolean;
 export type ItemControlChrome = 'integrated' | 'self';
 export { default as Item } from './item.svelte';
 export { default as ItemGroup } from './item-group.svelte';

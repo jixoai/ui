@@ -24,6 +24,7 @@
 
   /** the declared responsive width ladder rungs */
   export type ItemEndFit = 'md' | 'lg' | 'full';
+export type ItemEndInset = 'auto' | number | boolean;
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     /** lane's cross-axis posture against tall content */
@@ -36,7 +37,17 @@
     children: Snippet;
   }
 
-  let { align = 'center', wrap = 'auto', fit, class: className = '', children, ...rest }: Props = $props();
+  let { align = 'center', wrap = 'auto', fit, inset = 'auto', class: className = '', children, ...rest }: Props = $props();
+
+  // the inset contract's stamp + explicit-tail custom property
+  const insetStamp =
+    inset === true ? 'on' : inset === false ? 'off' : inset === 'auto' ? 'auto' : 'set';
+  const insetStyle = typeof inset === 'number' ? `--jx-item-end-inset: ${inset}px` : undefined;
+  if (typeof inset === 'number' && inset < 0) {
+    throw new Error(
+      '[jxoai list-item] ItemEnd: inset must be a non-negative px value — a negative tail is a margin wearing the wrong name (2026-09-05 inset contract)',
+    );
+  }
 
   // the family throw precedent (toggle-group's name guard): a fixed
   // lane never restacks, so a ladder on it is a contract contradiction
@@ -53,5 +64,7 @@
   data-align={align}
   data-wrap={wrap}
   data-fit={fit}
+  data-inset={insetStamp}
+  style={insetStyle}
   class={cn(className)}
 >{@render children()}</span>
