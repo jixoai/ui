@@ -312,11 +312,23 @@
 
 /* ── immersive: per-zone transforms (ONE state, three zones) ──
    The plane never moves; navigation chrome leaves, the reading state
-   compacts by exactly the header band (Owner ruling, 2026-08-23). */
-:where(.jx-scaffold-header),
+   compacts by exactly the header band (Owner ruling, 2026-08-23).
+   THE COMPACTION IS A GROWTH LAW (2026-09-05, the rail-bottom-gap
+   report): the rails' height CAPS grow by the same --jx-header-h the
+   transform surrenders — max-height + translate ride ONE transition,
+   so a cap-bound rail's bottom edge stays mathematically pinned
+   (height +74 cancels translateY −74) while its top follows the
+   departing header. Without the growth a full-height rail kept its
+   shown height and left a header-height hole at its foot. */
+:where(.jx-scaffold-header){
+  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
 :where(.jx-top-layer [data-area='toc']),
 :where(.jx-top-layer [data-area='tree']){
-  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition:
+    transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    max-height 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform;
 }
 :where(.jx-shell-host[data-hidden] .jx-scaffold-header){
@@ -327,6 +339,19 @@
 }
 :where(.jx-shell-host[data-hidden] .jx-top-layer [data-area='tree']){
   transform: translateY(100%);
+}
+/* the caps grow in their CONTAINER FORMS (where they are declared) */
+@container jx-shell (min-width: 900px) {
+  :where(.jx-shell-host[data-hidden] .jx-top-layer [data-area='toc']){
+    max-height: calc(100% - 5rem + var(--jx-header-h, 64px));
+  }
+
+}
+@container jx-shell (min-width: 1200px) {
+  :where(.jx-shell-host[data-hidden] .jx-top-layer [data-area='toc']){
+    max-height: calc(100% - 1.25rem + var(--jx-header-h, 64px));
+  }
+
 }
 /* the ARRIVAL pose (Owner polish ruling, 2026-08-26): a bottom bar
    arriving with the page starts in its EXITED position — data-rail-away,

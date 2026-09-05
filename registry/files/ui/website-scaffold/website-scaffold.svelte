@@ -40,10 +40,14 @@
   Immersive law (per-zone, Owner rulings 2026-08-23/24): scroll DOWN
   hides the header and the tree bottom bar, scroll UP reveals them; the
   reading/navigation rails NEVER leave — they compact by the header
-  height instead:
+  height instead (the compaction is a GROWTH law, 2026-09-05: the
+  rails' height caps grow by the same header-h the transform gives
+  up, both riding one transition, so a cap-bound rail's bottom edge
+  stays pinned — no header-height hole at its foot):
     header → translateY(-101%)          toc → translateY(-header-h)
+                                          + max-height +header-h
     tree  → bar +100%; rail compacts    (css: website-scaffold.css)
-                                          like the toc
+    like the toc (the rail's cap grows in its own component css)
 
   The float slot spans the whole top layer as a subgrid; adopted nodes are
   placed by their [data-area] role ('toc' | 'tree' | 'float' default) into
@@ -104,6 +108,7 @@
   });
 
   let hostEl = $state<HTMLElement | null>(null);
+  let shellEl = $state<HTMLElement | null>(null);
   let headerEl = $state<HTMLElement | null>(null);
   let floatSlotEl = $state<HTMLElement | null>(null);
   let bodyEl = $state<HTMLElement | null>(null);
@@ -124,8 +129,8 @@
   });
 
   onMount(() => {
-    if (!hostEl || !headerEl || !bodyEl) return;
-    const host = hostEl;
+    if (!shellEl || !headerEl || !bodyEl) return;
+    const shell = shellEl;
     const body = bodyEl;
     const band = headerEl;
 
@@ -134,13 +139,19 @@
     // ruling); this RO only corrects deviations (the mobile disclosure
     // row growing the band). Everything derives from --jx-header-h in
     // CSS — body reservation, the toc compaction offset and the shared
-    // --jx-toc-line.
+    // --jx-toc-line. THE SEAM (2026-09-05, the toc-flush bug): the
+    // correction MUST land on .jx-shell — the var's DECLARING scope.
+    // .jx-shell re-declares --jx-header-h on itself (58px/74px per
+    // form), so a host-level write is shadowed for every descendant
+    // and the toc's compaction transform (calc(-1 * var(--jx-header-h)))
+    // ran on the stale token while the real band measured differently —
+    // the hidden toc parked a few px short of flush.
     let reserved = -1;
     const reserve = () => {
       const h = band.offsetHeight;
       if (h !== reserved) {
         reserved = h;
-        host.style.setProperty('--jx-header-h', `${h}px`);
+        shell.style.setProperty('--jx-header-h', `${h}px`);
       }
     };
     const ro = new ResizeObserver(reserve);
@@ -180,7 +191,7 @@
 <div class="jx-shell-host" bind:this={hostEl} data-hidden={hidden || undefined}>
   <a href="#main" class="jx-skip-link">Skip to content</a>
 
-  <div class="jx-shell">
+  <div class="jx-shell" bind:this={shellEl}>
     <div class="jx-shell-body" bind:this={bodyEl}>
       <main id="main" class="jx-page-main flex-1">
         {@render children()}

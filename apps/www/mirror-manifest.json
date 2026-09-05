@@ -564,15 +564,15 @@
           "source": "registry/files/ui/website-scaffold/website-scaffold.svelte",
           "mirror": "apps/www/src/lib/ui/website-scaffold/website-scaffold.svelte",
           "target": "@ui/website-scaffold/website-scaffold.svelte",
-          "sourceSha": "f007505ed3af402161048c49b2d4a209942c5358b697357c73897bd8c388bc92",
-          "mirrorSha": "f007505ed3af402161048c49b2d4a209942c5358b697357c73897bd8c388bc92"
+          "sourceSha": "4884372f209f575ee96373384c6773197c03c9209a943ef235618c8b41972d3b",
+          "mirrorSha": "4884372f209f575ee96373384c6773197c03c9209a943ef235618c8b41972d3b"
         },
         {
           "source": "registry/files/ui/website-scaffold/website-scaffold.css",
           "mirror": "apps/www/src/lib/ui/website-scaffold/website-scaffold.css",
           "target": "@ui/website-scaffold/website-scaffold.css",
-          "sourceSha": "fae463744bab8979284be4629e4c8ace77c3b77b02942b374a8c784c1825a4fd",
-          "mirrorSha": "fae463744bab8979284be4629e4c8ace77c3b77b02942b374a8c784c1825a4fd"
+          "sourceSha": "4813424a67d78951cea836f381a3dafe8b8d75ff1e7f58a0ab937a0193ac9add",
+          "mirrorSha": "4813424a67d78951cea836f381a3dafe8b8d75ff1e7f58a0ab937a0193ac9add"
         },
         {
           "source": "registry/files/ui/website-scaffold/index.ts",
