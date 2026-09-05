@@ -1,11 +1,12 @@
 /**
- * Control integration (codex r1 B5, 2026-09-05) — the surface-owner
- * stamp: only a DECLARED frame owner dissolves in-row control shells.
- * ItemGroup: opt-in 'integrated' on default mode; muted (slab) and
- * plain (host-owned) force 'self' regardless of the declaration.
- * ItemField: the outline field row owns its frame — 'integrated' is
- * the default, 'self' opts out. The sheet keeps the state machine
- * legible on the dissolved root (source-pinned).
+ * Control integration via the CONTROL-CHROME AXIS (codex r1 B5, the
+ * Owner pivot 2026-09-05: "组件不支持就去升级组件，而不是入侵样式").
+ * The row/group declares its controls bare through an ambient context;
+ * each control resolves explicit ?? ambient ?? 'frame', stamps
+ * data-chrome, and its OWN sheet paints the bare state. The list-item
+ * sheet NEVER reaches into another family css (the first cut descendant
+ * invasion died on the select chevron — a background shorthand wiped
+ * the background-image arrow — and was retired whole).
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -18,8 +19,8 @@ const chromeOf = (container: HTMLElement, groupLabel: string) =>
     .find((g) => g.textContent.includes(groupLabel))!
     .getAttribute('data-control-chrome');
 
-describe('list-item control integration stamps (B5)', () => {
-  it('group: default is self, integrated is declared, muted/plain force self', () => {
+describe('the integration declaration still stamps the row', () => {
+  it('group: default self, integrated opt-in, muted/plain forced self', () => {
     const { container } = render(ControlChromeHost);
     expect(chromeOf(container, 'g-default')).toBe('self');
     expect(chromeOf(container, 'g-integrated')).toBe('integrated');
@@ -27,39 +28,55 @@ describe('list-item control integration stamps (B5)', () => {
     expect(chromeOf(container, 'g-plain')).toBe('self');
   });
 
-  it('field rows: integrated by default (the outline row owns the frame), self opts out', () => {
+  it('field rows: integrated by default, self opts out', () => {
     const { container } = render(ControlChromeHost);
     const fields = [...container.querySelectorAll('[data-item-field]')];
     expect(fields.map((f) => f.getAttribute('data-control-chrome'))).toEqual([
-      'integrated', // ItemInput inside the default group
-      'integrated', // bare ItemField
-      'self', // explicit opt-out
+      'integrated',
+      'integrated',
+      'self',
     ]);
   });
 });
 
-describe('control integration — the sheet is source-pinned', () => {
-  const sheet = readFileSync(resolve(__dirname, '../src/lib/ui/list-item/item.css'), 'utf8');
-
-  it('dissolves background, border AND the well shadow (with its hover lift)', () => {
-    expect(sheet).toContain("[data-control-chrome='integrated']");
-    const block = sheet.slice(sheet.indexOf("data-control-chrome='integrated'"));
-    expect(block.slice(0, 1200)).toMatch(/background:\s*transparent/u);
-    expect(block.slice(0, 1200)).toMatch(/border-color:\s*transparent/u);
-    expect(block.slice(0, 1200)).toMatch(/box-shadow:\s*none/u);
-    expect(block.slice(0, 1600)).toMatch(/:hover/u);
+describe('controls resolve the ambient (explicit ?? ambient ?? frame)', () => {
+  it('a control inside an integrated field row renders data-chrome="bare"', () => {
+    const { container } = render(ControlChromeHost);
+    const shell = container.querySelector('[data-item-field] [data-chrome]');
+    expect(shell?.getAttribute('data-chrome')).toBe('bare');
   });
 
-  it('keeps the state machine legible: focus/invalid/disabled re-assert border color', () => {
-    const block = sheet.slice(sheet.indexOf("data-control-chrome='integrated'"), sheet.indexOf("integrated']") + 2400);
-    expect(block).toMatch(/:has\(:focus\)/u);
-    expect(block).toMatch(/aria-invalid/u);
-    expect(block).toMatch(/:has\(:disabled\)/u);
+  it('a self field leaves its control framed; outside any ambient the own default is frame', () => {
+    const { container } = render(ControlChromeHost);
+    const selfField = [...container.querySelectorAll('[data-item-field]')].find(
+      (f) => f.getAttribute('data-control-chrome') === 'self',
+    )!;
+    expect(selfField.querySelector('[data-chrome]')?.getAttribute('data-chrome')).toBe('frame');
+    expect(container.querySelector('[data-testid="standalone"] [data-chrome]')?.getAttribute('data-chrome')).toBe('frame');
+  });
+});
+
+describe('the chrome axis — sheets are source-pinned', () => {
+  const item = readFileSync(resolve(__dirname, '../src/lib/ui/list-item/item.css'), 'utf8');
+  const input = readFileSync(resolve(__dirname, '../src/lib/ui/input/input.css'), 'utf8');
+  const tags = readFileSync(resolve(__dirname, '../src/lib/ui/tags-input/tags-input.css'), 'utf8');
+  const number = readFileSync(resolve(__dirname, '../src/lib/ui/number-input/number-input.css'), 'utf8');
+
+  it('list-item.css NEVER reaches into another family (the retired invasion)', () => {
+    expect(item).not.toMatch(/jx-html-/u);
+    expect(item).not.toMatch(/jx-tags/u);
+    expect(item).not.toMatch(/data-jx-igroup/u);
+    expect(item).not.toMatch(/data-jx-tags-wrap/u);
   });
 
-  it('rides the REAL tags root hook and leaves InputGroup out', () => {
-    const block = sheet.slice(sheet.indexOf("data-control-chrome='integrated'"), sheet.indexOf("integrated']") + 1200);
-    expect(block).toContain('[data-jx-tags-wrap]');
-    expect(block).not.toContain('data-jx-igroup');
+  it('each family paints its OWN bare state; the select keeps its chevron', () => {
+    expect(input).toContain(".jx-html-control-shell[data-chrome='bare']");
+    expect(input).toContain(".jx-html-select[data-chrome='bare']");
+    expect(tags).toContain("[data-jx-tags-wrap][data-chrome='bare']");
+    expect(number).toContain(".jx-num[data-chrome='bare']");
+    const selectBlock = input.slice(input.indexOf(".jx-html-select[data-chrome='bare']"));
+    const body = selectBlock.slice(0, selectBlock.indexOf('}') + 1);
+    expect(body).not.toMatch(/background:\s*transparent/u);
+    expect(body).toMatch(/background-color:\s*transparent/u);
   });
 });

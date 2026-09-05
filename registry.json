@@ -220,7 +220,8 @@
         "@jixoai/icons",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults"
+        "@jixoai/defaults",
+        "@jixoai/control-chrome"
       ],
       "meta": {
         "group": "layout",
@@ -820,7 +821,8 @@
         "@jixoai/color-picker",
         "@jixoai/icons",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/control-chrome"
       ],
       "meta": {
         "group": "data-entry",
@@ -898,7 +900,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/control-chrome"
       ]
     },
     {
@@ -1388,7 +1391,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/control-chrome"
       ]
     },
     {
@@ -1423,7 +1427,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/control-chrome"
       ],
       "meta": {
         "group": "data-entry",
@@ -1712,7 +1717,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/control-chrome"
       ],
       "meta": {
         "group": "data-entry",
@@ -2001,13 +2007,13 @@
         "group": "navigation",
         "href": "/docs/components/tabs.html"
       },
-  "registryDependencies": [
-    "@jixoai/utils",
-    "@jixoai/jixoai-theme",
-    "@jixoai/scroll-run",
-    "@jixoai/defaults",
-    "@jixoai/density"
-  ]
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "@jixoai/scroll-run",
+        "@jixoai/defaults",
+        "@jixoai/density"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -4038,6 +4044,26 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "control-chrome",
+      "type": "registry:lib",
+      "title": "Control-chrome axis",
+      "description": "The integration axis's lib home: the ControlChrome union (frame | bare) and CONTROL_CHROME_KEY (global symbol registry). The context operations live inline in the providers/readers (item-field, item-group, the control families) — under vite dev and vitest a .svelte.ts module's public 'svelte' import binds a second runtime copy whose set/getContext never see the component graph (empirically proven twice). A frame-owning row declares its in-row controls bare; each control resolves explicit ?? ambient ?? 'frame' and its OWN sheet paints the bare state.",
+      "files": [
+        {
+          "path": "registry/files/lib/control-chrome.svelte.ts",
+          "target": "@lib/control-chrome.svelte.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "button-group",
       "type": "registry:ui",
       "title": "Button group",
@@ -4075,19 +4101,19 @@
         }
       ],
       "docs": "Props: label (REQUIRED aria name), orientation ('horizontal'|'vertical'), justify ('start'|'end'|'center'|'between'), density, class. ROLE LAW: root is role=group — actions keep their own tab stops and activation; the group adds NO selection semantics (joined selection is toggle-group's contract). Composition: children are plain PressButton/icon-button instances; ButtonGroupDivider inserts a 1px seam member. Paint: the shared seam lives in button-group.css keyed on the data-jx-bgroup hook (Tier-2 vocabulary consumed-only).",
-  "registryDependencies": [
-    "@jixoai/utils",
-    "@jixoai/jixoai-theme",
-    "@jixoai/density",
-    "@jixoai/press-button",
-    "@jixoai/icons",
-    "@jixoai/icon-button",
-    "@jixoai/dropdown-menu",
-    "@jixoai/separator",
-    "@jixoai/scroll-run",
-    "@jixoai/paint",
-    "@jixoai/defaults"
-  ],
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "@jixoai/density",
+        "@jixoai/press-button",
+        "@jixoai/icons",
+        "@jixoai/icon-button",
+        "@jixoai/dropdown-menu",
+        "@jixoai/separator",
+        "@jixoai/scroll-run",
+        "@jixoai/paint",
+        "@jixoai/defaults"
+      ],
       "meta": {
         "group": "general",
         "href": "/docs/components/button-group.html"

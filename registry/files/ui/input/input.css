@@ -307,3 +307,46 @@
     background: transparent;
   }
 }
+
+/* ---- the chrome axis: BARE (control-integration, 2026-09-05) ----
+   The family's OWN paint for its bare state — an owning row declares
+   its controls bare via the control-chrome ambient; the shell drops
+   fill/border/well-shadow (specificity earned by attribute compound,
+   no !important), the state machine re-asserts on the same root. */
+.jx-html-control-shell[data-chrome='bare'] {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.jx-html-control-shell[data-chrome='bare']:hover {
+  box-shadow: none;
+}
+.jx-html-control-shell[data-chrome='bare']:has(:focus) {
+  border-color: var(--ring);
+}
+.jx-html-control-shell[data-chrome='bare']:has([aria-invalid='true']),
+.jx-html-control-shell[data-chrome='bare'].jx-invalid {
+  border-color: var(--border);
+}
+.jx-html-control-shell[data-chrome='bare']:has(:disabled) {
+  border-color: var(--muted);
+}
+
+/* ---- the chrome axis: BARE — the native select (2026-09-05).
+   Lives in THIS sheet because the shell-family laws already do (the
+   number-shell spin-kill, the edge-zone law); native-select ships no
+   css of its own. background-COLOR ONLY, never the shorthand — the
+   chevron rides background-image and must survive (the Owner catch
+   that retired the cross-family CSS invasion in the first place). */
+.jx-html-select[data-chrome='bare'] {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.jx-html-select[data-chrome='bare']:hover:not(:disabled) {
+  box-shadow: none;
+}
+.jx-html-select[data-chrome='bare']:focus-visible {
+  border-color: var(--ring);
+}
+

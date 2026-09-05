@@ -123,3 +123,10 @@
     animation: none; /* the border flash survives; the shake does not */
   }
 }
+
+/* ---- the chrome axis: BARE (control-integration, 2026-09-05) ---- */
+[data-jx-tags-wrap][data-chrome='bare'] .jx-tags-shell {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}

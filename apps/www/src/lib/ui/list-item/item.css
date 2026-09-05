@@ -239,37 +239,6 @@
     min-inline-size: 0;
     max-inline-size: 100%;
   }
-  /* ── control integration (B5, 2026-09-05): when the row/group is the
-     SOLE frame owner (data-control-chrome='integrated'), in-row control
-     shells dissolve their own surface — background, border AND the well
-     shadow with its hover lift; the state machine stays legible on the
-     transparent root: the focus-visible ring is outline-based (survives
-     by construction) and focus/invalid/disabled re-assert their border
-     color. These selectors are deliberately NOT :where — the dissolve
-     must out-rank the theme sheet's shell base class (0,1,0), and the
-     compound chain (0,3,0) earns it without !important. InputGroup is
-     deliberately OUT (its addon seam is internal structure, not a
-     dissolve target); tags ride their real root hook data-jx-tags-wrap. */
-  [data-control-chrome='integrated'] [data-slot='item-end'] .jx-html-control-shell,
-  [data-control-chrome='integrated'] [data-slot='item-end'] .jx-html-select,
-  [data-control-chrome='integrated'] [data-slot='item-end'] .jx-html-textarea,
-  [data-control-chrome='integrated'] [data-slot='item-end'] [data-jx-tags-wrap],
-  [data-control-chrome='integrated'] [data-slot='item-end'] .jx-html-control-shell:hover {
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
-  }
-  [data-control-chrome='integrated'] [data-slot='item-end'] .jx-html-control-shell:has(:focus) {
-    border-color: var(--ring);
-  }
-  [data-control-chrome='integrated'] [data-slot='item-end'] .jx-html-control-shell:has([aria-invalid='true']),
-  [data-control-chrome='integrated'] [data-slot='item-end'] .jx-html-control-shell.jx-invalid {
-    border-color: var(--border);
-  }
-  [data-control-chrome='integrated'] [data-slot='item-end'] .jx-html-control-shell:has(:disabled) {
-    border-color: var(--muted);
-  }
-
   /* the mid tier: declared ladders step DOWN but keep the shared end
      line (44rem — the wide settings pane collapsing toward a rail) */
   @container jx-items (max-width: 44rem) {

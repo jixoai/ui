@@ -23,6 +23,8 @@
   import type { ItemLayout, ItemVariant } from './index';
   import type { Density } from '$lib/density.svelte';
   import { ListItemDefaults } from './list-item-defaults.svelte';
+  import { setContext } from 'svelte';
+  import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import './item.css';
 
   /** the wiring contract every control snippet receives */
@@ -82,6 +84,16 @@
   // economy 3.4, the X2-11 restate shape): the scaffold resolves the
   // ambient policy once and hands Item the RESOLVED values
   const d = $derived(ListItemDefaults.resolve({ variant, density }));
+
+  // the integration ambient (B5 pivot, Owner 2026-09-05: upgrade the
+  // component, never invade styles): a frame-owning field row declares
+  // its in-row controls bare; each control's OWN sheet paints the bare
+  // state — this row never reaches into another family's css
+  setContext(CONTROL_CHROME_KEY, {
+    get chrome() {
+      return controlChrome === 'integrated' ? ('bare' as ControlChrome) : undefined;
+    },
+  });
 
   const controlId = $derived(id ?? autoId);
   const labelId = $derived(`${controlId}-label`);

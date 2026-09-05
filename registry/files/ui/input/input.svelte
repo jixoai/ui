@@ -120,6 +120,8 @@
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
     import { cn } from '$lib/utils';
+  import { getContext } from 'svelte';
+  import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import type { Density } from '$lib/density.svelte';
   import { InputDefaults } from './input-defaults.svelte';
   import type { Snippet } from 'svelte';
@@ -235,11 +237,18 @@
     'data-assert-border': assertBorder = false,
     'data-dissolve-border': dissolveBorder = false,
     nativeControls = false,
+    /** frame posture: explicit ?? the integration ambient ?? 'frame'
+     *  (the control-chrome axis — a frame-owning row declares its
+     *  controls bare; the family's OWN css paints the bare state) */
+    chrome: chromeProp = undefined,
     locale,
     onselect,
     picker,
     ...rest
   }: Props = $props();
+
+  // the chrome axis ambient (inline read — see lib/control-chrome.svelte.ts)
+  const ambientChrome = getContext<{ chrome?: ControlChrome }>(CONTROL_CHROME_KEY)?.chrome;
 
   const errorId = $derived(`${id}-error`);
   // the family Defaults is the single read point (context-defaults-
@@ -593,6 +602,7 @@
         class:jx-clearable={clearable}
         class:jx-number-shell={customStepper}
         class:jx-floating={floating}
+        data-chrome={chromeProp ?? ambientChrome ?? 'frame'}
         data-jx-custom-picker={customPicker ? '' : undefined}
         data-assert-border={assertBorder ? '' : undefined}
         data-dissolve-border={dissolveBorder ? '' : undefined}

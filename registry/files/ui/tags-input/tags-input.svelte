@@ -98,6 +98,8 @@
   import { icons } from '$lib/icons';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { getContext } from 'svelte';
+  import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import type { Density } from '$lib/density.svelte';
   import { TagsInputDefaults, type TagsInputSurfaceVariant } from './tags-input-defaults.svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -152,8 +154,12 @@
     disabled = false,
     variant,
     class: className = '',
+    chrome: chromeProp = undefined,
     ...rest
   }: Props = $props();
+
+  // the chrome axis ambient (inline read — see lib/control-chrome.svelte.ts)
+  const ambientChrome = getContext<{ chrome?: ControlChrome }>(CONTROL_CHROME_KEY)?.chrome;
 
   // form lifecycle: what jx-reset restores, and the form-disable mirror
   const initialTags = tags;
@@ -395,7 +401,7 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-tags-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
+  <span data-jx-tags-wrap data-chrome={chromeProp ?? ambientChrome ?? 'frame'}>
     <div
       data-jx-tags-invalid={invalid ? '' : undefined}
       class={cn(

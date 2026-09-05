@@ -21,7 +21,8 @@
     readonly layout: ItemGroupLayout;
     readonly ruler: ItemRuler;
   }
-</script>
+  // the integration ambient: only a mode that paints a frame may
+  // declare its in-row controls bare (muted/plain never own one)</script>
 
 <script lang="ts">
   import { setContext } from 'svelte';
@@ -30,6 +31,7 @@
   import { cn } from '$lib/utils';
   import { provideDensity, resolveDensity, getDensityContext } from '$lib/density.svelte';
   import { ListItemDefaults } from './list-item-defaults.svelte';
+    import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import './item.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -115,6 +117,15 @@
       return ruler;
     },
   } satisfies ItemGroupPolicy);
+  // the integration ambient: only a mode that paints a frame may
+  // declare its in-row controls bare (muted/plain never own one)
+  setContext(CONTROL_CHROME_KEY, {
+    get chrome() {
+      return mode === 'default' && (controlChrome ?? 'self') === 'integrated'
+        ? ('bare' as ControlChrome)
+        : undefined;
+    },
+  });
 </script>
 
 <svelte:element

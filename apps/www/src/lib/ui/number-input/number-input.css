@@ -46,3 +46,19 @@
     transition: none;
   }
 }
+
+/* ---- the chrome axis: BARE (control-integration, 2026-09-05) ----
+   The trio's seam folds away: frame + buttons drop fill/border; the
+   lane was already borderless and centered. */
+.jx-num[data-chrome='bare'] {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.jx-num[data-chrome='bare'] .jx-num-btn {
+  background-color: transparent;
+  border-color: transparent;
+}
+.jx-num[data-chrome='bare'] .jx-num-btn:disabled {
+  opacity: 0.5;
+}

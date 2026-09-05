@@ -5,6 +5,7 @@
 -->
 <script lang="ts">
   import { ItemGroup, Item, ItemContent, ItemTitle, ItemEnd, ItemField, ItemInput } from '$lib/ui/list-item';
+  import Input from '$lib/ui/input/input.svelte';
 
   let v = $state('x');
 </script>
@@ -42,6 +43,10 @@
 
 <ItemField label="self field" controlChrome="self">
   {#snippet control()}
-    <input aria-label="s" />
+    <Input aria-label="s" placeholder="standalone" />
   {/snippet}
 </ItemField>
+
+<div data-testid="standalone">
+  <Input aria-label="outside" placeholder="no ambient here" />
+</div>

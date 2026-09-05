@@ -70,6 +70,8 @@
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { getContext } from 'svelte';
+  import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import type { Density } from '$lib/density.svelte';
   import { NumberInputDefaults } from './number-input-defaults.svelte';
   import './number-input.css';
@@ -108,8 +110,12 @@
     error,
     disabled = false,
     class: className = '',
+    chrome: chromeProp = undefined,
     ...rest
   }: Props = $props();
+
+  // the chrome axis ambient (inline read — see lib/control-chrome.svelte.ts)
+  const ambientChrome = getContext<{ chrome?: ControlChrome }>(CONTROL_CHROME_KEY)?.chrome;
 
   const errorId = $derived(`${id}-error`);
   // the family Defaults is the single read point (context-defaults-
@@ -202,6 +208,7 @@
       className,
     )}
     data-jx-num-invalid={invalid ? '' : undefined}
+    data-chrome={chromeProp ?? ambientChrome ?? 'frame'}
   >
     <button
       type="button"

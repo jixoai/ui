@@ -43,6 +43,8 @@
 <script lang="ts">
   import type { HTMLSelectAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { getContext } from 'svelte';
+  import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import type { Snippet } from 'svelte';
   import type { Density } from '$lib/density.svelte';
   import { NativeSelectDefaults } from './native-select-defaults.svelte';
@@ -74,8 +76,12 @@
     value = $bindable(),
     children,
     class: className = '',
+    chrome: chromeProp = undefined,
     ...rest
   }: Props = $props();
+
+  // the chrome axis ambient (inline read — see lib/control-chrome.svelte.ts)
+  const ambientChrome = getContext<{ chrome?: ControlChrome }>(CONTROL_CHROME_KEY)?.chrome;
 
   const errorId = $derived(`${id}-error`);
   // the family Defaults is the single read point (context-defaults-
@@ -99,6 +105,7 @@
       )}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
+      data-chrome={chromeProp ?? ambientChrome ?? 'frame'}
       {...rest}
     >
       {@render children()}
