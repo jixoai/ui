@@ -10,14 +10,17 @@
  * family's ambient capability visible and auditable at icon-button's
  * own face instead of hiding it inside press-button:
  *   - variant: the paint axis slot restating PressButtonDefaults'
- *     variant — own 'outline' (icon-button declares no variant of its
- *     own; its effective default has always been the child's frozen
- *     one, per the grammar's "IconButton forwards the new union (not
- *     a separate color decision)"), values = press-button's whole
- *     ladder including link (the interaction exception forwards
- *     verbatim). The component resolves here and passes the RESOLVED
- *     values down (the restate lane); the pilot reviews this form —
- *     X2-11's fallback is a documented exemption, only with evidence.
+ *     variant — own 'ghost' (Owner 2026-09-05: the FRAMELESS default —
+ *     an icon-only control's glyph IS the content, a frame around it
+ *     is chrome noise; Dialog's close zone already scoped ghost
+ *     ambient for exactly this reason. The X2-11 "same own" clause is
+ *     AMENDED by that ruling: domain + density stay restated, the
+ *     variant own is icon-button's LOCAL posture), values =
+ *     press-button's whole ladder including link (the interaction
+ *     exception forwards verbatim). The component resolves here and
+ *     passes the RESOLVED values down (the restate lane); the pilot
+ *     reviews this form — X2-11's fallback is a documented exemption,
+ *     only with evidence.
  *   - density: the no-opinion axis slot, restated — no own, undefined
  *     resolves unstamped (fleet law).
  *
@@ -39,7 +42,7 @@ import { definePaintSlot } from '$lib/paint.svelte';
  */
 export const iconButtonVariantSlot = definePaintSlot(
   ['fill', 'tonal', 'outline', 'ghost', 'link'],
-  'outline',
+  'ghost',
 );
 export type IconButtonVariant = ReturnType<typeof iconButtonVariantSlot>;
 

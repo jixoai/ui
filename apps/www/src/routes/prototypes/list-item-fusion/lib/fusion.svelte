@@ -22,7 +22,7 @@
   import BadgeIndicator from '$lib/ui/badge-indicator/badge-indicator.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
-  import { ItemActionsLane } from '$lib/ui/list-item';
+  import { ItemActions } from '$lib/ui/list-item';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
@@ -156,11 +156,11 @@
             <ItemTitle>Escalation actions</ItemTitle>
             <ItemDescription>Joined clusters ride the lane — seams and radius belong to the cluster, the lane only gives gap and alignment</ItemDescription>
           </ItemContent>
-          <ItemActionsLane label="Escalation actions">
+          <ItemActions label="Escalation actions">
             <PressButton>Acknowledge</PressButton>
             <PressButton>Snooze</PressButton>
             <PressButton>Escalate</PressButton>
-          </ItemActionsLane>
+          </ItemActions>
         </Item>
         <Item>
           <ItemContent>

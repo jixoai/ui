@@ -10,7 +10,6 @@
     ItemTitle,
     ItemDescription,
     ItemEnd,
-    ItemActions,
   } from '../../src/lib/ui/list-item';
 </script>
 
@@ -20,7 +19,7 @@
       <ItemTitle>one</ItemTitle>
       <ItemDescription>linked row</ItemDescription>
     </ItemContent>
-    <ItemEnd><ItemActions><span>go</span></ItemActions></ItemEnd>
+    <ItemEnd><span>go</span></ItemEnd>
   </Item>
   <ItemDivider />
   <Item>

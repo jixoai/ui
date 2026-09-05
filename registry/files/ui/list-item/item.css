@@ -284,12 +284,6 @@
   :where([data-slot='item-end'][data-wrap='never']) {
     flex-wrap: nowrap;
   }
-  :where([data-slot='item-actions']) {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--jx-item-end-gap);
-    flex-wrap: wrap;
-  }
   :where([data-slot='item-after']) {
     display: inline-flex;
     align-items: center;
@@ -712,7 +706,10 @@
       padding-inline-end: 0;
     }
     :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-after'])),
-  :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-actions'])),
+  /* raw interactive controls justify the full row too (the retired
+     item-actions span's detector, generalized: any button in a
+     wrapping lane — ItemActions clusters are wrap=never lanes) */
+  :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] button)),
   :where([data-slot='item-list'][data-ruler='content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-fit])) {
       grid-template-areas:
         'header header header'
@@ -732,7 +729,7 @@
     /* media-content-end narrow auto: the media host remains on the
        ruler, while content and end occupy explicit full-width rows. */
     :where([data-slot='item-list'][data-ruler='media-content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-after'])),
-  :where([data-slot='item-list'][data-ruler='media-content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] [data-slot='item-actions'])),
+  :where([data-slot='item-list'][data-ruler='media-content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-wrap='auto'] button)),
   :where([data-slot='item-list'][data-ruler='media-content-end'] [data-slot='item-row'] > .jx-item:has(> [data-slot='item-end'][data-fit])) {
       grid-template-areas:
         'header header header header header'

@@ -7,7 +7,7 @@
   depending on the button-group implementation).
 -->
 <script lang="ts">
-  import { ItemGroup, Item, ItemContent, ItemTitle, ItemEnd, ItemActionsLane } from '$lib/ui/list-item';
+  import { ItemGroup, Item, ItemContent, ItemTitle, ItemEnd, ItemActions } from '$lib/ui/list-item';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
 </script>
 
@@ -28,9 +28,9 @@
   </Item>
   <Item>
     <ItemContent><ItemTitle>actions lane row</ItemTitle></ItemContent>
-    <ItemActionsLane label="host actions">
+    <ItemActions label="host actions">
       <button type="button" data-probe="x">Merge</button>
       <button type="button" data-probe="y">Close</button>
-    </ItemActionsLane>
+    </ItemActions>
   </Item>
 </ItemGroup>

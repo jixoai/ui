@@ -56,7 +56,8 @@
      *  re-exported alias — context-defaults-economy 1.2).
      *  Ambient-manageable through IconButtonDefaults (the restate):
      *  an absent prop adopts the paint zone's rung (a ButtonGroup or
-     *  variant scope), else the restated own 'outline' — explicit
+     *  variant scope), else the own 'ghost' (Owner 2026-09-05: the
+     *  frameless default — the glyph IS the content) — explicit
      *  still wins */
     variant?: PressButtonVariant;
     /** THE PHYSICS AXIS, forwarded verbatim (Owner 2026-09-04): no

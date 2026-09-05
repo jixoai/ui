@@ -86,13 +86,16 @@ describe('惰性律 — unit resolves inside the window (unit-resolve-host)', ()
     );
   });
 
-  it('IconButtonDefaults (the restate): same ladder, same own, same posture', () => {
+  it('IconButtonDefaults (the restate): same ladder and posture; the own is the LOCAL frameless rung (Owner 2026-09-05)', () => {
+    // X2-11 amended: domain + density stay restated from the child; the
+    // variant own is icon-button's local posture — 'ghost', the glyph
+    // IS the content (Dialog's close zone already scoped ghost ambient)
     expect(resolveInWindow(() => IconButtonDefaults.resolve({}))).toEqual({
-      variant: 'outline',
+      variant: 'ghost',
       density: undefined,
     });
-    expect(resolveInWindow(() => IconButtonDefaults.resolve({ variant: 'ghost', density: 'sm' }))).toEqual({
-      variant: 'ghost',
+    expect(resolveInWindow(() => IconButtonDefaults.resolve({ variant: 'outline', density: 'sm' }))).toEqual({
+      variant: 'outline',
       density: 'sm',
     });
   });
@@ -133,9 +136,9 @@ describe('press-button through PressButtonDefaults', () => {
 // 4 · icon-button — the restate lane (X2-11)
 // =========================================================================
 describe('icon-button through IconButtonDefaults (the restate)', () => {
-  it('a bare icon-button keeps the restated own; a tonal group\'s child adopts tonal; explicit wins', () => {
+  it('a bare icon-button keeps the frameless own; a tonal group\'s child adopts tonal; explicit wins', () => {
     const { container } = render(Host);
-    expect(wrappedVariantOf(container, 'ib-bare')).toBe('outline');
+    expect(wrappedVariantOf(container, 'ib-bare')).toBe('ghost');
     const group = byTestid(container, 'ib-tonal-group');
     const buttons = [...group.querySelectorAll('[data-jx-press-button]')];
     expect(buttons.map(variantOf)).toEqual(['tonal', 'fill']);

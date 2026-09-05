@@ -71,7 +71,7 @@ ${drivenNormal}${usageTail}`;
   type Posture = 'text' | 'icon-only';
   type Placement = 'top' | 'bottom' | 'top-start' | 'bottom-start' | 'top-end' | 'bottom-end';
   const canvasInitial = {
-    variant: 'outline' as Variant,
+    variant: 'ghost' as Variant,
     posture: 'icon-only' as Posture,
     placement: 'bottom' as Placement,
   };
@@ -355,7 +355,7 @@ ${drivenNormal}${usageTail}`;
         { name: 'icon', type: 'Snippet', required: true, description: 'Decorative glyph content.' },
         { name: 'text', type: 'string', required: true, description: 'Visible label, tooltip content, and accessible name.' },
         { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; resolved through IconButtonDefaults (the restated contract) and forwarded to press-button.' },
-        { name: 'variant', type: 'PressButtonVariant', default: "'outline' · ambient zone", description: 'Press-button surface variant, ambient-manageable through the restated contract: omitted → the ambient paint zone (ButtonGroup / variant scope), else the restated own. Explicit still wins.' },
+        { name: 'variant', type: 'PressButtonVariant', default: "'ghost' · ambient zone", description: 'Press-button surface variant, ambient-manageable through the restated contract: omitted → the ambient paint zone (ButtonGroup / variant scope), else the frameless own (Owner 2026-09-05: the glyph IS the content, a frame around it is chrome noise). Explicit still wins.' },
         { name: 'raised', type: 'boolean', default: "'true' · ambient zone", description: 'The physics axis, forwarded verbatim: false is the FLAT texture (engrave-tier inset press, the body never moves). A card/dialog foot zone scopes the default to false through the same ambient read; an explicit prop always wins — the escape hatch for chrome that must stay convex. Inert on link.' },
         { name: 'iconOnly', type: 'boolean', default: 'false', description: 'Collapses into a square tooltip trigger.' },
         { name: 'placement', type: 'TooltipPlacement', default: "'top'", description: 'Icon-only tooltip placement.' },

@@ -1,10 +1,11 @@
 <!--
-  jixoai ItemEnd — the ONE trailing lane (openspec
+  jxoai ItemEnd — the ONE trailing lane (openspec
   list-item-systemization design §1): ItemAfter (metadata),
-  ItemActions (controls) and ItemChevron (glyph) all live INSIDE it,
-  so the top-level presence matrix keeps four bits. Wraps to its own
-  full row under the narrow @container jx-items law unless
-  wrap="never".
+  ItemChevron (glyph) and raw controls all live INSIDE it, so the
+  top-level presence matrix keeps four bits; ItemActions is the lane's
+  semantic sibling for button clusters — it renders its OWN ItemEnd
+  (wrap=never) around a joined ButtonGroup. Wraps to its own full row
+  under the narrow @container jx-items law unless wrap="never".
 
   The size contract (list-item-size-contract, 2026-09-05 — Owner r3:
   width-driven folding DECLARED at composition time, the md:/lg: idiom,

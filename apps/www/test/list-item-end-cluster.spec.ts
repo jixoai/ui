@@ -31,7 +31,7 @@ describe('end lane cluster boundary (B6)', () => {
   });
 });
 
-describe('ItemActionsLane (the DialogFooter semantics, Owner r3)', () => {
+describe('ItemActions (the DialogFooter semantics, Owner r3; consolidated r4 — the bare span retired)', () => {
   it('renders a fixed end lane hosting ONE joined cluster with the label', () => {
     const { container } = render(ItemEndClusterHost);
     const row = [...container.querySelectorAll('.jx-item')].find((r) =>

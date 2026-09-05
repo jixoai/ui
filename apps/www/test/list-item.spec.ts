@@ -24,7 +24,6 @@ import {
   ItemContent,
   ItemTitle,
   ItemDescription,
-  ItemActions,
 } from '../src/lib/ui/list-item';
 
 const specDir = resolve(fileURLToPath(import.meta.url), '..');
@@ -156,8 +155,6 @@ describe('Item family — structure the matrix keys off', () => {
     expect(cd.querySelector('#row-desc')!.getAttribute('aria-hidden')).toBe('true');
     const { container: cc } = render(ItemContent, { props: { id: 'row-content', children } });
     expect(cc.querySelector('#row-content')).toBeTruthy();
-    const { container: ca } = render(ItemActions, { props: { id: 'row-actions', children } });
-    expect(ca.querySelector('#row-actions')).toBeTruthy();
   });
 });
 

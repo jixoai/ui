@@ -19,7 +19,6 @@
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import { ItemActionsLane } from '$lib/ui/list-item';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -73,25 +72,28 @@
     ItemTitle,
     ItemDescription,
     ItemEnd,
-    ItemActions,
   } from '@ui/list-item/index';
   import IconButton from '@ui/icon-button/icon-button.svelte';
   import { icons } from '@lib/icons';
 ${close}
 
 <!-- ItemContent is the required slot; media/end/header/footer are
-     presence-optional — their existence rewrites the grid template. -->
+     presence-optional — their existence rewrites the grid template.
+     The row IS the raised surface: trailing press controls ride FLAT
+     and frameless (IconButton's ghost default) — the frame is the
+     row's, not each glyph's. -->
 <Item variant="outline">
   <ItemContent>
     <ItemTitle>Deploy #482</ItemTitle>
     <ItemDescription>main · 4f2a1c · 2 minutes ago</ItemDescription>
   </ItemContent>
   <ItemEnd>
-    <ItemActions>
-      <IconButton iconOnly text="Rerun deploy">
-        {#snippet icon()}{@html icons.check}{/snippet}
-      </IconButton>
-    </ItemActions>
+    <IconButton iconOnly text="Rerun deploy" class="size-7!">
+      {#snippet icon()}{@html icons.check}{/snippet}
+    </IconButton>
+    <IconButton iconOnly text="More actions" class="size-7!">
+      {#snippet icon()}{@html icons.ellipsis}{/snippet}
+    </IconButton>
   </ItemEnd>
 </Item>`;
 
@@ -155,14 +157,12 @@ ${close}
               <ItemDescription>main · 4f2a1c · 2 minutes ago</ItemDescription>
             </ItemContent>
             <ItemEnd>
-              <ItemActions>
-                <IconButton iconOnly text="Rerun deploy" class="size-7!">
-                  {#snippet icon()}{@html icons.check}{/snippet}
-                </IconButton>
-                <IconButton iconOnly text="More actions" class="size-7!">
-                  {#snippet icon()}{@html icons.ellipsis}{/snippet}
-                </IconButton>
-              </ItemActions>
+              <IconButton iconOnly text="Rerun deploy" class="size-7!">
+                {#snippet icon()}{@html icons.check}{/snippet}
+              </IconButton>
+              <IconButton iconOnly text="More actions" class="size-7!">
+                {#snippet icon()}{@html icons.ellipsis}{/snippet}
+              </IconButton>
             </ItemEnd>
           </Item>
         </div>
@@ -314,7 +314,7 @@ ${close}
         headerRegion="slot-topology"
         eyebrow="proof"
         title="Slot topology"
-        summary="Four top-level presence bits — media · end · header · footer — rewrite the template; everything trailing lives INSIDE ItemEnd: ItemAfter (non-interactive metadata) flows before ItemActions (controls) before ItemChevron (the decorative glyph). ItemMedia is icon / avatar-host / image (src+alt render the img). Header and footer are optional full rows. Link rows never contain interactive descendants — the last row shows where actions belong."
+        summary="Four top-level presence bits — media · end · header · footer — rewrite the template; everything trailing lives INSIDE ItemEnd: ItemAfter (non-interactive metadata) flows before your controls (raw in the lane — flat physics by ambient — or one ItemActions cluster: the ButtonGroup-backed action lane, DialogFooter semantics) before ItemChevron (the decorative glyph). ItemMedia is icon / avatar-host / image (src+alt render the img). Header and footer are optional full rows. Link rows never contain interactive descendants — the last row shows where actions belong."
       >
         <div class="flex w-full max-w-lg flex-col gap-2">
           <Item variant="outline">
@@ -325,7 +325,7 @@ ${close}
             </ItemContent>
             <ItemEnd>
               <ItemAfter tone="default">3 open</ItemAfter>
-              <ItemActions><span class="text-[10px] opacity-60">edit</span></ItemActions>
+              <span class="text-[10px] opacity-60">edit</span>
             </ItemEnd>
           </Item>
           <Item variant="outline">
@@ -358,11 +358,9 @@ ${close}
               <ItemDescription>@gaubee wants to merge 3 commits into main</ItemDescription>
             </ItemContent>
             <ItemEnd>
-              <ItemActions>
-                <IconButton iconOnly text="Close pull request" class="size-7!">
-                  {#snippet icon()}{@html icons.x}{/snippet}
-                </IconButton>
-              </ItemActions>
+              <IconButton iconOnly text="Close pull request" class="size-7!">
+                {#snippet icon()}{@html icons.x}{/snippet}
+              </IconButton>
             </ItemEnd>
             <ItemFooter>
               <span class="text-muted-foreground text-[11px]">3 checks passed · 2 files changed</span>
@@ -518,12 +516,12 @@ ${close}
             </ItemGroup>
             <ItemGroup label="actions">
               <Item>
-                <ItemContent><ItemTitle>Escalation</ItemTitle><ItemDescription>ItemActionsLane: flat physics + a joined cluster, DialogFooter semantics</ItemDescription></ItemContent>
-                <ItemActionsLane label="Escalation actions">
+                <ItemContent><ItemTitle>Escalation</ItemTitle><ItemDescription>ItemActions: flat physics + a joined cluster, DialogFooter semantics</ItemDescription></ItemContent>
+                <ItemActions label="Escalation actions">
                   <PressButton>Acknowledge</PressButton>
                   <PressButton>Snooze</PressButton>
                   <PressButton variant="tonal">Escalate</PressButton>
-                </ItemActionsLane>
+                </ItemActions>
               </Item>
             </ItemGroup>
           </div>
@@ -610,11 +608,9 @@ ${close}
                 <ItemDescription>interactive descendants belong outside anchors</ItemDescription>
               </ItemContent>
               <ItemEnd>
-                <ItemActions>
-                  <IconButton iconOnly text="Retry" class="size-7!">
-                    {#snippet icon()}{@html icons.rotateCcw}{/snippet}
-                  </IconButton>
-                </ItemActions>
+                <IconButton iconOnly text="Retry" class="size-7!">
+                  {#snippet icon()}{@html icons.rotateCcw}{/snippet}
+                </IconButton>
               </ItemEnd>
             </Item>
           </ItemGroup>

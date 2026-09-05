@@ -9,7 +9,7 @@
 <script lang="ts">
   import { getContext, setContext } from 'svelte';
   import type { Snippet } from 'svelte';
-  import { ItemField, ItemActions } from '$lib/ui/list-item';
+  import { ItemField } from '$lib/ui/list-item';
 
   let {
     label,
@@ -38,8 +38,6 @@
 
 <ItemField id={rowId} labelMode="text" {label} description={hint} variant="outline" size="sm" class="jx-play-row">
   {#snippet control()}
-    <ItemActions>
-      {@render children()}
-    </ItemActions>
+    {@render children()}
   {/snippet}
 </ItemField>
