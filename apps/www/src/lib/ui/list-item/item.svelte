@@ -22,6 +22,7 @@
   import { ITEM_GROUP_KEY, type ItemGroupPolicy } from './item-group.svelte';
   import type { Density } from '$lib/density.svelte';
   import { ListItemDefaults } from './list-item-defaults.svelte';
+  import ButtonVariantScope from '../button-group/button-variant-scope.svelte';
   import './item.css';
 
   type ItemLayout = 'auto' | 'standard' | 'media';
@@ -84,7 +85,13 @@
     data-selected={selected ? 'true' : undefined}
     class={klass}
   >
-    {@render children()}
+    <!-- the row IS the raised surface — every press control inside
+         rides FLAT by ambient (Owner 2026-09-05 r3 follow-up: raw-lane
+         icon-buttons were still convex, double light sources); explicit
+         raised on any button still wins (inherit-then-provide) -->
+    <ButtonVariantScope raised={false}>
+      {@render children()}
+    </ButtonVariantScope>
   </svelte:element>
 {/snippet}
 

@@ -48,6 +48,17 @@ describe('ItemActionsLane (the DialogFooter semantics, Owner r3)', () => {
   });
 });
 
+describe('the row provides the flat-physics ambient (r3 follow-up)', () => {
+  it('a press control in a RAW end lane rides flat — the row is the raised surface', () => {
+    const { container } = render(ItemEndClusterHost);
+    const row = [...container.querySelectorAll('.jx-item')].find((r) =>
+      r.textContent.includes('raw lane row'),
+    )!;
+    const btn = row.querySelector('[data-jx-press-button]')!;
+    expect(btn.className).toContain('--jx-press-shadow:none');
+  });
+});
+
 describe('cluster boundary — the sheet is source-pinned', () => {
   const sheet = readFileSync(resolve(__dirname, '../src/lib/ui/list-item/item.css'), 'utf8');
 

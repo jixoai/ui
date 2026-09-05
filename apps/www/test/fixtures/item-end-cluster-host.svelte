@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
   import { ItemGroup, Item, ItemContent, ItemTitle, ItemEnd, ItemActionsLane } from '$lib/ui/list-item';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
 </script>
 
 <ItemGroup label="cluster host">
@@ -17,6 +18,12 @@
       <button type="button" data-probe="a">Acknowledge</button>
       <button type="button" data-probe="b">Snooze</button>
       <button type="button" data-probe="c">Escalate</button>
+    </ItemEnd>
+  </Item>
+  <Item>
+    <ItemContent><ItemTitle>raw lane row</ItemTitle></ItemContent>
+    <ItemEnd wrap="never">
+      <PressButton data-probe="raw">Bare</PressButton>
     </ItemEnd>
   </Item>
   <Item>
