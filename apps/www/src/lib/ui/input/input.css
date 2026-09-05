@@ -226,6 +226,66 @@
     }
   }
 
+  /* ---- the semantic glyph lane — the ORDER LADDER (Owner 2026-09-05) --
+     Every shell child owns an explicit rung so the glyph's start/end
+     flip is ONE order value, never DOM surgery. The glyph's DOM home
+     stays input-adjacent (the stepper's adjacency margins and the
+     first/last-child inset rules above read DOM order); the ladder:
+       0 stepper− · 1 start-slot · 2 GLYPH·lead · 10 lane
+       12 GLYPH·trail · 13 end-slot · 14 stepper+ · 15 × · 16 eye */
+  :where(.jx-html-control-shell) > .jx-input-prefix-icon-button {
+    order: 0;
+  }
+  :where(.jx-html-control-shell) > [data-jx-inline-start] {
+    order: 1;
+  }
+  :where(.jx-html-control-shell) > [data-jx-semantic-icon] {
+    order: 2;
+  }
+  :where(.jx-html-control-shell) > .jx-html-control-lane {
+    order: 10;
+  }
+  :where(.jx-html-control-shell) > [data-jx-inline-end] {
+    order: 13;
+  }
+  :where(.jx-html-control-shell) > .jx-input-suffix-icon-button {
+    order: 14;
+  }
+  :where(.jx-html-control-shell) > .jx-html-clear {
+    order: 15;
+  }
+  :where(.jx-html-control-shell) > .jx-input-reveal {
+    order: 16;
+  }
+  /* the PINNED side — explicit wins over every ambient below */
+  :where(.jx-html-control-shell[data-icon-position='end']) > [data-jx-semantic-icon] {
+    order: 12;
+  }
+
+  /* the trailing-lane ambient (Owner 2026-09-05): inside a list-item
+     end lane the glyph rides the TRAILING edge — the lane's
+     trailing-affordance line, select-chevron kin. Cross-family by
+     PUBLIC stamps only, the same vocabulary the end-inset contract
+     trades in (the control stamps data-self-inset, item.css :has()
+     consumes; here the lane stamps data-slot/data-wrap and the
+     glyph's own ladder consumes) */
+  [data-slot='item-end'] :where(.jx-html-control-shell[data-icon-position='auto']) > [data-jx-semantic-icon] {
+    order: 12;
+  }
+
+  /* SUSPENDED under the 30rem fold (the inset-contract suspension
+     precedent): a stacked lane is a full-width field below the row —
+     the glyph LEADS again. 'auto' only; a pinned side survives the
+     fold. The fold is a container query — invisible to JS — which is
+     exactly why this axis is CSS-owned end to end */
+  @container jx-items (max-width: 30rem) {
+    [data-slot='item-end'][data-wrap='auto']
+      :where(.jx-html-control-shell[data-icon-position='auto'])
+      > [data-jx-semantic-icon] {
+      order: 2;
+    }
+  }
+
   /* ---- the floating bracket label (labelMode="floating", 2026-08-30) --
      The terminal translation of the floating label: the label rides the
      shell's TOP BORDER like a fieldset legend (the bracket), never the

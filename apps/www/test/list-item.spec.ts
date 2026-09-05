@@ -173,6 +173,14 @@ describe('Item family — the CSS contract (source guard)', () => {
     expect(css).toContain('grid-template-columns: subgrid');
     expect(css).toContain("[data-ruler='media-content-end']");
     expect(css).toMatch(/var\(--jx-(text|gap|row-min|hit)/);
+    // the two-line reserve is a POSTURE, not a row law (Owner
+    // 2026-09-05): BOTH title and description present earn the
+    // row-min floor; the base row floors at the hit height — a
+    // title-only row is one line tall
+    expect(css).toMatch(
+      /\.jx-item\):has\(\[data-slot='item-title'\]\):has\(\[data-slot='item-description'\]\)[^}]*min-block-size: var\(--jx-row-min\)/,
+    );
+    expect(css).not.toMatch(/:where\(\.jx-item\)\s*\{[^}]*min-block-size: var\(--jx-row-min\)/);
     expect(css).not.toMatch(/\[data-size=/);
     expect(css).toContain("[data-wrap='never']");
     expect(css).toMatch(/\[data-slot='item-list'\]\[data-dividers='auto'\] > \[data-slot='item-row'\] \+ \[data-slot='item-row'\]/);

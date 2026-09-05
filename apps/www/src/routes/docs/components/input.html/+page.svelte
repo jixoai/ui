@@ -713,6 +713,8 @@
           { name: 'density', type: "'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
           { name: 'innerInlineStart', type: 'Snippet', default: '—', description: 'Inside the shell, left of the lane (prefix icon / unit).' },
           { name: 'innerInlineEnd', type: 'Snippet', default: '—', description: 'Inside the shell, right of the lane (suffix / unit / action).' },
+          { name: 'icon', type: 'Snippet', default: 'per-type glyph', description: 'The semantic glyph — overrides the per-type default (url→link, tel→phone, email→mail, search→magnifier). Any text-like type may carry one.' },
+          { name: 'iconPosition', type: "'start' | 'end'", default: 'null · ambient', description: 'Pin the semantic glyph to a side. Absent = inherit context: the css leads by default, a list-item trailing end lane rides the trailing edge, and the lane 30rem fold suspends back to leading (the inset-contract suspension precedent).' },
           { name: 'outerBlockStart', type: 'Snippet', default: '—', description: 'Outside the shell, above — replaces the label row when given.' },
           { name: 'outerBlockEnd', type: 'Snippet', default: '—', description: 'Outside the shell, below — renders below the error line.' },
         ]}

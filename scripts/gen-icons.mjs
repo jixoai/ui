@@ -105,6 +105,15 @@ const GROUPS = [
       '// search entry set (2026-09-02, r9 acceptance): the magnifier the\n// TerminalHeader trigger + the palette input carry (16px baked law;\n// sizing stays consumer CSS).',
     icons: [['search', 'Search']],
   },
+  {
+    comment:
+      "// input semantic-glyph set (2026-09-05, Owner: url/phone etc.\n// default-support their glyph): link/phone/mail ride the Input\n// shell's semantic-icon lane — search reuses the r9 entry above.",
+    icons: [
+      ['link', 'Link'],
+      ['phone', 'Phone'],
+      ['mail', 'Mail'],
+    ],
+  },
 ];
 
 // hand-era one-liners kept past the wrap threshold (byte-compat)

@@ -510,7 +510,7 @@ ${close}
                 <option>Daily digest</option>
                 <option>Off</option>
               </ItemSelect>
-              <ItemInput fit="lg" label="Webhook URL" description="lg — text class" bind:value={projectName} placeholder="https://" />
+              <ItemInput type="url" fit="lg" label="Webhook URL" description="lg — text class · the semantic glyph trails" bind:value={projectName} placeholder="https://" />
               <ItemInput type="number" fit="md" label="Auto-archive after" description="md — number class" bind:value={retentionDays} />
               <ItemToggle label="Sync over cellular" description="fixed — never restacks" bind:checked={autoplay} />
             </ItemGroup>

@@ -39,8 +39,11 @@
        standalone rows and the no-subgrid fallback keep it; the
        subgrid block below only adds grouped geometry. 尺规: B is the
        row's ONE sanctioned padding (edge breathing belongs to the
-       row box); everything BETWEEN elements is ruler gaps */
-    min-block-size: var(--jx-row-min);
+       row box); everything BETWEEN elements is ruler gaps. The
+       single-line floor is the HIT height — the two-line reserve is
+       a POSTURE, not a row law (Owner 2026-09-05): only rows
+       carrying BOTH title and description elements earn it below */
+    min-block-size: var(--jx-hit);
     padding-block: var(--jx-stack);
     padding-inline: var(--jx-inset);
     row-gap: var(--jx-stack);
@@ -50,6 +53,14 @@
       background-color 120ms ease-out,
       color 120ms ease-out,
       border-color 120ms ease-out;
+  }
+
+  /* ── the two-line reserve is a POSTURE (Owner 2026-09-05: a
+     title-only or description-only row is ONE line tall — the space
+     waste the Owner caught; wanting the second line = render BOTH
+     slots, one left empty earns the same two-line floor) ─────────── */
+  :where(.jx-item):has([data-slot='item-title']):has([data-slot='item-description']) {
+    min-block-size: var(--jx-row-min);
   }
 
   /* ── the presence matrix (16 exhaustive self-contained combos) ────
