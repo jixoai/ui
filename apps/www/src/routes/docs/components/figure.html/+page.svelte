@@ -61,6 +61,7 @@
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/figure/figure.svelte"
         files={canvasFiles}
       >
+        <div data-doc-demo-scope="headings-ok">
         <NumberingProvider>
           <SectionCard numbering="decimal" title="Results" eyebrow="4" headerRegion="results">
             <div class="flex flex-col gap-5">
@@ -74,6 +75,7 @@
             </div>
           </SectionCard>
         </NumberingProvider>
+        </div>
         {#snippet playground()}
           <p class="text-xs text-muted-foreground">
             static demo — numbering is DOM-order display currency: reorder the figures in markup and

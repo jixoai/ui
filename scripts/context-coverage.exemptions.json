@@ -84,6 +84,18 @@
       "kind": "no-style",
       "prop": "variant",
       "reason": "item-media's variant is the media CONTENT-TYPE discriminator (default = avatar host, icon = 16px icon, image = fixed square img) — a structural selector choosing WHICH child renders, not a paint rung or geometry tier; its 'default'|'icon'|'image' domain is disjoint from the family's ItemVariant grammar, so it cannot ride the family contract's variant slot and renaming it would break the documented API. data-variant here is a content discriminator, never styling."
+    },
+    {
+      "path": "registry/files/ui/list-item/item-actions.svelte",
+      "kind": "passthrough",
+      "prop": "inset",
+      "reason": "The r4 action lane (dfe91725): ItemActions forwards the trailing-inset contract VERBATIM to ItemEnd (the button-variant-scope precedent — a pure composition, no ambient read of its own; the lane's physics is its own raised={false} scope, not a slot)."
+    },
+    {
+      "path": "registry/files/ui/list-item/item-end.svelte",
+      "kind": "no-style",
+      "prop": "inset",
+      "reason": "The inset contract's IMPLEMENTING part (2026-09-05 contract, dfe91725): item-end stamps the contract and owns --jx-item-end-inset — the word hits the vocabulary but carries no ambient slot semantics here (the family's ambient axis set has no inset slot BY design; enforcement is local: non-negative px, negative is a margin wearing the wrong name)."
     }
   ]
 }

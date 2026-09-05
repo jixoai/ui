@@ -55,6 +55,7 @@
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/reference/reference.svelte"
         files={canvasFiles}
       >
+        <div data-doc-demo-scope="headings-ok">
         <NumberingProvider>
           <SectionCard numbering="decimal" title="Results" headerRegion="results">
             <div class="flex flex-col gap-4 text-[13.5px]">
@@ -70,6 +71,7 @@
             </div>
           </SectionCard>
         </NumberingProvider>
+        </div>
         {#snippet playground()}
           <p class="text-xs text-muted-foreground">
             static demo — the missing-id reference keeps its ??(eq-nope) marker and warns in the
