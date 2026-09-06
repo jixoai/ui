@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T19:32:24.611Z",
+  "generatedAt": "2026-09-06T22:12:53.449Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -4034,8 +4034,8 @@
           "source": "registry/files/lib/mermaid-engine.ts",
           "mirror": "apps/www/src/lib/mermaid-engine.ts",
           "target": "@lib/mermaid-engine.ts",
-          "sourceSha": "82c982dc7381141375f457a7bd01e9771ccfd6771da99cd8230f3ea63e325e4d",
-          "mirrorSha": "82c982dc7381141375f457a7bd01e9771ccfd6771da99cd8230f3ea63e325e4d"
+          "sourceSha": "1fc9e5ffb31a03891cfcb1da3c21d579bf7415c31eaf4a3651c6dc81470b7f97",
+          "mirrorSha": "1fc9e5ffb31a03891cfcb1da3c21d579bf7415c31eaf4a3651c6dc81470b7f97"
         }
       ]
     },
