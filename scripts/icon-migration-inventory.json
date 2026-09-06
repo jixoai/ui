@@ -1,0 +1,1719 @@
+{
+  "generatedAt": "2026-09-06T15:59:41.120Z",
+  "patterns": [
+    "\\$lib\\/icons",
+    "@html icons\\.",
+    "@jixoai\\/icons",
+    "registry\\/files\\/lib\\/icons\\.ts",
+    "apps\\/www\\/src\\/lib\\/icons\\.ts",
+    "scripts\\/gen-icons\\.mjs",
+    "\\.\\.\\/src\\/lib\\/icons(\\.ts)?['\"]"
+  ],
+  "hits": [
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/badge.svelte",
+      "line": 7,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/badge.svelte",
+      "line": 25,
+      "text": "{#snippet slotStart()}{@html icons.check}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/chip.svelte",
+      "line": 8,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/chip.svelte",
+      "line": 26,
+      "text": "{#snippet slotStart()}{@html icons.check}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/float-button.svelte",
+      "line": 7,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/float-button.svelte",
+      "line": 17,
+      "text": "<span class=\"-rotate-90 inline-flex\" aria-hidden=\"true\">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/icons.svelte",
+      "line": 1,
+      "text": "<!-- icons blueprint: the actual glyphs from $lib/icons — one shared"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/icons.svelte",
+      "line": 5,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/list-item.svelte",
+      "line": 25,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/list-item.svelte",
+      "line": 34,
+      "text": "<ItemMedia variant=\"icon\">{@html icons.folder}</ItemMedia>"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/scaffold-float.svelte",
+      "line": 8,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/scaffold-float.svelte",
+      "line": 26,
+      "text": "{@html icons.arrowRight}"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/tabs.svelte",
+      "line": 9,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/tabs.svelte",
+      "line": 43,
+      "text": "{#snippet icon()}{@html icons.braces}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/tabs.svelte",
+      "line": 47,
+      "text": "{#snippet icon()}{@html icons.eye}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/tabs.svelte",
+      "line": 50,
+      "text": "{#snippet icon()}{@html icons.monitor}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/terminal-header.svelte",
+      "line": 13,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/blueprints/scenes/terminal-header.svelte",
+      "line": 42,
+      "text": ">{@html icons.externalLink}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/code-block.svelte",
+      "line": 11,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/code-block.svelte",
+      "line": 25,
+      "text": "<span class=\"prompt flex items-center\" aria-hidden=\"true\">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/copy-command.svelte",
+      "line": 9,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/copy-command.svelte",
+      "line": 40,
+      "text": "<span class=\"inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.25]\" aria-hidden=\"true\">{@html icons.check}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/copy-command.svelte",
+      "line": 43,
+      "text": "<span class=\"inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.25]\" aria-hidden=\"true\">{@html icons.copy}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/copy-icon-button.svelte",
+      "line": 10,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/copy-icon-button.svelte",
+      "line": 54,
+      "text": "<span class=\"inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.25]\" aria-hidden=\"true\">{@html icons.check}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/copy-icon-button.svelte",
+      "line": 56,
+      "text": "<span class=\"inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.25]\" aria-hidden=\"true\">{@html icons.copy}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/icons.ts",
+      "line": 3,
+      "text": "* (registry/files/lib/icons.ts)."
+    },
+    {
+      "file": "apps/www/src/lib/icons.ts",
+      "line": 5,
+      "text": "* Source of truth: the manifest in scripts/gen-icons.mjs serializing"
+    },
+    {
+      "file": "apps/www/src/lib/icons.ts",
+      "line": 12,
+      "text": "* consumers print them with {@html icons.x} and own layout/sizing via CSS."
+    },
+    {
+      "file": "apps/www/src/lib/icons.ts",
+      "line": 146,
+      "text": "/** named-access bag for {@html icons.<name>} consumption */"
+    },
+    {
+      "file": "apps/www/src/lib/ui/breadcrumb/breadcrumb-dropdown.svelte",
+      "line": 47,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/breadcrumb/breadcrumb-dropdown.svelte",
+      "line": 101,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/button-group/button-group.svelte",
+      "line": 238,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/button-group/button-group.svelte",
+      "line": 905,
+      "text": "{#snippet icon()}{@html icons.ellipsis}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "line": 57,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "line": 323,
+      "text": "{@html icons.check}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/code-card/code-card.svelte",
+      "line": 328,
+      "text": "{@html icons.copy}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/color-picker/editor.svelte",
+      "line": 44,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/color-picker/editor.svelte",
+      "line": 302,
+      "text": "<span class=\"inline-flex [&_svg]:h-[15px] [&_svg]:w-[15px]\">{@html icons.pipette}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/combobox/combobox.css",
+      "line": 67,
+      "text": "* the item needs no @jixoai/icons dependency. Sizing rides markup"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 254,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 673,
+      "text": "<span class=\"[&_svg]:h-[13px] [&_svg]:w-[13px]\" aria-hidden=\"true\">{@html icons.externalLink}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 741,
+      "text": "<span class=\"[&_svg]:h-3 [&_svg]:w-3\" aria-hidden=\"true\">{@html icons.rotateCcw}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
+      "line": 906,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/calendar.svelte",
+      "line": 43,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/calendar.svelte",
+      "line": 312,
+      "text": "{@html icons.chevronLeft}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/calendar.svelte",
+      "line": 322,
+      "text": "{@html icons.chevronRight}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/month-grid.svelte",
+      "line": 32,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/month-grid.svelte",
+      "line": 184,
+      "text": "{@html icons.chevronLeft}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/month-grid.svelte",
+      "line": 194,
+      "text": "{@html icons.chevronRight}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/time-stepper.svelte",
+      "line": 52,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/time-stepper.svelte",
+      "line": 267,
+      "text": ">{@html icons.minus}</button>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/time-stepper.svelte",
+      "line": 295,
+      "text": ">{@html icons.plus}</button>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/time-stepper.svelte",
+      "line": 306,
+      "text": ">{@html icons.minus}</button>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/date-picker/time-stepper.svelte",
+      "line": 333,
+      "text": ">{@html icons.plus}</button>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/dialog/dialog.svelte",
+      "line": 56,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/dialog/dialog.svelte",
+      "line": 203,
+      "text": "{@html icons.x}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/docs-pager.svelte",
+      "line": 13,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/docs-pager.svelte",
+      "line": 37,
+      "text": "<span class=\"jx-docs-pager-direction\"><span class=\"jx-dp-ico\" aria-hidden=\"true\">{@html icons.arrowLeft}</span>previous</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/docs-pager.svelte",
+      "line": 42,
+      "text": "<span class=\"jx-docs-pager-direction\"><span class=\"jx-dp-ico\" aria-hidden=\"true\">{@html icons.arrowLeft}</span>back to</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/docs-pager.svelte",
+      "line": 48,
+      "text": "<span class=\"jx-docs-pager-direction\">next<span class=\"jx-dp-ico\" aria-hidden=\"true\">{@html icons.arrowRight}</span></span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/docs-pager.svelte",
+      "line": 53,
+      "text": "<span class=\"jx-docs-pager-direction\">end of the chain<span class=\"jx-dp-ico\" aria-hidden=\"true\">{@html icons.arrowRight}</span></span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/docs-sections-nav.svelte",
+      "line": 30,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/docs-sections-nav.svelte",
+      "line": 190,
+      "text": "<button type=\"button\" class=\"jx-dsn-clear\" aria-label=\"Clear the filter\" onclick={() => (filter = '')}>{@html icons.x}</button>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/docs-sections-nav.svelte",
+      "line": 272,
+      "text": "<button type=\"button\" class=\"jx-dsn-clear\" aria-label=\"Clear the filter\" onclick={() => (filter = '')}>{@html icons.x}</button>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
+      "line": 47,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
+      "line": 271,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "line": 62,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "line": 335,
+      "text": "{@html icons.image}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "line": 338,
+      "text": "{@html icons.fileVideo}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "line": 341,
+      "text": "{@html icons.fileAudio}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "line": 344,
+      "text": "{@html icons.fileText}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "line": 350,
+      "text": "{@html icons.file}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "line": 386,
+      "text": "{@html icons.upload}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/file-input/file-input.svelte",
+      "line": 425,
+      "text": "{@html icons.upload}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/hero-section/hero-section.svelte",
+      "line": 61,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/hero-section/hero-section.svelte",
+      "line": 184,
+      "text": "{@html icons.check}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/hero-section/hero-section.svelte",
+      "line": 188,
+      "text": "{@html icons.copy}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/image/image.svelte",
+      "line": 22,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/image/image.svelte",
+      "line": 82,
+      "text": "{@html icons.image}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/input-group/input-group-addon.svelte",
+      "line": 8,
+      "text": "an icon glyph ({@html icons.x} via the generated $lib/icons module),"
+    },
+    {
+      "file": "apps/www/src/lib/ui/input/input.svelte",
+      "line": 148,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/input/input.svelte",
+      "line": 682,
+      "text": ">{@html icons.minus}</button>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/input/input.svelte",
+      "line": 730,
+      "text": ">{@html icons.plus}</button>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/language-switcher/language-switcher.svelte",
+      "line": 51,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/language-switcher/language-switcher.svelte",
+      "line": 104,
+      "text": "<span class=\"inline-flex opacity-70 [&_svg]:h-3.5 [&_svg]:w-3.5\">{@html icons.languages}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/language-switcher/language-switcher.svelte",
+      "line": 144,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/list-item/item-chevron.svelte",
+      "line": 3,
+      "text": "The shared inline chevronRight geometry ($lib/icons, icon law); NO"
+    },
+    {
+      "file": "apps/www/src/lib/ui/list-item/item-chevron.svelte",
+      "line": 8,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/list-item/item-chevron.svelte",
+      "line": 14,
+      "text": "<span data-slot=\"item-chevron\" aria-hidden=\"true\" class={cn(className)}>{@html icons.chevronRight}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-cta/pattern-cta.svelte",
+      "line": 26,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-cta/pattern-cta.svelte",
+      "line": 107,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:stroke-[2.5]\">{@html icons.check}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-cta/pattern-cta.svelte",
+      "line": 110,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5\">{@html icons.copy}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-faq/pattern-faq.svelte",
+      "line": 18,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-faq/pattern-faq.svelte",
+      "line": 56,
+      "text": "<span class=\"inline-flex text-muted-foreground [&_svg]:h-4 [&_svg]:w-4\" aria-hidden=\"true\">{@html icons.fileText}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-ascii.svelte",
+      "line": 15,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-ascii.svelte",
+      "line": 69,
+      "text": "<span class=\"inline-flex [&_svg]:h-4 [&_svg]:w-4\" aria-hidden=\"true\">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-marquee.svelte",
+      "line": 19,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-marquee.svelte",
+      "line": 80,
+      "text": "<span class=\"inline-flex [&_svg]:h-4 [&_svg]:w-4\" aria-hidden=\"true\">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-login/pattern-login.svelte",
+      "line": 25,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-login/pattern-login.svelte",
+      "line": 138,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:stroke-[2.5]\">{@html icons.check}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-login/pattern-login.svelte",
+      "line": 141,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5\">{@html icons.copy}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-pricing/pattern-pricing.svelte",
+      "line": 22,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-pricing/pattern-pricing.svelte",
+      "line": 117,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:stroke-[2.5]\">{@html icons.check}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/pattern-pricing/pattern-pricing.svelte",
+      "line": 120,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5\">{@html icons.copy}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/popover/popover.svelte",
+      "line": 72,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/popover/popover.svelte",
+      "line": 286,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/press-button/press-button.svelte",
+      "line": 231,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/press-button/press-button.svelte",
+      "line": 530,
+      "text": "{@html icons.check}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/search-palette.svelte",
+      "line": 23,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/search-palette.svelte",
+      "line": 253,
+      "text": "aria-hidden=\"true\">{@html icons.search}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/search-palette.svelte",
+      "line": 278,
+      "text": "aria-hidden=\"true\">{@html icons.search}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/sheet/sheet.svelte",
+      "line": 41,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/sheet/sheet.svelte",
+      "line": 179,
+      "text": "{@html icons.x}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tags-input/tags-input.svelte",
+      "line": 98,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tags-input/tags-input.svelte",
+      "line": 436,
+      "text": "{@html icons.x}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "line": 10,
+      "text": "app.html. Icons come from the shared $lib/icons module (lucide"
+    },
+    {
+      "file": "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "line": 32,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "line": 111,
+      "text": "<span data-jx-theme-icon=\"\" class=\"flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]\">{@html icons.sun}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "line": 113,
+      "text": "<span data-jx-theme-icon=\"\" class=\"flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]\">{@html icons.moon}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/theme-toggle/theme-toggle.svelte",
+      "line": 115,
+      "text": "<span data-jx-theme-icon=\"\" class=\"flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]\">{@html icons.monitor}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/toast/toast-viewport.svelte",
+      "line": 96,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/toast/toast-viewport.svelte",
+      "line": 817,
+      "text": "<span class=\"inline-flex\" aria-hidden=\"true\">{@html icons.x}</span>"
+    },
+    {
+      "file": "apps/www/src/lib/ui/toc/toc.svelte",
+      "line": 55,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/toc/toc.svelte",
+      "line": 369,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tree-view/tree-view.svelte",
+      "line": 123,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tree-view/tree-view.svelte",
+      "line": 386,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "apps/www/src/lib/ui/tree-view/tree-view.svelte",
+      "line": 397,
+      "text": "{@html icons.file}"
+    },
+    {
+      "file": "apps/www/src/routes/+layout.svelte",
+      "line": 51,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/+layout.svelte",
+      "line": 537,
+      "text": ">{@html icons.externalLink}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/+layout.svelte",
+      "line": 608,
+      "text": ">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/+layout.svelte",
+      "line": 715,
+      "text": "{@html icons.search}"
+    },
+    {
+      "file": "apps/www/src/routes/+page.svelte",
+      "line": 10,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/+page.svelte",
+      "line": 73,
+      "text": "<span class=\"ml-0.5 inline-flex flex-none align-[-0.125em]\" aria-hidden=\"true\">{@html icons.externalLink}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs.html/+page.svelte",
+      "line": 11,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs.html/+page.svelte",
+      "line": 67,
+      "text": "<span class=\"text-primary col-start-1 row-start-1 flex items-center [&_svg]:h-3 [&_svg]:w-3\" aria-hidden=\"true\">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/badge.html/+page.svelte",
+      "line": 11,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/badge.html/+page.svelte",
+      "line": 87,
+      "text": "{#snippet slotStart()}{@html icons.check}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/button-group.html/+page.svelte",
+      "line": 21,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/button-group.html/+page.svelte",
+      "line": 357,
+      "text": "<PressButton variant=\"outline\" square ariaLabel=\"undo\">{@html icons.arrowLeft}</PressButton>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/button-group.html/+page.svelte",
+      "line": 358,
+      "text": "<PressButton variant=\"outline\" square ariaLabel=\"redo\">{@html icons.arrowRight}</PressButton>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/card.html/+page.svelte",
+      "line": 7,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/card.html/+page.svelte",
+      "line": 104,
+      "text": "{@html icons.x}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/dialog.html/+page.svelte",
+      "line": 17,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/dialog.html/+page.svelte",
+      "line": 117,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/dialog.html/+page.svelte",
+      "line": 129,
+      "text": "<span class=\"flex-none select-none text-muted-foreground\" aria-hidden=\"true\">{@html icons.search}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/dialog.html/+page.svelte",
+      "line": 600,
+      "text": "aria-hidden=\"true\">{@html icons.search}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 27,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 92,
+      "text": "{#snippet icon()}{@html icons.check}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 95,
+      "text": "{#snippet icon()}{@html icons.ellipsis}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 162,
+      "text": "{#snippet icon()}{@html icons.check}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 165,
+      "text": "{#snippet icon()}{@html icons.ellipsis}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 239,
+      "text": "<ItemMedia variant=\"icon\">{@html icons.folder}</ItemMedia>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 322,
+      "text": "<ItemMedia variant=\"icon\">{@html icons.folder}</ItemMedia>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 363,
+      "text": "{#snippet icon()}{@html icons.x}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 414,
+      "text": "<ItemMedia variant=\"icon\">{@html icons.fileText}</ItemMedia>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/list-item.html/+page.svelte",
+      "line": 614,
+      "text": "{#snippet icon()}{@html icons.rotateCcw}{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 32,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 220,
+      "text": "{@html icons.file}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 245,
+      "text": "{#snippet tsIcon(ctx)}<span class=\"text-blue-500\">{@html icons.fileCode}</span>{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 246,
+      "text": "{#snippet cssIcon(ctx)}<span class=\"text-purple-500\">{@html icons.palette}</span>{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 247,
+      "text": "{#snippet jsonIcon(ctx)}<span class=\"text-yellow-500\">{@html icons.braces}</span>{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 248,
+      "text": "{#snippet mdIcon(ctx)}<span class=\"text-muted-foreground\">{@html icons.fileText}</span>{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 249,
+      "text": "{#snippet genericIcon(ctx)}<span class=\"text-muted-foreground\">{@html icons.file}</span>{/snippet}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 307,
+      "text": "{@html icons.plus}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 310,
+      "text": "{@html icons.ellipsis}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 361,
+      "text": "<span class=\"text-blue-500\">{@html icons.fileCode}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 364,
+      "text": "<span class=\"text-purple-500\">{@html icons.palette}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 367,
+      "text": "<span class=\"text-yellow-500\">{@html icons.braces}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 370,
+      "text": "<span class=\"text-muted-foreground\">{@html icons.fileText}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 373,
+      "text": "<span class=\"text-muted-foreground\">{@html icons.file}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 383,
+      "text": "{@html icons.plus}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 391,
+      "text": "{@html icons.ellipsis}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 489,
+      "text": "{@html icons.file}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "line": 509,
+      "text": "{@html icons.file}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 6,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 126,
+      "text": "{@html icons.palette}"
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 230,
+      "text": "content=\"The jixoai icon system in one page: the named inline icon library (&#123;@html icons.x&#125;, verify:icons freshness gate), the --jx-icon-* CSS vocabulary (mask/currentColor law, ink matrix for UA-shadow pseudos), and the jixoai(&#123; icons &#125;) vite plugin — providers (lucide/svg/font/mixin), concept-slot overrides with derived ink re-baking, the safety checker, and virtual:jixoai-icons.\""
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 242,
+      "text": "summary=\"Every glyph in jixoai ships from a single source: the named inline library for components (&#123;@html icons.x&#125; — decorative by contract, sizing is consumer CSS), and the --jx-icon-* CSS vocabulary the form sheet paints through CSS mask and background-image (one alpha-only URI per glyph, an ink matrix for UA-shadow pseudos that reject author paint). The vite plugin re-bakes that vocabulary from YOUR artwork — override one concept slot and the plain, ink and dark/light variants re-derive together.\""
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 245,
+      "text": "<span class=\"pill\">named library — {'{@html icons.x}'}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 266,
+      "text": "summary=\"One shared module so every component renders the SAME geometry instead of private glyphs: SVG strings (not components, not Snippets) consumed with &#123;@html icons.&lt;name&gt;&#125; — 24×24 viewBox, 16px baked, stroke currentColor, aria-hidden baked in (meaning lives in the surrounding text or the control's aria-label; sizing and stroke-weight overrides are consumer CSS). This table walks the icons bag itself — a glyph added to the module appears here with zero edit.\""
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 275,
+      "text": "<code class=\"text-muted-foreground font-mono text-[10.5px] leading-4\">{'{@html icons.' + name + '}'}</code>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 281,
+      "text": "Generated from <code class=\"text-accent\">scripts/gen-icons.mjs</code> (lucide geometry) — the"
+    },
+    {
+      "file": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "line": 285,
+      "text": "<CodeBlock code={namedUsage} lang=\"svelte\" meta={'usage — {@html icons.x}'} />"
+    },
+    {
+      "file": "apps/www/src/routes/docs/registry.html/+page.svelte",
+      "line": 13,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/registry.html/+page.svelte",
+      "line": 54,
+      "text": "<span class=\"jx-inv-docs inline-flex items-center gap-1\">the Components listing <span class=\"[&_svg]:h-3 [&_svg]:w-3\" aria-hidden=\"true\">{@html icons.arrowRight}</span></span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/registry.html/+page.svelte",
+      "line": 82,
+      "text": "<span class=\"text-primary mt-0.5 flex-none [&_svg]:h-3 [&_svg]:w-3\" aria-hidden=\"true\">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "apps/www/src/routes/docs/variant-grammar.html/+page.svelte",
+      "line": 12,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "apps/www/src/routes/docs/variant-grammar.html/+page.svelte",
+      "line": 363,
+      "text": "{#snippet slotStart()}{@html icons.check}{/snippet}"
+    },
+    {
+      "file": "apps/www/test/icons-page.spec.ts",
+      "line": 37,
+      "text": "import { icons } from '../src/lib/icons';"
+    },
+    {
+      "file": "apps/www/test/icons-page.spec.ts",
+      "line": 134,
+      "text": "// and the consumption hint '{@html icons.<name>}'"
+    },
+    {
+      "file": "apps/www/test/icons-page.spec.ts",
+      "line": 138,
+      "text": "expect(first?.textContent).toContain('{@html icons.' + name.replace('icons.', '') + '}');"
+    },
+    {
+      "file": "apps/www/test/jx-pure-parity.spec.ts",
+      "line": 21,
+      "text": "import { calendar, clock, palette } from '../src/lib/icons';"
+    },
+    {
+      "file": "apps/www/test/terminal-patterns.spec.ts",
+      "line": 86,
+      "text": "* ui items map 1:1 to their folder; $lib/icons is the icons item) */"
+    },
+    {
+      "file": "apps/www/test/terminal-patterns.spec.ts",
+      "line": 88,
+      "text": "if (spec === '$lib/icons') return 'icons';"
+    },
+    {
+      "file": "package.json",
+      "line": 12,
+      "text": "\"gen:icons\": \"node scripts/gen-icons.mjs\","
+    },
+    {
+      "file": "package.json",
+      "line": 27,
+      "text": "\"verify:icons\": \"node scripts/gen-icons.mjs --check\","
+    },
+    {
+      "file": "packages/vite-plugin/src/icons/providers/lucide.ts",
+      "line": 8,
+      "text": "* registry/files/lib/icons.ts and jx-pure.css)."
+    },
+    {
+      "file": "packages/vite-plugin/test/icons/geometry-consistency.test.ts",
+      "line": 7,
+      "text": "* the component lib (registry/files/lib/icons.ts) must embed the same"
+    },
+    {
+      "file": "packages/vite-plugin/test/icons/geometry-consistency.test.ts",
+      "line": 11,
+      "text": "* registry/files/lib/icons.ts is regenerated by a separate batch, so"
+    },
+    {
+      "file": "packages/vite-plugin/test/icons/geometry-consistency.test.ts",
+      "line": 33,
+      "text": "/** slots shared between the provider and registry/files/lib/icons.ts */"
+    },
+    {
+      "file": "packages/vite-plugin/test/icons/geometry-consistency.test.ts",
+      "line": 83,
+      "text": "const iconsSrc = readFileSync(resolve(repoRoot, 'registry/files/lib/icons.ts'), 'utf8');"
+    },
+    {
+      "file": "registry.json",
+      "line": 91,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 220,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 431,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 446,
+      "text": "\"@jixoai/icons\""
+    },
+    {
+      "file": "registry.json",
+      "line": 605,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 663,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 825,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 988,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1036,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1056,
+      "text": "\"@jixoai/icons\""
+    },
+    {
+      "file": "registry.json",
+      "line": 1109,
+      "text": "\"description\": \"Shared inline SVG icon strings — arrow-right / chevron-down / x / external-link / check — 16px stroke-currentColor geometry consumed via {@html icons.<name>}; decorative by contract (aria-hidden baked in, meaning lives in surrounding text or aria-label).\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1112,
+      "text": "\"path\": \"registry/files/lib/icons.ts\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1117,
+      "text": "\"docs\": \"import { icons } from '@lib/icons'; then {@html icons.x}. Consumers own sizing via CSS; the SVGs default to 16x16 with class jx-icon.\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1209,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1231,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1544,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1589,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1644,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 1719,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 2212,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 2467,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 2584,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 3401,
+      "text": "\"@jixoai/icons\""
+    },
+    {
+      "file": "registry.json",
+      "line": 4112,
+      "text": "\"@jixoai/icons\","
+    },
+    {
+      "file": "registry.json",
+      "line": 4274,
+      "text": "\"@jixoai/icons\""
+    },
+    {
+      "file": "registry.json",
+      "line": 4311,
+      "text": "\"@jixoai/icons\""
+    },
+    {
+      "file": "registry.json",
+      "line": 4357,
+      "text": "\"@jixoai/icons\""
+    },
+    {
+      "file": "registry.json",
+      "line": 4391,
+      "text": "\"@jixoai/icons\""
+    },
+    {
+      "file": "registry.json",
+      "line": 4426,
+      "text": "\"@jixoai/icons\""
+    },
+    {
+      "file": "registry/files/lib/icons.ts",
+      "line": 3,
+      "text": "* (registry/files/lib/icons.ts)."
+    },
+    {
+      "file": "registry/files/lib/icons.ts",
+      "line": 5,
+      "text": "* Source of truth: the manifest in scripts/gen-icons.mjs serializing"
+    },
+    {
+      "file": "registry/files/lib/icons.ts",
+      "line": 12,
+      "text": "* consumers print them with {@html icons.x} and own layout/sizing via CSS."
+    },
+    {
+      "file": "registry/files/lib/icons.ts",
+      "line": 146,
+      "text": "/** named-access bag for {@html icons.<name>} consumption */"
+    },
+    {
+      "file": "registry/files/ui/breadcrumb/breadcrumb-dropdown.svelte",
+      "line": 47,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/breadcrumb/breadcrumb-dropdown.svelte",
+      "line": 101,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "registry/files/ui/button-group/button-group.svelte",
+      "line": 238,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/button-group/button-group.svelte",
+      "line": 905,
+      "text": "{#snippet icon()}{@html icons.ellipsis}{/snippet}"
+    },
+    {
+      "file": "registry/files/ui/code-card/code-card.svelte",
+      "line": 57,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/code-card/code-card.svelte",
+      "line": 323,
+      "text": "{@html icons.check}"
+    },
+    {
+      "file": "registry/files/ui/code-card/code-card.svelte",
+      "line": 328,
+      "text": "{@html icons.copy}"
+    },
+    {
+      "file": "registry/files/ui/color-picker/editor.svelte",
+      "line": 44,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/color-picker/editor.svelte",
+      "line": 302,
+      "text": "<span class=\"inline-flex [&_svg]:h-[15px] [&_svg]:w-[15px]\">{@html icons.pipette}</span>"
+    },
+    {
+      "file": "registry/files/ui/combobox/combobox.css",
+      "line": 67,
+      "text": "* the item needs no @jixoai/icons dependency. Sizing rides markup"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 254,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 673,
+      "text": "<span class=\"[&_svg]:h-[13px] [&_svg]:w-[13px]\" aria-hidden=\"true\">{@html icons.externalLink}</span>"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 741,
+      "text": "<span class=\"[&_svg]:h-3 [&_svg]:w-3\" aria-hidden=\"true\">{@html icons.rotateCcw}</span>"
+    },
+    {
+      "file": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "line": 906,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "registry/files/ui/date-picker/calendar.svelte",
+      "line": 43,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/date-picker/calendar.svelte",
+      "line": 312,
+      "text": "{@html icons.chevronLeft}"
+    },
+    {
+      "file": "registry/files/ui/date-picker/calendar.svelte",
+      "line": 322,
+      "text": "{@html icons.chevronRight}"
+    },
+    {
+      "file": "registry/files/ui/date-picker/month-grid.svelte",
+      "line": 32,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/date-picker/month-grid.svelte",
+      "line": 184,
+      "text": "{@html icons.chevronLeft}"
+    },
+    {
+      "file": "registry/files/ui/date-picker/month-grid.svelte",
+      "line": 194,
+      "text": "{@html icons.chevronRight}"
+    },
+    {
+      "file": "registry/files/ui/date-picker/time-stepper.svelte",
+      "line": 52,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/date-picker/time-stepper.svelte",
+      "line": 267,
+      "text": ">{@html icons.minus}</button>"
+    },
+    {
+      "file": "registry/files/ui/date-picker/time-stepper.svelte",
+      "line": 295,
+      "text": ">{@html icons.plus}</button>"
+    },
+    {
+      "file": "registry/files/ui/date-picker/time-stepper.svelte",
+      "line": 306,
+      "text": ">{@html icons.minus}</button>"
+    },
+    {
+      "file": "registry/files/ui/date-picker/time-stepper.svelte",
+      "line": 333,
+      "text": ">{@html icons.plus}</button>"
+    },
+    {
+      "file": "registry/files/ui/dialog/dialog.svelte",
+      "line": 56,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/dialog/dialog.svelte",
+      "line": 203,
+      "text": "{@html icons.x}"
+    },
+    {
+      "file": "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "line": 47,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
+      "line": 271,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "registry/files/ui/file-input/file-input.svelte",
+      "line": 62,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/file-input/file-input.svelte",
+      "line": 335,
+      "text": "{@html icons.image}"
+    },
+    {
+      "file": "registry/files/ui/file-input/file-input.svelte",
+      "line": 338,
+      "text": "{@html icons.fileVideo}"
+    },
+    {
+      "file": "registry/files/ui/file-input/file-input.svelte",
+      "line": 341,
+      "text": "{@html icons.fileAudio}"
+    },
+    {
+      "file": "registry/files/ui/file-input/file-input.svelte",
+      "line": 344,
+      "text": "{@html icons.fileText}"
+    },
+    {
+      "file": "registry/files/ui/file-input/file-input.svelte",
+      "line": 350,
+      "text": "{@html icons.file}"
+    },
+    {
+      "file": "registry/files/ui/file-input/file-input.svelte",
+      "line": 386,
+      "text": "{@html icons.upload}"
+    },
+    {
+      "file": "registry/files/ui/file-input/file-input.svelte",
+      "line": 425,
+      "text": "{@html icons.upload}"
+    },
+    {
+      "file": "registry/files/ui/hero-section/hero-section.svelte",
+      "line": 61,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/hero-section/hero-section.svelte",
+      "line": 184,
+      "text": "{@html icons.check}"
+    },
+    {
+      "file": "registry/files/ui/hero-section/hero-section.svelte",
+      "line": 188,
+      "text": "{@html icons.copy}"
+    },
+    {
+      "file": "registry/files/ui/image/image.svelte",
+      "line": 22,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/image/image.svelte",
+      "line": 82,
+      "text": "{@html icons.image}"
+    },
+    {
+      "file": "registry/files/ui/input-group/input-group-addon.svelte",
+      "line": 8,
+      "text": "an icon glyph ({@html icons.x} via the generated $lib/icons module),"
+    },
+    {
+      "file": "registry/files/ui/input/input.svelte",
+      "line": 148,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/input/input.svelte",
+      "line": 682,
+      "text": ">{@html icons.minus}</button>"
+    },
+    {
+      "file": "registry/files/ui/input/input.svelte",
+      "line": 730,
+      "text": ">{@html icons.plus}</button>"
+    },
+    {
+      "file": "registry/files/ui/language-switcher/language-switcher.svelte",
+      "line": 51,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/language-switcher/language-switcher.svelte",
+      "line": 104,
+      "text": "<span class=\"inline-flex opacity-70 [&_svg]:h-3.5 [&_svg]:w-3.5\">{@html icons.languages}</span>"
+    },
+    {
+      "file": "registry/files/ui/language-switcher/language-switcher.svelte",
+      "line": 144,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "registry/files/ui/list-item/item-chevron.svelte",
+      "line": 3,
+      "text": "The shared inline chevronRight geometry ($lib/icons, icon law); NO"
+    },
+    {
+      "file": "registry/files/ui/list-item/item-chevron.svelte",
+      "line": 8,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/list-item/item-chevron.svelte",
+      "line": 14,
+      "text": "<span data-slot=\"item-chevron\" aria-hidden=\"true\" class={cn(className)}>{@html icons.chevronRight}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-cta/pattern-cta.svelte",
+      "line": 26,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/pattern-cta/pattern-cta.svelte",
+      "line": 107,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:stroke-[2.5]\">{@html icons.check}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-cta/pattern-cta.svelte",
+      "line": 110,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5\">{@html icons.copy}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-faq/pattern-faq.svelte",
+      "line": 18,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/pattern-faq/pattern-faq.svelte",
+      "line": 56,
+      "text": "<span class=\"inline-flex text-muted-foreground [&_svg]:h-4 [&_svg]:w-4\" aria-hidden=\"true\">{@html icons.fileText}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-hero-set/pattern-hero-ascii.svelte",
+      "line": 15,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/pattern-hero-set/pattern-hero-ascii.svelte",
+      "line": 69,
+      "text": "<span class=\"inline-flex [&_svg]:h-4 [&_svg]:w-4\" aria-hidden=\"true\">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-hero-set/pattern-hero-marquee.svelte",
+      "line": 19,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/pattern-hero-set/pattern-hero-marquee.svelte",
+      "line": 80,
+      "text": "<span class=\"inline-flex [&_svg]:h-4 [&_svg]:w-4\" aria-hidden=\"true\">{@html icons.arrowRight}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-login/pattern-login.svelte",
+      "line": 25,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/pattern-login/pattern-login.svelte",
+      "line": 138,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:stroke-[2.5]\">{@html icons.check}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-login/pattern-login.svelte",
+      "line": 141,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5\">{@html icons.copy}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-pricing/pattern-pricing.svelte",
+      "line": 22,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/pattern-pricing/pattern-pricing.svelte",
+      "line": 117,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:stroke-[2.5]\">{@html icons.check}</span>"
+    },
+    {
+      "file": "registry/files/ui/pattern-pricing/pattern-pricing.svelte",
+      "line": 120,
+      "text": "<span class=\"inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5\">{@html icons.copy}</span>"
+    },
+    {
+      "file": "registry/files/ui/popover/popover.svelte",
+      "line": 72,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/popover/popover.svelte",
+      "line": 286,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "registry/files/ui/press-button/press-button.svelte",
+      "line": 231,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/press-button/press-button.svelte",
+      "line": 530,
+      "text": "{@html icons.check}"
+    },
+    {
+      "file": "registry/files/ui/search-palette.svelte",
+      "line": 23,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/search-palette.svelte",
+      "line": 253,
+      "text": "aria-hidden=\"true\">{@html icons.search}</span>"
+    },
+    {
+      "file": "registry/files/ui/search-palette.svelte",
+      "line": 278,
+      "text": "aria-hidden=\"true\">{@html icons.search}</span>"
+    },
+    {
+      "file": "registry/files/ui/sheet/sheet.svelte",
+      "line": 41,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/sheet/sheet.svelte",
+      "line": 179,
+      "text": "{@html icons.x}"
+    },
+    {
+      "file": "registry/files/ui/tags-input/tags-input.svelte",
+      "line": 98,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/tags-input/tags-input.svelte",
+      "line": 436,
+      "text": "{@html icons.x}"
+    },
+    {
+      "file": "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "line": 10,
+      "text": "app.html. Icons come from the shared $lib/icons module (lucide"
+    },
+    {
+      "file": "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "line": 32,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "line": 111,
+      "text": "<span data-jx-theme-icon=\"\" class=\"flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]\">{@html icons.sun}</span>"
+    },
+    {
+      "file": "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "line": 113,
+      "text": "<span data-jx-theme-icon=\"\" class=\"flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]\">{@html icons.moon}</span>"
+    },
+    {
+      "file": "registry/files/ui/theme-toggle/theme-toggle.svelte",
+      "line": 115,
+      "text": "<span data-jx-theme-icon=\"\" class=\"flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]\">{@html icons.monitor}</span>"
+    },
+    {
+      "file": "registry/files/ui/toast/toast-viewport.svelte",
+      "line": 96,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/toast/toast-viewport.svelte",
+      "line": 817,
+      "text": "<span class=\"inline-flex\" aria-hidden=\"true\">{@html icons.x}</span>"
+    },
+    {
+      "file": "registry/files/ui/toc/toc.svelte",
+      "line": 55,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/toc/toc.svelte",
+      "line": 369,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "registry/files/ui/tree-view/tree-view.svelte",
+      "line": 123,
+      "text": "import { icons } from '$lib/icons';"
+    },
+    {
+      "file": "registry/files/ui/tree-view/tree-view.svelte",
+      "line": 386,
+      "text": "{@html icons.chevronDown}"
+    },
+    {
+      "file": "registry/files/ui/tree-view/tree-view.svelte",
+      "line": 397,
+      "text": "{@html icons.file}"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 3,
+      "text": "* Icon set generator (scripts/gen-icons.mjs, 2026-08-29)."
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 7,
+      "text": "*    registry/files/lib/icons.ts to a lucide@^0.472.0 IconNode; bodies"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 20,
+      "text": "* Usage: node scripts/gen-icons.mjs          write the file"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 21,
+      "text": "*        node scripts/gen-icons.mjs --check  freshness gate (exit 1 stale)"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 30,
+      "text": "const outPath = resolve(repoRoot, 'registry/files/lib/icons.ts');"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 148,
+      "text": "* (registry/files/lib/icons.ts)."
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 150,
+      "text": "* Source of truth: the manifest in scripts/gen-icons.mjs serializing"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 157,
+      "text": "* consumers print them with {@html icons.x} and own layout/sizing via CSS."
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 189,
+      "text": "'/** named-access bag for {@html icons.<name>} consumption */',"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 201,
+      "text": "console.error(`stale: registry/files/lib/icons.ts differs from the generator output — run \\`npm run gen:icons\\``);"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 204,
+      "text": "console.log(`fresh: registry/files/lib/icons.ts matches the manifest (${names.length} icons)`);"
+    },
+    {
+      "file": "scripts/gen-icons.mjs",
+      "line": 207,
+      "text": "console.log(`wrote registry/files/lib/icons.ts (${names.length} icons)`);"
+    },
+    {
+      "file": "scripts/verify-deps-baseline.json",
+      "line": 4,
+      "text": "\"breadcrumb -> @jixoai/icons\","
+    },
+    {
+      "file": "scripts/verify-deps.mjs",
+      "line": 195,
+      "text": "// 4. dead non-prerequisite: declared @jixoai/icons never imported → FAIL"
+    },
+    {
+      "file": "scripts/verify-deps.mjs",
+      "line": 198,
+      "text": "fixtureRegistry('a', 'registry:ui', [file('@ui/a/a.svelte', '<p>x</p>\\n')], ['@jixoai/icons']),"
+    },
+    {
+      "file": "scripts/verify-shadcn-add.mjs",
+      "line": 650,
+      "text": "['registry/files/lib/icons.ts', 'src/lib/icons.ts'],"
+    }
+  ]
+}

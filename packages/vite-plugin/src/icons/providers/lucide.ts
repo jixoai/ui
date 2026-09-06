@@ -55,6 +55,16 @@ const serializeChildren = (children: readonly IconNodeChild[]): string =>
     .join('');
 
 /**
+ * Serialize one lucide IconNode to the canonical complete `<svg>…</svg>`
+ * string (wrapper + children). The icons library face reuses this exact
+ * serialization for its built-ins (icon-component-pipeline A1) so the
+ * library's {v,n,d} extraction and the svgo no-op pin operate on the
+ * SAME bytes the slot face's provider emits.
+ */
+export const serializeLucideIcon = (icon: IconNode): string =>
+  lucideSvg(serializeChildren(icon[2] ?? []));
+
+/**
  * slot → lucide export name (checked against lucide's export surface
  * at compile time; the geometry itself comes from the package at
  * runtime).
@@ -111,7 +121,7 @@ export function lucideIconProvider(): IconProviderFactory {
     ][]) {
       const icon: IconNode = lucide[name];
       cache.set(slot, {
-        svg: lucideSvg(serializeChildren(icon[2] ?? [])),
+        svg: serializeLucideIcon(icon),
         viewBox: LUCIDE_VIEWBOX,
         nature: 'stroke',
         source: { kind: 'inline' },

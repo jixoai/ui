@@ -33,10 +33,24 @@
  * WOFF2 sources are transparently decompressed to TTF via the optional
  * `wawoff2` dependency before providers ever see the bytes (providers
  * always receive parseable TTF/OTF data — see design.md §6).
+ *
+ * The NAMED-ICON face (icon-component-pipeline A4): when `library` is
+ * configured the plugin additionally runs the library pipeline
+ * (adapter-side resolution → safety → svgo → the pure generator) and
+ *   - serves the artifact module for its configured `output` path (dev
+ *     drift-warns; writes only when the consumer opted in via
+ *     write:true — the single-writer law keeps the root gen:icons
+ *     script the only in-repo writer),
+ *   - serves `virtual:jixoai-icons/chunk/K` lazy chunk modules,
+ *   - throws the fixed overflow sentinel (design §5) when a chunk id
+ *     is imported while NO library is configured.
+ * HMR rides the slot face's existing refresh path: {file}-sourced
+ * library icons join the same watch machinery; a change re-runs both
+ * faces and invalidates every virtual module.
  */
 
-import { readFile } from 'node:fs/promises';
-import { extname, resolve as resolvePath } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, extname, resolve as resolvePath } from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
 import { INK_DERIVATIONS } from './ink.js';
 import { createSafetyChecker } from './safety.js';
@@ -49,49 +63,48 @@ import type {
   SafetyCheckerConfig,
   SourceDescriptor,
 } from './types.js';
+import {
+  assertIconsFacesConfigured,
+  normalizeLibraryOptions,
+  type NormalizedLibraryOptions,
+} from './library/config.js';
+import { generateIconLibraryArtifacts, type GeneratedLibraryArtifacts } from './library/generate.js';
+import { resolveLibraryInputs } from './library/resolve.js';
+import type { IconLibraryOptions } from './library/types.js';
+import {
+  chunkIndexOf,
+  classifyVirtualId,
+  ICON_CHUNK_MODULE_PREFIX,
+  ICON_LIBRARY_SENTINEL_ERROR,
+  isChunkModuleId,
+  RESOLVED_CSS_ID,
+  RESOLVED_JS_ID,
+  VIRTUAL_MODULE_ID,
+} from './ids.js';
 
-// ── virtual module ids ─────────────────────────────────────────────
-
-/** the public import id (CSS entries: @import 'virtual:jixoai-icons') */
-export const VIRTUAL_MODULE_ID = 'virtual:jixoai-icons';
-
-/**
- * resolved virtual ids. the `\0` prefix is the rollup/vite convention for
- * "our virtual module" — it keeps other plugins/resolvers from touching it.
- */
-const RESOLVED_PREFIX = `\0${VIRTUAL_MODULE_ID}`;
-const RESOLVED_CSS_ID = RESOLVED_PREFIX;
-const RESOLVED_JS_ID = `${RESOLVED_PREFIX}?dom`;
-
-/** which virtual module an id refers to */
-type VirtualKind = 'css' | 'js';
-
-/**
- * classify a (raw or resolved) module id as one of our virtual modules.
- * tolerant of the `\0` prefix and of vite's cache-busting query params
- * (`?t=…` appended by moduleGraph invalidation).
- */
-function classifyVirtualId(id: string): VirtualKind | null {
-  const bare = id.startsWith('\0') ? id.slice(1) : id;
-  if (bare === VIRTUAL_MODULE_ID) return 'css';
-  if (bare === `${VIRTUAL_MODULE_ID}?dom` || bare.startsWith(`${VIRTUAL_MODULE_ID}?dom&`)) {
-    return 'js';
-  }
-  if (bare.startsWith(`${VIRTUAL_MODULE_ID}?`)) return 'css';
-  return null;
-}
+// the id vocabulary + sentinel are contract surface (ids.ts) —
+// re-exported here for the established import surface
+export { VIRTUAL_MODULE_ID, chunkIndexOf, ICON_LIBRARY_SENTINEL_ERROR } from './ids.js';
 
 // ── options ────────────────────────────────────────────────────────
 
 /** createIconPlugin() plugin options */
 export interface IconPluginOptions {
-  /** the icon provider factory — awaited at build start with a ProviderContext */
-  readonly icons: IconProviderFactory;
   /**
-   * safety checker configuration (follow-up C5). defaults to
-   * `{ mode: 'warn' }` — rejected icons serve the standard layer's
-   * inline fallback. pass `{ mode: 'error', … }` (and/or tighter
-   * limits) to fail the build instead, e.g. for HTTP-sourced icons.
+   * the slot/CSS face's icon provider factory — awaited at build start
+   * with a ProviderContext. optional since the library face
+   * (icon-component-pipeline): ≥1 of `icons` | `library` is required
+   * (the named startup error teaches the two legal shapes)
+   */
+  readonly icons?: IconProviderFactory;
+  /** the named-icon/library face (see IconLibraryOptions) */
+  readonly library?: IconLibraryOptions;
+  /**
+   * safety checker configuration (follow-up C5) — SHARED by both faces.
+   * defaults to `{ mode: 'warn' }` — rejected icons serve the standard
+   * layer's inline fallback (slot face) or drop with a named warning
+   * (library face). pass `{ mode: 'error', … }` (and/or tighter limits)
+   * to fail the build instead, e.g. for HTTP-sourced icons.
    */
   readonly safety?: SafetyCheckerConfig;
 }
@@ -323,24 +336,53 @@ function generateModules(
 // ── the plugin ─────────────────────────────────────────────────────
 
 /**
+ * the icon plugin's hook surface, typed for the umbrella bridge's
+ * delegation (createIconPlugin always defines these as plain
+ * functions — the umbrella's memoized dynamic import calls them
+ * directly without vite re-invoking us)
+ */
+export interface IconPluginHooks {
+  configResolved(config: { root: string }): void;
+  buildStart(): Promise<void>;
+  resolveId(id: string, importer: string | undefined): string | null;
+  load(id: string): Promise<string | null>;
+  configureServer(server: ViteDevServer): void;
+}
+
+/** the icon plugin (a vite Plugin with the typed hook surface above) */
+export type IconPlugin = Plugin & IconPluginHooks;
+
+/**
  * create the icon plugin standalone (canonical entry: the `icons` option
- * of the `jixoai()` umbrella in `@jixoai/vite-plugin`).
+ * of the `jixoai()` umbrella in `@jixoai/vite-plugin`). ≥1 of
+ * `icons` (the slot/CSS face) or `library` (the named-icon face) is
+ * required — neither is the named startup error (design §1 matrix).
  *
  * ```ts
  * // vite.config.ts — umbrella (preferred)
  * import { jixoai } from '@jixoai/vite-plugin';
  * import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
- * export default { plugins: [sveltekit(), tailwindcss(), ...jixoai({ icons: { provider: lucideIconProvider() } })] };
+ * export default { plugins: [sveltekit(), tailwindcss(), ...jixoai({ icons: { provider: lucideIconProvider(), library: {} } })] };
  *
  * // standalone (icons feature only)
  * import { createIconPlugin } from '@jixoai/vite-plugin/icons';
  * export default { plugins: [createIconPlugin({ icons: lucideIconProvider() })] };
+ * export default { plugins: [createIconPlugin({ library: { icons: { myLogo: { file: './brand/logo.svg' } } } })] };
  * ```
  */
-export function createIconPlugin(options: IconPluginOptions): Plugin {
+export function createIconPlugin(options: IconPluginOptions): IconPlugin {
+  // the design §1 matrix: ≥1 of provider|library, or the named startup
+  // error (the umbrella performs the same check inline with the
+  // identical message — a test pins the two together)
+  assertIconsFacesConfigured(options.icons, options.library);
+
   // follow-up C5: consumers can replace the default warn-mode checker;
   // the checker is per-plugin-instance (never a module-level singleton)
   const checker = createSafetyChecker(options.safety ?? { mode: 'warn' });
+
+  // the library face's normalized config (null = the face is off)
+  const libraryOptions: NormalizedLibraryOptions | null =
+    options.library === undefined ? null : normalizeLibraryOptions(options.library);
 
   let provider: IconProvider | null = null;
   let cssCode = '';
@@ -348,6 +390,12 @@ export function createIconPlugin(options: IconPluginOptions): Plugin {
   let server: ViteDevServer | null = null;
   let buildPromise: Promise<void> | null = null;
   let refreshChain: Promise<void> = Promise.resolve();
+  let projectRoot = process.cwd();
+
+  /** the library face's current generation (null until built) */
+  let library: GeneratedLibraryArtifacts | null = null;
+  /** chunk module ids ever served — all invalidated on refresh */
+  const servedChunkIds = new Set<string>();
 
   /** watched files (absolute) → provider-registered change callbacks */
   const watches = new Map<string, Set<() => void>>();
@@ -357,6 +405,16 @@ export function createIconPlugin(options: IconPluginOptions): Plugin {
     if (logger) logger.error(`[jixoai-icons] ${message}\n`, { timestamp: true });
     else console.error(`[jixoai-icons] ${message}`);
   };
+
+  const logWarn = (message: string): void => {
+    const logger = server?.config.logger;
+    if (logger?.warn !== undefined) logger.warn(`[jixoai-icons] ${message}\n`, { timestamp: true });
+    else console.warn(`[jixoai-icons] ${message}`);
+  };
+
+  /** the configured artifact's absolute path (library face only) */
+  const artifactPath = (): string | null =>
+    libraryOptions === null ? null : resolvePath(projectRoot, libraryOptions.output);
 
   // -- ProviderContext: the ONLY path to file I/O for providers ------
 
@@ -382,11 +440,64 @@ export function createIconPlugin(options: IconPluginOptions): Plugin {
 
   // -- generation / refresh ------------------------------------------
 
+  /** the library-only slot face: no factory → the comment-only CSS
+   *  module and the empty domIcons export keep the slot surface inert
+   *  (the `{ library }` matrix row emits no CSS module content) */
+  const EMPTY_PROVIDER: IconProvider = { getIcon: () => null };
+
   const start = async (): Promise<void> => {
-    provider = await options.icons(createContext());
+    provider =
+      options.icons === undefined
+        ? EMPTY_PROVIDER
+        : await options.icons(createContext());
     const generated = generateModules(provider, checker);
     cssCode = generated.css;
     jsCode = generated.js;
+
+    if (libraryOptions !== null) {
+      const resolution = await resolveLibraryInputs(
+        libraryOptions,
+        createContext(),
+        checker,
+      );
+      for (const warning of resolution.warnings) logWarn(warning);
+      library = generateIconLibraryArtifacts(resolution.icons, libraryOptions);
+      await syncArtifact();
+    }
+  };
+
+  /**
+   * the artifact side of the single-writer law: with write:false (the
+   * default) the adapter only SERVES the generated module and, in dev,
+   * WARNS when the on-disk artifact drifted (freshness is CI's job via
+   * verify:icons --check). A consumer opting in with write:true gets a
+   * real write — only on content change, so watch tooling stays calm.
+   */
+  const syncArtifact = async (): Promise<void> => {
+    if (libraryOptions === null || library === null) return;
+    const target = artifactPath();
+    if (target === null) return;
+    let existing: string | null = null;
+    try {
+      existing = await readFile(target, 'utf8');
+    } catch {
+      /* absent on disk — the adapter still serves the module */
+    }
+    if (libraryOptions.write) {
+      if (existing !== library.artifact) {
+        await mkdir(dirname(target), { recursive: true });
+        await writeFile(target, library.artifact, 'utf8');
+        logWarn(
+          `icon-set artifact ${libraryOptions.output} ${existing === null ? 'created' : 'rewritten'} (write:true is a consumer opt-in — in-repo apps run write:false)`,
+        );
+      }
+      return;
+    }
+    if (server !== null && existing !== null && existing !== library.artifact) {
+      logWarn(
+        `the on-disk artifact ${libraryOptions.output} drifted from the generator output — regenerate it through the owning writer (this adapter runs write:false by default; freshness is verify:icons' job)`,
+      );
+    }
   };
 
   const ensureBuilt = (): Promise<void> => {
@@ -396,7 +507,10 @@ export function createIconPlugin(options: IconPluginOptions): Plugin {
 
   const invalidateVirtualModules = (): void => {
     if (!server) return;
-    for (const id of [RESOLVED_CSS_ID, RESOLVED_JS_ID]) {
+    const ids: string[] = [RESOLVED_CSS_ID, RESOLVED_JS_ID, ...servedChunkIds];
+    const artifact = artifactPath();
+    if (artifact !== null) ids.push(artifact);
+    for (const id of ids) {
       const moduleNode = server.moduleGraph.getModuleById(id);
       if (moduleNode) server.moduleGraph.invalidateModule(moduleNode);
     }
@@ -445,23 +559,83 @@ export function createIconPlugin(options: IconPluginOptions): Plugin {
 
   // -- hooks ----------------------------------------------------------
 
-  const plugin: Plugin = {
+  const plugin: IconPlugin = {
     name: 'jixoai-icons',
     enforce: 'pre',
 
-    /** await the provider factory; failures fail the build by design */
+    /** capture the project root (the artifact `output` joins to it) */
+    configResolved(config: { root: string }): void {
+      if (typeof config.root === 'string' && config.root.length > 0) {
+        projectRoot = config.root;
+      }
+    },
+
+    /** await the provider factory + the library pipeline; failures fail the build by design */
     async buildStart(): Promise<void> {
       await ensureBuilt();
     },
 
     resolveId(id: string, importer: string | undefined): string | null {
-      const kind = classifyVirtualId(id);
-      if (kind === null) return null;
+      // library chunk modules — when the library face is NOT configured
+      // the fixed overflow sentinel fires (design §5): an unwired
+      // overflow consumer gets the named build error, never vite's
+      // generic unresolved-import message
+      if (isChunkModuleId(id)) {
+        if (libraryOptions === null) {
+          throw new Error(ICON_LIBRARY_SENTINEL_ERROR);
+        }
+        const index = chunkIndexOf(id);
+        return index === null ? null : `\0${ICON_CHUNK_MODULE_PREFIX}${index}`;
+      }
+
       // CSS entries import the bare id; JS consumers use the explicit ?dom form
-      return kind === 'js' ? RESOLVED_JS_ID : RESOLVED_CSS_ID;
+      const kind = classifyVirtualId(id);
+      if (kind !== null) {
+        return kind === 'js' ? RESOLVED_JS_ID : RESOLVED_CSS_ID;
+      }
+
+      // the artifact module: claim the configured output path so load()
+      // can serve the GENERATED text (dev stays fresh even when the
+      // on-disk file is stale). extensionless relative imports resolve
+      // through vite's own resolver to the same path and are served by
+      // load() below; $lib-style aliases keep serving the on-disk file
+      // (drift-warn covers those — freshness is CI's job)
+      if (libraryOptions !== null) {
+        const artifact = artifactPath();
+        if (
+          artifact !== null &&
+          (id === artifact ||
+            (importer !== undefined &&
+              resolvePath(dirname(importer), id) === artifact))
+        ) {
+          return artifact;
+        }
+      }
+      return null;
     },
 
     async load(id: string): Promise<string | null> {
+      // lazy chunk modules: export default {name:{v,n,d}} (design §3)
+      const chunkIndex = chunkIndexOf(id);
+      if (chunkIndex !== null) {
+        await ensureBuilt();
+        const code = library?.chunks.get(chunkIndex);
+        if (code === undefined) {
+          throw new Error(
+            `[jixoai-icons] virtual chunk ${chunkIndex} requested but the configured library has no such chunk — the importing artifact was generated from a different library config (regenerate icon-set.gen.ts)`,
+          );
+        }
+        servedChunkIds.add(`\0${ICON_CHUNK_MODULE_PREFIX}${chunkIndex}`);
+        return code;
+      }
+
+      // the artifact module — the generator's current output
+      const artifact = artifactPath();
+      if (libraryOptions !== null && artifact !== null && id === artifact) {
+        await ensureBuilt();
+        return library?.artifact ?? null;
+      }
+
       const kind = classifyVirtualId(id);
       if (kind === null) return null;
       await ensureBuilt();

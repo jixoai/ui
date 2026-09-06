@@ -70,6 +70,18 @@ function countPathCommands(svg: string): number {
 }
 
 /**
+ * yield every element tag (opening or self-closing) with attribute
+ * VALUES blanked — the injection surface scans tag structure only, so
+ * an attribute VALUE shaped like a payload (`d="M1 onload=2"`) can
+ * never pose as an attribute NAME.
+ */
+function* scanElementTags(svg: string): Generator<string> {
+  for (const match of svg.matchAll(/<[a-zA-Z][^<>]*>/g)) {
+    yield match[0].replace(/"[^"]*"|'[^']*'/g, '""');
+  }
+}
+
+/**
  * Create the built-in SVG safety checker.
  *
  * @param config `mode` is required ('warn' logs + lets the serializer
@@ -96,6 +108,7 @@ export function createSafetyChecker(
   const encoder = new TextEncoder();
 
   return {
+    mode,
     check(svg: string, source?: string): SafetyResult {
       const severity: SafetyIssue['severity'] =
         mode === 'error' ? 'error' : 'warning';
@@ -123,6 +136,31 @@ export function createSafetyChecker(
         if (pattern.test(svg)) {
           issues.push(issue(`disallowed element <${name}> found in SVG`));
         }
+      }
+
+      // -- always-on injection surface (icon-component-pipeline §2):
+      //    only RAW-gated, plugin-extracted payload may ever reach the
+      //    icon component's {@html} sink, so event-handler attributes,
+      //    CDATA sections and foreign namespaces are rejected outright.
+
+      for (const tag of scanElementTags(svg)) {
+        if (/\bon[a-z]+\s*=/i.test(tag)) {
+          issues.push(issue('event-handler attribute (on*) found in SVG'));
+          break;
+        }
+      }
+      let foreignNamespace = false;
+      for (const tag of scanElementTags(svg)) {
+        if (/^<\s*[a-zA-Z][\w.-]*:/.test(tag) || /\s[\w.-]+:[\w.-]+\s*=/.test(tag)) {
+          foreignNamespace = true;
+          break;
+        }
+      }
+      if (foreignNamespace) {
+        issues.push(issue('foreign namespace (prefixed element or attribute) found in SVG'));
+      }
+      if (/<!\[CDATA\[/i.test(svg)) {
+        issues.push(issue('CDATA section found in SVG'));
       }
 
       return { issues, passed: issues.length === 0 };

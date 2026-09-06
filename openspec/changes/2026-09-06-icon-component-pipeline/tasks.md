@@ -82,8 +82,9 @@
        in the plugin); verify-all chain green with the new wiring
 - [ ] B4: apps/www + registry vite configs both gain the library
        block (write:false default — no artifact writes, no orphan
-       registry/src files) in the SAME edit; `cmp
-       apps/www/vite.config.ts registry/vite.config.ts` byte-
+       registry/src files) in the SAME edit (per the temporary
+       INTEGRATION-NOTES.md from B1 — then DELETE that note);
+       `cmp apps/www/vite.config.ts registry/vite.config.ts` byte-
        identity gate; dual-app build probe asserting no
        `registry/src/**` artifact ever appears
 
@@ -103,7 +104,11 @@
        clean-consumer probe (real vite project, plugin wired, lazy
        chunks emit + load; the unwired path asserts the EXACT
        build-time resolver error message; the runtime loader
-       sentinel asserted via a wired-but-broken fetch fixture)
+       sentinel asserted via a wired-but-broken fixture — the
+       server's library packs SMALLER than the artifact so a chunk
+       import throws and the LAZY catch rethrows the sentinel;
+       vite 8 minify note: the fixture must drive `preloadIcons`
+       at top level so tree-shaking keeps the LAZY chain)
 - [ ] C2: migrate test consumers — jx-pure-parity.spec.ts,
        icons-page.spec.ts, terminal-patterns.spec.ts,
        geometry-consistency.test.ts (reads the new artifact;

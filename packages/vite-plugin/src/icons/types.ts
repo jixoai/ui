@@ -271,5 +271,9 @@ export interface SafetyResult {
 
 /** the safety checker interface */
 export interface SafetyChecker {
+  /** the configured mode — the library face reads it to decide whether
+   *  a structural (non-checker) rejection drops the icon or fails the
+   *  build with the same semantics as a checker rejection */
+  readonly mode: 'warn' | 'error';
   check(svg: string, source?: string): SafetyResult;
 }

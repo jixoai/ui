@@ -101,10 +101,19 @@ source ──► safety check ──► svgo optimize ──► structured extra
   CDATA/COMMENT injections, not just `<script>`/`<use>`).
 - **svgo v4** (`import { optimize } from 'svgo'`, dynamically
   imported inside the icons sub-entry so the umbrella entry's graph
-  stays provider-free): preset-default tuned — `removeViewBox: false`,
-  floatPrecision 3 (the PATH_DECIMALS precedent), dimension
-  stripping. A unit test pins svgo as a no-op on lucide's canonical
-  serialization (the geometry-consistency law survives).
+  stays provider-free): preset-default with floatPrecision 3 and
+  `removeDimensions` — PLUS the geometry-preserving overrides that
+  the no-op pin demands (convertShapeToPath,
+  convertEllipseToCircle, convertPathData, mergePaths, sortAttrs
+  disabled: stock preset-default would rewrite lucide's
+  rect/line children, fuse paths, and reorder attrs — the lucide
+  serialization must survive byte-exactly; path-`d` compaction is
+  OFF, numeric attributes still round). v4 note: `removeViewBox`
+  is a standalone non-default plugin in v4 (not a preset knob) —
+  no override needed; viewBox preservation is enforced by the
+  no-op pin + the dirty fixture. A unit test pins svgo as a no-op
+  on lucide's canonical serialization (the geometry-consistency
+  law survives).
 - **Structured extract**: root `<svg>` → `viewBox` + nature (stroke
   vs fill artwork) + children serialized to inner-HTML string `d`.
   The component re-owns the root; the artifact stores `{ v, n, d }`,
@@ -182,7 +191,7 @@ resolveLibraryInputs(config, io)            // ADAPTER-side: IconSource →
         │
 generateIconLibraryArtifacts(assets, opts)  // PURE: no fs, no vite, no
   → { artifact: string,                    // dynamic imports; input is the
-      chunks: Map<number, string>,         // RESOLVED asset list, never
+      chunks: ReadonlyMap<number, string>,  // RESOLVED asset list, never
       report: { perIconBytes, chunkCount,  // IconSource (the type split
                 warnings } }               // makes I/O smuggling untypeable)
         │
@@ -268,11 +277,15 @@ export function preloadIcons(names: Iterable<IconName>): Promise<unknown[]>;
 - Lazy path: `{#await loadIcon(name)}`; the pending/catch DOM shape
   is FIXED (SSR/hydration-stable):
   `<span data-jx-icon-pending aria-hidden="true"
-     style="display:inline-block;width:{size};height:{size}"></span>`
-  — identical markup pending and rejected, so hydration never
-  rewrites the box; rejection logs `console.warn` DEDUPED PER CHUNK
-  (one warn per failed chunk import per session — repeated mounts
-  and names in the same chunk stay silent; no reset API).
+     style="display:inline-block;width:{cssSize};height:{cssSize}"></span>`
+  where `cssSize` px-coerces numeric sizes (`16` → `16px` — a bare
+  number is invalid CSS and would collapse the reserved box) and
+  passes string sizes verbatim; pending and rejected render the
+  IDENTICAL markup (shared snippet), so hydration never rewrites
+  the box; rejection logs `console.warn` DEDUPED PER CHUNK (one
+  warn per failed chunk import per session, identity derived from
+  the error chain's `virtual:jixoai-icons/chunk/<K>` id; repeated
+  mounts and names in the same chunk stay silent; no reset API).
 - Imports from `$lib/icon-set.gen` only; the item declares
   `@jixoai/icon-set` + `@jixoai/jixoai-theme` in registryDependencies.
 
@@ -283,17 +296,21 @@ prose: a new `scripts/verify-icon-migration.mjs` (`--write` emits /
 refreshes `scripts/icon-migration-inventory.json`, `--check` gates)
 produces the authoritative consumer inventory from the real rg
 sweep — scoped to implementation surfaces only
-(`registry/files apps/www/src scripts package.json packages
-registry.json`), with living specs, change docs, THE VERIFIER'S OWN
-SOURCE, and THE INVENTORY FILE ITSELF excluded by fixed rule (the
-verifier must never match its own patterns). Snapshot semantics:
-the JSON holds the live hit list at generation time; `--check`
-fails whenever live hits ≠ the committed snapshot (progress =
-shrink + re-commit the snapshot; C5 completion = snapshot `[]` AND
-zero live hits — "snapshot is truth" and "zero-hit exit" compose
-instead of conflicting). Patterns: `$lib/icons`, `@html icons\.`,
-`@jixoai/icons`, `registry/files/lib/icons\.ts`,
-`apps/www/src/lib/icons\.ts`, `scripts/gen-icons\.mjs`. Wired into
+(`registry/files apps/www/src apps/www/test registry/test scripts
+package.json packages registry.json`), with living specs, change
+docs, THE VERIFIER'S OWN SOURCE, and THE INVENTORY FILE ITSELF
+excluded by fixed rule (the verifier must never match its own
+patterns). Snapshot semantics: the JSON holds the live hit list at
+generation time; `--check` fails whenever live hits ≠ the committed
+snapshot (progress = shrink + re-commit the snapshot; C5 completion
+= snapshot `[]` AND zero live hits — "snapshot is truth" and
+"zero-hit exit" compose instead of conflicting). Patterns:
+`$lib/icons`, `@html icons\.`, `@jixoai/icons`,
+`registry/files/lib/icons\.ts`, `apps/www/src/lib/icons\.ts`,
+`scripts/gen-icons\.mjs`, and the relative-import form
+`\.\./src/lib/icons(\.ts)?['"]` (the jx-pure-parity gap: test-side
+relative imports are invisible to the `$lib` pattern; the trailing
+quote boundary keeps `$lib/icon-set.gen` out). Wired into
 verify-all as `verify:migration`.
 
 Known members of that inventory today (the snapshot is the truth):
@@ -347,17 +364,24 @@ graph stays out of the entry)**: today `src/index.ts` STATICALLY
 imports `./icons/types.js` + `./icons/vite-plugin.js` and calls
 `createIconPlugin` directly. Post-change the umbrella keeps its
 frozen sync API (`jixoai()` returns `Plugin[]` immediately) but
-ships only a BRIDGE plugin: a thin `'jixoai-icons-bridge'` proxy
-whose hooks (`buildStart`/`resolveId`/`load`/`configureServer`)
-`await import('./icons/vite-plugin.js')` ONCE (memoized), then
-delegate to the real icon plugin instance. The static imports are
-REMOVED from `src/index.ts`; the icons implementation is reachable
-only through the `./icons` sub-entry and the bridge's dynamic
-import. The graph-purity test becomes a REAL import-graph check
-(parse `dist/index.js`'s static imports transitively — no
-`icons/vite-plugin`, no provider, no `lucide`, no `svgo` — not a
-string scan), and the `jixoai({ icons: … })` integration test
-proves the bridge delegates end-to-end (config matrix included).
+ships only a BRIDGE plugin named `jixoai-icons` (the frozen test
+surface pins that plugin name — "bridge" is the mechanism, not a
+new name): a thin proxy whose hooks (`buildStart`/`resolveId`/
+`load`/`configureServer`) `await import('./icons/vite-plugin.js')`
+ONCE (memoized), then delegate to the real icon plugin instance.
+The static imports are REMOVED from `src/index.ts`; the icons
+implementation is reachable only through the `./icons` sub-entry
+and the bridge's dynamic import — with ONE blessed exception:
+`src/icons/ids.ts`, the pure zero-import CONTRACT module (the
+virtual-id vocabulary + the §5 overflow sentinel), sits in the
+bridge's static graph so the frozen sync `resolveId` claims and
+the sync sentinel throw keep working before the dynamic import
+resolves. Contract surface in the static graph, implementation
+banned: the graph-purity gate forbids icons-impl/provider/lucide/
+svgo modules specifically. The gate verifies the real static
+import graph of `dist/index.js` (transitively — not a string
+scan), and the `jixoai({ icons: … })` integration test proves the
+bridge delegates end-to-end (config matrix included).
 The gate also covers the PUBLISHED artifact shape: the pack smoke
 test asserts the dist layout actually carries the icons
 sub-entry's module files the bridge dynamic-imports (e.g.
