@@ -11,6 +11,8 @@
  * input) makes I/O smuggling through the pure core untypeable.
  */
 
+import type { IconPresetOption } from './presets/types.js';
+
 // ── sources ────────────────────────────────────────────────────────
 
 /**
@@ -24,11 +26,25 @@
  *   - `lucide:<kebab>` references the lucide npm package (an optional
  *     peer of the PLUGIN package only — the emitted artifact carries
  *     zero lucide references)
+ *   - a preset ref (`md:home`, `ph:atom`, `rx:system:add-line`) resolves
+ *     ONE icon from an installed library package at build time — the
+ *     preset node-resolves the peer's ABSOLUTE svg path (presets/peer.ts)
+ *     and the plugin still READS it through the provider context
+ *     (icon-library-presets design §1; requires `library.presets`)
+ *   - `{ font, code }` / `{ font, liga }` extracts ONE glyph outline from
+ *     a font file at build time into fill-nature artwork (design §2 —
+ *     the runtime artifact stays pure SVG; fonts never reach the
+ *     browser through this lane)
  */
 export type IconSource =
   | string
   | { readonly file: string }
-  | `lucide:${string}`;
+  | `lucide:${string}`
+  | `md:${string}`
+  | `ph:${string}`
+  | `rx:${string}`
+  | { readonly font: string; readonly code: number }
+  | { readonly font: string; readonly liga: string };
 
 // ── options ────────────────────────────────────────────────────────
 
@@ -46,6 +62,13 @@ export interface IconLibraryOptions {
   /** include the 38 built-in lucide manifest (default true). `false`
    *  with no `lucide:` sources never touches the lucide import at all */
   readonly includeDefaults?: boolean;
+  /** enable icon-library presets — each contributes a prefixed ref
+   *  form (`md:`/`ph:`/`rx:`) resolving ONE icon from the preset's
+   *  optional peer package at build time. string shorthand = frozen
+   *  defaults; object form carries per-preset knobs (weight/style/fill).
+   *  Referencing a disabled or unknown prefix is a named config error
+   *  listing the enabled set (presets/index.ts) */
+  readonly presets?: ReadonlyArray<IconPresetOption>;
   /** add + override icons (same name = override; names match
    *  /^[a-z][A-Za-z0-9]*$/). custom icons pack after the built-ins in
    *  config insertion order */

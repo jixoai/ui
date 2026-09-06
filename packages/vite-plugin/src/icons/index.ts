@@ -62,6 +62,22 @@ export {
   MISSING_ICONS_FACES_ERROR,
 } from './library/config.js';
 export type { NormalizedLibraryOptions } from './library/config.js';
+// the library presets (icon-library-presets, 2026-09-07): registry +
+// contracts — consumers configure them through library.presets
+export type {
+  IconPreset,
+  IconPresetId,
+  IconPresetOption,
+  MaterialPresetOptions,
+  PhosphorPresetOptions,
+  RemixPresetOptions,
+} from './library/presets/types.js';
+export {
+  PRESET_IDS,
+  normalizeIconPresets,
+  MATERIAL_DEFAULTS,
+  PHOSPHOR_DEFAULTS,
+} from './library/presets/index.js';
 export { resolveLibraryInputs } from './library/resolve.js';
 export type { LibraryResolution } from './library/resolve.js';
 export { optimizeSvg } from './library/optimize.js';

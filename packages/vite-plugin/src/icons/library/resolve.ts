@@ -1,14 +1,21 @@
 /**
  * @jixoai/vite-plugin (icons library) — ADAPTER-side source resolution
- * (A1/A4, openspec icon-component-pipeline design §2/§5).
+ * (A1/A4, openspec icon-component-pipeline design §2/§5; preset + font
+ * lanes: openspec icon-library-presets design §1/§2, 2026-09-07).
  *
  * resolveLibraryInputs() is the ONLY stage of the library pipeline with
  * I/O: lucide refs (a dynamic `import('lucide')` with a loud-fail
  * install hint), `{file}` sources (through a plugin-owned
  * ProviderContext — the frozen principle #4 machinery, re-used
  * INDEPENDENTLY of whether the optional provider face is configured;
- * svg files join watchFile so HMR rides the existing refresh path) and
- * inline literals. Per icon the pipeline is:
+ * svg files join watchFile so HMR rides the existing refresh path),
+ * preset refs (`md:`/`ph:`/`rx:` — the preset node-resolves the peer's
+ * ABSOLUTE svg path, this adapter still READS it through the context),
+ * font sources (`{font, code}`/`{font, liga}` — parsed + extracted at
+ * build time into fill-nature artwork through the SAME context: woff2
+ * decompression, the woff1 hard error and ttf/otf mime detection are
+ * all inherited from io.loadSource) and inline literals. Per icon the
+ * pipeline is:
  *
  *     resolve → safety check (RAW, untrusted) → svgo optimize →
  *     structural validation → ResolvedLibraryIcon
@@ -20,11 +27,22 @@
  * asset list — never IconSource.
  */
 
+import type { Font as OtFont, Glyph as OtGlyph } from 'opentype.js';
 import type { IconNode } from 'lucide';
 import type { ProviderContext, SafetyChecker } from '../types.js';
 import { serializeLucideIcon } from '../providers/lucide.js';
 import { DEFAULT_LIBRARY_MANIFEST } from './manifest.js';
 import { optimizeSvg } from './optimize.js';
+import {
+  findLigatureGlyph,
+  glyphNameHint,
+  hasEmptyOutline,
+  ligatureNames,
+  loadOpentype,
+  normalizeGlyph,
+  toArrayBuffer,
+} from './font-extract.js';
+import type { IconPreset } from './presets/types.js';
 import type {
   IconLibraryOptions,
   IconSource,
@@ -106,6 +124,74 @@ const ROOT_TAG = /<svg\b[^>]*>/i;
 /** a viewBox attribute inside the root tag */
 const VIEWBOX_ATTRIBUTE = /\sviewBox\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
 
+// ── the font lane (design §2: build-time glyph extraction) ─────────
+
+/** the fill-nature viewBox every extracted glyph normalizes into */
+const GLYPH_VIEW_BOX = { width: 24, height: 24 } as const;
+
+/**
+ * extract ONE glyph from a loaded+parsed font into the complete svg the
+ * shared pipeline then treats like any RAW source. Codepoint lookup is
+ * the primary lane (the slot-face fontIconProvider precedents: a
+ * codepoint absent from cmap and an empty outline are NAMED errors);
+ * the ligature lookup is best-effort (opentype.js GSUB coverage is
+ * thin) and its miss lists the font's resolvable ligature names WHEN
+ * THE PARSER EXPOSES THEM, else the glyph-name/cmap hint.
+ */
+function extractFontGlyphSvg(
+  font: OtFont,
+  source: { readonly font: string; readonly code: number } | { readonly font: string; readonly liga: string },
+  label: string,
+): string {
+  let glyph: OtGlyph;
+  if ('code' in source) {
+    const code = source.code;
+    if (!Number.isInteger(code) || code < 0 || code > 0x10ffff) {
+      const hex = `U+${code.toString(16).toUpperCase()}`;
+      throw new Error(
+        `[jixoai-icons] ${label} — the codepoint ${String(code)} (${hex}) is not a ` +
+          'legal Unicode scalar (0..0x10FFFF integer)',
+      );
+    }
+    const char = String.fromCodePoint(code);
+    const hex = `U+${code.toString(16).toUpperCase().padStart(4, '0')}`;
+    if (font.charToGlyphIndex(char) === 0) {
+      throw new Error(
+        `[jixoai-icons] ${label} — the font has no glyph mapped at ${hex} — ` +
+          'check the codepoint against the font\'s cmap',
+      );
+    }
+    glyph = font.charToGlyph(char);
+  } else {
+    const found = findLigatureGlyph(font, source.liga);
+    if (found === null) {
+      const ligaNames = ligatureNames(font);
+      const hint =
+        ligaNames.length > 0
+          ? `resolvable ligatures include: ${ligaNames.join(', ')}`
+          : `the parser exposes no ligature table for this font; mapped glyph names include: ${glyphNameHint(font).join(', ')}`;
+      throw new Error(
+        `[jixoai-icons] ${label} — the ligature "${source.liga}" cannot be ` +
+          `resolved in this font (${hint})`,
+      );
+    }
+    glyph = found;
+  }
+
+  const bbox = glyph.getBoundingBox();
+  if (hasEmptyOutline(bbox)) {
+    throw new Error(
+      `[jixoai-icons] ${label} — the extracted glyph has an empty outline ` +
+        '(a mapped-but-blank glyph is a configuration error, never an invisible icon)',
+    );
+  }
+  const { pathData } = normalizeGlyph(glyph, font.unitsPerEm, bbox, GLYPH_VIEW_BOX);
+  const { width, height } = GLYPH_VIEW_BOX;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}"><path d="${pathData}" fill="currentColor"/></svg>`;
+}
+
+// ── resolution ─────────────────────────────────────────────────────
+
 /**
  * Resolve every configured library icon. All file reads and the lucide
  * import flow through `io`/lazy module state — the pure generator
@@ -129,8 +215,21 @@ export async function resolveLibraryInputs(
   const resolved: ResolvedLibraryIcon[] = [];
   const pending = mergeSources(normalized);
 
+  // the enabled presets' prefix → instance map (config validation has
+  // already failed every disabled/unknown prefixed ref)
+  const presetByPrefix = new Map<string, IconPreset>(
+    normalized.presets.map((preset) => [preset.prefix, preset]),
+  );
+  const presetRefOf = (source: string): { preset: IconPreset; ref: string } | null => {
+    const colon = source.indexOf(':');
+    if (colon <= 0) return null;
+    const preset = presetByPrefix.get(source.slice(0, colon));
+    return preset === undefined ? null : { preset, ref: source.slice(colon + 1) };
+  };
+
   // lucide loads lazily — includeDefaults:false with no lucide: sources
-  // never touches the import at all
+  // never touches the import at all; opentype.js loads lazily the same
+  // way (only when a font source actually appears)
   let lucide: typeof import('lucide') | null = null;
   const needsLucide = pending.some(
     (icon) => typeof icon.source === 'string' && icon.source.startsWith('lucide:'),
@@ -158,9 +257,47 @@ export async function resolveLibraryInputs(
         raw = serializeLucideIcon(icon);
         label = labelOf(source);
       } else {
-        raw = source;
-        label = labelOf('inline');
+        const presetRef = presetRefOf(source);
+        if (presetRef !== null) {
+          // the preset node-resolves the peer's ABSOLUTE svg path; the
+          // plugin still owns the READ (mime law + watchFile HMR reuse,
+          // exactly like {file} sources) — absent peer / missing icon
+          // fail loudly inside resolveFile (the lucide precedent)
+          const absolute = presetRef.preset.resolveFile(presetRef.ref);
+          const descriptor = await io.loadSource(absolute);
+          if (descriptor.mimeType !== 'image/svg+xml') {
+            throw new Error(
+              `[jixoai-icons] ${labelOf(source)} — the resolved peer file is ` +
+                `${descriptor.mimeType}, not image/svg+xml (preset sources must be ` +
+                '.svg artwork)',
+            );
+          }
+          io.watchFile(absolute, () => undefined);
+          raw = Buffer.from(descriptor.data).toString('utf8');
+          label = labelOf(`${source} → ${absolute}`);
+        } else {
+          raw = source;
+          label = labelOf('inline');
+        }
       }
+    } else if ('font' in source) {
+      // the font lane: woff2 decompress / woff1 hard error / ttf-otf
+      // mime detection all live in io.loadSource (inherited, not
+      // re-implemented); the parsed glyph outline becomes the RAW svg
+      const descriptor = await io.loadSource(source.font);
+      if (descriptor.mimeType !== 'font/ttf') {
+        throw new Error(
+          `[jixoai-icons] ${labelOf(`font ${source.font}`)} — the source is ` +
+            `${descriptor.mimeType}, not font/ttf (library {font} sources accept ` +
+            '.ttf/.otf and .woff2 — WOFF 1.0 is unsupported)',
+        );
+      }
+      io.watchFile(source.font, () => undefined);
+      const opentype = await loadOpentype();
+      const font = opentype.parse(toArrayBuffer(descriptor.data));
+      const selector = 'code' in source ? `code U+${source.code.toString(16).toUpperCase()}` : `liga "${source.liga}"`;
+      raw = extractFontGlyphSvg(font, source, labelOf(`font ${source.font}, ${selector}`));
+      label = labelOf(`font ${source.font}`);
     } else {
       const descriptor = await io.loadSource(source.file);
       if (descriptor.mimeType !== 'image/svg+xml') {

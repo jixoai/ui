@@ -9,6 +9,12 @@
  * vite: its `{file}` I/O is a node-fs twin of the plugin-owned
  * ProviderContext (svg-only — the library face never reads fonts),
  * and HMR watching is meaningless outside a dev server.
+ *
+ * v1 scope law (icon-library-presets B2, 2026-09-07): font sources
+ * (`{ font, code }` / `{ font, liga }`) are REJECTED with a named
+ * error — the script twin's I/O carries no woff2 decompression or font
+ * mime detection (vite-plugin loadSource owns both). Extending the
+ * script twin to fonts is future work outside that change.
  */
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -19,11 +25,28 @@ import { generateIconLibraryArtifacts } from './generate.js';
 import { resolveLibraryInputs } from './resolve.js';
 import type { IconLibraryOptions, LibraryReport } from './types.js';
 
+/** the named rejection for font sources in the svg-only script twin */
+function assertNoFontSources(options: IconLibraryOptions): void {
+  for (const [name, source] of Object.entries(options.icons ?? {})) {
+    if (typeof source === 'object' && source !== null && 'font' in source) {
+      throw new Error(
+        `[jixoai-icons] library icon "${name}" uses a font source ({ font, code | ` +
+          'liga }) — the root-script adapter (gen:icons / verify:icons) is svg-only ' +
+          'by design: font extraction needs the vite plugin\'s loadSource lane ' +
+          '(woff2 decompression + font mime detection). Extract the glyph through ' +
+          'jixoai({ icons: { library } }) in vite, or reference a pre-extracted ' +
+          '.svg through { file }',
+      );
+    }
+  }
+}
+
 /** the shared build both script modes run (resolve → generate) */
 async function buildArtifacts(
   options: IconLibraryOptions,
   safety?: SafetyCheckerConfig,
 ): Promise<{ artifact: string; report: LibraryReport }> {
+  assertNoFontSources(options);
   const checker = createSafetyChecker(safety ?? { mode: 'warn' });
   const io: ProviderContext = {
     async loadSource(path: string): Promise<SourceDescriptor> {

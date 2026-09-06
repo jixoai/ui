@@ -11,6 +11,11 @@
  */
 
 import type { IconLibraryOptions, IconSource, OptimizeConfig } from './types.js';
+import {
+  assertRefPrefixesEnabled,
+  normalizeIconPresets,
+  type IconPreset,
+} from './presets/index.js';
 
 /** icon names are lowerCamel and tame: they become TS union members,
  *  object keys and (for {file} sources) watched paths */
@@ -36,6 +41,10 @@ export const MISSING_ICONS_FACES_ERROR =
 /** the normalized form every library consumer code path reads */
 export interface NormalizedLibraryOptions {
   readonly includeDefaults: boolean;
+  /** the ENABLED preset instances (string shorthand + object form
+   *  normalized; absent = [] — prefixed refs then fail the
+   *  enabled-prefix law, never resolve) */
+  readonly presets: readonly IconPreset[];
   readonly icons: Readonly<Record<string, IconSource>>;
   readonly maxChunkBytes: number;
   readonly chunking: 'auto' | 'single';
@@ -100,8 +109,16 @@ export function normalizeLibraryOptions(
     );
   }
 
+  // presets: unknown ids fail HERE (startup); the enabled-prefix law
+  // then fails any disabled/unknown prefixed ref (the fa:home scenario)
+  const presets = normalizeIconPresets(options.presets);
+  if (options.icons !== undefined) {
+    assertRefPrefixesEnabled(options.icons, presets);
+  }
+
   return {
     includeDefaults: options.includeDefaults ?? true,
+    presets,
     icons: options.icons ?? {},
     maxChunkBytes,
     chunking,

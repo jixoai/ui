@@ -127,6 +127,11 @@
       what: 'the 38 built-in lucide manifest in manifest order; false with no lucide: sources never touches the lucide import at all',
     },
     {
+      option: 'presets',
+      def: '[]',
+      what: "enable icon-library presets — each contributes a prefixed ref form (md:/ph:/rx:) resolving ONE icon from the preset's optional peer package at build time; string shorthand = frozen defaults, object form carries weight/style/fill knobs. A disabled or unknown prefix fails at startup listing the enabled set",
+    },
+    {
       option: 'icons',
       def: '{}',
       what: 'add + override named sources (same name = override; names match /^[a-z][A-Za-z0-9]*$/); customs pack after the built-ins in config insertion order',
@@ -174,10 +179,13 @@ export default {
       icons: {
         library: {
           includeDefaults: true,            // the 38 built-ins (default)
-          icons: {                          // add + override — three source forms
+          presets: ['material'],            // enable md:/ph:/rx: refs (optional peers)
+          icons: {                          // add + override — every source form
             brand: 'lucide:zap',            // a lucide ref — resolved at BUILD time
             logo: { file: 'assets/logo.svg' }, // a .svg file — the plugin owns the I/O
             spark: '<svg xmlns="…">…</svg>',   // an inline literal — RAW safety-checked
+            home: 'md:home',                // a preset ref — outlined/400/FILL-0 Material
+            glyph: { font: 'brand.woff2', code: 0xE002 }, // a font glyph, extracted
           },
           maxChunkBytes: 20480,             // RAW module bytes per chunk (default)
           chunking: 'auto',                 // 'single' = one chunk, no splitting
@@ -215,6 +223,70 @@ preloadIcons(['folderOpen', 'fileVideo'])  // warm lazy chunks ahead of a mount`
     { chunking: "'single'", inline: 'true (default)', layout: 'one chunk, fully inline', imports: 'zero virtual imports' },
     { chunking: "'single'", inline: 'false', layout: 'one lazy chunk with everything', imports: 'exactly one lazy import' },
   ];
+
+  // the shipped presets (icon-library-presets, 2026-09-07): research-
+  // verified per-icon SVG source packages; lucide stays the built-in
+  // default (no preset needed). Each package is an OPTIONAL peer —
+  // absence fails loudly with the npm install line (the lucide law).
+  const presetRows = [
+    {
+      id: 'material',
+      prefix: 'md:home',
+      pkg: '@material-symbols/svg-400',
+      license: 'Apache-2.0',
+      mapping: 'outlined · weight 400 · FILL 0 (knobs: weight/style/fill)',
+    },
+    {
+      id: 'phosphor',
+      prefix: 'ph:atom',
+      pkg: '@phosphor-icons/core',
+      license: 'MIT',
+      mapping: 'assets/regular (knob: weight thin…duotone)',
+    },
+    {
+      id: 'remix',
+      prefix: 'rx:system:add-line',
+      pkg: 'remixicon',
+      license: 'Apache-2.0',
+      mapping: 'icons/<Category>/ — the name carries its category prefix',
+    },
+    {
+      id: 'lucide (built-in)',
+      prefix: 'lucide:zap',
+      pkg: 'lucide',
+      license: 'ISC',
+      mapping: 'the 38-name manifest + lucide: refs — always wired',
+    },
+  ];
+
+  const presetConfig = `// enabling a preset: string shorthand = frozen defaults
+library: { presets: ['material', 'phosphor', 'remix'] }
+
+// or the object form with the knobs (one weight = ONE peer package)
+library: {
+  presets: [
+    { id: 'material', weight: 400, style: 'rounded', fill: true },
+    { id: 'phosphor', weight: 'fill' },
+  ],
+}
+
+// referencing a prefix you have NOT enabled is a named startup error
+// listing the enabled set — "fa:home" fails, teaching the fix`;
+
+  const fontSourceSnippet = `// a font FILE is an icon source — the outline is EXTRACTED at build
+// time (opentype.js + the same contain-fit math as the slot face) and
+// the artifact stays pure SVG: no font bytes reach the browser
+icons: {
+  brand:  { font: 'brand.woff2', code: 0xE002 },  // codepoint (cmap)
+  logo:   { font: 'brand.woff2', liga: 'md-logo' }, // ligature, best-effort
+  legacy: { font: 'old/icon.ttf',  code: 0x41 },    // ttf/otf directly
+}
+// woff2 decompresses through the same loadSource lane (wawoff2);
+// woff1 stays the hard error. A codepoint missing from cmap, a blank
+// outline, or an unresolvable ligature fails BY NAME (the miss lists
+// the font's resolvable ligatures when the parser exposes them).
+// The gen:icons script twin is svg-only: font sources are a
+// named vite-plugin-only lane there.`;
 
   // ══ SECTION 4 plugin data — the SLOT face's pipeline ═════════════
 
@@ -417,7 +489,7 @@ plain beside a stock ink is impossible by construction.`;
         headerRegion="plugin"
         eyebrow="plugin · library face"
         title="jixoai(&#123; icons: &#123; library &#125; &#125;) — the generator's knobs"
-        summary="The library face answers what &lt;Icon name&gt; can render. Sources arrive three ways — an inline SVG literal, &#123; file &#125; (the plugin owns ALL file I/O), or a lucide: ref resolved at build time so the emitted artifact carries zero lucide references. Same-name entries OVERRIDE built-ins; every icon crosses the raw safety checker before svgo. Without the icons option the plugin never loads; provider and library are independent — either alone is legal."
+        summary="The library face answers what &lt;Icon name&gt; can render. Sources arrive five ways — an inline SVG literal, &#123; file &#125; (the plugin owns ALL file I/O), a lucide: ref resolved at build time so the emitted artifact carries zero lucide references, a preset ref (md:/ph:/rx:) resolving ONE icon from an installed library package, or a font file whose glyph outline is extracted at build time. Same-name entries OVERRIDE built-ins; every icon crosses the raw safety checker before svgo. Without the icons option the plugin never loads; provider and library are independent — either alone is legal."
       >
         <div class="flex flex-col gap-5">
           <CodeBlock code={libraryConfig} lang="ts" meta="vite.config.ts" />
@@ -447,6 +519,74 @@ plain beside a stock ink is impossible by construction.`;
             canonical artifact (the single-writer law). Consumer apps may opt into
             <code class="text-accent">write: true</code> + their own
             <code class="text-accent">output</code> for dev ergonomics.
+          </p>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        family="plugin"
+        region="presets"
+        eyebrow="presets"
+        title="Installed icon libraries, one ref each"
+        summary="library.presets declares the icon libraries you have installed; each preset contributes a prefixed reference form that resolves exactly ONE icon at build time through the same safety→svgo→extract pipeline — no bulk bundling, per-icon nature detection. Every preset package is an optional peer: absent installs fail loudly with the npm install line, and referencing a prefix you have not enabled is a named startup error listing the enabled set."
+      >
+        <div class="flex flex-col gap-5" data-preset-table="">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Preset</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Ref form</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Package (optional peer)</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">License</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Default mapping</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each presetRows as row (row.id)}
+                <tr class="border-b border-border/50">
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.id}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.prefix}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.pkg}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.license}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.mapping}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+          <CodeBlock code={presetConfig} lang="ts" meta="presets: ['material']" />
+          <div class="border-border flex flex-col gap-2 border p-4" data-not-shipped-note="">
+            <p class="font-nav text-[11px] uppercase tracking-[0.24em]">not shipped — and why</p>
+            <p class="text-[13px] leading-6">
+              <strong>tabler</strong> and <strong>hugeicons</strong> ship no per-icon SVG source
+              package on npm (tabler's SVGs are repo-only; hugeicons is JS data, not files) — a
+              preset needs a node-resolvable .svg per icon, so both are out until that changes.
+            </p>
+            <p class="text-[13px] leading-6">
+              <strong>SF Symbols is rejected on licensing</strong>
+              <span aria-hidden="true"> — </span>Apple's system-provided image terms restrict the
+              glyphs to Apple-platform apps and prohibit SVG export or redistribution. Shipping a
+              preset that extracts or redistributes them would breach those terms, so the pipeline
+              deliberately offers no SF Symbols lane; use Apple's own APIs on Apple platforms.
+            </p>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        family="plugin"
+        region="font-sources"
+        eyebrow="font sources"
+        title="A font file is an icon source"
+        summary="The missing lane from the original icon-direction brief, landed build-time-only: &#123; font, code &#125; extracts the codepoint's glyph outline and &#123; font, liga &#125; tries the ligature lookup (best-effort — opentype.js GSUB coverage is thin). The extracted outline normalizes through the exact contain-fit math the slot face's fontIconProvider uses, enters the artifact as fill-nature artwork, and the runtime stays pure SVG — SSR, print, no-JS and chunking guarantees unchanged."
+      >
+        <div class="flex flex-col gap-5" data-font-source-docs="">
+          <CodeBlock code={fontSourceSnippet} lang="ts" meta="fonts → glyphs, at build time" />
+          <p class="text-muted-foreground text-[13px] leading-6">
+            The font file joins <code class="text-accent">watchFile</code> like any
+            <code class="text-accent">&#123; file &#125;</code> source — an edit re-extracts on the
+            next HMR refresh. Codepoint mapping is the primary lane; a ligature the parser cannot
+            resolve fails by name, listing the font's resolvable ligatures when the parser exposes
+            them (else the glyph-name/cmap hint) — never a silent blank glyph.
           </p>
         </div>
       </SectionCard>

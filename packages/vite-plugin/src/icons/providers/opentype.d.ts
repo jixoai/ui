@@ -11,6 +11,11 @@
  * The Font/Glyph/Path constructors are declared because the TEST suite
  * builds fixture fonts in memory through them (no binary fixtures).
  *
+ * Extended for icon-library-presets (B1/B3, 2026-09-07): glyph ids /
+ * names / unicodes, the GlyphSet, numGlyphs, stringToGlyphs and the
+ * loosely-typed tables surface — the library face's ligature lane
+ * narrows GSUB type-4 data with runtime guards (font-extract.ts).
+ *
  * TODO: delete this file if @types/opentype.js ever becomes a hard
  * devDependency — the real declarations cover a larger surface.
  */
@@ -37,10 +42,22 @@ declare module 'opentype.js' {
       advanceWidth?: number;
       path?: Path;
     });
+    /** the glyph's id inside the font (GSUB tables speak ids) */
+    index: number;
+    /** the font's own glyph name (post table) */
+    name: string;
+    /** the cmap-mapped codepoint, when one exists */
+    unicode?: number;
     /** build-time outline extraction: font units → SVG path (y-axis flipped) */
     getPath(x?: number, y?: number, fontSize?: number): Path;
     /** bounding box in font units (y-up), before normalization */
     getBoundingBox(): BoundingBox;
+  }
+
+  /** the id → Glyph map every parsed font carries */
+  export interface GlyphSet {
+    get(index: number): Glyph;
+    length: number;
   }
 
   export class Font {
@@ -53,9 +70,21 @@ declare module 'opentype.js' {
       glyphs?: Glyph[];
     });
     unitsPerEm: number;
+    /** glyph count (the id → glyph range is 0..numGlyphs-1) */
+    numGlyphs: number;
+    glyphs: GlyphSet;
+    /**
+     * the parsed sfnt tables — loosely typed by law: opentype.js's
+     * high-level GSUB API is thin and the raw table shapes vary;
+     * consumers narrow with runtime type guards (see
+     * library/font-extract.ts's ligature lane)
+     */
+    tables: { readonly gsub?: { readonly lookups?: readonly unknown[] } };
     /** cmap lookup → glyph index (0 = .notdef = "no glyph mapped") */
     charToGlyphIndex(s: string): number;
     charToGlyph(c: string): Glyph;
+    /** per-character cmap resolution (a ligature's input sequence) */
+    stringToGlyphs(s: string): Glyph[];
     /** serializes as CFF-flavored OTF — opentype.js's builder output format */
     toArrayBuffer(): ArrayBuffer;
   }

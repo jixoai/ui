@@ -1,6 +1,8 @@
 /**
  * fontIconProvider — extract glyph outlines from ANY font as fill-based SVG
- * icons (P2.3, original request: 2026-08-28 ui-plugin-package design §6).
+ * icons (P2.3, original request: 2026-08-28 ui-plugin-package design §6;
+ * helpers factored shared into library/font-extract.ts 2026-09-07,
+ * openspec icon-library-presets design §2).
  *
  * Orthogonal intents:
  * 1. Factory (async): load font bytes via ctx.loadSource (the plugin
@@ -18,9 +20,22 @@
  * - a codepoint with no cmap entry (or an empty outline) THROWS at
  *   factory time instead of yielding an invisible icon — a mapped slot
  *   that silently resolves to .notdef is a configuration error.
+ *
+ * SHARED-surface law (icon-library-presets B1): loadOpentype /
+ * toArrayBuffer / normalizeGlyph / the bbox-emptiness check live in
+ * library/font-extract.ts — imported here, byte-identical behavior.
+ * extractGlyph + its slot-labeled error strings STAY here (their
+ * messages are test-locked, font.test.ts:281-303); decompression is NOT
+ * this provider's (it lives in the vite plugin's loadSource).
  */
 
 import type { Font as OtFont, Glyph as OtGlyph } from 'opentype.js';
+import {
+  hasEmptyOutline,
+  loadOpentype,
+  normalizeGlyph,
+  toArrayBuffer,
+} from '../library/font-extract.js';
 import type {
   IconProvider,
   IconProviderFactory,
@@ -41,8 +56,6 @@ export interface FontIconProviderOptions {
 }
 
 const DEFAULT_VIEW_BOX = { width: 24, height: 24 } as const;
-/** path-data precision: 3 decimals on a ≤ few-hundred-px viewBox is sub-pixel */
-const PATH_DECIMALS = 3;
 
 // ── provider ───────────────────────────────────────────────────────
 
@@ -124,11 +137,9 @@ function extractGlyph(font: OtFont, req: GlyphRequest): SvgAsset {
     );
   }
 
-  const glyph = font.charToGlyph(char);
+  const glyph: OtGlyph = font.charToGlyph(char);
   const bbox = glyph.getBoundingBox();
-  const bboxWidth = bbox.x2 - bbox.x1;
-  const bboxHeight = bbox.y2 - bbox.y1;
-  if (!(bboxWidth > 0) || !(bboxHeight > 0)) {
+  if (hasEmptyOutline(bbox)) {
     throw new Error(
       `fontIconProvider: glyph at ${codepointHex} (slot "${slot}") in "${fontPath}" has an empty outline`,
     );
@@ -143,58 +154,4 @@ function extractGlyph(font: OtFont, req: GlyphRequest): SvgAsset {
     nature: 'fill',
     source: { kind: 'font-glyph', path: fontPath, codepoint },
   };
-}
-
-/**
- * Map the glyph's bounding box — uniformly scaled, centered — onto the
- * target viewBox (contain-fit, aspect ratio preserved).
- *
- * opentype.js `getPath(x, y, fontSize)` maps font units (u, v) to
- * `X = x + u·s, Y = y − v·s` with `s = fontSize / unitsPerEm` (it also
- * flips the y-axis: font y-up → SVG y-down). Solving x, y, fontSize for
- * a centered bbox fit gives the closed form below — one getPath call,
- * no manual command rewriting.
- */
-function normalizeGlyph(
-  glyph: OtGlyph,
-  unitsPerEm: number,
-  bbox: { x1: number; y1: number; x2: number; y2: number },
-  viewBox: { width: number; height: number },
-): { pathData: string } {
-  const bboxWidth = bbox.x2 - bbox.x1;
-  const bboxHeight = bbox.y2 - bbox.y1;
-  const scale = Math.min(viewBox.width / bboxWidth, viewBox.height / bboxHeight);
-  const fontSize = unitsPerEm * scale;
-
-  // center the scaled bbox inside the viewBox
-  const x = (viewBox.width - bboxWidth * scale) / 2 - bbox.x1 * scale;
-  const y = (viewBox.height - bboxHeight * scale) / 2 + bbox.y2 * scale;
-
-  const pathData = glyph.getPath(x, y, fontSize).toPathData(PATH_DECIMALS);
-  return { pathData };
-}
-
-// ── opentype.js loading (optional dependency) ──────────────────────
-
-async function loadOpentype(): Promise<typeof import('opentype.js')> {
-  try {
-    return await import('opentype.js');
-  } catch (error) {
-    throw new Error(
-      'fontIconProvider requires opentype.js to parse fonts. ' +
-        'Install it in the consuming project (e.g. `npm i -D opentype.js`) ' +
-        'or convert the font to pre-extracted SVG icons.',
-      { cause: error },
-    );
-  }
-}
-
-/**
- * opentype.parse builds a DataView over its argument, so a Uint8Array
- * view throws ("First argument to DataView constructor must be an
- * ArrayBuffer"). `slice()` always yields a fresh, exact-fit buffer,
- * which also defends against subarray views into larger buffers.
- */
-function toArrayBuffer(data: Uint8Array): ArrayBuffer {
-  return data.slice().buffer;
 }

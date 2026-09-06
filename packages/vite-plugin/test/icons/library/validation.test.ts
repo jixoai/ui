@@ -79,6 +79,7 @@ describe('library options validation (A1)', () => {
     const normalized = normalizeLibraryOptions({});
     expect(normalized).toEqual({
       includeDefaults: true,
+      presets: [],
       icons: {},
       maxChunkBytes: 20480,
       chunking: 'auto',

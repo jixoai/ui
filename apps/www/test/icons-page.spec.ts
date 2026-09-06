@@ -196,6 +196,7 @@ describe('/docs/icons.html — the plugin library face (library config + tiers +
     const text = container.textContent ?? '';
     for (const option of [
       'includeDefaults',
+      'presets',
       'maxChunkBytes',
       '20480',
       'chunking',
@@ -220,6 +221,70 @@ describe('/docs/icons.html — the plugin library face (library config + tiers +
     expect(text).toContain("'lucide:zap'");
     expect(text).toContain("{ file: 'assets/logo.svg' }");
     expect(text).toContain('<svg xmlns="…">…</svg>');
+  });
+
+  it('shows the preset + font source forms (icon-library-presets)', () => {
+    const { container } = render(IconsPage);
+    const text = container.textContent ?? '';
+    expect(text).toContain("'md:home'");
+    expect(text).toContain("{ font: 'brand.woff2', code: 0xE002 }");
+    expect(text).toContain("liga: 'md-logo'");
+  });
+
+  it('carries the preset table: prefix / package / license / default mapping', () => {
+    const { container } = render(IconsPage);
+    const table = container.querySelector('[data-preset-table] table');
+    expect(table, 'the preset table').toBeTruthy();
+    const rows = [...table!.querySelectorAll('tbody tr')];
+    expect(rows.length).toBe(4); // material + phosphor + remix + the lucide built-in row
+    const cellText = rows.map((row) => row.textContent ?? '');
+    // the shipped presets with their packages + licenses + ref forms
+    for (const needle of [
+      'material',
+      'md:home',
+      '@material-symbols/svg-400',
+      'Apache-2.0',
+      'phosphor',
+      'ph:atom',
+      '@phosphor-icons/core',
+      'MIT',
+      'remix',
+      'rx:system:add-line',
+      'remixicon',
+    ]) {
+      expect(cellText.join('\n'), 'preset table mentions ' + needle).toContain(needle);
+    }
+    // the default mapping row names the frozen defaults
+    expect(cellText.join('\n')).toContain('outlined · weight 400 · FILL 0');
+    // the frozen default mapping stays regular for phosphor
+    expect(cellText.join('\n')).toContain('assets/regular');
+  });
+
+  it('states the not-shipped verdicts: tabler/hugeicons + the SF Symbols licensing rejection', () => {
+    const { container } = render(IconsPage);
+    const note = container.querySelector('[data-not-shipped-note]');
+    expect(note, 'the not-shipped note').toBeTruthy();
+    // whitespace-normalized: the markup wraps mid-phrase
+    const text = (note?.textContent ?? '').replace(/\s+/g, ' ');
+    expect(text).toContain('tabler');
+    expect(text).toContain('hugeicons');
+    expect(text).toContain('no per-icon SVG source package');
+    expect(text).toContain('SF Symbols');
+    expect(text).toContain('Apple-platform apps');
+    expect(text).toContain('prohibit SVG export or redistribution');
+  });
+
+  it('documents the font-source lane (build-time extraction, pure-SVG runtime)', () => {
+    const { container } = render(IconsPage);
+    const section = container.querySelector('[data-font-source-docs]');
+    expect(section, 'the font-source section').toBeTruthy();
+    const text = section?.textContent ?? '';
+    expect(text).toContain('{ font:');
+    expect(text).toContain('codepoint');
+    expect(text).toContain('ligature');
+    expect(text).toContain('best-effort');
+    expect(text).toContain('watchFile');
+    expect(text).toContain('never a silent blank glyph');
   });
 
   it('documents both install tiers (plugin-free default vs plugin-prerequisite overflow)', () => {
