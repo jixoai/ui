@@ -22,13 +22,21 @@ const mermaidMock = vi.hoisted(() => {
     imports: 0,
     /** swap per test for deferred / failing renders; null = happy path */
     renderImpl: null as null | ((id: string, text: string) => Promise<{ svg: string }>),
+    /** the render-sink container the engine passed, captured live */
+    lastSink: null as null | { connectedAtCall: boolean; element: HTMLElement },
   };
   const initialize = vi.fn();
-  const render = vi.fn((id: string, _text: string) =>
-    state.renderImpl
+  const render = vi.fn((id: string, _text: string, container?: HTMLElement) => {
+    // the containment contract: the engine owns the render sink — a
+    // connected hidden container mermaid paints into (and leaves its
+    // error bomb inside on failure) that this facade ALWAYS removes
+    state.lastSink = container
+      ? { connectedAtCall: container.isConnected, element: container }
+      : null;
+    return state.renderImpl
       ? state.renderImpl(id, _text)
-      : Promise.resolve({ svg: `<svg data-render-id="${id}"></svg>` }),
-  );
+      : Promise.resolve({ svg: `<svg data-render-id="${id}"></svg>` });
+  });
   return { state, initialize, render };
 });
 
@@ -273,6 +281,17 @@ describe('lib/mermaid-engine', () => {
       cScale2: '#008cdf',
       cScale3: '#f9b800',
       cScale4: '#de3b3d',
+      actorBkg: '#ffffff',
+      actorBorder: '#000000',
+      actorLineColor: '#000000',
+      actorTextColor: '#000000',
+      signalColor: '#000000',
+      signalTextColor: '#000000',
+      loopColor: '#f0f0f0',
+      noteBkgColor: '#f0f0f0',
+      noteTextColor: '#000000',
+      activationBorderColor: '#d945d1',
+      edgeLabelBackground: '#f0f0f0',
       errorBkgColor: '#de3b3d',
     });
     expect('fontFamily' in withoutFont).toBe(false);
@@ -503,6 +522,33 @@ describe('lib/mermaid-engine', () => {
         (error: unknown) =>
           error instanceof MermaidRenderError && /string failure/.test(error.diagnostic),
       );
+    } finally {
+      mermaidMock.state.renderImpl = null;
+    }
+  });
+
+  // ── error containment (vision lane, 2026-09-07) ────────────────────
+  // mermaid's real render leaves its default error-bomb SVG inside the
+  // temp container IT appends to body; passing OUR sink + always
+  // removing it is the contract that keeps failed renders off the page
+  it('renders into an OWNED connected sink that is removed on success', async () => {
+    await renderDiagram('flowchart LR\n  a-->b', { id: 'sink-ok-1' });
+    const sink = mermaidMock.state.lastSink;
+    expect(sink, 'the engine passes its own container').not.toBeNull();
+    expect(sink!.connectedAtCall, 'the sink was attached to the document at render time').toBe(true);
+    expect(sink!.element.hasAttribute('data-jx-mermaid-render-sink')).toBe(true);
+    expect(document.querySelector('[data-jx-mermaid-render-sink]'), 'no sink survives a successful render').toBeNull();
+  });
+
+  it('a FAILED render leaves no sink (and no orphan container) behind', async () => {
+    mermaidMock.state.renderImpl = () =>
+      Promise.reject(new Error('Parse error: bomb would land here'));
+    try {
+      await expect(renderDiagram('not a diagram $$$', { id: 'sink-fail-1' })).rejects.toBeInstanceOf(
+        MermaidRenderError,
+      );
+      expect(document.querySelector('[data-jx-mermaid-render-sink]'), 'the finally removed the sink').toBeNull();
+      expect(mermaidMock.state.lastSink!.connectedAtCall).toBe(true);
     } finally {
       mermaidMock.state.renderImpl = null;
     }

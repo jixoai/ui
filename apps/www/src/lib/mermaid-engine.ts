@@ -117,6 +117,33 @@ export interface ThemeVariables {
   cScale4: string;
   /** --error */
   errorBkgColor: string;
+  /**
+   * Diagram-family specifics (vision round 2, 2026-09-07): sequence and
+   * state diagrams derive their own palettes through DIFFERENT internal
+   * paths when these are absent — a sequence actor fell back to
+   * mermaid's default lilac, and a state edge label baked white text on
+   * a cScale-yellow chip. Explicit mapping removes the family ambiguity
+   * (the one-source-per-field law extends to every family the demos
+   * ship).
+   */
+  /** --background (sequence actors) */
+  actorBkg: string;
+  /** --border */
+  actorBorder: string;
+  actorLineColor: string;
+  /** --foreground (messages, actor names) */
+  actorTextColor: string;
+  signalColor: string;
+  signalTextColor: string;
+  /** --muted (loop blocks, notes) */
+  loopColor: string;
+  noteBkgColor: string;
+  /** --foreground */
+  noteTextColor: string;
+  /** --primary (activation bars) */
+  activationBorderColor: string;
+  /** --muted (edge/transition label chips — neutral, contrast-safe) */
+  edgeLabelBackground: string;
   /** ThemeTokens.font — omitted when the fontFamily probe cannot resolve */
   fontFamily?: string;
 }
@@ -333,6 +360,18 @@ export function deriveThemeVariables(tokens: ThemeTokens, _theme: 'light' | 'dar
     cScale3: tokens.chart[3],
     cScale4: tokens.chart[4],
     errorBkgColor: tokens.error,
+    // diagram-family specifics (see ThemeVariables for the rationale)
+    actorBkg: tokens.background,
+    actorBorder: tokens.border,
+    actorLineColor: tokens.border,
+    actorTextColor: tokens.foreground,
+    signalColor: tokens.foreground,
+    signalTextColor: tokens.foreground,
+    loopColor: tokens.muted,
+    noteBkgColor: tokens.muted,
+    noteTextColor: tokens.foreground,
+    activationBorderColor: tokens.primary,
+    edgeLabelBackground: tokens.muted,
   };
   if (tokens.font !== undefined) variables.fontFamily = tokens.font;
   return variables;
@@ -552,8 +591,31 @@ export async function renderDiagram(
         mermaid.initialize(payload);
         lastFingerprint = fingerprint;
       }
-      const { svg } = await mermaid.render(id, source);
-      return { svg, theme: resolvedTheme };
+      // ERROR CONTAINMENT (vision lane, 2026-09-07): mermaid's render
+      // appends its OWN temp container to document.body, and a parse
+      // failure leaves the default error-bomb SVG standing inside it —
+      // cartoon chrome escaping the component boundary. Passing OUR
+      // container redirects both the temp DOM and any bomb into a node
+      // we own and ALWAYS remove (success, failure, or throw): the
+      // engine's failure paint is THIS facade's MermaidRenderError, and
+      // nothing mermaid renders on a failed pass ever reaches the page.
+      const container = document.createElement('div');
+      container.setAttribute('data-jx-mermaid-render-sink', '');
+      // OFF-SCREEN, not display:none: sequence/state/pie measure text
+      // through layout — a display:none sink starves them and the
+      // renders fail. Absolute + far viewport keeps the sink invisible
+      // while measurements stay live; the always-remove below keeps it
+      // out of the page either way.
+      container.style.position = 'absolute';
+      container.style.top = '-10000px';
+      container.style.left = '-10000px';
+      document.body.append(container);
+      try {
+        const { svg } = await mermaid.render(id, source, container);
+        return { svg, theme: resolvedTheme };
+      } finally {
+        container.remove();
+      }
     } catch (error: unknown) {
       if (error instanceof MermaidRenderError) throw error;
       const diagnostic = error instanceof Error ? error.message : String(error);

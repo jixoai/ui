@@ -149,7 +149,7 @@
       static/blueprints/<name>.svg ×5 via build:blueprints (the
       catalog-coverage lock demanded it — surfaced by the suite, not
       the change docs; blueprints.spec 6/6 green after)
-- [ ] 5.3 verify:standards/budgets/laws/icons/context GREEN; NEW
+- [x] 5.3 verify:standards/budgets/laws/icons/context GREEN; NEW
       `scripts/verify-katex-mermaid.mjs` (verify-surface bootstrap
       verbatim: playwright-core + local chromium discovery + --url
       :5199): mermaid page → two SVG instances with distinct ids, dark

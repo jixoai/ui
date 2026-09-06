@@ -78,7 +78,7 @@
   // ---- workbench: the live flowchart, theme swapped from the playground -
   type DemoTheme = 'auto' | 'light' | 'dark';
   const themeOptions: { value: DemoTheme; label: string }[] = [
-    { value: 'auto', label: 'auto (follow the site)' },
+    { value: 'auto', label: 'auto (follow the live scope)' },
     { value: 'light', label: 'light (pin)' },
     { value: 'dark', label: 'dark (pin)' },
   ];
@@ -172,7 +172,7 @@ ${close}
     <div id="mermaid-workbench" data-region="mermaid-workbench" data-reveal="">
       <ComponentCanvas
         title="mermaid"
-        description="The complete card: filename tab (the name prop), the two-axis pan viewport, the copy control and the zoom trio. The playground swaps the theme mode — auto follows the site (flip the theme toggle and watch the palette re-derive), explicit pins read the target sheet through a local probe wrapper."
+        description="The complete card: filename tab (the name prop), the two-axis pan viewport, the copy control and the zoom trio. The playground swaps the theme mode — auto follows the LIVE scope (the site toggle, or this card's stage when the canvas pins one — scoped containers resolve their own tokens), explicit pins read the target sheet through a local probe wrapper."
         sourceUrl={registrySourceUrl('mermaid')}
         {files}
         stage="fill"

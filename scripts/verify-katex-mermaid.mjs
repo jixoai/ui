@@ -116,7 +116,11 @@ try {
   // ── 1-3. the mermaid page: instances, distinct ids, the dark flip ──
   {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-    await page.goto(`${BASE}/docs/components/mermaid.html`);
+    // generous budget + domcontentloaded: the page pulls 500+ refs and
+    // this gate runs on loaded machines (composite verify-all tail) —
+    // waiting for the full 'load' starves under swap pressure while
+    // every REAL assertion below keys on waitForSelector/settled anyway
+    await page.goto(`${BASE}/docs/components/mermaid.html`, { timeout: 90_000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     // 1. the lazy engine loads and the instances render (generous
@@ -174,13 +178,33 @@ try {
         : 'every baked fill is identical across themes (tokens never re-read?)',
     );
 
+    // 3b. error containment (vision lane, 2026-09-07): the page mounts an
+    //     intentional parse-failure demo — mermaid's default error bomb
+    //     must NEVER escape: no render sink and no svg outside the
+    //     [data-jx-mermaid] boundaries, in either theme
+    const leaks = await page.evaluate(() => {
+      const strays = [...document.querySelectorAll('body > svg, body > div > svg')]
+        .filter((svg) => !svg.closest('[data-jx-mermaid]'))
+        .map((svg) => svg.id || svg.getAttribute('class') || 'anonymous');
+      return {
+        sinks: document.querySelectorAll('[data-jx-mermaid-render-sink]').length,
+        bombs: strays.filter((id) => /error|mermaid/i.test(String(id))).length,
+        strays,
+      };
+    });
+    check(
+      'mermaid: the error demo leaks no engine chrome (no sinks, no stray svgs outside the surfaces)',
+      leaks.sinks === 0 && leaks.strays.length === 0,
+      JSON.stringify(leaks),
+    );
+
     await page.close();
   }
 
   // ── 4. the math-block page: prerendered markup + the strip verdict ──
   {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-    await page.goto(`${BASE}/docs/components/math-block.html`);
+    await page.goto(`${BASE}/docs/components/math-block.html`, { timeout: 90_000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     // real KaTeX markup in the SERVED DOM (the sync SSR lane — these
