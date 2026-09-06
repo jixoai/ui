@@ -189,8 +189,15 @@ const liveByKey = new Map(live.map((h) => [keyOf(h), h]));
 
 const added = live.filter((h) => !snapshotByKey.has(keyOf(h)));
 const vanished = (snapshot.hits ?? []).filter((h) => !liveByKey.has(keyOf(h)));
+// same key, different text: the line still matches a retiring pattern
+// but its content drifted — "live hits equal the snapshot" must cover
+// content, not just positions (E4-r1 file:line-only gap)
+const changed = live.filter((h) => {
+  const snap = snapshotByKey.get(keyOf(h));
+  return snap !== undefined && snap.text !== h.text;
+});
 
-if (added.length > 0 || vanished.length > 0) {
+if (added.length > 0 || vanished.length > 0 || changed.length > 0) {
   const countByFile = (hs) => {
     const m = new Map();
     for (const h of hs) m.set(h.file, (m.get(h.file) ?? 0) + 1);
@@ -207,6 +214,11 @@ if (added.length > 0 || vanished.length > 0) {
     for (const [f, n] of countByFile(vanished)) console.error(`  ${n}x ${f}`);
     for (const h of vanished.slice(0, 20)) console.error(`    - ${h.file}:${h.line}  ${h.text}`);
     if (vanished.length > 20) console.error(`    … and ${vanished.length - 20} more`);
+  }
+  if (changed.length > 0) {
+    console.error(`hit content drifted at ${changed.length} position(s) — same file:line, different text; rerun: npm run gen:migration`);
+    for (const h of changed.slice(0, 20)) console.error(`    ~ ${h.file}:${h.line}  ${h.text}`);
+    if (changed.length > 20) console.error(`    … and ${changed.length - 20} more`);
   }
   die('live hits ≠ committed snapshot');
 }

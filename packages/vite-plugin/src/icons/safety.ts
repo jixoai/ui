@@ -76,7 +76,12 @@ function countPathCommands(svg: string): number {
  * never pose as an attribute NAME.
  */
 function* scanElementTags(svg: string): Generator<string> {
-  for (const match of svg.matchAll(/<[a-zA-Z][^<>]*>/g)) {
+  // quote-aware tag matcher: a quoted attribute VALUE is consumed
+  // atomically — a literal `>` inside one (legal SVG) must not
+  // truncate the tag mid-attribute, or anything after the early `>`
+  // (an onload=, a foreign-namespaced attr) escapes the scan
+  // entirely (the E4-r1 quoted-> bypass)
+  for (const match of svg.matchAll(/<[a-zA-Z](?:"[^"]*"|'[^']*'|[^<>"'])*>/g)) {
     yield match[0].replace(/"[^"]*"|'[^']*'/g, '""');
   }
 }

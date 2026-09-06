@@ -173,3 +173,33 @@ describe('structured extraction (design §2)', () => {
     expect(extractIconData(emptied)).toEqual({ v: '0 0 24 24', n: 'stroke', d: '' });
   });
 });
+
+describe('the serializer control-char law (E4-r1 fix 2)', () => {
+  // a raw newline is legal SVG text/attr content (e.g. a character ref
+  // surviving an optimize:false pass) — the artifact's frozen
+  // single-quote dialect MUST escape it or the generated TypeScript
+  // breaks at the literal
+  const multilineAsset: ResolvedLibraryIcon = {
+    name: 'multilineProbe',
+    svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text x="1" y="2">a\nb\rc</text></svg>',
+  };
+
+  test('newlines/CRs inside payloads serialize as escapes, not raw bytes', () => {
+    const { artifact } = generateIconLibraryArtifacts([multilineAsset], {});
+    // the two-char escape sequences exist in the text…
+    expect(artifact).toContain('<text x="1" y="2">a\\nb\\rc</text>');
+    // …and no raw control byte rides inside the artifact between the
+    // payload quotes (the entry line itself stays single-line)
+    const entryLine = artifact.split('\n').find((line) => line.includes('multilineProbe'));
+    expect(entryLine).toBeDefined();
+    expect(entryLine).not.toMatch(/[\n\r]/);
+  });
+
+  test('the escaped literal round-trips through evaluation', () => {
+    const { artifact } = generateIconLibraryArtifacts([multilineAsset], {});
+    const literal = artifact.match(/d: ('(?:[^'\\]|\\.)*')/)?.[1];
+    expect(literal).toBeDefined();
+    // eslint-disable-next-line no-eval -- round-trip proof of the frozen dialect
+    expect((0, eval)(literal)).toBe(multilineAsset.svg.match(/(<text[^>]*>.*<\/text>)/s)?.[1]);
+  });
+});

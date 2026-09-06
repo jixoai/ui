@@ -173,3 +173,44 @@ describe('createSafetyChecker — warn vs error modes', () => {
     expect(result.issues.every((issue) => issue.source === 'file icons/evil.svg')).toBe(true);
   });
 });
+
+describe('createSafetyChecker — the quoted-> bypass lane (E4-r1 fix 4)', () => {
+  const wrap = (inner: string): string =>
+    `<svg xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+
+  it('an event handler AFTER a quoted > in an attribute value is caught', () => {
+    // the attack shape: the early `>` inside the quoted value used to
+    // truncate the tag mid-attribute, so the onload= escaped the scan
+    const checker = createSafetyChecker({ mode: 'warn' });
+    const result = checker.check(wrap('<path d="M0 1>2 3" onload="alert(1)"/>'));
+    expect(result.passed).toBe(false);
+    expect(
+      result.issues.some((issue) => /event-handler attribute/.test(issue.message)),
+    ).toBe(true);
+  });
+
+  it('a literal <script> inside a QUOTED value stays over-blocked (conservative posture)', () => {
+    const checker = createSafetyChecker({ mode: 'warn' });
+    const result = checker.check(wrap('<path d="a>b" data-x="<script>alert(1)</script>"/>'));
+    // the raw-text scan over-blocks disallowed ELEMENT literals even
+    // inside quoted values — failing CLOSED is the documented posture;
+    // the blanking law's no-false-positive guarantee covers the
+    // ATTRIBUTE lanes (event handlers), not element literals
+    expect(result.passed).toBe(false);
+    expect(
+      result.issues.some((issue) => /disallowed element/.test(issue.message)),
+    ).toBe(true);
+  });
+
+  it('a value shaped like a payload never poses as an attribute name', () => {
+    const checker = createSafetyChecker({ mode: 'warn' });
+    const result = checker.check(wrap('<path d="M1 onload=2 3"/>'));
+    expect(result.passed).toBe(true);
+  });
+
+  it('a legitimate > inside a quoted value still passes clean artwork', () => {
+    const checker = createSafetyChecker({ mode: 'warn' });
+    const result = checker.check(wrap('<path d="M0 1>2 3"/>'));
+    expect(result.passed).toBe(true);
+  });
+});

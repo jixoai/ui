@@ -42,9 +42,17 @@ export const chunkModuleId = (index: number): string =>
 
 // ── serialization dialect ──────────────────────────────────────────
 
-/** single-quoted TS string literal (the artifact's frozen dialect) */
+/** single-quoted TS string literal (the artifact's frozen dialect).
+ *  Backslash first, then the quote, then control chars — a raw \n or
+ *  \r inside a payload (legal in SVG text/attr content, e.g. via
+ *  character refs surviving an optimize:false pass) would otherwise
+ *  terminate the literal and corrupt the generated TypeScript. */
 const sq = (value: string): string =>
-  `'${value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`;
+  `'${value
+    .replaceAll('\\', '\\\\')
+    .replaceAll("'", "\\'")
+    .replaceAll('\n', '\\n')
+    .replaceAll('\r', '\\r')}'`;
 
 const byteLength = (text: string): number => new TextEncoder().encode(text).length;
 

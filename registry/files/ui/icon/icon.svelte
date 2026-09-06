@@ -74,11 +74,28 @@
     strokeWidth?: number | string;
   }
 
+  // the component OWNS the root's decorative contract — the owned
+  // attribute keys are destructured OUT of the pass-through surface
+  // (Svelte's spread overrides statics regardless of source order,
+  // so stripping the keys is the only construction-safe seal; the
+  // E4-r1 override bypass). size/strokeWidth are the sanctioned
+  // prop lanes for the two tunable edges.
   let {
     name,
     size,
     strokeWidth = 2,
     class: className = '',
+    xmlns: _xmlns,
+    viewBox: _viewBox,
+    width: _width,
+    height: _height,
+    fill: _fill,
+    stroke: _stroke,
+    'stroke-width': _strokeWidth,
+    'stroke-linecap': _linecap,
+    'stroke-linejoin': _linejoin,
+    'aria-hidden': _ariaHidden,
+    'data-jx-icon': _marker,
     ...rest
   }: Props = $props();
 
@@ -95,7 +112,10 @@
 </script>
 
 {#snippet glyph(icon: IconData)}
+  <!-- rest carries only non-owned keys (stripped in the props
+       destructure) — the contract below cannot be raced -->
   <svg
+    {...rest}
     xmlns="http://www.w3.org/2000/svg"
     viewBox={icon.v}
     width={resolved.size}
@@ -108,7 +128,6 @@
     fill={icon.n === 'fill' ? 'currentColor' : 'none'}
     stroke={icon.n === 'fill' ? 'none' : 'currentColor'}
     class={className}
-    {...rest}
   >{@html icon.d}</svg>
 {/snippet}
 
