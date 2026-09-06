@@ -19,6 +19,17 @@
  * edits rerender nothing. The headless render pass always runs (it IS
  * the hash source); the satori paint + write are skipped on hits.
  *
+ * Authoring-environment convention (icon-component-pipeline rebase,
+ * 2026-09-07): the committed SVG BYTES are environment-dependent —
+ * the render rides the machine's lockfile (render-dep versions) and
+ * Chrome build, and there is NO byte-gate on them. When a change
+ * rebases onto a moved main, REGENERATE the whole set in the merged
+ * tree (`npm run build:blueprints`; it converges idempotently) rather
+ * than hand-merging SVG conflicts — the post-rebase tree's own render
+ * is the authoritative set. Expect a landing to re-render a broad
+ * sweep of SVGs whose scenes never changed; that is the lock speaking,
+ * not a real visual diff.
+ *
  * Requires: system Google Chrome (playwright-core drives it via
  * channel 'chrome' — no browser download).
  *

@@ -174,20 +174,27 @@ describe('structured extraction (design §2)', () => {
   });
 });
 
-describe('the serializer control-char law (E4-r1 fix 2)', () => {
+describe('the serializer control-char law (E4-r1 fix 2 + E4-r2 hardening)', () => {
   // a raw newline is legal SVG text/attr content (e.g. a character ref
   // surviving an optimize:false pass) — the artifact's frozen
   // single-quote dialect MUST escape it or the generated TypeScript
-  // breaks at the literal
+  // breaks at the literal. The JS line separators (U+2028/U+2029,
+  // spelled with explicit \u escapes here — invisible literals are
+  // tool-fragile) join the law: legal in ES strings, historically
+  // hostile to minifiers/parsers.
+  const LS = '\u2028';
+  const PS = '\u2029';
   const multilineAsset: ResolvedLibraryIcon = {
     name: 'multilineProbe',
-    svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text x="1" y="2">a\nb\rc</text></svg>',
+    svg:
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' +
+      `<text x="1" y="2">a\nb\rc${LS}d${PS}</text></svg>`,
   };
 
-  test('newlines/CRs inside payloads serialize as escapes, not raw bytes', () => {
+  test('control chars inside payloads serialize as escapes, not raw bytes', () => {
     const { artifact } = generateIconLibraryArtifacts([multilineAsset], {});
     // the two-char escape sequences exist in the text…
-    expect(artifact).toContain('<text x="1" y="2">a\\nb\\rc</text>');
+    expect(artifact).toContain('<text x="1" y="2">a\\nb\\rc\\u2028d\\u2029</text>');
     // …and no raw control byte rides inside the artifact between the
     // payload quotes (the entry line itself stays single-line)
     const entryLine = artifact.split('\n').find((line) => line.includes('multilineProbe'));

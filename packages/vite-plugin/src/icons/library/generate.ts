@@ -46,13 +46,18 @@ export const chunkModuleId = (index: number): string =>
  *  Backslash first, then the quote, then control chars — a raw \n or
  *  \r inside a payload (legal in SVG text/attr content, e.g. via
  *  character refs surviving an optimize:false pass) would otherwise
- *  terminate the literal and corrupt the generated TypeScript. */
+ *  terminate the literal and corrupt the generated TypeScript. The
+ *  JS line separators U+2028/U+2029 join the set for the same reason
+ *  at the tooling layer (legal in ES strings, historically hostile
+ *  to some minifiers/parsers — the E4-r2 hardening). */
 const sq = (value: string): string =>
   `'${value
     .replaceAll('\\', '\\\\')
     .replaceAll("'", "\\'")
     .replaceAll('\n', '\\n')
-    .replaceAll('\r', '\\r')}'`;
+    .replaceAll('\r', '\\r')
+    .replaceAll('\u2028', '\\u2028')
+    .replaceAll('\u2029', '\\u2029')}'`;
 
 const byteLength = (text: string): number => new TextEncoder().encode(text).length;
 
