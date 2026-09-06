@@ -15,14 +15,18 @@
 - [ ] 2.1 `highlight` core item + lang-detector.ts（LanguageDetector /
       DetectResult / DetectSource 契约 + HIGHLIGHT_DETECT_KEY seam）；
       context.svelte.ts 内核侧 HIGHLIGHT_DETECT_DEF
-- [ ] 2.2 `code-card`：`langDetector` prop + `lang="auto"` 路径 +
-      resolveDetector 四环链 + 失败法则接入（reject 提示装 DLD）
+- [ ] 2.2 `code-card`：`langDetector` prop + AUTO_LANG 路径 +
+      resolveDetector 四环决策表（design D2.1）+ null 级联/reject 终态
+      + 失败法则接入（reject 提示装 DLD 与一行接线）
+- [ ] 2.2b DLD item 的 `<HighlightDetectDefault />` 接线组件
+      （setContext(HIGHLIGHT_DETECT_KEY) + runtime import core 常量保
+      边活性）
 - [ ] 2.3 `highlight-highlightjs`：backend.detector 槽位接线
       （highlightAuto over 实例已注册 langs；零注册时 reject 提示）
 - [ ] 2.4 契约测试：解析链四环优先级、'auto' 哨兵不影响存量路径
       （lang='ts' 逐字节不变断言）
 
-## 3. 阶段 2 — DLD 三层纯 TS（子代理 A）
+## 3. 阶段 2 — DLD 纯 TS 层 L1-L3（子代理 A；L4 统计层在阶段 3）
 
 - [ ] 3.1 L1 ext-table.ts：linguist extensions ∩ canonical 集多行
       字符串表 + 歧义扩展名排除（heuristics 138 组来源注释）+ 惰性

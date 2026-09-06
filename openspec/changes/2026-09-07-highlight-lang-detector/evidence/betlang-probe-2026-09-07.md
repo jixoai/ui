@@ -8,7 +8,7 @@ detector。本档案记录构建序列、尺寸矩阵、功能实测与通道结
 - repo: https://github.com/DioxusLabs/betlang（MIT），clone @ HEAD
   (shallow, 2026-09-07)，crate `betlang 0.1.1`
 - 模型：内嵌 `assets/magika/source-student-q4.bin` **47,840 字节**
-  （sha256 8493d2d3…89383，README 声明），架构
+  （sha256 8493d2d3757572c8661141e414b1c0755aa08d4c4e5382dfbbc6b73b02d89083（README 声明，最终发行物门禁实测复核）），架构
   wordseq-b1024-k3-m2048-tiny-3conv-hidden
 - 输出：48 标签（asm…yaml），held-out `test_fs_accuracy=0.942`
   macro_recall=0.940；概率经校准（歧义输入报分裂分）
@@ -30,6 +30,14 @@ cargo new --lib /tmp/betlang-wasm-probe   # crate-type cdylib
 std**，fearless_simd 编译报 E0463 "can't find crate for core"。须用
 rustup 工具链（`~/.cargo/bin/cargo`，stable-aarch64-apple-darwin +
 wasm32 target 已装）。CI 构建需显式 rustup 环境。
+
+## 口径律（r1-B7）
+
+所有预算与实测以 KiB=1024 字节精确计量；gzip 以 Node zlib.gzipSync
+level 9 为冻结算法。下表 KB 字样一律读作 KiB。最终发行物（packages/
+betlang-wasm 真实装载器导出 + 全 entry）在任务 4.1 复测验收，复测
+记录（wasm sha256、tarball sha256、rustc/LLVM 版本、字节精确尺寸）
+落 packages/betlang-wasm/ARTIFACT.md。
 
 ## 尺寸矩阵
 
