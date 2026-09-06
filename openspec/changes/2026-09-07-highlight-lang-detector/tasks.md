@@ -63,7 +63,11 @@
       （raw > 100 KiB 或 gzip > 70 KiB）exit 1、预警线（raw > 98 KiB）
       exit 2、字段不符 exit 3；gzip = Node zlib.gzipSync level 9；
       `--self-test` 用内置 fixture（篡改字节/超限尺寸/缺字段）证明
-      三类退出码路径；与 spec 门禁场景一一对应
+      三类退出码路径；与 spec 门禁场景一一对应。CI 可复制示例：
+      `node scripts/verify-betlang-pin.mjs \
+       packages/betlang-wasm/dist/betlang_wasm.wasm`（预期 exit 0）
+      ＋ `--self-test`（预期 exit 0 且输出三行 self-test OK）——
+      退出码表：0 通过 / 1 预算违例 / 2 预警线 / 3 字段不符
 - [ ] 4.4 vitest bytes 通道真实 wasm 检测断言（非 mock）
 
 ## 5. 阶段 4 — registry / 站点 / 文档（子代理 C，vision 协助）

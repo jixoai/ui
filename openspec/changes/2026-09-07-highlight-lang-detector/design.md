@@ -135,10 +135,10 @@ hydration 后首次 paint 才 resolveDetector → detect → 高亮。context
 
 ```
 defaultLangDetector()  ── 命中即短路，层层 fallback（层内 null 交上层瀑布语义）
-  L1 filename   ext-table.ts      扩展名表 + 精确 basename 表（多行字符串）
-  L2 shebang    shebang-table.ts  解释器表 + emacs 首行 modeline（多行字符串）
-  L3 structure  structure.ts      纯 TS 探针（D3.2 冻结判据）
-  L4 statistical betlang.ts       wasm 懒加载 + 48 标签映射表
+  L1 filename   detect-ext-table.ts      扩展名表 + 精确 basename 表（多行字符串）
+  L2 shebang    detect-shebang-table.ts  解释器表 + emacs 首行 modeline（多行字符串）
+  L3 structure  detect-structure.ts      纯 TS 探针（D3.2 冻结判据）
+  L4 statistical betlang-detector.ts     wasm 懒加载 + 48 标签映射表
 ```
 
 ### D3.1 表格式（Owner 指定：多行字符串）
@@ -385,16 +385,17 @@ highlight-js.ts 各自的表）——本变更不合并它们（超范围），�
 ```ts
 // lang-canonical.ts —— 单一多行字符串表（D3.1 形态）
 // 行 grammar：`<canonical> <k>=<v>...`，字段序固定：
-//   canonical        SCALAR：^[a-z0-9+#.-]+$（小写 id，与卡片 lang 命名空间同域）；
-//                    逗号/`=`/空白 非法
-//   betlang=<label>  SCALAR：恰好一次——48 标签每个恰好出现在一行；无对应 = `-`
-//   ext=<a,b,...>    LIST：L1 扩展名（歧义扩展名不列——heuristics 消解块覆盖的）
-//   file=<a,b,...>   LIST：L1 精确 basename（可缺省）
-//   interp=<a,b,...> LIST：L2 解释器 basename（可缺省）
-//   backend=<a,...>  LIST：能渲染该 canonical 的引擎 id（curated 集挖掘快照）
-// 字段级逗号规则（r5-B4）：SCALAR 字段含逗号 = parse error；LIST 项
-// 值域 [A-Za-z0-9+#._-]（项内无逗号）；前导/尾随/连续逗号（`,a`、`a,`、
-// `a,,b`）与空项 = parse error；重复项 = parse error；次序即书写序不重排
+//   字段       类型    规则
+//   ────────────────────────────────────────────────────────────
+//   canonical  SCALAR  ^[a-z0-9+#.-]+$（lang 命名空间同域）；逗号/`=`/空白非法；全表唯一
+//   betlang    SCALAR  48 标签恰好各出现在一行；无对应 = `-`
+//   ext        LIST    项值域 [A-Za-z0-9+#._-]（项内无逗号）；歧义扩展名不列
+//   file       LIST    同上；可缺省
+//   interp     LIST    同上；可缺省
+//   backend    LIST    同上（引擎 id 快照）
+//   逗号法则（唯一）：仅作 LIST 分隔符——SCALAR 含逗号 = parse error；
+//   前导/尾随/连续逗号（`,a`/`a,`/`a,,b`）与空项 = parse error；
+//   重复项 = parse error；次序即书写序不重排
 // 通用规则：`#` 起注释行；空白行忽略；同一 k 不得在一行内重复；
 // canonical 不得重复出现；字段序固定为上表顺序，缺省字段直接省略
 // （合法样例：`python betlang=Python ext=py interp=python,python3
@@ -403,7 +404,9 @@ highlight-js.ts 各自的表）——本变更不合并它们（超范围），�
 // 连续逗号、重复列表项、重复 canonical、同行重复 k——断言各自的
 // 错误信息含违规字段名与行内容）。
 const CANONICAL = `
-# sources: betlang =0.1.1 (crates.io) | linguist @5fb5096b95ab9893c5925d87121e5faaae9f3966 | backend curated @e5b189ee（task 3.0 编纂时以当日仓库 HEAD 再钉一次——表内永远是不可变 SHA，流程说明不进表）
+# sources: betlang =0.1.1 (crates.io) | linguist @5fb5096b95ab9893c5925d87121e5faaae9f3966 | backend curated @e5b189ee
+# （task 3.0 编纂时必须以当日仓库 HEAD 产生新 SHA 并随编纂提交落表
+#   ——旧 SHA 被显式替换而非漂移；表内永远是不可变 SHA）
 # （占位符在实现期 task 3.0 编纂时必须替换为真实 SHA——门禁断言表内
 #   无 <> 占位符残留，非占位值是开工前置条件）
 typescript betlang=TypeScript ext=ts interp=- backend=shiki,hljs,prismjs,sugar-high,tree-sitter

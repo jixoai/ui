@@ -49,4 +49,6 @@ wrapper（包装接线后 `lang="auto"` 端到端检测上色）。
 - **WHEN** 消费者 `add @jixoai/highlight-detect-default` 并以 children
   包装接线
 - **THEN** lib + wrapper 两个 item 全落地，包装子树的卡片吃到 DLD
-  默认；未包装的兄弟子树不吃（context 作用域法则）
+  默认；未包装的兄弟子树不吃（context 作用域法则）；wrapper case
+  以两种导入各编译一次（`@ui/highlight-detect-default.svelte` 直达
+  与 barrel `@ui/highlight-detect-default`）

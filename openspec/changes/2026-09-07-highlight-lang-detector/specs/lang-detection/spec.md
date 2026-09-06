@@ -27,7 +27,9 @@ one. Install @jixoai/highlight-lang-detector, then wire via
 (HIGHLIGHT_DETECT_KEY, { detector })`；单环终态 warn 格式 =
 `[detect:<ring-id>] <原始错误>`；三环皆 null 的 warn 格式 =
 `[detect:all] no language detected (rings: <id1>,<id2>,<id3>)`。
-三个模板的字符串断言列入契约测试。
+三个模板的字符串断言列入契约测试。模板中的 `<ring-id>`、`<id1>`
+等尖括号记号是**格式变量**（运行时替换），不属 canonical 表的
+占位符门禁管辖——两法各自独立，互不误删误判。
 检测产出的 lang SHALL 走既有别名/curated/reject 法则。`lang` 非
 AUTO_LANG 时一切存量行为逐字节不变，检测路径零字节加载。
 
