@@ -201,7 +201,7 @@ describe('highlight backends — the contract', () => {
     expect(code.textContent).toBe(SAMPLE);
     // language + theme metadata (its own channels)
     expect(code.dataset.language).toBe('ts');
-    expect(pre.getAttribute('data-syntax-theme')).toBe('min');
+    expect(pre.getAttribute('data-syntax-theme')).toBe('jixoai');
     // ranges registered in the global registry, over OUR text node
     expect(paintedTextNodes().has(code.firstChild!)).toBe(true);
   }, 20000);
@@ -323,7 +323,7 @@ describe('CodeCard — the backend seam', () => {
         // prism markup dropped; the plain text node is the final DOM
         expect(contextCard().querySelector('.token')).toBeNull();
         expect(contextCard().querySelector('pre code')!.textContent).toBe(SAMPLE);
-        expect(contextCard().querySelector('pre')!.getAttribute('data-syntax-theme')).toBe('min');
+        expect(contextCard().querySelector('pre')!.getAttribute('data-syntax-theme')).toBe('jixoai');
         // ranges registered over the context card's own text node (the
         // registry may hold other elements' ranges too — the document scan)
         expect(paintedTextNodes().has(contextCard().querySelector('pre code')!.firstChild!)).toBe(

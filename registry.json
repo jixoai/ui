@@ -3711,6 +3711,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/lib/highlight/microlighter-jixoai.css",
+          "target": "@lib/highlight/microlighter-jixoai.css",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/lib/highlight/vendor-microlighter.d.ts",
           "target": "@lib/highlight/vendor-microlighter.d.ts",
           "type": "registry:file"
@@ -3722,7 +3727,7 @@
       "registryDependencies": [
         "@jixoai/highlight"
       ],
-      "docs": "import { microLighter } from '$lib/highlight/microlighter' — <CodeCard backend={microLighter()}>; themes are microlighter stylesheet ids (min is the jixoai default mapping). Vite hosts: the engine loads grammars via runtime-templated relative imports and swallows misses silently — dev needs optimizeDeps: { exclude: ['microlighter'] }, a build must emit node_modules/microlighter/dist/grammars/*.js next to the engine chunk (see the file header's bundler contract; the docs site's vite.config.ts is the reference). Theme hosts: microlighter themes resolve light-dark() against the OS color-scheme, not your site's mode — pin `pre[data-syntax-theme]` color-scheme to your dark-class state (the docs site's app.css is the reference).",
+      "docs": "import { microLighter } from '$lib/highlight/microlighter' — <CodeCard backend={microLighter()}>; the default theme is the item-local jixoai bridge (--syntax-* onto the card's --tok-token-* palette, site-mode adaptive, zero light-dark()); named themes are microlighter package stylesheet ids verbatim (min, github, dracula… — they resolve light-dark() against the OS color-scheme: hosts whose mode diverges pin pre[data-syntax-theme] color-scheme, see the docs site's app.css). Vite hosts: the engine loads grammars via runtime-templated relative imports and swallows misses silently — dev needs optimizeDeps: { exclude: ['microlighter'] }, a build must emit node_modules/microlighter/dist/grammars/*.js next to the engine chunk (see the file header's bundler contract; the docs site's vite.config.ts is the reference). Theme hosts: microlighter themes resolve light-dark() against the OS color-scheme, not your site's mode — pin `pre[data-syntax-theme]` color-scheme to your dark-class state (the docs site's app.css is the reference).",
       "meta": {
         "group": "engines",
         "href": "/docs/components/code-card.html"

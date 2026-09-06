@@ -29,11 +29,17 @@
  * them — invisible residue, harmless.
  *
  * THEME SEMANTICS (per-backend mapping): 'jixoai'/undefined → the
- * 'min' theme (MicroLighter's light/dark-adaptive minimal set — the
- * closest match to the card's token-palette posture); any other name
- * is a MicroLighter theme id verbatim (github, dracula, monokai, …).
- * The theme attribute lands on the card's <pre>, so themes can differ
- * per subtree (the ::highlight rules read the --syntax-* custom
+ * ITEM-LOCAL jixoai theme (microlighter-jixoai.css — the --syntax-*
+ * bridge onto the card's --tok-token-* palette; zero light-dark(),
+ * site-mode adaptive by construction, the same default posture as
+ * the shiki/hljs/sugar-high backends); any other name is a
+ * MicroLighter package theme id verbatim (min, github, dracula, … —
+ * CAVEAT: package themes resolve light-dark() against the OS
+ * color-scheme, not your site's mode; a host whose mode diverges
+ * from the OS pins `pre[data-syntax-theme]` color-scheme to its own
+ * dark-class state, see the docs site's app.css). The theme
+ * attribute lands on the card's <pre>, so themes can differ per
+ * subtree (the ::highlight rules read the --syntax-* custom
  * properties the attribute scopes).
  *
  * FEATURE GATE: browsers without the CSS Custom Highlight API reject
@@ -82,6 +88,10 @@ function getHighlightAll(): Promise<HighlightAllFn> {
  * statically analyze templated package subpaths).
  */
 const themeLoaders: Record<string, () => Promise<unknown>> = {
+  // the zero-download default: the item-local --tok-* bridge (no
+  // light-dark(), site-mode adaptive — replaced the package 'min'
+  // default 2026-09-07, see the file header for the live bug)
+  jixoai: () => import('./microlighter-jixoai.css'),
   cobalt2: () => import('microlighter/themes/cobalt2.css'),
   dracula: () => import('microlighter/themes/dracula.css'),
   github: () => import('microlighter/themes/github.css'),
@@ -96,9 +106,9 @@ const themeLoaders: Record<string, () => Promise<unknown>> = {
 
 const loadedThemes = new Set<string>();
 
-/** the per-backend theme mapping: shiki defaults → the minimal light/dark set */
+/** the per-backend theme mapping: the default is the item-local --tok-* bridge */
 function microlighterThemeName(theme: string | undefined): string {
-  return theme === undefined || theme === 'jixoai' ? 'min' : theme;
+  return theme === undefined || theme === 'jixoai' ? 'jixoai' : theme;
 }
 
 async function ensureTheme(name: string): Promise<void> {

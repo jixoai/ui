@@ -226,13 +226,18 @@ reference implementation.
 
 - **WHEN** a visitor with a dark OS preference reads the site in
   light mode (the html.dark-class state) and a microlighter card
-  paints
-- **THEN** `pre[data-syntax-theme]` is pinned to the site's
-  color-scheme (host CSS over the theme's own `color-scheme: light
-  dark`), so light-dark() token pairs resolve against the SITE mode
-  — numbers/strings paint light-mode values on the light background,
-  never the dark-mode near-whites (found live 2026-09-07: numbers
-  ≈ white on white)
+  paints with the default theme
+- **THEN** the card paints through the item-local jixoai theme (the
+  `--syntax-*` bridge onto the card's `--tok-token-*` palette — NO
+  light-dark() anywhere), so tokens follow the site's token sheet
+  and its mode by construction (found live 2026-09-07: the package
+  themes' light-dark() resolved against the OS — numbers ≈ white on
+  white — and a host-side color-scheme pin, while it masked the
+  symptom, stayed a SITE-local guard registry consumers would
+  re-trip); named package themes (min, github, …) remain available
+  verbatim, and hosts whose mode diverges from the OS pin
+  `pre[data-syntax-theme]` color-scheme for THEM (the docs site's
+  app.css is the reference)
 
 ### Requirement: the failure law is uniform across the matrix
 
