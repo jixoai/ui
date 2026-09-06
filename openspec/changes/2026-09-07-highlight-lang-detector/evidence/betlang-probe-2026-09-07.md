@@ -14,13 +14,18 @@ KiB=1024B 口径，不使用 KB）。
   工具链：rustup stable-aarch64-apple-darwin / rustc 1.98.0
   (88d9e12a 2026-08-18) / Homebrew rust 不带 wasm32 std（构建必须
   rustup 工具链）
+- 依赖：`fearless_simd ^0.4`——**tarball 自锁 0.4.0**（本节最初按 git
+  快照实测写 0.4.1，系快照新鲜锁差异；正式口径以 tarball 自锁为准，
+  git 值降级为 comparison-only）
 - 模型：内嵌 `assets/magika/source-student-q4.bin` **47,840 字节（46.72 KiB）**
   （sha256 8493d2d3757572c8661141e414b1c0755aa08d4c4e5382dfbbc6b73b02d89083（README 声明，最终发行物门禁实测复核）），架构
   wordseq-b1024-k3-m2048-tiny-3conv-hidden
 - 输出：48 标签（asm…yaml），held-out `test_fs_accuracy=0.942`
   macro_recall=0.940；概率经校准（歧义输入报分裂分）
-- 依赖：`fearless_simd 0.4.1`（SIMD 抽象，wasm32 走 simd128/fallback
-  双路径）——纯库，无 wasm-bindgen
+- 依赖：`fearless_simd ^0.4`（SIMD 抽象，wasm32 走 simd128/fallback
+  双路径）——纯库，无 wasm-bindgen；**tarball 自锁 0.4.0**（最初按
+  git 快照实测写 0.4.1，系快照新鲜锁差异——正式口径以 tarball 自锁
+  为准，git 值属 comparison-only）
 
 ## 构建序列（可复现）
 
@@ -28,13 +33,16 @@ KiB=1024B 口径，不使用 KB）。
 # 可复现构建序列（r8-B1：以下脚本已逐行实际执行，输出为真实记录；
 # tarball 是唯一构建输入，Git HEAD 从不参与——Git 快照仅作历史溯源
 # 记于本档开头）：
-set -e; W0=$(mktemp -d /tmp/betlang-repro.XXXX) && cd $W0   # r9-N2：mktemp，不 rm 固定目录
-curl -sL https://static.crates.io/crates/betlang/betlang-0.1.1.crate -o betlang.crate
-shasum -a 256 betlang.crate
-# → 5f89b0929539eaee70109704ae4e345df438be6ab02e4dc8ac060e05098ad1b7（sparse index cksum 一致 CKSUM-OK；yanked=false）
-tar -xzf betlang.crate && mv betlang-0.1.1 betlang-probe
-rg -A1 'name = "fearless_simd"' betlang-probe/Cargo.lock   # → 0.4.0（betlang 自锁值）
-cargo new --lib wasm-probe && cd wasm-probe
+# r10-B1：完整脚本全可执行——断言皆为真实命令，任一失败非零退出。
+# 重放实录见下方"r10 完整重放实录"；脚本要点（全文可直接照抄）：
+#   set -euo pipefail; W0="$(mktemp -d /tmp/betlang-repro.XXXXXX)"; cd "$W0"
+#   curl -fsSL https://index.crates.io/be/tl/betlang -o index.jsonl
+#   IDX=$(node -e '<取 vers 0.1.1：缺行 exit 1；yanked exit 1；输出 cksum>')
+#   curl -fsSL https://static.crates.io/crates/betlang/betlang-0.1.1.crate -o betlang.crate
+#   test "$(shasum -a 256 betlang.crate | cut -d' ' -f1)" = "$IDX" || exit 1
+#   tar -xzf betlang.crate && mv betlang-0.1.1 betlang-probe
+#   test "$(rg -A1 'name = "fearless_simd"' betlang-probe/Cargo.lock | rg -o '[0-9]+\.[0-9]+\.[0-9]+')" = "0.4.0" || exit 1
+#   cargo new --lib wasm-probe >/dev/null && cd wasm-probe
 cat > Cargo.toml <<'TOML'
 [package]
 name = "betlang-wasm-probe"
@@ -70,11 +78,29 @@ RUSTC=$HOME/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc \
   ~/.cargo/bin/cargo build --release --target wasm32-unknown-unknown --locked
 # → Finished `release` profile [optimized] target(s) in 2.48s
 W=target/wasm32-unknown-unknown/release/betlang_wasm_probe.wasm
-stat -f%z $W   # → 100131（97.79 KiB；见下"确定性"段——两次运行 100111/100131）
-shasum -a 256 $W   # → 5495267642e070a56f0f8525107ab6a66666ee20021e9f953bc22632dd4d2326
-node -e "…gzipSync(b,{level:9}).length"   # → 58499（57.13 KiB）
-rustc -Vv   # rustc 1.98.0 (88d9e12ae 2026-08-18) / commit 88d9e12ae178fab0fb5cc050a94da85685d449ea / host aarch64-apple-darwin
+# …（构建尾部）
+W=target/wasm32-unknown-unknown/release/betlang_wasm_probe.wasm
+RAW=$(stat -f%z "$W"); SHA=$(shasum -a 256 "$W" | cut -d' ' -f1)
+GZ=$(node -e 'const z=require("zlib"),fs=require("fs");const b=fs.readFileSync(process.argv[1]);console.log(z.gzipSync(b,{level:9}).length)' "$W")
+test "$RAW" -le 100352 || exit 2; test "$GZ" -le 71680 || exit 1
+rustc -Vv   # rustc 1.98.0 (88d9e12ae 2026-08-18) / 88d9e12ae178fab0fb5cc050a94da85685d449ea / aarch64-apple-darwin
 cargo -V    # cargo 1.98.0 (797e8a9bc 2026-08-05)
+```
+
+**r10 完整重放实录（fresh mktemp，exit 0）**：
+
+```
+index cksum: 5f89b0929539eaee70109704ae4e345df438be6ab02e4dc8ac060e05098ad1b7
+tarball cksum: 5f89b0929539eaee70109704ae4e345df438be6ab02e4dc8ac060e05098ad1b7
+CKSUM-OK
+betlang 自锁 fearless_simd: 0.4.0 OK
+wrapper lock fearless_simd: 0.4.0 OK
+    Finished `release` profile [optimized] target(s) in 2.36s
+rawBytes: 100139
+gzipBytes: 58429
+sha256: 2184f37a4a8021d2907843c336b602421761eced10ed4dfa0b1974670f1d5c50
+BUDGET-OK
+EXIT=0
 ```
 
 **确定性实测（r9 关键发现，改变门禁语义）**：同一 fearless_simd
@@ -82,12 +108,13 @@ cargo -V    # cargo 1.98.0 (797e8a9bc 2026-08-05)
 58,461→100,131 / 58,499，~20B 漂移——构建目录路径进入产物元数据）。
 因此：**wasm sha256 的门禁语义 = as-shipped 完整性**（CI 一次构建、
 哈希记入 ARTIFACT.md、verify 校验 npm 包内字节与记录一致），本地
-重建只验 tarball cksum + 锁版本 + 尺寸预算带（观测带 100,055–
-100,131 B，最坏距 98 KiB 预警线 221 B），**不做字节恒等断言**。
+重建只验 tarball cksum + 锁版本 + 尺寸预算带（tarball 口径观测带 100,111–
+100,139 B，最坏距 98 KiB 预警线 213 B；git 快照口径的 100,055 属
+comparison-only 历史值不入带），**不做字节恒等断言**。
 
-**观测带（tarball + 0.4.0，两次独立运行）**：raw 100,111–100,131 B
-（97.75–97.79 KiB，距 98 KiB 预警线最坏 **221 B**、距 100 KiB 帽最坏
-2,269 B）；gzip 58,427–58,499 B（距 70 KiB 帽 ≥13,181 B）。各次
+**观测带（tarball + 0.4.0，三次独立运行）**：raw 100,111–100,139 B
+（97.75–97.80 KiB，距 98 KiB 预警线最坏 **213 B**、距 100 KiB 帽最坏
+2,261 B）；gzip 58,427–58,499 B（距 70 KiB 帽 ≥13,181 B）。各次
 sha256 为该次运行记录（d03e30e3…/54952676…），**canonical 哈希 =
 CI 构建产物在 ARTIFACT.md 的记录值**（as-shipped 语义，见上）。
 早前 git 快照探针（0.4.1：100,055/58,461/56d0243d…）仅作

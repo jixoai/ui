@@ -195,8 +195,8 @@ wasmSha256 / tarballSha256）。**门禁测量对象 = 且仅 = `.wasm` 文件
 字节**（装载器 JS 与 tarball 不入预算）。预算 SHALL 以 KiB（1024
 字节）字节精确计量：raw ≤ 100 KiB、内部预警线 raw 98 KiB、gzip ≤
 70 KiB（Node zlib.gzipSync level 9，算法冻结）；evidence 记录 tarball+
-fearless_simd =0.4.0 口径的观测带（raw 100,111–100,131 B，最坏距
-预警线 221 B）——构建非字节确定（r9 实测），**canonical wasm 哈希 =
+fearless_simd =0.4.0 口径的观测带（raw 100,111–100,139 B，最坏距
+预警线 213 B）——构建非字节确定（r9 实测），**canonical wasm 哈希 =
 CI 构建产物在 ARTIFACT.md 的记录值，门禁语义为 as-shipped 完整性**，
 本地重建不做字节恒等断言。
 `scripts/verify-betlang-pin.mjs` SHALL 核验 sha256、magic bytes 与双

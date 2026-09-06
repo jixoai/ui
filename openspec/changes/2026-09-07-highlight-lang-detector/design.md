@@ -239,8 +239,8 @@ P_INI:   n ≥ 3 且 ≥1 行整行匹配 /^\[[A-Za-z0-9_.$ -]+\]\s*$/
 ## D4 — betlang wasm 通道（r1-B6/B7 修正：通道冻结 + KiB 预算律）
 
 **探测结论（evidence/betlang-probe-2026-09-07.md）**：tarball +
-fearless_simd =0.4.0 口径的**观测带** raw 100,111–100,131 B
-（97.75–97.79 KiB）/ gzip 58,427–58,499 B（Node zlib level 9）；
+fearless_simd =0.4.0 口径的**观测带** raw 100,111–100,139 B
+（97.75–97.80 KiB）/ gzip 58,427–58,499 B（Node zlib level 9；三次独立运行）；
 构建非字节确定（目录路径入产物，r9 实测），**canonical 哈希 = CI
 构建产物在 ARTIFACT.md 的记录值（as-shipped 语义）**——本地重建只验
 tarball cksum + 锁版本 + 预算带。betlang 进 DLD L4 作默认统计层。
@@ -272,9 +272,9 @@ npm 包，仓库位置 `packages/betlang-wasm/`：
 
 | 口径 | 预算 | 实测（tarball+0.4.0 观测带） | 最坏余量 |
 |---|---|---|---|
-| raw | ≤ 100 KiB（102,400 B） | 100,111–100,131 B | 2,269 B |
+| raw | ≤ 100 KiB（102,400 B） | 100,111–100,139 B | 2,261 B |
 | gzip（Node zlib.gzipSync level 9，算法冻结） | ≤ 70 KiB（71,680 B） | 58,427–58,499 B | 13,181 B |
-| 预警线 raw | 98 KiB（100,352 B） | 带顶 100,131 B | **221 B** |
+| 预警线 raw | 98 KiB（100,352 B） | 带顶 100,139 B | **213 B** |
 
 **降级预案（Owner 预案冻结，r2-B3 兑现 linguist 兜底）**：最终发行
 物 raw 越预警线（98 KiB）→ betlang 转**非默认** detector item（手动
