@@ -96,10 +96,17 @@ per-instance monotonic base + per-render suffix — two instances,
 same-named instances, and consecutive re-renders never share a live
 id), and the engine's serial queue SHALL order initialize/render
 pairs so concurrent instances with different themes never interleave.
-`theme="auto"` (the default) SHALL follow the site theme flip —
-re-reading the live computed tokens after the `.dark` class change and
-re-rendering with re-derived themeVariables; an explicit `light|dark`
-pins the palette. The engine's protected fields (startOnLoad:false,
+The surface SHALL pass its own container as the engine's theme root
+(scoped containers — a `.jx-light` stage, a dark panel — resolve THEIR
+tokens, never the page's). `theme="auto"` (the default) SHALL follow
+the theme flip — watching the theme root's AND the document root's
+class attributes, re-reading the live computed tokens after the
+change and re-rendering with re-derived themeVariables; an explicit
+`light|dark` SHALL pin the palette to the TARGET sheet's values, read
+through a temporary local probe wrapper under the same theme root
+(never a global class mutation — a light page with `theme="dark"`
+renders the dark sheet's colors). The engine's protected fields
+(startOnLoad:false,
 securityLevel strict, theme base) SHALL survive any consumer config —
 user config merges BELOW them, and user themeVariables merge
 field-wise over the derived palette. Controls SHALL cover the Owner
@@ -117,10 +124,11 @@ shift. A render failure SHALL paint an error summary strip and KEEP
 the source floor standing. The first render fades in, killed under
 `prefers-reduced-motion`. The surface SHALL honor the
 rest-attributes contract (rest spreads on the figure before the
-component's own stamps); the viewport SHALL carry `role="img"` with an
-accessible name at ALL times (`name` when given, else the
-`labels.diagram` localization payload, else the shipped English
-'Diagram' — a nameless diagram never mounts a nameless img).
+component's own stamps); the viewport SHALL carry `role="img"` with a
+NON-EMPTY accessible name at ALL times — the trimmed ladder
+`name?.trim() || labels?.diagram?.trim() || 'Diagram'` (an empty or
+whitespace `name` falls through; a nameless diagram never mounts a
+nameless img).
 
 #### Scenario: the floor upgrades after hydration
 

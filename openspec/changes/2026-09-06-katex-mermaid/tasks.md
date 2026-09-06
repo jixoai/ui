@@ -40,25 +40,32 @@
       unit tests for both syntax families + round-trips; mirrored both
       sides
 - [ ] 2.2 `registry/files/lib/mermaid-engine.ts`: lazy singleton
-      dynamic import; readThemeTokens (color probes INSIDE the passed
-      root's subtree → parseColor → hex; the documented per-theme
-      safe-hex fallback table committed in the header as the oracle —
-      never the raw string, one warn per degraded token; a SEPARATE
-      fontFamily probe for --font-sans, font omitted when
-      unresolvable); resolveTheme ('auto' → `.dark` class);
-      deriveThemeVariables (§3.2's ONE-source-per-field table);
-      renderDiagram with the id contract (§3.4), the rejection-
-      recovering promise-chain serial queue + fingerprint over the
-      FINAL merged initialize payload (§3.3 — token changes inside one
-      theme mode re-initialize), and the protected-fields ladder
-      (startOnLoad:false · securityLevel:'strict' · theme:'base' never
-      overridable; user themeVariables field-wise over derived);
-      MermaidRenderError normalization (browser-only guard for SSR
-      calls); registryDependencies @jixoai/color-utils
+      dynamic import; readThemeTokens(root?, resolvedTheme?) (color
+      probes INSIDE the passed root's subtree → parseColor → hex; the
+      documented per-theme safe-hex fallback table committed in the
+      header as the oracle — never the raw string, one warn per
+      degraded token; a SEPARATE fontFamily probe for --font-sans,
+      font omitted when unresolvable; EXPLICIT resolvedTheme reads
+      through a temporary local .dark/.jx-light probe wrapper under
+      the same root — never global mutation); resolveTheme ('auto' →
+      `.dark` class); deriveThemeVariables (§3.2's ONE-source-per-field
+      table); renderDiagram with the id contract (§3.4), the
+      themeRoot option (§3 — scoped containers resolve their own
+      tokens), the rejection-recovering promise-chain serial queue +
+      fingerprint over the FINAL merged initialize payload (§3.3 —
+      token changes inside one theme mode re-initialize), and the
+      protected-fields ladder (startOnLoad:false ·
+      securityLevel:'strict' · theme:'base' never overridable; user
+      themeVariables field-wise over derived); MermaidRenderError
+      normalization (browser-only guard for SSR calls);
+      registryDependencies @jixoai/color-utils
 - [ ] 2.3 `registry/files/ui/mermaid/`: source floor → lazy SVG swap,
       generation discipline (code-card effect law) + render-id contract,
-      data-state machine (floor/rendering/rendered/error),
-      theme-follow MutationObserver (auto mode), zoom trio (scale
+      data-state machine (floor/rendering/rendered/error), the surface
+      passes its own figure as renderDiagram's themeRoot (scoped
+      containers resolve their tokens) with the auto-mode
+      MutationObserver watching BOTH themeRoot and documentElement
+      classes, zoom trio (scale
       transform, viewport pan, clamp 0.5–3), copy control, labels
       payload (incl. `diagram` — the viewport's accessible name when
       `name` is absent; never a nameless img), fade-in +
@@ -78,8 +85,12 @@
       same name / re-renders), theme re-derive, generation discipline,
       error normalization + floor survival, rest passthrough + conflict
       attributes, no-chrome negative, zoom transform without engine
-      calls, accessible name without `name`) — mirror byte-identical to
-      `registry/test/`
+      calls, accessible-name trimmed ladder incl. `name="   "` and
+      `labels={{ diagram: '' }}` → 'Diagram', themeRoot two-container
+      scoped-token test, explicit-pin both directions (light root +
+      dark pin, dark root + light pin — initialize payload colors from
+      the target sheet, global root untouched)) — mirror
+      byte-identical to `registry/test/`
 
 ## 3. Registry surface
 
@@ -131,10 +142,13 @@
       flip → re-render with a changed baked fill; math-block page →
       .katex + MathML in DOM, run carries a scroll-state verdict;
       registered as `verify:km` in root package.json and appended to
-      the verify-all chain as the new final step AFTER verify:shadcn-add
-      (verify:surface stays standalone — only its bootstrap is
-      reused); vision lane screenshots (light+dark math quality,
-      diagram theming, zoom, error states) reviewed
+      the verify-all chain as the new final step AFTER verify:shadcn-add,
+      with verify-all OWNING the server lifecycle (managed static node
+      http server over apps/www/dist, readiness poll, --url passed in,
+      child reaped on success/failure/SIGINT; standalone verify:km
+      keeps the caller-provided --url contract); vision lane
+      screenshots (light+dark math quality, diagram theming, zoom,
+      error states) reviewed
 - [ ] 5.4 `scripts/verify-shadcn-add.mjs` CASES extended with
       math-block + mermaid (install from built payloads; deps land in
       the consumer's package.json; consumer vite build resolves the

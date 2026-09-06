@@ -97,12 +97,16 @@ export interface ThemeTokens {
   font?: string;   // resolved --font-sans — ABSENT when unresolvable (mermaid default family)
   chart: [string, string, string, string, string];
 }
-export function readThemeTokens(root?: HTMLElement): ThemeTokens;   // browser-only
+export function readThemeTokens(root?: HTMLElement, resolvedTheme?: 'light' | 'dark'): ThemeTokens;   // browser-only
 export function resolveTheme(mode: MermaidThemeMode): 'light' | 'dark';
 export function deriveThemeVariables(tokens: ThemeTokens, theme: 'light' | 'dark'): ThemeVariables;
 export async function renderDiagram(
   source: string,
-  options: { id: string; theme?: MermaidThemeMode; config?: MermaidConfig },
+  options: { id: string; theme?: MermaidThemeMode; config?: MermaidConfig;
+             /** the element whose subtree owns the tokens (the surface's
+              *  own container — scoped themes resolve); default
+              *  documentElement. Internal wiring, not a serialized prop. */
+             themeRoot?: HTMLElement },
 ): Promise<{ svg: string; theme: 'light' | 'dark' }>;
 export class MermaidRenderError extends Error { diagnostic: string }
 ```
@@ -167,6 +171,16 @@ chart-5       #de3b3d    #f97770     (= error)
 A degraded token NEVER reaches mermaid as a raw string — a var()
 fragment or an exotic function fed to its derivation machinery breaks
 the palette.
+
+**The explicit-theme read (B14 ruling):** `readThemeTokens(root,
+resolvedTheme)` — when `resolvedTheme` is given and the root's live
+effective theme differs, the probes mount inside a TEMPORARY LOCAL
+wrapper carrying the target theme class (`.dark` for dark, `.jx-light`
+for light) attached under the SAME root for the duration of the read,
+then remove it — the sheet's `:root, .jx-light {…}` / `.dark {…}`
+blocks resolve on that wrapper, so a light page with `theme="dark"`
+reads the DARK sheet values without ever mutating the global root.
+`resolvedTheme` omitted (auto) → probes read the live root as-is.
 
 - **color-utils parseColor extension is a TASK of this change** (the
   shared lib gains rgb()/rgba() parsing — modern `rgb(1 2 3 / 0.5)`
@@ -386,10 +400,15 @@ Svelte). A conflict test pins it: a consumer-sent
   and the floor shows the CURRENT source while a render is in flight.
   Render ids per §3.4; the engine's serial queue (§3.3) orders the
   actual initialize/render pairs.
-- Theme follow: `theme='auto'` mounts a MutationObserver on
-  `document.documentElement` attributes (class) → debounced
-  re-render with `readThemeTokens()` re-read AFTER the flip. Explicit
-  `'light'|'dark'` pins the palette (no observer).
+- Theme follow + the themeRoot wiring (B13): the surface passes its
+  own figure as `renderDiagram`'s `themeRoot` (scoped containers — a
+  `.jx-light` canvas stage, a dark panel — resolve THEIR tokens, not
+  the page's). `theme='auto'` mounts a MutationObserver on BOTH the
+  themeRoot's and documentElement's class attributes → debounced
+  re-render with `readThemeTokens(themeRoot)` re-read AFTER the flip.
+  Explicit `'light'|'dark'` pins the palette via the explicit-theme
+  read (§3.1's local wrapper — the target sheet's values even under
+  the opposite live root; no observer).
 - Zoom: `scale` state (buttons ±0.25, clamp 0.5–3, reset), applied as
   `transform: scale()` on the zoom wrapper, `transform-origin: top
   left`; the viewport is the pan surface. No re-render on zoom — pure
@@ -453,7 +472,14 @@ Svelte). A conflict test pins it: a consumer-sent
   a raw string); the queue-recovery test (a rejected render — parse
   error — followed by a valid render still succeeds; the chain never
   carries the poison); the fingerprint test (same theme mode, changed
-  token value → initialize re-runs).
+  token value → initialize re-runs); the themeRoot tests (two
+  containers carrying different scoped tokens render from THEIR own
+  values, never the page root's); the explicit-pin tests (light root +
+  `theme="dark"` and dark root + `theme="light"` — the initialize
+  payload's colors come from the target sheet, read through the local
+  wrapper, global root untouched); the a11y empty-string tests
+  (`name="   "` and `labels={{ diagram: '' }}` both fall to the
+  shipped 'Diagram').
 - mermaid: the engine module is `vi.mock`-ed (a ~1MB ESM engine with a
   DOM-bound renderer is not a jsdom citizen) — specs assert the
   CONTRACT: initialize args (startOnLoad:false, theme 'base', derived
@@ -495,6 +521,18 @@ Svelte). A conflict test pins it: a consumer-sent
      composite chain today — only its bootstrap pattern is reused
      here; verify:km joins the chain, verify:surface stays a
      standalone gate).
+
+   **Server lifecycle ownership (B12 ruling):** standalone
+   `npm run verify:km` keeps verify-surface's contract (the caller
+   provides the server via `--url`, default :5199 dev). INSIDE the
+   composite chain, `verify-all` owns the lifecycle: it starts a
+   MANAGED STATIC server over `apps/www/dist` (a tiny node http static
+   file server — no new dependency; release gates must not couple to
+   HMR/dev ports), polls readiness on the probe's own URL, passes
+   `--url` to the km step, and reaps the child on success, failure,
+   AND SIGINT — the composite gate stays self-contained and
+   reproducible from a clean checkout (dist exists at that point in
+   the chain: the payload-parity/build steps precede it).
 - End-to-end out-of-the-box: `scripts/verify-shadcn-add.mjs` gains
   CASES entries for math-block + mermaid — each case: install from the
   built payloads into a real fixture, assert `katex`/`mermaid` land in
