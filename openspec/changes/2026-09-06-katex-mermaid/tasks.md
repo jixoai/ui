@@ -179,6 +179,17 @@
 ## 6. Gates
 
 - [x] 6.1 openspec validate 2026-09-06-katex-mermaid --strict GREEN
-- [ ] 6.2 Codex review rounds (change docs → implementation) ACCEPT
+- [x] 6.2 Codex review rounds (change docs → implementation) ACCEPT —
+      docs: 8 rounds on Codex (km-doc-reviewer, gpt-5.6-terra xhigh)
+      5/10 → 6 → 7.5 → 8.0 → 8.5 → 8.75 → 9.25 ACCEPT (reports
+      /tmp/km-doc-review-r1..r8.md); implementation: Codex NEW sessions
+      hit a proxy-side chat-completions degradation (fresh sessions
+      receive no tool bridge — verified against working older sessions;
+      3 clean instances reproduced) — the adversarial
+      general-purpose subagent lane substituted per the fallback rule:
+      hands-on review (ran the 5 specs 68/68, deps/mirror/validate)
+      scored 9/10 REVISE with 1 blocker (the misplaced 4.5 task —
+      fixed) + 5 suggestions (all adopted, commit cc8e0734)
 - [ ] 6.3 three-stage commit (spec → implementation + tasks → archive)
       on the katex-mermaid branch, rebased onto main at closeout
+      (checked at archive time)
