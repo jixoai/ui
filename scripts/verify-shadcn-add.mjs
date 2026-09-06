@@ -703,7 +703,7 @@ export default defineConfig({
   import MathBlock from '$lib/ui/math-block';
 </script>
 
-<MathBlock tex="\\mathrm{e}^{\\mathrm{i}\\pi} + 1 = 0" />
+<MathBlock tex={'\\\\mathrm{e}^{\\\\mathrm{i}\\\\pi} + 1 = 0'} />
 `,
     extraChecks(ctx) {
       const pkg = JSON.parse(ctx.read('package.json'));
