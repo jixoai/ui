@@ -197,17 +197,20 @@
   let copyTimer: ReturnType<typeof setTimeout> | undefined;
 
   async function copySource(): Promise<void> {
+    let ok = true; // the clipboard path either resolves or throws
     try {
       await navigator.clipboard.writeText(source);
     } catch {
       // preview servers / embedded contexts without a clipboard grant
+      ok = false;
       const area = document.createElement('textarea');
       area.value = source;
       document.body.append(area);
       area.select();
-      document.execCommand('copy');
+      ok = document.execCommand('copy');
       area.remove();
     }
+    if (!ok) return; // neither path copied — no false "copied" feedback
     copied = true;
     clearTimeout(copyTimer);
     copyTimer = setTimeout(() => (copied = false), 1600);
@@ -284,7 +287,7 @@
                 : 'hover:bg-muted',
             )}
             onclick={copySource}
-            aria-label={copied ? copiedLabel : `${copyLabel} diagram source`}
+            aria-label={copied ? copiedLabel : copyLabel}
           >
             {#if copied}
               <span data-jx-mermaid-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">

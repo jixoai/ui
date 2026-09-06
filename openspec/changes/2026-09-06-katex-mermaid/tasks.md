@@ -129,9 +129,10 @@
       surface for the browser probe)
 - [x] 4.4 svelte.config.js prerender entries ×3; **docs-skeleton
       scope: scripts/docs-skeleton-scope.json inScope += math-block,
-      math-inline, mermaid (hard-fail, not WARN)**; meta gen
-      (component-metadata-gen) for the three PropsTables; verify:docs +
-      verify:meta GREEN
+      math-inline, mermaid (hard-fail, not WARN)**; props tables inline
+      from the components' Props interfaces (the tabs-page precedent; no
+      .meta.ts generated — verify:meta stays green with zero new meta
+      files); verify:docs + verify:meta GREEN
 
 ## 5. Payloads + gates
 
@@ -144,7 +145,7 @@
       error; worktree fresh-bootstrap additionally carries the
       icons-dogfood dist + payload-parity build debts — both satisfied
       by this change's builds)
-- [x] 4.5 blueprint coverage: scenes/<name>.svelte ×5 (real components
+- [x] 5.5 blueprint coverage: scenes/<name>.svelte ×5 (real components
       + badge captions, the shiki-scene precedent) + committed
       static/blueprints/<name>.svg ×5 via build:blueprints (the
       catalog-coverage lock demanded it — surfaced by the suite, not

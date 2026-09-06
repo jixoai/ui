@@ -140,12 +140,14 @@
       await navigator.clipboard.writeText(tex);
     } catch {
       // preview servers / embedded contexts without a clipboard grant
+      let ok = false;
       const area = document.createElement('textarea');
       area.value = tex;
       document.body.append(area);
       area.select();
-      document.execCommand('copy');
+      ok = document.execCommand('copy');
       area.remove();
+      if (!ok) return; // neither path copied — no false "copied" feedback
     }
     copied = true;
     clearTimeout(copyTimer);

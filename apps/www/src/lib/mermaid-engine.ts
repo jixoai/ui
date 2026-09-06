@@ -27,7 +27,17 @@
  * own MermaidConfig and merges BELOW the protected fields and the derived
  * palette (user themeVariables overlay FIELD-WISE over the derived
  * defaults), so the full engine vocabulary — flowchart config, fonts,
- * gantt settings… — flows through unchanged. Errors normalize into
+ * gantt settings… — flows through unchanged.
+ *
+ * KNOWN ENGINE BOUNDARY: mermaid's initialize MERGES into a global
+ * siteConfig (assignWithDepth) — a user-config key set by instance B
+ * (e.g. gantt) can linger when instance A re-initializes without it.
+ * The protected fields and themeVariables are fully rewritten on every
+ * initialize (the palette can never linger), so the residue surface is
+ * non-theme config keys only; mixed-config pages with divergent
+ * per-instance section configs are the one pattern to watch.
+ *
+ * Errors normalize into
  * {@link MermaidRenderError} carrying a diagnostic; an SSR call to
  * renderDiagram rejects with an explicit browser-only diagnostic instead
  * of mermaid's raw ReferenceError (mermaid's render touches document.body).
@@ -577,13 +587,16 @@ export async function renderDiagram(
     );
   }
   const { id, theme = 'auto', config, themeRoot } = options;
-  const resolvedTheme = resolveTheme(theme);
   return enqueue(async () => {
     let mermaid: MermaidModule['default'];
     try {
       // the package ships its API on the default export (initialize/
       // render are not named exports in v11's runtime namespace)
       mermaid = (await loadMermaid()).default;
+      // resolved INSIDE the task: under queue backlog a theme flip must
+      // label the render with the theme that was LIVE when the task ran
+      // (the tokens below read the same instant) — not enqueue time
+      const resolvedTheme = resolveTheme(theme);
       const tokens = readThemeTokens(themeRoot, theme === 'auto' ? undefined : resolvedTheme);
       const payload = buildInitializePayload(tokens, resolvedTheme, config);
       const fingerprint = resolvedTheme + stableStringify(payload);
