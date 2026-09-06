@@ -1,5 +1,7 @@
 # jixoai-ui
 
+English | [简体中文](README-zh.md)
+
 The jixoai design language, distributed as a [shadcn registry](https://ui.shadcn.com/docs/registry).
 Terminal / neo-brutalist, mono-first, OKLCH token law with one brand hue per
 project. Everything here graduated from production work on
