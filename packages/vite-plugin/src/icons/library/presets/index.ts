@@ -91,22 +91,47 @@ export function normalizeIconPresets(
 ): readonly IconPreset[] {
   if (presets === undefined) return [];
   const enabled: IconPreset[] = [];
+  // the uniqueness law (codex r1 m3): ONE entry per id and ONE preset
+  // per prefix — a duplicate either way is a named config error. Two
+  // enabled presets sharing `md:` would silently last-win the resolve
+  // prefix map (a configuration lie), so normalization refuses it.
+  const ownerOfId = new Map<string, string>();
+  const ownerOfPrefix = new Map<string, string>();
+  const admit = (preset: IconPreset, describe: string): void => {
+    const idOwner = ownerOfId.get(preset.id);
+    if (idOwner !== undefined) {
+      throw new Error(
+        `[jixoai-icons] library.presets declares "${preset.id}" twice ` +
+          `(${idOwner} and ${describe}) — one entry per preset id; merge the knobs into one entry`,
+      );
+    }
+    const prefixOwner = ownerOfPrefix.get(preset.prefix);
+    if (prefixOwner !== undefined) {
+      throw new Error(
+        `[jixoai-icons] library.presets gives the prefix "${preset.prefix}:" to two ` +
+          `presets (${prefixOwner} and ${describe}) — each prefix names exactly one preset`,
+      );
+    }
+    ownerOfId.set(preset.id, describe);
+    ownerOfPrefix.set(preset.prefix, describe);
+    enabled.push(preset);
+  };
   for (const entry of presets) {
     if (isIconPreset(entry)) {
-      enabled.push(entry);
+      admit(entry, `"${entry.id}" (instance)`);
       continue;
     }
     if (typeof entry === 'string') {
       // the string shorthand: frozen defaults per id
       switch (entry) {
         case 'material':
-          enabled.push(materialPreset());
+          admit(materialPreset(), '"material" (shorthand)');
           break;
         case 'phosphor':
-          enabled.push(phosphorPreset());
+          admit(phosphorPreset(), '"phosphor" (shorthand)');
           break;
         case 'remix':
-          enabled.push(remixPreset());
+          admit(remixPreset(), '"remix" (shorthand)');
           break;
         default:
           throw unknownPresetError(entry);
@@ -124,7 +149,7 @@ export function normalizeIconPresets(
         typeof entry === 'object' && entry !== null ? String(entry.id) : String(entry),
       );
     }
-    enabled.push(buildPreset(entry));
+    admit(buildPreset(entry), `"${entry.id}" (object form)`);
   }
   return enabled;
 }

@@ -119,6 +119,22 @@ describe('registry + normalization (A1)', () => {
       /"tabler" is not a shipped preset/,
     );
   });
+
+  test('a duplicate preset id fails by name — one entry per id (codex r1 m3)', () => {
+    expect(() => normalizeIconPresets(['material', 'material'])).toThrowError(
+      /declares "material" twice \("material" \(shorthand\) and "material" \(shorthand\)\)/,
+    );
+    expect(() => normalizeIconPresets(['material', { id: 'material', weight: 500 }])).toThrowError(
+      /declares "material" twice \("material" \(shorthand\) and "material" \(object form\)\)/,
+    );
+  });
+
+  test('two presets sharing a prefix fail by name — each prefix names one preset', () => {
+    const impostor = { ...phosphorPreset(), prefix: 'md' as const };
+    expect(() => normalizeIconPresets(['material', impostor])).toThrowError(
+      /gives the prefix "md:" to two presets \("material" \(shorthand\) and "phosphor" \(instance\)\)/,
+    );
+  });
 });
 
 describe('the enabled-prefix law (config validation)', () => {

@@ -61,6 +61,10 @@ runs the shared RAW safety → svgo → structural-validation pipeline.
   their stroke attrs in `d` children as today).
 - Absent peer install → the lucide loud-fail precedent: named error
   naming the npm install line.
+- Uniqueness (codex r1 m3): `library.presets` admits ONE entry per id
+  and ONE preset per prefix — a duplicate either way is a named config
+  error (two enabled presets silently last-winning the `md:` prefix map
+  would be a configuration lie).
 - Versioning: presets pin nothing themselves (consumers' own semver
   range rides their lockfile); the DEFAULTS (weight/style) are frozen
   per preset id and documented.
