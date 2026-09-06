@@ -41,8 +41,12 @@
    promise-chain (rejection-recovering) fingerprinted on the final
    merged payload, and the protected fields
    (`startOnLoad:false`/`securityLevel:'strict'`/`theme:'base'`)
-   survive any consumer config. The theme flip (`.dark` class on the
-   root — the registry's own theme contract) re-derives and re-renders.
+   survive any consumer config. Theme flips re-derive and re-render —
+   readThemeTokens accepts the surface's theme root (scoped containers
+   resolve their own tokens) and an optional resolvedTheme (the
+   explicit light/dark pin reads the TARGET sheet through a local
+   probe wrapper, never a global class mutation); the surface's
+   effective-scope observer drives auto re-renders.
 3. **ui `math-inline` — the inline math surface (P0)** —
    `registry/files/ui/math-inline/`: one `<span>` rendering KaTeX inline
    mode; no chrome, no controls; inherits prose `currentColor` (light/
