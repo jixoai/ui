@@ -9,19 +9,23 @@
       `katex/dist/katex.min.css` import; header comment (intent list +
       facade-not-wrapper statement)
 - [ ] 1.2 `registry/files/ui/math-inline/`: span surface, role="math"
-      on the content-only span, HTMLAttributes<HTMLElement> rest spread
-      BEFORE component stamps, no aria-label shadowing (MathML is the
-      SR path), no css file; pure-barrel index.ts
+      on the content-only span, HTMLAttributes<HTMLSpanElement> with
+      `{...rest}` spreading BEFORE the component's own stamps (Svelte
+      later-wins — consumer attributes pass through, component
+      semantics un-overridable; conflict test pins it), no aria-label
+      shadowing (MathML is the SR path), no css file; pure-barrel
+      index.ts
 - [ ] 1.3 `registry/files/ui/math-block/`: sync SSR render via $derived,
       FULL scroll-run rider — createScrollStamp({run, host, members:
-      [mathEl], ramps:false}) armed in $effect with destroy cleanup +
-      ScrollChrome(shadow veil) — role="math" on the INNER content
-      wrapper (figure keeps native semantics; copy button stays
-      discoverable), copyable control (press physics, clipboard
-      fallback, labels payload), error-in-place paint + console.warn;
-      math-block.css (canonical `@layer theme, base, components,
-      utilities;` prologue + timestamped intent comment + :where()
-      paint); pure-barrel index.ts
+      () => (mathEl ? [mathEl] : []), ramps: false}) armed in $effect
+      with the returned destroy() as cleanup + ScrollChrome(shadow
+      veil) — role="math" on the INNER content wrapper (figure keeps
+      native semantics; copy button stays discoverable), rest spread
+      before component stamps, copyable control (press physics,
+      clipboard fallback, labels payload), error-in-place paint +
+      console.warn; math-block.css (canonical `@layer theme, base,
+      components, utilities;` prologue + timestamped intent comment +
+      :where() paint); pure-barrel index.ts
 - [ ] 1.4 specs: `apps/www/test/{katex,math-inline,math-block}.spec.ts`
       (real katex engine; markup/MathML/displayMode/error/override
       precedence; rest passthrough + a11y; stamp four-state verdicts +
@@ -36,16 +40,19 @@
       unit tests for both syntax families + round-trips; mirrored both
       sides
 - [ ] 2.2 `registry/files/lib/mermaid-engine.ts`: lazy singleton
-      dynamic import; readThemeTokens (probe INSIDE the passed root's
-      subtree → parseColor → hex; per-token documented safe-hex
-      fallback on parse null — never the raw string, one warn per
-      degraded token; --font-sans via the same probe, omitted when
+      dynamic import; readThemeTokens (color probes INSIDE the passed
+      root's subtree → parseColor → hex; the documented per-theme
+      safe-hex fallback table committed in the header as the oracle —
+      never the raw string, one warn per degraded token; a SEPARATE
+      fontFamily probe for --font-sans, font omitted when
       unresolvable); resolveTheme ('auto' → `.dark` class);
       deriveThemeVariables (§3.2's ONE-source-per-field table);
-      renderDiagram with the id contract (§3.4), the promise-chain
-      serial queue + fingerprint (§3.3), and the protected-fields
-      ladder (startOnLoad:false · securityLevel:'strict' · theme:'base'
-      never overridable; user themeVariables field-wise over derived);
+      renderDiagram with the id contract (§3.4), the rejection-
+      recovering promise-chain serial queue + fingerprint over the
+      FINAL merged initialize payload (§3.3 — token changes inside one
+      theme mode re-initialize), and the protected-fields ladder
+      (startOnLoad:false · securityLevel:'strict' · theme:'base' never
+      overridable; user themeVariables field-wise over derived);
       MermaidRenderError normalization (browser-only guard for SSR
       calls); registryDependencies @jixoai/color-utils
 - [ ] 2.3 `registry/files/ui/mermaid/`: source floor → lazy SVG swap,
@@ -53,20 +60,26 @@
       data-state machine (floor/rendering/rendered/error),
       theme-follow MutationObserver (auto mode), zoom trio (scale
       transform, viewport pan, clamp 0.5–3), copy control, labels
-      payload, fade-in + reduced-motion kill, min-height reserve via
+      payload (incl. `diagram` — the viewport's accessible name when
+      `name` is absent; never a nameless img), fade-in +
+      reduced-motion kill, min-height reserve via
       `--jx-mermaid-floor-min` (default 6rem, consumer-tunable);
       viewport = finalized scroll-run exemption (two-axis pan,
       scrollbar-token law both axes, NEGATIVE test: no data-jx-scroll-run
-      / chips / veils inside); role="img" + aria-label={name}; HTMLAttributes
-      rest spread; mermaid.css (canonical prologue); pure-barrel index.ts
+      / chips / veils inside); role="img" + accessible name at all
+      times; HTMLAttributes rest spread BEFORE component stamps;
+      mermaid.css (canonical prologue); pure-barrel index.ts
 - [ ] 2.4 specs: `apps/www/test/{mermaid-engine,mermaid}.spec.ts`
       (vi.mock the engine; contract assertions per design §8 —
       initialize args + adversarial config survival, singleton, probe
-      pipeline + safe fallback, serial queue + fingerprint, id
-      collisions (two instances / same name / re-renders), theme
-      re-derive, generation discipline, error normalization + floor
-      survival, rest passthrough, no-chrome negative, zoom transform
-      without engine calls) — mirror byte-identical to `registry/test/`
+      pipeline + per-theme safe-hex fallback table, serial queue
+      (fingerprint over merged payload; rejection-recovery — a failed
+      render never poisons the next), id collisions (two instances /
+      same name / re-renders), theme re-derive, generation discipline,
+      error normalization + floor survival, rest passthrough + conflict
+      attributes, no-chrome negative, zoom transform without engine
+      calls, accessible name without `name`) — mirror byte-identical to
+      `registry/test/`
 
 ## 3. Registry surface
 
@@ -78,7 +91,9 @@
       the shiki precedent, docs strings in the $lib consumer dialect)
 - [ ] 3.2 deps pair: `apps/www/package.json` + `registry/package.json`
       both gain katex + mermaid (byte-identical pair); npm install;
-      lockfile updates (root + apps/www) committed as receipts
+      lockfile receipts committed for EVERY affected workspace (root
+      `package-lock.json` + `apps/www/package-lock.json`; packages/*
+  untouched unless a build demands it)
 - [ ] 3.3 mirrors byte-identical both sides; manifest regenerated
       (113 → 118); verify:mirror GREEN; verify:deps GREEN (ratchet
       unchanged or shrunk — every new cross-item edge declared)
@@ -109,11 +124,15 @@
       error; worktree fresh-bootstrap additionally carries the
       icons-dogfood dist + payload-parity build debts — both satisfied
       by this change's builds)
-- [ ] 5.3 verify:standards/budgets/laws/icons/context GREEN; browser
-      probe (verify:surface harness pattern): two mermaid instances →
-      SVGs with distinct ids, theme flip changes a baked fill; vision
-      lane screenshots (light+dark math quality, diagram theming,
-      zoom, error states) reviewed
+- [ ] 5.3 verify:standards/budgets/laws/icons/context GREEN; NEW
+      `scripts/verify-katex-mermaid.mjs` (verify-surface bootstrap
+      verbatim: playwright-core + local chromium discovery + --url
+      :5199): mermaid page → two SVG instances with distinct ids, dark
+      flip → re-render with a changed baked fill; math-block page →
+      .katex + MathML in DOM, run carries a scroll-state verdict;
+      registered as `verify:km` and appended to the verify-all chain;
+      vision lane screenshots (light+dark math quality, diagram
+      theming, zoom, error states) reviewed
 - [ ] 5.4 `scripts/verify-shadcn-add.mjs` CASES extended with
       math-block + mermaid (install from built payloads; deps land in
       the consumer's package.json; consumer vite build resolves the

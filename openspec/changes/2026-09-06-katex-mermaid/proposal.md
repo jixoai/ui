@@ -26,16 +26,23 @@
    lazy singleton (the engine is ~1MB — code-split, loaded only when a
    diagram actually renders); `readThemeTokens()` resolves live tokens
    through the probe + parseColor pipeline (custom properties return
-   UNRESOLVED token streams from getComputedStyle — a hidden probe
-   element resolves `var()` chains, `@jixoai/color-utils`'s parseColor
-   + formatColor convert to mermaid-safe hex; unparseable strings pass
-   through with a warn, theming never fails a render), and maps them
-   onto mermaid's `themeVariables` (theme `base`).
-   `renderDiagram(source, { theme, config })` returns the sanitized
-   SVG string with a typed render-error. `startOnLoad:false`,
-   `securityLevel` stays mermaid's default strict (its built-in
-   DOMPurify pass). The theme flip (`.dark` class on the root — the
-   registry's own theme contract) re-derives and re-renders.
+   UNRESOLVED token streams from getComputedStyle — hidden probe
+   elements inside the passed root resolve `var()` chains for colors
+   and a separate fontFamily probe resolves `--font-sans`;
+   `@jixoai/color-utils`'s parseColor + formatColor convert to
+   mermaid-safe hex; an unparseable token degrades to its DOCUMENTED
+   per-theme safe-hex fallback — never a raw string, so theming never
+   breaks a render), and maps them onto mermaid's `themeVariables`
+   (theme `base`) through a one-source-per-field table.
+   `renderDiagram(source, { id, theme, config })` returns the
+   sanitized SVG string with a typed render-error; the REQUIRED `id`
+   follows the collision contract (per-instance monotonic base +
+   per-render suffix), initialize/render pairs run through a serial
+   promise-chain (rejection-recovering) fingerprinted on the final
+   merged payload, and the protected fields
+   (`startOnLoad:false`/`securityLevel:'strict'`/`theme:'base'`)
+   survive any consumer config. The theme flip (`.dark` class on the
+   root — the registry's own theme contract) re-derives and re-renders.
 3. **ui `math-inline` — the inline math surface (P0)** —
    `registry/files/ui/math-inline/`: one `<span>` rendering KaTeX inline
    mode; no chrome, no controls; inherits prose `currentColor` (light/

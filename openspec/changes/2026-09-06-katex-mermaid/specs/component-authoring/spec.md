@@ -117,8 +117,10 @@ shift. A render failure SHALL paint an error summary strip and KEEP
 the source floor standing. The first render fades in, killed under
 `prefers-reduced-motion`. The surface SHALL honor the
 rest-attributes contract (rest spreads on the figure before the
-component's own stamps; `role="img"` + `aria-label={name}` on the
-viewport).
+component's own stamps); the viewport SHALL carry `role="img"` with an
+accessible name at ALL times (`name` when given, else the
+`labels.diagram` localization payload, else the shipped English
+'Diagram' — a nameless diagram never mounts a nameless img).
 
 #### Scenario: the floor upgrades after hydration
 

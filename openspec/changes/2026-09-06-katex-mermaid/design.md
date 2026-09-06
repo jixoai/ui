@@ -92,8 +92,9 @@ export function registerMacros(macros: NonNullable<KatexOptions['macros']>): voi
 ```ts
 export type MermaidThemeMode = 'auto' | 'light' | 'dark';
 export interface ThemeTokens {
-  background; foreground; primary; secondary; accent; muted; border; error: string;
-  font: string;                                   // resolved --font-sans
+  background: string; foreground: string; primary: string; secondary: string;
+  accent: string; muted: string; border: string; error: string;
+  font?: string;   // resolved --font-sans — ABSENT when unresolvable (mermaid default family)
   chart: [string, string, string, string, string];
 }
 export function readThemeTokens(root?: HTMLElement): ThemeTokens;   // browser-only
@@ -119,9 +120,9 @@ returns the specified token STREAM, not a color —
 Resolution pipeline:
 
 ```
-probe element — attached INSIDE the passed root's subtree (default
+COLOR probe — attached INSIDE the passed root's subtree (default
   documentElement; a scoped root reads ITS tokens, not the page's),
-  display:none, one probe per token:
+  display:none, one probe per color token:
   probe.style.color = `var(${name})`
   → getComputedStyle(probe).color   // browser-resolved, serialized
                                      // (oklch(…) per origin space, or
@@ -130,15 +131,40 @@ probe element — attached INSIDE the passed root's subtree (default
                                       // this change to accept rgb()/rgba()
                                       // (comma AND space/slash syntaxes)
   → formatColor(oklch, 'hex')        // #rrggbb — mermaid-safe
-  → parseColor null → the token's DOCUMENTED SAFE HEX FALLBACK
-    (the semantic palette's sheet values: --background→#ffffff,
-    --foreground→#000000, --primary→#e029a2 (hue-330 brand),
-    --border→#000000, --muted→#f4f4f4, --secondary→#dbe957,
-    --accent→#3b6ce1, --error→#c02a2a; chart = the five above in
-    order) — NEVER the raw string: a var() fragment or an exotic
-    function fed to mermaid breaks its derivation machinery.
+  → parseColor null → the token's DOCUMENTED SAFE HEX (table below)
   → one console.warn per degraded token (once, not per render).
+
+FONT probe — SEPARATE step, its own property (a font family is not a
+  color; the color probe cannot carry it):
+  probe.style.fontFamily = 'var(--font-sans)'
+  → getComputedStyle(probe).fontFamily → ThemeTokens.font (string verbatim)
+  → empty/unresolvable → font ABSENT (optional field) — mermaid's
+    default family applies. Never warns (fonts degrade gracefully).
 ```
+
+**The safe-hex fallback table** (per token, PER THEME — the sheet's own
+values run through the same Ottosson conversion color-utils uses;
+srgb-gamut clamping applies; the table is the test oracle, committed in
+the engine header):
+
+```
+token         light      dark
+background    #ffffff    #000000
+foreground    #000000    #ffffff
+primary       #d945d1    #d970dd     (hue 330 static / dark 326)
+secondary     #ffff00    #ffff33
+accent        #0066ff    #3399ff
+muted         #f0f0f0    #1a1a1a
+border        #000000    #ffffff
+error         #de3b3d    #f97770
+chart-1..5    = primary/success/info/warning/error rows above
+              success #11a22f / #5bbe62 · info #008cdf / #54b3fd ·
+              warning #f9b800 / #e9ac00
+```
+
+A degraded token NEVER reaches mermaid as a raw string — a var()
+fragment or an exotic function fed to its derivation machinery breaks
+the palette.
 
 - **color-utils parseColor extension is a TASK of this change** (the
   shared lib gains rgb()/rgba() parsing — modern `rgb(1 2 3 / 0.5)`
@@ -177,11 +203,24 @@ concurrently could interleave initialize/render across themes. The
 engine enforces:
 
 ```
-fingerprint = resolvedTheme + stableStringify(config ?? {})   // sorted-key
-              JSON serialization — object identity never matters
+fingerprint = resolvedTheme + stableStringify(FINAL merged initialize payload)
+              // the merged payload INCLUDES the derived themeVariables,
+              // font, and the protected fields — so a brand-hue or token
+              // change inside the SAME theme mode still flips it
+              // (initialize re-runs; stale colors are impossible)
+stableStringify: sorted-key JSON walk — undefined-valued keys OMITTED,
+              non-JSON values coerced via String(v), circular input is a
+              documented TypeError (configs are plain data by contract);
+              OBJECT IDENTITY never participates
 ALL initialize+render pairs run through ONE promise-chain mutex:
-  enqueue(() => { if (fingerprint !== lastFingerprint) { mermaid.initialize(merged); lastFingerprint = fingerprint; }
-                  return mermaid.render(renderId, source); })
+  enqueue(task) = queue = queue.then(task, task)   // a REJECTED previous
+              // task never poisons the chain — each link runs whether the
+              // prior succeeded or not; the CALLER's promise still rejects
+              // with its own error (MermaidRenderError)
+  task = () => { const merged = buildInitializePayload(options);
+                 const fp = resolvedTheme + stableStringify(merged);
+                 if (fp !== lastFingerprint) { mermaid.initialize(merged); lastFingerprint = fp; }
+                 return mermaid.render(renderId, source); }
 ```
 
 - Config merge precedence (explicit, field-level):
@@ -213,10 +252,19 @@ temp DOM container — colliding ids cross-wire outputs between
 instances. The contract:
 
 ```
-component instance owns:  base = sanitize(name || 'jx-mermaid')   // [a-z0-9-] only
+component instance owns:  base = sanitize(name || 'jx-mermaid')   // [a-z0-9-] only;
+                                                                    // fully-illegal input
+                                                                    // sanitizes to the
+                                                                    // 'jx-mermaid' default —
+                                                                    // the base is NEVER empty
                           base += '-' + INSTANCE_COUNTER++         // module-level,
                                                                     // monotonic — same
-                                                                    // names never collide
+                                                                    // names never collide;
+                                                                    // vitest module isolation
+                                                                    // scopes it per spec file,
+                                                                    // HMR remounts draw fresh
+                                                                    // suffixes (uniqueness is
+                                                                    // all that matters)
 each render call:         renderId = `${base}-${renderCounter++}`  // re-renders never
                                                                     // reuse a live id
 ```
@@ -231,12 +279,19 @@ uncrossed outputs.
 ```svelte
 <Props extends HTMLAttributes<HTMLSpanElement>>{
   tex: string; macros?; strict?; trust?;
-  // …rest spreads onto the root span BEFORE the component's own stamps
 }</Props>
-<span data-jx-math-inline role="math" {...rest} class={cn(className)}>
+<span {...rest} data-jx-math-inline role="math" class={cn(className)}>
   {@html renderTex(tex, { displayMode: false, … })}
 </span>
 ```
+
+Spread order is CONTRACT (Svelte: later attributes win): `{...rest}`
+FIRST, the component's own `data-jx-math-inline`/`role` stamps AFTER —
+a consumer cannot override the component's semantic fields, while
+`data-testid`/`title`/`aria-*`/handlers pass through untouched; `class`
+merges via the destructured class prop (never a `className` prop in
+Svelte). A conflict test pins it: a consumer-sent
+`data-jx-math-inline="x"` loses; `data-testid="eq"` lands.
 
 - Rest-attributes contract (the living requirement): consumer
   `data-testid`/`title`/`aria-*`/handlers land on the root; the
@@ -260,7 +315,7 @@ uncrossed outputs.
   macros?; strict?; trust?;
   // …rest spreads onto the figure
 }</Props>
-<figure data-kind="math" data-jx-math-block {...rest} class={cn(className)}>
+<figure {...rest} data-kind="math" data-jx-math-block class={cn(className)}>
   <div class="jx-scroll-host grid [grid-template-columns:minmax(0,1fr)]" bind:this={hostEl}>
     <div data-jx-scroll-run data-axis="horizontal" bind:this={runEl} class="scrollport">
       <div role="math" bind:this={mathEl}>{@html renderTex(tex, { displayMode: true, … })}</div>
@@ -304,13 +359,15 @@ uncrossed outputs.
   theme?: MermaidThemeMode = 'auto';
   copyable?: boolean = true;
   zoomable?: boolean = true;
-  labels?: { copy?; copied?; zoomIn?; zoomOut?; zoomReset?; renderError?: string };
+  labels?: { copy?; copied?; zoomIn?; zoomOut?; zoomReset?; renderError?; diagram?: string };
+  // labels.diagram: the viewport's accessible name when `name` is absent
+  // (localization payload — absent = 'Diagram', shipped English)
   config?: MermaidConfig;               // §3.3's precedence ladder applies
   // …rest spreads onto the figure
 }</Props>
-<figure data-kind="diagram" data-jx-mermaid data-state={floor|rendering|rendered|error} {...rest} class={cn(className)}>
+<figure {...rest} data-kind="diagram" data-jx-mermaid data-state={floor|rendering|rendered|error} class={cn(className)}>
   {#if name}<figcaption — filename-tab pattern>{/if}
-  <div data-jx-mermaid-viewport role="img" aria-label={name ?? undefined}>
+  <div data-jx-mermaid-viewport role="img" aria-label={name ?? labels?.diagram ?? 'Diagram'}>
     {#if svg}<div class="zoom-wrapper" style="transform:scale({scale})" bind:this={zoomEl}>{@html svg}</div>
     {:else}<pre><code>{source}</code></pre>   <!-- the floor, also the error fallback -->
     {/if}
@@ -350,10 +407,12 @@ uncrossed outputs.
 - Error state: `data-state="error"` paints a summary strip
   (`labels.renderError` + the diagnostic's first line) ABOVE the
   standing source floor — the floor never disappears on failure.
-- A11y: `role="img"` + `aria-label={name}` on the viewport (the svg is
-  decorative-in-transit until rendered; a mermaid `title` in the
-  grammar adds its own accessible name inside the svg); controls are
-  real buttons (press physics, focusable, localized).
+- A11y: `role="img"` on the viewport with an accessible name at ALL
+  times — `name` when given, else `labels.diagram` (localization
+  payload), else the shipped English `'Diagram'`; a nameless diagram
+  never mounts a nameless img. A mermaid `title` inside the grammar
+  adds its own accessible name to the rendered svg. Controls are real
+  buttons (press physics, focusable, localized).
 
 ## 7. Law mapping (living-spec anchors this change must satisfy)
 
@@ -379,8 +438,16 @@ uncrossed outputs.
   code-card precedent ships `import './code-card.css'` and its spec
   runs).
 - color-utils: parseColor extension unit tests — rgb()/rgba() in
-  comma + space/slash serializations, alpha discard, round-trip
-  against known pairs.
+  comma + space/slash serializations, alpha DISCARD with concrete
+  pairs (`rgba(255, 0, 0, 0.5)` → `#ff0000`, `rgb(1 2 3 / 0.25)` →
+  `#010203` — discarded, never premultiplied), round-trips against
+  known pairs.
+- mermaid-engine extras: the safe-hex fallback table asserted per
+  theme (a probe returning garbage degrades to the documented hex, not
+  a raw string); the queue-recovery test (a rejected render — parse
+  error — followed by a valid render still succeeds; the chain never
+  carries the poison); the fingerprint test (same theme mode, changed
+  token value → initialize re-runs).
 - mermaid: the engine module is `vi.mock`-ed (a ~1MB ESM engine with a
   DOM-bound renderer is not a jsdom citizen) — specs assert the
   CONTRACT: initialize args (startOnLoad:false, theme 'base', derived
@@ -399,11 +466,25 @@ uncrossed outputs.
   no-chrome negative test, min-height reserve, zoom transform without
   engine calls.
 - Real mermaid rendering: the vision lane (browser screenshots, light
-  + dark) PLUS one browser-automatable probe (the verify:surface
-  Playwright harness pattern): on the mermaid docs page assert two
-  mounted instances produce SVGs with distinct ids and a theme flip
-  changes a baked fill — screenshots supplement, the probe is the
-  gate-able assertion.
+  + dark) PLUS a dedicated, gate-able browser probe —
+  **`scripts/verify-katex-mermaid.mjs`** (NEW, standalone — the
+  verify-surface.mjs bootstrap verbatim: playwright-core, the newest
+  ms-playwright chromium cache then system Chrome, `--url` defaulting
+  to `http://localhost:5199` against a running `pnpm dev`). The probe:
+  1. open `/docs/components/mermaid.html`, wait for
+     `[data-jx-mermaid] svg` — the page mounts TWO instances;
+  2. assert both SVGs exist and their ids are DISTINCT (the id
+     collision contract, live);
+  3. `documentElement.classList.add('dark')` → wait for the re-render
+     (`data-state="rendered"` stable) → assert a baked `fill` attribute
+     on a themed node CHANGED between the two snapshots;
+  4. open `/docs/components/math-block.html` → assert `.katex` markup
+     AND the hidden MathML (`math` element) exist in the served DOM,
+     and the run carries a `data-jx-scroll-state` verdict after the
+     stamp arms (or `none` when the formula fits);
+  5. exit non-zero on any miss with the failing selector in the
+     message. Registered as `verify:km` in the root package.json and
+     added to the verify-all chain's tail (after verify:surface).
 - End-to-end out-of-the-box: `scripts/verify-shadcn-add.mjs` gains
   CASES entries for math-block + mermaid — each case: install from the
   built payloads into a real fixture, assert `katex`/`mermaid` land in
