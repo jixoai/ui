@@ -8,7 +8,7 @@
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { registrySourceUrl } from '$lib/registry-source';
   import { PlayFields, PlayHelp } from '$lib/playground';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -84,7 +84,7 @@ ${close}
           <Badge class="jx-hue-neutral">draft</Badge>
           <Badge class="jx-hue-error">failed</Badge>
           <Badge shape="pill" class="jx-hue-success">
-            {#snippet slotStart()}{@html icons.check}{/snippet}
+            {#snippet slotStart()}<Icon name="check" />{/snippet}
             passing
           </Badge>
         </div>

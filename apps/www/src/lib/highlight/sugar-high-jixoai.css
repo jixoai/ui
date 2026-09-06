@@ -1,0 +1,46 @@
+/*
+ * jixoai palette for the sugar-high backend
+ * (lib/highlight/sugar-high-jixoai.css, highlight-engine-matrix, 2026-09-06).
+ *
+ * Empirical output form (verified against sugar-high 2.3.1 in node — the
+ * decision this file exists on): the engine emits
+ * <span class="sh__line"> line wrappers and
+ * <span class="sh__token--<type>" style="color:var(--sh-<type>)"> token
+ * spans — a class AND an inline style, where the inline color is an
+ * UNRESOLVED custom-property reference. The package ships no stylesheet:
+ * its README's "default theme" is the --sh-* block it expects the host to
+ * write. Without this file every token degrades to the inherited
+ * foreground (monochrome). A class-level `color` rule cannot win over the
+ * engine's inline style, so the variable channel is the only clean seam:
+ * define the engine's vocabulary, let its own inline vars resolve.
+ *
+ * THE MAPPING: the card's --tok-token-* palette (code-card.css, light and
+ * dark adapted by the same sheet) expressed in the engine's vocabulary,
+ * scoped to the engine's own line hook (every token span inherits from
+ * its .sh__line wrapper; :where() keeps zero specificity so consumer
+ * overrides win). Primary tokens map 1:1 (keyword/string/comment, sign →
+ * punctuation); neighbors for the engine's extras: class → constant
+ * (types, numbers, Capitalized identifiers), property → function,
+ * entity → constant, jsxliterals → string-expression (JSX text runs),
+ * identifier → the foreground (its README palette keeps identifiers
+ * near-neutral too). space/break stay unmapped on purpose: structural
+ * whitespace, and the unresolved reference inherits — exactly right.
+ * Outside a --tok-* host (a bare box) each reference degrades to the
+ * inherited foreground — the same floor as no stylesheet.
+ *
+ * .sh__line stays inline on purpose: the engine joins its line spans with
+ * literal "\n" text nodes and the card's white-space:pre <pre> renders
+ * those breaks — a display:block here would double every line break.
+ */
+
+:where(.sh__line) {
+  --sh-keyword: var(--tok-token-keyword);
+  --sh-string: var(--tok-token-string);
+  --sh-comment: var(--tok-token-comment);
+  --sh-sign: var(--tok-token-punctuation);
+  --sh-class: var(--tok-token-constant);
+  --sh-property: var(--tok-token-function);
+  --sh-entity: var(--tok-token-constant);
+  --sh-jsxliterals: var(--tok-token-string-expression);
+  --sh-identifier: var(--tok-foreground);
+}

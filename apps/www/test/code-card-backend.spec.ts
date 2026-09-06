@@ -156,6 +156,39 @@ describe('highlight backends — the contract', () => {
     expect(code.textContent).toBe('x');
   }, 20000);
 
+  // ── per-instance langs allowlists (highlight-engine-matrix, 2026-09-06) ──
+
+  it('prismjs: a langs allowlist rejects outside languages, aliases resolve inside it', async () => {
+    const { code } = codeBox();
+    code.textContent = 'x';
+    const slim = prismjs({ langs: ['css'] });
+    // 'scss' is a real prism grammar but outside THIS instance's set
+    await expect(slim.highlight(code, 'x', { lang: 'scss' })).rejects.toThrow(
+      /outside this instance's langs set/,
+    );
+    expect(code.textContent).toBe('x');
+    // an alias entry ('ts') canonicalizes into the set's terms and paints
+    const { code: aliasBox } = codeBox();
+    const tsAllowed = prismjs({ langs: ['ts'] });
+    await tsAllowed.highlight(aliasBox, SAMPLE, { lang: 'typescript' });
+    expect(aliasBox.classList.contains('language-typescript')).toBe(true);
+  }, 20000);
+
+  it('shiki: a langs allowlist gates the instance, the shared facade stays untouched', async () => {
+    const { code } = codeBox();
+    code.textContent = 'x';
+    const slim = shiki({ langs: ['bash'] });
+    await expect(slim.highlight(code, 'x', { lang: 'ts' })).rejects.toThrow(
+      /outside this instance's langs set/,
+    );
+    expect(code.textContent).toBe('x');
+    // an unrestricted sibling instance on the SAME shared facade still
+    // paints ts — the allowlist is per-instance, never a registry mutation
+    const { code: sibling } = codeBox();
+    await shiki().highlight(sibling, SAMPLE, { lang: 'ts' });
+    expect(sibling.querySelector('span')).not.toBeNull();
+  }, 20000);
+
   it('microLighter: ZERO markup — ranges over the text node, theme attributes', async () => {
     const { pre, code } = codeBox();
 
@@ -168,7 +201,7 @@ describe('highlight backends — the contract', () => {
     expect(code.textContent).toBe(SAMPLE);
     // language + theme metadata (its own channels)
     expect(code.dataset.language).toBe('ts');
-    expect(pre.getAttribute('data-syntax-theme')).toBe('min');
+    expect(pre.getAttribute('data-syntax-theme')).toBe('jixoai');
     // ranges registered in the global registry, over OUR text node
     expect(paintedTextNodes().has(code.firstChild!)).toBe(true);
   }, 20000);
@@ -290,7 +323,7 @@ describe('CodeCard — the backend seam', () => {
         // prism markup dropped; the plain text node is the final DOM
         expect(contextCard().querySelector('.token')).toBeNull();
         expect(contextCard().querySelector('pre code')!.textContent).toBe(SAMPLE);
-        expect(contextCard().querySelector('pre')!.getAttribute('data-syntax-theme')).toBe('min');
+        expect(contextCard().querySelector('pre')!.getAttribute('data-syntax-theme')).toBe('jixoai');
         // ranges registered over the context card's own text node (the
         // registry may hold other elements' ranges too — the document scan)
         expect(paintedTextNodes().has(contextCard().querySelector('pre code')!.firstChild!)).toBe(

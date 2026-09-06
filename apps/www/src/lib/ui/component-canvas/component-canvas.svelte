@@ -251,7 +251,7 @@
   import ToggleGroupItem from '$lib/ui/toggle-group/toggle-group-item.svelte';
   import { ItemField, ItemToggle, ItemSelect, ItemInput } from '$lib/ui/list-item';
   import type { ItemFieldContext } from '$lib/ui/list-item';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import './component-canvas.css';
 
@@ -622,7 +622,7 @@
           onclick={() => copyInstall()}
         >
           <span>npx jixoai-ui add {install}</span>
-          <span class="[&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html (copiedInstall ? icons.check : icons.copy)}</span>
+          <Icon name={copiedInstall ? 'check' : 'copy'} size={12} />
         </button>
       {/if}
       <!-- stage toggles (the floor, native-html edition): page-owned
@@ -670,7 +670,7 @@
           aria-label="Open source on GitHub"
           title="Open source on GitHub"
         >
-          <span class="[&_svg]:h-[13px] [&_svg]:w-[13px]" aria-hidden="true">{@html icons.externalLink}</span>
+          <Icon name="externalLink" size={13} />
         </a>
       {/if}
     </div>
@@ -738,7 +738,7 @@
               title="Reset playground"
               onclick={() => (onreset ? onreset() : resetValues())}
             >
-              <span class="[&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html icons.rotateCcw}</span>
+              <Icon name="rotateCcw" size={12} />
             </button>
           {/if}
         </div>
@@ -899,11 +899,11 @@
       onclick={() => (codeOpen = !codeOpen)}
     >
       <span
-        class="jx-canvas-chevron inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] transition-transform duration-150 ease-out"
+        class="jx-canvas-chevron inline-flex transition-transform duration-150 ease-out"
         class:rotate-180={codeOpen}
         aria-hidden="true"
       >
-        {@html icons.chevronDown}
+        <Icon name="chevronDown" size={13} />
       </span>
       <span>Code</span>
       <span class="text-muted-foreground font-mono text-[10px]">· {files.length}</span>
@@ -917,7 +917,7 @@
           title={copiedUsage ? 'copied' : 'copy usage'}
           onclick={() => copyUsage()}
         >
-          <span class="[&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html (copiedUsage ? icons.check : icons.copy)}</span>
+          <Icon name={copiedUsage ? 'check' : 'copy'} size={12} />
         </button>
       {/if}
     </div>

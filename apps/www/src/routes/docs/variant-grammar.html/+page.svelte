@@ -9,7 +9,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
 
   // ToC lives in +page.ts (firstpaint era: the layout's chrome snippet
@@ -360,7 +360,7 @@ split — two utilities; both properties land:
                 <Badge class="jx-hue-neutral">draft</Badge>
                 <Badge class="jx-hue-error">failed</Badge>
                 <Badge shape="pill" class="jx-hue-success">
-                  {#snippet slotStart()}{@html icons.check}{/snippet}
+                  {#snippet slotStart()}<Icon name="check" />{/snippet}
                   passing
                 </Badge>
                 <Badge class="jx-hue-warning">degraded</Badge>

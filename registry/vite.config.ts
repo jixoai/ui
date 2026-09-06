@@ -3,7 +3,8 @@ import { jixoai } from '@jixoai/vite-plugin';
 import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
-import { createReadStream, existsSync, statSync } from 'node:fs';
+import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -150,7 +151,11 @@ function devMirrorSync(): Plugin {
 // the lucide provider registers no watched files, so the alias can
 // never go stale short of a restart.)
 const jixoaiPlugins = jixoai({
-  icons: { provider: lucideIconProvider(), safety: { mode: 'warn' } },
+  icons: {
+    provider: lucideIconProvider(),
+    safety: { mode: 'warn' },
+    library: { includeDefaults: true },
+  },
 });
 const jixoaiIconsPlugin = jixoaiPlugins.find((plugin) => plugin.name === 'jixoai-icons');
 if (!jixoaiIconsPlugin) {
@@ -181,6 +186,48 @@ function jixoaiIconsCssEntry(): Plugin {
   };
 }
 
+// Build-side counterpart of the optimizeDeps exclusion below. Rollup
+// cannot statically analyze microlighter's grammar loading either —
+// the bundled engine chunk KEEPS the runtime-templated import
+// (import(`./grammars/${lang}.js`)), which the browser resolves
+// relative to THAT CHUNK — a grammars/ directory that exists nowhere
+// in the build output (verified on the 2026-09-07 build: 404 →
+// microlighter's .catch(()=>null) → zero ranges, uncolored cards).
+// This plugin re-homes the package's grammar modules next to every
+// chunk that carries the template: each dist/grammars/*.js is emitted
+// as a verbatim asset (they are zero-import data modules — `export
+// default {...}`, grammar dependencies are loader-resolved data, not
+// ES imports), so the runtime template resolves exactly as it does
+// against node_modules in dev.
+function microlighterGrammarAssets(): Plugin {
+  return {
+    name: 'microlighter-grammar-assets',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      const carriers = Object.values(bundle).filter(
+        (file) => file.type === 'chunk' && file.code.includes('./grammars/${'),
+      );
+      if (carriers.length === 0) return; // engine not in this build
+      const require = createRequire(import.meta.url);
+      // exports map only exposes ./dist/* — resolve the entry and walk
+      // up (entry: <pkg>/dist/index.js)
+      const pkgRoot = dirname(dirname(require.resolve('microlighter')));
+      const grammarsDir = join(pkgRoot, 'dist', 'grammars');
+      for (const carrier of carriers) {
+        const target = join(dirname(carrier.fileName), 'grammars');
+        for (const name of readdirSync(grammarsDir)) {
+          if (!name.endsWith('.js')) continue;
+          this.emitFile({
+            type: 'asset',
+            fileName: join(target, name),
+            source: readFileSync(join(grammarsDir, name), 'utf8'),
+          });
+        }
+      }
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     sveltekit(),
@@ -196,5 +243,16 @@ export default defineConfig({
     // mirror DELETION back onto the www original (learned live,
     // icons-docs integration 2026-09-02).
     devMirrorSync(),
+    microlighterGrammarAssets(),
   ],
+  // microlighter loads its grammars via RUNTIME-TEMPLATED relative
+  // imports (import(`./grammars/${lang}.js`) inside the package) — the
+  // dev optimizer would flatten the package into .vite/deps and break
+  // that resolution (404 → .catch(()=>null) → silently zero ranges,
+  // found live on the docs playground 2026-09-07). Excluded here, the
+  // engine + grammars are served straight from node_modules and the
+  // relative imports resolve against the real dist files.
+  optimizeDeps: {
+    exclude: ['microlighter'],
+  },
 });

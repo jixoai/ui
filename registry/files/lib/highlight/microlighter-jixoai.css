@@ -1,0 +1,120 @@
+/* jixoai theme for the microlighter backend (lib/highlight/
+ * microlighter-jixoai.css, 2026-09-07).
+ *
+ * The backend's zero-download default: microlighter's --syntax-* token
+ * variables bound to the SAME --tok-token-* palette the shiki/hljs/
+ * sugar-high defaults read (the contract code-card.css defines on
+ * .jx-code-card), so the range engine paints the card with the one
+ * family look — and light/dark adaptation rides the card's own token
+ * sheet (site-mode class), NOT the OS preference.
+ *
+ * WHY THIS REPLACED THE PACKAGE 'min' DEFAULT (found live 2026-09-07):
+ * every microlighter package theme resolves its light-dark() token
+ * pairs against the OS color-scheme (its own `color-scheme: light
+ * dark` on [data-syntax-theme]) — a dark-OS visitor reading a light
+ * site got the theme's dark values: numbers ≈ white on white. A
+ * host-side color-scheme pin (see the docs site's app.css) only
+ * guards the SITE; registry consumers would re-trip it. This theme
+ * file has NO light-dark() anywhere — the vars cascade from the
+ * card's --tok-* palette, which follows the consumer's theme state
+ * by construction. Named package themes (min, github, dracula, …)
+ * stay available verbatim with that documented caveat.
+ *
+ * MAPPING PROVENANCE (the hljs/sugar-high house table, scope-
+ * equivalent slots): numeric/boolean/constant families → constant
+ * (numbers were the live bug); json/yaml keys + attribute names →
+ * keyword (the hljs-attr compromise, heaviest-volume family); type
+ * and selector families → function (entity.name.type shares the
+ * function var in the shiki table); tag names → string-expression
+ * (entity.name.tag, the .hljs-name slot); variable/interpolation →
+ * parameter; operator rides punctuation (the --sh-sign precedent).
+ * background/foreground are DELIBERATELY UNDEFINED — the card owns
+ * its chrome (--readonly-code-*, --tok-foreground); the package
+ * themes' pre background rule never matches our DOM shape anyway.
+ *
+ * The ::highlight() rule groups mirror the package themes' category
+ * model verbatim (value-identical selectors — a page mixing this
+ * theme with a named package theme stays per-card correct: the RULES
+ * are global, the VALUES resolve from the [data-syntax-theme]
+ * attribute's var block on each card's own pre). */
+
+/* the token bridge — attribute-scoped exactly like a package theme */
+[data-syntax-theme='jixoai'] {
+  --syntax-comment: var(--tok-token-comment);
+  --syntax-keyword: var(--tok-token-keyword);
+  --syntax-operator: var(--tok-token-punctuation);
+  --syntax-string: var(--tok-token-string);
+  --syntax-constant: var(--tok-token-constant);
+  --syntax-function: var(--tok-token-function);
+  --syntax-type: var(--tok-token-function);
+  --syntax-variable: var(--tok-token-parameter);
+  --syntax-property: var(--tok-token-keyword);
+  --syntax-tag: var(--tok-token-string-expression);
+  --syntax-selector: var(--tok-token-function);
+  --syntax-inserted: var(--tok-token-inserted);
+  --syntax-deleted: var(--tok-token-deleted);
+}
+
+/* the category groups (the package themes' own grouping, verbatim) */
+::highlight(comment),
+::highlight(quote) {
+  color: var(--syntax-comment);
+}
+::highlight(keyword),
+::highlight(storage),
+::highlight(at-rule),
+::highlight(doctype),
+::highlight(important),
+::highlight(section) {
+  color: var(--syntax-keyword);
+}
+::highlight(operator),
+::highlight(punctuation) {
+  color: var(--syntax-operator);
+}
+::highlight(string),
+::highlight(regexp),
+::highlight(attribute-value),
+::highlight(link),
+::highlight(raw) {
+  color: var(--syntax-string);
+}
+::highlight(numeric),
+::highlight(boolean),
+::highlight(constant),
+::highlight(symbol),
+::highlight(character-entity),
+::highlight(anchor),
+::highlight(entity) {
+  color: var(--syntax-constant);
+}
+::highlight(function),
+::highlight(decorator),
+::highlight(animation) {
+  color: var(--syntax-function);
+}
+::highlight(type),
+::highlight(support) {
+  color: var(--syntax-type);
+}
+::highlight(variable),
+::highlight(interpolation) {
+  color: var(--syntax-variable);
+}
+::highlight(property),
+::highlight(key),
+::highlight(attribute-name) {
+  color: var(--syntax-property);
+}
+::highlight(tag) {
+  color: var(--syntax-tag);
+}
+::highlight(selector) {
+  color: var(--syntax-selector);
+}
+::highlight(inserted) {
+  color: var(--syntax-inserted);
+}
+::highlight(deleted) {
+  color: var(--syntax-deleted);
+}

@@ -58,7 +58,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import './hero-section.css';
@@ -177,15 +177,15 @@
             ariaLabel={`${copied ? 'copied' : copyLabel} ${copyCommand}`}
           >
             {#if copied}
-              <!-- shared-module glyphs (full lucide copy geometry — the
+              <!-- Icon component glyphs (full lucide copy geometry — the
                    hand-simplified variant retired 2026-08-29); the copied
-                   check rides a strokier consuming utility -->
-              <span class="inline-flex [&_svg]:h-4 [&_svg]:w-4 [&_svg]:stroke-[2.5]">
-                {@html icons.check}
+                   check rides a strokier strokeWidth prop -->
+              <span class="inline-flex">
+                <Icon name="check" strokeWidth={2.5} />
               </span>
             {:else}
-              <span class="inline-flex [&_svg]:h-4 [&_svg]:w-4">
-                {@html icons.copy}
+              <span class="inline-flex">
+                <Icon name="copy" />
               </span>
             {/if}
             <span>{copyCommand}</span>

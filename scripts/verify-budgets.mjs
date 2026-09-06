@@ -88,10 +88,23 @@ const BASELINES = {
   // rides the physics axis verbatim. The growth rode the theme file
   // only (this gate's subject); it was masked in CI until the
   // manifest-staleness fix let verify:all reach this step.
-  'B-source': 36106,
-  'B-face': 13090,
-  'B-consumer-vite': 1695,
-  'B-consumer-icons': 300,
+  //
+  // re-recorded 2026-09-07 (icon-component-pipeline): B-source
+  // 36106->37636 (+4.2%), B-face 13090->13368 (+2.1%) — the docs
+  // surface grows with the icons page rewrite + the icon component
+  // page. B-consumer-vite 1695->2655 and B-consumer-icons 300->609 —
+  // BOTH are the vite-plugin package's build-time dist entries,
+  // never shipped to a consumer's browser: the umbrella gains the
+  // jixoai-icons bridge (ids.ts contract + the memoized
+  // dynamic-import proxy + config-matrix validation), the icons
+  // sub-entry gains the library face (resolve/optimize/pack/generate
+  // + adapters). The runtime cost consumers actually pay is the
+  // artifact lane, gated separately by verify:shadcn-add's
+  // clean-consumer probes.
+  'B-source': 37636,
+  'B-face': 13368,
+  'B-consumer-vite': 2655,
+  'B-consumer-icons': 609,
 };
 const THRESHOLD_FACTOR = 1.05;
 const COLLAPSE_FACTOR = 0.6;

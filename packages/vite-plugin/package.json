@@ -34,6 +34,9 @@
     "test": "vitest run",
     "prepack": "npm run build"
   },
+  "dependencies": {
+    "svgo": "^4.1.0"
+  },
   "peerDependencies": {
     "lucide": "^0.472.0",
     "vite": "^8.0.0"

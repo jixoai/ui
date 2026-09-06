@@ -3,9 +3,12 @@
 // Intents:
 //   1. dist/index.js + dist/icons.js + dist/probe.js as clean ESM
 //      outputs (node platform; vite stays external as a peer dependency —
-//      the package has zero runtime dependencies by law; opentype.js /
+//      the package's only runtime dependency is svgo, kept EXTERNAL and
+//      loaded solely through the icons sub-entry's dynamic import so the
+//      umbrella entry's graph stays provider-free; opentype.js /
 //      wawoff2 stay external as OPTIONAL dependencies, loaded only via
-//      dynamic import inside the icons feature — merge-alignment A1).
+//      dynamic import inside the icons feature — merge-alignment A1,
+//      icon-component-pipeline §9).
 //   2. dist/index.d.ts + dist/icons.d.ts via dts generation (types point
 //      at generated dist declarations, never at src — the ui-plugin
 //      lesson); dist/client.d.ts is copied verbatim from src (ambient
@@ -33,7 +36,7 @@ export default defineConfig([
     platform: 'node',
     target: 'node20',
     dts: true,
-    external: ['opentype.js', 'wawoff2'],
+    external: ['opentype.js', 'wawoff2', 'svgo'],
     copy: [{ from: 'src/client.d.ts', to: 'dist' }],
     outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
     plugins: [shebangProbeBin],

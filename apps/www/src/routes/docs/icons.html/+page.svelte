@@ -3,21 +3,19 @@
   import DocsInstall from '$lib/docs-install.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import IconTable, { type IconRow } from '$lib/icon-table/icon-table.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
+  import { ICON_NAMES, getIcon } from '$lib/icon-set.gen';
 
-  // ── the CSS-slot vocabulary (hand data per the design contract:
-  //     9 concept slots ⇔ the --jx-icon-* variable faces; the parallel
-  //     batches land the sheet bytes, this table stays in sync with the
-  //     contract) ────────────────────────────────────────────────────
-  //
-  // The palette/check `paint` expressions mirror the sheet's own
-  // var(--slot, <inline-fallback-uri>) embedding law — palette has no
-  // :root line (mask inline fallback only); check IS declared at :root
-  // by the vocab sheet (jx-pure.css icon-vocab block), while the
-  // combobox.css consumer keeps its inline-fallback embedding, which
-  // this row mirrors. The URI bytes below are byte-mirrors of the
-  // live sheet values (jx-pure.css icon-vocab block · combobox.css
-  // check fallback).
+  // ══ SECTION 4 data — the CSS-slot vocabulary (hand data per the
+  //     design contract: 9 concept slots ⇔ the --jx-icon-* variable
+  //     faces; the palette/check `paint` expressions mirror the
+  //     sheet's own var(--slot, <inline-fallback-uri>) embedding law —
+  //     palette has no :root line (mask inline fallback only); check
+  //     IS declared at :root by the vocab sheet (jx-pure.css
+  //     icon-vocab block), while the combobox.css consumer keeps its
+  //     inline-fallback embedding, which this row mirrors. The URI
+  //     bytes below are byte-mirrors of the live sheet values
+  //     (jx-pure.css icon-vocab block · combobox.css check fallback).
 
   const CHECK_FALLBACK_URI =
     'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M20 6 9 17l-5-5\'/%3E%3C/svg%3E")';
@@ -112,54 +110,114 @@
     },
   ];
 
-  // ── the named library walks the icons bag itself (dogfood: a glyph
-  //     added to icons.ts appears here with zero edit — the freshness
-  //     gate `npm run verify:icons` keeps the bag honest) ────────────
-  const namedIcons = Object.entries(icons);
+  // ══ SECTION 3 data — the plugin library face ═════════════════════
 
-  const namedUsage = `<script lang="ts">
-  import { icons } from '@lib/icons';
-${'<' + '/script>'}
+  // the overflow sentinel, byte-exact (packages/vite-plugin/src/icons/ids.ts
+  // — the fixed named error shared by the build-time resolver and the
+  // artifact's runtime LAZY catch; never paraphrased on this page)
+  const OVERFLOW_SENTINEL =
+    '[jixoai/icon-set] virtual:jixoai-icons/chunk/* imported but no icons library ' +
+    'is configured — wire jixoai({ icons: { library } }) in your vite plugins ' +
+    '(see the icon-set item docs)';
 
-<!-- decorative by contract (aria-hidden baked in) — sizing is YOUR css -->
-<button aria-label="open settings">
-  {@html icons.palette}
-  settings
-</button>`;
+  const libraryOptions = [
+    {
+      option: 'includeDefaults',
+      def: 'true',
+      what: 'the 38 built-in lucide manifest in manifest order; false with no lucide: sources never touches the lucide import at all',
+    },
+    {
+      option: 'icons',
+      def: '{}',
+      what: 'add + override named sources (same name = override; names match /^[a-z][A-Za-z0-9]*$/); customs pack after the built-ins in config insertion order',
+    },
+    {
+      option: 'maxChunkBytes',
+      def: '20480',
+      what: 'serialized entry bytes per chunk module (key + payload) — RAW, non-gzip; the greedy packer opens chunk K+1 when the next icon would exceed it',
+    },
+    {
+      option: 'chunking',
+      def: "'auto'",
+      what: "'auto' = budgeted chunks; 'single' = one chunk, no splitting",
+    },
+    {
+      option: 'inlineFirstChunk',
+      def: 'true',
+      what: 'chunk 0 rides inline in the artifact so getIcon() answers synchronously; false = the all-lazy escape hatch',
+    },
+    {
+      option: 'optimize',
+      def: 'true',
+      what: 'svgo after the raw safety check (floatPrecision 3, geometry-preserving — pinned a no-op on lucide); never runs on the slot face',
+    },
+    {
+      option: 'output',
+      def: "'src/lib/icon-set.gen.ts'",
+      what: 'artifact write target, project-root-relative — ONLY used when write is on',
+    },
+    {
+      option: 'write',
+      def: 'false',
+      what: 'consumer opt-in; the vite adapter serves virtual chunks and drift-warns instead. In THIS repo the root gen:icons script is the ONLY writer (the single-writer law)',
+    },
+  ];
 
-  // ── the plugin demo override: the SAME vocabulary face, redefined
-  //     locally. The override URI derives from the named library at
-  //     runtime (check glyph, width/height stripped — data URIs size
-  //     via CSS) and speaks the frozen URI dialect (css-laws
-  //     icon-uris.ts · vite-plugin ink.ts): attribute double quotes
-  //     normalize to single quotes INSIDE tags only — text content is
-  //     never touched — then exactly <, >, # percent-encode. The
-  //     url("…") delimiters must stay the ONLY double quotes: a raw
-  //     inner quote truncates the value to `url(` in the browser
-  //     CSSOM and the repaint silently dies. ────────────────────────
-  const toDataUri = (svg: string): string => {
-    const body = svg
-      .replace(' width="16"', '')
-      .replace(' height="16"', '')
-      .replace(/<[^<>]*>/g, (tag) =>
-        tag.replace(
-          /(\s)([^\s"'=<>]+)\s*=\s*"([^"]*)"/g,
-          (_m, lead: string, name: string, value: string) => lead + name + "='" + value + "'",
-        ),
-      )
-      .replaceAll('<', '%3C')
-      .replaceAll('>', '%3E')
-      .replaceAll('#', '%23');
-    return `url("data:image/svg+xml,${body}")`;
-  };
+  const libraryConfig = `// vite.config.ts — the library face (this site's own wiring, condensed)
+import { sveltekit } from '@sveltejs/kit/vite';
+import { jixoai } from '@jixoai/vite-plugin';
 
-  // swap the search ornament for the check glyph — a plugin override
-  // in miniature, scoped to one wrapper instead of the whole sheet
-  const demoOverride = toDataUri(icons.check);
+export default {
+  plugins: [
+    sveltekit(),
+    ...jixoai({
+      icons: {
+        library: {
+          includeDefaults: true,            // the 38 built-ins (default)
+          icons: {                          // add + override — three source forms
+            brand: 'lucide:zap',            // a lucide ref — resolved at BUILD time
+            logo: { file: 'assets/logo.svg' }, // a .svg file — the plugin owns the I/O
+            spark: '<svg xmlns="…">…</svg>',   // an inline literal — RAW safety-checked
+          },
+          maxChunkBytes: 20480,             // RAW module bytes per chunk (default)
+          chunking: 'auto',                 // 'single' = one chunk, no splitting
+          inlineFirstChunk: true,           // chunk 0 inline → sync getIcon (default)
+          optimize: true,                   // svgo pass (default)
+          write: false,                     // the repo's gen:icons script is the writer
+        },
+      },
+    }),
+  ],
+};
 
-  const SEARCH_PAINT = 'background-color: currentColor; -webkit-mask: var(--jx-icon-search) center / contain no-repeat; mask: var(--jx-icon-search) center / contain no-repeat;';
+/* the artifact it generates (default config → the plugin-free tier):
+   import { getIcon, loadIcon, preloadIcons, ICON_NAMES, type IconName }
+     from '$lib/icon-set.gen'; */`;
 
-  // ── plugin section copy ────────────────────────────────────────────
+  const asyncLaw = `chunk 0 (inline) ── getIcon(name) answers synchronously
+                      SSR paints the glyph in the server HTML,
+                      hydration matches — ZERO wiring owed
+
+chunks 1+ (lazy) ── loadIcon(name) dynamic-imports
+                      virtual:jixoai-icons/chunk/K (cached promise);
+                      pending renders the FIXED reserved box:
+                      <span data-jx-icon-pending aria-hidden="true"
+                        style="display:inline-block;width:16px;height:16px">
+                      pending AND rejected render the IDENTICAL span, so
+                      hydration never rewrites the box; a failed chunk
+                      warns once per chunk per session — the box stays.
+
+preloadIcons(['folderOpen', 'fileVideo'])  // warm lazy chunks ahead of a mount`;
+
+  const modeMatrix = [
+    { chunking: "'auto' (default)", inline: 'true (default)', layout: 'budgeted chunks; chunk 0 inline', imports: 'lazy for chunks 1..N; N=0 → zero virtual imports' },
+    { chunking: "'auto'", inline: 'false', layout: 'budgeted chunks; all lazy', imports: 'lazy imports for every chunk' },
+    { chunking: "'single'", inline: 'true (default)', layout: 'one chunk, fully inline', imports: 'zero virtual imports' },
+    { chunking: "'single'", inline: 'false', layout: 'one lazy chunk with everything', imports: 'exactly one lazy import' },
+  ];
+
+  // ══ SECTION 4 plugin data — the SLOT face's pipeline ═════════════
+
   const providerRows = [
     {
       provider: 'lucideIconProvider()',
@@ -183,27 +241,25 @@ ${'<' + '/script>'}
     },
   ];
 
-  const pluginConfig = `// vite.config.ts — the icons pipeline (this site's own wiring)
+  const slotConfig = `// vite.config.ts — this site's own wiring: BOTH faces, one plugin call
 import { jixoai } from '@jixoai/vite-plugin';
 import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
 
 export default {
   plugins: [
     sveltekit(),
-    tailwindcss(),
     ...jixoai({
       icons: {
-        provider: lucideIconProvider(), // the zero-I/O lucide defaults
-        safety: { mode: 'warn' },       // rejected → the sheet's inline fallback
+        provider: lucideIconProvider(),    // the SLOT face — --jx-icon-* vocabulary
+        safety: { mode: 'warn' },          // shared by both faces
+        library: { includeDefaults: true }, // the LIBRARY face — <Icon name>
       },
     }),
   ],
 };
 
-/* app.css — the ONLY injection path: a virtual CSS module
-   @import 'virtual:jixoai-icons'; */
-// JS consumers (the clear slot's {@html} × button):
-// import { domIcons } from 'virtual:jixoai-icons?dom';`;
+/* app.css — the slot face's ONLY injection path: a virtual CSS module
+   @import 'virtual:jixoai-icons'; */`;
 
   const derivationDiagram = `override ONE concept slot (e.g. icons: { calendar: mySvg })
         │
@@ -221,13 +277,48 @@ export default {
 ──────────────────────────────────────────────────────────────────
 plain + ink + the dark/light matrix re-bake TOGETHER — an overridden
 plain beside a stock ink is impossible by construction.`;
+
+  // ── the plugin demo override: the SAME vocabulary face, redefined
+  //     locally. The override URI derives from the generated set at
+  //     runtime (the check glyph's {v,n,d} payload rebuilt into an
+  //     <svg> — no width/height, data URIs size via CSS) and speaks
+  //     the frozen URI dialect (css-laws icon-uris.ts · vite-plugin
+  //     ink.ts): attribute double quotes normalize to single quotes
+  //     INSIDE tags only — text content is never touched — then
+  //     exactly <, >, # percent-encode. The url("…") delimiters must
+  //     stay the ONLY double quotes: a raw inner quote truncates the
+  //     value to `url(` in the browser CSSOM and the repaint silently
+  //     dies. ────────────────────────────────────────────────────────
+  const toDataUri = (svg: string): string => {
+    const body = svg
+      .replace(/<[^<>]*>/g, (tag) =>
+        tag.replace(
+          /(\s)([^\s"'=<>]+)\s*=\s*"([^"]*)"/g,
+          (_m, lead: string, name: string, value: string) => lead + name + "='" + value + "'",
+        ),
+      )
+      .replaceAll('<', '%3C')
+      .replaceAll('>', '%3E')
+      .replaceAll('#', '%23');
+    return `url("data:image/svg+xml,${body}")`;
+  };
+
+  // swap the search ornament for the check glyph — a plugin override
+  // in miniature, scoped to one wrapper instead of the whole sheet
+  const check = getIcon('check');
+  const CHECK_SOURCE = check
+    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${check.v}" fill="${check.n === 'fill' ? 'currentColor' : 'none'}" stroke="${check.n === 'fill' ? 'none' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${check.d}</svg>`
+    : '';
+  const demoOverride = toDataUri(CHECK_SOURCE);
+
+  const SEARCH_PAINT = 'background-color: currentColor; -webkit-mask: var(--jx-icon-search) center / contain no-repeat; mask: var(--jx-icon-search) center / contain no-repeat;';
 </script>
 
 <svelte:head>
   <title>Icons · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai icon system in one page: the named inline icon library (&#123;@html icons.x&#125;, verify:icons freshness gate), the --jx-icon-* CSS vocabulary (mask/currentColor law, ink matrix for UA-shadow pseudos), and the jixoai(&#123; icons &#125;) vite plugin — providers (lucide/svg/font/mixin), concept-slot overrides with derived ink re-baking, the safety checker, and virtual:jixoai-icons."
+    content="The jixoai icon system in one page, two faces: the Icon component over the generated set (&lt;Icon name&gt; — the IconName union makes typos compile errors; size/strokeWidth props; inline core renders synchronously SSR-safe, lazy overflow rides loadIcon into a fixed reserved box with preloadIcons to warm it), and the --jx-icon-* CSS vocabulary the form sheet paints through mask/currentColor with the ink matrix for UA-shadow pseudos. The jixoai(&#123; icons &#125;) vite plugin feeds both: the library face (sources, override, the 20480 RAW chunk budget, chunking single, inlineFirstChunk, optimize, the single-writer law) and the slot face (providers, concept-slot overrides with derived ink re-baking, virtual:jixoai-icons)."
   />
 </svelte:head>
 
@@ -237,72 +328,84 @@ plain beside a stock ink is impossible by construction.`;
       <SectionCard
         headingLevel={1}
         tone="hero"
-        eyebrow="registry:lib · icon vocabulary"
-        title="icons — one geometry, two faces, one pipeline"
-        summary="Every glyph in jixoai ships from a single source: the named inline library for components (&#123;@html icons.x&#125; — decorative by contract, sizing is consumer CSS), and the --jx-icon-* CSS vocabulary the form sheet paints through CSS mask and background-image (one alpha-only URI per glyph, an ink matrix for UA-shadow pseudos that reject author paint). The vite plugin re-bakes that vocabulary from YOUR artwork — override one concept slot and the plain, ink and dark/light variants re-derive together."
+        eyebrow="registry:ui + registry:lib · the icon system"
+        title="icons — one pipeline, two faces, one component"
+        summary="Every glyph in jixoai ships from one generator with two consumption faces. The component face: <Icon name> renders the generated set through a closed IconName union — a typo is a compile error, the inline core paints synchronously (SSR-safe), lazy overflow reserves its box and warms through preloadIcons. The slot face: the --jx-icon-* CSS vocabulary the form sheet paints through mask and background-image, with an ink matrix for UA-shadow pseudos that reject author paint. The vite plugin feeds both — jixoai(&#123; icons &#125;) with a library face and a provider face that share nothing but the safety checker."
       >
         <div class="flex flex-wrap gap-3">
-          <span class="pill">named library — {'{@html icons.x}'}</span>
+          <span class="pill">&lt;Icon name> · IconName union</span>
+          <span class="pill">ICON_NAMES — 38 built-ins</span>
+          <span class="pill">inline core · SSR-safe</span>
+          <span class="pill">lazy chunks · preloadIcons</span>
           <span class="pill">--jx-icon-* vocabulary</span>
-          <span class="pill">mask / background-image</span>
-          <span class="pill">ink matrix (.dark / .jx-light)</span>
-          <span class="pill">concept slots → derived ink</span>
           <span class="pill">virtual:jixoai-icons</span>
-          <span class="pill">verify:icons gate</span>
         </div>
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="icons" />
+    <div data-reveal="" class="flex flex-col gap-3">
+      <DocsInstall name="icon" />
+      <DocsInstall name="icon-set" />
+    </div>
+
+    <div id="component" data-reveal="">
+      <SectionCard
+        family="component"
+        headerRegion="component"
+        eyebrow="component face"
+        title="The Icon component — &lt;Icon name=&quot;…&quot; /&gt;"
+        summary="The named-glyph renderer every component shares: name is the generated IconName union (a wrong name never ships — it fails the compile), the component owns the whole svg root (currentColor by artwork nature, aria-hidden baked in), and size / strokeWidth are props, never wrapper CSS. The full API table, the interactive playground and the async-paths walkthrough live on the component's own page."
+      >
+        <div class="flex flex-col gap-5">
+          <div class="flex flex-wrap items-end gap-x-10 gap-y-5" data-icon-size-demo="">
+            {#each [12, 16, 24, 32] as px (px)}
+              <div class="flex flex-col items-center gap-2">
+                <Icon name="eye" size={px} />
+                <code class="text-muted-foreground font-mono text-[11px]">size={px}</code>
+              </div>
+            {/each}
+          </div>
+          <a
+            class="text-accent w-fit text-[13px] underline underline-offset-2"
+            href="/docs/components/icon.html"
+          >
+            icon — the component page: playground, PropsTable, type-safety &amp; async paths →
+          </a>
+        </div>
+      </SectionCard>
     </div>
 
     <div id="vocabulary" data-reveal="">
       <SectionCard
         family="vocabulary"
         headerRegion="vocabulary"
-        eyebrow="vocabulary"
-        title="The named icon library"
-        summary="One shared module so every component renders the SAME geometry instead of private glyphs: SVG strings (not components, not Snippets) consumed with &#123;@html icons.&lt;name&gt;&#125; — 24×24 viewBox, 16px baked, stroke currentColor, aria-hidden baked in (meaning lives in the surrounding text or the control's aria-label; sizing and stroke-weight overrides are consumer CSS). This table walks the icons bag itself — a glyph added to the module appears here with zero edit."
+        eyebrow="named library"
+        title="The named library — ICON_NAMES"
+        summary="{ICON_NAMES.length} names, generated. This grid walks ICON_NAMES itself: a glyph added to the library config regenerates icon-set.gen.ts and appears here with ZERO page edit — the grid can never lie about the set. Every cell renders the real component (the same <Icon name> above); the label is the IconName you type."
       >
         <div class="flex flex-col gap-5">
           <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" data-named-icon-grid="">
-            {#each namedIcons as [name, glyph] (name)}
-              <li class="border-border/60 bg-card/40 flex items-center gap-3 border px-3 py-2">
-                <span class="glyph-box text-foreground shrink-0" aria-hidden="true">{@html glyph}</span>
+            {#each ICON_NAMES as name (name)}
+              <li
+                class="border-border/60 bg-card/40 flex items-center gap-3 border px-3 py-2"
+                data-icon-name={name}
+              >
+                <span class="text-foreground shrink-0"><Icon name={name} size={18} /></span>
                 <span class="flex min-w-0 flex-col">
-                  <code class="font-mono text-[12.5px] leading-5">icons.{name}</code>
-                  <code class="text-muted-foreground font-mono text-[10.5px] leading-4">{'{@html icons.' + name + '}'}</code>
+                  <code class="font-mono text-[12.5px] leading-5">{name}</code>
+                  <code class="text-muted-foreground font-mono text-[10.5px] leading-4">{'<Icon name="' + name + '" />'}</code>
                 </span>
               </li>
             {/each}
           </ul>
           <p class="text-muted-foreground text-[13px] leading-6">
-            Generated from <code class="text-accent">scripts/gen-icons.mjs</code> (lucide geometry) — the
-            <code class="text-accent">npm run verify:icons</code> freshness gate fails the build the moment the
-            committed module drifts from the manifest, so the previews above can never lie about the bag.
-          </p>
-          <CodeBlock code={namedUsage} lang="svelte" meta={'usage — {@html icons.x}'} />
-        </div>
-      </SectionCard>
-    </div>
-
-    <div id="css-slots" data-reveal="">
-      <SectionCard
-        family="css-slots"
-        headerRegion="css-slots"
-        eyebrow="css vocabulary"
-        title="--jx-icon-* — the mask / currentColor law"
-        summary="The componentless face paints its icons as CSS: one alpha-only URI per glyph, declared on the vocabulary sheet (the encoded stroke is an ALPHA SOURCE ONLY). Author-painted rules theme through mask + background-color: currentColor; UA-shadow pseudos that reject author mask paint take the -ink variants, and .dark / .jx-light flip the whole set to white/black ink. The glyph column below consumes the vocabulary face itself — a slot that changes geometry changes here with zero edit."
-      >
-        <div class="flex flex-col gap-5">
-          <IconTable rows={cssSlotRows} />
-          <p class="text-muted-foreground text-[13px] leading-6">
-            The <code class="text-accent">Overridable</code> column names the plugin CONCEPT slot: covering a
-            concept re-bakes every variable it owns (the derived-ink law below). The
-            <code class="text-accent">palette</code> variable exists only as an inline mask fallback (no :root
-            line — the wrapper paints <code class="text-accent">var(--jx-icon-palette, …)</code>), so its glyph
-            column mirrors that same embedding expression.
+            Generated by the root <code class="text-accent">gen:icons</code> script (the repo's
+            single writer — the <code class="text-accent">verify:icons</code> gate fails the build
+            the moment the committed artifact drifts from the library config), mirrored byte-identical
+            into <code class="text-accent">$lib/icon-set.gen</code>. Names resolve synchronously
+            through <code class="text-accent">getIcon()</code> in the inline core; the full union
+            rides <code class="text-accent">IconName</code>, the iterable rides
+            <code class="text-accent">ICON_NAMES</code>.
           </p>
         </div>
       </SectionCard>
@@ -312,9 +415,140 @@ plain beside a stock ink is impossible by construction.`;
       <SectionCard
         family="plugin"
         headerRegion="plugin"
-        eyebrow="plugin"
-        title="jixoai(&#123; icons &#125;) — the customization pipeline"
-        summary="The vite plugin owns the vocabulary end to end: a provider answers every concept slot with structured artwork, the serializer is the only code that generates CSS, and the safety checker runs before serialization in both modes — no unvalidated SVG ever reaches output. Opt-in with one feature flag; without the icons option the plugin never loads."
+        eyebrow="plugin · library face"
+        title="jixoai(&#123; icons: &#123; library &#125; &#125;) — the generator's knobs"
+        summary="The library face answers what &lt;Icon name&gt; can render. Sources arrive three ways — an inline SVG literal, &#123; file &#125; (the plugin owns ALL file I/O), or a lucide: ref resolved at build time so the emitted artifact carries zero lucide references. Same-name entries OVERRIDE built-ins; every icon crosses the raw safety checker before svgo. Without the icons option the plugin never loads; provider and library are independent — either alone is legal."
+      >
+        <div class="flex flex-col gap-5">
+          <CodeBlock code={libraryConfig} lang="ts" meta="vite.config.ts" />
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Option</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Default</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each libraryOptions as row (row.option)}
+                <tr class="border-b border-border/50">
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.option}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.def}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.what}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+          <p class="text-muted-foreground text-[13px] leading-6">
+            <code class="text-accent">write</code> stays <code class="text-accent">false</code>
+            everywhere in this repo: the vite adapter serves the lazy chunks as virtual modules
+            (<code class="text-accent">virtual:jixoai-icons/chunk/K</code>) and drift-warns in dev —
+            the root <code class="text-accent">gen:icons</code> script is the one writer of the
+            canonical artifact (the single-writer law). Consumer apps may opt into
+            <code class="text-accent">write: true</code> + their own
+            <code class="text-accent">output</code> for dev ergonomics.
+          </p>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        family="plugin"
+        region="tiers"
+        eyebrow="install tiers"
+        title="Two tiers — plugin-free by default"
+        summary="The default tier installs and builds standalone: the committed artifact is the default-config output (38 built-ins, one inline chunk, ZERO lazy chunks), so the two registry items carry zero npm dependencies and zero virtual imports. The overflow tier kicks in the moment your config emits lazy chunks — and there the plugin becomes a documented PREREQUISITE, failing with one named build error instead of a silent 404."
+      >
+        <div class="flex flex-col gap-5">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="border-border flex flex-col gap-2 border p-4">
+              <p class="font-nav text-[11px] uppercase tracking-[0.24em]">default — plugin-free</p>
+              <p class="text-[13px] leading-6">
+                <code class="text-accent">npx jixoai-ui add icon</code> (pulls
+                <code class="text-accent">icon-set</code> + the theme) lands files that build with
+                zero npm deps and zero virtual imports — every getIcon() call answers synchronously.
+              </p>
+            </div>
+            <div class="border-primary/40 flex flex-col gap-2 border p-4">
+              <p class="font-nav text-[11px] uppercase tracking-[0.24em]">overflow — plugin prerequisite</p>
+              <p class="text-[13px] leading-6">
+                Past the budget (big libraries, <code class="text-accent">inlineFirstChunk: false</code>)
+                the artifact emits lazy imports of
+                <code class="text-accent">virtual:jixoai-icons/chunk/*</code> — wiring
+                <code class="text-accent">jixoai(&#123; icons: &#123; library &#125; &#125;)</code>
+                from <code class="text-accent">@jixoai/vite-plugin</code> becomes REQUIRED.
+              </p>
+            </div>
+          </div>
+          <CodeBlock code={OVERFLOW_SENTINEL} lang="text" meta="the named build error (byte-exact — never paraphrase it)" />
+          <p class="text-muted-foreground text-[13px] leading-6">
+            The sentinel fires from the plugin's resolver when the plugin IS present but the library
+            face is not configured, and again at runtime from the artifact's LAZY catch (with the
+            original error as <code class="text-accent">cause</code>). Plugin absent entirely:
+            vite's generic unresolved-import error is unavoidable — wire the plugin first.
+          </p>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        family="plugin"
+        region="semantics"
+        eyebrow="async semantics"
+        title="Inline core, lazy overflow"
+        summary="The default case is synchronous: chunk 0 rides inline in the artifact, so SSR paints core glyphs in the server HTML and hydration matches with zero wiring. Lazy chunks exist only past the budget — they load through cached promises into a FIXED reserved box whose pending and rejected markup are identical (hydration never rewrites it), and preloadIcons warms them ahead of a mount."
+      >
+        <div class="flex flex-col gap-5">
+          <CodeBlock code={asyncLaw} lang="text" meta="the chunk law" />
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">chunking</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">inlineFirstChunk</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Layout</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Artifact imports</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each modeMatrix as row (row.chunking + row.inline)}
+                <tr class="border-b border-border/50">
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.chunking}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.inline}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.layout}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.imports}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="css-slots" data-reveal="" class="flex flex-col gap-8">
+      <SectionCard
+        family="css-slots"
+        headerRegion="css-slots"
+        eyebrow="slot face"
+        title="--jx-icon-* — the mask / currentColor law"
+        summary="The second face paints its icons as CSS, no component: one alpha-only URI per glyph, declared on the vocabulary sheet (the encoded stroke is an ALPHA SOURCE ONLY). Author-painted rules theme through mask + background-color: currentColor; UA-shadow pseudos that reject author mask paint take the -ink variants, and .dark / .jx-light flip the whole set to white/black ink. The glyph column below consumes the vocabulary face itself — a slot that changes geometry changes here with zero edit."
+      >
+        <div class="flex flex-col gap-5">
+          <IconTable rows={cssSlotRows} />
+          <p class="text-muted-foreground text-[13px] leading-6">
+            The <code class="text-accent">Overridable</code> column names the plugin CONCEPT slot:
+            covering a concept re-bakes every variable it owns (the derived-ink law below). The
+            <code class="text-accent">palette</code> variable exists only as an inline mask fallback
+            (no :root line — the wrapper paints
+            <code class="text-accent">var(--jx-icon-palette, …)</code>), so its glyph column mirrors
+            that same embedding expression.
+          </p>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        family="css-slots"
+        region="pipeline"
+        eyebrow="plugin · slot face"
+        title="The slot pipeline — providers and concept slots"
+        summary="The same jixoai(&#123; icons &#125;) call opens a second, independent face: a provider answers every concept slot with structured artwork, the serializer is the only code that generates CSS, and the safety checker runs before serialization in both modes — no unvalidated SVG ever reaches output. Opt-in with one feature flag; without the icons option the plugin never loads."
       >
         <div class="flex flex-col gap-5">
           <table class="w-full border-collapse text-left">
@@ -337,38 +571,28 @@ plain beside a stock ink is impossible by construction.`;
           </table>
           <p class="text-muted-foreground text-[13px] leading-6">
             Providers never touch the filesystem — the plugin owns ALL file I/O and hands loaded bytes
-            (and HMR watches) through a ProviderContext. <code class="text-accent">safety</code> defaults to
-            <code class="text-accent">warn</code>: a rejected icon logs and serves the standard layer's inline
-            fallback (warn means don't crash the build, NOT let unvalidated content through); pass
-            <code class="text-accent">{`{ mode: 'error' }`}</code> — with optional
-            <code class="text-accent">maxBytes</code> (10KB) / <code class="text-accent">maxPathCommands</code>
-            (500) limits — to fail instead, e.g. for HTTP-sourced artwork.
+            (and HMR watches) through a ProviderContext. <code class="text-accent">safety</code>
+            defaults to <code class="text-accent">warn</code>: a rejected icon logs and serves the
+            standard layer's inline fallback (warn means don't crash the build, NOT let unvalidated
+            content through); pass <code class="text-accent">{`{ mode: 'error' }`}</code> — with
+            optional <code class="text-accent">maxBytes</code> (10KB) /
+            <code class="text-accent">maxPathCommands</code> (500) limits — to fail instead, e.g. for
+            HTTP-sourced artwork.
           </p>
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        family="plugin"
-        region="derivation"
-        eyebrow="derived ink"
-        title="Concept slots — cover one, re-bake the family"
-        summary="The plugin opens slots by CONCEPT, not by variable: covering calendar re-bakes --jx-icon-calendar AND --jx-icon-calendar-ink AND the .dark/.jx-light white/black ink matrix from your artwork in one pass. Mix-and-match (your plain beside the stock ink) is impossible by construction — change once, the whole family follows."
-      >
-        <div class="flex flex-col gap-5">
           <pre class="jx-derivation-diagram" aria-label="concept slot derivation diagram"><code>{derivationDiagram}</code></pre>
-          <CodeBlock code={pluginConfig} lang="ts" meta="vite.config.ts + app.css" />
+          <CodeBlock code={slotConfig} lang="ts" meta="vite.config.ts + app.css" />
           <p class="text-muted-foreground text-[13px] leading-6">
-            <code class="text-accent">virtual:jixoai-icons</code> is the only injection path: the plugin serves
-            it as a virtual CSS module (<code class="text-accent">@layer theme</code> custom properties) for
-            your CSS entry, and the explicit <code class="text-accent">virtual:jixoai-icons?dom</code> form
-            exports serialized DOM strings for &#123;@html&#125; consumers. Watched sources invalidate the virtual
-            module — HMR re-runs the provider with fresh bytes.
+            <code class="text-accent">virtual:jixoai-icons</code> is the slot face's only injection
+            path: the plugin serves it as a virtual CSS module
+            (<code class="text-accent">@layer theme</code> custom properties) for your CSS entry.
+            Watched sources invalidate the virtual module — HMR re-runs the provider with fresh
+            bytes.
           </p>
         </div>
       </SectionCard>
 
       <SectionCard
-        family="plugin"
+        family="css-slots"
         region="demo"
         eyebrow="live demo"
         title="One wrapper, one override — a real repaint"
@@ -395,10 +619,11 @@ plain beside a stock ink is impossible by construction.`;
           </div>
         </div>
         <p class="text-muted-foreground mt-5 text-[13px] leading-6">
-          Dogfood: this very site's slots are served through the
-          <code class="text-accent">jixoai(&#123; icons &#125;)</code> pipeline — the default box on the left is
-          the plugin path running in production, and the site's build smoke-asserts it renders byte-equal to
-          the shipped sheet.
+          Dogfood: this very site runs BOTH faces through the
+          <code class="text-accent">jixoai(&#123; icons &#125;)</code> pipeline — the slot face
+          paints the default box on the left in production (the site's build smoke-asserts it renders
+          byte-equal to the shipped sheet), and the library face generated the very
+          <code class="text-accent">icon-set.gen</code> the grid above walks.
         </p>
       </SectionCard>
     </div>
@@ -406,12 +631,6 @@ plain beside a stock ink is impossible by construction.`;
 </div>
 
 <style>
-  /* the named-library previews: sizing is consumer CSS (icons.ts law) */
-  .glyph-box :global(svg) {
-    width: 1.375rem;
-    height: 1.375rem;
-  }
-
   .demo-glyph {
     display: block;
   }

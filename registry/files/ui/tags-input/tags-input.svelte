@@ -95,7 +95,7 @@
   // (client-only, idempotent) that carries this field's form association
   import '$lib/form-field';
   import { onDestroy, tick } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { getContext } from 'svelte';
@@ -432,8 +432,9 @@
               disabled={isDisabled}
               onclick={() => removeAt(index)}
             >
-              <!-- the shared inline icon set — 10px inside the chip row -->
-              {@html icons.x}
+              <!-- the × glyph through the Icon component — 10px inside
+                   the chip row (tags-input.css owns the descendant size) -->
+              <Icon name="x" />
             </button>
           {/if}
         </span>

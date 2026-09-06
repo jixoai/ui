@@ -5,7 +5,7 @@
  * slot artwork is serialized at factory time from lucide's own
  * IconNode data — no hand-copied geometry lives in this module
  * (single-source law with the standard layer's fallbacks in
- * registry/files/lib/icons.ts and jx-pure.css).
+ * the icon-set artifact and jx-pure.css).
  *
  * - `lucide` is an optional peer dependency: the factory imports it
  *   dynamically and REJECTS with an install hint when missing — no
@@ -53,6 +53,16 @@ const serializeChildren = (children: readonly IconNodeChild[]): string =>
       return `<${tag}${attributes}/>`;
     })
     .join('');
+
+/**
+ * Serialize one lucide IconNode to the canonical complete `<svg>…</svg>`
+ * string (wrapper + children). The icons library face reuses this exact
+ * serialization for its built-ins (icon-component-pipeline A1) so the
+ * library's {v,n,d} extraction and the svgo no-op pin operate on the
+ * SAME bytes the slot face's provider emits.
+ */
+export const serializeLucideIcon = (icon: IconNode): string =>
+  lucideSvg(serializeChildren(icon[2] ?? []));
 
 /**
  * slot → lucide export name (checked against lucide's export surface
@@ -111,7 +121,7 @@ export function lucideIconProvider(): IconProviderFactory {
     ][]) {
       const icon: IconNode = lucide[name];
       cache.set(slot, {
-        svg: lucideSvg(serializeChildren(icon[2] ?? [])),
+        svg: serializeLucideIcon(icon),
         viewBox: LUCIDE_VIEWBOX,
         nature: 'stroke',
         source: { kind: 'inline' },

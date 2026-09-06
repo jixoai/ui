@@ -69,7 +69,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { PopoverDefaults, type PopoverSurfaceVariant } from './popover-defaults.svelte';
@@ -280,10 +280,10 @@
       {triggerLabel}
       <!-- jx-pop-caret rides the wrapper: popover.css flips it via :has()
            + :popover-open (and kills its transition under reduced
-           motion); the glyph is the shared module svg, sized and
-           re-stroked through consuming-context CSS -->
-      <span class="jx-pop-caret flex-none inline-flex transition-transform duration-150 ease-out [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.5]">
-        {@html icons.chevronDown}
+           motion); the glyph is the Icon component's chevronDown,
+           sized and re-stroked through its props -->
+      <span class="jx-pop-caret flex-none inline-flex transition-transform duration-150 ease-out">
+        <Icon name="chevronDown" size={13} strokeWidth={2.5} />
       </span>
     </button>
   {/if}

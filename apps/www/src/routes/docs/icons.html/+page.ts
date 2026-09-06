@@ -1,12 +1,19 @@
 // Route-level toc policy (firstpaint era, 2026-08-24): the sections
 // ship as PAGE DATA — the layout owns the toc in the scaffold's chrome
 // snippet, SSR-rendered in its final grid cell.
+//
+// icon-docs-consolidation: the component face is a BRIDGE card (one
+// live demo + the link — the API authority is /docs/components/
+// icon.html); this page owns the system story — the generated library
+// grid, the plugin's library face (config + tiers + async semantics),
+// and the slot face. The two faces stay distinguishable sections.
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'vocabulary', label: 'Named icon library' },
-  { id: 'css-slots', label: 'CSS slots' },
-  { id: 'plugin', label: 'Plugin customization' },
+  { id: 'component', label: 'The Icon component' },
+  { id: 'vocabulary', label: 'The named library' },
+  { id: 'plugin', label: 'The library pipeline' },
+  { id: 'css-slots', label: 'The slot face' },
 ];
 
 export const load = () => ({ toc });

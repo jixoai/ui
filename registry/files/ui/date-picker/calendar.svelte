@@ -40,7 +40,7 @@
   (D1-exempt residue law).
 -->
 <script lang="ts">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import {
     addDays,
@@ -299,27 +299,27 @@
        and a hovered nav button painted behind the weekday glyphs
        (Owner catch 2026-08-29: nav 与日期视图错位) -->
   <div data-jx-date-nav class="flex items-center justify-between gap-2 mb-1">
-    <!-- nav glyphs from the shared icons module; date-picker.css sizes
+    <!-- nav glyphs through the Icon component; date-picker.css sizes
          any svg descendant to 13px, the strokier chevrons ride the
-         consuming utility -->
+         strokeWidth prop -->
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
       aria-label="previous month"
       disabled={prevDisabled}
       onclick={() => stepMonth(-1)}
     >
-      {@html icons.chevronLeft}
+      <Icon name="chevronLeft" strokeWidth={2.5} />
     </button>
     <span data-jx-date-month class="font-nav text-[11px] tracking-[0.2em] uppercase">{monthLabel}</span>
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
       aria-label="next month"
       disabled={nextDisabled}
       onclick={() => stepMonth(1)}
     >
-      {@html icons.chevronRight}
+      <Icon name="chevronRight" strokeWidth={2.5} />
     </button>
   </div>
 

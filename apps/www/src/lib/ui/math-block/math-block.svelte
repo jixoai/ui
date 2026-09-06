@@ -31,7 +31,7 @@
   surface: escaped raw source paints + one warn — errors never escape a
   component boundary.
 
-  The copy control is the code-card pattern verbatim (icons.copy/check
+  The copy control is the code-card pattern verbatim (the Icon components, name-typed
   from the generated module, .jx-press physics, clipboard fallback,
   1.6s copied feedback) with a labels localization payload ({copy?,
   copied?}; absent = English verbatim — the localization-payload law).
@@ -61,7 +61,7 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import type { KatexOptions } from 'katex';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import { renderTex } from '$lib/katex';
   import ScrollChrome from '../scroll-run/scroll-chrome.svelte';
@@ -227,15 +227,15 @@
         aria-label={copied ? copiedLabel : copyLabel}
       >
         {#if copied}
-          <!-- shared-module glyphs (the icon law); the copied check rides
-               a strokier consuming utility -->
-          <span data-jx-math-block-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">
-            {@html icons.check}
+          <!-- the icon law's typed component; the copied check rides
+               a strokier strokeWidth -->
+          <span data-jx-math-block-icon class="inline-flex">
+            <Icon name="check" size={12} strokeWidth={2.5} />
           </span>
           <span>{copiedLabel}</span>
         {:else}
-          <span data-jx-math-block-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3">
-            {@html icons.copy}
+          <span data-jx-math-block-icon class="inline-flex">
+            <Icon name="copy" size={12} />
           </span>
           <span>{copyLabel}</span>
         {/if}

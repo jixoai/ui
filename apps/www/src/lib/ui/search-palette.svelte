@@ -20,7 +20,7 @@
   import { createMinisearchEngine, type CorpusPage } from '$lib/search/engine-minisearch';
   import { tokenize } from '$lib/search/tokenizer';
   import type { SearchHit } from '$lib/search/engine-types';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
 
   // the palette's own root; the Dialog's platform element is found
   // beneath it (bind:this on a component yields its bindings, not its
@@ -249,8 +249,8 @@
       >
         {#snippet innerInlineStart()}
           <span
-            class="flex-none select-none text-muted-foreground [&_svg]:h-[16px] [&_svg]:w-[16px]"
-            aria-hidden="true">{@html icons.search}</span>
+            class="flex-none select-none text-muted-foreground"
+            aria-hidden="true"><Icon name="search" /></span>
         {/snippet}
         {#snippet innerInlineEnd()}
           {#if busy}
@@ -274,8 +274,8 @@
     <!-- NO RESULT: a real empty state, not a stray line -->
     <div class="flex flex-col items-center gap-2 px-5 py-9 text-center" data-jx-search-empty use:riseIn>
       <span
-        class="select-none text-muted-foreground/50 [&_svg]:h-6 [&_svg]:w-6"
-        aria-hidden="true">{@html icons.search}</span>
+        class="select-none text-muted-foreground/50"
+        aria-hidden="true"><Icon name="search" size={24} /></span>
       <p class="font-mono text-[12.5px] text-foreground/80">
         No results for <span class="text-foreground">“{query.trim()}”</span>
       </p>

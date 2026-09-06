@@ -1,7 +1,7 @@
 {
   "undeclared": [
     "alert-dialog -> @jixoai/popover",
-    "breadcrumb -> @jixoai/icons",
+    "breadcrumb -> @jixoai/icon",
     "color-picker -> @jixoai/popover",
     "combobox -> @jixoai/popover",
     "command -> @jixoai/popover",
@@ -20,7 +20,6 @@
     "tour -> @jixoai/popover"
   ],
   "dead": [
-    "color-picker -> @jixoai/jx-pure",
     "component-canvas -> @jixoai/shiki",
     "press-button -> @jixoai/utils",
     "scaffold-float -> @jixoai/website-scaffold",

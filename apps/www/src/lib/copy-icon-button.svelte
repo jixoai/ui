@@ -7,7 +7,7 @@
   clipboard contract + press physics, sized for a card corner.
 -->
 <script lang="ts">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
 
   interface Props {
@@ -51,9 +51,9 @@
       {failed ? 'border-destructive text-destructive' : ''}"
   >
     {#if copied}
-      <span class="inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.25]" aria-hidden="true">{@html icons.check}</span>
+      <Icon name="check" size={13} strokeWidth={2.25} />
     {:else}
-      <span class="inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.25]" aria-hidden="true">{@html icons.copy}</span>
+      <Icon name="copy" size={13} strokeWidth={2.25} />
     {/if}
   </button>
 </Tooltip>

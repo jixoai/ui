@@ -41,7 +41,7 @@
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
@@ -295,11 +295,12 @@
     {#if canPick}
       <IconButton variant="outline" iconOnly text="Pick from screen" onclick={pickFromScreen}>
         {#snippet icon()}
-          <!-- the pipette glyph from the shared icons module (currentColor
-               ink; sw 2 = the module default) -->
+          <!-- the pipette glyph through the Icon component (currentColor
+               ink; sw 2 = the component default) -->
           <!-- IconButton sizes nothing itself (bring-your-own-glyph law)
-               — the consuming wrapper owns the 15px box (module bakes 16) -->
-          <span class="inline-flex [&_svg]:h-[15px] [&_svg]:w-[15px]">{@html icons.pipette}</span>
+               — the consuming wrapper flexes, the component owns the
+               15px box -->
+          <span class="inline-flex"><Icon name="pipette" size={15} /></span>
         {/snippet}
       </IconButton>
     {/if}

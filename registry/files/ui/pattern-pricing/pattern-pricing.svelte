@@ -19,7 +19,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -114,10 +114,10 @@
               ariaLabel={`${copiedPlan === tier.plan ? 'copied' : 'copy'} ${tier.command}`}
             >
               {#if copiedPlan === tier.plan}
-                <span class="inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:stroke-[2.5]">{@html icons.check}</span>
+                <span class="inline-flex"><Icon name="check" size={14} strokeWidth={2.5} /></span>
                 <span>copied</span>
               {:else}
-                <span class="inline-flex [&_svg]:h-3.5 [&_svg]:w-3.5">{@html icons.copy}</span>
+                <span class="inline-flex"><Icon name="copy" size={14} /></span>
                 <span>copy add command</span>
               {/if}
             </PressButton>

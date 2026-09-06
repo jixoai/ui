@@ -6,7 +6,7 @@
   import Tabs from '$lib/ui/tabs/tabs.svelte';
   import TabsList from '$lib/ui/tabs/tabs-list.svelte';
   import TabsTrigger from '$lib/ui/tabs/tabs-trigger.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
 </script>
 
 <div class="flex h-full w-full items-center gap-20 p-10">
@@ -40,14 +40,14 @@
     <Tabs value="code">
       <TabsList>
         <TabsTrigger value="code">
-          {#snippet icon()}{@html icons.braces}{/snippet}
+          {#snippet icon()}<Icon name="braces" />{/snippet}
           code
         </TabsTrigger>
         <TabsTrigger value="watch" aria-label="watch">
-          {#snippet icon()}{@html icons.eye}{/snippet}
+          {#snippet icon()}<Icon name="eye" />{/snippet}
         </TabsTrigger>
         <TabsTrigger value="overview" stack>
-          {#snippet icon()}{@html icons.monitor}{/snippet}
+          {#snippet icon()}<Icon name="monitor" />{/snippet}
           overview
         </TabsTrigger>
         <TabsTrigger value="logs">logs</TabsTrigger>

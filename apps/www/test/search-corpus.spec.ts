@@ -313,6 +313,64 @@ describe('ontology R2 — numbers, edges and the two-pass pre-scan', () => {
   });
 });
 
+describe('markdown face — declared-marker harvest (markdown-streaming)', () => {
+  it('a markdown-rendered table harvests ONCE through the declared wrapper marker', async () => {
+    // REAL component output, not a hand-written shape: the fixture locks
+    // the div[data-kind=table] > Table(figure > table) DOM the renderer
+    // actually emits (the marker-over-heuristic + no-double-count law).
+    const { render, cleanup } = await import('@testing-library/svelte');
+    const { default: Markdown } = await import('../src/lib/ui/markdown/markdown.svelte');
+    try {
+      const source = [
+        '## Mapping',
+        '',
+        'Prose before the table.',
+        '',
+        '| node | maps to |',
+        '| --- | --- |',
+        '| code_block | CodeCard |',
+        '| table | Table |',
+        '',
+      ].join('\n');
+      const mounted = render(Markdown, { source });
+      const html = mounted.container.innerHTML;
+      // the emitted shape the law depends on
+      expect(html).toContain('data-kind="table"');
+      expect(html).toContain('<figure');
+      const page = await harvestPage(PAGE(html), 'docs/markdown-table.html');
+      const section = page.sections[0]!;
+      expect(section.heading).toBe('Mapping');
+      const kinds = section.blocks.map((b: { kind: string }) => b.kind);
+      // ONE table block — the declared div[data-kind=table] wrapper wins
+      // and the inner <table> tag shape NEVER double-counts
+      expect(kinds.filter((k: string) => k === 'table').length).toBe(1);
+      // the prose paragraph before it stays prose; no stray kinds appear
+      expect(kinds[0]).toBe('prose');
+      expect(new Set(kinds)).toEqual(new Set(['prose', 'table']));
+    } finally {
+      cleanup();
+    }
+  });
+
+  it('a markdown code fence harvests as code with its language (CodeCard marker chain)', async () => {
+    const { render, cleanup } = await import('@testing-library/svelte');
+    const { default: Markdown } = await import('../src/lib/ui/markdown/markdown.svelte');
+    try {
+      const fence = '`'.repeat(3);
+      const source = `## Code\n\nProse lead.\n\n${fence}ts\nconst a = 1;\n${fence}\n`;
+      const mounted = render(Markdown, { source });
+      const page = await harvestPage(PAGE(mounted.container.innerHTML), 'docs/markdown-code.html');
+      const section = page.sections[0]!;
+      const code = section.blocks.find((b: { kind: string }) => b.kind === 'code');
+      expect(code, 'the CodeCard data-kind=code marker chain holds').toBeDefined();
+      expect((code as { lang?: string }).lang).toBe('ts');
+      expect((code as { text?: string }).text).toContain('const a = 1;');
+    } finally {
+      cleanup();
+    }
+  });
+});
+
 describe('the corpus artifact', () => {
 
   const write = (rel: string, html: string): void => {

@@ -17,9 +17,14 @@
 //      the unified SVG icon system migrated from @jixoai/ui-plugin,
 //      default-OFF — without an `icons` option the plugin is not
 //      registered, no files are read and no optional dependency is
-//      loaded. The icons plugin is imported from './icons/vite-plugin'
-//      (NOT the './icons' barrel) so provider code never enters this
-//      entry's module graph.
+//      loaded. Since icon-component-pipeline (2026-09-06, design §9)
+//      the icons implementation is reachable ONLY through a thin
+//      BRIDGE plugin: hooks (configResolved/buildStart/resolveId/load/
+//      configureServer) memoize one dynamic
+//      `import('./icons/vite-plugin.js')` and delegate, so jixoai()
+//      stays sync (Plugin[] returned immediately) while provider/svgo/
+//      lucide code never enters this entry's STATIC module graph (the
+//      dist graph-purity gate parses real imports).
 //   2. The `virtual:jixoai-ghostty` module (resolveId claim + \0 internal
 //      id) exporting pure data {url, sha256, variant, buildInfo} — no
 //      fetch/WebAssembly at module evaluation time (SSR/vitest safe).
@@ -32,7 +37,17 @@
 import type { Plugin } from 'vite';
 
 import type { IconProviderFactory, SafetyCheckerConfig } from './icons/types.js';
-import { createIconPlugin } from './icons/vite-plugin.js';
+import type { IconLibraryOptions } from './icons/library/types.js';
+import type { IconPluginHooks, IconPluginOptions } from './icons/vite-plugin.js';
+import {
+  chunkIndexOf,
+  classifyVirtualId,
+  ICON_CHUNK_MODULE_PREFIX,
+  ICON_LIBRARY_SENTINEL_ERROR,
+  RESOLVED_CSS_ID,
+  RESOLVED_JS_ID,
+  isChunkModuleId,
+} from './icons/ids.js';
 import { readPin } from './pin.js';
 import { resolveGhosttyWasm, type ResolvedGhosttyWasm, type ResolveGhosttyWasmOptions } from './resolve.js';
 
@@ -170,20 +185,126 @@ function ghosttyPlugin(options: JixoaiGhosttyOptions): Plugin[] {
 }
 
 /**
- * `icons` feature options (merge-alignment A1). The safety config nests
- * here — it is no longer a top-level/global option (it scoped the icon
- * serializer, so it rides the feature that owns it).
+ * `icons` feature options (merge-alignment A1; the library face arrives
+ * with icon-component-pipeline A5). The safety config nests here — it
+ * is no longer a top-level/global option (it scoped the icon
+ * serializer, so it rides the feature that owns it) and serves BOTH
+ * faces. ≥1 of provider|library is required (the design §1 matrix).
  */
 export interface IconsPluginOptions {
-  /** the icon provider factory — awaited at build start (see @jixoai/vite-plugin/icons) */
-  readonly provider: IconProviderFactory;
   /**
-   * safety checker configuration. defaults to `{ mode: 'warn' }` —
-   * rejected icons serve the standard layer's inline fallback. pass
-   * `{ mode: 'error', … }` (and/or tighter limits) to fail the build
-   * instead, e.g. for HTTP-sourced icons.
+   * the slot/CSS face's icon provider factory — awaited at build start
+   * (see @jixoai/vite-plugin/icons). OPTIONAL since the library face:
+   * a library-only config emits no CSS module content.
+   */
+  readonly provider?: IconProviderFactory;
+  /**
+   * the named-icon/library face (see IconLibraryOptions in
+   * @jixoai/vite-plugin/icons): the icon-set artifact + virtual chunk
+   * modules behind `<Icon name>` components.
+   */
+  readonly library?: IconLibraryOptions;
+  /**
+   * safety checker configuration (shared by both faces). defaults to
+   * `{ mode: 'warn' }` — rejected icons serve the standard layer's
+   * inline fallback (slot face) or drop with a named warning (library
+   * face). pass `{ mode: 'error', … }` (and/or tighter limits) to fail
+   * the build instead, e.g. for HTTP-sourced icons.
    */
   readonly safety?: SafetyCheckerConfig;
+}
+
+/**
+ * the design §1 matrix startup error — byte-identical to the icons
+ * sub-entry's MISSING_ICONS_FACES_ERROR (a test pins the two together;
+ * the umbrella keeps its own copy because its entry must stay free of
+ * static icons imports — design §9, the bridge owns the only path in)
+ */
+const MISSING_ICONS_FACES_ERROR =
+  '[jixoai-icons] the icons option is configured but neither face is set — ' +
+  'pass icons.provider (the slot/CSS face) and/or icons.library (the ' +
+  'named-icon face); an empty icons object is not a configuration';
+
+/**
+ * The icons bridge (design §9): a thin proxy plugin keeping jixoai()
+ * SYNC (Plugin[] returned immediately) while the icons/provider/svgo
+ * graph stays out of this entry's static module graph. The hooks
+ * memoize ONE dynamic `import('./icons/vite-plugin.js')` and delegate
+ * to the real createIconPlugin() instance — behavior is
+ * indistinguishable from the pre-bridge direct wiring. The import is
+ * also kicked off eagerly so the delegate is warm before the first
+ * dev-server tick; hook awaits resurface any failure.
+ */
+function iconsBridgePlugin(options: IconsPluginOptions): Plugin {
+  // the delegate is held through its PLAIN-FUNCTION hook surface — the
+  // vite Plugin type's ObjectHook unions are the container's business,
+  // not the delegator's
+  let delegate: IconPluginHooks | undefined;
+  let pending: Promise<IconPluginHooks> | undefined;
+
+  // exactOptionalPropertyTypes: keys are present only when configured
+  const buildDelegateOptions = (): IconPluginOptions => ({
+    ...(options.provider !== undefined ? { icons: options.provider } : {}),
+    ...(options.library !== undefined ? { library: options.library } : {}),
+    ...(options.safety !== undefined ? { safety: options.safety } : {}),
+  });
+
+  const ensureDelegate = (): Promise<IconPluginHooks> => {
+    pending ??= import('./icons/vite-plugin.js').then((mod) => {
+      delegate = mod.createIconPlugin(buildDelegateOptions());
+      return delegate;
+    });
+    return pending;
+  };
+  // eager warm-up (validation errors resurface through hook awaits)
+  void ensureDelegate().catch(() => undefined);
+
+  return {
+    name: 'jixoai-icons',
+    enforce: 'pre',
+
+    async configResolved(config) {
+      (await ensureDelegate()).configResolved(config);
+    },
+
+    async buildStart() {
+      await (await ensureDelegate()).buildStart();
+    },
+
+    resolveId(id, importer) {
+      // SYNCHRONOUS claims for the icons feature's own virtual ids —
+      // the id vocabulary is contract surface (ids.ts), so the frozen
+      // sync resolveId surface survives the bridge. the chunk sentinel
+      // also fires synchronously (an unwired overflow build fails by
+      // name, never through vite's generic resolver).
+      if (isChunkModuleId(id)) {
+        if (options.library === undefined) {
+          throw new Error(ICON_LIBRARY_SENTINEL_ERROR);
+        }
+        const index = chunkIndexOf(id);
+        if (index !== null) return `\0${ICON_CHUNK_MODULE_PREFIX}${index}`;
+        return null;
+      }
+      const kind = classifyVirtualId(id);
+      if (kind !== null) {
+        return kind === 'js' ? RESOLVED_JS_ID : RESOLVED_CSS_ID;
+      }
+      // everything else (the artifact-path claim) defers to the delegate
+      return ensureDelegate().then((real) => real.resolveId(id, importer) ?? null);
+    },
+
+    async load(id) {
+      return (await ensureDelegate()).load(id) ?? null;
+    },
+
+    configureServer(server) {
+      void ensureDelegate()
+        .then((real) => {
+          real.configureServer(server);
+        })
+        .catch(() => undefined);
+    },
+  };
 }
 
 /**
@@ -209,11 +330,14 @@ export interface JixoaiOptions {
    */
   ghostty?: boolean | JixoaiGhosttyOptions;
   /**
-   * The icon system feature (merge-alignment A1): provider factories +
-   * serializer + safety checker behind the `virtual:jixoai-icons`
-   * module. Default: `false` — no plugin is registered, no files are
-   * read and no optional dependency (opentype.js / wawoff2) is loaded
-   * unless an option object opts in.
+   * The icon system feature (merge-alignment A1; the library face since
+   * icon-component-pipeline): the slot/CSS face (provider factories +
+   * serializer behind the `virtual:jixoai-icons` module) and/or the
+   * named-icon face (`library` — the icon-set artifact + virtual chunk
+   * modules). ≥1 of `provider` | `library` required. Default: `false`
+   * — no plugin is registered, no files are read and no optional
+   * dependency (opentype.js / wawoff2) is loaded unless an option
+   * object opts in.
    */
   icons?: IconsPluginOptions | false;
 }
@@ -226,13 +350,11 @@ export function jixoai(options: JixoaiOptions = {}): Plugin[] {
   }
   if (options.icons !== false && options.icons !== undefined) {
     const icons = options.icons;
-    plugins.push(
-      createIconPlugin(
-        icons.safety === undefined
-          ? { icons: icons.provider }
-          : { icons: icons.provider, safety: icons.safety },
-      ),
-    );
+    // the design §1 matrix, enforced at startup: ≥1 of provider|library
+    if (icons.provider === undefined && icons.library === undefined) {
+      throw new Error(MISSING_ICONS_FACES_ERROR);
+    }
+    plugins.push(iconsBridgePlugin(icons));
   }
   return plugins;
 }

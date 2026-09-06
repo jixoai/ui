@@ -145,7 +145,8 @@
   import { InputDefaults } from './input-defaults.svelte';
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
+  import type { IconName } from '$lib/icon-set.gen';
   import Calendar from '../date-picker/calendar.svelte';
   import MonthGrid from '../date-picker/month-grid.svelte';
   import TimeStepper from '../date-picker/time-stepper.svelte';
@@ -333,19 +334,18 @@
   // explicitly off (embedded self-painting lanes opt out), a snippet =
   // custom; `iconPosition` pins the side; the unpinned side is resolved
   // by the shell's css (see input.css — the order ladder + lane ambient)
-  const SEMANTIC_GLYPHS: Partial<Record<string, keyof typeof icons>> = {
+  const SEMANTIC_GLYPHS: Partial<Record<string, IconName>> = {
     text: 'type',
     url: 'link',
     tel: 'phone',
     email: 'mail',
     search: 'search',
   };
-  const semanticGlyphHtml = $derived.by(() => {
+  const semanticGlyphName = $derived.by(() => {
     if (icon !== undefined || !isTextLike) return undefined;
-    const glyph = SEMANTIC_GLYPHS[type];
-    return glyph ? icons[glyph] : undefined;
+    return SEMANTIC_GLYPHS[type];
   });
-  const semanticGlyph = $derived(Boolean(icon || semanticGlyphHtml));
+  const semanticGlyph = $derived(Boolean(icon || semanticGlyphName));
   const slotted = $derived(Boolean(innerInlineStart || innerInlineEnd || clearable || customStepper || semanticGlyph));
   const showClear = $derived(clearable && rest.disabled !== true && shownValue !== '');
 
@@ -679,7 +679,7 @@
             aria-label="decrease"
             disabled={rest.disabled}
             onpointerdown={beginHold.bind(null, -1)}
-          >{@html icons.minus}</button>
+          ><Icon name="minus" /></button>
         {/if}
         {#if innerInlineStart}
           <span data-jx-slot data-jx-inline-start class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineStart()}</span>
@@ -713,7 +713,7 @@
             aria-hidden="true"
             class="flex-none inline-flex items-center text-muted-foreground text-xs leading-none"
           >
-            {#if icon}{@render icon()}{:else}{@html semanticGlyphHtml}{/if}
+            {#if icon}{@render icon()}{:else if semanticGlyphName}<Icon name={semanticGlyphName} />{/if}
           </span>
         {/if}
         {#if innerInlineEnd}
@@ -727,7 +727,7 @@
             aria-label="increase"
             disabled={rest.disabled}
             onpointerdown={beginHold.bind(null, 1)}
-          >{@html icons.plus}</button>
+          ><Icon name="plus" /></button>
         {/if}
         {#if showClear}
           <button
@@ -756,7 +756,7 @@
             disabled={rest.disabled}
             onclick={() => (revealed = !revealed)}
           >
-            {@html revealed ? icons.eyeOff : icons.eye}
+            <Icon name={revealed ? 'eyeOff' : 'eye'} />
           </button>
         {/if}
       </div>

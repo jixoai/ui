@@ -120,7 +120,7 @@
 </script>
 
 <script lang="ts" generics="T = unknown">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import './tree-view.css';
 
@@ -378,23 +378,23 @@
             activate({ path, node, parentPath }, (event.currentTarget as HTMLElement).closest('li')!);
           }}
         >
-          <span class="jx-tree-caret inline-flex items-center justify-center h-[1em] w-[0.75rem] flex-none text-muted-foreground transition-transform duration-150 ease-[ease] [&_svg]:h-2.5 [&_svg]:w-2.5" aria-hidden="true">
+          <span class="jx-tree-caret inline-flex items-center justify-center h-[1em] w-[0.75rem] flex-none text-muted-foreground transition-transform duration-150 ease-[ease]" aria-hidden="true">
             {#if isDir}
               {#if toggle === 'plus'}
-                {@html isCollapsed ? icons.plus : icons.minus}
+                <Icon name={isCollapsed ? 'plus' : 'minus'} size={10} />
               {:else}
-                {@html icons.chevronDown}
+                <Icon name="chevronDown" size={10} />
               {/if}
             {/if}
           </span>
           {#if prefixSnippet}
             <span data-jx-tree-prefix class="inline-flex items-center flex-none min-w-0 [&_svg]:h-3.5 [&_svg]:w-3.5">{@render prefixSnippet(ctx)}</span>
           {:else if fileIcons}
-            <span data-jx-tree-prefix class="jx-tree-typeicon inline-flex items-center flex-none min-w-0 text-muted-foreground [&_svg]:h-[13px] [&_svg]:w-[13px]" aria-hidden="true">
+            <span data-jx-tree-prefix class="jx-tree-typeicon inline-flex items-center flex-none min-w-0 text-muted-foreground" aria-hidden="true">
               {#if isDir}
-                {@html ctx.expanded ? icons.folderOpen : icons.folder}
+                <Icon name={ctx.expanded ? 'folderOpen' : 'folder'} size={13} />
               {:else}
-                {@html icons.file}
+                <Icon name="file" size={13} />
               {/if}
             </span>
           {/if}

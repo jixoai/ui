@@ -1,0 +1,82 @@
+@layer theme, base, components, utilities;
+
+/* jixoai markdown — D1-exempt residue (2026-09-06, markdown-streaming:
+ * original request "推出 markdown 渲染组件，支持流式渲染，AST 映射内部组件";
+ * visual-review pass 2026-09-07: the task-item marker law, the disabled
+ * presentation cue and the block-tail cursor rhythm join the residue).
+ * The prose face itself is NOT here: every mapped element is a bare
+ * native under the .jx-pure scope (the Tier-0 face mounts by CLASS on
+ * the root — the sheet imports once from the site css, the
+ * app-level law; never a forked copy of the face laws), and
+ * block chrome belongs to Table/CodeCard. The residue owns:
+ *   - the STREAMING CURSOR: [data-jx-markdown-cursor] — a
+ *     terminal-vocabulary caret painted as its OWN block box (a block
+ *     element is exactly caret-height, so a block tail (table/code)
+ *     never leaves an anonymous prose-line gap under it — the
+ *     visual-review orphan fix); blink ONLY under
+ *     prefers-reduced-motion: no-preference (a hard 1s stepped blink —
+ *     terminal, not a pulse), fully static otherwise; print media
+ *     hides it (a printed stream is done).
+ *   - the GFM TASK ITEM: a list item whose marker slot is already
+ *     occupied by its checkbox suppresses the face's disc (B8's
+ *     ul { list-style: disc } counter — the checkbox IS the marker);
+ *     the presentation-only input dims so "static disabled" reads.
+ * Data hooks only, no jx-* classes (nothing here needs a styled class
+ * the hooks cannot carry); selectors sit behind :where() per the
+ * placement law, static paint in @layer components (consumer
+ * utilities win), the motion/print state machines on the unlayered
+ * carve-out (the toggle/Part A precedent). */
+
+@layer components {
+  :where([data-jx-markdown-cursor]) {
+    display: block;
+    width: 0.55em;
+    height: 1em;
+    /* the next typing line's rhythm — close enough to hug a block
+       tail, far enough to read as its own line for a prose tail */
+    margin-block-start: 0.35em;
+    background: currentColor;
+    border-radius: calc(infinity * 1px);
+  }
+
+  /* the GFM checkbox replaces the disc marker (visual-review: the
+     double-marker bug — bullet AND checkbox on one item) */
+  :where(
+    [data-jx-markdown] li:has(> input[type='checkbox']),
+    [data-jx-markdown] li:has(> p > input[type='checkbox'])
+  ) {
+    list-style: none;
+  }
+
+  /* task checkboxes are presentation-only (the source text owns the
+     state) — the dim is the disabled cue the visual review asked for */
+  :where([data-jx-markdown] input[type='checkbox']:disabled) {
+    opacity: 0.55;
+    cursor: default;
+  }
+}
+
+/* motion state machine — unlayered :where() carve-out */
+@media (prefers-reduced-motion: no-preference) {
+  :where([data-jx-markdown-cursor]) {
+    animation: jx-markdown-cursor-blink 1s steps(1, end) infinite;
+  }
+}
+
+@keyframes jx-markdown-cursor-blink {
+  0%,
+  49.9% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* a printed stream is done — the caret never survives the paper law */
+@media print {
+  :where([data-jx-markdown-cursor]) {
+    display: none;
+  }
+}

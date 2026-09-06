@@ -18,7 +18,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import ButtonGroup, {
@@ -354,8 +354,8 @@ ${close}
           <PressButton variant="fill">save</PressButton>
           <ButtonGroupDivider />
           <ButtonGroup label="view switches">
-            <PressButton variant="outline" square ariaLabel="undo">{@html icons.arrowLeft}</PressButton>
-            <PressButton variant="outline" square ariaLabel="redo">{@html icons.arrowRight}</PressButton>
+            <PressButton variant="outline" square ariaLabel="undo"><Icon name="arrowLeft" /></PressButton>
+            <PressButton variant="outline" square ariaLabel="redo"><Icon name="arrowRight" /></PressButton>
           </ButtonGroup>
           <PressButton variant="ghost">discard</PressButton>
         </ButtonGroup>

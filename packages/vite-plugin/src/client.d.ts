@@ -12,12 +12,23 @@ declare module 'virtual:jixoai-ghostty' {
   export const buildInfo: string;
 }
 
-// The icons feature (jixoai({ icons: { provider } })). The CSS form is
-// consumed via `@import 'virtual:jixoai-icons';` (no JS types needed);
-// the explicit `?dom` form carries the DOM-injection SVG strings for
-// slots consumed as inline SVG.
+// The icons feature (jixoai({ icons: { provider | library } })). The CSS
+// form is consumed via `@import 'virtual:jixoai-icons';` (no JS types
+// needed); the explicit `?dom` form carries the DOM-injection SVG
+// strings for slots consumed as inline SVG.
 declare module 'virtual:jixoai-icons?dom' {
   import type { IconSlot } from '@jixoai/vite-plugin/icons';
   export const domIcons: Partial<Record<IconSlot, string>>;
   export default domIcons;
+}
+
+// The icons LIBRARY face's lazy chunk modules (icon-component-pipeline,
+// design §3): `virtual:jixoai-icons/chunk/K` is generated at dev/build
+// time by whichever app wires jixoai({ icons: { library } }) — chunk
+// bodies are never files. Types-only shape (the artifact's LAZY loaders
+// import these dynamically; a plugin-free artifact has zero of them).
+declare module 'virtual:jixoai-icons/chunk/*' {
+  import type { IconData } from '@jixoai/vite-plugin/icons';
+  const icons: Readonly<Record<string, IconData>>;
+  export default icons;
 }

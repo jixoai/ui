@@ -54,7 +54,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { getContext } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import type { HighlightBackend } from '$lib/highlight/backend';
   // registry-safe seam (the density law): the key + structural type
@@ -316,16 +316,16 @@
           aria-label={copied ? 'copied' : `copy ${filename || lang} sample`}
         >
           {#if copied}
-            <!-- shared-module glyphs (full lucide copy geometry — the
+            <!-- Icon component glyphs (full lucide copy geometry — the
                  hand-simplified variant retired 2026-08-29); the copied
-                 check rides a strokier consuming utility -->
-            <span data-jx-code-card-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">
-              {@html icons.check}
+                 check rides a strokier strokeWidth prop -->
+            <span data-jx-code-card-icon class="inline-flex">
+              <Icon name="check" size={12} strokeWidth={2.5} />
             </span>
             <span>copied</span>
           {:else}
-            <span data-jx-code-card-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3">
-              {@html icons.copy}
+            <span data-jx-code-card-icon class="inline-flex">
+              <Icon name="copy" size={12} />
             </span>
             <span>copy</span>
           {/if}

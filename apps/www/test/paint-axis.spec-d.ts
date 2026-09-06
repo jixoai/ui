@@ -46,7 +46,7 @@ test('the slot products are DefaultsSlots over the family domain', () => {
   expectTypeOf<PressButtonVariant>().toEqualTypeOf<PaintVariant>();
   expectTypeOf(pressButtonVariantSlot).toEqualTypeOf<DefaultsSlot<PaintVariant>>();
   expectTypeOf(densitySlot('sm')).returns.toEqualTypeOf<
-    'lg' | 'default' | 'sm' | 'xs' | undefined
+    'lg' | 'default' | 'sm' | 'xs' | '2xs' | undefined
   >();
   void wide;
 });

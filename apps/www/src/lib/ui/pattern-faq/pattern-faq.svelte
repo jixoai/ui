@@ -15,7 +15,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import Accordion from '$lib/ui/accordion/accordion.svelte';
   import './pattern-faq.css';
 
@@ -53,7 +53,7 @@
 >
   <header class="border-b border-border pb-4">
     <p class="m-0 flex items-center gap-2 font-nav text-sm tracking-[0.06em]">
-      <span class="inline-flex text-muted-foreground [&_svg]:h-4 [&_svg]:w-4" aria-hidden="true">{@html icons.fileText}</span>
+      <span class="inline-flex text-muted-foreground" aria-hidden="true"><Icon name="fileText" /></span>
       <strong class="text-foreground">{command}</strong>
       <span class="text-muted-foreground">({section})</span>
     </p>

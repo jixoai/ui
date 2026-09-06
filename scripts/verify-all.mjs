@@ -5,12 +5,17 @@
 //   0. registry dependency shape — every inter-item dependency is
 //      @jixoai/<item> (A4: bare names are ambiguous across namespaces)
 //   1. verify:laws        — css-laws slots fresh from the TS sources
-//   2. verify:mirror      — registry ⇄ apps/www byte-identity
-//   3. verify:budgets     — source/face/consumer budgets
-//   4. ghostty-pin offline — the supply-chain SHAPE (no network: PRs
+//   2. verify:icons       — the generated icon-set artifact is fresh
+//      verify:migration   — the old-icon-API inventory matches its snapshot
+//   3. verify:mirror      — registry ⇄ apps/www byte-identity
+//   4. verify:budgets     — source/face/consumer budgets
+//   5. ghostty-pin offline — the supply-chain SHAPE (no network: PRs
 //      must not flap on proxies; the online check rides wasm-sync)
-//   5. verify:shadcn-add  — real-consumer install contract
-//   6. verify:km          — the KaTeX/Mermaid browser probe (NEW tail,
+//   6. verify:shadcn-add  — real-consumer install contract
+//   (inline between 4 and 5: the npm-script gates also carry
+//   verify:context/deps/docs/meta/print + the dual-app
+//   vite.config.ts byte-identity step — icon-component-pipeline B4)
+//   7. verify:km          — the KaTeX/Mermaid browser probe (NEW tail,
 //      katex-mermaid 5.3) over a composite-owned static dist server
 //
 // Runs AFTER the regular build steps (payloads/dist must exist).
@@ -58,13 +63,29 @@ try {
 // ── 1-3. the npm-script gates (verify:shadcn-add lives ONLY in the final
 // real-consumer step below — running it here too made the chain pay for
 // the same five installs twice, out of the documented order) ─────────
-for (const name of ['verify:laws', 'verify:icons', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta', 'verify:print']) {
+for (const name of ['verify:laws', 'verify:icons', 'verify:migration', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta', 'verify:print']) {
   step(name);
   try {
     execFileSync('npm', ['run', '--silent', name], { cwd: root, stdio: 'inherit' });
   } catch {
     die(name);
   }
+}
+
+// ── 3.5. dual-app vite config byte-identity (icon-component-pipeline
+// B4): apps/www/vite.config.ts and registry/vite.config.ts are ONE
+// config maintained twice — both apps dogfood the same jxoai() wiring
+// (icons provider + library faces), so any byte drift between them is
+// a law breach, not a style nit — copy the exact bytes across ──────
+{
+  step('vite.config.ts dual-app byte-identity');
+  const www = readFileSync(join(root, 'apps/www/vite.config.ts'));
+  const reg = readFileSync(join(root, 'registry/vite.config.ts'));
+  if (!www.equals(reg)) {
+    console.error('[vite-config-parity] apps/www/vite.config.ts ≠ registry/vite.config.ts — the two files must stay byte-identical (cmp them)');
+    die('vite-config-parity');
+  }
+  console.log('[vite-config-parity] apps/www/vite.config.ts ≡ registry/vite.config.ts');
 }
 
 // ── 4. ghostty pin (offline sentinel) ────────────────────────────────

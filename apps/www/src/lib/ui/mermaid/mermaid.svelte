@@ -54,7 +54,7 @@
 
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import {
     createRenderIdMinter,
@@ -291,12 +291,12 @@
           >
             {#if copied}
               <span data-jx-mermaid-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">
-                {@html icons.check}
+                <Icon name="check" size={12} strokeWidth={2.5} />
               </span>
               <span>{copiedLabel}</span>
             {:else}
-              <span data-jx-mermaid-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3">
-                {@html icons.copy}
+              <span data-jx-mermaid-icon class="inline-flex">
+                <Icon name="copy" size={12} />
               </span>
               <span>{copyLabel}</span>
             {/if}
@@ -312,7 +312,7 @@
             onclick={() => stepZoom(-1)}
             aria-label={zoomOutLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3">{@html icons.minus}</span>
+            <span data-jx-mermaid-icon class="inline-flex"><Icon name="minus" size={12} /></span>
           </button>
           <button
             type="button"
@@ -321,7 +321,7 @@
             onclick={() => (scale = 1)}
             aria-label={zoomResetLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3">{@html icons.rotateCcw}</span>
+            <span data-jx-mermaid-icon class="inline-flex"><Icon name="rotateCcw" size={12} /></span>
           </button>
           <button
             type="button"
@@ -330,7 +330,7 @@
             onclick={() => stepZoom(1)}
             aria-label={zoomInLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3">{@html icons.plus}</span>
+            <span data-jx-mermaid-icon class="inline-flex"><Icon name="plus" size={12} /></span>
           </button>
         </span>
       {/if}

@@ -82,6 +82,23 @@
  * sticky bar bottom (44px) + 2em = 76px, matching the toc-engine line law. */
 
 /* -------------------------------------------------------------------------
+ * microlighter NAMED-package-theme scoping (2026-09-07): the default
+ * jixoai theme (lib/highlight/microlighter-jixoai.css) needs no help —
+ * its --syntax-* bridge rides the card's --tok-* palette and follows
+ * the site mode by construction. The PACKAGE themes (min, github,
+ * dracula…) a playground visitor can still pick set `color-scheme:
+ * light dark` on [data-syntax-theme], resolving their light-dark()
+ * tokens against the OS preference — not the site's html.dark mode.
+ * This pin re-couples the named themes to the site state (specificity
+ * (0,2,1) beats every theme's attribute rule (0,1,0)). */
+html:not(.dark) pre[data-syntax-theme] {
+  color-scheme: light;
+}
+html.dark pre[data-syntax-theme] {
+  color-scheme: dark;
+}
+
+/* -------------------------------------------------------------------------
  * Reduced-motion law: the registry sheet already neutralizes reveal motion;
  * this covers the site's own transitions.
  * ---------------------------------------------------------------------- */

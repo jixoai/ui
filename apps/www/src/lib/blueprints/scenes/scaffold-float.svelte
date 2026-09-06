@@ -5,7 +5,7 @@
      needs the WebsiteScaffold context to exist around it, which the
     fixed stage cannot host honestly — the diagram shows the mechanism. -->
 <script lang="ts">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
 </script>
 
 <div class="flex h-full w-full flex-col items-center justify-center gap-5 p-10">
@@ -23,7 +23,7 @@
     </div>
 
     <div class="text-muted-foreground flex items-center" aria-hidden="true">
-      {@html icons.arrowRight}
+      <Icon name="arrowRight" />
     </div>
 
     <!-- adoption target: the top layer -->

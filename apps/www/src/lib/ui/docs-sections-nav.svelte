@@ -27,7 +27,7 @@
   import './docs-sections-nav.css';
   import { page } from '$app/state';
   import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import {
     navFilter,
     navHighlightSegments,
@@ -187,7 +187,7 @@
           onkeydown={onFilterKeydown}
         />
         {#if filter}
-          <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>{@html icons.x}</button>
+          <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}><Icon name="x" /></button>
         {/if}
       </div>
     </div>
@@ -269,7 +269,7 @@
           onkeydown={onFilterKeydown}
         />
         {#if filter}
-          <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}>{@html icons.x}</button>
+          <button type="button" class="jx-dsn-clear" aria-label="Clear the filter" onclick={() => (filter = '')}><Icon name="x" /></button>
         {/if}
       </div>
       {#if needle && visibleSections.length === 0}

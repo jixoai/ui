@@ -24,7 +24,7 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayHelp } from '$lib/playground';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import Accordion from '$lib/ui/accordion/accordion.svelte';
@@ -74,7 +74,7 @@
     ItemEnd,
   } from '@ui/list-item/index';
   import IconButton from '@ui/icon-button/icon-button.svelte';
-  import { icons } from '@lib/icons';
+  import Icon from '@ui/icon.svelte';
 ${close}
 
 <!-- ItemContent is the required slot; media/end/header/footer are
@@ -89,10 +89,10 @@ ${close}
   </ItemContent>
   <ItemEnd>
     <IconButton iconOnly text="Rerun deploy" class="size-7!">
-      {#snippet icon()}{@html icons.check}{/snippet}
+      {#snippet icon()}<Icon name="check" />{/snippet}
     </IconButton>
     <IconButton iconOnly text="More actions" class="size-7!">
-      {#snippet icon()}{@html icons.ellipsis}{/snippet}
+      {#snippet icon()}<Icon name="ellipsis" />{/snippet}
     </IconButton>
   </ItemEnd>
 </Item>`;
@@ -159,10 +159,10 @@ ${close}
             </ItemContent>
             <ItemEnd>
               <IconButton iconOnly text="Rerun deploy" class="size-7!">
-                {#snippet icon()}{@html icons.check}{/snippet}
+                {#snippet icon()}<Icon name="check" />{/snippet}
               </IconButton>
               <IconButton iconOnly text="More actions" class="size-7!">
-                {#snippet icon()}{@html icons.ellipsis}{/snippet}
+                {#snippet icon()}<Icon name="ellipsis" />{/snippet}
               </IconButton>
             </ItemEnd>
           </Item>
@@ -236,7 +236,7 @@ ${close}
           <div class="flex flex-col gap-4">
             <ItemGroup label="registry" ruler="media-content-end" class="max-w-lg">
               <Item href="#group-modes">
-                <ItemMedia variant="icon">{@html icons.folder}</ItemMedia>
+                <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
                 <ItemContent>
                   <ItemTitle>press-button</ItemTitle>
                   <ItemDescription>default mode · labeled section · auto hairlines</ItemDescription>
@@ -319,7 +319,7 @@ ${close}
       >
         <div class="flex w-full max-w-lg flex-col gap-2">
           <Item variant="outline">
-            <ItemMedia variant="icon">{@html icons.folder}</ItemMedia>
+            <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
             <ItemContent>
               <ItemTitle>registry folder</ItemTitle>
               <ItemDescription>12 components · updated today</ItemDescription>
@@ -360,7 +360,7 @@ ${close}
             </ItemContent>
             <ItemEnd>
               <IconButton iconOnly text="Close pull request" class="size-7!">
-                {#snippet icon()}{@html icons.x}{/snippet}
+                {#snippet icon()}<Icon name="x" />{/snippet}
               </IconButton>
             </ItemEnd>
             <ItemFooter>
@@ -411,7 +411,7 @@ ${close}
             <div class="max-w-[19rem]">
               <ItemGroup mode="plain" dividers="auto" ruler="media-content-end">
                 <Item href="#media-narrow">
-                  <ItemMedia variant="icon">{@html icons.fileText}</ItemMedia>
+                  <ItemMedia variant="icon"><Icon name="fileText" /></ItemMedia>
                   <ItemContent>
                     <ItemTitle>separator</ItemTitle>
                     <ItemDescription>registry:ui · the hr, W3C-first</ItemDescription>
@@ -611,7 +611,7 @@ ${close}
               </ItemContent>
               <ItemEnd>
                 <IconButton iconOnly text="Retry" class="size-7!">
-                  {#snippet icon()}{@html icons.rotateCcw}{/snippet}
+                  {#snippet icon()}<Icon name="rotateCcw" />{/snippet}
                 </IconButton>
               </ItemEnd>
             </Item>

@@ -235,7 +235,7 @@
     type Density,
   } from '$lib/density.svelte';
   import { getPaintZone, providePaintZone, type ZonePaintVariant } from '$lib/paint.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
@@ -902,7 +902,7 @@
         <DropdownMenu id={menuId} placement="bottom-end">
           {#snippet trigger()}
             <IconButton iconOnly text={moreLabel} popovertarget={menuId}>
-              {#snippet icon()}{@html icons.ellipsis}{/snippet}
+              {#snippet icon()}<Icon name="ellipsis" />{/snippet}
             </IconButton>
           {/snippet}
           {#each folded as entry, i (i)}

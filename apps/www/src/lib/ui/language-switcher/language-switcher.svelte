@@ -48,7 +48,7 @@
   `lang` and delete their delegation.
 -->
 <script lang="ts">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import {
     LanguageSwitcherDefaults,
@@ -99,9 +99,9 @@
 </script>
 
 <div data-jx-lang="" class="flex items-center gap-2">
-  <!-- glyphs from the shared icons module; sizing/stroke overrides are
-       consuming-context CSS (the module bakes 16px / sw 2) -->
-  <span class="inline-flex opacity-70 [&_svg]:h-3.5 [&_svg]:w-3.5">{@html icons.languages}</span>
+  <!-- glyphs through the Icon component; sizing/stroke overrides are
+       its props (16px / sw 2 defaults) -->
+  <span class="inline-flex opacity-70"><Icon name="languages" size={14} /></span>
 
   {#if d.variant === 'pair'}
     <div
@@ -140,8 +140,8 @@
       onclick={() => menu?.togglePopover()}
     >
       {activeLabel}
-      <span class="inline-flex transition-transform {open ? 'rotate-180' : ''} [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">
-        {@html icons.chevronDown}
+      <span class="inline-flex transition-transform {open ? 'rotate-180' : ''}">
+        <Icon name="chevronDown" size={12} strokeWidth={2.5} />
       </span>
     </button>
     <!-- popover=auto: hidden by the UA until shown — always mounted so

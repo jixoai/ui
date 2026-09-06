@@ -44,7 +44,7 @@
 
 <script lang="ts">
   import { cn } from '$lib/utils';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import type { Density } from '$lib/density.svelte';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
   import DropdownMenu from '../dropdown-menu/dropdown-menu.svelte';
@@ -97,8 +97,8 @@
         )}
       >
         {label}
-        <span class="jx-menu-caret flex-none inline-flex transition-transform duration-150 ease-out [&_svg]:h-[11px] [&_svg]:w-[11px] [&_svg]:stroke-[2.5]">
-          {@html icons.chevronDown}
+        <span class="jx-menu-caret flex-none inline-flex transition-transform duration-150 ease-out">
+          <Icon name="chevronDown" size={11} strokeWidth={2.5} />
         </span>
       </button>
     {/snippet}

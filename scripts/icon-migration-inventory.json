@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-09-06T19:04:42.560Z",
+  "patterns": [
+    "\\$lib\\/icons",
+    "@html icons\\.",
+    "@jixoai\\/icons",
+    "registry\\/files\\/lib\\/icons\\.ts",
+    "apps\\/www\\/src\\/lib\\/icons\\.ts",
+    "scripts\\/gen-icons\\.mjs",
+    "\\.\\.\\/src\\/lib\\/icons(\\.ts)?['\"]"
+  ],
+  "hits": []
+}

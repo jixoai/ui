@@ -10,7 +10,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { componentContext } from '$lib/docs-route-model';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import './docs-pager.css';
 
   const name = $derived(page.url.pathname.split('/').pop()?.replace(/\.html$/, '') ?? '');
@@ -34,23 +34,23 @@
     <div class="jx-docs-pager">
       {#if ctx.prev}
         <a href={ctx.prev.entry.href}>
-          <span class="jx-docs-pager-direction"><span class="jx-dp-ico" aria-hidden="true">{@html icons.arrowLeft}</span>previous</span>
+          <span class="jx-docs-pager-direction"><span class="jx-dp-ico" aria-hidden="true"><Icon name="arrowLeft" /></span>previous</span>
           <span class="jx-docs-pager-label">{ctx.prev.entry.name}</span>
         </a>
       {:else}
         <a href="/docs/components.html">
-          <span class="jx-docs-pager-direction"><span class="jx-dp-ico" aria-hidden="true">{@html icons.arrowLeft}</span>back to</span>
+          <span class="jx-docs-pager-direction"><span class="jx-dp-ico" aria-hidden="true"><Icon name="arrowLeft" /></span>back to</span>
           <span class="jx-docs-pager-label">all components</span>
         </a>
       {/if}
       {#if ctx.next}
         <a class="jx-docs-pager-next" href={ctx.next.entry.href}>
-          <span class="jx-docs-pager-direction">next<span class="jx-dp-ico" aria-hidden="true">{@html icons.arrowRight}</span></span>
+          <span class="jx-docs-pager-direction">next<span class="jx-dp-ico" aria-hidden="true"><Icon name="arrowRight" /></span></span>
           <span class="jx-docs-pager-label">{ctx.next.entry.name}</span>
         </a>
       {:else}
         <a class="jx-docs-pager-next" href="/docs.html">
-          <span class="jx-docs-pager-direction">end of the chain<span class="jx-dp-ico" aria-hidden="true">{@html icons.arrowRight}</span></span>
+          <span class="jx-docs-pager-direction">end of the chain<span class="jx-dp-ico" aria-hidden="true"><Icon name="arrowRight" /></span></span>
           <span class="jx-docs-pager-label">docs home</span>
         </a>
       {/if}

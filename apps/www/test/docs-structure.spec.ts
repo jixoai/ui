@@ -84,13 +84,17 @@ describe('docs-route-model — the section spine', () => {
     // primitives join layout (14->16) — 98 ui items.
     // Re-frozen 2026-09-04 (scroll-run unification): the ONE
     // scrollable-region system joins general (9->10) — 99 ui items.
-    // Re-frozen 2026-09-06 (katex-mermaid): math-inline joins general
-    // (10->11), math-block + mermaid join data-display (16->18) — 102
-    // ui items.
+    // Re-frozen 2026-09-06 (icon-component-pipeline): the Icon
+    // component lands in general (10->11) — 100 ui items.
+    // Re-frozen 2026-09-07 (markdown-streaming): the streaming
+    // markdown face joins data-display (16->17) — 101 ui items.
+    // Re-frozen 2026-09-07 (katex-mermaid rebase union): math-inline
+    // joins general (11->12), math-block + mermaid join data-display
+    // (17->19) — 104 ui items.
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:11', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
-      'data-entry:19', 'data-display:18', 'feedback:5',
+      'general:12', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
+      'data-entry:19', 'data-display:19', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
   });

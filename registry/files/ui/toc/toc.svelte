@@ -52,7 +52,7 @@
     type TocOutlineEntry,
     type TocOutlineSection,
   } from '$lib/toc-outline';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import TocList from './toc-list.svelte';
   import TocItem from './toc-item.svelte';
@@ -366,7 +366,7 @@
       aria-label="Expand table of contents"
       onclick={() => (open ? close() : (open = true))}
     >
-      {@html icons.chevronDown}
+      <Icon name="chevronDown" />
     </button>
   </div>
 </div>

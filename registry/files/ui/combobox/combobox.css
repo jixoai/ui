@@ -64,7 +64,7 @@
    * trigger × and the multiple chips' remove × share ONE slot — the
    * family's --jx-icon-clear (the same × the input family's clear
    * button masks), inline fallback stroke-width 2. Zero icon-import:
-   * the item needs no @jixoai/icons dependency. Sizing rides markup
+   * the item needs no icon-library dependency. Sizing rides markup
    * utilities on the glyph span's parent buttons (w-5/w-6 lanes). */
   :where(.jx-combobox-x-glyph) {
     display: block;

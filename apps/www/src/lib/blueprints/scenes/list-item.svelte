@@ -22,7 +22,7 @@
     ItemChevron,
     ItemToggle,
   } from '$lib/ui/list-item';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
 
   let fast = $state(true);
@@ -31,7 +31,7 @@
 <div class="flex h-full w-full flex-col justify-center gap-5 p-10">
   <ItemGroup ruler="media-content-end" class="w-[34rem] max-w-full">
     <Item href="#one">
-      <ItemMedia variant="icon">{@html icons.folder}</ItemMedia>
+      <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
       <ItemContent>
         <ItemTitle>item one</ItemTitle>
       </ItemContent>

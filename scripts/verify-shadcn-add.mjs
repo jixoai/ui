@@ -37,13 +37,28 @@
 //                      arrive (regression lock, design D7 6b)
 //   hero-section       resolves its dependency closure AND requests no
 //                      @jixoai/reveal (the 2026-08-30 ghost — task 2b.2)
+//   icon-default       DEFAULT icon tier (icon-component-pipeline C1,
+//                      design §4 tier 1): a clean consumer adds
+//                      @jixoai/icon + @jixoai/icon-set with NO plugin
+//                      wired — the committed artifact is inline-only
+//                      (zero virtual imports), the build passes and the
+//                      SSR/prerendered HTML paints real glyphs
+//
+// After the cases, ONE forced-overflow fixture (design §4 tier 2 + §5
+// sentinel) runs three sub-probes over a REAL vite project whose
+// artifact HAS lazy chunks (the 38 built-ins packed under a per-icon
+// budget): WIRED (jixoai({ icons: { library } }) → lazy chunk assets
+// emit + preloadIcons resolves), UNWIRED (plugin present, library not
+// configured → the build fails with the EXACT sentinel bytes), and
+// RUNTIME (a wired-but-broken server → the artifact's LAZY catch
+// rethrows the sentinel with the drift failure as cause).
 //
 // Usage (from repo root):
 //   node scripts/verify-shadcn-add.mjs
 // Scratch lives under .agents/fixtures/ (gitignored), wiped per run.
 
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
@@ -518,6 +533,11 @@ const CASES = [
       const pkg = JSON.parse(ctx.read('package.json'));
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
       check('code-card chain: npm shiki installed', !!deps.shiki);
+      // engine-matrix single-engine default (2026-09-06): the code-card
+      // install must carry NO other highlighting engine — engines are
+      // opt-in items, never bundled defaults
+      const engineLeak = ['prismjs', 'microlighter', 'highlight.js', 'sugar-high', 'web-tree-sitter', 'tree-sitter-typescript', 'tree-sitter-javascript'].filter((d) => !!deps[d]);
+      check('code-card default: single engine (shiki only)', engineLeak.length === 0, engineLeak.join(', ') || 'clean');
     },
   },
   {
@@ -554,7 +574,7 @@ const CASES = [
         'src/lib/ui/radio/radio.svelte',
         'src/lib/ui/native-select/native-select.svelte',
         'src/lib/ui/input/input.svelte',
-        'src/lib/icons.ts',
+        'src/lib/icon-set.gen.ts',
         'src/lib/jx-pure.css',
         'src/lib/jixoai.css',
         'src/lib/utils.ts',
@@ -647,7 +667,7 @@ export default defineConfig({
       ['registry/files/ui/press-button/ripple.svelte.ts', 'src/lib/ui/press-button/ripple.svelte.ts'],
       ['registry/files/lib/surface-motion.ts', 'src/lib/surface-motion.ts'],
       ['registry/files/lib/density.svelte.ts', 'src/lib/density.svelte.ts'],
-      ['registry/files/lib/icons.ts', 'src/lib/icons.ts'],
+      ['registry/files/lib/icon-set.gen.ts', 'src/lib/icon-set.gen.ts'],
     ],
     app: `<script lang="ts">
   import ColorPicker from '$lib/ui/color-picker';
@@ -687,8 +707,163 @@ export default defineConfig({
 </HeroSection>
 `,
     extraChecks(ctx) {
-      const missing = ['src/lib/jixoai.css', 'src/lib/icons.ts'].filter((f) => !ctx.exists(f));
-      check('hero-section: theme + icons closure arrived', missing.length === 0, missing.join(', ') || 'complete');
+      const missing = ['src/lib/jixoai.css', 'src/lib/icon-set.gen.ts'].filter((f) => !ctx.exists(f));
+      check('hero-section: theme + icon-set closure arrived', missing.length === 0, missing.join(', ') || 'complete');
+    },
+  },
+  {
+    id: 'icon-default',
+    // icon-component-pipeline C1 (design §4 tier 1): the DEFAULT tier is
+    // PLUGIN-FREE — a clean consumer adds @jixoai/icon + @jixoai/icon-set
+    // and the committed artifact builds standalone: zero npm deps, zero
+    // virtual imports, the inline core answers getIcon() synchronously
+    // (SSR paints the glyphs — the prerender probe below). NO viteConfig
+    // override: the template's plugin list (svelte + tailwindcss only)
+    // IS the assertion — no jixoai plugin is ever wired.
+    items: ['icon', 'icon-set'],
+    app: `<script lang="ts">
+  import Icon from '$lib/ui/icon';
+</script>
+
+<Icon name="chevronRight" />
+<Icon name="x" size={13} strokeWidth={2.5} />
+`,
+    extraChecks(ctx) {
+      const artifact = ctx.read('src/lib/icon-set.gen.ts');
+      // the artifact is the DEFAULT-config output: every name maps to
+      // chunk 0 (inline) → the LAZY map is empty and NOTHING references
+      // virtual:jixoai-icons — the plugin-free contract in artifact bytes
+      check(
+        'icon-default: artifact carries zero virtual chunk imports',
+        !artifact.includes('virtual:jixoai-icons/chunk/'),
+      );
+      check('icon-default: artifact seeds the inline cache (CHUNK_0)', artifact.includes('new Map(Object.entries('));
+      check(
+        'icon-default: the rendered names exist in the artifact',
+        artifact.includes("'chevronRight'") && artifact.includes("'x'"),
+      );
+      check(
+        'icon-default: icon component landed via the folder barrel',
+        ctx.exists('src/lib/ui/icon/icon.svelte') && ctx.exists('src/lib/ui/icon/index.ts'),
+      );
+      check(
+        'icon-default: artifact exactly once tree-wide',
+        ctx.exists('src/lib/icon-set.gen.ts') && countTree(join(ctx.dir, 'src'), 'icon-set.gen.ts') === 1,
+      );
+    },
+    async postBuild(ctx) {
+      // plugin-free proof over the BUILT tree: no virtual id leaked into
+      // any emitted asset (the artifact's lazy map is empty, so plain
+      // module code is all the bundle ever needed)
+      const virtualHits = walkFilesNamed(join(ctx.dir, 'dist'), (_name, content) => content.includes('virtual:jixoai-icons'));
+      check('icon-default: zero virtual:jixoai-icons references in dist/', virtualHits.length === 0, virtualHits.map((p) => p.slice(ctx.dir.length)).join(', ') || 'none');
+
+      // the SERVER/prerendered output: boot a middleware dev server over
+      // the INSTALLED tree (svelte plugin + the $lib alias only — still no
+      // jixoai plugin) and SSR-render App.svelte, asserting the inline
+      // core painted real <svg> glyphs — never a reserved box (design §3).
+      // The render call lives INSIDE a module loaded through the server
+      // (src/ssr-probe-entry.js): routing App AND svelte/server through
+      // the same vite pipeline keeps ONE svelte-internals copy in play —
+      // importing svelte/server from the node side while vite
+      // dep-optimizes the components' internals splits the Renderer class
+      // and dies on invalid_snippet_arguments (observed, svelte 5.56).
+      writeAt(
+        ctx.dir,
+        'src/ssr-probe-entry.js',
+        [
+          "import { writeFileSync } from 'node:fs';",
+          "import { render } from 'svelte/server';",
+          "import App from './App.svelte';",
+          '',
+          'const { body } = render(App);',
+          "writeFileSync(new URL('../prerender-body.html', import.meta.url).pathname, body, 'utf8');",
+          'const glyphs = (body.match(/<svg[^>]*data-jx-icon/g) ?? []).length;',
+          "const pending = body.includes('data-jx-icon-pending');",
+          'console.log(`PRERENDER_GLYPHS=${glyphs}`);',
+          'console.log(`PRERENDER_PENDING=${pending}`);',
+          'if (glyphs === 0 || pending) {',
+          '  console.error(body);',
+          "  throw new Error('prerender probe: no glyphs painted or pending boxes leaked');",
+          '}',
+        ].join('\n'),
+      );
+      writeAt(
+        ctx.dir,
+        'icon-prerender-probe.mjs',
+        [
+          "import { fileURLToPath } from 'node:url';",
+          "import { createServer } from 'vite';",
+          "import { svelte } from '@sveltejs/vite-plugin-svelte';",
+          '',
+          'const here = fileURLToPath(new URL(".", import.meta.url));',
+          'const server = await createServer({',
+          '  root: here,',
+          "  logLevel: 'silent',",
+          '  configFile: false,',
+          "  appType: 'custom',",
+          '  plugins: [svelte()],',
+          "  resolve: { alias: { $lib: `${here}src/lib` } },",
+          '  server: { middlewareMode: true },',
+          '});',
+          'try {',
+          "  await server.ssrLoadModule('/src/ssr-probe-entry.js');",
+          '} catch (e) {',
+          '  console.error(String(e?.stack ?? e));',
+          '  process.exitCode = 1;',
+          '} finally {',
+          '  await server.close();',
+          '}',
+        ].join('\n'),
+      );
+      const probe = await runIn(ctx.dir, process.execPath, ['icon-prerender-probe.mjs'], { timeoutMs: 120_000, label: 'case icon-default: prerender probe' });
+      check(
+        'icon-default: prerender probe ran green',
+        probe.status === 0 && !probe.timedOut,
+        probe.status === 0 ? '' : probe.timedOut ? 'TIMED OUT (120s group-budget)' : `${probe.stdout}\n${probe.stderr}`.slice(-800),
+      );
+      if (probe.status === 0 && !probe.timedOut) {
+        check('icon-default: SSR painted 2 glyphs (one per Icon)', probe.stdout.includes('PRERENDER_GLYPHS=2'), probe.stdout.trim());
+        check('icon-default: SSR painted zero pending boxes', probe.stdout.includes('PRERENDER_PENDING=false'), probe.stdout.trim());
+        // the painted geometry IS the artifact's payload: chevronRight's
+        // serialized d rides the server HTML verbatim ({@html} of the
+        // plugin-extracted chunk-0 bytes)
+        const artifact = ctx.read('src/lib/icon-set.gen.ts');
+        const dPayload = /chevronRight: \{ v: '[^']+', n: '[^']+', d: '([^']+)' \}/.exec(artifact)?.[1];
+        const body = ctx.read('prerender-body.html');
+        check('icon-default: SSR HTML carries the artifact d payload', !!dPayload && body.includes(dPayload), dPayload ?? 'chevronRight entry not found');
+      }
+    },
+  },
+  {
+    id: 'markdown',
+    // markdown-streaming task 3.4: the whole closure must self-deliver on a
+    // clean consumer — the sibling items Table/CodeCard/jx-pure/utils ride
+    // the registryDependencies edges, the npm dep (stream-markdown-parser)
+    // rides dependencies. The doc under test exercises the three non-trivial
+    // mappings at once (table → Table, fence → CodeCard, task list).
+    items: ['markdown'],
+    app: `<script lang="ts">
+  import Markdown from '$lib/ui/markdown';
+</script>
+
+<Markdown
+  source={'# Registry probe\\n\\n| Axis | State |\\n| --- | --- |\\n| streaming | keyed |\\n| security | floor |\\n\\n- [x] tables map through Table\\n- [ ] open fences stream\\n\\n\`\`\`ts\\nexport const proof = true;\\n\`\`\`\\n'}
+/>
+`,
+    extraChecks(ctx) {
+      // the direct-import graph's own files (design §5): every declared
+      // edge must physically land on the consumer — transitive needs
+      // (defaults/density/highlight/icons/theme) resolve through those
+      // items' own registryDependencies
+      const missing = [
+        'src/lib/ui/table/table.svelte',
+        'src/lib/ui/code-card/code-card.svelte',
+        'src/lib/jx-pure.css',
+        'src/lib/utils.ts',
+        'src/lib/jixoai.css',
+      ].filter((f) => !ctx.exists(f));
+      check('markdown: direct-import closure arrived', missing.length === 0, missing.join(', ') || 'complete');
     },
   },
   {
@@ -757,6 +932,127 @@ export default defineConfig({
     },
   },
 ];
+
+// ── 4b. engine-matrix cases (highlight-engine-matrix, 2026-09-06 r2-4) ──
+// One ISOLATED case per `highlight-*` item, AUTO-DERIVED from
+// registry.json: new engines register themselves here by existing — the
+// derivation fails loudly if an engine lacks a factory template below
+// (nothing is silently skipped), and the generated-case count must equal
+// the registry's engine count. Per case: canonical files land (generic),
+// npm deps contain the OWN engine and NO sibling engine package, and the
+// consumer builds. The tree-sitter case additionally serves dist/ over
+// HTTP and fetches every emitted wasm (the ?url channel's end-to-end
+// evidence, r3-1).
+const engineRegistry = JSON.parse(readFileSync(join(root, 'registry.json'), 'utf8'));
+const engineItems = engineRegistry.items.filter((i) => /^highlight-/.test(i.name));
+
+/** how each engine's consumer probe constructs its backend (fails loud on unknown) */
+const ENGINE_PROBES = {
+  'highlight-shiki': {
+    imports: "import { shiki } from '$lib/highlight/shiki';",
+    mount: 'const backend = shiki({ langs: [\'ts\'] });',
+  },
+  'highlight-prismjs': {
+    imports: "import { prismjs } from '$lib/highlight/prismjs';",
+    mount: 'const backend = prismjs({ langs: [\'css\'] });',
+  },
+  'highlight-microlighter': {
+    imports: "import { microLighter } from '$lib/highlight/microlighter';",
+    mount: 'const backend = microLighter();',
+  },
+  'highlight-highlightjs': {
+    imports: "import { highlightJs } from '$lib/highlight/highlight-js';",
+    mount: "const backend = highlightJs({ langs: ['ts', 'bash'] });",
+  },
+  'highlight-sugar-high': {
+    imports: "import { sugarHigh } from '$lib/highlight/sugar-high';",
+    mount: 'const backend = sugarHigh();',
+  },
+  'highlight-tree-sitter': {
+    imports: "import { treeSitter } from '$lib/highlight/tree-sitter';",
+    mount: "const backend = treeSitter({ langs: ['ts'] });",
+  },
+};
+
+const SIBLING_NPM = new Set(engineItems.flatMap((i) => i.dependencies ?? []));
+const missingProbes = engineItems.filter((i) => !(i.name in ENGINE_PROBES)).map((i) => i.name);
+if (missingProbes.length > 0) {
+  die(`engine-matrix: no consumer probe template for ${missingProbes.join(', ')} — add one to ENGINE_PROBES (nothing may be silently skipped)`);
+}
+
+for (const item of engineItems) {
+  const own = new Set(item.dependencies ?? []);
+  const probe = ENGINE_PROBES[item.name];
+  CASES.push({
+    id: item.name,
+    items: [item.name],
+    app: `<script lang="ts">
+  ${probe.imports}
+  ${probe.mount}
+</script>
+
+<pre><code data-engine="${item.name}">probe</code></pre>
+`,
+    extraChecks(ctx) {
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      for (const dep of own) {
+        check(`${item.name}: own npm dep ${dep} installed`, !!deps[dep.split('@')[0]] || !!deps[dep]);
+      }
+      const siblings = [...SIBLING_NPM].filter((d) => !own.has(d));
+      const leaked = siblings.filter((d) => !!deps[d.split('@')[0]]);
+      check(
+        `${item.name}: zero sibling-engine npm packages`,
+        leaked.length === 0,
+        leaked.join(', ') || 'clean',
+      );
+    },
+    ...(item.name === 'highlight-tree-sitter'
+      ? {
+          // the ?url channel's end-to-end proof: build emitted the wasm
+          // assets, HTTP serves them, the magic bytes are real (r3-1)
+          async postBuild(ctx) {
+            const { createServer: httpServer } = await import('node:http');
+            const dist = join(ctx.dir, 'dist');
+            const wasmFiles = walkFilesNamed(dist, (name) => name.endsWith('.wasm'));
+            check('highlight-tree-sitter: build emitted wasm assets', wasmFiles.length >= 4, `${wasmFiles.length} file(s)`);
+            const server = httpServer((req, res) => {
+              const rel = decodeURIComponent(req.url ?? '/').replace(/^\/+/, '');
+              const file = join(dist, rel);
+              if (!file.startsWith(dist) || !existsSync(file)) {
+                res.statusCode = 404;
+                res.end('nope');
+                return;
+              }
+              res.setHeader('content-type', 'application/wasm');
+              res.end(readFileSync(file));
+            });
+            await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+            const port = server.address().port;
+            try {
+              for (const file of wasmFiles) {
+                const rel = file.slice(dist.length + 1);
+                const res = await fetch(`http://127.0.0.1:${port}/${rel}`);
+                check(`highlight-tree-sitter: fetch /${rel} → 200`, res.status === 200);
+                const bytes = new Uint8Array(await res.arrayBuffer());
+                check(
+                  `highlight-tree-sitter: /${rel} is real wasm (magic bytes)`,
+                  bytes.length > 4 && bytes[0] === 0x00 && bytes[1] === 0x61 && bytes[2] === 0x73 && bytes[3] === 0x6d,
+                );
+              }
+            } finally {
+              server.close();
+            }
+          },
+        }
+      : {}),
+  });
+}
+check(
+  'engine-matrix: generated cases match registry engine count',
+  engineItems.length === Object.keys(ENGINE_PROBES).length && engineItems.length >= 6,
+  `${engineItems.length} registry engines / ${Object.keys(ENGINE_PROBES).length} probes`,
+);
 
 // ── 5. consumer template (written once, npm-installed once) ────────
 const versions = JSON.parse(source('apps/www/package.json')).devDependencies;
@@ -1068,7 +1364,287 @@ for (const testCase of CASES) {
   console.log('  vite build (import resolution + svelte compile gate)…');
   const build = await runIn(dir, 'npx', ['vite', 'build'], { timeoutMs: 600_000, label: `case ${testCase.id}: vite build` });
   check('consumer vite build passes', build.status === 0 && !build.timedOut, build.status === 0 ? '' : build.timedOut ? `TIMED OUT (600s group-budget), tail:\n${build.stdout.slice(-800)}` : `${build.stdout}\n${build.stderr}`.slice(-800));
-  if (build.status === 0) testCase.postBuild?.(ctx);
+  if (build.status === 0) await testCase.postBuild?.(ctx);
+}
+
+// ── 7. the forced-overflow probe (icon-component-pipeline C1, design
+// §4 tier 2 + §5 sentinel) ──────────────────────────────────────────
+// A REAL vite project (the consumer template's dependency tree — real
+// vite, real builds, no mocks) whose artifact HAS lazy chunks: the 38
+// built-ins packed under a per-icon maxChunkBytes → chunk 0 inline,
+// chunks 1..N lazy. One fixture, three sub-probes:
+//   (a) WIRED — jixoai({ icons: { library } }) per design §1: the build
+//       emits every lazy chunk as its own asset and preloadIcons
+//       RESOLVES them (the built entry runs under node; vite 8
+//       tree-shaking drops an UNUSED lazy chain, so the entry drives
+//       preloadIcons at top level to keep it alive);
+//   (b) UNWIRED — plugin present, library NOT configured (provider-only
+//       wiring): the build FAILS with the EXACT ICON_LIBRARY_SENTINEL_ERROR
+//       bytes — the resolver's named error, never vite's generic
+//       unresolved-import sink;
+//   (c) RUNTIME — a wired-but-BROKEN server: its library resolves FEWER
+//       icons than the artifact's packing assumes, the chunk import
+//       throws at load time, and the artifact's LAZY catch rethrows the
+//       sentinel with the drift failure as cause (the runtime belt).
+// The sentinel + generator are IMPORTED from the built plugin dist (not
+// copied) so the probe's bytes cannot drift from the plugin's contract.
+console.log('\n━━ forced-overflow probe (icon-component-pipeline C1) ━━━━━━━━━━━━━━━');
+const overflowDir = join(scratch, 'consumer-icon-overflow');
+rmSync(overflowDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+mkdirSync(dirname(overflowDir), { recursive: true });
+cpSync(templateDir, overflowDir, { recursive: true });
+
+// @jixoai/vite-plugin is unpublished (the ghostty-term precedent stubs its
+// data contract for INSTALL fixtures); this BUILD probe needs the real
+// plugin, so it is LINKED into the fixture's node_modules — the vitest
+// vite-build.test.ts precedent imports the package directly. The link
+// keeps the '@jixoai/vite-plugin[/icons]' specifiers (the real consumer
+// import surface) while svgo/lucide resolve from the package's own tree.
+mkdirSync(join(overflowDir, 'node_modules', '@jixoai'), { recursive: true });
+const pluginLink = join(overflowDir, 'node_modules', '@jixoai', 'vite-plugin');
+symlinkSync(join(root, 'packages', 'vite-plugin'), pluginLink, 'dir');
+if (!existsSync(join(pluginLink, 'dist', 'icons.js'))) die('overflow: the @jixoai/vite-plugin link did not land (dist/icons.js unreachable)');
+
+let pluginIcons;
+try {
+  pluginIcons = await import(fileURLToPath(new URL('../packages/vite-plugin/dist/icons.js', import.meta.url)));
+} catch (e) {
+  die(`overflow: cannot import the built plugin dist — build packages/vite-plugin first (npm run build there): ${e?.message ?? e}`);
+}
+const { ICON_LIBRARY_SENTINEL_ERROR, createSafetyChecker, generateIconLibraryArtifacts, resolveLibraryInputs } = pluginIcons;
+
+// generate the overflow artifact through the REAL adapter chain
+// (resolve → safety → svgo → pack; the same pure core gen:icons uses):
+// includeDefaults loads the 38 built-ins through lucide, and the budget
+// (= the largest serialized icon) forces multiple chunks with NO
+// oversized-own-chunk warnings. The SAME config drives the wired build,
+// so the plugin-served chunks and the on-disk artifact are the same
+// deterministic bytes.
+const overflowLibrary = { includeDefaults: true };
+const overflowNoIo = {
+  async loadSource() {
+    throw new Error('the overflow fixture declares no {file} sources');
+  },
+  watchFile() {},
+};
+const overflowResolution = await resolveLibraryInputs(overflowLibrary, overflowNoIo, createSafetyChecker({ mode: 'warn' }));
+if (overflowResolution.warnings.length > 0) die(`overflow: the default library resolved with warnings: ${overflowResolution.warnings.join(' | ')}`);
+if (overflowResolution.icons.length < 4) die(`overflow: expected the 38 built-ins, resolved ${overflowResolution.icons.length}`);
+const overflowProbe = generateIconLibraryArtifacts(overflowResolution.icons, { maxChunkBytes: Number.MAX_SAFE_INTEGER });
+const overflowBudget = Math.max(...Object.values(overflowProbe.report.perIconBytes));
+const overflowGenerated = generateIconLibraryArtifacts(overflowResolution.icons, { maxChunkBytes: overflowBudget });
+const overflowLazyChunks = overflowGenerated.report.lazyChunks.length;
+if (overflowGenerated.report.chunkCount < 2 || overflowLazyChunks < 1) die('overflow: the per-icon budget produced no lazy chunks — the probe would prove nothing');
+writeAt(overflowDir, 'src/lib/icon-set.gen.ts', overflowGenerated.artifact);
+check(
+  'overflow fixture: the generated artifact HAS lazy chunks',
+  overflowGenerated.artifact.includes('virtual:jixoai-icons/chunk/'),
+  `${overflowGenerated.report.chunkCount} chunks (${overflowLazyChunks} lazy), budget ${overflowBudget}B`,
+);
+
+// the entry drives BOTH paths at top level (vite 8 tree-shaking note):
+// getIcon keeps the inline chain, preloadIcons keeps the LAZY chain
+writeAt(
+  overflowDir,
+  'src/entry.js',
+  [
+    "import { getIcon, ICON_NAMES, preloadIcons } from './lib/icon-set.gen';",
+    'export const inlineIcon = getIcon(ICON_NAMES[0]);',
+    'export const lazyNames = ICON_NAMES.filter((name) => getIcon(name) === null);',
+    '// vite 8 tree-shaking drops an UNUSED lazy chain — preloadIcons driven',
+    '// at TOP LEVEL keeps the dynamic chunk imports + their sentinel catch alive',
+    'const loaded = await preloadIcons(lazyNames);',
+    'console.log(`OVF_PRELOAD_OK=${loaded.length}`);',
+    'const firstLazy = getIcon(lazyNames[0]);',
+    'console.log(`OVF_LAZY_ICON_NATURE=${firstLazy.n}`);',
+    'console.log(`OVF_LAZY_ICON_HAS_D=${typeof firstLazy.d === "string" && firstLazy.d.length > 0}`);',
+    'console.log(`OVF_ICON_COUNT=${ICON_NAMES.length}`);',
+    'console.log(`OVF_LAZY_COUNT=${lazyNames.length}`);',
+  ].join('\n'),
+);
+
+// (a) the WIRED config — the design §1 umbrella wiring
+writeAt(
+  overflowDir,
+  'vite.config.ovf-wired.ts',
+  `import { defineConfig } from 'vite';
+import { jixoai } from '@jixoai/vite-plugin';
+
+// design §1: jixoai({ icons: { library } }) — the umbrella bridge, ghostty
+// off (this fixture has no wasm business). includeDefaults: the full
+// built-in manifest; maxChunkBytes: the per-icon budget the on-disk
+// artifact was packed under (parity by determinism).
+export default defineConfig({
+  plugins: [jixoai({
+    ghostty: false,
+    icons: { library: { includeDefaults: true, maxChunkBytes: ${overflowBudget} } },
+  })],
+  build: {
+    target: 'esnext',
+    outDir: 'dist',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: 'src/entry.js',
+      output: { entryFileNames: 'entry.js', chunkFileNames: 'chunks/[name]-[hash].js' },
+    },
+  },
+});
+`,
+);
+
+// (b) the UNWIRED config — plugin present, library NOT configured
+// (provider-only): the artifact's chunk imports must fail with the NAMED
+// sentinel, never vite's generic unresolved-import error
+writeAt(
+  overflowDir,
+  'vite.config.ovf-unwired.ts',
+  `import { defineConfig } from 'vite';
+import { jixoai } from '@jixoai/vite-plugin';
+import { svgIconProvider } from '@jixoai/vite-plugin/icons';
+
+export default defineConfig({
+  plugins: [jixoai({
+    ghostty: false,
+    icons: { provider: svgIconProvider({ dir: './slot-icons', slots: {} }) },
+  })],
+  build: {
+    target: 'esnext',
+    outDir: 'dist-unwired',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: 'src/entry.js',
+      output: { entryFileNames: 'entry.js', chunkFileNames: 'chunks/[name]-[hash].js' },
+    },
+  },
+});
+`,
+);
+
+// (c) the wired-but-BROKEN runtime harness: the artifact on disk was packed
+// from the FULL overflow library, but THIS server wires a SMALLER library
+// (its own output points elsewhere, so the artifact under test serves from
+// disk). The artifact's lazy import resolves but fails to load → the LAZY
+// catch must rethrow the FIXED sentinel with the drift error as cause.
+writeAt(
+  overflowDir,
+  'ovf-runtime-sentinel.mjs',
+  [
+    "import { createServer } from 'vite';",
+    "import { createIconPlugin } from '@jixoai/vite-plugin/icons';",
+    '',
+    'const server = await createServer({',
+    '  root: new URL(".", import.meta.url).pathname,',
+    "  logLevel: 'silent',",
+    '  configFile: false,',
+    '  plugins: [',
+    '    createIconPlugin({',
+    '      library: {',
+    '        includeDefaults: false,',
+    "        icons: { probeOnly: '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path d=\"M1 1l3 3\"/></svg>' },",
+    "        output: 'src/lib/other.gen.ts',",
+    '      },',
+    '    }),',
+    '  ],',
+    '});',
+    'try {',
+    "  const mod = await server.ssrLoadModule('/src/lib/icon-set.gen.ts');",
+    '  const inlineName = mod.ICON_NAMES[0];',
+    '  console.log(`RUNTIME_INLINE_OK=${mod.getIcon(inlineName) !== null}`);',
+    '  const lazyName = mod.ICON_NAMES.find((name) => mod.getIcon(name) === null);',
+    '  try {',
+    '    await mod.loadIcon(lazyName);',
+    "    console.log('RUNTIME_SENTINEL=MISSING (loadIcon resolved!)');",
+    '    process.exitCode = 1;',
+    '  } catch (err) {',
+    '    console.log(`RUNTIME_SENTINEL_MESSAGE=${err.message}`);',
+    '    console.log(`RUNTIME_SENTINEL_CAUSE=${err.cause instanceof Error ? err.cause.message : String(err.cause)}`);',
+    '  }',
+    '} finally {',
+    '  await server.close();',
+    '}',
+  ].join('\n'),
+);
+
+// (a) WIRED — build, then run the built entry under node so preloadIcons
+// resolves against the EMITTED chunk assets (chunks emit AND load)
+console.log('  vite build (wired library — lazy chunks emit)…');
+const wired = await runIn(overflowDir, 'npx', ['vite', 'build', '-c', 'vite.config.ovf-wired.ts'], { timeoutMs: 300_000, label: 'overflow: wired vite build' });
+check(
+  'overflow wired: vite build passes',
+  wired.status === 0 && !wired.timedOut,
+  wired.status === 0 ? '' : wired.timedOut ? `TIMED OUT (300s group-budget), tail:\n${wired.stdout.slice(-800)}` : `${wired.stdout}\n${wired.stderr}`.slice(-800),
+);
+if (wired.status === 0 && !wired.timedOut) {
+  const chunkFiles = readdirSync(join(overflowDir, 'dist', 'chunks'), { withFileTypes: true }).filter((f) => f.name.endsWith('.js'));
+  check(
+    'overflow wired: every lazy chunk emitted as its own asset',
+    chunkFiles.length === overflowLazyChunks,
+    `${chunkFiles.length} emitted vs ${overflowLazyChunks} lazy`,
+  );
+  const entryBundle = readFileSync(join(overflowDir, 'dist', 'entry.js'), 'utf8');
+  check('overflow wired: built entry seeds the inline cache', entryBundle.includes('new Map(Object.entries('));
+  check(
+    'overflow wired: the sentinel catch survived the build (LAZY chain kept)',
+    entryBundle.includes(ICON_LIBRARY_SENTINEL_ERROR),
+  );
+  const wiredRun = await runIn(overflowDir, process.execPath, ['dist/entry.js'], { timeoutMs: 120_000, label: 'overflow: wired entry run' });
+  check(
+    'overflow wired: built entry runs green',
+    wiredRun.status === 0 && !wiredRun.timedOut,
+    wiredRun.status === 0 ? '' : `${wiredRun.stdout}\n${wiredRun.stderr}`.slice(-800),
+  );
+  if (wiredRun.status === 0 && !wiredRun.timedOut) {
+    const lazyCount = Number(/OVF_LAZY_COUNT=(\d+)/.exec(wiredRun.stdout)?.[1] ?? NaN);
+    check(
+      'overflow wired: preloadIcons resolved every lazy name',
+      lazyCount > 0 && wiredRun.stdout.includes(`OVF_PRELOAD_OK=${lazyCount}`),
+      wiredRun.stdout.split('\n').filter((l) => l.startsWith('OVF_')).join(' | '),
+    );
+    check(
+      'overflow wired: lazy payloads are real {v,n,d} artwork',
+      wiredRun.stdout.includes('OVF_LAZY_ICON_HAS_D=true') && /OVF_LAZY_ICON_NATURE=(fill|stroke)/.test(wiredRun.stdout),
+      wiredRun.stdout.split('\n').filter((l) => l.startsWith('OVF_')).join(' | '),
+    );
+  }
+}
+
+// (b) UNWIRED — the build must FAIL with the EXACT sentinel bytes
+console.log('  vite build (unwired — expecting the sentinel failure)…');
+const unwired = await runIn(overflowDir, 'npx', ['vite', 'build', '-c', 'vite.config.ovf-unwired.ts'], { timeoutMs: 300_000, label: 'overflow: unwired vite build' });
+check(
+  'overflow unwired: the build FAILS (library not configured)',
+  unwired.status !== 0 && !unwired.timedOut,
+  unwired.status === 0 ? 'unexpectedly GREEN — the sentinel did not fire' : '',
+);
+const unwiredOut = `${unwired.stdout}\n${unwired.stderr}`;
+check(
+  'overflow unwired: the EXACT sentinel bytes name the fix',
+  unwiredOut.includes(ICON_LIBRARY_SENTINEL_ERROR),
+  unwiredOut.slice(-500),
+);
+
+// (c) RUNTIME — the LAZY catch rethrows the sentinel with cause
+console.log('  runtime sentinel (wired-but-broken server)…');
+const runtime = await runIn(overflowDir, process.execPath, ['ovf-runtime-sentinel.mjs'], { timeoutMs: 120_000, label: 'overflow: runtime sentinel harness' });
+check(
+  'overflow runtime: harness ran green',
+  runtime.status === 0 && !runtime.timedOut,
+  runtime.status === 0 ? '' : runtime.timedOut ? 'TIMED OUT (120s group-budget)' : `${runtime.stdout}\n${runtime.stderr}`.slice(-800),
+);
+if (runtime.status === 0 && !runtime.timedOut) {
+  const message = /RUNTIME_SENTINEL_MESSAGE=(.*)/.exec(runtime.stdout)?.[1] ?? '';
+  const cause = /RUNTIME_SENTINEL_CAUSE=(.*)/.exec(runtime.stdout)?.[1] ?? '';
+  check('overflow runtime: inline core still answers synchronously', runtime.stdout.includes('RUNTIME_INLINE_OK=true'), runtime.stdout.trim());
+  check(
+    'overflow runtime: LAZY catch rethrows the EXACT sentinel',
+    message === ICON_LIBRARY_SENTINEL_ERROR,
+    message,
+  );
+  check(
+    'overflow runtime: the drift failure rides as cause',
+    /virtual chunk \d+ requested but the configured library has no such chunk/.test(cause),
+    cause,
+  );
 }
 
 // the ONE exit: reap every registered group (TERM→grace→KILL→verify),

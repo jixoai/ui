@@ -5,11 +5,13 @@
  *
  * The Tier-1 sheet carries its icon glyphs as static data-URI SVGs inside
  * CSS custom properties (--jx-icon-calendar / clock / palette), while the
- * component layer prints the SAME glyphs from lib/icons.ts. Two copies of
- * one geometry WILL drift unless a check fails the suite — this is that
+ * component layer prints the SAME glyphs from the generated icon set
+ * (lib/icon-set.gen.ts, rendered through <Icon>). Two copies of one
+ * geometry WILL drift unless a check fails the suite — this is that
  * check: decode every sheet URI and compare shape-level fingerprints
- * (path d / points / rect / circle geometry) against the icons.ts export
- * of the same name. Also locks the registry native-form deprecated alias
+ * (path d / points / rect / circle geometry) against the artifact's
+ * getIcon(name) payload rebuilt with the component's wrapper attrs.
+ * Also locks the registry native-form deprecated alias
  * to the same source file (one css, two install names, zero divergence).
  */
 
@@ -18,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { calendar, clock, palette } from '../src/lib/icons';
+import { getIcon, type IconData } from '../src/lib/icon-set.gen';
 
 const here = resolve(fileURLToPath(import.meta.url), '..');
 const repoRoot = resolve(here, '../../..');
@@ -37,17 +39,29 @@ function sheetIcon(name: 'calendar' | 'clock' | 'palette'): string {
   return decodeURIComponent(m[1]!);
 }
 
+/** rebuild the full glyph the way <Icon> prints it (registry/files/ui/
+ *  icon/icon.svelte's glyph snippet is the reference root): viewBox from
+ *  the data, square 16px edge, sw 2, round caps/joins, currentColor by
+ *  artwork nature, children from `d`. The fingerprint below only reads
+ *  the children's geometry — the wrapper is reconstructed, not compared. */
+function toSvg(icon: IconData): string {
+  const fill = icon.n === 'fill' ? 'currentColor' : 'none';
+  const stroke = icon.n === 'fill' ? 'none' : 'currentColor';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${icon.v}" width="16" height="16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-jx-icon="" fill="${fill}" stroke="${stroke}">${icon.d}</svg>`;
+}
+
 /** shape-level fingerprint: every drawable's geometry, sorted */
 function fingerprint(rawSvg: string): string {
-  // the sheet's data-URIs carry single-quoted attributes, icons.ts
+  // the sheet's data-URIs carry single-quoted attributes, the artifact
   // double-quoted — normalize before extracting
   const svg = rawSvg.replace(/'/g, '"');
   const shapes: string[] = [];
   for (const m of svg.matchAll(/<path\b[^>]*\bd="([^"]+)"/g)) shapes.push(`d:${m[1]}`);
   for (const m of svg.matchAll(/<(circle|rect|polyline|line|ellipse)\b([^>]*)>/g)) {
-    // ink attributes are NOT geometry: icons.ts inks with
-    // fill="currentColor", the sheet's alpha-source mask URIs with
-    // fill="%23000" (+ stroke="none" overrides) — strip both sides
+    // ink attributes are NOT geometry: the artifact's child-level
+    // overrides ink with fill="currentColor" (lucide's fill dots), the
+    // sheet's alpha-source mask URIs with fill="%23000" (+ stroke="none"
+    // overrides) — strip both sides
     const attrs = m[2]
       .replace(/\s*(fill|stroke)="[^"]*"/g, '')
       .replace(/\s+/g, ' ')
@@ -58,13 +72,15 @@ function fingerprint(rawSvg: string): string {
   return shapes.sort().join('§');
 }
 
-describe('native-form ↔ icons.ts geometry parity', () => {
+describe('native-form ↔ icon-set.gen geometry parity', () => {
   it.each([
-    ['calendar', calendar],
-    ['clock', clock],
-    ['palette', palette],
-  ] as const)('%s matches the icons.ts geometry', (name, icon) => {
-    expect(fingerprint(sheetIcon(name))).toBe(fingerprint(icon));
+    ['calendar'],
+    ['clock'],
+    ['palette'],
+  ] as const)('%s matches the artifact geometry', (name) => {
+    const icon = getIcon(name);
+    expect(icon, `${name} present in the artifact`).not.toBeNull();
+    expect(fingerprint(sheetIcon(name))).toBe(fingerprint(toSvg(icon!)));
   });
 
   it('the sheet still declares all three icon custom properties', () => {

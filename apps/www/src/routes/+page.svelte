@@ -7,7 +7,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { GITHUB_URL } from '$lib/site';
   import { FEATURED_ITEMS, REGISTRY_TOTAL } from '$lib/catalog';
 
@@ -70,7 +70,7 @@ npx jixoai-ui add press-button section-card toc`;
     <PressButton variant="outline" href="/tokens.html">Get started</PressButton>
     <PressButton variant="outline" href={GITHUB_URL} external>
       GitHub
-      <span class="ml-0.5 inline-flex flex-none align-[-0.125em]" aria-hidden="true">{@html icons.externalLink}</span>
+      <span class="ml-0.5 inline-flex flex-none align-[-0.125em]" aria-hidden="true"><Icon name="externalLink" /></span>
     </PressButton>
   {/snippet}
   {#snippet terminal()}
