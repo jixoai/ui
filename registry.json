@@ -3722,7 +3722,7 @@
       "registryDependencies": [
         "@jixoai/highlight"
       ],
-      "docs": "import { microLighter } from '$lib/highlight/microlighter' — <CodeCard backend={microLighter()}>; themes are microlighter stylesheet ids (min is the jixoai default mapping). Vite hosts: the engine loads grammars via runtime-templated relative imports and swallows misses silently — dev needs optimizeDeps: { exclude: ['microlighter'] }, a build must emit node_modules/microlighter/dist/grammars/*.js next to the engine chunk (see the file header's bundler contract; the docs site's vite.config.ts is the reference).",
+      "docs": "import { microLighter } from '$lib/highlight/microlighter' — <CodeCard backend={microLighter()}>; themes are microlighter stylesheet ids (min is the jixoai default mapping). Vite hosts: the engine loads grammars via runtime-templated relative imports and swallows misses silently — dev needs optimizeDeps: { exclude: ['microlighter'] }, a build must emit node_modules/microlighter/dist/grammars/*.js next to the engine chunk (see the file header's bundler contract; the docs site's vite.config.ts is the reference). Theme hosts: microlighter themes resolve light-dark() against the OS color-scheme, not your site's mode — pin `pre[data-syntax-theme]` color-scheme to your dark-class state (the docs site's app.css is the reference).",
       "meta": {
         "group": "engines",
         "href": "/docs/components/code-card.html"

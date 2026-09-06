@@ -222,6 +222,18 @@ reference implementation.
   register in `CSS.highlights`, and the card paints — same registry
   as the dev server, no silent plain-text degradation
 
+#### Scenario: token colors follow the site's mode, not the OS
+
+- **WHEN** a visitor with a dark OS preference reads the site in
+  light mode (the html.dark-class state) and a microlighter card
+  paints
+- **THEN** `pre[data-syntax-theme]` is pinned to the site's
+  color-scheme (host CSS over the theme's own `color-scheme: light
+  dark`), so light-dark() token pairs resolve against the SITE mode
+  — numbers/strings paint light-mode values on the light background,
+  never the dark-mode near-whites (found live 2026-09-07: numbers
+  ≈ white on white)
+
 ### Requirement: the failure law is uniform across the matrix
 
 Every backend SHALL reject (never throw past the card) on unknown or

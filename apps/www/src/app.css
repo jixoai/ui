@@ -82,6 +82,22 @@
  * sticky bar bottom (44px) + 2em = 76px, matching the toc-engine line law. */
 
 /* -------------------------------------------------------------------------
+ * microlighter theme scoping (2026-09-07): every microlighter theme
+ * sets `color-scheme: light dark` on [data-syntax-theme] so its
+ * light-dark() token pair resolves against the OS preference — but
+ * the site's mode is the html.dark class (theme-toggle), not the OS.
+ * On a dark-OS visitor reading the site in light mode the theme
+ * served its dark values (numbers ≈ white on white). Pin the card's
+ * pre back to the SITE's mode — specificity (0,2,1) beats every
+ * theme's attribute rule (0,1,0) regardless of import order. */
+html:not(.dark) pre[data-syntax-theme] {
+  color-scheme: light;
+}
+html.dark pre[data-syntax-theme] {
+  color-scheme: dark;
+}
+
+/* -------------------------------------------------------------------------
  * Reduced-motion law: the registry sheet already neutralizes reveal motion;
  * this covers the site's own transitions.
  * ---------------------------------------------------------------------- */
