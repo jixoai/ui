@@ -109,9 +109,15 @@
   <CodeCard code={node.code} lang={node.language || 'text'} />
 {:else if isNodeType(node, 'table')}
   {@const labels = headerLabels(node)}
-  <!-- the harvest-marker carrier ONLY (design §3.4): a semantically
-       neutral div around Table's <figure> — no layout paint of its own -->
-  <div data-kind="table">
+  <!-- the harvest-marker carrier (design §3.4): a semantically neutral
+       div around Table's <figure> — no layout paint of its own. The
+       no-jx-pure class is the face's OWN reverse scope (the jx-pure
+       docs page's native-island precedent): Table is a registry
+       surface with its own table laws (horizontal hairlines, separate
+       borders, its hover state machine), and the face's bare-table
+       rules (1px full borders, collapsed borders, uppercase head)
+       must never reach into them — visual-review fix 2026-09-07 -->
+  <div data-kind="table" class="no-jx-pure">
     <Table>
       <thead>
         <tr>

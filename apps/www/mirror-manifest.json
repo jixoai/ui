@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T18:49:48.324Z",
+  "generatedAt": "2026-09-06T20:03:49.551Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1145,8 +1145,8 @@
           "source": "registry/files/ui/markdown/markdown-node.svelte",
           "mirror": "apps/www/src/lib/ui/markdown/markdown-node.svelte",
           "target": "@ui/markdown/markdown-node.svelte",
-          "sourceSha": "ea767d4ecc167babed48ad802643c4c1c9f78c4b0291441e7a2dbb1e17b7482d",
-          "mirrorSha": "ea767d4ecc167babed48ad802643c4c1c9f78c4b0291441e7a2dbb1e17b7482d"
+          "sourceSha": "d1ad6bf51170c5e0f25867796b52d749ea2e95b4b2e7a4bf7b062aab383862be",
+          "mirrorSha": "d1ad6bf51170c5e0f25867796b52d749ea2e95b4b2e7a4bf7b062aab383862be"
         },
         {
           "source": "registry/files/ui/markdown/parse.ts",
@@ -3415,8 +3415,15 @@
           "source": "registry/files/lib/highlight/microlighter.ts",
           "mirror": "apps/www/src/lib/highlight/microlighter.ts",
           "target": "@lib/highlight/microlighter.ts",
-          "sourceSha": "8eb55406d134d5fcfb60a48c4a7b8de935443e549dd64ee1fce9478c6621bf79",
-          "mirrorSha": "8eb55406d134d5fcfb60a48c4a7b8de935443e549dd64ee1fce9478c6621bf79"
+          "sourceSha": "7aa8c1a0fd2fafa2884daf2e1e5cfa0f8e4ac7437e2b4a916399934469ea0d58",
+          "mirrorSha": "7aa8c1a0fd2fafa2884daf2e1e5cfa0f8e4ac7437e2b4a916399934469ea0d58"
+        },
+        {
+          "source": "registry/files/lib/highlight/microlighter-jixoai.css",
+          "mirror": "apps/www/src/lib/highlight/microlighter-jixoai.css",
+          "target": "@lib/highlight/microlighter-jixoai.css",
+          "sourceSha": "fd62249e80410ff635d435f3ae2443cef8d8173cd76d43d833847974fdf66c90",
+          "mirrorSha": "fd62249e80410ff635d435f3ae2443cef8d8173cd76d43d833847974fdf66c90"
         },
         {
           "source": "registry/files/lib/highlight/vendor-microlighter.d.ts",
