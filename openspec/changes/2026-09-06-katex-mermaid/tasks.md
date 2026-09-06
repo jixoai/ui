@@ -130,9 +130,11 @@
       :5199): mermaid page → two SVG instances with distinct ids, dark
       flip → re-render with a changed baked fill; math-block page →
       .katex + MathML in DOM, run carries a scroll-state verdict;
-      registered as `verify:km` and appended to the verify-all chain;
-      vision lane screenshots (light+dark math quality, diagram
-      theming, zoom, error states) reviewed
+      registered as `verify:km` in root package.json and appended to
+      the verify-all chain as the new final step AFTER verify:shadcn-add
+      (verify:surface stays standalone — only its bootstrap is
+      reused); vision lane screenshots (light+dark math quality,
+      diagram theming, zoom, error states) reviewed
 - [ ] 5.4 `scripts/verify-shadcn-add.mjs` CASES extended with
       math-block + mermaid (install from built payloads; deps land in
       the consumer's package.json; consumer vite build resolves the

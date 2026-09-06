@@ -105,7 +105,12 @@
 - MODIFIED: `registry/files/lib/color-utils.ts` (parseColor rgb/rgba
   extension, mirrored), `scripts/verify-shadcn-add.mjs` (CASES +=
   math-block, mermaid), `scripts/docs-skeleton-scope.json` (inScope +=
-  the three new docs routes — hard-fail).
+  the three new docs routes — hard-fail), root `package.json` (the
+  `verify:km` script), `scripts/verify-all.mjs` (the composite chain
+  gains verify:km as its new final step, after verify:shadcn-add).
+- NEW: `scripts/verify-katex-mermaid.mjs` (the browser probe —
+  verify-surface's playwright bootstrap pattern, concrete
+  selectors/assertions per design §8).
 - NEW: `apps/www/src/routes/docs/components/{math-block,math-inline,mermaid}.html/+page.{ts,svelte}`
   (+ `svelte.config.js` prerender entries),
   `apps/www/test/{katex,math-block,math-inline,mermaid-engine,mermaid}.spec.ts`

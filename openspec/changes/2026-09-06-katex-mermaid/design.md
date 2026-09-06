@@ -157,9 +157,11 @@ accent        #0066ff    #3399ff
 muted         #f0f0f0    #1a1a1a
 border        #000000    #ffffff
 error         #de3b3d    #f97770
-chart-1..5    = primary/success/info/warning/error rows above
-              success #11a22f / #5bbe62 · info #008cdf / #54b3fd ·
-              warning #f9b800 / #e9ac00
+chart-1       #d945d1    #d970dd     (= primary)
+chart-2       #11a22f    #5bbe62     (= success)
+chart-3       #008cdf    #54b3fd     (= info)
+chart-4       #f9b800    #e9ac00     (= warning)
+chart-5       #de3b3d    #f97770     (= error)
 ```
 
 A degraded token NEVER reaches mermaid as a raw string — a var()
@@ -171,15 +173,15 @@ the palette.
   and legacy `rgba(1,2,3,0.5)` both funnel into the Oklch model; alpha
   is accepted and DISCARDED in hex formatting — mermaid variables are
   opaque paints). Mirrored + unit-tested both sides.
-- `--font-sans` resolves through the same probe (a font family list
-  serializes as-is); unresolvable → `font` omits from themeVariables
-  (mermaid's default family applies). It rides ThemeTokens, not the
-  color pipeline.
+- `--font-sans` resolves through the SEPARATE fontFamily probe above
+  (same root, same lifecycle — never the color probe); unresolvable →
+  `font` omits from themeVariables (mermaid's default family applies).
+  It rides ThemeTokens, not the color pipeline.
 
 ### 3.2 Derivation map — one source per themeVariables field (theme `'base'`)
 
 ```
-token               → themeVariables                (EXCLUSIVE owner)
+token               → themeVariables                (the derived default's ONE token source)
 --background        → mainBkg, background
 --foreground        → primaryTextColor, textColor
 --primary           → primaryColor, primaryBorderColor
@@ -192,9 +194,12 @@ token               → themeVariables                (EXCLUSIVE owner)
 ThemeTokens.font    → fontFamily                   (omitted when unresolved)
 ```
 
-Every field has exactly ONE token source (no assignment-order
-ambiguity); the table is the test oracle. Light/dark is a RE-DERIVE
-(tokens re-read after the `.dark` flip), not a filter.
+Every field has exactly ONE token source for its DERIVED DEFAULT (no
+assignment-order ambiguity); the user `themeVariables` overlay (§3.3)
+is the configuration layer ABOVE these defaults — one-source-per-field
+governs the derived tier, user overrides ride later by design. The
+table is the test oracle. Light/dark is a RE-DERIVE (tokens re-read
+after the `.dark` flip), not a filter.
 
 ### 3.3 Engine discipline — the serial queue, fingerprint, protected fields
 
@@ -367,7 +372,7 @@ Svelte). A conflict test pins it: a consumer-sent
 }</Props>
 <figure {...rest} data-kind="diagram" data-jx-mermaid data-state={floor|rendering|rendered|error} class={cn(className)}>
   {#if name}<figcaption — filename-tab pattern>{/if}
-  <div data-jx-mermaid-viewport role="img" aria-label={name ?? labels?.diagram ?? 'Diagram'}>
+  <div data-jx-mermaid-viewport role="img" aria-label={name?.trim() || labels?.diagram?.trim() || 'Diagram'}>
     {#if svg}<div class="zoom-wrapper" style="transform:scale({scale})" bind:this={zoomEl}>{@html svg}</div>
     {:else}<pre><code>{source}</code></pre>   <!-- the floor, also the error fallback -->
     {/if}
@@ -407,12 +412,13 @@ Svelte). A conflict test pins it: a consumer-sent
 - Error state: `data-state="error"` paints a summary strip
   (`labels.renderError` + the diagnostic's first line) ABOVE the
   standing source floor — the floor never disappears on failure.
-- A11y: `role="img"` on the viewport with an accessible name at ALL
-  times — `name` when given, else `labels.diagram` (localization
-  payload), else the shipped English `'Diagram'`; a nameless diagram
-  never mounts a nameless img. A mermaid `title` inside the grammar
-  adds its own accessible name to the rendered svg. Controls are real
-  buttons (press physics, focusable, localized).
+- A11y: `role="img"` on the viewport with a NON-EMPTY accessible name
+  at ALL times — the trimmed ladder `name?.trim() ||
+  labels?.diagram?.trim() || 'Diagram'` (an empty-string `name` falls
+  through rather than mounting a nameless img); a mermaid `title`
+  inside the grammar adds its own accessible name to the rendered
+  svg. Controls are real buttons (press physics, focusable,
+  localized).
 
 ## 7. Law mapping (living-spec anchors this change must satisfy)
 
@@ -484,7 +490,11 @@ Svelte). A conflict test pins it: a consumer-sent
      stamp arms (or `none` when the formula fits);
   5. exit non-zero on any miss with the failing selector in the
      message. Registered as `verify:km` in the root package.json and
-     added to the verify-all chain's tail (after verify:surface).
+     appended to the verify-all chain as the NEW final step, AFTER the
+     existing tail `verify:shadcn-add` (verify:surface is NOT in the
+     composite chain today — only its bootstrap pattern is reused
+     here; verify:km joins the chain, verify:surface stays a
+     standalone gate).
 - End-to-end out-of-the-box: `scripts/verify-shadcn-add.mjs` gains
   CASES entries for math-block + mermaid — each case: install from the
   built payloads into a real fixture, assert `katex`/`mermaid` land in
