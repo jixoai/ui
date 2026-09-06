@@ -6,18 +6,21 @@
 
 The math surfaces SHALL render real KaTeX markup synchronously —
 during SSR/prerender AND on every prop change — with no plain-text
-floor and no hydration upgrade. This is a deliberate lane ruling, not
-an exception to the progressive-enhancement law: that law keys on
-engine weight and capability, and the math engine is isomorphic and
-small (a floor would flash on every math mount), while shiki floors
-(late chunks) and mermaid floors (a ~1MB DOM-bound engine). The TeX
-source SHALL be a runtime prop (`tex`), never markup-inlined text;
-`{@html}` carries only engine-generated markup. Theming SHALL ride
-inherited color and tokens — KaTeX output inherits `currentColor` and
-the error paint binds a token, so light/dark inversion needs ZERO
-re-render. `math-inline` owns no chrome and no controls; `math-block`
-owns the horizontal scroll law (the scrollport is the only scroller,
-thin currentColor scrollbar, keyboard-focusable) and an optional copy
+floor and no hydration upgrade. This is the recorded lane ruling for
+isomorphic-small engines: code-card's floor→upgrade contract answers
+heavy, lazily-loaded engines (shiki's late chunks); a math mount that
+painted a plain-text floor would flash on every hydration, so the math
+lane bakes real markup server-side — strengthening the family-context
+law ("SSR output is semantically complete before hydration") and the
+native-element-first hydration-cost ceiling. The TeX source SHALL be a
+runtime prop (`tex`), never markup-inlined text; `{@html}` carries
+only engine-generated markup. Theming SHALL ride inherited color and
+tokens — KaTeX output inherits `currentColor` and the error paint
+binds a token, so light/dark inversion needs ZERO re-render.
+`math-inline` owns no chrome and no controls; `math-block` owns the
+wide-equation strip as a full rider of the scroll-run unification (the
+`@jixoai/scroll-run` host/run/ScrollChrome — never a family-local
+copy of the stamp machine, law sheet, or chrome) and an optional copy
 control that SHALL follow the localization-payload law (`labels`,
 absent = shipped English verbatim) and the press physics. Errors SHALL
 paint in place (`throwOnError: false`, errorColor token) with one
@@ -68,8 +71,13 @@ re-reading the live computed tokens after the `.dark` class change and
 re-rendering with re-derived themeVariables; an explicit
 `light|dark` pins the palette. Controls SHALL cover the Owner minimum
 (copy source + zoom in/out/reset) under the press physics and the
-localization-payload law; zoom is a pure transform on the scrollport's
-inner wrapper (no engine re-render). A render failure SHALL paint an
+localization-payload law; zoom is a pure transform on the viewport's
+inner wrapper (no engine re-render). The zoom-pan viewport is a
+RECORDED scroll-run exemption: a two-axis pan surface for scaled
+content is not a linear overflow strip (the unification contract
+models one axis per run with linear nudge chips), so the viewport
+rides the scrollbar-token law (thin currentColor thumbs, both axes)
+instead of the shared chrome. A render failure SHALL paint an
 error summary strip and KEEP the source floor standing. The first
 render fades in, killed under `prefers-reduced-motion`; the floor box
 reserves a min-height while rendering so the swap doesn't collapse the

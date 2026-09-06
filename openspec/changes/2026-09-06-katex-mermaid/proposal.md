@@ -24,12 +24,15 @@
 2. **lib `mermaid-engine` — the lazy diagram engine facade (P0)** —
    `registry/files/lib/mermaid-engine.ts`: dynamic `import('mermaid')`
    lazy singleton (the engine is ~1MB — code-split, loaded only when a
-   diagram actually renders); `readThemeTokens()` resolves live computed
-   custom properties (`--background/--foreground/--primary/--secondary/
-   --accent/--muted/--border/--error/--chart-1..5`), `deriveThemeVariables()`
-   maps them onto mermaid's `themeVariables` (theme `base`), and
-   `renderDiagram(source, { theme, config })` returns the sanitized SVG
-   string with a typed render-error. `startOnLoad:false`,
+   diagram actually renders); `readThemeTokens()` resolves live tokens
+   through the probe + parseColor pipeline (custom properties return
+   UNRESOLVED token streams from getComputedStyle — a hidden probe
+   element resolves `var()` chains, `@jixoai/color-utils`'s parseColor
+   + formatColor convert to mermaid-safe hex; unparseable strings pass
+   through with a warn, theming never fails a render), and maps them
+   onto mermaid's `themeVariables` (theme `base`).
+   `renderDiagram(source, { theme, config })` returns the sanitized
+   SVG string with a typed render-error. `startOnLoad:false`,
    `securityLevel` stays mermaid's default strict (its built-in
    DOMPurify pass). The theme flip (`.dark` class on the root — the
    registry's own theme contract) re-derives and re-renders.
@@ -44,8 +47,10 @@
    isomorphic and small, so the display law here is NOT code-card's
    plain-text-floor-then-upgrade but direct server paint: true zero
    flash, zero CLS, print-freeze-safe markup (the ruling is recorded in
-   the spec). Wide equations scroll horizontally under the scrollbar
-   law; the copy control (TeX source, press physics, clipboard
+   the spec). The wide-equation strip RIDES the shared scroll-run
+   contract (`@jixoai/scroll-run` host/run/ScrollChrome — the
+   scroll-run unification law, tabs/button-group precedent); the copy
+   control (TeX source, press physics, clipboard
    fallback) is `copyable=true` by default; `labels` localizes the
    control vocabulary (localization-payload law); errors paint in place
    (`throwOnError:false`, errorColor token) with a console.warn
