@@ -722,7 +722,7 @@ export default defineConfig({
       // url(fonts/KaTeX_*.woff2|woff|ttf) references inside
       // katex.min.css (imported by $lib/katex) and emitted the font
       // assets into dist — zero font shipping, zero plugin prerequisite
-      const fonts = walkFilesNamed(join(ctx.dir, 'dist'), (name) => /^KaTeX_[A-Za-z0-9]+\.(woff2|woff|ttf)$/.test(name));
+      const fonts = walkFilesNamed(join(ctx.dir, 'dist'), (name) => /^KaTeX_[A-Za-z0-9-]+\.(woff2|woff|ttf)$/.test(name));
       check('math-block: katex fonts emitted to dist (the fonts-ride-the-package receipt)', fonts.length > 0, `${fonts.length} font asset(s)`);
     },
   },
