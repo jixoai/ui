@@ -263,13 +263,22 @@ describe('markdown — the default-map security floor', () => {
   });
 });
 
-describe('markdown — the table carrier opts out of the face (visual-review)', () => {
+describe('markdown — registry chrome opts out of the face (visual-review)', () => {
   it('div[data-kind=table] carries no-jx-pure — the face bare-table laws never reach Table', () => {
     const { container } = render(Markdown, {
       props: { source: '| A | B |\n| --- | --- |\n| 1 | 2 |' },
     });
     const carrier = container.querySelector('[data-kind="table"]')!;
     expect(carrier.classList.contains('no-jx-pure')).toBe(true);
+  });
+
+  it('the mapped CodeCard carries no-jx-pure — the face pre/button laws never reach the card', () => {
+    const fence = '`'.repeat(3);
+    const { container } = render(Markdown, {
+      props: { source: `${fence}ts\nconst a = 1;\n${fence}` },
+    });
+    const card = container.querySelector('.jx-code-card')!;
+    expect(card.classList.contains('no-jx-pure')).toBe(true);
   });
 });
 

@@ -106,7 +106,11 @@
 {#if Override}
   <Override {node} />
 {:else if isNodeType(node, 'code_block')}
-  <CodeCard code={node.code} lang={node.language || 'text'} />
+  <!-- class lands on the figure root: the same no-jx-pure reverse scope
+       the table carrier mounts (the native-island precedent) — the
+       face's pre rules (border/padding/margin-block) and its button
+       law must never reach into CodeCard's own surface laws -->
+  <CodeCard class="no-jx-pure" code={node.code} lang={node.language || 'text'} />
 {:else if isNodeType(node, 'table')}
   {@const labels = headerLabels(node)}
   <!-- the harvest-marker carrier (design §3.4): a semantically neutral

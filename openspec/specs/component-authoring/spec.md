@@ -2042,9 +2042,10 @@ shape-identical (the snapshot law).
 CodeCard; `table` → a semantically neutral `div[data-kind="table"]`
 harvest carrier wrapping Table with generated thead/tbody,
 `td[data-label]` header text (the stack law) and column alignment —
-the carrier mounts the face's own `no-jx-pure` reverse scope so the
-bare-table face laws never fight Table's (the native-island
-precedent);
+the mapped registry surfaces (the table carrier AND the CodeCard
+root) mount the face's own `no-jx-pure` reverse scope so the face's
+bare-table and pre/button laws never fight the components' own
+surface laws (the native-island precedent);
 prose (headings, paragraphs, emphasis family, lists + task checkboxes,
 blockquote, hr, links, images) → native elements under a `jx-pure`
 scoped root (the Tier-0 consumption form: the class mounts on the
