@@ -185,15 +185,20 @@ markdown 链接（`[t](u)` 不触发 section 判据）。
 
 ### Requirement: betlang 统计层过 KiB 字节门禁，wasm 不入 git
 
-统计层 SHALL 由 betlang（crates.io 版本 `=0.1.1` 钉死）编译的 wasm
-承载，发行通道 SHALL 为自建 npm 包 `@jixoai/betlang-wasm`（packages/
-betlang-wasm，CI 构建发布；Cargo.lock + 工具链版本 + 完整 sha256 +
+统计层 SHALL 由 betlang（crates.io 版本 `=0.1.1` 钉死）与
+fearless_simd（`=0.4.0`，betlang 自锁值，防 lockfile 重解析漂移）
+编译的 wasm 承载，发行通道 SHALL 为自建 npm 包
+`@jixoai/betlang-wasm`（packages/betlang-wasm，CI 构建发布；
+verify-betlang-pin 并校验 Cargo.lock 内 fearless_simd 版本与 cksum；Cargo.lock + 工具链版本 + 完整 sha256 +
 字节精确尺寸入 ARTIFACT.md——wasmRawBytes / wasmGzipBytes /
 wasmSha256 / tarballSha256）。**门禁测量对象 = 且仅 = `.wasm` 文件
 字节**（装载器 JS 与 tarball 不入预算）。预算 SHALL 以 KiB（1024
 字节）字节精确计量：raw ≤ 100 KiB、内部预警线 raw 98 KiB、gzip ≤
-70 KiB（Node zlib.gzipSync level 9，算法冻结）；探针基线 raw
-100,055 B / gzip 58,461 B（sha256 56d0243d…82360）入 evidence。
+70 KiB（Node zlib.gzipSync level 9，算法冻结）；evidence 记录 tarball+
+fearless_simd =0.4.0 口径的观测带（raw 100,111–100,131 B，最坏距
+预警线 221 B）——构建非字节确定（r9 实测），**canonical wasm 哈希 =
+CI 构建产物在 ARTIFACT.md 的记录值，门禁语义为 as-shipped 完整性**，
+本地重建不做字节恒等断言。
 `scripts/verify-betlang-pin.mjs` SHALL 核验 sha256、magic bytes 与双
 预算；预警线越线 SHALL 触发降级预案（betlang 转非默认 detector
 item，L4 换装 linguist 派生精简启发层——heuristics.yml 与 canonical

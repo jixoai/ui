@@ -14,7 +14,7 @@ KiB=1024B 口径，不使用 KB）。
   工具链：rustup stable-aarch64-apple-darwin / rustc 1.98.0
   (88d9e12a 2026-08-18) / Homebrew rust 不带 wasm32 std（构建必须
   rustup 工具链）
-- 模型：内嵌 `assets/magika/source-student-q4.bin` **47,840 字节**
+- 模型：内嵌 `assets/magika/source-student-q4.bin` **47,840 字节（46.72 KiB）**
   （sha256 8493d2d3757572c8661141e414b1c0755aa08d4c4e5382dfbbc6b73b02d89083（README 声明，最终发行物门禁实测复核）），架构
   wordseq-b1024-k3-m2048-tiny-3conv-hidden
 - 输出：48 标签（asm…yaml），held-out `test_fs_accuracy=0.942`
@@ -28,7 +28,7 @@ KiB=1024B 口径，不使用 KB）。
 # 可复现构建序列（r8-B1：以下脚本已逐行实际执行，输出为真实记录；
 # tarball 是唯一构建输入，Git HEAD 从不参与——Git 快照仅作历史溯源
 # 记于本档开头）：
-set -e; cd /tmp && rm -rf betlang-repro && mkdir betlang-repro && cd betlang-repro
+set -e; W0=$(mktemp -d /tmp/betlang-repro.XXXX) && cd $W0   # r9-N2：mktemp，不 rm 固定目录
 curl -sL https://static.crates.io/crates/betlang/betlang-0.1.1.crate -o betlang.crate
 shasum -a 256 betlang.crate
 # → 5f89b0929539eaee70109704ae4e345df438be6ab02e4dc8ac060e05098ad1b7（sparse index cksum 一致 CKSUM-OK；yanked=false）
@@ -70,18 +70,30 @@ RUSTC=$HOME/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc \
   ~/.cargo/bin/cargo build --release --target wasm32-unknown-unknown --locked
 # → Finished `release` profile [optimized] target(s) in 2.48s
 W=target/wasm32-unknown-unknown/release/betlang_wasm_probe.wasm
-stat -f%z $W   # → 100111（97.75 KiB）
-shasum -a 256 $W   # → d03e30e3b0be48d39156def11cb6acb993094e40d149207fb2417a5bd8394a2d
-node -e "…gzipSync(b,{level:9}).length"   # → 58427（57.06 KiB）
+stat -f%z $W   # → 100131（97.79 KiB；见下"确定性"段——两次运行 100111/100131）
+shasum -a 256 $W   # → 5495267642e070a56f0f8525107ab6a66666ee20021e9f953bc22632dd4d2326
+node -e "…gzipSync(b,{level:9}).length"   # → 58499（57.13 KiB）
+rustc -Vv   # rustc 1.98.0 (88d9e12ae 2026-08-18) / commit 88d9e12ae178fab0fb5cc050a94da85685d449ea / host aarch64-apple-darwin
+cargo -V    # cargo 1.98.0 (797e8a9bc 2026-08-05)
 ```
 
-**r8 实测口径（tarball 源，正式基准）**：raw **100,111 B = 97.75 KiB**
-（距 100 KiB 帽 2,289 B、距 98 KiB 预警线 **241 B**）；gzip **58,427 B
-= 57.06 KiB**（距 70 KiB 帽 13,253 B）；wasm sha256
-`d03e30e3b0be48d39156def11cb6acb993094e40d149207fb2417a5bd8394a2d`。
-早前 git 快照探针（fearless_simd 0.4.1）为 100,055 / 58,461 /
-56d0243d…——版本差异即字节差异，正式门禁以 tarball+0.4.0 口径为
-准。CI 的 ARTIFACT.md 记 crateChecksum（tarball cksum）与上述实测。
+**确定性实测（r9 关键发现，改变门禁语义）**：同一 fearless_simd
+0.4.0 锁定、同一 profile，跨构建目录重跑字节**不等**（100,111 /
+58,461→100,131 / 58,499，~20B 漂移——构建目录路径进入产物元数据）。
+因此：**wasm sha256 的门禁语义 = as-shipped 完整性**（CI 一次构建、
+哈希记入 ARTIFACT.md、verify 校验 npm 包内字节与记录一致），本地
+重建只验 tarball cksum + 锁版本 + 尺寸预算带（观测带 100,055–
+100,131 B，最坏距 98 KiB 预警线 221 B），**不做字节恒等断言**。
+
+**观测带（tarball + 0.4.0，两次独立运行）**：raw 100,111–100,131 B
+（97.75–97.79 KiB，距 98 KiB 预警线最坏 **221 B**、距 100 KiB 帽最坏
+2,269 B）；gzip 58,427–58,499 B（距 70 KiB 帽 ≥13,181 B）。各次
+sha256 为该次运行记录（d03e30e3…/54952676…），**canonical 哈希 =
+CI 构建产物在 ARTIFACT.md 的记录值**（as-shipped 语义，见上）。
+早前 git 快照探针（0.4.1：100,055/58,461/56d0243d…）仅作
+comparison-only 历史对照，不入任何门禁。CI 的 ARTIFACT.md 记
+crateChecksum（tarball cksum）、fearlessSimd 锁值与 cksum、
+as-shipped wasm 三元组与工具链版本。
 
 **工具链坑**：Homebrew rust（PATH 首位）**不带 wasm32-unknown-unknown
 std**，fearless_simd 编译报 E0463 "can't find crate for core"。须用
@@ -96,26 +108,27 @@ betlang-wasm 真实装载器导出 + 全 entry）在任务 4.1 复测验收，�
 记录（wasm sha256、tarball sha256、rustc/LLVM 版本、字节精确尺寸）
 落 packages/betlang-wasm/ARTIFACT.md。
 
-## 尺寸矩阵
+## 尺寸矩阵（comparison-only：git 快照源 + fearless_simd 0.4.1——
+## 历史对照，不入门禁；正式观测带见上节）
 
 | 绑定 | raw | gzip |
 |---|---|---|
 | 朴素探针（`format!("{l:?}")` 拖入 fmt 机器，默认 release） | 117,260 B = **114.5 KiB** | 64,332 B（62.8 KiB） |
-| lean 探针（枚举序号返回 + opt-level=z + lto + panic=abort + strip） | **100,055 B（97.65 KiB）** | **58,461 B（57.09 KiB）** |
+| lean 探针（枚举序号返回 + opt-level=z + lto + panic=abort + strip） | 100,055 B（97.65 KiB） | 58,461 B（57.09 KiB） |
 
-lean 探针 wasm sha256（门禁口径首次实测）：
+（本段为 git 快照源 + 0.4.1 的历史实测，comparison-only；正式口径
+见"观测带"节）该次 sha256
 `56d0243d271097e5517a936a508393e1f5fe11e34961f0e73f3b12f8b3182360`；
 magic bytes `\0asm` 验证通过；gzip 为 Node zlib.gzipSync level 9。
-预算余量：raw 距 100 KiB 帽 2,345 B、距 98 KiB 预警线 297 B；gzip
-距 70 KiB 帽 13,219 B。门禁输入 = .wasm 字节本身（装载器 JS 与
-tarball 不入预算，tarball sha 仅完整性记录）。
+门禁输入 = .wasm 字节本身（装载器 JS 与 tarball 不入预算，tarball
+sha 仅完整性记录）。
 
-其中 47.8KB 为内嵌模型（不可压缩权重，gzip 后仍占大头）。真实绑定
-增加 wasm-bindgen 或手写装载器胶水：手写 ~40 行 JS（线性内存 UTF-8
-进出）不增 wasm 字节；wasm-bindgen 会使 raw 增约 3-8KB（可能越
-100KB 线）→ **design D4 裁决手写装载器**。
+其中 47,840 B（46.72 KiB）为内嵌模型（不可压缩权重，gzip 后仍占
+大头）。真实绑定增加 wasm-bindgen 或手写装载器胶水：手写 ~40 行 JS
+（线性内存 UTF-8 进出）不增 wasm 字节；wasm-bindgen 会使 raw 增约
+3-8 KiB（可能越 100 KiB 帽）→ **design D4 裁决手写装载器**。
 
-**双口径判定：raw 97.7 ≤ 100 ✓、gzip 57.1 ≤ 70 ✓ —— betlang 进
+**双口径判定：raw 观测带 ≤ 98 KiB 预警线 ✓、gzip ≤ 70 KiB ✓ —— betlang 进
 DLD L4 作默认统计层。**
 
 ## 功能实测（native host，8/8）

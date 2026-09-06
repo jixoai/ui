@@ -87,10 +87,10 @@ registry 边活性
    密度）/TOML（section + 空格 `=`）/INI（section + 无空格 `=`）互斥
    判据，≥3 非空行才参判；**Markdown 守卫**（围栏/标题行出现 → 本层
    全弃权）。本层**不做编程语言指纹**（Owner 法则）。
-4. **统计式（betlang）**：wasm 探测实证**过门槛**（lean 绑定 raw
-   97.7KiB / gzip 57.1KiB，KiB=1024B 口径，预算 raw ≤100KiB（余量
-   2.3KiB）/ gzip ≤70KiB，预警线 raw 98KiB；evidence/
-   betlang-probe-2026-09-07.md）。**发行通道冻结为 A**：自建
+4. **统计式（betlang）**：wasm 探测实证**过门槛**（lean 绑定观测带
+   raw 97.75–97.79KiB / gzip 57.06–57.13KiB（KiB=1024B 口径，预算
+   raw ≤100KiB / gzip ≤70KiB，预警线 raw 98KiB 最坏余量 221B；
+   evidence/betlang-probe-2026-09-07.md）。**发行通道冻结为 A**：自建
    `@jixoai/betlang-wasm` npm 包（packages/betlang-wasm，CI 从钉死
    crates.io `betlang = "=0.1.1"` 构建，Cargo.lock + rustup 工具链 +
    完整 sha256 + 字节精确尺寸入档；verify 脚本按 Node zlib level 9

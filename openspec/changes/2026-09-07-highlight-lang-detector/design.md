@@ -238,21 +238,25 @@ P_INI:   n ≥ 3 且 ≥1 行整行匹配 /^\[[A-Za-z0-9_.$ -]+\]\s*$/
 
 ## D4 — betlang wasm 通道（r1-B6/B7 修正：通道冻结 + KiB 预算律）
 
-**探测结论（evidence/betlang-probe-2026-09-07.md）**：lean 绑定
-**raw 100,055 B（97.65 KiB）/ gzip 58,461 B（57.09 KiB，Node zlib
-level 9）/ sha256 56d0243d271097e5517a936a508393e1f5fe11e34961f0e73f3
-b12f8b3182360** —— betlang 进 DLD L4 作默认统计层。
+**探测结论（evidence/betlang-probe-2026-09-07.md）**：tarball +
+fearless_simd =0.4.0 口径的**观测带** raw 100,111–100,131 B
+（97.75–97.79 KiB）/ gzip 58,427–58,499 B（Node zlib level 9）；
+构建非字节确定（目录路径入产物，r9 实测），**canonical 哈希 = CI
+构建产物在 ARTIFACT.md 的记录值（as-shipped 语义）**——本地重建只验
+tarball cksum + 锁版本 + 预算带。betlang 进 DLD L4 作默认统计层。
 
 **发行通道（冻结为 A；B 仅存历史评估记录，不构成本 change 的实现
 路径——tasks 与 evidence 同步措辞）**：自建 `@jixoai/betlang-wasm`
 npm 包，仓库位置 `packages/betlang-wasm/`：
 
-- 构建源：Cargo.toml 钉死 `betlang = "=0.1.1"`，Cargo.lock 入库，
+- 构建源：Cargo.toml 钉死 `betlang = "=0.1.1"` **与
+  `fearless_simd = "=0.4.0"`（r9-B2：betlang 自锁值——不显式钉死则
+  lockfile 重生成会漂移到 0.4.1，产物即偏离基准）**，Cargo.lock 入库，
   `.github/workflows/betlang-wasm-release.yml`（rustup toolchain +
   wasm32-unknown-unknown target + `--locked` 构建 + npm provenance
   发布）。
 - 包内容：wasm + 手写 ~40 行 JS 装载器（线性内存 UTF-8 ABI，无
-  wasm-bindgen 胶水——bindgen 使 raw 增约 3-8KB 可能越线）+ `.d.ts`
+  wasm-bindgen 胶水——bindgen 使 raw 增约 3-8 KiB 可能越线）+ `.d.ts`
   + MIT/上游归属。首版 `0.1.1`（镜像 crate 版本）。
 - 完整性：`packages/betlang-wasm/ARTIFACT.md` 记录 wasmRawBytes、
   wasmGzipBytes、wasmSha256、tarballSha256、构建工具链版本
@@ -266,11 +270,11 @@ npm 包，仓库位置 `packages/betlang-wasm/`：
 
 **KiB 预算律（字节精确，KiB=1024B）**：
 
-| 口径 | 预算 | 实测（lean probe） | 余量 |
+| 口径 | 预算 | 实测（tarball+0.4.0 观测带） | 最坏余量 |
 |---|---|---|---|
-| raw | ≤ 100 KiB（102,400 B） | 100,055 B | 2,345 B |
-| gzip（Node zlib.gzipSync level 9，算法冻结） | ≤ 70 KiB（71,680 B） | 58,461 B | 13,219 B |
-| 预警线 raw | 98 KiB（100,352 B） | 100,055 B | 297 B |
+| raw | ≤ 100 KiB（102,400 B） | 100,111–100,131 B | 2,269 B |
+| gzip（Node zlib.gzipSync level 9，算法冻结） | ≤ 70 KiB（71,680 B） | 58,427–58,499 B | 13,181 B |
+| 预警线 raw | 98 KiB（100,352 B） | 带顶 100,131 B | **221 B** |
 
 **降级预案（Owner 预案冻结，r2-B3 兑现 linguist 兜底）**：最终发行
 物 raw 越预警线（98 KiB）→ betlang 转**非默认** detector item（手动
