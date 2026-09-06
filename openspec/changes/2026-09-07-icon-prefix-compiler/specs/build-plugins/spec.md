@@ -13,17 +13,22 @@ buildArtifacts — generation runs at buildStart BEFORE transforms and
 the build promise is memoized, so transform-only collection cannot
 serve production builds, and the script twin must see the same
 scanned set so `gen:icons`/`--check` stay byte-equal to the
-dev-server artifact; and (b) a DEV-INCREMENTAL vite transform
+dev-server artifact for script-supported (svg-only) configs; and (b) a DEV-INCREMENTAL vite transform
 (enforce: 'pre', same scope and exclusions) collecting STATIC
 `name="<preset>:<name>"` and `name="<preset>:<name> as
 <identifier>"` literals (attribute and string-literal expression
-forms only — no expression evaluation). The scanned-name grammar
-SHALL be the ENABLED PRESET's own name grammar — the preset resolver
-validates (material-symbols names are snake_case, e.g.
-`md:copy_all`, not kebab) — while the scanner's literal regex is
-permissive (`/^[a-z][a-z0-9_]*$/` after the prefix) and never the
-authority; scanned keys like `md:copy_all` are EXEMPT from the
-camelCase icon-name pattern while aliases must satisfy it. Scanned
+forms only — no expression evaluation). The scanner SHALL capture
+the prefix plus the COMPLETE literal suffix (to the closing quote
+or the ` as ` boundary) and validate NOTHING about the suffix — the
+ENABLED PRESET's own name grammar is the law and the preset
+resolver is the authority (material-symbols names are snake_case,
+e.g. `md:copy_all`; remix names carry a second colon, e.g.
+`rx:system:add-line` — any suffix pattern would reject legal
+names). Scanned keys like `md:copy_all` are EXEMPT from the
+camelCase icon-name pattern while aliases must satisfy it.
+Name-literals whose prefix is not an enabled preset SHALL be
+ignored by the scanner (the unknown-prefix named error is a
+config-face law over `library.icons` entries, unchanged). Scanned
 refs resolve through the enabled presets' resolvers and pack
 WITHOUT any vite-config declaration; duplicate refs (no alias)
 dedupe silently; the scan order never affects artifact bytes
@@ -49,12 +54,15 @@ refresh path (dev only).
 
 #### Scenario: gen:icons output equals the dev-server artifact for the same scanned set
 
-- GIVEN the same project sources with one scanned ref, run once
+- GIVEN the same project sources with one scanned ref and an
+  svg-only library config, run once
   through the dev server and once through the root `gen:icons`
   script
 - WHEN both artifacts are compared
 - THEN they are byte-identical (the script runs the same eager walk
-  the build does — no scanner-less twin, no divergence)
+  the build does — no scanner-less twin, no divergence; a
+  font-source config named-rejects in the script twin per the
+  companion change and is outside parity by declaration)
 
 #### Scenario: a dynamic expression is intentionally unserved
 
@@ -73,7 +81,14 @@ canonical>>` table (sources are NEVER rewritten — the ruled form;
 an alias costs an alias-table row in the budget, never a second
 packed payload; `report.iconCount` counts canonical entries with
 aliases excluded, and ICON_NAMES emits each alias ADJACENT to its
-ref). Collision rules SHALL fail the build with
+ref). Canonical keys SHALL serialize QUOTED when not bare
+identifiers (`'md:copy_all': { … }` — an unquoted `md:copy_all:`
+key is invalid TypeScript), with budget accounting counting the
+serialized key bytes. `CHUNK_OF`/`preloadIcons` SHALL deref aliases
+to the canonical's chunk, and the runtime lookups SHALL accept the
+un-split literal itself — `getIcon('md:copy_all as copy2')`,
+`getIcon('md:copy_all')`, and `getIcon('copy2')` resolve the SAME
+payload. Collision rules SHALL fail the build with
 named diagnostics: an alias colliding with any declared/scanned
 name; two refs claiming one alias; a ref's name colliding with
 another ref's alias. Alias identifiers SHALL match
@@ -87,6 +102,14 @@ from the camelCase icon-name pattern; aliases are not).
 - WHEN the artifact generates
 - THEN `getIcon('copy2')` and `getIcon('md:copy_all')` return the
   SAME data and the payload packs exactly once
+
+#### Scenario: the un-split alias literal resolves at runtime
+
+- GIVEN the artifact generated with `name="md:copy_all as copy2"`
+- WHEN `getIcon`/`loadIcon` receive the un-split literal
+  `'md:copy_all as copy2'`
+- THEN they split on ` as `, deref the base, and return the SAME
+  payload as the bare canonical and the alias
 
 #### Scenario: an alias collision fails by name
 

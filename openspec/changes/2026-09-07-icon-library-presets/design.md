@@ -37,10 +37,19 @@ runs the shared RAW safety → svgo → structural-validation pipeline.
 - **material** (`md:`): file = `@material-symbols/svg-${weight}/${style}/${name}${fill ? '-fill' : ''}.svg`.
   Config: `presets: [{ id: 'material', weight: 400, style: 'outlined', fill: false }]`
   (string shorthand `'material'` = these defaults). Apache-2.0.
-- **phosphor** (`ph:`): `@phosphor-icons/core/assets/${weight}/${name}.svg`
-  (weight: thin/light/regular/bold/fill/duotone; default regular). MIT.
-- **remix** (`rx:`): `remixicon/icons/${category}/${name}.svg` (the
-  name carries its category prefix, e.g. `rx:system:add-line`). Apache-2.0.
+  Weights 100–700 are supported, each as its OWN optional peer
+  (`@material-symbols/svg-100` … `@material-symbols/svg-700` — all
+  seven declared); a missing weight package fails by name naming
+  the exact package.
+- **phosphor** (`ph:`): `@phosphor-icons/core/assets/${weight}/${name}${weight === 'regular' ? '' : '-' + weight}.svg`
+  — the non-regular directories ship the SAME icons under
+  weight-suffixed filenames (`assets/fill/atom-fill.svg`, probed
+  2026-09-07; weight: thin/light/regular/bold/fill/duotone; default
+  regular). MIT.
+- **remix** (`rx:`): the ref is `rx:<category>:<icon-name>` and maps
+  to `remixicon/icons/<Capitalized>/<icon-name>.svg` — the category
+  is lowercase in the ref, capitalized as the directory on disk
+  (`rx:system:add-line` → `icons/System/add-line.svg`). Apache-2.0.
 - Resolution = adapter-side, two steps (the plugin owns file I/O —
   frozen principle #4): presets node-resolve to an absolute path via
   `resolveFile` and hand it to `ctx.loadSource` — node resolution
@@ -92,6 +101,13 @@ runs the shared RAW safety → svgo → structural-validation pipeline.
   script twin (woff2 decompress + mime detect) is future work
   outside this change.
 - The font file joins `watchFile` (HMR), like `{file}` SVGs.
+- liga identity (settled, codex round-1): the `liga` string is TEXT
+  TO SHAPE — `font.stringToGlyphs(liga)` produces the glyph sequence
+  and the GSUB type-4 walker resolves the ligature glyph (JetBrains
+  Mono's `1/4` → the onequarter glyph is the executable fixture). A
+  miss is the named error listing the font's resolvable sequences as
+  glyph names joined `_` (font order, capped at 12) when the parser
+  exposes type-4 data, else the glyph-name/cmap hint (same caps).
 - woff1 → still the hard error (existing loadSource rule). ttf/otf
   direct paths also accepted (`font: './x.ttf'`).
 - Runtime: nothing changes — the payload enters packing/chunking as
@@ -99,7 +115,10 @@ runs the shared RAW safety → svgo → structural-validation pipeline.
 
 ## 3. Type + artifact impact
 
-None beyond names: preset/font icons are VALUES of `library.icons`
+None beyond names IN THIS CHANGE (the companion prefix-compiler
+change later extends the artifact — ALIASES table, template union
+members, quoted canonical keys — acknowledged there): preset/font
+icons are VALUES of `library.icons`
 entries — they enter packing at their declared position in the custom
 insertion order (no new input stream in THIS change; the scanned
 stream belongs to the companion change). Determinism law unchanged.

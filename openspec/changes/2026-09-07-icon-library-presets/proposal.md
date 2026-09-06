@@ -19,7 +19,8 @@ but dropped from the library face at the pivot.
    per-icon SVG-source package (research-verified 2026-09-07):
    - `material` → `@material-symbols/svg-400` (Apache-2.0; weight
      100–700 × fill/no-fill × outlined/rounded/sharp as discrete
-     files; default mapping `md:` = outlined / weight 400 / FILL 0,
+     files — all seven weight packages are declared optional peers;
+     default mapping `md:` = outlined / weight 400 / FILL 0,
      configurable). Note: grade/opsz axes exist only in the variable
      FONT, not the SVG packages.
    - `phosphor` → `@phosphor-icons/core` (MIT, 9,072 .svg).
@@ -38,16 +39,19 @@ but dropped from the library face at the pivot.
    at build time into the standard `{v, n:'fill', d}` payload.
    Runtime stays SVG (SSR/print/no-JS/chunking guarantees unchanged
    — the pivot's terms hold). Codepoint mapping is the primary lane;
-   ligature lookup is best-effort (opentype.js GSUB/liga support is
-   thin — research-verified) and unknown ligatures fail loudly with
-   the mapped-name hint.
+   ligature lookup is best-effort (the `liga` string is text to
+   shape through GSUB — opentype.js coverage is thin,
+   research-verified) and misses fail loudly listing the font's
+   resolvable ligature sequences, else the mapped-name hint.
 
 ## Impact
 
 - `packages/vite-plugin`: new `library/presets/` resolvers + font
   source lane in `library/resolve.ts`; optional peers for the preset
   packages (absent install = loud named error, the lucide precedent).
-- Generated artifact unchanged in shape; preset/font icons enter the
+- Generated artifact unchanged in shape BY THIS CHANGE (the
+  companion prefix-compiler change extends it — ALIASES/template
+  members); preset/font icons enter the
   same packing/chunking pipeline.
 - docs icons page: preset table + font-source section + the SF
   Symbols licensing note.

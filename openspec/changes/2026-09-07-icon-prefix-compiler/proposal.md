@@ -25,17 +25,22 @@ that pins a short local name later references can share.
    cannot serve either lane; the script twin must see the same
    scanned set so gen:icons stays byte-equal to dev), plus
    (b) a dev-incremental vite transform (enforce: 'pre',
-   .svelte/.ts/.html sources) collecting static `name="md:X"` /
+   .svelte/.ts/.js/.html sources) collecting static `name="md:X"` /
    `name="md:X as Y"` literals (the tailwind content-scan pattern,
    adapted) — scanned refs resolve through the preset resolvers and
-   enter the artifact WITHOUT any vite-config declaration.
+   enter the artifact WITHOUT any vite-config declaration;
+   name-literals with an un-enabled prefix are ignored (the
+   unknown-prefix error stays a config-face law).
 3. **Alias-indirection artifacts** (the ruled form — sources are
    NEVER rewritten): the payload packs ONCE under the canonical
    `md:copy_all` key; the artifact gains an
    `ALIASES: Readonly<Record<alias, canonical>>` table and lookups
    deref aliases first. `as Y` means "I declare the short name Y for
    this ref"; subsequent `md:copy_all` uses and `copy2` uses share
-   one packed icon. Alias collisions (two refs claiming one alias,
+   one packed icon — and the runtime lookups accept the un-split
+   literal itself (they split on ` as ` and deref the base). Canonical
+   keys serialize quoted (`'md:copy_all': { … }` — the colon makes
+   bare keys invalid TypeScript). Alias collisions (two refs claiming one alias,
    or an alias shadowing a declared name) fail the build with a
    named diagnostic.
 4. **Dynamic names get a defined runtime lane**: `` name={`md:${x}`} ``

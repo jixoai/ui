@@ -17,8 +17,12 @@ scan.ts — ONE pure module, TWO collection entries:
     ├─ "md:X"          → ref
     └─ "md:X as Y"     → ref + alias(Y)
                     ▼
-generateIconLibraryArtifacts(inputs: manifest + declared + SCANNED)
-  ├─ IconName union: concrete names ∪ aliases ∪ `md:${string}` (per enabled preset)
+scanned refs MERGE into the resolveLibraryInputs input surface
+(adapter-side — the pure generator never sees raw scan output; the
+live spec's resolved-assets-only law holds)
+                    ▼
+generateIconLibraryArtifacts(resolved assets + name/alias metadata + enabled prefixes)
+  ├─ IconName union: concrete names ∪ aliases ∪ `md:${string}` (enabled prefixes only)
   ├─ ALIASES table: alias → canonical; payload packs ONCE per canonical key
   └─ collision rules enforced (named errors)
                     ▼
@@ -38,7 +42,10 @@ with TWO entries:
   over the project's source files, at buildStart when
   `command === 'build'` AND inside script.ts's buildArtifacts, so
   gen:icons / `--check` stay byte-equal to the dev-server artifact
-  for the same scanned set.
+  for the same scanned set (parity is scoped to script-supported
+  svg-only configs — a font-source config still named-rejects in
+  the script twin per the companion change; that rejection is not a
+  parity violation).
 - **(b) the DEV-INCREMENTAL transform collector** — the vite
   transform collects literals and rides scheduleRefresh (dev only):
   a scanned-set change invalidates and regenerates like a config
@@ -52,13 +59,25 @@ with TWO entries:
   names are intentionally out (the runtime lane owns them).
 - Name grammar: the ENABLED PRESET's OWN name grammar is the law —
   the preset resolver validates. Examples are `md:copy_all`
-  (snake_case per material-symbols naming), NOT kebab. The scanner's
-  literal regex is deliberately permissive — `/^[a-z][a-z0-9_]*$/`
-  after the prefix — so it never rejects what a preset accepts;
-  resolution is the authority. Consequence for the name law: scanned
-  keys like `md:copy_all` are EXEMPT from the camelCase
-  ICON_NAME_PATTERN, while ALIASES must satisfy it.
+  (snake_case per material-symbols naming) and `rx:system:add-line`
+  (a second colon + hyphens). The scanner therefore captures the
+  prefix + the COMPLETE attribute-literal suffix (up to the closing
+  quote or the ` as ` boundary) and validates NOTHING about the
+  suffix itself — the earlier `/^[a-z][a-z0-9_]*$/` sketch would
+  reject legal remix names; resolution is the authority. Consequence
+  for the name law: scanned keys like `md:copy_all` are EXEMPT from
+  the camelCase ICON_NAME_PATTERN, while ALIASES must satisfy it.
 - `as <identifier>` grammar: `/^[a-z][A-Za-z0-9]*$/` (the name law).
+- Collection policy (codex round-1): the matcher requires the
+  ATTRIBUTE context (`name="<literal>"` or `name={'<literal>'}`) —
+  bare strings elsewhere are never collected. Name-literals whose
+  prefix is NOT an enabled preset are IGNORED (an `fa:home` in a
+  comment or doc example must never fail a build; the
+  unknown-prefix NAMED ERROR stays a config-face law —
+  `library.icons` entries). Known limitation, documented: an
+  occurrence inside a comment still collects (fail-safe — worst
+  case one extra packed icon); escaped or multiline attribute forms
+  do not match and fall to the runtime lane.
 - Determinism: refs sort (preset, name) — scan ORDER never affects
   bytes.
 
@@ -69,11 +88,18 @@ plain-function member (like `load`); (3) a delegating transform hook
 in the umbrella bridge — the bridge today delegates
 configResolved/buildStart/resolveId/load/configureServer only and
 has NO transform, so `jixoai()` consumers would silently get no
-scanner.
+  scanner. The hook signature is the standard vite
+  `transform(code, id)` at `enforce: 'pre'`; the bridge delegates
+  transform through the same memoized dynamic import as its other
+  hooks, with error propagation identical to them (the umbrella
+  entry's static import graph stays pure).
 
 ## 2. Generator inputs + collisions
 
-- `ScannedRef = { preset: 'md', name: 'copy_all', alias?: 'copy2' }`.
+- `ScannedRef = { prefix: string, ref: string, alias?: 'copy2' }` —
+  the prefix is any ENABLED preset's (md/ph/rx — not 'md' only);
+  `ref` is the COMPLETE suffix after the first colon (remix refs
+  carry their own second colon).
 - Collision errors (all named, all fail the build):
   alias ↔ existing declared/scanned name; two refs → one alias; one
   ref → alias identical to another ref's name. Plain duplicate
@@ -87,6 +113,26 @@ scanner.
   FIRST. Budget accounting counts the payload once plus the
   alias-table row. The artifact-shape test locks update in THIS
   change accordingly.
+- Key serialization (codex round-1): canonical keys carry `:` —
+  `md:copy_all: { … }` is invalid TypeScript — so serializeEntry
+  QUOTES keys that are not bare identifiers
+  (`'md:copy_all': { … }`), and budget accounting counts the
+  SERIALIZED key bytes (quotes included). The generated artifact
+  must compile: an executable fixture (compile/eval round-trip,
+  the multiline-asset precedent) locks this.
+- Generator input (codex round-1): the packing options gain the
+  ENABLED-PREFIX list, fed by BOTH adapters (the vite plugin from
+  its normalized config, the script twin identically) — template
+  members emit only for those prefixes, including presets enabled
+  with no scanned refs.
+- Runtime ` as ` canonicalization (codex round-1): the component
+  receives the FULL literal `"md:copy_all as copy2"` — getIcon/
+  loadIcon split on ` as ` and deref the base, so the un-split
+  literal, the bare canonical, AND the alias all resolve to the
+  same payload (test-locked with all three spellings).
+- Alias mechanics (codex round-1): `CHUNK_OF`/`preloadIcons` deref
+  aliases → the canonical's chunk; multiple aliases for one
+  canonical are allowed, deterministic in scan/insertion order.
 - Report and ordering: `report.iconCount` = canonical entries
   (aliases excluded); ICON_NAMES ordering = canonical order with
   each alias emitted ADJACENT to its ref.
@@ -103,7 +149,9 @@ export type IconName =
   | `md:${string}` | `ph:${string}` | `rx:${string}`;  // enabled presets only
 ```
 
-Template members exist ONLY for presets the consumer enabled — an
+(The example is illustrative — all three template members appear
+only when all three presets are enabled.) Template members exist
+ONLY for presets the consumer enabled — an
 `fa:` name is a compile error with zero runtime story. This is the
 "一定程度安全" contract stated precisely: prefix = compile time,
 concrete name = build time (named error), dynamic composition =
