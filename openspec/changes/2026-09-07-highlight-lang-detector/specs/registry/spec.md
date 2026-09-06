@@ -11,10 +11,15 @@ HIGHLIGHT_DETECT_KEY 增补，零 npm 依赖）；DLD 四层 SHALL 是独立
 纯 TS 表层/探针/工厂 + lang-canonical.ts 权威表；声明
 `@jixoai/highlight` registry 边与 `@jixoai/betlang-wasm` npm 依赖，
 并携带真实 runtime import core 的 `AUTO_LANG`/`HIGHLIGHT_DETECT_KEY`
-——纯 type import 会被 verify-deps 判 dead）；Svelte 包装 provider
-SHALL 是独立 **registry:ui** item（`highlight-detect-default`，一个
-children 包装组件文件，registryDeps 声明 @jixoai/highlight-lang-
-detector 与 @jixoai/highlight）；引擎自带检测（highlight.js
+——纯 type import 会被 verify-deps 判 dead）；其文件 SHALL 与 core
+的 lang-detector.ts 契约文件零撞名（default-detector.ts /
+betlang-detector.ts / detect-ext-table.ts / detect-shebang-table.ts /
+detect-structure.ts / lang-canonical.ts，registry payload exactly-once
+验证）；Svelte 包装 provider SHALL 是独立 **registry:ui** item
+（`highlight-detect-default`：children 包装组件 + index.ts 纯
+barrel，registryDeps 声明 @jixoai/highlight-lang-detector、
+@jixoai/highlight 与 @jixoai/jixoai-theme——UI item 合同统一要求，
+样式无关也声明，与 icon/icon-set 的 registry:ui 形状对齐）；引擎自带检测（highlight.js
 highlightAuto）SHALL 接线在既有引擎 item 内，不新开 item。code-card 的
 `langDetector` prop 与 AUTO_LANG 路径 SHALL 零成本默认——卡片与 core
 不存在指向 DLD 的任何静态 specifier，未装 DLD 的消费者构建图零 DLD

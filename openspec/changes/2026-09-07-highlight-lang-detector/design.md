@@ -1,7 +1,12 @@
 # highlight-lang-detector — Design
 
-r1 评审（Codex 5.5/10 REVISE）八阻塞已消化；r2 评审（6.5/10 REVISE）
-七阻塞继续消化：D2.2 冻结 provider 为 children 包装形态并落独立
+r1（5.5）→ r2（6.5）→ r3-astra（6.4）逐轮消化。r3 六阻塞：
+D1/D2.1 AUTO_LANG 改严格全等（去 trim，与 spec 场景对齐）+ 术语改
+"三检测环 + 兜底 reject"；D3.2 围栏正则补 1-3 空格缩进；D5 文件
+归属去撞名（DLD 工厂独立文件）+ wrapper 补 UI 合同要件；D8.1
+canonical 表补可解析 grammar 与生成/门禁步骤；D8.2 统一 context
+值模型（kernel 值 LanguageDetector|undefined + 存储 adapter
+{ detector }）。D2.2 冻结 provider 为 children 包装形态并落独立
 registry:ui item、D3.1 冻结文件名/shebang 边界行为、D3.2 统一
 Markdown 守卫与 front-matter 规则、D4 冻结门禁测量对象并补精确
 字节证据 + Owner 的 linguist 降级兑现、D5 冻结双 item 形状与
@@ -12,7 +17,7 @@ canonical registry 权威表与内核侧最小契约。
 
 ```ts
 // registry/files/lib/highlight/lang-detector.ts（随 highlight core 发行）
-export const AUTO_LANG = 'auto';   // lang 哨兵：trim 后全等比较，大小写敏感
+export const AUTO_LANG = 'auto';   // lang 哨兵：严格全等（无 trim），大小写敏感
 
 export type DetectSource =
   | 'filename'    // DLD L1：扩展名/basename 表
@@ -50,22 +55,25 @@ export interface LanguageDetector {
 - **`filename` 只透传**：文件名归属检测器（DLD L1 取扩展名 + 精确
     basename；自定义 detector 可读全名做特判）。
 - **`AUTO_LANG` 常量而非联合类型**：`lang` prop 保持 `string`（存量
-  调用零破坏）；哨兵值以导出常量 + 运行时 guard（trim 后全等
-  `'auto'`，大小写敏感，其余含 "AUTO"/" auto " 的值一律按普通 lang
-  处理并走 reject 法则）。
+  调用零破坏）；哨兵匹配冻结为 **`lang === AUTO_LANG` 严格全等**
+  （无 trim、大小写敏感）——`'AUTO'`、`' auto '`、`'auto\n'` 一律
+  不触发检测，按普通 lang 走既有路径并由 backend reject 法则处理
+  （r3-B2 裁决，与 spec 场景一致）。
 
 ## D2 — 解析链、null 级联与接线模型
 
 ### D2.1 链与存在判据（完整决策表）
 
-`lang === AUTO_LANG` 时按序解析检测器，每环"存在"判据如下：
+`lang === AUTO_LANG` 时按序解析检测器。**术语律（r3-N1）：检测环
+三个（prop / context / backend），第四项不是环而是链尾的运行时
+reject 终态**——下表保留四行是完整决策表，行④即 reject：
 
 | 环 | 存在判据 | 不存在时 |
 |---|---|---|
 | ① prop | `langDetector !== undefined` | 进② |
 | ② context | `getContext(HIGHLIGHT_DETECT_KEY)` 返回对象且 `.detector` 为函数（组件窗口内） | 进③ |
 | ③ backend | `backend.detector` 为函数 | 进④ |
-| ④ 兜底 | **无第四环** | 运行时 reject：报"lang='auto' 需要检测器"，给出安装命令 + 一行接线指引 |
+| ④（非环）兜底 | 三环皆缺 | 运行时 reject：报"lang='auto' 需要检测器"，给出安装命令 + 两种接线形态指引 |
 
 **null 级联法则**：某环 detector resolve 为 `null` = 该环无意见 →
 **级联下一环**（"不冲突、互相补充"）；某环 reject/throw = 终态 →
@@ -181,8 +189,10 @@ normalize(text):
 guard_Markdown（r2-B6 统一：围栏 ANY 即弃权；标题密度 ≥2 才弃权——
   TOML/YAML/INI 的 `# 注释` 单行会匹配标题正则，单标题弃权会把带
   注释的合法配置文件全部误杀；保守偏置法则：宁可穿透到 L4）:
-  body 匹配 /^```/m 或 /^~~~/m（任一围栏）
+  body 匹配 /^ {0,3}(?:`{3,}|~{3,})/m（任一围栏，含合法的 1-3 空格
+  缩进围栏与更长围栏；闭合围栏同样命中——守卫只看存在性）
   或 ≥2 行匹配标题 /^ {0,3}#{1,6}\s+\S/ → 结构层整体弃权
+  （正负样本：缩进围栏、~~~ 闭合、CRLF 行尾、TOML `# 注释` 单行）
 
 P_JSON:  JSON.parse(body) 成功 → json                     // 硬判据，最先
 P_SVG:   /^<svg[\s>]/.test(L1) → svg
@@ -289,15 +299,25 @@ highlight (core, registry:lib)     + lang-detector.ts（契约 + AUTO_LANG；零
                                    context-key.ts + HIGHLIGHT_DETECT_KEY（registry-safe 身份）
 highlight-lang-detector (registry:lib, framework-free)
                                    L1-L3 纯 TS + betlang wasm 通道 + lang-canonical.ts 权威表
-                                   files: ext-table / shebang-table / structure / betlang /
-                                          lang-canonical / lang-detector（工厂 defaultLangDetector/
-                                          betlangDetector）
+                                   files（$lib/highlight/ 下平铺、与 core 的 lang-detector.ts
+                                   契约文件零撞名，r3-B4）:
+                                     default-detector.ts     工厂 defaultLangDetector()（四层瀑布编排）
+                                     betlang-detector.ts     工厂 betlangDetector()（L4 直连）
+                                     detect-ext-table.ts     L1 扩展名 + basename 多行字符串表
+                                     detect-shebang-table.ts L2 解释器 + modeline 表
+                                     detect-structure.ts     L3 冻结伪码实现
+                                     lang-canonical.ts       D8.1 权威表
                                    deps: @jixoai/highlight, @jixoai/betlang-wasm
                                    runtime import core 常量（AUTO_LANG 等）——边活性真实
 highlight-detect-default (registry:ui)
                                    files: highlight-detect-default.svelte（children 包装 provider，
-                                   ~10 行，实现即形态②）
-                                   registryDeps: @jixoai/highlight-lang-detector, @jixoai/highlight
+                                          ~10 行，实现即形态②）
+                                          + index.ts（UI item 的纯 barrel 合同）
+                                   registryDeps: @jixoai/highlight-lang-detector,
+                                                 @jixoai/highlight,
+                                                 @jixoai/jixoai-theme（UI item 合同统一要求，
+                                                 样式无关也声明——与 icon/icon-set 的 registry:ui
+                                                 形状对齐，r3-B5）
 highlight-highlightjs              + detector 槽位接线（D7 语义）
 code-card                          + langDetector prop、AUTO_LANG 路径
 ```
@@ -357,17 +377,34 @@ highlight-js.ts 各自的表）——本变更不合并它们（超范围），�
 需要一张**可版本化的权威表**回答"检测产物落在哪个 canonical id、
 该 id 哪些引擎能渲染"：
 
+**表 grammar（r3-B3 冻结，可解析才可门禁）**：
+
 ```ts
-// lang-canonical.ts —— 多行字符串表（同 D3.1 形态）
-// 列：canonical  tab  修饰键（betlang 标签 / linguist 扩展名/解释器
-// 来源）……实现期从 betlang 48 标签 + linguist 挖掘表 + 各 backend
-// curated 集一次性编纂，linguist commit SHA 入头注释
+// lang-canonical.ts —— 单一多行字符串表（D3.1 形态）
+// 行 grammar：`<canonical> <k>=<v>...`，字段序固定：
+//   canonical        ^[a-z0-9+#.-]+$（小写 id，与卡片 lang 命名空间同域）
+//   betlang=<label>  恰好一次：48 标签每个恰好出现在一行；无对应 = `-`
+//   ext=<a,b,...>    L1 扩展名（歧义扩展名不列——heuristics 消解块覆盖的）
+//   file=<a,b,...>   L1 精确 basename（可缺省）
+//   interp=<a,b,...> L2 解释器 basename（可缺省）
+//   backend=<a,...>  能渲染该 canonical 的引擎 id（curated 集挖掘快照）
+// 规则：`#` 起注释行；空白行忽略；同一 k 不得在一行内重复；canonical
+// 不得重复出现；值域 [A-Za-z0-9+#._-]（无转义需求）；任何违例 = parse
+// error（构造期抛出，测试断言）。
 const CANONICAL = `
-typescript betlang=TypeScript ext=ts,tsx?no(歧义) backend=shiki,hljs,prismjs,sugar-high,tree-sitter
-python     betlang=Python ext=py backend=shiki,hljs,prismjs
-...
+# sources: betlang =0.1.1 (crates.io) | linguist @<commit-sha> | backend curated @<repo-commit>
+typescript betlang=TypeScript ext=ts interp=- backend=shiki,hljs,prismjs,sugar-high,tree-sitter
+tsx        betlang=-           ext=tsx backend=shiki,tree-sitter
+python     betlang=Python ext=py interp=python,python3 backend=shiki,hljs,prismjs
 `;
 ```
+
+**生成与门禁**：表由实现期一次性编纂（task 3.0），来源三处钉死版本
+（betlang crate 0.1.1 的 48 标签清单、linguist languages.yml @SHA、
+本仓库各 backend curated 集 @commit）；`scripts/verify-lang-canonical.mjs`
+（或并入既有 gate）断言：48 个 betlang 标签恰好各出现一次、canonical
+无重复、ext/file/interp 无跨行重复值、派生的 L1/L2/标签映射与三个
+消费文件内容一致（derive-then-diff）。
 
 - L1/L2 表、betlang 标签映射、（降级时的）linguist 消解块**全部从
   此表派生**——三处数据不会漂移（"恰好一次"映射作为表完整性测试：
@@ -377,17 +414,32 @@ python     betlang=Python ext=py backend=shiki,hljs,prismjs
 
 ### D8.2 内核侧最小契约（site-only context.svelte.ts 增补）
 
+**统一 context 值模型（r3-B1，单一事实消除冲突）**：内核管线值类型
+`LanguageDetector | undefined`（defaults/ssrSafe 皆 undefined——检测
+是运行时行为，无 DEFAULT_SHIKI_BACKEND 对应物，链尾空即落
+backend.detector 环）；**存储到 HIGHLIGHT_DETECT_KEY 的 context 值
+恒为 `{ detector }` adapter**（registry 消费者 getContext 读
+`.detector`，与手写 setContext、包装组件、内核 provider 三路写入
+形状统一）：
+
 ```ts
-export const HIGHLIGHT_DETECT_DEF: ContextDef<'highlight-detect', LanguageDetector> =
+export const HIGHLIGHT_DETECT_DEF: ContextDef<'highlight-detect', LanguageDetector | undefined> =
   defineContextDef({ key: 'highlight-detect', defaults: () => undefined, ssrSafe: undefined });
-// createHighlightDetectContext(initial?: LanguageDetector): {
-//   get detector(): LanguageDetector | undefined;   // pipeline.exposed 投影
-//   set(detector: LanguageDetector): void;          // live 切换，卡片检测链响应
-// }                                                 // 形态对齐 createHighlightContext
+
+export function createHighlightDetectContext(initial?: LanguageDetector): {
+  get detector(): LanguageDetector | undefined;  // pipeline.exposed 投影
+  set(detector: LanguageDetector): void;         // live 切换，卡片检测链响应
+} {
+  // …pipeline 形态对齐 createHighlightContext…
+  setContext(HIGHLIGHT_DETECT_KEY, context);     // context 即 { detector } adapter（getter）
+  return context;
+}
 ```
 
-defaults/ssrSafe 为 undefined（检测是运行时行为，无兜底引擎般的
-DEFAULT_SHIKI_BACKEND 对应物——链尾空即落 backend.detector 环）；
-`set()` live 切换语义与 backend context 相同（插件链投影端到端
-响应）。插件 hook 测试：definePlugin targets=[HIGHLIGHT_DETECT_DEF]
-的 before/after 在检测链上生效、prop 恒压过投影。
+三条写入路径产出同一形状（端到端测试各一条）：内核
+createHighlightDetectContext、包装组件（内部即形态②）、手写
+setContext(HIGHLIGHT_DETECT_KEY, { detector })。卡片读取只认
+`getContext(HIGHLIGHT_DETECT_KEY)?.detector` 函数判据。`set()` live
+切换语义与 backend context 相同。插件 hook 测试：definePlugin
+targets=[HIGHLIGHT_DETECT_DEF] 的 before/after 在检测链上生效、prop
+恒压过投影。

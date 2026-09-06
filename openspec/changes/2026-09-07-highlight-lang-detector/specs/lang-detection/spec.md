@@ -8,13 +8,14 @@
 Promise<DetectResult | null>`；DetectResult 携带 canonical lang、分层
 source 标记与可选 confidence）与 `AUTO_LANG = 'auto'` 常量，随
 `highlight` core item 发行且不引入任何 npm 依赖；`lang` prop 保持
-string 类型，AUTO_LANG 为运行时哨兵（trim 后全等比较，大小写敏感，
-其余值一律按普通 lang 走既有路径）。
+string 类型，AUTO_LANG 为运行时哨兵（**严格全等 `lang === AUTO_LANG`，
+无 trim、大小写敏感**，其余值一律按普通 lang 走既有路径）。
 
-卡片 `lang === AUTO_LANG` 时 SHALL 按序解析检测器，每环存在判据：
+卡片 `lang === AUTO_LANG` 时 SHALL 按序解析检测器——**检测环三个**：
 ① `langDetector` prop 非 undefined；② `HIGHLIGHT_DETECT_KEY` context
-对象且 `.detector` 为函数；③ `backend.detector` 为函数；④ 无第四环 —
-运行时 reject，报错文本给出 DLD 安装命令与一行接线指引。
+对象且 `.detector` 为函数；③ `backend.detector` 为函数；三环皆缺 →
+（非环的链尾终态）运行时 reject，报错文本给出 DLD 安装命令与两种
+接线形态指引。
 
 **null 级联法则**：某环 detector resolve null（无意见）SHALL 级联下一
 环；某环 reject/throw（终态）SHALL 纯文本回退 + warn 报出该环 id 与
@@ -37,6 +38,12 @@ import core 的 `HIGHLIGHT_DETECT_KEY`/`AUTO_LANG` 保持 registry 边
 **检测终态法则（r2）**：检测成功而 backend 的 curated/reject 拒绝
 SHALL 为终态——reject 消息按矩阵失败法则点名覆盖引擎，不回退换检测
 器重试。
+
+#### Scenario: SSR 恒纯文本
+
+- **WHEN** 页面预渲染/prerender 构建包含 `lang={AUTO_LANG}` 卡片
+- **THEN** 产物为纯文本（检测零调用——构建期 detector 调用计数为 0
+  的断言），hydration 后首次 paint 才进检测链
 
 #### Scenario: AUTO_LANG 哨兵边界
 
@@ -132,8 +139,10 @@ commit SHA SHALL 落表头注释；歧义扩展名（heuristics.yml 138 组消�
 
 DLD 结构层 SHALL 按 design D3.2 冻结伪码实现：规范化（strip BOM、
 首非空行、512 字符头部窗口、非空行计数）→ **Markdown 守卫最高优先**
-（任一 ``` / ~~~ 围栏，或 ≥2 个 `^ {0,3}#{1,6}\s` 标题行——标题密度
-阈值防 `# 注释` 单行误杀 TOML/YAML → 本层整体弃权；YAML 判据另含
+（任一 `^ {0,3}(?:\x60{3,}|~{3,})` 围栏——含 1-3 空格缩进与闭合
+围栏，或 ≥2 个 `^ {0,3}#{1,6}\s` 标题行——标题密度阈值防 `# 注释`
+单行误杀 TOML/YAML → 本层整体弃权；缩进围栏/闭合围栏/CRLF 入样本
+矩阵；YAML 判据另含
 front-matter 规则：第二个 `---` 后内容含任一 md 标记即弃权）→
 JSON 全文 parse 硬判据 → SVG（`<svg` 根或 `<?xml…?><svg` 头窗组合，
 优先于 XML）→ XML（`<?xml` 前缀）→ HTML（`<!doctype html`，大小写
@@ -187,6 +196,20 @@ SHALL 经 `wasmLoader → { url } | { bytes }` seam：浏览器走真实 HTTP
 完整多行字符串表内嵌（版本绑定注释），无对应标签 SHALL 返回 null
 并一次性 warn（每标签每进程至多一条）。
 
+#### Scenario: wasmLoader 契约
+
+- **WHEN** 消费者/测试自定义 wasmLoader
+- **THEN** `{ url }` 与 `{ bytes }` 双形态类型收窄、初始化返回值经
+  feature 探测（WebAssembly 实例就绪）、URL 加载失败 reject 带
+  来源信息、环境选择规则 = 浏览器构建走 ?url 静态导入 map、Node
+  走 bytes（负向测试各一）
+
+#### Scenario: confidence 越界防御
+
+- **WHEN** detector 返回 confidence 超出 [0,1]、NaN 或缺省
+- **THEN** 越界/NaN 一律按 undefined 丢弃（不抛错、不钳制），缺省
+  直通——卡片 v1 不消费 confidence
+
 #### Scenario: vitest 真实 wasm
 
 - **WHEN** 契约套件在 jsdom 运行统计层
@@ -202,8 +225,11 @@ SHALL 经 `wasmLoader → { url } | { bytes }` seam：浏览器走真实 HTTP
 
 `HIGHLIGHT_DETECT_KEY` 与 `HighlightDetectContextValue` SHALL 随
 `highlight` core item 的 context-key.ts 发行（registry-safe 身份，零
-依赖，所有消费者含插件共用同一 Symbol）；内核编排（
-`HIGHLIGHT_DETECT_DEF` + `createHighlightDetectContext`）SHALL 落
+依赖，所有消费者含插件共用同一 Symbol）；**存储于该 key 的 context
+值 SHALL 恒为 `{ detector }` adapter**——内核管线值类型
+`LanguageDetector | undefined`，内核 provider、包装组件、手写
+setContext 三条写入路径产出同一形状（各一条端到端测试）。内核编排
+（`HIGHLIGHT_DETECT_DEF` + `createHighlightDetectContext`）SHALL 落
 site-only 的 `lib/highlight/context.svelte.ts`（与 HIGHLIGHT_DEF 同
 法——registry-safe 身份随 core，内核编排属站点）。插件 SHALL 能经
 `targets: [HIGHLIGHT_DETECT_DEF]` 将任意 detector（含
