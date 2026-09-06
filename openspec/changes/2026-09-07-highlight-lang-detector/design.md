@@ -146,7 +146,7 @@ defaultLangDetector()  ── 命中即短路，层层 fallback（层内 null �
 ```ts
 // ext-table.ts —— 数据源 linguist languages.yml（commit SHA 见下）∩ canonical 集
 // 歧义扩展名（heuristics.yml 138 组消解块内）不在此表，留给 L4
-// mined-from: github-linguist/linguist@<commit-sha> lib/linguist/languages.yml
+// mined-from: github-linguist/linguist@5fb5096b95ab lib/linguist/languages.yml
 const EXT_TABLE = `
 ts typescript
 tsx tsx
@@ -382,19 +382,24 @@ highlight-js.ts 各自的表）——本变更不合并它们（超范围），�
 ```ts
 // lang-canonical.ts —— 单一多行字符串表（D3.1 形态）
 // 行 grammar：`<canonical> <k>=<v>...`，字段序固定：
-//   canonical        ^[a-z0-9+#.-]+$（小写 id，与卡片 lang 命名空间同域）
-//   betlang=<label>  恰好一次：48 标签每个恰好出现在一行；无对应 = `-`
-//   ext=<a,b,...>    L1 扩展名（歧义扩展名不列——heuristics 消解块覆盖的）
-//   file=<a,b,...>   L1 精确 basename（可缺省）
-//   interp=<a,b,...> L2 解释器 basename（可缺省）
-//   backend=<a,...>  能渲染该 canonical 的引擎 id（curated 集挖掘快照）
+//   canonical        SCALAR：^[a-z0-9+#.-]+$（小写 id，与卡片 lang 命名空间同域）；
+//                    逗号/`=`/空白 非法
+//   betlang=<label>  SCALAR：恰好一次——48 标签每个恰好出现在一行；无对应 = `-`
+//   ext=<a,b,...>    LIST：L1 扩展名（歧义扩展名不列——heuristics 消解块覆盖的）
+//   file=<a,b,...>   LIST：L1 精确 basename（可缺省）
+//   interp=<a,b,...> LIST：L2 解释器 basename（可缺省）
+//   backend=<a,...>  LIST：能渲染该 canonical 的引擎 id（curated 集挖掘快照）
+// 字段级逗号规则（r5-B4）：SCALAR 字段含逗号 = parse error；LIST 项
+// 值域 [A-Za-z0-9+#._-]（项内无逗号）；前导/尾随/连续逗号（`,a`、`a,`、
+// `a,,b`）与空项 = parse error；重复项 = parse error；次序即书写序不重排
 // 规则：`#` 起注释行；空白行忽略；同一 k 不得在一行内重复；canonical
 // 不得重复出现；值域 [A-Za-z0-9+#._,-]（列表字段以逗号分隔：空项、
 // 重复项 = parse error，列表内次序即书写序不重排）；任何违例 = parse
-// error（构造期抛出，测试断言：非法逗号位置、空列表、重复值、重复
-// canonical、重复 k 各一 fixture）。
+// error（构造期抛出；五类字段级 fixture：SCALAR 含逗号、前导/尾随/
+// 连续逗号、重复列表项、重复 canonical、同行重复 k——断言各自的
+// 错误信息含违规字段名与行内容）。
 const CANONICAL = `
-# sources: betlang =0.1.1 (crates.io) | linguist @<linguist-commit> | backend curated @<repo-commit>
+# sources: betlang =0.1.1 (crates.io) | linguist @5fb5096b95ab9893c5925d87121e5faaae9f3966 | backend curated @main(实现期 task 3.0 编纂时的仓库 HEAD)
 # （占位符在实现期 task 3.0 编纂时必须替换为真实 SHA——门禁断言表内
 #   无 <> 占位符残留，非占位值是开工前置条件）
 typescript betlang=TypeScript ext=ts interp=- backend=shiki,hljs,prismjs,sugar-high,tree-sitter

@@ -139,7 +139,9 @@ context-key.ts 头注释的既有法则：registry-safe 身份随 core 发行，
 编排属站点）。插件投影（`targets: [HIGHLIGHT_DETECT_DEF]` 配 betlang
 为全站默认）是站点/context-plugin 消费者的组合自由，不随 item 发行；
 registry 消费者用 `HIGHLIGHT_DETECT_KEY` + setContext 自写 provider
-（DLD item 的 `<HighlightDetectDefault/>` 即官方参考实现）。
+（UI item `highlight-detect-default` 的
+`<HighlightDetectDefault>` 即官方参考实现；DLD lib item 自身无
+Svelte 导出）。
 
 ## 依据与探测（evidence/）
 

@@ -62,7 +62,8 @@
 ## 5. 阶段 4 — registry / 站点 / 文档（子代理 C，vision 协助）
 
 - [ ] 5.1 registry.json：highlight-lang-detector item 条目（exports
-      双工厂；docs 写明四层与按需法则）+ core/highlightjs/code-card
+      双工厂；docs 写明 DLD 四层瀑布与按需法则——'四层'仅指瀑布层，
+      检测环恒为'三环 + 兜底 reject'）+ core/highlightjs/code-card
       条目增量
 - [ ] 5.2 双树依赖落盘 + mirror-manifest 再生 + 字节镜像
 - [ ] 5.3 code-card 文档页：lang="auto" 段落 + playground 实演
