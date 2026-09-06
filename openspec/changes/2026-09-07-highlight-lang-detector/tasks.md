@@ -53,8 +53,10 @@
       ARTIFACT.md 记录 wasmRawBytes/wasmGzipBytes/wasmSha256/
       tarballSha256/工具链版本；最终发行物复测过双预算与 98KiB
       预警线——越线则触发降级预案改写 L4 章重新送审）
-- [ ] 4.2 wasmLoader seam（{url}|{bytes} 四象限，tree-sitter 同构）+
-      48 标签映射表（无对应 → null + warn）
+- [ ] 4.2 wasmLoader seam（betlang 单 wasm 资产 → {url}|{bytes}
+      **双形态**——"四象限"是 tree-sitter 的 core+grammar 双资产术语，
+      此处不适用；tree-sitter 同构的 seam 形状）+ 48 标签映射表
+      （无对应 → null + warn）
 - [ ] 4.3 scripts/verify-betlang-pin.mjs（命令级验收逐项）：
       输入 = packages/betlang-wasm 内 .wasm 路径参数（缺省读
       ARTIFACT.md 声明值）；校验 = magic bytes `\0asm`、wasm sha256、

@@ -101,7 +101,10 @@ slot**，故 provider 必须是包装形态）：
 ```svelte
 <!-- 形态①（推荐）：registry:ui item 的包装组件，children snippet -->
 <script>
-  import HighlightDetectDefault from '@ui/highlight-detect-default.svelte';
+  // 消费者 import 方言恒为 $lib/…（registry living spec：@ui/… 是安装
+  // target 别名空间，不是 import 写法）；target 形状
+  // @ui/highlight-detect-default/highlight-detect-default.svelte
+  import HighlightDetectDefault from '$lib/ui/highlight-detect-default/highlight-detect-default.svelte';
 </script>
 <HighlightDetectDefault>
   {@render children()}   <!-- 消费者子树包在里面 -->
@@ -325,10 +328,12 @@ code-card                          + langDetector prop、AUTO_LANG 路径
 - **framework-free 合规**（registry living spec 的 lib/engine item
   法则）：Svelte 组件不进 lib item——`HighlightDetectDefault` 独立成
   registry:ui item；消费者要零组件接线就手写形态②（文档两种形态
-  并列，spec 的接线场景同时锁两种）。**folder target 验证**：wrapper
-  的消费侧导入即 D2.2 形态①（`@ui/highlight-detect-default.svelte`，
-  barrel 再导出 `@ui/highlight-detect-default`）——verify:shadcn-add
-  的 wrapper case 以两种导入各编译一次。
+  并列，spec 的接线场景同时锁两种）。**folder target 验证（r8-B2 方言律）**：target =
+  `@ui/highlight-detect-default/highlight-detect-default.svelte` +
+  `@ui/highlight-detect-default/index.ts`（barrel）；消费者导入用
+  SvelteKit 方言 `$lib/ui/highlight-detect-default/…`（直达 .svelte
+  与 barrel 两种各编译一次）——`@ui/…` 只出现在 registry target 与
+  docs 的安装位置描述，永不作为 import 语句。
 - DLD 对 core 的依赖是**真实 runtime import**（工厂与表模块 import
   `AUTO_LANG`/`HIGHLIGHT_DETECT_KEY` 常量）——verify-deps 跳过
   `import type`，纯类型边会判 dead（r1-B4）。
