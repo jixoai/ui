@@ -16,7 +16,7 @@ the kernel is a zero-npm-dependency registry:lib item.
 > modules (density.svelte.ts DENSITY_DEF, hue-runtime HUE_DEF,
 > highlight context HIGHLIGHT_DEF, medium MEDIUM_DEF read-only).
 
-## Current contract (state: 2026-09-03, context-plugin-v2)
+## Current contract (state: 2026-09-06, consumer-feedback-fixes TS 5.9 lanes over context-plugin-v2)
 
 ## Requirements
 
@@ -35,6 +35,15 @@ carry a runtime registry (identity matching is self-protecting);
 the read-only marker set is the one runtime exception (see the
 read-only requirement).
 
+The kernel's own brand-stamping statements SHALL stay
+typecheck-clean under current TypeScript (the 2026-09-06 consumer
+gate: TS 5.9 svelte-check, consumer-feedback-fixes): assignments
+that write the brand or the read-only marker route through MUTABLE
+CARRIER casts (or `Object.defineProperty`) — never through the
+readonly branded interface — and computed unique-symbol keys never
+ride `Object.assign`'s inferred type (it widens the key). The
+runtime result is byte-identical; only the assertion lane changes.
+
 #### Scenario: an inline def literal fails to compile
 
 - GIVEN `targets: [{ key: 'density', defaults: () => 'sm', ssrSafe:
@@ -49,6 +58,15 @@ read-only requirement).
 - WHEN a plugin targets the first and a context instance is built on
   the second
 - THEN no hook of that plugin runs (identity, not string, decides)
+
+#### Scenario: the kernel passes a TS 5.9 consumer gate
+
+- GIVEN the registry-shipped `context-plugin.svelte.ts` and
+  `defaults.svelte.ts` installed in a consumer running svelte-check
+  with TypeScript 5.9
+- THEN zero brand-stamping diagnostics surface — the carrier-cast /
+  defineProperty lanes typecheck while the branded interface stays
+  readonly to consumers
 
 ### Requirement: plugin targets bind a def at the type level
 
