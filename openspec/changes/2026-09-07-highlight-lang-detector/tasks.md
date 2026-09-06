@@ -51,7 +51,9 @@
 - [ ] 4.1 `@jixoai/betlang-wasm` 包（CI 从钉死 crates.io 版本构建；
       ~40 行手写装载器；线性内存 UTF-8 ABI；.d.ts；MIT 归属；
       ARTIFACT.md 记录 wasmRawBytes/wasmGzipBytes/wasmSha256/
-      tarballSha256/工具链版本；最终发行物复测过双预算与 98KiB
+      tarballSha256/crateChecksum/fearlessSimdVers/fearlessSimdCksum/
+      工具链版本；**最终 CI 产物重新测量，以 as-shipped ARTIFACT 值
+      为准（探针观测带不沿用作发行基准）**；复测过双预算与 98KiB
       预警线——越线则触发降级预案改写 L4 章重新送审）
 - [ ] 4.2 wasmLoader seam（betlang 单 wasm 资产 → {url}|{bytes}
       **双形态**——"四象限"是 tree-sitter 的 core+grammar 双资产术语，
@@ -64,9 +66,11 @@
       Cargo.lock 内 fearless_simd 版本 =0.4.0 与其 cksum、
       ARTIFACT.md 逐字段（wasmRawBytes/wasmGzipBytes/wasmSha256/
       tarballSha256/crateChecksum/fearlessSimdVers/fearlessSimdCksum/
-      rustc 版本；字段不符 fixture 含 fearlessSimdVers 漂移样例）；退出码 = 预算违例
-      （raw > 100 KiB 或 gzip > 70 KiB）exit 1、预警线（raw > 98 KiB）
-      exit 2、字段不符 exit 3；gzip = Node zlib.gzipSync level 9；
+      rustc 版本；字段不符 fixture 含 fearlessSimdVers 漂移样例）；退出码 = 硬预算
+      违例（raw > 100 KiB 或 gzip > 70 KiB）exit 1、预警线（raw >
+      98 KiB 且未超硬预算）exit 2——硬预算先判（r11-B4：序反会把
+      raw>100KiB 错报为预警码）、字段不符 exit 3；gzip = Node
+      zlib.gzipSync level 9；
       `--self-test` 用内置 fixture（篡改字节/超限尺寸/缺字段）证明
       三类退出码路径；与 spec 门禁场景一一对应。CI 可复制示例：
       `node scripts/verify-betlang-pin.mjs \

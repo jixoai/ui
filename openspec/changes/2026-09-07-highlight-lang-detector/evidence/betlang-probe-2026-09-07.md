@@ -23,26 +23,36 @@ KiB=1024B 口径，不使用 KB）。
 - 输出：48 标签（asm…yaml），held-out `test_fs_accuracy=0.942`
   macro_recall=0.940；概率经校准（歧义输入报分裂分）
 - 依赖：`fearless_simd ^0.4`（SIMD 抽象，wasm32 走 simd128/fallback
-  双路径）——纯库，无 wasm-bindgen；**tarball 自锁 0.4.0**（最初按
-  git 快照实测写 0.4.1，系快照新鲜锁差异——正式口径以 tarball 自锁
-  为准，git 值属 comparison-only）
+  双路径）——纯库，无 wasm-bindgen；正式口径 = tarball 自锁 0.4.0
+  （git 快照曾测 0.4.1，属 comparison-only，见尺寸矩阵节）
 
-## 构建序列（可复现）
+## 构建序列（r11-B1：脚本本体逐字内嵌——无注释式伪代码、无占位符；下方实录由该脚本在全新 mktemp 目录原样产生）
 
-```sh
-# 可复现构建序列（r8-B1：以下脚本已逐行实际执行，输出为真实记录；
-# tarball 是唯一构建输入，Git HEAD 从不参与——Git 快照仅作历史溯源
-# 记于本档开头）：
-# r10-B1：完整脚本全可执行——断言皆为真实命令，任一失败非零退出。
-# 重放实录见下方"r10 完整重放实录"；脚本要点（全文可直接照抄）：
-#   set -euo pipefail; W0="$(mktemp -d /tmp/betlang-repro.XXXXXX)"; cd "$W0"
-#   curl -fsSL https://index.crates.io/be/tl/betlang -o index.jsonl
-#   IDX=$(node -e '<取 vers 0.1.1：缺行 exit 1；yanked exit 1；输出 cksum>')
-#   curl -fsSL https://static.crates.io/crates/betlang/betlang-0.1.1.crate -o betlang.crate
-#   test "$(shasum -a 256 betlang.crate | cut -d' ' -f1)" = "$IDX" || exit 1
-#   tar -xzf betlang.crate && mv betlang-0.1.1 betlang-probe
-#   test "$(rg -A1 'name = "fearless_simd"' betlang-probe/Cargo.lock | rg -o '[0-9]+\.[0-9]+\.[0-9]+')" = "0.4.0" || exit 1
-#   cargo new --lib wasm-probe >/dev/null && cd wasm-probe
+```bash
+#!/usr/bin/env bash
+# betlang wasm 探针复现（r10-B1：全可执行，任一校验失败即非零退出）
+set -euo pipefail
+W0="$(mktemp -d /tmp/betlang-repro.XXXXXX)"; cd "$W0"
+# 1. 不可变来源：crates.io sparse index + tarball，双重校验
+curl -fsSL https://index.crates.io/be/tl/betlang -o index.jsonl
+IDX=$(node -e '
+  const fs = require("fs");
+  const rows = fs.readFileSync("index.jsonl", "utf8").trim().split("\n").map(JSON.parse);
+  const r = rows.find(x => x.vers === "0.1.1");
+  if (!r) { console.error("vers 0.1.1 not in index"); process.exit(1); }
+  if (r.yanked) { console.error("yanked"); process.exit(1); }
+  console.log(r.cksum);')
+echo "index cksum: $IDX"
+curl -fsSL "https://static.crates.io/crates/betlang/betlang-0.1.1.crate" -o betlang.crate
+GOT=$(shasum -a 256 betlang.crate | cut -d' ' -f1)
+echo "tarball cksum: $GOT"
+test "$GOT" = "$IDX" && echo "CKSUM-OK" || { echo "CKSUM-MISMATCH"; exit 1; }
+# 2. 解包 + 自锁版本断言
+tar -xzf betlang.crate && mv betlang-0.1.1 betlang-probe
+LOCKED=$(rg -A1 'name = "fearless_simd"' betlang-probe/Cargo.lock | rg -o '[0-9]+\.[0-9]+\.[0-9]+')
+test "$LOCKED" = "0.4.0" && echo "betlang 自锁 fearless_simd: 0.4.0 OK" || { echo "unexpected lock $LOCKED"; exit 1; }
+# 3. wrapper（依赖显式钉 0.4.0——fresh lock 会漂 0.4.1）
+cargo new --lib wasm-probe >/dev/null 2>&1 && cd wasm-probe
 cat > Cargo.toml <<'TOML'
 [package]
 name = "betlang-wasm-probe"
@@ -54,7 +64,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 betlang = { path = "../betlang-probe" }
-# 钉 betlang 自锁值——fresh lock 会解析 0.4.1（漂移源，r8 实测差异）
 fearless_simd = "=0.4.0"
 
 [profile.release]
@@ -72,22 +81,27 @@ pub extern "C" fn probe_detect(code: *const u8, len: usize) -> i32 {
     match detection.language() { Some(l) => l as i32, None => -1 }
 }
 RS
-~/.cargo/bin/cargo generate-lockfile   # → fearless_simd 0.4.0 锁定
-# Homebrew rust 无 wasm32 std：显式 rustup 工具链 rustc（坑记于下节）
-RUSTC=$HOME/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc \
+~/.cargo/bin/cargo generate-lockfile >/dev/null 2>&1
+WL=$(rg -A1 'name = "fearless_simd"' Cargo.lock | rg -o '[0-9]+\.[0-9]+\.[0-9]+')
+test "$WL" = "0.4.0" && echo "wrapper lock fearless_simd: 0.4.0 OK" || { echo "lock drift: $WL"; exit 1; }
+# 4. 构建（Homebrew rust 无 wasm std → 显式 rustup rustc）
+RUSTC_BIN="$HOME/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc"
+RUSTC="$RUSTC_BIN" \
   ~/.cargo/bin/cargo build --release --target wasm32-unknown-unknown --locked
-# → Finished `release` profile [optimized] target(s) in 2.48s
-W=target/wasm32-unknown-unknown/release/betlang_wasm_probe.wasm
-# …（构建尾部）
 W=target/wasm32-unknown-unknown/release/betlang_wasm_probe.wasm
 RAW=$(stat -f%z "$W"); SHA=$(shasum -a 256 "$W" | cut -d' ' -f1)
 GZ=$(node -e 'const z=require("zlib"),fs=require("fs");const b=fs.readFileSync(process.argv[1]);console.log(z.gzipSync(b,{level:9}).length)' "$W")
-test "$RAW" -le 100352 || exit 2; test "$GZ" -le 71680 || exit 1
-rustc -Vv   # rustc 1.98.0 (88d9e12ae 2026-08-18) / 88d9e12ae178fab0fb5cc050a94da85685d449ea / aarch64-apple-darwin
-cargo -V    # cargo 1.98.0 (797e8a9bc 2026-08-05)
+echo "rawBytes: $RAW"; echo "gzipBytes: $GZ"; echo "sha256: $SHA"
+# 5. 预算断言（KiB 字节精确；硬预算先判——exit 1，预警线后判——exit 2）
+test "$RAW" -le 102400 || { echo "raw over hard budget"; exit 1; }
+test "$GZ"  -le 71680  || { echo "gzip over hard budget"; exit 1; }
+test "$RAW" -le 100352 || { echo "raw over warn line"; exit 2; }
+echo "BUDGET-OK"
+echo "rustc: $("$RUSTC_BIN" -Vv | head -1)"
+echo "cargo: $(~/.cargo/bin/cargo -V)"
 ```
 
-**r10 完整重放实录（fresh mktemp，exit 0）**：
+**r11 重放实录（fresh mktemp，EXIT=0，逐行对应上方脚本）**：
 
 ```
 index cksum: 5f89b0929539eaee70109704ae4e345df438be6ab02e4dc8ac060e05098ad1b7
@@ -95,45 +109,26 @@ tarball cksum: 5f89b0929539eaee70109704ae4e345df438be6ab02e4dc8ac060e05098ad1b7
 CKSUM-OK
 betlang 自锁 fearless_simd: 0.4.0 OK
 wrapper lock fearless_simd: 0.4.0 OK
-    Finished `release` profile [optimized] target(s) in 2.36s
+   Compiling fearless_simd v0.4.0
+   Compiling betlang v0.1.1 (/private/tmp/betlang-repro.ruy5gF/betlang-probe)
+   Compiling betlang-wasm-probe v0.0.0 (/private/tmp/betlang-repro.ruy5gF/wasm-probe)
+    Finished `release` profile [optimized] target(s) in 2.45s
 rawBytes: 100139
-gzipBytes: 58429
-sha256: 2184f37a4a8021d2907843c336b602421761eced10ed4dfa0b1974670f1d5c50
+gzipBytes: 58486
+sha256: 721cd6fac52636b101f4ac879c23b83361ddf43cbfa86dd5df71ccfc55845d37
 BUDGET-OK
+rustc: rustc 1.98.0 (88d9e12ae 2026-08-18)
+cargo: cargo 1.98.0 (797e8a9bc 2026-08-05)
 EXIT=0
 ```
 
-**确定性实测（r9 关键发现，改变门禁语义）**：同一 fearless_simd
-0.4.0 锁定、同一 profile，跨构建目录重跑字节**不等**（100,111 /
-58,461→100,131 / 58,499，~20B 漂移——构建目录路径进入产物元数据）。
-因此：**wasm sha256 的门禁语义 = as-shipped 完整性**（CI 一次构建、
-哈希记入 ARTIFACT.md、verify 校验 npm 包内字节与记录一致），本地
-重建只验 tarball cksum + 锁版本 + 尺寸预算带（tarball 口径观测带 100,111–
-100,139 B，最坏距 98 KiB 预警线 213 B；git 快照口径的 100,055 属
-comparison-only 历史值不入带），**不做字节恒等断言**。
-
-**观测带（tarball + 0.4.0，三次独立运行）**：raw 100,111–100,139 B
-（97.75–97.80 KiB，距 98 KiB 预警线最坏 **213 B**、距 100 KiB 帽最坏
-2,261 B）；gzip 58,427–58,499 B（距 70 KiB 帽 ≥13,181 B）。各次
-sha256 为该次运行记录（d03e30e3…/54952676…），**canonical 哈希 =
-CI 构建产物在 ARTIFACT.md 的记录值**（as-shipped 语义，见上）。
-早前 git 快照探针（0.4.1：100,055/58,461/56d0243d…）仅作
-comparison-only 历史对照，不入任何门禁。CI 的 ARTIFACT.md 记
-crateChecksum（tarball cksum）、fearlessSimd 锁值与 cksum、
-as-shipped wasm 三元组与工具链版本。
-
-**工具链坑**：Homebrew rust（PATH 首位）**不带 wasm32-unknown-unknown
-std**，fearless_simd 编译报 E0463 "can't find crate for core"。须用
-rustup 工具链（`~/.cargo/bin/cargo`，stable-aarch64-apple-darwin +
-wasm32 target 已装）。CI 构建需显式 rustup 环境。
-
 ## 口径律（r1-B7）
 
-所有预算与实测以 KiB=1024 字节精确计量；gzip 以 Node zlib.gzipSync
-level 9 为冻结算法。下表 KB 字样一律读作 KiB。最终发行物（packages/
-betlang-wasm 真实装载器导出 + 全 entry）在任务 4.1 复测验收，复测
-记录（wasm sha256、tarball sha256、rustc/LLVM 版本、字节精确尺寸）
-落 packages/betlang-wasm/ARTIFACT.md。
+所有预算与实测以 KiB=1024 字节精确计量（全文仅此一口径）；gzip 以
+Node zlib.gzipSync level 9 为冻结算法。最终发行物（packages/
+betlang-wasm 真实装载器导出 + 全 entry）在任务 4.1 **重新测量并以
+as-shipped ARTIFACT 值为准**（探针观测带不沿用作发行基准），复测
+记录落 packages/betlang-wasm/ARTIFACT.md。
 
 ## 尺寸矩阵（comparison-only：git 快照源 + fearless_simd 0.4.1——
 ## 历史对照，不入门禁；正式观测带见上节）
