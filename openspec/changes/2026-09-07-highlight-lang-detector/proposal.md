@@ -45,12 +45,15 @@ Owner 需求（2026-09-07，引擎矩阵收尾四问之 Q4 的正式立项）：
 - **解析链（r1 评审修正：卡片与 core 零静态 DLD import —— 可选 item 的
   动态 specifier 会在构建期解析，裸消费者无法构建）**：
   `langDetector` prop → `HIGHLIGHT_DETECT_KEY` context → backend.
-  detector → 运行时 reject（报 DLD 安装 + 一行接线指引）。**DLD 作为
-  "默认检测器"的落地形态是 context 默认值**：DLD item 发行
-  `<HighlightDetectDefault />` 一行接线组件（内部仅
-  `setContext(HIGHLIGHT_DETECT_KEY, …)`，无内核依赖），消费者 wrap 子树
-  后所有 `lang="auto"` 卡片吃到 DLD —— "默认值是内置检测器"由安装 +
-  一行接线达成，未装者的构建图中**不存在任何** DLD 边。
+  detector → 运行时 reject（报 DLD 安装 + 接线指引）。**DLD 作为
+  "默认检测器"的落地形态是 context 默认值**（r2 冻结作用域：Svelte
+  context 只向子树传播，provider 必须是包装形态）——独立 registry:ui
+  item `highlight-detect-default` 发行 `<HighlightDetectDefault>`
+  **children 包装组件**，或消费者在子树根 `<script>` 手写一行
+  setContext（两种等价形态并列进文档与报错指引）；装好接线后该子树
+  所有 `lang="auto"` 卡片吃到 DLD，未装者的构建图中**不存在任何**
+  DLD 边。**检测成功但 backend 拒绝 = 终态**（按矩阵失败法则点名可
+  覆盖引擎，不换检测器重试）。
 - **null 级联法则（"不冲突、互相补充"的工程化）**：检测器返回 null =
   无意见 → 级联下一环；reject/throw = 终态 → 纯文本回退 + warn。四环
   皆 null → 纯文本 + warn（报出各环 id 与结论）。检测产出的 lang 走
@@ -87,11 +90,13 @@ Owner 需求（2026-09-07，引擎矩阵收尾四问之 Q4 的正式立项）：
    `@jixoai/betlang-wasm` npm 包（packages/betlang-wasm，CI 从钉死
    crates.io `betlang = "=0.1.1"` 构建，Cargo.lock + rustup 工具链 +
    完整 sha256 + 字节精确尺寸入档；verify 脚本按 Node zlib level 9
-   gzip 定量）。**降级预案**：最终发行物 raw 越预警线（98KiB）→
-   betlang 转非默认 detector item（Owner 预案），DLD 收缩为三层；
-   linguist heuristics 完整移植维持 Non-Goal。48 标签 → canonical 映射
-   表内嵌（完整表 + betlang 版本绑定 + 未映射标签一次性 warn 缓存）；
-   无对应 → null（级联/回退）。
+   gzip 定量）。**降级预案（r2 兑现 Owner 的 linguist 兜底）**：最终发行物 raw 越预
+   警线（98KiB）→ betlang 转非默认 detector item（Owner 预案），DLD
+   的 L4 换装 **linguist 派生精简启发层**（heuristics.yml 与 canonical
+   集有交集的 curated 子集，linguist SHA 版本化，同规格门禁与样本
+   矩阵；138 块完整移植维持 Non-Goal）。48 标签 → canonical 映射表
+   内嵌（**从 lang-canonical.ts 权威表派生**，betlang 版本绑定 +
+   未映射标签一次性 warn 缓存）；无对应 → null（级联/回退）。
 
 **L3 — highlight.js 自带 detector 接线（r1 评审冻结语义）**
 
@@ -110,9 +115,10 @@ allowlist 隔离、无命中 null。
   （vi.mock 计数法）。
 - betlang wasm 门禁：sha256 + magic bytes + **KiB 字节精确双预算** +
   预警线（scripts/verify-betlang-pin.mjs）。
-- verify:shadcn-add 自动派生隔离 case：**裸 code-card**（构建零 DLD
-  字节 + `lang="auto"` 运行时 reject）与 **code-card+DLD**（一行接线
-  后 `lang="auto"` 端到端检测）双 case。
+- verify:shadcn-add 自动派生隔离 case **三连**：**裸 code-card**（构
+  建零 DLD 字节 + `lang="auto"` 运行时 reject）、**code-card+DLD lib**
+  （clean build + wasm ?url 发射）、**code-card+DLD+wrapper**（包装
+  接线后 `lang="auto"` 端到端检测）。
 - code-card 文档页 lang="auto" 段落 + playground 实演（filename 探针 /
   统计检测两条 demo）；blueprints + llms/search 语料同步。
 

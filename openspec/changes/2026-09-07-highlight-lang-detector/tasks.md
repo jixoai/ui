@@ -18,9 +18,9 @@
 - [ ] 2.2 `code-card`：`langDetector` prop + AUTO_LANG 路径 +
       resolveDetector 四环决策表（design D2.1）+ null 级联/reject 终态
       + 失败法则接入（reject 提示装 DLD 与一行接线）
-- [ ] 2.2b DLD item 的 `<HighlightDetectDefault />` 接线组件
-      （setContext(HIGHLIGHT_DETECT_KEY) + runtime import core 常量保
-      边活性）
+- [ ] 2.2b 独立 registry:ui item `highlight-detect-default`：children
+      包装 provider（~10 行 Svelte，实现即形态②）+ registryDeps 双边；
+      作用域测试（包装子树吃默认/兄弟子树不吃/嵌套取最近）
 - [ ] 2.3 `highlight-highlightjs`：backend.detector 槽位接线
       （highlightAuto over 实例已注册 langs；零注册时 reject 提示）
 - [ ] 2.4 契约测试：解析链四环优先级、'auto' 哨兵不影响存量路径
@@ -28,9 +28,13 @@
 
 ## 3. 阶段 2 — DLD 纯 TS 层 L1-L3（子代理 A；L4 统计层在阶段 3）
 
-- [ ] 3.1 L1 ext-table.ts：linguist extensions ∩ canonical 集多行
-      字符串表 + 歧义扩展名排除（heuristics 138 组来源注释）+ 惰性
-      Map parse
+- [ ] 3.0 lang-canonical.ts 权威表：betlang 48 标签 + linguist 挖掘
+      表 + 各 backend curated 集一次性编纂（linguist SHA 入头注释；
+      "恰好一次"映射完整性测试：每标签恰一 canonical 或显式 `-`）
+- [ ] 3.1 L1 ext-table.ts：从 lang-canonical.ts 派生的扩展名 +
+      basename 多行字符串表（歧义扩展名排除，heuristics 来源注释）
+      + 惰性 Map parse + 边界冻结测试（路径分隔符/大小写/dotfile/
+      多后缀）
 - [ ] 3.2 L2 shebang-table.ts：interpreters 多行字符串表 + 首行解析
       （`#!/usr/bin/env X` 与 `#!X` 两种形态）
 - [ ] 3.3 L3 structure.ts：XML/HTML/SVG/JSON/YAML/TOML/INI 探针
@@ -41,8 +45,10 @@
 ## 4. 阶段 3 — betlang wasm 通道（子代理 B，依赖 D4 裁决定型）
 
 - [ ] 4.1 `@jixoai/betlang-wasm` 包（CI 从钉死 crates.io 版本构建；
-      ~40 行手写装载器；线性内存 UTF-8 ABI；.d.ts；MIT 归属）或
-      备选 release+pin 通道
+      ~40 行手写装载器；线性内存 UTF-8 ABI；.d.ts；MIT 归属；
+      ARTIFACT.md 记录 wasmRawBytes/wasmGzipBytes/wasmSha256/
+      tarballSha256/工具链版本；最终发行物复测过双预算与 98KiB
+      预警线——越线则触发降级预案改写 L4 章重新送审）
 - [ ] 4.2 wasmLoader seam（{url}|{bytes} 四象限，tree-sitter 同构）+
       48 标签映射表（无对应 → null + warn）
 - [ ] 4.3 scripts/verify-betlang-pin.mjs：sha256 + magic bytes +
@@ -61,7 +67,8 @@
 
 ## 6. 阶段 5 — 门禁与验证
 
-- [ ] 6.1 verify:shadcn-add 派生新 item case（probe 模板）+
+- [ ] 6.1 verify:shadcn-add 派生三 case（裸 code-card 零 DLD 字节 /
+      +DLD lib wasm 发射 / +wrapper 端到端；probe 模板）+
       verify:mirror / meta / deps / budgets / docs 全绿
 - [ ] 6.2 定向 vitest 全绿（新契约 + 四层 + hljs detector + 端到端
       lang="auto" 上色）；双侧 svelte-check 零新增

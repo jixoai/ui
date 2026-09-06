@@ -24,11 +24,25 @@ AUTO_LANG 时一切存量行为逐字节不变，检测路径零字节加载。
 
 **零静态 import 法则**：卡片与 core SHALL NOT 引用 DLD 的任何
 specifier（动态亦不可——bundler 构建期解析静态字符串，裸消费者无法
-构建）；DLD 的默认地位 SHALL 经 context 默认值落地（DLD item 发行
-`<HighlightDetectDefault />` 一行接线组件，内部仅
-`setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() })`，
-并 runtime import core 的 `HIGHLIGHT_DETECT_KEY`/`AUTO_LANG` 保持
-registry 边活性）。
+构建）；DLD 的默认地位 SHALL 经 context 默认值落地。**provider 作用
+域法则（r2）**：Svelte context 只向子树传播——接线 SHALL 为包装形态
+之一：① registry:ui item `highlight-detect-default` 的
+`<HighlightDetectDefault>` children 包装组件，或 ② 子树根组件
+`<script>` 手写 `setContext(HIGHLIGHT_DETECT_KEY, { detector:
+defaultLangDetector() })`；嵌套 provider 取最近值；lib item 保持
+framework-free（组件不进 lib item）。DLD 与 wrapper 均 runtime
+import core 的 `HIGHLIGHT_DETECT_KEY`/`AUTO_LANG` 保持 registry 边
+活性。
+
+**检测终态法则（r2）**：检测成功而 backend 的 curated/reject 拒绝
+SHALL 为终态——reject 消息按矩阵失败法则点名覆盖引擎，不回退换检测
+器重试。
+
+#### Scenario: AUTO_LANG 哨兵边界
+
+- **WHEN** lang 取值 `'AUTO'`、`' auto '`、`'auto\n'`
+- **THEN** 皆不触发检测（trim 后全等 `'auto'` 且大小写敏感；这些值
+  按普通 lang 走既有路径并由 backend reject 法则处理）
 
 #### Scenario: prop 压过一切
 
@@ -61,6 +75,19 @@ registry 边活性）。
 - **WHEN** 未装 DLD、未接线、backend 无 detector、卡片 `lang="auto"`
 - **THEN** 运行时 reject 报安装命令与接线指引，卡片纯文本回退；
   构建图中不存在任何 DLD 字节
+
+#### Scenario: canonical 权威表恰好一次
+
+- **WHEN** lang-canonical.ts 编纂完成
+- **THEN** 每 betlang 标签恰好映射一个 canonical id 或显式 `-`（无
+  重复、无遗漏）；L1/L2 表与标签映射全部从该表派生
+
+#### Scenario: 检测命中但引擎不支持
+
+- **WHEN** 检测返回 rust，当前 backend 为 highlightJs()（curated 集
+  不含 rust）
+- **THEN** 终态：reject 消息点名 shiki 等覆盖引擎，卡片纯文本回退，
+  不重试其它检测器
 
 #### Scenario: 存量路径不变
 
@@ -105,7 +132,9 @@ commit SHA SHALL 落表头注释；歧义扩展名（heuristics.yml 138 组消�
 
 DLD 结构层 SHALL 按 design D3.2 冻结伪码实现：规范化（strip BOM、
 首非空行、512 字符头部窗口、非空行计数）→ **Markdown 守卫最高优先**
-（``` / ~~~ 围栏或 ≥2 个 `^ {0,3}#{1,6}\s` 标题行 → 本层整体弃权）→
+（任一 ``` / ~~~ 围栏，或 ≥2 个 `^ {0,3}#{1,6}\s` 标题行——标题密度
+阈值防 `# 注释` 单行误杀 TOML/YAML → 本层整体弃权；YAML 判据另含
+front-matter 规则：第二个 `---` 后内容含任一 md 标记即弃权）→
 JSON 全文 parse 硬判据 → SVG（`<svg` 根或 `<?xml…?><svg` 头窗组合，
 优先于 XML）→ XML（`<?xml` 前缀）→ HTML（`<!doctype html`，大小写
 不敏感）→ YAML（`---` 首行 + key-colon 行占比 ≥60%，≥3 非空行）→
@@ -123,10 +152,11 @@ markdown 链接（`[t](u)` 不触发 section 判据）。
 
 #### Scenario: front-matter 边界
 
-- **WHEN** 样本以 `---` + YAML keys + `---` 开头，正文含 Markdown
-  标题或围栏
-- **THEN** Markdown 守卫弃权，L3 不声明 yaml；无 md 标记的纯多文档
-  YAML 仍声明 yaml
+- **WHEN** 样本以 `---` + YAML keys + `---` 开头，`---` 后正文含任一
+  Markdown 标记（标题/围栏/列表项）
+- **THEN** front-matter 规则弃权，L3 不声明 yaml；无 md 标记的纯
+  多文档 YAML 仍声明 yaml；单标题 + 围栏负样本与 TOML/INI 伪装样本
+  入矩阵
 
 #### Scenario: JSON 硬判据
 
@@ -138,13 +168,19 @@ markdown 链接（`[t](u)` 不触发 section 判据）。
 
 统计层 SHALL 由 betlang（crates.io 版本 `=0.1.1` 钉死）编译的 wasm
 承载，发行通道 SHALL 为自建 npm 包 `@jixoai/betlang-wasm`（packages/
-betlang-wasm，CI 构建发布，Cargo.lock + 工具链版本 + 完整 sha256 +
-字节精确尺寸入 ARTIFACT.md）。预算 SHALL 以 KiB（1024 字节）字节精确
-计量：raw ≤ 100 KiB、内部预警线 raw 98 KiB、gzip ≤ 70 KiB（Node
-zlib.gzipSync level 9，算法冻结）。`scripts/verify-betlang-pin.mjs`
-SHALL 核验 sha256、magic bytes 与双预算；预警线越线 SHALL 触发降级
-预案（betlang 转非默认 detector item，DLD 收缩三层，L4 章改写后重新
-送审）。wasm 二进制 SHALL NOT 进入 git 与 registry payload。装载
+betlang-wasm，CI 构建发布；Cargo.lock + 工具链版本 + 完整 sha256 +
+字节精确尺寸入 ARTIFACT.md——wasmRawBytes / wasmGzipBytes /
+wasmSha256 / tarballSha256）。**门禁测量对象 = 且仅 = `.wasm` 文件
+字节**（装载器 JS 与 tarball 不入预算）。预算 SHALL 以 KiB（1024
+字节）字节精确计量：raw ≤ 100 KiB、内部预警线 raw 98 KiB、gzip ≤
+70 KiB（Node zlib.gzipSync level 9，算法冻结）；探针基线 raw
+100,055 B / gzip 58,461 B（sha256 56d0243d…82360）入 evidence。
+`scripts/verify-betlang-pin.mjs` SHALL 核验 sha256、magic bytes 与双
+预算；预警线越线 SHALL 触发降级预案（betlang 转非默认 detector
+item，L4 换装 linguist 派生精简启发层——heuristics.yml 与 canonical
+集有交集的 curated 子集、linguist SHA 版本化、同规格门禁与样本
+矩阵，L4 章按实况改写后重新送审）。wasm 二进制 SHALL NOT 进入 git
+与 registry payload。装载
 SHALL 经 `wasmLoader → { url } | { bytes }` seam：浏览器走真实 HTTP
 资产 URL，Node/vitest 走真实字节并真实初始化 wasm（不 mock，file://
 不作为浏览器证据）。betlang 48 标签到 canonical id 的映射 SHALL 以
@@ -184,8 +220,15 @@ site-only 的 `lib/highlight/context.svelte.ts`（与 HIGHLIGHT_DEF 同
 - **THEN** 所有 `lang={AUTO_LANG}` 卡片（未写 prop 者）使用 betlang
   统计检测，即使 backend 是 highlightJs
 
+#### Scenario: 包装 provider 的作用域
+
+- **WHEN** `<HighlightDetectDefault>` 以 children 形态包住子树
+- **THEN** 子树内 `lang="auto"` 卡片吃到 DLD，子树外不吃（context
+  子树传播法则）；嵌套 provider 取最近值；lib item 内无任何 Svelte
+  代码（framework-free 法则），包装组件属独立 registry:ui item
+
 #### Scenario: registry 消费者自写 provider
 
-- **WHEN** 未装 context-plugin 的消费者安装 DLD item
-- **THEN** `<HighlightDetectDefault />`（官方参考实现）或自写
-  setContext(HIGHLIGHT_DETECT_KEY, …) 均可接线，无需内核依赖
+- **WHEN** 未装 context-plugin 的消费者安装 DLD lib item
+- **THEN** 子树根 `<script>` 手写 setContext(HIGHLIGHT_DETECT_KEY, …)
+  即接线，无需内核依赖、无需 wrapper item
