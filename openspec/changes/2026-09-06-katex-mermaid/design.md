@@ -406,15 +406,17 @@ Svelte). A conflict test pins it: a consumer-sent
   canvas stage, a dark panel — resolve THEIR tokens, not the page's).
   `theme='auto'` observes the figure's ENTIRE effective theme scope,
   not just two nodes: a class MutationObserver on the document root
-  with `subtree: true`, filtered to mutations on elements that are
-  CURRENT ancestors of the figure (an ancestor scope flipping
-  `.jx-light`→`.dark` re-renders even though neither the figure nor
-  documentElement mutated) — debounced re-render with
-  `readThemeTokens(themeRoot)` re-read AFTER the flip; the observer
-  disconnects in the effect's cleanup. Explicit `'light'|'dark'` pins
+  with `subtree: true`, filtered to mutations on the themeRoot/figure
+  ITSELF plus elements that are CURRENT ancestors of it (a scope
+  class flipping on the figure directly OR on an ancestor —
+  `.jx-light`→`.dark` — re-renders even when documentElement never
+  mutated) — debounced re-render with `readThemeTokens(themeRoot)`
+  re-read AFTER the flip; the observer disconnects in the effect's
+  cleanup. Explicit `'light'|'dark'` pins
   the palette via the explicit-theme read (§3.1's local wrapper — the
   target sheet's values even under the opposite live root; no
-  observer). Tests: an ancestor `<div class="jx-light">` flipping to
+  observer). Tests: the figure's OWN class flip re-renders; an
+  ancestor `<div class="jx-light">` flipping to
   `dark` re-initializes with changed baked fills; an unrelated
   sibling's class change triggers NO render.
 - Zoom: `scale` state (buttons ±0.25, clamp 0.5–3, reset), applied as

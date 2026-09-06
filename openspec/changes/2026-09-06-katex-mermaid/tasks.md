@@ -65,8 +65,9 @@
       passes its own figure as renderDiagram's themeRoot (scoped
       containers resolve their tokens) with the auto-mode
       effective-scope observer (document-root subtree class observer
-      filtered to the figure's CURRENT ancestors — an ancestor
-      .jx-light→.dark flip re-renders; disconnected in effect cleanup),
+      filtered to the themeRoot/figure ITSELF + its CURRENT ancestors
+      — a direct figure class flip OR an ancestor .jx-light→.dark flip
+      re-renders; disconnected in effect cleanup),
       zoom trio (scale
       transform, viewport pan, clamp 0.5–3), copy control, labels
       payload (incl. `diagram` — the viewport's accessible name when
@@ -92,7 +93,8 @@
       scoped-token test, explicit-pin both directions (light root +
       dark pin, dark root + light pin — initialize payload colors from
       the target sheet, global root untouched), scoped-ancestor
-      auto-flip test (an ancestor .jx-light→.dark flip re-initializes
+      auto-flip test (the figure's OWN class flip re-renders; an
+      ancestor .jx-light→.dark flip re-initializes
       with changed baked fills; an unrelated sibling class change
       triggers NO render; observers disconnected on cleanup)) — mirror
       byte-identical to `registry/test/`

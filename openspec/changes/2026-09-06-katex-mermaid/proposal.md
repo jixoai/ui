@@ -67,12 +67,15 @@
    law verbatim — prerender paints the escaped source floor (readable,
    zero JS), hydration lazy-loads the engine and swaps in the rendered
    SVG (fade-in, reduced-motion respected, min-height reserves the box);
-   `theme:'auto'` (default) follows the site theme flip via a
-   MutationObserver on the root class and re-renders with re-derived
-   tokens; controls per the Owner minimum: copy source + zoom
-   (in/out/reset, scaled pan in the scrollport); a parse failure paints
-   the error-summary panel and KEEPS the source floor standing (the
-   code-card fallback law).
+   the surface passes its own container as the engine's theme root
+   (scoped containers resolve THEIR tokens), and `theme:'auto'`
+   (default) follows the theme flip through an effective-scope
+   observer — the container itself plus its current ancestor chain
+   (an ancestor `.jx-light`→`.dark` flip re-renders too) — then
+   re-renders with re-derived tokens; controls per the Owner minimum:
+   copy source + zoom (in/out/reset, scaled pan in the scrollport); a
+   parse failure paints the error-summary panel and KEEPS the source
+   floor standing (the code-card fallback law).
 6. **color-utils parseColor extension (P0)** — the token pipeline's
    hex conversion needs `rgb()/rgba()` parsing (browsers serialize
    legacy-family probes that way; the current parser only knows
