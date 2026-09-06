@@ -166,10 +166,14 @@
       standalone verify:km keeps the caller-provided --url contract);
       vision lane screenshots (light+dark math quality, diagram
       theming, zoom, error states) reviewed
-- [ ] 5.4 `scripts/verify-shadcn-add.mjs` CASES extended with
+- [x] 5.4 `scripts/verify-shadcn-add.mjs` CASES extended with
       math-block + mermaid (install from built payloads; deps land in
       the consumer's package.json; consumer vite build resolves the
-      katex css font URLs); `pnpm verify:all` GREEN
+      katex css font URLs — 51 font assets matched after the hyphen
+      fix, ALL 7 cases green); `pnpm verify:all` GREEN end-to-end
+      (final run post-vision-fixes: full chain incl. shadcn-add 7/7 +
+      the km browser probe 9/9 from its own listen(0) static child,
+      reaped cleanly)
 
 ## 6. Gates
 
