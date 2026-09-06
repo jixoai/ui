@@ -10,7 +10,7 @@
   import NavigationMenuLink from '$lib/ui/navigation-menu/navigation-menu-link.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
 
   // the bezel's pill paint over the family's base (the same law the
@@ -37,9 +37,9 @@
         GitHub
         <span
           data-jx-ext
-          class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
+          class="inline-flex flex-none ms-1 align-[-0.125em]"
           aria-hidden="true"
-        >{@html icons.externalLink}</span>
+        ><Icon name="externalLink" size={12} /></span>
       </NavigationMenuLink>
     </NavigationMenu>
     <!-- the compact toggle carries its own bezel frame — the header's

@@ -12,7 +12,7 @@
   geometry and the hero grammar all belong to the atoms.
 -->
 <script lang="ts">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import './pattern-hero-set.css';
 
@@ -66,7 +66,7 @@
       <div class="mt-8 flex flex-wrap gap-3">
         <PressButton variant="fill" href={ctaHref}>
           <span>{ctaLabel}</span>
-          <span class="inline-flex [&_svg]:h-4 [&_svg]:w-4" aria-hidden="true">{@html icons.arrowRight}</span>
+          <span class="inline-flex" aria-hidden="true"><Icon name="arrowRight" /></span>
         </PressButton>
         {#if secondaryLabel}
           <PressButton variant="outline" href={secondaryHref}>{secondaryLabel}</PressButton>

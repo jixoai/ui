@@ -4,7 +4,7 @@
 <script lang="ts">
   import FloatButton from '$lib/ui/float-button/float-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center gap-4 p-10">
@@ -14,5 +14,5 @@
 </div>
 
 <FloatButton label="back to top">
-  <span class="-rotate-90 inline-flex" aria-hidden="true">{@html icons.arrowRight}</span>
+  <span class="-rotate-90 inline-flex" aria-hidden="true"><Icon name="arrowRight" /></span>
 </FloatButton>

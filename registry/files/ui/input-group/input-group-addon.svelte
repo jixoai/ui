@@ -5,7 +5,8 @@
   One add-on lane beside the group's input: prefix (align
   "inline-start", the default) or suffix (align "inline-end"). The
   content is the consumer's composition — muted text ("https://"),
-  an icon glyph ({@html icons.x} via the generated $lib/icons module),
+  an icon glyph (<Icon name="x" /> via $lib/ui/icon over the generated
+  set),
   a PressButton ("search"), a NativeSelect (the unit picker) — the
   addon owns ONLY the lane: flex-none rhythm over the density tokens,
   muted secondary text paint, and its ONE hairline seam (the edge

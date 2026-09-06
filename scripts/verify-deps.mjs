@@ -196,13 +196,15 @@ function selfTest() {
       JSON.stringify(r),
     );
   }
-  // 4. dead non-prerequisite: declared @jixoai/icons never imported → FAIL
+  // 4. dead non-prerequisite: declared @jixoai/fixture-atom never imported → FAIL
+  //    (icon-NEUTRAL names on purpose: references to retired items must
+  //    not leak into synthetic fixtures — the fixture matrix outlives items)
   {
     const r = run([
-      fixtureRegistry('a', 'registry:ui', [file('@ui/a/a.svelte', '<p>x</p>\n')], ['@jixoai/icons']),
-      fixtureRegistry('icons', 'registry:lib', [file('@lib/icons.ts', 'export const icons = {};\n')], []),
+      fixtureRegistry('a', 'registry:ui', [file('@ui/a/a.svelte', '<p>x</p>\n')], ['@jixoai/fixture-atom']),
+      fixtureRegistry('fixture-atom', 'registry:lib', [file('@lib/fixture-atom.ts', 'export const fixtureAtom = 1;\n')], []),
     ]);
-    check('dead non-prerequisite dependency FAIL', r.dead.length === 1 && r.dead[0].item === 'a' && r.dead[0].dep === 'icons', JSON.stringify(r.dead));
+    check('dead non-prerequisite dependency FAIL', r.dead.length === 1 && r.dead[0].item === 'a' && r.dead[0].dep === 'fixture-atom', JSON.stringify(r.dead));
   }
   const green = results.every(Boolean);
   console.log(green ? 'self-test: 4/4 fixtures green\n' : 'self-test: FIXTURE MATRIX BROKEN\n');

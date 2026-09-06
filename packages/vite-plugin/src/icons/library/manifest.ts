@@ -2,7 +2,7 @@
  * @jixoai/vite-plugin (icons library) — the built-in manifest (A1,
  * openspec icon-component-pipeline design §1).
  *
- * The 38 built-ins migrate VERBATIM from scripts/gen-icons.mjs's GROUPS
+ * The 38 built-ins migrate VERBATIM from the retired gen-icons generator's GROUPS
  * (2026-08-29 → this change): name → lucide export pairs, GROUPS order
  * frozen. No pinned geometry lives here — bodies serialize from the
  * lucide package at build time (single-source law; the svgo pass is
@@ -15,7 +15,7 @@
 type LucideExportName = keyof typeof import('lucide');
 
 /**
- * [libraryName, lucideExport] — GROUPS order from scripts/gen-icons.mjs:
+ * [libraryName, lucideExport] — GROUPS order from the retired gen-icons generator:
  * core arrows → tree-view set → jx-pure Part A mirror set →
  * component-migration set → password-reveal pair → search entry →
  * input semantic-glyph set → the text glyph.

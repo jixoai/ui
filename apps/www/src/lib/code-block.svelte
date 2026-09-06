@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
 
   interface Props {
     code: string;
@@ -22,7 +22,7 @@
 {#if meta}
   <CodeCard {code} {lang} copyable={false} class="jx-code-block">
     {#snippet header()}
-      <span class="prompt flex items-center" aria-hidden="true">{@html icons.arrowRight}</span>
+      <span class="prompt flex items-center" aria-hidden="true"><Icon name="arrowRight" /></span>
       <span class="font-nav uppercase">{meta}</span>
     {/snippet}
   </CodeCard>

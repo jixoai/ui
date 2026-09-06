@@ -5,7 +5,7 @@
  * slot artwork is serialized at factory time from lucide's own
  * IconNode data — no hand-copied geometry lives in this module
  * (single-source law with the standard layer's fallbacks in
- * registry/files/lib/icons.ts and jx-pure.css).
+ * the icon-set artifact and jx-pure.css).
  *
  * - `lucide` is an optional peer dependency: the factory imports it
  *   dynamically and REJECTS with an install hint when missing — no

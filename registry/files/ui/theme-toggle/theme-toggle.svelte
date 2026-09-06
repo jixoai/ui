@@ -7,8 +7,9 @@
     text    — cycling button: current mode label only
   Drives the shared theme contract (localStorage "theme", .dark class +
   colorScheme on the root). Pair with the no-flash inline bootstrap in
-  app.html. Icons come from the shared $lib/icons module (lucide
-  geometry inlined at build — no icon-library runtime dependency).
+  app.html. Icons render through the Icon component over the generated
+  set (lucide geometry, code-split chunks — no icon-library runtime
+  dependency).
 
   tw4 (2026-08-24): PURE utility migration, zero css residue — the
   bezel's currentColor color-mix paint rides arbitrary-value utilities;
@@ -29,7 +30,7 @@
   untouched (a zh page says 系统, the stored value stays `system`).
 -->
 <script lang="ts">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import { ThemeToggleDefaults, type ThemeToggleVariant } from './theme-toggle-defaults.svelte';
 
@@ -105,14 +106,14 @@
 </script>
 
 {#snippet iconFor(theme: Theme)}
-  <!-- sun/moon/monitor from the shared icons module; the wrapper owns
-       the 13px box (module bakes 16px) and keeps the data hook -->
+  <!-- sun/moon/monitor glyphs through the Icon component; the wrapper
+       keeps the data hook, the component owns the 13px box -->
   {#if theme === 'light'}
-    <span data-jx-theme-icon="" class="flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]">{@html icons.sun}</span>
+    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="sun" size={13} /></span>
   {:else if theme === 'dark'}
-    <span data-jx-theme-icon="" class="flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]">{@html icons.moon}</span>
+    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="moon" size={13} /></span>
   {:else}
-    <span data-jx-theme-icon="" class="flex-none inline-flex [&_svg]:h-[13px] [&_svg]:w-[13px]">{@html icons.monitor}</span>
+    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="monitor" size={13} /></span>
   {/if}
 {/snippet}
 

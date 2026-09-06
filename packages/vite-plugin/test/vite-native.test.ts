@@ -116,7 +116,7 @@ describe('vite@8 native wasm forms (D1 matrix)', () => {
 });
 
 describe('pin binary wasm table sentinel (fact baseline)', () => {
-  it('both variants: imports=[], 181 exports, 0 global exports, required families present', async (ctx) => {
+  it('both variants: imports=[], 189 exports, 0 global exports, required families present', async (ctx) => {
     for (const variant of ['full', 'small'] as const) {
       const bytes = await loadWasmBytes(variant);
       if (bytes === undefined) {
@@ -127,7 +127,7 @@ describe('pin binary wasm table sentinel (fact baseline)', () => {
       const imports = WebAssembly.Module.imports(module);
       const exports = WebAssembly.Module.exports(module);
       expect(imports, `${variant} import face`).toEqual([]);
-      expect(exports.length, `${variant} export count`).toBe(181);
+      expect(exports.length, `${variant} export count`).toBe(189);
       expect(exports.filter((e) => e.kind === 'global'), `${variant} globals`).toEqual([]);
       const names = new Set(exports.map((e) => e.name));
       for (const family of [

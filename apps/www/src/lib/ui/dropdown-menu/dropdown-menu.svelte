@@ -44,7 +44,7 @@
   import type { Snippet } from 'svelte';
   import { onDestroy, setContext } from 'svelte';
   import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { DropdownMenuDefaults, type DropdownMenuSurfaceVariant } from './dropdown-menu-defaults.svelte';
@@ -265,10 +265,10 @@
     >
       {triggerLabel}
       <!-- jx-menu-caret rides the wrapper: dropdown-menu.css flips it via
-           :has() + :popover-open; the glyph itself is the shared 16px/sw-2
-           module svg, sized and re-stroked through consuming-context CSS -->
-      <span class="jx-menu-caret flex-none inline-flex transition-transform duration-150 ease-out [&_svg]:h-[13px] [&_svg]:w-[13px] [&_svg]:stroke-[2.5]">
-        {@html icons.chevronDown}
+           :has() + :popover-open; the glyph is the Icon component's
+           chevronDown, sized and re-stroked through its props -->
+      <span class="jx-menu-caret flex-none inline-flex transition-transform duration-150 ease-out">
+        <Icon name="chevronDown" size={13} strokeWidth={2.5} />
       </span>
     </button>
   {/if}

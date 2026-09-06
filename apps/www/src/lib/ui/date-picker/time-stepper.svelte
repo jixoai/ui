@@ -49,7 +49,7 @@
   so hold-repeats never race, oncommit-only hosts work identically.
 -->
 <script lang="ts">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { pad2 } from './calendar-math';
   import './date-picker.css';
 
@@ -260,11 +260,11 @@
     <button
       type="button"
       data-jx-time-hour-minus
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
       aria-label="decrease hour"
       {disabled}
       onpointerdown={beginHold.bind(null, 'hour', -1)}
-    >{@html icons.minus}</button>
+    ><Icon name="minus" strokeWidth={2.5} /></button>
     <input
       bind:this={hourEl}
       id={`${idPrefix}-hour`}
@@ -288,22 +288,22 @@
     <button
       type="button"
       data-jx-time-hour-plus
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
       aria-label="increase hour"
       {disabled}
       onpointerdown={beginHold.bind(null, 'hour', 1)}
-    >{@html icons.plus}</button>
+    ><Icon name="plus" strokeWidth={2.5} /></button>
   </div>
   <span aria-hidden="true" class="font-nav text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">:</span>
   <div role="group" aria-label="minute" class="inline-flex items-center" onwheel={onWheel.bind(null, 'minute')}>
     <button
       type="button"
       data-jx-time-minute-minus
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
       aria-label="decrease minute"
       {disabled}
       onpointerdown={beginHold.bind(null, 'minute', -1)}
-    >{@html icons.minus}</button>
+    ><Icon name="minus" strokeWidth={2.5} /></button>
     <input
       id={`${idPrefix}-minute`}
       data-jx-time-minute
@@ -326,11 +326,11 @@
     <button
       type="button"
       data-jx-time-minute-plus
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
       aria-label="increase minute"
       {disabled}
       onpointerdown={beginHold.bind(null, 'minute', 1)}
-    >{@html icons.plus}</button>
+    ><Icon name="plus" strokeWidth={2.5} /></button>
   </div>
   <!-- the hour-format toggle — one text-icon button, the glyph IS the
        current mode; rides the same jx-date-nav-btn state machine as the

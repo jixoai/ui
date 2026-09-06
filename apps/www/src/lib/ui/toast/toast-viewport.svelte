@@ -93,7 +93,7 @@
     type ToastItem,
     type ToastStore,
   } from '$lib/toast-store';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import ScaffoldFloat from '$lib/ui/scaffold-float/scaffold-float.svelte';
   import type { TopLayerApi } from '$lib/ui/website-scaffold/website-scaffold.svelte';
@@ -814,7 +814,7 @@
           >
             <!-- the named icon library (Owner R3-3): the glyph is the
                  icon system's x, never a literal symbol -->
-            <span class="inline-flex" aria-hidden="true">{@html icons.x}</span>
+            <span class="inline-flex" aria-hidden="true"><Icon name="x" /></span>
           </button>
           {#if item.countdown && (item.duration ?? 5000) > 0}
             <!-- the countdown FLOOR (Owner R3-4): a full-width drain

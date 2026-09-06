@@ -53,7 +53,7 @@
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { provideEntity } from '$lib/entity.svelte';
   import Separator from '$lib/ui/separator/separator.svelte';
@@ -198,9 +198,9 @@
 </script>
 
 {#snippet xGlyph()}
-  <!-- glyph from the shared icons module; dialog.css owns its 14px
-       descendant scale, the strokier × rides a consuming utility -->
-  {@html icons.x}
+  <!-- glyph through the Icon component; dialog.css owns its 14px
+       descendant scale, the strokier × rides the strokeWidth prop -->
+  <Icon name="x" strokeWidth={2.5} />
 {/snippet}
 
 <dialog
@@ -258,7 +258,7 @@
               tip={false}
               type="button"
               onclick={shut}
-              class="jx-dialog-x [&_svg]:stroke-[2.5]"
+              class="jx-dialog-x"
             />
           </div>
         </div>

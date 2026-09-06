@@ -10,7 +10,7 @@
 <script lang="ts">
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { flatComponents, installTargets } from '$lib/docs-route-model';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { CATALOG } from '$lib/catalog';
 
   const uiCount = flatComponents.length;
@@ -51,7 +51,7 @@
       <a class="jx-invrow" href="/docs/components.html">
         <span class="jx-inv-name">all ui modules</span>
         <span data-jx-inv-type>registry:ui</span>
-        <span class="jx-inv-docs inline-flex items-center gap-1">the Components listing <span class="[&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html icons.arrowRight}</span></span>
+        <span class="jx-inv-docs inline-flex items-center gap-1">the Components listing <Icon name="arrowRight" size={12} /></span>
         <span class="jx-inv-cmd">npx jixoai-ui add &lt;name&gt;</span>
       </a>
     </section>
@@ -79,7 +79,7 @@
         {/each}
       </div>
       <p class="text-muted-foreground mt-4 flex items-start gap-1.5 font-mono text-xs leading-5">
-        <span class="text-primary mt-0.5 flex-none [&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html icons.arrowRight}</span>
+        <span class="text-primary mt-0.5 flex-none" aria-hidden="true"><Icon name="arrowRight" size={12} /></span>
         <span>jx-pure additionally carries its own chapter under Sections (the componentless face)
         — it is the one install target that is also a standalone destination.</span>
       </p>

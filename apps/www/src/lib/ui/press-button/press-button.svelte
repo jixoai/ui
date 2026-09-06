@@ -228,7 +228,7 @@
 <script lang="ts">
   import { getContext, onDestroy } from 'svelte';
   import type { Snippet } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import type { Density } from '$lib/density.svelte';
   import { PressButtonDefaults } from './press-button-defaults.svelte';
   import { createRipple } from './ripple.svelte';
@@ -526,8 +526,8 @@
   {:else if leadingGlyph === 'check'}
     <!-- the one-shot success flash glyph (flash() painted it; it
          rests after 1.2s) -->
-    <span data-jx-press-check="" class="inline-flex flex-none items-center text-primary [&_svg]:h-3.5 [&_svg]:w-3.5" aria-hidden="true">
-      {@html icons.check}
+    <span data-jx-press-check="" class="inline-flex flex-none items-center text-primary" aria-hidden="true">
+      <Icon name="check" size={14} />
     </span>
   {/if}
 {/snippet}

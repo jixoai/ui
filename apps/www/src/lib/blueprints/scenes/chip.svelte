@@ -5,7 +5,7 @@
 <script lang="ts">
   import Chip from '$lib/ui/chip/chip.svelte';
   import { ripple } from '$lib/ui/press-button/press-button.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
 </script>
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-4 p-10">
@@ -23,7 +23,7 @@
   <div class="flex flex-wrap items-center gap-3">
     <Chip shape="pill" onclick={() => {}}>pill</Chip>
     <Chip shape="pill" effect={ripple({ shape: 'bevel' })} onclick={() => {}}>
-      {#snippet slotStart()}{@html icons.check}{/snippet}
+      {#snippet slotStart()}<Icon name="check" />{/snippet}
       bevel ink
     </Chip>
   </div>

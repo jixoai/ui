@@ -4,7 +4,7 @@
      plus the shape and slotStart axes. -->
 <script lang="ts">
   import Badge from '$lib/ui/badge/badge.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
 </script>
 
 <div class="flex h-full w-full flex-col items-start justify-center gap-4 p-10">
@@ -22,7 +22,7 @@
   <div class="flex flex-wrap items-center gap-3">
     <Badge shape="pill">pill shape</Badge>
     <Badge shape="pill" class="jx-hue-success">
-      {#snippet slotStart()}{@html icons.check}{/snippet}
+      {#snippet slotStart()}<Icon name="check" />{/snippet}
       checks passing
     </Badge>
   </div>

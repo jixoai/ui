@@ -151,7 +151,11 @@ function devMirrorSync(): Plugin {
 // the lucide provider registers no watched files, so the alias can
 // never go stale short of a restart.)
 const jixoaiPlugins = jixoai({
-  icons: { provider: lucideIconProvider(), safety: { mode: 'warn' } },
+  icons: {
+    provider: lucideIconProvider(),
+    safety: { mode: 'warn' },
+    library: { includeDefaults: true },
+  },
 });
 const jixoaiIconsPlugin = jixoaiPlugins.find((plugin) => plugin.name === 'jixoai-icons');
 if (!jixoaiIconsPlugin) {

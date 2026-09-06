@@ -4,7 +4,7 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -101,7 +101,7 @@ ${close}
 </script>
 
 {#snippet xGlyph()}
-  {@html icons.x}
+  <Icon name="x" />
 {/snippet}
 
 {#snippet actionSeat()}

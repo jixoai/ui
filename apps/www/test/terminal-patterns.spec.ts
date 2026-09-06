@@ -75,18 +75,20 @@ const uiRoot = resolve(here, '../src/lib/ui');
  *  (`@jixoai/jixoai-theme` is the structured install prerequisite:
  *  declared, never imported — PASS by design in verify:deps) */
 const DECLARED: Record<string, { deps: string[]; theme: true }> = {
-  'pattern-login': { deps: ['input', 'input-otp', 'press-button', 'icons'], theme: true },
-  'pattern-pricing': { deps: ['table', 'code-card', 'press-button', 'badge', 'icons'], theme: true },
-  'pattern-hero-set': { deps: ['hero-section', 'terminal-card', 'press-button', 'icons'], theme: true },
-  'pattern-faq': { deps: ['accordion', 'icons'], theme: true },
-  'pattern-cta': { deps: ['press-button', 'code-card', 'icons'], theme: true },
+  'pattern-login': { deps: ['input', 'input-otp', 'press-button', 'icon'], theme: true },
+  'pattern-pricing': { deps: ['table', 'code-card', 'press-button', 'badge', 'icon'], theme: true },
+  'pattern-hero-set': { deps: ['hero-section', 'terminal-card', 'press-button', 'icon'], theme: true },
+  'pattern-faq': { deps: ['accordion', 'icon'], theme: true },
+  'pattern-cta': { deps: ['press-button', 'code-card', 'icon'], theme: true },
 };
 
 /** cross-item owners reachable from a $lib import spec (folder law:
- * ui items map 1:1 to their folder; $lib/icons is the icons item) */
+ * ui items map 1:1 to their folder — the icon component barrel
+ * '$lib/ui/icon' included; '$lib/icon-set.gen' is the icon-set item,
+ * the artifact-level owner for direct getIcon/IconName imports) */
 function ownerOfSpec(spec: string): string | null {
-  if (spec === '$lib/icons') return 'icons';
-  const ui = /^\$lib\/ui\/([^/]+)\//.exec(spec);
+  if (spec === '$lib/icon-set.gen') return 'icon-set';
+  const ui = /^\$lib\/ui\/([^/]+)(?:\/|$)/.exec(spec);
   return ui ? ui[1] : null;
 }
 

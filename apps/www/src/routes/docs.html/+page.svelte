@@ -8,7 +8,7 @@
   import { page } from '$app/state';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { docsSections, flatComponents } from '$lib/docs-route-model';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { CATALOG } from '$lib/catalog';
 
   const sections = docsSections;
@@ -64,7 +64,7 @@
                   href={pg.href}
                   aria-current={hrefNormalized(pg.href) === normalized ? 'page' : undefined}
                 >
-                  <span class="text-primary col-start-1 row-start-1 flex items-center [&_svg]:h-3 [&_svg]:w-3" aria-hidden="true">{@html icons.arrowRight}</span>
+                  <span class="text-primary col-start-1 row-start-1 flex items-center" aria-hidden="true"><Icon name="arrowRight" size={12} /></span>
                   <span class="col-start-2 row-start-1 flex items-baseline gap-2">
                     <span class="font-mono text-xs">{pg.title}</span>
                     {#if pg.count !== undefined}

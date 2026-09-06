@@ -29,7 +29,7 @@
   HOST — this fragment only fires onpick("YYYY-MM").
 -->
 <script lang="ts">
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import { monthNames, pad2 } from './calendar-math';
   import { ambientLocale } from '$lib/locale.svelte';
@@ -176,22 +176,22 @@
   <div data-jx-month-nav class="flex items-center justify-between gap-2 mb-1">
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
       aria-label="previous year"
       disabled={prevDisabled}
       onclick={() => (viewYear -= 1)}
     >
-      {@html icons.chevronLeft}
+      <Icon name="chevronLeft" strokeWidth={2.5} />
     </button>
     <span data-jx-month-year class="font-nav text-[11px] tracking-[0.2em] uppercase">{viewYear}</span>
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed [&_svg]:stroke-[2.5]"
+      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
       aria-label="next year"
       disabled={nextDisabled}
       onclick={() => (viewYear += 1)}
     >
-      {@html icons.chevronRight}
+      <Icon name="chevronRight" strokeWidth={2.5} />
     </button>
   </div>
 

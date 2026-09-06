@@ -59,7 +59,7 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -327,27 +327,27 @@
 </script>
 
 {#snippet kindIcon(kind: FileKind)}
-  <!-- kind glyphs from the shared icons module (closest lucide match per
+  <!-- kind glyphs through the Icon component (closest lucide match per
        kind): file-input.css sizes any svg descendant to the 100% thumb
        box; the lighter stroke rides the .jx-file-icon consuming context -->
   {#if kind === 'image'}
     <!-- 山+太阳: the photo glyph (lucide image) -->
-    {@html icons.image}
+    <Icon name="image" />
   {:else if kind === 'video'}
     <!-- 播放三角 (lucide file-video) -->
-    {@html icons.fileVideo}
+    <Icon name="fileVideo" />
   {:else if kind === 'audio'}
     <!-- 音符: beam + note heads (lucide file-audio) -->
-    {@html icons.fileAudio}
+    <Icon name="fileAudio" />
   {:else if kind === 'pdf'}
     <!-- 文档图形 + text lines (lucide file-text) -->
-    {@html icons.fileText}
+    <Icon name="fileText" />
   {:else if kind === 'code'}
     <!-- "</>" as a font-nav text glyph — no SVG needed -->
     <span data-jx-file-code-glyph class="font-nav font-bold text-[calc(var(--jx-file-icon)*0.72)] tracking-[-0.02em] leading-none">&lt;/&gt;</span>
   {:else}
     <!-- 通用文档图形 (lucide file) -->
-    {@html icons.file}
+    <Icon name="file" />
   {/if}
 {/snippet}
 
@@ -376,14 +376,14 @@
       {:else}
         <span
           class={cn(
-            'jx-file-zone-glyph inline-flex items-center justify-center w-(--jx-file-zone-glyph) h-(--jx-file-zone-glyph) text-muted-foreground transition-colors duration-150 ease-out [&_svg]:stroke-[1.75]',
+            'jx-file-zone-glyph inline-flex items-center justify-center w-(--jx-file-zone-glyph) h-(--jx-file-zone-glyph) text-muted-foreground transition-colors duration-150 ease-out',
             dragging && 'text-primary',
           )}
           aria-hidden="true"
         >
-          <!-- lucide upload tray+arrow from the shared module; the css
-               100% descendant sizing still owns the box -->
-          {@html icons.upload}
+          <!-- lucide upload tray+arrow through the Icon component; the
+               css 100% descendant sizing still owns the box -->
+          <Icon name="upload" strokeWidth={1.75} />
         </span>
         <span
           class={cn(
@@ -413,8 +413,9 @@
       ondragleave={onDragLeave}
       ondrop={onDrop}
     >
-      <!-- lucide upload from the shared module (sw 2 = the baked module
-           default, no override); sizing rides the consuming utility -->
+      <!-- lucide upload through the Icon component (sw 2 = the baked
+           component default, no override); sizing rides the consuming
+           utility -->
       <span
         data-jx-file-trigger-glyph
         class={cn(
@@ -422,7 +423,7 @@
           dragging && 'text-primary',
         )}
       >
-        {@html icons.upload}
+        <Icon name="upload" />
       </span>
       {multiple ? 'choose files' : 'choose file'}
     </button>

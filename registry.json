@@ -88,7 +88,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/paint",
         "@jixoai/defaults"
       ]
@@ -217,7 +217,7 @@
         "@jixoai/radio",
         "@jixoai/native-select",
         "@jixoai/input",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
@@ -428,7 +428,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/defaults"
       ],
       "docs": "Props: variant 'full'|'compact'|'icon'|'text', hideLabels? (full only), labels? { light, dark, system, groupAriaLabel? } — localize the mode vocabulary and the group aria name; absent = the shipped English, and the localStorage 'theme' value domain is never localized."
@@ -443,7 +443,7 @@
         "@jixoai/toc-engine",
         "@jixoai/toc-outline",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icon"
       ],
       "files": [
         {
@@ -602,7 +602,7 @@
       "description": "The landing hero with opened content: title/badges/terminal/secondary/copy are snippets (the caller composes Badge children; the default copy CTA rides the copyCommand payload; the em accent paint lives in family css).",
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/utils",
         "@jixoai/press-button"
       ],
@@ -660,7 +660,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/defaults"
       ]
     },
@@ -822,7 +822,8 @@
         "@jixoai/utils",
         "@jixoai/date-picker",
         "@jixoai/color-picker",
-        "@jixoai/icons",
+        "@jixoai/icon",
+        "@jixoai/icon-set",
         "@jixoai/defaults",
         "@jixoai/density",
         "@jixoai/control-chrome"
@@ -985,7 +986,7 @@
       "registryDependencies": [
         "@jixoai/button-group",
         "@jixoai/icon-button",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
         "@jixoai/defaults",
@@ -1033,7 +1034,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/defaults",
         "@jixoai/density"
       ]
@@ -1052,7 +1053,7 @@
         "@jixoai/highlight",
         "@jixoai/highlight-shiki",
         "@jixoai/utils",
-        "@jixoai/icons"
+        "@jixoai/icon"
       ],
       "files": [
         {
@@ -1101,19 +1102,20 @@
       "registryDependencies": []
     },
     {
-      "$schema": "https://ui.shadcn.com/schema.json/registry-item.json",
-      "name": "icons",
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "icon-set",
       "type": "registry:lib",
-      "title": "Inline icon set",
-      "description": "Shared inline SVG icon strings — arrow-right / chevron-down / x / external-link / check — 16px stroke-currentColor geometry consumed via {@html icons.<name>}; decorative by contract (aria-hidden baked in, meaning lives in surrounding text or aria-label).",
+      "title": "Generated icon set",
+      "description": "The named-glyph artifact behind <Icon name>: the 38 built-in lucide glyphs (arrow-right / chevron-down / x / external-link / check …) packed by @jixoai/vite-plugin's icons library face into a typed IconName union + getIcon()/loadIcon()/preloadIcons() over {v,n,d} payloads. Default tier: ONE inline chunk, zero npm deps, plugin-free (synchronous getIcon, SSR paints core glyphs). Overflow tier: configs past the chunk budget (or inlineFirstChunk:false) emit lazy imports of virtual:jixoai-icons/chunk/* — that tier REQUIRES wiring jxoai({ icons: { library } }) from @jixoai/vite-plugin (the documented plugin prerequisite; without it the build fails with the named sentinel error).",
+      "dependencies": [],
       "files": [
         {
-          "path": "registry/files/lib/icons.ts",
-          "target": "@lib/icons.ts",
+          "path": "registry/files/lib/icon-set.gen.ts",
+          "target": "@lib/icon-set.gen.ts",
           "type": "registry:file"
         }
       ],
-      "docs": "import { icons } from '@lib/icons'; then {@html icons.x}. Consumers own sizing via CSS; the SVGs default to 16x16 with class jx-icon.",
+      "docs": "GENERATED file — regenerate via the repo's gen:icons flow, never hand-edit (the GENERATED header is the contract). import { getIcon, loadIcon, preloadIcons, type IconName } from '$lib/icon-set.gen'; the default artifact carries all 38 icons in the inline chunk, so getIcon() answers synchronously and nothing needs the plugin.",
       "meta": {
         "group": "engines",
         "href": "/docs/icons.html"
@@ -1254,7 +1256,7 @@
       ],
       "docs": "Props: tree: TreeNode[], selected?, onselect?. Module exports TreeFile, TreeNode, inferTreeLang(name).",
       "registryDependencies": [
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ],
@@ -1276,7 +1278,7 @@
         "@jixoai/shiki",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/toggle-group",
         "@jixoai/list-item"
       ],
@@ -1589,7 +1591,7 @@
         "@jixoai/popover",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/defaults",
         "@jixoai/density"
       ],
@@ -1634,7 +1636,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/defaults",
         "@jixoai/density"
       ]
@@ -1689,7 +1691,7 @@
         "@jixoai/input",
         "@jixoai/native-select",
         "@jixoai/icon-button",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/defaults",
         "@jixoai/density"
       ]
@@ -1764,7 +1766,7 @@
       ],
       "registryDependencies": [
         "@jixoai/form-field",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
@@ -2257,7 +2259,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/defaults",
         "@jixoai/density"
       ]
@@ -2512,7 +2514,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/scaffold-float",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/website-scaffold",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -2629,7 +2631,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/defaults",
         "@jixoai/density"
       ]
@@ -3446,7 +3448,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icon"
       ]
     },
     {
@@ -4015,6 +4017,40 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "icon",
+      "type": "registry:ui",
+      "title": "Icon",
+      "description": "The named-glyph renderer over the generated icon-set: <Icon name=\"chevronRight\" /> paints 16px currentColor artwork with a typo-proof IconName union (a wrong name is a compile error). The component owns the <svg> root (viewBox from the data, square size edge, caps/joins by artwork nature, aria-hidden, data-jx-icon); class + rest props land on the root verbatim; size and strokeWidth are props, never wrapper CSS. Inline-core names render synchronously (SSR paints them, hydration matches, zero wiring); names past the chunk budget ride loadIcon() into a FIXED reserved box — pending and rejected render the identical span so hydration never rewrites it, and a failed chunk warns once per session.",
+      "registryDependencies": [
+        "@jixoai/icon-set",
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/icon/icon.svelte",
+          "target": "@ui/icon/icon.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/icon/icon-defaults.svelte.ts",
+          "target": "@ui/icon/icon-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/icon/index.ts",
+          "target": "@ui/icon/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: name (required IconName from '$lib/icon-set.gen' — typos are compile errors), size? (number | string, resolved through IconDefaults' open literal slot — explicit ?? own 16; numeric sizes px-coerce on the lazy pending box), strokeWidth? (default 2, stroke artwork only), class? + rest spread onto the <svg> root. Decorative by contract (aria-hidden baked in; meaning lives in surrounding text or the control's aria-label). Lazy failures warn once per chunk per session and keep the reserved box — never a layout shift.",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/icon.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "icon-button",
       "type": "registry:ui",
       "title": "Icon button",
@@ -4318,7 +4354,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/density",
         "@jixoai/press-button",
-        "@jixoai/icons",
+        "@jixoai/icon",
         "@jixoai/icon-button",
         "@jixoai/dropdown-menu",
         "@jixoai/separator",
@@ -4480,7 +4516,7 @@
         "@jixoai/input-otp",
         "@jixoai/press-button",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icon"
       ]
     },
     {
@@ -4517,7 +4553,7 @@
         "@jixoai/press-button",
         "@jixoai/badge",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icon"
       ]
     },
     {
@@ -4563,7 +4599,7 @@
         "@jixoai/terminal-card",
         "@jixoai/press-button",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icon"
       ]
     },
     {
@@ -4597,7 +4633,7 @@
       "registryDependencies": [
         "@jixoai/accordion",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icon"
       ]
     },
     {
@@ -4632,7 +4668,7 @@
         "@jixoai/press-button",
         "@jixoai/code-card",
         "@jixoai/jixoai-theme",
-        "@jixoai/icons"
+        "@jixoai/icon"
       ]
     },
     {

@@ -43,7 +43,7 @@ describe('probeGhosttyWasm on the real pinned bytes', () => {
     const result = probeGhosttyWasm(bytes);
     expect(result.buildInfo.length).toBeGreaterThan(0);
     expect(result.importCount).toBe(0);
-    expect(result.exportCount).toBe(181); // wasm fact baseline (briefs.md Batch A)
+    expect(result.exportCount).toBe(189); // wasm fact baseline (re-pinned full+small re-ship, f96f23da 2026-09-05; was 181 pre-re-pin)
   });
 
   it('small variant passes all five check faces', async (ctx) => {
@@ -52,7 +52,7 @@ describe('probeGhosttyWasm on the real pinned bytes', () => {
     const result = probeGhosttyWasm(bytes);
     expect(result.buildInfo.length).toBeGreaterThan(0);
     expect(result.importCount).toBe(0);
-    expect(result.exportCount).toBe(181);
+    expect(result.exportCount).toBe(189);
   });
 
   it('truncated bytes fail validation', async (ctx) => {

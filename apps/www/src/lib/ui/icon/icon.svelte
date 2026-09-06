@@ -63,6 +63,7 @@
 <script lang="ts">
   import type { SVGAttributes } from 'svelte/elements';
   import { getIcon, loadIcon, type IconData, type IconName } from '$lib/icon-set.gen';
+  import { IconDefaults } from './icon-defaults.svelte';
 
   interface Props extends SVGAttributes<SVGSVGElement> {
     /** REQUIRED — the glyph's name in the generated set (typo = compile error) */
@@ -75,26 +76,30 @@
 
   let {
     name,
-    size = 16,
+    size,
     strokeWidth = 2,
     class: className = '',
     ...rest
   }: Props = $props();
 
+  // the family's single read point (A1/A3): explicit ?? own 16 — the
+  // open literal form, chart precedent, no ambient axis by design
+  const resolved = $derived(IconDefaults.resolve({ size }));
+
   // inline-core hit → sync render (the SSR path); null → the lazy chunks
   const data = $derived(getIcon(name));
 
-  // CSS lengths need a unit — numeric sizes (the default) px-coerce;
-  // string sizes pass through verbatim (design §7's {size} slot as CSS)
-  const cssSize = $derived(typeof size === 'number' ? `${size}px` : size);
+  // CSS lengths need a unit — numeric sizes (the resolved default)
+  // px-coerce; string sizes pass through verbatim (design §7)
+  const cssSize = $derived(typeof resolved.size === 'number' ? `${resolved.size}px` : resolved.size);
 </script>
 
 {#snippet glyph(icon: IconData)}
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox={icon.v}
-    width={size}
-    height={size}
+    width={resolved.size}
+    height={resolved.size}
     stroke-width={strokeWidth}
     stroke-linecap="round"
     stroke-linejoin="round"

@@ -89,7 +89,7 @@ const INVENTORY = 'scripts/icon-migration-inventory.json';
 const inventoryPath = join(root, INVENTORY);
 
 // directory names excluded at ANY depth (fixed rule)
-const SKIPPED_DIR_NAMES = new Set(['node_modules', 'openspec', '.agents', '.svelte-kit']);
+const SKIPPED_DIR_NAMES = new Set(['node_modules', 'openspec', '.agents', '.svelte-kit', 'dist']);
 // gitignore-declared droppings reachable inside scope dirs (see header)
 const SKIPPED_RELPATHS = new Set([
   'registry/files/routes', // dev-syncer droppings (gitignored)

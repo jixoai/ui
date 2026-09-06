@@ -1,0 +1,139 @@
+{
+  "purpose": "Reviewed expected-owner snapshot for the retired icons registry item's 26 dependency edges (task C3, design §8 edge-ownership paragraph): component importers -> @jixoai/icon; artifact-level importers -> @jixoai/icon-set. Evidence per edge is the literal import statement the item's owned files now use (registry.json files[].path under registry/files/**; the apps/www mirrors follow the same imports). Applied to registry.json in the same task; verify:deps requires every edge to name an existing item (dangling edges cannot be baselined).",
+  "rule": "Files importing the component ($lib/ui/icon) -> @jixoai/icon. Files importing only the artifact's types/data ($lib/icon-set.gen) -> @jixoai/icon-set. Items whose files import BOTH -> @jixoai/icon as the primary owner (it transitively covers the component path), and both edges are declared because both imports literally exist — verify-deps wants actual-import edges (an entry declaring an edge with no matching import is dead; an import with no edge is undeclared).",
+  "edges": [
+    {
+      "item": "press-button",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/press-button/press-button.svelte:231 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "list-item",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/list-item/item-chevron.svelte:9 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "theme-toggle",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/theme-toggle/theme-toggle.svelte:33 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "toc",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/toc/toc.svelte:55 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "hero-section",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/hero-section/hero-section.svelte:61 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "language-switcher",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/language-switcher/language-switcher.svelte:51 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "input",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/input/input.svelte:148 — import Icon from '$lib/ui/icon'; registry/files/ui/input/input.svelte:149 — import type { IconName } from '$lib/icon-set.gen'; — BOTH the component and the artifact are imported literally, so the item carries both @jixoai/icon and @jixoai/icon-set edges (verify-deps resolves actual imports; a type-only import still counts)",
+      "alsoDeclare": [
+        "@jixoai/icon-set"
+      ]
+    },
+    {
+      "item": "dialog",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/dialog/dialog.svelte:56 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "popover",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/popover/popover.svelte:72 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "code-card",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/code-card/code-card.svelte:57 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "tree-view",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/tree-view/tree-view.svelte:123 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "component-canvas",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/component-canvas/component-canvas.svelte:254 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "date-picker",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/date-picker/calendar.svelte:43 — import Icon from '$lib/ui/icon'; registry/files/ui/date-picker/time-stepper.svelte:52 — import Icon from '$lib/ui/icon'; registry/files/ui/date-picker/month-grid.svelte:32 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "file-input",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/file-input/file-input.svelte:62 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "color-picker",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/color-picker/editor.svelte:44 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "tags-input",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/tags-input/tags-input.svelte:98 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "dropdown-menu",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/dropdown-menu/dropdown-menu.svelte:47 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "toast",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/toast/toast-viewport.svelte:96 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "sheet",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/sheet/sheet.svelte:41 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "image",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/image/image.svelte:22 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "button-group",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/button-group/button-group.svelte:238 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "pattern-login",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/pattern-login/pattern-login.svelte:25 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "pattern-pricing",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/pattern-pricing/pattern-pricing.svelte:22 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "pattern-hero-set",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/pattern-hero-set/pattern-hero-ascii.svelte:15 — import Icon from '$lib/ui/icon'; registry/files/ui/pattern-hero-set/pattern-hero-marquee.svelte:19 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "pattern-faq",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/pattern-faq/pattern-faq.svelte:18 — import Icon from '$lib/ui/icon'"
+    },
+    {
+      "item": "pattern-cta",
+      "newOwner": "@jixoai/icon",
+      "evidence": "registry/files/ui/pattern-cta/pattern-cta.svelte:26 — import Icon from '$lib/ui/icon'"
+    }
+  ]
+}

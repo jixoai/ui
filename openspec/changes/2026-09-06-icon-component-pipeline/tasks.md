@@ -127,9 +127,12 @@
        IconName; sizing/stroke wrapper classes → props where
        mechanical; docs PROSE teaching the old API rewritten
 - [ ] C5: delete `registry/files/lib/icons.ts` + `apps/www/src/lib/
-       icons.ts` + `scripts/gen-icons.mjs`; sweep remaining
-       imports; FINAL GATE: `npm run verify:migration` (inventory
-       check) = zero hits
+       icons.ts` (the retired string bag — NOTE: scripts/gen-icons.mjs
+       SURVIVES as the thin root-script adapter that now generates
+       icon-set.gen.ts; only the icons.ts pair dies) + drop the
+       mirror-manifest UNREFERENCED_LIB stopgap entry B2 added for
+       the interim; sweep remaining imports; FINAL GATE:
+       `npm run verify:migration` (snapshot `[]` + zero live hits)
 - [ ] C6: living-spec migration (same change; openspec archive
        applies this change's deltas to the living specs — verify
        post-archive that no stale Requirement survives) —

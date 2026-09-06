@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+/**
+ * Icon set generator — the ROOT-SCRIPT adapter (icon-component-pipeline
+ * B2/B3, design §1/§5/§6).
+ *
+ * Intent list:
+ * 1. single writer — `npm run gen:icons` (THIS script) is the ONLY
+ *    in-repo writer of the canonical artifact
+ *    registry/files/lib/icon-set.gen.ts; the www copy arrives through
+ *    the mirror tooling, never through this script.
+ * 2. thin by law — every piece of logic (the 38-built-in manifest,
+ *    source resolution, svgo, safety, packing, serialization) lives in
+ *    @jixoai/vite-plugin's icons library face; this file only drives
+ *    its root-script adapter. PREREQUISITE: packages/vite-plugin must
+ *    be BUILT (dist/ is imported — `npm run build` inside the package
+ *    after any plugin change, or this script serves stale logic).
+ * 3. freshness gate — `--check` regenerates in memory and exits 1 when
+ *    the committed artifact differs, so CI catches post-edit drift
+ *    (no vite, no dev server — design §5).
+ *
+ * Usage: npm run gen:icons          write the canonical artifact
+ *        npm run verify:icons       freshness gate (exit 1 on drift)
+ */
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { checkIconLibraryArtifact, writeIconLibraryArtifact } from '../packages/vite-plugin/dist/icons.js';
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+// The canonical config: the 38 built-ins under default packing (auto
+// chunking, inline first chunk, 20480-byte budget, svgo on). MUST stay
+// byte-equivalent to what both in-repo app configs dogfood (B4's
+// `library: { includeDefaults: true }`) — same generator, same inputs,
+// so the dev drift-warns and the committed artifact never diverge.
+const LIBRARY_OPTIONS = { includeDefaults: true };
+const TARGET = resolve(repoRoot, 'registry/files/lib/icon-set.gen.ts');
+const REL_TARGET = 'registry/files/lib/icon-set.gen.ts';
+
+if (process.argv.includes('--check')) {
+  const { fresh, report } = await checkIconLibraryArtifact(LIBRARY_OPTIONS, TARGET);
+  for (const warning of report.warnings) console.warn(warning);
+  if (!fresh) {
+    console.error(`stale: ${REL_TARGET} differs from the generator output — run \`npm run gen:icons\``);
+    process.exit(1);
+  }
+  console.log(`fresh: ${REL_TARGET} matches the generator (${report.iconCount} icons, ${report.chunkCount} chunk(s))`);
+} else {
+  const { changed, report } = await writeIconLibraryArtifact(LIBRARY_OPTIONS, TARGET);
+  for (const warning of report.warnings) console.warn(warning);
+  console.log(
+    `${changed ? 'wrote' : 'unchanged'}: ${REL_TARGET} (${report.iconCount} icons, ${report.chunkCount} chunk(s), ${report.lazyChunks.length} lazy)`,
+  );
+}

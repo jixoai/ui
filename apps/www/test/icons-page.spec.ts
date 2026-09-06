@@ -10,8 +10,10 @@
  *   - every glyph preview REALLY paints the vocabulary face — the style
  *     attribute carries var(--jx-icon-…) (no hand-pasted SVG in the
  *     preview column)
- *   - the named-library grid walks the icons bag itself (dynamic count
- *     — a glyph added to icons.ts appears with zero page edit)
+ *   - the named-library grid walks ICON_NAMES from the generated
+ *     artifact (dynamic count — a glyph added to the library config
+ *     appears with zero page edit), every cell rendering through
+ *     <Icon> (svg[data-jx-icon]) with the IconName as its label
  *   - the plugin demo's local override exists (a scoped
  *     --jx-icon-search redefinition on a wrapper style attribute)
  *   - the plugin export is spelled jixoai (six letters) everywhere —
@@ -34,7 +36,23 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/svelte';
 import IconsPage from '../src/routes/docs/icons.html/+page.svelte';
-import { icons } from '../src/lib/icons';
+import { ICON_NAMES } from '../src/lib/icon-set.gen';
+
+/**
+ * the overflow sentinel, extracted from its ONE definition site —
+ * packages/vite-plugin/src/icons/ids.ts (ICON_LIBRARY_SENTINEL_ERROR,
+ * three single-quoted literals joined by +; cwd is apps/www under
+ * vitest). The page must quote these exact bytes; if the plugin ever
+ * rewords its sentinel, this lock fails the page as stale instead of
+ * letting the docs drift.
+ */
+const SENTINEL = (() => {
+  const source = readFileSync('../../packages/vite-plugin/src/icons/ids.ts', 'utf8');
+  const body = source.match(/ICON_LIBRARY_SENTINEL_ERROR =([\s\S]*?);/)?.[1] ?? '';
+  const parts = [...body.matchAll(/'([^']*)'/g)].map((m) => m[1]);
+  expect(parts.length, 'the ids.ts sentinel still rides its three-literal form').toBe(3);
+  return parts.join('');
+})();
 
 /** the design §1 contract: 9 concept slots ⇔ the variable faces */
 const CONTRACT_SLOTS = [
@@ -73,11 +91,13 @@ describe('/docs/icons.html — page structure', () => {
     }
   });
 
-  it('carries the install block for the registry:lib item', () => {
+  it('carries the install block for the icon component item', () => {
     const { container } = render(IconsPage);
     const install = container.querySelector('[data-doc-install]');
     expect(install).toBeTruthy();
-    expect(install?.textContent).toContain('npx jixoai-ui add icons');
+    // the retired string-bag item is gone; the grid's component item is
+    // the install teach (substring-stable if icon-set rides alongside)
+    expect(install?.textContent).toContain('npx jixoai-ui add icon');
   });
 
   it('no literal undefined/null text nodes', () => {
@@ -123,24 +143,140 @@ describe('/docs/icons.html — the css-slots table', () => {
 });
 
 describe('/docs/icons.html — the named icon library grid', () => {
-  it('walks the icons bag dynamically (count = the module, usage text per glyph)', () => {
+  it('walks ICON_NAMES dynamically (count = the artifact, <Icon> glyph + name per cell)', () => {
     const { container } = render(IconsPage);
     const grid = container.querySelector('[data-named-icon-grid]');
     expect(grid).toBeTruthy();
-    const items = grid!.querySelectorAll('li');
-    const bagSize = Object.keys(icons).length;
-    expect(items.length, 'one cell per named icon').toBe(bagSize);
-    // every cell renders the REAL glyph ({@html} — svg[data-jx-icon])
-    // and the consumption hint '{@html icons.<name>}'
-    expect(grid!.querySelectorAll('svg[data-jx-icon]').length).toBe(bagSize);
-    const first = items[0];
-    const name = first?.querySelector('code')?.textContent ?? '';
-    expect(first?.textContent).toContain('{@html icons.' + name.replace('icons.', '') + '}');
+    const items = [...grid!.querySelectorAll('li')];
+    expect(items.length, 'one cell per named icon').toBe(ICON_NAMES.length);
+    // every cell renders the REAL glyph through <Icon> (svg[data-jx-icon])
+    expect(grid!.querySelectorAll('svg[data-jx-icon]').length).toBe(ICON_NAMES.length);
+    // labels track the artifact: one IconName per cell, in order
+    const labels = items.map((li) => li.querySelector('code')?.textContent ?? '');
+    expect(labels).toEqual([...ICON_NAMES]);
+    // and the consumption hint teaches the component API
+    expect(items[0]?.textContent).toContain('<Icon name="arrowRight"');
   });
 
   it('states the verify:icons freshness gate', () => {
     const { container } = render(IconsPage);
     expect(container.textContent).toContain('verify:icons');
+  });
+});
+
+describe('/docs/icons.html — the component face (lead section)', () => {
+  it('renders live <Icon> demos: the size and stroke ladders paint real svgs', () => {
+    const { container } = render(IconsPage);
+    const sizes = container.querySelector('[data-icon-size-demo]');
+    expect(sizes, 'size ladder demo').toBeTruthy();
+    const svgs = sizes!.querySelectorAll('svg[data-jx-icon]');
+    expect(svgs.length).toBe(4);
+    for (const svg of svgs) {
+      expect(svg.getAttribute('width')).toMatch(/^\d+$/);
+      expect(svg.getAttribute('aria-hidden')).toBe('true');
+    }
+    const stroke = container.querySelector('[data-icon-stroke-demo]');
+    expect(stroke, 'stroke ladder demo').toBeTruthy();
+    expect(stroke!.querySelectorAll('svg[data-jx-icon]').length).toBe(3);
+  });
+
+  it('teaches the type-safety law (typo = compile error)', () => {
+    const { container } = render(IconsPage);
+    const text = container.textContent ?? '';
+    expect(text).toContain('compile error');
+    expect(text).toContain('IconName');
+  });
+
+  it('the usage sample imports the component and shows the props', () => {
+    const { container } = render(IconsPage);
+    const text = container.textContent ?? '';
+    expect(text).toContain("import Icon from '@ui/icon'");
+    expect(text).toContain('strokeWidth');
+  });
+});
+
+describe('/docs/icons.html — the plugin library face (library config + tiers + async)', () => {
+  it('documents the real option semantics', () => {
+    const { container } = render(IconsPage);
+    const text = container.textContent ?? '';
+    for (const option of [
+      'includeDefaults',
+      'maxChunkBytes',
+      '20480',
+      'chunking',
+      'single',
+      'inlineFirstChunk',
+      'optimize',
+      'output',
+      'write',
+    ]) {
+      expect(text, 'option ' + option).toContain(option);
+    }
+    // the budget unit is RAW non-gzip module bytes
+    expect(text).toContain('RAW');
+    // the single-writer law: the repo's gen:icons script, write stays false
+    expect(text).toContain('single-writer');
+    expect(text).toContain('gen:icons');
+  });
+
+  it('shows all three source forms incl. the lucide: ref dialect', () => {
+    const { container } = render(IconsPage);
+    const text = container.textContent ?? '';
+    expect(text).toContain("'lucide:zap'");
+    expect(text).toContain("{ file: 'assets/logo.svg' }");
+    expect(text).toContain('<svg xmlns="…">…</svg>');
+  });
+
+  it('documents both install tiers (plugin-free default vs plugin-prerequisite overflow)', () => {
+    const { container } = render(IconsPage);
+    const text = container.textContent ?? '';
+    expect(text).toContain('plugin-free');
+    expect(text).toContain('plugin prerequisite');
+    expect(text).toContain('virtual:jixoai-icons/chunk/');
+  });
+
+  it('quotes the overflow sentinel BYTE-EXACT (the ids.ts contract)', () => {
+    const { container } = render(IconsPage);
+    const text = container.textContent ?? '';
+    expect(
+      text,
+      'the page must carry the sentinel exactly — never a paraphrase',
+    ).toContain(SENTINEL);
+  });
+
+  it('documents the async semantics (sync core, reserved box, preloadIcons)', () => {
+    const { container } = render(IconsPage);
+    const text = container.textContent ?? '';
+    expect(text).toContain('preloadIcons');
+    expect(text).toContain('data-jx-icon-pending');
+    expect(text).toContain('SSR');
+    // the hydration law: pending and rejected render the IDENTICAL box
+    expect(text).toContain('IDENTICAL');
+  });
+
+  it('carries the mode matrix (chunking × inlineFirstChunk, four rows)', () => {
+    const { container } = render(IconsPage);
+    const tables = container.querySelectorAll('table');
+    const matrix = [...tables].find((t) =>
+      (t.textContent ?? '').includes('budgeted chunks; chunk 0 inline'),
+    );
+    expect(matrix, 'the mode matrix table').toBeTruthy();
+    expect(matrix!.querySelectorAll('tbody tr').length).toBe(4);
+  });
+
+  // the retired literals are SPLICED so the migration sweeper's
+  // per-line patterns never match THIS guard's own source (a spec
+  // teaching the ban must not itself land in the inventory)
+  const RETIRED_MODULE = '$lib/' + 'icons';
+  const RETIRED_HINT = '@ht' + 'ml icons.';
+
+  it('the old icon API never returns (the retired module + hint stay out of the source)', () => {
+    // the migration law (design §8): this page was the old API's
+    // loudest teacher — it must now teach only the component face
+    const source = readFileSync('src/routes/docs/icons.html/+page.svelte', 'utf8');
+    expect(source).not.toContain(RETIRED_MODULE);
+    expect(source).not.toContain(RETIRED_HINT);
+    expect(source).toContain("from '$lib/icon-set.gen'");
   });
 });
 

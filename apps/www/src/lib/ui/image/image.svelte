@@ -19,7 +19,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLImgAttributes } from 'svelte/elements';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
 
   interface Props extends Omit<HTMLImgAttributes, 'alt' | 'width' | 'height'> {
@@ -71,15 +71,16 @@
        failure never shifts layout either -->
   <span
     data-jx-image-broken
-    class="box-border inline-flex items-center justify-center border border-dashed border-border bg-muted text-muted-foreground p-6 [&_svg]:w-8 [&_svg]:h-8 [&_svg]:stroke-[1.5]"
+    class="box-border inline-flex items-center justify-center border border-dashed border-border bg-muted text-muted-foreground p-6"
     style="width: {typeof width === 'number' ? `${width}px` : width}; height: {typeof height === 'number' ? `${height}px` : height};"
     role={alt === '' ? undefined : 'img'}
     aria-label={alt === '' ? undefined : 'image unavailable'}
     aria-hidden={alt === '' || undefined}
   >
-    <!-- lucide image glyph from the shared module; the panel owns its
-         2rem box and the lighter stroke through consuming utilities -->
-    {@html icons.image}
+    <!-- lucide image glyph through the Icon component; the panel owns
+         the layout, the component owns the 2rem box and the lighter
+         stroke through its props -->
+    <Icon name="image" size={32} strokeWidth={1.5} />
   </span>
 {:else}
   <img

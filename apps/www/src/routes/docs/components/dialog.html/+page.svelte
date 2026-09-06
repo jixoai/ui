@@ -14,7 +14,7 @@
   import { playOutputs, playState } from '$lib/playground';
   import { PlayFields, PlayRow, PlayHelp } from '$lib/playground';
   import { registrySourceUrl } from '$lib/registry-source';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import dialogSource from '$lib/ui/dialog/dialog.svelte?raw';
@@ -114,7 +114,7 @@ ${close}
   import Dialog from '@ui/dialog.svelte';
   import DialogHeader from '@ui/dialog/dialog-header.svelte';
   import Input from '@ui/input.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '@ui/icon.svelte';
 ${close}
 
 let open = $state(false);
@@ -126,7 +126,7 @@ ${close}
     <DialogHeader>
       <Input class="w-full min-w-0" placeholder="Filter events…" bind:value={query} aria-label="Filter events">
         {#snippet innerInlineStart()}
-          <span class="flex-none select-none text-muted-foreground" aria-hidden="true">{@html icons.search}</span>
+          <span class="flex-none select-none text-muted-foreground" aria-hidden="true"><Icon name="search" /></span>
         {/snippet}
       </Input>
     </DialogHeader>
@@ -596,8 +596,8 @@ ${close}
       >
         {#snippet innerInlineStart()}
           <span
-            class="flex-none select-none text-muted-foreground [&_svg]:h-[16px] [&_svg]:w-[16px]"
-            aria-hidden="true">{@html icons.search}</span>
+            class="flex-none select-none text-muted-foreground"
+            aria-hidden="true"><Icon name="search" /></span>
         {/snippet}
       </Input>
     </DialogHeader>

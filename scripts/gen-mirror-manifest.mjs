@@ -60,6 +60,10 @@ const UNREFERENCED_LIB = [
   // stopgap classifies the DISK copy, the item's file list stays the
   // contract — retires if the syncer model adopts site-only for it
   { path: 'registry/files/lib/highlight/context.svelte.ts', note: 'highlight context wiring — mirrored by the syncer, shipped by no item (r9 seam ruling)' },
+  // icon-component-pipeline (2026-09-06): the RETIRED `icons` item's
+  // artifact pair — B2 removed its registry item (the icon-set.gen
+  // artifact + the @jixoai/icon-set item replace it); C5 deleted the
+  // pair, retiring this stopgap with it.
 ];
 // canonical main overrides for registry:ui items whose main file is not
 // name-identical (B11/B9 ruling: manifest is the single machine source)

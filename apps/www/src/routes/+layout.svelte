@@ -48,7 +48,7 @@
   import { printPlugins } from '$lib/print/context-plugin';
   import { onMount } from 'svelte';
   import { GITHUB_URL } from '$lib/site';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   // the docs tree's single route model feeds the composed header pills
   // (D8's single-active law lives in the current derivations below)
@@ -534,7 +534,7 @@
     data-jx-ext
     class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
     aria-hidden="true"
-  >{@html icons.externalLink}</span>
+  ><Icon name="externalLink" /></span>
 {/snippet}
 {#snippet megaGrid(groups: PanelGroup[])}
   <!-- the consumer-authored mega panel: the clip box keeps the hairline
@@ -605,7 +605,7 @@
         data-jx-ext
         class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
         aria-hidden="true"
-      >{@html icons.arrowRight}</span>
+      ><Icon name="arrowRight" /></span>
     </a>
   </div>
   <!-- nested group: the same height-only collapse as the drawer itself
@@ -712,7 +712,7 @@
         title="Search the docs (⌘K)"
         onclick={() => document.dispatchEvent(new CustomEvent('jx-search-open'))}
       >
-        {@html icons.search}
+        <Icon name="search" />
       </button>
       <NavigationMenu label="Primary" class="flex-nowrap items-center gap-0">
         <NavigationMenuLink

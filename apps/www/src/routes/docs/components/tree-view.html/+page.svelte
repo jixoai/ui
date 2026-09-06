@@ -29,7 +29,7 @@
   import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
   import TreeViewMulti from '$lib/ui/tree-view/tree-view-multiselect.svelte';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
-  import { icons } from '$lib/icons';
+  import Icon from '$lib/ui/icon';
   import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -215,9 +215,9 @@ ${close}
   const indentUsage = `{#snippet crmPrefix(ctx)}
   {#if ctx.isFolder}
     <!-- the folder swaps glyphs with expand state; leaves show a file -->
-    {@html ctx.expanded ? icons.folderOpen : icons.folder}
+    <Icon name={ctx.expanded ? 'folderOpen' : 'folder'} />
   {:else}
-    {@html icons.file}
+    <Icon name="file" />
   {/if}
 {/snippet}
 
@@ -240,13 +240,13 @@ ${close}
 
   const fileUsage = `<!-- one snippet per file type; the resolver RETURNS one per node -->
 {#snippet folderIcon(ctx)}
-  <span class="text-amber-500">{@html ctx.expanded ? icons.folderOpen : icons.folder}</span>
+  <span class="text-amber-500"><Icon name={ctx.expanded ? 'folderOpen' : 'folder'} /></span>
 {/snippet}
-{#snippet tsIcon(ctx)}<span class="text-blue-500">{@html icons.fileCode}</span>{/snippet}
-{#snippet cssIcon(ctx)}<span class="text-purple-500">{@html icons.palette}</span>{/snippet}
-{#snippet jsonIcon(ctx)}<span class="text-yellow-500">{@html icons.braces}</span>{/snippet}
-{#snippet mdIcon(ctx)}<span class="text-muted-foreground">{@html icons.fileText}</span>{/snippet}
-{#snippet genericIcon(ctx)}<span class="text-muted-foreground">{@html icons.file}</span>{/snippet}
+{#snippet tsIcon(ctx)}<span class="text-blue-500"><Icon name="fileCode" /></span>{/snippet}
+{#snippet cssIcon(ctx)}<span class="text-purple-500"><Icon name="palette" /></span>{/snippet}
+{#snippet jsonIcon(ctx)}<span class="text-yellow-500"><Icon name="braces" /></span>{/snippet}
+{#snippet mdIcon(ctx)}<span class="text-muted-foreground"><Icon name="fileText" /></span>{/snippet}
+{#snippet genericIcon(ctx)}<span class="text-muted-foreground"><Icon name="file" /></span>{/snippet}
 
 <TreeView
   nodes={fileTree}
@@ -304,10 +304,10 @@ ${close}
 
   const actionsUsage = `{#snippet folderActions(ctx)}
   <button class="jx-demo-act" title="Add" onclick={() => addInside(ctx.id)}>
-    {@html icons.plus}
+    <Icon name="plus" />
   </button>
   <button class="jx-demo-act" title="More" onclick={() => moreFor(ctx.id)}>
-    {@html icons.ellipsis}
+    <Icon name="ellipsis" />
   </button>
 {/snippet}
 
@@ -355,22 +355,22 @@ ${close}
 <!-- shared snippets: demo 5 keeps these at the top level — a resolver must
      RETURN snippet values, so they cannot be inlined like prefix=/label= -->
 {#snippet folderIcon(ctx: TreeItemCtx<FileType>)}
-  <span class="text-amber-500">{@html ctx.expanded ? icons.folderOpen : icons.folder}</span>
+  <span class="text-amber-500"><Icon name={ctx.expanded ? 'folderOpen' : 'folder'} /></span>
 {/snippet}
 {#snippet tsIcon(ctx: TreeItemCtx<FileType>)}
-  <span class="text-blue-500">{@html icons.fileCode}</span>
+  <span class="text-blue-500"><Icon name="fileCode" /></span>
 {/snippet}
 {#snippet cssIcon(ctx: TreeItemCtx<FileType>)}
-  <span class="text-purple-500">{@html icons.palette}</span>
+  <span class="text-purple-500"><Icon name="palette" /></span>
 {/snippet}
 {#snippet jsonIcon(ctx: TreeItemCtx<FileType>)}
-  <span class="text-yellow-500">{@html icons.braces}</span>
+  <span class="text-yellow-500"><Icon name="braces" /></span>
 {/snippet}
 {#snippet mdIcon(ctx: TreeItemCtx<FileType>)}
-  <span class="text-muted-foreground">{@html icons.fileText}</span>
+  <span class="text-muted-foreground"><Icon name="fileText" /></span>
 {/snippet}
 {#snippet genericIcon(ctx: TreeItemCtx<FileType>)}
-  <span class="text-muted-foreground">{@html icons.file}</span>
+  <span class="text-muted-foreground"><Icon name="file" /></span>
 {/snippet}
 
 {#snippet folderActions(ctx: TreeItemCtx)}
@@ -380,7 +380,7 @@ ${close}
     aria-label="add inside {ctx.node.name}"
     onclick={() => (lastAction = `add → ${ctx.id}`)}
   >
-    {@html icons.plus}
+    <Icon name="plus" />
   </button>
   <button
     type="button"
@@ -388,7 +388,7 @@ ${close}
     aria-label="more actions for {ctx.node.name}"
     onclick={() => (lastAction = `more → ${ctx.id}`)}
   >
-    {@html icons.ellipsis}
+    <Icon name="ellipsis" />
   </button>
 {/snippet}
 
@@ -484,9 +484,9 @@ ${close}
           <TreeView nodes={crm} defaultExpanded={crmOpen} indent={32} lines>
             {#snippet prefix(ctx)}
               {#if ctx.isFolder}
-                {@html ctx.expanded ? icons.folderOpen : icons.folder}
+                <Icon name={ctx.expanded ? 'folderOpen' : 'folder'} />
               {:else}
-                {@html icons.file}
+                <Icon name="file" />
               {/if}
             {/snippet}
           </TreeView>
@@ -504,9 +504,9 @@ ${close}
           <TreeView nodes={crm} defaultExpanded={crmOpen} indent={32} lines toggle="plus">
             {#snippet prefix(ctx)}
               {#if ctx.isFolder}
-                {@html ctx.expanded ? icons.folderOpen : icons.folder}
+                <Icon name={ctx.expanded ? 'folderOpen' : 'folder'} />
               {:else}
-                {@html icons.file}
+                <Icon name="file" />
               {/if}
             {/snippet}
           </TreeView>
