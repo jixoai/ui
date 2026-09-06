@@ -2,20 +2,20 @@
 
 ## 1. Track A — the math lane (lib katex + math-inline + math-block)
 
-- [ ] 1.1 `registry/files/lib/katex.ts`: renderTex facade (htmlAndMathml
+- [x] 1.1 `registry/files/lib/katex.ts`: renderTex facade (htmlAndMathml
       default, throwOnError:false, errorColor 'var(--error)' — every
       default caller-overridable, precedence documented), registerMacros
       (last-wins, site-scoped semantics documented),
       `katex/dist/katex.min.css` import; header comment (intent list +
       facade-not-wrapper statement)
-- [ ] 1.2 `registry/files/ui/math-inline/`: span surface, role="math"
+- [x] 1.2 `registry/files/ui/math-inline/`: span surface, role="math"
       on the content-only span, HTMLAttributes<HTMLSpanElement> with
       `{...rest}` spreading BEFORE the component's own stamps (Svelte
       later-wins — consumer attributes pass through, component
       semantics un-overridable; conflict test pins it), no aria-label
       shadowing (MathML is the SR path), no css file; pure-barrel
       index.ts
-- [ ] 1.3 `registry/files/ui/math-block/`: sync SSR render via $derived,
+- [x] 1.3 `registry/files/ui/math-block/`: sync SSR render via $derived,
       FULL scroll-run rider — createScrollStamp({run, host, members:
       () => (mathEl ? [mathEl] : []), ramps: false}) armed in $effect
       with the returned destroy() as cleanup + ScrollChrome(shadow
@@ -26,7 +26,7 @@
       console.warn; math-block.css (canonical `@layer theme, base,
       components, utilities;` prologue + timestamped intent comment +
       :where() paint); pure-barrel index.ts
-- [ ] 1.4 specs: `apps/www/test/{katex,math-inline,math-block}.spec.ts`
+- [x] 1.4 specs: `apps/www/test/{katex,math-inline,math-block}.spec.ts`
       (real katex engine; markup/MathML/displayMode/error/override
       precedence; rest passthrough + a11y; stamp four-state verdicts +
       content-growth restamp) — mirror byte-identical to
@@ -34,12 +34,12 @@
 
 ## 2. Track B — the diagram lane (color-utils + lib mermaid-engine + mermaid)
 
-- [ ] 2.1 `registry/files/lib/color-utils.ts` parseColor EXTENSION:
+- [x] 2.1 `registry/files/lib/color-utils.ts` parseColor EXTENSION:
       rgb()/rgba() parsing (comma AND space/slash serializations, alpha
       accepted + discarded in hex output) funnels into the Oklch model;
       unit tests for both syntax families + round-trips; mirrored both
       sides
-- [ ] 2.2 `registry/files/lib/mermaid-engine.ts`: lazy singleton
+- [x] 2.2 `registry/files/lib/mermaid-engine.ts`: lazy singleton
       dynamic import; readThemeTokens(root?, resolvedTheme?) (color
       probes INSIDE the passed root's subtree → parseColor → hex; the
       documented per-theme safe-hex fallback table committed in the
@@ -59,7 +59,7 @@
       themeVariables field-wise over derived); MermaidRenderError
       normalization (browser-only guard for SSR calls);
       registryDependencies @jixoai/color-utils
-- [ ] 2.3 `registry/files/ui/mermaid/`: source floor → lazy SVG swap,
+- [x] 2.3 `registry/files/ui/mermaid/`: source floor → lazy SVG swap,
       generation discipline (code-card effect law) + render-id contract,
       data-state machine (floor/rendering/rendered/error), the surface
       passes its own figure as renderDiagram's themeRoot (scoped
@@ -79,7 +79,7 @@
       / chips / veils inside); role="img" + accessible name at all
       times; HTMLAttributes rest spread BEFORE component stamps;
       mermaid.css (canonical prologue); pure-barrel index.ts
-- [ ] 2.4 specs: `apps/www/test/{mermaid-engine,mermaid}.spec.ts`
+- [x] 2.4 specs: `apps/www/test/{mermaid-engine,mermaid}.spec.ts`
       (vi.mock the engine; contract assertions per design §8 —
       initialize args + adversarial config survival, singleton, probe
       pipeline + per-theme safe-hex fallback table, serial queue
@@ -101,33 +101,33 @@
 
 ## 3. Registry surface
 
-- [ ] 3.1 `registry.json` +5 entries (files/targets, dependencies
+- [x] 3.1 `registry.json` +5 entries (files/targets, dependencies
       katex|mermaid, registryDependencies per design.md §0's exhaustive
       edge list — math-block carries @jixoai/scroll-run/icons/utils,
       mermaid carries icons/utils, mermaid-engine carries
       @jixoai/color-utils — meta.group + meta.href for lib items per
       the shiki precedent, docs strings in the $lib consumer dialect)
-- [ ] 3.2 deps pair: `apps/www/package.json` + `registry/package.json`
+- [x] 3.2 deps pair: `apps/www/package.json` + `registry/package.json`
       both gain katex + mermaid (byte-identical pair); npm install;
       lockfile receipts committed for EVERY affected workspace (root
       `package-lock.json` + `apps/www/package-lock.json`; packages/*
   untouched unless a build demands it)
-- [ ] 3.3 mirrors byte-identical both sides; manifest regenerated
+- [x] 3.3 mirrors byte-identical both sides; manifest regenerated
       (113 → 118); verify:mirror GREEN; verify:deps GREEN (ratchet
       unchanged or shrunk — every new cross-item edge declared)
 
 ## 4. Docs site
 
-- [ ] 4.1 `apps/www/src/routes/docs/components/math-block.html/` —
+- [x] 4.1 `apps/www/src/routes/docs/components/math-block.html/` —
       Intro/Install/Usage/Examples (Euler, Maxwell, matrices/aligned,
       error demo)/API/See Also; +page.ts toc data
-- [ ] 4.2 `apps/www/src/routes/docs/components/math-inline.html/` —
+- [x] 4.2 `apps/www/src/routes/docs/components/math-inline.html/` —
       inline-in-prose demo, API
-- [ ] 4.3 `apps/www/src/routes/docs/components/mermaid.html/` — demos
+- [x] 4.3 `apps/www/src/routes/docs/components/mermaid.html/` — demos
       (flowchart, sequence, state, pie), light/dark flip demo, zoom,
       error demo, API; TWO mounted instances (the id-collision demo
       surface for the browser probe)
-- [ ] 4.4 svelte.config.js prerender entries ×3; **docs-skeleton
+- [x] 4.4 svelte.config.js prerender entries ×3; **docs-skeleton
       scope: scripts/docs-skeleton-scope.json inScope += math-block,
       math-inline, mermaid (hard-fail, not WARN)**; meta gen
       (component-metadata-gen) for the three PropsTables; verify:docs +
@@ -135,13 +135,20 @@
 
 ## 5. Payloads + gates
 
-- [ ] 5.1 `pnpm build:registry`; payload parity spec green (5 new
+- [x] 5.1 `pnpm build:registry`; payload parity spec green (5 new
       payloads with dependencies + registryDependencies intact)
-- [ ] 5.2 targeted vitest green (both sides); test:types zero NEW
-      failures vs the recorded baseline (main: 1 pre-existing type
+- [x] 5.2 targeted vitest green (both sides): math lane 31/31, diagram lane
+      51/51 incl. 34 color-picker/inline-code regression greens; test:types
+      zero NEW failures vs baseline (same single pre-existing paint-axis type
+      error as main @ cb0a2cf2) (main: 1 pre-existing type
       error; worktree fresh-bootstrap additionally carries the
       icons-dogfood dist + payload-parity build debts — both satisfied
       by this change's builds)
+- [x] 4.5 blueprint coverage: scenes/<name>.svelte ×5 (real components
+      + badge captions, the shiki-scene precedent) + committed
+      static/blueprints/<name>.svg ×5 via build:blueprints (the
+      catalog-coverage lock demanded it — surfaced by the suite, not
+      the change docs; blueprints.spec 6/6 green after)
 - [ ] 5.3 verify:standards/budgets/laws/icons/context GREEN; NEW
       `scripts/verify-katex-mermaid.mjs` (verify-surface bootstrap
       verbatim: playwright-core + local chromium discovery + --url
@@ -166,7 +173,7 @@
 
 ## 6. Gates
 
-- [ ] 6.1 openspec validate 2026-09-06-katex-mermaid --strict GREEN
+- [x] 6.1 openspec validate 2026-09-06-katex-mermaid --strict GREEN
 - [ ] 6.2 Codex review rounds (change docs → implementation) ACCEPT
 - [ ] 6.3 three-stage commit (spec → implementation + tasks → archive)
       on the katex-mermaid branch, rebased onto main at closeout

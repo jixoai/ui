@@ -13,7 +13,7 @@ registryDependencies (every cross-item import declared — the deps gate
 fails undeclared edges and the ledger may only shrink):
   katex          → []
   mermaid-engine → [@jixoai/color-utils]                  (parseColor pipeline, §3.1)
-  math-inline    → [@jixoai/katex, @jixoai/jixoai-theme]
+  math-inline    → [@jixoai/katex, @jixoai/jixoai-theme, @jixoai/utils]  (cn())
   math-block     → [@jixoai/katex, @jixoai/jixoai-theme, @jixoai/scroll-run,
                     @jixoai/icons, @jixoai/utils]
   mermaid        → [@jixoai/mermaid-engine, @jixoai/jixoai-theme,

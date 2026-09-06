@@ -1,0 +1,132 @@
+@layer theme, base, components, utilities;
+
+/* jixoai mermaid — the diagram surface law sheet
+ * (registry/files/ui/mermaid/mermaid.css, 2026-09-06 katex-mermaid).
+ *
+ * What lives here (all @layer components behind :where() per the
+ * placement law — consumer utilities win):
+ *   - the --readonly-code-* visual tokens (the code-card formulas,
+ *     mirrored so the surface is self-sufficient with only the
+ *     jixoai-theme sheet installed) + the .dark override and the
+ *     .jx-light re-flip (the paper-is-white law — `.dark` keys off
+ *     ANCESTRY, so a dark document's .jx-light scope re-declares the
+ *     light formulas AFTER the dark one to win by order);
+ *   - --jx-mermaid-floor-min: the CLS reserve token (default 6rem,
+ *     consumer-tunable — a diagram's true height is unknowable
+ *     pre-render; the reserve bounds the collapse);
+ *   - the viewport pan law: the TWO-AXIS scroll-run exemption (scrollbar
+ *     token law both axes — the theme sheet's global thin-currentColor
+ *     * rule paints the thumbs via --scrollbar-thumb*; overscroll
+ *     containment) — NO shared scroll chrome ever mounts inside;
+ *   - the floor pre law (the code-card pre dialect: monospace size,
+ *     pre-wrap off — a diagram source is authored lines), the zoom
+ *     transform law (origin top left; transformed overflow feeds the
+ *     viewport's scrollable area = the pan surface), the fade-in
+ *     keyframe with its reduced-motion kill, the error strip, and the
+ *     focus-visible rings (unlayered carve-outs, the code-card
+ *     precedent).
+ */
+
+@layer components {
+  /* readonly-code law (code-card.css mirror): the scoped token
+     definitions carry the documented values so this surface stands
+     alone with the jixoai-theme sheet; the floor + chrome borrow the
+     same visual language as every readonly-code surface */
+  :where(.jx-mermaid) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+    --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+
+    /* the CLS reserve (the accepted residual — see design.md §9):
+       min-height while the floor stands or a render is in flight */
+    --jx-mermaid-floor-min: 6rem;
+  }
+  :where(.dark .jx-mermaid) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
+  }
+  /* the light re-flip (the paper-is-white law, the code-card precedent):
+     re-declared AFTER the dark block so a .jx-light scope in a dark
+     document wins by order */
+  :where(.jx-light .jx-mermaid) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+  }
+
+  /* THE VIEWPORT — the recorded scroll-run exemption: a two-axis pan
+     surface for scaled content is not a linear overflow strip (the
+     shared contract models one axis per run with linear nudge chips),
+     so it rides the theme scrollbar law only (the sheet's global *
+     rule paints thin currentColor thumbs on BOTH axes through
+     --scrollbar-thumb*) with overscroll containment, and MUST NOT
+     mount the shared chrome — no run, chips, or veils inside */
+  :where([data-jx-mermaid-viewport]) {
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* the CLS reserve: the floor box keeps its min-height while
+     unrendered (floor) or mid-render (rendering); a rendered diagram
+     sizes itself */
+  :where([data-jx-mermaid][data-state='floor'] [data-jx-mermaid-viewport]),
+  :where([data-jx-mermaid][data-state='rendering'] [data-jx-mermaid-viewport]) {
+    min-height: var(--jx-mermaid-floor-min);
+  }
+
+  /* the floor: the escaped diagram source, readable at rest with zero
+     JS — the code-card pre dialect (mono sizing, authored lines stay
+     lines, Tab stays tabs) */
+  :where([data-jx-mermaid-floor]) {
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0.875rem;
+    white-space: pre;
+    tab-size: 4;
+  }
+
+  /* the zoom wrapper: pure transform (no re-render, no engine call) —
+     origin top left so scaled content extends down-right into the
+     viewport's scrollable area (the pan geometry); width:max-content
+     keeps the wrapper honest around the svg's own box; the first paint
+     fades in (the keyframe below), killed under reduced-motion */
+  :where([data-jx-mermaid-zoom]) {
+    display: block;
+    width: max-content;
+    padding: 0.875rem;
+    transform-origin: top left;
+    animation: jx-mermaid-fade 200ms ease-out;
+  }
+  :where([data-jx-mermaid-zoom] svg) {
+    display: block;
+  }
+
+  /* the error summary strip: the error token carries the ink; the
+     source floor below keeps standing (never a blank surface) */
+  :where([data-jx-mermaid-error]) {
+    background: color-mix(in oklab, var(--error) 8%, var(--background));
+  }
+}
+
+@keyframes jx-mermaid-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where([data-jx-mermaid-zoom]) {
+    animation: none;
+  }
+}
+
+/* focus-visible rings — the unlayered :where() carve-out (they override
+   the component's own utility paint; the code-card precedent) */
+:where(.jx-mermaid-copy):focus-visible,
+:where(.jx-mermaid-zoom-btn):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}

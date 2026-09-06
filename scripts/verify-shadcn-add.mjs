@@ -691,6 +691,71 @@ export default defineConfig({
       check('hero-section: theme + icons closure arrived', missing.length === 0, missing.join(', ') || 'complete');
     },
   },
+  {
+    id: 'math-block',
+    // katex-mermaid 5.4: the math lane's out-of-the-box receipt — the
+    // fonts-ride-the-package proof. katex lands as a real npm dep, the
+    // engine lib rides its declared @jixoai/katex edge to the canonical
+    // @lib root, and the consumer's vite build RESOLVES the katex css
+    // font URLs (the emitted KaTeX_* font assets ARE the receipt).
+    items: ['math-block'],
+    app: `<script lang="ts">
+  import MathBlock from '$lib/ui/math-block';
+</script>
+
+<MathBlock tex="\\mathrm{e}^{\\mathrm{i}\\pi} + 1 = 0" />
+`,
+    extraChecks(ctx) {
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      check('math-block: katex in the consumer package.json', !!deps.katex);
+      // the engine lib rides its declared registryDependency edge to the
+      // canonical @lib root — exactly once tree-wide (the code-card/shiki
+      // chain-delivery precedent)
+      check('math-block: katex engine lib at canonical @lib', ctx.exists('src/lib/katex.ts') && !ctx.exists('src/lib/ui/math-block/katex.ts'));
+      check('math-block: katex.ts exactly once tree-wide', countTree(join(ctx.dir, 'src'), 'katex.ts') === 1);
+      check('math-block: scroll-run chain arrived (the shared strip)', ctx.exists('src/lib/ui/scroll-run/scroll-run.svelte.ts'));
+      check('math-block: engine css present in node_modules (fonts ride the package)', ctx.exists('node_modules/katex/dist/katex.min.css'));
+    },
+    postBuild(ctx) {
+      // the fonts receipt: the consumer's vite build resolved the
+      // url(fonts/KaTeX_*.woff2|woff|ttf) references inside
+      // katex.min.css (imported by $lib/katex) and emitted the font
+      // assets into dist — zero font shipping, zero plugin prerequisite
+      const fonts = walkFilesNamed(join(ctx.dir, 'dist'), (name) => /^KaTeX_[A-Za-z0-9]+\.(woff2|woff|ttf)$/.test(name));
+      check('math-block: katex fonts emitted to dist (the fonts-ride-the-package receipt)', fonts.length > 0, `${fonts.length} font asset(s)`);
+    },
+  },
+  {
+    id: 'mermaid',
+    // katex-mermaid 5.4: the diagram lane's receipt — mermaid lands as a
+    // real npm dep and the ~1MB lazy engine actually BUNDLES into the
+    // consumer's vite build output (the code-split chunk the surface's
+    // dynamic import resolves at runtime).
+    items: ['mermaid'],
+    app: `<script lang="ts">
+  import Mermaid from '$lib/ui/mermaid';
+</script>
+
+<Mermaid name="install-probe.mmd" source={'flowchart TD\\n  install --> render'} />
+`,
+    extraChecks(ctx) {
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      check('mermaid: mermaid in the consumer package.json', !!deps.mermaid);
+      check('mermaid: engine lib at canonical @lib', ctx.exists('src/lib/mermaid-engine.ts') && !ctx.exists('src/lib/ui/mermaid/mermaid-engine.ts'));
+      check('mermaid: color-utils chain arrived (the probe pipeline)', ctx.exists('src/lib/color-utils.ts'));
+    },
+    postBuild(ctx) {
+      // the lazy-engine receipt: the mermaid chunk rides the build
+      // output as its own asset the surface's import() resolves
+      const chunks = walkFilesNamed(
+        join(ctx.dir, 'dist', 'assets'),
+        (name, content) => name.endsWith('.js') && content.includes('flowchart') && content.includes('sequenceDiagram'),
+      );
+      check('mermaid: the lazy engine bundled into the consumer build', chunks.length > 0, chunks.map((p) => p.slice(ctx.dir.length)).join(', ') || 'no engine chunk found');
+    },
+  },
 ];
 
 // ── 5. consumer template (written once, npm-installed once) ────────

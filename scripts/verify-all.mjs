@@ -10,12 +10,15 @@
 //   4. ghostty-pin offline — the supply-chain SHAPE (no network: PRs
 //      must not flap on proxies; the online check rides wasm-sync)
 //   5. verify:shadcn-add  — real-consumer install contract
+//   6. verify:km          — the KaTeX/Mermaid browser probe (NEW tail,
+//      katex-mermaid 5.3) over a composite-owned static dist server
 //
 // Runs AFTER the regular build steps (payloads/dist must exist).
 // Any failure aborts the chain with the failing gate's name.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { resolve, dirname, join } from 'node:path';
+import { createServer as createHttpServer } from 'node:http';
+import { extname, resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -109,5 +112,124 @@ try {
 } catch {
   die('shadcn-add');
 }
+
+// ── 6. the KaTeX/Mermaid browser probe (katex-mermaid 5.3) ───────────
+// verify-all owns the server lifecycle EXCLUSIVELY here (design §8's
+// B12 + B15 rulings): a MANAGED STATIC node http server over
+// apps/www/dist — no new dependency — bound to 127.0.0.1 on an
+// OS-assigned port (listen(0) → the real address().port). The
+// readiness poll AND the probe touch ONLY the resulting throwaway URL,
+// so a dev server squatting on :5199 can never be mistaken for this
+// composite's artifact (the probe provably hits its own server). The
+// probe child is reaped on success, failure, and SIGINT; the static
+// server closes on every exit path — no residue. The standalone
+// `npm run verify:km` keeps the caller-provided --url contract.
+await (async () => {
+  step('verify:km (browser probe — managed static dist server)');
+  const distDir = join(root, 'apps', 'www', 'dist');
+  if (!existsSync(join(distDir, 'docs', 'components', 'mermaid.html'))) {
+    die('verify:km (apps/www/dist missing or stale — run the site build first)');
+  }
+
+  // a tiny static file server (flat prerendered pages + assets)
+  const MIME = {
+    '.html': 'text/html; charset=utf-8',
+    '.js': 'text/javascript',
+    '.mjs': 'text/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.svg': 'image/svg+xml',
+    '.webp': 'image/webp',
+    '.png': 'image/png',
+    '.ico': 'image/x-icon',
+    '.txt': 'text/plain; charset=utf-8',
+    '.xml': 'application/xml',
+    '.woff2': 'font/woff2',
+    '.woff': 'font/woff',
+    '.ttf': 'font/ttf',
+  };
+  const server = createHttpServer((req, res) => {
+    let pathname;
+    try {
+      pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://127.0.0.1').pathname);
+    } catch {
+      res.writeHead(400);
+      res.end('bad url');
+      return;
+    }
+    // path-traversal guard: the resolved file stays inside dist/
+    let file = resolve(join(distDir, pathname === '/' ? 'index.html' : `.${pathname}`));
+    if (!file.startsWith(distDir)) {
+      res.writeHead(403);
+      res.end('forbidden');
+      return;
+    }
+    if (!existsSync(file) || statSync(file).isDirectory()) {
+      // trailing-slash directory routes fall back to their flat page
+      const flat = join(distDir, pathname.replace(/\/+$/, '').replace(/^\//, ''));
+      if (existsSync(flat) && statSync(flat).isFile()) file = flat;
+      else {
+        res.writeHead(404);
+        res.end(`not found: ${pathname}`);
+        return;
+      }
+    }
+    res.writeHead(200, {
+      'content-type': MIME[extname(file)] ?? 'application/octet-stream',
+    });
+    res.end(readFileSync(file));
+  });
+
+  // the OS-assigned port (listen(0)) — the throwaway URL below is the
+  // ONLY thing the readiness poll and the probe ever touch
+  const port = await new Promise((resolvePort, rejectPort) => {
+    server.once('error', rejectPort);
+    server.listen(0, '127.0.0.1', () => resolvePort(server.address().port));
+  });
+  const url = `http://127.0.0.1:${port}`;
+
+  // readiness poll against the probe's own first target page
+  const ready = await new Promise((resolveReady) => {
+    const deadline = Date.now() + 15_000;
+    const probeOnce = () => {
+      fetch(`${url}/docs/components/mermaid.html`, { signal: AbortSignal.timeout(2000) })
+        .then((r) => resolveReady(r.status === 200))
+        .catch(() => {
+          if (Date.now() > deadline) resolveReady(false);
+          else setTimeout(probeOnce, 250);
+        });
+    };
+    probeOnce();
+  });
+  if (!ready) {
+    server.close();
+    die(`verify:km (managed static server never came up on ${url})`);
+  }
+
+  // the probe child — spawned (not execFileSync) so SIGINT can be
+  // caught, forwarded, and the child reaped on every exit path
+  const child = spawn('node', ['scripts/verify-katex-mermaid.mjs', '--url', url], {
+    cwd: root,
+    stdio: 'inherit',
+  });
+  let interrupted = false;
+  const onSigint = () => {
+    interrupted = true;
+    child.kill('SIGINT');
+  };
+  process.on('SIGINT', onSigint);
+  const code = await new Promise((resolveCode) => {
+    child.on('error', () => resolveCode(1));
+    child.on('close', resolveCode);
+  });
+  process.removeListener('SIGINT', onSigint);
+  await new Promise((r) => server.close(r));
+  if (interrupted) {
+    console.error('\n✗ verify-all interrupted (SIGINT) — probe child reaped, static server closed');
+    process.exit(130);
+  }
+  if (code !== 0) die('verify:km');
+  console.log(`[verify-all] km probe served from its own static child (${url}) — reaped cleanly`);
+})();
 
 console.log('\n✓ verify-all GREEN — the full gate chain passed');

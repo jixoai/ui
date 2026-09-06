@@ -4450,6 +4450,163 @@
         "group": "engines",
         "href": "/docs/variant-grammar.html"
       }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "katex",
+      "type": "registry:lib",
+      "title": "KaTeX math engine (isomorphic)",
+      "description": "Thin KaTeX integration — explicitly NOT a wrapper (the lib/shiki precedent): renderTex forwards katex.renderToString with the engine's option vocabulary untouched under jixoai defaults that every caller can override key-for-key (output 'htmlAndMathml', throwOnError:false — invalid TeX paints in place, errorColor 'var(--error)' — the token binding), registerMacros extends the TeX vocabulary site-wide (a module-level table, last-wins per key), and the ONE side effect makes math out-of-the-box: import 'katex/dist/katex.min.css' — KaTeX's fonts ride the npm package and the consumer's bundler, so both math surfaces (and any future markdown lane) load engine css + fonts exactly once via $lib/katex. Synchronous and isomorphic: the math surfaces bake REAL markup during SSR/prerender — no plain-text floor, no hydration work (the load-bearing lane ruling this lib carries).",
+      "dependencies": [
+        "katex"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/files/lib/katex.ts",
+          "target": "@lib/katex.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Based on KaTeX (npm: katex) — this lib adds loading + default strategy only, never re-interprets KaTeX output; a site that wants output:'mathml' or throwOnError:true gets exactly that. jixoai defaults (each overridable by the same-key option): output 'htmlAndMathml' (visual HTML plus the hidden MathML — the screen-reader path, so surfaces mount no aria-label), throwOnError:false (the bad source run paints in the errorColor), errorColor 'var(--error)'. registerMacros({ '\\\\RR': '\\\\mathbb{R}' }) at app boot merges the site-level macro table (last-wins per key; a per-call macros option layers on top). The css + font side effect lives HERE, not in each ui item: `import { renderTex } from '$lib/katex'` is the one import a math-bearing site needs.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/math-block.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "mermaid-engine",
+      "type": "registry:lib",
+      "title": "Mermaid diagram engine (lazy)",
+      "description": "Lazy Mermaid integration — explicitly NOT a wrapper: ONE dynamic import('mermaid') singleton (the ~1MB DOM-bound engine code-splits and loads only when a diagram actually renders; a failed load clears the memo and retries), token-derived theming through the probe + parseColor pipeline (hidden probes INSIDE the passed root resolve live var() chains via getComputedStyle; @jixoai/color-utils converts to mermaid-safe hex; an unparseable token degrades to its committed per-theme safe-hex fallback — never a raw string, so theming never breaks a render), a ONE-SOURCE-PER-FIELD themeVariables table on theme 'base', and engine discipline: initialize/render pairs serialize through ONE rejection-recovering promise chain (a failed render never poisons the next), a fingerprint over the FINAL merged initialize payload skips redundant initialize (a brand-hue or token change inside the SAME theme mode still re-runs it — stale colors are impossible), the protected fields (startOnLoad:false · securityLevel:'strict' · theme:'base') survive any consumer config, and render ids follow the collision contract (per-instance monotonic base + per-render suffix — two instances, same names, and consecutive re-renders never share a live id). An explicit resolvedTheme reads the TARGET sheet through a temporary local probe wrapper — never a global class mutation.",
+      "dependencies": [
+        "mermaid"
+      ],
+      "registryDependencies": [
+        "@jixoai/color-utils"
+      ],
+      "files": [
+        {
+          "path": "registry/files/lib/mermaid-engine.ts",
+          "target": "@lib/mermaid-engine.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "renderDiagram(source, { id, theme, config, themeRoot }) — BROWSER-ONLY (an SSR call rejects with an explicit browser-only diagnostic inside MermaidRenderError.diagnostic; every failure normalizes there). The surface passes its OWN container as themeRoot so scoped containers resolve their tokens, never the page's. The consumer's config is mermaid's own MermaidConfig and merges below the protected fields and the derived palette (user themeVariables overlay FIELD-WISE over the derived defaults). `import { renderDiagram, readThemeTokens } from '$lib/mermaid-engine'`; ids come from createRenderIdMinter(name).next() — the collision contract.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/mermaid.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "math-inline",
+      "type": "registry:ui",
+      "title": "Math inline",
+      "description": "The inline math surface: ONE native <span> carrying real KaTeX markup rendered SYNCHRONOUSLY — the isomorphic-small SSR lane (prerender bakes the formula itself: no plain-text floor, no hydration work, no flash; a tex prop change re-derives live). No chrome, no controls; the span inherits prose currentColor — light/dark inverts with ZERO re-render. role=\"math\" sits on the content-only span with katex's hidden MathML as the screen-reader path (no aria-label shadowing); consumer attributes spread through first — data-testid/title/aria-*/handlers land untouched while the component's semantic stamps win their own fields.",
+      "dependencies": [
+        "katex"
+      ],
+      "registryDependencies": [
+        "@jixoai/katex",
+        "@jixoai/jixoai-theme",
+        "@jixoai/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/math-inline/math-inline.svelte",
+          "target": "@ui/math-inline/math-inline.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/math-inline/index.ts",
+          "target": "@ui/math-inline/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: tex (required), macros?, strict?, trust?; rest flows to the native <span>. The engine css + fonts ride the $lib/katex import (the lib item arrives with the install — one side effect, both math surfaces). Invalid TeX paints in place through the facade's throwOnError:false default; a caller-forced throw degrades to the escaped raw source + one console.warn.",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/math-inline.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "math-block",
+      "type": "registry:ui",
+      "title": "Math block",
+      "description": "The display math surface: a native <figure> (figure semantics kept) framing a wide-equation strip that rides the SHARED scroll-run contract wholesale — createScrollStamp's verdict (data-jx-scroll-state none|start-closed|end-closed|open) gates ScrollChrome's shadow veil and nudge chips, so a formula that fits paints no chrome — with real KaTeX markup rendered SYNCHRONOUSLY during SSR/prerender (the isomorphic-small lane: true zero flash, zero CLS, print-freeze-safe markup — NOT code-card's floor-then-upgrade), a copy control carrying the raw TeX source (press physics, clipboard fallback, labels localization payload), and errors painted IN PLACE (the errorColor token run inside the same box, one console.warn diagnostic; a caller-forced throw degrades to the raw source — errors never escape a component boundary).",
+      "dependencies": [
+        "katex"
+      ],
+      "registryDependencies": [
+        "@jixoai/katex",
+        "@jixoai/jixoai-theme",
+        "@jixoai/scroll-run",
+        "@jixoai/icons",
+        "@jixoai/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/math-block/math-block.svelte",
+          "target": "@ui/math-block/math-block.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/math-block/math-block.css",
+          "target": "@ui/math-block/math-block.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/math-block/index.ts",
+          "target": "@ui/math-block/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: tex (required), copyable=true, labels? ({copy?, copied?}), macros?, strict?, trust?; rest flows to the figure. The strip rides the scroll-run law verbatim: the run is the scroller (data-jx-scroll-run + data-axis=\"horizontal\" inside a one-cell grid host), the stamp machine arms on hydration and re-verdicts when a wider formula lands. role=\"math\" lives on the inner content-only wrapper — the copy button stays a discoverable node. Engine css + fonts ride the $lib/katex import.",
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/math-block.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "mermaid",
+      "type": "registry:ui",
+      "title": "Mermaid diagram",
+      "description": "The diagram surface under the code-card progressive-enhancement law: prerender paints the escaped diagram source as a readable zero-JS floor, hydration lazy-loads the engine (the mermaid-engine singleton, ~1MB code-split) and swaps in the sanitized SVG with a reduced-motion-respecting fade over a min-height reserve (--jx-mermaid-floor-min, consumer-tunable). Theme follows the flip AUTOMATICALLY: the surface passes its own figure as the engine's themeRoot (scoped containers resolve THEIR tokens) and an effective-scope observer re-renders on any ancestor theme change — explicit 'light'/'dark' pins read the target sheet through a local wrapper. Zoom (±0.25 steps, clamp 0.5–3, reset) is a pure transform with the viewport as the two-axis pan surface — the recorded scroll-run exemption (thin token scrollbars both axes, NO shared chrome inside), plus a copy-source control with the labels localization payload. A parse failure paints the error summary strip and KEEPS the source floor standing.",
+      "dependencies": [
+        "mermaid"
+      ],
+      "registryDependencies": [
+        "@jixoai/mermaid-engine",
+        "@jixoai/jixoai-theme",
+        "@jixoai/icons",
+        "@jixoai/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/mermaid/mermaid.svelte",
+          "target": "@ui/mermaid/mermaid.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/mermaid/mermaid.css",
+          "target": "@ui/mermaid/mermaid.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/mermaid/index.ts",
+          "target": "@ui/mermaid/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: source (required — a runtime prop, the code-card rule), name? (head tab label + render-id base), theme='auto' ('light'|'dark' pin), copyable=true, zoomable=true, labels? ({copy, copied, zoomIn, zoomOut, zoomReset, renderError, diagram — the viewport's accessible name when name is absent}), config? (mermaid's own MermaidConfig — the engine's precedence ladder applies); rest flows to the figure. data-state rides floor|rendering|rendered|error; the viewport keeps role=\"img\" with a NON-EMPTY accessible name at all times (the trimmed ladder name → labels.diagram → 'Diagram').",
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/mermaid.html"
+      }
     }
   ]
 }

@@ -5,6 +5,16 @@
  * 用 OKLCH 做中间表示（与我们的 token 系统一致），hex/hsl/oklch 互转
  * （零依赖手写转换函数）").
  *
+ * 2026-09-06 · katex-mermaid track B: parseColor gains the rgb()/rgba()
+ * LEGACY FAMILY — getComputedStyle serializes color probes that way on
+ * engines whose origin space is srgb (the mermaid-engine token pipeline
+ * feeds computed strings here; see lib/mermaid-engine.ts §token read).
+ * Both serializations parse — comma (`rgb(255,0,0)`, `rgba(1,2,3,0.5)`)
+ * and space/slash (`rgb(1 2 3)`, `rgb(1 2 3 / 0.25)`) — and alpha is
+ * accepted then DISCARDED: the Oklch model is opaque, so
+ * `rgba(255,0,0,0.5)` and `rgb(1 2 3 / 0.25)` funnel to #ff0000/#010203
+ * (never premultiplied).
+ *
  * Zero-dependency color conversions with OKLCH as the intermediate
  * representation — the same space the jixoai token sheet uses. Every parse
  * funnels into {@link Oklch}; every format funnels out of it, so any of
@@ -126,8 +136,10 @@ export function hsvToOklch(h: number, s: number, v: number): Oklch {
 
 const clampChannel = (n: number): number => Math.min(255, Math.max(0, n));
 
-/** Parses `#rgb`, `#rrggbb` (alpha hex tolerated, ignored), `hsl(…)`,
- *  `oklch(…)`; returns the OKLCH intermediate or null when unparseable. */
+/** Parses `#rgb`, `#rrggbb` (alpha hex tolerated, ignored), `rgb()/rgba()`
+ *  (comma AND space/slash serializations; alpha accepted, discarded — the
+ *  model is opaque, never premultiplied), `hsl(…)`, `oklch(…)`;
+ *  returns the OKLCH intermediate or null when unparseable. */
 export function parseColor(input: string): Oklch | null {
   const text = input.trim().toLowerCase();
   if (text === '') return null;
@@ -150,6 +162,31 @@ export function parseColor(input: string): Oklch | null {
       });
     }
     return null;
+  }
+
+  // rgb()/rgba() — the legacy family getComputedStyle emits for srgb-origin
+  // probes. Two serializations share one funnel: comma (`255,0,0` with an
+  // optional trailing `,0.5`) and space/slash (`1 2 3`, `1 2 3 / 0.25`).
+  // The slash alpha drops before the split; the comma alpha simply falls
+  // off the three-channel read. Per-channel percentages scale ×2.55.
+  const rgbMatch = /^rgba?\(([^)]+)\)$/.exec(text);
+  if (rgbMatch) {
+    const [channelPart, alphaPart] = rgbMatch[1].split('/');
+    // a slash-alpha separator only legalizes with a (discarded) value
+    if (alphaPart !== undefined && alphaPart.trim() === '') return null;
+    const body = channelPart.trim();
+    const parts = body.split(/[\s,]+/).filter(Boolean);
+    if (parts.length < 3) return null;
+    const channel = (part: string): number => {
+      const value = Number(part.replace(/%$/, ''));
+      if (!Number.isFinite(value)) return Number.NaN;
+      return part.endsWith('%') ? (value / 100) * 255 : value;
+    };
+    const r = channel(parts[0]);
+    const g = channel(parts[1]);
+    const b = channel(parts[2]);
+    if (![r, g, b].every(Number.isFinite)) return null;
+    return rgbToOklch({ r: clampChannel(r), g: clampChannel(g), b: clampChannel(b) });
   }
 
   const hslMatch = /^hsla?\(([^)]+)\)$/.exec(text);

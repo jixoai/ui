@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T11:19:25.055Z",
+  "generatedAt": "2026-09-06T19:32:24.611Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -92,7 +92,10 @@
     "pattern-pricing": "registry/files/ui/pattern-pricing/pattern-pricing.svelte",
     "pattern-hero-set": "registry/files/ui/pattern-hero-set/pattern-hero-set.svelte",
     "pattern-faq": "registry/files/ui/pattern-faq/pattern-faq.svelte",
-    "pattern-cta": "registry/files/ui/pattern-cta/pattern-cta.svelte"
+    "pattern-cta": "registry/files/ui/pattern-cta/pattern-cta.svelte",
+    "math-inline": "registry/files/ui/math-inline/math-inline.svelte",
+    "math-block": "registry/files/ui/math-block/math-block.svelte",
+    "mermaid": "registry/files/ui/mermaid/mermaid.svelte"
   },
   "items": [
     {
@@ -3367,8 +3370,8 @@
           "source": "registry/files/lib/color-utils.ts",
           "mirror": "apps/www/src/lib/color-utils.ts",
           "target": "@lib/color-utils.ts",
-          "sourceSha": "14153dffeabc6084786d519a2d7ed845ef5f1b8cda887efb6aa769a7dfbbb457",
-          "mirrorSha": "14153dffeabc6084786d519a2d7ed845ef5f1b8cda887efb6aa769a7dfbbb457"
+          "sourceSha": "1445ec33684cbf7b3c6026aba040b27f1125c40ddd76a4392400668fe5748c44",
+          "mirrorSha": "1445ec33684cbf7b3c6026aba040b27f1125c40ddd76a4392400668fe5748c44"
         }
       ]
     },
@@ -4007,6 +4010,109 @@
           "target": "@lib/entity.css",
           "sourceSha": "242e41e3fd331de0c3e215ffcdcd9d4b5896184f40c530a3750d97316bf3ddef",
           "mirrorSha": "242e41e3fd331de0c3e215ffcdcd9d4b5896184f40c530a3750d97316bf3ddef"
+        }
+      ]
+    },
+    {
+      "itemName": "katex",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/katex.ts",
+          "mirror": "apps/www/src/lib/katex.ts",
+          "target": "@lib/katex.ts",
+          "sourceSha": "4a5c2833aee7b7e809484cf1b674cf926d2b98a39394175b0279ca87594780bf",
+          "mirrorSha": "4a5c2833aee7b7e809484cf1b674cf926d2b98a39394175b0279ca87594780bf"
+        }
+      ]
+    },
+    {
+      "itemName": "mermaid-engine",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/mermaid-engine.ts",
+          "mirror": "apps/www/src/lib/mermaid-engine.ts",
+          "target": "@lib/mermaid-engine.ts",
+          "sourceSha": "82c982dc7381141375f457a7bd01e9771ccfd6771da99cd8230f3ea63e325e4d",
+          "mirrorSha": "82c982dc7381141375f457a7bd01e9771ccfd6771da99cd8230f3ea63e325e4d"
+        }
+      ]
+    },
+    {
+      "itemName": "math-inline",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/math-inline/math-inline.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/math-inline/math-inline.svelte",
+          "mirror": "apps/www/src/lib/ui/math-inline/math-inline.svelte",
+          "target": "@ui/math-inline/math-inline.svelte",
+          "sourceSha": "d43e3d0951950f8a545cee558af031d3b249bf6683fd2f7a957920cbb3cb0fef",
+          "mirrorSha": "d43e3d0951950f8a545cee558af031d3b249bf6683fd2f7a957920cbb3cb0fef"
+        },
+        {
+          "source": "registry/files/ui/math-inline/index.ts",
+          "mirror": "apps/www/src/lib/ui/math-inline/index.ts",
+          "target": "@ui/math-inline/index.ts",
+          "sourceSha": "fbd323ad2e8d1c707e2495915f40cbd566b0386be3c4e24c2094bf4e82084155",
+          "mirrorSha": "fbd323ad2e8d1c707e2495915f40cbd566b0386be3c4e24c2094bf4e82084155"
+        }
+      ]
+    },
+    {
+      "itemName": "math-block",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/math-block/math-block.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/math-block/math-block.svelte",
+          "mirror": "apps/www/src/lib/ui/math-block/math-block.svelte",
+          "target": "@ui/math-block/math-block.svelte",
+          "sourceSha": "dd0380e0f120e0f7eb8e0f5a9ed2001f3edef9231e313dbc7da4ff4581b3e437",
+          "mirrorSha": "dd0380e0f120e0f7eb8e0f5a9ed2001f3edef9231e313dbc7da4ff4581b3e437"
+        },
+        {
+          "source": "registry/files/ui/math-block/math-block.css",
+          "mirror": "apps/www/src/lib/ui/math-block/math-block.css",
+          "target": "@ui/math-block/math-block.css",
+          "sourceSha": "5f6b3ed0f902340cf49bfea65e1c2ef2310e0a0fc7561359e21678f3ce94a0d7",
+          "mirrorSha": "5f6b3ed0f902340cf49bfea65e1c2ef2310e0a0fc7561359e21678f3ce94a0d7"
+        },
+        {
+          "source": "registry/files/ui/math-block/index.ts",
+          "mirror": "apps/www/src/lib/ui/math-block/index.ts",
+          "target": "@ui/math-block/index.ts",
+          "sourceSha": "99c33ed9e1c006098834ee071dd36b2b29371e108dbb513c7a2a1d562cc81f93",
+          "mirrorSha": "99c33ed9e1c006098834ee071dd36b2b29371e108dbb513c7a2a1d562cc81f93"
+        }
+      ]
+    },
+    {
+      "itemName": "mermaid",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/mermaid/mermaid.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/mermaid/mermaid.svelte",
+          "mirror": "apps/www/src/lib/ui/mermaid/mermaid.svelte",
+          "target": "@ui/mermaid/mermaid.svelte",
+          "sourceSha": "2102da50ce5d0929d0b3b467089f0bb4676f40d2293395898e78a5f493c8b5f2",
+          "mirrorSha": "2102da50ce5d0929d0b3b467089f0bb4676f40d2293395898e78a5f493c8b5f2"
+        },
+        {
+          "source": "registry/files/ui/mermaid/mermaid.css",
+          "mirror": "apps/www/src/lib/ui/mermaid/mermaid.css",
+          "target": "@ui/mermaid/mermaid.css",
+          "sourceSha": "0f2b83b8351d0476ecb8d55b62f9cad2dd447c043f3a369f2b8fcf1e95b4d951",
+          "mirrorSha": "0f2b83b8351d0476ecb8d55b62f9cad2dd447c043f3a369f2b8fcf1e95b4d951"
+        },
+        {
+          "source": "registry/files/ui/mermaid/index.ts",
+          "mirror": "apps/www/src/lib/ui/mermaid/index.ts",
+          "target": "@ui/mermaid/index.ts",
+          "sourceSha": "eb8c0cd84c33c6dfc5f66e3c1edc747ad0fcc818c5aa9f5f0683b5e0c5a50ba6",
+          "mirrorSha": "eb8c0cd84c33c6dfc5f66e3c1edc747ad0fcc818c5aa9f5f0683b5e0c5a50ba6"
         }
       ]
     }

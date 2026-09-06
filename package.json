@@ -17,6 +17,7 @@
     "verify:print": "node scripts/verify-print.mjs",
     "verify:press": "node scripts/verify-press.mjs",
     "verify:surface": "node scripts/verify-surface.mjs",
+    "verify:km": "node scripts/verify-katex-mermaid.mjs",
     "verify:trygrid": "node scripts/verify-trygrid.mjs",
     "verify:parity": "node scripts/verify-native-parity.mjs",
     "verify:budgets": "node scripts/verify-budgets.mjs",

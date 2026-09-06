@@ -1,0 +1,35 @@
+@layer theme, base, components, utilities;
+
+/* jixoai math-block — the display math surface's own residue
+ * (registry/files/ui/math-block/math-block.css, 2026-09-06 the
+ * katex-mermaid change — intent (Owner): "引入开箱即用的 KaTeX/Mermaid
+ * 渲染组件"). The wide-equation strip rides the SHARED scroll-run law
+ * sheet (scroll-run.css) wholesale: run/host/chips/veil and the verdict
+ * gating all come from there; katex's own display rhythm
+ * (.katex-display's 1em block margin) and error tint (the engine's
+ * inline var(--error)) ride along from katex.min.css via $lib/katex.
+ * What remains here (all @layer components behind :where() per the
+ * placement law — consumer utilities win):
+ *   - the scrollport's edge clearance: a scrolled formula never kisses
+ *     the clip edge (inline), and the strip keeps a hair of breathing
+ *     room around the display block;
+ *   - focus-visible rings and the reduced-motion kill — state machines
+ *     on the UNLAYERED :where() carve-out (the code-card precedent). */
+
+@layer components {
+  :where([data-jx-math-block] .scrollport) {
+    padding-block: 0.375rem;
+    padding-inline: 0.375rem;
+  }
+}
+
+:where([data-jx-math-block-copy]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where([data-jx-math-block-copy]) {
+    transition: none;
+  }
+}

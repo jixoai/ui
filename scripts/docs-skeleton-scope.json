@@ -9,14 +9,41 @@
     "card-grid",
     "date-picker",
     "toast",
-    "combobox"
+    "combobox",
+    "math-block",
+    "math-inline",
+    "mermaid"
   ],
   "backlog": [
-    { "route": "press-button", "owner": "2026-08-30-canvas-floor-lab", "note": "pilot-twelve member; props-table migration lands with the canvas batch's own pilot work" },
-    { "route": "input", "owner": "2026-08-30-canvas-floor-lab", "note": "pilot-twelve member" },
-    { "route": "dialog", "owner": "2026-08-30-canvas-floor-lab", "note": "pilot-twelve member" },
-    { "route": "badge", "owner": "2026-08-30-canvas-floor-lab", "note": "pilot-twelve member" },
-    { "route": "table", "owner": "2026-08-30-table-grid-toolbar", "note": "pilot-twelve member; page owned by the table batch" },
-    { "route": "(all remaining routes)", "owner": "(mass migration)", "note": "the lint's warn list IS this entry's expansion — every out-of-scope route missing sections increments the printed backlog" }
+    {
+      "route": "press-button",
+      "owner": "2026-08-30-canvas-floor-lab",
+      "note": "pilot-twelve member; props-table migration lands with the canvas batch's own pilot work"
+    },
+    {
+      "route": "input",
+      "owner": "2026-08-30-canvas-floor-lab",
+      "note": "pilot-twelve member"
+    },
+    {
+      "route": "dialog",
+      "owner": "2026-08-30-canvas-floor-lab",
+      "note": "pilot-twelve member"
+    },
+    {
+      "route": "badge",
+      "owner": "2026-08-30-canvas-floor-lab",
+      "note": "pilot-twelve member"
+    },
+    {
+      "route": "table",
+      "owner": "2026-08-30-table-grid-toolbar",
+      "note": "pilot-twelve member; page owned by the table batch"
+    },
+    {
+      "route": "(all remaining routes)",
+      "owner": "(mass migration)",
+      "note": "the lint's warn list IS this entry's expansion — every out-of-scope route missing sections increments the printed backlog"
+    }
   ]
 }
