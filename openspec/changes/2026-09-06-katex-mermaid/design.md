@@ -400,15 +400,23 @@ Svelte). A conflict test pins it: a consumer-sent
   and the floor shows the CURRENT source while a render is in flight.
   Render ids per §3.4; the engine's serial queue (§3.3) orders the
   actual initialize/render pairs.
-- Theme follow + the themeRoot wiring (B13): the surface passes its
-  own figure as `renderDiagram`'s `themeRoot` (scoped containers — a
-  `.jx-light` canvas stage, a dark panel — resolve THEIR tokens, not
-  the page's). `theme='auto'` mounts a MutationObserver on BOTH the
-  themeRoot's and documentElement's class attributes → debounced
-  re-render with `readThemeTokens(themeRoot)` re-read AFTER the flip.
-  Explicit `'light'|'dark'` pins the palette via the explicit-theme
-  read (§3.1's local wrapper — the target sheet's values even under
-  the opposite live root; no observer).
+- Theme follow + the themeRoot wiring (B13) + the effective-scope
+  observer (B16): the surface passes its own figure as
+  `renderDiagram`'s `themeRoot` (scoped containers — a `.jx-light`
+  canvas stage, a dark panel — resolve THEIR tokens, not the page's).
+  `theme='auto'` observes the figure's ENTIRE effective theme scope,
+  not just two nodes: a class MutationObserver on the document root
+  with `subtree: true`, filtered to mutations on elements that are
+  CURRENT ancestors of the figure (an ancestor scope flipping
+  `.jx-light`→`.dark` re-renders even though neither the figure nor
+  documentElement mutated) — debounced re-render with
+  `readThemeTokens(themeRoot)` re-read AFTER the flip; the observer
+  disconnects in the effect's cleanup. Explicit `'light'|'dark'` pins
+  the palette via the explicit-theme read (§3.1's local wrapper — the
+  target sheet's values even under the opposite live root; no
+  observer). Tests: an ancestor `<div class="jx-light">` flipping to
+  `dark` re-initializes with changed baked fills; an unrelated
+  sibling's class change triggers NO render.
 - Zoom: `scale` state (buttons ±0.25, clamp 0.5–3, reset), applied as
   `transform: scale()` on the zoom wrapper, `transform-origin: top
   left`; the viewport is the pan surface. No re-render on zoom — pure
@@ -522,17 +530,22 @@ Svelte). A conflict test pins it: a consumer-sent
      here; verify:km joins the chain, verify:surface stays a
      standalone gate).
 
-   **Server lifecycle ownership (B12 ruling):** standalone
-   `npm run verify:km` keeps verify-surface's contract (the caller
-   provides the server via `--url`, default :5199 dev). INSIDE the
-   composite chain, `verify-all` owns the lifecycle: it starts a
-   MANAGED STATIC server over `apps/www/dist` (a tiny node http static
-   file server — no new dependency; release gates must not couple to
-   HMR/dev ports), polls readiness on the probe's own URL, passes
-   `--url` to the km step, and reaps the child on success, failure,
-   AND SIGINT — the composite gate stays self-contained and
-   reproducible from a clean checkout (dist exists at that point in
-   the chain: the payload-parity/build steps precede it).
+   **Server lifecycle ownership (B12) + the exclusive endpoint (B15):**
+   standalone `npm run verify:km` keeps verify-surface's contract (the
+   caller provides the server via `--url`, default :5199 dev). INSIDE
+   the composite chain, `verify-all` owns the lifecycle EXCLUSIVELY:
+   it starts a MANAGED STATIC server over `apps/www/dist` (a tiny node
+   http static file server — no new dependency) bound to
+   **127.0.0.1 on an OS-assigned port** (`listen(0)` → the child's
+   real `address().port`); readiness poll AND the probe use ONLY the
+   resulting throwaway URL (`--url http://127.0.0.1:<assigned>`). A
+   dev server squatting on :5199 can never be mistaken for the
+   composite's artifact — the probe provably hits its own child. The
+   child is reaped on success, failure, AND SIGINT (no residue).
+   Adversarial tests: with :5199 pre-occupied the composite still
+   serves-and-probes its own static child; after all three exit
+   paths no child process remains. Release gates stay decoupled from
+   dev/HMR ports while the standalone default survives.
 - End-to-end out-of-the-box: `scripts/verify-shadcn-add.mjs` gains
   CASES entries for math-block + mermaid — each case: install from the
   built payloads into a real fixture, assert `katex`/`mermaid` land in

@@ -99,9 +99,13 @@ pairs so concurrent instances with different themes never interleave.
 The surface SHALL pass its own container as the engine's theme root
 (scoped containers — a `.jx-light` stage, a dark panel — resolve THEIR
 tokens, never the page's). `theme="auto"` (the default) SHALL follow
-the theme flip — watching the theme root's AND the document root's
-class attributes, re-reading the live computed tokens after the
-change and re-rendering with re-derived themeVariables; an explicit
+the theme flip across the container's ENTIRE effective scope — a
+class observer filtered to the container's current ancestors catches
+an ancestor scope flipping (`.jx-light`→`.dark`) even when neither
+the container nor the document root mutates — re-reading the live
+computed tokens after the change and re-rendering with re-derived
+themeVariables, with every observer disconnected on cleanup; an
+unrelated element's class change triggers nothing; an explicit
 `light|dark` SHALL pin the palette to the TARGET sheet's values, read
 through a temporary local probe wrapper under the same theme root
 (never a global class mutation — a light page with `theme="dark"`

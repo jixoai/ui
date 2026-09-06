@@ -64,8 +64,10 @@
       data-state machine (floor/rendering/rendered/error), the surface
       passes its own figure as renderDiagram's themeRoot (scoped
       containers resolve their tokens) with the auto-mode
-      MutationObserver watching BOTH themeRoot and documentElement
-      classes, zoom trio (scale
+      effective-scope observer (document-root subtree class observer
+      filtered to the figure's CURRENT ancestors — an ancestor
+      .jx-light→.dark flip re-renders; disconnected in effect cleanup),
+      zoom trio (scale
       transform, viewport pan, clamp 0.5–3), copy control, labels
       payload (incl. `diagram` — the viewport's accessible name when
       `name` is absent; never a nameless img), fade-in +
@@ -89,7 +91,10 @@
       `labels={{ diagram: '' }}` → 'Diagram', themeRoot two-container
       scoped-token test, explicit-pin both directions (light root +
       dark pin, dark root + light pin — initialize payload colors from
-      the target sheet, global root untouched)) — mirror
+      the target sheet, global root untouched), scoped-ancestor
+      auto-flip test (an ancestor .jx-light→.dark flip re-initializes
+      with changed baked fills; an unrelated sibling class change
+      triggers NO render; observers disconnected on cleanup)) — mirror
       byte-identical to `registry/test/`
 
 ## 3. Registry surface
@@ -143,12 +148,15 @@
       .katex + MathML in DOM, run carries a scroll-state verdict;
       registered as `verify:km` in root package.json and appended to
       the verify-all chain as the new final step AFTER verify:shadcn-add,
-      with verify-all OWNING the server lifecycle (managed static node
-      http server over apps/www/dist, readiness poll, --url passed in,
-      child reaped on success/failure/SIGINT; standalone verify:km
-      keeps the caller-provided --url contract); vision lane
-      screenshots (light+dark math quality, diagram theming, zoom,
-      error states) reviewed
+      with verify-all OWNING the server lifecycle EXCLUSIVELY (managed
+      static node http server over apps/www/dist bound to 127.0.0.1 on
+      an OS-assigned port via listen(0); the real address().port URL
+      is the ONLY thing readiness poll and the probe touch; child
+      reaped on success/failure/SIGINT with no residue; adversarial
+      test: :5199 pre-occupied → composite still probes its own child;
+      standalone verify:km keeps the caller-provided --url contract);
+      vision lane screenshots (light+dark math quality, diagram
+      theming, zoom, error states) reviewed
 - [ ] 5.4 `scripts/verify-shadcn-add.mjs` CASES extended with
       math-block + mermaid (install from built payloads; deps land in
       the consumer's package.json; consumer vite build resolves the
