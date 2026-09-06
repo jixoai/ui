@@ -22,7 +22,10 @@ import { dirname, resolve as resolvePath } from 'node:path';
 import type { ProviderContext, SafetyCheckerConfig, SourceDescriptor } from '../types.js';
 import { createSafetyChecker } from '../safety.js';
 import { generateIconLibraryArtifacts } from './generate.js';
+import { normalizeIconPresets } from './presets/index.js';
+import { scanProjectSources } from './scan.js';
 import { resolveLibraryInputs } from './resolve.js';
+import { DEFAULT_LIBRARY_OUTPUT } from './config.js';
 import type { IconLibraryOptions, LibraryReport } from './types.js';
 
 /** the named rejection for font sources in the svg-only script twin */
@@ -41,10 +44,17 @@ function assertNoFontSources(options: IconLibraryOptions): void {
   }
 }
 
-/** the shared build both script modes run (resolve → generate) */
+/** the shared build both script modes run (resolve → generate). The
+ *  scanRoot (optional, default process.cwd()) feeds the EAGER project
+ *  walk — the same walk the vite build runs at buildStart, so the
+ *  script twin's scanned set (and therefore its artifact bytes) equals
+ *  the vite artifact's for the same sources (design §1a: no
+ *  scanner-less twin, no divergence). With no presets enabled the walk
+ *  is skipped entirely — no ref could ever match. */
 async function buildArtifacts(
   options: IconLibraryOptions,
   safety?: SafetyCheckerConfig,
+  scanRoot?: string,
 ): Promise<{ artifact: string; report: LibraryReport }> {
   assertNoFontSources(options);
   const checker = createSafetyChecker(safety ?? { mode: 'warn' });
@@ -58,9 +68,24 @@ async function buildArtifacts(
       /* no dev server in the script adapter — nothing to watch */
     },
   };
-  const resolution = await resolveLibraryInputs(options, io, checker);
+  // the EAGER walk (icon-prefix-compiler design §1a) — parity with the
+  // vite build's buildStart walk over the same project sources
+  const root = resolvePath(scanRoot ?? process.cwd());
+  const presets = normalizeIconPresets(options.presets);
+  const templatePrefixes = [...new Set(presets.map((preset) => preset.prefix))];
+  const scanned =
+    templatePrefixes.length === 0
+      ? []
+      : await scanProjectSources(root, templatePrefixes, {
+          exclude: [resolvePath(root, options.output ?? DEFAULT_LIBRARY_OUTPUT)],
+        });
+  const resolution = await resolveLibraryInputs(options, io, checker, scanned);
   for (const warning of resolution.warnings) console.warn(warning);
-  const generated = generateIconLibraryArtifacts(resolution.icons, options);
+  const generated = generateIconLibraryArtifacts(resolution.icons, {
+    ...options,
+    aliases: resolution.aliases,
+    templatePrefixes,
+  });
   return {
     artifact: generated.artifact,
     report: { ...generated.report, warnings: [...resolution.warnings, ...generated.report.warnings] },
@@ -79,15 +104,18 @@ export interface IconLibraryWriteResult {
  * Generate the canonical artifact and write it to `target` — the ONLY
  * sanctioned artifact write in this repo (the vite adapter never
  * writes unless a consumer opts in). Writes only on content change so
- * repeated runs stay idempotent for watch tooling.
+ * repeated runs stay idempotent for watch tooling. The optional
+ * `scanRoot` (project root for the eager prefix scan; default
+ * process.cwd()) keeps the script twin byte-equal to the vite build.
  */
 export async function writeIconLibraryArtifact(
   options: IconLibraryOptions,
   target: string,
   safety?: SafetyCheckerConfig,
+  scanRoot?: string,
 ): Promise<IconLibraryWriteResult> {
   const artifactPath = resolvePath(target);
-  const { artifact, report } = await buildArtifacts(options, safety);
+  const { artifact, report } = await buildArtifacts(options, safety, scanRoot);
   let existing: string | null = null;
   try {
     existing = await readFile(artifactPath, 'utf8');
@@ -113,15 +141,17 @@ export interface IconLibraryCheckResult {
 /**
  * The freshness gate (verify:icons --check): regenerate in memory and
  * compare — NO write, NO vite, NO dev server. A stale artifact fails
- * by name so CI catches post-edit drift.
+ * by name so CI catches post-edit drift. The optional `scanRoot`
+ * mirrors writeIconLibraryArtifact's (the eager scan's project root).
  */
 export async function checkIconLibraryArtifact(
   options: IconLibraryOptions,
   target: string,
   safety?: SafetyCheckerConfig,
+  scanRoot?: string,
 ): Promise<IconLibraryCheckResult> {
   const artifactPath = resolvePath(target);
-  const { artifact, report } = await buildArtifacts(options, safety);
+  const { artifact, report } = await buildArtifacts(options, safety, scanRoot);
   let existing = '<absent>';
   try {
     existing = await readFile(artifactPath, 'utf8');

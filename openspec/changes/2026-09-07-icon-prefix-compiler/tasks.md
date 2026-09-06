@@ -2,7 +2,7 @@
 
 ## A. Scanner (packages/vite-plugin)
 
-- [ ] A1: `src/icons/library/scan.ts` — ONE pure module, TWO
+- [x] A1: `src/icons/library/scan.ts` — ONE pure module, TWO
        entries: (a) the EAGER project walk (buildStart when
        command === 'build' AND wired into script.ts's
        buildArtifacts so gen:icons/--check stay byte-equal to dev)
@@ -12,7 +12,7 @@
        grammar is the validating authority, e.g. material's
        snake_case `copy_all`; scope exclusions; (preset, name)
        sorted dedupe)
-- [ ] A2: vite adapter wiring — enforce:'pre' transform collects;
+- [x] A2: vite adapter wiring — enforce:'pre' transform collects;
        scanned-set changes invalidate through the slot-face refresh
        path; the transform lands in THREE places:
        createIconPlugin's plugin object, the IconPluginHooks
@@ -25,7 +25,7 @@
 
 ## B. Generator + typing
 
-- [ ] B1: ScannedRef input stream (after declared refs);
+- [x] B1: ScannedRef input stream (after declared refs);
        CONTRACT: resolveLibraryInputs gains the scanned stream as an
        OPTIONAL 4th parameter (or a new sibling function) and any
        generator-options extension defaults cleanly — the existing
@@ -38,12 +38,12 @@
        report.iconCount counts canonicals only; ICON_NAMES emits
        each alias adjacent to its ref; artifact-shape test locks
        updated)
-- [ ] B2: `IconName` emission gains `` `md:${string}` ``-style
+- [x] B2: `IconName` emission gains `` `md:${string}` ``-style
        members for ENABLED presets only; `Record<IconName, number>`
        stays compile-legal with template members (un-packed names
        runtime-undefined, the existing `?? -1` defenses cover it);
        generator tests for the union shape
-- [ ] B3: dynamic-name lane — getIcon(null) rides the existing lazy
+- [x] B3: dynamic-name lane — getIcon(null) rides the existing lazy
        path VERBATIM; unknown-name warn through the chunk-warn
        channel (NOT dev-gated today — stays that way; once per
        unknown name via message identity); the generator's loadIcon
@@ -53,10 +53,10 @@
 
 ## C. Docs + gates
 
-- [ ] C1: component page — prefixed names, the `as` form, the
+- [x] C1: component page — prefixed names, the `as` form, the
        compile/build/runtime three-tier safety story, the
        dynamic-name contract; icons page cross-link; spec locks
-- [ ] C2: bridge integration test extended to cover the transform
+- [x] C2: bridge integration test extended to cover the transform
        through `jixoai()` (an umbrella consumer must get the
        scanner, not silently lose it); full gate battery green
        (verify:all; vite-plugin suite; www suite)

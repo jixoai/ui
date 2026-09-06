@@ -273,6 +273,43 @@ library: {
 // referencing a prefix you have NOT enabled is a named startup error
 // listing the enabled set — "fa:home" fails, teaching the fix`;
 
+  // the prefix compiler (icon-prefix-compiler, 2026-09-07): scanned
+  // names + as aliases + the three-tier safety story. NOTE: this site
+  // does NOT dogfood the scanner (no presets in its own config — the
+  // 38-name artifact stays locked); the snippets are inert text.
+  const prefixCompilerSnippet = `<!-- with presets: ['material'] enabled — write prefixed names
+     directly, NO library.icons declaration needed -->
+<Icon name="md:copy_all" />            <!-- scanned → packs under the canonical -->
+<Icon name="md:copy_all as copy2" />   <!-- the as form: alias + canonical, ONE payload -->
+<Icon name="copy2" />                  <!-- the alias resolves the SAME icon -->
+<Icon name={\`md:\${iconKey}\`} />        <!-- dynamic: NOT scanned — the runtime lane -->`;
+
+  const aliasArtifactSnippet = `// the artifact the compiler generates (sources are NEVER rewritten)
+export const ALIASES: Readonly<Record<string, string>> = {
+  copy2: 'md:copy_all',   // one table row per alias — never a second payload
+};
+// CHUNK_0 packs 'md:copy_all' exactly once; lookups deref FIRST, so
+// getIcon('md:copy_all'), getIcon('copy2') and even the full literal
+// getIcon('md:copy_all as copy2') resolve the SAME packed payload`;
+
+  const scanTiers = [
+    {
+      tier: 'compile',
+      what: 'the prefix',
+      how: 'IconName gains a `md:${string}` template member for every ENABLED preset — an "fa:…" name is a type error with no runtime story',
+    },
+    {
+      tier: 'build',
+      what: 'the concrete name',
+      how: 'the scanner collects the static literal; the preset resolver must answer it or the build fails BY NAME (never a silently blank glyph)',
+    },
+    {
+      tier: 'runtime',
+      what: 'dynamic composition',
+      how: 'getIcon() returns null, the component renders its reserved box and warns once; loadIcon() names both possible causes',
+    },
+  ];
+
   const fontSourceSnippet = `// a font FILE is an icon source — the outline is EXTRACTED at build
 // time (opentype.js + the same contain-fit math as the slot face) and
 // the artifact stays pure SVG: no font bytes reach the browser
@@ -569,6 +606,50 @@ plain beside a stock ink is impossible by construction.`;
               deliberately offers no SF Symbols lane; use Apple's own APIs on Apple platforms.
             </p>
           </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        family="plugin"
+        region="prefix-compiler"
+        eyebrow="the prefix compiler"
+        title="md:copy_all — scanned names, as aliases, three tiers of safety"
+        summary="Enabling a preset turns on a source scanner: static name=&quot;md:…&quot; literals in your .svelte/.ts/.js/.html files enter the set with ZERO configuration. The scanner has two entries that always agree — an eager project walk at build start (and inside gen:icons, so the committed artifact and the dev server can never diverge) and a dev transform collector whose findings refresh the artifact like a config edit. Unknown prefixes (fa:) are ignored fail-safe: they fail at the TYPE level instead. A ref the preset cannot resolve fails the build by name — never a silently blank glyph."
+      >
+        <div class="flex flex-col gap-5" data-prefix-compiler-docs="">
+          <CodeBlock code={prefixCompilerSnippet} lang="svelte" meta="App.svelte — no declarations" />
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Tier</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">What it checks</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">How it fails</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each scanTiers as row (row.tier)}
+                <tr class="border-b border-border/50">
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.tier}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground whitespace-nowrap">{row.what}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.how}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+          <CodeBlock code={aliasArtifactSnippet} lang="ts" meta="the as form — dual keys, one payload" />
+          <p class="text-muted-foreground text-[13px] leading-6">
+            The <code class="text-accent">as</code> form declares a local alias: 双键并存 — both keys
+            coexist forever, your sources are <strong>never rewritten</strong>, and the scanned keys
+            ride alongside hand-written ones. The payload packs <strong>once</strong> under the
+            canonical <code class="text-accent">md:copy_all</code> key; each alias costs exactly one
+            ALIASES-table row in the budget, and ICON_NAMES emits it adjacent to its ref. Collisions
+            fail the build by name: an alias shadowing a declared name, two refs claiming one alias,
+            or an alias breaking the camelCase law. Dynamic composition
+            (<code class="text-accent">{'name={`md:${iconKey}`}'}</code>) is intentionally unscanned
+            — it rides the runtime lane above: getIcon() answers null, the component renders its
+            reserved box, and loadIcon() explains both possible causes (artifact drift or a
+            dynamic/never-scanned name).
+          </p>
         </div>
       </SectionCard>
 

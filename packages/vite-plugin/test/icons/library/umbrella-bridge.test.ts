@@ -12,13 +12,21 @@
  *   - the bridge's resolveId stays SYNCHRONOUS for virtual ids
  */
 
-import { readFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
-import { describe, expect, test } from 'vitest';
+import { afterAll, describe, expect, test } from 'vitest';
 import { jixoai } from '../../../src/index.ts';
 import { lucideIconProvider } from '../../../src/icons/providers/lucide.js';
 import { VIRTUAL_MODULE_ID } from '../../../src/icons/ids.js';
+
+// the scanner fixtures' tmp roots (cleaned once at the end)
+const fixtureRoots: string[] = [];
+afterAll(async () => {
+  for (const root of fixtureRoots) await rm(root, { recursive: true, force: true });
+});
 
 interface PluginLifecycle {
   buildStart(): Promise<void>;
@@ -119,5 +127,54 @@ describe('the bridge delegates the full matrix (design §9)', () => {
     ).toThrowError(
       '[jixoai/icon-set] virtual:jixoai-icons/chunk/* imported but no icons library is configured — wire jixoai({ icons: { library } }) in your vite plugins (see the icon-set item docs)',
     );
+  });
+});
+
+describe('the bridge delegates the prefix compiler\'s transform (icon-prefix-compiler C2)', () => {
+  interface BridgeLifecycle {
+    configResolved(config: { root: string; command?: string }): Promise<void> | void;
+    buildStart(): Promise<void>;
+    load(id: string): Promise<string | null>;
+    transform(code: string, id: string): Promise<{ code: string; map: null } | null> | { code: string; map: null } | null;
+  }
+
+  const bridgeLifecycle = (plugin: Plugin): BridgeLifecycle => plugin as unknown as BridgeLifecycle;
+
+  test('an umbrella consumer gets the scanner — a scanned ref lands in the served artifact', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'jixoai-bridge-scan-'));
+    fixtureRoots.push(root);
+    const appSvelte = join(root, 'src/App.svelte');
+    await mkdir(dirname(appSvelte), { recursive: true });
+    await writeFile(appSvelte, '<Icon name="md:home" />\n', 'utf8');
+
+    const bridge = jixoai({
+      icons: { library: { includeDefaults: false, presets: ['material'] } },
+    }).find((plugin) => plugin.name === 'jixoai-icons')!;
+    const hooks = bridgeLifecycle(bridge);
+    await hooks.configResolved({ root, command: 'serve' });
+    await hooks.buildStart();
+
+    // the collector rides the delegate THROUGH the bridge — and never
+    // rewrites the module (null pass-through)
+    expect(await hooks.transform(await readFile(appSvelte, 'utf8'), appSvelte)).toBeNull();
+
+    const artifactPath = join(root, 'src/lib/icon-set.gen.ts');
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const artifact = (await hooks.load(artifactPath)) ?? '';
+      if (artifact.includes("'md:home'")) {
+        expect(artifact).toContain('`md:${string}`');
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new Error('the scanned ref never reached the bridge-served artifact');
+  });
+
+  test('the no-presets fast path returns null without touching the delegate', async () => {
+    const bridge = jixoai({
+      icons: { library: { includeDefaults: false, icons: { plain: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>' } } },
+    }).find((plugin) => plugin.name === 'jixoai-icons')!;
+    const result = await bridgeLifecycle(bridge).transform('<Icon name="md:home" />', '/app/src/App.svelte');
+    expect(result).toBeNull();
   });
 });

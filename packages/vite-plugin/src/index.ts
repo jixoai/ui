@@ -20,11 +20,14 @@
 //      loaded. Since icon-component-pipeline (2026-09-06, design §9)
 //      the icons implementation is reachable ONLY through a thin
 //      BRIDGE plugin: hooks (configResolved/buildStart/resolveId/load/
-//      configureServer) memoize one dynamic
+//      transform/configureServer) memoize one dynamic
 //      `import('./icons/vite-plugin.js')` and delegate, so jixoai()
 //      stays sync (Plugin[] returned immediately) while provider/svgo/
 //      lucide code never enters this entry's STATIC module graph (the
-//      dist graph-purity gate parses real imports).
+//      dist graph-purity gate parses real imports). `transform` joined
+//      the delegated set with icon-prefix-compiler (2026-09-07): the
+//      umbrella consumer must get the dev scanner, never silently
+//      lose it — the hook rides the SAME memoized dynamic import.
 //   2. The `virtual:jixoai-ghostty` module (resolveId claim + \0 internal
 //      id) exporting pure data {url, sha256, variant, buildInfo} — no
 //      fetch/WebAssembly at module evaluation time (SSR/vitest safe).
@@ -295,6 +298,19 @@ function iconsBridgePlugin(options: IconsPluginOptions): Plugin {
 
     async load(id) {
       return (await ensureDelegate()).load(id) ?? null;
+    },
+
+    async transform(code, id) {
+      // the prefix compiler's DEV collector rides the delegate too
+      // (icon-prefix-compiler design §1 — the bridge must not silently
+      // drop the scanner for umbrella consumers). FAST PATH: with no
+      // presets enabled the collector can never match a literal, so
+      // the delegation (and its dynamic import) is skipped entirely —
+      // no static icons import enters this entry either way (design
+      // §9: the memoized dynamic import stays the only path in).
+      const presets = options.library?.presets;
+      if (presets === undefined || presets.length === 0) return null;
+      return (await ensureDelegate()).transform(code, id);
     },
 
     configureServer(server) {

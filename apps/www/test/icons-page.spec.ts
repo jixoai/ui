@@ -340,6 +340,81 @@ describe('/docs/icons.html — the plugin library face (library config + tiers +
   });
 });
 
+describe('/docs/icons.html — the prefix compiler (scanned names + as aliases)', () => {
+  it('documents the scanned + alias + dynamic snippet forms', () => {
+    const { container } = render(IconsPage);
+    const section = container.querySelector('[data-prefix-compiler-docs]');
+    expect(section, 'the prefix-compiler section').toBeTruthy();
+    const text = section?.textContent ?? '';
+    expect(text).toContain('md:copy_all');
+    expect(text).toContain('as copy2');
+    expect(text).toContain('<Icon name="copy2" />');
+    // the dynamic lane is taught as intentionally unscanned
+    expect(text).toContain('md:${iconKey}');
+    expect(text).toContain('NOT scanned');
+  });
+
+  it('states the dual-key law (双键并存): both keys, one payload, sources untouched', () => {
+    const { container } = render(IconsPage);
+    const text = container.querySelector('[data-prefix-compiler-docs]')?.textContent ?? '';
+    expect(text).toContain('ALIASES');
+    expect(text).toContain('双键并存');
+    // whitespace-normalized: the markup wraps mid-phrase
+    expect(text.replace(/\s+/g, ' ')).toContain('never rewritten');
+    expect(text).toContain('exactly once');
+    expect(text).toContain('adjacent to its ref');
+    // collisions fail by name — the three documented rules
+    expect(text).toContain('Collisions');
+    expect(text).toContain('camelCase');
+  });
+
+  it('carries the three-tier safety table (compile / build / runtime)', () => {
+    const { container } = render(IconsPage);
+    const section = container.querySelector('[data-prefix-compiler-docs]');
+    const table = section?.querySelector('table');
+    expect(table, 'the tier table').toBeTruthy();
+    const rows = [...table!.querySelectorAll('tbody tr')];
+    expect(rows.length).toBe(3);
+    const body = table!.textContent ?? '';
+    for (const tier of ['compile', 'build', 'runtime']) {
+      expect(body, 'tier ' + tier).toContain(tier);
+    }
+    // the template union member + the fa: compile-error story
+    expect(body).toContain('`md:${string}`');
+    expect(body).toContain('fa:');
+    // never a silently blank glyph — resolution fails by name
+    expect(body).toContain('BY NAME');
+  });
+
+  it('documents the scanner mechanics: eager walk + gen:icons parity + fail-safe prefixes', () => {
+    const { container } = render(IconsPage);
+    // the summary rides the SectionCard (outside the data div)
+    const text = container.textContent ?? '';
+    expect(text).toContain('eager project walk');
+    expect(text).toContain('gen:icons');
+    expect(text).toContain('never diverge');
+    expect(text).toContain('ignored fail-safe');
+    // the dynamic-name runtime contract
+    const sectionText =
+      container.querySelector('[data-prefix-compiler-docs]')?.textContent ?? '';
+    expect(sectionText).toContain('runtime lane');
+    expect(sectionText).toContain('reserved box');
+    expect(sectionText).toContain('getIcon()');
+  });
+
+  it('the site itself does NOT dogfood the scanner (the 38-name lock holds)', () => {
+    const { container } = render(IconsPage);
+    // the named-library grid still walks the hand-written artifact
+    const grid = container.querySelector('[data-named-icon-grid]');
+    const items = grid?.querySelectorAll('li') ?? [];
+    expect(items.length).toBe(ICON_NAMES.length);
+    expect(ICON_NAMES.length).toBe(38);
+    expect(ICON_NAMES).not.toContain('md:copy_all');
+    // and the artifact carries no prefix-compiler shapes
+    expect(grid?.textContent ?? '').not.toContain('md:');
+  });
+});
+
 describe('/docs/icons.html — the plugin section', () => {
   it('documents the four provider shapes', () => {
     const { container } = render(IconsPage);

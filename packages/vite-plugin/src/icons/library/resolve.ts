@@ -20,6 +20,11 @@
  *     resolve → safety check (RAW, untrusted) → svgo optimize →
  *     structural validation → ResolvedLibraryIcon
  *
+ * The SCANNED stream (icon-prefix-compiler, 2026-09-07) merges here —
+ * the optional 4th parameter, after declared refs, through the same
+ * preset resolution + collision matrix (mergeScannedIntoPending); the
+ * generator downstream receives only assets + alias/template metadata.
+ *
  * Safety runs BEFORE any transformation — optimization never launders
  * unvalidated content. A warn-mode rejection DROPS the icon with a
  * named warning (collected in the resolution); error-mode fails the
@@ -43,23 +48,35 @@ import {
   toArrayBuffer,
 } from './font-extract.js';
 import type { IconPreset } from './presets/types.js';
+import {
+  compareScannedRefs,
+  scannedRefKey,
+  type ScannedRef,
+} from './scan.js';
 import type {
   IconLibraryOptions,
   IconSource,
   ResolvedLibraryIcon,
 } from './types.js';
-import { normalizeLibraryOptions, type NormalizedLibraryOptions } from './config.js';
+import { ICON_NAME_PATTERN, normalizeLibraryOptions, type NormalizedLibraryOptions } from './config.js';
 
-/** what resolveLibraryInputs hands back: survivors + named warnings */
+/** what resolveLibraryInputs hands back: survivors + named warnings.
+ *  `aliases` is the `as` indirection table (alias → canonical) built
+ *  from the scanned stream after the collision matrix — the metadata
+ *  the pure generator's ALIASES emission consumes (codex r1 purity:
+ *  the generator never sees raw scan output). */
 export interface LibraryResolution {
   readonly icons: readonly ResolvedLibraryIcon[];
   readonly warnings: readonly string[];
+  readonly aliases: Readonly<Record<string, string>>;
 }
 
 /** one manifest entry after config merge: where the artwork comes from */
 interface PendingIcon {
   readonly name: string;
   readonly source: IconSource;
+  /** true = the prefix compiler scanned this ref from consumer sources */
+  readonly scanned?: boolean;
 }
 
 /** load the lucide package once per generation — loud-fail install hint */
@@ -114,6 +131,86 @@ function mergeSources(normalized: NormalizedLibraryOptions): PendingIcon[] {
     byName.set(name, { name, source });
   }
   return Array.from(byName.values());
+}
+
+// ── the scanned stream (icon-prefix-compiler design §2) ────────────
+
+/**
+ * Merge the SCANNED refs into the pending list (after declared refs,
+ * sorted (preset, name) — the packing-order law) and build the alias →
+ * canonical table. The collision matrix, all named build errors:
+ *
+ *   - alias grammar: `/^[a-z][A-Za-z0-9]*$/` (the camelCase icon-name
+ *     law — scanned keys themselves are EXEMPT, aliases are not)
+ *   - alias ↔ declared/scanned name: an alias may not shadow any name
+ *     already owned by a declared icon (built-in or config)
+ *   - two refs → one alias: two DIFFERENT canonicals declaring the same
+ *     alias fail naming both refs and the contested alias (the same
+ *     canonical re-declaring its alias in another file dedupes
+ *     silently — that is the point)
+ *   - a ref's name ↔ another ref's alias is UNREACHABLE by grammar:
+ *     canonical keys always carry the prefix colon, aliases never can
+ *
+ * Refs under a prefix that is not an ENABLED preset are IGNORED
+ * (codex r1 M5/M6 — the scanner already filters them; direct API
+ * callers get the same fail-safe skip, never a build break).
+ *
+ * @throws the named collision/grammar errors above
+ */
+function mergeScannedIntoPending(
+  normalized: NormalizedLibraryOptions,
+  scanned: readonly ScannedRef[],
+  pending: PendingIcon[],
+): Readonly<Record<string, string>> {
+  const enabledPrefixes = new Set<string>(
+    normalized.presets.map((preset) => preset.prefix),
+  );
+
+  // group per canonical (dedupe) with aliases in (preset, name, alias)
+  // sort order — deterministic regardless of scan order
+  const groups = new Map<string, { preset: string; name: string; aliases: string[] }>();
+  for (const ref of [...scanned].sort(compareScannedRefs)) {
+    if (!enabledPrefixes.has(ref.preset)) continue; // fail-safe skip (M5/M6)
+    if (ref.alias !== undefined && !ICON_NAME_PATTERN.test(ref.alias)) {
+      throw new Error(
+        `[jixoai-icons] the scanned ref "${scannedRefKey(ref)}" declares the alias ` +
+          `"${ref.alias}" — aliases must match /^[a-z][A-Za-z0-9]*$/ (the camelCase ` +
+          'icon-name law; scanned keys like md:copy_all are exempt, aliases are not)',
+      );
+    }
+    const key = scannedRefKey(ref);
+    const group = groups.get(key) ?? { preset: ref.preset, name: ref.name, aliases: [] };
+    if (ref.alias !== undefined && !group.aliases.includes(ref.alias)) {
+      group.aliases.push(ref.alias);
+    }
+    groups.set(key, group);
+  }
+
+  // the collision matrix + the alias table + the pendings
+  const declaredNames = new Set(pending.map((icon) => icon.name));
+  const aliasToCanonical: Record<string, string> = {};
+  for (const [key, group] of groups) {
+    for (const alias of group.aliases) {
+      if (declaredNames.has(alias)) {
+        throw new Error(
+          `[jixoai-icons] the scanned ref "${key}" declares the alias "${alias}" but a ` +
+            'declared library icon already owns that name — aliases may not shadow ' +
+            'declared/scanned names; pick a different alias',
+        );
+      }
+      const existing = aliasToCanonical[alias];
+      if (existing !== undefined && existing !== key) {
+        throw new Error(
+          `[jixoai-icons] two scanned refs claim one alias: "${existing} as ${alias}" and ` +
+            `"${key} as ${alias}" — an alias names exactly ONE icon; drop one declaration ` +
+            'or pick a new alias',
+        );
+      }
+      aliasToCanonical[alias] = key;
+    }
+    pending.push({ name: key, source: key, scanned: true });
+  }
+  return aliasToCanonical;
 }
 
 // ── structural validation (post-optimize, pre-output) ─────────────
@@ -204,16 +301,24 @@ function extractFontGlyphSvg(
  *                own fs-backed twin)
  * @param checker the SHARED safety checker (the `safety` option serves
  *                both faces) — runs on the RAW source pre-optimization
+ * @param scanned the prefix compiler's stream (OPTIONAL 4th parameter —
+ *                the backward-compat lock: existing 3-arg callers keep
+ *                compiling and behaving identically). Refs merge after
+ *                declared refs, resolve through the enabled presets'
+ *                resolvers, and carry the `as` alias table out in the
+ *                resolution (design §2's collision matrix enforced here)
  */
 export async function resolveLibraryInputs(
   options: IconLibraryOptions,
   io: ProviderContext,
   checker: SafetyChecker,
+  scanned?: readonly ScannedRef[],
 ): Promise<LibraryResolution> {
   const normalized = normalizeLibraryOptions(options);
   const warnings: string[] = [];
   const resolved: ResolvedLibraryIcon[] = [];
   const pending = mergeSources(normalized);
+  const aliases = mergeScannedIntoPending(normalized, scanned ?? [], pending);
 
   // the enabled presets' prefix → instance map (config validation has
   // already failed every disabled/unknown prefixed ref)
@@ -236,8 +341,12 @@ export async function resolveLibraryInputs(
   );
   if (needsLucide) lucide = await loadLucide();
 
-  for (const { name, source } of pending) {
-    const labelOf = (kind: string): string => `library icon "${name}" (${kind})`;
+  for (const icon of pending) {
+    const { name, source } = icon;
+    // scanned refs get their own label lineage so resolution failures
+    // name the ref AND its origin (a scanned miss teaches the scan)
+    const labelOf = (kind: string): string =>
+      icon.scanned === true ? `scanned ref "${name}" (${kind})` : `library icon "${name}" (${kind})`;
 
     // -- resolve to the RAW svg ------------------------------------
     let raw: string;
@@ -356,5 +465,5 @@ export async function resolveLibraryInputs(
     resolved.push({ name, svg });
   }
 
-  return { icons: resolved, warnings };
+  return { icons: resolved, warnings, aliases };
 }

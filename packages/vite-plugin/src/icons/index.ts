@@ -97,6 +97,19 @@ export type {
   IconLibraryWriteResult,
   IconLibraryCheckResult,
 } from './library/script.js';
+// the source scanner (icon-prefix-compiler, 2026-09-07): the pure
+// module behind the prefix compiler — its types + both collection
+// entries (the eager project walk + the literal matcher the dev
+// transform drives), exported for consumer tooling and tests
+export type { ScannedRef, ScanProjectOptions } from './library/scan.js';
+export {
+  collectScannedRefs,
+  compareScannedRefs,
+  isScannableModuleId,
+  mergeScannedRefs,
+  scanProjectSources,
+  scannedRefKey,
+} from './library/scan.js';
 // lucide canonical serialization (shared by the slot provider + the library face)
 export { serializeLucideIcon } from './providers/lucide.js';
 

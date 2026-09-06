@@ -47,6 +47,14 @@
  * HMR rides the slot face's existing refresh path: {file}-sourced
  * library icons join the same watch machinery; a change re-runs both
  * faces and invalidates every virtual module.
+ *
+ * The PREFIX COMPILER (icon-prefix-compiler, 2026-09-07): with presets
+ * enabled, `name="md:copy_all"` literals in consumer sources enter the
+ * set with NO library.icons declaration — through the scanner's two
+ * entries (scan.ts): an EAGER project walk at buildStart in build mode
+ * (generation precedes transforms), and a DEV transform collector
+ * whose scanned-set changes ride scheduleRefresh. The `as` alias form
+ * packs one payload under the canonical key with an ALIASES indirection.
  */
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -70,6 +78,13 @@ import {
 } from './library/config.js';
 import { generateIconLibraryArtifacts, type GeneratedLibraryArtifacts } from './library/generate.js';
 import { resolveLibraryInputs } from './library/resolve.js';
+import {
+  collectScannedRefs,
+  isScannableModuleId,
+  mergeScannedRefs,
+  scanProjectSources,
+  type ScannedRef,
+} from './library/scan.js';
 import type { IconLibraryOptions } from './library/types.js';
 import {
   chunkIndexOf,
@@ -339,13 +354,20 @@ function generateModules(
  * the icon plugin's hook surface, typed for the umbrella bridge's
  * delegation (createIconPlugin always defines these as plain
  * functions — the umbrella's memoized dynamic import calls them
- * directly without vite re-invoking us)
+ * directly without vite re-invoking us). `transform` is the prefix
+ * compiler's DEV collector hook (icon-prefix-compiler design §1b): a
+ * plain-function member like `load`, so the umbrella bridge can
+ * delegate it — an umbrella consumer must not silently lose the
+ * scanner.
  */
 export interface IconPluginHooks {
-  configResolved(config: { root: string }): void;
+  configResolved(config: { root: string; command?: string }): void;
   buildStart(): Promise<void>;
   resolveId(id: string, importer: string | undefined): string | null;
   load(id: string): Promise<string | null>;
+  /** the dev-incremental scanner collector — NEVER rewrites code
+   *  (null pass-through); a scanned-set change rides scheduleRefresh */
+  transform(code: string, id: string): { code: string; map: null } | null;
   configureServer(server: ViteDevServer): void;
 }
 
@@ -391,11 +413,27 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
   let buildPromise: Promise<void> | null = null;
   let refreshChain: Promise<void> = Promise.resolve();
   let projectRoot = process.cwd();
+  /** the vite command ('build' | 'serve') — the eager-walk vs
+   *  transform-collector switch (icon-prefix-compiler design §1) */
+  let viteCommand: string | undefined;
 
   /** the library face's current generation (null until built) */
   let library: GeneratedLibraryArtifacts | null = null;
   /** chunk module ids ever served — all invalidated on refresh */
   const servedChunkIds = new Set<string>();
+
+  // -- the prefix compiler's scanned stream (design §1) ────────────
+  // DEV: the transform collector accumulates per module; a UNION
+  // change rides scheduleRefresh. BUILD: the eager walk runs instead
+  // (generation at buildStart precedes every transform).
+  const enabledPrefixes = (): readonly string[] =>
+    libraryOptions === null
+      ? []
+      : [...new Set(libraryOptions.presets.map((preset) => preset.prefix))];
+  const scannedByModule = new Map<string, readonly ScannedRef[]>();
+  let scannedUnion: readonly ScannedRef[] = [];
+  const scannedUnionKeyOf = (refs: readonly ScannedRef[]): string =>
+    refs.map((ref) => `${ref.preset}:${ref.name}\u0000${ref.alias ?? ''}`).join('|');
 
   /** watched files (absolute) → provider-registered change callbacks */
   const watches = new Map<string, Set<() => void>>();
@@ -455,13 +493,31 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
     jsCode = generated.js;
 
     if (libraryOptions !== null) {
+      // the EAGER project walk (design §1a): a production build
+      // generates at buildStart BEFORE any transform — only a project
+      // walk can feed it (transform-only collection is unreachable in
+      // build mode, the pre-review finding). DEV uses the transform
+      // collector's accumulated union instead (§1b).
+      const prefixes = enabledPrefixes();
+      const artifact = artifactPath();
+      const scanned =
+        viteCommand === 'build' && prefixes.length > 0
+          ? await scanProjectSources(projectRoot, prefixes, {
+              exclude: artifact === null ? [] : [artifact],
+            })
+          : scannedUnion;
       const resolution = await resolveLibraryInputs(
         libraryOptions,
         createContext(),
         checker,
+        scanned,
       );
       for (const warning of resolution.warnings) logWarn(warning);
-      library = generateIconLibraryArtifacts(resolution.icons, libraryOptions);
+      library = generateIconLibraryArtifacts(resolution.icons, {
+        ...libraryOptions,
+        aliases: resolution.aliases,
+        templatePrefixes: prefixes,
+      });
       await syncArtifact();
     }
   };
@@ -563,10 +619,15 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
     name: 'jixoai-icons',
     enforce: 'pre',
 
-    /** capture the project root (the artifact `output` joins to it) */
-    configResolved(config: { root: string }): void {
+    /** capture the project root (the artifact `output` joins to it) and
+     *  the command — the eager-walk (build) vs transform-collector
+     *  (serve) switch for the prefix compiler's two entries */
+    configResolved(config: { root: string; command?: string }): void {
       if (typeof config.root === 'string' && config.root.length > 0) {
         projectRoot = config.root;
+      }
+      if (typeof config.command === 'string') {
+        viteCommand = config.command;
       }
     },
 
@@ -640,6 +701,40 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
       if (kind === null) return null;
       await ensureBuilt();
       return kind === 'js' ? jsCode : cssCode;
+    },
+
+    /**
+     * the DEV-INCREMENTAL scanner collector (design §1b): collect the
+     * module's static name literals under ENABLED preset prefixes; a
+     * scanned-set UNION change rides scheduleRefresh — one full-reload
+     * cycle, exactly like a config edit. NEVER rewrites code (null
+     * pass-through — sources are never rewritten, the ruled form), and
+     * inert outside dev (build mode is served by the eager walk at
+     * buildStart) and without enabled presets.
+     */
+    transform(code: string, id: string): { code: string; map: null } | null {
+      if (libraryOptions === null || viteCommand !== 'serve') return null;
+      const prefixes = enabledPrefixes();
+      if (prefixes.length === 0) return null;
+      const artifact = artifactPath();
+      if (!isScannableModuleId(id, artifact)) return null;
+
+      const refs = collectScannedRefs(code, prefixes);
+      if (refs.length === 0) {
+        if (!scannedByModule.has(id)) return null; // nothing to forget
+        scannedByModule.delete(id);
+      } else {
+        scannedByModule.set(id, refs);
+      }
+      const union = mergeScannedRefs(
+        Array.from(scannedByModule.values()).flat(),
+      );
+      if (scannedUnionKeyOf(union) === scannedUnionKeyOf(scannedUnion)) {
+        return null; // per-module churn, same set — nothing to regenerate
+      }
+      scannedUnion = union;
+      scheduleRefresh(); // the slot face's refresh path (module-graph + full reload)
+      return null;
     },
 
     configureServer(devServer: ViteDevServer): void {

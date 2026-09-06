@@ -126,11 +126,32 @@ export interface IconData {
 }
 
 /** packing knobs the pure generator accepts (a subset of
- *  IconLibraryOptions — sources/write/output are adapter concerns) */
+ *  IconLibraryOptions — sources/write/output are adapter concerns).
+ *
+ *  The prefix-compiler extensions (icon-prefix-compiler B1/B2, codex r1
+ *  B3/purity): the generator receives only RESOLVED assets plus
+ *  name/alias/template METADATA — never raw scan output. Both default
+ *  absent, so every pre-existing caller keeps compiling and produces
+ *  byte-identical output. */
 export interface IconPackingOptions {
   readonly maxChunkBytes?: number;
   readonly chunking?: 'auto' | 'single';
   readonly inlineFirstChunk?: boolean;
+  /**
+   * alias → canonical, the `as` indirection table (resolveLibraryInputs
+   * builds it from the scanned stream after the collision matrix; {}
+   * / absent = no aliases). The payload packs ONCE under the canonical
+   * key; lookups deref aliases — and the full `md:x as y` literal —
+   * first (codex r1 B1/B4/M4).
+   */
+  readonly aliases?: Readonly<Record<string, string>>;
+  /**
+   * the ENABLED preset prefixes — each contributes a
+   * `` `${prefix}:${string}` `` template-literal member to the IconName
+   * union (compile-tier prefix safety; presets not enabled contribute
+   * NO member). Fed by BOTH adapters from their normalized configs.
+   */
+  readonly templatePrefixes?: readonly string[];
 }
 
 /** what the generator reports back (MEASURED acceptance numbers come
