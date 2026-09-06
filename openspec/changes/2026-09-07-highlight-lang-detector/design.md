@@ -1,25 +1,32 @@
 # highlight-lang-detector — Design
 
+r1 评审（Codex 5.5/10 REVISE）八阻塞已消化：D1 补常量与命名空间、
+D2 重构为 context-seam 接线 + 完整决策表、D3.2 冻结规范化伪码与
+阈值、D4 冻结通道 A 与 KiB 预算律、D5 修正 registry 边活性与内核侧
+归属、新增 D7 hljs detector 语义冻结。
+
 ## D1 — LanguageDetector 契约（core item，零 npm 依赖）
 
 ```ts
 // registry/files/lib/highlight/lang-detector.ts（随 highlight core 发行）
+export const AUTO_LANG = 'auto';   // lang 哨兵：trim 后全等比较，大小写敏感
+
 export type DetectSource =
-  | 'filename'    // DLD L1：扩展名表
-  | 'shebang'     // DLD L2：解释器表
+  | 'filename'    // DLD L1：扩展名/basename 表
+  | 'shebang'     // DLD L2：解释器表 / modeline
   | 'structure'   // DLD L3：结构探针
   | 'statistical' // DLD L4：betlang wasm
   | 'engine';     // 引擎自带（hljs highlightAuto）
 
 export interface DetectResult {
-  lang: string;            // canonical id（或待别名解析的 id）
+  lang: string;            // 本仓库 canonical id（单一命名空间，见下）
   source: DetectSource;
-  confidence?: number;     // 0..1；betlang 校准概率直传；表/结构层缺省
+  confidence?: number;     // 0..1；betlang 校准概率直传；表/结构/engine 层缺省
 }
 
 export interface DetectInput {
   code: string;
-  filename?: string;       // 卡片的 filename prop 原样透传
+  filename?: string;       // 卡片 filename prop 原样透传（可能含路径）
 }
 
 export interface LanguageDetector {
@@ -30,147 +37,238 @@ export interface LanguageDetector {
 
 裁决记录：
 
-- **返回 canonical id 而非检测原标签**：检测器内完成标签收敛（betlang
-  的 `TypeScript` → `typescript`），卡片侧零翻译逻辑。映射不到的检测
-  结果返回 `null`，走纯文本回退 + console warn（失败法则原文沿用：
-  报出检测到了什么、为何不渲染）。
-- **Promise 返回**：L1-L3 同步实现也包 Promise——wasm 层天然异步，
+- **单一 canonical 命名空间**：检测器返回的 lang 与卡片 `lang` prop
+  同域（本仓库 canonical id，如 `typescript`/`python`）。检测器内部
+  完成标签收敛（betlang 的 `TypeScript` → `typescript`），卡片侧零
+  翻译逻辑；canonical id 随后走 backend 自己的别名表与 curated 集
+  （backend 的 reject 法则原样适用）。
+- **Promise 返回**：同步层（L1-L3）也包 Promise——wasm 层天然异步，
   契约不允许双态。
-- **`filename` 只透传不解析**：文件名归属检测器（DLD L1 只取扩展名；
-  消费者自定义 detector 可读全名做 `.dockerfile`/`Makefile` 类特判）。
+- **`filename` 只透传**：文件名归属检测器（DLD L1 取扩展名 + 精确
+    basename；自定义 detector 可读全名做特判）。
+- **`AUTO_LANG` 常量而非联合类型**：`lang` prop 保持 `string`（存量
+  调用零破坏）；哨兵值以导出常量 + 运行时 guard（trim 后全等
+  `'auto'`，大小写敏感，其余含 "AUTO"/" auto " 的值一律按普通 lang
+  处理并走 reject 法则）。
 
-## D2 — 解析链与卡片接线
+## D2 — 解析链、null 级联与接线模型
 
-```
-lang !== 'auto'  →  现行路径逐字节不变（别名 → curated → reject/回退）
-lang === 'auto'  →  resolveDetector():
-    langDetector prop            （显式，最高）
-      → context HIGHLIGHT_DETECT_KEY   （插件/子树默认，可配 betlang）
-        → backend.detector             （hljs 自带 highlightAuto）
-          → DLD                        （懒 import，未装则 reject 提示）
-    → detect({ code, filename }) → lang → 既有高亮链
-```
+### D2.1 链与存在判据（完整决策表）
 
-裁决记录：
+`lang === AUTO_LANG` 时按序解析检测器，每环"存在"判据如下：
 
-- **context 环节排序高于 backend.detector**：站点经插件显式配置默认
-  detector 即为全站意志（"betlang 配为默认项"要能压过 hljs 自带）；
-  环节内仍是 prop > context > backend > DLD 的就近优先。
-- **DLD 是动态 import 兜底**：`import('$lib/highlight/lang-detector')`
-  仅在链尾且 lang="auto" 时发生——不装该 item 的消费者构建图里没有
-  这条边，未装而触发 → reject 报错信息给出安装命令（与引擎矩阵
-  "集外 lang" 提示同构）。
-- **SSR/prerender**：检测是异步运行时行为；预渲染产物恒为纯文本
-  （渐进增强地板不变）。hydration 后首次 paint 才检测 + 上色。
-- **`lang` prop 类型**：`string`（含 `'auto'`）。不引入联合类型破坏
-  存量调用；`'auto'` 是运行时哨兵值，文档明示。
+| 环 | 存在判据 | 不存在时 |
+|---|---|---|
+| ① prop | `langDetector !== undefined` | 进② |
+| ② context | `getContext(HIGHLIGHT_DETECT_KEY)` 返回对象且 `.detector` 为函数（组件窗口内） | 进③ |
+| ③ backend | `backend.detector` 为函数 | 进④ |
+| ④ 兜底 | **无第四环** | 运行时 reject：报"lang='auto' 需要检测器"，给出安装命令 + 一行接线指引 |
+
+**null 级联法则**：某环 detector resolve 为 `null` = 该环无意见 →
+**级联下一环**（"不冲突、互相补充"）；某环 reject/throw = 终态 →
+纯文本回退 + console warn（报出该环 id 与错误）。四环皆 null（或
+链尾前皆无意见且无③④可用）→ 纯文本回退 + warn（报出各环 id 与
+"no language detected"）。
+
+**链的语义推论**：prop 写了但返回 null，context/backend 仍有机会
+（互补）；插件把 betlang 配成 context 默认后，betlang null 时 hljs
+自带 detector 仍兜底。
+
+### D2.2 接线模型（r1-B1 修正：零静态 import）
+
+卡片与 core **不 import DLD 的任何 specifier**（动态也不行——
+Vite/Rollup 在构建期解析静态字符串 specifier，裸消费者缺文件直接
+构建失败，"运行时才 reject"不可实现）。
+
+DLD 作为"默认检测器"的落地形态 = **context 默认值**：
+
+- DLD item 发行 `<HighlightDetectDefault />`（~8 行 Svelte 组件：
+  `setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() })`，
+  仅用 registry-safe key，无内核依赖）。消费者在任意子树根 wrap 一行，
+  该子树所有 `lang="auto"` 卡片吃到 DLD。
+- 未装 DLD / 未接线：构建图零 DLD 字节；`lang="auto"` 运行时 reject
+  （安装命令 + 接线指引进报错文本）。
+- 文档站 dogfood：+layout 接线，playground 双 demo 走真实链路。
+
+### D2.3 SSR / prerender / 检测时机
+
+检测是异步运行时行为：预渲染产物恒为纯文本（渐进增强地板），
+hydration 后首次 paint 才 resolveDetector → detect → 高亮。context
+在 SSR 窗口内可用（Svelte context 法则），但 detect 永不跑在服务端。
 
 ## D3 — DLD 四层瀑布（每层独立懒模块）
 
 ```
-defaultLangDetector()  ── 命中即短路，层层 fallback
-  L1 filename/ext   ext-table.ts      多行字符串表 → 首次 parse 成 Map
-  L2 shebang        shebang-table.ts  多行字符串表（读 code 首行解释器）
-  L3 structure      structure.ts      纯 TS 探针（见 D3.3）
-  L4 statistical    betlang.ts        wasm 懒加载 + 标签映射表
+defaultLangDetector()  ── 命中即短路，层层 fallback（层内 null 交上层瀑布语义）
+  L1 filename   ext-table.ts      扩展名表 + 精确 basename 表（多行字符串）
+  L2 shebang    shebang-table.ts  解释器表 + emacs 首行 modeline（多行字符串）
+  L3 structure  structure.ts      纯 TS 探针（D3.2 冻结判据）
+  L4 statistical betlang.ts       wasm 懒加载 + 48 标签映射表
 ```
 
 ### D3.1 表格式（Owner 指定：多行字符串）
 
 ```ts
-// ext-table.ts —— 数据源 linguist languages.yml ∩ canonical 集
+// ext-table.ts —— 数据源 linguist languages.yml（commit SHA 见下）∩ canonical 集
 // 歧义扩展名（heuristics.yml 138 组消解块内）不在此表，留给 L4
+// mined-from: github-linguist/linguist@<commit-sha> lib/linguist/languages.yml
 const EXT_TABLE = `
 ts typescript
 tsx tsx
 py python
 rb ruby
-hs haskell
+`;
+// basename 表（linguist filenames 字段 ∩ canonical 支持集；精确全等，大小写敏感）
+const BASENAME_TABLE = `
+Dockerfile dockerfile
+Makefile make
+CMakeLists.txt cmake
 `;
 ```
 
-- 单空格分隔、换行分隔条目；`#` 起注释行（保留数据出处与排除说明
-  的书写位）。体积密度高于 JSON/对象字面量，parse 一次缓存 Map。
-- shebang 表同构：解释器 basename → lang（`python3 python`）。
+- 单空格分隔、换行分隔条目；`#` 起注释行。首次使用才 parse 成 Map，
+  进程级缓存（多卡片共享）。basename 精确全等（`Makefile.old` 不命中）；
+  扩展名取最后一个 `.` 后缀、小写化。
+- shebang 表同构（解释器 basename → lang：`python3 python`）。挖掘时
+  的 linguist commit SHA 落表头注释（再挖掘是手动动作，SHA 即数据版本）。
 
-### D3.2 结构层法则（Owner 原话的工程化）
+### D3.2 结构层冻结判据（r1-B8 修正：可验收伪码 + 阈值）
 
-只做"开头或全篇即可确判"的探针，**禁止编程语言指纹**：
+```
+normalize(text):
+  strip UTF-8 BOM；body = text.trim()；
+  L1 = 第一个非空行（trim-start）；
+  H  = body 前 512 字符；
+  lines = body 非空行数组；n = lines.length
 
-| 目标 | 探针 | 判据 |
-|---|---|---|
-| XML | 首行 `<?xml` | 字面量前缀 |
-| HTML | 首行 `<!doctype html`（大小写不敏感） | 字面量前缀 |
-| SVG | 首行 `<svg` 或 `<?xml` 后随 `<svg` | 根元素判据 |
-| JSON | `JSON.parse` 全文 | 硬判据；解析失败但首字符 `{`/`[` **不**声明 |
-| YAML / TOML / INI | 保守正则组 | 只在**互斥标记**确判时声明（`---` 文档头 + `key: value` 密度 → YAML；`[section]` + `key = value` 带空格 → TOML；`[section]` + `key=value` 无空格 → INI）；歧义即放弃 |
+guard_Markdown（最高优先，命中则本层整体弃权 return null）:
+  body 含 ``` 围栏（/^```/m 或 /^~~~/m）
+  或 ≥2 行匹配标题 /^ {0,3}#{1,6}\s+\S/
 
-负样本测试锁死 Markdown 干扰：含 Rust/Go/Kotlin/Swift 指纹的样本在
-无 filename/shebang 时**必须**落到 L4，L3 永不捕获。
+P_JSON:  JSON.parse(body) 成功 → json                     // 硬判据，最先
+P_SVG:   /^<svg[\s>]/.test(L1) → svg
+         或 /^<\?xml[^>]*\?>\s*<svg[\s>]/.test(H) → svg    // SVG 优先于 XML
+P_XML:   L1 以 '<?xml' 开头（大小写敏感，XML 声明规范如此）→ xml
+P_HTML:  /^<!doctype\s+html/i.test(L1) → html
+P_YAML:  n ≥ 3 且 lines[0] === '---'
+         且 body 中 /^\s*[A-Za-z_][\w.-]*:(\s|$)/m 命中行占比 ≥ 60%（排除 '---' 分隔行）
+P_TOML:  n ≥ 3 且 ≥1 行整行匹配 /^\[[A-Za-z0-9_.$-]+\]$/
+         且 ≥2 行匹配 /^[A-Za-z_][\w.-]*\s=\s\S/（= 两侧有空格）
+         且 lines[0] !== '---'
+P_INI:   n ≥ 3 且 ≥1 行整行匹配 /^\[[A-Za-z0-9_.$ -]+\]\s*$/
+         且 ≥2 行匹配 /^[A-Za-z_][\w.-]*=[^=]/（= 无左侧空格）
+         且 P_TOML 未命中（TOML 优先：空格 = 是 TOML 的强标记）
+顺序：guard_Markdown → P_JSON → P_SVG → P_XML → P_HTML → P_YAML → P_TOML → P_INI → null
+```
+
+- **Markdown 守卫优先于一切结构声明**（Owner 的干扰担忧工程化）：
+  围栏或标题密度出现 → 本层弃权，样本穿透到 L4。
+- front-matter 边界：`---` + YAML keys + `---` + 含 Markdown 标记的
+  正文 → guard 弃权（判为 markdown 语境）；纯 `---`+keys+`---`+keys
+  多文档无 md 标记 → yaml。正负样本矩阵锁死该边界。
+- `[title](url)` 类 markdown 链接不触发 section 判据（section 要求
+  整行匹配 `^\[…\]$`）。
+- **本层永不做编程语言指纹**：Rust/Go/Kotlin/Swift 指纹样本必须穿透
+  到 L4（负样本矩阵固定项）。
 
 ### D3.3 层间短路与懒加载
 
 - 每层一个模块，`defaultLangDetector()` 闭包内逐层 `await import()`：
-  L2 模块在 L1 命中时**零字节加载**，依此类推。
-- 表 parse 结果模块级缓存（进程级，多卡片共享）。
-- `betlangDetector()` 独立导出：直连 L4 的统计检测器（插件配默认 /
-  消费者显式 prop 用，跳过 L1-L3）。
+  L1 命中后 L2-L4 模块零字节加载。
+- 表 parse 结果模块级缓存。
+- `betlangDetector()` 独立导出：直连 L4 统计检测器（插件配默认 /
+  显式 prop 用，跳过 L1-L3）。
 
-## D4 — betlang wasm 通道（本变更最重的裁决）
+## D4 — betlang wasm 通道（r1-B6/B7 修正：通道冻结 + KiB 预算律）
 
-**探测结论（evidence/betlang-probe-2026-09-07.md）**：lean 绑定
-raw 97.7KB / gzip 57.1KB，双口径 ≤ 100KB —— **betlang 进 DLD L4，
-作为默认统计层**（无需退到 linguist heuristics B 方案；linguist 数据
-仍服务 L1/L2 表与排除表）。
+**探测结论（evidence/betlang-probe-2026-09-07.md）**：lean 绑定 raw
+97.7KiB / gzip 57.1KiB —— betlang 进 DLD L4 作默认统计层。
 
-**发行通道**（npm 无官方 wasm 包；npm `betlang@0.0.0` 为占位空包）：
+**发行通道（冻结为 A，删除 B 的规范地位）**：自建
+`@jixoai/betlang-wasm` npm 包，仓库位置 `packages/betlang-wasm/`：
 
-- **A（首选）：自建 `@jixoai/betlang-wasm` npm 包** —— 内容 = CI 从
-  钉死的 crates.io `betlang = "=0.1.1"` 构建的 wasm + 手写 ~40 行
-  JS 装载器（线性内存 UTF-8 进出，无 wasm-bindgen 胶水，与 lean
-  探针同构）+ `.d.ts` + MIT 归属。供应链 = 消费者 lockfile，与
-  tree-sitter 法则同构（"供应链即 lockfile"）。仓库内 `scripts/
-  verify-betlang-pin.mjs` 核验包内 wasm 的 sha256 + magic bytes +
-  双口径尺寸预算（raw ≤ 100KB / gzip ≤ 70KB；实测 97.7/57.1）。
-- **B（备选）：GitHub release 资产 + pin manifest** —— ghostty 法则
-  原样平移（pin.json + 域白名单 + sha256 + 尺寸帽 + 构建信息）。
-  消费者 DX 差一档（vite 插件需下载/复制步骤），仅在 npm 通道受阻
-  时启用。
-- **公共法则**：两条通道下**二进制都不入 git**（ghostty 法则原文：
-  binaries never enter git; the pin manifest is the only supply-chain
-  artifact）。
+- 构建源：Cargo.toml 钉死 `betlang = "=0.1.1"`，Cargo.lock 入库，
+  `.github/workflows/betlang-wasm-release.yml`（rustup toolchain +
+  wasm32-unknown-unknown target + `--locked` 构建 + npm provenance
+  发布）。
+- 包内容：wasm + 手写 ~40 行 JS 装载器（线性内存 UTF-8 ABI，无
+  wasm-bindgen 胶水——bindgen 使 raw 增约 3-8KB 可能越线）+ `.d.ts`
+  + MIT/上游归属。首版 `0.1.1`（镜像 crate 版本）。
+- 完整性：发布物 sha256（wasm + tarball）、构建工具链版本（rustc/
+  LLVM）、字节精确尺寸入 `packages/betlang-wasm/ARTIFACT.md`；
+  `scripts/verify-betlang-pin.mjs` 核验 sha256 + magic bytes
+  (`\0asm`) + 双预算。
 
-**wasm 装载 seam（与 tree-sitter 四象限同构）**：`wasmLoader(asset) →
+**KiB 预算律（字节精确，KiB=1024B）**：
+
+| 口径 | 预算 | 实测（lean probe） | 余量 |
+|---|---|---|---|
+| raw | ≤ 100 KiB（102,400 B） | 97.7 KiB | 2.3 KiB |
+| gzip（Node zlib.gzipSync level 9，算法冻结） | ≤ 70 KiB（71,680 B） | 57.1 KiB | 12.9 KiB |
+| 预警线 raw | 98 KiB（100,352 B） | — | 余 0.3 KiB |
+
+**降级预案（Owner 预案冻结）**：最终发行物（真实装载器导出 + 全
+entry）raw 越预警线 → betlang 转**非默认** detector item（手动启用/
+插件配置），DLD 收缩三层，本变更相应改写 L4 章后再送审；linguist
+heuristics 完整移植维持 Non-Goal。任务 4.1 以最终发行物复测为验收。
+
+**公共法则**：二进制不入 git、不入 registry payload（ghostty 法则
+原文沿用）；npm 是唯一发行通道（供应链 = 消费者 lockfile，tree-sitter
+法则延续）。
+
+**wasm 装载 seam（tree-sitter 四象限同构）**：`wasmLoader(asset) →
 { url } | { bytes }`；浏览器 `?url`（vite 资产发射）/ Node·vitest
-`createRequire + readFile` bytes —— 测试跑**真实 wasm**，不 mock，
-`file://` 不作为浏览器证据（tree-sitter 法则原文沿用）。
+`createRequire + readFile` bytes —— 测试跑真实 wasm，不 mock。
 
-**标签映射**：betlang 48 标签 → canonical id 内嵌映射表（`typescript
-typescript\njavascript javascript\n…`，多行字符串同 D3.1）；无对应
-（如 `gemfile`/`gemspec`/`vba`/`verilog`）→ null + warn。
+**标签映射**：48 标签全表 → canonical id 内嵌多行字符串（含 betlang
+版本绑定注释）；无对应标签（`gemfile`/`gemspec`/`vba`/`verilog` 等）
+→ null + 一次性 warn（Set 缓存，每标签每进程至多一条）。低置信度
+（校准概率分裂）：仍返回 top1 + confidence 原值，消费者自行取舍。
 
-## D5 — registry 结构
+## D5 — registry 结构与边活性
 
 ```
-highlight (core)            + lang-detector.ts（契约 + HIGHLIGHT_DETECT_KEY seam；仍零 npm 依赖）
-highlight-lang-detector     新 item：DLD 四层（L1-L3 纯 TS）+ betlang 通道
-                              deps: @jixoai/highlight, @jixoai/betlang-wasm（若 D4-A）
-                              exports: defaultLangDetector() / betlangDetector()
-highlight-highlightjs       + detector 槽位接线（highlightAuto over 已注册 langs）
-code-card                   + langDetector prop、lang="auto" 路径
+highlight (core)            + lang-detector.ts（契约 + AUTO_LANG；零 npm 依赖）
+                            context-key.ts + HIGHLIGHT_DETECT_KEY（registry-safe 身份）
+highlight-lang-detector     新 item：L1-L3 纯 TS + betlang 通道 + <HighlightDetectDefault/>
+                              deps: @jixoai/highlight, @jixoai/betlang-wasm
+                              runtime import HIGHLIGHT_DETECT_KEY（接线组件）——边活性真实
+highlight-highlightjs       + detector 槽位接线（D7 语义）
+code-card                   + langDetector prop、AUTO_LANG 路径
 ```
 
-- `verify:shadcn-add` 从 registry.json 自动派生 `highlight-lang-
-  detector` 隔离 case（引擎矩阵门禁的既有机制平移；probe 模板新增）。
-- `HIGHLIGHT_DETECT_DEF` 落站点内核侧 `lib/highlight/context.svelte.ts`
-  （HIGHLIGHT_DEF 同构），插件经 definePlugin targets 投影。
+- DLD 对 core 的依赖是**真实 runtime import**（接线组件 import
+  `HIGHLIGHT_DETECT_KEY` 与 `AUTO_LANG` 常量）——verify-deps 跳过
+  `import type`，纯类型边会判 dead（r1-B4）。
+- `verify:shadcn-add` 派生**双 case**：裸 code-card（构建零 DLD 字节
+  断言 + 运行时 reject）与 code-card+DLD（一行接线 + `lang="auto"`
+  端到端）。
+- `HIGHLIGHT_DETECT_DEF` + `createHighlightDetectContext` 为
+  **site-only**（`lib/highlight/context.svelte.ts`，与 HIGHLIGHT_DEF
+  同法——context-key.ts 头注释的既有二分：registry-safe 身份随 core，
+  内核编排属站点）。context.svelte.ts 增补 def 时镜像两树同步。
 
 ## D6 — 显式不做（Non-Goals）
 
-- 不做检测缓存层（同 code 跨卡片复用）——首次检测毫秒级，缓存复杂
-  度不值；后续有真实需求再立项。
-- 不做 linguist heuristics 的完整 JS 移植（138 组 Ruby 正则兼容块）
-  ——仅作 L1 排除表来源与 betlang 不可用时的 B 方案储备。
-- 不做 betlang 之外的统计引擎抽象（接口留 `LanguageDetector`，第二个
-  实现出现时再抽公共）。
-- 不改 `lang` prop 的联合类型（`'auto'` 保持 string 哨兵）。
+- 不做检测缓存层（同 code 跨卡片复用）——后续有真实需求再立项。
+- 不做 linguist heuristics 的完整 JS 移植（138 组）——仅作 L1 排除表
+  来源与 B 方案储备（betlang 降级时也不自动启用，另立项）。
+- 不做 betlang 之外的统计引擎抽象（第二个实现出现时再抽公共）。
+- 不改 `lang` prop 的联合类型（AUTO_LANG 常量 + guard）。
+- 不做 confidence 的卡片侧行为（v1 透传，消费者/插件自行取舍）。
+
+## D7 — hljs detector 语义冻结（r1-B5）
+
+```
+highlightJs({ langs }).detector:
+  detect({ code })                      // filename 被忽略
+    langs 集（factory 闭包，canonical）为空 → null（无候选，不级联误报）
+    否则：懒加载并注册该集到【本实例私有 lib/core】（与其他实例、
+          全局注册表零串扰）→ highlightAuto(code) 跑且仅跑已注册集
+    命中 → { lang: 实例别名表收敛为 canonical, source: 'engine' }（无 confidence）
+    无命中 / 部分注册失败 → null（级联语义交还链）
+```
+
+测试锁死：空 langs → null；双实例不同 allowlist 互不可见（A 注册
+ts、B 注册 css；A 的 detector 检不出 css 样本）；无命中 → null；
+构造不 paint 时 detector 不预注册（零额外加载直到首次 detect）。
