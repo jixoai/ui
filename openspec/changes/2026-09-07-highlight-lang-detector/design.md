@@ -77,8 +77,8 @@ reject 终态**——下表保留四行是完整决策表，行④即 reject：
 
 **null 级联法则**：某环 detector resolve 为 `null` = 该环无意见 →
 **级联下一环**（"不冲突、互相补充"）；某环 reject/throw = 终态 →
-纯文本回退 + console warn（报出该环 id 与错误）。四环皆 null（或
-链尾前皆无意见且无③④可用）→ 纯文本回退 + warn（报出各环 id 与
+纯文本回退 + console warn（报出该环 id 与错误）。三个检测环皆
+null（皆无意见）→ 纯文本回退 + warn（报出各环 id 与
 "no language detected"）。
 
 **链的语义推论**：prop 写了但返回 null，context/backend 仍有机会
@@ -111,7 +111,7 @@ slot**，故 provider 必须是包装形态）：
 <script>
   import { setContext } from 'svelte';
   import { HIGHLIGHT_DETECT_KEY } from '$lib/highlight/context-key';
-  import { defaultLangDetector } from '$lib/highlight/lang-detector';
+  import { defaultLangDetector } from '$lib/highlight/default-detector';
   setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() });
 </script>
 <slot /> <!-- 自己的子树 -->
@@ -389,10 +389,14 @@ highlight-js.ts 各自的表）——本变更不合并它们（超范围），�
 //   interp=<a,b,...> L2 解释器 basename（可缺省）
 //   backend=<a,...>  能渲染该 canonical 的引擎 id（curated 集挖掘快照）
 // 规则：`#` 起注释行；空白行忽略；同一 k 不得在一行内重复；canonical
-// 不得重复出现；值域 [A-Za-z0-9+#._-]（无转义需求）；任何违例 = parse
-// error（构造期抛出，测试断言）。
+// 不得重复出现；值域 [A-Za-z0-9+#._,-]（列表字段以逗号分隔：空项、
+// 重复项 = parse error，列表内次序即书写序不重排）；任何违例 = parse
+// error（构造期抛出，测试断言：非法逗号位置、空列表、重复值、重复
+// canonical、重复 k 各一 fixture）。
 const CANONICAL = `
-# sources: betlang =0.1.1 (crates.io) | linguist @<commit-sha> | backend curated @<repo-commit>
+# sources: betlang =0.1.1 (crates.io) | linguist @<linguist-commit> | backend curated @<repo-commit>
+# （占位符在实现期 task 3.0 编纂时必须替换为真实 SHA——门禁断言表内
+#   无 <> 占位符残留，非占位值是开工前置条件）
 typescript betlang=TypeScript ext=ts interp=- backend=shiki,hljs,prismjs,sugar-high,tree-sitter
 tsx        betlang=-           ext=tsx backend=shiki,tree-sitter
 python     betlang=Python ext=py interp=python,python3 backend=shiki,hljs,prismjs
@@ -418,9 +422,10 @@ python     betlang=Python ext=py interp=python,python3 backend=shiki,hljs,prismj
 `LanguageDetector | undefined`（defaults/ssrSafe 皆 undefined——检测
 是运行时行为，无 DEFAULT_SHIKI_BACKEND 对应物，链尾空即落
 backend.detector 环）；**存储到 HIGHLIGHT_DETECT_KEY 的 context 值
-恒为 `{ detector }` adapter**（registry 消费者 getContext 读
-`.detector`，与手写 setContext、包装组件、内核 provider 三路写入
-形状统一）：
+恒为 `{ detector: LanguageDetector | undefined }` adapter**（registry
+消费者 getContext 读 `.detector` 并做函数判据——undefined 即"无意见"
+级联下一环，与手写 setContext、包装组件、内核 provider 三路写入形状
+统一）：
 
 ```ts
 export const HIGHLIGHT_DETECT_DEF: ContextDef<'highlight-detect', LanguageDetector | undefined> =

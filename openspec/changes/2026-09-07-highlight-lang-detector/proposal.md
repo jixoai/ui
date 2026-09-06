@@ -36,7 +36,7 @@ Owner 需求（2026-09-07，引擎矩阵收尾四问之 Q4 的正式立项）：
 - `lib/highlight/lang-detector.ts`（随 `highlight` core item 发行，零 npm
   依赖）：`LanguageDetector` 接口 + `DetectResult` + `DetectSource` +
   `AUTO_LANG = 'auto'` 常量（`lang` 保持 string，哨兵值导出常量 + 运行时
-  精确匹配 guard：trim 后全等 `'auto'`，大小写敏感）。
+  严格全等 guard：`lang === AUTO_LANG`，无 trim、大小写敏感）。
 - `context-key.ts`（core 既有零依赖 seam 文件）增补
   `HIGHLIGHT_DETECT_KEY` 与 `HighlightDetectContextValue` —— registry-safe
   身份对象，所有消费者（含插件）共用同一 Symbol。
@@ -48,14 +48,17 @@ Owner 需求（2026-09-07，引擎矩阵收尾四问之 Q4 的正式立项）：
   detector → 运行时 reject（报 DLD 安装 + 接线指引）。**DLD 作为
   "默认检测器"的落地形态是 context 默认值**（r2 冻结作用域：Svelte
   context 只向子树传播，provider 必须是包装形态）——独立 registry:ui
-  item `highlight-detect-default` 发行 `<HighlightDetectDefault>`
+  item `highlight-detect-default`（index.ts barrel + jixoai-theme
+  依赖，icon/icon-set 形状）发行 `<HighlightDetectDefault>`
   **children 包装组件**，或消费者在子树根 `<script>` 手写一行
-  setContext（两种等价形态并列进文档与报错指引）；装好接线后该子树
+  setContext（两种等价形态并列进文档与报错指引；DLD lib item 自身
+  不发行任何 Svelte——framework-free）；装好接线后该子树
   所有 `lang="auto"` 卡片吃到 DLD，未装者的构建图中**不存在任何**
   DLD 边。**检测成功但 backend 拒绝 = 终态**（按矩阵失败法则点名可
   覆盖引擎，不换检测器重试）。
 - **null 级联法则（"不冲突、互相补充"的工程化）**：检测器返回 null =
-  无意见 → 级联下一环；reject/throw = 终态 → 纯文本回退 + warn。四环
+  无意见 → 级联下一环；reject/throw = 终态 → 纯文本回退 + warn。三
+  检测环（prop/context/backend）皆缺或皆无意见 → 纯文本 + warn；链
   皆 null → 纯文本 + warn（报出各环 id 与结论）。检测产出的 lang 走
   既有别名/curated/reject 法则——检测只给 lang，高亮边界一寸不动。
 - SSR/prerender：检测是异步运行时行为；预渲染产物恒为纯文本（渐进
@@ -109,7 +112,8 @@ allowlist 隔离、无命中 null。
 
 **L4 — 门禁与文档**
 
-- 契约测试：四环优先级 + null 级联/throw 终态、AUTO_LANG guard、
+- 契约测试：三检测环优先级 + 兜底 reject + null 级联/throw 终态、
+  AUTO_LANG guard（'AUTO'/' auto '/'auto\n' 皆按普通 lang 走 reject）、
   hljs detector 边界、`lang="auto"`+filename 端到端上色、Markdown 干扰
   负样本矩阵（Rust/Go/Kotlin/Swift 穿透 L3）、L1 命中后 L2+ 模块零加载
   （vi.mock 计数法）。

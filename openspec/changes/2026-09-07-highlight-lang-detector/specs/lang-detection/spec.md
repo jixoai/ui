@@ -2,7 +2,7 @@
 
 ## ADDED Requirements
 
-### Requirement: 语言检测是独立契约，解析链四环 + null 级联
+### Requirement: 语言检测是独立契约，三检测环 + null 级联
 
 系统 SHALL 提供 `LanguageDetector` 契约（`detect({ code, filename }) →
 Promise<DetectResult | null>`；DetectResult 携带 canonical lang、分层
@@ -48,8 +48,8 @@ SHALL 为终态——reject 消息按矩阵失败法则点名覆盖引擎，不�
 #### Scenario: AUTO_LANG 哨兵边界
 
 - **WHEN** lang 取值 `'AUTO'`、`' auto '`、`'auto\n'`
-- **THEN** 皆不触发检测（trim 后全等 `'auto'` 且大小写敏感；这些值
-  按普通 lang 走既有路径并由 backend reject 法则处理）
+- **THEN** 皆不触发检测（严格全等 `lang === AUTO_LANG`，无 trim；
+  这些值按普通 lang 走既有路径并由 backend reject 法则处理）
 
 #### Scenario: prop 压过一切
 
@@ -200,9 +200,10 @@ SHALL 经 `wasmLoader → { url } | { bytes }` seam：浏览器走真实 HTTP
 
 - **WHEN** 消费者/测试自定义 wasmLoader
 - **THEN** `{ url }` 与 `{ bytes }` 双形态类型收窄、初始化返回值经
-  feature 探测（WebAssembly 实例就绪）、URL 加载失败 reject 带
-  来源信息、环境选择规则 = 浏览器构建走 ?url 静态导入 map、Node
-  走 bytes（负向测试各一）
+  feature 探测（WebAssembly 实例就绪）、URL 加载失败（网络错误、
+  HTTP 非 2xx、MIME 非 application/wasm）reject 带来源信息、环境
+  选择规则 = 浏览器构建走 ?url 静态导入 map、Node 走 bytes（每类
+  负向 fixture 各一）
 
 #### Scenario: confidence 越界防御
 
