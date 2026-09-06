@@ -696,6 +696,37 @@ export default defineConfig({
       check('hero-section: theme + icons closure arrived', missing.length === 0, missing.join(', ') || 'complete');
     },
   },
+  {
+    id: 'markdown',
+    // markdown-streaming task 3.4: the whole closure must self-deliver on a
+    // clean consumer — the sibling items Table/CodeCard/jx-pure/utils ride
+    // the registryDependencies edges, the npm dep (stream-markdown-parser)
+    // rides dependencies. The doc under test exercises the three non-trivial
+    // mappings at once (table → Table, fence → CodeCard, task list).
+    items: ['markdown'],
+    app: `<script lang="ts">
+  import Markdown from '$lib/ui/markdown';
+</script>
+
+<Markdown
+  source={'# Registry probe\\n\\n| Axis | State |\\n| --- | --- |\\n| streaming | keyed |\\n| security | floor |\\n\\n- [x] tables map through Table\\n- [ ] open fences stream\\n\\n\`\`\`ts\\nexport const proof = true;\\n\`\`\`\\n'}
+/>
+`,
+    extraChecks(ctx) {
+      // the direct-import graph's own files (design §5): every declared
+      // edge must physically land on the consumer — transitive needs
+      // (defaults/density/highlight/icons/theme) resolve through those
+      // items' own registryDependencies
+      const missing = [
+        'src/lib/ui/table/table.svelte',
+        'src/lib/ui/code-card/code-card.svelte',
+        'src/lib/jx-pure.css',
+        'src/lib/utils.ts',
+        'src/lib/jixoai.css',
+      ].filter((f) => !ctx.exists(f));
+      check('markdown: direct-import closure arrived', missing.length === 0, missing.join(', ') || 'complete');
+    },
+  },
 ];
 
 // ── 4b. engine-matrix cases (highlight-engine-matrix, 2026-09-06 r2-4) ──

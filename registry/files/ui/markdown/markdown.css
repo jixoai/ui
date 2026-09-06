@@ -1,0 +1,59 @@
+@layer theme, base, components, utilities;
+
+/* jixoai markdown — D1-exempt residue (2026-09-06, markdown-streaming:
+ * original request "推出 markdown 渲染组件，支持流式渲染，AST 映射内部组件").
+ * The prose face itself is NOT here: every mapped element is a bare
+ * native under the .jx-pure scope (the Tier-0 face mounts by CLASS on
+ * the root — the sheet imports once from the site css, the
+ * app-level law; never a forked copy of the face laws), and
+ * block chrome belongs to Table/CodeCard. The single orthogonal intent
+ * that remains is the STREAMING CURSOR:
+ *   - [data-jx-markdown-cursor] — a terminal-vocabulary caret: an
+ *     inline block of currentColor, one step of the type ladder, that
+ *     rides after the last block while data-jx-markdown-streaming is
+ *     present on the root;
+ *   - blink ONLY under prefers-reduced-motion: no-preference (a hard
+ *     1s stepped blink — terminal, not a pulse), fully static
+ *     otherwise; print media hides it (a printed stream is done).
+ * Data hooks only, no jx-* classes (nothing here needs a styled class
+ * the hooks cannot carry); selectors sit behind :where() per the
+ * placement law, static paint in @layer components (consumer
+ * utilities win), the motion/print state machines on the unlayered
+ * carve-out (the toggle/Part A precedent). */
+
+@layer components {
+  :where([data-jx-markdown-cursor]) {
+    display: inline-block;
+    width: 0.55em;
+    height: 1em;
+    margin-inline-start: 0.12em;
+    vertical-align: text-bottom;
+    background: currentColor;
+    border-radius: calc(infinity * 1px);
+  }
+}
+
+/* motion state machine — unlayered :where() carve-out */
+@media (prefers-reduced-motion: no-preference) {
+  :where([data-jx-markdown-cursor]) {
+    animation: jx-markdown-cursor-blink 1s steps(1, end) infinite;
+  }
+}
+
+@keyframes jx-markdown-cursor-blink {
+  0%,
+  49.9% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* a printed stream is done — the caret never survives the paper law */
+@media print {
+  :where([data-jx-markdown-cursor]) {
+    display: none;
+  }
+}

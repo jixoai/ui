@@ -20,7 +20,6 @@
     "tour -> @jixoai/popover"
   ],
   "dead": [
-    "color-picker -> @jixoai/jx-pure",
     "component-canvas -> @jixoai/shiki",
     "press-button -> @jixoai/utils",
     "scaffold-float -> @jixoai/website-scaffold",

@@ -44,6 +44,10 @@ import { fileURLToPath } from 'node:url';
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const baselinePath = join(root, 'scripts', 'verify-deps-baseline.json');
 const THEME = 'jixoai-theme';
+// install prerequisites ride the theme rule (the header comment's own
+// words: "jx-pure rides the same rule") — declared to pull the sheet
+// into the consumer without importing it (markdown-streaming, 2026-09-07)
+const INSTALL_PREREQUISITES = new Set(['jixoai-theme', 'jx-pure']);
 
 // ── ownership: registry target → consumer fs path → owner item ────────
 function targetToFs(target, aliases) {
@@ -127,7 +131,7 @@ export function analyze(items, loadSource, aliases) {
     }
     for (const dep of declared) {
       if (imported.has(dep)) continue;
-      if (dep === THEME) {
+      if (INSTALL_PREREQUISITES.has(dep)) {
         themePrerequisites.push(item.name);
         continue; // the structured install prerequisite — PASS by design
       }

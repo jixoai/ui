@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T16:26:41.838Z",
+  "generatedAt": "2026-09-06T17:30:03.214Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -27,6 +27,7 @@
     "popover": "registry/files/ui/popover/popover.svelte",
     "code-card": "registry/files/ui/code-card/code-card.svelte",
     "table": "registry/files/ui/table/table.svelte",
+    "markdown": "registry/files/ui/markdown/markdown.svelte",
     "tree-view": "registry/files/ui/tree-view/tree-view.svelte",
     "component-canvas": "registry/files/ui/component-canvas/component-canvas.svelte",
     "checkbox": "registry/files/ui/checkbox/checkbox.svelte",
@@ -1125,6 +1126,48 @@
           "target": "@ui/table/table-defaults.svelte.ts",
           "sourceSha": "3cb9c1378ddec46a517a2ce59d713141fc4c2ee77fa558e7d7b563f3ec517e4a",
           "mirrorSha": "3cb9c1378ddec46a517a2ce59d713141fc4c2ee77fa558e7d7b563f3ec517e4a"
+        }
+      ]
+    },
+    {
+      "itemName": "markdown",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/markdown/markdown.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/markdown/markdown.svelte",
+          "mirror": "apps/www/src/lib/ui/markdown/markdown.svelte",
+          "target": "@ui/markdown/markdown.svelte",
+          "sourceSha": "3a739b649f1f0cd8a391753c34b52da6446ed0d11f9d51d94e6cbd0dfc0014ff",
+          "mirrorSha": "3a739b649f1f0cd8a391753c34b52da6446ed0d11f9d51d94e6cbd0dfc0014ff"
+        },
+        {
+          "source": "registry/files/ui/markdown/markdown-node.svelte",
+          "mirror": "apps/www/src/lib/ui/markdown/markdown-node.svelte",
+          "target": "@ui/markdown/markdown-node.svelte",
+          "sourceSha": "b1acdcfa4b37f0eda9fbb4a14195546d1d8e16c2511972ed21fdfd388b38c3e7",
+          "mirrorSha": "b1acdcfa4b37f0eda9fbb4a14195546d1d8e16c2511972ed21fdfd388b38c3e7"
+        },
+        {
+          "source": "registry/files/ui/markdown/parse.ts",
+          "mirror": "apps/www/src/lib/ui/markdown/parse.ts",
+          "target": "@ui/markdown/parse.ts",
+          "sourceSha": "c2caa3735b8d3261328251e773dddb64655a522fc4ced5ebafc9c98c066f9c99",
+          "mirrorSha": "c2caa3735b8d3261328251e773dddb64655a522fc4ced5ebafc9c98c066f9c99"
+        },
+        {
+          "source": "registry/files/ui/markdown/markdown.css",
+          "mirror": "apps/www/src/lib/ui/markdown/markdown.css",
+          "target": "@ui/markdown/markdown.css",
+          "sourceSha": "0fd7cb4601cc4773faf1457422de1a441265a9b874e49069c997b06cf5ed7ebf",
+          "mirrorSha": "0fd7cb4601cc4773faf1457422de1a441265a9b874e49069c997b06cf5ed7ebf"
+        },
+        {
+          "source": "registry/files/ui/markdown/index.ts",
+          "mirror": "apps/www/src/lib/ui/markdown/index.ts",
+          "target": "@ui/markdown/index.ts",
+          "sourceSha": "16a7d0b5f0edba8a882bfb8ede9a29711e6f0eb88104871381f92179c142d723",
+          "mirrorSha": "16a7d0b5f0edba8a882bfb8ede9a29711e6f0eb88104871381f92179c142d723"
         }
       ]
     },

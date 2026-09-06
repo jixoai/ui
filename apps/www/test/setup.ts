@@ -31,6 +31,14 @@
 import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/svelte';
 
+// ---- environment gate (markdown-streaming SSR suite) -------------------------
+// Every surface below is a JSDOM gap polyfill. Node-environment spec files
+// (test/markdown-ssr.spec.ts — svelte/server frames) load this setup too;
+// with no window there is nothing to polyfill, so the payload skips whole.
+if (typeof window === 'undefined') {
+  // eslint-disable-next-line no-console
+  console.log('[setup] node environment — jsdom polyfills skipped');
+} else {
 // ---- 2. ToggleEvent -------------------------------------------------------
 if (typeof window.ToggleEvent === 'undefined') {
   class ToggleEventPolyfill extends Event {
@@ -266,3 +274,5 @@ Object.defineProperty(globalThis, 'FormData', {
 afterEach(() => {
   cleanup();
 });
+
+}

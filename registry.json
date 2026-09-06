@@ -1182,6 +1182,55 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "markdown",
+      "type": "registry:ui",
+      "title": "Markdown",
+      "description": "Markdown rendering with append-only streaming (stream-markdown-parser core — markdown-it-ts under it, CommonMark + GFM; the renderer owns the DOM, never the parser's): one keyed block per top-level AST node (${index}:${type}:${digest}; the streaming tail keys on type alone), so the frozen prefix never remounts while chunks arrive — prefix keys freeze, the tail mutates in place, remounts stay bounded to one per semantic event, and the stream's end re-parses once with final semantics. The AST maps onto in-house parts: code_block → CodeCard (partial code + loading state mid-fence, generation-guard repaint is CodeCard's own path), table → a semantically neutral div[data-kind=table] wrapping Table with generated thead/tbody, td[data-label] row labels and per-column align; every other node is a bare native element under the jx-pure Tier-0 prose face (the root mounts the class; the sheet itself is the app-level import, imported once from the site css the way jixoai.css is — never a forked copy of the face laws, never a second component-level import that would double-bundle it). Security floor: html:false + the renderer's escaped-literal law (raw markup survives as text, zero {@html} in the default map), the factory validateLink demotes unsafe schemes at parse time, image src passes the bitmap-data-URL sanitizer (SVG and other data schemes omit the img entirely). The components override seam is trusted application code — the same trust level as any component the app renders by hand. The component is a pure function of (source, streaming): server render and client hydration parse the same snapshot (the SSR snapshot law); data-jx-markdown-streaming + the terminal cursor stamp the root only while streaming.",
+      "dependencies": [
+        "stream-markdown-parser@^1.2.14"
+      ],
+      "registryDependencies": [
+        "@jixoai/jixoai-theme",
+        "@jixoai/jx-pure",
+        "@jixoai/table",
+        "@jixoai/code-card",
+        "@jixoai/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/markdown/markdown.svelte",
+          "target": "@ui/markdown/markdown.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/markdown/markdown-node.svelte",
+          "target": "@ui/markdown/markdown-node.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/markdown/parse.ts",
+          "target": "@ui/markdown/parse.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/markdown/markdown.css",
+          "target": "@ui/markdown/markdown.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/markdown/index.ts",
+          "target": "@ui/markdown/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Install: npx jixoai-ui add markdown. Prerequisite: the jx-pure face imported once from the site css (@jixoai/jx-pure installs the sheet; the root mounts the class). Props: source, streaming=false (opt-in cursor + tail-key semantics — a static document is the default face), components? (per-node-type renderer overrides — trusted application code: overrides receive {node} with raw fields and own their own security, the react-markdown model), class/style/rest passthrough. Barrel exports MarkdownNode (the override delegation seam) plus the parse adapter vocabulary (createMarkdownParser, stableStringify, fnv1a36, node types). Streaming is append-only: growing source keeps the keyed prefix mounted; a non-append switch (replace/message change) transparently recreates the parser instance.",
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/markdown.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "tree-view",
       "type": "registry:ui",
       "title": "Tree view",
