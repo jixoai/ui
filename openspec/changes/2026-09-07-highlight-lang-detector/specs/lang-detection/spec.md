@@ -20,9 +20,14 @@ string 类型，AUTO_LANG 为运行时哨兵（**严格全等 `lang === AUTO_LAN
 **null 级联法则**：某环 detector resolve null（无意见）SHALL 级联下一
 环；某环 reject/throw（终态）SHALL 纯文本回退 + warn 报出该环 id 与
 错误；链上全部可用环皆 null SHALL 纯文本回退 + warn 报出各环 id。
-**reject/warn 文本契约**：兜底 reject 与终态 warn 的文本 SHALL 包含
-缺失的 detector 环描述、DLD 安装命令与两种接线形态指引——错误
-字符串断言列入契约测试（r5-N6）。
+**reject/warn 文本契约（r6 冻结格式模板）**：兜底 reject 文本 =
+`lang='auto' needs a detector — none of prop/context/backend provided
+one. Install @jixoai/highlight-lang-detector, then wire via
+<HighlightDetectDefault> (children wrapper) or setContext
+(HIGHLIGHT_DETECT_KEY, { detector })`；单环终态 warn 格式 =
+`[detect:<ring-id>] <原始错误>`；三环皆 null 的 warn 格式 =
+`[detect:all] no language detected (rings: <id1>,<id2>,<id3>)`。
+三个模板的字符串断言列入契约测试。
 检测产出的 lang SHALL 走既有别名/curated/reject 法则。`lang` 非
 AUTO_LANG 时一切存量行为逐字节不变，检测路径零字节加载。
 
@@ -204,8 +209,9 @@ SHALL 经 `wasmLoader → { url } | { bytes }` seam：浏览器走真实 HTTP
 - **WHEN** 消费者/测试自定义 wasmLoader
 - **THEN** `{ url }` 与 `{ bytes }` 双形态类型收窄、初始化返回值经
   feature 探测（WebAssembly 实例就绪）、URL 加载失败（网络错误、
-  HTTP 非 2xx、MIME 规范化后非 application/wasm——解析 media type
-  并剥离 `;` 参数后严格比对）reject 带来源信息、环境
+  HTTP 非 2xx、MIME 规范化后非 application/wasm——解析 media type、
+  剥离 `;` 参数、ASCII 小写化后严格比对（RFC 媒体类型大小写不敏感，
+  `Application/WASM` 合法））reject 带来源信息、环境
   选择规则 = 浏览器构建走 ?url 静态导入 map、Node 走 bytes（每类
   负向 fixture 各一）
 

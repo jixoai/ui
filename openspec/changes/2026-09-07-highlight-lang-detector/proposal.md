@@ -66,9 +66,10 @@ Owner 需求（2026-09-07，引擎矩阵收尾四问之 Q4 的正式立项）：
 
 **L2 — DLD（defaultLangDetector）：四层瀑布，层层按需**
 
-新 registry item `highlight-lang-detector`（`defaultLangDetector()` 工厂
-+ `betlangDetector()` 直连导出 + `<HighlightDetectDefault/>` 接线组件，
-真实 runtime import core 的 `HIGHLIGHT_DETECT_KEY` 保持 registry 边活性
+新 registry item `highlight-lang-detector`（**仅导出两个 detector
+工厂**：`defaultLangDetector()` + `betlangDetector()`，framework-free
+零 Svelte；真实 runtime import core 的 `HIGHLIGHT_DETECT_KEY` 保持
+registry 边活性
 —— 仅 type import 会被 verify-deps 判 dead）。每层独立懒模块，前一层
 命中即短路：
 

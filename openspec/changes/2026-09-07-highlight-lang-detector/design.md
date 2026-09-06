@@ -144,7 +144,7 @@ defaultLangDetector()  ── 命中即短路，层层 fallback（层内 null �
 ### D3.1 表格式（Owner 指定：多行字符串）
 
 ```ts
-// ext-table.ts —— 数据源 linguist languages.yml（commit SHA 见下）∩ canonical 集
+// detect-ext-table.ts —— 数据源 linguist languages.yml（SHA 见下）∩ canonical 集
 // 歧义扩展名（heuristics.yml 138 组消解块内）不在此表，留给 L4
 // mined-from: github-linguist/linguist@5fb5096b95ab lib/linguist/languages.yml
 const EXT_TABLE = `
@@ -325,7 +325,10 @@ code-card                          + langDetector prop、AUTO_LANG 路径
 - **framework-free 合规**（registry living spec 的 lib/engine item
   法则）：Svelte 组件不进 lib item——`HighlightDetectDefault` 独立成
   registry:ui item；消费者要零组件接线就手写形态②（文档两种形态
-  并列，spec 的接线场景同时锁两种）。
+  并列，spec 的接线场景同时锁两种）。**folder target 验证**：wrapper
+  的消费侧导入即 D2.2 形态①（`@ui/highlight-detect-default.svelte`，
+  barrel 再导出 `@ui/highlight-detect-default`）——verify:shadcn-add
+  的 wrapper case 以两种导入各编译一次。
 - DLD 对 core 的依赖是**真实 runtime import**（工厂与表模块 import
   `AUTO_LANG`/`HIGHLIGHT_DETECT_KEY` 常量）——verify-deps 跳过
   `import type`，纯类型边会判 dead（r1-B4）。
@@ -392,14 +395,15 @@ highlight-js.ts 各自的表）——本变更不合并它们（超范围），�
 // 字段级逗号规则（r5-B4）：SCALAR 字段含逗号 = parse error；LIST 项
 // 值域 [A-Za-z0-9+#._-]（项内无逗号）；前导/尾随/连续逗号（`,a`、`a,`、
 // `a,,b`）与空项 = parse error；重复项 = parse error；次序即书写序不重排
-// 规则：`#` 起注释行；空白行忽略；同一 k 不得在一行内重复；canonical
-// 不得重复出现；值域 [A-Za-z0-9+#._,-]（列表字段以逗号分隔：空项、
-// 重复项 = parse error，列表内次序即书写序不重排）；任何违例 = parse
+// 通用规则：`#` 起注释行；空白行忽略；同一 k 不得在一行内重复；
+// canonical 不得重复出现；字段序固定为上表顺序，缺省字段直接省略
+// （合法样例：`python betlang=Python ext=py interp=python,python3
+// backend=shiki,hljs,prismjs` 省略 file 仍合法）；任何违例 = parse
 // error（构造期抛出；五类字段级 fixture：SCALAR 含逗号、前导/尾随/
 // 连续逗号、重复列表项、重复 canonical、同行重复 k——断言各自的
 // 错误信息含违规字段名与行内容）。
 const CANONICAL = `
-# sources: betlang =0.1.1 (crates.io) | linguist @5fb5096b95ab9893c5925d87121e5faaae9f3966 | backend curated @main(实现期 task 3.0 编纂时的仓库 HEAD)
+# sources: betlang =0.1.1 (crates.io) | linguist @5fb5096b95ab9893c5925d87121e5faaae9f3966 | backend curated @e5b189ee（task 3.0 编纂时以当日仓库 HEAD 再钉一次——表内永远是不可变 SHA，流程说明不进表）
 # （占位符在实现期 task 3.0 编纂时必须替换为真实 SHA——门禁断言表内
 #   无 <> 占位符残留，非占位值是开工前置条件）
 typescript betlang=TypeScript ext=ts interp=- backend=shiki,hljs,prismjs,sugar-high,tree-sitter

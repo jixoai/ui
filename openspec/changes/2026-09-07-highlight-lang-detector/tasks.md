@@ -55,8 +55,15 @@
       预警线——越线则触发降级预案改写 L4 章重新送审）
 - [ ] 4.2 wasmLoader seam（{url}|{bytes} 四象限，tree-sitter 同构）+
       48 标签映射表（无对应 → null + warn）
-- [ ] 4.3 scripts/verify-betlang-pin.mjs：sha256 + magic bytes +
-      raw ≤ 100KB / gzip ≤ 70KB 双预算门禁
+- [ ] 4.3 scripts/verify-betlang-pin.mjs（命令级验收逐项）：
+      输入 = packages/betlang-wasm 内 .wasm 路径参数（缺省读
+      ARTIFACT.md 声明值）；校验 = magic bytes `\0asm`、wasm sha256、
+      ARTIFACT.md 逐字段（wasmRawBytes/wasmGzipBytes/wasmSha256/
+      tarballSha256/crateChecksum/rustc 版本）；退出码 = 预算违例
+      （raw > 100 KiB 或 gzip > 70 KiB）exit 1、预警线（raw > 98 KiB）
+      exit 2、字段不符 exit 3；gzip = Node zlib.gzipSync level 9；
+      `--self-test` 用内置 fixture（篡改字节/超限尺寸/缺字段）证明
+      三类退出码路径；与 spec 门禁场景一一对应
 - [ ] 4.4 vitest bytes 通道真实 wasm 检测断言（非 mock）
 
 ## 5. 阶段 4 — registry / 站点 / 文档（子代理 C，vision 协助）
