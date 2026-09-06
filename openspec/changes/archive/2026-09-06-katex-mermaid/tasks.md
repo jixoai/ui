@@ -190,6 +190,6 @@
       hands-on review (ran the 5 specs 68/68, deps/mirror/validate)
       scored 9/10 REVISE with 1 blocker (the misplaced 4.5 task —
       fixed) + 5 suggestions (all adopted, commit cc8e0734)
-- [ ] 6.3 three-stage commit (spec → implementation + tasks → archive)
+- [x] 6.3 three-stage commit (spec → implementation + tasks → archive)
       on the katex-mermaid branch, rebased onto main at closeout
       (checked at archive time)
