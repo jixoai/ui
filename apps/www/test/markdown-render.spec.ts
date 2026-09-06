@@ -231,6 +231,21 @@ describe('markdown — the default-map security floor', () => {
     expect(root.textContent).toContain('<!-- hidden note -->');
   });
 
+  it('a streaming table drops its all-empty trailing row shell (visual-review)', () => {
+    // mid-stream: the delimiter row parsed, a row exists whose every
+    // cell is empty — the not-yet-typed shell must not paint an empty
+    // box row; it appears the moment any cell gains content
+    const shell = render(Markdown, {
+      props: {
+        streaming: true,
+        source: '| A | B |\n| --- | --- |\n| 1 | |\n|  |  |\n',
+      },
+    });
+    const rows = shell.container.querySelectorAll('tbody tr');
+    expect(rows.length).toBe(1); // only the row with content
+    expect(rows[0]!.textContent).toContain('1');
+  });
+
   it('renders bitmap data-URL images and omits sanitized-away srcs entirely', () => {
     const { container } = render(Markdown, {
       props: {

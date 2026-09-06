@@ -123,7 +123,11 @@
         </tr>
       </thead>
       <tbody>
-        {#each node.rows as row, r (r)}
+        <!-- streaming mid-state: a row whose every cell is still empty is
+             the parser's not-yet-typed shell — rendering it paints an
+             empty box row that reads as breakage (the visual-review
+             finding); it appears the moment any cell gains content -->
+        {#each node.rows.filter((row) => row.cells.some((cell) => cell.children.length > 0)) as row, r (r)}
           <tr>
             {#each row.cells as cell, i (i)}
               <td data-label={labels[i]} style={alignStyle(cell.align)}>

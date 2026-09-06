@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T18:11:47.941Z",
+  "generatedAt": "2026-09-06T18:49:48.324Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1145,8 +1145,8 @@
           "source": "registry/files/ui/markdown/markdown-node.svelte",
           "mirror": "apps/www/src/lib/ui/markdown/markdown-node.svelte",
           "target": "@ui/markdown/markdown-node.svelte",
-          "sourceSha": "b1acdcfa4b37f0eda9fbb4a14195546d1d8e16c2511972ed21fdfd388b38c3e7",
-          "mirrorSha": "b1acdcfa4b37f0eda9fbb4a14195546d1d8e16c2511972ed21fdfd388b38c3e7"
+          "sourceSha": "ea767d4ecc167babed48ad802643c4c1c9f78c4b0291441e7a2dbb1e17b7482d",
+          "mirrorSha": "ea767d4ecc167babed48ad802643c4c1c9f78c4b0291441e7a2dbb1e17b7482d"
         },
         {
           "source": "registry/files/ui/markdown/parse.ts",
@@ -1159,8 +1159,8 @@
           "source": "registry/files/ui/markdown/markdown.css",
           "mirror": "apps/www/src/lib/ui/markdown/markdown.css",
           "target": "@ui/markdown/markdown.css",
-          "sourceSha": "0fd7cb4601cc4773faf1457422de1a441265a9b874e49069c997b06cf5ed7ebf",
-          "mirrorSha": "0fd7cb4601cc4773faf1457422de1a441265a9b874e49069c997b06cf5ed7ebf"
+          "sourceSha": "ec61407d3704cd1194a87447344153d071d4c9594fe4570f83b290c6daa567db",
+          "mirrorSha": "ec61407d3704cd1194a87447344153d071d4c9594fe4570f83b290c6daa567db"
         },
         {
           "source": "registry/files/ui/markdown/index.ts",
