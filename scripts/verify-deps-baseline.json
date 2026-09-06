@@ -16,7 +16,6 @@
     "popconfirm -> @jixoai/popover",
     "select -> @jixoai/popover",
     "tags-input -> @jixoai/popover",
-    "toc -> @jixoai/toc-outline",
     "toc -> @jixoai/utils",
     "tour -> @jixoai/popover"
   ],

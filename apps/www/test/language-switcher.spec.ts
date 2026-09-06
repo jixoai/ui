@@ -30,7 +30,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import LanguageSwitcher from '../src/lib/ui/language-switcher/language-switcher.svelte';
 
@@ -175,5 +175,51 @@ describe('language-switcher popover truth', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
     await tick();
     expect(btn.getAttribute('aria-expanded')).toBe('false');
+  });
+});
+
+describe('language-switcher persistence contract (P0-2, 2026-09-06)', () => {
+  beforeEach(() => localStorage.removeItem('lang'));
+
+  it('a menu locale click persists the target code under the `lang` key', async () => {
+    const { btn, links } = mountMenu('en');
+    fireEvent.click(btn);
+    await tick();
+    fireEvent.click(links[2]!); // ja
+    await tick();
+    expect(localStorage.getItem('lang')).toBe('ja');
+    // persistence rode the click — the popover still closed (select law)
+    expect(btn.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('a pair locale click persists the target code', () => {
+    const { container } = render(LanguageSwitcher, {
+      props: { variant: 'pair', locales: pairLocales, current: 'zh' },
+    });
+    const en = container.querySelector<HTMLAnchorElement>('[data-jx-lang-item]')!;
+    fireEvent.click(en);
+    expect(localStorage.getItem('lang')).toBe('en');
+  });
+
+  it('navigation stays a pure anchor — no preventDefault on locale links', async () => {
+    const { links } = mountMenu('en');
+    // the svelte wrapper's fireEvent awaits the dispatch: false exactly
+    // when a cancelable click was preventDefault-ed — true is the
+    // component keeping its hands off the anchor's native navigation
+    expect(await fireEvent.click(links[1]!)).toBe(true);
+    expect(localStorage.getItem('lang')).toBe('zh');
+  });
+
+  it('hostile storage never breaks the switch — the write is silent', () => {
+    const original = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = () => {
+      throw new DOMException('quota exceeded', 'QuotaExceededError');
+    };
+    try {
+      const { links } = mountMenu('en');
+      expect(() => fireEvent.click(links[0]!)).not.toThrow();
+    } finally {
+      localStorage.setItem = original;
+    }
   });
 });

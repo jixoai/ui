@@ -29,11 +29,29 @@
  * registry sha256 differs from the locked one, re-applies hue, then runs
  * the idempotent upgrade tasks (bin/upgrade-tasks.mjs) — a converged
  * second run performs zero writes.
+ *
+ * Install integrity (consumer-feedback-fixes P0-3, 2026-09-06): "successful"
+ * means VERIFIED ON DISK — an item enters the lock only when every one of
+ * its files exists at its alias-resolved path (a non-interactive shadcn run
+ * whose overwrite prompt hits EOF cancels its write phase; the item then
+ * stays unlocked with an explicit recovery warning). After every add phase
+ * the CLI also relocates files shadcn dropped into literal `src/@lib/`,
+ * `src/@ui/` and `src/vite-plugins/` directories to their alias-resolved
+ * destinations, and item-name parsing skips `--` tokens (flags never
+ * masquerade as `@jixoai/--help`).
  */
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  rmdirSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import process from "node:process";
 
@@ -262,6 +280,15 @@ function writeLock(path, lock) {
  * Record freshly installed items in the lock. Shared by add/init; upgrade
  * reuses the same fetch/hash/place helpers. The install itself already
  * succeeded, so a recording failure warns instead of failing the command.
+ *
+ * Install-integrity gate (consumer-feedback-fixes P0-3, 2026-09-06):
+ * an item is locked ONLY when every one of its files exists on disk at
+ * the alias-resolved install path. A non-interactive shadcn run whose
+ * overwrite confirmation hits EOF cancels its whole write phase — the
+ * files never land, and the pre-gate CLI locked the item anyway, so
+ * `upgrade` reported it as managed while nothing was installed. A miss
+ * now keeps the item OUT of the lock and prints the missing paths with
+ * the recovery guidance.
  */
 async function recordInstalledItems(cwd, config, names) {
   const registryUrl = registryUrlFor(config);
@@ -272,8 +299,27 @@ async function recordInstalledItems(cwd, config, names) {
       const item = await fetchRegistryItem(registryUrl, name);
       assertRegistryFiles(name, item.files);
       const files = {};
+      const missing = [];
       for (const file of item.files) {
-        files[lockInstallKey(file.target, config, cwd)] = sha256(file.content);
+        const key = lockInstallKey(file.target, config, cwd);
+        if (!existsSync(resolve(cwd, key))) {
+          missing.push(key);
+          continue;
+        }
+        files[key] = sha256(file.content);
+      }
+      if (missing.length > 0) {
+        console.warn(
+          `jixoai-ui: ${name} NOT locked in ${LOCK_NAME} — ${missing.length} of ` +
+            `${item.files.length} file(s) missing at their install path(s):`,
+        );
+        for (const key of missing) console.warn(`  - ${key}`);
+        console.warn(
+          "jixoai-ui: the write phase was cancelled (shadcn's overwrite confirmation " +
+            "hit EOF under non-interactive stdin). Move the conflicting existing file(s) " +
+            "aside and re-run the add; this CLI re-applies the brand hue afterwards.",
+        );
+        continue;
       }
       lock.items[name] = { ...(lock.items[name] ?? {}), files };
       recorded++;
@@ -286,6 +332,64 @@ async function recordInstalledItems(cwd, config, names) {
   }
   if (recorded > 0 || existed) {
     writeLock(path, lock);
+  }
+}
+
+/* ── post-add relocation (consumer-feedback-fixes P0-3) ── */
+
+/**
+ * shadcn sometimes ignores the registry item's alias targets and drops
+ * files into LITERAL `src/@lib/`, `src/@ui/` and `src/vite-plugins/`
+ * directories (the alias prefix treated as a path segment). This pass
+ * walks those literal directories, moves every dropped file to its
+ * alias-resolved (or project-root) destination, reports each move, and
+ * removes the emptied literal directories. Destination collisions are
+ * reported, never clobbered.
+ */
+function relocateMisplacedFiles(cwd, config) {
+  const alias = (name) => {
+    const base = config.aliases?.[name];
+    if (typeof base !== "string") return null;
+    return resolve(cwd, base);
+  };
+  const sources = [
+    { dir: resolve(cwd, "src/@lib"), destination: alias("lib") },
+    { dir: resolve(cwd, "src/@ui"), destination: alias("ui") },
+    { dir: resolve(cwd, "src/@components"), destination: alias("components") },
+    // plain project-relative targets (e.g. vite-plugins/llms-txt.mjs)
+    // that shadcn still anchors under src/
+    { dir: resolve(cwd, "src/vite-plugins"), destination: resolve(cwd, "vite-plugins") },
+  ];
+  for (const { dir, destination } of sources) {
+    if (!destination || !existsSync(dir)) continue;
+    const entries = readdirSync(dir, { withFileTypes: true });
+    if (entries.length === 0) {
+      rmdirSync(dir);
+      continue;
+    }
+    const moveTree = (fromDir, toDir) => {
+      mkdirSync(toDir, { recursive: true });
+      for (const entry of readdirSync(fromDir, { withFileTypes: true })) {
+        const from = join(fromDir, entry.name);
+        const to = join(toDir, entry.name);
+        if (entry.isDirectory()) {
+          moveTree(from, to);
+          rmdirSync(from);
+        } else if (existsSync(to)) {
+          console.warn(
+            `jixoai-ui: relocation skipped — ${toPosix(relative(cwd, to))} already exists; ` +
+              `${toPosix(relative(cwd, from))} left in place`,
+          );
+        } else {
+          renameSync(from, to);
+          console.log(
+            `jixoai-ui: relocated ${toPosix(relative(cwd, from))} → ${toPosix(relative(cwd, to))}`,
+          );
+        }
+      }
+    };
+    moveTree(dir, destination);
+    if (existsSync(dir) && readdirSync(dir).length === 0) rmdirSync(dir);
   }
 }
 
@@ -407,18 +511,19 @@ const cwd = process.cwd();
 switch (command) {
   case "init": {
     const { path, config } = readConfig(cwd);
-    const hue = hueFromArgs(rest, config.jixoai?.brandHue ?? DEFAULT_HUE);
+    const hue = hueFromArgs(rest.filter((a) => !a.startsWith("--")), config.jixoai?.brandHue ?? DEFAULT_HUE);
     ensureNamespace(config);
     config.jixoai = { ...(config.jixoai ?? {}), brandHue: hue };
     writeConfig(path, config);
     console.log(`jixoai-ui: ${NAMESPACE} namespace + jixoai config written → ${path}`);
     shadcn(["add", `${NAMESPACE}/${THEME_ITEM}`], cwd, path, config);
+    relocateMisplacedFiles(cwd, readConfig(cwd).config);
     applyHue(themeCssPath(config, cwd), hue);
     await recordInstalledItems(cwd, readConfig(cwd).config, [THEME_ITEM]);
     break;
   }
   case "hue": {
-    const hue = hueFromArgs(["--hue", rest[0]]);
+    const hue = hueFromArgs(["--hue", rest.find((a) => !a.startsWith("--"))]);
     const { path, config } = readConfig(cwd);
     config.jixoai = { ...(config.jixoai ?? {}), brandHue: hue };
     writeConfig(path, config);
@@ -426,14 +531,27 @@ switch (command) {
     break;
   }
   case "add": {
-    if (rest.length === 0) fail("add needs at least one item name (e.g. `toc`)");
+    // arg discipline (consumer-feedback-fixes P0-3): `--` tokens are
+    // flags, never item names (`add --help` used to spawn
+    // `shadcn add @jixoai/--help`)
+    if (rest.some((a) => a === "--help" || a === "-h")) {
+      console.log(USAGE);
+      break;
+    }
+    const items = rest.filter((a) => !a.startsWith("--"));
+    if (items.length === 0) fail("add needs at least one item name (e.g. `toc`)");
     const { path, config } = readConfig(cwd);
     const hue = config.jixoai?.brandHue ?? DEFAULT_HUE;
-    for (const item of rest) {
+    // one shadcn invocation PER ITEM, each carrying the @jixoai/ prefix
+    // itself (consumer-feedback-fixes P0-3 audit: the prefix must never
+    // depend on shell/shadcn multi-arg behavior — the loop re-reads the
+    // config because shadcn may rewrite it between spawns)
+    for (const item of items) {
       shadcn(["add", `${NAMESPACE}/${item}`], cwd, path, readConfig(cwd).config);
     }
+    relocateMisplacedFiles(cwd, readConfig(cwd).config);
     applyHue(themeCssPath(config, cwd), hue);
-    await recordInstalledItems(cwd, readConfig(cwd).config, rest);
+    await recordInstalledItems(cwd, readConfig(cwd).config, items);
     break;
   }
   case "adopt": {

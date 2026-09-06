@@ -430,7 +430,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/icons",
         "@jixoai/defaults"
-      ]
+      ],
+      "docs": "Props: variant 'full'|'compact'|'icon'|'text', hideLabels? (full only), labels? { light, dark, system, groupAriaLabel? } — localize the mode vocabulary and the group aria name; absent = the shipped English, and the localStorage 'theme' value domain is never localized."
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -440,6 +441,7 @@
       "description": "The reading rail as a composed family: manual mode composes TocList/TocItem/TocLink(child) — a legal list tree (anchors never nest); AUTO mode (outline: TocOutlineConfig) derives from headings at runtime — the DECLARED SSR exception (rail shell first, links on hydrate). Scrollspy is Root behavior, DOM-delegated.",
       "registryDependencies": [
         "@jixoai/toc-engine",
+        "@jixoai/toc-outline",
         "@jixoai/jixoai-theme",
         "@jixoai/icons"
       ],
@@ -475,7 +477,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Give the outline as sections/children props; the component renders desktop + mobile surfaces and wires the engine. Content needs non-overlapping data-region wrappers and data-family section extents (see toc-engine docs). topLayer?: boolean (default auto) — when a website-scaffold top layer exists via the jx-top-layer context, the rail self-adopts into it; pass topLayer={false} to keep classic in-flow behavior.",
+      "docs": "Give the outline as sections/children props; the component renders desktop + mobile surfaces and wires the engine. Content needs non-overlapping data-region wrappers and data-family section extents (see toc-engine docs). AUTO mode derives the outline through the toc-outline lib (a declared registry dependency — installed with the item). topLayer?: boolean (default auto) — when a website-scaffold top layer exists via the jx-top-layer context, the rail self-adopts into it; pass topLayer={false} to keep classic in-flow behavior.",
       "meta": {
         "group": "navigation",
         "href": "/docs/components/toc.html"
@@ -621,7 +623,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: eyebrow, titleLead, titleAccent, summary, badges: readonly string[], copyCommand, copyLabel?, terminal snippet, secondary? snippet.",
+      "docs": "Props: eyebrow, titleLead, titleAccent, summary, badges: readonly string[], copyCommand (snippet-conditional: required when the DEFAULT copy CTA renders; optional when a #copy snippet replaces it), copyLabel?, terminal snippet, secondary? snippet.",
       "meta": {
         "group": "layout",
         "href": "/docs/components/hero-section.html"
@@ -650,7 +652,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: variant 'pair'|'menu', locales: { code, label, href }[], current (code), ariaLabel?. The menu closes on select, outside click, and Escape.",
+      "docs": "Props: variant 'pair'|'menu', locales: { code, label, href }[], current (code), ariaLabel?. The menu closes on select, outside click, and Escape. Clicking a locale persists its code to localStorage key 'lang' (the site's language-negotiation bootstrap reads the same key); navigation stays pure anchors, so prerendered sites keep working.",
       "meta": {
         "group": "navigation",
         "href": "/docs/components/language-switcher.html"
@@ -3673,7 +3675,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "import '@lib/scrollbar-measure'; once in the root layout. Feeds @jixoai/jixoai-theme's --jx-scrollbar-* variables (macOS classic reference: thin 11px, auto 14px — probed at runtime, never hardcoded).",
+      "docs": "import '$lib/scrollbar-measure'; once in the SvelteKit root layout (the @lib spelling is the registry TARGET alias, not an import specifier). Feeds @jixoai/jixoai-theme's --jx-scrollbar-* variables (macOS classic reference: thin 11px, auto 14px — probed at runtime, never hardcoded).",
       "meta": {
         "group": "engines",
         "href": "/tokens.html"
