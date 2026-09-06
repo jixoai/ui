@@ -140,8 +140,12 @@ the scoping attributes; the hosting page owns the state.
 
 ### Requirement: the icons page documents the component and the library face
 
-The icons documentation page SHALL lead with the Icon component API
-(`name`/`size`/`strokeWidth`, the type-safety law), render the
+The icons documentation page SHALL open the component face with a
+BRIDGE card — one live `<Icon>` demo plus the link to
+`/docs/components/icon.html`, the component's own page and the API
+authority (PropsTable, playground, the type-safety law, the async
+paths; icon-docs-consolidation 2026-09-07 — no duplication between
+the two pages), render the
 named-icon grid from `ICON_NAMES` (dynamic — a new icon appears with
 zero page edit, the existing grid law carried over), and document
 the plugin library face: override/custom/`lucide:` sources, the

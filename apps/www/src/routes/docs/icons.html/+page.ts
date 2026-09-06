@@ -2,10 +2,11 @@
 // ship as PAGE DATA — the layout owns the toc in the scaffold's chrome
 // snippet, SSR-rendered in its final grid cell.
 //
-// icon-component-pipeline (D1): the page leads with the component face
-// (<Icon name>), then the generated library grid, then the plugin's
-// library face (config + tiers + async semantics), and closes on the
-// slot face — the two faces stay distinguishable sections.
+// icon-docs-consolidation: the component face is a BRIDGE card (one
+// live demo + the link — the API authority is /docs/components/
+// icon.html); this page owns the system story — the generated library
+// grid, the plugin's library face (config + tiers + async semantics),
+// and the slot face. The two faces stay distinguishable sections.
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [

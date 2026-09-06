@@ -163,30 +163,6 @@
     },
   ];
 
-  // a literal closing-script tag inside a template literal would terminate
-  // this component's own script tag during the HTML-level scan — splice it.
-  const close = '</' + 'script>';
-
-  const componentUsage = `<script lang="ts">
-  import Icon from '@ui/icon';
-${close}
-
-<!-- decorative by contract (aria-hidden baked in) — the label carries meaning -->
-<button aria-label="open settings">
-  settings
-  <Icon name="chevronRight" size={13} />
-</button>
-
-<!-- size + stroke weight are props, never wrapper CSS -->
-<Icon name="x" />                                        16px · stroke 2 (defaults)
-<Icon name="x" size={24} strokeWidth={1.5} />
-<Icon name="externalLink" size="1.25em" class="align-middle" />  string sizes pass verbatim`;
-
-  const typoLaw = '<Icon name="chevrinRight" />\n' +
-    '       ~~~~~~~~~~~~~~~~ Type \'"chevrinRight"\' is not assignable to\n' +
-    '       type \'IconName\' — the union is generated with the artifact,\n' +
-    '       so a typo is a COMPILE error, never a shipped blank glyph.';
-
   const libraryConfig = `// vite.config.ts — the library face (this site's own wiring, condensed)
 import { sveltekit } from '@sveltejs/kit/vite';
 import { jixoai } from '@jixoai/vite-plugin';
@@ -378,44 +354,23 @@ plain beside a stock ink is impossible by construction.`;
         headerRegion="component"
         eyebrow="component face"
         title="The Icon component — &lt;Icon name=&quot;…&quot; /&gt;"
-        summary="The named-glyph renderer over the generated set. name is the IconName union (imported from $lib/icon-set.gen) — a wrong name never ships, it fails the compile. The component owns the root <svg>: viewBox from the icon data, the square size edge, currentColor painting by artwork nature, round caps/joins, aria-hidden baked in (meaning lives in the surrounding text or the control's aria-label). size and strokeWidth are props, never wrapper CSS; class and every other attribute land on the root verbatim."
+        summary="The named-glyph renderer every component shares: name is the generated IconName union (a wrong name never ships — it fails the compile), the component owns the whole svg root (currentColor by artwork nature, aria-hidden baked in), and size / strokeWidth are props, never wrapper CSS. The full API table, the interactive playground and the async-paths walkthrough live on the component's own page."
       >
         <div class="flex flex-col gap-5">
-          <div class="flex flex-col gap-4">
-            <div class="flex flex-wrap items-end gap-x-10 gap-y-5" data-icon-size-demo="">
-              {#each [12, 16, 24, 32] as px (px)}
-                <div class="flex flex-col items-center gap-2">
-                  <Icon name="eye" size={px} />
-                  <code class="text-muted-foreground font-mono text-[11px]">size={px}</code>
-                </div>
-              {/each}
-            </div>
-            <div class="flex flex-wrap items-center gap-x-10 gap-y-5" data-icon-stroke-demo="">
-              {#each [1.5, 2, 2.5] as sw (sw)}
-                <div class="flex items-center gap-2.5">
-                  <Icon name="braces" size={20} strokeWidth={sw} />
-                  <code class="text-muted-foreground font-mono text-[11px]">strokeWidth={sw}</code>
-                </div>
-              {/each}
-            </div>
-            <div class="flex flex-wrap items-center gap-x-10 gap-y-5" data-icon-color-demo="">
-              <span class="text-primary flex items-center gap-2.5 text-[13px]">
-                <Icon name="check" /> themed — currentColor (primary)
-              </span>
-              <span class="text-muted-foreground flex items-center gap-2.5 text-[13px]">
-                <Icon name="check" /> themed — currentColor (muted)
-              </span>
-              <button
-                class="border-border bg-card flex items-center gap-2 border px-3 py-1.5 text-[13px]"
-                aria-label="open settings"
-              >
-                settings
-                <Icon name="chevronRight" size={13} />
-              </button>
-            </div>
+          <div class="flex flex-wrap items-end gap-x-10 gap-y-5" data-icon-size-demo="">
+            {#each [12, 16, 24, 32] as px (px)}
+              <div class="flex flex-col items-center gap-2">
+                <Icon name="eye" size={px} />
+                <code class="text-muted-foreground font-mono text-[11px]">size={px}</code>
+              </div>
+            {/each}
           </div>
-          <CodeBlock code={componentUsage} lang="svelte" meta={'usage — <Icon name>'} />
-          <CodeBlock code={typoLaw} lang="text" meta="the type-safety law" />
+          <a
+            class="text-accent w-fit text-[13px] underline underline-offset-2"
+            href="/docs/components/icon.html"
+          >
+            icon — the component page: playground, PropsTable, type-safety &amp; async paths →
+          </a>
         </div>
       </SectionCard>
     </div>

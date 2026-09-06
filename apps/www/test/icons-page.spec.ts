@@ -164,8 +164,8 @@ describe('/docs/icons.html — the named icon library grid', () => {
   });
 });
 
-describe('/docs/icons.html — the component face (lead section)', () => {
-  it('renders live <Icon> demos: the size and stroke ladders paint real svgs', () => {
+describe('/docs/icons.html — the component face (the bridge section)', () => {
+  it('renders the live size ladder (real svgs) — the one demo kept on the system page', () => {
     const { container } = render(IconsPage);
     const sizes = container.querySelector('[data-icon-size-demo]');
     expect(sizes, 'size ladder demo').toBeTruthy();
@@ -175,23 +175,18 @@ describe('/docs/icons.html — the component face (lead section)', () => {
       expect(svg.getAttribute('width')).toMatch(/^\d+$/);
       expect(svg.getAttribute('aria-hidden')).toBe('true');
     }
-    const stroke = container.querySelector('[data-icon-stroke-demo]');
-    expect(stroke, 'stroke ladder demo').toBeTruthy();
-    expect(stroke!.querySelectorAll('svg[data-jx-icon]').length).toBe(3);
   });
 
-  it('teaches the type-safety law (typo = compile error)', () => {
+  it('bridges to the component item page — the API authority (no duplication)', () => {
     const { container } = render(IconsPage);
-    const text = container.textContent ?? '';
-    expect(text).toContain('compile error');
-    expect(text).toContain('IconName');
-  });
-
-  it('the usage sample imports the component and shows the props', () => {
-    const { container } = render(IconsPage);
-    const text = container.textContent ?? '';
-    expect(text).toContain("import Icon from '@ui/icon'");
-    expect(text).toContain('strokeWidth');
+    // the system page no longer carries the stroke ladder / usage
+    // sample / typo block — those live on /docs/components/icon.html
+    expect(container.querySelector('[data-icon-stroke-demo]')).toBeNull();
+    const bridge = container.querySelector<HTMLAnchorElement>('a[href="/docs/components/icon.html"]');
+    expect(bridge, 'the bridge link').toBeTruthy();
+    expect((bridge?.textContent ?? '')).toContain('playground');
+    // the section still names the law in prose
+    expect(container.textContent ?? '').toContain('IconName');
   });
 });
 
