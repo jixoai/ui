@@ -689,6 +689,11 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
           <p class="text-[13px] leading-6 text-muted-foreground">
             Each item lands its factory in <code class="text-accent">$lib/highlight/&lt;engine&gt;</code>
             and declares only its own npm dependencies — sibling engines never ride along.
+            <strong class="font-semibold text-foreground">microlighter + vite:</strong> its grammar
+            loading is runtime-templated inside the package and misses fail silently, so hosts owe
+            two lines — dev excludes it from the optimizer, builds emit its
+            <code class="text-accent">dist/grammars/*.js</code> next to the engine chunk (this
+            site's vite.config.ts is the reference implementation).
             <strong class="font-semibold text-foreground">Breaking (2026-09-06):</strong>
             code-card used to bundle prismjs and microlighter as hard npm dependencies — it does
             not anymore, and nothing is shimmed. If you consumed those factories, add the matching

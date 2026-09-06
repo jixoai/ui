@@ -195,6 +195,33 @@ stays with microlighter.
   compatibility of grammar packages is asserted by execution, not
   mocked
 
+### Requirement: microlighter's grammar loading carries a bundler
+contract
+
+The microlighter engine loads grammars through RUNTIME-TEMPLATED
+relative imports (`import(\`./grammars/${lang}.js\`)` inside the
+package) that no bundler can statically analyze — and the engine
+swallows every miss (`.catch(() => null)`), so a misconfigured host
+does not error: cards silently stay plain (found live on the docs
+playground, 2026-09-07). Host integration SHALL keep those imports
+resolving against real package files: a vite dev server MUST
+exclude microlighter from the dependency optimizer
+(`optimizeDeps.exclude`), and a production build SHALL emit the
+package's `dist/grammars/*.js` verbatim (they are zero-import data
+modules — grammar dependencies are loader-resolved data, not ES
+imports) next to whichever chunk carries the template. The registry
+item's docs state both requirements; the site's vite config is the
+reference implementation.
+
+#### Scenario: the docs playground on a production build
+
+- **WHEN** the site is built and previewed, and the playground
+  switches a card to microlighter
+- **THEN** the grammar request resolves to the emitted
+  `grammars/*.js` assets (no 404 past the engine's catch), ranges
+  register in `CSS.highlights`, and the card paints — same registry
+  as the dev server, no silent plain-text degradation
+
 ### Requirement: the failure law is uniform across the matrix
 
 Every backend SHALL reject (never throw past the card) on unknown or

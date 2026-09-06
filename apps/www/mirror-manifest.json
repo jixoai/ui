@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T17:30:03.214Z",
+  "generatedAt": "2026-09-06T18:11:47.941Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3415,8 +3415,8 @@
           "source": "registry/files/lib/highlight/microlighter.ts",
           "mirror": "apps/www/src/lib/highlight/microlighter.ts",
           "target": "@lib/highlight/microlighter.ts",
-          "sourceSha": "1ea90712ea7aa9bd8d6aa005c5a4efbb5beee10d0adbe850e1a14578a2224e44",
-          "mirrorSha": "1ea90712ea7aa9bd8d6aa005c5a4efbb5beee10d0adbe850e1a14578a2224e44"
+          "sourceSha": "8eb55406d134d5fcfb60a48c4a7b8de935443e549dd64ee1fce9478c6621bf79",
+          "mirrorSha": "8eb55406d134d5fcfb60a48c4a7b8de935443e549dd64ee1fce9478c6621bf79"
         },
         {
           "source": "registry/files/lib/highlight/vendor-microlighter.d.ts",

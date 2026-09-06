@@ -39,6 +39,19 @@
  * FEATURE GATE: browsers without the CSS Custom Highlight API reject
  * with a clear error BEFORE touching the DOM — the card's plain-text
  * fallback law takes over (Firefox < 140, old Safari).
+ *
+ * BUNDLER CONTRACT (vite hosts — microlighter loads its grammars via
+ * RUNTIME-TEMPLATED relative imports, import(`./grammars/${lang}.js`)
+ * inside the package, and swallows every miss with .catch(() => null):
+ * a misconfigured host shows plain text with ZERO console signal,
+ * found live 2026-09-07): dev MUST exclude the package from the
+ * optimizer (optimizeDeps: { exclude: ['microlighter'] }) so the
+ * template resolves against real node_modules files; a production
+ * build MUST emit node_modules/microlighter/dist/grammars/*.js
+ * verbatim next to whichever chunk carries the template (they are
+ * zero-import data modules — safe as plain assets). The docs site's
+ * vite.config.ts (microlighterGrammarAssets) is the reference
+ * implementation.
  */
 
 import { requestedLang, type HighlightBackend } from './backend';
