@@ -106,11 +106,14 @@
 {#if Override}
   <Override {node} />
 {:else if isNodeType(node, 'code_block')}
-  <!-- class lands on the figure root: the same no-jx-pure reverse scope
-       the table carrier mounts (the native-island precedent) — the
-       face's pre rules (border/padding/margin-block) and its button
-       law must never reach into CodeCard's own surface laws -->
-  <CodeCard class="no-jx-pure" code={node.code} lang={node.language || 'text'} />
+  <!-- the neutral carrier div owns the RHYTHM (boxed chrome's own m-0
+       utility would kill a root-level margin; the wrapper carries none,
+       so the block stack lands on it). CodeCard keeps the no-jx-pure
+       reverse scope (the native-island precedent): the face's pre rules
+       and its button law never reach the card's own surface laws -->
+  <div>
+    <CodeCard class="no-jx-pure" code={node.code} lang={node.language || 'text'} />
+  </div>
 {:else if isNodeType(node, 'table')}
   {@const labels = headerLabels(node)}
   <!-- the harvest-marker carrier (design §3.4): a semantically neutral

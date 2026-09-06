@@ -1196,6 +1196,7 @@
         "@jixoai/jx-pure",
         "@jixoai/table",
         "@jixoai/code-card",
+        "@jixoai/density",
         "@jixoai/utils"
       ],
       "files": [
@@ -1225,7 +1226,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Install: npx jixoai-ui add markdown. Prerequisite: the jx-pure face imported once from the site css (@jixoai/jx-pure installs the sheet; the root mounts the class). Props: source, streaming=false (opt-in cursor + tail-key semantics — a static document is the default face), components? (per-node-type renderer overrides — trusted application code: overrides receive {node} with raw fields and own their own security, the react-markdown model), class/style/rest passthrough. Barrel exports MarkdownNode (the override delegation seam) plus the parse adapter vocabulary (createMarkdownParser, stableStringify, fnv1a36, node types). Streaming is append-only: growing source keeps the keyed prefix mounted; a non-append switch (replace/message change) transparently recreates the parser instance.",
+      "docs": "Install: npx jixoai-ui add markdown. Props: typography=compact|standard|relaxed (13/1.55·8px, 14/1.7·14px, 16/1.75·20px — the GitHub/Tailwind-calibrated prose trio; nested context-consuming chrome rides the mapped density slot). Prerequisite: the jx-pure face imported once from the site css (@jixoai/jx-pure installs the sheet; the root mounts the class). Props: source, streaming=false (opt-in cursor + tail-key semantics — a static document is the default face), components? (per-node-type renderer overrides — trusted application code: overrides receive {node} with raw fields and own their own security, the react-markdown model), class/style/rest passthrough. Barrel exports MarkdownNode (the override delegation seam) plus the parse adapter vocabulary (createMarkdownParser, stableStringify, fnv1a36, node types). Streaming is append-only: growing source keeps the keyed prefix mounted; a non-append switch (replace/message change) transparently recreates the parser instance.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/markdown.html"

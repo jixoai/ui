@@ -161,6 +161,16 @@ const isDevMode = (): boolean => viteEnv === undefined || viteEnv.DEV !== false;
 /** Version stamp of the digest contract; any change bumps to digest-v2. */
 export const DIGEST_VERSION = 'digest-v1';
 
+/**
+ * The prose typography presets (the user-facing trio, 2026-09-07):
+ * compact / standard / relaxed. This is the PROSE scale — calibrated
+ * against GitHub and Tailwind Typography — deliberately not the
+ * UI-density ladder (2xs…lg governs control surfaces; the `density`
+ * prop name itself belongs to that axis family); markdown.css owns
+ * the law.
+ */
+export type MarkdownTypography = 'compact' | 'standard' | 'relaxed';
+
 const isDroppedValue = (value: unknown): boolean => {
   const kind = typeof value;
   return kind === 'undefined' || kind === 'symbol' || kind === 'function';

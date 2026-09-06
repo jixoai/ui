@@ -36,7 +36,8 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import DocLink from './doc-link.svelte';
   import { registrySourceUrl } from '$lib/registry-source';
-  import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
+  import { PlayFields, PlayRow, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
+  import type { MarkdownTypography } from '$lib/ui/markdown/parse';
 
   // Same-source law: the drawer shows the exact registry copies this
   // site runs (`?raw` keeps them byte-identical — embedding component
@@ -53,6 +54,39 @@
 
   // three-backtick fences, built without escaping games
   const FENCE = '`'.repeat(3);
+
+  // ---- typography presets demo state --------------------------------------
+
+  let typography = $state<MarkdownTypography>('standard');
+  const typographyOptions: { value: MarkdownTypography; label: string }[] = [
+    { value: 'compact', label: 'compact' },
+    { value: 'standard', label: 'standard' },
+    { value: 'relaxed', label: 'relaxed' },
+  ];
+
+  const rhythmSample = [
+    '## The block rhythm, one token',
+    '',
+    'Every top-level block is one **stack token** apart — the first block never earns a top margin, and headings breathe at 1.75x above (the GitHub / Tailwind Typography calibration).',
+    '',
+    '- the prose scale is its own axis: 13/1.55 compact, 14/1.7 standard, 16/1.75 relaxed',
+    '- [x] checkboxes ride the text middle (the task-item law)',
+    '- [ ] wrapped task text flows like any inline content',
+    '',
+    '> A blockquote keeps the face rule; nested prose inside keeps the face rhythm — only the root level rides the stack.',
+    '',
+    FENCE + 'ts',
+    'const stack = { compact: 8, standard: 14, relaxed: 20 }; // px between blocks',
+    FENCE,
+    '',
+    '| preset | text | leading | stack |',
+    '| --- | --- | --- | ---: |',
+    '| compact | 13px | 1.55 | 8px |',
+    '| standard | 14px | 1.70 | 14px |',
+    '| relaxed | 16px | 1.75 | 20px |',
+    '',
+    'The heading ladder is em-scaled, so every preset keeps its hierarchy — `relaxed` renders the face’s exact numbers.',
+  ].join('\n');
 
   // ---- Usage: the minimal surface ----------------------------------------
 
@@ -403,6 +437,39 @@ ${close}
             native elements under jx-pure. Unknown node types degrade to extracted literal text —
             structure never recurses into the unknown. The drawer carries the same-source registry
             copies this site runs (markdown.svelte, markdown-node.svelte, parse.ts, markdown.css).
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <!-- demo a2: typography presets (the density trio) -->
+  <div id="markdown-typography" data-region="markdown-typography" data-family="markdown-typography" data-reveal="">
+    <ComponentCanvas
+      title="typography presets"
+      description="The prose density trio — one prop, one stack token: compact 13px/1.55 with an 8px block stack for dense chat panes, standard 14px/1.7 at 14px, relaxed 16px/1.75 at 20px (the Tailwind prose-base / GitHub body calibration). The block rhythm is a single --jx-md-stack law: adjacent siblings only, headings breathe at 1.75x, the first block hugs the top; the heading ladder is em-scaled so every preset keeps its hierarchy."
+      sourceUrl={registrySourceUrl('markdown')}
+      files={[
+        {
+          name: 'src/lib/ui/markdown-density-usage.svelte',
+          content: '<Markdown source={doc} typography={typography} />',
+          kind: 'usage',
+        },
+      ]}
+      stage="fill"
+    >
+      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+        <Markdown source={rhythmSample} {typography} />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="typography">
+            <PlaySegmented bind:value={typography} options={typographyOptions} />
+          </PlayRow>
+          <PlayHelp>
+            The trio is the PROSE scale — deliberately not the UI-density ladder (2xs…lg governs
+            control surfaces). Calibration references: GitHub's renderer and Tailwind Typography;
+            relaxed renders the jx-pure face's exact numbers.
           </PlayHelp>
         </PlayFields>
       {/snippet}

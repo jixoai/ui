@@ -12,11 +12,16 @@
  * the exported MarkdownNode). Streaming laws (cursor, keyed identity)
  * live in markdown-streaming.spec.ts. Assertions read the DOM only.
  */
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 
 import Markdown from '$lib/ui/markdown/markdown.svelte';
 import LinkOverride from './fixtures/markdown-link-override.svelte';
+
+const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
 import { assertMarkdownDocShape, SSR_DOC } from './helpers/markdown-doc-shape';
 
 const FENCE = '`'.repeat(3);
@@ -293,6 +298,49 @@ describe('markdown — SSR parity client side (the pair of test/markdown-ssr.spe
     assertMarkdownDocShape(streaming.container.querySelector('[data-jx-markdown]')!, { streaming: true });
     const staticDoc = render(Markdown, { props: { source: SSR_DOC, streaming: false } });
     assertMarkdownDocShape(staticDoc.container.querySelector('[data-jx-markdown]')!, { streaming: false });
+  });
+});
+
+describe('markdown — the prose typography trio (typography pass)', () => {
+  it('stamps data-jx-typography and defaults to standard', () => {
+    const a = render(Markdown, { props: { source: 'x' } });
+    const root = a.container.querySelector('[data-jx-markdown]')!;
+    expect(root.getAttribute('data-jx-typography')).toBe('standard');
+    const b = render(Markdown, { props: { source: 'x', typography: 'relaxed' } });
+    expect(b.container.querySelector('[data-jx-markdown]')!.getAttribute('data-jx-typography')).toBe('relaxed');
+  });
+
+  it('the preset maps onto the ambient density slot for nested chrome (the context lane)', () => {
+    const table = '| A |\n| --- |\n| 1 |';
+    // relaxed → lg, compact → sm; the root itself never stamps data-density
+    const a = render(Markdown, { props: { source: table, typography: 'relaxed' } });
+    expect(a.container.querySelector('[data-jx-markdown] table')!.getAttribute('data-density')).toBe('lg');
+    const b = render(Markdown, { props: { source: table, typography: 'compact' } });
+    expect(b.container.querySelector('table')!.getAttribute('data-density')).toBe('sm');
+    const c = render(Markdown, { props: { source: table } });
+    expect(c.container.querySelector('[data-jx-markdown]')!.getAttribute('data-density')).toBeNull();
+  });
+
+  it('the css owns the trio (source guard): three presets, one stack token, the owl rhythm', () => {
+    const css = readFileSync(resolve(repoRoot, 'registry/files/ui/markdown/markdown.css'), 'utf8');
+    for (const preset of ['compact', 'standard', 'relaxed']) {
+      expect(css, preset + ' preset token block').toContain(`[data-jx-typography='${preset}']`);
+    }
+    // the calibration trio rides one stack token
+    expect(css.match(/--jx-md-stack:/g)?.length).toBe(3);
+    // the container-content flush law (GitHub's li>p / :first-child posture)
+    expect(css).toContain('[data-jx-markdown] :is(li, blockquote) > :first-child');
+    // the prose leading un-short-circuit (face p{1.6} loses to inheritance)
+    expect(css).toContain('[data-jx-markdown] p:not(.no-jx-pure, .no-jx-pure *) {\n    line-height: inherit;');
+    // the collapse-immune rhythm: flow-root zeroing + the sibling stack
+    expect(css).toContain('[data-jx-markdown][data-jx-typography] > * {');
+    expect(css).toContain('display: flow-root');
+    expect(css).toContain('[data-jx-markdown][data-jx-typography] > * + *');
+    // headings: em ladder + the 1.75x breath
+    expect(css).toContain('calc(var(--jx-md-stack, 0.875rem) * 1.75)');
+    expect(css).toContain('font-size: 1.5em'); // h2
+    // task item alignment: the GitHub posture
+    expect(css).toContain('vertical-align: middle');
   });
 });
 

@@ -12,6 +12,10 @@ export const meta = defineComponentMeta(
         "kind": "boolean",
         "default": false
       },
+      "typography": {
+        "kind": "opaque",
+        "typeText": "MarkdownTypography"
+      },
       "components": {
         "kind": "opaque",
         "typeText": "MarkdownComponents"
@@ -36,7 +40,8 @@ export const meta = defineComponentMeta(
     "hooks": [
       "data-jx-markdown",
       "data-jx-markdown-cursor",
-      "data-jx-markdown-streaming"
+      "data-jx-markdown-streaming",
+      "data-jx-typography"
     ]
   }
 );

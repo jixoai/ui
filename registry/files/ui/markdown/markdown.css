@@ -1,45 +1,150 @@
 @layer theme, base, components, utilities;
 
-/* jixoai markdown — D1-exempt residue (2026-09-06, markdown-streaming:
+/* jixoai markdown — the prose face's residue (2026-09-06, markdown-streaming:
  * original request "推出 markdown 渲染组件，支持流式渲染，AST 映射内部组件";
- * visual-review pass 2026-09-07: the task-item marker law, the disabled
- * presentation cue and the block-tail cursor rhythm join the residue).
- * The prose face itself is NOT here: every mapped element is a bare
- * native under the .jx-pure scope (the Tier-0 face mounts by CLASS on
- * the root — the sheet imports once from the site css, the
- * app-level law; never a forked copy of the face laws), and
- * block chrome belongs to Table/CodeCard. The residue owns:
- *   - the STREAMING CURSOR: [data-jx-markdown-cursor] — a
- *     terminal-vocabulary caret painted as its OWN block box (a block
- *     element is exactly caret-height, so a block tail (table/code)
- *     never leaves an anonymous prose-line gap under it — the
- *     visual-review orphan fix); blink ONLY under
- *     prefers-reduced-motion: no-preference (a hard 1s stepped blink —
- *     terminal, not a pulse), fully static otherwise; print media
- *     hides it (a printed stream is done).
- *   - the GFM TASK ITEM: a list item whose marker slot is already
- *     occupied by its checkbox suppresses the face's disc (B8's
- *     ul { list-style: disc } counter — the checkbox IS the marker);
- *     the presentation-only input dims so "static disabled" reads.
- * Data hooks only, no jx-* classes (nothing here needs a styled class
- * the hooks cannot carry); selectors sit behind :where() per the
- * placement law, static paint in @layer components (consumer
- * utilities win), the motion/print state machines on the unlayered
- * carve-out (the toggle/Part A precedent). */
+ * typography pass 2026-09-07: the typography trio + the block-rhythm law +
+ * the task-item alignment — calibrated against GitHub's renderer and
+ * Tailwind Typography, the references the Owner named).
+ *
+ * The bare-element prose law itself is NOT here: every mapped element is
+ * a bare native under the .jx-pure scope (the Tier-0 face mounts by CLASS
+ * on the root — the sheet imports once from the site css, the app-level
+ * law; never a forked copy of the face laws), and mapped registry chrome
+ * (Table carrier, CodeCard root) mounts the face's no-jx-pure reverse
+ * scope. What this sheet owns, as the markdown item's ORTHOGONAL laws:
+ *
+ *   1. THE DENSITY TRIO (data-jx-typography on the root) — the PROSE scale,
+ *      deliberately not the UI-density ladder (2xs…lg governs control
+ *      surfaces): text/leading/block-stack per preset. Calibration:
+ *        compact  13px / 1.55 /  8px stack — between prose-sm and a dense chat
+ *        standard 14px / 1.70 / 14px stack — GitHub one notch down
+ *        relaxed  16px / 1.75 / 20px stack — Tailwind prose base / GitHub body
+ *
+ *   2. THE BLOCK RHYTHM — ONE source of spacing between top-level
+ *      blocks: the --jx-md-stack token drives the adjacent-sibling gap
+ *      (the first block never gets a top margin); the face's own flow
+ *      margins are zeroed AT THE ROOT LEVEL ONLY (nested prose keeps
+ *      them); headings breathe at 1.75× the stack above (the
+ *      GitHub/Tailwind law); the streaming cursor rides the same stack.
+ *      SPECIFICITY CONTRACT (why these selectors are not :where-wrapped,
+ *      a declared departure from the placement law): the face's flow
+ *      rules sit at (0,1,1); the zeroing and pair rules here sit at
+ *      (0,2,1) — deterministic regardless of bundle order — and the
+ *      pair rules come AFTER the zeroing in this sheet, so the same
+ *      specificity resolves by source order, in-sheet, deterministically.
+ *
+ *   3. THE HEADING LADDER, re-expressed in em — the face's fixed rem
+ *      steps are the right shape but do not scale with a preset; the
+ *      same steps as em ratios keep every preset's hierarchy intact
+ *      (relaxed renders the face's exact numbers).
+ *
+ *   4. THE GFM TASK ITEM — the checkbox IS the marker (the face's disc
+ *      suppressed) and aligns to the text's middle (the GitHub posture);
+ *      the presentation-only input dims so "static disabled" reads.
+ *
+ *   5. THE STREAMING CURSOR — a terminal-vocabulary caret painted as its
+ *      own block box (exactly caret-height — a block tail never leaves an
+ *      anonymous prose-line gap under it); blink ONLY under
+ *      prefers-reduced-motion: no-preference (a hard 1s stepped blink —
+ *      terminal, not a pulse), fully static otherwise; print hides it.
+ *
+ * Data hooks only, no invented jx-* classes (the .jx-pure anchors are the
+ * face's own frozen class, consumed, never redefined); static paint in
+ * @layer components (consumer utilities win); motion/print machines on
+ * the unlayered carve-out (the toggle/Part A precedent). */
 
 @layer components {
-  :where([data-jx-markdown-cursor]) {
-    display: block;
-    width: 0.55em;
-    height: 1em;
-    /* the next typing line's rhythm — close enough to hug a block
-       tail, far enough to read as its own line for a prose tail */
-    margin-block-start: 0.35em;
-    background: currentColor;
-    border-radius: calc(infinity * 1px);
+  /* ── 1 · the typography trio (the prose scale) ──────────────────── */
+  .jx-pure[data-jx-markdown][data-jx-typography='compact'] {
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.55;
+    --jx-md-stack: 0.5rem; /*  8px */
+  }
+  .jx-pure[data-jx-markdown][data-jx-typography='standard'] {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.7;
+    --jx-md-stack: 0.875rem; /* 14px */
+  }
+  .jx-pure[data-jx-markdown][data-jx-typography='relaxed'] {
+    font-size: 1rem; /* 16px */
+    line-height: 1.75;
+    --jx-md-stack: 1.25rem; /* 20px */
   }
 
-  /* the GFM checkbox replaces the disc marker (visual-review: the
+  /* ── 2 · the block rhythm (collapse-immune) ─────────────────────────
+     The measured pass exposed three margin-collapse leaks: the face's
+     h2 bottom (0.6em) out-sizing the stack in compact, root-level
+     blockquote/ul letting INNER face margins escape through their
+     padding-less boxes, and utility m-0 on mapped chrome figures
+     killing the rhythm outright. The deterministic law:
+       — every root child is flow-root (a BFC: inner margins can never
+         escape) with margin-block zeroed — the double-attribute
+         selector (0,2,0) beats every face element rule (max (0,1,1))
+         regardless of bundle order, and rides BELOW utilities, which
+         is exactly why boxed chrome arrives wrapped in a neutral div
+         (no utility touches it, the rhythm lands on the wrapper);
+       — the adjacent-sibling stack then applies unopposed: one margin,
+         no collapsing counterpart, exact to the token; the first
+         child never earns a top margin. */
+  [data-jx-markdown][data-jx-typography] > * {
+    display: flow-root;
+    margin-block: 0;
+  }
+  [data-jx-markdown][data-jx-typography] > * + * {
+    margin-block-start: var(--jx-md-stack, 0.875rem);
+  }
+  /* headings breathe more above — 1.75× the stack lands in the
+     GitHub/Tailwind band for all three presets */
+  [data-jx-markdown][data-jx-typography] > * + :is(h1, h2, h3, h4, h5, h6) {
+    margin-block-start: calc(var(--jx-md-stack, 0.875rem) * 1.75);
+  }
+
+  /* ── 2a · the prose leading (the p un-short-circuit) ────────────────
+     The face declares `p { line-height: 1.6 }` AT THE ELEMENT — an
+     inherited preset leading on the root can never reach it (element
+     declarations beat inheritance, layers aside). This override
+     (0,2,1) restores the inheritance path: p rides the root's preset
+     leading. Headings keep the face's 1.25 (heading-appropriate at
+     every preset); pre keeps its own 1.55 (code has its own law). */
+  [data-jx-markdown] p:not(.no-jx-pure, .no-jx-pure *) {
+    line-height: inherit;
+  }
+
+  /* ── 2b · the container-content flush law ──────────────────────────
+     The face's flow-margin rule is a DESCENDANT selector: every p
+     inside a list item or blockquote carries 0.75rem block margins,
+     which the flow-root containment now renders INSIDE the container —
+     entering a list/quote cost a stack-plus-a-margin while leaving
+     cost one stack (the visual-review asymmetry). GitHub's own posture:
+     the first/last block inside a container contributes no margin; the
+     container's edges and the stack own the rhythm. Applies at every
+     nesting level (li, blockquote — nested or root). */
+  [data-jx-markdown] :is(li, blockquote) > :first-child {
+    margin-block-start: 0;
+  }
+  [data-jx-markdown] :is(li, blockquote) > :last-child {
+    margin-block-end: 0;
+  }
+
+  /* ── 3 · the heading ladder in em (scales with the preset) ──────── */
+  [data-jx-markdown] h1:not(.no-jx-pure, .no-jx-pure *) {
+    font-size: 1.875em;
+  }
+  [data-jx-markdown] h2:not(.no-jx-pure, .no-jx-pure *) {
+    font-size: 1.5em;
+  }
+  [data-jx-markdown] h3:not(.no-jx-pure, .no-jx-pure *) {
+    font-size: 1.25em;
+  }
+  [data-jx-markdown] h4:not(.no-jx-pure, .no-jx-pure *) {
+    font-size: 1.125em;
+  }
+  [data-jx-markdown] :is(h5, h6):not(.no-jx-pure, .no-jx-pure *) {
+    font-size: 1em;
+  }
+
+  /* ── 4 · the GFM task item ───────────────────────────────────────── */
+  /* the checkbox replaces the disc marker (the visual-review fix: the
      double-marker bug — bullet AND checkbox on one item) */
   :where(
     [data-jx-markdown] li:has(> input[type='checkbox']),
@@ -47,12 +152,31 @@
   ) {
     list-style: none;
   }
-
+  /* checkbox-to-text alignment (the GitHub posture): the input rides the
+     text's middle with a half-ch of air; wrapped text flows under it the
+     way an inline element does — no hanging-indent machinery to maintain */
+  :where([data-jx-markdown] li input[type='checkbox']) {
+    vertical-align: middle;
+    margin-inline-end: 0.5ch;
+  }
   /* task checkboxes are presentation-only (the source text owns the
-     state) — the dim is the disabled cue the visual review asked for */
+     state) — the dim is the disabled cue */
   :where([data-jx-markdown] input[type='checkbox']:disabled) {
     opacity: 0.55;
     cursor: default;
+  }
+
+  /* ── 5 · the streaming cursor ────────────────────────────────────── */
+  /* declared AFTER the rhythm star rule (tie at (0,2,0) → source order
+     wins): the caret is the next typing line, not a full block */
+  [data-jx-markdown] > [data-jx-markdown-cursor] {
+    display: block;
+    display: block;
+    width: 0.55em;
+    height: 1em;
+    margin-block-start: calc(var(--jx-md-stack, 0.875rem) * 0.4);
+    background: currentColor;
+    border-radius: calc(infinity * 1px);
   }
 }
 

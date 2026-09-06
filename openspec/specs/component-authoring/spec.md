@@ -2248,6 +2248,23 @@ markup. Unknown node types fall back to extracted text ONLY (no
 structural recursion into unvocabularyed types). Images whose src does
 not survive sanitization are omitted entirely.
 
+**The typography trio** (2026-09-07, the Owner's standardization ask):
+a `typography` prop — compact 13px/1.55 with an 8px block stack,
+standard 14px/1.7 at 14px (the default), relaxed 16px/1.75 at 20px,
+calibrated against GitHub's renderer and Tailwind Typography — stamps
+`data-jx-typography` and OWNS the prose scale (deliberately not the
+UI-density ladder; the `density` word belongs to that axis family).
+The block rhythm is a single collapse-immune law: root children are
+flow-root with margins zeroed (the double-attribute selector beats
+every face element rule), the adjacent-sibling stack drives every
+gap, headings breathe at 1.75× and ladder in em; container content
+flushes at the edges (GitHub's `li > p` posture); the face's
+element-level `p { line-height: 1.6 }` is un-short-circuited to
+inheritance. The preset also maps onto the ambient density slot for
+CONTEXT-consuming nested chrome (compact→sm, standard→default,
+relaxed→lg — the inherit-then-provide lane; the root never stamps
+`data-density`, so the face's CSS density adoption stays untouched).
+
 **The `components` prop is the payload's content escape AND a trust
 boundary**: per-node-type components receiving `{ node }`, delegating
 children through the exported MarkdownNode. Overrides are trusted

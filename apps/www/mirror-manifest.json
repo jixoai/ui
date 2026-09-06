@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T22:45:35.788Z",
+  "generatedAt": "2026-09-06T23:05:50.169Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1142,29 +1142,29 @@
           "source": "registry/files/ui/markdown/markdown.svelte",
           "mirror": "apps/www/src/lib/ui/markdown/markdown.svelte",
           "target": "@ui/markdown/markdown.svelte",
-          "sourceSha": "3a739b649f1f0cd8a391753c34b52da6446ed0d11f9d51d94e6cbd0dfc0014ff",
-          "mirrorSha": "3a739b649f1f0cd8a391753c34b52da6446ed0d11f9d51d94e6cbd0dfc0014ff"
+          "sourceSha": "7ab1959d85b585a9e733baeb400854f031d2c29a6f7a47d1a6c0df78453945b1",
+          "mirrorSha": "7ab1959d85b585a9e733baeb400854f031d2c29a6f7a47d1a6c0df78453945b1"
         },
         {
           "source": "registry/files/ui/markdown/markdown-node.svelte",
           "mirror": "apps/www/src/lib/ui/markdown/markdown-node.svelte",
           "target": "@ui/markdown/markdown-node.svelte",
-          "sourceSha": "b3a7977a1c311c74e8172dde764d59611331f36512ca15d406055e5d3c1b79f2",
-          "mirrorSha": "b3a7977a1c311c74e8172dde764d59611331f36512ca15d406055e5d3c1b79f2"
+          "sourceSha": "57dbc0951fccb56a6b15736a02a3253df8e70c493bd44994c3c8849b0866407f",
+          "mirrorSha": "57dbc0951fccb56a6b15736a02a3253df8e70c493bd44994c3c8849b0866407f"
         },
         {
           "source": "registry/files/ui/markdown/parse.ts",
           "mirror": "apps/www/src/lib/ui/markdown/parse.ts",
           "target": "@ui/markdown/parse.ts",
-          "sourceSha": "c2caa3735b8d3261328251e773dddb64655a522fc4ced5ebafc9c98c066f9c99",
-          "mirrorSha": "c2caa3735b8d3261328251e773dddb64655a522fc4ced5ebafc9c98c066f9c99"
+          "sourceSha": "3a352ec098a03bb86467366496e76f2e9afa95c13696c3a1039605db82710ea9",
+          "mirrorSha": "3a352ec098a03bb86467366496e76f2e9afa95c13696c3a1039605db82710ea9"
         },
         {
           "source": "registry/files/ui/markdown/markdown.css",
           "mirror": "apps/www/src/lib/ui/markdown/markdown.css",
           "target": "@ui/markdown/markdown.css",
-          "sourceSha": "ec61407d3704cd1194a87447344153d071d4c9594fe4570f83b290c6daa567db",
-          "mirrorSha": "ec61407d3704cd1194a87447344153d071d4c9594fe4570f83b290c6daa567db"
+          "sourceSha": "ac58939422c1aae3697ed31b02416f3a7fb796c68e1858cd1178d64275d6ba6c",
+          "mirrorSha": "ac58939422c1aae3697ed31b02416f3a7fb796c68e1858cd1178d64275d6ba6c"
         },
         {
           "source": "registry/files/ui/markdown/index.ts",
