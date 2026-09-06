@@ -18,15 +18,28 @@
 
 ## B. Font-file sources
 
-- [ ] B1: factor fontIconProvider's decompress/parse/normalize
-       helpers into `library/font-extract.ts` (slot face imports FROM
-       it — slot byte-locks stay green)
-- [ ] B2: `{ font, code }` resolution → {v, n:'fill', d}; ttf/otf
-       direct + woff2; woff1 hard error; watchFile HMR
+- [ ] B1: factor the genuinely shared helpers out of
+       providers/font.ts into `library/font-extract.ts`:
+       `loadOpentype`, `toArrayBuffer`, `normalizeGlyph` + the
+       bbox-emptiness check (slot face imports FROM it — slot
+       byte-locks stay green). NOT factored: decompression (it lives
+       in the vite plugin's loadSource, never fontIconProvider's —
+       the library lane inherits woff2/woff1/ttf/otf handling through
+       `io.loadSource`) and `extractGlyph` + its slot-labeled error
+       strings (test-locked, font.test.ts:281-303 — they stay in
+       font.ts)
+- [ ] B2: `{ font, code }` resolution → {v, n:'fill', d} via a new
+       font-mime branch in resolveLibraryInputs (parallel to the
+       svg-only `{file}` branch; charToGlyphIndex===0 / empty-bbox
+       loud-fail precedents); ttf/otf direct + woff2; woff1 hard
+       error; watchFile HMR; the root-script adapter (svg-only twin)
+       rejects font sources with a NAMED error — documented, script
+       twin font support is future work
 - [ ] B3: `{ font, liga }` best-effort GSUB lookup; miss = named
-       error listing the font's resolvable names; unit tests with a
-       fixture font carrying one ligature (built in-memory, the
-       woff2-roundtrip precedent)
+       error listing the font's resolvable ligature names WHEN THE
+       PARSER EXPOSES THEM, else the glyph-name/cmap hint; unit tests
+       with a fixture font carrying one ligature (built in-memory,
+       the woff2-roundtrip precedent)
 
 ## C. Docs + gates
 

@@ -57,7 +57,9 @@ normalizes it (contain-fit, the slot-face fontIconProvider math,
 factored shared) into the standard fill-nature `{v, n, d}` payload.
 A codepoint absent from cmap, or a ligature the parser cannot
 resolve, SHALL fail loudly (the ligature miss lists the font's
-resolvable names). The runtime artifact SHALL remain pure SVG —
+resolvable ligature names WHEN THE PARSER EXPOSES THEM, else the
+glyph-name/cmap hint — opentype.js high-level GSUB enumeration is
+thin). The runtime artifact SHALL remain pure SVG —
 fonts never reach the browser through this lane. woff1 stays a hard
 error; ttf/otf paths are accepted directly.
 
@@ -72,5 +74,78 @@ error; ttf/otf paths are accepted directly.
 
 - GIVEN `{ font: './brand.woff2', liga: 'no-such-ligature' }`
 - WHEN resolution runs
-- THEN the build fails listing the ligature names that DO resolve
-  in that font (never a silent blank glyph)
+- THEN the build fails listing the font's resolvable ligature names
+  when the parser exposes them, else the glyph-name/cmap hint (never
+  a silent blank glyph)
+
+## MODIFIED Requirements
+
+### Requirement: the icons library face resolves named icons through plugin config
+
+`jixoai({ icons })` SHALL validate its config against a fixed
+matrix: `false`/`undefined` = the feature is OFF (the unchanged
+default); `{}` (neither `provider` nor `library`) = a named startup
+error naming both legal shapes; `{ provider }` = the slot face only,
+with emitted output byte-identical to the pre-change plugin
+(regression-locked by test); `{ library }` = the library face only
+(no CSS module emitted); both keys = the two faces run as
+independent modules. The library options SHALL be:
+`includeDefaults` (default true — the built-in manifest, the 38
+lucide names in the frozen GROUPS order migrated from
+scripts/gen-icons.mjs), `icons` (a record of name → IconSource where
+IconSource is an inline SVG string, `{ file }` (the plugin owns ALL
+file I/O — loads through the provider context, watched for HMR), a
+`lucide:<kebab>` reference, a preset reference `md:`/`ph:`/`rx:`
+(the preset node-resolves the peer package to an ABSOLUTE SVG path;
+the plugin still READS it through the provider context), or a font
+source `{ font, code }` / `{ font, liga }` (build-time glyph
+extraction)), `maxChunkBytes` (default 20480, raw
+non-gzip module bytes), `chunking` (`'auto'` | `'single'`, default
+`'auto'`), `inlineFirstChunk` (default true), `output` (artifact
+path, project-root-relative, default `src/lib/icon-set.gen.ts`),
+`write` (default `false` — the vite adapter never writes the
+artifact unless a consumer opts in; see the single-writer law
+below), and `optimize` (default true). The library face carries a
+single-writer law for the artifact: a `write` option (default
+`false`) — the Vite adapter serves virtual chunks and WARNS on
+on-disk artifact drift but never writes unless a consumer app opts
+in with `write: true` + `output`; in THIS repo the root `gen:icons`
+script is the ONLY artifact writer (the www copy arrives via the
+existing mirror tooling), both in-repo app configs run `write:
+false`, and a dual-app build probe asserts no `registry/src/**`
+artifact and no default-output orphan ever appears. A same-name
+entry OVERRIDES the built-in. Icon names SHALL match
+`/^[a-z][A-Za-z0-9]*$/`. `lucide` SHALL remain an optional peer of
+the PLUGIN package only — built-in resolution runs inside the
+plugin at build time via dynamic `import('lucide')` with the
+loud-fail install hint; the emitted artifact carries zero lucide
+references.
+
+#### Scenario: a custom icon joins the type union
+
+- GIVEN a consumer configuring `library: { icons: { myLogo: { file:
+  './brand/logo.svg' } } }`
+- WHEN the generator emits the artifact
+- THEN `IconName` includes `'myLogo'` and `<Icon name="myLogo" />`
+  type-checks, while `<Icon name="mylogo" />` is a compile error
+
+#### Scenario: an override replaces a built-in in every chunk
+
+- GIVEN `library: { icons: { check: '<svg …>…</svg>' } }`
+- WHEN the library packs
+- THEN the name `check` resolves to the custom artwork everywhere
+  (inline core and lazy chunks) and no duplicate entry exists
+
+#### Scenario: neither face is configured
+
+- GIVEN `jixoai({ icons: {} })`
+- WHEN the plugin initializes
+- THEN startup fails with an error naming the `provider` and
+  `library` options as the two legal shapes
+
+#### Scenario: provider-only output is regression-locked
+
+- GIVEN a pre-change config `{ provider: lucideIconProvider() }`
+- WHEN the same config runs post-change
+- THEN the emitted CSS module is byte-identical (the provider-only
+  path gains no library behavior)
