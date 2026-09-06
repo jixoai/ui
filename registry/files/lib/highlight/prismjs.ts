@@ -27,7 +27,7 @@
  * card falls back to plain text — the same law shiki follows.
  */
 
-import type { HighlightBackend } from './backend';
+import { canonicalLang, requestedLang, type HighlightBackend } from './backend';
 
 /** prism core namespace (typed by @types/prismjs; loaded lazily) */
 type PrismCore = typeof import('prismjs');
@@ -182,16 +182,41 @@ async function ensureGrammar(lang: string): Promise<string> {
   return canonical;
 }
 
+/** Options for the prismjs backend factory (highlight-engine-matrix, 2026-09-06). */
+export interface PrismjsBackendOptions {
+  /**
+   * Restrict THIS instance to a grammar subset (alias or canonical ids;
+   * canonicalized on construction). Omitted = the full curated set
+   * below. A request outside the set rejects with a hint — the card's
+   * plain-text fallback law takes over. The shared grammar caches are
+   * never mutated: instances compose freely.
+   */
+  langs?: readonly string[];
+}
+
 /**
- * The Prism.js backend factory: `<CodeCard backend={prismjs()} />`.
- * Stateful per instance only through the shared module-level caches
- * (core, grammars, themes) — instances compose freely.
+ * The Prism.js backend factory: `<CodeCard backend={prismjs()} />` or
+ * `prismjs({ langs: ['css'] })`. Stateful per instance only through the
+ * shared module-level caches (core, grammars, themes) — instances
+ * compose freely.
  */
-export function prismjs(): HighlightBackend {
+export function prismjs(options: PrismjsBackendOptions = {}): HighlightBackend {
+  const allowed =
+    options.langs === undefined
+      ? undefined
+      : new Set(options.langs.map((lang) => canonicalLang(langAliases, lang)));
   return {
     id: 'prismjs',
     async highlight(el, code, opts) {
-      const canonical = await ensureGrammar(opts.lang ?? 'ts');
+      const canonical = canonicalLang(langAliases, requestedLang(opts));
+      if (allowed !== undefined && !allowed.has(canonical)) {
+        throw new Error(
+          `[jixoai/highlight/prismjs] lang "${canonical}" is outside this instance's langs set ` +
+            `(allowed: ${[...allowed].join(', ')}) — widen prismjs({ langs: [...] }) ` +
+            `or use an unrestricted prismjs()`,
+        );
+      }
+      await ensureGrammar(canonical);
       const Prism = await getPrism();
       const grammar = Prism.languages[canonical];
       if (grammar === undefined) {

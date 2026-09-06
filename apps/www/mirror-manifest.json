@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T11:19:25.055Z",
+  "generatedAt": "2026-09-06T16:26:41.838Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3319,8 +3319,8 @@
           "source": "registry/files/lib/highlight/backend.ts",
           "mirror": "apps/www/src/lib/highlight/backend.ts",
           "target": "@lib/highlight/backend.ts",
-          "sourceSha": "ed74aa405a34eaf84a36e11bfc4fc0275f459d31bf1a05d7e64a243726d48db3",
-          "mirrorSha": "ed74aa405a34eaf84a36e11bfc4fc0275f459d31bf1a05d7e64a243726d48db3"
+          "sourceSha": "febe19087e3b1d8df6a296fd7c127009c5fd150d967e5742880e4eb4d2658717",
+          "mirrorSha": "febe19087e3b1d8df6a296fd7c127009c5fd150d967e5742880e4eb4d2658717"
         },
         {
           "source": "registry/files/lib/highlight/context-key.ts",
@@ -3328,34 +3328,126 @@
           "target": "@lib/highlight/context-key.ts",
           "sourceSha": "e203359380155186a203a99d45a7622b9137ca345f63e980c3b532ed5f854142",
           "mirrorSha": "e203359380155186a203a99d45a7622b9137ca345f63e980c3b532ed5f854142"
-        },
+        }
+      ]
+    },
+    {
+      "itemName": "highlight-shiki",
+      "type": "registry:lib",
+      "files": [
         {
           "source": "registry/files/lib/highlight/shiki.ts",
           "mirror": "apps/www/src/lib/highlight/shiki.ts",
           "target": "@lib/highlight/shiki.ts",
-          "sourceSha": "8c8e8036264c1864dca090ac24171df2ccda553a2cd2f23f547a344c9480b1eb",
-          "mirrorSha": "8c8e8036264c1864dca090ac24171df2ccda553a2cd2f23f547a344c9480b1eb"
-        },
+          "sourceSha": "13cfe087fe0d671bd868a3fae571f277e5123456dfe5ff4a1279c29e9ff3309a",
+          "mirrorSha": "13cfe087fe0d671bd868a3fae571f277e5123456dfe5ff4a1279c29e9ff3309a"
+        }
+      ]
+    },
+    {
+      "itemName": "highlight-prismjs",
+      "type": "registry:lib",
+      "files": [
         {
           "source": "registry/files/lib/highlight/prismjs.ts",
           "mirror": "apps/www/src/lib/highlight/prismjs.ts",
           "target": "@lib/highlight/prismjs.ts",
-          "sourceSha": "d585a299ec89d5aff5579ccdeb0b242726bcab3b4acf0b151a2d64972dca8999",
-          "mirrorSha": "d585a299ec89d5aff5579ccdeb0b242726bcab3b4acf0b151a2d64972dca8999"
+          "sourceSha": "60bedcd9d32e64ab9ec61afea5e80d01cf8c009afb58f1c1f5cf28530de936c8",
+          "mirrorSha": "60bedcd9d32e64ab9ec61afea5e80d01cf8c009afb58f1c1f5cf28530de936c8"
         },
+        {
+          "source": "registry/files/lib/highlight/vendor-prismjs.d.ts",
+          "mirror": "apps/www/src/lib/highlight/vendor-prismjs.d.ts",
+          "target": "@lib/highlight/vendor-prismjs.d.ts",
+          "sourceSha": "372bb88fbffdef064f9ac399a16bcf8b04872ad6649791fd740721b17d052694",
+          "mirrorSha": "372bb88fbffdef064f9ac399a16bcf8b04872ad6649791fd740721b17d052694"
+        }
+      ]
+    },
+    {
+      "itemName": "highlight-microlighter",
+      "type": "registry:lib",
+      "files": [
         {
           "source": "registry/files/lib/highlight/microlighter.ts",
           "mirror": "apps/www/src/lib/highlight/microlighter.ts",
           "target": "@lib/highlight/microlighter.ts",
-          "sourceSha": "b91786754ff8ea8e24275d22503b4bc3279559ecc6b1636da3002eceeb8104f9",
-          "mirrorSha": "b91786754ff8ea8e24275d22503b4bc3279559ecc6b1636da3002eceeb8104f9"
+          "sourceSha": "1ea90712ea7aa9bd8d6aa005c5a4efbb5beee10d0adbe850e1a14578a2224e44",
+          "mirrorSha": "1ea90712ea7aa9bd8d6aa005c5a4efbb5beee10d0adbe850e1a14578a2224e44"
         },
         {
-          "source": "registry/files/lib/highlight/vendor.d.ts",
-          "mirror": "apps/www/src/lib/highlight/vendor.d.ts",
-          "target": "@lib/highlight/vendor.d.ts",
-          "sourceSha": "037fb2b1d78bd8b3e2ab29ce4cfa80fe857f58f9fee594cdb6e9c35ca5d169a2",
-          "mirrorSha": "037fb2b1d78bd8b3e2ab29ce4cfa80fe857f58f9fee594cdb6e9c35ca5d169a2"
+          "source": "registry/files/lib/highlight/vendor-microlighter.d.ts",
+          "mirror": "apps/www/src/lib/highlight/vendor-microlighter.d.ts",
+          "target": "@lib/highlight/vendor-microlighter.d.ts",
+          "sourceSha": "9df3325ef5575dc9c692436c9e7a91978c3ee5f3594c279969f4ed68d94def36",
+          "mirrorSha": "9df3325ef5575dc9c692436c9e7a91978c3ee5f3594c279969f4ed68d94def36"
+        }
+      ]
+    },
+    {
+      "itemName": "highlight-highlightjs",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/highlight/highlight-js.ts",
+          "mirror": "apps/www/src/lib/highlight/highlight-js.ts",
+          "target": "@lib/highlight/highlight-js.ts",
+          "sourceSha": "99ea1de43d3f20a68238a4533e756366468f10eb7f01d30d44676c902a9e7935",
+          "mirrorSha": "99ea1de43d3f20a68238a4533e756366468f10eb7f01d30d44676c902a9e7935"
+        },
+        {
+          "source": "registry/files/lib/highlight/highlight-js-jixoai.css",
+          "mirror": "apps/www/src/lib/highlight/highlight-js-jixoai.css",
+          "target": "@lib/highlight/highlight-js-jixoai.css",
+          "sourceSha": "0d9c5b8726739e29470204f2df9262996fc85b5d8f11905e9d43343bc0f14e9c",
+          "mirrorSha": "0d9c5b8726739e29470204f2df9262996fc85b5d8f11905e9d43343bc0f14e9c"
+        }
+      ]
+    },
+    {
+      "itemName": "highlight-sugar-high",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/highlight/sugar-high.ts",
+          "mirror": "apps/www/src/lib/highlight/sugar-high.ts",
+          "target": "@lib/highlight/sugar-high.ts",
+          "sourceSha": "52953fb8555f423233ca7733ad454002bea21fb2b7f77a400c852fa6d90b8f19",
+          "mirrorSha": "52953fb8555f423233ca7733ad454002bea21fb2b7f77a400c852fa6d90b8f19"
+        },
+        {
+          "source": "registry/files/lib/highlight/sugar-high-jixoai.css",
+          "mirror": "apps/www/src/lib/highlight/sugar-high-jixoai.css",
+          "target": "@lib/highlight/sugar-high-jixoai.css",
+          "sourceSha": "bdb4b298f5f9690d2988bbfa17983d4fb50380f4b1fb1b910369d88aa19a070a",
+          "mirrorSha": "bdb4b298f5f9690d2988bbfa17983d4fb50380f4b1fb1b910369d88aa19a070a"
+        }
+      ]
+    },
+    {
+      "itemName": "highlight-tree-sitter",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/highlight/tree-sitter.ts",
+          "mirror": "apps/www/src/lib/highlight/tree-sitter.ts",
+          "target": "@lib/highlight/tree-sitter.ts",
+          "sourceSha": "5495d51bea7fd464e844cfe1b21d6b2012862cf1e0750444a6e03c7b0bfedbe7",
+          "mirrorSha": "5495d51bea7fd464e844cfe1b21d6b2012862cf1e0750444a6e03c7b0bfedbe7"
+        },
+        {
+          "source": "registry/files/lib/highlight/tree-sitter-queries.ts",
+          "mirror": "apps/www/src/lib/highlight/tree-sitter-queries.ts",
+          "target": "@lib/highlight/tree-sitter-queries.ts",
+          "sourceSha": "138ac4acf0f4710e7e8176478a1762b6bfa8a6b54c9d1729feb33d5e892ebc41",
+          "mirrorSha": "138ac4acf0f4710e7e8176478a1762b6bfa8a6b54c9d1729feb33d5e892ebc41"
+        },
+        {
+          "source": "registry/files/lib/highlight/vendor-tree-sitter.d.ts",
+          "mirror": "apps/www/src/lib/highlight/vendor-tree-sitter.d.ts",
+          "target": "@lib/highlight/vendor-tree-sitter.d.ts",
+          "sourceSha": "8ae2a6e678f1474e9b137cc545388e0a28a2f9997af1fd125d4e5d663f3d9925",
+          "mirrorSha": "8ae2a6e678f1474e9b137cc545388e0a28a2f9997af1fd125d4e5d663f3d9925"
         }
       ]
     },

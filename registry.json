@@ -1043,15 +1043,14 @@
       "name": "code-card",
       "type": "registry:ui",
       "title": "Code card",
-      "description": "Code display highlighting through Shiki (lib/shiki — shiki/core + the JavaScript regex engine, no WASM): on-demand grammars and themes as separate lazy chunks, the default zero-download jixoai theme is Shiki's css-variables recipe bound to the --tok-* palette. figure+pre+code base, filename tab + header snippet slot, footer snippet slot, copyable control. Scroll law: pre is the scrollport — horizontal always (tabs stay tabs), vertical when maxHeight caps it, thin scrollbars, overscroll containment, keyboard-focusable. Code is a runtime prop; Shiki escapes it, so literal </script> is inert.",
+      "description": "Code display highlighting through its single default engine Shiki (lib/shiki — shiki/core + the JavaScript regex engine, no WASM): on-demand grammars and themes as separate lazy chunks, the default zero-download jixoai theme is Shiki's css-variables recipe bound to the --tok-* palette. figure+pre+code base, filename tab + header snippet slot, footer snippet slot, copyable control. Scroll law: pre is the scrollport — horizontal always (tabs stay tabs), vertical when maxHeight caps it, thin scrollbars, overscroll containment, keyboard-focusable. Code is a runtime prop; Shiki escapes it, so literal </script> is inert. Engine matrix (2026-09-06): the default install carries ONLY shiki — additional engines install as their own items (highlight-prismjs / -microlighter / -highlightjs / -sugar-high / -tree-sitter); backend prop → context default → stock shiki resolution unchanged.",
       "dependencies": [
-        "shiki",
-        "prismjs@^1.30.0",
-        "microlighter@^2.1.0"
+        "shiki"
       ],
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/highlight",
+        "@jixoai/highlight-shiki",
         "@jixoai/utils",
         "@jixoai/icons"
       ],
@@ -1072,7 +1071,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: code, lang='ts', theme='jixoai', filename?, copyable=true, maxHeight?; snippets header?, footer?. Based on Shiki — the highlight engine in lib/shiki is a thin on-demand facade over a stock HighlighterCore; any Shiki theme/grammar/transformer works through it (see the shiki lib item). Prerender paints the escaped plain sample; Shiki upgrades it after hydration with no layout shift.",
+      "docs": "Props: code, lang='ts', theme='jixoai', filename?, copyable=true, maxHeight?; snippets header?, footer?. Based on Shiki — the highlight engine in lib/shiki is a thin on-demand facade over a stock HighlighterCore; any Shiki theme/grammar/transformer works through it (see the shiki lib item). Prerender paints the escaped plain sample; Shiki upgrades it after hydration with no layout shift. Breaking (2026-09-06): prismjs/microlighter no longer ride the install — shadcn add @jixoai/highlight-<engine> per engine; $lib/highlight/<engine> paths stay stable for installed engines.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/code-card.html"
@@ -3574,8 +3573,8 @@
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "highlight",
       "type": "registry:lib",
-      "title": "Pluggable highlight backends",
-      "description": "The highlighter-agnostic layer (r9 acceptance, 2026-09-02): a HighlightBackend paints a given <code> element — markup backends (shiki token spans, prismjs classed spans) write into the DOM, range backends (microlighter, CSS Custom Highlight API) register Highlight ranges with zero markup. Three factories ship: shiki() wrapping lib/shiki, prismjs() lazy-loading the manual-mode core, microLighter() behind a feature gate. The context SEAM ships zero-dep (HIGHLIGHT_KEY via plain getContext — the density precedent); context-kernel wiring stays app-side (no kernel dependency rides the item); <CodeCard backend={shiki() | prismjs() | microLighter()}> overrides per instance. Known limitation, test-locked: the print freeze clones DOM, so range backends degrade to plain text on paper while markup backends survive.",
+      "title": "Pluggable highlight backends (core contract)",
+      "description": "The engine-agnostic CONTRACT of the highlight matrix (highlight-engine-matrix, 2026-09-06): the HighlightBackend interface (markup vs range output models), the zero-dependency context seam (HIGHLIGHT_KEY via plain getContext — the density precedent), and the two runtime helpers every factory shares (requestedLang / canonicalLang). ZERO npm dependencies and ZERO engine imports ride this item — engines install as their own items (highlight-shiki / -prismjs / -microlighter / -highlightjs / -sugar-high / -tree-sitter); the app side owns the default via the seam or a per-instance backend prop.",
       "files": [
         {
           "path": "registry/files/lib/highlight/backend.ts",
@@ -3586,36 +3585,192 @@
           "path": "registry/files/lib/highlight/context-key.ts",
           "target": "@lib/highlight/context-key.ts",
           "type": "registry:file"
-        },
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "docs": "import type { HighlightBackend } from '$lib/highlight/backend' — one interface, two output models: markup backends write token spans into the element (survive the print freeze), range backends register CSS Custom Highlight ranges (zero markup; degrade on paper). Engine factories live in their own items; the shipped context seam is context-key.ts only (kernel wiring stays app-side).",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/code-card.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight-shiki",
+      "type": "registry:lib",
+      "title": "Shiki highlight backend",
+      "description": "The DEFAULT engine of the matrix (highlight-engine-matrix, 2026-09-06): the shiki() backend factory over lib/shiki — a thin adapter with zero new downloads, plus the per-instance langs allowlist (shiki({ langs: [...] }) restricts an instance without touching the shared facade registry; omitted = the full curated set). Markup output; the pre editor-colors ride-along and the plain-structure guard carry over from highlight-backend-pluggable (2026-09-02). code-card pins this engine as its only default; the stock DEFAULT_SHIKI_BACKEND singleton is the no-provider fallback.",
+      "files": [
         {
           "path": "registry/files/lib/highlight/shiki.ts",
           "target": "@lib/highlight/shiki.ts",
           "type": "registry:file"
-        },
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "@jixoai/highlight",
+        "@jixoai/shiki"
+      ],
+      "docs": "import { shiki, DEFAULT_SHIKI_BACKEND } from '$lib/highlight/shiki' — <CodeCard backend={shiki()}>; shiki({ langs: ['ts', 'bash'] }) slims the instance; the jixoai default theme is the zero-download --tok-* css-variables recipe (see the shiki lib item).",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/code-card.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight-prismjs",
+      "type": "registry:lib",
+      "title": "Prism.js highlight backend",
+      "description": "The prismjs() backend factory as its own item (highlight-engine-matrix, 2026-09-06): lazy manual-mode core, dependency-ordered grammar chains, lazy stock theme stylesheets, and the per-instance langs allowlist (prismjs({ langs: [...] }); omitted = the full curated set minus what prismjs 1.30 no longer ships — svelte/vue). Markup output (survives print); one active theme per document (last requested wins) is Prism's own model.",
+      "files": [
         {
           "path": "registry/files/lib/highlight/prismjs.ts",
           "target": "@lib/highlight/prismjs.ts",
           "type": "registry:file"
         },
         {
+          "path": "registry/files/lib/highlight/vendor-prismjs.d.ts",
+          "target": "@lib/highlight/vendor-prismjs.d.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [
+        "prismjs@^1.30.0"
+      ],
+      "registryDependencies": [
+        "@jixoai/highlight"
+      ],
+      "docs": "import { prismjs } from '$lib/highlight/prismjs' — <CodeCard backend={prismjs()}>; prismjs({ langs: ['css'] }) slims the instance; unknown ids reject with a hint and the card falls back to plain text.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/code-card.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight-microlighter",
+      "type": "registry:lib",
+      "title": "MicroLighter highlight backend",
+      "description": "The microLighter() backend factory as its own item (highlight-engine-matrix, 2026-09-06): the RANGE output model — zero markup, tokens registered as CSS Custom Highlight API ranges over the plain text node, painted by a data-syntax-theme scoped stylesheet. Feature-gated (browsers without the API reject before touching the DOM); whole-document rescan per paint (its global registry law); known, test-locked limitation: ranges do not survive the print freeze — pin a markup backend for paper. No langs option: microlighter ships one all-in TextMate set (the spec's engine exemption).",
+      "files": [
+        {
           "path": "registry/files/lib/highlight/microlighter.ts",
           "target": "@lib/highlight/microlighter.ts",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/lib/highlight/vendor.d.ts",
-          "target": "@lib/highlight/vendor.d.ts",
+          "path": "registry/files/lib/highlight/vendor-microlighter.d.ts",
+          "target": "@lib/highlight/vendor-microlighter.d.ts",
           "type": "registry:file"
         }
       ],
       "dependencies": [
-        "prismjs@^1.30.0",
         "microlighter@^2.1.0"
       ],
       "registryDependencies": [
-        "@jixoai/shiki"
+        "@jixoai/highlight"
       ],
-      "docs": "interface HighlightBackend { id; highlight(el, code, { lang, theme }) } — the backend owns painting the element; factories shiki() / prismjs() / microLighter() are runtime values (zero build step). The app side owns the default (site wiring uses createHighlightContext over the context kernel; installers read HIGHLIGHT_KEY via plain getContext — the shipped seam; a print plugin targets the def by reference — definePlugin({ targets: [HIGHLIGHT_DEF] })). See lib/highlight/backend.ts for the two output models and the print-freeze range limitation.",
+      "docs": "import { microLighter } from '$lib/highlight/microlighter' — <CodeCard backend={microLighter()}>; themes are microlighter stylesheet ids (min is the jixoai default mapping).",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/code-card.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight-highlightjs",
+      "type": "registry:lib",
+      "title": "highlight.js backend",
+      "description": "The highlightJs() backend factory (highlight-engine-matrix, 2026-09-06): highlight.js/lib/core (zero-language kernel) + per-language on-demand registration — the flagship size-slimming channel of the matrix (core + your langs at RUNTIME — unselected grammars never import or fetch; vs the main-entry full bundle). Curated set: typescript/javascript/xml/css/scss/json/bash/markdown/yaml + aliases; highlight.js 11 ships NO tsx/jsx/svelte/vue — those reject with a 'use the shiki backend' hint. Language boundaries are enforced against THIS curated table, never the engine's self-registered aliases (typescript self-reports a tsx alias — measured, guarded). Markup output; the jixoai default theme is an item-shipped stylesheet binding the measured 41-class vocabulary to --tok-token-* (34 rules, zero download, shiki-parity posture).",
+      "files": [
+        {
+          "path": "registry/files/lib/highlight/highlight-js.ts",
+          "target": "@lib/highlight/highlight-js.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/highlight-js-jixoai.css",
+          "target": "@lib/highlight/highlight-js-jixoai.css",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [
+        "highlight.js@^11.12.0"
+      ],
+      "registryDependencies": [
+        "@jixoai/highlight"
+      ],
+      "docs": "import { highlightJs } from '$lib/highlight/highlight-js' — <CodeCard backend={highlightJs()}>; highlightJs({ langs: ['ts', 'bash'] }) registers only those languages; unknown/absent languages reject with a hint and the card falls back to plain text.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/code-card.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight-sugar-high",
+      "type": "registry:lib",
+      "title": "sugar-high backend",
+      "description": "The sugarHigh() backend factory (highlight-engine-matrix, 2026-09-06): the smallest engine of the matrix (~10KB min for TS per its README benchmark, measured on 2.2.2). sugar-high 2.x is multi-language (29 canonical languages, JS/TS/JSX native) and returns HTML directly — the markup backend's shortest path. Its emitted spans carry class + unresolved var(--sh-*) references with NO stylesheet in the package, so the jixoai default theme is an item-shipped variable-level mapping (--sh-* → --tok-token-*), lazily applied. Zero options by exemption: the all-in-one set IS the minimal distribution (per-language splitting is not its model). tsx rejects with a 'use the shiki backend' hint (frozen contract; the engine's own tsx→typescript alias is documented in the factory header).",
+      "files": [
+        {
+          "path": "registry/files/lib/highlight/sugar-high.ts",
+          "target": "@lib/highlight/sugar-high.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/sugar-high-jixoai.css",
+          "target": "@lib/highlight/sugar-high-jixoai.css",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [
+        "sugar-high@^2.3.1"
+      ],
+      "registryDependencies": [
+        "@jixoai/highlight"
+      ],
+      "docs": "import { sugarHigh } from '$lib/highlight/sugar-high' — <CodeCard backend={sugarHigh()}>; aliases ts/js/jsx/sh/md/yml/htm resolve to its canonical names; unknown languages reject listing the 29-language set.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/code-card.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight-tree-sitter",
+      "type": "registry:lib",
+      "title": "tree-sitter backend",
+      "description": "The treeSitter() backend factory (highlight-engine-matrix, 2026-09-06): incremental-parsing grammar trees + highlight queries — the premium-accuracy engine. MARKUP output (query captures → escaped spans with inline var(--tok-token-*); survives the print freeze). WASM rides the npm-asset channel: web-tree-sitter core + tree-sitter-{typescript,javascript} grammar binaries resolve through an explicit loader seam — wasmLoader(asset) > wasmBase prefix > the static four-entry ?url import map; the browser consumes bundler-emitted HTTP URLs, Node/vitest feeds real bytes (createRequire + readFile) — both initialize REAL wasm (ABI 14 grammar packages asserted in-window at runtime). Queries (.scm, upstream MIT, embedded byte-identical) compose PER GRAMMAR (javascript=JS+JSX, typescript=JS+TS, tsx=JS+TS+JSX — a JSX query against the plain TS grammar is a QueryError). Curated: typescript/tsx/javascript/jsx; langs allowlist per instance.",
+      "files": [
+        {
+          "path": "registry/files/lib/highlight/tree-sitter.ts",
+          "target": "@lib/highlight/tree-sitter.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/tree-sitter-queries.ts",
+          "target": "@lib/highlight/tree-sitter-queries.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/vendor-tree-sitter.d.ts",
+          "target": "@lib/highlight/vendor-tree-sitter.d.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [
+        "web-tree-sitter@^0.27.0",
+        "tree-sitter-javascript@^0.23.1",
+        "tree-sitter-typescript@^0.23.2"
+      ],
+      "registryDependencies": [
+        "@jixoai/highlight"
+      ],
+      "docs": "import { treeSitter } from '$lib/highlight/tree-sitter' — <CodeCard backend={treeSitter()}>; treeSitter({ langs: ['ts'] }) slims grammars; wasmBase: '/assets/tree-sitter/' repoints every wasm (trailing slash yours); wasmLoader({ kind, id }) fully takes over ({url} or {bytes}).",
       "meta": {
         "group": "engines",
         "href": "/docs/components/code-card.html"

@@ -518,6 +518,11 @@ const CASES = [
       const pkg = JSON.parse(ctx.read('package.json'));
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
       check('code-card chain: npm shiki installed', !!deps.shiki);
+      // engine-matrix single-engine default (2026-09-06): the code-card
+      // install must carry NO other highlighting engine — engines are
+      // opt-in items, never bundled defaults
+      const engineLeak = ['prismjs', 'microlighter', 'highlight.js', 'sugar-high', 'web-tree-sitter', 'tree-sitter-typescript', 'tree-sitter-javascript'].filter((d) => !!deps[d]);
+      check('code-card default: single engine (shiki only)', engineLeak.length === 0, engineLeak.join(', ') || 'clean');
     },
   },
   {
@@ -692,6 +697,127 @@ export default defineConfig({
     },
   },
 ];
+
+// ── 4b. engine-matrix cases (highlight-engine-matrix, 2026-09-06 r2-4) ──
+// One ISOLATED case per `highlight-*` item, AUTO-DERIVED from
+// registry.json: new engines register themselves here by existing — the
+// derivation fails loudly if an engine lacks a factory template below
+// (nothing is silently skipped), and the generated-case count must equal
+// the registry's engine count. Per case: canonical files land (generic),
+// npm deps contain the OWN engine and NO sibling engine package, and the
+// consumer builds. The tree-sitter case additionally serves dist/ over
+// HTTP and fetches every emitted wasm (the ?url channel's end-to-end
+// evidence, r3-1).
+const engineRegistry = JSON.parse(readFileSync(join(root, 'registry.json'), 'utf8'));
+const engineItems = engineRegistry.items.filter((i) => /^highlight-/.test(i.name));
+
+/** how each engine's consumer probe constructs its backend (fails loud on unknown) */
+const ENGINE_PROBES = {
+  'highlight-shiki': {
+    imports: "import { shiki } from '$lib/highlight/shiki';",
+    mount: 'const backend = shiki({ langs: [\'ts\'] });',
+  },
+  'highlight-prismjs': {
+    imports: "import { prismjs } from '$lib/highlight/prismjs';",
+    mount: 'const backend = prismjs({ langs: [\'css\'] });',
+  },
+  'highlight-microlighter': {
+    imports: "import { microLighter } from '$lib/highlight/microlighter';",
+    mount: 'const backend = microLighter();',
+  },
+  'highlight-highlightjs': {
+    imports: "import { highlightJs } from '$lib/highlight/highlight-js';",
+    mount: "const backend = highlightJs({ langs: ['ts', 'bash'] });",
+  },
+  'highlight-sugar-high': {
+    imports: "import { sugarHigh } from '$lib/highlight/sugar-high';",
+    mount: 'const backend = sugarHigh();',
+  },
+  'highlight-tree-sitter': {
+    imports: "import { treeSitter } from '$lib/highlight/tree-sitter';",
+    mount: "const backend = treeSitter({ langs: ['ts'] });",
+  },
+};
+
+const SIBLING_NPM = new Set(engineItems.flatMap((i) => i.dependencies ?? []));
+const missingProbes = engineItems.filter((i) => !(i.name in ENGINE_PROBES)).map((i) => i.name);
+if (missingProbes.length > 0) {
+  die(`engine-matrix: no consumer probe template for ${missingProbes.join(', ')} — add one to ENGINE_PROBES (nothing may be silently skipped)`);
+}
+
+for (const item of engineItems) {
+  const own = new Set(item.dependencies ?? []);
+  const probe = ENGINE_PROBES[item.name];
+  CASES.push({
+    id: item.name,
+    items: [item.name],
+    app: `<script lang="ts">
+  ${probe.imports}
+  ${probe.mount}
+</script>
+
+<pre><code data-engine="${item.name}">probe</code></pre>
+`,
+    extraChecks(ctx) {
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      for (const dep of own) {
+        check(`${item.name}: own npm dep ${dep} installed`, !!deps[dep.split('@')[0]] || !!deps[dep]);
+      }
+      const siblings = [...SIBLING_NPM].filter((d) => !own.has(d));
+      const leaked = siblings.filter((d) => !!deps[d.split('@')[0]]);
+      check(
+        `${item.name}: zero sibling-engine npm packages`,
+        leaked.length === 0,
+        leaked.join(', ') || 'clean',
+      );
+    },
+    ...(item.name === 'highlight-tree-sitter'
+      ? {
+          // the ?url channel's end-to-end proof: build emitted the wasm
+          // assets, HTTP serves them, the magic bytes are real (r3-1)
+          async postBuild(ctx) {
+            const { createServer: httpServer } = await import('node:http');
+            const dist = join(ctx.dir, 'dist');
+            const wasmFiles = walkFilesNamed(dist, (name) => name.endsWith('.wasm'));
+            check('highlight-tree-sitter: build emitted wasm assets', wasmFiles.length >= 4, `${wasmFiles.length} file(s)`);
+            const server = httpServer((req, res) => {
+              const rel = decodeURIComponent(req.url ?? '/').replace(/^\/+/, '');
+              const file = join(dist, rel);
+              if (!file.startsWith(dist) || !existsSync(file)) {
+                res.statusCode = 404;
+                res.end('nope');
+                return;
+              }
+              res.setHeader('content-type', 'application/wasm');
+              res.end(readFileSync(file));
+            });
+            await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+            const port = server.address().port;
+            try {
+              for (const file of wasmFiles) {
+                const rel = file.slice(dist.length + 1);
+                const res = await fetch(`http://127.0.0.1:${port}/${rel}`);
+                check(`highlight-tree-sitter: fetch /${rel} → 200`, res.status === 200);
+                const bytes = new Uint8Array(await res.arrayBuffer());
+                check(
+                  `highlight-tree-sitter: /${rel} is real wasm (magic bytes)`,
+                  bytes.length > 4 && bytes[0] === 0x00 && bytes[1] === 0x61 && bytes[2] === 0x73 && bytes[3] === 0x6d,
+                );
+              }
+            } finally {
+              server.close();
+            }
+          },
+        }
+      : {}),
+  });
+}
+check(
+  'engine-matrix: generated cases match registry engine count',
+  engineItems.length === Object.keys(ENGINE_PROBES).length && engineItems.length >= 6,
+  `${engineItems.length} registry engines / ${Object.keys(ENGINE_PROBES).length} probes`,
+);
 
 // ── 5. consumer template (written once, npm-installed once) ────────
 const versions = JSON.parse(source('apps/www/package.json')).devDependencies;
@@ -1003,7 +1129,7 @@ for (const testCase of CASES) {
   console.log('  vite build (import resolution + svelte compile gate)…');
   const build = await runIn(dir, 'npx', ['vite', 'build'], { timeoutMs: 600_000, label: `case ${testCase.id}: vite build` });
   check('consumer vite build passes', build.status === 0 && !build.timedOut, build.status === 0 ? '' : build.timedOut ? `TIMED OUT (600s group-budget), tail:\n${build.stdout.slice(-800)}` : `${build.stdout}\n${build.stderr}`.slice(-800));
-  if (build.status === 0) testCase.postBuild?.(ctx);
+  if (build.status === 0) await testCase.postBuild?.(ctx);
 }
 
 // the ONE exit: reap every registered group (TERM→grace→KILL→verify),

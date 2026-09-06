@@ -9,6 +9,13 @@
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
+  import type { HighlightBackend } from '$lib/highlight/backend';
+  import { shiki } from '$lib/highlight/shiki';
+  import { prismjs } from '$lib/highlight/prismjs';
+  import { microLighter } from '$lib/highlight/microlighter';
+  import { highlightJs } from '$lib/highlight/highlight-js';
+  import { sugarHigh } from '$lib/highlight/sugar-high';
+  import { treeSitter } from '$lib/highlight/tree-sitter';
 
   // Same-source law: the code drawer shows the exact registry copies this
   // site runs. `?raw` keeps them byte-identical — embedding component
@@ -129,13 +136,16 @@ ${close}
     },
     bash: {
       filename: 'install.sh',
-      code: `# registry install — shiki joins as a normal npm dependency
+      code: `# registry install — shiki rides as code-card's default engine
 set -euo pipefail
 
 npx jixoai-ui init --hue 165
-npx jixoai-ui add code-card shiki
+npx jixoai-ui add code-card
 
-echo "installed: shiki core + on-demand grammars"`,
+# other engines are one item away (see the engine matrix below):
+# npx jixoai-ui add @jixoai/highlight-tree-sitter
+
+echo "installed: code-card + shiki (the only engine, by default)"`,
     },
     css: {
       filename: 'tokens.css',
@@ -195,29 +205,236 @@ const card = { lang: 'ts', theme: 'jixoai' };
     { value: 'min-light', label: 'min-light' },
   ];
 
+  // ---- the engine matrix (highlight-engine-matrix, 2026-09-06) ----------
+  // ids ARE the backend `id` values; shiki is code-card's pinned default,
+  // the other five install as their own registry items. Every factory is
+  // lazy by law: importing the factory module pulls ZERO engine code —
+  // the engines are dynamic imports inside highlight(), fetched at a
+  // card's first paint.
+  type DemoEngine = 'shiki' | 'prismjs' | 'microlighter' | 'highlightjs' | 'sugar-high' | 'tree-sitter';
+
+  const engineFactories: Record<DemoEngine, () => HighlightBackend> = {
+    shiki: () => shiki(),
+    prismjs: () => prismjs(),
+    microlighter: () => microLighter(),
+    highlightjs: () => highlightJs(),
+    'sugar-high': () => sugarHigh(),
+    'tree-sitter': () => treeSitter(),
+  };
+
+  let engine = $state<DemoEngine>('shiki');
+  const backend = $derived(engineFactories[engine]());
+
+  const engineOptions: { value: DemoEngine; label: string }[] = [
+    { value: 'shiki', label: 'shiki (default)' },
+    { value: 'prismjs', label: 'prismjs' },
+    { value: 'highlightjs', label: 'highlight.js' },
+    { value: 'sugar-high', label: 'sugar-high' },
+    { value: 'tree-sitter', label: 'tree-sitter' },
+    { value: 'microlighter', label: 'microlighter (range)' },
+  ];
+
+  // the drawer's live usage needs the factory name + import path per id
+  const engineImports: Record<DemoEngine, { fn: string; path: string }> = {
+    shiki: { fn: 'shiki', path: '$lib/highlight/shiki' },
+    prismjs: { fn: 'prismjs', path: '$lib/highlight/prismjs' },
+    microlighter: { fn: 'microLighter', path: '$lib/highlight/microlighter' },
+    highlightjs: { fn: 'highlightJs', path: '$lib/highlight/highlight-js' },
+    'sugar-high': { fn: 'sugarHigh', path: '$lib/highlight/sugar-high' },
+    'tree-sitter': { fn: 'treeSitter', path: '$lib/highlight/tree-sitter' },
+  };
+  // prose names for the live card's chrome (footer pill)
+  const engineLabels: Record<DemoEngine, string> = {
+    shiki: 'Shiki',
+    prismjs: 'Prism',
+    microlighter: 'MicroLighter',
+    highlightjs: 'highlight.js',
+    'sugar-high': 'sugar-high',
+    'tree-sitter': 'tree-sitter',
+  };
+  // the head pill keeps the compact idiom
+  const engineShort: Record<DemoEngine, string> = {
+    shiki: 'shiki',
+    prismjs: 'prism',
+    microlighter: 'microlighter',
+    highlightjs: 'hljs',
+    'sugar-high': 'sugar-high',
+    'tree-sitter': 'tree-sitter',
+  };
+
+  // the comparison table's data — same source of truth as design.md's
+  // dependency-closure matrix and each factory's header. Size figures
+  // carry their measurement basis: the one published cross-engine
+  // benchmark is sugar-high's README, measured on 2.2.2.
+  interface EngineRow {
+    id: DemoEngine;
+    item: string;
+    factory: string;
+    output: 'markup' | 'range';
+    size: string;
+    languages: string;
+    tailoring: string;
+    print: string;
+    line: string;
+  }
+
+  const engineMatrix: EngineRow[] = [
+    {
+      id: 'shiki',
+      item: '@jixoai/highlight-shiki',
+      factory: 'shiki()',
+      output: 'markup',
+      size: 'shiki/core + the JavaScript regex engine at first paint (no WASM); every grammar and theme its own lazy chunk',
+      languages: '13 curated — typescript tsx javascript jsx svelte html css scss json bash markdown yaml vue, plus the alias table',
+      tailoring: 'langs subset per instance',
+      print: 'spans survive the freeze clone',
+      line: 'the default — TextMate accuracy, the zero-download jixoai theme',
+    },
+    {
+      id: 'prismjs',
+      item: '@jixoai/highlight-prismjs',
+      factory: 'prismjs()',
+      output: 'markup',
+      size: 'core + one lazy chunk per grammar; themes are global stylesheets — one active per document',
+      languages: 'the curated set minus svelte/vue (prismjs 1.30 ships neither): markup css clike js ts jsx tsx json bash markdown yaml scss',
+      tailoring: 'langs subset per instance',
+      print: 'spans survive the freeze clone',
+      line: 'the classic class-based workhorse',
+    },
+    {
+      id: 'highlightjs',
+      item: '@jixoai/highlight-highlightjs',
+      factory: 'highlightJs()',
+      output: 'markup',
+      size: 'lib/core — the zero-language kernel — plus exactly the grammars you register: unselected grammars never import or fetch (the runtime-size flagship; lazy chunks of the curated set still emit)',
+      languages: 'typescript javascript xml css scss json bash markdown yaml; highlight.js 11 ships no tsx/jsx/svelte/vue module — those reject with a shiki hint',
+      tailoring: 'langs subset per instance',
+      print: 'spans survive the freeze clone',
+      line: 'core + selective registration',
+    },
+    {
+      id: 'sugar-high',
+      item: '@jixoai/highlight-sugar-high',
+      factory: 'sugarHigh()',
+      output: 'markup',
+      size: 'one whole bundle — 9.90 KiB min / 4.35 KiB gzip for a TS scene, its README benchmark measured on 2.2.2 (same table: prism 14.63, hljs 29.54)',
+      languages: '29 canonical languages; no tsx (typescript covers it only as an input alias) — rejects with a shiki hint',
+      tailoring: 'none — the whole bundle IS the minimal form (the minimal-engine exemption)',
+      print: 'spans survive the freeze clone',
+      line: 'the featherweight',
+    },
+    {
+      id: 'tree-sitter',
+      item: '@jixoai/highlight-tree-sitter',
+      factory: 'treeSitter()',
+      output: 'markup',
+      size: 'the wasm core runtime + one wasm per grammar, emitted from npm assets by your bundler (?url) at first paint — the heavyweight',
+      languages: 'typescript tsx javascript jsx only (jsx is the javascript grammar’s native dialect)',
+      tailoring: 'langs subset · wasmBase / wasmLoader asset channels',
+      print: 'spans survive the freeze clone',
+      line: 'real syntax trees, query captures',
+    },
+    {
+      id: 'microlighter',
+      item: '@jixoai/highlight-microlighter',
+      factory: 'microLighter()',
+      output: 'range',
+      size: 'a ~2 kB engine core (its own size budget) + grammars + one theme sheet, all lazy — the code element keeps its plain text node',
+      languages: 'its 37 bundled TextMate grammars (typescript tsx javascript vue html css json bash markdown yaml …)',
+      tailoring: 'none — the range model ships no langs gate (engines without the capability are exempt)',
+      print: 'ranges do NOT survive the freeze clone — prints plain; pin a markup backend for paper',
+      line: 'the range-model proof (CSS Custom Highlight API)',
+    },
+  ];
+
+  // one item per engine — shiki's line is annotated because code-card
+  // already pulls it in as the default (registryDependencies)
+  const installCommands = `# code-card ships ONE engine by default: shiki (via @jixoai/highlight-shiki)
+npx jixoai-ui add @jixoai/highlight-shiki          # already aboard with code-card
+npx jixoai-ui add @jixoai/highlight-prismjs        # + prismjs
+npx jixoai-ui add @jixoai/highlight-highlightjs    # + highlight.js
+npx jixoai-ui add @jixoai/highlight-sugar-high     # + sugar-high
+npx jixoai-ui add @jixoai/highlight-tree-sitter    # + web-tree-sitter + grammar wasm
+npx jixoai-ui add @jixoai/highlight-microlighter   # + microlighter`;
+
+  // the three configuration tiers (E3): per-instance prop, consumer-
+  // written subtree provider over the zero-dependency seam, kernel
+  // plugin (the site form — sites that installed @jixoai/context-plugin)
+  const tierOneCode = `<script lang="ts">
+  import CodeCard from '@ui/code-card.svelte';
+  import { highlightJs } from '@lib/highlight/highlight-js';
+${close}
+
+<!-- one prop, one instance: this card registers ts + bash grammars only -->
+<CodeCard lang="ts" code={src} backend={highlightJs({ langs: ['ts', 'bash'] })} />`;
+
+  const tierTwoCode = `<script lang="ts">
+  // highlight-default.svelte — any subtree root, ~10 lines, yours to own
+  import { setContext } from 'svelte';
+  import { HIGHLIGHT_KEY } from '$lib/highlight/context-key';
+  import { prismjs } from '$lib/highlight/prismjs';
+
+  // every card BELOW this root without a backend prop eats prism
+  setContext(HIGHLIGHT_KEY, { backend: prismjs() });
+${close}
+
+<slot /> <!-- your subtree -->`;
+
+  const tierThreeCode = `// print-markup-backend.ts — the kernel-plugin form (the shape sites
+// that installed @jixoai/context-plugin run; the kernel never rides
+// the registry items themselves)
+import { definePlugin } from '$lib/context-plugin.svelte';
+import { isPrintProjection } from '$lib/medium.svelte';
+import { HIGHLIGHT_DEF } from '$lib/highlight/context.svelte';
+import { shiki } from '$lib/highlight/shiki';
+
+// print survival: under the print projection, swap the range backend
+// for a markup one — spans survive the freeze clone, ranges do not
+export const printMarkupBackend = definePlugin({
+  name: 'print-markup-backend',
+  targets: [HIGHLIGHT_DEF],
+  filter: (_def, env) => isPrintProjection(env.medium),
+  before: (backend) => (backend.id === 'microlighter' ? shiki() : backend),
+});`;
+
   // playground state (P1): the page owns the snapshot
-  const canvasInitial = { lang: 'ts' as DemoLang, theme: 'jixoai' as DemoTheme };
+  const canvasInitial = {
+    engine: 'shiki' as DemoEngine,
+    lang: 'ts' as DemoLang,
+    theme: 'jixoai' as DemoTheme,
+  };
   function resetCanvas(): void {
+    engine = canvasInitial.engine;
     lang = canvasInitial.lang;
     theme = canvasInitial.theme;
   }
 
-  // live usage: the single sample tracks the playground — lang, theme and
-  // the sample filename all ride the current state (values come from
-  // closed selects; q() keeps the habit for any free-text prop)
+  // live usage: the single sample tracks the playground — engine, lang,
+  // theme and the sample filename all ride the current state (values
+  // come from closed selects; q() keeps the habit for any free-text
+  // prop). The backend import/prop appear only for non-default engines:
+  // the shiki default needs zero wiring, and the snippet should say so.
   const q = (value: string): string => JSON.stringify(value);
+  const backendImportLine = $derived(
+    engine === 'shiki'
+      ? ''
+      : `  import { ${engineImports[engine].fn} } from '${engineImports[engine].path}';\n`,
+  );
+  const backendProp = $derived(
+    engine === 'shiki' ? '' : ` backend={${engineImports[engine].fn}()}`,
+  );
   const usageLive = $derived(`<script lang="ts">
   import CodeCard from '@ui/code-card.svelte';
-${close}
+${backendImportLine}${close}
 
-<!-- the sample is a runtime prop: Shiki escapes it, so a literal ${close}
+<!-- the sample is a runtime prop: the engine escapes it, so a literal ${close}
      inside it is inert data — nothing to escape at the template level -->
-<CodeCard filename=${q(sample.filename)} lang=${q(lang)} theme=${q(theme)} code={sample}>
+<CodeCard filename=${q(sample.filename)} lang=${q(lang)} theme=${q(theme)}${backendProp} code={sample}>
   {#snippet header()}
-    <span class="pill">node-pty route</span>
+    <span class="pill">${engineShort[engine]} · ${lang}</span>
   {/snippet}
   {#snippet footer()}
-    <span>powered by Shiki</span>
+    <span>powered by ${engineLabels[engine]}</span>
   {/snippet}
 </CodeCard>`);
 
@@ -289,6 +506,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">based on Shiki</span>
+        <span class="pill">engine matrix · six installable backends</span>
         <span class="pill">on-demand grammars · themes</span>
         <span class="pill">zero-download jixoai theme</span>
         <span class="pill">scrollport pre · thin scrollbars</span>
@@ -296,16 +514,17 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
     </SectionCard>
   </div>
 
-  <!-- workbench: the full card live, lang + theme switched from the playground -->
+  <!-- workbench: the full card live, engine + lang + theme switched from the playground -->
   <div id="code-card-workbench" data-region="code-card-workbench" data-reveal="">
     <ComponentCanvas
       title="code-card"
-      description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground swaps the Shiki language and the theme — each first pick fetches exactly that grammar/theme chunk."
+      description="The complete card: filename tab (head left), header snippet (head right, replacing the default lang label), footer snippet (foot left), and the copy control (foot right). The Playground swaps the backend engine, the language and the theme — each first paint fetches exactly that engine's grammar/theme chunks (nothing of an engine joins the page until its card paints)."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/code-card.svelte"
       {files}
       stage="fill"
       onreset={resetCanvas}
       output={[
+        { label: 'engine', value: engine },
         { label: 'lang', value: lang },
         { label: 'theme', value: theme },
       ]}
@@ -316,19 +535,23 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
         lang={lang}
         theme={theme}
         code={sample.code}
+        {backend}
         class="w-full max-w-[40rem]"
       >
         {#snippet header()}
-          <span class="pill">shiki · {lang}</span>
+          <span class="pill">{engineShort[engine]} · {lang}</span>
         {/snippet}
         {#snippet footer()}
           <span class="text-muted-foreground text-[11px] tracking-wide">
-            powered by Shiki · theme: {theme}
+            powered by {engineLabels[engine]} · theme: {theme}
           </span>
         {/snippet}
       </CodeCard>
       {#snippet playground()}
         <PlayFields>
+          <PlayRow label="engine">
+            <PlaySelect bind:value={engine} options={engineOptions} />
+          </PlayRow>
           <PlayRow label="lang">
             <PlaySelect bind:value={lang} options={langOptions} />
           </PlayRow>
@@ -336,11 +559,17 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
             <PlaySelect bind:value={theme} options={themeOptions} />
           </PlayRow>
           <PlayHelp>
-            Every pick loads on demand: picking <code>markdown</code> also
-            pulls the grammars its fences hint at, and a named theme paints its own editor colors
-            on the pre. The jixoai theme downloads nothing — token colors resolve to the
-            <code>--tok-*</code> palette at paint time. The usage file in the
-            drawer tracks both picks live.
+            shiki is the default backend — no prop needed, no other engine
+            downloads. The other five are one registry item away (see
+            <a href="#code-card-engines" class="text-accent underline underline-offset-2">the engine matrix</a>
+            below); picking one here constructs that backend and hands it to
+            the card live. Each engine maps the theme name into its own
+            vocabulary, and a lang outside an engine's set rejects by law —
+            the card keeps its plain text (try tsx on sugar-high, or svelte
+            on anything but shiki). tree-sitter fetches its wasm grammars at
+            first paint; microlighter paints zero markup — ranges over the
+            plain text. The usage file in the drawer tracks all three picks
+            live.
           </PlayHelp>
         </PlayFields>
       {/snippet}
@@ -405,6 +634,108 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
       </div>
     </SectionCard>
   </div>
+
+  <!-- the engine matrix: six installable engines, one contract -->
+  <div id="code-card-engines" data-reveal="">
+    <SectionCard
+      family="code-card-engines"
+      headerRegion="code-card-engines"
+      eyebrow="matrix"
+      title="The engine matrix — one contract, six installable engines"
+      summary="shiki is the pinned default: installing code-card installs shiki and nothing else. Five more engines exist as their own registry items, each a factory returning the same HighlightBackend — markup backends write token spans into the card's code element (the paint survives the print pipeline's freeze clone), microlighter is the range model: zero markup, ranges registered in the CSS Custom Highlight API over the plain text (which is why it prints plain — see the table). Every engine is lazy: importing a factory pulls no engine code; the download happens at a card's first paint."
+    >
+      <div class="flex flex-col gap-8">
+        <!-- the comparison table -->
+        <div class="overflow-x-auto border border-border">
+          <table class="w-full min-w-[70rem] text-[12.5px]">
+            <caption class="sr-only">the six highlight engines compared</caption>
+            <thead>
+              <tr class="border-b border-border bg-muted/40 text-left">
+                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">engine</th>
+                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">output</th>
+                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">size posture</th>
+                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">languages</th>
+                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">tailoring</th>
+                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">print</th>
+                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">in one line</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each engineMatrix as row (row.id)}
+                <tr class="border-b border-border align-top {row.id === 'shiki' ? 'bg-primary/5' : ''}">
+                  <th scope="row" class="px-3 py-2.5 text-left font-normal">
+                    <code class="text-accent">{row.factory}</code>
+                    {#if row.id === 'shiki'}<span class="pill ml-1.5">default</span>{/if}
+                    <div class="mt-1 text-[11px] text-muted-foreground">{row.item}</div>
+                  </th>
+                  <td class="px-3 py-2.5">
+                    <span class:font-bold={row.output === 'range'} class:text-primary={row.output === 'range'}>{row.output}</span>
+                  </td>
+                  <td class="px-3 py-2.5 leading-5">{row.size}</td>
+                  <td class="px-3 py-2.5 leading-5">{row.languages}</td>
+                  <td class="px-3 py-2.5 leading-5">{row.tailoring}</td>
+                  <td class="px-3 py-2.5 leading-5">{row.print}</td>
+                  <td class="px-3 py-2.5 leading-5">{row.line}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- install + the breaking note -->
+        <div class="flex flex-col gap-3">
+          <h3 class="font-nav text-[13px] tracking-tight">add an engine — one item per engine</h3>
+          <CodeBlock code={installCommands} lang="sh" meta="registry install" />
+          <p class="text-[13px] leading-6 text-muted-foreground">
+            Each item lands its factory in <code class="text-accent">$lib/highlight/&lt;engine&gt;</code>
+            and declares only its own npm dependencies — sibling engines never ride along.
+            <strong class="font-semibold text-foreground">Breaking (2026-09-06):</strong>
+            code-card used to bundle prismjs and microlighter as hard npm dependencies — it does
+            not anymore, and nothing is shimmed. If you consumed those factories, add the matching
+            item above; the <code class="text-accent">$lib/highlight/&lt;engine&gt;</code> import
+            path keeps working for every engine you install, and engines you never install simply
+            never download. The full migration table lives in the
+            <a href="/docs/registry" class="text-accent underline underline-offset-2">registry docs</a>.
+          </p>
+        </div>
+
+        <!-- the three configuration tiers -->
+        <div class="flex flex-col gap-4">
+          <h3 class="font-nav text-[13px] tracking-tight">three configuration tiers</h3>
+          <div class="grid gap-4 min-[760px]:grid-cols-2">
+            <div class="border border-border bg-muted/40 px-4 py-4">
+              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">① per instance — the backend prop</h4>
+              <p class="mb-3 text-[12.5px] leading-5">
+                Any consumer, any card: pass a factory product. The <code class="text-accent">langs</code>
+                subset is the size lever — one instance's gate never narrows another's.
+              </p>
+              <CodeBlock code={tierOneCode} lang="svelte" meta="per-instance" />
+            </div>
+            <div class="border border-border bg-muted/40 px-4 py-4">
+              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">② subtree default — your ~10-line provider</h4>
+              <p class="mb-3 text-[12.5px] leading-5">
+                The seam ships with the items (zero dependencies): <code class="text-accent">HIGHLIGHT_KEY</code>.
+                Cards without a <code class="text-accent">backend</code> prop eat the nearest
+                provider's default — the prop always wins.
+              </p>
+              <CodeBlock code={tierTwoCode} lang="svelte" meta="subtree default" />
+            </div>
+          </div>
+          <div class="border border-border bg-muted/40 px-4 py-4">
+            <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">③ kernel plugin — the site form</h4>
+            <p class="mb-3 max-w-[60rem] text-[12.5px] leading-5">
+              Sites that installed <code class="text-accent">@jixoai/context-plugin</code> can project
+              the default through the plugin kernel — here repairing microlighter's one known
+              limitation: under the print projection, swap the range backend for a markup one so
+              the freeze clone carries real spans. The kernel never rides the registry items;
+              this composition is app-side by law.
+            </p>
+            <CodeBlock code={tierThreeCode} lang="ts" meta="print-gated backend swap" />
+          </div>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
   </div>
 </div>
 
@@ -435,5 +766,5 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Code is always a runtime prop — Shiki escapes it, so samples containing literal closing tags are inert data."><CodeBlock code={usageCode} lang="svelte" meta="CodeCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The pre is a labelled, keyboard-focusable scrollport; the copy control is a real button with state feedback."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the scrollport (pre) and the copy control' }, { key: '← / → / ↑ / ↓', action: 'Scroll the focused pre — long lines horizontal, capped bodies vertical' }, { key: 'Enter / Space', action: 'Activate the copy button' }]} aria={[{ name: 'aria-label', value: '"{filename|lang} code sample"', description: 'On the pre — the scrollport is named whether or not a filename tab exists.' }, { name: 'aria-label', value: 'copy {filename|lang} sample', description: 'On the copy button; flips to "copied" for the 1.6s feedback window.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Token paint end to end — the jixoai theme resolves to the --tok-* palette at paint time; the shell rides the --readonly-code-* tints."><div class="flex flex-col gap-5"><DensityDemo><CodeCard filename="density.ts" lang="ts" code={'export const density = "fixed rhythm";'} class="w-full" copyable={false} /></DensityDemo><TokenTable tokens={[{ name: '--tok-token-keyword', default: 'var(--primary)', source: 'color', description: 'Shiki css-variables palette — one markup, both themes.' }, { name: '--tok-token-string', default: 'var(--accent)', source: 'color' }, { name: '--readonly-code-bg', default: 'muted 42% / background', source: 'color', description: 'Body ground tint.' }, { name: '--readonly-code-meta-bg / -fg', default: 'accent mixes', source: 'color', description: 'Head/foot chrome tints.' }, { name: 'body rhythm', default: '13px mono, fixed padding', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Ten props; code is the only required one — everything else is composition."><PropsTable props={[{ name: 'code', type: 'string', default: '—', description: 'The sample (runtime prop; Shiki escapes it into inert spans).', required: true }, { name: 'lang', type: 'string', default: "'ts'", description: 'Shiki language id; aliases (ts/sh/md/…) resolve in lib/shiki.' }, { name: 'theme', type: 'string', default: "'jixoai'", description: 'Shiki theme — the css-variables default, or any registered name.' }, { name: 'filename', type: 'string', default: "''", description: 'Filename tab on the head’s left; head renders when it or header exists.' }, { name: 'header', type: 'Snippet', default: '—', description: 'Head-right area; replaces the default lang label.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Footer-left content.' }, { name: 'copyable', type: 'boolean', default: 'true', description: 'Copy control on the footer bar’s right.' }, { name: 'maxHeight', type: 'string', default: "''", description: 'CSS length capping the body; turns on vertical scrolling.' }, { name: 'fill', type: 'boolean', default: 'false', description: 'Stretch to the container height; the pre becomes the only scroll area.' }, { name: 'minHeight', type: 'string', default: "''", description: 'Floors the card height; pairs with fill so short samples open readable.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the figure.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Twelve props; code is the only required one — everything else is composition."><PropsTable props={[{ name: 'code', type: 'string', default: '—', description: 'The sample (runtime prop; the backend escapes it into inert spans).', required: true }, { name: 'backend', type: 'HighlightBackend', default: 'context → shiki()', description: 'Highlight backend instance — shiki() | prismjs() | highlightJs() | sugarHigh() | treeSitter() | microLighter(); see the engine matrix.' }, { name: 'lang', type: 'string', default: "'ts'", description: 'Language id; aliases (ts/sh/md/…) resolve in the active backend’s table.' }, { name: 'theme', type: 'string', default: "'jixoai'", description: 'Theme name in shiki vocabulary; each backend maps it into its own world.' }, { name: 'filename', type: 'string', default: "''", description: 'Filename tab on the head’s left; head renders when it or header exists.' }, { name: 'header', type: 'Snippet', default: '—', description: 'Head-right area; replaces the default lang label.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Footer-left content.' }, { name: 'copyable', type: 'boolean', default: 'true', description: 'Copy control on the footer bar’s right.' }, { name: 'maxHeight', type: 'string', default: "''", description: 'CSS length capping the body; turns on vertical scrolling.' }, { name: 'fill', type: 'boolean', default: 'false', description: 'Stretch to the container height; the pre becomes the only scroll area.' }, { name: 'minHeight', type: 'string', default: "''", description: 'Floors the card height; pairs with fill so short samples open readable.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the figure.' }]} /></SectionCard></div>
 </div>

@@ -7,6 +7,7 @@ const toc: TocSection[] = [
   { id: 'code-card-workbench', label: 'workbench' },
   { id: 'code-card-scroll-law', label: 'scroll law' },
   { id: 'code-card-law', label: 'the Shiki contract' },
+  { id: 'code-card-engines', label: 'the engine matrix' },
   { id: 'types', label: 'Types' },
   { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },

@@ -14,7 +14,34 @@
  */
 
 import { DEFAULT_THEME, highlightCode } from '$lib/shiki';
-import { applyDeclarations, type HighlightBackend } from './backend';
+import {
+  applyDeclarations,
+  canonicalLang,
+  requestedLang,
+  type HighlightBackend,
+} from './backend';
+
+/**
+ * Mirrors lib/shiki.ts's alias table — the facade keeps its own copy and
+ * this factory canonicalizes BOTH its `langs` option entries and each
+ * request against the same mapping, so allowlists written in alias or
+ * canonical form behave identically.
+ */
+const langAliases: Record<string, string> = {
+  ts: 'typescript',
+  mts: 'typescript',
+  cts: 'typescript',
+  js: 'javascript',
+  mjs: 'javascript',
+  cjs: 'javascript',
+  sh: 'bash',
+  shell: 'bash',
+  zsh: 'bash',
+  shellscript: 'bash',
+  md: 'markdown',
+  yml: 'yaml',
+  htm: 'html',
+};
 
 /**
  * Shiki's classic structure is <pre …><code…>INNER</code></pre>; source
@@ -39,17 +66,42 @@ function preStyleOf(html: string): string {
   return /^<pre[^>]*style="([^"]*)"/.exec(html)?.[1] ?? '';
 }
 
+/** Options for the shiki backend factory (highlight-engine-matrix, 2026-09-06). */
+export interface ShikiBackendOptions {
+  /**
+   * Restrict THIS instance to a language subset (alias or canonical ids;
+   * canonicalized on construction). Omitted = the facade's full curated
+   * set ("the engine's whole capability" is the default posture). A
+   * request outside the set rejects with a hint — the card's plain-text
+   * fallback law takes over. The shared facade registry is never
+   * mutated: instances compose freely.
+   */
+  langs?: readonly string[];
+}
+
 /**
- * The shiki backend factory: `<CodeCard backend={shiki()} />`.
- * Instances are stateless adapters over the shared highlighter —
- * create as many as you like.
+ * The shiki backend factory: `<CodeCard backend={shiki()} />` or
+ * `shiki({ langs: ['ts', 'bash'] })`. Instances are stateless adapters
+ * over the shared highlighter — create as many as you like.
  */
-export function shiki(): HighlightBackend {
+export function shiki(options: ShikiBackendOptions = {}): HighlightBackend {
+  const allowed =
+    options.langs === undefined
+      ? undefined
+      : new Set(options.langs.map((lang) => canonicalLang(langAliases, lang)));
   return {
     id: 'shiki',
     async highlight(el, code, opts) {
+      const lang = canonicalLang(langAliases, requestedLang(opts));
+      if (allowed !== undefined && !allowed.has(lang)) {
+        throw new Error(
+          `[jixoai/highlight/shiki] lang "${lang}" is outside this instance's langs set ` +
+            `(allowed: ${[...allowed].join(', ')}) — widen shiki({ langs: [...] }) ` +
+            `or use an unrestricted shiki()`,
+        );
+      }
       const html = await highlightCode(code, {
-        lang: opts.lang ?? 'ts',
+        lang,
         theme: opts.theme ?? DEFAULT_THEME,
       });
       const inner = innerCodeHtml(html);

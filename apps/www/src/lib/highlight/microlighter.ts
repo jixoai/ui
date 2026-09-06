@@ -41,7 +41,7 @@
  * fallback law takes over (Firefox < 140, old Safari).
  */
 
-import type { HighlightBackend } from './backend';
+import { requestedLang, type HighlightBackend } from './backend';
 
 /** what microlighter's highlightAll needs from the host environment */
 type HighlightAllFn = (options: {
@@ -140,7 +140,7 @@ export function microLighter(): HighlightBackend {
       // markup siblings (also the idempotent plain reset for re-paints)
       el.textContent = code;
       // language metadata on the element (its recommended channel)
-      el.dataset.language = (opts.lang ?? 'ts').toLowerCase();
+      el.dataset.language = requestedLang(opts).toLowerCase();
       const theme = microlighterThemeName(opts.theme);
       el.closest('pre')?.setAttribute('data-syntax-theme', theme);
       await ensureTheme(theme);

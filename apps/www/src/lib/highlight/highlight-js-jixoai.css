@@ -1,0 +1,131 @@
+@layer theme, base, components, utilities;
+
+/* jixoai theme for the highlight.js backend (lib/highlight/
+ * highlight-js-jixoai.css, highlight-engine-matrix, 2026-09-06).
+ *
+ * The backend's zero-download default: highlight.js token classes bound
+ * to the SAME --tok-token-* palette the shiki default theme reads
+ * (the contract code-card.css defines on .jx-code-card), so both markup
+ * engines paint the card with one look and one palette — no hljs
+ * stylesheet ever downloads for the default posture.
+ *
+ * PROVENANCE (the r2-B3/r2-B5 law — enumerated, not estimated): every
+ * class below was observed in the REAL highlight() output of hljs
+ * 11.12.0 over representative samples of the curated set (typescript,
+ * javascript, xml, css, scss, json, bash, markdown, yaml) — 41 distinct
+ * class tokens — then each was mapped through the shiki look's own
+ * scope table (createCssVariablesTheme's default tokenColors, the
+ * authoritative "shiki 默认观感"): an hljs class inherits the var of its
+ * textmate-scope equivalent. Classes whose textmate equivalent the
+ * palette leaves foreground are DELIBERATELY UNMAPPED (hljs-quote,
+ * hljs-meta, hljs-tag, hljs-symbol, hljs-function, plain hljs-variable,
+ * embedded-language language-* markers) — unmapped stays uncolored,
+ * nothing invented. One documented compromise: .hljs-attr spans xml
+ * attribute names AND json/yaml/ts object keys, which shiki colors
+ * three different ways (function / keyword / foreground); the keyword
+ * var wins as the heaviest-volume family (json + yaml keys).
+ *
+ * Diff classes (hljs-addition/deletion/change) are outside the curated
+ * probe's observed output — they carry the stable hljs diff vocabulary
+ * and the palette ships vars for exactly them, so they are mapped.
+ *
+ * Layer/scoping follow code-card.css (the component CSS precedent):
+ * @layer components behind :where() — consumer utilities win — and
+ * scoped to .jx-code-card, where the --tok-* variables exist. */
+
+@layer components {
+  :where(.jx-code-card .hljs) {
+    /* editor.foreground — the base ink, shiki's own default */
+    color: var(--tok-foreground);
+  }
+  /* meta.template.expression → foreground (the css-variables theme's
+     explicit first rule): template ${…} interiors read as base ink */
+  :where(.jx-code-card .hljs-subst) {
+    color: var(--tok-foreground);
+  }
+
+  /* comment / docstring */
+  :where(.jx-code-card .hljs-comment) {
+    color: var(--tok-token-comment);
+  }
+
+  /* string + markup.inline / markup.fenced_code (markdown code spans) */
+  :where(.jx-code-card .hljs-string),
+  :where(.jx-code-card .hljs-code),
+  :where(.jx-code-card .hljs-bullet) {
+    color: var(--tok-token-string);
+  }
+
+  /* string.regexp + entity.name.tag (xml tag names, css tag selectors) */
+  :where(.jx-code-card .hljs-regexp),
+  :where(.jx-code-card .hljs-name),
+  :where(.jx-code-card .hljs-selector-tag) {
+    color: var(--tok-token-string-expression);
+  }
+
+  /* keyword + json/yaml keys (the .hljs-attr compromise, above) */
+  :where(.jx-code-card .hljs-keyword),
+  :where(.jx-code-card .hljs-attr) {
+    color: var(--tok-token-keyword);
+  }
+
+  /* constant family: numeric, constant.language (true/null), support
+     (built-ins), property names, css block attributes, this/super */
+  :where(.jx-code-card .hljs-number),
+  :where(.jx-code-card .hljs-literal),
+  :where(.jx-code-card .hljs-built_in),
+  :where(.jx-code-card .hljs-property),
+  :where(.jx-code-card .hljs-attribute),
+  :where(.jx-code-card .hljs-variable.language_) {
+    color: var(--tok-token-constant);
+  }
+
+  /* function family: entity.name.function (titles, incl. the class_/
+     inherited_ compounds — entity.name.type shares this var in the
+     shiki table), entity.other.attribute-name (css selector classes,
+     ids, pseudos, attribute selectors), yaml !!types */
+  :where(.jx-code-card .hljs-title),
+  :where(.jx-code-card .hljs-type),
+  :where(.jx-code-card .hljs-selector-class),
+  :where(.jx-code-card .hljs-selector-id),
+  :where(.jx-code-card .hljs-selector-pseudo),
+  :where(.jx-code-card .hljs-selector-attr) {
+    color: var(--tok-token-function);
+  }
+
+  /* variable.parameter.function */
+  :where(.jx-code-card .hljs-params) {
+    color: var(--tok-token-parameter);
+  }
+
+  /* punctuation.separator / definition.arguments (json's brackets) */
+  :where(.jx-code-card .hljs-punctuation) {
+    color: var(--tok-token-punctuation);
+  }
+
+  /* markup.underline.link (markdown links) */
+  :where(.jx-code-card .hljs-link) {
+    color: var(--tok-token-link);
+  }
+
+  /* the diff vocabulary — markup.inserted/deleted/changed */
+  :where(.jx-code-card .hljs-addition) {
+    color: var(--tok-token-inserted);
+  }
+  :where(.jx-code-card .hljs-deletion) {
+    color: var(--tok-token-deleted);
+  }
+  :where(.jx-code-card .hljs-change) {
+    color: var(--tok-token-changed);
+  }
+
+  /* fontStyle entries of the shiki table, mirrored verbatim: emphasis
+     italic; strong + markdown headings bold */
+  :where(.jx-code-card .hljs-emphasis) {
+    font-style: italic;
+  }
+  :where(.jx-code-card .hljs-strong),
+  :where(.jx-code-card .hljs-section) {
+    font-weight: bold;
+  }
+}

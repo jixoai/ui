@@ -156,6 +156,39 @@ describe('highlight backends — the contract', () => {
     expect(code.textContent).toBe('x');
   }, 20000);
 
+  // ── per-instance langs allowlists (highlight-engine-matrix, 2026-09-06) ──
+
+  it('prismjs: a langs allowlist rejects outside languages, aliases resolve inside it', async () => {
+    const { code } = codeBox();
+    code.textContent = 'x';
+    const slim = prismjs({ langs: ['css'] });
+    // 'scss' is a real prism grammar but outside THIS instance's set
+    await expect(slim.highlight(code, 'x', { lang: 'scss' })).rejects.toThrow(
+      /outside this instance's langs set/,
+    );
+    expect(code.textContent).toBe('x');
+    // an alias entry ('ts') canonicalizes into the set's terms and paints
+    const { code: aliasBox } = codeBox();
+    const tsAllowed = prismjs({ langs: ['ts'] });
+    await tsAllowed.highlight(aliasBox, SAMPLE, { lang: 'typescript' });
+    expect(aliasBox.classList.contains('language-typescript')).toBe(true);
+  }, 20000);
+
+  it('shiki: a langs allowlist gates the instance, the shared facade stays untouched', async () => {
+    const { code } = codeBox();
+    code.textContent = 'x';
+    const slim = shiki({ langs: ['bash'] });
+    await expect(slim.highlight(code, 'x', { lang: 'ts' })).rejects.toThrow(
+      /outside this instance's langs set/,
+    );
+    expect(code.textContent).toBe('x');
+    // an unrestricted sibling instance on the SAME shared facade still
+    // paints ts — the allowlist is per-instance, never a registry mutation
+    const { code: sibling } = codeBox();
+    await shiki().highlight(sibling, SAMPLE, { lang: 'ts' });
+    expect(sibling.querySelector('span')).not.toBeNull();
+  }, 20000);
+
   it('microLighter: ZERO markup — ranges over the text node, theme attributes', async () => {
     const { pre, code } = codeBox();
 
