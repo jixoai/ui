@@ -66,15 +66,27 @@
    (in/out/reset, scaled pan in the scrollport); a parse failure paints
    the error-summary panel and KEEPS the source floor standing (the
    code-card fallback law).
-6. **registry surface (P0)** — five `registry.json` entries (`katex`,
+6. **color-utils parseColor extension (P0)** — the token pipeline's
+   hex conversion needs `rgb()/rgba()` parsing (browsers serialize
+   legacy-family probes that way; the current parser only knows
+   hex/hsl/oklch and returns null on rgb). The shared lib gains
+   rgb()/rgba() parsing (comma AND space/slash serializations, alpha
+   accepted + discarded in hex output), with a documented per-token
+   safe-hex fallback so a degraded token NEVER reaches mermaid as a
+   raw string.
+7. **registry surface (P0)** — five `registry.json` entries (`katex`,
    `mermaid-engine` lib items; `math-block`, `math-inline`, `mermaid`
    ui items) with `dependencies: ["katex"|"mermaid"]`, declared
    `registryDependencies` (`@jixoai/katex`, `@jixoai/mermaid-engine`,
-   `@jixoai/jixoai-theme`), meta.group per the taxonomy (math-block/
+   `@jixoai/jixoai-theme`, plus icons/utils/scroll-run/color-utils per
+   the exhaustive edge list), meta.group per the taxonomy (math-block/
    mermaid → data-display, math-inline → general, libs → engines);
    byte-identical mirrors + manifest regen (113 → 118 items); docs
    pages ×3 with demos (formulas, diagram kinds, light/dark, zoom,
-   error); vitest specs mirrored both sides; `public/r` payloads.
+   error) registered in the docs-skeleton hard-fail scope; vitest
+   specs mirrored both sides; `public/r` payloads; engine discipline
+   contracts (render-id collision rules, the initialize/render serial
+   queue, protected config fields) land in the engine facade.
 
 ## Impact
 
@@ -83,15 +95,19 @@
   `registry/files/ui/math-inline/{math-inline.svelte,index.ts}`,
   `registry/files/ui/mermaid/{mermaid.svelte,mermaid.css,index.ts}` —
   all byte-mirrored to `apps/www/src/lib/**`.
+- MODIFIED: `registry/files/lib/color-utils.ts` (parseColor rgb/rgba
+  extension, mirrored), `scripts/verify-shadcn-add.mjs` (CASES +=
+  math-block, mermaid), `scripts/docs-skeleton-scope.json` (inScope +=
+  the three new docs routes — hard-fail).
 - NEW: `apps/www/src/routes/docs/components/{math-block,math-inline,mermaid}.html/+page.{ts,svelte}`
-  (+ `svelte.config.js` prerender entries, docs-skeleton scope),
+  (+ `svelte.config.js` prerender entries),
   `apps/www/test/{katex,math-block,math-inline,mermaid-engine,mermaid}.spec.ts`
   byte-identical in `registry/test/`, optional
   `apps/www/src/lib/meta/{math-block,math-inline,mermaid}.meta.ts`.
 - MODIFIED: `registry.json` (+5 items), `apps/www/mirror-manifest.json`
   (regen), `apps/www/package.json` + `registry/package.json` (katex +
-  mermaid deps — the byte-identical pair), `apps/www/public/r/*`
-  (payloads rebuild).
+  mermaid deps — the byte-identical pair) + lockfiles (root, apps/www —
+  receipts), `apps/www/public/r/*` (payloads rebuild).
 - Specs: component-authoring (math surface law, diagram floor law),
   registry (engine-item out-of-the-box contract, syntax-standard
   naming ruling).
