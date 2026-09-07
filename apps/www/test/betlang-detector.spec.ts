@@ -226,6 +226,16 @@ describe('betlang — the Node default channel', () => {
       confidence: expect.any(Number),
     });
   }, 30000);
+
+  // the browser default delegates to the package's own new-URL channel —
+  // a literal `import('…wasm?url')` here compiles in a consumer BUILD but
+  // breaks vite DEV (the ?import-rewritten request answers the raw binary;
+  // the browser fails the ES-module parse — caught live on the docs
+  // playground 2026-09-07). Source-level guard: the literal must not return.
+  it('the browser default channel never re-introduces a literal ?url wasm import', async () => {
+    const source = await readFile(nodeRequire.resolve('../src/lib/highlight/betlang-detector.ts'), 'utf8');
+    expect(source).not.toMatch(/\.wasm\?url/);
+  });
 });
 
 // ===========================================================================

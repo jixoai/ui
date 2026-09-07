@@ -15,11 +15,14 @@
  * WASM LOADING SEAM (single asset, two source shapes — the tree-sitter
  * four-quadrant seam's single-asset simplification, design D4):
  *
- *   wasmLoader() → { url }     fetchable URL (browser default: vite's
- *                              `?url` asset emission of the package file)
+ *   wasmLoader() → { url }     fetchable URL (validated 2xx +
+ *                              application/wasm by the package loader)
  *   wasmLoader() → { bytes }   raw bytes (Node/vitest default:
  *                              createRequire + readFile of the package
- *                              wasm — tests run REAL wasm, never a mock)
+ *                              wasm — tests run REAL wasm, never a
+ *                              mock; the browser default passes NO
+ *                              source — the package's own new-URL
+ *                              channel is the vite dev+build law)
  *
  * Omitted loader = the environment default above. One module-level
  * singleton per process (concurrent cards share the in-flight load;
@@ -65,8 +68,8 @@ export interface BetlangDetectorOptions {
    * Take the wasm channel over: return `{ url }` (fetchable, validated
    * 2xx + `application/wasm` by the loader) or `{ bytes }` (the shape
    * Node/vitest tests use — read the package wasm directly). Omitted =
-   * the environment default (browser: vite `?url` emission; Node:
-   * createRequire + readFile).
+   * the environment default (browser: no source — the package's own
+   * new-URL channel, vite dev+build; Node: createRequire + readFile).
    */
   wasmLoader?: () => Promise<BetlangWasmSource>;
 }
@@ -141,11 +144,16 @@ const IS_NODE =
 /**
  * The environment default channel: Node/vitest read the package wasm
  * as bytes (createRequire + readFile — the resolution goes through the
- * package's `./dist/betlang_wasm.wasm` export), the browser gets
- * vite's `?url` emission (a LITERAL dynamic import — the bundler law;
- * the emitted URL is fetched+validated by the package loader).
+ * package's `./dist/betlang_wasm.wasm` export); the browser passes NO
+ * source and lets the package's own default channel run
+ * (`new URL('./dist/betlang_wasm.wasm', import.meta.url)` — the
+ * pattern vite's asset plugin rewrites in dev AND emits in build). A
+ * literal `import('…wasm?url')` here would compile in build but break
+ * vite DEV: the `?import`-rewritten request answers the raw binary and
+ * the browser fails the ES-module parse (caught live on the docs
+ * playground, 2026-09-07).
  */
-function defaultWasmSource(): Promise<BetlangWasmSource> {
+function defaultWasmSource(): Promise<BetlangWasmSource | undefined> {
   if (IS_NODE) {
     return (async () => {
       // variable specifiers + @vite-ignore: only the Node branch runs
@@ -159,7 +167,7 @@ function defaultWasmSource(): Promise<BetlangWasmSource> {
       return { bytes: new Uint8Array(await readFile(wasmPath)) };
     })();
   }
-  return import('@jixoai/betlang-wasm/dist/betlang_wasm.wasm?url').then((m) => ({ url: m.default }));
+  return Promise.resolve(undefined);
 }
 
 // ---------------------------------------------------------------------------
