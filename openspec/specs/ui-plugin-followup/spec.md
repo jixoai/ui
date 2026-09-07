@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This spec covers the @jixoai/vite-plugin package — the build-time plugin
+This spec covers the @jixoai/ui-vite-plugin package — the build-time plugin
 domain that compiles and serves the component library to consumers, distinct
 from the runtime context-plugin kernel in the site. It pins the follow-up
 contracts that hold plugin and site renders in lockstep: a DOM-AST
@@ -45,7 +45,7 @@ order) can override them at equal specificity.
 
 ### Requirement: opentype.js stays external in the plugin build
 
-The @jixoai/vite-plugin build SHALL keep the dynamic
+The @jixoai/ui-vite-plugin build SHALL keep the dynamic
 `import('opentype.js')` as an external dependency in dist — it is a
 build-time-only tool (runs inside the vite plugin during
 `vite build`/`vite dev`), never ships to the consumer's browser. The
@@ -54,7 +54,7 @@ plugin package's dist SHALL NOT bundle opentype.js code.
 #### Scenario: a consumer without fontIconProvider installs the plugin
 
 - GIVEN a consumer using only lucideIconProvider
-- WHEN they install @jixoai/vite-plugin
+- WHEN they install @jixoai/ui-vite-plugin
 - THEN opentype.js is NOT downloaded (it's an optionalDependency,
   dynamically imported only by fontIconProvider)
 

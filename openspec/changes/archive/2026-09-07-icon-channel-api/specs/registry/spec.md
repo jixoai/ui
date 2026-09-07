@@ -169,6 +169,21 @@ inferred from `shadcn build` output.
   depending items reference `@jixoai/utils` via
   `registryDependencies`
 
+#### Scenario: a monorepo-shipped npm package dependency
+
+- GIVEN an item depends on an npm package BUILT INSIDE this repo
+  (a `packages/*` workspace member, not a registry item)
+- WHEN the package is named or the dependency declared
+- THEN the package name carries the `@jixoai/ui-` prefix — the
+  monorepo's subpackage namespace (`@jixoai/ui-betlang-wasm` today;
+  `@jixoai/ui-vite-plugin` per the in-flight rename) — and every
+  reference (package.json name, item `dependencies`, import
+  specifiers, vendor `.d.ts` module declarations, lockfiles, CI
+  workflows, the shadcn-add npm mirror bridge) spells it exactly so;
+  a subpackage published under bare `@jixoai/<name>` is a naming-law
+  breach caught at review, not by tooling (learned 2026-09-07:
+  betlang-wasm shipped as `@jixoai/betlang-wasm` and was renamed the
+  same day)
 
 ### Requirement: wasm-capable items have two binary channels,
 payload excluded

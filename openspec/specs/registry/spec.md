@@ -75,7 +75,7 @@ consumers, failure message names the missing requirement) enforce the
 entry wiring. Items whose runtime needs a build-time-resolved binary
 asset (the wasm-asset prerequisite, 2026-08-28: `ghostty-term` →
 `ghostty-vt.wasm`) SHALL NOT ship the binary through the registry
-payload; the item documents the `@jixoai/vite-plugin` wiring as an
+payload; the item documents the `@jixoai/ui-vite-plugin` wiring as an
 install prerequisite of equal rank to the tw4 law (per the
 build-plugins spec), and the asset URL reaches the component through
 that plugin's virtual module (`virtual:jixoai-ghostty`), never
@@ -143,7 +143,7 @@ inferred from `shadcn build` output.
   vite plugin
 - WHEN their build runs
 - THEN the failure path is documented on the item's docs page (the
-  install-prerequisite section names `@jixoai/vite-plugin` and the
+  install-prerequisite section names `@jixoai/ui-vite-plugin` and the
   one-line fix), mirroring the tw4-prerequisite law
 
 #### Scenario: consumer installs a multi-file item
@@ -621,14 +621,14 @@ payload excluded
 
 This requirement EXTENDS AND SUPERSEDES the single-channel sentence of
 `item file contracts` (the wasm-asset prerequisite paragraph: "the
-item documents the `@jixoai/vite-plugin` wiring as an install
+item documents the `@jixoai/ui-vite-plugin` wiring as an install
 prerequisite of equal rank to the tw4 law") — that build-plugin-only
 channel becomes channel 1 of exactly two; the archive step SHALL merge
 this amendment into the living spec's wording. Items whose runtime
 needs a binary asset declare ONE of:
 
 1. **build-plugin channel** (ghostty-term precedent): a pinned
-   release artifact documented as `@jixoai/vite-plugin` wiring — for
+   release artifact documented as `@jixoai/ui-vite-plugin` wiring — for
    assets with no reliable npm distribution;
 2. **npm-asset channel** (tree-sitter precedent, 2026-09-06): the
    binary ships inside declared npm packages and reaches the runtime

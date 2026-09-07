@@ -2,7 +2,7 @@
 
 ## Purpose
 How this repo ships vite build plugins as npm packages: the
-@jixoai/vite-plugin package (the ghostty wasm supply plugin — pin-verified
+@jixoai/ui-vite-plugin package (the ghostty wasm supply plugin — pin-verified
 asset resolution, dev serving, build emission, virtual-module handoff),
 its probe bin, its self-contained npm engineering, and the
 ghostty-wasm-sync supply-chain workflow that keeps the pin honest. The
@@ -14,7 +14,7 @@ it, not the user" law applied to the build pipeline itself.
 
 ### Requirement: the @jixoai/vite-plugin package
 
-`packages/vite-plugin` SHALL publish as `@jixoai/vite-plugin` (the
+`packages/vite-plugin` SHALL publish as `@jixoai/ui-vite-plugin` (the
 cli/ package precedent: a separate npm-publishable package, not a
 registry item) with ZERO runtime dependencies and peerDependency
 `vite ^8.0.0` (the only tested surface), built by tsdown into
@@ -44,7 +44,7 @@ The package is a SELF-CONTAINED npm project: its own committed
 package-lock.json and devDependencies so `npm ci && npm run build`
 reproduces without any root install (the repo root is not a
 workspace). Consumers add ONE
-`/// <reference types="@jixoai/vite-plugin/client" />` line to their
+`/// <reference types="@jixoai/ui-vite-plugin/client" />` line to their
 d.ts environment (the apps/www vite-env.d.ts fixture proves
 svelte-check stays green). Its plugins are build-time only: they
 never transpile or instantiate wasm; their contract surface is
@@ -62,7 +62,7 @@ handing data URLs to code via virtual modules.
 
 #### Scenario: consumer wires the ghostty plugin
 
-- GIVEN a vite consumer with `@jixoai/vite-plugin` installed and
+- GIVEN a vite consumer with `@jixoai/ui-vite-plugin` installed and
   `jixoai()` in `plugins`
 - WHEN the dev server starts or a build runs
 - THEN the pinned `ghostty-vt.wasm` resolves (env override →
@@ -159,7 +159,7 @@ non-goal.
 
 ### Requirement: package release rides the trusted-publishing flow
 
-`@jixoai/vite-plugin` SHALL be published by the same release
+`@jixoai/ui-vite-plugin` SHALL be published by the same release
 workflow pattern as the `jixoai-ui` CLI (npm Trusted Publishing /
 OIDC, idempotent skip when the version exists, tarball attached to
 the tagged release); configuring the npm-side trusted publisher for
@@ -359,7 +359,7 @@ documentation.
 
 `generateIconLibraryArtifacts()` — a PURE core (no fs, no vite,
 input = the RESOLVED asset list, never IconSource) exported from
-`@jixoai/vite-plugin/icons` — SHALL be the ONLY code that
+`@jixoai/ui-vite-plugin/icons` — SHALL be the ONLY code that
 serializes the library, returning `{ artifact, chunks, report }`.
 Two adapters own all side effects: the VITE adapter (emits the
 virtual chunk modules; dev watch/HMR through the slot face's
@@ -678,3 +678,88 @@ name).
 - WHEN the generator resolves the scan
 - THEN the build fails naming the ref and the preset (never a
   silently blank glyph)
+
+### Requirement: icon channels are the public plugin surface
+
+The package (named `@jixoai/ui-vite-plugin`) SHALL expose the channel
+capability as the public base every prefixed lane rides: a
+`defineIconChannel` factory (sub-entry `…/icons/channel`) that ALWAYS
+builds a file-resolver channel — `{ id, prefix, peerPackage?,
+resolveFile(ref) }` with prefix grammar `/^[a-z][a-z0-9]*$/` (`lucide`
+reserved) and id grammar `/^[a-z][a-z0-9-]*$/`; the resolver contract
+is DISCRIMINATED (the `file` kind, and the reserved `lucide` kind
+routing to the IconNode lane), and set-level id + prefix uniqueness is
+enforced at config normalization with named errors (the factory cannot
+know the registered set). `library.channels: IconChannel[]` SHALL be
+the registration surface (replacing `library.presets` — bold break,
+unreleased API, no compat layer). A registered channel's prefix SHALL
+work identically to a shipped one: config `icons` refs, source
+scanning, template union members, and the enabled-prefix laws.
+Channel resolution SHALL keep frozen principle #4: the channel LOCATES
+(node resolution); the adapter READS through `ctx.loadSource` (mime
+law + watchFile) and every icon crosses the shared RAW safety → svgo
+→ extract pipeline — custom channels inherit the built-ins' guarantees
+by construction. The shipped channels SHALL be importable as
+independent sub-entries of the same package — `…/icons/md`,
+`…/icons/ph`, `…/icons/rx` (factories with their options preserved)
+and `…/icons/lucide` (an INSTANCE) — while `lucide` stays
+DEFAULT-REGISTERED (zero-import) and resolves through the existing
+IconNode lane (the one documented non-file asymmetry; `includeDefaults`
+keeps gating the 38-name manifest independently — and a scanned
+`lucide:X` whose `X` is already packed SHALL NOT pack a second
+payload: the artifact carries a row in a SEPARATE, compiler-generated
+`EQUIVALENCES` table (`lucide:X` → `X`) — one payload, canonical-only
+counts, and exempt from the `as`-alias grammar and collision matrix BY
+CONSTRUCTION (a different table under a different law; alias↔key
+collision is IMPOSSIBLE under the alias grammar — aliases cannot
+contain `:` — and `canonicalOf` chains ALIASES then EQUIVALENCES so an
+`as` alias on a deduped ref resolves through both). The css-laws
+workspace package SHALL carry the Owner-confirmed corrected name
+`@jixoai/ui-css-laws`; the `@jixoai/css-laws` MARKER TOKEN in the theme
+sheets is a decoupled protocol string and does not migrate.
+
+#### Scenario: a custom channel replaces per-icon config
+
+- GIVEN `defineIconChannel({ id: 'myco', prefix: 'myco', resolveFile:
+  (ref) => resolvePeerFile('my-icons', `svgs/${ref}.svg`) })`
+  registered via `library.channels`
+- WHEN a component writes `<Icon name="myco:logo" />`
+- THEN the scanner collects it, the channel resolves it, the artifact
+  packs `myco:logo` and `IconName` gains `myco:${string}` — with ZERO
+  per-icon `library.icons` entries
+
+#### Scenario: the built-ins import from their own entries
+
+- GIVEN `import { md } from '@jixoai/ui-vite-plugin/icons/md'` and
+  `library: { channels: [md()] }`
+- WHEN the build runs
+- THEN `md:` refs resolve exactly as the presets era's material
+  preset did (same peer package, same options, same errors)
+
+#### Scenario: lucide needs no import and scans like any channel
+
+- GIVEN a default library config (no channels) and a component
+  writing `<Icon name="lucide:zap" />`
+- WHEN the build runs
+- THEN the lucide channel (default-registered) resolves the ref
+  through the IconNode lane and the artifact packs `lucide:zap`
+  with no config declaration
+
+#### Scenario: a scanned lucide ref dedupes against the built-in
+
+- GIVEN the default manifest (38 built-ins including `check`) and a
+  component writing `<Icon name="lucide:check" />`
+- WHEN the artifact generates
+- THEN no second payload packs — the artifact gains an EQUIVALENCES
+  row `lucide:check` → `check` (never an ALIASES row) and
+  `getIcon('lucide:check')` returns the built-in data (iconCount
+  counts canonicals only); an `as` alias on the same ref
+  (`lucide:check as c2`) chains through ALIASES then EQUIVALENCES to
+  the same payload
+
+#### Scenario: duplicate channel ids or prefixes fail by name
+
+- GIVEN `channels: [md(), md({ weight: 500 })]`
+- WHEN the config validates
+- THEN startup fails naming both entries (the uniqueness law carried
+  over from the presets era)
