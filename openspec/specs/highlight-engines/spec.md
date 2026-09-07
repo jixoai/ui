@@ -16,11 +16,16 @@ per engine. The matrix membership is frozen: `highlight-shiki`,
 imports (`highlight-shiki` additionally declares `@jixoai/shiki` for
 the facade it wraps), and ONLY its own engine's npm `dependencies`.
 The core `highlight` item carries the contract files (`backend.ts`,
-`context-key.ts`) and ZERO npm dependencies; `context.svelte.ts` stays
-site-only (the standing "no kernel dependency rides the item" law —
-the shipped context seam is the zero-dependency `context-key.ts`, and
-an app writes its own ~10-line provider over `setContext(HIGHLIGHT_KEY,
-…)` per the docs recipe). All engine files keep their canonical
+`lang-detector.ts`, `context-key.ts`) and ZERO npm dependencies;
+`context.svelte.ts` stays site-only (the standing "no kernel dependency
+rides the item" law — the shipped context seams are the
+zero-dependency `context-key.ts` exporting TWO INDEPENDENT surfaces
+(`HIGHLIGHT_KEY` + `HighlightContextValue` for the backend default,
+`HIGHLIGHT_DETECT_KEY` + `HighlightDetectContextValue` for the
+language-detector default — lang-detection change, 2026-09-07: both are
+plain Symbol seams over `setContext`, mutually orthogonal, neither
+pulls the kernel), and an app writes its own ~10-line provider over
+either key per the docs recipe). All engine files keep their canonical
 `@lib/highlight/...` targets — item boundaries move, consumer import
 paths do not (for consumers who installed the corresponding engine
 item).
@@ -45,9 +50,12 @@ item).
 #### Scenario: the shipped context seam stays zero-dependency
 
 - **WHEN** a consumer installs any highlight item
-- **THEN** the context surface received is `context-key.ts` only
-  (`HIGHLIGHT_KEY` + `HighlightContextValue`); kernel-side context
-  wiring never rides an item
+- **THEN** the context surface received is `context-key.ts` only —
+  carrying BOTH independent seams (`HIGHLIGHT_KEY` +
+  `HighlightContextValue`, and `HIGHLIGHT_DETECT_KEY` +
+  `HighlightDetectContextValue`); kernel-side context wiring never
+  rides an item, and the detect seam's arrival (lang-detection change)
+  changes nothing about the backend seam's shape or consumers
 
 ### Requirement: the default install is a single engine
 

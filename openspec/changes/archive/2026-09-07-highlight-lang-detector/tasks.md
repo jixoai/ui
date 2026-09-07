@@ -104,6 +104,6 @@
 
 - [x] 7.1 Codex 围绕 change 目标 + 真实 diff + 测试证据复核 → 迭代
 - [x] 7.2 rebase main（检查底层法则漂移，有交集补对齐轮）
-- [ ] 7.3 archive change + 三段式提交 + push + worktree/herdr 回收；
+- [x] 7.3 archive change + 三段式提交 + push + worktree/herdr 回收；
       归档提交后断言 living highlight-engines spec 已含
       HIGHLIGHT_DETECT_KEY（r12-N6 分叉窗口止于归档提交）
