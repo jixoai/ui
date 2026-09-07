@@ -162,6 +162,13 @@ export function createMirrorSync(repoRoot) {
     const isRegistrySide = absPath.startsWith(registryFiles + sep);
     const dst = isRegistrySide ? toMirror(absPath) : await resolveRegistryPair(absPath);
     if (dst === null) return; // not a mirrored pair (SITE_ONLY / unmapped)
+    // the classification gates BOTH directions: a registry-side event
+    // for a path whose www counterpart is SITE_ONLY must be a no-op —
+    // toMirror() alone would map it, and a (spurious) unlink for a
+    // twin that never existed would delete the site-only original
+    // (found live 2026-09-08: a ghost unlink ate a freshly-classified
+    // component three times before the route-dir move dodged it)
+    if (isSiteOnly(relative(repoRoot, dst))) return;
     const src = absPath;
     let bytes;
     try {

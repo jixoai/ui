@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T14:31:41.318Z",
+  "generatedAt": "2026-09-07T16:32:03.758Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -4572,10 +4572,6 @@
     {
       "path": "apps/www/src/lib/code-block.svelte",
       "note": "site docs code surface"
-    },
-    {
-      "path": "apps/www/src/lib/detector-playground.svelte",
-      "note": "detection lab interactive host (docs playground for the DLD trace channel)"
     },
     {
       "path": "apps/www/src/vite-env.d.ts",

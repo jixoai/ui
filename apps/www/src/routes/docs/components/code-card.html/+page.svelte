@@ -21,7 +21,7 @@
   // mirrored $lib copy IS the registry artifact (form ①; its body is the
   // one-line form ② shown below)
   import HighlightDetectDefault from '$lib/ui/highlight-detect-default';
-  import DetectorPlayground from '$lib/detector-playground.svelte';
+  import DetectorPlayground from './detector-playground.svelte';
   import { AUTO_LANG } from '$lib/highlight/lang-detector';
 
   // Same-source law: the code drawer shows the exact registry copies this
