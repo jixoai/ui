@@ -415,6 +415,40 @@ describe('the DLD waterfall — L1-L3 paths (L4 is the parallel seam)', () => {
       detector.detect({ code: '[package]\nname = "mine"\nversion = "0.1.0"' }),
     ).resolves.toEqual({ lang: 'toml', source: 'structure' });
   });
+
+  // the trace channel (docs playground's live log): one event per
+  // EXECUTED layer, hit/miss + detail + timing; skipped layers are the
+  // negative space — L1 answering means no L2/L3/L4 event ever fires.
+  it('an L1 hit traces exactly one event and nothing below it', async () => {
+    const events: Array<{ layer: string; outcome: string; lang?: string }> = [];
+    const detector = defaultLangDetector({
+      onTrace: (e) => events.push({ layer: e.layer, outcome: e.outcome, lang: e.lang }),
+    });
+    const result = await detector.detect({ code: 'whatever', filename: 'src/main.ts' });
+    expect(result).toEqual({ lang: 'typescript', source: 'filename' });
+    expect(events).toEqual([
+      { layer: 'L1', outcome: 'hit', lang: 'typescript' },
+    ]);
+  });
+
+  it('a full cascade traces the miss order L1→L2→L3→L4 and the L4 event matches the verdict', async () => {
+    const events: Array<{ layer: string; outcome: string; lang?: string }> = [];
+    const detector = defaultLangDetector({
+      onTrace: (e) => events.push({ layer: e.layer, outcome: e.outcome, lang: e.lang }),
+    });
+    const result = await detector.detect({
+      code: 'set -euo pipefail\n# no filename hit, no shebang, no structural shape — the wasm answers:\n# betlang calibrated top label is Shell, the authority table maps it to bash\nnpx jixoai-ui add @jixoai/highlight-lang-detector\nls -la | wc -l\ncurl -fsSL https://example.com | tar -xz',
+      filename: 'x.unknownext',
+    });
+    expect(result).not.toBeNull();
+    expect(result!.source).toBe('statistical');
+    expect(events.map((e) => e.layer)).toEqual(['L1', 'L2', 'L3', 'L4']);
+    expect(events.slice(0, 3).every((e) => e.outcome === 'miss')).toBe(true);
+    expect(events[3].outcome).toBe('hit');
+    expect(events[3].lang).toBe(result!.lang);
+    // every event carries a human detail line and a non-negative timing
+    expect(events.length).toBe(4);
+  });
 });
 
 describe('the layer short-circuit law (module-evaluation counters)', () => {

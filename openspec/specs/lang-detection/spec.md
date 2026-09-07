@@ -153,6 +153,12 @@ r13-A1：消解块确含 .ts/.tsx，但本 spec 的 `main.ts → L1 命中`
 - **WHEN** L1 命中
 - **THEN** L2-L4 模块加载计数为零（vi.mock 计数法断言）
 
+#### Scenario: trace 通道（建议性，不改契约）
+
+- **GIVEN** `defaultLangDetector({ onTrace })` 传入回调
+- **WHEN** 任一次 detect 执行
+- **THEN** 每个**被执行**的层恰好发出一个事件 `{layer, outcome: hit|miss, lang?, detail, ms}`（detail 为人类可读一行：查了什么、谁应答；ms 为该层墙钟）；命中之后的层**零事件**（短路即 trace 的负空间，消费端把未报告的层渲染为 skipped）；省略 onTrace 时行为与返回值与不传完全一致——事件是建议性的，永不承载检测语义（docs 检测实验室 2026-09-07 的驱动契约）
+
 ### Requirement: 结构层只做高确判探针，不做编程语言指纹
 
 DLD 结构层 SHALL 按 design D3.2 冻结伪码实现：规范化（strip BOM、

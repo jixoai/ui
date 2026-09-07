@@ -15,6 +15,7 @@ export const SITE_ONLY = [
   { path: 'apps/www/src/lib/site.ts', note: 'site helpers' },
   { path: 'apps/www/src/lib/hue-runtime.ts', note: 'tokens-page hue lab runtime' },
   { path: 'apps/www/src/lib/code-block.svelte', note: 'site docs code surface' },
+  { path: 'apps/www/src/lib/detector-playground.svelte', note: 'detection lab interactive host (docs playground for the DLD trace channel)' },
   { path: 'apps/www/src/vite-env.d.ts', note: 'app scaffolding ambient types (sv create default + plugin client reference) — consumers generate their own, never a mirror twin (icon-channel 5bcbab74 followup)' },
   { path: 'apps/www/src/lib/copy-command.svelte', note: 'site docs copy affordance' },
   { path: 'apps/www/src/lib/copy-icon-button.svelte', note: 'site docs copy affordance' },

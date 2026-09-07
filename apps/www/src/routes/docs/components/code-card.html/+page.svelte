@@ -21,6 +21,7 @@
   // mirrored $lib copy IS the registry artifact (form ①; its body is the
   // one-line form ② shown below)
   import HighlightDetectDefault from '$lib/ui/highlight-detect-default';
+  import DetectorPlayground from '$lib/detector-playground.svelte';
   import { AUTO_LANG } from '$lib/highlight/lang-detector';
 
   // Same-source law: the code drawer shows the exact registry copies this
@@ -968,6 +969,19 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
             through the <code class="text-accent">?url</code> channel, fetched the first time a
             sample falls through L1-L3.
           </p>
+        </div>
+
+        <!-- the detection lab: type code, watch the waterfall run -->
+        <div class="flex flex-col gap-3">
+          <h3 class="font-nav text-[13px] tracking-tight">the detection lab — type anything, watch the waterfall answer</h3>
+          <p class="max-w-[70rem] text-[13px] leading-6 text-muted-foreground">
+            The traced DLD reports one row per executed layer — what it consulted, what it
+            answered, and how long it took; the layers below a hit render as skipped (the
+            short-circuit law made visible). The card at the bottom paints through the real
+            consumer path: <code class="text-accent">lang="auto"</code> inside the wrapper,
+            its own waterfall run, never a pre-computed verdict.
+          </p>
+          <DetectorPlayground />
         </div>
       </div>
     </SectionCard>

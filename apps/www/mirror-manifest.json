@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T12:55:22.905Z",
+  "generatedAt": "2026-09-07T13:32:06.531Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3701,8 +3701,8 @@
           "source": "registry/files/lib/highlight/default-detector.ts",
           "mirror": "apps/www/src/lib/highlight/default-detector.ts",
           "target": "@lib/highlight/default-detector.ts",
-          "sourceSha": "cb0f4df0251bba7fae8a57ef728c6a5d06ba44dd72eb92efa3583fe21d7bb846",
-          "mirrorSha": "cb0f4df0251bba7fae8a57ef728c6a5d06ba44dd72eb92efa3583fe21d7bb846"
+          "sourceSha": "d7c807b4ab7b786ab92720ebaf749928b60a25d1a41768e32ab3eabbb34c8b70",
+          "mirrorSha": "d7c807b4ab7b786ab92720ebaf749928b60a25d1a41768e32ab3eabbb34c8b70"
         },
         {
           "source": "registry/files/lib/highlight/betlang-detector.ts",
@@ -4572,6 +4572,10 @@
     {
       "path": "apps/www/src/lib/code-block.svelte",
       "note": "site docs code surface"
+    },
+    {
+      "path": "apps/www/src/lib/detector-playground.svelte",
+      "note": "detection lab interactive host (docs playground for the DLD trace channel)"
     },
     {
       "path": "apps/www/src/vite-env.d.ts",
