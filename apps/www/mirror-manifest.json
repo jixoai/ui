@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T05:14:01.943Z",
+  "generatedAt": "2026-09-07T05:44:13.641Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1040,8 +1040,8 @@
           "source": "registry/files/ui/code-card/code-card.svelte",
           "mirror": "apps/www/src/lib/ui/code-card/code-card.svelte",
           "target": "@ui/code-card/code-card.svelte",
-          "sourceSha": "82ae80337d078d2096d77d5e0d704925d4ddba68909d558e15550ef461af1b3e",
-          "mirrorSha": "82ae80337d078d2096d77d5e0d704925d4ddba68909d558e15550ef461af1b3e"
+          "sourceSha": "2b4f0962e0837181b29c060bf2be1008b8be48e0add75f61af4109028c73f25f",
+          "mirrorSha": "2b4f0962e0837181b29c060bf2be1008b8be48e0add75f61af4109028c73f25f"
         },
         {
           "source": "registry/files/ui/code-card/index.ts",
@@ -3366,8 +3366,8 @@
           "source": "registry/files/lib/highlight/backend.ts",
           "mirror": "apps/www/src/lib/highlight/backend.ts",
           "target": "@lib/highlight/backend.ts",
-          "sourceSha": "febe19087e3b1d8df6a296fd7c127009c5fd150d967e5742880e4eb4d2658717",
-          "mirrorSha": "febe19087e3b1d8df6a296fd7c127009c5fd150d967e5742880e4eb4d2658717"
+          "sourceSha": "3f111d30ed98319217c80bba8d036c7407c99e18e01e82795ee33b949208c1e7",
+          "mirrorSha": "3f111d30ed98319217c80bba8d036c7407c99e18e01e82795ee33b949208c1e7"
         },
         {
           "source": "registry/files/lib/highlight/lang-detector.ts",

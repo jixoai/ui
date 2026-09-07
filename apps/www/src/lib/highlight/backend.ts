@@ -55,6 +55,14 @@ export interface HighlightBackend {
     code: string,
     opts: { lang?: string; theme?: string },
   ): Promise<void>;
+  /**
+   * The engine-borne detector slot (highlight-lang-detector, 2026-09-07):
+   * engines with native detection (highlight.js highlightAuto) expose it
+   * here — the card's AUTO_LANG chain consults this ring THIRD (prop →
+   * context → backend). Undefined means the engine detects nothing and
+   * the chain falls through to its reject tail.
+   */
+  readonly detector?: import('./lang-detector').LanguageDetector;
 }
 
 /**

@@ -57,6 +57,15 @@
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import type { HighlightBackend } from '$lib/highlight/backend';
+  import {
+    AUTO_LANG,
+    type LanguageDetector,
+    type DetectResult,
+  } from '$lib/highlight/lang-detector';
+  import {
+    HIGHLIGHT_DETECT_KEY,
+    type HighlightDetectContextValue,
+  } from '$lib/highlight/context-key';
   // registry-safe seam (the density law): the key + structural type
   // only — the card never imports the kernel side
   // (lib/highlight/context.svelte.ts stays a site-only module)
@@ -67,8 +76,22 @@
   interface Props {
     /** Code sample (runtime string; markup backends escape it into inert spans). */
     code: string;
-    /** Shiki language id (ts/tsx/js/jsx/svelte/html/css/scss/json/bash/… and aliases). */
+    /**
+     * Shiki language id (ts/tsx/js/jsx/svelte/html/css/scss/json/bash/…
+     * and aliases) — or the AUTO_LANG sentinel ('auto', strict equality)
+     * to run detection first: the three-ring chain (langDetector prop →
+     * HIGHLIGHT_DETECT_KEY context → backend.detector) resolves the
+     * language, then the normal highlight path paints it. Detection
+     * misses leave the plain sample (warn names what tried).
+     */
     lang?: string;
+    /**
+     * Explicit detector — the first ring when lang is AUTO_LANG. No
+     * default value ships here on purpose: the built-in DLD is a
+     * registry item away (see the docs' wiring recipes), and a card
+     * without any ring rejects at runtime with install guidance.
+     */
+    langDetector?: LanguageDetector;
     /**
      * Theme name — shiki vocabulary ('jixoai' default, or any theme
      * registered in lib/shiki). Non-shiki backends map it into their
@@ -113,6 +136,7 @@
     lang = 'ts',
     theme = 'jixoai',
     backend,
+    langDetector,
     filename = '',
     header,
     footer,
@@ -129,6 +153,9 @@
   // so an app-side `highlight.set(...)` repaints this card live.
   const highlightContext = getContext<HighlightContextValue | undefined>(HIGHLIGHT_KEY);
   const activeBackend = $derived(backend ?? highlightContext?.backend ?? DEFAULT_SHIKI_BACKEND);
+  // the detector context ring — captured once at init like the backend
+  // seam; { detector } adapter, undefined = no opinion (falls through)
+  const detectContext = getContext<HighlightDetectContextValue | undefined>(HIGHLIGHT_DETECT_KEY);
 
   /** The <code> box the resolved backend paints into. */
   let codeEl = $state<HTMLElement>();
@@ -153,19 +180,82 @@
     // the plain fallback shows the CURRENT code — never stale highlighted
     // content from a previous code/lang/theme/backend (Codex r1 P1)
     resetToPlain(el, source);
-    backendNow
-      .highlight(el, source, { lang, theme })
-      .catch((error: unknown) => {
+    void (async () => {
+      try {
+        // the non-AUTO_LANG path stays SYNCHRONOUS up to the highlight
+        // call (the card's original contract — a gated backend test
+        // hangs its release off the sync call); AUTO_LANG enters the
+        // three-ring chain first, whose synchronous prefix (ring
+        // assembly) keeps lang/filename/langDetector/context/backend
+        // tracked by this effect
+        let effectiveLang = lang;
+        if (lang === AUTO_LANG) {
+          const detected = await resolveLang(source, backendNow);
+          if (mine !== generation) return;
+          if (detected === null) return; // detection miss: plain + warned
+          effectiveLang = detected;
+        }
+        await backendNow.highlight(el, source, { lang: effectiveLang, theme });
+      } catch (error: unknown) {
         // unknown lang/theme or a backend failure: keep the plain sample
         // on screen and say why in the console
         if (mine !== generation) return;
         resetToPlain(el, source);
         console.warn('[jixoai/code-card] plain-text fallback:', error);
-      })
-      .finally(() => {
+      } finally {
         if (mine !== generation) repaintTick++;
-      });
+      }
+    })();
   });
+
+  /**
+   * AUTO_LANG resolution — the three-ring chain with the null-cascade
+   * law (design D2.1): a ring returning null is "no opinion" and the
+   * chain falls through; a ring rejecting is TERMINAL (plain fallback +
+   * `[detect:<ring-id>]` warn); all-present-rings null → `[detect:all]`
+   * warn; NO ring at all → the frozen runtime-reject template with
+   * install + wiring guidance. A non-AUTO_LANG lang passes through
+   * untouched (the zero-cost default — no detector code runs).
+   */
+  async function resolveLang(
+    source: string,
+    backendNow: HighlightBackend,
+  ): Promise<string | null> {
+    if (lang !== AUTO_LANG) return lang;
+    const rings: Array<{ id: string; detector: LanguageDetector }> = [];
+    if (typeof langDetector?.detect === 'function') {
+      rings.push({ id: 'prop', detector: langDetector });
+    }
+    const contextDetector = detectContext?.detector;
+    if (typeof contextDetector?.detect === 'function') {
+      rings.push({ id: 'context', detector: contextDetector });
+    }
+    const backendDetector = backendNow.detector;
+    if (typeof backendDetector?.detect === 'function') {
+      rings.push({ id: 'backend', detector: backendDetector });
+    }
+    if (rings.length === 0) {
+      throw new Error(
+        "lang='auto' needs a detector — none of prop/context/backend provided one. " +
+          'Install @jixoai/highlight-lang-detector, then wire via <HighlightDetectDefault> ' +
+          '(children wrapper) or setContext(HIGHLIGHT_DETECT_KEY, { detector })',
+      );
+    }
+    for (const ring of rings) {
+      let result: DetectResult | null;
+      try {
+        result = await ring.detector.detect({ code: source, filename });
+      } catch (error: unknown) {
+        console.warn(`[detect:${ring.id}]`, error);
+        return null; // terminal: plain fallback, chain stops here
+      }
+      if (result !== null) return result.lang;
+    }
+    console.warn(
+      `[detect:all] no language detected (rings: ${rings.map((r) => r.id).join(',')})`,
+    );
+    return null;
+  }
 
   /**
    * The synchronous plain reset: the sample text back into the code box
