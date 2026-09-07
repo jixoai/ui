@@ -101,10 +101,21 @@ const BASELINES = {
   // + adapters). The runtime cost consumers actually pay is the
   // artifact lane, gated separately by verify:shadcn-add's
   // clean-consumer probes.
+  //
+  // re-recorded 2026-09-07 (icon-library-presets + icon-prefix-compiler):
+  // B-consumer-vite 2655->2710 and B-consumer-icons 609->745 — the
+  // umbrella's bridge gains the delegated transform hook (the dev
+  // scanner collector, fast-pathed), and the icons sub-entry's PUBLIC
+  // API grows by design: the preset registry + peer resolution
+  // exports, the font-extract sharing surface, and the scanner module
+  // (both collection entries). Still build-time dist only — the
+  // consumer-shipped runtime stays the artifact lane (shadcn-add
+  // clean-consumer probes). B-source/B-face unchanged (the docs
+  // growth landed with the previous re-record).
   'B-source': 37636,
   'B-face': 13368,
-  'B-consumer-vite': 2655,
-  'B-consumer-icons': 609,
+  'B-consumer-vite': 2710,
+  'B-consumer-icons': 745,
 };
 const THRESHOLD_FACTOR = 1.05;
 const COLLAPSE_FACTOR = 0.6;
