@@ -219,6 +219,32 @@ ${close}
       </SectionCard>
     </div>
 
+    <!-- fit mode: the no-scroll variant -->
+    <div id="math-block-fit" data-region="math-block-fit" data-reveal="">
+      <SectionCard
+        family="math-block-fit"
+        headerRegion="math-block-fit"
+        eyebrow="no-scroll variant"
+        title="Fit — scale instead of scroll"
+        summary="fit=true forces the formula into the container: a font-size scale (KaTeX is em-based throughout, so it re-lays out honestly — no transform residue, no layout compensation), never scaling up. Print engages fit by DEFAULT (beforeprint/afterprint track the medium): a paged sheet never owes a horizontal scrollport — print this page and the linear system below arrives whole."
+      >
+        <div class="flex flex-col gap-5">
+          <div class="border border-border p-4">
+            <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+              the same linear system, fitted — no strip, no chips
+            </p>
+            <MathBlock tex={systemTex} fit copyable={false} class="w-full max-w-[42rem]" />
+          </div>
+          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+            The fitter measures the formula's natural width and clamps the wrapper's
+            font-size to the run's client box (re-measured on resize); when fit is off
+            the inline scale clears and the scroll law owns the strip again — the
+            stamp verdict follows the restored width naturally.
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
     <!-- error paint -->
     <div id="math-block-errors" data-region="math-block-errors" data-reveal="">
       <SectionCard
@@ -306,6 +332,7 @@ ${close}
           { name: 'macros', type: "KatexOptions['macros']", default: '—', description: 'KaTeX macros — merged per key OVER the site-level registerMacros table ($lib/katex).' },
           { name: 'strict', type: "KatexOptions['strict']", default: '—', description: 'KaTeX strict mode passthrough (boolean | ignore | warn | error | handler).' },
           { name: 'trust', type: "KatexOptions['trust']", default: '—', description: 'KaTeX trust passthrough (boolean | handler).' },
+          { name: 'fit', type: 'boolean', default: 'false (print: true)', description: 'The no-scroll variant: force-scale the formula into the container instead of scrolling — a font-size fit (KaTeX is em-based, so it is a true re-layout), never scaling up. PRINT engages fit by default regardless of the prop: a paged sheet never owes a horizontal scrollport.' },
           { name: 'class', type: 'string', default: "''", description: 'Merged onto the figure through cn().' },
           { name: '…rest', type: 'HTMLAttributes<HTMLElement>', default: '—', description: 'Spread onto the figure BEFORE the component\u2019s own data-kind/data-jx-math-block stamps — consumer attributes land, component semantics stay un-overridable.' },
         ]}

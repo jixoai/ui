@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-06T23:05:50.169Z",
+  "generatedAt": "2026-09-07T05:46:12.914Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -4240,8 +4240,8 @@
           "source": "registry/files/ui/math-block/math-block.svelte",
           "mirror": "apps/www/src/lib/ui/math-block/math-block.svelte",
           "target": "@ui/math-block/math-block.svelte",
-          "sourceSha": "c9e5fda60ecccd2570a3b7db43059f04b5a8663b0f48eda0a930fbdca8f53ff8",
-          "mirrorSha": "c9e5fda60ecccd2570a3b7db43059f04b5a8663b0f48eda0a930fbdca8f53ff8"
+          "sourceSha": "a9285e081fee38a7c0232c87cf7b5504274a8cf5c049754480089a2a4c3a70df",
+          "mirrorSha": "a9285e081fee38a7c0232c87cf7b5504274a8cf5c049754480089a2a4c3a70df"
         },
         {
           "source": "registry/files/ui/math-block/math-block.css",
@@ -4268,8 +4268,8 @@
           "source": "registry/files/ui/mermaid/mermaid.svelte",
           "mirror": "apps/www/src/lib/ui/mermaid/mermaid.svelte",
           "target": "@ui/mermaid/mermaid.svelte",
-          "sourceSha": "d99fc2b6314c849cc461eab967a361881d6a5436e6c3b95a0e0c422eb6bc3f28",
-          "mirrorSha": "d99fc2b6314c849cc461eab967a361881d6a5436e6c3b95a0e0c422eb6bc3f28"
+          "sourceSha": "678bcef32d89ed2d31c5137fc0f678864dad8be92bdfaf4262cb7ab1257ed9a6",
+          "mirrorSha": "678bcef32d89ed2d31c5137fc0f678864dad8be92bdfaf4262cb7ab1257ed9a6"
         },
         {
           "source": "registry/files/ui/mermaid/mermaid.css",

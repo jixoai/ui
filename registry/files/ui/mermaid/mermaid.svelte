@@ -59,7 +59,9 @@
   import {
     createRenderIdMinter,
     MermaidRenderError,
+    readThemeTokens,
     renderDiagram,
+    resolveTheme,
     type MermaidConfig,
     type MermaidThemeMode,
   } from '$lib/mermaid-engine';
@@ -140,6 +142,31 @@
           error instanceof MermaidRenderError ? error.diagnostic : String(error ?? 'unknown error');
         dataState = 'error';
       });
+  });
+
+  /** the crossed-pin canvas (Owner acceptance, 2026-09-07): an explicit
+   *  pin against the page's live theme paints the viewport with the
+   *  TARGET sheet's own background + ink — target-designed nodes and
+   *  edges never float on the opposite canvas (contrast safety), and
+   *  the card reads as pinned at a glance (the always-dark terminal
+   *  bezel precedent). Auto and same-direction pins keep the page's
+   *  canvas (transparent). Runs alongside the render effect — the
+   *  tokens read is the SAME explicit-theme read the engine performs
+   *  (local wrapper, never a global mutation). */
+  let viewportEl = $state<HTMLElement>();
+  $effect(() => {
+    void themeEpoch;
+    const viewport = viewportEl;
+    if (!viewport || theme === 'auto') return;
+    const crossed = resolveTheme(theme) !== resolveTheme('auto');
+    if (!crossed) {
+      viewport.style.removeProperty('background-color');
+      viewport.style.removeProperty('color');
+      return;
+    }
+    const tokens = readThemeTokens(figureEl, resolveTheme(theme));
+    viewport.style.backgroundColor = tokens.background;
+    viewport.style.color = tokens.foreground; // the scrollbar law's currentColor link
   });
 
   // theme='auto' effective-scope watch: a class observer on the document
@@ -262,7 +289,7 @@
   <!-- the TWO-AXIS pan viewport (the recorded scroll-run exemption):
        theme scrollbar law both axes, NO shared chrome inside; role="img"
        with a NON-EMPTY accessible name at all times -->
-  <div data-jx-mermaid-viewport role="img" aria-label={accessibleName}>
+  <div bind:this={viewportEl} data-jx-mermaid-viewport role="img" aria-label={accessibleName}>
     {#if svg}
       <div data-jx-mermaid-zoom style={`transform:scale(${scale})`}>{@html svg}</div>
     {:else}

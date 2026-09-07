@@ -6,6 +6,7 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 const toc: TocSection[] = [
   { id: 'math-block-workbench', label: 'workbench' },
   { id: 'math-block-strip', label: 'wide equations' },
+  { id: 'math-block-fit', label: 'fit mode' },
   { id: 'math-block-errors', label: 'error paint' },
   { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },

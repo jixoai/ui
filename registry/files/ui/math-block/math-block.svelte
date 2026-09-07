@@ -81,6 +81,16 @@
     strict?: KatexOptions['strict'];
     /** KaTeX trust passthrough (boolean | handler). */
     trust?: KatexOptions['trust'];
+    /**
+     * Fit mode (Owner acceptance, 2026-09-07): force-scale the formula
+     * into the container instead of scrolling. KaTeX is em-based
+     * throughout, so the fit is a FONT-SIZE scale — a true re-layout
+     * (no transform residue, no layout compensation, and the print
+     * freeze carries the inline style verbatim). PRINT defaults to
+     * fit regardless of this prop: a paged sheet never owes a
+     * horizontal scrollport.
+     */
+    fit?: boolean;
   }
 
   let {
@@ -90,6 +100,7 @@
     macros,
     strict,
     trust,
+    fit = false,
     class: className = '',
     ...rest
   }: Props = $props();
@@ -180,6 +191,66 @@
     };
   });
 
+  // ---- fit mode (the no-scroll variant) --------------------------------
+  // print engages fit by DEFAULT (the Owner ruling): matchMedia tracks
+  // the medium, beforeprint/afterprint catch the freeze boundaries the
+  // media query can miss under paged layouts
+  let printFit = $state(false);
+  const fitActive = $derived(fit || printFit);
+  $effect(() => {
+    const before = () => (printFit = true);
+    const after = () => (printFit = false);
+    // jsdom and ancient embeddeds ship no matchMedia — the print EVENT
+    // pair alone still carries the engagement (browsers get both)
+    const mq = typeof window.matchMedia === 'function' ? window.matchMedia('print') : null;
+    const sync = () => (printFit = mq?.matches ?? false);
+    sync();
+    mq?.addEventListener('change', sync);
+    window.addEventListener('beforeprint', before);
+    window.addEventListener('afterprint', after);
+    return () => {
+      mq?.removeEventListener('change', sync);
+      window.removeEventListener('beforeprint', before);
+      window.removeEventListener('afterprint', after);
+    };
+  });
+
+  // the fitter: measure the formula's natural width (the .katex box —
+  // the display wrappers are block-fillers) and scale the wrapper's
+  // font-size down to the run's client box; never scales UP. Re-fits
+  // on resize (RO) and on formula swaps (the rendered dependency);
+  // off → the inline style clears and the scroll law owns the strip
+  // again (the stamp verdict follows the restored width naturally).
+  $effect(() => {
+    void rendered;
+    const run = runEl;
+    const math = mathEl;
+    if (!run || !math) return;
+    const refit = () => {
+      if (!fitActive) {
+        math.style.fontSize = '';
+        return;
+      }
+      math.style.fontSize = ''; // measure at the natural size first
+      const katexEl = math.querySelector('.katex');
+      if (!katexEl) return;
+      const natural = katexEl.scrollWidth || 1;
+      const avail = run.clientWidth || 1;
+      const k = Math.min(1, avail / natural);
+      if (k < 1) math.style.fontSize = `${(k * 100).toFixed(3)}%`;
+    };
+    refit();
+    const ro = new ResizeObserver(refit);
+    ro.observe(run);
+    // the viewport-driven belt to the RO (overlay-scrollbar systems and
+    // RO-less embeddeds still re-fit when the window resizes)
+    window.addEventListener('resize', refit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', refit);
+    };
+  });
+
   // a re-rendered formula re-widens the strip: the machine's own
   // observers (run/member ResizeObservers) catch box growth in real
   // browsers; the derived swap gets an EXPLICIT restamp here so the
@@ -195,6 +266,7 @@
   {...rest}
   data-kind="math"
   data-jx-math-block=""
+  data-fit={fitActive ? '' : undefined}
   class={cn('m-0 min-w-0', className)}
 >
   <div class="jx-scroll-host grid [grid-template-columns:minmax(0,1fr)]" bind:this={hostEl}>

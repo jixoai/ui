@@ -259,4 +259,54 @@ describe('MathBlock · math-block.css (source-pinned)', () => {
       /@media \(prefers-reduced-motion: reduce\)[\s\S]*:where\(\[data-jx-math-block-copy\]\)/,
     );
   });
+
+  // ---- fit mode (the no-scroll variant, Owner acceptance 2026-09-07) ----
+
+  it('fit=true scales the formula down instead of scrolling (a font-size fit, never up)', async () => {
+    const { container } = render(MathBlock, {
+      props: { tex: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}', fit: true },
+    });
+    const figure = container.querySelector('figure[data-jx-math-block]') as HTMLElement;
+    const run = figure.querySelector('[data-jx-scroll-run]') as HTMLElement;
+    const math = figure.querySelector('[role="math"]') as HTMLElement;
+    const katexEl = math.querySelector('.katex') as HTMLElement;
+    expect(figure.hasAttribute('data-fit')).toBe(true);
+    // a wide formula (900 natural) in a 400px box fits to ~44.4%
+    Object.defineProperty(katexEl, 'scrollWidth', { value: 900, configurable: true });
+    Object.defineProperty(run, 'clientWidth', { value: 400, configurable: true });
+    window.dispatchEvent(new Event('resize'));
+    await vi.waitFor(() => {
+      expect(math.style.fontSize).toBe('44.444%');
+    });
+  });
+
+  it('fit never scales UP (a short formula keeps its natural size)', async () => {
+    const { container } = render(MathBlock, {
+      props: { tex: 'a^2 + b^2 = c^2', fit: true },
+    });
+    const figure = container.querySelector('figure[data-jx-math-block]') as HTMLElement;
+    const run = figure.querySelector('[data-jx-scroll-run]') as HTMLElement;
+    const math = figure.querySelector('[role="math"]') as HTMLElement;
+    const katexEl = math.querySelector('.katex') as HTMLElement;
+    Object.defineProperty(katexEl, 'scrollWidth', { value: 120, configurable: true });
+    Object.defineProperty(run, 'clientWidth', { value: 400, configurable: true });
+    window.dispatchEvent(new Event('resize'));
+    await vi.waitFor(() => {
+      expect(math.style.fontSize).toBe('');
+    });
+  });
+
+  it('PRINT engages fit by default — beforeprint paints the data-fit hook without the prop, afterprint restores', async () => {
+    const { container } = render(MathBlock, { props: { tex: 'e^{i\\pi}+1=0' } });
+    const figure = container.querySelector('figure[data-jx-math-block]') as HTMLElement;
+    expect(figure.hasAttribute('data-fit')).toBe(false);
+    window.dispatchEvent(new Event('beforeprint'));
+    await vi.waitFor(() => {
+      expect(figure.hasAttribute('data-fit')).toBe(true);
+    });
+    window.dispatchEvent(new Event('afterprint'));
+    await vi.waitFor(() => {
+      expect(figure.hasAttribute('data-fit')).toBe(false);
+    });
+  });
 });

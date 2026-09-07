@@ -425,4 +425,35 @@ describe('Mermaid surface', () => {
     // the pan viewport: overscroll containment, the scrollbar-token law
     expect(mermaidCss).toContain('overscroll-behavior: contain');
   });
+
+  // ── the crossed-pin canvas (Owner acceptance, 2026-09-07) ────────────
+  it('a CROSSED pin brings its own canvas — the viewport paints the target sheet background + ink; auto and same-direction pins stay page-owned', async () => {
+    document.documentElement.classList.remove('dark'); // a LIGHT page
+
+    // dark pin against the light page: the dark sheet's safe-hex pair
+    const dark = render(Mermaid, { props: { theme: 'dark', source: 'flowchart LR\n  a-->b' } });
+    await vi.waitFor(() => {
+      const viewport = dark.container.querySelector('[data-jx-mermaid-viewport]') as HTMLElement;
+      expect(viewport.style.backgroundColor).toBe('rgb(0, 0, 0)'); // dark --background (jsdom normalizes hex)
+      expect(viewport.style.color).toBe('rgb(255, 255, 255)'); // dark --foreground
+    });
+    dark.unmount();
+
+    // same-direction pin: page canvas keeps ownership (no inline paint)
+    const same = render(Mermaid, { props: { theme: 'light', source: 'flowchart LR\n  a-->b' } });
+    await vi.waitFor(() => {
+      const viewport = same.container.querySelector('[data-jx-mermaid-viewport]') as HTMLElement;
+      expect(viewport.style.backgroundColor).toBe('');
+    });
+    same.unmount();
+
+    // auto: never its own canvas
+    const auto = render(Mermaid, { props: { source: 'flowchart LR\n  a-->b' } });
+    await vi.waitFor(() => {
+      const viewport = auto.container.querySelector('[data-jx-mermaid-viewport]') as HTMLElement;
+      expect(viewport.style.backgroundColor).toBe('');
+    });
+    auto.unmount();
+  });
+
 });
