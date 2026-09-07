@@ -271,12 +271,19 @@ describe('MathBlock · math-block.css (source-pinned)', () => {
     const math = figure.querySelector('[role="math"]') as HTMLElement;
     const katexEl = math.querySelector('.katex') as HTMLElement;
     expect(figure.hasAttribute('data-fit')).toBe(true);
-    // a wide formula (900 natural) in a 400px box fits to ~44.2% (the
+    // a wide formula (900 true width) in a 400px box fits to ~44.2% (the
     // 0.5% anti-rounding shave) AND the verdict re-measures to none —
-    // the stale-verdict bug (Owner acceptance r2: chips lingering on a
-    // fitted formula because the stamp watched only the run's border
-    // box) is pinned here
-    Object.defineProperty(katexEl, 'scrollWidth', { value: 900, configurable: true });
+    // the stale-verdict bug (r2: the stamp watched only the run's border
+    // box) and the centered-overflow under-measurement (r3: scrollWidth
+    // sees only the RIGHT half of a centered nowrap line — the TRUE
+    // width comes from a Range rect) are both pinned here
+    // jsdom ranges lay out to zero-width — stub the range the fitter
+    // builds (the TRUE 900 spans both sides of the centered line)
+    vi.spyOn(document, 'createRange').mockImplementation(() => ({
+      selectNodeContents: () => {},
+      getBoundingClientRect: () => ({ width: 900, left: -250, right: 650, top: 0, bottom: 10, x: -250, y: 0 }),
+    }) as unknown as Range);
+    Object.defineProperty(katexEl, 'scrollWidth', { value: 650, configurable: true }); // the RIGHT half only — must NOT be trusted
     Object.defineProperty(run, 'clientWidth', { value: 400, configurable: true });
     // the fitted geometry the run now reports (content no longer overflows)
     setGeometry(run, 400, 400);

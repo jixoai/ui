@@ -235,7 +235,21 @@
       math.style.fontSize = ''; // measure at the natural size first
       const katexEl = math.querySelector('.katex');
       if (!katexEl) return;
-      const natural = katexEl.scrollWidth || 1;
+      // TRUE width via a Range over the contents: display mode centers
+      // the nowrap line (text-align:center), so a wide formula's
+      // overflow splits BOTH sides — scrollWidth only sees the right
+      // half and under-measures, the fit under-scales, and the chips
+      // come right back (Owner acceptance r3). The range's bounding
+      // rect spans the line wherever it sits.
+      let natural = 0;
+      try {
+        const range = document.createRange();
+        range.selectNodeContents(katexEl);
+        natural = range.getBoundingClientRect().width;
+      } catch {
+        natural = 0;
+      }
+      if (!natural) natural = katexEl.scrollWidth || 1; // the inert fallback
       const avail = run.clientWidth || 1;
       // 0.5% shave: percentage rounding must never round a fit BACK
       // into overflow (a 1px sliver would light the verdict up again)

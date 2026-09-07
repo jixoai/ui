@@ -58,6 +58,13 @@
   // from the preset (every pick re-derives the markup synchronously);
   // the usage file in the drawer tracks the live pick
   let formula = $state<DemoFormula>('euler');
+  // the workbench fit toggle (Owner acceptance r3): the visible test
+  // surface — on = the no-scroll variant, off = the scroll law's strip
+  const fitOptions = [
+  { value: 'false', label: 'off — the scroll strip' },
+  { value: 'true', label: 'on — scale to fit' },
+];
+  let fit = $state<'false' | 'true'>('false');
   const tex = $derived(formulas[formula].tex);
   const canvasInitial = { formula: 'euler' as DemoFormula };
   function resetCanvas(): void {
@@ -170,16 +177,22 @@ ${close}
         output={[{ label: 'formula', value: formulas[formula].label }]}
         resolveFileContent={resolveUsage}
       >
-        <MathBlock {tex} class="w-full max-w-[40rem]" />
+        <MathBlock {tex} fit={fit === 'true'} class="w-full max-w-[40rem]" />
         {#snippet playground()}
           <PlayFields>
             <PlayRow label="formula">
               <PlaySelect bind:value={formula} options={formulaOptions} />
             </PlayRow>
+            <PlayRow label="fit">
+              <PlaySelect bind:value={fit} options={fitOptions} />
+            </PlayRow>
             <PlayHelp>
               Every pick re-derives the markup synchronously — watch the chips appear the
               moment a formula outgrows its column: the stamp machine re-verdicts on the
-              content-growth restamp, the shared scroll-run law riding wholesale.
+              content-growth restamp, the shared scroll-run law riding wholesale. Flip
+              <code class="text-accent">fit</code> on a wide pick and the formula scales
+              into the column instead (a font-size fit) — the chips dismiss as the verdict
+              re-measures; print always fits.
             </PlayHelp>
           </PlayFields>
         {/snippet}
