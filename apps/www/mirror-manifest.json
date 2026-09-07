@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T05:46:12.914Z",
+  "generatedAt": "2026-09-07T06:30:37.705Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -4240,8 +4240,8 @@
           "source": "registry/files/ui/math-block/math-block.svelte",
           "mirror": "apps/www/src/lib/ui/math-block/math-block.svelte",
           "target": "@ui/math-block/math-block.svelte",
-          "sourceSha": "a9285e081fee38a7c0232c87cf7b5504274a8cf5c049754480089a2a4c3a70df",
-          "mirrorSha": "a9285e081fee38a7c0232c87cf7b5504274a8cf5c049754480089a2a4c3a70df"
+          "sourceSha": "d612ab42ef5d99db0937197bbf84332b2d51ceb1a5567d9d9dc5fa6de1ee377d",
+          "mirrorSha": "d612ab42ef5d99db0937197bbf84332b2d51ceb1a5567d9d9dc5fa6de1ee377d"
         },
         {
           "source": "registry/files/ui/math-block/math-block.css",

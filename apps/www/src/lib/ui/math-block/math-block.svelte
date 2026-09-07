@@ -229,6 +229,7 @@
     const refit = () => {
       if (!fitActive) {
         math.style.fontSize = '';
+        stampMachine?.update();
         return;
       }
       math.style.fontSize = ''; // measure at the natural size first
@@ -236,16 +237,37 @@
       if (!katexEl) return;
       const natural = katexEl.scrollWidth || 1;
       const avail = run.clientWidth || 1;
-      const k = Math.min(1, avail / natural);
-      if (k < 1) math.style.fontSize = `${(k * 100).toFixed(3)}%`;
+      // 0.5% shave: percentage rounding must never round a fit BACK
+      // into overflow (a 1px sliver would light the verdict up again)
+      const k = Math.min(1, (avail / natural) * 0.995);
+      math.style.fontSize = k < 1 ? `${(k * 100).toFixed(3)}%` : '';
+      // THE FIX (Owner acceptance r2): the stamp machine's own observers
+      // watch the run's BORDER box — a block filler whose box the
+      // font-size scale never changes — so the verdict would sit stale
+      // at the pre-fit overflow and the chips would linger. Every fit
+      // re-measures the verdict SYNCHRONOUSLY; the shared machine stays
+      // the single truth (the tabs measure() precedent).
+      stampMachine?.update();
     };
     refit();
     const ro = new ResizeObserver(refit);
     ro.observe(run);
+    // the CONTENT box is what the scale actually moves: observe the
+    // katex element itself (font-size changes and late font swaps
+    // resize IT — the wrappers are block fillers whose boxes stand
+    // still, which is exactly how the stale verdict slipped through)
+    const katexEl = math.querySelector('.katex');
+    if (katexEl) ro.observe(katexEl);
+    // web fonts arriving late re-widen the formula — refit once ready
+    let alive = true;
+    document.fonts?.ready.then(() => {
+      if (alive) refit();
+    });
     // the viewport-driven belt to the RO (overlay-scrollbar systems and
     // RO-less embeddeds still re-fit when the window resizes)
     window.addEventListener('resize', refit);
     return () => {
+      alive = false;
       ro.disconnect();
       window.removeEventListener('resize', refit);
     };

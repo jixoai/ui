@@ -271,12 +271,19 @@ describe('MathBlock · math-block.css (source-pinned)', () => {
     const math = figure.querySelector('[role="math"]') as HTMLElement;
     const katexEl = math.querySelector('.katex') as HTMLElement;
     expect(figure.hasAttribute('data-fit')).toBe(true);
-    // a wide formula (900 natural) in a 400px box fits to ~44.4%
+    // a wide formula (900 natural) in a 400px box fits to ~44.2% (the
+    // 0.5% anti-rounding shave) AND the verdict re-measures to none —
+    // the stale-verdict bug (Owner acceptance r2: chips lingering on a
+    // fitted formula because the stamp watched only the run's border
+    // box) is pinned here
     Object.defineProperty(katexEl, 'scrollWidth', { value: 900, configurable: true });
     Object.defineProperty(run, 'clientWidth', { value: 400, configurable: true });
+    // the fitted geometry the run now reports (content no longer overflows)
+    setGeometry(run, 400, 400);
     window.dispatchEvent(new Event('resize'));
     await vi.waitFor(() => {
-      expect(math.style.fontSize).toBe('44.444%');
+      expect(math.style.fontSize).toBe('44.222%');
+      expect(run.getAttribute('data-jx-scroll-state')).toBe('none');
     });
   });
 
