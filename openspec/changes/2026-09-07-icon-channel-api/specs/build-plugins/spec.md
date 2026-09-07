@@ -31,7 +31,9 @@ IconNode lane (the one documented non-file asymmetry; `includeDefaults`
 keeps gating the 38-name manifest independently — and a scanned
 `lucide:X` whose `X` is already packed SHALL NOT pack a second
 payload: the artifact carries an ALIASES row (`lucide:X` → `X`), one
-payload, canonical-only counts).
+payload, canonical-only counts). The css-laws workspace package SHALL
+carry the Owner-confirmed corrected name `@jixoai/ui-css-laws`, its
+generated-marker protocol migrating with it.
 
 #### Scenario: a custom channel replaces per-icon config
 

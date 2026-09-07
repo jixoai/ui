@@ -34,11 +34,11 @@
       leaf + fixture imports, build-site, pin.ts, client.d.ts,
       generated artifact headers/tests that name the package, READMEs,
       living openspec/specs mentions, internal module comments
-- [ ] B2 (CONDITIONAL — Owner confirms the target name first):
-      `@jixoai/css-laws` rename — same treatment (package.json,
-      workspace consumers, theme-file comments) + the generated-marker
-      protocol migration (generate.ts embeds the name; committed
-      artifacts regenerate)
+- [ ] B2: `@jixoai/css-laws` → `@jixoai/ui-css-laws` (Owner-confirmed
+      2026-09-07, kept IN this change by Owner ruling) — same treatment
+      (package.json, workspace consumers, theme-file comments) + the
+      generated-marker protocol migration (generate.ts embeds the name;
+      committed artifacts regenerate)
 - [ ] B3: file: links re-established (the npm link-layer trap), lockfile
       receipts regenerated, packaging test name assertions updated;
       archived openspec docs explicitly untouched (spot-check)

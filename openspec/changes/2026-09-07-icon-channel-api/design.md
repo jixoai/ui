@@ -102,8 +102,9 @@ export function defineIconChannel(spec: {
   NOT reach svgo or opentype.js. packaging.test.ts asserts each
   entry's graph (the umbrella precedent), plus each entry's exports,
   JS/d.ts outputs, and packed files.
-- The css-laws rename is CONDITIONAL (codex r1 B3): gated on the
-  Owner's confirmed target name; its generated-marker protocol
+- The css-laws rename is OWNER-CONFIRMED (2026-09-07):
+  `@jixoai/ui-css-laws`, kept in THIS change by Owner ruling (the
+  codex r1 split suggestion overruled); its generated-marker protocol
   (packages/css-laws/src/generate.ts embeds the package name in
   generated headers) MIGRATES with the rename and committed artifacts
   carrying old-name markers regenerate.
