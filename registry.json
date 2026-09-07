@@ -4047,7 +4047,7 @@
       "name": "highlight-lang-detector",
       "type": "registry:lib",
       "title": "DLD default language detector (four-layer waterfall)",
-      "description": "The default language detector (highlight-lang-detector, 2026-09-07): defaultLangDetector() runs a FOUR-LAYER waterfall — L1 filename (extension + exact-basename tables), L2 shebang / first-line modeline, L3 structural probes (Markdown-guarded; never a programming-language fingerprint), L4 betlang statistics (wasm) — where every layer is its OWN lazy module: a hit short-circuits and the deeper layers never load a byte. 'Four layers' counts the waterfall only; the card's DETECTION rings stay three (langDetector prop → HIGHLIGHT_DETECT_KEY context → backend.detector) plus the runtime-reject tail. betlangDetector() is L4 standalone (skip L1-L3 — plugins and explicit props compose it). lang-canonical.ts is the single authoritative table the layers and the betlang 48-label mapping all derive from. Detection is an OPTIONAL capability by the zero-build-edge law: a bare code-card consumer carries ZERO DLD bytes and lang='auto' rejects at runtime with install + wiring guidance; wire through the highlight-detect-default wrapper item (children form ①) or one hand-written setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() }) (form ②). The wasm rides the @jixoai/betlang-wasm npm package (betlang =0.1.1 pinned at the crate, checksum-gated build — supply chain = your lockfile).",
+      "description": "The default language detector (highlight-lang-detector, 2026-09-07): defaultLangDetector() runs a FOUR-LAYER waterfall — L1 filename (extension + exact-basename tables), L2 shebang / first-line modeline, L3 structural probes (Markdown-guarded; never a programming-language fingerprint), L4 betlang statistics (wasm) — where every layer is its OWN lazy module: a hit short-circuits and the deeper layers never load a byte. 'Four layers' counts the waterfall only; the card's DETECTION rings stay three (langDetector prop → HIGHLIGHT_DETECT_KEY context → backend.detector) plus the runtime-reject tail. betlangDetector() is L4 standalone (skip L1-L3 — plugins and explicit props compose it). lang-canonical.ts is the single authoritative table the layers and the betlang 48-label mapping all derive from. Detection is an OPTIONAL capability by the zero-build-edge law: a bare code-card consumer carries ZERO DLD bytes and lang='auto' rejects at runtime with install + wiring guidance; wire through the highlight-detect-default wrapper item (children form ①) or one hand-written setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() }) (form ②). The wasm rides the @jixoai/ui-betlang-wasm npm package (betlang =0.1.1 pinned at the crate, checksum-gated build — supply chain = your lockfile).",
       "files": [
         {
           "path": "registry/files/lib/highlight/default-detector.ts",
@@ -4086,7 +4086,7 @@
         }
       ],
       "dependencies": [
-        "@jixoai/betlang-wasm@^0.1.1"
+        "@jixoai/ui-betlang-wasm@^0.1.1"
       ],
       "registryDependencies": [
         "@jixoai/highlight"

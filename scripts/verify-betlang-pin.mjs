@@ -2,7 +2,7 @@
 // Supply-chain gate for the pinned betlang wasm (highlight-lang-detector
 // change, task 4.3; the verify-ghostty-pin sentinel style, 2026-09-07).
 //
-// Verifies the @jixoai/betlang-wasm artifact WITHOUT importing the
+// Verifies the @jixoai/ui-betlang-wasm artifact WITHOUT importing the
 // package: the gate must run on a fresh clone (after `node
 // scripts/build.mjs` in the package — binaries never enter git, so the
 // dist wasm is a build product, and the committed ARTIFACT.md is the

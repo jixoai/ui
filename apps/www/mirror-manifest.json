@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T12:39:01.798Z",
+  "generatedAt": "2026-09-07T12:31:14.917Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1086,8 +1086,8 @@
           "source": "registry/files/lib/icon-set.gen.ts",
           "mirror": "apps/www/src/lib/icon-set.gen.ts",
           "target": "@lib/icon-set.gen.ts",
-          "sourceSha": "e0eabde95c929c16a592de6f6aee806589097d2975c57d906b8ad9eb696db0a4",
-          "mirrorSha": "e0eabde95c929c16a592de6f6aee806589097d2975c57d906b8ad9eb696db0a4"
+          "sourceSha": "0d73df3250b95e74af4a4168389b1bf13aac61e13ecdf3d3e827db090bc83776",
+          "mirrorSha": "0d73df3250b95e74af4a4168389b1bf13aac61e13ecdf3d3e827db090bc83776"
         }
       ]
     },
@@ -3708,8 +3708,8 @@
           "source": "registry/files/lib/highlight/betlang-detector.ts",
           "mirror": "apps/www/src/lib/highlight/betlang-detector.ts",
           "target": "@lib/highlight/betlang-detector.ts",
-          "sourceSha": "1281693ac08d9df06f12dc70998e377d3fd8596240efa17f50378013fb7e6081",
-          "mirrorSha": "1281693ac08d9df06f12dc70998e377d3fd8596240efa17f50378013fb7e6081"
+          "sourceSha": "799574b5d589db64b918e7fcabfc4e92f440db491a1c49e43128713166214a04",
+          "mirrorSha": "799574b5d589db64b918e7fcabfc4e92f440db491a1c49e43128713166214a04"
         },
         {
           "source": "registry/files/lib/highlight/detect-ext-table.ts",
@@ -3743,8 +3743,8 @@
           "source": "registry/files/lib/highlight/vendor-betlang-wasm.d.ts",
           "mirror": "apps/www/src/lib/highlight/vendor-betlang-wasm.d.ts",
           "target": "@lib/highlight/vendor-betlang-wasm.d.ts",
-          "sourceSha": "130b4a5b4eb2a461fd74ca15867478220262b3c629d8c62430df2322d60c2a25",
-          "mirrorSha": "130b4a5b4eb2a461fd74ca15867478220262b3c629d8c62430df2322d60c2a25"
+          "sourceSha": "c66f3edcabe3d8a7a9ae1959c7f293185ef834a668254afbf3a35b63609d41a9",
+          "mirrorSha": "c66f3edcabe3d8a7a9ae1959c7f293185ef834a668254afbf3a35b63609d41a9"
         }
       ]
     },

@@ -13,7 +13,7 @@
  * is present).
  */
 
-declare module '@jixoai/betlang-wasm/dist/betlang_wasm.wasm?url' {
+declare module '@jixoai/ui-betlang-wasm/dist/betlang_wasm.wasm?url' {
   const url: string;
   export default url;
 }

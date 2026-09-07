@@ -1,5 +1,5 @@
 {
-  "name": "@jixoai/betlang-wasm",
+  "name": "@jixoai/ui-betlang-wasm",
   "version": "0.1.1",
   "description": "The betlang statistical language detector as a wasm npm package (betlang =0.1.1, MIT, DioxusLabs): a ~40-line handwritten loader speaking raw linear memory (no wasm-bindgen), detect() returning the 48-label model enum index plus a calibrated top-1 confidence. Built by scripts/build.mjs from the crates.io pin with a sparse-index checksum gate; ARTIFACT.md records the as-shipped bytes.",
   "license": "MIT",

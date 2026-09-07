@@ -1,5 +1,5 @@
 /**
- * The @jixoai/betlang-wasm types (index.d.ts, task 4.1).
+ * The @jixoai/ui-betlang-wasm types (index.d.ts, task 4.1).
  *
  * Label indices are betlang 0.1.1's `Language` discriminants
  * (`#[repr(u8)]`, alphabetical model labels) — this table is the ABI

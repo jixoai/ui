@@ -6,7 +6,7 @@
  * fallback both compose it (design D3.3/D4).
  *
  * CHANNEL (frozen, design D4 channel A): the wasm ships inside the
- * @jixoai/betlang-wasm npm package (betlang =0.1.1 from crates.io,
+ * @jixoai/ui-betlang-wasm npm package (betlang =0.1.1 from crates.io,
  * checksum-gated build — supply chain = consumer lockfile, the
  * tree-sitter law). This module owns NO wasm knowledge beyond the ABI's
  * label-index contract; the package's handwritten loader (no
@@ -54,13 +54,13 @@
  * ABI's -1) — no opinion, not an error.
  */
 
-import { loadBetlang, type BetlangWasmSource } from '@jixoai/betlang-wasm';
+import { loadBetlang, type BetlangWasmSource } from '@jixoai/ui-betlang-wasm';
 
 import { getBetlangLabelMap } from './lang-canonical';
 import type { DetectResult, LanguageDetector } from './lang-detector';
 
 /** re-exported so consumers can name the seam's source shape */
-export type { BetlangWasmSource } from '@jixoai/betlang-wasm';
+export type { BetlangWasmSource } from '@jixoai/ui-betlang-wasm';
 
 /** Options for the betlang detector factory. */
 export interface BetlangDetectorOptions {
@@ -163,7 +163,7 @@ function defaultWasmSource(): Promise<BetlangWasmSource | undefined> {
       const { createRequire } = (await import(/* @vite-ignore */ moduleSpec)) as typeof import('node:module');
       const { readFile } = (await import(/* @vite-ignore */ fsSpec)) as typeof import('node:fs/promises');
       const nodeRequire = createRequire(import.meta.url);
-      const wasmPath = nodeRequire.resolve('@jixoai/betlang-wasm/dist/betlang_wasm.wasm');
+      const wasmPath = nodeRequire.resolve('@jixoai/ui-betlang-wasm/dist/betlang_wasm.wasm');
       return { bytes: new Uint8Array(await readFile(wasmPath)) };
     })();
   }

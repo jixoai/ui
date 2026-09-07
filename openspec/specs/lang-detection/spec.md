@@ -196,7 +196,7 @@ markdown 链接（`[t](u)` 不触发 section 判据）。
 统计层 SHALL 由 betlang（crates.io 版本 `=0.1.1` 钉死）与
 fearless_simd（`=0.4.0`，betlang 自锁值，防 lockfile 重解析漂移）
 编译的 wasm 承载，发行通道 SHALL 为自建 npm 包
-`@jixoai/betlang-wasm`（packages/betlang-wasm，CI 构建发布；
+`@jixoai/ui-betlang-wasm`（packages/betlang-wasm，CI 构建发布；
 verify-betlang-pin 并校验 Cargo.lock 内 fearless_simd 版本与 cksum；Cargo.lock + 工具链版本 + 完整 sha256 +
 字节精确尺寸入 ARTIFACT.md——wasmRawBytes / wasmGzipBytes /
 wasmSha256 / tarballSha256）。**门禁测量对象 = 且仅 = `.wasm` 文件

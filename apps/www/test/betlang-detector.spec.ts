@@ -53,7 +53,7 @@ const nodeRequire = createRequire(import.meta.url);
 /** the REAL dist wasm as bytes — the bytes channel every real-wasm
  * suite uses (never a mock; node 24 runs wasm natively) */
 async function realWasmBytes(): Promise<Uint8Array> {
-  const path = nodeRequire.resolve('@jixoai/betlang-wasm/dist/betlang_wasm.wasm');
+  const path = nodeRequire.resolve('@jixoai/ui-betlang-wasm/dist/betlang_wasm.wasm');
   return new Uint8Array(await readFile(path));
 }
 

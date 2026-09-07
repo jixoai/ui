@@ -963,7 +963,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
           <p class="max-w-[70rem] text-[13px] leading-6 text-muted-foreground">
             Both cards hydrate plain and upgrade after the detector resolves — prerendered output
             is always plain text (detection never runs server-side). The wasm rides the
-            <code class="text-accent">@jixoai/betlang-wasm</code> npm package (betlang
+            <code class="text-accent">@jixoai/ui-betlang-wasm</code> npm package (betlang
             =&nbsp;0.1.1 pinned at the crate, checksum-gated build): vite emits it as a real asset
             through the <code class="text-accent">?url</code> channel, fetched the first time a
             sample falls through L1-L3.

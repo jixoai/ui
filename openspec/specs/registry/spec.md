@@ -198,6 +198,22 @@ inferred from `shadcn build` output.
   depending items reference `@jixoai/utils` via
   `registryDependencies`
 
+#### Scenario: a monorepo-shipped npm package dependency
+
+- GIVEN an item depends on an npm package BUILT INSIDE this repo
+  (a `packages/*` workspace member, not a registry item)
+- WHEN the package is named or the dependency declared
+- THEN the package name carries the `@jixoai/ui-` prefix — the
+  monorepo's subpackage namespace (`@jixoai/ui-betlang-wasm` today;
+  `@jixoai/ui-vite-plugin` per the in-flight rename) — and every
+  reference (package.json name, item `dependencies`, import
+  specifiers, vendor `.d.ts` module declarations, lockfiles, CI
+  workflows, the shadcn-add npm mirror bridge) spells it exactly so;
+  a subpackage published under bare `@jixoai/<name>` is a naming-law
+  breach caught at review, not by tooling (learned 2026-09-07:
+  betlang-wasm shipped as `@jixoai/betlang-wasm` and was renamed the
+  same day)
+
 ### Requirement: distributables pipeline
 
 `scripts/build-site.mjs` SHALL orchestrate, in load-bearing order: build
@@ -674,7 +690,7 @@ core item 只扩契约文件（lang-detector.ts + context-key.ts 的
 HIGHLIGHT_DETECT_KEY 增补，零 npm 依赖）；DLD 四层 SHALL 是独立
 **registry:lib** item（`highlight-lang-detector`，framework-free：仅
 纯 TS 表层/探针/工厂 + lang-canonical.ts 权威表；声明
-`@jixoai/highlight` registry 边与 `@jixoai/betlang-wasm` npm 依赖，
+`@jixoai/highlight` registry 边与 `@jixoai/ui-betlang-wasm` npm 依赖，
 并携带真实 runtime import core 的 `AUTO_LANG`/`HIGHLIGHT_DETECT_KEY`
 ——纯 type import 会被 verify-deps 判 dead）；其文件 SHALL 与 core
 的 lang-detector.ts 契约文件零撞名（default-detector.ts /
@@ -705,7 +721,7 @@ wrapper（包装接线后 `lang="auto"` 端到端检测上色）。
 
 - **WHEN** 消费者 `add @jixoai/highlight-lang-detector` 并在子树根
   手写 setContext 接线
-- **THEN** 落地 framework-free 四层文件与 @jixoai/betlang-wasm npm
+- **THEN** 落地 framework-free 四层文件与 @jixoai/ui-betlang-wasm npm
   依赖；clean vite build 通过且 wasm 经 ?url 发射为真实资产；
   `lang="auto"` 卡片端到端检测上色
 

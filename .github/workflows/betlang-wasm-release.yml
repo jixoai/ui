@@ -1,7 +1,7 @@
 name: betlang-wasm release
 
 # Builds and (once the Owner wires npm credentials) publishes
-# @jixoai/betlang-wasm — the DLD L4 statistical detection channel
+# @jixoai/ui-betlang-wasm — the DLD L4 statistical detection channel
 # (highlight-lang-detector change, design D4: channel A frozen —
 # self-built npm package from the crates.io pin, never a git binary).
 #
@@ -41,7 +41,7 @@ concurrency:
 
 jobs:
   release:
-    name: Build, gate, publish @jixoai/betlang-wasm
+    name: Build, gate, publish @jixoai/ui-betlang-wasm
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

@@ -3,7 +3,7 @@
      hit short-circuits; the deeper layers never load a byte). L1
      filename tables, L2 shebang/modeline, L3 Markdown-guarded
      structural probes (never a programming fingerprint), L4 betlang
-     statistics (wasm via @jixoai/betlang-wasm, ?url in the browser,
+     statistics (wasm via @jixoai/ui-betlang-wasm, ?url in the browser,
      real bytes under vitest). lang-canonical.ts is the authority every
      layer derives from. 'Four layers' counts the waterfall only — the
      card's detection rings stay three. betlangDetector() is L4
@@ -37,7 +37,7 @@
     </div>
     <div class="flex flex-col border-t border-border pt-3 text-[11px] leading-5 text-muted-foreground">
       <span>detect({'{ code, filename }'}) -> {'{ lang, source, confidence? }'} · null = no opinion (cascade)</span>
-      <span>framework-free · wasm rides @jixoai/betlang-wasm (npm, betlang =0.1.1)</span>
+      <span>framework-free · wasm rides @jixoai/ui-betlang-wasm (npm, betlang =0.1.1)</span>
       <span>optional capability: a bare code-card install carries zero DLD bytes</span>
     </div>
   </div>

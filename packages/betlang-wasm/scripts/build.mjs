@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The @jixoai/betlang-wasm build gate (packages/betlang-wasm, task 4.1 —
+// The @jixoai/ui-betlang-wasm build gate (packages/betlang-wasm, task 4.1 —
 // highlight-lang-detector change, 2026-09-07).
 //
 // The reproducible chain, ported from evidence/betlang-probe-2026-09-07.md
@@ -219,7 +219,7 @@ const toolchain = {
 };
 
 function artifactMarkdown(fields) {
-  return `# ARTIFACT — @jixoai/betlang-wasm ${BETLANG_VERS} (as-shipped)
+  return `# ARTIFACT — @jixoai/ui-betlang-wasm ${BETLANG_VERS} (as-shipped)
 
 As-shipped record of the wasm this package distributes (design D4):
 the canonical hash is the value recorded HERE by whoever builds the

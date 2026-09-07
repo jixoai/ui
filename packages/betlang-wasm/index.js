@@ -1,5 +1,5 @@
 /**
- * The @jixoai/betlang-wasm loader (index.js, task 4.1 — handwritten,
+ * The @jixoai/ui-betlang-wasm loader (index.js, task 4.1 — handwritten,
  * NO wasm-bindgen; bindgen glue would add ~3-8 KiB raw against the
  * 100 KiB budget law, design D4).
  *

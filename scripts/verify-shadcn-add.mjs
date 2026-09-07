@@ -1073,9 +1073,9 @@ check(
 //                         children wrapper compiled through BOTH consumer
 //                         dialects (direct .svelte + folder barrel)
 //
-// The npm bridge: @jixoai/betlang-wasm is workspace-built and published
+// The npm bridge: @jixoai/ui-betlang-wasm is workspace-built and published
 // by CI — at harness time it is NOT on registry.npmjs.org (404, probed),
-// and the shadcn CLI runs `npm install -- @jixoai/betlang-wasm@^0.1.1`
+// and the shadcn CLI runs `npm install -- @jixoai/ui-betlang-wasm@^0.1.1`
 // verbatim (a versioned spec is never skipped as already-installed). A
 // one-name LOCAL MIRROR keeps the resolution path real — npm pack of the
 // workspace package serves the packument + tarball, everything else
@@ -1100,14 +1100,14 @@ let npmMirrorBase = '';
     const url = req.url ?? '';
     const path = decodeURIComponent(url.split('?')[0]);
     try {
-      if (path === '/@jixoai/betlang-wasm') {
+      if (path === '/@jixoai/ui-betlang-wasm') {
         const packument = JSON.stringify({
-          name: '@jixoai/betlang-wasm',
+          name: '@jixoai/ui-betlang-wasm',
           'dist-tags': { latest: version },
           versions: {
             [version]: {
               ...pkgManifest,
-              dist: { tarball: `${npmMirrorBase}/@jixoai/betlang-wasm/-/${tarballName}`, integrity },
+              dist: { tarball: `${npmMirrorBase}/@jixoai/ui-betlang-wasm/-/${tarballName}`, integrity },
             },
           },
         });
@@ -1116,7 +1116,7 @@ let npmMirrorBase = '';
         res.end(packument);
         return;
       }
-      if (path.startsWith('/@jixoai/betlang-wasm/-/')) {
+      if (path.startsWith('/@jixoai/ui-betlang-wasm/-/')) {
         res.statusCode = 200;
         res.setHeader('content-type', 'application/octet-stream');
         res.end(tarballBytes);
@@ -1194,7 +1194,7 @@ CASES.push(
     // form ② wiring on a clean consumer: the DLD lib item + ONE
     // hand-written setContext at the root — the wasm must ride vite's
     // ?url channel out of a REAL npm resolution (the mirror bridge
-    // supplies @jixoai/betlang-wasm until CI publishes it)
+    // supplies @jixoai/ui-betlang-wasm until CI publishes it)
     items: ['code-card', 'highlight-lang-detector'],
     preAdd(ctx) {
       writeAt(ctx.dir, '.npmrc', `registry=${npmMirrorBase}\n`);
@@ -1215,7 +1215,7 @@ CASES.push(
     extraChecks(ctx) {
       const pkg = JSON.parse(ctx.read('package.json'));
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-      check('code-card-dld-lib: @jixoai/betlang-wasm dep installed', !!deps['@jixoai/betlang-wasm'], Object.keys(deps).filter((d) => d.includes('betlang')).join(', ') || 'absent');
+      check('code-card-dld-lib: @jixoai/ui-betlang-wasm dep installed', !!deps['@jixoai/ui-betlang-wasm'], Object.keys(deps).filter((d) => d.includes('betlang')).join(', ') || 'absent');
       // framework-free law: the DLD item lands ONLY .ts under $lib/highlight
       check(
         'code-card-dld-lib: DLD payload is framework-free (no ui folder)',
@@ -1266,7 +1266,7 @@ CASES.push(
       );
       const pkg = JSON.parse(ctx.read('package.json'));
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-      check('code-card-dld-wrapper: @jixoai/betlang-wasm dep installed', !!deps['@jixoai/betlang-wasm']);
+      check('code-card-dld-wrapper: @jixoai/ui-betlang-wasm dep installed', !!deps['@jixoai/ui-betlang-wasm']);
       check(
         'code-card-dld-wrapper: the barrel is a pure re-export (no logic)',
         ctx.read('src/lib/ui/highlight-detect-default/index.ts').includes("export { default } from './highlight-detect-default.svelte';"),

@@ -1,4 +1,4 @@
-# ARTIFACT — @jixoai/betlang-wasm 0.1.1 (as-shipped)
+# ARTIFACT — @jixoai/ui-betlang-wasm 0.1.1 (as-shipped)
 
 As-shipped record of the wasm this package distributes (design D4):
 the canonical hash is the value recorded HERE by whoever builds the
