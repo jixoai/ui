@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T07:54:41.536Z",
+  "generatedAt": "2026-09-07T10:00:05.624Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3521,8 +3521,8 @@
           "source": "registry/files/lib/highlight/default-detector.ts",
           "mirror": "apps/www/src/lib/highlight/default-detector.ts",
           "target": "@lib/highlight/default-detector.ts",
-          "sourceSha": "e17e2dd63648805a2b31d9d55af84d35cefa187046cc4915972e7fd260d353ab",
-          "mirrorSha": "e17e2dd63648805a2b31d9d55af84d35cefa187046cc4915972e7fd260d353ab"
+          "sourceSha": "cb0f4df0251bba7fae8a57ef728c6a5d06ba44dd72eb92efa3583fe21d7bb846",
+          "mirrorSha": "cb0f4df0251bba7fae8a57ef728c6a5d06ba44dd72eb92efa3583fe21d7bb846"
         },
         {
           "source": "registry/files/lib/highlight/betlang-detector.ts",

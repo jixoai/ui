@@ -56,11 +56,10 @@ export function defaultLangDetector(): LanguageDetector {
       if (structure !== null) return structure;
 
       // L4 — the betlang statistical layer (wasm, its own module).
-      // TODO(highlight-lang-detector): the seam import below is the
-      // agreed contract with the parallel agent's betlang-detector.ts
-      // (now landed beside this file); the end-to-end waterfall —
-      // incl. the wasm bytes channel under vitest — is the
-      // orchestrator's integration verification step.
+      // The import is the waterfall's only wasm-bearing edge: reached
+      // only when L1-L3 all answer null, so a filename/shebang/shape
+      // hit never loads a byte of it (its bytes channel under vitest
+      // is betlang-detector.spec.ts's own real-wasm suite).
       const { betlangDetector } = await import('./betlang-detector');
       return betlangDetector().detect(input);
     },

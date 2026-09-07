@@ -4091,7 +4091,7 @@
       "registryDependencies": [
         "@jixoai/highlight"
       ],
-      "docs": "npx jixoai-ui add @jixoai/highlight-lang-detector — then import { defaultLangDetector } from '$lib/highlight/default-detector' (the waterfall; re-exports AUTO_LANG) or { betlangDetector } from '$lib/highlight/betlang-detector' (statistics only) and wire ONE line at any subtree root: setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() }) — or install the highlight-detect-default wrapper item and wrap the subtree. The wasm channel: vite hosts get the ?url asset emission; Node/vitest read real bytes through createRequire (tests run real wasm, never a mock).",
+      "docs": "npx jixoai-ui add @jixoai/highlight-lang-detector — then import { defaultLangDetector } from '$lib/highlight/default-detector' (the waterfall; re-exports AUTO_LANG) or { betlangDetector } from '$lib/highlight/betlang-detector' (statistics only) and wire ONE line at any subtree root: setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() }) — or install the highlight-detect-default wrapper item and wrap the subtree. The wasm channel: browsers load it through the package's own new-URL asset (vite dev AND build — never a hand-written ?url import, which breaks vite dev); Node/vitest read real bytes through createRequire (tests run real wasm, never a mock).",
       "meta": {
         "group": "engines",
         "href": "/docs/components/code-card.html"

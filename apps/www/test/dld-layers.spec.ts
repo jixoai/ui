@@ -19,9 +19,10 @@
  *     — vi.doMock module-evaluation counters; the unselected layers'
  *     counters never move across calls).
  *
- * No sample here may fall through L1-L3: betlang-detector (L4) is the
- * parallel agent's module and is not on disk yet — the waterfall's
- * fourth import is the agreed seam (TODO in default-detector.ts).
+ * No sample here may fall through L1-L3: this suite locks the pure-TS
+ * layers only — L4 (betlang-detector, wasm) has its own real-wasm
+ * suite in betlang-detector.spec.ts, and the layer short-circuit
+ * tests below prove the waterfall never reaches it when L1-L3 answer.
  */
 import { describe, expect, it, vi } from 'vitest';
 
