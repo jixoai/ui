@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T07:33:44.391Z",
+  "generatedAt": "2026-09-07T07:54:41.536Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3528,8 +3528,8 @@
           "source": "registry/files/lib/highlight/betlang-detector.ts",
           "mirror": "apps/www/src/lib/highlight/betlang-detector.ts",
           "target": "@lib/highlight/betlang-detector.ts",
-          "sourceSha": "85a1426798e2f7aeee1a8d0da0ab5f985503286a82711bb5dcad6481be712950",
-          "mirrorSha": "85a1426798e2f7aeee1a8d0da0ab5f985503286a82711bb5dcad6481be712950"
+          "sourceSha": "1281693ac08d9df06f12dc70998e377d3fd8596240efa17f50378013fb7e6081",
+          "mirrorSha": "1281693ac08d9df06f12dc70998e377d3fd8596240efa17f50378013fb7e6081"
         },
         {
           "source": "registry/files/lib/highlight/detect-ext-table.ts",
