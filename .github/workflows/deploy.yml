@@ -36,13 +36,13 @@ jobs:
       - name: Install site deps (apps/www)
         run: npm install --no-fund --no-audit
         working-directory: apps/www
-      # apps/www depends on @jixoai/vite-plugin via file:../../packages/
+      # apps/www depends on @jixoai/ui-vite-plugin via file:../../packages/
       # vite-plugin and imports it in vite.config.ts, but the package's
       # dist/ is gitignored — a clean checkout has no build output, so the
       # site build fails before any page compiles. CI builds the plugin
       # in this explicit, auditable step (scripts/build-site.mjs carries
       # the same check as a local-dev fallback only).
-      - name: Build @jixoai/vite-plugin
+      - name: Build @jixoai/ui-vite-plugin
         run: npm ci && npm run build
         working-directory: packages/vite-plugin
       # verify:laws runs css-laws' own tsx from its node_modules — the

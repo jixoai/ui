@@ -201,6 +201,26 @@ describe('normalizeIconChannels — the set-level laws (A1/A3)', () => {
       /library\.channels entries must be channel instances.*defineIconChannel/s,
     );
   });
+
+  test('hand-forged metadata fails by name too (the factory checks mirrored, diff-r1 m1)', () => {
+    const forged = (extra: Record<string, unknown>): IconChannel =>
+      ({
+        id: 'mine',
+        prefix: 'mine',
+        resolver: { kind: 'file', resolveFile: () => '/dev/null' },
+        ...extra,
+      }) as unknown as IconChannel;
+    expect(() => normalizeIconChannels([forged({ peerPackage: 42 })])).toThrowError(
+      /"mine" peerPackage must be a string when present.*install-hint/s,
+    );
+    expect(() => normalizeIconChannels([forged({ defaultsNote: {} })])).toThrowError(
+      /"mine" defaultsNote must be a string when present/,
+    );
+    // well-typed optional metadata still passes (the factory twins do)
+    expect(() =>
+      normalizeIconChannels([forged({ peerPackage: 'my-icons', defaultsNote: 'regular' })]),
+    ).not.toThrow();
+  });
 });
 
 describe('the enabled-prefix law (config validation)', () => {
@@ -291,6 +311,27 @@ describe('channel resolution — the REAL packages (A2)', () => {
     expect(icons).toHaveLength(39);
     expect(icons[37]!.name).toBe('type'); // the manifest's frozen last entry
     expect(icons[38]!.name).toBe('mdHome');
+  });
+
+  test('a resolver returning a RELATIVE path fails the absolute contract by name (diff-r1 M1)', async () => {
+    const { io, loaded } = fsIo();
+    // the file EXISTS relative to the package cwd — only the contract
+    // guard rejects it, so a read failure can't fake the pass
+    const relative = defineIconChannel({
+      id: 'myco',
+      prefix: 'myco',
+      resolveFile: () => 'package.json',
+    });
+    await expect(
+      resolveLibraryInputs(
+        { includeDefaults: false, channels: [relative], icons: { logo: 'myco:logo' } },
+        io,
+        createSafetyChecker({ mode: 'warn' }),
+      ),
+    ).rejects.toThrowError(
+      /the channel's resolveFile returned "package\.json".*must return ABSOLUTE \.svg paths.*never relative paths/s,
+    );
+    expect(loaded).toHaveLength(0); // refused before any read
   });
 });
 

@@ -39,6 +39,7 @@
  */
 
 import type { Font as OtFont, Glyph as OtGlyph } from 'opentype.js';
+import { isAbsolute } from 'node:path';
 import type { IconNode } from 'lucide';
 import type { ProviderContext, SafetyChecker } from '../types.js';
 import { serializeLucideIcon } from '../providers/lucide.js';
@@ -208,8 +209,10 @@ function mergeScannedIntoPending(
   // the collision matrix + the alias table + the equivalence table +
   // the pendings
   const declaredNames = new Set(pending.map((icon) => icon.name));
-  const aliasToCanonical: Record<string, string> = {};
-  const equivalenceOf: Record<string, string> = {};
+  // null prototypes: a legal alias like `constructor` must not
+  // collide with Object.prototype members (codex diff-r1 M2)
+  const aliasToCanonical: Record<string, string> = Object.create(null);
+  const equivalenceOf: Record<string, string> = Object.create(null);
   for (const [key, group] of groups) {
     for (const alias of group.aliases) {
       if (declaredNames.has(alias)) {
@@ -411,6 +414,16 @@ export async function resolveLibraryInputs(
         // lucide precedent)
         const { resolveFile } = channelRef.channel.resolver;
         const absolute = resolveFile(channelRef.ref);
+        if (typeof absolute !== 'string' || !isAbsolute(absolute)) {
+          // the contract: resolveFile returns the ABSOLUTE svg path —
+          // a relative return would silently read against the process
+          // CWD (codex diff-r1 M1). Named error, never a mystery read.
+          throw new Error(
+            `[jixoai-icons] ${labelOf(source)} — the channel's resolveFile returned ` +
+              `${JSON.stringify(absolute)} — channel resolvers must return ABSOLUTE ` +
+              '.svg paths (node resolution output), never relative paths',
+          );
+        }
         const descriptor = await io.loadSource(absolute);
         if (descriptor.mimeType !== 'image/svg+xml') {
           throw new Error(

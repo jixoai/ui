@@ -70,6 +70,20 @@ function grammarErrorOf(channel: IconChannel): Error | null {
         'channel owns it; pick a different id',
     );
   }
+  // the optional metadata: the factory's string checks mirrored, so a
+  // hand-forged entry with malformed peerPackage/defaultsNote fails by
+  // name here too (diff-r1 m1), not as a confusing downstream fault
+  if (channel.peerPackage !== undefined && typeof channel.peerPackage !== 'string') {
+    return new Error(
+      `[jixoai-icons] the channel "${channel.id}" peerPackage must be a string when ` +
+        'present — it is named in every loud-fail install-hint error',
+    );
+  }
+  if (channel.defaultsNote !== undefined && typeof channel.defaultsNote !== 'string') {
+    return new Error(
+      `[jixoai-icons] the channel "${channel.id}" defaultsNote must be a string when present`,
+    );
+  }
   const resolver = channel.resolver as { kind?: unknown; resolveFile?: unknown };
   if (resolver.kind === 'file') {
     if (typeof resolver.resolveFile !== 'function') {

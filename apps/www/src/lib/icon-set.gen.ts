@@ -194,8 +194,8 @@ const LAZY: Readonly<Record<number, () => Promise<{ default: Record<string, Icon
 const cache: Map<string, IconData> = new Map(Object.entries(CHUNK_0));
 const canonicalOf = (name: IconName): string => {
   const base = name.split(' as ')[0] ?? name;
-  const aliased = ALIASES[base] ?? base;
-  return EQUIVALENCES[aliased] ?? aliased;
+  const aliased = Object.hasOwn(ALIASES, base) ? ALIASES[base] : base;
+  return Object.hasOwn(EQUIVALENCES, aliased) ? EQUIVALENCES[aliased] : aliased;
 };
 
 export function getIcon(name: IconName): IconData | null {
@@ -207,7 +207,7 @@ export async function loadIcon(name: IconName): Promise<IconData> {
   const canonical = canonicalOf(name);
   const hit = cache.get(canonical);
   if (hit !== undefined) return hit;
-  const loader = LAZY[CHUNK_OF[canonical] ?? -1];
+  const loader = LAZY[Object.hasOwn(CHUNK_OF, canonical) ? CHUNK_OF[canonical] : -1];
   if (loader === undefined) {
     throw new Error(`[jixoai/icon-set] icon "${name}"${name !== canonical ? ` (resolves to "${canonical}")` : ''} is not in the packed set — either the artifact drifted from the library config (regenerate icon-set.gen.ts) or the name was composed dynamically and never scanned/declared (dynamic names must resolve to a packed icon; getIcon() returns null for the rest — the component renders its reserved box)`);
   }

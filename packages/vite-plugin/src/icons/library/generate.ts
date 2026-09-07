@@ -399,18 +399,20 @@ function buildArtifact(
   // canonical spelling), then the alias derefs through ALIASES, then
   // the equivalence key derefs through EQUIVALENCES — every spelling
   // of one ref (canonical, alias, full literal, deduped lucide ref)
-  // resolves the SAME packed payload
+  // resolves the SAME packed payload. Both derefs own-property-guard:
+  // the tables are plain objects and grammar-legal names like
+  // `constructor` must not resolve to inherited functions (diff-r1 M2)
   const canonicalBlock = [
     'const canonicalOf = (name: IconName): string => {',
     "  const base = name.split(' as ')[0] ?? name;",
     ...(hasAliases && hasEquivalences
       ? [
-          '  const aliased = ALIASES[base] ?? base;',
-          '  return EQUIVALENCES[aliased] ?? aliased;',
+          '  const aliased = Object.hasOwn(ALIASES, base) ? ALIASES[base] : base;',
+          '  return Object.hasOwn(EQUIVALENCES, aliased) ? EQUIVALENCES[aliased] : aliased;',
         ]
       : hasAliases
-        ? ['  return ALIASES[base] ?? base;']
-        : ['  return EQUIVALENCES[base] ?? base;']),
+        ? ['  return Object.hasOwn(ALIASES, base) ? ALIASES[base] : base;']
+        : ['  return Object.hasOwn(EQUIVALENCES, base) ? EQUIVALENCES[base] : base;']),
     '};',
   ];
 
@@ -450,7 +452,9 @@ function buildArtifact(
         '  const canonical = canonicalOf(name);',
         '  const hit = cache.get(canonical);',
         '  if (hit !== undefined) return hit;',
-        '  const loader = LAZY[CHUNK_OF[canonical] ?? -1];',
+        // own-property guard: `constructor` on a drifted artifact must
+        // miss, not inherit Object's (diff-r1 M2)
+        '  const loader = LAZY[Object.hasOwn(CHUNK_OF, canonical) ? CHUNK_OF[canonical] : -1];',
         '  if (loader === undefined) {',
         unpackedThrow,
         '  }',
@@ -469,7 +473,7 @@ function buildArtifact(
         'export async function loadIcon(name: IconName): Promise<IconData> {',
         '  const hit = cache.get(name);',
         '  if (hit !== undefined) return hit;',
-        '  const loader = LAZY[CHUNK_OF[name] ?? -1];',
+        '  const loader = LAZY[Object.hasOwn(CHUNK_OF, name) ? CHUNK_OF[name] : -1];',
         '  if (loader === undefined) {',
         unpackedThrow,
         '  }',

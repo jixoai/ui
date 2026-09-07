@@ -253,7 +253,9 @@ describe('generateIconLibraryArtifacts — ALIASES + budget + adjacency + union'
     expect(artifact.match(/'md:copy_all': \{/g)).toHaveLength(1);
     // the deref-first runtime
     expect(artifact).toContain("  const base = name.split(' as ')[0] ?? name;");
-    expect(artifact).toContain('  return ALIASES[base] ?? base;');
+    expect(artifact).toContain(
+      '  return Object.hasOwn(ALIASES, base) ? ALIASES[base] : base;',
+    );
 
     // budget accounting: iconCount = canonicals only; perIconBytes =
     // payload once + the alias row; chunk totals carry payloads only
@@ -446,7 +448,9 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
     expect(report.iconCount).toBe(38); // canonicals only
     const namesBlock = artifact.split('export const ICON_NAMES = [')[1]!.split('\n] as readonly IconName[];')[0]!;
     expect(namesBlock).toContain("  'check',\n  'lucide:check',"); // adjacent to its canonical
-    expect(artifact).toContain('  return EQUIVALENCES[base] ?? base;'); // the chained canonicalizer
+    expect(artifact).toContain(
+      '  return Object.hasOwn(EQUIVALENCES, base) ? EQUIVALENCES[base] : base;',
+    ); // the chained canonicalizer
     // the payload packs exactly once (the check entry — a BARE key in the chunk)
     expect(artifact.match(/(?:^|\s)check: \{/gm)).toHaveLength(1);
 
@@ -530,9 +534,14 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
     // BOTH tables ride the artifact, each with exactly its row
     expect(artifact).toContain("  c2: 'lucide:check',");
     expect(artifact).toContain("  'lucide:check': 'check',");
-    // the CHAINED canonicalizer (ALIASES then EQUIVALENCES)
-    expect(artifact).toContain('  const aliased = ALIASES[base] ?? base;');
-    expect(artifact).toContain('  return EQUIVALENCES[aliased] ?? aliased;');
+    // the CHAINED canonicalizer (ALIASES then EQUIVALENCES) — both
+    // derefs own-property-guarded (diff-r1 M2)
+    expect(artifact).toContain(
+      '  const aliased = Object.hasOwn(ALIASES, base) ? ALIASES[base] : base;',
+    );
+    expect(artifact).toContain(
+      '  return Object.hasOwn(EQUIVALENCES, aliased) ? EQUIVALENCES[aliased] : aliased;',
+    );
     expect(report.iconCount).toBe(38); // canonicals only — neither row is a payload
     expect(report.perIconBytes['lucide:check']).toBeGreaterThan(0); // the row costs its bytes
     expect(report.perIconBytes['c2']).toBeGreaterThan(0);
@@ -547,6 +556,36 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
     // ICON_NAMES adjacency: alias + equivalence key ride next to `check`
     expect(mod.ICON_NAMES.indexOf('lucide:check')).toBe(mod.ICON_NAMES.indexOf('check') + 2);
     expect(mod.ICON_NAMES.indexOf('c2')).toBe(mod.ICON_NAMES.indexOf('check') + 1);
+  });
+
+  test('a grammar-legal prototype-key alias resolves — constructor is a NAME, not Object.prototype (diff-r1 M2)', async () => {
+    const { icons, aliases, equivalences } = await resolveLibraryInputs(
+      { includeDefaults: true },
+      fsIo(),
+      checker(),
+      [lucideScan('check', 'constructor')],
+    );
+    expect(icons).toHaveLength(38); // the alias rows never pack a payload
+    expect(aliases).toEqual({ constructor: 'lucide:check' });
+    expect(equivalences).toEqual({ 'lucide:check': 'check' });
+
+    const generated = generateIconLibraryArtifacts(icons, {
+      aliases,
+      equivalences,
+      templatePrefixes: ['lucide'],
+    });
+    const mod = await importArtifact(generated.artifact);
+    const builtIn = mod.getIcon('check');
+    expect(builtIn).not.toBeNull();
+    // plain-object tables must not leak inherited members: every
+    // spelling of the prototype-keyed alias resolves the payload
+    expect(mod.getIcon('constructor')).toEqual(builtIn);
+    expect(mod.getIcon('lucide:check as constructor')).toEqual(builtIn);
+    await expect(mod.loadIcon('constructor')).resolves.toEqual(builtIn);
+    // an UN-packed prototype-key name misses CLEANLY: null — never an
+    // inherited function dressed up as IconData
+    expect(mod.getIcon('toString')).toBeNull();
+    await expect(mod.loadIcon('toString')).rejects.toThrow(/is not in the packed set/);
   });
 
   test('a warn-dropped canonical drops its equivalence keys (no dangling rows)', async () => {
