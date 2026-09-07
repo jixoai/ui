@@ -60,7 +60,7 @@
        through `jixoai()` (an umbrella consumer must get the
        scanner, not silently lose it); full gate battery green
        (verify:all; vite-plugin suite; www suite)
-- [ ] C3: ordering note — this change IMPLEMENTS after
+- [x] C3: ordering note — this change IMPLEMENTS after
        2026-09-07-icon-library-presets lands (resolvers dependency);
        IN-REPO LOCK: this change lands WITHOUT adopting scanned refs
        in the www app — ICON_NAMES.length === 38, the MEASURED
@@ -69,5 +69,5 @@
 
 ## D. Closure
 
-- [ ] D1: codex doc-review rounds (PASS gate) → implementation
+- [x] D1: codex doc-review rounds (PASS gate) → implementation
        streams → codex diff review → archive → push

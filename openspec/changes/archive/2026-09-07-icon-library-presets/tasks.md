@@ -54,10 +54,10 @@
 - [x] C2: optional peers declared in package.json
        (peerDependencies + peerDependenciesMeta, the lucide
        precedent); `npm pack --dry-run` gate
-- [ ] C3: full gate battery green (verify:all; vite-plugin suite;
+- [x] C3: full gate battery green (verify:all; vite-plugin suite;
        www suite; docs)
 
 ## D. Closure
 
-- [ ] D1: codex doc-review rounds (PASS gate) → implementation
+- [x] D1: codex doc-review rounds (PASS gate) → implementation
        streams → codex diff review → archive → push

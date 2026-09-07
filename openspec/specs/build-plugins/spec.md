@@ -230,8 +230,13 @@ script is the ONLY artifact writer (the www copy arrives via the
 existing mirror tooling), both in-repo app configs run `write:
 false`, and a dual-app build probe asserts no `registry/src/**`
 artifact and no default-output orphan ever appears. A same-name
-entry OVERRIDES the built-in. Icon names SHALL match
-`/^[a-z][A-Za-z0-9]*$/`. `lucide` SHALL remain an optional peer of
+entry OVERRIDES the built-in; prefixed refs scanned from consumer
+sources by the prefix compiler (see the ADDED requirements) SHALL
+enter the set WITHOUT any `icons` declaration. Icon names SHALL
+match `/^[a-z][A-Za-z0-9]*$/`, EXCEPT prefixed scanned keys
+(`md:copy_all`), which are EXEMPT (the enabled preset's own name
+grammar governs them) while ALIASES must satisfy the pattern.
+`lucide` SHALL remain an optional peer of
 the PLUGIN package only — built-in resolution runs inside the
 plugin at build time via dynamic `import('lucide')` with the
 loud-fail install hint; the emitted artifact carries zero lucide
@@ -305,7 +310,8 @@ unit test so the geometry-consistency law survives optimization.
 ### Requirement: icons pack into budgeted chunks with an inline sync core
 
 The packer SHALL greedily fill chunks in manifest order (built-ins
-in GROUPS order, then custom icons in config insertion order) with
+in GROUPS order, then custom icons in config insertion order, then
+scanned refs, sorted (preset, name)) with
 each chunk's serialized module bytes ≤ `maxChunkBytes` (20480
 default, raw non-gzip); an icon larger than the budget forms its own
 chunk with a warning. The four-mode matrix SHALL hold exactly and
@@ -449,3 +455,226 @@ end-to-end through the bridge (all config-matrix rows).
 - WHEN the integration test runs the bridge end-to-end
 - THEN behavior is indistinguishable from the pre-bridge direct
   wiring (provider-only output still matches its golden fixture)
+
+### Requirement: the icons library face ships preset resolvers for the common icon libraries
+
+`library.presets` SHALL enable named icon-library presets, each
+contributing a prefixed reference form usable wherever IconSource
+strings are (`md:home`, `ph:atom`, `rx:system:add-line`). Presets
+SHALL resolve ONE icon per reference at build time through the
+shared safety→optimize→extract pipeline (no bulk bundling), with
+per-icon nature detection. The shipped presets and their SVG-source
+packages (research-verified 2026-09-07): `material` →
+`@material-symbols/svg-${weight}` (Apache-2.0; weight/style/fill
+configurable, default outlined / weight 400 / FILL 0), `phosphor` →
+`@phosphor-icons/core` (MIT), `remix` → `remixicon` (Apache-2.0);
+`lucide` remains the built-in default. Each preset package SHALL be
+an optional peer whose absence fails loudly with the install hint
+(the lucide precedent). Referencing a disabled or unknown preset
+prefix SHALL fail with a named error listing the enabled set.
+tabler and hugeicons SHALL NOT ship as presets (no per-icon SVG
+source package on npm / JS-data only — documented on the icons
+page), and SF Symbols SHALL NOT ship on licensing grounds (Apple
+system-provided-image terms restrict use to Apple-platform apps and
+prohibit SVG export/redistribution — the docs page states the
+verdict).
+
+#### Scenario: a material preset icon joins the set
+
+- GIVEN `presets: ['material']` and `icons: { home: 'md:home' }`
+- WHEN the generator runs
+- THEN `IconName` includes `home` rendering the outlined weight-400
+  FILL-0 Material Symbols artwork, and no other material icon
+  entered the artifact
+
+#### Scenario: the preset package is absent
+
+- GIVEN `presets: ['material']` without `@material-symbols/svg-400`
+  installed
+- WHEN resolution starts
+- THEN the build fails with a named error carrying the npm install
+  line (no silent fallback)
+
+#### Scenario: an unknown prefix is referenced
+
+- GIVEN `icons: { x: 'fa:home' }` with no preset providing `fa:`
+- WHEN the config validates
+- THEN startup fails naming the reference and the enabled prefixes
+
+### Requirement: font files are icon SOURCES, extracted at build time
+
+`IconSource` SHALL accept `{ font, code }` (codepoint) and
+`{ font, liga }` (ligature name, best-effort): the plugin
+decompresses woff2 (the existing loadSource lane), parses with
+opentype.js, extracts the referenced glyph's outline, and
+normalizes it (contain-fit, the slot-face fontIconProvider math,
+factored shared) into the standard fill-nature `{v, n, d}` payload.
+A codepoint absent from cmap, or a ligature the parser cannot
+resolve, SHALL fail loudly (the ligature miss lists the font's
+resolvable ligature names WHEN THE PARSER EXPOSES THEM, else the
+glyph-name/cmap hint — opentype.js high-level GSUB enumeration is
+thin). The runtime artifact SHALL remain pure SVG —
+fonts never reach the browser through this lane. woff1 stays a hard
+error; ttf/otf paths are accepted directly.
+
+#### Scenario: a codepoint glyph lands in the artifact
+
+- GIVEN `icons: { brand: { font: './brand.woff2', code: 0xE002 } }`
+- WHEN the generator runs
+- THEN `brand` renders the extracted outline as fill-nature artwork
+  and the artifact carries no font bytes
+
+#### Scenario: an unresolvable ligature fails by name
+
+- GIVEN `{ font: './brand.woff2', liga: 'no-such-ligature' }`
+- WHEN resolution runs
+- THEN the build fails listing the font's resolvable ligature names
+  when the parser exposes them, else the glyph-name/cmap hint (never
+  a silent blank glyph)
+
+### Requirement: prefixed icon names scan from source into the generated set
+
+The scanner SHALL be a pure module with TWO entries feeding one
+generator stream: (a) an EAGER project walk over consumer
+.svelte/.ts/.js/.html sources (excluding node_modules/dist/
+.svelte-kit/virtual modules/the artifact itself), run at buildStart
+when `command === 'build'` AND inside the root script's
+buildArtifacts — generation runs at buildStart BEFORE transforms and
+the build promise is memoized, so transform-only collection cannot
+serve production builds, and the script twin must see the same
+scanned set so `gen:icons`/`--check` stay byte-equal to the
+dev-server artifact for script-supported (svg-only) configs; and (b) a DEV-INCREMENTAL vite transform
+(enforce: 'pre', same scope and exclusions) collecting STATIC
+`name="<preset>:<name>"` and `name="<preset>:<name> as
+<identifier>"` literals (attribute and string-literal expression
+forms only — no expression evaluation). The scanner SHALL capture
+the prefix plus the COMPLETE literal suffix (to the closing quote
+or the ` as ` boundary) and validate NOTHING about the suffix — the
+ENABLED PRESET's own name grammar is the law and the preset
+resolver is the authority (material-symbols names are snake_case,
+e.g. `md:copy_all`; remix names carry a second colon, e.g.
+`rx:system:add-line` — any suffix pattern would reject legal
+names). Scanned keys like `md:copy_all` are EXEMPT from the
+camelCase icon-name pattern while aliases must satisfy it.
+Name-literals whose prefix is not an enabled preset SHALL be
+ignored by the scanner (the unknown-prefix named error is a
+config-face law over `library.icons` entries, unchanged). Scanned
+refs resolve through the enabled presets' resolvers and pack
+WITHOUT any vite-config declaration; duplicate refs (no alias)
+dedupe silently; the scan order never affects artifact bytes
+(refs sort by (preset, name)). A change in the scanned set SHALL
+invalidate and regenerate the artifact through the slot face's
+refresh path (dev only).
+
+#### Scenario: an undeclared prefixed name just works
+
+- GIVEN `presets: ['material']` and a component containing
+  `<Icon name="md:copy_all" />` with NO `library.icons` entry
+- WHEN the build runs
+- THEN the artifact packs `md:copy_all` and `IconName` admits it
+
+#### Scenario: a production build packs an undeclared scanned ref
+
+- GIVEN `presets: ['material']`, a component containing
+  `<Icon name="md:copy_all" />`, and `command === 'build'`
+- WHEN buildStart fires (before any transform runs)
+- THEN the eager project walk collects `md:copy_all` and the packed
+  artifact includes it (a transform-only collector would have missed
+  it)
+
+#### Scenario: gen:icons output equals the dev-server artifact for the same scanned set
+
+- GIVEN the same project sources with one scanned ref and an
+  svg-only library config, run once
+  through the dev server and once through the root `gen:icons`
+  script
+- WHEN both artifacts are compared
+- THEN they are byte-identical (the script runs the same eager walk
+  the build does — no scanner-less twin, no divergence; a
+  font-source config named-rejects in the script twin per the
+  companion change and is outside parity by declaration)
+
+#### Scenario: a dynamic expression is intentionally unserved
+
+- GIVEN `` <Icon name={`md:${x}`} /> ``
+- WHEN the scanner runs
+- THEN nothing is collected for it (documented contract: dynamic
+  names ride the runtime lane)
+
+### Requirement: `as` aliases register dual keys, never rewrite sources
+
+`name="md:X as Y"` SHALL declare Y as a local alias: the artifact
+resolves BOTH `md:X` and `Y` to the SAME packed payload — the
+payload packs ONCE under the canonical `md:X` key, and `Y` derefs
+first through the artifact's `ALIASES: Readonly<Record<alias,
+canonical>>` table (sources are NEVER rewritten — the ruled form;
+an alias costs an alias-table row in the budget, never a second
+packed payload; `report.iconCount` counts canonical entries with
+aliases excluded, and ICON_NAMES emits each alias ADJACENT to its
+ref). Canonical keys SHALL serialize QUOTED when not bare
+identifiers (`'md:copy_all': { … }` — an unquoted `md:copy_all:`
+key is invalid TypeScript), with budget accounting counting the
+serialized key bytes. `CHUNK_OF`/`preloadIcons` SHALL deref aliases
+to the canonical's chunk, and the runtime lookups SHALL accept the
+un-split literal itself — `getIcon('md:copy_all as copy2')`,
+`getIcon('md:copy_all')`, and `getIcon('copy2')` resolve the SAME
+payload. Collision rules SHALL fail the build with
+named diagnostics: an alias colliding with any declared/scanned
+name; two refs claiming one alias; a ref's name colliding with
+another ref's alias. Alias identifiers SHALL match
+`/^[a-z][A-Za-z0-9]*$/` (scanned keys like `md:copy_all` are exempt
+from the camelCase icon-name pattern; aliases are not).
+
+#### Scenario: the alias and the full ref share one icon
+
+- GIVEN `name="md:copy_all as copy2"` in one file and
+  `name="md:copy_all"` in another
+- WHEN the artifact generates
+- THEN `getIcon('copy2')` and `getIcon('md:copy_all')` return the
+  SAME data and the payload packs exactly once
+
+#### Scenario: the un-split alias literal resolves at runtime
+
+- GIVEN the artifact generated with `name="md:copy_all as copy2"`
+- WHEN `getIcon`/`loadIcon` receive the un-split literal
+  `'md:copy_all as copy2'`
+- THEN they split on ` as `, deref the base, and return the SAME
+  payload as the bare canonical and the alias
+
+#### Scenario: an alias collision fails by name
+
+- GIVEN `md:a as dup` and `md:b as dup`
+- WHEN the generator validates
+- THEN the build fails naming both refs and the contested alias
+
+### Requirement: IconName gains template-literal members for enabled presets only
+
+For each preset the consumer ENABLED, the generated `IconName`
+union SHALL include a `` `${prefix}:${string}` `` template-literal
+member; presets that are not enabled contribute NO member (an
+`fa:` name is a compile error with no runtime story). This is the
+three-tier safety contract, stated precisely: prefix safety at
+COMPILE time, concrete-name validity at BUILD time (a scanned or
+declared ref that fails preset resolution is a named build error),
+and dynamic composition at RUNTIME — `getIcon` on an unpacked name
+returns null, the component renders its reserved box through the
+existing lazy path, and the unknown name warns once through the
+chunk-warn channel (the channel is not dev-gated today and stays
+that way), with the generator's loadIcon error message for unpacked
+names covering BOTH causes (artifact drift or a dynamic/scanned-miss
+name).
+
+#### Scenario: the union tracks enabled presets
+
+- GIVEN `presets: ['material', 'phosphor']`
+- WHEN the artifact generates
+- THEN `IconName` includes `md:${string}` and `ph:${string}` and
+  NOT `rx:${string}`
+
+#### Scenario: a scanned ref that fails resolution is a build error
+
+- GIVEN `<Icon name="md:not_a_real_symbol" />` and the material
+  package installed
+- WHEN the generator resolves the scan
+- THEN the build fails naming the ref and the preset (never a
+  silently blank glyph)
