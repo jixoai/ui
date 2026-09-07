@@ -28,16 +28,24 @@ import { checkIconLibraryArtifact, writeIconLibraryArtifact } from '../packages/
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // The canonical config: the 38 built-ins under default packing (auto
-// chunking, inline first chunk, 20480-byte budget, svgo on). MUST stay
-// byte-equivalent to what both in-repo app configs dogfood (B4's
-// `library: { includeDefaults: true }`) — same generator, same inputs,
-// so the dev drift-warns and the committed artifact never diverge.
-const LIBRARY_OPTIONS = { includeDefaults: true };
+// chunking, inline first chunk, 20480-byte budget, svgo on) PLUS the
+// preset dogfood (2026-09-07, Owner direction: the docs site ITSELF
+// exercises the preset + scanner lanes so its source is the reference
+// an AI can read). MUST stay byte-equivalent to the www app config's
+// library face (apps/www/vite.config.ts) — same generator, same
+// inputs, same scanned set (SCAN_ROOT below = the vite build's walk
+// root), so the dev drift-warns and the committed artifact never
+// diverge.
+const LIBRARY_OPTIONS = { includeDefaults: true, presets: ['material', 'phosphor', 'remix'] };
+// The scanner's project root: the www app's tree — exactly what the
+// vite buildStart walk sees when building apps/www (the docs pages'
+// own <Icon name="md:…"> literals are the collected set).
+const SCAN_ROOT = resolve(repoRoot, 'apps/www');
 const TARGET = resolve(repoRoot, 'registry/files/lib/icon-set.gen.ts');
 const REL_TARGET = 'registry/files/lib/icon-set.gen.ts';
 
 if (process.argv.includes('--check')) {
-  const { fresh, report } = await checkIconLibraryArtifact(LIBRARY_OPTIONS, TARGET);
+  const { fresh, report } = await checkIconLibraryArtifact(LIBRARY_OPTIONS, TARGET, undefined, SCAN_ROOT);
   for (const warning of report.warnings) console.warn(warning);
   if (!fresh) {
     console.error(`stale: ${REL_TARGET} differs from the generator output — run \`npm run gen:icons\``);
@@ -45,7 +53,7 @@ if (process.argv.includes('--check')) {
   }
   console.log(`fresh: ${REL_TARGET} matches the generator (${report.iconCount} icons, ${report.chunkCount} chunk(s))`);
 } else {
-  const { changed, report } = await writeIconLibraryArtifact(LIBRARY_OPTIONS, TARGET);
+  const { changed, report } = await writeIconLibraryArtifact(LIBRARY_OPTIONS, TARGET, undefined, SCAN_ROOT);
   for (const warning of report.warnings) console.warn(warning);
   console.log(
     `${changed ? 'wrote' : 'unchanged'}: ${REL_TARGET} (${report.iconCount} icons, ${report.chunkCount} chunk(s), ${report.lazyChunks.length} lazy)`,

@@ -61,6 +61,7 @@ import type { IconSlot } from '../../src/icons/types.js';
 // test/icons → four levels up is the repo root; the default artifact
 // carries zero virtual imports, so it is safe to import directly
 import { getIcon, ICON_NAMES, type IconName } from '../../../../registry/files/lib/icon-set.gen';
+import { DEFAULT_LIBRARY_MANIFEST } from '../../src/icons/library/manifest.js';
 
 /** the provider's wrapper — byte-pinned; strip it to get the children */
 const WRAPPER_OPEN =
@@ -149,9 +150,16 @@ describe('geometry consistency gate (C4)', () => {
     }
   });
 
+  // the LUCIDE geometry law covers the BUILT-IN manifest (the 38) —
+  // the dogfood era (2026-09-07) rides preset/scanned names in the
+  // same artifact with their OWN families' geometry (material's
+  // 0 -960 960 960 viewBox, fill natures), exactly by design
+  const builtInNames = DEFAULT_LIBRARY_MANIFEST.map(([name]) => name) as IconName[];
+
   it('the artifact embeds lucide geometry for every built-in (d payload, byte-exact)', () => {
-    expect(ICON_NAMES.length, 'the default set is the 38 built-ins').toBe(38);
-    for (const name of ICON_NAMES) {
+    expect(builtInNames.length, 'the built-in manifest is the 38').toBe(38);
+    expect(ICON_NAMES.length, 'dogfood era: the artifact also carries the scanned set').toBe(43);
+    for (const name of builtInNames) {
       const data = getIcon(name);
       expect(data, `${name} present in the artifact`).not.toBeNull();
       expect(data!.d, name).toBe(serializeChildren(BUILTINS[name]![2]));
@@ -159,11 +167,14 @@ describe('geometry consistency gate (C4)', () => {
   });
 
   it('the artifact pins viewBox 0 0 24 24 and stroke nature for every built-in', () => {
-    for (const name of ICON_NAMES) {
+    for (const name of builtInNames) {
       const data = getIcon(name)!;
       expect(data.v, `${name} viewBox`).toBe('0 0 24 24');
       expect(data.n, `${name} nature`).toBe('stroke');
     }
+    // the preset families keep their own geometry laws (material's
+    // viewBox is native 0 -960 960 960 — preserved, never rescaled)
+    expect(getIcon('md:copy_all')!.v).toBe('0 -960 960 960');
   });
 
   it('viewBox is 0 0 24 24 across sources', async () => {

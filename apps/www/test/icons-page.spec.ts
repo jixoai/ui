@@ -402,16 +402,38 @@ describe('/docs/icons.html — the prefix compiler (scanned names + as aliases)'
     expect(sectionText).toContain('getIcon()');
   });
 
-  it('the site itself does NOT dogfood the scanner (the 38-name lock holds)', () => {
+  it('the site DOGFOODS the scanner — preset refs + the alias ride the real artifact', () => {
     const { container } = render(IconsPage);
-    // the named-library grid still walks the hand-written artifact
+    // the named-library grid walks the REGENERATED artifact: the 38
+    // built-ins plus the scanner's own findings from this site's
+    // source (the docs page's static preset literals + the vite
+    // config's enabled presets)
     const grid = container.querySelector('[data-named-icon-grid]');
     const items = grid?.querySelectorAll('li') ?? [];
     expect(items.length).toBe(ICON_NAMES.length);
-    expect(ICON_NAMES.length).toBe(38);
-    expect(ICON_NAMES).not.toContain('md:copy_all');
-    // and the artifact carries no prefix-compiler shapes
-    expect(grid?.textContent ?? '').not.toContain('md:');
+    expect(ICON_NAMES.length).toBe(43); // 38 built-ins + 4 scanned canonicals + 1 alias
+    for (const name of ['md:copy_all', 'copy2', 'md:home', 'ph:atom', 'rx:system:add-line']) {
+      expect(ICON_NAMES, 'the scanned set rides the artifact').toContain(name);
+    }
+    // adjacency law: the alias sits next to its ref
+    expect(ICON_NAMES.indexOf('copy2')).toBe(ICON_NAMES.indexOf('md:copy_all') + 1);
+    expect(grid?.textContent ?? '').toContain('md:copy_all');
+  });
+
+  it('the live preset gallery renders (the real cells, not stock artwork)', () => {
+    const { container } = render(IconsPage);
+    const gallery = container.querySelector('[data-preset-gallery]');
+    expect(gallery, 'the preset gallery section').toBeTruthy();
+    const cells = gallery?.querySelectorAll('[data-preset-cell]') ?? [];
+    expect(cells.length).toBe(5); // md:home, md:copy_all, ph:atom, rx:system:add-line, zap
+    const refs = [...cells].map((cell) => cell.getAttribute('data-preset-cell'));
+    expect(refs).toEqual(['md:home', 'md:copy_all', 'ph:atom', 'rx:system:add-line', 'check']);
+    // every gallery cell paints a real glyph — 5 cells PLUS the alias
+    // demo's two icons (the demo subtree lives inside the gallery)
+    expect(gallery?.querySelectorAll('svg[data-jx-icon]').length).toBe(7);
+    // the live alias demo: the full literal + the bare alias, one payload each
+    const aliasDemo = container.querySelector('[data-alias-demo]');
+    expect(aliasDemo?.querySelectorAll('svg[data-jx-icon]').length).toBe(2);
   });
 });
 

@@ -443,7 +443,7 @@ plain beside a stock ink is impossible by construction.`;
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">&lt;Icon name> · IconName union</span>
-          <span class="pill">ICON_NAMES — 38 built-ins</span>
+          <span class="pill">ICON_NAMES — built-ins + scanned presets</span>
           <span class="pill">inline core · SSR-safe</span>
           <span class="pill">lazy chunks · preloadIcons</span>
           <span class="pill">--jx-icon-* vocabulary</span>
@@ -490,7 +490,7 @@ plain beside a stock ink is impossible by construction.`;
         headerRegion="vocabulary"
         eyebrow="named library"
         title="The named library — ICON_NAMES"
-        summary="{ICON_NAMES.length} names, generated. This grid walks ICON_NAMES itself: a glyph added to the library config regenerates icon-set.gen.ts and appears here with ZERO page edit — the grid can never lie about the set. Every cell renders the real component (the same <Icon name> above); the label is the IconName you type."
+        summary="{ICON_NAMES.length} names, generated. This grid walks ICON_NAMES itself: a glyph added to the library config — or a preset ref scanned from this site's own source — regenerates icon-set.gen.ts and appears here with ZERO page edit — the grid can never lie about the set. The prefixed names below (md:/ph:/rx:) are the scanner's own findings: the literals live in this page's source. Every cell renders the real component (the same <Icon name> above); the label is the IconName you type."
       >
         <div class="flex flex-col gap-5">
           <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" data-named-icon-grid="">
@@ -591,6 +591,54 @@ plain beside a stock ink is impossible by construction.`;
             </tbody>
           </table>
           <CodeBlock code={presetConfig} lang="ts" meta="presets: ['material']" />
+          <div class="flex flex-col gap-4" data-preset-gallery="">
+            <p class="text-muted-foreground text-[13px] leading-6">
+              Rendered live, from THIS site's own build — not stock artwork. The cells below are the
+              real <code class="text-accent">&lt;Icon name&gt;</code> component resolving preset refs the
+              scanner collected out of this very page's source (and the vite config you would read
+              alongside it enables the presets for real). The source is the reference: an AI reading
+              apps/www/vite.config.ts + this file sees the capability exercised end-to-end.
+            </p>
+            <!-- STATIC literals by law: the scanner collects static
+                 name="…" attributes only — a dynamic name={expr} here
+                 would be unpacked at runtime (the runtime lane), not
+                 scanned. These five cells ARE the dogfood. -->
+            <div class="flex flex-wrap gap-3">
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="md:home">
+                <Icon name="md:home" size={24} />
+                <code class="text-muted-foreground font-mono text-[11px]">md:home</code>
+                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · outlined/400</span>
+              </div>
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="md:copy_all">
+                <Icon name="md:copy_all" size={24} />
+                <code class="text-muted-foreground font-mono text-[11px]">md:copy_all</code>
+                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · snake_case</span>
+              </div>
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="ph:atom">
+                <Icon name="ph:atom" size={24} />
+                <code class="text-muted-foreground font-mono text-[11px]">ph:atom</code>
+                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">phosphor · regular</span>
+              </div>
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="rx:system:add-line">
+                <Icon name="rx:system:add-line" size={24} />
+                <code class="text-muted-foreground font-mono text-[11px]">rx:system:add-line</code>
+                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">remix · category-prefixed</span>
+              </div>
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="check">
+                <Icon name="check" size={24} />
+                <code class="text-muted-foreground font-mono text-[11px]">check</code>
+                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · built-in</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 border-border border p-4" data-alias-demo="">
+              <Icon name="md:copy_all as copy2" size={20} />
+              <Icon name="copy2" size={20} />
+              <span class="text-muted-foreground text-[13px] leading-6">
+                the <code class="text-accent">as</code> form, live: the left cell writes the full literal, the right
+                resolves the alias — ONE packed payload, three legal spellings (the artifact's ALIASES row)
+              </span>
+            </div>
+          </div>
           <div class="border-border flex flex-col gap-2 border p-4" data-not-shipped-note="">
             <p class="font-nav text-[11px] uppercase tracking-[0.24em]">not shipped — and why</p>
             <p class="text-[13px] leading-6">

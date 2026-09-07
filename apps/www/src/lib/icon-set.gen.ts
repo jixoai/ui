@@ -38,6 +38,14 @@ export type IconName =
   | 'phone'
   | 'mail'
   | 'type'
+  | 'md:copy_all'
+  | 'copy2'
+  | 'md:home'
+  | 'ph:atom'
+  | 'rx:system:add-line'
+  | `md:${string}`
+  | `ph:${string}`
+  | `rx:${string}`
   ;
 export const ICON_NAMES = [
   'arrowRight',
@@ -78,8 +86,16 @@ export const ICON_NAMES = [
   'phone',
   'mail',
   'type',
+  'md:copy_all',
+  'copy2',
+  'md:home',
+  'ph:atom',
+  'rx:system:add-line',
 ] as readonly IconName[];
 export interface IconData { v: string; n: 'fill' | 'stroke'; d: string }
+export const ALIASES: Readonly<Record<string, string>> = {
+  copy2: 'md:copy_all',
+};
 const CHUNK_0: Readonly<Record<string, IconData>> = {
   arrowRight: { v: '0 0 24 24', n: 'stroke', d: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>' },
   arrowLeft: { v: '0 0 24 24', n: 'stroke', d: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>' },
@@ -119,6 +135,10 @@ const CHUNK_0: Readonly<Record<string, IconData>> = {
   phone: { v: '0 0 24 24', n: 'stroke', d: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>' },
   mail: { v: '0 0 24 24', n: 'stroke', d: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>' },
   type: { v: '0 0 24 24', n: 'stroke', d: '<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/>' },
+  'md:copy_all': { v: '0 -960 960 960', n: 'fill', d: '<path d="M120-240v-60h60v60h-60Zm0-160v-60h60v60h-60Zm0-160v-60h60v60h-60ZM280-80v-60h60v60h-60Zm60-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h400q24 0 42 18t18 42v520q0 24-18 42t-42 18H340Zm0-60h400v-520H340v520ZM440-80v-60h60v60h-60Zm-260 0q-24.75 0-42.37-17.63Q120-115.25 120-140h60v60Zm420 0v-60h60q0 25-17.62 42.5Q624.75-80 600-80ZM120-720q0-24.75 17.63-42.38Q155.25-780 180-780v60h-60Zm420 160Z"/>' },
+  'md:home': { v: '0 -960 960 960', n: 'fill', d: '<path d="M220-180h150v-250h220v250h150v-390L480-765 220-570v390Zm-60 60v-480l320-240 320 240v480H530v-250H430v250H160Zm320-353Z"/>' },
+  'ph:atom': { v: '0 0 256 256', n: 'fill', d: '<path d="M196.12,128c24.65-34.61,37.22-70.38,19.74-87.86S162.61,35.23,128,59.88C93.39,35.23,57.62,22.66,40.14,40.14S35.23,93.39,59.88,128c-24.65,34.61-37.22,70.38-19.74,87.86h0c5.63,5.63,13.15,8.14,21.91,8.14,18.48,0,42.48-11.17,66-27.88C151.47,212.83,175.47,224,194,224c8.76,0,16.29-2.52,21.91-8.14h0C233.34,198.38,220.77,162.61,196.12,128Zm8.43-76.55c7.64,7.64,2.48,32.4-18.52,63.28a300.33,300.33,0,0,0-21.19-23.57A300.33,300.33,0,0,0,141.27,70C172.15,49,196.91,43.8,204.55,51.45ZM176.29,128a289.14,289.14,0,0,1-22.76,25.53A289.14,289.14,0,0,1,128,176.29a289.14,289.14,0,0,1-25.53-22.76A289.14,289.14,0,0,1,79.71,128,298.62,298.62,0,0,1,128,79.71a289.14,289.14,0,0,1,25.53,22.76A289.14,289.14,0,0,1,176.29,128ZM51.45,51.45c2.2-2.21,5.83-3.35,10.62-3.35C73.89,48.1,92.76,55,114.72,70A304,304,0,0,0,91.16,91.16,300.33,300.33,0,0,0,70,114.73C49,83.85,43.81,59.09,51.45,51.45Zm0,153.1C43.81,196.91,49,172.15,70,141.27a300.33,300.33,0,0,0,21.19,23.57A304.18,304.18,0,0,0,114.73,186C83.85,207,59.09,212.2,51.45,204.55Zm153.1,0c-7.64,7.65-32.4,2.48-63.28-18.52a304.18,304.18,0,0,0,23.57-21.19A300.33,300.33,0,0,0,186,141.27C207,172.15,212.19,196.91,204.55,204.55ZM140,128a12,12,0,1,1-12-12A12,12,0,0,1,140,128Z"/>' },
+  'rx:system:add-line': { v: '0 0 24 24', n: 'fill', d: '<path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"/>' },
 };
 const CHUNK_OF: Readonly<Record<IconName, number>> = {
   'arrowRight': 0,
@@ -159,28 +179,38 @@ const CHUNK_OF: Readonly<Record<IconName, number>> = {
   'phone': 0,
   'mail': 0,
   'type': 0,
+  'md:copy_all': 0,
+  'md:home': 0,
+  'ph:atom': 0,
+  'rx:system:add-line': 0,
 };
 const LAZY: Readonly<Record<number, () => Promise<{ default: Record<string, IconData> }>>> = {};
 const cache: Map<string, IconData> = new Map(Object.entries(CHUNK_0));
+const canonicalOf = (name: IconName): string => {
+  const base = name.split(' as ')[0] ?? name;
+  return ALIASES[base] ?? base;
+};
 
 export function getIcon(name: IconName): IconData | null {
-  return cache.get(name) ?? null;
+  const canonical = canonicalOf(name);
+  return cache.get(canonical) ?? null;
 }
 
 export async function loadIcon(name: IconName): Promise<IconData> {
-  const hit = cache.get(name);
+  const canonical = canonicalOf(name);
+  const hit = cache.get(canonical);
   if (hit !== undefined) return hit;
-  const loader = LAZY[CHUNK_OF[name] ?? -1];
+  const loader = LAZY[CHUNK_OF[canonical] ?? -1];
   if (loader === undefined) {
-    throw new Error(`[jixoai/icon-set] icon "${name}" has no chunk loader — the artifact drifted from the library config (regenerate icon-set.gen.ts)`);
+    throw new Error(`[jixoai/icon-set] icon "${name}"${name !== canonical ? ` (resolves to "${canonical}")` : ''} is not in the packed set — either the artifact drifted from the library config (regenerate icon-set.gen.ts) or the name was composed dynamically and never scanned/declared (dynamic names must resolve to a packed icon; getIcon() returns null for the rest — the component renders its reserved box)`);
   }
   const chunk = (await loader()).default;
   for (const [chunkName, data] of Object.entries(chunk)) {
     if (!cache.has(chunkName)) cache.set(chunkName, data);
   }
-  const loaded = cache.get(name);
+  const loaded = cache.get(canonical);
   if (loaded === undefined) {
-    throw new Error(`[jixoai/icon-set] the chunk for "${name}" loaded but the icon is missing — the artifact drifted from the library config (regenerate icon-set.gen.ts)`);
+    throw new Error(`[jixoai/icon-set] the chunk for "${canonical}" loaded but the icon is missing — the artifact drifted from the library config (regenerate icon-set.gen.ts)`);
   }
   return loaded;
 }

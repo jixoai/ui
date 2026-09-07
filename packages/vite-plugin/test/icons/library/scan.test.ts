@@ -158,7 +158,7 @@ describe('the matcher is FAIL-SAFE (codex r1 M5/M6) — never a build break', ()
     expectRefs(collectScannedRefs('<Icon name="md: as copy2" />', MD), []); // empty suffix
   });
 
-  test('an empty enabled set collects nothing (the www no-dogfood lock)', () => {
+  test('an empty enabled set collects nothing (no prefix can ever match)', () => {
     expectRefs(collectScannedRefs('<Icon name="md:home" />', []), []);
   });
 });
