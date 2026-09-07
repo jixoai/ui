@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T10:00:05.624Z",
+  "generatedAt": "2026-09-07T10:01:59.450Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1081,8 +1081,8 @@
           "source": "registry/files/lib/icon-set.gen.ts",
           "mirror": "apps/www/src/lib/icon-set.gen.ts",
           "target": "@lib/icon-set.gen.ts",
-          "sourceSha": "391d8bc4520b78277381cb78c76b1c44b498de195ac3c2a84ad6c30240b8e0e4",
-          "mirrorSha": "391d8bc4520b78277381cb78c76b1c44b498de195ac3c2a84ad6c30240b8e0e4"
+          "sourceSha": "0d73df3250b95e74af4a4168389b1bf13aac61e13ecdf3d3e827db090bc83776",
+          "mirrorSha": "0d73df3250b95e74af4a4168389b1bf13aac61e13ecdf3d3e827db090bc83776"
         }
       ]
     },
@@ -4324,8 +4324,8 @@
           "source": "registry/files/ui/math-block/math-block.svelte",
           "mirror": "apps/www/src/lib/ui/math-block/math-block.svelte",
           "target": "@ui/math-block/math-block.svelte",
-          "sourceSha": "c9e5fda60ecccd2570a3b7db43059f04b5a8663b0f48eda0a930fbdca8f53ff8",
-          "mirrorSha": "c9e5fda60ecccd2570a3b7db43059f04b5a8663b0f48eda0a930fbdca8f53ff8"
+          "sourceSha": "29de8d0dda7eded5d8b7b85e4fded6b94090bdfa1a29f6b22ac65fb9c17ca2a9",
+          "mirrorSha": "29de8d0dda7eded5d8b7b85e4fded6b94090bdfa1a29f6b22ac65fb9c17ca2a9"
         },
         {
           "source": "registry/files/ui/math-block/math-block.css",
@@ -4352,8 +4352,8 @@
           "source": "registry/files/ui/mermaid/mermaid.svelte",
           "mirror": "apps/www/src/lib/ui/mermaid/mermaid.svelte",
           "target": "@ui/mermaid/mermaid.svelte",
-          "sourceSha": "d99fc2b6314c849cc461eab967a361881d6a5436e6c3b95a0e0c422eb6bc3f28",
-          "mirrorSha": "d99fc2b6314c849cc461eab967a361881d6a5436e6c3b95a0e0c422eb6bc3f28"
+          "sourceSha": "678bcef32d89ed2d31c5137fc0f678864dad8be92bdfaf4262cb7ab1257ed9a6",
+          "mirrorSha": "678bcef32d89ed2d31c5137fc0f678864dad8be92bdfaf4262cb7ab1257ed9a6"
         },
         {
           "source": "registry/files/ui/mermaid/mermaid.css",
