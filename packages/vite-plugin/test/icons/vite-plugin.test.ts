@@ -125,13 +125,15 @@ interface MockServer {
   stats: { invalidatedCount: number };
   /** ws payloads */
   sentMessages: unknown[];
-  fire(event: 'change' | 'add', file: string): void;
+  fire(event: 'change' | 'add' | 'unlink' | 'unlinkDir', file: string): void;
 }
 
 const createMockServer = (): MockServer => {
-  const listeners: Record<'change' | 'add', Set<WatchListener>> = {
+  const listeners: Record<'change' | 'add' | 'unlink' | 'unlinkDir', Set<WatchListener>> = {
     change: new Set(),
     add: new Set(),
+    unlink: new Set(),
+    unlinkDir: new Set(),
   };
   const nodes = new Map<string, object>();
   const addedFiles: string[] = [];
@@ -143,7 +145,10 @@ const createMockServer = (): MockServer => {
       add: (file: string): void => {
         addedFiles.push(file);
       },
-      on: (event: 'change' | 'add', listener: WatchListener): void => {
+      on: (
+        event: 'change' | 'add' | 'unlink' | 'unlinkDir',
+        listener: WatchListener,
+      ): void => {
         listeners[event].add(listener);
       },
     },
@@ -166,7 +171,7 @@ const createMockServer = (): MockServer => {
     queriedIds,
     stats,
     sentMessages,
-    fire: (event: 'change' | 'add', file: string): void => {
+    fire: (event: 'change' | 'add' | 'unlink' | 'unlinkDir', file: string): void => {
       for (const listener of listeners[event]) listener(file);
     },
   };

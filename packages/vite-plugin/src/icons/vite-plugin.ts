@@ -613,6 +613,32 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
     scheduleRefresh();
   };
 
+  /** drop every scanned-module entry for a deleted path — a file, or
+   *  everything under a deleted directory (codex r2 M3: the transform
+   *  never fires for a removed module, so without this the scanned
+   *  union keeps its refs and the served artifact stays stale) */
+  const forgetScannedModules = (path: string, directory: boolean): boolean => {
+    let changed = false;
+    for (const id of scannedByModule.keys()) {
+      const bare = id.split('?')[0]!;
+      const hit = directory ? bare.startsWith(`${path}/`) : bare === path;
+      if (hit) {
+        scannedByModule.delete(id);
+        changed = true;
+      }
+    }
+    return changed;
+  };
+
+  const onUnlinkEvent = (path: string, directory = false): void => {
+    if (libraryOptions === null) return;
+    if (!forgetScannedModules(path, directory)) return;
+    const union = mergeScannedRefs(Array.from(scannedByModule.values()).flat());
+    if (scannedUnionKeyOf(union) === scannedUnionKeyOf(scannedUnion)) return;
+    scannedUnion = union;
+    scheduleRefresh();
+  };
+
   // -- hooks ----------------------------------------------------------
 
   const plugin: IconPlugin = {
@@ -742,6 +768,10 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
       server.watcher.on('change', onWatchEvent);
       // atomic-saving editors replace files (unlink + add), not just change
       server.watcher.on('add', onWatchEvent);
+      // deletions leave the scanned set (codex r2 M3 — the transform
+      // never fires for a removed module)
+      server.watcher.on('unlink', (file: string) => onUnlinkEvent(file));
+      server.watcher.on('unlinkDir', (dir: string) => onUnlinkEvent(dir, true));
       // replay watches registered before the server existed
       for (const watched of watches.keys()) server.watcher.add(watched);
     },

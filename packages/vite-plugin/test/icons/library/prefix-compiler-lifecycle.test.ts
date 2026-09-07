@@ -19,7 +19,7 @@
 
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
 import { afterAll, describe, expect, test } from 'vitest';
 import { createIconPlugin } from '../../../src/icons/vite-plugin.js';
@@ -89,14 +89,22 @@ interface MockServer {
   readonly server: object;
   readonly invalidated: string[];
   readonly reloads: number;
+  /** fire a captured watcher event at the plugin (unlink coverage) */
+  emit(event: string, file: string): void;
 }
 
 const mockServer = (): MockServer => {
   const invalidated: string[] = [];
+  const handlers = new Map<string, (file: string) => void>();
   let reloads = 0;
   return {
     server: {
-      watcher: { add: (): void => undefined, on: (): void => undefined },
+      watcher: {
+        add: (): void => undefined,
+        on: (event: string, callback: (file: string) => void): void => {
+          handlers.set(event, callback);
+        },
+      },
       moduleGraph: {
         getModuleById: (id: string): object | undefined => (id ? { id } : undefined),
         invalidateModule: (node: { id: string }): void => {
@@ -109,6 +117,9 @@ const mockServer = (): MockServer => {
     invalidated,
     get reloads() {
       return reloads;
+    },
+    emit(event: string, file: string): void {
+      handlers.get(event)?.(file);
     },
   };
 };
@@ -264,6 +275,50 @@ describe('gen:icons parity — dev, build and script artifacts are byte-identica
 
     // and the freshness gate agrees (verify:icons' in-memory comparison)
     const check = await checkIconLibraryArtifact(LIBRARY, artifactPath, undefined, root);
+    expect(check.fresh).toBe(true);
+  });
+});
+
+describe('codex r2 — the scan lifecycle gaps', () => {
+  test('deleting a scanned source drops its refs and refreshes (M3)', async () => {
+    const { root, artifactPath, appSvelte } = await freshFixture();
+    const plugin = createIconPlugin({ library: LIBRARY });
+    const hooks = lifecycle(plugin);
+    const mock = mockServer();
+    hooks.configResolved({ root, command: 'serve' });
+    hooks.configureServer(mock.server as unknown as ViteDevServer);
+    await hooks.buildStart();
+
+    // the module transforms in, its refs land in the served artifact
+    hooks.transform(await readSource(appSvelte), appSvelte);
+    await pollArtifact(hooks, artifactPath, (artifact) => artifact.includes("'md:copy_all'"));
+
+    // the file is deleted — the transform never fires for it again, so
+    // the watcher's unlink event must forget the module and refresh
+    await rm(appSvelte);
+    mock.emit('unlink', appSvelte);
+    await pollArtifact(hooks, artifactPath, (artifact) => !artifact.includes("'md:copy_all'"));
+    // back to the enabled-preset template member only
+    expect(await hooks.load(artifactPath)).toContain('`md:${string}`');
+  });
+
+  test('a custom write target is excluded from the eager scan (M2)', async () => {
+    const { root } = await freshFixture();
+    const customTarget = join(root, 'src/generated/icons.gen.ts');
+    await mkdir(dirname(customTarget), { recursive: true });
+    // a stale artifact at the custom target carrying a tag-shaped
+    // lookalike — the walk must never read the target it writes
+    await writeFile(customTarget, '// generated\n// <Icon name="md:evil_icon" />\n', 'utf8');
+
+    const { report } = await writeIconLibraryArtifact(LIBRARY, customTarget, undefined, root);
+    // md:copy_all + md:home only — the lookalike inside the target
+    // contributed nothing (before the fix the walk scanned the target,
+    // collected md:evil_icon, and the named resolution error aborted)
+    expect(report.iconCount).toBe(2);
+    expect(await readSource(customTarget)).not.toContain('md:evil_icon');
+
+    // and the freshness gate agrees against the same exclusion
+    const check = await checkIconLibraryArtifact(LIBRARY, customTarget, undefined, root);
     expect(check.fresh).toBe(true);
   });
 });

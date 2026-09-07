@@ -49,12 +49,17 @@ function assertNoFontSources(options: IconLibraryOptions): void {
  *  walk — the same walk the vite build runs at buildStart, so the
  *  script twin's scanned set (and therefore its artifact bytes) equals
  *  the vite artifact's for the same sources (design §1a: no
- *  scanner-less twin, no divergence). With no presets enabled the walk
- *  is skipped entirely — no ref could ever match. */
+ *  scanner-less twin, no divergence). The walk EXCLUDES both the
+ *  configured output AND the actual write target (codex r2 M2: a
+ *  custom target inside the scan root would otherwise be scanned on
+ *  the next run, violating the generated-artifact exclusion and
+ *  parity). With no presets enabled the walk is skipped entirely — no
+ *  ref could ever match. */
 async function buildArtifacts(
   options: IconLibraryOptions,
   safety?: SafetyCheckerConfig,
   scanRoot?: string,
+  artifactPath?: string,
 ): Promise<{ artifact: string; report: LibraryReport }> {
   assertNoFontSources(options);
   const checker = createSafetyChecker(safety ?? { mode: 'warn' });
@@ -73,12 +78,12 @@ async function buildArtifacts(
   const root = resolvePath(scanRoot ?? process.cwd());
   const presets = normalizeIconPresets(options.presets);
   const templatePrefixes = [...new Set(presets.map((preset) => preset.prefix))];
+  const excluded = [resolvePath(root, options.output ?? DEFAULT_LIBRARY_OUTPUT)];
+  if (artifactPath !== undefined) excluded.push(resolvePath(artifactPath));
   const scanned =
     templatePrefixes.length === 0
       ? []
-      : await scanProjectSources(root, templatePrefixes, {
-          exclude: [resolvePath(root, options.output ?? DEFAULT_LIBRARY_OUTPUT)],
-        });
+      : await scanProjectSources(root, templatePrefixes, { exclude: excluded });
   const resolution = await resolveLibraryInputs(options, io, checker, scanned);
   for (const warning of resolution.warnings) console.warn(warning);
   const generated = generateIconLibraryArtifacts(resolution.icons, {
@@ -115,7 +120,7 @@ export async function writeIconLibraryArtifact(
   scanRoot?: string,
 ): Promise<IconLibraryWriteResult> {
   const artifactPath = resolvePath(target);
-  const { artifact, report } = await buildArtifacts(options, safety, scanRoot);
+  const { artifact, report } = await buildArtifacts(options, safety, scanRoot, artifactPath);
   let existing: string | null = null;
   try {
     existing = await readFile(artifactPath, 'utf8');
@@ -151,7 +156,7 @@ export async function checkIconLibraryArtifact(
   scanRoot?: string,
 ): Promise<IconLibraryCheckResult> {
   const artifactPath = resolvePath(target);
-  const { artifact, report } = await buildArtifacts(options, safety, scanRoot);
+  const { artifact, report } = await buildArtifacts(options, safety, scanRoot, artifactPath);
   let existing = '<absent>';
   try {
     existing = await readFile(artifactPath, 'utf8');

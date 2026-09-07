@@ -65,6 +65,24 @@ describe('the literal matcher — attribute + string-literal expression forms', 
     ]);
   });
 
+  test('NON-attribute occurrences never collect (codex r2 B1)', () => {
+    const code = [
+      "const name = 'md:copy_all';",
+      'const config = { name: "md:home" };',
+      'obj.name = "md:home";',
+      '<input data-name="md:home" />',
+      "{#if name === 'md:home'}nope{/if}",
+      'if (name == "md:home") return;',
+    ].join('\n');
+    // bare JS assignments, object keys, the data-name attribute (a
+    // DIFFERENT attribute) and comparison expressions all stay out
+    expectRefs(collectScannedRefs(code, MD), []);
+    // while the real tag-attribute form in the same text collects
+    expectRefs(collectScannedRefs(`${code}\n<Icon name="md:home" />`, MD), [
+      { preset: 'md', name: 'home' },
+    ]);
+  });
+
   test('a hole-free backtick template literal IS a string literal', () => {
     expectRefs(collectScannedRefs('<Icon name={`md:home`} />', MD), [
       { preset: 'md', name: 'home' },

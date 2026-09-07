@@ -75,16 +75,25 @@ export function mergeScannedRefs(refs: readonly ScannedRef[]): ScannedRef[] {
 // ── the literal matcher (design §1: attribute + string-literal forms) ──
 
 /**
- * `name=` followed by one string literal: the attribute forms
- * `name="…"` / `name='…'` and the string-literal EXPRESSION forms
- * `name={'…'}` / `name={"…"}` / `` name={`…`} `` (a hole-free template
- * literal IS a string literal; a holed one can never match the value
- * grammar below — `${` is excluded from every capture class). NO
- * expression evaluation: `name={expr}` / `name={'a' + x}` don't fit
- * the shape and are skipped — dynamic names are intentionally unserved.
+ * `name=` as an OPENING-TAG ATTRIBUTE — the amended law's collection
+ * policy (codex r1 M6, tightened codex r2 B1): the matcher requires
+ * `<(tag) …name=…` so a bare `name = "…"` in code (`const name = …`,
+ * `obj.name = …`, an `{#if name === …}` comparison) never collects,
+ * and the whitespace before `name` keeps `data-name=` (a DIFFERENT
+ * attribute) out. `[^<>]?` never crosses a tag boundary, so attribute
+ * forms are: `name="…"` / `name='…'` and the string-literal EXPRESSION
+ * forms `name={'…'}` / `name={"…"}` / `` name={`…`} `` (a hole-free
+ * template literal IS a string literal; a holed one can never match
+ * the value grammar below — `${` is excluded from every capture
+ * class). NO expression evaluation: `name={expr}` / `name={'a' + x}`
+ * don't fit the shape and are skipped — dynamic names are
+ * intentionally unserved. Known limitations, documented: an attribute
+ * value containing a raw `>` ends the tag scan early (no collection,
+ * fail-safe), and an occurrence inside a comment still collects when
+ * tag-shaped (fail-safe — worst case one extra packed icon).
  */
 const NAME_LITERAL =
-  /\bname\s*=\s*(?:"([^"\n]*)"|'([^'\n]*)'|\{\s*(?:"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`)\s*\})/g;
+  /<[A-Za-z][\w.-]*[^<>]*?\sname\s*=\s*(?:"([^"\n]*)"|'([^'\n]*)'|\{\s*(?:"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`)\s*\})/g;
 
 /**
  * the value grammar: `prefix:suffix` with an optional `as alias`

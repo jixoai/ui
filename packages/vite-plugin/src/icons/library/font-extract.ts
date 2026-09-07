@@ -96,8 +96,12 @@ interface LigatureSubtable {
     readonly format: number;
     /** format 1: the covered first-glyph ids */
     readonly glyphs?: readonly number[];
-    /** format 2: ordered ranges */
-    readonly rangeRecords?: ReadonlyArray<{
+    /** format 2: ordered ranges — the field the PARSER emits is
+     *  `ranges` (dist/opentype.module.js lookupCoverage, verified
+     *  2026-09-07); `rangeRecords` is the OpenType-spec table name,
+     *  never the runtime shape (codex r2 M1: the spec name made every
+     *  format-2 coverage silently miss) */
+    readonly ranges?: ReadonlyArray<{
       readonly start: number;
       readonly end: number;
       readonly index: number;
@@ -130,7 +134,8 @@ function isLigatureSubtable(subtable: unknown): subtable is LigatureSubtable {
   );
 }
 
-/** coverage index of glyphId, or -1 (formats 1 and 2) */
+/** coverage index of glyphId, or -1 (formats 1 and 2 — the parser's
+ *  own lookupCoverage logic mirrored against its real field names) */
 function coverageIndexOf(
   coverage: LigatureSubtable['coverage'],
   glyphId: number,
@@ -138,10 +143,10 @@ function coverageIndexOf(
   if (coverage.format === 1 && Array.isArray(coverage.glyphs)) {
     return coverage.glyphs.indexOf(glyphId);
   }
-  if (coverage.format === 2 && Array.isArray(coverage.rangeRecords)) {
-    for (const record of coverage.rangeRecords) {
-      if (glyphId >= record.start && glyphId <= record.end) {
-        return record.index + (glyphId - record.start);
+  if (coverage.format === 2 && Array.isArray(coverage.ranges)) {
+    for (const range of coverage.ranges) {
+      if (glyphId >= range.start && glyphId <= range.end) {
+        return range.index + (glyphId - range.start);
       }
     }
   }
@@ -201,29 +206,55 @@ export function findLigatureGlyph(font: OtFont, text: string): OtGlyph | null {
   return null;
 }
 
+/** the covered first-glyph ids in coverage order (formats 1 and 2),
+ *  bounded by `limit` — the enumeration order contract */
+function coveredFirstGlyphs(
+  coverage: LigatureSubtable['coverage'],
+  limit: number,
+): number[] {
+  const ids: number[] = [];
+  if (coverage.format === 1 && Array.isArray(coverage.glyphs)) {
+    for (const id of coverage.glyphs) {
+      if (ids.length >= limit) return ids;
+      ids.push(id);
+    }
+  }
+  if (coverage.format === 2 && Array.isArray(coverage.ranges)) {
+    for (const range of coverage.ranges) {
+      for (let id = range.start; id <= range.end; id += 1) {
+        if (ids.length >= limit) return ids;
+        ids.push(id);
+      }
+    }
+  }
+  return ids;
+}
+
 /**
  * the resolvable ligature names, for the miss error (design §2: "a
  * miss is a NAMED build error listing the font's resolvable ligature
  * names WHEN THE PARSER EXPOSES THEM"). Returns [] when the font
  * exposes no parsable type-4 data — the caller then falls back to the
  * glyph-name/cmap hint. Names are the sequence's glyph names joined
- * with '_' (the parser gives ids, not characters).
+ * with '_' (the parser gives ids, not characters). Coverage order:
+ * format 1 array order, format 2 range order then id order.
  */
 export function ligatureNames(font: OtFont, limit = 12): string[] {
   const names: string[] = [];
   for (const subtable of ligatureSubtables(font)) {
-    if (!Array.isArray(subtable.coverage.glyphs)) continue;
-    subtable.coverage.glyphs.forEach((first, setIndex) => {
+    for (const first of coveredFirstGlyphs(subtable.coverage, limit * 4)) {
+      const setIndex = coverageIndexOf(subtable.coverage, first);
       for (const ligature of subtable.ligatureSets[setIndex] ?? []) {
         const glyphNames = [first, ...ligature.components]
           .map((id) => glyphAt(font, id)?.name);
         if (glyphNames.every((name) => typeof name === 'string')) {
           names.push(glyphNames.join('_'));
+          if (names.length >= limit) return names;
         }
       }
-    });
+    }
   }
-  return names.slice(0, limit);
+  return names;
 }
 
 /** a short glyph-name/cmap hint for fonts with NO parsable liga data */

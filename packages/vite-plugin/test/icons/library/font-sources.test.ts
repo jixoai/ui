@@ -30,6 +30,7 @@
  */
 
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
@@ -40,6 +41,12 @@ import type { Plugin } from 'vite';
 import { createIconPlugin } from '../../../src/icons/vite-plugin.js';
 import { resolveLibraryInputs } from '../../../src/icons/library/resolve.js';
 import { extractIconData } from '../../../src/icons/library/generate.js';
+import {
+  findLigatureGlyph,
+  ligatureNames,
+  loadOpentype,
+  toArrayBuffer,
+} from '../../../src/icons/library/font-extract.js';
 import {
   checkIconLibraryArtifact,
   writeIconLibraryArtifact,
@@ -244,6 +251,42 @@ describe('{ font, liga } — the best-effort lane', () => {
     expect(artifact).toContain("n: 'fill'");
     // the onequarter outline (glyph names: one + slash + four)
     expect(artifact).toMatch(/d: '<path d="M[^"]+/);
+  });
+
+  test.skipIf(wawoff2 === null)('GSUB coverage FORMAT 2 resolves + enumerates (codex r2 M1)', async () => {
+    // opentype.js emits format-2 coverage as `ranges` (verified against
+    // dist/opentype.module.js's lookupCoverage — the walker's earlier
+    // `rangeRecords` spelling is the OpenType-spec table name, not the
+    // parser's field, so every format-2 font silently missed). JetBrains
+    // Mono ships format 1; this rewrites its REAL parsed coverage into
+    // the equivalent format-2 shape the parser would emit and proves
+    // the walker honors it on real glyph data.
+    const ttf = new Uint8Array(await wawoff2!.decompress(readFileSync(JETBRAINS_WOFF2)));
+    const font = (await loadOpentype()).parse(toArrayBuffer(ttf));
+    const lookups = (font.tables.gsub?.lookups ?? []) as ReadonlyArray<{
+      lookupType?: number;
+      subtables?: unknown[];
+    }>;
+    const lookup = lookups.find((candidate) => candidate.lookupType === 4);
+    expect(lookup).toBeDefined();
+    const subtable = lookup!.subtables![0] as {
+      coverage: {
+        format: number;
+        glyphs?: number[];
+        ranges?: Array<{ start: number; end: number; index: number }>;
+      };
+    };
+    expect(subtable.coverage.format).toBe(1); // the fixture font is format 1
+    subtable.coverage = {
+      format: 2,
+      ranges: subtable.coverage.glyphs!.map((glyph, index) => ({
+        start: glyph,
+        end: glyph,
+        index,
+      })),
+    };
+    expect(findLigatureGlyph(font, '1/4')).not.toBeNull();
+    expect(ligatureNames(font)).toContain('one_slash_four');
   });
 
   test('a ligature miss lists the font\'s resolvable ligature sequences', async () => {
