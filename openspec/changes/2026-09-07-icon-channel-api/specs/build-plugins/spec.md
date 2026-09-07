@@ -30,10 +30,14 @@ DEFAULT-REGISTERED (zero-import) and resolves through the existing
 IconNode lane (the one documented non-file asymmetry; `includeDefaults`
 keeps gating the 38-name manifest independently — and a scanned
 `lucide:X` whose `X` is already packed SHALL NOT pack a second
-payload: the artifact carries an ALIASES row (`lucide:X` → `X`), one
-payload, canonical-only counts). The css-laws workspace package SHALL
-carry the Owner-confirmed corrected name `@jixoai/ui-css-laws`, its
-generated-marker protocol migrating with it.
+payload: the artifact carries a row in a SEPARATE, compiler-generated
+`EQUIVALENCES` table (`lucide:X` → `X`) — one payload, canonical-only
+counts, and exempt from the `as`-alias grammar and collision matrix BY
+CONSTRUCTION (a different table under a different law; a user `as`
+alias colliding with an equivalence KEY is a named error). The css-laws
+workspace package SHALL carry the Owner-confirmed corrected name
+`@jixoai/ui-css-laws`; the `@jixoai/css-laws` MARKER TOKEN in the theme
+sheets is a decoupled protocol string and does not migrate.
 
 #### Scenario: a custom channel replaces per-icon config
 
@@ -67,9 +71,10 @@ generated-marker protocol migrating with it.
 - GIVEN the default manifest (38 built-ins including `check`) and a
   component writing `<Icon name="lucide:check" />`
 - WHEN the artifact generates
-- THEN no second payload packs — the artifact gains an ALIASES row
-  `lucide:check` → `check` and `getIcon('lucide:check')` returns the
-  built-in data (iconCount counts canonicals only)
+- THEN no second payload packs — the artifact gains an EQUIVALENCES
+  row `lucide:check` → `check` (never an ALIASES row) and
+  `getIcon('lucide:check')` returns the built-in data (iconCount
+  counts canonicals only)
 
 #### Scenario: duplicate channel ids or prefixes fail by name
 
@@ -227,3 +232,63 @@ causes (artifact drift or a dynamic/scanned-miss name).
 - WHEN the generator resolves the scan
 - THEN the build fails naming the ref and the channel (never a
   silently blank glyph)
+
+## MODIFIED Requirements (r2)
+
+### Requirement: the @jixoai/vite-plugin package
+
+`packages/vite-plugin` SHALL publish as `@jixoai/ui-vite-plugin` (the
+cli/ package precedent: a separate npm-publishable package, not a
+registry item; the corrected Owner-stated name, 2026-09-07) with ZERO
+runtime dependencies and peerDependency `vite ^8.0.0` (the only tested
+surface), built by tsdown into `dist/index.js` + `dist/probe.js` and
+carrying the `jixoai-ghostty-probe` bin — with ONE sanctioned
+exception: `svgo` (the icons library face's build-time optimizer; a
+regular `dependencies` entry with the self-contained package-lock.json
+updated in the same change, kept EXTERNAL in the tsdown build and
+loaded only through the icons sub-entry's dynamic import so the
+umbrella entry's module graph stays provider-free; it never ships to a
+consumer's browser, exactly like opentype.js). The package's public API
+is frozen: `jixoai(opts)` (THE umbrella entry — one call wires every
+jixoai build-time feature; `ghostty` is the first, default-on feature,
+taking `boolean | options` under `jixoai({ ghostty })`; the
+unpublished `jixoaiGhostty()` name never shipped, the umbrella landed
+in its place), `resolveGhosttyWasm(opts)` (the node-usable resolver:
+variant/cacheDir/offline → `{ bytes, path, sha256, variant, buildInfo
+}`, cache filename `<sha256>.wasm`, default cache dir
+`<cwd>/node_modules/.cache/jixoai-ghostty/`, and a frozen behavior
+matrix: an env-override file is verified against the pin and its own
+path returned without copying; offline resolves cache-only with a named
+error on miss; the online path fills the cache atomically), and the
+`./client` sub-export (`dist/client.d.ts`, ambient `declare module
+'virtual:jixoai-ghostty'` with NAMED exports only). The package is a
+SELF-CONTAINED npm project: its own committed package-lock.json and
+devDependencies so `npm ci && npm run build` reproduces without any
+root install (the repo root is not a workspace). Consumers add ONE
+`/// <reference types="@jixoai/ui-vite-plugin/client" />` line to
+their d.ts environment (the apps/www vite-env.d.ts fixture proves
+svelte-check stays green). Its plugins are build-time only: they never
+transpile or instantiate wasm; their contract surface is
+source-resolution (verify + cache), dev serving, build emission, and
+handing data URLs to code via virtual modules.
+
+#### Scenario: package build emits the type contracts
+
+- GIVEN the package built by `npm ci && npm run build`
+- WHEN `npm pack --dry-run` inspects the tarball
+- THEN `dist/index.js`, `dist/probe.js`, `dist/index.d.ts`, and
+  `dist/client.d.ts` are all present in the published files (CI
+  asserts this — a types-less publish is a gate failure, since
+  exports['.'] and exports['./client'] both point at d.ts files)
+
+#### Scenario: consumer wires the ghostty plugin
+
+- GIVEN a vite consumer with `@jixoai/ui-vite-plugin` installed and
+  `jixoai()` in `plugins`
+- WHEN the dev server starts or a build runs
+- THEN the pinned `ghostty-vt.wasm` resolves (env override →
+  sha256-keyed cache → pinned download, verified), is served in dev
+  at a sha-prefixed path with `application/wasm` + immutable caching,
+  and is emitted into `dist/` in build with the content-addressed
+  filename `assets/ghostty-vt-<sha256-16>.wasm` (our hash, not the
+  bundler's) — no manual file placement anywhere

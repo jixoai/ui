@@ -14,8 +14,8 @@ entries of the same package: `@jixoai/ui-vite-plugin/icons/[lucide|md|…]`
 — lucide enabled by default, everything else opt-in by import. And the
 package names themselves are wrong: `@jixoai/vite-plugin` SHALL be
 `@jixoai/ui-vite-plugin` (the Owner's stated name), and `@jixoai/css-laws`
-gets the same correction (inferred `@jixoai/ui-css-laws` — flagged for
-the Owner to veto in review).
+gets the same correction (`@jixoai/ui-css-laws` — Owner-confirmed
+2026-09-07, kept in this change by ruling).
 
 ## What Changes
 

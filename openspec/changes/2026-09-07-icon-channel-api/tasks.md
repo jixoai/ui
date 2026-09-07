@@ -15,10 +15,13 @@
       computation, script.ts's parity threading, resolver dispatch
       (discriminated on resolver.kind), and template emission all read
       the one channel set (no lucide special cases)
-- [ ] A3b: the manifest-collision law tests — scanned `lucide:X` with X
-      packed → ALIASES row + one payload + canonical-only iconCount;
-      scanned `lucide:X` unpacked → full-key pack; the
-      includeDefaults:false + scanned-lucide matrix
+- [ ] A3b: the EQUIVALENCES law tests — scanned `lucide:X` with X
+      packed → EQUIVALENCES row (the separate compiler-generated
+      table, never an ALIASES row) + one payload + canonical-only
+      iconCount; scanned `lucide:X` unpacked → full-key pack, no
+      equivalence row; the matrix: defaults, config-overridden
+      default, declared icon, includeDefaults:false; a user `as` alias
+      colliding with an equivalence KEY fails by name
 - [ ] A4: the sub-entries — exports map (`./icons/channel`,
       `./icons/lucide`, `./icons/md`, `./icons/ph`, `./icons/rx`),
       tsdown per-entry build, per-entry dist purity gates in
@@ -36,9 +39,9 @@
       living openspec/specs mentions, internal module comments
 - [ ] B2: `@jixoai/css-laws` → `@jixoai/ui-css-laws` (Owner-confirmed
       2026-09-07, kept IN this change by Owner ruling) — same treatment
-      (package.json, workspace consumers, theme-file comments) + the
-      generated-marker protocol migration (generate.ts embeds the name;
-      committed artifacts regenerate)
+      (package.json, workspace consumers, theme-file comments); the
+      `@jixoai/css-laws` MARKER TOKEN stays (decoupled protocol string
+      — no sheet regeneration, documented in design §2)
 - [ ] B3: file: links re-established (the npm link-layer trap), lockfile
       receipts regenerated, packaging test name assertions updated;
       archived openspec docs explicitly untouched (spot-check)
