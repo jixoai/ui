@@ -4,7 +4,9 @@
   1. Hero + canvas: the native hr / ARIA-div pair over the contrast
      ghost (the hero summary is hand-written here — this page predates
      the CATALOG binding; the registry description is ZCode's lane).
-  2. Ink-engine gallery: line · dashed · dense · dotted · wavy (masks
+  2. Ink-engine gallery: fused (the named ghost default) · solid (the
+     --border plain-fill escape, the subtraction-ink exception — Owner
+     amendment, 2026-09-08) · dashed · dense · dotted · wavy (masks
      over the ghost) + fade (the blend engine), with the auto-adaptive
      proof box over a light→dark→light tonal ramp.
   3. Length-is-layout demo, the W3C foundation, a11y/theming/api.
@@ -36,6 +38,7 @@
 <Separator variant="dashed" />        <!-- 6/4 dashes over the ghost -->
 <Separator variant="wavy" />          <!-- the SVG sine mask -->
 <Separator variant="fade" />          <!-- blend: transparent→dark→transparent -->
+<Separator variant="solid" />         <!-- the --border plain-fill escape -->
 
 <!-- length is layout: -->
 <Separator class="my-6" />
@@ -51,7 +54,7 @@
   <title>Separator · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai separator: W3C-first — the horizontal separator IS the native hr; the vertical takes the ARIA route. The ink is the backdrop's own contrast ghost (backdrop-filter: contrast(0.5), auto-adaptive over any ground); dashed/dense/dotted/wavy are masks over it, fade rides a mix-blend-mode difference gradient — zero color tokens."
+    content="The jixoai separator: W3C-first — the horizontal separator IS the native hr; the vertical takes the ARIA route. The default variant is fused: the backdrop's own contrast ghost (backdrop-filter: contrast(0.5), auto-adaptive over any ground); dashed/dense/dotted/wavy are masks over it, fade rides a mix-blend-mode difference gradient, and solid is the plain-fill --border escape (the subtraction-ink exception) — zero color tokens elsewhere."
   />
 </svelte:head>
 
@@ -68,13 +71,13 @@
         tone="hero"
         eyebrow="registry:ui · Layout"
         title="separator — <hr> is the separator"
-        summary="The W3C already built this one: <hr> carries thematic-break semantics, announcements, and styling for free. Only the vertical posture — splitting inline peers — has no native element, so it takes the ARIA route: a div with role=separator. The ink paints no color: the default line is the backdrop's own contrast ghost, and every shaped variant rides the same engine."
+        summary="The W3C already built this one: <hr> carries thematic-break semantics, announcements, and styling for free. Only the vertical posture — splitting inline peers — has no native element, so it takes the ARIA route: a div with role=separator. The ink paints no color: the default variant, fused, is the backdrop's own contrast ghost, every shaped variant rides the same engine, and solid is the one plain-fill escape."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">native &lt;hr&gt;</span>
           <span class="pill">role=separator vertical</span>
           <span class="pill">contrast ghost ink</span>
-          <span class="pill">6 variants · mask + blend</span>
+          <span class="pill">7 variants · ghost + mask + blend</span>
         </div>
       </SectionCard>
     </div>
@@ -117,11 +120,11 @@
         headerRegion="variants"
         eyebrow="ink engine"
         title="The ink engine — no color, only physics"
-        summary="A separator paints no color (Owner ruling, 2026-09-01): border-color is for borders. The default ink is the backdrop's own CONTRAST GHOST — a backdrop-filter: contrast(0.5) strip reads as a tonal shift over any ground. Dashed, dense, dotted and wavy are MASKS over that same strip; fade rides the BLEND engine — an alpha-ramped white gradient under mix-blend-mode: difference, inverting the backdrop toward mid exactly as its alpha ramps: transparent → light → dark → light → transparent."
+        summary="A separator paints no color (Owner ruling, 2026-09-01): border-color is for borders. The default variant is NAMED fused — the backdrop's own CONTRAST GHOST, a backdrop-filter: contrast(0.5) strip that reads as a tonal shift over any ground. Dashed, dense, dotted and wavy are MASKS over that same strip; fade rides the BLEND engine — an alpha-ramped white gradient under mix-blend-mode: difference, inverting the backdrop toward mid exactly as its alpha ramps: transparent → light → dark → light → transparent. The one exception: solid (Owner amendment, 2026-09-08) turns the ghost off and paints plain var(--border) — the escape for grounds where the ghost's exact-mid blind spot or a patterned backdrop defeats subtraction."
       >
         <div class="flex flex-col gap-6">
           <div class="flex w-full max-w-lg flex-col gap-4">
-            {#each [['line', 'the contrast ghost (default)'], ['dashed', '6/4 dashes'], ['dense', '3/3 dense dashes'], ['dotted', 'a chain of dots'], ['wavy', 'the SVG sine mask'], ['fade', 'blend: transparent → dark → transparent']] as [v, label]}
+            {#each [['fused', 'the contrast ghost (default)'], ['solid', 'the plain-fill escape — var(--border), ghost off'], ['dashed', '6/4 dashes'], ['dense', '3/3 dense dashes'], ['dotted', 'a chain of dots'], ['wavy', 'the SVG sine mask'], ['fade', 'blend: transparent → dark → transparent']] as [v, label]}
               <div class="flex flex-col gap-1.5">
                 <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{v}</span>
                 <Separator variant={v} />
@@ -195,6 +198,6 @@
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="One prop, no length API on purpose — length is your layout's job."><CodeBlock code={usage} lang="svelte" meta="Separator usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Horizontal needs no ARIA at all — the browser announces hr natively; vertical carries the WAI-ARIA separator pattern."><A11yTable keys={[]} aria={[{ name: 'hr', value: 'native', description: 'Announced as a separator/thematic break by the platform — zero wiring owed' }, { name: 'role', value: 'separator', description: 'On the vertical path only (component-owned, not overridable)' }, { name: 'aria-orientation', value: '"vertical"', description: 'Set with the role on the vertical path' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No color decision at all — the ink is physics, not tokens: the contrast ghost adapts to whatever ground it crosses, the blend fade inverts it. Length comes from layout."><div class="flex flex-col gap-6"><DensityDemo><div class="flex h-8 items-stretch gap-4 text-[13px]"><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: 'contrast ghost', default: 'backdrop-filter: contrast(0.5)', source: 'ink engine', description: 'The default ink — the backdrop\'s own tonal shift, over any ground' }, { name: 'blend fade', default: 'mix-blend-mode: difference', source: 'ink engine', description: 'The alpha-ramped gradient inverts the backdrop toward mid: transparent → light → dark → light → transparent' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div. The mask axis swaps with it.' }, { name: 'variant', type: "'line' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade'", default: "'line' · Own default, not ambient", description: 'The ink geometry: line is the bare contrast ghost; dashed (6/4), dense (3/3), dotted and wavy are masks over it; fade rides the blend engine. Own default, not ambient (ink geometry is never a paint-zone rung).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No color decision of its own — the ink is physics, not palette: the contrast ghost adapts to whatever ground it crosses, the blend fade inverts it, and the one plain fill (solid) simply reads the --border token. Length comes from layout."><div class="flex flex-col gap-6"><DensityDemo><div class="flex h-8 items-stretch gap-4 text-[13px]"><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: 'contrast ghost', default: 'backdrop-filter: contrast(0.5)', source: 'ink engine', description: 'The default ink — the backdrop\'s own tonal shift, over any ground' }, { name: 'blend fade', default: 'mix-blend-mode: difference', source: 'ink engine', description: 'The alpha-ramped gradient inverts the backdrop toward mid: transparent → light → dark → light → transparent' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div. The mask axis swaps with it.' }, { name: 'variant', type: "'fused' | 'solid' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade'", default: "'fused' · Own default, not ambient", description: 'The ink geometry: fused is the bare contrast ghost (the named default); dashed (6/4), dense (3/3), dotted and wavy are masks over it; fade rides the blend engine; solid is the plain-fill var(--border) escape — the subtraction-ink exception (Owner 2026-09-08). Own default, not ambient (ink geometry is never a paint-zone rung).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
 </div>

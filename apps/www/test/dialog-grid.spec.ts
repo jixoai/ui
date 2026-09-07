@@ -69,7 +69,7 @@ describe('the separators — Separator instances in explicit tracks', () => {
     const sep = container.querySelector('[data-jx-dialog-sep="head"]')!;
     expect(sep).not.toBeNull();
     expect(sep.tagName).toBe('HR'); // the Separator component's horizontal posture
-    expect(sep.getAttribute('data-jx-separator')).toBe('line'); // its ink hook
+    expect(sep.getAttribute('data-jx-separator')).toBe('fused'); // its ink hook
     expect(sep.getAttribute('data-orientation')).toBe('horizontal');
     expect(sep.getAttribute('aria-hidden')).toBe('true'); // decorative chrome
   });
@@ -187,14 +187,14 @@ describe('the foot zone — the footer snippet is RAW; DialogFooter is the conte
     // the foot grid's column-gap could detach
     const group = grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-btngroup]');
     expect(group?.hasAttribute('data-jx-leading-seam')).toBe(true);
-    expect(grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-separator="line"]')).toBeNull();
+    expect(grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-separator="fused"]')).toBeNull();
 
     // the end face replaces the group — the bracket goes with it
     const ended = render(DialogFooter, {
       props: { end: (() => {}) as unknown as Snippet },
     });
     expect(ended.container.querySelector('[data-jx-btngroup]')).toBeNull();
-    expect(ended.container.querySelector('[data-jx-separator="line"]')).toBeNull();
+    expect(ended.container.querySelector('[data-jx-separator="fused"]')).toBeNull();
 
     const bare = render(DialogFooter, { props: {} });
     expect(bare.container.querySelector('[data-jx-separator]')).toBeNull(); // no cluster → no dangling line

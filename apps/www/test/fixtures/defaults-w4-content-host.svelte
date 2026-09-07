@@ -7,7 +7,7 @@
   through the valued hooks — data-jx-inline-code / data-jx-avatar /
   data-jx-chart-bar / data-density / data-item-chrome — never through
   internals):
-    bare      — no providers: the frozen own (inline-code tonal) and
+    bare      — no providers: the frozen own (inline-code fused) and
                 literal owns (avatar md/bevel, chart fill/96) resolve;
                 the no-opinion density slots stamp nothing
     zone      — paint zone 'outline' + density 'sm': inline-code (the
@@ -79,7 +79,7 @@
   <ZoneProvider variant="outline">
     <DensityProvider density="sm">
       <InlineCode>zone chip</InlineCode>
-      <InlineCode variant="tonal">explicit wins</InlineCode>
+      <InlineCode variant="fused">explicit wins</InlineCode>
       <Avatar name="Grace Hopper" />
       <Statistic title="uptime" value="99.9%" />
       <Statistic title="errors" value="3" density="lg" />

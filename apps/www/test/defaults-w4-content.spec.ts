@@ -7,9 +7,10 @@
  * ghostty-term.spec.ts / batch*-components.spec.ts stay green
  * untouched); this suite pins the NEW resolution surface per
  * specs/component-authoring's Defaults contract:
- *   - the frozen-table paint slot: InlineCode tonal/outline (own
- *     tonal) resolves `explicit ?? ambient(zone) ?? own` — zone
- *     ambient wins over own, the explicit prop wins over the zone
+ *   - the frozen-table paint slot: InlineCode fused/tonal/outline
+ *     (own fused, the 2026-09-08 amendment) resolves
+ *     `explicit ?? ambient(zone) ?? own` — zone ambient wins over
+ *     own, the explicit prop wins over the zone
  *     (the values guard retired with D3-A: the ambient domain is
  *     trusted; a zone variant outside a family union is the
  *     unsupported external surface — no runtime guard, no warn)
@@ -61,10 +62,10 @@ const byTestid = (container: HTMLElement, id: string) =>
 // 1 · bare — the frozen/literal owns, no-opinion density stays unstamped
 // =========================================================================
 describe('bare — no providers', () => {
-  it('inline-code resolves its frozen own variant (tonal)', () => {
+  it('inline-code resolves its frozen own variant (fused)', () => {
     const { container } = render(Host);
     const chip = byTestid(container, 'bare').querySelector('[data-jx-inline-code]')!;
-    expect(chip.getAttribute('data-jx-inline-code')).toBe('tonal');
+    expect(chip.getAttribute('data-jx-inline-code')).toBe('fused');
   });
 
   it("avatar resolves the literal owns (md box, bevel silhouette) and doesn't stamp density", () => {
@@ -120,7 +121,7 @@ describe('zone + density providers', () => {
     const { container } = render(Host);
     const zone = byTestid(container, 'zone');
     const chips = zone.querySelectorAll('[data-jx-inline-code]');
-    expect(chips[1].getAttribute('data-jx-inline-code')).toBe('tonal');
+    expect(chips[1].getAttribute('data-jx-inline-code')).toBe('fused');
     const stats = zone.querySelectorAll('[data-jx-stat]');
     expect(stats[0].getAttribute('data-density')).toBe('sm');
     expect(stats[1].getAttribute('data-density')).toBe('lg');
@@ -258,7 +259,7 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
   // plugin-scope read make the plain unit form a hard-contract throw
   it('InlineCodeDefaults and the density-slot families resolve their own defaults', () => {
     expect(resolveInWindow(() => InlineCodeDefaults.resolve({}))).toEqual({
-      variant: 'tonal',
+      variant: 'fused',
       density: undefined,
     });
     expect(resolveInWindow(() => ChartDefaults.resolve({}))).toEqual({

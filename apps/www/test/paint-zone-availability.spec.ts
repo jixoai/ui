@@ -3,9 +3,9 @@
  * ambient lane of definePaintSlot falls back to the family's own
  * default when the zone carries a value outside the family's frozen
  * availability tuple. The live crash vector: a ghost zone around
- * Badge/Kbd/InlineCode (whose unions stop at fill/tonal/outline)
- * leaked 'ghost' into variantUtilities lookups as undefined paint.
- * Explicit props still win everywhere; the full-union family
+ * Badge/Kbd/InlineCode (whose unions stop at fill or fused/tonal/
+ * outline) leaked 'ghost' into variantUtilities lookups as undefined
+ * paint. Explicit props still win everywhere; the full-union family
  * (press-button) still inherits the zone verbatim.
  */
 import { render } from '@testing-library/svelte';
@@ -24,7 +24,7 @@ describe('paint zone availability gate (B4)', () => {
     expect(stampIn(container, 'probe-badge', 'data-jx-badge')).toBe('tonal');
     // kbd is deliberately zone-inert (a literal slot, never on the paint axis)
     expect(stampIn(container, 'probe-kbd', 'data-jx-kbd')).toBe('tonal');
-    expect(stampIn(container, 'probe-code', 'data-jx-inline-code')).toBe('tonal');
+    expect(stampIn(container, 'probe-code', 'data-jx-inline-code')).toBe('fused');
     expect(stampIn(container, 'probe-press', 'data-jx-press-button')).toBe('ghost');
   });
 
@@ -36,10 +36,10 @@ describe('paint zone availability gate (B4)', () => {
     expect(stampIn(container, 'probe-press', 'data-jx-press-button')).toBe('outline');
   });
 
-  it('fill zone: badge inherits; inline-code (tonal/outline only) falls back; explicit wins', () => {
+  it('fill zone: badge inherits; inline-code (fused/tonal/outline only) falls back; explicit wins', () => {
     const { container } = mount('fill');
     expect(stampIn(container, 'probe-badge', 'data-jx-badge')).toBe('fill');
-    expect(stampIn(container, 'probe-code', 'data-jx-inline-code')).toBe('tonal');
+    expect(stampIn(container, 'probe-code', 'data-jx-inline-code')).toBe('fused');
     expect(stampIn(container, 'probe-press', 'data-jx-press-button')).toBe('fill');
     expect(stampIn(container, 'probe-press-explicit', 'data-jx-press-button')).toBe('tonal');
     expect(stampIn(container, 'probe-badge-explicit', 'data-jx-badge')).toBe('outline');

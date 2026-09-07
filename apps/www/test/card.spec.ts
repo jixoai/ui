@@ -185,7 +185,7 @@ describe('card — the DOM contract (rendered)', () => {
     expect(kids).toEqual(['head', 'sep:head', 'body']);
     const sep = el.querySelector('[data-jx-card-sep="head"]')!;
     expect(sep.tagName).toBe('HR');
-    expect(sep.getAttribute('data-jx-separator')).toBe('line');
+    expect(sep.getAttribute('data-jx-separator')).toBe('fused');
     expect(sep.getAttribute('data-orientation')).toBe('horizontal');
     expect(sep.getAttribute('aria-hidden')).toBe('true');
   });

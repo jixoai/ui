@@ -2,10 +2,12 @@
  * Separator ink-engine suite (test/separator.spec.ts, 2026-09-01).
  *
  * The ink law (Owner ruling, 2026-09-01): a separator paints no color —
- * the default ink is the backdrop's CONTRAST GHOST
+ * the default variant is NAMED fused: the backdrop's CONTRAST GHOST
  * (backdrop-filter: contrast(0.5), auto-adaptive over any ground); the
  * shaped variants are MASKS over that strip; fade rides the BLEND
  * engine (mix-blend-mode: difference over an alpha-ramped gradient).
+ * solid is the ONE additive exception (Owner amendment, 2026-09-08):
+ * ghost off, plain var(--border) on.
  *
  * jsdom cannot compute backdrop-filter or masks, so the engine is
  * asserted at the css SOURCE (the input-group.spec precedent) while
@@ -24,11 +26,11 @@ const css = readFileSync(
 );
 
 describe('separator DOM hooks', () => {
-  it('renders the native hr with the valued variant hook, defaulting to line', () => {
+  it('renders the native hr with the valued variant hook, defaulting to fused', () => {
     const { container } = render(Separator);
     const hr = container.querySelector('hr')!;
     expect(hr).toBeTruthy();
-    expect(hr.getAttribute('data-jx-separator')).toBe('line');
+    expect(hr.getAttribute('data-jx-separator')).toBe('fused');
     expect(hr.getAttribute('data-orientation')).toBe('horizontal');
   });
 
@@ -44,7 +46,7 @@ describe('separator DOM hooks', () => {
   });
 
   it('every variant passes through to the hook', () => {
-    for (const variant of ['line', 'dashed', 'dense', 'dotted', 'wavy', 'fade']) {
+    for (const variant of ['fused', 'solid', 'dashed', 'dense', 'dotted', 'wavy', 'fade']) {
       const { container } = render(Separator, { props: { variant } });
       expect(
         container.querySelector('hr')!.getAttribute('data-jx-separator'),
@@ -52,12 +54,44 @@ describe('separator DOM hooks', () => {
       ).toBe(variant);
     }
   });
+
+  it('solid stamps the hook on both postures (the plain-fill escape)', () => {
+    const h = render(Separator, { props: { variant: 'solid' } });
+    expect(
+      h.container.querySelector('hr')!.getAttribute('data-jx-separator'),
+    ).toBe('solid');
+    const v = render(Separator, {
+      props: { variant: 'solid', orientation: 'vertical' },
+    });
+    expect(
+      v.container
+        .querySelector('[role="separator"]')!
+        .getAttribute('data-jx-separator'),
+    ).toBe('solid');
+  });
 });
 
 describe('separator ink engine (css source law)', () => {
-  it('the default ink is the contrast ghost — no color token anywhere', () => {
+  it('the default ink is the contrast ghost — the only color token is solid', () => {
     expect(css).toContain('backdrop-filter: contrast(0.5)');
-    expect(css).not.toMatch(/var\(--border\)/);
+    // the subtraction ink law's named exception (Owner amendment,
+    // 2026-09-08): outside COMMENTS, var(--border) may appear ONLY
+    // inside the solid rules — exactly twice, one per orientation
+    const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
+    const borderUses = [...rules.matchAll(/var\(--border\)/g)];
+    expect(borderUses).toHaveLength(2);
+    const solidBlocks = [...rules.matchAll(/\[data-jx-separator='solid'\]/g)];
+    expect(solidBlocks).toHaveLength(2);
+  });
+
+  it('solid is the plain-fill escape: ghost OFF, --border ON, per orientation', () => {
+    for (const orientation of ['horizontal', 'vertical']) {
+      expect(css).toMatch(
+        new RegExp(
+          `\\[data-jx-separator='solid'\\]\\[data-orientation='${orientation}'\\]\\) \\{\\s*backdrop-filter: none;\\s*background: var\\(--border\\);`,
+        ),
+      );
+    }
   });
 
   it('shaped variants are masks over the ghost (dashed, dense, dotted, wavy)', () => {

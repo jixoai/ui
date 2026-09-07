@@ -179,7 +179,15 @@ scrim dims/lightens, never colors, and a hand-mixed background tint
 in a scrim's place is retired practice. State-carrying lines
 (timeline done segments, step connectors) and signal layers (toast
 pulse/sweep) may paint additive ink because subtraction cannot
-express state — that boundary is part of this law. The known limit:
+express state — that boundary is part of this law. The separator's
+OWN `solid` variant joins the exception list (Owner amendment,
+2026-09-08): subtraction stays the DEFAULT ink — `fused` (the
+renamed default, the contrast ghost), the shaped masks, and the
+blend fade all keep it — and `solid` is the plain-fill escape
+(`background: var(--border)`, `backdrop-filter: none`) for grounds
+where the ghost's exact-mid blind spot or a patterned backdrop
+defeats subtraction; it rides the `--border` token, never a raw
+color. The known limit:
 an additive `background` cutout reads wrong on non-flat backdrops;
 mask-based cutouts are the long-term direction.
 
@@ -196,3 +204,11 @@ mask-based cutouts are the long-term direction.
 - WHEN it renders on light, dark, or mid-tone surfaces
 - THEN the contrast ghost self-adapts (no per-theme color token); a
   border-color literal as separator ink is retired practice
+
+#### Scenario: the solid escape
+
+- GIVEN `<Separator variant="solid">`
+- WHEN it renders
+- THEN it paints `var(--border)` with the ghost filter OFF (a token,
+  not a raw color); every other variant still paints zero ink of
+  its own

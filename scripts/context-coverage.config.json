@@ -18,7 +18,8 @@
     "tonal",
     "outline",
     "ghost",
-    "link"
+    "link",
+    "fused"
   ],
   "zonePaintExclusion": [
     "link"
@@ -73,10 +74,11 @@
     },
     "inline-code": {
       "variants": [
+        "fused",
         "tonal",
         "outline"
       ],
-      "own": "tonal"
+      "own": "fused"
     },
     "chip": {
       "variants": [

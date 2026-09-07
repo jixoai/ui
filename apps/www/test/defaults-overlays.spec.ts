@@ -72,11 +72,11 @@ describe('bare — no providers', () => {
     expect(bare.querySelector('.jx-hover-card')!.getAttribute('data-variant')).toBe('auto');
   });
 
-  it("Alert resolves the frozen own 'outline'; separator its literal own 'line'", () => {
+  it("Alert resolves the frozen own 'outline'; separator its literal own 'fused'", () => {
     const { container } = render(Host);
     const bare = byTestid(container, 'bare');
     expect(bare.querySelector('[data-jx-alert]')!.getAttribute('data-jx-alert')).toBe('outline');
-    expect(bare.querySelector('[data-jx-separator]')!.getAttribute('data-jx-separator')).toBe('line');
+    expect(bare.querySelector('[data-jx-separator]')!.getAttribute('data-jx-separator')).toBe('fused');
   });
 
   it('no-opinion density resolves undefined → nothing stamps (fleet law)', () => {
@@ -108,7 +108,7 @@ describe('zone + density providers', () => {
     expect(alerts[1].getAttribute('data-jx-alert')).toBe('outline');
     // literal slots never read the zone (absent from the frozen table)
     expect(zone.querySelector('.jx-tip')!.getAttribute('data-variant')).toBe('auto');
-    expect(zone.querySelector('[data-jx-separator]')!.getAttribute('data-jx-separator')).toBe('line');
+    expect(zone.querySelector('[data-jx-separator]')!.getAttribute('data-jx-separator')).toBe('fused');
   });
 
   it("the density provider's opinion stamps every consumer family", () => {
@@ -258,7 +258,7 @@ describe('in-window unit resolution — the own-defaults projection', () => {
       { density: undefined },
       { density: undefined },
       { density: undefined },
-      { variant: 'line', density: undefined },
+      { variant: 'fused', density: undefined },
       { variant: 'auto', density: undefined },
       { variant: 'auto', density: undefined },
     ]);

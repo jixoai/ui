@@ -29,7 +29,14 @@
   NO font-size utilities anywhere (the ambient scale law): the family
   flows by inheritance — the typography trio's line-height
   un-short-circuit law keeps working because P never escapes the
-  face.
+  face. AMENDED (2026-09-08, the modifier kernel): absent = the
+  inheritance flows untouched; an EXPLICIT modifier prop emits its
+  utility — explicit beats ambient — and an explicit member lineHeight
+  (a utilities-layer leading-[…] class) beats the prose scope's
+  leading residue (the layer law's own posture, written down for the
+  family). The six modifier props ride the SHARED kernel
+  (lib/text-style.svelte.ts — Text and inline-code share the kernel,
+  independent components, the Owner's ruling).
 
   The eight Raw sugars (p/strong/em/del/mark/ins/sub/sup) are
   re-exported from this file's module script — `import Text,
@@ -50,15 +57,27 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { resolveTextStyle, type TextStyleProps } from '$lib/text-style.svelte';
   import { TextDefaults, type TextMark } from './text-defaults.svelte';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends HTMLAttributes<HTMLElement>, TextStyleProps {
     /** the element vocabulary — prop value = sugar name = HTML
      *  element; omitted → the literal slot's frozen own 'p' */
     mark?: TextMark;
   }
 
-  let { mark, children, class: className = '', ...rest }: Props = $props();
+  let {
+    mark,
+    lineHeight,
+    weight,
+    italic,
+    tracking,
+    family,
+    fontSize,
+    children,
+    class: className = '',
+    ...rest
+  }: Props = $props();
 
   // the family Defaults is the single read point (the kbd resolution
   // path): explicit ?? frozen own 'p' — a literal slot never reads
@@ -88,11 +107,20 @@
   } as const;
 </script>
 
+<!-- the merge order: the form's own utilities, then the modifier
+  kernel's classes, then the consumer class LAST — a modifier lands
+  AFTER its form (weight='bold' beats strong's own 600), the consumer
+  beats both (a not-italic class still wins); absent modifiers
+  contribute NOTHING (the absent-ambient law) -->
 <svelte:element
   this={forms[d.mark].element}
   {...rest}
   data-jx-text={d.mark}
-  class={cn(forms[d.mark].utilities, className)}
+  class={cn(
+    forms[d.mark].utilities,
+    resolveTextStyle({ lineHeight, weight, italic, tracking, family, fontSize }),
+    className,
+  )}
 >
   {@render children?.()}
 </svelte:element>

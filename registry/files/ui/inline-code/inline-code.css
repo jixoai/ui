@@ -1,0 +1,32 @@
+/*
+ * jixoai inline-code — the padding formula's engine (2026-09-08,
+ * inline-code-engine-and-text-modifiers D6; the folder-css law —
+ * utilities cannot express it, found live in the vision pass: the
+ * long nested calc arbitrary-property candidate never survives
+ * Tailwind's source scanner, dynamic assembly never can, and the
+ * chips rendered with ZERO padding-inline).
+ *
+ * padding-inline = radius + fontSize × (lineHeight − 1) / 2
+ * (equivalently radius + (lineBox − fontSize) / 2 — the leading's
+ * half-extra each side; the Owner's worked examples: 4px/12px/1 ⇒ 4,
+ * 4px/12px/1.5 ⇒ 7).
+ *
+ * The terms are CUSTOM PROPERTIES with token fallbacks so ONE rule
+ * serves every mode: absent modifier props fall back to the density
+ * pair (--jx-text-secondary / --jx-line-secondary, both lengths —
+ * the difference form is legal CSS); explicit modifier props are
+ * mirrored by the component onto --jx-code-fs / --jx-code-line
+ * through the style attribute (the only channel that carries runtime
+ * literals past the scanner). Everything rides :where() so consumer
+ * padding utilities always win (the layer law).
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  :where([data-jx-inline-code]) {
+    padding-inline: calc(
+      var(--jx-chip-radius) +
+      (var(--jx-code-line, var(--jx-line-secondary)) - var(--jx-code-fs, var(--jx-text-secondary))) / 2
+    );
+  }
+}

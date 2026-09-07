@@ -61,10 +61,10 @@ describe('Badge', () => {
 describe('Separator', () => {
   it('renders a native <hr> for the horizontal (thematic break) posture', () => {
     const { container } = render(Separator);
-    // the valued variant hook (line is the default ink)
+    // the valued variant hook (fused is the default ink)
     const hr = container.querySelector('hr[data-jx-separator]')!;
     expect(hr).toBeTruthy();
-    expect(hr.getAttribute('data-jx-separator')).toBe('line');
+    expect(hr.getAttribute('data-jx-separator')).toBe('fused');
     // a thematic break is announced natively — no role attribute needed
     expect(hr.getAttribute('role')).toBeNull();
   });

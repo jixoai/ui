@@ -16,6 +16,12 @@
  * row — the hand-written table predated the prop (stale; the exact
  * drift this change exists to kill).
  *
+ * Batch two (inline-code-engine-and-text-modifiers, 2026-09-08): text
+ * + inline-code join as pilots — minted against the meta projection
+ * the day the six modifier props (the shared text-style kernel), the
+ * backend seam prop, and the fused default landed, so the LEGACY rows
+ * below ARE the r4 content (no pre-r4 freeze existed for them).
+ *
  * Snapshot edit 2026-09-03 (context-defaults-economy task 4.3 — the
  * ambient column's deliberate 先破再立):
  *   - PropNode carries an optional `ambient` field ('zone' | 'scope' |
@@ -46,6 +52,8 @@ import { meta as cardGridMeta } from '../src/lib/meta/card-grid.meta';
 import { meta as datePickerMeta } from '../src/lib/meta/date-picker.meta';
 import { meta as toastViewportMeta } from '../src/lib/meta/toast-viewport.meta';
 import { meta as comboboxMeta } from '../src/lib/meta/combobox.meta';
+import { meta as textMeta } from '../src/lib/meta/text.meta';
+import { meta as inlineCodeMeta } from '../src/lib/meta/inline-code.meta';
 import { SELECT_DOCS } from '../src/lib/ui/props-table/docs/select.docs';
 import { POPOVER_DOCS } from '../src/lib/ui/props-table/docs/popover.docs';
 import { CHECKBOX_DOCS } from '../src/lib/ui/props-table/docs/checkbox.docs';
@@ -53,6 +61,8 @@ import { CARD_GRID_DOCS } from '../src/lib/ui/props-table/docs/card-grid.docs';
 import { DATE_PICKER_DOCS } from '../src/lib/ui/props-table/docs/date-picker.docs';
 import { TOAST_VIEWPORT_DOCS } from '../src/lib/ui/props-table/docs/toast-viewport.docs';
 import { COMBOBOX_DOCS } from '../src/lib/ui/props-table/docs/combobox.docs';
+import { TEXT_DOCS } from '../src/lib/ui/props-table/docs/text.docs';
+import { INLINE_CODE_DOCS } from '../src/lib/ui/props-table/docs/inline-code.docs';
 
 // ── the frozen legacy tables (2026-08-30, pre-migration) ───────────────
 
@@ -139,6 +149,38 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface paint of the panel.', ambient: 'own' },
     { name: 'class', type: 'string', default: "''", description: 'Forwarded to the shell.' },
   ],
+  // inline-code-engine-and-text-modifiers (2026-09-08): the r4 text +
+  // inline-code tables — minted against the meta projection the day the
+  // six modifier props (the shared text-style kernel), the backend seam
+  // prop, and the fused default landed. The kernel rows degrade to
+  // opaque `unknown` in the IR (the imported-interface ceiling); their
+  // unions live in the docs override, the ambient markers ride the IR.
+  text: [
+    { name: 'mark', type: "'p' | 'strong' | 'em' | 'del' | 'mark' | 'ins' | 'sub' | 'sup'", default: "'p'", description: "The element vocabulary — ONE word is the prop value, the sugar name, and the HTML element. A literal slot, own 'p', never zone-ambient (an element choice is not prominence; the kbd precedent). Omitted resolves explicit ?? own, no context read.", ambient: 'own' },
+    { name: 'lineHeight', type: 'number | string', default: '—', description: 'The text-modifier kernel: number ⇒ the unitless ratio (leading-[1.5]); string ⇒ verbatim. An explicit utility override — absent emits nothing and the ambient line flows.' },
+    { name: 'weight', type: 'string', default: '—', description: "A weight word or number — 'bold' → font-bold (named map), '450' → font-[450]. An explicit utility override — absent emits nothing and the ambient weight flows." },
+    { name: 'italic', type: 'boolean', default: 'false', description: 'true ⇒ italic — an explicit utility override; absent emits nothing and the ambient channel flows (never not-italic).' },
+    { name: 'tracking', type: 'string', default: '—', description: "A letter-spacing word or length — 'wide' → tracking-wide, '-0.02em' → tracking-[-0.02em]. An explicit utility override — absent emits nothing and the ambient tracking flows." },
+    { name: 'family', type: 'string', default: '—', description: 'A font-family value — verbatim [font-family:…] (spaces escape to underscores). An explicit utility override — absent emits nothing and the ambient family flows.' },
+    { name: 'fontSize', type: 'string', default: '—', description: 'A CSS length — verbatim [font-size:…], never named size (the axis-word law). An explicit utility override — absent emits nothing and the ambient scale flows.' },
+    { name: 'children', type: 'Snippet', default: '—', description: 'The inline content.' },
+    { name: 'class', type: 'string', default: "''", description: 'Forwarded to the rendered element; consumer classes land last.' },
+    { name: 'rest', type: 'HTMLAttributes<HTMLElement>', default: 'spread', description: 'Every other attribute passes through to the chosen element untouched.' },
+    { name: 'Raw exports', type: 'P · Strong · Em · Del · Mark · Ins · Sub · Sup', default: '—', description: 'The eight sugar components — each renders the base with its mark fixed (class/children/attrs forwarded); identical markup to <Text mark="{word}">.' },
+  ],
+  'inline-code': [
+    { name: 'density', type: 'Density', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    { name: 'variant', type: "'fused' | 'tonal' | 'outline'", default: "'fused'", description: 'The ladder paint (fused own, the backdrop-fusion band); omitted → the ambient paint zone, else the frozen own fused.', ambient: 'zone' },
+    { name: 'lang', type: 'string', default: "'auto'", description: "'auto' = fingerprint heuristic; an explicit id/alias skips detection; 'text'/'plain' stay plain." },
+    { name: 'backend', type: 'HighlightBackend', default: '—', description: 'The engine seam: prop → HIGHLIGHT_KEY context → the stock microlighter range engine. A rejecting backend leaves the plain chip standing.' },
+    { name: 'lineHeight', type: 'number | string', default: '—', description: 'The shared text-modifier kernel: number ⇒ the unitless ratio (leading-[1.5]); string ⇒ verbatim. Also feeds the padding calc; absent ⇒ the ambient line flows.' },
+    { name: 'weight', type: 'string', default: '—', description: "A weight word or number — 'bold' → font-bold (named map); '450' → font-[450]." },
+    { name: 'italic', type: 'boolean', default: 'false', description: 'true ⇒ italic; absent stays ambient (never not-italic).' },
+    { name: 'tracking', type: 'string', default: '—', description: "A letter-spacing word or length — 'wide' → tracking-wide; '-0.02em' → tracking-[-0.02em]." },
+    { name: 'family', type: 'string', default: '—', description: 'A font-family value — verbatim [font-family:…] (spaces escape to underscores).' },
+    { name: 'fontSize', type: 'string', default: '—', description: 'A CSS length — verbatim [font-size:…]; also feeds the padding calc. Never named size (the axis-word law).' },
+    { name: 'class', type: 'string', default: "''", description: 'Adds consumer classes; jx-hue-* intent utilities retune the tonal slot, and [--tok-token-…:…] injections land here.' },
+  ],
 };
 
 // The single pinned content addition: the locale row the stale
@@ -196,12 +238,24 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     docs: COMBOBOX_DOCS,
     renderedOrder: ['options', 'value', 'multiple', 'placeholder', 'label', 'name', 'error', 'id', 'allowCustom', 'showClear', 'disabled', 'variant', 'class'],
   },
+  {
+    name: 'text',
+    meta: textMeta,
+    docs: TEXT_DOCS,
+    renderedOrder: ['mark', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'children', 'class', 'rest', 'Raw exports'],
+  },
+  {
+    name: 'inline-code',
+    meta: inlineCodeMeta,
+    docs: INLINE_CODE_DOCS,
+    renderedOrder: ['density', 'variant', 'lang', 'backend', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'class'],
+  },
 ];
 
 const cell = (row: PropEntry): string =>
   JSON.stringify([row.type, row.default ?? null, row.description, row.required ?? false, row.bindable ?? false, row.ambient ?? null]);
 
-describe('props-table meta migration — zero content drift (pilot seven)', () => {
+describe('props-table meta migration — zero content drift (pilot nine)', () => {
   for (const pilot of PILOTS) {
     it(`${pilot.name}: every legacy row's content survives byte-for-byte`, () => {
       const rendered = propsFromMeta(pilot.meta, pilot.docs);
@@ -235,6 +289,8 @@ describe('props-table meta migration — zero content drift (pilot seven)', () =
     expect(datePickerMeta.source).toBe('registry/files/ui/date-picker/date-picker.svelte');
     expect(toastViewportMeta.source).toBe('registry/files/ui/toast/toast-viewport.svelte');
     expect(comboboxMeta.source).toBe('registry/files/ui/combobox/combobox.svelte');
+    expect(textMeta.source).toBe('registry/files/ui/text/text.svelte');
+    expect(inlineCodeMeta.source).toBe('registry/files/ui/inline-code/inline-code.svelte');
   });
 });
 
@@ -334,6 +390,33 @@ const OVERRIDE_FIELDS_IN_PLAY = {
     disabled: ['description'],
     variant: ['description'],
     class: ['description'],
+    rest: ['hide'],
+  },
+  text: {
+    mark: ['type', 'default', 'description'],
+    lineHeight: ['type', 'description'],
+    weight: ['type', 'description'],
+    italic: ['type', 'default', 'description'],
+    tracking: ['type', 'description'],
+    family: ['type', 'description'],
+    fontSize: ['type', 'description'],
+    children: ['type', 'description'],
+    class: ['description'],
+    rest: ['type', 'default', 'description'],
+  },
+  'inline-code': {
+    density: ['description'],
+    variant: ['type', 'default', 'description'],
+    lang: ['description'],
+    backend: ['description'],
+    lineHeight: ['type', 'description'],
+    weight: ['type', 'description'],
+    italic: ['type', 'default', 'description'],
+    tracking: ['type', 'description'],
+    family: ['type', 'description'],
+    fontSize: ['type', 'description'],
+    class: ['description'],
+    children: ['hide'],
     rest: ['hide'],
   },
 };

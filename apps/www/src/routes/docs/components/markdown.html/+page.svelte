@@ -516,7 +516,7 @@ ${close}
             <tr><td><code>paragraph</code> / inline</td><td class="dim"><code>&lt;P&gt;</code></td><td class="dim">face-composing</td></tr>
             <tr><td><code>strong / emphasis / strikethrough / highlight / insert / subscript / superscript</code></td><td class="dim"><code>&lt;Strong&gt; &lt;Em&gt; &lt;Del&gt; &lt;Mark&gt; &lt;Ins&gt; &lt;Sub&gt; &lt;Sup&gt;</code></td><td class="dim">face-composing</td></tr>
             <tr><td><code>link</code></td><td class="dim"><code>&lt;Link&gt;</code> (absolute http(s) opens externally)</td><td class="dim">face-composing</td></tr>
-            <tr><td><code>inline_code</code></td><td class="dim"><code>&lt;InlineCode lang="text"&gt;</code> (children recursed inside)</td><td class="dim">root escape</td></tr>
+            <tr><td><code>inline_code</code></td><td class="dim"><code>&lt;InlineCode&gt;</code> riding the component's <code>lang="auto"</code> default (children recursed inside)</td><td class="dim">root escape</td></tr>
             <tr><td><code>thematic_break</code></td><td class="dim"><code>&lt;Separator /&gt;</code></td><td class="dim">carrier div + root escape</td></tr>
             <tr><td><code>checkbox</code> (task items)</td><td class="dim">native disabled input — the jx-pure bare-checkbox face paints it</td><td class="dim">—</td></tr>
             <tr><td><code>image</code></td><td class="dim">native <code>&lt;img&gt;</code> (unchanged — sanitized; the no-CLS unlock is a recorded followup)</td><td class="dim">—</td></tr>

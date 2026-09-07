@@ -17,7 +17,9 @@
      align), blockquote → Blockquote (GitHub-alert detection first, §4),
      heading → Heading, list → List, paragraph/inline + the seven marks →
      the text family sugars, link → Link, inline_code → InlineCode
-     (lang="text", the zero-work-per-span streaming law), thematic_break →
+     (riding the component's lang="auto" default: detection is sync and
+     zero-download, the highlight is an async in-place upgrade through
+     the engine seam — SSR plain, zero layout shift), thematic_break →
      Separator — while list_item stays a native li, BOTH checkbox variants
      stay the same disabled native input (design §2.5: the bare-checkbox
      face IS the component-equivalent), the pure-text floor (text,
@@ -311,11 +313,12 @@
   </Sup>
 {:else if isNodeType(node, 'inline_code')}
   <!-- the chip escapes (§2.3: a chip's children are text — no
-       face-styled descendants to descope); lang is FROZEN to "text" —
-       markdown code spans carry no language and the map keeps the
-       zero-work-per-span streaming law (no grammar detection per
-       chip; consumers who want detection use the override seam) -->
-  <InlineCode class="no-jx-pure" lang="text">{node.code}</InlineCode>
+       face-styled descendants to descope); lang rides the component's
+       auto default — detection is ours, sync, zero-download; the
+       grammar highlight is the async in-place upgrade through the
+       engine seam (SSR plain, zero layout shift, no per-span keyed
+       work); consumers can still pin lang through the override seam -->
+  <InlineCode class="no-jx-pure">{node.code}</InlineCode>
 {:else if isNodeType(node, 'link')}
   <!-- face-composing (§2.2): a link's descendants stay face-scoped.
        href re-validates HERE (the §8.1 amendment): markdown-syntax
@@ -409,7 +412,7 @@
       {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
     </MarkComponent>
   {:else if htmlTag === 'code'}
-    <InlineCode class="no-jx-pure" lang="text">
+    <InlineCode class="no-jx-pure">
       {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
     </InlineCode>
   {:else if htmlTag === 'kbd'}

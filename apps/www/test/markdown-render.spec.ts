@@ -233,13 +233,22 @@ describe('markdown — the first-party map matrix (markdown-coverage §3)', () =
     expect(carrier.getAttribute('data-orientation')).toBe('horizontal');
   });
 
-  it('inline_code maps onto InlineCode with lang frozen to text (the zero-work law)', () => {
-    const { container } = render(Markdown, { props: { source: 'chip `const a = 1;` chip' } });
-    const chip = container.querySelector('code[data-jx-inline-code]')!;
-    expect(chip).not.toBeNull();
-    expect(chip.textContent).toBe('const a = 1;');
-    // plain forever: the frozen map never runs per-span grammar detection
-    expect(chip.querySelector('span')).toBeNull();
+  it('inline_code maps onto InlineCode riding lang=auto (detect sync, jsdom stays plain)', () => {
+    const { container } = render(Markdown, {
+      props: { source: 'plain `word` chip plus detectable `const a = 1;` chip' },
+    });
+    // the real InlineCode part: the valued hook carries the fused
+    // default (the map pins no variant — the component's own does)
+    const chips = container.querySelectorAll('code[data-jx-inline-code="fused"]');
+    expect(chips.length).toBe(2);
+    // plain text renders verbatim; a detectable snippet copies correct —
+    // detection is sync fingerprints and never rewrites the text node
+    expect(chips[0]!.textContent).toBe('word');
+    expect(chips[1]!.textContent).toBe('const a = 1;');
+    // jsdom lacks CSS.highlights: the pre-gate keeps chips plain — the
+    // async in-place highlight never mounts token spans here (SSR plain,
+    // zero layout shift — the same posture the browser starts from)
+    for (const chip of chips) expect(chip.querySelector('span')).toBeNull();
   });
 });
 
@@ -696,7 +705,7 @@ describe('markdown — the html equivalence law (markdown-coverage §8)', () => 
 
   it('html code spans ride the InlineCode chip like `code` does', () => {
     const { container } = render(Markdown, { props: { source: 'a <code>c</code> b' } });
-    const chips = container.querySelectorAll('code');
+    const chips = container.querySelectorAll('code[data-jx-inline-code]');
     expect(chips.length).toBe(1);
     expect(chips[0]!.textContent).toBe('c');
   });

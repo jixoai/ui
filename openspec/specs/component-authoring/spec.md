@@ -564,7 +564,12 @@ dimension); truncation is an explicit opt-in stamp.
 
 Surface paint variants SHALL come from the one ladder — `fill` /
 `tonal` / `outline` / `ghost` — plus PressButton's `link` interaction
-exception. Semantic color is NEVER a variant name: intent is expressed
+exception, plus the `fused` backdrop-fusion rung (2026-09-08, this
+change: the separator's ink technique promoted to chip paint — the
+quietest rung; paint derives from the ground behind the element, no
+own color, no border, reading as the backdrop's own tonal shift,
+theme-agnostic by construction). Semantic color is NEVER a variant
+name: intent is expressed
 by injecting values into the four global hue slots (`--jx-fill`,
 `--jx-fill-ink`, `--jx-tonal`, `--jx-outline`; theme-owned,
 inheritable). The action/status split is mandatory: destructive
@@ -576,7 +581,9 @@ frozen table in
 openspec/changes/archive/2026-08-27-variant-grammar/design.md §4 —
 the table itself is authoritative):
 Badge fill/tonal/outline (default tonal, brand hue); InlineCode
-tonal/outline (default tonal, locally neutral); Chip all four
+fused/tonal/outline (default fused — 2026-09-08, this change: the
+Owner retired tonal-as-default and minted the fused rung; tonal and
+outline stay); Chip all four
 (default tonal); PressButton fill/tonal/outline/ghost/link (default
 outline); Alert outline/tonal (default outline — no fill/ghost:
 banner readability); Blockquote outline/tonal (default outline, the
@@ -785,6 +792,7 @@ variant.
 - THEN the inner root paints nothing — the OUTER cluster owns the
   one shadow (one control, one shadow); an explicit `raised` on the
   inner group is the consumer's escape hatch
+
 
 ### Requirement: every registered component family ships a Defaults contract
 
@@ -2313,6 +2321,33 @@ channels the face does not declare for their elements (italic;
 line-through; underline; UA baseline shift for sub/sup).
 Every member stamps `data-jx-text={form}` (form = the mark, or `p`).
 
+The MODIFIER KERNEL (2026-09-08, this change): every member gains
+the common text-modifier props — `lineHeight` (number ⇒ unitless
+ratio, string ⇒ verbatim), `weight`, `italic`, `tracking`, `family`,
+`fontSize` — resolved through the shared kernel
+`lib/text-style.svelte.ts` (`resolveTextStyle`: props → utilities;
+`fontSize` rides the arbitrary-property form; bare `size` naming is
+banned — the AXIS_PROPS collision). The kernel file ships under the
+text item; `inline-code` declares the `@jixoai/text` registry edge
+and consumes the same kernel for its own text modifiers (shared
+kernel, independent components — the Owner's ruling). THE
+AMBIENT-SCALE AMENDMENT rides with it: an ABSENT modifier emits NO
+utility and the ambient channels flow untouched (the trio's
+inheritance, the prose scope's leading); an EXPLICIT modifier emits
+its utility and beats the ambient — including the recorded interplay
+ruling that an explicit member `lineHeight` (utilities layer) beats
+the prose scope's `--jx-ty-leading` residue (components layer): the
+layer law's own posture, now written down for the family.
+
+#### Scenario: the modifier matrix
+
+- WHEN `<Text mark="strong" italic fontSize="12px" lineHeight={1.5}>`
+  renders
+- THEN the strong member's own utilities (`font-semibold`) and the
+  modifier utilities (`italic [font-size:12px] leading-[1.5]`) both
+  land, the consumer class still merges LAST, and a `<Text>` with no
+  modifiers emits zero modifier utilities — the ambient scale flows
+
 #### Scenario: sugar equals the base
 
 - WHEN `<Strong>x</Strong>` and `<Text mark="strong">x</Text>` render
@@ -2325,6 +2360,7 @@ Every member stamps `data-jx-text={form}` (form = the mark, or `p`).
 - THEN the face's paragraph channels (flow margins, the line-height
   un-short-circuit) still apply — the member adds no competing
   declarations
+
 
 
 ### Requirement: the markdown face (streaming AST → registry parts)
@@ -2404,8 +2440,14 @@ thead/tbody, `td[data-label]` header text (the stack law) and column
 alignment; `blockquote` → Blockquote; `heading` → Heading; `list` →
 List (list_item stays native li by recursion); `paragraph`/`inline`
 → P; the emphasis family → the text family's Raw marks; `link` →
-Link; `inline_code` → InlineCode (`lang="text"` — the zero-work
-per-span streaming law); `thematic_break` → Separator. Task-item
+Link; `inline_code` → InlineCode (riding the component default
+`lang="auto"` — 2026-09-08, this change, the Owner ruling: the
+detection capability must reach markdown faces; the zero-work law is
+restated as the detect-sync/highlight-async split — detection is the
+chip's own zero-download fingerprint heuristic, synchronous and
+markup-free, and the highlight is the async in-place upgrade through
+the engine seam, SSR plain, zero layout shift, no per-span keyed
+work); `thematic_break` → Separator. Task-item
 checkboxes mount the BARE Checkbox (2026-09-08, the Owner ruling
 用真组件): `<Checkbox bare checked disabled>` — the presentation-only
 single input carrying the component paint class, staying the DIRECT

@@ -9,7 +9,7 @@
   internals):
     bare      — no providers: the floating-surface owns ('auto') and
                 the literal owns (alert-dialog-action 'fill',
-                separator 'line') resolve; the no-opinion density
+                separator 'fused') resolve; the no-opinion density
                 slots stamp nothing
     zone      — paint zone 'tonal' + density 'sm': Alert (the W2
                 frozen-table family) goes ambient; the literal-slot

@@ -7,9 +7,12 @@
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
+  import type { TextStyleProps } from '$lib/text-style.svelte';
   import Text from './text.svelte';
 
-  let { children, class: className = '', ...rest }: HTMLAttributes<HTMLElement> = $props();
+  // TextStyleProps (typing-only): the six modifier props ride the
+  // shared kernel inside <Text> — the rest spread was already honest
+  let { children, class: className = '', ...rest }: HTMLAttributes<HTMLElement> & TextStyleProps = $props();
 </script>
 
 <Text mark="sub" class={className} {...rest}>{@render children?.()}</Text>

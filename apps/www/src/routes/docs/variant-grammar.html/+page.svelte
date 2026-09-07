@@ -48,7 +48,15 @@ color: var(--foreground);
 
 /* ghost — transparent rest, tonal hover, geometry preserved */
 rest:  transparent ground, transparent border, foreground ink;
-hover: color-mix(in oklab, var(--jx-tonal) 8%, transparent), tonal ink;`;
+hover: color-mix(in oklab, var(--jx-tonal) 8%, transparent), tonal ink;
+
+/* fused — the backdrop-fusion rung: paint derived from the ground
+   BEHIND the element (the separator's ink technique, promoted
+   2026-09-08); quietest, zero own color, the filter IS the frame */
+background: transparent;
+border: 1px solid transparent;
+backdrop-filter: contrast(0.75);
+color: var(--foreground);`;
 
   // .pill — the site's item-name chip (docs-tables.css), where the
   // 12%/45% tint recipe lived before it became the tonal rung
@@ -112,7 +120,7 @@ split — two utilities; both properties land:
   <title>Variant grammar · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai variant grammar: one prominence ladder (fill / tonal / outline / ghost) and four global hue slots for semantic color — plus the Tailwind v4 @utility intent layer (jx-hue-*, jx-pair-destructive) that makes hue injection typo-safe with zero JS. Action vs status, the pair law, forced-colors degradation, and the migration tables."
+    content="The jixoai variant grammar: one prominence ladder (fill / tonal / outline / ghost, plus the fused backdrop-fusion rung) and four global hue slots for semantic color — plus the Tailwind v4 @utility intent layer (jx-hue-*, jx-pair-destructive) that makes hue injection typo-safe with zero JS. Action vs status, the pair law, forced-colors degradation, and the migration tables."
   />
 </svelte:head>
 
@@ -124,10 +132,10 @@ split — two utilities; both properties land:
         tone="hero"
         eyebrow="design language · variant-grammar (frozen r1)"
         title="one ladder, four slots — and a TW4 plugin with zero JS"
-        summary="Every painted surface in this registry answers two orthogonal questions. HOW LOUD is it? — the prominence ladder: fill, tonal, outline, ghost. WHAT DOES IT MEAN? — a hue injected into four global, inheritable slots (--jx-fill, --jx-fill-ink, --jx-tonal, --jx-outline). The old semantic-name variants (primary, secondary, destructive as prop values) are retired: they multiplied a color union into every component and fused prominence with meaning. The grammar keeps one small ladder per surface and moves intent to the call site — and since 2026-08-27 the curated intents ship as Tailwind v4 @utility rules authored inside the theme sheet itself: installing the theme IS installing the plugin. This page is the standard and the plugin's manual."
+        summary="Every painted surface in this registry answers two orthogonal questions. HOW LOUD is it? — the prominence ladder: fill, tonal, outline, ghost, plus fused (the backdrop-fusion rung, promoted 2026-09-08 — paint derived from the ground behind the element). WHAT DOES IT MEAN? — a hue injected into four global, inheritable slots (--jx-fill, --jx-fill-ink, --jx-tonal, --jx-outline). The old semantic-name variants (primary, secondary, destructive as prop values) are retired: they multiplied a color union into every component and fused prominence with meaning. The grammar keeps one small ladder per surface and moves intent to the call site — and since 2026-08-27 the curated intents ship as Tailwind v4 @utility rules authored inside the theme sheet itself: installing the theme IS installing the plugin. This page is the standard and the plugin's manual."
       >
         <div class="flex flex-wrap gap-3">
-          <span class="pill">4 rungs + 1 exception</span>
+          <span class="pill">4 rungs + 1 exception + 1 fusion</span>
           <span class="pill">4 hue slots</span>
           <span class="pill">@utility intent layer</span>
           <span class="pill">action ≠ status</span>
@@ -141,8 +149,8 @@ split — two utilities; both properties land:
         family="ladder"
         headerRegion="ladder"
         eyebrow="demo"
-        title="The ladder — fill, tonal, outline, ghost"
-        summary="Prominence is a four-rung ladder, and it is the ONLY thing the variant prop encodes. fill speaks loudest (solid ground, same-hue border, inverted ink); tonal is the default voice (a 12% tint of the hue); outline draws structure only (transparent ground, border-colored border); ghost is interactive chrome (transparent at rest, tonal on hover, geometry preserved through a transparent border). link is deliberately NOT on the ladder — it is PressButton's one interaction exception: no frame, no press shadow, primary text, hover underline. Availability is per-component: banners never get fill (readability), badges never get ghost (they are display, not chrome), quotes stop at outline/tonal — quote readability excludes fill/ghost, and ghost is interactive-chrome vocabulary a static quote misuses (the Blockquote row joins the frozen availability table in the same two-rung shape as Alert)."
+        title="The ladder — fill, tonal, outline, ghost, fused"
+        summary="Prominence is a ladder, and it is the ONLY thing the variant prop encodes. fill speaks loudest (solid ground, same-hue border, inverted ink); tonal is the tinted voice (a 12% tint of the hue); outline draws structure only (transparent ground, border-colored border); ghost is interactive chrome (transparent at rest, tonal on hover, geometry preserved through a transparent border). fused is the backdrop-fusion rung (2026-09-08): paint derived from the ground BEHIND the element — a transparent chip + a backdrop contrast filter pull whatever sits behind toward mid, so the band reads over any ground with zero color tokens; the quietest rung, no own color, the filter IS the frame (forced-colors repaints it CanvasText). link is deliberately NOT on the ladder — it is PressButton's one interaction exception: no frame, no press shadow, primary text, hover underline. Availability is per-component: banners never get fill (readability), badges never get ghost (they are display, not chrome), quotes stop at outline/tonal — quote readability excludes fill/ghost, and ghost is interactive-chrome vocabulary a static quote misuses (the Blockquote row joins the frozen availability table in the same two-rung shape as Alert)."
       >
         <div class="flex flex-col gap-6">
           <div class="flex flex-col gap-3">
@@ -176,7 +184,7 @@ split — two utilities; both properties land:
             <div class="flex flex-col gap-3">
               <span class="text-muted-foreground text-[11px]">
                 Alert — outline (default) / tonal; Blockquote — outline (default) / tonal;
-                InlineCode — tonal (default) / outline
+                InlineCode — fused (default) / tonal / outline
               </span>
               <Alert variant="tonal" title="Build queued">
                 The canary build enters the queue behind two commits.
@@ -195,10 +203,10 @@ split — two utilities; both properties land:
               </Blockquote>
               <p class="text-[13px] leading-6">
                 Inline code rides the same ladder:
-                <InlineCode>npm run verify</InlineCode> is the tonal default (locally neutral),
-                and
-                <InlineCode variant="outline">npm run verify</InlineCode>
-                is its outline twin.
+                <InlineCode>npm run verify</InlineCode> is the fused default (the band fused
+                from the backdrop behind it), and
+                <InlineCode variant="tonal">npm run verify</InlineCode> is its tonal twin —
+                <InlineCode variant="outline">npm run verify</InlineCode> the structural one.
               </p>
             </div>
           </div>
@@ -220,7 +228,7 @@ split — two utilities; both properties land:
                 <tr>
                   <td><code>tonal</code></td>
                   <td>12% ground, 45% border, the hue as ink</td>
-                  <td>Badge (default), InlineCode (default, locally neutral), Chip (default), PressButton, Alert, Blockquote</td>
+                  <td>Badge (default), InlineCode, Chip (default), PressButton, Alert, Blockquote</td>
                 </tr>
                 <tr>
                   <td><code>outline</code></td>
@@ -236,6 +244,11 @@ split — two utilities; both properties land:
                   <td><code>link</code></td>
                   <td>the interaction exception — no frame, no press shadow</td>
                   <td>PressButton only</td>
+                </tr>
+                <tr>
+                  <td><code>fused</code></td>
+                  <td>the backdrop-fusion rung — paint from the ground behind the element; quietest, no own color, the filter is the frame</td>
+                  <td>InlineCode (default, since 2026-09-08)</td>
                 </tr>
               </tbody>
             </table>
@@ -661,7 +674,7 @@ split — two utilities; both properties land:
                 </tr>
                 <tr>
                   <td>Badge / InlineCode</td>
-                  <td class="dim">Canvas + CanvasText; 1px border survives on tonal/outline</td>
+                  <td class="dim">Canvas + CanvasText; 1px border survives on every rung (fused: the CanvasText frame IS the degrade)</td>
                 </tr>
                 <tr>
                   <td>Alert</td>

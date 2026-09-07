@@ -42,11 +42,15 @@ import { getContext, setContext } from 'svelte';
 import { defineAxisSlot, type DefaultsSlot, type OneOf } from './defaults.svelte';
 
 /**
- * The ladder + the one interaction exception — the whole paint value
- * domain, owned by the axis (the family unions are its subsets;
- * link is PressButton-only per the frozen availability table).
+ * The ladder + the one interaction exception + the fusion rung — the
+ * whole paint value domain, owned by the axis (the family unions are
+ * its subsets; link is PressButton-only per the frozen availability
+ * table; fused is the backdrop-fusion rung — paint derived from the
+ * ground BEHIND the element, the quietest voice, zero own color,
+ * promoted from the separator's ink technique 2026-09-08
+ * [inline-code-engine-and-text-modifiers D2]).
  */
-export type PaintVariant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link';
+export type PaintVariant = 'fill' | 'tonal' | 'outline' | 'ghost' | 'link' | 'fused';
 
 /**
  * The zone's value domain: link EXCLUDED — link is PressButton's

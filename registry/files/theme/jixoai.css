@@ -267,6 +267,7 @@
   --jx-gap-end: var(--jx-density-end-gap-lg);
   --jx-stack: var(--jx-density-stack-gap-lg);
   --jx-inset: var(--jx-density-inline-inset-lg);
+  --jx-chip-radius: var(--jx-density-chip-radius-lg);
   --jx-gap-content: var(--jx-density-content-gap-lg);
   --jx-row-min: var(--jx-density-row-min-lg);
   --jx-hit: var(--jx-density-hit-min-lg);
@@ -1011,6 +1012,20 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-density-secondary-line-sm: calc(var(--jx-density-secondary-text-sm) * var(--jx-density-secondary-leading));
   --jx-density-secondary-line-default: calc(var(--jx-density-secondary-text-default) * var(--jx-density-secondary-leading));
   --jx-density-secondary-line-lg: calc(var(--jx-density-secondary-text-lg) * var(--jx-density-secondary-leading));
+
+  /* Chip corner radius (inline-code-engine-and-text-modifiers D4,
+     2026-09-08 — Owner mapping 2/2/2/4/8): the inline code chip's
+     corner leaves the global --radius (the fleet corner token) for
+     its OWN density-scaled ladder. The small sizes read as
+     "softened, not round" (a 1px-border band, not a card); default
+     4px is the Owner's pinned chip corner; lg 8px meets the fleet
+     corner at reading size. Consumed as --jx-chip-radius by the
+     per-scope remaps below (the --jx-inset authoring pattern). */
+  --jx-density-chip-radius-2xs: 2px;
+  --jx-density-chip-radius-xs: 2px;
+  --jx-density-chip-radius-sm: 2px;
+  --jx-density-chip-radius-default: 4px;
+  --jx-density-chip-radius-lg: 8px;
   --jx-icon-optical: 0px;
 }
 
@@ -2110,6 +2125,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-gap-end: var(--jx-density-end-gap-default);
   --jx-stack: var(--jx-density-stack-gap-default);
   --jx-inset: var(--jx-density-inline-inset-default);
+  --jx-chip-radius: var(--jx-density-chip-radius-default);
   --jx-gap-content: var(--jx-density-content-gap-default);
   --jx-row-min: var(--jx-density-row-min-default);
   --jx-hit: var(--jx-density-hit-min-default);
@@ -2135,6 +2151,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-gap-end: var(--jx-density-end-gap-xs);
   --jx-stack: var(--jx-density-stack-gap-xs);
   --jx-inset: var(--jx-density-inline-inset-xs);
+  --jx-chip-radius: var(--jx-density-chip-radius-xs);
   --jx-gap-content: var(--jx-density-content-gap-xs);
   --jx-row-min: var(--jx-density-row-min-xs);
   --jx-hit: var(--jx-density-hit-min-xs);
@@ -2160,6 +2177,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-gap-end: var(--jx-density-end-gap-sm);
   --jx-stack: var(--jx-density-stack-gap-sm);
   --jx-inset: var(--jx-density-inline-inset-sm);
+  --jx-chip-radius: var(--jx-density-chip-radius-sm);
   --jx-gap-content: var(--jx-density-content-gap-sm);
   --jx-row-min: var(--jx-density-row-min-sm);
   --jx-hit: var(--jx-density-hit-min-sm);
@@ -2197,6 +2215,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-gap-end: var(--jx-density-end-gap-2xs);
   --jx-stack: var(--jx-density-stack-gap-2xs);
   --jx-inset: var(--jx-density-inline-inset-2xs);
+  --jx-chip-radius: var(--jx-density-chip-radius-2xs);
   --jx-gap-content: var(--jx-density-content-gap-2xs);
   --jx-row-min: var(--jx-density-row-min-2xs);
   --jx-hit: var(--jx-density-hit-min-2xs);

@@ -28,6 +28,21 @@
  * leaves detached-node ranges behind until the next scan paints over
  * them — invisible residue, harmless.
  *
+ * SCAN COALESCING (inline-code-engine-and-text-modifiers B1,
+ * 2026-09-08): the whole-document law has a cost — N surfaces
+ * mounting in the same tick (a markdown page with dozens of inline
+ * chips is the live case) would each schedule their own scan, N full
+ * document passes per frame for zero extra coverage (the LAST scan
+ * alone re-covers every element; each keeps its dataset.language).
+ * The adapter therefore funnels every in-flight highlight() through
+ * ONE queue: the first waiter schedules a single
+ * requestAnimationFrame (queueMicrotask where rAF is absent — jsdom
+ * and friends), and that one highlightAll drains ALL waiters of the
+ * tick. Errors reject that scan's waiters together; a caller arriving
+ * after the drain started schedules the next scan. The highlight()
+ * contract is unchanged — the promise resolves only after a scan
+ * covered the document.
+ *
  * THEME SEMANTICS (per-backend mapping): 'jixoai'/undefined → the
  * ITEM-LOCAL jixoai theme (microlighter-jixoai.css — the --syntax-*
  * bridge onto the card's --tok-token-* palette; zero light-dark(),
@@ -38,7 +53,9 @@
  * color-scheme, not your site's mode; a host whose mode diverges
  * from the OS pins `pre[data-syntax-theme]` color-scheme to its own
  * dark-class state, see the docs site's app.css). The theme
- * attribute lands on the card's <pre>, so themes can differ per
+ * attribute lands on the surface's ANCHOR — the nearest <pre>, or the
+ * element itself when the surface is not a card (an inline-code chip
+ * has no <pre> and stamps its own <code>), so themes can differ per
  * subtree (the ::highlight rules read the --syntax-* custom
  * properties the attribute scopes).
  *
@@ -86,23 +103,37 @@ function getHighlightAll(): Promise<HighlightAllFn> {
 /**
  * MicroLighter theme stylesheet ids (explicit loaders — vite cannot
  * statically analyze templated package subpaths).
+ *
+ * SSR GUARD (found live 2026-09-08, the chip change): the loader map's
+ * CSS dynamic imports are CLIENT-ONLY by construction — highlight()
+ * never runs server-side (Svelte effects are client-only and the
+ * range pre-gate) — but the module itself now rides the server graph
+ * (inline-code statically imports DEFAULT_MICROLIGHTER_BACKEND), and
+ * the SSR emitter's replacement for package CSS subpath imports is
+ * syntactically broken for most ids (`() =>Promise.resolve({   }))`
+ * — a stray paren prerender dies on). Branching on
+ * import.meta.env.SSR keeps every import() expression out of the
+ * server bundle (dead-branch elimination) while the client build
+ * keeps the fully static map vite needs to emit the theme assets.
  */
-const themeLoaders: Record<string, () => Promise<unknown>> = {
-  // the zero-download default: the item-local --tok-* bridge (no
-  // light-dark(), site-mode adaptive — replaced the package 'min'
-  // default 2026-09-07, see the file header for the live bug)
-  jixoai: () => import('./microlighter-jixoai.css'),
-  cobalt2: () => import('microlighter/themes/cobalt2.css'),
-  dracula: () => import('microlighter/themes/dracula.css'),
-  github: () => import('microlighter/themes/github.css'),
-  min: () => import('microlighter/themes/min.css'),
-  monokai: () => import('microlighter/themes/monokai.css'),
-  'night-owl': () => import('microlighter/themes/night-owl.css'),
-  'solarized-light': () => import('microlighter/themes/solarized-light.css'),
-  'tokyo-night': () => import('microlighter/themes/tokyo-night.css'),
-  vesper: () => import('microlighter/themes/vesper.css'),
-  'vscode-plus': () => import('microlighter/themes/vscode-plus.css'),
-};
+const themeLoaders: Record<string, () => Promise<unknown>> = import.meta.env.SSR
+  ? {}
+  : {
+      // the zero-download default: the item-local --tok-* bridge (no
+      // light-dark(), site-mode adaptive — replaced the package 'min'
+      // default 2026-09-07, see the file header for the live bug)
+      jixoai: () => import('./microlighter-jixoai.css'),
+      cobalt2: () => import('microlighter/themes/cobalt2.css'),
+      dracula: () => import('microlighter/themes/dracula.css'),
+      github: () => import('microlighter/themes/github.css'),
+      min: () => import('microlighter/themes/min.css'),
+      monokai: () => import('microlighter/themes/monokai.css'),
+      'night-owl': () => import('microlighter/themes/night-owl.css'),
+      'solarized-light': () => import('microlighter/themes/solarized-light.css'),
+      'tokyo-night': () => import('microlighter/themes/tokyo-night.css'),
+      vesper: () => import('microlighter/themes/vesper.css'),
+      'vscode-plus': () => import('microlighter/themes/vscode-plus.css'),
+    };
 
 const loadedThemes = new Set<string>();
 
@@ -139,6 +170,62 @@ const languageAliases: Record<string, string> = {
 };
 
 /**
+ * The scan selector (found live 2026-09-08, the chip change's vision
+ * pass): MicroLighter's default `pre > code` never matches a bare
+ * inline chip — the scan returned zero elements with ZERO console
+ * signal (its own documented miss posture). The widened arm matches
+ * every element carrying the metadata THIS adapter stamps
+ * (dataset.language is microlighter's recommended channel), so card
+ * codes (pre > code) and chip codes alike resolve; an app element
+ * that opts in with data-language paints too — that is the engine's
+ * contract, not a leak.
+ */
+const SCAN_SELECTOR = 'pre > code, code[data-language]';
+
+/**
+ * The scan queue — ONE highlightAll per frame for the whole page (the
+ * header's SCAN COALESCING law). Waiters are (resolve, reject) pairs;
+ * the FIRST caller schedules the drain and every caller arriving
+ * before it shares that scan's outcome. Module-level on purpose: the
+ * queue is shared by every microLighter() instance — the stock
+ * singleton below makes that one instance in practice.
+ */
+type ScanWaiter = { resolve: () => void; reject: (error: unknown) => void };
+let scanWaiters: ScanWaiter[] = [];
+let scanScheduled = false;
+
+function coalescedScan(): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    scanWaiters.push({ resolve, reject });
+    if (scanScheduled) return;
+    scanScheduled = true;
+    const drain = () => {
+      // a caller arriving from here on schedules the NEXT scan
+      scanScheduled = false;
+      const waiters = scanWaiters;
+      scanWaiters = [];
+      getHighlightAll()
+        .then((highlightAll) =>
+          highlightAll({ root: document, selector: SCAN_SELECTOR, languageAliases }),
+        )
+        .then(
+          () => {
+            for (const waiter of waiters) waiter.resolve();
+          },
+          (error: unknown) => {
+            for (const waiter of waiters) waiter.reject(error);
+          },
+        );
+    };
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => drain());
+    } else {
+      queueMicrotask(drain);
+    }
+  });
+}
+
+/**
  * The MicroLighter backend factory: `<CodeCard backend={microLighter()} />`.
  */
 export function microLighter(): HighlightBackend {
@@ -165,13 +252,25 @@ export function microLighter(): HighlightBackend {
       // language metadata on the element (its recommended channel)
       el.dataset.language = requestedLang(opts).toLowerCase();
       const theme = microlighterThemeName(opts.theme);
-      el.closest('pre')?.setAttribute('data-syntax-theme', theme);
+      // non-pre surfaces (an inline-code chip's <code>) anchor the
+      // theme attribute on themselves — no card required
+      (el.closest('pre') ?? el).setAttribute('data-syntax-theme', theme);
       await ensureTheme(theme);
-      const highlightAll = await getHighlightAll();
-      // whole-document scan: this scan replaces every registered range
-      // set, so it must re-cover every element this backend (or an
-      // app-level microlighter integration) painted before
-      await highlightAll({ root: document, languageAliases });
+      // whole-document scan, COALESCED: the scan replaces every
+      // registered range set, so it must re-cover every element this
+      // backend (or an app-level microlighter integration) painted
+      // before — and one scan per frame re-covers every synchronously
+      // mounting surface at once (the queue's whole point)
+      await coalescedScan();
     },
   };
 }
+
+/**
+ * The stock default backend — ONE shared instance, mirroring
+ * DEFAULT_SHIKI_BACKEND's posture in shiki.ts: microLighter() is
+ * stateless (id + product only), so every surface riding the default
+ * (inline-code's prop → context → stock chain) points at one object
+ * identity, and the scan queue above is shared by construction.
+ */
+export const DEFAULT_MICROLIGHTER_BACKEND: HighlightBackend = microLighter();
