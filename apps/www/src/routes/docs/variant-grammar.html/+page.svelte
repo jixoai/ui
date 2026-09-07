@@ -189,7 +189,9 @@ split — two utilities; both properties land:
                 (fill/ghost excluded: readability, and ghost is interactive-chrome vocabulary).
               </Blockquote>
               <Blockquote cite="the variant grammar, §ladder">
-                Outline is the classic left-rule quote — the reading-content posture, own default.
+                Outline is the classic left-rule quote — the reading-content posture, own default;
+                the rule itself is now the shadow channel (an inset rule at 1px by default, the
+                rule×size axis beside the rungs).
               </Blockquote>
               <p class="text-[13px] leading-6">
                 Inline code rides the same ladder:
@@ -925,6 +927,10 @@ split — two utilities; both properties land:
               <Kbd>engrave</Kbd>
               <span>--shadow-engrave · incised inset</span>
             </div>
+            <div class="text-muted-foreground flex max-w-[16rem] flex-col gap-2">
+              <Blockquote rule="shadow" ruleSize={4}>inset rule — blockquote's rule channel</Blockquote>
+              <span>shadow-4 · the inset standard consumed as structure</span>
+            </div>
             <div class="text-muted-foreground flex flex-col gap-2">
               <Chip variant="outline">raise twin</Chip>
               <span>badge scale, press physics</span>
@@ -939,7 +945,7 @@ split — two utilities; both properties land:
               { name: 'float', default: '--shadow · --shadow-md', source: 'topLayer → mainLayer projection — float-button, popover/dialog/menu panels, overlays; the cross-layer distance is the large offset' },
               { name: 'raise', default: '.jx-press: xs → sm', source: 'in-layer interactive lift — press-button, chip, action buttons' },
               { name: 'lift', default: '--shadow-2xs', source: 'static focus surface — section-card, alert, empty, result' },
-              { name: 'engrave', default: '--shadow-engrave (inset)', source: 'glyph incised into the plane — kbd' },
+              { name: 'engrave', default: '--shadow-engrave (inset)', source: "glyph incised into the plane — kbd; and inset rules as structure: blockquote's shadow rule channel (the inset standard's newest consumer, 2026-09-07)" },
               { name: 'well', default: '--shadow-well (+ -hover)', source: 'fillable container recess — input/textarea/select shells' },
             ]}
           />

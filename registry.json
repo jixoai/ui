@@ -1107,6 +1107,7 @@
       "type": "registry:lib",
       "title": "Generated icon set",
       "description": "The named-glyph artifact behind <Icon name>: the 38 built-in lucide glyphs (arrow-right / chevron-down / x / external-link / check …) packed by @jixoai/ui-vite-plugin's icons library face into a typed IconName union + getIcon()/loadIcon()/preloadIcons() over {v,n,d} payloads. Default tier: ONE inline chunk, zero npm deps, plugin-free (synchronous getIcon, SSR paints core glyphs). Overflow tier: configs past the chunk budget (or inlineFirstChunk:false) emit lazy imports of virtual:jixoai-icons/chunk/* — that tier REQUIRES wiring jxoai({ icons: { library } }) from @jixoai/ui-vite-plugin (the documented plugin prerequisite; without it the build fails with the named sentinel error).",
+      "description": "The named-glyph artifact behind <Icon name>: the 38 built-in lucide glyphs (arrow-right / chevron-down / x / external-link / check …) packed by @jixoai/ui-vite-plugin's icons library face into a typed IconName union + getIcon()/loadIcon()/preloadIcons() over {v,n,d} payloads. Default tier: ONE inline chunk, zero npm deps, plugin-free (synchronous getIcon, SSR paints core glyphs). Overflow tier: configs past the chunk budget (or inlineFirstChunk:false) emit lazy imports of virtual:jixoai-icons/chunk/* — that tier REQUIRES wiring jixoai({ icons: { library } }) from @jixoai/ui-vite-plugin (the documented plugin prerequisite; without it the build fails with the named sentinel error).",
       "dependencies": [],
       "files": [
         {
@@ -1187,13 +1188,14 @@
       "name": "markdown",
       "type": "registry:ui",
       "title": "Markdown",
-      "description": "Markdown rendering with append-only streaming (stream-markdown-parser core — markdown-it-ts under it, CommonMark + GFM; the renderer owns the DOM, never the parser's): one keyed block per top-level AST node (${index}:${type}:${digest}; the streaming tail keys on type alone), so the frozen prefix never remounts while chunks arrive — prefix keys freeze, the tail mutates in place, remounts stay bounded to one per semantic event, and the stream's end re-parses once with final semantics. The AST maps onto first-party registry parts: blockquote → Blockquote with GitHub alert detection first (a [!NOTE|TIP|IMPORTANT|WARNING|CAUTION] marker on the quote's own first line renders tonal + label + the status hue; a half-typed marker simply renders the plain quote and keeps updating in place), heading → Heading (the em ladder migrated out of the face sheet so it scales with the ambient preset), list → List (children recurse; list_item stays a native li), paragraph → P and inline marks → the text family (Strong/Em/Del/Mark/Ins/Sub/Sup — one word is prop value, sugar name, and HTML element), link → Link (absolute http(s) opens externally), inline_code → InlineCode with lang='text' (the zero-work-per-span streaming law), thematic_break → Separator behind a neutral carrier div, code_block → CodeCard (partial code + loading state mid-fence, generation-guard repaint is CodeCard's own path), table → a semantically neutral div[data-kind=table] wrapping Table with generated thead/tbody, td[data-label] row labels and per-column align. Box-owning block roots escape the jx-pure Tier-0 prose face (no-jx-pure on Blockquote/Heading/List roots and the InlineCode chip, Separator's carrier div) so the face stops double-painting them; face-composing inline members never escape (P, the marks, Link — an inline escape would virally descope the code chips and nested marks a link legitimately contains). Task checkboxes stay native disabled inputs (the jx-pure bare-checkbox face paints them); image stays the sanitized native img. The root mounts the face class; the sheet itself is the app-level import, imported once from the site css the way jixoai.css is — never a forked copy of the face laws, never a second component-level import that would double-bundle it. Security floor: html:false + the renderer's escaped-literal law (raw markup survives as text, zero {@html} in the default map), the factory validateLink demotes unsafe schemes at parse time, image src passes the bitmap-data-URL sanitizer (SVG and other data schemes omit the img entirely). The components override seam is trusted application code — the same trust level as any component the app renders by hand. The component is a pure function of (source, streaming): server render and client hydration parse the same snapshot (the SSR snapshot law); data-jx-markdown-streaming + the terminal cursor stamp the root only while streaming. HTML is markdown spelled differently (2026-09-07): whitelisted tags (<b>, <strong>, <details>/<summary>, <code>, <kbd>, <a>, <hr>…) route onto the SAME components as their markdown spellings; every other tag stays escaped literal text.",
+      "description": "Markdown rendering with append-only streaming (stream-markdown-parser core — markdown-it-ts under it, CommonMark + GFM; the renderer owns the DOM, never the parser's): one keyed block per top-level AST node (${index}:${type}:${digest}; the streaming tail keys on type alone), so the frozen prefix never remounts while chunks arrive — prefix keys freeze, the tail mutates in place, remounts stay bounded to one per semantic event, and the stream's end re-parses once with final semantics. The AST maps onto first-party registry parts: blockquote → Blockquote with GitHub alert detection first (a [!NOTE|TIP|IMPORTANT|WARNING|CAUTION] marker on the quote's own first line renders tonal + label + the status hue; a half-typed marker simply renders the plain quote — the shadow-1 rule default, since 2026-09-07 every quote's left rule is an inset shadow — and keeps updating in place), heading → Heading (the em ladder migrated out of the face sheet so it scales with the ambient preset), list → List (children recurse; list_item stays a native li), paragraph → P and inline marks → the text family (Strong/Em/Del/Mark/Ins/Sub/Sup — one word is prop value, sugar name, and HTML element), link → Link (absolute http(s) opens externally), inline_code → InlineCode with lang='text' (the zero-work-per-span streaming law), thematic_break → Separator behind a neutral carrier div, code_block → CodeCard (partial code + loading state mid-fence, generation-guard repaint is CodeCard's own path), table → a semantically neutral div[data-kind=table] wrapping Table with generated thead/tbody, td[data-label] row labels and per-column align. Box-owning block roots escape the jx-pure Tier-0 prose face (no-jx-pure on Blockquote/Heading/List roots and the InlineCode chip, Separator's carrier div) so the face stops double-painting them; face-composing inline members never escape (P, the marks, Link — an inline escape would virally descope the code chips and nested marks a link legitimately contains). Task checkboxes stay native disabled inputs (the jx-pure bare-checkbox face paints them); image stays the sanitized native img. The root mounts the face class; the sheet itself is the app-level import, imported once from the site css the way jixoai.css is — never a forked copy of the face laws, never a second component-level import that would double-bundle it. Security floor: html:false + the renderer's escaped-literal law (raw markup survives as text, zero {@html} in the default map), the factory validateLink demotes unsafe schemes at parse time, image src passes the bitmap-data-URL sanitizer (SVG and other data schemes omit the img entirely). The components override seam is trusted application code — the same trust level as any component the app renders by hand. The component is a pure function of (source, streaming): server render and client hydration parse the same snapshot (the SSR snapshot law); data-jx-markdown-streaming + the terminal cursor stamp the root only while streaming. HTML is markdown spelled differently (2026-09-07): whitelisted tags (<b>, <strong>, <details>/<summary>, <code>, <kbd>, <a>, <hr>…) route onto the SAME components as their markdown spellings; every other tag stays escaped literal text.",
       "dependencies": [
         "stream-markdown-parser@^1.2.14"
       ],
       "registryDependencies": [
         "@jixoai/accordion",
         "@jixoai/blockquote",
+        "@jixoai/checkbox",
         "@jixoai/code-card",
         "@jixoai/density",
         "@jixoai/heading",
@@ -1246,7 +1248,7 @@
       "name": "blockquote",
       "type": "registry:ui",
       "title": "Blockquote",
-      "description": "The reading-content quote/admonition surface: the semantic body IS the native <blockquote> (cite renders the MDN attribution posture — footer > cite — never an element swap), on the alert-shaped two-rung ladder: outline (own) transparent ground + 1px left rule + muted body (the classic GitHub/Tailwind quote), tonal the alert tonal recipe verbatim (12% tinted ground, 45% border, rounded box — the callout/Notion posture). Availability is FROZEN at two rungs: quote readability excludes fill AND ghost — ghost is interactive-chrome vocabulary (rest-transparent, hover-tonal) which a static quote misuses; the borderless manuscript indent is a future STRUCTURAL axis, never a paint rung. label renders the alert title-row form, icon lands inline-start of it (bring your own glyph), hue rides injection through jx-hue-* class utilities (the markdown map's GitHub alerts land here as tonal + label + hue). The root stamps NO font-size — the ambient scale flows by inheritance (the typography trio law); the markdown default map mounts it with no-jx-pure (the box-owning block escape).",
+      "description": "The reading-content quote/admonition surface: the semantic body IS the native <blockquote> (cite renders the MDN attribution posture — footer > cite — never an element swap), on the alert-shaped two-rung ladder: outline (own) transparent ground + 1px left rule + muted body (the classic GitHub/Tailwind quote), tonal the alert tonal recipe verbatim (12% tinted ground, 45% border, rounded box — the callout/Notion posture). The rule channel (2026-09-07, typography-context-and-parts): rule (shadow|border, own shadow — the inset standard the Owner cited: command-item's shadow-[inset_2px_0_0_var(--primary)], the elevation grammar's WELL tier, kbd's --shadow-engrave lineage) × ruleSize (the literal 1|4|8 px ladder, own 1 — the Owner's explicit enumeration, not a derived scale); the rule color rides the rung's OWN border-color declaration (one hue source — jx-hue-* retunes ground+box+rule together), ONE shadow utility per root, outline in shadow mode emits no border at all (the shadow carries the rule), tonal keeps its box border plus the shadow rule so tonal+shadow-1 is a deliberate near-no-op (axis uniformity over special-casing), and the paddings stay FIXED across channels and sizes (border consumes geometry, shadow doesn't — paint never moves geometry). Forced colors: shadow modes re-materialize as an Npx CanvasText border; border modes keep the rung degradation. Availability is FROZEN at two rungs: quote readability excludes fill AND ghost — ghost is interactive-chrome vocabulary (rest-transparent, hover-tonal) which a static quote misuses; the borderless manuscript indent is a future STRUCTURAL axis, never a paint rung. label renders the alert title-row form, icon lands inline-start of it (bring your own glyph), hue rides injection through jx-hue-* class utilities (the markdown map's GitHub alerts land here as tonal + label + hue). The root stamps NO font-size — the ambient scale flows by inheritance (the typography trio law); the markdown default map mounts it with no-jx-pure (the box-owning block escape).",
       "files": [
         {
           "path": "registry/files/ui/blockquote/blockquote.svelte",
@@ -1264,7 +1266,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: variant? ('outline' default | 'tonal' — the frozen two-rung ladder), label? (one-line uppercase heading in the alert title-row form), icon? (Snippet, inline-start of the label), cite? (attribution, rendered as footer > cite after the body), children (body copy), class plus every <blockquote> attribute passthrough. Hue seam: class=\"jx-hue-info\" / jx-hue-warning / … (intent utilities; arbitrary form for unlisted hues). Hook: data-jx-blockquote={variant}.",
+      "docs": "Props: variant? ('outline' default | 'tonal' — the frozen two-rung ladder), rule? ('shadow' default | 'border' — the rule's ink channel: shadow paints over geometry, border consumes it; literal slots, never zone-ambient), ruleSize? (1 default | 4 | 8 — the literal px ladder), label? (one-line uppercase heading in the alert title-row form), icon? (Snippet, inline-start of the label), cite? (attribution, rendered as footer > cite after the body), children (body copy), class plus every <blockquote> attribute passthrough. Hue seam: class=\"jx-hue-info\" / jx-hue-warning / … (intent utilities; arbitrary form for unlisted hues). Hooks: data-jx-blockquote={variant} + data-jx-blockquote-rule=\"{rule}-{size}\".",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/blockquote.html"
@@ -1310,7 +1312,7 @@
       "name": "list",
       "type": "registry:ui",
       "title": "List",
-      "description": "The prose list: a native <ol|ul> by ordered (the separator's dual-root cast — Props typed on the ul shape, start passed explicitly on the ol branch only). Owns the reading channels: list-style disc|decimal, padding-inline-start 1.5rem, muted marker ink; NO block margins (the rhythm/flush laws own spacing). This is NOT list-item — that item is the antd/F7 settings-row system (ItemGroup frames, media/end lanes, five control adapters); this one styles the LIST, never the row, and the markdown map composes it with native <li> children (list_item stays bare so the element-based rhythm selectors and the container-inner sibling stack keep matching). The task-item rules (marker suppression, checkbox alignment) are container-level DOM-shape laws that stay in the markdown sheet.",
+      "description": "The prose list: a native <ol|ul> by ordered (the separator's dual-root cast — Props typed on the ul shape, start passed explicitly on the ol branch only). Owns the reading channels: list-style disc|decimal, padding-inline-start 1.5rem, muted marker ink; NO block margins (the rhythm/flush laws own spacing). The marker vocabulary (2026-09-07, typography-context-and-parts): marker disc|circle|square|decimal|alpha|roman|none — element-agnostic frozen set, lowercase only (upper = the escape hatch); omitted keeps the per-element platform default (decimal on ol, disc on ul — today's byte-parity), explicit overrides, and circle/square ride the arbitrary [list-style:] form (they silently no-op as core utilities under TW 4.2.1); marker ink stays the muted law, marker size/spacing deliberately absent (ambient scale + the no-margins law), none keeps the structural ps-6. NAV mode: nav (the aria-label; presence switches) wraps the list in <nav aria-label data-jx-list-nav> defaulting marker none + ps-0 — class/rest stay on the LIST element (the spec-pinned contract), the wrapper carries ONLY the landmark semantics; bare <a> children inside a face scope get the B2 chrome lane free, standalone the Link part is the prose lane. This is NOT list-item — that item is the antd/F7 settings-row system (ItemGroup frames, media/end lanes, five control adapters); this one styles the LIST, never the row, and the markdown map composes it with native <li> children (list_item stays bare so the element-based rhythm selectors and the container-inner sibling stack keep matching). The task-item rules (marker suppression, checkbox alignment) are container-level DOM-shape laws that stay in the markdown sheet.",
       "files": [
         {
           "path": "registry/files/ui/list/list.svelte",
@@ -1323,7 +1325,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: ordered? (false → <ul>, true → <ol> with decimal markers), start? (ol-only passthrough — the first marker value), children (native <li> children or component trees rendering them), class plus every list attribute passthrough. Hook: data-jx-list=\"ol\"|\"ul\" (the separator's data-orientation form). No Defaults file — no public style prop.",
+      "docs": "Props: ordered? (false → <ul>, true → <ol> with decimal markers), marker? ('disc'|'circle'|'square'|'decimal'|'alpha'|'roman'|'none' — omitted keeps the per-element platform default; in nav mode omitted defaults to none), nav? (string — the aria-label; presence wraps the list in <nav data-jx-list-nav> with marker none + ps-0), start? (ol-only passthrough — the first marker value), reversed? (ol-only passthrough — descending marker order, the start/reversed native pair), children (native <li> children or component trees rendering them), class plus every list attribute passthrough. Hooks: data-jx-list=\"ol\"|\"ul\" (the separator's data-orientation form) + data-jx-list-nav on the wrapper. No Defaults file — no public style prop.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/list.html"
@@ -1331,6 +1333,46 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "prose",
+      "type": "registry:ui",
+      "title": "Prose",
+      "description": "The reading region provider: <Prose size leading family ink gradient ground align indent initialLetter wrap hyphens> renders div.jx-pure[data-jx-prose] — NOT <Typography>, that word is markdown's live user-facing vocabulary (<Markdown typography=\"relaxed\">); two concepts under one name is documentation debt forever. The provider resolves the ELEVEN frozen v1 knobs through ProseDefaults (every one an absentSlot — ABSENCE IS THE STATE: an unset knob emits nothing, stamps nothing, and the ambient channel — an outer prose region's declarations/vars, or no opinion at all — keeps flowing; nested regions inherit every knob they do not set, nearest setter wins) and applies the plugin chain AT THE PROVIDER (applyTypoScope, read inside the $derived so medium-gated filters re-run; a print-medium plugin can strip gradient/ground before CSS sees them) before the PURE resolver emits the two channels: declarations (the inheritance lane — font-size/family/color/text-align/text-wrap/hyphens/background-color) + the --jx-ty-* var mirrors (documented for app-side css reads) + presence hooks (data-jx-ty-leading/-indent/-initial, data-jx-ty-ink=\"gradient\" — presence-gated because an ungated var(--jx-ty-leading, inherit) rule at (0,2,0) would fire always and break the face's p{1.6} for every non-prose region). The element lanes live in prose.css, the scope-owned residue sheet, every rule at (0,2,0): the leading un-short-circuit generalization and the indent lane (P-only — headings never inherit a first-line indent), the drop cap in BOTH arms (@supports initial-letter modern path + the float ::first-letter fallback — a browser-class-dependent drop cap reads as a bug; suppresses indent on the same P; keeps printing on paper, the manuscript posture), and the FILL-ONLY gradient lane (background-clip:text + -webkit-text-fill-color, NEVER color:transparent — currentcolor on a mark would resolve to the inherited transparent and vanish; marks restore solid by element rule; --jx-ty-ink carries only color tokens so Heading's var-fallback utility never sees an invalid-at-computed-value-time var; --jx-ty-ink-solid ships for plugin and print reads; @media print and forced-colors restores live in the same sheet — the paged.js clone never re-runs the provider). SOVEREIGNTY by cascade, zero JS masking: every residue rule beats the face element rules and LOSES to the markdown sheet's §2a (0,2,1) inside [data-jx-markdown] — an outer <Prose size leading> can never fight <Markdown typography=…>; ink/flow knobs pass through; chrome stays unaffected BY CASCADE (element-level declarations beat an inherited wrapper color); code/kbd stay mono under family (face B1 element rules); prose stamps no density (the trio's own naming argument). The context pair ships in the typography lib (provideTypography/getTypographyScope, getter-endorsed — a provider flip re-derives future consumers in the same frame).",
+      "files": [
+        {
+          "path": "registry/files/ui/prose/prose.svelte",
+          "target": "@ui/prose/prose.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prose/prose-defaults.svelte.ts",
+          "target": "@ui/prose/prose-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prose/prose.css",
+          "target": "@ui/prose/prose.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prose/index.ts",
+          "target": "@ui/prose/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: eleven knobs, every one absentSlot (no own, no fallback — absence IS the state) — size? (CssLength; inheritance ONLY, markdown sovereignty is a cascade fact), leading? (number; P-only lane, headings keep 1.25), family? ('sans'|'mono'|'serif' → the theme --font-* tokens — 'serif' NEEDS the theme to define --font-serif, documented not assumed — or a raw font-family value; code/kbd keep their mono law), ink? ('default'|'muted'|'primary'|'destructive' → the four foreground tokens, or raw color; links keep primary, the face B2 recorded exception), gradient? ({from,to,angle?} composes a linear-gradient — numeric angle → degrees, default 180deg — or a raw CSS image value; fill-only), ground? ('background'|'card'|'popover'|'muted'|'secondary'|'accent'|'transparent' or raw; Mark's own highlight law untouched), align? ('start'|'center'|'end'|'justify'; justify pairs with hyphens), indent? (CssLength, P-only; '2em' = 中文稿纸惯例), initialLetter? (2|3|4|5; both arms; suppresses indent on the same P), wrap? ('pretty' for prose, 'balance' for heading scopes, 'stable'), hyphens? ('auto' needs lang on the host or an ancestor | 'none' | 'manual'). Consumer class merges LAST; consumer style lands after the emitted declarations; rest passthrough. Hooks: data-jx-prose + the data-jx-ty-* presence attrs. Context consumption: getTypographyScope() from @jixoai/typography; plugins target TYPOGRAPHY_DEF and receive/return whole scope bags at the provider.",
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/prose.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/typography"
       ]
     },
     {
@@ -2564,7 +2606,7 @@
       "name": "link",
       "type": "registry:ui",
       "title": "Link",
-      "description": "The typographic link: a native <a> carrying the prose face's non-nav lane as its own utilities (primary ink, 4px underline offset, hover underline) so it stands alone outside any jx-pure scope — and inside one the values coincide with the face's own channels (same property, same token, deterministic no-op). External detection is pattern-based, not origin-based (ANY absolute http(s) href is external; no window.location semantics dragged into SSR): external links open a new tab with rel=noreferrer (the fleet convention — doc-link and PressButton both ship bare noreferrer; modern browsers imply noopener from it). Hook: data-jx-link=\"external\"|\"internal\" — the separator's data-orientation form. href/title and the external pair land AFTER the spread (the separator law): they are the component's contract, not overridable through rest props.",
+      "description": "The typographic link: a native <a> carrying the prose face's non-nav lane as its own utilities (primary ink, 4px underline offset, hover underline) so it stands alone outside any jx-pure scope — and inside one the values coincide with the face's own channels (same property, same token, deterministic no-op). External detection is pattern-based, not origin-based (ANY absolute http(s) href is external; no window.location semantics dragged into SSR): external links open a new tab with rel=noreferrer (the fleet convention — doc-link and PressButton both ship bare noreferrer; modern browsers imply noopener from it). The suffix-icon lane (2026-09-07, typography-context-and-parts): tri-state icon — undefined paints the default externalLink glyph IFF external (an inline-core name answering getIcon synchronously, SSR paints it, hydration matches, no flash), null turns the lane OFF, a snippet renders custom content; the lane is an aria-hidden data-jx-link-icon span inside the anchor after the children (em-sized 0.8em, rides any ambient scale), and internal links never carry it. Hook: data-jx-link=\"external\"|\"internal\" — the separator's data-orientation form. href/title and the external pair land AFTER the spread (the separator law): they are the component's contract, not overridable through rest props.",
       "files": [
         {
           "path": "registry/files/ui/link/link.svelte",
@@ -2577,14 +2619,15 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: href (required — an absolute http(s) href makes the link external: target=_blank + rel=noreferrer), title? (advisory passthrough), children, class plus every anchor attribute passthrough. Hook: data-jx-link={external ? 'external' : 'internal'}. No Defaults file — external-ness derives from href.",
+      "docs": "Props: href (required — an absolute http(s) href makes the link external: target=_blank + rel=noreferrer), title? (advisory passthrough), icon? (Snippet | null — the suffix-icon lane, tri-state: undefined → the default externalLink glyph shown IFF external; null → the lane off; a snippet → custom glyph content), children, class plus every anchor attribute passthrough. Hooks: data-jx-link={external ? 'external' : 'internal'} + data-jx-link-icon on the lane span. No Defaults file — external-ness derives from href.",
       "meta": {
         "group": "general",
         "href": "/docs/components/link.html"
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/icon"
       ]
     },
     {
@@ -4517,6 +4560,28 @@
       ],
       "dependencies": [],
       "registryDependencies": [],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "typography",
+      "type": "registry:lib",
+      "title": "Typography scope",
+      "description": "The prose scope's Svelte channel (the density two-channel contract verbatim — the JS scope object and the plugin seam here, every element lane in ui/prose/prose.css): TypoScope (the eleven frozen v1 knobs, every field optional because ABSENCE IS THE STATE), TYPOGRAPHY_DEF (the identity def plugins target — the kernel D1 law: matching is object identity), the module-private-symbol context pair provideTypography/getTypographyScope (getter-endorsed {get scope()} payload — a provider flip re-derives every consumer in the same frame; nearest setter wins; undefined outside any prose region), applyTypoScope (the plugin chain applied AT THE PROVIDER, identity fast path when no plugin targets the def), and resolveTypoStyle (PURE knob bag → host declarations + --jx-ty-* vars + presence attrs; the gradient emits parts as vars consumed by the residue sheet, never color:transparent, and --jx-ty-ink carries only color tokens). A VALUE-DOMAIN carrier, not a variant axis: ink/flow touch none of the four hue slots and never version the context-coverage vocabulary.",
+      "files": [
+        {
+          "path": "registry/files/lib/typography.svelte.ts",
+          "target": "@lib/typography.svelte.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "@jixoai/context-plugin"
+      ],
       "meta": {
         "group": "engines",
         "href": "/docs/components.html"

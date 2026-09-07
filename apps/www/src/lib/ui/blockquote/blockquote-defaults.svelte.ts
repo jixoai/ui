@@ -20,6 +20,18 @@
  *     (D3-A retired the runtime values guard — no clamp, no warn;
  *     ZonePaintVariant already excludes the out-of-union rungs at
  *     the provider).
+ *   - rule / ruleSize: the RULE geometry axis (2026-09-07,
+ *     typography-context-and-parts §2) — the separator ink-geometry
+ *     precedent: a rule is INK, its channel never joins the paint
+ *     ladder's frozen table, so both slots stay defineLiteralSlot
+ *     forever (literal slots never read zone — the kbd contrast test
+ *     pattern). Numeric closed domains are lawful (defaults.svelte.ts
+ *     booleans record [false, true]; the values tuple is the union's
+ *     source — the 1/4/8 px ladder is the Owner's explicit enumeration,
+ *     recorded as the ruling over a derived scale). Naming: NOT bare
+ *     `size` — it would enter the detection vocabulary AND collide
+ *     with the typography `size` the reading family refuses
+ *     (ruleSize is the honest compound).
  *   - density: the no-opinion axis slot. The blockquote carries NO
  *     density own: no provider and no explicit prop resolve
  *     undefined, stamp nothing, and the ambient css scope channel
@@ -30,7 +42,7 @@
  * a member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults } from '$lib/defaults.svelte';
+import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
 import { definePaintSlot } from '$lib/paint.svelte';
 import { densitySlot } from '$lib/density.svelte';
 
@@ -41,7 +53,22 @@ import { densitySlot } from '$lib/density.svelte';
 export const blockquoteVariantSlot = definePaintSlot(['outline', 'tonal'], 'outline');
 export type BlockquoteVariant = ReturnType<typeof blockquoteVariantSlot>;
 
+/** the rule's ink channel: shadow paints over geometry (the default —
+ *  the Owner's ruling), border consumes it; a LITERAL axis, never
+ *  zone-ambient (ink geometry, the separator precedent) */
+export const blockquoteRuleSlot = defineLiteralSlot(['shadow', 'border'], 'shadow');
+export type BlockquoteRule = ReturnType<typeof blockquoteRuleSlot>;
+
+/** the rule's literal px ladder — the Owner's explicit enumeration
+ *  (1 = today's face-rule continuity, 4/8 = deliberate emphasis
+ *  steps), not a derived scale; numeric tuples are lawful closed
+ *  domains (the [false, true] boolean record) */
+export const blockquoteRuleSizeSlot = defineLiteralSlot([1, 4, 8], 4);
+export type BlockquoteRuleSize = ReturnType<typeof blockquoteRuleSizeSlot>;
+
 export const BlockquoteDefaults = defineComponentDefaults({
   variant: blockquoteVariantSlot,
+  rule: blockquoteRuleSlot,
+  ruleSize: blockquoteRuleSizeSlot,
   density: densitySlot(),
 });

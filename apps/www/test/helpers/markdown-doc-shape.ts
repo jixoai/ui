@@ -55,8 +55,14 @@ export function assertMarkdownDocShape(root: Element, { streaming }: { streaming
   expect(root.querySelectorAll('table td[data-label]').length).toBe(2);
   expect(root.querySelectorAll('blockquote').length).toBe(1);
   expect(root.querySelectorAll('blockquote[data-jx-blockquote="outline"]').length).toBe(1);
+  // typography-context-and-parts §2: the rule channel stamps its
+  // shadow-4 default on every markdown quote (both runtimes agree)
+  expect(root.querySelectorAll('blockquote[data-jx-blockquote-rule="shadow-4"]').length).toBe(1);
   expect(root.querySelectorAll('ul[data-jx-list="ul"]').length).toBe(1);
   const anchor = root.querySelector('a');
   expect(anchor?.getAttribute('href')).toBe('https://example.com');
   expect(anchor?.getAttribute('data-jx-link')).toBe('external');
+  // §3: the external suffix-icon lane paints synchronously on both
+  // runtimes (inline-core glyph — SSR parity, no hydration flash)
+  expect(anchor!.querySelector('[data-jx-link-icon] svg[data-jx-icon]')).not.toBeNull();
 }

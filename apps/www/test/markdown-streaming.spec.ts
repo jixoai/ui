@@ -223,6 +223,9 @@ describe('markdown — GitHub-alert streaming tolerance (markdown-coverage §4)'
     // mid-typing: the detector does not match — the plain outline face
     expect(quote.getAttribute('data-jx-blockquote')).toBe('outline');
     expect(quote.querySelector('[data-jx-blockquote-label]')).toBeNull();
+    // the rule channel (typography-context-and-parts §2) is orthogonal
+    // to the alert face: every quote carries the shadow-4 default
+    expect(quote.getAttribute('data-jx-blockquote-rule')).toBe('shadow-4');
 
     // the marker completes while the block stays the TAIL (L2): the
     // SAME DOM node swaps its inner face — no remount, no key change
@@ -236,6 +239,8 @@ describe('markdown — GitHub-alert streaming tolerance (markdown-coverage §4)'
     expect(alert).toBe(quote); // keyed identity held across the swap
     expect(alert.getAttribute('data-jx-blockquote')).toBe('tonal');
     expect(alert.classList.contains('jx-hue-info')).toBe(true);
+    // the face swap never touches the rule hook (variant-orthogonal)
+    expect(alert.getAttribute('data-jx-blockquote-rule')).toBe('shadow-4');
     expect(alert.querySelector('[data-jx-blockquote-label]')!.textContent).toBe('Note');
     expect(alert.textContent).toContain('body');
 

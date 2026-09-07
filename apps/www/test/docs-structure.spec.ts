@@ -94,10 +94,14 @@ describe('docs-route-model — the section spine', () => {
     // Re-frozen 2026-09-07 (markdown-coverage + highlight-lang-detector): link + text
     // join general (12->14), blockquote + heading + list join data-display
     // (19->22), the detection wrapper joins code-card's family (+1 -> 23).
+    // Re-frozen 2026-09-07 (typography-context-and-parts): the prose
+    // provider joins data-display (23->24) — 102 ui items; the snapshot
+    // remains the running total's source of truth (the typography lib
+    // item lands in engines, invisible to this ui-only shape).
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
       'general:14', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
-      'data-entry:19', 'data-display:23', 'feedback:5',
+      'data-entry:19', 'data-display:24', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
   });

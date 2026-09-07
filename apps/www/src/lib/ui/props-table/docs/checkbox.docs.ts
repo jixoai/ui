@@ -25,6 +25,9 @@ export const CHECKBOX_DOCS: PropsDocs = {
     indeterminate: {
       description: 'Sets the native indeterminate IDL state.',
     },
+    bare: {
+      description: 'Presentation-only single input — no wrapper/lane/label chrome (the markdown task-item unlock: a direct-child input keeps the container-level DOM-shape laws working).',
+    },
     error: {
       description: 'Adds invalid state and an associated message.',
     },

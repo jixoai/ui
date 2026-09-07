@@ -564,6 +564,7 @@ ${close}
         { name: 'src/lib/ui/markdown-alerts-usage.svelte', content: alertsUsage, kind: 'usage' },
       ]}
       stage="fill"
+      scroll="grow"
     >
       <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
         <Markdown source={alertsDoc} />

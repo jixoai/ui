@@ -82,6 +82,14 @@ describe('markdown — the default map', () => {
     const anchor = p.querySelector('a[data-jx-link="external"]')!;
     expect(anchor.getAttribute('href')).toBe('https://example.com');
     expect(anchor.getAttribute('title')).toBe('the title');
+    // the external suffix-icon lane (typography-context-and-parts §3):
+    // the default glyph rides every external anchor, aria-hidden and
+    // svg-only — anchor text assertions survive unchanged
+    const lane = anchor.querySelector('span[data-jx-link-icon]')!;
+    expect(lane).not.toBeNull();
+    expect(lane.getAttribute('aria-hidden')).toBe('true');
+    expect(lane.querySelector('svg[data-jx-icon]')).not.toBeNull();
+    expect(anchor.textContent).toBe('link');
 
     // task lists: BOTH variants map to the same disabled native input
     const boxes = root.querySelectorAll('ul[data-jx-list="ul"] li input[type="checkbox"]');
@@ -94,6 +102,11 @@ describe('markdown — the default map', () => {
     // blockquote rides the Blockquote part (outline rung, no label) +
     // hr is the Separator part behind its carrier div
     expect(root.querySelector('blockquote[data-jx-blockquote="outline"] p')!.textContent).toBe('quoted line');
+    // …and the §2 default: the rule channel stamps shadow-4 (every
+    // markdown quote flipped border→shadow — the Owner-mandated delta)
+    expect(
+      root.querySelector('blockquote[data-jx-blockquote="outline"]')!.getAttribute('data-jx-blockquote-rule'),
+    ).toBe('shadow-4');
     const hr = root.querySelector('hr[data-jx-separator]')!;
     expect(hr).not.toBeNull();
 
@@ -202,6 +215,17 @@ describe('markdown — the first-party map matrix (markdown-coverage §3)', () =
     // link → Link: external detection splits the hook value
     expect(root.querySelector('a[data-jx-link="internal"]')!.getAttribute('href')).toBe('/docs/x');
     expect(root.querySelector('a[data-jx-link="external"]')!.getAttribute('target')).toBe('_blank');
+
+    // the §2/§3 part upgrades ride the map for free: the rule hook on
+    // the quote, the suffix-icon lane on the external anchor (the
+    // internal anchor keeps a bare lane-free anchor)
+    expect(
+      root.querySelector('blockquote[data-jx-blockquote="outline"]')!.getAttribute('data-jx-blockquote-rule'),
+    ).toBe('shadow-4');
+    expect(
+      root.querySelector('a[data-jx-link="external"] [data-jx-link-icon] svg[data-jx-icon]'),
+    ).not.toBeNull();
+    expect(root.querySelector('a[data-jx-link="internal"] [data-jx-link-icon]')).toBeNull();
 
     // thematic_break → Separator behind the neutral carrier div
     const carrier = root.querySelector('div > hr[data-jx-separator]')!;
@@ -317,6 +341,8 @@ describe('markdown — GitHub alert detection (markdown-coverage §4)', () => {
     const quote = container.querySelector('blockquote[data-jx-blockquote="tonal"]')!;
     expect(quote).not.toBeNull();
     expect(quote.classList.contains(hueClass)).toBe(true);
+    // alert quotes carry the rule hook too (§2: variant-orthogonal)
+    expect(quote.getAttribute('data-jx-blockquote-rule')).toBe('shadow-4');
     expect(quote.querySelector('[data-jx-blockquote-label]')!.textContent).toBe(label);
     // the marker line is stripped from the rendered body
     expect(quote.textContent).not.toContain('[!');
@@ -687,6 +713,9 @@ describe('markdown — the html equivalence law (markdown-coverage §8)', () => 
     const anchors = container.querySelectorAll('a[data-jx-link]');
     expect(anchors.length).toBe(1);
     expect(anchors[0]!.getAttribute('href')).toBe('https://example.com');
+    // the html-anchor equivalence lane rides the SAME suffix-icon
+    // glyph as markdown-syntax links (one component, one lane)
+    expect(anchors[0]!.querySelector('[data-jx-link-icon] svg[data-jx-icon]')).not.toBeNull();
     // the unsafe one renders its text with no anchor
     expect(container.querySelector('[data-jx-markdown]')!.textContent).toContain('bad');
   });
@@ -790,5 +819,31 @@ describe('markdown — details/summary ride the accordion (markdown-coverage §8
     const settled = root.querySelector('.jx-accordion')!;
     expect(settled).toBe(group);
     expect(settled.querySelector('details > div, [data-jx-acc-body]')!.textContent).toContain('partial body');
+  });
+});
+
+describe('markdown — task items ride the BARE Checkbox (the 2026-09-08 ruling)', () => {
+  it('the marker IS the component: a direct-child input carrying jx-html-checkbox, disabled', () => {
+    const { container } = render(Markdown, {
+      props: { source: '- [x] done\n- [ ] todo' },
+    });
+    const inputs = container.querySelectorAll('input[type="checkbox"]');
+    expect(inputs.length).toBe(2);
+    for (const input of inputs) {
+      // the component's paint class — 真组件, not a bare native
+      expect(input.classList.contains('jx-html-checkbox')).toBe(true);
+      expect((input as HTMLInputElement).disabled).toBe(true);
+      // NO wrapper chrome: the input is the DIRECT child (or inside
+      // the one paragraph the parser wraps loose items in) the
+      // container laws key on — BOTH li:has(> input) and
+      // li:has(> p > input) forms are lawful shapes
+      const parent = input.parentElement!.tagName;
+      expect(parent === 'LI' || parent === 'P').toBe(true);
+    }
+    expect((inputs[0] as HTMLInputElement).checked).toBe(true);
+    expect((inputs[1] as HTMLInputElement).checked).toBe(false);
+    // the no-disc law holds with the component mounted
+    const css = readFileSync(resolve(import.meta.dirname, '../src/lib/ui/markdown/markdown.css'), 'utf8');
+    expect(css).toContain("li:has(> input[type='checkbox'])");
   });
 });

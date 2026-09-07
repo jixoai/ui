@@ -22,6 +22,23 @@
 //      never at src — the ui-plugin lesson); dist/client.d.ts is copied
 //      verbatim from src (ambient declaration, nothing to generate).
 //   4. probe.js carries a node shebang so it can ship as the
+//   1. dist/index.js + dist/icons.js + dist/canvas.js + dist/probe.js
+//      as clean ESM outputs (node platform; vite stays external as a
+//      peer dependency — the package's only runtime dependency is
+//      svgo, kept EXTERNAL and loaded solely through the icons
+//      sub-entry's dynamic import so the umbrella entry's graph stays
+//      provider-free; opentype.js / wawoff2 stay external as OPTIONAL
+//      dependencies, loaded only via dynamic import inside the icons
+//      feature — merge-alignment A1, icon-component-pipeline §9;
+//      svelte + svelte/compiler stay external as the OPTIONAL canvas
+//      peer (typography-context-and-parts F1) — the extractor's
+//      memoized dynamic import is the only path in, so no dist chunk
+//      carries the parser).
+//   2. dist/index.d.ts + dist/icons.d.ts + dist/canvas.d.ts via dts
+//      generation (types point at generated dist declarations, never
+//      at src — the ui-plugin lesson); dist/client.d.ts is copied
+//      verbatim from src (ambient declaration, nothing to generate).
+//   3. probe.js carries a node shebang so it can ship as the
 //      `jixoai-ghostty-probe` bin (banner is string-only in rolldown, so
 //      the shebang is injected per-chunk by a tiny renderChunk plugin).
 import { defineConfig } from 'tsdown';
@@ -46,6 +63,7 @@ export default defineConfig([
       'icons/md': 'src/icons/library/channel/material.ts',
       'icons/ph': 'src/icons/library/channel/phosphor.ts',
       'icons/rx': 'src/icons/library/channel/remix.ts',
+      canvas: 'src/canvas/index.ts',
       probe: 'src/probe.ts',
     },
     outDir: 'dist',
@@ -53,7 +71,7 @@ export default defineConfig([
     platform: 'node',
     target: 'node20',
     dts: true,
-    external: ['opentype.js', 'wawoff2', 'svgo'],
+    external: ['opentype.js', 'wawoff2', 'svgo', 'svelte', 'svelte/compiler'],
     copy: [{ from: 'src/client.d.ts', to: 'dist' }],
     outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
     plugins: [shebangProbeBin],

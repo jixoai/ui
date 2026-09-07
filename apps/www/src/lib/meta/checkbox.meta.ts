@@ -26,6 +26,10 @@ export const meta = defineComponentMeta(
         "kind": "boolean",
         "default": false
       },
+      "bare": {
+        "kind": "boolean",
+        "default": false
+      },
       "checked": {
         "kind": "boolean"
       },

@@ -4,6 +4,7 @@ import { lucideIconProvider } from '@jixoai/ui-vite-plugin/icons';
 import { md } from '@jixoai/ui-vite-plugin/icons/md';
 import { ph } from '@jixoai/ui-vite-plugin/icons/ph';
 import { rx } from '@jixoai/ui-vite-plugin/icons/rx';
+import { canvasPlugin } from '@jixoai/ui-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -246,6 +247,14 @@ export default defineConfig({
     sveltekit(),
     tailwindcss(),
     ...jixoaiPlugins,
+    // canvasPlugin (typography-context-and-parts §7): the canvas
+    // same-source machinery — per-page virtual modules
+    // `virtual:jixoai-canvas/<route-rel>/+page` carrying each page's
+    // id-keyed <ComponentCanvas> children slices (STANDALONE by
+    // design: never a jixoai() option, so vitest wiring cannot drag
+    // ghostty/wasm resolution in; pages that import no canvas module
+    // pay nothing).
+    canvasPlugin(),
     jixoaiIconsCssEntry(),
     devRegistryFallback(),
     devSearchCorpusFallback(),

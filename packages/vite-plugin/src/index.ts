@@ -54,6 +54,14 @@ import {
 import { readPin } from './pin.js';
 import { resolveGhosttyWasm, type ResolvedGhosttyWasm, type ResolveGhosttyWasmOptions } from './resolve.js';
 
+// the canvas same-source feature (typography-context-and-parts §7) —
+// STANDALONE by design (F3): never a jixoai() option, so the vitest
+// wiring cannot drag ghostty/wasm resolution in. The plugin module
+// statically imports only the pure extractor, whose svelte/compiler
+// parse rides a memoized dynamic import (the bridge law) — this entry
+// chunk stays svelte-free either way (F1/F7).
+export { canvasPlugin } from './canvas/vite-plugin.js';
+
 export { readPin, resolveGhosttyWasm };
 export type { ResolvedGhosttyWasm, ResolveGhosttyWasmOptions };
 

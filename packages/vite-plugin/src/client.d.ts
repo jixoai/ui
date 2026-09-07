@@ -32,3 +32,21 @@ declare module 'virtual:jixoai-icons/chunk/*' {
   const icons: Readonly<Record<string, IconData>>;
   export default icons;
 }
+
+// The canvas same-source per-page modules (typography-context-and-parts
+// design §7): `virtual:jixoai-canvas/<route-rel>/+page` is generated at
+// dev/build time by canvasPlugin() — the page's id-keyed
+// <ComponentCanvas> children slices. A page imports ONLY its own
+// module (the plugin's resolveId rejects cross-page importers by
+// name). Named exports only, pure data + one lookup function — no
+// default export (the virtual:jixoai-ghostty surface law).
+declare module 'virtual:jixoai-canvas/*' {
+  /** the page's extraction-keyed canvas ids, in document order */
+  export const canvasIds: readonly string[];
+  /**
+   * the canvas's own children markup (dedented, direct-child canvas
+   * protocol snippets stripped, comments kept — byte-honest). Throws a
+   * named error listing the page's real ids on a miss.
+   */
+  export function resolveRawCode(id: string): string;
+}

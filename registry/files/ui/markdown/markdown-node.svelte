@@ -69,6 +69,7 @@
   import Sub from '../text/sub.svelte';
   import Sup from '../text/sup.svelte';
   import InlineCode from '../inline-code/inline-code.svelte';
+  import Checkbox from '../checkbox/checkbox.svelte';
   import Separator from '../separator/separator.svelte';
   import Kbd from '../kbd/kbd.svelte';
   import Accordion from '../accordion/accordion.svelte';
@@ -343,8 +344,15 @@
 {:else if isNodeType(node, 'emoji')}
   {node.markup || node.raw}
 {:else if isNodeType(node, 'checkbox_input') || isNodeType(node, 'checkbox')}
-  <!-- static presentation: BOTH parser variants map to the same disabled input -->
-  <input type="checkbox" disabled checked={node.checked} />
+  <!-- static presentation: BOTH parser variants map to the same disabled
+       BARE Checkbox (the 2026-09-08 Owner ruling 用真组件): the single
+       input carries the component's paint class while staying a
+       DIRECT child — the container-level DOM-shape laws (li:has(>
+       input) marker suppression, the vertical-align alignment) keep
+       matching, which the interactive wrapper's div>span>input shape
+       defeats. The source text owns the state — the marker is
+       disabled, presentation-only -->
+  <Checkbox bare checked={node.checked} disabled />
 {:else if isNodeType(node, 'label_open') || isNodeType(node, 'label_close')}
   <!-- plugin wrapper tokens render nothing -->
 {:else if isAccordionGroup(node)}

@@ -69,11 +69,15 @@
   ] as const;
 </script>
 
+<!-- the ink seam: var-fallback to the prose scope's --jx-ty-ink token
+     (no prose region → --foreground, byte-equal to the old utility);
+     consumer text-* overrides last-wins both orders — dedup-verified
+     F5 against the repo's cn config (text-color group) -->
 <svelte:element
   this={tag}
   data-jx-heading={clamped}
   {id}
-  class={cn('font-bold leading-[1.25] text-foreground', size[clamped], className)}
+  class={cn('font-bold leading-[1.25] text-[var(--jx-ty-ink,var(--foreground))]', size[clamped], className)}
   {...rest}
 >
   {@render children?.()}

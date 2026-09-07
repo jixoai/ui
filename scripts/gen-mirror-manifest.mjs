@@ -40,6 +40,14 @@ const UNREFERENCED_LIB = [
   // referenced by no registry item (the change's N1 ruling: not a
   // registry item); retires with the family when the search stream lands
   { path: 'registry/files/lib/search/nav-filter.ts', note: 'nav-fuzzy-filter — search-stream family, final classification pending' },
+  // typography-context-and-parts Lane D (2026-09-08): the canvas-usage
+  // helper — a same-source pair shipped by no registry item (the
+  // canvas same-source design §7: the PAGE-side half of the law; the
+  // registry copy exists so the mirror law stays a single rule). The
+  // follow-up fleet sweep owns the final home (a registry:lib item for
+  // the usage-composition surface, or site-only if consumers compose
+  // by hand); retires when that change lands
+  { path: 'registry/files/lib/canvas-usage.ts', note: 'canvas same-source Lane D — page-side helper pair, final classification pending the fleet sweep' },
   // icons-docs (2026-09-02): icon-table is SITE-ONLY by ruling
   // (token-table precedent) — this on-disk copy is a relic of the
   // pre-classification syncer era (mirror deletions back-propagate
