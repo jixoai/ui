@@ -18,8 +18,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   DIGEST_VERSION,
   createMarkdownParser,
+  detectBlockquoteAlert,
   fnv1a36,
+  GITHUB_ALERTS,
   stableStringify,
+  type BlockquoteNode,
   type MarkdownParseResult,
 } from '$lib/ui/markdown/parse';
 import type { ParagraphNode, ParsedNode, TableNode } from '$lib/ui/markdown/parse';
@@ -578,5 +581,159 @@ describe('markdown parse adapter — ambient global-plugin trust boundary', () =
 
     const throughImmune = immune(source, false);
     expect(throughImmune.blocks[0]?.node.children[0]?.type).toBe('text'); // creation order cannot corrupt it
+  });
+});
+
+// ---------------------------------------------------------------------------
+// GitHub-alert detection (markdown-coverage design §4) — the pure
+// render-side read of a blockquote node; unit-tested directly against
+// REAL parser output (the installed AST shapes) plus one hand-built
+// defensive shape
+// ---------------------------------------------------------------------------
+
+describe('markdown parse adapter — detectBlockquoteAlert', () => {
+  /** the real AST's blockquote for a source (final mode — the frozen shape). */
+  const blockquoteFor = (source: string): BlockquoteNode => {
+    const result = createMarkdownParser()(source, false);
+    const node = result.blocks[0]?.node;
+    if (node?.type !== 'blockquote') throw new Error(`expected blockquote, got ${node?.type}`);
+    return node;
+  };
+
+  it('matches the five kinds (case-insensitive), strips the marker line, keeps the body', () => {
+    const kinds = ['NOTE', 'Tip', 'IMportant', 'warning', 'Caution'] as const;
+    for (const spelling of kinds) {
+      const node = blockquoteFor(`> [!${spelling}]\n> body text`);
+      const alert = detectBlockquoteAlert(node);
+      expect(alert, spelling).not.toBeNull();
+      const kind = spelling.toLowerCase() as keyof typeof GITHUB_ALERTS;
+      expect(alert!.kind).toBe(kind);
+      // hue/label vocabulary: statuses, never destructive; the hue
+      // half carries the FULL site-utility class (the hook-law B1
+      // ruling — never a trailing-dash prefix for concatenation)
+      expect(GITHUB_ALERTS[kind]).toEqual({
+        hueClass: {
+          note: 'jx-hue-info',
+          tip: 'jx-hue-success',
+          important: 'jx-hue-primary',
+          warning: 'jx-hue-warning',
+          caution: 'jx-hue-error',
+        }[kind],
+        label: { note: 'Note', tip: 'Tip', important: 'Important', warning: 'Warning', caution: 'Caution' }[kind],
+      });
+      // the marker line is stripped; the remaining lines are the body
+      expect(alert!.children[0]?.type).toBe('paragraph');
+      expect(stableStringify(alert!.children[0])).toContain('"content":"body text"');
+    }
+  });
+
+  it('multi-line first paragraph keeps every remaining line in the stripped text node', () => {
+    const node = blockquoteFor('> [!TIP]\n> line one\n> line two');
+    const alert = detectBlockquoteAlert(node)!;
+    expect(stableStringify(alert.children[0])).toContain('"content":"line one\\nline two"');
+  });
+
+  it('the bold-follow shape: a marker-only first text node drops, inline siblings survive', () => {
+    // the REAL parser shape for `> [!NOTE] **bold** body`
+    const node = blockquoteFor('> [!NOTE] **bold** body');
+    const alert = detectBlockquoteAlert(node)!;
+    expect(alert.kind).toBe('note');
+    const paragraph = alert.children[0];
+    expect(paragraph?.type).toBe('paragraph');
+    if (paragraph?.type !== 'paragraph') return;
+    expect(paragraph.children[0]?.type).toBe('strong'); // the marker text node dropped
+    expect(paragraph.children.map((child) => child.type)).toEqual(['strong', 'text']);
+  });
+
+  it('an empty-after-strip paragraph is dropped; later paragraphs survive BY REFERENCE', () => {
+    const node = blockquoteFor('> [!WARNING]\n>\n> second para');
+    const alert = detectBlockquoteAlert(node)!;
+    expect(alert.kind).toBe('warning');
+    expect(alert.children.length).toBe(1);
+    // shallow-structural cloning: untouched siblings SHARE references with
+    // the parse tree (only the modified spine is new)
+    expect(alert.children[0]).toBe(node.children[1]);
+  });
+
+  it('a marker-only quote (no body at all) yields the kind with zero children', () => {
+    const node = blockquoteFor('> [!NOTE]');
+    const alert = detectBlockquoteAlert(node)!;
+    expect(alert.kind).toBe('note');
+    expect(alert.children).toEqual([]);
+  });
+
+  it('NO match: mid-line marker, marker beyond the first line, unknown kind, non-paragraph first child', () => {
+    for (const source of [
+      '> text [!NOTE] more', // mid-line (GitHub's own rule)
+      '> first line\n> [!NOTE]\n> body', // not the first line
+      '> [!FOO]\n> body', // unknown kind
+      '> [!NOTE extra]\n> body', // trailing words on the marker line
+    ]) {
+      expect(detectBlockquoteAlert(blockquoteFor(source)), source).toBeNull();
+    }
+    // a nested quote's alert lives on the INNER blockquote, not the outer
+    const outer = blockquoteFor('> outer only\n>\n> > [!NOTE]\n> > inner');
+    expect(detectBlockquoteAlert(outer)).toBeNull();
+  });
+
+  it('NEVER mutates the parser nodes — two calls give the same answer, the tree is untouched', () => {
+    const node = blockquoteFor('> [!NOTE]\n> body');
+    const before = stableStringify(node);
+    const first = detectBlockquoteAlert(node)!;
+    const second = detectBlockquoteAlert(node)!;
+    // strip-then-no-match loop guard: the SECOND detection still matches
+    expect(second).not.toBeNull();
+    expect(second.kind).toBe(first.kind);
+    expect(stableStringify(second.children)).toBe(stableStringify(first.children));
+    // and the ORIGINAL tree never changed (digest/stream-cache safety)
+    expect(stableStringify(node)).toBe(before);
+    // the clone is a NEW spine: the parse tree's text still carries the marker
+    expect(node.children[0]?.type).toBe('paragraph');
+    expect(stableStringify(node)).toContain('"content":"[!NOTE]\\nbody"');
+  });
+
+  it('the inline-wrapper AST shape (defensive tolerance): the detector looks one level deeper', () => {
+    // the installed parser emits the direct-text shape for every probed
+    // quote (probe-verified); the wrapper arm is tolerance pinned here
+    // with a hand-built node so a future parser reshaping keeps alerts
+    const wrapped: BlockquoteNode = {
+      type: 'blockquote',
+      children: [
+        {
+          type: 'paragraph',
+          children: [
+            {
+              type: 'inline',
+              children: [{ type: 'text', content: '[!TIP]\nwrapped body', raw: '[!TIP]\nwrapped body', center: false }],
+              raw: '[!TIP]\nwrapped body',
+            },
+          ],
+          raw: '[!TIP]\nwrapped body',
+        },
+        { type: 'paragraph', children: [{ type: 'text', content: 'later', raw: 'later', center: false }], raw: 'later' },
+      ],
+      raw: '[!TIP]\nwrapped body\nlater',
+    };
+    const alert = detectBlockquoteAlert(wrapped)!;
+    expect(alert.kind).toBe('tip');
+    expect(stableStringify(alert.children[0])).toContain('"content":"wrapped body"');
+    expect(alert.children[1]).toBe(wrapped.children[1]); // untouched sibling shared
+    // and the wrapper whose text emptied drops wholesale
+    const wrappedEmpty: BlockquoteNode = {
+      type: 'blockquote',
+      children: [
+        {
+          type: 'paragraph',
+          children: [
+            { type: 'inline', children: [{ type: 'text', content: '[!NOTE]', raw: '[!NOTE]', center: false }], raw: '[!NOTE]' },
+          ],
+          raw: '[!NOTE]',
+        },
+      ],
+      raw: '[!NOTE]',
+    };
+    const emptyAlert = detectBlockquoteAlert(wrappedEmpty)!;
+    expect(emptyAlert.kind).toBe('note');
+    expect(emptyAlert.children).toEqual([]);
   });
 });

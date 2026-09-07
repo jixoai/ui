@@ -91,10 +91,11 @@ describe('docs-route-model — the section spine', () => {
     // Re-frozen 2026-09-07 (katex-mermaid rebase union): math-inline
     // joins general (11->12), math-block + mermaid join data-display
     // (17->19) — 104 ui items.
+    // Re-frozen 2026-09-07 (markdown-coverage): link + text join general (12->14), blockquote + heading + list join data-display (19->22) — 100 ui items.
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:12', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
-      'data-entry:19', 'data-display:19', 'feedback:5',
+      'general:14', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
+      'data-entry:19', 'data-display:22', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
   });

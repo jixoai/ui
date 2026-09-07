@@ -2,23 +2,41 @@
   jixoai markdown node mapper (registry/files/ui/markdown/markdown-node.svelte).
 
   2026-09-06 · markdown-streaming (original request: "2026-09-06 用户：
-  推出 markdown 渲染组件，支持流式渲染，AST 映射内部组件").
+  推出 markdown 渲染组件，支持流式渲染，AST 映射内部组件");
+  2026-09-07 · markdown-coverage — the first-party map (design §3):
+  the reading-content constructs became registry parts, uniformly
+  managed.
 
   Orthogonal intents:
   1. override seam — components[node.type] wins FIRST and receives { node }
      raw: trusted application code (design §3.3), delegating children back
      through this same exported component.
-  2. default ladder — the frozen AST → registry/native map (design §3):
+  2. default ladder — the frozen AST → registry-part map (design §3):
      code_block → CodeCard, table → div[data-kind="table"] wrapping Table
      with generated thead/tbody (td[data-label] header text + per-column
-     align), prose/inline families → native elements under the jx-pure
-     face, BOTH checkbox variants → the same disabled native input,
-     label/reference wrappers → nothing.
-  3. security floor of the DEFAULT map — every html node renders as
-     node.content literal text (interpolation escapes; zero {@html}),
-     image src must survive sanitizeImageSrc or the img is omitted
-     entirely, unknown node types degrade to extractText scalars with NO
-     structural recursion.
+     align), blockquote → Blockquote (GitHub-alert detection first, §4),
+     heading → Heading, list → List, paragraph/inline + the seven marks →
+     the text family sugars, link → Link, inline_code → InlineCode
+     (lang="text", the zero-work-per-span streaming law), thematic_break →
+     Separator — while list_item stays a native li, BOTH checkbox variants
+     stay the same disabled native input (design §2.5: the bare-checkbox
+     face IS the component-equivalent), the pure-text floor (text,
+     hardbreak, emoji, dl, footnote bits) stays native, and
+     label/reference wrappers render nothing. ESCAPE SCOPING (design §2):
+     Blockquote/Heading/List/InlineCode/Separator mount no-jx-pure —
+     box-owning surfaces whose face rules must stop double-painting them
+     (Separator rides a neutral carrier div, the CodeCard m-0 precedent);
+     P/marks/Link do NOT escape — inline escapes would virally descope
+     the code chips, images and nested marks they legitimately contain.
+  3. security floor of the DEFAULT map — whitelisted html nodes map
+     onto the SAME components as their markdown spellings (the
+     equivalence law, design §8: `some <b>text</b>` ≡ `some **text**`,
+     details/summary → the native-details accordion); every tag
+     outside the frozen table renders as node.content literal text
+     (interpolation escapes; zero {@html}), image src must survive
+     sanitizeImageSrc or the img is omitted entirely, unknown node
+     types degrade to extractText scalars with NO structural
+     recursion.
   4. recursion — children render through this component (explicit
      self-import, the recursion carrier); inner elements may swap freely
      while the keyed block item above stays mounted (the L1–L4 laws
@@ -30,16 +48,47 @@
 -->
 <script lang="ts">
   import type { Component } from 'svelte';
-  import { sanitizeImageSrc, type ParsedNode, type TableNode } from 'stream-markdown-parser';
+  import {
+    isUnsafeHtmlUrl,
+    sanitizeImageSrc,
+    type ParsedNode,
+    type TableNode,
+  } from 'stream-markdown-parser';
   import CodeCard from '../code-card/code-card.svelte';
   import Table from '../table/table.svelte';
-  import type { MarkdownComponents } from './parse';
+  import Blockquote from '../blockquote/blockquote.svelte';
+  import Heading from '../heading/heading.svelte';
+  import List from '../list/list.svelte';
+  import Link from '../link/link.svelte';
+  import P from '../text/p.svelte';
+  import Strong from '../text/strong.svelte';
+  import Em from '../text/em.svelte';
+  import Del from '../text/del.svelte';
+  import Mark from '../text/mark.svelte';
+  import Ins from '../text/ins.svelte';
+  import Sub from '../text/sub.svelte';
+  import Sup from '../text/sup.svelte';
+  import InlineCode from '../inline-code/inline-code.svelte';
+  import Separator from '../separator/separator.svelte';
+  import Kbd from '../kbd/kbd.svelte';
+  import Accordion from '../accordion/accordion.svelte';
+  import AccordionItem from '../accordion/accordion-item.svelte';
+  import {
+    detectBlockquoteAlert,
+    detailsToAccordionItem,
+    GITHUB_ALERTS,
+    htmlAttrsToRecord,
+    HTML_INLINE_TAG_TO_MARK,
+    type AccordionGroupNode,
+    type MarkdownComponents,
+    type MarkdownNodeInput,
+  } from './parse';
   // explicit self-import: the recursion carrier (the file-name
   // self-reference form compiles to an unknown custom element here)
   import MarkdownNode from './markdown-node.svelte';
 
   interface Props {
-    node: ParsedNode;
+    node: MarkdownNodeInput;
     /** Per-node-type overrides — trusted application code (design §3.3). */
     components?: MarkdownComponents;
   }
@@ -87,11 +136,6 @@
     }
   }
 
-  /** h1–h6, clamped — the level comes straight off the parser token. */
-  function headingTag(level: number): string {
-    return `h${Math.min(Math.max(level, 1), 6)}`;
-  }
-
   /** Column alignment from the delimiter row — the only cell style we mint. */
   function alignStyle(align: 'left' | 'right' | 'center' | undefined): string | undefined {
     return align ? `text-align:${align}` : undefined;
@@ -100,6 +144,37 @@
   /** td[data-label] payload: the header cell's plain text (the stack law reads it). */
   function headerLabels(table: TableNode): string[] {
     return table.header.cells.map((cell) => extractText(cell.children));
+  }
+
+  // ---- the html equivalence lane (design §8) --------------------------------
+
+  /** The synthetic accordion_group narrows through its own guard — the
+   *  parser's union (with its { type: string } catch-all) cannot. */
+  function isAccordionGroup(candidate: MarkdownNodeInput): candidate is AccordionGroupNode {
+    return candidate.type === 'accordion_group';
+  }
+
+  /** The equivalence law's component map: the html tag's mark resolves
+   *  to the SAME sugar the markdown spelling rides — `<b>` and `**`
+   *  land in one Strong, indistinguishable. */
+  const HTML_MARK_COMPONENTS = {
+    strong: Strong,
+    em: Em,
+    del: Del,
+    ins: Ins,
+    mark: Mark,
+    sub: Sub,
+    sup: Sup,
+  } as const;
+
+  /** html_inline carries attrs at RUNTIME (probe-verified) while the
+   *  package's .d.ts omits the field on the inline shape — ONE
+   *  documented structural widening at the boundary, the same trust
+   *  class as the override cast above. */
+  function htmlInlineAttrs(node: Extract<ParsedNode, { type: 'html_inline' }>): Record<string, string> {
+    return htmlAttrsToRecord(
+      (node as typeof node & { attrs?: readonly (readonly [string, string])[] | null }).attrs,
+    );
   }
 </script>
 
@@ -153,69 +228,109 @@
     </Table>
   </div>
 {:else if isNodeType(node, 'heading')}
-  <svelte:element this={headingTag(node.level)}>
+  <!-- no-jx-pure (§2.1): Heading owns the em size ladder + the B1
+       channels; the element-based rhythm selectors keep matching the
+       native h* root with zero retargeting. level passes RAW — the
+       component clamps once, the hook stamps the rendered truth -->
+  <Heading level={node.level} class="no-jx-pure">
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </svelte:element>
+  </Heading>
 {:else if isNodeType(node, 'paragraph') || isNodeType(node, 'inline')}
-  <p>
+  <!-- face-composing (§2.2): P never escapes — the p un-short-circuit
+       law and the ambient preset leading keep flowing through it -->
+  <P>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </p>
+  </P>
 {:else if isNodeType(node, 'list')}
-  {#if node.ordered}
-    <ol start={node.start ?? undefined}>
-      {#each node.items as item, i (i)}<MarkdownNode node={item} {components} />{/each}
-    </ol>
-  {:else}
-    <ul>
-      {#each node.items as item, i (i)}<MarkdownNode node={item} {components} />{/each}
-    </ul>
-  {/if}
+  <!-- no-jx-pure (§2.1): List owns the B8 channels; list_item recursion
+       below stays a native li so the task-item DOM-shape laws in
+       markdown.css keep matching. The AST list exposes ITEMS, not
+       children — the iteration is the parser's own shape -->
+  <List ordered={node.ordered} start={node.start ?? undefined} class="no-jx-pure">
+    {#each node.items as item, i (i)}<MarkdownNode node={item} {components} />{/each}
+  </List>
 {:else if isNodeType(node, 'list_item')}
   <li>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
   </li>
 {:else if isNodeType(node, 'blockquote')}
-  <blockquote>
-    {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </blockquote>
+  {@const alert = detectBlockquoteAlert(node)}
+  <!-- ONE Blockquote whose props flip (§4's streaming law): the GitHub
+       alert face — tonal rung + label + the status hue the jx-hue-*
+       site utility injects into --jx-tonal, children from the
+       detector's marker-stripped clones (its immutability law) — and
+       the plain quote are the SAME component instance with different
+       props, so the marker completing mid-stream swaps the face IN
+       PLACE: the blockquote DOM node survives (the keyed-item law
+       plus the element law; an if/else branch switch would tear the
+       node down and the test pins that) -->
+  <Blockquote
+    class={alert ? `no-jx-pure ${GITHUB_ALERTS[alert.kind].hueClass}` : 'no-jx-pure'}
+    variant={alert ? 'tonal' : undefined}
+    label={alert ? GITHUB_ALERTS[alert.kind].label : undefined}
+  >
+    {#each (alert ? alert.children : node.children) as child, i (i)}
+      <MarkdownNode node={child} {components} />
+    {/each}
+  </Blockquote>
 {:else if isNodeType(node, 'thematic_break')}
-  <hr />
+  <!-- the carrier div owns the RHYTHM (Separator's own m-0 utility
+       would kill a root-level margin — the CodeCard law); the root
+       escapes so the face's hr rules never double-paint it -->
+  <div>
+    <Separator class="no-jx-pure" />
+  </div>
 {:else if isNodeType(node, 'strong')}
-  <strong>
+  <Strong>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </strong>
+  </Strong>
 {:else if isNodeType(node, 'emphasis')}
-  <em>
+  <Em>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </em>
+  </Em>
 {:else if isNodeType(node, 'strikethrough')}
-  <del>
+  <Del>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </del>
+  </Del>
 {:else if isNodeType(node, 'highlight')}
-  <mark>
+  <Mark>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </mark>
+  </Mark>
 {:else if isNodeType(node, 'insert')}
-  <ins>
+  <Ins>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </ins>
+  </Ins>
 {:else if isNodeType(node, 'subscript')}
-  <sub>
+  <Sub>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </sub>
+  </Sub>
 {:else if isNodeType(node, 'superscript')}
-  <sup>
+  <Sup>
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </sup>
+  </Sup>
 {:else if isNodeType(node, 'inline_code')}
-  <!-- the jx-pure chip: a native <code>, zero async per-span work while streaming -->
-  <code>{node.code}</code>
+  <!-- the chip escapes (§2.3: a chip's children are text — no
+       face-styled descendants to descope); lang is FROZEN to "text" —
+       markdown code spans carry no language and the map keeps the
+       zero-work-per-span streaming law (no grammar detection per
+       chip; consumers who want detection use the override seam) -->
+  <InlineCode class="no-jx-pure" lang="text">{node.code}</InlineCode>
 {:else if isNodeType(node, 'link')}
-  <!-- href already validateLink-passed at parse; unsafe schemes never reach here -->
-  <a href={node.href} title={node.title ?? undefined}>
+  <!-- face-composing (§2.2): a link's descendants stay face-scoped.
+       href re-validates HERE (the §8.1 amendment): markdown-syntax
+       links arrive validateLink-passed, but the parser's html-anchor
+       pre-conversion bypasses it (probe-verified: <a
+       href="javascript:…"> yields a link node with the unsafe href
+       intact) — one defense line covers both syntaxes; unsafe hrefs
+       render their text with no anchor at all. Link owns external
+       detection (target/rel) itself -->
+  {#if isUnsafeHtmlUrl(node.href)}
     {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
-  </a>
+  {:else}
+    <Link href={node.href} title={node.title ?? undefined}>
+      {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
+    </Link>
+  {/if}
 {:else if isNodeType(node, 'image')}
   {@const src = sanitizeImageSrc(node.src)}
   {#if src}
@@ -232,8 +347,87 @@
   <input type="checkbox" disabled checked={node.checked} />
 {:else if isNodeType(node, 'label_open') || isNodeType(node, 'label_close')}
   <!-- plugin wrapper tokens render nothing -->
-{:else if isNodeType(node, 'html_block') || isNodeType(node, 'html_inline')}
-  {node.content}
+{:else if isAccordionGroup(node)}
+  <!-- the merged consecutive-details run (design §8.3): ONE accordion
+       group — the frame and seams the pile of bare <details> lacks.
+       The root escapes the face so its own summary/details rules
+       never fight the accordion's W3C-first paint; `<details open>`
+       carries through to the item -->
+  <Accordion class="no-jx-pure">
+    {#each node.items as item, i (i)}
+      <AccordionItem open={item.open}>
+        {#snippet summary()}
+          {#each item.summary as child, j (j)}<MarkdownNode node={child} {components} />{/each}
+        {/snippet}
+        {#each item.children as child, j (j)}<MarkdownNode node={child} {components} />{/each}
+      </AccordionItem>
+    {/each}
+  </Accordion>
+{:else if isNodeType(node, 'html_block')}
+  <!-- the html equivalence law at BLOCK position (design §8.2): owned
+       tags route to their markdown equivalents; everything else keeps
+       the escaped-literal security floor -->
+  {#if node.tag === 'hr'}
+    <div>
+      <Separator class="no-jx-pure" />
+    </div>
+  {:else if node.tag === 'details'}
+    <!-- a details at NESTED position (inside an item body, a quote…) —
+         the group merge only sees top-level runs, so this one frames
+         itself as a group-of-one -->
+    {@const item = detailsToAccordionItem(node)}
+    <Accordion class="no-jx-pure">
+      <AccordionItem open={item.open}>
+        {#snippet summary()}
+          {#each item.summary as child, j (j)}<MarkdownNode node={child} {components} />{/each}
+        {/snippet}
+        {#each item.children as child, j (j)}<MarkdownNode node={child} {components} />{/each}
+      </AccordionItem>
+    </Accordion>
+  {:else}
+    {node.content}
+  {/if}
+{:else if isNodeType(node, 'html_inline')}
+  <!-- the html equivalence law at INLINE position: `some <b>text</b>`
+       and `some **text**` render the SAME component — one Strong, one
+       hook, indistinguishable. href re-validates here (the html path
+       does not inherit markdown-it's validateLink); unknown tags stay
+       escaped text -->
+  {@const htmlTag = (node.tag ?? '').toLowerCase()}
+  {@const htmlMark = HTML_INLINE_TAG_TO_MARK[htmlTag]}
+  {#if htmlMark !== undefined}
+    {@const MarkComponent = HTML_MARK_COMPONENTS[htmlMark]}
+    <MarkComponent>
+      {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
+    </MarkComponent>
+  {:else if htmlTag === 'code'}
+    <InlineCode class="no-jx-pure" lang="text">
+      {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
+    </InlineCode>
+  {:else if htmlTag === 'kbd'}
+    <Kbd>
+      {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
+    </Kbd>
+  {:else if htmlTag === 'br'}
+    <br />
+  {:else if htmlTag === 'a'}
+    {@const attrs = htmlInlineAttrs(node)}
+    {#if attrs.href !== undefined && attrs.href !== '' && !isUnsafeHtmlUrl(attrs.href)}
+      <Link href={attrs.href} title={attrs.title || undefined}>
+        {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
+      </Link>
+    {:else}
+      {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
+    {/if}
+  {:else if htmlTag === 'img'}
+    {@const attrs = htmlInlineAttrs(node)}
+    {@const src = sanitizeImageSrc(attrs.src ?? '')}
+    {#if src}
+      <img {src} alt={attrs.alt ?? ''} title={attrs.title || undefined} loading="lazy" decoding="async" />
+    {/if}
+  {:else}
+    {node.content}
+  {/if}
 {:else if isNodeType(node, 'footnote_reference')}
   <sup>{node.id}</sup>
 {:else if isNodeType(node, 'footnote')}

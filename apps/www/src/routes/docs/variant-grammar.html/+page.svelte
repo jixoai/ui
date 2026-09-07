@@ -1,6 +1,7 @@
 <script lang="ts">
   import Alert from '$lib/ui/alert/alert.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import Blockquote from '$lib/ui/blockquote/blockquote.svelte';
   import Chip from '$lib/ui/chip/chip.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
@@ -141,7 +142,7 @@ split — two utilities; both properties land:
         headerRegion="ladder"
         eyebrow="demo"
         title="The ladder — fill, tonal, outline, ghost"
-        summary="Prominence is a four-rung ladder, and it is the ONLY thing the variant prop encodes. fill speaks loudest (solid ground, same-hue border, inverted ink); tonal is the default voice (a 12% tint of the hue); outline draws structure only (transparent ground, border-colored border); ghost is interactive chrome (transparent at rest, tonal on hover, geometry preserved through a transparent border). link is deliberately NOT on the ladder — it is PressButton's one interaction exception: no frame, no press shadow, primary text, hover underline. Availability is per-component: banners never get fill (readability), badges never get ghost (they are display, not chrome)."
+        summary="Prominence is a four-rung ladder, and it is the ONLY thing the variant prop encodes. fill speaks loudest (solid ground, same-hue border, inverted ink); tonal is the default voice (a 12% tint of the hue); outline draws structure only (transparent ground, border-colored border); ghost is interactive chrome (transparent at rest, tonal on hover, geometry preserved through a transparent border). link is deliberately NOT on the ladder — it is PressButton's one interaction exception: no frame, no press shadow, primary text, hover underline. Availability is per-component: banners never get fill (readability), badges never get ghost (they are display, not chrome), quotes stop at outline/tonal — quote readability excludes fill/ghost, and ghost is interactive-chrome vocabulary a static quote misuses (the Blockquote row joins the frozen availability table in the same two-rung shape as Alert)."
       >
         <div class="flex flex-col gap-6">
           <div class="flex flex-col gap-3">
@@ -174,7 +175,8 @@ split — two utilities; both properties land:
             </div>
             <div class="flex flex-col gap-3">
               <span class="text-muted-foreground text-[11px]">
-                Alert — outline (default) / tonal; InlineCode — tonal (default) / outline
+                Alert — outline (default) / tonal; Blockquote — outline (default) / tonal;
+                InlineCode — tonal (default) / outline
               </span>
               <Alert variant="tonal" title="Build queued">
                 The canary build enters the queue behind two commits.
@@ -182,6 +184,13 @@ split — two utilities; both properties land:
               <Alert title="Heads up">
                 Outline keeps the muted body — the neutral rung's own ink ramp for long copy.
               </Alert>
+              <Blockquote variant="tonal" label="Note">
+                The quote surface rides the same two rungs as the banner — availability frozen
+                (fill/ghost excluded: readability, and ghost is interactive-chrome vocabulary).
+              </Blockquote>
+              <Blockquote cite="the variant grammar, §ladder">
+                Outline is the classic left-rule quote — the reading-content posture, own default.
+              </Blockquote>
               <p class="text-[13px] leading-6">
                 Inline code rides the same ladder:
                 <InlineCode>npm run verify</InlineCode> is the tonal default (locally neutral),
@@ -209,12 +218,12 @@ split — two utilities; both properties land:
                 <tr>
                   <td><code>tonal</code></td>
                   <td>12% ground, 45% border, the hue as ink</td>
-                  <td>Badge (default), InlineCode (default, locally neutral), Chip (default), PressButton, Alert</td>
+                  <td>Badge (default), InlineCode (default, locally neutral), Chip (default), PressButton, Alert, Blockquote</td>
                 </tr>
                 <tr>
                   <td><code>outline</code></td>
                   <td>transparent ground, structural border, foreground ink</td>
-                  <td>all — PressButton (default), Alert (default)</td>
+                  <td>all — PressButton (default), Alert (default), Blockquote (default)</td>
                 </tr>
                 <tr>
                   <td><code>ghost</code></td>
@@ -609,7 +618,8 @@ split — two utilities; both properties land:
               <code class="text-accent">data-jx-badge</code>,
               <code class="text-accent">data-jx-chip</code>,
               <code class="text-accent">data-jx-press-button</code>,
-              <code class="text-accent">data-jx-alert</code> — so tests and assistive tooling
+              <code class="text-accent">data-jx-alert</code>,
+              <code class="text-accent">data-jx-blockquote</code> — so tests and assistive tooling
               read the variant without reverse-engineering utility soup.
             </p>
           </div>

@@ -262,6 +262,77 @@ ${close}
      exported MarkdownNode -->
 <Markdown source={doc} components={{ link: DocLink }} />`;
 
+  // ---- GitHub alerts: the default map's one new behavior -------------------
+
+  const alertsDoc = [
+    '> [!NOTE]',
+    '> GitHub alert markers on the quote\'s own first line render as tonal',
+    '> Blockquotes with the label and status hue wired by the map.',
+    '',
+    '> [!TIP]',
+    '> The five kinds — note, tip, important, warning, caution — map to the',
+    '> five status hues; caution is the error hue (statuses, never destructive).',
+    '',
+    '> [!IMPORTANT]',
+    '> A half-typed marker simply does not match: the block renders the plain',
+    '> quote and keeps updating in place (the L2 in-place tail law).',
+    '',
+    '> [!WARNING]',
+    '> Markers not on their own first line never trigger (the GitHub rule).',
+    '',
+    '> [!CAUTION]',
+    '> Mixed-case markers trigger — `> [!Note]` is a note, GitHub behavior.',
+    '',
+    '> And a plain quote keeps the classic outline rule — no label, no hue,',
+    '> exactly the reading-content posture.',
+  ].join('\n');
+
+  const alertsUsage = `<!-- nothing to wire: the detector is part of the default map -->
+<Markdown source={alertsDoc} />`;
+
+  // ---- html equivalence (markdown-coverage §8) -------------------------------
+
+  const equivalenceDoc = [
+    'HTML is markdown spelled differently — both spellings land in the same',
+    'component: <b>html bold</b> and **markdown bold** are one Strong.',
+    '',
+    'The frozen tag table: <strong>strong</strong>, <em>em</em>, <i>i</i>,',
+    '<del>del</del>, <s>s</s>, <ins>ins</ins>, <u>u</u>, <mark>mark</mark>,',
+    'H<sub>2</sub>O, x<sup>2</sup>, <code>a code chip</code>,',
+    'press <kbd>⌘K</kbd>, and',
+    '<a href="https://example.com">an html anchor</a>.',
+    '',
+    'Everything outside the table stays escaped literal text:',
+    '<span>span is not in the table</span>, and scripts never execute.',
+  ].join('\n');
+
+  const equivalenceUsage = `<!-- nothing to wire: equivalence is the default map -->
+<Markdown source={equivalenceDoc} />`;
+
+  const accordionDoc = [
+    '<details>',
+    '<summary>Shipping</summary>',
+    'Consecutive top-level <code>&lt;details&gt;</code> runs merge into ONE',
+    'accordion group — the frame and seams a pile of bare disclosures lacks.',
+    'Bodies parse markdown: **bold**, `chips` and [links](https://example.com).',
+    '</details>',
+    '<details open>',
+    '<summary>Native semantics</summary>',
+    '',
+    'The accordion IS native `<details>/<summary>` — W3C-first, the same',
+    'philosophy as every input in this registry. The `open` attribute carries',
+    'through: this item shipped open.',
+    '',
+    '</details>',
+    '<details>',
+    '<summary>Unknown tags stay text</summary>',
+    'A &lt;div&gt; or &lt;script&gt; never becomes markup — the floor holds.',
+    '</details>',
+  ].join('\n');
+
+  const accordionUsage = `<!-- nothing to wire: the group merge is part of the default map -->
+<Markdown source={accordionDoc} />`;
+
   // ---- static document: the default face ----------------------------------
 
   const staticDoc = [
@@ -369,11 +440,11 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · Data Display"
       title="markdown — the streaming face, AST mapped to first-party parts"
-      summary="One component turns a markdown string into jixoai surfaces: fenced code lands in code-card (generation-guard repaint keeps partial code readable mid-stream), tables land in the registry table under a data-kind wrapper, and every prose construct rides the jx-pure element ladder. Streaming is keyed-block memoized — the frozen prefix keeps its DOM while append-only chunks re-render only the trailing block — and streaming=false (the default) is a static, final document. The parser core is stream-markdown-parser; the renderer, the mapping vocabulary and the security floor (html:false, validateLink, image sanitize, zero raw-HTML injection) are 100% first-party."
+      summary="One component turns a markdown string into jixoai surfaces: fenced code lands in code-card (generation-guard repaint keeps partial code readable mid-stream), tables land in the registry table under a data-kind wrapper, and every prose construct lands on a first-party reading-content part — Blockquote (with GitHub alert detection), Heading, List, the text family, Link, InlineCode, Separator — escaping the jx-pure face exactly where the box-owning blocks need it and composing with it everywhere else. Streaming is keyed-block memoized — the frozen prefix keeps its DOM while append-only chunks re-render only the trailing block — and streaming=false (the default) is a static, final document. The parser core is stream-markdown-parser; the renderer, the mapping vocabulary and the security floor (html:false, validateLink, image sanitize, zero raw-HTML injection) are 100% first-party."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">streaming-first · keyed blocks (L1–L4)</span>
-        <span class="pill">AST → table · code-card · jx-pure</span>
+        <span class="pill">AST → blockquote · heading · list · text · link · inline-code · separator · table · code-card</span>
         <span class="pill">html:false security floor</span>
         <span class="pill">components override seam</span>
         <span class="pill">stream-markdown-parser core</span>
@@ -406,7 +477,7 @@ ${close}
       headerRegion="examples"
       eyebrow="examples"
       title="Examples"
-      summary="One ability per demo: the GFM vocabulary in one pass, the streaming simulation (a live chunk feed over the public props), the components override seam, and the static document face."
+      summary="One ability per demo: the GFM vocabulary in one pass, the GitHub alerts matrix, the streaming simulation (a live chunk feed over the public props), the components override seam, and the static document face."
     >
       <p class="m-0 text-[13px] leading-6 text-muted-foreground">
         The markdown component exists to render headings — every demo mounts it inside the
@@ -417,11 +488,50 @@ ${close}
     </SectionCard>
   </div>
 
+  <!-- the component coverage map: node type → registry part (design §3) -->
+  <div id="markdown-coverage-map" data-region="markdown-coverage-map" data-family="markdown-coverage-map" data-reveal="">
+    <SectionCard
+      family="markdown-coverage-map"
+      headerRegion="markdown-coverage-map"
+      eyebrow="the map"
+      title="Component coverage map"
+      summary="The default map is first-party end to end (markdown-coverage-components §3): every markdown construct lands on a registry part, uniformly managed. Box-owning block surfaces escape the jx-pure face (no-jx-pure on the root) so it stops double-painting them; face-composing inline members never escape — an inline escape would virally descope the code chips and nested marks a link legitimately contains. The override seam is still consulted first; the map's growth changes nothing about its trust class."
+    >
+      <div class="table-scroll">
+        <table class="data-table">
+          <caption class="sr-only">markdown node type to registry part mapping</caption>
+          <thead>
+            <tr>
+              <th>Node type</th>
+              <th>Renders</th>
+              <th>Escape</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>code_block</code></td><td class="dim">CodeCard (unchanged — partial code + loading state mid-fence)</td><td class="dim">carrier div (existing)</td></tr>
+            <tr><td><code>table</code></td><td class="dim">Table in <code>div[data-kind="table"]</code> (unchanged)</td><td class="dim">carrier (existing)</td></tr>
+            <tr><td><code>blockquote</code></td><td class="dim">Blockquote — GitHub-alert detection first (§ the alerts demo)</td><td class="dim">root <code>no-jx-pure</code></td></tr>
+            <tr><td><code>heading</code></td><td class="dim"><code>&lt;Heading level&gt;</code> (the em ladder)</td><td class="dim">root <code>no-jx-pure</code></td></tr>
+            <tr><td><code>list</code></td><td class="dim"><code>&lt;List ordered start&gt;</code> (list_item stays native li)</td><td class="dim">root <code>no-jx-pure</code></td></tr>
+            <tr><td><code>paragraph</code> / inline</td><td class="dim"><code>&lt;P&gt;</code></td><td class="dim">face-composing</td></tr>
+            <tr><td><code>strong / emphasis / strikethrough / highlight / insert / subscript / superscript</code></td><td class="dim"><code>&lt;Strong&gt; &lt;Em&gt; &lt;Del&gt; &lt;Mark&gt; &lt;Ins&gt; &lt;Sub&gt; &lt;Sup&gt;</code></td><td class="dim">face-composing</td></tr>
+            <tr><td><code>link</code></td><td class="dim"><code>&lt;Link&gt;</code> (absolute http(s) opens externally)</td><td class="dim">face-composing</td></tr>
+            <tr><td><code>inline_code</code></td><td class="dim"><code>&lt;InlineCode lang="text"&gt;</code> (children recursed inside)</td><td class="dim">root escape</td></tr>
+            <tr><td><code>thematic_break</code></td><td class="dim"><code>&lt;Separator /&gt;</code></td><td class="dim">carrier div + root escape</td></tr>
+            <tr><td><code>checkbox</code> (task items)</td><td class="dim">native disabled input — the jx-pure bare-checkbox face paints it</td><td class="dim">—</td></tr>
+            <tr><td><code>image</code></td><td class="dim">native <code>&lt;img&gt;</code> (unchanged — sanitized; the no-CLS unlock is a recorded followup)</td><td class="dim">—</td></tr>
+            <tr><td><code>text / hardbreak / emoji / footnote bits / dl</code></td><td class="dim">native (the pure-text floor)</td><td class="dim">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </SectionCard>
+  </div>
+
   <!-- demo a: kitchen sink -->
   <div id="markdown-kitchen-sink" data-region="markdown-kitchen-sink" data-family="markdown-kitchen-sink" data-reveal="">
     <ComponentCanvas
       title="kitchen sink"
-      description="The default map, one pass: emphasis and inline chips onto the jx-pure ladder, a task list as disabled native inputs, the GFM table onto the registry table (td[data-label] + per-column align), a fenced card onto code-card, blockquote, rule, links and bare-URL autolinks. Images: bitmap data URLs render; SVG data URLs and unsafe schemes omit the img entirely (alt preserved). Footnotes degrade to inert sup text."
+      description="The default map, one pass: emphasis onto the text family, inline chips onto InlineCode, a task list as disabled native inputs, the GFM table onto the registry table (td[data-label] + per-column align), a fenced card onto code-card, the quote onto Blockquote, headings onto Heading, the rule onto Separator, links and bare-URL autolinks onto Link. Images: bitmap data URLs render; SVG data URLs and unsafe schemes omit the img entirely (alt preserved). Footnotes degrade to inert sup text."
       sourceUrl={registrySourceUrl('markdown')}
       install="markdown"
       {files}
@@ -433,10 +543,103 @@ ${close}
       {#snippet playground()}
         <PlayFields>
           <PlayHelp>
-            The vocabulary is frozen (design §3): code_block → CodeCard, table → Table, prose →
-            native elements under jx-pure. Unknown node types degrade to extracted literal text —
-            structure never recurses into the unknown. The drawer carries the same-source registry
-            copies this site runs (markdown.svelte, markdown-node.svelte, parse.ts, markdown.css).
+            The vocabulary is frozen (design §3 of markdown-coverage): every construct lands on a
+            registry part — see the coverage map above for the full table. Unknown node types
+            degrade to extracted literal text — structure never recurses into the unknown. The
+            drawer carries the same-source registry copies this site runs (markdown.svelte,
+            markdown-node.svelte, parse.ts, markdown.css).
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <!-- demo a1: GitHub alerts (the map's one new behavior) -->
+  <div id="markdown-alerts" data-region="markdown-alerts" data-family="markdown-alerts" data-reveal="">
+    <ComponentCanvas
+      title="GitHub alerts"
+      description="The default map's one new behavior: a [!NOTE|TIP|IMPORTANT|WARNING|CAUTION] marker on the quote's own first line renders a tonal Blockquote — label and status hue wired by the map (note→info, tip→success, important→primary, warning→warning, caution→error — statuses, never the destructive action hue). A half-typed marker simply does not match: the block renders the plain quote and keeps updating in place (L2 — the tail item never remounts on content mutation)."
+      sourceUrl={registrySourceUrl('markdown')}
+      files={[
+        { name: 'src/lib/ui/markdown-alerts-usage.svelte', content: alertsUsage, kind: 'usage' },
+      ]}
+      stage="fill"
+    >
+      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+        <Markdown source={alertsDoc} />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayHelp>
+            Detection rules: the marker must fully match on the paragraph's own first line
+            (mid-line markers never trigger — the GitHub rule); mixed case triggers
+            (<code>[!Note]</code> is a note); the marker line is stripped from the body and an
+            empty remainder paragraph is dropped. The detector is a pure function of the node, so
+            streaming stays law-abiding — feed it <code>&gt; [!NO</code> then <code>&gt; [!NOTE]</code>
+            and the keyed item identity holds while the rendered face swaps.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <!-- demo a1b: html equivalence (the two spellings, one component) -->
+  <div id="markdown-html-equivalence" data-region="markdown-html-equivalence" data-family="markdown-html-equivalence" data-reveal="">
+    <ComponentCanvas
+      title="html equivalence"
+      description="Markdown sources may mix HTML: the frozen tag table routes whitelisted tags onto the SAME components as their markdown spellings — <b>html bold</b> and **markdown bold** are one Strong, an html anchor is the Link, <code> is the InlineCode chip, <kbd> rides Kbd. Everything outside the table (span, div, script…) stays escaped literal text — the security floor lives render-side: zero &#123;@html&#125; anywhere, hrefs re-validate on both syntax paths."
+      sourceUrl={registrySourceUrl('markdown')}
+      files={[
+        {
+          name: 'src/lib/ui/markdown-html-equivalence-usage.svelte',
+          content: equivalenceUsage,
+          kind: 'usage',
+        },
+      ]}
+      stage="fill"
+    >
+      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+        <Markdown source={equivalenceDoc} />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayHelp>
+            The table is spec-frozen vocabulary (adding a tag is a spec change): b/strong,
+            i/em, del/s/strike, ins/u, mark, sub, sup, code, kbd, a, br, img inline;
+            details/summary and hr at block position. Nested details keep their AST nesting
+            in the contiguous form — CommonMark's html_block rule fragments at blank lines
+            (fragments render as separate groups; a documented boundary).
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <!-- demo a1c: details/summary ride the accordion -->
+  <div id="markdown-accordion" data-region="markdown-accordion" data-family="markdown-accordion" data-reveal="">
+    <ComponentCanvas
+      title="details → accordion"
+      description="The common <details>/<summary> pair in markdown rides the accordion — the W3C-first item that IS native details/summary (no div simulation, the same philosophy as every input here). Consecutive top-level details runs merge into ONE group (a pure parse-side transform; a growing group remounts once per semantic event, the link-reference-definition precedent); <details open> carries through; bodies parse their markdown; a summary-less details renders the default disclosure label."
+      sourceUrl={registrySourceUrl('markdown')}
+      files={[
+        {
+          name: 'src/lib/ui/markdown-accordion-usage.svelte',
+          content: accordionUsage,
+          kind: 'usage',
+        },
+      ]}
+      stage="fill"
+    >
+      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+        <Markdown source={accordionDoc} />
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayHelp>
+            The accordion's exclusive mode is off in the mapped face (each disclosure opens
+            independently — the html semantics). The items are native disclosures: toggle
+            with click or keyboard, view-source shows real summary/details elements under
+            the accordion's frame.
           </PlayHelp>
         </PlayFields>
       {/snippet}
@@ -626,6 +829,8 @@ ${close}
       <h2 class="font-nav text-balance text-[1.05rem] leading-tight tracking-tight sm:text-[1.22rem]">See Also</h2>
       <p class="mt-2 text-[12.5px] text-muted-foreground">The families the mapping vocabulary composes with.</p>
       <ul class="mt-3 flex flex-wrap gap-2">
+        <li><a class="pill" href="/docs/components/blockquote.html">blockquote — the quote mapping target (GitHub alerts land here)</a></li>
+        <li><a class="pill" href="/docs/components/text.html">text — the paragraph and marks mapping target</a></li>
         <li><a class="pill" href="/docs/components/table.html">table — the GFM table mapping target</a></li>
         <li><a class="pill" href="/docs/components/code-card.html">code-card — the fenced-code mapping target</a></li>
         <li><a class="pill" href="/docs/jx-pure.html">jx-pure — the componentless prose face</a></li>

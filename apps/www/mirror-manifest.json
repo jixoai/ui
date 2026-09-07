@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T08:18:46.494Z",
+  "generatedAt": "2026-09-07T10:10:30.434Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -28,6 +28,9 @@
     "code-card": "registry/files/ui/code-card/code-card.svelte",
     "table": "registry/files/ui/table/table.svelte",
     "markdown": "registry/files/ui/markdown/markdown.svelte",
+    "blockquote": "registry/files/ui/blockquote/blockquote.svelte",
+    "heading": "registry/files/ui/heading/heading.svelte",
+    "list": "registry/files/ui/list/list.svelte",
     "tree-view": "registry/files/ui/tree-view/tree-view.svelte",
     "component-canvas": "registry/files/ui/component-canvas/component-canvas.svelte",
     "checkbox": "registry/files/ui/checkbox/checkbox.svelte",
@@ -56,6 +59,8 @@
     "kbd": "registry/files/ui/kbd/kbd.svelte",
     "inline-code": "registry/files/ui/inline-code/inline-code.svelte",
     "chip": "registry/files/ui/chip/chip.svelte",
+    "link": "registry/files/ui/link/link.svelte",
+    "text": "registry/files/ui/text/text.svelte",
     "toast": "registry/files/ui/toast/toast-viewport.svelte",
     "alert-dialog": "registry/files/ui/alert-dialog/alert-dialog.svelte",
     "sheet": "registry/files/ui/sheet/sheet.svelte",
@@ -1149,22 +1154,22 @@
           "source": "registry/files/ui/markdown/markdown-node.svelte",
           "mirror": "apps/www/src/lib/ui/markdown/markdown-node.svelte",
           "target": "@ui/markdown/markdown-node.svelte",
-          "sourceSha": "57dbc0951fccb56a6b15736a02a3253df8e70c493bd44994c3c8849b0866407f",
-          "mirrorSha": "57dbc0951fccb56a6b15736a02a3253df8e70c493bd44994c3c8849b0866407f"
+          "sourceSha": "8a10420ffb10538e9d458cf1dfb094b0589353c560358a156fbb22176954450c",
+          "mirrorSha": "8a10420ffb10538e9d458cf1dfb094b0589353c560358a156fbb22176954450c"
         },
         {
           "source": "registry/files/ui/markdown/parse.ts",
           "mirror": "apps/www/src/lib/ui/markdown/parse.ts",
           "target": "@ui/markdown/parse.ts",
-          "sourceSha": "3a352ec098a03bb86467366496e76f2e9afa95c13696c3a1039605db82710ea9",
-          "mirrorSha": "3a352ec098a03bb86467366496e76f2e9afa95c13696c3a1039605db82710ea9"
+          "sourceSha": "5948e167b3c0170045112dcd8bc1c1cff5deb302562be10cc4ffb1fe6b770050",
+          "mirrorSha": "5948e167b3c0170045112dcd8bc1c1cff5deb302562be10cc4ffb1fe6b770050"
         },
         {
           "source": "registry/files/ui/markdown/markdown.css",
           "mirror": "apps/www/src/lib/ui/markdown/markdown.css",
           "target": "@ui/markdown/markdown.css",
-          "sourceSha": "ac58939422c1aae3697ed31b02416f3a7fb796c68e1858cd1178d64275d6ba6c",
-          "mirrorSha": "ac58939422c1aae3697ed31b02416f3a7fb796c68e1858cd1178d64275d6ba6c"
+          "sourceSha": "cb23dad8123166ce045c32ee78e8bc3e4aabfeec4dd13c6a31acea427de4c35f",
+          "mirrorSha": "cb23dad8123166ce045c32ee78e8bc3e4aabfeec4dd13c6a31acea427de4c35f"
         },
         {
           "source": "registry/files/ui/markdown/index.ts",
@@ -1172,6 +1177,76 @@
           "target": "@ui/markdown/index.ts",
           "sourceSha": "16a7d0b5f0edba8a882bfb8ede9a29711e6f0eb88104871381f92179c142d723",
           "mirrorSha": "16a7d0b5f0edba8a882bfb8ede9a29711e6f0eb88104871381f92179c142d723"
+        }
+      ]
+    },
+    {
+      "itemName": "blockquote",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/blockquote/blockquote.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/blockquote/blockquote.svelte",
+          "mirror": "apps/www/src/lib/ui/blockquote/blockquote.svelte",
+          "target": "@ui/blockquote/blockquote.svelte",
+          "sourceSha": "16628452ed508a5843bce65055e153a50d70fce9ee5582ab25302540da6952fa",
+          "mirrorSha": "16628452ed508a5843bce65055e153a50d70fce9ee5582ab25302540da6952fa"
+        },
+        {
+          "source": "registry/files/ui/blockquote/blockquote-defaults.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/blockquote/blockquote-defaults.svelte.ts",
+          "target": "@ui/blockquote/blockquote-defaults.svelte.ts",
+          "sourceSha": "74d705f271a22d6d0117d7234e6adba819bbb38c037d929914fbcf29ffd4cf31",
+          "mirrorSha": "74d705f271a22d6d0117d7234e6adba819bbb38c037d929914fbcf29ffd4cf31"
+        },
+        {
+          "source": "registry/files/ui/blockquote/index.ts",
+          "mirror": "apps/www/src/lib/ui/blockquote/index.ts",
+          "target": "@ui/blockquote/index.ts",
+          "sourceSha": "ac730527ed841e0448f48a94cf69200b4af8f4690e41e50628a164295d89bbdb",
+          "mirrorSha": "ac730527ed841e0448f48a94cf69200b4af8f4690e41e50628a164295d89bbdb"
+        }
+      ]
+    },
+    {
+      "itemName": "heading",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/heading/heading.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/heading/heading.svelte",
+          "mirror": "apps/www/src/lib/ui/heading/heading.svelte",
+          "target": "@ui/heading/heading.svelte",
+          "sourceSha": "1e38815f9d43675ee1cb5960d884f5d6caab47e9712c51a0783d180c40936d24",
+          "mirrorSha": "1e38815f9d43675ee1cb5960d884f5d6caab47e9712c51a0783d180c40936d24"
+        },
+        {
+          "source": "registry/files/ui/heading/index.ts",
+          "mirror": "apps/www/src/lib/ui/heading/index.ts",
+          "target": "@ui/heading/index.ts",
+          "sourceSha": "4c2c6b1d76c9893a54f144b63f88b974f1662effbe165536e3388f12cdf57302",
+          "mirrorSha": "4c2c6b1d76c9893a54f144b63f88b974f1662effbe165536e3388f12cdf57302"
+        }
+      ]
+    },
+    {
+      "itemName": "list",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/list/list.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/list/list.svelte",
+          "mirror": "apps/www/src/lib/ui/list/list.svelte",
+          "target": "@ui/list/list.svelte",
+          "sourceSha": "40501a09b356efabe3a016b7168c83e3234079795987d25cde6e10759d182c41",
+          "mirrorSha": "40501a09b356efabe3a016b7168c83e3234079795987d25cde6e10759d182c41"
+        },
+        {
+          "source": "registry/files/ui/list/index.ts",
+          "mirror": "apps/www/src/lib/ui/list/index.ts",
+          "target": "@ui/list/index.ts",
+          "sourceSha": "009da5abf2fb7333b03c2b6764704cf5c4addba6e88e5ed78755af2dfc6e888e",
+          "mirrorSha": "009da5abf2fb7333b03c2b6764704cf5c4addba6e88e5ed78755af2dfc6e888e"
         }
       ]
     },
@@ -2271,6 +2346,111 @@
           "target": "@ui/chip/chip-defaults.svelte.ts",
           "sourceSha": "fb3142f8e0f6079cc9bd2ca1657200a02f28201e1b26b4023c1191e4d07b4692",
           "mirrorSha": "fb3142f8e0f6079cc9bd2ca1657200a02f28201e1b26b4023c1191e4d07b4692"
+        }
+      ]
+    },
+    {
+      "itemName": "link",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/link/link.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/link/link.svelte",
+          "mirror": "apps/www/src/lib/ui/link/link.svelte",
+          "target": "@ui/link/link.svelte",
+          "sourceSha": "9996e1d72525d864466fb17d52b3bd7d69443760358522898c1cb5a5aaa4bd60",
+          "mirrorSha": "9996e1d72525d864466fb17d52b3bd7d69443760358522898c1cb5a5aaa4bd60"
+        },
+        {
+          "source": "registry/files/ui/link/index.ts",
+          "mirror": "apps/www/src/lib/ui/link/index.ts",
+          "target": "@ui/link/index.ts",
+          "sourceSha": "182e8665544d1a5b7b29386ce3693c43c29972716ffd6f4294c6149210ed16fb",
+          "mirrorSha": "182e8665544d1a5b7b29386ce3693c43c29972716ffd6f4294c6149210ed16fb"
+        }
+      ]
+    },
+    {
+      "itemName": "text",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/text/text.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/text/text.svelte",
+          "mirror": "apps/www/src/lib/ui/text/text.svelte",
+          "target": "@ui/text/text.svelte",
+          "sourceSha": "c0d70a953901331edadfc83df9b27ed845bf9edf0e529ae8110d3822dcef7711",
+          "mirrorSha": "c0d70a953901331edadfc83df9b27ed845bf9edf0e529ae8110d3822dcef7711"
+        },
+        {
+          "source": "registry/files/ui/text/p.svelte",
+          "mirror": "apps/www/src/lib/ui/text/p.svelte",
+          "target": "@ui/text/p.svelte",
+          "sourceSha": "e18aa59120b709f66a56e6ad8f3d3ca5945ca4e659383d6e8aab640d1d082bf3",
+          "mirrorSha": "e18aa59120b709f66a56e6ad8f3d3ca5945ca4e659383d6e8aab640d1d082bf3"
+        },
+        {
+          "source": "registry/files/ui/text/strong.svelte",
+          "mirror": "apps/www/src/lib/ui/text/strong.svelte",
+          "target": "@ui/text/strong.svelte",
+          "sourceSha": "825b8cdf787769a2a92bf1e8a80693b03ac914cbbee5ab3473799ae3735b8b35",
+          "mirrorSha": "825b8cdf787769a2a92bf1e8a80693b03ac914cbbee5ab3473799ae3735b8b35"
+        },
+        {
+          "source": "registry/files/ui/text/em.svelte",
+          "mirror": "apps/www/src/lib/ui/text/em.svelte",
+          "target": "@ui/text/em.svelte",
+          "sourceSha": "3e019f8ad1d5ea6ab909807797b678e4bd53ab48e6468ab333772314ced73a80",
+          "mirrorSha": "3e019f8ad1d5ea6ab909807797b678e4bd53ab48e6468ab333772314ced73a80"
+        },
+        {
+          "source": "registry/files/ui/text/del.svelte",
+          "mirror": "apps/www/src/lib/ui/text/del.svelte",
+          "target": "@ui/text/del.svelte",
+          "sourceSha": "16d197842e1d3365402dcb6b066c0ec9603b70d10711313a2a067f6911b48794",
+          "mirrorSha": "16d197842e1d3365402dcb6b066c0ec9603b70d10711313a2a067f6911b48794"
+        },
+        {
+          "source": "registry/files/ui/text/mark.svelte",
+          "mirror": "apps/www/src/lib/ui/text/mark.svelte",
+          "target": "@ui/text/mark.svelte",
+          "sourceSha": "cbdf072fed1034ff7451c75941ee4fa2f975203b3e68d20d41655e8665771660",
+          "mirrorSha": "cbdf072fed1034ff7451c75941ee4fa2f975203b3e68d20d41655e8665771660"
+        },
+        {
+          "source": "registry/files/ui/text/ins.svelte",
+          "mirror": "apps/www/src/lib/ui/text/ins.svelte",
+          "target": "@ui/text/ins.svelte",
+          "sourceSha": "35d2b07d85e9e9b62c78ff7224bae0f441c6b6a032d2c0b2a01b698d997c4bc6",
+          "mirrorSha": "35d2b07d85e9e9b62c78ff7224bae0f441c6b6a032d2c0b2a01b698d997c4bc6"
+        },
+        {
+          "source": "registry/files/ui/text/sub.svelte",
+          "mirror": "apps/www/src/lib/ui/text/sub.svelte",
+          "target": "@ui/text/sub.svelte",
+          "sourceSha": "ce38ced01d544ad3f139611eaf773b3a4f3609cc6a4e34658c2008c0dd7ea03b",
+          "mirrorSha": "ce38ced01d544ad3f139611eaf773b3a4f3609cc6a4e34658c2008c0dd7ea03b"
+        },
+        {
+          "source": "registry/files/ui/text/sup.svelte",
+          "mirror": "apps/www/src/lib/ui/text/sup.svelte",
+          "target": "@ui/text/sup.svelte",
+          "sourceSha": "72916a28c16743dd43000603621a883d7c19e5be2d3be6b23963678532faaadf",
+          "mirrorSha": "72916a28c16743dd43000603621a883d7c19e5be2d3be6b23963678532faaadf"
+        },
+        {
+          "source": "registry/files/ui/text/text-defaults.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/text/text-defaults.svelte.ts",
+          "target": "@ui/text/text-defaults.svelte.ts",
+          "sourceSha": "75d42c7d91b0edc24af941c5601ddfced11b71c96169a22890bab2533ef5510b",
+          "mirrorSha": "75d42c7d91b0edc24af941c5601ddfced11b71c96169a22890bab2533ef5510b"
+        },
+        {
+          "source": "registry/files/ui/text/index.ts",
+          "mirror": "apps/www/src/lib/ui/text/index.ts",
+          "target": "@ui/text/index.ts",
+          "sourceSha": "9b3e5e98a12fb50cf77649cca14ec45c883d5b5009a0912c55e18adcd95ca51d",
+          "mirrorSha": "9b3e5e98a12fb50cf77649cca14ec45c883d5b5009a0912c55e18adcd95ca51d"
         }
       ]
     },

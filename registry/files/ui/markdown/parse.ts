@@ -26,8 +26,12 @@
  *    streaming tail `${i}:${type}:tail`.
  * 5. Node vocabulary re-exports + NodeOf/MarkdownComponents — the type
  *    side of the renderer's override seam (design §3.3).
+ * 6. GitHub-alert detection (markdown-coverage design §4) — a PURE
+ *    function over the blockquote node: the marker line is stripped
+ *    into CLONES, never into the parser's own nodes (the immutability
+ *    law, see detectBlockquoteAlert).
  *
- * Co-location note (the AGENTS.md 5-intent alarm): these five intents
+ * Co-location note (the AGENTS.md 5-intent alarm): these six intents
  * are ONE swap seam by design (design.md §1 — "parse.ts is the swap
  * seam" for any future parser exchange); splitting them would scatter
  * the frozen contract across files that must change together.
@@ -93,7 +97,16 @@ import type { Component } from 'svelte';
  */
 const PINNED_FACTORY_OPTIONS = {
   markdownItOptions: {
-    html: false,
+    // html:true — the equivalence amendment (markdown-coverage §8.1,
+    // 2026-09-07): the html_block/html_inline token rules must run for
+    // the frozen tag table to see strike/details/kbd at all (under
+    // html:false only the INLINE_HTML_TAG_NAMES members structure).
+    // The security floor moves FULLY render-side and holds there: this
+    // renderer owns every DOM node, never mounts {@html}, routes the
+    // whitelisted tags onto components, and escapes every other tag's
+    // content as literal text — probe-verified under html:true
+    // (script/div/span arrive as structured nodes the mapper escapes).
+    html: true,
     linkify: true,
     typographer: false,
     breaks: false,
@@ -246,13 +259,15 @@ export const fnv1a36 = (input: string): string => {
 // Intent 3 — the adapter state machine (design §2.1)
 // ---------------------------------------------------------------------------
 
-/** One keyed top-level block — the renderer never re-derives tail/type. */
+/** One keyed top-level block — the renderer never re-derives tail/type.
+ *  The node may be a synthetic accordion_group (the html equivalence
+ *  lane's merge — design §8.3). */
 export interface MarkdownBlock {
   /** `${index}:${type}:${digest}`; streaming tail: `${index}:${type}:tail` */
   readonly key: string;
   readonly type: string;
   readonly digest: string;
-  readonly node: ParsedNode;
+  readonly node: MarkdownNodeInput;
   readonly isTail: boolean;
 }
 
@@ -316,13 +331,20 @@ export const createMarkdownParser = (): MarkdownParse => {
     });
     lastSource = source;
 
-    const blocks: MarkdownBlock[] = nodes.map((node, index): MarkdownBlock => {
+    // The html equivalence lane's ONE parse-side transform (design §8.3):
+    // consecutive top-level <details> runs become ONE accordion group —
+    // a pure rewrite of the node list BEFORE keying, so digests key on
+    // the merged canonical form (a group that grows remounts once per
+    // semantic event, the link-reference-definition precedent).
+    const merged = groupAccordionRuns(nodes);
+
+    const blocks: MarkdownBlock[] = merged.map((node, index): MarkdownBlock => {
       // L2: while streaming, the LAST block keys on type alone (digest
       // dropped) — content may mutate in place, type transitions remount.
       // L1/L3: every other block (and all blocks in final mode) keys on
       // the semantic digest; duplicate-content siblings disambiguate by
       // the index prefix.
-      const isTail = !final && index === nodes.length - 1;
+      const isTail = !final && index === merged.length - 1;
       const digest = fnv1a36(stableStringify(node));
       return {
         key: isTail ? `${index}:${node.type}:tail` : `${index}:${node.type}:${digest}`,
@@ -443,3 +465,239 @@ export type NodeOf<T extends string> = T extends ParsedNodeType ? NodeTypeMap[T]
 export type MarkdownComponents = {
   [K in ParsedNodeType]?: Component<{ node: NodeOf<K> }>;
 };
+
+// ---------------------------------------------------------------------------
+// Intent 6 — GitHub-alert detection on blockquotes (markdown-coverage
+// design §4): the default map's one new behavior, a pure render-side
+// read of the parsed node
+// ---------------------------------------------------------------------------
+
+/** The five GitHub alert kinds (the frozen vocabulary — anything else
+ *  is plain quote text). */
+export type GithubAlertKind = 'note' | 'tip' | 'important' | 'warning' | 'caution';
+
+/**
+ * Kind → hue utility + label text. Hues are STATUSES, never
+ * destructive (the variant-grammar action/status law): caution reads
+ * `jx-hue-error`, not the destructive lane. The values carry the FULL
+ * site-utility names (TW4 @utility classes, always available) — never
+ * a `jx-hue-` prefix for concatenation: a trailing-dash token in a
+ * source string would enter the hook-law static inventory (B1 bans
+ * them), while full names are the css-defined class form every
+ * call-site already uses. The class injects the --jx-tonal token the
+ * alert face's tonal rung consumes.
+ */
+export const GITHUB_ALERTS: Record<GithubAlertKind, { hueClass: string; label: string }> = {
+  note: { hueClass: 'jx-hue-info', label: 'Note' },
+  tip: { hueClass: 'jx-hue-success', label: 'Tip' },
+  important: { hueClass: 'jx-hue-primary', label: 'Important' },
+  warning: { hueClass: 'jx-hue-warning', label: 'Warning' },
+  caution: { hueClass: 'jx-hue-error', label: 'Caution' },
+};
+
+/** The marker on its own first line — mixed case allowed, optional
+ *  trailing whitespace (GitHub's own rules: `[!NOTE]` mid-line or on a
+ *  later line is body text, never an alert). */
+const GITHUB_ALERT_MARKER = /^\[!(note|tip|important|warning|caution)\]\s*$/i;
+
+/**
+ * IMMUTABILITY LAW — this function NEVER mutates the parser's nodes.
+ * The stream cache and the keyed-block digests share the very objects
+ * it receives: a strip-in-place would corrupt re-detection on the next
+ * render (the marker already gone, the quote silently demoting to
+ * plain — a strip-then-no-match loop) and desync the digest the L3 key
+ * transition froze. The returned children are therefore a NEW array
+ * over a shallowly-structurally cloned chain (new objects for the
+ * modified wrapper/paragraph/text spine only; untouched siblings keep
+ * sharing references with the parse tree — nothing downstream writes
+ * them).
+ *
+ * Detection: node.children[0] must be a paragraph; its first child
+ * must be a text node — OR an `inline` wrapper whose first child is a
+ * text node (both AST shapes supported; the installed parser emits the
+ * direct-text shape for every probed quote, the wrapper arm is
+ * defensive tolerance pinned by unit test). The text node's FIRST LINE
+ * (content up to the first \n) must fully match the marker. On match:
+ * the marker line is stripped from the clone (remaining lines kept; an
+ * emptied text node is dropped, then an emptied wrapper, then an
+ * emptied paragraph — each drop only when the strip made it empty).
+ * `raw` fields stay verbatim on the clones: render reads `content`,
+ * and the digest already ran over the ORIGINAL node before any
+ * component saw it.
+ */
+export function detectBlockquoteAlert(
+  node: BlockquoteNode,
+): { kind: GithubAlertKind; children: ParsedNode[] } | null {
+  const paragraph = node.children[0];
+  if (!paragraph || paragraph.type !== 'paragraph') return null;
+
+  // one level of wrapper tolerance: inline > text probed the same way
+  const wrapper = paragraph.children[0];
+  const inline =
+    wrapper !== undefined && wrapper.type === 'inline' && wrapper.children[0] !== undefined
+      ? wrapper
+      : undefined;
+  const text = inline ? inline.children[0] : wrapper;
+  if (!text || text.type !== 'text') return null;
+
+  const newlineIndex = text.content.indexOf('\n');
+  const firstLine = newlineIndex === -1 ? text.content : text.content.slice(0, newlineIndex);
+  const match = GITHUB_ALERT_MARKER.exec(firstLine);
+  if (!match) return null;
+
+  // strip the marker line from the CLONE; remaining lines (if any) are
+  // the alert body's opening text
+  const stripped = newlineIndex === -1 ? '' : text.content.slice(newlineIndex + 1);
+  const kind = match[1]!.toLowerCase() as GithubAlertKind;
+
+  // rebuild the modified spine, shallow-structural: text → (wrapper) →
+  // paragraph → quote children, dropping any link the strip emptied
+  let paragraphChildren: ParsedNode[];
+  if (stripped === '') {
+    // the marker was the text node's whole content — drop it; an
+    // emptied wrapper drops with it, its surviving children stay in
+    // the cloned wrapper
+    if (inline) {
+      const wrapperRest = inline.children.slice(1);
+      paragraphChildren =
+        wrapperRest.length > 0
+          ? [{ ...inline, children: wrapperRest }, ...paragraph.children.slice(1)]
+          : paragraph.children.slice(1);
+    } else {
+      paragraphChildren = paragraph.children.slice(1);
+    }
+  } else {
+    const strippedText: ParsedNode = { ...text, content: stripped };
+    paragraphChildren = inline
+      ? [
+          { ...inline, children: [strippedText, ...inline.children.slice(1)] },
+          ...paragraph.children.slice(1),
+        ]
+      : [strippedText, ...paragraph.children.slice(1)];
+  }
+
+  if (paragraphChildren.length === 0) {
+    return { kind, children: node.children.slice(1) };
+  }
+  const strippedParagraph: ParsedNode = { ...paragraph, children: paragraphChildren };
+  return { kind, children: [strippedParagraph, ...node.children.slice(1)] };
+}
+
+// ---------------------------------------------------------------------------
+// Intent 6 — the html equivalence vocabulary (design §8, the Owner's
+// 2026-09-07 addition: "some <b>text</b>" and "some **text**" must be
+// fully equivalent). The html axis rides TRUE (the §8.1 amendment):
+// the structure layer delivers PARSED html nodes (html_inline/
+// html_block carrying tag/attrs/children — probe-verified under the
+// real nested pin), so equivalence is a RENDER-side routing decision
+// through the frozen tables below; unknown tags keep the escaped-text
+// security floor. The tables are spec-level vocabulary: adding a tag
+// is a spec change, never a patch.
+// ---------------------------------------------------------------------------
+
+/**
+ * Inline tag → the text-family mark the markdown spelling lands in
+ * (`b` and `<strong>` both route to Strong, exactly as `**x**` does).
+ * The value vocabulary is the text family's own (element-word) marks.
+ */
+export const HTML_INLINE_TAG_TO_MARK: Readonly<Record<string, string>> = {
+  b: 'strong',
+  strong: 'strong',
+  i: 'em',
+  em: 'em',
+  del: 'del',
+  s: 'del',
+  strike: 'del',
+  ins: 'ins',
+  u: 'ins',
+  mark: 'mark',
+  sub: 'sub',
+  sup: 'sup',
+};
+
+/** The block tags the map owns at BLOCK position (details rides the
+ *  accordion via the group merge; hr mirrors thematic_break). */
+export const HTML_BLOCK_TAG_OWNED: ReadonlySet<string> = new Set(['details', 'hr']);
+
+/** One accordion item extracted from a top-level html details block:
+ *  the summary element's children, the body blocks (everything after
+ *  the summary), and the open attribute's presence. Never mutates the
+ *  parser's nodes — payloads reference children arrays as-is. */
+export interface AccordionItemPayload {
+  summary: readonly ParsedNode[];
+  children: readonly ParsedNode[];
+  open: boolean;
+}
+
+/** The synthetic block a consecutive run of top-level details nodes
+ *  becomes (design §8.3) — locally typed: the parser's union stays
+ *  untouched, and the components-seam lookup simply finds no override
+ *  for it (app-level grouping decisions ride the html-node overrides). */
+export interface AccordionGroupNode {
+  type: 'accordion_group';
+  items: readonly AccordionItemPayload[];
+}
+
+/** What the keyed map (and MarkdownNode) accept after the merge. */
+export type MarkdownNodeInput = ParsedNode | AccordionGroupNode;
+
+/** attrs pair-array → record (the parser ships `[[name, value]]`). */
+export function htmlAttrsToRecord(
+  attrs: readonly (readonly [string, string])[] | null | undefined,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const pair of attrs ?? []) out[pair[0]] = pair[1];
+  return out;
+}
+
+/** A summary-less details renders the UA's default disclosure label. */
+const DEFAULT_SUMMARY: readonly ParsedNode[] = [{ type: 'text', content: 'Details' }];
+
+function isHtmlDetails(node: ParsedNode): boolean {
+  return node.type === 'html_block' && node.tag === 'details';
+}
+
+/** details node → accordion item payload (exported: the nested-details
+ *  branch of the mapper reuses it for a details at non-top-level
+ *  position, where the group merge never sees it). */
+export function detailsToAccordionItem(node: ParsedNode): AccordionItemPayload {
+  if (!isHtmlDetails(node)) throw new Error('[jxoai markdown] accordion item expects a details node');
+  const children = node.children ?? [];
+  const summaryNode = children.find((child) => child.type === 'html_block' && child.tag === 'summary');
+  const summary =
+    summaryNode && summaryNode.children && summaryNode.children.length > 0
+      ? summaryNode.children
+      : DEFAULT_SUMMARY;
+  const body = children.filter((child) => child !== summaryNode);
+  return { summary, children: body, open: 'open' in htmlAttrsToRecord(node.attrs) };
+}
+
+function accordionItemFrom(node: ParsedNode): AccordionItemPayload {
+  return detailsToAccordionItem(node);
+}
+
+/**
+ * The merge: each maximal run of consecutive top-level details blocks
+ * becomes ONE accordion group (a pile of framed boxes is the pile the
+ * group exists to collapse). Pure — inputs are never mutated.
+ */
+export function groupAccordionRuns(nodes: readonly ParsedNode[]): MarkdownNodeInput[] {
+  const out: MarkdownNodeInput[] = [];
+  let run: ParsedNode[] = [];
+  const flush = () => {
+    if (run.length > 0) {
+      out.push({ type: 'accordion_group', items: run.map(accordionItemFrom) });
+      run = [];
+    }
+  };
+  for (const node of nodes) {
+    if (isHtmlDetails(node)) {
+      run.push(node);
+    } else {
+      flush();
+      out.push(node);
+    }
+  }
+  flush();
+  return out;
+}

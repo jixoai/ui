@@ -1187,16 +1187,25 @@
       "name": "markdown",
       "type": "registry:ui",
       "title": "Markdown",
-      "description": "Markdown rendering with append-only streaming (stream-markdown-parser core — markdown-it-ts under it, CommonMark + GFM; the renderer owns the DOM, never the parser's): one keyed block per top-level AST node (${index}:${type}:${digest}; the streaming tail keys on type alone), so the frozen prefix never remounts while chunks arrive — prefix keys freeze, the tail mutates in place, remounts stay bounded to one per semantic event, and the stream's end re-parses once with final semantics. The AST maps onto in-house parts: code_block → CodeCard (partial code + loading state mid-fence, generation-guard repaint is CodeCard's own path), table → a semantically neutral div[data-kind=table] wrapping Table with generated thead/tbody, td[data-label] row labels and per-column align; every other node is a bare native element under the jx-pure Tier-0 prose face (the root mounts the class; the sheet itself is the app-level import, imported once from the site css the way jixoai.css is — never a forked copy of the face laws, never a second component-level import that would double-bundle it). Security floor: html:false + the renderer's escaped-literal law (raw markup survives as text, zero {@html} in the default map), the factory validateLink demotes unsafe schemes at parse time, image src passes the bitmap-data-URL sanitizer (SVG and other data schemes omit the img entirely). The components override seam is trusted application code — the same trust level as any component the app renders by hand. The component is a pure function of (source, streaming): server render and client hydration parse the same snapshot (the SSR snapshot law); data-jx-markdown-streaming + the terminal cursor stamp the root only while streaming.",
+      "description": "Markdown rendering with append-only streaming (stream-markdown-parser core — markdown-it-ts under it, CommonMark + GFM; the renderer owns the DOM, never the parser's): one keyed block per top-level AST node (${index}:${type}:${digest}; the streaming tail keys on type alone), so the frozen prefix never remounts while chunks arrive — prefix keys freeze, the tail mutates in place, remounts stay bounded to one per semantic event, and the stream's end re-parses once with final semantics. The AST maps onto first-party registry parts: blockquote → Blockquote with GitHub alert detection first (a [!NOTE|TIP|IMPORTANT|WARNING|CAUTION] marker on the quote's own first line renders tonal + label + the status hue; a half-typed marker simply renders the plain quote and keeps updating in place), heading → Heading (the em ladder migrated out of the face sheet so it scales with the ambient preset), list → List (children recurse; list_item stays a native li), paragraph → P and inline marks → the text family (Strong/Em/Del/Mark/Ins/Sub/Sup — one word is prop value, sugar name, and HTML element), link → Link (absolute http(s) opens externally), inline_code → InlineCode with lang='text' (the zero-work-per-span streaming law), thematic_break → Separator behind a neutral carrier div, code_block → CodeCard (partial code + loading state mid-fence, generation-guard repaint is CodeCard's own path), table → a semantically neutral div[data-kind=table] wrapping Table with generated thead/tbody, td[data-label] row labels and per-column align. Box-owning block roots escape the jx-pure Tier-0 prose face (no-jx-pure on Blockquote/Heading/List roots and the InlineCode chip, Separator's carrier div) so the face stops double-painting them; face-composing inline members never escape (P, the marks, Link — an inline escape would virally descope the code chips and nested marks a link legitimately contains). Task checkboxes stay native disabled inputs (the jx-pure bare-checkbox face paints them); image stays the sanitized native img. The root mounts the face class; the sheet itself is the app-level import, imported once from the site css the way jixoai.css is — never a forked copy of the face laws, never a second component-level import that would double-bundle it. Security floor: html:false + the renderer's escaped-literal law (raw markup survives as text, zero {@html} in the default map), the factory validateLink demotes unsafe schemes at parse time, image src passes the bitmap-data-URL sanitizer (SVG and other data schemes omit the img entirely). The components override seam is trusted application code — the same trust level as any component the app renders by hand. The component is a pure function of (source, streaming): server render and client hydration parse the same snapshot (the SSR snapshot law); data-jx-markdown-streaming + the terminal cursor stamp the root only while streaming. HTML is markdown spelled differently (2026-09-07): whitelisted tags (<b>, <strong>, <details>/<summary>, <code>, <kbd>, <a>, <hr>…) route onto the SAME components as their markdown spellings; every other tag stays escaped literal text.",
       "dependencies": [
         "stream-markdown-parser@^1.2.14"
       ],
       "registryDependencies": [
-        "@jixoai/jixoai-theme",
-        "@jixoai/jx-pure",
-        "@jixoai/table",
+        "@jixoai/accordion",
+        "@jixoai/blockquote",
         "@jixoai/code-card",
         "@jixoai/density",
+        "@jixoai/heading",
+        "@jixoai/inline-code",
+        "@jixoai/jixoai-theme",
+        "@jixoai/jx-pure",
+        "@jixoai/kbd",
+        "@jixoai/link",
+        "@jixoai/list",
+        "@jixoai/separator",
+        "@jixoai/table",
+        "@jixoai/text",
         "@jixoai/utils"
       ],
       "files": [
@@ -1226,11 +1235,103 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Install: npx jixoai-ui add markdown. Props: typography=compact|standard|relaxed (13/1.55·8px, 14/1.7·14px, 16/1.75·20px — the GitHub/Tailwind-calibrated prose trio; nested context-consuming chrome rides the mapped density slot). Prerequisite: the jx-pure face imported once from the site css (@jixoai/jx-pure installs the sheet; the root mounts the class). Props: source, streaming=false (opt-in cursor + tail-key semantics — a static document is the default face), components? (per-node-type renderer overrides — trusted application code: overrides receive {node} with raw fields and own their own security, the react-markdown model), class/style/rest passthrough. Barrel exports MarkdownNode (the override delegation seam) plus the parse adapter vocabulary (createMarkdownParser, stableStringify, fnv1a36, node types). Streaming is append-only: growing source keeps the keyed prefix mounted; a non-append switch (replace/message change) transparently recreates the parser instance.",
+      "docs": "Install: npx jixoai-ui add markdown. Props: typography=compact|standard|relaxed (13/1.55·8px, 14/1.7·14px, 16/1.75·20px — the GitHub/Tailwind-calibrated prose trio; nested context-consuming chrome rides the mapped density slot). Prerequisite: the jx-pure face imported once from the site css (@jixoai/jx-pure installs the sheet; the root mounts the class). The default map is first-party end to end: blockquote → Blockquote (GitHub alert detection: [!NOTE|TIP|IMPORTANT|WARNING|CAUTION] on the quote's own first line → tonal + label + status hue), heading → Heading (em ladder, level from the source), list → List, paragraph → P, strong/emphasis/strikethrough/highlight/insert/subscript/superscript → Strong/Em/Del/Mark/Ins/Sub/Sup (the text family), link → Link (absolute http(s) opens in a new tab), inline_code → InlineCode lang='text', thematic_break → Separator, code_block → CodeCard, table → Table under div[data-kind=table]; task checkboxes stay native disabled inputs and image stays the sanitized native img. Props: source, streaming=false (opt-in cursor + tail-key semantics — a static document is the default face), components? (per-node-type renderer overrides — trusted application code: overrides receive {node} with raw fields and own their own security, the react-markdown model), class/style/rest passthrough. Barrel exports MarkdownNode (the override delegation seam) plus the parse adapter vocabulary (createMarkdownParser, stableStringify, fnv1a36, node types). Streaming is append-only: growing source keeps the keyed prefix mounted; a non-append switch (replace/message change) transparently recreates the parser instance.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/markdown.html"
       }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "blockquote",
+      "type": "registry:ui",
+      "title": "Blockquote",
+      "description": "The reading-content quote/admonition surface: the semantic body IS the native <blockquote> (cite renders the MDN attribution posture — footer > cite — never an element swap), on the alert-shaped two-rung ladder: outline (own) transparent ground + 1px left rule + muted body (the classic GitHub/Tailwind quote), tonal the alert tonal recipe verbatim (12% tinted ground, 45% border, rounded box — the callout/Notion posture). Availability is FROZEN at two rungs: quote readability excludes fill AND ghost — ghost is interactive-chrome vocabulary (rest-transparent, hover-tonal) which a static quote misuses; the borderless manuscript indent is a future STRUCTURAL axis, never a paint rung. label renders the alert title-row form, icon lands inline-start of it (bring your own glyph), hue rides injection through jx-hue-* class utilities (the markdown map's GitHub alerts land here as tonal + label + hue). The root stamps NO font-size — the ambient scale flows by inheritance (the typography trio law); the markdown default map mounts it with no-jx-pure (the box-owning block escape).",
+      "files": [
+        {
+          "path": "registry/files/ui/blockquote/blockquote.svelte",
+          "target": "@ui/blockquote/blockquote.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/blockquote/blockquote-defaults.svelte.ts",
+          "target": "@ui/blockquote/blockquote-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/blockquote/index.ts",
+          "target": "@ui/blockquote/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: variant? ('outline' default | 'tonal' — the frozen two-rung ladder), label? (one-line uppercase heading in the alert title-row form), icon? (Snippet, inline-start of the label), cite? (attribution, rendered as footer > cite after the body), children (body copy), class plus every <blockquote> attribute passthrough. Hue seam: class=\"jx-hue-info\" / jx-hue-warning / … (intent utilities; arbitrary form for unlisted hues). Hook: data-jx-blockquote={variant}.",
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/blockquote.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
+        "@jixoai/density",
+        "@jixoai/paint"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "heading",
+      "type": "registry:ui",
+      "title": "Heading",
+      "description": "The level-laddered heading: a native h1–h6 by level (1–6, rounded then clamped — the rendered truth is what the hook stamps), carrying the em size ladder migrated out of the markdown face sheet (1.875em h1 → 1.5em → 1.25em → 1.125em → 1em/1em) so the hierarchy scales with the ambient font-size preset AND the component stands alone. Level IS the structural axis — no paint ladder (the separator precedent of a literal-axis-only component); font-bold, leading-[1.25], foreground ink are what it owns. NO block margins (preflight zeroes them; the container rhythm law owns root spacing). Default level 2: h1 is the page's one-per-page title — a component defaulting to it would mint competing titles.",
+      "files": [
+        {
+          "path": "registry/files/ui/heading/heading.svelte",
+          "target": "@ui/heading/heading.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/heading/index.ts",
+          "target": "@ui/heading/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: level? (1–6, default 2; out-of-range values clamp), id? (explicit address), children, class plus every heading attribute passthrough. Hook: data-jx-heading={clamped level}. No Defaults file — level is not a style prop.",
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/heading.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "list",
+      "type": "registry:ui",
+      "title": "List",
+      "description": "The prose list: a native <ol|ul> by ordered (the separator's dual-root cast — Props typed on the ul shape, start passed explicitly on the ol branch only). Owns the reading channels: list-style disc|decimal, padding-inline-start 1.5rem, muted marker ink; NO block margins (the rhythm/flush laws own spacing). This is NOT list-item — that item is the antd/F7 settings-row system (ItemGroup frames, media/end lanes, five control adapters); this one styles the LIST, never the row, and the markdown map composes it with native <li> children (list_item stays bare so the element-based rhythm selectors and the container-inner sibling stack keep matching). The task-item rules (marker suppression, checkbox alignment) are container-level DOM-shape laws that stay in the markdown sheet.",
+      "files": [
+        {
+          "path": "registry/files/ui/list/list.svelte",
+          "target": "@ui/list/list.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list/index.ts",
+          "target": "@ui/list/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: ordered? (false → <ul>, true → <ol> with decimal markers), start? (ol-only passthrough — the first marker value), children (native <li> children or component trees rendering them), class plus every list attribute passthrough. Hook: data-jx-list=\"ol\"|\"ul\" (the separator's data-orientation form). No Defaults file — no public style prop.",
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/list.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -2455,6 +2556,109 @@
         "@jixoai/press-button",
         "@jixoai/defaults",
         "@jixoai/paint",
+        "@jixoai/density"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "link",
+      "type": "registry:ui",
+      "title": "Link",
+      "description": "The typographic link: a native <a> carrying the prose face's non-nav lane as its own utilities (primary ink, 4px underline offset, hover underline) so it stands alone outside any jx-pure scope — and inside one the values coincide with the face's own channels (same property, same token, deterministic no-op). External detection is pattern-based, not origin-based (ANY absolute http(s) href is external; no window.location semantics dragged into SSR): external links open a new tab with rel=noreferrer (the fleet convention — doc-link and PressButton both ship bare noreferrer; modern browsers imply noopener from it). Hook: data-jx-link=\"external\"|\"internal\" — the separator's data-orientation form. href/title and the external pair land AFTER the spread (the separator law): they are the component's contract, not overridable through rest props.",
+      "files": [
+        {
+          "path": "registry/files/ui/link/link.svelte",
+          "target": "@ui/link/link.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/link/index.ts",
+          "target": "@ui/link/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: href (required — an absolute http(s) href makes the link external: target=_blank + rel=noreferrer), title? (advisory passthrough), children, class plus every anchor attribute passthrough. Hook: data-jx-link={external ? 'external' : 'internal'}. No Defaults file — external-ness derives from href.",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/link.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "text",
+      "type": "registry:ui",
+      "title": "Text",
+      "description": "The reading-content family the Owner designed: base <Text> renders <p> by default (the Chakra <Text>-is-a-paragraph precedent) and mark switches the element and paint — ONE vocabulary where the prop value, the sugar name, and the HTML element are the same word: p (no utilities; face-composing), strong (<strong> font-semibold — the GitHub/Tailwind Typography 600 settle, a recorded override of the face's 700), em (<em> italic), del (<del> line-through), mark (<mark> highlight ground + the 0.05em/0.25em padding box mirroring the face's mark so standalone and in-face agree; forced colors drop to the Highlight pair), ins (<ins> underline), sub/sup (<sub>/<sup> — the UA baseline shift is the law). mark is a LITERAL slot (defineLiteralSlot, own 'p' — the kbd variant precedent): element vocabulary, never prominence, never zone-ambient. The eight Raw sugars (P Strong Em Del Mark Ins Sub Sup) are re-exported from the base's module script and the barrel — one vocabulary, two ergonomic forms, zero behavioral difference. FACE-COMPOSING: no member escapes no-jx-pure (an inline escape would virally descope the code chips and nested marks a link legitimately contains); the root stamps NO font-size — the ambient scale flows by inheritance.",
+      "files": [
+        {
+          "path": "registry/files/ui/text/text.svelte",
+          "target": "@ui/text/text.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/p.svelte",
+          "target": "@ui/text/p.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/strong.svelte",
+          "target": "@ui/text/strong.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/em.svelte",
+          "target": "@ui/text/em.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/del.svelte",
+          "target": "@ui/text/del.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/mark.svelte",
+          "target": "@ui/text/mark.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/ins.svelte",
+          "target": "@ui/text/ins.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/sub.svelte",
+          "target": "@ui/text/sub.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/sup.svelte",
+          "target": "@ui/text/sup.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/text-defaults.svelte.ts",
+          "target": "@ui/text/text-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/index.ts",
+          "target": "@ui/text/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: mark? ('p' default | 'strong' | 'em' | 'del' | 'mark' | 'ins' | 'sub' | 'sup' — the element vocabulary; a literal slot, own 'p', never zone-ambient), children, class plus the chosen element's attribute passthrough. Raw sugars: import Text, { P, Strong, Em, Del, Mark, Ins, Sub, Sup } from '@ui/text' — Text mark=\"x\" ≡ the x sugar (same element, same data-jx-text hook, same class-merge order). Hook: data-jx-text={form}.",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/text.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults",
         "@jixoai/density"
       ]
     },

@@ -207,7 +207,100 @@ describe('markdown — keyed-block identity (L1–L4)', () => {
   });
 });
 
-describe('markdown — the SSR snapshot law (source-guard form)', () => {
+describe('markdown — GitHub-alert streaming tolerance (markdown-coverage §4)', () => {
+  it('a half-typed marker stays a plain quote IN PLACE; completion swaps the face, never the keyed item', () => {
+    const chunks = [
+      '> [!NO',
+      '> [!NOTE',
+      '> [!NOTE]\n> body',
+    ];
+    const { container, rerender } = render(Markdown, {
+      props: { source: chunks[0]!, streaming: true },
+    });
+    const root = container.querySelector('[data-jx-markdown]')!;
+    const quote = root.querySelector('blockquote')!;
+
+    // mid-typing: the detector does not match — the plain outline face
+    expect(quote.getAttribute('data-jx-blockquote')).toBe('outline');
+    expect(quote.querySelector('[data-jx-blockquote-label]')).toBeNull();
+
+    // the marker completes while the block stays the TAIL (L2): the
+    // SAME DOM node swaps its inner face — no remount, no key change
+    rerender({ source: chunks[1]! });
+    const typing = root.querySelector('blockquote')!;
+    expect(typing).toBe(quote);
+    expect(typing.getAttribute('data-jx-blockquote')).toBe('outline'); // still not a full marker
+
+    rerender({ source: chunks[2]! });
+    const alert = root.querySelector('blockquote')!;
+    expect(alert).toBe(quote); // keyed identity held across the swap
+    expect(alert.getAttribute('data-jx-blockquote')).toBe('tonal');
+    expect(alert.classList.contains('jx-hue-info')).toBe(true);
+    expect(alert.querySelector('[data-jx-blockquote-label]')!.textContent).toBe('Note');
+    expect(alert.textContent).toContain('body');
+
+    // a successor appears: the tail key transitions to its digest (L3) —
+    // the ONE bounded remount, with the face ALREADY rendered so the
+    // marker never costs an extra transition; the settled quote keeps
+    // the tonal alert face through the key transition
+    rerender({ source: `${chunks[2]!}\n\nafter the alert` });
+    const settled = root.querySelector('blockquote')!;
+    expect(settled).not.toBe(quote); // L3: tail → digest is the one remount
+    expect(quote.isConnected).toBe(false);
+    expect(settled.getAttribute('data-jx-blockquote')).toBe('tonal');
+    expect(settled.classList.contains('jx-hue-info')).toBe(true);
+    // the successor is a root-level P (the label row inside the alert is
+    // also a <p> — the root-child selector is the discriminant)
+    expect(root.querySelector('[data-jx-markdown] > p')!.textContent).toBe('after the alert');
+  });
+});
+
+describe('markdown — structural perf guard (mark-dense stream, no wall-clock)', () => {
+  it('prefix key invariance + block-count shape across append-only chunks of a mark-dense document', () => {
+    // 40 paragraphs × 10 mixed inline marks: the regression trip wire
+    // for per-node componentization cost — STRUCTURAL assertions only
+    // (CI timing flakes are a recorded non-goal)
+    const paragraph = (n: number): string =>
+      `P${n} **bold${n}** *em${n}* ~~del${n}~~ ==mark${n}== ++ins${n}++ H~${n}~O x^${n}^ \`c${n}\` [l${n}](https://e.example/${n})`;
+    const full = Array.from({ length: 40 }, (_, n) => paragraph(n)).join('\n\n');
+    const parse = createMarkdownParser();
+
+    // feed append-only: every prefix snapshot's frozen keys stay
+    // invariant as the stream grows (the L1 law, at mark-dense scale)
+    let previousKeys: string[] = [];
+    for (let take = 8; take <= 40; take += 8) {
+      const source = full.split('\n\n').slice(0, take).join('\n\n');
+      const result = parse(source, true);
+      expect(result.blocks.length).toBe(take);
+      if (previousKeys.length > 0) {
+        // the previously-frozen prefix keeps its keys verbatim; only the
+        // former tail transitions (tail → digest — the one L3 event)
+        const shared = previousKeys.slice(0, -1);
+        expect(result.blocks.slice(0, shared.length).map((b) => b.key)).toEqual(shared);
+      }
+      previousKeys = result.blocks.map((b) => b.key);
+    }
+
+    // the final document: every block digest-keyed, no tail keys left
+    const final = parse(full, false);
+    expect(final.blocks.length).toBe(40);
+    expect(final.blocks.every((block) => !block.key.endsWith(':tail'))).toBe(true);
+
+    // and the render shape: one root child per block, every mark a
+    // component root with its hook (the map held at density)
+    const mounted = render(Markdown, { props: { source: full } });
+    const root = mounted.container.querySelector('[data-jx-markdown]')!;
+    expect(root.children.length).toBe(40);
+    expect(root.querySelectorAll('p[data-jx-text="p"]').length).toBe(40);
+    for (const hook of ['strong', 'em', 'del', 'mark', 'ins', 'sub', 'sup']) {
+      expect(root.querySelectorAll(`[data-jx-text="${hook}"]`).length).toBe(40, hook);
+    }
+    expect(root.querySelectorAll('code[data-jx-inline-code]').length).toBe(40);
+    expect(root.querySelectorAll('a[data-jx-link="external"]').length).toBe(40);
+  });
+});
+
+describe('markdown — SSR snapshot law (source-guard form)', () => {
   const specDir = resolve(import.meta.dirname, '.');
   const familySources = ['markdown.svelte', 'markdown-node.svelte']
     .map((file) => readFileSync(resolve(specDir, '../src/lib/ui/markdown', file), 'utf8'))

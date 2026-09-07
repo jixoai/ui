@@ -5,6 +5,11 @@
  * suite (mount) both run THIS on the same DOC fixture, so structural
  * parity between server frame and client frame is enforced by
  * construction, not by duplicated expectations.
+ *
+ * markdown-coverage (2026-09-07): the reading-content constructs ride
+ * registry parts now — every remapped construct asserts BOTH the
+ * valued hook AND the underlying native element (the components'
+ * roots ARE the native elements; the hook is the component's stamp).
  */
 
 import { expect } from 'vitest';
@@ -38,14 +43,20 @@ export function assertMarkdownDocShape(root: Element, { streaming }: { streaming
     expect(root.querySelector('[data-jx-markdown-cursor]')).toBeNull();
   }
   expect(root.classList.contains('jx-pure')).toBe(true);
+  // hook AND native root, per remapped construct (the first-party map)
   expect(root.querySelectorAll('h2').length).toBe(1);
+  expect(root.querySelectorAll('h2[data-jx-heading="2"]').length).toBe(1);
   expect(root.querySelectorAll('p').length).toBeGreaterThanOrEqual(2);
+  expect(root.querySelectorAll('p[data-jx-text="p"]').length).toBeGreaterThanOrEqual(2);
   expect(root.querySelectorAll('input[type="checkbox"]').length).toBe(2);
   expect(root.querySelectorAll('figure').length).toBe(2); // CodeCard + Table's frame
   expect(root.querySelectorAll('[data-kind="code"]').length).toBe(1);
   expect(root.querySelectorAll('[data-kind="table"]').length).toBe(1);
   expect(root.querySelectorAll('table td[data-label]').length).toBe(2);
   expect(root.querySelectorAll('blockquote').length).toBe(1);
+  expect(root.querySelectorAll('blockquote[data-jx-blockquote="outline"]').length).toBe(1);
+  expect(root.querySelectorAll('ul[data-jx-list="ul"]').length).toBe(1);
   const anchor = root.querySelector('a');
   expect(anchor?.getAttribute('href')).toBe('https://example.com');
+  expect(anchor?.getAttribute('data-jx-link')).toBe('external');
 }

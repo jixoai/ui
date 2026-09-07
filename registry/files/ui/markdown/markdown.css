@@ -32,21 +32,25 @@
  *      (0,2,1) — deterministic regardless of bundle order — and the
  *      pair rules come AFTER the zeroing in this sheet, so the same
  *      specificity resolves by source order, in-sheet, deterministically.
+ *      The flush/stack pair inside containers (§2b/§2c) extends the
+ *      rhythm into blockquote/list interiors now that the component
+ *      escapes descope the face's flow margins there.
  *
- *   3. THE HEADING LADDER, re-expressed in em — the face's fixed rem
- *      steps are the right shape but do not scale with a preset; the
- *      same steps as em ratios keep every preset's hierarchy intact
- *      (relaxed renders the face's exact numbers).
- *
- *   4. THE GFM TASK ITEM — the checkbox IS the marker (the face's disc
+ *   3. THE GFM TASK ITEM — the checkbox IS the marker (the face's disc
  *      suppressed) and aligns to the text's middle (the GitHub posture);
  *      the presentation-only input dims so "static disabled" reads.
  *
- *   5. THE STREAMING CURSOR — a terminal-vocabulary caret painted as its
+ *   4. THE STREAMING CURSOR — a terminal-vocabulary caret painted as its
  *      own block box (exactly caret-height — a block tail never leaves an
  *      anonymous prose-line gap under it); blink ONLY under
  *      prefers-reduced-motion: no-preference (a hard 1s stepped blink —
  *      terminal, not a pulse), fully static otherwise; print hides it.
+ *
+ * The heading em ladder (the face sheet's former §3) EMIGRATED into
+ * the heading component (2026-09-07, markdown-coverage §1.2): its
+ * :not(.no-jx-pure) guards stopped matching the moment the component
+ * escaped — dead law where it stood; the component owns the ladder at
+ * every preset now (and standalone outside any face scope).
  *
  * Data hooks only, no invented jx-* classes (the .jx-pure anchors are the
  * face's own frozen class, consumed, never redefined); static paint in
@@ -126,24 +130,24 @@
     margin-block-end: 0;
   }
 
-  /* ── 3 · the heading ladder in em (scales with the preset) ──────── */
-  [data-jx-markdown] h1:not(.no-jx-pure, .no-jx-pure *) {
-    font-size: 1.875em;
-  }
-  [data-jx-markdown] h2:not(.no-jx-pure, .no-jx-pure *) {
-    font-size: 1.5em;
-  }
-  [data-jx-markdown] h3:not(.no-jx-pure, .no-jx-pure *) {
-    font-size: 1.25em;
-  }
-  [data-jx-markdown] h4:not(.no-jx-pure, .no-jx-pure *) {
-    font-size: 1.125em;
-  }
-  [data-jx-markdown] :is(h5, h6):not(.no-jx-pure, .no-jx-pure *) {
-    font-size: 1em;
+  /* ── 2c · the container-inner sibling stack (the escape law's
+     sheet-side counterpart) ────────────────────────────────────────
+     The flush law's POSITIVE counterpart (markdown-coverage §2.4):
+     once Blockquote/List roots escape, the face's flow-margin rule
+     stops reaching blocks INSIDE them (the :not(.no-jx-pure *) arm),
+     and P carries no margins — multi-paragraph list items and quotes
+     would collapse to wall-of-text. At (0,1,1) this is deliberately
+     WEAKER than the flush law's :first-child/:last-child zeroing
+     (0,2,1), so the composition is order-independent: mid-container
+     blocks keep the gap the face's flow margins used to provide,
+     container edges stay flush. Applies at every nesting level — the
+     :is() matches component roots and native containers alike (the
+     roots ARE native elements). */
+  [data-jx-markdown] :is(li, blockquote) > * + * {
+    margin-block-start: var(--jx-md-stack, 0.875rem);
   }
 
-  /* ── 4 · the GFM task item ───────────────────────────────────────── */
+  /* ── 3 · the GFM task item ───────────────────────────────────────── */
   /* the checkbox replaces the disc marker (the visual-review fix: the
      double-marker bug — bullet AND checkbox on one item) */
   :where(
@@ -166,7 +170,7 @@
     cursor: default;
   }
 
-  /* ── 5 · the streaming cursor ────────────────────────────────────── */
+  /* ── 4 · the streaming cursor ────────────────────────────────────── */
   /* declared AFTER the rhythm star rule (tie at (0,2,0) → source order
      wins): the caret is the next typing line, not a full block */
   [data-jx-markdown] > [data-jx-markdown-cursor] {

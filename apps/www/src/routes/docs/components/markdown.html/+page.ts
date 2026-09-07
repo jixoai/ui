@@ -6,7 +6,9 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 const toc: TocSection[] = [
   { id: 'usage', label: 'Usage' },
   { id: 'examples', label: 'Examples' },
+  { id: 'markdown-coverage-map', label: 'Coverage map' },
   { id: 'markdown-kitchen-sink', label: 'Kitchen sink' },
+  { id: 'markdown-alerts', label: 'GitHub alerts' },
   { id: 'markdown-streaming', label: 'Streaming simulation' },
   { id: 'markdown-overrides', label: 'Custom components' },
   { id: 'markdown-static', label: 'Static document' },
