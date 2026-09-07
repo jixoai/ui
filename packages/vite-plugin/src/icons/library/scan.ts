@@ -88,9 +88,11 @@ export function mergeScannedRefs(refs: readonly ScannedRef[]): ScannedRef[] {
  * class). NO expression evaluation: `name={expr}` / `name={'a' + x}`
  * don't fit the shape and are skipped — dynamic names are
  * intentionally unserved. Known limitations, documented: an attribute
- * value containing a raw `>` ends the tag scan early (no collection,
- * fail-safe), and an occurrence inside a comment still collects when
- * tag-shaped (fail-safe — worst case one extra packed icon).
+ * value containing a raw `>` fails the VALUE grammar below (no
+ * collection, fail-safe — icon names never contain >), an EARLIER
+ * attribute containing `>` ends the tag-opener scan before `name=` is
+ * reached (same fail-safe), and an occurrence inside a comment still
+ * collects when tag-shaped (fail-safe — worst case one extra icon).
  */
 const NAME_LITERAL =
   /<[A-Za-z][\w.-]*[^<>]*?\sname\s*=\s*(?:"([^"\n]*)"|'([^'\n]*)'|\{\s*(?:"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`)\s*\})/g;
@@ -102,11 +104,12 @@ const NAME_LITERAL =
  * permissive capture (colons/hyphens/underscores/dots legal — remix
  * taxonomy included), never the validating authority; the alias is a
  * single token whose camelCase grammar resolve.ts enforces. Whitespace,
- * quotes, braces, backticks and `${` are excluded everywhere so
- * multi-word junk and dynamic interpolations fail the match entirely
- * (fail-safe: no collection, no build break).
+ * quotes, braces, backticks, `${`, angle brackets and `>` are excluded
+ * everywhere so multi-word junk, dynamic interpolations, and
+ * value-broken markup fail the match entirely (fail-safe: no
+ * collection, no build break — icon names never contain >, codex r3).
  */
-const SCANNED_LITERAL = /^([a-z][a-z0-9]*):([^"'`{}$\s]+?)(?:[ \t]+as[ \t]+([^"'`{}$\s]+))?$/;
+const SCANNED_LITERAL = /^([a-z][a-z0-9]*):([^"'`{}$<>\s]+?)(?:[ \t]+as[ \t]+([^"'`{}$<>\s]+))?$/;
 
 /**
  * Collect the scanned refs in ONE module's text. PURE: text in, sorted

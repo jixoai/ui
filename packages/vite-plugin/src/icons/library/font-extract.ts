@@ -230,6 +230,13 @@ function coveredFirstGlyphs(
   return ids;
 }
 
+/** the glyph-visit budget for the miss diagnostic: coverage ranges can
+ *  span thousands of ids, so enumeration visits at most this many
+ *  first glyphs (coverage order) before settling for what it found —
+ *  the earlier limit×4 pre-cap silently dropped later ligatures from
+ *  the listing (codex r3 minor) */
+const MAX_LIGATURE_VISITS = 2048;
+
 /**
  * the resolvable ligature names, for the miss error (design §2: "a
  * miss is a NAMED build error listing the font's resolvable ligature
@@ -242,7 +249,7 @@ function coveredFirstGlyphs(
 export function ligatureNames(font: OtFont, limit = 12): string[] {
   const names: string[] = [];
   for (const subtable of ligatureSubtables(font)) {
-    for (const first of coveredFirstGlyphs(subtable.coverage, limit * 4)) {
+    for (const first of coveredFirstGlyphs(subtable.coverage, MAX_LIGATURE_VISITS)) {
       const setIndex = coverageIndexOf(subtable.coverage, first);
       for (const ligature of subtable.ligatureSets[setIndex] ?? []) {
         const glyphNames = [first, ...ligature.components]

@@ -83,6 +83,14 @@ describe('the literal matcher — attribute + string-literal expression forms', 
     ]);
   });
 
+  test('a raw > anywhere in the value path is fail-safe non-collection (codex r3)', () => {
+    // the value itself containing > fails the value grammar…
+    expectRefs(collectScannedRefs('<Icon name="md:a>b" />', MD), []);
+    // …and an EARLIER attribute containing > ends the tag-opener scan
+    // before name= is reached
+    expectRefs(collectScannedRefs('<Icon title="a > b" name="md:home" />', MD), []);
+  });
+
   test('a hole-free backtick template literal IS a string literal', () => {
     expectRefs(collectScannedRefs('<Icon name={`md:home`} />', MD), [
       { preset: 'md', name: 'home' },

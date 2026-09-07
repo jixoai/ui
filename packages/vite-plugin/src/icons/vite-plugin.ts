@@ -616,12 +616,17 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
   /** drop every scanned-module entry for a deleted path — a file, or
    *  everything under a deleted directory (codex r2 M3: the transform
    *  never fires for a removed module, so without this the scanned
-   *  union keeps its refs and the served artifact stays stale) */
+   *  union keeps its refs and the served artifact stays stale).
+   *  Separator-normalized comparison (codex r3): watcher paths and
+   *  module ids disagree on \ vs / across platforms — raw comparisons
+   *  kept Windows deletions stale. */
+  const posixPath = (value: string): string => value.replaceAll('\\', '/');
   const forgetScannedModules = (path: string, directory: boolean): boolean => {
+    const target = posixPath(path);
     let changed = false;
     for (const id of scannedByModule.keys()) {
-      const bare = id.split('?')[0]!;
-      const hit = directory ? bare.startsWith(`${path}/`) : bare === path;
+      const bare = posixPath(id.split('?')[0]!);
+      const hit = directory ? bare.startsWith(`${target}/`) : bare === target;
       if (hit) {
         scannedByModule.delete(id);
         changed = true;

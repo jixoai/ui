@@ -302,6 +302,36 @@ describe('codex r2 — the scan lifecycle gaps', () => {
     expect(await hooks.load(artifactPath)).toContain('`md:${string}`');
   });
 
+  test('unlink matches across separators — Windows watcher paths + unlinkDir (codex r3)', async () => {
+    const { root, artifactPath, otherTs } = await freshFixture();
+    const plugin = createIconPlugin({ library: LIBRARY });
+    const hooks = lifecycle(plugin);
+    const mock = mockServer();
+    hooks.configResolved({ root, command: 'serve' });
+    hooks.configureServer(mock.server as unknown as ViteDevServer);
+    await hooks.buildStart();
+
+    // backslash module ids (Windows-shaped) transform in and collect
+    const winApp = 'C:\\proj\\src\\App.svelte';
+    const winOther = 'C:\\proj\\src\\other.ts';
+    hooks.transform('<Icon name="md:copy_all as copy2" />\n<Icon name="md:copy_all" />', winApp);
+    hooks.transform(await readSource(otherTs), winOther);
+    await pollArtifact(hooks, artifactPath, (artifact) => artifact.includes("'md:copy_all'"));
+
+    // a Windows-shaped unlink (same backslashes) must still forget the
+    // module — raw `/` comparisons kept these stale (codex r3)
+    mock.emit('unlink', winApp);
+    await pollArtifact(hooks, artifactPath, (artifact) => !artifact.includes("'md:copy_all'"));
+
+    // re-collect, then a directory deletion (unlinkDir) clears every
+    // module under it regardless of separator style
+    hooks.transform('<Icon name="md:copy_all" />', winApp);
+    await pollArtifact(hooks, artifactPath, (artifact) => artifact.includes("'md:copy_all'"));
+    mock.emit('unlinkDir', 'C:\\proj\\src');
+    await pollArtifact(hooks, artifactPath, (artifact) => !artifact.includes("'md:copy_all'"));
+    expect(await hooks.load(artifactPath)).toContain('`md:${string}`');
+  });
+
   test('a custom write target is excluded from the eager scan (M2)', async () => {
     const { root } = await freshFixture();
     const customTarget = join(root, 'src/generated/icons.gen.ts');
