@@ -44,6 +44,11 @@
       "reason": "Structural provider, context-defaults-economy 3.3: the table root inherit-then-provides density. One confined legacy read: the TODO-5 bare capture rewritten to the EAGER form — getDensityContext() rides the $derived.by argument subtree (evaluated at that statement, BEFORE provideDensity writes the key; a lazy read would self-reference through the table's own write, derived_references_self); resolveDensity stays inside the same $derived initializer subtree. The family own 'sm' lives in TableDefaults (densitySlot('sm'), the design-frozen local-fallback migration, resolveDensity's retired third argument); TableDefaults.resolve remains the stamp's read point."
     },
     {
+      "path": "registry/files/ui/markdown/markdown.svelte",
+      "kind": "provider",
+      "reason": "Structural provider, the markdown typography trio (b0487603): the markdown root inherit-then-provides density. One confined legacy read: the EAGER capture rides the $derived.by argument subtree (getDensityContext() evaluates at that statement, BEFORE provideDensity writes the key — a lazy read would resolve the key to the markdown scope's own write and self-reference through the very getter it feeds, derived_references_self, the r11 first contract; the tabs/table precedent). The typography preset maps compact/standard/relaxed onto the inherited density only when the preset key is absent; provideDensity carries the resolved value to descendants. Registered post-hoc: the trio landed without this entry and verify:context A3 caught the bypass (found during the icon-next rebase's union gate run)."
+    },
+    {
       "path": "registry/files/ui/breadcrumb/breadcrumb.svelte",
       "kind": "provider",
       "reason": "Structural provider, context-defaults-economy 3.3: the breadcrumb nav landmark inherit-then-provides density to the trail parts. One confined legacy read: the EAGER capture rides the $derived.by argument subtree (getDensityContext() evaluates at that statement, BEFORE provideDensity writes the key — a lazy read would resolve the key to the trail's own write and self-reference, derived_references_self, the r11 first contract); resolveDensity stays inside the same $derived initializer subtree. The parts resolve their inherited stamps through the family contract (BreadcrumbDefaults); the root's own stamp stays on BreadcrumbDefaults.resolve."
