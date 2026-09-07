@@ -42,19 +42,42 @@ const BASE = argUrl >= 0 ? process.argv[argUrl + 1] : 'http://localhost:5199';
 
 // ── browser discovery: newest playwright cache, then system Chrome ──
 function findChrome() {
-  const cache = join(homedir(), 'Library/Caches/ms-playwright');
-  if (existsSync(cache)) {
+  // CI + local: the explicit override always wins
+  if (process.env.CHROME_PATH && existsSync(process.env.CHROME_PATH)) return process.env.CHROME_PATH;
+  // the playwright browser cache — macOS and Linux (CI's
+  // `npx playwright install chromium`) layouts
+  const caches = [
+    join(homedir(), 'Library/Caches/ms-playwright'),
+    process.env.XDG_CACHE_HOME ? join(process.env.XDG_CACHE_HOME, 'ms-playwright') : join(homedir(), '.cache/ms-playwright'),
+  ];
+  for (const cache of caches) {
+    if (!existsSync(cache)) continue;
     const versions = readdirSync(cache).filter((d) => d.startsWith('chromium-')).sort().reverse();
     for (const v of versions) {
-      for (const name of ['Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing', 'chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium']) {
+      for (const name of [
+        'Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+        'chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium',
+        // linux cache layout: chromium-<ver>/chrome-linux64/chrome (newer)
+        // and chrome-linux/chrome (older)
+        'chrome-linux64/chrome',
+        'chrome-linux/chrome',
+      ]) {
         const p = join(cache, v, name);
         if (existsSync(p)) return p;
       }
     }
   }
-  const system = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  if (existsSync(system)) return system;
-  console.error('No Chromium found (playwright cache or /Applications). Run: npx playwright install chromium');
+  // system installs — macOS first (the dev-machine path), then the
+  // Linux distro/CI locations (ubuntu-latest ships google-chrome)
+  const system = [
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+  ];
+  for (const p of system) if (existsSync(p)) return p;
+  console.error('No Chromium found (CHROME_PATH, playwright cache, or system installs). Run: npx playwright install chromium');
   process.exit(1);
 }
 
