@@ -600,7 +600,7 @@ plain beside a stock ink is impossible by construction.`;
             </p>
             <p class="text-[13px] leading-6">
               <strong>SF Symbols is rejected on licensing</strong>
-              <span aria-hidden="true"> — </span>Apple's system-provided image terms restrict the
+              <span aria-hidden="true">—</span> Apple's system-provided image terms restrict the
               glyphs to Apple-platform apps and prohibit SVG export or redistribution. Shipping a
               preset that extracts or redistributes them would breach those terms, so the pipeline
               deliberately offers no SF Symbols lane; use Apple's own APIs on Apple platforms.
