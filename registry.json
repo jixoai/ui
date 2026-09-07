@@ -3838,6 +3838,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/lib/highlight/lang-detector.ts",
+          "target": "@lib/highlight/lang-detector.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/lib/highlight/context-key.ts",
           "target": "@lib/highlight/context-key.ts",
           "type": "registry:file"

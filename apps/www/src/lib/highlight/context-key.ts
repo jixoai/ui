@@ -19,3 +19,18 @@ export interface HighlightContextValue {
 }
 
 export const HIGHLIGHT_KEY = Symbol('jx-highlight-backend');
+
+/**
+ * The language-detector seam (highlight-lang-detector, 2026-09-07) — the
+ * SECOND independent surface this file carries. Orthogonal to the backend
+ * seam above: `detector` is undefined means "no opinion" (the card's
+ * AUTO_LANG chain falls through to the next ring — prop → context →
+ * backend.detector → reject); every write path (the kernel provider, the
+ * highlight-detect-default wrapper item, a hand-written
+ * setContext(HIGHLIGHT_DETECT_KEY, …)) produces this same shape.
+ */
+export interface HighlightDetectContextValue {
+  readonly detector: import('./lang-detector').LanguageDetector | undefined;
+}
+
+export const HIGHLIGHT_DETECT_KEY = Symbol('jx-highlight-detector');
