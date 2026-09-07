@@ -92,7 +92,7 @@
 
 ## 6. 阶段 5 — 门禁与验证
 
-- [ ] 6.1 verify:shadcn-add 派生三 case（裸 code-card 零 DLD 字节 /
+- [x] 6.1 verify:shadcn-add 派生三 case（裸 code-card 零 DLD 字节 /
       +DLD lib wasm 发射 / +wrapper 端到端；probe 模板）+
       verify:mirror / meta / deps / budgets / docs 全绿
 - [x] 6.2 定向 vitest 全绿（新契约 + 四层 + hljs detector + 端到端
