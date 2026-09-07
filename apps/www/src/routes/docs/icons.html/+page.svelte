@@ -322,6 +322,22 @@ export default {
 // → extract pipeline. A custom channel inherits the built-ins'
 // guarantees by construction; it can never smuggle unvetted bytes.`;
 
+  // the battle-tested reference (examples/hmos-icons, 2026-09-07):
+  // the REAL channel from the committed consumer example, quoted
+  // verbatim — no npm peer, one local svgs directory. Scanner-safe by
+  // construction: the file carries no tag-shaped name literals.
+  const hmosChannelSnippet = `// examples/hmos-icons/src/lib/icons/hmos.ts — the entire integration
+import { fileURLToPath } from 'node:url';
+import { defineIconChannel } from '@jixoai/ui-vite-plugin/icons/channel';
+
+export const hmos = () =>
+  defineIconChannel({
+    id: 'hmos',
+    prefix: 'hmos',
+    // the absolute-path contract: one ref, one absolute svg path
+    resolveFile: (ref) => fileURLToPath(new URL(\`../../../icons/\${ref}.svg\`, import.meta.url)),
+  });`;
+
   // the prefix compiler (icon-prefix-compiler, 2026-09-07; channels:
   // icon-channel-api 2026-09-07): scanned names + as aliases + the
   // lucide equivalences + the three-tier safety story. The snippets are
@@ -742,6 +758,76 @@ plain beside a stock ink is impossible by construction.`;
             <code class="text-accent">…/icons/channel</code> graph reaches no lucide/svgo/opentype
             code, so configuring channels costs nothing at import time.
           </p>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        family="plugin"
+        region="battle-tested"
+        eyebrow="real-world proof"
+        title="The battle-tested reference — examples/hmos-icons"
+        summary="A committed consumer project, not a fixture: plain Vite + Svelte, the registry icon component, and one channel over a REAL third-party set — an 11-file HarmonyOS subset (local archive, Sketch-export artwork). A gate installs it for real (the file: dependency on the built plugin), builds it twice (client + SSR), and asserts the FINAL OUTPUT only. Building it forced two production fixes worth reading before you ship your own channel."
+      >
+        <div class="flex flex-col gap-5" data-battle-tested-docs="">
+          <CodeBlock code={hmosChannelSnippet} lang="ts" meta="the whole channel — no npm peer, local svgs" />
+          <div class="flex flex-col gap-4">
+            <p class="font-nav text-[11px] uppercase tracking-[0.24em]">what the exercise taught (both shipped as laws)</p>
+            <ul class="text-muted-foreground flex list-disc flex-col gap-2.5 pl-5 text-[13px] leading-6">
+              <li>
+                <strong class="text-foreground">Sketch-export artwork is the norm, not the edge.</strong>
+                HarmonyOS-class sets are defs + mask + use, and svgo collapses each to
+                <code class="text-accent">defs + use</code> while minifying EVERY icon's id to the
+                same short token. Two laws came out of that: the RAW safety gate passes
+                same-document fragment references (<code class="text-accent">#frag</code>,
+                <code class="text-accent">xlink:href</code>, <code class="text-accent">xmlns</code>
+                declarations) and rejects only external ones; and packed ids scope under the
+                canonical name at pack time, so two such icons on one page can never cross-resolve
+                their use elements.
+              </li>
+              <li>
+                <strong class="text-foreground">Static name literals are the scan surface.</strong>
+                The example's preview column keeps literals in source; the moment a page moves to
+                dynamic name expressions, the icons silently leave the packed set. The derived
+                columns (nature, viewBox, payload, loading lane) come from the artifact at runtime —
+                the loading column honestly OBSERVES the 20<span class="px-[0.2em]" aria-hidden="true">·</span>KiB
+                budget split instead of hardcoding it.
+              </li>
+              <li>
+                <strong class="text-foreground">Assert the final output, never intermediates.</strong>
+                The gate cross-checks the built bundle against an independent svgo re-optimization
+                of the SOURCE svgs (not the committed artifact), executes the SSR bundle and asserts
+                the rendered document (real paths, id uniqueness, reserved boxes for lazy names),
+                and byte-compares the regenerated artifact. Config refs also carry what scanning
+                cannot — the example's editGroup ref points at a filename with a space.
+              </li>
+            </ul>
+          </div>
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Read the source</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">What it proves</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-border/50">
+                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[12px] whitespace-nowrap">examples/hmos-icons/</td>
+                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">the whole consumer — README (provenance), vite.config.ts (write: true wiring), the icon table page</td>
+              </tr>
+              <tr class="border-b border-border/50">
+                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[12px] whitespace-nowrap">…/src/lib/icons/hmos.ts</td>
+                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">the entire channel integration (quoted above)</td>
+              </tr>
+              <tr class="border-b border-border/50">
+                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[12px] whitespace-nowrap">…/src/App.svelte</td>
+                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">static literals + runtime-derived columns; the budget split visible on the page</td>
+              </tr>
+              <tr class="border-b border-border/50">
+                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[12px] whitespace-nowrap">packages/vite-plugin/test/icons/library/example-hmos.test.ts</td>
+                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">the E2E gate — real install, dual builds, final-output assertions</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </SectionCard>
 
