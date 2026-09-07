@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T12:31:14.917Z",
+  "generatedAt": "2026-09-07T12:55:22.905Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1086,8 +1086,8 @@
           "source": "registry/files/lib/icon-set.gen.ts",
           "mirror": "apps/www/src/lib/icon-set.gen.ts",
           "target": "@lib/icon-set.gen.ts",
-          "sourceSha": "0d73df3250b95e74af4a4168389b1bf13aac61e13ecdf3d3e827db090bc83776",
-          "mirrorSha": "0d73df3250b95e74af4a4168389b1bf13aac61e13ecdf3d3e827db090bc83776"
+          "sourceSha": "e0eabde95c929c16a592de6f6aee806589097d2975c57d906b8ad9eb696db0a4",
+          "mirrorSha": "e0eabde95c929c16a592de6f6aee806589097d2975c57d906b8ad9eb696db0a4"
         }
       ]
     },
@@ -4572,6 +4572,10 @@
     {
       "path": "apps/www/src/lib/code-block.svelte",
       "note": "site docs code surface"
+    },
+    {
+      "path": "apps/www/src/vite-env.d.ts",
+      "note": "app scaffolding ambient types (sv create default + plugin client reference) — consumers generate their own, never a mirror twin (icon-channel 5bcbab74 followup)"
     },
     {
       "path": "apps/www/src/lib/copy-command.svelte",
