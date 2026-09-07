@@ -10,9 +10,15 @@
       channel instance (IconNode-lane resolution, default-registered,
       scannable); presets/ dissolves into channels/
 - [ ] A3: config surface — `library.channels` replaces `library.presets`
-      (normalize + the uniqueness law over channels; enabled prefixes =
-      lucide ∪ channels'); resolve/scan/generate/template emission all
-      read the one channel set (no lucide special cases)
+      (normalizeIconChannels + the set-level uniqueness law; enabled
+      prefixes = lucide ∪ channels'); vite-plugin.ts's enabled-prefix
+      computation, script.ts's parity threading, resolver dispatch
+      (discriminated on resolver.kind), and template emission all read
+      the one channel set (no lucide special cases)
+- [ ] A3b: the manifest-collision law tests — scanned `lucide:X` with X
+      packed → ALIASES row + one payload + canonical-only iconCount;
+      scanned `lucide:X` unpacked → full-key pack; the
+      includeDefaults:false + scanned-lucide matrix
 - [ ] A4: the sub-entries — exports map (`./icons/channel`,
       `./icons/lucide`, `./icons/md`, `./icons/ph`, `./icons/rx`),
       tsdown per-entry build, per-entry dist purity gates in
@@ -21,12 +27,18 @@
 ## B. Package identity corrections
 
 - [ ] B1: `@jixoai/vite-plugin` → `@jixoai/ui-vite-plugin` — package.json
-      + every living reference (registry vite.config + registry.json
-      strings, apps/www config + package.json, scripts/
-      verify-shadcn-add.mjs templates + expectations, build-site, pin.ts,
-      client.d.ts, internal module comments that name the package)
-- [ ] B2: `@jixoai/css-laws` → `@jixoai/ui-css-laws` — same treatment
-      (package.json, workspace consumers, theme-file comments)
+      + every living reference, receipts enumerated (codex r1 M3):
+      registry vite.config + registry.json strings, apps/www config +
+      package.json, BOTH app/registry file: dependencies + lockfiles,
+      scripts/verify-shadcn-add.mjs templates + its linked package
+      leaf + fixture imports, build-site, pin.ts, client.d.ts,
+      generated artifact headers/tests that name the package, READMEs,
+      living openspec/specs mentions, internal module comments
+- [ ] B2 (CONDITIONAL — Owner confirms the target name first):
+      `@jixoai/css-laws` rename — same treatment (package.json,
+      workspace consumers, theme-file comments) + the generated-marker
+      protocol migration (generate.ts embeds the name; committed
+      artifacts regenerate)
 - [ ] B3: file: links re-established (the npm link-layer trap), lockfile
       receipts regenerated, packaging test name assertions updated;
       archived openspec docs explicitly untouched (spot-check)

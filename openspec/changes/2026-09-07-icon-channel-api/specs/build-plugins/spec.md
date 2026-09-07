@@ -6,10 +6,14 @@
 
 The package (named `@jixoai/ui-vite-plugin`) SHALL expose the channel
 capability as the public base every prefixed lane rides: a
-`defineIconChannel` factory (sub-entry `…/icons/channel`) validating
-`{ id, prefix, peerPackage?, resolveFile(ref) }` — prefix grammar
-`/^[a-z][a-z0-9]*$/` with `lucide` reserved, id + prefix uniqueness
-enforced with named errors. `library.channels: IconChannel[]` SHALL be
+`defineIconChannel` factory (sub-entry `…/icons/channel`) that ALWAYS
+builds a file-resolver channel — `{ id, prefix, peerPackage?,
+resolveFile(ref) }` with prefix grammar `/^[a-z][a-z0-9]*$/` (`lucide`
+reserved) and id grammar `/^[a-z][a-z0-9-]*$/`; the resolver contract
+is DISCRIMINATED (the `file` kind, and the reserved `lucide` kind
+routing to the IconNode lane), and set-level id + prefix uniqueness is
+enforced at config normalization with named errors (the factory cannot
+know the registered set). `library.channels: IconChannel[]` SHALL be
 the registration surface (replacing `library.presets` — bold break,
 unreleased API, no compat layer). A registered channel's prefix SHALL
 work identically to a shipped one: config `icons` refs, source
@@ -24,9 +28,10 @@ independent sub-entries of the same package — `…/icons/md`,
 and `…/icons/lucide` (an INSTANCE) — while `lucide` stays
 DEFAULT-REGISTERED (zero-import) and resolves through the existing
 IconNode lane (the one documented non-file asymmetry; `includeDefaults`
-keeps gating the 38-name manifest independently). The css-laws
-workspace package SHALL carry the matching corrected name
-`@jixoai/ui-css-laws`.
+keeps gating the 38-name manifest independently — and a scanned
+`lucide:X` whose `X` is already packed SHALL NOT pack a second
+payload: the artifact carries an ALIASES row (`lucide:X` → `X`), one
+payload, canonical-only counts).
 
 #### Scenario: a custom channel replaces per-icon config
 
@@ -54,6 +59,15 @@ workspace package SHALL carry the matching corrected name
 - THEN the lucide channel (default-registered) resolves the ref
   through the IconNode lane and the artifact packs `lucide:zap`
   with no config declaration
+
+#### Scenario: a scanned lucide ref dedupes against the built-in
+
+- GIVEN the default manifest (38 built-ins including `check`) and a
+  component writing `<Icon name="lucide:check" />`
+- WHEN the artifact generates
+- THEN no second payload packs — the artifact gains an ALIASES row
+  `lucide:check` → `check` and `getIcon('lucide:check')` returns the
+  built-in data (iconCount counts canonicals only)
 
 #### Scenario: duplicate channel ids or prefixes fail by name
 
