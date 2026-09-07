@@ -1,0 +1,87 @@
+name: betlang-wasm release
+
+# Builds and (once the Owner wires npm credentials) publishes
+# @jixoai/betlang-wasm — the DLD L4 statistical detection channel
+# (highlight-lang-detector change, design D4: channel A frozen —
+# self-built npm package from the crates.io pin, never a git binary).
+#
+# Gate order is load-bearing:
+#   1. lock + sparse-index checksum gate (build.mjs steps 1-2) — the
+#      registry pin is verified BEFORE any compilation;
+#   2. cargo build --release --locked (wasm32-unknown-unknown via the
+#      rustup toolchain — Homebrew rust has no wasm32 std);
+#   3. the KiB budget law on the FRESH bytes (hard 100 KiB raw / 70 KiB
+#      gzip = exit 1; 98 KiB warn line = exit 2 — the design D4
+#      degradation-plan trigger);
+#   4. ARTIFACT.md rewritten with the as-shipped values of THIS build
+#      (the canonical record is whatever ships; local rebuilds vary);
+#   5. scripts/verify-betlang-pin.mjs — the shipped gate re-checks the
+#      fresh artifact + lock + budget law end to end, plus its
+#      --self-test (three exit-code paths proved).
+#
+# The npm publish step is INTENTIONALLY COMMENTED OUT until the Owner
+# provides an NPM_TOKEN with id-token provenance; everything above it
+# runs on every dispatch so the channel is release-ready the day the
+# credentials land. Binaries never enter git; npm is the only channel.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "betlang-wasm-v*"
+
+permissions:
+  contents: read
+  # the commented publish step additionally needs:
+  # id-token: write  # npm provenance
+
+concurrency:
+  group: betlang-wasm-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build, gate, publish @jixoai/betlang-wasm
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: https://registry.npmjs.org
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      # Steps 1-3: sparse-index checksum gate + --locked build + budget
+      # law, then record THIS build's as-shipped values (--write-artifact
+      # runs after the budget exits — build.mjs only writes when the
+      # artifact passed, so a failed gate never rewrites the record).
+      - name: Build the wasm (checksum gate + budgets + ARTIFACT record)
+        working-directory: packages/betlang-wasm
+        run: node scripts/build.mjs --write-artifact
+
+      # Step 5: the shipped command-level gate against the fresh artifact.
+      - name: Verify the pin (as-shipped sha256 + lock + budgets)
+        run: |
+          node scripts/verify-betlang-pin.mjs packages/betlang-wasm/dist/betlang_wasm.wasm
+          node scripts/verify-betlang-pin.mjs --self-test
+
+      # Shipping-shape sanity without credentials: the pack list must
+      # carry the loader, types, LICENSE, ARTIFACT and the dist wasm.
+      - name: npm pack dry-run (shipping shape)
+        working-directory: packages/betlang-wasm
+        run: npm pack --dry-run
+
+      # TODO(Owner): provide NPM_TOKEN (provenance needs the registry's
+      # id-token: write permission above). Until then the channel is
+      # verified release-ready but does not publish.
+      #
+      # - name: Publish to npm (provenance attested)
+      #   working-directory: packages/betlang-wasm
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #   run: npm publish --provenance --access public

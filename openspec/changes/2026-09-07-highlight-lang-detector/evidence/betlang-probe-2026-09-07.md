@@ -18,8 +18,14 @@ KiB=1024B 口径，不使用 KB）。
 - 模型：内嵌 `assets/magika/source-student-q4.bin` **47,840 字节（46.72 KiB）**
   （sha256 8493d2d3757572c8661141e414b1c0755aa08d4c4e5382dfbbc6b73b02d89083（README 声明，最终发行物门禁实测复核）），架构
   wordseq-b1024-k3-m2048-tiny-3conv-hidden
-- 输出：48 标签（asm…yaml），held-out `test_fs_accuracy=0.942`
-  macro_recall=0.940；概率经校准（歧义输入报分裂分）
+- 输出：48 标签（asm batch c clojure cmake cobol cpp cs css dart
+  dockerfile elixir erlang gemfile gemspec go gradle groovy haskell
+  html ini java javascript json julia kotlin lisp lua markdown
+  objectivec ocaml perl php powershell python r ruby rust scala shell
+  sql swift toml typescript vba verilog xml yaml——自钉死 tarball 的
+  src/language.rs 提取并经 cksum 核验，r13 补录供免下载复核），
+  held-out `test_fs_accuracy=0.942`；macro_recall=0.940；概率经校准
+  （歧义输入报分裂分）
 
 ## 构建序列（r11-B1：脚本本体逐字内嵌——无注释式伪代码、无占位符；下方实录由该脚本在全新 mktemp 目录原样产生）
 

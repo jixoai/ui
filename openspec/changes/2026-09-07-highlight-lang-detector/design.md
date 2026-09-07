@@ -166,6 +166,11 @@ CMakeLists.txt cmake
 
 - 单空格分隔、换行分隔条目；`#` 起注释行。首次使用才 parse 成 Map，
   进程级缓存（多卡片共享）。
+- **歧义扩展名例外（实现裁决 r13-A1，写回法则）**：ts/tsx/jsx 是
+  **场景冻结例外**——heuristics.yml 确有 .ts/.tsx 消解块（XML vs
+  TypeScript），字面排除法会把 .ts 赶出 L1，与本 design 与 spec 的
+  `main.ts → L1 命中`场景直接冲突；三胞胎留下，其余 161 个歧义扩展名
+  照字面法排除（.rs 出 L1 是该裁决的一致性代价——Rust 样本走 L4）。
 - **文件名边界冻结（r2-N4）**：路径分隔符 `/` 与 `\` 皆取最后段；
   扩展名取最后一个 `.` 后缀并**小写化**（`.TS` → ts；`.d.ts` → ts
   取最后后缀）；basename 表**大小写敏感**精确全等（`Makefile` ≠
@@ -403,7 +408,9 @@ highlight-js.ts 各自的表）——本变更不合并它们（超范围），�
 //   字段       类型    规则
 //   ────────────────────────────────────────────────────────────
 //   canonical  SCALAR  ^[a-z0-9+#.-]+$（lang 命名空间同域）；逗号/`=`/空白非法；全表唯一
-//   betlang    SCALAR  48 标签恰好各出现在一行；无对应 = `-`
+//   betlang    SCALAR  已映射的标签恰好各出现一次；无对应 = `-`（该
+//                     标签在表中缺席，运行时 null + 一次性 warn——
+//                     "48 个各在一行"对无对应标签不可满足，措辞以此为准）
 //   ext        LIST    项值域 [A-Za-z0-9+#._-]（项内无逗号）；歧义扩展名不列
 //   file       LIST    同上；可缺省
 //   interp     LIST    同上；可缺省
@@ -412,9 +419,13 @@ highlight-js.ts 各自的表）——本变更不合并它们（超范围），�
 //   前导/尾随/连续逗号（`,a`/`a,`/`a,,b`）与空项 = parse error；
 //   重复项 = parse error；次序即书写序不重排
 // 通用规则：`#` 起注释行；空白行忽略；同一 k 不得在一行内重复；
-// canonical 不得重复出现；字段序固定为上表顺序，缺省字段直接省略
-// （合法样例：`python betlang=Python ext=py interp=python,python3
-// backend=shiki,hljs,prismjs` 省略 file 仍合法）；任何违例 = parse
+// canonical 不得重复出现；字段序固定为上表顺序，**空值即省略**
+// （缺省与空集同形——实现裁决 r13-A2：ini 行省略 backend，六引擎
+// 无一渲染 ini 而 L3 冻结探针必须返回它；合法样例：`python
+// betlang=Python ext=py interp=python,python3 backend=shiki,hljs,
+// prismjs` 省略 file 仍合法）；**行存在当且仅当**（引擎覆盖 ∨ 冻结
+// 探针 ∨ 标签映射）之一成立（实现裁决 r13-A3：make/cmake 三者皆
+// 无而落选，D3.1 示例中的 Makefile/CMakeLists 行作废）；任何违例 = parse
 // error（构造期抛出；五类字段级 fixture：SCALAR 含逗号、前导/尾随/
 // 连续逗号、重复列表项、重复 canonical、同行重复 k——断言各自的
 // 错误信息含违规字段名与行内容）。

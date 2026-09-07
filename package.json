@@ -29,6 +29,7 @@
     "verify:migration": "node scripts/verify-icon-migration.mjs --check",
     "verify:shadcn-add": "node scripts/verify-shadcn-add.mjs",
     "verify:ghostty-pin": "node scripts/verify-ghostty-pin.mjs",
+    "verify:betlang-pin": "node scripts/verify-betlang-pin.mjs",
     "test:types": "npm --prefix apps/www run test:types",
     "verify:context": "node scripts/verify-context-coverage.mjs"
   },

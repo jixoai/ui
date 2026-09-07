@@ -1,0 +1,4 @@
+# binaries never enter git (ghostty law, design D4) — dist/ ships via
+# npm only, target/ is cargo's own scratch
+/dist
+/target

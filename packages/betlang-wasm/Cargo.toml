@@ -1,0 +1,37 @@
+# The @jixoai/betlang-wasm build atom (highlight-lang-detector change,
+# design D4 — channel A frozen: self-built npm package, crates.io pin).
+#
+# [workspace] EMPTY ON PURPOSE: this package is its own workspace root so
+# no outer cargo project can leak profiles/flags into the frozen build
+# recipe (scripts/build.mjs drives it with --locked).
+#
+# Pins are EXACT (`=`): betlang mirrors its crate release; fearless_simd
+# is pinned to betlang's own locked 0.4.0 — unpinned, a fresh lockfile
+# drifts to 0.4.1 and the shipped bytes leave the measured baseline
+# (evidence/betlang-probe-2026-09-07.md, r9-B2).
+
+[workspace]
+
+[package]
+name = "betlang-wasm"
+version = "0.1.1"
+edition = "2021"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+betlang = "=0.1.1"
+fearless_simd = "=0.4.0"
+
+# The frozen size recipe (evidence "lean 探针" row: enum-ordinal return +
+# this profile is what keeps raw inside the 100 KiB budget law; every
+# knob here is load-bearing — see the KiB budget table in design D4).
+[profile.release]
+opt-level = "z"
+lto = true
+panic = "abort"
+strip = true
+codegen-units = 1

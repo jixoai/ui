@@ -96,8 +96,11 @@ SHALL 为终态——reject 消息按矩阵失败法则点名覆盖引擎，不�
 #### Scenario: canonical 权威表恰好一次
 
 - **WHEN** lang-canonical.ts 编纂完成
-- **THEN** 每 betlang 标签恰好映射一个 canonical id 或显式 `-`（无
-  重复、无遗漏）；L1/L2 表与标签映射全部从该表派生
+- **THEN** 已映射的 betlang 标签（32 个）恰好各映射一个 canonical
+  一次（无重复），无对应标签（16 个，含 gemfile/gemspec/vba/
+  verilog）在表中缺席 = 运行时 null + 一次性 warn（"每标签恰一行"
+  对无对应标签不可满足——r13-A4 措辞修正）；L1/L2 表与标签映射
+  全部从该表派生
 
 #### Scenario: 检测命中但引擎不支持
 
@@ -121,8 +124,10 @@ SHALL 是独立懒模块——前一层命中后行 SHALL 零加载后续层；L
 表 SHALL 以多行字符串常量表达（首次使用才 parse 成 Map，进程级缓
 存）。表数据源 SHALL 取 linguist languages.yml（extensions/filenames/
 interpreters 字段）与本仓库 canonical 支持集的交集，挖掘时的 linguist
-commit SHA SHALL 落表头注释；歧义扩展名（heuristics.yml 138 组消解
-块覆盖的）SHALL 被排除出 L1，交由 L4。
+commit SHA SHALL 落表头注释；歧义扩展名（heuristics.yml 消解块覆盖
+的）SHALL 被排除出 L1，交由 L4——**ts/tsx/jsx 例外**（实现裁决
+r13-A1：消解块确含 .ts/.tsx，但本 spec 的 `main.ts → L1 命中`
+场景冻结优先，三胞胎留在 L1）。
 
 #### Scenario: 扩展名即答案
 

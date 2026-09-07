@@ -1,0 +1,43 @@
+{
+  "name": "@jixoai/betlang-wasm",
+  "version": "0.1.1",
+  "description": "The betlang statistical language detector as a wasm npm package (betlang =0.1.1, MIT, DioxusLabs): a ~40-line handwritten loader speaking raw linear memory (no wasm-bindgen), detect() returning the 48-label model enum index plus a calibrated top-1 confidence. Built by scripts/build.mjs from the crates.io pin with a sparse-index checksum gate; ARTIFACT.md records the as-shipped bytes.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    },
+    "./dist/betlang_wasm.wasm": "./dist/betlang_wasm.wasm",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "index.js",
+    "index.d.ts",
+    "LICENSE",
+    "ARTIFACT.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "verify": "node ../../scripts/verify-betlang-pin.mjs"
+  },
+  "sideEffects": false,
+  "keywords": [
+    "jixoai",
+    "betlang",
+    "language-detection",
+    "wasm",
+    "magika",
+    "highlight"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jixoai/ui",
+    "directory": "packages/betlang-wasm"
+  }
+}
