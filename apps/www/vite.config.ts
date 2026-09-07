@@ -263,4 +263,17 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['microlighter'],
   },
+  // Workspace packages live OUTSIDE apps/www (packages/betlang-wasm's
+  // wasm rides `new URL(..., import.meta.url)` → an /@fs/ request for
+  // packages/…), and vite's workspace-root detection can land on the
+  // app dir instead of the repo root depending on the local
+  // node_modules layout — found live when the dev server refused the
+  // wasm with "outside of Vite serving allow list" and every lang=auto
+  // card silently fell back to plain text (2026-09-07). The repo root
+  // allow is explicit so dev serving never depends on that detection.
+  server: {
+    fs: {
+      allow: [resolve(dirname(fileURLToPath(import.meta.url)), '../..')],
+    },
+  },
 });
