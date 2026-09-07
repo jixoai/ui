@@ -27,7 +27,7 @@
  *
  *   (merge-alignment C3/A1, 2026-08-29: the single B-consumer budget
  *   tracked the now-deleted @jixoai/ui-plugin dist. It is replaced by
- *   the two @jixoai/vite-plugin entry budgets above; their aggregate is
+ *   the two @jixoai/ui-vite-plugin entry budgets above; their aggregate is
  *   printed for observation only — never gated.)
  *
  * Threshold = baseline × 1.05. A measurement collapsing to <60% of
@@ -112,10 +112,24 @@ const BASELINES = {
   // consumer-shipped runtime stays the artifact lane (shadcn-add
   // clean-consumer probes). B-source/B-face unchanged (the docs
   // growth landed with the previous re-record).
+  //
+  // re-recorded 2026-09-07 (icon-channel-api): B-consumer-icons
+  // 745->857 (+15%) — the icons barrel's PUBLIC API grows by design
+  // again: the channel contract joins it (IconChannel/IconChannelResolver
+  // types, defineIconChannel, the peer seam, normalizeIconChannels +
+  // enabledChannelPrefixes, the md/ph/rx factories, the lucideChannel
+  // instance) and the generator gains the EQUIVALENCES emission; the
+  // sub-entries themselves (…/icons/[channel|lucide|md|ph|rx]) stay
+  // OUT of the barrel's import graph (per-entry purity gates in
+  // packaging.test.ts) so this is the whole cost. B-consumer-vite
+  // 2710->2683 measured under threshold (the no-presets transform
+  // fast path died, smaller than the comment noise it shed); B-face
+  // 13368->13483 measured under threshold (+0.9%, the icons page's
+  // define-your-own-channel section) — both left at their baselines.
   'B-source': 37636,
   'B-face': 13368,
   'B-consumer-vite': 2710,
-  'B-consumer-icons': 745,
+  'B-consumer-icons': 857,
 };
 const THRESHOLD_FACTOR = 1.05;
 const COLLAPSE_FACTOR = 0.6;

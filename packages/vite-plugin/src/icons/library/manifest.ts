@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons library) — the built-in manifest (A1,
+ * @jixoai/ui-vite-plugin (icons library) — the built-in manifest (A1,
  * openspec icon-component-pipeline design §1).
  *
  * The 38 built-ins migrate VERBATIM from the retired gen-icons generator's GROUPS

@@ -67,17 +67,17 @@ npx jixoai-ui init --hue 330`;
 npx jixoai-ui add ghostty-term`;
 
   const pluginCode = `# 2 — the wasm supply chain (the one component that needs it)
-npm i -D @jixoai/vite-plugin`;
+npm i -D @jixoai/ui-vite-plugin`;
 
   const viteConfigCode = `import { sveltekit } from '@sveltejs/kit/vite';
-import { jixoai } from '@jixoai/vite-plugin';
+import { jixoai } from '@jixoai/ui-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 
 export default {
   plugins: [sveltekit(), tailwindcss(), ...jixoai()],
 };`;
 
-  const clientTypesCode = `/// <reference types="@jixoai/vite-plugin/client" />`;
+  const clientTypesCode = `/// <reference types="@jixoai/ui-vite-plugin/client" />`;
 
   // playground state: the page owns the shell; reset re-mounts the
   // terminal ({#key}) so the wasm boot + welcome replay from zero.
@@ -471,7 +471,7 @@ export default {
   <title>Ghostty term · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai ghostty-term component: the live terminal surface — a DPR-aware canvas grid painted by the real libghostty-vt wasm with rAF-batched dirty-row painting, density-derived cell metrics, auto or explicit cols/rows, the onData input bridge (keyEncode, paste gate, IME composition, mouse reporting, OSC 52 clipboard), and typed error degradation through the @jixoai/vite-plugin wasm supply chain."
+    content="The jixoai ghostty-term component: the live terminal surface — a DPR-aware canvas grid painted by the real libghostty-vt wasm with rAF-batched dirty-row painting, density-derived cell metrics, auto or explicit cols/rows, the onData input bridge (keyEncode, paste gate, IME composition, mouse reporting, OSC 52 clipboard), and typed error degradation through the @jixoai/ui-vite-plugin wasm supply chain."
   />
 </svelte:head>
 

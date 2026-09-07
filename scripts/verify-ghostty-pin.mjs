@@ -3,7 +3,7 @@
 // design.md D2 "verify:ghostty-pin 硬化"; Batch C, 2026-08-28).
 //
 // Verifies packages/vite-plugin/ghostty.pin.json WITHOUT importing
-// @jixoai/vite-plugin: the gate must run on a fresh clone with no build
+// @jixoai/ui-vite-plugin: the gate must run on a fresh clone with no build
 // step and stay an independent second guardrail next to the package's
 // own pin.ts validation (which it intentionally mirrors, not shares).
 //

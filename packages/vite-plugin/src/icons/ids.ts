@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons) — the virtual-module id vocabulary
+ * @jixoai/ui-vite-plugin (icons) — the virtual-module id vocabulary
  * (icon-component-pipeline design §5/§9).
  *
  * PURE string/regex contract — zero imports — so the umbrella bridge

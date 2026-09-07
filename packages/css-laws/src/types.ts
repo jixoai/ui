@@ -1,5 +1,5 @@
 /**
- * @jixoai/css-laws — a BOUNDED serializer for the 13 native
+ * @jixoai/ui-css-laws — a BOUNDED serializer for the 13 native
  * form-control laws (Codex r2 positioning ruling).
  *
  * This is NOT a general typed CSS AST: declarations and selectors

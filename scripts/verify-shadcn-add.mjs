@@ -1624,16 +1624,16 @@ rmSync(overflowDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 
 mkdirSync(dirname(overflowDir), { recursive: true });
 cpSync(templateDir, overflowDir, { recursive: true });
 
-// @jixoai/vite-plugin is unpublished (the ghostty-term precedent stubs its
+// @jixoai/ui-vite-plugin is unpublished (the ghostty-term precedent stubs its
 // data contract for INSTALL fixtures); this BUILD probe needs the real
 // plugin, so it is LINKED into the fixture's node_modules — the vitest
 // vite-build.test.ts precedent imports the package directly. The link
-// keeps the '@jixoai/vite-plugin[/icons]' specifiers (the real consumer
+// keeps the '@jixoai/ui-vite-plugin[/icons]' specifiers (the real consumer
 // import surface) while svgo/lucide resolve from the package's own tree.
 mkdirSync(join(overflowDir, 'node_modules', '@jixoai'), { recursive: true });
-const pluginLink = join(overflowDir, 'node_modules', '@jixoai', 'vite-plugin');
+const pluginLink = join(overflowDir, 'node_modules', '@jixoai', 'ui-vite-plugin');
 symlinkSync(join(root, 'packages', 'vite-plugin'), pluginLink, 'dir');
-if (!existsSync(join(pluginLink, 'dist', 'icons.js'))) die('overflow: the @jixoai/vite-plugin link did not land (dist/icons.js unreachable)');
+if (!existsSync(join(pluginLink, 'dist', 'icons.js'))) die('overflow: the @jixoai/ui-vite-plugin link did not land (dist/icons.js unreachable)');
 
 let pluginIcons;
 try {
@@ -1698,7 +1698,7 @@ writeAt(
   overflowDir,
   'vite.config.ovf-wired.ts',
   `import { defineConfig } from 'vite';
-import { jixoai } from '@jixoai/vite-plugin';
+import { jixoai } from '@jixoai/ui-vite-plugin';
 
 // design §1: jixoai({ icons: { library } }) — the umbrella bridge, ghostty
 // off (this fixture has no wasm business). includeDefaults: the full
@@ -1729,8 +1729,8 @@ writeAt(
   overflowDir,
   'vite.config.ovf-unwired.ts',
   `import { defineConfig } from 'vite';
-import { jixoai } from '@jixoai/vite-plugin';
-import { svgIconProvider } from '@jixoai/vite-plugin/icons';
+import { jixoai } from '@jixoai/ui-vite-plugin';
+import { svgIconProvider } from '@jixoai/ui-vite-plugin/icons';
 
 export default defineConfig({
   plugins: [jixoai({
@@ -1760,7 +1760,7 @@ writeAt(
   'ovf-runtime-sentinel.mjs',
   [
     "import { createServer } from 'vite';",
-    "import { createIconPlugin } from '@jixoai/vite-plugin/icons';",
+    "import { createIconPlugin } from '@jixoai/ui-vite-plugin/icons';",
     '',
     'const server = await createServer({',
     '  root: new URL(".", import.meta.url).pathname,',

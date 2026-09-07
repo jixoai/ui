@@ -20,6 +20,7 @@ import type { Plugin } from 'vite';
 import { afterAll, describe, expect, test } from 'vitest';
 import { jixoai } from '../../../src/index.ts';
 import { lucideIconProvider } from '../../../src/icons/providers/lucide.js';
+import { md } from '../../../src/icons/library/channel/material.js';
 import { VIRTUAL_MODULE_ID } from '../../../src/icons/ids.js';
 
 // the scanner fixtures' tmp roots (cleaned once at the end)
@@ -148,7 +149,7 @@ describe('the bridge delegates the prefix compiler\'s transform (icon-prefix-com
     await writeFile(appSvelte, '<Icon name="md:home" />\n', 'utf8');
 
     const bridge = jixoai({
-      icons: { library: { includeDefaults: false, presets: ['material'] } },
+      icons: { library: { includeDefaults: false, channels: [md()] } },
     }).find((plugin) => plugin.name === 'jixoai-icons')!;
     const hooks = bridgeLifecycle(bridge);
     await hooks.configResolved({ root, command: 'serve' });
@@ -170,11 +171,41 @@ describe('the bridge delegates the prefix compiler\'s transform (icon-prefix-com
     throw new Error('the scanned ref never reached the bridge-served artifact');
   });
 
-  test('the no-presets fast path returns null without touching the delegate', async () => {
+  test('the no-library fast path returns null without touching the delegate', async () => {
     const bridge = jixoai({
       icons: { library: { includeDefaults: false, icons: { plain: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>' } } },
     }).find((plugin) => plugin.name === 'jixoai-icons')!;
     const result = await bridgeLifecycle(bridge).transform('<Icon name="md:home" />', '/app/src/App.svelte');
     expect(result).toBeNull();
+  });
+
+  test('a lucide: literal scans through the bridge with ZERO channels (default-registered)', async () => {
+    // icon-channel-api design §1: lucide is default-registered, so the
+    // old no-presets fast path is GONE — a bare lucide: literal must
+    // reach the collector for umbrella consumers too
+    const root = await mkdtemp(join(tmpdir(), 'jixoai-bridge-lucide-'));
+    fixtureRoots.push(root);
+    const appSvelte = join(root, 'src/App.svelte');
+    await mkdir(dirname(appSvelte), { recursive: true });
+    await writeFile(appSvelte, '<Icon name="lucide:zap" />\n', 'utf8');
+
+    const bridge = jixoai({ icons: { library: { includeDefaults: false } } }).find(
+      (plugin) => plugin.name === 'jixoai-icons',
+    )!;
+    const hooks = bridgeLifecycle(bridge);
+    await hooks.configResolved({ root, command: 'serve' });
+    await hooks.buildStart();
+    expect(await hooks.transform(await readFile(appSvelte, 'utf8'), appSvelte)).toBeNull();
+
+    const artifactPath = join(root, 'src/lib/icon-set.gen.ts');
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const artifact = (await hooks.load(artifactPath)) ?? '';
+      if (artifact.includes("'lucide:zap'")) {
+        expect(artifact).toContain('`lucide:${string}`');
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new Error('the scanned lucide ref never reached the bridge-served artifact');
   });
 });

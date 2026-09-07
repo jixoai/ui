@@ -92,7 +92,7 @@ describe('the artifact shape (design §6)', () => {
   test('GENERATED header, IconName union, ICON_NAMES, CHUNK_0/CHUNK_OF/LAZY, cache + API', async () => {
     const assets = await defaultSet();
     const { artifact } = generateIconLibraryArtifacts(assets, {});
-    expect(artifact.startsWith('// GENERATED — do not edit (source: @jixoai/vite-plugin icons library face)\n')).toBe(true);
+    expect(artifact.startsWith('// GENERATED — do not edit (source: @jixoai/ui-vite-plugin icons library face)\n')).toBe(true);
     expect(artifact).toContain("export type IconName =\n  | 'arrowRight'\n");
     expect(artifact).toContain("  | 'type'\n  ;");
     expect(artifact).toContain('] as readonly IconName[];');

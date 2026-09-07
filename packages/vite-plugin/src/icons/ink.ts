@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons) — the ink-baking law (icons-docs ICON-3,
+ * @jixoai/ui-vite-plugin (icons) — the ink-baking law (icons-docs ICON-3,
  * 2026-09-02).
  *
  * BYTE-EQUIVALENT PORT of the iconUri/iconSvg serializer in css-laws

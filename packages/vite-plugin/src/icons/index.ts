@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin/icons — the icon-system sub-entry.
+ * @jixoai/ui-vite-plugin/icons — the icon-system sub-entry.
  *
  * The whole icon system (providers/serializer/safety + the vite plugin)
  * lives behind the `./icons` export so the umbrella entry
@@ -62,22 +62,33 @@ export {
   MISSING_ICONS_FACES_ERROR,
 } from './library/config.js';
 export type { NormalizedLibraryOptions } from './library/config.js';
-// the library presets (icon-library-presets, 2026-09-07): registry +
-// contracts — consumers configure them through library.presets
+// the icon channels (icon-channel-api, 2026-09-07): the contract +
+// the base factory + the config-time normalization — consumers
+// register channels through library.channels (the shipped ones import
+// from their own sub-entries; the barrel re-exports the whole surface
+// for type imports)
 export type {
-  IconPreset,
-  IconPresetId,
-  IconPresetOption,
-  MaterialPresetOptions,
-  PhosphorPresetOptions,
-  RemixPresetOptions,
-} from './library/presets/types.js';
+  IconChannel,
+  IconChannelResolver,
+  DefineIconChannelSpec,
+} from './library/channel/types.js';
 export {
-  PRESET_IDS,
-  normalizeIconPresets,
-  MATERIAL_DEFAULTS,
-  PHOSPHOR_DEFAULTS,
-} from './library/presets/index.js';
+  defineIconChannel,
+  isPeerInstalled,
+  resolvePeerFile,
+  CHANNEL_PREFIX_PATTERN,
+  CHANNEL_ID_PATTERN,
+} from './library/channel/index.js';
+export type { MaterialChannelOptions } from './library/channel/material.js';
+export { md, MATERIAL_DEFAULTS } from './library/channel/material.js';
+export type { PhosphorChannelOptions } from './library/channel/phosphor.js';
+export { ph, PHOSPHOR_DEFAULTS, PHOSPHOR_PEER } from './library/channel/phosphor.js';
+export { rx, REMIX_PEER } from './library/channel/remix.js';
+export { lucideChannel } from './library/channel/lucide.js';
+export {
+  normalizeIconChannels,
+  enabledChannelPrefixes,
+} from './library/channel/normalize.js';
 export { resolveLibraryInputs } from './library/resolve.js';
 export type { LibraryResolution } from './library/resolve.js';
 export { optimizeSvg } from './library/optimize.js';

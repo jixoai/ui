@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons) — vite integration (P3.3)
+ * @jixoai/ui-vite-plugin (icons) — vite integration (P3.3)
  *
  * createIconPlugin() returns a Vite plugin that:
  *   1. owns ALL file I/O — providers receive loaded bytes through a
@@ -48,8 +48,8 @@
  * library icons join the same watch machinery; a change re-runs both
  * faces and invalidates every virtual module.
  *
- * The PREFIX COMPILER (icon-prefix-compiler, 2026-09-07): with presets
- * enabled, `name="md:copy_all"` literals in consumer sources enter the
+ * The PREFIX COMPILER (icon-prefix-compiler, 2026-09-07): with channels
+ * registered, `name="md:copy_all"` literals in consumer sources enter the
  * set with NO library.icons declaration — through the scanner's two
  * entries (scan.ts): an EAGER project walk at buildStart in build mode
  * (generation precedes transforms), and a DEV transform collector
@@ -76,6 +76,7 @@ import {
   normalizeLibraryOptions,
   type NormalizedLibraryOptions,
 } from './library/config.js';
+import { enabledChannelPrefixes } from './library/channel/normalize.js';
 import { generateIconLibraryArtifacts, type GeneratedLibraryArtifacts } from './library/generate.js';
 import { resolveLibraryInputs } from './library/resolve.js';
 import {
@@ -376,18 +377,18 @@ export type IconPlugin = Plugin & IconPluginHooks;
 
 /**
  * create the icon plugin standalone (canonical entry: the `icons` option
- * of the `jixoai()` umbrella in `@jixoai/vite-plugin`). ≥1 of
+ * of the `jixoai()` umbrella in `@jixoai/ui-vite-plugin`). ≥1 of
  * `icons` (the slot/CSS face) or `library` (the named-icon face) is
  * required — neither is the named startup error (design §1 matrix).
  *
  * ```ts
  * // vite.config.ts — umbrella (preferred)
- * import { jixoai } from '@jixoai/vite-plugin';
- * import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
+ * import { jixoai } from '@jixoai/ui-vite-plugin';
+ * import { lucideIconProvider } from '@jixoai/ui-vite-plugin/icons';
  * export default { plugins: [sveltekit(), tailwindcss(), ...jixoai({ icons: { provider: lucideIconProvider(), library: {} } })] };
  *
  * // standalone (icons feature only)
- * import { createIconPlugin } from '@jixoai/vite-plugin/icons';
+ * import { createIconPlugin } from '@jixoai/ui-vite-plugin/icons';
  * export default { plugins: [createIconPlugin({ icons: lucideIconProvider() })] };
  * export default { plugins: [createIconPlugin({ library: { icons: { myLogo: { file: './brand/logo.svg' } } } })] };
  * ```
@@ -425,15 +426,15 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
   // -- the prefix compiler's scanned stream (design §1) ────────────
   // DEV: the transform collector accumulates per module; a UNION
   // change rides scheduleRefresh. BUILD: the eager walk runs instead
-  // (generation at buildStart precedes every transform).
+  // (generation at buildStart precedes every transform). The enabled
+  // set is `lucide` ∪ the registered channels' prefixes — one law, no
+  // lucide special case.
   const enabledPrefixes = (): readonly string[] =>
-    libraryOptions === null
-      ? []
-      : [...new Set(libraryOptions.presets.map((preset) => preset.prefix))];
+    libraryOptions === null ? [] : enabledChannelPrefixes(libraryOptions.channels);
   const scannedByModule = new Map<string, readonly ScannedRef[]>();
   let scannedUnion: readonly ScannedRef[] = [];
   const scannedUnionKeyOf = (refs: readonly ScannedRef[]): string =>
-    refs.map((ref) => `${ref.preset}:${ref.name}\u0000${ref.alias ?? ''}`).join('|');
+    refs.map((ref) => `${ref.channel}:${ref.name}\u0000${ref.alias ?? ''}`).join('|');
 
   /** watched files (absolute) → provider-registered change callbacks */
   const watches = new Map<string, Set<() => void>>();
@@ -516,6 +517,7 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
       library = generateIconLibraryArtifacts(resolution.icons, {
         ...libraryOptions,
         aliases: resolution.aliases,
+        equivalences: resolution.equivalences,
         templatePrefixes: prefixes,
       });
       await syncArtifact();
@@ -736,12 +738,12 @@ export function createIconPlugin(options: IconPluginOptions): IconPlugin {
 
     /**
      * the DEV-INCREMENTAL scanner collector (design §1b): collect the
-     * module's static name literals under ENABLED preset prefixes; a
+     * module's static name literals under ENABLED channel prefixes; a
      * scanned-set UNION change rides scheduleRefresh — one full-reload
      * cycle, exactly like a config edit. NEVER rewrites code (null
      * pass-through — sources are never rewritten, the ruled form), and
      * inert outside dev (build mode is served by the eager walk at
-     * buildStart) and without enabled presets.
+     * buildStart) and when the library face is off.
      */
     transform(code: string, id: string): { code: string; map: null } | null {
       if (libraryOptions === null || viteCommand !== 'serve') return null;

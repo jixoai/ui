@@ -1,6 +1,8 @@
 /**
- * @jixoai/vite-plugin (icons library) — the source scanner (A1/A2,
- * openspec icon-prefix-compiler design §1, 2026-09-07).
+ * @jixoai/ui-vite-plugin (icons library) — the source scanner (A1/A2,
+ * openspec icon-prefix-compiler design §1, 2026-09-07; channels:
+ * icon-channel-api design §1 — the enabled set is `lucide` ∪ the
+ * registered channels' prefixes, so `lucide:` literals scan too).
  *
  * ONE pure module, TWO collection entries feeding one generator stream:
  *
@@ -16,19 +18,20 @@
  *       rides the plugin's scheduleRefresh like a config edit).
  *
  * The matcher is deliberately FAIL-SAFE (codex r1 M5/M6): a literal
- * whose prefix is not an ENABLED preset is IGNORED, never an error — a
- * doc example or comment mentioning `fa:home` can never break a build;
- * the worst case is no collection. The unknown-prefix NAMED error is a
- * CONFIG-face law (library.icons entries, presets/index.ts) and stays
- * there. The suffix grammar is permissive the same way (codex r1 B4):
- * the scanner captures the prefix + the COMPLETE literal suffix —
- * remix refs carry a second colon and hyphens (`rx:system:add-line`) —
- * and DELEGATES suffix validation to the preset resolver, which fails
- * by name on bad refs. The /^[a-z][a-z0-9_]*$/ grammar governs only
- * non-prefixed keys and ALIASES. NO expression evaluation: dynamic
- * names are intentionally unserved (the runtime lane owns them).
+ * whose prefix is not an ENABLED channel prefix is IGNORED, never an
+ * error — a doc example or comment mentioning `fa:home` can never
+ * break a build; the worst case is no collection. The unknown-prefix
+ * NAMED error is a CONFIG-face law (library.icons entries,
+ * channel/normalize.ts) and stays there. The suffix grammar is
+ * permissive the same way (codex r1 B4): the scanner captures the
+ * prefix + the COMPLETE literal suffix — remix refs carry a second
+ * colon and hyphens (`rx:system:add-line`) — and DELEGATES suffix
+ * validation to the channel resolver, which fails by name on bad refs.
+ * The /^[a-z][a-z0-9_]*$/ grammar governs only non-prefixed keys and
+ * ALIASES. NO expression evaluation: dynamic names are intentionally
+ * unserved (the runtime lane owns them).
  *
- * Determinism is law: refs sort (preset, name, alias) and identical
+ * Determinism is law: refs sort (channel, name, alias) and identical
  * triples dedupe — scan ORDER never affects artifact bytes.
  */
 
@@ -39,25 +42,25 @@ import { join, resolve as resolvePath } from 'node:path';
 
 /**
  * one scanned reference: the canonical prefixed name plus the optional
- * `as` alias declared in the same literal. `preset` is the ENABLED
- * preset's prefix (any of them — md/ph/rx; string-typed for forward
- * compat), `name` the COMPLETE literal suffix (`copy_all`,
+ * `as` alias declared in the same literal. `channel` is the ENABLED
+ * channel's prefix (any of them — lucide/md/ph/rx/myco; string-typed
+ * by design), `name` the COMPLETE literal suffix (`copy_all`,
  * `system:add-line`), `alias` the `as` token VERBATIM — its grammar
  * (/^[a-z][A-Za-z0-9]*$/) is validated downstream where the collision
  * matrix lives (resolve.ts).
  */
 export interface ScannedRef {
-  readonly preset: string;
+  readonly channel: string;
   readonly name: string;
   readonly alias?: string;
 }
 
 /** the canonical artifact key of a scanned ref (the full prefixed name) */
-export const scannedRefKey = (ref: ScannedRef): string => `${ref.preset}:${ref.name}`;
+export const scannedRefKey = (ref: ScannedRef): string => `${ref.channel}:${ref.name}`;
 
-/** sort (preset, name, alias) — the byte-determinism law */
+/** sort (channel, name, alias) — the byte-determinism law */
 export function compareScannedRefs(a: ScannedRef, b: ScannedRef): number {
-  const key = (ref: ScannedRef): string => `${ref.preset}\u0000${ref.name}\u0000${ref.alias ?? ''}`;
+  const key = (ref: ScannedRef): string => `${ref.channel}\u0000${ref.name}\u0000${ref.alias ?? ''}`;
   const left = key(a);
   const right = key(b);
   return left < right ? -1 : left > right ? 1 : 0;
@@ -67,7 +70,7 @@ export function compareScannedRefs(a: ScannedRef, b: ScannedRef): number {
 export function mergeScannedRefs(refs: readonly ScannedRef[]): ScannedRef[] {
   const byTriple = new Map<string, ScannedRef>();
   for (const ref of refs) {
-    byTriple.set(`${ref.preset}\u0000${ref.name}\u0000${ref.alias ?? ''}`, ref);
+    byTriple.set(`${ref.channel}\u0000${ref.name}\u0000${ref.alias ?? ''}`, ref);
   }
   return Array.from(byTriple.values()).sort(compareScannedRefs);
 }
@@ -129,14 +132,14 @@ export function collectScannedRefs(
     if (raw === undefined) continue;
     const parsed = SCANNED_LITERAL.exec(raw.trim());
     if (parsed === null) continue;
-    const preset = parsed[1]!;
-    if (!enabled.has(preset)) continue; // unknown prefix — IGNORED, never an error
+    const channel = parsed[1]!;
+    if (!enabled.has(channel)) continue; // unknown prefix — IGNORED, never an error
     const ref: ScannedRef = {
-      preset,
+      channel,
       name: parsed[2]!,
       ...(parsed[3] !== undefined ? { alias: parsed[3] } : {}),
     };
-    found.set(`${ref.preset}\u0000${ref.name}\u0000${ref.alias ?? ''}`, ref);
+    found.set(`${ref.channel}\u0000${ref.name}\u0000${ref.alias ?? ''}`, ref);
   }
   return Array.from(found.values()).sort(compareScannedRefs);
 }
@@ -185,7 +188,9 @@ export interface ScanProjectOptions {
  *
  * Returns the sorted deduped union — deterministic regardless of fs
  * order. With no enabled prefixes the walk is skipped entirely (no
- * ref could ever match — and this repo's gen:icons stays walk-free).
+ * ref could ever match; note the enabled set is never empty in the
+ * channel era — `lucide` is default-registered, so walks always run
+ * and `lucide:` literals collect like any channel's).
  */
 export async function scanProjectSources(
   root: string,

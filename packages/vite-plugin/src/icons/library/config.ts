@@ -1,6 +1,7 @@
 /**
- * @jixoai/vite-plugin (icons library) — options validation +
- * normalization (A1, openspec icon-component-pipeline design §1).
+ * @jixoai/ui-vite-plugin (icons library) — options validation +
+ * normalization (A1, openspec icon-component-pipeline design §1;
+ * channels: icon-channel-api design §1, 2026-09-07).
  *
  * Owns the config-validation matrix's library half: name validation
  * (/^[a-z][A-Za-z0-9]*$/), option normalization with the frozen
@@ -13,9 +14,9 @@
 import type { IconLibraryOptions, IconSource, OptimizeConfig } from './types.js';
 import {
   assertRefPrefixesEnabled,
-  normalizeIconPresets,
-  type IconPreset,
-} from './presets/index.js';
+  normalizeIconChannels,
+} from './channel/normalize.js';
+import type { IconChannel } from './channel/types.js';
 
 /** icon names are lowerCamel and tame: they become TS union members,
  *  object keys and (for {file} sources) watched paths */
@@ -41,10 +42,10 @@ export const MISSING_ICONS_FACES_ERROR =
 /** the normalized form every library consumer code path reads */
 export interface NormalizedLibraryOptions {
   readonly includeDefaults: boolean;
-  /** the ENABLED preset instances (string shorthand + object form
-   *  normalized; absent = [] — prefixed refs then fail the
-   *  enabled-prefix law, never resolve) */
-  readonly presets: readonly IconPreset[];
+  /** the REGISTERED channel instances (validated: grammar + set-level
+   *  uniqueness; absent = [] — only `lucide:` stays enabled, other
+   *  prefixed refs fail the enabled-prefix law, never resolve) */
+  readonly channels: readonly IconChannel[];
   readonly icons: Readonly<Record<string, IconSource>>;
   readonly maxChunkBytes: number;
   readonly chunking: 'auto' | 'single';
@@ -109,16 +110,17 @@ export function normalizeLibraryOptions(
     );
   }
 
-  // presets: unknown ids fail HERE (startup); the enabled-prefix law
-  // then fails any disabled/unknown prefixed ref (the fa:home scenario)
-  const presets = normalizeIconPresets(options.presets);
+  // channels: grammar + uniqueness fail HERE (startup); the
+  // enabled-prefix law then fails any disabled/unknown prefixed ref
+  // (the fa:home scenario)
+  const channels = normalizeIconChannels(options.channels);
   if (options.icons !== undefined) {
-    assertRefPrefixesEnabled(options.icons, presets);
+    assertRefPrefixesEnabled(options.icons, channels);
   }
 
   return {
     includeDefaults: options.includeDefaults ?? true,
-    presets,
+    channels,
     icons: options.icons ?? {},
     maxChunkBytes,
     chunking,

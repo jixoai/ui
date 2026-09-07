@@ -1,4 +1,4 @@
-// @jixoai/vite-plugin — the jixoai build-time features for vite 8.
+// @jixoai/ui-vite-plugin — the jixoai build-time features for vite 8.
 //
 // Intents (orthogonal count: 3):
 //   1. `jixoai()` — THE umbrella entry wiring every
@@ -197,13 +197,13 @@ function ghosttyPlugin(options: JixoaiGhosttyOptions): Plugin[] {
 export interface IconsPluginOptions {
   /**
    * the slot/CSS face's icon provider factory — awaited at build start
-   * (see @jixoai/vite-plugin/icons). OPTIONAL since the library face:
+   * (see @jixoai/ui-vite-plugin/icons). OPTIONAL since the library face:
    * a library-only config emits no CSS module content.
    */
   readonly provider?: IconProviderFactory;
   /**
    * the named-icon/library face (see IconLibraryOptions in
-   * @jixoai/vite-plugin/icons): the icon-set artifact + virtual chunk
+   * @jixoai/ui-vite-plugin/icons): the icon-set artifact + virtual chunk
    * modules behind `<Icon name>` components.
    */
   readonly library?: IconLibraryOptions;
@@ -303,13 +303,15 @@ function iconsBridgePlugin(options: IconsPluginOptions): Plugin {
     async transform(code, id) {
       // the prefix compiler's DEV collector rides the delegate too
       // (icon-prefix-compiler design §1 — the bridge must not silently
-      // drop the scanner for umbrella consumers). FAST PATH: with no
-      // presets enabled the collector can never match a literal, so
-      // the delegation (and its dynamic import) is skipped entirely —
-      // no static icons import enters this entry either way (design
-      // §9: the memoized dynamic import stays the only path in).
-      const presets = options.library?.presets;
-      if (presets === undefined || presets.length === 0) return null;
+      // drop the scanner for umbrella consumers). The old no-presets
+      // fast path is GONE (icon-channel-api, 2026-09-07): lucide is
+      // default-registered, so the enabled set is never empty and a
+      // bare `lucide:zap` literal must scan for umbrella consumers
+      // too — with no library configured the delegation is still
+      // skipped (nothing to collect for; no static icons import enters
+      // this entry either way — design §9: the memoized dynamic import
+      // stays the only path in).
+      if (options.library === undefined) return null;
       return (await ensureDelegate()).transform(code, id);
     },
 

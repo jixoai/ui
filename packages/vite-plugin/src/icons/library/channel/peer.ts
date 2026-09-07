@@ -1,17 +1,20 @@
 /**
- * @jixoai/vite-plugin (icons library presets) — peer-package node
- * resolution (A1, openspec icon-library-presets design §1).
+ * @jixoai/ui-vite-plugin (icons library channels) — peer-package node
+ * resolution (A1, openspec icon-channel-api design §0; the
+ * icon-library-presets peer law carried verbatim).
  *
  * Intents:
  * 1. locate an optional peer's per-icon SVG FILE by node resolution —
  *    `resolvePeerFile('@material-symbols/svg-400', 'outlined/home.svg')`
  *    returns the ABSOLUTE path. Node resolution LOCATES the file; the
  *    plugin still owns the READ (resolve.ts hands the path to
- *    ctx.loadSource — frozen principle #4).
+ *    ctx.loadSource — frozen principle #4). This is the seam a
+ *    consumer's OWN channel points at (the docs page's myco: example:
+ *    `resolveFile: (ref) => resolvePeerFile('my-icons', `svgs/${ref}.svg`)`).
  * 2. resolution rides the PLUGIN's module context (createRequire over
  *    import.meta.url) — the same discipline as the lucide dynamic
  *    import: peers install beside/above the plugin package (the
- *    optional-peer law), so what lucide can reach, presets can reach.
+ *    optional-peer law), so what lucide can reach, channels can reach.
  * 3. loud-fail errors (the lucide precedent): a peer that is not
  *    installed is a NAMED error carrying the npm install line; an
  *    installed peer without the requested icon is a NAMED error naming
@@ -61,17 +64,17 @@ export function resolvePeerFile(peerPackage: string, subpath: string): string {
   } catch (cause) {
     if (!isPeerInstalled(peerPackage)) {
       throw new Error(
-        `[jixoai-icons] the preset peer package "${peerPackage}" is not installed — ` +
-          `presets resolve per-icon SVGs from it at build time. Install it ` +
-          `(npm i ${peerPackage}) or drop the preset from library.presets`,
+        `[jixoai-icons] the channel peer package "${peerPackage}" is not installed — ` +
+          `channels resolve per-icon SVGs from it at build time. Install it ` +
+          `(npm i ${peerPackage}) or drop the channel from library.channels`,
         { cause },
       );
     }
     throw new Error(
       `[jixoai-icons] the peer package "${peerPackage}" is installed but has no ` +
         `icon file "${subpath}" — check the icon name/weight/style against the ` +
-        'package contents (the preset docs page lists each preset\'s mapping)',
-        { cause },
-      );
+        'package contents (the icons page lists each channel\'s mapping)',
+      { cause },
+    );
   }
 }

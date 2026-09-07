@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons) — the serializer (P3.1)
+ * @jixoai/ui-vite-plugin (icons) — the serializer (P3.1)
  *
  * The ONLY code that turns an SvgAsset into consumable output:
  * - 'css-var'    → url("data:image/svg+xml,…") — a CSS custom property

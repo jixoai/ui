@@ -6,12 +6,12 @@
  *     `name='…'`) and the string-literal EXPRESSION forms
  *     (`name={'…'}` / `name={"…"}` / the hole-free backtick); the `as`
  *     clause; remix's colon+hyphen suffix (the permissive suffix law —
- *     the preset resolver is the validating authority)
+ *     the channel resolver is the validating authority)
  *   - the fail-safe laws: non-enabled prefixes (`fa:home` in a comment
  *     or doc example) are IGNORED, never errors; dynamic expressions
  *     (`name={`md:${x}`}`, identifiers, concatenations) collect
  *     nothing — the runtime lane owns them
- *   - determinism: refs sort (preset, name, alias); identical triples
+ *   - determinism: refs sort (channel, name, alias); identical triples
  *     dedupe; scan order never affects output
  *   - the EAGER walk (scanProjectSources): the file set
  *     (.svelte/.ts/.js/.html), the exclusions (node_modules, dist,
@@ -46,22 +46,22 @@ const expectRefs = (actual: readonly ScannedRef[], expected: readonly ScannedRef
 describe('the literal matcher — attribute + string-literal expression forms', () => {
   test('the double-quoted attribute form (svelte markup)', () => {
     expectRefs(collectScannedRefs('<Icon name="md:copy_all" />', MD), [
-      { preset: 'md', name: 'copy_all' },
+      { channel: 'md', name: 'copy_all' },
     ]);
   });
 
   test('the single-quoted attribute form', () => {
     expectRefs(collectScannedRefs("<Icon name='md:home' />", MD), [
-      { preset: 'md', name: 'home' },
+      { channel: 'md', name: 'home' },
     ]);
   });
 
   test("the expression forms: {'…'} and {\"…\"}", () => {
     expectRefs(collectScannedRefs("<Icon name={'md:search'} />", MD), [
-      { preset: 'md', name: 'search' },
+      { channel: 'md', name: 'search' },
     ]);
     expectRefs(collectScannedRefs('<Icon name={"md:delete"} />', MD), [
-      { preset: 'md', name: 'delete' },
+      { channel: 'md', name: 'delete' },
     ]);
   });
 
@@ -79,7 +79,7 @@ describe('the literal matcher — attribute + string-literal expression forms', 
     expectRefs(collectScannedRefs(code, MD), []);
     // while the real tag-attribute form in the same text collects
     expectRefs(collectScannedRefs(`${code}\n<Icon name="md:home" />`, MD), [
-      { preset: 'md', name: 'home' },
+      { channel: 'md', name: 'home' },
     ]);
   });
 
@@ -93,27 +93,27 @@ describe('the literal matcher — attribute + string-literal expression forms', 
 
   test('a hole-free backtick template literal IS a string literal', () => {
     expectRefs(collectScannedRefs('<Icon name={`md:home`} />', MD), [
-      { preset: 'md', name: 'home' },
+      { channel: 'md', name: 'home' },
     ]);
   });
 
   test('the as clause captures the alias token verbatim', () => {
     expectRefs(collectScannedRefs('<Icon name="md:copy_all as copy2" />', MD), [
-      { preset: 'md', name: 'copy_all', alias: 'copy2' },
+      { channel: 'md', name: 'copy_all', alias: 'copy2' },
     ]);
     // single-quoted + expression forms carry it too
     expectRefs(collectScannedRefs("<Icon name={'md:home as house'} />", MD), [
-      { preset: 'md', name: 'home', alias: 'house' },
+      { channel: 'md', name: 'home', alias: 'house' },
     ]);
   });
 
   test('remix suffixes ride whole: the second colon + hyphens (codex r1 B4)', () => {
     expectRefs(collectScannedRefs('<Icon name="rx:system:add-line" />', MD_RX), [
-      { preset: 'rx', name: 'system:add-line' },
+      { channel: 'rx', name: 'system:add-line' },
     ]);
     // material snake_case is just another suffix — never special-cased
     expectRefs(collectScannedRefs('<Icon name="md:copy_all" />', MD_RX), [
-      { preset: 'md', name: 'copy_all' },
+      { channel: 'md', name: 'copy_all' },
     ]);
   });
 
@@ -124,12 +124,12 @@ describe('the literal matcher — attribute + string-literal expression forms', 
       '  name="md:copy_all as copy2"',
       '/>',
     ].join('\n');
-    expectRefs(collectScannedRefs(code, MD), [{ preset: 'md', name: 'copy_all', alias: 'copy2' }]);
+    expectRefs(collectScannedRefs(code, MD), [{ channel: 'md', name: 'copy_all', alias: 'copy2' }]);
   });
 
   test('surrounding whitespace inside the literal is tolerated', () => {
     expectRefs(collectScannedRefs('<Icon name="  md:home  " />', MD), [
-      { preset: 'md', name: 'home' },
+      { channel: 'md', name: 'home' },
     ]);
   });
 });
@@ -141,7 +141,7 @@ describe('the matcher is FAIL-SAFE (codex r1 M5/M6) — never a build break', ()
       '<!-- docs example: <Icon name="fa:home" /> needs fontawesome -->',
       '<Icon name="md:home" />',
     ].join('\n');
-    expectRefs(collectScannedRefs(doc, MD), [{ preset: 'md', name: 'home' }]);
+    expectRefs(collectScannedRefs(doc, MD), [{ channel: 'md', name: 'home' }]);
   });
 
   test('dynamic expressions are intentionally unserved (the spec scenario)', () => {
@@ -164,7 +164,7 @@ describe('the matcher is FAIL-SAFE (codex r1 M5/M6) — never a build break', ()
 });
 
 describe('determinism (design §1: scan order never affects bytes)', () => {
-  test('output sorts (preset, name, alias); identical triples dedupe', () => {
+  test('output sorts (channel, name, alias); identical triples dedupe', () => {
     const code = [
       '<Icon name="md:search" />',
       '<Icon name="md:copy_all as copy2" />',
@@ -174,11 +174,11 @@ describe('determinism (design §1: scan order never affects bytes)', () => {
       '<Icon name="md:home" />',
     ].join('\n');
     expectRefs(collectScannedRefs(code, MD_RX), [
-      { preset: 'md', name: 'copy_all' }, // no-alias triple sorts first
-      { preset: 'md', name: 'copy_all', alias: 'copy2' },
-      { preset: 'md', name: 'home' },
-      { preset: 'md', name: 'search' },
-      { preset: 'rx', name: 'system:add-line' },
+      { channel: 'md', name: 'copy_all' }, // no-alias triple sorts first
+      { channel: 'md', name: 'copy_all', alias: 'copy2' },
+      { channel: 'md', name: 'home' },
+      { channel: 'md', name: 'search' },
+      { channel: 'rx', name: 'system:add-line' },
     ]);
   });
 
@@ -187,16 +187,16 @@ describe('determinism (design §1: scan order never affects bytes)', () => {
     const b = collectScannedRefs('<Icon name="md:home as house" />', MD);
     const c = collectScannedRefs('<Icon name="md:home as house" />', MD);
     expectRefs(mergeScannedRefs([...b, ...a, ...c]), [
-      { preset: 'md', name: 'home', alias: 'house' },
-      { preset: 'md', name: 'search' },
+      { channel: 'md', name: 'home', alias: 'house' },
+      { channel: 'md', name: 'search' },
     ]);
   });
 
   test('scannedRefKey + the comparator agree on the canonical spelling', () => {
-    const ref: ScannedRef = { preset: 'md', name: 'copy_all', alias: 'copy2' };
+    const ref: ScannedRef = { channel: 'md', name: 'copy_all', alias: 'copy2' };
     expect(scannedRefKey(ref)).toBe('md:copy_all');
-    expect(compareScannedRefs(ref, { preset: 'md', name: 'copy_all' })).toBe(1); // no-alias first
-    expect(compareScannedRefs({ preset: 'md', name: 'home' }, { preset: 'md', name: 'home' })).toBe(0);
+    expect(compareScannedRefs(ref, { channel: 'md', name: 'copy_all' })).toBe(1); // no-alias first
+    expect(compareScannedRefs({ channel: 'md', name: 'home' }, { channel: 'md', name: 'home' })).toBe(0);
   });
 });
 
@@ -233,10 +233,10 @@ describe('the EAGER project walk (scanProjectSources)', () => {
 
     const refs = await scanProjectSources(root, MD, { exclude: [artifact] });
     expectRefs(refs, [
-      { preset: 'md', name: 'copy_all' },
-      { preset: 'md', name: 'copy_all', alias: 'copy2' },
-      { preset: 'md', name: 'home' },
-      { preset: 'md', name: 'search' },
+      { channel: 'md', name: 'copy_all' },
+      { channel: 'md', name: 'copy_all', alias: 'copy2' },
+      { channel: 'md', name: 'home' },
+      { channel: 'md', name: 'search' },
     ]);
   });
 

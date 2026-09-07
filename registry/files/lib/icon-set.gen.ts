@@ -1,4 +1,4 @@
-// GENERATED — do not edit (source: @jixoai/vite-plugin icons library face)
+// GENERATED — do not edit (source: @jixoai/ui-vite-plugin icons library face)
 export type IconName =
   | 'arrowRight'
   | 'arrowLeft'
@@ -9,6 +9,7 @@ export type IconName =
   | 'x'
   | 'externalLink'
   | 'check'
+  | 'lucide:check'
   | 'folder'
   | 'folderOpen'
   | 'file'
@@ -43,6 +44,7 @@ export type IconName =
   | 'md:home'
   | 'ph:atom'
   | 'rx:system:add-line'
+  | `lucide:${string}`
   | `md:${string}`
   | `ph:${string}`
   | `rx:${string}`
@@ -57,6 +59,7 @@ export const ICON_NAMES = [
   'x',
   'externalLink',
   'check',
+  'lucide:check',
   'folder',
   'folderOpen',
   'file',
@@ -95,6 +98,9 @@ export const ICON_NAMES = [
 export interface IconData { v: string; n: 'fill' | 'stroke'; d: string }
 export const ALIASES: Readonly<Record<string, string>> = {
   copy2: 'md:copy_all',
+};
+export const EQUIVALENCES: Readonly<Record<string, string>> = {
+  'lucide:check': 'check',
 };
 const CHUNK_0: Readonly<Record<string, IconData>> = {
   arrowRight: { v: '0 0 24 24', n: 'stroke', d: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>' },
@@ -188,7 +194,8 @@ const LAZY: Readonly<Record<number, () => Promise<{ default: Record<string, Icon
 const cache: Map<string, IconData> = new Map(Object.entries(CHUNK_0));
 const canonicalOf = (name: IconName): string => {
   const base = name.split(' as ')[0] ?? name;
-  return ALIASES[base] ?? base;
+  const aliased = ALIASES[base] ?? base;
+  return EQUIVALENCES[aliased] ?? aliased;
 };
 
 export function getIcon(name: IconName): IconData | null {

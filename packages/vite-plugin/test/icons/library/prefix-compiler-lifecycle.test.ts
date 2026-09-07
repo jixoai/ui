@@ -20,6 +20,7 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { md } from '../../../src/icons/library/channel/material.js';
 import type { Plugin, ViteDevServer } from 'vite';
 import { afterAll, describe, expect, test } from 'vitest';
 import { createIconPlugin } from '../../../src/icons/vite-plugin.js';
@@ -138,7 +139,7 @@ const pollArtifact = async (
   throw new Error('pollArtifact: the refreshed artifact never landed');
 };
 
-const LIBRARY: IconLibraryOptions = { includeDefaults: false, presets: ['material'] };
+const LIBRARY: IconLibraryOptions = { includeDefaults: false, channels: [md()] };
 
 // ── the DEV path (design §1b) ──────────────────────────────────────
 
@@ -153,9 +154,11 @@ describe('the DEV transform collector rides scheduleRefresh', () => {
     await hooks.buildStart();
 
     // pre-scan: the declared-only library — empty concrete set, but
-    // the template member already rides the union (enabled preset)
+    // the template member already rides the union (enabled channel)
     const initial = await hooks.load(artifactPath);
-    expect(initial).toContain('export type IconName =\n  | `md:${string}`\n  ;');
+    // lucide rides first (sorted): the default-registered channel's
+    // template member now precedes md's — the enabled-set law's order
+    expect(initial).toContain('export type IconName =\n  | `lucide:${string}`\n  | `md:${string}`\n  ;');
     expect(initial).not.toContain("'md:copy_all'");
 
     // dev transforms arrive on demand — the collector never rewrites
@@ -204,11 +207,11 @@ describe('the DEV transform collector rides scheduleRefresh', () => {
     await pollArtifact(hooks, artifactPath, (a) => !a.includes("'md:home'"));
   });
 
-  test('the transform is inert without presets and in build mode', async () => {
+  test('the transform is inert without channels in build mode', async () => {
     const { root, appSvelte, otherTs } = await freshFixture();
     const appCode = await readSource(appSvelte);
 
-    // no presets → the collector can never match
+    // no channels → only lucide: literals could match (md: cannot)
     const bare = createIconPlugin({ library: { includeDefaults: false } });
     lifecycle(bare).configResolved({ root, command: 'serve' });
     expect(lifecycle(bare).transform(appCode, appSvelte)).toBeNull();
@@ -298,7 +301,7 @@ describe('codex r2 — the scan lifecycle gaps', () => {
     await rm(appSvelte);
     mock.emit('unlink', appSvelte);
     await pollArtifact(hooks, artifactPath, (artifact) => !artifact.includes("'md:copy_all'"));
-    // back to the enabled-preset template member only
+    // back to the enabled-channel template member only
     expect(await hooks.load(artifactPath)).toContain('`md:${string}`');
   });
 

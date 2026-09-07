@@ -1,6 +1,7 @@
 /**
- * @jixoai/vite-plugin (icons library) — the named-icon face's types (A1,
- * openspec icon-component-pipeline design §1).
+ * @jixoai/ui-vite-plugin (icons library) — the named-icon face's types (A1,
+ * openspec icon-component-pipeline design §1; channels: icon-channel-api
+ * design §0/§1, 2026-09-07).
  *
  * The library face answers "what can `<Icon name=…>` render"; the slot
  * face (providers/serializer) answers "what image does a CSS var hold".
@@ -11,7 +12,7 @@
  * input) makes I/O smuggling through the pure core untypeable.
  */
 
-import type { IconPresetOption } from './presets/types.js';
+import type { IconChannel } from './channel/types.js';
 
 // ── sources ────────────────────────────────────────────────────────
 
@@ -23,14 +24,13 @@ import type { IconPresetOption } from './presets/types.js';
  *   - `{ file }` is a .svg path — the plugin owns ALL file I/O (frozen
  *     principle #4: loaded through the provider-context machinery,
  *     joined to watchFile for HMR)
- *   - `lucide:<kebab>` references the lucide npm package (an optional
- *     peer of the PLUGIN package only — the emitted artifact carries
- *     zero lucide references)
- *   - a preset ref (`md:home`, `ph:atom`, `rx:system:add-line`) resolves
- *     ONE icon from an installed library package at build time — the
- *     preset node-resolves the peer's ABSOLUTE svg path (presets/peer.ts)
- *     and the plugin still READS it through the provider context
- *     (icon-library-presets design §1; requires `library.presets`)
+ *   - a prefixed ref string (`lucide:zap`, `md:home`, `rx:system:add-line`,
+ *     `myco:logo`) resolves ONE icon from a CHANNEL at build time —
+ *     the channel node-resolves the peer's ABSOLUTE svg path
+ *     (channel/peer.ts) or rides the lucide IconNode lane, and the
+ *     plugin still READS it through the provider context
+ *     (icon-channel-api design §0/§1; the prefix must be ENABLED:
+ *     `lucide` ∪ `library.channels`' prefixes)
  *   - `{ font, code }` / `{ font, liga }` extracts ONE glyph outline from
  *     a font file at build time into fill-nature artwork (design §2 —
  *     the runtime artifact stays pure SVG; fonts never reach the
@@ -62,13 +62,16 @@ export interface IconLibraryOptions {
   /** include the 38 built-in lucide manifest (default true). `false`
    *  with no `lucide:` sources never touches the lucide import at all */
   readonly includeDefaults?: boolean;
-  /** enable icon-library presets — each contributes a prefixed ref
-   *  form (`md:`/`ph:`/`rx:`) resolving ONE icon from the preset's
-   *  optional peer package at build time. string shorthand = frozen
-   *  defaults; object form carries per-preset knobs (weight/style/fill).
-   *  Referencing a disabled or unknown prefix is a named config error
-   *  listing the enabled set (presets/index.ts) */
-  readonly presets?: ReadonlyArray<IconPresetOption>;
+  /** register icon channels — each contributes a prefixed ref form
+   *  (`md:home`, `myco:logo`) resolving ONE icon from the channel's
+   *  optional peer package at build time. Channel instances come from
+   *  `defineIconChannel` (…/icons/channel) or the shipped factories
+   *  (…/icons/md · …/icons/ph · …/icons/rx); lucide needs NO entry
+   *  (it is the default-registered channel). Enabled prefixes =
+   *  `lucide` ∪ channels' prefixes; referencing a disabled or unknown
+   *  prefix is a named config error listing the enabled set
+   *  (channel/normalize.ts) */
+  readonly channels?: readonly IconChannel[];
   /** add + override icons (same name = override; names match
    *  /^[a-z][A-Za-z0-9]*$/). custom icons pack after the built-ins in
    *  config insertion order */
@@ -130,9 +133,9 @@ export interface IconData {
  *
  *  The prefix-compiler extensions (icon-prefix-compiler B1/B2, codex r1
  *  B3/purity): the generator receives only RESOLVED assets plus
- *  name/alias/template METADATA — never raw scan output. Both default
- *  absent, so every pre-existing caller keeps compiling and produces
- *  byte-identical output. */
+ *  name/alias/equivalence/template METADATA — never raw scan output.
+ *  All default absent, so every pre-existing caller keeps compiling
+ *  and produces byte-identical output. */
 export interface IconPackingOptions {
   readonly maxChunkBytes?: number;
   readonly chunking?: 'auto' | 'single';
@@ -146,10 +149,23 @@ export interface IconPackingOptions {
    */
   readonly aliases?: Readonly<Record<string, string>>;
   /**
-   * the ENABLED preset prefixes — each contributes a
-   * `` `${prefix}:${string}` `` template-literal member to the IconName
-   * union (compile-tier prefix safety; presets not enabled contribute
-   * NO member). Fed by BOTH adapters from their normalized configs.
+   * the manifest-collision table (icon-channel-api design §1): scanned
+   * `lucide:X` whose `X` is ALREADY packed dedupes into a row
+   * `lucide:X` → `X` here — ONE payload, canonical-only counts. The
+   * table is COMPILER-GENERATED ONLY: keys are full prefixed names,
+   * exempt from the `as`-alias grammar and the collision matrix BY
+   * CONSTRUCTION (aliases cannot contain `:` — alias↔key collision is
+   * impossible, no error case exists). `canonicalOf` chains ALIASES
+   * then EQUIVALENCES, so an alias on a deduped ref
+   * (`lucide:check as c2`) resolves c2 → `lucide:check` → `check`.
+   */
+  readonly equivalences?: Readonly<Record<string, string>>;
+  /**
+   * the ENABLED channel prefixes (`lucide` ∪ the registered channels')
+   * — each contributes a `` `${prefix}:${string}` `` template-literal
+   * member to the IconName union (compile-tier prefix safety;
+   * prefixes not enabled contribute NO member). Fed by BOTH adapters
+   * from their normalized configs.
    */
   readonly templatePrefixes?: readonly string[];
 }

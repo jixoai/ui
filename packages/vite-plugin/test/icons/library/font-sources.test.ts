@@ -143,9 +143,12 @@ describe('{ font, code } — the primary lane', () => {
     expect(artifact).toContain("'brand'");
     expect(artifact).toContain("n: 'fill'");
     expect(artifact).toContain("v: '0 0 24 24'");
-    // the canonical square contain-fitted exactly (the shared math)
-    expect(artifact).toContain(
-      `d: '<path d="M0 24L24 24L24 0L0 0Z" fill="currentColor"/>'`,
+    // the canonical square contain-fitted exactly (the shared math).
+    // svgo may ELIDE the closing Z on fill-only artwork (an open
+    // subpath fills as if closed — SVG 1.1 F.7; pre-existing behavior
+    // drift in the svgo pin, byte-equal rendering), so the Z is optional
+    expect(artifact).toMatch(
+      /d: '<path d="M0 24L24 24L24 0L0 0Z?" fill="currentColor"\/>/,
     );
     // the artifact is pure SVG — no font bytes cross the boundary
     expect(artifact).not.toMatch(/woff|OTTO|trueType/i);

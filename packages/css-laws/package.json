@@ -1,5 +1,5 @@
 {
-  "name": "@jixoai/css-laws",
+  "name": "@jixoai/ui-css-laws",
   "version": "0.1.0",
   "description": "Bounded serializer for the 13 native form-control laws — one TS declaration source, three CSS projections (utility class, bare-element face, Tier-2 alias)",
   "type": "module",

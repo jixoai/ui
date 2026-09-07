@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons) — the SHARED font-glyph extraction helpers
+ * @jixoai/ui-vite-plugin (icons) — the SHARED font-glyph extraction helpers
  * (B1, openspec icon-library-presets design §2).
  *
  * Factored from providers/font.ts so the library face's font sources

@@ -10,7 +10,7 @@
  *    the mirror tooling, never through this script.
  * 2. thin by law — every piece of logic (the 38-built-in manifest,
  *    source resolution, svgo, safety, packing, serialization) lives in
- *    @jixoai/vite-plugin's icons library face; this file only drives
+ *    @jixoai/ui-vite-plugin's icons library face; this file only drives
  *    its root-script adapter. PREREQUISITE: packages/vite-plugin must
  *    be BUILT (dist/ is imported — `npm run build` inside the package
  *    after any plugin change, or this script serves stale logic).
@@ -24,19 +24,23 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkIconLibraryArtifact, writeIconLibraryArtifact } from '../packages/vite-plugin/dist/icons.js';
+import { md } from '../packages/vite-plugin/dist/icons/md.js';
+import { ph } from '../packages/vite-plugin/dist/icons/ph.js';
+import { rx } from '../packages/vite-plugin/dist/icons/rx.js';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // The canonical config: the 38 built-ins under default packing (auto
 // chunking, inline first chunk, 20480-byte budget, svgo on) PLUS the
-// preset dogfood (2026-09-07, Owner direction: the docs site ITSELF
-// exercises the preset + scanner lanes so its source is the reference
-// an AI can read). MUST stay byte-equivalent to the www app config's
-// library face (apps/www/vite.config.ts) — same generator, same
-// inputs, same scanned set (SCAN_ROOT below = the vite build's walk
-// root), so the dev drift-warns and the committed artifact never
-// diverge.
-const LIBRARY_OPTIONS = { includeDefaults: true, presets: ['material', 'phosphor', 'remix'] };
+// channel dogfood (2026-09-07 icon-channel-api, Owner direction: the
+// docs site ITSELF exercises the channel + scanner lanes so its source
+// is the reference an AI can read — the shipped factories import from
+// their OWN sub-entries, mirroring the app config exactly). MUST stay
+// byte-equivalent to the www app config's library face
+// (apps/www/vite.config.ts) — same generator, same inputs, same
+// scanned set (SCAN_ROOT below = the vite build's walk root), so the
+// dev drift-warns and the committed artifact never diverge.
+const LIBRARY_OPTIONS = { includeDefaults: true, channels: [md(), ph(), rx()] };
 // The scanner's project root: the www app's tree — exactly what the
 // vite buildStart walk sees when building apps/www (the docs pages'
 // own <Icon name="md:…"> literals are the collected set).

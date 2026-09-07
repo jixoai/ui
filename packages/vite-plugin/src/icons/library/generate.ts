@@ -1,6 +1,7 @@
 /**
- * @jixoai/vite-plugin (icons library) — the PURE generator core (A3/A4,
- * openspec icon-component-pipeline design §3/§5/§6).
+ * @jixoai/ui-vite-plugin (icons library) — the PURE generator core (A3/A4,
+ * openspec icon-component-pipeline design §3/§5/§6; channels +
+ * EQUIVALENCES: icon-channel-api design §1, 2026-09-07).
  *
  * generateIconLibraryArtifacts() is the ONLY code that serializes the
  * library. It is PURE: no fs, no vite, no dynamic imports — its input
@@ -17,10 +18,14 @@
  * The prefix-compiler extensions (icon-prefix-compiler, 2026-09-07;
  * codex r1 purity): the core still receives ONLY resolved assets — the
  * scanned stream merges adapter-side (resolveLibraryInputs) and arrives
- * here as name/alias/template METADATA: the ALIASES indirection table
- * (payload packs once under the canonical, lookups deref first), the
- * template-literal union members for enabled presets, and quoted-key
- * serialization for canonical keys that are not bare identifiers.
+ * here as name/alias/equivalence/template METADATA: the ALIASES
+ * indirection table (payload packs once under the canonical, lookups
+ * deref first), the SEPARATE compiler-generated EQUIVALENCES table
+ * (scanned `lucide:X` → packed `X` — one payload; `canonicalOf` chains
+ * ALIASES then EQUIVALENCES, so an alias on a deduped ref resolves
+ * through both), the template-literal union members for enabled
+ * channel prefixes, and quoted-key serialization for canonical keys
+ * that are not bare identifiers.
  *
  * The LAZY loaders embed the design §5 overflow named-error sentinel
  * VERBATIM as a runtime catch (the same fixed message the plugin's
@@ -85,6 +90,12 @@ const serializeEntry = (name: string, data: IconData): string =>
 /** one alias row's exact text inside the ALIASES table */
 const aliasRowText = (alias: string, canonical: string): string =>
   `  ${isBareKey(alias) ? alias : sq(alias)}: ${sq(canonical)},`;
+
+/** one equivalence row's exact text inside the EQUIVALENCES table
+ *  (keys are full prefixed names — always quoted, a colon is never a
+ *  bare identifier) */
+const equivalenceRowText = (key: string, canonical: string): string =>
+  `  ${sq(key)}: ${sq(canonical)},`;
 
 // ── structured extraction (design §2) ──────────────────────────────
 
@@ -210,17 +221,44 @@ function packChunks(
  * each group's aliases sorted — the deterministic emission order.
  * Aliases whose canonical is absent (an icon dropped in warn mode)
  * drop with it: a dangling alias key would lie about the packed set.
+ * A canonical that is an EQUIVALENCES KEY survives (the chain law: the
+ * alias derefs to the key, the key derefs to the packed canonical —
+ * `lucide:check as c2` → c2 → `lucide:check` → `check`).
  */
 function groupAliases(
   aliases: Readonly<Record<string, string>>,
   packedNames: readonly string[],
+  equivalenceKeys: ReadonlySet<string> = new Set(),
 ): Map<string, string[]> {
   const packed = new Set(packedNames);
   const groups = new Map<string, string[]>();
   for (const [alias, canonical] of Object.entries(aliases)) {
-    if (!packed.has(canonical)) continue;
+    if (!packed.has(canonical) && !equivalenceKeys.has(canonical)) continue;
     const list = groups.get(canonical) ?? [];
     if (!list.includes(alias)) list.push(alias);
+    groups.set(canonical, list);
+  }
+  for (const list of groups.values()) list.sort();
+  return groups;
+}
+
+/**
+ * group the EQUIVALENCES table per canonical target, each group's keys
+ * sorted — the deterministic emission order (the alias-grouping law
+ * applied to the manifest-collision table). Keys whose target is
+ * absent (an icon dropped in warn mode) drop with it: a dangling
+ * equivalence key would lie about the packed set.
+ */
+function groupEquivalences(
+  equivalences: Readonly<Record<string, string>>,
+  packedNames: readonly string[],
+): Map<string, string[]> {
+  const packed = new Set(packedNames);
+  const groups = new Map<string, string[]>();
+  for (const [key, canonical] of Object.entries(equivalences)) {
+    if (!packed.has(canonical)) continue;
+    const list = groups.get(canonical) ?? [];
+    if (!list.includes(key)) list.push(key);
     groups.set(canonical, list);
   }
   for (const list of groups.values()) list.sort();
@@ -231,7 +269,7 @@ function groupAliases(
 
 /** the GENERATED header every emitted module carries */
 const GENERATED_HEADER =
-  '// GENERATED — do not edit (source: @jixoai/vite-plugin icons library face)';
+  '// GENERATED — do not edit (source: @jixoai/ui-vite-plugin icons library face)';
 
 /** one lazy chunk module body: `export default {name:{v,n,d}}` */
 const chunkModule = (entries: readonly PackedEntry[]): string =>
@@ -246,35 +284,47 @@ const lazyLoader = (index: number): string =>
   '  }),';
 
 /** the complete artifact (icon-set.gen.ts) per design §6 + the
- *  prefix-compiler extensions (ALIASES indirection, canonicalized
- *  lookups, template union members). With no aliases and no template
- *  prefixes every conditional collapses — the emitted bytes are
- *  IDENTICAL to the pre-change artifact (the measured acceptance and
- *  the committed repo artifact stay locked). */
+ *  prefix-compiler extensions (ALIASES indirection, the separate
+ *  EQUIVALENCES table, canonicalized lookups, template union members).
+ *  With no aliases, no equivalences and no template prefixes every
+ *  conditional collapses — the emitted bytes are IDENTICAL to the
+ *  pre-change artifact (the measured acceptance and the committed
+ *  repo artifact stay locked). */
 function buildArtifact(
   entries: readonly PackedEntry[],
   chunks: readonly (readonly PackedEntry[])[],
   lazyChunks: readonly number[],
   inlineFirstChunk: boolean,
   aliasGroups: ReadonlyMap<string, readonly string[]>,
+  equivalenceGroups: ReadonlyMap<string, readonly string[]>,
   templatePrefixes: readonly string[],
 ): string {
   const hasAliases = aliasGroups.size > 0;
+  const hasEquivalences = equivalenceGroups.size > 0;
+  const hasCanonicalization = hasAliases || hasEquivalences;
 
-  // ICON_NAMES adjacency (design §2): canonical order, each alias
-  // emitted ADJACENT to its ref
+  // ICON_NAMES adjacency (design §2): canonical order, each alias and
+  // each equivalence key emitted ADJACENT to its ref. A chained alias
+  // (c2 → `lucide:check` → `check`) rides between its canonical and
+  // the equivalence key it derefs through, so the whole chain stays
+  // contiguous: `check`, `c2`, `lucide:check`.
   const names: string[] = [];
   for (const entry of entries) {
     names.push(entry.name);
     names.push(...(aliasGroups.get(entry.name) ?? []));
+    for (const key of equivalenceGroups.get(entry.name) ?? []) {
+      names.push(...(aliasGroups.get(key) ?? []));
+      names.push(key);
+    }
   }
 
-  // the union: concrete names (+ aliases) then ONE `prefix:${string}`
-  // template member per ENABLED preset (deduped + sorted — enabled
-  // presets only; `fa:` never appears, a compile error with no
-  // runtime story). Record<IconName, number> stays compile-legal with
-  // the template members (un-packed names runtime-undefined, the
-  // existing ?? -1 defenses cover that semantics).
+  // the union: concrete names (+ aliases + equivalence keys) then ONE
+  // `prefix:${string}` template member per ENABLED channel prefix
+  // (deduped + sorted — enabled prefixes only; `fa:` never appears, a
+  // compile error with no runtime story). Record<IconName, number>
+  // stays compile-legal with the template members (un-packed names
+  // runtime-undefined, the existing ?? -1 defenses cover that
+  // semantics).
   const templateMembers = [...new Set(templatePrefixes)].sort();
   const unionLines = [
     ...names.map((name) => `  | ${sq(name)}`),
@@ -301,7 +351,7 @@ function buildArtifact(
 
   // CHUNK_OF carries the CANONICAL keys only — every lookup derefs
   // aliases (and the full `md:x as y` literal) through canonicalOf
-  // FIRST, so alias rows would be dead bytes (codex r1 M4)
+  // FIRST, so alias/equivalence rows would be dead bytes (codex r1 M4)
   const chunkOfLines = chunks.flatMap((chunk, index) =>
     chunk.map((entry) => `  ${sq(entry.name)}: ${index},`),
   );
@@ -318,27 +368,53 @@ function buildArtifact(
           .join('\n')}\n};`;
 
   // the alias-indirection table: alias → canonical, rows in (canonical
-  // packing order, alias sorted) — deterministic
+  // packing order, alias sorted) — deterministic. Chained aliases (an
+  // equivalence key's aliases) ride under their key's row position.
   const aliasLines: string[] = [];
   for (const entry of entries) {
     for (const alias of aliasGroups.get(entry.name) ?? []) {
       aliasLines.push(aliasRowText(alias, entry.name));
     }
+    for (const key of equivalenceGroups.get(entry.name) ?? []) {
+      for (const alias of aliasGroups.get(key) ?? []) {
+        aliasLines.push(aliasRowText(alias, key));
+      }
+    }
   }
   const aliasesConst = `export const ALIASES: Readonly<Record<string, string>> = {\n${aliasLines.join('\n')}\n};`;
 
-  // the canonicalizer (codex r1 B1/B4): the full `md:copy_all as
-  // copy2` literal splits on ' as ' (the canonical spelling), then the
-  // alias derefs through ALIASES — all three spellings of one ref
-  // resolve the SAME packed payload
+  // the SEPARATE compiler-generated EQUIVALENCES table (icon-channel-api
+  // design §1): scanned `lucide:X` → packed `X`, rows in (canonical
+  // packing order, key sorted) — never an ALIASES row, one payload
+  const equivalenceLines: string[] = [];
+  for (const entry of entries) {
+    for (const key of equivalenceGroups.get(entry.name) ?? []) {
+      equivalenceLines.push(equivalenceRowText(key, entry.name));
+    }
+  }
+  const equivalencesConst = `export const EQUIVALENCES: Readonly<Record<string, string>> = {\n${equivalenceLines.join('\n')}\n};`;
+
+  // the canonicalizer (codex r1 B1/B4 + icon-channel-api design §1):
+  // the full `md:copy_all as copy2` literal splits on ' as ' (the
+  // canonical spelling), then the alias derefs through ALIASES, then
+  // the equivalence key derefs through EQUIVALENCES — every spelling
+  // of one ref (canonical, alias, full literal, deduped lucide ref)
+  // resolves the SAME packed payload
   const canonicalBlock = [
     'const canonicalOf = (name: IconName): string => {',
     "  const base = name.split(' as ')[0] ?? name;",
-    '  return ALIASES[base] ?? base;',
+    ...(hasAliases && hasEquivalences
+      ? [
+          '  const aliased = ALIASES[base] ?? base;',
+          '  return EQUIVALENCES[aliased] ?? aliased;',
+        ]
+      : hasAliases
+        ? ['  return ALIASES[base] ?? base;']
+        : ['  return EQUIVALENCES[base] ?? base;']),
     '};',
   ];
 
-  const getIconBlock = hasAliases
+  const getIconBlock = hasCanonicalization
     ? [
         'export function getIcon(name: IconName): IconData | null {',
         '  const canonical = canonicalOf(name);',
@@ -362,13 +438,13 @@ function buildArtifact(
     'scanned/declared (dynamic names must resolve to a packed icon; getIcon() returns ' +
     'null for the rest — the component renders its reserved box)';
   const driftOnly = ' has no chunk loader — the artifact drifted from the library config (regenerate icon-set.gen.ts)';
-  const aliasNote = hasAliases ? '${name !== canonical ? ` (resolves to "${canonical}")` : \'\'}' : '';
+  const aliasNote = hasCanonicalization ? '${name !== canonical ? ` (resolves to "${canonical}")` : \'\'}' : '';
   const unpackedThrow =
     templateMembers.length > 0
       ? `    throw new Error(\`[jixoai/icon-set] icon "\${name}"${aliasNote}${bothCauses}\`);`
       : `    throw new Error(\`[jixoai/icon-set] icon "\${name}"${driftOnly}\`);`;
 
-  const loadIconBlock = hasAliases
+  const loadIconBlock = hasCanonicalization
     ? [
         'export async function loadIcon(name: IconName): Promise<IconData> {',
         '  const canonical = canonicalOf(name);',
@@ -416,13 +492,14 @@ function buildArtifact(
     'export interface IconData { v: string; n: \'fill\' | \'stroke\'; d: string }',
   ];
   if (hasAliases) lines.push(aliasesConst);
+  if (hasEquivalences) lines.push(equivalencesConst);
   lines.push(
     chunk0,
     chunkOf,
     lazy,
     'const cache: Map<string, IconData> = new Map(Object.entries(CHUNK_0));',
   );
-  if (hasAliases) lines.push(...canonicalBlock);
+  if (hasCanonicalization) lines.push(...canonicalBlock);
   lines.push(
     '',
     ...getIconBlock,
@@ -454,15 +531,15 @@ export interface GeneratedLibraryArtifacts {
  * assets. PURE and DETERMINISTIC — identical inputs produce
  * byte-identical outputs (packing order = input order: built-ins in
  * manifest order, then custom icons in config insertion order, then
- * scanned refs sorted (preset, name)).
+ * scanned refs sorted (channel, name)).
  *
  * @param assets  the resolved asset list (adapter output — never
  *                IconSource)
  * @param options packing knobs (maxChunkBytes default 20480, chunking
  *                default 'auto', inlineFirstChunk default true) plus
- *                the prefix-compiler metadata (aliases, the enabled
- *                template prefixes) — both default absent, so
- *                pre-change callers keep their exact bytes
+ *                the prefix-compiler metadata (aliases, equivalences,
+ *                the enabled template prefixes) — all default absent,
+ *                so pre-change callers keep their exact bytes
  */
 export function generateIconLibraryArtifacts(
   assets: readonly ResolvedLibraryIcon[],
@@ -471,7 +548,15 @@ export function generateIconLibraryArtifacts(
   const maxChunkBytes = options?.maxChunkBytes ?? DEFAULT_MAX_CHUNK_BYTES;
   const chunking = options?.chunking ?? 'auto';
   const inlineFirstChunk = options?.inlineFirstChunk ?? true;
-  const aliasGroups = groupAliases(options?.aliases ?? {}, assets.map((asset) => asset.name));
+  const equivalenceGroups = groupEquivalences(
+    options?.equivalences ?? {},
+    assets.map((asset) => asset.name),
+  );
+  const aliasGroups = groupAliases(
+    options?.aliases ?? {},
+    assets.map((asset) => asset.name),
+    new Set(Array.from(equivalenceGroups.values(), (keys) => keys).flat()),
+  );
   const templatePrefixes = options?.templatePrefixes ?? [];
 
   const entries: PackedEntry[] = assets.map((asset) => {
@@ -500,6 +585,7 @@ export function generateIconLibraryArtifacts(
     lazyChunks,
     inlineFirstChunk,
     aliasGroups,
+    equivalenceGroups,
     templatePrefixes,
   );
   const chunkModules = new Map<number, string>(
@@ -508,13 +594,19 @@ export function generateIconLibraryArtifacts(
 
   // budget accounting (design §2): the payload counts ONCE — under the
   // canonical key, inside its chunk — and each alias counts its
-  // ALIASES-table row in perIconBytes (never a second packed payload;
-  // report.iconCount counts canonicals only)
+  // ALIASES-table row, each equivalence key its EQUIVALENCES-table row
+  // in perIconBytes (never a second packed payload; report.iconCount
+  // counts canonicals only)
   const perIconBytes: Record<string, number> = {};
   for (const entry of entries) perIconBytes[entry.name] = entry.bytes;
   for (const [canonical, aliases] of aliasGroups) {
     for (const alias of aliases) {
       perIconBytes[alias] = byteLength(`${aliasRowText(alias, canonical)}\n`);
+    }
+  }
+  for (const [canonical, keys] of equivalenceGroups) {
+    for (const key of keys) {
+      perIconBytes[key] = byteLength(`${equivalenceRowText(key, canonical)}\n`);
     }
   }
   const chunkBytes = new Map<number, number>(

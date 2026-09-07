@@ -1,29 +1,35 @@
 /**
- * @jixoai/vite-plugin (icons library) — ADAPTER-side source resolution
- * (A1/A4, openspec icon-component-pipeline design §2/§5; preset + font
- * lanes: openspec icon-library-presets design §1/§2, 2026-09-07).
+ * @jixoai/ui-vite-plugin (icons library) — ADAPTER-side source resolution
+ * (A1/A4, openspec icon-component-pipeline design §2/§5; channel + font
+ * lanes: openspec icon-channel-api design §0/§1, 2026-09-07).
  *
  * resolveLibraryInputs() is the ONLY stage of the library pipeline with
  * I/O: lucide refs (a dynamic `import('lucide')` with a loud-fail
- * install hint), `{file}` sources (through a plugin-owned
- * ProviderContext — the frozen principle #4 machinery, re-used
- * INDEPENDENTLY of whether the optional provider face is configured;
- * svg files join watchFile so HMR rides the existing refresh path),
- * preset refs (`md:`/`ph:`/`rx:` — the preset node-resolves the peer's
- * ABSOLUTE svg path, this adapter still READS it through the context),
- * font sources (`{font, code}`/`{font, liga}` — parsed + extracted at
- * build time into fill-nature artwork through the SAME context: woff2
+ * install hint — the reserved lucide-kind channel's IconNode lane),
+ * `{file}` sources (through a plugin-owned ProviderContext — the
+ * frozen principle #4 machinery, re-used INDEPENDENTLY of whether the
+ * optional provider face is configured; svg files join watchFile so
+ * HMR rides the existing refresh path), channel refs (`md:`/`ph:`/
+ * `rx:`/`myco:` — the channel node-resolves the peer's ABSOLUTE svg
+ * path, this adapter still READS it through the context), font sources
+ * (`{font, code}`/`{font, liga}` — parsed + extracted at build time
+ * into fill-nature artwork through the SAME context: woff2
  * decompression, the woff1 hard error and ttf/otf mime detection are
- * all inherited from io.loadSource) and inline literals. Per icon the
- * pipeline is:
+ * all inherited from io.loadSource) and inline literals. Resolution
+ * DISPATCHES on the channel resolver's `kind` — the one reserved
+ * `lucide` kind routes to serializeLucideIcon, every `file` kind to
+ * resolveFile + ctx.loadSource. Per icon the pipeline is:
  *
  *     resolve → safety check (RAW, untrusted) → svgo optimize →
  *     structural validation → ResolvedLibraryIcon
  *
  * The SCANNED stream (icon-prefix-compiler, 2026-09-07) merges here —
  * the optional 4th parameter, after declared refs, through the same
- * preset resolution + collision matrix (mergeScannedIntoPending); the
- * generator downstream receives only assets + alias/template metadata.
+ * channel resolution + collision matrix (mergeScannedIntoPending); the
+ * generator downstream receives only assets + alias/equivalence/
+ * template metadata. The MANIFEST-COLLISION law (icon-channel-api
+ * design §1) lives in that merge: a scanned `lucide:X` whose `X` is
+ * already packed dedupes into the EQUIVALENCES table — one payload.
  *
  * Safety runs BEFORE any transformation — optimization never launders
  * unvalidated content. A warn-mode rejection DROPS the icon with a
@@ -47,7 +53,9 @@ import {
   normalizeGlyph,
   toArrayBuffer,
 } from './font-extract.js';
-import type { IconPreset } from './presets/types.js';
+import { lucideChannel } from './channel/lucide.js';
+import { enabledChannelPrefixes } from './channel/normalize.js';
+import type { IconChannel } from './channel/types.js';
 import {
   compareScannedRefs,
   scannedRefKey,
@@ -62,13 +70,16 @@ import { ICON_NAME_PATTERN, normalizeLibraryOptions, type NormalizedLibraryOptio
 
 /** what resolveLibraryInputs hands back: survivors + named warnings.
  *  `aliases` is the `as` indirection table (alias → canonical) built
- *  from the scanned stream after the collision matrix — the metadata
- *  the pure generator's ALIASES emission consumes (codex r1 purity:
- *  the generator never sees raw scan output). */
+ *  from the scanned stream after the collision matrix; `equivalences`
+ *  is the manifest-collision table (scanned `lucide:X` → packed `X`) —
+ *  the metadata the pure generator's ALIASES/EQUIVALENCES emissions
+ *  consume (codex r1 purity: the generator never sees raw scan
+ *  output). */
 export interface LibraryResolution {
   readonly icons: readonly ResolvedLibraryIcon[];
   readonly warnings: readonly string[];
   readonly aliases: Readonly<Record<string, string>>;
+  readonly equivalences: Readonly<Record<string, string>>;
 }
 
 /** one manifest entry after config merge: where the artwork comes from */
@@ -87,7 +98,7 @@ async function loadLucide(): Promise<typeof import('lucide')> {
     throw new Error(
       '[jixoai-icons] the library face needs the `lucide` package (built-ins or ' +
         'lucide: sources) but it is not installed. lucide is an optional peer ' +
-        'dependency of @jixoai/vite-plugin — install it (npm i lucide), switch the ' +
+        'dependency of @jixoai/ui-vite-plugin — install it (npm i lucide), switch the ' +
         'icon to an inline/file source, or set includeDefaults:false',
       { cause },
     );
@@ -137,8 +148,9 @@ function mergeSources(normalized: NormalizedLibraryOptions): PendingIcon[] {
 
 /**
  * Merge the SCANNED refs into the pending list (after declared refs,
- * sorted (preset, name) — the packing-order law) and build the alias →
- * canonical table. The collision matrix, all named build errors:
+ * sorted (channel, name) — the packing-order law) and build the alias →
+ * canonical + equivalence tables. The collision matrix, all named
+ * build errors:
  *
  *   - alias grammar: `/^[a-z][A-Za-z0-9]*$/` (the camelCase icon-name
  *     law — scanned keys themselves are EXEMPT, aliases are not)
@@ -151,9 +163,18 @@ function mergeSources(normalized: NormalizedLibraryOptions): PendingIcon[] {
  *   - a ref's name ↔ another ref's alias is UNREACHABLE by grammar:
  *     canonical keys always carry the prefix colon, aliases never can
  *
- * Refs under a prefix that is not an ENABLED preset are IGNORED
- * (codex r1 M5/M6 — the scanner already filters them; direct API
- * callers get the same fail-safe skip, never a build break).
+ * The MANIFEST-COLLISION law (icon-channel-api design §1, codex r1
+ * B2/r3): a scanned `lucide:X` whose `X` is ALREADY packed (a built-in
+ * manifest name or a declared icon) does NOT pack a second payload —
+ * it becomes a row in the SEPARATE compiler-generated EQUIVALENCES
+ * table (`lucide:X` → `X`). Equivalence keys are full prefixed names,
+ * exempt from the alias grammar and the collision matrix BY
+ * CONSTRUCTION (aliases cannot contain `:` — alias↔key collision is
+ * impossible, no error case exists to define).
+ *
+ * Refs under a prefix that is not an ENABLED channel prefix are
+ * IGNORED (codex r1 M5/M6 — the scanner already filters them; direct
+ * API callers get the same fail-safe skip, never a build break).
  *
  * @throws the named collision/grammar errors above
  */
@@ -161,16 +182,14 @@ function mergeScannedIntoPending(
   normalized: NormalizedLibraryOptions,
   scanned: readonly ScannedRef[],
   pending: PendingIcon[],
-): Readonly<Record<string, string>> {
-  const enabledPrefixes = new Set<string>(
-    normalized.presets.map((preset) => preset.prefix),
-  );
+): { aliases: Readonly<Record<string, string>>; equivalences: Readonly<Record<string, string>> } {
+  const enabledPrefixes = new Set(enabledChannelPrefixes(normalized.channels));
 
-  // group per canonical (dedupe) with aliases in (preset, name, alias)
+  // group per canonical (dedupe) with aliases in (channel, name, alias)
   // sort order — deterministic regardless of scan order
-  const groups = new Map<string, { preset: string; name: string; aliases: string[] }>();
+  const groups = new Map<string, { channel: string; name: string; aliases: string[] }>();
   for (const ref of [...scanned].sort(compareScannedRefs)) {
-    if (!enabledPrefixes.has(ref.preset)) continue; // fail-safe skip (M5/M6)
+    if (!enabledPrefixes.has(ref.channel)) continue; // fail-safe skip (M5/M6)
     if (ref.alias !== undefined && !ICON_NAME_PATTERN.test(ref.alias)) {
       throw new Error(
         `[jixoai-icons] the scanned ref "${scannedRefKey(ref)}" declares the alias ` +
@@ -179,16 +198,18 @@ function mergeScannedIntoPending(
       );
     }
     const key = scannedRefKey(ref);
-    const group = groups.get(key) ?? { preset: ref.preset, name: ref.name, aliases: [] };
+    const group = groups.get(key) ?? { channel: ref.channel, name: ref.name, aliases: [] };
     if (ref.alias !== undefined && !group.aliases.includes(ref.alias)) {
       group.aliases.push(ref.alias);
     }
     groups.set(key, group);
   }
 
-  // the collision matrix + the alias table + the pendings
+  // the collision matrix + the alias table + the equivalence table +
+  // the pendings
   const declaredNames = new Set(pending.map((icon) => icon.name));
   const aliasToCanonical: Record<string, string> = {};
+  const equivalenceOf: Record<string, string> = {};
   for (const [key, group] of groups) {
     for (const alias of group.aliases) {
       if (declaredNames.has(alias)) {
@@ -208,9 +229,20 @@ function mergeScannedIntoPending(
       }
       aliasToCanonical[alias] = key;
     }
+    // the manifest-collision law: a scanned lucide ref whose unprefixed
+    // name is ALREADY packed dedupes to an equivalence row — the lucide
+    // channel's artwork IS the built-in manifest's artwork (same
+    // package, same glyph), so a second payload would be pure waste
+    if (
+      group.channel === lucideChannel.prefix &&
+      declaredNames.has(group.name)
+    ) {
+      equivalenceOf[key] = group.name;
+      continue; // one payload, the packed `X`'s
+    }
     pending.push({ name: key, source: key, scanned: true });
   }
-  return aliasToCanonical;
+  return { aliases: aliasToCanonical, equivalences: equivalenceOf };
 }
 
 // ── structural validation (post-optimize, pre-output) ─────────────
@@ -304,7 +336,7 @@ function extractFontGlyphSvg(
  * @param scanned the prefix compiler's stream (OPTIONAL 4th parameter —
  *                the backward-compat lock: existing 3-arg callers keep
  *                compiling and behaving identically). Refs merge after
- *                declared refs, resolve through the enabled presets'
+ *                declared refs, resolve through the enabled channels'
  *                resolvers, and carry the `as` alias table out in the
  *                resolution (design §2's collision matrix enforced here)
  */
@@ -318,27 +350,30 @@ export async function resolveLibraryInputs(
   const warnings: string[] = [];
   const resolved: ResolvedLibraryIcon[] = [];
   const pending = mergeSources(normalized);
-  const aliases = mergeScannedIntoPending(normalized, scanned ?? [], pending);
+  const { aliases, equivalences } = mergeScannedIntoPending(normalized, scanned ?? [], pending);
 
-  // the enabled presets' prefix → instance map (config validation has
-  // already failed every disabled/unknown prefixed ref)
-  const presetByPrefix = new Map<string, IconPreset>(
-    normalized.presets.map((preset) => [preset.prefix, preset]),
+  // the enabled channels' prefix → instance map — lucide first (the
+  // default-registered channel) so it owns its reserved prefix; config
+  // validation has already failed every disabled/unknown prefixed ref
+  const channelByPrefix = new Map<string, IconChannel>(
+    [lucideChannel, ...normalized.channels].map((channel) => [channel.prefix, channel]),
   );
-  const presetRefOf = (source: string): { preset: IconPreset; ref: string } | null => {
+  const channelRefOf = (source: string): { channel: IconChannel; ref: string } | null => {
     const colon = source.indexOf(':');
     if (colon <= 0) return null;
-    const preset = presetByPrefix.get(source.slice(0, colon));
-    return preset === undefined ? null : { preset, ref: source.slice(colon + 1) };
+    const channel = channelByPrefix.get(source.slice(0, colon));
+    return channel === undefined ? null : { channel, ref: source.slice(colon + 1) };
   };
 
-  // lucide loads lazily — includeDefaults:false with no lucide: sources
-  // never touches the import at all; opentype.js loads lazily the same
-  // way (only when a font source actually appears)
+  // lucide loads lazily — includeDefaults:false with no lucide-lane
+  // sources never touches the import at all; opentype.js loads lazily
+  // the same way (only when a font source actually appears)
   let lucide: typeof import('lucide') | null = null;
-  const needsLucide = pending.some(
-    (icon) => typeof icon.source === 'string' && icon.source.startsWith('lucide:'),
-  );
+  const needsLucide = pending.some((icon) => {
+    if (typeof icon.source !== 'string') return false;
+    const lane = channelRefOf(icon.source);
+    return lane !== null && lane.channel.resolver.kind === 'lucide';
+  });
   if (needsLucide) lucide = await loadLucide();
 
   for (const icon of pending) {
@@ -352,42 +387,44 @@ export async function resolveLibraryInputs(
     let raw: string;
     let label: string;
     if (typeof source === 'string') {
-      if (source.startsWith('lucide:')) {
-        const exportName = lucideExportOf(source.slice('lucide:'.length));
+      const channelRef = channelRefOf(source);
+      if (channelRef !== null && channelRef.channel.resolver.kind === 'lucide') {
+        // the reserved IconNode lane: serializeLucideIcon over the
+        // dynamic lucide import (never resolveFile)
+        const exportName = lucideExportOf(channelRef.ref);
         const exports: Readonly<Record<string, unknown>> = lucide ?? {};
-        const icon: unknown = exports[exportName];
-        if (!isIconNode(icon)) {
+        const iconNode: unknown = exports[exportName];
+        if (!isIconNode(iconNode)) {
           throw new Error(
             `[jixoai-icons] ${labelOf(source)} — lucide exports no icon ` +
               `"${exportName}". Check the kebab slug against lucide's icon list ` +
               '(e.g. lucide:circle-alert)',
           );
         }
-        raw = serializeLucideIcon(icon);
+        raw = serializeLucideIcon(iconNode);
         label = labelOf(source);
-      } else {
-        const presetRef = presetRefOf(source);
-        if (presetRef !== null) {
-          // the preset node-resolves the peer's ABSOLUTE svg path; the
-          // plugin still owns the READ (mime law + watchFile HMR reuse,
-          // exactly like {file} sources) — absent peer / missing icon
-          // fail loudly inside resolveFile (the lucide precedent)
-          const absolute = presetRef.preset.resolveFile(presetRef.ref);
-          const descriptor = await io.loadSource(absolute);
-          if (descriptor.mimeType !== 'image/svg+xml') {
-            throw new Error(
-              `[jixoai-icons] ${labelOf(source)} — the resolved peer file is ` +
-                `${descriptor.mimeType}, not image/svg+xml (preset sources must be ` +
-                '.svg artwork)',
-            );
-          }
-          io.watchFile(absolute, () => undefined);
-          raw = Buffer.from(descriptor.data).toString('utf8');
-          label = labelOf(`${source} → ${absolute}`);
-        } else {
-          raw = source;
-          label = labelOf('inline');
+      } else if (channelRef !== null && channelRef.channel.resolver.kind === 'file') {
+        // the file lane: the channel node-resolves the peer's ABSOLUTE
+        // svg path; the plugin still owns the READ (mime law +
+        // watchFile HMR reuse, exactly like {file} sources) — absent
+        // peer / missing icon fail loudly inside resolveFile (the
+        // lucide precedent)
+        const { resolveFile } = channelRef.channel.resolver;
+        const absolute = resolveFile(channelRef.ref);
+        const descriptor = await io.loadSource(absolute);
+        if (descriptor.mimeType !== 'image/svg+xml') {
+          throw new Error(
+            `[jixoai-icons] ${labelOf(source)} — the resolved peer file is ` +
+              `${descriptor.mimeType}, not image/svg+xml (channel sources must be ` +
+              '.svg artwork)',
+          );
         }
+        io.watchFile(absolute, () => undefined);
+        raw = Buffer.from(descriptor.data).toString('utf8');
+        label = labelOf(`${source} → ${absolute}`);
+      } else {
+        raw = source;
+        label = labelOf('inline');
       }
     } else if ('font' in source) {
       // the font lane: woff2 decompress / woff1 hard error / ttf-otf
@@ -465,5 +502,5 @@ export async function resolveLibraryInputs(
     resolved.push({ name, svg });
   }
 
-  return { icons: resolved, warnings, aliases };
+  return { icons: resolved, warnings, aliases, equivalences };
 }

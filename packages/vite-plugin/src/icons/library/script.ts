@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons library) — the ROOT-SCRIPT adapter (A4,
+ * @jixoai/ui-vite-plugin (icons library) — the ROOT-SCRIPT adapter (A4,
  * openspec icon-component-pipeline design §5/§6).
  *
  * The programmatic entry behind the repo-root `gen:icons` /
@@ -22,7 +22,7 @@ import { dirname, resolve as resolvePath } from 'node:path';
 import type { ProviderContext, SafetyCheckerConfig, SourceDescriptor } from '../types.js';
 import { createSafetyChecker } from '../safety.js';
 import { generateIconLibraryArtifacts } from './generate.js';
-import { normalizeIconPresets } from './presets/index.js';
+import { enabledChannelPrefixes, normalizeIconChannels } from './channel/normalize.js';
 import { scanProjectSources } from './scan.js';
 import { resolveLibraryInputs } from './resolve.js';
 import { DEFAULT_LIBRARY_OUTPUT } from './config.js';
@@ -53,8 +53,9 @@ function assertNoFontSources(options: IconLibraryOptions): void {
  *  configured output AND the actual write target (codex r2 M2: a
  *  custom target inside the scan root would otherwise be scanned on
  *  the next run, violating the generated-artifact exclusion and
- *  parity). With no presets enabled the walk is skipped entirely — no
- *  ref could ever match. */
+ *  parity). The enabled set is `lucide` ∪ the registered channels'
+ *  prefixes (channel/normalize.ts) — never empty in the channel era,
+ *  so the walk always runs and `lucide:` literals collect too. */
 async function buildArtifacts(
   options: IconLibraryOptions,
   safety?: SafetyCheckerConfig,
@@ -76,19 +77,17 @@ async function buildArtifacts(
   // the EAGER walk (icon-prefix-compiler design §1a) — parity with the
   // vite build's buildStart walk over the same project sources
   const root = resolvePath(scanRoot ?? process.cwd());
-  const presets = normalizeIconPresets(options.presets);
-  const templatePrefixes = [...new Set(presets.map((preset) => preset.prefix))];
+  const channels = normalizeIconChannels(options.channels);
+  const templatePrefixes = enabledChannelPrefixes(channels);
   const excluded = [resolvePath(root, options.output ?? DEFAULT_LIBRARY_OUTPUT)];
   if (artifactPath !== undefined) excluded.push(resolvePath(artifactPath));
-  const scanned =
-    templatePrefixes.length === 0
-      ? []
-      : await scanProjectSources(root, templatePrefixes, { exclude: excluded });
+  const scanned = await scanProjectSources(root, templatePrefixes, { exclude: excluded });
   const resolution = await resolveLibraryInputs(options, io, checker, scanned);
   for (const warning of resolution.warnings) console.warn(warning);
   const generated = generateIconLibraryArtifacts(resolution.icons, {
     ...options,
     aliases: resolution.aliases,
+    equivalences: resolution.equivalences,
     templatePrefixes,
   });
   return {

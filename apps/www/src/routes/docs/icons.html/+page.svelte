@@ -127,9 +127,9 @@
       what: 'the 38 built-in lucide manifest in manifest order; false with no lucide: sources never touches the lucide import at all',
     },
     {
-      option: 'presets',
+      option: 'channels',
       def: '[]',
-      what: "enable icon-library presets — each contributes a prefixed ref form (md:/ph:/rx:) resolving ONE icon from the preset's optional peer package at build time; string shorthand = frozen defaults, object form carries weight/style/fill knobs. A disabled or unknown prefix fails at startup listing the enabled set",
+      what: "register icon channels — each contributes a prefixed ref form (md:/ph:/rx:/your own) resolving ONE icon from the channel's optional peer package at build time. Channel instances come from defineIconChannel (…/icons/channel) or the shipped factories (…/icons/md · …/icons/ph · …/icons/rx); lucide needs NO entry (it is the default-registered channel). Enabled prefixes = lucide ∪ channels'; a disabled or unknown prefix fails at startup listing the enabled set",
     },
     {
       option: 'icons',
@@ -170,7 +170,10 @@
 
   const libraryConfig = `// vite.config.ts — the library face (this site's own wiring, condensed)
 import { sveltekit } from '@sveltejs/kit/vite';
-import { jixoai } from '@jixoai/vite-plugin';
+import { jixoai } from '@jixoai/ui-vite-plugin';
+import { md } from '@jixoai/ui-vite-plugin/icons/md';
+import { ph } from '@jixoai/ui-vite-plugin/icons/ph';
+import { rx } from '@jixoai/ui-vite-plugin/icons/rx';
 
 export default {
   plugins: [
@@ -179,12 +182,12 @@ export default {
       icons: {
         library: {
           includeDefaults: true,            // the 38 built-ins (default)
-          presets: ['material'],            // enable md:/ph:/rx: refs (optional peers)
+          channels: [md(), ph(), rx()],     // the shipped channels — one import each
           icons: {                          // add + override — every source form
             brand: 'lucide:zap',            // a lucide ref — resolved at BUILD time
             logo: { file: 'assets/logo.svg' }, // a .svg file — the plugin owns the I/O
             spark: '<svg xmlns="…">…</svg>',   // an inline literal — RAW safety-checked
-            home: 'md:home',                // a preset ref — outlined/400/FILL-0 Material
+            home: 'md:home',                // a channel ref — outlined/400/FILL-0 Material
             glyph: { font: 'brand.woff2', code: 0xE002 }, // a font glyph, extracted
           },
           maxChunkBytes: 20480,             // RAW module bytes per chunk (default)
@@ -224,14 +227,17 @@ preloadIcons(['folderOpen', 'fileVideo'])  // warm lazy chunks ahead of a mount`
     { chunking: "'single'", inline: 'false', layout: 'one lazy chunk with everything', imports: 'exactly one lazy import' },
   ];
 
-  // the shipped presets (icon-library-presets, 2026-09-07): research-
-  // verified per-icon SVG source packages; lucide stays the built-in
-  // default (no preset needed). Each package is an OPTIONAL peer —
-  // absence fails loudly with the npm install line (the lucide law).
-  const presetRows = [
+  // the shipped channels (icon-channel-api, 2026-09-07): research-
+  // verified per-icon SVG source packages, each importable from its OWN
+  // sub-entry of the same package; lucide is a channel too — the
+  // default-registered one (zero-import, always wired). Each package is
+  // an OPTIONAL peer — absence fails loudly with the npm install line
+  // (the lucide law).
+  const channelRows = [
     {
       id: 'material',
       prefix: 'md:home',
+      entry: '…/icons/md',
       pkg: '@material-symbols/svg-400',
       license: 'Apache-2.0',
       mapping: 'outlined · weight 400 · FILL 0 (knobs: weight/style/fill)',
@@ -239,6 +245,7 @@ preloadIcons(['folderOpen', 'fileVideo'])  // warm lazy chunks ahead of a mount`
     {
       id: 'phosphor',
       prefix: 'ph:atom',
+      entry: '…/icons/ph',
       pkg: '@phosphor-icons/core',
       license: 'MIT',
       mapping: 'assets/regular (knob: weight thin…duotone)',
@@ -246,62 +253,110 @@ preloadIcons(['folderOpen', 'fileVideo'])  // warm lazy chunks ahead of a mount`
     {
       id: 'remix',
       prefix: 'rx:system:add-line',
+      entry: '…/icons/rx',
       pkg: 'remixicon',
       license: 'Apache-2.0',
       mapping: 'icons/<Category>/ — the name carries its category prefix',
     },
     {
-      id: 'lucide (built-in)',
+      id: 'lucide (default-registered)',
       prefix: 'lucide:zap',
+      entry: '…/icons/lucide',
       pkg: 'lucide',
       license: 'ISC',
-      mapping: 'the 38-name manifest + lucide: refs — always wired',
+      mapping: 'the 38-name manifest + lucide: refs — always wired, scans like any channel',
+    },
+    {
+      id: 'yours (defineIconChannel)',
+      prefix: 'myco:logo',
+      entry: '…/icons/channel',
+      pkg: 'your own svg package',
+      license: '—',
+      mapping: 'ONE defineIconChannel call — the section below',
     },
   ];
 
-  const presetConfig = `// enabling a preset: string shorthand = frozen defaults
-library: { presets: ['material', 'phosphor', 'remix'] }
+  const channelConfig = `// registering the shipped channels: one import each, frozen defaults
+import { md } from '@jixoai/ui-vite-plugin/icons/md';
+import { ph } from '@jixoai/ui-vite-plugin/icons/ph';
+import { rx } from '@jixoai/ui-vite-plugin/icons/rx';
 
-// or the object form with the knobs (one weight = ONE peer package)
-library: {
-  presets: [
-    { id: 'material', weight: 400, style: 'rounded', fill: true },
-    { id: 'phosphor', weight: 'fill' },
-  ],
-}
+library: { channels: [md(), ph(), rx()] }   // lucide: needs NO entry
+
+// or the knobs (one weight = ONE peer package)
+import { md } from '@jixoai/ui-vite-plugin/icons/md';
+library: { channels: [md({ weight: 400, style: 'rounded', fill: true })] }
 
 // referencing a prefix you have NOT enabled is a named startup error
 // listing the enabled set — "fa:home" fails, teaching the fix`;
 
-  // the prefix compiler (icon-prefix-compiler, 2026-09-07): scanned
-  // names + as aliases + the three-tier safety story. NOTE: this site
-  // does NOT dogfood the scanner (no presets in its own config — the
-  // 38-name artifact stays locked); the snippets are inert text.
-  const prefixCompilerSnippet = `<!-- with presets: ['material'] enabled — write prefixed names
+  // the define-your-own-channel section's real example (the spec
+  // scenario): ONE call replaces per-icon configuration. The snippet is
+  // inert text here; the scanner note below explains why the markup
+  // form stays out of comments.
+  const defineChannelSnippet = `// vite.config.ts — your own channel, from the consumer's own assets
+import { jixoai } from '@jixoai/ui-vite-plugin';
+import { defineIconChannel, resolvePeerFile } from '@jixoai/ui-vite-plugin/icons/channel';
+
+const myco = defineIconChannel({
+  id: 'myco',                      // /^[a-z][a-z0-9-]*$/, unique among registered
+  prefix: 'myco',                  // /^[a-z][a-z0-9]*$/ — becomes the myco: namespace
+  peerPackage: 'my-icons',         // optional peer — named in install-hint errors
+  resolveFile: (ref) => resolvePeerFile('my-icons', \`svgs/\${ref}.svg\`),
+  defaultsNote: 'my-icons svgs/ (outlined)',
+});
+
+export default {
+  plugins: [/* … */ jixoai({ icons: { library: { channels: [myco] } } })],
+};
+
+// that single registration buys, for the myco: prefix:
+//   - config refs — icons: { logo: 'myco:logo' }
+//   - source scanning — a static myco-prefixed name attribute in any
+//     .svelte/.ts/.js/.html file packs with ZERO library.icons entry
+//   - template union — IconName gains a myco-backtick template member
+//   - the enabled-prefix + uniqueness laws, exactly like a shipped one
+// the channel LOCATES (node resolution to the ABSOLUTE svg path); the
+// adapter READS through the plugin's provider context — mime law +
+// watchFile HMR — and every icon crosses the shared RAW safety → svgo
+// → extract pipeline. A custom channel inherits the built-ins'
+// guarantees by construction; it can never smuggle unvetted bytes.`;
+
+  // the prefix compiler (icon-prefix-compiler, 2026-09-07; channels:
+  // icon-channel-api 2026-09-07): scanned names + as aliases + the
+  // lucide equivalences + the three-tier safety story. The snippets are
+  // inert text — the LIVE dogfood is the gallery's real markup below.
+  const prefixCompilerSnippet = `<!-- with channels: [md()] registered — write prefixed names
      directly, NO library.icons declaration needed -->
 <Icon name="md:copy_all" />            <!-- scanned → packs under the canonical -->
 <Icon name="md:copy_all as copy2" />   <!-- the as form: alias + canonical, ONE payload -->
 <Icon name="copy2" />                  <!-- the alias resolves the SAME icon -->
+<Icon name="lucide:check" />           <!-- lucide scans too — default-registered -->
 <Icon name={\`md:\${iconKey}\`} />        <!-- dynamic: NOT scanned — the runtime lane -->`;
 
   const aliasArtifactSnippet = `// the artifact the compiler generates (sources are NEVER rewritten)
 export const ALIASES: Readonly<Record<string, string>> = {
   copy2: 'md:copy_all',   // one table row per alias — never a second payload
 };
-// CHUNK_0 packs 'md:copy_all' exactly once; lookups deref FIRST, so
-// getIcon('md:copy_all'), getIcon('copy2') and even the full literal
-// getIcon('md:copy_all as copy2') resolve the SAME packed payload`;
+// a scanned lucide:X whose X is ALREADY packed dedupes the same way —
+// through a SEPARATE compiler-generated table:
+export const EQUIVALENCES: Readonly<Record<string, string>> = {
+  'lucide:check': 'check', // the built-in's artwork — ONE payload, chained lookups
+};
+// canonicalOf chains ALIASES then EQUIVALENCES: getIcon('md:copy_all'),
+// getIcon('copy2'), the full literal, getIcon('lucide:check') and an
+// aliased equivalence all resolve their ONE packed payload`;
 
   const scanTiers = [
     {
       tier: 'compile',
       what: 'the prefix',
-      how: 'IconName gains a `md:${string}` template member for every ENABLED preset — an "fa:…" name is a type error with no runtime story',
+      how: 'IconName gains a `md:${string}` template member for every ENABLED channel (lucide included) — an "fa:…" name is a type error with no runtime story',
     },
     {
       tier: 'build',
       what: 'the concrete name',
-      how: 'the scanner collects the static literal; the preset resolver must answer it or the build fails BY NAME (never a silently blank glyph)',
+      how: 'the scanner collects the static literal; the channel resolver must answer it or the build fails BY NAME (never a silently blank glyph)',
     },
     {
       tier: 'runtime',
@@ -351,8 +406,8 @@ icons: {
   ];
 
   const slotConfig = `// vite.config.ts — this site's own wiring: BOTH faces, one plugin call
-import { jixoai } from '@jixoai/vite-plugin';
-import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
+import { jixoai } from '@jixoai/ui-vite-plugin';
+import { lucideIconProvider } from '@jixoai/ui-vite-plugin/icons';
 
 export default {
   plugins: [
@@ -443,7 +498,7 @@ plain beside a stock ink is impossible by construction.`;
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">&lt;Icon name> · IconName union</span>
-          <span class="pill">ICON_NAMES — built-ins + scanned presets</span>
+          <span class="pill">ICON_NAMES — built-ins + scanned channels</span>
           <span class="pill">inline core · SSR-safe</span>
           <span class="pill">lazy chunks · preloadIcons</span>
           <span class="pill">--jx-icon-* vocabulary</span>
@@ -490,7 +545,7 @@ plain beside a stock ink is impossible by construction.`;
         headerRegion="vocabulary"
         eyebrow="named library"
         title="The named library — ICON_NAMES"
-        summary="{ICON_NAMES.length} names, generated. This grid walks ICON_NAMES itself: a glyph added to the library config — or a preset ref scanned from this site's own source — regenerates icon-set.gen.ts and appears here with ZERO page edit — the grid can never lie about the set. The prefixed names below (md:/ph:/rx:) are the scanner's own findings: the literals live in this page's source. Every cell renders the real component (the same <Icon name> above); the label is the IconName you type."
+        summary="{ICON_NAMES.length} names, generated. This grid walks ICON_NAMES itself: a glyph added to the library config — or a channel ref scanned from this site's own source — regenerates icon-set.gen.ts and appears here with ZERO page edit — the grid can never lie about the set. The prefixed names below (md:/ph:/rx:/lucide:) are the scanner's own findings: the literals live in this page's source. Every cell renders the real component (the same <Icon name> above); the label is the IconName you type."
       >
         <div class="flex flex-col gap-5">
           <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" data-named-icon-grid="">
@@ -526,7 +581,7 @@ plain beside a stock ink is impossible by construction.`;
         headerRegion="plugin"
         eyebrow="plugin · library face"
         title="jixoai(&#123; icons: &#123; library &#125; &#125;) — the generator's knobs"
-        summary="The library face answers what &lt;Icon name&gt; can render. Sources arrive five ways — an inline SVG literal, &#123; file &#125; (the plugin owns ALL file I/O), a lucide: ref resolved at build time so the emitted artifact carries zero lucide references, a preset ref (md:/ph:/rx:) resolving ONE icon from an installed library package, or a font file whose glyph outline is extracted at build time. Same-name entries OVERRIDE built-ins; every icon crosses the raw safety checker before svgo. Without the icons option the plugin never loads; provider and library are independent — either alone is legal."
+        summary="The library face answers what &lt;Icon name&gt; can render. Sources arrive five ways — an inline SVG literal, &#123; file &#125; (the plugin owns ALL file I/O), a lucide: ref resolved at build time so the emitted artifact carries zero lucide references, a channel ref (md:/ph:/rx:/your own) resolving ONE icon from a registered channel, or a font file whose glyph outline is extracted at build time. Same-name entries OVERRIDE built-ins; every icon crosses the raw safety checker before svgo. Without the icons option the plugin never loads; provider and library are independent — either alone is legal."
       >
         <div class="flex flex-col gap-5">
           <CodeBlock code={libraryConfig} lang="ts" meta="vite.config.ts" />
@@ -562,27 +617,29 @@ plain beside a stock ink is impossible by construction.`;
 
       <SectionCard
         family="plugin"
-        region="presets"
-        eyebrow="presets"
-        title="Installed icon libraries, one ref each"
-        summary="library.presets declares the icon libraries you have installed; each preset contributes a prefixed reference form that resolves exactly ONE icon at build time through the same safety→svgo→extract pipeline — no bulk bundling, per-icon nature detection. Every preset package is an optional peer: absent installs fail loudly with the npm install line, and referencing a prefix you have not enabled is a named startup error listing the enabled set."
+        region="channels"
+        eyebrow="channels"
+        title="Icon libraries as channels — one import, one ref each"
+        summary="library.channels registers icon channels; each channel contributes a prefixed reference form that resolves exactly ONE icon at build time through the same safety→svgo→extract pipeline — no bulk bundling, per-icon nature detection. Every channel package is an optional peer: absent installs fail loudly with the npm install line, and referencing a prefix you have not enabled is a named startup error listing the enabled set. The shipped channels import from their OWN sub-entries of the same package — lucide is the default-registered one (zero-import) and yours ride the very same defineIconChannel base."
       >
-        <div class="flex flex-col gap-5" data-preset-table="">
+        <div class="flex flex-col gap-5" data-channel-table="">
           <table class="w-full border-collapse text-left">
             <thead>
               <tr class="border-b border-border">
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Preset</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Channel</th>
                 <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Ref form</th>
+                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Sub-entry</th>
                 <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Package (optional peer)</th>
                 <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">License</th>
                 <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Default mapping</th>
               </tr>
             </thead>
             <tbody>
-              {#each presetRows as row (row.id)}
+              {#each channelRows as row (row.id)}
                 <tr class="border-b border-border/50">
                   <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.id}</td>
                   <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.prefix}</td>
+                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.entry}</td>
                   <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.pkg}</td>
                   <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.license}</td>
                   <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.mapping}</td>
@@ -590,44 +647,53 @@ plain beside a stock ink is impossible by construction.`;
               {/each}
             </tbody>
           </table>
-          <CodeBlock code={presetConfig} lang="ts" meta="presets: ['material']" />
-          <div class="flex flex-col gap-4" data-preset-gallery="">
+          <CodeBlock code={channelConfig} lang="ts" meta="channels: [md(), ph(), rx()]" />
+          <div class="flex flex-col gap-4" data-channel-gallery="">
             <p class="text-muted-foreground text-[13px] leading-6">
               Rendered live, from THIS site's own build — not stock artwork. The cells below are the
-              real <code class="text-accent">&lt;Icon name&gt;</code> component resolving preset refs the
+              real <code class="text-accent">&lt;Icon name&gt;</code> component resolving channel refs the
               scanner collected out of this very page's source (and the vite config you would read
-              alongside it enables the presets for real). The source is the reference: an AI reading
-              apps/www/vite.config.ts + this file sees the capability exercised end-to-end.
+              alongside it registers the channels for real). The last pair is the equivalence law,
+              visible: the scanned <code class="text-accent">lucide:check</code> cell renders the
+              SAME glyph as the built-in <code class="text-accent">check</code> cell beside it —
+              one payload, an EQUIVALENCES row chaining the lookups. The source is the reference:
+              an AI reading apps/www/vite.config.ts + this file sees the capability exercised
+              end-to-end.
             </p>
             <!-- STATIC literals by law: the scanner collects static
                  name="…" attributes only — a dynamic name={expr} here
                  would be unpacked at runtime (the runtime lane), not
-                 scanned. These five cells ARE the dogfood. -->
+                 scanned. These six cells ARE the dogfood. -->
             <div class="flex flex-wrap gap-3">
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="md:home">
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:home">
                 <Icon name="md:home" size={24} />
                 <code class="text-muted-foreground font-mono text-[11px]">md:home</code>
                 <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · outlined/400</span>
               </div>
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="md:copy_all">
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:copy_all">
                 <Icon name="md:copy_all" size={24} />
                 <code class="text-muted-foreground font-mono text-[11px]">md:copy_all</code>
                 <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · snake_case</span>
               </div>
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="ph:atom">
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="ph:atom">
                 <Icon name="ph:atom" size={24} />
                 <code class="text-muted-foreground font-mono text-[11px]">ph:atom</code>
                 <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">phosphor · regular</span>
               </div>
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="rx:system:add-line">
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="rx:system:add-line">
                 <Icon name="rx:system:add-line" size={24} />
                 <code class="text-muted-foreground font-mono text-[11px]">rx:system:add-line</code>
                 <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">remix · category-prefixed</span>
               </div>
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-preset-cell="check">
+              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="check">
                 <Icon name="check" size={24} />
                 <code class="text-muted-foreground font-mono text-[11px]">check</code>
                 <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · built-in</span>
+              </div>
+              <div class="border-primary/40 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="lucide:check">
+                <Icon name="lucide:check" size={24} />
+                <code class="text-muted-foreground font-mono text-[11px]">lucide:check</code>
+                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · equivalence → check</span>
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-3 border-border border p-4" data-alias-demo="">
@@ -644,13 +710,13 @@ plain beside a stock ink is impossible by construction.`;
             <p class="text-[13px] leading-6">
               <strong>tabler</strong> and <strong>hugeicons</strong> ship no per-icon SVG source
               package on npm (tabler's SVGs are repo-only; hugeicons is JS data, not files) — a
-              preset needs a node-resolvable .svg per icon, so both are out until that changes.
+              channel needs a node-resolvable .svg per icon, so both are out until that changes.
             </p>
             <p class="text-[13px] leading-6">
               <strong>SF Symbols is rejected on licensing</strong>
               <span aria-hidden="true">—</span> Apple's system-provided image terms restrict the
               glyphs to Apple-platform apps and prohibit SVG export or redistribution. Shipping a
-              preset that extracts or redistributes them would breach those terms, so the pipeline
+              channel that extracts or redistributes them would breach those terms, so the pipeline
               deliberately offers no SF Symbols lane; use Apple's own APIs on Apple platforms.
             </p>
           </div>
@@ -659,10 +725,32 @@ plain beside a stock ink is impossible by construction.`;
 
       <SectionCard
         family="plugin"
+        region="define-channel"
+        eyebrow="define your own channel"
+        title="defineIconChannel — one call replaces per-icon config"
+        summary="The channel is the product: the same base every shipped lane rides is public. ONE defineIconChannel call — an id, a prefix, an optional peer package, and a resolveFile mapping — registers a myco: namespace that works everywhere a built-in prefix does: config refs, source scanning, the IconName template union, and the enabled-prefix laws. The channel LOCATES the artwork (node resolution); the plugin still owns the READ and the shared safety→svgo→extract pipeline — your channel inherits the built-ins' guarantees by construction."
+      >
+        <div class="flex flex-col gap-5" data-define-channel-docs="">
+          <CodeBlock code={defineChannelSnippet} lang="ts" meta="vite.config.ts — the myco: channel" />
+          <p class="text-muted-foreground text-[13px] leading-6">
+            Grammar: the prefix matches <code class="text-accent">/^[a-z][a-z0-9]*$/</code> and the
+            id <code class="text-accent">/^[a-z][a-z0-9-]*$/</code>; both <code class="text-accent">lucide</code>
+            spellings are reserved (the default-registered channel owns them), and duplicate ids or
+            prefixes fail at startup naming both entries. v1 channels are FILE-BACKED
+            (<code class="text-accent">resolveFile</code> → .svg); lucide's IconNode lane is the
+            one documented built-in asymmetry. Sub-entry imports stay pure: the
+            <code class="text-accent">…/icons/channel</code> graph reaches no lucide/svgo/opentype
+            code, so configuring channels costs nothing at import time.
+          </p>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        family="plugin"
         region="prefix-compiler"
         eyebrow="the prefix compiler"
         title="md:copy_all — scanned names, as aliases, three tiers of safety"
-        summary="Enabling a preset turns on a source scanner: static name=&quot;md:…&quot; literals in your .svelte/.ts/.js/.html files enter the set with ZERO configuration. The scanner has two entries that always agree — an eager project walk at build start (and inside gen:icons, so the committed artifact and the dev server can never diverge) and a dev transform collector whose findings refresh the artifact like a config edit. Unknown prefixes (fa:) are ignored fail-safe: they fail at the TYPE level instead. A ref the preset cannot resolve fails the build by name — never a silently blank glyph."
+        summary="Registering a channel turns on a source scanner: static name=&quot;md:…&quot; literals in your .svelte/.ts/.js/.html files enter the set with ZERO configuration — and lucide: literals scan the same way (the default-registered channel rides the identical lane). The scanner has two entries that always agree — an eager project walk at build start (and inside gen:icons, so the committed artifact and the dev server can never diverge) and a dev transform collector whose findings refresh the artifact like a config edit. Unknown prefixes (fa:) are ignored fail-safe: they fail at the TYPE level instead. A ref the channel cannot resolve fails the build by name — never a silently blank glyph."
       >
         <div class="flex flex-col gap-5" data-prefix-compiler-docs="">
           <CodeBlock code={prefixCompilerSnippet} lang="svelte" meta="App.svelte — no declarations" />
@@ -684,13 +772,16 @@ plain beside a stock ink is impossible by construction.`;
               {/each}
             </tbody>
           </table>
-          <CodeBlock code={aliasArtifactSnippet} lang="ts" meta="the as form — dual keys, one payload" />
+          <CodeBlock code={aliasArtifactSnippet} lang="ts" meta="as aliases + lucide equivalences — one payload each" />
           <p class="text-muted-foreground text-[13px] leading-6">
             The <code class="text-accent">as</code> form declares a local alias: 双键并存 — both keys
             coexist forever, your sources are <strong>never rewritten</strong>, and the scanned keys
-            ride alongside hand-written ones. The payload packs <strong>once</strong> under the
+            ride alongside hand-written ones. The payload packs <strong>exactly once</strong> under the
             canonical <code class="text-accent">md:copy_all</code> key; each alias costs exactly one
-            ALIASES-table row in the budget, and ICON_NAMES emits it adjacent to its ref. Collisions
+            ALIASES-table row in the budget, and ICON_NAMES emits it adjacent to its ref. A scanned
+            <code class="text-accent">lucide:X</code> whose <code class="text-accent">X</code> is
+            already packed dedupes identically through the separate EQUIVALENCES table — the
+            gallery's lucide:check cell is that row, rendered. Collisions
             fail the build by name: an alias shadowing a declared name, two refs claiming one alias,
             or an alias breaking the camelCase law. Dynamic composition
             (<code class="text-accent">{'name={`md:${iconKey}`}'}</code>) is intentionally unscanned
@@ -744,7 +835,7 @@ plain beside a stock ink is impossible by construction.`;
                 the artifact emits lazy imports of
                 <code class="text-accent">virtual:jixoai-icons/chunk/*</code> — wiring
                 <code class="text-accent">jixoai(&#123; icons: &#123; library &#125; &#125;)</code>
-                from <code class="text-accent">@jixoai/vite-plugin</code> becomes REQUIRED.
+                from <code class="text-accent">@jixoai/ui-vite-plugin</code> becomes REQUIRED.
               </p>
             </div>
           </div>

@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons) — the safety checker (P3.2)
+ * @jixoai/ui-vite-plugin (icons) — the safety checker (P3.2)
  *
  * The built-in SVG safety validator: byte size, path command count and
  * disallowed elements. Default mode is WARN (owner ruling, design.md §5):

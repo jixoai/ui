@@ -3,7 +3,7 @@
  * ui.jixoai.com build orchestrator (scripts/build-site.mjs).
  *
  * Pipeline (order is load-bearing — see deploy.yml):
- *  0. Ensure @jixoai/vite-plugin has a build output (apps/www depends on
+ *  0. Ensure @jixoai/ui-vite-plugin has a build output (apps/www depends on
  *     it via file: and its dist/ is gitignored — a clean checkout has
  *     none; CI builds it in an explicit earlier step, so this prelude is
  *     the local-dev fallback, not the CI path).
@@ -49,7 +49,7 @@ const pluginDir = path.join(repoRoot, "packages", "vite-plugin");
  *  every advertised /r/... install URL 404'd). */
 const CUSTOM_DOMAIN = "ui.jixoai.com";
 
-// The four frozen build outputs of @jixoai/vite-plugin (design.md D3:
+// The four frozen build outputs of @jixoai/ui-vite-plugin (design.md D3:
 // tsdown emits dist/index.js + dist/probe.js + dist/index.d.ts +
 // dist/client.d.ts). apps/www consumes the package via file: and its
 // vite.config.ts imports it, so the site build cannot even start when
@@ -62,10 +62,10 @@ const die = (message) => {
   process.exit(1);
 };
 
-/** 0. @jixoai/vite-plugin prelude: apps/www's file: dependency points at
+/** 0. @jixoai/ui-vite-plugin prelude: apps/www's file: dependency points at
  *  packages/vite-plugin, whose dist/ is gitignored. On a clean checkout
  *  the exports map (./dist/index.js) resolves to nothing and the vite
- *  config's `import '@jixoai/vite-plugin'` fails before any page builds.
+ *  config's `import '@jixoai/ui-vite-plugin'` fails before any page builds.
  *  Build the package when any of the four frozen artifacts is missing;
  *  skip when dist/ is already complete (local dev keeps its warm build —
  *  no rebuild per site build). CI does not rely on this fallback: deploy
@@ -77,7 +77,7 @@ function ensureVitePluginDist() {
   );
   if (missing.length === 0) return;
   console.log(
-    `[build-site] @jixoai/vite-plugin dist incomplete (missing ${missing.join(", ")}) — building packages/vite-plugin first`,
+    `[build-site] @jixoai/ui-vite-plugin dist incomplete (missing ${missing.join(", ")}) — building packages/vite-plugin first`,
   );
   const ci = spawnSync("npm", ["ci"], { cwd: pluginDir, stdio: "inherit" });
   if (ci.status !== 0) {
@@ -85,7 +85,7 @@ function ensureVitePluginDist() {
   }
   const build = spawnSync("npm", ["run", "build"], { cwd: pluginDir, stdio: "inherit" });
   if (build.status !== 0) {
-    die(`@jixoai/vite-plugin build failed (exit ${build.status})`);
+    die(`@jixoai/ui-vite-plugin build failed (exit ${build.status})`);
   }
   const stillMissing = PLUGIN_DIST_ARTIFACTS.filter(
     (artifact) => !existsSync(path.join(pluginDir, "dist", artifact)),
@@ -254,7 +254,7 @@ function generateAiExports() {
 }
 
 async function main() {
-  console.log("[build-site] 0/8 ensuring @jixoai/vite-plugin dist (file: dep, gitignored output)");
+  console.log("[build-site] 0/8 ensuring @jixoai/ui-vite-plugin dist (file: dep, gitignored output)");
   ensureVitePluginDist();
   console.log("[build-site] 1/8 building apps/www (SvelteKit static)");
   buildSite();

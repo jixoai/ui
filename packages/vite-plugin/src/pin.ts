@@ -179,7 +179,7 @@ export async function readPin(path?: string): Promise<GhosttyPin> {
     text = await readFile(file, 'utf8');
   } catch (err) {
     throw new PinError(
-      `[jixoai-ghostty] MISSING REQUIREMENT — cannot read pin manifest ${file} (${(err as Error).message}); the package install is broken — reinstall @jixoai/vite-plugin`,
+      `[jixoai-ghostty] MISSING REQUIREMENT — cannot read pin manifest ${file} (${(err as Error).message}); the package install is broken — reinstall @jixoai/ui-vite-plugin`,
     );
   }
   let doc: unknown;
@@ -187,7 +187,7 @@ export async function readPin(path?: string): Promise<GhosttyPin> {
     doc = JSON.parse(text);
   } catch (err) {
     throw new PinError(
-      `[jixoai-ghostty] MISSING REQUIREMENT — pin manifest ${file} is not valid JSON (${(err as Error).message}); reinstall @jixoai/vite-plugin`,
+      `[jixoai-ghostty] MISSING REQUIREMENT — pin manifest ${file} is not valid JSON (${(err as Error).message}); reinstall @jixoai/ui-vite-plugin`,
     );
   }
   const problems = validatePin(doc);

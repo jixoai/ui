@@ -1,5 +1,5 @@
 /**
- * @jixoai/css-laws — public API
+ * @jixoai/ui-css-laws — public API
  */
 export type {
   Declarations,

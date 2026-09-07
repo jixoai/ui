@@ -101,10 +101,81 @@ describe('the dist graph-purity gate (design §9)', () => {
     const iconsGraph = await walkStaticImports(iconsPlugin);
     expect(iconsGraph.bareSpecifiers).not.toContain('svgo');
   });
+
+  // the per-entry purity law (icon-channel-api design §2, codex r1 M4):
+  // the static module graph of the channel sub-entries reaches NO heavy
+  // dependency — a consumer importing …/icons/md configures their icon
+  // channel without ever loading the lucide/svgo/opentype machinery
+  test('per-entry dist purity: channel/md/ph/rx reach NO lucide/svgo/opentype; lucide reaches NO svgo/opentype', async () => {
+    const bannedAll = ['lucide', 'svgo', 'opentype.js'] as const;
+    const bannedLucideEntry = ['svgo', 'opentype.js'] as const;
+
+    const assertGraphPurity = async (
+      entry: string,
+      banned: readonly string[],
+    ): Promise<void> => {
+      const file = dist('icons', `${entry}.js`);
+      expect(existsSync(file), `dist/icons/${entry}.js exists`).toBe(true);
+      const graph = await walkStaticImports(file);
+      for (const specifier of graph.bareSpecifiers) {
+        // node builtins are always fine; nothing from the banned set
+        expect(
+          specifier.startsWith('node:'),
+          `dist/icons/${entry}.js reaches bare specifier "${specifier}"`,
+        ).toBe(true);
+        for (const ban of banned) {
+          expect(specifier, `${entry} → ${specifier}`).not.toContain(ban);
+        }
+      }
+      for (const reached of graph.files) {
+        const rel = reached.slice(packageRoot.length + 1);
+        for (const ban of banned) {
+          expect(
+            new RegExp(`(^|/)${ban.replace('.', '\\.')}(\\.|/|$)`).test(rel) || rel.includes(`/${ban}/`),
+            `dist/icons/${entry}.js graph reaches ${rel} (banned: ${ban})`,
+          ).toBe(false);
+        }
+      }
+    };
+
+    for (const entry of ['channel', 'md', 'ph', 'rx']) {
+      await assertGraphPurity(entry, bannedAll);
+    }
+    await assertGraphPurity('lucide', bannedLucideEntry);
+  });
+
+  test('each sub-entry exports its contract (defineIconChannel / factories / the instance)', () => {
+    const channelCode = readFileSync(dist('icons', 'channel.js'), 'utf8');
+    expect(channelCode).toContain('defineIconChannel');
+    expect(channelCode).toContain('resolvePeerFile');
+    for (const [entry, symbol] of [
+      ['lucide', 'lucideChannel'],
+      ['md', 'md'],
+      ['ph', 'ph'],
+      ['rx', 'rx'],
+    ] as const) {
+      expect(readFileSync(dist('icons', `${entry}.js`), 'utf8'), `dist/icons/${entry}.js`).toContain(
+        symbol,
+      );
+    }
+  });
 });
 
 describe('the pack smoke check (published shape)', () => {
-  test('npm pack --dry-run lists the bridge target + the type contracts', () => {
+  test('the package name is the Owner-confirmed @jixoai/ui-vite-plugin', () => {
+    const manifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8')) as {
+      name?: string;
+    };
+    expect(manifest.name).toBe('@jixoai/ui-vite-plugin');
+    const run = spawnSync('npm', ['pack', '--dry-run', '--ignore-scripts'], {
+      cwd: packageRoot,
+      encoding: 'utf8',
+    });
+    expect(run.status).toBe(0);
+    expect(`${run.stdout}\n${run.stderr}`).toContain('@jixoai/ui-vite-plugin@');
+  });
+
+  test('npm pack --dry-run lists the bridge target + the type contracts + the channel sub-entries', () => {
     // npm writes the tarball listing to STDERR (stdout is just the name)
     const run = spawnSync('npm', ['pack', '--dry-run', '--ignore-scripts'], {
       cwd: packageRoot,
@@ -123,6 +194,11 @@ describe('the pack smoke check (published shape)', () => {
     expect(listed.has('dist/icons/library/generate.js')).toBe(true);
     expect(listed.has('dist/index.d.ts')).toBe(true);
     expect(listed.has('dist/client.d.ts')).toBe(true);
+    // the channel sub-entries (icon-channel-api A4): JS + d.ts each
+    for (const entry of ['channel', 'lucide', 'md', 'ph', 'rx']) {
+      expect(listed.has(`dist/icons/${entry}.js`), `dist/icons/${entry}.js`).toBe(true);
+      expect(listed.has(`dist/icons/${entry}.d.ts`), `dist/icons/${entry}.d.ts`).toBe(true);
+    }
   });
 
   test('svgo is the ONLY regular dependency, pinned in the self-contained lockfile', () => {

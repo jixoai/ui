@@ -1,6 +1,9 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { jixoai } from '@jixoai/vite-plugin';
-import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
+import { jixoai } from '@jixoai/ui-vite-plugin';
+import { lucideIconProvider } from '@jixoai/ui-vite-plugin/icons';
+import { md } from '@jixoai/ui-vite-plugin/icons/md';
+import { ph } from '@jixoai/ui-vite-plugin/icons/ph';
+import { rx } from '@jixoai/ui-vite-plugin/icons/rx';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -154,15 +157,17 @@ const jixoaiPlugins = jixoai({
   icons: {
     provider: lucideIconProvider(),
     safety: { mode: 'warn' },
-    // presets ON (2026-09-07, Owner direction): the docs site itself
-    // exercises the preset + scanner lanes — its pages write real
-    // md:/ph:/rx: prefixed Icon name attributes, the scanner collects
-    // them, and gen:icons (same options + scanRoot apps/www) writes
-    // the committed artifact. The site's source IS the AI-readable
-    // reference for these capabilities. (Wording note: this comment
-    // deliberately avoids the tag-shaped literal form — the scanner is
-    // text-level and collects comments too.)
-    library: { includeDefaults: true, presets: ['material', 'phosphor', 'remix'] },
+    // channels ON (2026-09-07 icon-channel-api, Owner direction): the
+    // docs site itself exercises the channel + scanner lanes — its
+    // pages write real md:/ph:/rx: prefixed Icon name attributes (and
+    // one lucide: literal, riding the default-registered channel), the
+    // scanner collects them, and gen:icons (same options + scanRoot
+    // apps/www) writes the committed artifact. The shipped factories
+    // import from their OWN sub-entries — the per-entry purity law.
+    // (Wording note: this comment deliberately avoids the tag-shaped
+    // literal form — the scanner is text-level and collects comments
+    // too.)
+    library: { includeDefaults: true, channels: [md(), ph(), rx()] },
   },
 });
 const jixoaiIconsPlugin = jixoaiPlugins.find((plugin) => plugin.name === 'jixoai-icons');

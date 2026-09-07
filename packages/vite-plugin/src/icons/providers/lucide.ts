@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons) — lucideIconProvider (P2.2)
+ * @jixoai/ui-vite-plugin (icons) — lucideIconProvider (P2.2)
  *
  * The zero-I/O inline defaults, backed by the `lucide` npm package:
  * slot artwork is serialized at factory time from lucide's own
@@ -109,7 +109,7 @@ export function lucideIconProvider(): IconProviderFactory {
     } catch (cause) {
       throw new Error(
         'lucideIconProvider: the `lucide` package is not installed. ' +
-          'It is an optional peer dependency of @jixoai/vite-plugin — ' +
+          'It is an optional peer dependency of @jixoai/ui-vite-plugin — ' +
           'install it (npm i lucide) or pick another icons provider.',
         { cause },
       );

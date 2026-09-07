@@ -1,4 +1,4 @@
-# @jixoai/vite-plugin
+# @jixoai/ui-vite-plugin
 
 Vite plugin that supplies the pinned [ghostty](https://ghostty.org)
 `ghostty-vt` wasm to your build: **resolve (env → cache → verified
@@ -25,13 +25,13 @@ verifies them, and exposes a stable, content-addressed URL.
 ## Install
 
 ```bash
-npm i -D @jixoai/vite-plugin
+npm i -D @jixoai/ui-vite-plugin
 ```
 
 Wire it in `vite.config.ts`:
 
 ```ts
-import { jixoai } from '@jixoai/vite-plugin';
+import { jixoai } from '@jixoai/ui-vite-plugin';
 
 export default {
   plugins: [...jixoai()],
@@ -41,7 +41,7 @@ export default {
 Add the client types once (e.g. in your `src/vite-env.d.ts`):
 
 ```ts
-/// <reference types="@jixoai/vite-plugin/client" />
+/// <reference types="@jixoai/ui-vite-plugin/client" />
 ```
 
 Consume the wasm URL (this module is pure data — safe to import in SSR
@@ -77,8 +77,8 @@ virtual CSS module of `--jx-icon-{slot}` custom properties:
 
 ```ts
 // vite.config.ts
-import { jixoai } from '@jixoai/vite-plugin';
-import { lucideIconProvider } from '@jixoai/vite-plugin/icons';
+import { jixoai } from '@jixoai/ui-vite-plugin';
+import { lucideIconProvider } from '@jixoai/ui-vite-plugin/icons';
 
 export default {
   plugins: [...jixoai({ icons: { provider: lucideIconProvider() } })],
@@ -101,7 +101,7 @@ jixoai({ icons: {
 }})
 ```
 
-Providers (all behind `@jixoai/vite-plugin/icons`, pure factories that
+Providers (all behind `@jixoai/ui-vite-plugin/icons`, pure factories that
 never touch the filesystem — the plugin owns ALL file I/O):
 
 | provider | source | notes |

@@ -1,5 +1,5 @@
 /**
- * @jixoai/vite-plugin (icons library) — the svgo pass (A2, openspec
+ * @jixoai/ui-vite-plugin (icons library) — the svgo pass (A2, openspec
  * icon-component-pipeline design §2/§9).
  *
  * svgo v4 is the package's ONE sanctioned regular dependency, loaded
