@@ -20,8 +20,9 @@
       table, never an ALIASES row) + one payload + canonical-only
       iconCount; scanned `lucide:X` unpacked → full-key pack, no
       equivalence row; the matrix: defaults, config-overridden
-      default, declared icon, includeDefaults:false; a user `as` alias
-      colliding with an equivalence KEY fails by name
+      default, declared icon, includeDefaults:false, and the
+      alias-through-equivalence chain (lucide:check as c2 → check —
+      the grammar makes alias↔key collision impossible)
 - [ ] A4: the sub-entries — exports map (`./icons/channel`,
       `./icons/lucide`, `./icons/md`, `./icons/ph`, `./icons/rx`),
       tsdown per-entry build, per-entry dist purity gates in

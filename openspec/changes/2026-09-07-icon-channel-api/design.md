@@ -8,7 +8,7 @@ export type IconChannelResolver =
   | { readonly kind: 'file'; readonly resolveFile(ref: string): string }  // ABSOLUTE svg path
   | { readonly kind: 'lucide' };  // THE built-in IconNode lane — the one reserved kind
 export interface IconChannel {
-  readonly id: string;             // /^[a-z][a-z0-9-]*$/, unique among registered
+  readonly id: string;             // /^[a-z][a-z0-9-]*$, unique among registered; 'lucide' reserved as an id too (codex r2 minor — the default-registered channel owns it)
   readonly prefix: string;         // /^[a-z][a-z0-9]*$/, the ref namespace; 'lucide' reserved
   readonly peerPackage?: string;   // optional peer — named in install-hint errors
   readonly resolver: IconChannelResolver;
@@ -66,14 +66,23 @@ export function defineIconChannel(spec: {
   static `name="lucide:zap"` in consumer source packs through the
   channel exactly like `md:home` (uniformity; the per-icon-config pain
   the Owner cited dies for lucide too).
-- **The manifest-collision law (codex r1 B2)**: a scanned `lucide:X`
-  whose `X` is ALREADY packed (a built-in manifest name or a declared
-  icon) does NOT pack a second payload — the generator emits an
-  ALIASES row (`lucide:X` → `X`), so bytes stay single, every spelling
-  resolves one payload, and iconCount counts canonicals. A scanned
-  `lucide:X` with no packed `X` packs under the full `lucide:X` key
-  (the dual-key coexistence precedent). Count/bytes/lookup behavior is
-  test-locked both ways.
+- **The manifest-collision law (codex r1 B2, restated r3)**: a scanned
+  `lucide:X` whose `X` is ALREADY packed (a built-in manifest name or
+  a declared icon) does NOT pack a second payload — the generator
+  emits a row in a SEPARATE `EQUIVALENCES: Readonly<Record<string,
+  string>>` table (`lucide:X` → `X`). The equivalence table is
+  COMPILER-GENERATED ONLY: its keys are full prefixed names, exempt
+  from the `as`-alias grammar and the alias-collision matrix BY
+  CONSTRUCTION — a different table under a different law (codex r2
+  B2/r3). `canonicalOf` consults ALIASES, then EQUIVALENCES, so an
+  `as` alias on a deduped ref (`name="lucide:check as c2"` → alias
+  `c2`) chains c2 → `lucide:check` → `check` — one payload (the
+  grammar makes alias↔equivalence-key COLLISION impossible: aliases
+  cannot contain `:`; no error case exists to define). A scanned
+  `lucide:X` with no packed `X` packs under the full `lucide:X` key.
+  Test matrix: defaults, config-overridden default, a declared icon,
+  includeDefaults:false (full-key pack, no equivalence row), and the
+  alias-through-equivalence chain.
 - `library.channels: IconChannel[]` REPLACES `library.presets` outright
   (bold break, unreleased API). Enabled prefixes = `lucide` ∪
   channels'. The config-face unknown-prefix error, the scanner's
@@ -104,10 +113,11 @@ export function defineIconChannel(spec: {
   JS/d.ts outputs, and packed files.
 - The css-laws rename is OWNER-CONFIRMED (2026-09-07):
   `@jixoai/ui-css-laws`, kept in THIS change by Owner ruling (the
-  codex r1 split suggestion overruled); its generated-marker protocol
-  (packages/css-laws/src/generate.ts embeds the package name in
-  generated headers) MIGRATES with the rename and committed artifacts
-  carrying old-name markers regenerate.
+  codex r1 split suggestion overruled). The `@jixoai/css-laws` MARKER
+  TOKEN in the theme sheets is a DECOUPLED protocol string and does
+  NOT migrate (codex r3 M: the css-architecture spec names the marker,
+  not the package — its sentence stays true; no sheet regeneration, no
+  scanner churn).
 
 ## 3. Dogfood + docs migration
 

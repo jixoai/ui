@@ -33,8 +33,10 @@ keeps gating the 38-name manifest independently — and a scanned
 payload: the artifact carries a row in a SEPARATE, compiler-generated
 `EQUIVALENCES` table (`lucide:X` → `X`) — one payload, canonical-only
 counts, and exempt from the `as`-alias grammar and collision matrix BY
-CONSTRUCTION (a different table under a different law; a user `as`
-alias colliding with an equivalence KEY is a named error). The css-laws
+CONSTRUCTION (a different table under a different law; alias↔key
+collision is IMPOSSIBLE under the alias grammar — aliases cannot
+contain `:` — and `canonicalOf` chains ALIASES then EQUIVALENCES so an
+`as` alias on a deduped ref resolves through both). The css-laws
 workspace package SHALL carry the Owner-confirmed corrected name
 `@jixoai/ui-css-laws`; the `@jixoai/css-laws` MARKER TOKEN in the theme
 sheets is a decoupled protocol string and does not migrate.
@@ -74,7 +76,9 @@ sheets is a decoupled protocol string and does not migrate.
 - THEN no second payload packs — the artifact gains an EQUIVALENCES
   row `lucide:check` → `check` (never an ALIASES row) and
   `getIcon('lucide:check')` returns the built-in data (iconCount
-  counts canonicals only)
+  counts canonicals only); an `as` alias on the same ref
+  (`lucide:check as c2`) chains through ALIASES then EQUIVALENCES to
+  the same payload
 
 #### Scenario: duplicate channel ids or prefixes fail by name
 
@@ -233,42 +237,44 @@ causes (artifact drift or a dynamic/scanned-miss name).
 - THEN the build fails naming the ref and the channel (never a
   silently blank glyph)
 
-## MODIFIED Requirements (r2)
+## MODIFIED Requirements
 
 ### Requirement: the @jixoai/vite-plugin package
 
 `packages/vite-plugin` SHALL publish as `@jixoai/ui-vite-plugin` (the
 cli/ package precedent: a separate npm-publishable package, not a
-registry item; the corrected Owner-stated name, 2026-09-07) with ZERO
-runtime dependencies and peerDependency `vite ^8.0.0` (the only tested
-surface), built by tsdown into `dist/index.js` + `dist/probe.js` and
-carrying the `jixoai-ghostty-probe` bin — with ONE sanctioned
-exception: `svgo` (the icons library face's build-time optimizer; a
-regular `dependencies` entry with the self-contained package-lock.json
+registry item) with ZERO runtime dependencies and peerDependency
+`vite ^8.0.0` (the only tested surface), built by tsdown into
+`dist/index.js` + `dist/probe.js` and carrying the
+`jixoai-ghostty-probe` bin — with ONE sanctioned exception:
+`svgo` (the icons library face's build-time optimizer; a regular
+`dependencies` entry with the self-contained package-lock.json
 updated in the same change, kept EXTERNAL in the tsdown build and
 loaded only through the icons sub-entry's dynamic import so the
-umbrella entry's module graph stays provider-free; it never ships to a
-consumer's browser, exactly like opentype.js). The package's public API
-is frozen: `jixoai(opts)` (THE umbrella entry — one call wires every
-jixoai build-time feature; `ghostty` is the first, default-on feature,
-taking `boolean | options` under `jixoai({ ghostty })`; the
-unpublished `jixoaiGhostty()` name never shipped, the umbrella landed
-in its place), `resolveGhosttyWasm(opts)` (the node-usable resolver:
-variant/cacheDir/offline → `{ bytes, path, sha256, variant, buildInfo
-}`, cache filename `<sha256>.wasm`, default cache dir
+umbrella entry's module graph stays provider-free; it never ships
+to a consumer's browser, exactly like opentype.js). The package's
+public API is frozen: `jixoai(opts)` (THE umbrella entry — one call
+wires every jixoai build-time feature; `ghostty` is the first,
+default-on feature, taking `boolean | options` under
+`jixoai({ ghostty })`; the unpublished `jixoaiGhostty()` name never
+shipped, the umbrella landed in its place), `resolveGhosttyWasm(opts)`
+(the node-usable resolver: variant/cacheDir/offline →
+`{ bytes, path, sha256, variant, buildInfo }`, cache filename
+`<sha256>.wasm`, default cache dir
 `<cwd>/node_modules/.cache/jixoai-ghostty/`, and a frozen behavior
 matrix: an env-override file is verified against the pin and its own
-path returned without copying; offline resolves cache-only with a named
-error on miss; the online path fills the cache atomically), and the
-`./client` sub-export (`dist/client.d.ts`, ambient `declare module
-'virtual:jixoai-ghostty'` with NAMED exports only). The package is a
-SELF-CONTAINED npm project: its own committed package-lock.json and
-devDependencies so `npm ci && npm run build` reproduces without any
-root install (the repo root is not a workspace). Consumers add ONE
-`/// <reference types="@jixoai/ui-vite-plugin/client" />` line to
-their d.ts environment (the apps/www vite-env.d.ts fixture proves
-svelte-check stays green). Its plugins are build-time only: they never
-transpile or instantiate wasm; their contract surface is
+path returned without copying; offline resolves cache-only with a
+named error on miss; the online path fills the cache atomically),
+and the `./client` sub-export (`dist/client.d.ts`, ambient
+`declare module 'virtual:jixoai-ghostty'` with NAMED exports only).
+The package is a SELF-CONTAINED npm project: its own committed
+package-lock.json and devDependencies so `npm ci && npm run build`
+reproduces without any root install (the repo root is not a
+workspace). Consumers add ONE
+`/// <reference types="@jixoai/ui-vite-plugin/client" />` line to their
+d.ts environment (the apps/www vite-env.d.ts fixture proves
+svelte-check stays green). Its plugins are build-time only: they
+never transpile or instantiate wasm; their contract surface is
 source-resolution (verify + cache), dev serving, build emission, and
 handing data URLs to code via virtual modules.
 
@@ -292,3 +298,123 @@ handing data URLs to code via virtual modules.
   and is emitted into `dist/` in build with the content-addressed
   filename `assets/ghostty-vt-<sha256-16>.wasm` (our hash, not the
   bundler's) — no manual file placement anywhere
+
+#### Scenario: virtual module carries provenance, not behavior
+
+- WHEN code imports `virtual:jixoai-ghostty`
+- THEN it receives a pure-data module
+  `{ url, sha256, variant, buildInfo }`; the module does not touch
+  fetch or WebAssembly at evaluation time, so SSR and node test
+  environments import it safely, and a server-consumer build emits no
+  duplicate asset
+
+#### Scenario: emission timing follows rollup semantics
+
+- GIVEN the virtual module is loaded during a build
+- WHEN its code is generated
+- THEN the wasm asset was emitted in the same `load` hook (before
+  rendering) and the URL is produced from
+  `import.meta.ROLLUP_FILE_URL_<ref>`; a vite `build()` integration
+  test asserts the real dist filename (the sentinel for vite/rollup
+  major upgrades)
+
+#### Scenario: svgo rides as the one sanctioned dependency
+
+- GIVEN the package manifest, lockfile, and build output after this
+  change
+- WHEN they are inspected
+- THEN `svgo` is the ONLY entry under `dependencies` (vite stays a
+  peer, opentype.js/wawoff2 stay optional), the self-contained
+  `npm ci && npm run build && npm pack --dry-run` chain reproduces,
+  and the umbrella `dist/index.js` contains no svgo/provider code
+  (the graph-purity gate)
+
+
+### Requirement: package release rides the trusted-publishing flow
+
+`@jixoai/ui-vite-plugin` SHALL be published by the same release
+workflow pattern as the `jixoai-ui` CLI (npm Trusted Publishing /
+OIDC, idempotent skip when the version exists, tarball attached to
+the tagged release); configuring the npm-side trusted publisher for
+the new package name is an Owner TODO that blocks publishing day,
+not development (in-repo consumers use the `file:` dependency).
+
+#### Scenario: tagging a release publishes both packages
+
+- GIVEN a `v*` tag pushed with an unchanged cli version but a bumped
+  `packages/vite-plugin` version
+- WHEN release.yml runs
+- THEN the CLI publish step skips (already published) and the
+  vite-plugin job builds, packs, and publishes only the new version
+
+
+### Requirement: the generated icon-set artifact comes from a pure generator with adapters
+
+`generateIconLibraryArtifacts()` — a PURE core (no fs, no vite,
+input = the RESOLVED asset list, never IconSource) exported from
+`@jixoai/ui-vite-plugin/icons` — SHALL be the ONLY code that
+serializes the library, returning `{ artifact, chunks, report }`.
+Two adapters own all side effects: the VITE adapter (emits the
+virtual chunk modules; dev watch/HMR through the slot face's
+refresh path; serves the artifact module and WARNS on drift — it
+writes the artifact only when the consumer opted in via
+`write: true` + `output`, default `false`; in this repo the ROOT
+script is the sole writer) and the ROOT-SCRIPT adapter (`gen:icons`
+canonical write into registry/files; `verify:icons --check`
+freshness gate — both run WITHOUT importing vite). When the vite
+plugin is present but the library face is unconfigured, its
+resolver SHALL recognize `virtual:jixoai-icons/chunk/*` and fail
+the build with the fixed named error pointing at
+`jixoai({ icons: { library } })`; the artifact's LAZY loaders
+carry the same message as a runtime catch (fetch/parse failures
+after a green build). The committed artifact mirrors
+byte-identically (`registry/files/lib/icon-set.gen.ts` ←→
+`apps/www/src/lib/icon-set.gen.ts`); lazy chunk bodies are virtual
+modules generated at dev/build time by whichever app runs the
+plugin — they are NEVER files and never enter the mirror manifest.
+Artifact ↔ chunk parity SHALL be asserted by a dogfood test
+comparing the FULL serialized chunk module bytes served by the
+plugin against the artifact's chunk map — not just names and
+indexes.
+
+#### Scenario: the freshness gate catches a stale artifact
+
+- GIVEN the library config or a source svg changes
+- WHEN `verify:icons --check` runs against an un-regenerated
+  artifact
+- THEN the gate FAILS naming the stale file (and the check ran
+  without vite)
+
+#### Scenario: dev watch regenerates without a loop
+
+- GIVEN the dev server running with a `{file}`-sourced custom icon
+- WHEN the svg file is edited
+- THEN the library regenerates, virtual chunks invalidate with a
+  reload, and the watcher does not re-trigger itself
+
+#### Scenario: the vite adapter never writes in-repo
+
+- GIVEN both app configs running the library face with the default
+  `write: false`
+- WHEN a dual-app build completes
+- THEN no `registry/src/**` artifact and no default-output file
+  appeared anywhere (the probe asserts the absence), and the
+  canonical artifact changed only through `gen:icons`
+
+#### Scenario: an unwired overflow build fails by name
+
+- GIVEN the vite plugin present but no `icons.library` configured,
+  and an artifact importing `virtual:jixoai-icons/chunk/1`
+- WHEN the build runs
+- THEN the plugin's resolver throws the fixed named error pointing
+  at `jixoai({ icons: { library } })` (not vite's generic
+  unresolved-import message)
+
+#### Scenario: mirror covers the artifact only
+
+- GIVEN a build with lazy chunks
+- WHEN the mirror manifest is generated
+- THEN only `icon-set.gen.ts` appears as a new mirrored file — chunk
+  bodies exist solely as virtual modules in the building app
+
+
