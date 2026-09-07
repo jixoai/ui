@@ -14,23 +14,21 @@ KiB=1024B 口径，不使用 KB）。
   工具链：rustup stable-aarch64-apple-darwin / rustc 1.98.0
   (88d9e12a 2026-08-18) / Homebrew rust 不带 wasm32 std（构建必须
   rustup 工具链）
-- 依赖：`fearless_simd ^0.4`——**tarball 自锁 0.4.0**（本节最初按 git
-  快照实测写 0.4.1，系快照新鲜锁差异；正式口径以 tarball 自锁为准，
-  git 值降级为 comparison-only）
+- 依赖：`fearless_simd ^0.4`——纯库无 wasm-bindgen；正式口径 = tarball 自锁 0.4.0（历史 0.4.1 见 comparison-only 尺寸矩阵节）
 - 模型：内嵌 `assets/magika/source-student-q4.bin` **47,840 字节（46.72 KiB）**
   （sha256 8493d2d3757572c8661141e414b1c0755aa08d4c4e5382dfbbc6b73b02d89083（README 声明，最终发行物门禁实测复核）），架构
   wordseq-b1024-k3-m2048-tiny-3conv-hidden
 - 输出：48 标签（asm…yaml），held-out `test_fs_accuracy=0.942`
   macro_recall=0.940；概率经校准（歧义输入报分裂分）
-- 依赖：`fearless_simd ^0.4`（SIMD 抽象，wasm32 走 simd128/fallback
-  双路径）——纯库，无 wasm-bindgen；正式口径 = tarball 自锁 0.4.0
-  （git 快照曾测 0.4.1，属 comparison-only，见尺寸矩阵节）
 
 ## 构建序列（r11-B1：脚本本体逐字内嵌——无注释式伪代码、无占位符；下方实录由该脚本在全新 mktemp 目录原样产生）
 
 ```bash
 #!/usr/bin/env bash
 # betlang wasm 探针复现（r10-B1：全可执行，任一校验失败即非零退出）
+# 平台前置（r12-N5）：macOS（stat -f%z、~/.rustup 固定路径）；Linux
+# 等价分支：stat -c%s 替代 stat -f%z，rustup 路径经 `rustup which
+# rustc` 解析——正式 CI 以 ubuntu runner 为准并落双分支。
 set -euo pipefail
 W0="$(mktemp -d /tmp/betlang-repro.XXXXXX)"; cd "$W0"
 # 1. 不可变来源：crates.io sparse index + tarball，双重校验

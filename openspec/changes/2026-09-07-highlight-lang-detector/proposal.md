@@ -146,10 +146,13 @@ Svelte 导出）。
 
 ## 依据与探测（evidence/）
 
-- `betlang-probe-2026-09-07.md` —— wasm 构建命令、尺寸矩阵（朴素
-  114.5KiB→lean 97.7KiB raw / 62.8→57.1KiB gzip，KiB 口径）、8 样本
-  检测全对、fearless_simd 需 rustup 工具链（Homebrew rust 缺 wasm
-  std）、官方 npm 渠道缺失结论、模型 sha256 全量。
+- `betlang-probe-2026-09-07.md` —— wasm 完整可执行复现脚本 + 多次
+  运行实录；**发行观测带 = tarball 口径 raw 97.75–97.80KiB / gzip
+  57.06–57.14KiB**（朴素 114.5KiB 与 git 快照数字全部为
+  comparison-only 历史对照，非发行基准）、8 样本检测全对、
+  fearless_simd 钉 0.4.0（fresh-lock 漂移 0.4.1 实测）+ rustup 工具链
+  坑、官方 npm 渠道缺失结论、模型 sha256 全量、非确定性构建与
+  as-shipped 门禁语义。
 - linguist 盘点 —— languages.yml 165,390 B（161.51 KiB）/ 2069 语言
   （extensions + filenames + interpreters 字段为 L1/L2 数据源；挖掘时
   commit SHA 入表注释）；heuristics.yml 40,624 B（39.67 KiB）/ 138 组

@@ -240,7 +240,8 @@ P_INI:   n ≥ 3 且 ≥1 行整行匹配 /^\[[A-Za-z0-9_.$ -]+\]\s*$/
 
 **探测结论（evidence/betlang-probe-2026-09-07.md）**：tarball +
 fearless_simd =0.4.0 口径的**观测带** raw 100,111–100,139 B
-（97.75–97.80 KiB）/ gzip 58,427–58,499 B（Node zlib level 9；三次独立运行）；
+（97.75–97.80 KiB）/ gzip 58,427–58,499 B（Node zlib level 9；多次独立
+运行，带值随新运行诚实更新——见 evidence 实录）；
 构建非字节确定（目录路径入产物，r9 实测），**canonical 哈希 = CI
 构建产物在 ARTIFACT.md 的记录值（as-shipped 语义）**——本地重建只验
 tarball cksum + 锁版本 + 预算带。betlang 进 DLD L4 作默认统计层。
@@ -259,9 +260,11 @@ npm 包，仓库位置 `packages/betlang-wasm/`：
   wasm-bindgen 胶水——bindgen 使 raw 增约 3-8 KiB 可能越线）+ `.d.ts`
   + MIT/上游归属。首版 `0.1.1`（镜像 crate 版本）。
 - 完整性：`packages/betlang-wasm/ARTIFACT.md` 记录 wasmRawBytes、
-  wasmGzipBytes、wasmSha256、tarballSha256、构建工具链版本
-  （rustc/LLVM）、betlang crate sha256；`scripts/verify-betlang-pin.mjs`
-  核验 sha256 + magic bytes (`\0asm`) + 双预算。
+  wasmGzipBytes、wasmSha256（as-shipped）、tarballSha256、
+  crateChecksum、fearlessSimdVers、fearlessSimdCksum、构建工具链版本
+  （rustc/LLVM）；`scripts/verify-betlang-pin.mjs` 核验 sha256 +
+  magic bytes (`\0asm`) + Cargo.lock 版本/cksum + 双预算（字段清单
+  与 tasks 4.3 一字不差）。
 
 **门禁测量对象冻结（r2-B4）**：预算的输入是且仅是 **`.wasm` 文件的
 字节**（不含装载器 JS、不含 tarball、不含 entry 包装）；gzip = Node
@@ -349,6 +352,9 @@ code-card                          + langDetector prop、AUTO_LANG 路径
   **site-only**（`lib/highlight/context.svelte.ts`，与 HIGHLIGHT_DEF
   同法——context-key.ts 头注释的既有二分：registry-safe 身份随 core，
   内核编排属站点）。context.svelte.ts 增补 def 时镜像两树同步。
+  **归档同步检查（r12-N6）**：archive 提交后断言 living
+  highlight-engines spec 已含 HIGHLIGHT_DETECT_KEY——delta 与 living
+  的分叉窗口止于归档提交（tasks 7.3 对应检查行）。
 
 ## D6 — 显式不做（Non-Goals）
 
