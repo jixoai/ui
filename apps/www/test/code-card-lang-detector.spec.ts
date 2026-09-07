@@ -18,6 +18,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import CodeCard from '../src/lib/ui/code-card/code-card.svelte';
 import DetectHost from './fixtures/code-card-detect-host.svelte';
+import DetectPluginHost from './fixtures/code-card-detect-plugin-host.svelte';
+import { HIGHLIGHT_DETECT_DEF } from '../src/lib/highlight/context.svelte';
+import { definePlugin } from '../src/lib/context-plugin.svelte';
 import type { HighlightBackend } from '../src/lib/highlight/backend';
 import type {
   DetectInput,
@@ -212,5 +215,54 @@ describe('CodeCard — the AUTO_LANG chain', () => {
     expect(error.message).toContain('setContext(HIGHLIGHT_DETECT_KEY');
     expect(langs).toHaveLength(0);
     expect(container.querySelector('pre code')!.textContent).toBe('const v = 1;');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// the kernel projection (HIGHLIGHT_DETECT_DEF) — the site-wide plugin form
+// ---------------------------------------------------------------------------
+describe('CodeCard — the HIGHLIGHT_DETECT_DEF plugin projection', () => {
+  it('a plugin targeting the detect def projects the subtree default detector', async () => {
+    const { backend, langs } = recordingBackend();
+    const projected = stubDetector('betlang', { lang: 'python', source: 'statistical' });
+    const plugin = definePlugin({
+      name: 'site-betlang',
+      targets: [HIGHLIGHT_DETECT_DEF],
+      before: () => projected.detector,
+    });
+    const { container } = await render(DetectPluginHost, {
+      props: { plugins: [plugin], backend },
+    });
+    // the card has no prop: the plugin-projected detector answers
+    await waitFor(() => expect(langs).toEqual(['python']));
+    expect(projected.inputs).toHaveLength(1);
+    expect(container.querySelector('[data-painted]')?.getAttribute('data-painted')).toBe('yes');
+  });
+
+  it('the explicit langDetector prop outranks the plugin projection', async () => {
+    const { backend, langs } = recordingBackend();
+    const projected = stubDetector('betlang', null);
+    const prop = stubDetector('prop', { lang: 'ruby', source: 'filename' });
+    const plugin = definePlugin({
+      name: 'site-betlang',
+      targets: [HIGHLIGHT_DETECT_DEF],
+      before: () => projected.detector,
+    });
+    const { container } = await render(DetectPluginHost, {
+      props: { plugins: [plugin], backend },
+    });
+    // the host's card carries no prop — mount the prop case directly
+    container.remove();
+    await render(DetectHost, {
+      props: {
+        lang: 'auto',
+        code: 'puts 1',
+        backend,
+        detector: projected.detector,
+        langDetector: prop.detector,
+      },
+    });
+    await waitFor(() => expect(langs).toEqual(['ruby']));
+    expect(prop.inputs).toHaveLength(1);
   });
 });

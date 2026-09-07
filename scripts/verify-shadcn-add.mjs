@@ -58,6 +58,7 @@
 // Scratch lives under .agents/fixtures/ (gitignored), wiped per run.
 
 import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -944,7 +945,13 @@ export default defineConfig({
 // HTTP and fetches every emitted wasm (the ?url channel's end-to-end
 // evidence, r3-1).
 const engineRegistry = JSON.parse(readFileSync(join(root, 'registry.json'), 'utf8'));
-const engineItems = engineRegistry.items.filter((i) => /^highlight-/.test(i.name));
+// detection-capability items (highlight-lang-detector lib +
+// highlight-detect-default wrapper, 2026-09-07) match the highlight-*
+// prefix but are NOT engines — excluded here so the probe-template
+// derivation does not die on them; their consumers are the detection
+// cases in 4d below
+const DETECTION_ITEMS = new Set(['highlight-lang-detector', 'highlight-detect-default']);
+const engineItems = engineRegistry.items.filter((i) => /^highlight-/.test(i.name) && !DETECTION_ITEMS.has(i.name));
 
 /** how each engine's consumer probe constructs its backend (fails loud on unknown) */
 const ENGINE_PROBES = {
@@ -1052,6 +1059,225 @@ check(
   'engine-matrix: generated cases match registry engine count',
   engineItems.length === Object.keys(ENGINE_PROBES).length && engineItems.length >= 6,
   `${engineItems.length} registry engines / ${Object.keys(ENGINE_PROBES).length} probes`,
+);
+
+// ── 4d. detection-capability cases (highlight-lang-detector, 2026-09-07) ──
+// Three ISOLATED consumers locking the zero-build-edge law end to end:
+//   code-card-bare        ONLY code-card — the built artifact carries
+//                         ZERO DLD bytes and a lang="auto" card still
+//                         COMPILES (detection is a runtime reject)
+//   code-card-dld-lib     + @jixoai/highlight-lang-detector, wired by the
+//                         hand-written setContext (form ②) — clean build,
+//                         the wasm emitted as a REAL asset (?url channel)
+//   code-card-dld-wrapper + the highlight-detect-default item, the
+//                         children wrapper compiled through BOTH consumer
+//                         dialects (direct .svelte + folder barrel)
+//
+// The npm bridge: @jixoai/betlang-wasm is workspace-built and published
+// by CI — at harness time it is NOT on registry.npmjs.org (404, probed),
+// and the shadcn CLI runs `npm install -- @jixoai/betlang-wasm@^0.1.1`
+// verbatim (a versioned spec is never skipped as already-installed). A
+// one-name LOCAL MIRROR keeps the resolution path real — npm pack of the
+// workspace package serves the packument + tarball, everything else
+// passes through to registry.npmjs.org — so the add resolves exactly as
+// it will post-publish, against the tree under test.
+const BETLANG_PKG = 'packages/betlang-wasm';
+let npmMirrorBase = '';
+{
+  const packDest = join(scratch, 'npm-mirror');
+  mkdirSync(packDest, { recursive: true });
+  const pack = spawnSync('npm', ['pack', '--pack-destination', packDest], { cwd: join(root, BETLANG_PKG), encoding: 'utf8', stdio: 'pipe' });
+  if (pack.status !== 0) die(`detection: npm pack ${BETLANG_PKG} failed (build it first: npm run build there):\n${pack.stdout}\n${pack.stderr}`);
+  const tarballName = String(pack.stdout ?? '').trim().split('\n').filter(Boolean).at(-1);
+  if (!tarballName?.endsWith('.tgz')) die(`detection: npm pack printed no tarball name (got: ${JSON.stringify(tarballName)})`);
+  const tarballPath = join(packDest, tarballName);
+  const tarballBytes = readFileSync(tarballPath);
+  const integrity = `sha512-${createHash('sha512').update(tarballBytes).digest('base64')}`;
+  const pkgManifest = JSON.parse(readFileSync(join(root, BETLANG_PKG, 'package.json'), 'utf8'));
+  const version = pkgManifest.version;
+  const { createServer: mirrorServer } = await import('node:http');
+  const mirror = mirrorServer(async (req, res) => {
+    const url = req.url ?? '';
+    const path = decodeURIComponent(url.split('?')[0]);
+    try {
+      if (path === '/@jixoai/betlang-wasm') {
+        const packument = JSON.stringify({
+          name: '@jixoai/betlang-wasm',
+          'dist-tags': { latest: version },
+          versions: {
+            [version]: {
+              ...pkgManifest,
+              dist: { tarball: `${npmMirrorBase}/@jixoai/betlang-wasm/-/${tarballName}`, integrity },
+            },
+          },
+        });
+        res.statusCode = 200;
+        res.setHeader('content-type', 'application/json');
+        res.end(packument);
+        return;
+      }
+      if (path.startsWith('/@jixoai/betlang-wasm/-/')) {
+        res.statusCode = 200;
+        res.setHeader('content-type', 'application/octet-stream');
+        res.end(tarballBytes);
+        return;
+      }
+      // passthrough: the real registry carries everything else (shiki,
+      // audit endpoints, packuments for the template's own resolution)
+      const chunks = [];
+      for await (const chunk of req) chunks.push(chunk);
+      const body = Buffer.concat(chunks);
+      const upstream = await fetch(`https://registry.npmjs.org${url}`, {
+        method: req.method,
+        headers: { accept: req.headers.accept ?? '*/*' },
+        body: req.method === 'GET' || req.method === 'HEAD' ? undefined : body,
+      });
+      res.statusCode = upstream.status;
+      const contentType = upstream.headers.get('content-type');
+      if (contentType) res.setHeader('content-type', contentType);
+      res.end(Buffer.from(await upstream.arrayBuffer()));
+    } catch (e) {
+      res.statusCode = 502;
+      res.end(`npm-mirror passthrough failure: ${e?.message ?? e}`);
+    }
+  });
+  npmMirrorBase = await new Promise((resolve, reject) => {
+    mirror.once('error', reject);
+    mirror.listen(0, '127.0.0.1', () => resolve(`http://127.0.0.1:${mirror.address().port}`));
+  });
+  console.log(`detection: npm mirror up at ${npmMirrorBase} (betlang-wasm ${version} from ${BETLANG_PKG}; everything else → registry.npmjs.org)`);
+}
+// DLD layer tokens whose presence in a BUILT artifact means detector
+// bytes leaked into a consumer that never installed them (the frozen
+// reject template's guidance strings mention the ITEM name but none of
+// these module identifiers — probed against the card's warn text)
+const DLD_TOKENS = ['default-detector', 'detect-ext-table', 'detect-shebang-table', 'detect-structure', 'lang-canonical', 'betlang'];
+const WASM_MAGIC = (file) => {
+  const bytes = readFileSync(file);
+  return bytes.length > 4 && bytes[0] === 0x00 && bytes[1] === 0x61 && bytes[2] === 0x73 && bytes[3] === 0x6d;
+};
+
+CASES.push(
+  {
+    id: 'code-card-bare',
+    // the zero-build-edge law: a bare code-card install carries ZERO
+    // DLD bytes — a lang="auto" card COMPILES (detection runs only at
+    // paint; with no ring the card rejects at runtime and keeps plain)
+    items: ['code-card'],
+    app: `<script lang="ts">
+  import CodeCard from '$lib/ui/code-card';
+  import { AUTO_LANG } from '$lib/highlight/lang-detector';
+</script>
+
+<!-- the sentinel card compiles clean — the build never runs detection;
+     at paint, no ring rejects with install + wiring guidance -->
+<CodeCard filename="main.ts" lang={AUTO_LANG} code={'export const bare = true;'} />
+<CodeCard lang="ts" code={'export const ordinary = true;'} />
+`,
+    postBuild(ctx) {
+      const dldHits = walkFilesNamed(join(ctx.dir, 'dist'), (_name, content) => DLD_TOKENS.some((t) => content.includes(t)));
+      check('code-card-bare: zero DLD bytes in dist/', dldHits.length === 0, dldHits.map((p) => p.slice(ctx.dir.length)).join(', ') || 'clean');
+      const wasm = walkFilesNamed(join(ctx.dir, 'dist'), (name) => name.endsWith('.wasm'));
+      check('code-card-bare: zero wasm payloads in dist/', wasm.length === 0, `${wasm.length} file(s)`);
+      // the core contract file DID land (the AUTO_LANG import's target) —
+      // the detection capability is what stays absent, not the contract
+      check(
+        'code-card-bare: core contract landed, no DLD layer modules in src/',
+        ctx.exists('src/lib/highlight/lang-detector.ts') &&
+          !ctx.exists('src/lib/highlight/default-detector.ts') &&
+          !ctx.exists('src/lib/highlight/betlang-detector.ts'),
+      );
+    },
+  },
+  {
+    id: 'code-card-dld-lib',
+    // form ② wiring on a clean consumer: the DLD lib item + ONE
+    // hand-written setContext at the root — the wasm must ride vite's
+    // ?url channel out of a REAL npm resolution (the mirror bridge
+    // supplies @jixoai/betlang-wasm until CI publishes it)
+    items: ['code-card', 'highlight-lang-detector'],
+    preAdd(ctx) {
+      writeAt(ctx.dir, '.npmrc', `registry=${npmMirrorBase}\n`);
+    },
+    app: `<script lang="ts">
+  import { setContext } from 'svelte';
+  import CodeCard from '$lib/ui/code-card';
+  import { AUTO_LANG } from '$lib/highlight/lang-detector';
+  import { HIGHLIGHT_DETECT_KEY } from '$lib/highlight/context-key';
+  import { defaultLangDetector } from '$lib/highlight/default-detector';
+
+  // form ②: one line at any subtree root — every auto card below eats the DLD
+  setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() });
+</script>
+
+<CodeCard filename="main.ts" lang={AUTO_LANG} code={'export const wired = true;'} />
+`,
+    extraChecks(ctx) {
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      check('code-card-dld-lib: @jixoai/betlang-wasm dep installed', !!deps['@jixoai/betlang-wasm'], Object.keys(deps).filter((d) => d.includes('betlang')).join(', ') || 'absent');
+      // framework-free law: the DLD item lands ONLY .ts under $lib/highlight
+      check(
+        'code-card-dld-lib: DLD payload is framework-free (no ui folder)',
+        !ctx.exists('src/lib/ui/highlight-lang-detector') && ctx.exists('src/lib/highlight/default-detector.ts'),
+      );
+      // the core contract file ships once tree-wide (payload exactly-once:
+      // core's lang-detector.ts, never the DLD item's)
+      check('code-card-dld-lib: lang-detector.ts exactly once tree-wide', countTree(join(ctx.dir, 'src'), 'lang-detector.ts') === 1);
+    },
+    postBuild(ctx) {
+      const wasm = walkFilesNamed(join(ctx.dir, 'dist'), (name) => name.endsWith('.wasm'));
+      check('code-card-dld-lib: wasm emitted as a real asset (?url channel)', wasm.length >= 1, `${wasm.length} file(s): ${wasm.map((p) => p.split('/').at(-1)).join(', ')}`);
+      if (wasm.length > 0) check('code-card-dld-lib: the wasm is real betlang binary (magic bytes)', WASM_MAGIC(wasm[0]));
+    },
+  },
+  {
+    id: 'code-card-dld-wrapper',
+    // the full stack: card + DLD + the wrapper item, BOTH consumer
+    // dialects compiled at once (the direct .svelte path AND the folder
+    // barrel) — the children wrapper wires the detection default for
+    // each wrapped subtree; siblings outside stay untouched (context law)
+    items: ['code-card', 'highlight-lang-detector', 'highlight-detect-default'],
+    preAdd(ctx) {
+      writeAt(ctx.dir, '.npmrc', `registry=${npmMirrorBase}\n`);
+    },
+    app: `<script lang="ts">
+  import CodeCard from '$lib/ui/code-card';
+  import { AUTO_LANG } from '$lib/highlight/lang-detector';
+  // form ①, both dialects: the folder barrel and the direct .svelte path
+  import HighlightDetectDefault from '$lib/ui/highlight-detect-default';
+  import HighlightDetectDefaultDirect from '$lib/ui/highlight-detect-default/highlight-detect-default.svelte';
+</script>
+
+<HighlightDetectDefault>
+  <CodeCard filename="main.ts" lang={AUTO_LANG} code={'export const wrapped = true;'} />
+</HighlightDetectDefault>
+
+<!-- the direct-dialect twin wraps a sibling card (no filename → the
+     waterfall falls through to the statistical layer at paint) -->
+<HighlightDetectDefaultDirect>
+  <CodeCard lang={AUTO_LANG} code={'fn wrapper_dialect() {\\n    direct_path()\\n}'} />
+</HighlightDetectDefaultDirect>
+`,
+    extraChecks(ctx) {
+      check(
+        'code-card-dld-wrapper: wrapper landed via folder (component + barrel)',
+        ctx.exists('src/lib/ui/highlight-detect-default/highlight-detect-default.svelte') && ctx.exists('src/lib/ui/highlight-detect-default/index.ts'),
+      );
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      check('code-card-dld-wrapper: @jixoai/betlang-wasm dep installed', !!deps['@jixoai/betlang-wasm']);
+      check(
+        'code-card-dld-wrapper: the barrel is a pure re-export (no logic)',
+        ctx.read('src/lib/ui/highlight-detect-default/index.ts').includes("export { default } from './highlight-detect-default.svelte';"),
+      );
+    },
+    postBuild(ctx) {
+      const wasm = walkFilesNamed(join(ctx.dir, 'dist'), (name) => name.endsWith('.wasm'));
+      check('code-card-dld-wrapper: wasm emitted as a real asset (?url channel)', wasm.length >= 1, `${wasm.length} file(s)`);
+      if (wasm.length > 0) check('code-card-dld-wrapper: the wasm is real betlang binary (magic bytes)', WASM_MAGIC(wasm[0]));
+    },
+  },
 );
 
 // ── 5. consumer template (written once, npm-installed once) ────────
@@ -1247,6 +1473,10 @@ for (const testCase of CASES) {
     exists: (p) => existsSync(join(dir, p)),
     read: (p) => readFileSync(join(dir, p), 'utf8'),
   };
+
+  // per-case hook after the template copy, before the add (the
+  // detection cases point their consumer's .npmrc at the local mirror)
+  await testCase.preAdd?.(ctx);
 
   const add = await runIn(dir, 'npx', ['shadcn', 'add', ...testCase.items.map((i) => `@jixoai/${i}`), '--yes', '--overwrite'], { label: `case ${testCase.id}: shadcn add` });
   check('shadcn add resolves from public/r payloads', add.status === 0 && !add.timedOut, add.status === 0 ? '' : add.timedOut ? `TIMED OUT (300s group-budget), tail:\n${add.stdout.slice(-800)}` : `${add.stdout}\n${add.stderr}`.slice(-800));

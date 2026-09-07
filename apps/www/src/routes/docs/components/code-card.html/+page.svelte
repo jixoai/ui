@@ -16,6 +16,12 @@
   import { highlightJs } from '$lib/highlight/highlight-js';
   import { sugarHigh } from '$lib/highlight/sugar-high';
   import { treeSitter } from '$lib/highlight/tree-sitter';
+  // the detection lane (highlight-lang-detector, 2026-09-07): the page
+  // dogfoods the WRAPPER ITEM exactly as a consumer installs it — the
+  // mirrored $lib copy IS the registry artifact (form ①; its body is the
+  // one-line form ② shown below)
+  import HighlightDetectDefault from '$lib/ui/highlight-detect-default';
+  import { AUTO_LANG } from '$lib/highlight/lang-detector';
 
   // Same-source law: the code drawer shows the exact registry copies this
   // site runs. `?raw` keeps them byte-identical — embedding component
@@ -29,8 +35,11 @@
   const close = '</' + 'script>';
 
   // Playground: the Selects re-render the LIVE card per Shiki language and
-  // theme — each first pick fetches exactly that grammar/theme chunk.
-  type DemoLang = 'ts' | 'tsx' | 'js' | 'svelte' | 'html' | 'json' | 'bash' | 'css' | 'markdown';
+  // theme — each first pick fetches exactly that grammar/theme chunk. The
+  // 'auto' pick swaps in the detection sample: the card keeps its filename
+  // so the DLD's L1 extension table answers (pick it and watch the card
+  // resolve typescript without lang="ts" anywhere).
+  type DemoLang = 'ts' | 'tsx' | 'js' | 'svelte' | 'html' | 'json' | 'bash' | 'css' | 'markdown' | 'auto';
   type DemoTheme =
     | 'jixoai'
     | 'github-dark'
@@ -45,7 +54,7 @@
     code: string;
   }
 
-  const samples: Record<DemoLang, DemoSample> = {
+  const samples: Record<Exclude<DemoLang, 'auto'>, DemoSample> = {
     ts: {
       filename: 'spawn.ts',
       code: `import { UniPty } from '@unipty/core';
@@ -181,7 +190,18 @@ const card = { lang: 'ts', theme: 'jixoai' };
 
   let lang = $state<DemoLang>('ts');
   let theme = $state<DemoTheme>('jixoai');
-  const sample = $derived(samples[lang]);
+
+  // the detection sample: a deliberately unlabeled-looking script whose
+  // filename carries the whole answer — L1's extension table resolves
+  // .ts → typescript without reading a line of the body
+  const autoSample: DemoSample = {
+    filename: 'main.ts',
+    code: `// lang="auto" — nobody named the language anywhere near this card.
+// The filename tab above is all the detector needs: L1's extension
+// table answers typescript, and the deeper layers never load a byte.
+const answer = detect('main.ts'); // → { lang: 'typescript', source: 'filename' }`,
+  };
+  const sample = $derived(lang === 'auto' ? autoSample : samples[lang]);
 
   // the playground selects speak the same closed unions — no string casting
   const langOptions: { value: DemoLang; label: string }[] = [
@@ -194,6 +214,7 @@ const card = { lang: 'ts', theme: 'jixoai' };
     { value: 'bash', label: 'bash' },
     { value: 'css', label: 'css' },
     { value: 'markdown', label: 'markdown' },
+    { value: 'auto', label: 'auto (detect)' },
   ];
   const themeOptions: { value: DemoTheme; label: string }[] = [
     { value: 'jixoai', label: 'jixoai (tokens)' },
@@ -397,6 +418,91 @@ export const printMarkupBackend = definePlugin({
   before: (backend) => (backend.id === 'microlighter' ? shiki() : backend),
 });`;
 
+  // ---- the detection lane (highlight-lang-detector, 2026-09-07) -------
+  // lang="auto" runs the THREE-RING chain — langDetector prop →
+  // HIGHLIGHT_DETECT_KEY context → backend.detector — where a ring
+  // answering null is "no opinion" (the chain falls through; the rings
+  // complement) and a reject is terminal (plain-text fallback + a warn
+  // naming the ring). No ring at all = the runtime reject with install
+  // + wiring guidance. The sentinel is STRICT equality: 'AUTO',
+  // ' auto ', 'auto\n' are ordinary langs.
+  const detectFormOneCode = `<script lang="ts">
+  import CodeCard from '$lib/ui/code-card';
+  import HighlightDetectDefault from '$lib/ui/highlight-detect-default';
+${close}
+
+<!-- form ①: the wrapper item — a ~10-line children provider whose body
+     IS the one line of form ②. Svelte context only spreads downward:
+     cards OUTSIDE this wrapper are untouched; nested wrappers, nearest
+     wins; the langDetector prop always outranks whatever is wired here -->
+<HighlightDetectDefault>
+  <CodeCard filename="main.ts" lang="auto" code={sample} />
+</HighlightDetectDefault>`;
+
+  const detectFormTwoCode = `<script lang="ts">
+  // highlight-detect-root.svelte — any subtree root, zero components
+  import { setContext } from 'svelte';
+  import { HIGHLIGHT_DETECT_KEY } from '$lib/highlight/context-key';
+  import { defaultLangDetector } from '$lib/highlight/default-detector';
+
+  setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() });
+${close}
+
+<slot /> <!-- your subtree: every lang="auto" card below eats the DLD -->`;
+
+  const detectInstallCommands = `# detection is an OPTIONAL capability — a bare code-card install carries
+# ZERO detector bytes; lang="auto" without a ring rejects at runtime
+npx jixoai-ui add @jixoai/highlight-lang-detector   # the DLD lib: four-layer waterfall, framework-free
+npx jixoai-ui add @jixoai/highlight-detect-default  # + the children wrapper (form ① convenience)`;
+
+  interface WaterfallRow {
+    layer: string;
+    source: string;
+    answers: string;
+    cost: string;
+  }
+  const waterfall: WaterfallRow[] = [
+    {
+      layer: 'L1 filename',
+      source: 'filename',
+      answers: "the extension table + the exact-basename table (Dockerfile, Makefile, tsconfig.json…): 'main.ts' → typescript, hit and done",
+      cost: 'pure table parse',
+    },
+    {
+      layer: 'L2 shebang',
+      source: 'first line',
+      answers: "the interpreter table + first-line modeline: '#!/usr/bin/env python3' → python",
+      cost: 'pure table parse',
+    },
+    {
+      layer: 'L3 structure',
+      source: 'body shape',
+      answers: 'Markdown-guarded probes — whole-body JSON.parse, SVG/XML/HTML roots, YAML front-matter, TOML-before-INI sections; never a programming-language fingerprint',
+      cost: 'pure TS probes',
+    },
+    {
+      layer: 'L4 statistical',
+      source: 'body statistics',
+      answers: 'betlang wasm — 48 calibrated labels mapped through the canonical authority table; confident answers carry a 0..1 probability',
+      cost: '~98 KiB wasm, fetched on the first L1-L3 miss only',
+    },
+  ];
+
+  // the two live lanes the section demos (both wrapped by the same
+  // wrapper item the playground uses — no lang named anywhere):
+  //   structure sample — no filename, whole body parses as JSON → L3
+  //   statistical sample — no filename, no shebang, shell body → L4
+  const detectStructureSample = `{
+  "lane": "L3",
+  "why": "no filename, no shebang — but the whole body parses as JSON",
+  "result": { "lang": "json", "source": "structure" }
+}`;
+  const detectStatisticalSample = `set -euo pipefail
+# no filename, no shebang, no structural shape — the wasm answers:
+# betlang's calibrated top label is Shell, the authority table maps it
+# to bash, and the card paints it with whatever engine is selected
+npx jixoai-ui add @jixoai/highlight-lang-detector`;
+
   // playground state (P1): the page owns the snapshot
   const canvasInitial = {
     engine: 'shiki' as DemoEngine,
@@ -507,6 +613,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
       <div class="flex flex-wrap gap-3">
         <span class="pill">based on Shiki</span>
         <span class="pill">engine matrix · six installable backends</span>
+        <span class="pill">lang="auto" · optional detection item</span>
         <span class="pill">on-demand grammars · themes</span>
         <span class="pill">zero-download jixoai theme</span>
         <span class="pill">scrollport pre · thin scrollbars</span>
@@ -530,23 +637,29 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
       ]}
       resolveFileContent={resolveUsage}
     >
-      <CodeCard
-        filename={sample.filename}
-        lang={lang}
-        theme={theme}
-        code={sample.code}
-        {backend}
-        class="w-full max-w-[40rem]"
-      >
-        {#snippet header()}
-          <span class="pill">{engineShort[engine]} · {lang}</span>
-        {/snippet}
-        {#snippet footer()}
-          <span class="text-muted-foreground text-[11px] tracking-wide">
-            powered by {engineLabels[engine]} · theme: {theme}
-          </span>
-        {/snippet}
-      </CodeCard>
+      <!-- the wrapper item wires the DLD default for this card's subtree
+           (form ① dogfood — the mirrored registry artifact itself); the
+           sentinel is STRICT equality, so every non-auto pick above never
+           touches the detection path at all -->
+      <HighlightDetectDefault>
+        <CodeCard
+          filename={sample.filename}
+          lang={lang}
+          theme={theme}
+          code={sample.code}
+          {backend}
+          class="w-full max-w-[40rem]"
+        >
+          {#snippet header()}
+            <span class="pill">{engineShort[engine]} · {lang}</span>
+          {/snippet}
+          {#snippet footer()}
+            <span class="text-muted-foreground text-[11px] tracking-wide">
+              powered by {engineLabels[engine]} · theme: {theme}{lang === 'auto' ? ' · lang detected' : ''}
+            </span>
+          {/snippet}
+        </CodeCard>
+      </HighlightDetectDefault>
       {#snippet playground()}
         <PlayFields>
           <PlayRow label="engine">
@@ -569,7 +682,14 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
             on anything but shiki). tree-sitter fetches its wasm grammars at
             first paint; microlighter paints zero markup — ranges over the
             plain text. The usage file in the drawer tracks all three picks
-            live.
+            live. The <strong class="font-semibold">auto</strong> pick swaps in
+            the detection sample: this card sits inside
+            <code class="text-accent">&lt;HighlightDetectDefault&gt;</code>
+            (the wrapper item this site installs like any consumer), the
+            filename feeds the DLD's L1 extension table, and the resolved
+            language flows through whatever engine is selected — see
+            <a href="#code-card-auto" class="text-accent underline underline-offset-2">lang="auto"</a>
+            below.
           </PlayHelp>
         </PlayFields>
       {/snippet}
@@ -704,39 +824,150 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
           </p>
         </div>
 
-        <!-- the three configuration tiers -->
-        <div class="flex flex-col gap-4">
-          <h3 class="font-nav text-[13px] tracking-tight">three configuration tiers</h3>
+          <!-- the three configuration tiers -->
+          <div class="flex flex-col gap-4">
+            <h3 class="font-nav text-[13px] tracking-tight">three configuration tiers</h3>
+            <div class="grid gap-4 min-[760px]:grid-cols-2">
+              <div class="border border-border bg-muted/40 px-4 py-4">
+                <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">① per instance — the backend prop</h4>
+                <p class="mb-3 text-[12.5px] leading-5">
+                  Any consumer, any card: pass a factory product. The <code class="text-accent">langs</code>
+                  subset is the size lever — one instance's gate never narrows another's.
+                </p>
+                <CodeBlock code={tierOneCode} lang="svelte" meta="per-instance" />
+              </div>
+              <div class="border border-border bg-muted/40 px-4 py-4">
+                <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">② subtree default — your ~10-line provider</h4>
+                <p class="mb-3 text-[12.5px] leading-5">
+                  The seam ships with the items (zero dependencies): <code class="text-accent">HIGHLIGHT_KEY</code>.
+                  Cards without a <code class="text-accent">backend</code> prop eat the nearest
+                  provider's default — the prop always wins.
+                </p>
+                <CodeBlock code={tierTwoCode} lang="svelte" meta="subtree default" />
+              </div>
+            </div>
+            <div class="border border-border bg-muted/40 px-4 py-4">
+              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">③ kernel plugin — the site form</h4>
+              <p class="mb-3 max-w-[60rem] text-[12.5px] leading-5">
+                Sites that installed <code class="text-accent">@jixoai/context-plugin</code> can project
+                the default through the plugin kernel — here repairing microlighter's one known
+                limitation: under the print projection, swap the range backend for a markup one so
+                the freeze clone carries real spans. The kernel never rides the registry items;
+                this composition is app-side by law.
+              </p>
+              <CodeBlock code={tierThreeCode} lang="ts" meta="print-gated backend swap" />
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+  <!-- lang="auto": the detection lane -->
+  <div id="code-card-auto" data-region="code-card-auto" data-reveal="">
+    <SectionCard
+      family="code-card-auto"
+      headerRegion="code-card-auto"
+      eyebrow="detection"
+      title="lang=&quot;auto&quot; — three detection rings, one optional item"
+      summary="Setting lang to the AUTO_LANG sentinel (strict equality — 'AUTO' and ' auto ' are ordinary language ids) runs detection before highlighting. The chain has exactly three rings: the langDetector prop, the HIGHLIGHT_DETECT_KEY context, and the backend's own detector — highlight.js instances carry one built in (highlightAuto over exactly the instance's languages). A ring resolving null is a no-opinion: the chain falls through (the rings complement, they never fight); a reject is terminal — plain text plus a warn naming the ring. Three no-opinion rings = plain text with the ids listed; zero rings at all = a runtime reject whose text carries the install command and both wiring forms below. Detection bytes load only when a card actually enters auto: a bare code-card install carries ZERO detector code, and the DLD ships as its own framework-free item whose four layers are each lazy modules — a layer that answers loads none of the layers beneath it."
+    >
+      <div class="flex flex-col gap-8">
+        <!-- the two wiring forms -->
+        <div class="flex flex-col gap-3">
+          <h3 class="font-nav text-[13px] tracking-tight">two equivalent wirings — pick one</h3>
           <div class="grid gap-4 min-[760px]:grid-cols-2">
             <div class="border border-border bg-muted/40 px-4 py-4">
-              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">① per instance — the backend prop</h4>
+              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">① the wrapper item — children form</h4>
               <p class="mb-3 text-[12.5px] leading-5">
-                Any consumer, any card: pass a factory product. The <code class="text-accent">langs</code>
-                subset is the size lever — one instance's gate never narrows another's.
+                <code class="text-accent">npx jixoai-ui add @jixoai/highlight-detect-default</code>
+                pulls the DLD plus this ~10-line provider — import it from the folder barrel or
+                the direct <code class="text-accent">.svelte</code> path. Svelte context spreads
+                downward only: wrap the subtree, siblings stay untouched.
               </p>
-              <CodeBlock code={tierOneCode} lang="svelte" meta="per-instance" />
+              <CodeBlock code={detectFormOneCode} lang="svelte" meta="wrapper item" />
             </div>
             <div class="border border-border bg-muted/40 px-4 py-4">
-              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">② subtree default — your ~10-line provider</h4>
+              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">② hand-written — zero components</h4>
               <p class="mb-3 text-[12.5px] leading-5">
-                The seam ships with the items (zero dependencies): <code class="text-accent">HIGHLIGHT_KEY</code>.
-                Cards without a <code class="text-accent">backend</code> prop eat the nearest
-                provider's default — the prop always wins.
+                The lib item is framework-free by law; one
+                <code class="text-accent">setContext</code> line at any subtree root wires the
+                same <code class="text-accent">{ '{ detector }' }</code> adapter shape the wrapper
+                stores — the card's reader cannot tell them apart.
               </p>
-              <CodeBlock code={tierTwoCode} lang="svelte" meta="subtree default" />
+              <CodeBlock code={detectFormTwoCode} lang="svelte" meta="hand-written" />
             </div>
           </div>
-          <div class="border border-border bg-muted/40 px-4 py-4">
-            <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">③ kernel plugin — the site form</h4>
-            <p class="mb-3 max-w-[60rem] text-[12.5px] leading-5">
-              Sites that installed <code class="text-accent">@jixoai/context-plugin</code> can project
-              the default through the plugin kernel — here repairing microlighter's one known
-              limitation: under the print projection, swap the range backend for a markup one so
-              the freeze clone carries real spans. The kernel never rides the registry items;
-              this composition is app-side by law.
-            </p>
-            <CodeBlock code={tierThreeCode} lang="ts" meta="print-gated backend swap" />
+          <CodeBlock code={detectInstallCommands} lang="sh" meta="registry install" />
+        </div>
+
+        <!-- the DLD waterfall -->
+        <div class="flex flex-col gap-3">
+          <h3 class="font-nav text-[13px] tracking-tight">the DLD waterfall — cheap layers first, every layer its own lazy module</h3>
+          <div class="overflow-x-auto border border-border">
+            <table class="w-full min-w-[60rem] text-[12.5px]">
+              <caption class="sr-only">the default language detector's four layers</caption>
+              <thead>
+                <tr class="border-b border-border bg-muted/40 text-left">
+                  <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">layer</th>
+                  <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">reads</th>
+                  <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">answers from</th>
+                  <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each waterfall as row (row.layer)}
+                  <tr class="border-b border-border align-top">
+                    <th scope="row" class="px-3 py-2.5 text-left font-normal"><code class="text-accent">{row.layer}</code></th>
+                    <td class="px-3 py-2.5">{row.source}</td>
+                    <td class="px-3 py-2.5 leading-5">{row.answers}</td>
+                    <td class="px-3 py-2.5 leading-5">{row.cost}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
           </div>
+          <p class="max-w-[70rem] text-[13px] leading-6 text-muted-foreground">
+            'Four layers' counts the waterfall only — the card's detection rings stay three plus
+            the reject tail. The on-demand law cuts both ways: <strong class="font-semibold text-foreground">a
+            filename hit loads L2-L4 zero bytes</strong> (pick <code class="text-accent">auto</code> in the
+            playground — its filename answers at L1), and <strong class="font-semibold text-foreground">a bare
+            install loads the whole capability zero bytes</strong> — the DLD is never a hidden dependency of
+            code-card. A detection whose language the active engine's curated set rejects is
+            terminal by the same matrix law as any lang: the reject names the engines that cover it.
+          </p>
+        </div>
+
+        <!-- the two live lanes, no lang named anywhere -->
+        <div class="flex flex-col gap-3">
+          <h3 class="font-nav text-[13px] tracking-tight">live — the filename-less lanes (structure and statistics)</h3>
+          <div class="grid gap-4 min-[760px]:grid-cols-2">
+            <div class="flex flex-col gap-2">
+              <p class="text-[12px] text-muted-foreground">
+                no filename, no shebang — the body's shape answers at <strong>L3</strong>
+              </p>
+              <!-- the same wrapper item the playground rides in — the demo
+                   subtree carries the DLD default; nothing outside does -->
+              <HighlightDetectDefault>
+                <CodeCard lang={AUTO_LANG} code={detectStructureSample} class="w-full" copyable={false} />
+              </HighlightDetectDefault>
+            </div>
+            <div class="flex flex-col gap-2">
+              <p class="text-[12px] text-muted-foreground">
+                no filename, no shebang, no shape — the wasm answers at <strong>L4</strong>
+              </p>
+              <HighlightDetectDefault>
+                <CodeCard lang={AUTO_LANG} code={detectStatisticalSample} class="w-full" copyable={false} />
+              </HighlightDetectDefault>
+            </div>
+          </div>
+          <p class="max-w-[70rem] text-[13px] leading-6 text-muted-foreground">
+            Both cards hydrate plain and upgrade after the detector resolves — prerendered output
+            is always plain text (detection never runs server-side). The wasm rides the
+            <code class="text-accent">@jixoai/betlang-wasm</code> npm package (betlang
+            =&nbsp;0.1.1 pinned at the crate, checksum-gated build): vite emits it as a real asset
+            through the <code class="text-accent">?url</code> channel, fetched the first time a
+            sample falls through L1-L3.
+          </p>
         </div>
       </div>
     </SectionCard>
@@ -771,5 +1002,5 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Code is always a runtime prop — Shiki escapes it, so samples containing literal closing tags are inert data."><CodeBlock code={usageCode} lang="svelte" meta="CodeCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The pre is a labelled, keyboard-focusable scrollport; the copy control is a real button with state feedback."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the scrollport (pre) and the copy control' }, { key: '← / → / ↑ / ↓', action: 'Scroll the focused pre — long lines horizontal, capped bodies vertical' }, { key: 'Enter / Space', action: 'Activate the copy button' }]} aria={[{ name: 'aria-label', value: '"{filename|lang} code sample"', description: 'On the pre — the scrollport is named whether or not a filename tab exists.' }, { name: 'aria-label', value: 'copy {filename|lang} sample', description: 'On the copy button; flips to "copied" for the 1.6s feedback window.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Token paint end to end — the jixoai theme resolves to the --tok-* palette at paint time; the shell rides the --readonly-code-* tints."><div class="flex flex-col gap-5"><DensityDemo><CodeCard filename="density.ts" lang="ts" code={'export const density = "fixed rhythm";'} class="w-full" copyable={false} /></DensityDemo><TokenTable tokens={[{ name: '--tok-token-keyword', default: 'var(--primary)', source: 'color', description: 'Shiki css-variables palette — one markup, both themes.' }, { name: '--tok-token-string', default: 'var(--accent)', source: 'color' }, { name: '--readonly-code-bg', default: 'muted 42% / background', source: 'color', description: 'Body ground tint.' }, { name: '--readonly-code-meta-bg / -fg', default: 'accent mixes', source: 'color', description: 'Head/foot chrome tints.' }, { name: 'body rhythm', default: '13px mono, fixed padding', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Twelve props; code is the only required one — everything else is composition."><PropsTable props={[{ name: 'code', type: 'string', default: '—', description: 'The sample (runtime prop; the backend escapes it into inert spans).', required: true }, { name: 'backend', type: 'HighlightBackend', default: 'context → shiki()', description: 'Highlight backend instance — shiki() | prismjs() | highlightJs() | sugarHigh() | treeSitter() | microLighter(); see the engine matrix.' }, { name: 'lang', type: 'string', default: "'ts'", description: 'Language id; aliases (ts/sh/md/…) resolve in the active backend’s table.' }, { name: 'theme', type: 'string', default: "'jixoai'", description: 'Theme name in shiki vocabulary; each backend maps it into its own world.' }, { name: 'filename', type: 'string', default: "''", description: 'Filename tab on the head’s left; head renders when it or header exists.' }, { name: 'header', type: 'Snippet', default: '—', description: 'Head-right area; replaces the default lang label.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Footer-left content.' }, { name: 'copyable', type: 'boolean', default: 'true', description: 'Copy control on the footer bar’s right.' }, { name: 'maxHeight', type: 'string', default: "''", description: 'CSS length capping the body; turns on vertical scrolling.' }, { name: 'fill', type: 'boolean', default: 'false', description: 'Stretch to the container height; the pre becomes the only scroll area.' }, { name: 'minHeight', type: 'string', default: "''", description: 'Floors the card height; pairs with fill so short samples open readable.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the figure.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Thirteen props; code is the only required one — everything else is composition."><PropsTable props={[{ name: 'code', type: 'string', default: '—', description: 'The sample (runtime prop; the backend escapes it into inert spans).', required: true }, { name: 'backend', type: 'HighlightBackend', default: 'context → shiki()', description: 'Highlight backend instance — shiki() | prismjs() | highlightJs() | sugarHigh() | treeSitter() | microLighter(); see the engine matrix.' }, { name: 'lang', type: 'string', default: "'ts'", description: "Language id; aliases (ts/sh/md/…) resolve in the active backend's table — or 'auto' (the AUTO_LANG sentinel, strict equality) to run the three-ring detection chain first; see lang=\"auto\"." }, { name: 'langDetector', type: 'LanguageDetector', default: '—', description: 'Detection ring ①: an explicit detector outranking context and backend (defaultLangDetector() / betlangDetector() from the highlight-lang-detector item, or any { id, detect } implementation).' }, { name: 'theme', type: 'string', default: "'jixoai'", description: 'Theme name in shiki vocabulary; each backend maps it into its own world.' }, { name: 'filename', type: 'string', default: "''", description: "Filename tab on the head's left; head renders when it or header exists. With lang='auto' it feeds the DLD's L1 tables verbatim (paths included — the detector takes the last segment)." }, { name: 'header', type: 'Snippet', default: '—', description: 'Head-right area; replaces the default lang label.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Footer-left content.' }, { name: 'copyable', type: 'boolean', default: 'true', description: "Copy control on the footer bar's right." }, { name: 'maxHeight', type: 'string', default: "''", description: 'CSS length capping the body; turns on vertical scrolling.' }, { name: 'fill', type: 'boolean', default: 'false', description: 'Stretch to the container height; the pre becomes the only scroll area.' }, { name: 'minHeight', type: 'string', default: "''", description: 'Floors the card height; pairs with fill so short samples open readable.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the figure.' }]} /></SectionCard></div>
 </div>

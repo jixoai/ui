@@ -40,7 +40,12 @@ import {
 } from '../context-plugin.svelte';
 import { DEFAULT_SHIKI_BACKEND } from './shiki';
 import { HIGHLIGHT_KEY, type HighlightContextValue } from './context-key';
+import {
+  HIGHLIGHT_DETECT_KEY,
+  type HighlightDetectContextValue,
+} from './context-key';
 import type { HighlightBackend } from './backend';
+import type { LanguageDetector } from './lang-detector';
 
 /** The def: an opinion value domain (unlike the read-only medium). A
  *  factory product since context-plugin-v2 — plugins bind THIS
@@ -98,4 +103,61 @@ export function createHighlightContext(initial?: HighlightBackend): HighlightCon
  */
 export function getHighlightContext(): HighlightContext | undefined {
   return getContext<HighlightContext | undefined>(HIGHLIGHT_KEY);
+}
+
+/**
+ * The detect def (highlight-lang-detector, 2026-09-07 — design D8.2): the
+ * kernel-side half of the SECOND orthogonal seam. The pipeline value is
+ * `LanguageDetector | undefined` — undefined means "no opinion" (defaults
+ * and ssrSafe both undefined: detection is a runtime behavior, there is
+ * no DEFAULT_SHIKI_BACKEND counterpart; an empty tail falls to the
+ * backend.detector ring, per the card's three-ring chain).
+ *
+ * The site form of "wire the DLD as the subtree default": a plugin may
+ * also target this def to project ANY detector (e.g. betlangDetector as
+ * the site-wide statistical opinion, overriding engines' own slots while
+ * the card's explicit langDetector prop always wins).
+ */
+export const HIGHLIGHT_DETECT_DEF: ContextDef<
+  'highlight-detect',
+  LanguageDetector | undefined
+> = defineContextDef({
+  key: 'highlight-detect',
+  defaults: () => undefined,
+  ssrSafe: undefined,
+});
+
+/** The app-facing detect context API: read the projection, write the raw. */
+export interface HighlightDetectContext extends HighlightDetectContextValue {
+  /** Switch the default detector at runtime — every `lang="auto"` card in
+   * the subtree re-runs its detection chain through the effect. */
+  set(detector: LanguageDetector): void;
+}
+
+/**
+ * Create (and provide) the default-detector context. MUST run during a
+ * component's initialisation (any subtree root); omit the argument to
+ * provide an explicitly-empty detect default. The stored context value is
+ * the { detector } adapter — the same shape the wrapper item and
+ * hand-written setContext produce (the three-write-path unity law).
+ */
+export function createHighlightDetectContext(
+  initial?: LanguageDetector,
+): HighlightDetectContext {
+  const pipeline: PluginPipeline<LanguageDetector | undefined> = withPlugins(
+    HIGHLIGHT_DETECT_DEF,
+    getContextPlugins(),
+  );
+  if (initial !== undefined) pipeline.setRaw(initial);
+
+  const context: HighlightDetectContext = {
+    get detector(): LanguageDetector | undefined {
+      return pipeline.exposed;
+    },
+    set(detector: LanguageDetector): void {
+      pipeline.setRaw(detector);
+    },
+  };
+  setContext(HIGHLIGHT_DETECT_KEY, context);
+  return context;
 }

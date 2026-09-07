@@ -5,8 +5,13 @@
      paper), the zero-dependency HIGHLIGHT_KEY seam, and the
      prop -> context -> app-default resolution lane. The core item
      ships NO engine — the six factories install as their own registry
-     items (highlight-shiki is code-card's pinned default). Terminal
-     diagram idiom; no live component (the surface is lib-level). -->
+     items (highlight-shiki is code-card's pinned default). The
+     DETECTION lane (highlight-lang-detector, 2026-09-07) is its own
+     optional family: lang='auto' runs the three rings (langDetector
+     prop -> HIGHLIGHT_DETECT_KEY context -> backend.detector), the DLD
+     answers through a four-layer lazy waterfall, and a bare install
+     carries zero detector bytes. Terminal diagram idiom; no live
+     component (the surface is lib-level). -->
 <script lang="ts">
   const engines = [
     { factory: 'shiki()', model: 'markup' },
@@ -15,6 +20,11 @@
     { factory: 'sugarHigh()', model: 'markup' },
     { factory: 'treeSitter()', model: 'markup' },
     { factory: 'microLighter()', model: 'range' },
+  ];
+  const detection = [
+    { factory: 'defaultLangDetector()', model: 'L1->L4 lazy' },
+    { factory: 'betlangDetector()', model: 'L4 only' },
+    { factory: '<HighlightDetectDefault>', model: 'children' },
   ];
 </script>
 
@@ -52,9 +62,31 @@ resolve: backend prop
   -> context default -> app default</pre>
       </div>
     </div>
+    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-t border-[color:var(--border)] pt-3">
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] uppercase tracking-[0.14em] text-[color:var(--muted-foreground)]"
+          >detection items (optional)</span
+        >
+        {#each detection as detector (detector.factory)}
+          <div class="flex items-baseline justify-between gap-3">
+            <span class="text-[11px]">{detector.factory}</span>
+            <span class="text-[10px] text-[color:var(--muted-foreground)]">{detector.model}</span>
+          </div>
+        {/each}
+      </div>
+      <span class="text-[color:var(--primary)]">-></span>
+      <div class="flex flex-col gap-1">
+        <pre class="font-bold">lang='auto'
+  detect({'{ code, filename }'})</pre>
+        <pre class="text-[11px] text-[color:var(--muted-foreground)]">rings: langDetector prop
+  -> HIGHLIGHT_DETECT_KEY -> backend.detector
+null cascades · reject terminal</pre>
+      </div>
+    </div>
     <div class="border-t border-[color:var(--border)] pt-3 text-[11px] leading-5 text-[color:var(--muted-foreground)]">
       zero npm deps · zero engine imports ride the core · markup survives print, ranges do not (pin a markup backend for
-      paper)
+      paper) · DLD = four-layer waterfall (filename -> shebang -> structure -> betlang), zero detector bytes until a card
+      enters auto
     </div>
   </div>
 </div>

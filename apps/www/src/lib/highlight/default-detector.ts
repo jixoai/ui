@@ -20,6 +20,13 @@
 
 import type { DetectResult, LanguageDetector } from './lang-detector';
 
+// The sentinel rides this item's public surface (the r1-B4 edge-liveness
+// law): consumers wiring the DLD import lang={AUTO_LANG} from the same
+// module as the factory — one import site, one version of the truth, and
+// a RUNTIME edge to the core contract item (import type alone erases and
+// would leave the @jixoai/highlight registry edge dead).
+export { AUTO_LANG } from './lang-detector';
+
 /**
  * The default detector: `<CodeCard lang={AUTO_LANG} … />` with the DLD
  * wired as the context default (or an explicit langDetector prop).

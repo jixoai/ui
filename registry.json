@@ -1044,7 +1044,7 @@
       "name": "code-card",
       "type": "registry:ui",
       "title": "Code card",
-      "description": "Code display highlighting through its single default engine Shiki (lib/shiki — shiki/core + the JavaScript regex engine, no WASM): on-demand grammars and themes as separate lazy chunks, the default zero-download jixoai theme is Shiki's css-variables recipe bound to the --tok-* palette. figure+pre+code base, filename tab + header snippet slot, footer snippet slot, copyable control. Scroll law: pre is the scrollport — horizontal always (tabs stay tabs), vertical when maxHeight caps it, thin scrollbars, overscroll containment, keyboard-focusable. Code is a runtime prop; Shiki escapes it, so literal </script> is inert. Engine matrix (2026-09-06): the default install carries ONLY shiki — additional engines install as their own items (highlight-prismjs / -microlighter / -highlightjs / -sugar-high / -tree-sitter); backend prop → context default → stock shiki resolution unchanged.",
+      "description": "Code display highlighting through its single default engine Shiki (lib/shiki — shiki/core + the JavaScript regex engine, no WASM): on-demand grammars and themes as separate lazy chunks, the default zero-download jixoai theme is Shiki's css-variables recipe bound to the --tok-* palette. figure+pre+code base, filename tab + header snippet slot, footer snippet slot, copyable control. Scroll law: pre is the scrollport — horizontal always (tabs stay tabs), vertical when maxHeight caps it, thin scrollbars, overscroll containment, keyboard-focusable. Code is a runtime prop; Shiki escapes it, so literal </script> is inert. Engine matrix (2026-09-06): the default install carries ONLY shiki — additional engines install as their own items (highlight-prismjs / -microlighter / -highlightjs / -sugar-high / -tree-sitter); backend prop → context default → stock shiki resolution unchanged. Language detection (highlight-lang-detector, 2026-09-07): lang='auto' (the AUTO_LANG sentinel, STRICT equality — 'AUTO'/' auto ' are ordinary langs) runs the three-ring chain langDetector prop → HIGHLIGHT_DETECT_KEY context → backend.detector, null cascades complementing, a reject terminal (plain-text fallback + warn); detection bytes load only when a card actually enters auto — a bare install carries ZERO detector code (the DLD waterfall is the highlight-lang-detector item, its wrapper highlight-detect-default).",
       "dependencies": [
         "shiki"
       ],
@@ -1072,7 +1072,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: code, lang='ts', theme='jixoai', filename?, copyable=true, maxHeight?; snippets header?, footer?. Based on Shiki — the highlight engine in lib/shiki is a thin on-demand facade over a stock HighlighterCore; any Shiki theme/grammar/transformer works through it (see the shiki lib item). Prerender paints the escaped plain sample; Shiki upgrades it after hydration with no layout shift. Breaking (2026-09-06): prismjs/microlighter no longer ride the install — shadcn add @jixoai/highlight-<engine> per engine; $lib/highlight/<engine> paths stay stable for installed engines.",
+      "docs": "Props: code, lang='ts' (or 'auto' — the AUTO_LANG sentinel runs detection through the three-ring chain langDetector prop → HIGHLIGHT_DETECT_KEY context → backend.detector; the filename prop feeds the DLD's L1 tables verbatim), langDetector? (ring ① — defaultLangDetector()/betlangDetector() from the highlight-lang-detector item), theme='jixoai', filename?, copyable=true, maxHeight?; snippets header?, footer?. Based on Shiki — the highlight engine in lib/shiki is a thin on-demand facade over a stock HighlighterCore; any Shiki theme/grammar/transformer works through it (see the shiki lib item). Prerender paints the escaped plain sample; Shiki upgrades it after hydration with no layout shift. Breaking (2026-09-06): prismjs/microlighter no longer ride the install — shadcn add @jixoai/highlight-<engine> per engine; $lib/highlight/<engine> paths stay stable for installed engines.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/code-card.html"
@@ -3830,7 +3830,7 @@
       "name": "highlight",
       "type": "registry:lib",
       "title": "Pluggable highlight backends (core contract)",
-      "description": "The engine-agnostic CONTRACT of the highlight matrix (highlight-engine-matrix, 2026-09-06): the HighlightBackend interface (markup vs range output models), the zero-dependency context seam (HIGHLIGHT_KEY via plain getContext — the density precedent), and the two runtime helpers every factory shares (requestedLang / canonicalLang). ZERO npm dependencies and ZERO engine imports ride this item — engines install as their own items (highlight-shiki / -prismjs / -microlighter / -highlightjs / -sugar-high / -tree-sitter); the app side owns the default via the seam or a per-instance backend prop.",
+      "description": "The engine-agnostic CONTRACT of the highlight matrix (highlight-engine-matrix, 2026-09-06): the HighlightBackend interface (markup vs range output models), the zero-dependency context seam (HIGHLIGHT_KEY via plain getContext — the density precedent), and the two runtime helpers every factory shares (requestedLang / canonicalLang) — PLUS the language-detection contract (highlight-lang-detector, 2026-09-07): the LanguageDetector interface + the AUTO_LANG sentinel (lang-detector.ts — STRICT equality, 'AUTO'/' auto ' are ordinary langs) and the second zero-dependency seam HIGHLIGHT_DETECT_KEY (context-key.ts — every write path stores the same { detector } adapter shape). ZERO npm dependencies and ZERO engine imports ride this item — engines install as their own items (highlight-shiki / -prismjs / -microlighter / -highlightjs / -sugar-high / -tree-sitter), the DLD waterfall as highlight-lang-detector; the app side owns the default via the seam or a per-instance backend prop.",
       "files": [
         {
           "path": "registry/files/lib/highlight/backend.ts",
@@ -3850,7 +3850,7 @@
       ],
       "dependencies": [],
       "registryDependencies": [],
-      "docs": "import type { HighlightBackend } from '$lib/highlight/backend' — one interface, two output models: markup backends write token spans into the element (survive the print freeze), range backends register CSS Custom Highlight ranges (zero markup; degrade on paper). Engine factories live in their own items; the shipped context seam is context-key.ts only (kernel wiring stays app-side).",
+      "docs": "import type { HighlightBackend } from '$lib/highlight/backend' — one interface, two output models: markup backends write token spans into the element (survive the print freeze), range backends register CSS Custom Highlight ranges (zero markup; degrade on paper). Engine factories live in their own items; the shipped context seam is context-key.ts only (kernel wiring stays app-side). The detection half rides the same contract files: AUTO_LANG + LanguageDetector from '$lib/highlight/lang-detector', the HIGHLIGHT_DETECT_KEY seam from '$lib/highlight/context-key' (the DLD waterfall itself is the highlight-lang-detector item).",
       "meta": {
         "group": "engines",
         "href": "/docs/components/code-card.html"
@@ -3950,7 +3950,7 @@
       "name": "highlight-highlightjs",
       "type": "registry:lib",
       "title": "highlight.js backend",
-      "description": "The highlightJs() backend factory (highlight-engine-matrix, 2026-09-06): highlight.js/lib/core (zero-language kernel) + per-language on-demand registration — the flagship size-slimming channel of the matrix (core + your langs at RUNTIME — unselected grammars never import or fetch; vs the main-entry full bundle). Curated set: typescript/javascript/xml/css/scss/json/bash/markdown/yaml + aliases; highlight.js 11 ships NO tsx/jsx/svelte/vue — those reject with a 'use the shiki backend' hint. Language boundaries are enforced against THIS curated table, never the engine's self-registered aliases (typescript self-reports a tsx alias — measured, guarded). Markup output; the jixoai default theme is an item-shipped stylesheet binding the measured 41-class vocabulary to --tok-token-* (34 rules, zero download, shiki-parity posture).",
+      "description": "The highlightJs() backend factory (highlight-engine-matrix, 2026-09-06): highlight.js/lib/core (zero-language kernel) + per-language on-demand registration — the flagship size-slimming channel of the matrix (core + your langs at RUNTIME — unselected grammars never import or fetch; vs the main-entry full bundle). Curated set: typescript/javascript/xml/css/scss/json/bash/markdown/yaml + aliases; highlight.js 11 ships NO tsx/jsx/svelte/vue — those reject with a 'use the shiki backend' hint. Language boundaries are enforced against THIS curated table, never the engine's self-registered aliases (typescript self-reports a tsx alias — measured, guarded). Markup output; the jixoai default theme is an item-shipped stylesheet binding the measured 41-class vocabulary to --tok-token-* (34 rules, zero download, shiki-parity posture). Ships the engine-borne DETECTOR slot (highlight-lang-detector D7, 2026-09-07): highlightAuto over EXACTLY the instance's candidate set — registered into a PRIVATE newInstance() registry (the shared kernel never narrows; sibling factories mutually invisible), langs omitted = the full curated pool, langs:[] = null (never a guess), hits reported under canonical ids with source 'engine' and no confidence, misses and load failures null to the cascade.",
       "files": [
         {
           "path": "registry/files/lib/highlight/highlight-js.ts",
@@ -3969,7 +3969,7 @@
       "registryDependencies": [
         "@jixoai/highlight"
       ],
-      "docs": "import { highlightJs } from '$lib/highlight/highlight-js' — <CodeCard backend={highlightJs()}>; highlightJs({ langs: ['ts', 'bash'] }) registers only those languages; unknown/absent languages reject with a hint and the card falls back to plain text.",
+      "docs": "import { highlightJs } from '$lib/highlight/highlight-js' — <CodeCard backend={highlightJs()}>; highlightJs({ langs: ['ts', 'bash'] }) registers only those languages; unknown/absent languages reject with a hint and the card falls back to plain text. Every instance also answers lang='auto' through its built-in detector (highlightAuto over exactly the instance's langs — the card's ring ③; the DLD waterfall is the standalone item).",
       "meta": {
         "group": "engines",
         "href": "/docs/components/code-card.html"
@@ -4040,6 +4040,90 @@
       "meta": {
         "group": "engines",
         "href": "/docs/components/code-card.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight-lang-detector",
+      "type": "registry:lib",
+      "title": "DLD default language detector (four-layer waterfall)",
+      "description": "The default language detector (highlight-lang-detector, 2026-09-07): defaultLangDetector() runs a FOUR-LAYER waterfall — L1 filename (extension + exact-basename tables), L2 shebang / first-line modeline, L3 structural probes (Markdown-guarded; never a programming-language fingerprint), L4 betlang statistics (wasm) — where every layer is its OWN lazy module: a hit short-circuits and the deeper layers never load a byte. 'Four layers' counts the waterfall only; the card's DETECTION rings stay three (langDetector prop → HIGHLIGHT_DETECT_KEY context → backend.detector) plus the runtime-reject tail. betlangDetector() is L4 standalone (skip L1-L3 — plugins and explicit props compose it). lang-canonical.ts is the single authoritative table the layers and the betlang 48-label mapping all derive from. Detection is an OPTIONAL capability by the zero-build-edge law: a bare code-card consumer carries ZERO DLD bytes and lang='auto' rejects at runtime with install + wiring guidance; wire through the highlight-detect-default wrapper item (children form ①) or one hand-written setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() }) (form ②). The wasm rides the @jixoai/betlang-wasm npm package (betlang =0.1.1 pinned at the crate, checksum-gated build — supply chain = your lockfile).",
+      "files": [
+        {
+          "path": "registry/files/lib/highlight/default-detector.ts",
+          "target": "@lib/highlight/default-detector.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/betlang-detector.ts",
+          "target": "@lib/highlight/betlang-detector.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/detect-ext-table.ts",
+          "target": "@lib/highlight/detect-ext-table.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/detect-shebang-table.ts",
+          "target": "@lib/highlight/detect-shebang-table.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/detect-structure.ts",
+          "target": "@lib/highlight/detect-structure.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/lang-canonical.ts",
+          "target": "@lib/highlight/lang-canonical.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/highlight/vendor-betlang-wasm.d.ts",
+          "target": "@lib/highlight/vendor-betlang-wasm.d.ts",
+          "type": "registry:file"
+        }
+      ],
+      "dependencies": [
+        "@jixoai/betlang-wasm@^0.1.1"
+      ],
+      "registryDependencies": [
+        "@jixoai/highlight"
+      ],
+      "docs": "npx jixoai-ui add @jixoai/highlight-lang-detector — then import { defaultLangDetector } from '$lib/highlight/default-detector' (the waterfall; re-exports AUTO_LANG) or { betlangDetector } from '$lib/highlight/betlang-detector' (statistics only) and wire ONE line at any subtree root: setContext(HIGHLIGHT_DETECT_KEY, { detector: defaultLangDetector() }) — or install the highlight-detect-default wrapper item and wrap the subtree. The wasm channel: vite hosts get the ?url asset emission; Node/vitest read real bytes through createRequire (tests run real wasm, never a mock).",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/code-card.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "highlight-detect-default",
+      "type": "registry:ui",
+      "title": "HighlightDetectDefault (DLD children wrapper)",
+      "description": "The DLD context provider as a ~10-line CHILDREN WRAPPER (highlight-lang-detector D2.2 form ① — its implementation IS the hand-written form ②): one setContext at init makes defaultLangDetector() the detection default for every <CodeCard lang='auto'> in the wrapped subtree, while the langDetector prop and backend.detector keep their ring priority (prop → context → backend → runtime reject). Svelte context propagates downward ONLY — sibling subtrees outside the wrapper are untouched, and nested wrappers take the nearest. Zero styling and zero behavior beyond the wiring; consumers wanting zero components hand-write the form ② setContext line instead (the DLD lib item stays framework-free by law — no Svelte rides a registry:lib item).",
+      "registryDependencies": [
+        "@jixoai/highlight-lang-detector",
+        "@jixoai/highlight",
+        "@jixoai/jixoai-theme"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/highlight-detect-default/highlight-detect-default.svelte",
+          "target": "@ui/highlight-detect-default/highlight-detect-default.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/highlight-detect-default/index.ts",
+          "target": "@ui/highlight-detect-default/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "npx jixoai-ui add @jixoai/highlight-detect-default — pulls the DLD lib item plus this wrapper; import HighlightDetectDefault from '$lib/ui/highlight-detect-default' (barrel) or '$lib/ui/highlight-detect-default/highlight-detect-default.svelte' (direct), then wrap any subtree: <HighlightDetectDefault>{@render children()}</HighlightDetectDefault> — every lang='auto' card below eats the DLD default. @jixoai/jixoai-theme rides the UI-item contract (install prerequisite), style-free as the wrapper is.",
+      "meta": {
+        "group": "data-display",
+        "href": "/docs/components/highlight-detect-default.html"
       }
     },
     {
