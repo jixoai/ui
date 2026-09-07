@@ -97,7 +97,7 @@
       verify:mirror / meta / deps / budgets / docs 全绿
 - [x] 6.2 定向 vitest 全绿（新契约 + 四层 + hljs detector + 端到端
       lang="auto" 上色）；双侧 svelte-check 零新增
-- [ ] 6.3 浏览器实测：dev + build+preview 双侧 lang="auto" 端到端
+- [x] 6.3 浏览器实测：dev + build+preview 双侧 lang="auto" 端到端
       （L1 filename 命中路径 + L4 统计路径 + DLD 未装 reject 路径）
 
 ## 7. 阶段 6 — Codex 复核闭环与收尾
