@@ -198,5 +198,3 @@ In both channels the registry payload itself NEVER carries a binary.
 - **THEN** its wasm binaries arrive exclusively through the
   `web-tree-sitter` / `tree-sitter-*` npm packages; no pin manifest
   exists for them and no `.wasm` enters the registry payload or git
-
-

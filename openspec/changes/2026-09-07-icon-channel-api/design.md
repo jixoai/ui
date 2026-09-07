@@ -93,8 +93,8 @@ export function defineIconChannel(spec: {
 ## 2. Package identity corrections
 
 - `@jixoai/vite-plugin` → `@jixoai/ui-vite-plugin`;
-  `@jixoai/css-laws` → `@jixoai/ui-css-laws` (inferred — Owner veto
-  point). Mechanics: rename in both package.json files + every living
+  `@jixoai/css-laws` → `@jixoai/ui-css-laws` (Owner-confirmed
+  2026-09-07). Mechanics: rename in both package.json files + every living
   import/reference (registry vite.config — keeping the dual-app
   byte-identity law with apps/www's, registry.json strings,
   scripts/verify-shadcn-add.mjs consumer templates + expectations,

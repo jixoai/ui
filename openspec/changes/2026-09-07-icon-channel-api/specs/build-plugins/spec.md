@@ -416,5 +416,3 @@ indexes.
 - WHEN the mirror manifest is generated
 - THEN only `icon-set.gen.ts` appears as a new mirrored file — chunk
   bodies exist solely as virtual modules in the building app
-
-
