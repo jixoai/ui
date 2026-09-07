@@ -115,7 +115,7 @@ describe('createSafetyChecker — disallowed elements', () => {
   it.each([
     ['script', wrap('<script>alert(1)</script>')],
     ['foreignObject', wrap('<foreignObject><div>html</div></foreignObject>')],
-    ['use', wrap('<use href="#evil"/>')],
+    ['use (external reference)', wrap('<use href="http://evil/#x"/>')],
     ['script (uppercase)', wrap('<SCRIPT>alert(1)</SCRIPT>')],
   ])('catches %s by default', (_label, svg) => {
     const checker = createSafetyChecker({ mode: 'warn' });
@@ -126,8 +126,22 @@ describe('createSafetyChecker — disallowed elements', () => {
 
   it('reports the element name that was found', () => {
     const checker = createSafetyChecker({ mode: 'warn' });
-    const result = checker.check(wrap('<use href="#evil"/>'));
+    const result = checker.check(wrap('<use href="http://evil/#x"/>'));
     expect(result.issues[0]?.message).toContain('<use>');
+  });
+
+  // the <use> fragment-law carve-out (the Sketch-export norm): a
+  // same-document reference is DOM-safe for the {@html} sink — only
+  // the external/reference-less shapes above reject
+  it('a same-document fragment use passes (defs+use+xlink plumbing)', () => {
+    const checker = createSafetyChecker({ mode: 'warn' });
+    const sketch =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+      '<defs><path d="M1 1h2v2z" id="a"/></defs>' +
+      '<use xlink:href="#a" fill="#000"/></svg>';
+    const result = checker.check(sketch);
+    expect(result.passed).toBe(true);
+    expect(result.issues).toEqual([]);
   });
 
   it('a custom disallowedElements list replaces the default', () => {

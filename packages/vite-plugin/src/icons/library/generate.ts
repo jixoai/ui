@@ -165,6 +165,33 @@ export function extractIconData(svg: string): IconData {
   return { v: viewBox[1] ?? viewBox[2] ?? '', n: nature, d };
 }
 
+/**
+ * Scope an icon payload's internal element ids under its CANONICAL
+ * name (`id="a"` → `id="jx-md:home-a"`): Sketch-export artwork (defs +
+ * mask + use — HarmonyOS and friends) survives svgo with SHORT ids
+ * that are IDENTICAL across icons (`cleanupIds` minifies every file
+ * to `id="a"`), and two such payloads inlined on one page collide —
+ * the second `<use href="#a">` resolves to the FIRST icon's def.
+ * Canonical names are unique in a set, so the prefix makes every id
+ * document-unique by construction. References rewrite in lockstep:
+ * `href="#a"` / `xlink:href="#a"` (quote-pinned — `#a"` cannot match
+ * `#ab"`) and `url(#a)` (paint-server refs). Id-free payloads return
+ * byte-identical (the lucide no-op pin).
+ */
+export function scopeIconIds(name: string, markup: string): string {
+  const ids = new Set<string>();
+  for (const match of markup.matchAll(/\sid="([^"]+)"/g)) ids.add(match[1]!);
+  if (ids.size === 0) return markup;
+  let scoped = markup;
+  for (const id of ids) {
+    const to = `jx-${name}-${id}`;
+    scoped = scoped.replaceAll(`id="${id}"`, `id="${to}"`);
+    scoped = scoped.replaceAll(`#${id}"`, `#${to}"`);
+    scoped = scoped.replaceAll(`#${id})`, `#${to})`);
+  }
+  return scoped;
+}
+
 // ── greedy packing (design §3) ─────────────────────────────────────
 
 /** one icon, extracted + serialized, ready to place in a chunk */
@@ -564,7 +591,10 @@ export function generateIconLibraryArtifacts(
   const templatePrefixes = options?.templatePrefixes ?? [];
 
   const entries: PackedEntry[] = assets.map((asset) => {
-    const data = extractIconData(asset.svg);
+    const extracted = extractIconData(asset.svg);
+    // per-icon id scoping (the collision law): only applies to
+    // defs/use-style artwork; id-free payloads keep their exact bytes
+    const data: IconData = { ...extracted, d: scopeIconIds(asset.name, extracted.d) };
     const entryText = serializeEntry(asset.name, data);
     return { name: asset.name, data, entryText, bytes: byteLength(`${entryText}\n`) };
   });

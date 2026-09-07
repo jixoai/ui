@@ -157,12 +157,26 @@ describe('the RAW safety gate (injection fixtures, design §2)', () => {
     ['event-handler attribute', wrap('<path d="M1 1" onclick="alert(1)"/>'), /event-handler attribute/],
     ['uppercase handler', wrap('<path d="M1 1" ONLOAD="x()"/>'), /event-handler attribute/],
     ['foreign element namespace', wrap('<a:rect width="1" height="1"/>'), /foreign namespace/],
-    ['foreign attribute namespace', wrap('<path xlink:href="#x" d="M1 1"/>'), /foreign namespace/],
-    ['namespace declaration', wrap('<path xmlns:xlink="http://x" d="M1 1"/>'), /foreign namespace/],
+    ['external xlink reference', wrap('<path xlink:href="http://evil/x" d="M1 1"/>'), /foreign namespace/],
+    ['external use reference', wrap('<use href="http://evil/#x"/>'), /disallowed element/],
+    ['reference-less use', wrap('<use/>'), /disallowed element/],
     ['CDATA section', wrap('<path d="M1 1"><![CDATA[evil]]></path>'), /CDATA section/],
     ['comment smuggling an element', wrap('<!-- <script>alert(1)</script> -->'), /disallowed element/],
     ['comment smuggling a handler', wrap('<!-- <path onload="x()"/> --><path d="M1 1"/>'), /event-handler attribute/],
   ];
+
+  // the fragment-law carve-outs (the Sketch-export norm): same-document
+  // defs+use artwork and its xlink plumbing PASS the raw gate — only
+  // the external-reference shapes above reject
+  test('same-document defs+use + xlink fragment + xmlns declaration pass', async () => {
+    const sketch =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+      '<defs><path d="M1 1h2v2z" id="a"/></defs>' +
+      '<use xlink:href="#a" fill="#000"/></svg>';
+    const { icons, warnings } = await resolve({ includeDefaults: false, icons: { brand: sketch } });
+    expect(warnings).toEqual([]);
+    expect(icons.map((icon) => icon.name)).toEqual(['brand']);
+  });
 
   test.each(fixtures)('warn mode: %s drops the icon with a named warning', async (_label, svg, pattern) => {
     const { icons, warnings } = await resolve({ includeDefaults: false, icons: { evil: svg } });

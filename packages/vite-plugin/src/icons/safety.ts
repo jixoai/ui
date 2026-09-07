@@ -25,12 +25,40 @@ const DEFAULT_MAX_BYTES = 10 * 1024;
 /** default max path command count (design.md §5) */
 const DEFAULT_MAX_PATH_COMMANDS = 500;
 
-/** default disallowed elements (design.md §5: script, foreignObject, use) */
+/**
+ * default disallowed elements (design.md §5: script, foreignObject,
+ * use) — `use` carries the fragment-law carve-out: same-document
+ * fragment refs (the defs+use Sketch-export norm — HarmonyOS and
+ * friends) are DOM-safe for the {@html} sink, so only a `use` with an
+ * EXTERNAL reference (or none at all) stays disallowed
+ */
 const DEFAULT_DISALLOWED_ELEMENTS: readonly string[] = [
   'script',
   'foreignObject',
   'use',
 ];
+
+/** a same-document fragment reference: `#frag`, nothing external */
+const FRAGMENT_REF = /^#[^\s:{}<>'"=]+$/;
+
+/** every reference attribute a <use> may carry (SVG 1.1 + 2 shapes) */
+const USE_REF_ATTRIBUTE = /(?:xlink:)?href\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+
+/**
+ * does the svg carry a `<use>` whose reference is NOT a same-document
+ * fragment (an external fetch/tracking surface), or a reference-less
+ * `<use>` (malformed — conservative reject)? Fragment-only uses pass.
+ */
+function hasUnsafeUse(svg: string): boolean {
+  for (const match of svg.matchAll(/<use\b[^>]*>/gi)) {
+    const refs = Array.from(match[0].matchAll(USE_REF_ATTRIBUTE));
+    if (refs.length === 0) return true;
+    for (const ref of refs) {
+      if (!FRAGMENT_REF.test(ref[1] ?? ref[2] ?? '')) return true;
+    }
+  }
+  return false;
+}
 
 /**
  * matches the `d="…"` / `d='…'` attribute of any `<path>` element.
@@ -87,6 +115,19 @@ function* scanElementTags(svg: string): Generator<string> {
 }
 
 /**
+ * yield every element tag with attribute VALUES preserved — the
+ * namespace pass needs value semantics (an `xlink:href` carve-out is
+ * decided by whether the reference is a same-document fragment). A
+ * quoted VALUE shaped like an attribute can only ever cause an
+ * over-block (the documented conservative posture), never a miss.
+ */
+function* scanElementTagsRaw(svg: string): Generator<string> {
+  for (const match of svg.matchAll(/<[a-zA-Z](?:"[^"]*"|'[^']*'|[^<>"'])*>/g)) {
+    yield match[0];
+  }
+}
+
+/**
  * Create the built-in SVG safety checker.
  *
  * @param config `mode` is required ('warn' logs + lets the serializer
@@ -139,6 +180,8 @@ export function createSafetyChecker(
 
       for (const { name, pattern } of elementPatterns) {
         if (pattern.test(svg)) {
+          // the <use> fragment-law carve-out: same-document refs pass
+          if (name === 'use' && !hasUnsafeUse(svg)) continue;
           issues.push(issue(`disallowed element <${name}> found in SVG`));
         }
       }
@@ -154,11 +197,28 @@ export function createSafetyChecker(
           break;
         }
       }
+      // the namespace pass reads RAW tags (values kept): the xlink
+      // carve-out is decided by VALUE — `xlink:href="#frag"` is the
+      // SVG 1.1 same-document reference channel, `xmlns:*` declares
+      // (never dereferences) a namespace. Prefixed ELEMENTS and any
+      // other prefixed attribute (or an external-valued xlink) flag.
+      // A quoted value shaped like an attribute can only over-block.
       let foreignNamespace = false;
-      for (const tag of scanElementTags(svg)) {
-        if (/^<\s*[a-zA-Z][\w.-]*:/.test(tag) || /\s[\w.-]+:[\w.-]+\s*=/.test(tag)) {
+      outer: for (const tag of scanElementTagsRaw(svg)) {
+        if (/^<\s*[a-zA-Z][\w.-]*:/.test(tag)) {
           foreignNamespace = true;
           break;
+        }
+        for (const attr of tag.matchAll(/\s([\w.-]+:[\w.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)) {
+          const name = attr[1]!;
+          const value = attr[2] ?? attr[3] ?? '';
+          const legacySafe =
+            name.startsWith('xmlns:') ||
+            (name.startsWith('xlink:') && FRAGMENT_REF.test(value));
+          if (!legacySafe) {
+            foreignNamespace = true;
+            break outer;
+          }
         }
       }
       if (foreignNamespace) {

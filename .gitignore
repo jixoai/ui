@@ -30,3 +30,7 @@ registry/.tw-standard-probe/
 
 # tw4 standard probe scratch (generated, never commit — history-purged 2026-09-05)
 apps/www/.tw-standard-probe/
+
+# example build outputs (the hmos E2E builds in-tree when run by hand)
+examples/*/dist/
+examples/*/dist-ssr/

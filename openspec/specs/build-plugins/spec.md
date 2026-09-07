@@ -284,7 +284,14 @@ cover the extraction contract end-to-end: only RAW-gated,
 plugin-extracted payload may reach the component's `{@html}` sink
 (consumer strings never do), and the gate's test fixtures SHALL
 cover disallowed elements, event-handler attributes, foreign
-namespaces, and CDATA/comment injection. The optimizer SHALL NOT
+namespaces, and CDATA/comment injection. The `<use>` and namespace
+rules carry the fragment-law carve-out (the Sketch-export norm —
+HarmonyOS and friends): same-document fragment references
+(`<use href="#frag">`, `xlink:href="#frag"`, `xmlns:*` declarations)
+are DOM-safe and SHALL pass; only an EXTERNAL reference
+(`http://…`, protocol-relative, `data:`) or a reference-less `<use>`
+rejects, and prefixed ELEMENTS plus every other prefixed attribute
+still flag. The optimizer SHALL NOT
 run on the slot/CSS face — the ink byte-equivalence locks pin those
 URIs byte-exactly and SHALL remain green unmodified. svgo's effect
 on lucide's canonical serialization SHALL be pinned as a no-op by a
@@ -298,6 +305,18 @@ unit test so the geometry-consistency law survives optimization.
 - THEN the safety checker rejects the RAW source first (warn mode:
   the icon is dropped with a named warning; error mode: the build
   fails) — optimization never launders unvalidated content
+
+#### Scenario: Sketch-export defs+use artwork passes on its fragment references
+
+- GIVEN a third-party svg in the Sketch-export shape (defs + mask +
+  use, `xmlns:xlink` declaration, `xlink:href="#a"`)
+- WHEN the library resolves it
+- THEN the RAW gate passes it (same-document references are inert in
+  the `{@html}` sink) and the packed payload keeps its defs/use
+  structure — while the same `<use>` carrying `http://…`,
+  protocol-relative, or NO reference still rejects, and prefixed
+  elements (`<a:rect>`) plus non-xlink prefixed attributes still
+  flag
 
 #### Scenario: slot-face bytes are untouched by the optimizer
 
@@ -382,7 +401,14 @@ plugin — they are NEVER files and never enter the mirror manifest.
 Artifact ↔ chunk parity SHALL be asserted by a dogfood test
 comparing the FULL serialized chunk module bytes served by the
 plugin against the artifact's chunk map — not just names and
-indexes.
+indexes. Packed payload ids SHALL be scoped under the icon's
+CANONICAL name at pack time (`id="a"` → `id="jx-md:home-a"`, with
+`href="#…"`/`url(#…)` references rewritten in lockstep): svgo
+minifies every icon's ids to the same short tokens, so two
+Sketch-export payloads inlined on one page would cross-resolve
+their `<use>` elements; canonical names are set-unique, making ids
+document-unique by construction. Id-free payloads keep their exact
+bytes (the lucide no-op pin).
 
 #### Scenario: the freshness gate catches a stale artifact
 
@@ -391,6 +417,17 @@ indexes.
   artifact
 - THEN the gate FAILS naming the stale file (and the check ran
   without vite)
+
+#### Scenario: same-short-id artwork never collides in the document
+
+- GIVEN two resolved icons whose payloads each carry `id="a"`
+  (the svgo-minified Sketch-export shape) referencing it via
+  `<use xlink:href="#a">`
+- WHEN the generator packs them
+- THEN each payload's ids are prefixed with its canonical name and
+  every in-document reference rewrites in lockstep — on the rendered
+  page every `<use>` resolves to its OWN icon's def exactly once,
+  and an id-free payload packs byte-identical (no scoping noise)
 
 #### Scenario: dev watch regenerates without a loop
 
@@ -763,3 +800,20 @@ sheets is a decoupled protocol string and does not migrate.
 - WHEN the config validates
 - THEN startup fails naming both entries (the uniqueness law carried
   over from the presets era)
+
+#### Scenario: the real-project E2E proves a third-party channel from the FINAL OUTPUT
+
+- GIVEN the committed consumer example (`examples/hmos-icons` —
+  plain Vite + Svelte, the registry `icon` component, a local-svg
+  `hmos:` channel over an 11-file HarmonyOS subset, one config-lane
+  ref whose FILENAME carries a space)
+- WHEN the E2E gate copies it, `npm install`s it for real (the
+  `file:` dependency on the built plugin), and builds it twice
+  (client + SSR)
+- THEN every assertion reads the FINAL OUTPUT: the client bundle
+  carries the REAL artwork bytes cross-checked against an
+  independent svgo re-optimization of the SOURCE svgs (inline core
+  AND the lazy chunk the default budget split produced), the
+  executed SSR render paints the inline names synchronously with
+  unique document ids (the scoping law), and the regenerated
+  artifact matches the committed one byte-for-byte

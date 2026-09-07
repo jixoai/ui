@@ -1,0 +1,20 @@
+{
+  "name": "jixoai-example-hmos-icons",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:ssr": "vite build --ssr src/ssr-entry.ts --outDir dist-ssr",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@jixoai/ui-vite-plugin": "file:../../packages/vite-plugin"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "svelte": "^5.55.5",
+    "typescript": "^5.9.2",
+    "vite": "^8.0.0"
+  }
+}

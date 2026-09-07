@@ -210,3 +210,57 @@ describe('the serializer control-char law (E4-r1 fix 2 + E4-r2 hardening)', () =
     expect((0, eval)(literal)).toBe(multilineAsset.svg.match(/(<text[^>]*>.*<\/text>)/s)?.[1]);
   });
 });
+
+// ── id scoping (the document-collision law; HarmonyOS sketch-export) ──
+
+/**
+ * Sketch-export artwork (defs + mask + use — HarmonyOS_Icons et al.)
+ * survives svgo with SHORT ids identical across files (`cleanupIds`
+ * minifies every icon to `id="a"`); two payloads inlined on one page
+ * collide and the second `<use href="#a">` resolves to the FIRST
+ * icon's def. The packer scopes every id under the canonical name —
+ * unique per set, so ids become document-unique by construction.
+ */
+describe('scopeIconIds — the document-collision law', () => {
+  const sketchStyle = (path: string): string =>
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><path d="${path}" id="a"/></defs><use fill="#000" xlink:href="#a" fill-rule="evenodd"/></svg>`;
+  const assets = (names: readonly string[], paths: readonly string[]): readonly ResolvedLibraryIcon[] =>
+    names.map((name, i) => ({ name, svg: sketchStyle(paths[i]!) }));
+
+  test('two same-short-id icons pack with distinct, name-scoped ids', () => {
+    const { artifact } = generateIconLibraryArtifacts(
+      assets(['hmos:pause', 'hmos:themes'], ['M1 1h2v2z', 'M9 9h3v3z']),
+      {},
+    );
+    // each entry's id carries its canonical name; refs follow
+    expect(artifact).toContain('id="jx-hmos:pause-a"');
+    expect(artifact).toContain('xlink:href="#jx-hmos:pause-a"');
+    expect(artifact).toContain('id="jx-hmos:themes-a"');
+    expect(artifact).toContain('xlink:href="#jx-hmos:themes-a"');
+    // the raw shared id never rides an id= attribute
+    expect(artifact).not.toMatch(/\sid="a"/);
+  });
+
+  test('url(#id) paint-server refs rewrite too; quote-pinning spares longer ids', () => {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs>' +
+      '<linearGradient id="g"><stop stop-color="red"/></linearGradient>' +
+      '<path d="M1 1h2v2z" id="ab"/></defs>' +
+      '<path d="M5 5h1v1z" fill="url(#g)"/><use xlink:href="#ab"/></svg>';
+    const { artifact } = generateIconLibraryArtifacts([{ name: 'grad', svg }], {});
+    expect(artifact).toContain('id="jx-grad-g"');
+    expect(artifact).toContain('url(#jx-grad-g)');
+    // `#g"`/`#g)` patterns must not have eaten the longer `#ab` ref
+    expect(artifact).toContain('id="jx-grad-ab"');
+    expect(artifact).toContain('xlink:href="#jx-grad-ab"');
+    expect(artifact).not.toContain('xlink:href="#jx-grad-g-ab"');
+  });
+
+  test('id-free payloads keep their exact bytes (the no-op pin)', () => {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2 2h4v4z"/></svg>';
+    const { artifact } = generateIconLibraryArtifacts([{ name: 'plain', svg }], {});
+    expect(artifact).toContain('d: \'<path d="M2 2h4v4z"/>\'');
+    expect(artifact).not.toContain('jx-plain');
+  });
+});
