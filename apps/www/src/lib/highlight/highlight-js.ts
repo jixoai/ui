@@ -47,6 +47,9 @@ type LanguageFn = import('highlight.js').LanguageFn;
 /** the zero-language hljs kernel (typed by hljs itself; loaded lazily) */
 type HighlightJsCore = typeof import('highlight.js/lib/core')['default'];
 
+/** a fresh registry instance off the kernel — the detector's private core */
+type HljsInstance = ReturnType<HighlightJsCore['newInstance']>;
+
 let corePromise: Promise<HighlightJsCore> | undefined;
 
 /**
@@ -193,6 +196,9 @@ export function highlightJs(options: HighlightJsBackendOptions = {}): HighlightB
     options.langs === undefined
       ? undefined
       : new Set(options.langs.map((lang) => canonicalLang(langAliases, lang)));
+  // the detector's PRIVATE core (design D7): created on the FIRST
+  // detect() call — construction loads nothing (the lazy law)
+  let autoDetectCore: HljsInstance | undefined;
   return {
     id: 'highlightjs',
     async highlight(el, code, opts) {
@@ -217,6 +223,43 @@ export function highlightJs(options: HighlightJsBackendOptions = {}): HighlightB
       el.classList.add(`language-${canonical}`, 'hljs');
       el.innerHTML = value;
       await ensureTheme(highlightJsThemeName(opts.theme));
+    },
+    /**
+     * The engine-borne detector (highlight-lang-detector D7): hljs's
+     * own highlightAuto over EXACTLY this instance's candidate set —
+     * `langs` omitted = the full curated set; `langs: []` = no
+     * candidates (null, never a guess). Candidates register into a
+     * PRIVATE newInstance() registry: the shared kernel is never
+     * narrowed by detection and other instances' registrations never
+     * widen this one (instance isolation). A hit is reported under its
+     * registered canonical id, source 'engine', no confidence (hljs
+     * relevance is not calibrated to 0..1). Misses and load failures
+     * return null — the null-cascade semantics hand the chain back.
+     */
+    detector: {
+      id: 'hljs-auto',
+      async detect({ code }) {
+        const candidates = allowed ?? new Set(languageLoaders.keys());
+        if (candidates.size === 0) return null;
+        try {
+          const hljs = await getHljs();
+          autoDetectCore ??= hljs.newInstance();
+          for (const canonical of candidates) {
+            if (autoDetectCore.getLanguage(canonical) !== undefined) continue;
+            const loader = languageLoaders.get(canonical);
+            if (loader === undefined) continue; // outside curated: not a candidate
+            const { default: defineLanguage } = await loader();
+            autoDetectCore.registerLanguage(canonical, defineLanguage);
+          }
+          const result = autoDetectCore.highlightAuto(code);
+          if (result.language === undefined || !candidates.has(result.language)) {
+            return null;
+          }
+          return { lang: result.language, source: 'engine' as const };
+        } catch {
+          return null; // cascade semantics: the chain falls through
+        }
+      },
     },
   };
 }

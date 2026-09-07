@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T05:44:13.641Z",
+  "generatedAt": "2026-09-07T05:54:49.919Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3453,8 +3453,8 @@
           "source": "registry/files/lib/highlight/highlight-js.ts",
           "mirror": "apps/www/src/lib/highlight/highlight-js.ts",
           "target": "@lib/highlight/highlight-js.ts",
-          "sourceSha": "99ea1de43d3f20a68238a4533e756366468f10eb7f01d30d44676c902a9e7935",
-          "mirrorSha": "99ea1de43d3f20a68238a4533e756366468f10eb7f01d30d44676c902a9e7935"
+          "sourceSha": "32dbe8853cd593379dd8e5de2ae4ebcc87df9e2053e1d8e63b89ac5ec0cbefb6",
+          "mirrorSha": "32dbe8853cd593379dd8e5de2ae4ebcc87df9e2053e1d8e63b89ac5ec0cbefb6"
         },
         {
           "source": "registry/files/lib/highlight/highlight-js-jixoai.css",

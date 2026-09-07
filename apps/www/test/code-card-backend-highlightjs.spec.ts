@@ -214,3 +214,63 @@ describe('highlight backends — the contract', () => {
     expect(container.querySelector('pre code')!.classList.contains('hljs')).toBe(true);
   }, 20000);
 });
+
+// ===========================================================================
+// 2 · the engine-borne detector (highlight-lang-detector D7, 2026-09-07)
+// ===========================================================================
+describe('highlightJs — the detector slot', () => {
+  it('the full curated set is the default candidate pool: a TS sample reports typescript', async () => {
+    const backend = highlightJs();
+    const result = await backend.detector!.detect({ code: SAMPLE });
+    expect(result).toEqual({ lang: 'typescript', source: 'engine' });
+    // no confidence on the engine ring — hljs relevance is uncalibrated
+    expect(result?.confidence).toBeUndefined();
+  });
+
+  it('langs subsets the candidates: a css-restricted instance never reports typescript', async () => {
+    const cssOnly = highlightJs({ langs: ['css'] });
+    const result = await cssOnly.detector!.detect({ code: SAMPLE });
+    // only the css grammar sits in its private registry — a TS sample
+    // cannot come back as typescript (isolation, not accuracy)
+    expect(result?.lang).not.toBe('typescript');
+  });
+
+  it('instance isolation: sibling factories never widen each other', async () => {
+    const tsOnly = highlightJs({ langs: ['ts'] });
+    const cssOnly = highlightJs({ langs: ['css'] });
+    // the css instance answers css; the ts instance CANNOT (its private
+    // registry holds one grammar) — two-factory mutual invisibility
+    const cssHit = await cssOnly.detector!.detect({ code: 'a { color: red }' });
+    expect(cssHit?.lang).toBe('css');
+    const tsMiss = await tsOnly.detector!.detect({ code: 'a { color: red }' });
+    expect(tsMiss?.lang ?? null).toBe(null);
+  });
+
+  it('langs: [] is no candidates — null, never a guess', async () => {
+    const empty = highlightJs({ langs: [] });
+    await expect(empty.detector!.detect({ code: SAMPLE })).resolves.toBeNull();
+  });
+
+  it('construction is inert; detection narrows to the candidate grammars', async () => {
+    // vi.mock counts module EVALUATIONS (file-global, earlier suites may
+    // have loaded core/ts/css already) — the honest shapes are: counts
+    // frozen across construction (the lazy law), and an UNSELECTED
+    // grammar never evaluating for a restricted instance (the slimming
+    // law's detector twin)
+    const before = { core: hljsCoreLoads.count, ts: tsLangLoads.count, css: cssLangLoads.count };
+    const backend = highlightJs({ langs: ['ts'] });
+    expect(hljsCoreLoads.count).toBe(before.core);
+    expect(tsLangLoads.count).toBe(before.ts);
+    expect(cssLangLoads.count).toBe(before.css);
+    await backend.detector!.detect({ code: SAMPLE });
+    expect(tsLangLoads.count).toBeGreaterThanOrEqual(before.ts);
+    expect(cssLangLoads.count).toBe(before.css); // never an unselected grammar
+  });
+
+  it('the filename input is ignored by the engine ring (code-only heuristic)', async () => {
+    const backend = highlightJs();
+    const bare = await backend.detector!.detect({ code: SAMPLE });
+    const named = await backend.detector!.detect({ code: SAMPLE, filename: 'main.py' });
+    expect(named?.lang).toBe(bare?.lang);
+  });
+});
