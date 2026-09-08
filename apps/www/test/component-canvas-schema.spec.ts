@@ -75,7 +75,9 @@ describe('ComponentCanvas schema mode', () => {
       container.querySelector<HTMLButtonElement>('[data-jx-canvas-seg-option="outline"]')!,
     );
     expect(stageValues(container)).toMatchObject({ variant: 'outline', depth: 2 });
-    await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-reset]')!);
+    await fireEvent.click(
+      container.querySelector<HTMLElement>('[data-jx-canvas-reset]')!.querySelector('button')!,
+    );
     expect(stageValues(container)).toEqual({ variant: 'fill', loading: false, depth: 2 });
   });
 });

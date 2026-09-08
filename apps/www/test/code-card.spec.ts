@@ -129,6 +129,17 @@ describe('CodeCard', () => {
     expect(container.querySelector('.jx-code-card-copy')!.className).toContain('copied');
   });
 
+  it('the foot band is a quiet action zone: the copy control renders ghost + flat with zero paint props (card-surface-kernel, 2026-09-09)', () => {
+    const { container } = render(CodeCard, {
+      props: { code: 'const a = 1;', lang: 'ts', copyable: true },
+    });
+    const copy = container.querySelector('[data-jx-press-button]')!;
+    expect(copy.getAttribute('data-jx-press-button')).toBe('ghost');
+    expect(copy.hasAttribute('data-jx-press-flat')).toBe(true);
+    // the band skeleton's scope (the stamped band carries the zone)
+    expect(container.querySelector('[data-jx-code-card-foot] [data-jx-press-button]')).not.toBeNull();
+  });
+
   it('renders the head only with filename/header and the default lang label', () => {
     const withFile = render(CodeCard, { props: { code: 'x', filename: 'a.ts' } });
     expect(withFile.container.querySelector('[data-jx-code-card-file]')!.textContent).toBe('a.ts');

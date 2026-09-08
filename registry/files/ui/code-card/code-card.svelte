@@ -55,6 +55,8 @@
   import type { Snippet } from 'svelte';
   import { getContext } from 'svelte';
   import Icon from '$lib/ui/icon';
+  import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { cn } from '$lib/utils';
   import type { HighlightBackend } from '$lib/highlight/backend';
   import {
@@ -383,44 +385,59 @@
         node) after hydration — same box, no layout shift --><code bind:this={codeEl}>{code}</code></pre>
   </div>
   {#if footer || copyable}
-    <div
-      data-jx-code-card-foot
-      class="flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
-    >
-      <span class="flex items-center min-w-0">
-        {#if footer}
-          {@render footer()}
-        {/if}
-      </span>
-      {#if copyable}
-        <button
-          type="button"
-          class={cn(
-            'jx-press jx-code-card-copy inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
-            '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-            copied
-              ? 'copied bg-secondary text-secondary-foreground hover:bg-secondary'
-              : 'hover:bg-muted',
-          )}
-          onclick={copyCode}
-          aria-label={copied ? 'copied' : `copy ${filename || lang} sample`}
-        >
-          {#if copied}
-            <!-- Icon component glyphs (full lucide copy geometry — the
-                 hand-simplified variant retired 2026-08-29); the copied
-                 check rides a strokier strokeWidth prop -->
-            <span data-jx-code-card-icon class="inline-flex">
-              <Icon name="check" size={12} strokeWidth={2.5} />
-            </span>
-            <span>copied</span>
-          {:else}
-            <span data-jx-code-card-icon class="inline-flex">
-              <Icon name="copy" size={12} />
-            </span>
-            <span>copy</span>
+    <!-- THE ACTION-BAND ZONE (structural-kernel law, 2026-09-09): the
+         foot band's skeleton carries its own ButtonVariantScope —
+         ghost + flat, the quiet-actions default — so the copy control
+         (and any raw footer-snippet buttons) render quiet with zero
+         per-button paint props; an explicit variant/raised still wins.
+         The band's layout is plain utilities (the one-layout-component
+         law: joined rows are ButtonGroup's, loose rows are flex) -->
+    <ButtonVariantScope variant="ghost" raised={false}>
+      <div
+        data-jx-code-card-foot
+        class="flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
+      >
+        <span class="flex items-center min-w-0">
+          {#if footer}
+            {@render footer()}
           {/if}
-        </button>
-      {/if}
-    </div>
+        </span>
+        {#if copyable}
+          <!-- density sm keeps the card's compact readonly scale (the
+               default 40px hit would blow the foot open ~17px). The
+               copied state is a transient 1.6s paint in the grammar's
+               own hue-injection vocabulary (jx-hue-success + the tonal
+               12%/ink recipe, tonal-variant proportions) — the old
+               --secondary yellow read as a brand shout on the quiet
+               ghost; same-property utilities need the consumer's `!`
+               (the class-append law); .jx-code-card-copy keeps the css
+               residue (focus-visible ring, reduced-motion) keyed on
+               the class -->
+          <PressButton
+            density="sm"
+            class="jx-code-card-copy{copied
+              ? ' jx-hue-success copied !bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] !text-[color:var(--jx-tonal)]'
+              : ''}"
+            onclick={copyCode}
+            ariaLabel={copied ? 'copied' : `copy ${filename || lang} sample`}
+          >
+            {#if copied}
+              <!-- Icon component glyphs (full lucide copy geometry — the
+                   hand-simplified variant retired 2026-08-29); the copied
+                   check rides a strokier strokeWidth prop -->
+              <span data-jx-code-card-icon class="inline-flex">
+                <Icon name="check" size={12} strokeWidth={2.5} />
+              </span>
+              <span>copied</span>
+            {:else}
+              <span data-jx-code-card-icon class="inline-flex">
+                <Icon name="copy" size={12} />
+              </span>
+              <span>copy</span>
+            {/if}
+          </PressButton>
+        {/if}
+      </div>
+    </ButtonVariantScope>
   {/if}
 </figure>

@@ -185,13 +185,13 @@ describe('the palette', () => {
     expect(dialog.className).toContain('w-[min(92vw,44rem)]');
     // r13 grid ruler: the palette's head snippet rides the head zone and
     // its separator track; no footer face is passed → no foot zone/stamp
-    const scroll = dialog.querySelector('[data-jx-dialog-scroll]')!;
+    const scroll = dialog.querySelector('[data-jx-card]')!;
     expect(scroll.hasAttribute('data-sep-head')).toBe(true);
     expect(scroll.hasAttribute('data-sep-foot')).toBe(false);
-    const headZone = dialog.querySelector('[data-jx-dialog-head]')!;
+    const headZone = dialog.querySelector('[data-jx-card-head]')!;
     expect(headZone.querySelector('input')).not.toBeNull(); // the snippet still lands
-    expect(dialog.querySelector('[data-jx-dialog-sep="head"]')!.tagName).toBe('HR');
-    expect(dialog.querySelector('[data-jx-dialog-foot]')).toBeNull();
+    expect(dialog.querySelector('[data-jx-card-sep="head"]')!.tagName).toBe('HR');
+    expect(dialog.querySelector('[data-jx-card-foot]')).toBeNull();
     target.remove();
   });
 

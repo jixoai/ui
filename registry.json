@@ -710,6 +710,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/card/card-body.svelte",
+          "target": "@ui/card/card-body.svelte",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/card/card.css",
           "target": "@ui/card/card.css",
           "type": "registry:file"
@@ -948,21 +953,6 @@
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/dialog/dialog-header.svelte",
-          "target": "@ui/dialog/dialog-header.svelte",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/dialog/dialog-footer.svelte",
-          "target": "@ui/dialog/dialog-footer.svelte",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/dialog/dialog-footer.css",
-          "target": "@ui/dialog/dialog-footer.css",
-          "type": "registry:file"
-        },
-        {
           "path": "registry/files/ui/dialog/index.ts",
           "target": "@ui/dialog/index.ts",
           "type": "registry:file"
@@ -984,6 +974,7 @@
         "href": "/docs/components/dialog.html"
       },
       "registryDependencies": [
+        "@jixoai/card",
         "@jixoai/button-group",
         "@jixoai/icon-button",
         "@jixoai/icon",
@@ -1053,7 +1044,9 @@
         "@jixoai/highlight",
         "@jixoai/highlight-shiki",
         "@jixoai/utils",
-        "@jixoai/icon"
+        "@jixoai/icon",
+        "@jixoai/button-group",
+        "@jixoai/press-button"
       ],
       "files": [
         {
@@ -1417,6 +1410,8 @@
       "description": "The component documentation workbench: header (title + description + GitHub Source link), LIVE demo stage (children snippet on muted surface, always full-width), a floating Playground dock (collapsible + horizontally draggable controls panel over the stage's top-right corner — consumer snippet or schema-lowered rows inside one integrated ItemGroup), and a collapsible code drawer (TreeView file sidebar + CodeCard embedded). Files from a flat path list auto-build the tree.",
       "registryDependencies": [
         "@jixoai/press-button",
+        "@jixoai/button-group",
+        "@jixoai/icon-button",
         "@jixoai/code-card",
         "@jixoai/tree-view",
         "@jixoai/shiki",
@@ -4693,43 +4688,6 @@
         "group": "engines",
         "href": "/docs/components.html"
       }
-    },
-    {
-      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-      "name": "button-bar",
-      "type": "registry:ui",
-      "title": "Button bar",
-      "description": "Free-floating action lane: a single row/column flex container whose members are INDEPENDENT buttons (press-button, icon-button) and joined clusters (button-group), separated by gap — never edge-to-edge, never border-collapsed (the structural boundary against button-group, the joined cluster). The lane exists to DEFAULT the subtree (the DialogFooter posture generalized off the dialog): it provides the paint zone with own ghost (members render the quietest chrome rung — no border color, no redundant borders) and the press texture zone with own flat (raised=false: no rest/hover shadow, the engrave-tier inset press; a nested cluster casts no shadow of its own) while explicit props at any level still win. orientation horizontal|vertical (one row or one column — no wrap, no collapse, no measurement; overflow is the scroll container's business), justify start|center|end|between (own default 'end', the inline-end-actions posture). Zero css — the layout is all utilities; data-jx-btnbar={orientation} is the css-less hook; role=group named by label.",
-      "files": [
-        {
-          "path": "registry/files/ui/button-bar/button-bar.svelte",
-          "target": "@ui/button-bar/button-bar.svelte",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/button-bar/button-bar-defaults.svelte.ts",
-          "target": "@ui/button-bar/button-bar-defaults.svelte.ts",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/button-bar/index.ts",
-          "target": "@ui/button-bar/index.ts",
-          "type": "registry:file"
-        }
-      ],
-      "docs": "Props: label (accessible group name), orientation ('horizontal' default | 'vertical'), justify ('start' | 'center' | 'end' default | 'between'), variant ('fill' | 'tonal' | 'outline' | 'ghost', own ghost — the members' default rung; explicit child props always win), raised (own false — the members' flat texture default; a nested button-group resolves its cluster shadow dark through the same key), density, role ('group' default), class; children are plain PressButton/IconButton/ButtonGroup instances authored in your tree.",
-      "meta": {
-        "group": "general",
-        "href": "/docs/components/button-bar.html"
-      },
-      "registryDependencies": [
-        "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/density",
-        "@jixoai/press-button",
-        "@jixoai/paint",
-        "@jixoai/defaults"
-      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",

@@ -79,6 +79,8 @@
   import type { Density } from '$lib/density.svelte';
   import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
   import Icon from '$lib/ui/icon';
+  import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
+  import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
   import type { ControlRow, PlayOutput } from './canvas-schema.svelte';
 
@@ -276,6 +278,10 @@
      head row is the decorative drag bar: pointer handlers only reposition
      the dock (capture on 4px threshold, never hijacking clicks); the
      toggle and reset buttons inside carry every actual function -->
+{#snippet resetGlyph()}
+  <Icon name="rotateCcw" size={12} />
+{/snippet}
+
 <aside
   data-jx-canvas-dock
   bind:this={dockEl}
@@ -508,23 +514,34 @@
           </dl>
         {/if}
         {#if onreset || rows}
-          <!-- the reset foot (the amendment): the head keeps exactly its
-               four chrome elements, so the icon-only reset (the canvas
-               idiom, press physics) rides the body's foot row next to
-               the output dl. Page-owned onreset wins; schema mode falls
-               back to schema defaults -->
-          <div data-jx-canvas-dock-foot class="flex justify-end mt-[0.5rem]">
-            <button
-              type="button"
-              data-jx-canvas-reset
-              class="jx-press jx-canvas-reset inline-flex size-6 items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
-              aria-label="Reset playground"
-              title="Reset playground"
-              onclick={() => (onreset ? onreset() : resetValues())}
-            >
-              <Icon name="rotateCcw" size={12} />
-            </button>
-          </div>
+          <!-- the reset foot (the amendment, card-surface-kernel
+               2026-09-09): the head keeps exactly its four chrome
+               elements, so the icon-only reset rides the body's foot
+               row next to the output dl. THE ACTION-BAND ZONE (ghost +
+               flat): the IconButton renders quiet with zero paint
+               props — the hand-drawn border/bg and the three
+               shadow-suppression vars are gone (the zone writes them
+               all); density xs keeps the dock's compact chrome scale.
+               Page-owned onreset wins; schema mode falls back to
+               schema defaults -->
+          <ButtonVariantScope variant="ghost" raised={false}>
+            <div data-jx-canvas-dock-foot class="flex justify-end mt-[0.5rem]">
+              <!-- the semantic stamp rides a wrapper (IconButton passes
+                   no rest attrs); the focus-visible css anchor stays on
+                   the button itself (.jx-canvas-reset) -->
+              <span data-jx-canvas-reset class="inline-flex">
+                <IconButton
+                  icon={resetGlyph}
+                  text="Reset playground"
+                  iconOnly
+                  tip={false}
+                  density="xs"
+                  onclick={() => (onreset ? onreset() : resetValues())}
+                  class="jx-canvas-reset"
+                />
+              </span>
+            </div>
+          </ButtonVariantScope>
         {/if}
       </div>
     </div>

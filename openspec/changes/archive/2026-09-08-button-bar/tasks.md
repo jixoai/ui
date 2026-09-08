@@ -22,3 +22,16 @@
        纵向 stretch/between/嵌套 cluster 无 shadow）
 - [x] 8. spec 收尾：component-authoring ADDED Requirement（the
        button-bar action lane）；子代理复核结论处理
+
+
+---
+
+## RETIRED (2026-09-09, card-surface-kernel)
+
+ButtonBar lived one day. The structural kernel law retired it: zone
+belongs to the action bands (the band skeleton carries the scope),
+loose-row layout belongs to utilities — a component exists to carry a
+law, not a convenience, and ButtonBar had none of its own. See
+openspec/changes/2026-09-09-card-surface-kernel/design.md §2 for the
+full ruling. This archive is frozen history — the deletion itself
+lives in the 2026-09-09 change.

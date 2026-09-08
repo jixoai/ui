@@ -25,6 +25,7 @@ const cardCss = readFileSync(resolve('src/lib/ui/card/card.css'), 'utf8');
 const footCss = readFileSync(resolve('src/lib/ui/card/card-footer.css'), 'utf8');
 const cardSrc = readFileSync(resolve('src/lib/ui/card/card.svelte'), 'utf8');
 const headerSrc = readFileSync(resolve('src/lib/ui/card/card-header.svelte'), 'utf8');
+const bodySrc = readFileSync(resolve('src/lib/ui/card/card-body.svelte'), 'utf8');
 const footerSrc = readFileSync(resolve('src/lib/ui/card/card-footer.svelte'), 'utf8');
 
 const clean = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -150,7 +151,7 @@ describe('card-footer — the seats on the ruler (the css)', () => {
 
 describe('card — padding is the ruler\'s law (tracks paint the inline axis; faces keep only block rhythms)', () => {
   it('head face: py-2.5 only — the 14px inline inset arrives BY TRACK (dialog-header painted it by hand; the ruler paints it by law)', () => {
-    expect(headerSrc).toContain("class=\"jx-card-head-content {children ? '' : 'py-2.5'}\"");
+    expect(headerSrc).toContain("class=\"jx-card-head-content {children ? '' : 'py-2.5'}{className ? ` ${className}` : ''}\"");
     expect(headerSrc.replace(/<!--[\s\S]*?-->/g, '')).not.toContain('px-3.5');
   });
   it('THE BAND LAWS (Owner r3+r4): foot text carries NO padding-block — it centers, never sizes; the cluster is a CARVED CELL that fills the band (stretch chain, native end to end)', () => {
@@ -165,8 +166,9 @@ describe('card — padding is the ruler\'s law (tracks paint the inline axis; fa
       /:where\(\.jx-card-foot-cluster\)\s*\{[^}]*justify-self:\s*end[^}]*align-self:\s*stretch[^}]*display:\s*grid/s,
     );
   });
-  it('the body cell keeps dialog\'s VERBATIM gutter-compensating formula (the scroll ring owns its inline geometry — a dynamic scrollbar is invisible to tracks)', () => {
-    expect(cardSrc).toContain('py-3.5 px-[max(0.875rem-var(--jx-scrollbar-thin,0px),0px)]');
+  it('the body cell keeps the VERBATIM gutter-compensating formula — SINGLE-SOURCED in the CardBody part since card-surface-kernel (the scroll ring owns its inline geometry — a dynamic scrollbar is invisible to tracks)', () => {
+    expect(bodySrc).toContain('py-3.5 px-[max(0.875rem-var(--jx-scrollbar-thin,0px),0px)]');
+    expect(cardSrc).not.toContain('px-[max(0.875rem');
   });
   it('no sm: viewport paddings survive on the component surfaces', () => {
     for (const src of [cardSrc, headerSrc, footerSrc]) {
@@ -255,7 +257,7 @@ describe('card — the DOM contract (rendered)', () => {
   });
   it('the default head face is CardHeader (h2 title) renting the zone directly; zones carry no borders', () => {
     const el = host().querySelector('.card-bare')!;
-    const content = el.querySelector('[data-jx-card-head] > .jx-card-head-content')!;
+    const content = el.querySelector('[data-jx-card-head] .jx-card-head-content')!;
     expect(content.querySelector('h2[data-jx-card-title]')!.textContent).toBe('bare card');
     for (const zone of el.querySelectorAll('[data-jx-card-head], [data-jx-card-body], [data-jx-card-foot]')) {
       expect(zone.className).not.toContain('border-b');

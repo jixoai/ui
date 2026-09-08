@@ -110,7 +110,9 @@ describe('dock: reset wiring (onreset || schema-defaults fallback)', () => {
     const input = container.querySelector<HTMLInputElement>('[data-testid="label-input"]')!;
     await fireEvent.input(input, { target: { value: 'renamed' } });
 
-    const reset = container.querySelector<HTMLButtonElement>('[data-jx-canvas-reset]')!;
+    const reset = container
+      .querySelector<HTMLElement>('[data-jx-canvas-reset]')!
+      .querySelector('button')!;
     await fireEvent.click(reset);
     expect(container.querySelector('[data-testid="stage-demo"]')!.textContent).toBe('Actions');
   });
@@ -120,7 +122,9 @@ describe('dock: reset wiring (onreset || schema-defaults fallback)', () => {
     await fireEvent.click(
       container.querySelector<HTMLButtonElement>('[data-jx-canvas-seg-option="outline"]')!,
     );
-    await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-reset]')!);
+    await fireEvent.click(
+      container.querySelector<HTMLElement>('[data-jx-canvas-reset]')!.querySelector('button')!,
+    );
     expect(JSON.parse(container.querySelector('[data-testid="stage-demo"]')!.textContent!)).toEqual(
       { variant: 'fill', loading: false, depth: 2 },
     );

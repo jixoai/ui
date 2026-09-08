@@ -101,11 +101,6 @@
       "kind": "no-style",
       "prop": "inset",
       "reason": "The inset contract's IMPLEMENTING part (2026-09-05 contract, dfe91725): item-end stamps the contract and owns --jx-item-end-inset — the word hits the vocabulary but carries no ambient slot semantics here (the family's ambient axis set has no inset slot BY design; enforcement is local: non-negative px, negative is a margin wearing the wrong name)."
-    },
-    {
-      "path": "registry/files/ui/button-bar/button-bar.svelte",
-      "kind": "provider",
-      "reason": "Structural zone provider (OpenSpec 2026-09-08-button-bar), the button-group precedent verbatim on the density lane: the inherit-then-provide DENSITY capture rides the provideDensity argument subtree — getDensityContext() evaluates at that statement BEFORE the key write (a lazy read would resolve the key to the lane's own context and self-reference, derived_references_self), resolveDensity stays inside the captured-parent getter. The lane's own audited read point is ButtonBarDefaults.resolve for the data-density stamp; the variant slot is declaration-first (the component's effectiveVariant provider lane owns 'ghost' at runtime, the slot's own mirrors it in the frozen-availability table). The PAINT (getPaintZone eager capture) and PHYSICS (PRESS_TEXTURE_KEY getContext) reads ride their own axis helpers — the single-key lanes, outside this economy's banned vocabulary."
     }
   ]
 }

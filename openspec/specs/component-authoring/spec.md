@@ -8,7 +8,7 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
 > `apps/www/src/lib/ui/**`). Components are Svelte 5 runes-first,
 > native-element-first, and follow the Tier system below.
 
-## Current contract (state: 2026-09-08, button-bar the free-floating action lane over the 2026-09-06 consumer-feedback-fixes state)
+## Current contract (state: 2026-09-09, the structural kernel law over the 2026-09-06 consumer-feedback-fixes state)
 
 ## Requirements
 
@@ -2177,68 +2177,85 @@ nameless img).
   scroll chrome inside the viewport
 
 
-The `button-bar` item is the FREE-FLOATING action lane: a single
-row/column flex container whose members are independent buttons
-(PressButton / IconButton) and joined clusters (ButtonGroup) separated
-by gap — never edge-to-edge, never border-collapsed (the structural
-boundary against ButtonGroup, the joined-cluster container). The lane
-exists to DEFAULT the subtree: it provides the paint zone with own
-'ghost' (`variant ?? enclosing ?? 'ghost'` — inherit-then-provide on
-PAINT_ZONE_KEY) and the press texture zone with own flat
-(`raised ?? enclosing ?? false` on PRESS_TEXTURE_KEY, the
-ButtonVariantScope shape), so member buttons render borderless ghost
-with the engrave-tier flat press by default — no redundant borders, no
-per-button convex shadows — while explicit props at any level still
-win. A nested ButtonGroup inherits the ghost variant (its ghost seam
-policy follows), and its root cluster shadow goes dark
-(`clusterRaised` resolves through the bar's flat texture — one
-control, one shadow, and the lane casts none). The lane is
-`orientation: 'horizontal' | 'vertical'` (single row/column only —
-no wrap, no collapse, no measurement; overflow is the scroll
-container's business) and `justify: 'start' | 'center' | 'end' |
-'between'` (own default 'end' — the DialogFooter inline-end-actions
-posture this lane generalizes), laid out entirely in utilities (no
-css file; `data-jx-btnbar={orientation}` is the css-less semantic
-hook), role=group named by `label` or rest aria attributes. The
-family ships the Defaults contract (paint slot values
-[fill, tonal, outline, ghost], own ghost — fused excluded: the
-button families carry no fused rung; density slot no-opinion), a
-proxy-family row in the context-coverage frozenAvailability mirror.
 
-#### Scenario: a bare member button renders ghost and flat
+### Requirement: the structural kernel law (four layers, stickers, and the attach test)
 
-- GIVEN a PressButton with no variant/raised inside a ButtonBar
-- THEN it stamps `data-jx-press-button="ghost"` and
-  `data-jx-press-flat` — no border color, no rest/hover shadow, the
-  engrave-tier inset press
+Surface-bearing components SHALL organize into four layers with ONE
+implementation per layer: (4) floating mechanisms (Dialog, Sheet,
+Popover…) own top-layer, focus, Escape, scrim, entry/exit motion and
+surface material — and NEVER grow structural flesh; (3) the Card
+structural family (CardHeader / CardBody / CardFooter) is the ONE
+implementation of the three-band interior (head/body/foot placement,
+band separators, foot action assembly, band zones); (2) ButtonGroup is
+the ONE layout component for joined member rows — free-floating
+arrangement is plain utilities (no component wraps it); (1) skin is
+contextual: `<Card>` root for planar surfaces, the jx-surface material
+for floating ones. STRUCTURE IS A STICKER: the `data-jx-card`
+attribute family + card.css rule set IS the ruler (five named
+columns, three rows with the body row as sole absorber, the `jx-card`
+container) — any element carrying `data-jx-card` acquires the whole
+grid, server-rendered, by CSS alone; a floating surface's interior
+host stamps the attributes instead of nesting a Card (the
+`.jx-card-end-action-slot` seat, reserved since 2026-09-03, is where
+Dialog's × rides). The 15rem narrow reversal is the ONE native
+`@container jx-card` query (card-footer.css) — every carrier of the
+sticker inherits it. THE ATTACH TEST (ruling, 2026-09-09): a concern
+that must WAIT for the element to be on screen (measuring, listeners,
+external libraries) uses `{@attach}`; a concern that exists at render
+time (attributes, styles, semantics) is written declaratively —
+attributes and classes that are present in SSR output; wrapping pure
+CSS capability in a runtime attachment is a violation. THE ACTION-ZONE
+LAW: every component's action bands (head/foot/dock button areas)
+carry their own ButtonVariantScope from the band skeleton — head
+ghost, foot ghost+flat — so bare PressButton/IconButton members (and
+raw-snippet content) render quiet by default while explicit props
+always win; a component author NEVER re-derives this per surface.
+ButtonBar is RETIRED with this law (2026-09-09): a component exists
+to carry a law, not a convenience — it had none of its own (zone
+belongs to the bands, flex belongs to utilities).
 
-#### Scenario: an explicit prop beats the lane at either level
+#### Scenario: a floating surface renders the Card interior
 
-- GIVEN the same button with `variant="fill"` or `raised={true}`, or
-  the bar itself with `variant="tonal"` / `raised={true}`
-- THEN the explicit prop wins at its level — a fill button inside a
-  ghost bar, or a convex bar of outline buttons, are both legal
+- GIVEN a Dialog open with title and footer content
+- THEN its interior host carries `data-jx-card` (not a Card
+  component), the × rides `.jx-card-end-action-slot`, the body is a
+  CardBody with the gutter-compensation cell, and the surface material
+  rules paint unchanged — no Card skin (border/bg/shadow) exists
+  inside the dialog
 
-#### Scenario: a joined cluster rides the lane silently
+#### Scenario: any element wearing the sticker gets the ruler
 
-- GIVEN a ButtonGroup with no variant/raised inside a ButtonBar
-- THEN its member buttons inherit ghost (seams on by the ghost seam
-  policy) and its root carries no cluster shadow
-  (`data-jx-btngroup-flat`) — the lane's flat texture carried
-  through the physics key
+- GIVEN an arbitrary element stamped `data-jx-card` with CardHeader/
+  CardBody/CardFooter children
+- THEN the five named columns and three-band rows apply server-side
+  (no runtime attachment, no flash), and the 15rem reversal works
+  through the inherited `jx-card` container
 
-#### Scenario: the lane is one row or one column, never both
+#### Scenario: the attach test classifies a concern
 
-- GIVEN a horizontal ButtonBar overflowing its container
-- THEN it never wraps and never collapses — the lane has no overflow
-  machine; a vertical lane is one stretched column
-  (`items-stretch`), a horizontal lane centers its cross axis
+- GIVEN a proposed `tooltip(element)` attachment and a proposed
+  "card-grid" structural attachment
+- THEN the tooltip (measures the element on screen) is an attachment;
+  the structural grid (exists at render time, SSR-complete) is a
+  declarative attribute — wrapping it in `{@attach}` fails review
 
-#### Scenario: the lane adopts the enclosing zone when it sets none
+#### Scenario: an action band quiets its buttons
 
-- GIVEN a ButtonBar with no variant inside a zone providing 'tonal'
-- THEN its members default to tonal (inherit-then-provide); with no
-  enclosing zone they default to ghost — the lane's own
+- GIVEN a bare PressButton inside a Card/Dialog foot band or a
+  code-card/canvas action row wrapped by the band's
+  ButtonVariantScope
+- THEN it renders ghost on the flat texture with zero per-button
+  props, an explicit variant/raised still wins, and no hand-drawn
+  outline button (border/bg utilities + shadow-suppression vars)
+  remains in any action band
+
+#### Scenario: joined members compose, loose members are utilities
+
+- GIVEN foot actions rendered through CardFooter
+- THEN the buttons join ONE ButtonGroup with the leading seam
+  (the one layout component); a caller arranging loose buttons
+  anywhere writes plain flex/gap utilities — no wrapper component
+  for free-floating arrangement exists in the registry
 
 ### Requirement: the blockquote face (quote and admonition)
 

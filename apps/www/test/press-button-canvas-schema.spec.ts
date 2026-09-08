@@ -49,7 +49,9 @@ describe('pilot page schema playground', () => {
     expect(drawer.textContent).toContain('effect={pulse()}');
 
     // reset → schema defaults (variant outline, effect none)
-    await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-reset]')!);
+    await fireEvent.click(
+      container.querySelector<HTMLElement>('[data-jx-canvas-reset]')!.querySelector('button')!,
+    );
     expect(container.querySelector('[data-jx-press-button="outline"]')).not.toBeNull();
     expect(container.querySelector('[data-jx-press-button="outline"] .jx-pulse-layer')).toBeNull();
   });

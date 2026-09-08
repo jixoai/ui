@@ -15,7 +15,7 @@
    * interface (engine-minisearch today).
    */
   import Dialog from '$lib/ui/dialog/dialog.svelte';
-  import DialogHeader from '$lib/ui/dialog/dialog-header.svelte';
+  import CardHeader from '$lib/ui/card/card-header.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import { createMinisearchEngine, type CorpusPage } from '$lib/search/engine-minisearch';
   import { tokenize } from '$lib/search/tokenizer';
@@ -229,12 +229,17 @@
   cancelGuard={() => composing}
 >
   {#snippet head()}
-    <!-- the r14-9 composition: <DialogHeader> is the head's content
-         face — its children ride FLUSH, edge-to-edge. The Input IS the
-         head: its prefix-icon lane carries the magnifier, its suffix
-         lane the flight cue, its own shell the row's height and
-         padding. Dialog's x button rides the row's end -->
-    <DialogHeader>
+    <!-- the card-surface-kernel composition: <CardHeader> is the
+         head band's content face (the DialogHeader clone retired).
+         col-start-1 is the FLUSH escape hatch: the face's column start
+         pins to the grid's first line (past the inset track) while
+         the × seat keeps its own column ON THE SAME ROW — a
+         col-span-full would push the auto-placed seat to a second
+         row (probed, the review catch). The Input IS the head: its
+         prefix-icon lane carries the magnifier, its suffix lane the
+         flight cue, its own shell the row's height and padding.
+         Dialog's x rides the band's end seat -->
+    <CardHeader class="col-start-1">
       <Input
         class="w-full min-w-0 flex-1"
         bind:value={query}
@@ -258,7 +263,7 @@
           {/if}
         {/snippet}
       </Input>
-    </DialogHeader>
+    </CardHeader>
   {/snippet}
 
   {#if query.trim() === ''}

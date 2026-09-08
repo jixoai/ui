@@ -89,3 +89,16 @@ between）。这正是 DialogFooter 效果的一般化，但独立于 dialog。
 - 成员间的语义分隔线（ButtonGroupDivider 是 joined 集群的边界法；
   free-floating 成员间天然由 gap 分隔，需要强分隔时消费者直接放
   Separator）。
+
+
+---
+
+## RETIRED (2026-09-09, card-surface-kernel)
+
+ButtonBar lived one day. The structural kernel law retired it: zone
+belongs to the action bands (the band skeleton carries the scope),
+loose-row layout belongs to utilities — a component exists to carry a
+law, not a convenience, and ButtonBar had none of its own. See
+openspec/changes/2026-09-09-card-surface-kernel/design.md §2 for the
+full ruling. This archive is frozen history — the deletion itself
+lives in the 2026-09-09 change.

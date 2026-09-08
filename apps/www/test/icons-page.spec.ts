@@ -417,7 +417,7 @@ describe('/docs/icons.html — the prefix compiler (scanned names + as aliases)'
     const grid = container.querySelector('[data-named-icon-grid]');
     const items = grid?.querySelectorAll('li') ?? [];
     expect(items.length).toBe(ICON_NAMES.length);
-    expect(ICON_NAMES.length).toBe(44); // 38 built-ins + 4 scanned canonicals + 1 alias + 1 equivalence key
+    expect(ICON_NAMES.length).toBe(45); // 39 built-ins (gripVertical, 2026-09-08) + 4 scanned canonicals + 1 alias + 1 equivalence key
     for (const name of ['md:copy_all', 'copy2', 'md:home', 'ph:atom', 'rx:system:add-line', 'lucide:check']) {
       expect(ICON_NAMES, 'the scanned set rides the artifact').toContain(name);
     }

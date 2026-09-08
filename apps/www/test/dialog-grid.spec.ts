@@ -1,26 +1,27 @@
 /**
- * The dialog grid-ruler gates (r13, 2026-09-02 — the Owner's grid
- * mandate, list-item subgrid precedent). Grid GEOMETRY is css — jsdom
- * can't compute tracks — so these gates pin what the law keys off
- * (the list-item.spec / separator.spec precedent):
+ * The dialog structural gates (card-surface-kernel era, 2026-09-09).
+ * Grid GEOMETRY is css — jsdom can't compute tracks — so these gates
+ * pin what the law keys off (the list-item.spec / separator.spec
+ * precedent):
  *
- *   STRUCTURE  the ruler host's presence STAMPS (data-sep-head /
- *              data-sep-foot — the stamped-attribute painting law:
- *              the component resolves zone presence, css paints
- *              stamps only), the Separator INSTANCES in their row
- *              tracks, the zones' content cells riding the 1fr track,
- *              and the retired borders/paddings gone from the markup.
- *   CSS SOURCE the ruler block itself: subgrid tenancy, the named
- *              [sep-head]/[sep-foot] 1px tracks, the no-subgrid
- *              padding fallback, the container-query inset ladder.
+ *   STRUCTURE  the sticker host's presence STAMPS (data-sep-head /
+ *              data-sep-foot on the data-jx-card host — the
+ *              stamped-attribute painting law), the Separator
+ *              INSTANCES edge-riding their band rows, the CardBody
+ *              cell riding the absorbing row, and the retired
+ *              borders/paddings gone from the markup.
+ *   DIALECT    the interior IS the card structural kernel: the host
+ *              stamps data-jx-card (never a Card component — no
+ *              border/bg/shadow skin inside the dialog), the faces
+ *              are the Card family parts (CardHeader/CardBody/
+ *              CardFooter), the × rides .jx-card-end-action-slot —
+ *              the seat the card sources reserved for it.
+ *   CSS SOURCE dialog.css owns the MECHANISM only (scrim, × scale,
+ *              the open-gated height-continuity flex); the ruler law
+ *              lives in card.css (the sticker's rule set).
  *   r12 FACE   class/head/cancelGuard survive the restructure intact.
- *   r14-9      the actions/end sibling snippets are RETIRED — the
- *              footer snippet is the RAW full foot override, and the
- *              content faces are the composition components:
- *              DialogHeader (the default title row, rendered
- *              internally) and DialogFooter (the auto button-group).
  *
- * The palette composition (head snippet + DialogHeader + geometry
+ * The palette composition (head snippet + CardHeader + geometry
  * overrides) is locked end-to-end in search-client.spec.ts.
  */
 import { readFileSync } from 'node:fs';
@@ -29,44 +30,57 @@ import { render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import type { Snippet } from 'svelte';
 import Dialog from '../src/lib/ui/dialog/dialog.svelte';
-import DialogFooter from '../src/lib/ui/dialog/dialog-footer.svelte';
+import CardFooter from '../src/lib/ui/card/card-footer.svelte';
 
 const css = readFileSync(resolve(process.cwd(), 'src/lib/ui/dialog/dialog.css'), 'utf8');
+const cardCss = readFileSync(resolve(process.cwd(), 'src/lib/ui/card/card.css'), 'utf8');
 
 /** the empty-snippet children every slot-bearing component accepts */
 const children = (() => {}) as unknown as Snippet;
 const footer = (() => {}) as unknown as Snippet;
 const head = (() => {}) as unknown as Snippet;
 
-const scroll = (c: HTMLElement) => c.querySelector('[data-jx-dialog-scroll]')!;
+const host = (c: HTMLElement) => c.querySelector('[data-jx-card]')!;
 
-/** zone name | the separator's track stamp, for DOM-order locks */
+/** band name | the separator's edge stamp, for DOM-order locks */
 const zoneTag = (n: Element): string => {
-  if (n.hasAttribute('data-jx-dialog-head')) return 'head-zone';
-  if (n.hasAttribute('data-jx-dialog-body')) return 'body-zone';
-  if (n.hasAttribute('data-jx-dialog-foot')) return 'foot-zone';
-  return `sep-${n.getAttribute('data-jx-dialog-sep')}`;
+  if (n.hasAttribute('data-jx-card-head')) return 'head-zone';
+  if (n.hasAttribute('data-jx-card-body')) return 'body-zone';
+  if (n.hasAttribute('data-jx-card-foot')) return 'foot-zone';
+  return `sep-${n.getAttribute('data-jx-card-sep')}`;
 };
 
-describe('the ruler host — presence stamps (the painting law)', () => {
+describe('the sticker host — presence stamps (the painting law)', () => {
   it('always stamps the structural head separator; stamps the foot one only on presence', () => {
     const bare = render(Dialog, { props: { title: 't', children } });
-    expect(scroll(bare.container).hasAttribute('data-sep-head')).toBe(true);
-    expect(scroll(bare.container).hasAttribute('data-sep-foot')).toBe(false);
-    // no footer face passed → no foot zone, no foot separator row
-    expect(bare.container.querySelector('[data-jx-dialog-foot]')).toBeNull();
-    expect(bare.container.querySelector('[data-jx-dialog-sep="foot"]')).toBeNull();
+    expect(host(bare.container).hasAttribute('data-sep-head')).toBe(true);
+    expect(host(bare.container).hasAttribute('data-sep-foot')).toBe(false);
+    // no footer face passed → no foot band, no foot separator edge
+    expect(bare.container.querySelector('[data-jx-card-foot]')).toBeNull();
+    expect(bare.container.querySelector('[data-jx-card-sep="foot"]')).toBeNull();
 
     const footed = render(Dialog, { props: { title: 't', children, footer } });
-    expect(scroll(footed.container).hasAttribute('data-sep-foot')).toBe(true);
-    expect(footed.container.querySelector('[data-jx-dialog-foot]')).not.toBeNull();
+    expect(host(footed.container).hasAttribute('data-sep-foot')).toBe(true);
+    expect(footed.container.querySelector('[data-jx-card-foot]')).not.toBeNull();
+  });
+
+  it('the host is the STICKER, not a Card — no planar skin inside the dialog (the kernel law)', () => {
+    const { container } = render(Dialog, { props: { title: 't', children } });
+    const h = host(container);
+    expect(h.tagName).toBe('DIV'); // the interior host, a plain element carrying the attribute
+    // the planar Card skin (border/bg/shadow utilities) must NOT ride it
+    expect(h.className).not.toMatch(/border\b/);
+    expect(h.className).not.toMatch(/bg-card/);
+    expect(h.className).not.toMatch(/shadow-/);
+    // and no Card COMPONENT is nested (the dialect is attributes + css)
+    expect(container.querySelector('section[data-jx-card]')).toBeNull();
   });
 });
 
-describe('the separators — Separator instances in explicit tracks', () => {
+describe('the separators — Separator instances edge-riding their band rows', () => {
   it('the head divider IS the Separator component (native hr, ink engine hooks, AT-hidden)', () => {
     const { container } = render(Dialog, { props: { title: 't', children } });
-    const sep = container.querySelector('[data-jx-dialog-sep="head"]')!;
+    const sep = container.querySelector('[data-jx-card-sep="head"]')!;
     expect(sep).not.toBeNull();
     expect(sep.tagName).toBe('HR'); // the Separator component's horizontal posture
     expect(sep.getAttribute('data-jx-separator')).toBe('fused'); // its ink hook
@@ -76,127 +90,82 @@ describe('the separators — Separator instances in explicit tracks', () => {
 
   it('the host DOM order is head, sep-head, body, sep-foot, foot', () => {
     const { container } = render(Dialog, { props: { title: 't', children, footer } });
-    const order = [...scroll(container).children].map(zoneTag);
+    const order = [...host(container).children].map(zoneTag);
     expect(order).toEqual(['head-zone', 'sep-head', 'body-zone', 'sep-foot', 'foot-zone']);
   });
 });
 
-describe('the zones — borders retired, content rides the 1fr track', () => {
-  it('zones stay flush and border-free (the r14 tuning: geometry belongs to content, not zones)', () => {
+describe('the bands — borders retired, the kernel parts compose', () => {
+  it('bands stay flush and border-free (geometry belongs to content, not bands)', () => {
     const { container } = render(Dialog, { props: { title: 't', children, footer } });
-    for (const zone of ['head', 'body', 'foot']) {
-      const el = container.querySelector(`[data-jx-dialog-${zone}]`)!;
+    for (const band of ['head', 'body', 'foot']) {
+      const el = container.querySelector(`[data-jx-card-${band}]`)!;
       expect(el.className).not.toMatch(/border-[tb]/);
-      expect(el.getAttribute('class')).toBeNull(); // the zone element carries NO utilities
     }
-    // the DEFAULT title row IS the DialogHeader component — it owns the
-    // rhythm; a consumer head snippet renders RAW (no DialogHeader
-    // unless composed, nothing padded arriving from Dialog itself)
-    const headRow = container.querySelector('.jx-dialog-head-grid > .jx-dialog-head-content')!;
-    expect(headRow.className).toMatch(/px-3\.5/);
+    // the DEFAULT title row IS the Card family's CardHeader — it owns
+    // the block rhythm only (py-2.5; the inline inset arrives BY
+    // TRACK); a consumer head snippet renders RAW
+    const headRow = container.querySelector('.jx-card-head-content')!;
     expect(headRow.className).toMatch(/py-2\.5/);
-    expect(headRow.querySelector('h2[data-jx-dialog-title]')).not.toBeNull();
+    expect(headRow.className).not.toMatch(/px-/); // the track paints the inset
+    expect(headRow.querySelector('h2[data-jx-card-title]')).not.toBeNull();
     const flushed = render(Dialog, { props: { head, children } });
-    expect(flushed.container.querySelector('.jx-dialog-head-content')).toBeNull();
+    expect(flushed.container.querySelector('.jx-card-head-content')).toBeNull();
     expect(flushed.container.querySelector('h2')).toBeNull();
-    const bodyRow = container.querySelector('[data-jx-dialog-body] > div')!;
-    // the body cell rides the scrollbar-law compensation (r14-16,
-    // Owner): authored 0.875rem inline minus the probed thin width —
-    // the both-edges gutter reserves space the padding gives back
+    // the × rides the RESERVED seat (the card sources' wish, kept)
+    expect(container.querySelector('.jx-card-end-action-slot .jx-dialog-x')).not.toBeNull();
+  });
+
+  it('the body is the CardBody part — ONE gutter-compensation formula, single-sourced', () => {
+    const { container } = render(Dialog, { props: { title: 't', children, footer } });
+    const bodyBand = container.querySelector('[data-jx-card-body]')!;
+    const bodyRow = bodyBand.querySelector('[data-jx-card-cell]')!;
+    expect(bodyBand.hasAttribute('data-jx-scroll')).toBe(false); // default scroller
     expect(bodyRow.className).toMatch(/py-3\.5/);
     expect(bodyRow.className).toMatch(/px-\[max\(0\.875rem-var\(--jx-scrollbar-thin,0px\),0px\)\]/);
   });
 
-  it('the retired column ruler leaves no residue (no inset token, no subgrid, no col-start)', () => {
-    expect(css).not.toMatch(/--jx-dialog-inset\s*:/); // the NAME may live in the retirement note; the DECLARATION may not
-    expect(css).not.toContain('grid-template-columns: subgrid'); // mentions may live in notes; usage may not
-    const { container } = render(Dialog, { props: { title: 't', children, footer } });
-    expect(container.querySelector('.col-start-2')).toBeNull();
-  });
-
-  it('the scroll law (r14-3): the panel never scrolls — only the body content cell is the ring', () => {
-    const { container } = render(Dialog, { props: { title: 't', children, footer } });
-    // the ruler host carries a height BOUND but no overflow authority
-    const ring = container.querySelector('[data-jx-dialog-scroll]')!;
-    expect(ring.className).not.toMatch(/overflow(-[xy])?-?(auto|scroll)/);
-    expect(ring.className).toMatch(/max-h-/);
-    // the body ZONE is the scroll ring (min-height:0 unlocks the 1fr row)
-    expect(css).toMatch(/\[data-jx-dialog-body\][^}]*min-height: 0/s);
-    expect(css).toMatch(/\[data-jx-dialog-body\][^}]*overflow-y: auto/s);
-    // the gutter is stable on BOTH edges (r14-14, Owner): a one-sided
-    // reservation shifts the scrolling content optically off-center
-    expect(css).toMatch(/\[data-jx-dialog-body\][^}]*scrollbar-gutter: stable both-edges/s);
-    // the DECLARED non-scroller (r14-15, Owner): scroll={false} retires
-    // the scroll authority and the gutter reservation together
-    expect(css).toMatch(/\[data-jx-dialog-body\]\[data-jx-scroll='off'\][^}]*scrollbar-gutter: auto/s);
-    expect(css).toMatch(/\[data-jx-dialog-body\]\[data-jx-scroll='off'\][^}]*overflow-y: visible/s);
-    // the css gives body the ONLY flexible row (head/foot pinned)
-    expect(css).toContain('[body] minmax(0, 1fr)');
-    expect(css).not.toContain('[body] minmax(0, auto)');
-  });
-
-  it('the platform element is the named inline-size container', () => {
-    const { container } = render(Dialog, { props: { title: 't', children } });
-    expect(container.querySelector('dialog')!.className).toContain('@container/jx-dialog');
-  });
-
-  it('scroll={false} declares the body a non-scroller (r14-15): the off-stamp, absent by default', () => {
-    const plain = render(Dialog, { props: { title: 't', children } });
-    expect(plain.container.querySelector('[data-jx-dialog-body]')!.hasAttribute('data-jx-scroll')).toBe(false);
+  it('scroll={false} declares the body a non-scroller: the off-stamp, absent by default', () => {
     const fixed = render(Dialog, { props: { title: 't', children, scroll: false } });
-    expect(fixed.container.querySelector('[data-jx-dialog-body]')!.getAttribute('data-jx-scroll')).toBe('off');
+    expect(fixed.container.querySelector('[data-jx-card-body]')!.getAttribute('data-jx-scroll')).toBe('off');
   });
 });
 
-describe('the foot zone — the footer snippet is RAW; DialogFooter is the content face (r14-9)', () => {
-  it('the ghost scope covers header and footer buttons (Context, r14-2)', () => {
+describe('the foot band — the footer snippet is RAW; CardFooter is the content face', () => {
+  it('the scope covers band buttons; the foot renders the snippet RAW', () => {
     const { container } = render(Dialog, { props: { title: 't', children, footer } });
-    // both zones wrap their content in the variant scope
-    expect(container.querySelectorAll('button').length).toBeGreaterThan(0);
-    // the scope component renders NO element (a context boundary, not a
-    // container) — the head slot grid sits directly under its zone
-    expect(container.querySelector('[data-jx-dialog-head] > .jx-dialog-head-grid')).not.toBeNull();
-    // the foot zone renders the footer snippet RAW — no grid, no group,
-    // no divider from Dialog; the content face is DialogFooter's
-    expect(container.querySelector('[data-jx-dialog-foot] > .jx-dialog-foot-grid')).toBeNull();
-    expect(container.querySelector('[data-jx-dialog-foot] > [data-jx-btngroup]')).toBeNull();
-    expect(container.querySelector('[data-jx-dialog-foot] > [data-jx-separator]')).toBeNull();
+    // the scope component renders NO element (a context boundary) —
+    // the head face places directly under its band
+    expect(container.querySelector('[data-jx-card-head] .jx-card-head-face')).not.toBeNull();
+    // the foot band renders the footer snippet RAW — no grid, no group,
+    // no divider from Dialog; the content face is CardFooter's
+    expect(container.querySelector('[data-jx-card-foot] > .jx-card-foot-grid')).toBeNull();
+    expect(container.querySelector('[data-jx-card-foot] > [data-jx-btngroup]')).toBeNull();
+    expect(container.querySelector('[data-jx-card-foot] > [data-jx-separator]')).toBeNull();
   });
 
-  it('DialogFooter: children auto-join ONE ButtonGroup (named; the grid packs the end)', () => {
-    const { container } = render(DialogFooter, { props: { children } });
-    const grid = container.querySelector('.jx-dialog-foot-grid')!;
+  it('CardFooter: children auto-join ONE ButtonGroup (named; the seats place on the ruler)', () => {
+    const { container } = render(CardFooter, { props: { children } });
+    const grid = container.querySelector('.jx-card-foot-grid')!;
     expect(grid).not.toBeNull();
-    const groups = grid.querySelectorAll(':scope > [data-jx-btngroup]');
+    const groups = grid.querySelectorAll(':scope > .jx-card-foot-cluster > [data-jx-btngroup]');
     expect(groups.length).toBe(1);
-    expect(groups[0]?.getAttribute('aria-label')).toBe('Dialog footer');
+    expect(groups[0]?.getAttribute('aria-label')).toBe('Actions'); // the neutral default
   });
 
-  it('DialogFooter: the end slot replaces the grouped arrangement entirely (the footerEnd reference)', () => {
-    const ended = render(DialogFooter, {
+  it('CardFooter: the end slot replaces the grouped arrangement entirely', () => {
+    const ended = render(CardFooter, {
       props: { children, end: (() => {}) as unknown as Snippet },
     });
     expect(ended.container.querySelector('[data-jx-btngroup]')).toBeNull(); // no group under the raw face
-    expect(ended.container.querySelector('.jx-dialog-foot-grid')).not.toBeNull(); // the grid still carries the end content
+    expect(ended.container.querySelector('.jx-card-foot-grid')).not.toBeNull(); // the ruler mirror still carries the end content
   });
 
-  it('DialogFooter: the opening line is the GROUP\'s leading seam (r14-13) — no standalone Separator, none under the raw end face', () => {
-    const grouped = render(DialogFooter, { props: { children } });
-    // the capability rides the ButtonGroup: the cluster opens through
-    // its own seam pseudo, flush by construction — no sibling element
-    // the foot grid's column-gap could detach
-    const group = grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-btngroup]');
+  it("CardFooter: the opening line is the GROUP's leading seam — no standalone Separator anywhere", () => {
+    const grouped = render(CardFooter, { props: { children } });
+    const group = grouped.container.querySelector('[data-jx-btngroup]');
     expect(group?.hasAttribute('data-jx-leading-seam')).toBe(true);
-    expect(grouped.container.querySelector('.jx-dialog-foot-grid > [data-jx-separator="fused"]')).toBeNull();
-
-    // the end face replaces the group — the bracket goes with it
-    const ended = render(DialogFooter, {
-      props: { end: (() => {}) as unknown as Snippet },
-    });
-    expect(ended.container.querySelector('[data-jx-btngroup]')).toBeNull();
-    expect(ended.container.querySelector('[data-jx-separator="fused"]')).toBeNull();
-
-    const bare = render(DialogFooter, { props: {} });
+    const bare = render(CardFooter, { props: {} });
     expect(bare.container.querySelector('[data-jx-separator]')).toBeNull(); // no cluster → no dangling line
   });
 });
@@ -249,37 +218,26 @@ describe('the r12 composition face survives the restructure', () => {
   });
 });
 
-describe('the ruler — css source law', () => {
-  it('the scroll ring is the ROW-RULER host: one column, named rows (r14)', () => {
-    expect(css).toMatch(/display: grid;/);
-    expect(css).toContain('[head] auto');
-    expect(css).toContain('[body] minmax(0, 1fr)'); // the ONLY flexible row (the scroll law, r14-3)
-    // no column ruler on the scroll RING (the zone-level slot grids
-    // own their own two-track columns — that is the r14-2 law)
-    const ring = css.slice(css.indexOf('[data-jx-dialog-scroll]'), css.indexOf('.jx-dialog-head-grid'));
-    expect(ring).not.toContain('grid-template-columns');
+describe('the dialect — css source law (mechanism here, ruler in the kernel sheet)', () => {
+  it('dialog.css owns NO ruler: the structural rule set lives in card.css (the sticker)', () => {
+    // the mechanism residue only — no grid templates, no band rules
+    expect(css).not.toContain('grid-template-rows');
+    expect(css).not.toContain('data-jx-card-head');
+    expect(css).not.toContain('data-jx-card-body');
+    expect(css).not.toContain('data-jx-card-foot');
+    // the sticker's sheet carries the three-band template with the
+    // body row as the sole absorber (integer lines — the tenancy law)
+    expect(cardCss).toMatch(/grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\)\s+auto/s);
+    // the container (the 15rem reversal's anchor) rides the sticker
+    expect(cardCss).toContain('container: jx-card');
+    // the sticker host needs no overflow authority (the body cell is
+    // the ring); its max-h is the panel's own geometry in markup
   });
 
-  it('explicit named 1px separator rows; the foot matrix branches on the stamp', () => {
-    expect(css).toContain('[sep-head] 1px');
-    expect(css).toContain('[sep-foot] 1px');
-    expect(css).toContain('[data-jx-dialog-scroll][data-sep-foot]');
-    expect(css).toContain("[data-jx-dialog-sep='head']");
-    expect(css).toContain("[data-jx-dialog-sep='foot']");
-  });
-
-  it('the r14 tuning records itself in the sheet (the retirement note)', () => {
-    expect(css).toContain('RETIRED');
-    expect(css).toMatch(/r14 tuning/i);
-  });
-
-  it('the inset ladder is gone; the platform stays a named container (the 15rem foot variants ride it)', () => {
-    expect(css).not.toContain('@container jx-dialog (max-width: 22rem)');
-    expect(css).not.toMatch(/--jx-dialog-inset\s*:/); // the NAME may live in the retirement note; the DECLARATION may not
-  });
-
-  it('no zone border paint creeps back into the family sheet', () => {
-    expect(css).not.toMatch(/border-block|border-top|border-bottom/);
+  it('the scroll law lives in the kernel sheet: the cell is the ring, both-edges gutter', () => {
+    expect(cardCss).toMatch(/\[data-jx-card-cell\][^}]*overflow-y: auto/s);
+    expect(cardCss).toMatch(/\[data-jx-card-cell\][^}]*scrollbar-gutter: stable both-edges/s);
+    expect(cardCss).toMatch(/\[data-jx-scroll='off'\][^}]*scrollbar-gutter: auto/s);
   });
 
   it('the height-continuity flex is GATED on open dialogs — a closed dialog stays display:none (2026-09-05)', () => {
@@ -288,13 +246,19 @@ describe('the ruler — css source law', () => {
     // (author > UA origin beats specificity). Ungated, every CLOSED
     // dialog rendered as an invisible absolutely-positioned box below
     // the viewport; the site's root-layout search palette made the
-    // DOCUMENT scrollable by its height, and wheel/keyboard scrolls
-    // over non-scroller chrome slid the whole 100dvh shell up (the
-    // page-shift bug). The jx-waapi allow-discrete display transition
-    // still owns the exit window on close.
+    // DOCUMENT scrollable by its height (the page-shift bug).
     expect(css).toMatch(/\.jx-dialog\[open\][\s\S]{0,80}display: flex/);
     expect(css).toMatch(/\.jx-dialog:popover-open[\s\S]{0,80}display: flex/);
     // the UNGATED platform selector must not exist
     expect(css).not.toMatch(/:where\(\.jx-dialog\)\s*\{/);
+    // the grid host under the conducted ceiling: the flex-child floor
+    // is lifted (the kernel's absorbing row can constrain)
+    expect(css).toMatch(/\[data-jx-dialog-surface\][^}]*>\s*:where\(\[data-jx-card\]\)[\s\S]{0,60}min-height: 0/s);
+  });
+
+  it('no zone border paint creeps back into either sheet', () => {
+    for (const sheet of [css, cardCss]) {
+      expect(sheet).not.toMatch(/border-block|border-top|border-bottom/);
+    }
   });
 });

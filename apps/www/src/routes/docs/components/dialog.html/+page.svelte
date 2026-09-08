@@ -2,8 +2,8 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Dialog from '$lib/ui/dialog/dialog.svelte';
-  import DialogHeader from '$lib/ui/dialog/dialog-header.svelte';
-  import DialogFooter from '$lib/ui/dialog/dialog-footer.svelte';
+  import CardFooter from '$lib/ui/card/card-footer.svelte';
+  import CardHeader from '$lib/ui/card/card-header.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -50,7 +50,7 @@ ${close}
 
   const formUsage = `<script lang="ts">
   import Dialog from '@ui/dialog.svelte';
-  import DialogFooter from '@ui/dialog/dialog-footer.svelte';
+  import CardFooter from '@ui/card/card-footer.svelte';
   import PressButton from '@ui/press-button.svelte';
 ${close}
 
@@ -65,18 +65,18 @@ ${close}
   <Dialog title="Rotate API key" bind:open>
   <p>Minting a new key revokes the current one after 24 hours.</p>
   {#snippet footer()}
-    <DialogFooter>
+    <CardFooter>
       <PressButton onclick={() => (open = false)}>Cancel</PressButton>
       <PressButton variant="fill" onclick={confirm}>Rotate key</PressButton>
-    </DialogFooter>
+    </CardFooter>
   {/snippet}
 </Dialog>`;
 
-  // footer clusters (r14-9): DialogFooter's children auto-join ONE
+  // footer clusters (r14-9): CardFooter's children auto-join ONE
   // group — ghost by context, an explicit variant still wins
   const multiUsage = `<script lang="ts">
   import Dialog from '@ui/dialog.svelte';
-  import DialogFooter from '@ui/dialog/dialog-footer.svelte';
+  import CardFooter from '@ui/card/card-footer.svelte';
   import PressButton from '@ui/press-button.svelte';
 ${close}
 
@@ -86,33 +86,36 @@ ${close}
 <Dialog title="Publish release" bind:open>
   <p>v2.4.0 is staged — 14 commits since the last tag.</p>
   {#snippet footer()}
-    <DialogFooter>
+    <CardFooter>
       <PressButton onclick={() => (open = false)}>Cancel</PressButton>
       <PressButton onclick={saveDraft}>Save draft</PressButton>
       <PressButton variant="fill" onclick={publish}>Publish</PressButton>
-    </DialogFooter>
+    </CardFooter>
   {/snippet}
 </Dialog>`;
 
-  // end: DialogFooter's raw slot — present, it replaces the grouped
+  // end: CardFooter's raw slot — present, it replaces the grouped
   // arrangement
   const endUsage = `<Dialog title="4 assets selected" bind:open>
   <p>crash-report.sites · tokens.json · hero.tape · audit.log</p>
   {#snippet footer()}
-    <DialogFooter>
-      {#snippet end()}
+    <!-- CardFooter's seat law: text rides the start seat, buttons
+         join the children cluster (the end seat is the RAW text
+         override that replaces the cluster) -->
+    <CardFooter>
+      {#snippet start()}
         <span class="font-mono text-[12px] text-muted-foreground">2.1 MB total</span>
-        <PressButton variant="fill" onclick={downloadAll}>Download all</PressButton>
       {/snippet}
-    </DialogFooter>
+      <PressButton variant="fill" onclick={downloadAll}>Download all</PressButton>
+    </CardFooter>
   {/snippet}
 </Dialog>`;
 
-  // custom head: DialogHeader wraps the custom content flush; title
+  // custom head: CardHeader wraps the custom content flush; title
   // keeps naming the dialog for AT while its visual row is gone
   const headUsage = `<script lang="ts">
   import Dialog from '@ui/dialog.svelte';
-  import DialogHeader from '@ui/dialog/dialog-header.svelte';
+  import CardHeader from '@ui/card/card-header.svelte';
   import Input from '@ui/input.svelte';
   import Icon from '@ui/icon.svelte';
 ${close}
@@ -123,13 +126,16 @@ ${close}
 
 <Dialog title="Filter events" bind:open>
   {#snippet head()}
-    <DialogHeader>
+    <!-- col-start-1 = the flush escape: the face's column start
+         pins to the grid's first line while the x seat keeps its
+         own column on the same row -->
+    <CardHeader class="col-start-1">
       <Input class="w-full min-w-0" placeholder="Filter events…" bind:value={query} aria-label="Filter events">
         {#snippet innerInlineStart()}
           <span class="flex-none select-none text-muted-foreground" aria-hidden="true"><Icon name="search" /></span>
         {/snippet}
       </Input>
-    </DialogHeader>
+    </CardHeader>
   {/snippet}
   <!-- the body lists the events filtered by query -->
 </Dialog>`;
@@ -138,7 +144,7 @@ ${close}
   // body zone scrolls while head and foot stay pinned
   const scrollUsage = `<script lang="ts">
   import Dialog from '@ui/dialog.svelte';
-  import DialogFooter from '@ui/dialog/dialog-footer.svelte';
+  import CardFooter from '@ui/card/card-footer.svelte';
   import PressButton from '@ui/press-button.svelte';
 ${close}
 
@@ -148,7 +154,7 @@ ${close}
 <Dialog
   title="Event log"
   bind:open
-  class="[&_[data-jx-dialog-scroll]]:max-h-[22rem]"
+  class="[&_[data-jx-card]]:max-h-[22rem]"
 >
   <ol class="flex flex-col gap-1 font-mono text-[12px]">
     {#each lines as line, i}
@@ -156,10 +162,10 @@ ${close}
     {/each}
   </ol>
   {#snippet footer()}
-    <DialogFooter>
+    <CardFooter>
       <PressButton onclick={() => (open = false)}>Close</PressButton>
       <PressButton variant="fill" onclick={exportLog}>Export log</PressButton>
-    </DialogFooter>
+    </CardFooter>
   {/snippet}
 </Dialog>`;
 
@@ -277,7 +283,7 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · NativeHTML"
       title="dialog — the platform owns the hard parts"
-      summary="One native <dialog> element, opened with showModal() and closed with close(). Focus trapping, the inert page behind, top-layer rendering above every sticky header, and the Escape key are browser features — the component only binds open state to them and adds the shared WAAPI surface timeline. Closed dialogs render nothing in the page, with or without JavaScript."
+      summary="One native <dialog> element, opened with showModal() and closed with close(). Focus trapping, the inert page behind, top-layer rendering above every sticky header, and the Escape key are browser features — the component only binds open state to them and adds the shared WAAPI surface timeline. Closed dialogs render nothing in the page, with or without JavaScript. Since the structural kernel (2026-09-09) the interior is the CARD DIALECT: the head/body/foot bands, separators, inline ruler and narrow reversal all ride the data-jx-card sticker (card.css), the faces are the Card family parts (<CardHeader>, <CardBody>, <CardFooter> — the retired DialogHeader/DialogFooter were their clones), and the × rides the end-action seat the card sources reserved for it. The dialog owns the mechanism only: material, scrim, motion, close contract."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">&lt;dialog&gt; + showModal()</span>
@@ -310,9 +316,9 @@ ${close}
       <Dialog title={play.current.title} bind:open={play.current.open}>
         <p>build #128 is waiting for a runner. The log streams once it picks up.</p>
         {#snippet footer()}
-          <DialogFooter>
+          <CardFooter>
             <PressButton onclick={() => (play.current.open = false)}>Close</PressButton>
-          </DialogFooter>
+          </CardFooter>
         {/snippet}
       </Dialog>
       {#snippet playground()}
@@ -380,7 +386,7 @@ ${close}
       headerRegion="dialog-form"
       eyebrow="demo"
       title="With a footer — form type"
-      summary="The footer snippet is the RAW override of the foot zone — and its standard content is <DialogFooter>: the buttons passed as children auto-join one button-group at the row's inline end, ghost by default through the Dialog's zone scope, an explicit fill still winning for the primary. Cancel drops the dialog; Confirm does its work first, then closes through the same animated path. The form shells inside are engraved WELLS (the entity law, r14-12): the dialog is the one solid object — the inputs keep their crisp hairline edge while their ground dissolves into the panel's surface, the well inset carrying the depth; focus still tints, hover still deepens."
+      summary="The footer snippet is the RAW override of the foot zone — and its standard content is <CardFooter>: the buttons passed as children auto-join one button-group at the row's inline end, ghost by default through the Dialog's zone scope, an explicit fill still winning for the primary. Cancel drops the dialog; Confirm does its work first, then closes through the same animated path. The form shells inside are engraved WELLS (the entity law, r14-12): the dialog is the one solid object — the inputs keep their crisp hairline edge while their ground dissolves into the panel's surface, the well inset carrying the depth; focus still tints, hover still deepens."
     >
       <div class="flex flex-col gap-5">
         <ComponentCanvas
@@ -403,7 +409,7 @@ ${close}
               </label>
             </div>
             {#snippet footer()}
-              <DialogFooter>
+              <CardFooter>
                 <PressButton onclick={() => (formOpen = false)}>Cancel</PressButton>
                 <PressButton
                   variant="fill"
@@ -414,7 +420,7 @@ ${close}
                 >
                   Rotate key
                 </PressButton>
-              </DialogFooter>
+              </CardFooter>
             {/snippet}
           </Dialog>
         </ComponentCanvas>
@@ -423,14 +429,14 @@ ${close}
     </SectionCard>
   </div>
 
-  <!-- Footer clusters (r14-9): DialogFooter's button economy -->
-  <div id="dialog-footer-clusters" data-reveal="">
+  <!-- Footer clusters (r14-9): CardFooter's button economy -->
+  <div id="dialog-card-footer-clusters" data-reveal="">
     <SectionCard
-      family="dialog-footer-clusters"
-      headerRegion="dialog-footer-clusters"
+      family="dialog-card-footer-clusters"
+      headerRegion="dialog-card-footer-clusters"
       eyebrow="demo"
-      title="DialogFooter — the foot zone's button economy"
-      summary="The footer snippet overrides the whole foot — and its standard content is the DialogFooter component. Buttons passed as its children auto-join ONE button-group packed at the row's inline end; the ghost default arrives by inheritance from the Dialog's zone scope (Context), so an unprefixed PressButton renders ghost while an explicit variant always wins, and the ghost seams rule the buttons. The cluster OPENS through the group's leadingSeam — the first button's own flush seam pseudo (r14-13), never a sibling element the grid's gap could detach. The end slot is the raw escape hatch — present, it replaces the grouped arrangement entirely, bracket and all."
+      title="CardFooter — the foot zone's button economy"
+      summary="The footer snippet overrides the whole foot — and its standard content is the CardFooter component. Buttons passed as its children auto-join ONE button-group packed at the row's inline end; the ghost default arrives by inheritance from the Dialog's zone scope (Context), so an unprefixed PressButton renders ghost while an explicit variant always wins, and the ghost seams rule the buttons. The cluster OPENS through the group's leadingSeam — the first button's own flush seam pseudo (r14-13), never a sibling element the grid's gap could detach. The end slot is the raw escape hatch — present, it replaces the grouped arrangement entirely, bracket and all."
     >
       <div class="flex flex-col gap-8">
         <p class="text-muted-foreground text-[12.5px]">
@@ -439,8 +445,8 @@ ${close}
         <ComponentCanvas
           title="dialog · footer clusters"
           files={[
-            { name: 'dialog-footer-group-demo.svelte', content: multiUsage, kind: 'usage' },
-            { name: 'dialog-footer-end-demo.svelte', content: endUsage },
+            { name: 'dialog-card-footer-group-demo.svelte', content: multiUsage, kind: 'usage' },
+            { name: 'dialog-card-footer-end-demo.svelte', content: endUsage },
           ]}
           stage="center"
         >
@@ -458,12 +464,12 @@ ${close}
               <PressButton onclick={() => (endOpen = true)}>4 assets selected…</PressButton>
             </div>
           </div>
-          <!-- demo A: DialogFooter children — three buttons, one auto group
+          <!-- demo A: CardFooter children — three buttons, one auto group
                (ghost by context; the explicit fill wins for primary) -->
           <Dialog title="Publish release" bind:open={clusterOpen}>
             <p>v2.4.0 is staged — 14 commits since the last tag, 3 files touched.</p>
             {#snippet footer()}
-              <DialogFooter>
+              <CardFooter>
                 <PressButton onclick={() => (clusterOpen = false)}>Cancel</PressButton>
                 <PressButton
                   onclick={() => {
@@ -482,10 +488,10 @@ ${close}
                 >
                   Publish
                 </PressButton>
-              </DialogFooter>
+              </CardFooter>
             {/snippet}
           </Dialog>
-          <!-- demo B: DialogFooter's raw end slot — replaces the grouped
+          <!-- demo B: CardFooter's raw end slot — replaces the grouped
                arrangement entirely -->
           <Dialog title="4 assets selected" bind:open={endOpen}>
             <div class="flex flex-col gap-2">
@@ -498,7 +504,7 @@ ${close}
               </ul>
             </div>
             {#snippet footer()}
-              <DialogFooter>
+              <CardFooter>
                 {#snippet end()}
                   <span class="font-mono text-[12px] text-muted-foreground">2.1 MB total</span>
                   <PressButton
@@ -511,19 +517,19 @@ ${close}
                     Download all
                   </PressButton>
                 {/snippet}
-              </DialogFooter>
+              </CardFooter>
             {/snippet}
           </Dialog>
         </ComponentCanvas>
         <div class="flex flex-col gap-3">
           <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            a · DialogFooter children — three buttons, one auto group
+            a · CardFooter children — three buttons, one auto group
           </p>
-          <CodeBlock code={multiUsage} lang="svelte" meta="DialogFooter — one group" />
+          <CodeBlock code={multiUsage} lang="svelte" meta="CardFooter — one group" />
         </div>
         <div class="flex flex-col gap-3">
           <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            b · DialogFooter end — the raw slot, no group
+            b · CardFooter end — the raw slot, no group
           </p>
           <CodeBlock code={endUsage} lang="svelte" meta="end — raw slot" />
         </div>
@@ -531,14 +537,14 @@ ${close}
     </SectionCard>
   </div>
 
-  <!-- Custom head (r14-9): DialogHeader carries the custom content -->
+  <!-- Custom head (r14-9): CardHeader carries the custom content -->
   <div id="dialog-head" data-reveal="">
     <SectionCard
       family="dialog-head"
       headerRegion="dialog-head"
       eyebrow="demo"
-      title="DialogHeader — a custom head"
-      summary="The head snippet replaces the visible title row, and DialogHeader is its content face: children ride flush, edge-to-edge — the content owns the row's height and padding (an Input shell brings its own), no zone insets intervening. The × close button still rides the head grid's end slot, and title keeps naming the dialog for assistive tech even though its visual row is gone — the search palette composes this same seam."
+      title="CardHeader — a custom head"
+      summary="The head snippet replaces the visible title row, and CardHeader is its content face: children ride flush, edge-to-edge — the content owns the row's height and padding (an Input shell brings its own), no zone insets intervening. The × close button still rides the head grid's end slot, and title keeps naming the dialog for assistive tech even though its visual row is gone — the search palette composes this same seam."
     >
       <div class="flex flex-col gap-5">
         <ComponentCanvas
@@ -552,11 +558,12 @@ ${close}
               query: <code class="text-accent">{headQuery.trim() || '—'}</code>
             </span>
           </div>
-          <!-- custom head demo: DialogHeader carries the Input flush; title
-               keeps the accessible name, the × rides the head grid's end slot -->
+          <!-- custom head demo: CardHeader + col-start-1 carries the
+               Input flush; title keeps the accessible name, the ×
+               keeps its seat on the same row -->
           <Dialog title="Filter events" bind:open={headOpen}>
             {#snippet head()}
-              <DialogHeader>
+              <CardHeader class="col-start-1">
                 <Input
                   class="w-full min-w-0"
                   placeholder="Filter events…"
@@ -569,7 +576,7 @@ ${close}
                       aria-hidden="true"><Icon name="search" /></span>
                   {/snippet}
                 </Input>
-              </DialogHeader>
+              </CardHeader>
             {/snippet}
             {#if filtered.length === 0}
               <p>No events match “{headQuery.trim()}”.</p>
@@ -617,7 +624,7 @@ ${close}
           <Dialog
             title="Event log"
             bind:open={logOpen}
-            class="[&_[data-jx-dialog-scroll]]:max-h-[22rem]"
+            class="[&_[data-jx-card]]:max-h-[22rem]"
           >
             <ol class="flex flex-col gap-1 font-mono text-[12px]">
               {#each logLines as line, i (line)}
@@ -628,7 +635,7 @@ ${close}
               {/each}
             </ol>
             {#snippet footer()}
-              <DialogFooter>
+              <CardFooter>
                 <PressButton onclick={() => (logOpen = false)}>Close</PressButton>
                 <PressButton
                   variant="fill"
@@ -639,7 +646,7 @@ ${close}
                 >
                   Export log
                 </PressButton>
-              </DialogFooter>
+              </CardFooter>
             {/snippet}
           </Dialog>
           <!-- fixed body demo: scroll={false} asserts the content fits —
@@ -713,7 +720,7 @@ ${close}
       </div>
       <div class="border border-border p-4">
         <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">chrome-less / footer</p>
-        <p class="text-[13px] leading-6">Omit title for a bare body; the <code class="text-accent">footer</code> snippet adds the separator-bounded foot zone — its standard content is <code class="text-accent">DialogFooter</code>, whose buttons auto-join one end-packed group, ghost by default.</p>
+        <p class="text-[13px] leading-6">Omit title for a bare body; the <code class="text-accent">footer</code> snippet adds the separator-bounded foot zone — its standard content is <code class="text-accent">CardFooter</code>, whose buttons auto-join one end-packed group, ghost by default.</p>
       </div>
       <div class="border border-border p-4">
         <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">variant</p>
@@ -724,6 +731,6 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same animated close."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role, focus trap, and Escape are the platform's."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class="flex flex-col gap-5"><p class="text-muted-foreground text-[13px] leading-6">the trigger inherits the density scope, the surface inherits through the DOM tree — flip the canvas dock's density select (xs / sm / default / lg) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that select.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props — the platform owns every behavior; the component owns state binding, zone presence, and the zone variant scopes. The footer snippet is the RAW full override of the foot zone; the head/footer content faces are the composition components below."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading of the default title row (rendered through DialogHeader); omit for a chrome-less body. Still names the dialog (aria-label) when a head snippet replaces the visible row.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint; auto defers to the environment’s transparency preference. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'class', type: 'string', default: "''", description: 'Geometry-only utilities appended after the law’s own (a consumer’s anchor/width, a scroll-ring cap); the platform still paints nothing.' }, { name: 'scroll', type: 'boolean', default: 'true', description: 'The body zone’s scroll authority (the panel never scrolls). false asserts the body fits — the scroll authority and the stable both-edges gutter reservation retire together.' }, { name: 'head', type: 'Snippet', default: '—', description: 'Replaces the visible title row — typically a DialogHeader wrapping custom content; the × close still rides the head grid’s end slot.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body — the only scrollable zone.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'The RAW full override of the foot zone — its standard content is a DialogFooter (buttons auto-joined in one end-packed group, ghost by the zone’s scope).' }, { name: 'cancelGuard', type: '() => boolean', default: '—', description: 'Consulted on the native cancel request (Escape); returning true holds the dialog open (e.g. through an IME composition).' }]} /></SectionCard></div>
-  <div id="composition" data-reveal=""><SectionCard family="composition" headerRegion="composition" eyebrow="api" title="DialogHeader · DialogFooter — the zone content faces" summary="The slot architecture belongs to the zones' content, carried by components (r14-9): Dialog renders the zones and writes the ghost variant scopes; these two are what the zones usually show. DialogHeader is also Dialog's internal default — the untitled title row has exactly one source."><PropsTable props={[{ name: 'DialogHeader · title', type: 'string', default: '—', description: 'The default title row (padded chrome bar); yields to children.' }, { name: 'DialogHeader · children', type: 'Snippet', default: '—', description: 'Custom head content, FLUSH edge-to-edge — owns its own geometry (the palette’s Input).' }, { name: 'DialogFooter · children', type: 'Snippet', default: '—', description: 'The action buttons — auto-joined in ONE ButtonGroup packed at inline-end; ghost inherited from the Dialog zone scope, an explicit variant wins; ghost seams rule the buttons.' }, { name: 'DialogFooter · end', type: 'Snippet', default: '—', description: 'Raw inline-end content: present, it replaces the grouped arrangement entirely — the opt-out for non-button content or a custom cluster, bracket and all.' }, { name: 'DialogFooter · opening line', type: 'structural', default: 'leadingSeam', description: 'The actions region’s boundary — the ButtonGroup’s leadingSeam capability: the first button’s own flush seam pseudo (r14-13), not a sibling element; gone with the group under the end face.' }, { name: 'DialogFooter · label', type: 'string', default: "'Dialog footer'", description: 'The ButtonGroup’s accessible name.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props — the platform owns every behavior; the component owns state binding, zone presence, and the zone variant scopes. The footer snippet is the RAW full override of the foot zone; the head/footer content faces are the composition components below."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading of the default title row (rendered through CardHeader); omit for a chrome-less body. Still names the dialog (aria-label) when a head snippet replaces the visible row.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint; auto defers to the environment’s transparency preference. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'class', type: 'string', default: "''", description: 'Geometry-only utilities appended after the law’s own (a consumer’s anchor/width, a scroll-ring cap); the platform still paints nothing.' }, { name: 'scroll', type: 'boolean', default: 'true', description: 'The body zone’s scroll authority (the panel never scrolls). false asserts the body fits — the scroll authority and the stable both-edges gutter reservation retire together.' }, { name: 'head', type: 'Snippet', default: '—', description: 'Replaces the visible title row — typically a CardHeader wrapping custom content; the × close still rides the head grid’s end slot.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body — the only scrollable zone.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'The RAW full override of the foot zone — its standard content is a CardFooter (buttons auto-joined in one end-packed group, ghost by the zone’s scope).' }, { name: 'cancelGuard', type: '() => boolean', default: '—', description: 'Consulted on the native cancel request (Escape); returning true holds the dialog open (e.g. through an IME composition).' }]} /></SectionCard></div>
+  <div id="composition" data-reveal=""><SectionCard family="composition" headerRegion="composition" eyebrow="api" title="CardHeader · CardFooter — the zone content faces" summary="The slot architecture belongs to the zones' content, carried by components (r14-9): Dialog renders the zones and writes the ghost variant scopes; these two are what the zones usually show. CardHeader is also Dialog's internal default — the untitled title row has exactly one source."><PropsTable props={[{ name: 'CardHeader · title', type: 'string', default: '—', description: 'The default title row (padded chrome bar); yields to children.' }, { name: 'CardHeader · children', type: 'Snippet', default: '—', description: 'Custom head content, FLUSH edge-to-edge — owns its own geometry (the palette’s Input).' }, { name: 'CardFooter · children', type: 'Snippet', default: '—', description: 'The action buttons — auto-joined in ONE ButtonGroup packed at inline-end; ghost inherited from the Dialog zone scope, an explicit variant wins; ghost seams rule the buttons.' }, { name: 'CardFooter · end', type: 'Snippet', default: '—', description: 'Raw inline-end content: present, it replaces the grouped arrangement entirely — the opt-out for non-button content or a custom cluster, bracket and all.' }, { name: 'CardFooter · opening line', type: 'structural', default: 'leadingSeam', description: 'The actions region’s boundary — the ButtonGroup’s leadingSeam capability: the first button’s own flush seam pseudo (r14-13), not a sibling element; gone with the group under the end face.' }, { name: 'CardFooter · label', type: 'string', default: "'Dialog footer'", description: 'The ButtonGroup’s accessible name.' }]} /></SectionCard></div>
 </div>

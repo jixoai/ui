@@ -206,7 +206,9 @@ describe('floor: the lab follows the controls (typed state object)', () => {
     expect(drawer.textContent).toContain('variant="tonal"');
 
     // reset restores the documented default
-    await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-reset]')!);
+    await fireEvent.click(
+      container.querySelector<HTMLElement>('[data-jx-canvas-reset]')!.querySelector('button')!,
+    );
     expect(outputRows[0].querySelector('dd')!.textContent).toBe('fill');
   });
 });
