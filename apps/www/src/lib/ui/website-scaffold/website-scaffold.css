@@ -39,7 +39,17 @@
  */
 
 /* ── the shell grid ── */
+/* isolation (stacking-isolation, 2026-09-09): the scaffold is
+   EMBEDDABLE by contract, so the shell's chrome plane (the
+   top-layer, z 40) must not leak its rung into a foreign context —
+   the shell-host is the scaffold's atomic boundary. The calibrated
+   page-terminal ladder {40 toc/top-layer < 80 fab < 90 toast <
+   100 skip} keeps comparing at PAGE level by design (the one
+   sanctioned raw-number context); fixed planes outside the shell
+   still beat the shell unit there. container-type does NOT
+   stack-isolate (measured, Chrome). */
 :where(.jx-shell-host){
+  isolation: isolate;
   container-type: inline-size;
   container-name: jx-shell;
   block-size: 100vh;

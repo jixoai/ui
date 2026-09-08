@@ -42,6 +42,17 @@
  * into nested families — color-level only, never placement. */
 
 @layer components {
+  /* the z ladder's privacy boundary (stacking-isolation, 2026-09-09):
+     line (z0) / dot + slot (z1) / scroll spine (z0) compare ACROSS
+     items — the bridging lines' negative margins deliberately overlap
+     neighbors — so the ladder's TRUE common parent is the ol itself.
+     Isolate HERE, never per-item: per-item isolation would freeze
+     cross-item bridge-vs-dot order to DOM order. The spine's
+     position:relative (data-anim='scroll') is a containing-block
+     need, not a stacking context (z auto). */
+  :where([data-jx-timeline]) {
+    isolation: isolate;
+  }
   /* ── the root: vertical form ── */
   :where([data-jx-timeline][data-axis='vertical']) {
     --tl-z1: 0fr;

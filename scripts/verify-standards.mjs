@@ -13,8 +13,8 @@
 //       (`--jx-icon-x: url(...)`) or a slot USE
 //       (`var(--jx-icon-x, url(...))`) — a bare `url("data:image/svg`
 //       in any other position is an untracked duplicate paint.
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -56,6 +56,41 @@ for (const [name, css] of sheets) {
   }
 }
 console.log('✓ B2: every data-URI glyph is a slot definition or a slotted use');
+
+// ── B3 (ADVISORY): the z-ladder census (stacking-isolation, 2026-09-09)
+// Every static z-index / z-[n] in the registry sources — sheets AND
+// markup utilities — printed with its file:line so drift surfaces on
+// every gate run. ADVISORY by design this round: the full
+// host-resolution linter (resolve each ladder's common parent, require
+// a stacking-context proof or a category annotation, accept var-keyed
+// calc, flag static-z no-ops) is the recorded follow-up; the HARD half
+// of the law is browser-computed in verify-stacking-isolation.
+{
+  const registryFiles = [];
+  const walk = (dir) => {
+    for (const name of readdirSync(dir)) {
+      const p = join(dir, name);
+      if (statSync(p).isDirectory()) walk(p);
+      else if (/\.(css|svelte)$/.test(name)) registryFiles.push(p);
+    }
+  };
+  walk(resolve(root, 'registry/files'));
+  const census = [];
+  for (const p of registryFiles) {
+    const rel = p.slice(root.length + 1);
+    const lines = readFileSync(p, 'utf8').split('\n');
+    lines.forEach((line, i) => {
+      for (const m of line.matchAll(/z-index:\s*([^;]+);?|z-\[(-?[a-z0-9]+)\]/g)) {
+        const value = (m[1] ?? m[2]).trim();
+        if (/var\(/.test(value)) continue; // var-keyed z (toast's calc ladder) — dynamic by design
+        census.push(`${rel}:${i + 1}  z=${value}`);
+      }
+    });
+  }
+  console.log(`ℹ B3 z-ladder census (advisory): ${census.length} static z assignments across registry sheets + markup`);
+  console.log('  ' + census.join('\n  '));
+  console.log('  law: every ladder owner roots its ladder (isolation: isolate / relative z-0) or carries a category annotation — stacking-isolation design');
+}
 
 if (failures) {
   console.error(`\n[verify-standards] ${failures} violation(s)`);

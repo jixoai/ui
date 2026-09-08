@@ -42,8 +42,10 @@
   <!-- container posture (CR-2, 2026-09-02): one-cell GRID stacking — the
        badge centers by place-self, the busy-scrim stretches — no
        position:absolute anywhere; the scrim is the --scrim family token
-       (a modal dim, never the retired hand-mixed background tint) -->
-  <div data-jx-spin-wrap="" class={cn('grid', className)} aria-busy="true">
+       (a modal dim, never the retired hand-mixed background tint).
+       isolate (stacking-isolation, 2026-09-09): the badge's z-[1] is
+       this wrap's private rung — the spin is demo-able anywhere -->
+  <div data-jx-spin-wrap="" class={cn('grid isolate', className)} aria-busy="true">
     <div data-jx-spin-live="" class="z-[1] [grid-area:1/1] place-self-center px-3.5 py-2 border border-border bg-popover shadow" role="status" aria-label={label}>
       <span data-jx-spin-cursor="" class="font-mono text-[0.875rem] text-primary" aria-hidden="true">[&nbsp;<span class="jx-spin-frames relative inline-grid w-[1ch] text-center align-bottom"><i class="not-italic row-start-1 col-start-1 visible animate-[jx-spin-frame_800ms_steps(1)_infinite]">/</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:200ms]">—</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:400ms]">\\</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-spin-frame_800ms_steps(1)_infinite] [animation-delay:600ms]">|</i></span>&nbsp;]</span>
     </div>

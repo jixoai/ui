@@ -344,6 +344,22 @@ pre[data-jx-print-lines='off'] .jx-print-line::before {
   transform: none !important;
 }
 
+/* ── 5b. the canvas dock retires — paper has no interactive chrome ────
+   (print-determinism regression, 2026-09-09: the dock's grid-era pose
+   CONTRIBUTES its natural height to the stage-row — the absolute era
+   contributed zero — and its width clamp is cqi of the canvas host,
+   so the contribution varies with the rendering viewport; the
+   fragmentation boundary drifted between 800×600 and 1600×1200 and
+   the determinism differential broke. Paper never wanted the
+   interactive dock: hidden in the artifact, the stage-row's height
+   returns to pure content drive and the differential holds again.
+   The component sheet carries the matching @media print rule for
+   raw consumer prints outside this pipeline.) */
+
+[data-print-output] [data-jx-canvas-dock] {
+  display: none;
+}
+
 /* ── 6. the borderless paper projection (the DEFAULT print variant) ── */
 
 /* the section card: purely typographic on paper — no frame, and no

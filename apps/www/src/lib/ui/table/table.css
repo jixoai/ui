@@ -89,6 +89,15 @@
     border-inline-start: 1px solid var(--jx-table-edge);
     inset-inline-end: 0;
   }
+  /* the sticky ladder: header (3) above corner cells (2) above
+     scrolled rows. CATEGORY: CONTAINING-BLOCK NEEDS (sticky cells
+     must travel with the scrollport — the css-architecture absolute/
+     sticky exemption, annotated per the closed-by-un-annotated-use
+     law). The ladder is scoped by the frame's `isolate` utility
+     (table.svelte, the frame utilities home) — the scrollport is the
+     stacking boundary so a table demo inside a canvas never paints
+     its sticky header over the canvas chrome (stacking-isolation,
+     2026-09-09) */
   :where(table thead [data-sticky]) {
     z-index: 3;
   }

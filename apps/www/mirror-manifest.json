@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-08T19:03:27.885Z",
+  "generatedAt": "2026-09-08T19:10:40.752Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -436,8 +436,8 @@
           "source": "registry/files/ui/terminal-header/terminal-header.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
           "target": "@ui/terminal-header/terminal-header.svelte",
-          "sourceSha": "89546d30dfe2e3fc0a242737b5a05bf6ea65074e572f93e084ee5d8fa1673f47",
-          "mirrorSha": "89546d30dfe2e3fc0a242737b5a05bf6ea65074e572f93e084ee5d8fa1673f47"
+          "sourceSha": "d93c3a133019aed734bd58d3c0fc695c12ae3321533e80b99625330b7522cc3b",
+          "mirrorSha": "d93c3a133019aed734bd58d3c0fc695c12ae3321533e80b99625330b7522cc3b"
         },
         {
           "source": "registry/files/ui/terminal-header/index.ts",
@@ -583,8 +583,8 @@
           "source": "registry/files/ui/website-scaffold/website-scaffold.css",
           "mirror": "apps/www/src/lib/ui/website-scaffold/website-scaffold.css",
           "target": "@ui/website-scaffold/website-scaffold.css",
-          "sourceSha": "4813424a67d78951cea836f381a3dafe8b8d75ff1e7f58a0ab937a0193ac9add",
-          "mirrorSha": "4813424a67d78951cea836f381a3dafe8b8d75ff1e7f58a0ab937a0193ac9add"
+          "sourceSha": "dd2296927d5b4b67b4172e0e00f5fc358eff5cc2a58f5452d115a5377eb97527",
+          "mirrorSha": "dd2296927d5b4b67b4172e0e00f5fc358eff5cc2a58f5452d115a5377eb97527"
         },
         {
           "source": "registry/files/ui/website-scaffold/index.ts",
@@ -1100,8 +1100,8 @@
           "source": "registry/files/ui/table/table.svelte",
           "mirror": "apps/www/src/lib/ui/table/table.svelte",
           "target": "@ui/table/table.svelte",
-          "sourceSha": "063aaa33bae3c542962dc071e2e246825c863bfbea76a254ba5fed26794760f1",
-          "mirrorSha": "063aaa33bae3c542962dc071e2e246825c863bfbea76a254ba5fed26794760f1"
+          "sourceSha": "740c881123cce5c63d9690515c1b73fd3fe74f003fefe3b90aea4ddbdc7a797e",
+          "mirrorSha": "740c881123cce5c63d9690515c1b73fd3fe74f003fefe3b90aea4ddbdc7a797e"
         },
         {
           "source": "registry/files/ui/table/index.ts",
@@ -1114,8 +1114,8 @@
           "source": "registry/files/ui/table/table.css",
           "mirror": "apps/www/src/lib/ui/table/table.css",
           "target": "@ui/table/table.css",
-          "sourceSha": "d9c4db115249d2c4c88cca3bf435df420bcb29a41ca7078513804d65317deaee",
-          "mirrorSha": "d9c4db115249d2c4c88cca3bf435df420bcb29a41ca7078513804d65317deaee"
+          "sourceSha": "c0a95a30eb6564d31e3de35a58a50b30b3c3bec3e1f0c07f2112abbe3a56838e",
+          "mirrorSha": "c0a95a30eb6564d31e3de35a58a50b30b3c3bec3e1f0c07f2112abbe3a56838e"
         },
         {
           "source": "registry/files/ui/table/table-defaults.svelte.ts",
@@ -1345,8 +1345,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.css",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.css",
           "target": "@ui/component-canvas/component-canvas.css",
-          "sourceSha": "0969f7323f427150b28eb7c58d760dae1ea71ebbd74615b5a24977be3872be41",
-          "mirrorSha": "0969f7323f427150b28eb7c58d760dae1ea71ebbd74615b5a24977be3872be41"
+          "sourceSha": "9bffd14e762a324e2ebc7e3670d45f87db5c665894662617a89f54e568099de3",
+          "mirrorSha": "9bffd14e762a324e2ebc7e3670d45f87db5c665894662617a89f54e568099de3"
         }
       ]
     },
@@ -3207,8 +3207,8 @@
           "source": "registry/files/ui/spin/spin.svelte",
           "mirror": "apps/www/src/lib/ui/spin/spin.svelte",
           "target": "@ui/spin/spin.svelte",
-          "sourceSha": "34159738f27e0554fc7cd30cc224bac24e3494ba118f5cc57ad0ed97cfd82340",
-          "mirrorSha": "34159738f27e0554fc7cd30cc224bac24e3494ba118f5cc57ad0ed97cfd82340"
+          "sourceSha": "f89d6ef059539d92df2ce3037335b097c2e35bd5d8092915049da30db8ba8eca",
+          "mirrorSha": "f89d6ef059539d92df2ce3037335b097c2e35bd5d8092915049da30db8ba8eca"
         },
         {
           "source": "registry/files/ui/spin/index.ts",
@@ -3326,8 +3326,8 @@
           "source": "registry/files/ui/timeline/timeline.css",
           "mirror": "apps/www/src/lib/ui/timeline/timeline.css",
           "target": "@ui/timeline/timeline.css",
-          "sourceSha": "f72a7574fdf8d91d7c23685c70e3771ef5dd675cc1aaaad6130fd55298a9f3d8",
-          "mirrorSha": "f72a7574fdf8d91d7c23685c70e3771ef5dd675cc1aaaad6130fd55298a9f3d8"
+          "sourceSha": "908e7afe0f8a23013c2fbe3e77b21c2ee56a291717dd4441e48bcbfb7da16854",
+          "mirrorSha": "908e7afe0f8a23013c2fbe3e77b21c2ee56a291717dd4441e48bcbfb7da16854"
         },
         {
           "source": "registry/files/ui/timeline/index.ts",
@@ -3943,8 +3943,8 @@
           "source": "registry/files/ui/scroll-run/scroll-run.css",
           "mirror": "apps/www/src/lib/ui/scroll-run/scroll-run.css",
           "target": "@ui/scroll-run/scroll-run.css",
-          "sourceSha": "2518e357ac6077ffd73745493c9c6a574f922dc256e97345795c1336bbf8f0b9",
-          "mirrorSha": "2518e357ac6077ffd73745493c9c6a574f922dc256e97345795c1336bbf8f0b9"
+          "sourceSha": "7dc7fe6110ea980f3be881033330f0c56e4773e0decceec07d679a070d00e32f",
+          "mirrorSha": "7dc7fe6110ea980f3be881033330f0c56e4773e0decceec07d679a070d00e32f"
         },
         {
           "source": "registry/files/ui/scroll-run/scroll-chrome.svelte",

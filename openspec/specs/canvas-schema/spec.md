@@ -48,9 +48,15 @@ vocabulary SHALL NOT appear in any export.
 ComponentCanvas SHALL accept an optional `schema` (lowered
 jsonSchema) and bindable `values` initialized from schema defaults.
 Controls render INSIDE THE PLAYGROUND DOCK (canvas-playground-dock,
-2026-09-08): a floating, collapsible, horizontally draggable panel
-absolute-positioned over the stage-row's top-right corner (the
-scroll layer's sibling — it never scrolls with stage content),
+2026-09-08; pose re-ruled to the grid law 2026-09-09): a floating,
+collapsible, horizontally draggable panel grid-stacked over the
+stage-row's top-right corner — the stage-row is a ONE-CELL GRID
+HOST whose scroll layer and dock are `grid-area: 1/1` siblings,
+the dock riding z-index above (the css-architecture Owner law
+"grid supplies stacking; position is for transient ink"; never
+position:* for layout), and the dock RETIRES on paper (the
+artifact scope hides it — screen-only chrome never fragments).
+The dock never scrolls with stage content,
 mounting EXPANDED by default (the Owner ruling) and collapsing to a
 head chip on toggle. The dock's expanded body composes ONE
 `<ItemGroup mode="plain" controlChrome="integrated">` (the declared

@@ -244,13 +244,30 @@ await (async () => {
     child.on('close', resolveCode);
   });
   process.removeListener('SIGINT', onSigint);
-  await new Promise((r) => server.close(r));
   if (interrupted) {
+    await new Promise((r) => server.close(r));
     console.error('\n✗ verify-all interrupted (SIGINT) — probe child reaped, static server closed');
     process.exit(130);
   }
-  if (code !== 0) die('verify:km');
+  if (code !== 0) {
+    await new Promise((r) => server.close(r));
+    die('verify:km');
+  }
   console.log(`[verify-all] km probe served from its own static child (${url}) — reaped cleanly`);
+
+  // 6b. the stacking-isolation probe (stacking-isolation, 2026-09-09):
+  // SELF-MANAGED server lifecycle — the probe serves the dist itself
+  // (km's managed server is closed by then, and shared-server context
+  // proved fragile): computed isolation on every shipped ladder owner
+  // + the chip-under-dock incident regression
+  step('verify:isolation (browser probe — self-managed server)');
+  try {
+    execFileSync('node', ['scripts/verify-stacking-isolation.mjs'], { cwd: root, stdio: 'inherit' });
+  } catch {
+    die('verify:isolation');
+  }
+
+  await new Promise((r) => server.close(r));
 })();
 
 console.log('\n✓ verify-all GREEN — the full gate chain passed');

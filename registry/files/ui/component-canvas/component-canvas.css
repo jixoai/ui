@@ -141,12 +141,22 @@
    layer sizes the cell, the dock stacks over it as a grid-area 1/1
    sibling riding z-index (the scroll-run HOST idiom). The dock's
    birth pose was position:absolute over a relative host — retired at
-   the Owner's word. */
+   the Owner's word.
+   ISOLATION (stacking-isolation, 2026-09-09): both boundaries below
+   carry isolation: isolate — the SCROLL LAYER is the demo ceiling
+   (demo content, whatever its own sheets do internally, is one
+   atomic unit UNDER the dock — the canvas never trusts demo
+   internals), and the STAGE-ROW scopes the dock's own z 1 (a plain
+   grid host is not a stacking context; without this the dock's
+   number leaks to the page exactly the way the scroll-run chips'
+   did — the canvas is one atomic unit at page level). */
 :where(.jx-canvas-stage-row) {
   display: grid;
+  isolation: isolate;
 }
 :where(.jx-canvas-scroll) {
   grid-area: 1 / 1;
+  isolation: isolate;
 }
 /* the dock's material (Owner acceptance ruling, 2026-09-08, tuned
    after the "not translucent" round): the popover ACRYLIC FAMILY
@@ -191,6 +201,18 @@
   max-block-size: calc(100% - var(--jx-gap) * 2);
   display: flex;
   flex-direction: column;
+}
+
+/* the dock is SCREEN-ONLY chrome: it never prints (raw consumer
+   prints; the site pipeline's sim is screen-media, so kernel-print
+   carries the artifact-scope twin for [data-print-output]). Also a
+   print-determinism debt (2026-09-09): the grid-era dock contributes
+   its natural height to the stage-row (the absolute era contributed
+   zero), so a dock left on paper shifts fragmentation per viewport */
+@media print {
+  :where([data-jx-canvas-dock]) {
+    display: none;
+  }
 }
 
 /* the collapse wrapper is the flex link: it takes whatever the root's

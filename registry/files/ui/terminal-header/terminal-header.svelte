@@ -167,10 +167,14 @@
   });
 </script>
 
+<!-- isolate (stacking-isolation, 2026-09-09): the bezel's entries
+     (z 1 over the backdrop-filter indicator) are this header's
+     private rung — scoped in production by .jx-top-layer; standalone
+     and in-demo uses keep the ladder private too -->
 <header
   bind:this={headerEl}
   class={cn(
-    'jx-nav bg-terminal text-terminal-foreground border-b border-border',
+    'jx-nav isolate bg-terminal text-terminal-foreground border-b border-border',
     scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
     className,
   )}

@@ -108,7 +108,7 @@
 
 <figure
   class={cn(
-    'jx-table m-0 overflow-x-auto border border-[color:var(--jx-table-rule)] rounded-(--radius) [container:jx-table_/_inline-size]',
+    'jx-table isolate m-0 overflow-x-auto border border-[color:var(--jx-table-rule)] rounded-(--radius) [container:jx-table_/_inline-size]',
     '[--jx-table-surface:var(--background)]',
     '[--jx-table-head:var(--muted)]',
     '[--jx-table-hover:color-mix(in_oklab,var(--primary)_7%,var(--jx-table-surface))]',
