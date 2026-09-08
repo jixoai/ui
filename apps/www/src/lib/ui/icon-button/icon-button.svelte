@@ -36,6 +36,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { Density } from '$lib/density.svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import PressButton, {
     type PressButtonVariant,
     type PressEffect,
@@ -43,7 +44,13 @@
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
   import { IconButtonDefaults } from './icon-button-defaults.svelte';
 
-  interface Props {
+  /* the REST LANE (floating-flesh-sweep, 2026-09-09): forwarded
+   * VERBATIM into the wrapped press-button — arbitrary attributes land
+   * on the control root; the family's typed props win by spread order */
+  interface Props extends Omit<
+    HTMLAttributes<HTMLElement>,
+    'onclick' | 'class' | 'style' | 'type' | 'aria-label'
+  > {
     /** DENSITY override forwarded to the press-button control root */
     density?: Density;
     /** the glyph — always decorative; an svg or character snippet */
@@ -111,6 +118,7 @@
     type = 'button',
     popovertarget = undefined,
     class: className = '',
+    ...rest
   }: Props = $props();
 
   // THE single read point (the restate lane, X2-11): the restated
@@ -124,6 +132,7 @@
 
 {#snippet control()}
   <PressButton
+    {...rest}
     density={d.density}
     variant={d.variant}
     {raised}

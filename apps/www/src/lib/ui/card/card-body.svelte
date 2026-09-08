@@ -36,17 +36,22 @@
         Declare false to assert the body fits — the authority and the
         gutter reservation retire together. */
     scroll?: boolean;
+    /** Appended to the cell (cn-less string concat, the family
+        precedent) — the RHYTHM escape hatch: carriers with a tighter
+        or looser beat than the kernel default (sheet's 18px drawer
+        rhythm) override the cell padding utilities here. */
+    class?: string;
     /** Body content — enters at the cell's content axis. */
     children: Snippet;
   }
 
-  let { scroll = true, children }: Props = $props();
+  let { scroll = true, class: className = '', children }: Props = $props();
 </script>
 
 <div data-jx-card-body data-jx-scroll={scroll ? undefined : 'off'}>
   <div
     data-jx-card-cell
-    class="min-w-0 py-3.5 px-[max(0.875rem-var(--jx-scrollbar-thin,0px),0px)] text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--card-foreground)_80%,transparent)]"
+    class="min-w-0 py-3.5 px-[max(0.875rem-var(--jx-scrollbar-thin,0px),0px)] text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--card-foreground)_80%,transparent)]{className ? ` ${className}` : ''}"
   >
     {@render children()}
   </div>

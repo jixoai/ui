@@ -61,6 +61,10 @@ export const meta = defineComponentMeta(
       "children": {
         "kind": "snippet",
         "typeText": "Snippet"
+      },
+      "rest": {
+        "kind": "opaque",
+        "typeText": "unknown (spread passthrough)"
       }
     },
     "hooks": [

@@ -1,18 +1,27 @@
 <!--
   jixoai AlertDialogCancel
-  (registry/files/ui/alert-dialog/alert-dialog-cancel.svelte, 2026-08-25).
+  (registry/files/ui/alert-dialog/alert-dialog-cancel.svelte, 2026-08-25;
+  the PressButton era, floating-flesh-sweep 2026-09-09).
   The safe default: closes through Content's shared animated path with
   NO confirm. This is the element Content focuses on open (the APG
-  safe-landing law, DOM-delegated through [data-jx-adlg-cancel]).
+  safe-landing law, DOM-delegated through [data-jx-adlg-cancel] —
+  riding the REST LANE onto the control root since this change).
+
+  The hand-drawn outline button (border/bg utilities + the three
+  shadow pose customs) retired into PressButton: no variant passed —
+  inside AlertDialogActions' zone it renders the quiet ghost default
+  (the action-band law); standalone it falls to PressButton's own
+  outline rung, the same visual family as before. density sm keeps the
+  anchored alert's compact scale.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
-  import { cn } from '$lib/utils';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { ALERT_DIALOG_KEY, type AlertDialogApi } from './alert-dialog.svelte';
 
-  interface Props extends HTMLButtonAttributes {
+  interface Props extends Omit<HTMLButtonAttributes, 'onclick'> {
     children: Snippet;
   }
 
@@ -21,18 +30,15 @@
   const api = getContext<AlertDialogApi>(ALERT_DIALOG_KEY);
 </script>
 
-<button
-  type="button"
+<PressButton
+  {...rest}
+  density="sm"
   data-jx-adlg-cancel=""
-  class={cn(
-    'jx-press appearance-none px-4 py-2 border border-border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
-    className,
-  )}
-  onclick={(event) => {
-    onclick?.(event);
+  class={className}
+  onclick={() => {
+    onclick?.();
     api.setOpen(false);
   }}
-  {...rest}
 >
   {@render children()}
-</button>
+</PressButton>

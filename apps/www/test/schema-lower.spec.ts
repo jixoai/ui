@@ -44,6 +44,7 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
     raised: { kind: 'boolean' },
     class: { kind: 'string', default: '' },
     children: { kind: 'snippet', typeText: 'Snippet' },
+    rest: { kind: 'opaque', typeText: 'unknown (spread passthrough)' },
   },
   hooks: [
     'data-jx-press-button',
@@ -82,8 +83,9 @@ describe('toJSONSchema (press-button fixture)', () => {
         raised: { type: 'boolean' },
         class: { type: 'string', default: '' },
         children: { 'x-ui': { control: 'none', sourceType: 'Snippet' } },
+        rest: { 'x-ui': { control: 'none', sourceType: 'unknown (spread passthrough)' } },
       },
-      required: ['density', 'variant', 'effect', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'raised', 'children'],
+      required: ['density', 'variant', 'effect', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'raised', 'children', 'rest'],
     });
   });
 

@@ -2859,6 +2859,8 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
+        "@jixoai/press-button",
+        "@jixoai/button-group",
         "@jixoai/defaults",
         "@jixoai/density"
       ]
@@ -2899,7 +2901,11 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
+        "@jixoai/card",
+        "@jixoai/button-group",
+        "@jixoai/icon-button",
         "@jixoai/icon",
+        "@jixoai/separator",
         "@jixoai/defaults",
         "@jixoai/density"
       ]

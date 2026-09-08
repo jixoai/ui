@@ -27,20 +27,38 @@
   200ms for entry, exit, and the ::backdrop fade (CLOSE_MS=200); the
   dialog-family default is 120ms (Codex r2 — declared, not accidental).
 
-  tw4 (2026-08-24): utility-authored — edge docking, sizing, and the
-  head/body/foot paint live in the markup (side maps to a utility
-  string; the body's scrollbar compensation rides an arbitrary-property
-  utility next to the theme's jx-surface-scroll gutter law); ONLY the
-  slide keyframes + the [open]/.closing animation choreography (a state
-  machine utilities cannot order), the ::backdrop rules, and the
-  reduced-motion kill stay in sheet.css (D1-exempt residue).
+  THE CARD DIALECT (floating-flesh-sweep, 2026-09-09): the interior is
+  the structural kernel's — the surface body wraps ONE sticker host
+  (data-jx-card, card.css imported — the load-bearing lesson of the
+  kernel round) whose three bands carry the drawer: the head band
+  (ghost zone; the title row rides CardHeader's children face keeping
+  the sheet's own compact uppercase rhythm; the × rides the
+  end-action seat as a zone-inheriting IconButton — the hand-drawn
+  border button retired), the CardBody band (the scroll cell — the
+  kernel's cell law with the sheet's 18px drawer rhythm and popover
+  ink overriding through the rhythm escape hatch), and the optional
+  foot band (ghost+flat zone over a loose flex row — joined clusters
+  are ButtonGroup's law, loose rows stay utilities). The border-b/border-t
+  hand lines retired into edge-riding Separator instances.
+
+  What stays sheet's own (the mechanism): edge docking/sizing utilities,
+  the slide state machine + keyframes + ::backdrop (sheet.css), the ×
+  glyph's descendant scale.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { untrack } from 'svelte';
   import Icon from '$lib/ui/icon';
+  import Separator from '$lib/ui/separator/separator.svelte';
+  import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
+  import IconButton from '$lib/ui/icon-button/icon-button.svelte';
+  import CardBody from '$lib/ui/card/card-body.svelte';
+  import CardHeader from '$lib/ui/card/card-header.svelte';
   import { cn } from '$lib/utils';
   import { SheetDefaults, type SheetSurfaceVariant } from './sheet-defaults.svelte';
+  // THE STICKER'S RULE SET (the load-bearing import — stamping
+  // data-jx-card without this sheet loads nothing)
+  import '$lib/ui/card/card.css';
   import './sheet.css';
 
   interface Props {
@@ -145,6 +163,12 @@
   };
 </script>
 
+{#snippet xGlyph()}
+  <!-- the strokier × rides the strokeWidth prop; sheet.css owns the
+       14px descendant scale -->
+  <Icon name="x" strokeWidth={2.5} />
+{/snippet}
+
 <dialog
   bind:this={dialog}
   class={cn(
@@ -161,37 +185,81 @@
 >
   <!-- surface body (fill + ::after shadow) wraps the whole drawer; the
        <dialog> paints nothing (floating-surface law arch r3) -->
-  <div data-jx-sheet-surface="" class="jx-surface-body">
-  <div data-jx-sheet-head="" class="flex items-center gap-3 px-[1.125rem] py-3.5 border-b border-border">
-    <h2 data-jx-sheet-title="" class="font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground">{title}</h2>
-    {#if header}
-      <div data-jx-sheet-head-extra="" class="flex flex-1 items-center min-w-0">{@render header()}</div>
-    {/if}
-    <button
-      type="button"
-      class="jx-sheet-x flex-none appearance-none inline-flex items-center justify-center size-7 border border-border bg-transparent text-muted-foreground cursor-pointer hover:text-foreground hover:border-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
-      onclick={shut}
-      aria-label="Close"
-    >
-      <!-- glyph through the Icon component; sheet.css owns its
-           0.875rem descendant scale, the strokier × rides the
-           strokeWidth prop -->
-      <Icon name="x" strokeWidth={2.5} />
-    </button>
-  </div>
+  <!-- the side-drawer height chain (the vision acceptance's B/C
+       catch, an inherited defect healed with the dialect): surface and
+       host ride h-full on left/right so the kernel's absorbing body
+       row bounds the scroll — the old hard cap (100dvh-4.25rem, whose
+       68px chrome guess drifted from the real band heights) retires -->
+  <div data-jx-sheet-surface="" class={cn('jx-surface-body', (side === 'left' || side === 'right') && 'h-full')}>
+  <!-- THE STICKER HOST: the kernel's three-band ruler carries the
+       drawer (card.css); the stamps carry the band presence -->
   <div
-    data-jx-sheet-body=""
-    class={cn(
-      'jx-surface-scroll flex flex-col gap-4 overflow-y-auto overscroll-contain pt-[1.125rem] pb-[1.125rem] [padding-inline:max(1.125rem-var(--jx-scrollbar-thin,0px),0px)] text-[0.8125rem] leading-[1.6]',
-      (side === 'left' || side === 'right') && 'max-h-[calc(100dvh-4.25rem)]',
-    )}
+    data-jx-card
+    data-sep-head=""
+    data-sep-foot={footer ? '' : undefined}
+    class={cn((side === 'left' || side === 'right') && 'h-full')}
   >
-    {@render children()}
-  </div>
-  {#if footer}
-    <div data-jx-sheet-foot="" class="flex justify-end gap-2.5 px-[1.125rem] py-3.5 border-t border-border">
-      {@render footer()}
+    <!-- the head band: ghost zone over the title face + the × seat -->
+    <div data-jx-card-head="">
+      <ButtonVariantScope variant="ghost">
+        <!-- the title face rides CardHeader's children mode (free
+             content in the content seat — the sheet's own compact
+             uppercase rhythm, self-carried) -->
+        <CardHeader>
+          <div class="flex w-full min-w-0 items-center gap-3 px-[1.125rem] py-3.5">
+            <h2
+              data-jx-sheet-title=""
+              class="font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground"
+            >{title}</h2>
+            {#if header}
+              <div data-jx-sheet-head-extra="" class="flex flex-1 items-center min-w-0">
+                {@render header()}
+              </div>
+            {/if}
+          </div>
+        </CardHeader>
+        <!-- the × rides the end-action seat (the kernel's corner) — a
+             zone-inheriting IconButton, nothing hand-painted -->
+        <div class="jx-card-end-action-slot">
+          <IconButton icon={xGlyph} text="Close" iconOnly tip={false} onclick={shut} class="jx-sheet-x" />
+        </div>
+      </ButtonVariantScope>
     </div>
-  {/if}
+    <Separator data-jx-card-sep="head" aria-hidden="true" />
+    <!-- the body band: the kernel's scroll cell under the RHYTHM
+         escape hatch — the sheet's 18px drawer beat, popover ink, and
+         (side drawers) the panel-height cap keep the exact old
+         geometry; the both-edges gutter compensation stays the
+         kernel's single-sourced formula -->
+    <CardBody
+      class={cn(
+        // same-property overrides of the cell's own utilities need the
+        // consumer's `!` (the class-append law — order is not
+        // consumer-guaranteed); the max-h cap beats the cell's
+        // max-height:100% by LAYER, no `!` needed
+        '!px-[max(1.125rem-var(--jx-scrollbar-thin,0px),0px)] !py-[1.125rem] text-[0.8125rem] !text-[color:var(--popover-foreground)]',
+      )}
+    >
+      <div class="flex flex-col gap-4">
+        {@render children()}
+      </div>
+    </CardBody>
+    {#if footer}
+      <Separator data-jx-card-sep="foot" aria-hidden="true" />
+      <!-- the foot band: the action-zone law (ghost + flat) over a
+           LOOSE flex row — joined clusters are ButtonGroup's law;
+           loose rows stay utilities (the kernel's one-layout law) -->
+      <div data-jx-card-foot="">
+        <ButtonVariantScope variant="ghost" raised={false}>
+          <!-- col-span-full: the loose row spans the rented subgrid —
+               auto-placement would drop it into the 14px inset track
+               (the vision acceptance catch) -->
+          <div class="col-span-full flex w-full justify-end gap-2.5 px-[1.125rem] py-3.5">
+            {@render footer()}
+          </div>
+        </ButtonVariantScope>
+      </div>
+    {/if}
+  </div>
   </div>
 </dialog>

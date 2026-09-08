@@ -91,7 +91,9 @@ describe('hue-injection migration (in-repo call sites)', () => {
     '../../registry/files/ui/alert-dialog/alert-dialog-action.svelte',
   ])('%s ships the local destructive pair as jx-pair-destructive', (p) => {
     const src = read(p);
-    expect(src).toContain('jx-pair-destructive forced-colors:bg-[ButtonFace]');
+    // the PressButton era (floating-flesh-sweep): the pair rides as the
+    // fill rung's local class injection — no local recipe exists
+    expect(src).toContain("d.actionVariant === 'fill' ? 'jx-pair-destructive'");
     expect(src).not.toContain('[--jx-fill:var(--destructive)]');
     expect(src).not.toContain('[--jx-fill-ink:var(--destructive-foreground)]');
   });

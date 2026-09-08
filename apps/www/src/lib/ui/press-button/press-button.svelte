@@ -228,13 +228,22 @@
 <script lang="ts">
   import { getContext, onDestroy } from 'svelte';
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import Icon from '$lib/ui/icon';
   import type { Density } from '$lib/density.svelte';
   import { PressButtonDefaults } from './press-button-defaults.svelte';
   import { createRipple } from './ripple.svelte';
   import './press-button.css';
 
-  interface Props {
+  /* the REST LANE (floating-flesh-sweep, 2026-09-09 — the props
+   * discipline law completed after the third wrapper-hack collision):
+   * arbitrary attributes flow through VERBATIM and land on the root
+   * (button or anchor — the shared HTMLElement contract); the family's
+   * own typed props and component-owned stamps win by spread order */
+  interface Props extends Omit<
+    HTMLAttributes<HTMLElement>,
+    'onclick' | 'class' | 'aria-label' | 'style' | 'type'
+  > {
     /** DENSITY override: explicit ?? ambient ?? no-opinion — resolved
      *  through PressButtonDefaults (the family contract); undefined
      *  stamps nothing and the ambient css scope channel flows */
@@ -305,6 +314,7 @@
     raised = undefined,
     class: className = '',
     children,
+    ...rest
   }: Props = $props();
 
   // THE single read point (context-defaults-economy 2.1): the family
@@ -534,6 +544,7 @@
 
 {#if href}
   <a
+    {...rest}
     {href}
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
@@ -556,6 +567,7 @@
   </a>
 {:else}
   <button
+    {...rest}
     {type}
     onclick={onButtonClick}
     aria-label={ariaLabel}

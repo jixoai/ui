@@ -526,20 +526,19 @@
                schema defaults -->
           <ButtonVariantScope variant="ghost" raised={false}>
             <div data-jx-canvas-dock-foot class="flex justify-end mt-[0.5rem]">
-              <!-- the semantic stamp rides a wrapper (IconButton passes
-                   no rest attrs); the focus-visible css anchor stays on
-                   the button itself (.jx-canvas-reset) -->
-              <span data-jx-canvas-reset class="inline-flex">
-                <IconButton
-                  icon={resetGlyph}
-                  text="Reset playground"
-                  iconOnly
-                  tip={false}
-                  density="xs"
-                  onclick={() => (onreset ? onreset() : resetValues())}
-                  class="jx-canvas-reset"
-                />
-              </span>
+              <!-- the stamp rides the REST LANE (floating-flesh-sweep:
+                   press-button/icon-button pass attributes through now —
+                   the wrapper era retired) -->
+              <IconButton
+                icon={resetGlyph}
+                text="Reset playground"
+                iconOnly
+                tip={false}
+                density="xs"
+                data-jx-canvas-reset
+                onclick={() => (onreset ? onreset() : resetValues())}
+                class="jx-canvas-reset"
+              />
             </div>
           </ButtonVariantScope>
         {/if}
