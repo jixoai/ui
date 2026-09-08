@@ -100,9 +100,11 @@ describe('docs-route-model — the section spine', () => {
     // item lands in engines, invisible to this ui-only shape).
     // Re-frozen 2026-09-09 (card-surface-kernel): button-bar retired
     // after one day (the structural kernel law) — general back to 14.
+    // Re-frozen 2026-09-08 (glass-effect-blur-liquid): the ONE glass
+    // effect item lands in general (14->15) — 105 ui items.
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:14', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
+      'general:15', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
       'data-entry:19', 'data-display:24', 'feedback:5',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);

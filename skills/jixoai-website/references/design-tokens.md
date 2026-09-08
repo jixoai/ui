@@ -340,6 +340,16 @@ Hard rules:
   semi-transparent black in light mode, white in dark mode; NEVER a
   brand/primary tint. Shadow direction is pinned bottom-right; tooltip
   stays shadowless by disabling the layer (`content: none`).
+- Glass effect law (Owner, 2026-09-08; the `glass` registry item): glass
+  paint rides the `data-jx-effect="blur" | "liquid-glass"` STAMP channel,
+  painted by the item's own law sheet (`glass.css`) and tuned through the
+  `--jx-glass-*` var family (radius/saturate/fill/brightness; the mount
+  writes the `--jx-glass-filter` lens pointer exclusively). Never
+  hand-roll a backdrop-filter glass formula; `blur()` defaults are the
+  retired `.jx-glass` values verbatim, the lens (`use:liquidGlass`) is a
+  Chromium-only enhancement over the unconditional frost base.
+  `prefers-reduced-transparency` goes solid through the independent
+  `--jx-glass-solid-fill` escape hatch (never the translucent fill).
 - Radius stays 0 (bevel-upgrade exception only). Rounded-full is allowed
   exclusively for small status dots/pills, never for cards or buttons.
 - Terminal bezel law (Owner, 2026-08-21): terminal-surface components

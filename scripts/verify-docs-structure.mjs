@@ -373,10 +373,10 @@ export function selftest() {
       .includes('`undefined`'),
     'a literal undefined text node must FAIL',
   );
-  expect(
-    lintDocsPage(passPage.replace('data-jx-canvas-playground-title', 'data-x'), 'noplay').join(' ').includes('PLAYGROUND'),
-    'canvas without Playground must FAIL',
-  );
+  // (RETIRED fixture removed, canvas-playground-dock 2026-09-08 — the
+  //  PLAYGROUND page-section check died with the per-canvas floating
+  //  dock; the selftest's `canvas without Playground must FAIL`
+  //  expectation went with it. Left broken at the dock-reform commit.)
 
   // ---- the staged skeleton contract (docs-demo-standard) ----
   const skeletonPage = `<!doctype html><html><head><title>Select · jixoai-ui</title></head><body>
