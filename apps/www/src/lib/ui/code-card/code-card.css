@@ -29,28 +29,34 @@
     /* Shiki css-variables palette: primary family + muted, per the visual law */
     --tok-foreground: var(--foreground);
     --tok-background: transparent;
-    --tok-token-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 44%, transparent);
     --tok-token-string: var(--accent);
     --tok-token-string-expression: var(--accent);
     --tok-token-keyword: var(--primary);
-    --tok-token-constant: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
-    --tok-token-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
-    --tok-token-parameter: color-mix(in oklab, var(--foreground) 78%, var(--accent));
-    --tok-token-punctuation: color-mix(in oklab, var(--foreground) 62%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 62%, transparent);
     --tok-token-link: var(--accent);
-    --tok-token-inserted: oklch(0.58 0.12 150);
-    --tok-token-deleted: oklch(0.55 0.16 25);
-    --tok-token-changed: oklch(0.68 0.12 85);
+    --tok-token-inserted: var(--success);
+    --tok-token-deleted: var(--error);
+    --tok-token-changed: var(--warning);
   }
   :where(.dark .jx-code-card) {
     --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
     --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
     --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
 
-    /* dark: brighter primary family */
-    --tok-token-comment: color-mix(in oklab, var(--foreground) 55%, transparent);
-    --tok-token-constant: var(--secondary);
-    --tok-token-function: color-mix(in oklab, var(--primary) 58%, oklch(1 0 0));
+    /* dark: brighter primary family; the oklch one-hue law's complete
+       pairing — every mixed token carries its dark form so both themes
+       read the SAME emphasis hierarchy (统一明暗, the Owner ruling
+       2026-09-08); inserted/deleted/changed ride the semantic tokens,
+       which carry their own dark values in the theme sheet */
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 30%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 70%, oklch(0 0 0));
+    --tok-token-function: color-mix(in oklch, var(--primary) 58%, oklch(1 0 0));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 76%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 36%, transparent);
   }
   /* the light re-flip (the paper-is-white law, 2026-09-03; the
      jx-pure icon-stroke precedent): `.dark` keys off ANCESTRY, so a
@@ -66,9 +72,11 @@
     --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
     --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
 
-    --tok-token-comment: color-mix(in oklab, var(--foreground) 44%, transparent);
-    --tok-token-constant: color-mix(in oklab, var(--secondary) 78%, var(--foreground));
-    --tok-token-function: color-mix(in oklab, var(--primary) 62%, var(--foreground));
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 44%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 62%, transparent);
   }
 
   /* the pre is the scrollport: native Tab characters stay tabs, long lines

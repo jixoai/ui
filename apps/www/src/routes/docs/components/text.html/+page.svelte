@@ -2,8 +2,9 @@
   Docs page for text (markdown-coverage-components §1.5, Lane D). The
   family the Owner designed: base Text + the eight Raw sugars, ONE
   vocabulary (prop value = sugar name = HTML element), mark as a
-  literal slot (the kbd precedent). The mark matrix and the
-  sugar-vs-base equivalence demo are the two canvases.
+  literal slot (the kbd precedent). The mark matrix, the modifier
+  playground (r4 acceptance: the six text-modifier props, live) and
+  the sugar-vs-base equivalence demo are the three canvases.
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
@@ -14,8 +15,18 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Text, { P, Strong, Em, Del, Mark, Ins, Sub, Sup } from '$lib/ui/text';
+  import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
   import { registrySourceUrl } from '$lib/registry-source';
-  import { PlayFields, PlayHelp } from '$lib/playground';
+  import {
+    playOutputs,
+    playState,
+    PlayFields,
+    PlayHelp,
+    PlayRow,
+    PlaySelect,
+    PlaySegmented,
+    PlayToggle,
+  } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copies this
@@ -23,6 +34,8 @@
   // wrapper; the base re-exports the full set from its module script).
   import textSource from '$lib/ui/text/text.svelte?raw';
   import pSource from '$lib/ui/text/p.svelte?raw';
+  import inlineCodeSource from '$lib/ui/inline-code/inline-code.svelte?raw';
+  import textStyleSource from '$lib/text-style.svelte.ts?raw';
 
   const close = '</' + 'script>';
 
@@ -62,6 +75,139 @@ ${close}
     { word: 'sub', note: 'none — the UA baseline shift is the law', snippet: false },
     { word: 'sup', note: 'none — the UA baseline shift is the law', snippet: false },
   ] as const;
+
+  // ---- modifier playground (r4 acceptance round, 2026-09-08) ---------------
+  // The Owner's ruling: the six text-modifier props shipped as STATIC
+  // tiles only — "no adjustable DEMO in the docs". This canvas is the
+  // live one: ONE page-owned playState, every kit control bound into
+  // play.current, reset() restoring the documented starting point, and
+  // the snippet lane authored ONCE over the same derived props object
+  // the stage spreads (the taught string IS the shown string).
+  type WeightChoice = 'normal' | 'medium' | 'semibold' | 'bold' | '450' | '550';
+  type TrackingChoice = 'tighter' | 'tight' | 'normal' | 'wide' | 'wider';
+  type FamilyChoice = 'inherit' | 'mono' | 'sans' | 'serif';
+  type FontSizeChoice = '11px' | '12px' | '13px' | '14px' | '16px';
+
+  // family speaks CHOICE words; the kernel wants CSS values. inherit
+  // is the absent-ambient sentinel — undefined ⇒ the prop is omitted
+  // and the snippet lane never shows family="inherit"
+  const FAMILY_VALUES: Record<Exclude<FamilyChoice, 'inherit'>, string> = {
+    mono: 'var(--font-mono)',
+    sans: 'var(--font-sans)',
+    serif: 'Georgia,serif',
+  };
+
+  const play = playState({
+    lineHeight: 1.5 as number,
+    weight: 'medium' as WeightChoice,
+    italic: false as boolean,
+    tracking: 'normal' as TrackingChoice,
+    family: 'inherit' as FamilyChoice,
+    fontSize: '14px' as FontSizeChoice,
+  });
+
+  const lineHeightOptions: { value: number; label: string }[] = [
+    { value: 1, label: '1' },
+    { value: 1.25, label: '1.25' },
+    { value: 1.5, label: '1.5' },
+    { value: 1.75, label: '1.75' },
+    { value: 2, label: '2' },
+  ];
+  const weightOptions: { value: WeightChoice; label: string }[] = [
+    { value: 'normal', label: 'normal · 400' },
+    { value: 'medium', label: 'medium · 500' },
+    { value: 'semibold', label: 'semibold · 600' },
+    { value: 'bold', label: 'bold · 700' },
+    { value: '450', label: '450 · font-[450]' },
+    { value: '550', label: '550 · font-[550]' },
+  ];
+  const trackingOptions: { value: TrackingChoice; label: string }[] = [
+    { value: 'tighter', label: 'tighter' },
+    { value: 'tight', label: 'tight' },
+    { value: 'normal', label: 'normal' },
+    { value: 'wide', label: 'wide' },
+    { value: 'wider', label: 'wider' },
+  ];
+  const familyOptions: { value: FamilyChoice; label: string }[] = [
+    { value: 'inherit', label: 'inherit — ambient' },
+    { value: 'mono', label: 'mono — var(--font-mono)' },
+    { value: 'sans', label: 'sans — var(--font-sans)' },
+    { value: 'serif', label: 'serif — Georgia,serif' },
+  ];
+  const fontSizeOptions: { value: FontSizeChoice; label: string }[] = [
+    { value: '11px', label: '11px' },
+    { value: '12px', label: '12px' },
+    { value: '13px', label: '13px' },
+    { value: '14px', label: '14px' },
+    { value: '16px', label: '16px' },
+  ];
+
+  // the LIVE modifier props — ONE derivation feeding BOTH the stage
+  // spread and the snippet expression below (single source, zero drift)
+  const mods = $derived({
+    lineHeight: play.current.lineHeight,
+    weight: play.current.weight,
+    italic: play.current.italic,
+    tracking: play.current.tracking,
+    family: play.current.family === 'inherit' ? undefined : FAMILY_VALUES[play.current.family],
+    fontSize: play.current.fontSize,
+  });
+
+  // free text must become a legal string literal (q() = JSON.stringify)
+  const q = (value: string): string => JSON.stringify(value);
+  // the snippet lane over mods: omit what the kernel would not emit
+  // (italic off, family inherit) — the taught props are the shown props
+  const modifierPropsExpr = $derived.by(() => {
+    const parts: string[] = [];
+    if (mods.lineHeight !== undefined) parts.push(`lineHeight={${mods.lineHeight}}`);
+    if (mods.weight !== undefined) parts.push(`weight=${q(mods.weight)}`);
+    if (mods.italic === true) parts.push('italic');
+    if (mods.tracking !== undefined) parts.push(`tracking=${q(mods.tracking)}`);
+    if (mods.family !== undefined) parts.push(`family=${q(mods.family)}`);
+    if (mods.fontSize !== undefined) parts.push(`fontSize=${q(mods.fontSize)}`);
+    return parts.length > 0 ? ` ${parts.join(' ')}` : '';
+  });
+
+  const modifierUsageHead = `<script lang="ts">
+  import Text, { Strong } from '@ui/text';
+  import InlineCode from '@ui/inline-code.svelte';
+${close}
+
+<!-- the six text modifiers, one kernel: absent = ambient, explicit
+     beats ambient, and the consumer class still merges last -->`;
+  const modifierUsageLive = $derived(`${modifierUsageHead}
+<Text${modifierPropsExpr}>
+  The quick brown fox jumps over the lazy dog — every modifier lands
+  after the form's own utilities, never before the consumer class.
+</Text>
+
+<Strong${modifierPropsExpr}>strong composes too — an explicit weight replaces its own 600</Strong>
+
+<InlineCode lang="text"${modifierPropsExpr}>var(--font-mono)</InlineCode>`);
+
+  // the drawer: the shared kernel + both consumers + the live usage
+  // (content stays '' — the drawer's displayed text ALWAYS walks
+  // resolveFileContent, so the live $derived is the single source)
+  const modifierFiles: TreeFile[] = [
+    { name: 'registry/files/lib/text-style.svelte.ts', content: textStyleSource },
+    { name: 'registry/files/ui/text/text.svelte', content: textSource },
+    { name: 'registry/files/ui/inline-code/inline-code.svelte', content: inlineCodeSource },
+    { name: 'src/lib/ui/text-modifier-usage.svelte', content: '', kind: 'usage' },
+  ];
+  const resolveModifierUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? modifierUsageLive : file.content;
+
+  /* Tailwind scanner candidates: the modifier utilities are composed
+     at RUNTIME by the kernel (template interpolations the source
+     scanner can never see) — this block feeds the exact set the
+     playground can emit so the compiled sheet carries it (the app.css
+     jx-html block precedent). The named weight/tracking/italic set
+     already extracts from the kernel's own literal maps. */
+  /* leading-[1] leading-[1.25] leading-[1.5] leading-[1.75] leading-[2]
+     font-[450] font-[550] [font-family:var(--font-mono)]
+     [font-family:var(--font-sans)] [font-family:Georgia,serif]
+     [font-size:11px] [font-size:12px] [font-size:13px] [font-size:14px]
+     [font-size:16px] */
 </script>
 
 <svelte:head>
@@ -141,6 +287,67 @@ ${close}
               shift IS the law. <code>mark</code>'s ground drops to the Highlight system pair
               under forced colors; <code>strong</code>'s 600 is a recorded settle over the face's
               700 (the GitHub/Tailwind Typography weight).
+            </PlayHelp>
+          </PlayFields>
+        {/snippet}
+      </ComponentCanvas>
+    </div>
+
+    <div id="modifiers" data-region="text-modifiers" data-family="text-modifiers" data-reveal="">
+      <ComponentCanvas
+        title="text · modifiers"
+        description="The six text modifiers, live — the kernel Text and inline-code share (lineHeight, weight, italic, tracking, family, fontSize). Every control re-renders the base paragraph, the strong form and the chip together, and the drawer's usage file always shows the exact props on screen — italic off and family inherit are omitted, because absent = ambient."
+        sourceUrl={registrySourceUrl('text')}
+        files={modifierFiles}
+        stage="fill"
+        onreset={() => play.reset()}
+        output={playOutputs(play.current)}
+        resolveFileContent={resolveModifierUsage}
+      >
+        <div class="flex w-full max-w-xl flex-col gap-5">
+          <div class="flex flex-col gap-2">
+            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">the base paragraph</span>
+            <Text {...mods}>The quick brown fox jumps over the lazy dog — every modifier lands after the form's own utilities, never before the consumer class.</Text>
+          </div>
+          <div class="flex flex-col gap-2 border-t border-border pt-4">
+            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">a mark form — modifiers compose</span>
+            <p class="m-0"><Strong {...mods}>strong composes too — an explicit weight replaces its own 600</Strong></p>
+          </div>
+          <div class="flex flex-col gap-2 border-t border-border pt-4">
+            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">the other kernel consumer</span>
+            <p class="m-0 text-[13.5px]">
+              <InlineCode lang="text" {...mods}>var(--font-mono)</InlineCode>
+              <span class="text-muted-foreground"> — the chip folds fontSize × lineHeight into its padding calc</span>
+            </p>
+          </div>
+        </div>
+        {#snippet playground()}
+          <PlayFields>
+            <PlayRow label="lineHeight" hint="number ⇒ the unitless ratio">
+              <PlaySegmented bind:value={play.current.lineHeight} options={lineHeightOptions} />
+            </PlayRow>
+            <PlayRow label="weight" hint="the named set, or arbitrary">
+              <PlaySelect bind:value={play.current.weight} options={weightOptions} />
+            </PlayRow>
+            <PlayRow label="italic" hint="false never emits not-italic">
+              <PlayToggle bind:value={play.current.italic} />
+            </PlayRow>
+            <PlayRow label="tracking">
+              <PlaySelect bind:value={play.current.tracking} options={trackingOptions} />
+            </PlayRow>
+            <PlayRow label="family" hint="inherit = the ambient flow">
+              <PlaySelect bind:value={play.current.family} options={familyOptions} />
+            </PlayRow>
+            <PlayRow label="fontSize" hint="never a text-* utility">
+              <PlaySelect bind:value={play.current.fontSize} options={fontSizeOptions} />
+            </PlayRow>
+            <PlayHelp>
+              the absent-ambient law: <code>italic</code> off and <code>family</code> inherit emit
+              NOTHING — the ambient channels flow untouched. An explicit prop beats the ambient (a
+              member <code>lineHeight</code> outranks the prose scope's leading) and beats the
+              form's own utilities (<code>weight</code> replaces strong's 600 — watch the strong
+              row); the consumer class still merges last. Reset returns to the documented starting
+              point: 1.5 / medium / 14px.
             </PlayHelp>
           </PlayFields>
         {/snippet}

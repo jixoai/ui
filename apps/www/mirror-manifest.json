@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-07T22:06:33.008Z",
+  "generatedAt": "2026-09-08T06:50:57.859Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -115,8 +115,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "53720e76bb24268e33b8885d041e3e7ef8908708af1001aa65590cb3e37f509f",
-          "mirrorSha": "53720e76bb24268e33b8885d041e3e7ef8908708af1001aa65590cb3e37f509f"
+          "sourceSha": "4b9582a57d34ebe3c515c2bfcc7a829fa70cbd84caeccab315262afe3bfa9bc0",
+          "mirrorSha": "4b9582a57d34ebe3c515c2bfcc7a829fa70cbd84caeccab315262afe3bfa9bc0"
         }
       ]
     },
@@ -1061,8 +1061,8 @@
           "source": "registry/files/ui/code-card/code-card.css",
           "mirror": "apps/www/src/lib/ui/code-card/code-card.css",
           "target": "@ui/code-card/code-card.css",
-          "sourceSha": "5c019c440882ea21607cf7d69d880663f78b83b56121b5ded6bd57589db4cd6c",
-          "mirrorSha": "5c019c440882ea21607cf7d69d880663f78b83b56121b5ded6bd57589db4cd6c"
+          "sourceSha": "77cb5e352688bcd2f68effbb2f3097dfb2fe01ca3c5e3be08d0a34c500e831a1",
+          "mirrorSha": "77cb5e352688bcd2f68effbb2f3097dfb2fe01ca3c5e3be08d0a34c500e831a1"
         }
       ]
     },
@@ -2339,8 +2339,8 @@
           "source": "registry/files/ui/inline-code/inline-code.svelte",
           "mirror": "apps/www/src/lib/ui/inline-code/inline-code.svelte",
           "target": "@ui/inline-code/inline-code.svelte",
-          "sourceSha": "dac3751de41f0eef4d31f9eeba42452277466d3898b77b383a351c182d4503c2",
-          "mirrorSha": "dac3751de41f0eef4d31f9eeba42452277466d3898b77b383a351c182d4503c2"
+          "sourceSha": "6291a4d8cffa260b5d147d8a134aa947b206542b713af1a5b19038bc168c7b15",
+          "mirrorSha": "6291a4d8cffa260b5d147d8a134aa947b206542b713af1a5b19038bc168c7b15"
         },
         {
           "source": "registry/files/ui/inline-code/index.ts",
@@ -2360,8 +2360,8 @@
           "source": "registry/files/ui/inline-code/inline-code.css",
           "mirror": "apps/www/src/lib/ui/inline-code/inline-code.css",
           "target": "@ui/inline-code/inline-code.css",
-          "sourceSha": "4dd7de7d0f8164d7e38c21a96bf660a6131726c1c87259aa0651c5d74cf0cc85",
-          "mirrorSha": "4dd7de7d0f8164d7e38c21a96bf660a6131726c1c87259aa0651c5d74cf0cc85"
+          "sourceSha": "96bf03fb06f44f08c1cb482d7c28957fdb00867bd5a5fd7e8cf3f6571e5a0b24",
+          "mirrorSha": "96bf03fb06f44f08c1cb482d7c28957fdb00867bd5a5fd7e8cf3f6571e5a0b24"
         }
       ]
     },

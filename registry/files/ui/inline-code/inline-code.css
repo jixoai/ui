@@ -1,28 +1,83 @@
 /*
- * jixoai inline-code — the padding formula's engine (2026-09-08,
- * inline-code-engine-and-text-modifiers D6; the folder-css law —
- * utilities cannot express it, found live in the vision pass: the
- * long nested calc arbitrary-property candidate never survives
- * Tailwind's source scanner, dynamic assembly never can, and the
- * chips rendered with ZERO padding-inline).
+ * jixoai inline-code css (registry/files/ui/inline-code/inline-code.css).
  *
- * padding-inline = radius + fontSize × (lineHeight − 1) / 2
- * (equivalently radius + (lineBox − fontSize) / 2 — the leading's
- * half-extra each side; the Owner's worked examples: 4px/12px/1 ⇒ 4,
- * 4px/12px/1.5 ⇒ 7).
+ * TWO engines live here, both folder-css by the D1-exempt law
+ * (utilities cannot express either — each was proven live):
  *
- * The terms are CUSTOM PROPERTIES with token fallbacks so ONE rule
- * serves every mode: absent modifier props fall back to the density
- * pair (--jx-text-secondary / --jx-line-secondary, both lengths —
- * the difference form is legal CSS); explicit modifier props are
- * mirrored by the component onto --jx-code-fs / --jx-code-line
- * through the style attribute (the only channel that carries runtime
- * literals past the scanner). Everything rides :where() so consumer
- * padding utilities always win (the layer law).
+ * 1. the --tok-* token palette — the code-card trio, verbatim values
+ *    (light / dark / the .jx-light re-flip). One palette, two
+ *    surfaces: a chip highlights anywhere without a card — the
+ *    microlighter jixoai theme's [data-syntax-theme='jixoai'] rules
+ *    bridge --syntax-* onto these slots. Everything rides :where():
+ *    a consumer's [--tok-token-…:…] utility always wins.
+ *
+ *    The palette v2 (Owner ruling 2026-09-08, oklch 统一明暗):
+ *    interpolation in oklch (the one-hue law's space); the diff
+ *    tokens ride the SEMANTIC vars (success/error/warning —
+ *    theme-anchored, dark values by construction; the retired raw
+ *    literals were hand-copied statics of those same hues); every
+ *    mixed token ships an explicit dark form measured to keep the
+ *    emphasis HIERARCHY identical across themes (comment quietest →
+ *    punctuation → constant → keyword → string → function →
+ *    parameter — the dark ground amplifies mid-grays, so the dark
+ *    mixes sit far quieter than their light twins at the same rank;
+ *    ratios measured in the R4.1 vision pass).
+ *
+ * 2. the padding formula —
+ *    padding-inline = radius + fontSize × (lineHeight − 1) / 2
+ *    (equivalently radius + (lineBox − fontSize) / 2 — the leading's
+ *    half-extra each side; the Owner's worked examples: 4px/12px/1 ⇒ 4,
+ *    4px/12px/1.5 ⇒ 7). The terms are CUSTOM PROPERTIES with token
+ *    fallbacks so ONE rule serves every mode: absent modifier props
+ *    fall back to the density pair (--jx-text-secondary /
+ *    --jx-line-secondary, both lengths — the difference form is legal
+ *    CSS); explicit modifier props are mirrored by the component onto
+ *    --jx-code-fs / --jx-code-line through the style attribute (the
+ *    only channel that carries runtime literals past the scanner).
  */
 @layer theme, base, components, utilities;
 
 @layer components {
+  /* ── the token palette: light ── */
+  :where([data-jx-inline-code]) {
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 44%, transparent);
+    --tok-token-string: var(--accent);
+    --tok-token-string-expression: var(--accent);
+    --tok-token-keyword: var(--primary);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 62%, transparent);
+    --tok-token-link: var(--accent);
+    --tok-token-inserted: var(--success);
+    --tok-token-deleted: var(--error);
+    --tok-token-changed: var(--warning);
+  }
+  /* ── the token palette: dark ── */
+  :where(.dark [data-jx-inline-code]) {
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 30%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 70%, oklch(0 0 0));
+    --tok-token-function: color-mix(in oklch, var(--primary) 58%, oklch(1 0 0));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 76%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 36%, transparent);
+  }
+  /* ── the token palette: the .jx-light re-flip (the paper-is-white
+     law, code-card's own block verbatim): `.dark` keys off ANCESTRY,
+     so a dark document's pinned-light canvas stage still matches the
+     dark override above — this block re-declares the light formulas
+     AFTER it, so the declared light scope wins by order. The retired
+     markup-utilities palette could not express this (its dark:
+     variants sat in the utilities layer, unbeatable from the
+     components layer — the pinned-light canvas leak, found live) ── */
+  :where(.jx-light [data-jx-inline-code]) {
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 44%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 62%, transparent);
+  }
+
+  /* ── the padding formula ── */
   :where([data-jx-inline-code]) {
     padding-inline: calc(
       var(--jx-chip-radius) +

@@ -2,8 +2,10 @@
   PlaySegmented — the standard small-enum control: a terminal button
   row with one pressed state. Replaces the four divergent enum forms
   (NativeSelect / Input / hand-rolled buttons / page-local fieldsets).
+  T covers string AND number enums (the text-modifier playground's
+  unitless lineHeight ratios ride numbers — the PlayValue domain).
 -->
-<script lang="ts" generics="T extends string">
+<script lang="ts" generics="T extends string | number">
   import { getContext } from 'svelte';
 
   let {

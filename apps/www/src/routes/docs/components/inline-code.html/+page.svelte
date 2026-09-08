@@ -8,10 +8,21 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
-  import { PlayFields, PlayHelp } from '$lib/playground';
+  import { registrySourceUrl } from '$lib/registry-source';
+  import {
+    playOutputs,
+    playState,
+    PlayFields,
+    PlayHelp,
+    PlayRow,
+    PlaySelect,
+    PlaySegmented,
+    PlayToggle,
+  } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import inlineCodeSource from '$lib/ui/inline-code/inline-code.svelte?raw';
+  import textStyleSource from '$lib/text-style.svelte.ts?raw';
 
   const close = '</' + 'script>';
 
@@ -92,6 +103,93 @@ ${close}`;
     ['json', '{"name": "jixoai", "private": true}'],
     ['plain', 'Ctrl + C'],
   ];
+
+  // ---- modifier playground (r4 acceptance round, 2026-09-08) -------------
+  // The COMPACT interactive treatment: the chip-relevant four of the
+  // six text modifiers, ONE page-owned playState driving two chips.
+  // The full six-control flagship lives on the text page. Defaults are
+  // the geometry section's worked example — 12px on 1.5 (7px of
+  // padding at default density).
+  type ChipWeight = 'normal' | 'medium' | 'semibold' | 'bold' | '450';
+  type ChipFontSize = '11px' | '12px' | '13px' | '14px' | '16px';
+
+  const chipPlay = playState({
+    fontSize: '12px' as ChipFontSize,
+    lineHeight: 1.5 as number,
+    weight: 'normal' as ChipWeight,
+    italic: false as boolean,
+  });
+
+  const chipLineHeightOptions: { value: number; label: string }[] = [
+    { value: 1, label: '1' },
+    { value: 1.25, label: '1.25' },
+    { value: 1.5, label: '1.5' },
+    { value: 1.75, label: '1.75' },
+    { value: 2, label: '2' },
+  ];
+  const chipWeightOptions: { value: ChipWeight; label: string }[] = [
+    { value: 'normal', label: 'normal · 400' },
+    { value: 'medium', label: 'medium · 500' },
+    { value: 'semibold', label: 'semibold · 600' },
+    { value: 'bold', label: 'bold · 700' },
+    { value: '450', label: '450 · font-[450]' },
+  ];
+  const chipFontSizeOptions: { value: ChipFontSize; label: string }[] = [
+    { value: '11px', label: '11px' },
+    { value: '12px', label: '12px' },
+    { value: '13px', label: '13px' },
+    { value: '14px', label: '14px' },
+    { value: '16px', label: '16px' },
+  ];
+
+  // ONE derivation feeding BOTH the stage spread and the snippet
+  // expression (single source, zero drift — the taught string IS the
+  // shown string; italic off emits nothing and is omitted)
+  const chipMods = $derived({
+    fontSize: chipPlay.current.fontSize,
+    lineHeight: chipPlay.current.lineHeight,
+    weight: chipPlay.current.weight,
+    italic: chipPlay.current.italic,
+  });
+  const q = (value: string): string => JSON.stringify(value);
+  const chipPropsExpr = $derived.by(() => {
+    const parts: string[] = [];
+    if (chipMods.fontSize !== undefined) parts.push(`fontSize=${q(chipMods.fontSize)}`);
+    if (chipMods.lineHeight !== undefined) parts.push(`lineHeight={${chipMods.lineHeight}}`);
+    if (chipMods.weight !== undefined) parts.push(`weight=${q(chipMods.weight)}`);
+    if (chipMods.italic === true) parts.push('italic');
+    return parts.length > 0 ? ` ${parts.join(' ')}` : '';
+  });
+
+  const chipUsageHead = `<script lang="ts">
+  import InlineCode from '@ui/inline-code.svelte';
+${close}
+
+<!-- the chip-relevant four: fontSize and lineHeight also feed the
+     padding calc (radius + fontSize × (lineHeight − 1) / 2) -->`;
+  const chipUsageLive = $derived(`${chipUsageHead}
+<InlineCode lang="ts"${chipPropsExpr}>const value = 42</InlineCode>
+<InlineCode lang="text" variant="outline"${chipPropsExpr}>--jx-chip-radius</InlineCode>`);
+
+  // content stays '' — the drawer's displayed text ALWAYS walks
+  // resolveFileContent, so the live $derived is the single source
+  const modifierFiles: TreeFile[] = [
+    { name: 'registry/files/lib/text-style.svelte.ts', content: textStyleSource },
+    { name: 'src/lib/ui/inline-code-modifiers-usage.svelte', content: '', kind: 'usage' },
+  ];
+  const resolveModifierUsage = (file: TreeFile): string =>
+    file.name.endsWith('usage.svelte') ? chipUsageLive : file.content;
+
+  /* Tailwind scanner candidates — same law as the text page's block:
+     the modifier utilities are composed at RUNTIME by the kernel
+     (template interpolations the source scanner can never see); this
+     block feeds the exact set this page's playground AND its static
+     tiles can emit, so the compiled sheet carries them (the app.css
+     jx-html block precedent). */
+  /* leading-[1] leading-[1.25] leading-[1.5] leading-[1.75] leading-[2]
+     font-[450] tracking-[-0.02em] [font-family:IBM_Plex_Mono]
+     [font-size:11px] [font-size:12px] [font-size:13px] [font-size:14px]
+     [font-size:16px] */
 </script>
 
 <svelte:head>
@@ -284,15 +382,18 @@ ${close}`;
       </SectionCard>
     </div>
 
-    <div id="inline-code-modifiers" data-reveal="">
-      <SectionCard
-        family="inline-code-modifiers"
-        headerRegion="inline-code-modifiers"
-        eyebrow="demo"
-        title="The six text modifiers"
-        summary="lineHeight, weight, italic, tracking, family and fontSize ride the shared kernel (@jixoai/text's text-style resolver): an ABSENT prop emits nothing — the ambient channels flow untouched — and an EXPLICIT prop emits its utility after the variant paint, before the consumer class. An explicit fontSize/lineHeight also feeds the padding calc and replaces the base token utility for that property (emission, not ordering, is the guarantee)."
+    <div id="inline-code-modifiers" data-region="inline-code-modifiers" data-family="inline-code-modifiers" data-reveal="">
+      <ComponentCanvas
+        title="inline-code · modifiers"
+        description="The six text modifiers ride the shared kernel (@jixoai/text's text-style resolver): an ABSENT prop emits nothing — the ambient channels flow untouched — and an EXPLICIT prop emits its utility after the variant paint, before the consumer class. An explicit fontSize/lineHeight also feeds the padding calc and replaces the base token utility for that property (emission, not ordering, is the guarantee). The playground drives the chip-relevant four; the full six-control flagship lives on the text page."
+        sourceUrl={registrySourceUrl('inline-code')}
+        files={modifierFiles}
+        stage="fill"
+        onreset={() => chipPlay.reset()}
+        output={playOutputs(chipPlay.current)}
+        resolveFileContent={resolveModifierUsage}
       >
-        <div class="flex flex-col gap-4 text-[13.5px]">
+        <div class="flex w-full max-w-xl flex-col gap-4 text-[13.5px]">
           <div class="flex flex-wrap items-center gap-3">
             <InlineCode lang="ts" lineHeight={1.75}>lineHeight 1.75</InlineCode>
             <InlineCode lang="ts" weight="450">weight 450</InlineCode>
@@ -304,8 +405,35 @@ ${close}`;
             <InlineCode lang="ts" fontSize="13px">13px mono</InlineCode>
             <InlineCode lang="ts" lineHeight={1.25} fontSize="13px">13px / 1.25 — the padding folds the excess</InlineCode>
           </div>
+          <div class="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">driven by the playground</span>
+            <InlineCode lang="ts" {...chipMods}>const value = 42</InlineCode>
+            <InlineCode lang="text" variant="outline" {...chipMods}>--jx-chip-radius</InlineCode>
+          </div>
         </div>
-      </SectionCard>
+        {#snippet playground()}
+          <PlayFields>
+            <PlayRow label="fontSize" hint="also feeds the padding calc">
+              <PlaySelect bind:value={chipPlay.current.fontSize} options={chipFontSizeOptions} />
+            </PlayRow>
+            <PlayRow label="lineHeight" hint="number ⇒ the unitless ratio">
+              <PlaySegmented bind:value={chipPlay.current.lineHeight} options={chipLineHeightOptions} />
+            </PlayRow>
+            <PlayRow label="weight">
+              <PlaySelect bind:value={chipPlay.current.weight} options={chipWeightOptions} />
+            </PlayRow>
+            <PlayRow label="italic" hint="false never emits not-italic">
+              <PlayToggle bind:value={chipPlay.current.italic} />
+            </PlayRow>
+            <PlayHelp>
+              the chip-relevant four of the kernel's six — tracking and family live on the
+              <a href="/docs/components/text.html#modifiers" class="text-accent underline underline-offset-2">text page's modifier playground</a>.
+              Defaults are the geometry section's worked example (12px on 1.5); reset restores
+              them in place, live bindings intact.
+            </PlayHelp>
+          </PlayFields>
+        {/snippet}
+      </ComponentCanvas>
     </div>
 
     <div id="types" data-reveal="">

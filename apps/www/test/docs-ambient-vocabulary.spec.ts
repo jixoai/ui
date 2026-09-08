@@ -328,11 +328,15 @@ describe('global deny — retired density vocabulary is gone from every componen
   }
 });
 
-// ── meta side: the six generated meta files carry ambient on axis props ──
+// ── meta side: the generated meta files carry ambient on axis props ──
 describe('meta side — generated meta ambient fields on exact-key axis props', () => {
   const META_DIR = join(WWW, 'src/lib/meta');
-  const expectedCarriers = new Set(['checkbox', 'combobox', 'date-picker', 'popover', 'press-button', 'select']);
-  it('exactly the six known carriers have axis props', () => {
+  // the six founding carriers + the R4 additions (2026-09-08,
+  // inline-code-engine-and-text-modifiers): inline-code (variant=zone,
+  // density=scope) and separator (variant, its bareDefault own) minted
+  // metas with axis props — legitimate carriers, the set froze stale
+  const expectedCarriers = new Set(['checkbox', 'combobox', 'date-picker', 'popover', 'press-button', 'select', 'inline-code', 'separator']);
+  it('exactly the known carriers have axis props', () => {
     const carriers = new Set<string>();
     for (const f of readdirSync(META_DIR).filter((f) => f.endsWith('.meta.ts'))) {
       const source = readFileSync(join(META_DIR, f), 'utf8');

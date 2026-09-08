@@ -307,29 +307,20 @@
   } as const;
 
   /**
-   * The --tok-* palette as arbitrary-property utilities — the SAME
-   * values code-card.css wires (one palette, two surfaces; the dark
-   * adaptations ride the theme sheet's dark: variant), carried by the
-   * chip itself so range paint resolves WITHOUT a card: the
-   * microlighter jixoai theme's [data-syntax-theme='jixoai'] rules
-   * bridge --syntax-* onto these --tok-* slots, and the chip stamps
-   * that anchor on its own <code>. Consumers retune any slot with
-   * their own [--tok-token-…:…] utility.
+   * The --tok-* palette rides inline-code.css (the palette v2 pivot,
+   * 2026-09-08): the SAME trio code-card.css wires — light / dark /
+   * .jx-light re-flip, all in the components layer — value-identical
+   * (one palette, two surfaces). The markup-utilities form could not
+   * carry a .jx-light re-flip (its dark: variants sit in the
+   * utilities layer, which no components-layer declaration beats —
+   * the pinned-light canvas leak, found live in the vision pass) and
+   * the dark tunes the hierarchy measurements demanded land cleaner
+   * as css. The chip still carries its palette wherever it goes (the
+   * css ships with the item); range paint resolves through the
+   * microlighter jixoai theme's [data-syntax-theme='jixoai'] bridge
+   * onto these --tok-* slots; consumers retune any slot with their
+   * own [--tok-token-…:…] utility (utilities beat the :where block).
    */
-  const tokenPalette =
-    '[--tok-token-comment:color-mix(in_oklab,var(--foreground)_44%,transparent)] ' +
-    '[--tok-token-string:var(--accent)] [--tok-token-string-expression:var(--accent)] ' +
-    '[--tok-token-keyword:var(--primary)] ' +
-    '[--tok-token-constant:color-mix(in_oklab,var(--secondary)_78%,var(--foreground))] ' +
-    '[--tok-token-function:color-mix(in_oklab,var(--primary)_62%,var(--foreground))] ' +
-    '[--tok-token-parameter:color-mix(in_oklab,var(--foreground)_78%,var(--accent))] ' +
-    '[--tok-token-punctuation:color-mix(in_oklab,var(--foreground)_62%,transparent)] ' +
-    '[--tok-token-link:var(--accent)] ' +
-    '[--tok-token-inserted:oklch(0.58_0.12_150)] [--tok-token-deleted:oklch(0.55_0.16_25)] ' +
-    '[--tok-token-changed:oklch(0.68_0.12_85)] ' +
-    'dark:[--tok-token-comment:color-mix(in_oklab,var(--foreground)_55%,transparent)] ' +
-    'dark:[--tok-token-constant:var(--secondary)] ' +
-    'dark:[--tok-token-function:color-mix(in_oklab,var(--primary)_58%,oklch(1_0_0))]';
 
   /** Shiki's special languages render plain — no grammar, no detection */
   const PLAIN_LANGS = new Set(['text', 'plain', 'plaintext', 'ansi']);
@@ -384,7 +375,11 @@
    * pivot — see codeVars below).
    */
   const baseUtilities = $derived.by(() => {
-    const parts = ['inline-block', 'font-mono'];
+    const parts = ['inline-block'];
+    // the mono frame drops when an explicit family rides the kernel —
+    // same-property utility order is not guaranteed, so the twin is
+    // DROPPED, not outranked (the vision-pass family-cascade find)
+    if (family === undefined) parts.push('font-mono');
     if (fontSize === undefined) parts.push('[font-size:var(--jx-text-secondary)]');
     if (lineHeight === undefined) parts.push('[line-height:var(--jx-line-secondary)]');
     parts.push('border', 'rounded-(--jx-chip-radius)', 'whitespace-nowrap');
@@ -431,7 +426,6 @@
   style={codeVars}
   class={cn(
     baseUtilities,
-    tokenPalette,
     variantUtilities[d.variant],
     resolveTextStyle({ lineHeight, weight, italic, tracking, family, fontSize }),
     className,

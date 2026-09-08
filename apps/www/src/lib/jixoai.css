@@ -274,7 +274,7 @@
   --jx-icon: var(--jx-density-media-icon-lg);
   --jx-image: var(--jx-density-media-image-lg);
   --jx-text-secondary: var(--jx-density-secondary-text-lg);
-  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-leading-secondary: var(--jx-density-secondary-leading-2xs);
   --jx-line-secondary: var(--jx-density-secondary-line-lg);
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
@@ -1006,12 +1006,20 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-density-secondary-text-sm: max(0.625rem, calc(var(--jx-density-text-sm) - calc(var(--jx-unit) / 4)));
   --jx-density-secondary-text-default: max(0.625rem, calc(var(--jx-density-text-default) - calc(var(--jx-unit) / 4)));
   --jx-density-secondary-text-lg: max(0.625rem, calc(var(--jx-density-text-lg) - calc(var(--jx-unit) / 4)));
-  --jx-density-secondary-leading: 1.5;
-  --jx-density-secondary-line-2xs: calc(var(--jx-density-secondary-text-2xs) * var(--jx-density-secondary-leading));
-  --jx-density-secondary-line-xs: calc(var(--jx-density-secondary-text-xs) * var(--jx-density-secondary-leading));
-  --jx-density-secondary-line-sm: calc(var(--jx-density-secondary-text-sm) * var(--jx-density-secondary-leading));
-  --jx-density-secondary-line-default: calc(var(--jx-density-secondary-text-default) * var(--jx-density-secondary-leading));
-  --jx-density-secondary-line-lg: calc(var(--jx-density-secondary-text-lg) * var(--jx-density-secondary-leading));
+  /* the secondary leading ladder (Owner ruling, 2026-09-08: 2xs 的
+     lineHeight 有必要缩减): the flat 1.5 read loose on the small rungs'
+     ~10-11px secondary text; the ramp tightens BELOW default only —
+     default/lg keep 1.5 so nothing above sm moves */
+  --jx-density-secondary-leading-2xs: 1.25;
+  --jx-density-secondary-leading-xs: 1.35;
+  --jx-density-secondary-leading-sm: 1.45;
+  --jx-density-secondary-leading-default: 1.5;
+  --jx-density-secondary-leading-lg: 1.5;
+  --jx-density-secondary-line-2xs: calc(var(--jx-density-secondary-text-2xs) * var(--jx-density-secondary-leading-2xs));
+  --jx-density-secondary-line-xs: calc(var(--jx-density-secondary-text-xs) * var(--jx-density-secondary-leading-xs));
+  --jx-density-secondary-line-sm: calc(var(--jx-density-secondary-text-sm) * var(--jx-density-secondary-leading-sm));
+  --jx-density-secondary-line-default: calc(var(--jx-density-secondary-text-default) * var(--jx-density-secondary-leading-default));
+  --jx-density-secondary-line-lg: calc(var(--jx-density-secondary-text-lg) * var(--jx-density-secondary-leading-lg));
 
   /* Chip corner radius (inline-code-engine-and-text-modifiers D4,
      2026-09-08 — Owner mapping 2/2/2/4/8): the inline code chip's
@@ -2132,7 +2140,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-icon: var(--jx-density-media-icon-default);
   --jx-image: var(--jx-density-media-image-default);
   --jx-text-secondary: var(--jx-density-secondary-text-default);
-  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-leading-secondary: var(--jx-density-secondary-leading-xs);
   --jx-line-secondary: var(--jx-density-secondary-line-default);
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
@@ -2158,7 +2166,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-icon: var(--jx-density-media-icon-xs);
   --jx-image: var(--jx-density-media-image-xs);
   --jx-text-secondary: var(--jx-density-secondary-text-xs);
-  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-leading-secondary: var(--jx-density-secondary-leading-sm);
   --jx-line-secondary: var(--jx-density-secondary-line-xs);
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
@@ -2184,7 +2192,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-icon: var(--jx-density-media-icon-sm);
   --jx-image: var(--jx-density-media-image-sm);
   --jx-text-secondary: var(--jx-density-secondary-text-sm);
-  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-leading-secondary: var(--jx-density-secondary-leading-default);
   --jx-line-secondary: var(--jx-density-secondary-line-sm);
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
@@ -2222,7 +2230,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-icon: var(--jx-density-media-icon-2xs);
   --jx-image: var(--jx-density-media-image-2xs);
   --jx-text-secondary: var(--jx-density-secondary-text-2xs);
-  --jx-leading-secondary: var(--jx-density-secondary-leading);
+  --jx-leading-secondary: var(--jx-density-secondary-leading-lg);
   --jx-line-secondary: var(--jx-density-secondary-line-2xs);
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
