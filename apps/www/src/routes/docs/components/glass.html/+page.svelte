@@ -337,7 +337,7 @@ ${close}
             <p class="glass-band-text m-0" aria-hidden="true">
               liquid glass<br />refraction — the lens bends what sits behind it
             </p>
-            <div class="relative z-[2] flex flex-col gap-8 px-6 pt-[11rem] pb-8 sm:px-10">
+            <div class="relative flex flex-col gap-8 px-6 pt-[11rem] pb-8 sm:px-10">
               <!-- the physical layer — driven by the dock's sliders -->
               <div class="flex flex-wrap items-start gap-7">
                 <div
