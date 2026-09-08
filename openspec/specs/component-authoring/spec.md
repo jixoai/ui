@@ -8,7 +8,7 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
 > `apps/www/src/lib/ui/**`). Components are Svelte 5 runes-first,
 > native-element-first, and follow the Tier system below.
 
-## Current contract (state: 2026-09-09, the floating-flesh-sweep (rest lane + sheet dialect + anchored-alert ruling) over the structural kernel law)
+## Current contract (state: 2026-09-09, the carved-action-band over the floating-flesh-sweep (rest lane + sheet dialect + anchored-alert ruling) over the structural kernel law)
 
 ## Requirements
 
@@ -2287,6 +2287,50 @@ wrapper-span hack for unstampeable buttons is retired with this law.
   contract and the ariaLabel prop owns the channel (a rest-borne
   undefined can never strip the family's value)
 
+### Requirement: the carved action band (the carved-cell law generalized to any surface)
+
+An action band is a CARVED REGION, never a floating row (Owner
+2026-09-09: "button 没有在纵向上铺完整个 footer，也没有合理的
+分割线……padding 留白，这会令人困扰"). Wherever a surface mounts a
+bar of actions — a foot band, an anchored alert's action strip, a
+floating dock's reset row — it SHALL render CardFooter as the
+content face (standalone mirror when the host carries no card
+ruler): the buttons fill the band vertically edge-to-edge (the rim
+line above IS the band's top edge, the group's leadingSeam IS the
+carved left edge, the block height IS the band — min-h a floor,
+never a cap), the cluster rides the inline end flush, and there is
+NO padding-block whitespace around the buttons. The host surface
+owns the bleed craft (negative margins escaping its own padding,
+the rim line) — CardFooter stays geometry-pure. Loose self-padded
+action rows (gap + py utilities wrapping zone buttons) are retired
+with this law; a bar that is not a button cluster keeps whatever
+non-action geometry it legitimately needs.
+
+#### Scenario: a sheet footer carves its cluster
+
+- GIVEN an open sheet whose footer snippet renders `<CardFooter>`
+- THEN the cluster spans the band to the panel's inline end, its
+  buttons stretch the full band height from the rim Separator to
+  the panel's bottom edge — no padding whitespace above or below
+  the buttons, the leadingSeam is the cluster's left edge
+
+#### Scenario: an anchored alert's strip carves without a ruler
+
+- GIVEN an AlertDialogActions strip (a popover-sized surface that
+  rents no banded ruler)
+- THEN its Cancel and Action render as ONE joined cluster through
+  CardFooter's standalone mirror — each button fills the strip's
+  height, the strip's border-t is the rim, the inter-button seam
+  is the 1px hairline (never a gap)
+
+#### Scenario: a non-footer bar uses the same band
+
+- GIVEN the canvas playground dock's reset row (not a footer — a
+  floating control panel's last row)
+- THEN the reset control renders as the same carved band (bleeding
+  to the dock's edges, rim line above, the icon button filling the
+  band) — one form serves every action bar
+
 ### Requirement: the anchored-alert form (alert-dialog's flesh ruling)
 
 The anchored popover surface (alert-dialog: popover="manual" +
@@ -2302,7 +2346,12 @@ addition preserved (the fill rung ships the jx-pair-destructive
 injection as the confirmTone default; consumer pair injections still
 win by layer order). The AlertDialogActions strip carries the
 action-band zone (ghost + flat): the Cancel renders quiet with zero
-paint props, an explicit Action variant always wins.
+paint props, an explicit Action variant always wins. The strip's
+interior is the CARVED ACTION BAND (carved-action-band, 2026-09-09):
+the bleed wrapper keeps the strip's own craft (the mt/gap breathing
+arithmetic, the negative margins, the rim border-t) and renders
+CardFooter's standalone mirror inside — the buttons fill the strip
+vertically, joined by the group's seam, never a loose padded row.
 
 #### Scenario: the confirm keeps its destructive default on the one ladder
 
@@ -2329,8 +2378,10 @@ end-action seat as a zone-inheriting IconButton (the hand-painted
 border button retired), the body as CardBody under the RHYTHM escape
 hatch (the drawer's 18px beat and popover ink override the cell's
 utilities with the consumer's `!` — the class-append law), and the
-optional foot band under the action-band zone over a LOOSE flex row
-(joined clusters are ButtonGroup's law; loose rows stay utilities).
+optional foot band under the action-band zone rendering the footer
+snippet RAW (dialog's r14-9 law verbatim — the standard face is
+CardFooter, whose cluster is the carved action band; the sheet
+component mounts no layout wrapper of its own).
 The slide state machine, edge docking, and the surface material stay
 the mechanism's own (sheet.css), untouched.
 
@@ -2349,6 +2400,15 @@ the mechanism's own (sheet.css), untouched.
 - THEN the cell's same-property utilities lose to the bang-prefixed
   overrides by the class-append law while the kernel's scroll law and
   gutter compensation stay single-sourced in the cell's own css
+
+#### Scenario: the foot band is RAW — CardFooter is the face
+
+- GIVEN a sheet footer snippet
+- THEN the snippet renders RAW inside the foot band (no grid, no
+  group, no loose flex row from the sheet) — a CardFooter snippet
+  dissolves against the rented ruler and carves its cluster; the
+  consumer who passes bare buttons owns their geometry (the r14-9
+  contract, dialog verbatim)
 
 ### Requirement: the blockquote face (quote and admonition)
 

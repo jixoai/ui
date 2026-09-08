@@ -2,6 +2,7 @@
      showModal()) over muted page context — header, body, sticky footer. -->
 <script lang="ts">
   import Sheet from '$lib/ui/sheet/sheet.svelte';
+  import CardFooter from '$lib/ui/card/card-footer.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
@@ -23,7 +24,10 @@
     <p class="border-border bg-background border px-3 py-2 text-sm">oklch(0.72 0.16 27)</p>
   </div>
   {#snippet footer()}
-    <PressButton variant="outline">Cancel</PressButton>
-    <PressButton variant="fill">Save changes</PressButton>
+    <!-- the carved action band: ghost (the zone's default) + fill -->
+    <CardFooter>
+      <PressButton>Cancel</PressButton>
+      <PressButton variant="fill">Save changes</PressButton>
+    </CardFooter>
   {/snippet}
 </Sheet>

@@ -4,6 +4,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Sheet from '$lib/ui/sheet/sheet.svelte';
+  import CardFooter from '$lib/ui/card/card-footer.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -35,13 +36,19 @@
 
   const usage = `<script lang="ts">
   import Sheet from '@ui/sheet.svelte';
+  import CardFooter from '@ui/card/card-footer.svelte';
+  import PressButton from '@ui/press-button.svelte';
 ${close}
 
 <PressButton onclick={() => (open = true)}>Filters</PressButton>
 <Sheet bind:open title="Filters" side="right">
   <p>Filter controls — focus stays trapped, Escape closes.</p>
   {#snippet footer()}
-    <PressButton onclick={() => (open = false)}>Apply</PressButton>
+    <!-- the carved action band: the cluster fills the foot band
+         vertically, the rim Separator above is its top edge -->
+    <CardFooter>
+      <PressButton onclick={() => (open = false)}>Apply</PressButton>
+    </CardFooter>
   {/snippet}
 </Sheet>`;
 
@@ -113,7 +120,9 @@ ${close}
   <Sheet bind:open title="Filters" {side}>
     <p class="text-muted-foreground text-[13px]">Sheet body — a form, a list, anything. Focus is trapped; Escape and the × close.</p>
     {#snippet footer()}
-      <PressButton onclick={() => (open = false)}>Apply</PressButton>
+      <CardFooter>
+        <PressButton onclick={() => (open = false)}>Apply</PressButton>
+      </CardFooter>
     {/snippet}
   </Sheet>
 

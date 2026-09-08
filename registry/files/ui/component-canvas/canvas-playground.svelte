@@ -80,6 +80,7 @@
   import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
   import Icon from '$lib/ui/icon';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
+  import CardFooter from '$lib/ui/card/card-footer.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
   import type { ControlRow, PlayOutput } from './canvas-schema.svelte';
@@ -513,19 +514,26 @@
             {/each}
           </dl>
         {/if}
-        {#if onreset || rows}
-          <!-- the reset foot (the amendment, card-surface-kernel
-               2026-09-09): the head keeps exactly its four chrome
-               elements, so the icon-only reset rides the body's foot
-               row next to the output dl. THE ACTION-BAND ZONE (ghost +
-               flat): the IconButton renders quiet with zero paint
-               props — the hand-drawn border/bg and the three
-               shadow-suppression vars are gone (the zone writes them
-               all); density xs keeps the dock's compact chrome scale.
-               Page-owned onreset wins; schema mode falls back to
-               schema defaults -->
-          <ButtonVariantScope variant="ghost" raised={false}>
-            <div data-jx-canvas-dock-foot class="flex justify-end mt-[0.5rem]">
+      </div>
+      {#if onreset || rows}
+        <!-- the pinned reset bar — THE CARVED ACTION BAND
+             (carved-action-band, 2026-09-09): not a footer, the same
+             law. PINNED OUTSIDE THE SCROLLER (the vision acceptance's
+             D catch): the scroll region reserves a stable thin-scrollbar
+             gutter even when idle, so a bar INSIDE it could never bleed
+             to the dock's edge — out here the clip hands it the dock's
+             full width for free. The rim border-t spans the dock, the
+             band rides the dock's bottom edge, and CardFooter's
+             standalone mirror carves the reset IconButton into the
+             corner cell — it FILLS the band vertically (the rim is its
+             top edge, the leadingSeam its carved left edge). THE
+             ACTION-BAND ZONE (ghost + flat): the IconButton renders
+             quiet with zero paint props; density xs keeps the dock's
+             compact chrome scale. Page-owned onreset wins; schema mode
+             falls back to schema defaults -->
+        <ButtonVariantScope variant="ghost" raised={false}>
+          <div data-jx-canvas-dock-foot class="border-t border-border">
+            <CardFooter label="Playground actions">
               <!-- the stamp rides the REST LANE (floating-flesh-sweep:
                    press-button/icon-button pass attributes through now —
                    the wrapper era retired) -->
@@ -539,10 +547,10 @@
                 onclick={() => (onreset ? onreset() : resetValues())}
                 class="jx-canvas-reset"
               />
-            </div>
-          </ButtonVariantScope>
-        {/if}
-      </div>
+            </CardFooter>
+          </div>
+        </ButtonVariantScope>
+      {/if}
     </div>
   </div>
   {/if}

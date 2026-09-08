@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-08T21:41:28.009Z",
+  "generatedAt": "2026-09-08T22:41:28.101Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -970,8 +970,8 @@
           "source": "registry/files/ui/dialog/dialog.css",
           "mirror": "apps/www/src/lib/ui/dialog/dialog.css",
           "target": "@ui/dialog/dialog.css",
-          "sourceSha": "a53b517b5ed4bd496e9b91b263d2c724d58e631e4fd95bd27ef81dcd3a10bb87",
-          "mirrorSha": "a53b517b5ed4bd496e9b91b263d2c724d58e631e4fd95bd27ef81dcd3a10bb87"
+          "sourceSha": "835ab8dc0dd919b718dea2a2805891e60b5d0bc025e9b647c0a0d5a19cfd33e2",
+          "mirrorSha": "835ab8dc0dd919b718dea2a2805891e60b5d0bc025e9b647c0a0d5a19cfd33e2"
         },
         {
           "source": "registry/files/ui/dialog/dialog-defaults.svelte.ts",
@@ -1317,8 +1317,8 @@
           "source": "registry/files/ui/component-canvas/canvas-playground.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/canvas-playground.svelte",
           "target": "@ui/component-canvas/canvas-playground.svelte",
-          "sourceSha": "8de7bdeb89fda2b63a5b81f71f927e6e4295e6336b55e11606eec52c4f923dd1",
-          "mirrorSha": "8de7bdeb89fda2b63a5b81f71f927e6e4295e6336b55e11606eec52c4f923dd1"
+          "sourceSha": "b5cb438ec29aca145fc108eb375bcd6974393769d762cb6326a40bcc30396e5b",
+          "mirrorSha": "b5cb438ec29aca145fc108eb375bcd6974393769d762cb6326a40bcc30396e5b"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-schema.svelte.ts",
@@ -2591,8 +2591,8 @@
           "source": "registry/files/ui/alert-dialog/alert-dialog-actions.svelte",
           "mirror": "apps/www/src/lib/ui/alert-dialog/alert-dialog-actions.svelte",
           "target": "@ui/alert-dialog/alert-dialog-actions.svelte",
-          "sourceSha": "f0d975b250a6e5f3b6f7041696280511ff64af96830e7ea520110d4011e164ee",
-          "mirrorSha": "f0d975b250a6e5f3b6f7041696280511ff64af96830e7ea520110d4011e164ee"
+          "sourceSha": "0e68b14edf773444ed945683421a67cbf1ebeabd5236739063112d43d7a90ee1",
+          "mirrorSha": "0e68b14edf773444ed945683421a67cbf1ebeabd5236739063112d43d7a90ee1"
         },
         {
           "source": "registry/files/ui/alert-dialog/alert-dialog-cancel.svelte",
@@ -2668,8 +2668,8 @@
           "source": "registry/files/ui/sheet/sheet.svelte",
           "mirror": "apps/www/src/lib/ui/sheet/sheet.svelte",
           "target": "@ui/sheet/sheet.svelte",
-          "sourceSha": "a6caf9fbb9cd8f90c8f37bdf530cdcb741b9b499781e4cca7b7863d3e0205d65",
-          "mirrorSha": "a6caf9fbb9cd8f90c8f37bdf530cdcb741b9b499781e4cca7b7863d3e0205d65"
+          "sourceSha": "98ec94f5f24bc52cbda8644e20a5b934e56e52d43a973003cc9e50bf35f44d3e",
+          "mirrorSha": "98ec94f5f24bc52cbda8644e20a5b934e56e52d43a973003cc9e50bf35f44d3e"
         },
         {
           "source": "registry/files/ui/sheet/index.ts",

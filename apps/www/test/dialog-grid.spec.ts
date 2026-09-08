@@ -249,11 +249,24 @@ describe('the dialect — css source law (mechanism here, ruler in the kernel sh
     // DOCUMENT scrollable by its height (the page-shift bug).
     expect(css).toMatch(/\.jx-dialog\[open\][\s\S]{0,80}display: flex/);
     expect(css).toMatch(/\.jx-dialog:popover-open[\s\S]{0,80}display: flex/);
-    // the UNGATED platform selector must not exist
-    expect(css).not.toMatch(/:where\(\.jx-dialog\)\s*\{/);
+    // the UNGATED platform selector must not declare DISPLAY — the
+    // phantom-box law concerns display only
+    expect(css).not.toMatch(/:where\(\.jx-dialog\)\s*\{[^}]*display/s);
     // the grid host under the conducted ceiling: the flex-child floor
     // is lifted (the kernel's absorbing row can constrain)
     expect(css).toMatch(/\[data-jx-dialog-surface\][^}]*>\s*:where\(\[data-jx-card\]\)[\s\S]{0,60}min-height: 0/s);
+  });
+
+  it('the axis support is UNCONDITIONAL — the exit window cannot collapse the panel width (2026-09-09)', () => {
+    // the allow-discrete window holds ONLY `display` through the exit
+    // run; a [open]-gated flex-direction flipped to `row` the instant
+    // close() dropped the attribute, and the held-flex panel collapsed
+    // its surface to content width for the whole 460ms exit (the
+    // Owner-reported glitch: 关闭动画期间宽度瞬间失去支撑). The axis
+    // therefore rides the ungated selector — inert under display:none
+    expect(css).toMatch(/:where\(\.jx-dialog\)\s*\{[^}]*flex-direction: column/s);
+    // and the gated rules carry display ONLY — never the axis
+    expect(css).not.toMatch(/\.jx-dialog\[open\][\s\S]{0,120}flex-direction/s);
   });
 
   it('no zone border paint creeps back into either sheet', () => {

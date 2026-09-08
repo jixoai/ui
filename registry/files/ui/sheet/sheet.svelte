@@ -246,17 +246,18 @@
     </CardBody>
     {#if footer}
       <Separator data-jx-card-sep="foot" aria-hidden="true" />
-      <!-- the foot band: the action-zone law (ghost + flat) over a
-           LOOSE flex row — joined clusters are ButtonGroup's law;
-           loose rows stay utilities (the kernel's one-layout law) -->
+      <!-- THE RAW FOOT BAND (carved-action-band, 2026-09-09): dialog's
+           r14-9 law verbatim — the footer snippet renders RAW, the
+           standard face is <CardFooter>, whose cluster is the CARVED
+           ACTION BAND (fills the band vertically from this rim
+           Separator to the panel's bottom edge, rides the inline end
+           flush, the leadingSeam its carved left edge — never a
+           padded row floating buttons in whitespace). The ghost+flat
+           zone stays the band's default; a consumer passing bare
+           buttons owns their geometry -->
       <div data-jx-card-foot="">
         <ButtonVariantScope variant="ghost" raised={false}>
-          <!-- col-span-full: the loose row spans the rented subgrid —
-               auto-placement would drop it into the 14px inset track
-               (the vision acceptance catch) -->
-          <div class="col-span-full flex w-full justify-end gap-2.5 px-[1.125rem] py-3.5">
-            {@render footer()}
-          </div>
+          {@render footer()}
         </ButtonVariantScope>
       </div>
     {/if}

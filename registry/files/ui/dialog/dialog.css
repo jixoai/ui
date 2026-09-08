@@ -39,11 +39,20 @@
      non-scroller chrome slid the whole shell up with blank below.
      The jx-waapi allow-discrete display transition still owns the
      exit window on close ([open] removal flips the match, the discrete
-     flip lands at delay + 50%). */
+     flip lands at delay + 50%).
+     THE AXIS IS UNCONDITIONAL (2026-09-09, the exit width-collapse
+     fix): the discrete window holds ONLY `display` — a [open]-gated
+     flex-direction flips to `row` the instant close() drops the
+     attribute, and the held-flex panel collapses its surface to
+     content width for the whole exit run (the Owner-reported glitch:
+     关闭动画期间宽度瞬间失去支撑). Under display:none the declaration
+     is inert — the phantom-box law above only ever concerned display */
+  :where(.jx-dialog) {
+    flex-direction: column;
+  }
   :where(.jx-dialog[open]),
   :where(.jx-dialog:popover-open) {
     display: flex;
-    flex-direction: column;
   }
   :where([data-jx-dialog-surface]) {
     display: flex;

@@ -1411,6 +1411,7 @@
       "registryDependencies": [
         "@jixoai/press-button",
         "@jixoai/button-group",
+        "@jixoai/card",
         "@jixoai/icon-button",
         "@jixoai/code-card",
         "@jixoai/tree-view",
@@ -2861,6 +2862,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/press-button",
         "@jixoai/button-group",
+        "@jixoai/card",
         "@jixoai/defaults",
         "@jixoai/density"
       ]
