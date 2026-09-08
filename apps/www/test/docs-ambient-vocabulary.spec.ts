@@ -336,7 +336,7 @@ describe('meta side — generated meta ambient fields on exact-key axis props', 
   // inline-code-engine-and-text-modifiers): inline-code (variant=zone,
   // density=scope) and separator (variant, its bareDefault own) minted
   // metas with axis props — legitimate carriers, the set froze stale
-  const expectedCarriers = new Set(['checkbox', 'combobox', 'date-picker', 'popover', 'press-button', 'select', 'inline-code', 'separator']);
+  const expectedCarriers = new Set(['checkbox', 'combobox', 'date-picker', 'popover', 'press-button', 'select', 'inline-code', 'separator', 'button-bar']);
   it('exactly the known carriers have axis props', () => {
     const carriers = new Set<string>();
     for (const f of readdirSync(META_DIR).filter((f) => f.endsWith('.meta.ts'))) {

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-08T13:42:58.046Z",
+  "generatedAt": "2026-09-08T13:54:12.725Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -94,6 +94,7 @@
     "icon": "registry/files/ui/icon/icon.svelte",
     "icon-button": "registry/files/ui/icon-button/icon-button.svelte",
     "progressive-blur": "registry/files/ui/progressive-blur/progressive-blur.svelte",
+    "button-bar": "registry/files/ui/button-bar/button-bar.svelte",
     "button-group": "registry/files/ui/button-group/button-group.svelte",
     "input-group": "registry/files/ui/input-group/input-group.svelte",
     "chart": "registry/files/ui/chart/chart.svelte",
@@ -4187,6 +4188,34 @@
           "target": "@lib/control-chrome.svelte.ts",
           "sourceSha": "4caec8ca4ec8b2162c4dab64f633a81fad0ac0031ec026ba51442e3dc6b62f32",
           "mirrorSha": "4caec8ca4ec8b2162c4dab64f633a81fad0ac0031ec026ba51442e3dc6b62f32"
+        }
+      ]
+    },
+    {
+      "itemName": "button-bar",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/button-bar/button-bar.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/button-bar/button-bar.svelte",
+          "mirror": "apps/www/src/lib/ui/button-bar/button-bar.svelte",
+          "target": "@ui/button-bar/button-bar.svelte",
+          "sourceSha": "96a2bd4a9b7b834ab4505b515a10d1463988f5f998c02b1f0d1e56e3c515350e",
+          "mirrorSha": "96a2bd4a9b7b834ab4505b515a10d1463988f5f998c02b1f0d1e56e3c515350e"
+        },
+        {
+          "source": "registry/files/ui/button-bar/button-bar-defaults.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/button-bar/button-bar-defaults.svelte.ts",
+          "target": "@ui/button-bar/button-bar-defaults.svelte.ts",
+          "sourceSha": "c04b6854854eedbc3ecae45c79bd5cddd983cbe913beba9e16d6871252be4f14",
+          "mirrorSha": "c04b6854854eedbc3ecae45c79bd5cddd983cbe913beba9e16d6871252be4f14"
+        },
+        {
+          "source": "registry/files/ui/button-bar/index.ts",
+          "mirror": "apps/www/src/lib/ui/button-bar/index.ts",
+          "target": "@ui/button-bar/index.ts",
+          "sourceSha": "602bb00a661bfa8c295e74b9dbe031e06b6b48c3785c69e9548b23f7e1bd2485",
+          "mirrorSha": "602bb00a661bfa8c295e74b9dbe031e06b6b48c3785c69e9548b23f7e1bd2485"
         }
       ]
     },
