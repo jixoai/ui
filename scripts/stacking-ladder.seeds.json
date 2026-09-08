@@ -120,6 +120,13 @@
         "needle": "isolation: isolate"
       },
       "note": "the ol ROOT roots the dot/slot z1 rungs over the spine — sweep point 3 (the multi-parent ladder isolates at its TRUE common parent)"
+    },
+    "registry/files/routes/docs/components/table.html/+page.svelte": {
+      "evidence": {
+        "file": "registry/files/routes/docs/components/table.html/+page.svelte",
+        "needle": "isolation: isolate"
+      },
+      "note": "sticky thead z=1 inside the isolated .sticky-scroll scroller — consumer CSS on public structure (the recorded followup: no built-in sticky-header law yet); fix-forward for the gate main landed red"
     }
   }
 }

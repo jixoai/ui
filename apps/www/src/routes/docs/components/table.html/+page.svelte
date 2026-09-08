@@ -1540,6 +1540,7 @@ ${close}
   :global(.sticky-scroll) {
     max-block-size: 16rem;
     overflow-y: auto;
+    isolation: isolate;
   }
   :global(.sticky-scroll thead th) {
     position: sticky;
