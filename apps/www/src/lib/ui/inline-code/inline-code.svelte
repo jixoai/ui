@@ -289,17 +289,18 @@
    *
    * fused (design D2, 2026-09-08): the backdrop-fusion rung —
    * transparent ground, the width-only border painted transparent
-   * (currentColor would otherwise leak), and backdrop-contrast-75
-   * pulling the backdrop toward mid. 75 is measured against the
-   * retired tonal default's band weight — a 12% foreground tint on
-   * near-white lands within a hair of contrast(0.75)'s mapping — and
-   * sits strictly under the separator's full ghost (0.5). Print drops
+   * (currentColor would otherwise leak), and
+   * backdrop-contrast-[85%] pulling the backdrop toward mid — the
+   * Owner's acceptance tune (2026-09-08): 85 sits one notch quieter
+   * than the first-pass 75 (which matched the retired tonal default's
+   * band weight) and strictly above the separator's full ghost
+   * (contrast 0.5). Print drops
    * backdrop-filter to transparent (bare mono code — the separator's
    * own print posture); forced-colors keeps the CanvasText frame.
    */
   const variantUtilities = {
     fused:
-      'bg-transparent border-transparent backdrop-contrast-75 text-foreground forced-colors:border-[color:CanvasText]',
+      'bg-transparent border-transparent backdrop-contrast-[85%] text-foreground forced-colors:border-[color:CanvasText]',
     tonal:
       '[--jx-tonal:var(--muted-foreground)] bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
     outline:

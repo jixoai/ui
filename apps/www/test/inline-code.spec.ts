@@ -96,7 +96,7 @@ describe('InlineCode', () => {
     // the width-only base border must be PAINTED transparent here
     // (currentColor would leak through a colorless border)
     expect(code.className).toContain('border-transparent');
-    expect(code.className).toContain('backdrop-contrast-75');
+    expect(code.className).toContain('backdrop-contrast-[85%]');
     expect(code.className).toContain('text-foreground');
     // the fusion IS the frame: forced-colors keeps a visible border
     expect(code.className).toContain('forced-colors:border-[color:CanvasText]');

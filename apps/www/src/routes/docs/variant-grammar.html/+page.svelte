@@ -55,7 +55,7 @@ hover: color-mix(in oklab, var(--jx-tonal) 8%, transparent), tonal ink;
    2026-09-08); quietest, zero own color, the filter IS the frame */
 background: transparent;
 border: 1px solid transparent;
-backdrop-filter: contrast(0.75);
+backdrop-filter: contrast(0.85);
 color: var(--foreground);`;
 
   // .pill — the site's item-name chip (docs-tables.css), where the
