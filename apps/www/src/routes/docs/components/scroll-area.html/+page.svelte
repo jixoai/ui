@@ -137,6 +137,66 @@ const sections = tocOutlineToSections(entries);
   const metaCanvasFiles: TreeFile[] = [
     { name: 'registry/files/lib/toc-outline.ts', content: tocOutlineSource },
   ];
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  // the native variant demo (scroll-native section): the scrollbar law
+  // over a 40-item list
+  const scrollNativeDemo = `<script lang="ts">
+  import ScrollArea from '@ui/scroll-area.svelte';
+${close}
+
+<ScrollArea class="h-56" label="law demo" pad="0.75rem">
+  <ol class="flex flex-col gap-2">
+    {#each Array(40) as _, i (i)}
+      <li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">
+        item {i + 1} — scroll me: the scrollbar is thin, themed, and the content inset
+        stays symmetric
+      </li>
+    {/each}
+  </ol>
+</ScrollArea>`;
+
+  const scrollNativeFiles: TreeFile[] = [
+    { name: 'scroll-area-native-demo.svelte', content: scrollNativeDemo, kind: 'usage' },
+  ];
+
+  // the overlay variant demo (scroll-overlay section): the virtual
+  // thumb over a terminal log
+  const scrollOverlayDemo = `<script lang="ts">
+  import ScrollArea from '@ui/scroll-area.svelte';
+${close}
+
+<ScrollArea scrollbar="overlay" class="h-56" label="overlay demo">
+  <div class="jx-log">
+    {#each Array(60) as _, i (i)}
+      <p class="jx-log-line">
+        <span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb
+        rendered without a single native scrollbar pixel
+      </p>
+    {/each}
+  </div>
+</ScrollArea>`;
+
+  const scrollOverlayFiles: TreeFile[] = [
+    { name: 'scroll-area-overlay-demo.svelte', content: scrollOverlayDemo, kind: 'usage' },
+  ];
+
+  // the variants pair (types section): the native law against the
+  // overlay thumb, side by side
+  const scrollAreaTypesDemo = `<script lang="ts">
+  import ScrollArea from '@ui/scroll-area.svelte';
+${close}
+
+<div class="grid gap-4 min-[760px]:grid-cols-2">
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">native (default)</span><ScrollArea class="h-40" label="native sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(12) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></div>
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">overlay</span><ScrollArea scrollbar="overlay" class="h-40" label="overlay sample"><div class="jx-log">{#each Array(16) as _, i (i)}<p class="jx-log-line"><span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb, desktop fine-pointer only</p>{/each}</div></ScrollArea></div>
+</div>`;
+
+  const scrollAreaTypesFiles: TreeFile[] = [
+    { name: 'scroll-area-types-demo.svelte', content: scrollAreaTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -253,7 +313,7 @@ const sections = tocOutlineToSections(entries);
         <code class="text-accent">pad</code> on both edges; on overlay-scrollbar systems nothing is
         reserved at all.
       </p>
-      <div class="mt-4">
+      <ComponentCanvas title="scroll-area · native" stage="fill" class="mt-4" files={scrollNativeFiles}>
         <ScrollArea class="h-56" label="law demo" pad="0.75rem">
           <ol class="flex flex-col gap-2">
             {#each Array(40) as _, i (i)}
@@ -264,7 +324,7 @@ const sections = tocOutlineToSections(entries);
             {/each}
           </ol>
         </ScrollArea>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 
@@ -282,7 +342,7 @@ const sections = tocOutlineToSections(entries);
         paints overlay bars during momentum — the mobile/desktop behavioral split is the law.
         <code class="text-accent">prefers-reduced-motion</code> keeps the thumb statically visible.
       </p>
-      <div class="mt-4">
+      <ComponentCanvas title="scroll-area · overlay" stage="fill" class="mt-4" files={scrollOverlayFiles}>
         <ScrollArea scrollbar="overlay" class="h-56" label="overlay demo">
           <div class="jx-log">
             {#each Array(60) as _, i (i)}
@@ -293,7 +353,7 @@ const sections = tocOutlineToSections(entries);
             {/each}
           </div>
         </ScrollArea>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 
@@ -378,10 +438,10 @@ const sections = tocOutlineToSections(entries);
   <!-- Material3 sections (2026-08-26): inside #sa-content so the
        outline-mode rail derives their entries from the h2 tree. -->
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two scrollbar presentations over the same native scrollport; three orientation axes.">
-    <div class="grid gap-4 min-[760px]:grid-cols-2">
+    <ComponentCanvas title="scroll-area · variants" stage="fill" files={scrollAreaTypesFiles}><div class="grid gap-4 min-[760px]:grid-cols-2">
       <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">native (default)</span><ScrollArea class="h-40" label="native sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(12) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></div>
       <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">overlay</span><ScrollArea scrollbar="overlay" class="h-40" label="overlay sample"><div class="jx-log">{#each Array(16) as _, i (i)}<p class="jx-log-line"><span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb, desktop fine-pointer only</p>{/each}</div></ScrollArea></div>
-    </div>
+    </div></ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a height, a label, and pad for the gutter compensation; the rest is a native scroll container."><div class="flex flex-col gap-4"><CodeBlock code={nativeUsage} lang="svelte" meta="native" /><CodeBlock code={overlayUsage} lang="svelte" meta="overlay" /><CodeBlock code={tocUsage} lang="ts" meta="toc-outline" /></div></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The WAI scrollable-region pattern: role=region + name + tabindex makes the scrollport itself keyboard-focusable."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the scrollable area' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'pointer drag', action: 'The overlay thumb drags with pointer capture; keyboard never needs it' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative overlay thumbs' }]} /></SectionCard></div>

@@ -13,6 +13,7 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { Density } from '$lib/density.svelte';
   import { PlayFields, PlayRow, PlaySelect, playOutputs, playState } from '$lib/playground';
 
   const twoFiles: TreeFile[] = [
@@ -26,9 +27,11 @@
     { name: 'src/lib/ui/tree-widget.css', content: 'three {}' },
   ];
 
-  // page-owned stage state (the floor law: bindables, never canvas-held)
+  // page-owned stage state (the floor law: bindables, never canvas-held;
+  // density rides the repo-standard Density union since the
+  // unified-chrome ruling, 2026-09-08)
   let theme = $state<'light' | 'dark'>('light');
-  let density = $state<'comfortable' | 'compact'>('comfortable');
+  let density = $state<Density>('default');
 
   // the lab: ONE typed state object + snippet-function code panel
   type Variant = 'fill' | 'tonal' | 'outline';

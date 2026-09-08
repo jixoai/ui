@@ -107,6 +107,102 @@ const stacks = $state<string[]>([]);`;
   const resolveComboboxUsage =
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? comboboxUsageLive : file.content;
+
+  // ---- sweep usage mirrors (canvas-everywhere-demos, 2026-09-08) ----------
+  // Hand-authored mirrors of the wrapped demo regions below; the
+  // same-source resolveRawCode migration of these strings is the
+  // recorded follow-up.
+  const close = '</' + 'script>';
+
+  const comboboxCatalogDemo = `<script lang="ts">
+  import Combobox from '@ui/combobox.svelte';
+  import type { ComboboxOption } from '@ui/combobox.svelte';
+
+  const backendOptions: ComboboxOption[] = [
+    { value: 'node-pty', label: 'node-pty', description: 'conpty / forkpty — the battle-tested addon' },
+    { value: 'bun-terminal', label: 'Bun.Terminal', description: 'linux/macos since 1.3.13, windows 1.3.14' },
+    { value: '@sigma/pty-ffi', label: '@sigma/pty-ffi', description: 'deno FFI over rust portable-pty' },
+    { value: 'termless', label: 'termless', description: 'VT emulator — not a pty host', disabled: true },
+  ];
+
+  let backendRoute = $state<string | undefined>('node-pty');
+  let backendStrict = $state<string | undefined>(undefined);
+  let backendCustom = $state<string | undefined>(undefined);
+${close}
+
+<Combobox label="backend — type to filter" bind:value={backendRoute} options={backendOptions} />
+
+<!-- strict: allowCustom={false} reverts stray text on blur -->
+<Combobox
+  label="strict — no custom values"
+  allowCustom={false}
+  bind:value={backendStrict}
+  options={backendOptions.slice(0, 3)}
+  placeholder="Search..."
+/>
+
+<!-- no match → the “Use “xxx”” row -->
+<Combobox
+  label="custom — try “wasi”"
+  bind:value={backendCustom}
+  options={backendOptions.slice(0, 3)}
+  placeholder="Search or type..."
+/>
+
+<!-- error wiring: aria-invalid + dashed shell -->
+<Combobox label="backend" error="backend is required" options={backendOptions} />`;
+
+  const comboboxMultipleDemo = `<script lang="ts">
+  import Combobox from '@ui/combobox.svelte';
+  import type { ComboboxOption } from '@ui/combobox.svelte';
+
+  const backendOptions: ComboboxOption[] = [
+    { value: 'node-pty', label: 'node-pty' },
+    { value: 'bun-terminal', label: 'Bun.Terminal' },
+    { value: '@sigma/pty-ffi', label: '@sigma/pty-ffi' },
+  ];
+
+  let pickedStacks = $state<string[]>(['node-pty']);
+  let clearedRoute = $state<string | undefined>('bun-terminal');
+${close}
+
+<!-- multiple: bind an ARRAY in selection order; getAll(name) returns
+     the picks byte-for-byte in order -->
+<Combobox
+  label="stacks (multiple)"
+  multiple
+  name="stacks"
+  bind:value={pickedStacks}
+  options={backendOptions}
+  placeholder="pick several…"
+/>
+
+<!-- showClear: × in the trigger lane; clearing submits honestly empty -->
+<Combobox
+  label="backend (showClear)"
+  showClear
+  name="backend-clear"
+  bind:value={clearedRoute}
+  options={backendOptions}
+/>`;
+
+  const comboboxRtlDemo = `<script lang="ts">
+  import Combobox from '@ui/combobox.svelte';
+  import type { ComboboxOption } from '@ui/combobox.svelte';
+
+  const backendOptions: ComboboxOption[] = [
+    { value: 'node-pty', label: 'node-pty' },
+    { value: 'bun-terminal', label: 'Bun.Terminal' },
+  ];
+
+  let backendRtl = $state<string | undefined>('bun-terminal');
+${close}
+
+<!-- logical properties only: dir="rtl" mirrors the chevron and the
+     selected-row edge with zero branches -->
+<div dir="rtl">
+  <Combobox label="backend (rtl)" bind:value={backendRtl} options={backendOptions} />
+</div>`;
 </script>
 
 <svelte:head>
@@ -209,7 +305,12 @@ const stacks = $state<string[]>([]);`;
           The strict field (<code class="text-accent">allowCustom={'{false}'}</code>) keeps
           its committed label instead.
         </p>
-        <CardGrid min="230px">
+        <ComponentCanvas
+          title="combobox · catalogue"
+          files={[{ name: 'combobox-catalog-demo.svelte', content: comboboxCatalogDemo, kind: 'usage' }]}
+          stage="fill"
+        >
+          <CardGrid min="230px">
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
             <Combobox label="backend — type to filter" bind:value={backendRoute} options={backendOptions} />
             <span class="text-muted-foreground text-[12.5px]">
@@ -247,6 +348,7 @@ const stacks = $state<string[]>([]);`;
             </span>
           </div>
         </CardGrid>
+        </ComponentCanvas>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           The component keeps the popover orchestration law of the family:
           <code class="text-accent">popover="auto"</code> panels anchored with CSS Anchor
@@ -272,23 +374,29 @@ const stacks = $state<string[]>([]);`;
       summary="multiple flips the bindable to string[] in SELECTION ORDER: options toggle membership (pick to add, re-pick to remove), the trigger wears chips with per-chip remove ×, panel rows carry aria-multiselectable plus a check glyph, and picking keeps the panel open. Submission rides the form-field bridge's MULTIVALUE seam — the committed array crosses as a values PROPERTY and lands in FormData as repeated same-name entries, so getAll(name) returns every pick byte-for-byte in order; form.reset() restores the mount array and disabled fields submit nothing. showClear adds an × in the trigger lane that empties the selection — the field then submits honestly empty."
     >
       <div class="flex flex-col gap-5">
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
-            <Combobox label="stacks (multiple)" multiple name="stacks" bind:value={pickedStacks} options={backendOptions} placeholder="pick several…" />
-            <span class="text-muted-foreground text-[12.5px]">
-              selection order: <code class="text-accent">[{pickedStacks.join(', ')}]</code> — chips remove ×,
-              panel check state, re-pick toggles off
-            </span>
+        <ComponentCanvas
+          title="combobox · multiple + clear"
+          files={[{ name: 'combobox-multiple-demo.svelte', content: comboboxMultipleDemo, kind: 'usage' }]}
+          stage="fill"
+        >
+          <div class="grid w-full gap-5 min-[760px]:grid-cols-2">
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <Combobox label="stacks (multiple)" multiple name="stacks" bind:value={pickedStacks} options={backendOptions} placeholder="pick several…" />
+              <span class="text-muted-foreground text-[12.5px]">
+                selection order: <code class="text-accent">[{pickedStacks.join(', ')}]</code> — chips remove ×,
+                panel check state, re-pick toggles off
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <Combobox label="backend (showClear)" showClear name="backend-clear" bind:value={clearedRoute} options={backendOptions} />
+              <span class="text-muted-foreground text-[12.5px]">
+                the × clears the commit — the form then contributes
+                <code class="text-accent">nothing</code>, never "undefined" · value:
+                <code class="text-accent">{clearedRoute ?? '—'}</code>
+              </span>
+            </div>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
-            <Combobox label="backend (showClear)" showClear name="backend-clear" bind:value={clearedRoute} options={backendOptions} />
-            <span class="text-muted-foreground text-[12.5px]">
-              the × clears the commit — the form then contributes
-              <code class="text-accent">nothing</code>, never "undefined" · value:
-              <code class="text-accent">{clearedRoute ?? '—'}</code>
-            </span>
-          </div>
-        </div>
+        </ComponentCanvas>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           The transport is the DECIDED one (design.md): no hidden inputs, no joined-string
           channel — newline-bearing, quote-bearing and arbitrary Unicode values survive
@@ -312,20 +420,24 @@ const stacks = $state<string[]>([]);`;
       title="RTL — geometry from logical properties"
       summary="Nothing in the component branches on direction: the chevron sits in the flex flow and the selected-row edge is border-inline-start. The writing mode does the rest."
     >
-      <div class="grid gap-5 min-[760px]:grid-cols-2">
-        <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
-          <Combobox label="backend (rtl)" bind:value={backendRtl} options={backendOptions} />
-          <span class="text-muted-foreground text-[12px]">
-            dir="rtl" — chevron inline-start, panel edge inline-start
-          </span>
-        </div>
-        <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
-          <p class="text-pretty">
-            The chevron sits in the flex flow, the selected-row edge is
-            <code class="text-accent">border-inline-start</code>, and the panel anchors with CSS
-            Anchor Positioning whose offsets are logical too. The writing mode does the rest.
-          </p>
-        </div>
+      <div class="flex flex-col gap-5">
+        <ComponentCanvas
+          title="combobox · rtl"
+          files={[{ name: 'combobox-rtl-demo.svelte', content: comboboxRtlDemo, kind: 'usage' }]}
+          stage="center"
+        >
+          <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+            <Combobox label="backend (rtl)" bind:value={backendRtl} options={backendOptions} />
+            <span class="text-muted-foreground text-[12px]">
+              dir="rtl" — chevron inline-start, panel edge inline-start
+            </span>
+          </div>
+        </ComponentCanvas>
+        <p class="text-pretty text-[13px] leading-6 text-muted-foreground">
+          The chevron sits in the flex flow, the selected-row edge is
+          <code class="text-accent">border-inline-start</code>, and the panel anchors with CSS
+          Anchor Positioning whose offsets are logical too. The writing mode does the rest.
+        </p>
       </div>
     </SectionCard>
   </div>

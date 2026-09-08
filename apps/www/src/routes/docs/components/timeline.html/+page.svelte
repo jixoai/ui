@@ -101,6 +101,228 @@
     { name: 'src/lib/ui/timeline-usage.svelte', content: usage, kind: 'usage' },
   ];
 
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  const timelineImport = `import Timeline, {
+  TimelineItem,
+  TimelineDot,
+  TimelineContent,
+  TimelineTitle,
+} from '@ui/timeline/index';`;
+
+  // the direction forms (directions section), swept through a canvas
+  const timelineDirectionsDemo = `<script lang="ts">
+  ${timelineImport}
+${close}
+
+<div class="grid gap-6 min-[1100px]:grid-cols-3">
+  <div class="flex flex-col gap-2">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">ltr (default)</span>
+    <Timeline direction="ltr">
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
+    </Timeline>
+  </div>
+  <div class="flex flex-col gap-2">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">revert</span>
+    <Timeline direction="revert">
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
+    </Timeline>
+  </div>
+  <div class="flex flex-col gap-2">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">interlaced</span>
+    <Timeline direction="interlaced">
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>deploy</TimelineTitle></TimelineContent></TimelineItem>
+    </Timeline>
+  </div>
+</div>`;
+
+  const timelineDirectionsFiles: TreeFile[] = [
+    { name: 'timeline-directions-demo.svelte', content: timelineDirectionsDemo, kind: 'usage' },
+  ];
+
+  // the horizontal transpose (axis section), swept through a canvas
+  const timelineAxisDemo = `<script lang="ts">
+  ${timelineImport}
+${close}
+
+<div class="w-full overflow-x-auto border border-border p-6">
+  <Timeline axis="horizontal" direction="interlaced" class="min-w-[40rem]">
+    <TimelineItem>
+      <TimelineDot>
+        {#snippet blockStart()}<span>09:41</span>{/snippet}
+      </TimelineDot>
+      <TimelineContent><TimelineTitle>commit</TimelineTitle></TimelineContent>
+    </TimelineItem>
+    <TimelineItem>
+      <TimelineDot variant="round">
+        {#snippet blockStart()}<span>09:43</span>{/snippet}
+      </TimelineDot>
+      <TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent>
+    </TimelineItem>
+    <TimelineItem pending>
+      <TimelineDot variant="round">
+        {#snippet blockStart()}<span>09:45</span>{/snippet}
+      </TimelineDot>
+      <TimelineContent><TimelineTitle>deploy</TimelineTitle></TimelineContent>
+    </TimelineItem>
+  </Timeline>
+</div>`;
+
+  const timelineAxisFiles: TreeFile[] = [
+    { name: 'timeline-axis-demo.svelte', content: timelineAxisDemo, kind: 'usage' },
+  ];
+
+  // the 9-grid node slots (node section), swept through a canvas
+  const timelineNodeDemo = `<script lang="ts">
+  ${timelineImport}
+${close}
+
+<div class="w-full max-w-md border border-border p-6">
+  <Timeline>
+    <TimelineItem>
+      <TimelineDot>
+        {#snippet blockStartInlineStart()}<span class="text-[10px]">bsIs</span>{/snippet}
+        {#snippet blockStart()}<span>bs</span>{/snippet}
+        {#snippet blockStartInlineEnd()}<span class="text-[10px]">bsIe</span>{/snippet}
+        {#snippet inlineStart()}<span>is</span>{/snippet}
+        {#snippet inlineEnd()}<span>ie</span>{/snippet}
+        {#snippet blockEndInlineStart()}<span class="text-[10px]">beIs</span>{/snippet}
+        {#snippet blockEnd()}<span>be</span>{/snippet}
+        {#snippet blockEndInlineEnd()}<span class="text-[10px]">beIe</span>{/snippet}
+      </TimelineDot>
+      <TimelineContent>
+        <TimelineTitle>free spatial composition</TimelineTitle>
+        <p class="text-[12.5px] text-muted-foreground">all eight slots authored at once — the dot stays the anchor</p>
+      </TimelineContent>
+    </TimelineItem>
+    <TimelineItem>
+      <TimelineDot />
+      <TimelineContent><TimelineTitle>a bare node</TimelineTitle></TimelineContent>
+    </TimelineItem>
+  </Timeline>
+</div>`;
+
+  const timelineNodeFiles: TreeFile[] = [
+    { name: 'timeline-node-demo.svelte', content: timelineNodeDemo, kind: 'usage' },
+  ];
+
+  // the line presets (line section), swept through a canvas
+  const timelineLineDemo = `<script lang="ts">
+  import Timeline, {
+    TimelineItem,
+    TimelineDot,
+    TimelineLineDashed,
+    TimelineLineBeam,
+    TimelineContent,
+    TimelineTitle,
+  } from '@ui/timeline/index';
+${close}
+
+<div class="grid gap-6 min-[1100px]:grid-cols-3">
+  <div class="flex flex-col gap-2">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">default (authored-free)</span>
+    <Timeline>
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>plain</TimelineTitle></TimelineContent></TimelineItem>
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>plain</TimelineTitle></TimelineContent></TimelineItem>
+    </Timeline>
+  </div>
+  <div class="flex flex-col gap-2">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">TimelineLineDashed</span>
+    <Timeline>
+      {#snippet line()}<TimelineLineDashed />{/snippet}
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>dashed</TimelineTitle></TimelineContent></TimelineItem>
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>dashed</TimelineTitle></TimelineContent></TimelineItem>
+    </Timeline>
+  </div>
+  <div class="flex flex-col gap-2">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">TimelineLineBeam</span>
+    <Timeline>
+      {#snippet line()}<TimelineLineBeam />{/snippet}
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>live channel</TimelineTitle></TimelineContent></TimelineItem>
+      <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>live channel</TimelineTitle></TimelineContent></TimelineItem>
+    </Timeline>
+  </div>
+</div>`;
+
+  const timelineLineFiles: TreeFile[] = [
+    { name: 'timeline-line-demo.svelte', content: timelineLineDemo, kind: 'usage' },
+  ];
+
+  // the scroll/view animation pair (animation section), swept through a canvas
+  const timelineAnimationDemo = `<script lang="ts">
+  ${timelineImport}
+${close}
+
+<div class="flex w-full flex-col gap-6">
+  <div class="flex flex-col gap-2">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="scroll" · scroll this box</span>
+    <div class="max-h-64 overflow-y-auto border border-border p-6">
+      <Timeline animation="scroll">
+        {#each ['commit', 'build', 'test', 'package', 'deploy', 'verify', 'announce'] as phase (phase)}
+          <TimelineItem>
+            <TimelineDot>
+              {#snippet blockStart()}<span>{phase}</span>{/snippet}
+            </TimelineDot>
+            <TimelineContent><TimelineTitle>{phase}</TimelineTitle></TimelineContent>
+          </TimelineItem>
+        {/each}
+      </Timeline>
+    </div>
+  </div>
+  <div class="flex flex-col gap-2">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="view"</span>
+    <div class="max-h-64 overflow-y-auto border border-border p-6">
+      <Timeline animation="view">
+        {#each ['alpha', 'beta', 'rc', 'ga'] as phase}
+          <TimelineItem>
+            <TimelineDot variant="round" />
+            <TimelineContent><TimelineTitle>{phase}</TimelineTitle></TimelineContent>
+          </TimelineItem>
+        {/each}
+      </Timeline>
+    </div>
+  </div>
+</div>`;
+
+  const timelineAnimationFiles: TreeFile[] = [
+    { name: 'timeline-animation-demo.svelte', content: timelineAnimationDemo, kind: 'usage' },
+  ];
+
+  // the anatomy sample (types section), swept through a canvas
+  const timelineAnatomyDemo = `<script lang="ts">
+  import Timeline, {
+    TimelineItem,
+    TimelineDot,
+    TimelineContent,
+    TimelineTime,
+    TimelineTitle,
+  } from '@ui/timeline/index';
+${close}
+
+<div class="max-w-md">
+  <Timeline>
+    <TimelineItem>
+      <TimelineDot>{#snippet blockStart()}<span>today</span>{/snippet}</TimelineDot>
+      <TimelineContent>
+        <TimelineTime datetime="2026-09-01">today</TimelineTime>
+        <TimelineTitle>released</TimelineTitle>
+        <p>Build promoted.</p>
+      </TimelineContent>
+    </TimelineItem>
+  </Timeline>
+</div>`;
+
+  const timelineAnatomyFiles: TreeFile[] = [
+    { name: 'timeline-anatomy-demo.svelte', content: timelineAnatomyDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with +page.ts, in page order.
 </script>
 
@@ -200,30 +422,32 @@
         title="direction — ltr · revert · interlaced"
         summary="Direction picks which zone(s) the content takes: ltr collapses the start zone (the classic reading rail), revert mirrors it, interlaced keeps both zones and alternates item by item — the center-stage chronology. Zones are grid tracks (minmax(0,0fr) collapses a lane), never margins."
       >
-        <div class="grid gap-6 min-[1100px]:grid-cols-3">
-          <div class="flex flex-col gap-2">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">ltr (default)</span>
-            <Timeline direction="ltr">
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
-            </Timeline>
+        <ComponentCanvas title="timeline · directions" stage="fill" files={timelineDirectionsFiles}>
+          <div class="grid gap-6 min-[1100px]:grid-cols-3">
+            <div class="flex flex-col gap-2">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">ltr (default)</span>
+              <Timeline direction="ltr">
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
+              </Timeline>
+            </div>
+            <div class="flex flex-col gap-2">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">revert</span>
+              <Timeline direction="revert">
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
+              </Timeline>
+            </div>
+            <div class="flex flex-col gap-2">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">interlaced</span>
+              <Timeline direction="interlaced">
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>deploy</TimelineTitle></TimelineContent></TimelineItem>
+              </Timeline>
+            </div>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">revert</span>
-            <Timeline direction="revert">
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
-            </Timeline>
-          </div>
-          <div class="flex flex-col gap-2">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">interlaced</span>
-            <Timeline direction="interlaced">
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>deploy</TimelineTitle></TimelineContent></TimelineItem>
-            </Timeline>
-          </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -235,28 +459,30 @@
         title="axis — the horizontal transpose"
         summary="axis='horizontal' transposes the whole engine: the spine runs inline, items flow as columns, the zones stack above/below, and every logical slot name keeps its meaning (block-start stays before the flow). The root scrolls inline when it outgrows its lane."
       >
-        <div class="overflow-x-auto border border-border p-6">
-          <Timeline axis="horizontal" direction="interlaced" class="min-w-[40rem]">
-            <TimelineItem>
-              <TimelineDot>
-                {#snippet blockStart()}<span>09:41</span>{/snippet}
-              </TimelineDot>
-              <TimelineContent><TimelineTitle>commit</TimelineTitle></TimelineContent>
-            </TimelineItem>
-            <TimelineItem>
-              <TimelineDot variant="round">
-                {#snippet blockStart()}<span>09:43</span>{/snippet}
-              </TimelineDot>
-              <TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent>
-            </TimelineItem>
-            <TimelineItem pending>
-              <TimelineDot variant="round">
-                {#snippet blockStart()}<span>09:45</span>{/snippet}
-              </TimelineDot>
-              <TimelineContent><TimelineTitle>deploy</TimelineTitle></TimelineContent>
-            </TimelineItem>
-          </Timeline>
-        </div>
+        <ComponentCanvas title="timeline · horizontal" stage="fill" files={timelineAxisFiles}>
+          <div class="w-full overflow-x-auto border border-border p-6">
+            <Timeline axis="horizontal" direction="interlaced" class="min-w-[40rem]">
+              <TimelineItem>
+                <TimelineDot>
+                  {#snippet blockStart()}<span>09:41</span>{/snippet}
+                </TimelineDot>
+                <TimelineContent><TimelineTitle>commit</TimelineTitle></TimelineContent>
+              </TimelineItem>
+              <TimelineItem>
+                <TimelineDot variant="round">
+                  {#snippet blockStart()}<span>09:43</span>{/snippet}
+                </TimelineDot>
+                <TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent>
+              </TimelineItem>
+              <TimelineItem pending>
+                <TimelineDot variant="round">
+                  {#snippet blockStart()}<span>09:45</span>{/snippet}
+                </TimelineDot>
+                <TimelineContent><TimelineTitle>deploy</TimelineTitle></TimelineContent>
+              </TimelineItem>
+            </Timeline>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -268,30 +494,32 @@
         title="the 9-grid node — eight logical slots around the dot"
         summary="Every dot is the center of a 3×3 grid. blockStart/blockEnd ride the SPINE channel as labeled cutouts (the line's own two cells — content there interrupts it, by essence); inlineStart/inlineEnd flank the dot; the four corners complete the compass. Logical names never change meaning when the axis flips."
       >
-        <div class="w-full max-w-md border border-border p-6">
-          <Timeline>
-            <TimelineItem>
-              <TimelineDot>
-                {#snippet blockStartInlineStart()}<span class="text-[10px]">bsIs</span>{/snippet}
-                {#snippet blockStart()}<span>bs</span>{/snippet}
-                {#snippet blockStartInlineEnd()}<span class="text-[10px]">bsIe</span>{/snippet}
-                {#snippet inlineStart()}<span>is</span>{/snippet}
-                {#snippet inlineEnd()}<span>ie</span>{/snippet}
-                {#snippet blockEndInlineStart()}<span class="text-[10px]">beIs</span>{/snippet}
-                {#snippet blockEnd()}<span>be</span>{/snippet}
-                {#snippet blockEndInlineEnd()}<span class="text-[10px]">beIe</span>{/snippet}
-              </TimelineDot>
-              <TimelineContent>
-                <TimelineTitle>free spatial composition</TimelineTitle>
-                <p class="text-[12.5px] text-muted-foreground">all eight slots authored at once — the dot stays the anchor</p>
-              </TimelineContent>
-            </TimelineItem>
-            <TimelineItem>
-              <TimelineDot />
-              <TimelineContent><TimelineTitle>a bare node</TimelineTitle></TimelineContent>
-            </TimelineItem>
-          </Timeline>
-        </div>
+        <ComponentCanvas title="timeline · node slots" stage="fill" files={timelineNodeFiles}>
+          <div class="w-full max-w-md border border-border p-6">
+            <Timeline>
+              <TimelineItem>
+                <TimelineDot>
+                  {#snippet blockStartInlineStart()}<span class="text-[10px]">bsIs</span>{/snippet}
+                  {#snippet blockStart()}<span>bs</span>{/snippet}
+                  {#snippet blockStartInlineEnd()}<span class="text-[10px]">bsIe</span>{/snippet}
+                  {#snippet inlineStart()}<span>is</span>{/snippet}
+                  {#snippet inlineEnd()}<span>ie</span>{/snippet}
+                  {#snippet blockEndInlineStart()}<span class="text-[10px]">beIs</span>{/snippet}
+                  {#snippet blockEnd()}<span>be</span>{/snippet}
+                  {#snippet blockEndInlineEnd()}<span class="text-[10px]">beIe</span>{/snippet}
+                </TimelineDot>
+                <TimelineContent>
+                  <TimelineTitle>free spatial composition</TimelineTitle>
+                  <p class="text-[12.5px] text-muted-foreground">all eight slots authored at once — the dot stays the anchor</p>
+                </TimelineContent>
+              </TimelineItem>
+              <TimelineItem>
+                <TimelineDot />
+                <TimelineContent><TimelineTitle>a bare node</TimelineTitle></TimelineContent>
+              </TimelineItem>
+            </Timeline>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -303,31 +531,33 @@
         title="the line — authored-free, replaceable per index"
         summary="The line's grid essence: it occupies the dot's two block neighbors plus the center, bridged into the next node — which is why you never author it. Replace it through the root's line snippet, keyed by the item's index (a line(i) snippet block); presets ride the same cells: TimelineLineDashed (a 4/4 dash chain) and TimelineLineBeam (a traveling primary pulse for live channels)."
       >
-        <div class="grid gap-6 min-[1100px]:grid-cols-3">
-          <div class="flex flex-col gap-2">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">default (authored-free)</span>
-            <Timeline>
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>plain</TimelineTitle></TimelineContent></TimelineItem>
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>plain</TimelineTitle></TimelineContent></TimelineItem>
-            </Timeline>
+        <ComponentCanvas title="timeline · line presets" stage="fill" files={timelineLineFiles}>
+          <div class="grid gap-6 min-[1100px]:grid-cols-3">
+            <div class="flex flex-col gap-2">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">default (authored-free)</span>
+              <Timeline>
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>plain</TimelineTitle></TimelineContent></TimelineItem>
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>plain</TimelineTitle></TimelineContent></TimelineItem>
+              </Timeline>
+            </div>
+            <div class="flex flex-col gap-2">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">TimelineLineDashed</span>
+              <Timeline>
+                {#snippet line()}<TimelineLineDashed />{/snippet}
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>dashed</TimelineTitle></TimelineContent></TimelineItem>
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>dashed</TimelineTitle></TimelineContent></TimelineItem>
+              </Timeline>
+            </div>
+            <div class="flex flex-col gap-2">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">TimelineLineBeam</span>
+              <Timeline>
+                {#snippet line()}<TimelineLineBeam />{/snippet}
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>live channel</TimelineTitle></TimelineContent></TimelineItem>
+                <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>live channel</TimelineTitle></TimelineContent></TimelineItem>
+              </Timeline>
+            </div>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">TimelineLineDashed</span>
-            <Timeline>
-              {#snippet line()}<TimelineLineDashed />{/snippet}
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>dashed</TimelineTitle></TimelineContent></TimelineItem>
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>dashed</TimelineTitle></TimelineContent></TimelineItem>
-            </Timeline>
-          </div>
-          <div class="flex flex-col gap-2">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">TimelineLineBeam</span>
-            <Timeline>
-              {#snippet line()}<TimelineLineBeam />{/snippet}
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>live channel</TimelineTitle></TimelineContent></TimelineItem>
-              <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>live channel</TimelineTitle></TimelineContent></TimelineItem>
-            </Timeline>
-          </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -339,40 +569,42 @@
         title="animation — view-driven entries, scroll-driven spine"
         summary="animation='view' gives every item a rise entrance as it enters the scrollport; animation='scroll' paints a progress spine over the channel that grows with the nearest scroller. Both are scroll-driven CSS (@supports-gated): engines without the timeline APIs render the final state, and reduced motion removes the decorative motion — entries rest in place, the beam rests at the line head, the progress spine stays hidden."
       >
-        <div class="flex flex-col gap-6">
-          <div class="flex flex-col gap-2">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="scroll" · scroll this box</span>
-            <div class="max-h-64 overflow-y-auto border border-border p-6">
-              <Timeline animation="scroll">
-                {#each ['commit', 'build', 'test', 'package', 'deploy', 'verify', 'announce'] as phase (phase)}
-                  <TimelineItem>
-                    <TimelineDot>
-                      {#snippet blockStart()}<span>{phase}</span>{/snippet}
-                    </TimelineDot>
-                    <TimelineContent><TimelineTitle>{phase}</TimelineTitle></TimelineContent>
-                  </TimelineItem>
-                {/each}
-              </Timeline>
+        <ComponentCanvas title="timeline · animation" stage="fill" files={timelineAnimationFiles}>
+          <div class="flex w-full flex-col gap-6">
+            <div class="flex flex-col gap-2">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="scroll" · scroll this box</span>
+              <div class="max-h-64 overflow-y-auto border border-border p-6">
+                <Timeline animation="scroll">
+                  {#each ['commit', 'build', 'test', 'package', 'deploy', 'verify', 'announce'] as phase (phase)}
+                    <TimelineItem>
+                      <TimelineDot>
+                        {#snippet blockStart()}<span>{phase}</span>{/snippet}
+                      </TimelineDot>
+                      <TimelineContent><TimelineTitle>{phase}</TimelineTitle></TimelineContent>
+                    </TimelineItem>
+                  {/each}
+                </Timeline>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="view"</span>
+              <div class="max-h-64 overflow-y-auto border border-border p-6">
+                <Timeline animation="view">
+                  {#each ['alpha', 'beta', 'rc', 'ga'] as phase}
+                    <TimelineItem>
+                      <TimelineDot variant="round" />
+                      <TimelineContent><TimelineTitle>{phase}</TimelineTitle></TimelineContent>
+                    </TimelineItem>
+                  {/each}
+                </Timeline>
+              </div>
             </div>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="view"</span>
-            <div class="max-h-64 overflow-y-auto border border-border p-6">
-              <Timeline animation="view">
-                {#each ['alpha', 'beta', 'rc', 'ga'] as phase}
-                  <TimelineItem>
-                    <TimelineDot variant="round" />
-                    <TimelineContent><TimelineTitle>{phase}</TimelineTitle></TimelineContent>
-                  </TimelineItem>
-                {/each}
-              </Timeline>
-            </div>
-          </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
-    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Timeline anatomy" summary="Timeline is composition-first: item, dot (the 9-grid node), content, time, title and free-form body remain independent parts; the line is authored-free."><div class="max-w-md"><Timeline><TimelineItem><TimelineDot>{#snippet blockStart()}<span>today</span>{/snippet}</TimelineDot><TimelineContent><TimelineTime datetime="2026-09-01">today</TimelineTime><TimelineTitle>released</TimelineTitle><p>Build promoted.</p></TimelineContent></TimelineItem></Timeline></div></SectionCard></div>
+    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Timeline anatomy" summary="Timeline is composition-first: item, dot (the 9-grid node), content, time, title and free-form body remain independent parts; the line is authored-free."><ComponentCanvas title="timeline · anatomy" stage="start" files={timelineAnatomyFiles}><div class="max-w-md"><Timeline><TimelineItem><TimelineDot>{#snippet blockStart()}<span>today</span>{/snippet}</TimelineDot><TimelineContent><TimelineTime datetime="2026-09-01">today</TimelineTime><TimelineTitle>released</TimelineTitle><p>Build promoted.</p></TimelineContent></TimelineItem></Timeline></div></ComponentCanvas></SectionCard></div>
     <div id="usage" data-reveal=""><SectionCard summary="The composition contract in one sample: import the family from the registry barrel (@ui/timeline/index — per-part targets exist per file), author one TimelineItem per entry with the parts you need. There is no items[] prop and no body snippet — the body is plain children." eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'ol', value: 'timeline root', description: 'Preserves chronological list semantics.' }, { name: 'time', value: 'datetime', description: 'Provides machine-readable event time.' }, { name: 'aria-hidden', value: 'line · dot', description: 'The pure chrome (the auto-rendered line, the dot) is decoration. The cutout SLOTS are readable content — they carry text and are never hidden.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Timeline><TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>event</TimelineTitle></TimelineContent></TimelineItem></Timeline></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>

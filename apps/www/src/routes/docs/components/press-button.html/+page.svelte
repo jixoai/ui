@@ -10,6 +10,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { registrySourceUrl } from '$lib/registry-source';
+  import type { Density } from '$lib/density.svelte';
   import { annotations, meta } from '$lib/meta/press-button.meta';
   import { withAnnotations, type ComponentMeta } from '$lib/schema/ir';
   import { toJSONSchema } from '$lib/schema/lower';
@@ -118,9 +119,11 @@ ${close}
   // ---- the floor (canvas-floor-lab): page-owned stage state ---------------
   // theme/density are BINDABLES — the page owns them, the canvas only
   // projects data-theme/data-density onto the stage element (the spec's
-  // composition-first law). Defaults = the documented rest pose.
+  // composition-first law). Density speaks the REPO-STANDARD union
+  // (xs/sm/default/lg — the dock head's select); defaults = the
+  // documented rest pose.
   let stageTheme = $state<'light' | 'dark'>('light');
-  let stageDensity = $state<'comfortable' | 'compact'>('comfortable');
+  let stageDensity = $state<Density>('default');
   let deployEcho = $state('idle — press me');
   let deployBtn: { flash: (ms?: number) => void } | undefined;
 
@@ -148,6 +151,115 @@ ${close}
       navEcho = 'rest — the anchor navigates again';
     }, 2500);
   }
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const pressButtonAsyncDemo = `<script lang="ts">
+  import PressButton from '@ui/press-button.svelte';
+
+let deployState = $state<'idle' | 'loading'>('idle');
+let deployEcho = $state('idle — press me');
+let deployBtn: { flash: (ms?: number) => void } | undefined;
+
+async function deploy(): Promise<void> {
+  if (deployState === 'loading') return; // the lock itself, from the host side too
+  deployState = 'loading';
+  deployEcho = 'loading — presses and Enter/Space are no-ops';
+  await new Promise((r) => setTimeout(r, 1400));
+  deployState = 'idle';
+  deployEcho = 'success flashed ✓ (one-shot, 1.2s), then rest';
+  deployBtn?.flash();
+}
+
+let navLoading = $state(false);
+let navEcho = $state('idle — start the fake task, then try the anchor');
+function navTask(): void {
+  if (navLoading) return;
+  navLoading = true;
+  navEcho = 'loading — the anchor\\'s href navigation is blocked';
+  setTimeout(() => {
+    navLoading = false;
+    navEcho = 'rest — the anchor navigates again';
+  }, 2500);
+}
+${close}
+
+<div id="async-demo" class="flex flex-wrap items-center gap-x-8 gap-y-5">
+  <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+    <span>async deploy</span>
+    <PressButton
+      bind:this={deployBtn}
+      variant="fill"
+      loading={deployState === 'loading'}
+      onclick={deploy}
+    >
+      deploy
+    </PressButton>
+  </div>
+  <div id="async-anchor-demo" class="text-muted-foreground flex items-center gap-2.5 text-xs">
+    <span>loading anchor</span>
+    <PressButton variant="tonal" onclick={navTask}>start fake task</PressButton>
+    <PressButton variant="outline" href="/docs/components.html" loading={navLoading}>
+      read the docs
+    </PressButton>
+  </div>
+  <span class="text-muted-foreground text-[12.5px]" data-async-echo>{deployEcho}</span>
+  <span class="text-muted-foreground text-[12.5px]">{navEcho}</span>
+</div>`;
+
+  const pressButtonAsyncFiles: TreeFile[] = [
+    { name: 'press-button-async-demo.svelte', content: pressButtonAsyncDemo, kind: 'usage' },
+  ];
+
+  const pressButtonTypesDemo = `<script lang="ts">
+  import PressButton from '@ui/press-button.svelte';
+${close}
+
+<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+  {#each [
+    ['fill', 'The one action'],
+    ['tonal', 'Supporting seat'],
+    ['outline', 'The rest (default)'],
+    ['ghost', 'Quiet seat'],
+    ['link', 'Inline navigation'],
+  ] as item}
+    <div class="border border-border/60 p-3">
+      <PressButton variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost' | 'link'}>{item[1]}</PressButton>
+      <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
+    </div>
+  {/each}
+</div>
+<p class="font-nav mb-4 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+  semantic injection recipes — hue, not a rung
+</p>
+<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="border border-border/60 p-3">
+    <PressButton
+      variant="fill"
+      class="jx-pair-destructive"
+    >
+      delete
+    </PressButton>
+    <p class="mt-2 text-xs text-muted-foreground">destructive ACTION<br />fill + the destructive pair</p>
+  </div>
+  <div class="border border-border/60 p-3">
+    <PressButton variant="tonal" class="jx-hue-neutral">invite</PressButton>
+    <p class="mt-2 text-xs text-muted-foreground">neutral / meta<br />tonal + muted-foreground</p>
+  </div>
+  <div class="border border-border/60 p-3">
+    <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
+    <p class="mt-2 text-xs text-muted-foreground">success status<br />tonal + success</p>
+  </div>
+  <div class="border border-border/60 p-3">
+    <PressButton variant="fill">deploy</PressButton>
+    <p class="mt-2 text-xs text-muted-foreground">brand (default hue)<br />fill, no injection</p>
+  </div>
+</div>`;
+
+  const pressButtonTypesFiles: TreeFile[] = [
+    { name: 'press-button-types-demo.svelte', content: pressButtonTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -383,7 +495,7 @@ ${close}
         title="The async two-step"
         summary="loading is an ANCHOR CONTRACT: aria-disabled='true' (the button stays focusable — tab order unchanged, opaque to why it is inert), pointer AND keyboard activation suppressed (Enter/Space no-op), and for href anchors the navigation itself is blocked. The spinner glyph takes the leading lane and the press law holds unchanged — hover grows only the shadow, active still presses +1px. On settle, the one-shot flash() swaps the leading lane to a ✓ check for 1.2s, then the button rests."
       >
-        <div class="flex flex-col gap-5">
+        <ComponentCanvas title="press-button · async two-step" stage="fill" files={pressButtonAsyncFiles}>
           <div id="async-demo" class="flex flex-wrap items-center gap-x-8 gap-y-5">
             <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>async deploy</span>
@@ -406,7 +518,7 @@ ${close}
             <span class="text-muted-foreground text-[12.5px]" data-async-echo>{deployEcho}</span>
             <span class="text-muted-foreground text-[12.5px]">{navEcho}</span>
           </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -479,48 +591,50 @@ ${close}
 
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="The variant ladder" summary="Choose the prominence rung first; semantic hue is injected separately through the grammar tokens. Every rung keeps the same hit target and press physics.">
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        {#each [
-          ['fill', 'The one action'],
-          ['tonal', 'Supporting seat'],
-          ['outline', 'The rest (default)'],
-          ['ghost', 'Quiet seat'],
-          ['link', 'Inline navigation'],
-        ] as item}
-          <div class="border border-border/60 p-3">
-            <PressButton variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost' | 'link'}>{item[1]}</PressButton>
-            <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
-          </div>
-        {/each}
-      </div>
-      <div class="mt-6">
-        <p class="font-nav mb-4 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-          semantic injection recipes — hue, not a rung
-        </p>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="border border-border/60 p-3">
-            <PressButton
-              variant="fill"
-              class="jx-pair-destructive"
-            >
-              delete
-            </PressButton>
-            <p class="mt-2 text-xs text-muted-foreground">destructive ACTION<br />fill + the destructive pair</p>
-          </div>
-          <div class="border border-border/60 p-3">
-            <PressButton variant="tonal" class="jx-hue-neutral">invite</PressButton>
-            <p class="mt-2 text-xs text-muted-foreground">neutral / meta<br />tonal + muted-foreground</p>
-          </div>
-          <div class="border border-border/60 p-3">
-            <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
-            <p class="mt-2 text-xs text-muted-foreground">success status<br />tonal + success</p>
-          </div>
-          <div class="border border-border/60 p-3">
-            <PressButton variant="fill">deploy</PressButton>
-            <p class="mt-2 text-xs text-muted-foreground">brand (default hue)<br />fill, no injection</p>
+      <ComponentCanvas title="press-button · ladder" stage="fill" files={pressButtonTypesFiles}>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {#each [
+            ['fill', 'The one action'],
+            ['tonal', 'Supporting seat'],
+            ['outline', 'The rest (default)'],
+            ['ghost', 'Quiet seat'],
+            ['link', 'Inline navigation'],
+          ] as item}
+            <div class="border border-border/60 p-3">
+              <PressButton variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost' | 'link'}>{item[1]}</PressButton>
+              <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
+            </div>
+          {/each}
+        </div>
+        <div class="mt-6">
+          <p class="font-nav mb-4 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            semantic injection recipes — hue, not a rung
+          </p>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="border border-border/60 p-3">
+              <PressButton
+                variant="fill"
+                class="jx-pair-destructive"
+              >
+                delete
+              </PressButton>
+              <p class="mt-2 text-xs text-muted-foreground">destructive ACTION<br />fill + the destructive pair</p>
+            </div>
+            <div class="border border-border/60 p-3">
+              <PressButton variant="tonal" class="jx-hue-neutral">invite</PressButton>
+              <p class="mt-2 text-xs text-muted-foreground">neutral / meta<br />tonal + muted-foreground</p>
+            </div>
+            <div class="border border-border/60 p-3">
+              <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
+              <p class="mt-2 text-xs text-muted-foreground">success status<br />tonal + success</p>
+            </div>
+            <div class="border border-border/60 p-3">
+              <PressButton variant="fill">deploy</PressButton>
+              <p class="mt-2 text-xs text-muted-foreground">brand (default hue)<br />fill, no injection</p>
+            </div>
           </div>
         </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 
@@ -540,10 +654,10 @@ ${close}
   </div>
 
   <div id="theming" data-reveal="">
-    <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one scope change updates every instance together. The canvas's stage density toggle (comfortable / compact) is the live proof — it re-scopes only the stage; the DensityDemo four-copy hack is retired by it.">
+    <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one scope change updates every instance together. The canvas dock's density select (xs / sm / default / lg) is the live proof — it re-scopes only the stage; the DensityDemo four-copy hack is retired by it.">
       <div class="flex flex-col gap-5">
         <p class="text-muted-foreground text-[13px] leading-6">
-          flip the stage toggle above to <code class="text-accent">compact</code> — the workbench
+          flip the dock's density select above to <code class="text-accent">sm</code> — the workbench
           canvas re-densifies its own stage (the density scope lands on the stage element only),
           never the docs chrome around it. Both theme seats work the same way.
         </p>

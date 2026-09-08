@@ -79,6 +79,25 @@ ${close}
     { name: 'registry/files/ui/toggle-group/toggle-group-item.svelte', content: toggleGroupItemSource },
     { name: 'src/lib/ui/toggle-group-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+
+  // the mode pair (types section), swept through a canvas: single
+  // replaces the active value, multiple keeps an ordered press set
+  const toggleGroupTypesDemo = `<script lang="ts">
+  import { ToggleGroup, ToggleGroupItem } from '@ui/toggle-group/index';
+${close}
+
+<div class="grid w-full gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4"><ToggleGroup name="types-single" type="single" label="alignment"><ToggleGroupItem value="left">left</ToggleGroupItem><ToggleGroupItem value="center">center</ToggleGroupItem></ToggleGroup></div>
+  <div class="border border-border p-4"><ToggleGroup name="types-multiple" type="multiple" label="style"><ToggleGroupItem value="bold">bold</ToggleGroupItem><ToggleGroupItem value="italic">italic</ToggleGroupItem></ToggleGroup></div>
+</div>`;
+
+  const toggleGroupTypesFiles: TreeFile[] = [
+    { name: 'toggle-group-types-demo.svelte', content: toggleGroupTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -177,7 +196,7 @@ ${close}
 </div>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle group variants" summary="Single replaces the active value; multiple keeps an ordered set of pressed values."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><ToggleGroup name="types-single" type="single" label="alignment"><ToggleGroupItem value="left">left</ToggleGroupItem><ToggleGroupItem value="center">center</ToggleGroupItem></ToggleGroup></div><div class="border border-border p-4"><ToggleGroup name="types-multiple" type="multiple" label="style"><ToggleGroupItem value="bold">bold</ToggleGroupItem><ToggleGroupItem value="italic">italic</ToggleGroupItem></ToggleGroup></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle group variants" summary="Single replaces the active value; multiple keeps an ordered set of pressed values."><ComponentCanvas title="toggle-group · variants" stage="fill" files={toggleGroupTypesFiles}><div class="grid w-full gap-4 sm:grid-cols-2"><div class="border border-border p-4"><ToggleGroup name="types-single" type="single" label="alignment"><ToggleGroupItem value="left">left</ToggleGroupItem><ToggleGroupItem value="center">center</ToggleGroupItem></ToggleGroup></div><div class="border border-border p-4"><ToggleGroup name="types-multiple" type="multiple" label="style"><ToggleGroupItem value="bold">bold</ToggleGroupItem><ToggleGroupItem value="italic">italic</ToggleGroupItem></ToggleGroup></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose a group from ToggleGroupItem parts; item values become the form payload identity."><CodeBlock code={usage} lang="svelte" meta="Toggle group usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The group is a labelled landmark over real native inputs — the radio semantics (arrow-walk, one tab stop, checked state) come from the platform, not ARIA re-creation."><A11yTable keys={[{ key: 'Tab', action: 'Enter the group once (single) / walk items (multiple)' }, { key: 'Arrow ← → ↑ ↓', action: 'Walk single-mode segments (native radio)' }, { key: 'Space', action: 'Toggle the focused segment' }]} aria={[{ name: 'role', value: 'radiogroup | group', description: 'Names the set as one landmark (single | multiple)' }, { name: 'aria-label', value: 'label', description: 'Provides the group accessible name' }, { name: 'input checked', value: 'native', description: 'The real radio/checkbox state IS the item state' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Group buttons use the shared hit target, inset, and typography tokens."><div class="flex flex-col gap-5"><DensityDemo><ToggleGroup name="density-group" type="single" label="density"><ToggleGroupItem value="one">one</ToggleGroupItem><ToggleGroupItem value="two">two</ToggleGroupItem></ToggleGroup></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>

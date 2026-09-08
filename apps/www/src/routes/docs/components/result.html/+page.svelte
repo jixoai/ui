@@ -25,6 +25,21 @@
     { name: 'src/lib/ui/result-usage.svelte', content: usage },
   ];
 
+  // the outcome states (types section), swept through a canvas: the
+  // success and error postures at a glance
+  const resultTypesDemo = `<script lang="ts">
+  import Result from '@ui/result.svelte';
+${close}
+
+<div class="grid gap-4 md:grid-cols-2">
+  <Result status="success" title="Deployed" />
+  <Result status="error" title="Build failed" />
+</div>`;
+
+  const resultTypesFiles: TreeFile[] = [
+    { name: 'result-types-demo.svelte', content: resultTypesDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with the section ids below, in page order.
 </script>
 
@@ -80,7 +95,7 @@
   </div>
 
   
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Outcome states" summary="Result distinguishes success, error, warning and info without taking over routing or recovery logic."><div class="grid gap-4 md:grid-cols-2"><Result status="success" title="Deployed" /><Result status="error" title="Build failed" /></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Outcome states" summary="Result distinguishes success, error, warning and info without taking over routing or recovery logic."><ComponentCanvas title="result · states" stage="fill" files={resultTypesFiles}><div class="grid gap-4 md:grid-cols-2"><Result status="success" title="Deployed" /><Result status="error" title="Build failed" /></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'status', value: 'visible glyph and title', description: 'Status is communicated with text, not color alone.' }, { name: 'actions', value: 'native controls', description: 'Keep recovery actions keyboard reachable.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Result status="info" title="No changes" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>

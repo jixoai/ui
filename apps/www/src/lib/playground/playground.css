@@ -1,22 +1,28 @@
 /*
- * playground kit styles (site-level $lib/playground/, 2026-08-25).
- * The kit composes the registry Item family — these rules only add the
- * playground's own density and control geometry; the Item presence
- * matrix carries the row layout (Codex D3: one-way dependency, the kit
- * never re-implements row layout).
+ * playground kit styles (site-level $lib/playground/, 2026-08-25;
+ * kit unification since canvas-playground-dock, 2026-09-08).
+ * The kit composes the registry Item family — PlayFields IS the
+ * integrated ItemGroup now (the .jx-play-fields grid rules are
+ * retired: the group's list owns the single-column rhythm), so these
+ * rules carry only the playground's own residue: the explicit cols=2
+ * window, the row tightening, and the seg/range/help idioms.
  */
 
-/* fields: single-column grid by default; multi-column is explicit */
-.jx-play-fields {
+/* cols=2 residue: the explicit two-column opt-in rides a class hook on
+   the group frame — the list keeps its container + rhythm, the rows
+   break out of the shared ruler into the plain no-subgrid grid (the
+   fallback path item.css already maintains) */
+:where(.jx-play-cols-2 [data-slot='item-list']) {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.25rem;
-}
-.jx-play-fields[data-cols='2'] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 0.5rem;
+}
+:where(.jx-play-cols-2 [data-slot='item-row']) {
+  display: block;
+  grid-column: auto;
 }
 
-/* rows ride Item outline variant at sm density, but tighter */
+/* rows ride the integrated ItemGroup rows, but tighter */
 :where(.jx-play-row) {
   padding-block: 0.3125rem;
 }
@@ -56,11 +62,12 @@
   min-inline-size: 8rem;
 }
 
-/* help: the prose primitive, full-span footer of the fields grid */
+/* help: the prose primitive — the dock's compact footnote (the top
+   hairline stays; the block padding tightened for the dock foot) */
 :where(.jx-play-help) {
   grid-column: 1 / -1;
   margin: 0;
-  padding-top: 0.5rem;
+  padding-top: 0.375rem;
   border-top: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
   color: var(--muted-foreground);
   font-size: 11.5px;

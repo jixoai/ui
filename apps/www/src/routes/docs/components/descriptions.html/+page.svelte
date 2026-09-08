@@ -136,6 +136,28 @@
     <!-- … -->
   </Descriptions>
 </section>`;
+
+  // ---- sweep usage mirror (canvas-everywhere-demos, 2026-09-08) -----------
+  // Hand-authored mirror of the wrapped types demo below; the
+  // same-source resolveRawCode migration of this string is the
+  // recorded follow-up. (A literal closing-script tag inside the code
+  // string would terminate this component's own script tag during the
+  // HTML-level scan — splice it.)
+  const close = '</' + 'script>';
+  const descriptionsTypesDemo = `<script lang="ts">
+  import Descriptions, { DescriptionsItem } from '@ui/descriptions/index';
+${close}
+
+<!-- one pair per row, no frame -->
+<Descriptions>
+  <DescriptionsItem term="owner">gaubee</DescriptionsItem>
+</Descriptions>
+
+<!-- two pairs per row, bordered -->
+<Descriptions columns={2} bordered>
+  <DescriptionsItem term="status">live</DescriptionsItem>
+  <DescriptionsItem term="scope">public</DescriptionsItem>
+</Descriptions>`;
 </script>
 
 <svelte:head>
@@ -371,7 +393,7 @@
     </ComponentCanvas>
   </div>
 
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Description layouts" summary="Descriptions is a semantic dl: choose one or more term/value pairs per row and opt into the bordered treatment."><div class="grid gap-3 md:grid-cols-2"><div class="border border-border p-4"><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div><div class="border border-border p-4"><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Description layouts" summary="Descriptions is a semantic dl: choose one or more term/value pairs per row and opt into the bordered treatment."><ComponentCanvas title="descriptions · types" files={[{ name: 'descriptions-types-demo.svelte', content: descriptionsTypesDemo, kind: 'usage' }]} stage="fill"><div class="grid w-full gap-3 md:grid-cols-2"><div class="border border-border p-4"><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div><div class="border border-border p-4"><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div></div></ComponentCanvas></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'dl', value: 'Descriptions root', description: 'Preserves description-list semantics — wrappers add chrome, never list content.' }, { name: 'dt', value: 'term', description: 'Names each property.' }, { name: 'dd', value: 'value', description: 'Contains the corresponding value.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Descriptions><DescriptionsItem term="density">scoped</DescriptionsItem></Descriptions></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-desc-cols', default: 'columns prop', source: 'structural' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Descriptions props"><PropsTable props={[{ name: 'columns', type: 'number', default: '1', description: 'Term/value pairs per row.' }, { name: 'bordered', type: 'boolean', default: 'false', description: 'Paints hairline cell borders. Defaults: literal slot — own false, not ambient.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>

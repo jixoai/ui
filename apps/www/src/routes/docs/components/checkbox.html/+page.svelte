@@ -97,6 +97,63 @@
     { name: 'registry/files/ui/checkbox/checkbox.css', content: checkboxCssSource },
     { name: 'src/lib/ui/checkbox-usage.svelte', content: usage },
   ];
+
+  // ---- sweep usage mirrors (canvas-everywhere-demos, 2026-09-08) ----------
+  // Hand-authored mirrors of the wrapped demo regions below; the
+  // same-source resolveRawCode migration of these strings is the
+  // recorded follow-up.
+  const close = '</' + 'script>';
+
+  const checkboxStatesDemo = `<script lang="ts">
+  import Checkbox from '@ui/checkbox.svelte';
+${close}
+
+<!-- the state matrix: one pseudo-element, six vertices in every state -->
+<Checkbox label="unchecked" name="demo_cb" />
+<Checkbox label="checked" name="demo_cb" checked />
+<Checkbox label="indeterminate" name="demo_cb" indeterminate />
+<Checkbox label="label left" name="demo_cb" labelSide="left" />
+<Checkbox label="disabled" name="demo_cb" disabled />
+<Checkbox label="error" name="demo_cb" error="consent is required" />`;
+
+  const checkboxFormDemo = `<script lang="ts">
+  import Checkbox from '@ui/checkbox.svelte';
+  import PressButton from '@ui/press-button.svelte';
+
+  // uncontrolled fields, FormData read once at submit — the checked box
+  // contributes its name/value pair, an unchecked one contributes nothing
+  let result = $state<string[] | null>(null);
+
+  function onSubmit(event: SubmitEvent) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget as HTMLFormElement);
+    const outputs: string[] = [];
+    for (const [key, value] of data) {
+      if (typeof value === 'string' && value !== '') outputs.push(key + ': ' + value);
+    }
+    result = outputs;
+  }
+${close}
+
+<form class="flex flex-col gap-4" aria-label="consent" onsubmit={onSubmit}>
+  <Checkbox label="I agree to the terminal printing my answers" name="consent" value="yes" required />
+  <Checkbox label="join the newsletter" name="news" value="yes" />
+  <div class="flex flex-wrap items-center gap-3 pt-1">
+    <PressButton type="submit" variant="fill">sign up</PressButton>
+    <span class="text-muted-foreground text-[12.5px]">
+      required fields use native validation — try submitting empty
+    </span>
+  </div>
+</form>`;
+
+  const checkboxTypesDemo = `<script lang="ts">
+  import Checkbox from '@ui/checkbox.svelte';
+${close}
+
+<!-- binary, tri-state: the native states, redrawn -->
+<Checkbox label="unchecked" name="types-unchecked" />
+<Checkbox label="checked" name="types-checked" checked />
+<Checkbox label="indeterminate" name="types-indeterminate" indeterminate />`;
 </script>
 
 <svelte:head>
@@ -208,7 +265,12 @@
           a dash — one pseudo-element, six vertices in every state, so CSS interpolates the
           morph. Hover leans the unchecked border toward primary; error dashes the border.
         </p>
-        <CardGrid min="200px">
+        <ComponentCanvas
+          title="checkbox · states"
+          files={[{ name: 'checkbox-states-demo.svelte', content: checkboxStatesDemo, kind: 'usage' }]}
+          stage="fill"
+        >
+          <CardGrid min="200px">
           <div class="demo-cell" data-no-subgrid>
             <Checkbox label="unchecked" name="demo_cb" />
           </div>
@@ -228,6 +290,7 @@
             <Checkbox label="error" name="demo_cb" error="consent is required" />
           </div>
         </CardGrid>
+        </ComponentCanvas>
         <CodeBlock code={usage} lang="svelte" meta="Checkbox usage" />
       </div>
     </SectionCard>
@@ -242,7 +305,12 @@
       title="In a submitted form"
       summary="Uncontrolled field, native constraint validation (the required bubble belongs to the platform), FormData read once at submit — the checked box contributes its name/value pair, an unchecked one contributes nothing."
     >
-      <div class="grid gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+      <ComponentCanvas
+        title="checkbox · in a form"
+        files={[{ name: 'checkbox-form-demo.svelte', content: checkboxFormDemo, kind: 'usage' }]}
+        stage="fill"
+      >
+        <div class="grid w-full gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <form class="flex flex-col gap-4" aria-label="consent" onsubmit={onSubmit}>
           <Checkbox label="I agree to the terminal printing my answers" name="consent" value="yes" required />
           <Checkbox label="join the newsletter" name="news" value="yes" />
@@ -269,7 +337,8 @@
             </div>
           {/if}
         </div>
-      </div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   </div>
@@ -277,11 +346,17 @@
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Checkbox variants" summary="Use the native checkbox for binary, tri-state, and validation states.">
-    <div class="grid gap-4 sm:grid-cols-3">
-      <div class="border border-border p-4"><Checkbox label="unchecked" name="types-unchecked" /></div>
-      <div class="border border-border p-4"><Checkbox label="checked" name="types-checked" checked /></div>
-      <div class="border border-border p-4"><Checkbox label="indeterminate" name="types-indeterminate" indeterminate /></div>
-    </div>
+    <ComponentCanvas
+      title="checkbox · types"
+      files={[{ name: 'checkbox-types-demo.svelte', content: checkboxTypesDemo, kind: 'usage' }]}
+      stage="fill"
+    >
+      <div class="grid w-full gap-4 sm:grid-cols-3">
+        <div class="border border-border p-4"><Checkbox label="unchecked" name="types-unchecked" /></div>
+        <div class="border border-border p-4"><Checkbox label="checked" name="types-checked" checked /></div>
+        <div class="border border-border p-4"><Checkbox label="indeterminate" name="types-indeterminate" indeterminate /></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component preserves native checkbox semantics and wires validation text to the input."><A11yTable keys={[{ key: 'Space', action: 'Toggle the focused checkbox' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Density scopes resize the hit target, glyph, and label rhythm together."><div class="flex flex-col gap-5"><DensityDemo><Checkbox label="density sample" name="density-checkbox" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>

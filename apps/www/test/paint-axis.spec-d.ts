@@ -32,8 +32,18 @@ import type { DefaultsSlot } from '../src/lib/defaults.svelte';
 //     the declared values, and a non-Density own into densitySlot
 
 test('the value domain — the axis owns the ladder, the zone excludes link', () => {
-  expectTypeOf<PaintVariant>().toEqualTypeOf<'fill' | 'tonal' | 'outline' | 'ghost' | 'link'>();
-  expectTypeOf<ZonePaintVariant>().toEqualTypeOf<'fill' | 'tonal' | 'outline' | 'ghost'>();
+  // RE-PINNED (canvas-playground-dock lane, 2026-09-08): commit 90e73c32
+  // (R4 chip rework) promoted 'fused' — the separator's backdrop-fusion
+  // ink — onto the AXIS ladder (six rungs) while the family tuples stay
+  // subsets: press-button keeps its frozen five-value row, inline-code is
+  // the fused adopter (['fused','tonal','outline'], own 'fused'). The
+  // zone domain derives mechanically: Exclude<PaintVariant, 'link'>.
+  expectTypeOf<PaintVariant>().toEqualTypeOf<
+    'fill' | 'tonal' | 'outline' | 'ghost' | 'link' | 'fused'
+  >();
+  expectTypeOf<ZonePaintVariant>().toEqualTypeOf<
+    'fill' | 'tonal' | 'outline' | 'ghost' | 'fused'
+  >();
 });
 
 test('the slot products are DefaultsSlots over the family domain', () => {
@@ -43,8 +53,14 @@ test('the slot products are DefaultsSlots over the family domain', () => {
   );
   type PressButtonVariant = ReturnType<typeof pressButtonVariantSlot>;
   const wide: PressButtonVariant = 'link';
-  expectTypeOf<PressButtonVariant>().toEqualTypeOf<PaintVariant>();
-  expectTypeOf(pressButtonVariantSlot).toEqualTypeOf<DefaultsSlot<PaintVariant>>();
+  // the family's tuple IS its union (five) — the axis's PaintVariant is
+  // the superset (six, since fused); equality retired with the fused rung
+  expectTypeOf<PressButtonVariant>().toEqualTypeOf<
+    'fill' | 'tonal' | 'outline' | 'ghost' | 'link'
+  >();
+  expectTypeOf(pressButtonVariantSlot).toEqualTypeOf<
+    DefaultsSlot<'fill' | 'tonal' | 'outline' | 'ghost' | 'link'>
+  >();
   expectTypeOf(densitySlot('sm')).returns.toEqualTypeOf<
     'lg' | 'default' | 'sm' | 'xs' | '2xs' | undefined
   >();

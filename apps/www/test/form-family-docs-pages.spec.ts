@@ -9,13 +9,14 @@ describe('docs page smoke render', () => {
     const headings = [...container.querySelectorAll('h1,h2,h3')].map((h) => h.textContent?.trim().toLowerCase());
     expect(headings.filter((t) => t === 'usage').length).toBe(1);
     expect(container.querySelectorAll('[data-jx-canvas-stage]').length).toBeGreaterThanOrEqual(3);
-    expect(container.querySelectorAll('[data-jx-canvas-playground-title]').length).toBeGreaterThanOrEqual(3);
+    // every canvas ships the dock (the unified-chrome ruling, 2026-09-08)
+    expect(container.querySelectorAll('[data-jx-canvas-dock]').length).toBeGreaterThanOrEqual(3);
   });
   it('button-group page mounts (no invalid_snippet, one Usage h2)', () => {
     const { container } = render(ButtonGroupPage);
     const headings = [...container.querySelectorAll('h1,h2,h3')].map((h) => h.textContent?.trim().toLowerCase());
     expect(headings.filter((t) => t === 'usage').length).toBe(1);
-    expect(container.querySelectorAll('[data-jx-canvas-playground-title]').length).toBeGreaterThanOrEqual(2);
+    expect(container.querySelectorAll('[data-jx-canvas-dock]').length).toBeGreaterThanOrEqual(2);
   });
   it('no literal undefined/null text nodes on either page', () => {
     const a = render(InputGroupPage).container;

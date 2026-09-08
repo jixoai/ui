@@ -60,6 +60,28 @@ ${close}
 <ThemeToggle variant=${q(variant)} />${usageTail}`);
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+
+  // the variants matrix (types section), swept through a canvas: the
+  // four variants plus the localized full payload
+  const themeToggleTypesDemo = `<script lang="ts">
+  import ThemeToggle from '@ui/theme-toggle.svelte';
+${close}
+
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · sets</span><ThemeToggle variant="full" /><span class="text-muted-foreground text-[12.5px]">segmented group — one click, one mode</span></div>
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">compact · cycles</span><ThemeToggle variant="compact" /><span class="text-muted-foreground text-[12.5px]">the default cycling button</span></div>
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">icon · cycles</span><ThemeToggle variant="icon" /><span class="text-muted-foreground text-[12.5px]">icon only — aria-label carries the mode</span></div>
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text · cycles</span><ThemeToggle variant="text" /><span class="text-muted-foreground text-[12.5px]">the word alone</span></div>
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · localized</span><ThemeToggle variant="full" labels={{ light: '浅色', dark: '深色', system: '系统', groupAriaLabel: '配色主题' }} /><span class="text-muted-foreground text-[12.5px]">labels payload — zh vocabulary, the stored value stays light|dark|system</span></div>
+</div>`;
+
+  const themeToggleTypesFiles: TreeFile[] = [
+    { name: 'theme-toggle-types-demo.svelte', content: themeToggleTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -192,13 +214,15 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Four variants, two behaviors: full sets a mode directly; the rest cycle light → dark → system.">
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · sets</span><ThemeToggle variant="full" /><span class="text-muted-foreground text-[12.5px]">segmented group — one click, one mode</span></div>
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">compact · cycles</span><ThemeToggle variant="compact" /><span class="text-muted-foreground text-[12.5px]">the default cycling button</span></div>
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">icon · cycles</span><ThemeToggle variant="icon" /><span class="text-muted-foreground text-[12.5px]">icon only — aria-label carries the mode</span></div>
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text · cycles</span><ThemeToggle variant="text" /><span class="text-muted-foreground text-[12.5px]">the word alone</span></div>
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · localized</span><ThemeToggle variant="full" labels={{ light: '浅色', dark: '深色', system: '系统', groupAriaLabel: '配色主题' }} /><span class="text-muted-foreground text-[12.5px]">labels payload — zh vocabulary, the stored value stays light|dark|system</span></div>
-    </div>
+    <ComponentCanvas title="theme-toggle · variants" stage="center" files={themeToggleTypesFiles}>
+      <div class="flex flex-wrap items-start gap-6">
+        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · sets</span><ThemeToggle variant="full" /><span class="text-muted-foreground text-[12.5px]">segmented group — one click, one mode</span></div>
+        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">compact · cycles</span><ThemeToggle variant="compact" /><span class="text-muted-foreground text-[12.5px]">the default cycling button</span></div>
+        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">icon · cycles</span><ThemeToggle variant="icon" /><span class="text-muted-foreground text-[12.5px]">icon only — aria-label carries the mode</span></div>
+        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text · cycles</span><ThemeToggle variant="text" /><span class="text-muted-foreground text-[12.5px]">the word alone</span></div>
+        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · localized</span><ThemeToggle variant="full" labels={{ light: '浅色', dark: '深色', system: '系统', groupAriaLabel: '配色主题' }} /><span class="text-muted-foreground text-[12.5px]">labels payload — zh vocabulary, the stored value stays light|dark|system</span></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pair with the no-flash inline bootstrap in app.html — both write the same storage key."><CodeBlock code={usage} lang="svelte" meta="ThemeToggle usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="full is a labeled group with pressed state per option; the cycling buttons name their current mode."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the toggle (one stop: the group or the cycling button)' }, { key: 'Enter / Space', action: 'Sets the focused mode (full) or advances light → dark → system (cycling)' }]} aria={[{ name: 'role', value: 'group', description: 'The full variant group, aria-label "Color theme"' }, { name: 'aria-pressed', value: 'boolean', description: 'On each full-variant option — the current mode reads pressed' }, { name: 'aria-label', value: '"theme: {mode}"', description: 'On the cycling variants; icon-only relies on it entirely' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative inline SVG icons' }]} /></SectionCard></div>

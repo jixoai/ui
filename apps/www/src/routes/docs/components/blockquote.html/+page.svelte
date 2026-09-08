@@ -46,6 +46,16 @@
     { name: 'registry/files/ui/blockquote/blockquote.svelte', content: blockquoteSource },
     { name: 'src/lib/ui/blockquote-rule-usage.svelte', content: ruleUsage, kind: 'usage' },
   ];
+
+  // the icon-lane demo rides the SAME same-source lane as rungs/rule
+  // (this page's own law — the hand literal + `const close` dodge stay
+  // gone; this also fixes the sweep's `${close}` ReferenceError the
+  // lawful way instead of resurrecting the retired dodge)
+  const iconLaneUsage = usageFile({ Blockquote: '@ui/blockquote' }, resolveRawCode('icon-lane'));
+  const iconLaneFiles: TreeFile[] = [
+    { name: 'registry/files/ui/blockquote/blockquote.svelte', content: blockquoteSource },
+    { name: 'src/lib/ui/blockquote-icon-usage.svelte', content: iconLaneUsage, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -202,12 +212,14 @@
       >
         <div class="flex flex-col gap-5">
           <CodeBlock code={iconUsage} lang="svelte" meta="the icon snippet" />
-          <div class="max-w-xl">
-            {#snippet warningGlyph()}<span class="font-mono" aria-hidden="true">▲</span>{/snippet}
-            <Blockquote variant="tonal" class="jx-hue-warning" label="Warning" icon={warningGlyph}>
-              The migration rewrites column names in place — snapshot before upgrading.
-            </Blockquote>
-          </div>
+          <ComponentCanvas id="icon-lane" title="blockquote · icon lane" stage="fill" files={iconLaneFiles}>
+            <div class="max-w-xl">
+              {#snippet warningGlyph()}<span class="font-mono" aria-hidden="true">▲</span>{/snippet}
+              <Blockquote variant="tonal" class="jx-hue-warning" label="Warning" icon={warningGlyph}>
+                The migration rewrites column names in place — snapshot before upgrading.
+              </Blockquote>
+            </div>
+          </ComponentCanvas>
         </div>
       </SectionCard>
     </div>

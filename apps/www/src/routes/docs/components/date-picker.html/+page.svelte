@@ -127,6 +127,55 @@ const at = $state('2026-08-30T14:05'); // canonical datetime
   const resolveDateUsage =
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? dateUsageLive : file.content;
+
+  // ---- sweep usage mirrors (canvas-everywhere-demos, 2026-09-08) ----------
+  // Hand-authored mirrors of the wrapped demo regions below; the
+  // same-source resolveRawCode migration of these strings is the
+  // recorded follow-up.
+  const close = '</' + 'script>';
+
+  const datePickerCatalogDemo = `<script lang="ts">
+  import DatePicker from '@ui/date-picker.svelte';
+  import type { DatePickerRange } from '@ui/date-picker.svelte';
+  import { addDays, todayIso } from '@ui/date-picker/calendar-math';
+
+  let deployDate = $state('2026-08-24');
+  let localeDate = $state<string | undefined>(undefined);
+  let windowedDate = $state<string | undefined>(undefined);
+  let auditDate = $state<string | undefined>(undefined);
+  let sprintRange = $state<DatePickerRange>({ start: '2026-08-10', end: '2026-08-16' });
+  let quickRange = $state<DatePickerRange | undefined>(undefined);
+  let datetimeValue = $state('2026-08-30T14:05');
+  let weekdayOnlyDate = $state<string | undefined>(undefined);
+
+  const sprintPresets = [
+    { label: 'today', value: todayIso() },
+    { label: 'last 7', value: { start: addDays(todayIso(), -6), end: todayIso() } },
+    { label: 'last 30', value: { start: addDays(todayIso(), -29), end: todayIso() } },
+  ];
+
+  const weekendGuard = (iso: string): boolean => {
+    const dow = new Date(iso + 'T00:00:00Z').getUTCDay();
+    return dow === 0 || dow === 6;
+  };
+${close}
+
+<DatePicker label="deploy date" bind:value={deployDate} />
+<DatePicker label="review (locale display)" format="locale" bind:value={localeDate} />
+<DatePicker label="windowed (min/max)" min="2026-08-04" max="2026-09-16" bind:value={windowedDate} />
+<DatePicker label="sprint (range)" mode="range" bind:range={sprintRange} />
+<DatePicker label="audit date" error="audit date is required" bind:value={auditDate} />
+<DatePicker label="quick picks (presets)" mode="range" presets={sprintPresets} bind:range={quickRange} />
+<DatePicker label="date + time (showTime)" showTime format="locale" bind:value={datetimeValue} />
+<DatePicker label="weekdays only (isDisabled)" isDisabled={weekendGuard} bind:value={weekdayOnlyDate} />`;
+
+  const datePickerTypesDemo = `<script lang="ts">
+  import DatePicker from '@ui/date-picker.svelte';
+${close}
+
+<!-- single commits one ISO day; range binds a start/end pair -->
+<DatePicker label="single (ISO value)" />
+<DatePicker label="range (start/end)" mode="range" />`;
 </script>
 
 <svelte:head>
@@ -219,7 +268,12 @@ const at = $state('2026-08-30T14:05'); // canonical datetime
       summary="No native &lt;input type='date'>, no date library: the panel is a Popover API surface — popover='auto' wired with popovertarget, so light dismiss, Escape, one-at-a-time, and top-layer rendering are the browser's — over hand-rolled calendar math (leap years, month lengths, Monday-first grid offsets, strict ISO parse/format/compare). single commits 'YYYY-MM-DD'; range binds a start/end pair with anchor / close / swap-when-backwards semantics and a third click re-anchoring. The grid is one focus stop: ↑↓←→ walk the cursor across month boundaries (the view follows), Enter commits, Escape is native. format changes the display only — the value stays ISO forever."
     >
       <div class="flex flex-col gap-6">
-        <CardGrid min="230px">
+        <ComponentCanvas
+          title="date-picker · catalogue"
+          files={[{ name: 'date-picker-catalog-demo.svelte', content: datePickerCatalogDemo, kind: 'usage' }]}
+          stage="fill"
+        >
+          <CardGrid min="230px">
           <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
             <DatePicker label="deploy date" bind:value={deployDate} />
             <span class="text-muted-foreground text-[12.5px]">
@@ -293,6 +347,7 @@ const at = $state('2026-08-30T14:05'); // canonical datetime
             </span>
           </div>
         </CardGrid>
+        </ComponentCanvas>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           Open one and keep typing: the panel is a terminal bezel like the Select dropdown, the
           month label is font-nav uppercase with clamped ←/→ navigation, today reads a
@@ -311,10 +366,16 @@ const at = $state('2026-08-30T14:05'); // canonical datetime
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Single commits one ISO day; range binds a start/end pair with anchor/swap semantics.">
-    <div class="grid gap-4 min-[760px]:grid-cols-2">
-      <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="single (ISO value)" id="types-single" /></div>
-      <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="range (start/end)" id="types-range" mode="range" /></div>
-    </div>
+    <ComponentCanvas
+      title="date-picker · types"
+      files={[{ name: 'date-picker-types-demo.svelte', content: datePickerTypesDemo, kind: 'usage' }]}
+      stage="fill"
+    >
+      <div class="grid w-full gap-4 min-[760px]:grid-cols-2">
+        <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="single (ISO value)" id="types-single" /></div>
+        <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="range (start/end)" id="types-range" mode="range" /></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The grid is one focus stop: arrows walk the cursor across month boundaries and skip disabled days, Enter commits, Escape and light dismiss are the platform's."><A11yTable keys={[{ key: '↑ ↓ ← →', action: 'On the trigger: open the panel; in the grid: walk the cursor across month boundaries (the view follows) — disabled days (min/max, isDisabled) are skipped' }, { key: 'Enter / Space', action: 'Commit the focused day; open the panel from the trigger; preset lane buttons commit like a grid pick' }, { key: 'Escape', action: 'Native popover dismiss — focus restitutes to the trigger on every close path' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the trigger when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }, { name: 'role: grid', value: 'one focus stop', description: 'The calendar grid is a single tab stop with a roving day cursor' }, { name: 'aria-disabled', value: 'true', description: 'Painted on disabled day cells (min/max bounds and isDisabled days)' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The trigger inherits the family's density rhythm; the panel anchors via a generated --jx-date-* anchor name and opens through the shared --jx-p motion number."><div class="flex flex-col gap-6"><DensityDemo><DatePicker label="deploy date" id="density-date" /></DensityDemo><TokenTable tokens={[{ name: '--jx-date-{id}', default: 'anchor-name', source: 'component' }, { name: '--jx-p', default: '0 → 1', source: 'component', description: 'WAAPI-animated @property progress every panel formula derives from' }, { name: 'variant', default: "'solid' | 'acrylic' | 'auto'", source: 'component', description: 'Floating-surface fill; auto defers to reduced-transparency' }]} /></div></SectionCard></div>

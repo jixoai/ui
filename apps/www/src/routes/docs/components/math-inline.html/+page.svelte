@@ -73,6 +73,31 @@ ${close}
   together they give the product
   <MathInline tex="w_0 \\theta = \\frac{2\\lambda}{\\pi}" />.
 </p>`;
+
+  // canvas-everywhere sweep (2026-09-08): hand-authored mirror of the
+  // prose-lane demo below — the same-source resolveRawCode migration is
+  // the recorded follow-up
+  const mathInlineLaneDemo = `<script lang="ts">
+  import MathInline from '@ui/math-inline';
+${close}
+
+<div class="border border-border p-4">
+  <p class="text-pretty text-[15px] leading-7">
+    A Gaussian beam narrows to a waist
+    <MathInline tex="w_0 = \\sqrt{\\frac{2\\lambda}{\\pi \\, \\mathrm{NA}}}" />
+    before diverging at half-angle
+    <MathInline tex="\\theta \\approx \\frac{\\lambda}{\\pi w_0}" />;
+    together they pin the product
+    <MathInline tex="w_0 \\theta = \\frac{2\\lambda}{\\pi}" />,
+    while the Rayleigh range
+    <MathInline tex="z_R = \\frac{\\pi w_0^2}{\\lambda}" />
+    sets how far the waist holds.
+  </p>
+</div>`;
+
+  const laneFiles: TreeFile[] = [
+    { name: 'math-inline-lane-demo.svelte', content: mathInlineLaneDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -163,7 +188,8 @@ ${close}
         title="Inline in prose — several formulas, one paragraph"
         summary="Display math owns its figure; inline math rides the sentence. The span carries nothing but the formula output, so prose rhythm, wrapping, and color all belong to the paragraph around it."
       >
-        <div class="border border-border p-4">
+        <ComponentCanvas title="math-inline · prose lane" stage="fill" files={laneFiles}>
+          <div class="border border-border p-4">
           <p class="text-pretty text-[15px] leading-7">
             A Gaussian beam narrows to a waist
             <MathInline tex={'w_0 = \\sqrt{\\frac{2\\lambda}{\\pi \\, \\mathrm{NA}}}'} />
@@ -177,7 +203,8 @@ ${close}
             invert with the prose and <em>nothing re-renders</em>: katex paints in
             currentColor, so light/dark is a color-scheme change, not a re-derive.
           </p>
-        </div>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
   </div>

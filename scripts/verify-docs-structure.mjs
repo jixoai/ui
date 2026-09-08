@@ -5,9 +5,12 @@
 // Every /docs/components/<name>.html must keep the lintable skeleton:
 //   - exactly ONE `Usage` H2, spelled `Usage` (the toc page's lowercase
 //     `usage` section was the case-drift seed)
-//   - a PLAYGROUND section whenever the page mounts a component canvas
-//     (an interactive demo without its controls pane is a gutted page —
-//     the dialog/sheet class of drift)
+//   - RETIRED (canvas-playground-dock, 2026-09-08): the PLAYGROUND
+//     page-section requirement — the controls pane is now the per-canvas
+//     floating dock (canvas-playground.svelte), so every canvas ships its
+//     own controls surface and a page-level section is meaningless. The
+//     old pane's h3 hook (data-jx-canvas-playground-title) died with the
+//     lane; the check went with it.
 //   - no literal `undefined`/`null` text nodes (F4: an empty demo value
 //     renders the em dash, never a JS literal)
 //   - a page `<title>` that exists and is Title-Case (first glyph
@@ -165,10 +168,8 @@ export function lintDocsPage(html, name = '(page)') {
   if (usage.length === 0) failures.push('no `Usage` H2 section');
   if (usage.length > 1) failures.push(`${usage.length} \`Usage\` H2 sections (exactly one allowed)`);
 
-  // interactive pages keep their PLAYGROUND pane
-  if (html.includes('data-jx-canvas-stage') && !html.includes('data-jx-canvas-playground-title')) {
-    failures.push('component canvas present but no PLAYGROUND section');
-  }
+  // (RETIRED, canvas-playground-dock 2026-09-08 — the per-canvas dock
+  // replaced the page-level playground pane; see the header note)
 
   // no JS literal text nodes (F4)
   if (/>undefined</.test(html)) failures.push('renders a literal `undefined` text node');

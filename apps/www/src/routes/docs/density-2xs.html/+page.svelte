@@ -361,7 +361,7 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
         headerRegion="law"
         eyebrow="law"
         title="The adoption law — opt-in operation surfaces only"
-        summary="2xs is a scoped tool, not a product-wide mood. FOR: professional non-touch high-density operation surfaces — inspector panels, property rows, data grids, tool palettes, layers lists — where information density IS the feature and the pointer is precise. NEVER: general marketing or docs UI, prose surfaces, touch-first flows, auth or checkout. NOT the default anywhere: DEFAULT_DENSITY stays 'default', no family fallback becomes 2xs, the canvas stage's comfortable/compact axis keeps its two stops. xs keeps its own role (dense non-touch metadata surfaces); 2xs goes further (operation surfaces) — a product can run an xs nav rail beside a 2xs inspector."
+        summary="2xs is a scoped tool, not a product-wide mood. FOR: professional non-touch high-density operation surfaces — inspector panels, property rows, data grids, tool palettes, layers lists — where information density IS the feature and the pointer is precise. NEVER: general marketing or docs UI, prose surfaces, touch-first flows, auth or checkout. NOT the default anywhere: DEFAULT_DENSITY stays 'default', no family fallback becomes 2xs, the canvas stage's density select keeps the standard four stops (xs/sm/default/lg). xs keeps its own role (dense non-touch metadata surfaces); 2xs goes further (operation surfaces) — a product can run an xs nav rail beside a 2xs inspector."
       >
         <div class="flex flex-col gap-6">
           <CodeBlock code={derivation} lang="text" meta="the 2xs derivation (design §1)" />

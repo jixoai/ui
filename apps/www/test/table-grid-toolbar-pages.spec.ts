@@ -35,13 +35,14 @@ function expectSkeleton(container: HTMLElement, sections: string[]): void {
     (h2) => h2.textContent?.trim() === 'Usage',
   );
   expect(usageHeadings.length, 'exactly ONE Usage h2').toBe(1);
-  // every mounted canvas carries its playground pane (the structure lint)
+  // every mounted canvas carries its dock (the structure lint; the
+  // unified-chrome ruling 2026-09-08 ships the head on every canvas)
   const canvases = container.querySelectorAll('[data-jx-canvas]');
   expect(canvases.length).toBeGreaterThan(0);
   for (const canvas of canvases) {
     expect(
-      canvas.querySelector('[data-jx-canvas-playground-title]'),
-      'every canvas ships a playground pane',
+      canvas.querySelector('[data-jx-canvas-dock]'),
+      'every canvas ships the playground dock chrome',
     ).not.toBeNull();
   }
 }

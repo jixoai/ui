@@ -108,6 +108,77 @@ ${close}
 
 <!-- hint overrides the composed "accept: … · max: N" line -->
 <FileInput label="evidence" multiple hint="pdf only — 10 MB each" bind:files={evidence} />`;
+
+  // ---- canvas-everywhere sweep (2026-09-08) --------------------------------
+  // Usage mirrors for the SectionCard demos below — hand-authored to match
+  // each stage's markup (the same-source migration of these strings is the
+  // recorded follow-up; they are NOT machinery, just honest mirrors).
+  const fileInputDropDemo = `<script lang="ts">
+  import FileInput from '@ui/file-input.svelte';
+${close}
+
+<div class="grid gap-5 min-[760px]:grid-cols-2">
+  <FileInput label="drop zone" multiple bind:files={dropFiles} />
+  <FileInput
+    label="gate — accept: image/*"
+    accept="image/*"
+    multiple
+    onreject={(rejected) => (lastRejected = rejected.map((f) => f.name).join(', '))}
+    bind:files={gateFiles}
+  />
+</div>`;
+
+  const fileInputRowsDemo = `<script lang="ts">
+  import FileInput from '@ui/file-input.svelte';
+${close}
+
+<div class="grid gap-5 min-[760px]:grid-cols-3">
+  <FileInput label="xs rows" density="xs" multiple bind:files={multiFiles} />
+  <FileInput label="default rows" density="default" multiple bind:files={multiFiles} />
+  <FileInput label="lg rows" density="lg" multiple bind:files={multiFiles} />
+</div>`;
+
+  const fileInputPosturesDemo = `<script lang="ts">
+  import FileInput from '@ui/file-input.svelte';
+${close}
+
+<div class="grid gap-5 min-[760px]:grid-cols-2">
+  <FileInput label="inline (button)" variant="button" multiple bind:files={buttonFiles} />
+  <FileInput label="frozen" multiple disabled bind:files={disabledFiles} />
+</div>`;
+
+  const fileInputHostDemo = `<script lang="ts">
+  import FileInput from '@ui/file-input.svelte';
+${close}
+
+<!-- 390px: the iPhone-class viewport the hardening is tested against -->
+<div class="w-[390px] max-w-full border-border border p-4">
+  <FileInput label="390px host" multiple bind:files={narrowFiles} />
+</div>`;
+
+  const fileInputVariantsDemo = `<script lang="ts">
+  import FileInput from '@ui/file-input.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="flex flex-col gap-3 border border-border p-4">
+    <FileInput label="drop zone (default)" multiple />
+    <span class="text-muted-foreground text-[12px]">dashed zone · hint composed from the props</span>
+  </div>
+  <div class="flex flex-col gap-3 border border-border p-4">
+    <FileInput label="button trigger" variant="button" multiple />
+    <span class="text-muted-foreground text-[12px]">compact inline posture · drop support included</span>
+  </div>
+  <div class="flex flex-col gap-3 border border-border p-4">
+    <FileInput label="accept gate" accept="image/*" multiple />
+    <span class="text-muted-foreground text-[12px]">dropped non-images are rejected, never bound</span>
+  </div>
+  <div class="flex flex-col gap-3 border border-border p-4">
+    <FileInput label="error" multiple error="a screenshot is required" />
+    <span class="text-muted-foreground text-[12px]">dashed destructive surfaces + the “! message” line</span>
+  </div>
+</div>`;
+
 </script>
 
 <svelte:head>
@@ -199,32 +270,38 @@ ${close}
       summary="Dashed borders on this site mean two things: invalid shells and drop targets. The zone is the second: 1px dashed var(--border) at rest with the upload glyph, a font-nav CLICK OR DRAG FILES title, and a hint line composed honestly from the field's own contract (accept: image/* · max: 3 files · single file). Under a file drag the dash swaps to var(--primary) and the surface lifts — press physics from the trigger law, magnetism from ant's Dragger; it can never be mistaken for an error, because errors keep the monochrome dash plus the “! message” line."
     >
       <div class="flex flex-col gap-6">
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3">
-            <FileInput label="drop zone" multiple bind:files={dropFiles} />
-            <span class="text-muted-foreground text-[12.5px]">
-              default variant · hint composed from the props ·
-              <code class="text-accent">{dropFiles.length}</code> files bound
-            </span>
+        <ComponentCanvas
+          title="file-input · drop zone"
+          stage="fill"
+          files={[{ name: 'file-input-drop-demo.svelte', content: fileInputDropDemo, kind: 'usage' }]}
+        >
+          <div class="grid gap-5 min-[760px]:grid-cols-2">
+            <div class="flex flex-col gap-3">
+              <FileInput label="drop zone" multiple bind:files={dropFiles} />
+              <span class="text-muted-foreground text-[12.5px]">
+                default variant · hint composed from the props ·
+                <code class="text-accent">{dropFiles.length}</code> files bound
+              </span>
+            </div>
+            <div class="flex flex-col gap-3">
+              <FileInput
+                label="gate — accept: image/*"
+                accept="image/*"
+                multiple
+                onreject={(rejected) => (lastRejected = rejected.map((f) => f.name).join(', '))}
+                bind:files={gateFiles}
+              />
+              <span class="text-muted-foreground text-[12.5px]">
+                drag a non-image onto this one — the gate rejects it:
+                {#if lastRejected}
+                  <code class="text-accent">{lastRejected}</code>
+                {:else}
+                  nothing rejected yet
+                {/if}
+              </span>
+            </div>
           </div>
-          <div class="flex flex-col gap-3">
-            <FileInput
-              label="gate — accept: image/*"
-              accept="image/*"
-              multiple
-              onreject={(rejected) => (lastRejected = rejected.map((f) => f.name).join(', '))}
-              bind:files={gateFiles}
-            />
-            <span class="text-muted-foreground text-[12.5px]">
-              drag a non-image onto this one — the gate rejects it:
-              {#if lastRejected}
-                <code class="text-accent">{lastRejected}</code>
-              {:else}
-                nothing rejected yet
-              {/if}
-            </span>
-          </div>
-        </div>
+        </ComponentCanvas>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           The platform picker filters by accept on its own; the gate exists for DROPS, which
           bypass it. Rejected files never enter the bound File[] — the honest contract — they
@@ -255,11 +332,17 @@ ${close}
             bound File[] · length: <code class="text-accent">{multiFiles.length}</code>
           </span>
         </div>
-        <div class="grid gap-5 min-[760px]:grid-cols-3">
-          <FileInput label="xs rows" density="xs" multiple bind:files={multiFiles} />
-          <FileInput label="default rows" density="default" multiple bind:files={multiFiles} />
-          <FileInput label="lg rows" density="lg" multiple bind:files={multiFiles} />
-        </div>
+        <ComponentCanvas
+          title="file-input · rows"
+          stage="fill"
+          files={[{ name: 'file-input-rows-demo.svelte', content: fileInputRowsDemo, kind: 'usage' }]}
+        >
+          <div class="grid gap-5 min-[760px]:grid-cols-3">
+            <FileInput label="xs rows" density="xs" multiple bind:files={multiFiles} />
+            <FileInput label="default rows" density="default" multiple bind:files={multiFiles} />
+            <FileInput label="lg rows" density="lg" multiple bind:files={multiFiles} />
+          </div>
+        </ComponentCanvas>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           Every row is keyboard-operable: the × carries
           <code class="text-accent">aria-label="remove NAME"</code> and the family's inset focus
@@ -280,20 +363,26 @@ ${close}
       title="button variant · disabled"
       summary="variant='button' is the compact posture for inline forms and space-tight rows: the same upload glyph and the same list below it, drop support included — the dashed drag-over state lands on the button itself. disabled freezes the whole control honestly: the trigger stops pressing, drops are ignored at the gate, every × goes inert, and the native input carries the disabled attribute for form semantics."
     >
-      <div class="grid gap-5 min-[760px]:grid-cols-2">
-        <div class="flex flex-col gap-3">
-          <FileInput label="inline (button)" variant="button" multiple bind:files={buttonFiles} />
-          <span class="text-muted-foreground text-[12.5px]">
-            compact trigger · drag-over dashes the button · same rows below
-          </span>
+      <ComponentCanvas
+        title="file-input · postures"
+        stage="fill"
+        files={[{ name: 'file-input-postures-demo.svelte', content: fileInputPosturesDemo, kind: 'usage' }]}
+      >
+        <div class="grid gap-5 min-[760px]:grid-cols-2">
+          <div class="flex flex-col gap-3">
+            <FileInput label="inline (button)" variant="button" multiple bind:files={buttonFiles} />
+            <span class="text-muted-foreground text-[12.5px]">
+              compact trigger · drag-over dashes the button · same rows below
+            </span>
+          </div>
+          <div class="flex flex-col gap-3">
+            <FileInput label="frozen" multiple disabled bind:files={disabledFiles} />
+            <span class="text-muted-foreground text-[12.5px]">
+              trigger inert · drops rejected · rows readable, removal locked
+            </span>
+          </div>
         </div>
-        <div class="flex flex-col gap-3">
-          <FileInput label="frozen" multiple disabled bind:files={disabledFiles} />
-          <span class="text-muted-foreground text-[12.5px]">
-            trigger inert · drops rejected · rows readable, removal locked
-          </span>
-        </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 
@@ -316,11 +405,17 @@ ${close}
             hover a row's name for the full title tooltip
           </span>
         </div>
-        <!-- 390px: the iPhone-class viewport the hardening is tested against;
-             max-w-full keeps the demo itself honest on smaller screens -->
-        <div class="w-[390px] max-w-full border-border border p-4">
-          <FileInput label="390px host" multiple bind:files={narrowFiles} />
-        </div>
+        <ComponentCanvas
+          title="file-input · 390px host"
+          stage="center"
+          files={[{ name: 'file-input-host-demo.svelte', content: fileInputHostDemo, kind: 'usage' }]}
+        >
+          <!-- 390px: the iPhone-class viewport the hardening is tested against;
+               max-w-full keeps the demo itself honest on smaller screens -->
+          <div class="w-[390px] max-w-full border-border border p-4">
+            <FileInput label="390px host" multiple bind:files={narrowFiles} />
+          </div>
+        </ComponentCanvas>
       </div>
     </SectionCard>
   </div>
@@ -342,24 +437,30 @@ ${close}
       title="FileInput variants"
       summary="The default drop zone, the compact button trigger, the accept-gated field, and the error state."
     >
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="flex flex-col gap-3 border border-border p-4">
-          <FileInput label="drop zone (default)" multiple />
-          <span class="text-muted-foreground text-[12px]">dashed zone · hint composed from the props</span>
+      <ComponentCanvas
+        title="file-input · variants"
+        stage="fill"
+        files={[{ name: 'file-input-variants-demo.svelte', content: fileInputVariantsDemo, kind: 'usage' }]}
+      >
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-3 border border-border p-4">
+            <FileInput label="drop zone (default)" multiple />
+            <span class="text-muted-foreground text-[12px]">dashed zone · hint composed from the props</span>
+          </div>
+          <div class="flex flex-col gap-3 border border-border p-4">
+            <FileInput label="button trigger" variant="button" multiple />
+            <span class="text-muted-foreground text-[12px]">compact inline posture · drop support included</span>
+          </div>
+          <div class="flex flex-col gap-3 border border-border p-4">
+            <FileInput label="accept gate" accept="image/*" multiple />
+            <span class="text-muted-foreground text-[12px]">dropped non-images are rejected, never bound</span>
+          </div>
+          <div class="flex flex-col gap-3 border border-border p-4">
+            <FileInput label="error" multiple error="a screenshot is required" />
+            <span class="text-muted-foreground text-[12px]">dashed destructive surfaces + the “! message” line</span>
+          </div>
         </div>
-        <div class="flex flex-col gap-3 border border-border p-4">
-          <FileInput label="button trigger" variant="button" multiple />
-          <span class="text-muted-foreground text-[12px]">compact inline posture · drop support included</span>
-        </div>
-        <div class="flex flex-col gap-3 border border-border p-4">
-          <FileInput label="accept gate" accept="image/*" multiple />
-          <span class="text-muted-foreground text-[12px]">dropped non-images are rejected, never bound</span>
-        </div>
-        <div class="flex flex-col gap-3 border border-border p-4">
-          <FileInput label="error" multiple error="a screenshot is required" />
-          <span class="text-muted-foreground text-[12px]">dashed destructive surfaces + the “! message” line</span>
-        </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal="">

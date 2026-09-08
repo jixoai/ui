@@ -68,6 +68,52 @@
   const resolveNumberUsage =
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? numberUsageLive : file.content;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  const numberInputRtlDemo = `<script lang="ts">
+  import NumberInput from '@ui/number-input.svelte';
+
+let workersRtl = $state(2);
+${close}
+
+<div class="grid gap-5 min-[760px]:grid-cols-2">
+  <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+    <NumberInput label="workers (rtl)" bind:value={workersRtl} min={1} max={16} />
+    <span class="text-muted-foreground text-[12px]">
+      dir="rtl" on the wrapper — the [- +] order flips without a physical property in
+      sight
+    </span>
+  </div>
+  <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
+    <p class="text-pretty">
+      Nothing in the component branches on direction: the stepper is a flex row in DOM
+      order (minus, input, plus). The writing mode does the rest.
+    </p>
+  </div>
+</div>`;
+
+  const numberInputRtlFiles: TreeFile[] = [
+    { name: 'number-input-rtl-demo.svelte', content: numberInputRtlDemo, kind: 'usage' },
+  ];
+
+  const numberInputTypesDemo = `<script lang="ts">
+  import NumberInput from '@ui/number-input.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4"><NumberInput label="workers" value={4} min={1} max={16} /></div>
+  <div class="border border-border p-4"><NumberInput label="timeout (s)" value={1.5} min={0.5} max={5} step={0.5} /></div>
+  <div class="border border-border p-4"><NumberInput label="error" value={7} min={1} max={4} error="max 4 workers per pod" /></div>
+  <div class="border border-border p-4"><NumberInput label="disabled" value={3} min={1} max={8} disabled /></div>
+</div>`;
+
+  const numberInputTypesFiles: TreeFile[] = [
+    { name: 'number-input-types-demo.svelte', content: numberInputTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -177,21 +223,23 @@
         </p>
         <div class="border-border mt-1 border-t pt-5">
           <h3 class="text-[15px] font-bold tracking-tight">RTL — geometry from logical properties</h3>
-          <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
-            <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
-              <NumberInput label="workers (rtl)" bind:value={workersRtl} min={1} max={16} />
-              <span class="text-muted-foreground text-[12px]">
-                dir="rtl" on the wrapper — the [- +] order flips without a physical property in
-                sight
-              </span>
+          <ComponentCanvas class="mt-4" title="number-input · rtl" stage="fill" files={numberInputRtlFiles}>
+            <div class="grid gap-5 min-[760px]:grid-cols-2">
+              <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+                <NumberInput label="workers (rtl)" bind:value={workersRtl} min={1} max={16} />
+                <span class="text-muted-foreground text-[12px]">
+                  dir="rtl" on the wrapper — the [- +] order flips without a physical property in
+                  sight
+                </span>
+              </div>
+              <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
+                <p class="text-pretty">
+                  Nothing in the component branches on direction: the stepper is a flex row in DOM
+                  order (minus, input, plus). The writing mode does the rest.
+                </p>
+              </div>
             </div>
-            <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
-              <p class="text-pretty">
-                Nothing in the component branches on direction: the stepper is a flex row in DOM
-                order (minus, input, plus). The writing mode does the rest.
-              </p>
-            </div>
-          </div>
+          </ComponentCanvas>
         </div>
         <CodeBlock code={numberUsage} lang="svelte" meta="NumberInput usage" />
       </div>
@@ -212,12 +260,14 @@
       title="NumberInput variants"
       summary="The integer stepper, the decimal-step stepper, the error state, and the disabled field."
     >
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="border border-border p-4"><NumberInput label="workers" value={4} min={1} max={16} /></div>
-        <div class="border border-border p-4"><NumberInput label="timeout (s)" value={1.5} min={0.5} max={5} step={0.5} /></div>
-        <div class="border border-border p-4"><NumberInput label="error" value={7} min={1} max={4} error="max 4 workers per pod" /></div>
-        <div class="border border-border p-4"><NumberInput label="disabled" value={3} min={1} max={8} disabled /></div>
-      </div>
+      <ComponentCanvas title="number-input · variants" stage="fill" files={numberInputTypesFiles}>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="border border-border p-4"><NumberInput label="workers" value={4} min={1} max={16} /></div>
+          <div class="border border-border p-4"><NumberInput label="timeout (s)" value={1.5} min={0.5} max={5} step={0.5} /></div>
+          <div class="border border-border p-4"><NumberInput label="error" value={7} min={1} max={4} error="max 4 workers per pod" /></div>
+          <div class="border border-border p-4"><NumberInput label="disabled" value={3} min={1} max={8} disabled /></div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal="">

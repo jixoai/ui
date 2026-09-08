@@ -587,6 +587,43 @@ const manifest = {
 };
 // ── a deliberately wide line to force the horizontal lane ────────────────────────────────────────
 console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }]));`;
+
+  // ---- sweep usage mirrors (canvas-everywhere-demos, 2026-09-08) ----------
+  // Hand-authored mirrors of the wrapped demo regions below; the
+  // same-source resolveRawCode migration of these strings is the
+  // recorded follow-up.
+  const codeCardAutoDemo = `<script lang="ts">
+  import CodeCard from '@ui/code-card.svelte';
+  import HighlightDetectDefault from '@ui/highlight-detect-default';
+  import { AUTO_LANG } from '@lib/highlight/lang-detector';
+${close}
+
+<!-- no filename, no shebang — the body's shape answers at L3 -->
+<HighlightDetectDefault>
+  <CodeCard lang={AUTO_LANG} code={structureSample} copyable={false} />
+</HighlightDetectDefault>
+
+<!-- no shape either — the wasm answers at L4 -->
+<HighlightDetectDefault>
+  <CodeCard lang={AUTO_LANG} code={statisticalSample} copyable={false} />
+</HighlightDetectDefault>`;
+
+  const codeCardVariantsDemo = `<script lang="ts">
+  import CodeCard from '@ui/code-card.svelte';
+${close}
+
+<CodeCard lang="ts" code={'const bare = true;'} copyable={false} />
+
+<CodeCard filename="hello.ts" lang="ts" code={'export const hello = "world";'} />
+
+<CodeCard filename="install.sh" lang="bash" code={'npx jixoai-ui add code-card'}>
+  {#snippet header()}
+    <span class="pill">registry</span>
+  {/snippet}
+  {#snippet footer()}
+    <span class="text-[11px] text-muted-foreground">terminal install</span>
+  {/snippet}
+</CodeCard>`;
 </script>
 
 <svelte:head>
@@ -941,7 +978,12 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
         <!-- the two live lanes, no lang named anywhere -->
         <div class="flex flex-col gap-3">
           <h3 class="font-nav text-[13px] tracking-tight">live — the filename-less lanes (structure and statistics)</h3>
-          <div class="grid gap-4 min-[760px]:grid-cols-2">
+          <ComponentCanvas
+            title="code-card · auto lanes"
+            files={[{ name: 'code-card-auto-demo.svelte', content: codeCardAutoDemo, kind: 'usage' }]}
+            stage="fill"
+          >
+            <div class="grid w-full gap-4 min-[760px]:grid-cols-2">
             <div class="flex flex-col gap-2">
               <p class="text-[12px] text-muted-foreground">
                 no filename, no shebang — the body's shape answers at <strong>L3</strong>
@@ -961,6 +1003,7 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
               </HighlightDetectDefault>
             </div>
           </div>
+          </ComponentCanvas>
           <p class="max-w-[70rem] text-[13px] leading-6 text-muted-foreground">
             Both cards hydrate plain and upgrade after the detector resolves — prerendered output
             is always plain text (detection never runs server-side). The wasm rides the
@@ -991,27 +1034,33 @@ console.table(Object.entries(manifest).flatMap(([key, value]) => [{ key, value }
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Code card variants" summary="Head and foot are compositional; fill turns the card into a pinned-chrome panel.">
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">bare pre</p>
-        <CodeCard lang="ts" code={'const bare = true;'} copyable={false} class="w-full" />
+    <ComponentCanvas
+      title="code-card · variants"
+      files={[{ name: 'code-card-variants-demo.svelte', content: codeCardVariantsDemo, kind: 'usage' }]}
+      stage="fill"
+    >
+      <div class="grid w-full gap-4 md:grid-cols-3">
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">bare pre</p>
+          <CodeCard lang="ts" code={'const bare = true;'} copyable={false} class="w-full" />
+        </div>
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">filename tab + copy</p>
+          <CodeCard filename="hello.ts" lang="ts" code={'export const hello = "world";'} class="w-full" />
+        </div>
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">header/footer snippets</p>
+          <CodeCard filename="install.sh" lang="bash" code={'npx jixoai-ui add code-card'} class="w-full">
+            {#snippet header()}
+              <span class="pill">registry</span>
+            {/snippet}
+            {#snippet footer()}
+              <span class="text-[11px] text-muted-foreground">terminal install</span>
+            {/snippet}
+          </CodeCard>
+        </div>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">filename tab + copy</p>
-        <CodeCard filename="hello.ts" lang="ts" code={'export const hello = "world";'} class="w-full" />
-      </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">header/footer snippets</p>
-        <CodeCard filename="install.sh" lang="bash" code={'npx jixoai-ui add code-card'} class="w-full">
-          {#snippet header()}
-            <span class="pill">registry</span>
-          {/snippet}
-          {#snippet footer()}
-            <span class="text-[11px] text-muted-foreground">terminal install</span>
-          {/snippet}
-        </CodeCard>
-      </div>
-    </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Code is always a runtime prop — Shiki escapes it, so samples containing literal closing tags are inert data."><CodeBlock code={usageCode} lang="svelte" meta="CodeCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The pre is a labelled, keyboard-focusable scrollport; the copy control is a real button with state feedback."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the scrollport (pre) and the copy control' }, { key: '← / → / ↑ / ↓', action: 'Scroll the focused pre — long lines horizontal, capped bodies vertical' }, { key: 'Enter / Space', action: 'Activate the copy button' }]} aria={[{ name: 'aria-label', value: '"{filename|lang} code sample"', description: 'On the pre — the scrollport is named whether or not a filename tab exists.' }, { name: 'aria-label', value: 'copy {filename|lang} sample', description: 'On the copy button; flips to "copied" for the 1.6s feedback window.' }]} /></SectionCard></div>

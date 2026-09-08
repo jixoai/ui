@@ -120,6 +120,92 @@ ${close}
 <Chip variant=${q(play.current.variant)} shape=${q(play.current.shape)}${effectExpr}>filter</Chip>${usageTail}`);
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
+
+  // ---- sweep usage mirrors (canvas-everywhere-demos, 2026-09-08) ----------
+  // Hand-authored mirrors of the wrapped demo regions below; the
+  // same-source resolveRawCode migration of these strings is the
+  // recorded follow-up.
+  const chipAnchorsDemo = `<script lang="ts">
+  import Chip from '@ui/chip/chip.svelte';
+
+  let following = $state(false);
+${close}
+
+<!-- internal hrefs navigate in place; anything else opens a new tab -->
+<Chip variant="outline" href="/docs/components.html">overview</Chip>
+
+<Chip variant="outline" href="https://github.com/jixoai/ui">
+  {#snippet slotEnd()}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M7 17 17 7" />
+      <path d="M7 7h10v10" />
+    </svg>
+  {/snippet}
+  <span>github</span>
+</Chip>
+
+<!-- no href: a real button -->
+<Chip variant="tonal" onclick={() => (following = !following)}>
+  {following ? 'following' : 'follow'}
+</Chip>`;
+
+  const chipSlotsDemo = `<script lang="ts">
+  import Chip from '@ui/chip/chip.svelte';
+${close}
+
+<!-- slotStart: the leading icon lane -->
+<Chip shape="pill">
+  {#snippet slotStart()}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" />
+    </svg>
+  {/snippet}
+  filters
+</Chip>
+
+<!-- both lanes; svg pinned to the label scale -->
+<Chip variant="outline" shape="pill">
+  {#snippet slotStart()}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="m12 2 2.4 7.6H22l-6 4.4 2.2 7-6.2-4.6L5.8 21 8 14 2 9.6h7.6L12 2z" />
+    </svg>
+  {/snippet}
+  starred
+  {#snippet slotEnd()}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  {/snippet}
+</Chip>`;
+
+  const chipTwinDemo = `<script lang="ts">
+  import Chip from '@ui/chip/chip.svelte';
+  import Badge from '@ui/badge/badge.svelte';
+${close}
+
+<!-- badge geometry verbatim; the ONLY difference is the activation root -->
+<Chip variant="tonal">activation</Chip>
+<Badge>display</Badge>`;
+
+  const chipVariantsDemo = `<script lang="ts">
+  import Chip from '@ui/chip/chip.svelte';
+${close}
+
+<!-- prominence, never semantic hue -->
+<Chip variant="fill">Solid ground</Chip>
+<Chip variant="tonal">Tinted rest — the default</Chip>
+<Chip variant="outline">Structural border</Chip>
+<Chip variant="ghost">Quiet seat</Chip>`;
+
+  const chipHueDemo = `<script lang="ts">
+  import Chip from '@ui/chip/chip.svelte';
+${close}
+
+<!-- hue is injected into the global slots, never named as a variant -->
+<Chip class="jx-hue-success">passing</Chip>
+<Chip class="jx-hue-warning">degraded</Chip>
+<Chip class="jx-hue-neutral">metadata</Chip>
+<Chip variant="fill" class="jx-pair-destructive">clear</Chip>`;
 </script>
 
 <svelte:head>
@@ -245,7 +331,12 @@ ${close}
         summary="href switches the root from button to anchor — internal hrefs navigate in place, anything else opens a new tab with noreferrer automatically. A chip without href is a real button: the onclick demo toggles its own label."
       >
         <div class="flex flex-col gap-5">
-          <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
+          <ComponentCanvas
+            title="chip · anchors"
+            files={[{ name: 'chip-anchors-demo.svelte', content: chipAnchorsDemo, kind: 'usage' }]}
+            stage="center"
+          >
+            <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
             <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>internal → same tab</span>
               <Chip variant="outline" href="/docs/components.html">overview</Chip>
@@ -278,6 +369,7 @@ ${close}
               <Chip variant="tonal" onclick={() => (following = !following)}>{following ? 'following' : 'follow'}</Chip>
             </div>
           </div>
+          </ComponentCanvas>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>
       </SectionCard>
@@ -291,7 +383,12 @@ ${close}
         title="slotStart and slotEnd lanes"
         summary="Two optional snippet lanes wrap their content in data-icon spans and pin composed svg to the label scale (var(--jx-text-secondary)) — icons never outgrow the micro-label voice, and spacing comes from the root's half-gap."
       >
-        <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
+        <ComponentCanvas
+          title="chip · slots"
+          files={[{ name: 'chip-slots-demo.svelte', content: chipSlotsDemo, kind: 'usage' }]}
+          stage="center"
+        >
+          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
           <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
             <span>start lane</span>
             <Chip shape="pill">
@@ -343,7 +440,8 @@ ${close}
               {/snippet}
             </Chip>
           </div>
-        </div>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -356,16 +454,22 @@ ${close}
         summary="Chips ride badge geometry verbatim (Owner ruling, 2026-09-01, superseding the control-scale hit-lane floor): height from the secondary line, inline insets only, never block padding — the ONLY structural difference from a Badge is the activation root."
       >
         <div class="flex flex-col gap-4">
-          <div class="flex flex-wrap items-end gap-x-8 gap-y-5">
-            <div class="text-muted-foreground flex flex-col gap-2 text-xs">
-              <Chip variant="tonal">activation</Chip>
-              <span>chip · button root + press physics</span>
+          <ComponentCanvas
+            title="chip · badge twin"
+            files={[{ name: 'chip-twin-demo.svelte', content: chipTwinDemo, kind: 'usage' }]}
+            stage="center"
+          >
+            <div class="flex flex-wrap items-end justify-center gap-x-8 gap-y-5">
+              <div class="text-muted-foreground flex flex-col gap-2 text-xs">
+                <Chip variant="tonal">activation</Chip>
+                <span>chip · button root + press physics</span>
+              </div>
+              <div class="text-muted-foreground flex flex-col gap-2 text-xs">
+                <Badge>display</Badge>
+                <span>badge · span, same geometry</span>
+              </div>
             </div>
-            <div class="text-muted-foreground flex flex-col gap-2 text-xs">
-              <Badge>display</Badge>
-              <span>badge · span, same geometry</span>
-            </div>
-          </div>
+          </ComponentCanvas>
           <ul class="flex flex-col gap-2 text-[13px] leading-6">
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>the scale law: badge geometry verbatim — height from
@@ -389,19 +493,25 @@ ${close}
 
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="Variant ladder" summary="Prominence, never semantic hue — every variant keeps the same badge-scale geometry, border weight and press physics.">
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {#each [
-          ['fill', 'Solid ground'],
-          ['tonal', 'Tinted rest — the default'],
-          ['outline', 'Structural border'],
-          ['ghost', 'Quiet seat'],
-        ] as item}
-          <div class="border border-border/60 p-3">
-            <Chip variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost'}>{item[1]}</Chip>
-            <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
-          </div>
-        {/each}
-      </div>
+      <ComponentCanvas
+        title="chip · variant ladder"
+        files={[{ name: 'chip-variants-demo.svelte', content: chipVariantsDemo, kind: 'usage' }]}
+        stage="fill"
+      >
+        <div class="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {#each [
+            ['fill', 'Solid ground'],
+            ['tonal', 'Tinted rest — the default'],
+            ['outline', 'Structural border'],
+            ['ghost', 'Quiet seat'],
+          ] as item}
+            <div class="border border-border/60 p-3">
+              <Chip variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost'}>{item[1]}</Chip>
+              <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
+            </div>
+          {/each}
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 
@@ -424,21 +534,27 @@ ${close}
     <SectionCard eyebrow="theming" title="Density and tokens" summary="Geometry rides the inherited density scale; color rides the four global grammar slots — inject a hue anywhere above a chip and every slot consumer inside retunes.">
       <div class="flex flex-col gap-5">
         <p class="text-muted-foreground text-[13px] leading-6">
-          geometry rides the inherited density scale — flip the workbench stage's density toggle
-          (comfortable / compact) to re-scope the hit lane on the stage alone; the four-copy
-          DensityDemo row is retired by that toggle.
+          geometry rides the inherited density scale — flip the canvas dock's density select
+          (xs / sm / default / lg) to re-scope the hit lane on the stage alone; the four-copy
+          DensityDemo row is retired by that select.
         </p>
-        <div class="flex flex-wrap items-center gap-3">
-          <Chip class="jx-hue-success">passing</Chip>
-          <Chip class="jx-hue-warning">degraded</Chip>
-          <Chip class="jx-hue-neutral">metadata</Chip>
-          <Chip
-            variant="fill"
-            class="jx-pair-destructive"
-          >
-            clear
-          </Chip>
-        </div>
+        <ComponentCanvas
+          title="chip · hue injection"
+          files={[{ name: 'chip-hue-demo.svelte', content: chipHueDemo, kind: 'usage' }]}
+          stage="center"
+        >
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <Chip class="jx-hue-success">passing</Chip>
+            <Chip class="jx-hue-warning">degraded</Chip>
+            <Chip class="jx-hue-neutral">metadata</Chip>
+            <Chip
+              variant="fill"
+              class="jx-pair-destructive"
+            >
+              clear
+            </Chip>
+          </div>
+        </ComponentCanvas>
         <TokenTable tokens={[
           { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum block size of the root — the physical activation rectangle.' },
           { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Inline chip padding.' },

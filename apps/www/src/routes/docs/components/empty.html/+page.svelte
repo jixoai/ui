@@ -25,6 +25,21 @@
     { name: 'src/lib/ui/empty-usage.svelte', content: usage },
   ];
 
+  // canvas-everywhere sweep (2026-09-08): the composition demo's usage
+  // mirror — hand-authored to match the stage markup (same-source
+  // migration is the recorded follow-up).
+  const emptyCompositionDemo = `<script lang="ts">
+  import Empty from '@ui/empty.svelte';
+  import PressButton from '@ui/press-button.svelte';
+${close}
+
+<div class="grid gap-4 md:grid-cols-2">
+  <Empty title="no artifacts" />
+  <Empty title="no checks" description="Add the first check.">
+    {#snippet actions()}<PressButton>add check</PressButton>{/snippet}
+  </Empty>
+</div>`;
+
   // ToC outline: pairs with the section ids below, in page order.
 </script>
 
@@ -76,7 +91,7 @@
   </div>
 
   
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Empty composition" summary="Empty has one required title and optional description, illustration and actions slots."><div class="grid gap-4 md:grid-cols-2"><Empty title="no artifacts" /><Empty title="no checks" description="Add the first check.">{#snippet actions()}<PressButton>add check</PressButton>{/snippet}</Empty></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Empty composition" summary="Empty has one required title and optional description, illustration and actions slots."><ComponentCanvas title="empty · composition" stage="fill" files={[{ name: 'empty-composition-demo.svelte', content: emptyCompositionDemo, kind: 'usage' }]}><div class="grid gap-4 md:grid-cols-2"><Empty title="no artifacts" /><Empty title="no checks" description="Add the first check.">{#snippet actions()}<PressButton>add check</PressButton>{/snippet}</Empty></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'figure', value: 'empty root', description: 'Groups the no-data message.' }, { name: 'figcaption', value: 'title + description', description: 'Keeps the message discoverable.' }, { name: 'aria-hidden', value: 'illustration', description: 'Prevents decorative art from interrupting the message.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Empty title="no results" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>

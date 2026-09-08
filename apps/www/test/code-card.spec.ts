@@ -201,13 +201,19 @@ describe('CodeCard · edge-veil engine (code-card.css, source-pinned)', () => {
     const light = codeCardCss.match(/:where\(\.jx-light \.jx-code-card\)\s*\{([^}]*)\}/);
     expect(light, 'the light re-flip must exist').not.toBeNull();
     // the literal white mixes are the real leak: the re-flip carries
-    // the var(--foreground) formulas instead
+    // the var(--foreground) formulas instead. RE-PINNED to the oklch
+    // truth (R4.1, r4-acceptance-amendments 2026-09-08: the oklch token
+    // palette v2): the --tok-token-* palette mixes in oklch (perceptual
+    // hue mixes; the --readonly-code-* grounds keep oklab). This red
+    // shipped to main because verify:all does NOT run the apps/www
+    // suite — the spec kept pinning the pre-R4.1 oklab forms while the
+    // css moved on.
     expect(light![1]).not.toContain('oklch(1 0 0)');
     expect(light![1]).toContain(
-      '--tok-token-function: color-mix(in oklab, var(--primary) 62%, var(--foreground))',
+      '--tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground))',
     );
     expect(light![1]).toContain(
-      '--tok-token-constant: color-mix(in oklab, var(--secondary) 78%, var(--foreground))',
+      '--tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground))',
     );
     // ORDER IS LOAD-BEARING: the re-flip must come after the dark
     // block or the override wins by cascade order (both :where (0,0,0))

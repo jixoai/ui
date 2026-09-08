@@ -189,6 +189,28 @@ try {
       rerendered,
       rerendered ? '' : 'no fresh svg id appeared after the flip (the effective-scope observer never fired?)',
     );
+    // the dock-pinned stages (canvas-playground-dock, 2026-09-08): the
+    // kinds matrix's AUTO instances now live inside canvas stages that
+    // pin their own theme — the page flip no longer reaches their baked
+    // fills. Flip each mermaid-bearing stage's dock theme so the auto
+    // instances re-derive from their EFFECTIVE scope (the stage sheet) —
+    // the assertion's original intent, scoped honestly.
+    const preDockIds = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-jx-mermaid-zoom] > svg')].map(
+        (svg) => svg.getAttribute('id') ?? '',
+      ),
+    );
+    await page.evaluate(() => {
+      document.querySelectorAll('[data-jx-canvas-stage]').forEach((stage) => {
+        if (!stage.querySelector('[data-jx-mermaid]') || stage.classList.contains('dark')) return;
+        stage.closest('[data-jx-canvas]')?.querySelector('[data-jx-canvas-theme-toggle]')?.click();
+      });
+    });
+    // settled alone passes instantly post-click (the observer's
+    // re-render has not STARTED yet — the race the first cut lost):
+    // wait for a FRESH svg id, the same honest signal the page-flip
+    // wait uses
+    await waitFor(page, rerenderedAwayFrom, 'the dock-flip re-render (fresh svg ids)', 45_000, preDockIds);
     const dark = await page.evaluate(snapshot);
     const changedAt = light.svgs
       .map((s, i) => (dark.svgs[i] && dark.svgs[i].fills !== s.fills ? i : -1))

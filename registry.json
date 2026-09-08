@@ -1414,7 +1414,7 @@
       "name": "component-canvas",
       "type": "registry:ui",
       "title": "Component canvas",
-      "description": "The component documentation workbench: header (title + description + GitHub Source link), LIVE demo stage (children snippet on muted surface), Playground controls panel (snippet slot for interactive props), and a collapsible code drawer (TreeView file sidebar + CodeCard embedded). Files from a flat path list auto-build the tree.",
+      "description": "The component documentation workbench: header (title + description + GitHub Source link), LIVE demo stage (children snippet on muted surface, always full-width), a floating Playground dock (collapsible + horizontally draggable controls panel over the stage's top-right corner — consumer snippet or schema-lowered rows inside one integrated ItemGroup), and a collapsible code drawer (TreeView file sidebar + CodeCard embedded). Files from a flat path list auto-build the tree.",
       "registryDependencies": [
         "@jixoai/press-button",
         "@jixoai/code-card",
@@ -1423,13 +1423,29 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/toggle-group",
-        "@jixoai/list-item"
+        "@jixoai/list-item",
+        "@jixoai/density",
+        "@jixoai/defaults"
       ],
       "files": [
         {
           "path": "registry/files/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/component-canvas/canvas-playground.svelte",
+          "target": "@ui/component-canvas/canvas-playground.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/component-canvas/canvas-schema.svelte.ts",
+          "target": "@ui/component-canvas/canvas-schema.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/component-canvas/component-canvas-defaults.svelte.ts",
+          "target": "@ui/component-canvas/component-canvas-defaults.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -1443,7 +1459,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: title, description?, sourceUrl? (derived page-side via the registry path projection), install? (copy-command badge), files: TreeFile[] (2 or fewer -> filename tabs over one CodeCard, 3+ -> tree pane), stage?, theme?/density? (bindable, scoped to the stage element); snippets children (live demo), playground? (escape-hatch precedence over schema rows); schema mode: schema?, bind:values, onvalue.",
+      "docs": "Props: title, description?, sourceUrl? (derived page-side via the registry path projection), install? (copy-command badge), files: TreeFile[] (2 or fewer -> filename tabs over one CodeCard, 3+ -> tree pane), stage?, theme?/density? (bindable, scoped to the stage element; driven from the dock head's unified chrome — theme icon button + Density select xs/sm/default/lg); snippets children (live demo), playground? (escape-hatch precedence over schema rows; the floating playground dock — collapsible, draggable, default expanded, on every canvas); schema mode: schema?, bind:values, onvalue.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/component-canvas.html"

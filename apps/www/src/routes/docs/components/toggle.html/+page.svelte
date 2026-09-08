@@ -17,6 +17,7 @@
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import type { Density } from '$lib/density.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayRow, PlayToggle, PlaySegmented, PlayHelp } from '$lib/playground';
 
@@ -39,10 +40,12 @@
 <Toggle label="roomy" density="lg" />`;
 
   // ---- canvas playground (site-polish F10: the standard opening) -----------
+  // density speaks the REPO-STANDARD Density union (xs/sm/default/lg);
+  // the segmented row below offers the rail trio this page documents
   const canvasInitial = {
     checked: true,
     disabled: false,
-    density: 'default' as 'sm' | 'default' | 'lg',
+    density: 'default' as Density,
   };
   let canvasChecked = $state(canvasInitial.checked);
   let canvasDisabled = $state(canvasInitial.disabled);
@@ -96,6 +99,82 @@
     outputs.push('form submitted ✓');
     result = { outputs };
   }
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  // the submitted-form composition (in-a-form section), swept through a
+  // canvas: the controlled field shape — bindable checked that still
+  // submits its name/value pair into FormData
+  const toggleFormDemo = `<script lang="ts">
+  import PressButton from '@ui/press-button.svelte';
+  import TerminalCard from '@ui/terminal-card.svelte';
+  import Toggle from '@ui/toggle.svelte';
+${close}
+
+let beta = $state(false);
+let result = $state<{ outputs: string[] } | null>(null);
+
+function onSubmit(event: SubmitEvent) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget as HTMLFormElement);
+  const outputs: string[] = [];
+  for (const [key, value] of data) {
+    if (typeof value === 'string' && value !== '') outputs.push(\`\${key}: \${value}\`);
+  }
+  outputs.push('form submitted ✓');
+  result = { outputs };
+}
+
+<div class="grid w-full gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+  <form class="flex flex-col gap-4" aria-label="beta channel" onsubmit={onSubmit}>
+    <Toggle label="join the beta channel" name="beta" value="yes" bind:checked={beta} />
+    <span class="text-muted-foreground text-[12.5px]">
+      bound checked: <code class="text-accent">{String(beta)}</code> — the value rides into
+      FormData as <code class="text-accent">beta=yes</code> only when on
+    </span>
+    <div class="flex flex-wrap items-center gap-3 pt-1">
+      <PressButton type="submit" variant="fill">sign up</PressButton>
+    </div>
+  </form>
+  <div>
+    {#if result}
+      {#key result}
+        <TerminalCard
+          barTitle="form — zsh"
+          command="form.submit"
+          outputs={result.outputs}
+        />
+      {/key}
+    {:else}
+      <div class="border-border bg-muted/40 text-muted-foreground flex h-full min-h-40 flex-col items-center justify-center gap-2 border p-6 text-center text-[13px]">
+        <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">awaiting submit</span>
+        <span>flip the toggle and press <code class="text-accent">sign up</code> — the FormData payload prints here</span>
+      </div>
+    {/if}
+  </div>
+</div>`;
+
+  const toggleFormFiles: TreeFile[] = [
+    { name: 'toggle-form-demo.svelte', content: toggleFormDemo, kind: 'usage' },
+  ];
+
+  // the variants grid (types section), swept through a canvas
+  const toggleTypesDemo = `<script lang="ts">
+  import Toggle from '@ui/toggle.svelte';
+${close}
+
+<div class="grid w-full gap-4 sm:grid-cols-3">
+  <div class="border border-border p-4"><Toggle label="off" name="types-off" /></div>
+  <div class="border border-border p-4"><Toggle label="on" name="types-on" checked /></div>
+  <div class="border border-border p-4"><Toggle label="disabled" name="types-disabled" disabled /></div>
+</div>`;
+
+  const toggleTypesFiles: TreeFile[] = [
+    { name: 'toggle-types-demo.svelte', content: toggleTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -230,41 +309,43 @@
       title="In a submitted form"
       summary="The one controlled field shape in the example form: the binding drives UI state live while the underlying checkbox still submits its name/value pair into FormData — checked contributes the value, unchecked contributes nothing."
     >
-      <div class="grid gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-        <form class="flex flex-col gap-4" aria-label="beta channel" onsubmit={onSubmit}>
-          <Toggle label="join the beta channel" name="beta" value="yes" bind:checked={beta} />
-          <span class="text-muted-foreground text-[12.5px]">
-            bound checked: <code class="text-accent">{String(beta)}</code> — the value rides into
-            FormData as <code class="text-accent">beta=yes</code> only when on
-          </span>
-          <div class="flex flex-wrap items-center gap-3 pt-1">
-            <PressButton type="submit" variant="fill">sign up</PressButton>
-          </div>
-        </form>
-        <div>
-          {#if result}
-            {#key result}
-              <TerminalCard
-                barTitle="form — zsh"
-                command="form.submit"
-                outputs={result.outputs}
-              />
-            {/key}
-          {:else}
-            <div class="border-border bg-muted/40 text-muted-foreground flex h-full min-h-40 flex-col items-center justify-center gap-2 border p-6 text-center text-[13px]">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">awaiting submit</span>
-              <span>flip the toggle and press <code class="text-accent">sign up</code> — the FormData payload prints here</span>
+      <ComponentCanvas title="toggle · in a form" stage="fill" files={toggleFormFiles}>
+        <div class="grid w-full gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+          <form class="flex flex-col gap-4" aria-label="beta channel" onsubmit={onSubmit}>
+            <Toggle label="join the beta channel" name="beta" value="yes" bind:checked={beta} />
+            <span class="text-muted-foreground text-[12.5px]">
+              bound checked: <code class="text-accent">{String(beta)}</code> — the value rides into
+              FormData as <code class="text-accent">beta=yes</code> only when on
+            </span>
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <PressButton type="submit" variant="fill">sign up</PressButton>
             </div>
-          {/if}
+          </form>
+          <div>
+            {#if result}
+              {#key result}
+                <TerminalCard
+                  barTitle="form — zsh"
+                  command="form.submit"
+                  outputs={result.outputs}
+                />
+              {/key}
+            {:else}
+              <div class="border-border bg-muted/40 text-muted-foreground flex h-full min-h-40 flex-col items-center justify-center gap-2 border p-6 text-center text-[13px]">
+                <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">awaiting submit</span>
+                <span>flip the toggle and press <code class="text-accent">sign up</code> — the FormData payload prints here</span>
+              </div>
+            {/if}
+          </div>
         </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   </div>
 </div>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle variants" summary="Choose a density for rail geometry, then bind checked when state must stay in sync."><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Toggle label="off" name="types-off" /></div><div class="border border-border p-4"><Toggle label="on" name="types-on" checked /></div><div class="border border-border p-4"><Toggle label="disabled" name="types-disabled" disabled /></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle variants" summary="Choose a density for rail geometry, then bind checked when state must stay in sync."><ComponentCanvas title="toggle · variants" stage="fill" files={toggleTypesFiles}><div class="grid w-full gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Toggle label="off" name="types-off" /></div><div class="border border-border p-4"><Toggle label="on" name="types-on" checked /></div><div class="border border-border p-4"><Toggle label="disabled" name="types-disabled" disabled /></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Use bind:checked for controlled state; a named toggle remains a native checkbox field in forms."><CodeBlock code={usage} lang="svelte" meta="Toggle usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The hidden native checkbox stays keyboard reachable and the visible rail receives the focus indication."><A11yTable keys={[{ key: 'Space', action: 'Toggle the focused switch' }, { key: 'Tab', action: 'Move focus to or past the switch' }]} aria={[{ name: 'role', value: 'checkbox', description: 'Native input semantics are preserved' }, { name: 'aria-checked', value: 'native', description: 'State is exposed by the checkbox input' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The shared density scope controls label rhythm and the proportional rail geometry."><div class="flex flex-col gap-5"><DensityDemo><Toggle label="density sample" name="density-toggle" /></DensityDemo><TokenTable tokens={[{ name: '--jx-toggle-track', default: 'var(--jx-line)', source: 'component' }, { name: '--jx-toggle-width', default: 'calc(var(--jx-toggle-track) * 2)', source: 'component' }, { name: '--jx-toggle-knob', default: 'calc(var(--jx-toggle-track) - var(--jx-unit))', source: 'component' }, { name: '--jx-toggle-knob-border', default: '1px', source: 'component' }, { name: '--jx-toggle-knob-border-color', default: 'var(--primary)', source: 'component' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>

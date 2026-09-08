@@ -45,6 +45,22 @@ ${close}
     { name: 'src/lib/ui/section-card-usage.svelte', content: usage },
   ];
 
+  // the tone pair (types section), swept through a canvas: the everyday
+  // bordered section against the inner-page hero head — the demo cards
+  // exist to render headings, so the grid carries the headings-ok scope
+  const sectionCardTypesDemo = `<script lang="ts">
+  import SectionCard from '@ui/section-card.svelte';
+${close}
+
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone default · h2</span><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="The everyday content atom: eyebrow row, muted summary, body slot."><p class="text-[13px]">body snippet slot</p></SectionCard><p class="text-muted-foreground text-[12.5px]">every section on a page</p></div>
+  <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone hero · h1</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class="flex flex-wrap gap-3"><span class="pill">hero body</span></div></SectionCard><p class="text-muted-foreground text-[12.5px]">the inner-page head (S4.1 unique-h1 law)</p></div>
+</div>`;
+
+  const sectionCardTypesFiles: TreeFile[] = [
+    { name: 'section-card-types-demo.svelte', content: sectionCardTypesDemo, kind: 'usage' },
+  ];
+
   // playground protocol (P1): the page owns the state; the canvas only
   // calls back — snapshot + reset + live usage (the controls carry their
   // own readout, so no echo rows).
@@ -213,10 +229,12 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two tones: the everyday bordered section and the inner-page hero head.">
-    <div class="flex flex-wrap items-start gap-6">
+    <ComponentCanvas title="section-card · tones" stage="fill" files={sectionCardTypesFiles}>
+    <div class="flex flex-wrap items-start gap-6" data-doc-demo-scope="headings-ok">
       <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone default · h2</span><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="The everyday content atom: eyebrow row, muted summary, body slot."><p class="text-[13px]">body snippet slot</p></SectionCard><p class="text-muted-foreground text-[12.5px]">every section on a page</p></div>
       <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone hero · h1</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class="flex flex-wrap gap-3"><span class="pill">hero body</span></div></SectionCard><p class="text-muted-foreground text-[12.5px]">the inner-page head (S4.1 unique-h1 law)</p></div>
     </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pages never hand-roll heading markup — the card renders h1/h2 itself so levels never skip."><CodeBlock code={usage} lang="svelte" meta="SectionCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The card owns the heading tree: one h1 per route, h2 sections beneath, no skipped levels."><A11yTable keys={[]} aria={[{ name: 'heading structure', value: 'h1 | h2', description: 'headingLevel picks the level; the card is the only heading author on a page' }, { name: 'data-family / data-region', value: 'toc extents', description: 'Machine-readable section extents — not user-facing, but keep the pairing consistent for the rail' }]} /></SectionCard></div>

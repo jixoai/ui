@@ -6,12 +6,13 @@
  * 1. OUTLINE — the canvas root carries data-toc-skip, the title is a
  *    styled paragraph (no h2), and deriveTocOutline over a page wrapper
  *    yields the page's own sections only.
- * 2. STAGE TOGGLES — light/dark + comfortable/compact segmented pairs
- *    set data-theme/data-density (mapped onto the theme sheet's own
- *    scope vocabulary: compact → 'sm') on the STAGE element only, with
- *    the theme sheet's dark/jx-light token-scope class riding along;
+ * 2. STAGE CHROME (unified-chrome ruling 2026-09-08) — the dock head's
+ *    icon button (theme, aria-pressed) + native select (density, the
+ *    repo-standard xs/sm/default/lg union stamped DIRECTLY) set
+ *    data-theme/data-density on the STAGE element only, with the theme
+ *    sheet's dark/jx-light token-scope class riding along;
  *    bind:theme/bind:density write back to the page (ownership law);
- *    sibling canvases are untouched.
+ *    sibling canvases are untouched; the head ships on EVERY canvas.
  * 3. DRAWER SHAPE — the tree pane is the ONE drawer shape (Owner revert
  *    2026-09-01: the two-file tabs floor is gone): every canvas renders
  *    the tree over/aside ONE CodeCard, no tablist anywhere. Drawer
@@ -68,18 +69,19 @@ describe('floor: the canvas stays out of the outline', () => {
   });
 });
 
-describe('floor: stage theme/density toggles', () => {
-  it('projects data-theme + the theme sheet scope class onto the stage only', async () => {
+describe('floor: stage theme/density chrome (the dock head)', () => {
+  it('the dock theme button projects data-theme + the scope class onto the stage only', async () => {
     const { container } = render(CanvasFloorHost);
     const [floorStage, treeStage] = stages(container);
     expect(floorStage.getAttribute('data-theme')).toBe('light');
     expect(floorStage.classList.contains('jx-light')).toBe(true);
 
-    await fireEvent.click(
-      container.querySelector<HTMLInputElement>('[data-jx-canvas-theme-option="dark"]')!,
-    );
+    const themeButton = container.querySelector<HTMLButtonElement>('[data-jx-canvas-theme-toggle]')!;
+    expect(themeButton.getAttribute('aria-pressed')).toBe('false');
+    await fireEvent.click(themeButton);
     expect(floorStage.getAttribute('data-theme')).toBe('dark');
     expect(floorStage.classList.contains('dark')).toBe(true);
+    expect(themeButton.getAttribute('aria-pressed')).toBe('true');
     // the page-owned binding reflects the change (ownership law)
     expect(
       container.querySelector<HTMLElement>('[data-testid="stage-demo"]')!.getAttribute('data-theme'),
@@ -88,38 +90,37 @@ describe('floor: stage theme/density toggles', () => {
     expect(treeStage.getAttribute('data-theme')).toBe('light');
   });
 
-  it('compact maps onto the sm density scope; comfortable pins default', async () => {
+  it('the dock density select stamps the Density union DIRECTLY onto the stage', async () => {
     const { container } = render(CanvasFloorHost);
     const [floorStage] = stages(container);
     expect(floorStage.getAttribute('data-density')).toBe('default');
 
-    await fireEvent.click(
-      container.querySelector<HTMLInputElement>('[data-jx-canvas-density-option="compact"]')!,
-    );
+    const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-density-select]')!;
+    await fireEvent.change(select, { target: { value: 'sm' } });
     expect(floorStage.getAttribute('data-density')).toBe('sm');
     expect(
       container.querySelector<HTMLElement>('[data-testid="stage-demo"]')!.getAttribute('data-density'),
-    ).toBe('compact');
+    ).toBe('sm');
 
-    await fireEvent.click(
-      container.querySelector<HTMLInputElement>('[data-jx-canvas-density-option="comfortable"]')!,
-    );
-    expect(floorStage.getAttribute('data-density')).toBe('default');
+    await fireEvent.change(select, { target: { value: 'lg' } });
+    expect(floorStage.getAttribute('data-density')).toBe('lg');
   });
 
-  it('header toggles are native radio groups (registry toggle-group law)', () => {
+  it('the dock head is the unified chrome: one icon button + one native select, on EVERY canvas', () => {
     const { container } = render(CanvasFloorHost);
-    const themeSeg = container.querySelector<HTMLElement>('[data-jx-canvas-theme-seg]')!;
-    expect(themeSeg.getAttribute('role')).toBe('radiogroup');
-    expect(themeSeg.getAttribute('aria-label')).toBe('Stage theme');
-    const light = container.querySelector<HTMLInputElement>('[data-jx-canvas-theme-option="light"]')!;
-    const dark = container.querySelector<HTMLInputElement>('[data-jx-canvas-theme-option="dark"]')!;
-    expect(light.type).toBe('radio');
-    // name-scoped grouping: exclusivity + arrow-walking are native
-    expect(light.name).toBe(dark.name);
-    expect(light.name).toBe('jx-canvas-floor-theme');
-    expect(light.checked).toBe(true);
-    expect(dark.checked).toBe(false);
+    const themeButtons = [...container.querySelectorAll<HTMLButtonElement>('[data-jx-canvas-theme-toggle]')];
+    const selects = [...container.querySelectorAll<HTMLSelectElement>('[data-jx-canvas-density-select]')];
+    // two canvases on the page → both ship the chrome row (the
+    // body-less tree canvas included — no chevron, chrome only)
+    expect(themeButtons.length).toBe(2);
+    expect(selects.length).toBe(2);
+    expect(themeButtons[0].getAttribute('aria-label')).toBe('Toggle theme');
+    expect(selects[0].getAttribute('aria-label')).toBe('Density');
+    expect([...selects[0].options].map((o) => o.value)).toEqual(['xs', 'sm', 'default', 'lg']);
+    // the body-less canvas has no chevron and no collapse region
+    const canvases = [...container.querySelectorAll('[data-jx-canvas]')];
+    expect(canvases[1].querySelector('[data-jx-canvas-dock-toggle]')).toBeNull();
+    expect(canvases[1].querySelector('.jx-canvas-dock-collapse')).toBeNull();
   });
 });
 
@@ -155,9 +156,9 @@ describe('floor: the tree pane is the one drawer shape (tabs revert)', () => {
   it('≥3 files: the same tree drawer, no tablist', () => {
     const { container } = render(CanvasFloorHost);
     const canvases = [...container.querySelectorAll('[data-jx-canvas]')];
+    // the body-less canvas (no collapse region) is the tree widget one
     const treeCanvas = canvases.find(
-      (c) =>
-        c.querySelector('[data-jx-canvas-playground-title]') === null && c !== canvases[0],
+      (c) => c !== canvases[0] && c.querySelector('.jx-canvas-dock-collapse') === null,
     )!;
     expect(treeCanvas.querySelector('.jx-canvas-tree')).not.toBeNull();
     expect(treeCanvas.querySelector('[data-jx-canvas-tabs]')).toBeNull();
@@ -195,8 +196,9 @@ describe('floor: the lab follows the controls (typed state object)', () => {
     expect(outputRows[0].querySelector('dd')!.textContent).toBe('fill');
 
     // flip the variant select → snippet + projection follow (the kit row
-    // rides ItemField — the select lives inside the playground pane)
-    const select = container.querySelector<HTMLSelectElement>('.jx-canvas-playground select')!;
+    // rides ItemField — the select lives inside the dock BODY, not the
+    // head's density chrome)
+    const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-dock-scroll] select')!;
     await fireEvent.change(select, { target: { value: 'tonal' } });
     expect(outputRows[0].querySelector('dd')!.textContent).toBe('tonal');
     await fireEvent.click(container.querySelector<HTMLButtonElement>('.jx-canvas-code-toggle')!);
@@ -218,7 +220,7 @@ describe('floor: schema mode coexistence (no regression)', () => {
 
     const stage = container.querySelector<HTMLElement>('[data-jx-canvas-stage]')!;
     await fireEvent.click(
-      container.querySelector<HTMLInputElement>('[data-jx-canvas-theme-option="dark"]')!,
+      container.querySelector<HTMLButtonElement>('[data-jx-canvas-theme-toggle]')!,
     );
     expect(stage.getAttribute('data-theme')).toBe('dark');
     expect(container.querySelector('.jx-canvas-tree')).not.toBeNull();
@@ -235,7 +237,9 @@ describe('floor: the real pilot pages (dialog, component-canvas)', () => {
       'npx jixoai-ui add dialog',
     );
     expect(container.querySelector('.jx-canvas-tree')).not.toBeNull();
-    expect(container.querySelector('[data-jx-canvas-theme-seg]')).not.toBeNull();
+    // the unified-chrome dock head (theme button + density select)
+    expect(container.querySelector('[data-jx-canvas-theme-toggle]')).not.toBeNull();
+    expect(container.querySelector('[data-jx-canvas-density-select]')).not.toBeNull();
 
     // the REAL outline probe: SectionCard h2s join, canvas chrome never
     const labels = deriveTocOutline(container).map((e) => e.label.toLowerCase());

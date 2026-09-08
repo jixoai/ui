@@ -80,6 +80,25 @@
     { name: 'registry/files/ui/prose/prose.css', content: proseCssSource },
     { name: 'src/lib/ui/prose-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // the family demo (canvas-everywhere sweep, 2026-09-08) rides the
+  // same-source pilot lane too: the canvas carries id="family", so the
+  // drawer's usage file composes from THIS canvas's own children — the
+  // hand template literal stays retired on this page
+  const familyFiles: TreeFile[] = [
+    {
+      name: 'prose-family-demo.svelte',
+      content: usageFile(
+        {
+          Prose: '@ui/prose',
+          '{ P }': '@ui/text',
+          InlineCode: '@ui/inline-code.svelte',
+        },
+        resolveRawCode('family'),
+      ),
+      kind: 'usage',
+    },
+  ];
 </script>
 
 <svelte:head>
@@ -249,12 +268,14 @@
         summary="family words resolve to the theme's --font-* tokens; code and kbd keep their own mono element rules (face B1) — a family change is a prose opinion, never a code opinion, so InlineCode chips inside stay their calibrated mono regardless."
       >
         <div class="grid w-full max-w-4xl gap-8 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-2">
-            <span class="text-[11px] text-muted-foreground">family mono — the region, not the chips</span>
-            <Prose family="mono" size="13px">
-              <P>The whole region sets in the theme's mono token — and the inline chip <InlineCode lang="text">npm run verify</InlineCode> keeps its own mono law anyway: code's face rules are element-level, so family is prose-only by construction.</P>
-            </Prose>
-          </div>
+          <ComponentCanvas id="family" title="prose · family" stage="fill" files={familyFiles}>
+            <div class="flex flex-col gap-2">
+              <span class="text-[11px] text-muted-foreground">family mono — the region, not the chips</span>
+              <Prose family="mono" size="13px">
+                <P>The whole region sets in the theme's mono token — and the inline chip <InlineCode lang="text">npm run verify</InlineCode> keeps its own mono law anyway: code's face rules are element-level, so family is prose-only by construction.</P>
+              </Prose>
+            </div>
+          </ComponentCanvas>
           <div class="flex flex-col gap-2 rounded border border-warning/45 bg-warning/10 p-4">
             <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground">serif is a theme-token dependency — pending</span>
             <p class="m-0 text-[13px] leading-6">

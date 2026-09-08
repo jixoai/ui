@@ -186,6 +186,54 @@ ${close}
     </div>
   {/snippet}
 </Tour>`;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+
+  // the card-type pair (types section), swept through a canvas: the
+  // default-card trigger and the card(api) trigger — the tours mount at
+  // the page level (popover top layer), the stage keeps the trigger cells
+  const tourTypesDemo = `<script lang="ts">
+  import PressButton from '@ui/press-button.svelte';
+  import Tour from '@ui/tour.svelte';
+${close}
+
+let open = $state(false);
+let cardOpen = $state(false);
+
+<div class="grid w-full gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4"><PressButton onclick={() => (open = true)}>default card tour</PressButton></div>
+  <div class="border border-border p-4"><PressButton onclick={() => (cardOpen = true)}>card(api) tour</PressButton></div>
+</div>
+
+<!-- the default card: steps metadata renders as title/description -->
+<Tour
+  bind:open
+  steps={[
+    { target: '[data-tour-demo-a]', title: 'Target A', description: 'the lease lands here' },
+    { target: '[data-tour-demo-b]', title: 'Target B' },
+  ]}
+/>
+
+<!-- the card(api) snippet authors the whole interior -->
+<Tour bind:open={cardOpen} steps={[
+  { target: '[data-tour-demo-a]', title: 'Target A' },
+  { target: '[data-tour-demo-b]', title: 'Target B' },
+]}>
+  {#snippet card(api)}
+    <p>{api.step.title} · {api.index + 1}/{api.total}</p>
+    <div class="flex gap-2">
+      <button type="button" onclick={api.prev} disabled={api.index === 0}>back</button>
+      <button type="button" onclick={api.next}>{api.index === api.total - 1 ? 'done' : 'next'}</button>
+      <button type="button" onclick={api.skip}>skip</button>
+    </div>
+  {/snippet}
+</Tour>`;
+
+  const tourTypesFiles: TreeFile[] = [
+    { name: 'tour-types-demo.svelte', content: tourTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -501,10 +549,12 @@ ${close}
   </div>
 
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Tour variants" summary="Card types over the same lifecycle: the default card renders the steps' title/description metadata; the card(api) snippet authors the whole interior (the indicators recipe lives here).">
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div class="border border-border p-4"><PressButton onclick={() => (open = true)}>default card tour</PressButton></div>
-      <div class="border border-border p-4"><PressButton onclick={() => (cardOpen = true)}>card(api) tour</PressButton></div>
-    </div>
+    <ComponentCanvas title="tour · variants" stage="fill" files={tourTypesFiles}>
+      <div class="grid w-full gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4"><PressButton onclick={() => (open = true)}>default card tour</PressButton></div>
+        <div class="border border-border p-4"><PressButton onclick={() => (cardOpen = true)}>card(api) tour</PressButton></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Non-modal by contract — no focus trap, the page stays scrollable, and finishing restores the invoker's focus."><A11yTable keys={[{ key: '→', action: 'Advance to the next enterable step' }, { key: '←', action: 'Go back one step' }, { key: 'Enter', action: 'Next (the focused button’s default path)' }, { key: 'Escape', action: 'End the tour — focus returns to the opener' }]} aria={[{ name: 'role', value: 'dialog', description: 'The card panel; landing focus sits on Next (or the panel with a custom card).' }, { name: 'aria-modal', value: 'false', description: 'Non-modal: no trap, no inert, the page scrolls.' }, { name: 'popover', value: 'manual', description: 'Top-layer card + tint; the scrim is pointer-events:none.' }, { name: 'aria-label', value: 'step.title', description: 'The dialog is named by the current step.' }, { name: 'aria-hidden', value: 'true (recipe)', description: 'Indicator dots stay decoration; the named dialog carries progress.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The hole is sized by anchor-size() with zero geometry JS; the panel rides the shared surface-motion kernel."><div class="flex flex-col gap-5"><DensityDemo><PressButton onclick={() => (open = true)}>start</PressButton></DensityDemo><TokenTable tokens={[{ name: '--jx-tour-{id}', default: 'anchor-name lease', source: 'component', description: 'Per-instance lease set on the current target; restored on advance/close/unmount.' }, { name: '--jx-tour-gap', default: '12px', source: 'component', description: 'Panel offset from the leased target — the placement recipes reuse it as the margin term.' }, { name: 'tint', default: 'background 55%', source: 'color', description: 'The hole tint: color-mix(in oklab, var(--background) 55%, transparent).' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Shared surface-motion kernel driving open/close.' }, { name: 'hole border', default: '1px solid var(--primary)', source: 'structural', description: 'The anchored hole outlines the leased target.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Trigger target through the composed control.' }]} /></div></SectionCard></div>

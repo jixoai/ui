@@ -117,6 +117,63 @@ ${close}
 
   const maxwellTex = formulas.maxwell.tex;
   const systemTex = formulas.system.tex;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the strip / fit / error regions below (TeX inlined) — the
+  // same-source resolveRawCode migration is the recorded follow-up
+  const mathBlockStripDemo = `<script lang="ts">
+  import MathBlock from '@ui/math-block';
+${close}
+
+<div class="border border-border p-4">
+  <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+    aligned — Maxwell's equations
+  </p>
+  <MathBlock tex="\\begin{aligned}\\nabla \\cdot \\mathbf{E} &= \\frac{\\rho}{\\varepsilon_0} & \\nabla \\cdot \\mathbf{B} &= 0 \\\\\\nabla \\times \\mathbf{E} &= -\\frac{\\partial \\mathbf{B}}{\\partial t} & \\nabla \\times \\mathbf{B} &= \\mu_0 \\mathbf{J} + \\mu_0 \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t}\\end{aligned}" copyable={false} class="w-full max-w-[42rem]" />
+</div>
+<div class="border border-border p-4">
+  <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+    matrices — a linear system wider than the column
+  </p>
+  <MathBlock tex="\\mathbf{A}\\mathbf{x} = \\mathbf{b}, \\quad \\mathbf{A} = \\begin{pmatrix} a_{11} & a_{12} & \\cdots & a_{1n} \\\\ a_{21} & a_{22} & \\cdots & a_{2n} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{m1} & a_{m2} & \\cdots & a_{mn} \\end{pmatrix}" class="w-full max-w-[42rem]" />
+</div>`;
+
+  const stripFiles: TreeFile[] = [
+    { name: 'math-block-strip-demo.svelte', content: mathBlockStripDemo, kind: 'usage' },
+  ];
+
+  const mathBlockFitDemo = `<script lang="ts">
+  import MathBlock from '@ui/math-block';
+${close}
+
+<!-- fit: the no-scroll variant — a font-size scale, never scaling up -->
+<div class="border border-border p-4">
+  <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+    the same linear system, fitted — no strip, no chips
+  </p>
+  <MathBlock tex="\\mathbf{A}\\mathbf{x} = \\mathbf{b}, \\quad \\lVert \\mathbf{A}\\mathbf{x} - \\mathbf{b} \\rVert_2 \\le \\varepsilon" fit copyable={false} class="w-full max-w-[42rem]" />
+</div>`;
+
+  const fitFiles: TreeFile[] = [
+    { name: 'math-block-fit-demo.svelte', content: mathBlockFitDemo, kind: 'usage' },
+  ];
+
+  const mathBlockErrorDemo = `<script lang="ts">
+  import MathBlock from '@ui/math-block';
+${close}
+
+<!-- throwOnError:false is the facade default: the bad source run
+     renders error-tinted inside the same box -->
+<div class="border border-border p-4">
+  <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+    an unclosed group — \\frac{ left open
+  </p>
+  <MathBlock tex="\\frac{\\pi}{2} + \\frac{" class="w-full max-w-[40rem]" />
+</div>`;
+
+  const errorFiles: TreeFile[] = [
+    { name: 'math-block-error-demo.svelte', content: mathBlockErrorDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -208,7 +265,8 @@ ${close}
         title="Wide equations — the shared scroll strip"
         summary="A display formula is not prose: it must not wrap. The strip is a scroll-run (data-jx-scroll-run + data-axis=horizontal) inside a one-cell grid host; the stamp verdict gates the shadow veil and the two nudge chips, and a formula that fits paints no chrome at all."
       >
-        <div class="flex flex-col gap-5">
+        <ComponentCanvas title="math-block · wide strip" stage="fill" files={stripFiles}>
+          <div class="flex flex-col gap-5">
           <div class="border border-border p-4">
             <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
               aligned — Maxwell's equations
@@ -228,7 +286,8 @@ ${close}
             is the single truth every overlay keys on, and pre-hydration the shared css
             paints nothing (the prerendered markup stands alone).
           </p>
-        </div>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -241,7 +300,8 @@ ${close}
         title="Fit — scale instead of scroll"
         summary="fit=true forces the formula into the container: a font-size scale (KaTeX is em-based throughout, so it re-lays out honestly — no transform residue, no layout compensation), never scaling up. Print engages fit by DEFAULT (beforeprint/afterprint track the medium): a paged sheet never owes a horizontal scrollport — print this page and the linear system below arrives whole."
       >
-        <div class="flex flex-col gap-5">
+        <ComponentCanvas title="math-block · fit" stage="fill" files={fitFiles}>
+          <div class="flex flex-col gap-5">
           <div class="border border-border p-4">
             <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
               the same linear system, fitted — no strip, no chips
@@ -254,7 +314,8 @@ ${close}
             the inline scale clears and the scroll law owns the strip again — the
             stamp verdict follows the restored width naturally.
           </p>
-        </div>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -267,7 +328,8 @@ ${close}
         title="Invalid TeX paints in place"
         summary="throwOnError:false is the facade default: the bad source run renders error-tinted inside the same box — no error chrome, no thrown exception — and one console.warn carries the KaTeX diagnostic."
       >
-        <div class="flex flex-col gap-5">
+        <ComponentCanvas title="math-block · error paint" stage="fill" files={errorFiles}>
+          <div class="flex flex-col gap-5">
           <div class="border border-border p-4">
             <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
                 an unclosed group — {'\\frac{'} left open
@@ -282,7 +344,8 @@ ${close}
             safe surface: the component catches, paints the escaped raw source, and warns —
             errors never escape a component boundary.
           </p>
-        </div>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
   </div>

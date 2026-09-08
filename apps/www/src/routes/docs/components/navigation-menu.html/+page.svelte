@@ -67,6 +67,73 @@ ${close}
   ];
 
   // ToC outline: pairs with +page.ts, in page order.
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const navMenuVariantsDemo = `<script lang="ts">
+  import {
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuTrigger,
+    NavigationMenuPanel,
+    NavigationMenuLink,
+  } from '@ui/navigation-menu/index';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4">
+    <NavigationMenu label="grouped">
+      <NavigationMenuItem>
+        <NavigationMenuTrigger>Product</NavigationMenuTrigger>
+        <NavigationMenuPanel>
+          <NavigationMenuLink href="/docs">Overview</NavigationMenuLink>
+        </NavigationMenuPanel>
+      </NavigationMenuItem>
+    </NavigationMenu>
+  </div>
+  <div class="border border-border p-4">
+    <NavigationMenu label="direct">
+      <NavigationMenuLink href="/docs" current>Docs</NavigationMenuLink>
+    </NavigationMenu>
+  </div>
+</div>`;
+
+  const navMenuVariantsFiles: TreeFile[] = [
+    { name: 'navigation-menu-variants-demo.svelte', content: navMenuVariantsDemo, kind: 'usage' },
+  ];
+
+  const navMenuIndicatorDemo = `<script lang="ts">
+  import {
+    NavigationMenu,
+    NavigationMenuIndicator,
+    NavigationMenuLink,
+  } from '@ui/navigation-menu/index';
+${close}
+
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-2">
+    <span class="text-muted-foreground text-[12px]">motion="navigation" — the page-level default</span>
+    <NavigationMenu label="indicator-demo-a">
+      <NavigationMenuIndicator />
+      <NavigationMenuLink href="/docs/components/navigation-menu.html" current={true}>navigation-menu</NavigationMenuLink>
+      <NavigationMenuLink href="/docs/components/tabs.html" current={false}>tabs</NavigationMenuLink>
+      <NavigationMenuLink href="/docs/components/breadcrumb.html" current={false}>breadcrumb</NavigationMenuLink>
+    </NavigationMenu>
+  </div>
+  <div class="flex flex-col gap-2">
+    <span class="text-muted-foreground text-[12px]">motion="waapi" — no View Transitions, no name</span>
+    <NavigationMenu label="indicator-demo-b">
+      <NavigationMenuIndicator motion="waapi" />
+      <NavigationMenuLink href="/docs/components/tabs.html" current={true}>tabs</NavigationMenuLink>
+      <NavigationMenuLink href="/docs/components/range.html" current={false}>range</NavigationMenuLink>
+    </NavigationMenu>
+  </div>
+</div>`;
+
+  const navMenuIndicatorFiles: TreeFile[] = [
+    { name: 'navigation-menu-indicator-demo.svelte', content: navMenuIndicatorDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -167,7 +234,7 @@ ${close}
 </style>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Navigation variants" summary="Use trigger panels for grouped links and bare links for direct navigation."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><NavigationMenu label="grouped"><NavigationMenuItem><NavigationMenuTrigger>Product</NavigationMenuTrigger><NavigationMenuPanel><NavigationMenuLink href="/docs">Overview</NavigationMenuLink></NavigationMenuPanel></NavigationMenuItem></NavigationMenu></div><div class="border border-border p-4"><NavigationMenu label="direct"><NavigationMenuLink href="/docs" current>Docs</NavigationMenuLink></NavigationMenu></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Navigation variants" summary="Use trigger panels for grouped links and bare links for direct navigation."><ComponentCanvas title="navigation menu · variants" stage="fill" files={navMenuVariantsFiles}><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><NavigationMenu label="grouped"><NavigationMenuItem><NavigationMenuTrigger>Product</NavigationMenuTrigger><NavigationMenuPanel><NavigationMenuLink href="/docs">Overview</NavigationMenuLink></NavigationMenuPanel></NavigationMenuItem></NavigationMenu></div><div class="border border-border p-4"><NavigationMenu label="direct"><NavigationMenuLink href="/docs" current>Docs</NavigationMenuLink></NavigationMenu></div></div></ComponentCanvas></SectionCard></div>
   <div id="indicator" data-reveal="">
     <SectionCard
       family="indicator"
@@ -176,25 +243,27 @@ ${close}
       title="Indicator — the optional sliding active"
       summary="NavigationMenuIndicator is the indicator technology as an OPTIONAL part (render it as a child of the bar; omit it and nothing changes). TWO motion laws: motion=navigation (default) stamps a view-transition-name — page-level View Transitions morph the indicator across documents (the app owns the transition wiring; the name is inert when no transition runs, and same-document moves still animate) — and motion=waapi is the pure Web Animations path for apps that never use View Transitions: no name, no cost. The engine measures the bar's current entry (aria-current, DOM-delegated — a MutationObserver catches route swaps; ResizeObserver and fonts.ready re-fit quietly) and slides the hug-box between entries; first placement, resizes and reduced-motion JUMP. Entries inside an open panel never steal the bar indicator."
     >
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <span class="text-muted-foreground text-[12px]">motion="navigation" — the page-level default</span>
-          <NavigationMenu label="indicator-demo-a">
-            <NavigationMenuIndicator />
-            <NavigationMenuLink href="/docs/components/navigation-menu.html" current={true}>navigation-menu</NavigationMenuLink>
-            <NavigationMenuLink href="/docs/components/tabs.html" current={false}>tabs</NavigationMenuLink>
-            <NavigationMenuLink href="/docs/components/breadcrumb.html" current={false}>breadcrumb</NavigationMenuLink>
-          </NavigationMenu>
+      <ComponentCanvas title="navigation menu · indicator" stage="fill" files={navMenuIndicatorFiles}>
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <span class="text-muted-foreground text-[12px]">motion="navigation" — the page-level default</span>
+            <NavigationMenu label="indicator-demo-a">
+              <NavigationMenuIndicator />
+              <NavigationMenuLink href="/docs/components/navigation-menu.html" current={true}>navigation-menu</NavigationMenuLink>
+              <NavigationMenuLink href="/docs/components/tabs.html" current={false}>tabs</NavigationMenuLink>
+              <NavigationMenuLink href="/docs/components/breadcrumb.html" current={false}>breadcrumb</NavigationMenuLink>
+            </NavigationMenu>
+          </div>
+          <div class="flex flex-col gap-2">
+            <span class="text-muted-foreground text-[12px]">motion="waapi" — no View Transitions, no name</span>
+            <NavigationMenu label="indicator-demo-b">
+              <NavigationMenuIndicator motion="waapi" />
+              <NavigationMenuLink href="/docs/components/tabs.html" current={true}>tabs</NavigationMenuLink>
+              <NavigationMenuLink href="/docs/components/range.html" current={false}>range</NavigationMenuLink>
+            </NavigationMenu>
+          </div>
         </div>
-        <div class="flex flex-col gap-2">
-          <span class="text-muted-foreground text-[12px]">motion="waapi" — no View Transitions, no name</span>
-          <NavigationMenu label="indicator-demo-b">
-            <NavigationMenuIndicator motion="waapi" />
-            <NavigationMenuLink href="/docs/components/tabs.html" current={true}>tabs</NavigationMenuLink>
-            <NavigationMenuLink href="/docs/components/range.html" current={false}>range</NavigationMenuLink>
-          </NavigationMenu>
-        </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Keep navigation links in panels; actions belong in dropdown-menu."><CodeBlock code={usage} lang="svelte" meta="NavigationMenu usage" /></SectionCard></div>

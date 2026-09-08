@@ -105,6 +105,50 @@ ${close}
   <PressButton variant="outline">move</PressButton>
   <PressButton variant="outline">delete</PressButton>
 </ButtonGroup>`;
+
+  // the zone half (variant-scope section), swept through a canvas: the
+  // scope changes the default variant only — no seams, no group (the
+  // group cell shows the same zone plus the join)
+  const buttonGroupZoneDemo = `<script lang="ts">
+  import ButtonGroup, { ButtonVariantScope } from '@ui/button-group/index';
+  import PressButton from '@ui/press-button/press-button.svelte';
+${close}
+
+<!-- the zone, layout-free — nothing renders but the buttons -->
+<PressButton>lone — outline</PressButton>
+<ButtonVariantScope variant="ghost">
+  <PressButton>adopts ghost</PressButton>
+  <PressButton>adopts ghost</PressButton>
+  <PressButton variant="fill">keeps fill</PressButton>
+</ButtonVariantScope>
+
+<!-- the group — zone + join -->
+<ButtonGroup variant="ghost" label="row actions">
+  <PressButton>adopts ghost</PressButton>
+  <PressButton variant="fill">keeps fill</PressButton>
+</ButtonGroup>`;
+
+  const buttonGroupZoneFiles: TreeFile[] = [
+    { name: 'button-group-zone-demo.svelte', content: buttonGroupZoneDemo, kind: 'usage' },
+  ];
+
+  // the boundary demo (btngroup-boundary section), swept through a
+  // canvas: actions stay with button-group; selection is toggle-group
+  const buttonGroupBoundaryDemo = `<script lang="ts">
+  import ButtonGroup from '@ui/button-group/index';
+  import PressButton from '@ui/press-button/press-button.svelte';
+${close}
+
+<!-- actions → button-group: each press performs, nothing stays active -->
+<ButtonGroup label="export actions">
+  <PressButton variant="outline">copy</PressButton>
+  <PressButton variant="outline">move</PressButton>
+  <PressButton variant="outline">delete</PressButton>
+</ButtonGroup>`;
+
+  const buttonGroupBoundaryFiles: TreeFile[] = [
+    { name: 'button-group-boundary-demo.svelte', content: buttonGroupBoundaryDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -272,26 +316,28 @@ ${close}
     >
       <div class="flex flex-col gap-5">
         <div class="grid grid-cols-1 gap-5 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3">
-            <p class="m-0 font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">the scope — zone only</p>
-            <div class="flex flex-wrap items-center gap-3">
-              <PressButton>lone — outline</PressButton>
-              <ButtonVariantScope variant="ghost">
-                <div class="flex flex-wrap items-center gap-3">
-                  <PressButton>adopts ghost</PressButton>
-                  <PressButton>adopts ghost</PressButton>
-                  <PressButton variant="fill">keeps fill</PressButton>
-                </div>
-              </ButtonVariantScope>
+          <ComponentCanvas title="button-group · variant scope" stage="fill" files={buttonGroupZoneFiles}>
+            <div class="flex flex-col gap-3">
+              <p class="m-0 font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">the scope — zone only</p>
+              <div class="flex flex-wrap items-center gap-3">
+                <PressButton>lone — outline</PressButton>
+                <ButtonVariantScope variant="ghost">
+                  <div class="flex flex-wrap items-center gap-3">
+                    <PressButton>adopts ghost</PressButton>
+                    <PressButton>adopts ghost</PressButton>
+                    <PressButton variant="fill">keeps fill</PressButton>
+                  </div>
+                </ButtonVariantScope>
+              </div>
+              <span class="text-muted-foreground text-[12.5px]">free-floating: no seams, no group — only the default changed; the lone button outside never saw the zone.</span>
+              <p class="m-0 font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">the group — zone + join</p>
+              <ButtonGroup variant="ghost" label="row actions">
+                <PressButton>adopts ghost</PressButton>
+                <PressButton variant="fill">keeps fill</PressButton>
+              </ButtonGroup>
+              <span class="text-muted-foreground text-[12.5px]">same zone, plus the hairline join — one component when both are wanted.</span>
             </div>
-            <span class="text-muted-foreground text-[12.5px]">free-floating: no seams, no group — only the default changed; the lone button outside never saw the zone.</span>
-            <p class="m-0 font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">the group — zone + join</p>
-            <ButtonGroup variant="ghost" label="row actions">
-              <PressButton>adopts ghost</PressButton>
-              <PressButton variant="fill">keeps fill</PressButton>
-            </ButtonGroup>
-            <span class="text-muted-foreground text-[12.5px]">same zone, plus the hairline join — one component when both are wanted.</span>
-          </div>
+          </ComponentCanvas>
           <div class="flex flex-col gap-3">
             <CodeBlock
               code={`<script lang="ts">
@@ -381,15 +427,17 @@ ${close}
       summary="A button group is ACTION-ONLY: press, effect, navigate — no pressed state, no active value, no form payload. The moment the children express SELECTION, the segmented-selection law applies and the component is toggle-group (native radios/checkboxes under one name — native exclusivity, arrow-walk, FormData). The two may look similar when joined; the difference is semantic, not paint: aria-pressed (or a pressed style) on these buttons is the recorded divergence trap."
     >
       <div class="grid grid-cols-1 gap-5 min-[760px]:grid-cols-2">
-        <div class="flex flex-col gap-3">
-          <p class="font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">actions → button-group</p>
-          <ButtonGroup label="export actions">
-            <PressButton variant="outline">copy</PressButton>
-            <PressButton variant="outline">move</PressButton>
-            <PressButton variant="outline">delete</PressButton>
-          </ButtonGroup>
-          <span class="text-muted-foreground text-[12.5px]">each press performs; nothing stays active.</span>
-        </div>
+        <ComponentCanvas title="button-group · boundary" stage="fill" files={buttonGroupBoundaryFiles}>
+          <div class="flex flex-col gap-3">
+            <p class="font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">actions → button-group</p>
+            <ButtonGroup label="export actions">
+              <PressButton variant="outline">copy</PressButton>
+              <PressButton variant="outline">move</PressButton>
+              <PressButton variant="outline">delete</PressButton>
+            </ButtonGroup>
+            <span class="text-muted-foreground text-[12.5px]">each press performs; nothing stays active.</span>
+          </div>
+        </ComponentCanvas>
         <div class="flex flex-col gap-3">
           <p class="font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">selection → toggle-group</p>
           <CodeBlock

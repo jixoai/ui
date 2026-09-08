@@ -32,6 +32,67 @@ ${close}
     { name: 'src/lib/ui/badge-usage.svelte', content: usage },
   ];
 
+  // the composition demo (badge-composition section), swept through a
+  // canvas: the chip slotted next to titles (hand-authored mirror of
+  // the stage markup)
+  const badgeCompositionDemo = `<script lang="ts">
+  import Badge from '@ui/badge.svelte';
+${close}
+
+<p>
+  deploy pipeline <Badge class="ml-2">running</Badge>
+</p>
+<p>
+  release 4.7.0 <Badge class="ml-2 jx-hue-neutral">stable</Badge>
+</p>
+<p>
+  canary build <Badge class="ml-2 jx-hue-error">failed</Badge>
+</p>`;
+
+  const badgeCompositionFiles: TreeFile[] = [
+    { name: 'badge-composition-demo.svelte', content: badgeCompositionDemo, kind: 'usage' },
+  ];
+
+  // the variant ladder (badge-law section), swept through a canvas:
+  // prominence row plus the status-hue injection row
+  const badgeLawDemo = `<script lang="ts">
+  import Badge from '@ui/badge.svelte';
+${close}
+
+<Badge variant="fill">fill · loudest</Badge>
+<Badge>tonal · the default</Badge>
+<Badge variant="outline">outline · structure</Badge>
+
+<Badge class="jx-hue-neutral">neutral · metadata</Badge>
+<Badge class="jx-hue-error">error · failure status</Badge>
+<Badge class="jx-hue-success">success · passing status</Badge>`;
+
+  const badgeLawFiles: TreeFile[] = [
+    { name: 'badge-law-demo.svelte', content: badgeLawDemo, kind: 'usage' },
+  ];
+
+  // the axes matrix (types section), swept through a canvas: the
+  // variant pairings, the hue set, and the two shapes
+  const badgeTypesDemo = `<script lang="ts">
+  import Badge from '@ui/badge.svelte';
+${close}
+
+<Badge>default</Badge>
+<Badge variant="fill">fill</Badge>
+<Badge variant="outline">outline</Badge>
+
+<Badge class="jx-hue-neutral">neutral</Badge>
+<Badge class="jx-hue-error">error</Badge>
+<Badge class="jx-hue-success">success</Badge>
+
+<Badge shape="square">square</Badge>
+<Badge shape="pill">pill</Badge>
+<Badge shape="pill" variant="outline">outline pill</Badge>`;
+
+  const badgeTypesFiles: TreeFile[] = [
+    { name: 'badge-types-demo.svelte', content: badgeTypesDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with the section ids below, in page order.
 </script>
 
@@ -108,7 +169,7 @@ ${close}
       title="In composition"
       summary="The chip slots next to titles and inside table cells — the bare tonal reads as brand metadata, the outline as quiet structure, the error injection as failure."
     >
-      <div class="flex flex-col gap-5">
+      <ComponentCanvas title="badge · composition" stage="center" files={badgeCompositionFiles}>
         <div class="flex flex-col gap-3">
           <p class="font-nav text-[15px] tracking-tight">
             deploy pipeline <Badge class="ml-2">running</Badge>
@@ -120,8 +181,8 @@ ${close}
             canary build <Badge class="ml-2 jx-hue-error">failed</Badge>
           </p>
         </div>
-        <CodeBlock code={usage} lang="svelte" meta="usage" />
-      </div>
+      </ComponentCanvas>
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
 
@@ -133,24 +194,32 @@ ${close}
       title="The variant grammar law"
       summary="Prominence is the ladder: fill speaks loudest, tonal is the default voice, outline draws structure only. Hue never widens the union — statuses inject --jx-tonal (neutral, error, success) through a class utility, and the bare Badge is the brand's primary tint. Anything more is noise the eyebrow class already owns."
     >
-      <div class="flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-3">
-          <Badge variant="fill">fill · loudest</Badge>
-          <Badge>tonal · the default</Badge>
-          <Badge variant="outline">outline · structure</Badge>
+      <ComponentCanvas title="badge · ladder" stage="center" files={badgeLawFiles}>
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <Badge variant="fill">fill · loudest</Badge>
+            <Badge>tonal · the default</Badge>
+            <Badge variant="outline">outline · structure</Badge>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <Badge class="jx-hue-neutral">neutral · metadata</Badge>
+            <Badge class="jx-hue-error">error · failure status</Badge>
+            <Badge class="jx-hue-success">success · passing status</Badge>
+          </div>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
-          <Badge class="jx-hue-neutral">neutral · metadata</Badge>
-          <Badge class="jx-hue-error">error · failure status</Badge>
-          <Badge class="jx-hue-success">success · passing status</Badge>
-        </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Badge variants and axes"><div class="flex flex-col items-start gap-3"><div class="flex flex-wrap items-center gap-3"><Badge>default</Badge><Badge variant="fill">fill</Badge><Badge variant="outline">outline</Badge></div><div class="flex flex-wrap items-center gap-3"><Badge class="jx-hue-neutral">neutral</Badge><Badge class="jx-hue-error">error</Badge><Badge class="jx-hue-success">success</Badge></div><div class="flex flex-wrap items-center gap-3"><Badge shape="square">square</Badge><Badge shape="pill">pill</Badge><Badge shape="pill" variant="outline">outline pill</Badge></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Badge variants and axes"><ComponentCanvas title="badge · variants" stage="center" files={badgeTypesFiles}>
+    <div class="flex flex-col items-start gap-3">
+      <div class="flex flex-wrap items-center gap-3"><Badge>default</Badge><Badge variant="fill">fill</Badge><Badge variant="outline">outline</Badge></div>
+      <div class="flex flex-wrap items-center gap-3"><Badge class="jx-hue-neutral">neutral</Badge><Badge class="jx-hue-error">error</Badge><Badge class="jx-hue-success">success</Badge></div>
+      <div class="flex flex-wrap items-center gap-3"><Badge shape="square">square</Badge><Badge shape="pill">pill</Badge><Badge shape="pill" variant="outline">outline pill</Badge></div>
+    </div>
+  </ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'span', value: 'inline status', description: 'Use visible text; do not rely on color alone. Under forced colors the chip degrades to Canvas/CanvasText with the 1px border intact.' }, { name: 'aria-label', value: 'consumer supplied', description: 'Add context when the visible label is abbreviated.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><p class="text-muted-foreground text-[13px] leading-6">the chip rides the density scale through tokens — flip the workbench stage's density toggle (comfortable / compact) above to re-scope the stage alone; the four-copy DensityDemo row is retired by that toggle.</p><div class="mt-5"><TokenTable tokens={[{ name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border.' }, { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected with --jx-fill.' }, { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue source — the status injection seam: jx-hue-* intent utilities, arbitrary form only outside the closed set.' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><p class="text-muted-foreground text-[13px] leading-6">the chip rides the density scale through tokens — flip the canvas dock's density select (xs / sm / default / lg) above to re-scope the stage alone; the four-copy DensityDemo row is retired by that select.</p><div class="mt-5"><TokenTable tokens={[{ name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border.' }, { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected with --jx-fill.' }, { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue source — the status injection seam: jx-hue-* intent utilities, arbitrary form only outside the closed set.' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Badge props"><PropsTable props={[{ name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal' · ambient zone", description: 'Prominence ladder. Hue comes from the global tokens — never a local override. Omitted → the ambient paint zone (ButtonGroup / zone scope), else the frozen own.' }, { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Corner law: --radius (square) or fully round (pill). Own default, not ambient.' }, { name: 'slotStart', type: 'Snippet', description: 'Icon lane before the label; svg sized to the secondary text, inline padding adapts.' }, { name: 'slotEnd', type: 'Snippet', description: 'Icon lane after the label; same adaptive law.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'class', type: 'string', description: 'Consumer classes — also the hue-injection seam, e.g. jx-hue-error (arbitrary form for values outside the closed set).' }]} /></SectionCard></div>
   </div>
 </div>

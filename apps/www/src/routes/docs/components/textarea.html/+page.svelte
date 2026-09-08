@@ -89,6 +89,28 @@
     { name: 'registry/files/ui/textarea/textarea.svelte', content: textareaSource },
     { name: 'src/lib/ui/textarea-usage.svelte', content: usage },
   ];
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  // the variants grid (types section), swept through a canvas: the
+  // plain shell, the count readout, the error state, and the disabled field
+  const textareaTypesDemo = `<script lang="ts">
+  import Textarea from '@ui/textarea.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4"><Textarea label="plain" name="types-plain" rows={3} placeholder="multiline…" /></div>
+  <div class="border border-border p-4"><Textarea label="count" name="types-count" rows={3} maxlength={280} count placeholder="N / maxLength readout…" /></div>
+  <div class="border border-border p-4"><Textarea label="error" name="types-error" rows={2} error="bio is required"></Textarea></div>
+  <div class="border border-border p-4"><Textarea label="disabled" name="types-disabled" rows={2} placeholder="not allowed" disabled /></div>
+</div>`;
+
+  const textareaTypesFiles: TreeFile[] = [
+    { name: 'textarea-types-demo.svelte', content: textareaTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -269,12 +291,14 @@
       title="Textarea variants"
       summary="The plain shell, the toolbar + count posture, the error state, and the disabled field."
     >
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="border border-border p-4"><Textarea label="plain" name="types-plain" rows={3} placeholder="multiline…" /></div>
-        <div class="border border-border p-4"><Textarea label="count" name="types-count" rows={3} maxlength={280} count placeholder="N / maxLength readout…" /></div>
-        <div class="border border-border p-4"><Textarea label="error" name="types-error" rows={2} error="bio is required"></Textarea></div>
-        <div class="border border-border p-4"><Textarea label="disabled" name="types-disabled" rows={2} placeholder="not allowed" disabled /></div>
-      </div>
+      <ComponentCanvas title="textarea · variants" stage="fill" files={textareaTypesFiles}>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="border border-border p-4"><Textarea label="plain" name="types-plain" rows={3} placeholder="multiline…" /></div>
+          <div class="border border-border p-4"><Textarea label="count" name="types-count" rows={3} maxlength={280} count placeholder="N / maxLength readout…" /></div>
+          <div class="border border-border p-4"><Textarea label="error" name="types-error" rows={2} error="bio is required"></Textarea></div>
+          <div class="border border-border p-4"><Textarea label="disabled" name="types-disabled" rows={2} placeholder="not allowed" disabled /></div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal="">

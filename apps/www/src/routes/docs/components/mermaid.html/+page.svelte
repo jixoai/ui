@@ -120,6 +120,103 @@ ${close}
 <!-- an explicit pin reads the target sheet even under the opposite
      live theme — no observer, no global class mutation -->
 <Mermaid theme="dark" source={stateSource} zoomable={false} />`;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const mermaidKindsDemo = `<script lang="ts">
+  import Mermaid from '@ui/mermaid';
+
+const sequenceSource = \`${sequenceSource}\`;
+const stateSource = \`${stateSource}\`;
+const pieSource = \`${pieSource}\`;
+${close}
+
+<div class="flex flex-col gap-5">
+  <div class="border border-border p-4">
+    <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+      sequenceDiagram — the surface's own lifecycle
+    </p>
+    <Mermaid source={sequenceSource} class="w-full max-w-[40rem]" />
+  </div>
+  <div class="grid gap-5 min-[760px]:grid-cols-2">
+    <div class="border border-border p-4">
+      <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+        stateDiagram-v2 — the data-state machine
+      </p>
+      <Mermaid source={stateSource} class="w-full" />
+    </div>
+    <div class="border border-border p-4">
+      <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+        pie showData — the cScale rides the chart tokens
+      </p>
+      <Mermaid source={pieSource} class="w-full" />
+    </div>
+  </div>
+</div>`;
+
+  const mermaidKindsFiles: TreeFile[] = [
+    { name: 'mermaid-kinds-demo.svelte', content: mermaidKindsDemo, kind: 'usage' },
+  ];
+
+  const mermaidThemeDemo = `<script lang="ts">
+  import Mermaid from '@ui/mermaid';
+
+const stateSource = \`${stateSource}\`;
+${close}
+
+<div class="grid gap-5 min-[760px]:grid-cols-2">
+  <div class="flex flex-col gap-2">
+    <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+      theme="light" (pinned)
+    </p>
+    <Mermaid theme="light" source={stateSource} zoomable={false} copyable={false} class="w-full" />
+  </div>
+  <div class="flex flex-col gap-2">
+    <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+      theme="dark" (pinned)
+    </p>
+    <Mermaid theme="dark" source={stateSource} zoomable={false} copyable={false} class="w-full" />
+  </div>
+</div>`;
+
+  const mermaidThemeFiles: TreeFile[] = [
+    { name: 'mermaid-theme-demo.svelte', content: mermaidThemeDemo, kind: 'usage' },
+  ];
+
+  const mermaidZoomDemo = `<script lang="ts">
+  import Mermaid from '@ui/mermaid';
+
+const sequenceSource = \`${sequenceSource}\`;
+${close}
+
+<div class="border border-border p-4">
+  <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+    zoom the sequence above 100% and pan
+  </p>
+  <Mermaid source={sequenceSource} class="w-full max-w-[36rem]" />
+</div>`;
+
+  const mermaidZoomFiles: TreeFile[] = [
+    { name: 'mermaid-zoom-demo.svelte', content: mermaidZoomDemo, kind: 'usage' },
+  ];
+
+  const mermaidErrorDemo = `<script lang="ts">
+  import Mermaid from '@ui/mermaid';
+
+const invalidSource = \`${invalidSource}\`;
+${close}
+
+<div class="border border-border p-4">
+  <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+    a source the parser rejects
+  </p>
+  <Mermaid source={invalidSource} class="w-full max-w-[36rem]" />
+</div>`;
+
+  const mermaidErrorFiles: TreeFile[] = [
+    { name: 'mermaid-error-demo.svelte', content: mermaidErrorDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -207,28 +304,30 @@ ${close}
         title="Sequence, state, pie — every grammar the engine speaks"
         summary="The surface is grammar-agnostic: whatever mermaid parses renders. Each card here is a separate instance — distinct render ids, one shared lazy engine, renders serialized through the engine's promise chain."
       >
-        <div class="flex flex-col gap-5">
-          <div class="border border-border p-4">
-            <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              sequenceDiagram — the surface's own lifecycle
-            </p>
-            <Mermaid source={sequenceSource} class="w-full max-w-[40rem]" />
-          </div>
-          <div class="grid gap-5 min-[760px]:grid-cols-2">
+        <ComponentCanvas title="mermaid · kinds" stage="fill" files={mermaidKindsFiles}>
+          <div class="flex flex-col gap-5">
             <div class="border border-border p-4">
               <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-                stateDiagram-v2 — the data-state machine
+                sequenceDiagram — the surface's own lifecycle
               </p>
-              <Mermaid source={stateSource} class="w-full" />
+              <Mermaid source={sequenceSource} class="w-full max-w-[40rem]" />
             </div>
-            <div class="border border-border p-4">
-              <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-                pie showData — the cScale rides the chart tokens
-              </p>
-              <Mermaid source={pieSource} class="w-full" />
+            <div class="grid gap-5 min-[760px]:grid-cols-2">
+              <div class="border border-border p-4">
+                <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                  stateDiagram-v2 — the data-state machine
+                </p>
+                <Mermaid source={stateSource} class="w-full" />
+              </div>
+              <div class="border border-border p-4">
+                <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                  pie showData — the cScale rides the chart tokens
+                </p>
+                <Mermaid source={pieSource} class="w-full" />
+              </div>
             </div>
           </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -242,20 +341,22 @@ ${close}
         summary="Every themed fill below is derived from the live design tokens: probes inside each figure resolve the var() chains, color-utils converts to mermaid-safe hex, and the one-source-per-field table maps them onto theme 'base'. Auto follows any ancestor flip; an explicit pin stays put."
       >
         <div class="flex flex-col gap-5">
-          <div class="grid gap-5 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-2">
-              <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-                theme="light" (pinned)
-              </p>
-              <Mermaid theme="light" source={stateSource} zoomable={false} copyable={false} class="w-full" />
+          <ComponentCanvas title="mermaid · theme pins" stage="fill" files={mermaidThemeFiles}>
+            <div class="grid gap-5 min-[760px]:grid-cols-2">
+              <div class="flex flex-col gap-2">
+                <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                  theme="light" (pinned)
+                </p>
+                <Mermaid theme="light" source={stateSource} zoomable={false} copyable={false} class="w-full" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                  theme="dark" (pinned)
+                </p>
+                <Mermaid theme="dark" source={stateSource} zoomable={false} copyable={false} class="w-full" />
+              </div>
             </div>
-            <div class="flex flex-col gap-2">
-              <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-                theme="dark" (pinned)
-              </p>
-              <Mermaid theme="dark" source={stateSource} zoomable={false} copyable={false} class="w-full" />
-            </div>
-          </div>
+          </ComponentCanvas>
           <p class="text-muted-foreground text-pretty text-[13px] leading-6">
             Flip the site's theme toggle and every <code class="text-accent">auto</code> card on
             this page re-renders — the surface passes its own figure as the engine's
@@ -279,12 +380,14 @@ ${close}
         summary="The zoom trio steps ±0.25 (clamped 0.5–3) and resets to 1; the scale rides a transform on the inner wrapper while the viewport becomes the pan surface. No re-render, no engine call — zooming never queues a render."
       >
         <div class="flex flex-col gap-5">
-          <div class="border border-border p-4">
-            <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              zoom the sequence above 100% and pan
-            </p>
-            <Mermaid source={sequenceSource} class="w-full max-w-[36rem]" />
-          </div>
+          <ComponentCanvas title="mermaid · zoom & pan" stage="fill" files={mermaidZoomFiles}>
+            <div class="border border-border p-4">
+              <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                zoom the sequence above 100% and pan
+              </p>
+              <Mermaid source={sequenceSource} class="w-full max-w-[36rem]" />
+            </div>
+          </ComponentCanvas>
           <p class="text-muted-foreground text-pretty text-[13px] leading-6">
             The viewport is the recorded two-axis exemption from the shared scroll-run system:
             a pan surface for scaled content is not a linear overflow strip, so it rides the
@@ -306,12 +409,14 @@ ${close}
         summary="data-state=error paints the error summary strip (the diagnostic's first line) ABOVE the source floor — the floor never disappears on failure, the same fallback law as code-card."
       >
         <div class="flex flex-col gap-5">
-          <div class="border border-border p-4">
-            <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              a source the parser rejects
-            </p>
-            <Mermaid source={invalidSource} class="w-full max-w-[36rem]" />
-          </div>
+          <ComponentCanvas title="mermaid · error floor" stage="fill" files={mermaidErrorFiles}>
+            <div class="border border-border p-4">
+              <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                a source the parser rejects
+              </p>
+              <Mermaid source={invalidSource} class="w-full max-w-[36rem]" />
+            </div>
+          </ComponentCanvas>
           <p class="text-muted-foreground text-pretty text-[13px] leading-6">
             Fix the source and the next render succeeds — the engine's serial queue is
             rejection-recovering, so a failed render never poisons the next one. The summary

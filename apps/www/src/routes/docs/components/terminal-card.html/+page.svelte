@@ -44,6 +44,41 @@
   }
 
   // ToC outline: pairs with the region ids below, in page order.
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirror of
+  // the effect-only bezel grid below — the same-source resolveRawCode
+  // migration of this string is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  const terminalCardTypesDemo = `<script lang="ts">
+  import TerminalCard from '@ui/terminal-card.svelte';
+${close}
+
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">theme dark (default)</span>
+    <TerminalCard
+      barTitle="quick-start — zsh"
+      command="npx jixoai-ui add terminal-card"
+      outputs={['terminal-card.svelte → src/lib/ui/']}
+    />
+    <span class="text-muted-foreground text-[12.5px]">the dark-locked bezel</span>
+  </div>
+  <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">theme light</span>
+    <TerminalCard
+      theme="light"
+      barTitle="quick-start — zsh"
+      command="npx jixoai-ui add terminal-card"
+      outputs={['light CRT shell — scoped token class']}
+    />
+    <span class="text-muted-foreground text-[12.5px]">'light' | 'system' opts into the light shell</span>
+  </div>
+</div>`;
+
+  const terminalCardTypesFiles: TreeFile[] = [
+    { name: 'terminal-card-types-demo.svelte', content: terminalCardTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -152,10 +187,12 @@
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two bezel shells: the dark lock by default, the light CRT shell by opt-in.">
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">theme dark (default)</span><TerminalCard barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['terminal-card.svelte → src/lib/ui/']} /><span class="text-muted-foreground text-[12.5px]">the dark-locked bezel</span></div>
-      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">theme light</span><TerminalCard theme="light" barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['light CRT shell — scoped token class']} /><span class="text-muted-foreground text-[12.5px]">'light' | 'system' opts into the light shell</span></div>
-    </div>
+    <ComponentCanvas title="terminal-card · bezels" stage="fill" files={terminalCardTypesFiles}>
+      <div class="flex flex-wrap items-start gap-6">
+        <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">theme dark (default)</span><TerminalCard barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['terminal-card.svelte → src/lib/ui/']} /><span class="text-muted-foreground text-[12.5px]">the dark-locked bezel</span></div>
+        <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">theme light</span><TerminalCard theme="light" barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['light CRT shell — scoped token class']} /><span class="text-muted-foreground text-[12.5px]">'light' | 'system' opts into the light shell</span></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="command as a plain string; outputs surface line by line after the typing completes — replay by re-mounting."><CodeBlock code={usage} lang="svelte" meta="TerminalCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The settled terminal is real text in the markup; the entrance is decoration hidden from readers."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'On the traffic-light dots and the static block cursor — pure scenery' }, { name: 'prerendered output', value: 'settled', description: 'typed = command in markup: the full command + outputs are real text before any JS' }, { name: 'prefers-reduced-motion', value: 'instant', description: 'Returns before the first timer — the card renders fully settled' }]} /></SectionCard></div>

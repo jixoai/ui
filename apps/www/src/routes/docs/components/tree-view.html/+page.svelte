@@ -342,6 +342,36 @@ ${close}
   let miniChecked = $state<string[]>(['docs/tokens.html']);
 
   // ToC outline: pairs with the region ids below, in page order.
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+
+  // the built-in variants grid (types section), swept through a canvas:
+  // the chevron default, the plus toggler + lines, and the multiselect
+  const treeViewTypesDemo = `<script lang="ts">
+  import TreeView, { type TreeNode } from '@ui/tree-view.svelte';
+  import TreeViewMulti from '@ui/tree-view-multiselect.svelte';
+${close}
+
+const leaf = (name: string): TreeNode => ({ name });
+const miniTree: TreeNode[] = [
+  { name: 'src', children: [leaf('icons.ts'), leaf('site.ts')] },
+  { name: 'docs', children: [leaf('tokens.html')] },
+  leaf('package.json'),
+];
+let miniSelected = $state('src/icons.ts');
+let miniChecked = $state<string[]>(['docs/tokens.html']);
+
+<div class="grid w-full items-start gap-4 min-[900px]:grid-cols-3">
+  <div class="border border-border p-3"><TreeView nodes={miniTree} defaultExpanded={['src']} selected={miniSelected} fileIcons onselect={(ctx) => (miniSelected = ctx.id)} /></div>
+  <div class="border border-border p-3"><TreeView nodes={miniTree} defaultExpanded={['src', 'docs']} toggle="plus" lines indent={24} /></div>
+  <div class="border border-border p-3"><TreeViewMulti nodes={miniTree} defaultExpanded={['src', 'docs']} bind:checked={miniChecked} /></div>
+</div>`;
+
+  const treeViewTypesFiles: TreeFile[] = [
+    { name: 'tree-view-types-demo.svelte', content: treeViewTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -641,11 +671,13 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Tree-view variants" summary="The built-ins stop where they must — toggler glyph, guide lines, indent — and the shipped multiselect extension adds tri-state cascade.">
-    <div class="grid items-start gap-4 min-[900px]:grid-cols-3">
-      <div class="border border-border p-3"><TreeView nodes={miniTree} defaultExpanded={['src']} selected={miniSelected} fileIcons onselect={(ctx) => (miniSelected = ctx.id)} /></div>
-      <div class="border border-border p-3"><TreeView nodes={miniTree} defaultExpanded={['src', 'docs']} toggle="plus" lines indent={24} /></div>
-      <div class="border border-border p-3"><TreeViewMulti nodes={miniTree} defaultExpanded={['src', 'docs']} bind:checked={miniChecked} /></div>
-    </div>
+    <ComponentCanvas title="tree-view · variants" stage="fill" files={treeViewTypesFiles}>
+      <div class="grid w-full items-start gap-4 min-[900px]:grid-cols-3">
+        <div class="border border-border p-3"><TreeView nodes={miniTree} defaultExpanded={['src']} selected={miniSelected} fileIcons onselect={(ctx) => (miniSelected = ctx.id)} /></div>
+        <div class="border border-border p-3"><TreeView nodes={miniTree} defaultExpanded={['src', 'docs']} toggle="plus" lines indent={24} /></div>
+        <div class="border border-border p-3"><TreeViewMulti nodes={miniTree} defaultExpanded={['src', 'docs']} bind:checked={miniChecked} /></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Nodes are plain data (name/children/disabled/meta); selection stays consumer-owned through the controlled selected prop."><CodeBlock code={usageCode} lang="svelte" meta="Tree-view usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A native-ARIA tree: nested tree/group/treeitem roles, roving tabindex, and the full APG arrow contract."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move focus between visible items (roving tabindex)' }, { key: '→', action: 'Expand a collapsed folder, or jump into its first child' }, { key: '←', action: 'Collapse an expanded folder, or return to the parent' }, { key: 'Home / End', action: 'Jump to the first / last visible item' }, { key: 'Enter / Space', action: 'Activate the item — folders toggle, leaves select; extensions may preventDefault' }]} aria={[{ name: 'role', value: 'tree / group / treeitem', description: 'Nested native-ARIA tree roles; one tab stop by roving tabindex.' }, { name: 'aria-expanded', value: 'folders only', description: 'Reports the folder’s collapsed state.' }, { name: 'aria-selected', value: 'leaves only', description: 'Mirrors the controlled selected path id.' }, { name: 'aria-disabled', value: 'disabled nodes', description: 'Focusable for screen readers, never activatable (APG disabled treeitem).' }, { name: 'aria-label', value: 'ariaLabel prop', description: 'Names the tree (default "tree").' }]} /></SectionCard></div>

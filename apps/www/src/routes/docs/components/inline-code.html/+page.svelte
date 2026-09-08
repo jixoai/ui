@@ -48,6 +48,31 @@ ${close}
     { name: 'src/lib/ui/inline-code-usage.svelte', content: usage },
   ];
 
+  // canvas-everywhere sweep (2026-09-08): the ladder-trio demo's usage
+  // mirror — hand-authored to match the stage markup (same-source
+  // migration is the recorded follow-up).
+  const inlineCodeVariantsDemo = `<script lang="ts">
+  import InlineCode from '@ui/inline-code.svelte';
+${close}
+
+<!-- the ladder trio over the page ground -->
+<InlineCode>fused · the page ground</InlineCode>
+<InlineCode variant="tonal">tonal · neutral default</InlineCode>
+<InlineCode variant="outline">outline · structural</InlineCode>
+<InlineCode variant="tonal" class="jx-hue-success">tonal · injected success</InlineCode>
+
+<!-- fused earns its name over tonal / patterned grounds -->
+<div class="flex flex-wrap items-center gap-3 rounded-(--radius) bg-muted p-4">
+  <InlineCode>fused over a tonal ground</InlineCode>
+  <InlineCode variant="tonal">tonal</InlineCode>
+  <InlineCode variant="outline">outline</InlineCode>
+</div>
+<div class="flex flex-wrap items-center gap-3 rounded-(--radius) p-4 bg-[repeating-linear-gradient(45deg,var(--muted)_0_8px,transparent_8px_16px)]">
+  <InlineCode>fused over a pattern</InlineCode>
+  <InlineCode variant="tonal">tonal</InlineCode>
+  <InlineCode variant="outline">outline</InlineCode>
+</div>`;
+
   // the engine seam, on the record: the chain + the two override lanes
   const engineUsage = `<script lang="ts">
   import InlineCode from '@ui/inline-code.svelte';
@@ -266,24 +291,30 @@ ${close}
         summary="Fused is the backdrop-fusion rung: a transparent ground plus a backdrop contrast filter pulling whatever sits BEHIND the chip toward mid — near-black lifts, near-white dims — so the band reads over any ground with zero color tokens. The fusion IS the frame: the width-only border is painted transparent (currentColor would leak) and forced-colors repaints it CanvasText. On a flat page ground it is deliberately near-invisible — the ghost's own quiet; over tonal or patterned grounds it earns its name. Tonal tints 12%/45% from --jx-tonal; outline lets the 1px --jx-outline border do the work."
       >
         <div class="flex flex-col gap-4">
-          <div class="flex flex-wrap items-center gap-3 text-[13.5px]">
-            <InlineCode>fused · the page ground</InlineCode>
-            <InlineCode variant="tonal">tonal · neutral default</InlineCode>
-            <InlineCode variant="outline">outline · structural</InlineCode>
-            <InlineCode variant="tonal" class="jx-hue-success">tonal · injected success</InlineCode>
-          </div>
-          <div class="flex flex-wrap items-center gap-3 rounded-(--radius) bg-muted p-4 text-[13.5px]">
-            <InlineCode>fused over a tonal ground</InlineCode>
-            <InlineCode variant="tonal">tonal</InlineCode>
-            <InlineCode variant="outline">outline</InlineCode>
-          </div>
-          <div
-            class="flex flex-wrap items-center gap-3 rounded-(--radius) p-4 text-[13.5px] bg-[repeating-linear-gradient(45deg,var(--muted)_0_8px,transparent_8px_16px)]"
+          <ComponentCanvas
+            title="inline-code · ladder"
+            stage="fill"
+            files={[{ name: 'inline-code-variants-demo.svelte', content: inlineCodeVariantsDemo, kind: 'usage' }]}
           >
-            <InlineCode>fused over a pattern</InlineCode>
-            <InlineCode variant="tonal">tonal</InlineCode>
-            <InlineCode variant="outline">outline</InlineCode>
-          </div>
+            <div class="flex flex-wrap items-center gap-3 text-[13.5px]">
+              <InlineCode>fused · the page ground</InlineCode>
+              <InlineCode variant="tonal">tonal · neutral default</InlineCode>
+              <InlineCode variant="outline">outline · structural</InlineCode>
+              <InlineCode variant="tonal" class="jx-hue-success">tonal · injected success</InlineCode>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 rounded-(--radius) bg-muted p-4 text-[13.5px]">
+              <InlineCode>fused over a tonal ground</InlineCode>
+              <InlineCode variant="tonal">tonal</InlineCode>
+              <InlineCode variant="outline">outline</InlineCode>
+            </div>
+            <div
+              class="flex flex-wrap items-center gap-3 rounded-(--radius) p-4 text-[13.5px] bg-[repeating-linear-gradient(45deg,var(--muted)_0_8px,transparent_8px_16px)]"
+            >
+              <InlineCode>fused over a pattern</InlineCode>
+              <InlineCode variant="tonal">tonal</InlineCode>
+              <InlineCode variant="outline">outline</InlineCode>
+            </div>
+          </ComponentCanvas>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>
       </SectionCard>

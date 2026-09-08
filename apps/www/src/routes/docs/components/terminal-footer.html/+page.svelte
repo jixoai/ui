@@ -44,6 +44,36 @@ ${close}
     { name: 'registry/files/ui/terminal-footer/terminal-footer.css', content: terminalFooterCssSource },
     { name: 'src/lib/ui/terminal-footer-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirror of
+  // the effect-only column grid below — the same-source resolveRawCode
+  // migration of this string is the recorded follow-up -------------
+  const terminalFooterTypesDemo = `<script lang="ts">
+  import TerminalFooterColumn from '@ui/terminal-footer/terminal-footer-column.svelte';
+${close}
+
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">titled column</span>
+    <TerminalFooterColumn title="project">
+      <a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="/r/registry.json">Registry JSON</a>
+    </TerminalFooterColumn>
+    <span class="text-muted-foreground text-[12.5px]">title + free link children</span>
+  </div>
+  <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">untitled stack</span>
+    <TerminalFooterColumn>
+      <a href="/docs.html">Docs</a>
+      <a href="/recipes.html">Recipes</a>
+    </TerminalFooterColumn>
+    <span class="text-muted-foreground text-[12.5px]">omit title for a bare link stack</span>
+  </div>
+</div>`;
+
+  const terminalFooterTypesFiles: TreeFile[] = [
+    { name: 'terminal-footer-types-demo.svelte', content: terminalFooterTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -148,10 +178,12 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One footer shell; the meta row is composed freely — titled or untitled columns of free links.">
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">titled column</span><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a><a href="/r/registry.json">Registry JSON</a></TerminalFooterColumn><span class="text-muted-foreground text-[12.5px]">title + free link children</span></div>
-      <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">untitled stack</span><TerminalFooterColumn><a href="/docs.html">Docs</a><a href="/recipes.html">Recipes</a></TerminalFooterColumn><span class="text-muted-foreground text-[12.5px]">omit title for a bare link stack</span></div>
-    </div>
+    <ComponentCanvas title="terminal-footer · columns" stage="fill" files={terminalFooterTypesFiles}>
+      <div class="flex flex-wrap items-start gap-6">
+        <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">titled column</span><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a><a href="/r/registry.json">Registry JSON</a></TerminalFooterColumn><span class="text-muted-foreground text-[12.5px]">title + free link children</span></div>
+        <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">untitled stack</span><TerminalFooterColumn><a href="/docs.html">Docs</a><a href="/recipes.html">Recipes</a></TerminalFooterColumn><span class="text-muted-foreground text-[12.5px]">omit title for a bare link stack</span></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the footer from column parts; ghost and copyright are the shell's own strings."><CodeBlock code={usage} lang="svelte" meta="TerminalFooter usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The ghost is decorative by declaration; the real content is the composed landmark and its free links."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the column links in composed order' }]} aria={[{ name: 'aria-hidden', value: 'true', description: 'On the ghost wordmark + select-none — pure sign-off, never information' }, { name: 'footer', value: 'landmark', description: 'The root is a real footer element' }, { name: 'target/rel', value: 'yours', description: 'External link attributes are authored by the caller on the free anchors' }]} /></SectionCard></div>

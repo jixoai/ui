@@ -31,6 +31,99 @@
     { name: 'src/lib/ui/skeleton-usage.svelte', content: usage },
   ];
 
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  // the composition shells (composition section): card, list and table
+  // loading mirrors — each shell is the real layout over bare blocks
+  const skeletonShellsDemo = `<script lang="ts">
+  import Skeleton from '@ui/skeleton.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-3">
+  <div class="border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">card shell</span>
+    <div class="mt-3 flex flex-col gap-3" aria-busy="true">
+      <Skeleton class="h-28 w-full" />
+      <div class="flex items-center gap-3">
+        <Skeleton class="size-8" />
+        <div class="flex flex-1 flex-col gap-2">
+          <Skeleton class="h-3 w-2/3" />
+          <Skeleton class="h-3 w-1/3" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">list shell</span>
+    <div class="mt-3 flex flex-col gap-3" aria-busy="true">
+      {#each [64, 92, 78, 85] as w (w)}
+        <div class="flex items-center gap-3">
+          <Skeleton class="size-6" />
+          <Skeleton class="h-3" style="width: {w}%" />
+        </div>
+      {/each}
+    </div>
+  </div>
+  <div class="border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">table shell</span>
+    <div class="mt-3 flex flex-col gap-2" aria-busy="true">
+      <div class="grid grid-cols-3 gap-2">
+        <Skeleton class="h-3" />
+        <Skeleton class="h-3" />
+        <Skeleton class="h-3" />
+      </div>
+      {#each [0, 1, 2] as row (row)}
+        <div class="grid grid-cols-3 gap-2 border-t border-border/60 pt-2">
+          <Skeleton class="h-3 w-4/5" />
+          <Skeleton class="h-3 w-full" />
+          <Skeleton class="h-3 w-2/3" />
+        </div>
+      {/each}
+    </div>
+  </div>
+</div>`;
+
+  const skeletonShellsFiles: TreeFile[] = [
+    { name: 'skeleton-shells-demo.svelte', content: skeletonShellsDemo, kind: 'usage' },
+  ];
+
+  // the geometry cells (types section): avatar block, text lanes,
+  // full-bleed card — every shape is consumer geometry
+  const skeletonTypesDemo = `<script lang="ts">
+  import Skeleton from '@ui/skeleton.svelte';
+${close}
+
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex min-w-52 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">avatar block</span>
+    <Skeleton class="size-10" />
+    <span class="text-muted-foreground text-[12.5px]">class="size-10"</span>
+  </div>
+  <div class="flex min-w-52 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text lanes</span>
+    <div class="flex flex-col gap-2">
+      <Skeleton class="h-3 w-32" />
+      <Skeleton class="h-3 w-20" />
+    </div>
+    <span class="text-muted-foreground text-[12.5px]">class="h-3 w-32" and friends</span>
+  </div>
+  <div class="flex min-w-52 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full-bleed card</span>
+    <div class="flex flex-col gap-2">
+      <Skeleton class="h-3 w-full" />
+      <Skeleton class="h-3 w-3/4" />
+    </div>
+    <span class="text-muted-foreground text-[12.5px]">width/aspect from the parent layout</span>
+  </div>
+</div>`;
+
+  const skeletonTypesFiles: TreeFile[] = [
+    { name: 'skeleton-types-demo.svelte', content: skeletonTypesDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with the section ids below, in page order.
 </script>
 
@@ -104,51 +197,53 @@
       eyebrow="demo"
       title="Composition shells"
       summary="Card, list and table loading mirrors — each shell is your real layout composed from bare blocks, with aria-busy on the shell container. The async-feedback pair: these shells are what shows while a PressButton is in its loading pose or a promise toast says pending."
-    >
-      <div class="grid gap-4 sm:grid-cols-3">
-        <div class="border border-border p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">card shell</span>
-          <div class="mt-3 flex flex-col gap-3" aria-busy="true">
-            <Skeleton class="h-28 w-full" />
-            <div class="flex items-center gap-3">
-              <Skeleton class="size-8" />
-              <div class="flex flex-1 flex-col gap-2">
-                <Skeleton class="h-3 w-2/3" />
-                <Skeleton class="h-3 w-1/3" />
+      >
+        <ComponentCanvas title="skeleton · shells" stage="fill" files={skeletonShellsFiles}>
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="border border-border p-4">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">card shell</span>
+              <div class="mt-3 flex flex-col gap-3" aria-busy="true">
+                <Skeleton class="h-28 w-full" />
+                <div class="flex items-center gap-3">
+                  <Skeleton class="size-8" />
+                  <div class="flex flex-1 flex-col gap-2">
+                    <Skeleton class="h-3 w-2/3" />
+                    <Skeleton class="h-3 w-1/3" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="border border-border p-4">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">list shell</span>
+              <div class="mt-3 flex flex-col gap-3" aria-busy="true">
+                {#each [64, 92, 78, 85] as w (w)}
+                  <div class="flex items-center gap-3">
+                    <Skeleton class="size-6" />
+                    <Skeleton class="h-3" style="width: {w}%" />
+                  </div>
+                {/each}
+              </div>
+            </div>
+            <div class="border border-border p-4">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">table shell</span>
+              <div class="mt-3 flex flex-col gap-2" aria-busy="true">
+                <div class="grid grid-cols-3 gap-2">
+                  <Skeleton class="h-3" />
+                  <Skeleton class="h-3" />
+                  <Skeleton class="h-3" />
+                </div>
+                {#each [0, 1, 2] as row (row)}
+                  <div class="grid grid-cols-3 gap-2 border-t border-border/60 pt-2">
+                    <Skeleton class="h-3 w-4/5" />
+                    <Skeleton class="h-3 w-full" />
+                    <Skeleton class="h-3 w-2/3" />
+                  </div>
+                {/each}
               </div>
             </div>
           </div>
-        </div>
-        <div class="border border-border p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">list shell</span>
-          <div class="mt-3 flex flex-col gap-3" aria-busy="true">
-            {#each [64, 92, 78, 85] as w (w)}
-              <div class="flex items-center gap-3">
-                <Skeleton class="size-6" />
-                <Skeleton class="h-3" style="width: {w}%" />
-              </div>
-            {/each}
-          </div>
-        </div>
-        <div class="border border-border p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">table shell</span>
-          <div class="mt-3 flex flex-col gap-2" aria-busy="true">
-            <div class="grid grid-cols-3 gap-2">
-              <Skeleton class="h-3" />
-              <Skeleton class="h-3" />
-              <Skeleton class="h-3" />
-            </div>
-            {#each [0, 1, 2] as row (row)}
-              <div class="grid grid-cols-3 gap-2 border-t border-border/60 pt-2">
-                <Skeleton class="h-3 w-4/5" />
-                <Skeleton class="h-3 w-full" />
-                <Skeleton class="h-3 w-2/3" />
-              </div>
-            {/each}
-          </div>
-        </div>
-      </div>
-      <p class="text-muted-foreground mt-4 text-[13px] leading-6">
+        </ComponentCanvas>
+        <p class="text-muted-foreground mt-4 text-[13px] leading-6">
         Geometry is always the consumer's — the blocks are bare, the shells are your layout, and the
         loading STATE lives on the shell (<code class="text-accent">aria-busy="true"</code>), never
         per block.
@@ -172,11 +267,13 @@
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One bare block — every shape (avatar, lane, card) is your geometry via class or parent layout.">
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">avatar block</span><Skeleton class="size-10" /><span class="text-muted-foreground text-[12.5px]">class="size-10"</span></div>
-      <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text lanes</span><div class="flex flex-col gap-2"><Skeleton class="h-3 w-32" /><Skeleton class="h-3 w-20" /></div><span class="text-muted-foreground text-[12.5px]">class="h-3 w-32" and friends</span></div>
-      <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full-bleed card</span><div class="flex flex-col gap-2"><Skeleton class="h-3 w-full" /><Skeleton class="h-3 w-3/4" /></div><span class="text-muted-foreground text-[12.5px]">width/aspect from the parent layout</span></div>
-    </div>
+    <ComponentCanvas title="skeleton · types" stage="center" files={skeletonTypesFiles}>
+      <div class="flex flex-wrap items-start gap-6">
+        <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">avatar block</span><Skeleton class="size-10" /><span class="text-muted-foreground text-[12.5px]">class="size-10"</span></div>
+        <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text lanes</span><div class="flex flex-col gap-2"><Skeleton class="h-3 w-32" /><Skeleton class="h-3 w-20" /></div><span class="text-muted-foreground text-[12.5px]">class="h-3 w-32" and friends</span></div>
+        <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full-bleed card</span><div class="flex flex-col gap-2"><Skeleton class="h-3 w-full" /><Skeleton class="h-3 w-3/4" /></div><span class="text-muted-foreground text-[12.5px]">width/aspect from the parent layout</span></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose blocks into the loading mirror of your real layout; put aria-busy on the container."><CodeBlock code={usage} lang="svelte" meta="Skeleton usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Placeholder blocks are decoration; the loading STATE is semantics that belongs to the container."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'Set on every block — placeholder scenery is never announced' }, { name: 'aria-busy', value: '"true"', description: 'The consumer puts it on the loading container — the contract home' }, { name: 'live region', value: 'optional', description: 'A visually-hidden "loading…" region announces politely once, if aria-busy is not enough' }]} /></SectionCard></div>

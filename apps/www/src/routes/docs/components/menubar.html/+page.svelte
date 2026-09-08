@@ -67,6 +67,28 @@ ${close}
     { name: 'src/lib/ui/menubar-usage.svelte', content: usage, kind: 'usage' },
   ];
 
+  // canvas-everywhere sweep (2026-09-08): hand-authored mirror of the
+  // variants grid below — the same-source resolveRawCode migration is
+  // the recorded follow-up
+  const menubarTypesDemo = `<script lang="ts">
+  import {
+    Menubar,
+    MenubarItem,
+    MenubarTrigger,
+    MenubarPanel,
+    MenubarMenuItem,
+  } from '@ui/menubar/index';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4"><Menubar label="automatic"><MenubarItem id="types-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div>
+  <div class="border border-border p-4"><Menubar label="solid" variant="solid"><MenubarItem id="types-edit"><MenubarTrigger>Edit</MenubarTrigger><MenubarPanel><MenubarMenuItem>Undo</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div>
+</div>`;
+
+  const typesFiles: TreeFile[] = [
+    { name: 'menubar-types-demo.svelte', content: menubarTypesDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with +page.ts, in page order.
 </script>
 
@@ -155,7 +177,9 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Menubar variants" summary="Compose top-level menus with linked triggers and panels, choosing the surface variant at the root.">
+    <ComponentCanvas title="menubar · variants" stage="fill" files={typesFiles}>
     <div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Menubar label="automatic"><MenubarItem id="types-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div><div class="border border-border p-4"><Menubar label="solid" variant="solid"><MenubarItem id="types-edit"><MenubarTrigger>Edit</MenubarTrigger><MenubarPanel><MenubarMenuItem>Undo</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div></div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="MenubarItem owns the stable id; Trigger and Panel derive their paired ids from it."><CodeBlock code={usage} lang="svelte" meta="Menubar usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The application menu follows menubar and menu keyboard patterns with a roving top-level tab stop."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move across top-level menus or within an open panel.' }, { key: 'Home / End', action: 'Jump to the first or last menu.' }, { key: 'Escape', action: 'Close the panel and return focus to its trigger.' }]} aria={[{ name: 'role', value: 'menubar / menuitem / menu', description: 'Exposes the application menu hierarchy.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs each trigger with its panel.' }, { name: 'aria-haspopup', value: 'menu', description: 'Identifies triggers that open a menu.' }]} /></SectionCard></div>

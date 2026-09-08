@@ -102,6 +102,64 @@ const stackSuggestions: Tag[] = [
   const resolveTagsUsage =
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? tagsUsageLive : file.content;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  // the RTL geometry demo (rtl section): logical properties only, the
+  // writing mode does the rest
+  const tagsRtlDemo = `<script lang="ts">
+  import TagsInput, { type Tag } from '@ui/tags-input.svelte';
+${close}
+
+<!-- nothing branches on direction: chips wrap in logical flow, the
+     panel anchors with logical offsets -->
+<div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+  <TagsInput label="stack (rtl)" bind:tags maxTags={4} suggestions={[
+    { value: 'svelte' }, { value: 'typescript' }, { value: 'node' },
+    { value: 'bun' }, { value: 'deno' }, { value: 'rust' },
+  ]} />
+  <span class="text-muted-foreground text-[12px]">
+    dir="rtl" — chips right-first, panel edge inline-start
+  </span>
+</div>`;
+
+  const tagsRtlFiles: TreeFile[] = [
+    { name: 'tags-rtl-demo.svelte', content: tagsRtlDemo, kind: 'usage' },
+  ];
+
+  // the variant cells (types section): suggestions, the cap, a pinned
+  // chip, and the error state
+  const tagsTypesDemo = `<script lang="ts">
+  import TagsInput from '@ui/tags-input.svelte';
+
+  const tagSuggestions = [
+    { value: 'svelte' }, { value: 'typescript' }, { value: 'node' },
+    { value: 'bun' }, { value: 'deno' }, { value: 'rust' },
+    { value: 'ffi' }, { value: 'conpty' }, { value: 'websocket' },
+  ];
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4">
+    <TagsInput label="with suggestions" tags={[{ value: 'svelte' }]} suggestions={tagSuggestions} />
+  </div>
+  <div class="border border-border p-4">
+    <TagsInput label="maxTags 2 (capped)" tags={[{ value: 'node' }, { value: 'bun' }]} maxTags={2} />
+  </div>
+  <div class="border border-border p-4">
+    <TagsInput label="pinned chip" tags={[{ value: 'owner', removable: false }, { value: 'release' }]} />
+  </div>
+  <div class="border border-border p-4">
+    <TagsInput label="error" tags={[]} error="at least one label is required" />
+  </div>
+</div>`;
+
+  const tagsTypesFiles: TreeFile[] = [
+    { name: 'tags-types-demo.svelte', content: tagsTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -251,23 +309,25 @@ const stackSuggestions: Tag[] = [
       eyebrow="geometry"
       title="RTL — geometry from logical properties"
       summary="Nothing in the component branches on direction: the chips wrap in logical flow and the suggestion panel anchors with logical offsets. The writing mode does the rest."
-    >
-      <div class="grid gap-5 min-[760px]:grid-cols-2">
-        <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
-          <TagsInput label="stack (rtl)" bind:tags={rtlTags} suggestions={tagSuggestions} maxTags={4} />
-          <span class="text-muted-foreground text-[12px]">
-            dir="rtl" — chips right-first, panel edge inline-start
-          </span>
-        </div>
-        <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
-          <p class="text-pretty">
-            The chip host wraps in logical flow, the selected-row edge is
-            <code class="text-accent">border-inline-start</code>, and the panel anchors with CSS
-            Anchor Positioning whose offsets are logical too. The writing mode does the rest.
-          </p>
-        </div>
-      </div>
-    </SectionCard>
+      >
+        <ComponentCanvas title="tags-input · rtl" stage="fill" files={tagsRtlFiles}>
+          <div class="grid gap-5 min-[760px]:grid-cols-2">
+            <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+              <TagsInput label="stack (rtl)" bind:tags={rtlTags} suggestions={tagSuggestions} maxTags={4} />
+              <span class="text-muted-foreground text-[12px]">
+                dir="rtl" — chips right-first, panel edge inline-start
+              </span>
+            </div>
+            <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
+              <p class="text-pretty">
+                The chip host wraps in logical flow, the selected-row edge is
+                <code class="text-accent">border-inline-start</code>, and the panel anchors with CSS
+                Anchor Positioning whose offsets are logical too. The writing mode does the rest.
+              </p>
+            </div>
+          </div>
+        </ComponentCanvas>
+      </SectionCard>
   </div>
   </div>
 </div>
@@ -284,20 +344,22 @@ const stackSuggestions: Tag[] = [
       title="TagsInput variants"
       summary="The suggestion-backed host, the maxTags-capped field, a pinned (non-removable) chip, and the error state."
     >
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="border border-border p-4">
-          <TagsInput label="with suggestions" tags={[{ value: 'svelte' }]} suggestions={tagSuggestions} />
+      <ComponentCanvas title="tags-input · variants" stage="fill" files={tagsTypesFiles}>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="border border-border p-4">
+            <TagsInput label="with suggestions" tags={[{ value: 'svelte' }]} suggestions={tagSuggestions} />
+          </div>
+          <div class="border border-border p-4">
+            <TagsInput label="maxTags 2 (capped)" tags={[{ value: 'node' }, { value: 'bun' }]} maxTags={2} />
+          </div>
+          <div class="border border-border p-4">
+            <TagsInput label="pinned chip" tags={[{ value: 'owner', removable: false }, { value: 'release' }]} />
+          </div>
+          <div class="border border-border p-4">
+            <TagsInput label="error" tags={[]} error="at least one label is required" />
+          </div>
         </div>
-        <div class="border border-border p-4">
-          <TagsInput label="maxTags 2 (capped)" tags={[{ value: 'node' }, { value: 'bun' }]} maxTags={2} />
-        </div>
-        <div class="border border-border p-4">
-          <TagsInput label="pinned chip" tags={[{ value: 'owner', removable: false }, { value: 'release' }]} />
-        </div>
-        <div class="border border-border p-4">
-          <TagsInput label="error" tags={[]} error="at least one label is required" />
-        </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal="">

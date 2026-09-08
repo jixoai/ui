@@ -69,6 +69,61 @@ ${close}
     { name: 'registry/files/ui/avatar.svelte', content: avatarSource },
     { name: 'src/lib/ui/avatar-usage.svelte', content: canvasUsageLive },
   ];
+
+  // the silhouettes matrix (avatar-shapes section), swept through a
+  // canvas: each silhouette at all three sizes, its corner law beside
+  // it (hand-authored mirror of the stage markup)
+  const avatarShapesDemo = `<script lang="ts">
+  import Avatar from '@ui/avatar.svelte';
+${close}
+
+<!-- corner-shape: bevel + var(--radius) × size (6·8·10px) -->
+<Avatar name="张伟" variant="bevel" size="lg" alt="" />
+<Avatar name="JX AoI" variant="bevel" size="md" alt="" />
+<Avatar name="JX AoI" variant="bevel" size="sm" alt="" />
+
+<!-- corner-shape: round + border-radius: 50% -->
+<Avatar name="张伟" variant="rounded" size="lg" alt="" />
+<Avatar name="JX AoI" variant="rounded" size="md" alt="" />
+<Avatar name="JX AoI" variant="rounded" size="sm" alt="" />
+
+<!-- corner-shape: squircle + border-radius: 50% -->
+<Avatar name="张伟" variant="squircle" size="lg" alt="" />
+<Avatar name="JX AoI" variant="squircle" size="md" alt="" />
+<Avatar name="JX AoI" variant="squircle" size="sm" alt="" />`;
+
+  const avatarShapesFiles: TreeFile[] = [
+    { name: 'avatar-shapes-demo.svelte', content: avatarShapesDemo, kind: 'usage' },
+  ];
+
+  // the variants matrix (types section), swept through a canvas:
+  // silhouettes, fixed sizes, the initials fallback, and the image +
+  // tooltip posture in one pass
+  const avatarTypesDemo = `<script lang="ts">
+  import Avatar from '@ui/avatar.svelte';
+${close}
+
+<!-- silhouettes -->
+<Avatar name="张伟" variant="bevel" alt="" />
+<Avatar name="JX AoI" variant="rounded" alt="" />
+<Avatar name="JX AoI" variant="squircle" alt="" />
+
+<!-- sizes — sm 24 · md 32 · lg 40 -->
+<Avatar name="JX AoI" size="sm" alt="" />
+<Avatar name="JX AoI" size="md" alt="" />
+<Avatar name="JX AoI" size="lg" alt="" />
+
+<!-- initials fallback (no source) -->
+<Avatar name="Ada Lovelace" alt="" />
+<Avatar name="Gaubee" alt="" />
+<Avatar name="张伟" size="sm" alt="" />
+
+<!-- image + tooltip: hover or focus — the full name rides the default tooltip -->
+<Avatar src="/icon.svg" name="JX AoI" size="lg" />`;
+
+  const avatarTypesFiles: TreeFile[] = [
+    { name: 'avatar-types-demo.svelte', content: avatarTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -157,16 +212,18 @@ ${close}
       title="One geometry, three corners"
       summary="The silhouette is one CSS decision layered on the same box: bevel keeps the jixoai radius law with var(--radius) riding the md baseline and scaled by the same proportion at sm and lg (6 / 8 / 10px — 0 where corner-shape is unsupported, the brutalist square), rounded states corner-shape: round with a 50% radius for a true circle, and squircle states corner-shape: squircle with the same 50% for the superellipse — engines without corner-shape simply round it back to the circle. Nothing degrades ugly."
     >
-      <div class="flex flex-col gap-4">
-        {#each silhouettes as { variant: v, law } (v)}
-          <div class="flex flex-wrap items-center gap-4">
-            <Avatar name="张伟" variant={v} size="lg" alt="" />
-            <Avatar name="JX AoI" variant={v} size="md" alt="" />
-            <Avatar name="JX AoI" variant={v} size="sm" alt="" />
-            <code class="text-accent text-[11.5px] leading-5">{law}</code>
-          </div>
-        {/each}
-      </div>
+      <ComponentCanvas title="avatar · silhouettes" stage="center" files={avatarShapesFiles}>
+        <div class="flex flex-col gap-4">
+          {#each silhouettes as { variant: v, law } (v)}
+            <div class="flex flex-wrap items-center gap-4">
+              <Avatar name="张伟" variant={v} size="lg" alt="" />
+              <Avatar name="JX AoI" variant={v} size="md" alt="" />
+              <Avatar name="JX AoI" variant={v} size="sm" alt="" />
+              <code class="text-accent text-[11.5px] leading-5">{law}</code>
+            </div>
+          {/each}
+        </div>
+      </ComponentCanvas>
       <CodeBlock code={shapesUsage} lang="svelte" meta="silhouettes" />
     </SectionCard>
   </div>
@@ -187,39 +244,41 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Avatar variants" summary="Three silhouettes on one geometry, three fixed sizes, and a deterministic initials fallback.">
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">silhouettes</p>
-        <div class="flex items-center gap-3">
-          <Avatar name="张伟" variant="bevel" alt="" />
-          <Avatar name="JX AoI" variant="rounded" alt="" />
-          <Avatar name="JX AoI" variant="squircle" alt="" />
+    <ComponentCanvas title="avatar · variants" stage="fill" files={avatarTypesFiles}>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">silhouettes</p>
+          <div class="flex items-center gap-3">
+            <Avatar name="张伟" variant="bevel" alt="" />
+            <Avatar name="JX AoI" variant="rounded" alt="" />
+            <Avatar name="JX AoI" variant="squircle" alt="" />
+          </div>
+        </div>
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">sizes — sm 24 · md 32 · lg 40</p>
+          <div class="flex items-center gap-3">
+            <Avatar name="JX AoI" size="sm" alt="" />
+            <Avatar name="JX AoI" size="md" alt="" />
+            <Avatar name="JX AoI" size="lg" alt="" />
+          </div>
+        </div>
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">initials fallback</p>
+          <div class="flex items-center gap-3">
+            <Avatar name="Ada Lovelace" alt="" />
+            <Avatar name="Gaubee" alt="" />
+            <Avatar name="张伟" size="sm" alt="" />
+          </div>
+        </div>
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">image + tooltip</p>
+          <div class="flex items-center gap-3">
+            <Avatar src="/icon.svg" name="JX AoI" size="lg" />
+            <span class="text-[12.5px] text-muted-foreground">hover or focus — the full name rides the default tooltip</span>
+          </div>
         </div>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">sizes — sm 24 · md 32 · lg 40</p>
-        <div class="flex items-center gap-3">
-          <Avatar name="JX AoI" size="sm" alt="" />
-          <Avatar name="JX AoI" size="md" alt="" />
-          <Avatar name="JX AoI" size="lg" alt="" />
-        </div>
-      </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">initials fallback</p>
-        <div class="flex items-center gap-3">
-          <Avatar name="Ada Lovelace" alt="" />
-          <Avatar name="Gaubee" alt="" />
-          <Avatar name="张伟" size="sm" alt="" />
-        </div>
-      </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">image + tooltip</p>
-        <div class="flex items-center gap-3">
-          <Avatar src="/icon.svg" name="JX AoI" size="lg" />
-          <span class="text-[12.5px] text-muted-foreground">hover or focus — the full name rides the default tooltip</span>
-        </div>
-      </div>
-    </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a name; the image is optional — the fallback covers failed or missing sources."><CodeBlock code={usage} lang="svelte" meta="Avatar usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The avatar is content: alt defaults to the name, and the fallback block keeps the same label with role=img."><A11yTable keys={[{ key: '—', action: 'Not interactive — an image; the name tooltip also opens on focus' }]} aria={[{ name: 'alt', value: 'name (default)', description: 'The avatar is content; pass alt="" for decorative avatars beside a visible name.' }, { name: 'role', value: 'img', description: 'On the initials fallback block (omitted when decorative).' }, { name: 'aria-label', value: 'name', description: 'On the fallback block, keeping the label identical to the img path.' }, { name: 'aria-hidden', value: 'true', description: 'On the fallback block when alt="" marks it decorative.' }]} /></SectionCard></div>

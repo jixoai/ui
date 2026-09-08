@@ -69,6 +69,26 @@
     { name: 'registry/files/ui/radio/radio.svelte', content: radioSource },
     { name: 'src/lib/ui/radio-usage.svelte', content: usage },
   ];
+
+  // A literal closing-script tag inside a template literal would terminate
+  // this component's own script tag during the HTML-level scan — splice it.
+  const close = '</' + 'script>';
+
+  // the variants matrix (types section), swept through a canvas: the
+  // checked state, labelSide left, and the disabled state
+  const radioTypesDemo = `<script lang="ts">
+  import Radio from '@ui/radio.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-3">
+  <div class="border border-border p-4"><Radio label="selected" name="types-radio" checked /></div>
+  <div class="border border-border p-4"><Radio label="label left" name="types-radio-left" labelSide="left" /></div>
+  <div class="border border-border p-4"><Radio label="disabled" name="types-radio-disabled" disabled /></div>
+</div>`;
+
+  const radioTypesFiles: TreeFile[] = [
+    { name: 'radio-types-demo.svelte', content: radioTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -187,7 +207,7 @@
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Radio variants" summary="Same-name radios form one native choice set; use label placement and disabled state as needed.">
-    <div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Radio label="selected" name="types-radio" checked /></div><div class="border border-border p-4"><Radio label="label left" name="types-radio-left" labelSide="left" /></div><div class="border border-border p-4"><Radio label="disabled" name="types-radio-disabled" disabled /></div></div>
+    <ComponentCanvas title="radio · variants" stage="fill" files={radioTypesFiles}><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Radio label="selected" name="types-radio" checked /></div><div class="border border-border p-4"><Radio label="label left" name="types-radio-left" labelSide="left" /></div><div class="border border-border p-4"><Radio label="disabled" name="types-radio-disabled" disabled /></div></div></ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give every option the same name and bind the selected value when the parent needs it."><CodeBlock code={usage} lang="svelte" meta="Radio usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Native radio grouping supplies arrow-key walking and form semantics; the component adds explicit validation wiring."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move selection within same-name radio group' }, { key: 'Space', action: 'Select the focused radio' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }]} /></SectionCard></div>

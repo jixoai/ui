@@ -206,6 +206,80 @@
      error destructive) -->
 <Input label="email" labelMode="floating" placeholder="you@host.tld" />
 <Input label="email" labelMode="floating" error="email is required" />`;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  const inputAllTypesDemo = `<script lang="ts">
+  import Input from '@ui/input.svelte';
+  import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+${close}
+
+<CardGrid min="230px">
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="text" label="text" name="demo_text" placeholder="plain text" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="password" label="password" name="demo_password" placeholder="••••••••" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="email" label="email" name="demo_email" placeholder="you@host.tld" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="number" label="number" name="demo_number" placeholder="42" min="0" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="number" label="number (native-controls)" name="demo_number_native" placeholder="42" min="0" nativeControls />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="search" label="search" name="demo_search" placeholder="grep…" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="date" label="date" name="demo_date" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="datetime-local" label="datetime-local" name="demo_datetime" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="time" label="time" name="demo_time" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="week" label="week" name="demo_week" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="month" label="month" name="demo_month" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="range" label="range" name="demo_range" min="0" max="100" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="color" label="color" name="demo_color" value="#007924" />
+  </div>
+  <div class="demo-cell" data-no-subgrid>
+    <Input type="text" label="disabled" name="demo_disabled" placeholder="not allowed" disabled />
+  </div>
+</CardGrid>`;
+
+  const allTypesFiles: TreeFile[] = [
+    { name: 'input-all-types-demo.svelte', content: inputAllTypesDemo, kind: 'usage' },
+  ];
+
+  const inputTypesDemo = `<script lang="ts">
+  import Input from '@ui/input.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4"><Input type="text" label="text" name="types-text" placeholder="plain text" /></div>
+  <div class="border border-border p-4"><Input type="search" label="search" name="types-search" placeholder="grep…" clearable /></div>
+  <div class="border border-border p-4"><Input type="email" label="error" name="types-error" value="not-an-email" error="email is required" /></div>
+  <div class="border border-border p-4"><Input type="text" label="disabled" name="types-disabled" placeholder="not allowed" disabled /></div>
+</div>`;
+
+  const typesFiles: TreeFile[] = [
+    { name: 'input-types-demo.svelte', content: inputTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -294,7 +368,8 @@
       title="All native types"
       summary="One component, every type the platform ships. Text-like types take the bordered shell; range and color get full Tier-1 native repaints (the pure-CSS slider and the swatch-plus-pipette color field); the date/datetime-local/week/month/time lanes open embedded Popover-API panels behind the repainted ink indicator, and number swaps its platform spinner for the custom −/+ stepper pair (↑/↓ stepping stays). checkbox and radio split into their own pure-CSS components, and file picking and dates have their professional homes in file-input and date-picker — those native types still pass through here as the bare controls."
     >
-      <CardGrid min="230px">
+      <ComponentCanvas title="input · all native types" stage="fill" files={allTypesFiles}>
+        <CardGrid min="230px">
         <div class="demo-cell" data-no-subgrid>
           <Input type="text" label="text" name="demo_text" placeholder="plain text" />
         </div>
@@ -337,7 +412,8 @@
         <div class="demo-cell" data-no-subgrid>
           <Input type="text" label="disabled" name="demo_disabled" placeholder="not allowed" disabled />
         </div>
-      </CardGrid>
+        </CardGrid>
+      </ComponentCanvas>
       <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
         Tab through the grid: every control is keyboard-reachable with its platform behavior —
         the color swatches, the range arrows, the date/time pickers (the calendar indicator is
@@ -617,12 +693,14 @@
       title="Input variants"
       summary="One component, four rendering lanes: the text-like shell, the clearable search field, the error state, and the disabled field."
     >
-      <div class="grid gap-4 sm:grid-cols-2">
+      <ComponentCanvas title="input · variants" stage="fill" files={typesFiles}>
+        <div class="grid gap-4 sm:grid-cols-2">
         <div class="border border-border p-4"><Input type="text" label="text" name="types-text" placeholder="plain text" /></div>
         <div class="border border-border p-4"><Input type="search" label="search" name="types-search" placeholder="grep…" clearable /></div>
         <div class="border border-border p-4"><Input type="email" label="error" name="types-error" value="not-an-email" error="email is required" /></div>
         <div class="border border-border p-4"><Input type="text" label="disabled" name="types-disabled" placeholder="not allowed" disabled /></div>
-      </div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal="">
@@ -672,9 +750,9 @@
       <div class="flex flex-col gap-6">
         <p class="text-muted-foreground text-[13px] leading-6">
           the shell, label, and error rhythm are pure density-scope tokens — flip the canvas
-          stage's density toggle (comfortable / compact) above to re-scope the workbench stage
+          dock's density select (xs / sm / default / lg) above to re-scope the workbench stage
           alone; the docs chrome and every other canvas keep their seats. The four-copy
-          DensityDemo row is retired by that toggle.
+          DensityDemo row is retired by that select.
         </p>
         <TokenTable
           tokens={[

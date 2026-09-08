@@ -129,6 +129,71 @@ let current = \$state(1);
     { name: 'src/lib/ui/steps-usage.svelte', content: usage, kind: 'usage' },
   ];
 
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const stepsStatesDemo = `<script lang="ts">
+  import Steps, {
+    StepsItem,
+    StepsIndicator,
+    StepsTitle,
+    StepsDescription,
+    StepsSeparator,
+  } from '@ui/steps/index';
+${close}
+
+<!-- the derived trio plus the override words, three rows by state group -->
+<div class="flex flex-col gap-6">
+  <div class="w-full max-w-2xl">
+    <Steps current={1}>
+      <StepsItem step={0} label="done"><StepsIndicator /><StepsTitle>done</StepsTitle><StepsDescription>step &lt; current · solid fill + ✓ · connector painted primary</StepsDescription><StepsSeparator /></StepsItem>
+      <StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsDescription>step = current · aria-current=step · solid fill + its number</StepsDescription><StepsSeparator /></StepsItem>
+      <StepsItem step={2} state="pending"><StepsIndicator /><StepsTitle>pending</StepsTitle><StepsDescription>the middle state · hollow + the breathing ⋯ · submitted, in flight</StepsDescription><StepsSeparator /></StepsItem>
+    </Steps>
+  </div>
+  <div class="w-full max-w-2xl">
+    <Steps current={1}>
+      <StepsItem step={0} state="success"><StepsIndicator /><StepsTitle>success</StepsTitle><StepsDescription>the terminal win · ✓ on the success pair</StepsDescription><StepsSeparator /></StepsItem>
+      <StepsItem step={1} state="error"><StepsIndicator /><StepsTitle>error</StepsTitle><StepsDescription>the terminal failure · ✕ on the error pair</StepsDescription><StepsSeparator /></StepsItem>
+      <StepsItem step={2} state="hint"><StepsIndicator /><StepsTitle>hint</StepsTitle><StepsDescription>informational · i on the info pair</StepsDescription><StepsSeparator /></StepsItem>
+    </Steps>
+  </div>
+  <div class="w-full max-w-2xl">
+    <Steps current={1}>
+      <StepsItem step={0} state="emphasis"><StepsIndicator /><StepsTitle>emphasis</StepsTitle><StepsDescription>the quest-giver ! · hollow + halo ring · look here</StepsDescription><StepsSeparator /></StepsItem>
+      <StepsItem step={1} state="disabled"><StepsIndicator /><StepsTitle>disabled</StepsTitle><StepsDescription>declared out-of-reach · dashed ring, reduced contrast, spoken "unavailable" — unlike todo (the merely unreached)</StepsDescription><StepsSeparator /></StepsItem>
+      <StepsItem step={2}><StepsIndicator /><StepsTitle>todo</StepsTitle><StepsDescription>step &gt; current · hollow ring at full contrast · inert</StepsDescription></StepsItem>
+    </Steps>
+  </div>
+</div>`;
+
+  const stepsStatesFiles: TreeFile[] = [
+    { name: 'steps-states-demo.svelte', content: stepsStatesDemo, kind: 'usage' },
+  ];
+
+  // the derived trio alone (types section): done / current / future as
+  // pure ordinal comparison
+  const stepsTypesDemo = `<script lang="ts">
+  import Steps, {
+    StepsItem,
+    StepsIndicator,
+    StepsTitle,
+    StepsSeparator,
+  } from '@ui/steps/index';
+${close}
+
+<div class="w-full max-w-2xl">
+  <Steps current={1}>
+    <StepsItem step={0}><StepsIndicator /><StepsTitle>done</StepsTitle><StepsSeparator /></StepsItem>
+    <StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsSeparator /></StepsItem>
+    <StepsItem step={2}><StepsIndicator /><StepsTitle>future</StepsTitle></StepsItem>
+  </Steps>
+</div>`;
+
+  const stepsTypesFiles: TreeFile[] = [
+    { name: 'steps-types-demo.svelte', content: stepsTypesDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with +page.ts, in page order.
 </script>
 
@@ -164,17 +229,16 @@ let current = \$state(1);
       <ComponentCanvas
         title="steps"
         stage="center"
-        pane="below"
-        description="Walk the wizard: click a completed step's check-marker to go back, or drive current from the playground — every Indicator, Title, Description and Separator below is authored, never auto-inserted. The pane rides BELOW the stage on this canvas: a three-column wizard row needs its full width, and the side pane would squeeze each item back into the word-waterfall."
+        description="Walk the wizard: click a completed step's check-marker to go back, or drive current from the playground — every Indicator, Title, Description and Separator below is authored, never auto-inserted. The playground rides the floating dock over the stage's top-right corner: the wizard row keeps the full stage width, and one click collapses the dock to its chrome chip when you want the corner back."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/steps/steps.svelte"
         files={canvasFiles}
         onreset={resetCanvas}
         output={[{ label: 'current', value: current }]}
         resolveFileContent={resolveUsage}
       >
-        <!-- V2-3 demo layout: the main wizard row spans the FULL stage
-             (pane=below bought the width; no max-w cap — the states
-             gallery below keeps its compact max-w-2xl) -->
+        <!-- the main wizard row spans the FULL stage (the permanent
+             posture — no max-w cap; the states gallery below keeps its
+             compact max-w-2xl) -->
         <div class="w-full">
           <Steps {current}>
             {#each [0, 1, 2] as step (step)}
@@ -210,33 +274,35 @@ let current = \$state(1);
         title="the state vocabulary — nine words for where a step stands"
         summary="The derived trio (done / current / todo) is pure ordinal comparison — it cannot say submitted-but-waiting, it cannot say won or lost, it cannot say look here or closed. The state prop overrides the trio with the missing words. Read it as a wizard form AND as the markers over an NPC's head: ⋯ is the quest in flight, ! is the quest-giver, ✓ is turn-in day, ✕ is the failure state."
       >
-        <div class="flex flex-col gap-6">
-          <div class="w-full max-w-2xl">
-            <Steps current={1}>
-              <StepsItem step={0} label="done"><StepsIndicator /><StepsTitle>done</StepsTitle><StepsDescription>step &lt; current · solid fill + ✓ · connector painted primary</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsDescription>step = current · aria-current=step · solid fill + its number</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={2} state="pending"><StepsIndicator /><StepsTitle>pending</StepsTitle><StepsDescription>the middle state · hollow + the breathing ⋯ · submitted, in flight</StepsDescription><StepsSeparator /></StepsItem>
-            </Steps>
+        <ComponentCanvas title="steps · state vocabulary" stage="fill" files={stepsStatesFiles}>
+          <div class="flex flex-col gap-6">
+            <div class="w-full max-w-2xl">
+              <Steps current={1}>
+                <StepsItem step={0} label="done"><StepsIndicator /><StepsTitle>done</StepsTitle><StepsDescription>step &lt; current · solid fill + ✓ · connector painted primary</StepsDescription><StepsSeparator /></StepsItem>
+                <StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsDescription>step = current · aria-current=step · solid fill + its number</StepsDescription><StepsSeparator /></StepsItem>
+                <StepsItem step={2} state="pending"><StepsIndicator /><StepsTitle>pending</StepsTitle><StepsDescription>the middle state · hollow + the breathing ⋯ · submitted, in flight</StepsDescription><StepsSeparator /></StepsItem>
+              </Steps>
+            </div>
+            <div class="w-full max-w-2xl">
+              <Steps current={1}>
+                <StepsItem step={0} state="success"><StepsIndicator /><StepsTitle>success</StepsTitle><StepsDescription>the terminal win · ✓ on the success pair</StepsDescription><StepsSeparator /></StepsItem>
+                <StepsItem step={1} state="error"><StepsIndicator /><StepsTitle>error</StepsTitle><StepsDescription>the terminal failure · ✕ on the error pair</StepsDescription><StepsSeparator /></StepsItem>
+                <StepsItem step={2} state="hint"><StepsIndicator /><StepsTitle>hint</StepsTitle><StepsDescription>informational · i on the info pair</StepsDescription><StepsSeparator /></StepsItem>
+              </Steps>
+            </div>
+            <div class="w-full max-w-2xl">
+              <Steps current={1}>
+                <StepsItem step={0} state="emphasis"><StepsIndicator /><StepsTitle>emphasis</StepsTitle><StepsDescription>the quest-giver ! · hollow + halo ring · look here</StepsDescription><StepsSeparator /></StepsItem>
+                <StepsItem step={1} state="disabled"><StepsIndicator /><StepsTitle>disabled</StepsTitle><StepsDescription>declared out-of-reach · dashed ring, reduced contrast, spoken "unavailable" — unlike todo (the merely unreached)</StepsDescription><StepsSeparator /></StepsItem>
+                <StepsItem step={2}><StepsIndicator /><StepsTitle>todo</StepsTitle><StepsDescription>step &gt; current · hollow ring at full contrast · inert</StepsDescription></StepsItem>
+              </Steps>
+            </div>
           </div>
-          <div class="w-full max-w-2xl">
-            <Steps current={1}>
-              <StepsItem step={0} state="success"><StepsIndicator /><StepsTitle>success</StepsTitle><StepsDescription>the terminal win · ✓ on the success pair</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={1} state="error"><StepsIndicator /><StepsTitle>error</StepsTitle><StepsDescription>the terminal failure · ✕ on the error pair</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={2} state="hint"><StepsIndicator /><StepsTitle>hint</StepsTitle><StepsDescription>informational · i on the info pair</StepsDescription><StepsSeparator /></StepsItem>
-            </Steps>
-          </div>
-          <div class="w-full max-w-2xl">
-            <Steps current={1}>
-              <StepsItem step={0} state="emphasis"><StepsIndicator /><StepsTitle>emphasis</StepsTitle><StepsDescription>the quest-giver ! · hollow + halo ring · look here</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={1} state="disabled"><StepsIndicator /><StepsTitle>disabled</StepsTitle><StepsDescription>declared out-of-reach · dashed ring, reduced contrast, spoken "unavailable" — unlike todo (the merely unreached)</StepsDescription><StepsSeparator /></StepsItem>
-              <StepsItem step={2}><StepsIndicator /><StepsTitle>todo</StepsTitle><StepsDescription>step &gt; current · hollow ring at full contrast · inert</StepsDescription></StepsItem>
-            </Steps>
-          </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
-    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Step states" summary="Each item compares its explicit ordinal with current: completed, current and future are projections of one number. The explicit state prop overrides the comparison when the trio cannot say it."><div class="w-full max-w-2xl"><Steps current={1}><StepsItem step={0}><StepsIndicator /><StepsTitle>done</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={2}><StepsIndicator /><StepsTitle>future</StepsTitle></StepsItem></Steps></div></SectionCard></div>
+    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Step states" summary="Each item compares its explicit ordinal with current: completed, current and future are projections of one number. The explicit state prop overrides the comparison when the trio cannot say it."><ComponentCanvas title="steps · derived trio" stage="fill" files={stepsTypesFiles}><div class="w-full max-w-2xl"><Steps current={1}><StepsItem step={0}><StepsIndicator /><StepsTitle>done</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={1}><StepsIndicator /><StepsTitle>current</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={2}><StepsIndicator /><StepsTitle>future</StepsTitle></StepsItem></Steps></div></ComponentCanvas></SectionCard></div>
     <div id="usage" data-reveal=""><SectionCard summary="The composition contract in one sample: import the family from the registry barrel (@ui/steps/index — per-part targets exist per file), give every StepsItem its explicit step ordinal, author the parts you want. The Separator self-hides on the last item through the family css — chrome, not authoring." eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'aria-current', value: 'step', description: 'Marks the current step — the derived trio and an explicit state="current" both carry it.' }, { name: 'sr-only status', value: 'per-item state text', description: 'The marker glyphs are aria-hidden chrome, so every item speaks its effective state as text (completed · current step · in progress · unavailable · …) — the vocabulary reaches AT as words.' }, { name: 'button', value: 'completed indicator', description: 'Makes completed steps keyboard actionable only when onclick is supplied; after a go-back click, focus rests on the item (tabindex=-1), never on body.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Steps current={0}><StepsItem step={0}><StepsIndicator /><StepsTitle>step</StepsTitle></StepsItem></Steps></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>

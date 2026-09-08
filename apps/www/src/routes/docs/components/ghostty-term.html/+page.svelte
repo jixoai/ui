@@ -54,6 +54,48 @@ keys/paste ─▶ keyEncode + paste gate ─▶ onData(bytes) ─▶ your pty`;
     { name: 'src/lib/ui/ghostty-term-usage/ghostty-term-usage.svelte', content: usage },
   ];
 
+  // ---- canvas-everywhere sweep (2026-09-08): usage mirrors for the
+  // degradation + density SectionCard demos below — hand-authored to
+  // match each stage's markup minus the page-local boot machinery
+  // (same-source migration is the recorded follow-up).
+  const ghosttyDegradationDemo = `<script lang="ts">
+  import GhosttyTerm from '@ui/ghostty-term';
+${close}
+
+<!-- a failed wasm load never crashes the page: without a slot the
+     default fallback face is a terminal-styled status line -->
+<div class="h-40">
+  <GhosttyTerm wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" />
+</div>
+
+<!-- with the children slot, the consumer owns the degraded face outright -->
+<div class="h-40">
+  <GhosttyTerm wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm">
+    <div
+      class="absolute inset-0 flex items-center justify-center p-4 font-mono text-[13px] leading-5 text-terminal-foreground"
+      role="status"
+    >
+      <span class="text-primary mr-2" aria-hidden="true">$</span>
+      consumer fallback — this face is the children slot
+    </div>
+  </GhosttyTerm>
+</div>`;
+
+  const ghosttyDensityDemo = `<script lang="ts">
+  import GhosttyTerm from '@ui/ghostty-term';
+${close}
+
+<!-- the density prop: --jx-text sets the cell font, --jx-line the pitch -->
+<div class="h-32"><GhosttyTerm density="sm" /></div>
+<div class="h-32"><GhosttyTerm /></div>
+<div class="h-32"><GhosttyTerm density="lg" /></div>
+
+<!-- theme restyles only the SHELL paper/ink; ANSI passes verbatim -->
+<div class="h-[9.5rem]"><GhosttyTerm /></div>
+<div class="h-[9.5rem]">
+  <GhosttyTerm theme={{ background: '#141019', foreground: '#f0e6ff' }} />
+</div>`;
+
   const initCode = `# 1 — the jixoai base on a tailwind v4 + vite project
 npx jixoai-ui init --hue 330`;
 
@@ -665,38 +707,44 @@ export default {
         title="Failure & degradation"
         summary="Loading is a state machine — data-state goes loading → ready | error — and a failed wasm load never crashes the page. Without a slot, the default fallback face is a terminal-styled status line; with the children slot, the consumer owns the degraded face outright."
       >
-        <div class="flex flex-wrap items-start gap-6">
-          <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
-              >default fallback (no slot)</span
-            >
-            <div class="h-40">
-              <GhosttyTerm wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" />
+        <ComponentCanvas
+          title="ghostty-term · degradation"
+          stage="fill"
+          files={[{ name: 'ghostty-term-degradation-demo.svelte', content: ghosttyDegradationDemo, kind: 'usage' }]}
+        >
+          <div class="flex flex-wrap items-start gap-6">
+            <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
+                >default fallback (no slot)</span
+              >
+              <div class="h-40">
+                <GhosttyTerm wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" />
+              </div>
+              <span class="text-muted-foreground text-[12.5px]"
+                >role="status" face — the typed GhosttyVTError message names the failure</span
+              >
             </div>
-            <span class="text-muted-foreground text-[12.5px]"
-              >role="status" face — the typed GhosttyVTError message names the failure</span
-            >
-          </div>
-          <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
-              >children slot (consumer face)</span
-            >
-            <div class="h-40">
-              <GhosttyTerm wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm">
-                <div
-                  class="absolute inset-0 flex items-center justify-center p-4 font-mono text-[13px] leading-5 text-terminal-foreground"
-                  role="status"
-                >
-                  <span class="text-primary mr-2" aria-hidden="true">$</span>
-                  consumer fallback — this face is the children slot
-                </div>
-              </GhosttyTerm>
+            <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4">
+              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
+                >children slot (consumer face)</span
+              >
+              <div class="h-40">
+                <GhosttyTerm wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm">
+                  <div
+                    class="absolute inset-0 flex items-center justify-center p-4 font-mono text-[13px] leading-5 text-terminal-foreground"
+                    role="status"
+                  >
+                    <span class="text-primary mr-2" aria-hidden="true">$</span>
+                    consumer fallback — this face is the children slot
+                  </div>
+                </GhosttyTerm>
+              </div>
+              <span class="text-muted-foreground text-[12.5px]"
+                >the slot also covers loading/ready as a plain overlay</span
+              >
             </div>
-            <span class="text-muted-foreground text-[12.5px]"
-              >the slot also covers loading/ready as a plain overlay</span
-            >
           </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -710,41 +758,47 @@ export default {
         summary="Density rides the standard token kernels: --jx-text sets the cell font, --jx-line sets the row pitch — the same explicit density prop as every jixoai component. Theming is deliberately one-sided: the theme prop (and the --terminal tokens) restyle only the SHELL paper/ink; ANSI 8/256/truecolor content colors pass through the wasm verbatim."
       >
         <div class="flex flex-col gap-6">
-          <div class="flex flex-wrap gap-4">
-            <div class="min-w-64 flex-1">
-              <span class="font-nav text-primary mb-2 block text-[11px] uppercase tracking-[0.24em]"
-                >density prop — cell metrics follow</span
-              >
-              <div class="flex flex-col gap-3">
-                <div class="h-32">
-                  <GhosttyTerm density="sm" bind:this={dSm} onResize={() => bootSm(dSm)} />
+          <ComponentCanvas
+            title="ghostty-term · density"
+            stage="fill"
+            files={[{ name: 'ghostty-term-density-demo.svelte', content: ghosttyDensityDemo, kind: 'usage' }]}
+          >
+            <div class="flex flex-wrap gap-4">
+              <div class="min-w-64 flex-1">
+                <span class="font-nav text-primary mb-2 block text-[11px] uppercase tracking-[0.24em]"
+                  >density prop — cell metrics follow</span
+                >
+                <div class="flex flex-col gap-3">
+                  <div class="h-32">
+                    <GhosttyTerm density="sm" bind:this={dSm} onResize={() => bootSm(dSm)} />
+                  </div>
+                  <div class="h-32">
+                    <GhosttyTerm bind:this={dDefault} onResize={() => bootDefault(dDefault)} />
+                  </div>
+                  <div class="h-32">
+                    <GhosttyTerm density="lg" bind:this={dLg} onResize={() => bootLg(dLg)} />
+                  </div>
                 </div>
-                <div class="h-32">
-                  <GhosttyTerm bind:this={dDefault} onResize={() => bootDefault(dDefault)} />
-                </div>
-                <div class="h-32">
-                  <GhosttyTerm density="lg" bind:this={dLg} onResize={() => bootLg(dLg)} />
+              </div>
+              <div class="min-w-64 flex-1">
+                <span class="font-nav text-primary mb-2 block text-[11px] uppercase tracking-[0.24em]"
+                  >theme — shell only, ANSI verbatim</span
+                >
+                <div class="flex flex-col gap-3">
+                  <div class="h-[9.5rem]">
+                    <GhosttyTerm bind:this={tShell} onResize={() => bootTShell(tShell)} />
+                  </div>
+                  <div class="h-[9.5rem]">
+                    <GhosttyTerm
+                      bind:this={tCustom}
+                      onResize={() => bootTCustom(tCustom)}
+                      theme={{ background: '#141019', foreground: '#f0e6ff' }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="min-w-64 flex-1">
-              <span class="font-nav text-primary mb-2 block text-[11px] uppercase tracking-[0.24em]"
-                >theme — shell only, ANSI verbatim</span
-              >
-              <div class="flex flex-col gap-3">
-                <div class="h-[9.5rem]">
-                  <GhosttyTerm bind:this={tShell} onResize={() => bootTShell(tShell)} />
-                </div>
-                <div class="h-[9.5rem]">
-                  <GhosttyTerm
-                    bind:this={tCustom}
-                    onResize={() => bootTCustom(tCustom)}
-                    theme={{ background: '#141019', foreground: '#f0e6ff' }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          </ComponentCanvas>
         </div>
       </SectionCard>
     </div>

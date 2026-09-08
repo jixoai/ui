@@ -98,6 +98,109 @@ ${close}
 </Card>`);
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
+
+  // the foot seats (foot-flexibility section), swept through a canvas:
+  // the start text seat + grouped cluster, and the raw end slot
+  // (hand-authored mirrors of the stage markup)
+  const cardFootDemo = `<script lang="ts">
+  import Card from '@ui/card.svelte';
+  import CardFooter from '@ui/card-footer.svelte';
+  import PressButton from '@ui/press-button/press-button.svelte';
+${close}
+
+<Card title="start + grouped actions">
+  {#snippet foot()}
+    <CardFooter label="cart actions">
+      {#snippet start()}<span>3 items · \$42.00</span>{/snippet}
+      <PressButton>Clear</PressButton>
+      <PressButton variant="fill">Checkout</PressButton>
+    </CardFooter>
+  {/snippet}
+  <p>Meta text on the content axis; the cluster rides the edge flush.</p>
+</Card>
+
+<Card title="raw end slot">
+  {#snippet foot()}
+    <CardFooter>
+      {#snippet end()}<span>auto-saved 2m ago</span>{/snippet}
+    </CardFooter>
+  {/snippet}
+  <p>The end slot replaces the grouped arrangement — a text seat at the content axis, 14px shy of the edge.</p>
+</Card>`;
+
+  const cardFootFiles: TreeFile[] = [
+    { name: 'card-foot-demo.svelte', content: cardFootDemo, kind: 'usage' },
+  ];
+
+  // the foot-mode grid (grid-composition section), swept through a
+  // canvas: headers align, bodies fill, feet land on the band bottom
+  const cardGridDemo = `<script lang="ts">
+  import Card from '@ui/card.svelte';
+  import CardFooter from '@ui/card-footer.svelte';
+  import CardGrid from '@ui/card-grid.svelte';
+  import PressButton from '@ui/press-button/press-button.svelte';
+${close}
+
+<CardGrid foot min="240px">
+  <Card title="usage">
+    {#snippet foot()}
+      <CardFooter>{#snippet end()}<span>npx jixoai-ui add card</span>{/snippet}</CardFooter>
+    {/snippet}
+    <p>One install, three files: the surface, the head face, the foot face.</p>
+  </Card>
+  <Card title="anatomy">
+    {#snippet foot()}
+      <CardFooter><PressButton variant="fill">Save</PressButton></CardFooter>
+    {/snippet}
+    <p>Head zone, edge-riding separator, the scroll ring, the foot seat.</p>
+  </Card>
+  <Card title="the longer body">
+    {#snippet foot()}
+      <CardFooter>
+        {#snippet start()}<span>rev 2</span>{/snippet}
+        <PressButton>diff</PressButton>
+      </CardFooter>
+    {/snippet}
+    <p>
+      This body is deliberately taller — the other two cards' bodies stretch to match it
+      through the shared 1fr row, and every foot lands on the same band bottom line.
+    </p>
+  </Card>
+</CardGrid>`;
+
+  const cardGridFiles: TreeFile[] = [
+    { name: 'card-grid-demo.svelte', content: cardGridDemo, kind: 'usage' },
+  ];
+
+  // the postures (types section), swept through a canvas: bare,
+  // chrome-less, and the full zone trio
+  const cardTypesDemo = `<script lang="ts">
+  import Card from '@ui/card.svelte';
+  import CardFooter from '@ui/card-footer.svelte';
+  import PressButton from '@ui/press-button/press-button.svelte';
+${close}
+
+<Card title="Deploy hooks.">
+  <p>No foot, no action seat — the stamps stay honest.</p>
+</Card>
+
+<Card>
+  <p>Neither title nor a head snippet: no head zone, no head separator.</p>
+</Card>
+
+<Card title="Session">
+  {#snippet foot()}
+    <CardFooter>
+      {#snippet start()}<span>3 items</span>{/snippet}
+      <PressButton variant="fill">Save</PressButton>
+    </CardFooter>
+  {/snippet}
+  <p>The zone trio a card-grid foot band equalizes.</p>
+</Card>`;
+
+  const cardTypesFiles: TreeFile[] = [
+    { name: 'card-types-demo.svelte', content: cardTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 {#snippet xGlyph()}
@@ -208,30 +311,32 @@ ${close}
         summary="The seats place against the rented inline ruler: text seats (start, end) enter the content axis — their 14px inset is a ruler TRACK, not a utility — while the button cluster spans the end inset to ride the card edge flush (its buttons carry the rhythm internally, dialog's footer economy verbatim)."
       >
         <div class="flex flex-col gap-5">
-          <div class="grid gap-4 sm:grid-cols-2">
-            <Card title="start + grouped actions">
-              {#snippet foot()}
-                <CardFooter label="cart actions">
-                  {#snippet start()}
-                    <span class="text-muted-foreground font-mono text-[12px]">3 items · $42.00</span>
-                  {/snippet}
-                  <PressButton>Clear</PressButton>
-                  <PressButton variant="fill">Checkout</PressButton>
-                </CardFooter>
-              {/snippet}
-              <p class="text-[13px] leading-6">Meta text on the content axis; the cluster rides the edge flush.</p>
-            </Card>
-            <Card title="raw end slot">
-              {#snippet foot()}
-                <CardFooter>
-                  {#snippet end()}
-                    <span class="text-muted-foreground font-mono text-[12px]">auto-saved 2m ago</span>
-                  {/snippet}
-                </CardFooter>
-              {/snippet}
-              <p class="text-[13px] leading-6">The end slot replaces the grouped arrangement — a text seat at the content axis, 14px shy of the edge.</p>
-            </Card>
-          </div>
+          <ComponentCanvas title="card · foot seats" stage="fill" files={cardFootFiles}>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <Card title="start + grouped actions">
+                {#snippet foot()}
+                  <CardFooter label="cart actions">
+                    {#snippet start()}
+                      <span class="text-muted-foreground font-mono text-[12px]">3 items · $42.00</span>
+                    {/snippet}
+                    <PressButton>Clear</PressButton>
+                    <PressButton variant="fill">Checkout</PressButton>
+                  </CardFooter>
+                {/snippet}
+                <p class="text-[13px] leading-6">Meta text on the content axis; the cluster rides the edge flush.</p>
+              </Card>
+              <Card title="raw end slot">
+                {#snippet foot()}
+                  <CardFooter>
+                    {#snippet end()}
+                      <span class="text-muted-foreground font-mono text-[12px]">auto-saved 2m ago</span>
+                    {/snippet}
+                  </CardFooter>
+                {/snippet}
+                <p class="text-[13px] leading-6">The end slot replaces the grouped arrangement — a text seat at the content axis, 14px shy of the edge.</p>
+              </Card>
+            </div>
+          </ComponentCanvas>
           <CodeBlock code={usage} lang="svelte" meta="CardFooter slots" />
         </div>
       </SectionCard>
@@ -246,40 +351,42 @@ ${close}
         summary="CardGrid's foot prop declares the third shared row: headers align, bodies fill to the tallest, feet align at the band bottoms. The integer cell placement resolves in every wrapped band."
       >
         <div class="flex flex-col gap-5">
-          <CardGrid foot min="240px">
-            <Card title="usage">
-              {#snippet foot()}
-                <CardFooter>
-                  {#snippet end()}
-                    <span class="text-muted-foreground font-mono text-[12px]">npx jixoai-ui add card</span>
-                  {/snippet}
-                </CardFooter>
-              {/snippet}
-              <p class="text-[13px] leading-6">One install, three files: the surface, the head face, the foot face.</p>
-            </Card>
-            <Card title="anatomy">
-              {#snippet foot()}
-                <CardFooter>
-                  <PressButton variant="fill">Save</PressButton>
-                </CardFooter>
-              {/snippet}
-              <p class="text-[13px] leading-6">Head zone, edge-riding separator, the scroll ring, the foot seat.</p>
-            </Card>
-            <Card title="the longer body">
-              {#snippet foot()}
-                <CardFooter>
-                  {#snippet start()}
-                    <span class="text-muted-foreground font-mono text-[12px]">rev 2</span>
-                  {/snippet}
-                  <PressButton>diff</PressButton>
-                </CardFooter>
-              {/snippet}
-              <p class="text-[13px] leading-6">
-                This body is deliberately taller — the other two cards' bodies stretch to match it
-                through the shared 1fr row, and every foot lands on the same band bottom line.
-              </p>
-            </Card>
-          </CardGrid>
+          <ComponentCanvas title="card · grid foot mode" stage="fill" files={cardGridFiles}>
+            <CardGrid foot min="240px">
+              <Card title="usage">
+                {#snippet foot()}
+                  <CardFooter>
+                    {#snippet end()}
+                      <span class="text-muted-foreground font-mono text-[12px]">npx jixoai-ui add card</span>
+                    {/snippet}
+                  </CardFooter>
+                {/snippet}
+                <p class="text-[13px] leading-6">One install, three files: the surface, the head face, the foot face.</p>
+              </Card>
+              <Card title="anatomy">
+                {#snippet foot()}
+                  <CardFooter>
+                    <PressButton variant="fill">Save</PressButton>
+                  </CardFooter>
+                {/snippet}
+                <p class="text-[13px] leading-6">Head zone, edge-riding separator, the scroll ring, the foot seat.</p>
+              </Card>
+              <Card title="the longer body">
+                {#snippet foot()}
+                  <CardFooter>
+                    {#snippet start()}
+                      <span class="text-muted-foreground font-mono text-[12px]">rev 2</span>
+                    {/snippet}
+                    <PressButton>diff</PressButton>
+                  </CardFooter>
+                {/snippet}
+                <p class="text-[13px] leading-6">
+                  This body is deliberately taller — the other two cards' bodies stretch to match it
+                  through the shared 1fr row, and every foot lands on the same band bottom line.
+                </p>
+              </Card>
+            </CardGrid>
+          </ComponentCanvas>
           <CodeBlock code={gridUsage} lang="svelte" meta="CardGrid foot mode" />
         </div>
       </SectionCard>
@@ -289,11 +396,13 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Three postures: the bare card, the chrome-less body card, and the full zone trio.">
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">bare · title + body</span><Card title="Deploy hooks."><p class="text-[13px]">No foot, no action seat — the stamps stay honest.</p></Card></div>
-      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">chrome-less · no head</span><Card><p class="text-[13px]">Neither title nor a head snippet: no head zone, no head separator.</p></Card></div>
-      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · head + body + foot</span><Card title="Session">{#snippet foot()}<CardFooter>{#snippet start()}<span class="text-muted-foreground font-mono text-[12px]">3 items</span>{/snippet}<PressButton variant="fill">Save</PressButton></CardFooter>{/snippet}<p class="text-[13px]">The zone trio a card-grid foot band equalizes.</p></Card></div>
-    </div>
+    <ComponentCanvas title="card · variants" stage="fill" files={cardTypesFiles}>
+      <div class="flex flex-wrap items-start gap-6">
+        <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">bare · title + body</span><Card title="Deploy hooks."><p class="text-[13px]">No foot, no action seat — the stamps stay honest.</p></Card></div>
+        <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">chrome-less · no head</span><Card><p class="text-[13px]">Neither title nor a head snippet: no head zone, no head separator.</p></Card></div>
+        <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · head + body + foot</span><Card title="Session">{#snippet foot()}<CardFooter>{#snippet start()}<span class="text-muted-foreground font-mono text-[12px]">3 items</span>{/snippet}<PressButton variant="fill">Save</PressButton></CardFooter>{/snippet}<p class="text-[13px]">The zone trio a card-grid foot band equalizes.</p></Card></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The card is a generic section container; the separators are decorative chrome, the zones carry no semantics of their own."><A11yTable keys={[{ key: 'Escape / close', action: 'Not applicable — no close affordance ships; the action seat is the consumer’s own control' }]} aria={[{ name: 'root', value: '<section>', description: 'A generic container; give it an accessible name via its content when the region is navigable' }, { name: 'separators', value: 'aria-hidden', description: 'The structural lines are decorative — hidden from AT' }, { name: 'action seat', value: 'consumer-owned', description: 'Whatever sits in the actions slot keeps its own role, name, and activation behavior' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The inline ruler, verbatim: the root owns five named tracks ([inset] 14px · [start seat] auto · [fill] minmax(10px,1fr) · [end seat] auto · [inset] 14px); head/foot zones rent them via subgrid. Zones paint nothing; no face carries an inline padding utility — tracks paint the axis. The card is not density-scaled."><div class="flex flex-col gap-6"><TokenTable tokens={[{ name: 'text seats (head title, foot start/end)', default: 'content axis (track)', source: 'law', description: 'Passive content ENTERS at card-content lines — 14px from each edge arrives BY TRACK. Foot text carries NO padding-block: it centers against the row and never sizes it.' }, { name: 'edge riders (actions slot, foot cluster)', default: 'flush, span to -1', source: 'law', description: 'The head actions slot is a CORNER (align-self: start, dialog × verbatim). The foot cluster is a CARVED CELL: it fills the band vertically — separator as its top rim, leading seam as its carved left edge; the buttons’ min-h economy is a floor, never a cap (a floating 40px button in a taller band reads as a hole dug out, not a cell cut out). The shared end column is as wide as its widest resident, like a table’s last column.' }, { name: 'body cell', default: 'py-3.5 + inline compensation', source: 'component', description: 'The full-bleed exception: the scroll ring owns its inline geometry — max(0.875rem − probed thin scrollbar, 0), a width tracks cannot see.' }, { name: '--card-foreground', default: 'theme', source: 'color', description: 'Body text at 80% via color-mix.' }]} /></div></SectionCard></div>

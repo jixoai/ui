@@ -3,6 +3,7 @@
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
 
@@ -173,6 +174,30 @@ export const printDensityPlugin = definePlugin({
 // runtime. Components never see the intervention — Defaults knows
 // nothing of plugins, plugins know nothing of components; the axis
 // value is the only meeting point.`;
+
+  // ---- sweep usage mirror (canvas-everywhere-demos, 2026-09-08) -----------
+  // Hand-authored mirror of the wrapped door-1 demo below; the
+  // same-source resolveRawCode migration of this string is the
+  // recorded follow-up.
+  const variantScopeDemo = `<script lang="ts">
+  import PressButton from '@ui/press-button/press-button.svelte';
+  import ButtonGroup from '@ui/button-group/button-group.svelte';
+  import ButtonVariantScope from '@ui/button-group/button-variant-scope.svelte';
+${close}
+
+<!-- three answers from one component, zero prop-drilling -->
+<PressButton>lone — outline</PressButton>
+
+<ButtonVariantScope variant="ghost">
+  <PressButton>adopts ghost</PressButton>
+  <PressButton>adopts ghost</PressButton>
+  <PressButton variant="fill">keeps fill</PressButton>
+</ButtonVariantScope>
+
+<ButtonGroup variant="ghost" label="zone + join">
+  <PressButton>joined ghost</PressButton>
+  <PressButton variant="fill">keeps fill</PressButton>
+</ButtonGroup>`;
 </script>
 
 <svelte:head>
@@ -217,18 +242,24 @@ export const printDensityPlugin = definePlugin({
               <span class="text-muted-foreground text-[11px]">
                 door 1, live — the scope changes the DEFAULT, the explicit prop overrides it
               </span>
-              <div class="flex flex-wrap items-center gap-3">
-                <PressButton>lone — outline</PressButton>
-                <ButtonVariantScope variant="ghost">
-                  <PressButton>adopts ghost</PressButton>
-                  <PressButton>adopts ghost</PressButton>
-                  <PressButton variant="fill">keeps fill</PressButton>
-                </ButtonVariantScope>
-                <ButtonGroup variant="ghost" label="zone + join">
-                  <PressButton>joined ghost</PressButton>
-                  <PressButton variant="fill">keeps fill</PressButton>
-                </ButtonGroup>
-              </div>
+              <ComponentCanvas
+                title="button variant scope"
+                files={[{ name: 'variant-scope-demo.svelte', content: variantScopeDemo, kind: 'usage' }]}
+                stage="center"
+              >
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                  <PressButton>lone — outline</PressButton>
+                  <ButtonVariantScope variant="ghost">
+                    <PressButton>adopts ghost</PressButton>
+                    <PressButton>adopts ghost</PressButton>
+                    <PressButton variant="fill">keeps fill</PressButton>
+                  </ButtonVariantScope>
+                  <ButtonGroup variant="ghost" label="zone + join">
+                    <PressButton>joined ghost</PressButton>
+                    <PressButton variant="fill">keeps fill</PressButton>
+                  </ButtonGroup>
+                </div>
+              </ComponentCanvas>
               <p class="text-muted-foreground text-[13px] leading-6">
                 Three answers from one component, zero prop-drilling: the lone button never saw a
                 zone (its own default — outline); inside the scope, unprefixed buttons adopt ghost

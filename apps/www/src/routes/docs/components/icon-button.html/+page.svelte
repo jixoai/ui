@@ -111,6 +111,34 @@ ${drivenNormal}${usageTail}`;
   );
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
+
+  // ---- canvas-everywhere sweep (2026-09-08): usage mirrors for the
+  // icon-only + postures SectionCard demos below — hand-authored to
+  // match each stage's markup (same-source migration is the recorded
+  // follow-up; the glyph consts interpolate like the usage const above).
+  const iconButtonIconOnlyDemo = `<script lang="ts">
+  import IconButton from '@ui/icon-button.svelte';
+${close}
+
+<!-- hover / focus each one: the label tips AND names from ONE string -->
+<IconButton iconOnly text="copy command" placement="bottom">
+  {#snippet icon()}${copyGlyph}{/snippet}
+</IconButton>
+<IconButton iconOnly text="open github" placement="bottom">
+  {#snippet icon()}${externalGlyph}{/snippet}
+</IconButton>`;
+
+  const iconButtonPosturesDemo = `<script lang="ts">
+  import IconButton from '@ui/icon-button.svelte';
+${close}
+
+<!-- the two postures; both keep the same press-button behavior -->
+<IconButton text="deploy" variant="fill">{#snippet icon()}${playGlyph}{/snippet}</IconButton>
+<IconButton iconOnly text="deploy" variant="fill">{#snippet icon()}${playGlyph}{/snippet}</IconButton>
+
+<!-- flat physics: raised={false} is the engrave-tier inset press -->
+<IconButton text="deploy" raised={false}>{#snippet icon()}${playGlyph}{/snippet}</IconButton>
+<IconButton iconOnly tip={false} text="deploy" raised={false}>{#snippet icon()}${playGlyph}{/snippet}</IconButton>`;
 </script>
 
 <svelte:head>
@@ -235,17 +263,23 @@ ${drivenNormal}${usageTail}`;
         summary="In icon-only the text is never thrown away: the same string feeds the tooltip (the hover/focus hint on the popover laws) and the accessible name (aria-label), so the button says itself to pointer users, keyboard users and screen readers from ONE source. The glyph is decorative by construction — the component wraps it aria-hidden."
       >
         <div class="flex flex-col gap-5">
-          <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
-              <span>hover / focus each one</span>
-              <IconButton iconOnly text="copy command" placement="bottom">
-                {#snippet icon()}{@html copyGlyph}{/snippet}
-              </IconButton>
-              <IconButton iconOnly text="open github" placement="bottom">
-                {#snippet icon()}{@html externalGlyph}{/snippet}
-              </IconButton>
+          <ComponentCanvas
+            title="icon-button · icon-only"
+            stage="center"
+            files={[{ name: 'icon-button-icon-only-demo.svelte', content: iconButtonIconOnlyDemo, kind: 'usage' }]}
+          >
+            <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
+              <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+                <span>hover / focus each one</span>
+                <IconButton iconOnly text="copy command" placement="bottom">
+                  {#snippet icon()}{@html copyGlyph}{/snippet}
+                </IconButton>
+                <IconButton iconOnly text="open github" placement="bottom">
+                  {#snippet icon()}{@html externalGlyph}{/snippet}
+                </IconButton>
+              </div>
             </div>
-          </div>
+          </ComponentCanvas>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>
       </SectionCard>
@@ -293,26 +327,32 @@ ${drivenNormal}${usageTail}`;
 
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="Text and icon-only postures" summary="The component has two visual postures; both preserve the same press-button behavior and semantic label.">
-      <div class="grid gap-3 sm:grid-cols-2">
-        <div class="border border-border/60 p-3">
-          <IconButton text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
-          <p class="mt-2 text-xs text-muted-foreground">text: glyph and visible label</p>
+      <ComponentCanvas
+        title="icon-button · postures"
+        stage="center"
+        files={[{ name: 'icon-button-postures-demo.svelte', content: iconButtonPosturesDemo, kind: 'usage' }]}
+      >
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="border border-border/60 p-3">
+            <IconButton text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+            <p class="mt-2 text-xs text-muted-foreground">text: glyph and visible label</p>
+          </div>
+          <div class="border border-border/60 p-3">
+            <IconButton iconOnly text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+            <p class="mt-2 text-xs text-muted-foreground">icon-only: tooltip and aria-label</p>
+          </div>
         </div>
-        <div class="border border-border/60 p-3">
-          <IconButton iconOnly text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
-          <p class="mt-2 text-xs text-muted-foreground">icon-only: tooltip and aria-label</p>
+        <div class="mt-3 flex flex-wrap items-center gap-x-8 gap-y-5 border-t border-border pt-4">
+          <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <span>flat — press me</span>
+            <IconButton text="deploy" raised={false}>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+          </label>
+          <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <span>flat square</span>
+            <IconButton iconOnly tip={false} text="deploy" raised={false}>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
+          </label>
         </div>
-      </div>
-      <div class="mt-3 flex flex-wrap items-center gap-x-8 gap-y-5 border-t border-border pt-4">
-        <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-          <span>flat — press me</span>
-          <IconButton text="deploy" raised={false}>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
-        </label>
-        <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-          <span>flat square</span>
-          <IconButton iconOnly tip={false} text="deploy" raised={false}>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
-        </label>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

@@ -112,6 +112,456 @@ ${close}
   let retentionDays = $state(30);
   let channel = $state('Instantly');
 
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the proof sections below — the same-source resolveRawCode migration
+  // of these strings is the recorded follow-up ----------------------
+  const barrel = `import {
+    Item,
+    ItemGroup,
+    ItemDivider,
+    ItemEnd,
+    ItemAfter,
+    ItemChevron,
+    ItemMedia,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+    ItemActions,
+    ItemHeader,
+    ItemFooter,
+  } from '@ui/list-item/index';`;
+
+  const listItemStandaloneLadderDemo = `<script lang="ts">
+  ${barrel}
+${close}
+
+<div class="grid w-full gap-6 md:grid-cols-2">
+  <div class="flex flex-col gap-2">
+    <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">auto · surface</span>
+    <Item>
+      <ItemContent>
+        <ItemTitle>the auto row</ItemTitle>
+        <ItemDescription>data-item-chrome="surface"</ItemDescription>
+      </ItemContent>
+      <ItemEnd><ItemAfter>own frame</ItemAfter></ItemEnd>
+    </Item>
+    {#each ['default', 'outline', 'muted'] as const as v (v)}
+      <Item variant={v}>
+        <ItemContent>
+          <ItemTitle>variant="{v}"</ItemTitle>
+          <ItemDescription>explicit — always wins over context</ItemDescription>
+        </ItemContent>
+      </Item>
+    {/each}
+  </div>
+  <div class="flex flex-col gap-2">
+    <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">density</span>
+    {#each ['default', 'sm', 'xs'] as const as s (s)}
+      <Item density={s}>
+        <ItemContent>
+          <ItemTitle>size="{s}"</ItemTitle>
+          <ItemDescription>padding, gaps and type scale — never geometry</ItemDescription>
+        </ItemContent>
+      </Item>
+    {/each}
+  </div>
+</div>`;
+
+  const listItemGroupModesDemo = `<script lang="ts">
+  ${barrel}
+  import Icon from '@ui/icon';
+${close}
+
+<ItemGroup label="registry" ruler="media-content-end" class="max-w-lg">
+  <Item href="#group-modes">
+    <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
+    <ItemContent>
+      <ItemTitle>press-button</ItemTitle>
+      <ItemDescription>default mode · labeled section · auto hairlines</ItemDescription>
+    </ItemContent>
+    <ItemEnd><ItemChevron /></ItemEnd>
+  </Item>
+  <ItemDivider />
+  <Item>
+    <ItemContent>
+      <ItemTitle>with an explicit divider</ItemTitle>
+      <ItemDescription>full-strength — one source per edge, structurally exclusive</ItemDescription>
+    </ItemContent>
+    <ItemEnd><ItemAfter>12:04</ItemAfter></ItemEnd>
+  </Item>
+  <Item href="#group-modes">
+    <ItemContent>
+      <ItemTitle>code-card</ItemTitle>
+      <ItemDescription>registry:ui · highlight + copy workbench</ItemDescription>
+    </ItemContent>
+    <ItemEnd><ItemChevron /></ItemEnd>
+  </Item>
+</ItemGroup>
+<ItemGroup mode="muted" label="strong relations" class="max-w-lg">
+  <Item>
+    <ItemContent>
+      <ItemTitle>muted slab</ItemTitle>
+      <ItemDescription>terminal-muted fill · no frame · no dividers, ever</ItemDescription>
+    </ItemContent>
+  </Item>
+  <Item>
+    <ItemContent>
+      <ItemTitle>rows read as one surface</ItemTitle>
+    </ItemContent>
+    <ItemEnd><ItemAfter>2</ItemAfter></ItemEnd>
+  </Item>
+</ItemGroup>
+<ItemGroup mode="plain" dividers="auto" label="host-owned (plain)" class="max-w-lg">
+  <Item>
+    <ItemContent>
+      <ItemTitle>plain group</ItemTitle>
+      <ItemDescription>nothing painted — this page is the surface; hairlines opted in</ItemDescription>
+    </ItemContent>
+  </Item>
+  <Item>
+    <ItemContent>
+      <ItemTitle>for menus, panels, terminals</ItemTitle>
+    </ItemContent>
+    <ItemEnd><ItemChevron /></ItemEnd>
+  </Item>
+</ItemGroup>
+<ItemGroup mode="default" inset label="inset" class="max-w-lg">
+  <Item>
+    <ItemContent>
+      <ItemTitle>inset group</ItemTitle>
+      <ItemDescription>fixed 0.75rem inline margins — boolean, no responsive enum</ItemDescription>
+    </ItemContent>
+  </Item>
+  <Item>
+    <ItemContent>
+      <ItemTitle>same paint as default</ItemTitle>
+    </ItemContent>
+    <ItemEnd><ItemAfter>fixed geometry</ItemAfter></ItemEnd>
+  </Item>
+</ItemGroup>`;
+
+  const listItemSlotTopologyDemo = `<script lang="ts">
+  ${barrel}
+  import Icon from '@ui/icon';
+  import Avatar from '@ui/avatar.svelte';
+  import IconButton from '@ui/icon-button/icon-button.svelte';
+${close}
+
+<Item variant="outline">
+  <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
+  <ItemContent>
+    <ItemTitle>registry folder</ItemTitle>
+    <ItemDescription>12 components · updated today</ItemDescription>
+  </ItemContent>
+  <ItemEnd>
+    <ItemAfter tone="default">3 open</ItemAfter>
+    <span class="text-[10px] opacity-60">edit</span>
+  </ItemEnd>
+</Item>
+<Item variant="outline">
+  <ItemMedia>
+    <Avatar name="Ada Lovelace" tooltip={false} />
+  </ItemMedia>
+  <ItemContent>
+    <ItemTitle>Ada Lovelace</ItemTitle>
+    <ItemDescription>maintainer · 3 commits today</ItemDescription>
+  </ItemContent>
+  <ItemEnd><ItemAfter>12:04</ItemAfter></ItemEnd>
+</Item>
+<Item variant="outline">
+  <ItemMedia variant="image" src="/blueprints/press-button.svg" alt="press-button blueprint" />
+  <ItemContent>
+    <ItemTitle>press-button</ItemTitle>
+    <ItemDescription>the physical press law · blueprint</ItemDescription>
+  </ItemContent>
+  <ItemEnd><ItemChevron /></ItemEnd>
+</Item>
+<Item variant="outline">
+  <ItemHeader>
+    <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">
+      pull request #2182
+    </span>
+    <span class="pill">open</span>
+  </ItemHeader>
+  <ItemContent>
+    <ItemTitle>feat: the presence matrix</ItemTitle>
+    <ItemDescription>@gaubee wants to merge 3 commits into main</ItemDescription>
+  </ItemContent>
+  <ItemEnd>
+    <IconButton iconOnly text="Close pull request" class="size-7!">
+      {#snippet icon()}<Icon name="x" />{/snippet}
+    </IconButton>
+  </ItemEnd>
+  <ItemFooter>
+    <span class="text-muted-foreground text-[11px]">3 checks passed · 2 files changed</span>
+    <span class="text-muted-foreground text-[11px]">updated 14 minutes ago</span>
+  </ItemFooter>
+</Item>`;
+
+  const listItemMediaNarrowDemo = `<script lang="ts">
+  ${barrel}
+  import Icon from '@ui/icon';
+  import Avatar from '@ui/avatar.svelte';
+${close}
+
+<ItemGroup layout="media" ruler="media-content-end" mode="plain" dividers="auto" class="max-w-lg">
+  <Item>
+    <ItemMedia>
+      <Avatar name="Grace Hopper" size="sm" tooltip={false} />
+    </ItemMedia>
+    <ItemContent>
+      <ItemTitle>media layout rows</ItemTitle>
+      <ItemDescription>media self-starts, content gap loosens — the custom-property switch</ItemDescription>
+    </ItemContent>
+    <ItemEnd><ItemAfter>compiler</ItemAfter></ItemEnd>
+  </Item>
+  <Item>
+    <ItemMedia>
+      <Avatar name="Alan Kay" size="sm" tooltip={false} />
+    </ItemMedia>
+    <ItemContent>
+      <ItemTitle>works for feeds and threads</ItemTitle>
+      <ItemDescription>the same four presence bits, a calmer rhythm</ItemDescription>
+    </ItemContent>
+    <ItemEnd><ItemAfter>dynabook</ItemAfter></ItemEnd>
+  </Item>
+</ItemGroup>
+<!-- narrow law: the group's ul IS the container; at ≤30rem the end lane
+     takes its own row — resize the pane to watch it fold -->
+<div class="max-w-[19rem]">
+  <ItemGroup mode="plain" dividers="auto" ruler="media-content-end">
+    <Item href="#media-narrow">
+      <ItemMedia variant="icon"><Icon name="fileText" /></ItemMedia>
+      <ItemContent>
+        <ItemTitle>separator</ItemTitle>
+        <ItemDescription>registry:ui · the hr, W3C-first</ItemDescription>
+      </ItemContent>
+      <ItemEnd><ItemChevron /></ItemEnd>
+    </Item>
+    <Item>
+      <ItemContent>
+        <ItemTitle>wrap=never row</ItemTitle>
+        <ItemDescription>the lane refuses to split</ItemDescription>
+      </ItemContent>
+      <ItemEnd wrap="never"><ItemAfter>12:04:33</ItemAfter></ItemEnd>
+    </Item>
+  </ItemGroup>
+</div>`;
+
+  const listItemDensityLadderDemo = `<script lang="ts">
+  ${barrel}
+${close}
+
+{#each [['lg', 'the lg row · 15px text · 24px line · 48px'], ['default', 'the default row · 13px · 20px · 40px'], ['sm', 'the sm row · 12px · 18px · 32px'], ['xs', 'the xs row · 11px · 16px · 28px']] as const as [d, note] (d)}
+  <div>
+    <span class="text-muted-foreground mb-1 block text-[11px] uppercase tracking-[0.14em]">{d}</span>
+    <ItemGroup mode="plain" dividers="auto" density={d}>
+      <Item>
+        <ItemContent>
+          <ItemTitle>{note}</ItemTitle>
+        </ItemContent>
+        <ItemEnd><ItemAfter>hit 44px</ItemAfter></ItemEnd>
+      </Item>
+    </ItemGroup>
+  </div>
+{/each}`;
+
+  const listItemSettingsDemo = `<script lang="ts">
+  import {
+    ItemGroup,
+    ItemToggle,
+    ItemCheckbox,
+    ItemRadio,
+    ItemSelect,
+    ItemInput,
+  } from '@ui/list-item/index';
+
+  let autoplay = $state(true);
+  let telemetry = $state(false);
+  let density = $state('default');
+  let alertEmail = $state('ops@jixoai.dev');
+  let projectName = $state('');
+${close}
+
+<ItemGroup label="workspace">
+  <ItemToggle
+    label="Fast builds"
+    description="skip typechecking during watch"
+    bind:checked={autoplay}
+  />
+  <ItemCheckbox label="Telemetry" error="requires the beta flag" bind:checked={telemetry} />
+  <ItemRadio name="channel" value="stable" label="Stable channel" description="tagged releases" checked />
+  <ItemRadio name="channel" value="canary" label="Canary channel" disabled />
+  <ItemSelect label="Density" bind:value={density}>
+    <option value="default">default</option>
+    <option value="sm">sm</option>
+    <option value="xs">xs</option>
+  </ItemSelect>
+  <ItemInput type="email" label="Alert email" description="url/tel/email/search carry their glyph by default — the trailing edge inside a list-item lane" bind:value={alertEmail} />
+  <ItemInput label="Project name" description="text carries the Type glyph by default — like every text-like type; icon={null} opts out" bind:value={projectName} />
+</ItemGroup>`;
+
+  const listItemSizeContractDemo = `<script lang="ts">
+  import {
+    Item,
+    ItemGroup,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+    ItemActions,
+    ItemSelect,
+    ItemInput,
+    ItemToggle,
+  } from '@ui/list-item/index';
+  import PressButton from '@ui/press-button.svelte';
+
+  let channel = $state('Instantly');
+  let projectName = $state('');
+  let retentionDays = $state(30);
+  let autoplay = $state(true);
+${close}
+
+<!-- wide · the ladder rungs (fit md 10rem→7rem→stack, lg 16rem→11rem→stack) -->
+<ItemGroup label="delivery">
+  <ItemSelect fit="lg" label="Digest channel" bind:value={channel}>
+    <option>Instantly</option>
+    <option>Daily digest</option>
+    <option>Off</option>
+  </ItemSelect>
+  <ItemInput type="url" fit="lg" label="Webhook URL" description="lg — text class · the semantic glyph trails" bind:value={projectName} placeholder="https://" />
+  <ItemInput type="number" fit="md" label="Auto-archive after" description="md — number class" bind:value={retentionDays} />
+  <ItemToggle label="Sync over cellular" description="fixed — never restacks" bind:checked={autoplay} />
+</ItemGroup>
+<ItemGroup label="actions">
+  <Item>
+    <ItemContent><ItemTitle>Escalation</ItemTitle><ItemDescription>ItemActions: flat physics + a joined cluster, DialogFooter semantics</ItemDescription></ItemContent>
+    <ItemActions label="Escalation actions">
+      <PressButton>Acknowledge</PressButton>
+      <PressButton>Snooze</PressButton>
+      <PressButton variant="tonal">Escalate</PressButton>
+    </ItemActions>
+  </Item>
+</ItemGroup>
+<!-- narrow · the 17rem pane steps the ladder to its stacked rung -->
+<div class="max-w-[17rem]">
+  <ItemGroup label="narrow">
+    <ItemSelect fit="lg" label="Digest channel" bind:value={channel}>
+      <option>Instantly</option>
+      <option>Daily digest</option>
+    </ItemSelect>
+    <ItemInput type="number" fit="md" label="Auto-archive" bind:value={retentionDays} />
+    <ItemToggle label="Sync cellular" bind:checked={autoplay} />
+  </ItemGroup>
+</div>`;
+
+  const listItemItemFieldDemo = `<script lang="ts">
+  import { ItemGroup, ItemField } from '@ui/list-item/index';
+${close}
+
+<ItemGroup mode="plain" dividers="auto">
+  <ItemField id="xf-labelable" label="Custom slider" description="for-mode on a labelable input">
+    {#snippet control(f)}
+      <input type="range" id={f.controlId} aria-describedby={f.describedBy} />
+    {/snippet}
+  </ItemField>
+  <ItemField
+    id="xf-custom"
+    label="Non-labelable control"
+    description="text-mode: aria-labelledby names it"
+    labelMode="text"
+  >
+    {#snippet control(f)}
+      <div
+        class="inline-flex items-center gap-2 border border-border px-2 py-1 text-[0.75rem]"
+        role="status"
+        aria-labelledby={f.labelId}
+      >
+        custom
+      </div>
+    {/snippet}
+  </ItemField>
+</ItemGroup>`;
+
+  const listItemSelectionLinksDemo = `<script lang="ts">
+  ${barrel}
+  import IconButton from '@ui/icon-button/icon-button.svelte';
+  import Icon from '@ui/icon';
+${close}
+
+<ItemGroup label="navigation">
+  <Item href="#selection-links" aria-current="page" selected>
+    <ItemContent>
+      <ItemTitle>current page</ItemTitle>
+      <ItemDescription>selected + consumer-authored aria-current="page"</ItemDescription>
+    </ItemContent>
+    <ItemEnd><ItemAfter>/docs/components/list-item</ItemAfter></ItemEnd>
+  </Item>
+  <Item href="#selection-links">
+    <ItemContent>
+      <ItemTitle>sibling route</ItemTitle>
+      <ItemDescription>hover paints terminal-hover — color only, the press law</ItemDescription>
+    </ItemContent>
+    <ItemEnd><ItemChevron /></ItemEnd>
+  </Item>
+  <Item>
+    <ItemContent>
+      <ItemTitle>actions row (not a link)</ItemTitle>
+      <ItemDescription>interactive descendants belong outside anchors</ItemDescription>
+    </ItemContent>
+    <ItemEnd>
+      <IconButton iconOnly text="Retry" class="size-7!">
+        {#snippet icon()}<Icon name="rotateCcw" />{/snippet}
+      </IconButton>
+    </ItemEnd>
+  </Item>
+</ItemGroup>`;
+
+  const listItemRecipesDemo = `<script lang="ts">
+  import { ItemGroup, ItemCheckbox } from '@ui/list-item/index';
+  import Accordion from '@ui/accordion.svelte';
+  import AccordionItem from '@ui/accordion-item.svelte';
+${close}
+
+<!-- the accordion recipe: W3C-first details/summary, the row composes inside -->
+<Accordion>
+  <AccordionItem>
+    {#snippet summary()}
+      <span class="flex min-w-0 flex-1 items-center justify-between gap-2">
+        <span>expandable row (accordion recipe)</span>
+        <span class="text-[10px] opacity-60">details/summary</span>
+      </span>
+    {/snippet}
+    <p>
+      The accordion family owns disclosure; the row inside is a plain Item
+      composition. Open state survives SSR — no JS hydration required.
+    </p>
+  </AccordionItem>
+  <AccordionItem>
+    {#snippet summary()}
+      <span>a second row</span>
+    {/snippet}
+    <p>Each summary is its own details element — the group only adds the visual law.</p>
+  </AccordionItem>
+</Accordion>
+
+<!-- the checkbox-group recipe: ItemGroup + ItemCheckbox, one shared name -->
+<ItemGroup mode="plain" dividers="auto" label="checkbox group (one form name)">
+  {#each ['build', 'lint', 'test'] as const as step (step)}
+    <ItemCheckbox name="pipeline" value={step} label={step} />
+  {/each}
+</ItemGroup>`;
+
+  const listItemTypesDemo = `<script lang="ts">
+  import { Item, ItemContent, ItemTitle, ItemDescription } from '@ui/list-item/index';
+${close}
+
+<div class="grid gap-3 sm:grid-cols-2">
+  <Item variant="default"><ItemContent><ItemTitle>default</ItemTitle><ItemDescription>host surface</ItemDescription></ItemContent></Item>
+  <Item variant="outline"><ItemContent><ItemTitle>outline</ItemTitle><ItemDescription>framed row</ItemDescription></ItemContent></Item>
+  <Item variant="muted"><ItemContent><ItemTitle>muted</ItemTitle><ItemDescription>quiet slab</ItemDescription></ItemContent></Item>
+  <Item><ItemContent><ItemTitle>auto</ItemTitle><ItemDescription>resolved from context</ItemDescription></ItemContent></Item>
+</div>`;
+
   // ToC outline: pairs with +page.ts, in page order.
 </script>
 
@@ -189,6 +639,11 @@ ${close}
         title="Standalone ladder"
         summary="variant=auto (the default) resolves FROM CONTEXT: outside any group the row carries its own surface — 1px border + terminal-muted fill + the 2xs hard shadow + bevel. Explicit variants stay escape hatches: default paints nothing, outline frames, muted fills. data-item-chrome on the root always tells you what resolved — inspect it."
       >
+        <ComponentCanvas
+          title="list-item · standalone ladder"
+          files={[{ name: 'list-item-standalone-ladder-demo.svelte', content: listItemStandaloneLadderDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="grid w-full gap-6 md:grid-cols-2">
           <div class="flex flex-col gap-2">
             <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">auto · surface</span>
@@ -220,6 +675,7 @@ ${close}
             {/each}
           </div>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -232,6 +688,11 @@ ${close}
         title="Group modes"
         summary="The group owns the surface: mode=default frames the list (1px border + xs shadow) with auto hairlines between adjacent rows (38% mix — a long stack never becomes a wall of full-black bars); mode=muted is one terminal-muted slab (dividers forced off); mode=plain paints nothing — the host surface owns it — and opts into hairlines explicitly. inset adds fixed 0.75rem inline margins. label renders a real section + aria-labelledby. Inside, auto rows yield their chrome — explicit variant rows remain the documented escape hatch, not the default."
       >
+        <ComponentCanvas
+          title="list-item · group modes"
+          files={[{ name: 'list-item-group-modes-demo.svelte', content: listItemGroupModesDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="grid w-full gap-6 lg:grid-cols-2">
           <div class="flex flex-col gap-4">
             <ItemGroup label="registry" ruler="media-content-end" class="max-w-lg">
@@ -305,6 +766,7 @@ ${close}
             </ItemGroup>
           </div>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -317,6 +779,11 @@ ${close}
         title="Slot topology"
         summary="Four top-level presence bits — media · end · header · footer — rewrite the template; everything trailing lives INSIDE ItemEnd: ItemAfter (non-interactive metadata) flows before your controls (raw in the lane — flat physics by ambient — or one ItemActions cluster: the ButtonGroup-backed action lane, DialogFooter semantics) before ItemChevron (the decorative glyph). ItemMedia is icon / avatar-host / image (src+alt render the img). Header and footer are optional full rows. Link rows never contain interactive descendants — the last row shows where actions belong."
       >
+        <ComponentCanvas
+          title="list-item · slot topology"
+          files={[{ name: 'list-item-slot-topology-demo.svelte', content: listItemSlotTopologyDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="flex w-full max-w-lg flex-col gap-2">
           <Item variant="outline">
             <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
@@ -369,6 +836,7 @@ ${close}
             </ItemFooter>
           </Item>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -381,6 +849,11 @@ ${close}
         title="Media layout & the narrow law"
         summary="layout=media (inherited from the group) switches custom properties only — a larger media square (3rem), wider gutters, top-aligned media; never a new presence bit. The narrow law: the group's ul IS the container; at ≤30rem the end lane drops to its own full row — a container query, not a viewport breakpoint. ItemEnd wrap=never keeps the lane on the main row."
       >
+        <ComponentCanvas
+          title="list-item · media & narrow law"
+          files={[{ name: 'list-item-media-narrow-demo.svelte', content: listItemMediaNarrowDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="flex w-full flex-col gap-6">
           <ItemGroup layout="media" ruler="media-content-end" mode="plain" dividers="auto" class="max-w-lg">
             <Item>
@@ -429,6 +902,7 @@ ${close}
             </div>
           </div>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -441,6 +915,11 @@ ${close}
         title="The density ladder"
         summary="Four densities, every number an equation from the 4px ruler: text 11/12/13/15px on lines 16/18/20/24px, rows 28/32/40/48px, media = one line (icon) or two (image), the outer inset ALWAYS equals the media seam (B=G). Density resolves from context: the group provides, rows inherit, an explicit size overrides — and the whole cascade is one data-density stamp plus inherited --jx-* variables, zero per-size branches in component css."
       >
+        <ComponentCanvas
+          title="list-item · density ladder"
+          files={[{ name: 'list-item-density-ladder-demo.svelte', content: listItemDensityLadderDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="flex w-full max-w-lg flex-col gap-4">
           {#each [['lg', 'the lg row · 15px text · 24px line · 48px'], ['default', 'the default row · 13px · 20px · 40px'], ['sm', 'the sm row · 12px · 18px · 32px'], ['xs', 'the xs row · 11px · 16px · 28px']] as const as [d, note] (d)}
             <div>
@@ -456,6 +935,7 @@ ${close}
             </div>
           {/each}
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -468,6 +948,11 @@ ${close}
         title="Settings section (adapters)"
         summary="The five thin adapters are the settings page as one-liners: ItemToggle, ItemCheckbox, ItemRadio, ItemSelect, ItemInput. Each is ItemField + the existing control — the control keeps every native behavior (keyboard, form participation, bindable state); the adapter only wires ids and suppresses the control's duplicate label plumbing. label[for] makes click-row-to-activate free; description and error chain into aria-describedby; error flips aria-invalid. The live state below is bound — flip anything."
       >
+        <ComponentCanvas
+          title="list-item · settings adapters"
+          files={[{ name: 'list-item-settings-demo.svelte', content: listItemSettingsDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="max-w-lg">
           <ItemGroup label="workspace">
             <ItemToggle
@@ -491,6 +976,7 @@ ${close}
             {density} · "{alertEmail}" · "{projectName}"
           </p>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -503,6 +989,11 @@ ${close}
         title="Size contract & control integration"
         summary="fit puts an end lane on a DECLARED responsive width ladder — md 10rem→7rem→stack+100% (number/time class), lg 16rem→11rem→stack+100% (text/long-select class), full always 100% — stepped by the list's own container tiers (44rem mid, 30rem narrow). wrap=never stays the fixed lane: toggle/checkbox/badge never restack, and fit + wrap=never is a contract error that throws. controlChrome integrates the row as one large input-group: the field row owns the frame and its controls render BARE (the control-chrome ambient, explicit ?? ambient ?? frame — each family's own sheet paints its bare state, so a select never loses its chevron). The optical tail has ONE owner, and the inset vocabulary is the global practice — inset: 'auto' | number | boolean: auto infers from a terminal data-self-inset control (select always, input when clear/picker/suffix rides the edge, number always), a number hands the tail to the lane with exactly N px, boolean forces the inference on/off; folded rows keep the default tail (the contract suspends under the narrow law)."
       >
+        <ComponentCanvas
+          title="list-item · size contract"
+          files={[{ name: 'list-item-size-contract-demo.svelte', content: listItemSizeContractDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="grid w-full gap-6 md:grid-cols-2">
           <div class="flex flex-col gap-2">
             <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">wide · the ladder rungs</span>
@@ -539,6 +1030,7 @@ ${close}
             </ItemGroup>
           </div>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -551,6 +1043,11 @@ ${close}
         title="ItemField escape hatch"
         summary="Any control the adapters don't cover composes through ItemField's typed control snippet: it receives the full wiring context (controlId, labelId, descriptionId, errorId, describedBy). labelMode=for (default) associates a labelable element natively — click-to-activate, zero row handlers; labelMode=text is for non-labelable controls — the span label plus aria-labelledby is the naming source. The row is never a synthetic button and never nests a second label element."
       >
+        <ComponentCanvas
+          title="list-item · item field"
+          files={[{ name: 'list-item-item-field-demo.svelte', content: listItemItemFieldDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="max-w-lg">
           <ItemGroup mode="plain" dividers="auto">
             <ItemField id="xf-labelable" label="Custom slider" description="for-mode on a labelable input">
@@ -576,6 +1073,7 @@ ${close}
             </ItemField>
           </ItemGroup>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -588,6 +1086,11 @@ ${close}
         title="Selection & links"
         summary="selected is VISUAL ONLY — terminal-hover fill plus the inset 2px primary edge (menu-family keeps its own bezel law; the divergence is documented, not accidental). No aria-selected is ever emitted: navigation adds aria-current itself through attribute forwarding; composite widgets own their selection semantics. Link rows are anchors with native keyboard behavior; rows with actions are NOT links."
       >
+        <ComponentCanvas
+          title="list-item · selection & links"
+          files={[{ name: 'list-item-selection-links-demo.svelte', content: listItemSelectionLinksDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="max-w-lg">
           <ItemGroup label="navigation">
             <Item href="#selection-links" aria-current="page" selected>
@@ -612,11 +1115,12 @@ ${close}
               <ItemEnd>
                 <IconButton iconOnly text="Retry" class="size-7!">
                   {#snippet icon()}<Icon name="rotateCcw" />{/snippet}
-                </IconButton>
-              </ItemEnd>
-            </Item>
+              </IconButton>
+            </ItemEnd>
+          </Item>
           </ItemGroup>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -629,6 +1133,11 @@ ${close}
         title="Recipes"
         summary="Two compositions the family deliberately does NOT own: the accordion row composes the W3C-first Accordion (<details>/<summary> — native toggle, native SSR state, keyboard owned by the platform); the checkbox group is ItemGroup + ItemCheckbox with one shared form name. Swipeout, sortable, virtual lists, smart select stay out of v1 by design — scroll-virtual already exists for the data-engine side."
       >
+        <ComponentCanvas
+          title="list-item · recipes"
+          files={[{ name: 'list-item-recipes-demo.svelte', content: listItemRecipesDemo, kind: 'usage' }]}
+          stage="fill"
+        >
         <div class="grid w-full gap-6 lg:grid-cols-2">
           <div class="max-w-lg">
             <Accordion>
@@ -663,6 +1172,7 @@ ${close}
             </p>
           </div>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -677,7 +1187,15 @@ ${close}
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </SectionCard>
     </div>
-    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Row variants" summary="Variant controls paint only; slot presence owns list-item geometry. Use auto for context-sensitive chrome, or choose an explicit surface."><div class="grid gap-3 sm:grid-cols-2"><Item variant="default"><ItemContent><ItemTitle>default</ItemTitle><ItemDescription>host surface</ItemDescription></ItemContent></Item><Item variant="outline"><ItemContent><ItemTitle>outline</ItemTitle><ItemDescription>framed row</ItemDescription></ItemContent></Item><Item variant="muted"><ItemContent><ItemTitle>muted</ItemTitle><ItemDescription>quiet slab</ItemDescription></ItemContent></Item><Item><ItemContent><ItemTitle>auto</ItemTitle><ItemDescription>resolved from context</ItemDescription></ItemContent></Item></div></SectionCard></div>
+    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Row variants" summary="Variant controls paint only; slot presence owns list-item geometry. Use auto for context-sensitive chrome, or choose an explicit surface.">
+      <ComponentCanvas
+        title="list-item · variants"
+        files={[{ name: 'list-item-types-demo.svelte', content: listItemTypesDemo, kind: 'usage' }]}
+        stage="fill"
+      >
+      <div class="grid gap-3 sm:grid-cols-2"><Item variant="default"><ItemContent><ItemTitle>default</ItemTitle><ItemDescription>host surface</ItemDescription></ItemContent></Item><Item variant="outline"><ItemContent><ItemTitle>outline</ItemTitle><ItemDescription>framed row</ItemDescription></ItemContent></Item><Item variant="muted"><ItemContent><ItemTitle>muted</ItemTitle><ItemDescription>quiet slab</ItemDescription></ItemContent></Item><Item><ItemContent><ItemTitle>auto</ItemTitle><ItemDescription>resolved from context</ItemDescription></ItemContent></Item></div>
+      </ComponentCanvas>
+    </SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'a', value: 'href rows', description: 'Use href for navigable rows.' }, { name: 'selected', value: 'visual only', description: 'Does not emit aria-selected; add selection semantics to the owning pattern.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Item variant="outline"><ItemContent><ItemTitle>density row</ItemTitle><ItemDescription>scoped</ItemDescription></ItemContent></Item></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-row-min', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-gap-content', default: 'density scale', source: 'density' }, { name: '--jx-gap-end', default: 'density scale', source: 'density' }, { name: '--jx-media-gutter', default: 'density scale', source: 'density' }, { name: '--jx-image', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-icon-optical', default: '0px', source: 'component' }, { name: '--jx-unit', default: 'density scale', source: 'density' }, { name: '--jx-avatar-md', default: 'image scale', source: 'component' }, { name: '--jx-item-column-gap', default: 'gap', source: 'component' }, { name: '--jx-item-row-gap', default: 'stack', source: 'component' }, { name: '--jx-item-media-size', default: 'image', source: 'component' }, { name: '--jx-item-media-gutter', default: 'media gutter', source: 'component' }, { name: '--jx-item-content-gap', default: 'gap-content', source: 'component' }, { name: '--jx-item-end-gap', default: 'gap-end', source: 'component' }]} /></div></SectionCard></div>
     <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Item props"><PropsTable props={[{ name: 'variant', type: "'auto' | 'default' | 'outline' | 'muted'", default: "'auto' · Own default, not ambient", description: 'Controls visual chrome (auto resolves it from the group policy). Defaults: literal slot — own \'auto\', ambient when a table freeze lands.' }, { name: 'layout', type: 'ItemLayout', default: "'auto'", description: 'Selects row layout mode.' }, { name: 'selected', type: 'boolean', default: 'false', description: 'Visual selection state only.' }, { name: 'href', type: 'string', description: 'Renders the root as an anchor.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit tier ?? the ItemGroup provider / ambient scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>

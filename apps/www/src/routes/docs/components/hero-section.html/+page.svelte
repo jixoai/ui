@@ -71,6 +71,45 @@ ${close}
     { name: 'registry/files/ui/hero-section/hero-section.svelte', content: heroSectionSource },
     { name: 'src/lib/ui/hero-section-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // canvas-everywhere sweep (2026-09-08): the wide-form demo's usage
+  // mirror — hand-authored to match the stage markup (same-source
+  // migration is the recorded follow-up).
+  const heroSectionWideDemo = `<script lang="ts">
+  import HeroSection from '@ui/hero-section.svelte';
+  import Badge from '@ui/badge.svelte';
+  import PressButton from '@ui/press-button.svelte';
+  import TerminalCard from '@ui/terminal-card.svelte';
+${close}
+
+<!-- the row form engages at ≥64rem of the hero's own CONTENT box —
+     pan a narrow host sideways to see it (container query, not media) -->
+<div class="overflow-x-auto">
+  <div class="min-w-[67rem]">
+    <HeroSection
+      eyebrow="your-app · v0"
+      summary="The same composition at full width — the lead keeps its 16cm ergonomic measure."
+      copyCommand="npx jixoai-ui init --hue 210"
+    >
+      {#snippet title()}Ship the registry into your repo. <em>Keep the source.</em>{/snippet}
+      {#snippet badges()}
+        <Badge>registry</Badge>
+        <Badge>copy CTA</Badge>
+        <Badge variant="outline">terminal demo</Badge>
+      {/snippet}
+      {#snippet secondary()}
+        <PressButton variant="outline" href="/docs/components.html">browse components</PressButton>
+      {/snippet}
+      {#snippet terminal()}
+        <TerminalCard
+          barTitle="quick-start — zsh"
+          command="npx jixoai-ui init --hue 210"
+          outputs={['theme installed', 'hue applied · 210']}
+        />
+      {/snippet}
+    </HeroSection>
+  </div>
+</div>`;
 </script>
 
 <svelte:head>
@@ -159,41 +198,48 @@ ${close}
         summary="The row form answers the hero's own box, not the viewport: at ≥64rem of CONTENT the grid takes its second column and the terminal aside bottom-aligns against the lead. This docs column cannot offer that width, so the sample below pans sideways in its own scroll lane — an honest presentation of a container tier the page's column can never reach."
       >
         <div class="flex flex-col gap-3">
-          <div
-            data-jx-hero-wide-pan=""
-            class="overflow-x-auto border border-border bg-muted/40"
+          <ComponentCanvas
+            title="hero-section · wide form"
+            stage="fill"
+            scroll="grow"
+            files={[{ name: 'hero-section-wide-demo.svelte', content: heroSectionWideDemo, kind: 'usage' }]}
           >
-            <!-- 67rem floor = the 64rem tier + the section's own px-4
-                 insets: the container query reads the section's CONTENT
-                 box, so the pan must clear the tier PLUS the section
-                 padding for the row form to engage -->
-            <div class="min-w-[67rem]">
-              <HeroSection
-                eyebrow="your-app · v0"
-                summary="The same composition at full width — the lead keeps its 16cm ergonomic measure while the aside column tracks 10.5–13cm beside it."
-                copyCommand="npx jixoai-ui init --hue 210"
-              >
-                {#snippet title()}Ship the registry into your repo. <em>Keep the source.</em>{/snippet}
-                {#snippet badges()}
-                  <Badge>registry</Badge>
-                  <Badge>copy CTA</Badge>
-                  <Badge variant="outline">terminal demo</Badge>
-                {/snippet}
-                {#snippet secondary()}
-                  <PressButton variant="outline" href="/docs/components.html">
-                    browse components
-                  </PressButton>
-                {/snippet}
-                {#snippet terminal()}
-                  <TerminalCard
-                    barTitle="quick-start — zsh"
-                    command="npx jixoai-ui init --hue 210"
-                    outputs={['theme installed', 'hue applied · 210']}
-                  />
-                {/snippet}
-              </HeroSection>
+            <div
+              data-jx-hero-wide-pan=""
+              class="overflow-x-auto border border-border bg-muted/40"
+            >
+              <!-- 67rem floor = the 64rem tier + the section's own px-4
+                   insets: the container query reads the section's CONTENT
+                   box, so the pan must clear the tier PLUS the section
+                   padding for the row form to engage -->
+              <div class="min-w-[67rem]">
+                <HeroSection
+                  eyebrow="your-app · v0"
+                  summary="The same composition at full width — the lead keeps its 16cm ergonomic measure while the aside column tracks 10.5–13cm beside it."
+                  copyCommand="npx jixoai-ui init --hue 210"
+                >
+                  {#snippet title()}Ship the registry into your repo. <em>Keep the source.</em>{/snippet}
+                  {#snippet badges()}
+                    <Badge>registry</Badge>
+                    <Badge>copy CTA</Badge>
+                    <Badge variant="outline">terminal demo</Badge>
+                  {/snippet}
+                  {#snippet secondary()}
+                    <PressButton variant="outline" href="/docs/components.html">
+                      browse components
+                    </PressButton>
+                  {/snippet}
+                  {#snippet terminal()}
+                    <TerminalCard
+                      barTitle="quick-start — zsh"
+                      command="npx jixoai-ui init --hue 210"
+                      outputs={['theme installed', 'hue applied · 210']}
+                    />
+                  {/snippet}
+                </HeroSection>
+              </div>
             </div>
-          </div>
+          </ComponentCanvas>
           <p class="m-0 text-muted-foreground text-[12.5px] leading-5">
             pan the lane sideways — its thin scrollbar is the affordance (the site scrollbar law).
             The tier boundary is a CONTAINER query on the hero section itself, so embedding the

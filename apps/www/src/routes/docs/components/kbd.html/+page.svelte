@@ -24,6 +24,61 @@
     { name: 'registry/files/ui/kbd.svelte', content: kbdSource },
     { name: 'src/lib/ui/kbd-usage.svelte', content: usage },
   ];
+
+  const close = '</' + 'script>';
+
+  // shortcut rows demo, mirrored by hand for the drawer (the
+  // same-source resolveRawCode migration is the recorded follow-up)
+  const kbdShortcutRowsDemo = `<script lang="ts">
+  import Kbd from '@ui/kbd.svelte';
+${close}
+
+<div class="flex flex-col gap-6">
+  <div class="flex w-full max-w-md flex-col gap-1 border border-border">
+    <button
+      type="button"
+      class="flex items-center justify-between gap-4 border-b border-border px-3 py-2 text-left text-[13px] hover:bg-muted/50"
+    >
+      <span>open the command palette</span>
+      <span class="flex gap-1"><Kbd>⌘</Kbd><Kbd>K</Kbd></span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center justify-between gap-4 border-b border-border px-3 py-2 text-left text-[13px] hover:bg-muted/50"
+    >
+      <span>toggle the theme</span>
+      <span class="flex gap-1"><Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>L</Kbd></span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center justify-between gap-4 px-3 py-2 text-left text-[13px] hover:bg-muted/50"
+    >
+      <span>close this surface</span>
+      <Kbd>Esc</Kbd>
+    </button>
+  </div>
+  <table class="w-full max-w-md text-[12.5px]">
+    <caption class="sr-only">keyboard bindings and their glyphs</caption>
+    <tbody>
+      <tr class="border-t border-border">
+        <th scope="row" class="border-b border-border px-2 py-1.5 text-left font-normal text-muted-foreground">search</th>
+        <td class="border-b border-border px-2 py-1.5"><span class="flex gap-1"><Kbd>/</Kbd></span></td>
+      </tr>
+      <tr class="border-t border-border">
+        <th scope="row" class="border-b border-border px-2 py-1.5 text-left font-normal text-muted-foreground">shortcut sheet</th>
+        <td class="border-b border-border px-2 py-1.5"><span class="flex gap-1"><Kbd>Shift</Kbd><Kbd>?</Kbd></span></td>
+      </tr>
+      <tr class="border-t border-border">
+        <th scope="row" class="px-2 py-1.5 text-left font-normal text-muted-foreground">immediate exit</th>
+        <td class="px-2 py-1.5"><Kbd>⌃</Kbd><Kbd>C</Kbd></td>
+      </tr>
+    </tbody>
+  </table>
+</div>`;
+
+  const shortcutRowsFiles: TreeFile[] = [
+    { name: 'kbd-shortcut-rows-demo.svelte', content: kbdShortcutRowsDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -92,7 +147,8 @@
         title="Shortcut rows"
         summary="The glyph's natural habitats: menu items that hint their accelerator, tables of bindings, and prose. Every instance below is the same component reading its size from the context."
       >
-        <div class="flex flex-col gap-6">
+        <ComponentCanvas title="kbd · shortcut rows" stage="fill" files={shortcutRowsFiles}>
+          <div class="flex flex-col gap-6">
           <div class="flex w-full max-w-md flex-col gap-1 border border-border">
             <button
               type="button"
@@ -133,7 +189,8 @@
               </tr>
             </tbody>
           </table>
-        </div>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 

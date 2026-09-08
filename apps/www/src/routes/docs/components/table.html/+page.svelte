@@ -543,6 +543,28 @@ ${close}
     bind:value={pageSize} aria-label="rows per page" />
   <Pagination><!-- …pageRange window, Previous/Next buttons… --></Pagination>
 </div>`;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirror of
+  // the effect-only responsive-modes grid below — the same-source
+  // resolveRawCode migration of this string is the recorded follow-up
+  const tableModesDemo = `<script lang="ts">
+  import Table from '@ui/table/table.svelte';
+${close}
+
+<!-- keep the native markup; dense reduces row height and stack selects
+     the narrow-frame card law -->
+<div class="grid gap-4 md:grid-cols-2">
+  <Table caption="default">
+    <tbody><tr><td>regular rows</td></tr></tbody>
+  </Table>
+  <Table dense stack={false} caption="dense scroll">
+    <tbody><tr><td>compact, always scrollable</td></tr></tbody>
+  </Table>
+</div>`;
+
+  const tableModesFiles: TreeFile[] = [
+    { name: 'table-modes-demo.svelte', content: tableModesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -1325,7 +1347,7 @@ ${close}
 
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="Responsive modes" summary="Keep the native table markup; dense reduces row height and stack selects the narrow-frame card law.">
-      <div class="grid gap-4 md:grid-cols-2"><Table caption="default"><tbody><tr><td>regular rows</td></tr></tbody></Table><Table dense stack={false} caption="dense scroll"><tbody><tr><td>compact, always scrollable</td></tr></tbody></Table></div>
+      <ComponentCanvas title="table · modes" stage="fill" files={tableModesFiles}><div class="grid gap-4 md:grid-cols-2"><Table caption="default"><tbody><tr><td>regular rows</td></tr></tbody></Table><Table dense stack={false} caption="dense scroll"><tbody><tr><td>compact, always scrollable</td></tr></tbody></Table></div></ComponentCanvas>
     </SectionCard>
   </div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'caption', value: 'native table caption', description: 'Names the table for assistive technology.' }, { name: 'scope', value: 'col | row', description: 'Associates headers with their cells.' }, { name: 'data-label', value: 'string', description: 'Labels values in the narrow card layout.' }, { name: 'aria-sort', value: 'ascending | descending', description: 'Recipe wiring: lives on the sorted th only; the caret glyph stays aria-hidden.' }, { name: 'aria-live', value: 'polite', description: 'Selection count readout announces changes without stealing focus.' }]} /></SectionCard></div>

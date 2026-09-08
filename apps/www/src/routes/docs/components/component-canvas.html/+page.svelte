@@ -19,7 +19,8 @@
 
   // ToC outline: the workbench + the closing law, in page order.
 
-  // Playground: toggles the inner canvas's optional Playground pane.
+  // Playground: toggles the inner canvas's optional playground dock BODY
+  // (absent snippet = the chrome-only dock chip; present = body + chevron).
   let innerPlayground = $state(false);
 
   // Playground protocol (P1): the page owns the state snapshot.
@@ -40,8 +41,8 @@
   import { PlayFields, PlayRow, PlaySelect } from '$lib/playground';
 ${close}
 
-<!-- files: flat TreeFile list; ≤2 files render filename TABS over one
-     CodeCard, ≥3 split their "/" paths into tree levels -->
+<!-- files: flat TreeFile list; the drawer's tree pane splits their "/"
+     paths into levels — one shape at every file count -->
 <ComponentCanvas
   title="press-button"
   description="hover grows the shadow, active presses on an anchored shadow."
@@ -83,8 +84,8 @@ ${close}
   import { registrySourceUrl } from '$lib/registry-source';
 ${close}
 
-<!-- files: flat TreeFile list; ≤2 files render filename TABS over one
-     CodeCard, ≥3 split their "/" paths into tree levels -->
+<!-- files: flat TreeFile list; the drawer's tree pane splits their "/"
+     paths into levels — one shape at every file count -->
 <ComponentCanvas
   title="press-button"
   description="hover grows the shadow, active presses on an anchored shadow."
@@ -100,7 +101,7 @@ ${close}
   <title>Component canvas · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai component-canvas component: the documentation workbench — a LIVE demo stage, an optional Playground controls pane, and a collapsible code drawer combining tree-view with code-card. This page renders it recursively: the LIVE stage holds a simplified second canvas, capped at depth two."
+    content="The jixoai component-canvas component: the documentation workbench — a full-width LIVE demo stage, the FLOATING playground dock (theme/density chrome on every canvas, a collapsible controls body, horizontally draggable), and a collapsible code drawer combining tree-view with code-card. This page renders it recursively: the LIVE stage holds a simplified second canvas, capped at depth two."
   />
 </svelte:head>
 
@@ -118,12 +119,12 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · Docs Tooling"
       title="component-canvas — the documentation workbench"
-      summary="One bordered surface per component: header (font-nav title, description, copy-command badge, Source anchor, stage theme/density toggles), a LIVE demo stage on the muted tint so components prove themselves on a differently-toned ground — re-themable and re-densifiable from the header without touching the page — an optional Playground pane of consumer-authored controls, and a collapsible code drawer: the file tree pane beside one code-card, stacking under the canvas's narrow tier. Every component page on this site is one canvas — this one renders the component inside itself."
+      summary="One bordered surface per component: header (font-nav title, description, copy-command badge, Source anchor), a LIVE demo stage on the muted tint so components prove themselves on a differently-toned ground — and, floating over the stage's top-right corner, the playground dock: a collapsed-size chrome row (theme icon button, density select) that ships on EVERY canvas, expanding into consumer-authored controls or schema-lowered rows inside one integrated ItemGroup, collapsible to its head chip and horizontally draggable. Re-theming and re-densifying ride the dock's chrome without touching the page. Below the stage, a collapsible code drawer: the file tree pane beside one code-card, stacking under the canvas's narrow tier. Every component page on this site is one canvas — this one renders the component inside itself."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">LIVE stage · muted tint</span>
-        <span class="pill">stage theme · density toggles</span>
-        <span class="pill">playground pane</span>
+        <span class="pill">floating dock · theme + density chrome</span>
+        <span class="pill">collapsible · draggable</span>
         <span class="pill">tree drawer · container queries</span>
         <span class="pill">recursion · depth 2</span>
       </div>
@@ -134,7 +135,7 @@ ${close}
   <div id="canvas-workbench" data-region="canvas-workbench" data-reveal="">
     <ComponentCanvas
       title="component-canvas"
-      description="The canvas rendering a canvas: the LIVE stage below embeds a simplified second instance. The Playground checkbox toggles the inner pane — and the usage file in this drawer tracks it. The header's segmented pairs re-scope this stage only; the inner canvas keeps its own seats."
+      description="The canvas rendering a canvas: the LIVE stage below embeds a simplified second instance. The Playground checkbox toggles the inner canvas's dock BODY — its chevron appears and disappears with it — and the usage file in this drawer tracks it. The dock chrome (theme button, density select) re-scopes THIS stage only; the inner canvas's dock keeps its own seats."
       sourceUrl={registrySourceUrl('component-canvas')}
       install="component-canvas"
       {files}
@@ -150,7 +151,7 @@ ${close}
       <div class="w-full max-w-[38rem]">
         <ComponentCanvas
           title="press-button"
-          description="The inner canvas — a simplified instance living in the outer LIVE stage. Its header toggles re-scope ITS stage only; the outer canvas keeps its seats (the scoping law)."
+          description="The inner canvas — a simplified instance living in the outer LIVE stage. Its dock chrome re-scopes ITS stage only; the outer canvas keeps its seats (the scoping law). Without a playground snippet, its dock stands as the chrome chip alone."
           sourceUrl={registrySourceUrl('press-button')}
           files={innerFiles}
           stage="center"
@@ -160,8 +161,8 @@ ${close}
             {#snippet playground()}
               <PlayFields>
                 <PlayHelp>
-                  The optional Playground pane — absent by default, present only when the consumer
-                  authors it. Toggled from the outer canvas controls.
+                  The optional playground dock body — absent by default, present only when the
+                  consumer authors the snippet. Toggled from the outer canvas's dock.
                 </PlayHelp>
               </PlayFields>
             {/snippet}
@@ -170,13 +171,13 @@ ${close}
       </div>
       {#snippet playground()}
         <PlayFields>
-          <PlayRow label="inner pane disclosure">
+          <PlayRow label="inner dock body">
             <PlayToggle bind:value={innerPlayground} />
           </PlayRow>
           <PlayHelp>
-            The pane is a passed snippet: absent when unauthored, so the stage takes the full width
-            — exactly the toggle this control flips inside the second-level canvas. The usage file
-            in the drawer follows the same truth.
+            The playground is a passed snippet: absent when unauthored, the dock stands as its
+            chrome chip alone — no chevron, no body, exactly what this control flips inside the
+            second-level canvas. The usage file in the drawer follows the same truth.
           </PlayHelp>
         </PlayFields>
       {/snippet}
@@ -199,7 +200,7 @@ ${close}
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>Svelte 5 snippets — <code class="text-accent">children</code> and <code class="text-accent">playground</code> are real render seams, so the stage stays LIVE by construction</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>CSS container queries — the side-by-side stage/pane split and the drawer's tree column switch on the canvas's own inline size, not the viewport</span></li>
+              <span>CSS container queries — the dock's <code class="text-accent">clamp(240px, 30cqi, 300px)</code> width and the drawer's tree/code tiers switch on the canvas's own inline size, not the viewport</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span><code class="text-accent">grid-template-rows: 0fr→1fr</code> + the <code class="text-accent">inert</code> attribute — the drawer collapse and its tab-order removal</span></li>
           </ul>
@@ -208,9 +209,9 @@ ${close}
           <h3 class="font-nav mb-3 text-[13px] tracking-tight">what the workbench adds</h3>
           <ul class="flex flex-col gap-2 text-[13px] leading-6">
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the layer law: stage tint (muted 42%) vs playground tint (12%) — components must prove themselves on a differently-toned ground</span></li>
+              <span>the layer law: the stage's muted tint (42%) under the dock's surface-card ground — components prove themselves on a differently-toned ground while the floating controls sit on true background</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the P1 playground protocol: <code class="text-accent">onreset</code> / <code class="text-accent">echo</code> / <code class="text-accent">resolveFileContent</code> — the page owns every byte of state, the canvas only calls back</span></li>
+              <span>the P1 playground protocol: <code class="text-accent">onreset</code> / <code class="text-accent">output</code> / <code class="text-accent">resolveFileContent</code> — the page owns every byte of state, the canvas only calls back</span></li>
             <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
               <span>deterministic aria ids slug-derived from the title (SSR/client agree), with the explicit <code class="text-accent">id</code> prop as the documented collision escape</span></li>
           </ul>
@@ -260,7 +261,7 @@ ${close}
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Children are the LIVE stage; files feed the drawer; the playground snippet is optional."><CodeBlock code={usageCode} lang="svelte" meta="ComponentCanvas usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The drawer is a disclosure: aria-expanded/controls plus inert keeps collapsed content out of the tab order."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through header, playground controls, then the open drawer' }, { key: 'Enter / Space', action: 'Toggles the code drawer disclosure; triggers copy and reset buttons' }]} aria={[{ name: 'aria-expanded', value: 'boolean', description: 'On the drawer toggle; tracks the 0fr/1fr grid collapse' }, { name: 'aria-controls', value: '{id}-drawer', description: 'Pairs the toggle with the drawer region' }, { name: 'inert', value: 'when collapsed', description: 'Removes collapsed drawer content from tab and screen-reader order' }, { name: 'aria-label', value: 'string', description: 'On the source link, stage ("{title} demo"), controls, and copy button' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The canvas is chrome, not a density-scaled control: it sizes from its own type ramp and container queries, and carries the press shadow tokens for its buttons. The stage's theme/density toggles are the scoped re-theming surface — they stamp data-theme/data-density (plus the theme sheet's dark/jx-light token-scope classes) on the stage element only."><div class="flex flex-col gap-6"><p class="text-muted-foreground text-[13px] leading-6">the DensityDemo four-copy row is retired by the stage toggles: flip the header's segmented pairs above to preview the stage in dark or compact — the docs chrome, the ToC, and every sibling canvas keep their seats. Toggle state is page-owned through <code class="text-accent">bind:theme</code>/<code class="text-accent">bind:density</code>.</p><TokenTable tokens={[{ name: '--jx-press-shadow', default: '0 1px 2px rgb(0 0 0 / 0.08)', source: 'component' }, { name: '--jx-press-shadow-hover', default: 'grown shadow', source: 'component' }, { name: '--jx-press-shadow-active', default: 'anchored press', source: 'component' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the canvas Props interface; snippets are render seams, callbacks keep state page-owned."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Component name shown in the header.', required: true }, { name: 'description', type: 'string', default: '—', description: 'One-line description under the title.' }, { name: 'sourceUrl', type: 'string', default: '—', description: 'GitHub source link (header right, icon-only external anchor). The value is page-side DERIVED from the registry path projection ($lib/registry-source) — never hand-written.' }, { name: 'install', type: 'string', default: '—', description: 'Registry item name — renders the header copy-command badge (npx jixoai-ui add <name>) with a clipboard flash.' }, { name: 'files', type: 'TreeFile[]', default: '—', description: 'Demo code files; flat list, names may carry paths. ≤2 files render filename TABS over one CodeCard; ≥3 keep the tree pane. Content comes from the page\'s ?raw imports.', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'LIVE demo area — the consumer renders the component instance.', required: true }, { name: 'stage', type: "'fill' | 'center' | 'start'", default: "'fill'", description: 'Stage posture: fill, center (intrinsic, centered), or start (intrinsic, left).' }, { name: 'theme', type: "'light' | 'dark'", default: "'light'", description: 'Stage preview theme — page-owned bindable. Projects data-theme + the theme sheet dark/jx-light scope onto the stage element only.' }, { name: 'density', type: "'comfortable' | 'compact'", default: "'comfortable'", description: 'Stage preview density — page-owned bindable. compact maps onto the sm density scope, projected as data-density on the stage element only.' }, { name: 'playground', type: 'Snippet', default: '—', description: 'Consumer-authored controls pane; absent pane yields a full-width stage. Takes precedence over schema rows (escape-hatch law).' }, { name: 'schema', type: 'CanvasSchema', default: '—', description: 'jsonSchema control mode: a LOWERED schema (toJSONSchema) the pane renders rows from; bind:values + onvalue own the value semantics.' }, { name: 'onreset', type: '() => void', default: '—', description: 'Page-owned reset: shows the pane reset button and calls back.' }, { name: 'output', type: 'readonly PlayOutput[]', default: '—', description: 'Read-only state projection rows under the controls.' }, { name: 'resolveFileContent', type: '(file: TreeFile) => string', default: '—', description: 'Code-drawer content override — lets usage files track live state.' }, { name: 'id', type: 'string', default: 'slug(title)', description: "Explicit aria-id override when two canvases would slug-collide — AND the canvas same-source extraction key: an id-carrying canvas's children are extracted by canvasPlugin into the page's virtual:jixoai-canvas module (resolveRawCode(id) composes the usage file + the Usage CodeBlock; no id = no extraction). See the same-source law above." }, { name: 'class', type: 'string', default: '—', description: 'Class passthrough to the root element.' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The code drawer and the dock body are disclosures: aria-expanded/controls plus inert keeps collapsed content out of the tab order. The dock's drag is decorative and pointer-only — every function stays keyboard-reachable without it."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through header, dock chrome and body controls, then the open drawer' }, { key: 'Enter / Space', action: 'Toggles the code drawer and dock disclosures; triggers copy, theme, and reset buttons' }]} aria={[{ name: 'aria-expanded', value: 'boolean', description: 'On the drawer toggle and the dock collapse chevron; tracks the 0fr/1fr grid collapse' }, { name: 'aria-controls', value: '{id}-drawer / {id}-dock-body', description: 'Pairs each toggle with its collapsible region' }, { name: 'inert', value: 'when collapsed', description: 'Removes collapsed drawer and dock-body content from tab and screen-reader order' }, { name: 'aria-pressed', value: 'boolean', description: 'On the dock theme button — carries the light/dark state' }, { name: 'aria-label', value: 'string', description: 'On the source link, the stage ("{title} demo"), the dock ("Controls for {title}"), and copy buttons' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The canvas is chrome, not a density-scaled control: it sizes from its own type ramp and container queries, and carries the press shadow tokens for its buttons. The dock's theme button and density select are the scoped re-theming surface — they stamp data-theme/data-density (plus the theme sheet's dark/jx-light token-scope classes) on the stage element only."><div class="flex flex-col gap-6"><p class="text-muted-foreground text-[13px] leading-6">the DensityDemo four-copy row is retired by the dock chrome: flip the dock head's theme button or density select above to preview the stage in dark or at any Density rung (xs / sm / default / lg) — the docs chrome, the ToC, and every sibling canvas keep their seats. Toggle state is page-owned through <code class="text-accent">bind:theme</code>/<code class="text-accent">bind:density</code>; the dock itself is a bordered surface card on true background, so it reads on both stage themes.</p><TokenTable tokens={[{ name: '--jx-press-shadow', default: '0 1px 2px rgb(0 0 0 / 0.08)', source: 'component' }, { name: '--jx-press-shadow-hover', default: 'grown shadow', source: 'component' }, { name: '--jx-press-shadow-active', default: 'anchored press', source: 'component' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the canvas Props interface; snippets are render seams, callbacks keep state page-owned."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Component name shown in the header.', required: true }, { name: 'description', type: 'string', default: '—', description: 'One-line description under the title.' }, { name: 'sourceUrl', type: 'string', default: '—', description: 'GitHub source link (header right, icon-only external anchor). The value is page-side DERIVED from the registry path projection ($lib/registry-source) — never hand-written.' }, { name: 'install', type: 'string', default: '—', description: 'Registry item name — renders the header copy-command badge (npx jixoai-ui add <name>) with a clipboard flash.' }, { name: 'files', type: 'TreeFile[]', default: '—', description: 'Demo code files; flat list, names may carry paths. The drawer\'s tree pane splits their "/" paths into levels — one shape at every file count. Content comes from the page\'s ?raw imports.', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'LIVE demo area — the consumer renders the component instance.', required: true }, { name: 'stage', type: "'fill' | 'center' | 'start'", default: "'fill'", description: 'Stage posture: fill, center (intrinsic, centered), or start (intrinsic, left).' }, { name: 'scroll', type: "'capped' | 'grow'", default: "'capped'", description: 'Stage scroll posture: capped bounds the scroll layer at min(32rem, 60vh) with native auto-scroll; grow lifts the cap for full-composition demos whose own stacking is the presentation.' }, { name: 'theme', type: "'light' | 'dark'", default: "'light'", description: 'Stage preview theme — page-owned bindable, flipped by the dock head\'s icon button. Projects data-theme + the theme sheet dark/jx-light scope onto the stage element only.' }, { name: 'density', type: 'Density', default: "'default'", description: 'Stage preview density — page-owned bindable, the REPO-STANDARD union (xs | sm | default | lg) driven by the dock head\'s select. Stamped as data-density on the stage element directly; the old comfortable/compact mapping is retired.' }, { name: 'playground', type: 'Snippet', default: '—', description: 'Consumer-authored controls, rendered inside the floating dock\'s body — an unauthored playground leaves the dock as its chrome chip (no chevron, no body); the stage is full-width either way. Takes precedence over schema rows (escape-hatch law).' }, { name: 'schema', type: 'CanvasSchema', default: '—', description: 'jsonSchema control mode: a LOWERED schema (toJSONSchema) whose control rows the DOCK renders inside its integrated ItemGroup.' }, { name: 'values', type: 'Record<string, unknown>', default: 'schema defaults', description: 'Schema-mode dock values — two-way; initialized from schema defaults when the page binds none.', bindable: true }, { name: 'onvalue', type: '(key: string, value: unknown) => void', default: '—', description: 'Schema-mode change seam: the page intercepts and owns value semantics for non-representable props (effect builders, …), writing back through bind:values.' }, { name: 'onreset', type: '() => void', default: '—', description: 'Page-owned reset: shows the dock body foot\'s reset button and calls back; absent, schema mode falls back to schema defaults.' }, { name: 'output', type: 'readonly PlayOutput[]', default: '—', description: 'Read-only state projection rows at the dock\'s foot — body-bearing on its own: an output-only canvas still gets a dock body.' }, { name: 'resolveFileContent', type: '(file: TreeFile) => string', default: '—', description: 'Code-drawer content override — lets usage files track live state.' }, { name: 'id', type: 'string', default: 'slug(title)', description: "Explicit aria-id override when two canvases would slug-collide — AND the canvas same-source extraction key: an id-carrying canvas's children are extracted by canvasPlugin into the page's virtual:jixoai-canvas module (resolveRawCode(id) composes the usage file + the Usage CodeBlock; no id = no extraction). See the same-source law above." }, { name: 'class', type: 'string', default: '—', description: 'Class passthrough to the root element.' }]} /></SectionCard></div>
 </div>

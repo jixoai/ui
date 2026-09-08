@@ -37,6 +37,25 @@ ${close}
     { name: 'src/lib/ui/alert-usage.svelte', content: usage },
   ];
 
+  // the variants matrix (types section), swept through a canvas: both
+  // ladder variants, both live-region roles, and the optional-parts
+  // notices in one pass (hand-authored mirror of the stage markup)
+  const alertVariantsDemo = `<script lang="ts">
+  import Alert from '@ui/alert.svelte';
+${close}
+
+<Alert title="outline — polite">role=status, transparent ground, --jx-outline border. The plain notice.</Alert>
+
+<Alert variant="tonal" title="tonal — the brand tint">12% tinted ground, 45% border, tonal ink; --jx-tonal defaults to the brand hue.</Alert>
+
+<Alert variant="tonal" class="jx-hue-error" assertive={true} title="error status — assertive">role=alert, immediate announcement; failed statuses inject --error — destructive is an action hue, not a status.</Alert>
+
+<Alert>Body-only and title-only notices are first-class — no heading required.</Alert>`;
+
+  const alertVariantsFiles: TreeFile[] = [
+    { name: 'alert-variants-demo.svelte', content: alertVariantsDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with the section ids below, in page order.
 </script>
 
@@ -115,12 +134,14 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Alert variants" summary="Two ladder variants and two live-region roles; title and body are each optional. Hue is injected, never a variant name.">
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div class="border border-border p-4"><Alert title="outline — polite">role=status, transparent ground, --jx-outline border. The plain notice.</Alert></div>
-      <div class="border border-border p-4"><Alert variant="tonal" title="tonal — the brand tint">12% tinted ground, 45% border, tonal ink; --jx-tonal defaults to the brand hue.</Alert></div>
-      <div class="border border-border p-4"><Alert variant="tonal" class="jx-hue-error" assertive={true} title="error status — assertive">role=alert, immediate announcement; failed statuses inject --error — destructive is an action hue, not a status.</Alert></div>
-      <div class="border border-border p-4"><Alert>Body-only and title-only notices are first-class — no heading required.</Alert></div>
-    </div>
+    <ComponentCanvas title="alert · variants" stage="fill" files={alertVariantsFiles}>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-border p-4"><Alert title="outline — polite">role=status, transparent ground, --jx-outline border. The plain notice.</Alert></div>
+        <div class="border border-border p-4"><Alert variant="tonal" title="tonal — the brand tint">12% tinted ground, 45% border, tonal ink; --jx-tonal defaults to the brand hue.</Alert></div>
+        <div class="border border-border p-4"><Alert variant="tonal" class="jx-hue-error" assertive={true} title="error status — assertive">role=alert, immediate announcement; failed statuses inject --error — destructive is an action hue, not a status.</Alert></div>
+        <div class="border border-border p-4"><Alert>Body-only and title-only notices are first-class — no heading required.</Alert></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Choose the role deliberately: status for expected news, alert for errors; choose the surface by prominence — outline neutral, tonal emphasis — and inject the hue the intent needs."><CodeBlock code={usage} lang="svelte" meta="Alert usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The banner is itself the live region — screen readers announce it when it appears; no focus is taken."><A11yTable keys={[{ key: '—', action: 'Not focusable — an inline live region, not a control' }]} aria={[{ name: 'role', value: 'status | alert', description: 'status announces politely (default); alert interrupts immediately (assertive).' }, { name: 'data-jx-alert', value: 'variant', description: 'Hook attribute carrying the ladder variant (outline | tonal) for styling.' }]} /></SectionCard></div>

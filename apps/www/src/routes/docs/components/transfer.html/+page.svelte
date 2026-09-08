@@ -165,6 +165,38 @@ ${close}
 <Transfer {options} bind:value={granted}
   sourceTitle="available" targetTitle={'granted · ' + granted.length} />
 <p aria-live="polite">granted: {grantedLabels.join(', ') || '—'}</p>`;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+
+  // the panel pair (types section), swept through a canvas: plain
+  // source/target fieldsets vs titled panels with a disabled row
+  const transferTypesDemo = `<script lang="ts">
+  import Transfer from '@ui/transfer.svelte';
+${close}
+
+const typesPlain = [
+  { value: 'html', label: 'html' },
+  { value: 'css', label: 'css' },
+  { value: 'js', label: 'js' },
+];
+const typesTitled = [
+  { value: 'draft', label: 'draft post', disabled: true },
+  { value: 'review', label: 'in review' },
+  { value: 'done', label: 'published' },
+];
+let typesPlainValue = $state<string[]>([]);
+let typesTitledValue = $state<string[]>(['done']);
+
+<div class="grid w-full items-start gap-4 min-[900px]:grid-cols-2">
+  <div class="border border-border p-4"><Transfer options={typesPlain} bind:value={typesPlainValue} /></div>
+  <div class="border border-border p-4"><Transfer options={typesTitled} bind:value={typesTitledValue} sourceTitle="available" targetTitle="chosen" /></div>
+</div>`;
+
+  const transferTypesFiles: TreeFile[] = [
+    { name: 'transfer-types-demo.svelte', content: transferTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -337,10 +369,12 @@ ${close}
   </div>
 
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Transfer variants" summary="Plain source/target panels by default; titled panels rename the fieldsets, and disabled rows render but never move.">
-    <div class="grid items-start gap-4 min-[900px]:grid-cols-2">
-      <div class="border border-border p-4"><Transfer options={typesPlain} bind:value={typesPlainValue} /></div>
-      <div class="border border-border p-4"><Transfer options={typesTitled} bind:value={typesTitledValue} sourceTitle="available" targetTitle="chosen" /></div>
-    </div>
+    <ComponentCanvas title="transfer · variants" stage="fill" files={transferTypesFiles}>
+      <div class="grid w-full items-start gap-4 min-[900px]:grid-cols-2">
+        <div class="border border-border p-4"><Transfer options={typesPlain} bind:value={typesPlainValue} /></div>
+        <div class="border border-border p-4"><Transfer options={typesTitled} bind:value={typesTitledValue} sourceTitle="available" targetTitle="chosen" /></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Grouping, labeling and toggling are all native — each panel is a real fieldset of real checkbox rows."><A11yTable keys={[{ key: 'Tab', action: 'Walk the fieldsets, checkbox rows, search lanes and mover buttons' }, { key: 'Space', action: 'Toggle the focused checkbox row (native input)' }]} aria={[{ name: 'fieldset / legend', value: 'native', description: 'Each panel is a real fieldset; the legend shows visible/total counts.' }, { name: 'aria-label (movers)', value: 'move selected to {side}', description: 'Names each middle mover button.' }, { name: 'aria-label (search)', value: 'filter {panel}', description: 'Names each per-panel search lane.' }, { name: 'aria-live', value: 'polite (recipe)', description: 'The one-way rejection counter and granted readout announce without stealing focus.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Rows, movers and search lanes paint through theme colors; the panels stack under a 480px container query."><div class="flex flex-col gap-5"><DensityDemo><Transfer options={typesPlain} bind:value={typesPlainValue} /></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'stable gutter', source: 'component', description: 'List padding reserves the scrollbar lane when gutters are stable.' }, { name: 'panel surface', default: 'var(--card) + shadow-2xs', source: 'color', description: 'Each fieldset panel.' }, { name: 'hover / focus', default: '--muted / --ring / --primary', source: 'color', description: 'Row hover, search focus outline, mover hover lean.' }, { name: 'stacking law', default: 'max-width 480px', source: 'structural', description: 'Container query: panels stack, movers center between them.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Row and mover targets inside the density scope.' }]} /></div></SectionCard></div>

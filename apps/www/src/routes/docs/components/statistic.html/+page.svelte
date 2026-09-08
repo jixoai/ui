@@ -145,6 +145,23 @@ ${close}
 <Statistic title="cache hit rate" value="97.4">
   {#snippet suffix()}<span class="text-muted-foreground">%</span>{/snippet}
 </Statistic>`;
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirror of
+  // the effect-only metric-states grid below — the same-source
+  // resolveRawCode migration of this string is the recorded follow-up
+  const statisticStatesDemo = `<script lang="ts">
+  import Statistic from '@ui/statistic.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-3">
+  <Statistic title="neutral" value="69" />
+  <Statistic title="up" value="42" trend="up" />
+  <Statistic title="down" value="3" trend="down" />
+</div>`;
+
+  const statisticStatesFiles: TreeFile[] = [
+    { name: 'statistic-states-demo.svelte', content: statisticStatesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -317,7 +334,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Metric states" summary="The readout supports neutral metrics, directional trends and composed affixes."><div class="grid gap-4 sm:grid-cols-3"><Statistic title="neutral" value="69" /><Statistic title="up" value="42" trend="up" /><Statistic title="down" value="3" trend="down" /></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Metric states" summary="The readout supports neutral metrics, directional trends and composed affixes."><ComponentCanvas title="statistic · states" stage="fill" files={statisticStatesFiles}><div class="grid gap-4 sm:grid-cols-3"><Statistic title="neutral" value="69" /><Statistic title="up" value="42" trend="up" /><Statistic title="down" value="3" trend="down" /></div></ComponentCanvas></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'title', value: 'visible label', description: 'Names the metric for every reader.' }, { name: 'value', value: 'text content', description: 'Keeps formatted values readable and copyable.' }, { name: 'aria-live (recipe)', value: 'polite, one-shot', description: 'The countdown announces the CLOSE, never every tick — a ticking live region is noise.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Statistic title="deploys" value="42" trend="up" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value (format before it reaches the component).', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>

@@ -163,6 +163,16 @@ ${close}
   {/snippet}
 </Dialog>`;
 
+  // the fixed-body twin: scroll={false} asserts the content fits —
+  // sweep usage mirror (canvas-everywhere-demos, 2026-09-08); the
+  // same-source resolveRawCode migration is the recorded follow-up.
+  const fixedUsage = `<Dialog title="Session pinned" scroll={false} bind:open>
+  <p>
+    3 rules active · 2 breakpoints · no stack frames. The body declares
+    itself a non-scroller — nothing to roll, no gutter to reserve.
+  </p>
+</Dialog>`;
+
   // the custom-head demo's filterable corpus and the scroll demo's log
   const events = [
     'runner picked up job #128',
@@ -336,12 +346,23 @@ ${close}
       summary="A PressButton flips a bindable open state; the dialog does the rest. Try the × button, the Escape key, and Tab — focus stays inside the dialog while the page behind is inert."
     >
       <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-4">
-          <PressButton onclick={() => (basicOpen = true)}>Open dialog</PressButton>
-          <span class="text-muted-foreground text-[12.5px]">
-            state: <code class="text-accent">open = {basicOpen}</code>
-          </span>
-        </div>
+        <ComponentCanvas
+          title="dialog · basic"
+          files={[{ name: 'dialog-basic-demo.svelte', content: basicUsage, kind: 'usage' }]}
+          stage="center"
+        >
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <PressButton onclick={() => (basicOpen = true)}>Open dialog</PressButton>
+            <span class="text-muted-foreground text-[12.5px]">
+              state: <code class="text-accent">open = {basicOpen}</code>
+            </span>
+          </div>
+          <!-- closed dialogs render nothing — the instance lives in the
+               stage; showModal() lifts it into the top layer when open -->
+          <Dialog title="Deploy queued" bind:open={basicOpen}>
+            <p>build #128 is waiting for a runner. The log streams once it picks up.</p>
+          </Dialog>
+        </ComponentCanvas>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           Every exit — ×, Escape, or setting <code class="text-accent">open = false</code> from
           code — runs the same 460ms surface timeline before the real
@@ -362,12 +383,41 @@ ${close}
       summary="The footer snippet is the RAW override of the foot zone — and its standard content is <DialogFooter>: the buttons passed as children auto-join one button-group at the row's inline end, ghost by default through the Dialog's zone scope, an explicit fill still winning for the primary. Cancel drops the dialog; Confirm does its work first, then closes through the same animated path. The form shells inside are engraved WELLS (the entity law, r14-12): the dialog is the one solid object — the inputs keep their crisp hairline edge while their ground dissolves into the panel's surface, the well inset carrying the depth; focus still tints, hover still deepens."
     >
       <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-4">
-          <PressButton onclick={() => (formOpen = true)}>Rotate API key…</PressButton>
-          <span class="text-muted-foreground text-[12.5px]">
-            last action: <code class="text-accent">{lastAction ?? '—'}</code>
-          </span>
-        </div>
+        <ComponentCanvas
+          title="dialog · form footer"
+          files={[{ name: 'dialog-form-demo.svelte', content: formUsage, kind: 'usage' }]}
+          stage="center"
+        >
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <PressButton onclick={() => (formOpen = true)}>Rotate API key…</PressButton>
+            <span class="text-muted-foreground text-[12.5px]">
+              last action: <code class="text-accent">{lastAction ?? '—'}</code>
+            </span>
+          </div>
+          <Dialog title="Rotate API key" bind:open={formOpen}>
+            <div class="flex flex-col gap-3">
+              <p>Minting a new key revokes the current one after 24 hours.</p>
+              <label class="flex flex-col gap-1.5 text-[12px]">
+                <span class="text-muted-foreground">key name</span>
+                <Input type="text" value="ci-runner" />
+              </label>
+            </div>
+            {#snippet footer()}
+              <DialogFooter>
+                <PressButton onclick={() => (formOpen = false)}>Cancel</PressButton>
+                <PressButton
+                  variant="fill"
+                  onclick={() => {
+                    lastAction = 'key rotated';
+                    formOpen = false;
+                  }}
+                >
+                  Rotate key
+                </PressButton>
+              </DialogFooter>
+            {/snippet}
+          </Dialog>
+        </ComponentCanvas>
         <CodeBlock code={formUsage} lang="svelte" meta="usage" />
       </div>
     </SectionCard>
@@ -386,22 +436,95 @@ ${close}
         <p class="text-muted-foreground text-[12.5px]">
           last action: <code class="text-accent">{lastAction ?? '—'}</code>
         </p>
+        <ComponentCanvas
+          title="dialog · footer clusters"
+          files={[
+            { name: 'dialog-footer-group-demo.svelte', content: multiUsage, kind: 'usage' },
+            { name: 'dialog-footer-end-demo.svelte', content: endUsage },
+          ]}
+          stage="center"
+        >
+          <div class="flex flex-col items-center gap-4">
+            <div class="flex flex-wrap items-center justify-center gap-4">
+              <span class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                a · children — one auto group
+              </span>
+              <PressButton onclick={() => (clusterOpen = true)}>Publish release…</PressButton>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+              <span class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                b · end — the raw slot
+              </span>
+              <PressButton onclick={() => (endOpen = true)}>4 assets selected…</PressButton>
+            </div>
+          </div>
+          <!-- demo A: DialogFooter children — three buttons, one auto group
+               (ghost by context; the explicit fill wins for primary) -->
+          <Dialog title="Publish release" bind:open={clusterOpen}>
+            <p>v2.4.0 is staged — 14 commits since the last tag, 3 files touched.</p>
+            {#snippet footer()}
+              <DialogFooter>
+                <PressButton onclick={() => (clusterOpen = false)}>Cancel</PressButton>
+                <PressButton
+                  onclick={() => {
+                    lastAction = 'draft saved';
+                    clusterOpen = false;
+                  }}
+                >
+                  Save draft
+                </PressButton>
+                <PressButton
+                  variant="fill"
+                  onclick={() => {
+                    lastAction = 'published';
+                    clusterOpen = false;
+                  }}
+                >
+                  Publish
+                </PressButton>
+              </DialogFooter>
+            {/snippet}
+          </Dialog>
+          <!-- demo B: DialogFooter's raw end slot — replaces the grouped
+               arrangement entirely -->
+          <Dialog title="4 assets selected" bind:open={endOpen}>
+            <div class="flex flex-col gap-2">
+              <p>The bundle for the current audit:</p>
+              <ul class="flex flex-col gap-1 font-mono text-[12px] text-muted-foreground">
+                <li>crash-report.sites — 812 KB</li>
+                <li>tokens.json — 3.1 KB</li>
+                <li>hero.tape — 1.2 MB</li>
+                <li>audit.log — 96 KB</li>
+              </ul>
+            </div>
+            {#snippet footer()}
+              <DialogFooter>
+                {#snippet end()}
+                  <span class="font-mono text-[12px] text-muted-foreground">2.1 MB total</span>
+                  <PressButton
+                    variant="fill"
+                    onclick={() => {
+                      lastAction = 'download started';
+                      endOpen = false;
+                    }}
+                  >
+                    Download all
+                  </PressButton>
+                {/snippet}
+              </DialogFooter>
+            {/snippet}
+          </Dialog>
+        </ComponentCanvas>
         <div class="flex flex-col gap-3">
           <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
             a · DialogFooter children — three buttons, one auto group
           </p>
-          <div class="flex flex-wrap items-center gap-4">
-            <PressButton onclick={() => (clusterOpen = true)}>Publish release…</PressButton>
-          </div>
           <CodeBlock code={multiUsage} lang="svelte" meta="DialogFooter — one group" />
         </div>
         <div class="flex flex-col gap-3">
           <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
             b · DialogFooter end — the raw slot, no group
           </p>
-          <div class="flex flex-wrap items-center gap-4">
-            <PressButton onclick={() => (endOpen = true)}>4 assets selected…</PressButton>
-          </div>
           <CodeBlock code={endUsage} lang="svelte" meta="end — raw slot" />
         </div>
       </div>
@@ -418,12 +541,50 @@ ${close}
       summary="The head snippet replaces the visible title row, and DialogHeader is its content face: children ride flush, edge-to-edge — the content owns the row's height and padding (an Input shell brings its own), no zone insets intervening. The × close button still rides the head grid's end slot, and title keeps naming the dialog for assistive tech even though its visual row is gone — the search palette composes this same seam."
     >
       <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-4">
-          <PressButton onclick={() => (headOpen = true)}>Filter events…</PressButton>
-          <span class="text-muted-foreground text-[12.5px]">
-            query: <code class="text-accent">{headQuery.trim() || '—'}</code>
-          </span>
-        </div>
+        <ComponentCanvas
+          title="dialog · custom head"
+          files={[{ name: 'dialog-head-demo.svelte', content: headUsage, kind: 'usage' }]}
+          stage="center"
+        >
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <PressButton onclick={() => (headOpen = true)}>Filter events…</PressButton>
+            <span class="text-muted-foreground text-[12.5px]">
+              query: <code class="text-accent">{headQuery.trim() || '—'}</code>
+            </span>
+          </div>
+          <!-- custom head demo: DialogHeader carries the Input flush; title
+               keeps the accessible name, the × rides the head grid's end slot -->
+          <Dialog title="Filter events" bind:open={headOpen}>
+            {#snippet head()}
+              <DialogHeader>
+                <Input
+                  class="w-full min-w-0"
+                  placeholder="Filter events…"
+                  aria-label="Filter events"
+                  bind:value={headQuery}
+                >
+                  {#snippet innerInlineStart()}
+                    <span
+                      class="flex-none select-none text-muted-foreground"
+                      aria-hidden="true"><Icon name="search" /></span>
+                  {/snippet}
+                </Input>
+              </DialogHeader>
+            {/snippet}
+            {#if filtered.length === 0}
+              <p>No events match “{headQuery.trim()}”.</p>
+            {:else}
+              <ul class="flex flex-col gap-1">
+                {#each filtered as e (e)}
+                  <li class="flex items-center gap-2.5">
+                    <span class="size-1 flex-none bg-primary" aria-hidden="true"></span>
+                    <span class="font-mono text-[12px]">{e}</span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </Dialog>
+        </ComponentCanvas>
         <CodeBlock code={headUsage} lang="svelte" meta="custom head" />
       </div>
     </SectionCard>
@@ -439,10 +600,57 @@ ${close}
       summary="The panel itself never scrolls: the scroll ring is a row-ruled grid (head · separator · body · separator · foot) under a height cap, and the body zone is the only scroll environment — its scrollbar rides the zone edge with a stable both-edges gutter while the header bar and footer cluster stay pinned. The scroll itself is DECLARATIVE: scroll={false} asserts the body fits — the scroll authority and the gutter reservation retire together, the content keeps its full width. The class prop here caps the ring (a geometry-only override) so the scroll shows even on tall viewports."
     >
       <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-4">
-          <PressButton onclick={() => (logOpen = true)}>Event log ({logLines.length} lines)…</PressButton>
-          <PressButton onclick={() => (fixedOpen = true)}>Fixed body (scroll off)…</PressButton>
-        </div>
+        <ComponentCanvas
+          title="dialog · scrolling body"
+          files={[
+            { name: 'dialog-scroll-demo.svelte', content: scrollUsage, kind: 'usage' },
+            { name: 'dialog-fixed-demo.svelte', content: fixedUsage },
+          ]}
+          stage="center"
+        >
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <PressButton onclick={() => (logOpen = true)}>Event log ({logLines.length} lines)…</PressButton>
+            <PressButton onclick={() => (fixedOpen = true)}>Fixed body (scroll off)…</PressButton>
+          </div>
+          <!-- scrolling body demo: the ring cap comes from the class prop
+               (geometry-only) — head and foot pin, the body zone scrolls -->
+          <Dialog
+            title="Event log"
+            bind:open={logOpen}
+            class="[&_[data-jx-dialog-scroll]]:max-h-[22rem]"
+          >
+            <ol class="flex flex-col gap-1 font-mono text-[12px]">
+              {#each logLines as line, i (line)}
+                <li class="flex gap-3">
+                  <span class="w-6 flex-none text-right text-muted-foreground">{i + 1}</span>
+                  <span>{line}</span>
+                </li>
+              {/each}
+            </ol>
+            {#snippet footer()}
+              <DialogFooter>
+                <PressButton onclick={() => (logOpen = false)}>Close</PressButton>
+                <PressButton
+                  variant="fill"
+                  onclick={() => {
+                    lastAction = 'log exported';
+                    logOpen = false;
+                  }}
+                >
+                  Export log
+                </PressButton>
+              </DialogFooter>
+            {/snippet}
+          </Dialog>
+          <!-- fixed body demo: scroll={false} asserts the content fits —
+               the scroll authority and the both-edges gutter retire together -->
+          <Dialog title="Session pinned" scroll={false} bind:open={fixedOpen}>
+            <p>
+              3 rules active · 2 breakpoints · no stack frames. The body declares
+              itself a non-scroller — nothing to roll, no gutter to reserve.
+            </p>
+          </Dialog>
+        </ComponentCanvas>
         <CodeBlock code={scrollUsage} lang="svelte" meta="scrolling body" />
       </div>
     </SectionCard>
@@ -496,166 +704,6 @@ ${close}
   </div>
   </div>
 </div>
-
-<Dialog title="Deploy queued" bind:open={basicOpen}>
-  <p>build #128 is waiting for a runner. The log streams once it picks up.</p>
-</Dialog>
-
-<Dialog title="Rotate API key" bind:open={formOpen}>
-  <div class="flex flex-col gap-3">
-    <p>Minting a new key revokes the current one after 24 hours.</p>
-    <label class="flex flex-col gap-1.5 text-[12px]">
-      <span class="text-muted-foreground">key name</span>
-      <Input type="text" value="ci-runner" />
-    </label>
-  </div>
-  {#snippet footer()}
-    <DialogFooter>
-      <PressButton onclick={() => (formOpen = false)}>Cancel</PressButton>
-      <PressButton
-        variant="fill"
-        onclick={() => {
-          lastAction = 'key rotated';
-          formOpen = false;
-        }}
-      >
-        Rotate key
-      </PressButton>
-    </DialogFooter>
-  {/snippet}
-</Dialog>
-
-<!-- footer clusters demo A: DialogFooter children — three buttons, one
-     auto group (ghost by context; the explicit fill wins for primary) -->
-<Dialog title="Publish release" bind:open={clusterOpen}>
-  <p>v2.4.0 is staged — 14 commits since the last tag, 3 files touched.</p>
-  {#snippet footer()}
-    <DialogFooter>
-      <PressButton onclick={() => (clusterOpen = false)}>Cancel</PressButton>
-      <PressButton
-        onclick={() => {
-          lastAction = 'draft saved';
-          clusterOpen = false;
-        }}
-      >
-        Save draft
-      </PressButton>
-      <PressButton
-        variant="fill"
-        onclick={() => {
-          lastAction = 'published';
-          clusterOpen = false;
-        }}
-      >
-        Publish
-      </PressButton>
-    </DialogFooter>
-  {/snippet}
-</Dialog>
-
-<!-- demo B: DialogFooter's raw end slot — replaces the grouped
-     arrangement entirely -->
-<Dialog title="4 assets selected" bind:open={endOpen}>
-  <div class="flex flex-col gap-2">
-    <p>The bundle for the current audit:</p>
-    <ul class="flex flex-col gap-1 font-mono text-[12px] text-muted-foreground">
-      <li>crash-report.sites — 812 KB</li>
-      <li>tokens.json — 3.1 KB</li>
-      <li>hero.tape — 1.2 MB</li>
-      <li>audit.log — 96 KB</li>
-    </ul>
-  </div>
-  {#snippet footer()}
-    <DialogFooter>
-      {#snippet end()}
-        <span class="font-mono text-[12px] text-muted-foreground">2.1 MB total</span>
-        <PressButton
-          variant="fill"
-          onclick={() => {
-            lastAction = 'download started';
-            endOpen = false;
-          }}
-        >
-          Download all
-        </PressButton>
-      {/snippet}
-    </DialogFooter>
-  {/snippet}
-</Dialog>
-
-<!-- custom head demo: DialogHeader carries the Input flush; title keeps
-     the accessible name, the × rides the head grid's end slot -->
-<Dialog title="Filter events" bind:open={headOpen}>
-  {#snippet head()}
-    <DialogHeader>
-      <Input
-        class="w-full min-w-0"
-        placeholder="Filter events…"
-        aria-label="Filter events"
-        bind:value={headQuery}
-      >
-        {#snippet innerInlineStart()}
-          <span
-            class="flex-none select-none text-muted-foreground"
-            aria-hidden="true"><Icon name="search" /></span>
-        {/snippet}
-      </Input>
-    </DialogHeader>
-  {/snippet}
-  {#if filtered.length === 0}
-    <p>No events match “{headQuery.trim()}”.</p>
-  {:else}
-    <ul class="flex flex-col gap-1">
-      {#each filtered as e (e)}
-        <li class="flex items-center gap-2.5">
-          <span class="size-1 flex-none bg-primary" aria-hidden="true"></span>
-          <span class="font-mono text-[12px]">{e}</span>
-        </li>
-      {/each}
-    </ul>
-  {/if}
-</Dialog>
-
-<!-- scrolling body demo: the ring cap comes from the class prop
-     (geometry-only) — head and foot pin, the body zone scrolls -->
-<Dialog
-  title="Event log"
-  bind:open={logOpen}
-  class="[&_[data-jx-dialog-scroll]]:max-h-[22rem]"
->
-  <ol class="flex flex-col gap-1 font-mono text-[12px]">
-    {#each logLines as line, i (line)}
-      <li class="flex gap-3">
-        <span class="w-6 flex-none text-right text-muted-foreground">{i + 1}</span>
-        <span>{line}</span>
-      </li>
-    {/each}
-  </ol>
-  {#snippet footer()}
-    <DialogFooter>
-      <PressButton onclick={() => (logOpen = false)}>Close</PressButton>
-      <PressButton
-        variant="fill"
-        onclick={() => {
-          lastAction = 'log exported';
-          logOpen = false;
-        }}
-      >
-        Export log
-      </PressButton>
-    </DialogFooter>
-  {/snippet}
-</Dialog>
-
-<!-- fixed body demo: scroll={false} asserts the content fits — the
-     scroll authority and the both-edges gutter retire together -->
-<Dialog title="Session pinned" scroll={false} bind:open={fixedOpen}>
-  <p>
-    3 rules active · 2 breakpoints · no stack frames. The body declares
-    itself a non-scroller — nothing to roll, no gutter to reserve.
-  </p>
-</Dialog>
-
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Dialog variants" summary="Title and footer are the two compositional axes; variant paints the surface.">
     <div class="grid gap-4 md:grid-cols-3">
@@ -675,7 +723,7 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same animated close."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role, focus trap, and Escape are the platform's."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class="flex flex-col gap-5"><p class="text-muted-foreground text-[13px] leading-6">the trigger inherits the density scope, the surface inherits through the DOM tree — flip the workbench stage's density toggle (comfortable / compact) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that toggle.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class="flex flex-col gap-5"><p class="text-muted-foreground text-[13px] leading-6">the trigger inherits the density scope, the surface inherits through the DOM tree — flip the canvas dock's density select (xs / sm / default / lg) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that select.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props — the platform owns every behavior; the component owns state binding, zone presence, and the zone variant scopes. The footer snippet is the RAW full override of the foot zone; the head/footer content faces are the composition components below."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading of the default title row (rendered through DialogHeader); omit for a chrome-less body. Still names the dialog (aria-label) when a head snippet replaces the visible row.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint; auto defers to the environment’s transparency preference. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'class', type: 'string', default: "''", description: 'Geometry-only utilities appended after the law’s own (a consumer’s anchor/width, a scroll-ring cap); the platform still paints nothing.' }, { name: 'scroll', type: 'boolean', default: 'true', description: 'The body zone’s scroll authority (the panel never scrolls). false asserts the body fits — the scroll authority and the stable both-edges gutter reservation retire together.' }, { name: 'head', type: 'Snippet', default: '—', description: 'Replaces the visible title row — typically a DialogHeader wrapping custom content; the × close still rides the head grid’s end slot.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body — the only scrollable zone.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'The RAW full override of the foot zone — its standard content is a DialogFooter (buttons auto-joined in one end-packed group, ghost by the zone’s scope).' }, { name: 'cancelGuard', type: '() => boolean', default: '—', description: 'Consulted on the native cancel request (Escape); returning true holds the dialog open (e.g. through an IME composition).' }]} /></SectionCard></div>
   <div id="composition" data-reveal=""><SectionCard family="composition" headerRegion="composition" eyebrow="api" title="DialogHeader · DialogFooter — the zone content faces" summary="The slot architecture belongs to the zones' content, carried by components (r14-9): Dialog renders the zones and writes the ghost variant scopes; these two are what the zones usually show. DialogHeader is also Dialog's internal default — the untitled title row has exactly one source."><PropsTable props={[{ name: 'DialogHeader · title', type: 'string', default: '—', description: 'The default title row (padded chrome bar); yields to children.' }, { name: 'DialogHeader · children', type: 'Snippet', default: '—', description: 'Custom head content, FLUSH edge-to-edge — owns its own geometry (the palette’s Input).' }, { name: 'DialogFooter · children', type: 'Snippet', default: '—', description: 'The action buttons — auto-joined in ONE ButtonGroup packed at inline-end; ghost inherited from the Dialog zone scope, an explicit variant wins; ghost seams rule the buttons.' }, { name: 'DialogFooter · end', type: 'Snippet', default: '—', description: 'Raw inline-end content: present, it replaces the grouped arrangement entirely — the opt-out for non-button content or a custom cluster, bracket and all.' }, { name: 'DialogFooter · opening line', type: 'structural', default: 'leadingSeam', description: 'The actions region’s boundary — the ButtonGroup’s leadingSeam capability: the first button’s own flush seam pseudo (r14-13), not a sibling element; gone with the group under the end face.' }, { name: 'DialogFooter · label', type: 'string', default: "'Dialog footer'", description: 'The ButtonGroup’s accessible name.' }]} /></SectionCard></div>
 </div>

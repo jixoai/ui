@@ -41,6 +41,36 @@ ${close}
     { name: 'registry/files/ui/input-otp.svelte', content: inputOtpSource },
     { name: 'src/lib/ui/input-otp-usage.svelte', content: canvasUsage },
   ];
+
+  // canvas-everywhere sweep (2026-09-08): hand-authored mirror of the
+  // variants grid below — the same-source resolveRawCode migration of
+  // this string is the recorded follow-up
+  const inputOtpTypesDemo = `<script lang="ts">
+  import InputOtp from '@ui/input-otp.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="flex flex-col gap-3 border border-border p-4">
+    <InputOtp label="numeric (6)" length={6} />
+    <span class="text-muted-foreground text-[12px]">digits only · inputmode numeric</span>
+  </div>
+  <div class="flex flex-col gap-3 border border-border p-4">
+    <InputOtp label="alpha (numeric={false})" length={6} numeric={false} />
+    <span class="text-muted-foreground text-[12px]">letters accepted · inputmode text</span>
+  </div>
+  <div class="flex flex-col gap-3 border border-border p-4">
+    <InputOtp label="short code (4)" length={4} />
+    <span class="text-muted-foreground text-[12px]">length clamps to 1…12</span>
+  </div>
+  <div class="flex flex-col gap-3 border border-border p-4">
+    <InputOtp label="error" length={6} value="123" error="code expired — resend" />
+    <span class="text-muted-foreground text-[12px]">dashed destructive border on every slot</span>
+  </div>
+</div>`;
+
+  const typesFiles: TreeFile[] = [
+    { name: 'input-otp-types-demo.svelte', content: inputOtpTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -117,7 +147,8 @@ ${close}
       title="InputOtp variants"
       summary="The default numeric six-slot code, an alpha code (numeric={false}), a shorter code, and the error state."
     >
-      <div class="grid gap-4 sm:grid-cols-2">
+      <ComponentCanvas title="input-otp · variants" stage="fill" files={typesFiles}>
+        <div class="grid gap-4 sm:grid-cols-2">
         <div class="flex flex-col gap-3 border border-border p-4">
           <InputOtp label="numeric (6)" length={6} />
           <span class="text-muted-foreground text-[12px]">digits only · inputmode numeric</span>
@@ -134,7 +165,8 @@ ${close}
           <InputOtp label="error" length={6} value="123" error="code expired — resend" />
           <span class="text-muted-foreground text-[12px]">dashed destructive border on every slot</span>
         </div>
-      </div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal="">

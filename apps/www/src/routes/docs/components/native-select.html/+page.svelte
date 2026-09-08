@@ -111,6 +111,150 @@
     outputs.push('form submitted ✓');
     result = { outputs };
   }
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  const nativeFirstDemo = `<script lang="ts">
+  import NativeSelect from '@ui/native-select.svelte';
+  import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+
+let runtimeNative = $state('node');
+${close}
+
+<CardGrid min="230px">
+  <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+    <NativeSelect
+      label="runtime — native popup"
+      name="cmp_runtime"
+      value={runtimeNative}
+      onchange={(event) => (runtimeNative = event.currentTarget.value)}
+    >
+      <option value="node">node</option>
+      <option value="bun">bun</option>
+      <option value="deno">deno</option>
+    </NativeSelect>
+    <span class="text-muted-foreground text-[12.5px]">
+      platform popup · FormData-ready · bound value:
+      <code class="text-accent">{runtimeNative}</code>
+    </span>
+  </div>
+  <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+    <NativeSelect label="disabled" name="demo_select_disabled" disabled>
+      <option>frozen</option>
+    </NativeSelect>
+    <span class="text-muted-foreground text-[12.5px]">
+      the whole control freezes — options and all
+    </span>
+  </div>
+  <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+    <NativeSelect label="multiple (list box)" name="demo_targets" multiple>
+      <option value="linux">linux</option>
+      <option value="macos">macos</option>
+      <option value="windows">windows</option>
+    </NativeSelect>
+    <span class="text-muted-foreground text-[12.5px]">
+      native list-box geometry · ctrl/cmd multi-selects
+    </span>
+  </div>
+</CardGrid>`;
+
+  const nativeFirstFiles: TreeFile[] = [
+    { name: 'native-select-native-first-demo.svelte', content: nativeFirstDemo, kind: 'usage' },
+  ];
+
+  const inAFormDemo = `<script lang="ts">
+  import NativeSelect from '@ui/native-select.svelte';
+  import PressButton from '@ui/press-button.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+
+let result = $state<{ outputs: string[] } | null>(null);
+
+function onSubmit(event: SubmitEvent) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget as HTMLFormElement);
+  const outputs: string[] = [];
+  for (const [key, value] of data) {
+    if (typeof value === 'string' && value !== '') outputs.push(\`\${key}: \${value}\`);
+  }
+  outputs.push('form submitted ✓');
+  result = { outputs };
+}
+${close}
+
+<div class="grid gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+  <form class="flex flex-col gap-4" aria-label="plan" onsubmit={onSubmit}>
+    <NativeSelect label="plan" name="plan" required>
+      <option value="">— choose a plan —</option>
+      <option value="free">free — community</option>
+      <option value="pro">pro — dedicated backend</option>
+    </NativeSelect>
+    <div class="flex flex-wrap items-center gap-3 pt-1">
+      <PressButton type="submit" variant="fill">sign up</PressButton>
+      <span class="text-muted-foreground text-[12.5px]">
+        required fields use native validation — try submitting empty
+      </span>
+    </div>
+  </form>
+  <div>
+    {#if result}
+      {#key result}
+        <TerminalCard
+          barTitle="form — zsh"
+          command="form.submit"
+          outputs={result.outputs}
+        />
+      {/key}
+    {:else}
+      <div class="border-border bg-muted/40 text-muted-foreground flex h-full min-h-40 flex-col items-center justify-center gap-2 border p-6 text-center text-[13px]">
+        <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">awaiting submit</span>
+        <span>choose a plan and press <code class="text-accent">sign up</code> — the FormData payload prints here</span>
+      </div>
+    {/if}
+  </div>
+</div>`;
+
+  const inAFormFiles: TreeFile[] = [
+    { name: 'native-select-in-a-form-demo.svelte', content: inAFormDemo, kind: 'usage' },
+  ];
+
+  const nativeSelectTypesDemo = `<script lang="ts">
+  import NativeSelect from '@ui/native-select.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4">
+    <NativeSelect label="single" name="types-single">
+      <option value="node">node</option>
+      <option value="bun">bun</option>
+      <option value="deno">deno</option>
+    </NativeSelect>
+  </div>
+  <div class="border border-border p-4">
+    <NativeSelect label="multiple (list box)" name="types-multiple" multiple>
+      <option value="linux">linux</option>
+      <option value="macos">macos</option>
+      <option value="windows">windows</option>
+    </NativeSelect>
+  </div>
+  <div class="border border-border p-4">
+    <NativeSelect label="error" name="types-error" error="plan is required">
+      <option value="">— choose —</option>
+      <option value="free">free</option>
+    </NativeSelect>
+  </div>
+  <div class="border border-border p-4">
+    <NativeSelect label="disabled" name="types-disabled" disabled>
+      <option>frozen</option>
+    </NativeSelect>
+  </div>
+</div>`;
+
+  const nativeSelectTypesFiles: TreeFile[] = [
+    { name: 'native-select-types-demo.svelte', content: nativeSelectTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -192,42 +336,44 @@
       summary="A real <select> whose popup list, keyboard, and type-ahead belong to the platform. The repaint touches only the closed control: appearance-none plus an inline SVG chevron, absolutely positioned and pointer-events: none. It rides into FormData with a name/value pair and gets the OS overlay picker on mobile."
     >
       <div class="flex flex-col gap-5">
-        <CardGrid min="230px">
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
-            <NativeSelect
-              label="runtime — native popup"
-              name="cmp_runtime"
-              value={runtimeNative}
-              onchange={(event) => (runtimeNative = event.currentTarget.value)}
-            >
-              <option value="node">node</option>
-              <option value="bun">bun</option>
-              <option value="deno">deno</option>
-            </NativeSelect>
-            <span class="text-muted-foreground text-[12.5px]">
-              platform popup · FormData-ready · bound value:
-              <code class="text-accent">{runtimeNative}</code>
-            </span>
-          </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
-            <NativeSelect label="disabled" name="demo_select_disabled" disabled>
-              <option>frozen</option>
-            </NativeSelect>
-            <span class="text-muted-foreground text-[12.5px]">
-              the whole control freezes — options and all
-            </span>
-          </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
-            <NativeSelect label="multiple (list box)" name="demo_targets" multiple>
-              <option value="linux">linux</option>
-              <option value="macos">macos</option>
-              <option value="windows">windows</option>
-            </NativeSelect>
-            <span class="text-muted-foreground text-[12.5px]">
-              native list-box geometry · ctrl/cmd multi-selects
-            </span>
-          </div>
-        </CardGrid>
+        <ComponentCanvas title="native-select · native first" stage="fill" files={nativeFirstFiles}>
+          <CardGrid min="230px">
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <NativeSelect
+                label="runtime — native popup"
+                name="cmp_runtime"
+                value={runtimeNative}
+                onchange={(event) => (runtimeNative = event.currentTarget.value)}
+              >
+                <option value="node">node</option>
+                <option value="bun">bun</option>
+                <option value="deno">deno</option>
+              </NativeSelect>
+              <span class="text-muted-foreground text-[12.5px]">
+                platform popup · FormData-ready · bound value:
+                <code class="text-accent">{runtimeNative}</code>
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <NativeSelect label="disabled" name="demo_select_disabled" disabled>
+                <option>frozen</option>
+              </NativeSelect>
+              <span class="text-muted-foreground text-[12.5px]">
+                the whole control freezes — options and all
+              </span>
+            </div>
+            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+              <NativeSelect label="multiple (list box)" name="demo_targets" multiple>
+                <option value="linux">linux</option>
+                <option value="macos">macos</option>
+                <option value="windows">windows</option>
+              </NativeSelect>
+              <span class="text-muted-foreground text-[12.5px]">
+                native list-box geometry · ctrl/cmd multi-selects
+              </span>
+            </div>
+          </CardGrid>
+        </ComponentCanvas>
         <p class="text-muted-foreground text-pretty text-[13px] leading-6">
           When the native popup can't say what you need — per-option descriptions, a painted
           panel, roving highlight — reach for the rich sibling:
@@ -269,37 +415,39 @@
       title="In a submitted form"
       summary="NativeSelect is the select in a submitted form — its name/value pair is the point. Uncontrolled field, native constraint validation (the required bubble belongs to the platform), FormData read once at submit."
     >
-      <div class="grid gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-        <form class="flex flex-col gap-4" aria-label="plan" onsubmit={onSubmit}>
-          <NativeSelect label="plan" name="plan" required>
-            <option value="">— choose a plan —</option>
-            <option value="free">free — community</option>
-            <option value="pro">pro — dedicated backend</option>
-          </NativeSelect>
-          <div class="flex flex-wrap items-center gap-3 pt-1">
-            <PressButton type="submit" variant="fill">sign up</PressButton>
-            <span class="text-muted-foreground text-[12.5px]">
-              required fields use native validation — try submitting empty
-            </span>
-          </div>
-        </form>
-        <div>
-          {#if result}
-            {#key result}
-              <TerminalCard
-                barTitle="form — zsh"
-                command="form.submit"
-                outputs={result.outputs}
-              />
-            {/key}
-          {:else}
-            <div class="border-border bg-muted/40 text-muted-foreground flex h-full min-h-40 flex-col items-center justify-center gap-2 border p-6 text-center text-[13px]">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">awaiting submit</span>
-              <span>choose a plan and press <code class="text-accent">sign up</code> — the FormData payload prints here</span>
+      <ComponentCanvas title="native-select · in a form" stage="fill" files={inAFormFiles}>
+        <div class="grid gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+          <form class="flex flex-col gap-4" aria-label="plan" onsubmit={onSubmit}>
+            <NativeSelect label="plan" name="plan" required>
+              <option value="">— choose a plan —</option>
+              <option value="free">free — community</option>
+              <option value="pro">pro — dedicated backend</option>
+            </NativeSelect>
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <PressButton type="submit" variant="fill">sign up</PressButton>
+              <span class="text-muted-foreground text-[12.5px]">
+                required fields use native validation — try submitting empty
+              </span>
             </div>
-          {/if}
+          </form>
+          <div>
+            {#if result}
+              {#key result}
+                <TerminalCard
+                  barTitle="form — zsh"
+                  command="form.submit"
+                  outputs={result.outputs}
+                />
+              {/key}
+            {:else}
+              <div class="border-border bg-muted/40 text-muted-foreground flex h-full min-h-40 flex-col items-center justify-center gap-2 border p-6 text-center text-[13px]">
+                <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">awaiting submit</span>
+                <span>choose a plan and press <code class="text-accent">sign up</code> — the FormData payload prints here</span>
+              </div>
+            {/if}
+          </div>
         </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   </div>
@@ -317,33 +465,35 @@
       title="NativeSelect variants"
       summary="The single popup select, the multiple list-box posture, the error state, and the disabled field."
     >
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="border border-border p-4">
-          <NativeSelect label="single" name="types-single">
-            <option value="node">node</option>
-            <option value="bun">bun</option>
-            <option value="deno">deno</option>
-          </NativeSelect>
+      <ComponentCanvas title="native-select · variants" stage="fill" files={nativeSelectTypesFiles}>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="border border-border p-4">
+            <NativeSelect label="single" name="types-single">
+              <option value="node">node</option>
+              <option value="bun">bun</option>
+              <option value="deno">deno</option>
+            </NativeSelect>
+          </div>
+          <div class="border border-border p-4">
+            <NativeSelect label="multiple (list box)" name="types-multiple" multiple>
+              <option value="linux">linux</option>
+              <option value="macos">macos</option>
+              <option value="windows">windows</option>
+            </NativeSelect>
+          </div>
+          <div class="border border-border p-4">
+            <NativeSelect label="error" name="types-error" error="plan is required">
+              <option value="">— choose —</option>
+              <option value="free">free</option>
+            </NativeSelect>
+          </div>
+          <div class="border border-border p-4">
+            <NativeSelect label="disabled" name="types-disabled" disabled>
+              <option>frozen</option>
+            </NativeSelect>
+          </div>
         </div>
-        <div class="border border-border p-4">
-          <NativeSelect label="multiple (list box)" name="types-multiple" multiple>
-            <option value="linux">linux</option>
-            <option value="macos">macos</option>
-            <option value="windows">windows</option>
-          </NativeSelect>
-        </div>
-        <div class="border border-border p-4">
-          <NativeSelect label="error" name="types-error" error="plan is required">
-            <option value="">— choose —</option>
-            <option value="free">free</option>
-          </NativeSelect>
-        </div>
-        <div class="border border-border p-4">
-          <NativeSelect label="disabled" name="types-disabled" disabled>
-            <option>frozen</option>
-          </NativeSelect>
-        </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal="">

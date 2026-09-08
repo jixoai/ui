@@ -107,6 +107,29 @@
     { name: 'registry/files/ui/range/range.css', content: rangeCssSource },
     { name: 'src/lib/ui/range-usage.svelte', content: rangeUsage },
   ];
+
+  // A literal closing-script tag inside a template literal would terminate
+  // this component's own script tag during the HTML-level scan — splice it.
+  const close = '</' + 'script>';
+
+  // the axes matrix (types section), swept through a canvas: the
+  // continuous / stepped / ticked trio, the RangeTick ruler, and the
+  // vertical fader
+  const rangeTypesDemo = `<script lang="ts">
+  import Range, { RangeTick } from '@ui/range';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-3">
+  <div class="border border-border p-4"><Range label="continuous" value={40} /></div>
+  <div class="border border-border p-4"><Range label="stepped" value={4} min={0} max={10} step={1} /></div>
+  <div class="border border-border p-4"><Range label="with ticks" value={50} ticks /></div>
+  <div class="border border-border p-4"><Range label="ruler (1/5/10)" bind:value={rulerValue} min={0} max={100} step={1}>{#snippet ticks()}<RangeTick scale={1} /><RangeTick scale={5} /><RangeTick scale={10} />{/snippet}</Range><span class="text-muted-foreground text-[12px]">click a mark to snap · wheel = one detent</span></div>
+  <div class="border border-border flex items-center justify-center p-4"><Range label="vertical fader" orientation="vertical" value={30} ticks min={0} max={10} step={1} /></div>
+</div>`;
+
+  const rangeTypesFiles: TreeFile[] = [
+    { name: 'range-types-demo.svelte', content: rangeTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -265,7 +288,7 @@
 </div>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Range variants" summary="Use a plain slider for continuous input, add steps and ticks when values are discrete, or flip the axis — vertical rides the platform's own vertical face with min at the physical bottom."><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Range label="continuous" value={40} /></div><div class="border border-border p-4"><Range label="stepped" value={4} min={0} max={10} step={1} /></div><div class="border border-border p-4"><Range label="with ticks" value={50} ticks /></div><div class="border border-border p-4"><Range label="ruler (1/5/10)" bind:value={rulerValue} min={0} max={100} step={1}>{#snippet ticks()}<RangeTick scale={1} /><RangeTick scale={5} /><RangeTick scale={10} />{/snippet}</Range><span class="text-muted-foreground text-[12px]">click a mark to snap · wheel = one detent</span></div><div class="border border-border flex items-center justify-center p-4"><Range label="vertical fader" orientation="vertical" value={30} ticks min={0} max={10} step={1} /></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Range variants" summary="Use a plain slider for continuous input, add steps and ticks when values are discrete, or flip the axis — vertical rides the platform's own vertical face with min at the physical bottom."><ComponentCanvas title="range · variants" stage="fill" files={rangeTypesFiles}><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Range label="continuous" value={40} /></div><div class="border border-border p-4"><Range label="stepped" value={4} min={0} max={10} step={1} /></div><div class="border border-border p-4"><Range label="with ticks" value={50} ticks /></div><div class="border border-border p-4"><Range label="ruler (1/5/10)" bind:value={rulerValue} min={0} max={100} step={1}>{#snippet ticks()}<RangeTick scale={1} /><RangeTick scale={5} /><RangeTick scale={10} />{/snippet}</Range><span class="text-muted-foreground text-[12px]">click a mark to snap · wheel = one detent</span></div><div class="border border-border flex items-center justify-center p-4"><Range label="vertical fader" orientation="vertical" value={30} ticks min={0} max={10} step={1} /></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind the numeric value; min, max, step, ticks, and RTL all remain explicit props."><CodeBlock code={rangeUsage} lang="svelte" meta="Range usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native input IS the slider: the platform's implicit semantics and keyboard contract, named by a real label[for]."><A11yTable keys={[{ key: 'Arrow keys', action: 'Change by step' }, { key: 'Home / End', action: 'Jump to min / max' }, { key: 'Page Up / Down', action: 'Change by a larger step when supported' }, { key: 'Wheel (hover)', action: 'Fine-tune by detent — every detent = one input-step × the axis multiplier; declarative in the touch-action grammar: wheel is true/\u2018xy\u2019 (default) | \u2018y\u2019 | \u2018x\u2019 | false/\u2018none\u2019 | { x, y }. Owned gestures are swallowed and never scroll the page; ctrlKey pinch-zoom is never captured; disabled sliders ignore it.' }, { key: 'Click a tick', action: 'Snap to that mark (pointer-only convenience; the ruler stays aria-hidden — the step semantics live on the input, whose arrows refine from the snapped value).' }, { key: 'Form reset', action: 'The platform restores the input; the component re-syncs the bound value, the readout and aria-valuetext (a reset fires no input events by itself).' }]} aria={[{ name: 'input[type=range]', value: 'implicit slider', description: 'The platform semantics: value/min/max/step are native truth; no roles to maintain.' }, { name: 'label[for]', value: 'the field id', description: 'A REAL label binds to the labelable input (a div never could).' }, { name: 'aria-valuetext', value: 'step-precision readout', description: 'The formatted value for assistive tech (decimal steps); follows form resets too.' }, { name: '.jx-slider-ticks', value: 'aria-hidden', description: 'The tick ruler rides the thumb\u2019s travel box (half a thumb inset per side); a visual aid that also snaps on click — the step semantics stay on the input itself.' }] } /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The slider's geometry chain derives from its own size container (container-type: size): the thumb is the input's full height, the track and the ring are fractions of it — every internal proportion scales as one unit when the height lane changes."><div class="flex flex-col gap-5"><DensityDemo><Range label="density sample" value={50} /></DensityDemo><TokenTable tokens={[{ name: '--jx-range-thumb', default: '100cqh', source: 'component' }, { name: '--jx-range-track', default: 'calc(100cqh / 2.5)', source: 'component' }, { name: '--jx-range-ring', default: 'calc(100cqh / 8)', source: 'component' }, { name: '--jx-slider-fill-color', default: 'var(--primary)', source: 'component' }, { name: '--jx-tick-step', default: 'runtime step percentage (step / (max − min) × 100)', source: 'component' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>

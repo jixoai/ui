@@ -79,6 +79,21 @@
   // ---- example: the table fallback demo state --------------------------
   let fallbackOn = $state(true);
 
+  // the a11y section's "fallback, demoed" box — the sweep usage mirror
+  // (hand-authored; the same-source migration is the recorded follow-up)
+  const chartA11yFallbackDemo = `<script lang="ts">
+  import { ChartBar } from '@ui/chart/index';
+${close}
+
+<!-- table adds the REAL sibling mirror beside the role=img root -->
+<ChartBar
+  data={[3, 5, 2, 8, 7]}
+  labels={['mon', 'tue', 'wed', 'thu', 'fri']}
+  label="deploys per day, with the screen-reader mirror on"
+  table
+  class="max-w-md"
+/>`;
+
   // ---- the ONE usage sample (drawer + body CodeBlock share it) ----------
   const usage = `<script lang="ts">
   import { Chart, ChartBar, ChartSparkline, ChartLine, ChartDonut } from '@ui/chart/index';
@@ -449,10 +464,11 @@ ${close}
             { name: 'motion', value: 'zero', description: 'Charts ship no entrance motion at all: the reduced-motion law holds structurally (final state painted immediately).' },
           ]}
         />
-        <div class="flex flex-col gap-3 rounded-none border border-border bg-muted/30 p-5">
-          <p class="m-0 font-nav text-xs uppercase tracking-[0.14em] text-muted-foreground">
-            the fallback, demoed
-          </p>
+        <ComponentCanvas
+          title="chart-bar · the fallback, demoed"
+          files={[{ name: 'chart-a11y-fallback-demo.svelte', content: chartA11yFallbackDemo, kind: 'usage' }]}
+          stage="center"
+        >
           <ChartBar
             data={WEEK}
             labels={DAYS}
@@ -460,11 +476,11 @@ ${close}
             table={true}
             class="max-w-md"
           />
-          <p class="m-0 text-[13px] leading-6 text-muted-foreground">
-            inspect the DOM: beside the role=img root sits a real table with a caption, scoped
-            headers and one row per datum — visually hidden, machine-honest.
-          </p>
-        </div>
+        </ComponentCanvas>
+        <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+          inspect the DOM: beside the role=img root sits a real table with a caption, scoped
+          headers and one row per datum — visually hidden, machine-honest.
+        </p>
       </div>
     </SectionCard>
   </div>

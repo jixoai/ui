@@ -12,6 +12,7 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import OverviewCard from '$lib/overview-card.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -61,6 +62,23 @@ ${close}
 <!-- the customs: stepper, files, dates, slider, oklch picker, search -->
 <NumberInput label="workers" bind:value={workers} min={1} max={16} />
 <Range label="volume" bind:value={volume} min={0} max={100} />`;
+
+  // canvas-everywhere sweep (2026-09-08): the density-ladder demo's
+  // usage mirror — hand-authored to match the stage markup (same-source
+  // migration is the recorded follow-up).
+  const formDensityLadderDemo = `<script lang="ts">
+  import Input from '@ui/input.svelte';
+${close}
+
+<!-- each column re-scopes the density scope through data-density-scope -->
+<div class="grid gap-4 min-[760px]:grid-cols-5">
+  {#each ['2xs', 'xs', 'sm', 'default', 'lg'] as density}
+    <div data-density={density} data-density-scope={density} class="flex min-w-0 flex-col gap-[var(--jx-gap)]">
+      <span class="font-nav text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">{density}</span>
+      <Input label={\`\${density} input\`} placeholder="click target" />
+    </div>
+  {/each}
+</div>`;
 
   // ---- hub groups: ids are the LEGACY anchors -------------------------------
   // Each group keeps its historical hash resolving onto the heading of
@@ -197,15 +215,21 @@ ${close}
       title="form controls across the density ladder"
       summary="The same native control keeps its semantics while the inherited density scope changes its footprint. Each row is a real clickable control for physical hit-target probes."
     >
-      <div class="grid gap-4 min-[760px]:grid-cols-5" data-density-ladder>
-        {#each ['2xs', 'xs', 'sm', 'default', 'lg'] as density}
-          <div data-density={density} data-density-scope={density} class="flex min-w-0 flex-col gap-[var(--jx-gap)]">
-            <span class="font-nav text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">{density}</span>
-            <Input label={`${density} input`} placeholder="click target" />
-            <button type="button" data-density-click-target class="min-h-[var(--jx-hit)] border border-border px-[var(--jx-inset)] text-[length:var(--jx-text)]">probe</button>
-          </div>
-        {/each}
-      </div>
+      <ComponentCanvas
+        title="form · density ladder"
+        stage="fill"
+        files={[{ name: 'form-density-ladder-demo.svelte', content: formDensityLadderDemo, kind: 'usage' }]}
+      >
+        <div class="grid gap-4 min-[760px]:grid-cols-5" data-density-ladder>
+          {#each ['2xs', 'xs', 'sm', 'default', 'lg'] as density}
+            <div data-density={density} data-density-scope={density} class="flex min-w-0 flex-col gap-[var(--jx-gap)]">
+              <span class="font-nav text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">{density}</span>
+              <Input label={`${density} input`} placeholder="click target" />
+              <button type="button" data-density-click-target class="min-h-[var(--jx-hit)] border border-border px-[var(--jx-inset)] text-[length:var(--jx-text)]">probe</button>
+            </div>
+          {/each}
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

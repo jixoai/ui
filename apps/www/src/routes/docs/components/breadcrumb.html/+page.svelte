@@ -84,6 +84,94 @@ ${close}
     { name: 'src/lib/ui/breadcrumb-usage.svelte', content: usage, kind: 'usage' },
   ];
 
+  // the variants matrix (types section), swept through a canvas: the
+  // complete trail, the opt-in fold, and the custom separator glyph
+  // (hand-authored mirror of the stage markup)
+  const breadcrumbTypesDemo = `<script lang="ts">
+  import {
+    Breadcrumb,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    BreadcrumbCollapse,
+  } from '@ui/breadcrumb/index';
+${close}
+
+<!-- the complete trail -->
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>
+
+<!-- the opt-in fold: wrap the middle items -->
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+    <BreadcrumbCollapse href="/docs">
+      <BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem>
+    </BreadcrumbCollapse>
+    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>
+
+<!-- the separator glyph swapped through its children snippet -->
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbSeparator><span class="text-muted-foreground">/</span></BreadcrumbSeparator></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>`;
+
+  const breadcrumbTypesFiles: TreeFile[] = [
+    { name: 'breadcrumb-types-demo.svelte', content: breadcrumbTypesDemo, kind: 'usage' },
+  ];
+
+  // the sibling jump (dropdown section), swept through a canvas: one
+  // node opens a menu of peer pages, every entry a REAL anchor
+  const breadcrumbDropdownDemo = `<script lang="ts">
+  import {
+    Breadcrumb,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+    BreadcrumbDropdown,
+  } from '@ui/breadcrumb/index';
+${close}
+
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+    <BreadcrumbItem>
+      <BreadcrumbDropdown
+        label="components"
+        current="/docs/components/breadcrumb.html"
+        items={[
+          { label: 'tabs', href: '/docs/components/tabs.html' },
+          { label: 'toast', href: '/docs/components/toast.html' },
+          { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+        ]}
+      />
+    </BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>`;
+
+  const breadcrumbDropdownFiles: TreeFile[] = [
+    { name: 'breadcrumb-dropdown-demo.svelte', content: breadcrumbDropdownDemo, kind: 'usage' },
+  ];
+
   // the eight-page trail: first + fold(p2..p6) + last two — the same
   // shape the closed collapse=4 produced
   const folded = [2, 3, 4, 5, 6].map((n) => `/docs/components/breadcrumb.html?trail=${n}`);
@@ -193,7 +281,7 @@ ${close}
 </div>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Breadcrumb variants" summary="Use a complete trail for short paths, wrap the middle items for an opt-in fold, or swap the separator glyph through its children snippet (aria-hidden stays by construction)."><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbCollapse href="/docs"><BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem></BreadcrumbCollapse><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator><span class="text-muted-foreground">/</span></BreadcrumbSeparator></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Breadcrumb variants" summary="Use a complete trail for short paths, wrap the middle items for an opt-in fold, or swap the separator glyph through its children snippet (aria-hidden stays by construction)."><ComponentCanvas title="breadcrumb · variants" stage="fill" files={breadcrumbTypesFiles}><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbCollapse href="/docs"><BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem></BreadcrumbCollapse><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator><span class="text-muted-foreground">/</span></BreadcrumbSeparator></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div></div></ComponentCanvas></SectionCard></div>
 
   <div id="dropdown" data-reveal="">
     <SectionCard
@@ -203,19 +291,21 @@ ${close}
       title="Dropdown — the sibling jump"
       summary="BreadcrumbDropdown is one trail node that opens a menu of peer destinations: click — or the dropdown-menu keyboard contract (arrows, typeahead, Home/End) — opens the popover; every entry is a REAL anchor, so middle-click, reload and crawlers stay honest; the current page among the peers carries the you-are-here paint; selecting dismisses the menu and navigates."
     >
-      <div class="max-w-xl border border-border p-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
-            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
-            <BreadcrumbItem>
-              <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={peerPages} />
-            </BreadcrumbItem>
-            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
-            <BreadcrumbItem><BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage></BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+      <ComponentCanvas title="breadcrumb · dropdown" stage="fill" files={breadcrumbDropdownFiles}>
+        <div class="max-w-xl border border-border p-4">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={peerPages} />
+              </BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Author the ordered list directly; the ol order is the hierarchy and the current page remains a real page part."><CodeBlock code={usage} lang="svelte" meta="Breadcrumb usage" /></SectionCard></div>

@@ -95,6 +95,67 @@
     { name: 'registry/files/ui/select.svelte', content: selectSource },
     { name: 'src/lib/ui/select-usage.svelte', content: selectUsage },
   ];
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  // A literal closing-script tag inside a template literal would terminate
+  // this component's own script tag during the HTML-level scan — splice it.
+  const close = '</' + 'script>';
+
+  // the rtl geometry demo (rtl section): the trigger chevron and the
+  // selected-row edge flip under dir="rtl" without a physical property
+  const selectRtlDemo = `<script lang="ts">
+  import Select from '@ui/select.svelte';
+${close}
+
+<div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+  <Select
+    label="runtime (rtl)"
+    bind:value={runtimeRtl}
+    options={runtimeOptions.slice(0, 3)}
+    placeholder="pick…"
+  />
+  <span class="text-muted-foreground text-[12px]">
+    dir="rtl" on the wrapper — trigger chevron and panel edge line flipped without a
+    physical property in sight
+  </span>
+</div>`;
+
+  const selectRtlFiles: TreeFile[] = [
+    { name: 'select-rtl-demo.svelte', content: selectRtlDemo, kind: 'usage' },
+  ];
+
+  // the variants pair (types section): rows carrying descriptions
+  // against the error state
+  const selectTypesDemo = `<script lang="ts">
+  import Select from '@ui/select.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4">
+    <Select
+      label="descriptions"
+      options={runtimeOptions}
+      placeholder="open for second lines…"
+    />
+  </div>
+  <div class="border border-border p-4">
+    <Select
+      label="error"
+      options={[
+        { value: '', label: '— choose —' },
+        { value: 'free', label: 'free' },
+        { value: 'pro', label: 'pro' },
+      ]}
+      error="plan is required"
+    />
+  </div>
+</div>`;
+
+  const selectTypesFiles: TreeFile[] = [
+    { name: 'select-types-demo.svelte', content: selectTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -280,18 +341,20 @@
       summary="Nothing in the component branches on direction: the chevron sits in the flex flow and the selected-row edge is border-inline-start. The writing mode does the rest."
     >
       <div class="grid gap-5 min-[760px]:grid-cols-2">
-        <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
-          <Select
-            label="runtime (rtl)"
-            bind:value={runtimeRtl}
-            options={runtimeOptions.slice(0, 3)}
-            placeholder="pick…"
-          />
-          <span class="text-muted-foreground text-[12px]">
-            dir="rtl" on the wrapper — trigger chevron and panel edge line flipped without a
-            physical property in sight
-          </span>
-        </div>
+        <ComponentCanvas title="select · rtl" stage="fill" files={selectRtlFiles}>
+          <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+            <Select
+              label="runtime (rtl)"
+              bind:value={runtimeRtl}
+              options={runtimeOptions.slice(0, 3)}
+              placeholder="pick…"
+            />
+            <span class="text-muted-foreground text-[12px]">
+              dir="rtl" on the wrapper — trigger chevron and panel edge line flipped without a
+              physical property in sight
+            </span>
+          </div>
+        </ComponentCanvas>
         <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
           <p class="text-pretty">
             The chevron sits in the flex flow, the selected-row edge is
@@ -317,26 +380,28 @@
       title="Select variants"
       summary="The popover listbox with plain rows, rows carrying descriptions, a disabled row, and the error state."
     >
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="border border-border p-4">
-          <Select
-            label="descriptions"
-            options={runtimeOptions}
-            placeholder="open for second lines…"
-          />
+      <ComponentCanvas title="select · variants" stage="fill" files={selectTypesFiles}>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="border border-border p-4">
+            <Select
+              label="descriptions"
+              options={runtimeOptions}
+              placeholder="open for second lines…"
+            />
+          </div>
+          <div class="border border-border p-4">
+            <Select
+              label="error"
+              options={[
+                { value: '', label: '— choose —' },
+                { value: 'free', label: 'free' },
+                { value: 'pro', label: 'pro' },
+              ]}
+              error="plan is required"
+            />
+          </div>
         </div>
-        <div class="border border-border p-4">
-          <Select
-            label="error"
-            options={[
-              { value: '', label: '— choose —' },
-              { value: 'free', label: 'free' },
-              { value: 'pro', label: 'pro' },
-            ]}
-            error="plan is required"
-          />
-        </div>
-      </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
   <div id="accessibility" data-reveal="">

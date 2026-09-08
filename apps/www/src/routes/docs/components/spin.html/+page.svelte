@@ -23,6 +23,32 @@
     { name: 'src/lib/ui/spin-usage.svelte', content: usage },
   ];
 
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const spinTypesDemo = `<script lang="ts">
+  import Spin from '@ui/spin.svelte';
+${close}
+
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex min-w-52 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">bare · inline glyph</span>
+    <Spin label="loading checks" />
+    <span class="text-muted-foreground text-[12.5px]">the bracket cursor cycling frames under role=status</span>
+  </div>
+  <div class="flex min-w-52 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">wrapping · container</span>
+    <div class="border border-border bg-card p-4">
+      <Spin label="syncing"><p class="text-[13px]">wrapped content — scrim owns pointers</p></Spin>
+    </div>
+    <span class="text-muted-foreground text-[12.5px]">aria-busy container; loading is not disabled, interactions stop anyway</span>
+  </div>
+</div>`;
+
+  const spinTypesFiles: TreeFile[] = [
+    { name: 'spin-types-demo.svelte', content: spinTypesDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with the section ids below, in page order.
 </script>
 
@@ -83,10 +109,12 @@
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two postures: the bare inline glyph, and the wrapping container that blocks interaction while busy.">
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">bare · inline glyph</span><Spin label="loading checks" /><span class="text-muted-foreground text-[12.5px]">the bracket cursor cycling frames under role=status</span></div>
-      <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">wrapping · container</span><div class="border border-border bg-card p-4"><Spin label="syncing"><p class="text-[13px]">wrapped content — scrim owns pointers</p></Spin></div><span class="text-muted-foreground text-[12.5px]">aria-busy container; loading is not disabled, interactions stop anyway</span></div>
-    </div>
+    <ComponentCanvas title="spin · types" stage="center" files={spinTypesFiles}>
+      <div class="flex flex-wrap items-start gap-6">
+        <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">bare · inline glyph</span><Spin label="loading checks" /><span class="text-muted-foreground text-[12.5px]">the bracket cursor cycling frames under role=status</span></div>
+        <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">wrapping · container</span><div class="border border-border bg-card p-4"><Spin label="syncing"><p class="text-[13px]">wrapped content — scrim owns pointers</p></Spin></div><span class="text-muted-foreground text-[12.5px]">aria-busy container; loading is not disabled, interactions stop anyway</span></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bare for an inline busy glyph; wrap content to declare the whole region busy."><CodeBlock code={usage} lang="svelte" meta="Spin usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="role=status is polite by construction — loading is never an alert; the scrim stops pointers without disabling anything."><A11yTable keys={[]} aria={[{ name: 'role', value: 'status', description: 'Polite live region — announced when the reader is idle, never assertive' }, { name: 'aria-label', value: 'label prop', description: 'Announced to assistive tech ("loading", "loading checks"…)' }, { name: 'aria-busy', value: '"true"', description: 'On the wrapping container posture' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative cursor frames themselves' }]} /></SectionCard></div>

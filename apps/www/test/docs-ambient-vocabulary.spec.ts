@@ -29,8 +29,9 @@
  *     key multiset mutual coverage against the pages' non-exempt candidate
  *     axis rows — deleting a matrix row leaves a candidate uncovered, adding
  *     one finds no candidate)
- *   - exemptions: component-canvas#density is page-owned (no marker, keeps
- *     'comfortable' + "page-owned bindable" prose); inline-code#variant is
+ *   - exemptions: component-canvas#density is page-owned (no marker,
+ *     the Density union default 'default' since the dock amendment +
+ *     "page-owned bindable" prose); inline-code#variant is
  *     the canonical definePaintSlot 'ambient zone' row — locked by its own
  *     invariant, outside the matrix bijection
  */
@@ -373,10 +374,14 @@ describe('meta side — generated meta ambient fields on exact-key axis props', 
 
 // ── exemptions: the two rows outside the economy by design ───────────────
 describe('exemptions', () => {
-  it('component-canvas#density stays page-owned (no marker, comfortable, page-owned prose)', () => {
+  // RE-PINNED (canvas-playground-dock, 2026-09-08): the canvas density
+  // prop speaks the REPO-STANDARD Density union (xs | sm | default | lg)
+  // since the Owner amendment — default 'default', the comfortable/compact
+  // pair is retired. Still page-owned, still marker-less.
+  it('component-canvas#density stays page-owned (no marker, Density default, page-owned prose)', () => {
     const rows = axisRowsOf(pageSource('component-canvas')).filter((c) => c.prop === 'density');
     expect(rows.length).toBe(1);
-    expect(rows[0].row.default).toBe("'comfortable'");
+    expect(rows[0].row.default).toBe("'default'");
     expect(rows[0].row.default).not.toContain('ambient');
     expect(rows[0].row.description).toContain('page-owned bindable');
   });

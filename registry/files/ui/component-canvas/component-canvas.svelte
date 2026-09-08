@@ -1,81 +1,76 @@
 <!--
   jixoai component canvas (registry/files/ui/component-canvas/component-canvas.svelte).
   The component documentation workbench: one bordered surface holding the
-  LIVE demo area (children snippet on a muted stage), an optional
-  Playground controls pane (playground snippet — consumer-authored with
-  the jxoai form base), and a collapsible code drawer combining tree-view
-  with code-card (highlight + copy).
+  LIVE demo area (children snippet on a muted stage), the FLOATING
+  playground dock (canvas-playground.svelte — collapsible, draggable,
+  absolute over the stage-row's top-right corner; consumer `playground`
+  snippet or schema-lowered rows inside ONE integrated ItemGroup), and a
+  collapsible code drawer combining tree-view with code-card (highlight +
+  copy).
+
+  The dock era (canvas-playground-dock, 2026-09-08): the permanent
+  Playground aside lane is RETIRED — the stage is always full-width and
+  the controls live in the floating dock (the Owner reform ruling). The
+  `pane` prop is GONE. The schema kernel (types + controlsFor +
+  schemaDefaultsOf + PlayOutput) lives in canvas-schema.svelte.ts,
+  re-exported from this file's module script (public surface stable);
+  the dock owns the value state machine and the row adapters.
 
   Redesign (2026-08-25, Codex design round D1–D6):
   - THREE LAYERS: the section is the named layout container
-    (@container/jx-canvas-host — the ≥48rem sidebar tier); inside it the
-    SCROLL LAYER is the demo's named container (@container/jx-canvas on
-    the scrollport itself, so demo container queries see the width the
-    scrollbar actually leaves) with a default max-block-size and native
+    (@container/jx-canvas-host); inside it the SCROLL LAYER is the
+    demo's named container (@container/jx-canvas on the scrollport
+    itself, so demo container queries see the width the scrollbar
+    actually leaves) with a default max-block-size and native
     auto-scroll; the STAGE keeps the tint, padding and posture only.
   - stage: 'fill' (children span the available width) | 'center'
     (intrinsic specimens, shrink+center) | 'start' (intrinsic, left).
-    The default is 'center' during the migration window; the fill
-    default lands with the consumer sweep.
   - header controls are icon-only with real semantics (Source →
-    external-link anchor; playground reset → rotate-ccw button — both
+    external-link anchor; the dock's reset → rotate-ccw button — both
     press-physics, jx-press law); the code bar is a single DISCLOSURE:
     chevron + "Code" + the file count adjacent, copy-usage icon-only
     right; aria-expanded/controls + region + inert kept.
   - `output` (was `echo`): the read-only state projection, deliberately
-    NOT a live region — renders as item-rhythm rows under the controls.
+    NOT a live region — renders as item-rhythm rows at the dock's foot.
 
   Playground protocol (P1, kept): `onreset`, `output`,
-  `resolveFileContent` seams; the snippet itself stays free — layout
-  contract classes (.jx-play-fields …) live in the residue sheet until
-  the kit migration removes them.
+  `resolveFileContent` seams; the snippet renders inside the dock's
+  ItemGroup and stays free-form (the site kit's PlayFields provides the
+  same integrated ItemGroup posture on the snippet side).
 
   Schema mode (canvas-schema-pipeline, 2026-08-30): an optional
   `schema` prop (a LOWERED jsonSchema — `toJSONSchema` export from
   $lib/schema, passed by value) makes the canvas a jsonSchema2Form
-  consumer: it renders the control rows itself from `controlsFor`
-  (below — self-contained, registry law: no $lib/schema import, the
-  mirror would break), keeps `bind:values` two-way (initialized from
-  schema defaults), and exposes an `onvalue(key, value)` seam so the
-  page owns value semantics for non-representable props (e.g. mapping
-  effect names to builders). Precedence: `playground` snippet > schema
-  rows > plain canvas; reset falls back to schema defaults when
-  `onreset` is absent.
-
-  Schema rows ride the list-item family (playground unification,
-  2026-09-04): the hand-rolled .jx-canvas-ctl grid layer is RETIRED —
-  toggle/select/text/slider rows render through the ItemToggle/
-  ItemSelect/ItemInput adapters, segmented/stepper through ItemField's
-  control snippet — the SAME ItemField scaffold the site play kit's
-  play-row bridges onto, so both panes are one surface (the migration
-  window the old css spoke of is closed). Consequences: the rows are
-  outline-variant standalone items in a tight fields grid; the block
-  LANE is retired (row.lane stays advisory kernel metadata — the
-  ItemField grammar owns row shape); the toggle row's physical hit
-  lane is the label[for] + control (ItemField law: never a second
-  label element around the control); leaf controls carry their own
-  focus paint, so only the canvas-authored segmented/stepper idioms
-  keep focus rules in the residue sheet.
+  consumer: the DOCK renders the control rows from the kernel's
+  `controlsFor`, keeps `bind:values` two-way (initialized from schema
+  defaults), and exposes an `onvalue(key, value)` seam so the page owns
+  value semantics for non-representable props (e.g. mapping effect
+  names to builders). Precedence: `playground` snippet > schema rows >
+  plain canvas; reset falls back to schema defaults when `onreset` is
+  absent.
 
   The floor (canvas-floor-lab, 2026-08-30):
   - OUTLINE LAW: the root section carries `data-toc-skip` and the
     header title is a STYLED PARAGRAPH (`p[data-jx-canvas-title]`),
     never a real heading — the page's own outline stays page-owned
-    (the h2 leak, audit root cause). The Playground h3 lives inside
-    the skipped root, so it never joins the ToC either.
-  - STAGE TOGGLES: light/dark + comfortable/compact pairs in the header
-    (the REGISTRY toggle-group: name-scoped radios — native exclusivity,
-    arrow-walking, one tab stop per group) project `bind:theme`/
-    `bind:density` onto the STAGE element only — `data-theme` plus the
-    theme sheet's own `dark` / `jx-light` token-scope classes, and
-    `data-density` mapped onto the sheet's scale (compact → 'sm',
-    comfortable → 'default'). State is composition-first: the page owns
-    it through the bindables; the canvas only renders controls and
-    scoping attributes. The stage and the pane anchor `text-foreground`
-    themselves: the scope classes redefine TOKENS only, so inherit-based
-    text must re-anchor or it keeps the page's resolved color (the
-    white-on-light-stage leak, 2026-09-01). Static under reduced motion
-    by construction (no transition rides the re-theme).
+    (the h2 leak, audit root cause). No canvas heading joins a ToC.
+  - STAGE CHROME (unified-chrome ruling, Owner amendment 2026-09-08):
+    the theme/density toggle-groups MOVED from the header into the DOCK
+    HEAD — one icon button flips `bind:theme` light↔dark (sun/moon,
+    aria-pressed carries state), a compact native select drives
+    `bind:density` with the REPO-STANDARD Density vocabulary
+    (xs/sm/default/lg) stamped onto the STAGE element DIRECTLY as
+    `data-density` (the comfortable/compact mapping is dead), plus
+    `data-theme` and the theme sheet's own `dark` / `jx-light`
+    token-scope classes — scoped to the STAGE only; the docs chrome
+    and sibling canvases never re-theme. State is composition-first:
+    the page owns it through the bindables; the dock only renders
+    controls and the stage carries the scoping attributes. The stage
+    anchors `text-foreground` itself: the scope classes redefine
+    TOKENS only, so inherit-based text must re-anchor or it keeps the
+    page's resolved color (the white-on-light-stage leak, 2026-09-01).
+    Static under reduced motion by construction (no transition rides
+    the re-theme).
   - DRAWER SHAPE: the tree pane ALWAYS — one shape for every file count
     (Owner revert 2026-09-01: the two-file tabs floor of canvas-floor-lab
     is gone). Container-query responsive: stacked (tree over code) under
@@ -90,156 +85,28 @@
     toggle-groups, the source anchor (h/w var(--jx-hit)) and the badge
     (min-h var(--jx-hit)) all ride the chrome band's ONE hit size.
 
-  Stage POSTURE opt-outs (adversarial-review batch 6, 2026-09-02):
+  Stage POSTURE opt-out (adversarial-review batch 6, 2026-09-02):
   - `scroll='grow'` lifts the scroll layer's default block cap — for
     full-composition demos (hero-section) whose own stacking IS the
     presentation: a capped scrollport cuts the composition mid-element
     and shows only the bottom element's top sliver (the V2-4 black-bar
     root cause). The page accepts a longer canvas instead.
-  - `pane='below'` keeps the playground stacked UNDER the stage at
-    every host tier — for demos whose WIDTH is the feature (a steps
-    row needs its columns readable; the ≥48rem side column would
-    starve them — the V2-3 word-waterfall root cause).
+  - the old `pane='below'` opt-out is RETIRED: the full-width stage it
+    bought is now the permanent posture (the dock floats above it).
 
   The stage keeps the readonly-code tint (color-mix muted 42%) in BOTH
-  themes; the playground pane answers with the lighter muted-12% layer.
+  themes; the dock answers with the surface-card background.
 -->
 <script module lang="ts">
-  // ── jsonSchema control rows (canvas-schema-pipeline, 2026-08-30) ──
-  // The canvas's OWN mapping vocabulary, self-contained in the MODULE
-  // script so it is statically importable (the press-builder law:
-  // module exports are the component's importable surface) and
-  // registry-safe (no $lib/schema import — the mirror would break).
-  // $lib/schema/schema2form.ts re-exports it as the kernel surface:
-  // one implementation, no second copy. The input type below is
-  // structurally lower.ts's SchemaObject: same shape, no import.
-
-  /** x-ui annotation block as the canvas reads it (kernel XUI, by shape). */
-  export interface CanvasXUI {
-    control?: 'segmented' | 'select' | 'toggle' | 'stepper' | 'slider' | 'text' | 'none';
-    label?: string;
-    description?: string;
-    lane?: 'end' | 'block';
-    unit?: string;
-    sourceType?: string;
-  }
-
-  /** One lowered prop node: standard jsonSchema keywords + x-ui passthrough. */
-  export interface CanvasSchemaProp {
-    type?: 'string' | 'boolean' | 'number';
-    enum?: string[];
-    minimum?: number;
-    maximum?: number;
-    multipleOf?: number;
-    default?: string | number | boolean;
-    'x-ui'?: CanvasXUI;
-  }
-
-  /** The lowered schema the canvas consumes (lower.ts SchemaObject, by shape). */
-  export interface CanvasSchema {
-    type: 'object';
-    properties: Record<string, CanvasSchemaProp>;
-    required?: string[];
-  }
-
-  export type ControlKind = 'segmented' | 'select' | 'toggle' | 'stepper' | 'slider' | 'text';
-
-  /** Typed row descriptor the schema pane renders. */
-  export interface ControlRow {
-    key: string;
-    control: ControlKind;
-    label: string;
-    description?: string;
-    lane: 'end' | 'block';
-    unit?: string;
-    /** segmented/select options — the labels ARE the values */
-    values?: string[];
-    minimum?: number;
-    maximum?: number;
-    /** stepper/slider step: multipleOf when the schema constrains it, else 1 */
-    step: number;
-    default?: string | number | boolean;
-  }
-
-  /** enum length at/below which the segmented control renders */
-  const SEGMENTED_MAX = 5;
-  /** text rows switch to the block lane when the description runs long */
-  const BLOCK_DESCRIPTION_LENGTH = 48;
-
-  function feasibleControl(hint: string, node: CanvasSchemaProp): boolean {
-    switch (hint) {
-      case 'segmented':
-      case 'select':
-        return Array.isArray(node.enum);
-      case 'toggle':
-        return node.type === 'boolean';
-      case 'stepper':
-        return node.type === 'number';
-      case 'slider':
-        return (
-          node.type === 'number' &&
-          typeof node.minimum === 'number' &&
-          typeof node.maximum === 'number'
-        );
-      case 'text':
-        return node.type === 'string';
-      default:
-        return false;
-    }
-  }
-
-  /**
-   * Lowered schema → panel rows. `x-ui.control: 'none'` (the lowering's
-   * mark for snippet/opaque nodes) and unrepresentable shapes are
-   * excluded; an explicit, feasible x-ui hint wins over inference.
-   */
-  export function controlsFor(schema: CanvasSchema | undefined | null): ControlRow[] {
-    const rows: ControlRow[] = [];
-    for (const [key, node] of Object.entries(schema?.properties ?? {})) {
-      const hint = node['x-ui']?.control;
-      if (hint === 'none') continue;
-      let control: ControlKind | undefined;
-      if (hint !== undefined && feasibleControl(hint, node)) {
-        control = hint;
-      } else if (Array.isArray(node.enum)) {
-        control = node.enum.length <= SEGMENTED_MAX ? 'segmented' : 'select';
-      } else if (node.type === 'boolean') {
-        control = 'toggle';
-      } else if (node.type === 'number') {
-        control = 'stepper';
-      } else if (node.type === 'string') {
-        control = 'text';
-      }
-      if (control === undefined) continue;
-      const description = node['x-ui']?.description;
-      const row: ControlRow = {
-        key,
-        control,
-        label: node['x-ui']?.label ?? key,
-        lane:
-          node['x-ui']?.lane ??
-          (control === 'text' && (description?.length ?? 0) > BLOCK_DESCRIPTION_LENGTH ? 'block' : 'end'),
-        step: typeof node.multipleOf === 'number' && node.multipleOf > 0 ? node.multipleOf : 1,
-      };
-      if (description !== undefined) row.description = description;
-      if (node['x-ui']?.unit !== undefined) row.unit = node['x-ui'].unit;
-      if (Array.isArray(node.enum)) row.values = [...node.enum];
-      if (typeof node.minimum === 'number') row.minimum = node.minimum;
-      if (typeof node.maximum === 'number') row.maximum = node.maximum;
-      if (node.default !== undefined) row.default = node.default;
-      rows.push(row);
-    }
-    return rows;
-  }
-
-  /** The schema-defaults record an unbound `values` initializes to. */
-  export function schemaDefaultsOf(schema: CanvasSchema): Record<string, string | number | boolean> {
-    const out: Record<string, string | number | boolean> = {};
-    for (const [key, node] of Object.entries(schema.properties)) {
-      if (node.default !== undefined) out[key] = node.default;
-    }
-    return out;
-  }
+  // ── schema kernel (canvas-playground-dock, 2026-09-08) ──
+  // The jsonSchema control vocabulary (types + controlsFor +
+  // schemaDefaultsOf + the constants + PlayOutput) lives in
+  // canvas-schema.svelte.ts since the dock extraction — the dock and
+  // $lib/schema/schema2form.ts import the kernel file directly (no
+  // circularity); this star re-export keeps the canvas's PUBLIC
+  // surface byte-stable for consumers (the press-builder law: module
+  // exports are the component's importable surface).
+  export * from './canvas-schema.svelte';
 </script>
 
 <script lang="ts">
@@ -247,19 +114,14 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
-  import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
-  import ToggleGroupItem from '$lib/ui/toggle-group/toggle-group-item.svelte';
-  import { ItemField, ItemToggle, ItemSelect, ItemInput } from '$lib/ui/list-item';
-  import type { ItemFieldContext } from '$lib/ui/list-item';
+  import CanvasPlayground from './canvas-playground.svelte';
+  import { controlsFor, schemaDefaultsOf } from './canvas-schema.svelte';
+  import type { CanvasSchema, PlayOutput } from './canvas-schema.svelte';
+  import type { Density } from '$lib/density.svelte';
+  import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import './component-canvas.css';
-
-  /** Read-only playground state projection; never a live region. */
-  export interface PlayOutput {
-    label: string;
-    value: string | number | boolean | null | undefined | readonly unknown[];
-  }
 
   /** Demo code file for the code drawer: name may carry a path. */
   export interface TreeFile {
@@ -305,9 +167,10 @@
     }
   }
 
-  // ── jsonSchema control rows: types + controlsFor live in the MODULE
-  // script (statically importable, registry-safe) — see above. The
-  // instance consumes them through the shared module scope.
+  // ── jsonSchema control rows: the kernel (types + controlsFor +
+  // schemaDefaultsOf) lives in canvas-schema.svelte.ts since the dock
+  // extraction; the canvas imports it here only to derive the rows +
+  // defaults it hands the dock.
 
   interface Props {
     /** Component name shown in the header (e.g. "press-button"). */
@@ -344,36 +207,30 @@
      */
     scroll?: 'capped' | 'grow';
     /**
-     * Playground pane posture at the host's ≥48rem tier: 'side'
-     * (DEFAULT — the pane takes its clamp(18rem, 26cqi, 22rem) column
-     * right of the stage) | 'below' (the pane always stacks under the
-     * stage; for demos whose width is the feature — the side column
-     * would starve their columns).
-     */
-    pane?: 'side' | 'below';
-    /**
      * Stage preview theme — PAGE-OWNED (bindable). Projects
      * `data-theme` + the theme sheet's `dark`/`jx-light` token-scope
      * class onto the STAGE element only; the docs chrome and sibling
-     * canvases never re-theme.
+     * canvases never re-theme. The dock head's icon button flips it
+     * (the unified chrome, 2026-09-08).
      */
     theme?: 'light' | 'dark';
     /**
-     * Stage preview density — PAGE-OWNED (bindable). 'compact' maps
-     * onto the theme sheet's 'sm' density scope, 'comfortable' onto
-     * 'default' — projected as `data-density` on the STAGE element
-     * only.
+     * Stage density — PAGE-OWNED (bindable), the REPO-STANDARD Density
+     * union (xs | sm | default | lg in the dock's select). Stamped as
+     * `data-density` on the STAGE element DIRECTLY — the old
+     * comfortable/compact mapping died with the header toggle-groups
+     * (Owner amendment, 2026-09-08).
      */
-    density?: 'comfortable' | 'compact';
-    /** PlayCanvas controls pane — consumer-authored interactive controls. */
+    density?: Density;
+    /** Playground dock — consumer-authored interactive controls. */
     playground?: Snippet;
     /**
      * jsonSchema control mode: a LOWERED schema (`toJSONSchema` export)
-     * the pane renders rows from. The `playground` snippet, when both
+     * the dock renders rows from. The `playground` snippet, when both
      * are supplied, still takes precedence (escape-hatch law).
      */
     schema?: CanvasSchema;
-    /** Schema-mode panel values — two-way; initialized from schema defaults. */
+    /** Schema-mode dock values — two-way; initialized from schema defaults. */
     values?: Record<string, unknown>;
     /**
      * Schema-mode change seam: the page intercepts and owns value
@@ -381,9 +238,9 @@
      * writing back through `bind:values`.
      */
     onvalue?: (key: string, value: unknown) => void;
-    /** Page-owned reset: shows the pane's reset button and calls back. */
+    /** Page-owned reset: shows the dock's reset button and calls back. */
     onreset?: () => void;
-    /** Read-only state projection rows under the controls. */
+    /** Read-only state projection rows at the dock's foot. */
     output?: readonly PlayOutput[];
     /** Code-drawer content override — lets usage files track live state. */
     resolveFileContent?: (file: TreeFile) => string;
@@ -401,9 +258,8 @@
     children,
     stage = 'fill',
     scroll = 'capped',
-    pane = 'side',
     theme = $bindable('light'),
-    density = $bindable('comfortable'),
+    density = $bindable('default'),
     playground,
     schema,
     values = $bindable(),
@@ -428,58 +284,13 @@
   const titleId = `jx-canvas-${canvasId}-title`;
   const drawerId = `jx-canvas-${canvasId}-drawer`;
 
-  // ---- schema mode (canvas-schema-pipeline, 2026-08-30) ----------------
-  // Rows come from the one mapping (controlsFor, module scope); values
-  // initialize from the schema's defaults when the page binds none (a
-  // bound page object always wins — including a bound undefined, the
-  // documented way to say "canvas, own my values"). Precedence law:
+  // ---- schema mode (canvas-playground-dock, 2026-09-08) -----------------
+  // The canvas only DERIVES: rows + defaults come from the kernel and
+  // pass into the dock; the value state machine (init/set/reset/step)
+  // lives in the dock beside the rows it drives. Precedence law:
   // playground snippet > schema rows > plain canvas.
   const rows = $derived(controlsFor(schema));
   const defaults = $derived(schema === undefined ? {} : schemaDefaultsOf(schema));
-  // one-shot by design: schema identity is a mount-time contract, not
-  // reactive state the pane tracks
-  // svelte-ignore state_referenced_locally
-  if (values === undefined && schema !== undefined) values = schemaDefaultsOf(schema);
-
-  function setValue(key: string, value: unknown): void {
-    values = values === undefined ? { [key]: value } : { ...values, [key]: value };
-    onvalue?.(key, value);
-  }
-
-  /** The reset fallback: restore schema defaults (onreset replaces this). */
-  function resetValues(): void {
-    if (!schema) return;
-    const previous = values ?? {};
-    const next = { ...defaults };
-    values = next;
-    // the seam stays complete across a reset: the page's onvalue mapping
-    // (e.g. effect-name → builder) re-runs for every key it settles
-    for (const key of Object.keys(next)) {
-      if (previous[key] !== next[key]) onvalue?.(key, next[key]);
-    }
-  }
-
-  const rowValue = (row: ControlRow): unknown => values?.[row.key] ?? row.default;
-
-  function stepValue(row: ControlRow, direction: 1 | -1): void {
-    let next = Number(rowValue(row));
-    if (!Number.isFinite(next)) next = row.minimum ?? 0;
-    if (row.minimum !== undefined) next = Math.max(row.minimum, next);
-    if (row.maximum !== undefined) next = Math.min(row.maximum, next);
-    next += row.step * direction;
-    if (row.minimum !== undefined) next = Math.max(row.minimum, next);
-    if (row.maximum !== undefined) next = Math.min(row.maximum, next);
-    setValue(row.key, next);
-  }
-
-  const stepText = (row: ControlRow): string => {
-    const n = Number(rowValue(row));
-    return Number.isFinite(n) ? String(n) : String(row.minimum ?? 0);
-  };
-
-  // the ItemField id seed: deterministic + canvas-scoped so two canvases
-  // on one page never collide (label/description ids derive from it)
-  const ctlId = (key: string): string => `jx-canvas-${canvasId}-ctl-${key}`;
 
   // flat files → nested tree: split on "/", intermediate segments are
   // directories; a name without "/" stays a root-level file. The file
@@ -547,7 +358,11 @@
   const currentCode = $derived(
     current ? (resolveFileContent?.(current) ?? current.content) : '',
   );
-  let codeOpen = $state(false);
+  // the single read point (A3): explicit lane permanently hot via the
+// destructure default — the ambient zone never rides the stage
+const dDensity = $derived(ComponentCanvasDefaults.resolve({ density }).density);
+
+let codeOpen = $state(false);
 
   // ---- drawer shape (Owner revert 2026-09-01) ----------------------------
   // ONE shape: the tree pane, every file count. The two-file tabs floor
@@ -558,15 +373,6 @@
   const usageFile = $derived(
     files.find((f) => f.kind === 'usage') ?? files.find((f) => f.name.endsWith('usage.svelte')),
   );
-  function formatOutput(value: PlayOutput['value']): string {
-    if (value === null || value === undefined) return '—';
-    if (Array.isArray(value)) {
-      const text = value.map(String).join(', ');
-      return text.length > 40 ? text.slice(0, 40) + '…' : text || '[]';
-    }
-    const text = String(value);
-    return text.length > 60 ? text.slice(0, 60) + '…' : text || '—';
-  }
 
   let copiedUsage = $state(false);
   function copyUsage(): void {
@@ -606,8 +412,11 @@
     </div>
     <!-- the actions row is POINTER-MODAL CHROME (chrome-density-tier law):
          data-jx-chrome pins the 32px hit band (U×8) + sm-tier text/inset,
-         so the toggle-groups, the source anchor and the install badge
-         share ONE size law instead of three (2026-09-01 misalignment) -->
+         so the source anchor and the install badge share ONE size law
+         (2026-09-01 misalignment). The stage theme/density toggle-groups
+         MOVED TO THE DOCK HEAD with the unified-chrome ruling (Owner
+         amendment, canvas-playground-dock 2026-09-08) — the header keeps
+         title/description/install/source only -->
     <div data-jx-canvas-head-actions data-jx-chrome class="flex flex-none flex-wrap items-center gap-2 pt-[0.1rem]">
       {#if install}
         <!-- copy-command badge (the Terminal-round absorbed output): the
@@ -625,37 +434,6 @@
           <Icon name={copiedInstall ? 'check' : 'copy'} size={12} />
         </button>
       {/if}
-      <!-- stage toggles (the floor, native-html edition): page-owned
-           bindables projected onto the STAGE element only — the registry
-           toggle-group rides name-scoped radios (native exclusivity +
-           arrow-walking, one tab stop per group; re-press clear is not
-           radio law) -->
-      <ToggleGroup
-        type="single"
-        name={`jx-canvas-${canvasId}-theme`}
-        label="Stage theme"
-        value={theme}
-        onValueChange={(next) => {
-          if (typeof next === 'string' && next !== '') theme = next as 'light' | 'dark';
-        }}
-        data-jx-canvas-theme-seg
-      >
-        <ToggleGroupItem value="light" data-jx-canvas-theme-option="light">light</ToggleGroupItem>
-        <ToggleGroupItem value="dark" data-jx-canvas-theme-option="dark">dark</ToggleGroupItem>
-      </ToggleGroup>
-      <ToggleGroup
-        type="single"
-        name={`jx-canvas-${canvasId}-density`}
-        label="Stage density"
-        value={density}
-        onValueChange={(next) => {
-          if (typeof next === 'string' && next !== '') density = next as 'comfortable' | 'compact';
-        }}
-        data-jx-canvas-density-seg
-      >
-        <ToggleGroupItem value="comfortable" data-jx-canvas-density-option="comfortable">comfortable</ToggleGroupItem>
-        <ToggleGroupItem value="compact" data-jx-canvas-density-option="compact">compact</ToggleGroupItem>
-      </ToggleGroup>
       {#if sourceUrl}
         <!-- icon-only source anchor: press physics, the label lives in the
              accessible name (D6 — the full button crowded the header).
@@ -676,7 +454,12 @@
     </div>
   </header>
 
-  <div data-pane={pane} class="jx-canvas-stage-row flex flex-col">
+  <!-- the stage-row is the DOCK's positioning context (relative): the
+       floating playground dock mounts as the scroll layer's sibling,
+       absolute over the stage's top-right corner — it never scrolls
+       with stage content and takes pointer events on its own surface
+       only (the stage underneath stays interactive) -->
+  <div class="jx-canvas-stage-row relative flex flex-col">
     <!-- the scroll layer (D5): default bounded height + native auto-scroll;
          the NAMED demo container sits on the scrollport so demo container
          queries see the width the scrollbar actually leaves. data-scroll
@@ -691,7 +474,7 @@
         data-jx-canvas-stage
         data-stage={stage}
         data-theme={theme}
-        data-density={density === 'compact' ? 'sm' : 'default'}
+        data-density={dDensity}
         class={cn(
           'jx-canvas-stage flex min-h-[200px] min-w-0 gap-4 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))] text-foreground',
           // theme sheet vocabulary, scoped to the stage subtree only: .dark
@@ -719,168 +502,24 @@
         </div>
       </div>
     </div>
-    {#if playground || schema}
-      <aside
-        class="jx-canvas-playground flex flex-col min-w-0 pt-[0.85rem] px-4 pb-4 bg-[color-mix(in_oklab,var(--muted)_12%,var(--background))] border-t border-border text-foreground"
-        aria-label={`Controls for ${title}`}
-      >
-        <div data-jx-canvas-playground-head class="flex items-center justify-between gap-3">
-          <h3 data-jx-canvas-playground-title class="jx-canvas-pane-title m-0 mb-[0.65rem] text-muted-foreground font-nav text-[10px] tracking-[0.24em] uppercase">Playground</h3>
-          {#if onreset || (!playground && schema)}
-            <!-- icon-only reset (D6): press physics — a state mutation must
-                 never be a feedback-free bare glyph. Page-owned onreset
-                 wins; schema mode falls back to schema defaults -->
-            <button
-              type="button"
-              data-jx-canvas-reset
-              class="jx-press jx-canvas-reset mb-[0.45rem] inline-flex size-6 items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
-              aria-label="Reset playground"
-              title="Reset playground"
-              onclick={() => (onreset ? onreset() : resetValues())}
-            >
-              <Icon name="rotateCcw" size={12} />
-            </button>
-          {/if}
-        </div>
-        <div class="jx-canvas-playground-body flex flex-col gap-[0.85rem] min-h-0 min-w-0">
-          {#if playground}
-            <!-- escape-hatch precedence: the snippet renders and the schema
-                 rows are NOT duplicated beside it -->
-            {@render playground()}
-          {:else}
-            <!-- the unified row grammar (2026-09-04): the same ItemField
-                 scaffold the play kit's play-row bridges onto. data-jx-canvas-row
-                 wraps each row as display:contents — the DOM contract the tests
-                 and residue css key on, without touching the family API -->
-            <div class="jx-canvas-fields">
-              {#each rows as row (row.key)}
-                <div data-jx-canvas-row data-jx-canvas-control={row.control} class="contents">
-                  {#if row.control === 'toggle'}
-                    <ItemToggle
-                      id={ctlId(row.key)}
-                      label={row.label}
-                      description={row.description}
-                      variant="outline"
-                      checked={Boolean(rowValue(row))}
-                      onchange={(event) => setValue(row.key, event.currentTarget.checked)}
-                      data-jx-canvas-toggle
-                    />
-                  {:else if row.control === 'select'}
-                    <ItemSelect
-                      id={ctlId(row.key)}
-                      label={row.label}
-                      description={row.description}
-                      variant="outline"
-                      value={String(rowValue(row) ?? '')}
-                      onchange={(event) => setValue(row.key, event.currentTarget.value)}
-                      data-jx-canvas-select
-                    >
-                      {#each row.values ?? [] as option (option)}
-                        <option value={option}>{option}</option>
-                      {/each}
-                    </ItemSelect>
-                  {:else if row.control === 'text'}
-                    <ItemInput
-                      id={ctlId(row.key)}
-                      label={row.label}
-                      description={row.description}
-                      variant="outline"
-                      value={String(rowValue(row) ?? '')}
-                      oninput={(event) => setValue(row.key, event.currentTarget.value)}
-                      data-jx-canvas-text
-                    />
-                  {:else if row.control === 'slider'}
-                    <ItemInput
-                      id={ctlId(row.key)}
-                      label={row.label}
-                      description={row.description}
-                      variant="outline"
-                      type="range"
-                      min={row.minimum}
-                      max={row.maximum}
-                      step={row.step}
-                      value={Number(rowValue(row) ?? row.minimum ?? 0)}
-                      oninput={(event) => setValue(row.key, Number(event.currentTarget.value))}
-                      data-jx-canvas-slider
-                    />
-                  {:else if row.control === 'stepper'}
-                    <ItemField id={ctlId(row.key)} labelMode="text" label={row.label} description={row.description} variant="outline">
-                      {#snippet control(field: ItemFieldContext)}
-                        <div
-                          class="jx-canvas-stepper"
-                          role="group"
-                          aria-labelledby={field.labelId}
-                          aria-describedby={field.describedBy}
-                          data-jx-canvas-stepper
-                        >
-                          <button
-                            type="button"
-                            class="jx-press jx-canvas-step-btn"
-                            data-jx-canvas-step="dec"
-                            aria-label={`Decrease ${row.label}`}
-                            onclick={() => stepValue(row, -1)}
-                          >−</button>
-                          <span class="jx-canvas-step-value" data-jx-canvas-stepper-value>{stepText(row)}{row.unit ? ` ${row.unit}` : ''}</span>
-                          <button
-                            type="button"
-                            class="jx-press jx-canvas-step-btn"
-                            data-jx-canvas-step="inc"
-                            aria-label={`Increase ${row.label}`}
-                            onclick={() => stepValue(row, 1)}
-                          >+</button>
-                        </div>
-                      {/snippet}
-                    </ItemField>
-                  {:else}
-                    <ItemField id={ctlId(row.key)} labelMode="text" label={row.label} description={row.description} variant="outline">
-                      {#snippet control(field: ItemFieldContext)}
-                        <div
-                          class="jx-canvas-seg"
-                          role="group"
-                          aria-labelledby={field.labelId}
-                          aria-describedby={field.describedBy}
-                          data-jx-canvas-seg
-                        >
-                          {#each row.values ?? [] as option (option)}
-                            <button
-                              type="button"
-                              class="jx-press jx-canvas-seg-btn"
-                              data-jx-canvas-seg-option={option}
-                              aria-pressed={String(rowValue(row)) === option}
-                              onclick={() => setValue(row.key, option)}
-                            >{option}</button>
-                          {/each}
-                        </div>
-                      {/snippet}
-                    </ItemField>
-                  {/if}
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
-        {#if output?.length}
-          <!-- the output projection (D4): read-only rows in the item rhythm;
-               dl semantics kept, never a live region -->
-          <dl class="jx-canvas-output m-0 mt-[0.85rem] flex flex-col gap-[0.25rem]">
-            {#each output as item, index (`${item.label}-${index}`)}
-              <div
-                data-jx-canvas-output-row
-                class="grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)] bg-[color-mix(in_oklab,var(--muted)_30%,transparent)] border border-[color-mix(in_oklab,var(--border)_60%,transparent)] px-[0.5rem] py-[0.28rem]"
-              >
-                <dt class="text-muted-foreground font-nav text-[10px] tracking-[0.14em] uppercase">{item.label}</dt>
-                <!-- VALUE ink = text-foreground (V1-4/V2-9, 2026-09-02):
-                     the old --accent-foreground pick was a token-category
-                     error — that token is the ink meant to sit ON an
-                     accent FILL (white in light, black in dark), so on
-                     the neutral pane it rendered near-invisible in BOTH
-                     themes (249-on-249 light, black-on-black dark) -->
-                <dd class="text-foreground font-mono text-[11.5px] m-0 min-w-0 [overflow-wrap:anywhere]">{formatOutput(item.value)}</dd>
-              </div>
-            {/each}
-          </dl>
-        {/if}
-      </aside>
+    {#if playground || schema || output?.length}
+      <CanvasPlayground
+        {title}
+        bind:theme
+        bind:density
+        {playground}
+        rows={schema ? rows : undefined}
+        schemaDefaults={schema ? defaults : undefined}
+        bind:values
+        {onvalue}
+        {onreset}
+        {output}
+      />
+    {:else}
+      <!-- chrome-only dock (the unified-chrome ruling, 2026-09-08): the
+           head row [grip, theme, size] ships on EVERY canvas — without
+           body content there is no chevron and no expansion -->
+      <CanvasPlayground {title} bind:theme bind:density />
     {/if}
   </div>
 

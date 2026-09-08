@@ -58,6 +58,45 @@ ${close}
     { name: 'registry/files/ui/accordion-item.svelte', content: accordionItemSource },
     { name: 'src/lib/ui/accordion-usage.svelte', content: usage },
   ];
+
+  // the variants matrix (types section), swept through a canvas: the
+  // three postures — framed group, ghost paint, bare one-off item —
+  // in one pass (hand-authored mirror of the stage markup; the
+  // same-source migration is the recorded follow-up)
+  const accordionVariantsDemo = `<script lang="ts">
+  import Accordion from '@ui/accordion.svelte';
+  import AccordionItem from '@ui/accordion-item.svelte';
+${close}
+
+<!-- default — the framed group -->
+<Accordion>
+  <AccordionItem>
+    {#snippet summary()}framed{/snippet}
+    One collapsed 1px border around the set.
+  </AccordionItem>
+  <AccordionItem>
+    {#snippet summary()}seams{/snippet}
+    1px seams between items, not double borders.
+  </AccordionItem>
+</Accordion>
+
+<!-- ghost — antd Collapse ghost paint, frameless -->
+<Accordion ghost>
+  <AccordionItem>
+    {#snippet summary()}ghost{/snippet}
+    antd Collapse ghost mapping — frameless, hairline separators only.
+  </AccordionItem>
+</Accordion>
+
+<!-- bare item — without the group: a single styled details/summary -->
+<AccordionItem>
+  {#snippet summary()}one-off disclosure{/snippet}
+  Without the group: a single styled details/summary.
+</AccordionItem>`;
+
+  const accordionVariantsFiles: TreeFile[] = [
+    { name: 'accordion-variants-demo.svelte', content: accordionVariantsDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -183,37 +222,39 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Accordion variants" summary="The group frame, the ghost paint, and the bare one-off disclosure — all the same native details/summary underneath.">
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">default — framed</p>
-        <Accordion>
+    <ComponentCanvas title="accordion · variants" stage="fill" files={accordionVariantsFiles}>
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">default — framed</p>
+          <Accordion>
+            <AccordionItem>
+              {#snippet summary()}framed{/snippet}
+              One collapsed 1px border around the set.
+            </AccordionItem>
+            <AccordionItem>
+              {#snippet summary()}seams{/snippet}
+              1px seams between items, not double borders.
+            </AccordionItem>
+          </Accordion>
+        </div>
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">ghost</p>
+          <Accordion ghost>
+            <AccordionItem>
+              {#snippet summary()}ghost{/snippet}
+              antd Collapse ghost mapping — frameless, hairline separators only.
+            </AccordionItem>
+          </Accordion>
+        </div>
+        <div class="border border-border p-4">
+          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">bare item</p>
           <AccordionItem>
-            {#snippet summary()}framed{/snippet}
-            One collapsed 1px border around the set.
+            {#snippet summary()}one-off disclosure{/snippet}
+            Without the group: a single styled details/summary.
           </AccordionItem>
-          <AccordionItem>
-            {#snippet summary()}seams{/snippet}
-            1px seams between items, not double borders.
-          </AccordionItem>
-        </Accordion>
+        </div>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">ghost</p>
-        <Accordion ghost>
-          <AccordionItem>
-            {#snippet summary()}ghost{/snippet}
-            antd Collapse ghost mapping — frameless, hairline separators only.
-          </AccordionItem>
-        </Accordion>
-      </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">bare item</p>
-        <AccordionItem>
-          {#snippet summary()}one-off disclosure{/snippet}
-          Without the group: a single styled details/summary.
-        </AccordionItem>
-      </div>
-    </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Wrap items in the group for the collapsed frame and opt-in exclusive mode; use a bare item for a one-off disclosure."><CodeBlock code={usage} lang="svelte" meta="Accordion usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component adds zero ARIA of its own — the browser maps details/summary to the disclosure pattern, including open state."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus to the summary line' }, { key: 'Enter / Space', action: 'Toggles the focused item open/closed (native summary behavior)' }]} aria={[{ name: 'details / summary', value: 'native semantics', description: 'The platform exposes name, role, and open state; no ARIA attributes are added or needed.' }]} /></SectionCard></div>

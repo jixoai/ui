@@ -353,7 +353,10 @@ describe('canvas same-source — rendered parity through the real pipeline', () 
     )!;
     await fireEvent.click(toggle);
     const drawers = container.querySelectorAll<HTMLElement>('.jx-canvas-code-drawer');
-    expect(drawers.length).toBe(2);
+    // 3 canvases: rungs, rule, and the icon-lane demo swept through a
+    // canvas (canvas-everywhere-demos, 2026-09-08) — a plain-files
+    // canvas; it never joins the same-source lane below
+    expect(drawers.length).toBe(3);
     const rungsDrawer = drawers[0]!;
     expect(rungsDrawer.hasAttribute('data-open')).toBe(true);
     expect(rungsDrawer.textContent).toContain('blockquote-usage.svelte');

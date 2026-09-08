@@ -22,8 +22,14 @@ describe('pilot page schema playground', () => {
     const rows = container.querySelectorAll('[data-jx-canvas-row]');
     expect(rows.length).toBe(5);
     expect(container.querySelector('[data-jx-canvas-toggle]')).not.toBeNull();
-    // no hand-written kit selects remain
-    expect(container.querySelector('select')).toBeNull();
+    // no hand-written kit selects remain (the canvas-everywhere sweep,
+    // 2026-09-08, mounts the dock chrome on every canvas — each carries
+    // the head's density select; the body and the rows pane have none)
+    expect(container.querySelector('[data-jx-canvas-dock-scroll] select')).toBeNull();
+    const selects = [...container.querySelectorAll('select')];
+    expect(selects.length).toBe(3);
+    expect(selects.every((s) => s.getAttribute('aria-label') === 'Density')).toBe(true);
+    expect(container.querySelector('select')!.getAttribute('aria-label')).toBe('Density');
 
     // flip variant → the driven instance restamps data-jx-press-button
     const driven = container.querySelector<HTMLButtonElement>('[data-jx-press-button="fill"]');

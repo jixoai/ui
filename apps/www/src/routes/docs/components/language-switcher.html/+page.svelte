@@ -79,6 +79,30 @@ ${close}
 />`);
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
+
+  // canvas-everywhere sweep (2026-09-08): hand-authored mirror of the
+  // types row below (locale data inlined, same hrefs) — the
+  // same-source resolveRawCode migration is the recorded follow-up
+  const languageSwitcherTypesDemo = `<script lang="ts">
+  import LanguageSwitcher from '@ui/language-switcher.svelte';
+${close}
+
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pair</span><LanguageSwitcher variant="pair" current="en" locales={[
+      { code: 'en', label: 'EN', href: '#language-switcher-demo' },
+      { code: 'zh', label: '中文', href: '#language-switcher-demo' },
+    ]} /><span class="text-muted-foreground text-[12.5px]">segmented group — caps at two entries by design</span></div>
+  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">menu</span><LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={[
+      { code: 'en', label: 'English', href: '#language-switcher-demo' },
+      { code: 'zh', label: '简体中文', href: '#language-switcher-demo' },
+      { code: 'ja', label: '日本語', href: '#language-switcher-demo' },
+      { code: 'de', label: 'Deutsch', href: '#language-switcher-demo' },
+    ]} /><span class="text-muted-foreground text-[12.5px]">nav disclosure — three or more locales</span></div>
+</div>`;
+
+  const typesFiles: TreeFile[] = [
+    { name: 'language-switcher-types-demo.svelte', content: languageSwitcherTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -198,10 +222,12 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two variants split by locale count: pair for the bilingual case, menu for three or more.">
+    <ComponentCanvas title="language-switcher · types" stage="fill" files={typesFiles}>
     <div class="flex flex-wrap items-start gap-6">
       <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pair</span><LanguageSwitcher variant="pair" current="en" locales={pairLocales} /><span class="text-muted-foreground text-[12.5px]">segmented group — caps at two entries by design</span></div>
       <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">menu</span><LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={menuLocales} /><span class="text-muted-foreground text-[12.5px]">nav disclosure — three or more locales</span></div>
     </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="locales is data — every entry carries the localized href of the current page."><CodeBlock code={usage} lang="svelte" meta="LanguageSwitcher usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="pair is a group of links; menu is a nav-landmark popover of real anchors — links navigate, so no listbox/option fiction (honesty pass, 2026-09-02)."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the locale anchors (pair) or the trigger then the open list (menu)' }, { key: 'Enter', action: 'Follows the focused locale anchor — navigation, not state' }, { key: 'Escape', action: 'Closes the menu; outside click closes it too' }]} aria={[{ name: 'aria-label', value: 'ariaLabel ("Language")', description: 'Accessible name for the menu trigger and pair group' }, { name: 'aria-expanded', value: 'true | false', description: 'On the menu trigger — a bare disclosure, no haspopup (the panel is navigation, not a select).' }, { name: 'role', value: 'group / navigation', description: 'pair is a link group; the menu panel is a nav landmark (aria-label) of plain anchors — the current locale carries aria-current="page".' }]} /></SectionCard></div>

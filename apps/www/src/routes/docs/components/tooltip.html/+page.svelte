@@ -44,6 +44,27 @@ ${close}
     { name: 'src/lib/ui/tooltip-usage.svelte', content: canvasUsage },
   ];
 
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+
+  // the placement trio (types section), swept through a canvas: the
+  // default anchored side, the toolbar bottom, and a corner-aimed notch
+  const tooltipTypesDemo = `<script lang="ts">
+  import Tooltip from '@ui/tooltip.svelte';
+  import PressButton from '@ui/press-button.svelte';
+${close}
+
+<div class="grid w-full gap-4 sm:grid-cols-3">
+  <div class="border border-border p-4"><Tooltip text="The default anchored side"><PressButton variant="outline">top</PressButton></Tooltip></div>
+  <div class="border border-border p-4"><Tooltip text="For toolbar bottoms" placement="bottom"><PressButton variant="outline">bottom</PressButton></Tooltip></div>
+  <div class="border border-border p-4"><Tooltip text="Corner aim through the notch" arrow placement="top-end"><PressButton variant="outline">arrow · top-end</PressButton></Tooltip></div>
+</div>`;
+
+  const tooltipTypesFiles: TreeFile[] = [
+    { name: 'tooltip-types-demo.svelte', content: tooltipTypesDemo, kind: 'usage' },
+  ];
+
   // ToC outline: pairs with the section ids below, in page order.
 </script>
 
@@ -132,11 +153,13 @@ ${close}
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Tooltip variants" summary="Six placements across the anchored sides; the arrow opts into a notch cut from the bubble itself.">
-    <div class="grid gap-4 sm:grid-cols-3">
-      <div class="border border-border p-4"><Tooltip text="The default anchored side"><PressButton variant="outline">top</PressButton></Tooltip></div>
-      <div class="border border-border p-4"><Tooltip text="For toolbar bottoms" placement="bottom"><PressButton variant="outline">bottom</PressButton></Tooltip></div>
-      <div class="border border-border p-4"><Tooltip text="Corner aim through the notch" arrow placement="top-end"><PressButton variant="outline">arrow · top-end</PressButton></Tooltip></div>
-    </div>
+    <ComponentCanvas title="tooltip · variants" stage="fill" files={tooltipTypesFiles}>
+      <div class="grid w-full gap-4 sm:grid-cols-3">
+        <div class="border border-border p-4"><Tooltip text="The default anchored side"><PressButton variant="outline">top</PressButton></Tooltip></div>
+        <div class="border border-border p-4"><Tooltip text="For toolbar bottoms" placement="bottom"><PressButton variant="outline">bottom</PressButton></Tooltip></div>
+        <div class="border border-border p-4"><Tooltip text="Corner aim through the notch" arrow placement="top-end"><PressButton variant="outline">arrow · top-end</PressButton></Tooltip></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Wrap the trigger; the tip is non-interactive by contract — actionable content belongs in a popover."><CodeBlock code={usageCode} lang="svelte" meta="Tooltip usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Hover and focus are two intent paths into one tip; the pairing only reads while the panel is shown."><A11yTable keys={[{ key: 'Tab', action: 'Focus opens the tip immediately; focus leaving the trigger closes it' }, { key: 'Escape', action: 'Closes the tip now (manual popovers skip the native Esc path)' }]} aria={[{ name: 'aria-describedby', value: '{id} → panel', description: 'The wrapper points at the tip permanently; hidden popover content is display:none, so it only reads while shown.' }, { name: 'role', value: 'tooltip', description: 'The popover panel carries the tooltip role.' }, { name: 'popover', value: 'manual', description: 'Top-layer panel with no light dismiss — the tip owns its exit.' }]} /></SectionCard></div>

@@ -43,6 +43,24 @@ ${close}
     { name: 'src/lib/ui/float-button-usage.svelte', content: usage },
   ];
 
+  // canvas-everywhere sweep (2026-09-08): the menu-idiom demo's usage
+  // mirror — hand-authored to match the stage markup (same-source
+  // migration is the recorded follow-up).
+  const floatButtonMenuDemo = `<script lang="ts">
+  import FloatButton from '@ui/float-button.svelte';
+${close}
+
+<!-- menu idiom: children + an actions snippet — the button toggles a
+     popover=auto stack above itself (native light dismiss, Escape, top layer) -->
+<FloatButton label="quick actions" corner="bottom-left">
+  <span aria-hidden="true">+</span>
+  {#snippet actions()}
+    <button type="button" role="menuitem" onclick={backToTop}>back to top</button>
+    <button type="button" role="menuitem" onclick={copyPageLink}>copy this page link</button>
+    <a role="menuitem" href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer">github ↗</a>
+  {/snippet}
+</FloatButton>`;
+
   // the overlay shell scrolls on .jx-shell-body, not the window — the
   // back-top action must ride the REAL scroll plane (motion-aware)
   function scrollToTop(): void {
@@ -168,31 +186,37 @@ ${close}
             buttons carrying <code class="text-accent">role="menuitem"</code>; the popover itself
             already carries <code class="text-accent">role="menu"</code>.
           </p>
-          <FloatButton label="quick actions" corner="bottom-left">
-            <span aria-hidden="true">+</span>
-            {#snippet actions()}
-              <button type="button" role="menuitem" class="jx-fab-menu-item" onclick={scrollToTop}>
-                back to top
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                class="jx-fab-menu-item"
-                onclick={() => void navigator.clipboard?.writeText('https://ui.jixoai.com')}
-              >
-                copy this page link
-              </button>
-              <a
-                role="menuitem"
-                class="jx-fab-menu-item"
-                href="https://github.com/jixoai/ui"
-                target="_blank"
-                rel="noreferrer"
-              >
-                github ↗
-              </a>
-            {/snippet}
-          </FloatButton>
+          <ComponentCanvas
+            title="float-button · menu"
+            stage="fill"
+            files={[{ name: 'float-button-menu-demo.svelte', content: floatButtonMenuDemo, kind: 'usage' }]}
+          >
+            <FloatButton label="quick actions" corner="bottom-left">
+              <span aria-hidden="true">+</span>
+              {#snippet actions()}
+                <button type="button" role="menuitem" class="jx-fab-menu-item" onclick={scrollToTop}>
+                  back to top
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="jx-fab-menu-item"
+                  onclick={() => void navigator.clipboard?.writeText('https://ui.jixoai.com')}
+                >
+                  copy this page link
+                </button>
+                <a
+                  role="menuitem"
+                  class="jx-fab-menu-item"
+                  href="https://github.com/jixoai/ui"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  github ↗
+                </a>
+              {/snippet}
+            </FloatButton>
+          </ComponentCanvas>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>
       </SectionCard>

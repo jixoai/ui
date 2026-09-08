@@ -48,6 +48,125 @@
     { name: 'registry/files/ui/separator.svelte', content: separatorSource },
     { name: 'src/lib/ui/separator-usage.svelte', content: usage },
   ];
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const close = '</' + 'script>';
+
+  // the ink-engine gallery (variants section): the seven-variant ladder
+  // plus the auto-adaptive proof box over the tonal ramp
+  const separatorInkDemo = `<script lang="ts">
+  import Separator from '@ui/separator.svelte';
+${close}
+
+<div class="flex w-full max-w-lg flex-col gap-4">
+  <div class="flex flex-col gap-1.5">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">fused</span>
+    <Separator />
+    <span class="text-muted-foreground text-[12px]">the contrast ghost (default)</span>
+  </div>
+  <div class="flex flex-col gap-1.5">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">solid</span>
+    <Separator variant="solid" />
+    <span class="text-muted-foreground text-[12px]">the plain-fill escape — var(--border), ghost off</span>
+  </div>
+  <div class="flex flex-col gap-1.5">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">dashed</span>
+    <Separator variant="dashed" />
+    <span class="text-muted-foreground text-[12px]">6/4 dashes</span>
+  </div>
+  <div class="flex flex-col gap-1.5">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">dense</span>
+    <Separator variant="dense" />
+    <span class="text-muted-foreground text-[12px]">3/3 dense dashes</span>
+  </div>
+  <div class="flex flex-col gap-1.5">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">dotted</span>
+    <Separator variant="dotted" />
+    <span class="text-muted-foreground text-[12px]">a chain of dots</span>
+  </div>
+  <div class="flex flex-col gap-1.5">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">wavy</span>
+    <Separator variant="wavy" />
+    <span class="text-muted-foreground text-[12px]">the SVG sine mask</span>
+  </div>
+  <div class="flex flex-col gap-1.5">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">fade</span>
+    <Separator variant="fade" />
+    <span class="text-muted-foreground text-[12px]">blend: transparent → dark → transparent</span>
+  </div>
+</div>
+
+<!-- the auto-adaptive proof: the ghost and its masks track the whole
+     light→dark→light ramp; no color token anywhere -->
+<div
+  class="flex w-full max-w-lg flex-col gap-4 border border-border p-4"
+  style="background: linear-gradient(90deg, oklch(0.98 0 0), oklch(0.35 0 0), oklch(0.98 0 0))"
+>
+  <Separator />
+  <Separator variant="dashed" />
+  <Separator variant="fade" />
+</div>`;
+
+  const separatorInkFiles: TreeFile[] = [
+    { name: 'separator-ink-demo.svelte', content: separatorInkDemo, kind: 'usage' },
+  ];
+
+  // the length-is-layout demo (length-layout section)
+  const separatorLengthDemo = `<script lang="ts">
+  import Separator from '@ui/separator.svelte';
+${close}
+
+<div class="flex w-full max-w-md flex-col gap-5">
+  <div class="flex flex-col">
+    <span class="text-muted-foreground text-[11px]">full width — the default stretch</span>
+    <Separator />
+  </div>
+  <div class="flex flex-col">
+    <span class="text-muted-foreground text-[11px]">class="w-1/2" — any width class</span>
+    <Separator class="w-1/2" />
+  </div>
+  <div class="flex flex-col">
+    <span class="text-muted-foreground text-[11px]">class="my-6" — length is also rhythm</span>
+    <Separator class="my-6" />
+  </div>
+  <div class="flex h-8 items-stretch gap-4 text-[13px]">
+    <span>h-8 row</span>
+    <Separator orientation="vertical" />
+    <span>the rule fills the cross axis</span>
+  </div>
+</div>`;
+
+  const separatorLengthFiles: TreeFile[] = [
+    { name: 'separator-length-demo.svelte', content: separatorLengthDemo, kind: 'usage' },
+  ];
+
+  // the postures grid (types section): the native hr vs the ARIA div
+  const separatorTypesDemo = `<script lang="ts">
+  import Separator from '@ui/separator.svelte';
+${close}
+
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex min-w-56 flex-col gap-3 border border-border p-4">
+    <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">horizontal (default)</span>
+    <Separator />
+    <span class="text-muted-foreground text-[12.5px]">the native hr — thematic break between blocks</span>
+  </div>
+  <div class="flex min-w-56 flex-col items-center gap-3 border border-border p-4">
+    <span class="font-nav text-primary self-start text-[11px] uppercase tracking-[0.24em]">vertical</span>
+    <div class="flex h-10 items-stretch gap-4 text-[13px]">
+      <span>first</span>
+      <Separator orientation="vertical" />
+      <span>second</span>
+    </div>
+    <span class="text-muted-foreground self-start text-[12.5px]">role=separator div — splits inline peers, stretches the cross axis</span>
+  </div>
+</div>`;
+
+  const separatorTypesFiles: TreeFile[] = [
+    { name: 'separator-types-demo.svelte', content: separatorTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -122,26 +241,28 @@
         title="The ink engine — no color, only physics"
         summary="A separator paints no color (Owner ruling, 2026-09-01): border-color is for borders. The default variant is NAMED fused — the backdrop's own CONTRAST GHOST, a backdrop-filter: contrast(0.5) strip that reads as a tonal shift over any ground. Dashed, dense, dotted and wavy are MASKS over that same strip; fade rides the BLEND engine — an alpha-ramped white gradient under mix-blend-mode: difference, inverting the backdrop toward mid exactly as its alpha ramps: transparent → light → dark → light → transparent. The one exception: solid (Owner amendment, 2026-09-08) turns the ghost off and paints plain var(--border) — the escape for grounds where the ghost's exact-mid blind spot or a patterned backdrop defeats subtraction."
       >
-        <div class="flex flex-col gap-6">
-          <div class="flex w-full max-w-lg flex-col gap-4">
-            {#each [['fused', 'the contrast ghost (default)'], ['solid', 'the plain-fill escape — var(--border), ghost off'], ['dashed', '6/4 dashes'], ['dense', '3/3 dense dashes'], ['dotted', 'a chain of dots'], ['wavy', 'the SVG sine mask'], ['fade', 'blend: transparent → dark → transparent']] as [v, label]}
-              <div class="flex flex-col gap-1.5">
-                <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{v}</span>
-                <Separator variant={v} />
-                <span class="text-muted-foreground text-[12px]">{label}</span>
-              </div>
-            {/each}
+        <ComponentCanvas title="separator · ink engine" stage="fill" files={separatorInkFiles}>
+          <div class="flex flex-col gap-6">
+            <div class="flex w-full max-w-lg flex-col gap-4">
+              {#each [['fused', 'the contrast ghost (default)'], ['solid', 'the plain-fill escape — var(--border), ghost off'], ['dashed', '6/4 dashes'], ['dense', '3/3 dense dashes'], ['dotted', 'a chain of dots'], ['wavy', 'the SVG sine mask'], ['fade', 'blend: transparent → dark → transparent']] as [v, label]}
+                <div class="flex flex-col gap-1.5">
+                  <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{v}</span>
+                  <Separator variant={v} />
+                  <span class="text-muted-foreground text-[12px]">{label}</span>
+                </div>
+              {/each}
+            </div>
+            <div class="flex w-full max-w-lg flex-col gap-4 border border-border p-4"
+              style="background: linear-gradient(90deg, oklch(0.98 0 0), oklch(0.35 0 0), oklch(0.98 0 0))"
+            >
+              <span class="w-fit self-start rounded-sm bg-background px-1.5 py-0.5 font-nav text-[11px] uppercase tracking-[0.24em] text-foreground">auto-adaptive proof — over a light→dark→light gradient</span>
+              <Separator />
+              <Separator variant="dashed" />
+              <Separator variant="fade" />
+              <span class="w-fit self-start rounded-sm bg-background px-1.5 py-0.5 text-[12px] text-foreground">the ghost and its masks track the whole ramp; the fade's blend eases toward exact mid-gray — its one blind spot — and stays a tonal shift everywhere else. No color token anywhere.</span>
+            </div>
           </div>
-          <div class="flex w-full max-w-lg flex-col gap-4 border border-border p-4"
-            style="background: linear-gradient(90deg, oklch(0.98 0 0), oklch(0.35 0 0), oklch(0.98 0 0))"
-          >
-            <span class="w-fit self-start rounded-sm bg-background px-1.5 py-0.5 font-nav text-[11px] uppercase tracking-[0.24em] text-foreground">auto-adaptive proof — over a light→dark→light gradient</span>
-            <Separator />
-            <Separator variant="dashed" />
-            <Separator variant="fade" />
-            <span class="w-fit self-start rounded-sm bg-background px-1.5 py-0.5 text-[12px] text-foreground">the ghost and its masks track the whole ramp; the fade's blend eases toward exact mid-gray — its one blind spot — and stays a tonal shift everywhere else. No color token anywhere.</span>
-          </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -153,25 +274,27 @@
         title="Length is layout"
         summary="The component draws the line; the consumer decides how long it is. Horizontal rules stretch to their container (or any width class); vertical rules stretch the container's cross axis — put one in a fixed-height flex row and it fills it."
       >
-        <div class="flex w-full max-w-md flex-col gap-5">
-          <div class="flex flex-col">
-            <span class="text-muted-foreground text-[11px]">full width — the default stretch</span>
-            <Separator />
+        <ComponentCanvas title="separator · length" stage="fill" files={separatorLengthFiles}>
+          <div class="flex w-full max-w-md flex-col gap-5">
+            <div class="flex flex-col">
+              <span class="text-muted-foreground text-[11px]">full width — the default stretch</span>
+              <Separator />
+            </div>
+            <div class="flex flex-col">
+              <span class="text-muted-foreground text-[11px]">class="w-1/2" — any width class</span>
+              <Separator class="w-1/2" />
+            </div>
+            <div class="flex flex-col">
+              <span class="text-muted-foreground text-[11px]">class="my-6" — length is also rhythm</span>
+              <Separator class="my-6" />
+            </div>
+            <div class="flex h-8 items-stretch gap-4 text-[13px]">
+              <span>h-8 row</span>
+              <Separator orientation="vertical" />
+              <span>the rule fills the cross axis</span>
+            </div>
           </div>
-          <div class="flex flex-col">
-            <span class="text-muted-foreground text-[11px]">class="w-1/2" — any width class</span>
-            <Separator class="w-1/2" />
-          </div>
-          <div class="flex flex-col">
-            <span class="text-muted-foreground text-[11px]">class="my-6" — length is also rhythm</span>
-            <Separator class="my-6" />
-          </div>
-          <div class="flex h-8 items-stretch gap-4 text-[13px]">
-            <span>h-8 row</span>
-            <Separator orientation="vertical" />
-            <span>the rule fills the cross axis</span>
-          </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -191,10 +314,12 @@
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two postures: the native hr for thematic breaks, the ARIA div for inline peer splits.">
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex min-w-56 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">horizontal (default)</span><Separator /><span class="text-muted-foreground text-[12.5px]">the native hr — thematic break between blocks</span></div>
-      <div class="flex min-w-56 flex-col items-center gap-3 border border-border p-4"><span class="font-nav text-primary self-start text-[11px] uppercase tracking-[0.24em]">vertical</span><div class="flex h-10 items-stretch gap-4 text-[13px]"><span>first</span><Separator orientation="vertical" /><span>second</span></div><span class="text-muted-foreground self-start text-[12.5px]">role=separator div — splits inline peers, stretches the cross axis</span></div>
-    </div>
+    <ComponentCanvas title="separator · types" stage="center" files={separatorTypesFiles}>
+      <div class="flex flex-wrap items-start gap-6">
+        <div class="flex min-w-56 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">horizontal (default)</span><Separator /><span class="text-muted-foreground text-[12.5px]">the native hr — thematic break between blocks</span></div>
+        <div class="flex min-w-56 flex-col items-center gap-3 border border-border p-4"><span class="font-nav text-primary self-start text-[11px] uppercase tracking-[0.24em]">vertical</span><div class="flex h-10 items-stretch gap-4 text-[13px]"><span>first</span><Separator orientation="vertical" /><span>second</span></div><span class="text-muted-foreground self-start text-[12.5px]">role=separator div — splits inline peers, stretches the cross axis</span></div>
+      </div>
+    </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="One prop, no length API on purpose — length is your layout's job."><CodeBlock code={usage} lang="svelte" meta="Separator usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Horizontal needs no ARIA at all — the browser announces hr natively; vertical carries the WAI-ARIA separator pattern."><A11yTable keys={[]} aria={[{ name: 'hr', value: 'native', description: 'Announced as a separator/thematic break by the platform — zero wiring owed' }, { name: 'role', value: 'separator', description: 'On the vertical path only (component-owned, not overridable)' }, { name: 'aria-orientation', value: '"vertical"', description: 'Set with the role on the vertical path' }]} /></SectionCard></div>

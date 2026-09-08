@@ -28,16 +28,22 @@ describe('ComponentCanvas semantics', () => {
     expect(drawer.id).toBe('jx-canvas-host-widget-drawer');
   });
 
-  it('labels the playground pane: aria-label names the controls, the h3 stays visible', () => {
-    // no playground snippet → no pane at all
+  it('labels the playground dock: aria-label names the controls, chrome only when body-less', () => {
+    // no playground snippet → the dock still mounts, chrome-only (the
+    // unified-chrome ruling 2026-09-08): no chevron, no collapse region
     const { container: plain } = render(CanvasPlainHost);
-    expect(plain.querySelector('.jx-canvas-playground')).toBeNull();
+    const chromeDock = plain.querySelector<HTMLElement>('[data-jx-canvas-dock]')!;
+    expect(chromeDock).not.toBeNull();
+    expect(chromeDock.getAttribute('aria-label')).toBe('Controls for host widget');
+    expect(chromeDock.querySelector('[data-jx-canvas-dock-toggle]')).toBeNull();
+    expect(chromeDock.querySelector('.jx-canvas-dock-collapse')).toBeNull();
 
     const { container } = render(CanvasHost);
-    const pane = container.querySelector<HTMLElement>('.jx-canvas-playground')!;
-    expect(pane.getAttribute('aria-label')).toBe('Controls for host widget');
-    const heading = pane.querySelector('h3')!;
-    expect(heading.textContent?.toLowerCase()).toContain('playground');
+    const dock = container.querySelector<HTMLElement>('[data-jx-canvas-dock]')!;
+    expect(dock.getAttribute('aria-label')).toBe('Controls for host widget');
+    // the dock era: no heading element anywhere in the chrome (the
+    // outline law keeps canvas chrome out of every ToC)
+    expect(dock.querySelector('h1,h2,h3')).toBeNull();
   });
 });
 

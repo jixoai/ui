@@ -78,6 +78,23 @@ ${close}
     { name: 'registry/files/ui/popconfirm/popconfirm.svelte', content: popconfirmSource },
     { name: 'src/lib/ui/popconfirm-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
+  // the effect-only demo regions below — the same-source resolveRawCode
+  // migration of these strings is the recorded follow-up -------------
+  const popconfirmTypesDemo = `<script lang="ts">
+  import Popconfirm from '@ui/popconfirm.svelte';
+  import PressButton from '@ui/press-button.svelte';
+${close}
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="border border-border p-4"><Popconfirm title="Delete this row?"><PressButton>destructive</PressButton></Popconfirm></div>
+  <div class="border border-border p-4"><Popconfirm title="Merge this branch?" confirmTone="primary"><PressButton>primary</PressButton></Popconfirm></div>
+</div>`;
+
+  const popconfirmTypesFiles: TreeFile[] = [
+    { name: 'popconfirm-types-demo.svelte', content: popconfirmTypesDemo, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -188,7 +205,7 @@ ${close}
 </div>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Confirmation variants" summary="Use destructive confirmation by default, or switch the confirm tone for positive actions."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Popconfirm title="Delete this row?"><PressButton>destructive</PressButton></Popconfirm></div><div class="border border-border p-4"><Popconfirm title="Merge this branch?" confirmTone="primary"><PressButton>primary</PressButton></Popconfirm></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Confirmation variants" summary="Use destructive confirmation by default, or switch the confirm tone for positive actions."><ComponentCanvas title="popconfirm · variants" stage="fill" files={popconfirmTypesFiles}><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Popconfirm title="Delete this row?"><PressButton>destructive</PressButton></Popconfirm></div><div class="border border-border p-4"><Popconfirm title="Merge this branch?" confirmTone="primary"><PressButton>primary</PressButton></Popconfirm></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The trigger stays in children; content and actions snippets are optional overrides."><CodeBlock code={usage} lang="svelte" meta="Popconfirm usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A compact dialog-like popover puts the safe cancel action first and treats every light dismissal as cancel."><A11yTable keys={[{ key: 'Tab', action: 'Move between Cancel and Confirm.' }, { key: 'Escape', action: 'Cancel and close the popover.' }]} aria={[{ name: 'role', value: 'dialog', description: 'Exposes the confirmation surface.' }, { name: 'aria-labelledby', value: '{id}-title', description: 'Names the default title content.' }, { name: 'aria-describedby', value: '{id}-desc', description: 'References the optional description.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Confirmation controls use the shared density rhythm plus a small panel gap."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Popconfirm title="Confirm?" onconfirm={() => {}}><PressButton>action</PressButton></Popconfirm></DensityDemo><TokenTable tokens={[{ name: '--jx-pc-gap', default: '8px', source: 'component' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>

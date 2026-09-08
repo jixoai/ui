@@ -89,6 +89,39 @@ ${close}
     { name: 'registry/files/ui/command/command.css', content: commandCss },
     { name: 'src/lib/ui/command-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // ---- sweep usage mirror (canvas-everywhere-demos, 2026-09-08) -----------
+  // Hand-authored mirror of the wrapped types demo below; the
+  // same-source resolveRawCode migration of this string is the
+  // recorded follow-up.
+  const commandTypesDemo = `<script lang="ts">
+  import Command, {
+    CommandInput,
+    CommandList,
+    CommandGroup,
+    CommandItem,
+  } from '@ui/command/index';
+${close}
+
+<!-- single-shot: Enter runs and closes -->
+<Command>
+  <CommandInput placeholder="search actions" />
+  <CommandList>
+    <CommandGroup heading="actions">
+      <CommandItem label="Open">Open</CommandItem>
+    </CommandGroup>
+  </CommandList>
+</Command>
+
+<!-- closeOnSelect={false}: batch selection keeps the palette open -->
+<Command closeOnSelect={false}>
+  <CommandInput placeholder="batch actions" />
+  <CommandList>
+    <CommandGroup heading="batch">
+      <CommandItem label="Queue">Queue</CommandItem>
+    </CommandGroup>
+  </CommandList>
+</Command>`;
 </script>
 
 <svelte:head>
@@ -195,7 +228,7 @@ ${close}
 </div>
 
 <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Command variants" summary="Use the palette for keyboard-first actions, optional hotkeys, and batch selection."><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Command><CommandInput placeholder="search actions" /><CommandList><CommandGroup heading="actions"><CommandItem label="Open">Open</CommandItem></CommandGroup></CommandList></Command></div><div class="border border-border p-4"><Command closeOnSelect={false}><CommandInput placeholder="batch actions" /><CommandList><CommandGroup heading="batch"><CommandItem label="Queue">Queue</CommandItem></CommandGroup></CommandList></Command></div></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Command variants" summary="Use the palette for keyboard-first actions, optional hotkeys, and batch selection."><ComponentCanvas title="command · types" files={[{ name: 'command-types-demo.svelte', content: commandTypesDemo, kind: 'usage' }]} stage="fill"><div class="grid w-full gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Command><CommandInput placeholder="search actions" /><CommandList><CommandGroup heading="actions"><CommandItem label="Open">Open</CommandItem></CommandGroup></CommandList></Command></div><div class="border border-border p-4"><Command closeOnSelect={false}><CommandInput placeholder="batch actions" /><CommandList><CommandGroup heading="batch"><CommandItem label="Queue">Queue</CommandItem></CommandGroup></CommandList></Command></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the dialog root from its input, list, groups, empty state, and items."><CodeBlock code={usage} lang="svelte" meta="Command usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The input owns focus while the active option is announced through aria-activedescendant."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move through visible, enabled options.' }, { key: 'Home / End', action: 'Jump to the first or last option.' }, { key: 'Enter', action: 'Run the active option and close by default.' }, { key: 'Escape', action: 'Close the dialog and restore focus.' }]} aria={[{ name: 'role', value: 'combobox / listbox / option', description: 'Exposes the command palette interaction model.' }, { name: 'aria-activedescendant', value: 'option id', description: 'Announces the active option while input retains focus.' }, { name: 'aria-expanded', value: 'true', description: 'Indicates the open listbox state.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The palette uses shared density tokens for its input, options, and empty state."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Command><CommandInput placeholder="find" /><CommandList><CommandItem label="Open">Open</CommandItem></CommandList></Command></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
