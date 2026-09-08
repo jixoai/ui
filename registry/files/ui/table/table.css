@@ -121,6 +121,15 @@
   :where(table:not([data-stack='off']) thead) {
     display: none;
   }
+  /* tbody must go block WITH the table (Owner acceptance find,
+     2026-09-09): a residual table-row-group inside the block table
+     triggers the anonymous-table wrap, and the row cards shrink to
+     content width instead of filling the frame (thead dodged it via
+     display:none; tfoot carries its own block rules — tbody alone was
+     left in table internal display) */
+  :where(table:not([data-stack='off']) tbody) {
+    display: block;
+  }
   :where(table:not([data-stack='off']) tbody tr) {
     border-bottom: 1px solid var(--jx-table-hairline);
     display: block;
