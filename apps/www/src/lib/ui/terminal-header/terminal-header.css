@@ -48,6 +48,12 @@
     -webkit-backdrop-filter: brightness(0.85);
     backdrop-filter: brightness(0.85);
   }
+  /* the bezel's internal ladder is component-private: the .jx-nav
+     host roots it (the isolation clause, 2026-09-09 — the sweep's
+     deferred third line, landed with the B3 hard gate) */
+  :where(.jx-nav) {
+    isolation: isolate;
+  }
   /* every nav entry — family links, family triggers, drawer links —
      sits above the indicator */
   :where(.jx-nav nav a),

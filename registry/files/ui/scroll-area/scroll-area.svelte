@@ -231,7 +231,10 @@
     both: 'overflow-x-auto overflow-y-auto',
   } as const;
 
-  // the virtual thumb: square (radius 0 law), logical-geometry per axis
+  // the virtual thumb: square (radius 0 law), logical-geometry per axis.
+  // TRANSIENT INK (the law's category exit): the hover-revealed
+  // scrollbar thumb is effect ink over the scrollport's content —
+  // annotated per the annotated-use contract
   const thumbPaint =
     'absolute z-[1] invisible opacity-0 pointer-events-none bg-[color:var(--scrollbar-thumb)] transition-opacity duration-[180ms] ease-out';
   const thumbGeometry = {

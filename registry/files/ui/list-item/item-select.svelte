@@ -1,5 +1,5 @@
 <!--
-  jxoai ItemSelect (registry/files/ui/list-item/item-select.svelte).
+  jixoai ItemSelect (registry/files/ui/list-item/item-select.svelte).
   The select settings row: ItemField + the existing NativeSelect —
   the native popup, options snippet and keyboard story stay the
   select's; its duplicate label/error plumbing is reserved away.

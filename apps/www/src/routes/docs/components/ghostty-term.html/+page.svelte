@@ -141,7 +141,7 @@ export default {
   // LOCAL behavior (selection/scroll) even under active tracking; on lets a
   // tracking-enabled pty own the mouse — Shift always bypasses either way
   let mouseOn = $state(true);
-  // fontFamily playground: `default` rides the jxoai stack (JetBrains
+  // fontFamily playground: `default` rides the jixoai stack (JetBrains
   // Mono); the rest are @fontsource-loaded community faces
   let fontFamily = $state('default');
 

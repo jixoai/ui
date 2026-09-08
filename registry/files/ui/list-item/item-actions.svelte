@@ -1,5 +1,5 @@
 <!--
-  jxoai ItemActions (registry/files/ui/list-item/item-actions.svelte).
+  jixoai ItemActions (registry/files/ui/list-item/item-actions.svelte).
 
   The semantic ACTION lane (Owner 2026-09-05 r3, referencing
   DialogFooter; consolidated r4 the same day — the bare trailing span

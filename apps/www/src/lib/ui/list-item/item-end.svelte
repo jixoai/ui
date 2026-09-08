@@ -1,5 +1,5 @@
 <!--
-  jxoai ItemEnd — the ONE trailing lane (openspec
+  jixoai ItemEnd — the ONE trailing lane (openspec
   list-item-systemization design §1): ItemAfter (metadata),
   ItemChevron (glyph) and raw controls all live INSIDE it, so the
   top-level presence matrix keeps four bits; ItemActions is the lane's
@@ -46,7 +46,7 @@ export type ItemEndInset = 'auto' | number | boolean;
   const insetStyle = typeof inset === 'number' ? `--jx-item-end-inset: ${inset}px` : undefined;
   if (typeof inset === 'number' && inset < 0) {
     throw new Error(
-      '[jxoai list-item] ItemEnd: inset must be a non-negative px value — a negative tail is a margin wearing the wrong name (2026-09-05 inset contract)',
+      '[jixoai list-item] ItemEnd: inset must be a non-negative px value — a negative tail is a margin wearing the wrong name (2026-09-05 inset contract)',
     );
   }
 
@@ -54,7 +54,7 @@ export type ItemEndInset = 'auto' | number | boolean;
   // lane never restacks, so a ladder on it is a contract contradiction
   if (wrap === 'never' && fit !== undefined) {
     throw new Error(
-      '[jxoai list-item] ItemEnd: fit and wrap="never" are mutually exclusive — a never-fold lane is fixed-width by declaration (2026-09-05 size contract)',
+      '[jixoai list-item] ItemEnd: fit and wrap="never" are mutually exclusive — a never-fold lane is fixed-width by declaration (2026-09-05 size contract)',
     );
   }
 </script>

@@ -63,7 +63,12 @@ try {
 // ── 1-3. the npm-script gates (verify:shadcn-add lives ONLY in the final
 // real-consumer step below — running it here too made the chain pay for
 // the same five installs twice, out of the documented order) ─────────
-for (const name of ['verify:laws', 'verify:icons', 'verify:migration', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta', 'verify:print']) {
+// verify:print is NOT in this list by design (2026-09-09, the 4173
+// lesson): its standalone form trusts whatever answers on :4173, and a
+// stale server holding old dist once satisfied it blind for six days.
+// It runs below as a MANAGED probe against this composite's own
+// throwaway server, km's pattern, --url contract.
+for (const name of ['verify:laws', 'verify:icons', 'verify:migration', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
   step(name);
   try {
     execFileSync('npm', ['run', '--silent', name], { cwd: root, stdio: 'inherit' });
@@ -74,7 +79,7 @@ for (const name of ['verify:laws', 'verify:icons', 'verify:migration', 'verify:m
 
 // ── 3.5. dual-app vite config byte-identity (icon-component-pipeline
 // B4): apps/www/vite.config.ts and registry/vite.config.ts are ONE
-// config maintained twice — both apps dogfood the same jxoai() wiring
+// config maintained twice — both apps dogfood the same jixoai() wiring
 // (icons provider + library faces), so any byte drift between them is
 // a law breach, not a style nit — copy the exact bytes across ──────
 {
@@ -227,33 +232,39 @@ await (async () => {
     die(`verify:km (managed static server never came up on ${url})`);
   }
 
-  // the probe child — spawned (not execFileSync) so SIGINT can be
-  // caught, forwarded, and the child reaped on every exit path
-  const child = spawn('node', ['scripts/verify-katex-mermaid.mjs', '--url', url], {
-    cwd: root,
-    stdio: 'inherit',
-  });
-  let interrupted = false;
-  const onSigint = () => {
-    interrupted = true;
-    child.kill('SIGINT');
+  // the probe runner — spawned (not execFileSync) so SIGINT can be
+  // caught, forwarded, and the child reaped on every exit path. Shared
+  // by every --url probe below: each gets the SAME throwaway URL, so
+  // every probe provably hits this composite's own artifact
+  // (verify:print joins 2026-09-09 — the 4173 stale-squatter lesson)
+  const runManagedProbe = async (gate, script, args = []) => {
+    const child = spawn('node', [script, ...args], {
+      cwd: root,
+      stdio: 'inherit',
+    });
+    let interrupted = false;
+    const onSigint = () => {
+      interrupted = true;
+      child.kill('SIGINT');
+    };
+    process.on('SIGINT', onSigint);
+    const code = await new Promise((resolveCode) => {
+      child.on('error', () => resolveCode(1));
+      child.on('close', resolveCode);
+    });
+    process.removeListener('SIGINT', onSigint);
+    if (interrupted) {
+      await new Promise((r) => server.close(r));
+      console.error(`\n✗ verify-all interrupted (SIGINT) — ${gate} probe child reaped, static server closed`);
+      process.exit(130);
+    }
+    if (code !== 0) {
+      await new Promise((r) => server.close(r));
+      die(gate);
+    }
+    console.log(`[verify-all] ${gate} probe served from this composite's static child (${url}) — reaped cleanly`);
   };
-  process.on('SIGINT', onSigint);
-  const code = await new Promise((resolveCode) => {
-    child.on('error', () => resolveCode(1));
-    child.on('close', resolveCode);
-  });
-  process.removeListener('SIGINT', onSigint);
-  if (interrupted) {
-    await new Promise((r) => server.close(r));
-    console.error('\n✗ verify-all interrupted (SIGINT) — probe child reaped, static server closed');
-    process.exit(130);
-  }
-  if (code !== 0) {
-    await new Promise((r) => server.close(r));
-    die('verify:km');
-  }
-  console.log(`[verify-all] km probe served from its own static child (${url}) — reaped cleanly`);
+  await runManagedProbe('verify:km', 'scripts/verify-katex-mermaid.mjs', ['--url', url]);
 
   // 6b. the stacking-isolation probe (stacking-isolation, 2026-09-09):
   // SELF-MANAGED server lifecycle — the probe serves the dist itself
@@ -266,6 +277,13 @@ await (async () => {
   } catch {
     die('verify:isolation');
   }
+
+  // 6c. verify-print over the SAME managed artifact (2026-09-09): the
+  // print probe's --url channel — it never touches the standalone
+  // PORT trust contract inside this composite. MUST stay above
+  // server.close() (the wiring-order lesson, archived POSTSCRIPT)
+  step("verify:print (browser probe — this composite's managed dist server)");
+  await runManagedProbe('verify:print', 'scripts/verify-print.mjs', [`--url=${url}`]);
 
   await new Promise((r) => server.close(r));
 })();

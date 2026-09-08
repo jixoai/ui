@@ -1,5 +1,5 @@
 <!--
-  jxoai docs pager (docs-restructure, 2026-08-25). The page relations on
+  jixoai docs pager (docs-restructure, 2026-08-25). The page relations on
   every component page: previous / next along the taxonomy reading order
   (first/last fall back to the listing / docs home) + same-group related
   links, NEAREST FIRST (design D7). Rendered BY THE LAYOUT on

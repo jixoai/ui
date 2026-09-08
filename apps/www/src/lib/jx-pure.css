@@ -523,6 +523,12 @@
 .jx-color-shell {
   display: flex;
   flex: none;
+  /* the shell's internal ladder (swatch z1, pipette ::after z2, the
+     custom-picker overlay z1) is COMPONENT-PRIVATE: container-type
+     does NOT establish a stacking context (measured, the isolation
+     clause 2026-09-09), so the shell roots it explicitly — the
+     deferred class-(a) tail cleared */
+  isolation: isolate;
   /* fit-content protects the ratio-derived width from stretch (grid
      tracks, block flow) while aspect-ratio + the locked height keep
      it the chip's intrinsic 7:4 */
@@ -595,6 +601,10 @@
 .jx-color-shell::after {
   content: '';
   position: absolute;
+  /* decorative carrier (the law's TRANSIENT INK family) + a ladder
+     rung — z2 orders against the swatch z1 INSIDE the shell, whose
+     own isolation: isolate roots the ladder (the isolation clause,
+     2026-09-09; the shell rule lives in the hand zone above) */
   z-index: 2;
   /* proportional optics: glyph ≈ 36% of the lane, end inset ≈ 27% —
      scale with the container, not with font size */

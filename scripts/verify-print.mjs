@@ -63,6 +63,15 @@
 //               queries, fluid vw typography, freeze transitions)
 //
 // Run: node scripts/verify-print.mjs   (PORT=… to retarget)
+//      node scripts/verify-print.mjs --url http://127.0.0.1:<p>
+//
+// ARTIFACT OWNERSHIP (the 4173 lesson, made structural 2026-09-09):
+// the standalone PORT form still trusts whatever answers there — a
+// stale server holding OLD dist once satisfied it for six days. The
+// composite (verify-all) therefore NEVER uses the PORT form: it
+// passes --url pointing at ITS OWN throwaway managed server
+// (listen(0), one-shot, closed on every exit path — the verify:km
+// pattern), so the probe provably hits this run's artifact.
 import { chromium } from 'playwright-core';
 import { homedir } from 'node:os';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -70,6 +79,10 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+// --url (the composite's managed-server channel) wins outright; the
+// PORT form is the standalone/manual contract only
+const urlArg = process.argv.find((a) => a.startsWith('--url='));
+const BASE = urlArg ? urlArg.slice('--url='.length).replace(/\/$/, '') : null;
 const PORT = process.env.PORT ?? '4173';
 // playwright-core resolves from the root package.json's devDependencies (the
 // earlier absolute import path was a dev-machine artifact that broke CI).
@@ -102,7 +115,10 @@ const portOpen = () =>
     s.on('error', () => yes(false));
   });
 let serverProc = null;
-if (!(await portOpen())) {
+if (BASE !== null) {
+  // the managed channel: the URL is ours by construction — no probe,
+  // no spawn, nothing to trust
+} else if (!(await portOpen())) {
   const dist = join(root, 'apps/www/dist');
   if (!existsSync(dist)) {
     console.error('FAIL  no server on :' + PORT + ' and no apps/www/dist to self-serve — build first');
@@ -181,7 +197,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 1080 } });
 await page.addInitScript(() => {
   window.print = () => {};
 });
-await page.goto(`http://localhost:${PORT}/docs/paged.html`);
+await page.goto(`${BASE ?? `http://localhost:${PORT}`}/docs/paged.html`);
 await page.waitForLoadState('domcontentloaded');
 // readiness = the print layer hydrated (its controls exist)
 await page.waitForSelector('[data-jx-print-controls]', { timeout: 30000 });
@@ -1424,7 +1440,7 @@ await page.evaluate(() => {
   const fingerprint = async (vw, vh) => {
     const ctx = await browser.newContext({ viewport: { width: vw, height: vh } });
     const p = await ctx.newPage();
-    await p.goto(`http://localhost:${PORT}/docs/components/accordion.html`, { waitUntil: 'domcontentloaded' });
+    await p.goto(`${BASE ?? `http://localhost:${PORT}`}/docs/components/accordion.html`, { waitUntil: 'domcontentloaded' });
     await p.waitForSelector('[data-print-source] [data-jx-print-sim-toggle]', { timeout: 20000 });
     await p.click('[data-print-source] [data-jx-print-sim-toggle]');
     await p.waitForSelector('.pagedjs_page', { timeout: 30000 });

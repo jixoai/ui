@@ -48,7 +48,7 @@
   const bar = getContext<MenubarApi>(MENUBAR_KEY);
   const item = getContext<MenubarItemApi>(MENUBAR_ITEM_KEY);
   if (!bar || !item) {
-    throw new Error('jxoai menubar: MenubarPanel must live inside a MenubarItem inside a Menubar');
+    throw new Error('jixoai menubar: MenubarPanel must live inside a MenubarItem inside a Menubar');
   }
 
   const panelId = `${item.id}-panel`;

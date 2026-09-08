@@ -11,6 +11,7 @@
   import { onMount } from 'svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import {
     Item,
     ItemGroup,
@@ -147,6 +148,19 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
 
 <!-- component opinion: the same single prop as any rung -->
 <ItemGroup density="2xs"><!-- … --></ItemGroup>`;
+
+  // The scene's source channel (guide sweep, 2026-09-09): the demo
+  // itself cannot join the extraction lane — its selects BIND page
+  // state (bind:value — the liveness IS the demo) and the rows walk
+  // page consts, exactly what the extractor's self-containment guard
+  // rejects by design. The honest drawer is the REAL kernel: the
+  // sheet's 2xs scope block, regex-extracted from the very css this
+  // site runs (?raw — the variant-grammar technique), so the numbers
+  // on stage and the bytes in the drawer share one source. Empty
+  // output would mean the sheet drifted (the same guard the scale
+  // table's live reads provide).
+  import sheet from '$lib/jixoai.css?raw';
+  const density2xsScope = /\/\* ── the 2xs scope[\s\S]*?\n\}/.exec(sheet)?.[0] ?? '';
 </script>
 
 <svelte:head>
@@ -264,6 +278,13 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
         title="The same inspector at 2xs and at default"
         summary="A plausible pro-tool inspector — a layers list, property rows with selects, a tool strip — built from real registry components (the Item family, Select, PressButton, Badge, Kbd). Left: the whole panel inside a 2xs scope. Right: the identical scene at default density. Nothing per-size in any component's css; one attribute moves every row."
       >
+        <ComponentCanvas
+          title="the inspector scene — 2xs beside default"
+          description="A plausible pro-tool inspector composed from real registry components: left inside a data-density='2xs' scope, right identical at default. One attribute moves every row; nothing per-size exists in any component's css. The drawer carries the sheet's REAL 2xs scope block (live extract from jixoai.css) — the scoped 24px hit floor and every alias the stage consumes."
+          files={[{ name: 'src/lib/jixoai.css — the 2xs scope (live extract)', content: density2xsScope, lang: 'css' }]}
+          stage="fill"
+          scroll="grow"
+        >
         <div class="grid gap-6 xl:grid-cols-2">
           {#snippet scene(r: Rung, caption: string)}
             <figure class="min-w-0">
@@ -338,6 +359,7 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
           {@render scene('2xs', 'operation surface · data-density="2xs"')}
           {@render scene('default', 'the same scene · default')}
         </div>
+        </ComponentCanvas>
         <ul class="mt-4 flex flex-col gap-2 text-[13px] leading-6">
           <li class="flex gap-2">
             <span class="text-primary" aria-hidden="true">&gt;</span>

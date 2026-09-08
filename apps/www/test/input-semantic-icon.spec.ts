@@ -83,6 +83,26 @@ describe('the semantic glyph lane — DOM stamps', () => {
   });
 });
 
+describe('the isolation clause on the input ladder hosts (source-pinned)', () => {
+  // 2026-09-09 input-color-isolation: the deferred class-(a) tails —
+  // every z ladder in the input faces roots in its own stacking context
+  it('the floating-label and picker-overlay ladders are component-private', () => {
+    expect(css).toContain('.jx-html-control-shell.jx-floating');
+    const floating = css.match(/:where\(\.jx-html-control-shell\.jx-floating\)\s*\{[^}]*\}/)?.[0] ?? '';
+    expect(floating).toContain('isolation: isolate');
+    expect(css).toContain(':where(.jx-html-control-shell:has(.jx-picker-overlay))');
+    const overlayHost = css.match(/:where\(\.jx-html-control-shell:has\(\.jx-picker-overlay\)\)\s*\{[^}]*\}/)?.[0] ?? '';
+    expect(overlayHost).toContain('isolation: isolate');
+  });
+
+  it("the color shell roots its whole internal ladder (container-type is NOT a stacking context)", () => {
+    const pure = readFileSync(resolve(here, '../src/lib/jx-pure.css'), 'utf8');
+    const shell = pure.match(/\.jx-color-shell\s*\{[^}]*\}/)?.[0] ?? '';
+    expect(shell).toContain('isolation: isolate');
+    expect(shell).toContain('container-type: size');
+  });
+});
+
 describe('the semantic glyph lane — the css axis (source-pinned)', () => {
   it('the order ladder gives every shell child an explicit rung', () => {
     // the ladder: 0 stepper− · 1 start-slot · 2 GLYPH·lead · 10 lane

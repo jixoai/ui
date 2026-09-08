@@ -1,5 +1,5 @@
 <!--
-  jxoai button variant scope (registry/files/ui/button-group/
+  jixoai button variant scope (registry/files/ui/button-group/
   button-variant-scope.svelte, r14 tuning 2 — Owner: "Context 技术无法
   控制 DialogHeader/DialogFooter 里面的 button 的默认变体吗？").
 

@@ -1,10 +1,32 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import IconTable, { type IconRow } from '$lib/icon-table/icon-table.svelte';
   import Icon from '$lib/ui/icon';
+  import { usageFile } from '$lib/canvas-usage';
   import { ICON_NAMES, getIcon } from '$lib/icon-set.gen';
+
+  // The canvas same-source lane (guide sweep, 2026-09-09): the live
+  // demos below ride ComponentCanvas whose drawer usage files compose
+  // from the canvas's own extracted markup. The size ladder is
+  // UNROLLED to literal cells (extraction is byte-honest only when
+  // the markup references nothing outside itself), and the channel
+  // gallery cells are static literals BY LAW (the scanner's own
+  // dogfood) — extraction just quotes them back.
+  import { resolveRawCode } from 'virtual:jixoai-canvas/docs/icons.html/+page';
+
+  const sizesUsage = usageFile({ Icon: '@ui/icon' }, resolveRawCode('sizes'));
+  const channelGalleryUsage = usageFile({ Icon: '@ui/icon' }, resolveRawCode('channel-gallery'));
+
+  const sizesFiles: TreeFile[] = [
+    { name: 'src/lib/icon-sizes-usage.svelte', content: sizesUsage, kind: 'usage' },
+  ];
+  const channelGalleryFiles: TreeFile[] = [
+    { name: 'src/lib/icon-channels-usage.svelte', content: channelGalleryUsage, kind: 'usage' },
+  ];
 
   // ══ SECTION 4 data — the CSS-slot vocabulary (hand data per the
   //     design contract: 9 concept slots ⇔ the --jx-icon-* variable
@@ -537,14 +559,32 @@ plain beside a stock ink is impossible by construction.`;
         summary="The named-glyph renderer every component shares: name is the generated IconName union (a wrong name never ships — it fails the compile), the component owns the whole svg root (currentColor by artwork nature, aria-hidden baked in), and size / strokeWidth are props, never wrapper CSS. The full API table, the interactive playground and the async-paths walkthrough live on the component's own page."
       >
         <div class="flex flex-col gap-5">
-          <div class="flex flex-wrap items-end gap-x-10 gap-y-5" data-icon-size-demo="">
-            {#each [12, 16, 24, 32] as px (px)}
+          <ComponentCanvas
+            id="sizes"
+            title="the size ladder — one prop, four cells"
+            description="size and strokeWidth are props, never wrapper CSS; the inline core paints synchronously, SSR-safe. The drawer's usage file is this ladder's exact markup (unrolled to literal cells so the sample stands alone)."
+            files={sizesFiles}
+            stage="center"
+          >
+            <div class="flex flex-wrap items-end justify-center gap-x-10 gap-y-5" data-icon-size-demo="">
               <div class="flex flex-col items-center gap-2">
-                <Icon name="eye" size={px} />
-                <code class="text-muted-foreground font-mono text-[11px]">size={px}</code>
+                <Icon name="eye" size={12} />
+                <code class="text-muted-foreground font-mono text-[11px]">size={12}</code>
               </div>
-            {/each}
-          </div>
+              <div class="flex flex-col items-center gap-2">
+                <Icon name="eye" size={16} />
+                <code class="text-muted-foreground font-mono text-[11px]">size={16}</code>
+              </div>
+              <div class="flex flex-col items-center gap-2">
+                <Icon name="eye" size={24} />
+                <code class="text-muted-foreground font-mono text-[11px]">size={24}</code>
+              </div>
+              <div class="flex flex-col items-center gap-2">
+                <Icon name="eye" size={32} />
+                <code class="text-muted-foreground font-mono text-[11px]">size={32}</code>
+              </div>
+            </div>
+          </ComponentCanvas>
           <a
             class="text-accent w-fit text-[13px] underline underline-offset-2"
             href="/docs/components/icon.html"
@@ -664,7 +704,7 @@ plain beside a stock ink is impossible by construction.`;
             </tbody>
           </table>
           <CodeBlock code={channelConfig} lang="ts" meta="channels: [md(), ph(), rx()]" />
-          <div class="flex flex-col gap-4" data-channel-gallery="">
+          <div class="flex flex-col gap-4">
             <p class="text-muted-foreground text-[13px] leading-6">
               Rendered live, from THIS site's own build — not stock artwork. The cells below are the
               real <code class="text-accent">&lt;Icon name&gt;</code> component resolving channel refs the
@@ -676,50 +716,60 @@ plain beside a stock ink is impossible by construction.`;
               an AI reading apps/www/vite.config.ts + this file sees the capability exercised
               end-to-end.
             </p>
-            <!-- STATIC literals by law: the scanner collects static
-                 name="…" attributes only — a dynamic name={expr} here
-                 would be unpacked at runtime (the runtime lane), not
-                 scanned. These six cells ARE the dogfood. -->
-            <div class="flex flex-wrap gap-3">
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:home">
-                <Icon name="md:home" size={24} />
-                <code class="text-muted-foreground font-mono text-[11px]">md:home</code>
-                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · outlined/400</span>
+            <ComponentCanvas
+              id="channel-gallery"
+              title="the channel gallery — live from this site's own build"
+              description="Rendered by the real <Icon name> component resolving channel refs the scanner collected out of this very page's source: three shipped channels, the lucide built-in, and the equivalence law visible — lucide:check renders the SAME glyph as check beside it. The drawer's usage file is this gallery's exact markup, static literals and all."
+              files={channelGalleryFiles}
+              stage="fill"
+            >
+              <div class="flex flex-col gap-3" data-channel-gallery="">
+                <!-- STATIC literals by law: the scanner collects static
+                     name="…" attributes only — a dynamic name={expr} here
+                     would be unpacked at runtime (the runtime lane), not
+                     scanned. These six cells ARE the dogfood. -->
+                <div class="flex flex-wrap gap-3">
+                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:home">
+                    <Icon name="md:home" size={24} />
+                    <code class="text-muted-foreground font-mono text-[11px]">md:home</code>
+                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · outlined/400</span>
+                  </div>
+                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:copy_all">
+                    <Icon name="md:copy_all" size={24} />
+                    <code class="text-muted-foreground font-mono text-[11px]">md:copy_all</code>
+                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · snake_case</span>
+                  </div>
+                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="ph:atom">
+                    <Icon name="ph:atom" size={24} />
+                    <code class="text-muted-foreground font-mono text-[11px]">ph:atom</code>
+                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">phosphor · regular</span>
+                  </div>
+                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="rx:system:add-line">
+                    <Icon name="rx:system:add-line" size={24} />
+                    <code class="text-muted-foreground font-mono text-[11px]">rx:system:add-line</code>
+                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">remix · category-prefixed</span>
+                  </div>
+                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="check">
+                    <Icon name="check" size={24} />
+                    <code class="text-muted-foreground font-mono text-[11px]">check</code>
+                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · built-in</span>
+                  </div>
+                  <div class="border-primary/40 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="lucide:check">
+                    <Icon name="lucide:check" size={24} />
+                    <code class="text-muted-foreground font-mono text-[11px]">lucide:check</code>
+                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · equivalence → check</span>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 border-border border p-4" data-alias-demo="">
+                  <Icon name="md:copy_all as copy2" size={20} />
+                  <Icon name="copy2" size={20} />
+                  <span class="text-muted-foreground text-[13px] leading-6">
+                    the <code class="text-accent">as</code> form, live: the left cell writes the full literal, the right
+                    resolves the alias — ONE packed payload, three legal spellings (the artifact's ALIASES row)
+                  </span>
+                </div>
               </div>
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:copy_all">
-                <Icon name="md:copy_all" size={24} />
-                <code class="text-muted-foreground font-mono text-[11px]">md:copy_all</code>
-                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · snake_case</span>
-              </div>
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="ph:atom">
-                <Icon name="ph:atom" size={24} />
-                <code class="text-muted-foreground font-mono text-[11px]">ph:atom</code>
-                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">phosphor · regular</span>
-              </div>
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="rx:system:add-line">
-                <Icon name="rx:system:add-line" size={24} />
-                <code class="text-muted-foreground font-mono text-[11px]">rx:system:add-line</code>
-                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">remix · category-prefixed</span>
-              </div>
-              <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="check">
-                <Icon name="check" size={24} />
-                <code class="text-muted-foreground font-mono text-[11px]">check</code>
-                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · built-in</span>
-              </div>
-              <div class="border-primary/40 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="lucide:check">
-                <Icon name="lucide:check" size={24} />
-                <code class="text-muted-foreground font-mono text-[11px]">lucide:check</code>
-                <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · equivalence → check</span>
-              </div>
-            </div>
-            <div class="flex flex-wrap items-center gap-3 border-border border p-4" data-alias-demo="">
-              <Icon name="md:copy_all as copy2" size={20} />
-              <Icon name="copy2" size={20} />
-              <span class="text-muted-foreground text-[13px] leading-6">
-                the <code class="text-accent">as</code> form, live: the left cell writes the full literal, the right
-                resolves the alias — ONE packed payload, three legal spellings (the artifact's ALIASES row)
-              </span>
-            </div>
+            </ComponentCanvas>
           </div>
           <div class="border-border flex flex-col gap-2 border p-4" data-not-shipped-note="">
             <p class="font-nav text-[11px] uppercase tracking-[0.24em]">not shipped — and why</p>

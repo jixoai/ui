@@ -661,7 +661,7 @@ function isHtmlDetails(node: ParsedNode): boolean {
  *  branch of the mapper reuses it for a details at non-top-level
  *  position, where the group merge never sees it). */
 export function detailsToAccordionItem(node: ParsedNode): AccordionItemPayload {
-  if (!isHtmlDetails(node)) throw new Error('[jxoai markdown] accordion item expects a details node');
+  if (!isHtmlDetails(node)) throw new Error('[jixoai markdown] accordion item expects a details node');
   const children = node.children ?? [];
   const summaryNode = children.find((child) => child.type === 'html_block' && child.tag === 'summary');
   const summary =

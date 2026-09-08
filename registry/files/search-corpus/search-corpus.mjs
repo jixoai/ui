@@ -558,7 +558,7 @@ export async function generateSearchCorpus(distDir, config = {}) {
   pages.sort((a, b) => a.url.localeCompare(b.url));
 
   const corpus = {
-    generator: 'jxoai search-corpus 2',
+    generator: 'jixoai search-corpus 2',
     generatedAt: new Date().toISOString(),
     pages,
   };

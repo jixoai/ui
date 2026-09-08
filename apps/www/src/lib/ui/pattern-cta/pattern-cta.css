@@ -15,6 +15,9 @@
   :where(.jx-pattern-cta)::after {
     content: '+';
     position: absolute;
+    /* decorative corner carriers — TRANSIENT INK (the law's category
+       exit): a self-contained micro-ladder over the pattern's own
+       surface, annotated per the annotated-use contract */
     z-index: 1;
     font-family: var(--font-nav);
     font-size: 0.75rem;

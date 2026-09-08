@@ -421,7 +421,10 @@
   view-transition-name: site-header;
 }
 
-/* ── the nav indicator: morphs between pages, slowest layer ── */
+/* ── the view-transition pseudo-groups (PLATFORM POSITIONING — the
+   law's category exit: ::view-transition-group lives in the browser's
+   own snapshot context, never the page's shared ladder). The nav
+   indicator group: morphs between pages, slowest layer ── */
 :where(html[data-vt-kind='page-carousel']::view-transition-group(vt-nav-active)){
   z-index: 5;
   animation-duration: 450ms;

@@ -1,5 +1,7 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { onMount } from 'svelte';
 
@@ -12,6 +14,20 @@
   // the island demo copies the document's COMPILED styles — the raw
   // source no longer carries literal declarations for @apply rules
   import { onDestroy } from 'svelte';
+
+  // The canvas same-source lane (guide sweep, 2026-09-09): every demo
+  // below rides a ComponentCanvas whose drawer carries (a) the REAL
+  // registry css this site runs (?raw mirror) and (b) a usage file
+  // composed from the canvas's own extracted markup — jx-pure demos
+  // are plain HTML, so the usage file IS the extraction, byte for
+  // byte (no script block, no imports: two link tags and a class).
+  import { resolveRawCode } from 'virtual:jixoai-canvas/docs/jx-pure.html/+page';
+  import jxPureCss from '$lib/jx-pure.css?raw';
+
+  const jxPureFiles = (id: string, sample: string): TreeFile[] => [
+    { name: 'src/lib/jx-pure.css', content: jxPureCss },
+    { name: `src/lib/jx-pure-${id}-usage.html`, content: sample, kind: 'usage', lang: 'html' },
+  ];
 
   const install = `# the componentless face — one css, zero js
 npx jixoai-ui add jx-pure`;
@@ -158,24 +174,33 @@ this.shadowRoot.append(style);
         title="Typography"
         summary="Headings, prose, quotes, code, marks and rules — the document-flow elements preflight usually strips, restored with the jixoai law: mono-first fonts, 1px var(--border) edges, muted-foreground for the secondary voice. Everything below is BARE HTML inside a single .jx-pure div — view source, there is not one utility class in the demo."
       >
-        <div class="jx-pure" style="max-width: 46rem">
-          <h3>Heading level three</h3>
-          <p>
-            A paragraph of ordinary copy. The quick brown fox jumps over the lazy dog while
-            <strong>strong</strong> and <small>small</small> keep their voices —
-            <a href="#typography">a primary link</a> underlines on hover, and
-            <code>inline code</code> sits in a muted box. Press <kbd>⌘K</kbd> to open the palette.
-          </p>
-          <blockquote>
-            The platform already built the semantics — the separator, the quote, the term list.
-            jx-pure only paints them.
-          </blockquote>
-          <pre><code>const law = 'one stylesheet, zero js';
-document.body.classList.add('jx-pure');</code></pre>
-          <p><mark>Marked text</mark> rides the secondary hue at 45% — a token mix, never a hardcoded yellow.</p>
-          <hr />
-          <p>Below the rule, the document keeps flowing.</p>
-        </div>
+        <ComponentCanvas
+          id="typography"
+          title="jx-pure · typography"
+          description="Headings, prose, quotes, code, marks and rules — bare HTML inside one .jx-pure div. The drawer's usage file is this demo's exact markup; the css file beside it is the real registry copy this site runs."
+          files={jxPureFiles('typography', resolveRawCode('typography'))}
+          stage="fill"
+          scroll="grow"
+        >
+          <div class="jx-pure" style="max-width: 46rem">
+            <h3 data-doc-demo-heading>Heading level three</h3>
+            <p>
+              A paragraph of ordinary copy. The quick brown fox jumps over the lazy dog while
+              <strong>strong</strong> and <small>small</small> keep their voices —
+              <a href="#typography">a primary link</a> underlines on hover, and
+              <code>inline code</code> sits in a muted box. Press <kbd>⌘K</kbd> to open the palette.
+            </p>
+            <blockquote>
+              The platform already built the semantics — the separator, the quote, the term list.
+              jx-pure only paints them.
+            </blockquote>
+            <pre><code>const law = 'one stylesheet, zero js';
+	document.body.classList.add('jx-pure');</code></pre>
+            <p><mark>Marked text</mark> rides the secondary hue at 45% — a token mix, never a hardcoded yellow.</p>
+            <hr />
+            <p>Below the rule, the document keeps flowing.</p>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -187,29 +212,37 @@ document.body.classList.add('jx-pure');</code></pre>
         title="Buttons"
         summary="The .jx-press physics restated element-scoped: hover grows the token shadow over a muted fill, active presses +1px into the page with the *-press twin — no WAAPI, no second geometry law. Links that must LOOK like buttons take the explicit .jx-button class (never an auto-styled a[role=button] — CSS cannot add command semantics)."
       >
-        <div class="grid gap-6 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">inside .jx-pure — the law</span>
-            <div class="jx-pure flex flex-wrap items-center gap-3">
-              <button type="button">plain button</button>
-              <button type="button" disabled>disabled</button>
-              <input type="button" value="input button" />
-              <a class="jx-button" href="#buttons">a.jx-button</a>
-              <a href="#buttons">plain link</a>
+        <ComponentCanvas
+          id="buttons"
+          title="jx-pure · buttons"
+          description="The .jx-press physics restated element-scoped; the right column is the same markup OUTSIDE the scope — the opt-in is structural, so untouched UA paint is the contrast fixture, not a second demo."
+          files={jxPureFiles('buttons', resolveRawCode('buttons'))}
+          stage="fill"
+        >
+          <div class="grid gap-6 min-[760px]:grid-cols-2">
+            <div class="flex flex-col gap-3">
+              <span class="text-muted-foreground text-[11px]">inside .jx-pure — the law</span>
+              <div class="jx-pure flex flex-wrap items-center gap-3">
+                <button type="button">plain button</button>
+                <button type="button" disabled>disabled</button>
+                <input type="button" value="input button" />
+                <a class="jx-button" href="#buttons">a.jx-button</a>
+                <a href="#buttons">plain link</a>
+              </div>
+            </div>
+            <div class="flex flex-col gap-3">
+              <span class="text-muted-foreground text-[11px]">outside the scope — untouched UA paint</span>
+              <div class="flex flex-wrap items-center gap-3">
+                <button type="button">plain button</button>
+                <button type="button" disabled>disabled</button>
+                <a href="#buttons">plain link</a>
+              </div>
+              <span class="text-muted-foreground text-[11px]">
+                opt-in is structural: no class on the ancestor, no jixoai face
+              </span>
             </div>
           </div>
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">outside the scope — untouched UA paint</span>
-            <div class="flex flex-wrap items-center gap-3">
-              <button type="button">plain button</button>
-              <button type="button" disabled>disabled</button>
-              <a href="#buttons">plain link</a>
-            </div>
-            <span class="text-muted-foreground text-[11px]">
-              opt-in is structural: no class on the ancestor, no jixoai face
-            </span>
-          </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -221,6 +254,14 @@ document.body.classList.add('jx-pure');</code></pre>
         title="Forms"
         summary="The migrated native-form law, now element-scoped under a TYPE ALLOWLIST: text-like lanes take the bordered box; checkbox/radio/range/color are full pure-CSS repaints (native state, label and FormData keep working — appearance:none strips paint only). select is ALWAYS the jx chevron inside .jx-pure (gradient-drawn, single-select); number keeps its PLATFORM stepper (the only zero-JS stepper there is); time/date/month/week lanes carry the ink indicators. hidden/file are never touched. Layering (D3): Tier 1 keeps the platform controls by law — the registry Input component builds on these same classes and layers the custom ones on top (the −/+ number stepper, the embedded Calendar/month/time panels); its bare native-controls attribute opts back into the platform behavior shown here."
       >
+        <ComponentCanvas
+          id="forms"
+          title="jx-pure · forms — the type allowlist"
+          description="The migrated native-form law, element-scoped: text-like lanes take the bordered box; checkbox/radio/range/color are full pure-CSS repaints (native state, label and FormData keep working); select always carries the jx chevron inside the scope; number keeps its platform stepper. The no-jx-pure select island demonstrates the reverse scope."
+          files={jxPureFiles('forms', resolveRawCode('forms'))}
+          stage="fill"
+          scroll="grow"
+        >
         <div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 60rem">
           <form onsubmit={(e) => e.preventDefault()}>
             <fieldset>
@@ -299,6 +340,7 @@ document.body.classList.add('jx-pure');</code></pre>
             </label>
           </div>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -310,16 +352,24 @@ document.body.classList.add('jx-pure');</code></pre>
         title="details / summary"
         summary="Document-flow disclosure only — dialog, popover and tooltip surfaces stay Tier-2 (their top-layer + closing-order laws are component territory). The summary row carries a bordered square marker that statically swaps + ↔ −; the visible focus ring is never replaced by the marker; no open/close animation ships (progressive enhancement, reduced-motion safe by construction)."
       >
-        <div class="jx-pure" style="max-width: 40rem">
-          <details>
-            <summary>What is included in v1?</summary>
-            <p>Typography, links, buttons, the form lanes, disclosure, lists, and tables — everything on this page.</p>
-          </details>
-          <details open>
-            <summary>And what is deliberately not?</summary>
-            <p>Floating surfaces (dialog / popover / tooltip — Tier-2 territory) and select popup internals. The platform keeps those: their top-layer and closing-order laws are component ground.</p>
-          </details>
-        </div>
+        <ComponentCanvas
+          id="disclosure"
+          title="jx-pure · details / summary"
+          description="Document-flow disclosure only — the summary row carries the bordered square marker that statically swaps + ↔ −; the visible focus ring is never replaced by the marker."
+          files={jxPureFiles('disclosure', resolveRawCode('disclosure'))}
+          stage="fill"
+        >
+          <div class="jx-pure" style="max-width: 40rem">
+            <details>
+              <summary>What is included in v1?</summary>
+              <p>Typography, links, buttons, the form lanes, disclosure, lists, and tables — everything on this page.</p>
+            </details>
+            <details open>
+              <summary>And what is deliberately not?</summary>
+              <p>Floating surfaces (dialog / popover / tooltip — Tier-2 territory) and select popup internals. The platform keeps those: their top-layer and closing-order laws are component ground.</p>
+            </details>
+          </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -331,31 +381,39 @@ document.body.classList.add('jx-pure');</code></pre>
         title="nav · lists · dl"
         summary="Nav links read as chrome — foreground at rest, primary + underline on hover (prose links are primary at rest). ol/ul get their document-flow markers back (preflight strips them) themed muted; dl pairs as a two-column definition grid with the nav-font term voice."
       >
-        <div class="grid gap-6 min-[760px]:grid-cols-2">
-          <div class="jx-pure" style="max-width: 28rem">
-            <nav>
-              <a href="#nav-lists">docs</a> · <a href="#nav-lists">registry</a> · <a href="#nav-lists">tokens</a>
-            </nav>
-            <ul>
-              <li>an unordered item</li>
-              <li>another one, marker themed muted</li>
-            </ul>
-            <ol>
-              <li>ordered steps keep decimals</li>
-              <li>second step</li>
-            </ol>
+        <ComponentCanvas
+          id="nav-lists"
+          title="jx-pure · nav · lists · dl"
+          description="Nav links read as chrome — foreground at rest, primary + underline on hover; ol/ul get their document-flow markers back themed muted; dl pairs as a two-column definition grid with the nav-font term voice."
+          files={jxPureFiles('nav-lists', resolveRawCode('nav-lists'))}
+          stage="fill"
+        >
+          <div class="grid gap-6 min-[760px]:grid-cols-2">
+            <div class="jx-pure" style="max-width: 28rem">
+              <nav>
+                <a href="#nav-lists">docs</a> · <a href="#nav-lists">registry</a> · <a href="#nav-lists">tokens</a>
+              </nav>
+              <ul>
+                <li>an unordered item</li>
+                <li>another one, marker themed muted</li>
+              </ul>
+              <ol>
+                <li>ordered steps keep decimals</li>
+                <li>second step</li>
+              </ol>
+            </div>
+            <div class="jx-pure" style="max-width: 28rem">
+              <dl>
+                <dt>tier 0</dt>
+                <dd>jx-pure — the componentless face (this page)</dd>
+                <dt>tier 1</dt>
+                <dd>the class vocabulary, Part A of the same file</dd>
+                <dt>tier 2</dt>
+                <dd>the Svelte components consuming the classes</dd>
+              </dl>
+            </div>
           </div>
-          <div class="jx-pure" style="max-width: 28rem">
-            <dl>
-              <dt>tier 0</dt>
-              <dd>jx-pure — the componentless face (this page)</dd>
-              <dt>tier 1</dt>
-              <dd>the class vocabulary, Part A of the same file</dd>
-              <dt>tier 2</dt>
-              <dd>the Svelte components consuming the classes</dd>
-            </dl>
-          </div>
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -367,21 +425,29 @@ document.body.classList.add('jx-pure');</code></pre>
         title="Tables"
         summary="The bordered grid law: 1px var(--border) cells, nav-font small-caps headers on a muted fill, hover leans rows via a token mix. Caption rides the bottom as the documentation voice."
       >
-        <div class="jx-pure" style="max-width: 44rem">
-          <table>
-            <caption>engine coverage for the v1 repaints</caption>
-            <thead>
-              <tr><th>element</th><th>chromium</th><th>firefox</th><th>webkit</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>checkbox / radio</td><td>verified: clip-path + dot</td><td>same law, unverified build</td><td>same law, unverified build</td></tr>
-              <tr><td>range</td><td>verified: webkit pseudos</td><td>-moz pseudos authored</td><td>webkit pseudos authored</td></tr>
-              <tr><td>date/time indicator</td><td>verified: mask glyph</td><td>native indicator</td><td>native indicator</td></tr>
-              <tr><td>select.jx-select</td><td>verified: gradient chevron</td><td>same law, unverified build</td><td>same law, unverified build</td></tr>
-              <tr><td>progress / meter</td><td>verified: track family + token fills</td><td>-moz bar pseudos authored</td><td>native bar (webkit pseudos)</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <ComponentCanvas
+          id="tables"
+          title="jx-pure · tables"
+          description="The bordered grid law: 1px var(--border) cells, nav-font small-caps headers on a muted fill, hover leans rows via a token mix; the caption rides the bottom as the documentation voice."
+          files={jxPureFiles('tables', resolveRawCode('tables'))}
+          stage="fill"
+        >
+          <div class="jx-pure" style="max-width: 44rem">
+            <table>
+              <caption>engine coverage for the v1 repaints</caption>
+              <thead>
+                <tr><th>element</th><th>chromium</th><th>firefox</th><th>webkit</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>checkbox / radio</td><td>verified: clip-path + dot</td><td>same law, unverified build</td><td>same law, unverified build</td></tr>
+                <tr><td>range</td><td>verified: webkit pseudos</td><td>-moz pseudos authored</td><td>webkit pseudos authored</td></tr>
+                <tr><td>date/time indicator</td><td>verified: mask glyph</td><td>native indicator</td><td>native indicator</td></tr>
+                <tr><td>select.jx-select</td><td>verified: gradient chevron</td><td>same law, unverified build</td><td>same law, unverified build</td></tr>
+                <tr><td>progress / meter</td><td>verified: track family + token fills</td><td>-moz bar pseudos authored</td><td>native bar (webkit pseudos)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </ComponentCanvas>
         <p class="text-muted-foreground mt-3 text-[13px] leading-6">
           Chromium is the verified engine of record for v1 — the other columns state the authored
           law, not a verified build. Every repaint degrades to native paint under forced-colors,
@@ -398,6 +464,14 @@ document.body.classList.add('jx-pure');</code></pre>
         title="progress · meter · output · figure"
         summary="The completion round (2026-08-24): progress and meter ride the 8px track family — meter maps its semantics onto tokens (optimum=primary, suboptimal=secondary, even-less-good=destructive; no hardcoded traffic lights), progress's indeterminate state trades the fill for a sliding stripe that parks under reduced motion. output is the mono result lane; figure carries the bordered plate with the caption law below, and media never overflows its lane."
       >
+        <ComponentCanvas
+          id="media-flow"
+          title="jx-pure · progress · meter · output · figure"
+          description="The completion round: progress and meter ride the 8px track family (meter maps its semantics onto tokens, no hardcoded traffic lights), the indeterminate state trades the fill for a sliding stripe, output is the mono result lane, and figure carries the bordered plate with the caption law below."
+          files={jxPureFiles('media-flow', resolveRawCode('media-flow'))}
+          stage="fill"
+          scroll="grow"
+        >
         <div class="grid gap-6 min-[760px]:grid-cols-2">
           <div class="jx-pure flex flex-col gap-4" style="max-width: 30rem">
             <div>
@@ -431,6 +505,7 @@ document.body.classList.add('jx-pure');</code></pre>
             <p><small>media (img / video) never exceeds its lane; the plate's 1px border is the figure law.</small></p>
           </div>
         </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -442,13 +517,21 @@ document.body.classList.add('jx-pure');</code></pre>
     title="switch — role=switch on a checkbox"
     summary="The Pico contract, zero classes: role='switch' on a bare checkbox inside .jx-pure becomes the jixoai switch — square track, square knob with hard on/off contrast (off: muted track + background knob; on: primary track + primary-foreground knob), logical travel (RTL-native), native state/label/FormData untouched. Sizes sm/md/lg (32×20 / 40×24 / 48×28) via the wrapper class or on the input itself."
   >
-    <div class="jx-pure flex flex-wrap items-center gap-6" style="max-width: 44rem">
-      <label class="jx-switch-sm"><input type="checkbox" role="switch" /> sm auto-save</label>
-      <label><input type="checkbox" role="switch" /> md notifications</label>
-      <label class="jx-switch-lg"><input type="checkbox" role="switch" checked /> lg telemetry</label>
-      <label><input type="checkbox" role="switch" disabled /> locked</label>
-      <label><input type="checkbox" role="switch" aria-invalid="true" checked /> failing</label>
-    </div>
+    <ComponentCanvas
+      id="switch"
+      title="jx-pure · switch — role=switch on a checkbox"
+      description="The Pico contract, zero classes: role='switch' on a bare checkbox inside .jx-pure becomes the jixoai switch — square track, square knob with hard on/off contrast, logical travel, native state/label/FormData untouched. Sizes sm/md/lg via the wrapper class or the input itself."
+      files={jxPureFiles('switch', resolveRawCode('switch'))}
+      stage="fill"
+    >
+      <div class="jx-pure flex flex-wrap items-center gap-6" style="max-width: 44rem">
+        <label class="jx-switch-sm"><input type="checkbox" role="switch" /> sm auto-save</label>
+        <label><input type="checkbox" role="switch" /> md notifications</label>
+        <label class="jx-switch-lg"><input type="checkbox" role="switch" checked /> lg telemetry</label>
+        <label><input type="checkbox" role="switch" disabled /> locked</label>
+        <label><input type="checkbox" role="switch" aria-invalid="true" checked /> failing</label>
+      </div>
+    </ComponentCanvas>
   </SectionCard>
 </div>
 
@@ -460,6 +543,13 @@ document.body.classList.add('jx-pure');</code></pre>
     title="Validation states — the aria-invalid matrix"
     summary="The Pico state contract on the SEMANTIC palette (success / warning / info / error tokens now in jixoai.css): aria-invalid='false' leans --success ('✓' ink glyph + success border); aria-invalid='true' flips every accent to --error (dashed lanes + '!' ink, checked checkbox/radio fills, the switch track, the range fill + thumb). --destructive is untouched — it stays the monochrome inversion pair for destructive actions. Native :invalid is deliberately NOT hooked."
   >
+    <ComponentCanvas
+      id="validation"
+      title="jx-pure · validation — the aria-invalid matrix"
+      description="The Pico state contract on the semantic palette: aria-invalid='false' leans --success; aria-invalid='true' flips every accent to --error (dashed lanes, checked fills, the switch track, the range fill + thumb). --destructive is untouched. Native :invalid is deliberately NOT hooked."
+      files={jxPureFiles('validation', resolveRawCode('validation'))}
+      stage="fill"
+    >
     <div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 52rem">
       <form onsubmit={(e) => e.preventDefault()} class="flex flex-col gap-3">
         <label for="v-ok">valid lane (aria-invalid='false')</label>
@@ -480,6 +570,7 @@ document.body.classList.add('jx-pure');</code></pre>
         </div>
       </div>
     </div>
+    </ComponentCanvas>
   </SectionCard>
 </div>
 
@@ -491,6 +582,13 @@ document.body.classList.add('jx-pure');</code></pre>
         title="Dark mode"
         summary="Theme rides the token sheet's classes — .dark on the root (or any ancestor, or the scope itself) flips every token; the scope root carries color-scheme so native pickers and scrollbars follow. NO hand-copied tokens and NO bootstrap JS: OS-following dark for zero-JS pages is the GENERATED .jx-auto-dark variant (below). The panels are the SAME bare markup — the only difference is the theme class."
       >
+        <ComponentCanvas
+          id="dark-mode"
+          title="jx-pure · dark mode — the same bare markup, one class apart"
+          description="Theme rides the token sheet's classes: .dark on any ancestor (or the scope itself) flips every token; .jx-light forces light under a dark root. The three panels are byte-identical markup — only the theme class differs."
+          files={jxPureFiles('dark-mode', resolveRawCode('dark-mode'))}
+          stage="fill"
+        >
         <div class="grid gap-6 min-[760px]:grid-cols-2">
           <div class="flex flex-col gap-2">
             <span class="text-muted-foreground text-[11px]">&lt;div class="jx-pure"&gt; — light (inherits :root)</span>
@@ -528,6 +626,7 @@ document.body.classList.add('jx-pure');</code></pre>
             </div>
           </div>
         </div>
+        </ComponentCanvas>
         <div class="border-border mt-5 border-t pt-5">
           <h3 class="text-[15px] font-bold tracking-tight">System-follow, still zero JS — .jx-auto-dark</h3>
           <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">

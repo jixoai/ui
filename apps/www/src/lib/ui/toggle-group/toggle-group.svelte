@@ -103,7 +103,7 @@
   // svelte-ignore state_referenced_locally
   if (type === 'single' && !name) {
     throw new Error(
-      'jxoai toggle-group: single mode requires `name` — radio grouping and arrow-walking are name-scoped',
+      'jixoai toggle-group: single mode requires `name` — radio grouping and arrow-walking are name-scoped',
     );
   }
 

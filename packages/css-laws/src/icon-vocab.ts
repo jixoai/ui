@@ -111,6 +111,10 @@ function paletteMaskRules(): string {
 .jx-color-shell::after {
   content: '';
   position: absolute;
+  /* decorative carrier (the law's TRANSIENT INK family) + a ladder
+     rung — z2 orders against the swatch z1 INSIDE the shell, whose
+     own isolation: isolate roots the ladder (the isolation clause,
+     2026-09-09; the shell rule lives in the hand zone above) */
   z-index: 2;
   /* proportional optics: glyph ≈ 36% of the lane, end inset ≈ 27% —
      scale with the container, not with font size */

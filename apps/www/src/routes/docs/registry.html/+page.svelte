@@ -8,12 +8,21 @@
   page that documents it · the install command.
 -->
 <script lang="ts">
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { flatComponents, installTargets } from '$lib/docs-route-model';
   import Icon from '$lib/ui/icon';
   import { CATALOG } from '$lib/catalog';
 
   const uiCount = flatComponents.length;
+
+  // The source channel for the inventory table (guide sweep, 2026-09-09):
+  // the rows below render from docs-route-model, so the drawer carries
+  // THAT MODULE'S REAL SOURCE (?raw) — the table and the drawer can
+  // never disagree about what is installable. No canvas id here: the
+  // rows are page data (each-driven) and page-scoped styles, not a
+  // component demo — the same-source lane is the model file itself.
+  import routeModelSource from '$lib/docs-route-model?raw';
 </script>
 
 <svelte:head>
@@ -62,22 +71,30 @@
         Install targets
         <span class="bg-border h-px flex-1" aria-hidden="true"></span>
       </h2>
-      <div class="jx-invtable" role="table" aria-label="non-UI registry items">
-        <div class="jx-invhead" role="row">
-          <span role="columnheader">name</span>
-          <span role="columnheader">type</span>
-          <span role="columnheader">documented on</span>
-          <span role="columnheader">install</span>
+      <ComponentCanvas
+        title="the install-target inventory"
+        description="Every non-UI registry item, rendered live from the route model: name · type · the host page that documents it · the install command. Open the drawer for the model's real source — the single file this table and the Components nav both derive from."
+        files={[{ name: 'src/lib/docs-route-model.ts', content: routeModelSource }]}
+        stage="fill"
+        scroll="grow"
+      >
+        <div class="jx-invtable" role="table" aria-label="non-UI registry items">
+          <div class="jx-invhead" role="row">
+            <span role="columnheader">name</span>
+            <span role="columnheader">type</span>
+            <span role="columnheader">documented on</span>
+            <span role="columnheader">install</span>
+          </div>
+          {#each installTargets as item (item.name)}
+            <a class="jx-invrow" role="row" href={item.href}>
+              <span class="jx-inv-name" role="cell">{item.name}</span>
+              <span data-jx-inv-type role="cell">{item.type.replace('registry:', '')}</span>
+              <span class="jx-inv-docs" role="cell">{item.href}</span>
+              <span class="jx-inv-cmd" role="cell">npx jixoai-ui add {item.name}</span>
+            </a>
+          {/each}
         </div>
-        {#each installTargets as item (item.name)}
-          <a class="jx-invrow" role="row" href={item.href}>
-            <span class="jx-inv-name" role="cell">{item.name}</span>
-            <span data-jx-inv-type role="cell">{item.type.replace('registry:', '')}</span>
-            <span class="jx-inv-docs" role="cell">{item.href}</span>
-            <span class="jx-inv-cmd" role="cell">npx jixoai-ui add {item.name}</span>
-          </a>
-        {/each}
-      </div>
+      </ComponentCanvas>
       <p class="text-muted-foreground mt-4 flex items-start gap-1.5 font-mono text-xs leading-5">
         <span class="text-primary mt-0.5 flex-none" aria-hidden="true"><Icon name="arrowRight" size={12} /></span>
         <span>jx-pure additionally carries its own chapter under Sections (the componentless face)

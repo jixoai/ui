@@ -11,7 +11,7 @@
 
 <div class="flex h-full w-full flex-col gap-5 p-10">
   <div class="flex flex-wrap items-center justify-between gap-3">
-    <h2 class="font-nav text-lg tracking-tight">antd concept → jxoai recipe</h2>
+    <h2 class="font-nav text-lg tracking-tight">antd concept → jixoai recipe</h2>
     <Badge>where wrapping stops</Badge>
   </div>
   <Table caption="the deliberate non-components" dense>

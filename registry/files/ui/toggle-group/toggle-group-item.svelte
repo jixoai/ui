@@ -53,7 +53,7 @@
 
   const group = getContext<ToggleGroupApi>(TOGGLE_GROUP_KEY);
   if (!group) {
-    throw new Error('jxoai toggle-group: ToggleGroupItem must live inside a ToggleGroup');
+    throw new Error('jixoai toggle-group: ToggleGroupItem must live inside a ToggleGroup');
   }
 
   const active = $derived(group.isActive(value));

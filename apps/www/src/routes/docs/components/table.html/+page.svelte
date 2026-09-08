@@ -266,12 +266,17 @@
     `width: min(${frameWidth}px, 100%); --jx-table-hover: ${hoverMixes[hoverTone] ?? hoverMixes.brand};`,
   );
 
+  // the pins need REAL overflow to engage (2026-09-09 followup T2: at
+  // the old short values scrollWidth == clientWidth everywhere in
+  // 300–1280px — the sticky law had no live surface on this page).
+  // Runtime/Region + full dates push the natural width past ~900px, so
+  // every frame the slider offers below that genuinely scrolls.
   const consumers = [
-    { name: 'unipty', host: 'unipty.jixoai.com', status: 'live', items: 12, coverage: 92, since: '2025-11' },
-    { name: 'openspecui', host: 'openspecui.com', status: 'live', items: 9, coverage: 78, since: '2026-01' },
-    { name: 'ui.jixoai.com', host: 'this site', status: 'live', items: 24, coverage: 100, since: '2026-08' },
-    { name: 'jixoai/www', host: 'internal', status: 'beta', items: 6, coverage: 45, since: '2026-08' },
-    { name: 'agent-console', host: 'internal', status: 'wip', items: 3, coverage: 12, since: '2026-07' },
+    { name: 'unipty', host: 'unipty.jixoai.com', status: 'live', items: 12, coverage: 92, since: '2025-11-04', runtime: 'bun 1.2.19', region: 'ap-southeast-1' },
+    { name: 'openspecui', host: 'openspecui.com', status: 'live', items: 9, coverage: 78, since: '2026-01-17', runtime: 'node 24.20.0', region: 'eu-central-1' },
+    { name: 'ui.jixoai.com', host: 'this site', status: 'live', items: 24, coverage: 100, since: '2026-08-30', runtime: 'bun 1.2.19', region: 'us-east-2' },
+    { name: 'jixoai/www', host: 'internal', status: 'beta', items: 6, coverage: 45, since: '2026-08-12', runtime: 'node 22.14.0', region: 'cn-north-1' },
+    { name: 'agent-console', host: 'internal', status: 'wip', items: 3, coverage: 12, since: '2026-07-03', runtime: 'deno 2.3.5', region: 'ap-northeast-1' },
   ] as const;
 
   // ---- recipe code samples (the drawer's usage files) --------------------
@@ -636,6 +641,8 @@ ${close}
               <th scope="col" class="text-right">Items</th>
               <th scope="col">Coverage</th>
               <th scope="col">Since</th>
+              <th scope="col">Runtime</th>
+              <th scope="col">Region</th>
               <th data-sticky="end" scope="col">Docs</th>
             </tr>
           </thead>
@@ -657,6 +664,8 @@ ${close}
                   <span class="meter-value">{consumer.coverage}%</span>
                 </td>
                 <td data-label="Since">{consumer.since}</td>
+                <td data-label="Runtime">{consumer.runtime}</td>
+                <td data-label="Region">{consumer.region}</td>
                 <td data-sticky="end" data-label="Docs">
                   <a class="doc-link" href={`https://${consumer.host === 'this site' ? 'ui.jixoai.com' : consumer.host}/`} target="_blank" rel="noreferrer">view</a>
                 </td>
@@ -664,14 +673,14 @@ ${close}
             {/each}
           </tbody>
           <tfoot>
-            <tr><td>Total</td><td>—</td><td class="text-right">54</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Total</td><td>—</td><td class="text-right">54</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           </tfoot>
         </Table>
       </div>
       {#snippet playground()}
         <PlayFields>
           <PlayRow label="frame width">
-            <PlayRange bind:value={frameWidth} min={240} max={680} step={8} />
+            <PlayRange bind:value={frameWidth} min={240} max={960} step={8} />
           </PlayRow>
           <PlayRow label="stack" hint="below 30rem">
             <PlayToggle bind:value={stack} />
@@ -684,8 +693,11 @@ ${close}
           </PlayRow>
           <PlayHelp>
             The frame is the container: cross 30rem and the scroll law (data-sticky pins) flips
-            into the card law (data-label rows). brand hover follows --brand-hue — the site hue
-            runtime recolors it live; consumers override one var per instance.
+            into the card law (data-label rows). The rows overflow for real below ~900px — drag
+            mid-range and scroll: the Consumer pin rides the start edge, the Docs pin the end,
+            the header corners sit a rung above the row pins (z3 over z2). brand hover follows
+            --brand-hue — the site hue runtime recolors it live; consumers override one var per
+            instance.
           </PlayHelp>
         </PlayFields>
       {/snippet}

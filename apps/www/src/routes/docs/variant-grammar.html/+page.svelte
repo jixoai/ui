@@ -4,6 +4,8 @@
   import Blockquote from '$lib/ui/blockquote/blockquote.svelte';
   import Chip from '$lib/ui/chip/chip.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
   import Kbd from '$lib/ui/kbd/kbd.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -11,7 +13,15 @@
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import Icon from '$lib/ui/icon';
+  import { usageFile } from '$lib/canvas-usage';
   import { cn } from '$lib/utils';
+
+  // The canvas same-source lane (guide sweep, 2026-09-09): every live
+  // demo below rides a ComponentCanvas whose drawer usage file composes
+  // from THIS PAGE's own canvas markup — the hand-written usage string
+  // (and its `const close` dodge) is gone; the taught string IS the
+  // shown string.
+  import { resolveRawCode } from 'virtual:jixoai-canvas/docs/variant-grammar.html/+page';
 
   // ToC lives in +page.ts (firstpaint era: the layout's chrome snippet
   // owns the rail from page data) — keep the section ids in sync there.
@@ -27,8 +37,6 @@
     /@utility jx-hue-primary \{[\s\S]*?@utility jx-pair-destructive \{[\s\S]*?\n\}/.exec(
       sheet,
     )?.[0] ?? '';
-
-  const close = '</' + 'script>';
 
   // the normative paint recipes (variant-grammar design.md §1)
   const recipes = `/* fill — loudest */
@@ -69,20 +77,64 @@ color: var(--foreground);`;
 /* the tonal rung is this recipe with var(--primary) generalized to
    var(--jx-tonal) — one hue source instead of a hardcoded brand */`;
 
-  const intentUsage = `<script lang="ts">
-  import Badge from '@ui/badge.svelte';
-  import PressButton from '@ui/press-button.svelte';
-  import { cn } from '@lib/utils';
-${close}
+  // ── the per-canvas usage files (one source, two surfaces: the drawer
+  //    and the usage CodeBlock feed from the same composed string) ──
+  const ladderUsage = usageFile(
+    {
+      Alert: '@ui/alert',
+      Badge: '@ui/badge',
+      Blockquote: '@ui/blockquote',
+      Chip: '@ui/chip',
+      InlineCode: '@ui/inline-code',
+      PressButton: '@ui/press-button',
+    },
+    resolveRawCode('ladder'),
+  );
+  const injectionUsage = usageFile(
+    {
+      Alert: '@ui/alert',
+      Badge: '@ui/badge',
+      Chip: '@ui/chip',
+      Icon: '@ui/icon',
+      PressButton: '@ui/press-button',
+    },
+    resolveRawCode('injection'),
+  );
+  const intentUtilitiesUsage = usageFile(
+    { Badge: '@ui/badge', PressButton: '@ui/press-button' },
+    resolveRawCode('intent-utilities'),
+  );
+  const dedupeUsage = usageFile({ Badge: '@ui/badge', '{ cn }': '@lib/utils' }, resolveRawCode('dedupe'));
+  const elevationUsage = usageFile(
+    {
+      Badge: '@ui/badge',
+      Blockquote: '@ui/blockquote',
+      Chip: '@ui/chip',
+      Kbd: '@ui/kbd',
+      PressButton: '@ui/press-button',
+    },
+    resolveRawCode('elevation'),
+  );
 
-<!-- STATUS hue: one class, the tonal slot -->
-<Badge class="jx-hue-error">failed</Badge>
+  const ladderFiles: TreeFile[] = [
+    { name: 'src/lib/variant-grammar-ladder-usage.svelte', content: ladderUsage, kind: 'usage' },
+  ];
+  const injectionFiles: TreeFile[] = [
+    { name: 'src/lib/variant-grammar-injection-usage.svelte', content: injectionUsage, kind: 'usage' },
+  ];
+  const intentUtilitiesFiles: TreeFile[] = [
+    { name: 'src/lib/variant-grammar-intent-usage.svelte', content: intentUtilitiesUsage, kind: 'usage' },
+  ];
+  const dedupeFiles: TreeFile[] = [
+    { name: 'src/lib/variant-grammar-dedupe-usage.svelte', content: dedupeUsage, kind: 'usage' },
+  ];
+  const elevationFiles: TreeFile[] = [
+    { name: 'src/lib/variant-grammar-elevation-usage.svelte', content: elevationUsage, kind: 'usage' },
+  ];
 
-<!-- destructive ACTION: the pair — both fill slots, one class -->
-<PressButton variant="fill" class="jx-pair-destructive">delete workspace</PressButton>
-
-<!-- last-wins is consumer-guaranteed only through cn() dedupe -->
-<Badge class={cn('jx-hue-error', 'jx-hue-success')}>passing</Badge>`;
+  // the page-level usage sample (the plugin section's CodeBlock) composes
+  // from the injection canvas — the same string its drawer ships
+  const intentUsage = injectionUsage;
 
   const dedupeCode = `import { cn } from '@lib/utils';
 
@@ -153,63 +205,74 @@ split — two utilities; both properties land:
         summary="Prominence is a ladder, and it is the ONLY thing the variant prop encodes. fill speaks loudest (solid ground, same-hue border, inverted ink); tonal is the tinted voice (a 12% tint of the hue); outline draws structure only (transparent ground, border-colored border); ghost is interactive chrome (transparent at rest, tonal on hover, geometry preserved through a transparent border). fused is the backdrop-fusion rung (2026-09-08): paint derived from the ground BEHIND the element — a transparent chip + a backdrop contrast filter pull whatever sits behind toward mid, so the band reads over any ground with zero color tokens; the quietest rung, no own color, the filter IS the frame (forced-colors repaints it CanvasText). link is deliberately NOT on the ladder — it is PressButton's one interaction exception: no frame, no press shadow, primary text, hover underline. Availability is per-component: banners never get fill (readability), badges never get ghost (they are display, not chrome), quotes stop at outline/tonal — quote readability excludes fill/ghost, and ghost is interactive-chrome vocabulary a static quote misuses (the Blockquote row joins the frozen availability table in the same two-rung shape as Alert)."
       >
         <div class="flex flex-col gap-6">
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">PressButton — the full union (default: outline)</span>
-            <div class="flex flex-wrap items-center gap-3">
-              <PressButton variant="fill">deploy</PressButton>
-              <PressButton variant="tonal">preview</PressButton>
-              <PressButton variant="outline">cancel</PressButton>
-              <PressButton variant="ghost">skip</PressButton>
-              <PressButton variant="link">read the docs</PressButton>
-            </div>
-          </div>
-          <div class="grid gap-6 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-3">
-              <span class="text-muted-foreground text-[11px]">Badge — fill / tonal (default) / outline</span>
-              <div class="flex flex-wrap items-center gap-3">
-                <Badge variant="fill">new</Badge>
-                <Badge>running</Badge>
-                <Badge variant="outline">beta</Badge>
+          <ComponentCanvas
+            id="ladder"
+            title="the ladder — every rung, live"
+            description="One prop per surface, one ladder shared by every painted module: PressButton's full union (link included — the interaction exception), Badge and Chip on their frozen subsets, Alert/Blockquote on the reading two, InlineCode riding fused as its own default."
+            files={ladderFiles}
+            stage="fill"
+            scroll="grow"
+          >
+            <div class="flex flex-col gap-6">
+              <div class="flex flex-col gap-3">
+                <span class="text-muted-foreground text-[11px]">PressButton — the full union (default: outline)</span>
+                <div class="flex flex-wrap items-center gap-3">
+                  <PressButton variant="fill">deploy</PressButton>
+                  <PressButton variant="tonal">preview</PressButton>
+                  <PressButton variant="outline">cancel</PressButton>
+                  <PressButton variant="ghost">skip</PressButton>
+                  <PressButton variant="link">read the docs</PressButton>
+                </div>
               </div>
-              <span class="text-muted-foreground text-[11px]">
-                Chip — all four rungs, control-scale on the hit lane
-              </span>
-              <div class="flex flex-wrap items-center gap-3">
-                <Chip variant="fill">filter: owner</Chip>
-                <Chip>filter: open</Chip>
-                <Chip variant="outline">filter: label</Chip>
-                <Chip variant="ghost">clear filters</Chip>
+              <div class="grid gap-6 min-[760px]:grid-cols-2">
+                <div class="flex flex-col gap-3">
+                  <span class="text-muted-foreground text-[11px]">Badge — fill / tonal (default) / outline</span>
+                  <div class="flex flex-wrap items-center gap-3">
+                    <Badge variant="fill">new</Badge>
+                    <Badge>running</Badge>
+                    <Badge variant="outline">beta</Badge>
+                  </div>
+                  <span class="text-muted-foreground text-[11px]">
+                    Chip — all four rungs, control-scale on the hit lane
+                  </span>
+                  <div class="flex flex-wrap items-center gap-3">
+                    <Chip variant="fill">filter: owner</Chip>
+                    <Chip>filter: open</Chip>
+                    <Chip variant="outline">filter: label</Chip>
+                    <Chip variant="ghost">clear filters</Chip>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-3">
+                  <span class="text-muted-foreground text-[11px]">
+                    Alert — outline (default) / tonal; Blockquote — outline (default) / tonal;
+                    InlineCode — fused (default) / tonal / outline
+                  </span>
+                  <Alert variant="tonal" title="Build queued">
+                    The canary build enters the queue behind two commits.
+                  </Alert>
+                  <Alert title="Heads up">
+                    Outline keeps the muted body — the neutral rung's own ink ramp for long copy.
+                  </Alert>
+                  <Blockquote variant="tonal" label="Note">
+                    The quote surface rides the same two rungs as the banner — availability frozen
+                    (fill/ghost excluded: readability, and ghost is interactive-chrome vocabulary).
+                  </Blockquote>
+                  <Blockquote cite="the variant grammar, §ladder">
+                    Outline is the classic left-rule quote — the reading-content posture, own default;
+                    the rule itself is now the shadow channel (an inset rule at 1px by default, the
+                    rule×size axis beside the rungs).
+                  </Blockquote>
+                  <p class="text-[13px] leading-6">
+                    Inline code rides the same ladder:
+                    <InlineCode>npm run verify</InlineCode> is the fused default (the band fused
+                    from the backdrop behind it), and
+                    <InlineCode variant="tonal">npm run verify</InlineCode> is its tonal twin —
+                    <InlineCode variant="outline">npm run verify</InlineCode> the structural one.
+                  </p>
+                </div>
               </div>
             </div>
-            <div class="flex flex-col gap-3">
-              <span class="text-muted-foreground text-[11px]">
-                Alert — outline (default) / tonal; Blockquote — outline (default) / tonal;
-                InlineCode — fused (default) / tonal / outline
-              </span>
-              <Alert variant="tonal" title="Build queued">
-                The canary build enters the queue behind two commits.
-              </Alert>
-              <Alert title="Heads up">
-                Outline keeps the muted body — the neutral rung's own ink ramp for long copy.
-              </Alert>
-              <Blockquote variant="tonal" label="Note">
-                The quote surface rides the same two rungs as the banner — availability frozen
-                (fill/ghost excluded: readability, and ghost is interactive-chrome vocabulary).
-              </Blockquote>
-              <Blockquote cite="the variant grammar, §ladder">
-                Outline is the classic left-rule quote — the reading-content posture, own default;
-                the rule itself is now the shadow channel (an inset rule at 1px by default, the
-                rule×size axis beside the rungs).
-              </Blockquote>
-              <p class="text-[13px] leading-6">
-                Inline code rides the same ladder:
-                <InlineCode>npm run verify</InlineCode> is the fused default (the band fused
-                from the backdrop behind it), and
-                <InlineCode variant="tonal">npm run verify</InlineCode> is its tonal twin —
-                <InlineCode variant="outline">npm run verify</InlineCode> the structural one.
-              </p>
-            </div>
-          </div>
+          </ComponentCanvas>
           <div class="table-scroll">
             <table class="data-table">
               <thead>
@@ -377,59 +440,68 @@ split — two utilities; both properties land:
               </tbody>
             </table>
           </div>
-          <div class="grid gap-6 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-3">
-              <span class="text-muted-foreground text-[11px]">STATUS hues — the tonal slot, reported states</span>
-              <div class="flex flex-wrap items-center gap-3">
-                <Badge class="jx-hue-neutral">draft</Badge>
-                <Badge class="jx-hue-error">failed</Badge>
-                <Badge shape="pill" class="jx-hue-success">
-                  {#snippet slotStart()}<Icon name="check" />{/snippet}
-                  passing
-                </Badge>
-                <Badge class="jx-hue-warning">degraded</Badge>
-                <Badge class="jx-hue-info">canary</Badge>
-              </div>
-              <span class="text-muted-foreground text-[11px]">ACTION hue — the fill pair, verbs that destroy</span>
-              <div class="flex flex-wrap items-center gap-3">
-                <PressButton variant="fill" class="jx-pair-destructive">delete workspace</PressButton>
-                <PressButton variant="outline">cancel</PressButton>
-              </div>
-              <p class="text-muted-foreground text-[13px] leading-6">
-                The pair law: <code class="text-accent">--jx-fill</code> and
-                <code class="text-accent">--jx-fill-ink</code> are ALWAYS injected together — one
-                without the other paints brand ink on a destructive ground.
-              </p>
-            </div>
-            <div class="flex flex-col gap-3">
-              <span class="text-muted-foreground text-[11px]">
-                the same failure, both grammars — STATUS error (left) vs ACTION destructive (right)
-              </span>
-              <div class="grid gap-3">
-                <Alert variant="tonal" assertive title="Canary failed">
-                  The canary build errored on seat 3 — an error STATUS reads tonal + the error hue.
-                </Alert>
+          <ComponentCanvas
+            id="injection"
+            title="hue injection — status vs action, live"
+            description="STATUS hues ride the tonal slot on things that report (Badge, Alert); the ACTION hue rides the fill pair on things that destroy (PressButton + jx-pair-destructive). The right column is the same failure in both grammars, and the inheritance demo: one jx-hue-info on a wrapper retunes every consumer below it."
+            files={injectionFiles}
+            stage="fill"
+            scroll="grow"
+          >
+            <div class="grid gap-6 min-[760px]:grid-cols-2">
+              <div class="flex flex-col gap-3">
+                <span class="text-muted-foreground text-[11px]">STATUS hues — the tonal slot, reported states</span>
                 <div class="flex flex-wrap items-center gap-3">
-                  <span class="text-muted-foreground text-[11px]">confirm the destructive action:</span>
-                  <PressButton variant="fill" class="jx-pair-destructive">discard changes</PressButton>
+                  <Badge class="jx-hue-neutral">draft</Badge>
+                  <Badge class="jx-hue-error">failed</Badge>
+                  <Badge shape="pill" class="jx-hue-success">
+                    {#snippet slotStart()}<Icon name="check" />{/snippet}
+                    passing
+                  </Badge>
+                  <Badge class="jx-hue-warning">degraded</Badge>
+                  <Badge class="jx-hue-info">canary</Badge>
                 </div>
+                <span class="text-muted-foreground text-[11px]">ACTION hue — the fill pair, verbs that destroy</span>
+                <div class="flex flex-wrap items-center gap-3">
+                  <PressButton variant="fill" class="jx-pair-destructive">delete workspace</PressButton>
+                  <PressButton variant="outline">cancel</PressButton>
+                </div>
+                <p class="text-muted-foreground text-[13px] leading-6">
+                  The pair law: <code class="text-accent">--jx-fill</code> and
+                  <code class="text-accent">--jx-fill-ink</code> are ALWAYS injected together — one
+                  without the other paints brand ink on a destructive ground.
+                </p>
               </div>
-              <span class="text-muted-foreground text-[11px]">
-                inheritance — one injection on the wrapper retunes every consumer below
-              </span>
-              <div class="jx-hue-info flex flex-wrap items-center gap-3">
-                <Badge>info badge</Badge>
-                <Chip>info chip</Chip>
-                <PressButton variant="tonal">tonal button</PressButton>
-                <PressButton variant="outline">outline — hover me</PressButton>
+              <div class="flex flex-col gap-3">
+                <span class="text-muted-foreground text-[11px]">
+                  the same failure, both grammars — STATUS error (left) vs ACTION destructive (right)
+                </span>
+                <div class="grid gap-3">
+                  <Alert variant="tonal" assertive title="Canary failed">
+                    The canary build errored on seat 3 — an error STATUS reads tonal + the error hue.
+                  </Alert>
+                  <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-muted-foreground text-[11px]">confirm the destructive action:</span>
+                    <PressButton variant="fill" class="jx-pair-destructive">discard changes</PressButton>
+                  </div>
+                </div>
+                <span class="text-muted-foreground text-[11px]">
+                  inheritance — one injection on the wrapper retunes every consumer below
+                </span>
+                <div class="jx-hue-info flex flex-wrap items-center gap-3">
+                  <Badge>info badge</Badge>
+                  <Chip>info chip</Chip>
+                  <PressButton variant="tonal">tonal button</PressButton>
+                  <PressButton variant="outline">outline — hover me</PressButton>
+                </div>
+                <p class="text-muted-foreground text-[13px] leading-6">
+                  The wrapper carries <code class="text-accent">class="jx-hue-info"</code> — the
+                  slots are ordinary custom properties, so the subtree inherits them; even the
+                  outline rung's 8% hover overlay follows the retuned hue.
+                </p>
               </div>
-              <p class="text-muted-foreground text-[13px] leading-6">
-                The wrapper carries <code class="text-accent">class="jx-hue-info"</code> — the
-                slots are ordinary custom properties, so the subtree inherits them; even the
-                outline rung's 8% hover overlay follows the retuned hue.
-              </p>
             </div>
-          </div>
+          </ComponentCanvas>
         </div>
       </SectionCard>
     </div>
@@ -498,49 +570,67 @@ split — two utilities; both properties land:
             </table>
           </div>
           <div class="grid gap-6 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-4">
-              <span class="text-muted-foreground text-[11px]">the closed set, live — every intent is one class</span>
-              <div class="flex flex-wrap items-center gap-3">
-                <Badge class="jx-hue-primary">primary</Badge>
-                <Badge class="jx-hue-neutral">neutral</Badge>
-                <Badge class="jx-hue-error">error</Badge>
-                <Badge class="jx-hue-success">success</Badge>
-                <Badge class="jx-hue-warning">warning</Badge>
-                <Badge class="jx-hue-info">info</Badge>
-              </div>
-              <span class="text-muted-foreground text-[11px]">
-                jx-pair-destructive vs the arbitrary pair it replaces
-              </span>
-              <div class="flex flex-wrap items-center gap-3">
-                <PressButton variant="fill" class="jx-pair-destructive">the pair utility</PressButton>
-                <PressButton
-                  variant="fill"
-                  class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
-                >
-                  the arbitrary pair
-                </PressButton>
-              </div>
-              <p class="text-muted-foreground text-[13px] leading-6">
-                Identical paint — but the utility cannot half-apply, cannot typo a token name, and
-                documents its intent in the class list.
-              </p>
-              <span class="text-muted-foreground text-[11px]">the escape hatch — anything outside the closed set</span>
-              <div class="flex flex-wrap items-center gap-3">
-                <Badge class="[--jx-tonal:oklch(0.72_0.14_300)]">untitled violet</Badge>
+            <ComponentCanvas
+              id="intent-utilities"
+              title="the intent layer — live"
+              description="The closed set as one class per intent, the pair utility beside the arbitrary pair it replaces (identical paint; the utility cannot half-apply or typo a token name), and the arbitrary form as the escape hatch for hues no semantic token owns."
+              files={intentUtilitiesFiles}
+              stage="fill"
+            >
+              <div class="flex flex-col gap-4">
+                <span class="text-muted-foreground text-[11px]">the closed set, live — every intent is one class</span>
+                <div class="flex flex-wrap items-center gap-3">
+                  <Badge class="jx-hue-primary">primary</Badge>
+                  <Badge class="jx-hue-neutral">neutral</Badge>
+                  <Badge class="jx-hue-error">error</Badge>
+                  <Badge class="jx-hue-success">success</Badge>
+                  <Badge class="jx-hue-warning">warning</Badge>
+                  <Badge class="jx-hue-info">info</Badge>
+                </div>
                 <span class="text-muted-foreground text-[11px]">
-                  a hue no semantic token owns — the arbitrary form stays canonical for it
+                  jx-pair-destructive vs the arbitrary pair it replaces
                 </span>
+                <div class="flex flex-wrap items-center gap-3">
+                  <PressButton variant="fill" class="jx-pair-destructive">the pair utility</PressButton>
+                  <PressButton
+                    variant="fill"
+                    class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
+                  >
+                    the arbitrary pair
+                  </PressButton>
+                </div>
+                <p class="text-muted-foreground text-[13px] leading-6">
+                  Identical paint — but the utility cannot half-apply, cannot typo a token name, and
+                  documents its intent in the class list.
+                </p>
+                <span class="text-muted-foreground text-[11px]">the escape hatch — anything outside the closed set</span>
+                <div class="flex flex-wrap items-center gap-3">
+                  <Badge class="[--jx-tonal:oklch(0.72_0.14_300)]">untitled violet</Badge>
+                  <span class="text-muted-foreground text-[11px]">
+                    a hue no semantic token owns — the arbitrary form stays canonical for it
+                  </span>
+                </div>
               </div>
-            </div>
+            </ComponentCanvas>
             <div class="flex flex-col gap-4">
-              <span class="text-muted-foreground text-[11px]">
-                cn() dedupe — last-wins, exactly like the arbitrary form
-              </span>
-              <div class="flex flex-wrap items-center gap-3">
-                <Badge class="jx-hue-error">base — error</Badge>
-                <Badge class="jx-hue-error jx-hue-success">naive concat</Badge>
-                <Badge class={dedupedClass}>cn() deduped</Badge>
-              </div>
+              <ComponentCanvas
+                id="dedupe"
+                title="cn() dedupe — last-wins"
+                description="The middle badge carries BOTH classes and the winner is the sheet's internal sort order; the third resolves through cn(), which registers the closed set as tailwind-merge dedupe groups — one class, one hue, guaranteed."
+                files={dedupeFiles}
+                stage="fill"
+              >
+                <div class="flex flex-col gap-4">
+                  <span class="text-muted-foreground text-[11px]">
+                    cn() dedupe — last-wins, exactly like the arbitrary form
+                  </span>
+                  <div class="flex flex-wrap items-center gap-3">
+                    <Badge class="jx-hue-error">base — error</Badge>
+                    <Badge class="jx-hue-error jx-hue-success">naive concat</Badge>
+                    <Badge class={cn('jx-hue-error', 'jx-hue-success')}>cn() deduped</Badge>
+                  </div>
+                </div>
+              </ComponentCanvas>
               <p class="text-muted-foreground text-[13px] leading-6">
                 The middle badge carries BOTH classes — the winner is the sheet's internal sort
                 order, not the order you typed and not your intent. cn() registers the closed set
@@ -931,28 +1021,36 @@ split — two utilities; both properties land:
         summary="Paint says what a surface is; elevation says where it sits. Shadow offset ∝ the distance between an element's plane and the surface it casts upon (Owner ruling, 2026-09-01): the website-scaffold's top layer floats above the shell body, so what crosses that gap projects large, what stays in the layer lifts little, and what is cut into the plane casts nothing outward at all. Ink inverts per theme; geometry never drifts between themes."
       >
         <div class="flex flex-col gap-5">
-          <div class="flex flex-wrap items-end gap-x-10 gap-y-5 text-[12.5px]">
-            <div class="text-muted-foreground flex flex-col gap-2">
-              <PressButton variant="fill">raise</PressButton>
-              <span>press law · xs → sm on hover</span>
+          <ComponentCanvas
+            id="elevation"
+            title="elevation — the five expressions, live"
+            description="raise (press law), engrave (kbd's incised inset), the inset rule consumed as structure (blockquote's shadow rule channel), the raise twin on badge scale, and the flush display glyph — one shadow physics per tier, ink inverted per theme, geometry never drifting."
+            files={elevationFiles}
+            stage="fill"
+          >
+            <div class="flex flex-wrap items-end gap-x-10 gap-y-5 text-[12.5px]">
+              <div class="text-muted-foreground flex flex-col gap-2">
+                <PressButton variant="fill">raise</PressButton>
+                <span>press law · xs → sm on hover</span>
+              </div>
+              <div class="text-muted-foreground flex flex-col gap-2">
+                <Kbd>engrave</Kbd>
+                <span>--shadow-engrave · incised inset</span>
+              </div>
+              <div class="text-muted-foreground flex max-w-[16rem] flex-col gap-2">
+                <Blockquote rule="shadow" ruleSize={4}>inset rule — blockquote's rule channel</Blockquote>
+                <span>shadow-4 · the inset standard consumed as structure</span>
+              </div>
+              <div class="text-muted-foreground flex flex-col gap-2">
+                <Chip variant="outline">raise twin</Chip>
+                <span>badge scale, press physics</span>
+              </div>
+              <div class="text-muted-foreground flex flex-col gap-2">
+                <Badge>flush</Badge>
+                <span>display glyph · no elevation</span>
+              </div>
             </div>
-            <div class="text-muted-foreground flex flex-col gap-2">
-              <Kbd>engrave</Kbd>
-              <span>--shadow-engrave · incised inset</span>
-            </div>
-            <div class="text-muted-foreground flex max-w-[16rem] flex-col gap-2">
-              <Blockquote rule="shadow" ruleSize={4}>inset rule — blockquote's rule channel</Blockquote>
-              <span>shadow-4 · the inset standard consumed as structure</span>
-            </div>
-            <div class="text-muted-foreground flex flex-col gap-2">
-              <Chip variant="outline">raise twin</Chip>
-              <span>badge scale, press physics</span>
-            </div>
-            <div class="text-muted-foreground flex flex-col gap-2">
-              <Badge>flush</Badge>
-              <span>display glyph · no elevation</span>
-            </div>
-          </div>
+          </ComponentCanvas>
           <TokenTable
             tokens={[
               { name: 'float', default: '--shadow · --shadow-md', source: 'topLayer → mainLayer projection — float-button, popover/dialog/menu panels, overlays; the cross-layer distance is the large offset' },

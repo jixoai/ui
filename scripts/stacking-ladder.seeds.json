@@ -1,0 +1,125 @@
+{
+  "_readme": "The B3 hard gate's owner registry (host-resolution linter, followups T5, 2026-09-09). Every static z assignment in registry/files must clear ONE of four exits: (1) var-keyed z — dynamic by design, skipped; (2) z=0 — the relative-z-0 rooting idiom IS the proof; (3) the page-terminal calibrated plane — the whitelisted values below in the whitelisted files; (4) a HOSTS entry whose evidence needle exists in the evidence file at gate time. The registry is bidirectionally asserted: a hosts entry with zero census sites is STALE (fail — the owner was deleted, prune the seed); a census site whose file has no exit is UNREGISTERED (fail — root the ladder or annotate its category, then seed it). Evidence needles are stable substrings (isolation declarations, rooting idioms, category annotations), so a refactor that drops the proof fails the gate even when the seed survives. Seeded from the stacking-isolation archive's three-category table + the input-color-isolation round.",
+  "terminalPlane": {
+    "values": [
+      "40",
+      "80",
+      "90",
+      "100"
+    ],
+    "files": [
+      "registry/files/ui/website-scaffold/website-scaffold.css",
+      "registry/files/ui/float-button/float-button.svelte",
+      "registry/files/ui/toast/toast-viewport.svelte",
+      "registry/files/ui/toc/toc.css"
+    ],
+    "note": "the ONE sanctioned raw-number comparison: content < toc/top-layer 40 < fab 80 < toast 90 < skip-link 100"
+  },
+  "hosts": {
+    "registry/files/theme/jixoai.css": {
+      "evidence": {
+        "file": "registry/files/theme/jixoai.css",
+        "needle": "isolation: isolate"
+      },
+      "note": ".jx-surface — the law's founding precedent; the surface body's z=1/-1 rungs live inside it"
+    },
+    "registry/files/theme/jx-pure.css": {
+      "evidence": {
+        "file": "registry/files/theme/jx-pure.css",
+        "needle": "isolation: isolate"
+      },
+      "note": ".jx-color-shell roots the swatch z1 / pipette z2 pair (container-type does NOT isolate — the clause's measured fact)"
+    },
+    "registry/files/ui/component-canvas/component-canvas.css": {
+      "evidence": {
+        "file": "registry/files/ui/component-canvas/component-canvas.css",
+        "needle": "isolation: isolate"
+      },
+      "note": "the canvas boundaries (.jx-canvas-scroll / .jx-canvas-stage-row) — sweep point 2"
+    },
+    "registry/files/ui/input/input.css": {
+      "evidence": {
+        "file": "registry/files/ui/input/input.css",
+        "needle": "isolation: isolate"
+      },
+      "note": "the floating-label + picker-overlay ladders (input-color-isolation, 2026-09-09)"
+    },
+    "registry/files/ui/press-button/press-button.css": {
+      "evidence": {
+        "file": "registry/files/ui/press-button/press-button.svelte",
+        "needle": "relative z-0"
+      },
+      "note": "the press inset shadows (z=-2/-1) ride under the host's relative z-0 rooting — the markup-utilities proof, sweep inventory"
+    },
+    "registry/files/ui/scroll-run/scroll-run.css": {
+      "evidence": {
+        "file": "registry/files/ui/scroll-run/scroll-run.css",
+        "needle": "isolation: isolate"
+      },
+      "note": ".jx-scroll-host — the incident host itself, sweep point 1"
+    },
+    "registry/files/ui/table/table.css": {
+      "evidence": {
+        "file": "registry/files/ui/table/table.svelte",
+        "needle": "isolate"
+      },
+      "note": "the .jx-table scrollport isolate utility in the markup — the sticky 3/2 ladder's root, sweep point 4"
+    },
+    "registry/files/ui/tabs/tabs-trigger.svelte": {
+      "evidence": {
+        "file": "registry/files/ui/scroll-run/scroll-run.css",
+        "needle": "isolation: isolate"
+      },
+      "note": ".jx-tabs-horizontal carries .jx-scroll-host — the chevron z1 over the veil roots there, sweep point 1"
+    },
+    "registry/files/ui/spin/spin.svelte": {
+      "evidence": {
+        "file": "registry/files/ui/spin/spin.svelte",
+        "needle": "isolate"
+      },
+      "note": "the spin wrap's grid isolate utility, sweep point 6"
+    },
+    "registry/files/ui/terminal-header/terminal-header.css": {
+      "evidence": {
+        "file": "registry/files/ui/terminal-header/terminal-header.css",
+        "needle": "isolation: isolate"
+      },
+      "note": ":where(.jx-nav) roots the links-over-indicator bezel ladder — the sweep's deferred third line, landed with this gate"
+    },
+    "registry/files/ui/website-scaffold/website-scaffold.css": {
+      "evidence": {
+        "file": "registry/files/ui/website-scaffold/website-scaffold.css",
+        "needle": "isolation: isolate"
+      },
+      "note": ".jx-shell-host (sweep point 5) roots the scaffold's internal rungs; the ::view-transition-group z's are PLATFORM POSITIONING (annotated in-file)"
+    },
+    "registry/files/ui/pattern-cta/pattern-cta.css": {
+      "evidence": {
+        "file": "registry/files/ui/pattern-cta/pattern-cta.css",
+        "needle": "TRANSIENT INK"
+      },
+      "note": "decorative corner carriers — the annotated-use category exit"
+    },
+    "registry/files/ui/pattern-login/pattern-login.css": {
+      "evidence": {
+        "file": "registry/files/ui/pattern-login/pattern-login.css",
+        "needle": "TRANSIENT INK"
+      },
+      "note": "decorative corner carriers — the annotated-use category exit"
+    },
+    "registry/files/ui/scroll-area/scroll-area.svelte": {
+      "evidence": {
+        "file": "registry/files/ui/scroll-area/scroll-area.svelte",
+        "needle": "TRANSIENT INK"
+      },
+      "note": "the hover-revealed virtual scrollbar thumb — effect ink over scrollport content, the annotated-use category exit"
+    },
+    "registry/files/ui/timeline/timeline.css": {
+      "evidence": {
+        "file": "registry/files/ui/timeline/timeline.css",
+        "needle": "isolation: isolate"
+      },
+      "note": "the ol ROOT roots the dot/slot z1 rungs over the spine — sweep point 3 (the multi-parent ladder isolates at its TRUE common parent)"
+    }
+  }
+}

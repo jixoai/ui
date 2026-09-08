@@ -57,15 +57,28 @@ for (const [name, css] of sheets) {
 }
 console.log('✓ B2: every data-URI glyph is a slot definition or a slotted use');
 
-// ── B3 (ADVISORY): the z-ladder census (stacking-isolation, 2026-09-09)
-// Every static z-index / z-[n] in the registry sources — sheets AND
-// markup utilities — printed with its file:line so drift surfaces on
-// every gate run. ADVISORY by design this round: the full
-// host-resolution linter (resolve each ladder's common parent, require
-// a stacking-context proof or a category annotation, accept var-keyed
-// calc, flag static-z no-ops) is the recorded follow-up; the HARD half
-// of the law is browser-computed in verify-stacking-isolation.
+// ── B3 (HARD): the z-ladder host-resolution linter (stacking-isolation
+// 2026-09-09; hardened followups T5, 2026-09-09). Every static
+// z-index / z-[n] in the registry sources — sheets AND markup
+// utilities — must clear ONE of four exits:
+//   1. var-keyed z — dynamic by design (toast's calc ladder), skipped;
+//   2. z=0 — the relative-z-0 rooting idiom IS the proof;
+//   3. the page-terminal calibrated plane — seeds.json's whitelisted
+//      values in the whitelisted files (40/80/90/100);
+//   4. a HOSTS entry in stacking-ladder.seeds.json whose evidence
+//      needle exists in the evidence file AT GATE TIME (isolation
+//      declarations, rooting idioms, category annotations — so a
+//      refactor that drops the proof fails even when the seed
+//      survives).
+// The registry asserts BIDIRECTIONALLY: an entry whose file yields no
+// census site is STALE (the owner was deleted — prune the seed); a
+// site with no exit is UNREGISTERED (root the ladder or annotate its
+// category, then seed it). The browser-computed half of the law stays
+// in verify-stacking-isolation; this is its static twin.
 {
+  const seeds = JSON.parse(readFileSync(join(root, 'scripts', 'stacking-ladder.seeds.json'), 'utf8'));
+  const planeValues = new Set(seeds.terminalPlane.values);
+  const planeFiles = new Set(seeds.terminalPlane.files);
   const registryFiles = [];
   const walk = (dir) => {
     for (const name of readdirSync(dir)) {
@@ -75,21 +88,47 @@ console.log('✓ B2: every data-URI glyph is a slot definition or a slotted use'
     }
   };
   walk(resolve(root, 'registry/files'));
-  const census = [];
+  const sites = []; // {rel, line, value}
+  const fileHasSite = new Set();
   for (const p of registryFiles) {
     const rel = p.slice(root.length + 1);
     const lines = readFileSync(p, 'utf8').split('\n');
     lines.forEach((line, i) => {
       for (const m of line.matchAll(/z-index:\s*([^;]+);?|z-\[(-?[a-z0-9]+)\]/g)) {
         const value = (m[1] ?? m[2]).trim();
-        if (/var\(/.test(value)) continue; // var-keyed z (toast's calc ladder) — dynamic by design
-        census.push(`${rel}:${i + 1}  z=${value}`);
+        if (/var\(/.test(value)) continue; // exit 1: var-keyed — dynamic
+        sites.push({ rel, line: i + 1, value });
+        fileHasSite.add(rel);
       }
     });
   }
-  console.log(`ℹ B3 z-ladder census (advisory): ${census.length} static z assignments across registry sheets + markup`);
-  console.log('  ' + census.join('\n  '));
-  console.log('  law: every ladder owner roots its ladder (isolation: isolate / relative z-0) or carries a category annotation — stacking-isolation design');
+  const violations = [];
+  const seededFiles = new Set(Object.keys(seeds.hosts));
+  for (const site of sites) {
+    if (site.value === '0') continue; // exit 2: the rooting idiom itself
+    if (planeValues.has(site.value) && planeFiles.has(site.rel)) continue; // exit 3
+    const host = seeds.hosts[site.rel];
+    if (host === undefined) {
+      violations.push(`UNREGISTERED ladder owner — ${site.rel}:${site.line} z=${site.value} (root the ladder: isolation / relative z-0, or annotate its category — then seed scripts/stacking-ladder.seeds.json)`);
+      continue;
+    }
+    const evidence = readFileSync(join(root, host.evidence.file), 'utf8'); // exit 4
+    if (!evidence.includes(host.evidence.needle)) {
+      violations.push(`HOST PROOF GONE — ${site.rel}:${site.line} z=${site.value} seeds expect "${host.evidence.needle}" in ${host.evidence.file} (the refactor dropped the stacking-context evidence; restore it or re-seed)`);
+    }
+  }
+  for (const rel of seededFiles) {
+    if (!fileHasSite.has(rel)) {
+      violations.push(`STALE seed — ${rel} carries no static z site anymore (prune its hosts entry)`);
+    }
+  }
+  console.log(`ℹ B3 z-ladder host-resolution: ${sites.length} static z sites, ${seededFiles.size} seeded owners, ${planeFiles.size} terminal-plane files`);
+  if (violations.length) {
+    console.error('  ' + violations.join('\n  '));
+    failures += violations.length;
+  } else {
+    console.log('  every static z cleared an exit (var-keyed / z-0 rooting / terminal plane / seeded host proof)');
+  }
 }
 
 if (failures) {

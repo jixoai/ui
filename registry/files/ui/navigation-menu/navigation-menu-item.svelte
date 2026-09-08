@@ -63,7 +63,7 @@
   $effect(() => {
     if (lastId !== undefined && id !== lastId && dev) {
       console.warn(
-        'jxoai navigation-menu: NavigationMenuItem id is mount-stable by contract — changing it is caller error',
+        'jixoai navigation-menu: NavigationMenuItem id is mount-stable by contract — changing it is caller error',
       );
     }
     lastId = id;
