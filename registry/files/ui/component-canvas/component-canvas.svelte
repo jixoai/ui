@@ -3,7 +3,7 @@
   The component documentation workbench: one bordered surface holding the
   LIVE demo area (children snippet on a muted stage), the FLOATING
   playground dock (canvas-playground.svelte — collapsible, draggable,
-  absolute over the stage-row's top-right corner; consumer `playground`
+  grid-stacked over the stage-row's top-right corner; consumer `playground`
   snippet or schema-lowered rows inside ONE integrated ItemGroup), and a
   collapsible code drawer combining tree-view with code-card (highlight +
   copy).
@@ -454,12 +454,16 @@ let codeOpen = $state(false);
     </div>
   </header>
 
-  <!-- the stage-row is the DOCK's positioning context (relative): the
-       floating playground dock mounts as the scroll layer's sibling,
-       absolute over the stage's top-right corner — it never scrolls
-       with stage content and takes pointer events on its own surface
-       only (the stage underneath stays interactive) -->
-  <div class="jx-canvas-stage-row relative flex flex-col">
+  <!-- the stage-row is a ONE-CELL GRID HOST (the Owner stacking law —
+       grid supplies stacking, position is for transient ink): the
+       scroll layer sizes the cell and the floating playground dock
+       mounts as its grid-area 1/1 sibling riding z-index — it never
+       scrolls with stage content and takes pointer events on its own
+       surface only (the stage underneath stays interactive). The grid
+       pose lives in the family sheet (.jx-canvas-stage-row), never in
+       position:* utilities; data-jx-canvas-stage-row is the drag
+       clamp's host hook -->
+  <div data-jx-canvas-stage-row class="jx-canvas-stage-row">
     <!-- the scroll layer (D5): default bounded height + native auto-scroll;
          the NAMED demo container sits on the scrollport so demo container
          queries see the width the scrollbar actually leaves. data-scroll
@@ -468,7 +472,7 @@ let codeOpen = $state(false);
     <div
       data-jx-canvas-scroll
       data-scroll={scroll}
-      class="jx-canvas-scroll @container/jx-canvas flex-1 min-h-0 min-w-0"
+      class="jx-canvas-scroll @container/jx-canvas min-h-0 min-w-0"
     >
       <div
         data-jx-canvas-stage

@@ -20,6 +20,7 @@ export type IconName =
   | 'plus'
   | 'minus'
   | 'ellipsis'
+  | 'gripVertical'
   | 'calendar'
   | 'clock'
   | 'pipette'
@@ -70,6 +71,7 @@ export const ICON_NAMES = [
   'plus',
   'minus',
   'ellipsis',
+  'gripVertical',
   'calendar',
   'clock',
   'pipette',
@@ -122,6 +124,7 @@ const CHUNK_0: Readonly<Record<string, IconData>> = {
   plus: { v: '0 0 24 24', n: 'stroke', d: '<path d="M5 12h14"/><path d="M12 5v14"/>' },
   minus: { v: '0 0 24 24', n: 'stroke', d: '<path d="M5 12h14"/>' },
   ellipsis: { v: '0 0 24 24', n: 'stroke', d: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>' },
+  gripVertical: { v: '0 0 24 24', n: 'stroke', d: '<circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>' },
   calendar: { v: '0 0 24 24', n: 'stroke', d: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>' },
   clock: { v: '0 0 24 24', n: 'stroke', d: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
   pipette: { v: '0 0 24 24', n: 'stroke', d: '<path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>' },
@@ -166,6 +169,7 @@ const CHUNK_OF: Readonly<Record<IconName, number>> = {
   'plus': 0,
   'minus': 0,
   'ellipsis': 0,
+  'gripVertical': 0,
   'calendar': 0,
   'clock': 0,
   'pipette': 0,

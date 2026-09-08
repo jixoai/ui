@@ -42,6 +42,7 @@ export const DEFAULT_LIBRARY_MANIFEST = [
   ['plus', 'Plus'],
   ['minus', 'Minus'],
   ['ellipsis', 'Ellipsis'],
+  ['gripVertical', 'GripVertical'],
   // group 3 — jx-pure Part A mirror set (2026-08-23)
   ['calendar', 'Calendar'],
   ['clock', 'Clock'],

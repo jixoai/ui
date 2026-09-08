@@ -134,20 +134,60 @@
    writes --jx-dock-x as a live custom property and the clamp geometry
    (30cqi of the HOST container) is the canvas's own container story.
    The dock root takes pointer events on its own surface only — the
-   stage underneath stays interactive (no shim). */
+   stage underneath stays interactive (no shim).
+   STACKING (the Owner law, spec css-architecture "grid supplies
+   stacking; position is for transient ink", re-ruled on the dock
+   2026-09-08): the stage-row is a ONE-CELL GRID HOST — the scroll
+   layer sizes the cell, the dock stacks over it as a grid-area 1/1
+   sibling riding z-index (the scroll-run HOST idiom). The dock's
+   birth pose was position:absolute over a relative host — retired at
+   the Owner's word. */
+:where(.jx-canvas-stage-row) {
+  display: grid;
+}
+:where(.jx-canvas-scroll) {
+  grid-area: 1 / 1;
+}
+/* the dock's material (Owner acceptance ruling, 2026-09-08, tuned
+   after the "not translucent" round): the popover ACRYLIC FAMILY
+   (translucent popover fill under backdrop blur) adapted to the dock's
+   ground — --popover is PURE WHITE in light mode and the stage behind
+   is near-white, so the verbatim recipe (72% + brightness(2)) read
+   opaque. The dock tunes the family for its quiet stage: 58% fill,
+   blur(14px) with NO brightness wash — the stage visibly shows
+   through. The reduced-transparency fallback returns the solid
+   popover fill (the jx-surface auto posture). */
 :where([data-jx-canvas-dock]) {
-  position: absolute;
-  inset-block-start: var(--jx-gap);
-  inset-inline-end: var(--jx-gap);
-  width: clamp(240px, 30cqi, 300px);
+  background: var(--jx-surface-acrylic-fill, color-mix(in oklab, var(--popover) 58%, transparent));
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :where([data-jx-canvas-dock]) {
+    background: var(--jx-surface-solid-fill, var(--popover));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+:where([data-jx-canvas-dock]) {
+  grid-area: 1 / 1;
+  z-index: 1;
+  align-self: start;
+  justify-self: end;
+  margin-block-start: var(--jx-gap);
+  margin-inline-end: var(--jx-gap);
+  inline-size: clamp(240px, 30cqi, 300px);
   translate: var(--jx-dock-x, 0px);
   /* the HOST bound (vision-found, 2026-09-08): the soft caps alone
      (26rem/55vh) ignored SHORT hosts and the expanded body spilled
-     over the code bar and the page below. An absolutely-positioned
-     max-block-size resolves against the positioning context (the
-     stage-row), so this caps the whole dock to the stage's height
-     minus both insets; the flex column + the collapse's flex/min-0
-     hand the bound down to the scroller */
+     over the code bar and the page below. A grid item's percentage
+     block size resolves against its grid AREA — the row the scroll
+     layer sizes — so this caps the whole dock to the stage's height
+     minus both gaps; the flex column + the collapse's flex/min-0
+     hand the bound down to the scroller. (When the dock's natural
+     height exceeds the scroll layer's it may grow the row instead —
+     the scroller's own min(26rem, 55vh) cap bounds that growth, so
+     the canvas still never spills outside itself.) */
   max-block-size: calc(100% - var(--jx-gap) * 2);
   display: flex;
   flex-direction: column;

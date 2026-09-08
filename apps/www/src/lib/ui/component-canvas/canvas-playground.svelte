@@ -24,10 +24,13 @@
     collapsed points →, expanded points ↓]. The reset moved OUT of the
     head (exactly four elements, no fifth): the icon-only reset rides
     the body's foot row next to the output dl.
-  - POSE: inset-block-start/-inline-end var(--jx-gap) off the stage-row
-    (which carries position:relative), width clamp(240px, 30cqi, 300px),
-    translate var(--jx-dock-x) for the drag — the residue sheet owns
-    the rule ([data-jx-canvas-dock]); the dock box is a bordered
+  - POSE: a grid-area 1/1 sibling of the scroll layer inside the
+    stage-row's ONE-CELL GRID HOST (the Owner stacking law — grid
+    supplies stacking, position is for transient ink), z-index above,
+    place-self start/end with var(--jx-gap) margins off the host's
+    top-right, width clamp(240px, 30cqi, 300px), translate
+    var(--jx-dock-x) for the drag — the residue sheet owns the rule
+    ([data-jx-canvas-dock]); the dock box is a bordered
     surface card with internal scroll (a capped, guttered scroll region
     under the head; the output foot stays pinned).
   - DRAG: the head ROW is the grab bar. Disambiguation design: pointer
@@ -223,9 +226,11 @@
     dragStartClientX = event.clientX;
     dragBaseX = dockX;
     // measure the clamp window at press: the host is the stage-row (the
-    // dock's offsetParent, position:relative); the inset keeps the box
-    // off both host edges (≈ --jx-gap on each side)
-    const host = dockEl?.offsetParent as HTMLElement | null;
+    // one-cell grid host, found by its attribute — NOT offsetParent:
+    // the dock is a static grid item now, so its offsetParent is
+    // whichever ancestor happens to be positioned, not the host); the
+    // gap keeps the box off both host edges (≈ --jx-gap on each side)
+    const host = dockEl?.closest('[data-jx-canvas-stage-row]') as HTMLElement | null;
     if (dockEl && host) {
       const hostRect = host.getBoundingClientRect();
       const box = dockEl.getBoundingClientRect();
@@ -276,7 +281,7 @@
   bind:this={dockEl}
   style:--jx-dock-x={`${dockX}px`}
   class={cn(
-    'flex flex-col min-w-0 bg-background border border-border shadow-xs text-foreground',
+    'flex flex-col min-w-0 border border-border shadow-xs text-foreground',
     className,
   )}
   aria-label={`Controls for ${title}`}
@@ -300,7 +305,7 @@
         aria-hidden="true"
         data-jx-canvas-dock-grip
       >
-        <Icon name="ellipsis" size={12} />
+        <Icon name="gripVertical" size={12} />
       </span>
       <button
         type="button"
