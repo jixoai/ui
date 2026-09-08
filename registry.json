@@ -443,7 +443,8 @@
         "@jixoai/toc-engine",
         "@jixoai/toc-outline",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon"
+        "@jixoai/icon",
+        "@jixoai/glass"
       ],
       "files": [
         {
@@ -2222,7 +2223,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/scroll-run",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/glass"
       ]
     },
     {
@@ -2787,7 +2789,8 @@
         "@jixoai/icon",
         "@jixoai/website-scaffold",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/glass"
       ]
     },
     {
@@ -4494,6 +4497,48 @@
       "meta": {
         "group": "general",
         "href": "/docs/components/progressive-blur.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "glass",
+      "type": "registry:ui",
+      "title": "Glass",
+      "description": "The ONE glass-effect system (Owner 2026-09-08 「把 glass 和 blur 合并成一个 blur…引入 Liquid Glass」; r10 2026-09-09 the kube.io SOURCE-LEVEL lock): the five retired hand-tuned glass paints unify into ONE typed effect family behind the data-jx-effect='blur'|'liquid-glass' stamp channel. TWO API LAYERS: blur({radius, saturate, fill, brightness}) the zero-JS frost member — css-only, the law sheet's UNCONDITIONAL base paint every engine gets; liquid({...}) the PHYSICAL liquid member — kube.io's generator ported line-level from their shipped bundle (four dome surfaces convex-circle/convex-squircle/concave/lip, the ray-traced profile WITH the glass-slab path term d = T.x/T.y·(H·thickness+bezel), ÷maximumDisplacement-normalized border-swept maps at 2× dpr under the 512² raster cap, the 9-primitive SVG chain in their verbatim order — in-chain frost → feDisplacementMap → rim saturate → the saturated-copy/ring-alpha specular pair); liquid.apple({variant, tint, interactive, shape, isEnabled}) the SEMANTIC layer — SwiftUI glassEffect's standard compiled DOWN into the physical layer (variant regular/clear/identity; tint → a 30% color-mix fill; interactive stamps --jx-glass-interactive:1 for the law's press motion; shape 'capsule'|px overrides the mount radius; isEnabled false or identity → the FROST member, zero lens cost). glass.css is the law sheet (scroll-run posture): the frost base paints unconditionally — liquid's no-JS / no-url()-engines fallback, the retired .jx-glass values verbatim; the @supports (backdrop-filter: url()) branch is POINTER-ONLY for liquid (the mount appends the filter node THEN writes --jx-glass-filter — frost lives INSIDE the chain, a css frost chain under url() would double-blur; blur() never enters the branch); print drops the filters (fill stays); prefers-reduced-transparency paints solid; NO forced-colors block (consumers carry their Canvas grounds). liquid-glass.svelte.ts: use:liquidGlass(fx) wrapping attachLiquidGlass(el, fx) — mount stamps vars → measures (shape override ?? border-radius) → canvas-encodes both maps → appends the zero-size host svg + the chain at element size → writes the pointer LAST; ResizeObserver rAF-coalesced regeneration; the no-canvas (jsdom/ancient) and zero-box guards leave frost standing, no crash. glass-map.ts is the pure core (zero DOM, node-testable). Consumers keep ONLY their element chrome (tint fill, shadow, border-radius) — the kube recipe, documented on the page.",
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/glass/glass.ts",
+          "target": "@ui/glass/glass.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/glass/glass.css",
+          "target": "@ui/glass/glass.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/glass/glass-map.ts",
+          "target": "@ui/glass/glass-map.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/glass/liquid-glass.svelte.ts",
+          "target": "@ui/glass/liquid-glass.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/glass/index.ts",
+          "target": "@ui/glass/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Builders: blur({radius? '14px', saturate? 1.35, fill?, brightness? 1}) the frost member; liquid({surface? 'convex-squircle', bezel? 22 [4,80], thickness? 30 [2,160], scale? 55 [0,160] — absolute element px, kube pins per element, no universal fraction, blur? 0.2 [0,4], specular? 0.2 [0,1], rimSaturate? 4 [1,12]} + the frost fallback pair radius? '2px' / saturate? 1.6 / fill? / brightness?) the physical liquid member; liquid.apple({variant? 'regular'|'clear'|'identity', tint?, interactive?, shape? 'capsule'|number, isEnabled?}) the semantic layer. Numeric args clamp into range; non-finite throws TypeError; surface validates against the enum. Spread {…glassAttrs(fx)} to stamp data-jx-effect + the tuning vars (liquid NEVER carries the --jx-glass-filter pointer — that is the mount action's exclusive write); glassVars(fx) emits the vars string alone. The lens: use:liquidGlass(fx) (or attachLiquidGlass(el, fx) framework-agnostic) — import glass.css once per consuming surface family. Element chrome (tint fill, shadow, border-radius) stays consumer-owned.",
+      "meta": {
+        "group": "general",
+        "href": "/docs/components/glass.html"
       }
     },
     {

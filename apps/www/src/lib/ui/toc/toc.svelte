@@ -58,6 +58,11 @@
   import TocItem from './toc-item.svelte';
   import TocLink from './toc-link.svelte';
   import './toc.css';
+  // the mobile rail's glass paint rides the SHARED stamp channel
+  // (glass-effect design §6): the law sheet paints off data-jx-effect
+  // (the @jixoai/glass dependency edge needs the real import —
+  // verify-deps reads .svelte/.ts imports)
+  import '$lib/ui/glass/glass.css';
 
   /** zero-handwritten-id mode: derive the link tree from a content
    *  root's headings (the toc-outline lib). Client-side derivation —
@@ -350,7 +355,7 @@
     {@render tree()}
   </nav>
 
-  <div class="jx-toc-mobile jx-glass" bind:this={mobileRoot} data-open={open || undefined}>
+  <div class="jx-toc-mobile" data-jx-effect="blur" bind:this={mobileRoot} data-open={open || undefined}>
     <!-- the handler is a pointer-convenience collapse after an anchor
          tap; the links themselves are real anchors (keyboard path
          unaffected — Enter navigates, the rail stays expanded) -->

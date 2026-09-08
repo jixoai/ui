@@ -43,6 +43,10 @@
 //                      wired — the committed artifact is inline-only
 //                      (zero virtual imports), the build passes and the
 //                      SSR/prerendered HTML paints real glyphs
+//   glass              clean-consumer install of the ONE glass item
+//                      (glass-effect-blur-liquid): both API layers
+//                      compile from the canonical barrel and the law
+//                      sheet arrives (the stamp channel's paint owner)
 //
 // After the cases, ONE forced-overflow fixture (design §4 tier 2 + §5
 // sentinel) runs three sub-probes over a REAL vite project whose
@@ -930,6 +934,45 @@ export default defineConfig({
         (name, content) => name.endsWith('.js') && content.includes('flowchart') && content.includes('sequenceDiagram'),
       );
       check('mermaid: the lazy engine bundled into the consumer build', chunks.length > 0, chunks.map((p) => p.slice(ctx.dir.length)).join(', ') || 'no engine chunk found');
+    },
+  },
+  {
+    id: 'glass',
+    // glass-effect-blur-liquid Lane B (2026-09-08): the ONE glass item
+    // installs CLEAN on a virgin consumer — both API layers compile
+    // from the canonical barrel (blur() the frost member stamped in
+    // markup; liquid()/the liquidGlass mount the lens member), and the
+    // law sheet (glass.css) arrives so the stamp channel paints
+    items: ['glass'],
+    app: `<script lang="ts">
+  import { blur, liquid, glassAttrs, liquidGlass } from '$lib/ui/glass';
+  const frost = blur({ radius: '10px' });
+  const lens = liquid({ radius: '2px', saturate: 1.6 });
+</script>
+
+<div {...glassAttrs(frost)}>frost member</div>
+<div {...glassAttrs(lens)} use:liquidGlass={lens}>lens member</div>
+`,
+    extraChecks(ctx) {
+      // the five item files at their canonical folder targets — and no
+      // strays (the closure is theme-only by design, no dead edges)
+      const canonical = [
+        'src/lib/ui/glass/glass.ts',
+        'src/lib/ui/glass/glass.css',
+        'src/lib/ui/glass/glass-map.ts',
+        'src/lib/ui/glass/liquid-glass.svelte.ts',
+        'src/lib/ui/glass/index.ts',
+      ];
+      const missing = canonical.filter((f) => !ctx.exists(f));
+      check('glass: the five item files arrived at canonical targets', missing.length === 0, missing.join(', ') || 'complete');
+      // the declared dependency closure: the theme (jixoai.css) — and
+      // nothing else claims to ship
+      check('glass: theme closure arrived', ctx.exists('src/lib/jixoai.css'));
+      const law = ctx.read('src/lib/ui/glass/glass.css');
+      check(
+        'glass: the law sheet owns the stamp channel (data-jx-effect paint)',
+        law.includes("[data-jx-effect='blur']") && law.includes("[data-jx-effect='liquid-glass']"),
+      );
     },
   },
 ];

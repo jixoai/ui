@@ -202,6 +202,18 @@
   transform: rotate(180deg);
 }
 
+/* forced-colors consumer ground (glass-effect design §6 consumer map):
+   the rail reads as a solid Canvas panel with a CanvasText edge — the
+   stamp-channel frost drops, the geometry (outline, height-only
+   expansion) stays */
+@media (forced-colors: active) {
+  :where(.jx-toc .jx-toc-mobile){
+    background: Canvas;
+    outline-color: CanvasText;
+  }
+
+}
+
 @media (prefers-reduced-motion: reduce) {
   :where(.jx-toc .jx-viewport),
 :where(.jx-toggle),

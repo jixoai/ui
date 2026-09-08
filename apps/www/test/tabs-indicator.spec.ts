@@ -12,10 +12,12 @@
  *    indicator='none'; first placement is quiet (data-quiet cleared
  *    after a frame);
  *  - materials: data-indicator on the list + data-material on the
- *    indicator for line/pill/outline/glass/liquid; liquid ships an
- *    inline svg feTurbulence + feDisplacementMap filter id'd
- *    {uid}-liquid and a --jx-tabs-liquid-bf var on the list pointing
- *    at that very filter;
+ *    indicator for line/pill/outline/glass/liquid; glass/liquid ride
+ *    the SHARED stamp channel (glass-effect design §6) — glass stamps
+ *    data-jx-effect='blur' + the --jx-glass-* tuning vars in markup,
+ *    liquid is stamped data-jx-effect='liquid-glass' by the
+ *    liquidGlass mount action (no inline svg filter anywhere — the
+ *    retired feTurbulence noise is gone);
  *  - a snippet indicator rides the SAME engine-owned wrapper (the
  *    wrapper and its geometry stay engine-owned) and receives
  *    { x, y, w, h, orientation };
@@ -42,8 +44,9 @@
  *    progress, window factors and nudge signs for all three;
  *  - the css law pinned at SOURCE (jsdom computes no css): the
  *    [data-jx-tabs-ind] block, the [data-quiet] transition kill,
- *    per-material ink (glass/liquid backdrop-filter, liquid riding the
- *    --jx-tabs-liquid-bf var with fallback), reduced-motion, the grow
+ *    per-material chrome (glass/liquid keep border + radius only —
+ *    the paint law lives in the glass law sheet off the stamp, plus
+ *    the forced-colors Canvas ground), reduced-motion, the grow
  *    layout stretch, and the deleted .jx-tab-selected::after residue.
  */
 import { readFileSync } from 'node:fs';
@@ -218,28 +221,40 @@ describe('Tabs · shared indicator engine', () => {
 });
 
 // ---------------------------------------------------------------------------
-// The liquid material — svg filter + css var pairing
+// The glass/liquid materials — the SHARED stamp channel
 // ---------------------------------------------------------------------------
-describe('Tabs · liquid material', () => {
-  it('ships an inline svg filter with feTurbulence + feDisplacementMap, id ends in -liquid', () => {
-    const { list } = setup();
-    const svg = list('liquid').querySelector('svg');
-    expect(svg).toBeTruthy();
-    const filter = svg!.querySelector('filter');
-    expect(filter).toBeTruthy();
-    expect(filter!.id.endsWith('-liquid')).toBe(true);
-    expect(filter!.querySelector('feTurbulence')).toBeTruthy();
-    expect(filter!.querySelector('feDisplacementMap')).toBeTruthy();
+describe('Tabs · glass/liquid materials (the shared stamp channel)', () => {
+  it("glass stamps the blur member: data-jx-effect='blur' + the tuning vars on the indicator", () => {
+    const { ind } = setup();
+    const indicator = ind('glass')!;
+    expect(indicator).toBeTruthy();
+    expect(indicator.getAttribute('data-jx-effect')).toBe('blur');
+    // attribute- or CSSOM-bound (style: prop writes re-serialize), the
+    // tuning vars must ride the element: 10px / 1.5 / the 40% fill
+    const style = `${indicator.getAttribute('style') ?? ''};${indicator.style.cssText}`;
+    expect(style).toMatch(/--jx-glass-radius:\s*10px/);
+    expect(style).toMatch(/--jx-glass-saturate:\s*1\.5/);
+    expect(style).toMatch(/--jx-glass-fill:\s*color-mix\(in oklab,\s*var\(--background\)\s*40%,\s*transparent\)/);
   });
 
-  it("points the list's --jx-tabs-liquid-bf var at that very filter", () => {
-    const { list } = setup();
-    const filter = list('liquid').querySelector('filter')!;
-    expect(filter).toBeTruthy();
-    // attribute-bound or setProperty-bound, the var must reference the id
-    const styleText = `${list('liquid').getAttribute('style') ?? ''};${list('liquid').style.cssText}`;
-    expect(styleText).toContain('--jx-tabs-liquid-bf');
-    expect(styleText).toContain(`#${filter.id}`);
+  it("liquid stamps the lens member through the mount action — no inline svg filter anywhere", () => {
+    const { list, ind } = setup();
+    const indicator = ind('liquid')!;
+    expect(indicator).toBeTruthy();
+    // the action stamps the channel + its tuning vars at mount (jsdom
+    // has no canvas — the lens guard fires after, frost stands)
+    expect(indicator.getAttribute('data-jx-effect')).toBe('liquid-glass');
+    const style = `${indicator.getAttribute('style') ?? ''};${indicator.style.cssText}`;
+    expect(style).toMatch(/--jx-glass-radius:\s*2px/);
+    expect(style).toMatch(/--jx-glass-saturate:\s*1\.6/);
+    // the retired noise filter is GONE: no svg, no feTurbulence, and no
+    // host-carried backdrop formula anywhere under the list
+    expect(list('liquid').querySelector('svg')).toBeNull();
+    expect(list('liquid').innerHTML).not.toContain('feTurbulence');
+    expect(list('liquid').getAttribute('style') ?? '').not.toContain('backdrop-filter');
+    // non-glass materials never stamp the channel
+    expect(ind('line')!.getAttribute('data-jx-effect')).toBeNull();
+    expect(ind('pill')!.getAttribute('data-jx-effect')).toBeNull();
   });
 });
 
@@ -850,16 +865,26 @@ describe('Tabs · indicator css law (tabs-trigger.css, source-pinned)', () => {
     }
   });
 
-  it('glass carries a backdrop-filter; liquid rides the css var with a fallback', () => {
-    expect(tabsTriggerCss).toMatch(
-      new RegExp(`${dataAttr('material', 'glass')}[^{]*\\{[^}]*backdrop-filter`, 's'),
-    );
-    expect(tabsTriggerCss).toMatch(
-      new RegExp(
-        `${dataAttr('material', 'liquid')}[^{]*\\{[^}]*backdrop-filter:\\s*[^;}]*var\\(--jx-tabs-liquid-bf\\s*,`,
-        's',
-      ),
-    );
+  it('glass/liquid keep ONLY the chrome — the paint law lives in the glass law sheet (the one-formula boundary)', () => {
+    const glassBlock =
+      tabsTriggerCss.match(new RegExp(`${dataAttr('material', 'glass')}[^{]*\\{[^}]*\\}`))?.[0] ?? '';
+    expect(glassBlock.length).toBeGreaterThan(0);
+    expect(glassBlock).toMatch(/border:/);
+    expect(glassBlock).toMatch(/border-radius:/);
+    expect(glassBlock).not.toMatch(/backdrop-filter/);
+    expect(glassBlock).not.toMatch(/background:/);
+    // the one-formula boundary: NO glass paint formula anywhere in the
+    // tabs sheet (blur( for glass paint exists only in glass.css)
+    expect(tabsTriggerCss).not.toMatch(/backdrop-filter:\s*blur\(/);
+    // the law sheet owns the stamp-channel paint (same-source mirror of
+    // registry/files/ui/glass/glass.css)
+    const glassCss = readFileSync(resolve(process.cwd(), 'src/lib/ui/glass/glass.css'), 'utf8');
+    expect(glassCss).toMatch(/\[data-jx-effect='blur'\],\s*\[data-jx-effect='liquid-glass'\]/);
+    expect(glassCss).toMatch(/backdrop-filter:\s*blur\(var\(--jx-glass-radius,\s*14px\)\)/);
+    // forced-colors consumer ground: the Canvas panel on glass/liquid
+    const fcBlock = tabsTriggerCss.slice(tabsTriggerCss.indexOf('@media (forced-colors'));
+    expect(fcBlock).toMatch(/data-material=['"]glass/);
+    expect(fcBlock).toMatch(/background:\s*Canvas/);
   });
 
   it('reduced motion kills the geometry transition', () => {

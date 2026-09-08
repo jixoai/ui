@@ -32,6 +32,10 @@
   import { createPrintPipeline, type PrintPipeline, type PrintRunOptions } from './pipeline.svelte';
   import { PRINT_PIPELINE_KEY } from './print-context';
   import './sim-shell.css';
+  // the sim bar's glass ground rides the SHARED stamp channel
+  // (glass-effect design §6): the law sheet must be in the document for
+  // the JS-stamped data-jx-effect to paint
+  import '../ui/glass/glass.css';
 
   let {
     children,

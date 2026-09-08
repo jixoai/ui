@@ -1,6 +1,9 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  // the glass demo rides the SHARED stamp channel — the law sheet must
+  // be loaded for the paint (glass-effect design §6)
+  import '$lib/ui/glass/glass.css';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -436,9 +439,11 @@ playing.subscribe((v) => (isPlaying = v));
           <div class="flex flex-col gap-2.5">
             <h3 class="text-[15px] font-bold tracking-tight">Glass material</h3>
             <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-              .jx-glass: translucent surface + real backdrop blur (14px, saturation 1.35), drawn
-              with an outline instead of a border so the box line never shifts layout. The mobile
-              ToC rail is made of this.
+              The glass effect: translucent surface + real backdrop blur (14px, saturation 1.35),
+              painted by the shared glass law sheet off the <code>data-jx-effect="blur"</code> stamp
+              and tuned through <code>--jx-glass-*</code> vars. Drawn with an outline instead of a
+              border so the box line never shifts layout. The mobile ToC rail is made of this.
+              (forced-colors: this demo page is exempt from the consumer Canvas map by declaration.)
             </p>
             <div class="relative overflow-hidden border border-border bg-card p-6">
               <div
@@ -449,8 +454,8 @@ playing.subscribe((v) => (isPlaying = v));
                   <span class="size-10" style:background={color}></span>
                 {/each}
               </div>
-              <div class="jx-glass relative flex items-center border p-4">
-                <span class="text-[12.5px]">.jx-glass over brand primaries</span>
+              <div data-jx-effect="blur" class="relative flex items-center border p-4">
+                <span class="text-[12.5px]">the blur effect over brand primaries</span>
               </div>
             </div>
           </div>

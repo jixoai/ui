@@ -326,14 +326,11 @@
   }
 }
 
-/* Glass material: translucent surface + real backdrop blur. Outline (not
-   border) so the box line never affects layout and stays crisp over the
-   blurred backdrop; identical outline law as the ToC toggle. */
-.jx-glass {
-  background: color-mix(in oklab, var(--background) 68%, transparent);
-  -webkit-backdrop-filter: blur(14px) saturate(1.35);
-  backdrop-filter: blur(14px) saturate(1.35);
-}
+/* (the hand-tuned glass-material class RETIRED, glass-effect-blur-liquid
+   2026-09-08: it unified behind the @jixoai/glass stamp channel —
+   data-jx-effect + the --jx-glass-* vars, painted by glass.css, the one
+   law sheet. Same rendered values, so migration is
+   computed-equivalent.) */
 
 /* ============================================================
    Floating-surface law (Owner rulings, 2026-08-22 → 2026-08-23 r18)
@@ -663,12 +660,21 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 
 /* acrylic / auto: the body carries ONE filter — blur. Bezel panels
    retune the fill through the custom properties, keeping their
-   identity in BOTH variants. */
+   identity in BOTH variants. VALUE-LEVEL TOKEN REBASE
+   (glass-effect-blur-liquid, 2026-09-08): the magnitudes read the
+   --jx-glass-* family the @jixoai/glass item owns, pinned LOCALLY at
+   the retired values (14 / 1 / 2 — saturate 1 is the identity, so the
+   rendered formula is unchanged); this selector stays the DECLARED
+   EXCEPTION to the one-formula boundary (surface acrylic is not a
+   stamp-channel family — design §6). */
 .jx-surface[data-variant='acrylic'] .jx-surface-body,
 .jx-surface[data-variant='auto'] .jx-surface-body {
+  --jx-glass-radius: 14px;
+  --jx-glass-saturate: 1;
+  --jx-glass-brightness: 2;
   background: var(--jx-surface-acrylic-fill, color-mix(in oklab, var(--popover) 72%, transparent));
-  -webkit-backdrop-filter: blur(14px) brightness(2);
-  backdrop-filter: blur(14px) brightness(2);
+  -webkit-backdrop-filter: blur(var(--jx-glass-radius, 14px)) saturate(var(--jx-glass-saturate, 1)) brightness(var(--jx-glass-brightness, 2));
+  backdrop-filter: blur(var(--jx-glass-radius, 14px)) saturate(var(--jx-glass-saturate, 1)) brightness(var(--jx-glass-brightness, 2));
 }
 /* auto = acrylic UNLESS the environment asks for less transparency —
    then exactly solid */

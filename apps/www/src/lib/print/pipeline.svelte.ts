@@ -469,6 +469,10 @@ export function createPrintPipeline(
     }
     const bar = document.createElement('div');
     bar.setAttribute('data-jx-print-sim-bar', '');
+    // the glass ground rides the SHARED stamp channel (glass-effect
+    // design §6): the law sheet (glass.css, imported beside
+    // sim-shell.css in print-doc.svelte) paints off the stamp
+    bar.setAttribute('data-jx-effect', 'blur');
     const copy = document.createElement('div');
     copy.setAttribute('data-jx-print-bar-copy', '');
     const title = document.createElement('span');

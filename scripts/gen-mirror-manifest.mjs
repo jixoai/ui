@@ -80,6 +80,8 @@ const CANONICAL_MAIN_OVERRIDES = {
   'list-item': 'registry/files/ui/list-item/item.svelte',
   // scroll-run's main is the stamp machine module, not a component
   'scroll-run': 'registry/files/ui/scroll-run/scroll-run.svelte.ts',
+  // glass's main is the builders module (the front door), not a component
+  glass: 'registry/files/ui/glass/glass.ts',
 };
 // mirror-path overrides for files whose mirror does not follow the
 // default rule (pre-migration item css living at src/lib root)

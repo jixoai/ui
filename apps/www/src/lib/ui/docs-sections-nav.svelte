@@ -25,6 +25,9 @@
 -->
 <script lang="ts">
   import './docs-sections-nav.css';
+  // the bar's glass paint rides the SHARED stamp channel (glass-effect
+  // design §6): the law sheet paints off data-jx-effect
+  import '$lib/ui/glass/glass.css';
   import { page } from '$app/state';
   import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
   import Icon from '$lib/ui/icon';
@@ -236,7 +239,7 @@
 
   <!-- bar surface (narrow/medium forms): 44px glass row + height-only
        upward expansion; the collapsed list is inert -->
-  <div class="jx-dsn-bar jx-glass" data-open={open || undefined}>
+  <div class="jx-dsn-bar" data-jx-effect="blur" data-open={open || undefined}>
     <div class="jx-dsn-bar-row">
       <span class="jx-dsn-bar-label">
         docs · <strong>{currentLabel}</strong>
@@ -604,6 +607,16 @@
     position: relative;
     outline: 1px solid color-mix(in oklab, var(--border) 25%, transparent);
     outline-offset: -1px;
+  }
+  /* forced-colors consumer ground (glass-effect design §6 consumer
+     map, same as the toc rail): a solid Canvas panel with a
+     CanvasText edge — the stamp-channel frost drops, the geometry
+     stays */
+  @media (forced-colors: active) {
+    .jx-dsn-bar {
+      background: Canvas;
+      outline-color: CanvasText;
+    }
   }
   .jx-dsn-bar-row {
     display: flex;

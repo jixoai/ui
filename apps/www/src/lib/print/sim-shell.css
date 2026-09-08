@@ -64,14 +64,19 @@
     box-shadow: var(--shadow-paper, 0 10px 30px rgb(0 0 0 / 0.35), 0 2px 8px rgb(0 0 0 / 0.25));
   }
   /* the sim toolbar strip (Owner r7): GLASS material + shadow — the
-     .jx-glass house law (translucent surface + real backdrop blur;
-     OUTLINE not border, so the box line never affects layout and
-     stays crisp over the blurred backdrop) and the pages' own shadow
-     ladder so the chrome floats over the view instead of sitting on
-     it. Carries the flight's stage text (data-jx-print-bar-status);
-     the print button stays disabled until the artifact is ready.
-     THE r9 LAYOUT: [copy | actions] — space-between, the stacked
-     label+description block left, the button group right */
+     glass ground rides the SHARED stamp channel (glass-effect design
+     §6): the pipeline stamps data-jx-effect="blur" on the bar and the
+     glass law sheet (imported beside this file in print-doc.svelte)
+     paints the frost — NO raw formula here (the one-formula boundary;
+     the retired hand-tuned paint was deleted with the theme's
+     glass-material class). OUTLINE not border, so the box line never
+     affects layout and stays crisp over the blurred backdrop, and the
+     pages' own shadow ladder so the chrome floats over the view
+     instead of sitting on it. Carries the flight's stage text
+     (data-jx-print-bar-status); the print button stays disabled until
+     the artifact is ready. THE r9 LAYOUT: [copy | actions] —
+     space-between, the stacked label+description block left, the
+     button group right */
   [data-jx-print-sim-bar] {
     position: sticky;
     top: 0;
@@ -85,9 +90,6 @@
     max-inline-size: 32rem;
     padding: 0.5rem 0.9rem;
     border-radius: 0.6rem;
-    background: color-mix(in oklab, var(--background, #111114) 68%, transparent);
-    -webkit-backdrop-filter: blur(14px) saturate(1.35);
-    backdrop-filter: blur(14px) saturate(1.35);
     outline: 1px solid color-mix(in oklab, currentColor 18%, transparent);
     outline-offset: -1px;
     /* the pages' own shadow ladder — --shadow-paper (same exemption

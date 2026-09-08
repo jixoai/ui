@@ -315,7 +315,10 @@ check(
 // ── the r7 one-line head + bar law: the icon and the doc title share
 //    ONE line (pagedjs's injected display:block stacking is
 //    out-ranked), and the glass bar carries the ready stage with the
-//    print button enabled (the pending stage is jsdom-locked)
+//    print button enabled (the pending stage is jsdom-locked); the
+//    bar's glass ground rides the SHARED stamp channel (glass-effect
+//    design §6): data-jx-effect="blur" + the law sheet's computed
+//    frost (no raw formula in sim-shell.css)
 const headLine = await page.evaluate(() => {
   const out = document.querySelector('[data-print-output]');
   const boxes = out ? [...out.querySelectorAll('.pagedjs_margin-top-left .pagedjs_margin-content')] : [];
@@ -335,6 +338,7 @@ const headLine = await page.evaluate(() => {
     boxes: boxes.length,
     oneLine,
     bar: Boolean(bar),
+    stamp: bar?.getAttribute('data-jx-effect') ?? null,
     statusText: status?.textContent ?? null,
     printEnabled: printBtn ? !printBtn.disabled : false,
     backdrop: barCs?.backdropFilter ?? null,
@@ -346,6 +350,7 @@ check(
   headLine.boxes >= 1 &&
     headLine.oneLine === headLine.boxes &&
     headLine.bar &&
+    headLine.stamp === 'blur' &&
     /pages/.test(headLine.statusText ?? '') &&
     headLine.printEnabled &&
     /blur/.test(headLine.backdrop ?? '') &&

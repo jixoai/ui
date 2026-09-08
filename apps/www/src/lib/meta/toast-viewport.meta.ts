@@ -35,6 +35,7 @@ export const meta = defineComponentMeta(
       }
     },
     "hooks": [
+      "data-jx-effect",
       "data-jx-toast",
       "data-jx-toast-body",
       "data-jx-toast-desc",

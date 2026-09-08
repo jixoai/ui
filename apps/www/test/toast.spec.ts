@@ -10,7 +10,8 @@
  * adopt() stubs) and asserts the overlay pointer law against the real
  * css. The stack is a grid (rows stack naturally); each toast is a
  * lane grid (leading | body | trailing | dismiss). MATERIAL picks the
- * ground (popover solid | glass backdrop-filter), EFFECT picks the
+ * ground (popover solid | glass on the shared stamp channel —
+ * data-jx-effect='blur' + tuning vars), EFFECT picks the
  * loop (pulse | sweep), and the countdown companion drains the
  * duration in the trailing lane (sticky toasts get none). The D-wave
  * locks: expiry arms at FIRST VISIBILITY (D-2 — queued toasts never
@@ -198,14 +199,25 @@ describe('toast — exit frames (D-3 ghost + D-8 order)', () => {
 });
 
 describe('toast — material × effect × countdown', () => {
-  it('material picks the ground: glass rides backdrop-filter', () => {
+  it('material picks the ground: glass rides the stamp channel (data-jx-effect + tuning vars)', () => {
     const { container } = render(ToastFeaturesHost);
     const glass = container.querySelector('[data-jx-toast][data-material="glass"]') as HTMLElement;
     expect(glass).toBeTruthy();
-    expect(glass.className).toContain('backdrop-blur-md');
-    // the default ground stays solid popover
+    // the frost paint lives in the glass law sheet, keyed on the stamp;
+    // the tuning vars ride the class string (12px / saturate 1 / 55%
+    // fill — the retired backdrop-blur-md ground, computed-equivalent)
+    expect(glass.getAttribute('data-jx-effect')).toBe('blur');
+    expect(glass.className).toContain('[--jx-glass-radius:12px]');
+    expect(glass.className).toContain('[--jx-glass-saturate:1]');
+    expect(glass.className).toContain('[--jx-glass-fill:color-mix(in_oklab,var(--popover)_55%,transparent)]');
+    // the tailwind blur utility is RETIRED — one formula, in glass.css
+    expect(glass.className).not.toContain('backdrop-blur');
+    // the forced-colors Canvas ground survives the rebase
+    expect(glass.className).toContain('forced-colors:bg-[Canvas]');
+    // the default ground stays solid popover — and never stamps
     const plain = container.querySelector('[data-jx-toast][data-material="popover"]') as HTMLElement;
     expect(plain.className).toContain('bg-popover');
+    expect(plain.hasAttribute('data-jx-effect')).toBe(false);
   });
 
   it('effect picks the loop: sweep and pulse land as valued hooks', () => {
