@@ -2323,6 +2323,16 @@ non-action geometry it legitimately needs.
   height, the strip's border-t is the rim, the inter-button seam
   is the 1px hairline (never a gap)
 
+#### Scenario: a chrome bar quiets into the same band
+
+- GIVEN the canvas dock's head row (the drag bar: grip, theme
+  toggle, density select, collapse chevron — buttons AND a select)
+- THEN the row rides the same carved treatment: the zone quiets
+  every press control (ghost + flat, zero hand borders — the
+  ButtonBar spirit), controls stretch to fill the band with no
+  padding float, the body's rim line below closes the band; the
+  one non-press cell (the native select) rides the band borderless
+
 #### Scenario: a non-footer bar uses the same band
 
 - GIVEN the canvas playground dock's reset row (not a footer — a
@@ -2340,7 +2350,9 @@ body padding through negative margins — a popover-sized surface rents
 no banded ruler, and full dialect adoption would be dogma, not law
 (floating-flesh-sweep ruling, 2026-09-09). What the form SHALL shed
 is RECIPE DUPLICATION: AlertDialogAction and AlertDialogCancel render
-PressButton (explicit variant / density sm) — the family's one ladder,
+PressButton (explicit variant; density DEFAULT — the carved strip's
+height IS the Dialog footer's, the Owner parity ruling 2026-09-09) —
+the family's one ladder,
 one press law, one forced-colors set — with the family's single local
 addition preserved (the fill rung ships the jx-pair-destructive
 injection as the confirmTone default; consumer pair injections still

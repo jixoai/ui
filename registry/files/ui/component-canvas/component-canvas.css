@@ -261,12 +261,19 @@
 /* internal scroll: the dock's body region is capped and guttered so a
    tall control stack scrolls inside the dock instead of stretching it
    over the whole stage (the old pane's containment law, dock-sized);
-   the head chip and the output foot stay pinned */
+   the head chip and the pinned reset bar stay fixed. FLEX ABSORBER
+   (the compression fix, 2026-09-09): the clip is a flex column and
+   this scroller is the one who GIVES — when the dock's stage-height
+   bound squeezes the collapse, the scroller shrinks (min-block 0) and
+   the pinned bar below keeps its full height (a plain block scroller
+   overflowed the clip and the bar rendered half-clipped) */
 :where([data-jx-canvas-dock-scroll]) {
   overflow-y: auto;
   max-block-size: min(26rem, 55vh);
   scrollbar-width: thin;
   scrollbar-gutter: stable;
+  flex: 1 1 auto;
+  min-block-size: 0;
 }
 
 /* dock rows ride the integrated ItemGroup at sm density; the tightening

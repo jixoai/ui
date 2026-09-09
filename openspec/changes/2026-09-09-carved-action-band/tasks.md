@@ -19,3 +19,11 @@
       折叠/展开/强制溢出回归 PASS；E dialog 回归 + 关闭动画逐帧采样
       （416.0px 全程恒定）PASS
 - [x] T9 living spec 合入 + 双 commit（spec 先行）推送
+
+- [x] R1（Owner 验收 R2）：adlg Action/Cancel 密度 sm→default——雕刻条高对齐 Dialog footer（40px）
+- [x] R2（Owner 验收 R3.2）：复位栏高度压缩——clip 换 flex 列，scroller 为唯一吸收者，栏保高不再被裁
+- [x] R3（Owner 验收 R3.1，纠偏）：泛化目标改为 head 拖拽行——chrome 控件 zone ghost+flat
+      静音（ButtonBar 初衷）、items-stretch 铺满带、aria 经 rest lane 落 IconButton 根；
+      统一性=同一法则同一原语（zone+carved 几何），select 为唯一非 press 单元（无边 ghost）
+- [x] R4 门禁：carved-action-band.spec 增三門（压缩修复 css/结构、head 带 DOM/源码退休配方）
+- [ ] R5 vision 复验（dialog 页 dock：复位栏全高、head 带、adlg 40px 条）+ commit 推送

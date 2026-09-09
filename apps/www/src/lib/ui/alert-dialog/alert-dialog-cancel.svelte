@@ -11,8 +11,9 @@
   shadow pose customs) retired into PressButton: no variant passed —
   inside AlertDialogActions' zone it renders the quiet ghost default
   (the action-band law); standalone it falls to PressButton's own
-  outline rung, the same visual family as before. density sm keeps the
-  anchored alert's compact scale.
+  outline rung, the same visual family as before. density rides
+  DEFAULT — the carved strip's height IS the Dialog footer's (the
+  Owner parity ruling, 2026-09-09).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -32,7 +33,6 @@
 
 <PressButton
   {...rest}
-  density="sm"
   data-jx-adlg-cancel=""
   class={className}
   onclick={() => {

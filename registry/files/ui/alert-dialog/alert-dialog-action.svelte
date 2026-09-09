@@ -22,7 +22,8 @@
     variant="fill" class="[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]"
     variant="tonal"    (brand tint, no injection needed)
 
-  density sm keeps the anchored alert's compact scale. The
+  density rides DEFAULT — the carved strip's height IS the
+  Dialog footer's (the Owner parity ruling, 2026-09-09). The
   data-jx-alert-dialog-action={variant} stamp rides the REST LANE
   (press-button passes attributes through since this change — no
   wrapper element). The consumer onclick signature narrows to the
@@ -61,7 +62,6 @@
 <PressButton
   {...rest}
   variant={d.actionVariant}
-  density="sm"
   data-jx-adlg-action=""
   data-jx-alert-dialog-action={d.actionVariant}
   class={`${d.actionVariant === 'fill' ? 'jx-pair-destructive' : ''}${className ? ` ${className}` : ''}`}

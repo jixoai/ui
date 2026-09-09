@@ -110,4 +110,47 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     // the collapse region still owns it (the pinned-foot law)
     expect(foot.closest('.jx-canvas-dock-collapse')).not.toBeNull();
   });
+
+  it('the compression fix: the clip is a flex column, the scroller is the absorber', () => {
+    const canvasCss = readFileSync(
+      resolve(here, '../src/lib/ui/component-canvas/component-canvas.css'),
+      'utf8',
+    );
+    // under the dock's stage-height bound the collapse squeezes — the
+    // SCROLLER gives (never the pinned bar: a plain block scroller
+    // overflowed the clip and the bar rendered half-clipped, the
+    // Owner-reported defect)
+    expect(canvasCss).toMatch(/\[data-jx-canvas-dock-scroll\][^}]*flex: 1 1 auto/s);
+    expect(canvasCss).toMatch(/\[data-jx-canvas-dock-scroll\][^}]*min-block-size: 0/s);
+    const clip = render(CanvasSchemaHost).container.querySelector('[data-jx-canvas-dock-clip]')!;
+    expect(clip.className).toContain('flex-col');
+  });
+
+  it('the head chrome row is a carved band too (the ButtonBar spirit, round 2)', () => {
+    const { container } = render(CanvasSchemaHost);
+    const head = container.querySelector('[data-jx-canvas-dock-head]')!;
+    // the band stretches its controls — no py padding floating them
+    expect(head.className).toContain('items-stretch');
+    // the hand-drawn chrome retired into zone IconButtons: the stamps
+    // ride the rest lane onto real button roots, aria-pressed and
+    // aria-expanded/controls survive the move
+    const theme = container.querySelector<HTMLButtonElement>('[data-jx-canvas-theme-toggle]')!;
+    expect(theme.tagName).toBe('BUTTON');
+    expect(theme.getAttribute('aria-pressed')).toBe('false');
+    const toggle = container.querySelector<HTMLButtonElement>('[data-jx-canvas-dock-toggle]')!;
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(toggle.getAttribute('aria-controls')).toBeTruthy();
+    // the one non-press cell: a borderless select stretched to the band
+    const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-density-select]')!;
+    expect(select.className).toContain('self-stretch');
+    expect(select.className).toContain('border-none');
+    // the hand chrome recipe is gone from the source (borders, the
+    // +2px size scale, the shadow-suppression customs)
+    const src = readFileSync(
+      resolve(here, '../src/lib/ui/component-canvas/canvas-playground.svelte'),
+      'utf8',
+    );
+    expect(src).not.toContain('size-[calc(var(--jx-hit)+2px)]');
+    expect(src).not.toContain('[--jx-press-shadow:none]');
+  });
 });

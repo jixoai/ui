@@ -60,3 +60,25 @@ ButtonGroup items-stretch + min-h 下限）在 Card/Dialog foot 上已经
    flush），parity 无新风险。
 4. dock 出血行在折叠动画（grid-rows 0fr↔1fr + overflow-hidden
    clip）内——负 margin 不参与轨道计算，clip 正常裁切。
+
+## Round 2 (Owner acceptance, 2026-09-09 晚)
+
+1. **密度对齐**：adlg actions 的 sm（32px 带）与 Dialog footer 的
+   default（40px 带）不一致——"Dialog 的 footer 的明显更高更平衡"。
+   裁决：Action/Cancel 密度回 default，雕刻条高即 Dialog footer。
+2. **复位栏压缩**：dock 的舞台高度上限（max-block-size）挤压
+   collapse 时，clip 是普通块级滚动容器——内容溢出被裁，钉在底部
+   的复位栏首当其冲（"按钮只显示一半"）。修：clip 换 flex 列，
+   scroller 成为唯一吸收者（flex 1 1 auto + min-block 0），栏
+   flex-none 保高。
+3. **head 行才是泛化目标**（Owner 纠偏："我想让你修的是那一行可拖
+   拽的栏，因为它本身就包含了 button 和 select"）：chrome 行
+   （grip/主题钮/密度 select/折叠 chevron）改为同一套 carved 带
+   处理——zone ghost+flat 静音所有 press 控件（ButtonBar 初衷：
+   零冗余边框）、items-stretch 控件铺满带高、无 py 浮动、body 的
+   border-t 即带缘。统一性回答：**同一法则同一原语**
+   （ButtonVariantScope + carved 带几何 + IconButton rest 通道），
+   而非同一个 Svelte 组件——head 含 select 与 grip，不是
+   ButtonGroup 簇；ButtonGroup/CardFooter 只服务纯按钮簇
+   （ButtonBar 退役教训不翻案）。aria-pressed/expanded/controls
+   经 rest lane 落 IconButton 根，a11y 零回退。

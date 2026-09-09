@@ -282,6 +282,18 @@
 {#snippet resetGlyph()}
   <Icon name="rotateCcw" size={12} />
 {/snippet}
+{#snippet themeGlyph()}
+  <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={12} />
+{/snippet}
+{#snippet chevronGlyph()}
+  <span
+    class="jx-canvas-chevron inline-flex transition-transform duration-150 ease-out"
+    class:-rotate-90={!open}
+    aria-hidden="true"
+  >
+    <Icon name="chevronDown" size={12} />
+  </span>
+{/snippet}
 
 <aside
   data-jx-canvas-dock
@@ -293,10 +305,20 @@
   )}
   aria-label={`Controls for ${title}`}
 >
+  <!-- THE HEAD IS A CARVED BAND TOO (carved-action-band round 2, the
+       Owner ruling 2026-09-09: "把它改成 foot 的样式…一开始 button bar
+       那种风格"): the chrome row is the same law as the foot — the
+       zone (ghost + flat) quiets every control (no redundant borders,
+       the ButtonBar spirit), controls FILL the band vertically
+       (items-stretch, no py padding floating them in whitespace), the
+       band rides the dock's top edge and the body's border-t below is
+       its rim. aria-pressed/expanded/controls ride the REST LANE onto
+       the IconButton roots; the density select is the one non-press
+       cell — a borderless ghost select stretched to the band -->
   <div
     data-jx-canvas-dock-head
     data-dragging={dragging || undefined}
-    class="jx-canvas-dock-head flex items-center justify-between gap-2 px-2 py-[0.35rem]"
+    class="jx-canvas-dock-head flex items-stretch justify-between gap-2"
     bind:this={headEl}
     onpointerdown={onHeadPointerDown}
     onpointermove={onHeadPointerMove}
@@ -304,65 +326,63 @@
     onpointercancel={endHeadDrag}
     onclickcapture={onHeadClickCapture}
   >
-    <!-- the chrome cluster: [grip, theme, size] — the standard row on
-         EVERY canvas demo (Owner amendment 2026-09-08) -->
-    <div class="flex items-center gap-[0.35rem]">
-      <span
-        class="jx-canvas-dock-grip inline-flex items-center text-muted-foreground"
-        aria-hidden="true"
-        data-jx-canvas-dock-grip
-      >
-        <Icon name="gripVertical" size={12} />
-      </span>
-      <button
-        type="button"
-        data-jx-canvas-theme-toggle
-        class="jx-press jx-canvas-dock-theme inline-flex size-[calc(var(--jx-hit)+2px)] items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
-        aria-label="Toggle theme"
-        aria-pressed={theme === 'dark'}
-        title="Toggle theme"
-        onclick={() => (theme = theme === 'dark' ? 'light' : 'dark')}
-      >
-        <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={12} />
-      </button>
-      <!-- the size toggle: a compact native select with the
-           REPO-STANDARD Density vocabulary, stamped onto the stage
-           DIRECTLY (no comfortable/compact mapping — the amendment) -->
-      <select
-        data-jx-canvas-density-select
-        class="jx-canvas-dock-density border border-border bg-background text-foreground cursor-pointer font-nav text-[10px] tracking-[0.14em] uppercase h-[calc(var(--jx-hit)+2px)] px-[0.4rem]"
-        aria-label="Density"
-        title="Density"
-        value={dDensity}
-        onchange={(event) => (density = event.currentTarget.value as Density)}
-      >
-        <option value="xs">xs</option>
-        <option value="sm">sm</option>
-        <option value="default">default</option>
-        <option value="lg">lg</option>
-      </select>
-    </div>
-    {#if hasBody}
-      <!-- the collapse chevron: only when the dock HAS a body -->
-      <button
-        type="button"
-        data-jx-canvas-dock-toggle
-        class="jx-press jx-canvas-dock-toggle inline-flex size-[calc(var(--jx-hit)+2px)] items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
-        aria-expanded={open}
-        aria-controls={bodyId}
-        aria-label="Playground"
-        title="Playground"
-        onclick={() => (open = !open)}
-      >
+    <ButtonVariantScope variant="ghost" raised={false}>
+      <!-- the chrome cluster: [grip, theme, size] — the standard row on
+           EVERY canvas demo (Owner amendment 2026-09-08) -->
+      <div class="flex items-stretch">
         <span
-          class="jx-canvas-chevron inline-flex transition-transform duration-150 ease-out"
-          class:-rotate-90={!open}
+          class="jx-canvas-dock-grip flex items-center px-2 text-muted-foreground"
           aria-hidden="true"
+          data-jx-canvas-dock-grip
         >
-          <Icon name="chevronDown" size={12} />
+          <Icon name="gripVertical" size={12} />
         </span>
-      </button>
-    {/if}
+        <IconButton
+          icon={themeGlyph}
+          text="Toggle theme"
+          iconOnly
+          tip={false}
+          title="Toggle theme"
+          aria-pressed={theme === 'dark'}
+          data-jx-canvas-theme-toggle
+          onclick={() => (theme = theme === 'dark' ? 'light' : 'dark')}
+          class="jx-canvas-dock-theme"
+        />
+        <!-- the size toggle: a compact native select with the
+             REPO-STANDARD Density vocabulary, stamped onto the stage
+             DIRECTLY (no comfortable/compact mapping — the amendment);
+             the one non-press cell — a borderless ghost select riding
+             the band's height -->
+        <select
+          data-jx-canvas-density-select
+          class="jx-canvas-dock-density self-stretch cursor-pointer border-none bg-transparent px-[0.4rem] font-nav text-[10px] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground"
+          aria-label="Density"
+          title="Density"
+          value={dDensity}
+          onchange={(event) => (density = event.currentTarget.value as Density)}
+        >
+          <option value="xs">xs</option>
+          <option value="sm">sm</option>
+          <option value="default">default</option>
+          <option value="lg">lg</option>
+        </select>
+      </div>
+      {#if hasBody}
+        <!-- the collapse chevron: only when the dock HAS a body -->
+        <IconButton
+          icon={chevronGlyph}
+          text="Playground"
+          iconOnly
+          tip={false}
+          title="Playground"
+          aria-expanded={open}
+          aria-controls={bodyId}
+          data-jx-canvas-dock-toggle
+          onclick={() => (open = !open)}
+          class="jx-canvas-dock-toggle"
+        />
+      {/if}
+    </ButtonVariantScope>
   </div>
 
   {#if hasBody}
@@ -375,7 +395,12 @@
     data-open={open || undefined}
     inert={!open || undefined}
   >
-    <div data-jx-canvas-dock-clip class="min-h-0 overflow-hidden">
+    <!-- the clip is a FLEX COLUMN (the Owner acceptance's compression
+         catch): when the dock's stage-height bound squeezes the
+         collapse, the SCROLLER absorbs (flex + min-block 0 in the css)
+         and the pinned bar keeps its full height — a plain block clip
+         let the content overflow and cut the bar to half a button -->
+    <div data-jx-canvas-dock-clip class="flex min-h-0 flex-col overflow-hidden">
       <!-- the internal scroll surface: capped block size + guttered thin
            scrollbar (the old pane's containment law, dock-sized); the
            output foot below stays pinned -->
