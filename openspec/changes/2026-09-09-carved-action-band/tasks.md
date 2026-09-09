@@ -43,3 +43,8 @@
       （实测落 "ok" 钮）。trio 居中 [0,0] 偏移、prompt 输入 bare 无框、
       0.5s 卸载无残尸、Escape→null 全过。
 - [ ] S9 commit 推送
+
+- [x] R4（Owner 验收夜班二）：dock rim→solid（自查确认盲区）；adlg 均分换 flex 法则
+      （191/191 等分填满+居中+单行，长文案 556 铺开）；trio 双姿态 docs 补记
+      （system summary + Content API pose/focusLanding 行）
+- [ ] R4 收尾：全量门禁 + commit 推送

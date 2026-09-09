@@ -53,17 +53,18 @@
     {...rest}
   >
     <Separator aria-hidden="true" />
-    <!-- the split rides an INLINE STYLE, not a utility: the group's own
-         auto-cols-auto is a same-property utility and the cascade order
-         of two utilities is not consumer-guaranteed (the vision r3
-         catch — the arbitrary-property class silently lost and the
-         strip fell back to content-sized columns); a declaration beats
-         every utility without a fight -->
-    <ButtonGroup
-      label="Actions"
-      class="w-full"
-      style="grid-auto-columns:minmax(auto,1fr)"
-    >
+    <!-- THE SPLIT IS A FLEX LAW (Owner r4: "空间足够的情况下，文字应该
+         铺开的，而不是换行。默认是平均空间"): grid fr CANNOT express it —
+         an fr's unit is computed from the space LEFT OVER after the
+         intrinsic bases, so max-content-floored fr tracks freeze at
+         their content and never equal-fill (measured: 120+143 of 382,
+         the void parked at the end). The declaration switches the
+         group to flex; the members ride flex:1 1 0 + min-width:
+         max-content (alert-dialog.css) — EQUAL halves that FILL the
+         strip, a long label floors its own cell wider, never a wrap.
+         The seam machinery survives the swap (the injected 1px ink
+         span stretches; the -1px junction collapse works in flex) -->
+    <ButtonGroup label="Actions" class="w-full" style="display:flex">
       {@render children()}
     </ButtonGroup>
   </div>

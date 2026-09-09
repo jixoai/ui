@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-09T05:55:30.804Z",
+  "generatedAt": "2026-09-09T08:11:31.289Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1317,8 +1317,8 @@
           "source": "registry/files/ui/component-canvas/canvas-playground.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/canvas-playground.svelte",
           "target": "@ui/component-canvas/canvas-playground.svelte",
-          "sourceSha": "53ebbc369567f896b7fecb2222dfbc28ed5e2064ce2f36ef1be4ce329dc5aeb6",
-          "mirrorSha": "53ebbc369567f896b7fecb2222dfbc28ed5e2064ce2f36ef1be4ce329dc5aeb6"
+          "sourceSha": "d548ded3d7ba8fbafa33e57f3128b0b2d32d2e5e7dbf61a64db5a57b98c9076e",
+          "mirrorSha": "d548ded3d7ba8fbafa33e57f3128b0b2d32d2e5e7dbf61a64db5a57b98c9076e"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-schema.svelte.ts",
@@ -2591,8 +2591,8 @@
           "source": "registry/files/ui/alert-dialog/alert-dialog-actions.svelte",
           "mirror": "apps/www/src/lib/ui/alert-dialog/alert-dialog-actions.svelte",
           "target": "@ui/alert-dialog/alert-dialog-actions.svelte",
-          "sourceSha": "4ae9e6db19ee99e7368231c49fb7e92de2c579e4d30630e556c0e0ff2f35d53a",
-          "mirrorSha": "4ae9e6db19ee99e7368231c49fb7e92de2c579e4d30630e556c0e0ff2f35d53a"
+          "sourceSha": "7263c5b9722789678afa299aa5c7644bf112d34754d3f5c7a52ffff58b5bb0f3",
+          "mirrorSha": "7263c5b9722789678afa299aa5c7644bf112d34754d3f5c7a52ffff58b5bb0f3"
         },
         {
           "source": "registry/files/ui/alert-dialog/alert-dialog-cancel.svelte",
@@ -2633,8 +2633,8 @@
           "source": "registry/files/ui/alert-dialog/alert-dialog.css",
           "mirror": "apps/www/src/lib/ui/alert-dialog/alert-dialog.css",
           "target": "@ui/alert-dialog/alert-dialog.css",
-          "sourceSha": "aa4522627ee7206e7317a7c95d0a02e00b5296d6b7d24c212474458fa1bfb11f",
-          "mirrorSha": "aa4522627ee7206e7317a7c95d0a02e00b5296d6b7d24c212474458fa1bfb11f"
+          "sourceSha": "9e394953c7f5c5eff502d683496305cb11a50061e1a68c34609dc502c8b2c60d",
+          "mirrorSha": "9e394953c7f5c5eff502d683496305cb11a50061e1a68c34609dc502c8b2c60d"
         },
         {
           "source": "registry/files/ui/alert-dialog/alert-dialog.svelte",

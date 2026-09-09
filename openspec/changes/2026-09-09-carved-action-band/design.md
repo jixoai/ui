@@ -107,3 +107,25 @@ ButtonGroup items-stretch + min-h 下限）在 Card/Dialog foot 上已经
    `focusLanding`；prompt 输入用 Input@bare（法则 1 同源），
    Enter 提交、Escape→null；EXACTLY-ONCE 解决 + 出场窗后卸载。
    组件不改名（Owner 许可而非要求，118 消费者不值得）。
+
+## Round 4 (Owner acceptance, 2026-09-09 夜班二) — 三条
+
+1. **dock rim 实心墨**：自查（放大截图）证实 Owner 所见——对比幽灵墨
+   在 dock 均匀近白亚克力上是减法的盲区，两道 rim 实际不可见。
+   修：`variant="solid"`（Separator 的法定逃逸口，同一元素/法则，
+   唯一的加性例外）。Dialog 上仍是幽灵墨（多变页面底上工作正常）。
+2. **均分法则换 flex**（"均分/铺开/不换行/居中"）：grid fr 表达不了
+   "等分且填满、长文案加宽"——fr 的单位从固有轨基之后的**剩余**空间
+   计算，max-content 兜底的 fr 轨在内容处冻结（实测 120+143/382，
+   空档停在最右）。declaration 换 `display:flex`，成员
+   `flex:1 1 0 + min-width:max-content + justify-content:center`
+   （alert-dialog.css，strip 域限定）：实测 191+191 等分填满、
+   文字居中、单行；长文案实测铺开至 556 不换行。ButtonGroup 的
+   seam 机器在 flex 下存活（注入墨条拉伸、-1px 结合法则在 flex
+   同样成立）。
+3. **trio 位置之谜**：是刻意的双姿态——组合式 family（demo 六处）
+   锚定在 trigger 旁（trigger 在页首时面板就近页首=用户看到的
+   "top center"），命令式三件套恒定视口正中（pose=center，多视口
+   实测偏移 0,0）。docs 缺介绍属实：system 节 summary 与 Content
+   API 表（pose/focusLanding）已补。附带发现：小视口下 raw click
+   的"无响应"是 reveal 水合时序，滚动停留后一切正常，非定位 bug。

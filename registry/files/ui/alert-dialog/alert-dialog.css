@@ -49,6 +49,20 @@
     }
   }
 
+  /* THE SPLIT LAW (Owner r4, 2026-09-09: 均分/铺开/不换行/居中): the
+     strip's members ride FLEX over the group's grid — flex:1 1 0
+     equalizes the cells AND fills the strip; min-width:max-content is
+     the label's full unwrapped width (a long label floors its cell
+     wider — never a wrap); justify-content centers the label in its
+     cell (a flex-start label in a stretched cell reads as a hole
+     between the two texts). Scoped to the strip's group: a
+     PressButton anywhere else keeps its own rhythm */
+  :where([data-jx-adlg-actions] [data-jx-btngroup]) > :where([data-jx-press-button]) {
+    flex: 1 1 0;
+    min-width: max-content;
+    justify-content: center;
+  }
+
   /* Scrim law: --scrim — semi-transparent black (light) / white (dark),
      never a brand tint. The popover layer's ::backdrop carries it. */
   :where([data-jx-adlg])::backdrop {

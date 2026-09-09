@@ -402,12 +402,14 @@
          and the pinned bar keeps its full height — a plain block clip
          let the content overflow and cut the bar to half a button -->
     <div data-jx-canvas-dock-clip class="flex min-h-0 flex-col overflow-hidden">
-      <!-- THE HEAD/BODY RIM IS A SEPARATOR INSTANCE (the ink law — the
-           same contrast-ghost engine Dialog's riding separators paint;
-           the retired border-t read washed-out over the acrylic and
-           off-standard). It rides INSIDE the clip so the 0fr collapse
-           hides it with the body -->
-      <Separator aria-hidden="true" />
+      <!-- THE HEAD/BODY RIM IS A SEPARATOR INSTANCE at SOLID ink (the
+           Owner r4 walk: the ghost's contrast subtraction is DEFEATED
+           by the dock's uniform near-white acrylic — its documented
+           blind spot — the line read invisible; solid is the sanctioned
+           escape, the same element + ink law as Dialog's rims with the
+           one additive exception). It rides INSIDE the clip so the 0fr
+           collapse hides it with the body -->
+      <Separator variant="solid" aria-hidden="true" />
       <!-- the internal scroll surface: capped block size + guttered thin
            scrollbar (the old pane's containment law, dock-sized); the
            output foot below stays pinned -->
@@ -565,8 +567,9 @@
              falls back to schema defaults -->
         <ButtonVariantScope variant="ghost" raised={false}>
           <div data-jx-canvas-dock-foot class="flex flex-col">
-            <!-- the rim: a Separator instance (the ink law) -->
-            <Separator aria-hidden="true" />
+            <!-- the rim: a Separator instance at SOLID ink (the
+                 ghost's blind spot on the dock's uniform ground) -->
+            <Separator variant="solid" aria-hidden="true" />
             <CardFooter label="Playground actions">
               <!-- the stamp rides the REST LANE (floating-flesh-sweep:
                    press-button/icon-button pass attributes through now —

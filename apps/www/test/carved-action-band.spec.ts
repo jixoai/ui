@@ -85,20 +85,34 @@ describe('alert-dialog — the anchored strip is carved, not padded', () => {
     expect(group).not.toBeNull();
     expect(group.getAttribute('aria-label')).toBe('Actions');
     expect(group.className).toContain('w-full');
-    // the split rides an INLINE STYLE (vision r3: the arbitrary-property
-    // utility silently lost the same-property cascade fight against the
-    // group's own auto-cols-auto — a declaration beats every utility)
-    expect(group.getAttribute('style')?.replace(/\s+/g, '')).toContain('grid-auto-columns:minmax(auto,1fr)');
+    // THE SPLIT IS A FLEX LAW (Owner r4): grid fr cannot express "equal
+    // halves that fill, long labels floor wider" — an fr's unit comes
+    // from the leftover AFTER intrinsic bases, so max-content-floored
+    // tracks freeze (measured 120+143 of 382, the void parked at the
+    // end). The declaration switches the group to flex; the members'
+    // flex:1 1 0 + min-width:max-content + centered labels live in
+    // alert-dialog.css (measured: 191+191 equal fill; a long label
+    // takes its full unwrapped width, 1 line)
+    expect(group.getAttribute('style')?.replace(/\s+/g, '')).toContain('display:flex');
     expect(group.hasAttribute('data-jx-leading-seam')).toBe(false); // full-bleed: no carved left edge
   });
 
-  it('the source retired the padded loose row', () => {
+  it('the source retired the padded loose row; the labels center (Owner r4)', () => {
     const src = readFileSync(
       resolve(here, '../src/lib/ui/alert-dialog/alert-dialog-actions.svelte'),
       'utf8',
     );
     expect(src).not.toContain('py-3.5');
     expect(src).not.toContain('gap-2.5');
+    // a stretched split cell with a flex-start label reads as a hole
+    // between the two texts — the strip's css centers its cells
+    const css = readFileSync(
+      resolve(here, '../src/lib/ui/alert-dialog/alert-dialog.css'),
+      'utf8',
+    );
+    expect(css).toMatch(
+      /\[data-jx-adlg-actions\] \[data-jx-btngroup\]\) > :where\(\[data-jx-press-button\]\)\s*\{[^}]*flex: 1 1 0[^}]*min-width: max-content[^}]*justify-content: center/s,
+    );
   });
 });
 
@@ -131,6 +145,10 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     const first = clip.firstElementChild!;
     expect(first.tagName).toBe('HR'); // the rim rides first, hides with the collapse
     expect(first.getAttribute('aria-hidden')).toBe('true');
+    // SOLID ink (Owner r4 walk): the ghost's contrast subtraction is
+    // defeated by the dock's uniform near-white acrylic — its
+    // documented blind spot; solid is the sanctioned escape
+    expect(first.getAttribute('data-jx-separator')).toBe('solid');
     // the collapse's own border-t retired (the Separator owns the rim)
     const collapse = container.querySelector('.jx-canvas-dock-collapse')!;
     expect(collapse.className).not.toContain('border-t');
