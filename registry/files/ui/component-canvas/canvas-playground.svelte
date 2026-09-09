@@ -372,7 +372,7 @@
         <NativeSelect
           chrome="bare"
           data-jx-canvas-density-select
-          class="jx-canvas-dock-density h-full cursor-pointer self-stretch border-none bg-transparent px-[0.4rem] font-nav text-[10px] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground"
+          class="jx-canvas-dock-density h-full cursor-pointer self-stretch font-nav text-[10px] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground"
           aria-label="Density"
           title="Density"
           value={dDensity}
