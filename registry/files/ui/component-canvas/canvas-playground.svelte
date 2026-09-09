@@ -341,12 +341,20 @@
         <!-- THE TOOLBAR SEAMS (Owner r7, the actual ask all along: "icon、
              button、select 之间的分割线"): vertical Separator instances
              between the chrome cells — the palette-toolbar idiom, the
-             band's own height (self-stretch). SOLID ink (the ghost is
-             blind on the uniform acrylic) SOFTENED to the 60% border
-             mix (Owner r8: full --border reads too heavy BETWEEN small
-             controls — the output rows' own precedent; the horizontal
-             band rims keep the full ink: band boundaries stay stronger
-             than intra-cell texture, a two-tier hierarchy) -->
+             band's own height (self-stretch).
+             WHY NOT THE GHOST (the zero-token best practice) — MEASURED,
+             r8: live-flipping these seams to the fused ghost (computed
+             backdrop-filter: contrast(0.5) active) leaves the pixel
+             columns INDISTINGUISHABLE from the acrylic (no sample below
+             235/255; the 60% solid reads ~186) — a uniform near-white
+             ground gives the contrast engine nothing to subtract, its
+             documented blind spot. separator.css ships exactly one
+             escape for this: solid (var(--border)). The Owner's r8
+             softening rides the 60% border mix (the output rows'
+             precedent); the horizontal band rims keep the FULL ink —
+             band boundaries read stronger than intra-cell texture,
+             a two-tier hierarchy. Every other surface (Dialog, Sheet,
+             Card over varied page ground) keeps the ghost -->
         <Separator
           orientation="vertical"
           variant="solid"
