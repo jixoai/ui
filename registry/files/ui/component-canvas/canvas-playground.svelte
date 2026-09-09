@@ -81,6 +81,7 @@
   import Icon from '$lib/ui/icon';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import CardFooter from '$lib/ui/card/card-footer.svelte';
+  import Separator from '$lib/ui/separator/separator.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
   import type { ControlRow, PlayOutput } from './canvas-schema.svelte';
@@ -389,7 +390,7 @@
   <div
     class={cn(
       'jx-canvas-dock-collapse grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]',
-      open && 'grid-rows-[1fr] border-t border-border',
+      open && 'grid-rows-[1fr]',
     )}
     id={bodyId}
     data-open={open || undefined}
@@ -401,6 +402,12 @@
          and the pinned bar keeps its full height — a plain block clip
          let the content overflow and cut the bar to half a button -->
     <div data-jx-canvas-dock-clip class="flex min-h-0 flex-col overflow-hidden">
+      <!-- THE HEAD/BODY RIM IS A SEPARATOR INSTANCE (the ink law — the
+           same contrast-ghost engine Dialog's riding separators paint;
+           the retired border-t read washed-out over the acrylic and
+           off-standard). It rides INSIDE the clip so the 0fr collapse
+           hides it with the body -->
+      <Separator aria-hidden="true" />
       <!-- the internal scroll surface: capped block size + guttered thin
            scrollbar (the old pane's containment law, dock-sized); the
            output foot below stays pinned -->
@@ -525,7 +532,7 @@
             {#each output as item, index (`${item.label}-${index}`)}
               <div
                 data-jx-canvas-output-row
-                class="grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)] bg-[color-mix(in_oklab,var(--muted)_30%,transparent)] border border-[color-mix(in_oklab,var(--border)_60%,transparent)] px-[0.5rem] py-[0.28rem]"
+                class="grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)] bg-[color-mix(in_oklab,var(--muted)_30%,transparent)] px-[0.5rem] py-[0.28rem]"
               >
                 <dt class="text-muted-foreground font-nav text-[10px] tracking-[0.14em] uppercase">{item.label}</dt>
                 <!-- VALUE ink = text-foreground (V1-4/V2-9, 2026-09-02):
@@ -557,7 +564,9 @@
              compact chrome scale. Page-owned onreset wins; schema mode
              falls back to schema defaults -->
         <ButtonVariantScope variant="ghost" raised={false}>
-          <div data-jx-canvas-dock-foot class="border-t border-border">
+          <div data-jx-canvas-dock-foot class="flex flex-col">
+            <!-- the rim: a Separator instance (the ink law) -->
+            <Separator aria-hidden="true" />
             <CardFooter label="Playground actions">
               <!-- the stamp rides the REST LANE (floating-flesh-sweep:
                    press-button/icon-button pass attributes through now —

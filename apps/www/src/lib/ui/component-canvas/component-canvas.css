@@ -294,12 +294,16 @@
 :where(.jx-canvas-seg-btn) {
   flex: 1 1 auto;
 }
+/* THE BORDERLESS-CHROME LAW (Owner, 2026-09-09: "有明确边界的组件内，
+   尽量不要再出现有 border 的控件") — inside a bounded surface a
+   control frame is a box-in-a-box (visually catastrophic); the
+   AFFORDANCE carries itself: ghost cells, hover wash, the active
+   option's primary fill. The seg's old 1px frame + 1px gap-seam
+   background retired with the law */
 :where(.jx-canvas-seg) {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 1px;
-  border: 1px solid var(--border);
-  background: var(--border);
 }
 :where(.jx-canvas-seg-btn) {
   min-block-size: var(--jx-hit);
@@ -314,6 +318,7 @@
 }
 :where(.jx-canvas-seg-btn:hover) {
   color: var(--foreground);
+  background: color-mix(in oklab, var(--muted) 55%, transparent);
 }
 :where(.jx-canvas-seg-btn[aria-pressed='true']) {
   background: var(--primary);
@@ -325,8 +330,6 @@
 :where(.jx-canvas-stepper) {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid var(--border);
-  background: var(--background);
 }
 :where(.jx-canvas-step-btn) {
   min-block-size: var(--jx-hit);
@@ -348,7 +351,6 @@
   align-items: center;
   min-block-size: var(--jx-hit);
   padding-inline: 0.55rem;
-  border-inline: 1px solid var(--border);
   color: var(--foreground);
   font-family: var(--font-mono);
   font-size: 11px;

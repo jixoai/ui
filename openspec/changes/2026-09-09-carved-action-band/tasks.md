@@ -27,3 +27,19 @@
       统一性=同一法则同一原语（zone+carved 几何），select 为唯一非 press 单元（无边 ghost）
 - [x] R4 门禁：carved-action-band.spec 增三門（压缩修复 css/结构、head 带 DOM/源码退休配方）
 - [ ] R5 vision 复验（dialog 页 dock：复位栏全高、head 带、adlg 40px 条）+ commit 推送
+
+- [x] S1 borderless-chrome 立法 + dock 内三处去框（seg/stepper/output 行）
+- [x] S2 dock 两道 rim → Separator 实例（head/body 骑 clip 首子随折叠隐藏）
+- [x] S3 adlg rim → Separator（墨法对齐 Dialog）
+- [x] S4 adlg 均分 footer：ButtonGroup minmax(auto,1fr) 全宽；deps -card +separator +input
+- [x] S5 system 三件套：alert/confirm/prompt + Content pose/focusLanding + docs section + 8 门 spec
+- [x] S6 carved-band spec 门更新（strip/dock 新结构 + borderless 门）
+- [ ] S7-S9 全量门禁 + vision 复验 + commit 推送
+- [x] S7 vision r3 复验：3/4/5 PASS（墨线/居中/去框/回归）；两抓真缺陷——
+      ① 均分的任意属性 utility 在同属性 cascade 里输给 ButtonGroup 自持的
+      auto-cols-auto（class-append 法则的活案例）→ 改 inline style 声明
+      （计算值 1fr，127.3+128.3 实测 50/50，双侧贴缘）；
+      ② alert() 无 Cancel 可落焦 → Content 着陆查询加 action 兜底
+      （实测落 "ok" 钮）。trio 居中 [0,0] 偏移、prompt 输入 bare 无框、
+      0.5s 卸载无残尸、Escape→null 全过。
+- [ ] S9 commit 推送

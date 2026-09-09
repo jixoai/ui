@@ -1100,7 +1100,6 @@
       "type": "registry:lib",
       "title": "Generated icon set",
       "description": "The named-glyph artifact behind <Icon name>: the 38 built-in lucide glyphs (arrow-right / chevron-down / x / external-link / check …) packed by @jixoai/ui-vite-plugin's icons library face into a typed IconName union + getIcon()/loadIcon()/preloadIcons() over {v,n,d} payloads. Default tier: ONE inline chunk, zero npm deps, plugin-free (synchronous getIcon, SSR paints core glyphs). Overflow tier: configs past the chunk budget (or inlineFirstChunk:false) emit lazy imports of virtual:jixoai-icons/chunk/* — that tier REQUIRES wiring jixoai({ icons: { library } }) from @jixoai/ui-vite-plugin (the documented plugin prerequisite; without it the build fails with the named sentinel error).",
-      "description": "The named-glyph artifact behind <Icon name>: the 38 built-in lucide glyphs (arrow-right / chevron-down / x / external-link / check …) packed by @jixoai/ui-vite-plugin's icons library face into a typed IconName union + getIcon()/loadIcon()/preloadIcons() over {v,n,d} payloads. Default tier: ONE inline chunk, zero npm deps, plugin-free (synchronous getIcon, SSR paints core glyphs). Overflow tier: configs past the chunk budget (or inlineFirstChunk:false) emit lazy imports of virtual:jixoai-icons/chunk/* — that tier REQUIRES wiring jixoai({ icons: { library } }) from @jixoai/ui-vite-plugin (the documented plugin prerequisite; without it the build fails with the named sentinel error).",
       "dependencies": [],
       "files": [
         {
@@ -1421,7 +1420,8 @@
         "@jixoai/icon",
         "@jixoai/list-item",
         "@jixoai/density",
-        "@jixoai/defaults"
+        "@jixoai/defaults",
+        "@jixoai/separator"
       ],
       "files": [
         {
@@ -2850,6 +2850,16 @@
           "path": "registry/files/ui/alert-dialog/alert-dialog-defaults.svelte.ts",
           "target": "@ui/alert-dialog/alert-dialog-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-system.svelte",
+          "target": "@ui/alert-dialog/alert-dialog-system.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/alert-dialog/alert-dialog-system.svelte.ts",
+          "target": "@ui/alert-dialog/alert-dialog-system.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title, description (both required), open ($bindable), confirmLabel, confirmTone? ('destructive' default | 'primary'), onconfirm?, cancelLabel?, children? (extra body).",
@@ -2862,9 +2872,10 @@
         "@jixoai/jixoai-theme",
         "@jixoai/press-button",
         "@jixoai/button-group",
-        "@jixoai/card",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/separator",
+        "@jixoai/input"
       ]
     },
     {

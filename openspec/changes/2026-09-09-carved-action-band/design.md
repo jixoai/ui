@@ -82,3 +82,28 @@ ButtonGroup items-stretch + min-h 下限）在 Card/Dialog foot 上已经
    ButtonGroup 簇；ButtonGroup/CardFooter 只服务纯按钮簇
    （ButtonBar 退役教训不翻案）。aria-pressed/expanded/controls
    经 rest lane 落 IconButton 根，a11y 零回退。
+
+## Round 3 (Owner acceptance, 2026-09-09 深夜) — 五条裁决
+
+1. **borderless-chrome 立法**（"有明确边界的组件内，尽量不要再出现
+   有 border 的控件，视觉灾难"）：docked chrome 的控件零边框成为
+   spec 法则（the borderless-chrome law）；扫掉 dock 内三处野生框
+   ——seg 容器框+缝底、stepper 框+值分隔线、output 行单元格边框
+   （保留底色带）。select/input 走既有 control-chrome 'bare' 轴。
+2. **dock 分割线**：head/body 与 body/foot 两道 rim 从 `border-t`
+   token 线换成 **Separator 实例**（对比幽灵墨，与 Dialog 同引擎；
+   token 灰线在亚克力上读不出）。head/body rim 骑在 clip 内首子，
+   0fr 折叠时随 body 一起隐藏。
+3. **adlg rim 同罪同修**：strip 的 border-t → Separator 实例
+   （"和 Dialog 的标准不一样"的就是这条墨法差）。
+4. **adlg 均分 footer**（"均分 footer，文字过多可以撑开"）：
+   CardFooter 终端簇退役，换 ONE 全宽 ButtonGroup，
+   `grid-auto-columns: minmax(auto,1fr)` ——等分、长文案可撑列
+   （macOS 系统弹窗姿态）；1px seam 为按钮间线，无 leadingSeam
+   （全出血无雕刻左缘）。adlg deps：-card +separator +input。
+5. **system 三件套**（"承担 window.alert/prompt/confirm 职责"）：
+   命令式 `alert()/confirm()/prompt()`（裸字符串简写），
+   Content 增 `pose='center'`（弃锚链，UA popover 居中）与
+   `focusLanding`；prompt 输入用 Input@bare（法则 1 同源），
+   Enter 提交、Escape→null；EXACTLY-ONCE 解决 + 出场窗后卸载。
+   组件不改名（Owner 许可而非要求，118 消费者不值得）。

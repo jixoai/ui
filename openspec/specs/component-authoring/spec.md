@@ -8,7 +8,7 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
 > `apps/www/src/lib/ui/**`). Components are Svelte 5 runes-first,
 > native-element-first, and follow the Tier system below.
 
-## Current contract (state: 2026-09-09, the carved-action-band over the floating-flesh-sweep (rest lane + sheet dialect + anchored-alert ruling) over the structural kernel law)
+## Current contract (state: 2026-09-09, the carved-action-band rounds 2-3 (head band, even split, ink rims, borderless chrome, the system trio) over the floating-flesh-sweep (rest lane + sheet dialect + anchored-alert ruling) over the structural kernel law)
 
 ## Requirements
 
@@ -2287,6 +2287,66 @@ wrapper-span hack for unstampeable buttons is retired with this law.
   contract and the ariaLabel prop owns the channel (a rest-borne
   undefined can never strip the family's value)
 
+### Requirement: the borderless-chrome law (no framed controls inside a bounded surface)
+
+Inside a surface that already carries its own clear boundary (a
+border, a material edge — the canvas dock, a floating panel), a
+control SHALL NOT add a second frame of its own: boxes inside boxes
+read catastrophic (Owner, 2026-09-09: "在一个有明确边界的这种组件
+内，尽量不要再出现有 border 的控件，在视觉上会带来灾难性的
+问题"). The affordance carries itself: ghost cells under the zone,
+hover wash, the active option's fill, the focus ring. The
+control-chrome axis ('bare') is the form lane's expression of the
+same law; decorative SEPARATOR lines between controls are not frames
+and stay legal (the law bans control borders, not boundaries).
+
+#### Scenario: the dock's inner controls carry no frames
+
+- GIVEN the playground dock's control rows (a segmented option set,
+  a stepper trio, the output projection rows)
+- THEN none paints a control frame — the segmented options read as
+  ghost cells with the active option filled, the stepper reads as
+  three borderless cells around the mono value, and the output rows
+  band by tint alone
+
+### Requirement: the system trio (alert · confirm · prompt on the one alert engine)
+
+The alert-dialog family SHALL carry the window.alert /
+window.confirm / window.prompt roles through an imperative trio
+(`alert()`, `confirm()`, `prompt()` from the family index; a bare
+string fills the title): each call mounts one host composition of
+the family parts at the CENTER pose — Content's pose="center" drops
+the anchor chain (a system question has no trigger to rise beside)
+and the UA popover centering owns the panel. Resolution is EXACTLY
+ONCE: an affirmative action resolves its value (void / boolean /
+string), any close without an action (Cancel, Escape, programmatic)
+resolves the cancel value (false / null); the mount unmounts after
+the exit window so the animation plays out. Focus: the choice
+postures land on Cancel (the APG safe-landing law); prompt lands on
+its input (the answer is the task) and Enter submits through the
+host's keydown. The prompt input rides the Input component at bare
+chrome (the borderless-chrome law).
+
+#### Scenario: confirm answers through a promise
+
+- GIVEN `const ok = await confirm('delete?')` with the panel open
+- THEN the Action click resolves true, the Cancel click and Escape
+  both resolve false — never a hang, never a double resolve
+
+#### Scenario: prompt returns the typed answer
+
+- GIVEN `const name = await prompt({ title: 'rename' })` with text
+  typed into the input
+- THEN Enter (or the submit action) resolves the string; Escape
+  resolves null
+
+#### Scenario: the system panel is centered, not anchored
+
+- GIVEN a trio-mounted panel
+- THEN Content carries pose="center" — no position-anchor chain; the
+  UA's popover centering (margin auto, fit-content, inset 0) owns
+  the geometry, the window.confirm posture
+
 ### Requirement: the carved action band (the carved-cell law generalized to any surface)
 
 An action band is a CARVED REGION, never a floating row (Owner
@@ -2318,10 +2378,14 @@ non-action geometry it legitimately needs.
 
 - GIVEN an AlertDialogActions strip (a popover-sized surface that
   rents no banded ruler)
-- THEN its Cancel and Action render as ONE joined cluster through
-  CardFooter's standalone mirror — each button fills the strip's
-  height, the strip's border-t is the rim, the inter-button seam
-  is the 1px hairline (never a gap)
+- THEN its Cancel and Action render as ONE full-width ButtonGroup
+  whose columns are minmax(auto, 1fr) — the buttons SPLIT the strip
+  evenly (a long label may widen its column; the macOS system-alert
+  posture), each fills the strip's height, the inter-button seam is
+  the 1px hairline (never a gap), and the rim above is a REAL
+  Separator instance — the same contrast-ghost ink engine Dialog's
+  riding separators paint, never a border-t token line (the ink-law
+  parity ruling, 2026-09-09 round 3)
 
 #### Scenario: a chrome bar quiets into the same band
 
@@ -2358,12 +2422,14 @@ addition preserved (the fill rung ships the jx-pair-destructive
 injection as the confirmTone default; consumer pair injections still
 win by layer order). The AlertDialogActions strip carries the
 action-band zone (ghost + flat): the Cancel renders quiet with zero
-paint props, an explicit Action variant always wins. The strip's
-interior is the CARVED ACTION BAND (carved-action-band, 2026-09-09):
-the bleed wrapper keeps the strip's own craft (the mt/gap breathing
-arithmetic, the negative margins, the rim border-t) and renders
-CardFooter's standalone mirror inside — the buttons fill the strip
-vertically, joined by the group's seam, never a loose padded row.
+paint props, an explicit Action variant always wins. the strip's
+interior is the CARVED ACTION BAND (carved-action-band, 2026-09-09,
+round 3: the even-split + ink-law rulings): the bleed wrapper keeps
+the strip's own craft (the mt/gap breathing arithmetic, the negative
+margins) and renders ONE full-width ButtonGroup with minmax(auto,1fr)
+columns under a real Separator rim — the buttons split the strip
+evenly, fill it vertically, and join by the group's 1px seam; never
+a loose padded row, never a border-t token rim.
 
 #### Scenario: the confirm keeps its destructive default on the one ladder
 

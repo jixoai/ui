@@ -21,6 +21,8 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import { CATALOG } from '$lib/catalog';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { alert, confirm, prompt } from '$lib/ui/alert-dialog/index';
   import AlertDialog, {
     AlertDialogTrigger,
     AlertDialogContent,
@@ -46,11 +48,36 @@
   const canvasInitial = { deleted: false };
   let open = $state(false);
   let deleted = $state(canvasInitial.deleted);
+  // the system trio's live readout (the section demo below)
+  let systemResult = $state<string>('— not asked yet —');
+  async function askConfirm(): Promise<void> {
+    const ok = await confirm({ title: 'rotate the key?', description: 'minting a new key revokes the current one after 24 hours.' });
+    systemResult = ok ? 'confirm → true (rotated)' : 'confirm → false (kept)';
+  }
+  async function askPrompt(): Promise<void> {
+    const name = await prompt({ title: 'rename the workspace', inputLabel: 'name', initialValue: 'jixoai-labs/ui' });
+    systemResult = name === null ? 'prompt → null (cancelled)' : `prompt → ${JSON.stringify(name)}`;
+  }
+  async function askAlert(): Promise<void> {
+    await alert({ title: 'the key rotated', description: 'the old key stays valid for 24 more hours.' });
+    systemResult = 'alert → acknowledged';
+  }
   function resetCanvas(): void {
     deleted = canvasInitial.deleted;
   }
 
   const close = '</' + 'script>';
+
+  const systemUsage = `import { alert, confirm, prompt } from '@ui/alert-dialog/index';
+
+await alert('the key rotated');
+// → void (a single affirmative action)
+
+const ok = await confirm('rotate the key?');
+// → boolean (the action → true; Cancel/Escape → false)
+
+const name = await prompt({ title: 'rename', inputLabel: 'name' });
+// → string | null (Enter submits, Escape cancels → null)`;
 
   const usage = `<script lang="ts">
   import AlertDialog, {
@@ -230,6 +257,7 @@ ${close}
       </div>
     </div>
   </SectionCard></div>
+  <div id="system" data-reveal=""><SectionCard family="system" headerRegion="system" eyebrow="system" title="System dialogs — alert · confirm · prompt" summary="The imperative trio carries window.alert / window.confirm / window.prompt on the family's one engine: the CENTER pose (a system question has no trigger to anchor beside), the carved split strip, the shared animated close. Every call resolves exactly once — an action resolves its value, any close without one resolves the cancel value."><div class="flex flex-col gap-5"><div class="flex flex-wrap gap-2.5"><PressButton onclick={askAlert}>alert()</PressButton><PressButton onclick={askConfirm}>confirm()</PressButton><PressButton onclick={askPrompt}>prompt()</PressButton></div><p class="font-mono text-[12.5px] text-muted-foreground" data-testid="system-result">{systemResult}</p><CodeBlock code={systemUsage} lang="ts" meta="system trio" /></div></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Root owns bind:open + the onconfirm seam; Title and Description are parts — an alert without words is not an alert."><CodeBlock code={usage} lang="svelte" meta="AlertDialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="APG alertdialog law on the popover base: focus lands on Cancel on open, Escape cancels through the component-owned handler (keydown lives on the panel — Escape cancels while focus is inside it; a user who tabbed back to the page has left the question), hiding the popover restores focus to the invoker (a removed invoker deliberately leaves focus on the body — focus is never steered into dead markup); Tab is free — the anchored alert is non-modal by the popover-engine ruling."><A11yTable keys={[{ key: 'Escape', action: 'Cancels — SCOPED to the panel: the keydown handler lives on the popover itself, so it fires while focus is inside the panel; the component-owned keydown is prevented and runs through the state close (manual popover — no light dismiss)' }, { key: 'Tab', action: 'Free — the anchored alert is non-modal (popover base: no focus trap); hiding the popover restores focus to the invoker, or to the body if the invoker was removed while open' }, { key: 'Enter / Space', action: 'Activates the focused button — Cancel (focused on open) or Action' }]} aria={[{ name: 'role', value: 'alertdialog', description: 'On Content (the popover panel div).' }, { name: 'aria-labelledby', value: '{uid}-title', description: 'Points at the deterministic id Title renders; derived from the root uid.' }, { name: 'aria-describedby', value: '{uid}-desc', description: 'Points at the deterministic id Description renders.' }, { name: 'aria-haspopup', value: 'dialog', description: 'On the Trigger button.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the Trigger; mirrors the open state.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface inherits density through the DOM tree; motion runs on one animated custom property."><div class="flex flex-col gap-5"><DensityDemo><AlertDialog><AlertDialogTrigger class="px-4 py-2 border border-border bg-background text-foreground font-nav text-xs tracking-[0.1em] uppercase cursor-pointer">delete pipeline…</AlertDialogTrigger><AlertDialogContent><AlertDialogTitle>delete the pipeline?</AlertDialogTitle><AlertDialogDescription>density scopes resize the trigger rhythm; the surface inherits scope from its DOM position.</AlertDialogDescription><AlertDialogActions><AlertDialogCancel>cancel</AlertDialogCancel><AlertDialogAction>delete pipeline</AlertDialogAction></AlertDialogActions></AlertDialogContent></AlertDialog></DensityDemo><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The surface-motion progress driving open/close.' }, { name: '--scrim', default: 'semi-transparent black/white', source: 'color', description: '::backdrop scrim — never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Surface entry offset (translate-in).' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: 'surface width', default: 'min(28rem, 100vw − 2rem)', source: 'structural' }]} /></div></SectionCard></div>

@@ -44,6 +44,17 @@
         contract own 'auto' (AlertDialogDefaults — a declared own, not
         ambient) */
     variant?: AlertDialogSurfaceVariant;
+    /** the SYSTEM pose (system-dialog, 2026-09-09): 'anchored' (default)
+        rides the CSS Anchor Positioning geometry against the trigger;
+        'center' drops the anchor chain and lets the UA's popover
+        centering own the panel (margin auto + fit-content, inset 0) —
+        the window.alert/prompt/confirm posture for panels with no
+        trigger to rise beside */
+    pose?: 'anchored' | 'center';
+    /** where focus lands on open: 'cancel' (default, the APG
+        safe-landing law) | 'none' (the caller owns the landing — the
+        prompt form focuses its input) */
+    focusLanding?: 'cancel' | 'none';
     children?: Snippet;
     class?: string;
   }
@@ -54,6 +65,8 @@
   // drop the anchor geometry (D-4, 2026-09-02)
   let {
     variant,
+    pose = 'anchored',
+    focusLanding = 'cancel',
     children,
     class: className = '',
     style = '',
@@ -91,9 +104,14 @@
       // popconfirm law — a fast close must not refocus the dead panel)
       if (typeof requestAnimationFrame === 'function') {
         requestAnimationFrame(() => {
-          if (panel?.matches(':popover-open')) {
-            panel?.querySelector<HTMLButtonElement>('[data-jx-adlg-cancel]')?.focus();
-          }
+          if (!panel?.matches(':popover-open')) return;
+          if (focusLanding === 'none') return; // the caller owns the landing
+          // cancel first (the safe-landing law); a strip with NO cancel
+          // (the alert posture's single affirmative) lands on the action
+          (
+            panel?.querySelector<HTMLButtonElement>('[data-jx-adlg-cancel]') ??
+            panel?.querySelector<HTMLButtonElement>('[data-jx-adlg-action]')
+          )?.focus();
         });
       }
     } else {
@@ -137,7 +155,10 @@
   )}
   data-variant={d.variant}
   data-jx-adlg=""
-  style="position-anchor: --{api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem); {style}"
+  data-pose={pose}
+  style={pose === 'center'
+    ? `margin: auto; ${style}`
+    : `position-anchor: --{api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem); ${style}`}
   {...rest}
   role="alertdialog"
   aria-labelledby="{api.uid}-title"
