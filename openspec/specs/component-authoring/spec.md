@@ -2426,9 +2426,13 @@ non-action geometry it legitimately needs.
   every press control (ghost + flat, zero hand borders — the
   ButtonBar spirit), controls stretch to fill the band with no
   padding float, the body's rim line below closes the band, vertical
-  solid Separators seam the chrome cells apart (grip|theme|select —
-  the toolbar idiom, the band's own height, the rims' ink), and the
-  one non-press cell (the native select) rides the band borderless
+  Separators seam the chrome cells apart (grip|theme|select — the
+  toolbar idiom, the band's own height) at the DEFAULT FUSED INK,
+  zero color tokens (the Owner-confirmed law, 2026-09-09 r9: a
+  toolbar seam is a visual aid — it whispers; on the dock's uniform
+  acrylic the subtraction reads a few 255ths and that subtlety IS
+  the correct practice, "这就是更正确的最佳实践"), and the one
+  non-press cell (the native select) rides the band borderless
 
 #### Scenario: a non-footer bar uses the same band
 
