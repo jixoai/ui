@@ -2425,7 +2425,9 @@ non-action geometry it legitimately needs.
 - THEN the row rides the same carved treatment: the zone quiets
   every press control (ghost + flat, zero hand borders — the
   ButtonBar spirit), controls stretch to fill the band with no
-  padding float, the body's rim line below closes the band; the
+  padding float, the body's rim line below closes the band, vertical
+  solid Separators seam the chrome cells apart (grip|theme|select —
+  the toolbar idiom, the band's own height, the rims' ink), and the
   one non-press cell (the native select) rides the band borderless
 
 #### Scenario: a non-footer bar uses the same band

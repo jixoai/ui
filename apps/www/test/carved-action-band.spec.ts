@@ -217,6 +217,15 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-density-select]')!;
     expect(select.className).toContain('self-stretch');
     expect(select.className).toContain('border-none');
+    // THE TOOLBAR SEAMS (Owner r7 — the ask all along): vertical solid
+    // Separators between the chrome cells (grip|theme|select), the
+    // band's own height, the same ink as the rims
+    const seams = head.querySelectorAll('[data-jx-separator][data-orientation="vertical"]');
+    expect(seams.length).toBe(2);
+    for (const seam of seams) {
+      expect(seam.getAttribute('data-jx-separator')).toBe('solid');
+      expect(seam.getAttribute('aria-hidden')).toBe('true');
+    }
     // the hand chrome recipe is gone from the source (borders, the
     // +2px size scale, the shadow-suppression customs)
     const src = readFileSync(

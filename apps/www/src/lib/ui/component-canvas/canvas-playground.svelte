@@ -338,6 +338,12 @@
         >
           <Icon name="gripVertical" size={12} />
         </span>
+        <!-- THE TOOLBAR SEAMS (Owner r7, the actual ask all along: "icon、
+             button、select 之间的分割线"): vertical Separator instances
+             between the chrome cells — the palette-toolbar idiom, the
+             band's own height (self-stretch). SOLID ink like the rims:
+             the ghost's subtraction is blind on the uniform acrylic -->
+        <Separator orientation="vertical" variant="solid" aria-hidden="true" />
         <IconButton
           icon={themeGlyph}
           text="Toggle theme"
@@ -349,6 +355,7 @@
           onclick={() => (theme = theme === 'dark' ? 'light' : 'dark')}
           class="jx-canvas-dock-theme"
         />
+        <Separator orientation="vertical" variant="solid" aria-hidden="true" />
         <!-- the size toggle: a compact native select with the
              REPO-STANDARD Density vocabulary, stamped onto the stage
              DIRECTLY (no comfortable/compact mapping — the amendment);
