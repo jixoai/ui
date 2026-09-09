@@ -70,6 +70,7 @@ const LEGACY: Record<string, PropEntry[]> = {
   select: [
     { name: 'options', type: 'SelectOption[]', default: '—', description: 'The full option list; order = panel order.', required: true },
     { name: 'value', type: 'string', default: '—', description: 'Committed value; undefined shows the placeholder.', bindable: true },
+    { name: 'onchange', type: '(value: string) => void', default: '—', description: 'Commit hook (issue #6): fires with the newly committed value on every commit route (click, Enter, Space), alongside the bind:value write — sugar over bind:value. The native change event never fires on the trigger button, so this prop owns the channel outright.' },
     { name: 'placeholder', type: 'string', default: "'Select...'", description: 'Trigger text when nothing is selected.' },
     { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the trigger.' },
     { name: 'name', type: 'string', default: '—', description: 'Form field name — the bridge submits the committed value under it.' },
@@ -200,7 +201,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'select',
     meta: selectMeta,
     docs: SELECT_DOCS,
-    renderedOrder: ['options', 'density', 'value', 'placeholder', 'label', 'name', 'error', 'multiple', 'variant', 'disabled'],
+    renderedOrder: ['options', 'density', 'value', 'placeholder', 'label', 'name', 'error', 'multiple', 'variant', 'onchange', 'disabled'],
   },
   {
     name: 'popover',
@@ -305,6 +306,7 @@ const OVERRIDE_FIELDS_IN_PLAY = {
   select: {
     options: ['required', 'description'],
     value: ['bindable', 'description'],
+    onchange: ['type', 'description'],
     placeholder: ['description'],
     label: ['description'],
     name: ['description'],

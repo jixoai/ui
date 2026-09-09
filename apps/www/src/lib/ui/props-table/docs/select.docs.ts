@@ -23,6 +23,11 @@ export const SELECT_DOCS: PropsDocs = {
       description: 'Committed value; undefined shows the placeholder.',
       bindable: true,
     },
+    onchange: {
+      type: '(value: string) => void',
+      description:
+        'Commit hook (issue #6): fires with the newly committed value on every commit route (click, Enter, Space), alongside the bind:value write — sugar over bind:value. The native change event never fires on the trigger button, so this prop owns the channel outright.',
+    },
     placeholder: {
       description: 'Trigger text when nothing is selected.',
     },

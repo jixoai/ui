@@ -47,6 +47,10 @@ export const meta = defineComponentMeta(
         "default": "auto",
         "ambient": "own"
       },
+      "onchange": {
+        "kind": "opaque",
+        "typeText": "(value: string) => void"
+      },
       "'data-density'": {
         "kind": "opaque",
         "typeText": "unknown"
