@@ -79,6 +79,6 @@ Owner 的裁决方向（讨论记录）：
 ## 范围外（follow-up 记档）
 
 - section-card 第三套 ruler 克隆切 Card 方言。
-- alert-dialog / sheet 皮肉方言化（现为纯机制+自备皮肉形态，无 ruler
+- system-dialog / sheet 皮肉方言化（现为纯机制+自备皮肉形态，无 ruler
   依赖）。
 - CardFooter standalone 窄屏反转缺口（贴纸化顺带修复，本次验证）。

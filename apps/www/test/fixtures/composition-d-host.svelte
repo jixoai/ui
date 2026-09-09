@@ -6,22 +6,22 @@
 <script lang="ts">
   import Toc, { TocList, TocItem, TocLink } from '$lib/ui/toc/index';
   import Tour from '$lib/ui/tour/tour.svelte';
-  import AlertDialog, {
-    AlertDialogTrigger,
-    AlertDialogContent,
-    AlertDialogTitle,
-    AlertDialogDescription,
-    AlertDialogActions,
-    AlertDialogAction,
-    AlertDialogCancel,
-  } from '$lib/ui/alert-dialog/index';
+  import SystemDialog, {
+    SystemDialogTrigger,
+    SystemDialogContent,
+    SystemDialogTitle,
+    SystemDialogDescription,
+    SystemDialogActions,
+    SystemDialogAction,
+    SystemDialogCancel,
+  } from '$lib/ui/system-dialog/index';
   import Popconfirm from '$lib/ui/popconfirm/popconfirm.svelte';
 
   type Scenario =
     | 'toc-manual'
     | 'toc-outline'
     | 'tour-card'
-    | 'alert-dialog'
+    | 'system-dialog'
     | 'popconfirm-default'
     | 'popconfirm-override';
 
@@ -89,19 +89,19 @@
       {/snippet}
     </Tour>
   </div>
-{:else if scenario === 'alert-dialog'}
-  <div data-host="alert-dialog" data-open={alertOpen} data-deleted={deleted}>
-    <AlertDialog bind:open={alertOpen} onconfirm={() => (deleted = true)}>
-      <AlertDialogTrigger>delete repo</AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogTitle>delete repo?</AlertDialogTitle>
-        <AlertDialogDescription>no undo</AlertDialogDescription>
-        <AlertDialogActions>
-          <AlertDialogCancel>cancel</AlertDialogCancel>
-          <AlertDialogAction>delete</AlertDialogAction>
-        </AlertDialogActions>
-      </AlertDialogContent>
-    </AlertDialog>
+{:else if scenario === 'system-dialog'}
+  <div data-host="system-dialog" data-open={alertOpen} data-deleted={deleted}>
+    <SystemDialog bind:open={alertOpen} onconfirm={() => (deleted = true)}>
+      <SystemDialogTrigger>delete repo</SystemDialogTrigger>
+      <SystemDialogContent>
+        <SystemDialogTitle>delete repo?</SystemDialogTitle>
+        <SystemDialogDescription>no undo</SystemDialogDescription>
+        <SystemDialogActions>
+          <SystemDialogCancel>cancel</SystemDialogCancel>
+          <SystemDialogAction>delete</SystemDialogAction>
+        </SystemDialogActions>
+      </SystemDialogContent>
+    </SystemDialog>
   </div>
 {:else if scenario === 'popconfirm-default'}
   <div data-host="popconfirm-default" data-outcome={pcOutcome}>

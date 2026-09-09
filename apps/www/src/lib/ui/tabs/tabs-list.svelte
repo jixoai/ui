@@ -382,7 +382,7 @@
    *  indicator span inherits the custom property); the effect knobs land
    *  beside it on the HOST (the overlays are the run's siblings — a var
    *  on the run never reaches them); a consumer style APPENDS (merge
-   *  law, alert-dialog dialect — never clobber) */
+   *  law, system-dialog dialect — never clobber) */
   const hostStyle = $derived.by(() => {
     const parts = [
       material === 'liquid' ? `--jx-tabs-liquid-bf: url('#${tabs.uid}-liquid') blur(2px) saturate(1.6)` : '',

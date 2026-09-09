@@ -408,7 +408,11 @@ describe('exemptions', () => {
 // a missing one.)
 describe('matrix↔tasks bijection', () => {
   const tasksMd = readFileSync(
-    join(REPO, 'openspec/changes/archive/2026-09-04-env-debt-cleanup/tasks.md'),
+    // the ACTIVE change's living tasks copy (not the frozen archive): the
+  // bijection runs against the LIVE route universe, and a page rename
+  // (alert-dialog → system-dialog, 2026-09-09) must carry into the
+  // batch lists — frozen history cannot chase a live filesystem
+    join(REPO, 'openspec/changes/2026-09-04-env-debt-cleanup/tasks.md'),
     'utf8',
   );
 
@@ -502,13 +506,13 @@ describe('matrix↔tasks bijection', () => {
   });
 
   it('a duplicated route in a batch list is a PARSE VIOLATION (not silently deduped)', () => {
-    const mutated = tasksMd.replace('**批次 A**（12 页）：alert-dialog、avatar', '**批次 A**（12 页）：alert-dialog、avatar、avatar');
+    const mutated = tasksMd.replace('**批次 A**（12 页）：system-dialog、avatar', '**批次 A**（12 页）：system-dialog、avatar、avatar');
     expect(mutated).not.toBe(tasksMd); // the mutation must have landed
     expect(parseBatches(mutated).violations.some((v) => v.includes("'avatar' listed 2 times"))).toBe(true);
   });
 
   it('an unknown page token in a batch list is a PARSE VIOLATION (not silently filtered)', () => {
-    const mutated = tasksMd.replace('**批次 A**（12 页）：alert-dialog、avatar', '**批次 A**（12 页）：alert-dialog、ghost-page');
+    const mutated = tasksMd.replace('**批次 A**（12 页）：system-dialog、avatar', '**批次 A**（12 页）：system-dialog、ghost-page');
     expect(mutated).not.toBe(tasksMd); // the mutation must have landed
     expect(parseBatches(mutated).violations.some((v) => v.includes("'ghost-page' is not a docs page"))).toBe(true);
   });

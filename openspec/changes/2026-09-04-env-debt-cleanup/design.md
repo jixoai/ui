@@ -102,7 +102,7 @@ change 做的是**词汇对齐**——手写行的 Default cell 写成 meta 驱�
 - **inline-code 的 variant 行是 definePaintSlot + ambient zone 正典
   （codex 建议 4）——本 change 只动其 density 行，variant 行禁改。**
 
-**23 扫描页 + section-card**（r2 计数）：alert-dialog(2v)、avatar(v+size)、
+**23 扫描页 + section-card**（r2 计数）：system-dialog(2v)、avatar(v+size)、
 color-picker(v)、dialog(v)、dropdown-menu(v)、file-input(v)、float-button(v)、
 form(d)、hover-card(v)、inline-code(d)、kbd(v)、language-switcher(v)、
 list-item(v)、menubar(v)、navigation-menu(v)、separator(v)、sheet(v+size)、
@@ -116,9 +116,9 @@ tour(v) ＋ section-card(tone)。
 每条 entry：
 
 ```jsonc
-{ "route": "alert-dialog", "batch": "A", "tableIndex": 2, "prop": "variant",
+{ "route": "system-dialog", "batch": "A", "tableIndex": 2, "prop": "variant",
   "occurrence": 1, "bareDefault": "auto", "marker": "own",
-  "defaultsFile": "registry/files/ui/alert-dialog/alert-dialog-defaults.svelte.ts",
+  "defaultsFile": "registry/files/ui/system-dialog/system-dialog-defaults.svelte.ts",
   "slotExport": "alertDialogSurfaceVariantSlot",
   "exactDescription": null, /* 仅四行 tail 迁移行携带 exact 串 */
   "note": "页面共四张 PropsTable（root=0/Trigger=1/Content=2/Action=3）；本行属 Content 表——owner 仅注记，不参与匹配" }
@@ -134,10 +134,10 @@ fixture 须 schema RED）；`batch` ∈ {A, B} 必填（页面级批次归属）
 
 - **owner 绑定（B3 + r3-B1 闭合）**：matrix 存 **`tableIndex`**（svelte
   AST 里 PropsTable 调用点的 0 基序号——页面源码的稳定可观测身份；
-  SectionCard/PropsTable 的 title 仅作文档注记不参与匹配）。alert-dialog
+  SectionCard/PropsTable 的 title 仅作文档注记不参与匹配）。system-dialog
   双行的 tableIndex **冻结为 2（Content → alertDialogSurfaceVariantSlot）
   与 3（Action → alertDialogActionVariantSlot）**——实现首步即以真实
-  AST 校验这两个值命中，再做表内匹配。**负例**：交换 alert-dialog 两张
+  AST 校验这两个值命中，再做表内匹配。**负例**：交换 system-dialog 两张
   涉事表 / 把 variant 行移入另一张表 → RED（index 键的行落
   错表）。槽导出名冻结映射：occ.1 → `alertDialogSurfaceVariantSlot`、
   occ.2 → `alertDialogActionVariantSlot`；toast#variant →
@@ -159,7 +159,7 @@ AST 天然处理；TokenTable（`source:` 字段形态）在 AST 层按组件名
 **负例独立性（r3-B2 闭合）**：行检查器实现为纯函数
 `checkPage(sourceText, matrixEntry) → findings`——正例跑真实页面；负例用
 **测试内合成源码串**（如 variant default 写成 `'auto' · ambient zone` 的
-合成页面、两张表互换的 alert-dialog 合成源码），断言 checker 对其返回
+合成页面、两张表互换的 system-dialog 合成源码），断言 checker 对其返回
 非空 findings。期望矩阵本身永不被变异作被测输入——无自证循环。
 
 **四行 tail 迁移的 exact description（S4 闭合，已取证现行原文）**：

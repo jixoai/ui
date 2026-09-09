@@ -10,7 +10,7 @@
  *   steps-item          — plain part (li) whose id rides ...rest
  *   breadcrumb-link     — child({ props }) escape part (anchor)
  *   toggle-group-item   — context-reading label>input part
- *   alert-dialog-title  — derived-id part (id authored by the family)
+ *   system-dialog-title  — derived-id part (id authored by the family)
  *   command-item        — the declared exception: id is load-bearing
  *                         $props.id(); authored id is ordered AFTER the
  *                         spread so a consumer id can never clobber it
@@ -56,11 +56,11 @@ describe('props discipline — consumer attributes flow to the part root', () =>
     expect(container.querySelector('[data-jx-tgroup]')!.className).toContain('jx-html-tgroup');
   });
 
-  it('alert-dialog-title: data-*/class land; the derived id stays the family wire', () => {
+  it('system-dialog-title: data-*/class land; the derived id stays the family wire', () => {
     const { container } = render(CompositionPropsHost);
     const h2 = container.querySelector('[data-testid="adlg-title-probe"]') as HTMLHeadingElement;
     expect(h2.tagName).toBe('H2');
-    expect(h2.dataset.probeKind).toBe('alert-dialog');
+    expect(h2.dataset.probeKind).toBe('system-dialog');
     expect(h2.className).toContain('probe-extra');
     expect(h2.className).toContain('font-nav');
     // the derived id (what Content's aria-labelledby points at) keeps

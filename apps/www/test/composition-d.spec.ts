@@ -9,7 +9,7 @@
  *   composed tree render (SSR-complete markup);
  * - tour: the card(api) surface — index/total/step wired to the same
  *   lifecycle (next/prev/skip);
- * - alert-dialog: the composed family — Trigger opens, Title/
+ * - system-dialog: the composed family — Trigger opens, Title/
  *   Description carry the aria wiring, Escape (the native cancel
  *   request) cancels, Action confirms through the onconfirm seam;
  * - popconfirm: default rendering + content/actions snippet overrides.
@@ -155,14 +155,14 @@ describe('tour card(api) (composition-first)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// AlertDialog — the composed family
+// SystemDialog — the composed family
 // ---------------------------------------------------------------------------
-describe('alert-dialog family (composition-first)', () => {
+describe('system-dialog family (composition-first)', () => {
   it('Trigger opens; Title/Description carry the aria wiring through derived ids', async () => {
-    const rendered = render(Host, { props: { scenario: 'alert-dialog' } });
+    const rendered = render(Host, { props: { scenario: 'system-dialog' } });
     const { container } = rendered;
 
-    const trigger = container.querySelector('[data-jx-adlg-trigger]') as HTMLButtonElement;
+    const trigger = container.querySelector('[data-jx-sysdlg-trigger]') as HTMLButtonElement;
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
 
@@ -172,11 +172,11 @@ describe('alert-dialog family (composition-first)', () => {
     expect(panel).toBeTruthy();
     expect(panel.matches(':popover-open')).toBe(true);
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
-    expect(container.querySelector('[data-host="alert-dialog"]')!.getAttribute('data-open')).toBe('true');
+    expect(container.querySelector('[data-host="system-dialog"]')!.getAttribute('data-open')).toBe('true');
 
     // deterministic derived ids — the wire never depends on render order
-    const title = container.querySelector('[data-jx-adlg-title]')!;
-    const desc = container.querySelector('[data-jx-adlg-desc]')!;
+    const title = container.querySelector('[data-jx-sysdlg-title]')!;
+    const desc = container.querySelector('[data-jx-sysdlg-desc]')!;
     expect(panel.getAttribute('aria-labelledby')).toBe(title.id);
     expect(panel.getAttribute('aria-describedby')).toBe(desc.id);
     expect(title.textContent?.trim()).toBe('delete repo?');
@@ -184,24 +184,24 @@ describe('alert-dialog family (composition-first)', () => {
   });
 
   it('focus lands on CANCEL (the safe action) on open — and returns to the invoker on close', async () => {
-    const rendered = render(Host, { props: { scenario: 'alert-dialog' } });
+    const rendered = render(Host, { props: { scenario: 'system-dialog' } });
     const { container } = rendered;
-    await fireEvent.click(container.querySelector('[data-jx-adlg-trigger]')!);
+    await fireEvent.click(container.querySelector('[data-jx-sysdlg-trigger]')!);
     await frames(2);
-    const cancel = container.querySelector('[data-jx-adlg-cancel]') as HTMLButtonElement;
+    const cancel = container.querySelector('[data-jx-sysdlg-cancel]') as HTMLButtonElement;
     expect(document.activeElement).toBe(cancel);
 
     // the anchored alert RETURNS focus to its button when it hides
     // (the popover spec's restore contract, kept by the family itself)
     cancel.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', cancelable: true, bubbles: true }));
     await tick();
-    expect(document.activeElement).toBe(container.querySelector('[data-jx-adlg-trigger]'));
+    expect(document.activeElement).toBe(container.querySelector('[data-jx-sysdlg-trigger]'));
   });
 
   it('Escape (the component-owned cancel) cancels: prevented + state adopted', async () => {
-    const rendered = render(Host, { props: { scenario: 'alert-dialog' } });
+    const rendered = render(Host, { props: { scenario: 'system-dialog' } });
     const { container } = rendered;
-    await fireEvent.click(container.querySelector('[data-jx-adlg-trigger]')!);
+    await fireEvent.click(container.querySelector('[data-jx-sysdlg-trigger]')!);
     const panel = container.querySelector('[popover="manual"][role="alertdialog"]') as HTMLElement;
     expect(panel).toBeTruthy();
 
@@ -213,25 +213,25 @@ describe('alert-dialog family (composition-first)', () => {
     expect(keydown.defaultPrevented).toBe(true);
     await tick(); // setOpen(false) adopts the state into bind:open
     expect(panel.matches(':popover-open')).toBe(false);
-    expect(container.querySelector('[data-host="alert-dialog"]')!.getAttribute('data-open')).toBe('false');
+    expect(container.querySelector('[data-host="system-dialog"]')!.getAttribute('data-open')).toBe('false');
     // cancel is NOT confirm
-    expect(container.querySelector('[data-host="alert-dialog"]')!.getAttribute('data-deleted')).toBe('false');
+    expect(container.querySelector('[data-host="system-dialog"]')!.getAttribute('data-deleted')).toBe('false');
   });
 
   it('Action confirms through the onconfirm seam, then closes', async () => {
-    const rendered = render(Host, { props: { scenario: 'alert-dialog' } });
+    const rendered = render(Host, { props: { scenario: 'system-dialog' } });
     const { container } = rendered;
-    await fireEvent.click(container.querySelector('[data-jx-adlg-trigger]')!);
+    await fireEvent.click(container.querySelector('[data-jx-sysdlg-trigger]')!);
     const panel = container.querySelector('[popover="manual"][role="alertdialog"]') as HTMLElement;
 
-    const action = container.querySelector('[data-jx-adlg-action]') as HTMLButtonElement;
+    const action = container.querySelector('[data-jx-sysdlg-action]') as HTMLButtonElement;
     // loud by default: fill + the destructive pair as the part's default injection
-    expect(action.getAttribute('data-jx-alert-dialog-action')).toBe('fill');
+    expect(action.getAttribute('data-jx-system-dialog-action')).toBe('fill');
     expect(action.className).toContain('jx-pair-destructive');
     await fireEvent.click(action);
-    expect(container.querySelector('[data-host="alert-dialog"]')!.getAttribute('data-deleted')).toBe('true');
+    expect(container.querySelector('[data-host="system-dialog"]')!.getAttribute('data-deleted')).toBe('true');
     expect(panel.matches(':popover-open')).toBe(false);
-    expect(container.querySelector('[data-host="alert-dialog"]')!.getAttribute('data-open')).toBe('false');
+    expect(container.querySelector('[data-host="system-dialog"]')!.getAttribute('data-open')).toBe('false');
   });
 });
 

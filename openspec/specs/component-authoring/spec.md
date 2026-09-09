@@ -8,7 +8,7 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
 > `apps/www/src/lib/ui/**`). Components are Svelte 5 runes-first,
 > native-element-first, and follow the Tier system below.
 
-## Current contract (state: 2026-09-09, the carved-action-band rounds 2-3 (head band, even split, ink rims, borderless chrome, the system trio) over the floating-flesh-sweep (rest lane + sheet dialect + anchored-alert ruling) over the structural kernel law)
+## Current contract (state: 2026-09-09, the carved-action-band rounds 2-4 (head band, even split, ink rims, borderless chrome, the system trio renamed SystemDialog, the corner context) over the floating-flesh-sweep (rest lane + sheet dialect + anchored-alert ruling) over the structural kernel law)
 
 ## Requirements
 
@@ -2268,7 +2268,7 @@ style, type — and aria-label, whose single lane is the ariaLabel prop
 with component-owned stamps expanding after (the replacement
 semantics of the stamped-attribute law). IconButton forwards its rest
 lane into the wrapped PressButton. Consequences: semantic stamps
-(`data-jx-canvas-reset`, `data-jx-adlg-cancel`, valued variant
+(`data-jx-canvas-reset`, `data-jx-sysdlg-cancel`, valued variant
 stamps) ride the lane onto the root with NO wrapper element; a
 consumer's `data-testid`/`title`/`aria-*` land unmodified; the
 wrapper-span hack for unstampeable buttons is retired with this law.
@@ -2311,7 +2311,7 @@ and stay legal (the law bans control borders, not boundaries).
 
 ### Requirement: the system trio (alert · confirm · prompt on the one alert engine)
 
-The alert-dialog family SHALL carry the window.alert /
+The system-dialog family SHALL carry the window.alert /
 window.confirm / window.prompt roles through an imperative trio
 (`alert()`, `confirm()`, `prompt()` from the family index; a bare
 string fills the title): each call mounts one host composition of
@@ -2347,6 +2347,37 @@ chrome (the borderless-chrome law).
   UA's popover centering (margin auto, fit-content, inset 0) owns
   the geometry, the window.confirm posture
 
+### Requirement: the corner context (publish the container's corner, never clip)
+
+A surface with a rounded corner SHALL publish it as an inherited lane
+— `--jx-corner` (css custom-property inheritance, the platform's own
+context mechanism, SSR-pure) — and any inhabitant sitting FLUSH in
+that corner pairs concentrically (`border-*-radius:
+var(--jx-corner, 0px)`) instead of poking past the curve. Clipping
+the surface (overflow: clip) is RULED OUT (Owner, 2026-09-09, the
+mobile-dev lesson): a clip shears the engrave inner shadow along
+with the overflow, while a button's own radius lets the shadow — and
+the press law — follow the curve natively. The lane is INERT
+wherever no provider exists (the 0px fallback keeps every square
+surface exactly as it was).
+
+#### Scenario: the split strip's end cells ride the panel's corner
+
+- GIVEN the system dialog's action strip inside its 8px-corner panel
+- THEN the first cell's end-start radius and the last cell's
+  end-end radius resolve to the published --jx-corner (measured 8px,
+  concentric with the panel), the fill rung's corner no longer pokes
+  past the panel's curve, and no overflow clip exists anywhere on
+  the surface
+
+#### Scenario: the kernel's cluster pairs the same lane
+
+- GIVEN a CardFooter cluster's end cell inside any surface
+- THEN it carries border-end-end-radius: var(--jx-corner, 0px) —
+  0px and visually unchanged in square surfaces, concentric the
+  moment a surface publishes a corner (the reversal's full-bleed
+  start cell pairs end-start the same way)
+
 ### Requirement: the carved action band (the carved-cell law generalized to any surface)
 
 An action band is a CARVED REGION, never a floating row (Owner
@@ -2376,7 +2407,7 @@ non-action geometry it legitimately needs.
 
 #### Scenario: an anchored alert's strip carves without a ruler
 
-- GIVEN an AlertDialogActions strip (a popover-sized surface that
+- GIVEN an SystemDialogActions strip (a popover-sized surface that
   rents no banded ruler)
 - THEN its Cancel and Action render as ONE full-width ButtonGroup
   whose columns are minmax(auto, 1fr) — the buttons SPLIT the strip
@@ -2405,22 +2436,22 @@ non-action geometry it legitimately needs.
   to the dock's edges, rim line above, the icon button filling the
   band) — one form serves every action bar
 
-### Requirement: the anchored-alert form (alert-dialog's flesh ruling)
+### Requirement: the anchored-alert form (system-dialog's flesh ruling)
 
-The anchored popover surface (alert-dialog: popover="manual" +
+The anchored popover surface (system-dialog: popover="manual" +
 CSS Anchor Positioning, rising beside its trigger) is NOT a banded
 panel: its Title rides the content flow, its action strip escapes the
 body padding through negative margins — a popover-sized surface rents
 no banded ruler, and full dialect adoption would be dogma, not law
 (floating-flesh-sweep ruling, 2026-09-09). What the form SHALL shed
-is RECIPE DUPLICATION: AlertDialogAction and AlertDialogCancel render
+is RECIPE DUPLICATION: SystemDialogAction and SystemDialogCancel render
 PressButton (explicit variant; density DEFAULT — the carved strip's
 height IS the Dialog footer's, the Owner parity ruling 2026-09-09) —
 the family's one ladder,
 one press law, one forced-colors set — with the family's single local
 addition preserved (the fill rung ships the jx-pair-destructive
 injection as the confirmTone default; consumer pair injections still
-win by layer order). The AlertDialogActions strip carries the
+win by layer order). The SystemDialogActions strip carries the
 action-band zone (ghost + flat): the Cancel renders quiet with zero
 paint props, an explicit Action variant always wins. the strip's
 interior is the CARVED ACTION BAND (carved-action-band, 2026-09-09,
@@ -2433,16 +2464,16 @@ a loose padded row, never a border-t token rim.
 
 #### Scenario: the confirm keeps its destructive default on the one ladder
 
-- GIVEN a bare `<AlertDialogAction>delete</AlertDialogAction>`
+- GIVEN a bare `<SystemDialogAction>delete</SystemDialogAction>`
 - THEN it renders PressButton at the fill rung with the
   jx-pair-destructive pair injected (destructive ground/ink), pressing
   through the family's one press law — no local variant recipe exists
 
 #### Scenario: the cancel rides the strip's quiet zone
 
-- GIVEN the same strip's `<AlertDialogCancel>`
+- GIVEN the same strip's `<SystemDialogCancel>`
 - THEN it renders ghost on the flat texture with zero paint props,
-  and its data-jx-adlg-cancel stamp rides the rest lane onto the
+  and its data-jx-sysdlg-cancel stamp rides the rest lane onto the
   control root (the APG focus landing still finds it)
 
 ### Requirement: sheet speaks the full card dialect

@@ -2,7 +2,7 @@
  * Batch 3 component contract suite (test/batch3-components.spec.ts, 2026-08-22).
  *
  * Six registry items per the Codex-agreed order: breadcrumb, toast
- * (store + viewport), alert-dialog, sheet, hover-card, kbd. The overlay
+ * (store + viewport), system-dialog, sheet, hover-card, kbd. The overlay
  * trio runs through real dialog/popover behavior on the setup.ts
  * polyfills; the toast store is tested headless (it is deliberately
  * DOM-free) and through the viewport's rendering.
@@ -10,7 +10,7 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
-import AlertDialogHost from './fixtures/overlay-host.svelte';
+import SystemDialogHost from './fixtures/overlay-host.svelte';
 import BreadcrumbHost from './fixtures/breadcrumb-host.svelte';
 import HoverCardHost from './fixtures/hover-host.svelte';
 import Kbd from '../src/lib/ui/kbd/kbd.svelte';
@@ -154,30 +154,30 @@ describe('ToastViewport', () => {
 });
 
 // ---------------------------------------------------------------------------
-// AlertDialog — alertdialog semantics on the dialog laws
+// SystemDialog — alertdialog semantics on the dialog laws
 // ---------------------------------------------------------------------------
-describe('AlertDialog', () => {
+describe('SystemDialog', () => {
   it('exposes role=alertdialog with labelled title and described body', async () => {
     const rendered = render(OverlayHost);
     await fireEvent.click(rendered.container.querySelector('button')!);
     const dlg = rendered.container.querySelector('[popover="manual"][role="alertdialog"]') as HTMLElement;
     expect(dlg.matches(':popover-open')).toBe(true);
-    expect(dlg.getAttribute('aria-labelledby')).toBe(`${dlg.querySelector('[data-jx-adlg-title]')!.id}`);
+    expect(dlg.getAttribute('aria-labelledby')).toBe(`${dlg.querySelector('[data-jx-sysdlg-title]')!.id}`);
     expect(dlg.getAttribute('aria-describedby')).toBe(
-      `${dlg.querySelector('[data-jx-adlg-desc]')!.id}`,
+      `${dlg.querySelector('[data-jx-sysdlg-desc]')!.id}`,
     );
   });
 
   it('focus lands on CANCEL (the safe action), confirm runs then closes', async () => {
-    const rendered = render(AlertDialogHost);
+    const rendered = render(SystemDialogHost);
     await fireEvent.click(rendered.container.querySelector('button')!);
     await new Promise(requestAnimationFrame);
-    const cancel = rendered.container.querySelector('[data-jx-adlg-cancel]') as HTMLButtonElement;
+    const cancel = rendered.container.querySelector('[data-jx-sysdlg-cancel]') as HTMLButtonElement;
     expect(document.activeElement).toBe(cancel);
 
-    const confirm = rendered.container.querySelector('[data-jx-adlg-action]') as HTMLButtonElement;
+    const confirm = rendered.container.querySelector('[data-jx-sysdlg-action]') as HTMLButtonElement;
     // variant grammar: fill by default, destructive pair injected (loud opt-out)
-    expect(confirm.getAttribute('data-jx-alert-dialog-action')).toBe('fill');
+    expect(confirm.getAttribute('data-jx-system-dialog-action')).toBe('fill');
     expect(confirm.className).toContain('jx-pair-destructive');
     // the pair utility replaced the component's local arbitrary pair
     expect(confirm.className).not.toContain('[--jx-fill:var(--destructive)]');

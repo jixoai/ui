@@ -49,14 +49,14 @@ not ambient`、description 不动；density 行 → `'ambient scope'` + 正典�
 ghostty-term、table 全页；页面行内现值与 matrix 不符时以 matrix 为准并
 报告标注。
 
-- [ ] 2.1 **批次 A**（12 页）：alert-dialog、avatar、color-picker、dialog、
+- [ ] 2.1 **批次 A**（12 页）：system-dialog、avatar、color-picker、dialog、
   dropdown-menu、file-input、float-button、form、hover-card、inline-code、
   kbd、language-switcher。
 - [ ] 2.2 **批次 B**（11 页 + 1）：list-item、menubar、navigation-menu、
   separator、sheet、tags-input、theme-toggle、timeline、toast、tooltip、
   tour ＋ section-card（tone 行）。
 - [ ] 2.3 drift 钉落地（ZCode，**先于 2.1/2.2**）：matrix fixture（含
-  alert-dialog 双行 tableIndex 从真实 AST 冻结、toast/四行槽导出与
+  system-dialog 双行 tableIndex 从真实 AST 冻结、toast/四行槽导出与
   exactDescription）+ `apps/www/test/docs-ambient-vocabulary.spec.ts`
   （svelte/compiler parse + typescript AST；纯函数 checker——正例跑真实
   页面、负例用合成源码串（variant 标 ambient zone / 两表互换）断言
@@ -67,7 +67,7 @@ ghostty-term、table 全页；页面行内现值与 matrix 不符时以 matrix �
   component-canvas、inline-code#variant 禁改行与移出页；负例 = 删同
   route 一条 entry / 多一条 entry / A-B 页互换 / occurrence 重复均须独立
   RED）；**inline-code#variant 独立不变式**：其 default 含
-  `'ambient zone'`（禁改正典态的保护不经过 matrix）；alert-dialog 两行
+  `'ambient zone'`（禁改正典态的保护不经过 matrix）；system-dialog 两行
   tableIndex 冻结 2/3，实现首步以真实 AST 校验命中）；registry/test 放
   字节镜像（`cmp registry/test/
   docs-ambient-vocabulary.spec.ts apps/www/test/docs-ambient-vocabulary.spec.ts`

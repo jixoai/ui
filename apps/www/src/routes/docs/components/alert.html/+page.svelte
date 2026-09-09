@@ -124,7 +124,7 @@ ${close}
       headerRegion="alert-base"
       eyebrow="W3C foundation"
       title="The live-region split"
-      summary="role=status announces politely (when the reader is idle); role=alert interrupts immediately. Choosing is the author's semantic decision — hardcoding either would be the guess this component refuses to make. Not the modal one: that surface is alert-dialog, a later registry item."
+      summary="role=status announces politely (when the reader is idle); role=alert interrupts immediately. Choosing is the author's semantic decision — hardcoding either would be the guess this component refuses to make. Not the modal one: that surface is system-dialog, a later registry item."
     >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

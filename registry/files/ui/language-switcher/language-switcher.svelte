@@ -24,7 +24,7 @@
   carry them.
 
   popover platform (CR-2, 2026-09-02): the menu rides popover=auto +
-  CSS Anchor Positioning beside its trigger (the alert-dialog inline
+  CSS Anchor Positioning beside its trigger (the system-dialog inline
   pattern) — the retired hand-positioned absolute dropdown needed its
   own outside-click/Escape wiring and sat in the grid-law's gray zone.
   Light dismiss, Escape, and the top layer are the platform's now.

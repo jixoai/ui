@@ -26,7 +26,7 @@ import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import type { Snippet } from 'svelte';
 import Sheet from '$lib/ui/sheet/sheet.svelte';
-import AlertDialogActions from '$lib/ui/alert-dialog/alert-dialog-actions.svelte';
+import SystemDialogActions from '$lib/ui/system-dialog/system-dialog-actions.svelte';
 import CanvasSchemaHost from './fixtures/canvas-schema-host.svelte';
 import SheetFooterFace from './fixtures/sheet-footer-face.svelte';
 
@@ -64,10 +64,10 @@ describe('sheet — the foot band is RAW (the r14-9 law, dialog verbatim)', () =
   });
 });
 
-describe('alert-dialog — the anchored strip is carved, not padded', () => {
+describe('system-dialog — the anchored strip is carved, not padded', () => {
   it('the strip splits evenly under a REAL Separator rim (round 3: the ink law + 均分)', () => {
-    const { container } = render(AlertDialogActions, { props: { children } });
-    const strip = container.querySelector('[data-jx-adlg-actions]')!;
+    const { container } = render(SystemDialogActions, { props: { children } });
+    const strip = container.querySelector('[data-jx-sysdlg-actions]')!;
     expect(strip.className).toContain('-mx-5');
     expect(strip.className).toContain('-mb-[1.125rem]');
     expect(strip.className).not.toContain('border-t'); // the rim is a Separator now
@@ -91,7 +91,7 @@ describe('alert-dialog — the anchored strip is carved, not padded', () => {
     // tracks freeze (measured 120+143 of 382, the void parked at the
     // end). The declaration switches the group to flex; the members'
     // flex:1 1 0 + min-width:max-content + centered labels live in
-    // alert-dialog.css (measured: 191+191 equal fill; a long label
+    // system-dialog.css (measured: 191+191 equal fill; a long label
     // takes its full unwrapped width, 1 line)
     expect(group.getAttribute('style')?.replace(/\s+/g, '')).toContain('display:flex');
     expect(group.hasAttribute('data-jx-leading-seam')).toBe(false); // full-bleed: no carved left edge
@@ -99,7 +99,7 @@ describe('alert-dialog — the anchored strip is carved, not padded', () => {
 
   it('the source retired the padded loose row; the labels center (Owner r4)', () => {
     const src = readFileSync(
-      resolve(here, '../src/lib/ui/alert-dialog/alert-dialog-actions.svelte'),
+      resolve(here, '../src/lib/ui/system-dialog/system-dialog-actions.svelte'),
       'utf8',
     );
     expect(src).not.toContain('py-3.5');
@@ -107,11 +107,11 @@ describe('alert-dialog — the anchored strip is carved, not padded', () => {
     // a stretched split cell with a flex-start label reads as a hole
     // between the two texts — the strip's css centers its cells
     const css = readFileSync(
-      resolve(here, '../src/lib/ui/alert-dialog/alert-dialog.css'),
+      resolve(here, '../src/lib/ui/system-dialog/system-dialog.css'),
       'utf8',
     );
     expect(css).toMatch(
-      /\[data-jx-adlg-actions\] \[data-jx-btngroup\]\) > :where\(\[data-jx-press-button\]\)\s*\{[^}]*flex: 1 1 0[^}]*min-width: max-content[^}]*justify-content: center/s,
+      /\[data-jx-sysdlg-actions\] \[data-jx-btngroup\]\) > :where\(\[data-jx-press-button\]\)\s*\{[^}]*flex: 1 1 0[^}]*min-width: max-content[^}]*justify-content: center/s,
     );
   });
 });

@@ -1,19 +1,19 @@
 <!--
-  Test hosts for the batch-3 overlay trio: alert-dialog, sheet, and the
+  Test hosts for the batch-3 overlay trio: system-dialog, sheet, and the
   toast pair. Each exposes its open/last-action state as data attributes
   so tests read behavior through the DOM.
 -->
 <script lang="ts">
-  import AlertDialog from '../../src/lib/ui/alert-dialog/alert-dialog.svelte';
+  import SystemDialog from '../../src/lib/ui/system-dialog/system-dialog.svelte';
   import {
-    AlertDialogTrigger,
-    AlertDialogContent,
-    AlertDialogTitle,
-    AlertDialogDescription,
-    AlertDialogActions,
-    AlertDialogAction,
-    AlertDialogCancel,
-  } from '../../src/lib/ui/alert-dialog/index';
+    SystemDialogTrigger,
+    SystemDialogContent,
+    SystemDialogTitle,
+    SystemDialogDescription,
+    SystemDialogActions,
+    SystemDialogAction,
+    SystemDialogCancel,
+  } from '../../src/lib/ui/system-dialog/index';
   import Sheet from '../../src/lib/ui/sheet/sheet.svelte';
   import ToastViewport from '../../src/lib/ui/toast/toast-viewport.svelte';
   import { createToastStore } from '../../src/lib/toast-store';
@@ -25,19 +25,19 @@
 </script>
 
 <div data-deleted={deleted}>
-  <AlertDialog bind:open={alertOpen} onconfirm={() => (deleted = true)}>
-    <AlertDialogTrigger>delete</AlertDialogTrigger>
-    <AlertDialogContent>
-      <AlertDialogTitle>Delete the pipeline?</AlertDialogTitle>
-      <AlertDialogDescription>
+  <SystemDialog bind:open={alertOpen} onconfirm={() => (deleted = true)}>
+    <SystemDialogTrigger>delete</SystemDialogTrigger>
+    <SystemDialogContent>
+      <SystemDialogTitle>Delete the pipeline?</SystemDialogTitle>
+      <SystemDialogDescription>
         This removes 12 checks and their history. There is no undo.
-      </AlertDialogDescription>
-      <AlertDialogActions>
-        <AlertDialogCancel>cancel</AlertDialogCancel>
-        <AlertDialogAction>Delete pipeline</AlertDialogAction>
-      </AlertDialogActions>
-    </AlertDialogContent>
-  </AlertDialog>
+      </SystemDialogDescription>
+      <SystemDialogActions>
+        <SystemDialogCancel>cancel</SystemDialogCancel>
+        <SystemDialogAction>Delete pipeline</SystemDialogAction>
+      </SystemDialogActions>
+    </SystemDialogContent>
+  </SystemDialog>
 </div>
 
 <div>

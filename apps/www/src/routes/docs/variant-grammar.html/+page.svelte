@@ -919,7 +919,7 @@ split — two utilities; both properties land:
             </table>
           </div>
           <p class="text-muted-foreground text-[13px] leading-6">
-            AlertDialogAction migrated INTO the grammar: its
+            SystemDialogAction migrated INTO the grammar: its
             <code class="text-accent">tone: destructive | primary</code> prop is replaced by the
             same variant + injection interface. IconButton forwards the new union rather than
             owning a separate color decision. The tone-law prose on the alert and badge pages was

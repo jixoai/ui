@@ -1,6 +1,6 @@
 {
   "undeclared": [
-    "alert-dialog -> @jixoai/popover",
+    "system-dialog -> @jixoai/popover",
     "breadcrumb -> @jixoai/icon",
     "color-picker -> @jixoai/popover",
     "combobox -> @jixoai/popover",

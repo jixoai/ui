@@ -13,7 +13,7 @@
     },
     {
       "from": "/components/alert-dialog.html",
-      "to": "/docs/components/alert-dialog.html",
+      "to": "/docs/components/system-dialog.html",
       "preserveHash": true
     },
     {

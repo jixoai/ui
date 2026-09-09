@@ -9,7 +9,7 @@ style, type — and aria-label, whose single lane is the ariaLabel prop
 with component-owned stamps expanding after (the replacement
 semantics of the stamped-attribute law). IconButton forwards its rest
 lane into the wrapped PressButton. Consequences: semantic stamps
-(`data-jx-canvas-reset`, `data-jx-adlg-cancel`, valued variant
+(`data-jx-canvas-reset`, `data-jx-sysdlg-cancel`, valued variant
 stamps) ride the lane onto the root with NO wrapper element; a
 consumer's `data-testid`/`title`/`aria-*` land unmodified; the
 wrapper-span hack for unstampeable buttons is retired with this law.
@@ -28,35 +28,35 @@ wrapper-span hack for unstampeable buttons is retired with this law.
   contract and the ariaLabel prop owns the channel (a rest-borne
   undefined can never strip the family's value)
 
-# ADDED Requirement: the anchored-alert form (alert-dialog's flesh ruling)
+# ADDED Requirement: the anchored-alert form (system-dialog's flesh ruling)
 
-The anchored popover surface (alert-dialog: popover="manual" +
+The anchored popover surface (system-dialog: popover="manual" +
 CSS Anchor Positioning, rising beside its trigger) is NOT a banded
 panel: its Title rides the content flow, its action strip escapes the
 body padding through negative margins — a popover-sized surface rents
 no banded ruler, and full dialect adoption would be dogma, not law
 (floating-flesh-sweep ruling, 2026-09-09). What the form SHALL shed
-is RECIPE DUPLICATION: AlertDialogAction and AlertDialogCancel render
+is RECIPE DUPLICATION: SystemDialogAction and SystemDialogCancel render
 PressButton (explicit variant / density sm) — the family's one ladder,
 one press law, one forced-colors set — with the family's single local
 addition preserved (the fill rung ships the jx-pair-destructive
 injection as the confirmTone default; consumer pair injections still
-win by layer order). The AlertDialogActions strip carries the
+win by layer order). The SystemDialogActions strip carries the
 action-band zone (ghost + flat): the Cancel renders quiet with zero
 paint props, an explicit Action variant always wins.
 
 #### Scenario: the confirm keeps its destructive default on the one ladder
 
-- GIVEN a bare `<AlertDialogAction>delete</AlertDialogAction>`
+- GIVEN a bare `<SystemDialogAction>delete</SystemDialogAction>`
 - THEN it renders PressButton at the fill rung with the
   jx-pair-destructive pair injected (destructive ground/ink), pressing
   through the family's one press law — no local variant recipe exists
 
 #### Scenario: the cancel rides the strip's quiet zone
 
-- GIVEN the same strip's `<AlertDialogCancel>`
+- GIVEN the same strip's `<SystemDialogCancel>`
 - THEN it renders ghost on the flat texture with zero paint props,
-  and its data-jx-adlg-cancel stamp rides the rest lane onto the
+  and its data-jx-sysdlg-cancel stamp rides the rest lane onto the
   control root (the APG focus landing still finds it)
 
 # ADDED Requirement: sheet speaks the full card dialect

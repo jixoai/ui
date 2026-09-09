@@ -10,7 +10,7 @@
 popover 墨色、foot 散排（joined 簇是 ButtonGroup 的法，散排归
 utilities）。
 
-**alert-dialog = 锚定 popover → 不贴纸，聚焦按钮**。它是贴着触发
+**system-dialog = 锚定 popover → 不贴纸，聚焦按钮**。它是贴着触发
 器的小面板：无 head 带（Title 在流内）、Actions 用负 margin 逃出
 body padding 的全出血条——这是**形态差异**（popover 尺寸的面板没有
 可租的 banded ruler），不是 ruler 债。强套三带是教条。本轮消灭的是
@@ -52,4 +52,4 @@ canvas reset 的 wrapper span 退役（stamp 直传 IconButton）。
 
 vitest 全量 + svelte-check + build + blueprints + verify:all
 （print 项为 a0a512e9 上游遗留）；vision 验收 sheet 四向 +
-alert-dialog + 回归抽查；general-purpose 复核。
+system-dialog + 回归抽查；general-purpose 复核。

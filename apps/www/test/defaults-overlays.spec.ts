@@ -1,7 +1,7 @@
 /**
  * The W2 overlays/feedback Defaults migration RUNTIME lock
  * (context-defaults-economy task 3.2, 2026-09-03) — 16 families
- * (tooltip / popover / hover-card / alert / alert-dialog /
+ * (tooltip / popover / hover-card / alert / system-dialog /
  * popconfirm / command / spin / progress / skeleton / result /
  * empty / float-button / anchor / separator / toast) moved onto the
  * family Defaults contracts. Behavior is ZERO-change (the
@@ -17,7 +17,7 @@
  *     over ambient (a zone variant outside the family union is the
  *     unsupported external-surface case — D3-A retired the runtime
  *     values guard; the ambient domain is trusted)
- *   - alert-dialog's TWO vocabularies: content's surface slot (own
+ *   - system-dialog's TWO vocabularies: content's surface slot (own
  *     'auto') and the action's ladder slot (own 'fill', the
  *     destructive pair) resolve through the one family contract
  *   - the provider families (popconfirm/command): under a density
@@ -42,7 +42,7 @@ import { describe, expect, it } from 'vitest';
 import Host from './fixtures/defaults-overlays-host.svelte';
 import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
 import { AlertDefaults } from '../src/lib/ui/alert/alert-defaults.svelte';
-import { AlertDialogDefaults } from '../src/lib/ui/alert-dialog/alert-dialog-defaults.svelte';
+import { SystemDialogDefaults } from '../src/lib/ui/system-dialog/system-dialog-defaults.svelte';
 import { CommandDefaults } from '../src/lib/ui/command/command-defaults.svelte';
 import { HoverCardDefaults } from '../src/lib/ui/hover-card/hover-card-defaults.svelte';
 import { PopconfirmDefaults } from '../src/lib/ui/popconfirm/popconfirm-defaults.svelte';
@@ -157,9 +157,9 @@ describe('popconfirm / command — inherit-then-provide', () => {
 });
 
 // =========================================================================
-// 4 · alert-dialog — two variant vocabularies, one contract
+// 4 · system-dialog — two variant vocabularies, one contract
 // =========================================================================
-describe('alert-dialog — content surface + action ladder', () => {
+describe('system-dialog — content surface + action ladder', () => {
   it("content's surface slot resolves own 'auto' on data-variant", () => {
     const { container } = render(Host);
     const adlg = byTestid(container, 'adlg');
@@ -170,10 +170,10 @@ describe('alert-dialog — content surface + action ladder', () => {
   it("the action's ladder slot resolves own 'fill' (destructive pair) and passes explicit through", () => {
     const { container } = render(Host);
     const adlg = byTestid(container, 'adlg');
-    const actions = adlg.querySelectorAll('[data-jx-adlg-action]');
-    expect(actions[0].getAttribute('data-jx-alert-dialog-action')).toBe('fill');
+    const actions = adlg.querySelectorAll('[data-jx-sysdlg-action]');
+    expect(actions[0].getAttribute('data-jx-system-dialog-action')).toBe('fill');
     expect(actions[0].className).toContain('jx-pair-destructive');
-    expect(actions[1].getAttribute('data-jx-alert-dialog-action')).toBe('tonal');
+    expect(actions[1].getAttribute('data-jx-system-dialog-action')).toBe('tonal');
   });
 });
 
@@ -214,17 +214,17 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     });
   });
 
-  it('Alert: frozen own outline; alert-dialog: the two-vocabulary split', () => {
+  it('Alert: frozen own outline; system-dialog: the two-vocabulary split', () => {
     expect(resolveInWindow(() => AlertDefaults.resolve({}))).toEqual({
       variant: 'outline',
       density: undefined,
     });
-    expect(resolveInWindow(() => AlertDialogDefaults.resolve({}))).toEqual({
+    expect(resolveInWindow(() => SystemDialogDefaults.resolve({}))).toEqual({
       variant: 'auto',
       actionVariant: 'fill',
       density: undefined,
     });
-    expect(resolveInWindow(() => AlertDialogDefaults.resolve({ actionVariant: 'tonal' }))).toEqual({
+    expect(resolveInWindow(() => SystemDialogDefaults.resolve({ actionVariant: 'tonal' }))).toEqual({
       variant: 'auto',
       actionVariant: 'tonal',
       density: undefined,

@@ -3,14 +3,14 @@
   The LIGHT confirm bubble for risky-but-reversible actions (antd's
   highest-frequency unique gift), per the antd batch-1 ruling: a
   popover=auto panel on the popover laws — NOT an alertdialog. The
-  modal weight stays with alert-dialog; this is the quick "sure?" that
+  modal weight stays with system-dialog; this is the quick "sure?" that
   deletes a row without ceremony.
 
   Semantics:
     light dismiss (outside click / Escape) = CANCEL — any dismissal
     that is not the confirm button runs oncancel; confirm runs
     onconfirm then closes. Focus lands on CANCEL on open (the safe
-    action, the alert-dialog law in its light form). The trigger is
+    action, the system-dialog law in its light form). The trigger is
     whatever focusable control you compose inside; the wrapper carries
     the anchor name.
 

@@ -6,7 +6,7 @@
  * source for scoped :hover rules that still translate/transform the
  * body — the exact residue the tooltip page exposed (code-card's copy
  * control had kept the pre-law hover lift, alongside popover/dropdown
- * triggers, alert-dialog buttons, pagination pages, and file-input).
+ * triggers, system-dialog buttons, pagination pages, and file-input).
  * Utility-class hover moves are covered by the same rule textually.
  *
  * Allowed escapes (drag magnetism is a DRAG state, not hover):

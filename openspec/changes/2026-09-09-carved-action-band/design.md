@@ -32,7 +32,7 @@ ButtonGroup items-stretch + min-h 下限）在 Card/Dialog foot 上已经
   demo ×2、blueprint scene）迁移到 CardFooter。风险：旧 snippet
   传裸按钮会掉进 14px inset 轨道——这正是 RAW 法则的契约（你
   给了 RAW 就拥有几何），dialog 同款，记入 docs。
-- **alert-dialog**：锚定形态裁决（不贴纸、不租 banded ruler）
+- **system-dialog**：锚定形态裁决（不贴纸、不租 banded ruler）
   不变——变化只在 strip 内部：散排行 → CardFooter standalone。
   Cancel|Action join 成簇：1px seam 分隔两个按钮（"合理的分割
   线"的按钮间形态）、leadingSeam 为簇左缘、顶缘线仍是 border-t
@@ -119,7 +119,7 @@ ButtonGroup items-stretch + min-h 下限）在 Card/Dialog foot 上已经
    计算，max-content 兜底的 fr 轨在内容处冻结（实测 120+143/382，
    空档停在最右）。declaration 换 `display:flex`，成员
    `flex:1 1 0 + min-width:max-content + justify-content:center`
-   （alert-dialog.css，strip 域限定）：实测 191+191 等分填满、
+   （system-dialog.css，strip 域限定）：实测 191+191 等分填满、
    文字居中、单行；长文案实测铺开至 556 不换行。ButtonGroup 的
    seam 机器在 flex 下存活（注入墨条拉伸、-1px 结合法则在 flex
    同样成立）。
@@ -129,3 +129,32 @@ ButtonGroup items-stretch + min-h 下限）在 Card/Dialog foot 上已经
    实测偏移 0,0）。docs 缺介绍属实：system 节 summary 与 Content
    API 表（pose/focusLanding）已补。附带发现：小视口下 raw click
    的"无响应"是 reveal 水合时序，滚动停留后一切正常，非定位 bug。
+
+## Round 5 (Owner acceptance, 2026-09-09 深夜三) — 三条
+
+1. **dock rim 复查**：像素级自查（1x 截图采样）证实两道 solid rim
+   清晰可辨（y=324 行均值 75/255，reset 区 59/255）——它们已经是
+   `<Separator variant="solid">` 实例；Owner 看不到的最可能是标签页
+   挂着 HMR 前状态，建议硬刷新。若仍不可见需按其环境复现。
+2. **THE CORNER CONTEXT（移动端经验立法）**："如果 button 自己能有
+   圆角，那么内阴影也能适应这个圆角。这比直接到容器那边做裁剪
+   效果要好得多"。容器（system-dialog 面板，8px superellipse）把
+   圆角**发布**为继承通道 `--jx-corner: var(--radius)`（css 自定义
+   属性继承 = 平台的 context 机制，SSR 即生效）；贴角居民同心配对
+   （strip 首格 end-start、末格 end-end = var(--jx-corner)），绝不
+   裁剪 surface（裁剪会把内阴影一起切掉）。内核侧 CardFooter
+   cluster 的末格挂同一条 lane（0px 兜底——方形容器零变化，惰性
+   直到有 provider）。实测：cancel 底左 8px、delete 底右 8px，与
+   面板同心，fill 不再溢出圆角。dialog/sheet 是方角（0px），无需
+   provider。
+3. **改名 AlertDialog → SystemDialog**（"我始终觉得这个名字得换"）：
+   全量破坏性重命名——目录/文件（registry + 镜像）、组件族
+   （SystemDialog/SystemDialogContent/…/SystemDialogHost）、密钥
+   （SYSTEM_DIALOG_KEY）、DOM 契约（data-jx-sysdlg-*、.jx-sysdlg）、
+   css（system-dialog.css）、registry item（system-dialog，title
+   "System dialog"）、docs 路由（/docs/components/system-dialog.html）、
+   meta/catalog 派生物、blueprint（system-dialog.svg）、测试与 fixtures、
+   svelte.config 预渲染清单、legacy-doc-routes 重定向目标、
+   deps baseline。冻结的历史字面量（docs-structure 的 FROZEN_OLD_FROMS、
+   archive）不动。三件套 api 文件顺势归位：命令式 trio 落在
+   system-dialog.svelte.ts，host 落在 system-dialog-host.svelte。

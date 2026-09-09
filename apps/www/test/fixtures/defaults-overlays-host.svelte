@@ -8,7 +8,7 @@
   data-jx-separator / data-jx-toast / data-density — never through
   internals):
     bare      — no providers: the floating-surface owns ('auto') and
-                the literal owns (alert-dialog-action 'fill',
+                the literal owns (system-dialog-action 'fill',
                 separator 'fused') resolve; the no-opinion density
                 slots stamp nothing
     zone      — paint zone 'tonal' + density 'sm': Alert (the W2
@@ -24,7 +24,7 @@
                 their own stamps AND their sub-parts' re-stamps land
                 the provider's tier; an explicit density beats the
                 inherited one through the eager-capture lane
-    adlg      — the alert-dialog pair: content's surface variant and
+    adlg      — the system-dialog pair: content's surface variant and
                 the action's ladder resolve through the one family
                 contract (two vocabularies, two slots)
 -->
@@ -41,9 +41,9 @@
   import Popconfirm from '$lib/ui/popconfirm/popconfirm.svelte';
   import Command from '$lib/ui/command/command.svelte';
   import CommandList from '$lib/ui/command/command-list.svelte';
-  import AlertDialog from '$lib/ui/alert-dialog/alert-dialog.svelte';
-  import AlertDialogContent from '$lib/ui/alert-dialog/alert-dialog-content.svelte';
-  import AlertDialogAction from '$lib/ui/alert-dialog/alert-dialog-action.svelte';
+  import SystemDialog from '$lib/ui/system-dialog/system-dialog.svelte';
+  import SystemDialogContent from '$lib/ui/system-dialog/system-dialog-content.svelte';
+  import SystemDialogAction from '$lib/ui/system-dialog/system-dialog-action.svelte';
   import Anchor from '$lib/ui/anchor/anchor.svelte';
   import ZoneProvider from './paint-axis-zone-provider.svelte';
   import DensityProvider from './density-provider-host.svelte';
@@ -100,10 +100,10 @@
 </section>
 
 <section data-testid="adlg">
-  <AlertDialog>
-    <AlertDialogContent>
-      <AlertDialogAction>confirm</AlertDialogAction>
-      <AlertDialogAction variant="tonal">confirm tonal</AlertDialogAction>
-    </AlertDialogContent>
-  </AlertDialog>
+  <SystemDialog>
+    <SystemDialogContent>
+      <SystemDialogAction>confirm</SystemDialogAction>
+      <SystemDialogAction variant="tonal">confirm tonal</SystemDialogAction>
+    </SystemDialogContent>
+  </SystemDialog>
 </section>

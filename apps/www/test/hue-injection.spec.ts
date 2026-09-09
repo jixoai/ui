@@ -81,14 +81,14 @@ describe('hue-injection utilities', () => {
 
 // migration locks (2026-08-27): the in-repo intent call sites ride the
 // utilities. The arbitrary form survives only where a value sits
-// outside the closed set (alert-dialog-action's primary-pair escape
+// outside the closed set (system-dialog-action's primary-pair escape
 // hatch) or on slots with no utility layer (--jx-outline, --tok-*).
 describe('hue-injection migration (in-repo call sites)', () => {
   const read = (p: string) => readFileSync(resolve(process.cwd(), p), 'utf8');
 
   it.each([
-    'src/lib/ui/alert-dialog/alert-dialog-action.svelte',
-    '../../registry/files/ui/alert-dialog/alert-dialog-action.svelte',
+    'src/lib/ui/system-dialog/system-dialog-action.svelte',
+    '../../registry/files/ui/system-dialog/system-dialog-action.svelte',
   ])('%s ships the local destructive pair as jx-pair-destructive', (p) => {
     const src = read(p);
     // the PressButton era (floating-flesh-sweep): the pair rides as the
@@ -144,7 +144,7 @@ describe('hue-injection migration (in-repo call sites)', () => {
 
   it('the migrated mirror pairs stay byte-identical', () => {
     for (const rel of [
-      'ui/alert-dialog/alert-dialog-action.svelte',
+      'ui/system-dialog/system-dialog-action.svelte',
       'ui/inline-code/inline-code.svelte',
       'ui/hero-section/hero-section.svelte',
     ]) {

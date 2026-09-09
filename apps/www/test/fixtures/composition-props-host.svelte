@@ -12,8 +12,8 @@
   import BreadcrumbLink from '../../src/lib/ui/breadcrumb/breadcrumb-link.svelte';
   import ToggleGroup from '../../src/lib/ui/toggle-group/toggle-group.svelte';
   import ToggleGroupItem from '../../src/lib/ui/toggle-group/toggle-group-item.svelte';
-  import AlertDialog from '../../src/lib/ui/alert-dialog/alert-dialog.svelte';
-  import AlertDialogTitle from '../../src/lib/ui/alert-dialog/alert-dialog-title.svelte';
+  import SystemDialog from '../../src/lib/ui/system-dialog/system-dialog.svelte';
+  import SystemDialogTitle from '../../src/lib/ui/system-dialog/system-dialog-title.svelte';
   import Command from '../../src/lib/ui/command/command.svelte';
   import CommandItem from '../../src/lib/ui/command/command-item.svelte';
 </script>
@@ -51,13 +51,13 @@
   >one</ToggleGroupItem>
 </ToggleGroup>
 
-<AlertDialog>
-  <AlertDialogTitle
+<SystemDialog>
+  <SystemDialogTitle
     data-testid="adlg-title-probe"
-    data-probe-kind="alert-dialog"
+    data-probe-kind="system-dialog"
     class="probe-extra"
-  >probe title</AlertDialogTitle>
-</AlertDialog>
+  >probe title</SystemDialogTitle>
+</SystemDialog>
 
 <Command>
   <CommandItem

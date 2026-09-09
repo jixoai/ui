@@ -10,7 +10,7 @@
   data-glyph="custom" and the pseudo build stands down.
   (props-discipline sweep, 2026-08-25)
   (separator-review 2026-09-01): the css import lives HERE — the part
-  that owns the hook owns its stylesheet (alert-dialog/tabs law); the
+  that owns the hook owns its stylesheet (system-dialog/tabs law); the
   file had gone unimported, which rendered every separator invisible.
 -->
 <script lang="ts">

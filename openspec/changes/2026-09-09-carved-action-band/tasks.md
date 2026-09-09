@@ -2,9 +2,9 @@
 
 - [x] T1 sheet：foot 带 RAW 化（删散排 flex 包装，dialog r14-9 逐字对齐）+ 注释法则更新
 - [x] T2 sheet 消费者迁移：docs 页 demo ×2（live + source string，教 CardFooter）、blueprint scene
-- [x] T3 alert-dialog-actions：出血包装 + CardFooter standalone（Cancel/Action join 簇）
+- [x] T3 system-dialog-actions：出血包装 + CardFooter standalone（Cancel/Action join 簇）
 - [x] T4 canvas dock foot：复位栏钉在滚动容器外（clip 直授全宽）+ CardFooter（复位钮雕刻单元）
-- [x] T5 registry.json：alert-dialog / component-canvas +@jixoai/card 依赖边
+- [x] T5 registry.json：system-dialog / component-canvas +@jixoai/card 依赖边
 - [x] T6 镜像同步 + manifest 再生成 + blueprint 再渲染（sheet/recipes.svg）
 - [x] T7 测试：carved-action-band.spec（sheet RAW / adlg carved / dock carved 门）；全量 vitest 绿 + typecheck 绿 + payload parity（build:registry 再嵌）
 - [x] T7.5 附带 BUG 修复（Owner 验收中报告）：Dialog 关闭动画期间宽度塌陷——
@@ -48,3 +48,8 @@
       （191/191 等分填满+居中+单行，长文案 556 铺开）；trio 双姿态 docs 补记
       （system summary + Content API pose/focusLanding 行）
 - [ ] R4 收尾：全量门禁 + commit 推送
+
+- [x] R5（Owner 验收深夜三）：① dock rim 像素自查证实可见（Separator solid 实例在位）
+- [x] R5 ② corner context 立法+实现：--jx-corner 发布通道 + strip/cluster 同心配对（实测 8/8px），永不裁剪
+- [x] R5 ③ 改名 SystemDialog 全扫（文件/组件/密钥/印章/css/registry/docs/meta/blueprint/测试/config/legacy 路由）
+- [ ] R5 收尾：全量门禁 + vision + commit

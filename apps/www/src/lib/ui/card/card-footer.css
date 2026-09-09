@@ -74,6 +74,15 @@
     align-self: stretch;
     display: grid;
   }
+  /* THE CONCENTRIC PAIRING (the corner-context law, 2026-09-09): a
+     surface that publishes --jx-corner hands its curve to the flush
+     cluster — the end cell rounds WITH the container instead of poking
+     past it (no clipping: the engrave shadow must shear never). Inert
+     wherever no provider exists (the 0px fallback keeps every square
+     surface exactly as it was) */
+  :where(.jx-card-foot-cluster) [data-jx-btngroup] > :last-child {
+    border-end-end-radius: var(--jx-corner, 0px);
+  }
 
   /* ── the narrow reversal (the dialog-footer law, grid-native) ────
      Under 15rem the cluster takes the top row FULL-BLEED (reachable,
@@ -90,6 +99,10 @@
       /* the base seat hugs the end; the reversal stretches it full
          bleed — override the justification with the span */
       justify-self: stretch;
+    }
+    :where(.jx-card-foot-cluster) [data-jx-btngroup] > :first-child {
+      /* the reversal is FULL-BLEED: both end cells ride the corners */
+      border-end-start-radius: var(--jx-corner, 0px);
     }
     :where(.jx-card-foot-start) {
       grid-row: 2;

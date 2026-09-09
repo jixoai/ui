@@ -1,4 +1,4 @@
-# Proposal: floating-flesh-sweep — sheet 与 alert-dialog 的皮肉清扫，PressButton rest 补全
+# Proposal: floating-flesh-sweep — sheet 与 system-dialog 的皮肉清扫，PressButton rest 补全
 
 ## Why
 
@@ -8,14 +8,14 @@ card-surface-kernel（2026-09-09 第一轮）立了法：浮层不长皮肉、
 
 - **sheet**：flex 三区 + `border-b/border-t` 手工分隔线 + 手写 ×
   按钮（border/bg/hover 九条 utilities）+ 自持滚动 body。
-- **alert-dialog**：Action/Cancel 是**配方复刻**（fill/tonal/outline
+- **system-dialog**：Action/Cancel 是**配方复刻**（fill/tonal/outline
   三档 + forced-colors 降级 + jx-pair-destructive 注入，与
   PressButton 逐字重复——2026-08-26 variant-grammar 迁移的产物，
   规范但双源）；actions 区用负 margin 逃出 body padding 的全出血
   工艺，与结构内核的 Separator 行带是两种手艺。
 
 同时撞到**第三次同一个 API 缺口**：PressButton/IconButton 不透传
-rest 属性（canvas reset 被迫 wrapper hack，本轮 alert-dialog 的
+rest 属性（canvas reset 被迫 wrapper hack，本轮 system-dialog 的
 data-jx stamp 还会再撞）——props discipline 法则本来要求
 "`...rest`（HTMLAttributes）flows through verbatim"。
 
@@ -36,7 +36,7 @@ data-jx stamp 还会再撞）——props discipline 法则本来要求
   （**新增 class prop**，sheet 保持 18px 紧凑节奏）；foot 带 +
   ghost/flat zone + 散排 utilities；Separator 骑边替换手工边线；
   sheet.css 只留浮层机制。
-- **T3 alert-dialog 方言化**（对外 API 不变）：Action/Cancel 内部
+- **T3 system-dialog 方言化**（对外 API 不变）：Action/Cancel 内部
   换 PressButton（ladder + 注入 class + family Defaults/回调/焦点
   语义保留；data stamp 经 rest 直落根）；Content 贴纸三带
   （Title 进 CardHeader children、Description 进 CardBody、actions
@@ -46,7 +46,7 @@ data-jx stamp 还会再撞）——props discipline 法则本来要求
 
 ## Impact
 
-- 重写：sheet.svelte 内部、alert-dialog-content/action/cancel 内部。
+- 重写：sheet.svelte 内部、system-dialog-content/action/cancel 内部。
 - 新增：CardBody class prop、PressButton/IconButton rest。
 - 删除：sheet.css 的 × 缩放与皮肉残留、adlg 手绘按钮配方。
 - 破坏性：`data-jx-sheet-*` 内部锚点更名（docs 页穿刺若有）；
@@ -56,4 +56,4 @@ data-jx stamp 还会再撞）——props discipline 法则本来要求
 
 - section-card（豁免裁决如上）。
 - sheet 关闭动画/侧滑几何（sheet.css 浮层机制，不动）。
-- alert-dialog 的 anchor 定位/回退（机制，不动）。
+- system-dialog 的 anchor 定位/回退（机制，不动）。
