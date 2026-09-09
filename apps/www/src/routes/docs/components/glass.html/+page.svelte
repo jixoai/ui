@@ -333,10 +333,14 @@ ${close}
             class="glass-band relative w-full overflow-hidden rounded-lg"
             aria-label="glass effect demo band"
           >
-            <div class="glass-band-grid absolute inset-0" aria-hidden="true"></div>
-            <p class="glass-band-text m-0" aria-hidden="true">
-              liquid glass<br />refraction — the lens bends what sits behind it
-            </p>
+            <div class="glass-band-bg" aria-hidden="true"></div>
+            <div class="glass-band-grid" aria-hidden="true"></div>
+            <div class="glass-band-text" aria-hidden="true">
+              <div class="glass-band-text-track">
+                <span>liquid glass · refraction — the lens bends what sits behind it</span>
+                <span>liquid glass · refraction — the lens bends what sits behind it</span>
+              </div>
+            </div>
             <div class="relative flex flex-col gap-8 px-6 pt-[11rem] pb-8 sm:px-10">
               <!-- the physical layer — driven by the dock's sliders -->
               <div class="flex flex-wrap items-start gap-7">
@@ -758,40 +762,94 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
   /* the visual band — the Owner-approved prototype's backdrop recipe
      (gradient text + 24px grid): refraction needs something to refract.
      The band is intrinsically dark regardless of the stage theme — it
-     is the demo's own scenery, like the terminal bezel. */
+     is the demo's own scenery, like the terminal bezel. The scenery
+     MOVES (Owner 2026-09-09): three parallax layers, each seamlessly
+     periodic and transform-only, so the infinite loop stays on the
+     compositor and the glass always has live content to bend. */
   .glass-band {
     min-height: 460px;
     /* the canvas artboard redefines --background to its light paper —
        scope it back to the band's dark scenery so the demos' default
        68% frost fill resolves dark (the approved look), not milky white */
     --background: #101014;
+    background: #101014;
+  }
+  /* the drifting color blobs — the trio tiles horizontally at 50%
+     background-size, so one tile = one band-width and the -50%
+     translate loop is seamless */
+  .glass-band-bg {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 200%;
     background:
       radial-gradient(1200px 600px at 15% 20%, #5b2a86 0%, transparent 60%),
       radial-gradient(900px 500px at 85% 15%, #b5342f 0%, transparent 55%),
       radial-gradient(1000px 700px at 60% 85%, #14664f 0%, transparent 60%),
-      repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 26px),
-      #101014;
+      repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 26px);
+    background-size: 50% 100%, 50% 100%, 50% 100%, auto auto;
+    background-repeat: repeat-x;
+    animation: glass-band-drift 64s linear infinite;
   }
+  /* the 24px grid pans one cell per cycle — periodic, so the snap
+     back to 0 is invisible; faster than the blobs for parallax */
   .glass-band-grid {
+    position: absolute;
+    inset: 0;
+    width: 200%;
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
     background-size: 24px 24px;
+    animation: glass-band-grid-pan 10s linear infinite;
   }
+  /* the marquee text — two copies on a max-content track, -50% loop */
   .glass-band-text {
     position: absolute;
     inset: 0 0 auto 0;
-    padding: 3.2rem 2.5rem 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .glass-band-text-track {
+    display: flex;
+    width: max-content;
+    padding-top: 3.2rem;
+    animation: glass-band-marquee 48s linear infinite;
+  }
+  .glass-band-text-track span {
     font-size: clamp(26px, 4vw, 54px);
     font-weight: 800;
     line-height: 1.08;
     letter-spacing: -0.02em;
+    white-space: nowrap;
     background: linear-gradient(120deg, #fff 30%, #ffb3c7 50%, #9fe8ff 70%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     opacity: 0.95;
-    pointer-events: none;
+    padding-right: 3.5rem;
+  }
+  @keyframes glass-band-drift {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes glass-band-grid-pan {
+    to {
+      transform: translateX(-24px);
+    }
+  }
+  @keyframes glass-band-marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  /* motion is an enhancement — reduced-motion parks the scenery */
+  @media (prefers-reduced-motion: reduce) {
+    .glass-band-bg,
+    .glass-band-grid,
+    .glass-band-text-track {
+      animation: none;
+    }
   }
   /* the demo host + the consumer chrome recipe (kube's own component
      css): tint child + shadow + radius, border-radius: inherit so the
