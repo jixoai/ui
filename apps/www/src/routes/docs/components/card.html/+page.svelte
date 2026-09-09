@@ -44,7 +44,12 @@ ${close}
 </Card>
 
 <!-- the foot: raw transport, the standard face is CardFooter (start
-     seat / auto one ButtonGroup / raw end slot) -->
+     seat / auto one ButtonGroup / raw end slot). PITFALL (issue #7):
+     bare buttons in a RAW foot do NOT row themselves — they ride the
+     ruler's content span, one per row, end-justified (the fail-soft
+     default; before it they squeezed into the 14px inset track,
+     clipped to slivers). Wrap actions in CardFooter for the carved
+     cluster, or place your own grid lines if you truly own the ruler -->
 <Card title="Cart">
   {#snippet foot()}
     <CardFooter label="cart actions">

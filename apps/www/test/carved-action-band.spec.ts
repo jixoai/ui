@@ -216,7 +216,12 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     // the one non-press cell: a borderless select stretched to the band
     const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-density-select]')!;
     expect(select.className).toContain('self-stretch');
-    expect(select.className).toContain('border-none');
+    // the border/bg utilities RETIRED (r13): bare chrome paints the
+    // frame away itself, and the lane drivers scope to the chrome
+    // rhythm (r14) — consumers never touch the lane's internals
+    expect(select.getAttribute('data-chrome')).toBe('bare');
+    expect(select.className).toContain('[--jx-icon:0.875rem]');
+    expect(select.className).toContain('[--jx-inset:0.5rem]');
     // THE TOOLBAR SEAMS (Owner r7 — the ask all along): vertical solid
     // Separators between the chrome cells (grip|theme|select), the
     // band's own height, the same ink as the rims

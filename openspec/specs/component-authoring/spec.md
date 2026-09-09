@@ -2396,6 +2396,13 @@ the rim line) — CardFooter stays geometry-pure. Loose self-padded
 action rows (gap + py utilities wrapping zone buttons) are retired
 with this law; a bar that is not a button cluster keeps whatever
 non-action geometry it legitimately needs.
+THE RAW-FOOT FAIL-SOFT (issue #7, 2026-09-10): a RAW foot snippet's
+bare children — anything that is not a known seat — default to the
+ruler's content span, end-justified (never auto-placed into the
+inset tracks where they squeezed to clipped slivers): the "wrap me
+in CardFooter or own the ruler" contract breaks VISIBLE, never
+broken. One rule, every surface carrying the foot zone (Card,
+Dialog, Sheet).
 
 #### Scenario: a sheet footer carves its cluster
 

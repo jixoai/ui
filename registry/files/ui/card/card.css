@@ -155,6 +155,25 @@
     grid-column: 1 / -1;
     align-self: start;
   }
+  /* THE RAW-FOOT FAIL-SOFT (issue #7): the five tracks are for SEATS —
+     .jx-card-foot-grid and the seats it dissolves into. A RAW foot
+     snippet's bare children (unwrapped buttons, arbitrary content)
+     used to auto-place into the 14px inset track: squeezed to
+     slivers, clipped, overlapping, SILENT (measured 26px — "ba").
+     Any direct child that is not a known seat now defaults to the
+     content span, end-justified — readable, and the "wrap me in
+     <CardFooter> or own the ruler yourself" contract breaks VISIBLE
+     instead of broken. The RAW law itself is unchanged: consumers who
+     know the ruler still place their own lines. One rule, every
+     surface — Card, Dialog's foot band, Sheet's (the same zone
+     attribute) */
+  :where([data-jx-card-foot])
+    > :where(
+      :not(.jx-card-foot-grid, .jx-card-foot-start, .jx-card-foot-end, .jx-card-foot-cluster)
+    ) {
+    grid-column: card-content-start / card-inline-end;
+    justify-self: end;
+  }
 
   /* ── the head seats (the r14 tuning clone, lifted onto the ruler):
      the content face ENTERS at the content lines — its inline inset

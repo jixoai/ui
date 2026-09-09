@@ -138,6 +138,16 @@ describe('card-footer — the seats on the ruler (the css)', () => {
       /:where\(\.jx-card-foot-grid\)\s*\{[^}]*grid-template-columns:\s*\[card-inline-start\]\s*0\.875rem\s*\[card-content-start\]\s*auto\s*\[card-fill\]\s*minmax\(0\.625rem,\s*1fr\)\s*\[card-content-end\]\s*auto\s*\[card-inline-end\]\s*0\.875rem/s,
     );
   });
+  it('THE RAW-FOOT FAIL-SOFT (issue #7): a non-seat child defaults to the content span, never the inset track', () => {
+    const body = clean(cardCss);
+    // bare buttons in a RAW foot used to auto-place into the 14px inset
+    // track — squeezed to slivers, clipped, SILENT (measured 26px). Any
+    // direct child that is not a known seat now spans the content axis,
+    // end-justified: the contract breaks VISIBLE, never broken
+    expect(body).toMatch(
+      /:where\(\[data-jx-card-foot\]\)\s*>\s*:where\(\s*:not\(\.jx-card-foot-grid, \.jx-card-foot-start, \.jx-card-foot-end, \.jx-card-foot-cluster\)\s*\)\s*\{[^}]*grid-column:\s*card-content-start\s*\/\s*card-inline-end[^}]*justify-self:\s*end/s,
+    );
+  });
   it('the narrow reversal is GRID-NATIVE against the root container: cluster full-bleed on top, text seats below at the content axis', () => {
     const body = clean(footCss);
     expect(body).toMatch(
