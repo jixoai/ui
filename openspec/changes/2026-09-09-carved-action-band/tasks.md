@@ -53,3 +53,6 @@
 - [x] R5 ② corner context 立法+实现：--jx-corner 发布通道 + strip/cluster 同心配对（实测 8/8px），永不裁剪
 - [x] R5 ③ 改名 SystemDialog 全扫（文件/组件/密钥/印章/css/registry/docs/meta/blueprint/测试/config/legacy 路由）
 - [ ] R5 收尾：全量门禁 + vision + commit
+
+- [x] R6（Owner 终验）：头部 rim 归位——移出 clip，挂为头栏直接兄弟（shrink-0，
+      随折叠隐藏），像素复验 (0,0,0)/1px 紧贴头栏；门禁更新

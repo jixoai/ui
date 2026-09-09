@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-09T08:55:14.128Z",
+  "generatedAt": "2026-09-09T09:45:24.055Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1317,8 +1317,8 @@
           "source": "registry/files/ui/component-canvas/canvas-playground.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/canvas-playground.svelte",
           "target": "@ui/component-canvas/canvas-playground.svelte",
-          "sourceSha": "d548ded3d7ba8fbafa33e57f3128b0b2d32d2e5e7dbf61a64db5a57b98c9076e",
-          "mirrorSha": "d548ded3d7ba8fbafa33e57f3128b0b2d32d2e5e7dbf61a64db5a57b98c9076e"
+          "sourceSha": "96697f7dabaa0777f8567eca79b23dbcb9ee377fcdf6a9aa35ff15efc26caee1",
+          "mirrorSha": "96697f7dabaa0777f8567eca79b23dbcb9ee377fcdf6a9aa35ff15efc26caee1"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-schema.svelte.ts",

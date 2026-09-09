@@ -139,19 +139,28 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     expect(foot.closest('.jx-canvas-dock-collapse')).not.toBeNull();
   });
 
-  it('the head/body rim is a Separator instance inside the clip (hidden at 0fr)', () => {
+  it("the head bar's own rim: a solid Separator sibling of the collapse (Owner r6)", () => {
     const { container } = render(CanvasSchemaHost);
-    const clip = container.querySelector('[data-jx-canvas-dock-clip]')!;
-    const first = clip.firstElementChild!;
-    expect(first.tagName).toBe('HR'); // the rim rides first, hides with the collapse
-    expect(first.getAttribute('aria-hidden')).toBe('true');
-    // SOLID ink (Owner r4 walk): the ghost's contrast subtraction is
-    // defeated by the dock's uniform near-white acrylic — its
-    // documented blind spot; solid is the sanctioned escape
-    expect(first.getAttribute('data-jx-separator')).toBe('solid');
+    const dock = container.querySelector('[data-jx-canvas-dock]')!;
+    const collapse = dock.querySelector('.jx-canvas-dock-collapse')!;
+    // the rim is the head's DIRECT FOLLOWING sibling — outside the
+    // overflow-hidden clip (the clip-top placement rendered in one
+    // environment and not another; the sibling is immune) and
+    // shrink-0 (no flex squeeze)
+    const rimHost = collapse.previousElementSibling!;
+    expect(rimHost.tagName).toBe('DIV');
+    expect(rimHost.className).toContain('shrink-0');
+    const rim = rimHost.querySelector('hr');
+    expect(rim).not.toBeNull();
+    expect(rim.getAttribute('aria-hidden')).toBe('true');
+    // SOLID ink (the ghost's blind spot on the uniform acrylic)
+    expect(rim.getAttribute('data-jx-separator')).toBe('solid');
     // the collapse's own border-t retired (the Separator owns the rim)
-    const collapse = container.querySelector('.jx-canvas-dock-collapse')!;
     expect(collapse.className).not.toContain('border-t');
+    // no rim lingers at the clip's top (the foot bar's own rim, deeper
+    // inside, is legitimate)
+    const clip = container.querySelector('[data-jx-canvas-dock-clip]')!;
+    expect(clip.firstElementChild!.hasAttribute('data-jx-canvas-dock-scroll')).toBe(true);
   });
 
   it('the compression fix: the clip is a flex column, the scroller is the absorber', () => {

@@ -158,3 +158,14 @@ ButtonGroup items-stretch + min-h 下限）在 Card/Dialog foot 上已经
    deps baseline。冻结的历史字面量（docs-structure 的 FROZEN_OLD_FROMS、
    archive）不动。三件套 api 文件顺势归位：命令式 trio 落在
    system-dialog.svelte.ts，host 落在 system-dialog-host.svelte。
+
+## Round 6 (Owner 终验澄清, 2026-09-09) — 头栏 rim 归位
+
+Owner 澄清：分割线指的就是头部可拖动 bar 的那条——底部 reset bar 的
+线可见，头部的不可见（同一份代码在干净 Chrome 里两条都渲染为等强度
+纯黑 1px，像素采样 y82-83/y652-653 均为 (0,0,0) 对 (252)——差异只可能
+来自其宿主结构：头部 rim 骑在 overflow-hidden clip 的顶端，暴露于
+flex 收缩亚像素与 clip 边缘绘制差异）。修法不再猜环境：把头部 rim
+从 clip 里挪出，改为**头栏的直接后续兄弟**（shrink-0 包裹，随 body
+折叠隐藏）——Dialog 头带骑行分隔线在 dock 方言里的结构同构，免疫
+clip 绘制与 flex 挤压。复验：y=41 紧贴 40px 头栏，像素 (0,0,0)。

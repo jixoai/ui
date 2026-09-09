@@ -387,6 +387,17 @@
   </div>
 
   {#if hasBody}
+  <!-- THE HEAD BAR'S OWN RIM (Owner r6: the line belongs to the head —
+       "我说的是头部这个可拖动的 bar"): a solid Separator riding as the
+       head's direct sibling — Dialog's head-band edge separator in the
+       dock's dialect. Moved OUT of the clip (the first attempt rode the
+       clip's very top edge inside overflow-hidden — one environment
+       rendered it, another didn't); a shrink-0 sibling of the animated
+       collapse is immune to the clip's paint and the flex squeeze, and
+       hides with the collapsed body -->
+  <div class="shrink-0" class:hidden={!open}>
+    <Separator variant="solid" aria-hidden="true" />
+  </div>
   <div
     class={cn(
       'jx-canvas-dock-collapse grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]',
@@ -402,14 +413,6 @@
          and the pinned bar keeps its full height — a plain block clip
          let the content overflow and cut the bar to half a button -->
     <div data-jx-canvas-dock-clip class="flex min-h-0 flex-col overflow-hidden">
-      <!-- THE HEAD/BODY RIM IS A SEPARATOR INSTANCE at SOLID ink (the
-           Owner r4 walk: the ghost's contrast subtraction is DEFEATED
-           by the dock's uniform near-white acrylic — its documented
-           blind spot — the line read invisible; solid is the sanctioned
-           escape, the same element + ink law as Dialog's rims with the
-           one additive exception). It rides INSIDE the clip so the 0fr
-           collapse hides it with the body -->
-      <Separator variant="solid" aria-hidden="true" />
       <!-- the internal scroll surface: capped block size + guttered thin
            scrollbar (the old pane's containment law, dock-sized); the
            output foot below stays pinned -->
