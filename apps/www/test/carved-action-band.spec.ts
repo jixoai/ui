@@ -225,6 +225,11 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     for (const seam of seams) {
       expect(seam.getAttribute('data-jx-separator')).toBe('solid');
       expect(seam.getAttribute('aria-hidden')).toBe('true');
+      // SOFTENED (Owner r8): full --border reads too heavy BETWEEN small
+      // controls — the seams ride the 60% border mix (the output rows'
+      // precedent) while the horizontal band rims keep the full ink
+      // (band boundaries stronger than intra-cell texture)
+      expect(seam.className).toContain('var(--border)_60%,transparent');
     }
     // the hand chrome recipe is gone from the source (borders, the
     // +2px size scale, the shadow-suppression customs)
