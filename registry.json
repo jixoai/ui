@@ -1421,7 +1421,8 @@
         "@jixoai/list-item",
         "@jixoai/density",
         "@jixoai/defaults",
-        "@jixoai/separator"
+        "@jixoai/separator",
+        "@jixoai/native-select"
       ],
       "files": [
         {
@@ -2089,7 +2090,7 @@
       "name": "alert",
       "type": "registry:ui",
       "title": "Alert",
-      "description": "The inline notice block (not the modal alert-dialog): 1px border, hard offset shadow-2xs, variant ladder as the surface (outline transparent ground + --jx-outline border; tonal 12% tinted ground + 45% border + tonal title ink). Live-region semantics are a prop — assertive=false → role=status (polite, default), assertive=true → role=alert. Hue is injection: --jx-tonal defaults to the brand hue; failed statuses inject --error (a status, never the destructive action hue).",
+      "description": "The inline notice block (not the modal system-dialog): 1px border, hard offset shadow-2xs, variant ladder as the surface (outline transparent ground + --jx-outline border; tonal 12% tinted ground + 45% border + tonal title ink). Live-region semantics are a prop — assertive=false → role=status (polite, default), assertive=true → role=alert. Hue is injection: --jx-tonal defaults to the brand hue; failed statuses inject --error (a status, never the destructive action hue).",
       "files": [
         {
           "path": "registry/files/ui/alert/alert.svelte",
@@ -2791,81 +2792,81 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-      "name": "alert-dialog",
+      "name": "system-dialog",
       "type": "registry:ui",
-      "title": "Alert dialog",
+      "title": "System dialog",
       "description": "The confirmation dialog as a composed family (shadcn-shaped on the native <dialog>): Root (bind:open/onconfirm) + Trigger/Content/Title/Description/Actions/Action(variant: fill with the destructive pair injected by default | tonal | outline)/Cancel — focus lands on Cancel (the safe default), Escape cancels, confirm runs then closes. No Overlay/Portal parts (the dialog element IS the overlay) — recorded divergence.",
       "files": [
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-action.svelte",
-          "target": "@ui/alert-dialog/alert-dialog-action.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog-action.svelte",
+          "target": "@ui/system-dialog/system-dialog-action.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-actions.svelte",
-          "target": "@ui/alert-dialog/alert-dialog-actions.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog-actions.svelte",
+          "target": "@ui/system-dialog/system-dialog-actions.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-cancel.svelte",
-          "target": "@ui/alert-dialog/alert-dialog-cancel.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog-cancel.svelte",
+          "target": "@ui/system-dialog/system-dialog-cancel.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-content.svelte",
-          "target": "@ui/alert-dialog/alert-dialog-content.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog-content.svelte",
+          "target": "@ui/system-dialog/system-dialog-content.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-description.svelte",
-          "target": "@ui/alert-dialog/alert-dialog-description.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog-description.svelte",
+          "target": "@ui/system-dialog/system-dialog-description.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-title.svelte",
-          "target": "@ui/alert-dialog/alert-dialog-title.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog-title.svelte",
+          "target": "@ui/system-dialog/system-dialog-title.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-trigger.svelte",
-          "target": "@ui/alert-dialog/alert-dialog-trigger.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog-trigger.svelte",
+          "target": "@ui/system-dialog/system-dialog-trigger.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog.css",
-          "target": "@ui/alert-dialog/alert-dialog.css",
+          "path": "registry/files/ui/system-dialog/system-dialog.css",
+          "target": "@ui/system-dialog/system-dialog.css",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog.svelte",
-          "target": "@ui/alert-dialog/alert-dialog.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog.svelte",
+          "target": "@ui/system-dialog/system-dialog.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/index.ts",
-          "target": "@ui/alert-dialog/index.ts",
+          "path": "registry/files/ui/system-dialog/index.ts",
+          "target": "@ui/system-dialog/index.ts",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-defaults.svelte.ts",
-          "target": "@ui/alert-dialog/alert-dialog-defaults.svelte.ts",
+          "path": "registry/files/ui/system-dialog/system-dialog-defaults.svelte.ts",
+          "target": "@ui/system-dialog/system-dialog-defaults.svelte.ts",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-system.svelte",
-          "target": "@ui/alert-dialog/alert-dialog-system.svelte",
+          "path": "registry/files/ui/system-dialog/system-dialog-host.svelte",
+          "target": "@ui/system-dialog/system-dialog-host.svelte",
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/alert-dialog/alert-dialog-system.svelte.ts",
-          "target": "@ui/alert-dialog/alert-dialog-system.svelte.ts",
+          "path": "registry/files/ui/system-dialog/system-dialog.svelte.ts",
+          "target": "@ui/system-dialog/system-dialog.svelte.ts",
           "type": "registry:file"
         }
       ],
       "docs": "Props: title, description (both required), open ($bindable), confirmLabel, confirmTone? ('destructive' default | 'primary'), onconfirm?, cancelLabel?, children? (extra body).",
       "meta": {
         "group": "layer",
-        "href": "/docs/components/alert-dialog.html"
+        "href": "/docs/components/system-dialog.html"
       },
       "registryDependencies": [
         "@jixoai/utils",
