@@ -381,19 +381,26 @@
         </select>
       </div>
       {#if hasBody}
-        <!-- the collapse chevron: only when the dock HAS a body -->
-        <IconButton
-          icon={chevronGlyph}
-          text="Playground"
-          iconOnly
-          tip={false}
-          title="Playground"
-          aria-expanded={open}
-          aria-controls={bodyId}
-          data-jx-canvas-dock-toggle
-          onclick={() => (open = !open)}
-          class="jx-canvas-dock-toggle"
-        />
+        <!-- the collapse chevron: only when the dock HAS a body — its
+             own right-hand group with a seam hugging its left edge
+             (Owner r10: the select↔toggle boundary is a cell boundary
+             like any other; the elastic breathing sits between the
+             select and THIS group's seam) -->
+        <div class="flex items-stretch">
+          <Separator orientation="vertical" aria-hidden="true" />
+          <IconButton
+            icon={chevronGlyph}
+            text="Playground"
+            iconOnly
+            tip={false}
+            title="Playground"
+            aria-expanded={open}
+            aria-controls={bodyId}
+            data-jx-canvas-dock-toggle
+            onclick={() => (open = !open)}
+            class="jx-canvas-dock-toggle"
+          />
+        </div>
       {/if}
     </ButtonVariantScope>
   </div>

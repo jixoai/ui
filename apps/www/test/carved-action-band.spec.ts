@@ -221,7 +221,10 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     // Separators between the chrome cells (grip|theme|select), the
     // band's own height, the same ink as the rims
     const seams = head.querySelectorAll('[data-jx-separator][data-orientation="vertical"]');
-    expect(seams.length).toBe(2);
+    expect(seams.length).toBe(3); // grip|theme, theme|select, and the
+    // toggle group's left edge (Owner r10: select↔toggle is a cell
+    // boundary too — the seam hugs the chevron group, the elastic
+    // breathing sits between the select and that seam)
     for (const seam of seams) {
       // THE GHOST (Owner r9: "这种分割线本身只是一个视觉辅助"): the
       // default fused ink, zero color tokens — no variant, no class
