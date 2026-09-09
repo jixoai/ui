@@ -2425,14 +2425,20 @@ non-action geometry it legitimately needs.
 - THEN the row rides the same carved treatment: the zone quiets
   every press control (ghost + flat, zero hand borders — the
   ButtonBar spirit), controls stretch to fill the band with no
-  padding float, the body's rim line below closes the band, vertical
-  Separators seam the chrome cells apart (grip|theme|select — the
-  toolbar idiom, the band's own height) at the DEFAULT FUSED INK,
-  zero color tokens (the Owner-confirmed law, 2026-09-09 r9: a
-  toolbar seam is a visual aid — it whispers; on the dock's uniform
-  acrylic the subtraction reads a few 255ths and that subtlety IS
-  the correct practice, "这就是更正确的最佳实践"), and the one
-  non-press cell (the native select) rides the band borderless
+  padding float, the body's rim line below closes the band, and
+  FOUR vertical Separators seam EVERY cell boundary — grip|theme,
+  theme|select, the select's trailing edge, and the toggle group's
+  leading edge, the elastic breathing bracketed between two whisper
+  lines (r11) — at the DEFAULT FUSED INK, zero color tokens (the
+  Owner-confirmed law, r9: a toolbar seam is a visual aid — it
+  whispers; on the dock's uniform acrylic the subtraction reads a
+  few 255ths and that subtlety IS the correct practice, "这就是更
+  正确的最佳实践"); the one non-press cell rides the FAMILY's
+  NativeSelect at bare chrome (r12: never a hand-rolled raw select —
+  the designed chevron and control-lane insets are the component's),
+  its lane DRIVERS scoped to the chrome's own rhythm
+  ([--jx-icon]/[--jx-inset], r14: consumers scale the tokens, never
+  the lane — the reservation itself stays the component's calc)
 
 #### Scenario: a non-footer bar uses the same band
 
