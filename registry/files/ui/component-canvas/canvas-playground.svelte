@@ -379,6 +379,10 @@
           <option value="default">default</option>
           <option value="lg">lg</option>
         </select>
+        <!-- the breathing gap is BRACKETED (Owner r11): a seam closes
+             the left cluster too — the elastic space sits BETWEEN two
+             whisper lines, the whole bar one seamed toolbar -->
+        <Separator orientation="vertical" aria-hidden="true" />
       </div>
       {#if hasBody}
         <!-- the collapse chevron: only when the dock HAS a body — its
