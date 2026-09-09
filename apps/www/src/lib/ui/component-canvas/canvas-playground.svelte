@@ -82,6 +82,7 @@
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import CardFooter from '$lib/ui/card/card-footer.svelte';
   import Separator from '$lib/ui/separator/separator.svelte';
+  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
   import type { ControlRow, PlayOutput } from './canvas-schema.svelte';
@@ -361,14 +362,17 @@
           class="jx-canvas-dock-theme"
         />
         <Separator orientation="vertical" aria-hidden="true" />
-        <!-- the size toggle: a compact native select with the
-             REPO-STANDARD Density vocabulary, stamped onto the stage
-             DIRECTLY (no comfortable/compact mapping — the amendment);
-             the one non-press cell — a borderless ghost select riding
-             the band's height -->
-        <select
+        <!-- the size toggle: the FAMILY'S NativeSelect at bare chrome
+             (Owner r12: the hand-rolled raw <select> retired — our own
+             component's chevron and control-lane insets are the
+             designed ones), carrying the REPO-STANDARD Density
+             vocabulary, stamped onto the stage DIRECTLY (no
+             comfortable/compact mapping — the amendment); the one
+             non-press cell — borderless ghost chrome riding the band -->
+        <NativeSelect
+          chrome="bare"
           data-jx-canvas-density-select
-          class="jx-canvas-dock-density self-stretch cursor-pointer border-none bg-transparent px-[0.4rem] font-nav text-[10px] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground"
+          class="jx-canvas-dock-density h-full cursor-pointer self-stretch border-none bg-transparent px-[0.4rem] font-nav text-[10px] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground"
           aria-label="Density"
           title="Density"
           value={dDensity}
@@ -378,7 +382,7 @@
           <option value="sm">sm</option>
           <option value="default">default</option>
           <option value="lg">lg</option>
-        </select>
+        </NativeSelect>
         <!-- the breathing gap is BRACKETED (Owner r11): a seam closes
              the left cluster too — the elastic space sits BETWEEN two
              whisper lines, the whole bar one seamed toolbar -->
