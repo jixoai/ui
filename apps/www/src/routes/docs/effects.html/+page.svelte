@@ -48,7 +48,7 @@
   // law). The COMPONENT itself is deliberately absent: the Owner review
   // (2026-09-08) rules the effects are the protagonists — neutral plain
   // hosts only, component documentation stays on press-button.html.
-  import { pressEffect } from '$lib/ui/press-button';
+  import { pressEffect, solidFill } from '$lib/ui/press-button';
   import { pulse, rainbow, ripple, shimmer } from '$lib/ui/press-button/press-button.svelte';
   import pressButtonSource from '$lib/ui/press-button/press-button.svelte?raw';
   import pressRuntimeSource from '$lib/ui/press-button/press-effect-runtime.ts?raw';
@@ -301,31 +301,46 @@ const fx = liquid.apple({ ${semanticOptionsLine} });
   // free text must become a legal string literal (q() = JSON.stringify)
   const q = (value: string): string => JSON.stringify(value);
 
-  // ---- shimmer — the shine arc walks the border band (r9/r10) ----------
+  // ---- shimmer — the host-channel ring over the animated band (r11) ----
 
   const SHIMMER_INITIAL = { shine: '#ffffff', shineWidth: 30, speed: 3000, ringW: 4 };
   let shShine = $state(SHIMMER_INITIAL.shine);
   let shShineWidth = $state(SHIMMER_INITIAL.shineWidth);
   let shSpeed = $state(SHIMMER_INITIAL.speed);
   let shRingW = $state(SHIMMER_INITIAL.ringW);
+  // the fill channel (r11): undefined = the context base (opaque),
+  // null = transparent, number = solidFill()-minted opaque
+  let shFill = $state<number | null | undefined>(undefined);
+  let shFillHex = $state('#0d1220');
+  const shFillReadout = $derived(
+    shFill === undefined ? 'auto (context)' : shFill === null ? 'transparent' : `#${shFill.toString(16).padStart(6, '0')}`,
+  );
   const shimmerFx = $derived(
-    shimmer({ shine: shShine, shineWidth: `${shShineWidth}deg`, speed: shSpeed, ringW: shRingW }),
+    shimmer({
+      shine: shShine,
+      shineWidth: `${shShineWidth}deg`,
+      speed: shSpeed,
+      ringW: shRingW,
+      fill: shFill,
+    }),
   );
   function resetShimmer(): void {
     shShine = SHIMMER_INITIAL.shine;
     shShineWidth = SHIMMER_INITIAL.shineWidth;
     shSpeed = SHIMMER_INITIAL.speed;
     shRingW = SHIMMER_INITIAL.ringW;
+    shFill = undefined;
   }
   const shimmerUsage = $derived(`<script lang="ts">
-  import { pressEffect } from '@ui/press-button';
+  import { pressEffect, solidFill } from '@ui/press-button';
   import { shimmer } from '@ui/press-button/press-button.svelte';
 ${close}
 
-<!-- the leaf form — the ring layer rides ring-w TWICE: border-width + inset -1×,
-     so the band sits ON the host's border band; the demo keeps the host's own
-     border at the same width for the exact overlap -->
-<button style="border-width: 4px" {@attach pressEffect(shimmer({ shine: ${q(shShine)}, shineWidth: '${shShineWidth}deg', speed: ${shSpeed}, ringW: ${shRingW} }))}>
+<!-- the host itself carries the ring — its border IS the band. fill: an
+     opaque number from solidFill(cssColor) against the context's light/dark
+     base, or null for transparent (the border-area cutout where the engine
+     supports it, the blend emulation elsewhere) -->
+<button {@attach pressEffect(shimmer({ shine: ${q(shShine)}, shineWidth: '${shShineWidth}deg', speed: ${shSpeed}, ringW: ${shRingW}, fill: ${shFill === null ? 'null' : shFill === undefined ? 'solidFill(\'rgba(255, 255, 255, 0.35)\')' : `solidFill('${shFillHex}')`} }))}>
   deploy
 </button>`);
   const shimmerFiles: TreeFile[] = [
@@ -865,7 +880,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
     <div id="shimmer" data-reveal="">
       <ComponentCanvas
         title="shimmer"
-        description="press family · shimmer — the shine arc walks the BORDER BAND: the ring layer rides ring-w TWICE — its own border-width AND its outward inset (calc(ring-w × -1)), so the band sits exactly ON the host's border geometry (an inset:0 child would anchor to the padding box and paint into the face). The forced pair holds: border-color transparent, border-image hidden — the band belongs to the conic. Then the Afif double-background: an opaque fill clipped to the padding box over a conic clipped to the border box, so the arc shows only in the band with zero mask machinery. The backdrop cutout this replaces was impossible in CSS; owning the face is the price and the design (r9). The hosts are NEUTRAL plain elements — the effect never meets the button component here; drag the dock and every host rides ONE fx object through the identity remount."
+        description="press family · shimmer — the shine arc walks the BORDER BAND, painted ON THE HOST ITSELF (no child layer, no inset — the Owner's r11 ruling): the host's own border is the ring's geometry (width = ringW, color forced transparent, image forced hidden), and the double background — a fill layer clipped to the padding box over a rotating conic — clips through --shimmer-clip: border-area where Chrome 139+ answers (the TRUE cutout — a transparent face shows the band behind it), border-box elsewhere. The fill channel: a 0xRRGGBB number (solidFill() mints these from any CSS color against the context's light/dark base — try it over the animated band), or null for transparent (the blend emulation — white + darken in light contexts, black + lighten in dark — where border-area is missing). The hosts are NEUTRAL plain elements; drag the dock and every host rides ONE fx object through the identity remount."
         sourceUrl={registrySourceUrl('press-button')}
         files={shimmerFiles}
         stage="center"
@@ -874,38 +889,44 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
           { label: 'speed', value: `${shSpeed}ms` },
           { label: 'shine-width', value: `${shShineWidth}deg` },
           { label: 'ring-w', value: `${shRingW}px` },
+          { label: 'fill', value: shFillReadout },
         ]}
         resolveFileContent={resolveShimmerUsage}
       >
-        <div class="fx-stage" aria-label="shimmer demo stage">
-          <button
-            type="button"
-            class="fx-host fx-host-fill"
-            data-fx-demo="shimmer-fill"
-            style={`border-width: ${shRingW}px`}
-            {@attach pressEffect(shimmerFx)}
-          >
-            deploy
-          </button>
-          <button
-            type="button"
-            class="fx-host fx-host-pill"
-            data-fx-demo="shimmer-pill"
-            style={`border-width: ${shRingW}px`}
-            {@attach pressEffect(shimmerFx)}
-          >
-            invite
-          </button>
-          <button
-            type="button"
-            class="fx-host fx-host-tile"
-            data-fx-demo="shimmer-tile"
-            style={`border-width: ${shRingW}px`}
-            aria-label="shimmer on a square tile"
-            {@attach pressEffect(shimmerFx)}
-          >
-            <span aria-hidden="true">⌘</span>
-          </button>
+        <div
+          class="glass-band fx-band isolate relative w-full overflow-hidden rounded-lg"
+          data-fx-band="shimmer"
+          aria-label="shimmer demo stage over the animated band"
+        >
+          <div class="glass-band-bg" aria-hidden="true"></div>
+          <div class="glass-band-grid" aria-hidden="true"></div>
+          <div class="fx-stage fx-stage-band relative" aria-label="shimmer demo stage">
+            <button
+              type="button"
+              class="fx-host fx-host-fill"
+              data-fx-demo="shimmer-fill"
+              {@attach pressEffect(shimmerFx)}
+            >
+              deploy
+            </button>
+            <button
+              type="button"
+              class="fx-host fx-host-pill"
+              data-fx-demo="shimmer-pill"
+              {@attach pressEffect(shimmerFx)}
+            >
+              invite
+            </button>
+            <button
+              type="button"
+              class="fx-host fx-host-tile"
+              data-fx-demo="shimmer-tile"
+              aria-label="shimmer on a square tile"
+              {@attach pressEffect(shimmerFx)}
+            >
+              <span aria-hidden="true">⌘</span>
+            </button>
+          </div>
         </div>
         {#snippet playground()}
           <PlayFields>
@@ -918,25 +939,57 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
                 aria-label="shimmer shine color"
               />
             </PlayRow>
+            <PlayRow label="fill" hint="auto = the context's base, opaque · a color = solidFill() mints the number · transparent = null (the cutout, or the blend emulation)">
+              <div class="fx-color">
+                <button
+                  type="button"
+                  class="fx-color-token"
+                  aria-pressed={shFill === undefined}
+                  onclick={() => (shFill = undefined)}
+                >
+                  auto
+                </button>
+                <button
+                  type="button"
+                  class="fx-color-token"
+                  aria-pressed={shFill === null}
+                  onclick={() => (shFill = null)}
+                >
+                  transparent
+                </button>
+                <input
+                  class="fx-color-input"
+                  type="color"
+                  value={shFillHex}
+                  oninput={(event) => {
+                    shFillHex = event.currentTarget.value;
+                    shFill = solidFill(shFillHex);
+                  }}
+                  aria-label="shimmer fill color"
+                />
+              </div>
+            </PlayRow>
             <PlayRow label="shine-width" hint="10–180deg · the arc's angular footprint">
               <PlayRange bind:value={shShineWidth} min={10} max={180} step={5} />
             </PlayRow>
             <PlayRow label="speed" hint="400–12000ms · one full revolution of the arc">
               <PlayRange bind:value={shSpeed} min={400} max={12000} step={100} />
             </PlayRow>
-            <PlayRow label="ring-w" hint="1–8px · the ring layer's border-width AND its outward inset — the demo hosts' borders track it for the exact overlap">
+            <PlayRow label="ring-w" hint="1–8px · the HOST's border-width — the border IS the ring">
               <PlayRange bind:value={shRingW} min={1} max={8} step={0.5} />
             </PlayRow>
             <PlayHelp>
-              four params are <code>shimmer()</code>'s own — <code>shine</code>,
-              <code>shineWidth</code>, <code>speed</code>, <code>ringW</code> (a number is px; any CSS
-              length string works); the ring rides ring-w TWICE (border-width + inset -1×), and the
-              deeper knobs — <code>--shimmer-fill</code> (the face),
-              <code>--shimmer-base</code> (the ring's rest color),
-              <code>--shimmer-shine-start</code> (the arc's head angle) — are inheritable vars:
-              set them on the host or any ancestor. A dock change REPLACES the fx (a fresh
-              closure, an identity remount) — params flow, never
-              mutate. The loop freezes under reduced motion.
+              five knobs — <code>shine</code>, <code>fill</code>, <code>shineWidth</code>,
+              <code>speed</code>, <code>ringW</code> (a number is px; any CSS length string works).
+              <code>fill</code> is the number channel: an opaque 0xRRGGBB from
+              <code>solidFill(cssColor)</code> (composited over the context's light/dark base), or
+              <code>null</code> for transparent — the true cutout where the engine clips
+              <code>border-area</code>, the white/black + <code>darken</code>/<code>lighten</code>
+              blend emulation where it does not (best seen over the animated band). The deeper knobs
+              — <code>--shimmer-base</code> (the ring's rest color),
+              <code>--shimmer-shine-start</code> (the arc's head angle) — are inheritable vars. A
+              dock change REPLACES the fx (a fresh closure, an identity remount) — params flow,
+              never mutate. The loop freezes under reduced motion.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -958,7 +1011,14 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         ]}
         resolveFileContent={resolvePulseUsage}
       >
-        <div class="fx-stage" aria-label="pulse demo stage">
+        <div
+          class="glass-band fx-band isolate relative w-full overflow-hidden rounded-lg"
+          data-fx-band="pulse"
+          aria-label="pulse demo stage over the animated band"
+        >
+          <div class="glass-band-bg" aria-hidden="true"></div>
+          <div class="glass-band-grid" aria-hidden="true"></div>
+          <div class="fx-stage fx-stage-band relative" aria-label="pulse demo stage">
           <button
             type="button"
             class="fx-host fx-host-fill"
@@ -984,6 +1044,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
           >
             <span aria-hidden="true">⌘</span>
           </button>
+        </div>
         </div>
         {#snippet playground()}
           <PlayFields>
@@ -1044,7 +1105,14 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         ]}
         resolveFileContent={resolveRainbowUsage}
       >
-        <div class="fx-stage" aria-label="rainbow demo stage">
+        <div
+          class="glass-band fx-band isolate relative w-full overflow-hidden rounded-lg"
+          data-fx-band="rainbow"
+          aria-label="rainbow demo stage over the animated band"
+        >
+          <div class="glass-band-bg" aria-hidden="true"></div>
+          <div class="glass-band-grid" aria-hidden="true"></div>
+          <div class="fx-stage fx-stage-band relative" aria-label="rainbow demo stage">
           <button
             type="button"
             class="fx-host fx-host-fill"
@@ -1070,6 +1138,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
           >
             <span aria-hidden="true">⌘</span>
           </button>
+        </div>
         </div>
         {#snippet playground()}
           <PlayFields>
@@ -1118,7 +1187,14 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         ]}
         resolveFileContent={resolveRippleUsage}
       >
-        <div class="fx-stage" aria-label="ripple demo stage">
+        <div
+          class="glass-band fx-band isolate relative w-full overflow-hidden rounded-lg"
+          data-fx-band="ripple"
+          aria-label="ripple demo stage over the animated band"
+        >
+          <div class="glass-band-bg" aria-hidden="true"></div>
+          <div class="glass-band-grid" aria-hidden="true"></div>
+          <div class="fx-stage fx-stage-band relative" aria-label="ripple demo stage">
           <button
             type="button"
             class="fx-host fx-host-fill"
@@ -1144,6 +1220,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
           >
             <span aria-hidden="true">⌘</span>
           </button>
+        </div>
         </div>
         {#snippet playground()}
           <PlayFields>
@@ -1262,7 +1339,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         <PropsTable
           title="the press builders — shimmer / pulse / rainbow / ripple"
           props={[
-            { name: 'shimmer(o)', type: 'ShimmerEffect', default: 'see below', description: 'The shine arc walks the BORDER BAND — the ring layer rides ringW TWICE (its own border-width AND its outward inset, calc(ring-w × -1), so the band sits on the host’s border geometry), forces border-color transparent and border-image hidden, then paints the Afif double-background: an opaque fill clipped to the padding box over a conic clipped to the border box, so the arc shows only in the band (no mask machinery; the face is the effect’s — the cutout ask is retired). Options: shine? (any CSS color, default #ffffff), shineWidth? (the arc’s angular width, default 30deg), speed? (one full revolution, in ms, default 3000), ringW? (number = px, or any CSS length string, default 4). Inheritable beyond the params: --shimmer-fill (the face, default var(--background)), --shimmer-base (the ring’s rest color, default currentColor), --shimmer-shine-start (the arc’s head angle, default 280deg).' },
+            { name: 'shimmer(o)', type: 'ShimmerEffect', default: 'see below', description: 'The shine arc walks the host’s OWN border — the effect paints the HOST ITSELF (no child layer, no inset): border-width = ringW with color forced transparent and image forced hidden, the double background (a fill layer clipped to the padding box over a rotating conic) clipped through --shimmer-clip — border-area where Chrome 139+ answers (the TRUE cutout), border-box elsewhere. Options: shine? (any CSS color, default #ffffff), fill? (the FACE: an opaque 0xRRGGBB number — solidFill(cssColor) mints these by compositing over the context’s light/dark base — or null for transparent; default = the context’s own base, opaque), shineWidth? (the arc’s angular width, default 30deg), speed? (one full revolution, in ms, default 3000), ringW? (number = px, or any CSS length string, default 4). A null fill where border-area is missing rides the blend emulation: light context → white + mix-blend-mode darken, dark → black + lighten. Inheritable: --shimmer-base (the ring’s rest color, default currentColor), --shimmer-shine-start (default 280deg).' },
             { name: 'pulse(o)', type: 'PulseEffect', default: 'see below', description: 'Sonar rings breathe outward from the body’s silhouette. Options: color? (default var(--primary)), duration? (default 2500ms), distance? (default 0.7em), variant? — slow | ring | ripple (default slow).' },
             { name: 'rainbow(o)', type: 'RainbowEffect', default: 'see below', description: 'A five-stop train flows around the FULL ring (a registered --jx-rainbow-shift pans the stops through one 200% cycle, mask-banded to the rim; the host’s background is never touched). Options: speed? (the flow pace in ms, default 2000), colors? (a non-empty array, default five hsl primes).' },
             { name: 'ripple(o)', type: 'RippleEffect', default: 'see below', description: 'Ink expands from the exact press point, centered on keyboard activation — a css-animated svg dot with an optional feGaussianBlur soft edge (soft, default 0 — 0 disables the filter), riding a seat that inherits the host’s border-radius with overflow hidden, removed on animationend. Options: color? (default currentColor), duration? (default 600ms), soft? (default 0), shape? — round | bevel (bevel cuts the corners into a diamond).' },
@@ -1579,6 +1656,19 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
     border: 1px solid var(--border);
     border-radius: 12px;
     background: var(--background, Canvas);
+  }
+  /* the press galleries ride the glass band's animated scenery (the
+     Owner's r11 ruling: the blend/cutout fills need something to
+     blend against); the stage sheds its own card chrome so the band
+     reads, and the wrapper isolates so the hosts' mix-blend-mode
+     composites against the band, never the page behind it */
+  .fx-band {
+    border: 1px solid var(--border);
+  }
+  .fx-stage-band {
+    border: none;
+    background: transparent;
+    padding: 5.5rem 1.5rem;
   }
   .fx-host {
     display: inline-flex;

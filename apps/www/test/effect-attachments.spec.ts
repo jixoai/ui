@@ -80,6 +80,7 @@ import {
   applyShimmer,
   applyPulse,
   applyRainbow,
+  solidFill,
 } from '../src/lib/ui/press-button/press-effect-runtime';
 import {
   pulse,
@@ -362,34 +363,63 @@ afterEach(() => {
 });
 
 describe('pressEffect · mount stamps + teardown cleans (the r5 ring recipes)', () => {
-  it('shimmer: the border-band ring — ONE span inheriting the host border; teardown removes all of it', () => {
+  it('shimmer: the HOST CHANNEL — the class + vars ride the host, no child layer; teardown removes all of it', () => {
     const el = host();
     const detach = pressEffect(shimmer({ shine: '#facc15', shineWidth: '45deg', speed: 4000, ringW: '0.25em' }))(el);
     expect(el.hasAttribute('data-jx-shimmer-host')).toBe(true);
+    expect(el.classList.contains('jx-shimmer-host')).toBe(true);
     expect(el.getAttribute('style')).toContain('--shimmer-shine: #facc15');
     expect(el.getAttribute('style')).toContain('--shimmer-shine-width: 45deg');
     expect(el.getAttribute('style')).toContain('--shimmer-speed: 4000ms');
     expect(el.getAttribute('style')).toContain('--shimmer-ring-w: 0.25em');
-    // r9: ONE ring span is the whole layer set — it inherits the host's
-    // border (the band) and paints the double-background from the sheet;
-    // the host's own look rides untouched (the stacking pose is stamped)
-    expect(el.querySelectorAll(':scope > span')).toHaveLength(1);
-    const ring = el.querySelector('.jx-shimmer-ring')!;
-    expect(ring).toBeTruthy();
-    expect(ring.getAttribute('style')).toBeNull(); // the paint lives in the sheet
-    expect(el.getAttribute('style')).not.toContain('background');
-    expect(el.className).toContain('relative');
-    expect(el.className).toContain('z-0');
+    // r11: the fill resolves to the context base (opaque) and the clip
+    // rides the engine's answer — jsdom answers no border-area
+    expect(el.getAttribute('style')).toContain('--shimmer-fill: rgb(');
+    expect(el.getAttribute('style')).toContain('--shimmer-clip: padding-box, border-box');
+    // no child elements at all — the host itself is the ring
+    expect(el.children.length).toBe(0);
+    expect(el.style.mixBlendMode).toBe('');
     detach();
     expect(el.hasAttribute('data-jx-shimmer-host')).toBe(false);
-    expect(el.querySelector('.jx-shimmer-ring')).toBeNull();
+    expect(el.classList.contains('jx-shimmer-host')).toBe(false);
     expect(el.getAttribute('style')).toBeNull();
-    expect(el.classList.contains('relative')).toBe(false);
   });
 
-  it('shimmer: the face rides the SHEET channel — the inline style never carries paint (r9 ownership law)', () => {
-    // the kernel ADDS custom properties only; the consumer's own
-    // background, border-radius, and text ride the whole cycle untouched
+  it('shimmer: fill=null — the blend emulation where border-area is missing (white+darken in light, black+lighten in dark); the true cutout clip where it answers', () => {
+    const el = host();
+    const detach = pressEffect(shimmer({ fill: null }))(el);
+    // jsdom: CSS.supports('background-clip','border-area') is false →
+    // the fallback — an opaque white/black fill + the blend stamp
+    expect(el.getAttribute('style')).toContain('--shimmer-clip: padding-box, border-box');
+    expect(el.style.mixBlendMode === 'darken' || el.style.mixBlendMode === 'lighten').toBe(true);
+    const fillVar = el.getAttribute('style')!.match(/--shimmer-fill: ([^;]+);/)!;
+    expect(['rgb(255 255 255)', 'rgb(0 0 0)']).toContain(fillVar[1].trim());
+    detach();
+    expect(el.style.mixBlendMode).toBe('');
+    expect(el.getAttribute('style')).toBeNull();
+
+    // stub the engine's YES and the cutout branch answers: clip flips
+    // to border-area, no blend stamp, the fill stays transparent-free
+    // (jsdom ships no global CSS at all — the stub goes on globalThis)
+    const g = globalThis as { CSS?: unknown };
+    const realCSS = g.CSS;
+    g.CSS = { supports: () => true };
+    try {
+      const el2 = host();
+      const detach2 = pressEffect(shimmer({ fill: null }))(el2);
+      expect(el2.getAttribute('style')).toContain('--shimmer-clip: padding-box, border-area');
+      expect(el2.style.mixBlendMode).toBe('');
+      detach2();
+      expect(el2.getAttribute('style')).toBeNull();
+    } finally {
+      g.CSS = realCSS;
+    }
+  });
+
+  it('shimmer: the face rides the SHEET channel — the inline style never carries paint (r11 ownership law)', () => {
+    // the kernel ADDS custom properties (and, only for the blend
+    // emulation, mix-blend-mode) — the consumer's own background,
+    // border-radius, and text ride the whole cycle untouched
     const el = host();
     el.setAttribute('style', '--consumer-x: 1; background: var(--jx-fill); border-radius: 18px');
     const prior = el.getAttribute('style')!;
@@ -402,9 +432,21 @@ describe('pressEffect · mount stamps + teardown cleans (the r5 ring recipes)', 
     for (const decl of added) {
       expect(decl.startsWith('--'), `shimmer paints the host inline: ${decl}`).toBe(true);
     }
-    expect(el.querySelectorAll(':scope > span')).toHaveLength(1);
+    expect(el.children.length).toBe(0);
     detach();
     expect(el.getAttribute('style')).toBe(prior);
+  });
+
+  it('solidFill — the fill channel’s minter: any CSS color over the context base, opaque by construction', () => {
+    // an explicit base makes the mint deterministic
+    expect(solidFill('#ff0000', '#000000')).toBe(0xff0000);
+    // the half-red-over-blue composite: r=128, g=0, b=128 → 0x800080
+    expect(solidFill('rgba(255, 0, 0, 0.5)', '#0000ff')).toBe(0x800080);
+    // a fully transparent source resolves to the base itself
+    expect(solidFill('rgba(0, 0, 0, 0)', '#123456')).toBe(0x123456);
+    // context flavor: the default base parses (jsdom root bg or the
+    // scheme fallback) and the result is always an int
+    expect(Number.isInteger(solidFill('#ffffff'))).toBe(true);
   });
 
   it('pulse: the variant rides its own class; vars stamped and stripped', () => {
@@ -692,45 +734,34 @@ describe('the r5 recipe laws (press-button.css)', () => {
     return hit![1];
   };
 
-  it('shimmer: the border-band ring law r9/r10 — the Afif double-background, the inset law, the forced border pair, the uniform spin', () => {
-    // THE RING: one span at z:-1 (under the in-flow label, over the
-    // host's own background — the pulse-layer precedent), riding
-    // ring-w TWICE per the Owner's r10 geometry — its own border-width
-    // AND its outward inset (an inset:0 child anchors to the host's
-    // PADDING box; pushed out by the full width, the band lands ON the
-    // host's border band instead of inside the face)
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*z-index:\s*-1/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*inset:\s*calc\(var\(--shimmer-ring-w, 4px\) \* -1\)/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*border-width:\s*var\(--shimmer-ring-w, 4px\)/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*border-style:\s*solid/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*border-color:\s*transparent/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*border-image:\s*none/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*border-radius:\s*inherit/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*corner-shape:\s*inherit/s);
-    // THE DOUBLE BACKGROUND: fill clipped to padding-box over conic
-    // clipped to border-box — the cutout the r5 mask used to fake,
-    // done with real border geometry instead
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*background-clip:\s*padding-box,\s*border-box/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*background-origin:\s*padding-box,\s*border-box/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*var\(--shimmer-fill,\s*var\(--background\)\)/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*var\(--shimmer-shine\)/s);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*var\(--shimmer-shine-width,\s*30deg\)/s);
-    // no mask machinery on the shimmer ring — that lane is rainbow's
-    const ringBlock = css.match(/\.jx-shimmer-ring\)\s*\{[\s\S]*?\n\}/)![0];
-    expect(ringBlock).not.toContain('mask');
-    // THE SPIN: one uniform revolution on the registered angle — the
-    // reference's own cadence; the r5-r8 dwell holds retired
+  it('shimmer: the host-channel law r11 — the border is the ring, the double background clips through --shimmer-clip, the spin is uniform', () => {
+    // THE HOST CHANNEL: everything on the host, no child layer — the
+    // border IS the ring's geometry, FORCED (width from ringW, solid,
+    // transparent color, no image) so consumer border ink can never
+    // cover the conic band (the Owner's 强制 pair, important by law)
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-width:\s*var\(--shimmer-ring-w, 4px\)\s*!important/s);
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-style:\s*solid\s*!important/s);
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-color:\s*transparent\s*!important/s);
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-image:\s*none\s*!important/s);
+    // THE DOUBLE BACKGROUND: the fill layer (padding-box) over the
+    // conic (the clip VAR — border-area where the engine answers, the
+    // Afif border-box pair elsewhere)
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*var\(--shimmer-fill,\s*transparent\)/s);
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*var\(--shimmer-shine\)/s);
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*var\(--shimmer-shine-width,\s*30deg\)/s);
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*background-clip:\s*var\(--shimmer-clip,\s*padding-box,\s*border-box\)/s);
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*background-origin:\s*padding-box,\s*border-box/s);
+    // THE SPIN: one uniform revolution on the registered angle —
+    // the reference's own cadence
     expect(css).toMatch(/@property --jx-shimmer-angle\s*\{[^}]*syntax:\s*'<angle>'/s);
     expect(css).toMatch(/@property --jx-shimmer-angle\s*\{[^}]*inherits:\s*false/s);
     const spin = keyframes('jx-shimmer-spin');
     expect(spin).toContain('--jx-shimmer-angle: 360deg');
-    for (const gone of ['15%', '35%', '65%', '85%']) expect(spin).not.toContain(gone);
-    expect(css).toMatch(/\.jx-shimmer-ring\)\s*\{[^}]*animation:\s*jx-shimmer-spin var\(--shimmer-speed,\s*3000ms\)[^}]*linear/s);
-    // the retired r8 machinery is gone: no pseudo carrier, no cut or
-    // spread vars, no floors — and no host rule (the host keeps its
-    // own face; the ring paints over it, never through inline)
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*animation:\s*jx-shimmer-spin var\(--shimmer-speed,\s*3000ms\)[^}]*linear/s);
+    // the retired machinery is gone: no ring span, no inset, no mask,
+    // no pseudo carrier, no cut/spread vars
     const bare = stripComments(css);
-    expect(bare).not.toMatch(/\.jx-shimmer-ring\)::before/);
+    expect(bare).not.toMatch(/\.jx-shimmer-ring/);
     for (const gone of ['--shimmer-cut', '--shimmer-spread', 'jx-shimmer-reveal', 'jx-shimmer-square', 'jx-shimmer-sector', 'jx-shimmer-backdrop', 'jx-shimmer-highlight', 'jx-shimmer-slide']) {
       expect(bare.includes(gone), `${gone} survived`).toBe(false);
     }

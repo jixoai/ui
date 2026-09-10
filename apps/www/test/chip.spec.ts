@@ -225,9 +225,10 @@ describe('chip effects', () => {
     const btn = container.querySelector('button[data-jx-shimmer-host]')!;
     expect(btn.hasAttribute('data-jx-ripple-host')).toBe(false);
     expect(btn.getAttribute('style')).toContain('--shimmer-speed: 4000ms');
-    // the r8 ring walk: ONE mask-banded span on the root
-    expect(btn.querySelector(':scope > .jx-shimmer-ring')).toBeTruthy();
-    expect(btn.querySelectorAll(':scope > span')).toHaveLength(1);
+    // the r11 host channel: the class + vars ride the root itself —
+    // NO child layer anywhere
+    expect(btn.classList.contains('jx-shimmer-host')).toBe(true);
+    expect(btn.querySelectorAll(':scope > *')).toHaveLength(0);
   });
 
   it('a bevel ripple rides the component tag (the diamond reaches the path)', async () => {

@@ -70,6 +70,112 @@ const bevelInk =
   typeof CSS.supports === 'function' &&
   CSS.supports('corner-shape', 'bevel');
 
+/** THE BORDER-AREA GATE (Owner r11): Chrome 139+ can clip a background
+ *  to the border band itself — the true cutout, no fill layer needed
+ *  for a transparent face. Read PER MOUNT (a function, not a frozen
+ *  const) so tests can stub CSS.supports and pin both branches */
+function borderAreaSupported(): boolean {
+  return (
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('background-clip', 'border-area')
+  );
+}
+
+/* ── the fill channel (Owner r11): number = opaque, null = transparent ── */
+
+/** parse a CSS color to [r, g, b, a] — hex and rgb()/rgba() by regex
+ *  (jsdom-safe), anything exotic through the canvas normalizer */
+function parseColor(color: string): [number, number, number, number] | null {
+  const s = color.trim();
+  let m = /^#([0-9a-f]{3,8})$/i.exec(s);
+  if (m) {
+    const h = m[1];
+    if (h.length === 3 || h.length === 4) {
+      const [r, g, b, a = 'f'] = h.split('');
+      return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16), parseInt(a + a, 16) / 255];
+    }
+    return [
+      parseInt(h.slice(0, 2), 16),
+      parseInt(h.slice(2, 4), 16),
+      parseInt(h.slice(4, 6), 16),
+      h.length >= 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1,
+    ];
+  }
+  m = /^rgba?\(([^)]+)\)$/i.exec(s);
+  if (m) {
+    const parts = m[1].replace(/\//g, ' ').replace(/,/g, ' ').trim().split(/\s+/);
+    if (parts.length >= 3) {
+      const n = (v: string): number => parseFloat(v);
+      return [
+        Math.round(n(parts[0])),
+        Math.round(n(parts[1])),
+        Math.round(n(parts[2])),
+        parts[3] === undefined ? 1 : n(parts[3]),
+      ];
+    }
+  }
+  if (typeof document === 'undefined') return null;
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return null;
+  ctx.fillStyle = '#000';
+  ctx.fillStyle = s;
+  const norm = String(ctx.fillStyle);
+  if (norm.startsWith('#') || norm.startsWith('rgba')) return parseColor(norm);
+  return null;
+}
+
+/** the Context's base color (the Owner's 「根据当前Context的 light/dark
+ *  提供一个底色」): the page root's own background when it is opaque
+ *  (theme-true by construction), else the scheme's white/black */
+export function contextBaseCss(): string {
+  if (typeof document !== 'undefined') {
+    const bg = getComputedStyle(document.documentElement).backgroundColor;
+    const parsed = parseColor(bg);
+    if (parsed && parsed[3] === 1 && (parsed[0] || parsed[1] || parsed[2] || bg === 'rgb(0, 0, 0)')) {
+      return bg;
+    }
+  }
+  const dark =
+    (typeof document !== 'undefined' &&
+      document.documentElement.classList.contains('dark')) ||
+    (typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches);
+  return dark ? '#000000' : '#ffffff';
+}
+
+/** the base as the fill channel's own unit — a 0xRRGGBB number */
+export function contextBase(): number {
+  const [r, g, b] = parseColor(contextBaseCss()) ?? [255, 255, 255];
+  return (r << 16) | (g << 8) | b;
+}
+
+function contextIsDark(): boolean {
+  const [r, g, b] = parseColor(contextBaseCss()) ?? [255, 255, 255];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 128;
+}
+
+/**
+ * solidFill — the fill channel's minter (Owner r11): take ANY CSS
+ * color, composite it over the context's base color (light/dark true
+ * by construction), and return the guaranteed-OPAQUE 0xRRGGBB number
+ * shimmer's `fill` accepts. An explicit base overrides the context's
+ * (deterministic minting for tests and design tokens):
+ *
+ *   shimmer({ fill: solidFill('rgba(255, 255, 255, 0.35)') })
+ */
+export function solidFill(color: string, base?: string): number {
+  const src = parseColor(color) ?? [255, 255, 255, 1];
+  const dst = parseColor(base ?? contextBaseCss()) ?? [255, 255, 255, 1];
+  const a = Math.min(Math.max(src[3], 0), 1);
+  const over = (s: number, d: number): number => Math.round(s * a + d * (1 - a));
+  return (over(src[0], dst[0]) << 16) | (over(src[1], dst[1]) << 8) | over(src[2], dst[2]);
+}
+
+/** number → the rgb() the sheet paints */
+function fillToCss(fill: number): string {
+  return `rgb(${(fill >> 16) & 255} ${(fill >> 8) & 255} ${fill & 255})`;
+}
+
 /** the stacking pose the effect hosts carry as utilities (relative z-0
  *  keeps the negative-z layers under the in-flow label); the runtime
  *  stamps the same classes itself */
@@ -139,33 +245,53 @@ function svgNode(tag: string): SVGElement {
   return document.createElementNS(SVG_NS, tag) as SVGElement;
 }
 
-/** shimmer — THE BORDER-BAND RING (r9/r10, the Owner's settled design
- *  2026-09-10: the backdrop-cutout ask is RETIRED — CSS cannot hollow
- *  an element's background, so the reference's Afif double-background
- *  owns the face): ONE ring span rides ring-w TWICE — as its own
- *  border-width AND as its outward inset (calc(ring-w * -1), the
- *  r10 geometry: an inset:0 child anchors to the host's PADDING box,
- *  so without the negative inset the band would paint into the face;
- *  pushed out, the band lands exactly ON the host's border band).
- *  The inherited-paint ruling holds: border-color forced transparent,
- *  border-image forced hidden — the band belongs to the conic. Two
- *  stacked backgrounds do the rest with zero masks: an opaque fill
- *  clipped to the padding box over a rotating conic clipped to the
- *  border box. Params: shine, shineWidth, speed, ringW (number = px);
- *  fill/base/shine-start ride inheritable --shimmer-* vars with sheet
- *  defaults. Teardown removes the span + stamps */
+/** shimmer — THE HOST CHANNEL, r11 final (the Owner's core ruling
+ *  2026-09-11: 「你目前是通过在宿主元素里面加元素来实现这个效果，
+ *  还要加 inset，现在不要了。直接改成在宿主元素上去做」): NO child
+ *  layer, NO inset — the HOST itself carries the ring, exactly like
+ *  the Owner's reference css (border + the double background + the
+ *  spin, all one element). The runtime stamps the class + vars and
+ *  resolves the FACE per the fill channel:
+ *    • fill = number  → the opaque rgb() rides --shimmer-fill; the
+ *      sheet's fill layer provides the background (the extra layer
+ *      the border-area mode requires for a solid face)
+ *    • fill = null    → TRANSPARENT. Where Chrome 139+ answers, the
+ *      conic clips to border-area and the face is the host's own —
+ *      the TRUE cutout at last. Where it does not, the blend
+ *      emulation (the Owner's ruling): light context → white fill +
+ *      mix-blend-mode: darken on the host; dark context → black
+ *      fill + lighten — the face reads as glass over whatever sits
+ *      behind, which is why the demo band exists
+ *    • fill undefined → the context's own base color, opaque
+ *  Teardown strips the class, the vars, and restores the host's
+ *  prior mix-blend-mode untouched */
 export function applyShimmer(element: HTMLElement, fx: ShimmerEffect): () => void {
   element.setAttribute('data-jx-shimmer-host', '');
-  const added = addClasses(element, HOST_CLASSES);
+  const added = addClasses(element, ['jx-shimmer-host']);
+  let fillCss: string;
+  let blend: 'darken' | 'lighten' | null = null;
+  if (fx.fill === null && !borderAreaSupported()) {
+    const dark = contextIsDark();
+    fillCss = fillToCss(dark ? 0x000000 : 0xffffff);
+    blend = dark ? 'lighten' : 'darken';
+  } else if (fx.fill === null) {
+    // the TRUE cutout: the engine clips border-area and a transparent
+    // fill layer paints nothing — the host's own backdrop shows
+    fillCss = 'transparent';
+  } else {
+    // NOTE: ?? would swallow null's meaning — undefined is the only
+    // "resolve the context default" signal on this channel
+    fillCss = fillToCss(fx.fill ?? contextBase());
+  }
   stampVars(
     element,
-    `--shimmer-shine: ${fx.shine}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}`,
+    `--shimmer-shine: ${fx.shine}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${borderAreaSupported() ? 'padding-box, border-area' : 'padding-box, border-box'}`,
     VAR_SHIMMER
   );
-  const ring = span('jx-shimmer-ring');
-  element.prepend(ring);
+  const priorBlend = element.style.mixBlendMode;
+  if (blend) element.style.mixBlendMode = blend;
   return () => {
-    ring.remove();
+    element.style.mixBlendMode = priorBlend;
     element.removeAttribute('data-jx-shimmer-host');
     for (const cls of added) element.classList.remove(cls);
     stripVars(element, VAR_SHIMMER);

@@ -129,38 +129,44 @@
   export type PressEffect = ShimmerEffect | PulseEffect | RainbowEffect | RippleEffect;
 
     export interface ShimmerOptions {
-    /** the shine color (any CSS color, default white — the reference's
-     *  own default; the arc peaks at this color over the ring base) */
+    /** the shine color (any CSS color, default white — the arc peaks
+     *  at this color over the ring base) */
     shine?: string;
     /** the shine arc's angular width (the walk's footprint) */
     shineWidth?: string;
     /** one full revolution of the arc, in ms */
     speed?: number;
-    /** the ring band's width — the ring layer's OWN border-width and,
-     *  at the same time, its outward inset (calc(ring-w * -1), the
-     *  Owner's r10 geometry: the band must sit ON the host's border
-     *  band, not inside the face). A number is px; a string is any
-     *  CSS length ('0.25em', '4px') */
+    /** the ring band's width — the HOST's own border-width (r11: the
+     *  effect paints the host directly, no child layer, no inset). A
+     *  number is px; a string is any CSS length ('0.25em', '4px') */
     ringW?: number | string;
+    /** the FACE: an opaque color as a 0xRRGGBB number (solidFill()
+     *  mints these from any CSS color against the context base), or
+     *  null for TRANSPARENT — the true border-area cutout where the
+     *  engine supports it, the white/black + darken/lighten blend
+     *  emulation where it does not. Default: undefined = the
+     *  context's own base color, opaque (「默认不透明」) */
+    fill?: number | null;
   }
   export interface ShimmerEffect {
     readonly type: 'shimmer';
     shine: string;
     shineWidth: string;
     speed: number;
-    /** normalized to a CSS length string (number → px) */
     ringW: string;
+    fill: number | null | undefined;
   }
-  /** shimmer (r9/r10, the Owner's settled design — the backdrop-cutout
-   *  ask is RETIRED, CSS cannot hollow a background): the ring layer
-   *  rides the SAME value twice — border-width AND inset -1× — so the
-   *  band lands on the host's border geometry (see press-button.css
-   *  for the forced-transparent border law) */
+  /** shimmer (r9-r11, the Owner's settled design — the backdrop-cutout
+   *  ask is RETIRED as a mask problem and reborn as border geometry):
+   *  the HOST element itself carries the ring — border-width = ringW,
+   *  the double background (fill + conic), the spin. See
+   *  press-effect-runtime.ts's solidFill() for minting fill numbers */
   export function shimmer({
     shine = '#ffffff',
     shineWidth = '30deg',
     speed = 3000,
     ringW = 4,
+    fill,
   }: ShimmerOptions = {}): ShimmerEffect {
     return {
       type: 'shimmer',
@@ -168,6 +174,7 @@
       shineWidth,
       speed,
       ringW: typeof ringW === 'number' ? `${ringW}px` : ringW,
+      fill,
     };
   }
 export interface PulseOptions {

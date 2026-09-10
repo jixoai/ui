@@ -331,9 +331,10 @@ describe('press-button effects', () => {
     });
     const shimmerHost = shimmered.container.querySelector('button[data-jx-shimmer-host]')!;
     expect(shimmerHost.getAttribute('style')).toContain('--shimmer-speed: 3000ms');
-    // the r8 ring walk: ONE mask-banded span; the host's own look rides
-    expect(shimmerHost.querySelector(':scope > .jx-shimmer-ring')).toBeTruthy();
-    expect(shimmerHost.querySelectorAll(':scope > span')).toHaveLength(1);
+    // the r11 host channel: the root's own border is the ring — the
+    // class carries the paint, zero child layers
+    expect(shimmerHost.classList.contains('jx-shimmer-host')).toBe(true);
+    expect(shimmerHost.querySelectorAll(':scope > *')).toHaveLength(0);
     expect(shimmerHost.className).not.toContain('overflow-hidden');
     shimmered.unmount();
 

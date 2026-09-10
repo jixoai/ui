@@ -73,10 +73,10 @@ describe('IconButton', () => {
     // marker + the mount both land on the WRAPPED press-button's root
     expect(btn.getAttribute('data-jx-attach')).toBe('root');
     expect(btn.hasAttribute('data-jx-shimmer-host')).toBe(true);
-    // the magic-ui port: the reference's five shimmer-owned nodes (the
-    // nested reveal > square > sector trio + the backdrop + the highlight)
-    expect(btn.querySelectorAll('[class*="jx-shimmer-"]')).toHaveLength(1);
-    expect(btn.querySelector(':scope > .jx-shimmer-ring')).toBeTruthy();
+    // the r11 host channel: the ring is the root's own border — no
+    // child nodes, the class carries the paint
+    expect(btn.classList.contains('jx-shimmer-host')).toBe(true);
+    expect(btn.querySelectorAll('[class*="jx-shimmer-"]')).toHaveLength(0);
   });
 
   it('the rest lane CHAINS too: an extra prop lands on the wrapped press-button root', () => {

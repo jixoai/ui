@@ -14,12 +14,14 @@
  * Static layer rules ride @layer components behind :where() — zero
  * specificity, so consumer utilities still win (the layer law). */
 
-/* THE RIM PAINT LAWS — one per rim effect, split at r9:
-   shimmer paints the BORDER BAND through the Afif double-background
-   (an opaque fill clipped to padding-box over a conic clipped to
-   border-box — see the shimmer block below; the cutout that masks
-   used to fake is now REAL border geometry, and ring width = the
-   host's own border-width). rainbow keeps the RING-MASK LAW (r5, the
+/* THE RIM PAINT LAWS — one per rim effect, split at r9, re-split at
+   r11: shimmer paints the HOST ITSELF (the Owner's core ruling — no
+   child element, no inset): the host's border IS the ring geometry
+   (forced transparent + image hidden), the double background (fill
+   layer + conic) clips through --shimmer-clip — border-area where
+   Chrome 139+ answers (the TRUE cutout), border-box elsewhere (the
+   Afif form + the blend emulation for null fills). rainbow keeps the
+   RING-MASK LAW (r5, the
    Owner findings 「样式污染到 background」 and 「顶部没有效果」): ONE
    mask-banded span, never touching the host — paint the gradient over
    the WHOLE inset-0 span, take the ring's thickness as padding, then
@@ -34,43 +36,31 @@
    (the host carries relative z-0 — its own stacking context, stamped by
    the runtime), so nothing escapes and the label is never occluded. */
 
-/* shimmer — THE BORDER-BAND RING, r9/r10 final (the Owner's settled
-   design 2026-09-10: 「核心的问题其实就是我一直在要求背景镂空。但是
-   这个目前在 CSS 里面是无法做到的。所以我现在放弃这个要求」, then the
-   r10 geometry: 「需要同时把这个值用在 inset 上：calc(borderWidth *
-   -1)」): the Afif double-background replaces the mask machinery — ONE
-   ring span rides ring-w TWICE, as its own border-width AND as its
-   outward inset. The inset law exists because an absolutely
-   positioned child anchors to the host's PADDING box — inset:0 would
-   push the band into the face; pushed out by the full ring width, the
-   band lands exactly ON the host's border band (and the fill covers
-   the host's padding box, i.e. the face, exactly). The Owner's forced
-   pair rides the ring: border-color TRANSPARENT, border-image NONE —
-   the band belongs to the conic, never to ink or slices. Two stacked
-   backgrounds do the rest with zero masks: an opaque FILL clipped to
-   the padding box covers the conic's interior, the CONIC (ring base +
-   the shine arc) clips to the border box — the only place it shows is
-   the border band, exactly the cutout that was impossible any other
-   way. The span sits at z:-1 under the in-flow label and over the
-   host's own background (the pulse-layer precedent; the runtime
-   stamps relative z-0 on the host). Inheritable knobs beyond the
-   params: --shimmer-fill (the face, default the page's --background
-   token), --shimmer-base (the ring's rest color, default
+/* shimmer — THE HOST CHANNEL, r11 final (the Owner's core ruling
+   2026-09-11: 「直接改成在宿主元素上去做」— no child element, no inset;
+   the host carries the ring exactly like the reference css): the
+   border IS the ring's geometry — width from --shimmer-ring-w, style
+   solid, color FORCED transparent, image FORCED hidden (the 强制 pair;
+   important is intentional — the band belongs to the conic, consumer
+   border ink must never cover it). The double background: a FILL
+   layer clipped to the padding box over the rotating CONIC clipped
+   to --shimmer-clip — `padding-box, border-area` where Chrome 139+
+   answers (the TRUE cutout: a transparent fill layer paints nothing,
+   the conic owns only the band), `padding-box, border-box` elsewhere
+   (the Afif form; a null fill there rides the runtime's blend
+   emulation — white + darken in light contexts, black + lighten in
+   dark, stamped on the host inline). The spin is the reference's own
+   uniform cadence on the registered angle. Inheritable knobs beyond
+   the params: --shimmer-base (the ring's rest color, default
    currentColor), --shimmer-shine-start (the arc's head angle, default
-   280deg) — set them on the host or any ancestor, they cascade. */
-:where(.jx-shimmer-ring) {
-  position: absolute;
-  inset: calc(var(--shimmer-ring-w, 4px) * -1);
-  z-index: -1;
-  border-width: var(--shimmer-ring-w, 4px);
-  border-style: solid;
-  border-color: transparent;
-  border-image: none;
-  border-radius: inherit;
-  corner-shape: inherit;
-  pointer-events: none;
+   280deg). */
+:where(.jx-shimmer-host) {
+  border-width: var(--shimmer-ring-w, 4px) !important;
+  border-style: solid !important;
+  border-color: transparent !important;
+  border-image: none !important;
   background-image:
-    linear-gradient(var(--shimmer-fill, var(--background)), var(--shimmer-fill, var(--background))),
+    linear-gradient(var(--shimmer-fill, transparent), var(--shimmer-fill, transparent)),
     conic-gradient(
       from var(--jx-shimmer-angle),
       var(--shimmer-base, currentColor) 0deg,
@@ -78,10 +68,14 @@
       var(--shimmer-shine) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg) / 2),
       var(--shimmer-base, currentColor) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg)),
       var(--shimmer-base, currentColor) 360deg
-    );
-  background-clip: padding-box, border-box;
-  background-origin: padding-box, border-box;
-  background-repeat: no-repeat;
+    ) !important;
+  /* the paint set carries the same 强制 as the border (measured in the
+     Owner's engine: a consumer's background SHORTHAND resets image+clip
+     and, unlayered, beats this layered zero-specificity rule — while
+     shimmer is mounted these channels are the effect's) */
+  background-clip: var(--shimmer-clip, padding-box, border-box) !important;
+  background-origin: padding-box, border-box !important;
+  background-repeat: no-repeat !important;
   animation: jx-shimmer-spin var(--shimmer-speed, 3000ms) linear infinite;
 }
 
@@ -337,7 +331,7 @@
   :where(.jx-pulse-ripple),
   :where(.jx-rainbow-ring),
   :where(.jx-rainbow-glow),
-  :where(.jx-shimmer-ring) {
+  :where(.jx-shimmer-host) {
     animation: none;
   }
 }
