@@ -80,11 +80,20 @@ console.log('✓ B2: every data-URI glyph is a slot definition or a slotted use'
   const planeValues = new Set(seeds.terminalPlane.values);
   const planeFiles = new Set(seeds.terminalPlane.files);
   const registryFiles = [];
+  // registry/files/routes/** is the gitignored dev-syncer mirror lane
+  // (the icon-migration precedent: "dev-syncer droppings") — CI never
+  // checks it out, so censusing it makes the gate environment-dependent
+  // (the 2026-09-10 deploy failures: locally 42 sites via stale mirrors
+  // vs CI's 37, and a route-mirror hosts entry STALE in CI from birth).
+  // The committed law surface is tracked files only.
+  const skippedLane = join(root, 'registry/files/routes');
   const walk = (dir) => {
     for (const name of readdirSync(dir)) {
       const p = join(dir, name);
-      if (statSync(p).isDirectory()) walk(p);
-      else if (/\.(css|svelte)$/.test(name)) registryFiles.push(p);
+      if (statSync(p).isDirectory()) {
+        if (p === skippedLane) continue;
+        walk(p);
+      } else if (/\.(css|svelte)$/.test(name)) registryFiles.push(p);
     }
   };
   walk(resolve(root, 'registry/files'));
