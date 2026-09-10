@@ -140,6 +140,12 @@ Folder convention — position IS semantics (sveltekit spirit):
   <PrototypePage|PrototypeComponent id ref width height theme> renders
   a REAL iframe at /__design__/frame — media and container queries
   follow the frame viewport, which is the whole point.
+- FRAMES MUST MOUNT INSIDE a <PrototypeCanvas> wrapper — the wrapper
+  is what provides the prototype-folder context; a bare frame
+  degrades to the loud "no prototype context" notice (observed live:
+  an agent-authored canvas omitted the wrapper, 2026-09-11). One
+  canvas.svelte = ONE root PrototypeCanvas; nested matrices nest
+  canvases inside it.
 - ref paths are relative to the prototype folder ("./pages/hero.svelte");
   theme is "light" | "dark" | "auto" (dark = token class on the frame's
   document root; auto leaves it to the host).
