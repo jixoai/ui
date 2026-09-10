@@ -151,6 +151,22 @@ Agent 的产出直接可移植进生产。
    用仓库自带 playwright-core + Chrome for Testing headless 完成
    走查。（skill/环境改进素材。）
 
+### V5 终验结论（2026-09-11，同日第二轮修复后）
+
+welcome 画布十帧全为真 iframe：hero 页三视口（390 单列堆叠 /
+768 过渡 / 1280 横排）肉眼可辨，DARK 行实测真黑根
+（`oklch(0 0 0)` vs 亮帧 `oklch(1 0 0)`），press 四态中三态一眼
+可辨（disabled 与 idle 对比度留观——组件本体课题，非工具课题）。
+dsh-probe 渲染真 hi 按钮。console 仅剩 favicon 404（良性）。
+
+最后一轮抓到的第三个集成缝：kit 的 design-host 标记
+（VITE_JIXOAI_DESIGN）由 kit 作者记录、却无人设置——两条
+工作流的缝没人认领，一行 define 修复。**这条与 TSCONFIG 同属
+"A/B 并行开发的契约遗漏"类**：URL 契约钉死了所以没出事，
+契约之外的环境预期（host 标记、tsconfig、字体路径）三处全漏。
+多代理并行开发的教训：环境性对接项（env/全局标记/生成文件）
+必须像 URL 契约一样白纸黑字进 design.md，否则必然漏。
+
 ## 6. 实验轮遗留门禁（不阻塞讨论，合并前须清）
 
 - `verify:shadcn-add` 打包门禁未跑（网络重：镜像打包 npm mirror）
