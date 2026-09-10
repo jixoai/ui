@@ -90,8 +90,11 @@ with `EchoAgent` (recorded playbook, no model service) and
 - GIVEN `--agent dsh` with a working dsh host
 - WHEN a message is sent
 - THEN the reply and any file edits flow through the same
-  AgentEvent stream; failure to boot dsh degrades to an inline
-  studio error, never a crash
+  AgentEvent stream; MID-TURN dsh failures (spawn error, nonzero
+  exit, timeout) degrade to inline error events, never a crash —
+  while a missing binary at STARTUP fails the CLI preflight fast
+  with the mirror install hint (the r2 ruling: fail fast before
+  the studio opens, degrade inline after)
 
 ### Requirement: the knowledge pack builds as a committed snapshot
 

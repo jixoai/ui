@@ -22,8 +22,10 @@ The design server's frame surface SHALL resolve a frame's `ref`
 (a workspace-relative file path) through root-relative
 `import.meta.glob` literals over
 `design/prototypes/*/pages/*.svelte` and
-`.../components/*.svelte`, declared in ONE server-injected
-virtual entry. Frames SHALL be declarative only — no script
+`.../components/*.svelte`, declared in ONE server-owned entry
+(a stable virtual id resolving to a real file in the design
+package — virtual-module glob transforms proved unverifiable,
+the r2 implementation ruling). Frames SHALL be declarative only — no script
 block is required in a canvas file. An unresolvable ref fails
 LOUD: the frame surface renders an inline error naming the ref
 and the registered keys.

@@ -30,7 +30,10 @@ export class DesignPathEscapeError extends Error {
 
 /**
  * Resolve a host-relative POSIX path inside <root>/design/ or throw.
- * Symlink-safe form: the resolved target must remain under designDir.
+ * Traversal-safe (lexical normalization only — a symlink planted
+ * inside design/ pointing outward is NOT followed; the echo playbook
+ * writes only fresh constant paths, so the gap is unreachable here,
+ * noted for any future general-purpose writer).
  */
 export function resolveDesignFile(root: string, relPath: string): string {
   const designDir = resolve(root, 'design');
