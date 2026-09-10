@@ -520,3 +520,32 @@ form; Install shows the pair.
     `var(--primary)` (the pulse precedent). solidFill's base stays a
     resolved literal (blend math needs numbers): the page root's own
     background when opaque, else the scheme's white/black.
+17. **The r13 rainbow port (Owner 2026-09-11: 「rainbow 实现和 shimmer
+    其实是同源的，现在也可以用同一套技术进行实现了」)**: rainbow
+    joins shimmer on the host channel — the host's own border IS the
+    flowing ring (border-width = ringW with the forced transparent/
+    none pair), the stop train rides background layer 2 through the
+    SAME border-area gate and fill channel (resolveFill/rimClipCss
+    shared by both kernels; fill: number | null | undefined→Canvas),
+    and the ONE span that remains is the under-glow bar (the ruling:
+    「blur 的彩虹光影不用改」). data-jx-rainbow-host joins the attr
+    set. Params gain ringW + fill beside speed + colors.
+18. **The r14 rulings (Owner 2026-09-11)**: (a) ringW defaults 1px on
+    BOTH rim effects. (b) 「动画配置好像有点问题…会出现一整个都是
+    绿色」 — the registered --jx-rainbow-shift panning calc stops was
+    evaluation-fragile (vision caught whole rings collapsed to one
+    stop's hue); the flow is now the CLASSIC SEAMLESS MARQUEE: a
+    static two-period tile (first stop = last stop, c1…c1 — the seam
+    carries no cap) painted at background-size 200%, panned exactly
+    one tile per cycle by ANIMATING background-position. No registered
+    property, no calc stops, nothing to mis-evaluate; the @property
+    --jx-rainbow-shift block is deleted and the glow runs the same
+    marquee on its own single-layer keyframes. THE FREEZE LAW (found
+    the hard way in the engine walk): the ANIMATED property must
+    carry NO !important — the cascade puts author !important ABOVE
+    the animation origin, pinning the pan at 0 0 (pixel-identical
+    rings across 8s while the stage moved). Engine-verified after the
+    fix: computed background-position advances live on host + glow
+    (189.99% → 71.6% → 146.6%), playState running, and the
+    magnified-ring vision pass finds 3-5 distinct hues on every ring
+    with ZERO chartreuse-range pixels — the flat-green class is gone.
