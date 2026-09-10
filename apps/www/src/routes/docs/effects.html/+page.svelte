@@ -1049,7 +1049,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
               color <code>Canvas</code> (the face follows the Context's dark/light live — light →
               white, dark → black), an explicit number comes from
               <code>solidFill(cssColor)</code> (composited over the context's light/dark base), or
-              <code>null</code> for transparent — the true cutout where the engine clips
+              <code>fill: null</code> for transparent — the true cutout where the engine clips
               <code>border-area</code>, the white/black + <code>darken</code>/<code>lighten</code>
               blend emulation where it does not (best seen over the animated band). The deeper knob
               <code>--shimmer-shine-start</code> (the arc's head angle) is an inheritable var. A
