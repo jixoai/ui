@@ -435,3 +435,40 @@ form; Install shows the pair.
     and pulse stand accepted-in-place; shimmer/rainbow VISUAL
     calibration awaits the Owner's working demo — the ring machinery
     above is the carrier it will be re-tuned on, not a final look.
+14. **The r9/r10 redesign — the border-band ring lands (Owner 2026-09-10,
+    the settled design)**: 「核心的问题其实就是我一直在要求背景镂空。
+    但是这个目前在 CSS 里面是无法做到的。所以我现在放弃这个要求，
+    我们重新设计shimmer」 — the backdrop-cutout requirement is RETIRED
+    (CSS cannot hollow an element's background); shimmer is rebuilt on
+    the Owner's reference HTML (the Afif double-background): ONE ring
+    span paints an opaque FILL clipped to the padding box over a
+    rotating CONIC clipped to the border box — the conic is visible
+    ONLY in the border band, which is the cutout the r5-r8 mask
+    machinery used to fake, done with real border geometry instead.
+    THE FORCED PAIR (the Owner's ruling): the ring's border-color is
+    forced TRANSPARENT and border-image forced NONE — the band belongs
+    to the conic, never to ink or slices. Params per the ruling:
+    shine (the arc color, default #ffffff), shineWidth (the arc's
+    angular width, default 30deg), speed (one full revolution, in ms,
+    default 3000), and ringW (r10: number = px or any CSS length
+    string, default 4px) — THE INSET LAW rides the same value twice:
+    the ring's border-width AND its outward inset
+    (calc(ring-w * -1)), because an absolutely positioned child
+    anchors to the host's PADDING box (inset:0 would push the band
+    into the face; pushed out, the band lands exactly ON the host's
+    border band and the fill covers the face exactly). The spin is
+    the reference's own uniform cadence (to 360deg on the registered
+    angle, linear); the dwell holds retired with the mask. Inheritable
+    beyond the params: --shimmer-fill (the face, default
+    var(--background)), --shimmer-base (the ring's rest color,
+    default currentColor), --shimmer-shine-start (280deg). Verification
+    in the Owner's engine class (headful system Chrome, DPR 2): the
+    arc walks the band (multi-phase frames bottom → left → top-right
+    → bottom-left), faces flat, labels readable, silhouettes follow
+    the hosts' own corner law. FINDINGS LEFT OPEN (not this round's
+    scope): rainbow's r8 mask ring renders near-zero rim chroma in
+    the same engine — the obvious successor is the same border-band
+    port (fill + wrap-stop train, ringW twice) awaiting the Owner's
+    word; the ripple walk-probe confirmed ink spawns (circle, soft
+    filter live) — the CDP click-occlusion artifact in the phase
+    walker is the instrument's, not the page's.
