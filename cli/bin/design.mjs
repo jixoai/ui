@@ -24,7 +24,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const DESIGN_USAGE = `jixoai-ui design — the agent-driven prototype canvas
@@ -132,6 +132,28 @@ export async function main(argv) {
     `jixoai-ui design: host ${host.kind} — ${itemCount} #jixoai/* item${itemCount === 1 ? "" : "s"} aliased` +
       (host.moduleRoot === null ? " (plugin set via plain bare imports)" : ` (plugin set from ${host.moduleRoot})`),
   );
+
+  // 1b. vehicle tsconfig bootstrap (V5 catch, 2026-09-11): a sveltekit
+  // vehicle that never ran `svelte-kit sync` has apps/<app>/tsconfig.json
+  // extending ./.svelte-kit/tsconfig.json — missing in fresh checkouts —
+  // and every oxc transform of the aliased $lib TS chain 500s with
+  // TSCONFIG_ERROR (the canvas module graph dies in the browser).
+  // Running the vehicle's own sync regenerates it. This writes ONLY the
+  // vehicle's generated .svelte-kit cache — a scoped bootstrap
+  // exception to the "studio tooling writes only design/" law.
+  if (host.moduleRoot !== null) {
+    const kitConfig = join(host.moduleRoot, "svelte.config.js");
+    const generated = join(host.moduleRoot, ".svelte-kit", "tsconfig.json");
+    const syncBin = join(host.moduleRoot, "node_modules", ".bin", "svelte-kit");
+    if (existsSync(kitConfig) && !existsSync(generated) && existsSync(syncBin)) {
+      const synced = spawnSync(process.execPath, [syncBin, "sync"], { cwd: host.moduleRoot, encoding: "utf8" });
+      if (synced.status === 0) {
+        console.log(`jixoai-ui design: svelte-kit sync regenerated ${relative(hostRoot, generated)} (fresh-checkout tsconfig bootstrap)`);
+      } else {
+        console.warn(`jixoai-ui design: svelte-kit sync failed — TS transforms may 500 (${(synced.stderr || synced.stdout || "").trim().split("\n").pop()})`);
+      }
+    }
+  }
 
   // 2. idempotent scaffold
   const scaffolded = design.scaffoldWorkspace(hostRoot);

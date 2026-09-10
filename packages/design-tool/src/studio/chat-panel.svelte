@@ -47,9 +47,19 @@
   let agentKind: string | null = $state(null);
   let agentModel: string | null = $state(null);
   let sessionId: string = $state('');
+  let chatFlow: HTMLDivElement | null = $state(null);
 
   const readonlyAgent = $derived(agentKind === 'none');
   const canSend = $derived(!streaming && !readonlyAgent && draft.trim().length > 0);
+
+  // keep the newest block in view — streaming appends leave the bottom
+  // line half-cut otherwise (V5 vision catch, 2026-09-11)
+  $effect(() => {
+    const blockCount = messages.reduce((sum, message) => sum + message.blocks.length, 0);
+    if (blockCount > 0 && chatFlow !== null) {
+      chatFlow.scrollTo({ top: chatFlow.scrollHeight, behavior: 'auto' });
+    }
+  });
 
   $effect(() => {
     sessionId = crypto.randomUUID();
@@ -165,7 +175,7 @@
     </span>
   </header>
 
-  <div class="chat-flow">
+  <div class="chat-flow" bind:this={chatFlow}>
     {#if messages.length === 0}
       <p class="chat-hint">
         {#if readonlyAgent}
