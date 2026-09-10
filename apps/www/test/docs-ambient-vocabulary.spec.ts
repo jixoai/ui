@@ -336,7 +336,10 @@ describe('meta side — generated meta ambient fields on exact-key axis props', 
   // inline-code-engine-and-text-modifiers): inline-code (variant=zone,
   // density=scope) and separator (variant, its bareDefault own) minted
   // metas with axis props — legitimate carriers, the set froze stale
-  const expectedCarriers = new Set(['checkbox', 'combobox', 'date-picker', 'popover', 'press-button', 'select', 'inline-code', 'separator', 'component-canvas', 'dialog', 'icon-button', 'sheet']);
+  // effect-attachments (2026-09-10): chip gains a GENERATED meta (the
+  // rest-spread rework ran component-metadata-gen for it) and its real
+  // ambient axes surface — density scope / variant zone / shape own
+  const expectedCarriers = new Set(['checkbox', 'chip', 'combobox', 'date-picker', 'popover', 'press-button', 'select', 'inline-code', 'separator', 'component-canvas', 'dialog', 'icon-button', 'sheet', 'tabs']);
   it('exactly the known carriers have axis props', () => {
     const carriers = new Set<string>();
     for (const f of readdirSync(META_DIR).filter((f) => f.endsWith('.meta.ts'))) {

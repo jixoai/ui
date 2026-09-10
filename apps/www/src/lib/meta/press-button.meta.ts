@@ -15,10 +15,6 @@ export const meta = defineComponentMeta(
         "typeText": "PressButtonVariant",
         "ambient": "zone"
       },
-      "effect": {
-        "kind": "opaque",
-        "typeText": "PressEffect"
-      },
       "href": {
         "kind": "string"
       },
@@ -68,14 +64,12 @@ export const meta = defineComponentMeta(
       }
     },
     "hooks": [
+      "data-jx-attach",
       "data-jx-press-button",
       "data-jx-press-check",
       "data-jx-press-flat",
       "data-jx-press-spin",
-      "data-jx-press-state",
-      "data-jx-pulse-host",
-      "data-jx-ripple-host",
-      "data-jx-shimmer-host"
+      "data-jx-press-state"
     ]
   }
 );
@@ -83,9 +77,10 @@ export const meta = defineComponentMeta(
 
 // Hand-authored x-ui hints — merged at consume time via
 // withAnnotations(meta, annotations); regeneration never touches this zone.
-// Rows the pilot playground shows: variant / effect / loading; the props
-// that would only add noise to the pane opt out with control: "none"
-// (snippet/opaque kinds are excluded by the lowering already).
+// Rows the pilot playground shows: variant / attach (the page-side effect
+// enum) / loading; the props that would only add noise to the pane opt out
+// with control: "none" (snippet/opaque kinds are excluded by the lowering
+// already).
 export const annotations = defineAnnotations({
   variant: {
     'x-ui': {
@@ -94,11 +89,11 @@ export const annotations = defineAnnotations({
       description: 'Prominence ladder rung — one physics for every rung; semantic hue injects through classes at the call site, never the variant.',
     },
   },
-  effect: {
+  attach: {
     'x-ui': {
       control: 'segmented',
       label: 'effect',
-      description: 'One opt-in attention loop — the enum speaks NAMES; the page maps them to typed builders via the onvalue seam.',
+      description: 'One opt-in attention loop — the enum speaks NAMES; the page maps them to the attachment factory via the onvalue seam (none = the undefined arm, no mount).',
     },
   },
   loading: {

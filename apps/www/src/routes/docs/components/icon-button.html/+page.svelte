@@ -9,6 +9,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlaySegmented, PlaySelect, PlayHelp } from '$lib/playground';
+  import { pressEffect } from '$lib/ui/press-button';
   import { shimmer } from '$lib/ui/press-button/press-button.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -31,6 +32,7 @@
   // the body CodeBlock assemble from the SAME template (no second copy)
   const usageHead = `<script lang="ts">
   import IconButton from '@ui/icon-button.svelte';
+  import { pressEffect } from '@ui/press-button';
   import { shimmer } from '@ui/press-button.svelte';
 ${close}
 
@@ -41,11 +43,11 @@ ${close}
   {#snippet icon()}${copyGlyph}{/snippet}
 </IconButton>
 
-<!-- full press-button inheritance: paint variants + effect loops -->
+<!-- full press-button inheritance: paint variants + effect attachments -->
 <IconButton
   iconOnly
   variant="fill"
-  effect={shimmer({ speed: 4000 })}
+  {@attach pressEffect(shimmer({ speed: 4000 }))}
   text="open github"
   href="https://github.com/jixoai/ui"
   placement="bottom"
@@ -145,7 +147,7 @@ ${close}
   <title>Icon button · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai icon-button component: an explicit icon + text contract in two postures — text (icon and label side by side) and icon-only (a square button where the label moves to the tooltip and stays the accessible name) — composed on press-button, inheriting every paint variant and effect loop."
+    content="The jixoai icon-button component: an explicit icon + text contract in two postures — text (icon and label side by side) and icon-only (a square button where the label moves to the tooltip and stays the accessible name) — composed on press-button, inheriting every paint variant and the component-tag effect attachment (pressEffect(…) mounted through the component tag, chained to the wrapped button's root)."
   />
 </svelte:head>
 
@@ -163,12 +165,12 @@ ${close}
         tone="hero"
         eyebrow="registry:ui · General"
         title="icon-button — icon and text, one contract"
-        summary="The button for actions that carry a glyph: an explicit two-part contract where icon is the glyph (always decorative) and text is the ONE label. The text posture renders icon + label side by side; iconOnly collapses to a square where the label does not disappear — it moves to the tooltip and stays the accessible name. The button itself IS a press-button (composition, not a copy): every paint variant, every effect loop, href anchoring and the press law pass through verbatim — same physics, same shadow tokens, same 42px band."
+        summary="The button for actions that carry a glyph: an explicit two-part contract where icon is the glyph (always decorative) and text is the ONE label. The text posture renders icon + label side by side; iconOnly collapses to a square where the label does not disappear — it moves to the tooltip and stays the accessible name. The button itself IS a press-button (composition, not a copy): every paint variant, the component-tag attachment (r4 effect-attachments — the tag's symbol-keyed prop chains through this component's rest spread into press-button's own, landing at the wrapped button's root), href anchoring and the press law pass through verbatim — same physics, same shadow tokens, same 42px band."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">text · icon-only</span>
           <span class="pill">inherits press-button verbatim</span>
-          <span class="pill">variants + effects pass through</span>
+          <span class="pill">variants + {'{@attach}'} chain through</span>
           <span class="pill">aria-label never handwritten twice</span>
           <span class="pill">motion-reduce safe</span>
         </div>
@@ -211,11 +213,11 @@ ${close}
               </IconButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-              <span>inherited effect</span>
+              <span>chained attachment</span>
               <IconButton
                 iconOnly
                 variant="fill"
-                effect={shimmer({ speed: 4000 })}
+                {@attach pressEffect(shimmer({ speed: 4000 }))}
                 text="deploy"
               >
                 {#snippet icon()}{@html playGlyph}{/snippet}
@@ -247,7 +249,7 @@ ${close}
               leaving either the button or the tip closes it after a 100ms grace — the close only
               fires once the pointer holds NEITHER surface. Keyboard focus opens it instantly and
               <code>Escape</code> closes it. The paint <code>variant</code> and every
-              press-button capability (effects included) pass through — physics never change.
+              press-button capability (the component-tag attachment included) passes through — physics never change.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -304,7 +306,7 @@ ${close}
               become the accessible name</span></li>
           <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
             <span>inheritance is composition: <code class="text-accent">variant</code> (paint),
-              <code class="text-accent">effect</code> (shimmer / pulse / rainbow / ripple),
+              <code class="text-accent">{'{@attach …}'}</code> (the component tag — pressEffect(shimmer()) and kin, chained into the wrapped button's root),
               <code class="text-accent">raised</code> (physics — the foot-flat zone reaches the
               square through the same ambient read),
               <code class="text-accent">href</code> and <code class="text-accent">class</code>
@@ -400,7 +402,8 @@ ${close}
         { name: 'iconOnly', type: 'boolean', default: 'false', description: 'Collapses into a square tooltip trigger.' },
         { name: 'placement', type: 'TooltipPlacement', default: "'top'", description: 'Icon-only tooltip placement.' },
         { name: 'arrow', type: 'boolean', default: 'true', description: 'Shows the tooltip pointer notch.' },
-        { name: 'effect', type: 'PressEffect', default: '—', description: 'Optional inherited press effect.' },
+        { name: '{@attach …} (component tag)', type: 'Attachment<HTMLElement>', default: '—', description: 'The effect mount (r4): <IconButton {@attach pressEffect(shimmer())}> — the tag\'s symbol-keyed prop chains through this component\'s rest spread into press-button\'s own, landing at the wrapped button\'s stamped root.' },
+        { name: '…rest', type: 'HTMLAttributes<HTMLElement>', default: '—', description: 'The rest lane: arbitrary attributes forward verbatim into the wrapped press-button — the same lane the component-tag attachment chains through.' },
         { name: 'href', type: 'string', default: '—', description: 'Renders a link instead of a button.' },
         { name: 'external', type: 'boolean', default: 'auto', description: 'Controls external-link behavior.' },
         { name: 'onclick', type: '() => void', default: '—', description: 'Button activation handler.' },

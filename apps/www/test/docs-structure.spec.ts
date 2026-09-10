@@ -58,9 +58,21 @@ describe('docs-route-model — the section spine', () => {
     expect(navNames.size, 'one canonical page per ui item').toBe(
       CATALOG.filter((e) => e.type === 'registry:ui').length,
     );
-    // and every ui item's canonical href is unique (74 own pages)
+    // and every ui item's canonical href is unique (74 own pages) — the
+    // effect-attachments un-fold (2026-09-09): the effects GROUP owns
+    // two DISTINCT hrefs (glass → the effects home /docs/effects.html,
+    // press-button → its own component page), so the strict uniqueness
+    // lock stands unamended — a group is a taxonomy lane, not a page
     const navHrefs = docsComponentGroups.flatMap(({ entries }) => entries.map((e) => e.href.split('#')[0]));
     expect(new Set(navHrefs).size, 'canonical page per ui item is unique').toBe(navHrefs.length);
+    // the positive pin: the effects group's residents own their pages
+    const navEntries = docsComponentGroups.flatMap(
+      ({ group, entries }) => entries.map((e) => ({ group: group.id, href: e.href.split('#')[0] })),
+    );
+    const effectsHrefs = [
+      ...new Set(navEntries.filter((e) => e.group === 'effects').map((e) => e.href)),
+    ].sort();
+    expect(effectsHrefs).toEqual(['/docs/components/press-button.html', '/docs/effects.html']);
   });
 
   it('taxonomy snapshot: group ids + ui member counts are deliberate (r4)', () => {
@@ -102,10 +114,16 @@ describe('docs-route-model — the section spine', () => {
     // after one day (the structural kernel law) — general back to 14.
     // Re-frozen 2026-09-08 (glass-effect-blur-liquid): the ONE glass
     // effect item lands in general (14->15) — 105 ui items.
+    // Re-frozen 2026-09-09 (effect-attachments): the effects group is
+    // carved out — glass and press-button both leave general (15->13)
+    // into effects:2; 105 ui items unchanged. The un-fold ruling:
+    // glass's page retires into /docs/effects.html, press-button KEEPS
+    // its component page (a group is a taxonomy lane, not a page —
+    // href uniqueness stays strict, both residents own their hrefs).
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:15', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
-      'data-entry:19', 'data-display:24', 'feedback:5',
+      'general:13', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
+      'data-entry:19', 'data-display:24', 'feedback:5', 'effects:2',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
   });
@@ -241,9 +259,12 @@ describe('docs-route-model — install targets & the legacy map', () => {
       expect(r.to.startsWith('/docs') || r.to.startsWith('/tokens'), `${r.from} → ${r.to}`).toBe(true);
       expect(r.preserveHash, `${r.from} must preserve the fragment`).toBe(true);
       // the target must be REAL (a source route or the tokens page) —
-      // a deleted destination can never keep a live shell
+      // a deleted destination can never keep a live shell. Anchored
+      // targets resolve against the base path (defensive since the
+      // effect-anchors: the effects page's #press section is a live
+      // anchor target, never a redirect destination).
       if (r.to.startsWith('/docs')) {
-        expect(existsSync(resolve(repoRoot, 'apps/www/src/routes', `.${r.to.replace(/\.html$/, '.html')}`)), `target route for ${r.from} → ${r.to}`).toBe(true);
+        expect(existsSync(resolve(repoRoot, 'apps/www/src/routes', `.${r.to.split('#')[0]}`)), `target route for ${r.from} → ${r.to}`).toBe(true);
       }
     }
   });

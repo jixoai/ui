@@ -56,7 +56,7 @@
             │  ② 内容列 <div class="flex min-w-0 flex-col gap-8      │
             │        max-lg:pt-[68px] lg:order-1">  ← 移动端 rail 净高│
             │  ┌──────────────────────────────────────────────────┐ │
-            │  │ ③ HERO  <div data-reveal use:reveal>             │ │
+            │  │ ③ HERO  <div data-reveal="">                     │ │
             │  │    SectionCard headingLevel={1} tone="hero"      │ │
             │  │      eyebrow="registry:ui · <Category>"          │ │
             │  │      title="<name> — <一句话主张>"               │ │
@@ -167,7 +167,7 @@ ${close}
 
   <div class="flex min-w-0 flex-col gap-8">
     <!-- ① hero -->
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
@@ -184,7 +184,7 @@ ${close}
     </div>
 
     <!-- ② workbench -->
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <ComponentCanvas
         title="thing"
         description="<一行：演示什么、评审者该操作什么>"
@@ -218,7 +218,7 @@ ${close}
     </div>
 
     <!-- ④ law 收尾 -->
-    <div data-reveal="" use:reveal>
+    <div data-reveal="">
       <SectionCard headerRegion="<slug>" eyebrow="law" title="<设计法则>">
         <!-- 平台给了什么 / 我们加了什么 -->
       </SectionCard>
@@ -329,7 +329,7 @@ const resolve = (f: TreeFile) =>                    // ⑥ 命名 resolver：惰
 ```
 
 - **同源**约束的是组件源码：必须 `import thingSource from '$lib/ui/thing.svelte?raw'`，name 用 `registry/files/ui/…` 前缀。
-- **单源**约束的是 usage 样本：页面只维护一个 const；CodeBlock 与 canvas 复用同一引用（press-button.html 为正例）。
+- **单源**约束的是 usage 样本：页面只维护一个 const；CodeBlock 与 canvas 复用同一引用（press-button.html 为正例，effect-attachments 迁移后改用 attachments record 形态）。
 - usage 文件名以 `-usage.svelte` 结尾：drawer 默认选中它（canvas 内置偏好）。
 - 含 `<script>` 的模板串必须用 `const close = '</' + 'script>';` 拼接（否则 HTML 层扫描提前终止本组件 script）。
 - 例外：`recipes.html` 等指南页展示的是模式而非组件本体，允许纯手写样本，但每段须可运行。
@@ -397,7 +397,7 @@ const resolve = (f: TreeFile) =>                    // ⑥ 命名 resolver：惰
 | S6.1 | eyebrow 措辞符合词表：hero `registry:ui · <Category>`；正文 `demo` / `law` / `composition` | 4 |
 | S6.2 | pills 措辞：小写、能力式（capability）短语，非营销词；标点用 `·` 分隔子句 | 2 |
 | S6.3 | 区段命名一致：section id = family = headerRegion = ToC id（kebab-case） | 2 |
-| S6.4 | 每个顶层块 `data-reveal="" use:reveal` 包裹；正文小节 h3 措辞样式统一（`font-nav` 或既有 h3 惯例二选一，全页一种） | 2 |
+| S6.4 | 每个顶层块 `data-reveal=""` 包裹（effect-attachments：`use:reveal` 退役，布局的观察器只认属性标记）；正文小节 h3 措辞样式统一（`font-nav` 或既有 h3 惯例二选一，全页一种） | 2 |
 | S6.5 | 语言惯例：正文英文；法则段允许中文标题（如 "NativeHTML 基座"） | 2 |
 
 ### 分级

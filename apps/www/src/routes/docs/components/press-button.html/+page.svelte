@@ -4,6 +4,7 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton, { pulse, rainbow, ripple, shimmer, type PressEffect } from '$lib/ui/press-button/press-button.svelte';
+  import { pressEffect } from '$lib/ui/press-button/press-effect-runtime';
   import pressButtonSource from '$lib/ui/press-button/press-button.svelte?raw';
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
@@ -41,11 +42,13 @@ ${close}
 <!-- copied is not a variant: the transient success state is tonal + injection -->
 <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
 
-<!-- one opt-in effect loop per button — typed builders from the module script -->
-<PressButton variant="fill" effect={shimmer()}>deploy</PressButton>
-<PressButton variant="fill" effect={pulse({ variant: 'ring' })}>deploy</PressButton>
-<PressButton variant="outline" effect={rainbow()}>upgrade</PressButton>
-<PressButton variant="fill" effect={ripple({ duration: 800 })}>deploy</PressButton>
+<!-- one opt-in effect loop per button — the typed builders ride the
+     attachment factory; the component tag reaches the managed root
+     button through the host's rest spread -->
+<PressButton variant="fill" {@attach pressEffect(shimmer())}>deploy</PressButton>
+<PressButton variant="fill" {@attach pressEffect(pulse({ variant: 'ring' }))}>deploy</PressButton>
+<PressButton variant="outline" {@attach pressEffect(rainbow())}>upgrade</PressButton>
+<PressButton variant="fill" {@attach pressEffect(ripple({ duration: 800 }))}>deploy</PressButton>
 
 <!-- href renders an anchor instead; hrefs outside "/" open a new tab -->
 <PressButton variant="fill" href="/docs.html">read the docs</PressButton>`;
@@ -85,22 +88,22 @@ ${close}
     props: {
       ...meta.props,
       variant: { kind: 'enum', values: [...variantLadder], ambient: 'zone' },
-      effect: { kind: 'enum', values: [...effectNames], default: 'none' },
+      attach: { kind: 'enum', values: [...effectNames], default: 'none' },
     },
   };
   const schema = toJSONSchema(withAnnotations(metaWithEffect, annotations));
 
   // the page owns the initial values (bind:values); reset falls back to
-  // the schema defaults (variant 'outline', effect 'none', loading off)
-  type CanvasValues = { variant: Variant; effect: EffectName; loading: boolean };
-  let canvasValues = $state<Record<string, unknown>>({ variant: 'fill', effect: 'none', loading: false });
+  // the schema defaults (variant 'outline', attach 'none', loading off)
+  type CanvasValues = { variant: Variant; attach: EffectName; loading: boolean };
+  let canvasValues = $state<Record<string, unknown>>({ variant: 'fill', attach: 'none', loading: false });
   const v = $derived(canvasValues as CanvasValues);
 
   // the onvalue seam: schema drives the CONTROL, the page owns the
-  // VALUE semantics — effect names map to typed builders here
+  // VALUE semantics — effect names map to the attachment factory here
   let effectValue: PressEffect | undefined = $state(undefined);
   function onCanvasValue(key: string, value: unknown): void {
-    if (key === 'effect') {
+    if (key === 'attach') {
       effectValue = value === 'none' ? undefined : effectBuilders[value as EffectName]();
     }
   }
@@ -108,7 +111,7 @@ ${close}
   // free text must become a legal string literal (q() = JSON.stringify)
   const q = (value: string): string => JSON.stringify(value);
   const usageLive = $derived(`${usageHead}
-<PressButton variant=${q(v.variant)}${v.effect === 'none' ? '' : ` effect={${v.effect}()}`}${v.loading ? ' loading' : ''}>deploy</PressButton>${usageTail}`);
+<PressButton variant=${q(v.variant)}${v.attach === 'none' ? '' : ` {@attach pressEffect(${v.attach}())}`}${v.loading ? ' loading' : ''}>deploy</PressButton>${usageTail}`);
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
@@ -366,30 +369,34 @@ ${close}
           <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>shimmer</span>
-              <PressButton variant="fill" effect={shimmer()}>deploy</PressButton>
+              <PressButton variant="fill" {@attach pressEffect(shimmer())}>deploy</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>pulse · ring</span>
-              <PressButton variant="fill" effect={pulse({ variant: 'ring' })}>deploy</PressButton>
+              <PressButton variant="fill" {@attach pressEffect(pulse({ variant: 'ring' }))}>deploy</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>rainbow</span>
-              <PressButton variant="outline" effect={rainbow()}>upgrade</PressButton>
+              <PressButton variant="outline" {@attach pressEffect(rainbow())}>upgrade</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>rainbow · fill</span>
-              <PressButton variant="fill" effect={rainbow()}>deploy</PressButton>
+              <PressButton variant="fill" {@attach pressEffect(rainbow())}>deploy</PressButton>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>ripple — press me</span>
-              <PressButton variant="fill" effect={ripple({ duration: 800 })}>deploy</PressButton>
+              <PressButton variant="fill" {@attach pressEffect(ripple({ duration: 800 }))}>deploy</PressButton>
             </label>
           </div>
           <div class="flex flex-col items-center gap-2.5 border-t border-border pt-5">
             <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
               driven by the playground
             </span>
-            <PressButton variant={v.variant} effect={effectValue} loading={v.loading}>
+            <PressButton
+              variant={v.variant}
+              {@attach effectValue ? pressEffect(effectValue) : undefined}
+              loading={v.loading}
+            >
               {v.variant}
             </PressButton>
           </div>
@@ -677,11 +684,12 @@ ${close}
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="PressButton usage" /></SectionCard></div>
   <div id="api" data-reveal="">
-    <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and one press effect builder.">
+    <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and the rest lane every arbitrary attribute — the component-tag attachment included — rides to the root.">
       <PropsTable props={[
         { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
         { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost' | 'link'", default: "'outline' · ambient zone", description: 'Selects the ladder rung; link is the interaction exception. Omitted → the ambient paint zone (ButtonGroup / variant scope), else the frozen own. Semantic hue injects through --jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline classes at the call site.' },
-        { name: 'effect', type: 'PressEffect', default: '—', description: 'One shimmer, pulse, rainbow, or ripple builder.' },
+        { name: '{@attach …} (component tag)', type: 'Attachment<HTMLElement>', default: '—', description: 'The effect mount (r4): <PressButton {@attach pressEffect(builder())}> — shimmer, pulse, rainbow, or ripple builders ride the attachment factory; the tag lands at the stamped root through the rest spread. Leaf elements take {@attach pressEffect(fx)} directly.' },
+        { name: '…rest', type: 'HTMLAttributes<HTMLElement>', default: '—', description: 'The rest lane: arbitrary attributes land verbatim on the root (button or anchor) — the same lane the component-tag attachment rides.' },
         { name: 'href', type: 'string', default: '—', description: 'Renders an anchor and navigates to the target.' },
         { name: 'loading', type: 'boolean', default: 'false', description: 'The async pose: aria-disabled=true, pointer AND keyboard activation suppressed, href navigation blocked, spinner glyph in the leading lane. Press law holds unchanged. Pair with the one-shot flash() helper (bind:this) on settle.' },
         { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },

@@ -310,12 +310,8 @@ describe('floor: sourceUrl derivation', () => {
 
   it('pilot pages carry no literal sourceUrl attribute (derivation only)', () => {
     for (const page of pilots) {
-      const file = join(
-        repoRoot,
-        'apps/www/src/routes/docs/components',
-        `${page}.html`,
-        '+page.svelte',
-      );
+      const pageDir = `routes/docs/components/${page}.html`;
+      const file = join(repoRoot, 'apps/www/src', pageDir, '+page.svelte');
       const source = readFileSync(file, 'utf8');
       expect(source, page).not.toMatch(/sourceUrl="https?:/);
     }

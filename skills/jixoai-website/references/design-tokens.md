@@ -346,8 +346,10 @@ Hard rules:
   `--jx-glass-*` var family (radius/saturate/fill/brightness; the mount
   writes the `--jx-glass-filter` lens pointer exclusively). Never
   hand-roll a backdrop-filter glass formula; `blur()` defaults are the
-  retired `.jx-glass` values verbatim, the lens (`use:liquidGlass`) is a
-  Chromium-only enhancement over the unconditional frost base.
+  retired `.jx-glass` values verbatim, the lens
+  (`{@attach liquidGlass(fx)}` — the attachment factory, effect-attachments
+  2026-09-09) is a Chromium-only enhancement over the unconditional frost
+  base.
   `prefers-reduced-transparency` goes solid through the independent
   `--jx-glass-solid-fill` escape hatch (never the translucent fill).
 - Radius stays 0 (bevel-upgrade exception only). Rounded-full is allowed

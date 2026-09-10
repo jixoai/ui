@@ -189,6 +189,9 @@ describe('docs sections nav — fuzzy filter (sections mode)', () => {
 
 describe('docs sections nav — components-tree mode', () => {
   it('inside /docs/components* the rail IS the component catalog', async () => {
+    // press-button stands in for the current-page probe (the
+    // effect-attachments un-fold: the page is home; the group is
+    // effects, the href is its own)
     page.url = new URL('http://localhost/docs/components/press-button.html');
     render(DocsSectionsNav);
     const titles = [...document.querySelectorAll('.jx-dsn-rail .jx-dsn-link-title')].map((n) =>
@@ -198,12 +201,15 @@ describe('docs sections nav — components-tree mode', () => {
     expect(titles).toContain('press-button');
     expect(titles).toContain('dialog');
     expect(titles).toContain('scroll-virtual');
-    // taxonomy groups with counts (8 since the terminal group, 2026-08-28)
+    // taxonomy groups with counts (8 since the terminal group, 2026-08-28;
+    // 9 since the effects group, effect-attachments 2026-09-09 — the
+    // cross-cutting appendix after feedback; glass + press-button
+    // share the GROUP, each on its own page)
     const groups = [...document.querySelectorAll('.jx-dsn-rail .jx-dsn-group-label')].map(
       (n) => n.textContent,
     );
     expect(groups.join(' ')).toContain('General');
-    expect(document.querySelectorAll('.jx-dsn-rail [data-jx-dsn-gcount]').length).toBe(8);
+    expect(document.querySelectorAll('.jx-dsn-rail [data-jx-dsn-gcount]').length).toBe(9);
     // the current module is marked
     const current = document.querySelector('.jx-dsn-rail a[aria-current="page"]');
     expect(current?.textContent?.trim()).toBe('press-button');

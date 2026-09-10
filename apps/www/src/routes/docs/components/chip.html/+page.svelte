@@ -3,15 +3,11 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
+  import type { Attachment } from 'svelte/attachments';
   import Chip from '$lib/ui/chip/chip.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
-  import {
-    pulse,
-    rainbow,
-    ripple,
-    shimmer,
-    type PressEffect,
-  } from '$lib/ui/press-button/press-button.svelte';
+  import { pressEffect } from '$lib/ui/press-button';
+  import { pulse, rainbow, ripple, shimmer } from '$lib/ui/press-button/press-button.svelte';
   import chipSource from '$lib/ui/chip/chip.svelte?raw';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
@@ -31,13 +27,14 @@
   // the body CodeBlock assemble from the SAME template (no second copy)
   const usageHead = `<script lang="ts">
   import Chip from '@ui/chip/chip.svelte';
+  import { pressEffect } from '@ui/press-button';
   import { shimmer, ripple } from '@ui/press-button/press-button.svelte';
 ${close}
 
 <!-- the grammar ladder: prominence, never semantic hue -->`;
   const usageTail = `
 <Chip variant="fill">deploy</Chip>
-<Chip>filters</Chip><!-- tonal default + the default ripple ink -->
+<Chip>filters</Chip><!-- tonal default; effect-free plain host -->
 <Chip variant="outline">cancel</Chip>
 <Chip variant="ghost">dismiss</Chip>
 
@@ -45,10 +42,12 @@ ${close}
 <Chip variant="tonal" class="jx-hue-success">passing</Chip>
 <Chip variant="fill" class="jx-pair-destructive">clear</Chip>
 
-<!-- one opt-in effect loop per chip — null disables the default ripple -->
-<Chip variant="fill" effect={shimmer()}>upgrade</Chip>
-<Chip effect={ripple({ shape: 'bevel', duration: 800 })}>filter</Chip>
-<Chip effect={null}>still</Chip>
+<!-- one opt-in effect loop per chip — the component tag (r4: the
+     effect prop, its default ripple and the interim record retired;
+     pressEffect() self-listens, ink on pointerdown/Enter/Space) -->
+<Chip variant="fill" {@attach pressEffect(shimmer())}>upgrade</Chip>
+<Chip {@attach pressEffect(ripple({ shape: 'bevel', duration: 800 }))}>filter</Chip>
+<Chip>still — a plain chip carries no loop by default</Chip>
 
 <!-- href renders an anchor; hrefs outside "/" open a new tab -->
 <Chip variant="outline" href="/docs.html">read the docs</Chip>
@@ -72,17 +71,19 @@ ${close}
   // playground (canvas-floor-lab 2.1): ONE typed state object, page-owned
   // — the kit controls bind into play.current, reset() restores the
   // documented defaults in place, playOutputs() feeds the output lane.
-  // The effect select speaks 'default' (the ripple() defaults via
-  // undefined) and 'none' (null).
+  // The effect select speaks names (r4, 2026-09-10): 'none' leaves the
+  // tag unarmed (the plain chip — the undefined arm skips), a name
+  // mounts <Chip {@attach pressEffect(builder())}>
   type Variant = 'fill' | 'tonal' | 'outline' | 'ghost';
   type Shape = 'square' | 'pill';
-  type EffectName = 'default' | 'none' | 'shimmer' | 'pulse' | 'rainbow' | 'ripple';
-  const effectFor = (name: EffectName): PressEffect | null | undefined =>
-    name === 'default' ? undefined : name === 'none' ? null : { shimmer, pulse, rainbow, ripple }[name]!;
+  type EffectName = 'none' | 'shimmer' | 'pulse' | 'rainbow' | 'ripple';
+  const effectBuilders = { shimmer, pulse, rainbow, ripple } as const;
+  const effectFor = (name: EffectName): Attachment<HTMLElement> | undefined =>
+    name === 'none' ? undefined : pressEffect(effectBuilders[name]());
   const play = playState({
     variant: 'tonal' as Variant,
     shape: 'square' as Shape,
-    effect: 'default' as EffectName,
+    effect: 'none' as EffectName,
   });
   // the anchors demo's toggle chip flips its own label through onclick
   let following = $state(false);
@@ -98,8 +99,7 @@ ${close}
     { value: 'pill', label: 'pill' },
   ];
   const effectOptions: { value: EffectName; label: string }[] = [
-    { value: 'default', label: 'default — ripple()' },
-    { value: 'none', label: 'none — null' },
+    { value: 'none', label: 'none — plain' },
     { value: 'shimmer', label: 'shimmer' },
     { value: 'pulse', label: 'pulse' },
     { value: 'rainbow', label: 'rainbow' },
@@ -110,11 +110,9 @@ ${close}
   // $derived reads the live state; deriving the expression keeps it
   // reactive instead of capturing effect's initial value
   const effectExpr = $derived(
-    play.current.effect === 'default'
+    play.current.effect === 'none'
       ? ''
-      : play.current.effect === 'none'
-        ? ' effect={null}'
-        : ` effect={${play.current.effect}()}`,
+      : ` {@attach pressEffect(${play.current.effect}())}`,
   );
   const usageLive = $derived(`${usageHead}
 <Chip variant=${q(play.current.variant)} shape=${q(play.current.shape)}${effectExpr}>filter</Chip>${usageTail}`);
@@ -212,7 +210,7 @@ ${close}
   <title>Chip · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai chip: the badge's activation twin — badge geometry verbatim, the button/anchor root the only structural difference — riding the four-step ladder (fill / tonal / outline / ghost) consumed as global tokens, slotStart/slotEnd lanes that replace their side's padding, and the press-button effect loops with ripple as the default ink."
+    content="The jixoai chip: the badge's activation twin — badge geometry verbatim, the button/anchor root the only structural difference — riding the four-step ladder (fill / tonal / outline / ghost) consumed as global tokens, slotStart/slotEnd lanes that replace their side's padding, and the component-tag effect attachment (pressEffect(ripple()) through the component tag mounts ink on the stamped root)."
   />
 </svelte:head>
 
@@ -226,12 +224,12 @@ ${close}
         tone="hero"
         eyebrow="registry:ui · General"
         title="chip — the grammar's compact activation"
-        summary="The chip is what a filter, a toggle, or an inline nav target looks like in this language: the badge's font-nav uppercase micro-label voice at badge scale — badge geometry verbatim, the ONLY structural difference being the activation root (button/anchor, press physics, the focus law; Owner ruling 2026-09-01, superseding the control-scale hit-lane floor). The paint is the frozen variant ladder consumed as global tokens — fill for the one active filter, tonal for the resting set, outline for structure, ghost for the quiet seats — and semantic hue is always injected (jx-hue-success), never named. Press physics are the theme's shared .jx-press law, and the press-button effect loops pass through with ripple as the default: press a chip and ink expands from your pointer."
+        summary="The chip is what a filter, a toggle, or an inline nav target looks like in this language: the badge's font-nav uppercase micro-label voice at badge scale — badge geometry verbatim, the ONLY structural difference being the activation root (button/anchor, press physics, the focus law; Owner ruling 2026-09-01, superseding the control-scale hit-lane floor). The paint is the frozen variant ladder consumed as global tokens — fill for the one active filter, tonal for the resting set, outline for structure, ghost for the quiet seats — and semantic hue is always injected (jx-hue-success), never named. Press physics are the theme's shared .jx-press law; effect loops ride the component-tag attachment (r4, 2026-09-10 — the effect prop, its default ripple and the interim record all retired): arm pressEffect(ripple()) through the component tag and ink expands from your pointer."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">badge twin · inline scale</span>
           <span class="pill">fill · tonal · outline · ghost</span>
-          <span class="pill">default ripple ink</span>
+          <span class="pill">attachment ink</span>
           <span class="pill">button or anchor</span>
         </div>
       </SectionCard>
@@ -240,7 +238,7 @@ ${close}
     <div data-reveal="">
       <ComponentCanvas
         title="chip"
-        description="The grammar ladder at badge scale. The top row is the four variants; the second row shows the default ripple ink (press one), the bevel-silhouette ripple, and the shimmer loop; the bottom instance is driven by the playground."
+        description="The grammar ladder at badge scale. The top row is the four variants; the second row shows the plain effect-free chip, the bevel-silhouette ripple through the component tag, and the shimmer loop; the bottom instance is driven by the playground."
         sourceUrl={registrySourceUrl('chip')}
         install="chip"
         {files}
@@ -270,16 +268,16 @@ ${close}
           </div>
           <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
-              <span>default ripple — press me</span>
+              <span>plain — zero effect knowledge</span>
               <Chip>filter</Chip>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>ripple · bevel</span>
-              <Chip effect={ripple({ shape: 'bevel', duration: 800 })}>filter</Chip>
+              <Chip {@attach pressEffect(ripple({ shape: 'bevel', duration: 800 }))}>filter</Chip>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>shimmer</span>
-              <Chip variant="fill" effect={shimmer()}>upgrade</Chip>
+              <Chip variant="fill" {@attach pressEffect(shimmer())}>upgrade</Chip>
             </label>
             <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
               <span>pill</span>
@@ -290,7 +288,7 @@ ${close}
             <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
               driven by the playground
             </span>
-            <Chip variant={play.current.variant} shape={play.current.shape} effect={effectFor(play.current.effect)}>filter</Chip>
+            <Chip variant={play.current.variant} shape={play.current.shape} {@attach effectFor(play.current.effect)}>filter</Chip>
           </div>
         </div>
         {#snippet playground()}
@@ -311,11 +309,12 @@ ${close}
               <code>ghost</code> transparent at rest with the tonal hover. Every
               variant rides the same <code>.jx-press</code> physics and the same
               badge-scale geometry — height from the secondary line.
-              <code>effect</code> defaults to <code>ripple()</code> — press-point
-              ink from the shared press-button runtime; the
-              <code>none</code> option commits an empty effect and disables
-              every loop, and the other builders pass through unchanged. Reduced
-              motion freezes the ink; the anchored press still answers.
+              the effect select arms the component tag:
+              <code>{'{@attach pressEffect(ripple())}'}</code> mounts press-point ink from
+              the shared press-button runtime onto the stamped root, <code>none</code> leaves the
+              chip plain (the undefined arm — no mount, no loop), and the other builders feed
+              the same factory unchanged. Reduced motion freezes the ink;
+              the anchored press still answers.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -572,15 +571,16 @@ ${close}
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="Chip usage" /></SectionCard></div>
   <div id="api" data-reveal="">
-    <SectionCard eyebrow="api" title="Props" summary="The public contract: the ladder, the silhouette, one optional effect, navigation, and two snippet lanes around the required children.">
+    <SectionCard eyebrow="api" title="Props" summary="The public contract: the ladder, the silhouette, one optional effect through the component tag, navigation, and two snippet lanes around the required children.">
       <PropsTable props={[
         { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the surrounding density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
         { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: "'tonal' · ambient zone", description: 'Selects the grammar ladder step. Omitted → the ambient paint zone (ButtonGroup / zone scope), else the frozen own.' },
         { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Square keeps the site radius; pill rounds fully. Own default, not ambient.' },
-        { name: 'effect', type: 'PressEffect | null', default: 'ripple()', description: 'One press-button effect builder; undefined resolves to the ripple() defaults, null disables every loop.' },
+        { name: '{@attach …} (component tag)', type: 'Attachment<HTMLElement>', default: '—', description: 'The effect mount (r4): <Chip {@attach pressEffect(ripple())}> mounts ink on the stamped activation root through the rest spread; a bare chip carries no loop.' },
+        { name: '…rest', type: 'HTMLAttributes<HTMLElement>', default: '—', description: 'The rest lane: arbitrary attributes land verbatim on the root (button or anchor) — the same lane the component-tag attachment rides.' },
         { name: 'href', type: 'string', default: '—', description: 'Renders an anchor and navigates to the target.' },
         { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },
-        { name: 'onclick', type: '() => void', default: '—', description: 'Runs for button activation (and through the ripple runtime when ink is on).' },
+        { name: 'onclick', type: '() => void', default: '—', description: 'Runs for button activation (directly — the ripple seam moved into pressEffect\'s own gesture surface).' },
         { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
         { name: 'ariaLabel', type: 'string', default: '—', description: 'Accessible name override for icon-only use.' },
         { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes; hue injection rides here (jx-hue-error; arbitrary form for values outside the closed set).' },

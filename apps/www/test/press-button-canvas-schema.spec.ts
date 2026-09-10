@@ -6,8 +6,15 @@
  * meta → toJSONSchema → canvas `schema` + `bind:values` pipeline: no
  * hand-written variant/effect option arrays remain, the playground
  * rows render from the schema, the onvalue seam maps effect names to
- * typed builders, the usage code overlay tracks the live values, and
- * reset returns the schema defaults.
+ * the attachment factory (r4, 2026-09-10 — the enum row keys `attach`,
+ * a name arms <PressButton {@attach pressEffect(builder())}> through
+ * the component tag, the driven demo's undefined arm skips the mount),
+ * the usage code overlay tracks the live values, and reset returns the
+ * schema defaults. The canvas stays home on the component page (the
+ * effect-attachments un-fold ruling: press-button KEEPS its component
+ * page while sitting in the effects GROUP — its async/zone/anchors/
+ * a11y docs are the page's own; /docs/effects.html demos the family,
+ * it does not absorb component documentation).
  */
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
@@ -37,18 +44,22 @@ describe('pilot page schema playground', () => {
     await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-seg-option="ghost"]')!);
     expect(container.querySelector('[data-jx-press-button="ghost"]')).not.toBeNull();
 
-    // effect via the onvalue seam: names → builders (the DRIVEN ghost
-    // instance paints the pulse layer — the static demo row also has one)
+    // the attach row via the onvalue seam: names → the factory (the
+    // DRIVEN ghost instance paints the pulse layer through pressEffect —
+    // the static demo row also has one)
     await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-seg-option="pulse"]')!);
     expect(container.querySelector('[data-jx-press-button="ghost"] .jx-pulse-layer')).not.toBeNull();
 
-    // usage overlay tracks live values
-    await fireEvent.click(container.querySelector<HTMLButtonElement>('.jx-canvas-code-toggle')!);
-    const drawer = container.querySelector<HTMLElement>('.jx-canvas-code-drawer')!;
+    // usage overlay tracks live values (the component-tag form the page
+    // teaches) — the schema canvas is the one carrying the rows; its
+    // drawer is the one that tracks the driven values
+    const pressCanvas = container.querySelector('[data-jx-canvas-row]')!.closest('[data-jx-canvas]')!;
+    await fireEvent.click(pressCanvas.querySelector<HTMLButtonElement>('.jx-canvas-code-toggle')!);
+    const drawer = pressCanvas.querySelector<HTMLElement>('.jx-canvas-code-drawer')!;
     expect(drawer.textContent).toContain('variant="ghost"');
-    expect(drawer.textContent).toContain('effect={pulse()}');
+    expect(drawer.textContent).toContain('{@attach pressEffect(pulse())}');
 
-    // reset → schema defaults (variant outline, effect none)
+    // reset → schema defaults (variant outline, attach none)
     await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-reset]')!);
     expect(container.querySelector('[data-jx-press-button="outline"]')).not.toBeNull();
     expect(container.querySelector('[data-jx-press-button="outline"] .jx-pulse-layer')).toBeNull();

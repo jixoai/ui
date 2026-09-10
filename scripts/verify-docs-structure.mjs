@@ -192,6 +192,18 @@ export function lintDocsPage(html, name = '(page)') {
 /** raw-html index of the first element carrying `marker`, else -1 */
 const rawIndexOf = (html, marker) => html.indexOf(marker);
 
+/** ADOPTED non-component pages (effect-attachments design §5; r4 §12
+ *  ruling 2, superseded by Lane H's family forms 2026-09-10): the
+ *  effects home is a FAMILY page — two registry items share it, and
+ *  there is no `effects` registry item to install. Its Install section
+ *  teaches the GROUP grammar: the family command (`add effects`) plus
+ *  each member's scoped form (`add effects/glass`,
+ *  `add effects/press-button` — the CLI-side aliases the group lane
+ *  added). The map routes page-kind → install literals (an ARRAY:
+ *  every literal must appear); every unmapped route keeps naming
+ *  itself (the original rule, unchanged). */
+const INSTALL_ITEMS = { effects: ['effects', 'effects/glass', 'effects/press-button'] };
+
 /** the section slice from a marker to its closing </section> (the
  *  DocsInstall/DocsSeeAlso roots contain no nested sections) */
 function sectionSlice(html, marker) {
@@ -259,9 +271,17 @@ export function lintSkeleton(html, name) {
   if (pos.install === -1) {
     failures.push('skeleton: no Install section (data-doc-install)');
   } else {
-    const slice = sectionSlice(html, 'data-doc-install') ?? '';
-    if (!stripTags(slice).includes(`npx jixoai-ui add ${name}`)) {
-      failures.push(`skeleton: Install lacks the copy-ready \`npx jixoai-ui add ${name}\``);
+    // the Install REGION spans first marker → the Usage heading: family
+    // pages render MULTIPLE install blocks (Lane H's family forms —
+    // effects carries the group command + both scoped members), and
+    // each DocsInstall closes its own </section>, so a single-section
+    // slice would miss the rest
+    const slice =
+      pos.usage !== -1 ? html.slice(pos.install, pos.usage) : (sectionSlice(html, 'data-doc-install') ?? '');
+    const items = INSTALL_ITEMS[name] ?? [name];
+    const missing = items.filter((item) => !stripTags(slice).includes(`npx jixoai-ui add ${item}`));
+    if (missing.length > 0) {
+      failures.push(`skeleton: Install lacks the copy-ready \`npx jixoai-ui add ${missing[0]}\``);
     }
   }
 
@@ -402,6 +422,29 @@ export function selftest() {
     'an Install section without the command must FAIL',
   );
   expect(
+    lintSkeleton(
+      skeletonPage.replace(
+        'npx jixoai-ui add select',
+        'npx jixoai-ui add effects + npx jixoai-ui add effects/glass + npx jixoai-ui add effects/press-button',
+      ),
+      'effects',
+    ).length === 0,
+    'an ADOPTED page whose Install teaches the family forms must PASS (effects + both scoped members, Lane H)',
+  );
+  expect(
+    lintSkeleton(
+      skeletonPage.replace('npx jixoai-ui add select', 'npx jixoai-ui add effects + npx jixoai-ui add effects/glass'),
+      'effects',
+    )
+      .join(' ')
+      .includes('npx jixoai-ui add effects/press-button'),
+    'an adopted page missing one scoped member must FAIL naming it',
+  );
+  expect(
+    lintSkeleton(skeletonPage, 'effects').join(' ').includes('npx jixoai-ui add effects'),
+    'an adopted page whose Install names a plain item (the route default) must FAIL asking for the family form',
+  );
+  expect(
     lintSkeleton(skeletonPage.replace('href="/docs/components/native-select.html"', 'href="/tokens.html"'), 'select')
       .join(' ')
       .includes('no link to another component page'),
@@ -453,13 +496,24 @@ if (process.argv[1] && import.meta.url === new URL(`file://${resolve(process.arg
   }
   const inScope = new Set(scope.inScope);
 
-  const pages = readdirSync(pagesDir).filter((f) => f.endsWith('.html'));
+  // the adopted non-component docs pages (effect-attachments design
+  // §5): the effects home lives at /docs/effects.html — OUTSIDE
+  // docs/components — but carries the same staged skeleton; the walker
+  // extends to whichever built copy exists
+  const adopted = [
+    ['effects', resolve(root, 'apps/www/dist/docs/effects.html')],
+    ['effects', resolve(root, 'apps/www/.svelte-kit/output/prerendered/pages/docs/effects.html')],
+  ].filter(([, file]) => existsSync(file));
+
+  const pages = [
+    ...readdirSync(pagesDir).filter((f) => f.endsWith('.html')).map((f) => [f.replace(/\.html$/, ''), resolve(pagesDir, f)]),
+    ...adopted,
+  ];
   const failures = [];
   const warns = [];
   let compliant = 0;
-  for (const page of pages) {
-    const route = page.replace(/\.html$/, '');
-    const html = readFileSync(resolve(pagesDir, page), 'utf8');
+  for (const [route, file] of pages) {
+    const html = readFileSync(file, 'utf8');
     // the site-polish rules stay GLOBAL (every page, hard)
     failures.push(...lintDocsPage(html, route));
 

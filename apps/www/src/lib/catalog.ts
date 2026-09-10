@@ -36,6 +36,7 @@ export type CatalogGroupId =
   | 'data-entry'
   | 'data-display'
   | 'feedback'
+  | 'effects'
   | 'engines'
   | 'docs'
 ;
@@ -68,6 +69,15 @@ export const CATALOG_GROUPS: CatalogGroup[] = [
   { id: 'data-entry', label: 'Data Entry', description: 'Forms, picks, and the ElementInternals bridge' },
   { id: 'data-display', label: 'Data Display', description: 'Reading data: tables, cards, streams, states' },
   { id: 'feedback', label: 'Feedback', description: 'Inline notices, loading, and operation outcomes' },
+  // effects (effect-attachments, 2026-09-09 design §5): the cross-cutting
+  // appendix — effect items are ATTACHMENTS, not components, so their
+  // group rides LAST among the ui taxonomy (after feedback; the non-ui
+  // engines/docs groups follow but the ui filter drops them anyway).
+  // The un-fold ruling: both residents own DISTINCT hrefs (glass → the
+  // effects home, press-button → its component page) — the href-
+  // uniqueness lock stays STRICT, no exemption (a group is a taxonomy
+  // lane, not a page).
+  { id: 'effects', label: 'Effects', description: 'Paint and motion attachments: element-level effect families' },
   { id: 'engines', label: 'Engines & Theme', description: 'Framework-free libs and the token sheet' },
   { id: 'docs', label: 'Docs Tooling', description: 'The documentation workbench itself' },
 ];

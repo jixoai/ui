@@ -33,6 +33,9 @@ describe('variant-grammar source guards', () => {
     const pages = [
       'routes/docs/components/badge.html',
       'routes/docs/components/alert.html',
+      // effect-attachments: the effects page's press drawers carry the
+      // registry paths too — and the component page keeps its own walk
+      'routes/docs/effects.html',
       'routes/docs/components/press-button.html',
       'routes/docs/components/chip.html',
       'routes/docs/components/inline-code.html',

@@ -3,50 +3,22 @@ import { defineAnnotations, defineComponentMeta } from '$lib/schema/ir';
 // ===== GENERATED — do not edit (component-metadata-gen) =====
 export const meta = defineComponentMeta(
   {
-    "source": "registry/files/ui/icon-button/icon-button.svelte",
+    "source": "registry/files/ui/chip/chip.svelte",
     "props": {
       "density": {
         "kind": "opaque",
         "typeText": "Density",
         "ambient": "scope"
       },
-      "icon": {
-        "kind": "snippet",
-        "typeText": "Snippet"
-      },
-      "text": {
-        "kind": "string"
-      },
       "variant": {
         "kind": "opaque",
-        "typeText": "PressButtonVariant",
+        "typeText": "ChipVariant",
         "ambient": "zone"
       },
-      "raised": {
-        "kind": "boolean"
-      },
-      "iconOnly": {
-        "kind": "boolean",
-        "default": false
-      },
-      "placement": {
-        "kind": "enum",
-        "values": [
-          "top",
-          "bottom",
-          "top-start",
-          "bottom-start",
-          "top-end",
-          "bottom-end"
-        ]
-      },
-      "tip": {
-        "kind": "boolean",
-        "default": true
-      },
-      "arrow": {
-        "kind": "boolean",
-        "default": true
+      "shape": {
+        "kind": "opaque",
+        "typeText": "ChipShape",
+        "ambient": "own"
       },
       "href": {
         "kind": "string"
@@ -66,19 +38,34 @@ export const meta = defineComponentMeta(
         ],
         "default": "button"
       },
-      "popovertarget": {
+      "ariaLabel": {
         "kind": "string"
       },
       "class": {
         "kind": "string",
         "default": ""
       },
+      "slotStart": {
+        "kind": "snippet",
+        "typeText": "Snippet"
+      },
+      "slotEnd": {
+        "kind": "snippet",
+        "typeText": "Snippet"
+      },
+      "children": {
+        "kind": "snippet",
+        "typeText": "Snippet"
+      },
       "rest": {
         "kind": "opaque",
         "typeText": "unknown (spread passthrough)"
       }
     },
-    "hooks": []
+    "hooks": [
+      "data-jx-attach",
+      "data-jx-chip"
+    ]
   }
 );
 // ===== end GENERATED — annotations below survive regeneration =====

@@ -75,13 +75,18 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/press-button/press-effect-runtime.ts",
+          "target": "@ui/press-button/press-effect-runtime.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/press-button/press-button-defaults.svelte.ts",
           "target": "@ui/press-button/press-button-defaults.svelte.ts",
           "type": "registry:file"
         }
       ],
       "meta": {
-        "group": "general",
+        "group": "effects",
         "href": "/docs/components/press-button.html"
       },
       "registryDependencies": [
@@ -2588,7 +2593,7 @@
       "name": "chip",
       "type": "registry:ui",
       "title": "Chip",
-      "description": "The variant grammar's compact activation: the badge's font-nav uppercase micro-label voice on the control-scale hit lane — the ROOT carries min-block-size var(--jx-hit) (~44px at default density), not a 20px badge. Four ladder rungs consumed as global tokens: fill (solid ground + same-hue border), tonal (12%/45% tint recipe, default), outline (structural border + 8% hover overlay), ghost (transparent rest, tonal hover, shadowless press); semantic hue is injected (jx-hue-error — the @utility intent layer), never named. Button/anchor duality (external hrefs open a new tab with noreferrer), slotStart/slotEnd data-icon lanes, square/pill silhouette, press-button's effect builders passed through with ripple() as the default ink (null disables); explicit forced-colors degradation (ButtonFace/ButtonText, Canvas/CanvasText, ghost transparent/ButtonFace hover, 2px Highlight focus never removed).",
+      "description": "The variant grammar's compact activation: the badge's font-nav uppercase micro-label voice on the control-scale hit lane — the ROOT carries min-block-size var(--jx-hit) (~44px at default density), not a 20px badge. Four ladder rungs consumed as global tokens: fill (solid ground + same-hue border), tonal (12%/45% tint recipe, default), outline (structural border + 8% hover overlay), ghost (transparent rest, tonal hover, shadowless press); semantic hue is injected (jx-hue-error — the @utility intent layer), never named. Button/anchor duality (external hrefs open a new tab with noreferrer), slotStart/slotEnd data-icon lanes, square/pill silhouette, effect loops ride the component-tag attachment (r4 effect-attachments — the effect prop, its default ripple and the interim record retired; <Chip {@attach pressEffect(ripple())}> mounts ink on the stamped root); explicit forced-colors degradation (ButtonFace/ButtonText, Canvas/CanvasText, ghost transparent/ButtonFace hover, 2px Highlight focus never removed).",
       "files": [
         {
           "path": "registry/files/ui/chip/chip.svelte",
@@ -2606,7 +2611,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: density?, variant? ('fill'|'tonal'|'outline'|'ghost', default 'tonal'), shape? ('square'|'pill'), effect? (PressEffect | null — default ripple(), null disables), href?, external?, onclick?, type?, ariaLabel?, class?, slotStart?/slotEnd? (Snippet), children (required). Imports the effect builders, ripple runtime and effect-layer css from @ui/press-button.",
+      "docs": "Props: density?, variant? ('fill'|'tonal'|'outline'|'ghost', default 'tonal'), shape? ('square'|'pill'), {@attach …} on the component tag (r4 effect-attachments: <Chip {@attach pressEffect(ripple())}> mounts ink on the stamped activation root through the rest spread; the effect prop, its default ripple and the interim record retired, a bare chip carries no loop), …rest (HTMLAttributes — arbitrary attributes land on the root), href?, external?, onclick?, type?, ariaLabel?, class?, slotStart?/slotEnd? (Snippet), children (required). The press law's pose sheet (.jx-press) imports from @ui/press-button; pressEffect rides @ui/press-button's index.",
       "meta": {
         "group": "general",
         "href": "/docs/components/chip.html"
@@ -4434,7 +4439,7 @@
       "name": "icon-button",
       "type": "registry:ui",
       "title": "Icon button",
-      "description": "The icon+text button with an explicit two-part contract: icon is the glyph (ALWAYS decorative — wrapped aria-hidden), text is the ONE label (a single string, single-sourced). Two postures: text (icon + label side by side) and iconOnly (a square on the same 42px band as a text button — the label moves to the tooltip and stays the accessible name via aria-label; an icon-only button must say itself). Composed ON press-button: every paint variant and effect loop, href/external anchoring and the press law pass through verbatim.",
+      "description": "The icon+text button with an explicit two-part contract: icon is the glyph (ALWAYS decorative — wrapped aria-hidden), text is the ONE label (a single string, single-sourced). Two postures: text (icon + label side by side) and iconOnly (a square on the same 42px band as a text button — the label moves to the tooltip and stays the accessible name via aria-label; an icon-only button must say itself). Composed ON press-button: every paint variant and the component-tag effect attachment ({@attach pressEffect(…)} chains through this component's rest spread into press-button's own, landing at the wrapped button's stamped root), href/external anchoring and the press law pass through verbatim.",
       "registryDependencies": [
         "@jixoai/press-button",
         "@jixoai/tooltip",
@@ -4460,7 +4465,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: icon (required snippet — the glyph, always decorative), text (required string — the one label), variant? (press-button paint union, default 'outline'), iconOnly? (boolean — square posture: text moves to the tooltip AND stays aria-label), placement? (tooltip side, icon-only only), arrow? (the tip's aimed pointer notch — ON by default, opt out for plain bubbles), effect? (shimmer/pulse/rainbow/ripple — inherited), href?, external?, onclick?, type?, class?. Composed ON press-button: every capability passes through verbatim; the icon-only square rides the same 42px band (size-10.5).",
+      "docs": "Props: icon (required snippet — the glyph, always decorative), text (required string — the one label), variant? (press-button paint union, default 'outline'), iconOnly? (boolean — square posture: text moves to the tooltip AND stays aria-label), placement? (tooltip side, icon-only only), arrow? (the tip's aimed pointer notch — ON by default, opt out for plain bubbles), {@attach …} on the component tag (r4 effect-attachments: <IconButton {@attach pressEffect(shimmer())}> — the symbol-keyed prop chains through the rest spread into the wrapped press-button's root), …rest (HTMLAttributes — forwarded verbatim), href?, external?, onclick?, type?, class?. Composed ON press-button: every capability passes through verbatim; the icon-only square rides the same 42px band (size-10.5).",
       "meta": {
         "group": "general",
         "href": "/docs/components/icon-button.html"
@@ -4504,7 +4509,7 @@
       "name": "glass",
       "type": "registry:ui",
       "title": "Glass",
-      "description": "The ONE glass-effect system (Owner 2026-09-08 「把 glass 和 blur 合并成一个 blur…引入 Liquid Glass」; r10 2026-09-09 the kube.io SOURCE-LEVEL lock): the five retired hand-tuned glass paints unify into ONE typed effect family behind the data-jx-effect='blur'|'liquid-glass' stamp channel. TWO API LAYERS: blur({radius, saturate, fill, brightness}) the zero-JS frost member — css-only, the law sheet's UNCONDITIONAL base paint every engine gets; liquid({...}) the PHYSICAL liquid member — kube.io's generator ported line-level from their shipped bundle (four dome surfaces convex-circle/convex-squircle/concave/lip, the ray-traced profile WITH the glass-slab path term d = T.x/T.y·(H·thickness+bezel), ÷maximumDisplacement-normalized border-swept maps at 2× dpr under the 512² raster cap, the 9-primitive SVG chain in their verbatim order — in-chain frost → feDisplacementMap → rim saturate → the saturated-copy/ring-alpha specular pair); liquid.apple({variant, tint, interactive, shape, isEnabled}) the SEMANTIC layer — SwiftUI glassEffect's standard compiled DOWN into the physical layer (variant regular/clear/identity; tint → a 30% color-mix fill; interactive stamps --jx-glass-interactive:1 for the law's press motion; shape 'capsule'|px overrides the mount radius; isEnabled false or identity → the FROST member, zero lens cost). glass.css is the law sheet (scroll-run posture): the frost base paints unconditionally — liquid's no-JS / no-url()-engines fallback, the retired .jx-glass values verbatim; the @supports (backdrop-filter: url()) branch is POINTER-ONLY for liquid (the mount appends the filter node THEN writes --jx-glass-filter — frost lives INSIDE the chain, a css frost chain under url() would double-blur; blur() never enters the branch); print drops the filters (fill stays); prefers-reduced-transparency paints solid; NO forced-colors block (consumers carry their Canvas grounds). liquid-glass.svelte.ts: use:liquidGlass(fx) wrapping attachLiquidGlass(el, fx) — mount stamps vars → measures (shape override ?? border-radius) → canvas-encodes both maps → appends the zero-size host svg + the chain at element size → writes the pointer LAST; ResizeObserver rAF-coalesced regeneration; the no-canvas (jsdom/ancient) and zero-box guards leave frost standing, no crash. glass-map.ts is the pure core (zero DOM, node-testable). Consumers keep ONLY their element chrome (tint fill, shadow, border-radius) — the kube recipe, documented on the page.",
+      "description": "The ONE glass-effect system (Owner 2026-09-08 「把 glass 和 blur 合并成一个 blur…引入 Liquid Glass」; r10 2026-09-09 the kube.io SOURCE-LEVEL lock): the five retired hand-tuned glass paints unify into ONE typed effect family behind the data-jx-effect='blur'|'liquid-glass' stamp channel. TWO API LAYERS: blur({radius, saturate, fill, brightness}) the zero-JS frost member — css-only, the law sheet's UNCONDITIONAL base paint every engine gets; liquid({...}) the PHYSICAL liquid member — kube.io's generator ported line-level from their shipped bundle (four dome surfaces convex-circle/convex-squircle/concave/lip, the ray-traced profile WITH the glass-slab path term d = T.x/T.y·(H·thickness+bezel), ÷maximumDisplacement-normalized border-swept maps at 2× dpr under the 512² raster cap, the 9-primitive SVG chain in their verbatim order — in-chain frost → feDisplacementMap → rim saturate → the saturated-copy/ring-alpha specular pair); liquid.apple({variant, tint, interactive, shape, isEnabled}) the SEMANTIC layer — SwiftUI glassEffect's standard compiled DOWN into the physical layer (variant regular/clear/identity; tint → a 30% color-mix fill; interactive stamps --jx-glass-interactive:1 for the law's press motion; shape 'capsule'|px overrides the mount radius; isEnabled false or identity → the FROST member, zero lens cost). glass.css is the law sheet (scroll-run posture): the frost base paints unconditionally — liquid's no-JS / no-url()-engines fallback, the retired .jx-glass values verbatim; the @supports (backdrop-filter: url()) branch is POINTER-ONLY for liquid (the mount appends the filter node THEN writes --jx-glass-filter — frost lives INSIDE the chain, a css frost chain under url() would double-blur; blur() never enters the branch); print drops the filters (fill stays); prefers-reduced-transparency paints solid; NO forced-colors block (consumers carry their Canvas grounds). liquid-glass.svelte.ts: liquidGlass(fx) the attachment FACTORY (the {@attach} face, effect-attachments 2026-09-09) over attachLiquidGlass(el, fx) — mount stamps vars → measures (shape override ?? border-radius) → canvas-encodes both maps → appends the zero-size host svg + the chain at element size → writes the pointer LAST; ResizeObserver rAF-coalesced regeneration; the no-canvas (jsdom/ancient) and zero-box guards leave frost standing, no crash. glass-map.ts is the pure core (zero DOM, node-testable). Consumers keep ONLY their element chrome (tint fill, shadow, border-radius) — the kube recipe, documented on the page.",
       "registryDependencies": [
         "@jixoai/jixoai-theme"
       ],
@@ -4535,10 +4540,10 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Builders: blur({radius? '14px', saturate? 1.35, fill?, brightness? 1}) the frost member; liquid({surface? 'convex-squircle', bezel? 22 [4,80], thickness? 30 [2,160], scale? 55 [0,160] — absolute element px, kube pins per element, no universal fraction, blur? 0.2 [0,4], specular? 0.2 [0,1], rimSaturate? 4 [1,12]} + the frost fallback pair radius? '2px' / saturate? 1.6 / fill? / brightness?) the physical liquid member; liquid.apple({variant? 'regular'|'clear'|'identity', tint?, interactive?, shape? 'capsule'|number, isEnabled?}) the semantic layer. Numeric args clamp into range; non-finite throws TypeError; surface validates against the enum. Spread {…glassAttrs(fx)} to stamp data-jx-effect + the tuning vars (liquid NEVER carries the --jx-glass-filter pointer — that is the mount action's exclusive write); glassVars(fx) emits the vars string alone. The lens: use:liquidGlass(fx) (or attachLiquidGlass(el, fx) framework-agnostic) — import glass.css once per consuming surface family. Element chrome (tint fill, shadow, border-radius) stays consumer-owned.",
+      "docs": "Builders: blur({radius? '14px', saturate? 1.35, fill?, brightness? 1}) the frost member; liquid({surface? 'convex-squircle', bezel? 22 [4,80], thickness? 30 [2,160], scale? 55 [0,160] — absolute element px, kube pins per element, no universal fraction, blur? 0.2 [0,4], specular? 0.2 [0,1], rimSaturate? 4 [1,12]} + the frost fallback pair radius? '2px' / saturate? 1.6 / fill? / brightness?) the physical liquid member; liquid.apple({variant? 'regular'|'clear'|'identity', tint?, interactive?, shape? 'capsule'|number, isEnabled?}) the semantic layer. Numeric args clamp into range; non-finite throws TypeError; surface validates against the enum. Spread {…glassAttrs(fx)} to stamp data-jx-effect + the tuning vars (liquid NEVER carries the --jx-glass-filter pointer — that is the mount kernel's exclusive write); glassVars(fx) emits the vars string alone. The lens: {@attach liquidGlass(fx)} — the factory form (or attachLiquidGlass(el, fx) framework-agnostic) — import glass.css once per consuming surface family. Element chrome (tint fill, shadow, border-radius) stays consumer-owned.",
       "meta": {
-        "group": "general",
-        "href": "/docs/components/glass.html"
+        "group": "effects",
+        "href": "/docs/effects.html"
       }
     },
     {
