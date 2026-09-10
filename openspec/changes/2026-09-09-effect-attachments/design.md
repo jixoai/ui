@@ -507,3 +507,16 @@ form; Install shows the pair.
     cutout (interior = adjacent band color) with ring/arc/labels
     intact; the transparent dock chip round-trips through the
     identity remount.
+16. **The r12 parameter rulings (Owner 2026-09-11)**: (a) the fill
+    DEFAULT follows the Context's dark/light — implemented as the
+    COLOR-SCHEME SYSTEM COLOR `Canvas` (the site's theme bootstrap
+    updates color-scheme on every toggle, so the face flips light →
+    white / dark → black LIVE, no remount; measured trap on the way:
+    this site's `--background` TOKEN reads dark even under the light
+    theme — tokens lie, the rendered color-scheme does not);
+    (b) `ringColor` — the ring's REST color joins the params, default
+    `currentColor` (the ring inherits the host's own ink; stamps
+    --shimmer-base); (c) `shine`'s default moves from #ffffff to
+    `var(--primary)` (the pulse precedent). solidFill's base stays a
+    resolved literal (blend math needs numbers): the page root's own
+    background when opaque, else the scheme's white/black.
