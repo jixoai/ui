@@ -1,7 +1,16 @@
 # highlight-engines Specification
 
 ## Purpose
-TBD - created by archiving change 2026-09-06-highlight-engine-matrix. Update Purpose after archive.
+The syntax-highlighting engine matrix for the jixoai ui registry: a
+pure-contract core item plus ONE registry item per engine (shiki,
+prismjs, microlighter, highlight.js, sugar-high, tree-sitter), each
+carrying only its own engine's npm dependencies. It exists so that
+every highlight surface installs exactly one engine by default, every
+engine loads lazily, the `jixoai` theme maps onto `--tok-*` with zero
+additional download, tree-sitter binaries ride npm instead of
+registry payloads, microlighter's grammar loading carries an explicit
+bundler contract, and failures are uniform — reject with a named
+engine, the card's plain-text fallback as the single floor.
 
 ## Requirements
 
@@ -13,22 +22,7 @@ per engine. The matrix membership is frozen: `highlight-shiki`,
 `highlight-prismjs`, `highlight-microlighter`, `highlight-highlightjs`,
 `highlight-sugar-high`, `highlight-tree-sitter` — each declaring
 `@jixoai/highlight` PLUS every cross-item owner whose files it actually
-imports (`highlight-shiki` additionally declares `@jixoai/shiki` for
-the facade it wraps), and ONLY its own engine's npm `dependencies`.
-The core `highlight` item carries the contract files (`backend.ts`,
-`lang-detector.ts`, `context-key.ts`) and ZERO npm dependencies;
-`context.svelte.ts` stays site-only (the standing "no kernel dependency
-rides the item" law — the shipped context seams are the
-zero-dependency `context-key.ts` exporting TWO INDEPENDENT surfaces
-(`HIGHLIGHT_KEY` + `HighlightContextValue` for the backend default,
-`HIGHLIGHT_DETECT_KEY` + `HighlightDetectContextValue` for the
-language-detector default — lang-detection change, 2026-09-07: both are
-plain Symbol seams over `setContext`, mutually orthogonal, neither
-pulls the kernel), and an app writes its own ~10-line provider over
-either key per the docs recipe). All engine files keep their canonical
-`@lib/highlight/...` targets — item boundaries move, consumer import
-paths do not (for consumers who installed the corresponding engine
-item).
+imports, and ONLY its own engine's npm `dependencies`.
 
 #### Scenario: adding an engine to a consumer
 
@@ -39,13 +33,19 @@ item).
   npm dependency arrives, and `$lib/highlight/prismjs` imports work
   unchanged
 
+All engine files keep their canonical `@lib/highlight/...` targets —
+item boundaries move, consumer import paths do not (for consumers who
+installed the corresponding engine item).
+
 #### Scenario: an engine item never drags a sibling engine
 
 - **WHEN** any `highlight-*` item is resolved
 - **THEN** its npm dependency closure contains its own engine package
   and nothing from the sibling engines (verify:deps enforces the
   declared-edge law; verify:shadcn-add probes real installs, including
-  a clean-consumer typecheck of code-card plus each engine item)
+  a clean-consumer typecheck of code-card plus each engine item;
+  `highlight-shiki` additionally declares `@jixoai/shiki` for the
+  facade it wraps)
 
 #### Scenario: the shipped context seam stays zero-dependency
 
@@ -57,29 +57,26 @@ item).
   rides an item, and the detect seam's arrival (lang-detection change)
   changes nothing about the backend seam's shape or consumers
 
+> The core `highlight` item carries the contract files (`backend.ts`,
+> `lang-detector.ts`, `context-key.ts`) and ZERO npm dependencies;
+> `context.svelte.ts` stays site-only (the standing "no kernel
+> dependency rides the item" law — the shipped context seams are the
+> zero-dependency `context-key.ts` exporting TWO INDEPENDENT surfaces
+> (`HIGHLIGHT_KEY` + `HighlightContextValue` for the backend default,
+> `HIGHLIGHT_DETECT_KEY` + `HighlightDetectContextValue` for the
+> language-detector default — lang-detection change, 2026-09-07: both
+> are plain Symbol seams over `setContext`, mutually orthogonal,
+> neither pulls the kernel), and an app writes its own ~10-line
+> provider over either key per the docs recipe).
+
 ### Requirement: the default install is a single engine
 
-Every highlight SURFACE declares exactly ONE engine in its dependency
-closure, and the surface's stock default is its own (2026-09-08,
-this change — the law generalizes from code-card to the matrix of
-surfaces): `code-card` ships `shiki` (npm) via `@jixoai/highlight-shiki`
+Every highlight SURFACE SHALL declare exactly ONE engine in its
+dependency closure, and the surface's stock default is its own:
+`code-card` ships `shiki` (npm) via `@jixoai/highlight-shiki`
 with the stock `DEFAULT_SHIKI_BACKEND` resolution; `inline-code`
 ships `microlighter` (npm) via `@jixoai/highlight-microlighter` with
-the stock `DEFAULT_MICROLIGHTER_BACKEND` resolution (the Owner
-ruling: the range engine is the honest default for a chip — 4.5KB,
-zero markup, the plain text node IS the final DOM). No surface's
-default install brings any other engine's npm package; the backend
-resolution chain stays `prop → context default → stock` on both
-surfaces, and one `createHighlightContext` provider still switches a
-whole subtree across BOTH surfaces at runtime. The BREAKING posture
-(2026-09-06) is unchanged in shape: installing a surface no longer
-brings the other engines, the migration path is one command per
-extra engine, and no compatibility glue is written. The chip's
-engine carries the range model's documented costs on its own docs
-page: the feature pre-gate (environments without the CSS Custom
-Highlight API stay plain text — silently, never a shiki fallback),
-print degradation (ranges do not survive the freeze clone), and the
-microlighter bundler contract.
+the stock `DEFAULT_MICROLIGHTER_BACKEND` resolution.
 
 #### Scenario: default install shape (code-card)
 
@@ -107,16 +104,32 @@ microlighter bundler contract.
   maps every old import to its engine item, and no compatibility
   re-export is shipped
 
+> The law generalizes from code-card to the matrix of surfaces
+> (2026-09-08, this change). The Owner ruling: the range engine is
+> the honest default for a chip — 4.5KB, zero markup, the plain text
+> node IS the final DOM. No surface's default install brings any
+> other engine's npm package; the backend resolution chain stays
+> `prop → context default → stock` on both surfaces, and one
+> `createHighlightContext` provider still switches a whole subtree
+> across BOTH surfaces at runtime. The BREAKING posture (2026-09-06)
+> is unchanged in shape: installing a surface no longer brings the
+> other engines, the migration path is one command per extra engine,
+> and no compatibility glue is written. The chip's engine carries the
+> range model's documented costs on its own docs page: the feature
+> pre-gate (environments without the CSS Custom Highlight API stay
+> plain text — silently, never a shiki fallback), print degradation
+> (ranges do not survive the freeze clone), and the microlighter
+> bundler contract.
+
 ### Requirement: every engine is lazy
 
 The lazy law governs DOWNLOADABLE / CODE-SPLIT units: the engine
 package module, its grammars, styles and queries-as-packages, and wasm
 binaries SHALL load via dynamic imports triggered inside
 `highlight()` — never at backend-factory module top level, never on
-factory construction. A card that never resolves to an engine never downloads
-it (the engine-minisearch precedent, extended to the matrix). Source
-embedded in item files (query constants, alias tables) is not a
-downloadable unit and rides the item file itself.
+factory construction. A card that never resolves to an engine never
+downloads it (the engine-minisearch precedent, extended to the
+matrix).
 
 #### Scenario: constructing a backend loads nothing
 
@@ -131,6 +144,9 @@ downloadable unit and rides the item file itself.
 - **THEN** no chunk or asset of highlight.js / sugar-high /
   tree-sitter / prismjs / microlighter is fetched
 
+> Source embedded in item files (query constants, alias tables) is
+> not a downloadable unit and rides the item file itself.
+
 ### Requirement: syntax support is a per-backend factory option
 
 Engines that support selective syntax SHALL expose it as a factory
@@ -139,12 +155,7 @@ option — `shiki({ langs })`, `prismjs({ langs })`,
 — where `langs` is a per-instance allowlist held in the backend closure
 (the shared registration tables are never mutated; instances compose
 freely). Omitting the option yields the engine's FULL curated set
-("the engine's whole capability" is the default). A lang outside the
-allowlist rejects with a hint naming the engine's supported set; the
-card's plain-text fallback law takes over. Engines whose distribution
-model has no selective syntax (microlighter — single-file TextMate
-set; sugar-high — all-in-one ~10KB set) are EXEMPT and expose no such
-option.
+("the engine's whole capability" is the default).
 
 #### Scenario: slimming an engine to a language subset
 
@@ -166,6 +177,12 @@ option.
   first's reject on typescript — the shared grammar cache is
   unaffected by either allowlist
 
+> A lang outside the allowlist rejects with a hint naming the
+> engine's supported set; the card's plain-text fallback law takes
+> over. Engines whose distribution model has no selective syntax
+> (microlighter — single-file TextMate set; sugar-high — all-in-one
+> ~10KB set) are EXEMPT and expose no such option.
+
 ### Requirement: theme semantics stay per-backend, the jixoai
 default stays zero-download
 
@@ -174,13 +191,7 @@ into its own world (the 2026-09-02 law, unchanged). New engines SHALL
 map the `jixoai` default onto the consumer's `--tok-*` palette with
 zero additional download: highlight.js via an item-shipped stylesheet
 binding `hljs-*` classes to `var(--tok-token-*)`; sugar-high and
-tree-sitter via inline `color: var(--tok-token-*)` spans (the span
-form's founding precedent was inline-code's shiki path — retired
-2026-09-08 when the chip moved to the range engine; sugar-high and
-tree-sitter keep the span form as their own law). Non-default theme
-names resolve per
-engine (hljs styles table; sugar-high/tree-sitter stay on the jixoai
-mapping and warn on unknown names).
+tree-sitter via inline `color: var(--tok-token-*)` spans.
 
 #### Scenario: engine default parity
 
@@ -188,6 +199,13 @@ mapping and warn on unknown names).
   highlightJs() with default theme on the same page
 - **THEN** both resolve token colors against the same `--tok-*`
   variables — light/dark adaptation is pure CSS for every engine
+
+> The span form's founding precedent was inline-code's shiki path —
+> retired 2026-09-08 when the chip moved to the range engine;
+> sugar-high and tree-sitter keep the span form as their own law.
+> Non-default theme names resolve per engine (hljs styles table;
+> sugar-high/tree-sitter stay on the jixoai mapping and warn on
+> unknown names).
 ### Requirement: tree-sitter binaries ride npm, never the
 registry payload
 
@@ -196,17 +214,9 @@ its declared npm packages (`web-tree-sitter`,
 `tree-sitter-typescript`, `tree-sitter-javascript`) resolved through
 an explicit loader seam — `wasmLoader(asset) → { url } | { bytes }`,
 with `wasmBase` as the string-prefix sugar covering core + grammar
-binaries (never the embedded queries) — so the browser consumes real
+binaries — so the browser consumes real
 HTTP asset URLs (bundler `?url` emission) and Node/vitest consumes
-real bytes (`createRequire` + `readFile`); both paths perform REAL
-wasm initialization, no mocks, and `file://` is never treated as
-browser evidence. No binary enters a registry payload, and no
-pin-manifest workflow is introduced (the supply chain is the consumer
-lockfile). Highlight queries (`.scm` sources, upstream MIT) ship
-embedded as item-local TS constants; capture names map to
-`--tok-token-*`. The output model is MARKUP (spans with inline palette
-colors) so the print-freeze clone survives; range-model exclusivity
-stays with microlighter.
+real bytes (`createRequire` + `readFile`).
 
 #### Scenario: fresh consumer install with tree-sitter
 
@@ -226,6 +236,16 @@ stays with microlighter.
   compatibility of grammar packages is asserted by execution, not
   mocked
 
+> Both paths perform REAL wasm initialization, no mocks, and `file://`
+> is never treated as browser evidence (`wasmBase` never covers the
+> embedded queries). No binary enters a registry
+> payload, and no pin-manifest workflow is introduced (the supply
+> chain is the consumer lockfile). Highlight queries (`.scm` sources,
+> upstream MIT) ship embedded as item-local TS constants; capture
+> names map to `--tok-token-*`. The output model is MARKUP (spans
+> with inline palette colors) so the print-freeze clone survives;
+> range-model exclusivity stays with microlighter.
+
 ### Requirement: microlighter's grammar loading carries a bundler
 contract
 
@@ -235,14 +255,7 @@ package) that no bundler can statically analyze — and the engine
 swallows every miss (`.catch(() => null)`), so a misconfigured host
 does not error: cards silently stay plain (found live on the docs
 playground, 2026-09-07). Host integration SHALL keep those imports
-resolving against real package files: a vite dev server MUST
-exclude microlighter from the dependency optimizer
-(`optimizeDeps.exclude`), and a production build SHALL emit the
-package's `dist/grammars/*.js` verbatim (they are zero-import data
-modules — grammar dependencies are loader-resolved data, not ES
-imports) next to whichever chunk carries the template. The registry
-item's docs state both requirements; the site's vite config is the
-reference implementation.
+resolving against real package files.
 
 #### Scenario: the docs playground on a production build
 
@@ -269,6 +282,14 @@ reference implementation.
   verbatim, and hosts whose mode diverges from the OS pin
   `pre[data-syntax-theme]` color-scheme for THEM (the docs site's
   app.css is the reference)
+
+> A vite dev server MUST exclude microlighter from the dependency
+> optimizer (`optimizeDeps.exclude`), and a production build SHALL
+> emit the package's `dist/grammars/*.js` verbatim (they are
+> zero-import data modules — grammar dependencies are loader-resolved
+> data, not ES imports) next to whichever chunk carries the template.
+> The registry item's docs state both requirements; the site's vite
+> config is the reference implementation.
 
 ### Requirement: the failure law is uniform across the matrix
 

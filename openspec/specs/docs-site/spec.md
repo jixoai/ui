@@ -24,10 +24,7 @@ Every `/docs/components/<name>.html` page SHALL have exactly one
 interactive, and a page title. Demo content SHALL NOT emit real
 headings: the lint targets consumer-authored content inside the
 canvas's `data-doc-demo-content` wrapper only — ComponentCanvas's own
-structural chrome (title/Playground headings) is exempt. The lint
-(`verify:docs-structure`) enforces this on the built output and rides
-`verify:all`, with fixtures proving canvas chrome passes and a
-consumer heading inside the wrapper fails.
+structural chrome (title/Playground headings) is exempt.
 
 #### Scenario: a page grows a second Usage section
 
@@ -41,6 +38,10 @@ consumer heading inside the wrapper fails.
 - WHEN it renders an `h2` for demo copy
 - THEN the lint fails naming the page; the same copy as a styled
   non-heading passes
+
+The lint (`verify:docs-structure`) enforces this on the built output
+and rides `verify:all`, with fixtures proving canvas chrome passes
+and a consumer heading inside the wrapper fails.
 
 ### Requirement: development serves the registry
 
@@ -71,14 +72,16 @@ from a search or a stale link.
 
 The table / transfer / tour / descriptions / statistic docs pages
 SHALL each carry ability-named composition recipes covering their
-market-standard forms (table: sort, filter, pagination, row
-selection, row actions, column visibility, sticky header, and one
-composed toolbar example; transfer: oneWay; tour: non-modal +
-placement; descriptions: vertical + responsive + extra; statistic:
-countdown). A discovered missing atom API SHALL be recorded in the
-change's `followups.md` rather than worked around silently.
+market-standard forms. A discovered missing atom API SHALL be recorded
+in the change's `followups.md` rather than worked around silently.
 
 #### Scenario: composing the tasks-table demo
+
+(market-standard forms: table — sort, filter, pagination, row
+selection, row actions, column visibility, sticky header, and one
+composed toolbar example; transfer — oneWay; tour — non-modal +
+placement; descriptions — vertical + responsive + extra; statistic —
+countdown.)
 
 - WHEN the composed toolbar demo is authored
 - THEN it uses only public component behavior and every interactive
@@ -91,13 +94,6 @@ Intro (the one-paragraph contract), Install (copy-ready
 `npx jixoai-ui add <name>`), Usage (minimal working example), Examples
 (ability-named demos, each with collapsible code), API (a props table:
 Prop / Type / Default), See Also (related component links).
-
-Adoption is STAGED, not partial-by-omission: the change commits a
-machine-readable scope file (pilot routes + the remaining backlog,
-each with an owner and a successor change); the lint HARD-FAILS every
-in-scope route and WARNS on out-of-scope routes while printing the
-backlog. The successor change flips the lint to hard-fail-everywhere
-(the staged exit criterion).
 
 #### Scenario: a pilot page misses a section
 
@@ -112,6 +108,13 @@ backlog. The successor change flips the lint to hard-fail-everywhere
 - WHEN it lacks sections
 - THEN the lint warns and increments the printed backlog without
   failing the gate
+
+Adoption is STAGED, not partial-by-omission: the change commits a
+machine-readable scope file (pilot routes + the remaining backlog,
+each with an owner and a successor change); the lint HARD-FAILS every
+in-scope route and WARNS on out-of-scope routes while printing the
+backlog. The successor change flips the lint to hard-fail-everywhere
+(the staged exit criterion).
 
 ### Requirement: demos are named by ability
 
@@ -143,25 +146,19 @@ the scoping attributes; the hosting page owns the state.
 The icons documentation page SHALL open the component face with a
 BRIDGE card — one live `<Icon>` demo plus the link to
 `/docs/components/icon.html`, the component's own page and the API
-authority (PropsTable, playground, the type-safety law, the async
-paths; icon-docs-consolidation 2026-09-07 — no duplication between
-the two pages), render the
-named-icon grid from `ICON_NAMES` (dynamic — a new icon appears with
-zero page edit, the existing grid law carried over), and document
-the plugin library face: override/custom/`lucide:` sources, the
-chunk budget (`maxChunkBytes` default 20480 raw), `chunking:
-'single'`, `inlineFirstChunk`, `optimize`, and the async semantics
-(inline sync core → SSR-safe; lazy overflow → reserved box +
-`preloadIcons`). The CSS-slot section (the `--jx-icon-*` vocabulary
-table) SHALL remain, re-framed as the slot face's documentation
-beside the library face.
+authority — render the named-icon grid from `ICON_NAMES`, and
+document the plugin library face. The CSS-slot section (the
+`--jx-icon-*` vocabulary table) SHALL remain, re-framed as the slot
+face's documentation beside the library face.
 
 #### Scenario: the grid tracks the generated union
 
 - GIVEN a new icon name lands in icon-set.gen.ts
 - WHEN the icons page renders
 - THEN the grid shows it without any page edit (the coverage test
-  asserts grid count === ICON_NAMES length)
+  asserts grid count === ICON_NAMES length; the grid is dynamic — a
+  new icon appears with zero page edit, the existing grid law carried
+  over)
 
 #### Scenario: the two faces are distinguishable
 
@@ -171,39 +168,17 @@ beside the library face.
   (CSS custom properties) are presented as separate systems with
   their own sections, not conflated
 
+(The API authority carries PropsTable, playground, the type-safety
+law, the async paths; icon-docs-consolidation 2026-09-07 — no
+duplication between the two pages. The library face documents:
+override/custom/`lucide:` sources, the chunk budget (`maxChunkBytes`
+default 20480 raw), `chunking: 'single'`, `inlineFirstChunk`,
+`optimize`, and the async semantics — inline sync core → SSR-safe;
+lazy overflow → reserved box + `preloadIcons`.)
+
 ### Requirement: the canvas same-source law (the extraction machinery)
 
-The docs canvases' shown code IS the canvas's real markup. The
-`canvasPlugin()` (a standalone export of `@jixoai/vite-plugin`) maps
-the per-page virtual module `virtual:jixoai-canvas/<route>/+page`:
-resolveId validates the page (importer-derived, realpath-canonical)
-and returns the `\0` virtual id; load() parses the page with
-svelte/compiler (AST, never regex) and emits a PURE-DATA module —
-`canvasIds` + `resolveRawCode(id)` (the Owner's own name) with
-named miss-errors listing the page's real ids. The extractor: static
-`id` attrs (missing = skip, zero cost; duplicate = named error), the
-children source slice with ONLY direct-child canvas-protocol
-snippets stripped (nested snippets are demo content, kept), comments
-kept, min-common dedent + outer-blank trim and NOTHING else
-(byte-honest; no elide marker — that would be a drift hole), and a
-SELF-CONTAINMENT guard (every snippet/render reference in the slice
-must resolve within it, else a named build error). Escaping is
-STRUCTURALLY eliminated: the map lives in a plain ESM module
-(JSON.stringify + U+2028/29) — `</script>` terminates nothing; the
-hand-dodge `const close` pattern dies on migrated pages. Pages
-compose wrappers via `$lib/canvas-usage.ts` `usageFile(imports,
-body, {script?})`. `ComponentCanvas` takes ZERO code changes — its
-existing `id` (aria override) becomes the extraction key (fixing
-same-title aria collisions in passing). Consumption is PAGE-side
-(the registry-mirror law forbids the canvas importing app
-machinery). The bridge keeps svelte/compiler out of the entry chunk;
-`svelte` is optional-peer + devDep + tsdown-external (the symlink
-resolution law — peer-alone never resolves). A drift gate spec pins
-every id ↔ every call + inline snapshots of each extracted block
-(human-reviewable); markdown.html stays opted out (the stretch
-ruling — its state-bearing demos await identifier lifting). The
-fleet sweep (33 more pages + the no-hand-usage lint on migrated
-pages) is a recorded follow-up.
+The docs canvases' shown code SHALL BE the canvas's real markup.
 
 #### Scenario: edit the demo, the code follows
 
@@ -216,3 +191,35 @@ pages) is a recorded follow-up.
 - WHEN a slice references a page-level snippet or an id misses
 - THEN a named build error names the page and its real ids — never a
   silently-wrong copy-paste sample
+
+> The extraction machinery: the `canvasPlugin()` (a standalone export
+> of `@jixoai/vite-plugin`) maps the per-page virtual module
+> `virtual:jixoai-canvas/<route>/+page`: resolveId validates the page
+> (importer-derived, realpath-canonical) and returns the `\0` virtual
+> id; load() parses the page with svelte/compiler (AST, never regex)
+> and emits a PURE-DATA module — `canvasIds` + `resolveRawCode(id)`
+> (the Owner's own name) with named miss-errors listing the page's
+> real ids. The extractor: static `id` attrs (missing = skip, zero
+> cost; duplicate = named error), the children source slice with ONLY
+> direct-child canvas-protocol snippets stripped (nested snippets are
+> demo content, kept), comments kept, min-common dedent + outer-blank
+> trim and NOTHING else (byte-honest; no elide marker — that would be
+> a drift hole), and a SELF-CONTAINMENT guard (every snippet/render
+> reference in the slice must resolve within it, else a named build
+> error). Escaping is STRUCTURALLY eliminated: the map lives in a
+> plain ESM module (JSON.stringify + U+2028/29) — `</script>`
+> terminates nothing; the hand-dodge `const close` pattern dies on
+> migrated pages. Pages compose wrappers via `$lib/canvas-usage.ts`
+> `usageFile(imports, body, {script?})`. `ComponentCanvas` takes ZERO
+> code changes — its existing `id` (aria override) becomes the
+> extraction key (fixing same-title aria collisions in passing).
+> Consumption is PAGE-side (the registry-mirror law forbids the
+> canvas importing app machinery). The bridge keeps svelte/compiler
+> out of the entry chunk; `svelte` is optional-peer + devDep +
+> tsdown-external (the symlink resolution law — peer-alone never
+> resolves). A drift gate spec pins every id ↔ every call + inline
+> snapshots of each extracted block (human-reviewable);
+> markdown.html stays opted out (the stretch ruling — its
+> state-bearing demos await identifier lifting). The fleet sweep
+> (33 more pages + the no-hand-usage lint on migrated pages) is a
+> recorded follow-up.

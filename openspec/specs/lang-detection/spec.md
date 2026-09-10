@@ -1,7 +1,13 @@
 # lang-detection Specification
 
 ## Purpose
-TBD - created by archiving change 2026-09-07-highlight-lang-detector. Update Purpose after archive.
+语言检测（`lang="auto"`）的独立契约：`LanguageDetector` 契约与
+`AUTO_LANG` 哨兵随 highlight core item 发行，零 npm 依赖；卡片按
+prop → context → backend 三检测环解析检测器，null 级联、reject
+终态；默认检测器 DLD 以 L1 filename / L2 shebang / L3 结构探针 /
+L4 betlang 统计四层瀑布按需懒加载；检测身份 seam 采用
+registry/kernel 二分。本能力让卡片在不指定语言时自动检测语言，
+同时保证存量显式 lang 路径逐字节不变。
 
 ## Requirements
 
@@ -11,46 +17,13 @@ TBD - created by archiving change 2026-09-07-highlight-lang-detector. Update Pur
 Promise<DetectResult | null>`；DetectResult 携带 canonical lang、分层
 source 标记与可选 confidence）与 `AUTO_LANG = 'auto'` 常量，随
 `highlight` core item 发行且不引入任何 npm 依赖；`lang` prop 保持
-string 类型，AUTO_LANG 为运行时哨兵（**严格全等 `lang === AUTO_LANG`，
-无 trim、大小写敏感**，其余值一律按普通 lang 走既有路径）。
+string 类型，AUTO_LANG 为运行时哨兵。
 
 卡片 `lang === AUTO_LANG` 时 SHALL 按序解析检测器——**检测环三个**：
 ① `langDetector` prop 非 undefined；② `HIGHLIGHT_DETECT_KEY` context
 对象且 `.detector` 为函数；③ `backend.detector` 为函数；三环皆缺 →
 （非环的链尾终态）运行时 reject，报错文本给出 DLD 安装命令与两种
 接线形态指引。
-
-**null 级联法则**：某环 detector resolve null（无意见）SHALL 级联下一
-环；某环 reject/throw（终态）SHALL 纯文本回退 + warn 报出该环 id 与
-错误；链上全部可用环皆 null SHALL 纯文本回退 + warn 报出各环 id。
-**reject/warn 文本契约（r6 冻结格式模板）**：兜底 reject 文本 =
-`lang='auto' needs a detector — none of prop/context/backend provided
-one. Install @jixoai/highlight-lang-detector, then wire via
-<HighlightDetectDefault> (children wrapper) or setContext
-(HIGHLIGHT_DETECT_KEY, { detector })`；单环终态 warn 格式 =
-`[detect:<ring-id>] <原始错误>`；三环皆 null 的 warn 格式 =
-`[detect:all] no language detected (rings: <id1>,<id2>,<id3>)`。
-三个模板的字符串断言列入契约测试。模板中的 `<ring-id>`、`<id1>`
-等尖括号记号是**格式变量**（运行时替换），不属 canonical 表的
-占位符门禁管辖——两法各自独立，互不误删误判。
-检测产出的 lang SHALL 走既有别名/curated/reject 法则。`lang` 非
-AUTO_LANG 时一切存量行为逐字节不变，检测路径零字节加载。
-
-**零静态 import 法则**：卡片与 core SHALL NOT 引用 DLD 的任何
-specifier（动态亦不可——bundler 构建期解析静态字符串，裸消费者无法
-构建）；DLD 的默认地位 SHALL 经 context 默认值落地。**provider 作用
-域法则（r2）**：Svelte context 只向子树传播——接线 SHALL 为包装形态
-之一：① registry:ui item `highlight-detect-default` 的
-`<HighlightDetectDefault>` children 包装组件，或 ② 子树根组件
-`<script>` 手写 `setContext(HIGHLIGHT_DETECT_KEY, { detector:
-defaultLangDetector() })`；嵌套 provider 取最近值；lib item 保持
-framework-free（组件不进 lib item）。DLD 与 wrapper 均 runtime
-import core 的 `HIGHLIGHT_DETECT_KEY`/`AUTO_LANG` 保持 registry 边
-活性。
-
-**检测终态法则（r2）**：检测成功而 backend 的 curated/reject 拒绝
-SHALL 为终态——reject 消息按矩阵失败法则点名覆盖引擎，不回退换检测
-器重试。
 
 #### Scenario: SSR 恒纯文本
 
@@ -62,7 +35,9 @@ SHALL 为终态——reject 消息按矩阵失败法则点名覆盖引擎，不�
 
 - **WHEN** lang 取值 `'AUTO'`、`' auto '`、`'auto\n'`
 - **THEN** 皆不触发检测（严格全等 `lang === AUTO_LANG`，无 trim；
-  这些值按普通 lang 走既有路径并由 backend reject 法则处理）
+  这些值按普通 lang 走既有路径并由 backend reject 法则处理；
+  **严格全等 `lang === AUTO_LANG`，无 trim、大小写敏感**，其余值一律
+  按普通 lang 走既有路径）
 
 #### Scenario: prop 压过一切
 
@@ -117,6 +92,38 @@ SHALL 为终态——reject 消息按矩阵失败法则点名覆盖引擎，不�
 - **WHEN** 卡片 `lang="ts"`（或任何非 auto 值）
 - **THEN** 检测路径零字节加载，渲染与引擎矩阵行为逐字节一致
 
+> **null 级联法则**：某环 detector resolve null（无意见）SHALL 级联
+> 下一环；某环 reject/throw（终态）SHALL 纯文本回退 + warn 报出该环
+> id 与错误；链上全部可用环皆 null SHALL 纯文本回退 + warn 报出各环
+> id。**reject/warn 文本契约（r6 冻结格式模板）**：兜底 reject 文本 =
+> `lang='auto' needs a detector — none of prop/context/backend provided
+> one. Install @jixoai/highlight-lang-detector, then wire via
+> <HighlightDetectDefault> (children wrapper) or setContext
+> (HIGHLIGHT_DETECT_KEY, { detector })`；单环终态 warn 格式 =
+> `[detect:<ring-id>] <原始错误>`；三环皆 null 的 warn 格式 =
+> `[detect:all] no language detected (rings: <id1>,<id2>,<id3>)`。
+> 三个模板的字符串断言列入契约测试。模板中的 `<ring-id>`、`<id1>`
+> 等尖括号记号是**格式变量**（运行时替换），不属 canonical 表的
+> 占位符门禁管辖——两法各自独立，互不误删误判。
+> 检测产出的 lang SHALL 走既有别名/curated/reject 法则。`lang` 非
+> AUTO_LANG 时一切存量行为逐字节不变，检测路径零字节加载。
+>
+> **零静态 import 法则**：卡片与 core SHALL NOT 引用 DLD 的任何
+> specifier（动态亦不可——bundler 构建期解析静态字符串，裸消费者无法
+> 构建）；DLD 的默认地位 SHALL 经 context 默认值落地。**provider 作用
+> 域法则（r2）**：Svelte context 只向子树传播——接线 SHALL 为包装形态
+> 之一：① registry:ui item `highlight-detect-default` 的
+> `<HighlightDetectDefault>` children 包装组件，或 ② 子树根组件
+> `<script>` 手写 `setContext(HIGHLIGHT_DETECT_KEY, { detector:
+> defaultLangDetector() })`；嵌套 provider 取最近值；lib item 保持
+> framework-free（组件不进 lib item）。DLD 与 wrapper 均 runtime
+> import core 的 `HIGHLIGHT_DETECT_KEY`/`AUTO_LANG` 保持 registry 边
+> 活性。
+>
+> **检测终态法则（r2）**：检测成功而 backend 的 curated/reject 拒绝
+> SHALL 为终态——reject 消息按矩阵失败法则点名覆盖引擎，不回退换检测
+> 器重试。
+
 ### Requirement: DLD 是四层瀑布，层层按需
 
 默认检测器 DLD（`defaultLangDetector()`，registry item
@@ -125,12 +132,7 @@ filename 层（扩展名表 + 精确 basename 表）、L2 shebang/meta 层（解
 器表 + 首行 modeline）、L3 特殊结构探针层、L4 betlang 统计层。每层
 SHALL 是独立懒模块——前一层命中后行 SHALL 零加载后续层；L1/L2 的映射
 表 SHALL 以多行字符串常量表达（首次使用才 parse 成 Map，进程级缓
-存）。表数据源 SHALL 取 linguist languages.yml（extensions/filenames/
-interpreters 字段）与本仓库 canonical 支持集的交集，挖掘时的 linguist
-commit SHA SHALL 落表头注释；歧义扩展名（heuristics.yml 消解块覆盖
-的）SHALL 被排除出 L1，交由 L4——**ts/tsx/jsx 例外**（实现裁决
-r13-A1：消解块确含 .ts/.tsx，但本 spec 的 `main.ts → L1 命中`
-场景冻结优先，三胞胎留在 L1）。
+存）。
 
 #### Scenario: 扩展名即答案
 
@@ -159,23 +161,25 @@ r13-A1：消解块确含 .ts/.tsx，但本 spec 的 `main.ts → L1 命中`
 - **WHEN** 任一次 detect 执行
 - **THEN** 每个**被执行**的层恰好发出一个事件 `{layer, outcome: hit|miss, lang?, detail, ms}`（detail 为人类可读一行：查了什么、谁应答；ms 为该层墙钟）；命中之后的层**零事件**（短路即 trace 的负空间，消费端把未报告的层渲染为 skipped）；省略 onTrace 时行为与返回值与不传完全一致——事件是建议性的，永不承载检测语义（docs 检测实验室 2026-09-07 的驱动契约）
 
+> 表数据源 SHALL 取 linguist languages.yml（extensions/filenames/
+> interpreters 字段）与本仓库 canonical 支持集的交集，挖掘时的 linguist
+> commit SHA SHALL 落表头注释；歧义扩展名（heuristics.yml 消解块覆盖
+> 的）SHALL 被排除出 L1，交由 L4——**ts/tsx/jsx 例外**（实现裁决
+> r13-A1：消解块确含 .ts/.tsx，但本 spec 的 `main.ts → L1 命中`
+> 场景冻结优先，三胞胎留在 L1）。
+
 ### Requirement: 结构层只做高确判探针，不做编程语言指纹
 
 DLD 结构层 SHALL 按 design D3.2 冻结伪码实现：规范化（strip BOM、
 首非空行、512 字符头部窗口、非空行计数）→ **Markdown 守卫最高优先**
-（任一 `^ {0,3}(?:\x60{3,}|~{3,})` 围栏——含 1-3 空格缩进与闭合
-围栏，或 ≥2 个 `^ {0,3}#{1,6}\s` 标题行——标题密度阈值防 `# 注释`
-单行误杀 TOML/YAML → 本层整体弃权；缩进围栏/闭合围栏/CRLF 入样本
-矩阵；YAML 判据另含
-front-matter 规则：第二个 `---` 后内容含任一 md 标记即弃权）→
+（任一 `^ {0,3}(?:\x60{3,}|~{3,})` 围栏，或 ≥2 个 `^ {0,3}#{1,6}\s`
+标题行 → 本层整体弃权）→
 JSON 全文 parse 硬判据 → SVG（`<svg` 根或 `<?xml…?><svg` 头窗组合，
 优先于 XML）→ XML（`<?xml` 前缀）→ HTML（`<!doctype html`，大小写
 不敏感）→ YAML（`---` 首行 + key-colon 行占比 ≥60%，≥3 非空行）→
 TOML（section 整行 + ≥2 个两侧空格 `=`，≥3 非空行，TOML 优先于 INI）→
 INI（section 整行 + ≥2 个无左侧空格 `=`）→ null。本层 SHALL NOT 对
-编程语言做指纹检测；此类样本 SHALL 穿透到统计层。正负样本矩阵 SHALL
-锁死 front-matter 边界（`---`+keys+`---`+md 标记正文 → 守卫弃权）与
-markdown 链接（`[t](u)` 不触发 section 判据）。
+编程语言做指纹检测；此类样本 SHALL 穿透到统计层。
 
 #### Scenario: Markdown 干扰负样本
 
@@ -197,33 +201,24 @@ markdown 链接（`[t](u)` 不触发 section 判据）。
 - **THEN** 声明 json（source=structure）；首字符 `{` 但解析失败
   SHALL NOT 声明
 
+> Markdown 守卫判据全文：围栏含 1-3 空格缩进与闭合围栏；标题行带
+> 标题密度阈值防 `# 注释` 单行误杀 TOML/YAML；缩进围栏/闭合围栏/CRLF
+> 入样本矩阵；YAML 判据另含 front-matter 规则：第二个 `---` 后内容
+> 含任一 md 标记即弃权。正负样本矩阵 SHALL 锁死 front-matter 边界
+> （`---`+keys+`---`+md 标记正文 → 守卫弃权）与 markdown 链接
+> （`[t](u)` 不触发 section 判据）。
+
 ### Requirement: betlang 统计层过 KiB 字节门禁，wasm 不入 git
 
 统计层 SHALL 由 betlang（crates.io 版本 `=0.1.1` 钉死）与
 fearless_simd（`=0.4.0`，betlang 自锁值，防 lockfile 重解析漂移）
 编译的 wasm 承载，发行通道 SHALL 为自建 npm 包
-`@jixoai/ui-betlang-wasm`（packages/betlang-wasm，CI 构建发布；
-verify-betlang-pin 并校验 Cargo.lock 内 fearless_simd 版本与 cksum；Cargo.lock + 工具链版本 + 完整 sha256 +
-字节精确尺寸入 ARTIFACT.md——wasmRawBytes / wasmGzipBytes /
-wasmSha256 / tarballSha256）。**门禁测量对象 = 且仅 = `.wasm` 文件
-字节**（装载器 JS 与 tarball 不入预算）。预算 SHALL 以 KiB（1024
-字节）字节精确计量：raw ≤ 100 KiB、内部预警线 raw 98 KiB、gzip ≤
-70 KiB（Node zlib.gzipSync level 9，算法冻结）；evidence 记录 tarball+
-fearless_simd =0.4.0 口径的观测带（raw 100,111–100,139 B，最坏距
-预警线 213 B）——构建非字节确定（r9 实测），**canonical wasm 哈希 =
-CI 构建产物在 ARTIFACT.md 的记录值，门禁语义为 as-shipped 完整性**，
-本地重建不做字节恒等断言。
-`scripts/verify-betlang-pin.mjs` SHALL 核验 sha256、magic bytes 与双
-预算；预警线越线 SHALL 触发降级预案（betlang 转非默认 detector
-item，L4 换装 linguist 派生精简启发层——heuristics.yml 与 canonical
-集有交集的 curated 子集、linguist SHA 版本化、同规格门禁与样本
-矩阵，L4 章按实况改写后重新送审）。wasm 二进制 SHALL NOT 进入 git
-与 registry payload。装载
-SHALL 经 `wasmLoader → { url } | { bytes }` seam：浏览器走真实 HTTP
-资产 URL，Node/vitest 走真实字节并真实初始化 wasm（不 mock，file://
-不作为浏览器证据）。betlang 48 标签到 canonical id 的映射 SHALL 以
-完整多行字符串表内嵌（版本绑定注释），无对应标签 SHALL 返回 null
-并一次性 warn（每标签每进程至多一条）。
+`@jixoai/ui-betlang-wasm`（packages/betlang-wasm，CI 构建发布）。
+**门禁测量对象 = 且仅 = `.wasm` 文件字节**（装载器 JS 与 tarball
+不入预算）；预算 SHALL 以 KiB（1024 字节）字节精确计量：raw ≤ 100
+KiB、内部预警线 raw 98 KiB、gzip ≤ 70 KiB（Node zlib.gzipSync
+level 9，算法冻结）。wasm 二进制 SHALL NOT 进入 git 与 registry
+payload。
 
 #### Scenario: wasmLoader 契约
 
@@ -253,6 +248,25 @@ SHALL 经 `wasmLoader → { url } | { bytes }` seam：浏览器走真实 HTTP
 - **THEN** verify:betlang-pin 失败阻塞合入；raw > 98 KiB 预警线触发
   降级预案改写流程
 
+> verify-betlang-pin 并校验 Cargo.lock 内 fearless_simd 版本与
+> cksum；Cargo.lock + 工具链版本 + 完整 sha256 + 字节精确尺寸入
+> ARTIFACT.md——wasmRawBytes / wasmGzipBytes / wasmSha256 /
+> tarballSha256。evidence 记录 tarball+fearless_simd =0.4.0 口径的
+> 观测带（raw 100,111–100,139 B，最坏距预警线 213 B）——构建非字节
+> 确定（r9 实测），**canonical wasm 哈希 = CI 构建产物在
+> ARTIFACT.md 的记录值，门禁语义为 as-shipped 完整性**，本地重建
+> 不做字节恒等断言。`scripts/verify-betlang-pin.mjs` SHALL 核验
+> sha256、magic bytes 与双预算；预警线越线 SHALL 触发降级预案
+> （betlang 转非默认 detector item，L4 换装 linguist 派生精简启发
+> 层——heuristics.yml 与 canonical 集有交集的 curated 子集、
+> linguist SHA 版本化、同规格门禁与样本矩阵，L4 章按实况改写后
+> 重新送审）。装载 SHALL 经 `wasmLoader → { url } | { bytes }`
+> seam：浏览器走真实 HTTP 资产 URL，Node/vitest 走真实字节并真实
+> 初始化 wasm（不 mock，file:// 不作为浏览器证据）。betlang 48
+> 标签到 canonical id 的映射 SHALL 以完整多行字符串表内嵌（版本
+> 绑定注释），无对应标签 SHALL 返回 null 并一次性 warn（每标签每
+> 进程至多一条）。
+
 ### Requirement: 检测身份 seam 的 registry/kernel 二分
 
 `HIGHLIGHT_DETECT_KEY` 与 `HighlightDetectContextValue` SHALL 随
@@ -263,14 +277,7 @@ SHALL 经 `wasmLoader → { url } | { bytes }` seam：浏览器走真实 HTTP
 setContext 三条写入路径产出同一形状（各一条端到端测试）。内核编排
 （`HIGHLIGHT_DETECT_DEF` + `createHighlightDetectContext`）SHALL 落
 site-only 的 `lib/highlight/context.svelte.ts`（与 HIGHLIGHT_DEF 同
-法——registry-safe 身份随 core，内核编排属站点）。插件 SHALL 能经
-`targets: [HIGHLIGHT_DETECT_DEF]` 将任意 detector（含
-`betlangDetector()`）配为子树/全站默认；该默认 SHALL 压过 backend
-自带 detector，但被卡片显式 prop 压过。context 值类型为
-`{ detector: LanguageDetector | undefined }`（undefined = 无意见，
-读取侧函数判据后级联下一环），Svelte 就近 provider 语义（嵌套取
-最近），组件窗口外读取 SHALL 传播 Svelte 自身
-`lifecycle_outside_component`（不捕获不归一）。
+法——registry-safe 身份随 core，内核编排属站点）。
 
 #### Scenario: 全站 betlang
 
@@ -291,3 +298,11 @@ site-only 的 `lib/highlight/context.svelte.ts`（与 HIGHLIGHT_DEF 同
 - **WHEN** 未装 context-plugin 的消费者安装 DLD lib item
 - **THEN** 子树根 `<script>` 手写 setContext(HIGHLIGHT_DETECT_KEY, …)
   即接线，无需内核依赖、无需 wrapper item
+
+> 插件 SHALL 能经 `targets: [HIGHLIGHT_DETECT_DEF]` 将任意 detector
+> （含 `betlangDetector()`）配为子树/全站默认；该默认 SHALL 压过
+> backend 自带 detector，但被卡片显式 prop 压过。context 值类型为
+> `{ detector: LanguageDetector | undefined }`（undefined = 无意见，
+> 读取侧函数判据后级联下一环），Svelte 就近 provider 语义（嵌套取
+> 最近），组件窗口外读取 SHALL 传播 Svelte 自身
+> `lifecycle_outside_component`（不捕获不归一）。
