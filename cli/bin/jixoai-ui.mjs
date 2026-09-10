@@ -108,6 +108,12 @@ Commands:
                                      hue, and run the idempotent upgrade
                                      tasks (repeat runs perform zero writes)
   jixoai-ui config                   print the resolved jixoai config
+  jixoai-ui design [--port <n>]
+                   [--agent dsh|echo|none]
+                   [--no-open]      start the design studio (prototype
+                                     canvas on real components, agent
+                                     chat, one vite server — see
+                                     \`jixoai-ui design --help\`)
 
 Flags:
   --css <path>        (init/hue/add/upgrade) where jixoai.css lives —
@@ -1179,6 +1185,13 @@ switch (command) {
   case "config": {
     const { config } = readConfig(cwd);
     console.log(JSON.stringify({ registry: config.registries?.[NAMESPACE] ?? REGISTRY_URL, ...config.jixoai }, null, 2));
+    break;
+  }
+  case "design": {
+    // the design studio lives in its own module (single-intent law);
+    // this CLI only dispatches (design-studio T7, 2026-09-11)
+    const { main } = await import("./design.mjs");
+    await main(rest);
     break;
   }
   default:

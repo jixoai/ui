@@ -2,6 +2,12 @@
 !.agents/skills/
 public/
 node_modules/
+# slashless twin: worktree setups symlink node_modules as a FILE, which
+# the dir-only pattern above never matches (design-studio worktree, 2026-09-11)
+node_modules
+# the jixoai design studio workspace (scaffolded; templates live in
+# packages/design-tool/src/scaffold/templates — design-studio, 2026-09-11)
+design/
 .worktree/
 
 # apps/www (ui.jixoai.com) build state
