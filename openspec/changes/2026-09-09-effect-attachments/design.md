@@ -472,3 +472,38 @@ form; Install shows the pair.
     word; the ripple walk-probe confirmed ink spawns (circle, soft
     filter live) — the CDP click-occlusion artifact in the phase
     walker is the instrument's, not the page's.
+15. **The r11 host-channel rework (Owner 2026-09-11, four rulings)**:
+    (a) 「直接改成在宿主元素上去做」 — the child layer AND the r10
+    inset are GONE; the HOST itself carries the ring exactly like the
+    reference css (border-width = ringW, the double background, the
+    spin). The forced set now includes the PAINT channels
+    (background-image/clip/origin/repeat, important by law): measured
+    in the Owner's engine, a consumer's `background` SHORTHAND
+    (unlayered, specificity) resets image+clip and beats the layered
+    zero-specificity rule — while shimmer is mounted, the face/border
+    channels are the effect's. (b) THE FILL CHANNEL: number =
+    opaque 0xRRGGBB, null = transparent, default = the context's own
+    base (opaque); solidFill(cssColor, base?) mints numbers by
+    compositing any CSS color over the context base (light/dark true
+    by construction) — hex/rgb parsed by regex (jsdom-safe), exotic
+    forms through the canvas normalizer. (c) THE BORDER-AREA GATE:
+    CSS.supports('background-clip','border-area') per mount (a
+    function so tests stub both branches) — where the engine answers,
+    --shimmer-clip becomes `padding-box, border-area` and a null fill
+    is the TRUE CUTOUT (a transparent fill layer paints nothing; the
+    host's backdrop shows through the face — the original 镂空 ask,
+    finally real); where it does not, a null fill rides THE BLEND
+    EMULATION: light context → white + mix-blend-mode darken, dark →
+    black + lighten (stamped inline, restored on teardown). (d) the
+    docs galleries all ride the glass animated band (the blend/cutout
+    channels need something to blend against; the wrapper isolates so
+    the blend composites against the band, never the page). Traps
+    found and pinned: `fx.fill ?? default` swallows null's meaning
+    (undefined is the ONLY default signal on this channel); var()
+    substitution of the mixed clip list is legal (measured) — the
+    real killer was the cascade, not the var. Engine-verified
+    (Chrome 152, DPR 2): clip padding-box, border-area live; auto =
+    opaque faces + 4px dark ring + walking arc; null = pixel-proven
+    cutout (interior = adjacent band color) with ring/arc/labels
+    intact; the transparent dock chip round-trips through the
+    identity remount.
