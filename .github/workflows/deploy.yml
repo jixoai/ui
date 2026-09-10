@@ -45,6 +45,19 @@ jobs:
       - name: Build @jixoai/ui-vite-plugin
         run: npm ci && npm run build
         working-directory: packages/vite-plugin
+      # verify:shadcn-add's npm mirror packs packages/betlang-wasm AS-IS —
+      # without this build the tarball ships no wasm and the two
+      # code-card-dld cases fail "wasm emitted as a real asset — 0
+      # file(s)" (first real-CI catch; locally the built dist/ always
+      # existed). The build script resolves the toolchain via
+      # rustup-with-wasm32 > PATH; no npm deps needed.
+      - name: Install Rust + the wasm32 target (betlang wasm build)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Build @jixoai/ui-betlang-wasm (the shadcn-add mirror's tarball source)
+        run: npm run build
+        working-directory: packages/betlang-wasm
       # verify:laws runs css-laws' own tsx from its node_modules — the
       # package was never installed in CI before (the composite gate that
       # needs it postdates the last successful deploy, and the vite-plugin
