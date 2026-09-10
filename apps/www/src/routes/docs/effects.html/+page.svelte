@@ -308,7 +308,7 @@ const fx = liquid.apple({ ${semanticOptionsLine} });
     ringColor: 'currentColor',
     shineWidth: 30,
     speed: 3000,
-    ringW: 4,
+    ringW: 1,
   };
   let shShine = $state(SHIMMER_INITIAL.shine); // 'var(--primary)' | a hex override
   let shShineHex = $state('#3d6bff'); // the picker's seed — becomes the param on pick
@@ -441,18 +441,31 @@ ${close}
   }
   let rbSpeed = $state(RAINBOW_INITIAL.speed);
   let rbColors = $state<[string, string, string, string, string]>([...RAINBOW_INITIAL.colors]);
-  const rainbowFx = $derived(rainbow({ speed: rbSpeed, colors: rbColors }));
+  // the r13 sibling channels: ring-w on the host's border, the fill
+  // face (auto = Canvas / null = cutout / number = solidFill())
+  let rbRingW = $state(1);
+  let rbFill = $state<number | null | undefined>(undefined);
+  let rbFillHex = $state('#0d1220');
+  const rbFillReadout = $derived(
+    rbFill === undefined ? 'auto (context)' : rbFill === null ? 'transparent' : `#${rbFill.toString(16).padStart(6, '0')}`,
+  );
+  const rainbowFx = $derived(
+    rainbow({ speed: rbSpeed, colors: rbColors, ringW: rbRingW, fill: rbFill }),
+  );
   function resetRainbow(): void {
     rbSpeed = RAINBOW_INITIAL.speed;
     rbColors = [...RAINBOW_INITIAL.colors];
+    rbRingW = 1;
+    rbFill = undefined;
   }
   const rainbowUsage = $derived(`<script lang="ts">
   import { pressEffect } from '@ui/press-button';
   import { rainbow } from '@ui/press-button/press-button.svelte';
 ${close}
 
-<!-- the leaf form — a plain element, the factory inline; the dock's live params -->
-<button {@attach pressEffect(rainbow({ speed: ${rbSpeed}, colors: [${rbColors.map((c) => q(c)).join(', ')}] }))}>
+<!-- the leaf form — the host's own border IS the flowing ring (ring-w);
+     fill: solidFill(cssColor) → opaque number, null → the cutout, omitted → Canvas -->
+<button {@attach pressEffect(rainbow({ speed: ${rbSpeed}, colors: [${rbColors.map((c) => q(c)).join(', ')}], ringW: ${rbRingW}, fill: ${rbFill === null ? 'null' : rbFill === undefined ? 'undefined' : `solidFill('${rbFillHex}')`} }))}>
   upgrade
 </button>`);
   const rainbowFiles: TreeFile[] = [
@@ -1145,7 +1158,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
     <div id="rainbow" data-reveal="">
       <ComponentCanvas
         title="rainbow"
-        description="press family · rainbow — the aurora ring: a mask-banded rim span flows a five-stop train around the FULL ring (a registered --jx-rainbow-shift pans the stops through one seamless 200% cycle — top, bottom, both sides alike), plus the blurred under-glow below. The host's own background is never touched — transparent hosts stay transparent. Neutral plain hosts, one fx object, identity remounts."
+        description="press family · rainbow — shimmer's SIBLING on the same host-channel technique (r13): the host's own border IS the flowing ring (width = ringW, forced transparent + image hidden), the wrap-stop train rides background layer 2 through the same border-area gate and fill channel (auto = Canvas theme-live / null = the true cutout / a solidFill() number), and the registered shift's one animation on the host drives the unchanged blurred under-glow below through inheritance. Neutral plain hosts, one fx object, identity remounts."
         sourceUrl={registrySourceUrl('press-button')}
         files={rainbowFiles}
         stage="center"
@@ -1153,7 +1166,8 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         output={[
           { label: 'speed', value: `${rbSpeed}ms` },
           { label: 'stops', value: String(rbColors.length) },
-          { label: 'pan', value: '0→200%' },
+          { label: 'ring-w', value: `${rbRingW}px` },
+          { label: 'fill', value: rbFillReadout },
         ]}
         resolveFileContent={resolveRainbowUsage}
       >
@@ -1194,6 +1208,39 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         </div>
         {#snippet playground()}
           <PlayFields>
+            <PlayRow label="ring-w" hint="1–8px · the HOST's border-width — the border IS the flowing ring">
+              <PlayRange bind:value={rbRingW} min={1} max={8} step={0.5} />
+            </PlayRow>
+            <PlayRow label="fill" hint="auto = Canvas (theme-live) · a color = solidFill() mints the number · transparent = null (the cutout, or the blend emulation)">
+              <div class="fx-color">
+                <button
+                  type="button"
+                  class="fx-color-token"
+                  aria-pressed={rbFill === undefined}
+                  onclick={() => (rbFill = undefined)}
+                >
+                  auto
+                </button>
+                <button
+                  type="button"
+                  class="fx-color-token"
+                  aria-pressed={rbFill === null}
+                  onclick={() => (rbFill = null)}
+                >
+                  transparent
+                </button>
+                <input
+                  class="fx-color-input"
+                  type="color"
+                  value={rbFillHex}
+                  oninput={(event) => {
+                    rbFillHex = event.currentTarget.value;
+                    rbFill = solidFill(rbFillHex);
+                  }}
+                  aria-label="rainbow fill color"
+                />
+              </div>
+            </PlayRow>
             <PlayRow label="speed" hint="500–8000ms · the flow pace — one full 200% pan of the stop train">
               <PlayRange bind:value={rbSpeed} min={500} max={8000} step={100} />
             </PlayRow>
@@ -1393,7 +1440,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
           props={[
             { name: 'shimmer(o)', type: 'ShimmerEffect', default: 'see below', description: 'The shine arc walks the host’s OWN border — the effect paints the HOST ITSELF (no child layer, no inset): border-width = ringW with color forced transparent and image forced hidden, the double background (a fill layer clipped to the padding box over a rotating conic) clipped through --shimmer-clip — border-area where Chrome 139+ answers (the TRUE cutout), border-box elsewhere. Options: shine? (any CSS color, default var(--primary)), ringColor? (the ring’s REST color — the band the arc walks on, default currentColor), fill? (the FACE: an opaque 0xRRGGBB number — solidFill(cssColor) mints these by compositing over the context’s light/dark base — or null for transparent; default = the color-scheme system color Canvas — light/dark follows the Context live), shineWidth? (the arc’s angular width, default 30deg), speed? (one full revolution, in ms, default 3000), ringW? (number = px, or any CSS length string, default 4). A null fill where border-area is missing rides the blend emulation: light context → white + mix-blend-mode darken, dark → black + lighten. Inheritable: --shimmer-shine-start (the arc’s head angle, default 280deg).' },
             { name: 'pulse(o)', type: 'PulseEffect', default: 'see below', description: 'Sonar rings breathe outward from the body’s silhouette. Options: color? (default var(--primary)), duration? (default 2500ms), distance? (default 0.7em), variant? — slow | ring | ripple (default slow).' },
-            { name: 'rainbow(o)', type: 'RainbowEffect', default: 'see below', description: 'A five-stop train flows around the FULL ring (a registered --jx-rainbow-shift pans the stops through one 200% cycle, mask-banded to the rim; the host’s background is never touched). Options: speed? (the flow pace in ms, default 2000), colors? (a non-empty array, default five hsl primes).' },
+            { name: 'rainbow(o)', type: 'RainbowEffect', default: 'see below', description: 'Shimmer’s sibling on the SAME host-channel technique (r13): the host’s own border IS the flowing ring (border-width = ringW, color forced transparent, image hidden); the wrap-stop train (a registered --jx-rainbow-shift pans the stops through one seamless 200% cycle — top, bottom, both sides alike) rides background layer 2 through the same border-area gate and fill channel as shimmer (fill: an opaque 0xRRGGBB number from solidFill(), null for the true cutout / blend emulation, default Canvas — light/dark follows the Context live); the blurred under-glow below is unchanged and inherits the shift. Options: speed? (the flow pace in ms, default 2000), colors? (a non-empty array, default five hsl primes), ringW? (number = px, or any CSS length string, default 4), fill? (number | null).' },
             { name: 'ripple(o)', type: 'RippleEffect', default: 'see below', description: 'Ink expands from the exact press point, centered on keyboard activation — a css-animated svg dot with an optional feGaussianBlur soft edge (soft, default 0 — 0 disables the filter), riding a seat that inherits the host’s border-radius with overflow hidden, removed on animationend. Options: color? (default currentColor), duration? (default 600ms), soft? (default 0), shape? — round | bevel (bevel cuts the corners into a diamond).' },
           ]}
         />

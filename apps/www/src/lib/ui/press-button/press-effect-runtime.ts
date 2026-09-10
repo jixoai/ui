@@ -176,6 +176,28 @@ function fillToCss(fill: number): string {
   return `rgb(${(fill >> 16) & 255} ${(fill >> 8) & 255} ${fill & 255})`;
 }
 
+/** the fill channel's resolution, shared by the rim kernels (r11/r13):
+ *  number → opaque rgb(); null → the TRUE cutout where the engine
+ *  clips border-area, else the blend emulation (white + darken in
+ *  light contexts, black + lighten in dark); undefined → Canvas, the
+ *  color-scheme system color (the face follows the Context's
+ *  dark/light live) */
+function resolveFill(fill: number | null | undefined): { fillCss: string; blend: 'darken' | 'lighten' | null } {
+  if (fill === null && !borderAreaSupported()) {
+    const dark = contextIsDark();
+    return { fillCss: fillToCss(dark ? 0x000000 : 0xffffff), blend: dark ? 'lighten' : 'darken' };
+  }
+  if (fill === null) return { fillCss: 'transparent', blend: null };
+  if (fill === undefined) return { fillCss: 'Canvas', blend: null };
+  return { fillCss: fillToCss(fill), blend: null };
+}
+
+/** the rim kernels' clip pair — border-area where the engine answers,
+ *  the Afif border-box pair elsewhere */
+function rimClipCss(): string {
+  return borderAreaSupported() ? 'padding-box, border-area' : 'padding-box, border-box';
+}
+
 /** the stacking pose the effect hosts carry as utilities (relative z-0
  *  keeps the negative-z layers under the in-flow label); the runtime
  *  stamps the same classes itself */
@@ -187,10 +209,10 @@ const HOST_CLASSES = ['relative', 'z-0'];
 const VAR_SHIMMER = /--shimmer-[a-z-]+:\s*[^;]*;?/g;
 const VAR_PULSE = /--pulse-[a-z]+:\s*[^;]*;?/g;
 
-/** rainbow owns ONLY the pace + the color stops inline — the paint
- *  itself rides the ring/glow spans' own law-sheet rule, and the
- *  host's background/border channels are never touched (r5) */
-const VAR_RAINBOW = /--rainbow-speed:\s*[^;]*;?|--c\d+:\s*[^;]*;?/g;
+/** rainbow owns the pace + the ring/fill/clip channels + the color
+ *  stops inline — the paint itself rides the host-channel rule + the
+ *  glow span's own law-sheet rule */
+const VAR_RAINBOW = /--rainbow-[a-z-]+:\s*[^;]*;?|--c\d+:\s*[^;]*;?/g;
 
 function stampVars(element: HTMLElement, vars: string, own: RegExp): void {
   const style = element.getAttribute('style') ?? '';
@@ -268,28 +290,10 @@ function svgNode(tag: string): SVGElement {
 export function applyShimmer(element: HTMLElement, fx: ShimmerEffect): () => void {
   element.setAttribute('data-jx-shimmer-host', '');
   const added = addClasses(element, ['jx-shimmer-host']);
-  let fillCss: string;
-  let blend: 'darken' | 'lighten' | null = null;
-  if (fx.fill === null && !borderAreaSupported()) {
-    fillCss = fillToCss(contextIsDark() ? 0x000000 : 0xffffff);
-    blend = contextIsDark() ? 'lighten' : 'darken';
-  } else if (fx.fill === null) {
-    // the TRUE cutout: the engine clips border-area and a transparent
-    // fill layer paints nothing — the host's own backdrop shows
-    fillCss = 'transparent';
-  } else if (fx.fill === undefined) {
-    // the context default rides the COLOR-SCHEME system color — the
-    // site's theme bootstrap updates color-scheme on every toggle, so
-    // the face follows the Context's dark/light LIVE (light → white,
-    // dark → black), no remount, no token guessing (measured: this
-    // site's --background token is dark even under the light theme)
-    fillCss = 'Canvas';
-  } else {
-    fillCss = fillToCss(fx.fill);
-  }
+  const { fillCss, blend } = resolveFill(fx.fill);
   stampVars(
     element,
-    `--shimmer-shine: ${fx.shine}; --shimmer-base: ${fx.ringColor}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${borderAreaSupported() ? 'padding-box, border-area' : 'padding-box, border-box'}`,
+    `--shimmer-shine: ${fx.shine}; --shimmer-base: ${fx.ringColor}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${rimClipCss()}`,
     VAR_SHIMMER
   );
   const priorBlend = element.style.mixBlendMode;
@@ -325,28 +329,35 @@ export function applyPulse(element: HTMLElement, fx: PulseEffect): () => void {
   };
 }
 
-/** rainbow — the ring port (r5): the r4 host-background layering is
- *  DELETED — the host's background/border channels are never touched
- *  (inline or otherwise; the ownership-restore contract dies with the
- *  channels it guarded). ONE mask-banded ring span + the under-glow
- *  run the sheet's 200%-period stop train (the registered
- *  --jx-rainbow-shift pans it); the kernel's stamp is vars ONLY, so a
- *  transparent host shows the flowing rim and nothing else, and the
- *  FULL ring flows — top, bottom, both sides */
+/** rainbow — THE HOST CHANNEL, r13 (the Owner's ruling: rainbow is
+ *  shimmer's sibling — same technique, same params): the host's own
+ *  border IS the flowing ring (width = ringW, forced transparent +
+ *  image hidden; the wrap-stop train rides background layer 2 through
+ *  the SAME border-area gate and fill channel as shimmer — number =
+ *  opaque face, null = the true cutout / blend emulation, undefined =
+ *  Canvas, theme-live). The ONE span that remains is the under-glow
+ *  bar (the Owner's ruling: 「blur 的彩虹光影不用改」) — it keeps its
+ *  own paint and now INHERITS the registered shift from the animating
+ *  host (one animation drives both carriers) */
 export function applyRainbow(element: HTMLElement, fx: RainbowEffect): () => void {
-  const added = addClasses(element, HOST_CLASSES);
-  const vars = `--rainbow-speed: ${fx.speed}ms; ${fx.colors
-    .map((c, i2) => `--c${i2 + 1}: ${c}`)
-    .join('; ')}`;
-  stampVars(element, vars, VAR_RAINBOW);
-  // r8: the ring + the under-glow carry the whole paint; the host keeps
-  // its own face, radius, and text
-  const ring = span('jx-rainbow-ring');
+  element.setAttribute('data-jx-rainbow-host', '');
+  const added = addClasses(element, ['jx-rainbow-host', ...HOST_CLASSES]); // the glow span still needs the stacking pose
+  const { fillCss, blend } = resolveFill(fx.fill);
+  stampVars(
+    element,
+    `--rainbow-speed: ${fx.speed}ms; --rainbow-ring-w: ${fx.ringW}; --rainbow-fill: ${fillCss}; --rainbow-clip: ${rimClipCss()}; ${fx.colors
+      .map((c, i2) => `--c${i2 + 1}: ${c}`)
+      .join('; ')}`,
+    VAR_RAINBOW
+  );
+  const priorBlend = element.style.mixBlendMode;
+  if (blend) element.style.mixBlendMode = blend;
   const glow = span('jx-rainbow-glow');
-  element.prepend(ring, glow);
+  element.prepend(glow);
   return () => {
-    ring.remove();
+    element.style.mixBlendMode = priorBlend;
     glow.remove();
+    element.removeAttribute('data-jx-rainbow-host');
     for (const cls of added) element.classList.remove(cls);
     stripVars(element, VAR_RAINBOW);
   };

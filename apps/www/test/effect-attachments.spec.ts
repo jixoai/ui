@@ -464,25 +464,32 @@ describe('pressEffect · mount stamps + teardown cleans (the r5 ring recipes)', 
     expect(el.getAttribute('style')).toBeNull();
   });
 
-  it('rainbow: the ring walk — mask-banded ring + the under-glow; the host untouched', () => {
+  it('rainbow: the host channel — the border IS the flowing ring; the under-glow span alone remains', () => {
     const el = host();
-    const detach = pressEffect(rainbow({ speed: 4000 }))(el);
-    // r8: NO host class carries paint — the ring + glow spans are the
-    // whole layer set; the host's own face/radius/text ride
-    expect(el.classList.contains('jx-rainbow-host')).toBe(false);
+    const detach = pressEffect(rainbow({ speed: 4000, ringW: '0.3em' }))(el);
+    // r13: shimmer's sibling — the host class + attr carry the ring; the
+    // fill channel rides the shared resolver (Canvas default, jsdom
+    // answers no border-area so the clip is the Afif pair)
+    expect(el.hasAttribute('data-jx-rainbow-host')).toBe(true);
+    expect(el.classList.contains('jx-rainbow-host')).toBe(true);
     expect(el.getAttribute('style')).toContain('--rainbow-speed: 4000ms');
+    expect(el.getAttribute('style')).toContain('--rainbow-ring-w: 0.3em');
+    expect(el.getAttribute('style')).toContain('--rainbow-fill: Canvas');
+    expect(el.getAttribute('style')).toContain('--rainbow-clip: padding-box, border-box');
     expect(el.getAttribute('style')).toContain('--c1: hsl(0 100% 63%)');
-    expect(el.getAttribute('style')).not.toContain('--jx-rainbow-face');
-    expect(el.getAttribute('style')).not.toContain('background');
-    expect(el.querySelectorAll(':scope > span')).toHaveLength(2);
-    expect(el.querySelector('.jx-rainbow-ring')).toBeTruthy();
+    // the Owner's ruling: the blur under-glow keeps its own span,
+    // unchanged — and it is now the ONLY child
+    expect(el.querySelectorAll(':scope > span')).toHaveLength(1);
     const glow = el.querySelector('.jx-rainbow-glow');
     expect(glow).toBeTruthy();
     expect(glow!.getAttribute('style')).toBeNull();
-    detach();
     expect(el.querySelector('.jx-rainbow-ring')).toBeNull();
+    expect(el.className).toContain('relative');
+    detach();
+    expect(el.hasAttribute('data-jx-rainbow-host')).toBe(false);
     expect(el.querySelector('.jx-rainbow-glow')).toBeNull();
     expect(el.getAttribute('style')).toBeNull();
+    expect(el.classList.contains('relative')).toBe(false);
   });
 
   it('rainbow: the host inline style is BYTE-IDENTICAL through mount+teardown (paint rides the class)', () => {
@@ -514,9 +521,9 @@ describe('pressEffect · mount stamps + teardown cleans (the r5 ring recipes)', 
     expect(el.hasAttribute('data-jx-pulse-host')).toBe(true);
     cleanPulse();
     const cleanRainbow = applyRainbow(el, rainbow());
-    expect(el.querySelector('.jx-rainbow-ring')).toBeTruthy();
+    expect(el.classList.contains('jx-rainbow-host')).toBe(true);
     cleanRainbow();
-    expect(el.querySelector('.jx-rainbow-ring')).toBeNull();
+    expect(el.classList.contains('jx-rainbow-host')).toBe(false);
   });
 
   it('consumer styles survive the stamp cycle (rewrite only what you own)', () => {
@@ -742,7 +749,7 @@ describe('the r5 recipe laws (press-button.css)', () => {
     // border IS the ring's geometry, FORCED (width from ringW, solid,
     // transparent color, no image) so consumer border ink can never
     // cover the conic band (the Owner's 强制 pair, important by law)
-    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-width:\s*var\(--shimmer-ring-w, 4px\)\s*!important/s);
+    expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-width:\s*var\(--shimmer-ring-w, 1px\)\s*!important/s);
     expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-style:\s*solid\s*!important/s);
     expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-color:\s*transparent\s*!important/s);
     expect(css).toMatch(/\.jx-shimmer-host\)\s*\{[^}]*border-image:\s*none\s*!important/s);
@@ -798,28 +805,43 @@ describe('the r5 recipe laws (press-button.css)', () => {
     }
   });
 
-  it('rainbow: the ring law r8 — the wrap-stop train on the registered shift; NO host stack', () => {
+  it('rainbow: the host channel + the marquee law r14 — the static tile panned by background-position', () => {
     // the carrier pair: the ring + the glow share the shifted train
-    expect(css).toMatch(/\.jx-rainbow-ring\),\s*:where\(\.jx-rainbow-glow\)\s*\{/s);
-    expect(css).toMatch(/calc\(-40% \+ var\(--jx-rainbow-shift\)\)/);
-    expect(css).toMatch(/calc\(320% \+ var\(--jx-rainbow-shift\)\)/);
-    expect(css).toMatch(/@property --jx-rainbow-shift\s*\{[^}]*syntax:\s*'<percentage>'/s);
-    expect(css).toMatch(/@property --jx-rainbow-shift\s*\{[^}]*initial-value:\s*0%/s);
+    // r14: shimmer's sibling on the host channel + THE MARQUEE TRAIN
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*border-width:\s*var\(--rainbow-ring-w, 1px\)\s*!important/s);
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*border-color:\s*transparent\s*!important/s);
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*var\(--rainbow-fill,\s*Canvas\)/s);
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*background-clip:\s*var\(--rainbow-clip,\s*padding-box,\s*border-box\)\s*!important/s);
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*background-origin:\s*padding-box,\s*border-box\s*!important/s);
+    // THE MARQUEE: a static two-period tile (first stop = last stop)
+    // at 200% width, panned one tile per cycle by background-position —
+    // no registered property, no calc stops, seamless by construction
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*var\(--c1\) 0%,[\s\S]*?var\(--c5\) 80%,[\s\S]*?var\(--c1\) 100%/);
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*background-size:\s*auto,\s*200% 100%\s*!important/s);
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*background-repeat:\s*no-repeat,\s*repeat-x\s*!important/s);
+    // THE FREEZE LAW: the ANIMATED property carries NO !important —
+    // author !important outranks the animation origin and pins the pan
+    // at 0 0 (the frozen-ring bug, caught in the engine walk)
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*background-position:\s*0 0, 0 0;/s);
+    const hostBlock = css.match(/\.jx-rainbow-host\)\s*\{[\s\S]*?\n\}/)![0];
+    expect(hostBlock).not.toMatch(/background-position:[^;]*!important/);
     const flow = keyframes('jx-rainbow-flow');
-    expect(flow).toContain('--jx-rainbow-shift: 200%');
-    // the ring band: z:0, inherit radius, the floor, the mask
-    expect(css).toMatch(/\.jx-rainbow-ring\)\s*\{[^}]*z-index:\s*0/s);
-    expect(css).toMatch(/\.jx-rainbow-ring\)\s*\{[^}]*border-radius:\s*inherit/s);
-    expect(css).toMatch(/\.jx-rainbow-ring\)\s*\{[^}]*padding:\s*max\(0\.08rem, 2px\)/s);
-    expect(css).toMatch(/\.jx-rainbow-ring\)\s*\{[^}]*mask-composite:\s*exclude/s);
-    // the glow: the blurred bar below, same flow
+    expect(flow).toContain('background-position: 0 0, 200% 0');
+    expect(css).toMatch(/\.jx-rainbow-host\)\s*\{[^}]*animation:\s*jx-rainbow-flow var\(--rainbow-speed, 2s\)[^}]*linear/s);
+    // the glow: the blurred bar below, UNCHANGED by the ruling — its
+    // own marquee on its own single-layer keyframes
     expect(css).toMatch(/\.jx-rainbow-glow\)\s*\{[^}]*bottom:\s*-20%/s);
     expect(css).toMatch(/\.jx-rainbow-glow\)\s*\{[^}]*blur\(0\.8rem\)/s);
-    // r8: no host rule — no background stack, no border, no face var
+    expect(css).toMatch(/\.jx-rainbow-glow\)\s*\{[^}]*background-size:\s*200% 100%/);
+    expect(css).toMatch(/\.jx-rainbow-glow\)\s*\{[^}]*animation:\s*jx-rainbow-glow-flow/s);
+    const glowFlow = keyframes('jx-rainbow-glow-flow');
+    expect(glowFlow).toContain('background-position: 200% 0');
+    // the registered shift and the mask ring are GONE with r8's machinery
     const bare = stripComments(css);
-    expect(bare).not.toMatch(/\.jx-rainbow-host\)/);
-    expect(bare).not.toContain('--jx-rainbow-face');
-    for (const gone of ['background-clip: padding-box, border-box, border-box', 'border: 0.08rem solid transparent']) {
+    expect(bare).not.toContain('--jx-rainbow-shift');
+    expect(bare).not.toMatch(/\.jx-rainbow-ring/);
+    expect(bare).not.toContain('mask-composite');
+    for (const gone of ['--jx-rainbow-face', 'background-clip: padding-box, border-box, border-box', 'border: 0.08rem solid transparent']) {
       expect(bare.includes(gone), `${gone} survived`).toBe(false);
     }
   });

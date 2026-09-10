@@ -172,7 +172,7 @@
     ringColor = 'currentColor',
     shineWidth = '30deg',
     speed = 3000,
-    ringW = 4,
+    ringW = 1,
     fill,
   }: ShimmerOptions = {}): ShimmerEffect {
     return {
@@ -216,11 +216,22 @@ export interface PulseOptions {
     speed?: number;
     /** the gradient stops, first-to-last along the flowing rim */
     colors?: [string, ...string[]];
+    /** the ring band's width — the HOST's own border-width (r13: the
+     *  same host-channel technique as shimmer). A number is px; a
+     *  string is any CSS length */
+    ringW?: number | string;
+    /** the FACE — the same channel as shimmer's fill: an opaque
+     *  0xRRGGBB number (solidFill() mints these), null for the true
+     *  cutout / blend emulation, undefined (default) for Canvas (the
+     *  color-scheme system color, theme-live) */
+    fill?: number | null;
   }
   export interface RainbowEffect {
     readonly type: 'rainbow';
     speed: number;
     colors: [string, ...string[]];
+    ringW: string;
+    fill: number | null | undefined;
   }
   export function rainbow({
     speed = 2000,
@@ -231,8 +242,16 @@ export interface PulseOptions {
       'hsl(195 100% 63%)',
       'hsl(90 100% 63%)',
     ],
+    ringW = 1,
+    fill,
   }: RainbowOptions = {}): RainbowEffect {
-    return { type: 'rainbow', speed, colors };
+    return {
+      type: 'rainbow',
+      speed,
+      colors,
+      ringW: typeof ringW === 'number' ? `${ringW}px` : ringW,
+      fill,
+    };
   }
 
   export interface RippleOptions {

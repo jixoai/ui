@@ -291,7 +291,7 @@ describe('press-button effects', () => {
       ringColor: 'currentColor',
       shineWidth: '30deg',
       speed: 3000,
-      ringW: '4px',
+      ringW: '1px',
     });
     expect(shimmer({ speed: 4000, shine: '#facc15' }).speed).toBe(4000);
     // ringW normalizes: a number lands as px, a length string passes through
@@ -357,14 +357,14 @@ describe('press-button effects', () => {
       props: { attach: pressEffect(rainbow({ speed: 4000 })) },
     });
     const rainbowHost = rainbowed.container.querySelector('button[data-jx-attach="root"]')!;
-    // the r8 ring walk: the ring + glow spans carry the paint; the host
-    // carries ONLY vars — no face, no border, no text channel
+    // the r13 host channel: the class + attr carry the flowing ring; the
+    // glow span alone remains; the host carries ONLY vars inline
+    expect(rainbowHost.hasAttribute('data-jx-rainbow-host')).toBe(true);
+    expect(rainbowHost.classList.contains('jx-rainbow-host')).toBe(true);
     expect(rainbowHost.getAttribute('style')).toContain('--rainbow-speed: 4000ms');
     expect(rainbowHost.getAttribute('style')).toContain('--c1: hsl(0 100% 63%)');
-    expect(rainbowHost.getAttribute('style')).not.toContain('--jx-rainbow-face');
-    expect(rainbowHost.getAttribute('style')).not.toContain('background-clip');
-    expect(rainbowHost.getAttribute('style')).not.toContain('border:');
-    expect(rainbowHost.querySelector(':scope > .jx-rainbow-ring')).toBeTruthy();
+    expect(rainbowHost.getAttribute('style')).toContain('--rainbow-fill: Canvas');
+    expect(rainbowHost.querySelector(':scope > .jx-rainbow-ring')).toBeNull();
     expect(rainbowHost.querySelector(':scope > .jx-rainbow-glow')).toBeTruthy();
     rainbowed.unmount();
   });
@@ -505,7 +505,8 @@ describe('press-button effects', () => {
     const rainbowed = render(PressButtonHost, {
       props: { attach: pressEffect(rainbow()) },
     });
-    expect(rainbowed.container.querySelector('.jx-rainbow-ring')).toBeTruthy();
+    expect(rainbowed.container.querySelector('.jx-rainbow-glow')).toBeTruthy();
+    expect(rainbowed.container.querySelector('.jx-rainbow-ring')).toBeNull();
     rainbowed.unmount();
     // unmount tears the whole stamp down with the host
     const rippled = render(PressButtonHost, { props: { attach: pressEffect(ripple()) } });

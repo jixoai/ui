@@ -55,7 +55,7 @@
    currentColor), --shimmer-shine-start (the arc's head angle, default
    280deg). */
 :where(.jx-shimmer-host) {
-  border-width: var(--shimmer-ring-w, 4px) !important;
+  border-width: var(--shimmer-ring-w, 1px) !important;
   border-style: solid !important;
   border-color: transparent !important;
   border-image: none !important;
@@ -107,46 +107,47 @@
 }
 
 
-/* rainbow — the RING WALK, r8 final (same three-part ruling): the host
-   keeps its own face, radius, and text; ONE mask-banded ring span plus
-   the under-glow bar run the 200%-period stop train shifted by the
-   REGISTERED --jx-rainbow-shift (background-position cannot move calc
-   stops). The train WRAPS a full period beyond both window edges
-   (-40% head, 320% tail) so the gradient's CAPS are never sampled at
-   the loop seam; any 100% window spans ≥3 hues. background-origin:
-   border-box sizes the gradient line to the full span. The band
-   carries the 2px perceptual floor and rides z:0 (the same two r5/r7
-   failure fixes as shimmer). */
-:where(.jx-rainbow-ring),
-:where(.jx-rainbow-glow) {
-  background: linear-gradient(
-    90deg,
-    var(--c5) calc(-40% + var(--jx-rainbow-shift)),
-    var(--c1) calc(0% + var(--jx-rainbow-shift)),
-    var(--c2) calc(40% + var(--jx-rainbow-shift)),
-    var(--c3) calc(80% + var(--jx-rainbow-shift)),
-    var(--c4) calc(120% + var(--jx-rainbow-shift)),
-    var(--c5) calc(160% + var(--jx-rainbow-shift)),
-    var(--c1) calc(200% + var(--jx-rainbow-shift)),
-    var(--c2) calc(240% + var(--jx-rainbow-shift)),
-    var(--c3) calc(280% + var(--jx-rainbow-shift)),
-    var(--c4) calc(320% + var(--jx-rainbow-shift))
-  );
-  background-origin: border-box;
+/* rainbow — THE HOST CHANNEL + THE MARQUEE TRAIN, r13/r14 (the
+   Owner's rulings: rainbow is shimmer's sibling on the same
+   host-channel technique; then 「动画配置好像有点问题…会出现一整个都
+   是绿色」 — the registered --jx-rainbow-shift panning calc stops was
+   evaluation-fragile (an @property-timing miss or a failed per-frame
+   re-raster could freeze the whole ring on one stop's hue). The r14
+   config is the CLASSIC SEAMLESS MARQUEE: a STATIC two-period tile —
+   first and last stops MATCH (c1…c1) so the repeat seam carries no
+   cap — painted at background-size 200%, panned by ANIMATING
+   BACKGROUND-POSITION exactly one tile per cycle. No registered
+   property, no calc stops, nothing to mis-evaluate; the loop is
+   seamless by construction (position 200% ≡ position 0 for a tile
+   twice the box). The fill layer, the border-area gate, and the fill
+   channel ride shimmer's exact laws; the under-glow bar (unchanged by
+   the ruling 「blur 的彩虹光影不用改」) keeps its own span and runs
+   the same marquee on its own single-layer keyframes. */
+:where(.jx-rainbow-host) {
+  border-width: var(--rainbow-ring-w, 1px) !important;
+  border-style: solid !important;
+  border-color: transparent !important;
+  border-image: none !important;
+  background-image:
+    linear-gradient(var(--rainbow-fill, Canvas), var(--rainbow-fill, Canvas)),
+    linear-gradient(
+      90deg,
+      var(--c1) 0%,
+      var(--c2) 20%,
+      var(--c3) 40%,
+      var(--c4) 60%,
+      var(--c5) 80%,
+      var(--c1) 100%
+    ) !important;
+  background-clip: var(--rainbow-clip, padding-box, border-box) !important;
+  background-origin: padding-box, border-box !important;
+  background-size: auto, 200% 100% !important;
+  background-repeat: no-repeat, repeat-x !important;
+  /* NO !important here — the cascade puts author !important ABOVE the
+     animation origin, which would freeze the pan at 0 0 (the frozen-
+     ring bug the engine walk caught on this very line) */
+  background-position: 0 0, 0 0;
   animation: jx-rainbow-flow var(--rainbow-speed, 2s) linear infinite;
-}
-:where(.jx-rainbow-ring) {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  corner-shape: inherit;
-  pointer-events: none;
-  padding: max(0.08rem, 2px);
-  mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
 }
 :where(.jx-rainbow-glow) {
   position: absolute;
@@ -158,6 +159,18 @@
   z-index: -1;
   filter: blur(0.8rem);
   pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--c1) 0%,
+    var(--c2) 20%,
+    var(--c3) 40%,
+    var(--c4) 60%,
+    var(--c5) 80%,
+    var(--c1) 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: repeat-x;
+  animation: jx-rainbow-glow-flow var(--rainbow-speed, 2s) linear infinite;
 }
 
 /* ripple — SVG ink from the activation point (r4 ruling 6; r5: css-on-
@@ -208,19 +221,15 @@
 /* the registered-property laws: a custom property MUST be registered
    (@property) before keyframes can animate it — the interpolation
    needs the syntax, unregistered properties flip discretely at 50%.
-   shimmer's angle does NOT inherit (the ring span is the only
-   consumer — its own conic reads it, the r9 single-carrier form);
-   rainbow's shift does not either (each carrier paints its own
-   train). Top-level by law (not allowed inside @layer) */
+   shimmer's angle does NOT inherit (the host is the only consumer —
+   its own conic reads it). rainbow rides NO registered property at
+   all since r14 — the marquee pans background-position, a plain
+   animatable property with nothing to mis-evaluate. Top-level by law
+   (not allowed inside @layer) */
 @property --jx-shimmer-angle {
   syntax: '<angle>';
   inherits: false;
   initial-value: 0deg;
-}
-@property --jx-rainbow-shift {
-  syntax: '<percentage>';
-  inherits: false;
-  initial-value: 0%;
 }
 
 /* the shimmer cadence, r9: ONE uniform revolution — the reference's
@@ -272,11 +281,13 @@
    full period (0→200%) — calc stops cannot ride background-position;
    the registered-property keyframe repaints the gradient per frame */
 @keyframes jx-rainbow-flow {
-  0% {
-    --jx-rainbow-shift: 0%;
+  to {
+    background-position: 0 0, 200% 0;
   }
-  100% {
-    --jx-rainbow-shift: 200%;
+}
+@keyframes jx-rainbow-glow-flow {
+  to {
+    background-position: 200% 0;
   }
 }
 
@@ -329,8 +340,7 @@
   :where(.jx-pulse-slow),
   :where(.jx-pulse-ring),
   :where(.jx-pulse-ripple),
-  :where(.jx-rainbow-ring),
-  :where(.jx-rainbow-glow),
+  :where(.jx-rainbow-host),
   :where(.jx-shimmer-host) {
     animation: none;
   }
