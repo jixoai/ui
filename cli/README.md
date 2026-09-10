@@ -16,11 +16,34 @@ The official jixoai design-language CLI. It **shares shadcn's
 ```bash
 npx jixoai-ui init --hue 160   # namespace + config + theme + hue, one shot
 npx jixoai-ui add toc          # = shadcn add @jixoai/toc, hue re-applied
+npx jixoai-ui add effects      # group alias: every ui item in the group
+npx jixoai-ui add effects/glass  # one member (membership validated)
 npx jixoai-ui add llms-txt     # AI export: llms.txt / llms-full.txt / page .md
 npx jixoai-ui upgrade          # refresh locked items + run upgrade tasks
 npx jixoai-ui hue 165          # retheme by changing one number
 npx jixoai-ui config           # print the resolved jixoai config
 ```
+
+## Group aliases
+
+`add` accepts three argument forms (effect-attachments Lane H):
+
+- **Item name** — `npx jixoai-ui add glass`: as-is, any registry type. An
+  exact item name always wins when an item and a group id collide.
+- **Group id** — `npx jixoai-ui add effects`: expands to EVERY
+  `registry:ui` item whose `meta.group` is `effects`, in registry order,
+  and prints the expansion (`jixoai-ui: effects → press-button, glass`).
+  The expansion is what installs AND what enters `jixoai-ui.lock` — the
+  lock records item names, never group ids.
+- **Scoped member** — `npx jixoai-ui add effects/glass`: resolves to
+  `glass` after validating the group actually owns the item; a wrong
+  group (`add effects/toc`) exits non-zero naming the item's real group
+  and the requested one.
+
+Groups are an ADD-time convenience: `adopt` and `upgrade` stay
+item-name-only. Membership comes from `/r/registry.json` (the registry
+index) — a custom registry URL without an index keeps the standing
+bare-name behavior for plain adds and refuses the scoped form.
 
 `llms-txt` installs `vite-plugins/llms-txt.mjs` — the build-time
 llms.txt/llms-full.txt/per-page-`.md` generator (llmstxt.org proposal
@@ -42,7 +65,9 @@ and in any shell loop.
 - **Lock**: `init`/`add` record every installed item in `jixoai-ui.lock`
   (next to `components.json`) as
   `{ items: { [name]: { files: { [path]: sha256 } } } }`. Paths are resolved
-  through `components.json` aliases; hashes cover canonical registry content
+  through `components.json` aliases (`$lib`-rooted values resolve through
+  the project's tsconfig/jsconfig `compilerOptions.paths`, the same map
+  shadcn uses); hashes cover canonical registry content
   (pre-hue, pre-task). A missing or empty lock fails with exit code 1 and
   tells you to `add` first.
 - **Refresh**: every locked item is fetched from `registries["@jixoai"]`

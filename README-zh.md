@@ -26,6 +26,8 @@ jixoai 设计语言，以 [shadcn registry](https://ui.shadcn.com/docs/registry)
 
 ```bash
 npx shadcn add @jixoai/press-button
+# 或用 CLI：npx jixoai-ui add effects        （整个分组）
+#           npx jixoai-ui add effects/glass  （单个成员）
 ```
 
 ```jsonc

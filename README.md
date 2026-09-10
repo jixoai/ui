@@ -17,6 +17,8 @@ Add the namespace to your `components.json`, then add items:
 
 ```bash
 npx shadcn add @jixoai/press-button
+# or, with the CLI: npx jixoai-ui add effects        (the whole group)
+#                  npx jixoai-ui add effects/glass  (one member)
 ```
 
 ```jsonc

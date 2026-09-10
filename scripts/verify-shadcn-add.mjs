@@ -74,6 +74,11 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const scratch = join(root, '.agents/fixtures/2026-08-30-registry-install-integrity');
 const registryDir = join(scratch, 'registry', 'r');
 const publicR = join(root, 'public', 'r');
+// the real jixoai-ui CLI — the group-alias cases (effect-attachments
+// Lane H) install through IT, not through the raw shadcn CLI: group ids
+// and scoped group/name args are CLI-side resolution the shadcn CLI
+// cannot resolve on its own
+const cliBin = join(root, 'cli', 'bin', 'jixoai-ui.mjs');
 // the single-instance lock lives OUTSIDE the scratch tree (the scratch is
 // wiped per run) and is a real mutex — atomic mkdir acquire, stale
 // takeover via rename-retirement, owner-checked release (B1)
@@ -941,8 +946,10 @@ export default defineConfig({
     // glass-effect-blur-liquid Lane B (2026-09-08): the ONE glass item
     // installs CLEAN on a virgin consumer — both API layers compile
     // from the canonical barrel (blur() the frost member stamped in
-    // markup; liquid()/the liquidGlass mount the lens member), and the
-    // law sheet (glass.css) arrives so the stamp channel paints
+    // markup; liquid()/the liquidGlass ATTACHMENT FACTORY mounts the
+    // lens member — effect-attachments 2026-09-09: {@attach} is the
+    // mount face now), and the law sheet (glass.css) arrives so the
+    // stamp channel paints
     items: ['glass'],
     app: `<script lang="ts">
   import { blur, liquid, glassAttrs, liquidGlass } from '$lib/ui/glass';
@@ -951,7 +958,7 @@ export default defineConfig({
 </script>
 
 <div {...glassAttrs(frost)}>frost member</div>
-<div {...glassAttrs(lens)} use:liquidGlass={lens}>lens member</div>
+<div style="border-radius: 26px" {@attach liquidGlass(lens)}>lens member</div>
 `,
     extraChecks(ctx) {
       // the five item files at their canonical folder targets — and no
@@ -972,6 +979,74 @@ export default defineConfig({
       check(
         'glass: the law sheet owns the stamp channel (data-jx-effect paint)',
         law.includes("[data-jx-effect='blur']") && law.includes("[data-jx-effect='liquid-glass']"),
+      );
+    },
+  },
+  {
+    id: 'effects-group',
+    // effect-attachments Lane H (2026-09-10, the r5 Owner request #2):
+    // the GROUP ALIAS runs through the REAL jixoai-ui CLI — `add
+    // effects` must install BOTH family members (press-button first:
+    // REGISTRY ORDER), print the expansion, and lock both under their
+    // RESOLVED item names (never an `effects` key)
+    items: ['press-button', 'glass'],
+    jixoaiUi: ['effects'],
+    app: `<script lang="ts">
+  import PressButton, { pressEffect, shimmer } from '$lib/ui/press-button';
+  import { blur, liquid, glassAttrs, liquidGlass } from '$lib/ui/glass';
+  const frost = blur({ radius: '10px' });
+  const lens = liquid({ radius: '2px', saturate: 1.6 });
+</script>
+
+<PressButton {@attach pressEffect(shimmer())}>deploy</PressButton>
+<div {...glassAttrs(frost)}>frost member</div>
+<div style="border-radius: 26px" {@attach liquidGlass(lens)}>lens member</div>
+`,
+    extraChecks(ctx) {
+      // the expansion print: registry order, resolved names
+      // (asserted against the captured add output via ctx.addOutput)
+      check(
+        'effects-group: the CLI printed the expansion (registry order)',
+        ctx.addOutput.includes('jixoai-ui: effects → press-button, glass'),
+        ctx.addOutput.split('\n').filter((l) => l.startsWith('jixoai-ui:')).join(' | ') || 'no jixoai-ui lines',
+      );
+      // the lock records RESOLVED item names — no group id key, both members
+      const lock = JSON.parse(ctx.read('jixoai-ui.lock'));
+      const locked = Object.keys(lock.items).sort();
+      check(
+        'effects-group: lock records both resolved items (no group id)',
+        JSON.stringify(locked) === JSON.stringify(['glass', 'press-button']),
+        locked.join(', '),
+      );
+    },
+  },
+  {
+    id: 'effects-scoped',
+    // Lane H, the scoped member: `add effects/glass` runs through the
+    // CLI, validates membership against the index, and installs the ONE
+    // member — press-button stays absent and the lock carries glass only
+    items: ['glass'],
+    jixoaiUi: ['effects/glass'],
+    app: `<script lang="ts">
+  import { blur, liquid, glassAttrs, liquidGlass } from '$lib/ui/glass';
+  const frost = blur({ radius: '10px' });
+  const lens = liquid({ radius: '2px', saturate: 1.6 });
+</script>
+
+<div {...glassAttrs(frost)}>frost member</div>
+<div style="border-radius: 26px" {@attach liquidGlass(lens)}>lens member</div>
+`,
+    extraChecks(ctx) {
+      check('effects-scoped: press-button stayed absent', !ctx.exists('src/lib/ui/press-button'));
+      const lock = JSON.parse(ctx.read('jixoai-ui.lock'));
+      check(
+        'effects-scoped: lock records glass only (resolved, not the scoped arg)',
+        Object.keys(lock.items).join(',') === 'glass',
+        Object.keys(lock.items).join(', '),
+      );
+      check(
+        'effects-scoped: no expansion line (a scoped add prints none)',
+        !ctx.addOutput.includes('jixoai-ui: effects → '),
       );
     },
   },
@@ -1499,7 +1574,9 @@ const runIn = async (dir, cmd, args, { env = {}, timeoutMs = 300_000, label = ''
 };
 
 for (const testCase of CASES) {
-  console.log(`\n━━ case: ${testCase.id} (add ${testCase.items.map((i) => `@jixoai/${i}`).join(' ')}) ━━━━━━━━━━━━━━━`);
+  console.log(
+    `\n━━ case: ${testCase.id} (${testCase.jixoaiUi ? `jixoai-ui add ${testCase.jixoaiUi.join(' ')}` : `add ${testCase.items.map((i) => `@jixoai/${i}`).join(' ')}`}) ━━━━━━━━━━━━━━━`,
+  );
   const dir = join(scratch, `consumer-${testCase.id}`);
   rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
   mkdirSync(dirname(dir), { recursive: true });
@@ -1515,14 +1592,32 @@ for (const testCase of CASES) {
     dir,
     exists: (p) => existsSync(join(dir, p)),
     read: (p) => readFileSync(join(dir, p), 'utf8'),
+    // the captured add-phase output (cases assert the CLI's own prints,
+    // e.g. the group-alias expansion line — Lane H)
+    addOutput: '',
   };
 
   // per-case hook after the template copy, before the add (the
   // detection cases point their consumer's .npmrc at the local mirror)
   await testCase.preAdd?.(ctx);
 
-  const add = await runIn(dir, 'npx', ['shadcn', 'add', ...testCase.items.map((i) => `@jixoai/${i}`), '--yes', '--overwrite'], { label: `case ${testCase.id}: shadcn add` });
-  check('shadcn add resolves from public/r payloads', add.status === 0 && !add.timedOut, add.status === 0 ? '' : add.timedOut ? `TIMED OUT (300s group-budget), tail:\n${add.stdout.slice(-800)}` : `${add.stdout}\n${add.stderr}`.slice(-800));
+  // Lane H (effect-attachments, 2026-09-10): cases carrying `jixoaiUi`
+  // install through the REAL CLI — `node cli/bin/jixoai-ui.mjs add
+  // <args…>` — so the group-alias resolution (index fetch, membership
+  // validation, registry-order expansion) runs exactly as a consumer
+  // invokes it; the standing cases keep the raw shadcn form
+  const add = testCase.jixoaiUi
+    ? await runIn(dir, process.execPath, [cliBin, 'add', ...testCase.jixoaiUi], {
+        timeoutMs: 420_000, // two sequential shadcn spawns + the closure's npm-adjacent work
+        label: `case ${testCase.id}: jixoai-ui add`,
+      })
+    : await runIn(dir, 'npx', ['shadcn', 'add', ...testCase.items.map((i) => `@jixoai/${i}`), '--yes', '--overwrite'], { label: `case ${testCase.id}: shadcn add` });
+  ctx.addOutput = add.stdout;
+  check(
+    testCase.jixoaiUi ? 'jixoai-ui add resolves from public/r payloads' : 'shadcn add resolves from public/r payloads',
+    add.status === 0 && !add.timedOut,
+    add.status === 0 ? '' : add.timedOut ? `TIMED OUT (group-budget), tail:\n${add.stdout.slice(-800)}` : `${add.stdout}\n${add.stderr}`.slice(-800),
+  );
   if (add.status !== 0) continue; // later assertions are moot for this case
 
   // ── the template contract (env-debt-cleanup D2, asserted once after the
@@ -1638,6 +1733,53 @@ for (const testCase of CASES) {
   const build = await runIn(dir, 'npx', ['vite', 'build'], { timeoutMs: 600_000, label: `case ${testCase.id}: vite build` });
   check('consumer vite build passes', build.status === 0 && !build.timedOut, build.status === 0 ? '' : build.timedOut ? `TIMED OUT (600s group-budget), tail:\n${build.stdout.slice(-800)}` : `${build.stdout}\n${build.stderr}`.slice(-800));
   if (build.status === 0) await testCase.postBuild?.(ctx);
+}
+
+// ── 6b. group-alias NEGATIVE probes (effect-attachments Lane H) ────
+// The real CLI against a real fresh consumer (template copy, nothing
+// added): the three failure modes of the group grammar must exit
+// NON-ZERO with the helpful message and install NOTHING — resolution
+// happens before any shadcn spawn, so a refused add leaves the tree
+// virgin (no src/lib/ui, no lock).
+console.log('\n━━ group-alias negative probes (effect-attachments Lane H) ━━━━━━━━━━━━━━━');
+{
+  const dir = join(scratch, 'consumer-effects-negative');
+  rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+  mkdirSync(dirname(dir), { recursive: true });
+  cpSync(templateDir, dir, { recursive: true });
+  const probes = [
+    {
+      args: ['effects/nonexistent'],
+      message: /no registry item named `nonexistent`/,
+      detail: /group `effects` has: press-button, glass/,
+    },
+    {
+      args: ['effects/toc'],
+      message: /`toc` is not in group `effects`/,
+      detail: /belongs to `navigation`/,
+    },
+    {
+      args: ['nosuchgroup'],
+      message: /unknown item or group `nosuchgroup`/,
+      detail: /known groups: [^\n]*effects/,
+    },
+  ];
+  for (const probe of probes) {
+    const run = await runIn(dir, process.execPath, [cliBin, 'add', ...probe.args], { timeoutMs: 120_000, label: `negative: add ${probe.args[0]}` });
+    const out = `${run.stdout}\n${run.stderr}`;
+    check(`negative add ${probe.args[0]}: exits non-zero`, run.status !== 0 && !run.timedOut, `exit ${run.status}`);
+    check(
+      `negative add ${probe.args[0]}: the helpful message names the failure`,
+      probe.message.test(out) && probe.detail.test(out),
+      out.split('\n').filter((l) => l.startsWith('jixoai-ui:')).join(' | ') || out.slice(-200),
+    );
+  }
+  check(
+    'negative probes: nothing installed, no lock written',
+    !existsSync(join(dir, 'jixoai-ui.lock')) && readdirSync(join(dir, 'src/lib/ui')).length === 0,
+    // (the template itself ships an EMPTY src/lib/ui — emptiness, not
+    // absence, is the virgin-tree proof)
+  );
 }
 
 // ── 7. the forced-overflow probe (icon-component-pipeline C1, design

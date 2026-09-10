@@ -74,7 +74,11 @@ Commands:
                                      lock (first upgrade then syncs to canon)
   jixoai-ui add <item...>            install registry items (delegates to
                                      \`shadcn add ${NAMESPACE}/<item>\`), then
-                                     re-applies the brand hue
+                                     re-applies the brand hue. Group
+                                     aliases: \`add effects\` installs
+                                     every ui item in the group,
+                                     \`add effects/glass\` installs one
+                                     member
   jixoai-ui upgrade                  refresh every locked item to the latest
                                      registry content, re-apply the brand
                                      hue, and run the idempotent upgrade
@@ -113,10 +117,65 @@ function ensureNamespace(config) {
   }
 }
 
+/* ── $-alias resolution (effect-attachments Lane H, 2026-09-10) ──
+ *
+ * shadcn-svelte consumers carry `$lib`-ROOTED alias values
+ * (`"ui": "$lib/ui"` — the frozen table the clean-install harness
+ * proves). A literal `$lib` directory never exists on disk, so every
+ * alias base must first resolve through the project's
+ * tsconfig/jsconfig `compilerOptions.paths` (the same map shadcn
+ * itself resolves aliases with) before it becomes a filesystem path.
+ * Before this, `add` on such consumers installed fine but the lock
+ * found ZERO files at "(no) install path" and recorded nothing —
+ * `upgrade` went dead while the files sat in place. A base that maps
+ * nowhere keeps its literal meaning; `extends`-chained configs are a
+ * known limit (the direct paths table wins). */
+const aliasResolverCache = new Map(); // cwd → (base → resolved base)
+
+function tsconfigPathsFor(cwd) {
+  for (const name of ["tsconfig.json", "jsconfig.json"]) {
+    const path = join(cwd, name);
+    if (!existsSync(path)) continue;
+    try {
+      const paths = JSON.parse(readFileSync(path, "utf8"))?.compilerOptions?.paths;
+      if (paths && typeof paths === "object") return paths;
+    } catch {
+      // an unparseable config is not fatal — the literal base stands
+    }
+  }
+  return null;
+}
+
+function aliasBaseResolver(cwd) {
+  if (aliasResolverCache.has(cwd)) return aliasResolverCache.get(cwd);
+  const paths = tsconfigPathsFor(cwd);
+  const star = (v) => String(Array.isArray(v) ? v[0] ?? "" : v ?? "").replace(/\*$/, "");
+  const resolveBase = (base) => {
+    if (!paths || !base.startsWith("$")) return base;
+    if (paths[base] !== undefined) return star(paths[base]);
+    const wildcards = Object.keys(paths)
+      .filter((k) => k.endsWith("/*"))
+      .map((k) => k.slice(0, -1)) // '$lib/*' → '$lib/'
+      .sort((a, b) => b.length - a.length); // longest prefix wins
+    for (const prefix of wildcards) {
+      if (base.startsWith(prefix)) return star(paths[`${prefix}*`]) + base.slice(prefix.length);
+    }
+    return base;
+  };
+  aliasResolverCache.set(cwd, resolveBase);
+  return resolveBase;
+}
+
+/** an alias VALUE (`"$lib/ui"` / `"src/lib/ui"`) → a cwd-relative path */
+function aliasDir(aliasValue, cwd) {
+  return resolve(cwd, aliasBaseResolver(cwd)(aliasValue));
+}
+
 function themeCssPath(config, cwd) {
   const lib = config.aliases?.lib;
   if (typeof lib !== "string") return null;
-  const candidates = [resolve(cwd, lib, "jixoai.css"), resolve(cwd, `${lib}.css`)];
+  const base = aliasBaseResolver(cwd)(lib);
+  const candidates = [resolve(cwd, base, "jixoai.css"), resolve(cwd, `${base}.css`)];
   for (const candidate of candidates) {
     if (existsSync(candidate)) return candidate;
   }
@@ -219,6 +278,147 @@ async function fetchRegistryItem(registryUrl, name) {
   return json;
 }
 
+/**
+ * Fetch + parse the registry INDEX — the same `/r/registry.json` the
+ * public site serves (`shadcn build` emits it from registry.json with
+ * `meta.group` intact, so group membership survives the pipeline).
+ * Mirrors fetchRegistryItem's URL building: the `{name}` template
+ * becomes the literal `registry`, so `https://ui.jixoai.com/r/{name}.json`
+ * resolves `https://ui.jixoai.com/r/registry.json` and local/file://
+ * mirrors land on their own index the same way.
+ */
+async function fetchRegistryIndex(registryUrl) {
+  const url = registryUrl.replace("{name}", "registry");
+  let raw;
+  try {
+    raw = await fetchText(url);
+  } catch (cause) {
+    throw new Error(`cannot fetch the registry index from ${url}: ${cause.message}`);
+  }
+  let json;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    throw new Error(`the registry index (${url}) is not valid JSON`);
+  }
+  const items = Array.isArray(json) ? json : json.items;
+  if (!Array.isArray(items) || items.some((i) => typeof i?.name !== "string")) {
+    throw new Error(`the registry index (${url}) has no usable items array`);
+  }
+  return items;
+}
+
+/**
+ * Resolve `add` arguments to registry item names (effect-attachments
+ * Lane H, the r5 Owner request #2, 2026-09-10 — `npx jixoai-ui add
+ * effects` / `npx jixoai-ui add effects/glass`):
+ *
+ *   effects          GROUP alias — expands to EVERY registry:ui item
+ *                    whose `meta.group === 'effects'`, in REGISTRY
+ *                    ORDER (the index's item order). Groups with zero
+ *                    registry:ui members (e.g. `engines` — lib-only)
+ *                    are not add-able ids.
+ *   effects/glass    SCOPED member — resolves to `glass` after proving
+ *                    the item EXISTS and its `meta.group` is exactly
+ *                    `effects` (a violation names both groups).
+ *   glass            ITEM name — as-is, any registry type. PRECEDENCE
+ *                    LAW: an exact item name ALWAYS wins over a group
+ *                    id when the two collide (none collide today; the
+ *                    law is fixed here so a future `effects` ITEM
+ *                    simply shadows the group instead of changing the
+ *                    resolution rules).
+ *
+ * `adopt`/`upgrade` stay ITEM-NAME-ONLY on purpose: groups are an
+ * ADD-time convenience, and the lock + the upgrade loop record items,
+ * never group ids.
+ *
+ * Degradation: a registry without an index (single-item file://
+ * fixtures) keeps the standing bare-name behavior — the index is
+ * fetched ONCE per call, and a failed fetch downgrades to a warning
+ * when every arg is a plain name, while the scoped form hard-fails
+ * (it cannot be validated without the index).
+ */
+export async function resolveAddNames(registryUrl, args) {
+  let index = null;
+  let indexError = null;
+  try {
+    index = await fetchRegistryIndex(registryUrl);
+  } catch (cause) {
+    indexError = cause.message;
+  }
+  if (indexError && args.some((a) => a.includes("/"))) {
+    fail(indexError);
+  }
+  if (indexError) {
+    console.warn(
+      `jixoai-ui: ${indexError} — treating every argument as an item name (group aliases need the registry index)`,
+    );
+    return [...new Set(args)];
+  }
+  const byName = new Map(index.map((i) => [i.name, i]));
+  const groups = new Map(); // group id → registry:ui member names, index order
+  for (const item of index) {
+    if (item.type !== "registry:ui") continue;
+    const group = item.meta?.group;
+    if (typeof group !== "string") continue;
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group).push(item.name);
+  }
+  const knownGroups = () => [...groups.keys()].join(", ");
+
+  const resolved = [];
+  const seen = new Set(); // `add effects glass` installs glass once
+  const push = (name) => {
+    if (!seen.has(name)) {
+      seen.add(name);
+      resolved.push(name);
+    }
+  };
+
+  for (const arg of args) {
+    if (!arg.includes("/")) {
+      // bare form: an exact ITEM name always wins (see the precedence law)
+      if (byName.has(arg)) {
+        push(arg);
+        continue;
+      }
+      const members = groups.get(arg);
+      if (members) {
+        console.log(`jixoai-ui: ${arg} → ${members.join(", ")}`);
+        for (const name of members) push(name);
+        continue;
+      }
+      fail(
+        `unknown item or group \`${arg}\` — known groups: ${knownGroups()}. ` +
+          `Pick an item from the registry index or a group id above`,
+      );
+    }
+    // scoped form: exactly one slash, both sides non-empty
+    const parts = arg.split("/");
+    if (parts.length !== 2 || !parts[0] || !parts[1]) {
+      fail(`\`${arg}\` is not a valid scoped item — expected \`group/name\` (e.g. \`effects/glass\`)`);
+    }
+    const [group, name] = parts;
+    if (!byName.has(name)) {
+      const members = groups.get(group);
+      fail(
+        members
+          ? `\`${arg}\`: no registry item named \`${name}\` — group \`${group}\` has: ${members.join(", ")}`
+          : `\`${arg}\`: no registry item named \`${name}\` and \`${group}\` is not a known group — known groups: ${knownGroups()}`,
+      );
+    }
+    const realGroup = byName.get(name).meta?.group;
+    if (realGroup !== group) {
+      fail(
+        `\`${arg}\`: \`${name}\` is not in group \`${group}\` — it belongs to ` +
+          `\`${realGroup ?? "(no group)"}\`. Use \`npx jixoai-ui add ${name}\` instead`,
+      );
+    }
+    push(name);
+  }
+  return resolved;
+}
+
 function assertRegistryFiles(name, files) {
   for (const file of files) {
     if (typeof file.target !== "string" || typeof file.content !== "string") {
@@ -230,13 +430,15 @@ function assertRegistryFiles(name, files) {
 function resolveInstallPath(target, config, cwd) {
   // registry targets are alias-relative ("@ui/toc.svelte" → aliases.ui) or
   // plain project-relative paths; mirrors how shadcn places registry files.
+  // `$`-rooted alias values resolve through the project's tsconfig paths
+  // (aliasDir) — see the $-alias resolution block above.
   const match = /^@([\w.$-]+)(?:\/(.+))?$/.exec(target);
   if (match) {
     const base = config.aliases?.[match[1]];
     if (typeof base !== "string") {
       throw new Error(`cannot place \`${target}\`: components.json has no aliases.${match[1]}`);
     }
-    return resolve(cwd, join(base, match[2] ?? ""));
+    return resolve(aliasDir(base, cwd), match[2] ?? "");
   }
   return resolve(cwd, target);
 }
@@ -350,7 +552,7 @@ function relocateMisplacedFiles(cwd, config) {
   const alias = (name) => {
     const base = config.aliases?.[name];
     if (typeof base !== "string") return null;
-    return resolve(cwd, base);
+    return aliasDir(base, cwd); // $-rooted values resolve through tsconfig paths
   };
   const sources = [
     { dir: resolve(cwd, "src/@lib"), destination: alias("lib") },
@@ -539,19 +741,27 @@ switch (command) {
       break;
     }
     const items = rest.filter((a) => !a.startsWith("--"));
-    if (items.length === 0) fail("add needs at least one item name (e.g. `toc`)");
+    if (items.length === 0) {
+      fail("add needs at least one item name (e.g. `toc`, a group id like `effects`, or `effects/glass`)");
+    }
     const { path, config } = readConfig(cwd);
+    // group aliases (effect-attachments Lane H): `add effects` /
+    // `add effects/glass` resolve to ITEM names BEFORE the shadcn
+    // loop — the loop, the lock and the recording all speak RESOLVED
+    // names (so `add effects` locks glass + press-button, never an
+    // `effects` key)
+    const resolved = await resolveAddNames(registryUrlFor(config), items);
     const hue = config.jixoai?.brandHue ?? DEFAULT_HUE;
     // one shadcn invocation PER ITEM, each carrying the @jixoai/ prefix
     // itself (consumer-feedback-fixes P0-3 audit: the prefix must never
     // depend on shell/shadcn multi-arg behavior — the loop re-reads the
     // config because shadcn may rewrite it between spawns)
-    for (const item of items) {
+    for (const item of resolved) {
       shadcn(["add", `${NAMESPACE}/${item}`], cwd, path, readConfig(cwd).config);
     }
     relocateMisplacedFiles(cwd, readConfig(cwd).config);
     applyHue(themeCssPath(config, cwd), hue);
-    await recordInstalledItems(cwd, readConfig(cwd).config, items);
+    await recordInstalledItems(cwd, readConfig(cwd).config, resolved);
     break;
   }
   case "adopt": {
@@ -559,7 +769,9 @@ switch (command) {
     // baselines the CURRENT disk content of the named items into the lock:
     // the first `upgrade` afterwards diffs registry canon against this
     // baseline, applies changes + hue, and the lock flips to canonical
-    // hashes — subsequent upgrades are fully idempotent.
+    // hashes — subsequent upgrades are fully idempotent. Item names only:
+    // group aliases (`effects`, `effects/glass`) are an ADD-time
+    // convenience and never expand here (see resolveAddNames).
     const names = rest.filter((a) => !a.startsWith("--"));
     if (names.length === 0) {
       fail("adopt needs item names (e.g. `adopt toc jixoai-theme`) — items whose files live at their components.json targets");
