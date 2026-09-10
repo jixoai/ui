@@ -33,7 +33,8 @@
       （dark 类落 frame 文档根，三面验证）；V4 Echo 回路（SSE 事件
       序列 + 落盘 + manifest 即时更新）；V6 dsh 冒烟；V7 隔离断言
       （无生产 import 边）
-- [ ] V5 CLI 端到端浏览器走查（vision 子代理，真实浏览器，交付前
-      自走查纪律）
+- [x] V5 CLI 端到端浏览器走查（vision 子代理，playwright-core +
+      headless Chrome 真实驱动；三轮：初查抓 2 阻塞 → 复验抓
+      host-标记缝 → 终验全 PASS，截图 .zcode/v5/）
 - [ ] T9 openspec 收尾：两份新 spec 按 living 格式定稿，validate
       --strict 过；problems.md 问题清单定稿（含子代理摩擦点合流）
