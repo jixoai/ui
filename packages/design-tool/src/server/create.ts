@@ -26,7 +26,7 @@
  */
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -375,7 +375,23 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
       strictPort: options.strictPort ?? true,
       host: options.hostname ?? 'localhost',
       fs: {
-        allow: [...new Set([root, PACKAGE_DIR, host.itemAliasBase, dirname(host.itemAliasBase)])],
+        allow: [
+          ...new Set([
+            root,
+            PACKAGE_DIR,
+            host.itemAliasBase,
+            dirname(host.itemAliasBase),
+            // the aliased $lib tree and its app root (the vehicle's
+            // app.css entry + shared utils live there)
+            host.libAliasBase,
+            dirname(host.libAliasBase),
+            // the REAL node_modules of the module root: font/icon assets
+            // resolve through the realpathed install, which a symlinked
+            // worktree spells OUTSIDE every other allowed root (V5
+            // vision catch: @fontsource-variable woff2 → 403)
+            ...(moduleRoot === null ? [] : [realpathSync(join(moduleRoot, 'node_modules'))]),
+          ]),
+        ],
       },
     },
     optimizeDeps: {

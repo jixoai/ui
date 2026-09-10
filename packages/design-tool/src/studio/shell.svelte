@@ -56,9 +56,13 @@
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       manifest = (await response.json()) as ManifestEntry[];
       manifestError = null;
-      if (currentName === null && manifest.length > 0) currentName = manifest[0]!.name;
+      // first landing prefers the scaffold's welcome demo — the
+      // manifest otherwise opens on whatever sorts first (V5 catch:
+      // it landed on a broken probe canvas)
+      const preferred = manifest.find((entry) => entry.name === 'welcome') ?? manifest[0];
+      if (currentName === null && preferred !== undefined) currentName = preferred.name;
       if (currentName !== null && !manifest.some((entry) => entry.name === currentName)) {
-        currentName = manifest.length > 0 ? manifest[0]!.name : null;
+        currentName = preferred !== undefined ? preferred.name : null;
       }
     } catch (cause) {
       manifestError = cause instanceof Error ? cause.message : String(cause);
