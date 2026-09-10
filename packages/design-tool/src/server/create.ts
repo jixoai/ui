@@ -362,6 +362,12 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
     envDir: false, // no .env hunting across the host tree
     appType: 'custom', // the surfaces own routing; no vite SPA fallback
     clearScreen: false,
+    // the kit's design-host flag (context.ts hasDesignHost): every
+    // module this server transforms sees it — frames upgrade to real
+    // iframes instead of the "requires the design server" notice
+    // (the V5 re-check catch: A documented the channel, B never set
+    // it — the integration seam nobody owned, 2026-09-11)
+    define: { 'import.meta.env.VITE_JIXOAI_DESIGN': '"1"' },
     plugins: [
       svelteFactory(),
       tailwindFactory(),
@@ -385,11 +391,15 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
             // app.css entry + shared utils live there)
             host.libAliasBase,
             dirname(host.libAliasBase),
-            // the REAL node_modules of the module root: font/icon assets
-            // resolve through the realpathed install, which a symlinked
-            // worktree spells OUTSIDE every other allowed root (V5
-            // vision catch: @fontsource-variable woff2 → 403)
+            // the REAL node_modules of the module root AND of the repo
+            // root: font/icon assets resolve through realpathed installs,
+            // which a symlinked worktree spells OUTSIDE every other
+            // allowed root — jetbrains-mono lives under the vehicle's
+            // node_modules, share-tech-mono under the REPO root's
+            // (V5 catches: both woff2s 403'd before their realpath
+            // ancestors joined the allow list)
             ...(moduleRoot === null ? [] : [realpathSync(join(moduleRoot, 'node_modules'))]),
+            realpathSync(join(root, 'node_modules')),
           ]),
         ],
       },
