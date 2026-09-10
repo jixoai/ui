@@ -30,7 +30,9 @@ const CHROME =
 
 const browser = await chromium.launch({ executablePath: CHROME });
 const page = await browser.newPage({ viewport: { width: 1280, height: 1080 } });
-// docs-restructure: component pages now live under /docs/components/
+// effect-attachments (2026-09-09): the effect prop retired for the
+// attachments record; the page stays home (the effects GROUP is a
+// taxonomy lane, not a page — the un-fold ruling)
 await page.goto(`http://localhost:${PORT}/docs/components/press-button.html`);
 await page.waitForLoadState('domcontentloaded');
 await page.waitForTimeout(1200);

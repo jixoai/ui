@@ -20,9 +20,12 @@
      the FormData constructor to collect the stored contributions of
      jx-form-field descendants of the given form — exactly the platform
      seam the form-field bridge rides, nothing more.
-  5. WAAPI — Element#animate + animation.finished for the press-button
-     ripple ink lifecycle: finished resolves after the requested
-     duration, mirroring the browser's clearing cadence.
+  5. WAAPI — Element#animate + animation.finished for the motion kernels
+     that ride it under jsdom (surface-motion, search-palette,
+     navigation-menu's indicator, toast-viewport): finished resolves
+     after the requested duration. The press-button ripple LEFT this
+     list at r5 (2026-09-10): its ink is css-animated now and settles
+     on animationend, which jsdom dispatches per test.
 
   The polyfill mirrors the ORDER of the platform where it matters to the
   components: the toggle event fires synchronously inside show/hide, and
@@ -153,10 +156,12 @@ document.addEventListener('keydown', (event) => {
 });
 
 // ---- 2b. WAAPI (jsdom gap) ---------------------------------------------------
-// press-button's ripple ink is driven by Element#animate and leaves the
-// DOM on animation.finished. jsdom ships no WAAPI; this stub resolves
-// finished after the requested duration (the lifecycle specs observe the
-// same clearing cadence as the browser) and tolerates cancel().
+// The motion kernels that run under jsdom specs (surface-motion,
+// search-palette, navigation-menu's indicator, toast-viewport) drive
+// Element#animate and read animation.finished. jsdom ships no WAAPI;
+// this stub resolves finished after the requested duration and
+// tolerates cancel(). (The press-button ripple retired OFF this stub at
+// r5, 2026-09-10 — its ink is css-animated; settle = animationend.)
 if (typeof Element.prototype.animate !== 'function') {
   type StubAnimation = Pick<Animation, 'finished' | 'cancel'>;
   const animate = function (

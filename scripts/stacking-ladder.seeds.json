@@ -46,10 +46,10 @@
     },
     "registry/files/ui/press-button/press-button.css": {
       "evidence": {
-        "file": "registry/files/ui/press-button/press-button.svelte",
+        "file": "registry/files/ui/press-button/press-effect-runtime.ts",
         "needle": "relative z-0"
       },
-      "note": "the press inset shadows (z=-2/-1) ride under the host's relative z-0 rooting — the markup-utilities proof, sweep inventory"
+      "note": "the press paint layers (z=-2/-1: shimmer box/cover, pulse, rainbow, ripple) ride under the host's relative z-0 rooting — stamped by the attachment runtime's HOST_CLASSES on arm and stripped on release (effect-attachments, 2026-09-09); the old markup-utilities proof died with the effect props"
     },
     "registry/files/ui/scroll-run/scroll-run.css": {
       "evidence": {

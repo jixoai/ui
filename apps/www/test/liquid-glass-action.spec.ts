@@ -26,7 +26,8 @@
  *    and returns: frost stands, no svg, no pointer, no crash;
  *  - the ZERO-BOX guard: a 0×0 element (display:none posture) mounts
  *    quietly — no svg, no pointer, no crash (the RO catches it later);
- *  - the Svelte action wrapper returns the {update, destroy} handle.
+ *  - the attachment FACTORY (effect-attachments): fx in, attachment out —
+ *    mount stamps + svg, the FUNCTION return is the teardown.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -404,19 +405,24 @@ describe('attachLiquidGlass · guards', () => {
 });
 
 // ---------------------------------------------------------------------------
-// the Svelte action wrapper
+// the attachment factory wrapper (effect-attachments: the action form
+// reshaped — fx in, attachment out; the kernel above is untouched)
 // ---------------------------------------------------------------------------
-describe('liquidGlass · the Svelte action', () => {
+describe('liquidGlass · the attachment factory', () => {
   beforeEach(() => stubCanvas());
 
-  it('wraps attachLiquidGlass: same mount behavior, returns the {update, destroy} handle', () => {
+  it('wraps attachLiquidGlass: mount stamps + svg, the returned FUNCTION is the teardown', () => {
     const el = target();
     mockRect(el);
-    const handle = liquidGlass(el, liquid());
-    expect(typeof handle.update).toBe('function');
-    expect(typeof handle.destroy).toBe('function');
+    const attach = liquidGlass(liquid());
+    expect(typeof attach).toBe('function');
+    const teardown = attach(el);
+    expect(typeof teardown).toBe('function');
     expect(el.getAttribute('data-jx-effect')).toBe('liquid-glass');
     expect(document.body.querySelector('svg.jx-glass-host')).toBeTruthy();
-    handle.destroy();
+    expect(el.style.getPropertyValue('--jx-glass-filter')).toMatch(/^url\('#jx-lg-/);
+    teardown();
+    expect(document.body.querySelector('svg.jx-glass-host')).toBeNull();
+    expect(el.style.getPropertyValue('--jx-glass-filter')).toBe('');
   });
 });

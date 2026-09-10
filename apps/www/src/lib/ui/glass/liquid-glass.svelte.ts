@@ -1,9 +1,10 @@
 // The liquid-glass mount — framework-agnostic runtime that upgrades a stamped
 // element to lens refraction (the ripple.svelte.ts precedent: effects may own
-// runtime JS). Svelte consumes it through the `liquidGlass` action export
-// below; framework-less consumers call `attachLiquidGlass` directly. First
-// paint stays the law sheet's unconditional frost — the lens is an
-// enhancement, never a dependency.
+// runtime JS). Svelte consumes it through the `liquidGlass` attachment
+// FACTORY below ({@attach liquidGlass(fx)}); framework-less consumers call
+// `attachLiquidGlass` directly. First paint stays the law sheet's
+// unconditional frost — the lens is an enhancement, never a dependency.
+import type { Attachment } from 'svelte/attachments';
 import { computeLensField, computeSpecularField } from './glass-map';
 import { glassVars } from './glass';
 import type { LiquidGlassEffect } from './glass';
@@ -170,10 +171,20 @@ export function attachLiquidGlass(target: HTMLElement, fx: LiquidGlassEffect): L
 }
 
 /**
- * The Svelte action — `use:liquidGlass(fx)` on the stamped element. The
- * handle's update/destroy ride Svelte's action lifecycle (a reactive fx
- * re-stamps and rebuilds; unmount tears the svg, the pointer and the RO
- * down). Plain-function form per the ripple.svelte.ts convention — no
- * svelte/action type import.
+ * The attachment FACTORY — `{@attach liquidGlass(fx)}` on the stamped
+ * element (the effect-attachments migration): param in, attachment out.
+ * Svelte invokes the returned function with (element) and honors its
+ * FUNCTION return as the teardown — there is no update channel. A
+ * REPLACED fx (the $derived path) is a fresh closure = identity
+ * remount: old teardown, then a full rebuild (cheap — the maps
+ * regenerate in single-digit ms). Deep mutation is not read by any
+ * channel; the kernel's own property reads are the only fine-grained
+ * reactivity — params flow, never mutate (the documented law). SSR:
+ * attachments are inert server-side, frost-first stands.
  */
-export const liquidGlass = (el: HTMLElement, fx: LiquidGlassEffect) => attachLiquidGlass(el, fx);
+export function liquidGlass(fx: LiquidGlassEffect): Attachment<HTMLElement> {
+  return (element) => {
+    const handle = attachLiquidGlass(element, fx);
+    return () => handle.destroy();
+  };
+}

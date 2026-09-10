@@ -4,3 +4,7 @@
 export { default } from './press-button.svelte';
 export * from './press-button.svelte';
 export { PressButtonDefaults, type PressButtonPaintVariant } from './press-button-defaults.svelte';
+// the attachment face (effect-attachments): the self-listening factory
+// + the imperative kernels; the builders stay in the component's module
+// script (export * above carries them)
+export { pressEffect, applyShimmer, applyPulse, applyRainbow } from './press-effect-runtime';
