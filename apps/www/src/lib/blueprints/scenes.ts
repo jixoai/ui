@@ -11,7 +11,7 @@
  *   - root: <div class="h-full w-full"> filling the 640×360 stage
  *   - REAL components from $lib/ui — the blueprint IS the real HTML
  *   - interactive surfaces forced into their OPEN state (dialog open,
- *     use:forceShowPopovers, toasts pushed on mount, …)
+ *     {@attach fromAction(forceShowPopovers)}, toasts pushed on mount, …)
  *   - one iconic composition, not a documentation dump
  */
 import type { Component } from 'svelte';

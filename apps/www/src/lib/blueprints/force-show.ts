@@ -9,7 +9,7 @@
  * (select, dropdown) panels: light dismiss only fires on real user
  * interaction, and the headless blueprint pass never interacts.
  *
- * Usage: <div class="h-full w-full" use:forceShowPopovers>…</div>
+ * Usage: <div class="h-full w-full" {@attach fromAction(forceShowPopovers)}>…</div>
  */
 export function forceShowPopovers(node: HTMLElement): { destroy(): void } {
   const show = (): void => {

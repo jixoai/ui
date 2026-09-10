@@ -1,13 +1,14 @@
 <!-- hover-card blueprint: the rich peek forced shown under its trigger
-     (use:forceShowPopovers → showPopover on the popover=manual panel). -->
+     ({@attach fromAction(forceShowPopovers)} → showPopover on the popover=manual panel). -->
 <script lang="ts">
   import HoverCard from '$lib/ui/hover-card/hover-card.svelte';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
+  import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-6 p-10" use:forceShowPopovers>
+<div class="flex h-full w-full flex-col justify-center gap-6 p-10" {@attach fromAction(forceShowPopovers)}>
   <div class="flex flex-col gap-3 opacity-60">
     <Skeleton class="h-3 w-3/4"></Skeleton>
     <Skeleton class="h-3 w-1/2"></Skeleton>

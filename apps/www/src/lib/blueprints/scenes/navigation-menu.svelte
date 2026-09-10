@@ -1,5 +1,5 @@
 <!-- navigation-menu blueprint: the site bar with its panel of real links
-     forced shown (use:forceShowPopovers → showPopover on the popover=auto
+     forced shown ({@attach fromAction(forceShowPopovers)} → showPopover on the popover=auto
      panel; the current section's trigger carries aria-current).
      (composition-first-apis 2026-08-25: Item/Trigger/Panel/Link parts
      replace the items[] data + keyed panel snippet.) -->
@@ -10,10 +10,11 @@
   import NavigationMenuPanel from '$lib/ui/navigation-menu/navigation-menu-panel.svelte';
   import NavigationMenuLink from '$lib/ui/navigation-menu/navigation-menu-link.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
+  import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-8 p-10" use:forceShowPopovers>
+<div class="flex h-full w-full flex-col justify-center gap-8 p-10" {@attach fromAction(forceShowPopovers)}>
   <div class="flex flex-col gap-3 opacity-60">
     <Skeleton class="h-3 w-1/2"></Skeleton>
   </div>

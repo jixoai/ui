@@ -1,10 +1,12 @@
 <!-- chip blueprint: the ladder as compact activations — the four
      rungs on the control-scale hit lane (fill/tonal/outline/ghost),
      the hue-injection recipes, and the shape axis with the slot
-     lanes. Ripple is the default ink; bevel shows the diamond cut. -->
+     lanes. Ink is an ATTACHMENT now (effect-attachments, r4): the
+     bevel ripple rides the component tag onto the stamped root. -->
 <script lang="ts">
   import Chip from '$lib/ui/chip/chip.svelte';
   import { ripple } from '$lib/ui/press-button/press-button.svelte';
+  import { pressEffect } from '$lib/ui/press-button';
   import Icon from '$lib/ui/icon';
 </script>
 
@@ -22,7 +24,7 @@
   </div>
   <div class="flex flex-wrap items-center gap-3">
     <Chip shape="pill" onclick={() => {}}>pill</Chip>
-    <Chip shape="pill" effect={ripple({ shape: 'bevel' })} onclick={() => {}}>
+    <Chip shape="pill" {@attach pressEffect(ripple({ shape: 'bevel' }))} onclick={() => {}}>
       {#snippet slotStart()}<Icon name="check" />{/snippet}
       bevel ink
     </Chip>

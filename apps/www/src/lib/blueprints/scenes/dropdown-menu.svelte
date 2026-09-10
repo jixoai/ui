@@ -1,13 +1,14 @@
-<!-- dropdown-menu blueprint: the open menu (use:forceShowPopovers calls
+<!-- dropdown-menu blueprint: the open menu ({@attach fromAction(forceShowPopovers)} calls
      showPopover() on the popover=auto panel) over muted context rows. -->
 <script lang="ts">
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
+  import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-5 p-10" use:forceShowPopovers>
+<div class="flex h-full w-full flex-col justify-center gap-5 p-10" {@attach fromAction(forceShowPopovers)}>
   <div class="flex flex-col gap-3 opacity-60">
     <Skeleton class="h-3 w-2/3"></Skeleton>
     <Skeleton class="h-3 w-1/2"></Skeleton>

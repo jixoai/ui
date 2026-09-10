@@ -127,6 +127,7 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { Attachment } from 'svelte/attachments';
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
@@ -136,8 +137,8 @@
   // the glass/liquid materials ride the SHARED stamp channel
   // (glass-effect design §6): ONE effect object per material through
   // ONE channel, painted by the glass law sheet
-  import { blur, liquid, type LiquidGlassEffect } from '../glass/glass';
-  import { attachLiquidGlass, type LiquidGlassHandle } from '../glass/liquid-glass.svelte';
+  import { blur, liquid } from '../glass/glass';
+  import { liquidGlass } from '../glass/liquid-glass.svelte';
   import '../glass/glass.css';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -184,7 +185,7 @@
   /** glass/liquid effect objects (glass-effect design §6): ONE object
    *  through ONE channel — glass is the blur() frost member stamped in
    *  markup (zero-JS), liquid is the lens member mounted by the shared
-   *  action. Values are the retired hand-tuned formulas verbatim
+   *  attachment. Values are the retired hand-tuned formulas verbatim
    *  (computed-equivalence). */
   const glassFx = $derived(
     material === 'glass'
@@ -197,21 +198,17 @@
   );
   const liquidFx = $derived(material === 'liquid' ? liquid({ radius: '2px', saturate: 1.6 }) : null);
 
-  /** the conditional lens mount: a Svelte action cannot be toggled in
-   *  markup, so this wrapper no-ops on every non-liquid material and
-   *  re-points (or tears down) the shared handle when the effect object
-   *  flips — the handle's own update carries the re-stamp + rebuild */
-  function liquidMount(node: HTMLElement, fx: LiquidGlassEffect | null) {
-    let handle: LiquidGlassHandle | undefined;
-    const apply = (next: LiquidGlassEffect | null): void => {
-      if (handle && next) handle.update(next);
-      else if (handle) {
-        handle.destroy();
-        handle = undefined;
-      } else if (next) handle = attachLiquidGlass(node, next);
-    };
-    apply(fx);
-    return { update: apply, destroy: () => apply(null) };
+  /** the indicator's own material mount (r4, effect-attachments §12:
+   *  the indicator is the component's OWN material business — no
+   *  consumer record path): liquidGlass(fx) is already the attachment
+   *  FACTORY (Lane A), so the component's own material derive collapses
+   *  to the factory call plus the null guard the retired liquidMount
+   *  action carried internally (every non-liquid material mounts
+   *  nothing — the undefined arm skips, never a crash). A material
+   *  flip rides the same channel: the fresh internalMount() replaces
+   *  the old (identity remount, teardown + rebuild) */
+  function internalMount(): Attachment<HTMLSpanElement> | null {
+    return liquidFx ? liquidGlass(liquidFx) : null;
   }
 
   /** the component root — the one-cell grid HOST carrying the overlays
@@ -533,7 +530,10 @@
     <!-- the engine-owned wrapper: geometry lands here, a custom
          snippet paints inside it. glass/liquid paint through the
          SHARED stamp channel — glass carries the blur() markup stamps,
-         liquid the liquidGlass mount (the action stamps itself).
+         liquid the liquidGlass attachment (the kernel stamps itself —
+         the component's OWN material mount, r4). data-jx-attach=
+         "indicator" is the OPTIONAL named mounting-point stamp
+         (queryable, contract-naming), never a forwarding mechanism.
          Geometry rides INDIVIDUAL style properties on purpose: a
          whole-attribute style write on every selection move would
          clobber the mount's --jx-glass-* vars (and the lens pointer
@@ -541,11 +541,12 @@
     <span
       bind:this={indEl}
       data-jx-tabs-ind=""
+      data-jx-attach="indicator"
       data-material={material}
       data-jx-effect={glassFx ? 'blur' : undefined}
       aria-hidden="true"
       hidden={geo === null}
-      use:liquidMount={liquidFx}
+      {@attach internalMount()}
       style:transform={geo === null ? undefined : `translate(${geo.x}px, ${geo.y}px)`}
       style:width={geo === null ? undefined : `${geo.w}px`}
       style:height={geo === null ? undefined : `${geo.h}px`}

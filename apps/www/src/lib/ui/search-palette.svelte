@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fromAction } from 'svelte/attachments';
   /**
    * The full-text search palette (search-corpus change, 2026-09-02).
    * r12: the surface COMPOSES the Dialog component — the house's
@@ -159,7 +160,10 @@
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches === false;
 
-  /** mount-time rise: state blocks swap with one fast beat */
+  /** mount-time rise: state blocks swap with one fast beat. A
+   *  {destroy}-returning action — mounted through the fromAction bridge
+   *  (effect-attachments): bare {@attach} honors only FUNCTION returns,
+   *  the object return would leak the animation silently */
   const riseIn = (node: HTMLElement): { destroy: () => void } => {
     if (!canAnimate()) return { destroy: () => {} };
     const anim = node.animate(
@@ -271,13 +275,13 @@
          the field until there is something to say -->
   {:else if busy}
     <!-- PENDING: a named state, not a trailing ellipsis -->
-    <div class="flex items-center gap-3 px-5 py-8" data-jx-search-pending role="status" use:riseIn>
+    <div class="flex items-center gap-3 px-5 py-8" data-jx-search-pending role="status" {@attach fromAction(riseIn)}>
       <span class="jx-flight flex gap-1" aria-hidden="true"><i></i><i></i><i></i></span>
       <span class="font-mono text-[12px] text-muted-foreground">Searching…</span>
     </div>
   {:else if hits.length === 0}
     <!-- NO RESULT: a real empty state, not a stray line -->
-    <div class="flex flex-col items-center gap-2 px-5 py-9 text-center" data-jx-search-empty use:riseIn>
+    <div class="flex flex-col items-center gap-2 px-5 py-9 text-center" data-jx-search-empty {@attach fromAction(riseIn)}>
       <span
         class="select-none text-muted-foreground/50"
         aria-hidden="true"><Icon name="search" size={24} /></span>
@@ -290,7 +294,7 @@
     <!-- the list rides the Dialog's OWN scroll ring (r14-3: the body
          zone is the only scroller — no nested max-h/overflow, the
          panel ceiling below is what lets the ring engage) -->
-    <ul class="p-2" role="listbox" use:riseIn>
+    <ul class="p-2" role="listbox" {@attach fromAction(riseIn)}>
       {#each hits as hit, i (hit.href)}
         <li role="option" aria-selected={i === active}>
           <a

@@ -1,8 +1,9 @@
-<!-- select blueprint: the rich listbox forced open (use:forceShowPopovers)
+<!-- select blueprint: the rich listbox forced open ({@attach fromAction(forceShowPopovers)})
      — the committed row carries the primary edge line, the trigger shows
      the commit, one row stays disabled. -->
 <script lang="ts">
   import Select, { type SelectOption } from '$lib/ui/select/select.svelte';
+  import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   const options: SelectOption[] = [
@@ -15,7 +16,7 @@
   let runtime = $state('node');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center p-10" use:forceShowPopovers>
+<div class="flex h-full w-full flex-col justify-center p-10" {@attach fromAction(forceShowPopovers)}>
   <div class="w-full max-w-[400px]">
     <Select id="bp-select" label="runtime" placeholder="pick a runtime…" bind:value={runtime} {options} />
   </div>

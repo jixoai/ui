@@ -4,10 +4,11 @@
 <script lang="ts">
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
+  import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-6 p-10" use:forceShowPopovers>
+<div class="flex h-full w-full flex-col justify-center gap-6 p-10" {@attach fromAction(forceShowPopovers)}>
   <div class="flex flex-wrap items-center gap-4">
     <IconButton text="deploy">
       {#snippet icon()}

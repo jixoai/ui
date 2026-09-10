@@ -27,6 +27,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { fromAction } from 'svelte/attachments';
   import { cn } from '$lib/utils';
   import './carousel.css';
 
@@ -137,6 +138,9 @@
     scrollToSlide(active + direction);
   }
 
+  /** {destroy}-returning slide collector; mounted through the
+   *  fromAction bridge (effect-attachments) — a bare {@attach} would
+   *  silently discard the object return and leak the observer */
   function collectSlides(node: HTMLDivElement): { destroy: () => void } {
     track = node;
     slides = [...(node.children as HTMLCollectionOf<HTMLElement>)];
@@ -172,7 +176,7 @@
     <div
       class="jx-carousel-track [grid-area:1/1] flex gap-3 overflow-x-auto snap-x snap-mandatory overscroll-x-contain pb-1 focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
       style="--jx-slide-w: {slideWidth}"
-      use:collectSlides
+      {@attach fromAction(collectSlides)}
       tabindex="0"
       onscroll={handleScroll}
       onkeydown={handleTrackKeydown}

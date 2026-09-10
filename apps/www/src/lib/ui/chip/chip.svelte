@@ -4,8 +4,7 @@
   toggles, and navigates — the badge's micro-label voice on the hit
   lane. Not a badge (display, sub-lane height) and deliberately not a
   PressButton wrapper: the composition borrows the press law
-  (.jx-press), the ripple runtime and the effect builders from the
-  press-button folder, but the anatomy is its own.
+  (.jx-press) from the press-button folder, but the anatomy is its own.
 
   Variant grammar (openspec/changes/variant-grammar, frozen r1): the
   four-step ladder consumed as GLOBAL tokens — fill (solid ground +
@@ -24,37 +23,41 @@
   focus law). Pseudo-element lane expansion stays rejected: the real
   box is the target.
 
-  Effect loops: press-button's typed builders pass through the effect
-  prop; ripple is the DEFAULT — undefined resolves to the ripple()
-  defaults, null explicitly disables every loop. The runtime
-  (createRipple) and the layer paint live in the press-button folder;
-  this file imports them, never copies.
+  Effect loops (effect-attachments, 2026-09-09): the effect prop and
+  its DEFAULT ripple RETIRED with the attachment migration — the chip
+  is a PLAIN activation (zero effect knowledge; ink, when wanted,
+  arrives through the component-tag attachment, the r4 uniform syntax:
+  <Chip {@attach pressEffect(ripple())}> — the rest lane forwards it
+  onto this root, where the runtime mounts it). The press law's pose
+  sheet still imports from the press-button
+  folder (.jx-press lives in press-button.css).
 
   Forced colors (design §6, explicit degradation): fill →
   ButtonFace/ButtonText, tonal/outline → Canvas/CanvasText (the
   color-mix tints drop), ghost transparent at rest / ButtonFace on
   hover; the focus ring stays 2px Highlight, offset 2, never removed.
 -->
-<script module lang="ts">
-  // corner-shape gates the bevel ink's fast path; where it's missing the
-  // flat fallback turns a square 45° — the same diamond to the eye
-  const bevelInk =
-    typeof CSS !== 'undefined' &&
-    typeof CSS.supports === 'function' &&
-    CSS.supports('corner-shape', 'bevel');
-</script>
-
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { type Density } from '$lib/density.svelte';
   import { ChipDefaults, type ChipShape, type ChipVariant } from './chip-defaults.svelte';
-  import { ripple, type PressEffect } from '../press-button/press-button.svelte';
-  import { createRipple } from '../press-button/ripple.svelte';
-  // the effect layers' paint (shimmer / pulse / ripple) — shared sheet
+  // the press law's pose sheet (.jx-press) — shared from the
+  // press-button folder; the effect layers' paint rides there too
   import '../press-button/press-button.css';
 
-  interface Props {
+  /* the REST LANE (the press-button convention): arbitrary attributes
+   * flow through VERBATIM and land on the root (button or anchor); the
+   * family's own typed props and component-owned stamps win by spread
+   * order. The component-tag ATTACHMENT rides this lane too (r4,
+   * 2026-09-10): `<Chip {@attach pressEffect(…)}>` compiles to a
+   * symbol-keyed prop the spread forwards onto the root —
+   * data-jx-attach="root" stays as the optional named stamp */
+  interface Props extends Omit<
+    HTMLAttributes<HTMLElement>,
+    'onclick' | 'class' | 'aria-label' | 'style' | 'type'
+  > {
     /** DENSITY override: explicit ?? ambient scope, else unstamped */
     density?: Density;
     /** the grammar ladder — prominence, never semantic hue; omitted →
@@ -62,10 +65,6 @@
     variant?: ChipVariant;
     /** square keeps the site radius; pill rounds fully */
     shape?: ChipShape;
-    /** one press-button effect builder per chip — undefined resolves
-     *  to the ripple() defaults (ink from the activation point);
-     *  null explicitly disables every loop */
-    effect?: PressEffect | null;
     href?: string;
     /** Opens non-internal hrefs (not starting with "/") in a new tab. */
     external?: boolean;
@@ -87,7 +86,6 @@
     density,
     variant,
     shape,
-    effect = undefined,
     href,
     external = undefined,
     onclick,
@@ -97,16 +95,13 @@
     slotStart,
     slotEnd,
     children,
+    ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
   // economy 2.3): variant rides the paint axis slot (zone ambient,
   // frozen own 'tonal'), shape/density their literal/no-opinion slots
   const d = $derived(ChipDefaults.resolve({ variant, shape, density }));
-
-  // undefined resolves to the ripple() defaults — press-point ink is
-  // the chip's resting attention; null opts out of every loop
-  const activeEffect = $derived(effect === undefined ? ripple() : effect);
 
   // badge geometry verbatim (the badge's activation twin): height from
   // the secondary line, inline insets only; slot lanes replace their
@@ -134,46 +129,7 @@
     ghost: `jx-press border border-transparent bg-transparent text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] hover:text-[color:var(--jx-tonal)] [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none] forced-colors:bg-transparent forced-colors:text-[CanvasText] forced-colors:border-transparent forced-colors:hover:bg-[ButtonFace] forced-colors:hover:text-[ButtonText]`,
   } as const;
 
-  // effect host class (the stacking pose rides utilities: relative z-0
-  // keeps the negative-z layers under the in-flow label) + the custom
-  // properties its loop reads — press-button's wiring, replicated
-  const effectClass = $derived.by(() => {
-    if (!activeEffect) return '';
-    switch (activeEffect.type) {
-      case 'shimmer':
-        return 'relative z-0';
-      case 'pulse':
-        return 'relative z-0';
-      case 'rainbow':
-        return 'jx-rainbow-host relative z-0';
-      case 'ripple':
-        return 'relative z-0';
-    }
-  });
-  const effectStyle = $derived.by(() => {
-    if (!activeEffect) return '';
-    switch (activeEffect.type) {
-      case 'shimmer':
-        return `--shimmer-color:${activeEffect.color}; --shimmer-spread:${activeEffect.spread}; --shimmer-cut:${activeEffect.cut}; --shimmer-speed:${activeEffect.speed}ms`;
-      case 'pulse':
-        return `--pulse-color:${activeEffect.color}; --pulse-duration:${activeEffect.duration}ms; --pulse-distance:${activeEffect.distance}`;
-      case 'rainbow':
-        return `--rainbow-tx:${(activeEffect.speed * 3) / 2}ms; --rainbow-ty:${(activeEffect.speed * 5) / 2}ms; --rainbow-t1:${(activeEffect.speed * 7) / 2}ms; --rainbow-t2:${(activeEffect.speed * 11) / 2}ms; --rainbow-t3:${(activeEffect.speed * 13) / 2}ms; --rainbow-t4:${(activeEffect.speed * 17) / 2}ms; ${activeEffect.colors
-          .map((c, i) => `--c${i + 1}:${c}`)
-          .join('; ')}`;
-      case 'ripple':
-        return '';
-    }
-  });
-
-  // ripple: the shared runtime (../press-button/ripple.svelte.ts) —
-  // ink circles from the activation point; keyboard activation (click
-  // with detail 0) ripples from the center. Reduced motion skips the
-  // ink inside the factory — the anchored press already answers the
-  // pointer.
-  const rippleRuntime = createRipple(() => onclick?.());
-
-  const classes = $derived(cn(base, silhouette, variants[d.variant], effectClass, className));
+  const classes = $derived(cn(base, silhouette, variants[d.variant], className));
   const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
 </script>
 
@@ -193,69 +149,34 @@
   {/if}
 {/snippet}
 
-{#snippet layers()}
-  {#if activeEffect?.type === 'ripple'}
-    <span class="jx-ripple-layer" aria-hidden="true">
-      {#each rippleRuntime.ripples as r (r.key)}
-        <span
-          class="jx-ripple-dot{activeEffect.shape === 'bevel' && !bevelInk ? ' jx-ripple-flat' : ''}"
-          data-shape={activeEffect.shape}
-          style="width:{r.size}px; height:{r.size}px; top:{r.y}px; left:{r.x}px;
-            --ripple-color:{activeEffect.color}"
-          use:rippleRuntime.ink={{ key: r.key, duration: activeEffect.duration }}
-        ></span>
-      {/each}
-    </span>
-  {:else if activeEffect?.type === 'shimmer'}
-    <span class="jx-shimmer-box" aria-hidden="true">
-      <span class="jx-shimmer-slide"><span class="jx-shimmer-spark"></span></span>
-    </span>
-    <span class="jx-shimmer-cover" aria-hidden="true"></span>
-  {:else if activeEffect?.type === 'pulse'}
-    <span
-      class="jx-pulse-layer"
-      class:jx-pulse-slow={activeEffect.variant === 'slow'}
-      class:jx-pulse-ring={activeEffect.variant === 'ring'}
-      class:jx-pulse-ripple={activeEffect.variant === 'ripple'}
-      aria-hidden="true"
-    ></span>
-  {/if}
-{/snippet}
-
 {#if href}
   <a
+    {...rest}
     {href}
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
     data-density={d.density}
     data-jx-chip={d.variant}
-    data-jx-shimmer-host={activeEffect?.type === 'shimmer' ? '' : undefined}
-    data-jx-pulse-host={activeEffect?.type === 'pulse' ? '' : undefined}
-    data-jx-ripple-host={activeEffect?.type === 'ripple' ? '' : undefined}
+    data-jx-attach="root"
     class={classes}
-    style={effectStyle || undefined}
-    onclick={activeEffect?.type === 'ripple' ? rippleRuntime.onclick : undefined}
+    onclick={onclick}
   >
-    {@render layers()}
     {@render start()}
     {@render children()}
     {@render end()}
   </a>
 {:else}
   <button
+    {...rest}
     {type}
-    onclick={activeEffect?.type === 'ripple' ? rippleRuntime.onclick : onclick}
+    onclick={onclick}
     aria-label={ariaLabel}
     data-density={d.density}
     data-jx-chip={d.variant}
-    data-jx-shimmer-host={activeEffect?.type === 'shimmer' ? '' : undefined}
-    data-jx-pulse-host={activeEffect?.type === 'pulse' ? '' : undefined}
-    data-jx-ripple-host={activeEffect?.type === 'ripple' ? '' : undefined}
+    data-jx-attach="root"
     class={classes}
-    style={effectStyle || undefined}
   >
-    {@render layers()}
     {@render start()}
     {@render children()}
     {@render end()}

@@ -5,6 +5,7 @@
 <script lang="ts">
   import Tour from '$lib/ui/tour/tour.svelte';
   import type { TourStep } from '$lib/ui/tour/tour.svelte';
+  import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   const steps: TourStep[] = [
@@ -21,7 +22,7 @@
   ];
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center p-10" use:forceShowPopovers>
+<div class="flex h-full w-full flex-col items-start justify-center p-10" {@attach fromAction(forceShowPopovers)}>
   <div class="flex w-full max-w-[420px] flex-col gap-4 border border-border bg-card p-5">
     <div id="bp-tour-workspace" class="flex flex-col gap-1">
       <p class="font-mono text-xs text-muted-foreground">workspace</p>

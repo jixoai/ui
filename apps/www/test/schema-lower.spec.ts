@@ -32,7 +32,9 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
       typeText: 'PressButtonVariant',
       ambient: 'zone',
     },
-    effect: { kind: 'opaque', typeText: 'PressEffect' },
+    // r4 (2026-09-10): the attachments record RETIRED — the component
+    // tag is the mount ({@attach} compiles past the props ceiling, so
+    // it owns no row here; the rest lane carries it at runtime)
     href: { kind: 'string' },
     external: { kind: 'boolean' },
     loading: { kind: 'boolean', default: false },
@@ -47,14 +49,14 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
     rest: { kind: 'opaque', typeText: 'unknown (spread passthrough)' },
   },
   hooks: [
+    // the effect-host stamps moved into the runtime with the branches;
+    // data-jx-attach is the optional named mounting-point stamp (r4)
+    'data-jx-attach',
     'data-jx-press-button',
     'data-jx-press-check',
     'data-jx-press-flat',
     'data-jx-press-spin',
     'data-jx-press-state',
-    'data-jx-pulse-host',
-    'data-jx-ripple-host',
-    'data-jx-shimmer-host',
   ],
 });
 
@@ -71,7 +73,6 @@ describe('toJSONSchema (press-button fixture)', () => {
       properties: {
         density: { 'x-ui': { control: 'none', sourceType: 'Density' } },
         variant: { 'x-ui': { control: 'none', sourceType: 'PressButtonVariant' } },
-        effect: { 'x-ui': { control: 'none', sourceType: 'PressEffect' } },
         href: { type: 'string' },
         external: { type: 'boolean' },
         loading: { type: 'boolean', default: false },
@@ -85,7 +86,7 @@ describe('toJSONSchema (press-button fixture)', () => {
         children: { 'x-ui': { control: 'none', sourceType: 'Snippet' } },
         rest: { 'x-ui': { control: 'none', sourceType: 'unknown (spread passthrough)' } },
       },
-      required: ['density', 'variant', 'effect', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'raised', 'children', 'rest'],
+      required: ['density', 'variant', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'raised', 'children', 'rest'],
     });
   });
 

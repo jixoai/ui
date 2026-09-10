@@ -15,9 +15,12 @@
  *    indicator for line/pill/outline/glass/liquid; glass/liquid ride
  *    the SHARED stamp channel (glass-effect design §6) — glass stamps
  *    data-jx-effect='blur' + the --jx-glass-* tuning vars in markup,
- *    liquid is stamped data-jx-effect='liquid-glass' by the
- *    liquidGlass mount action (no inline svg filter anywhere — the
- *    retired feTurbulence noise is gone);
+ *    liquid is stamped data-jx-effect='liquid-glass' by the component's
+ *    OWN material mount (effect-attachments r4, 2026-09-10: the
+ *    indicator is the component's own material business —
+ *    {@attach internalMount()} directly, the consumer record retired;
+ *    no inline svg filter anywhere — the retired feTurbulence noise
+ *    is gone);
  *  - a snippet indicator rides the SAME engine-owned wrapper (the
  *    wrapper and its geometry stay engine-owned) and receives
  *    { x, y, w, h, orientation };
@@ -237,11 +240,15 @@ describe('Tabs · glass/liquid materials (the shared stamp channel)', () => {
     expect(style).toMatch(/--jx-glass-fill:\s*color-mix\(in oklab,\s*var\(--background\)\s*40%,\s*transparent\)/);
   });
 
-  it("liquid stamps the lens member through the mount action — no inline svg filter anywhere", () => {
+  it("liquid stamps the lens member through the internal attachment — no inline svg filter anywhere", () => {
     const { list, ind } = setup();
     const indicator = ind('liquid')!;
     expect(indicator).toBeTruthy();
-    // the action stamps the channel + its tuning vars at mount (jsdom
+    // TWO-CHANNEL PAIR on the same element (design §3): data-jx-attach
+    // names WHERE effects mount (the optional named stamp), data-jx-effect
+    // names WHAT the law paints — both live on the liquid indicator
+    expect(indicator.getAttribute('data-jx-attach')).toBe('indicator');
+    // the kernel stamps the channel + its tuning vars at mount (jsdom
     // has no canvas — the lens guard fires after, frost stands)
     expect(indicator.getAttribute('data-jx-effect')).toBe('liquid-glass');
     const style = `${indicator.getAttribute('style') ?? ''};${indicator.style.cssText}`;
@@ -255,6 +262,10 @@ describe('Tabs · glass/liquid materials (the shared stamp channel)', () => {
     // non-glass materials never stamp the channel
     expect(ind('line')!.getAttribute('data-jx-effect')).toBeNull();
     expect(ind('pill')!.getAttribute('data-jx-effect')).toBeNull();
+    // every engine-owned indicator carries the marker (bidirectional
+    // law: the hook is the public contract on every material)
+    expect(ind('line')!.getAttribute('data-jx-attach')).toBe('indicator');
+    expect(ind('pill')!.getAttribute('data-jx-attach')).toBe('indicator');
   });
 });
 

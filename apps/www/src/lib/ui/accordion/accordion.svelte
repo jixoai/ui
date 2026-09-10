@@ -29,6 +29,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { fromAction } from 'svelte/attachments';
   import { cn } from '$lib/utils';
   import './accordion.css';
 
@@ -46,7 +47,10 @@
   let { exclusive = false, ghost = false, children, class: className = '' }: Props = $props();
 
   /** capture-phase toggle delegation (see header note); parameterized so
-   *  a dynamic `exclusive` flip takes effect without a remount */
+   *  a dynamic `exclusive` flip takes effect without a remount. Mounted
+   *  through the fromAction bridge (effect-attachments): an action-shaped
+   *  {update, destroy} return cannot ride {@attach} bare — only FUNCTION
+   *  returns are teardown, the object return would leak silently */
   function exclusiveGuard(node: HTMLElement, enabled: boolean) {
     let on = enabled;
     const handler = (event: Event) => {
@@ -75,7 +79,7 @@
     ghost && 'border-transparent bg-transparent',
     className,
   )}
-  use:exclusiveGuard={exclusive}
+  {@attach fromAction(exclusiveGuard, () => exclusive)}
 >
   {@render children()}
 </div>

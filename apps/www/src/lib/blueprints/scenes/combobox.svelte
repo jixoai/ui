@@ -1,8 +1,9 @@
 <!-- combobox blueprint: the searchable select forced open — the input
      carries the committed display, the panel shows the filtered rows
-     with the selected edge line (use:forceShowPopovers). -->
+     with the selected edge line ({@attach fromAction(forceShowPopovers)}). -->
 <script lang="ts">
   import Combobox, { type ComboboxOption } from '$lib/ui/combobox/combobox.svelte';
+  import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
 
   const options: ComboboxOption[] = [
@@ -14,7 +15,7 @@
   let backend = $state('node-pty');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center p-10" use:forceShowPopovers>
+<div class="flex h-full w-full flex-col justify-center p-10" {@attach fromAction(forceShowPopovers)}>
   <div class="w-full max-w-[420px]">
     <Combobox id="bp-combobox" label="backend" bind:value={backend} {options} />
   </div>

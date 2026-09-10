@@ -1,14 +1,15 @@
-<!-- press-button blueprint: the variant row + one effect loop. -->
+<!-- press-button blueprint: the variant row + effect attachments. -->
 <script lang="ts">
   import PressButton, { rainbow, shimmer } from '$lib/ui/press-button/press-button.svelte';
+  import { pressEffect } from '$lib/ui/press-button';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
 </script>
 
 <div class="flex h-full w-full flex-col justify-center gap-6 p-10">
   <div class="flex flex-wrap items-center gap-4">
-    <PressButton variant="fill" effect={shimmer()}>Deploy</PressButton>
+    <PressButton variant="fill" {@attach pressEffect(shimmer())}>Deploy</PressButton>
     <PressButton variant="tonal" class="jx-hue-neutral">Invite</PressButton>
-    <PressButton variant="outline" effect={rainbow()}>Cancel</PressButton>
+    <PressButton variant="outline" {@attach pressEffect(rainbow())}>Cancel</PressButton>
     <PressButton variant="ghost">Dismiss</PressButton>
     <PressButton variant="fill" class="jx-pair-destructive">
       Delete

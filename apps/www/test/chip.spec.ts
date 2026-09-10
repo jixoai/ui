@@ -5,14 +5,16 @@
  * deterministic per-variant utility strings consuming the global
  * tokens, the badge-twin scale law (Owner ruling, 2026-09-01 — badge
  * geometry verbatim, the activation root the only difference; slot
- * lanes replace their side's padding), the default ripple
- * ink (undefined effect resolves to the ripple() defaults; null
- * disables every loop), the button/anchor duality, and the
- * slotStart/slotEnd lanes. Rendered from the same-source copy the
- * site consumes ($lib/ui); the ripple runs its real click handlers
- * against jsdom (no layout: getBoundingClientRect is all zeros, so
- * coordinates pass through verbatim and the dot size follows
- * max(w,h) = 0).
+ * lanes replace their side's padding), the effect-attachments flip
+ * (2026-09-09, r4 2026-09-10: the effect prop and its DEFAULT ripple
+ * RETIRED — the chip is a PLAIN activation carrying zero effect
+ * knowledge; ink, when wanted, rides the component tag through
+ * <Chip {@attach pressEffect(ripple())}> onto the stamped root), the
+ * button/anchor duality, and the slotStart/slotEnd lanes. Rendered
+ * from the same-source copy the site consumes ($lib/ui); the attachment's
+ * ripple runs its real gesture surface against jsdom (no layout:
+ * getBoundingClientRect is all zeros, so coordinates pass through
+ * verbatim and the dot size follows max(w,h) = 0).
  *
  * Assertion law: state is read back through the DOM the way a user or
  * assistive tech sees it (roles, attributes, classes) — never through
@@ -23,6 +25,7 @@ import { describe, expect, it } from 'vitest';
 import { tick } from 'svelte';
 
 import ChipHost from './fixtures/chip-host.svelte';
+import { pressEffect } from '../src/lib/ui/press-button/press-effect-runtime';
 import { ripple, shimmer } from '../src/lib/ui/press-button/press-button.svelte';
 
 // ---------------------------------------------------------------------------
@@ -148,77 +151,100 @@ describe('chip scale — the badge twin law', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Effect loops — default ripple, null opt-out, press-button passthrough
+// Effect loops — the component-tag attachment (the effect prop +
+// default ripple retired with effect-attachments, 2026-09-09)
 // ---------------------------------------------------------------------------
 describe('chip effects', () => {
-  it('undefined effect resolves to the ripple() defaults: host attr + ink layer + click ink', async () => {
+  it('ZERO effect knowledge by default: no host attrs, no layer, no stacking pose — the plain activation', () => {
     const { container } = render(ChipHost);
-    const btn = container.querySelector('button')!;
-    expect(btn.hasAttribute('data-jx-ripple-host')).toBe(true);
-    expect(btn.hasAttribute('data-jx-shimmer-host')).toBe(false);
-    expect(btn.classList.contains('jx-rainbow-host')).toBe(false);
-    // the default duration rides the builder: ink clears after 600ms
-    const layer = container.querySelector('.jx-ripple-layer')!;
-    expect(layer).toBeTruthy();
-
-    // pointer click (detail > 0): jsdom's zero rect passes clientX/Y through
-    fireEvent.click(btn, { clientX: 30, clientY: 40, detail: 1 });
-    await tick();
-    const dot = layer.querySelector('.jx-ripple-dot') as HTMLElement;
-    expect(dot.style.left).toBe('30px');
-    expect(dot.style.top).toBe('40px');
-    expect(dot.dataset.shape).toBe('round');
-    expect(dot.getAttribute('style')).toContain('--ripple-color: currentColor');
-
-    await waitFor(() => expect(layer.querySelectorAll('.jx-ripple-dot')).toHaveLength(0));
-  });
-
-  it('effect={null} disables every loop: no host, no layer, no ink — onclick routes directly', async () => {
-    let activations = 0;
-    const { container } = render(ChipHost, {
-      props: { effect: null, onclick: () => activations++ },
-    });
     const btn = container.querySelector('button')!;
     expect(btn.hasAttribute('data-jx-ripple-host')).toBe(false);
     expect(btn.hasAttribute('data-jx-shimmer-host')).toBe(false);
+    expect(btn.classList.contains('jx-rainbow-host')).toBe(false);
     expect(btn.querySelector('.jx-ripple-layer')).toBeNull();
-    fireEvent.click(btn, { clientX: 10, clientY: 10, detail: 1 });
-    await tick();
-    expect(activations).toBe(1);
-    expect(btn.querySelector('.jx-ripple-dot')).toBeNull();
+    expect(btn.className).not.toContain('relative');
+    // the 'root' hook is the public contract, armed or not
+    expect(btn.getAttribute('data-jx-attach')).toBe('root');
   });
 
-  it('the default ripple routes activation through the runtime: onclick fires on click', async () => {
+  it('the REST LANE spreads onto the root: an extra prop lands verbatim (the tag mechanism rides it)', () => {
+    // proves the rest spread exists (r4's forwarding mechanism — the
+    // component-tag attachment reaches the root through this lane)
+    const { container } = render(ChipHost, { props: { dataX: 'probe' } });
+    expect(container.querySelector('button')!.getAttribute('data-x')).toBe('probe');
+  });
+
+  it('onclick routes DIRECTLY now (no runtime seam between): a click fires and spawns nothing', async () => {
     let activations = 0;
     const { container } = render(ChipHost, {
       props: { onclick: () => activations++ },
     });
-    fireEvent.click(container.querySelector('button')!, { clientX: 1, clientY: 1, detail: 1 });
+    const btn = container.querySelector('button')!;
+    fireEvent.click(btn, { clientX: 10, clientY: 10, detail: 1 });
     await tick();
     expect(activations).toBe(1);
+    expect(btn.querySelector('.jx-ripple-ink')).toBeNull();
   });
 
-  it('press-button builders pass through: shimmer tags the host and mounts its layers', () => {
-    const { container } = render(ChipHost, { props: { effect: shimmer({ speed: 4000 }) } });
+  it("the component-tag form mounts press-button loops: ripple ink on the chip's own root", async () => {
+    const { container } = render(ChipHost, {
+      props: { attach: pressEffect(ripple({ duration: 20 })) },
+    });
+    const btn = container.querySelector('button')!;
+    expect(btn.getAttribute('data-jx-attach')).toBe('root'); // bidirectional: marker ↔ the tag's mount
+    expect(btn.hasAttribute('data-jx-ripple-host')).toBe(true);
+    const layer = container.querySelector('.jx-ripple-layer')!;
+
+    // the self-listening gesture surface: ink on POINTERDOWN; THE TARGET
+    // LAW (r6): client coords minus the seat's rect (stubbed — jsdom
+    // computes no layout)
+    Object.defineProperty(layer, 'getBoundingClientRect', {
+      configurable: true,
+      value: () => ({ left: 100, top: 50, width: 300, height: 150, right: 400, bottom: 200, x: 100, y: 50, toJSON: () => ({}) }),
+    });
+    const down = new PointerEvent('pointerdown', { bubbles: true, clientX: 130, clientY: 90 });
+    btn.dispatchEvent(down);
+    const ink = layer.querySelector('.jx-ripple-ink') as SVGCircleElement;
+    expect(ink.tagName).toBe('circle');
+    expect(ink.getAttribute('cx')).toBe('30'); // 130 - 100
+    expect(ink.getAttribute('cy')).toBe('40'); // 90 - 50
+    expect(ink.dataset.shape).toBe('round');
+    expect(layer.getAttribute('style')).toContain('--ripple-color: currentColor');
+
+    // the ink settles on the css timeline's OWN event (r5 — no WAAPI
+    // left; jsdom runs no css animations, so the spec dispatches the
+    // platform's settle event the way a real engine fires it)
+    ink.dispatchEvent(new Event('animationend'));
+    await waitFor(() => expect(layer.querySelectorAll('.jx-ripple-ink')).toHaveLength(0));
+  });
+
+  it('the component tag carries the shimmer loop: stamps + layers on the root', () => {
+    const { container } = render(ChipHost, {
+      props: { attach: pressEffect(shimmer({ speed: 4000 })) },
+    });
     const btn = container.querySelector('button[data-jx-shimmer-host]')!;
     expect(btn.hasAttribute('data-jx-ripple-host')).toBe(false);
     expect(btn.getAttribute('style')).toContain('--shimmer-speed: 4000ms');
-    expect(btn.querySelector('.jx-shimmer-spark')).toBeTruthy();
-    expect(btn.querySelector('.jx-shimmer-cover')).toBeTruthy();
+    // the r8 ring walk: ONE mask-banded span on the root
+    expect(btn.querySelector(':scope > .jx-shimmer-ring')).toBeTruthy();
+    expect(btn.querySelectorAll(':scope > span')).toHaveLength(1);
   });
 
-  it('an explicit ripple() overrides the defaults (bevel shape reaches the dot)', async () => {
+  it('a bevel ripple rides the component tag (the diamond reaches the path)', async () => {
     const { container } = render(ChipHost, {
-      props: { effect: ripple({ duration: 20, shape: 'bevel' }) },
+      props: { attach: pressEffect(ripple({ duration: 20, shape: 'bevel' })) },
     });
     const btn = container.querySelector('button')!;
-    fireEvent.click(btn, { clientX: 5, clientY: 5, detail: 1 });
-    await tick();
-    const dot = container.querySelector('.jx-ripple-dot') as HTMLElement;
-    expect(dot.dataset.shape).toBe('bevel');
-    // jsdom knows no corner-shape: the diamond arrives as the 45° flat square
-    expect(dot.className).toContain('jx-ripple-flat');
-    await waitFor(() => expect(container.querySelectorAll('.jx-ripple-dot')).toHaveLength(0));
+    fireEvent.pointerDown(btn, { clientX: 5, clientY: 5 });
+    const ink = container.querySelector('.jx-ripple-ink')!;
+    expect(ink.tagName).toBe('path');
+    expect(ink.dataset.shape).toBe('bevel');
+    // jsdom knows no corner-shape: the support marker rides the node (the
+    // path draws the diamond directly — the shape law's 50% chamfer)
+    expect(ink.getAttribute('class')).toContain('jx-ripple-flat');
+    // r5 settle: the css timeline's own event, dispatched like an engine
+    ink.dispatchEvent(new Event('animationend'));
+    await waitFor(() => expect(container.querySelectorAll('.jx-ripple-ink')).toHaveLength(0));
   });
 });
 
@@ -226,7 +252,7 @@ describe('chip effects', () => {
 // Button or anchor duality
 // ---------------------------------------------------------------------------
 describe('chip anchor mode', () => {
-  it('href renders an anchor carrying the same ladder + default ink', () => {
+  it('href renders an anchor carrying the same ladder + the root hook', () => {
     const { container } = render(ChipHost, {
       props: { variant: 'outline', href: 'https://github.com/jixoai/ui' },
     });
@@ -234,7 +260,7 @@ describe('chip anchor mode', () => {
     expect(container.querySelector('button')).toBeNull();
     expect(anchor.getAttribute('data-jx-chip')).toBe('outline');
     expect(anchor.className).toContain('jx-press');
-    expect(anchor.hasAttribute('data-jx-ripple-host')).toBe(true);
+    expect(anchor.getAttribute('data-jx-attach')).toBe('root');
     // external hrefs open a new tab with noreferrer
     expect(anchor.getAttribute('target')).toBe('_blank');
     expect(anchor.getAttribute('rel')).toBe('noreferrer');

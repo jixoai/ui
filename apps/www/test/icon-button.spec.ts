@@ -4,7 +4,10 @@
  *   - the two-part contract: icon always decorative (aria-hidden wrap),
  *     text single-sourced — visible in the text posture, aria-label +
  *     tooltip in iconOnly
- *   - full press-button inheritance: paint variant, effect host attrs,
+ *   - full press-button inheritance: paint variant, the component-tag
+ *     attachment (effect-attachments r4, 2026-09-10 — the rest lane
+ *     CHAINS the symbol-keyed prop into the wrapped press-button's own
+ *     spread, landing at its root button),
  *     href/external anchoring, class passthrough, the square 42px band
  */
 import { render } from '@testing-library/svelte';
@@ -12,6 +15,7 @@ import { tick } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import IconButtonHost from './fixtures/icon-button-host.svelte';
 import IconZoneHost from './fixtures/icon-zone-host.svelte';
+import { pressEffect } from '../src/lib/ui/press-button/press-effect-runtime';
 import { shimmer } from '../src/lib/ui/press-button/press-button.svelte';
 
 describe('IconButton', () => {
@@ -59,14 +63,27 @@ describe('IconButton', () => {
     expect(btn.getAttribute('data-jx-press-button')).toBe('fill');
   });
 
-  it('inherits the effect loops (shimmer host attr + spark layer)', async () => {
+  it('the component-tag attachment CHAINS through the composition into the child root (shimmer host attr + ring layer)', async () => {
     const { container } = render(IconButtonHost, {
-      props: { iconOnly: true, effect: shimmer({ speed: 4000 }) },
+      props: { iconOnly: true, attach: pressEffect(shimmer({ speed: 4000 })) },
     });
     await tick();
     const btn = container.querySelector('button')!;
+    // icon-button's rest → press-button's rest → the button element: the
+    // marker + the mount both land on the WRAPPED press-button's root
+    expect(btn.getAttribute('data-jx-attach')).toBe('root');
     expect(btn.hasAttribute('data-jx-shimmer-host')).toBe(true);
-    expect(btn.querySelector('.jx-shimmer-spark')).toBeTruthy();
+    // the magic-ui port: the reference's five shimmer-owned nodes (the
+    // nested reveal > square > sector trio + the backdrop + the highlight)
+    expect(btn.querySelectorAll('[class*="jx-shimmer-"]')).toHaveLength(1);
+    expect(btn.querySelector(':scope > .jx-shimmer-ring')).toBeTruthy();
+  });
+
+  it('the rest lane CHAINS too: an extra prop lands on the wrapped press-button root', () => {
+    // proves the spread chain exists (r4's forwarding mechanism — the
+    // component-tag attachment rides this exact two-hop lane)
+    const { container } = render(IconButtonHost, { props: { dataX: 'probe' } });
+    expect(container.querySelector('button')!.getAttribute('data-x')).toBe('probe');
   });
 
   it('href renders an anchor; external hrefs gain target/rel, internal do not', () => {

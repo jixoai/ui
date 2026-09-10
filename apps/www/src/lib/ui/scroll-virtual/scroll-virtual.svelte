@@ -132,7 +132,12 @@
   }
 
   // dynamic measurement: TanStack needs data-index + measureElement(node)
-  // per row — the row wrapper is ours, so the consumer never writes this
+  // per row — the row wrapper is ours, so the consumer never writes this.
+  // An attachment FACTORY by shape (item in, attachment out) — and the
+  // {@attach measureItem(item)} form (effect-attachments) is the only
+  // mount that ever RAN it: the retired use:measureItem={item} call
+  // bound (node, item) into the curried outer slot, so the inner
+  // measure closure never executed (measured dead in the lane-B spike)
   const measureItem =
     (item: VirtualItem<ItemElement>) =>
     (node: ItemElement): void => {
@@ -155,7 +160,7 @@
         style={horizontal
           ? `position: absolute; inset-block-start: 0; inset-inline-start: ${item.start}px; block-size: 100%`
           : `position: absolute; inset-inline-start: 0; inset-block-start: ${item.start}px; inline-size: 100%`}
-        use:measureItem={item}
+        {@attach measureItem(item)}
       >
         {@render children(item)}
       </div>

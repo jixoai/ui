@@ -86,6 +86,7 @@
 -->
 <script lang="ts">
   import { getContext, onMount, tick } from 'svelte';
+  import { fromAction } from 'svelte/attachments';
   import {
     SWIPE_BY_FLOAT_POS,
     type FloatPos,
@@ -755,7 +756,7 @@
            (Svelte owns this style attr; the swipe vars live on the
            visual card inside, which JS owns) -->
       <div
-        use:bindCard={item.id}
+        {@attach fromAction(bindCard, () => item.id)}
         class={`pointer-events-auto [grid-area:1/1] justify-self-stretch ${growsDown ? 'self-start' : 'self-end'}`}
         style={wrapperStyle(i, collapsedY, expandedY)}
         {...swipeHandlers(item)}
