@@ -129,31 +129,46 @@
   export type PressEffect = ShimmerEffect | PulseEffect | RainbowEffect | RippleEffect;
 
     export interface ShimmerOptions {
-    /** the spark color (any CSS color; currentColor adapts to any host —
-     *  dark ink on light faces, white on dark — the r8 adaptivity law) */
-    color?: string;
-    /** the conic arc width of the spark */
-    spread?: string;
-    /** the rim band's thickness (the ring mask's padding; floored at
-     *  2px by the sheet — the sub-pixel lesson) */
-    cut?: string;
-    /** the pace denominator, in ms (the dwell cycle runs at 2×) */
+    /** the shine color (any CSS color, default white — the reference's
+     *  own default; the arc peaks at this color over the ring base) */
+    shine?: string;
+    /** the shine arc's angular width (the walk's footprint) */
+    shineWidth?: string;
+    /** one full revolution of the arc, in ms */
     speed?: number;
+    /** the ring band's width — the ring layer's OWN border-width and,
+     *  at the same time, its outward inset (calc(ring-w * -1), the
+     *  Owner's r10 geometry: the band must sit ON the host's border
+     *  band, not inside the face). A number is px; a string is any
+     *  CSS length ('0.25em', '4px') */
+    ringW?: number | string;
   }
   export interface ShimmerEffect {
     readonly type: 'shimmer';
-    color: string;
-    spread: string;
-    cut: string;
+    shine: string;
+    shineWidth: string;
     speed: number;
+    /** normalized to a CSS length string (number → px) */
+    ringW: string;
   }
+  /** shimmer (r9/r10, the Owner's settled design — the backdrop-cutout
+   *  ask is RETIRED, CSS cannot hollow a background): the ring layer
+   *  rides the SAME value twice — border-width AND inset -1× — so the
+   *  band lands on the host's border geometry (see press-button.css
+   *  for the forced-transparent border law) */
   export function shimmer({
-    color = 'currentColor',
-    spread = '90deg',
-    cut = '0.1em',
+    shine = '#ffffff',
+    shineWidth = '30deg',
     speed = 3000,
+    ringW = 4,
   }: ShimmerOptions = {}): ShimmerEffect {
-    return { type: 'shimmer', color, spread, cut, speed };
+    return {
+      type: 'shimmer',
+      shine,
+      shineWidth,
+      speed,
+      ringW: typeof ringW === 'number' ? `${ringW}px` : ringW,
+    };
   }
 export interface PulseOptions {
     /** the sonar ring color (any CSS color) */

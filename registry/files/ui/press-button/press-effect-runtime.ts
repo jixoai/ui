@@ -78,7 +78,7 @@ const HOST_CLASSES = ['relative', 'z-0'];
 /** each kernel's own custom properties — the stamp/strip pairs that
  *  keep the runtime coexisting with consumer styles (the liquid-glass
  *  stampVars precedent: rewrite ONLY what you own) */
-const VAR_SHIMMER = /--shimmer-[a-z]+:\s*[^;]*;?/g;
+const VAR_SHIMMER = /--shimmer-[a-z-]+:\s*[^;]*;?/g;
 const VAR_PULSE = /--pulse-[a-z]+:\s*[^;]*;?/g;
 
 /** rainbow owns ONLY the pace + the color stops inline — the paint
@@ -139,24 +139,29 @@ function svgNode(tag: string): SVGElement {
   return document.createElementNS(SVG_NS, tag) as SVGElement;
 }
 
-/** shimmer — the ring port (r5): ONE mask-banded span IS the ring; the
- *  sheet paints the conic arc on its ::before and dwells it around the
- *  rim with `rotate` keyframes — the spark WALKS with holds, there is
- *  no slide left to jam at the corners, and there is no backdrop
- *  sniffing: the host's face is never read, resolved, or painted (a
- *  transparent host stays transparent — the r5 pollution law).
- *  --shimmer-cut feeds the mask as the ring band thickness. One span,
- *  teardown removes it */
+/** shimmer — THE BORDER-BAND RING (r9/r10, the Owner's settled design
+ *  2026-09-10: the backdrop-cutout ask is RETIRED — CSS cannot hollow
+ *  an element's background, so the reference's Afif double-background
+ *  owns the face): ONE ring span rides ring-w TWICE — as its own
+ *  border-width AND as its outward inset (calc(ring-w * -1), the
+ *  r10 geometry: an inset:0 child anchors to the host's PADDING box,
+ *  so without the negative inset the band would paint into the face;
+ *  pushed out, the band lands exactly ON the host's border band).
+ *  The inherited-paint ruling holds: border-color forced transparent,
+ *  border-image forced hidden — the band belongs to the conic. Two
+ *  stacked backgrounds do the rest with zero masks: an opaque fill
+ *  clipped to the padding box over a rotating conic clipped to the
+ *  border box. Params: shine, shineWidth, speed, ringW (number = px);
+ *  fill/base/shine-start ride inheritable --shimmer-* vars with sheet
+ *  defaults. Teardown removes the span + stamps */
 export function applyShimmer(element: HTMLElement, fx: ShimmerEffect): () => void {
   element.setAttribute('data-jx-shimmer-host', '');
   const added = addClasses(element, HOST_CLASSES);
   stampVars(
     element,
-    `--shimmer-color: ${fx.color}; --shimmer-spread: ${fx.spread}; --shimmer-cut: ${fx.cut}; --shimmer-speed: ${fx.speed}ms`,
+    `--shimmer-shine: ${fx.shine}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}`,
     VAR_SHIMMER
   );
-  // r8: ONE mask-banded ring — the spark walks the host's own rim; the
-  // face/radius/text are the host's business, never the effect's
   const ring = span('jx-shimmer-ring');
   element.prepend(ring);
   return () => {

@@ -301,31 +301,31 @@ const fx = liquid.apple({ ${semanticOptionsLine} });
   // free text must become a legal string literal (q() = JSON.stringify)
   const q = (value: string): string => JSON.stringify(value);
 
-  // ---- shimmer — a conic spark walks the perimeter ---------------------
+  // ---- shimmer — the shine arc walks the border band (r9/r10) ----------
 
-  const SHIMMER_INITIAL = { color: 'currentColor', spread: 90, cut: 0.1, speed: 3000 };
-  let shColor = $state(SHIMMER_INITIAL.color); // 'currentColor' | a hex override
-  let shHex = $state('#8b5cf6'); // the picker's seed — becomes the param on pick
-  let shSpread = $state(SHIMMER_INITIAL.spread);
-  let shCut = $state(SHIMMER_INITIAL.cut);
+  const SHIMMER_INITIAL = { shine: '#ffffff', shineWidth: 30, speed: 3000, ringW: 4 };
+  let shShine = $state(SHIMMER_INITIAL.shine);
+  let shShineWidth = $state(SHIMMER_INITIAL.shineWidth);
   let shSpeed = $state(SHIMMER_INITIAL.speed);
-  const shimmerCut = $derived(Math.round(shCut * 100) / 100); // step artifacts rounded away
+  let shRingW = $state(SHIMMER_INITIAL.ringW);
   const shimmerFx = $derived(
-    shimmer({ color: shColor, spread: `${shSpread}deg`, cut: `${shimmerCut}em`, speed: shSpeed }),
+    shimmer({ shine: shShine, shineWidth: `${shShineWidth}deg`, speed: shSpeed, ringW: shRingW }),
   );
   function resetShimmer(): void {
-    shColor = SHIMMER_INITIAL.color;
-    shSpread = SHIMMER_INITIAL.spread;
-    shCut = SHIMMER_INITIAL.cut;
+    shShine = SHIMMER_INITIAL.shine;
+    shShineWidth = SHIMMER_INITIAL.shineWidth;
     shSpeed = SHIMMER_INITIAL.speed;
+    shRingW = SHIMMER_INITIAL.ringW;
   }
   const shimmerUsage = $derived(`<script lang="ts">
   import { pressEffect } from '@ui/press-button';
   import { shimmer } from '@ui/press-button/press-button.svelte';
 ${close}
 
-<!-- the leaf form — a plain element, the factory inline; the dock's live params -->
-<button {@attach pressEffect(shimmer({ color: ${q(shColor)}, spread: '${shSpread}deg', cut: '${shimmerCut}em', speed: ${shSpeed} }))}>
+<!-- the leaf form — the ring layer rides ring-w TWICE: border-width + inset -1×,
+     so the band sits ON the host's border band; the demo keeps the host's own
+     border at the same width for the exact overlap -->
+<button style="border-width: 4px" {@attach pressEffect(shimmer({ shine: ${q(shShine)}, shineWidth: '${shShineWidth}deg', speed: ${shSpeed}, ringW: ${shRingW} }))}>
   deploy
 </button>`);
   const shimmerFiles: TreeFile[] = [
@@ -865,15 +865,15 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
     <div id="shimmer" data-reveal="">
       <ComponentCanvas
         title="shimmer"
-        description="press family · shimmer — a conic spark walks the rim: ONE ring-masked span (mask-composite excludes the padding box — paint lives only in the rim band) carries a conic arc that DWELLS quarter-turn by quarter-turn on registered-angle keyframes, so the spark walks the ring with holds and never jams at a corner. Transparent hosts stay transparent — the effect never reads or paints the host's background. The hosts are NEUTRAL plain elements — the effect never meets the button component here; drag the dock and every host rides ONE fx object through the identity remount."
+        description="press family · shimmer — the shine arc walks the BORDER BAND: the ring layer rides ring-w TWICE — its own border-width AND its outward inset (calc(ring-w × -1)), so the band sits exactly ON the host's border geometry (an inset:0 child would anchor to the padding box and paint into the face). The forced pair holds: border-color transparent, border-image hidden — the band belongs to the conic. Then the Afif double-background: an opaque fill clipped to the padding box over a conic clipped to the border box, so the arc shows only in the band with zero mask machinery. The backdrop cutout this replaces was impossible in CSS; owning the face is the price and the design (r9). The hosts are NEUTRAL plain elements — the effect never meets the button component here; drag the dock and every host rides ONE fx object through the identity remount."
         sourceUrl={registrySourceUrl('press-button')}
         files={shimmerFiles}
         stage="center"
         onreset={resetShimmer}
         output={[
           { label: 'speed', value: `${shSpeed}ms` },
-          { label: 'spread', value: `${shSpread}deg` },
-          { label: 'cut', value: `${shimmerCut}em` },
+          { label: 'shine-width', value: `${shShineWidth}deg` },
+          { label: 'ring-w', value: `${shRingW}px` },
         ]}
         resolveFileContent={resolveShimmerUsage}
       >
@@ -882,6 +882,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
             type="button"
             class="fx-host fx-host-fill"
             data-fx-demo="shimmer-fill"
+            style={`border-width: ${shRingW}px`}
             {@attach pressEffect(shimmerFx)}
           >
             deploy
@@ -890,6 +891,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
             type="button"
             class="fx-host fx-host-pill"
             data-fx-demo="shimmer-pill"
+            style={`border-width: ${shRingW}px`}
             {@attach pressEffect(shimmerFx)}
           >
             invite
@@ -898,6 +900,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
             type="button"
             class="fx-host fx-host-tile"
             data-fx-demo="shimmer-tile"
+            style={`border-width: ${shRingW}px`}
             aria-label="shimmer on a square tile"
             {@attach pressEffect(shimmerFx)}
           >
@@ -906,42 +909,33 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         </div>
         {#snippet playground()}
           <PlayFields>
-            <PlayRow label="color" hint="the spark color — any CSS color; currentColor rides the host's own text">
-              <div class="fx-color">
-                <button
-                  type="button"
-                  class="fx-color-token"
-                  aria-pressed={shColor === 'currentColor'}
-                  onclick={() => (shColor = 'currentColor')}
-                >
-                  currentColor
-                </button>
-                <input
-                  class="fx-color-input"
-                  type="color"
-                  value={shColor.startsWith('#') ? shColor : shHex}
-                  oninput={(event) => {
-                    shHex = event.currentTarget.value;
-                    shColor = shHex;
-                  }}
-                  aria-label="shimmer spark color"
-                />
-              </div>
+            <PlayRow label="shine" hint="the arc's color — any CSS color, white by default">
+              <input
+                class="fx-color-input"
+                type="color"
+                value={shShine}
+                oninput={(event) => (shShine = event.currentTarget.value)}
+                aria-label="shimmer shine color"
+              />
             </PlayRow>
-            <PlayRow label="spread" hint="10–270deg · the conic arc width of the spark">
-              <PlayRange bind:value={shSpread} min={10} max={270} step={5} />
+            <PlayRow label="shine-width" hint="10–180deg · the arc's angular footprint">
+              <PlayRange bind:value={shShineWidth} min={10} max={180} step={5} />
             </PlayRow>
-            <PlayRow label="cut" hint="0–0.3em · the ring band thickness the spark walks">
-              <PlayRange bind:value={shCut} min={0} max={0.3} step={0.01} />
-            </PlayRow>
-            <PlayRow label="speed" hint="400–12000ms · the pace denominator (the dwell cycle runs at 2×)">
+            <PlayRow label="speed" hint="400–12000ms · one full revolution of the arc">
               <PlayRange bind:value={shSpeed} min={400} max={12000} step={100} />
             </PlayRow>
+            <PlayRow label="ring-w" hint="1–8px · the ring layer's border-width AND its outward inset — the demo hosts' borders track it for the exact overlap">
+              <PlayRange bind:value={shRingW} min={1} max={8} step={0.5} />
+            </PlayRow>
             <PlayHelp>
-              every param here is <code>shimmer()</code>'s own — the builder is a pure module
-              export, <code>pressEffect(fx)</code> turns its result into the attachment, and
-              <code>{'{@attach pressEffect(fx)}'}</code> is the whole mount. A dock change
-              REPLACES the fx (a fresh closure, an identity remount) — params flow, never
+              four params are <code>shimmer()</code>'s own — <code>shine</code>,
+              <code>shineWidth</code>, <code>speed</code>, <code>ringW</code> (a number is px; any CSS
+              length string works); the ring rides ring-w TWICE (border-width + inset -1×), and the
+              deeper knobs — <code>--shimmer-fill</code> (the face),
+              <code>--shimmer-base</code> (the ring's rest color),
+              <code>--shimmer-shine-start</code> (the arc's head angle) — are inheritable vars:
+              set them on the host or any ancestor. A dock change REPLACES the fx (a fresh
+              closure, an identity remount) — params flow, never
               mutate. The loop freezes under reduced motion.
             </PlayHelp>
           </PlayFields>
@@ -1268,7 +1262,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         <PropsTable
           title="the press builders — shimmer / pulse / rainbow / ripple"
           props={[
-            { name: 'shimmer(o)', type: 'ShimmerEffect', default: 'see below', description: 'A conic spark walks a ring-masked rim (registered-angle dwell keyframes quarter-turn by quarter-turn; the host’s background is never read or painted). Options: color? (any CSS color, default currentColor), spread? (the conic arc width, default 90deg), cut? (the ring band thickness, default 0.1em for a stable 1x-DPR rim), speed? (the pace denominator in ms, default 3000 — the dwell cycle runs at 2×).' },
+            { name: 'shimmer(o)', type: 'ShimmerEffect', default: 'see below', description: 'The shine arc walks the BORDER BAND — the ring layer rides ringW TWICE (its own border-width AND its outward inset, calc(ring-w × -1), so the band sits on the host’s border geometry), forces border-color transparent and border-image hidden, then paints the Afif double-background: an opaque fill clipped to the padding box over a conic clipped to the border box, so the arc shows only in the band (no mask machinery; the face is the effect’s — the cutout ask is retired). Options: shine? (any CSS color, default #ffffff), shineWidth? (the arc’s angular width, default 30deg), speed? (one full revolution, in ms, default 3000), ringW? (number = px, or any CSS length string, default 4). Inheritable beyond the params: --shimmer-fill (the face, default var(--background)), --shimmer-base (the ring’s rest color, default currentColor), --shimmer-shine-start (the arc’s head angle, default 280deg).' },
             { name: 'pulse(o)', type: 'PulseEffect', default: 'see below', description: 'Sonar rings breathe outward from the body’s silhouette. Options: color? (default var(--primary)), duration? (default 2500ms), distance? (default 0.7em), variant? — slow | ring | ripple (default slow).' },
             { name: 'rainbow(o)', type: 'RainbowEffect', default: 'see below', description: 'A five-stop train flows around the FULL ring (a registered --jx-rainbow-shift pans the stops through one 200% cycle, mask-banded to the rim; the host’s background is never touched). Options: speed? (the flow pace in ms, default 2000), colors? (a non-empty array, default five hsl primes).' },
             { name: 'ripple(o)', type: 'RippleEffect', default: 'see below', description: 'Ink expands from the exact press point, centered on keyboard activation — a css-animated svg dot with an optional feGaussianBlur soft edge (soft, default 0 — 0 disables the filter), riding a seat that inherits the host’s border-radius with overflow hidden, removed on animationend. Options: color? (default currentColor), duration? (default 600ms), soft? (default 0), shape? — round | bevel (bevel cuts the corners into a diamond).' },

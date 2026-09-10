@@ -285,8 +285,11 @@ describe('press-button theme scoping — the grammar slots', () => {
 // ---------------------------------------------------------------------------
 describe('press-button effects', () => {
   it('the builders return discriminated descriptors', () => {
-    expect(shimmer()).toEqual({ type: 'shimmer', color: 'currentColor', spread: '90deg', cut: '0.1em', speed: 3000 });
-    expect(shimmer({ speed: 4000, color: '#fff' }).speed).toBe(4000);
+    expect(shimmer()).toEqual({ type: 'shimmer', shine: '#ffffff', shineWidth: '30deg', speed: 3000, ringW: '4px' });
+    expect(shimmer({ speed: 4000, shine: '#facc15' }).speed).toBe(4000);
+    // ringW normalizes: a number lands as px, a length string passes through
+    expect(shimmer({ ringW: 6 }).ringW).toBe('6px');
+    expect(shimmer({ ringW: '0.25em' }).ringW).toBe('0.25em');
     // the sonar ring defaults to the brand hue: currentColor would paint
     // white-on-white (invisible) on light primary buttons
     expect(pulse().color).toBe('var(--primary)');

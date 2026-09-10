@@ -14,73 +14,75 @@
  * Static layer rules ride @layer components behind :where() — zero
  * specificity, so consumer utilities still win (the layer law). */
 
-/* THE RING-MASK LAW (r5, the Owner findings 「样式污染到 background」
-   and 「顶部没有效果」): both rim effects paint through ONE mask-banded
-   span and never touch the host. Why not border-image (the Owner's
-   directional hint): border-image IGNORES border-radius (CSS law —
-   the image slices into the corners as-is, a round rim would render
-   square), so the radius-safe equivalent is the ring mask — paint the
-   gradient over the WHOLE inset-0 span, take the ring's thickness as
-   padding, then subtract the padding box from the border box:
-   mask-composite: exclude (Safari's legacy dual-write:
-   -webkit-mask-composite: xor — the same subtraction). Paint exists
-   ONLY in the ring band, border-radius/corner-shape inherit keeps it
-   glued to the host's own silhouette, and the host's face/background
-   is never read, resolved, or painted — a transparent host shows the
-   rim and NOTHING else (r4's backdrop-cut sniffing and rainbow
-   host-face layering were exactly that pollution class; both are
-   deleted with their computed-background resolution code). */
+/* THE RIM PAINT LAWS — one per rim effect, split at r9:
+   shimmer paints the BORDER BAND through the Afif double-background
+   (an opaque fill clipped to padding-box over a conic clipped to
+   border-box — see the shimmer block below; the cutout that masks
+   used to fake is now REAL border geometry, and ring width = the
+   host's own border-width). rainbow keeps the RING-MASK LAW (r5, the
+   Owner findings 「样式污染到 background」 and 「顶部没有效果」): ONE
+   mask-banded span, never touching the host — paint the gradient over
+   the WHOLE inset-0 span, take the ring's thickness as padding, then
+   subtract the padding box from the border box (mask-composite:
+   exclude; Safari's legacy dual-write -webkit-mask-composite: xor).
+   Why not border-image for either (the Owner's r5 directional hint):
+   border-image IGNORES border-radius (CSS law — the image slices into
+   the corners as-is, a round rim would render square). */
 
 @layer components {
 /* The effect scenery sits at NEGATIVE z-index under the in-flow label
    (the host carries relative z-0 — its own stacking context, stamped by
    the runtime), so nothing escapes and the label is never occluded. */
 
-/* shimmer — the RING WALK, r8 final (the Owner's three-part ruling
-   2026-09-10: 「固定成黑底」「原始的 border-radius 都看不到」「文字都看
-   不到」): the effect NEVER paints the host — no face, no text color, no
-   border, no radius of its own (the reference button owns its face; OUR
-   hosts own theirs). ONE mask-banded span paints a conic spark that
-   WALKS the rim on the dwell cadence; the band glues to the host's own
-   silhouette (radius + corner-shape inherit) and the spark defaults to
-   currentColor so it reads on ANY host (dark ink on light faces, white
-   on dark — the adaptivity the fixed #ffffff default could never have).
-   The r5 failures are both fixed and pinned: the band carries the 2px
-   perceptual floor (0.06em ≈ 0.78px was sub-pixel at 1x DPR), and the
-   span rides z:0 (a negative layer disappears behind an opaque host
-   background in the docs' Chromium paint order — Codex's measured
-   finding, kept as law). */
+/* shimmer — THE BORDER-BAND RING, r9/r10 final (the Owner's settled
+   design 2026-09-10: 「核心的问题其实就是我一直在要求背景镂空。但是
+   这个目前在 CSS 里面是无法做到的。所以我现在放弃这个要求」, then the
+   r10 geometry: 「需要同时把这个值用在 inset 上：calc(borderWidth *
+   -1)」): the Afif double-background replaces the mask machinery — ONE
+   ring span rides ring-w TWICE, as its own border-width AND as its
+   outward inset. The inset law exists because an absolutely
+   positioned child anchors to the host's PADDING box — inset:0 would
+   push the band into the face; pushed out by the full ring width, the
+   band lands exactly ON the host's border band (and the fill covers
+   the host's padding box, i.e. the face, exactly). The Owner's forced
+   pair rides the ring: border-color TRANSPARENT, border-image NONE —
+   the band belongs to the conic, never to ink or slices. Two stacked
+   backgrounds do the rest with zero masks: an opaque FILL clipped to
+   the padding box covers the conic's interior, the CONIC (ring base +
+   the shine arc) clips to the border box — the only place it shows is
+   the border band, exactly the cutout that was impossible any other
+   way. The span sits at z:-1 under the in-flow label and over the
+   host's own background (the pulse-layer precedent; the runtime
+   stamps relative z-0 on the host). Inheritable knobs beyond the
+   params: --shimmer-fill (the face, default the page's --background
+   token), --shimmer-base (the ring's rest color, default
+   currentColor), --shimmer-shine-start (the arc's head angle, default
+   280deg) — set them on the host or any ancestor, they cascade. */
 :where(.jx-shimmer-ring) {
   position: absolute;
-  inset: 0;
-  z-index: 0;
+  inset: calc(var(--shimmer-ring-w, 4px) * -1);
+  z-index: -1;
+  border-width: var(--shimmer-ring-w, 4px);
+  border-style: solid;
+  border-color: transparent;
+  border-image: none;
   border-radius: inherit;
   corner-shape: inherit;
   pointer-events: none;
-  padding: max(var(--shimmer-cut), 2px);
-  mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  /* THE CARRIER LAW (measured through the mask, video + software
-     raster): the dwell keyframes animate the REGISTERED angle ON THE
-     MASKED SPAN — the only site that re-rasters through the mask; the
-     ::before follows via the inherited angle through rotate */
-  animation: jx-shimmer-spin calc(var(--shimmer-speed) * 2) linear infinite;
-}
-/* the pseudo rides OUTSIDE the :where() — :where may not contain
-   pseudo-elements (invalid selector, the browser drops the rule) */
-:where(.jx-shimmer-ring)::before {
-  content: '';
-  position: absolute;
-  inset: -100%;
-  background: conic-gradient(
-    from calc(0deg - var(--shimmer-spread) * 0.5),
-    transparent 0deg,
-    var(--shimmer-color) var(--shimmer-spread),
-    transparent var(--shimmer-spread)
-  );
-  rotate: var(--jx-shimmer-angle);
+  background-image:
+    linear-gradient(var(--shimmer-fill, var(--background)), var(--shimmer-fill, var(--background))),
+    conic-gradient(
+      from var(--jx-shimmer-angle),
+      var(--shimmer-base, currentColor) 0deg,
+      var(--shimmer-base, currentColor) var(--shimmer-shine-start, 280deg),
+      var(--shimmer-shine) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg) / 2),
+      var(--shimmer-base, currentColor) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg)),
+      var(--shimmer-base, currentColor) 360deg
+    );
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-repeat: no-repeat;
+  animation: jx-shimmer-spin var(--shimmer-speed, 3000ms) linear infinite;
 }
 
 /* pulse — sonar rings cast by a silhouette copy of the body. r4 ruling
@@ -212,12 +214,13 @@
 /* the registered-property laws: a custom property MUST be registered
    (@property) before keyframes can animate it — the interpolation
    needs the syntax, unregistered properties flip discretely at 50%.
-   shimmer's angle INHERITS (the masked span animates; the ::before
-   follows through rotate); rainbow's shift does not (each carrier
-   paints its own train). Top-level by law (not allowed inside @layer) */
+   shimmer's angle does NOT inherit (the ring span is the only
+   consumer — its own conic reads it, the r9 single-carrier form);
+   rainbow's shift does not either (each carrier paints its own
+   train). Top-level by law (not allowed inside @layer) */
 @property --jx-shimmer-angle {
   syntax: '<angle>';
-  inherits: true;
+  inherits: false;
   initial-value: 0deg;
 }
 @property --jx-rainbow-shift {
@@ -226,23 +229,12 @@
   initial-value: 0%;
 }
 
-/* the shimmer cadence: the reference's DWELL holds (15–35% at 90deg,
-   65–85% at 270deg) carried on the REGISTERED angle — the masked span's
-   own repaint path (the carrier law; a rotate() keyframe goes
-   compositor-side and never invalidates the masked composite) */
+/* the shimmer cadence, r9: ONE uniform revolution — the reference's
+   own spin (`to { --angle: 360deg }`, linear). The registered angle
+   rotates the WHOLE conic, so the shine arc walks the band once per
+   --shimmer-speed; the dwell holds of r5-r8 retired with the mask */
 @keyframes jx-shimmer-spin {
-  0% {
-    --jx-shimmer-angle: 0deg;
-  }
-  15%,
-  35% {
-    --jx-shimmer-angle: 90deg;
-  }
-  65%,
-  85% {
-    --jx-shimmer-angle: 270deg;
-  }
-  100% {
+  to {
     --jx-shimmer-angle: 360deg;
   }
 }
