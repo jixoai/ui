@@ -61,8 +61,20 @@ export type SystemDialogSurfaceVariant = ReturnType<typeof alertDialogSurfaceVar
 export const alertDialogActionVariantSlot = defineLiteralSlot(['fill', 'tonal', 'outline'], 'fill');
 export type SystemDialogActionVariant = ReturnType<typeof alertDialogActionVariantSlot>;
 
+/**
+ * The HOST's confirm tone — which paint family the affirmative rung
+ * rides. Own 'destructive' ships as the family default (the question
+ * usually guards a dangerous act); the host's mode-conditional own
+ * (alert → primary) is the component's default injection, auditable
+ * in one place (the A1 slot the context gate demanded — fix-forward
+ * on the gate main landed red).
+ */
+export const systemDialogToneSlot = defineLiteralSlot(['primary', 'destructive'], 'destructive');
+export type SystemDialogTone = ReturnType<typeof systemDialogToneSlot>;
+
 export const SystemDialogDefaults = defineComponentDefaults({
   variant: alertDialogSurfaceVariantSlot,
   actionVariant: alertDialogActionVariantSlot,
+  tone: systemDialogToneSlot,
   density: densitySlot(),
 });

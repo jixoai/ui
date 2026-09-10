@@ -35,6 +35,7 @@
   import SystemDialogAction from './system-dialog-action.svelte';
   import SystemDialogCancel from './system-dialog-cancel.svelte';
   import Input from '$lib/ui/input/input.svelte';
+  import { SystemDialogDefaults, type SystemDialogTone } from './system-dialog-defaults.svelte';
 
   export type SystemMode = 'alert' | 'confirm' | 'prompt';
 
@@ -48,7 +49,7 @@
     cancelLabel: string;
     /** the confirm rung's paint: destructive fill (the family default —
         the question usually guards a dangerous act) | the brand pair */
-    tone?: 'destructive' | 'primary';
+    tone?: SystemDialogTone;
     /** prompt-only: the input's visible label */
     inputLabel?: string;
     /** prompt-only */
@@ -79,11 +80,17 @@
   const cancelValue = $derived(mode === 'prompt' ? null : false);
   const confirmValue = $derived.by(() => (mode === 'prompt' ? text : true));
 
+  // the family Defaults is the single read point (context-defaults-
+  // economy 3.2, the A3 law the gate demanded): the confirm tone rides
+  // its OWN slot; the mode-conditional default above is this host's
+  // declared own, ambient never consulted for it
+  const d = $derived(SystemDialogDefaults.resolve({ tone }));
+
   // the primary rung: the consumer recipe for the brand pair over the
   // fill rung (the family docs' own — the destructive default needs
   // nothing, jx-pair-destructive already rides it)
   const actionClass = $derived(
-    tone === 'primary' ? '[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]' : '',
+    d.tone === 'primary' ? '[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]' : '',
   );
 
   function settle(value: boolean | string | null): void {

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-10T17:08:29.883Z",
+  "generatedAt": "2026-09-10T17:34:00.891Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -157,8 +157,8 @@
           "source": "registry/files/ui/press-button/press-button.css",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.css",
           "target": "@ui/press-button/press-button.css",
-          "sourceSha": "4b3c0d75f1145ab5af215bb972a0fe8cd32334e2d362460de25618b5d34172c8",
-          "mirrorSha": "4b3c0d75f1145ab5af215bb972a0fe8cd32334e2d362460de25618b5d34172c8"
+          "sourceSha": "e17e59591c7ba8cfafe9c675d4f1b43d7b496e122e8d79bbdcd93df000c9f300",
+          "mirrorSha": "e17e59591c7ba8cfafe9c675d4f1b43d7b496e122e8d79bbdcd93df000c9f300"
         },
         {
           "source": "registry/files/ui/press-button/ripple.svelte.ts",
@@ -2662,15 +2662,15 @@
           "source": "registry/files/ui/system-dialog/system-dialog-defaults.svelte.ts",
           "mirror": "apps/www/src/lib/ui/system-dialog/system-dialog-defaults.svelte.ts",
           "target": "@ui/system-dialog/system-dialog-defaults.svelte.ts",
-          "sourceSha": "2224127a1860e90a502d4c6ca01343d076a920b7c55b9c7639241461b1b1d9fd",
-          "mirrorSha": "2224127a1860e90a502d4c6ca01343d076a920b7c55b9c7639241461b1b1d9fd"
+          "sourceSha": "d4af54d826acb0a3f9bb47009dc8f424b3c1b5ae4bc9961f562c391abd33e792",
+          "mirrorSha": "d4af54d826acb0a3f9bb47009dc8f424b3c1b5ae4bc9961f562c391abd33e792"
         },
         {
           "source": "registry/files/ui/system-dialog/system-dialog-host.svelte",
           "mirror": "apps/www/src/lib/ui/system-dialog/system-dialog-host.svelte",
           "target": "@ui/system-dialog/system-dialog-host.svelte",
-          "sourceSha": "1bc5ef0df4a1c3f336374d2367c731abe40ba5e8350b855b0ef1d71be49ded2c",
-          "mirrorSha": "1bc5ef0df4a1c3f336374d2367c731abe40ba5e8350b855b0ef1d71be49ded2c"
+          "sourceSha": "84ebdb294d3f3f898ed398b94ec497091c62c65d028d636c31000a859ed6200e",
+          "mirrorSha": "84ebdb294d3f3f898ed398b94ec497091c62c65d028d636c31000a859ed6200e"
         },
         {
           "source": "registry/files/ui/system-dialog/system-dialog.svelte.ts",
