@@ -38,6 +38,7 @@
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/source-code-pro": "^5.3.0",
     "@jixoai/ui-betlang-wasm": "file:../../packages/betlang-wasm",
+    "@jixoai/ui-design": "file:../../packages/design-tool",
     "@jixoai/ui-vite-plugin": "file:../../packages/vite-plugin",
     "@tanstack/svelte-virtual": "^3.13.36",
     "clsx": "^2.1.1",
