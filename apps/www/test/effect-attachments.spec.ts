@@ -372,9 +372,12 @@ describe('pressEffect · mount stamps + teardown cleans (the r5 ring recipes)', 
     expect(el.getAttribute('style')).toContain('--shimmer-shine-width: 45deg');
     expect(el.getAttribute('style')).toContain('--shimmer-speed: 4000ms');
     expect(el.getAttribute('style')).toContain('--shimmer-ring-w: 0.25em');
-    // r11: the fill resolves to the context base (opaque) and the clip
-    // rides the engine's answer — jsdom answers no border-area
-    expect(el.getAttribute('style')).toContain('--shimmer-fill: rgb(');
+    // r12: the default fill rides the COLOR-SCHEME system color
+    // (light → white, dark → black, live with the Context toggle),
+    // ring-color stamps its default, and the clip rides the engine's
+    // answer — jsdom answers no border-area
+    expect(el.getAttribute('style')).toContain('--shimmer-fill: Canvas');
+    expect(el.getAttribute('style')).toContain('--shimmer-base: currentColor');
     expect(el.getAttribute('style')).toContain('--shimmer-clip: padding-box, border-box');
     // no child elements at all — the host itself is the ring
     expect(el.children.length).toBe(0);

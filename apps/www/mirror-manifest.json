@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-10T16:33:36.820Z",
+  "generatedAt": "2026-09-10T16:49:08.135Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -143,8 +143,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "49e8bba64382c2b4ad853f312f32120f8f3e8e604445523662f9636ecfcee576",
-          "mirrorSha": "49e8bba64382c2b4ad853f312f32120f8f3e8e604445523662f9636ecfcee576"
+          "sourceSha": "9d277e01bbd627e12d8deba9ce94754a4d92be04fffba36e4752384cc33549c7",
+          "mirrorSha": "9d277e01bbd627e12d8deba9ce94754a4d92be04fffba36e4752384cc33549c7"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -171,8 +171,8 @@
           "source": "registry/files/ui/press-button/press-effect-runtime.ts",
           "mirror": "apps/www/src/lib/ui/press-button/press-effect-runtime.ts",
           "target": "@ui/press-button/press-effect-runtime.ts",
-          "sourceSha": "e606ac62c087c6dd878284050580d488e51a670f3de57abe7248089849b41ba3",
-          "mirrorSha": "e606ac62c087c6dd878284050580d488e51a670f3de57abe7248089849b41ba3"
+          "sourceSha": "5660fa08a5c62228d5e784f6dffd327ab96ff337bfd2a8bf3dbf7366b419a69c",
+          "mirrorSha": "5660fa08a5c62228d5e784f6dffd327ab96ff337bfd2a8bf3dbf7366b419a69c"
         },
         {
           "source": "registry/files/ui/press-button/press-button-defaults.svelte.ts",

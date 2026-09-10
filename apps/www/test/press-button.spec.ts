@@ -285,7 +285,14 @@ describe('press-button theme scoping — the grammar slots', () => {
 // ---------------------------------------------------------------------------
 describe('press-button effects', () => {
   it('the builders return discriminated descriptors', () => {
-    expect(shimmer()).toEqual({ type: 'shimmer', shine: '#ffffff', shineWidth: '30deg', speed: 3000, ringW: '4px' });
+    expect(shimmer()).toEqual({
+      type: 'shimmer',
+      shine: 'var(--primary)',
+      ringColor: 'currentColor',
+      shineWidth: '30deg',
+      speed: 3000,
+      ringW: '4px',
+    });
     expect(shimmer({ speed: 4000, shine: '#facc15' }).speed).toBe(4000);
     // ringW normalizes: a number lands as px, a length string passes through
     expect(shimmer({ ringW: 6 }).ringW).toBe('6px');

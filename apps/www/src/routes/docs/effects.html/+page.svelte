@@ -303,13 +303,23 @@ const fx = liquid.apple({ ${semanticOptionsLine} });
 
   // ---- shimmer — the host-channel ring over the animated band (r11) ----
 
-  const SHIMMER_INITIAL = { shine: '#ffffff', shineWidth: 30, speed: 3000, ringW: 4 };
-  let shShine = $state(SHIMMER_INITIAL.shine);
+  const SHIMMER_INITIAL = {
+    shine: 'var(--primary)',
+    ringColor: 'currentColor',
+    shineWidth: 30,
+    speed: 3000,
+    ringW: 4,
+  };
+  let shShine = $state(SHIMMER_INITIAL.shine); // 'var(--primary)' | a hex override
+  let shShineHex = $state('#3d6bff'); // the picker's seed — becomes the param on pick
+  let shRingColor = $state(SHIMMER_INITIAL.ringColor); // 'currentColor' | a hex override
+  let shRingHex = $state('#1e2f56');
   let shShineWidth = $state(SHIMMER_INITIAL.shineWidth);
   let shSpeed = $state(SHIMMER_INITIAL.speed);
   let shRingW = $state(SHIMMER_INITIAL.ringW);
-  // the fill channel (r11): undefined = the context base (opaque),
-  // null = transparent, number = solidFill()-minted opaque
+  // the fill channel (r11): undefined = the context's theme token
+  // (light/dark follows the Context), null = transparent,
+  // number = solidFill()-minted opaque
   let shFill = $state<number | null | undefined>(undefined);
   let shFillHex = $state('#0d1220');
   const shFillReadout = $derived(
@@ -318,6 +328,7 @@ const fx = liquid.apple({ ${semanticOptionsLine} });
   const shimmerFx = $derived(
     shimmer({
       shine: shShine,
+      ringColor: shRingColor,
       shineWidth: `${shShineWidth}deg`,
       speed: shSpeed,
       ringW: shRingW,
@@ -326,6 +337,7 @@ const fx = liquid.apple({ ${semanticOptionsLine} });
   );
   function resetShimmer(): void {
     shShine = SHIMMER_INITIAL.shine;
+    shRingColor = SHIMMER_INITIAL.ringColor;
     shShineWidth = SHIMMER_INITIAL.shineWidth;
     shSpeed = SHIMMER_INITIAL.speed;
     shRingW = SHIMMER_INITIAL.ringW;
@@ -336,11 +348,12 @@ const fx = liquid.apple({ ${semanticOptionsLine} });
   import { shimmer } from '@ui/press-button/press-button.svelte';
 ${close}
 
-<!-- the host itself carries the ring — its border IS the band. fill: an
-     opaque number from solidFill(cssColor) against the context's light/dark
-     base, or null for transparent (the border-area cutout where the engine
-     supports it, the blend emulation elsewhere) -->
-<button {@attach pressEffect(shimmer({ shine: ${q(shShine)}, shineWidth: '${shShineWidth}deg', speed: ${shSpeed}, ringW: ${shRingW}, fill: ${shFill === null ? 'null' : shFill === undefined ? 'solidFill(\'rgba(255, 255, 255, 0.35)\')' : `solidFill('${shFillHex}')`} }))}>
+<!-- the host itself carries the ring — its border IS the band. shine defaults
+     to the primary token, ring-color to currentColor, and fill: an opaque
+     number from solidFill(cssColor) against the context's light/dark base, or
+     null for transparent (the border-area cutout where the engine supports
+     it, the blend emulation elsewhere) -->
+<button {@attach pressEffect(shimmer({ shine: ${shShine === SHIMMER_INITIAL.shine ? "'var(--primary)'" : q(shShine)}, ringColor: ${shRingColor === SHIMMER_INITIAL.ringColor ? "'currentColor'" : q(shRingColor)}, shineWidth: '${shShineWidth}deg', speed: ${shSpeed}, ringW: ${shRingW}, fill: ${shFill === null ? 'null' : shFill === undefined ? 'solidFill(\'rgba(255, 255, 255, 0.35)\')' : `solidFill('${shFillHex}')`} }))}>
   deploy
 </button>`);
   const shimmerFiles: TreeFile[] = [
@@ -889,6 +902,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
           { label: 'speed', value: `${shSpeed}ms` },
           { label: 'shine-width', value: `${shShineWidth}deg` },
           { label: 'ring-w', value: `${shRingW}px` },
+          { label: 'ring-color', value: shRingColor },
           { label: 'fill', value: shFillReadout },
         ]}
         resolveFileContent={resolveShimmerUsage}
@@ -930,14 +944,49 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         </div>
         {#snippet playground()}
           <PlayFields>
-            <PlayRow label="shine" hint="the arc's color — any CSS color, white by default">
-              <input
-                class="fx-color-input"
-                type="color"
-                value={shShine}
-                oninput={(event) => (shShine = event.currentTarget.value)}
-                aria-label="shimmer shine color"
-              />
+            <PlayRow label="shine" hint="the arc's color — the primary token by default, or any picked color">
+              <div class="fx-color">
+                <button
+                  type="button"
+                  class="fx-color-token"
+                  aria-pressed={shShine === 'var(--primary)'}
+                  onclick={() => (shShine = 'var(--primary)')}
+                >
+                  primary
+                </button>
+                <input
+                  class="fx-color-input"
+                  type="color"
+                  value={shShine.startsWith('#') ? shShine : shShineHex}
+                  oninput={(event) => {
+                    shShineHex = event.currentTarget.value;
+                    shShine = shShineHex;
+                  }}
+                  aria-label="shimmer shine color"
+                />
+              </div>
+            </PlayRow>
+            <PlayRow label="ring-color" hint="the ring's rest color — currentColor by default (the host's own ink), or any picked color">
+              <div class="fx-color">
+                <button
+                  type="button"
+                  class="fx-color-token"
+                  aria-pressed={shRingColor === 'currentColor'}
+                  onclick={() => (shRingColor = 'currentColor')}
+                >
+                  currentColor
+                </button>
+                <input
+                  class="fx-color-input"
+                  type="color"
+                  value={shRingColor.startsWith('#') ? shRingColor : shRingHex}
+                  oninput={(event) => {
+                    shRingHex = event.currentTarget.value;
+                    shRingColor = shRingHex;
+                  }}
+                  aria-label="shimmer ring color"
+                />
+              </div>
             </PlayRow>
             <PlayRow label="fill" hint="auto = the context's base, opaque · a color = solidFill() mints the number · transparent = null (the cutout, or the blend emulation)">
               <div class="fx-color">
@@ -979,15 +1028,18 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
               <PlayRange bind:value={shRingW} min={1} max={8} step={0.5} />
             </PlayRow>
             <PlayHelp>
-              five knobs — <code>shine</code>, <code>fill</code>, <code>shineWidth</code>,
-              <code>speed</code>, <code>ringW</code> (a number is px; any CSS length string works).
-              <code>fill</code> is the number channel: an opaque 0xRRGGBB from
+              six knobs — <code>shine</code> (defaults to the primary token), <code>ringColor</code>
+              (the ring's rest color, default currentColor — the host's own ink),
+              <code>fill</code>, <code>shineWidth</code>, <code>speed</code>,
+              <code>ringW</code> (a number is px; any CSS length string works).
+              <code>fill</code> is the number channel: undefined rides the color-scheme system
+              color <code>Canvas</code> (the face follows the Context's dark/light live — light →
+              white, dark → black), an explicit number comes from
               <code>solidFill(cssColor)</code> (composited over the context's light/dark base), or
               <code>null</code> for transparent — the true cutout where the engine clips
               <code>border-area</code>, the white/black + <code>darken</code>/<code>lighten</code>
-              blend emulation where it does not (best seen over the animated band). The deeper knobs
-              — <code>--shimmer-base</code> (the ring's rest color),
-              <code>--shimmer-shine-start</code> (the arc's head angle) — are inheritable vars. A
+              blend emulation where it does not (best seen over the animated band). The deeper knob
+              <code>--shimmer-shine-start</code> (the arc's head angle) is an inheritable var. A
               dock change REPLACES the fx (a fresh closure, an identity remount) — params flow,
               never mutate. The loop freezes under reduced motion.
             </PlayHelp>
@@ -1339,7 +1391,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         <PropsTable
           title="the press builders — shimmer / pulse / rainbow / ripple"
           props={[
-            { name: 'shimmer(o)', type: 'ShimmerEffect', default: 'see below', description: 'The shine arc walks the host’s OWN border — the effect paints the HOST ITSELF (no child layer, no inset): border-width = ringW with color forced transparent and image forced hidden, the double background (a fill layer clipped to the padding box over a rotating conic) clipped through --shimmer-clip — border-area where Chrome 139+ answers (the TRUE cutout), border-box elsewhere. Options: shine? (any CSS color, default #ffffff), fill? (the FACE: an opaque 0xRRGGBB number — solidFill(cssColor) mints these by compositing over the context’s light/dark base — or null for transparent; default = the context’s own base, opaque), shineWidth? (the arc’s angular width, default 30deg), speed? (one full revolution, in ms, default 3000), ringW? (number = px, or any CSS length string, default 4). A null fill where border-area is missing rides the blend emulation: light context → white + mix-blend-mode darken, dark → black + lighten. Inheritable: --shimmer-base (the ring’s rest color, default currentColor), --shimmer-shine-start (default 280deg).' },
+            { name: 'shimmer(o)', type: 'ShimmerEffect', default: 'see below', description: 'The shine arc walks the host’s OWN border — the effect paints the HOST ITSELF (no child layer, no inset): border-width = ringW with color forced transparent and image forced hidden, the double background (a fill layer clipped to the padding box over a rotating conic) clipped through --shimmer-clip — border-area where Chrome 139+ answers (the TRUE cutout), border-box elsewhere. Options: shine? (any CSS color, default var(--primary)), ringColor? (the ring’s REST color — the band the arc walks on, default currentColor), fill? (the FACE: an opaque 0xRRGGBB number — solidFill(cssColor) mints these by compositing over the context’s light/dark base — or null for transparent; default = the color-scheme system color Canvas — light/dark follows the Context live), shineWidth? (the arc’s angular width, default 30deg), speed? (one full revolution, in ms, default 3000), ringW? (number = px, or any CSS length string, default 4). A null fill where border-area is missing rides the blend emulation: light context → white + mix-blend-mode darken, dark → black + lighten. Inheritable: --shimmer-shine-start (the arc’s head angle, default 280deg).' },
             { name: 'pulse(o)', type: 'PulseEffect', default: 'see below', description: 'Sonar rings breathe outward from the body’s silhouette. Options: color? (default var(--primary)), duration? (default 2500ms), distance? (default 0.7em), variant? — slow | ring | ripple (default slow).' },
             { name: 'rainbow(o)', type: 'RainbowEffect', default: 'see below', description: 'A five-stop train flows around the FULL ring (a registered --jx-rainbow-shift pans the stops through one 200% cycle, mask-banded to the rim; the host’s background is never touched). Options: speed? (the flow pace in ms, default 2000), colors? (a non-empty array, default five hsl primes).' },
             { name: 'ripple(o)', type: 'RippleEffect', default: 'see below', description: 'Ink expands from the exact press point, centered on keyboard activation — a css-animated svg dot with an optional feGaussianBlur soft edge (soft, default 0 — 0 disables the filter), riding a seat that inherits the host’s border-radius with overflow hidden, removed on animationend. Options: color? (default currentColor), duration? (default 600ms), soft? (default 0), shape? — round | bevel (bevel cuts the corners into a diamond).' },

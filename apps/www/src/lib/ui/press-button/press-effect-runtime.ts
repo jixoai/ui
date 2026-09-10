@@ -125,33 +125,33 @@ function parseColor(color: string): [number, number, number, number] | null {
   return null;
 }
 
-/** the Context's base color (the Owner's 「根据当前Context的 light/dark
- *  提供一个底色」): the page root's own background when it is opaque
- *  (theme-true by construction), else the scheme's white/black */
+/** the Context's theme state (the Owner's r12 ruling: the fill default
+ *  FOLLOWS the context's dark/light): the site's own toggle first
+ *  (html.dark), then the scheme */
+export function contextIsDark(): boolean {
+  if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
+    return true;
+  }
+  return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+/** the Context's base color — the page root's own background when it
+ *  is opaque (the visible page base), else the scheme's white/black
+ *  (never the --background TOKEN: measured dark even under this
+ *  site's light theme — tokens lie, the rendered root does not) */
 export function contextBaseCss(): string {
   if (typeof document !== 'undefined') {
     const bg = getComputedStyle(document.documentElement).backgroundColor;
     const parsed = parseColor(bg);
-    if (parsed && parsed[3] === 1 && (parsed[0] || parsed[1] || parsed[2] || bg === 'rgb(0, 0, 0)')) {
-      return bg;
-    }
+    if (parsed && parsed[3] === 1) return bg;
   }
-  const dark =
-    (typeof document !== 'undefined' &&
-      document.documentElement.classList.contains('dark')) ||
-    (typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches);
-  return dark ? '#000000' : '#ffffff';
+  return contextIsDark() ? '#000000' : '#ffffff';
 }
 
 /** the base as the fill channel's own unit — a 0xRRGGBB number */
 export function contextBase(): number {
   const [r, g, b] = parseColor(contextBaseCss()) ?? [255, 255, 255];
   return (r << 16) | (g << 8) | b;
-}
-
-function contextIsDark(): boolean {
-  const [r, g, b] = parseColor(contextBaseCss()) ?? [255, 255, 255];
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 128;
 }
 
 /**
@@ -271,21 +271,25 @@ export function applyShimmer(element: HTMLElement, fx: ShimmerEffect): () => voi
   let fillCss: string;
   let blend: 'darken' | 'lighten' | null = null;
   if (fx.fill === null && !borderAreaSupported()) {
-    const dark = contextIsDark();
-    fillCss = fillToCss(dark ? 0x000000 : 0xffffff);
-    blend = dark ? 'lighten' : 'darken';
+    fillCss = fillToCss(contextIsDark() ? 0x000000 : 0xffffff);
+    blend = contextIsDark() ? 'lighten' : 'darken';
   } else if (fx.fill === null) {
     // the TRUE cutout: the engine clips border-area and a transparent
     // fill layer paints nothing — the host's own backdrop shows
     fillCss = 'transparent';
+  } else if (fx.fill === undefined) {
+    // the context default rides the COLOR-SCHEME system color — the
+    // site's theme bootstrap updates color-scheme on every toggle, so
+    // the face follows the Context's dark/light LIVE (light → white,
+    // dark → black), no remount, no token guessing (measured: this
+    // site's --background token is dark even under the light theme)
+    fillCss = 'Canvas';
   } else {
-    // NOTE: ?? would swallow null's meaning — undefined is the only
-    // "resolve the context default" signal on this channel
-    fillCss = fillToCss(fx.fill ?? contextBase());
+    fillCss = fillToCss(fx.fill);
   }
   stampVars(
     element,
-    `--shimmer-shine: ${fx.shine}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${borderAreaSupported() ? 'padding-box, border-area' : 'padding-box, border-box'}`,
+    `--shimmer-shine: ${fx.shine}; --shimmer-base: ${fx.ringColor}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${borderAreaSupported() ? 'padding-box, border-area' : 'padding-box, border-box'}`,
     VAR_SHIMMER
   );
   const priorBlend = element.style.mixBlendMode;

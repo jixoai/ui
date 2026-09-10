@@ -129,9 +129,13 @@
   export type PressEffect = ShimmerEffect | PulseEffect | RainbowEffect | RippleEffect;
 
     export interface ShimmerOptions {
-    /** the shine color (any CSS color, default white — the arc peaks
-     *  at this color over the ring base) */
+    /** the shine color (any CSS color; default the primary token —
+     *  the arc peaks at this color over the ring's rest color) */
     shine?: string;
+    /** the ring's REST color — the band the arc walks on (any CSS
+     *  color, default currentColor: the ring inherits the host's own
+     *  ink) */
+    ringColor?: string;
     /** the shine arc's angular width (the walk's footprint) */
     shineWidth?: string;
     /** one full revolution of the arc, in ms */
@@ -145,12 +149,14 @@
      *  null for TRANSPARENT — the true border-area cutout where the
      *  engine supports it, the white/black + darken/lighten blend
      *  emulation where it does not. Default: undefined = the
-     *  context's own base color, opaque (「默认不透明」) */
+     *  context's theme token var(--background) — light/dark follows
+     *  the Context live (「默认不透明」) */
     fill?: number | null;
   }
   export interface ShimmerEffect {
     readonly type: 'shimmer';
     shine: string;
+    ringColor: string;
     shineWidth: string;
     speed: number;
     ringW: string;
@@ -162,7 +168,8 @@
    *  the double background (fill + conic), the spin. See
    *  press-effect-runtime.ts's solidFill() for minting fill numbers */
   export function shimmer({
-    shine = '#ffffff',
+    shine = 'var(--primary)',
+    ringColor = 'currentColor',
     shineWidth = '30deg',
     speed = 3000,
     ringW = 4,
@@ -171,6 +178,7 @@
     return {
       type: 'shimmer',
       shine,
+      ringColor,
       shineWidth,
       speed,
       ringW: typeof ringW === 'number' ? `${ringW}px` : ringW,
