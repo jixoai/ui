@@ -31,6 +31,20 @@
   which wraps this shell. Svelte 5 runes throughout ($state/$derived/
   $effect).
 -->
+<script module lang="ts">
+  // the picker-facing seam, installed at MODULE level (GATE-0 relay,
+  // 2026-09-12): assignments inside $.user_effect vanish on fresh
+  // loads (see the comment at the listener below) — module scope is
+  // the proven-sticky surface. The seam relays through a CustomEvent;
+  // it lives for the page's whole life and needs no cleanup.
+  if (typeof window !== 'undefined') {
+    const seams = window as unknown as import('./selection.ts').DesignStudioSeams;
+    seams.__jixoaiDesignSelect = (incoming: import('./selection.ts').DesignSelection | null): void => {
+      window.dispatchEvent(new CustomEvent('jx-design:select', { detail: incoming }));
+    };
+  }
+</script>
+
 <script lang="ts">
   import ChatPanel from './chat-panel.svelte';
   import ComponentTree from './component-tree.svelte';
@@ -163,16 +177,20 @@
     selection = null;
   }
 
-  // the picker's up-call seam (r2 T4): same-origin direct call from
-  // any embedded frame document; null clears (Escape / chip removal)
+  // the picker's up-call seam (GATE-0 relay, 2026-09-12): a window
+  // property assigned INSIDE $.user_effect vanished between the
+  // assignment and the next statement on fresh page loads (module-
+  // level assignments to the same name stick; direct evaluate sticks;
+  // post-HMR re-evaluation sticks — platform ghost, filed in the
+  // problems ledger). The relay uses only proven mechanisms: the
+  // picker-facing seam installs at MODULE level (see below the
+  // component) and dispatches a CustomEvent this effect listens for.
   $effect(() => {
-    const seams = window as unknown as DesignStudioSeams;
-    seams.__jixoaiDesignSelect = (incoming: DesignSelection | null) => {
-      selection = incoming;
+    const onSelectEvent = (event: Event): void => {
+      selection = (event as CustomEvent<DesignSelection | null>).detail;
     };
-    return () => {
-      delete seams.__jixoaiDesignSelect;
-    };
+    window.addEventListener('jx-design:select', onSelectEvent);
+    return () => window.removeEventListener('jx-design:select', onSelectEvent);
   });
 
   // manifest bootstrap + light polling: new prototypes (agent writes)

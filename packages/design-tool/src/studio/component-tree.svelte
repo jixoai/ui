@@ -132,55 +132,30 @@
     );
   }
 
-  // the observer chain: canvas body + every kit frame body. Debounced
-  // refresh (mutation bursts from HMR or agent writes coalesce).
+  // GATE-0 rewrite (2026-09-12): the MutationObserver chain across
+  // ten same-origin nested iframes died silently after the first
+  // burst (canvas-level rows only, frame-interior components never
+  // entered the tree; the load-listener algebra was fragile in every
+  // direction probed). The equivalence gate already makes a poll
+  // CHEAP — a walk matching the gate writes nothing, downstream
+  // identities see zero churn — so a boring 1s interval plus the
+  // canvas load event replaces the whole observer labyrinth.
+  // Boring and bulletproof beats elegant and dead.
   $effect(() => {
     if (iframe === null) return;
+    // capture the element ONCE: the cleanup below runs when bind:this
+    // has already nulled the reactive prop ({#key} swap) — reading
+    // `iframe` there throws 'removeEventListener of null' and can
+    // abort the surrounding flush (GATE-0 diagnosis, 2026-09-12)
+    const element = iframe;
     recordsGate = null; // fresh iframe lifecycle — force the first write
     refresh();
-    const observers: MutationObserver[] = [];
-    const loadListeners: Array<[EventTarget, () => void]> = [];
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const schedule = (): void => {
-      if (timer !== null) clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = null;
-        refresh();
-        attachFrameObservers();
-      }, 150);
-    };
-
-    function observeBody(doc: Document | null): MutationObserver | null {
-      const body = doc?.body ?? doc?.documentElement ?? null;
-      if (body === null || typeof MutationObserver === 'undefined') return null;
-      const observer = new MutationObserver(schedule);
-      observer.observe(body, { childList: true, subtree: true });
-      observers.push(observer);
-      return observer;
-    }
-
-    function attachFrameObservers(): void {
-      const doc = safeDocument(iframe);
-      if (doc === null) return;
-      for (const frame of Array.from(doc.querySelectorAll('iframe'))) {
-        const onLoad = (): void => {
-          observeBody(safeDocument(frame));
-          schedule();
-        };
-        frame.addEventListener('load', onLoad);
-        loadListeners.push([frame, onLoad]);
-        observeBody(safeDocument(frame)); // already-loaded frames
-      }
-    }
-
-    observeBody(safeDocument(iframe));
-    attachFrameObservers();
-    iframe.addEventListener('load', schedule);
+    const interval = setInterval(() => refresh(), 1000);
+    const onLoad = (): void => refresh();
+    element.addEventListener('load', onLoad);
     return () => {
-      if (timer !== null) clearTimeout(timer);
-      iframe.removeEventListener('load', schedule);
-      for (const observer of observers) observer.disconnect();
-      for (const [target, onLoad] of loadListeners) target.removeEventListener('load', onLoad);
+      clearInterval(interval);
+      element.removeEventListener('load', onLoad);
     };
   });
 </script>
