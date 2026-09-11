@@ -19,8 +19,8 @@
       无内联快照；重复拒绝 + --force diff）+ status（git diff
       name-status + tag notes + 统一 diff，theirs 过重写管道）
 - [x] T3 变更合并：git merge-file 三方 apply（干净/冲突/ours 删除
-      跳过/CAS 校验）+ `apply --agent`（diff+notes 喂设计 agent
-      出可审 patch）（VP2/VP3）
+      跳过/CAS 校验）（VP2/VP3）；`apply --agent` 移交下轮（终审
+      B2：实现为零，spec 已改为 deferred 注记而非 SHALL）
 - [x] T4 选择模型 + 画布选择器：studio selection 状态
       （frameId/usageIndex/iterationIndex?）+ frame picker 注入
       （点击→最近印章祖先→高亮）+ {#each} 共享标注（VC1 前半/

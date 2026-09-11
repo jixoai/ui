@@ -32,9 +32,9 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { dirname, join, relative } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const DESIGN_USAGE = `jixoai-ui design — the agent-driven prototype canvas
@@ -47,6 +47,13 @@ const DESIGN_USAGE = `jixoai-ui design — the agent-driven prototype canvas
                     dsh binary on PATH or DSH_BIN, one headless run
                     per turn)
     --no-open       do not open the browser
+
+  jixoai-ui design log
+      list releases (annotated tags) with their intent notes
+
+  jixoai-ui design diff <tagA>..<tagB> [--by-page] [--export <file>]
+      page-level change status between two releases (which pages
+      changed, which did not), or the raw patch; exportable
 
   jixoai-ui design init
       create the nested design/ git repo (idempotent; design/ stays
@@ -93,7 +100,7 @@ function fail(message) {
 }
 
 /** the r2 rev2 pipeline subcommands (design-studio r2 T10, 2026-09-11) */
-const SUBCOMMANDS = new Set(["init", "save", "release", "open", "promote", "status", "apply"]);
+const SUBCOMMANDS = new Set(["init", "save", "release", "open", "promote", "status", "apply", "log", "diff"]);
 
 /** parse the design argv into { port, agent, open } */
 export function parseDesignArgs(argv) {
@@ -445,6 +452,67 @@ async function runPipelineSubcommand(command, rest) {
         if (p.hostMissing) console.log(`              host file missing (deleted downstream)`);
       }
     }
+    return;
+  }
+
+  if (command === "log") {
+    // the release ledger — annotated tags with their intent notes
+    const tags = design.listReleaseTags(join(process.cwd(), "design"));
+    if (tags.length === 0) {
+      console.log("jixoai-ui design log: no releases yet (see `design release`)");
+      return;
+    }
+    for (const tag of tags) {
+      console.log(`  ${tag.name} (${tag.commitSha.slice(0, 10)}) ${tag.at}`);
+      if (tag.note) console.log(`    ${tag.note}`);
+    }
+    return;
+  }
+
+  if (command === "diff") {
+    // design diff <tagA>..<tagB> [--by-page] [--export <file>]
+    // (D1, final review: the spec SHALLed a user-reachable page-level
+    // compare — the kernels existed, only the command was missing)
+    const rangeArg = rest.find((a) => a.includes(".."));
+    if (rangeArg === undefined) fail("usage: design diff <tagA>..<tagB> [--by-page] [--export <file>]");
+    const [fromTag, toTag] = rangeArg.split("..");
+    const byPage = rest.includes("--by-page");
+    const exportIdx = rest.indexOf("--export");
+    const exportFile = exportIdx !== -1 ? rest[exportIdx + 1] : undefined;
+    const designDir = join(process.cwd(), "design");
+    const fromSha = design.runGit(designDir, ["rev-list", "-1", fromTag], { allowFailure: true });
+    const toSha = design.runGit(designDir, ["rev-list", "-1", toTag], { allowFailure: true });
+    if (fromSha.code !== 0) fail(`unknown tag: ${fromTag}`);
+    if (toSha.code !== 0) fail(`unknown tag: ${toTag}`);
+    const nameStatus = design.runGit(designDir, ["diff", "--name-status", fromTag, toTag]);
+    const lines = nameStatus.stdout.trim().length > 0 ? nameStatus.stdout.trim().split("\n") : [];
+    if (byPage) {
+      const changed = new Map();
+      for (const line of lines) {
+        const [status, path] = line.split("\t");
+        const page = path.startsWith("prototypes/") ? path.split("/").slice(0, 2).join("/") : path;
+        changed.set(page, (changed.get(page) ?? new Set()).add(status));
+      }
+      const allProtos = design.listTree(designDir, toTag, "prototypes").map((p) => p.split("/").slice(0, 2).join("/") + (p.includes("/") ? "" : ""));
+      const pages = [...new Set([...changed.keys(), ...allProtos.map((p) => p)])].sort();
+      const out = [];
+      for (const page of pages) {
+        if (!page.startsWith("prototypes/")) continue;
+        const statuses = changed.get(page);
+        out.push(statuses === undefined ? `  unchanged ${page}` : `  ${[...statuses].join(",")} ${page}`);
+      }
+      const text = out.join("\n");
+      if (exportFile !== undefined) {
+        writeFileSync(resolve(process.cwd(), exportFile), text + "\n", "utf8");
+        console.log(`jixoai-ui design diff: wrote ${exportFile}`);
+      } else console.log(text);
+      return;
+    }
+    const patch = design.runGit(designDir, ["diff", fromTag, toTag]).stdout;
+    if (exportFile !== undefined) {
+      writeFileSync(resolve(process.cwd(), exportFile), patch, "utf8");
+      console.log(`jixoai-ui design diff: wrote ${exportFile}`);
+    } else console.log(patch.trimEnd());
     return;
   }
 

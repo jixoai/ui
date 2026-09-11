@@ -70,10 +70,11 @@ hunks merge automatically, conflicts receive git-style
 markers and a named report, files carrying UNRESOLVED markers
 from a prior apply are skipped (no nested conflict blocks),
 files the developer deleted are skipped and listed, and NO
-developer change is silently overwritten. `design apply --agent` SHALL offer the
-agent-mediated path (diffs + notes to the design agent,
-producing a reviewable patch for conflicts and semantic
-migrations).
+developer change is silently overwritten. >(Deferred with the r2 final review's blessing: the
+agent-mediated apply — diffs + notes to the design agent,
+reviewable patch for conflicts and semantic migrations — is
+NOT in r2's surface; it rides the next round with the MCP
+port per problems.md §2.)
 
 #### Scenario: clean merge
 

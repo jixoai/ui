@@ -215,6 +215,32 @@ test('resolver: happy path writes the file (root-relative path)', async () => {
   }
 });
 
+test('resolver: null REMOVES end-to-end through the request gate (the B1 pin)', async () => {
+  // the final review caught the pure-kernel pin sailing past the
+  // REQUEST validation: typeof null === 'object' 400'd while the
+  // kernel's null semantics were green — pin the whole chain
+  const root = tmpRoot();
+  try {
+    const path = join(root, 'design/prototypes/welcome/pages/hero.svelte');
+    const withRaised = HERO.replace('<PressButton variant="fill">', '<PressButton variant="fill" raised={true}>');
+    write(path, withRaised);
+    const response = await resolvePropEditRequest(root, {
+      file: 'design/prototypes/welcome/pages/hero.svelte',
+      component: 'press-button',
+      usageIndex: 1,
+      prop: 'raised',
+      value: null,
+    });
+    assert.equal(response.status, 200, JSON.stringify(response.body));
+    assert.equal(response.body.ok, true);
+    const after = readFileSync(path, 'utf8');
+    assert.ok(!after.includes('raised'), 'the attribute must be gone from disk');
+    assert.ok(after.includes('<PressButton variant="fill">Start'));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('resolver: path escape and non-svelte targets refused', async () => {
   const root = tmpRoot();
   try {

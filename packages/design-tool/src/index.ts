@@ -39,6 +39,7 @@ export {
   listReleaseTags,
   currentReleaseTag,
   runGit,
+  listTree,
 } from './pipeline/design-repo.ts';
 export type { ReleaseTag, ReleaseResult, SaveCommitResult, MergeFileResult, ParsedConflict } from './pipeline/design-repo.ts';
 export { DesignRepoError } from './pipeline/design-repo.ts';
