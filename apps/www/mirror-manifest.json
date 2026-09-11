@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-11T09:11:25.915Z",
+  "generatedAt": "2026-09-11T12:54:11.320Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -4718,8 +4718,8 @@
           "source": "registry/files/ui/prototype-grid/prototype-grid.svelte",
           "mirror": "apps/www/src/lib/ui/prototype-grid/prototype-grid.svelte",
           "target": "@ui/prototype-grid/prototype-grid.svelte",
-          "sourceSha": "7f31cfec57b0a815594a688fa5bd66ae09fa738000b41206d1f52f4cd8ae2e5d",
-          "mirrorSha": "7f31cfec57b0a815594a688fa5bd66ae09fa738000b41206d1f52f4cd8ae2e5d"
+          "sourceSha": "984784ffffb097a00b8c68ba96aa3b56534685206abb285e95e6a43d46504b21",
+          "mirrorSha": "984784ffffb097a00b8c68ba96aa3b56534685206abb285e95e6a43d46504b21"
         },
         {
           "source": "registry/files/ui/prototype-grid/index.ts",

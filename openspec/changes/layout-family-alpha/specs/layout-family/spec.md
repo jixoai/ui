@@ -24,7 +24,8 @@ blowout-proof repeat form).
 
 - GIVEN `<PrototypeGrid cols={3} />`
 - THEN `grid-template-columns: repeat(3, minmax(0, 1fr))` — and a
-  string `cols="auto-fit 12rem"` passes through verbatim
+  legal string track form (`cols="repeat(auto-fit, 12rem)"` —
+  `auto-fit` exists only inside `repeat()`) passes through verbatim
 
 #### Scenario: waterfall balanced is column-fill balance
 
@@ -38,7 +39,8 @@ blowout-proof repeat form).
 > The two type coercions, stated once: `number` gap → `<n>px`, and
 > `number` cols/rows → `repeat(N, minmax(0, 1fr))` — the
 > no-max-content-blowout track form (the css-architecture grid-law
-> vocabulary, prototype-canvas precedent); strings stay verbatim
+> vocabulary; the design-studio-r2 cross-branch precedent); strings
+> stay verbatim
 > everywhere. Waterfall `columns` rides the CSS `columns` SHORTHAND
 > verbatim: a number is the count form, a length string (`'14rem'`)
 > is the auto-width form — one property, both shapes, no branching.
@@ -53,9 +55,10 @@ Every layout primitive SHALL render ONE root element: the
 consumer's `...rest` (HTMLAttributes of the root's element kind)
 spreads BEFORE the component's own `data-jx-prototype-*` stamp (the
 replace-not-merge law), and an OMITTED prop SHALL inject NO style
-declaration — the inline style carries the layout identity
-(`display`) plus only what the consumer declared, so the CSS
-initial value serves the rest.
+declaration — flex/grid roots carry their identity (`display`)
+plus only what the consumer declared; the waterfall identity IS
+the `columns` shorthand, so a bare waterfall writes ZERO
+declarations and CSS initial values serve the rest.
 
 #### Scenario: the stamp mechanism's precondition holds family-wide
 
@@ -70,6 +73,9 @@ initial value serves the rest.
 - GIVEN `<PrototypeFlex>` with no props
 - THEN the root's style attribute is exactly `display: flex` — no
   `flex-direction`, no `gap`, no `undefined` ever serialized
+- GIVEN `<PrototypeWaterfall>` with no props
+- THEN the root's style attribute is ABSENT — `columns` IS the
+  waterfall identity, and an omitted one writes zero declarations
 
 > This requirement is the in-repo self-proof of the design-studio
 > stamp precondition (r2 §3/§6): the family exists to be stamped.

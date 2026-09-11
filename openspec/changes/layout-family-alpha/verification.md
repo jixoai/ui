@@ -41,6 +41,52 @@ Every gate that runs without the vitest pipeline:
   re-frozen snapshot (the hand-recount caught my own first draft's
   "105→108" narrative error before it shipped).
 
+## Review absorption + the real-mount lane (2026-09-11)
+
+The super-thinker review (7.5/10) landed one blocker and five
+improvements; all absorbed, plus one defect the re-verification
+itself caught:
+
+- B1 (blocker): the illegal track value `auto-fit 14rem` — `auto-fit`
+  is legal ONLY inside `repeat()`, and the CSSOM drops the whole
+  declaration (jsdom and browsers agree; real-mount proof below).
+  Fixed at all three infected sites: the suite's string-tracks
+  assertion (now `repeat(auto-fit, 14rem)`, proven to round-trip),
+  the spec scenario's example, and the docs usage example.
+- NEW, caught by the real-mount probe beyond the review: the suite's
+  two bare-render assertions expected `display:flex` after
+  whitespace stripping, but the CSSOM serializes the style attribute
+  WITH a trailing semicolon (`'display: flex;'`) — both were
+  merge-gate certainties to fail. Exact-content assertions now strip
+  `[\s;]`.
+- I1: requirement 2 states the identity per member (flex/grid carry
+  `display`; the waterfall identity IS the `columns` shorthand, so a
+  bare waterfall writes ZERO declarations — now also a scenario).
+- I2: the ui-item count corrected 105→108 → 103→106 (the snapshot's
+  own arithmetic: shape totals 106 after three additions).
+- I3: `prototype-canvas` re-attributed everywhere as the
+  design-studio-r2 cross-branch precedent (it lives on the product
+  branch, not in this repo): component header (registry+mirror),
+  docs page, design, spec.
+- I4/I5/I6: the suite now pins the stamp-collision replace (a
+  consumer `data-jx-prototype-*="evil"` renders `"true"`), the
+  consumer-style merge (`'color: red; display: flex;'`), filters the
+  registry by the exact three names, and asserts the
+  stamp-precondition description text.
+
+The real-mount probe (the review's proposed method, executed):
+`node /tmp/layout-family-mount-verify.mjs <checkout-root>` — jsdom
+globals + `svelte/compiler` client codegen + native `mount()`, no
+vitest, no repo footprint beyond node_modules/.cache. 36 checks
+green in the worktree (evidence:
+`/tmp/layout-mount-worktree-evidence.txt`): the full acceptance
+battery (every union member, both coercions, omission transparency,
+rest spread, children via the fixture host, class passthrough), the
+B1 drop proof (`gridTemplateColumns === ''` for the illegal value;
+the four legal candidate forms all round-trip), and the I4
+serializations. The same probe re-runs on the main checkout at
+merge if the vitest lane stays cold-start-blocked.
+
 ## The vitest lane (the baseline's cold-start reality)
 
 This baseline's vitest (vite 8.2.2 / rolldown 1.2.5) cannot

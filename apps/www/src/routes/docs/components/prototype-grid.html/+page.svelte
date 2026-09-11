@@ -2,7 +2,8 @@
   Docs page for prototype-grid (layout-family-alpha, 2026-09-11).
   Intents:
   1. Alpha-track hero: the standardized grid primitive — the
-     blowout-proof numeric track form shared with prototype-canvas.
+     blowout-proof numeric track form ruled by design-studio-r2
+     (the cross-branch prototype-canvas precedent).
   2. One live canvas: cols/rows/areas/gap through real props.
   3. Usage + API (the 1:1 CSS mapping table) + see-also.
 -->
@@ -27,8 +28,9 @@
 </PrototypeGrid>
 
 <!-- number tracks take the blowout-proof form: repeat(N, minmax(0, 1fr));
-     strings pass verbatim; areas is a verbatim template string -->
-<PrototypeGrid cols="auto-fit 14rem" areas='"head head" "side main"' gap="1rem" />`;
+     strings pass verbatim (auto-fit lives only inside repeat()); areas is
+     a verbatim template string -->
+<PrototypeGrid cols="repeat(auto-fit, 14rem)" areas='"head head" "side main"' gap="1rem" />`;
 
   const files: TreeFile[] = [
     { name: 'registry/files/ui/prototype-grid/prototype-grid.svelte', content: gridSource },

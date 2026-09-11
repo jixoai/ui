@@ -37,7 +37,7 @@ in-repo self-proof.
   items unchanged): byte-mirrors under `apps/www/src/lib/ui/`,
   mirror-manifest regeneration, one minimal alpha docs page each,
   `svelte.config.js` entries, and the docs-structure taxonomy
-  snapshot re-freeze (layout 16→19, 105→108 ui items).
+  snapshot re-freeze (layout 16→19, 103→106 ui items).
 - **The acceptance suite** `apps/www/test/prototype-layout-family.spec.ts`:
   props→inline-style mapping (1:1, no vocabulary translation layer),
   rest spread landing `data-*` on the single root, children

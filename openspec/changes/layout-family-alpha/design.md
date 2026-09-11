@@ -49,7 +49,9 @@ Every value is a native CSS value passed through 1:1 — there is NO
 vocabulary-mapping layer (no `'between' → 'space-between'`): the
 tests assert transparency, the design panel edits CSS-truth. The two
 coercions that DO exist are type coercions, not vocabulary ones, and
-both carry in-repo precedent (prototype-canvas, 2026-09-11):
+both carry the design-studio-r2 ruling as precedent (2026-09-11,
+cross-branch — the studio's prototype-canvas lives on the product
+branch, not in this repo):
 
 - `gap`/`columns`-family `number` → `<n>px` (a bare number is not a
   valid CSS length; px is the only unit a number can honestly mean)
@@ -150,7 +152,7 @@ items:
   `svelte.config.js` entries. The pages are honest about alpha
   status (an `alpha` pill in the hero row).
 - **taxonomy snapshot**: docs-structure.spec.ts re-freezes
-  layout 16→19 (105→108 ui items) with the customary dated note.
+  layout 16→19 (103→106 ui items) with the customary dated note.
 - **payload parity**: `public/r/*.json` is gitignored; unbuilt
   payloads are skipped by the parity spec by design — the next root
   `shadcn build` (CI/Owner) publishes them, no action here.

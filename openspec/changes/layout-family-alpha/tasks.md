@@ -15,7 +15,7 @@
       `verify:mirror --check` green.
 - [x] 5. Minimal alpha docs pages (one per item) + svelte.config
       entries + docs-structure taxonomy snapshot re-freeze
-      (layout 16→19, 108 ui items); catalog.spec + docs-structure
+      (layout 16→19, 106 ui items); catalog.spec + docs-structure
       green.
 - [x] 6. The acceptance suite
       `apps/www/test/prototype-layout-family.spec.ts`: props→style
@@ -31,8 +31,9 @@
 - [x] 7. Gate sweep: verify:context (no Defaults owed — confirm by
       run), verify:standards, verify:meta untouched-green; the
       touched suites green.
-- [ ] 8. super-thinker review rounds; absorb blockers until ≥8
-      with none open.
+- [x] 8. super-thinker review rounds; absorb blockers until ≥8
+      with none open. (7.5/10 round absorbed: B1 + I1–I6 plus the
+      CSSOM trailing-semicolon catch; the real-mount probe 36/36.)
 - [ ] 9. Merge to main (main-checkout merge, --no-ff, after status
       check); the suite + touched gates re-run green on main.
 - [ ] 10. Archive the change (living spec applied from the delta;

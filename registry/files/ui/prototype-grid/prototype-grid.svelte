@@ -6,8 +6,9 @@
   property panel edits live (design-studio-r2 §6). Same three laws
   as prototype-flex (single root + rest spread with omission
   transparency; zero vocabulary translation; inline style only —
-  any host), plus the track coercion shared with prototype-canvas
-  (2026-09-11 precedent):
+  any host), plus the track coercion per the design-studio-r2
+  ruling (2026-09-11, cross-branch precedent — the studio's
+  prototype-canvas, not an in-repo item):
 
   - cols/rows: number → repeat(N, minmax(0, 1fr)) — the
     no-max-content-blowout track form (css-architecture grid law
