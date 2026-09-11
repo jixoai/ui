@@ -101,7 +101,16 @@ therefore authored dependency-free (svelte native `mount`, no
 the cold optimizer into the bug) and runs on the main checkout at
 merge time:
 
-- (merge gate, recorded below after the merge)
-  `apps/www` vitest: `prototype-layout-family.spec.ts` +
-  `catalog.spec.ts` + `docs-structure.spec.ts` — results filled in
-  at the merge step.
+- (merge gate, 2026-09-11, main checkout @ merge 979cb02e): vitest
+  on the warm cache — `prototype-layout-family.spec.ts` **32/32 on
+  the first run** (the review-absorbed battery: the legal
+  repeat(auto-fit, 14rem) round-trip, the `[\s;]`-stripped bare
+  assertions, the stamp-collision replace + style-merge pins, the
+  fixed three-name registry slice, the stamp-precondition regex).
+  `catalog.spec.ts` + `docs-structure.spec.ts` first run 21/22 —
+  the one failure was the dist-loop test reading the STALE
+  pre-merge dist (103 pages, built 04:47, before the three routes
+  existed); after the standard `npm run build` (106 pages, the
+  three prototype-*.json payloads emitted into public/r/), all
+  three suites re-ran **54/54 GREEN**. No cold-start issue: the
+  warm-cache lane worked exactly as designed.

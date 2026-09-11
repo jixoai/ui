@@ -34,7 +34,12 @@
 - [x] 8. super-thinker review rounds; absorb blockers until ≥8
       with none open. (7.5/10 round absorbed: B1 + I1–I6 plus the
       CSSOM trailing-semicolon catch; the real-mount probe 36/36.)
-- [ ] 9. Merge to main (main-checkout merge, --no-ff, after status
+- [x] 9. Merge to main (main-checkout merge, --no-ff, after status
       check); the suite + touched gates re-run green on main.
-- [ ] 10. Archive the change (living spec applied from the delta;
+      (Merge 979cb02e, ort/clean; a stale ORIG_HEAD.lock from the
+      terminated predecessor was the only friction. vitest:
+      layout-family 32/32 first run; catalog + docs-structure
+      54/54 after the routine site rebuild refreshed the pre-merge
+      dist.)
+- [x] 10. Archive the change (living spec applied from the delta;
        archive commit on main, spec-sync only).
