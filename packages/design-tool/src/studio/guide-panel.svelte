@@ -1,14 +1,27 @@
 <!--
-  @jixoai/ui-design (studio) — the guide panel (T4/T6 client half).
+  @jixoai/ui-design (studio) — the guide panel (T4/T6 client half +
+  r3 T5 component rebuild).
 
   Orthogonal intent (1): render the knowledge pack's componentIndex
   (grouped list + descriptions) — the SAME index the agent
   systemPrompt's selection layer consumes (one source, design.md §5).
 
-  Original need: Owner 2026-09-11 (design-studio T4). No host imports;
-  self-contained scoped CSS. Svelte 5 runes.
+  r3 T5 (2026-09-12): the chrome is now the library's own — groups are
+  #jixoai/accordion (ghost set: hairline separators, no card frame),
+  the search field is #jixoai/input (search glyph + clearable ×), the
+  filtered-to-nothing state is #jixoai/empty (ID4, migrated from T1's
+  one-liner), the alpha track marker is #jixoai/badge. Entry chips
+  (#jixoai/<name> code) stay <code>: item ids are case-sensitive.
+  The fetch/filter logic is untouched.
+
+  Original need: Owner 2026-09-11 (design-studio T4). Svelte 5 runes.
 -->
 <script lang="ts">
+  import Accordion, { AccordionItem } from '#jixoai/accordion';
+  import Badge from '#jixoai/badge';
+  import Empty from '#jixoai/empty';
+  import Input from '#jixoai/input';
+
   interface KnowledgeItem {
     readonly name: string;
     readonly title: string;
@@ -60,12 +73,13 @@
 <section class="guide">
   <header class="guide-head">
     <span class="guide-title">guide</span>
-    <input
+    <Input
       class="guide-search"
       type="search"
       placeholder="filter components…"
-      bind:value={query}
       aria-label="filter the component index"
+      bind:value={query}
+      clearable
     />
   </header>
 
@@ -73,30 +87,45 @@
     {#if failed !== null}
       <p class="guide-error">knowledge failed: {failed}</p>
     {/if}
-    <!-- ID4 (r3 T1): a filtered-to-nothing index is a one-line honest
+    <!-- ID4 (r3 T1 → T5): a filtered-to-nothing index is an honest
          empty state, not a silent blank — only meaningful when there
          IS an index to search (empty/failed payloads are not matches) -->
     {#if failed === null && groups.length > 0 && query.trim() !== '' && filtered.length === 0}
-      <p class="guide-desc">no components match "{query.trim()}"</p>
+      <Empty
+        class="guide-empty"
+        title="no matches"
+        description={`no components match "${query.trim()}" — clear the filter or try a shorter term.`}
+      >
+        {#snippet illustration()}
+          <span class="text-muted-foreground">grep {query.trim()}</span>
+          <span class="text-primary">0 matches</span>
+        {/snippet}
+      </Empty>
     {/if}
-    {#each filtered as group (group.id)}
-      <details class="guide-group">
-        <summary>{group.id} <span class="guide-count">({group.items.length})</span></summary>
-        <ul>
-          {#each group.items as item (item.name)}
-            <li>
-              <span class="guide-item-head">
-                <code class="guide-name">#jixoai/{item.name}</code>
-                {#if item.alpha === true}
-                  <span class="guide-alpha" title="alpha track — vocabulary and behavior may still move (r2 T9)">alpha</span>
-                {/if}
-              </span>
-              <p class="guide-desc">{item.description}</p>
-            </li>
-          {/each}
-        </ul>
-      </details>
-    {/each}
+    {#if filtered.length > 0}
+      <Accordion ghost>
+        {#each filtered as group (group.id)}
+          <AccordionItem>
+            {#snippet summary()}
+              {group.id} <span class="guide-count">({group.items.length})</span>
+            {/snippet}
+            <ul>
+              {#each group.items as item (item.name)}
+                <li>
+                  <span class="guide-item-head">
+                    <code class="guide-name">#jixoai/{item.name}</code>
+                    {#if item.alpha === true}
+                      <Badge variant="tonal" class="jx-hue-success">alpha</Badge>
+                    {/if}
+                  </span>
+                  <p class="guide-desc">{item.description}</p>
+                </li>
+              {/each}
+            </ul>
+          </AccordionItem>
+        {/each}
+      </Accordion>
+    {/if}
   </div>
 </section>
 
@@ -122,15 +151,11 @@
     font-size: 0.6875rem;
     color: #b9b2a6;
   }
-  .guide-search {
+  /* the input's field wrapper is the flex child (the component's own
+     class lands on the inner shell) */
+  .guide-head :global(.jx-field) {
     flex: 1;
-    background: #161412;
-    color: #e8e4dd;
-    border: 1px solid #262320;
-    border-radius: 3px;
-    padding: 0.25rem 0.5rem;
-    font: inherit;
-    font-size: 0.6875rem;
+    min-width: 0;
   }
   .guide-flow {
     flex: 1;
@@ -140,33 +165,13 @@
   .guide-error {
     color: #e08585;
   }
-  .guide-group {
-    border-top: 1px solid #1f1c19;
-    padding: 0.375rem 0;
-  }
-  .guide-group summary {
-    cursor: pointer;
-    color: #b9b2a6;
-    font-size: 0.75rem;
-    list-style: none;
-  }
-  .guide-group summary::before {
-    content: '▸ ';
-    color: #6f6759;
-  }
-  .guide-group[open] summary::before {
-    content: '▾ ';
+  .guide-empty {
+    margin-top: 0.75rem;
   }
   .guide-count {
     color: #6f6759;
-  }
-  .guide-group ul {
-    list-style: none;
-    margin: 0.375rem 0 0.75rem;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    text-transform: none;
+    letter-spacing: normal;
   }
   .guide-name {
     font-size: 0.6875rem;
@@ -180,15 +185,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-  }
-  .guide-alpha {
-    font-size: 0.5625rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #0d0c0b;
-    background: #8fa88f;
-    border-radius: 2px;
-    padding: 0.0625rem 0.3125rem;
+    min-width: 0;
   }
   .guide-desc {
     margin: 0.25rem 0 0;

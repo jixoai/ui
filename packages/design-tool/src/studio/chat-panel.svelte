@@ -1,6 +1,6 @@
 <!--
   @jixoai/ui-design (studio) — the chat panel (T4/T5 client half +
-  r2 T6 selection context).
+  r2 T6 selection context + r3 T5 component rebuild).
 
   Orthogonal intents (2):
     1. the agent chat surface — message flow, input, and AgentEvent
@@ -13,10 +13,23 @@
        the format the knowledge pack's prototype-standard layer
        documents for the agent).
 
+  r3 T5 (2026-09-12): the chrome is now the library's own — the send
+  button is #jixoai/press-button (loading pose = the streaming 加载锁,
+  ID2's fix), the draft is #jixoai/textarea, the selection chip is
+  #jixoai/chip (whole-chip activation removes — the × glyph rides the
+  trailing lane), the agent-model line and tool events are
+  #jixoai/badge. File paths stay <code>: paths are case-SENSITIVE and
+  the badge's uppercase voice would corrupt them (ledger, rebuild-plan
+  §6). Scoped CSS is layout + message-flow typography only.
+
   Original need: Owner 2026-09-11 (design-studio T4; design-studio-r2
-  T6). No host imports; self-contained scoped CSS. Svelte 5 runes.
+  T6). Svelte 5 runes.
 -->
 <script lang="ts">
+  import Badge from '#jixoai/badge';
+  import Chip from '#jixoai/chip';
+  import PressButton from '#jixoai/press-button';
+  import Textarea from '#jixoai/textarea';
   import { selectionChipLabel, selectionMessageBody, type DesignSelection } from './selection.ts';
 
   export interface ChatEvent {
@@ -185,15 +198,13 @@
 <section class="chat">
   <header class="chat-head">
     <span class="chat-title">chat</span>
-    <span class="chat-agent">
-      {#if agentKind === null}
-        agent: ?
-      {:else if readonlyAgent}
-        agent: none (read-only)
-      {:else}
-        agent: {agentKind}{agentModel !== null ? ` · ${agentModel}` : ''}
-      {/if}
-    </span>
+    {#if agentKind === null}
+      <Badge variant="outline" class="truncate">agent: ?</Badge>
+    {:else if readonlyAgent}
+      <Badge variant="outline" class="truncate">agent: none (read-only)</Badge>
+    {:else}
+      <Badge variant="tonal" class="truncate">agent: {agentKind}{agentModel !== null ? ` · ${agentModel}` : ''}</Badge>
+    {/if}
   </header>
 
   <div class="chat-flow" bind:this={chatFlow}>
@@ -212,9 +223,11 @@
           {#if block.kind === 'text'}
             <p class="chat-text">{block.text}</p>
           {:else if block.kind === 'file'}
+            <!-- paths stay <code>: case-sensitive content the badge's
+                 uppercase voice would corrupt (r3 T5 ledger) -->
             <code class="chat-file">{block.path}</code>
           {:else if block.kind === 'tool'}
-            <span class="chat-tool">{block.label}</span>
+            <Badge variant="outline" class="self-start">{block.label}</Badge>
           {:else if block.kind === 'done'}
             <span class="chat-done">— turn closed —</span>
           {:else if block.kind === 'error'}
@@ -227,17 +240,19 @@
 
   {#if selection !== null}
     <div class="chat-chip-row">
-      <span class="chat-chip" title="selection context — rides the next message">
-        {selectionChipLabel(selection)}
-      </span>
-      <button
-        type="button"
-        class="chat-chip-remove"
+      <!-- the removable selection chip: the WHOLE chip is the remove
+           activation (aria names it; the × glyph rides the trailing
+           lane as the visual affordance) — one target, one semantics -->
+      <Chip
+        variant="outline"
+        class="w-full truncate"
+        title="selection context — rides the next message (click to remove)"
+        ariaLabel={`remove selection context: ${selectionChipLabel(selection)}`}
         onclick={() => onClearSelection()}
-        aria-label="remove selection context"
       >
-        ×
-      </button>
+        {selectionChipLabel(selection)}
+        {#snippet slotEnd()}<span aria-hidden="true">×</span>{/snippet}
+      </Chip>
     </div>
   {/if}
 
@@ -248,14 +263,24 @@
       void send();
     }}
   >
-    <textarea
-      rows="2"
+    <Textarea
+      class="chat-draft"
+      rows={2}
       placeholder={readonlyAgent ? 'read-only studio (--agent none)' : 'message the design agent…'}
       bind:value={draft}
       onkeydown={onKeydown}
       disabled={readonlyAgent}
-    ></textarea>
-    <button type="submit" disabled={!canSend}>{streaming ? '…' : 'send'}</button>
+    />
+    <!-- ID2's loading lock: press-button's loading pose (spinner +
+         suppressed activation, aria-disabled — never the bare disabled
+         attribute alone) paints the streaming turn; native disabled
+         still gates the empty-draft / read-only rests -->
+    <PressButton
+      type="submit"
+      class="chat-send disabled:opacity-45 disabled:cursor-default"
+      disabled={!canSend}
+      loading={streaming}
+    >send</PressButton>
   </form>
 </section>
 
@@ -270,8 +295,9 @@
   }
   .chat-head {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
+    gap: 0.5rem;
     padding: 0.625rem 0.75rem;
   }
   .chat-title {
@@ -280,10 +306,6 @@
     text-transform: uppercase;
     font-size: 0.6875rem;
     color: #b9b2a6;
-  }
-  .chat-agent {
-    color: #8d8578;
-    font-size: 0.6875rem;
   }
   .chat-flow {
     flex: 1;
@@ -303,6 +325,7 @@
     flex-direction: column;
     gap: 0.25rem;
     align-items: flex-start;
+    min-width: 0;
   }
   .chat-user {
     align-items: flex-end;
@@ -324,10 +347,8 @@
     border-radius: 3px;
     padding: 0.125rem 0.375rem;
     color: #a9c4a9;
-  }
-  .chat-tool {
-    font-size: 0.6875rem;
-    color: #8d8578;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
   .chat-done {
     font-size: 0.6875rem;
@@ -341,63 +362,19 @@
   .chat-chip-row {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
     padding: 0.375rem 0.75rem 0;
-  }
-  .chat-chip {
-    flex: 1;
-    font-size: 0.6875rem;
-    line-height: 1.4;
-    color: #d9cdb8;
-    background: #1b1917;
-    border: 1px solid #3a352f;
-    border-radius: 3px;
-    padding: 0.25rem 0.5rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .chat-chip-remove {
-    all: unset;
-    cursor: pointer;
-    color: #8d8578;
-    padding: 0.125rem 0.375rem;
-    border-radius: 3px;
-    font-size: 0.75rem;
-  }
-  .chat-chip-remove:hover {
-    color: #e8e4dd;
-    background: #262320;
+    min-width: 0;
   }
   .chat-input {
     display: flex;
+    align-items: flex-end;
     gap: 0.5rem;
     padding: 0.625rem 0.75rem;
   }
-  .chat-input textarea {
+  /* the textarea's field wrapper is the flex child (the component's
+     own class lands on the inner shell) */
+  .chat-input :global(.jx-field) {
     flex: 1;
-    resize: none;
-    background: #161412;
-    color: #e8e4dd;
-    border: 1px solid #262320;
-    border-radius: 3px;
-    padding: 0.375rem 0.5rem;
-    font: inherit;
-  }
-  .chat-input textarea:focus-visible {
-    outline: 1px solid #4a443c;
-  }
-  .chat-input button {
-    background: #262320;
-    color: #e8e4dd;
-    border: 1px solid #3a352f;
-    border-radius: 3px;
-    padding: 0 0.875rem;
-    font: inherit;
-    cursor: pointer;
-  }
-  .chat-input button:disabled {
-    opacity: 0.45;
-    cursor: default;
+    min-width: 0;
   }
 </style>
