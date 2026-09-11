@@ -23,6 +23,7 @@ export interface MountStudioOptions {
   readonly chatUrl?: string;
   readonly agentInfoUrl?: string;
   readonly knowledgeUrl?: string;
+  readonly promotionsUrl?: string;
 }
 
 export interface MountedStudio {
@@ -39,6 +40,7 @@ export function mountStudio(target: HTMLElement, options: MountStudioOptions = {
       chatUrl: options.chatUrl ?? '/__design__/api/chat',
       agentInfoUrl: options.agentInfoUrl ?? '/__design__/api/agent.json',
       knowledgeUrl: options.knowledgeUrl ?? '/__design__/api/knowledge.json',
+      promotionsUrl: options.promotionsUrl ?? '/__design__/api/promotions.json',
     },
   });
   return { component, destroy: () => unmount(component) };
