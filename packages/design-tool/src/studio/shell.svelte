@@ -107,7 +107,7 @@
   let frameHash: string | null = $state(null);
   let manifestError: string | null = $state(null);
   /** the ONE selection (r2 T4): picker and tree both feed this */
-  let selection: DesignSelection | null = $state(null);
+  let selection: DesignSelection | null = $state(restoreSelection());
   /** the live canvas iframe (the tree walks its DOM, same-origin) */
   let canvasIframe: HTMLIFrameElement | null = $state(null);
   /** the chat's streaming state — the property panel's read-only lock (r2 §4) */
@@ -196,11 +196,42 @@
     }
   }
 
+  /**
+   * Selection persistence across vite's full-reload broadcasts (T3's
+   * cross-task finding, 2026-09-12): every design/ file write (a prop
+   * edit, an agent turn) makes the dev server broadcast full-reload to
+   * ALL connected clients — the studio page reloads even though the
+   * change only concerned the canvas iframe's graph, and the selection
+   * died with it mid-walkthrough. sessionStorage restores it. Writes
+   * happen at the explicit mutation sites (event contexts — the effect
+   * ghost below taught us not to assign globals from effect bodies;
+   * sessionStorage calls from effects are equally unproven, and the
+   * explicit sites cost four lines).
+   */
+  const SELECTION_STORE_KEY = 'jx-design:selection';
+  function restoreSelection(): DesignSelection | null {
+    try {
+      const raw = sessionStorage.getItem(SELECTION_STORE_KEY);
+      return raw === null ? null : (JSON.parse(raw) as DesignSelection);
+    } catch {
+      return null;
+    }
+  }
+  function persistSelection(): void {
+    try {
+      if (selection === null) sessionStorage.removeItem(SELECTION_STORE_KEY);
+      else sessionStorage.setItem(SELECTION_STORE_KEY, JSON.stringify(selection));
+    } catch {
+      /* private mode etc. — persistence is best-effort */
+    }
+  }
+
   function selectCanvas(name: string, hash: string | null = null): void {
     currentName = name;
     frameHash = hash;
     // the selection addressed the PREVIOUS canvas's frames — gone
     selection = null;
+    persistSelection();
   }
 
   // the picker's up-call seam (GATE-0 relay, 2026-09-12): a window
@@ -214,6 +245,7 @@
   $effect(() => {
     const onSelectEvent = (event: Event): void => {
       selection = (event as CustomEvent<DesignSelection | null>).detail;
+      persistSelection();
     };
     window.addEventListener('jx-design:select', onSelectEvent);
     return () => window.removeEventListener('jx-design:select', onSelectEvent);
@@ -401,7 +433,7 @@
          on the studio's near-black ground (the solid escape painted
          --border = pure black there, imperceptible; pixel-probed) -->
     <Separator class="studio-sep" />
-    <ComponentTree iframe={canvasIframe} {selection} onSelect={(incoming) => (selection = incoming)} />
+    <ComponentTree iframe={canvasIframe} {selection} onSelect={(incoming) => { selection = incoming; persistSelection(); }} />
   </nav>
 
   <main class="studio-preview">
@@ -451,7 +483,7 @@
           {chatUrl}
           {agentInfoUrl}
           {selection}
-          onClearSelection={() => (selection = null)}
+          onClearSelection={() => { selection = null; persistSelection(); }}
           onTurnSettled={() => void refreshManifest()}
           onStreamingChange={(value) => (chatStreaming = value)}
         />
