@@ -56,17 +56,21 @@ touched except by an explicit `apply`.
 
 ### Requirement: design changes notify through git diffs, release notes and three-way apply
 
-`design status` SHALL compare each promoted file's pinned tag
-against HEAD via git diff (name-status per prototype, release
-notes from the tag annotations, per-file unified diffs with
-the new side passed through the same rewrite pipeline).
+`design status` SHALL compare each promoted file's pinned
+COMMIT (the tag's sha — the anchor advances to HEAD on a clean
+apply, so convergence is reachable; the tag name alone would
+drift forever) against HEAD via git diff (name-status per
+prototype, release notes from the tag annotations, per-file
+unified diffs with the new side passed through the same rewrite
+pipeline).
 `design apply` SHALL merge via `git merge-file` three-way
 (base = the tagged content post-rewrite, ours = current
 project file, theirs = HEAD content post-rewrite): clean
 hunks merge automatically, conflicts receive git-style
-markers and a named report, files the developer deleted are
-skipped and listed, and NO developer change is silently
-overwritten. `design apply --agent` SHALL offer the
+markers and a named report, files carrying UNRESOLVED markers
+from a prior apply are skipped (no nested conflict blocks),
+files the developer deleted are skipped and listed, and NO
+developer change is silently overwritten. `design apply --agent` SHALL offer the
 agent-mediated path (diffs + notes to the design agent,
 producing a reviewable patch for conflicts and semantic
 migrations).
