@@ -5301,6 +5301,81 @@
         "group": "data-display",
         "href": "/docs/components/mermaid.html"
       }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "prototype-flex",
+      "type": "registry:ui",
+      "title": "Prototype flex",
+      "description": "The layout family, ALPHA TRACK (design-studio r2 §6): the standardized flex primitive the design studio's property panel edits live. Single-root + rest-spread — the stamp mechanism's family precondition. direction/wrap/align/justify are native CSS tokens passed through 1:1 (no vocabulary mapping); gap number → px; an omitted prop injects no declaration. Inline style only: zero Tailwind, zero tokens, zero dependencies — renders in any host.",
+      "files": [
+        {
+          "path": "registry/files/ui/prototype-flex/prototype-flex.svelte",
+          "target": "@ui/prototype-flex/prototype-flex.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-flex/index.ts",
+          "target": "@ui/prototype-flex/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: direction? ('row'|'row-reverse'|'column'|'column-reverse' → flex-direction), wrap? ('nowrap'|'wrap'|'wrap-reverse' → flex-wrap), align? ('start'|'center'|'end'|'stretch'|'baseline' → align-items), justify? ('start'|'center'|'end'|'space-between'|'space-around'|'space-evenly' → justify-content), gap? (number→px | string → gap), class?, children; every other attribute lands on the single root div (data-jx-prototype-flex).",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/prototype-flex.html",
+        "alpha": true
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "prototype-grid",
+      "type": "registry:ui",
+      "title": "Prototype grid",
+      "description": "The layout family, ALPHA TRACK (design-studio r2 §6): the standardized grid primitive the design studio's property panel edits live. Single-root + rest-spread — the stamp mechanism's family precondition. cols/rows: number → repeat(N, minmax(0,1fr)) (the blowout-proof track form), string verbatim; areas verbatim; gap number → px; omitted props inject nothing. Inline style only: zero Tailwind, zero tokens, zero dependencies — renders in any host.",
+      "files": [
+        {
+          "path": "registry/files/ui/prototype-grid/prototype-grid.svelte",
+          "target": "@ui/prototype-grid/prototype-grid.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-grid/index.ts",
+          "target": "@ui/prototype-grid/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: cols? (number → repeat(N, minmax(0,1fr)) | string → grid-template-columns verbatim), rows? (same two forms), gap? (number→px | string), areas? (verbatim grid-template-areas string), class?, children; every other attribute lands on the single root div (data-jx-prototype-grid).",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/prototype-grid.html",
+        "alpha": true
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "prototype-waterfall",
+      "type": "registry:ui",
+      "title": "Prototype waterfall",
+      "description": "The layout family, ALPHA TRACK (design-studio r2 §6): the standardized waterfall primitive the design studio's property panel edits live — CSS multi-column under the hood (children flow in newspaper column order, not shortest-column-first; break-inside stays the consumer's call; strategy 'balanced' = column-fill balance, v0's only strategy). Single-root + rest-spread — the stamp mechanism's family precondition; columns rides the CSS columns shorthand verbatim; gap number → px; omitted props inject nothing. Inline style only: zero Tailwind, zero tokens, zero dependencies — renders in any host.",
+      "files": [
+        {
+          "path": "registry/files/ui/prototype-waterfall/prototype-waterfall.svelte",
+          "target": "@ui/prototype-waterfall/prototype-waterfall.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-waterfall/index.ts",
+          "target": "@ui/prototype-waterfall/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: columns? (the CSS columns shorthand verbatim — number = count form, a length string like '14rem' = auto-width form), gap? (number→px | string → column-gap), strategy? ('balanced' → column-fill: balance; v0's only member — 'ordered' is the future seam), class?, children; every other attribute lands on the single root div (data-jx-prototype-waterfall).",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/prototype-waterfall.html",
+        "alpha": true
+      }
     }
   ]
 }

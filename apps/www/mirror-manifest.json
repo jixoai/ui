@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-10T17:34:00.891Z",
+  "generatedAt": "2026-09-11T12:54:11.320Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -105,7 +105,10 @@
     "pattern-cta": "registry/files/ui/pattern-cta/pattern-cta.svelte",
     "math-inline": "registry/files/ui/math-inline/math-inline.svelte",
     "math-block": "registry/files/ui/math-block/math-block.svelte",
-    "mermaid": "registry/files/ui/mermaid/mermaid.svelte"
+    "mermaid": "registry/files/ui/mermaid/mermaid.svelte",
+    "prototype-flex": "registry/files/ui/prototype-flex/prototype-flex.svelte",
+    "prototype-grid": "registry/files/ui/prototype-grid/prototype-grid.svelte",
+    "prototype-waterfall": "registry/files/ui/prototype-waterfall/prototype-waterfall.svelte"
   },
   "items": [
     {
@@ -4682,6 +4685,69 @@
           "target": "@ui/mermaid/index.ts",
           "sourceSha": "eb8c0cd84c33c6dfc5f66e3c1edc747ad0fcc818c5aa9f5f0683b5e0c5a50ba6",
           "mirrorSha": "eb8c0cd84c33c6dfc5f66e3c1edc747ad0fcc818c5aa9f5f0683b5e0c5a50ba6"
+        }
+      ]
+    },
+    {
+      "itemName": "prototype-flex",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/prototype-flex/prototype-flex.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/prototype-flex/prototype-flex.svelte",
+          "mirror": "apps/www/src/lib/ui/prototype-flex/prototype-flex.svelte",
+          "target": "@ui/prototype-flex/prototype-flex.svelte",
+          "sourceSha": "4e86f3c9f6ebf36841d07f7a16bd9960f7e06313fe0576dc763f970844981e08",
+          "mirrorSha": "4e86f3c9f6ebf36841d07f7a16bd9960f7e06313fe0576dc763f970844981e08"
+        },
+        {
+          "source": "registry/files/ui/prototype-flex/index.ts",
+          "mirror": "apps/www/src/lib/ui/prototype-flex/index.ts",
+          "target": "@ui/prototype-flex/index.ts",
+          "sourceSha": "9cf4a9aaad42370cf78c9981d0525affb33d4df8adc13ef27b264d83dab5cc5b",
+          "mirrorSha": "9cf4a9aaad42370cf78c9981d0525affb33d4df8adc13ef27b264d83dab5cc5b"
+        }
+      ]
+    },
+    {
+      "itemName": "prototype-grid",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/prototype-grid/prototype-grid.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/prototype-grid/prototype-grid.svelte",
+          "mirror": "apps/www/src/lib/ui/prototype-grid/prototype-grid.svelte",
+          "target": "@ui/prototype-grid/prototype-grid.svelte",
+          "sourceSha": "984784ffffb097a00b8c68ba96aa3b56534685206abb285e95e6a43d46504b21",
+          "mirrorSha": "984784ffffb097a00b8c68ba96aa3b56534685206abb285e95e6a43d46504b21"
+        },
+        {
+          "source": "registry/files/ui/prototype-grid/index.ts",
+          "mirror": "apps/www/src/lib/ui/prototype-grid/index.ts",
+          "target": "@ui/prototype-grid/index.ts",
+          "sourceSha": "42252cc5e6d53a466179a9d23d219e804c6d7ddd15fbe26cc9e5b30e69084b0f",
+          "mirrorSha": "42252cc5e6d53a466179a9d23d219e804c6d7ddd15fbe26cc9e5b30e69084b0f"
+        }
+      ]
+    },
+    {
+      "itemName": "prototype-waterfall",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/prototype-waterfall/prototype-waterfall.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/prototype-waterfall/prototype-waterfall.svelte",
+          "mirror": "apps/www/src/lib/ui/prototype-waterfall/prototype-waterfall.svelte",
+          "target": "@ui/prototype-waterfall/prototype-waterfall.svelte",
+          "sourceSha": "9229a41b69f1ca9fcb5e4de436ee030e27b33338128a506500f36bb501835256",
+          "mirrorSha": "9229a41b69f1ca9fcb5e4de436ee030e27b33338128a506500f36bb501835256"
+        },
+        {
+          "source": "registry/files/ui/prototype-waterfall/index.ts",
+          "mirror": "apps/www/src/lib/ui/prototype-waterfall/index.ts",
+          "target": "@ui/prototype-waterfall/index.ts",
+          "sourceSha": "2138bf7105a467a37eee11fe160435bce3cae8fa6e0c541b3dd04c9ab5fc9442",
+          "mirrorSha": "2138bf7105a467a37eee11fe160435bce3cae8fa6e0c541b3dd04c9ab5fc9442"
         }
       ]
     }

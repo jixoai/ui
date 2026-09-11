@@ -120,9 +120,15 @@ describe('docs-route-model — the section spine', () => {
     // glass's page retires into /docs/effects.html, press-button KEEPS
     // its component page (a group is a taxonomy lane, not a page —
     // href uniqueness stays strict, both residents own their hrefs).
+    // Re-frozen 2026-09-11 (layout-family-alpha): the alpha-track
+    // layout family joins layout (16->19) — prototype-flex,
+    // prototype-grid, prototype-waterfall (meta.alpha: true) — the
+    // taxonomy shape totals 106; alpha is a meta stamp, never a
+    // distribution exemption, so the taxonomy counts them like any
+    // resident.
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:13', 'terminal:4', 'layout:16', 'navigation:10', 'layer:10',
+      'general:13', 'terminal:4', 'layout:19', 'navigation:10', 'layer:10',
       'data-entry:19', 'data-display:24', 'feedback:5', 'effects:2',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
