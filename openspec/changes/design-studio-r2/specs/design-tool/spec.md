@@ -68,12 +68,16 @@ write), then ride HMR. During an agent turn the panel SHALL
 be read-only. Non-representable props (bound or non-literal)
 SHALL render read-only with an "edit in code" hint.
 
-#### Scenario: variant flips in source
+#### Scenario: an enum prop flips in source
 
-- GIVEN a selected press-button usage with variant="fill"
-- WHEN the segmented control picks "tonal"
-- THEN the prototype file's prop literal reads tonal and the
-  frame hot-updates without reload
+- GIVEN a selected usage whose schema carries an enum prop with a
+  literal present in source
+- WHEN the segmented control picks another member
+- THEN the prototype file's prop literal changes and the frame
+  hot-updates without reload (verified live with a real value
+  round-trip; press-button's variant is slot-derived OPAQUE on the
+  vehicle — extraction ceiling in force, the row degrades to
+  edit-in-code there)
 
 #### Scenario: concurrent write is refused
 
