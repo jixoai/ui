@@ -23,7 +23,7 @@ export { scaffoldWorkspace } from './scaffold/scaffold.ts';
 export type { ScaffoldResult } from './scaffold/scaffold.ts';
 export { createEchoAgent, resolveDesignFile, DesignPathEscapeError } from './agent/echo.ts';
 export { createNoneAgent } from './agent/none.ts';
-export { createDshAgent, dshPreflight, composeDshJob } from './agent/dsh.ts';
+export { createDshAgent, dshPreflight, composeDshJob, renderDesignPatch } from './agent/dsh.ts';
 export { agentMiddleware, CHAT_PATH, AGENT_INFO_PATH } from './agent/sse.ts';
 export type { DesignAgent, AgentEvent, AgentInfo } from './agent/types.ts';
 export { loadKnowledgePack } from './knowledge/knowledge.ts';
