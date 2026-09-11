@@ -1,7 +1,7 @@
 {
   "name": "@jixoai/ui-design",
   "version": "0.1.0",
-  "description": "The design-studio server: one vite dev server serving the studio shell, frame surface and prototype canvases over a host workspace (design/), plus the DesignAgent seam, knowledge pack and scaffold. Source-distributed (css-laws precedent) — consumed live by vite, no dist build.",
+  "description": "The design-studio server: one vite dev server serving the studio shell, frame surface and prototype canvases over a host workspace (design/), plus the DesignAgent seam, knowledge pack, scaffold, and the r2 pipeline (git-release-model design workspace: wip saves, annotated release tags, host promotion, three-way drift apply via git merge-file). Source-distributed (css-laws precedent) — consumed live by vite, no dist build.",
   "license": "MIT",
   "type": "module",
   "private": true,
@@ -37,8 +37,10 @@
     "@jixoai/ui-vite-plugin": "file:../../packages/vite-plugin",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tailwindcss/vite": "^4.2.1",
+    "magic-string": "^0.30.21",
     "svelte": "^5.55.5",
     "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
     "vite": "^8.0.0"
   }
 }

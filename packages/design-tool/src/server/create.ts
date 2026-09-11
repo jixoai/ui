@@ -33,10 +33,14 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { DesignAgent } from '../agent/types.ts';
 import { agentMiddleware } from '../agent/sse.ts';
 import { loadKnowledgePack } from '../knowledge/knowledge.ts';
+import { promotionStatus } from '../pipeline/promote.ts';
+import { metaMiddleware } from './meta/endpoint.ts';
+import { propEditMiddleware } from './prop-edit.ts';
 import type { DesignHostInfo } from './probe.ts';
 import { probeDesignHost } from './probe.ts';
 import { resolvePackageEntry } from './resolver.ts';
 import { scanPrototypes } from './manifest.ts';
+import { buildStampPlugin } from './stamp/index.ts';
 import type { Plugin, InlineConfig, Alias, ViteDevServer } from 'vite';
 
 /* ── stable module ids and the real files behind them ─────────────────── */
@@ -111,6 +115,12 @@ function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent): Plugin 
       // agent seam first (POST chat + agent info)
       server.middlewares.use(agentMiddleware(agent));
 
+      // the property-panel service pair (r2 T7/T8): on-demand schema
+      // extraction over the itemAliasBase anchor + the CAS-arbitrated
+      // source editor
+      server.middlewares.use(metaMiddleware(host));
+      server.middlewares.use(propEditMiddleware(host.root));
+
       server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
         const pathname = (req.url ?? '').split('?')[0]!;
         if (req.method !== 'GET' && req.method !== 'HEAD') return next();
@@ -159,10 +169,30 @@ function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent): Plugin 
           return;
         }
 
+        // API: promotion drift status — the studio badge's data source
+        // (r2 T2; same data as `jixoai-ui design status`, re-read per
+        // request so the badge refreshes after every save/promote/apply)
+        if (pathname === '/__design__/api/promotions.json') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.end(JSON.stringify(promotionStatus(host.root)));
+          return;
+        }
+
         next();
       });
     },
   };
+}
+
+/** realpath that tolerates absence — bare hosts boot instead of
+ * crashing on fs.allow assembly (see the fs.allow comment) */
+function realpathSafe(path: string): string[] {
+  try {
+    return [realpathSync(path)];
+  } catch {
+    return [];
+  }
 }
 
 /* ── icons CSS entry (the registry/vite.config.ts:179-201 trick) ──────── */
@@ -369,6 +399,10 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
     // it — the integration seam nobody owned, 2026-09-11)
     define: { 'import.meta.env.VITE_JIXOAI_DESIGN': '"1"' },
     plugins: [
+      // the usage-site stamp transform (r2 §3) — enforce:pre, apply:serve:
+      // stamps land in the svelte SOURCE before vite-plugin-svelte
+      // compiles it, and a host's production build never sees it
+      buildStampPlugin({ host }),
       svelteFactory(),
       tailwindFactory(),
       ...jixoaiPlugins,
@@ -397,9 +431,12 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
             // allowed root — jetbrains-mono lives under the vehicle's
             // node_modules, share-tech-mono under the REPO root's
             // (V5 catches: both woff2s 403'd before their realpath
-            // ancestors joined the allow list)
-            ...(moduleRoot === null ? [] : [realpathSync(join(moduleRoot, 'node_modules'))]),
-            realpathSync(join(root, 'node_modules')),
+            // ancestors joined the allow list). realpathSafe: a bare
+            // host with no node_modules must not crash the server boot
+            // (A's r2 smoke caught realpathSync ENOENT killing the
+            // process before listen — 2026-09-11)
+            ...realpathSafe(join(moduleRoot ?? root, 'node_modules')),
+            ...realpathSafe(join(root, 'node_modules')),
           ]),
         ],
       },

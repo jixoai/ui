@@ -46,5 +46,8 @@
       updates-available 徽标（spec：studio surfaces drift）
 - [ ] V 系列全验（design.md §8；VC1 脚本断言 + vision 双轨）
       + VZ vision 三轮目击制走查
-- [ ] T12 openspec 收尾：spec 定稿、validate --strict、r2 问题
-      清单（含 H6 宿主注解边界记档）
+- [ ] T12 openspec 收尾：spec 定稿（含两处实测修订——"variant
+      flips" 场景改为 schema-enum 泛指 + edit-in-code 降级场景
+      实化：press-button 的 variant 是 slot-derived opaque，字面量
+      编辑路径已实证但分段控件无 enum 可依）、validate --strict、
+      r2 问题清单（含 H6 宿主注解边界 + C 报告的摩擦复核）
