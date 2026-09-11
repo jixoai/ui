@@ -9,6 +9,11 @@
        the kit's DOM contract). Manifest polling is GATED (#12/T0):
        a structurally unchanged response never rewrites $state, and
        the panel receives selectionFile (a primitive), not a table.
+       r3 T4 skin: the canvas/frame rows are the host's REAL list-item
+       family (#jixoai/ link rows, intercepted activation — semantics
+       untouched) and the drift badge is the badge item; .studio-canvas
+       / .studio-frame / .studio-updates-badge survive as the
+       walkthrough scripts' DOM hooks, not as chrome.
     2. the CONSTANT three-column grid (r3 T2, ID1/ID10): nav 15rem |
        stage 1fr | inspector 24rem — the columns never move with
        selection (no .studio-with-panel fourth column; the stage
@@ -29,14 +34,17 @@
     5. promotion drift badge (r2 T11): the navigator's canvases carry
        an "updates" badge when their promoted files lag the design
        file (the promotions.json status endpoint, A's pipeline); the
-       badge expands to the changelog intent + per-file diffs.
+       badge expands to the changelog intent + per-file diffs. r3 T4:
+       the badge paint is the badge item (jx-hue-warning tonal); the
+       family ships no interactive badge (span only) — the toggle
+       stays a chrome-less button carrying it (ledger Q2).
 
   Original need: Owner 2026-09-11 (design-studio T4; design-studio-r2
-  T4/T5/T8/T11). HOST DECOUPLING LAW (design.md §6.4): this shell
-  imports NO host components and no host aliases — self-contained
-  scoped CSS only; dogfooding happens in the host's design/studio.svelte
-  which wraps this shell. Svelte 5 runes throughout ($state/$derived/
-  $effect).
+  T4/T5/T8/T11). r3 P1 (issue #10): the dogfooding MAIN PATH — this
+  shell imports the host's real components through the design server's
+  #jixoai/ alias (rebuild-plan §2.1); the r1 HOST DECOUPLING LAW is
+  retired. Residual studio CSS is layout skeleton + studio-specific
+  spacing only. Svelte 5 runes throughout ($state/$derived/$effect).
 -->
 <script module lang="ts">
   // the picker-facing seam, installed at MODULE level (GATE-0 relay,
@@ -53,6 +61,12 @@
 </script>
 
 <script lang="ts">
+  // the dogfooding main path (r3 T4, issue #10): the host's REAL
+  // components via the design server's #jixoai/ alias
+  import Badge from '#jixoai/badge';
+  import Empty from '#jixoai/empty';
+  import Separator from '#jixoai/separator';
+  import { Item, ItemContent, ItemTitle } from '#jixoai/list-item';
   import ChatPanel from './chat-panel.svelte';
   import ComponentTree from './component-tree.svelte';
   import {
@@ -289,25 +303,55 @@
       <p class="studio-error">promotions unavailable — <button class="studio-frame" onclick={retryPromotions}>retry</button></p>
     {/if}
     {#if manifest.length === 0 && manifestError === null}
-      <p class="studio-empty">no prototypes yet — the navigator fills as design/prototypes/&lt;name&gt;/ appears</p>
+      <Empty
+        density="xs"
+        class="studio-empty"
+        title="no prototypes yet"
+        description="the navigator fills as design/prototypes/<name>/ appears"
+      >
+        {#snippet illustration()}
+          <span class="text-muted-foreground">ls design/prototypes/</span>
+          <span class="text-primary">0 canvases</span>
+        {/snippet}
+      </Empty>
     {/if}
+    <!-- one li per canvas entry (row + drift detail + frames) — the
+         gate scripts' `.studio-list li` scoping contract; the rows
+         themselves are standalone chrome-none family link rows -->
     <ul class="studio-list">
       {#each manifest as entry (entry.name)}
         {@const updates = updatesByProto.get(entry.name)}
-        <li class:active={entry.name === currentName}>
-          <span class="studio-canvas-row">
-            <button class="studio-canvas" onclick={() => selectCanvas(entry.name)}>
-              {entry.name}
-            </button>
+        <li>
+          <!-- the family's law: interactive descendants belong OUTSIDE
+               anchors — the canvas row is a family LINK row (name,
+               selected, hover) and the drift toggle is its sibling,
+               laid out by the row wrapper (layout, not chrome) -->
+          <div class="studio-canvas-row">
+            <Item
+              class="studio-canvas"
+              variant="default"
+              density="sm"
+              href={`#${entry.name}`}
+              selected={entry.name === currentName}
+              onclick={(event) => {
+                event.preventDefault();
+                selectCanvas(entry.name);
+              }}
+            >
+              <ItemContent wrap="truncate">
+                <ItemTitle>{entry.name}</ItemTitle>
+              </ItemContent>
+            </Item>
             {#if updates !== undefined && updates.length > 0}
               <button
+                type="button"
                 class="studio-updates-badge"
                 title="promoted files lag the design file — click for the drift report"
                 aria-expanded={updatesOpen === entry.name}
                 onclick={() => (updatesOpen = updatesOpen === entry.name ? null : entry.name)}
-              >updates</button>
+              ><Badge variant="tonal" class="jx-hue-warning">updates</Badge></button>
             {/if}
-          </span>
+          </div>
           {#if updatesOpen === entry.name && updates !== undefined}
             <div class="studio-updates-detail">
               {#each updates as status (status.file)}
@@ -329,23 +373,34 @@
             </div>
           {/if}
           {#if entry.frames !== undefined && entry.frames.length > 0}
-            <ul class="studio-frames">
+            <div class="studio-frames">
               {#each entry.frames as frame (frame.id)}
-                <li>
-                  <button
-                    class="studio-frame"
-                    onclick={() => selectCanvas(entry.name, frame.id)}
-                    title={frame.ref ?? frame.id}
-                  >
-                    {frame.id}
-                  </button>
-                </li>
+                <Item
+                  class="studio-frame"
+                  variant="default"
+                  density="xs"
+                  href={`#${entry.name}/${frame.id}`}
+                  title={frame.ref ?? frame.id}
+                  onclick={(event) => {
+                    event.preventDefault();
+                    selectCanvas(entry.name, frame.id);
+                  }}
+                >
+                  <ItemContent wrap="truncate">
+                    <ItemTitle>{frame.id}</ItemTitle>
+                  </ItemContent>
+                </Item>
               {/each}
-            </ul>
+            </div>
           {/if}
         </li>
       {/each}
     </ul>
+    <!-- the canvases/tree section divide (r3 T4): the family's
+         DEFAULT fused ghost — the contrast ink reads as a tonal lift
+         on the studio's near-black ground (the solid escape painted
+         --border = pure black there, imperceptible; pixel-probed) -->
+    <Separator class="studio-sep" />
     <ComponentTree iframe={canvasIframe} {selection} onSelect={(incoming) => (selection = incoming)} />
   </nav>
 
@@ -505,14 +560,13 @@
     border-radius: 50%;
     background: #e05656;
   }
-  .studio-error,
-  .studio-empty {
+  .studio-error {
     margin: 0;
-    color: #8d8578;
+    color: #e08585;
     line-height: 1.5;
   }
-  .studio-error {
-    color: #e08585;
+  .studio-empty {
+    margin: 0 0.25rem;
   }
   .studio-list {
     list-style: none;
@@ -535,24 +589,23 @@
     align-items: center;
     gap: 0.375rem;
   }
-  .studio-list > li.active > .studio-canvas-row > .studio-canvas {
-    color: #f5f1e8;
-    background: #262320;
-  }
+  /* r3 T4: the canvas/frame rows are family link rows (the Item
+     supplies row chrome, hover, selected, focus). Residual CSS here
+     is layout + spacing ONLY: the badge toggle is a chrome-less
+     button carrying the Badge paint (the family ships no interactive
+     badge), and `button.studio-frame` keeps the error-retry buttons'
+     look — the frame ROWS share the class as a script hook, so the
+     reset scopes to buttons */
   .studio-updates-badge {
     all: unset;
     cursor: pointer;
-    font-size: 0.5625rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #0d0c0b;
-    background: #d9b46a;
-    border-radius: 2px;
-    padding: 0.0625rem 0.3125rem;
     flex: none;
+    display: inline-flex;
+    border-radius: 2px;
   }
   .studio-updates-badge[aria-expanded='true'] {
-    background: #e8e4dd;
+    outline: 1px solid #3a352f;
+    outline-offset: 1px;
   }
   .studio-updates-detail {
     margin: 0.25rem 0 0.25rem 0.5rem;
@@ -599,25 +652,15 @@
     color: #6f6759;
     font-size: 0.625rem;
   }
-  .studio-canvas {
-    all: unset;
-    cursor: pointer;
-    padding: 0.375rem 0.5rem;
-    border-radius: 3px;
-    color: #b9b2a6;
-  }
-  .studio-canvas:hover {
-    background: #1b1917;
-    color: #e8e4dd;
-  }
   .studio-frames {
-    list-style: none;
     margin: 0;
     padding: 0 0 0 1rem;
     display: flex;
     flex-direction: column;
   }
-  .studio-frame {
+  /* the error lines' retry buttons (ID3/ID6) — kept button-scoped so
+     the family frame rows sharing the class as a hook stay untouched */
+  button.studio-frame {
     all: unset;
     cursor: pointer;
     padding: 0.25rem 0.5rem;
@@ -629,9 +672,12 @@
     text-overflow: ellipsis;
     max-width: 100%;
   }
-  .studio-frame:hover {
+  button.studio-frame:hover {
     color: #e8e4dd;
     background: #1b1917;
+  }
+  .studio-sep {
+    flex: none;
   }
 
   .studio-preview {

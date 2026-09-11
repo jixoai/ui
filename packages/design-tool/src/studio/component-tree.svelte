@@ -21,10 +21,23 @@
   elements, third-party components and rest-spread-less components
   are absent by design.
 
-  Original need: Owner 2026-09-11 (design-studio-r2 T5). No host
-  imports; self-contained scoped CSS. Svelte 5 runes.
+  r3 T4 skin (issue #10): the rows are the host's REAL list-item
+  family via the #jixoai/ alias — link rows (the family's interactive
+  row law: anchors carry the hover; activation stays intercepted, the
+  pick/highlight/select semantics are untouched). Nesting is the
+  family's nested-group transition (no tree form exists in the family
+  yet — Q1 in the grindstone ledger): each frame is a plain
+  ItemGroup, each branch nests one more inside its li. The empty
+  state is the empty item. `.tree-row` / `.selected` survive as the
+  walkthrough scripts' DOM hooks (the canvas-playground data-hook
+  precedent), not as chrome.
+
+  Original need: Owner 2026-09-11 (design-studio-r2 T5). Svelte 5
+  runes.
 -->
 <script lang="ts">
+  import Empty from '#jixoai/empty';
+  import { Item, ItemAfter, ItemContent, ItemEnd, ItemGroup, ItemTitle } from '#jixoai/list-item';
   import { recordsSignature } from './equivalence.ts';
   import {
     FRAME_NAME_PREFIX,
@@ -161,41 +174,72 @@
 </script>
 
 {#snippet nodeView(node: SelectionTreeNode)}
-  <div class="tree-node">
-    <button class="tree-row" class:selected={isSelected(node)} onclick={() => pick(node)} title={node.frameId ?? 'canvas'}>
-      <span class="tree-component">{node.component}</span>
-      <span class="tree-index">#{node.usageIndex}</span>
+  <!-- link rows (the family's interactive-row law) with intercepted
+       activation: the click picks DOWN (frame highlight) and UP
+       (selection) — the exact same pick() call as the button era -->
+  <Item
+    class={`tree-row${isSelected(node) ? ' selected' : ''}`}
+    href={`#${node.frameId ?? 'canvas'}-${node.usageIndex}`}
+    selected={isSelected(node)}
+    title={node.frameId ?? 'canvas'}
+    onclick={(event) => {
+      event.preventDefault();
+      pick(node);
+    }}
+  >
+    <ItemContent wrap="truncate">
+      <ItemTitle>{node.component}</ItemTitle>
+    </ItemContent>
+    <ItemEnd wrap="never">
+      <ItemAfter>#{node.usageIndex}</ItemAfter>
       {#if node.instanceCount > 1}
-        <span class="tree-shared" title="{node.instanceCount} instances share this usage">{node.instanceCount}×</span>
+        <ItemAfter tone="default" title="{node.instanceCount} instances share this usage">{node.instanceCount}×</ItemAfter>
       {/if}
-    </button>
-    {#if node.children.length > 0}
-      <div class="tree-children">
+    </ItemEnd>
+  </Item>
+  {#if node.children.length > 0}
+    <!-- the Q1 transition form: no tree primitive in the family yet,
+         so a branch is one more plain group inside its own list row;
+         the indentation guide (margin + hairline) is layout, not
+         chrome -->
+    <li data-slot="item-row" class="tree-branch">
+      <ItemGroup mode="plain" density="xs" dividers="none" class="tree-branch-group">
         {#each node.children as child (`${child.frameId ?? ''}#${child.usageIndex}`)}
           {@render nodeView(child)}
         {/each}
-      </div>
-    {/if}
-  </div>
+      </ItemGroup>
+    </li>
+  {/if}
 {/snippet}
 
 <section class="tree">
   <header class="tree-head">components</header>
   {#if groups.length === 0}
-    <p class="tree-empty">no stamped components in this canvas — the tree is the jixoai usage tree</p>
+    <Empty
+      density="xs"
+      class="tree-empty"
+      title="no stamped components"
+      description="the tree is the jixoai usage tree"
+    >
+      {#snippet illustration()}
+        <span class="text-muted-foreground">ls canvas/</span>
+        <span class="text-primary">0 stamped</span>
+      {/snippet}
+    </Empty>
   {:else}
     <div class="tree-flow">
       {#each groups as group (group.frameId ?? 'canvas')}
-        <div class="tree-frame">
-          {#if group.frameId !== null}
-            <span class="tree-frame-label">{group.frameId}</span>
-          {:else}
-            <span class="tree-frame-label">canvas</span>
-          {/if}
+        <ItemGroup
+          mode="plain"
+          density="xs"
+          dividers="none"
+          label={group.frameId ?? 'canvas'}
+          class="tree-frame"
+        >
           {#each group.roots as node (`${node.frameId ?? ''}#${node.usageIndex}`)}
             {@render nodeView(node)}
           {/each}
-        </div>
+        </ItemGroup>
       {/each}
     </div>
   {/if}
@@ -206,13 +250,12 @@
     /* r3 T2 (ID10): the left column's FLEXIBLE lower zone — the 45%
        max-height hardcode is gone; the nav's flex column hands this
        section the leftover height (flex basis 0) and .tree-flow
-       scrolls inside (min-height:0 chain) */
+       scrolls inside (min-height:0 chain). The section divide above
+       is the shell's Separator (r3 T4) — no border-top here anymore */
     flex: 1 1 0;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    border-top: 1px solid #262320;
-    padding-top: 0.75rem;
   }
   .tree-head {
     font-weight: 700;
@@ -224,73 +267,21 @@
   }
   .tree-empty {
     margin: 0 0.25rem;
-    color: #8d8578;
-    line-height: 1.5;
-    font-size: 0.6875rem;
   }
   .tree-flow {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    min-height: 0;
   }
-  .tree-frame {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
-  .tree-frame-label {
-    font-size: 0.625rem;
-    color: #6f6759;
-    letter-spacing: 0.05em;
-    padding: 0.125rem 0.25rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .tree-node {
-    display: flex;
-    flex-direction: column;
-  }
-  .tree-row {
-    all: unset;
-    cursor: pointer;
-    display: flex;
-    align-items: baseline;
-    gap: 0.375rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 3px;
-    color: #b9b2a6;
-  }
-  .tree-row:hover {
-    background: #1b1917;
-    color: #e8e4dd;
-  }
-  .tree-row.selected {
-    background: #262320;
-    color: #f5f1e8;
-  }
-  .tree-component {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .tree-index {
-    color: #6f6759;
-    font-size: 0.625rem;
-  }
-  .tree-shared {
-    color: #c9a86a;
-    font-size: 0.625rem;
-    border: 1px solid #3a352f;
-    border-radius: 3px;
-    padding: 0 0.25rem;
-  }
-  .tree-children {
+  /* the row rhythm INSIDE a frame/branch group: the family's
+     dividers-none gap (one --jx-stack) is the beat; tighten the
+     branch lanes so deep nesting stays scannable (spacing, not
+     chrome) */
+  .tree-branch {
     margin-left: 0.75rem;
     border-left: 1px solid #262320;
     padding-left: 0.375rem;
-    display: flex;
-    flex-direction: column;
   }
 </style>
