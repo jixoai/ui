@@ -116,15 +116,53 @@ test('rewrite: bound and expression props are non-representable', () => {
   assert.equal(fine.ok, true);
 });
 
-test('rewrite: usage-not-found and component-not-found are named', () => {
+test('rewrite: usage-not-found and kind-mismatch are named (the stamp space)', () => {
   assert.deepEqual(
     (() => { const o = applyPropEdit(HERO, 'press-button', 9, 'variant', 'x'); return o.ok ? null : o.reason; })(),
     'usage-not-found',
   );
-  assert.deepEqual(
-    (() => { const o = applyPropEdit(HERO, 'ghost-button', 1, 'variant', 'x'); return o.ok ? null : o.reason; })(),
-    'component-not-found',
-  );
+  // a file WITH jixoai imports never says component-not-found — the
+  // global index resolves and the KIND assertion refuses (P0 fix)
+  const mismatch = applyPropEdit(HERO, 'ghost-button', 1, 'variant', 'x');
+  assert.equal(mismatch.ok, false);
+  if (mismatch.ok) return;
+  assert.equal(mismatch.reason, 'usage-not-found');
+  assert.match(mismatch.message, /ghost-button/);
+  assert.match(mismatch.message, /press-button/);
+});
+
+test('rewrite: the stamp space counts ALL kinds — mixed files target correctly (P0 pin)', () => {
+  const source = [
+    '<script>import PressButton from "#jixoai/press-button"; import Badge from "#jixoai/badge";</script>',
+    '<main><Badge tone="x">L</Badge>',
+    '<PressButton variant="fill">A</PressButton>',
+    '<PressButton variant="ghost">B</PressButton></main>',
+  ].join('\n');
+  // global order: Badge=1, A=2, B=3 — per-kind counting would have
+  // made "press-button #2" hit B (the walkthrough's silent corruption)
+  const a = applyPropEdit(source, 'press-button', 2, 'variant', 'tonal');
+  assert.equal(a.ok, true);
+  if (!a.ok) return;
+  assert.ok(a.output.includes('<PressButton variant="tonal">A'));
+  assert.ok(a.output.includes('<PressButton variant="ghost">B'));
+  const b = applyPropEdit(source, 'press-button', 3, 'variant', 'fill');
+  assert.equal(b.ok, true);
+  if (!b.ok) return;
+  assert.ok(b.output.includes('<PressButton variant="fill">B'));
+});
+
+test('rewrite: null removes the attribute (the absent-state restore, P2-2)', () => {
+  const withRaised = HERO.replace('<PressButton variant="fill">', '<PressButton variant="fill" raised={true}>');
+  const removed = applyPropEdit(withRaised, 'press-button', 1, 'raised', null);
+  assert.equal(removed.ok, true);
+  if (!removed.ok) return;
+  assert.ok(removed.output.includes('<PressButton variant="fill">Start'));
+  assert.ok(!removed.output.includes('raised'));
+  // absent already → no-op success
+  const noop = applyPropEdit(HERO, 'press-button', 1, 'raised', null);
+  assert.equal(noop.ok, true);
+  if (!noop.ok) return;
+  assert.equal(noop.output, HERO);
 });
 
 /* ── dry-run: the panel's seed values + shared flag ───────────────────── */
@@ -138,7 +176,7 @@ test('dry-run: current literals, unset-and-representable rows, shared enclosure'
   assert.deepEqual(result.values['unset-prop'], { representable: true });
   assert.equal(result.shared, false);
 
-  const badge = dryRunUsage(HERO, 'badge', 1, ['tone']);
+  const badge = dryRunUsage(HERO, 'badge', 3, ['tone']); // global stamp space: Badge is the 3rd usage
   assert.ok(!('error' in badge));
   if ('error' in badge) return;
   assert.deepEqual(badge.values.tone, { representable: false }); // {item.tone} expression
