@@ -255,7 +255,16 @@
     window.addEventListener('jx-design:select', onSelectEvent);
     const stored = restoreSelection();
     if (stored !== null) {
-      window.dispatchEvent(new CustomEvent('jx-design:select', { detail: stored }));
+      // OUT of the tracking scope: a synchronous dispatch here runs the
+      // listener INSIDE this effect's execution — persistSelection's
+      // read of `selection` gets tracked as the effect's own dependency,
+      // the listener's write re-triggers the effect, the bootstrap
+      // dispatches again: effect_update_depth_exceeded, the flush aborts
+      // torn (register-without-cleanup states — the original 'vanishing
+      // assignment' ghost's true face). The microtask escapes tracking.
+      queueMicrotask(() => {
+        window.dispatchEvent(new CustomEvent('jx-design:select', { detail: stored }));
+      });
     }
     return () => window.removeEventListener('jx-design:select', onSelectEvent);
   });
