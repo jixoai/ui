@@ -1,16 +1,24 @@
 <!--
-  @jixoai/ui-design (studio) — the chat panel (T4/T5 client half).
+  @jixoai/ui-design (studio) — the chat panel (T4/T5 client half +
+  r2 T6 selection context).
 
-  Orthogonal intent (1): the agent chat surface — message flow, input,
-  and AgentEvent rendering (text/file/tool/done/error). Transport is
-  the seam's SSE over POST (fetch + ReadableStream parsing —
-  EventSource cannot POST; the single-protocol ruling lives in
-  agent/sse.ts).
+  Orthogonal intents (2):
+    1. the agent chat surface — message flow, input, and AgentEvent
+       rendering (text/file/tool/done/error). Transport is the seam's
+       SSE over POST (fetch + ReadableStream parsing — EventSource
+       cannot POST; the single-protocol ruling lives in agent/sse.ts).
+    2. the selection chip (r2 T6): the current studio selection rides
+       above the input as a removable chip, and outgoing messages
+       carry it as the stable context prefix (selectionMessageBody —
+       the format the knowledge pack's prototype-standard layer
+       documents for the agent).
 
-  Original need: Owner 2026-09-11 (design-studio T4). No host imports;
-  self-contained scoped CSS. Svelte 5 runes.
+  Original need: Owner 2026-09-11 (design-studio T4; design-studio-r2
+  T6). No host imports; self-contained scoped CSS. Svelte 5 runes.
 -->
 <script lang="ts">
+  import { selectionChipLabel, selectionMessageBody, type DesignSelection } from './selection.ts';
+
   export interface ChatEvent {
     readonly type: 'text' | 'file' | 'tool' | 'done' | 'error';
     readonly text?: string;
@@ -34,11 +42,19 @@
   let {
     chatUrl = '/__design__/api/chat',
     agentInfoUrl = '/__design__/api/agent.json',
+    selection = null,
+    onClearSelection = (): void => {},
     onTurnSettled = (): void => {},
+    onStreamingChange = (): void => {},
   }: {
     chatUrl?: string;
     agentInfoUrl?: string;
+    selection?: DesignSelection | null;
+    onClearSelection?: () => void;
     onTurnSettled?: () => void;
+    /** the streaming state lifted to the shell — the property panel's
+     *  read-only lock during an agent turn (r2 §4, the H1 rule) */
+    onStreamingChange?: (streaming: boolean) => void;
   } = $props();
 
   let messages: ChatMessage[] = $state([]);
@@ -120,12 +136,16 @@
     draft = '';
     pushBlock('user', { kind: 'text', text: message });
     streaming = true;
+    onStreamingChange(true); // the panel locks for the turn (r2 §4)
+    // the selection rides as the stable context prefix (r2 T6 — the
+    // knowledge pack documents the format for the agent side)
+    const outbound = selectionMessageBody(selection, message);
     let settled = false;
     try {
       const response = await fetch(chatUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, message }),
+        body: JSON.stringify({ sessionId, message: outbound }),
       });
       if (response.body === null) throw new Error('no response body');
       const reader = response.body.getReader();
@@ -149,6 +169,7 @@
       pushBlock('agent', { kind: 'error', text: cause instanceof Error ? cause.message : String(cause), tone: 'error' });
     } finally {
       streaming = false;
+      onStreamingChange(false);
       onTurnSettled();
     }
   }
@@ -203,6 +224,22 @@
       </div>
     {/each}
   </div>
+
+  {#if selection !== null}
+    <div class="chat-chip-row">
+      <span class="chat-chip" title="selection context — rides the next message">
+        {selectionChipLabel(selection)}
+      </span>
+      <button
+        type="button"
+        class="chat-chip-remove"
+        onclick={() => onClearSelection()}
+        aria-label="remove selection context"
+      >
+        ×
+      </button>
+    </div>
+  {/if}
 
   <form
     class="chat-input"
@@ -299,6 +336,37 @@
     margin: 0;
     color: #e08585;
     line-height: 1.5;
+  }
+  .chat-chip-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem 0;
+  }
+  .chat-chip {
+    flex: 1;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    color: #d9cdb8;
+    background: #1b1917;
+    border: 1px solid #3a352f;
+    border-radius: 3px;
+    padding: 0.25rem 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .chat-chip-remove {
+    all: unset;
+    cursor: pointer;
+    color: #8d8578;
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+  }
+  .chat-chip-remove:hover {
+    color: #e8e4dd;
+    background: #262320;
   }
   .chat-input {
     display: flex;

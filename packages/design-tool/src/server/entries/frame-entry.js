@@ -16,6 +16,7 @@
 import { mount } from 'svelte';
 import 'virtual:jixoai-design/css';
 import 'virtual:jixoai-icons.css';
+import { initDesignPicker } from './picker.js';
 
 const pages = import.meta.glob('/design/prototypes/*/pages/*.svelte');
 const components = import.meta.glob('/design/prototypes/*/components/*.svelte');
@@ -47,6 +48,11 @@ const w = params.get('w');
 const h = params.get('h');
 if (w) document.documentElement.style.width = `${w}px`;
 if (h) document.documentElement.style.height = `${h}px`;
+
+// the selection loop's frame half (r2 T4): activates when embedded in
+// the studio (the hook walk) or forced with &pick=1 — standalone
+// frames stay plain documents
+initDesignPicker();
 
 if (proto === '' || ref === '') {
   loudError(
