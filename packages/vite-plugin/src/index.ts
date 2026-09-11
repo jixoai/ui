@@ -31,7 +31,16 @@
 //   2. The `virtual:jixoai-ghostty` module (resolveId claim + \0 internal
 //      id) exporting pure data {url, sha256, variant, buildInfo} — no
 //      fetch/WebAssembly at module evaluation time (SSR/vitest safe).
-//   3. Named-fix error surface (check-tw4-prereq style): resolution
+//   3. `spinners` (spin-ora-svg-lane, 2026-09-11) is the third feature:
+//      the svg-spinner set (vendored blocks-wave + custom sources →
+//      spin-set.gen.ts). Default-OFF like icons — the DEFAULT artifact
+//      is plugin-free; opting in costs only a build-start generator +
+//      drift-warner. The spinners face is SMALL and PURE (no svgo, no
+//      lucide, no providers), so it is wired DIRECTLY (a static import)
+//      — no bridge needed: the dist graph-purity gate pins exactly ONE
+//      dynamic import (the icons bridge) and this graph adds none
+//      (openspec spin-ora-svg-lane design §5).
+//   4. Named-fix error surface (check-tw4-prereq style): resolution
 //      failures tell the consumer exactly how to unblock.
 //
 // Owner original demand: 2026-08-28 "ghostty-term / packages/vite-plugin".
@@ -42,6 +51,8 @@ import type { Plugin } from 'vite';
 import type { IconProviderFactory, SafetyCheckerConfig } from './icons/types.js';
 import type { IconLibraryOptions } from './icons/library/types.js';
 import type { IconPluginHooks, IconPluginOptions } from './icons/vite-plugin.js';
+import type { SpinnersPluginOptions } from './spinners/types.js';
+import { createSpinnersPlugin } from './spinners/vite-plugin.js';
 import {
   chunkIndexOf,
   classifyVirtualId,
@@ -225,6 +236,11 @@ export interface IconsPluginOptions {
   readonly safety?: SafetyCheckerConfig;
 }
 
+/** the spinners feature option's type (spin-ora-svg-lane design §5) —
+ *  re-exported for umbrella consumers; the face itself is small and
+ *  pure, wired directly (no bridge) */
+export type { SpinnersPluginOptions } from './spinners/types.js';
+
 /**
  * the design §1 matrix startup error — byte-identical to the icons
  * sub-entry's MISSING_ICONS_FACES_ERROR (a test pins the two together;
@@ -366,6 +382,16 @@ export interface JixoaiOptions {
    * object opts in.
    */
   icons?: IconsPluginOptions | false;
+  /**
+   * The svg-spinner feature (spin-ora-svg-lane design §5): the vendored
+   * blocks-wave manifest + custom inline/`{file}` svg sources compiled
+   * into the spin-set.gen.ts artifact (`SpinName` union, `SPIN_NAMES`,
+   * synchronous `getSpin`). ONE face — a bare `{}` IS a legal
+   * configuration (blocks-wave only); the icons ≥1-of-2 matrix error
+   * does not apply. Default: `false` — no plugin is registered, nothing
+   * is read; the committed artifact stays plugin-free.
+   */
+  spinners?: SpinnersPluginOptions | false;
 }
 
 export function jixoai(options: JixoaiOptions = {}): Plugin[] {
@@ -381,6 +407,12 @@ export function jixoai(options: JixoaiOptions = {}): Plugin[] {
       throw new Error(MISSING_ICONS_FACES_ERROR);
     }
     plugins.push(iconsBridgePlugin(icons));
+  }
+  // ONE face, no matrix: a bare `{}` = blocks-wave only (design §5) —
+  // the spinners plugin is small and pure, so it wires DIRECTLY (no
+  // bridge; the dist graph-purity gate stays one-dynamic-import)
+  if (options.spinners !== false && options.spinners !== undefined) {
+    plugins.push(createSpinnersPlugin(options.spinners));
   }
   return plugins;
 }

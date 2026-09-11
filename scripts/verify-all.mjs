@@ -6,6 +6,7 @@
 //      @jixoai/<item> (A4: bare names are ambiguous across namespaces)
 //   1. verify:laws        — css-laws slots fresh from the TS sources
 //   2. verify:icons       — the generated icon-set artifact is fresh
+//      verify:spins       — the generated spin-set artifact is fresh
 //      verify:migration   — the old-icon-API inventory matches its snapshot
 //   3. verify:mirror      — registry ⇄ apps/www byte-identity
 //   4. verify:budgets     — source/face/consumer budgets
@@ -68,7 +69,7 @@ try {
 // stale server holding old dist once satisfied it blind for six days.
 // It runs below as a MANAGED probe against this composite's own
 // throwaway server, km's pattern, --url contract.
-for (const name of ['verify:laws', 'verify:icons', 'verify:migration', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
+for (const name of ['verify:laws', 'verify:icons', 'verify:spins', 'verify:migration', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
   step(name);
   try {
     execFileSync('npm', ['run', '--silent', name], { cwd: root, stdio: 'inherit' });

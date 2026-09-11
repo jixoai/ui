@@ -8,7 +8,7 @@
  */
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import { flushSync } from 'svelte';
+import { createRawSnippet, flushSync } from 'svelte';
 
 import DescriptionsHost from './fixtures/descriptions-host.svelte';
 import Empty from '../src/lib/ui/empty/empty.svelte';
@@ -188,20 +188,34 @@ describe('Steps', () => {
 
 // ---------------------------------------------------------------------------
 // Spin — status role, scrim owns pointers in wrapping mode
+// (re-recorded spin-ora-svg-lane V1: the bracket cursor is gone — the
+// catalog glyph + optional svg lane replaced it; deeper engine locks
+// live in test/spin-svg-lane.spec.ts)
 // ---------------------------------------------------------------------------
 describe('Spin', () => {
-  it('bare: inline status with a label', () => {
+  it('bare: inline status with a label, dots frame 0, no bracket cursor', () => {
     const { container } = render(Spin, { props: { label: 'loading checks' } });
     const status = container.querySelector('[role="status"]')!;
     expect(status.getAttribute('aria-label')).toBe('loading checks');
+    expect(container.querySelector('[data-jx-spin-inline]')).toBeTruthy();
+    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠋');
+    expect(container.textContent).not.toContain('[');
+    expect(container.textContent).not.toContain(']');
   });
 
   it('wrapping: aria-busy container + scrim over the content', () => {
+    const children = createRawSnippet(() => ({
+      render: () => '<b data-testid="spin-wrapped">payload</b>',
+    }));
     const { container } = render(Spin, {
-      props: { label: 'syncing', children: undefined },
+      props: { label: 'syncing', children },
     });
-    // bare posture when no children — wrap posture needs the snippet
-    expect(container.querySelector('[data-jx-spin-inline]')).toBeTruthy();
+    expect(container.querySelector('[data-jx-spin-wrap]')!.getAttribute('aria-busy')).toBe('true');
+    expect(container.querySelector('[data-jx-spin-scrim]')).toBeTruthy();
+    const pill = container.querySelector('[data-jx-spin-live]')!;
+    expect(pill.getAttribute('role')).toBe('status');
+    expect(container.querySelector('[data-testid="spin-wrapped"]')).toBeTruthy();
+    expect(container.querySelector('[data-jx-spin-inline]')).toBeNull();
   });
 });
 

@@ -170,6 +170,15 @@ const jixoaiPlugins = jixoai({
     // too.)
     library: { includeDefaults: true, channels: [md(), ph(), rx()] },
   },
+  // spin-ora-svg-lane (2026-09-11): the site dogfoods the spinners face.
+  // A bare {} IS a configuration — spinners have ONE library face, so the
+  // icons ≥1-of-2 matrix error does not apply (design §5): it means "the
+  // vendored blocks-wave only", the exact shape of scripts/gen-spin-set.mjs's
+  // SPINNERS_OPTIONS (CONFIG-PARITY with the root gen script, the icons
+  // law — the drift-warn and verify:spins stay honest against this wiring).
+  // Default-off stays the icons precedent everywhere else; the committed
+  // artifact is plugin-free either way.
+  spinners: {},
 });
 const jixoaiIconsPlugin = jixoaiPlugins.find((plugin) => plugin.name === 'jixoai-icons');
 if (!jixoaiIconsPlugin) {

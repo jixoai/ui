@@ -31,10 +31,12 @@
  *   - toast: the store item IS the explicit lane — variant/material
  *     resolve `explicit ?? own` through the contract (pure literal
  *     slots; the v2 state machine untouched)
- *   - the zero-hit declaration contracts (spin/progress/skeleton):
- *     density-manageable, no opinion — the in-window unit resolve
- *     (unit-resolve-host) carries the 惰性律 face (context-plugin-v2
- *     D3-C: the density slots' ambient lanes are window-bound)
+ *   - the declaration contracts (progress/skeleton density-only, zero
+ *     vocabulary-hit; spin joined `size` at spin-ora-svg-lane C3 —
+ *     the svg posture's square edge, open literal own 16): the
+ *     in-window unit resolve (unit-resolve-host) carries the 惰性律
+ *     face (context-plugin-v2 D3-C: the density slots' ambient lanes
+ *     are window-bound)
  */
 import { render } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
@@ -219,14 +221,19 @@ describe('in-window unit resolution — the own-defaults projection', () => {
       variant: 'outline',
       density: undefined,
     });
+    // tone rides the contract since c46d357b (the confirm rung's paint
+    // family, own 'destructive') — re-recorded here when
+    // spin-ora-svg-lane V1 re-ran this battery
     expect(resolveInWindow(() => SystemDialogDefaults.resolve({}))).toEqual({
       variant: 'auto',
       actionVariant: 'fill',
+      tone: 'destructive',
       density: undefined,
     });
     expect(resolveInWindow(() => SystemDialogDefaults.resolve({ actionVariant: 'tonal' }))).toEqual({
       variant: 'auto',
       actionVariant: 'tonal',
+      tone: 'destructive',
       density: undefined,
     });
   });
@@ -244,10 +251,11 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     });
   });
 
-  it('the zero-hit declaration contracts: density-manageable, no opinion', () => {
+  it('the declaration contracts: spin gains the size slot, the rest stay density-only', () => {
     expect(
       resolveInWindow(() => [
         SpinDefaults.resolve({}),
+        SpinDefaults.resolve({ size: 24 }),
         ProgressDefaults.resolve({}),
         SkeletonDefaults.resolve({}),
         SeparatorDefaults.resolve({}),
@@ -255,7 +263,11 @@ describe('in-window unit resolution — the own-defaults projection', () => {
         CommandDefaults.resolve({}),
       ]),
     ).toEqual([
-      { density: undefined },
+      // spin-ora-svg-lane C3 (2026-09-11): the svg posture's square
+      // edge joined the surface — open literal slot, own 16 (icon
+      // parity); density stays no-opinion
+      { density: undefined, size: 16 },
+      { density: undefined, size: 24 },
       { density: undefined },
       { density: undefined },
       { variant: 'fused', density: undefined },
