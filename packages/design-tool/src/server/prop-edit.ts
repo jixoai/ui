@@ -430,8 +430,16 @@ export async function resolvePropEditRequest(root: string, body: unknown, fileOp
       return { status: 400, body: { ok: false, reason: 'bad-request', message: 'prop (string) is required (or dryRun: true)' } };
     }
     const value = request.value;
-    if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
-      return { status: 400, body: { ok: false, reason: 'bad-request', message: 'value (string | number | boolean) is required' } };
+    // null = REMOVE (P2-2) — allowed through; the final review caught
+    // the pure-kernel pin sailing past this gate while the real panel
+    // request 400'd (typeof null === 'object', 2026-09-11)
+    if (
+      value !== null &&
+      typeof value !== 'string' &&
+      typeof value !== 'number' &&
+      typeof value !== 'boolean'
+    ) {
+      return { status: 400, body: { ok: false, reason: 'bad-request', message: 'value (string | number | boolean | null-to-remove) is required' } };
     }
   }
 
