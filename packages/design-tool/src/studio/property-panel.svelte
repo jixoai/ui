@@ -1,14 +1,24 @@
 <!--
-  @jixoai/ui-design (studio) — the property panel (design-studio-r2 T8).
+  @jixoai/ui-design (studio) — the property panel (design-studio-r2
+  T8, RENDER layer rebuilt by r3 T3).
 
   Orthogonal intents (2):
     1. RENDER — the selected usage's component schema (the T7 meta
-       endpoint, x-ui conventions) as controls: enum → segmented
-       (≤5) / select, boolean → checkbox, number → stepper, string →
-       text input; x-ui.label/icon/i18n decorate the row (icon = a
-       tiny lucide inline-SVG map with a monogram fallback). The
-       dry-run prop-edit seeds the CURRENT literals at the usage —
-       schema defaults only fill unset rows.
+       endpoint, x-ui conventions) as controls on the LIST-ITEM
+       family (r3 T3, the dogfooding rebuild — rebuild-plan §2.2,
+       dock precedent canvas-playground.svelte): rows ride ItemGroup
+       mode="plain" density="sm" (the panel owns the surface);
+       boolean → ItemToggle, enum ≤5 → segmented (ItemField control
+       snippet), enum >5 → ItemSelect, number → stepper (ItemField
+       control snippet), string → ItemInput; non-representable rows
+       keep the read-only "edit in code" lane. Notices ride `alert`
+       (transient failures keep the 6s self-dismiss, ID5), the
+       unresolved-frame state is a PERSISTENT alert (ID7), the
+       no-selection and no-props states ride `empty` (W3 flow
+       guidance), the head's rim is `separator`. x-ui.label/unit/
+       description/i18n decorate the rows; the lucide icon mini-map
+       stays DORMANT (the family's field rows expose no leading icon
+       slot — grindstone ledger, rebuild-plan §6.1).
     2. EDIT — code-first (design.md §4): a control change POSTs the
        usage {file, component, usageIndex, prop, value} to the
        CAS-arbitrated prop-edit endpoint; success expects HMR to carry
@@ -26,8 +36,15 @@
   NO object dependency, so poll churn upstream cannot re-seed it
   (#12 T0 layer 2; equivalence.ts).
 
-  Original need: Owner 2026-09-11 (design-studio-r2 T8; VD1/VD1e).
-  No host imports; self-contained scoped CSS. Svelte 5 runes.
+  Dogfooding main path (rebuild-plan §2.1): the panel imports the
+  host's REAL components through the #jixoai/ alias (the design
+  server's itemAliasBase) — the studio is the library's first
+  consumer; the section carries the theme's own .dark scope so the
+  family's tokens paint against the studio's dark chrome.
+
+  Original need: Owner 2026-09-11 (design-studio-r2 T8; VD1/VD1e);
+  rebuild 2026-09-12 (design-studio-r3 T3, issues #10/#13).
+  Svelte 5 runes.
 -->
 <script module lang="ts">
   import { createNoticeDismissal } from './notice.ts';
@@ -145,9 +162,30 @@
     const letters = label.replaceAll(/[^a-zA-Z]/g, '');
     return letters.slice(0, 2).toLowerCase();
   }
+
+  /** the row's label string for the family fields (label + unit paren) */
+  export function labelOf(row: ControlRow): string {
+    return row.unit === undefined ? row.label : `${row.label} (${row.unit})`;
+  }
+
+  /** the row's description line — x-ui.description, the i18n key folded
+   *  in (the family's label element has no title slot for a tooltip) */
+  export function descriptionOf(row: ControlRow): string | undefined {
+    if (row.description === '') return row.i18n === undefined ? undefined : `i18n: ${row.i18n}`;
+    return row.i18n === undefined ? row.description : `${row.description} · i18n: ${row.i18n}`;
+  }
 </script>
 
 <script lang="ts">
+  // the dogfooding main path (r3 T3): the host's REAL components via
+  // the design server's #jixoai/ alias — the dock precedent's family
+  // grammar (canvas-playground.svelte L447-559) carried into the panel
+  import Alert from '#jixoai/alert';
+  import Empty from '#jixoai/empty';
+  import Separator from '#jixoai/separator';
+  import { ItemField, ItemGroup, ItemInput, ItemSelect, ItemToggle } from '#jixoai/list-item';
+  import type { ItemFieldContext } from '#jixoai/list-item';
+
   let {
     selection = null,
     selectionFile = null,
@@ -309,110 +347,169 @@
     void commitProp(row.prop, next);
   }
 
-  function onTextSubmit(row: ControlRow, event: SubmitEvent): void {
-    event.preventDefault();
-    const input = (event.currentTarget as HTMLFormElement).elements.namedItem(row.prop) as HTMLInputElement | null;
-    if (input !== null) void commitProp(row.prop, input.value);
+  // the text rows' commit trigger (the old form-submit, now the
+  // Input's Enter): the CURRENT field value is the edit's payload
+  function onTextEnter(row: ControlRow, event: KeyboardEvent): void {
+    if (event.key !== 'Enter') return;
+    void commitProp(row.prop, event.currentTarget.value);
   }
 </script>
 
-<section class="panel" class:panel-locked={locked}>
+<!-- the theme's own dark scope (the design language's .dark token
+     block) — the family's token-driven paint then lands on the
+     studio's dark chrome instead of the document's light default -->
+<section class="panel dark" class:panel-locked={locked}>
   <header class="panel-head">
     <span class="panel-title">props</span>
     {#if selection !== null}
       <span class="panel-target" title={file ?? 'frame file unresolved'}>{selection.component} #{selection.usageIndex}</span>
     {/if}
   </header>
+  <!-- the head's own rim (the dock precedent's anatomy: a solid
+       Separator riding as the head's direct sibling) -->
+  <Separator variant="solid" aria-hidden="true" />
 
   {#if selection === null}
     <!-- W3 (r3 T1): the empty panel is the flow guide — the canvas
          picker path AND the tree fallback, nested frames named -->
-    <p class="panel-hint">no selection — click a component in the canvas, or pick a component node from the tree on the left (components inside nested frames need the tree)</p>
+    <div class="panel-body">
+      <Empty title="no selection" description="click a component in the canvas, or pick a component node from the tree on the left (components inside nested frames need the tree)" />
+    </div>
   {:else if metaError !== null}
-    <p class="panel-error">meta failed: {metaError}</p>
+    <div class="panel-body">
+      <Alert variant="tonal" assertive title="meta failed" class="jx-hue-error">{metaError}</Alert>
+    </div>
   {:else if meta === null}
-    <p class="panel-hint">loading {selection.component}…</p>
+    <div class="panel-body">
+      <p class="panel-hint">loading {selection.component}…</p>
+    </div>
   {:else}
-    {#if locked}
-      <p class="panel-lock">agent turn in progress — panel is read-only</p>
-    {/if}
-    {#if notice !== null}
-      <p class="panel-notice">{notice}</p>
-    {/if}
-    {#if shareCount > 1}
-      <p class="panel-share">{shareCount} instances share this usage — edits land once, at the usage site</p>
-    {:else if usageShared}
-      <p class="panel-share">loop usage — instances share this usage; edits land at the usage site</p>
-    {/if}
-    {#if file === null}
-      <!-- ID7 (r3 T1): persistent STATE, not a transient notice — no
-           auto-dismiss; it names the cause and two ways out -->
-      <p class="panel-notice">frame file unresolved for "{selection.frameId ?? 'canvas'}" — this frame declares no source ref in the manifest, so there is no file to edit. Pick a component on the canvas document or a tree node under a frame with a resolved ref, or check the frame's ref in canvas.svelte — the panel stays read-only.</p>
-    {/if}
+    <div class="panel-body">
+      {#if locked}
+        <Alert title="agent turn in progress — panel is read-only"></Alert>
+      {/if}
+      {#if notice !== null}
+        <!-- transient (ID5): the 6s self-dismiss owns WHEN it leaves;
+             the alert is only the surface (no dismiss affordance of
+             its own — grindstone ledger) -->
+        <Alert variant="tonal" class="jx-hue-error">{notice}</Alert>
+      {/if}
+      {#if shareCount > 1}
+        <p class="panel-hint">{shareCount} instances share this usage — edits land once, at the usage site</p>
+      {:else if usageShared}
+        <p class="panel-hint">loop usage — instances share this usage; edits land at the usage site</p>
+      {/if}
+      {#if file === null}
+        <!-- ID7 (r3 T1): persistent STATE, not a transient notice — no
+             auto-dismiss; it names the cause and two ways out -->
+        <Alert variant="tonal" title="frame file unresolved" class="jx-hue-error">
+          no source ref for "{selection.frameId ?? 'canvas'}" in the manifest, so there is no file to edit. Pick a component on the canvas document or a tree node under a frame with a resolved ref, or check the frame's ref in canvas.svelte — the panel stays read-only.
+        </Alert>
+      {/if}
 
-    <div class="panel-rows">
-      {#each rows as row (row.prop)}
-        <div class="row" class:row-readonly={!row.representable}>
-          <span class="row-label" title="{row.description}{row.i18n !== undefined ? ` · i18n: ${row.i18n}` : ''}">
-            {#if iconPathsOf(row.icon) !== null}
-              <svg class="row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                {#each iconPathsOf(row.icon) ?? [] as d (d)}
-                  <path {d} />
-                {/each}
-              </svg>
-            {:else if row.icon !== undefined}
-              <span class="row-mono">{monogramOf(row.icon)}</span>
-            {/if}
-            {row.label}{row.unit !== undefined ? ` (${row.unit})` : ''}
-          </span>
-
-          {#if row.kind === 'segmented'}
-            <span class="seg">
-              {#each row.options as option (option)}
-                <button
-                  type="button"
-                  class:seg-on={row.value === option}
-                  disabled={locked || file === null}
-                  onclick={() => void commitProp(row.prop, option)}
-                >{option}</button>
-              {/each}
-            </span>
-          {:else if row.kind === 'select'}
-            <select disabled={locked || file === null} value={String(row.value ?? '')} onchange={(event) => void commitProp(row.prop, event.currentTarget.value)}>
-              {#each row.options as option (option)}
-                <option value={option}>{option}</option>
-              {/each}
-            </select>
-          {:else if row.kind === 'toggle'}
-            <input
-              type="checkbox"
-              checked={row.value === true}
-              disabled={locked || file === null}
-              onchange={(event) => void commitProp(row.prop, event.currentTarget.checked)}
-            />
-          {:else if row.kind === 'stepper'}
-            <span class="stepper">
-              <button type="button" disabled={locked || file === null} onclick={() => step(row, -1)}>−</button>
-              <span class="stepper-value">{row.value ?? '—'}</span>
-              <button type="button" disabled={locked || file === null} onclick={() => step(row, 1)}>+</button>
-            </span>
-          {:else if row.kind === 'text'}
-            <form class="text-form" onsubmit={(event) => onTextSubmit(row, event)}>
-              <input name={row.prop} type="text" value={typeof row.value === 'string' ? row.value : ''} disabled={locked || file === null} />
-            </form>
-          {:else}
-            <span class="row-locked">edit in code</span>
-          {/if}
-        </div>
-      {/each}
       {#if rows.length === 0}
-        <p class="panel-hint">no panel-renderable props for {selection.component}</p>
+        <Empty title="no panel props" description={`no panel-renderable props for ${selection.component}`} />
+      {:else}
+        <div class="panel-rows">
+          <!-- the dock precedent's row grammar: plain mode (the panel
+               owns the surface), sm density, the family's field
+               adapters per kind; every control honors the lock -->
+          <ItemGroup mode="plain" controlChrome="integrated" density="sm">
+            {#each rows as row (row.prop)}
+              {#if row.kind === 'toggle'}
+                <ItemToggle
+                  id={`prop-${row.prop}`}
+                  label={labelOf(row)}
+                  description={descriptionOf(row)}
+                  checked={row.value === true}
+                  disabled={locked || file === null}
+                  onchange={(event) => void commitProp(row.prop, event.currentTarget.checked)}
+                />
+              {:else if row.kind === 'select'}
+                <ItemSelect
+                  id={`prop-${row.prop}`}
+                  label={labelOf(row)}
+                  description={descriptionOf(row)}
+                  value={String(row.value ?? '')}
+                  disabled={locked || file === null}
+                  onchange={(event) => void commitProp(row.prop, event.currentTarget.value)}
+                >
+                  {#each row.options as option (option)}
+                    <option value={option}>{option}</option>
+                  {/each}
+                </ItemSelect>
+              {:else if row.kind === 'text'}
+                <ItemInput
+                  id={`prop-${row.prop}`}
+                  label={labelOf(row)}
+                  description={descriptionOf(row)}
+                  value={typeof row.value === 'string' ? row.value : ''}
+                  disabled={locked || file === null}
+                  onkeydown={(event) => onTextEnter(row, event)}
+                />
+              {:else if row.kind === 'stepper'}
+                <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
+                  {#snippet control(field: ItemFieldContext)}
+                    <div class="stepper" role="group" aria-labelledby={field.labelId} aria-describedby={field.describedBy}>
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        aria-label={`Decrease ${row.label}`}
+                        disabled={locked || file === null}
+                        onclick={() => step(row, -1)}
+                      >−</button>
+                      <span class="stepper-value">{row.value ?? '—'}</span>
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        aria-label={`Increase ${row.label}`}
+                        disabled={locked || file === null}
+                        onclick={() => step(row, 1)}
+                      >+</button>
+                    </div>
+                  {/snippet}
+                </ItemField>
+              {:else if row.kind === 'segmented'}
+                <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
+                  {#snippet control(field: ItemFieldContext)}
+                    <div class="seg" role="group" aria-labelledby={field.labelId} aria-describedby={field.describedBy}>
+                      {#each row.options as option (option)}
+                        <button
+                          type="button"
+                          class="seg-btn"
+                          aria-pressed={row.value === option}
+                          disabled={locked || file === null}
+                          onclick={() => void commitProp(row.prop, option)}
+                        >{option}</button>
+                      {/each}
+                    </div>
+                  {/snippet}
+                </ItemField>
+              {:else}
+                <!-- the unrepresentable row: read-only in the family's
+                     own row rhythm (ItemField), the value lane saying
+                     why — edits belong to the code -->
+                <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
+                  {#snippet control(field: ItemFieldContext)}
+                    <span class="row-readonly" id={field.controlId}>edit in code</span>
+                  {/snippet}
+                </ItemField>
+              {/if}
+            {/each}
+          </ItemGroup>
+        </div>
       {/if}
     </div>
   {/if}
 </section>
 
 <style>
+  /* r3 T3: the panel's residual CSS is LAYOUT SKELETON ONLY (the
+     grid/flex anatomy, the head's spacing, the scroller) plus the
+     segmented/stepper snippet chrome the dock precedent authors on
+     tokens too (component-canvas.css) — every control's paint is the
+     family's own; colors resolve through the theme tokens the .dark
+     scope provides */
   .panel {
     display: flex;
     flex-direction: column;
@@ -430,7 +527,6 @@
     justify-content: space-between;
     gap: 0.5rem;
     padding: 0.625rem 0.75rem;
-    border-bottom: 1px solid #262320;
   }
   .panel-title {
     font-weight: 700;
@@ -446,120 +542,95 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .panel-hint,
-  .panel-error,
-  .panel-notice,
-  .panel-lock,
-  .panel-share {
-    margin: 0.5rem 0.75rem;
-    line-height: 1.5;
-    color: #8d8578;
-  }
-  .panel-error { color: #e08585; }
-  .panel-notice { color: #d9b46a; }
-  .panel-lock,
-  .panel-share {
-    color: #d9cdb8;
-    background: #1b1917;
-    border: 1px solid #262320;
-    border-radius: 3px;
-    padding: 0.375rem 0.5rem;
-  }
-  .panel-rows {
+  .panel-body {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    padding: 0.375rem 0.75rem 0.75rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    padding: 0.5rem 0.75rem 0.75rem;
   }
-  .row {
+  .panel-hint {
+    margin: 0;
+    line-height: 1.5;
+    color: #8d8578;
+  }
+  .panel-rows {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
   }
-  .row-readonly .row-label { opacity: 0.55; }
-  .row-label {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    color: #b9b2a6;
-    font-size: 0.6875rem;
-  }
-  .row-icon {
-    width: 0.75rem;
-    height: 0.75rem;
-    flex: none;
-  }
-  .row-mono {
-    font-size: 0.5625rem;
-    text-transform: uppercase;
-    border: 1px solid #3a352f;
-    border-radius: 2px;
-    padding: 0 0.1875rem;
-    color: #6f6759;
-  }
-  .row-locked {
+  .row-readonly {
     color: #6f6759;
     font-size: 0.6875rem;
+    white-space: nowrap;
   }
+  /* the segmented idiom (ItemField control snippet) — the dock
+     precedent's token-driven chrome, verbatim grammar */
   .seg {
     display: inline-flex;
     flex-wrap: wrap;
-    gap: 0.125rem;
+    gap: 1px;
   }
-  .seg button {
-    all: unset;
+  .seg-btn {
+    min-block-size: var(--jx-hit, 1.375rem);
+    min-inline-size: 1.75rem;
+    padding-inline: 0.5rem;
+    border: 0;
+    background: var(--background);
+    color: var(--muted-foreground);
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
     cursor: pointer;
-    padding: 0.1875rem 0.5rem;
-    border-radius: 3px;
-    border: 1px solid #262320;
-    color: #8d8578;
-    font-size: 0.6875rem;
   }
-  .seg button:hover:not(:disabled) { color: #e8e4dd; }
-  .seg button.seg-on {
-    background: #262320;
-    border-color: #4a443c;
-    color: #f5f1e8;
+  .seg-btn:hover:not(:disabled) {
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--muted) 55%, transparent);
   }
-  .seg button:disabled { opacity: 0.4; cursor: default; }
-  select,
-  .text-form input {
-    background: #161412;
-    color: #e8e4dd;
-    border: 1px solid #262320;
-    border-radius: 3px;
-    padding: 0.1875rem 0.375rem;
-    font: inherit;
-    font-size: 0.6875rem;
-    width: 100%;
-    box-sizing: border-box;
+  .seg-btn[aria-pressed='true'] {
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
-  select:disabled,
-  .text-form input:disabled { opacity: 0.4; }
+  /* the stepper idiom (ItemField control snippet) — same source */
   .stepper {
     display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
+    align-items: stretch;
   }
-  .stepper button {
-    all: unset;
+  .stepper-btn {
+    min-block-size: var(--jx-hit, 1.375rem);
+    min-inline-size: 1.6rem;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 13px;
+    line-height: 1;
     cursor: pointer;
-    width: 1.25rem;
-    height: 1.25rem;
-    display: grid;
-    place-items: center;
-    border: 1px solid #262320;
-    border-radius: 3px;
-    color: #b9b2a6;
   }
-  .stepper button:hover:not(:disabled) { color: #e8e4dd; }
-  .stepper button:disabled { opacity: 0.4; cursor: default; }
+  .stepper-btn:hover:not(:disabled) {
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--muted) 55%, transparent);
+  }
   .stepper-value {
-    min-width: 2.5rem;
-    text-align: center;
-    color: #d9cdb8;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--jx-hit, 1.375rem);
+    padding-inline: 0.55rem;
+    color: var(--foreground);
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
-  .panel-locked .panel-rows { opacity: 0.6; }
+  .seg-btn:disabled,
+  .stepper-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .seg-btn:focus-visible,
+  .stepper-btn:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  .panel-locked .panel-body { opacity: 0.6; }
 </style>
