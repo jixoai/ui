@@ -3531,7 +3531,21 @@ overrides it; unknown names fall back to frame 0 of `dots` with one
 dev warn, never a blank region). Frame cycling SHALL be a JS
 interval driven by `$effect`: SSR paints frame 0, and
 `prefers-reduced-motion` never starts the interval (the
-frozen-first-frame law).
+frozen-first-frame law). The glyph SHALL ride the density ruler:
+text frames paint `var(--jx-text)`, the svg posture's ABSENT size
+rides `var(--jx-icon)` through CSS (presentation attributes cannot
+carry var(); an explicit `size` or slot config pins concrete
+attributes). Frame text SHALL render `whitespace-pre` inside a
+one-cell grid — every frame of one spinner holds its mono advance
+width (simpleDots' blank frame included), so the box never
+breathes. Two timings SHALL shape the text posture: `interval`
+(explicit prop > the Defaults slot > the catalog value) and `ghost`
+(each retiring frame fades out LINEARLY over its ms in the cursor's
+own grid cell — several frames coexist, the trail length emerges
+from ghost/interval; ghosts never spawn under reduce and clear on
+the change). Both timings ride the family's single Defaults
+contract, so a context (or the plugin mounting one) sets them
+ambiently.
 
 #### Scenario: the default spinner renders bare frames
 

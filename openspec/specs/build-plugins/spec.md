@@ -825,9 +825,11 @@ default OFF (`false`/`undefined` registers nothing); a bare `{}`
 IS a legal configuration meaning the built-in manifest only. The
 options SHALL be: `includeDefaults` (default true — the vendored
 `blocks-wave` manifest, the magecdn MIT artwork carried verbatim in
-the package), `spinners` (a record of kebab-name → SpinnerSource,
-SpinnerSource being an inline `<svg>` string or `{ file }` with the
-plugin owning ALL file I/O), `output` (default
+the package), `spinners` (a record of kebab-name → SpinnerSource — the grammar
+`/^[a-z0-9][a-z0-9-]*$/` allows a DIGIT to lead, the magecdn pack's
+site URLs kept verbatim; SpinnerSource being an inline `<svg>`
+string or `{ file }` with the plugin owning ALL file I/O), `output`
+(default
 `src/lib/spin-set.gen.ts`), and `write` (default `false` — the
 single-writer law: in THIS repo the root `gen:spins` script is the
 ONLY artifact writer; the vite adapter validates and resolves at
@@ -858,6 +860,32 @@ file).
 - WHEN the generator packs
 - THEN the name resolves to the custom artwork and no duplicate
   payload exists
+
+### Requirement: the vendored loader packs ship as injectable sub-entries
+
+The package SHALL ship two loader packs as independent sub-entries:
+`./spinners/magecdn` (the complete 109-loader magecdn catalog) and
+`./spinners/svg-loaders` (SamHerbert's classic 12-loader MIT set) —
+each exporting a `Readonly<Record<string, SpinnerSource>>` the
+consumer SPREADS into `spinners.spinners` (same-name entries
+override by spread order, the icons override law). Vendoring SHALL
+normalize only namespace noise (an `xml:space` attribute and a
+habit-declared `xmlns:xlink` with zero uses are stripped); every
+other byte rides verbatim with the source + license named in the
+file header.
+
+#### Scenario: a pack spread joins the union
+
+- GIVEN `jixoai({ spinners: { spinners: magecdnSpinners } })`
+- WHEN the generator emits
+- THEN all 109 names join the `SpinName` union and
+  `getSpin('180-ring')` answers synchronously
+
+#### Scenario: pack artwork meets the shared laws
+
+- WHEN the pack battery runs
+- THEN every key matches the grammar, every svg passes the RAW
+  safety checker, and every entry structurally extracts
 
 ### Requirement: spinner artwork is RAW-gated, svgo-free, and byte-faithful
 
