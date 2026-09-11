@@ -1,14 +1,21 @@
 # Design: design-studio r2
 
+> r2 修订（2026-09-11）：吸收 super-thinker 复核（7/10）的 B1–B3
+> 阻塞与 H1–H6 风险。印章改判 usage-site 注入；base 改判晋升时
+> 重写后快照；实例地址引入 usage/iteration 双轴；补竞态仲裁与
+> day-1 HMR spike；路径锚定统一走 host.itemAliasBase。
+
 ## 0. 意图清单（本文件）
 
 1. 设计文件格式 v1（registry-item 形状 JSON + 版本 + changelog）。
-2. 晋升与变更通知：来源清单 + three-way apply（Owner Q2 澄清后的
-   正解——通知"改了什么"并协助合并，不是自动双向同步）。
-3. 元素定位的机制内核：dev-only 组件印章变换（data-jx-component）。
+2. 晋升与变更通知：来源清单（内联 base 快照）+ three-way apply
+   （Owner Q2 澄清后的正解——通知"改了什么"并协助合并，不是
+   自动双向同步）。
+3. 元素定位的机制内核：dev-only **usage-site 印章注入**。
 4. 属性面板的代码优先编辑路径：面板改的是原型源码（AST 定位 +
-   magic-string 重写），不是运行时 props 注入。
-5. 元数据按需提取与 meta.ts 注解区（Owner 裁决 ③）。
+   magic-string 重写 + CAS 写仲裁），不是运行时 props 注入。
+5. 元数据按需提取与 meta.ts 注解区（Owner 裁决 ③；vehicle 侧
+   边界如实标注）。
 6. Layout 组件族 alpha 轨（Owner 裁决 ②）。
 
 原始需求输入：Owner 走查反馈 2026-09-11 + 四项拍板（同日）。
@@ -31,13 +38,18 @@
 }
 ```
 
-- `design save <proto> [-n "note"]`：diff 上次版本，有变化则
-  version++ 落 changelog（note 缺省由最近一次 agent turn 摘要填充）。
-  存放：`design/files/<name>.jixoai-design.json`。
+- `design save <proto> [-n "note"]`：与现存文件的 files 逐字节
+  diff，无变化不落盘不 bump；有变化 version++ 追加 changelog
+  （note 缺省取最近一次 agent turn 摘要）。存放：
+  `design/files/<name>.jixoai-design.json`。
 - `design open <file>`：物化到 `design/prototypes/<name>/`（幂等，
-  冲突时拒绝并指名）。版本号回写 workspace 索引。
-- changelog 是 Agent 意图摘要的沉淀位（AI 原生红利：diff 之外的
-  "为什么改"），也是 §2 变更报告的素材。
+  路径冲突拒绝并指名）。**无独立 workspace 索引**（r1 草稿的
+  "workspace 索引"裁掉）：版本事实只住设计文件本身，promote 从
+  文件头读 version。
+- changelog 是 Agent 意图摘要的沉淀位（diff 之外的"为什么改"），
+  是 §2 变更报告的素材。
+- **不保留历史版本快照**（r1 草稿裁掉）：base 职责移交 §2 的
+  来源清单内联快照，设计文件只有最新版。
 
 ## 2. 晋升与变更通知（promote pipeline）
 
@@ -45,124 +57,143 @@
 design promote <proto> [--select <ref...>] [--to <dir>]
   1. 复制 pages/components 文件 → 宿主 src（默认 src/lib/design/<proto>/）
   2. import 重写：#jixoai/<item> → 宿主别名（probe 产出）
-  3. 来源清单落盘 design/.promotions.json：
-     { file, proto, ref, baseSha256, designVersion, promotedAt }
+  3. 来源清单 design/.promotions.json：
+     { file, proto, ref,
+       baseContent: <重写后的完整产物内容（内联快照）>,
+       baseSha256, designVersion, promotedAt }
 ```
 
-**变更通知与 apply（Owner Q2 的答案）**：项目开发者拿到晋升代码后
-自行改造（数据绑定等）。设计稿再改时：
+- **base = 晋升时重写后产物**（r1 草稿的"设计文件历史版本"裁掉，
+  复核 B2）：内联快照使 three-way 的 base/theirs 同处一个重写
+  管道坐标系，import 行永不产生幻影冲突。
+- 重复 promote 同目标 → 拒绝并列出双方 diff；`--force` 覆盖
+  （覆盖前打印 diff）。
+- **变更通知与 apply（Owner Q2 的答案）**：
 
 ```
-design status   → 漂移报告：哪些晋升文件的设计版本已落后
-                  + changelog（意图摘要）+ per-file 统一 diff（base→new）
-design apply    → three-way merge：
-                  base = 晋升时的设计内容（design file 里按版本可取）
-                  ours = 项目当前文件（含开发者改造）
-                  theirs = 新设计版本
+design status   → 漂移报告：哪些晋升文件的设计版本落后
+                  + changelog（意图摘要）+ per-file 统一 diff
+                    （baseContent → 新设计内容过同一重写管道）
+design apply    → three-way merge（diff3）：
+                  base  = .promotions.json 的内联快照
+                  ours  = 项目当前文件（含开发者改造）
+                  theirs = 新设计内容过重写管道
                   干净 hunk 自动合并；冲突处插标记 + 指名报告；
-                  不静默覆盖任何开发者的改动。
+                  不静默覆盖任何开发者的改动；ours 已被删除的
+                  文件跳过并列名（不复活）。
 ```
 
-- 依据：git 的 three-way 模型是这个问题形状（base + 两条分叉线）
-  的已证答案；本仓库 jixoai-ui.lock 的 sha256 惯例是来源清单的
-  先例；diff3 算法用 `diff3` npm 包（纯 JS，加一个直接依赖）。
-- 边界：apply 只处理"晋升过的文件"；开发者新建的关联文件不碰。
-  base 内容取自设计文件的版本历史 → 设计文件必须保留历史版本
-  的 files（save 时全量快照，接受体积换确定性）。
+- 依据：git three-way 模型（base + 两条分叉线）是此形状的已证
+  答案；jixoai-ui.lock 的 sha256 惯例是来源清单先例；diff3 算法
+  用 `diff3` npm 包（纯 JS 直接依赖）。
+- studio 侧收口：promote 过的画布在 navigator 出"updates
+  available"徽标（status 数据源同 API）。
 
-## 3. 元素定位：dev-only 组件印章变换
+## 3. 元素定位：dev-only usage-site 印章注入
 
-机制（本设计的关键裁决）：**design server 在变换 jixoai 组件源码时
-给组件根元素盖 dev-only 印章**：
-
-```
-vite transform（仅 design server）
-  registry/files/ui/<item>/<item>.svelte
-    → 根元素追加 data-jx-component="<item>" data-jx-instance="<n>"
-```
-
-- 这是 canvasPlugin 源码变换先例的同族手法；dev-only（生产构建
-  永不经过 design server，零泄漏）。
-- 收益：选择器/TreeView/属性面板获得**精确的组件边界与身份**，
-  不依赖脆弱的 class 启发式或 Svelte 内部标记。
-- 嵌套实例用 instance 序号区分；印章属性进 DOM 但不影响布局。
-- PrototypeKit 的 frame 元素本身也盖 `data-jx-prototype-frame`
-  （r1 已有），frame ↔ 组件两级定位齐全。
-
-**选择模型**：`selection = { frameId, instanceId }`（稳定地址）。
-- 画布选择器：frame 文档内监听点击（studio 注入 picker 模块，
-  同源直读），命中最近印章祖先 → 高亮 → 上报 studio。
-- ComponentTreeView：frame 文档的印章树（depth-first）→ studio
-  左侧树面板；树节点点击 = 选中 = 与选择器同一 selection 状态。
-- chat 注入：输入框旁"当前选中"chip（frame + 组件名 + instance），
-  发消息自动携带；Agent 收到即可定位文件 + 组件实例。
-
-## 4. 属性面板：代码优先的编辑路径
-
-裁决（Q3 代码优先的直接推论）：**面板编辑的是原型源码，不是运行时
-props 注入**。
+机制（r2 修订，复核 B1）：**design server 变换使用方模块**——
+一切经 `host.itemAliasBase` 解析到 jixoai 组件的源文件（原型
+pages/components、以及任何宿主模块），在**第 n 个 jixoai 组件
+用法标签**上注入静态印章属性：
 
 ```
-选中实例 → 组件 schema（§5 按需提取）
-  → 面板渲染控件（ItemGroup 行，canvas-schema 的 x-ui 控件惯例）
-  → 用户改控件值
-  → design server 源码重写：
-      svelte AST 定位该组件实例的 prop 字面量
+vite transform（仅 design server，匹配 usage 模块）
+  design/prototypes/**/*.svelte 及宿主消费 jixoai 组件的模块
+    第 n 个 <PressButton ...> 用法 → 注入 data-jx-component="press-button"
+                                             data-jx-instance="<n>"
+  （n = 文档序静态编号；同一遍历产出 {file, usageIndex} → AST
+    prop 位置映射，供 §4 面板复用——一次遍历两用）
+```
+
+- 印章经组件的 `{...rest}` spread 落到根元素（press-button 实证：
+  双条件根都有 spread）。**前提如实声明**：无单根 rest-spread 的
+  jixoai 组件 → 无印章 → 不可选中不可见（降级矩阵的一行，不是
+  隐式失败）。第三方/原生元素同理不可见——**树 = 印章树**（r1
+  草稿的"第三方树可见"承诺裁掉）。
+- dev-only：生产构建永不经过 design server（VD3 断言）。
+- HMR 稳定性是构造性的：同一源码 → 同一静态编号（transform
+  确定性），不是运行时计数。
+- **实例地址（复核 B3）**：`{file, usageIndex, iterationIndex?}`。
+  `{#each}` 内的用法渲染 N 实例共享 usageIndex——面板编辑作用于
+  用法点并如实标注"N instances share this usage"；selection 的
+  DOM 侧高亮可以定位到具体 iteration（运行时），但**编辑语义
+  永远落在用法点**。
+- PrototypeKit frame 元素已有 `data-jx-prototype-frame`，
+  frame ↔ 组件两级定位齐全。
+- 选择模型：`selection = { frameId, usageIndex, iterationIndex? }`。
+  画布选择器（studio 注入 picker，同源直读，点击 → 最近印章
+  祖先 → 高亮）与 ComponentTreeView（frame 印章树）共享同一
+  selection；chat 输入框旁 chip 携带 selection 上下文。
+
+## 4. 属性面板：代码优先的编辑路径 + 写仲裁
+
+裁决（Q3 推论）：**面板编辑的是原型源码**。
+
+```
+选中 usage → 组件 schema（§5）→ 控件（x-ui 惯例，ItemGroup 行）
+  → 用户改值 → 源码重写：
+      AST 定位该用法点的 prop 字面量（§3 的位置映射）
       magic-string 替换（无字面量则插入）
-      → HMR 生效（frame 即时更新）
+      CAS 写仲裁（复核 H1）：
+        读时记内容 hash → 写前复读校验；不一致 = 期间有外部写入
+        （agent/编辑器）→ 按地址重定位重试一次 → 仍失败则放弃
+        并提示（绝不盲写）
+      → HMR 生效
 ```
 
-- 未保存态 = 源码已改（代码即状态，无影子 model）。
-- 不可表示的 prop（绑定表达式/非常量）→ 面板该行只读 + 提示
-  "改代码"（诚实降级，canvas-schema 的 onvalue 先例语义）。
-- 实例定位：印章 instance 序号 ↔ AST 内的第 n 个同名组件用法
-  （同一变换管线可同时产出 DOM 印章与 AST 位置映射——提取器
-  一次遍历两用）。
+- **agent turn 进行中面板禁写**（H1 的 UX 规则）：chat streaming
+  期间属性面板进入只读态，turn 结束恢复。
+- 不可表示的 prop（绑定/非常量）→ 只读 + "edit in code"提示。
+- 循环用法：面板标注共享（§3），编辑改用法点。
 
 ## 5. 元数据按需提取 + meta.ts 注解区
 
-- **按需提取**：component-metadata-gen（构建期提交产物）的能力
-  移植为 design server 的按需服务：`GET /__design__/api/meta/
-  <item>.json` → 该组件的 jsonSchema（IR → jsonSchema 降维，
-  canvas-schema 既有内核）。提取器源从根 scripts/ 收编或参数化
-  引用（实现时按 scripts/component-metadata-gen.mjs 的形状定）。
-- **注解区**（Owner 裁决 ③）：属性修饰（icon/i18n-key/分组/顺序）
-  走 .meta.ts 两区制的手工注解区，注解词表 = x-ui 通道既有键 +
-  少量新增（`x-ui.icon`、`x-ui.i18n`）。生成器校验注解键值
-  （类型安全在生成器侧，不写新 lint 工具）。
-- 属性面板与 guide 共用同一 schema 源。
+- **按需提取**：`GET /__design__/api/meta/<item>.json`，提取
+  kernel 来自 component-metadata-gen（TS-AST 的 $props 类型解析）。
+  路径锚定 `host.itemAliasBase`（probe 产出；vehicle =
+  registry/files/ui，宿主 = 安装位）——不复用 gen 脚本对
+  apps/www 的路径硬依赖（复核 H3）。
+- **依赖裁决（H4）**：design-tool 直接依赖 typescript（dev 工具
+  承重，接受体积；提取器仅服务端进程加载）。
+- **注解区**（Owner 裁决 ③）：.meta.ts 两区制注解区，词表 = x-ui
+  既有键 + 新增 `x-ui.icon` / `x-ui.i18n`。**词表扩展是
+  canvas-schema 的 MODIFIED 范围**（r2 携带其 delta：docs 面板与
+  studio 面板两处消费口径不分叉）；生成器校验注解键值。
+- **vehicle 边界（H6）**：.meta.ts 今天只存在于 apps/www 文档车道
+  ——r2 的注解能力是 vehicle 侧事实；宿主注解随 item 分发是
+  后续 registry 变更（问题清单记档）。宿主提取出的 schema 无
+  注解 = 面板无图标/i18n 修饰，其余能力不受影响。
 
 ## 6. Layout 组件族（alpha 轨）
 
-- `prototype-plugin`（新包，`@jixoai/ui-prototype-plugin`，alpha）：
-  Flex / Grid / Waterfall 三个布局组件，属性标准化
-  （Flex: direction/wrap/align/justify/gap/...；Grid: cols/rows/
-  areas/gap/...；Waterfall: columns/gap/strategy）。
-- registry item 同步登记，meta 打 `alpha: true` 标记；shadcn add
-  可装（社区可用，Q2 裁决的元能力贡献面）。
-- 属性面板对 layout 组件的标准属性即时微调（§4 路径天然支持）。
-- 收编标准库 = 后续 change（alpha 稳定后）。
+- `@jixoai/ui-prototype-plugin`（新包，alpha）：Flex / Grid /
+  Waterfall，属性标准化（Flex: direction/wrap/align/justify/gap…
+  Grid: cols/rows/areas/gap… Waterfall: columns/gap/strategy）。
+- registry item 同步登记，meta 打 `alpha: true`；shadcn add 可装
+  （社区元能力贡献面）。三组件**必须单根 + rest spread**（§3
+  印章前提的家族内自证）。
+- 属性面板对标准属性即时微调（§4 路径）。
 
 ## 7. v0 明确不做
 
-- 双向自动同步（apply 是协助合并的显式命令，永不自动跑）。
-- 设计文件的云端/协作（本地文件即全部）。
-- 印章进生产（dev-only 变换，生产零痕迹）。
-- 非 jixoai 组件（第三方/原生元素）的 schema 面板（树里可见、
-  无属性面板，诚实降级）。
+- 双向自动同步（apply 是显式命令，永不自动跑）。
+- 设计文件的云端/协作；历史版本快照（§1/§2 裁决）。
+- 印章进生产；无 rest-spread 组件与第三方元素的印章/树可见
+  （降级矩阵如实声明，不做 DOM-walk 补树）。
+- 宿主侧注解分发（vehicle 边界，H6）。
 
 ## 8. 验证计划
 
-- VA1 save/open 往返：save → 删原型目录 → open → 文件逐字节还原。
-- VA2 版本与 changelog：两次修改两次 save → version/changelog 正确。
-- VP1 promote：ref 文件落宿主别名路径，import 重写正确。
-- VP2 apply 干净合并：base+ours+theirs 三方，干净 hunk 自动进。
-- VP3 apply 冲突：冲突标记 + 指名报告，ours 内容不丢。
-- VC1 选择器：点击 frame 内按钮 → selection chip 显示
-  press-button#2；TreeView 节点同步。
-- VC2 chat 注入：带 selection 发消息 → 回复引用正确实例。
-- VD1 面板编辑：改 variant → 源码 prop 字面量变化 → frame HMR。
-- VD2 注解区：meta.ts 注 x-ui.icon → 面板行出图标。
-- VD3 印章 dev-only：正常 vite build 产物无 data-jx-component。
-- VL1 Layout alpha：三组件渲染 + 属性面板微调。
-- VZ 全链路走查（vision，真实浏览器，三轮目击制延续 r1）。
+- **V0d（day-1 spike，复核 H2 前置）**：手工改原型一个 prop 字面量
+  → 目击 frame iframe 内 HMR 不整页 reload（r1 未验缝，现在是
+  §4 承重墙——spike 失败则 §4 改走 frame 定向刷新并记问题）。
+- VA1 save/open 往返逐字节还原；VA2 版本/changelog 纪律。
+- VP1 promote（重写正确 + 来源清单）；VP2 apply 干净合并；
+  VP3 apply 冲突标记 + 指名 + ours 删除跳过。
+- VC1 选择器+树（脚本断言：印章 DOM 存在且序号正确 + vision
+  双轨目击）；VC1e each 块退化（共享标注）；VC2 chat 注入定位。
+- VD1 面板编辑源码 + HMR；VD1e CAS 仲裁（模拟外部写竞态）；
+  VD2 注解区图标（vehicle）；VD2h 宿主无注解诚实降级；VD3
+  生产无印章。
+- VL1 Layout alpha 渲染 + 面板微调；VL1a alpha 标记。
+- VZ 全链路 vision 三轮目击制（延续 r1）。
