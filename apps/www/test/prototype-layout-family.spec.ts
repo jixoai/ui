@@ -11,17 +11,22 @@
  *     (gap number → px; cols/rows number → repeat(N, minmax(0,1fr)))
  *     are the only transforms.
  *   - OMISSION TRANSPARENCY: an omitted prop injects NO declaration —
- *     the inline style carries the identity (display) plus only what
- *     the consumer declared.
+ *     the root carries its identity (display for flex/grid; the
+ *     waterfall's columns IS its identity) plus only what the
+ *     consumer declared; a bare waterfall writes zero declarations.
  *   - SINGLE ROOT + REST SPREAD (the stamp precondition): `data-*`,
  *     title and `aria-*` land on the one root; the component's
- *     `data-jx-prototype-` stamp rides after the spread.
+ *     `data-jx-prototype-` stamp rides after the spread (a consumer
+ *     collision is replaced, not merged).
  *   - ALPHA STAMP: registry.json carries meta.alpha: true and the
  *     description names the stamp precondition.
  *
  * Assertion law: style is read from the rendered root's style
  * declaration the way any host would see it — never from component
- * internals. Rendering uses svelte's native mount() (no
+ * internals. The CSSOM serializes the style attribute with a
+ * trailing `;` (`'display: flex;'`), so exact-content assertions
+ * strip whitespace AND semicolons. Rendering uses svelte's native
+ * mount() (no
  * @testing-library: its dep tree drags vitest's external-deps
  * packaging into a cold-optimizer bug in this vite8/rolldown
  * baseline); jsdom has no layout, so these are style-contract
@@ -65,7 +70,8 @@ describe('prototype-flex — the standardized flex row', () => {
   it('identity only: bare render is display:flex and NOTHING else', () => {
     const el = testid(into(PrototypeFlex, { 'data-testid': 'root' }));
     expect(el.style.display).toBe('flex');
-    expect(el.getAttribute('style')?.replace(/\s/g, '')).toBe('display:flex');
+    // CSSOM serialization carries a trailing ';' — strip both to pin content
+    expect(el.getAttribute('style')?.replace(/[\s;]/g, '')).toBe('display:flex');
     expect(el.hasAttribute('data-jx-prototype-flex')).toBe(true);
   });
 
@@ -110,7 +116,7 @@ describe('prototype-grid — the standardized grid', () => {
   it('identity only: bare render is display:grid and NOTHING else', () => {
     const el = testid(into(PrototypeGrid, { 'data-testid': 'root' }));
     expect(el.style.display).toBe('grid');
-    expect(el.getAttribute('style')?.replace(/\s/g, '')).toBe('display:grid');
+    expect(el.getAttribute('style')?.replace(/[\s;]/g, '')).toBe('display:grid');
     expect(el.hasAttribute('data-jx-prototype-grid')).toBe(true);
   });
 
@@ -122,16 +128,20 @@ describe('prototype-grid — the standardized grid', () => {
   });
 
   it('string tracks and areas pass verbatim', () => {
+    // 'repeat(auto-fit, 14rem)' is legal track syntax — `auto-fit`
+    // exists ONLY inside repeat(); a bare 'auto-fit 14rem' string is
+    // dropped whole by the CSSOM (gridTemplateColumns stays ''), so
+    // it could never assert-equal its own input (real-mount verified)
     const el = testid(
       into(PrototypeGrid, {
         'data-testid': 'root',
-        cols: 'auto-fit 14rem',
+        cols: 'repeat(auto-fit, 14rem)',
         rows: 'auto 1fr',
         areas: '"head head" "side main"',
         gap: '1rem',
       }),
     );
-    expect(el.style.gridTemplateColumns).toBe('auto-fit 14rem');
+    expect(el.style.gridTemplateColumns).toBe('repeat(auto-fit, 14rem)');
     expect(el.style.gridTemplateRows).toBe('auto 1fr');
     expect(el.style.gridTemplateAreas).toBe('"head head" "side main"');
     expect(el.style.gap).toBe('1rem');
@@ -180,6 +190,25 @@ describe('the family laws (all three components)', () => {
     expect(el.getAttribute('data-custom')).toBe('x');
   });
 
+  it.each(cases)('%s: a consumer stamp collision is replaced, not merged', (name, Cmp) => {
+    const stamp = `data-jx-${name}`;
+    const el = testid(into(Cmp, { 'data-testid': 'root', [stamp]: 'evil' }));
+    // the component's bare-attribute stamp rides AFTER the spread and
+    // wins; Svelte 5 serializes the bare attribute as "true"
+    expect(el.getAttribute(stamp)).toBe('true');
+  });
+
+  it.each(cases)('%s: a consumer style attribute merges with the style: directives', (name, Cmp) => {
+    const attr = testid(into(Cmp, { 'data-testid': 'root', style: 'color:red' })).getAttribute('style') ?? '';
+    expect(attr).toContain('color: red');
+    // flex/grid always declare their display identity (real-mount
+    // serialization: 'color: red; display: flex;'); a bare waterfall
+    // writes no declaration, so the consumer style is the whole attr
+    if (name === 'prototype-flex') expect(attr).toContain('display: flex');
+    if (name === 'prototype-grid') expect(attr).toContain('display: grid');
+    if (name === 'prototype-waterfall') expect(attr.replace(/[\s;]/g, '')).toBe('color:red');
+  });
+
   it.each(cases)('%s: children render inside the root (real snippet)', (name) => {
     const which = name.replace('prototype-', '') as 'flex' | 'grid' | 'waterfall';
     const el = testid(into(PrototypeFamilyHost, { which }));
@@ -197,14 +226,13 @@ describe('the alpha registry contract (registry.json fs-read, catalog-spec patte
   const registry = JSON.parse(readFileSync(resolve(repoRoot, 'registry.json'), 'utf8')) as {
     items: { name: string; description: string; meta?: Record<string, unknown> }[];
   };
-  const family = registry.items.filter((i) => i.name.startsWith('prototype-'));
+  // the exact three family names — a prefix filter would silently
+  // adopt any future prototype-* item into this contract
+  const FAMILY_NAMES = ['prototype-flex', 'prototype-grid', 'prototype-waterfall'];
+  const family = registry.items.filter((i) => FAMILY_NAMES.includes(i.name));
 
   it('the three items are registered with meta.alpha: true', () => {
-    expect(family.map((i) => i.name).sort()).toEqual([
-      'prototype-flex',
-      'prototype-grid',
-      'prototype-waterfall',
-    ]);
+    expect(family.map((i) => i.name).sort()).toEqual(FAMILY_NAMES);
     for (const item of family) {
       expect(item.meta?.alpha, `${item.name} meta.alpha`).toBe(true);
     }
@@ -214,6 +242,14 @@ describe('the alpha registry contract (registry.json fs-read, catalog-spec patte
     '%s: description names the alpha track',
     (_name, description) => {
       expect(description).toMatch(/ALPHA TRACK/i);
+    },
+  );
+
+  it.each(family.map((i) => [i.name, i.description]))(
+    '%s: description names the stamp precondition',
+    (_name, description) => {
+      expect(description).toMatch(/single-root \+ rest-spread/i);
+      expect(description).toMatch(/stamp mechanism.s family precondition/i);
     },
   );
 });
