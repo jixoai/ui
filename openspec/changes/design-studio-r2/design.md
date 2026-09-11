@@ -1,9 +1,12 @@
 # Design: design-studio r2
 
 > r2 修订（2026-09-11）：吸收 super-thinker 复核（7/10）的 B1–B3
-> 阻塞与 H1–H6 风险。印章改判 usage-site 注入；base 改判晋升时
-> 重写后快照；实例地址引入 usage/iteration 双轴；补竞态仲裁与
-> day-1 HMR spike；路径锚定统一走 host.itemAliasBase。
+> 阻塞与 H1–H6 风险。印章改判 usage-site 注入；实例地址引入
+> usage/iteration 双轴；补竞态仲裁与 day-1 HMR spike；路径锚定
+> 统一走 host.itemAliasBase。
+> **r2.1（同日 Owner 裁决）**：管道层存储全面 git 化（release 模型
+> 取代内联快照与 JSON 版本库；见 §1/§2 重写与 working-agreement.md
+> 的通用组件独立工作流）。
 
 ## 0. 意图清单（本文件）
 
@@ -20,74 +23,64 @@
 
 原始需求输入：Owner 走查反馈 2026-09-11 + 四项拍板（同日）。
 
-## 1. 设计文件 v1
+## 1. 版本与发布（git release 模型，Owner 2026-09-11）
+
+**design/ 是一个嵌套 git 仓库**（design/.git；宿主 repo 零污染，
+design/ 整体 gitignore 不变）。GitHub release 管理模型的映射：
 
 ```
-<name>.jixoai-design.json
-{
-  "$schema": "https://ui.jixoai.com/r/design-file.schema.json",
-  "name": "checkout-flow",
-  "type": "jixoai:design",
-  "version": 3,
-  "meta": { "created": "...", "viewports": [390,768,1280], ... },
-  "changes": [
-    { "version": 3, "at": "...", "note": "CTA 移入 hero；press-button 换 tonal rung" },
-    ...
-  ],
-  "files": [ { "path": "canvas.svelte", "content": "..." }, ... ]
-}
+design init          幂等建仓 + 初始 commit（首次运行自动）
+design save [-n]     wip commit（设计进展自动留痕，无版本语义）
+design release [name] [-n notes]
+                     版本 checkpoint = annotated tag（开发者主动打）
+                     notes 即 release notes（缺省取最近 agent turn 摘要）
+                     可选 --export 出 design/files/<name>.jixoai-design.json
+                     （tag 时点的 registry-item 形状快照——跨项目共享
+                      工件；git 才是版本库，JSON 只是发布产物）
+design log / design diff <tagA>..<tagB>
+                     release 历史 / tag 间 diff（可导出 patch）
 ```
 
-- `design save <proto> [-n "note"]`：与现存文件的 files 逐字节
-  diff，无变化不落盘不 bump；有变化 version++ 追加 changelog
-  （note 缺省取最近一次 agent turn 摘要）。存放：
-  `design/files/<name>.jixoai-design.json`。
-- `design open <file>`：物化到 `design/prototypes/<name>/`（幂等，
-  路径冲突拒绝并指名）。**无独立 workspace 索引**（r1 草稿的
-  "workspace 索引"裁掉）：版本事实只住设计文件本身，promote 从
-  文件头读 version。
-- changelog 是 Agent 意图摘要的沉淀位（diff 之外的"为什么改"），
-  是 §2 变更报告的素材。
-- **不保留历史版本快照**（r1 草稿裁掉）：base 职责移交 §2 的
-  来源清单内联快照，设计文件只有最新版。
+- tag 语义即 GitHub release：`design diff v1..v2 --by-page` 按页面
+  分组报"哪些没变/哪些变了"（git diff --name-status 的包装）。
+- AI 升级路径：`design apply --agent` 把 diff + release notes 喂给
+  设计 agent 做语义升级（机械合并之外的选项，见 §2）。
+- 嵌套仓库是可否决的工程选择（备选：design/ 进宿主 repo 历史）；
+  好处是宿主零污染 + 设计历史独立 remote 化（团队共享自然延伸）。
 
-## 2. 晋升与变更通知（promote pipeline）
+## 2. 晋升与变更通知（promote pipeline，git 引擎版）
 
 ```
 design promote <proto> [--select <ref...>] [--to <dir>]
   1. 复制 pages/components 文件 → 宿主 src（默认 src/lib/design/<proto>/）
-  2. import 重写：#jixoai/<item> → 宿主别名（probe 产出）
+  2. import 重写：#jixoai/<item> → 宿主别名（probe 产出；纯函数
+     rewriteSpecifiers）
   3. 来源清单 design/.promotions.json：
-     { file, proto, ref,
-       baseContent: <重写后的完整产物内容（内联快照）>,
-       baseSha256, designVersion, promotedAt }
+     { file, proto, ref, tag, commitSha, promotedAt }
+     （base 内容不再内联——git 对象库就是快照库）
 ```
 
-- **base = 晋升时重写后产物**（r1 草稿的"设计文件历史版本"裁掉，
-  复核 B2）：内联快照使 three-way 的 base/theirs 同处一个重写
-  管道坐标系，import 行永不产生幻影冲突。
-- 重复 promote 同目标 → 拒绝并列出双方 diff；`--force` 覆盖
-  （覆盖前打印 diff）。
-- **变更通知与 apply（Owner Q2 的答案）**：
+**变更通知与 apply（Owner Q2 的答案，git 特性直供）**：
 
 ```
-design status   → 漂移报告：哪些晋升文件的设计版本落后
-                  + changelog（意图摘要）+ per-file 统一 diff
-                    （baseContent → 新设计内容过同一重写管道）
-design apply    → three-way merge（diff3）：
-                  base  = .promotions.json 的内联快照
-                  ours  = 项目当前文件（含开发者改造）
-                  theirs = 新设计内容过重写管道
-                  干净 hunk 自动合并；冲突处插标记 + 指名报告；
-                  不静默覆盖任何开发者的改动；ours 已被删除的
-                  文件跳过并列名（不复活）。
+design status   → git diff --name-status <promoted-tag>..HEAD 按原型分组
+                  + release notes（tag annotation，意图摘要）
+                  + per-file 统一 diff（git diff，theirs 过重写管道）
+design apply    → git merge-file 三方合并：
+                  base  = git show <tag>:<proto>/<file> 过重写管道
+                  ours  = 项目当前文件（开发者改造）
+                  theirs = HEAD 版本过重写管道
+                  干净 hunk 自动合并；git 风格冲突标记 + 指名报告；
+                  ours 已删除跳过并列名；写回前 CAS 校验 ours 未漂移。
+design apply --agent → 机械合并之外：diff + notes 交设计 agent
+                  对冲突/语义性变更（prop 改名、结构调整）做
+                  agent 介导升级（产出 patch 供人审）。
 ```
 
-- 依据：git three-way 模型（base + 两条分叉线）是此形状的已证
-  答案；jixoai-ui.lock 的 sha256 惯例是来源清单先例；diff3 算法
-  用 `diff3` npm 包（纯 JS 直接依赖）。
-- studio 侧收口：promote 过的画布在 navigator 出"updates
-  available"徽标（status 数据源同 API）。
+- 依据：git 的 release/compare/merge-file 是这套形状的原生引擎
+  （Owner 方向）；jxoai-ui.lock sha256 惯例仍是来源清单先例；
+  **diff3 npm 依赖取消**（r2.1），git 成为工作流硬依赖。
+- studio 侧收口不变：updates-available 徽标（status API 同形状）。
 
 ## 3. 元素定位：dev-only usage-site 印章注入
 
