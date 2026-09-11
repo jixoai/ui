@@ -49,6 +49,21 @@
   收尾代理接手模式有效，但"陈旧 git 锁清理"要进接手检查清单
   （收尾代理摩擦点）。
 
+## 3.5 终审修正记录（2026-09-11，终审 7/10 的三处闭环）
+
+- **B1（虚修自首）**：P2-2 的 null 删除首轮只过了纯内核 pin——
+  resolver 的请求校验把 null（typeof 'object'）400 挡在门外，
+  真实面板链路不可用。已修（校验放行 null）+ resolver 级集成
+  测试钉死整链（prop-edit.test.ts "the B1 pin"）。教训入库：
+  修复的 pin 必须穿过与真实调用方相同的层，纯内核绿 ≠ 链路绿。
+- **B2（声明面 > 实现面）**：`apply --agent` spec SHALL + tasks
+  勾选 + 实现为零三方矛盾。裁决：spec 改 deferred 注记（非
+  SHALL）、tasks 改注移交——与 §2 的 MCP 化下轮计划一致。
+- **D1（CLI 缺口）**：`design diff <A>..<B> --by-page/--export`
+  与 `design log` 补齐（内核本在，命令面 30 行的事）。
+  车辆实测：r1..r2 by-page 正确报 3 unchanged + 1 M，patch
+  导出落盘。
+
 ## 4. 遗留门禁（合并前）
 
 - registry/package.json 的 @jixoai/ui-design file: 边 lockfile
