@@ -29,3 +29,66 @@ export type { DesignAgent, AgentEvent, AgentInfo } from './agent/types.ts';
 export { loadKnowledgePack } from './knowledge/knowledge.ts';
 export { buildKnowledgePack } from './knowledge/build.ts';
 export type { KnowledgeSnapshot, KnowledgeGroup, KnowledgeItem, PromptLayer } from './knowledge/build.ts';
+// pipeline (r2 rev2, git release model): design repo, design file
+// artifacts, promotion, three-way apply via git merge-file
+export {
+  initDesignRepo,
+  isDesignRepo,
+  saveDesignCommit,
+  releaseDesignTag,
+  listReleaseTags,
+  currentReleaseTag,
+  runGit,
+} from './pipeline/design-repo.ts';
+export type { ReleaseTag, ReleaseResult, SaveCommitResult, MergeFileResult, ParsedConflict } from './pipeline/design-repo.ts';
+export { DesignRepoError } from './pipeline/design-repo.ts';
+export {
+  openDesignFile,
+  parseDesignFile,
+  exportDesignFile,
+  designFilePath,
+  DESIGN_FILE_SCHEMA,
+  DESIGN_FILE_TYPE,
+  DESIGN_FILE_EXT,
+  DESIGN_FILES_DIR,
+} from './pipeline/design-file.ts';
+export type { DesignFile, DesignChange, DesignFileEntry, OpenDesignFileResult } from './pipeline/design-file.ts';
+export { DesignFileError } from './pipeline/design-file.ts';
+export {
+  rewriteSpecifiers,
+  buildRewriteAliases,
+  baseContentOf,
+  repoPathOf,
+  promote,
+  promotionStatus,
+  promotionsPath,
+  readPromotions,
+  PROMOTIONS_PATH,
+  PROMOTED_SUBTREES,
+  DEFAULT_PROMOTE_DIR,
+} from './pipeline/promote.ts';
+export type { PromotionRecord, PromoteOptions, PromoteResult, PromotionStatus, PromotionFileStatus, ChangelogEntry } from './pipeline/promote.ts';
+export { PromotionExistsError } from './pipeline/promote.ts';
+export { applyDrift } from './pipeline/apply.ts';
+export type { ApplyReport, ApplyFileReport, ApplyDriftOptions, ApplySkipReason, AppliedConflict } from './pipeline/apply.ts';
+export { unifiedDiff, diffHunks } from './pipeline/diff.ts';
+export type { DiffHunk } from './pipeline/diff.ts';
+// metadata + property editing (r2 T7/T8): the on-demand schema
+// endpoint and the CAS-arbitrated source editor
+export { metaMiddleware, resolveMetaResponse, META_PATH_PREFIX } from './server/meta/endpoint.ts';
+export {
+  extractItemSchema,
+  XUI_KEYS,
+  AnnotationValidationError,
+  TypescriptUnavailableError,
+} from './server/meta/extract.ts';
+export type { ItemSchemaResult, SchemaObject, SchemaPropNode, XUIPanel, ExtractOptions } from './server/meta/extract.ts';
+export {
+  propEditMiddleware,
+  resolvePropEditRequest,
+  applyPropEdit,
+  dryRunUsage,
+  locateUsages,
+  PROP_EDIT_PATH,
+} from './server/prop-edit.ts';
+export type { PropEditRequest, PropEditResponse, UsageValues, EditOutcome, EditValue, FileOps } from './server/prop-edit.ts';
