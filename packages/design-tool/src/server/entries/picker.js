@@ -1,5 +1,6 @@
 /**
- * @jixoai/ui-design (server entries) — the canvas picker (r2 T4).
+ * @jixoai/ui-design (server entries) — the canvas picker (r2 T4,
+ * lazy activation r3 T6).
  *
  * The frame-surface half of the selection loop: in studio-embedded
  * frames (or with ?pick=1 forced on), a click resolves the NEAREST
@@ -7,6 +8,15 @@
  * highlights it, and reports the selection UP the same-origin iframe
  * chain to the studio's window.__jixoaiDesignSelect hook (the frame's
  * parent chain IS the studio — no postMessage round-trip needed).
+ *
+ * Lazy activation (r3 T6, #14 P1-1): the studio lookup ran ONCE at
+ * init — a frame document whose load races the studio seam (vite HMR
+ * reloads both; the fresh seam may not exist yet when a reloaded
+ * frame's picker initializes) stayed dead forever with no self-heal.
+ * Now every CLICK re-walks the (cheap, bounded) parent chain: a frame
+ * embedded any time after its load picks up on the very next click,
+ * and a standalone document — the walk still finds nothing — passes
+ * through untouched, byte-identical to before.
  *
  * Also exposes the DOWN direction for the ComponentTreeView (T5):
  * window.__jixoaiDesignHighlight({usageIndex, iterationIndex} | null)
@@ -20,16 +30,23 @@
  * Plain JS browser code (the entries house style), self-styled: the
  * frame document may carry any theme.
  *
- * Original need: Owner 2026-09-11 (design-studio-r2 T4).
+ * Original need: Owner 2026-09-11 (design-studio-r2 T4); lazy
+ * activation Owner 2026-09-12 (design-studio-r3 T6, #14 P1-1).
  */
 
 const FRAME_NAME_PREFIX = 'jixoai-design-frame-';
 const HIGHLIGHT_CLASS = 'jx-design-pick-highlight';
 
-/** walk up the same-origin parent chain (bounded) for the studio hook */
-function findStudioWindow() {
-  let window_ = window;
-  for (let depth = 0; depth < 6 && window_ !== null; depth += 1) {
+/**
+ * Walk up a same-origin parent chain (bounded) for the studio hook.
+ * Structural input (the selection.ts house style): the test seam —
+ * `root` is anything window-shaped ({ parent, __jixoaiDesignSelect }),
+ * so the chain law (bounded depth, cross-origin bail, top stop) is
+ * node-testable without a DOM. Exported for picker.test.ts only.
+ */
+export function findStudioWindowFrom(root, maxDepth = 6) {
+  let window_ = root;
+  for (let depth = 0; depth < maxDepth && window_ !== null; depth += 1) {
     try {
       if (typeof window_.__jixoaiDesignSelect === 'function') return window_;
     } catch {
@@ -39,6 +56,10 @@ function findStudioWindow() {
     window_ = window_.parent;
   }
   return null;
+}
+
+function findStudioWindow() {
+  return findStudioWindowFrom(window);
 }
 
 function frameIdFromWindowName(name) {
@@ -70,12 +91,15 @@ function elementFor(target) {
 }
 
 export function initDesignPicker() {
-  const studio = findStudioWindow();
+  // ?pick=1 forces activation regardless of the studio walk (the
+  // standalone-frame debug surface); otherwise activation is decided
+  // per click by the lazy walk below
   const forced = new URLSearchParams(window.location.search).get('pick') === '1';
-  if (studio === null && !forced) return; // standalone frame — no picking
 
   // the highlight style: outline only (layout-neutral — measurements
-  // like the kit's adaptive height must not see the picker)
+  // like the kit's adaptive height must not see the picker). Injected
+  // unconditionally: the class does nothing until code adds it, so a
+  // standalone document stays visually byte-identical.
   const style = document.createElement('style');
   style.textContent = [
     `.${HIGHLIGHT_CLASS} {`,
@@ -88,6 +112,13 @@ export function initDesignPicker() {
   document.addEventListener(
     'click',
     (event) => {
+      // lazy activation (r3 T6): re-walk the chain on EVERY click —
+      // the studio seam may have appeared after this document loaded
+      // (the HMR double-reload race), and a walk that still finds
+      // nothing means standalone: pass through, untouched, same as
+      // never having been injected
+      const studio = findStudioWindow();
+      if (studio === null && !forced) return;
       const target = event.target;
       if (target === null || typeof target.closest !== 'function') return;
       const stamped = target.closest('[data-jx-component]');
@@ -117,10 +148,13 @@ export function initDesignPicker() {
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape' || highlighted === null) return;
     applyHighlight(null);
+    const studio = findStudioWindow();
     if (studio !== null) studio.__jixoaiDesignSelect(null);
   });
 
-  // the DOWN seam: tree selection highlights inside this document
+  // the DOWN seam: tree selection highlights inside this document.
+  // Registered unconditionally — a standalone document simply has no
+  // caller, and a document embedded later is reachable immediately.
   window.__jixoaiDesignHighlight = (target) => {
     applyHighlight(target === null ? null : elementFor(target));
   };

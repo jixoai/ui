@@ -49,9 +49,11 @@ const h = params.get('h');
 if (w) document.documentElement.style.width = `${w}px`;
 if (h) document.documentElement.style.height = `${h}px`;
 
-// the selection loop's frame half (r2 T4): activates when embedded in
-// the studio (the hook walk) or forced with &pick=1 — standalone
-// frames stay plain documents
+// the selection loop's frame half (r2 T4; lazy activation r3 T6):
+// picks activate when embedded in the studio — confirmed per click by
+// the parent-chain walk, so a load racing the studio seam (HMR) still
+// heals — or forced with &pick=1; standalone frames stay plain
+// documents (unstamped AND stamped clicks pass through untouched)
 initDesignPicker();
 
 if (proto === '' || ref === '') {
