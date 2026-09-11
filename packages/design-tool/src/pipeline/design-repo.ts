@@ -94,6 +94,9 @@ const REPO_GITIGNORE = `# tool-managed (design-studio r2 rev2, 2026-09-11): the 
 /.promotions.json
 /files/
 /studio.svelte
+# the dsh agent's isolated home (r2.1 wiring — sessions/settings are
+# runtime state, never design history)
+/.dsh-home/
 `;
 
 /** the local identity fallback for hosts without a global git identity */
@@ -170,12 +173,20 @@ export interface SaveCommitResult {
 export function saveDesignCommit(root: string, proto?: string, note?: string): SaveCommitResult {
   const { designDir } = initDesignRepo(root);
   const subject = note !== undefined && note.length > 0 ? `wip: ${note}` : `wip ${new Date().toISOString()}`;
-  const pathspec = proto === undefined ? ['prototypes'] : [`prototypes/${proto}`];
-  const add = runGit(designDir, ['add', '--', ...pathspec], { allowFailure: true });
+  // repo-wide when no proto is named: the tool-managed files (.gitignore
+  // updates) ride along — a prototypes-only default deadlocks against the
+  // release dirty check, which is repo-wide (observed on the real vehicle
+  // 2026-09-11: the .dsh-home ignore landed, save reported unchanged,
+  // release refused the dirty .gitignore forever)
+  const add = proto === undefined
+    ? runGit(designDir, ['add', '-A'], { allowFailure: true })
+    : runGit(designDir, ['add', '--', `prototypes/${proto}`], { allowFailure: true });
   if (add.code !== 0) {
-    throw new DesignRepoError(`nothing matches ${pathspec.join(' ')} — does the prototype exist?`, `git add ${pathspec.join(' ')}`, add.stderr);
+    throw new DesignRepoError(`nothing matches prototypes/${proto ?? ''} — does the prototype exist?`, 'git add', add.stderr);
   }
-  const staged = runGit(designDir, ['diff', '--cached', '--quiet', '--', ...pathspec], { allowFailure: true });
+  const staged = proto === undefined
+    ? runGit(designDir, ['diff', '--cached', '--quiet'], { allowFailure: true })
+    : runGit(designDir, ['diff', '--cached', '--quiet', '--', `prototypes/${proto}`], { allowFailure: true });
   if (staged.code === 0) return { committed: false, commitSha: null, subject };
   runGit(designDir, ['commit', '-m', subject]);
   const sha = runGit(designDir, ['rev-parse', 'HEAD']).stdout.trim();
