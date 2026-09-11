@@ -1,8 +1,8 @@
 # canvas-schema Specification (r2 delta)
 
-## MODIFIED Requirements
+## ADDED Requirements
 
-### Requirement: the x-ui annotation vocabulary carries design decorations
+### Requirement: the x-ui vocabulary carries design decorations
 
 The schema kernel's `x-ui` passthrough vocabulary SHALL include
 `control`, `label`, `description`, `lane`, `unit`, `sourceType`
