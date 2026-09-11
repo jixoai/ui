@@ -73,6 +73,12 @@
     {#if failed !== null}
       <p class="guide-error">knowledge failed: {failed}</p>
     {/if}
+    <!-- ID4 (r3 T1): a filtered-to-nothing index is a one-line honest
+         empty state, not a silent blank — only meaningful when there
+         IS an index to search (empty/failed payloads are not matches) -->
+    {#if failed === null && groups.length > 0 && query.trim() !== '' && filtered.length === 0}
+      <p class="guide-desc">no components match "{query.trim()}"</p>
+    {/if}
     {#each filtered as group (group.id)}
       <details class="guide-group">
         <summary>{group.id} <span class="guide-count">({group.items.length})</span></summary>

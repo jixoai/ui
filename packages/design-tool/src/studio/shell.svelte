@@ -6,7 +6,9 @@
     1. navigator + preview grid: list canvases from the manifest, show
        the selected canvas in a full-width iframe tab; frame ids deep-
        link by appending #<id> to the iframe src (canvas anchors are
-       the kit's DOM contract).
+       the kit's DOM contract). Manifest polling is GATED (#12/T0):
+       a structurally unchanged response never rewrites $state, and
+       the panel receives selectionFile (a primitive), not a table.
     2. right rail composition: chat panel + guide panel (own files).
     3. the ONE selection state (r2): window.__jixoaiDesignSelect is
        the picker's same-origin up-call target; the ComponentTreeView,
@@ -32,8 +34,14 @@
 <script lang="ts">
   import ChatPanel from './chat-panel.svelte';
   import ComponentTree from './component-tree.svelte';
+  import {
+    manifestSignature,
+    promotionsSignature,
+    type ManifestEntry,
+    type PromotionFileStatus,
+  } from './equivalence.ts';
   import GuidePanel from './guide-panel.svelte';
-  import PropertyPanel, { type FrameFileTable } from './property-panel.svelte';
+  import PropertyPanel from './property-panel.svelte';
   import { FRAME_NAME_PREFIX, type DesignSelection, type DesignStudioSeams } from './selection.ts';
 
   export interface ShellEndpoints {
@@ -52,15 +60,12 @@
     promotionsUrl = '/__design__/api/promotions.json',
   }: ShellEndpoints = $props();
 
-  interface ManifestFrame {
-    id: string;
-    ref?: string;
-  }
-  interface ManifestEntry {
-    name: string;
-    path: string;
-    frames?: ManifestFrame[];
-  }
+  /** promotion drift status — THREE-state (loading/ok/error, r3 T0/ID6):
+   *  a failed fetch is NOT "no drift"; the two must stay distinguishable */
+  type PromotionsState =
+    | { readonly phase: 'loading' }
+    | { readonly phase: 'ok'; readonly statuses: readonly PromotionFileStatus[] }
+    | { readonly phase: 'error' };
 
   let manifest: ManifestEntry[] = $state([]);
   let currentName: string | null = $state(null);
@@ -74,48 +79,45 @@
   let chatStreaming = $state(false);
   /** the open updates-badge proto (null = all collapsed) */
   let updatesOpen: string | null = $state(null);
-  /** promotion drift status (r2 T11 — A's promotions.json contract) */
-  let promotions: readonly PromotionFileStatus[] | null = $state(null);
-  let promotionsFailed = false;
+  /** promotion drift status (r2 T11 contract; three-state as of r3 T0/ID6) */
+  let promotions: PromotionsState = $state({ phase: 'loading' });
 
-  /** the promotions.json per-file verdict (A's PromotionFileStatus, structural) */
-  interface PromotionFileStatus {
-    readonly file: string;
-    readonly proto: string;
-    readonly designVersion: number;
-    readonly currentDesignVersion: number | null;
-    readonly drifted: boolean;
-    readonly regressed: boolean;
-    readonly hostMissing: boolean;
-    readonly hostModified: boolean;
-    readonly changelogSince: readonly { readonly version: number; readonly note: string }[];
-    readonly diff: string | null;
-  }
+  // #12 T0 layer 1 — source equivalence gates: the last ACCEPTED
+  // signature per source. Non-reactive on purpose (never rendered);
+  // a poll that matches it writes NOTHING, so downstream derived
+  // identities (and the panel seed effect) see zero churn.
+  let manifestGate: string | null = null;
+  let promotionsGate: string | null = null;
+  // last-writer-wins guards: a slow STALE response landing after a
+  // newer one must not overwrite it (that bounce is flicker too)
+  let manifestRequest = 0;
+  let promotionsRequest = 0;
 
   const current = $derived(manifest.find((entry) => entry.name === currentName) ?? null);
   const previewSrc = $derived(current === null ? null : current.path + (frameHash === null ? '' : `#${frameHash}`));
 
   /**
-   * frameId → root-relative source file (the panel's edit target):
-   * manifest refs minus the leading ./; '' addresses the canvas
-   * document itself (frameId-null picks).
+   * The panel's edit target (#12 T0 layer 2): the selection's frame →
+   * root-relative source file, resolved to a PRIMITIVE here — the
+   * panel's seed effect depends on no table object, so manifest
+   * identity churn can never reach it, only a real path change can.
+   * '' addresses the canvas document itself (frameId-null picks);
+   * frames without a ref resolve to null (the panel's read-only path).
    */
-  const frameFiles: FrameFileTable = $derived.by(() => {
-    const table: FrameFileTable = {};
-    if (current === null) return table;
-    table[''] = `design/prototypes/${current.name}/canvas.svelte`;
-    for (const frame of current.frames ?? []) {
-      if (frame.ref === undefined) continue;
-      table[frame.id] = `design/prototypes/${current.name}/${frame.ref.replace(/^\.\//, '')}`;
-    }
-    return table;
+  const selectionFile = $derived.by(() => {
+    if (current === null) return null;
+    const frameId = selection?.frameId ?? '';
+    if (frameId === '') return `design/prototypes/${current.name}/canvas.svelte`;
+    const ref = (current.frames ?? []).find((frame) => frame.id === frameId)?.ref;
+    return ref === undefined ? null : `design/prototypes/${current.name}/${ref.replace(/^\.\//, '')}`;
   });
 
-  /** drifted (or regressed) promotions grouped per proto — the badge source */
+  /** drifted promotions grouped per proto — the badge source (ok data only) */
   const updatesByProto = $derived.by(() => {
     const grouped = new Map<string, PromotionFileStatus[]>();
-    for (const status of promotions ?? []) {
-      if (!status.drifted && !status.regressed) continue;
+    if (promotions.phase !== 'ok') return grouped;
+    for (const status of promotions.statuses) {
+      if (!status.drifted) continue;
       const bucket = grouped.get(status.proto) ?? [];
       bucket.push(status);
       grouped.set(status.proto, bucket);
@@ -124,10 +126,20 @@
   });
 
   async function refreshManifest(): Promise<void> {
+    const request = ++manifestRequest;
     try {
       const response = await fetch(manifestUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      manifest = (await response.json()) as ManifestEntry[];
+      const next = (await response.json()) as ManifestEntry[];
+      if (request !== manifestRequest) return; // a newer poll already landed
+      // source equivalence gate (#12 T0 layer 1): a structurally
+      // identical poll writes NOTHING — current/selectionFile keep
+      // their identities, the panel seed effect never re-seeds
+      const signature = manifestSignature(next);
+      if (signature !== manifestGate) {
+        manifestGate = signature;
+        manifest = next;
+      }
       manifestError = null;
       // first landing prefers the scaffold's welcome demo — the
       // manifest otherwise opens on whatever sorts first (V5 catch:
@@ -138,7 +150,9 @@
         currentName = preferred !== undefined ? preferred.name : null;
       }
     } catch (cause) {
-      manifestError = cause instanceof Error ? cause.message : String(cause);
+      if (request === manifestRequest) {
+        manifestError = cause instanceof Error ? cause.message : String(cause);
+      }
     }
   }
 
@@ -176,18 +190,35 @@
   });
 
   async function refreshPromotions(): Promise<void> {
+    const request = ++promotionsRequest;
     try {
       const response = await fetch(promotionsUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = (await response.json()) as { promotions?: PromotionFileStatus[] };
-      promotions = payload.promotions ?? [];
-      promotionsFailed = false;
+      if (request !== promotionsRequest) return; // stale response — drop
+      const next = payload.promotions ?? [];
+      // source equivalence gate (#12 T0 layer 1): an identical poll
+      // keeps the ok-state's identity — the badge data never churns.
+      // A phase transition (loading/error → ok) always writes.
+      const signature = promotionsSignature(next);
+      if (promotions.phase !== 'ok' || signature !== promotionsGate) {
+        promotionsGate = signature;
+        promotions = { phase: 'ok', statuses: next };
+      }
     } catch {
-      // no promotions data (nothing promoted yet, endpoint pending) —
-      // the badges simply stay absent, never an error surface
-      promotions = promotionsFailed ? promotions : [];
-      promotionsFailed = true;
+      // ID6 (r3 T0): a failed fetch is NOT "no drift" — three-state
+      // keeps them distinguishable (the error line + retry below);
+      // badges stay absent but never fake an all-converged studio
+      if (request === promotionsRequest) promotions = { phase: 'error' };
     }
+  }
+
+  /** the promotions retry affordance (ID6): the explicit loading lock —
+   *  the error line leaves while the refetch is in flight, and the
+   *  4s-poll/refresh guard makes double clicks harmless */
+  function retryPromotions(): void {
+    promotions = { phase: 'loading' };
+    void refreshPromotions();
   }
 
   // the panel-edit HMR fallback (r2 T8): when HMR does not carry a
@@ -216,7 +247,16 @@
       jixoai design
     </header>
     {#if manifestError !== null}
-      <p class="studio-error">manifest failed: {manifestError}</p>
+      <!-- ID3 (r3 T1): a failed manifest is recoverable, not a dead
+           end — retry re-fetches (the 4s poll self-heals transient
+           failures; this is the user's explicit affordance) -->
+      <p class="studio-error">manifest failed: {manifestError} <button class="studio-frame" onclick={() => void refreshManifest()}>retry</button></p>
+    {/if}
+    {#if promotions.phase === 'error'}
+      <!-- ID6 (r3 T0): promotions failure ≠ no drift — one honest
+           line where the badges live, with the explicit retry; the
+           4s poll also keeps self-healing in the background -->
+      <p class="studio-error">promotions unavailable — <button class="studio-frame" onclick={retryPromotions}>retry</button></p>
     {/if}
     {#if manifest.length === 0 && manifestError === null}
       <p class="studio-empty">no prototypes yet — the navigator fills as design/prototypes/&lt;name&gt;/ appears</p>
@@ -280,7 +320,7 @@
   </nav>
 
   <div class="studio-side">
-    <PropertyPanel {selection} {frameFiles} locked={chatStreaming} />
+    <PropertyPanel {selection} {selectionFile} locked={chatStreaming} />
   </div>
 
   <main class="studio-preview">

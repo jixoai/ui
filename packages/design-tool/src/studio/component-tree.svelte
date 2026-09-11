@@ -13,7 +13,9 @@
   events on edits): a MutationObserver chain over the canvas document
   and every kit frame's body, debounced; plus iframe load (canvas
   switch / frame full-reload) and selection changes. The walk is
-  event-driven, never polled.
+  event-driven, never polled. Writes are GATED (#12/T0): a burst that
+  leaves the stamp records structurally unchanged never rewrites
+  $state (highlight toggles and HMR no-ops cause zero re-derivation).
 
   Honest degradation: the tree = the STAMP tree (r2 ruling) — native
   elements, third-party components and rest-spread-less components
@@ -23,6 +25,7 @@
   imports; self-contained scoped CSS. Svelte 5 runes.
 -->
 <script lang="ts">
+  import { recordsSignature } from './equivalence.ts';
   import {
     FRAME_NAME_PREFIX,
     buildSelectionTree,
@@ -47,6 +50,12 @@
   } = $props();
 
   let records: StampRecord[] = $state([]);
+  // #12 T0 layer 3 (same-type audit) — the records source gate: the
+  // last accepted signature. Non-reactive on purpose; an observer
+  // burst that leaves the stamp tree unchanged writes NOTHING, so
+  // tree/groups identities stay stable. Reset per iframe lifecycle
+  // (canvas switches force one honest re-write).
+  let recordsGate: string | null = null;
   const tree = $derived(buildSelectionTree(records));
 
   /** frame-grouped roots: canvas-doc usages first, then each frame */
@@ -72,16 +81,25 @@
     }
   }
 
+  /** the gated $state write: only a structurally changed walk lands */
+  function commitRecords(next: StampRecord[]): void {
+    const signature = recordsSignature(next);
+    if (signature !== recordsGate) {
+      recordsGate = signature;
+      records = next;
+    }
+  }
+
   function refresh(): void {
     const doc = safeDocument(iframe);
     if (doc === null) {
-      records = [];
+      commitRecords([]);
       return;
     }
     try {
-      records = collectCanvasRecords(doc, Array.from(doc.querySelectorAll('iframe')));
+      commitRecords(collectCanvasRecords(doc, Array.from(doc.querySelectorAll('iframe'))));
     } catch {
-      records = []; // mid-teardown document — the next event re-walks
+      commitRecords([]); // mid-teardown document — the next event re-walks
     }
   }
 
@@ -118,6 +136,7 @@
   // refresh (mutation bursts from HMR or agent writes coalesce).
   $effect(() => {
     if (iframe === null) return;
+    recordsGate = null; // fresh iframe lifecycle — force the first write
     refresh();
     const observers: MutationObserver[] = [];
     const loadListeners: Array<[EventTarget, () => void]> = [];

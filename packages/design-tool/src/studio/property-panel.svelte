@@ -16,19 +16,23 @@
        CustomEvent as the fallback path; non-representable props
        (bound / non-literal) render read-only with "edit in code";
        an agent turn locks the whole panel (chat streaming state).
+       Failure notices are TRANSIENT (r3 T1/ID5): every show arms the
+       6s self-dismiss (notice.ts) and valid actions clear them.
 
   Selection contract: B's DesignSelection (selection.ts) — the panel
   is a pure CONSUMER. instanceCount > 1 honestly labels the shared
-  usage; edits always land on the usage site.
+  usage; edits always land on the usage site. The edit target arrives
+  as selectionFile (a primitive the shell resolves) — the panel keeps
+  NO object dependency, so poll churn upstream cannot re-seed it
+  (#12 T0 layer 2; equivalence.ts).
 
   Original need: Owner 2026-09-11 (design-studio-r2 T8; VD1/VD1e).
   No host imports; self-contained scoped CSS. Svelte 5 runes.
 -->
 <script module lang="ts">
+  import { createNoticeDismissal } from './notice.ts';
+  import { seedSignature, seedTargetOf } from './equivalence.ts';
   import type { DesignSelection } from './selection.ts';
-
-  /** what the shell resolves for the panel: frameId ('' = the canvas document) → root-relative file */
-  export type FrameFileTable = Record<string, string>;
 
   /** the meta endpoint's payload (the T7 contract) */
   export interface MetaPayload {
@@ -146,13 +150,17 @@
 <script lang="ts">
   let {
     selection = null,
-    frameFiles = {},
+    selectionFile = null,
     locked = false,
     metaUrlBase = '/__design__/api/meta',
     propEditUrl = '/__design__/api/prop-edit',
   }: {
     selection?: DesignSelection | null;
-    frameFiles?: FrameFileTable;
+    /** the shell-resolved edit target (selection frameId → source file)
+     *  — a PRIMITIVE (#12 T0 layer 2): the last object dependency this
+     *  panel had (frameFiles table) is gone; the seed effect depends on
+     *  primitives only, so poll churn upstream cannot re-seed it */
+    selectionFile?: string | null;
     locked?: boolean;
     metaUrlBase?: string;
     propEditUrl?: string;
@@ -167,43 +175,72 @@
   let notice: string | null = $state(null);
   let saving = false;
 
+  // ID5 (r3 T1): transient failure notices self-dismiss after 6s —
+  // they hung until the next selection in r2, reading as a permanent
+  // panel state. Valid actions (a new commit, a selection change)
+  // clear them explicitly via clearNotice; this timer is the floor.
+  const noticeDismissal = createNoticeDismissal(() => {
+    notice = null;
+  });
+
+  function showNotice(message: string): void {
+    notice = message;
+    noticeDismissal.schedule();
+  }
+
+  function clearNotice(): void {
+    notice = null;
+    noticeDismissal.cancel();
+  }
+
+  // teardown: a pending dismissal never fires after unmount
+  $effect(() => () => noticeDismissal.cancel());
+
   const rows = $derived(meta === null ? [] : rowsFor(meta, usageValues));
   const shareCount = $derived(selection?.instanceCount ?? 1);
 
+  // #12 T0 layer 2 — the seed effect's no-op guards (non-reactive,
+  // never rendered): lastSeed makes an identity-only re-run provably
+  // side-effect-free; seedGeneration drops a STALE async seed landing
+  // after a newer selection switched the target
+  let lastSeed: string | null = null;
+  let seedGeneration = 0;
+
   $effect(() => {
-    // primitive-key deps ONLY: the tree refresh recreates the selection
-    // OBJECT (same keys, new identity) after a panel write — an
-    // identity-only change must not clear and refetch the rows mid-HMR
-    // (P2-1, vision r2 catch: rows blanked, next click timed out)
-    const frameId = selection?.frameId;
-    const usageIndex = selection?.usageIndex;
-    const component = selection?.component;
-    const current =
-      frameId !== undefined && usageIndex !== undefined && component !== undefined
-        ? { frameId, usageIndex, component }
-        : null;
+    // primitive deps ONLY (#12 T0 layer 2 + r2 P2-1): the seed's whole
+    // world is the four primitives inside seedTargetOf (selection keys
+    // + the shell-resolved selectionFile). An identity-only change —
+    // the tree recreating the selection OBJECT after a panel write, a
+    // manifest poll re-deriving upstream — hits the seedSignature
+    // guard and becomes a no-op: no reset, no refetch, no flicker.
+    const current = seedTargetOf(selection, selectionFile);
+    const seed = current === null ? null : seedSignature(current);
+    if (seed === lastSeed) return;
+    lastSeed = seed;
+    const generation = ++seedGeneration;
     meta = null;
     metaError = null;
     usageValues = {};
     usageShared = false;
-    notice = null;
+    clearNotice();
     if (current === null) return;
-    const target = frameFiles[current.frameId ?? ''];
-    file = target ?? null;
+    file = current.file;
     void (async () => {
       try {
         const response = await fetch(`${metaUrlBase}/${current.component}.json`, { cache: 'no-store' });
         if (!response.ok) throw new Error(`meta HTTP ${response.status}`);
+        if (generation !== seedGeneration) return; // superseded mid-fetch
         meta = (await response.json()) as MetaPayload;
         // seed the usage's current literals (dry-run — no write)
-        if (file !== null) {
+        if (current.file !== null) {
           const propNames = Object.keys(meta.schema?.properties ?? {});
           const dryResponse = await fetch(propEditUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ file, component: current.component, usageIndex: current.usageIndex, dryRun: true, props: propNames }),
+            body: JSON.stringify({ file: current.file, component: current.component, usageIndex: current.usageIndex, dryRun: true, props: propNames }),
           });
           if (dryResponse.ok) {
+            if (generation !== seedGeneration) return; // superseded mid-seed
             const dryBody = (await dryResponse.json()) as { ok?: boolean; values?: Record<string, { representable: boolean; value?: RowValue }>; shared?: boolean };
             if (dryBody.ok === true && dryBody.values !== undefined) {
               usageValues = dryBody.values;
@@ -219,7 +256,9 @@
           }
         }
       } catch (cause) {
-        metaError = cause instanceof Error ? cause.message : String(cause);
+        if (generation === seedGeneration) {
+          metaError = cause instanceof Error ? cause.message : String(cause);
+        }
       }
     })();
   });
@@ -232,7 +271,7 @@
     // raised={false} residue (P2-2, vision r2 catch)
     if (value === false && originallyUnset.has(prop)) value = null;
     saving = true;
-    notice = null;
+    clearNotice();
     try {
       const response = await fetch(propEditUrl, {
         method: 'POST',
@@ -248,15 +287,15 @@
         // the owning frame when HMR does not carry the edit in
         window.dispatchEvent(new CustomEvent('jx-design:panel-edited', { detail: { frameId: current.frameId, file } }));
       } else if (response.status === 409) {
-        notice = 'concurrent write detected — edit abandoned, retry';
+        showNotice('concurrent write detected — edit abandoned, retry');
       } else if (body.reason === 'non-representable') {
         usageValues = { ...usageValues, [prop]: { representable: false } };
-        notice = `"${prop}" is bound or non-literal — edit in code`;
+        showNotice(`"${prop}" is bound or non-literal — edit in code`);
       } else {
-        notice = body.message ?? `edit failed (${body.reason ?? response.status})`;
+        showNotice(body.message ?? `edit failed (${body.reason ?? response.status})`);
       }
     } catch (cause) {
-      notice = cause instanceof Error ? cause.message : String(cause);
+      showNotice(cause instanceof Error ? cause.message : String(cause));
     } finally {
       saving = false;
     }
@@ -286,7 +325,9 @@
   </header>
 
   {#if selection === null}
-    <p class="panel-hint">no selection — click a stamped component in a frame (the T4 picker).</p>
+    <!-- W3 (r3 T1): the empty panel is the flow guide — the canvas
+         picker path AND the tree fallback, nested frames named -->
+    <p class="panel-hint">no selection — click a component in the canvas, or pick a component node from the tree on the left (components inside nested frames need the tree)</p>
   {:else if metaError !== null}
     <p class="panel-error">meta failed: {metaError}</p>
   {:else if meta === null}
@@ -304,7 +345,9 @@
       <p class="panel-share">loop usage — instances share this usage; edits land at the usage site</p>
     {/if}
     {#if file === null}
-      <p class="panel-notice">frame file unresolved for "{selection.frameId ?? 'canvas'}" — rendering read-only</p>
+      <!-- ID7 (r3 T1): persistent STATE, not a transient notice — no
+           auto-dismiss; it names the cause and two ways out -->
+      <p class="panel-notice">frame file unresolved for "{selection.frameId ?? 'canvas'}" — this frame declares no source ref in the manifest, so there is no file to edit. Pick a component on the canvas document or a tree node under a frame with a resolved ref, or check the frame's ref in canvas.svelte — the panel stays read-only.</p>
     {/if}
 
     <div class="panel-rows">
