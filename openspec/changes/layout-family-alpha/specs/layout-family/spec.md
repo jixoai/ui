@@ -9,10 +9,9 @@ The three alpha layout primitives — `prototype-flex`,
 standardized prop vocabulary of design-studio-r2 §6 and map every
 value to its CSS property 1:1 with NO vocabulary-translation layer:
 Flex `direction/wrap/align/justify/gap`, Grid `cols/rows/gap/areas`,
-Waterfall `columns/gap/strategy` (v0: `'balanced'` only). The ONLY
-coercions are type coercions — `number` gap → `<n>px`, `number`
-cols/rows → `repeat(N, minmax(0, 1fr))` (the no-max-content-blowout
-track form; strings stay verbatim).
+Waterfall `columns/gap/strategy` (v0: `'balanced'` only). The only
+coercions are TYPE coercions (gap number → px; numeric tracks → the
+blowout-proof repeat form).
 
 #### Scenario: every union member lands as CSS truth
 
@@ -36,10 +35,14 @@ track form; strings stay verbatim).
   honestly (children flow column-first; `break-inside` stays the
   consumer's call)
 
-> Waterfall `columns` rides the CSS `columns` SHORTHAND verbatim:
-  a number is the count form, a length string (`'14rem'`) is the
-  auto-width form — one property, both shapes, no branching. Grid
-  `areas` is a single verbatim string in v0 —
+> The two type coercions, stated once: `number` gap → `<n>px`, and
+> `number` cols/rows → `repeat(N, minmax(0, 1fr))` — the
+> no-max-content-blowout track form (the css-architecture grid-law
+> vocabulary, prototype-canvas precedent); strings stay verbatim
+> everywhere. Waterfall `columns` rides the CSS `columns` SHORTHAND
+> verbatim: a number is the count form, a length string (`'14rem'`)
+> is the auto-width form — one property, both shapes, no branching.
+> Grid `areas` is a single verbatim string in v0 —
 > an array-join form is a recorded future enhancement, not guessed.
 > A future `strategy: 'ordered'` (JS-measured placement) extends the
 > union non-breakingly; the prop ships in v0 for exactly that seam.
