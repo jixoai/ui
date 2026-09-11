@@ -15,6 +15,7 @@
 import { mount } from 'svelte';
 import 'virtual:jixoai-design/css';
 import 'virtual:jixoai-icons.css';
+import { initDesignPicker } from './picker.js';
 
 const canvases = import.meta.glob('/design/prototypes/*/canvas.svelte');
 
@@ -33,6 +34,10 @@ const match = /^\/prototypes\/([^/]+)\/?$/.exec(window.location.pathname);
 const name = match === null ? null : match[1];
 const key = name === null ? null : `/design/prototypes/${name}/canvas.svelte`;
 const loader = key === null ? undefined : canvases[key];
+
+// the canvas document's own stamps (kit usages) are pickable too —
+// the same activation law as frames (r2 T4)
+initDesignPicker();
 
 if (loader === undefined) {
   const keys = Object.keys(canvases);
