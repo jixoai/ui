@@ -1,0 +1,33 @@
+# jixoai design — the design agent's LLM overlay (r2, 2026-09-11).
+#
+# Applied by cli design.mjs as a `--patch` overlay on `dsh --profile
+# headless`, AFTER the profile and home layers — the user's own
+# settings.yaml is never touched. Rendered from this template with
+# JIXOAI_DESIGN_LLM_BASE_URL / JIXOAI_DESIGN_LLM_MODEL /
+# JIXOAI_DESIGN_LLM_API (defaults: the local anthropic-compatible
+# endpoint Owner provided for the experiment).
+#
+# Row semantics (dsh-web-app patch precedent): a row patch REPLACES the
+# targeted row's whole config — this overlay deliberately narrows the
+# design agent's runtime to the design provider only; the user's other
+# routes live in their own settings.yaml layer and stay untouched for
+# their own sessions.
+- id: agent-default-model
+  config:
+    provider: jixoai-design
+    model: __JIXOAI_DESIGN_MODEL__
+
+- id: llm-pi-ai
+  config:
+    providers:
+      jixoai-design:
+        displayName: jixoai design (local)
+        api: anthropic-messages
+        baseURL: __JIXOAI_DESIGN_BASE_URL__
+        # the local endpoint needs no real credential — the placeholder
+        # env is provided by the design CLI at spawn time
+        apiKeyEnv: JIXOAI_DESIGN_LLM_KEY
+        models:
+          - id: __JIXOAI_DESIGN_MODEL__
+            name: __JIXOAI_DESIGN_MODEL__
+            contextWindow: 200000

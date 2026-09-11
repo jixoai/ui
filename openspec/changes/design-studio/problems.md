@@ -3,6 +3,9 @@
 > 2026-09-11，实验轮 r1。按"影响决策的程度"排序——前面的条目
 > 需要 Owner 拍板，后面的只是摩擦记录。子代理摩擦点报告在集成
 > 阶段追加（§5）。
+>
+> **2026-09-11 Owner 走查后裁决（r2 输入）**：§1–§4 全部裁毕，
+> 各节末尾的"Owner 裁决"段为准；r2 变更见 design-studio-r2。
 
 ## 1. dsh 基座可用，但安装通道是硬约束；"换 webui 插件"降维为适配器
 
@@ -32,6 +35,14 @@
   dsh 只当 headless 引擎）。剩下"住进 dsh 的 webserver"还有什么
   场景价值？若无，stretch goal 可以砍掉。
 
+**Owner 裁决（2026-09-11）**：dsh 是目前社区里最适合二开的 Agent 基座
+（开箱的会话管理、自动压缩、MCP、追踪、重试、多 provider）。不硬绑
+ oneself：把我们的标准封装成 **MCP + 配套 skill + system prompt**，
+即可移植——未来换 Agent 引擎、甚至直接接入用户已有的 Agent 都可能。
+即：seam 开放、dsh 首选、MCP 化是可移植性路径。真模型已接
+（glm-5.3-flash via 本地 anthropic 兼容端点，`--patch` 覆盖层 +
+隔离 DSH_HOME，见 design-studio-r2）。
+
 ## 2. prototype 标准的 v0 边界：frame 依赖 design server
 
 frame 组件（PrototypePage/Component）的 ref 解析依赖
@@ -45,7 +56,12 @@ registry item 分发，但它的完整体验绑定我们的工具链**。
 **要 Owner 拍板的**：这是"标准绑定工具"还是"工具实现标准"？
 长期看，若 prototype 标准要独立于 jixoai-ui design 存活（其它
 工具也消费这套文件夹约定），约定 glob 的解析层需要一份不依赖
-我们 server 的规范文本（spec 化 frame URL 契约）。
+我们 server 的规范文本（spec 化 frame URL 契约）。我们 server 的规范文本（spec 化 frame URL 契约）。
+
+**Owner 裁决（2026-09-11）**：prototype 标准组件**纳入官方标准库**
+（自举行为）；同时额外提供一个 prototype plugin，组件先打 **alpha**
+标签独立迭代（涉及"元能力/MetaFunctions"，变动预期大），稳定后再
+收编。元能力本身对社区有贡献价值——别人也能用它做特别的 Agent 产品。
 
 ## 3. 状态设计的表达方式：纯文件 vs 注入协议
 
@@ -58,6 +74,11 @@ Agent 的产出直接可移植进生产。
 （loading/disabled/success）可以砍掉重复——但要小心滑向"发明
 第二套组件 API"。Owner 意见？
 
+**Owner 裁决（2026-09-11）**：**代码优先**。产品定位 agent-first /
+强 AI——本来能用代码更短更快表达的标准，再去抽象一层 JSON-AST 是
+得不偿失（学习成本更高）。直接上 Svelte 代码。v0 的"真实文件表达
+状态"裁决由此转正为长期方向；frame 级 props 注入协议不做了。
+
 ## 4. studio shell 的 dogfood 深度
 
 包内默认 shell 不 import 宿主组件（包/宿主解耦），dogfood 经
@@ -65,6 +86,11 @@ Agent 的产出直接可移植进生产。
 **设计工具自己的 UI 不用 jixoai-ui 组件**这个事实有说服力代价
 ——"木匠家无家具"。完整 dogfood 需要解决"包如何引用宿主别名下
 的组件"（别名注入协议），这是一个独立的 change 量级。
+
+**Owner 裁决（2026-09-11）**："dogfood 深度"是个伪问题，撤回。
+原则：从 svelte 标准落地找可行实现，不发明新工具/新概念（对 AI
+也是额外学习成本）。studio chrome 成熟过程中自然用上 jixoai
+组件，无需专门的 dogfood 计划。
 
 ## 5. 子代理摩擦点（反馈协议合流）
 

@@ -26,8 +26,10 @@
  */
 
 import { spawn } from 'node:child_process';
-import { readdirSync, statSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { loadKnowledgePack } from '../knowledge/knowledge.ts';
 import type { AgentEvent, DesignAgent } from './types.ts';
@@ -37,6 +39,54 @@ const TURN_TIMEOUT_MS = 10 * 60_000;
 
 /** stderr tail cap for error messages (the SOCKS proxy warning is noise, keep the end) */
 const STDERR_TAIL = 400;
+
+/** the design agent's LLM: an anthropic-compatible endpoint, Owner-provided
+ * for the experiment (2026-09-11); env-overridable for any other gateway */
+const DEFAULT_LLM_BASE_URL = 'http://localhost:20002/anthropic';
+const DEFAULT_LLM_MODEL = 'glm-5.3-flash';
+/** credential env consumed by the dsh patch's apiKeyEnv reference — the
+ * local endpoint needs no real key; a placeholder keeps dsh's credential
+ * seam from failing MISSING_CREDENTIAL */
+const LLM_KEY_ENV = 'JIXOAI_DESIGN_LLM_KEY';
+
+const PATCH_TEMPLATE = join(dirname(fileURLToPath(import.meta.url)), '../dsh/design-provider.patch.yml');
+
+/** render the provider overlay to a temp patch file (template placeholders
+ * ← env); returned path rides every spawn as `--patch` so the design
+ * agent's runtime narrows to the design provider WITHOUT touching the
+ * user's ~/.dsh/settings.yaml (r2 wiring, dump-config + live pong proven) */
+export function renderDesignPatch(): string {
+  const baseUrl = process.env.JIXOAI_DESIGN_LLM_BASE_URL ?? DEFAULT_LLM_BASE_URL;
+  const model = process.env.JIXOAI_DESIGN_LLM_MODEL ?? DEFAULT_LLM_MODEL;
+  const template = readFileSync(PATCH_TEMPLATE, 'utf8');
+  const rendered = template
+    .replaceAll('__JIXOAI_DESIGN_BASE_URL__', baseUrl)
+    .replaceAll('__JIXOAI_DESIGN_MODEL__', model);
+  const dir = mkdtempSync(join(tmpdir(), 'jixoai-design-patch-'));
+  const file = join(dir, 'design-provider.patch.yml');
+  writeFileSync(file, rendered);
+  return file;
+}
+
+/** the env the dsh spawn needs. DSH_HOME defaults to an ISOLATED home
+ * under the design workspace (design/.dsh-home — gitignored with the
+ * workspace): the runtime settings store starts empty, so the patch's
+ * agent-default-model is the effective model (with the USER's home the
+ * settings.yaml storage overrides any patch row — observed live: requests
+ * kept hitting the user's default route and 429'd; r2, 2026-09-11).
+ * An explicit DSH_HOME in the env is respected untouched. */
+export function designSpawnEnv(hostRoot: string): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    [LLM_KEY_ENV]: process.env[LLM_KEY_ENV] ?? 'placeholder',
+  };
+  if (env.DSH_HOME === undefined) {
+    const home = join(hostRoot, 'design', '.dsh-home');
+    mkdirSync(home, { recursive: true });
+    env.DSH_HOME = home;
+  }
+  return env;
+}
 
 const INSTALL_HINT =
   'install dsh first — the official npm tarball CDN is often unreachable; ' +
@@ -102,17 +152,23 @@ export function composeDshJob(message: string): string {
 }
 
 export function createDshAgent(hostRoot: string): DesignAgent {
+  const model = process.env.JIXOAI_DESIGN_LLM_MODEL ?? DEFAULT_LLM_MODEL;
+  const patchFile = renderDesignPatch();
   return {
-    info: () => ({ kind: 'dsh', model: 'dsh profile: headless (model owned by $DSH_HOME config)' }),
+    info: () => ({ kind: 'dsh', model }),
     async *chat(_sessionId: string, message: string): AsyncIterable<AgentEvent> {
       const bin = process.env.DSH_BIN ?? 'dsh';
       const before = snapshotPrototypes(hostRoot);
 
       yield { type: 'tool', name: 'dsh-headless', state: 'start' };
-      const child = spawn(bin, ['--profile', 'headless', composeDshJob(message)], {
-        cwd: hostRoot,
-        env: process.env,
-      });
+      const child = spawn(
+        bin,
+        ['--profile', 'headless', '--patch', patchFile, composeDshJob(message)],
+        {
+          cwd: hostRoot,
+          env: designSpawnEnv(hostRoot),
+        },
+      );
 
       let stderr = '';
       let timedOut = false;
