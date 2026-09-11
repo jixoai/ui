@@ -93,3 +93,6 @@ export {
   PROP_EDIT_PATH,
 } from './server/prop-edit.ts';
 export type { PropEditRequest, PropEditResponse, UsageValues, EditOutcome, EditValue, FileOps } from './server/prop-edit.ts';
+// the dogfooding inventory (r3 §2.3): the registry items the studio
+// chrome imports via #jixoai/ — pure data, node-safe
+export { STUDIO_CHROME_ITEMS } from './studio/chrome-items.ts';
