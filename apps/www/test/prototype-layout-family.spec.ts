@@ -13,9 +13,9 @@
  *   - OMISSION TRANSPARENCY: an omitted prop injects NO declaration —
  *     the inline style carries the identity (display) plus only what
  *     the consumer declared.
- *   - SINGLE ROOT + REST SPREAD (the stamp precondition): data-*/title/
- *     aria-* land on the one root; the component stamp
- *     (data-jx-prototype-*) rides after the spread.
+ *   - SINGLE ROOT + REST SPREAD (the stamp precondition): `data-*`,
+ *     title and `aria-*` land on the one root; the component's
+ *     `data-jx-prototype-` stamp rides after the spread.
  *   - ALPHA STAMP: registry.json carries meta.alpha: true and the
  *     description names the stamp precondition.
  *
@@ -149,14 +149,18 @@ describe('prototype-waterfall — CSS multi-column, tradeoffs declared', () => {
     const el = testid(
       into(PrototypeWaterfall, { 'data-testid': 'root', columns: 3, gap: 16, strategy: 'balanced' }),
     );
-    // the columns shorthand: jsdom normalizes through the longhands
-    expect(el.style.columnCount).toBe('3');
+    // jsdom does not decompose the columns SHORTHAND into longhands
+    // (verified: style.columnCount stays '') — assert the style
+    // attribute string, which carries exactly what the component set
+    const style = el.getAttribute('style') ?? '';
+    expect(style).toContain('columns: 3');
     expect(el.style.columnGap).toBe('16px');
     expect(el.style.columnFill).toBe('balance');
   });
 
   it('a length-string columns value passes verbatim (auto-width form)', () => {
-    expect(testid(into(PrototypeWaterfall, { 'data-testid': 'root', columns: '14rem' })).style.columnWidth).toBe('14rem');
+    const el = testid(into(PrototypeWaterfall, { 'data-testid': 'root', columns: '14rem' }));
+    expect(el.getAttribute('style')).toContain('columns: 14rem');
   });
 });
 
