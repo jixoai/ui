@@ -15,6 +15,7 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import gridSource from '$lib/ui/prototype-grid/prototype-grid.svelte?raw';
@@ -90,6 +91,14 @@
             <span class="border-border bg-card border px-3 py-1.5 text-center font-mono text-[13px]">{word}</span>
           {/each}
         </PrototypeGrid>
+        {#snippet playground()}
+          <PlayFields>
+            <PlayHelp>
+              numeric tracks land as repeat(N, minmax(0, 1fr)) — the blowout-proof
+              form; strings and areas pass verbatim. Omitted props inject nothing.
+            </PlayHelp>
+          </PlayFields>
+        {/snippet}
       </ComponentCanvas>
     </div>
   </div>

@@ -15,6 +15,7 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import waterfallSource from '$lib/ui/prototype-waterfall/prototype-waterfall.svelte?raw';
@@ -102,6 +103,15 @@
             </div>
           {/each}
         </PrototypeWaterfall>
+        {#snippet playground()}
+          <PlayFields>
+            <PlayHelp>
+              CSS multi-column under the hood: children flow in newspaper column
+              order and the demo blocks set their own break-inside — the
+              consumer's call, by law.
+            </PlayHelp>
+          </PlayFields>
+        {/snippet}
       </ComponentCanvas>
     </div>
   </div>

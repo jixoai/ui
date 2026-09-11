@@ -15,6 +15,7 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import flexSource from '$lib/ui/prototype-flex/prototype-flex.svelte?raw';
@@ -89,6 +90,15 @@
             <span class="border-border bg-card border px-3 py-1.5 font-mono text-[13px]">{word}</span>
           {/each}
         </PrototypeFlex>
+        {#snippet playground()}
+          <PlayFields>
+            <PlayHelp>
+              five props, all optional, all native CSS tokens — an omitted prop
+              injects no declaration; the browser's initial value serves. The
+              studio property panel edits these exact props.
+            </PlayHelp>
+          </PlayFields>
+        {/snippet}
       </ComponentCanvas>
     </div>
   </div>
