@@ -63,6 +63,7 @@ export default defineConfig([
       'icons/md': 'src/icons/library/channel/material.ts',
       'icons/ph': 'src/icons/library/channel/phosphor.ts',
       'icons/rx': 'src/icons/library/channel/remix.ts',
+      spinners: 'src/spinners/index.ts',
       canvas: 'src/canvas/index.ts',
       probe: 'src/probe.ts',
     },

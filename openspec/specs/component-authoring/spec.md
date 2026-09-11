@@ -23,7 +23,6 @@ The Svelte 5 component contracts: the Tier system, native-element-first law, pro
   between the sheets and the components. The v2 rename is complete:
   old names have no aliases.
 
-
 #### Scenario: a component needs a form lane
 
 - GIVEN `input.svelte` renders the text-like shell
@@ -45,7 +44,6 @@ rectangle on the actual interactive root, not an ancestor min-height
 and not a pseudo-element expansion. Paint variants never alter the
 lane: a Chip is control-scale (root ≥ `--jx-hit`) with badge-nature
 paint, not a badge-sized control.
-
 
 #### Scenario: a checkbox lane is clicked at the corner
 
@@ -73,7 +71,6 @@ lane (icon, glyph, adornment), the lane SHALL REPLACE its side's
 collapses to the half-inset lane width (`has-[[data-icon=inline-start]]:
 pl-[calc(var(--jx-inset)/2)]` and the mirror), so slot-present and
 slot-absent rhythms stay one system.
-
 
 #### Scenario: a chip renders a leading icon
 
@@ -116,7 +113,6 @@ The platform element SHALL be the component where possible (accordion =
 container-query driven modes). Semantics, keyboard, SSR come from the
 platform; JS only adds what the platform cannot do.
 
-
 #### Scenario: choosing the implementation element
 
 - WHEN a new component is proposed
@@ -131,7 +127,6 @@ title/data-*/aria-* land on the DOM. `value` is `$bindable`: bound =
 controlled, absent = purely uncontrolled (FormData/form.reset
 untouched).
 
-
 #### Scenario: consumer passes arbitrary attributes
 
 - GIVEN `<Foo data-testid="x" title="y" />`
@@ -145,7 +140,6 @@ Tailwind v4 utilities in markup against the jixoai token-sheet
 utility-authored paint, its affected public class slots SHALL merge
 through `cn()` for class-string hygiene — `cn()` is NOT a cascade mechanism;
 override behavior comes from the layer law (css-architecture spec).
-
 
 #### Scenario: consumer restyles an installed component
 
@@ -214,7 +208,6 @@ be css-defined somewhere; a repo-wide
 scan (`scripts/verify-hook-law.mjs`) MUST fail on any css-less jx-*
 token and on any data-jx-* name shadowing a css-defined selector.
 
-
 #### Scenario: a component needs a semantic anchor
 
 - WHEN tests/docs/JS must target an element that carries no authored
@@ -252,7 +245,6 @@ a `<ul data-slot="item-list">` whose direct row children are `<li>`
 wrapping each row root; `data-dividers` SHALL be stamped only on the inner
 `<ul>`; the frame carries mode/inset/size/
 layout.
-
 
 #### Scenario: standalone row vs grouped row
 
@@ -359,7 +351,6 @@ through props. A registered component MUST NOT own markup that is
 only reachable via data-array props, config trees, keyed render-props,
 or string-to-glyph mappings.
 
-
 #### Scenario: a new component needs repeated items
 
 - WHEN a component renders a list/sections/steps of caller-defined
@@ -426,7 +417,6 @@ never leak into each other's walks. Where items carry metadata the
 DOM cannot express (match text), items SELF-match against context
 state instead of registering into a central ordered registry.
 
-
 #### Scenario: SSR renders the family complete
 
 - GIVEN a composed family rendered server-side
@@ -485,7 +475,6 @@ handler or aria attribute owns the consequences (Svelte spread
 order). The replacement element MUST preserve the part's
 role/semantics.
 
-
 #### Scenario: consumer replaces the element
 
 - GIVEN a link part with a `child({ props })` snippet rendering an
@@ -513,7 +502,6 @@ stamp `data-density`, and ONLY the canonical theme sheet AND its
 byte-identical generated mirror carry density scopes, mapping the
 derived `--jx-density-*` vocabulary to inherited `--jx-*` aliases —
 never component css.
-
 
 #### Scenario: a group changes density after mount
 
@@ -586,7 +574,6 @@ wrapper AND the row root — subgrid stops at the immediate parent).
 Missing slots RETAIN shared tracks (alignment is deliberate); header,
 footer, and divider rows span the ruler.
 
-
 #### Scenario: media rows align across the group
 
 - GIVEN a media-content-end group with and without media rows
@@ -619,7 +606,6 @@ name: intent is expressed
 by injecting values into the four global hue slots. Variant paint rides token utilities in
 the markup; press physics (`.jx-press`)
 never change with paint.
-
 
 #### Scenario: a failed status chip is authored
 
@@ -863,7 +849,6 @@ SINGLE declared ambient contract. Coverage means EVERY style prop
 has a slot, in exactly two kinds: an axis slot (ambient-manageable)
 or a literal-family slot.
 
-
 #### Scenario: the standalone look vs the nested look
 
 - GIVEN `pressButtonVariantSlot = definePaintSlot(['fill', 'tonal',
@@ -931,7 +916,6 @@ literals, and forged brand objects SHALL fail at compile time
 runtime IN DEV ONLY; the gate's AST check SHALL
 accept only registered factory calls as slot values.
 
-
 #### Scenario: a bare function sneaks into slots
 
 - GIVEN `defineComponentDefaults({ variant: (v) => v ?? 'fill' })`
@@ -956,7 +940,6 @@ accept only registered factory calls as slot values.
 props; `null` is not a sentinel and the slot signature rejects it).
 Slot resolution SHALL be `explicit ?? ambient ?? own default` with
 ambient read via getter closures (no snapshot caching).
-
 
 #### Scenario: explicit beats the zone
 
@@ -998,7 +981,6 @@ the slot — inside a component's initialization/`$derived` window
 (Svelte's runtime carries the creating component's ctx through
 derived recomputation).
 
-
 #### Scenario: pure unit call outside a component
 
 - GIVEN `PressButtonDefaults.resolve({})` must be asserted in a
@@ -1034,7 +1016,6 @@ key, and it is the ONE paint lane (the single-key law, Owner
 2026-09-04: pre-adoption, no release ever shipped a second paint
 key to be compatible WITH); nested zone scopes stack with the
 nearest winning.
-
 
 #### Scenario: nested zone scopes
 
@@ -1085,7 +1066,6 @@ file of a family with a Defaults object CONTAINS a
 `XxxDefaults.resolve(` call AND contains NONE of the banned bypass
 channels; (d) the paint family's values array matches the frozen availability table
 bidirectionally.
-
 
 #### Scenario: a new component lands without a Defaults object
 
@@ -1158,7 +1138,6 @@ SHALL opt any of them back into the platform control, with no
 compatibility alias for the retired `native-picker` name. The picker
 snippet stays the highest-priority override.
 
-
 #### Scenario: a number field opts into the platform spinner
 
 - GIVEN `<Input type="number" native-controls />`
@@ -1212,7 +1191,6 @@ input scale 24h → AM → PM (default 24h; the glyph IS the current
 mode). The mode is input-scale state only — committed values stay
 24h "HH:MM" always.
 
-
 #### Scenario: 14:05 cycles the full ring
 
 - GIVEN a TimeStepper at `14:05` (24h mode)
@@ -1243,7 +1221,6 @@ date-picker's locale display format — SHALL render through
 (BCP 47) overrides; the default resolves the page's `<html lang>`,
 else the browser language, else English (SSR-safe).
 
-
 #### Scenario: a zh-CN field opens its panels
 
 - GIVEN `<Input type="date" locale="zh-CN" />` opening on 2026-08
@@ -1268,7 +1245,6 @@ steps its number (scroll up = +1), press-drag on a cell steps per
 pointer-captured so sliding off the cell never strands it), and the
 cells wear `cursor: ns-resize` (the vertical-moveable cue). Gestures
 ride the same wrap/mode-aware stepBy path as the buttons and keys.
-
 
 #### Scenario: dragging the hour cell
 
@@ -1302,7 +1278,6 @@ markup. Decorative icons render through the `<Icon>` component
 generated `$lib/icon-set.gen` artifact; per-instance overrides ride
 the component's `size` / `strokeWidth` props — never edited
 geometry.
-
 
 #### Scenario: a component hand-draws a lucide-style glyph
 
@@ -1368,7 +1343,6 @@ no module side effects.
 - `isDisabled(date)` cells follow the outside-day law (visible,
   not-allowed) and are skipped by the keyboard walk.
 
-
 #### Scenario: presets lane
 
 - GIVEN the presets lane carries a `Last 7 days` entry
@@ -1397,7 +1371,6 @@ string `value` attribute entirely; the bridge then constructs
 `internals.setFormValue(FormData)` with repeated same-name entries in
 selection order (`getAll(name)`), preserving form.reset() (back to
 the initial array) and disabled-fieldset omission.
-
 
 #### Scenario: a multi-select combobox in a submitted form
 
@@ -1441,7 +1414,6 @@ PRIMITIVES, not a chart library: tooltips, interaction, automatic
 axes/layout/collision engines, streaming, and generated data tables
 are explicitly OUT of scope. Each part SHALL freeze its semantics for
 degenerate data.
-
 
 #### Scenario: a sparkline in a stat row
 
@@ -1540,7 +1512,6 @@ NOT re-implement atom behavior, duplicate atom paint, or add props to
 an atom (a needed prop change belongs to the atom's own family
 change, recorded as a followup).
 
-
 #### Scenario: a pattern needs a new atom prop
 
 - GIVEN the hero marquee pattern wants a new press-button behavior
@@ -1588,7 +1559,6 @@ transport (the default children render inside the body cell; only a
 snippet reaches another row). The zone's standard CONTENT is a
 separate composition component that the snippet typically carries.
 
-
 #### Scenario: the dialog footer's slot architecture (r14-9)
 
 - GIVEN Dialog shipped `footer`/`actions`/`end` as three sibling
@@ -1625,7 +1595,6 @@ A component stamps what the CONSUMER asked for; the selectors decide
 when it paints. Composition SHALL belong in css (selector AND), not in
 JS-side preconditions that erase the intent from the DOM.
 
-
 #### Scenario: the leading seam stamp (r14-13)
 
 - GIVEN `leadingSeam` gated its stamp behind `separatorOn` in JS
@@ -1660,7 +1629,6 @@ Inside a solid surface, a form control SHALL be an engraved WELL: the
 hairline edge carries extent, the DISSOLVED ground keeps one solid
 object, the inset shadow carries depth. A shadow is a soft gradient —
 it conveys depth, never a boundary.
-
 
 #### Scenario: the entity dissolve over-rotated (r14-12)
 
@@ -1700,7 +1668,6 @@ scroller, the JS-stamped verdict
 SHALL be the single truth every overlay gate keys on, and the
 per-member edge factors (`--jx-edge-start/end`) SHALL be consumed
 SQUARED by the css.
-
 
 #### Scenario: tabs consumes the shared system
 
@@ -1833,7 +1800,6 @@ an implicit depth inference.
   numbered subtree root, the FLOAT
   COUNTER DOMAIN for every Figure in its subtree, and the reset point
   for descendant section counters.
-
 
 #### Scenario: a section outside every domain is byte-identical
 
@@ -1969,7 +1935,6 @@ primitive named by its DOM contract.
   `<figcaption>`; any point
   nests in the content slot, keeping its own kind marker.
 
-
 #### Scenario: the manual lane renders what the author declares
 
 - WHEN a Figure declares `citedIn={['§ 3.1', '§ 5.2']}`
@@ -2027,7 +1992,6 @@ The typed cross-link SHALL carry zero grammar knowledge of its own.
 - `<Reference to>` resolves through a DOCUMENT-LEVEL registry — a
   `TargetRegistry` INSTANCE created per route page
  .
-
 
 #### Scenario: the five target states resolve each in its own grammar
 
@@ -2105,7 +2069,6 @@ rendered label and the group's `aria-label` localize while the internal
 value domain (`light | dark | system`) and the localStorage `theme`
 contract stay untouched.
 
-
 #### Scenario: a bilingual site localizes the toggle
 
 - GIVEN a zh page mounting `<ThemeToggle variant="full" labels={{ light: '浅色', dark: '深色', system: '系统', groupAriaLabel: '配色主题' }} />`
@@ -2136,7 +2099,6 @@ The language-switcher SHALL persist the consumer's locale choice
 itself (consumer-feedback-fixes, 2026-09-06): every locale anchor click
 (pair and menu variants) writes the target locale's code to
 localStorage under the key `lang`, wrapped in try/catch.
-
 
 #### Scenario: a locale link persists the choice
 
@@ -2173,7 +2135,6 @@ condition; the header, registry docs, and docs page state it. This is
 the composition-first payload rule made precise for the one prop whose
 consumer only exists when its snippet escape is not taken.
 
-
 #### Scenario: a hero with a bespoke CTA
 
 - GIVEN `<HeroSection eyebrow=… summary=…>{#snippet copy()}…{/snippet}</HeroSection>` with no `copyCommand`
@@ -2198,7 +2159,6 @@ runtime prop (`tex`), never markup-inlined text; `{@html}` carries
 only engine-generated markup. Theming SHALL ride inherited color and
 tokens — KaTeX output inherits `currentColor` and the error paint
 binds a token, so light/dark inversion needs ZERO re-render. Both
-
 
 #### Scenario: a prerendered page bakes real math
 
@@ -2279,7 +2239,6 @@ contract: prerender paints the escaped diagram source as a readable
 plain-text floor (zero JS), and after hydration the lazily-loaded
 engine (a code-split singleton — the engine never rides a page's
 critical path) swaps the rendered, sanitized SVG into the same box.
-
 
 #### Scenario: the floor upgrades after hydration
 
@@ -2384,7 +2343,6 @@ the ONE layout component for joined member rows; (1) skin is
 contextual: `<Card>` root for planar surfaces, the jx-surface material
 for floating ones.
 
-
 #### Scenario: a floating surface renders the Card interior
 
 - GIVEN a Dialog open with title and footer content
@@ -2472,7 +2430,6 @@ with component-owned stamps expanding after (the replacement
 semantics of the stamped-attribute law). IconButton forwards its rest
 lane into the wrapped PressButton.
 
-
 #### Scenario: a stamp rides the lane onto the control root
 
 - GIVEN an IconButton carrying `data-jx-canvas-reset` and a title
@@ -2510,7 +2467,6 @@ read catastrophic (Owner, 2026-09-09: "在一个有明确边界的这种组件
 问题"). The affordance carries itself: ghost cells under the zone,
 hover wash, the active option's fill, the focus ring. The
 
-
 #### Scenario: the dock's inner controls carry no frames
 
 - GIVEN the playground dock's control rows (a segmented option set,
@@ -2535,7 +2491,6 @@ and the UA popover centering owns the panel. Resolution is EXACTLY
 ONCE: an affirmative action resolves its value, any close without an action
 resolves the cancel value; the mount unmounts after
 the exit window so the animation plays out.
-
 
 #### Scenario: confirm answers through a promise
 
@@ -2583,7 +2538,6 @@ context mechanism, SSR-pure) — and any inhabitant sitting FLUSH in
 that corner pairs concentrically (`border-*-radius:
 var(--jx-corner, 0px)`) instead of poking past the curve.
 
-
 #### Scenario: the split strip's end cells ride the panel's corner
 
 - GIVEN the system dialog's action strip inside its 8px-corner panel
@@ -2617,7 +2571,6 @@ floating dock's reset row — it SHALL render CardFooter as the
 content face (standalone mirror when the host carries no card
 ruler): the buttons fill the band vertically edge-to-edge, the cluster rides the inline end flush, and there is
 NO padding-block whitespace around the buttons. The host surface
-
 
 #### Scenario: a sheet footer carves its cluster
 
@@ -2703,7 +2656,6 @@ is RECIPE DUPLICATION: SystemDialogAction and SystemDialogCancel render
 PressButton with the family's single local
 addition preserved.
 
-
 #### Scenario: the confirm keeps its destructive default on the one ladder
 
 - GIVEN a bare `<SystemDialogAction>delete</SystemDialogAction>`
@@ -2756,7 +2708,6 @@ hatch, and the
 optional foot band under the action-band zone rendering the footer
 snippet RAW.
 
-
 #### Scenario: the drawer renders the kernel bands server-side
 
 - GIVEN an open side sheet with a footer
@@ -2807,7 +2758,6 @@ AND ghost) with hue by injection, an optional uppercase `label` row,
 an optional `icon` snippet, and an optional `cite` attribution
 (`footer > cite`).
 
-
 #### Scenario: the tuned default
 
 - WHEN a plain quote renders (standalone or through markdown)
@@ -2856,7 +2806,6 @@ foreground ink, and the em-based size ladder (`h1` 1.875em → `h5/6`
 font-size rescales the hierarchy
 proportionally and the component stands alone outside any face. It
 
-
 #### Scenario: the ladder scales with ambient size
 
 - WHEN the same `<Heading level={2}>` renders inside containers at
@@ -2888,7 +2837,6 @@ The `list` item SHALL render the native `<ol|ul>` by `ordered` (with
 reproduces today's platform-per-element restoration; the value
 overrides. Lowercase only (upper = the arbitrary escape hatch).
 
-
 #### Scenario: the marker matrix
 
 - WHEN each of the seven markers renders
@@ -2918,7 +2866,6 @@ default `externalLink` Icon part
 inside an aria-hidden span after the children, shown IFF external;
 `null` disables the lane; a snippet customizes it.
 
-
 #### Scenario: the lane's three states
 
 - WHEN an external link renders bare, with `icon={null}`, and with a
@@ -2941,7 +2888,6 @@ renders `<p>` by default (the Chakra `<Text>` precedent); a `mark`
 literal slot switches the element and paint: `strong|em|del|mark|
 ins|sub|sup` — ONE vocabulary where the prop value, the Raw export
 name, and the HTML element are the same word.
-
 
 #### Scenario: the modifier matrix
 
@@ -3007,7 +2953,6 @@ nodes onto registry parts and native elements. It parses through the
 framework-free `stream-markdown-parser` core under a PINNED-AXES
 contract and owns its renderer outright: every DOM
 node, style law, and contract marker is first-party.
-
 
 #### Scenario: streaming an open code fence
 
@@ -3289,7 +3234,6 @@ knobs: size, leading, family, ink, gradient, ground, align, indent,
 initialLetter, wrap, hyphens) on a typed context key OUTSIDE the
 axis economy.
 
-
 #### Scenario: the scope styles the region
 
 - WHEN `<Prose size leading ink indent initialLetter>` wraps P,
@@ -3343,7 +3287,6 @@ brightness })`
  — plus
 `liquid.apple({ variant, tint, interactive, shape, isEnabled })` —
 the SEMANTIC layer carrying SwiftUI's glassEffect.
-
 
 #### Scenario: the stamp channel (stamps carry intent; css composes policies)
 
@@ -3474,7 +3417,6 @@ items export attachment FACTORIES — `liquidGlass(fx)` /
 `pressEffect(fx)`, param in, attachment out — so `{@attach
 liquidGlass(fx)}` attaches directly.
 
-
 #### Scenario: the leaf attachment
 
 - GIVEN a consumer renders `<button {@attach pressEffect(shimmer({ speed: 4000 }))}>`
@@ -3573,3 +3515,75 @@ liquidGlass(fx)}` attaches directly.
 > prop after this change, and no `use:` action syntax remains in the
 > scanned surface (breaking, no compat — the Owner's one-step
 > ruling).
+
+### Requirement: the spin component renders the ora catalog and the svg posture under one name lane
+
+The Spin component's text posture SHALL draw from a NAMED catalog
+of plain-text frame sequences (`spin-catalog.ts`, the
+cli-spinners@2.9.2 corpus curated by the objective rule —
+text-presentation glyphs only, ≤30 frames, ≤10ch width,
+`bouncingBar` excluded as bracket art) with frames VERBATIM and
+per-spinner intervals riding; the decorative `[` `]` wrapping is
+RETIRED (bare frames only). One `spinner` prop SHALL govern both
+postures — `SpinName | TextSpinnerName`, default `'dots'` — with
+artifact-first resolution (an svg spinner named like a text one
+overrides it; unknown names fall back to frame 0 of `dots` with one
+dev warn, never a blank region). Frame cycling SHALL be a JS
+interval driven by `$effect`: SSR paints frame 0, and
+`prefers-reduced-motion` never starts the interval (the
+frozen-first-frame law).
+
+#### Scenario: the default spinner renders bare frames
+
+- GIVEN `<Spin />` with no props
+- WHEN it renders server-side
+- THEN the markup shows `dots` frame 0 (⠋) with NO bracket
+  characters, under `role=status` with the default label
+
+#### Scenario: reduced motion freezes on frame 0
+
+- GIVEN a user agent reporting `prefers-reduced-motion: reduce`
+- WHEN the component mounts
+- THEN no interval starts and the text stays on frame 0 (and an
+  svg root, when present, gets `pauseAnimations()` called)
+
+#### Scenario: a spinner change restarts the cycle
+
+- GIVEN a mounted `<Spin spinner="line" />`
+- WHEN `spinner` changes to `arc`
+- THEN the old interval clears and the new one runs at `arc`'s
+  catalog interval
+
+### Requirement: the svg posture owns the root and freezes under reduced motion
+
+The svg posture SHALL render a component-owned `<svg>` root —
+viewBox from the artifact, `size` square edge (default 16 through
+the Defaults open literal slot), nature-aware currentColor
+painting, `aria-hidden`, `data-jx-spin-svg` — with the artifact's
+`d` children (SMIL animate included) crossing through `{@html}`
+exclusively (the sink law: payload is build-time-extracted,
+RAW-gated; nothing prop-reachable). Under `prefers-reduced-motion:
+reduce` the component SHALL call the root's `pauseAnimations()`
+(SMIL freeze on first frame) and spin.css's static kill SHALL stop
+CSS-keyframed loaders (`:where([data-jx-spin-svg] *)` unlayered
+carve-out). The wrapping posture (aria-busy, scrim owning
+pointers, the one-cell grid host) SHALL remain byte-equivalent in
+law to the pre-change contract.
+
+#### Scenario: the svg root contract holds
+
+- GIVEN `<Spin spinner="blocks-wave" />`
+- WHEN it renders
+- THEN the root is an `<svg>` carrying the artifact viewBox,
+  `width`/`height` from the size slot, `fill="currentColor"`,
+  `aria-hidden="true"`, `data-jx-spin-svg` — and its children
+  include the nine animated `<rect>` elements verbatim
+
+#### Scenario: the wrapping posture is unchanged
+
+- GIVEN `<Spin label="building"><content/></Spin>`
+- WHEN it renders
+- THEN the container carries `aria-busy="true"`, the scrim owns
+  pointer events over the content cell, and the status pill holds
+  the spinner glyph — identical structure to the pre-change
+  component modulo the glyph itself

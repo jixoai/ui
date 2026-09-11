@@ -1123,6 +1123,27 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "spin-set",
+      "type": "registry:lib",
+      "title": "Generated spin set",
+      "description": "The svg-spinner artifact behind <Spin spinner>: the vendored blocks-wave loader (3×3 SMIL grid, currentColor, magecdn/MIT) packed by @jixoai/ui-vite-plugin's spinners face into a typed SpinName union + getSpin() over {v,n,d} payloads (viewBox / artwork nature fill|stroke / inner markup incl. <animate>). Single inline module, always-sync, zero npm deps — plugin-free for the default artifact (getSpin answers synchronously, SSR paints the frozen first frame). Custom svg loaders: jixoai({ spinners: { spinners: { 'my-loader': { file } } } }) from @jixoai/ui-vite-plugin regenerates the artifact (the npm run gen:spins contract — the repo's single writer).",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/files/lib/spin-set.gen.ts",
+          "target": "@lib/spin-set.gen.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "GENERATED file — regenerate via the repo's gen:spins flow, never hand-edit (the GENERATED header is the contract). import { getSpin, type SpinName, type SpinData } from '$lib/spin-set.gen'; the default artifact carries blocks-wave only, so getSpin() answers synchronously and nothing needs the plugin. <Spin spinner> resolves this artifact lane FIRST — an svg spinner named like a text-catalog spinner overrides it.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/spin.html"
+      },
+      "registryDependencies": []
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "form-field",
       "type": "registry:lib",
       "title": "Form field bridge",
@@ -3463,11 +3484,16 @@
       "name": "spin",
       "type": "registry:ui",
       "title": "Spin",
-      "description": "The loading indicator, terminal voice: a bracket cursor cycling [/ — \\ |]. role=status (polite by construction). Bare = inline glyph; wrapping = aria-busy container where the scrim OWNS pointer events (never a visual mask with live hit areas beneath — loading and disabled are different states).",
+      "description": "The loading indicator, ora's voice: one spinner name lane over two corpora — the generated svg artifact (@jixoai/spin-set, blocks-wave default) FIRST, the 60-name cli-spinners text catalog second (an artifact spinner named like a text one overrides it — explicit config beats built-ins, the icons law). role=status (polite by construction). Bare = inline glyph (text frames or the svg loader); wrapping = aria-busy container where the scrim OWNS pointer events (never a visual mask with live hit areas beneath — loading and disabled are different states).",
       "files": [
         {
           "path": "registry/files/ui/spin/spin.svelte",
           "target": "@ui/spin/spin.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/spin/spin-catalog.ts",
+          "target": "@ui/spin/spin-catalog.ts",
           "type": "registry:file"
         },
         {
@@ -3486,7 +3512,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: label? ('loading'), children? (wrapping posture when given). reduced-motion freezes to the first frame.",
+      "docs": "Props: spinner? (SpinName | TextSpinnerName, default 'dots' — the name lane resolves artifact-first, catalog second; an svg spinner named like a text one overrides it), label? ('loading'), size? (number | string, default 16 — the svg posture's square edge via the SpinDefaults open literal slot; the text posture ignores it), children? (wrapping posture when given), class? (lands on the root). Two reduced-motion channels, never conflated: SMIL svg artwork freezes via root.pauseAnimations() driven by the live matchMedia listener; CSS-keyframed svg artwork is killed statically by spin.css's @media rule; text frames rest on frame 0.",
       "meta": {
         "group": "feedback",
         "href": "/docs/components/spin.html"
@@ -3495,7 +3521,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/spin-set"
       ]
     },
     {

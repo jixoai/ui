@@ -1,26 +1,17 @@
 @layer theme, base, components, utilities;
 
-/* jixoai spin — D1-exempt residue (tw4, 2026-08-24): ONLY the frame
- * keyframes (not expressible as utilities) and the reduced-motion
- * kill. The frames' visibility rests in the markup (frame 1 visible,
- * the rest invisible), so killing the animation under reduced motion
- * lands exactly on the static first-frame fallback. The kill
- * overrides the markup's animate utility, so it rides the UNLAYERED
- * :where carve-out (the toggle/Part A precedent). */
-
-@keyframes jx-spin-frame {
-  0%,
-  24% {
-    visibility: visible;
-  }
-  25%,
-  100% {
-    visibility: hidden;
-  }
-}
+/* jixoai spin — D1-exempt residue (spin-ora-svg-lane C3, 2026-09-11):
+ * exactly ONE rule. The text frame engine is a JS interval now and the
+ * CSS keyframes died with it (design §2); the svg posture's SMIL
+ * loaders freeze through root.pauseAnimations() driven by the
+ * component's matchMedia listener — that is the FIRST named channel
+ * (design §3). This kill is the SECOND channel: CSS-keyframed svg
+ * artwork under [data-jx-spin-svg], whose animation utilities it
+ * overrides, riding the unlayered :where carve-out (the toggle/Part A
+ * precedent). Two named channels, never conflated. */
 
 @media (prefers-reduced-motion: reduce) {
-  :where(.jx-spin-frames i) {
+  :where([data-jx-spin-svg] *) {
     animation: none;
   }
 }
