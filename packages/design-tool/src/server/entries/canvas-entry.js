@@ -36,7 +36,8 @@ const key = name === null ? null : `/design/prototypes/${name}/canvas.svelte`;
 const loader = key === null ? undefined : canvases[key];
 
 // the canvas document's own stamps (kit usages) are pickable too —
-// the same activation law as frames (r2 T4)
+// the same activation law as frames (r2 T4; lazy per-click studio
+// walk as of r3 T6)
 initDesignPicker();
 
 if (loader === undefined) {
