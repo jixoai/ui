@@ -31,6 +31,8 @@ export interface KnowledgeItem {
   readonly name: string;
   readonly title: string;
   readonly description: string;
+  /** the alpha-track marker (registry meta.alpha) — the guide panel's badge; the agent reads the same flag as an honest confidence label */
+  readonly alpha?: boolean;
 }
 
 export interface KnowledgeGroup {
@@ -57,7 +59,7 @@ interface RegistryItem {
   name?: unknown;
   title?: unknown;
   description?: unknown;
-  meta?: { group?: unknown };
+  meta?: { group?: unknown; alpha?: unknown };
 }
 
 /** locate the repository root (the dir holding registry.json) walking up from this file */
@@ -82,6 +84,8 @@ function buildComponentIndex(repoRoot: string): KnowledgeGroup[] {
       name: item.name,
       title: typeof item.title === 'string' ? item.title : item.name,
       description: typeof item.description === 'string' ? item.description : '',
+      // the alpha track flag rides verbatim (r2 T9 — the guide badge)
+      ...(item.meta?.alpha === true ? { alpha: true as const } : {}),
     };
     const bucket = groups.get(group) ?? [];
     bucket.push(entry);
@@ -154,7 +158,25 @@ Folder convention — position IS semantics (sveltekit spirit):
   navigator deep-links to; unique within the canvas.
 - Import real components by \`#jixoai/<item>\` (e.g. \`#jixoai/press-button\`)
   — the design server maps the specifier to the host's component
-  sources; prototypes stay portable across hosts.`;
+  sources; prototypes stay portable across hosts.
+
+Selection context (studio chip): when the user selects a component
+instance in the studio, chat messages arrive with a stable addressing
+line PREPENDED to the message body:
+
+    [selected: <component>#<usageIndex> in <frameId>]
+
+- \`<component>\` is the registry item id; \`<usageIndex>\` is the usage
+  site's 1-based DOCUMENT-ORDER index among that FILE's jixoai
+  component usages (static, HMR-stable — dev-only stamps
+  data-jx-component/data-jx-instance carry it in the frame DOM).
+- \`<frameId>\` names the kit frame (its id prop); "canvas" means the
+  canvas document itself. Locate the file via the frame's ref (\`?f=\`
+  of /__design__/frame) or the canvas module.
+- Loop usages ({#each}) add a second line:
+  \`[N instances share this usage — edits apply once at the usage site]\`.
+  Address the USAGE SITE, never a runtime iteration: edit the file at
+  that usage tag; all N instances update together by construction.`;
 
 /* ── assembly ─────────────────────────────────────────────────────────── */
 
@@ -166,7 +188,9 @@ function selectionLayerBody(groups: readonly KnowledgeGroup[]): string {
     lines.push('');
     lines.push(`### ${group.id}`);
     for (const item of group.items) {
-      lines.push(`- ${item.name} — ${item.title}: ${item.description}`);
+      // the alpha flag surfaces in the agent prompt too — an honest
+      // confidence label, not just a UI badge (r2 T9)
+      lines.push(`- ${item.name} — ${item.title}: ${item.description}${item.alpha === true ? ' [alpha]' : ''}`);
     }
   }
   return lines.join('\n');
