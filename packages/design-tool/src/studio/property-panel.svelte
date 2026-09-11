@@ -161,6 +161,7 @@
   let meta: MetaPayload | null = $state(null);
   let metaError: string | null = $state(null);
   let usageValues: Record<string, { representable: boolean; value?: RowValue }> = $state({});
+  let originallyUnset: Set<string> = $state(new Set());
   let usageShared = $state(false);
   let file: string | null = $state(null);
   let notice: string | null = $state(null);
@@ -170,7 +171,17 @@
   const shareCount = $derived(selection?.instanceCount ?? 1);
 
   $effect(() => {
-    const current = selection;
+    // primitive-key deps ONLY: the tree refresh recreates the selection
+    // OBJECT (same keys, new identity) after a panel write — an
+    // identity-only change must not clear and refetch the rows mid-HMR
+    // (P2-1, vision r2 catch: rows blanked, next click timed out)
+    const frameId = selection?.frameId;
+    const usageIndex = selection?.usageIndex;
+    const component = selection?.component;
+    const current =
+      frameId !== undefined && usageIndex !== undefined && component !== undefined
+        ? { frameId, usageIndex, component }
+        : null;
     meta = null;
     metaError = null;
     usageValues = {};
@@ -194,7 +205,16 @@
           });
           if (dryResponse.ok) {
             const dryBody = (await dryResponse.json()) as { ok?: boolean; values?: Record<string, { representable: boolean; value?: RowValue }>; shared?: boolean };
-            if (dryBody.ok === true && dryBody.values !== undefined) usageValues = dryBody.values;
+            if (dryBody.ok === true && dryBody.values !== undefined) {
+              usageValues = dryBody.values;
+              // P2-2: remember which props were ABSENT at seed — an
+              // uncheck on those must REMOVE (null), not write false
+              originallyUnset = new Set(
+                Object.entries(dryBody.values)
+                  .filter(([, v]) => v.representable === true && v.value === undefined)
+                  .map(([name]) => name),
+              );
+            }
             if (dryBody.shared === true) usageShared = true;
           }
         }
@@ -207,6 +227,10 @@
   async function commitProp(prop: string, value: RowValue): Promise<void> {
     const current = selection;
     if (current === null || file === null || value === undefined || locked || saving) return;
+    // boolean uncheck on an originally-absent prop → REMOVE (null) so
+    // the source returns to its seed state instead of gaining
+    // raised={false} residue (P2-2, vision r2 catch)
+    if (value === false && originallyUnset.has(prop)) value = null;
     saving = true;
     notice = null;
     try {
@@ -217,7 +241,9 @@
       });
       const body = (await response.json()) as { ok?: boolean; reason?: string; message?: string };
       if (response.ok && body.ok === true) {
-        usageValues = { ...usageValues, [prop]: { representable: true, value } };
+        usageValues = value === null
+          ? { ...usageValues, [prop]: { representable: true } }
+          : { ...usageValues, [prop]: { representable: true, value } };
         // HMR fallback path (pre-built): the shell listens and reloads
         // the owning frame when HMR does not carry the edit in
         window.dispatchEvent(new CustomEvent('jx-design:panel-edited', { detail: { frameId: current.frameId, file } }));
