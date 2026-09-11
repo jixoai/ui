@@ -27,15 +27,24 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkSpinSetArtifact, writeSpinSetArtifact } from '../packages/vite-plugin/dist/spinners.js';
+import { magecdnSpinners } from '../packages/vite-plugin/dist/spinners/magecdn.js';
+import { svgLoadersSpinners } from '../packages/vite-plugin/dist/spinners/svg-loaders.js';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-// The canonical config: the built-in blocks-wave manifest only (bare
-// {}). MUST stay byte-equivalent to the app configs' spinners option
-// (apps/www/vite.config.ts AND registry/vite.config.ts add
-// `spinners: {}` byte-identically in the dogfood wave — the icons
+// The canonical config: the built-in blocks-wave manifest PLUS a curated
+// few from the two vendored loader packs (review R2 dogfood — the docs
+// page demos the packs through the real artifact). MUST stay equivalent
+// to the app configs' spinners option (apps/www/vite.config.ts AND
+// registry/vite.config.ts pick the SAME names — the icons
 // CONFIG-PARITY law).
-const SPINNERS_OPTIONS = {};
+const pick = (pack, names) => Object.fromEntries(names.map((name) => [name, pack[name]]));
+const SPINNERS_OPTIONS = {
+  spinners: {
+    ...pick(magecdnSpinners, ['3-dots-bounce', 'bars-scale', 'clock']),
+    ...pick(svgLoadersSpinners, ['tail-spin', 'spinning-circles']),
+  },
+};
 const TARGET = resolve(repoRoot, 'registry/files/lib/spin-set.gen.ts');
 const REL_TARGET = 'registry/files/lib/spin-set.gen.ts';
 

@@ -198,7 +198,9 @@ describe('Spin', () => {
     const status = container.querySelector('[role="status"]')!;
     expect(status.getAttribute('aria-label')).toBe('loading checks');
     expect(container.querySelector('[data-jx-spin-inline]')).toBeTruthy();
-    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠋');
+    // the cursor is a one-cell grid now (ghosts + live frame) — the frame
+    // span carries the glyph (review R6)
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
     expect(container.textContent).not.toContain('[');
     expect(container.textContent).not.toContain(']');
   });

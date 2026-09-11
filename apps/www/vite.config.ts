@@ -5,6 +5,8 @@ import { md } from '@jixoai/ui-vite-plugin/icons/md';
 import { ph } from '@jixoai/ui-vite-plugin/icons/ph';
 import { rx } from '@jixoai/ui-vite-plugin/icons/rx';
 import { canvasPlugin } from '@jixoai/ui-vite-plugin';
+import { magecdnSpinners } from '@jixoai/ui-vite-plugin/spinners/magecdn';
+import { svgLoadersSpinners } from '@jixoai/ui-vite-plugin/spinners/svg-loaders';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -170,15 +172,18 @@ const jixoaiPlugins = jixoai({
     // too.)
     library: { includeDefaults: true, channels: [md(), ph(), rx()] },
   },
-  // spin-ora-svg-lane (2026-09-11): the site dogfoods the spinners face.
-  // A bare {} IS a configuration — spinners have ONE library face, so the
-  // icons ≥1-of-2 matrix error does not apply (design §5): it means "the
-  // vendored blocks-wave only", the exact shape of scripts/gen-spin-set.mjs's
-  // SPINNERS_OPTIONS (CONFIG-PARITY with the root gen script, the icons
-  // law — the drift-warn and verify:spins stay honest against this wiring).
-  // Default-off stays the icons precedent everywhere else; the committed
-  // artifact is plugin-free either way.
-  spinners: {},
+  // spin-ora-svg-lane (2026-09-11) + review R2 (2026-09-12): the site
+  // dogfoods the spinners face AND its loader packs. The picks mirror
+  // scripts/gen-spin-set.mjs's SPINNERS_OPTIONS EXACTLY (CONFIG-PARITY,
+  // the icons law — drift-warn + verify:spins stay honest against this
+  // wiring); the packs themselves ship as ./spinners/magecdn (the
+  // 109-loader catalog) and ./spinners/svg-loaders (SamHerbert's 12).
+  spinners: {
+    spinners: {
+      ...Object.fromEntries(['3-dots-bounce', 'bars-scale', 'clock'].map((name) => [name, magecdnSpinners[name]])),
+      ...Object.fromEntries(['tail-spin', 'spinning-circles'].map((name) => [name, svgLoadersSpinners[name]])),
+    },
+  },
 });
 const jixoaiIconsPlugin = jixoaiPlugins.find((plugin) => plugin.name === 'jixoai-icons');
 if (!jixoaiIconsPlugin) {

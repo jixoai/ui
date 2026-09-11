@@ -28,11 +28,15 @@ import type { ResolvedSpinner, SpinnerSource, SpinnersPluginOptions } from './ty
 
 /**
  * spinner names are kebab and tame (the icon channel-id grammar, NOT
- * the icons' lowerCamel): they become TS union members, object keys
- * and (for {file} sources) read paths. The unified name lane stays
- * legible against the text catalog's camelCase (design §4)
+ * the icons' lowerCamel) with one relaxation (review R2, 2026-09-12):
+ * a DIGIT may lead — the magecdn pack's names are its site URLs
+ * ('180-ring', '12-dots-scale-rotate') and keeping them verbatim is
+ * the discoverability contract; quoted artifact keys and string-
+ * literal union members carry digit-leading names fine. The unified
+ * name lane stays legible against the text catalog's camelCase
+ * (design §4)
  */
-export const SPINNER_NAME_PATTERN = /^[a-z][a-z0-9-]*$/;
+export const SPINNER_NAME_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 
 /** default artifact target, project-root-relative (consumer-app shape;
  *  in-repo the root gen:spins script writes its own canonical target) */
@@ -61,7 +65,8 @@ export function normalizeSpinnersOptions(
       if (!SPINNER_NAME_PATTERN.test(name)) {
         throw new Error(
           `[jixoai-spinners] spinner name "${name}" is illegal — names must match ` +
-            '/^[a-z][a-z0-9-]*$/ (kebab-case, the icon channel-id grammar; they become ' +
+            '/^[a-z0-9][a-z0-9-]*$/ (kebab-case, digit-leading legal — the ' +
+            'magecdn pack keeps its site URLs verbatim; they become ' +
             'TS union members), e.g. blocks-wave or my-loader',
         );
       }

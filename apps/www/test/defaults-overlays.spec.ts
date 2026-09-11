@@ -251,7 +251,7 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     });
   });
 
-  it('the declaration contracts: spin gains the size slot, the rest stay density-only', () => {
+  it('the declaration contracts: spin carries the absent slots (size/interval/ghost), the rest stay density-only', () => {
     expect(
       resolveInWindow(() => [
         SpinDefaults.resolve({}),
@@ -263,11 +263,12 @@ describe('in-window unit resolution — the own-defaults projection', () => {
         CommandDefaults.resolve({}),
       ]),
     ).toEqual([
-      // spin-ora-svg-lane C3 (2026-09-11): the svg posture's square
-      // edge joined the surface — open literal slot, own 16 (icon
-      // parity); density stays no-opinion
-      { density: undefined, size: 16 },
-      { density: undefined, size: 24 },
+      // spin review round (2026-09-12): the three absent slots — size
+      // (absent rides the density ruler's var(--jx-icon)), interval and
+      // ghost (absent = the catalog step / trail off). ABSENT IS the
+      // state: unset resolves undefined, explicit wins
+      { density: undefined, size: undefined, interval: undefined, ghost: undefined },
+      { density: undefined, size: 24, interval: undefined, ghost: undefined },
       { density: undefined },
       { density: undefined },
       { variant: 'fused', density: undefined },

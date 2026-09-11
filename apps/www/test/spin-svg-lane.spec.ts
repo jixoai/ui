@@ -87,7 +87,10 @@ describe('spin — text posture', () => {
   it('renders frame 0 of the dots default with no bracket cursor anywhere', () => {
     const { container } = render(Spin);
     const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    expect(cursor.textContent).toBe('⠋');
+    // the cursor is a one-cell grid (ghosts + the live frame) — the frame
+    // span is the glyph; whitespace-pre keeps markup noise out of the box
+    expect(cursor.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
+    expect(cursor.className).toContain('whitespace-pre');
     // the wrapping decoration this change kills (Owner ruling #1) —
     // pinned on the whole rendered region, nbsp included
     expect(container.textContent).not.toContain('[');
@@ -101,7 +104,7 @@ describe('spin — text posture', () => {
 
   it('spinner="line" renders the line corpus frame 0 (the retired /—\\| cycle)', () => {
     const { container } = render(Spin, { props: { spinner: 'line' } });
-    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('-');
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('-');
   });
 
   it('the frame engine cycles at the catalog interval (dots 80ms)', async () => {
@@ -111,7 +114,7 @@ describe('spin — text posture', () => {
     flushSync();
     await vi.advanceTimersByTimeAsync(160); // two ticks: ⠋ → ⠙ → ⠹
     flushSync();
-    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠹');
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠹');
   });
 });
 
@@ -136,15 +139,24 @@ describe('spin — svg posture', () => {
     expect(container.querySelector('[data-jx-spin-cursor]')).toBeNull();
   });
 
-  it('size resolves through SpinDefaults: default 16, explicit numeric and string pass through', () => {
+  it('size resolves through SpinDefaults: ABSENT rides the density ruler var; explicit values pin attributes (review R1)', () => {
     const explicit = render(Spin, { props: { spinner: 'blocks-wave', size: 24 } });
     const svg = explicit.container.querySelector('svg[data-jx-spin-svg]')!;
-    expect(svg.getAttribute('width')).toBe('24');
-    expect(svg.getAttribute('height')).toBe('24');
+    expect(svg.getAttribute('width')).toBe('24px'); // numeric sizes px-coerce (the icon law)
+    expect(svg.getAttribute('height')).toBe('24px');
+    expect(svg.getAttribute('style')).toBeNull();
     const str = render(Spin, { props: { spinner: 'blocks-wave', size: '2em' } });
     expect(str.container.querySelector('svg[data-jx-spin-svg]')!.getAttribute('width')).toBe('2em');
-    const fallback = render(Spin, { props: { spinner: 'blocks-wave' } });
-    expect(fallback.container.querySelector('svg[data-jx-spin-svg]')!.getAttribute('width')).toBe('16');
+    // ABSENT: no width/height attributes — presentation attributes cannot
+    // carry var(), so the ruler rides a CSS style instead
+    const absent = render(Spin, { props: { spinner: 'blocks-wave' } });
+    const absentSvg = absent.container.querySelector('svg[data-jx-spin-svg]')!;
+    expect(absentSvg.getAttribute('width')).toBeNull();
+    expect(absentSvg.getAttribute('height')).toBeNull();
+    expect(absentSvg.getAttribute('style')!.replace(/;$/, '')).toBe('width: var(--jx-icon); height: var(--jx-icon)');
+    // the text posture paints the ruler's text size (review R1)
+    const text = render(Spin);
+    expect(text.container.querySelector('[data-jx-spin-cursor]')!.className).toContain('var(--jx-text)');
   });
 
   it('reduced motion: the SMIL clock freezes via pauseAnimations (channel one, design §3)', () => {
@@ -169,7 +181,7 @@ describe('spin — reduced motion', () => {
     expect(factory).toHaveBeenCalledWith('(prefers-reduced-motion: reduce)');
     await vi.advanceTimersByTimeAsync(10_000);
     flushSync();
-    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠋');
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
   });
 
   it('LIVE semantics: change events tear down and restart the engine mid-flight', async () => {
@@ -179,18 +191,18 @@ describe('spin — reduced motion', () => {
     flushSync();
     await vi.advanceTimersByTimeAsync(160);
     flushSync();
-    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠹');
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠹');
     // reduce mid-animation: interval cleared, frame rests on 0
     fire(true);
     flushSync();
-    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠋');
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
     await vi.advanceTimersByTimeAsync(10_000);
-    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠋');
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
     // un-reduce: the engine restarts (one 80ms tick → frame 1)
     fire(false);
     await vi.advanceTimersByTimeAsync(80);
     flushSync();
-    expect(container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠙');
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠙');
   });
 });
 
@@ -202,7 +214,7 @@ describe('spin — unknown spinner names', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const first = render(Spin, { props: { spinner: 'no-such-spinner' as never } });
     flushSync();
-    expect(first.container.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠋');
+    expect(first.container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('no-such-spinner'));
     // repeated mounts of the same name stay silent (warnedNames dedup)
@@ -213,6 +225,96 @@ describe('spin — unknown spinner names', () => {
     render(Spin, { props: { spinner: 'also-not-real' as never } });
     flushSync();
     expect(warn).toHaveBeenCalledTimes(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// the two timings — interval override + the ghost trail (review R6/R7)
+// ---------------------------------------------------------------------------
+describe('spin — the two timings', () => {
+  it('interval overrides the catalog step (dots re-timed to 200ms; 0 and undefined mean absent)', async () => {
+    vi.useFakeTimers();
+    stubMatchMedia(false);
+    const { container } = render(Spin, { props: { interval: 200 } });
+    flushSync();
+    await vi.advanceTimersByTimeAsync(199);
+    flushSync();
+    // 199ms < one 200ms step: still frame 0
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
+    await vi.advanceTimersByTimeAsync(1);
+    flushSync();
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠙');
+  });
+
+  it('interval=0 falls back to the catalog value (the playground 0 convention)', async () => {
+    vi.useFakeTimers();
+    stubMatchMedia(false);
+    const { container } = render(Spin, { props: { interval: 0 } });
+    flushSync();
+    await vi.advanceTimersByTimeAsync(80); // dots catalog step
+    flushSync();
+    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠙');
+  });
+
+  it('ghost spawns one entry per retired frame, expires after its duration, and sets the CSS var', async () => {
+    vi.useFakeTimers();
+    stubMatchMedia(false);
+    const { container } = render(Spin, { props: { ghost: 240 } });
+    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
+    expect(cursor.getAttribute('style')).toBe('--jx-ghost-ms: 240ms;'); // jsdom appends the trailing ;
+    flushSync();
+    await vi.advanceTimersByTimeAsync(240); // ticks at 80/160/240 → three ghosts spawned (none expired: each lives 240ms past its spawn)
+    flushSync();
+    const ghosts = [...cursor.querySelectorAll('[data-jx-spin-ghost]')];
+    expect(ghosts.length).toBe(3); // the trail's steady state = ghost / interval = 240/80
+    // the ghost utility carries the linear fade over the var
+    expect(ghosts[0]!.className).toContain('animate-[jx-spin-ghost_var(--jx-ghost-ms)_linear_forwards]');
+    expect(ghosts[0]!.className).toContain('[grid-area:1/1]');
+    // teardown clears everything (reduce fires below); the per-entry expiry
+    // is covered by the reduce-clears test + the real-browser walkthrough
+  });
+
+  it('ghosts never spawn under reduce and clear on the change (review R6)', async () => {
+    vi.useFakeTimers();
+    const { fire } = stubMatchMedia(false);
+    const { container } = render(Spin, { props: { ghost: 400 } });
+    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
+    flushSync();
+    await vi.advanceTimersByTimeAsync(160);
+    flushSync();
+    expect(cursor.querySelectorAll('[data-jx-spin-ghost]').length).toBeGreaterThan(0);
+    fire(true); // reduce mid-flight
+    flushSync();
+    expect(cursor.querySelectorAll('[data-jx-spin-ghost]').length).toBe(0);
+  });
+
+  it('the svg posture spawns no ghosts (the trail is text-only)', async () => {
+    vi.useFakeTimers();
+    stubMatchMedia(false);
+    stubSmilClock(); // jsdom ships no SMIL methods — the effect calls unpause
+    const { container } = render(Spin, { props: { spinner: 'blocks-wave', ghost: 400 } });
+    flushSync();
+    await vi.advanceTimersByTimeAsync(500);
+    expect(container.querySelector('[data-jx-spin-ghost]')).toBeNull();
+  });
+
+  it('the ghost trail never moves layout: cursor width holds across frames (simpleDots, review R3/R4)', async () => {
+    vi.useFakeTimers();
+    stubMatchMedia(false);
+    const { container } = render(Spin, { props: { spinner: 'simpleDots' } });
+    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
+    for (let i = 0; i < 8; i++) {
+      await vi.advanceTimersByTimeAsync(100); // corpus step is 400ms; probes land mid-frame
+      flushSync();
+      // the box-stability invariants: pre whitespace + every child pinned
+      // to the ONE grid cell (the live-browser probe pinned the constant
+      // 23.41px advance width across the blank '   ' frame)
+      expect(cursor.className).toContain('whitespace-pre');
+      expect(cursor.className).toContain('inline-grid');
+      for (const child of [...cursor.children]) {
+        expect((child as HTMLElement).className).toContain('[grid-area:1/1]');
+      }
+    }
   });
 });
 
@@ -231,7 +333,7 @@ describe('spin — wrapping posture regression', () => {
     const pill = container.querySelector('[data-jx-spin-live]')!;
     expect(pill.getAttribute('role')).toBe('status');
     expect(pill.getAttribute('aria-label')).toBe('syncing');
-    expect(pill.querySelector('[data-jx-spin-cursor]')!.textContent).toBe('⠋');
+    expect(pill.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
     expect(container.querySelector('[data-jx-spin-scrim]')).toBeTruthy();
     expect(container.querySelector('[data-testid="spin-wrapped"]')).toBeTruthy();
     expect(container.querySelector('[data-jx-spin-inline]')).toBeNull();
@@ -278,5 +380,14 @@ describe('spin-set artifact snapshot', () => {
   it("artifact-first resolution: text names miss the artifact lane (getSpin → null)", () => {
     expect(getSpin('dots')).toBeNull();
     expect(getSpin('line')).toBeNull();
+  });
+
+  it('the loader-pack picks ride the artifact (review R2 dogfood)', () => {
+    for (const name of ['3-dots-bounce', 'bars-scale', 'clock', 'tail-spin', 'spinning-circles']) {
+      const data = getSpin(name as Parameters<typeof getSpin>[0]);
+      expect(data, name).not.toBeNull();
+      expect(data!.v.length).toBeGreaterThan(0);
+      expect(data!.d.length).toBeGreaterThan(0);
+    }
   });
 });

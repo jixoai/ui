@@ -62,6 +62,10 @@ ${close}
 
   const customLoader = `// vite.config.ts — @jixoai/ui-vite-plugin's spinners feature
 import { jixoai } from '@jixoai/ui-vite-plugin';
+// the vendored loader packs (review R2): the full 109-loader magecdn
+// catalog and SamHerbert's 12 — spread what you want, or bring files
+import { magecdnSpinners } from '@jixoai/ui-vite-plugin/spinners/magecdn';
+import { svgLoadersSpinners } from '@jixoai/ui-vite-plugin/spinners/svg-loaders';
 
 export default {
   plugins: [
@@ -72,7 +76,9 @@ export default {
       // built-ins, the icons law)
       spinners: {
         spinners: {
+          ...magecdnSpinners, // every magecdn loader joins the union
           'my-loader': { file: './src/loaders/my-loader.svg' },
+          ...svgLoadersSpinners, // later spread wins on name overlap
         },
       },
     }),
@@ -116,12 +122,18 @@ export default {
   const canvasInitial = {
     spinner: 'dots' as TextSpinnerName | SpinName,
     size: 16,
+    interval: 0, // 0 = the spinner's catalog value
+    ghost: 0, // 0 = off
   };
   let spinner = $state<TextSpinnerName | SpinName>(canvasInitial.spinner);
   let size = $state(canvasInitial.size);
+  let interval = $state(canvasInitial.interval);
+  let ghost = $state(canvasInitial.ghost);
   function resetCanvas(): void {
     spinner = canvasInitial.spinner;
     size = canvasInitial.size;
+    interval = canvasInitial.interval;
+    ghost = canvasInitial.ghost;
   }
   // the gallery reps + every generated svg name — the driven select is
   // the name-lane story in miniature (text ↔ svg crossing, zero edits
@@ -148,7 +160,7 @@ export default {
         tone="hero"
         eyebrow="registry:ui · Feedback"
         title="spin — a name, not a cursor"
-        summary="The loading indicator in ora's voice. You hand it a NAME: any of the 60 text spinners curated from cli-spinners (frames and intervals verbatim — dots, line, arc, bounce…), or a name from the generated svg artifact (blocks-wave by default, your own loaders through the vite plugin). The union closes at build time, so a misspelled spinner is a compile error, never a shipped blank. role=status keeps loading polite by construction; under prefers-reduced-motion the text frames rest on frame 0 and the svg clock freezes — observed live, not once at mount."
+        summary="The loading indicator in ora's voice. You hand it a NAME: any of the 60 text spinners curated from cli-spinners (frames and intervals verbatim — dots, line, arc, bounce…), or a name from the generated svg artifact (blocks-wave by default, the vendored loader packs and your own files through the vite plugin). The union closes at build time, so a misspelled spinner is a compile error, never a shipped blank. role=status keeps loading polite by construction; under prefers-reduced-motion the text frames rest on frame 0 and the svg clock freezes — observed live, not once at mount."
       >
         <div class="flex flex-wrap gap-3">
           <span class="pill">one spinner name lane — text + svg</span>
@@ -192,7 +204,7 @@ export default {
               <code class="text-muted-foreground font-mono text-[11px]">dots · default</code>
             </div>
             <div class="flex flex-col items-center gap-2">
-              <Spin label="building" size={24} />
+              <Spin spinner="blocks-wave" label="building" size={24} />
               <code class="text-muted-foreground font-mono text-[11px]">blocks-wave · 24</code>
             </div>
           </div>
@@ -200,8 +212,8 @@ export default {
             <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
               driven by the playground
             </span>
-            <Spin {spinner} {size} label="loading checks" />
-            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Spin spinner=&quot;{spinner}&quot; size={size} /&gt;</code>
+            <Spin {spinner} {size} {interval} {ghost} label="loading checks" />
+            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Spin spinner=&quot;{spinner}&quot; size={size} interval={interval || 'catalog'} ghost={ghost || 'off'} /&gt;</code>
           </div>
         </div>
         {#snippet playground()}
@@ -212,12 +224,21 @@ export default {
             <PlayRow label="size">
               <PlayNumber bind:value={size} min={8} max={48} />
             </PlayRow>
+            <PlayRow label="interval">
+              <PlayNumber bind:value={interval} min={0} max={1200} step={10} />
+            </PlayRow>
+            <PlayRow label="ghost">
+              <PlayNumber bind:value={ghost} min={0} max={2000} step={50} />
+            </PlayRow>
             <PlayHelp>
               <code>spinner</code> takes any member of <code>TextSpinnerName</code>
               ({TEXT_SPINNER_NAMES.length} catalog names) or <code>SpinName</code> (the generated
-              svg set — <code>blocks-wave</code> today). The artifact lane resolves FIRST: an svg
+              svg set — <code>blocks-wave</code> plus the curated pack picks). The artifact lane resolves FIRST: an svg
               spinner named like a text one overrides the catalog entry. <code>size</code> is the
-              svg posture's square edge (default 16); the text posture ignores it.
+              svg posture's square edge — absent rides <code>var(--jx-icon)</code>.
+              <code>interval</code> (0 = the catalog value) and <code>ghost</code>
+              (0 = off) are the text posture's two timings — the frame step and the
+              ghost trail's linear fade-out; try <code>ghost 500</code> on any spinner.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -244,6 +265,45 @@ export default {
       </SectionCard>
     </div>
 
+    <div id="ghost-trail" data-reveal="">
+      <SectionCard
+        family="ghost-trail"
+        headerRegion="ghost-trail"
+        eyebrow="timings"
+        title="The ghost trail — two timings, one trail"
+        summary="`ghost` is a fade-out duration: each retiring frame stays in the cursor's own grid cell, fading out linearly, so several frames coexist — the trail's length emerges from ghost / interval. `interval` overrides the frame step (explicit prop > the Defaults slot > the spinner's catalog value); both ride the family's one Defaults contract, so a context — or the plugin mounting one — can set them ambiently for every spinner at once."
+      >
+        <div class="flex flex-col gap-6">
+          <div class="flex flex-wrap items-start gap-x-12 gap-y-6">
+            <div class="flex min-w-36 flex-col items-center gap-2">
+              <Spin spinner="growVertical" ghost={600} label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">growVertical · ghost 600ms</code>
+            </div>
+            <div class="flex min-w-36 flex-col items-center gap-2">
+              <Spin spinner="dqpb" ghost={500} label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">dqpb · ghost 500ms</code>
+            </div>
+            <div class="flex min-w-36 flex-col items-center gap-2">
+              <Spin spinner="dots" interval={160} ghost={480} label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">dots · interval 160 + ghost 480</code>
+            </div>
+            <div class="flex min-w-36 flex-col items-center gap-2">
+              <Spin spinner="pong" interval={120} ghost={840} label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">pong · interval 120 + ghost 840</code>
+            </div>
+          </div>
+          <p class="text-muted-foreground text-[13px] leading-6">
+            <strong class="text-foreground font-medium">Stable by construction.</strong>
+            Every frame — live and ghost — renders in the SAME grid cell with
+            <code class="text-accent">white-space: pre</code>, so the trail never moves layout: a slow blank frame
+            (simpleDots' three spaces) holds its advance width, and switching names never jitters the box. Ghosts
+            never spawn under <code class="text-accent">prefers-reduced-motion</code> and clear the moment reduce
+            engages; SSR renders none, so hydration matches.
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
     <div id="svg-lane" data-reveal="">
       <SectionCard
         family="svg-lane"
@@ -256,11 +316,33 @@ export default {
           <div class="flex flex-wrap items-start gap-10">
             <div class="flex min-w-40 flex-col items-center gap-2">
               <Spin spinner="blocks-wave" label="building" />
-              <code class="text-muted-foreground font-mono text-[11px]">size · 16 (default)</code>
+              <code class="text-muted-foreground font-mono text-[11px]">size · var(--jx-icon) (absent default)</code>
             </div>
             <div class="flex min-w-40 flex-col items-center gap-2">
               <Spin spinner="blocks-wave" label="building" size={24} />
-              <code class="text-muted-foreground font-mono text-[11px]">size · 24</code>
+              <code class="text-muted-foreground font-mono text-[11px]">size · 24 (pinned)</code>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-start gap-x-10 gap-y-6">
+            <div class="flex min-w-40 flex-col items-center gap-2">
+              <Spin spinner="tail-spin" label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">tail-spin</code>
+            </div>
+            <div class="flex min-w-40 flex-col items-center gap-2">
+              <Spin spinner="spinning-circles" label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">spinning-circles</code>
+            </div>
+            <div class="flex min-w-40 flex-col items-center gap-2">
+              <Spin spinner="3-dots-bounce" label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">3-dots-bounce</code>
+            </div>
+            <div class="flex min-w-40 flex-col items-center gap-2">
+              <Spin spinner="bars-scale" label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">bars-scale</code>
+            </div>
+            <div class="flex min-w-40 flex-col items-center gap-2">
+              <Spin spinner="clock" label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">clock</code>
             </div>
           </div>
           <p class="text-muted-foreground text-[13px] leading-6">
@@ -383,7 +465,9 @@ export default {
         props={[
           { name: 'spinner', type: 'SpinName | TextSpinnerName', default: "'dots'", description: "The spinner's name — the generated svg artifact resolves FIRST, the text catalog second; an svg spinner named like a text one overrides it (explicit config beats built-ins, the icons law). The union closes at build time — a typo is a compile error." },
           { name: 'label', type: 'string', default: "'loading'", description: 'Announced to assistive tech ("loading checks").' },
-          { name: 'size', type: 'number | string', default: '16', description: "The svg posture's square edge, resolved through SpinDefaults' open literal slot (explicit ?? own 16, icon parity). The text posture ignores it." },
+          { name: 'size', type: 'number | string', default: 'var(--jx-icon)', description: "The svg posture's square edge. ABSENT rides the density ruler's var(--jx-icon) (presentation attributes cannot carry var(), so the default lands as a CSS width/height); an explicit value (or a slot config) pins it. The text posture paints var(--jx-text) and ignores the slot." },
+          { name: 'interval', type: 'number', default: 'the catalog value', description: 'The frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner’s own catalog interval (line 130ms, simpleDots 400ms…). The svg lane ignores it (its clock is the SMIL document).' },
+          { name: 'ghost', type: 'number', default: 'off', description: 'The text-posture ghost trail: each retiring frame fades out LINEARLY over this many ms in the cursor’s own grid cell — several frames coexist, the trail length = ghost / interval. Context/plugin injectable like the interval; never spawns under reduced motion.' },
           { name: 'children', type: 'Snippet', default: '—', description: 'Wrapping content = container posture with scrim + aria-busy.' },
           { name: 'class', type: 'string', default: "''", description: 'Lands on the root (the inline span, the svg, or the wrapping grid).' },
         ]}

@@ -1,14 +1,32 @@
 @layer theme, base, components, utilities;
 
-/* jixoai spin — D1-exempt residue (spin-ora-svg-lane C3, 2026-09-11):
- * exactly ONE rule. The text frame engine is a JS interval now and the
- * CSS keyframes died with it (design §2); the svg posture's SMIL
- * loaders freeze through root.pauseAnimations() driven by the
- * component's matchMedia listener — that is the FIRST named channel
- * (design §3). This kill is the SECOND channel: CSS-keyframed svg
- * artwork under [data-jx-spin-svg], whose animation utilities it
- * overrides, riding the unlayered :where carve-out (the toggle/Part A
- * precedent). Two named channels, never conflated. */
+/* jixoai spin — D1-exempt residue (spin-ora-svg-lane C3, 2026-09-11;
+ * review round 2026-09-12: the ghost keyframes join). Two rules'
+ * worth of non-utility CSS:
+ *
+ * 1. the ghost trail's linear fade (review R6) — keyframes are not
+ *    utilities (the original frame-engine ruling, carried over); the
+ *    ghost entries' animation utility supplies the timing function,
+ *    the fill mode, and the var(--jx-ghost-ms) duration, so only the
+ *    two opacity stops live here.
+ * 2. the svg posture's reduced-motion kill (design §3's SECOND named
+ *    channel): CSS-keyframed svg artwork under [data-jx-spin-svg]
+ *    stops under reduce, riding the unlayered :where carve-out (the
+ *    toggle/Part A precedent). SMIL freezes through
+ *    root.pauseAnimations() driven by the component's matchMedia
+ *    listener — the FIRST channel. Two named channels, never
+ *    conflated. The ghost entries need no kill here: they only spawn
+ *    while the interval runs, and the listener clears them on
+ *    reduce. */
+
+@keyframes jx-spin-ghost {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   :where([data-jx-spin-svg] *) {

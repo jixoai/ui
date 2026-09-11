@@ -63,9 +63,9 @@ describe('normalizeSpinnersOptions (the frozen defaults)', () => {
     });
   });
 
-  test('spinner names must match /^[a-z][a-z0-9-]*$/ (kebab, the channel-id grammar)', () => {
+  test('spinner names must match /^[a-z0-9][a-z0-9-]*$/ (kebab, digit-leading legal — the magecdn URLs)', () => {
     expect(() => normalizeSpinnersOptions({ spinners: { MyLoader: '<svg/>' } })).toThrowError(
-      /"MyLoader".*\/\^\[a-z\]\[a-z0-9-\]\*\$\//s,
+      /"MyLoader".*\/\^\[a-z0-9\]\[a-z0-9-\]\*\$\//s,
     );
     expect(() => normalizeSpinnersOptions({ spinners: { my_loader: '<svg/>' } })).toThrowError(
       /"my_loader"/,
@@ -73,15 +73,17 @@ describe('normalizeSpinnersOptions (the frozen defaults)', () => {
     expect(() => normalizeSpinnersOptions({ spinners: { _loader: '<svg/>' } })).toThrowError(
       /"_loader"/,
     );
-    expect(() => normalizeSpinnersOptions({ spinners: { '9dots': '<svg/>' } })).toThrowError(
-      /"9dots"/,
-    );
     expect(() =>
       normalizeSpinnersOptions({ spinners: { 'my-loader': '<svg/>', ok: '<svg/>' } }),
     ).not.toThrow();
     expect(SPINNER_NAME_PATTERN.test('a')).toBe(true);
     expect(SPINNER_NAME_PATTERN.test('a-b-c')).toBe(true);
     expect(SPINNER_NAME_PATTERN.test('blocks-wave')).toBe(true);
+    // digit-leading is the magecdn pack lane (review R2): '180-ring' keeps
+    // its site URL verbatim
+    expect(SPINNER_NAME_PATTERN.test('180-ring')).toBe(true);
+    expect(SPINNER_NAME_PATTERN.test('12-dots-scale-rotate')).toBe(true);
+    expect(SPINNER_NAME_PATTERN.test('9dots')).toBe(true);
     expect(SPINNER_NAME_PATTERN.test('aB')).toBe(false);
     expect(SPINNER_NAME_PATTERN.test('Aa')).toBe(false);
     expect(SPINNER_NAME_PATTERN.test('-a')).toBe(false);

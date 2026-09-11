@@ -64,6 +64,8 @@ export default defineConfig([
       'icons/ph': 'src/icons/library/channel/phosphor.ts',
       'icons/rx': 'src/icons/library/channel/remix.ts',
       spinners: 'src/spinners/index.ts',
+      'spinners/magecdn': 'src/spinners/packs/magecdn.ts',
+      'spinners/svg-loaders': 'src/spinners/packs/svg-loaders.ts',
       canvas: 'src/canvas/index.ts',
       probe: 'src/probe.ts',
     },
