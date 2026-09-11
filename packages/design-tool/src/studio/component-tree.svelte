@@ -203,11 +203,14 @@
 
 <style>
   .tree {
+    /* r3 T2 (ID10): the left column's FLEXIBLE lower zone — the 45%
+       max-height hardcode is gone; the nav's flex column hands this
+       section the leftover height (flex basis 0) and .tree-flow
+       scrolls inside (min-height:0 chain) */
+    flex: 1 1 0;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    min-height: 0;
-    flex: 0 1 auto;
-    max-height: 45%;
     border-top: 1px solid #262320;
     padding-top: 0.75rem;
   }

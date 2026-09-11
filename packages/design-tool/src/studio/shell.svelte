@@ -9,16 +9,23 @@
        the kit's DOM contract). Manifest polling is GATED (#12/T0):
        a structurally unchanged response never rewrites $state, and
        the panel receives selectionFile (a primitive), not a table.
-    2. right rail composition: chat panel + guide panel (own files).
+    2. the CONSTANT three-column grid (r3 T2, ID1/ID10): nav 15rem |
+       stage 1fr | inspector 24rem — the columns never move with
+       selection (no .studio-with-panel fourth column; the stage
+       iframe is never re-laid-out by a pick). The inspector's two
+       zones: the property panel on top (min 40%), chat/guide tabs
+       below — both tabs stay MOUNTED (the inactive side gets the
+       hidden attribute), so chat state survives switches.
     3. the ONE selection state (r2): window.__jixoaiDesignSelect is
        the picker's same-origin up-call target; the ComponentTreeView,
        the chat chip and the property panel all read the same state.
-       Canvas switches clear it (the frames it addressed are gone).
-    4. the property panel mount (r2 T8): a side container (sibling of
-       the navigator — additive mount, the nav's own structure stays
-       B-owned) that shows while a selection is live. The chat's
-       streaming state locks it read-only; panel edits ride HMR with
-       a targeted frame reload as the fallback path.
+       Canvas switches clear it (the frames it addressed are gone) —
+       that remains the ONLY clear path (r3 T2 re-layout added none).
+    4. the property panel mount (r2 T8, re-homed by r3 T2): the
+       inspector's top zone — ALWAYS present; unselected is the empty
+       state's flow guide, not a blank. The chat's streaming state
+       locks it read-only; panel edits ride HMR with a targeted frame
+       reload as the fallback path.
     5. promotion drift badge (r2 T11): the navigator's canvases carry
        an "updates" badge when their promoted files lag the design
        file (the promotions.json status endpoint, A's pipeline); the
@@ -93,6 +100,11 @@
   let chatStreaming = $state(false);
   /** the open updates-badge proto (null = all collapsed) */
   let updatesOpen: string | null = $state(null);
+  /** the inspector's bottom-zone tab (r3 T2): chat is the default
+   *  (high frequency); guide is the low-frequency lookup. Both panels
+   *  stay MOUNTED — the inactive side gets the hidden attribute, so
+   *  chat state (draft, message flow, streaming) survives switches */
+  let railTab: 'chat' | 'guide' = $state('chat');
   /** promotion drift status (r2 T11 contract; three-state as of r3 T0/ID6) */
   let promotions: PromotionsState = $state({ phase: 'loading' });
 
@@ -258,7 +270,7 @@
   });
 </script>
 
-<div class="studio" class:studio-with-panel={selection !== null}>
+<div class="studio">
   <nav class="studio-nav">
     <header class="studio-brand">
       <span class="studio-dot"></span>
@@ -337,10 +349,6 @@
     <ComponentTree iframe={canvasIframe} {selection} onSelect={(incoming) => (selection = incoming)} />
   </nav>
 
-  <div class="studio-side">
-    <PropertyPanel {selection} {selectionFile} locked={chatStreaming} />
-  </div>
-
   <main class="studio-preview">
     {#if previewSrc === null}
       <div class="studio-preview-empty">select a canvas on the left</div>
@@ -356,50 +364,130 @@
     {/if}
   </main>
 
-  <aside class="studio-rail">
-    <ChatPanel
-      {chatUrl}
-      {agentInfoUrl}
-      {selection}
-      onClearSelection={() => (selection = null)}
-      onTurnSettled={() => void refreshManifest()}
-      onStreamingChange={(value) => (chatStreaming = value)}
-    />
-    <GuidePanel {knowledgeUrl} />
+  <!-- r3 T2: the inspector — the property panel zone on top (ALWAYS
+       mounted; unselected renders the empty-state flow guide), the
+       chat/guide tab zone below. Both tabs stay in the DOM; the
+       inactive one carries `hidden` so chat state survives switches -->
+  <aside class="studio-inspector">
+    <div class="studio-panel-zone">
+      <PropertyPanel {selection} {selectionFile} locked={chatStreaming} />
+    </div>
+    <div class="studio-tab-zone">
+      <div class="studio-tabs" role="tablist" aria-label="inspector panels">
+        <button
+          class="studio-tab"
+          type="button"
+          role="tab"
+          id="studio-tab-chat"
+          aria-selected={railTab === 'chat'}
+          onclick={() => (railTab = 'chat')}
+        >chat</button>
+        <button
+          class="studio-tab"
+          type="button"
+          role="tab"
+          id="studio-tab-guide"
+          aria-selected={railTab === 'guide'}
+          onclick={() => (railTab = 'guide')}
+        >guide</button>
+      </div>
+      <div class="studio-tab-panel" role="tabpanel" aria-labelledby="studio-tab-chat" hidden={railTab !== 'chat'}>
+        <ChatPanel
+          {chatUrl}
+          {agentInfoUrl}
+          {selection}
+          onClearSelection={() => (selection = null)}
+          onTurnSettled={() => void refreshManifest()}
+          onStreamingChange={(value) => (chatStreaming = value)}
+        />
+      </div>
+      <div class="studio-tab-panel" role="tabpanel" aria-labelledby="studio-tab-guide" hidden={railTab !== 'guide'}>
+        <GuidePanel {knowledgeUrl} />
+      </div>
+    </div>
   </aside>
 </div>
 
 <style>
   .studio {
     display: grid;
-    grid-template-columns: 15rem 1fr 22rem;
+    /* r3 T2 (ID1): CONSTANT three columns — nav | stage | inspector.
+       No fourth column ever appears; the stage width is invariant
+       under every selection state (the stage iframe is never
+       re-laid-out by a pick) */
+    grid-template-columns: 15rem 1fr 24rem;
     height: 100vh;
     font-family: ui-monospace, 'SF Mono', Menlo, monospace;
     font-size: 0.8125rem;
     color: #e8e4dd;
     background: #0d0c0b;
   }
-  /* the property panel's side container occupies a column only while a
-     selection is live — the default layout stays byte-stable */
-  .studio-with-panel {
-    grid-template-columns: 15rem 16rem 1fr 22rem;
-  }
-  .studio-side {
-    display: none;
+  /* the inspector (right column): the property panel zone on top —
+     fits its content with a 40% floor — and the chat/guide tab zone
+     eating the rest (a draggable divider is P2, not yet) */
+  .studio-inspector {
+    display: grid;
+    grid-template-rows: minmax(40%, auto) minmax(0, 1fr);
     min-height: 0;
-    border-right: 1px solid #262320;
+    border-left: 1px solid #262320;
   }
-  .studio-with-panel .studio-side {
+  .studio-panel-zone {
     display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .studio-tab-zone {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-top: 1px solid #262320;
+  }
+  .studio-tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem 0.375rem;
+    border-bottom: 1px solid #262320;
+  }
+  .studio-tab {
+    all: unset;
+    cursor: pointer;
+    padding: 0.1875rem 0.625rem;
+    border-radius: 3px;
+    color: #8d8578;
+    font-size: 0.6875rem;
+  }
+  .studio-tab:hover {
+    color: #e8e4dd;
+    background: #1b1917;
+  }
+  .studio-tab[aria-selected='true'] {
+    background: #262320;
+    color: #f5f1e8;
+  }
+  .studio-tab-panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  /* both tab panels stay MOUNTED (chat state survives switches); the
+     [hidden] override must beat the author `display` above — the
+     attribute's UA rule alone does not */
+  .studio-tab-panel[hidden] {
+    display: none;
   }
 
+  /* r3 T2 (ID10): the left column is a flex column — the canvases
+     list sizes to its content (scrolling itself only if enormous),
+     the component tree below is the FLEXIBLE zone (its own file
+     drops the 45% max-height for flex + min-height:0) */
   .studio-nav {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     padding: 1rem 0.75rem;
     border-right: 1px solid #262320;
-    overflow-y: auto;
+    min-height: 0;
   }
   .studio-brand {
     display: flex;
@@ -433,6 +521,9 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
   }
   .studio-list > li {
     display: flex;
@@ -556,12 +647,5 @@
     flex: 1;
     border: 0;
     background: #fff;
-  }
-
-  .studio-rail {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    border-left: 1px solid #262320;
   }
 </style>
