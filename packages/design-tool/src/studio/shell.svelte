@@ -107,7 +107,7 @@
   let frameHash: string | null = $state(null);
   let manifestError: string | null = $state(null);
   /** the ONE selection (r2 T4): picker and tree both feed this */
-  let selection: DesignSelection | null = $state(restoreSelection());
+  let selection: DesignSelection | null = $state(null);
   /** the live canvas iframe (the tree walks its DOM, same-origin) */
   let canvasIframe: HTMLIFrameElement | null = $state(null);
   /** the chat's streaming state — the property panel's read-only lock (r2 §4) */
@@ -242,12 +242,21 @@
   // problems ledger). The relay uses only proven mechanisms: the
   // picker-facing seam installs at MODULE level (see below the
   // component) and dispatches a CustomEvent this effect listens for.
+  // The RESTORE rides the same bus: the $state initializer proved to
+  // be ghost territory too (a reloaded page with a populated store
+  // still rendered empty), while the event-callback write path is the
+  // one every click has proven — so bootstrap re-dispatches the
+  // stored selection to ourselves right after the listener attaches.
   $effect(() => {
     const onSelectEvent = (event: Event): void => {
       selection = (event as CustomEvent<DesignSelection | null>).detail;
       persistSelection();
     };
     window.addEventListener('jx-design:select', onSelectEvent);
+    const stored = restoreSelection();
+    if (stored !== null) {
+      window.dispatchEvent(new CustomEvent('jx-design:select', { detail: stored }));
+    }
     return () => window.removeEventListener('jx-design:select', onSelectEvent);
   });
 
@@ -304,12 +313,19 @@
     const onPanelEdited = (event: Event): void => {
       const detail = (event as CustomEvent<{ frameId: string | null; file: string }>).detail;
       const doc = canvasIframe?.contentDocument;
-      if (doc !== null && doc !== undefined && detail.frameId !== null) {
-        const frame = doc.querySelector(`iframe[name="${FRAME_NAME_PREFIX}${detail.frameId}"]`) as HTMLIFrameElement | null;
-        frame?.contentWindow?.location.reload();
-        return;
-      }
-      canvasIframe?.contentWindow?.location.reload();
+      // DEFERRED 3.5s: HMR carries the edit in <1s (the T0d spike and
+      // every probe since). A reload racing the update disconnects the
+      // owning frame's vite client mid-propagation — the update then
+      // finds no home and vite broadcasts a FULL-RELOAD to every
+      // client, wiping the studio page (the GATE-0 W4 killer, caught
+      // by marker-probe: reload fired, sessionStorage survived, the
+      // pre-bus restore did not). The late reload is a harmless
+      // no-op re-render of content HMR already applied.
+      const reloadTarget =
+        doc !== null && doc !== undefined && detail.frameId !== null
+          ? (doc.querySelector(`iframe[name="${FRAME_NAME_PREFIX}${detail.frameId}"]`) as HTMLIFrameElement | null)
+          : canvasIframe;
+      setTimeout(() => reloadTarget?.contentWindow?.location.reload(), 3500);
     };
     window.addEventListener('jx-design:panel-edited', onPanelEdited);
     return () => window.removeEventListener('jx-design:panel-edited', onPanelEdited);
