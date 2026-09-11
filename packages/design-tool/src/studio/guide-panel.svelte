@@ -105,7 +105,9 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    flex: 1 1 45%;
+    /* r3 T2: guide fills its tab panel (the old 45% stacked-rail
+       share is gone — it is now the low-frequency tab) */
+    flex: 1;
   }
   .guide-head {
     display: flex;

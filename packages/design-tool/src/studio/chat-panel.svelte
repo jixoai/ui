@@ -264,8 +264,9 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    flex: 1 1 55%;
-    border-bottom: 1px solid #262320;
+    flex: 1;
+    /* r3 T2: the old stacked-rail separator below the chat is gone —
+       chat is now the inspector's tab panel, not a stacked half */
   }
   .chat-head {
     display: flex;
