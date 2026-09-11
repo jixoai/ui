@@ -13,6 +13,8 @@
     readonly name: string;
     readonly title: string;
     readonly description: string;
+    /** the alpha-track marker (r2 T9) — renders the track badge */
+    readonly alpha?: boolean;
   }
   interface KnowledgeGroup {
     readonly id: string;
@@ -77,7 +79,12 @@
         <ul>
           {#each group.items as item (item.name)}
             <li>
-              <code class="guide-name">#jixoai/{item.name}</code>
+              <span class="guide-item-head">
+                <code class="guide-name">#jixoai/{item.name}</code>
+                {#if item.alpha === true}
+                  <span class="guide-alpha" title="alpha track — vocabulary and behavior may still move (r2 T9)">alpha</span>
+                {/if}
+              </span>
               <p class="guide-desc">{item.description}</p>
             </li>
           {/each}
@@ -160,6 +167,20 @@
     border: 1px solid #262320;
     border-radius: 3px;
     padding: 0.0625rem 0.375rem;
+  }
+  .guide-item-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  .guide-alpha {
+    font-size: 0.5625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #0d0c0b;
+    background: #8fa88f;
+    border-radius: 2px;
+    padding: 0.0625rem 0.3125rem;
   }
   .guide-desc {
     margin: 0.25rem 0 0;
