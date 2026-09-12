@@ -1530,6 +1530,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/prototype-kit/overlay-scrollbar.ts",
+          "target": "@ui/prototype-kit/overlay-scrollbar.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/prototype-kit/index.ts",
           "target": "@ui/prototype-kit/index.ts",
           "type": "registry:file"

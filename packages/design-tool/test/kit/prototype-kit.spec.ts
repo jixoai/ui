@@ -14,7 +14,7 @@
 import { cleanup, render } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { tick } from 'svelte';
-import { buildFrameUrl, normalizeRef } from '../../../../registry/files/ui/prototype-kit';
+import { buildFrameUrl, installOverlayScrollbar, normalizeRef } from '../../../../registry/files/ui/prototype-kit';
 
 import ConflictHost from './fixtures/conflict-host.svelte';
 import FrameHost from './fixtures/frame-host.svelte';
@@ -306,5 +306,86 @@ describe('notice state', () => {
     // no /prototypes/ URL to derive from in the test environment
     const notice = container.querySelector<HTMLElement>('[data-jx-prototype-notice]')!;
     expect(notice.textContent).toContain('no prototype context');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// the overlay scrollbar (#22): a kit surface's scrollbar never takes
+// layout width from the content it scrolls
+// ---------------------------------------------------------------------------
+describe('overlay scrollbar', () => {
+  it('hides the native viewport scrollbar, mounts a floating thumb; release removes both', () => {
+    const release = installOverlayScrollbar(window, document);
+    const style = document.querySelector('style[data-jx-frame-overlay-scrollbar]');
+    expect(style).not.toBeNull();
+    // the layout-steal killer: the viewport bar is display:none'd
+    expect(style!.textContent).toContain('scrollbar-width:none');
+    expect(style!.textContent).toContain('::-webkit-scrollbar');
+    const thumb = document.querySelector<HTMLElement>('[data-jx-frame-vscroll-thumb]');
+    expect(thumb).not.toBeNull();
+    expect(thumb!.getAttribute('aria-hidden')).toBe('true');
+    release();
+    expect(document.querySelector('style[data-jx-frame-overlay-scrollbar]')).toBeNull();
+    expect(document.querySelector('[data-jx-frame-vscroll-thumb]')).toBeNull();
+  });
+
+  it('is idempotent per document (nested canvases install once)', () => {
+    const first = installOverlayScrollbar(window, document);
+    const second = installOverlayScrollbar(window, document);
+    expect(document.querySelectorAll('style[data-jx-frame-overlay-scrollbar]')).toHaveLength(1);
+    second();
+    expect(document.querySelector('style[data-jx-frame-overlay-scrollbar]')).not.toBeNull();
+    first();
+    expect(document.querySelector('style[data-jx-frame-overlay-scrollbar]')).toBeNull();
+  });
+
+  it('the thumb follows the client/scroll ratio law and disappears without overflow', async () => {
+    // jsdom has no layout — shadow the geometry the law reads, restore after
+    const root = document.documentElement;
+    const shadow = (prop: string, value: number): void => {
+      Object.defineProperty(root, prop, { value, configurable: true });
+    };
+    const unshadow = (prop: string): void => {
+      delete (root as unknown as Record<string, unknown>)[prop];
+    };
+    // one animation-frame tick (vitest's jsdom ships a live rAF) + settle —
+    // the module's sync rides rAF, so the test must wait the SAME bus
+    const frame = async (): Promise<void> => {
+      await new Promise<void>((resolve) => {
+        if (typeof window.requestAnimationFrame === 'function') {
+          window.requestAnimationFrame(() => resolve());
+        } else {
+          setTimeout(resolve, 0);
+        }
+      });
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    };
+    const props = ['scrollHeight', 'clientHeight', 'scrollTop'];
+    shadow('scrollHeight', 2000);
+    shadow('clientHeight', 500);
+    shadow('scrollTop', 250);
+    try {
+      const release = installOverlayScrollbar(window, document);
+      const thumb = document.querySelector<HTMLElement>('[data-jx-frame-vscroll-thumb]')!;
+      await frame();
+      // scrollable (2000 > 500): visible; height = 500/2000 × 500 = 125px;
+      // top = 250/2000 × 500 = 62.5px
+      expect(thumb.style.visibility).toBe('visible');
+      expect(parseFloat(thumb.style.height)).toBeCloseTo(125, 0);
+      expect(Math.abs(parseFloat(thumb.style.top) - 62.5)).toBeLessThan(1);
+      // a viewport scroll re-syncs position
+      shadow('scrollTop', 1000);
+      document.dispatchEvent(new window.Event('scroll'));
+      await frame();
+      expect(Math.abs(parseFloat(thumb.style.top) - 250)).toBeLessThan(1);
+      // no overflow: the thumb steps aside
+      shadow('scrollHeight', 400);
+      document.dispatchEvent(new window.Event('scroll'));
+      await frame();
+      expect(thumb.style.visibility).toBe('hidden');
+      release();
+    } finally {
+      for (const prop of props) unshadow(prop);
+    }
   });
 });

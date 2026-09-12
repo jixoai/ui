@@ -6,14 +6,23 @@
     1. navigator + preview grid: list canvases from the manifest, show
        the selected canvas in a full-width iframe tab; frame ids deep-
        link by appending #<id> to the iframe src (canvas anchors are
-       the kit's DOM contract). Manifest polling is GATED (#12/T0):
+       the kit's DOM contract). r3 #20: the frames anchor LIST is gone
+       — the frames live as `page:` folders inside the unified treeView
+       (component-tree.svelte), and their anchor action rides the
+       tree's onAnchorFrame up-call (same selectCanvas path, same hash
+       semantics). Manifest polling is GATED (#12/T0):
        a structurally unchanged response never rewrites $state, and
        the panel receives selectionFile (a primitive), not a table.
-       r3 T4 skin: the canvas/frame rows are the host's REAL list-item
+       r3 T4 skin: the canvas rows are the host's REAL list-item
        family (#jixoai/ link rows, intercepted activation — semantics
        untouched) and the drift badge is the badge item; .studio-canvas
-       / .studio-frame / .studio-updates-badge survive as the
-       walkthrough scripts' DOM hooks, not as chrome.
+       / .studio-updates-badge survive as the walkthrough scripts' DOM
+       hooks, not as chrome (.studio-frame rows are retired with the
+       list; the class remains on the error-retry buttons only).
+       r3 issue #21: the preview tab DELEGATES to StageView
+       (stage-view.svelte) — the zoom/pan/fit camera is its own file,
+       this shell keeps only the iframe seam (canvasIframe) for the
+       tree; no sixth intent lands here.
     2. the CONSTANT three-column grid (r3 T2, ID1/ID10): nav 15rem |
        stage 1fr | inspector 24rem — the columns never move with
        selection (no .studio-with-panel fourth column; the stage
@@ -77,6 +86,7 @@
   } from './equivalence.ts';
   import GuidePanel from './guide-panel.svelte';
   import PropertyPanel from './property-panel.svelte';
+  import StageView from './stage-view.svelte';
   import { FRAME_NAME_PREFIX, type DesignSelection, type DesignStudioSeams } from './selection.ts';
 
   export interface ShellEndpoints {
@@ -416,27 +426,6 @@
               <p class="studio-updates-hint">apply with `jixoai-ui design apply`</p>
             </div>
           {/if}
-          {#if entry.frames !== undefined && entry.frames.length > 0}
-            <div class="studio-frames">
-              {#each entry.frames as frame (frame.id)}
-                <Item
-                  class="studio-frame"
-                  variant="default"
-                  density="xs"
-                  href={`#${entry.name}/${frame.id}`}
-                  title={frame.ref ?? frame.id}
-                  onclick={(event) => {
-                    event.preventDefault();
-                    selectCanvas(entry.name, frame.id);
-                  }}
-                >
-                  <ItemContent wrap="truncate">
-                    <ItemTitle>{frame.id}</ItemTitle>
-                  </ItemContent>
-                </Item>
-              {/each}
-            </div>
-          {/if}
         </li>
       {/each}
     </ul>
@@ -445,23 +434,29 @@
          on the studio's near-black ground (the solid escape painted
          --border = pure black there, imperceptible; pixel-probed) -->
     <Separator class="studio-sep" />
-    <ComponentTree iframe={canvasIframe} {selection} onSelect={(incoming) => { selection = incoming; persistSelection(); }} />
+    <!-- the UNIFIED tree (r3 #20): pages + components in one treeView
+         below the canvases list — keyed per canvas so tree-view's
+         mount-time defaultExpanded re-reads the per-canvas store; the
+         page folders' anchor up-call is the frames list's old W1 seam
+         (hash scroll on the preview iframe) -->
+    {#key currentName}
+      <ComponentTree
+        iframe={canvasIframe}
+        canvas={currentName}
+        frames={current?.frames ?? []}
+        {selection}
+        onSelect={(incoming) => { selection = incoming; persistSelection(); }}
+        onAnchorFrame={(frameId) => {
+          if (currentName !== null) selectCanvas(currentName, frameId);
+        }}
+      />
+    {/key}
   </nav>
 
-  <main class="studio-preview">
-    {#if previewSrc === null}
-      <div class="studio-preview-empty">select a canvas on the left</div>
-    {:else}
-      {#key previewSrc}
-        <iframe
-          class="studio-iframe"
-          src={previewSrc}
-          title={`canvas ${currentName}`}
-          bind:this={canvasIframe}
-        ></iframe>
-      {/key}
-    {/if}
-  </main>
+  <!-- r3 issue #21: the stage is StageView — the camera (zoom/pan/fit)
+       over the canvas iframe lives there, transform-only, the iframe's
+       size/URL invariant; the tree keeps the live iframe via onIframe -->
+  <StageView src={previewSrc} title={`canvas ${currentName}`} onIframe={(element) => (canvasIframe = element)} />
 
   <!-- r3 T2: the inspector — the property panel zone on top (ALWAYS
        mounted; unselected renders the empty-state flow guide), the
@@ -696,14 +691,9 @@
     color: #6f6759;
     font-size: 0.625rem;
   }
-  .studio-frames {
-    margin: 0;
-    padding: 0 0 0 1rem;
-    display: flex;
-    flex-direction: column;
-  }
-  /* the error lines' retry buttons (ID3/ID6) — kept button-scoped so
-     the family frame rows sharing the class as a hook stay untouched */
+  /* the error lines' retry buttons (ID3/ID6) — button-scoped residue;
+     the frames rows that once shared the class are gone (r3 #20: the
+     frames list merged into the unified tree below) */
   button.studio-frame {
     all: unset;
     cursor: pointer;
@@ -722,20 +712,5 @@
   }
   .studio-sep {
     flex: none;
-  }
-
-  .studio-preview {
-    display: flex;
-    min-width: 0;
-    background: #161412;
-  }
-  .studio-preview-empty {
-    margin: auto;
-    color: #8d8578;
-  }
-  .studio-iframe {
-    flex: 1;
-    border: 0;
-    background: #fff;
   }
 </style>

@@ -11,10 +11,13 @@
 //   (/__design__/frame?p=&f=&theme=&w=&h=)
 // - PrototypeComponent — adaptive component frame (fill locks height;
 //   URL carries &fill=0|1)
+// - installOverlayScrollbar — the #22 law for documents the kit
+//   surfaces scroll (frame docs, the /prototypes/ canvas page)
 export { default, default as PrototypeCanvas } from './prototype-canvas.svelte';
 export { default as PrototypePage } from './prototype-page.svelte';
 export { default as PrototypeComponent } from './prototype-component.svelte';
 export { buildFrameUrl, normalizeRef, type FrameUrlInput } from './frame-url';
+export { installOverlayScrollbar } from './overlay-scrollbar';
 export {
   PROTOTYPE_KIT_KEY,
   derivePrototypeFromLocation,

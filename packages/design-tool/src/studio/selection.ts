@@ -41,10 +41,23 @@ export interface DesignSelection {
   readonly instanceCount: number;
 }
 
+/**
+ * the lazy tree's walk instrumentation (r3 #20): NON-reactive counters
+ * the smoke scripts read to prove an unexpanded frame is never walked
+ * (dynamic loading evidence). Lives on the studio window like the
+ * other seams; never rendered.
+ */
+export interface DesignWalkStats {
+  canvas: number;
+  frames: Record<string, number>;
+}
+
 /** the studio-side window seam (picker calls UP; shell installs it) */
 export interface DesignStudioSeams {
   __jixoaiDesignSelect?: (selection: DesignSelection | null) => void;
   __jixoaiDesignRefreshTree?: () => void;
+  /** walk counters (r3 #20) — see DesignWalkStats */
+  __jixoaiDesignWalks?: DesignWalkStats;
 }
 
 /** the frame-side window seam (tree selection calls DOWN to highlight) */
@@ -239,4 +252,21 @@ export function collectCanvasRecords(
     records.push(...collectStampRecords(body, frameId));
   }
   return records;
+}
+
+/**
+ * Collect ONE frame's records by frame id — the unified tree's LAZY
+ * collector (r3 #20): finds the kit iframe by its contract name and
+ * walks that document only. An unknown or mid-load frame (no body yet)
+ * yields [] — the tree re-walks on the next expand/poll, never errors.
+ */
+export function collectFrameRecords(
+  iframes: readonly WalkerIframe[],
+  frameId: string,
+): StampRecord[] {
+  const body =
+    iframes.find((iframe) => frameIdFromName(iframe.name) === frameId)?.contentDocument?.body ??
+    null;
+  if (body === null) return [];
+  return collectStampRecords(body, frameId);
 }

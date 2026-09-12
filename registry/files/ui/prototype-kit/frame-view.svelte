@@ -24,6 +24,12 @@
     iframe. Deliberately self-styled inline (dashed border, muted
     color) — the notice is exactly the state where the design host's
     tailwind context may be absent, so it must not depend on it.
+  - OVERLAY SCROLLBAR (#22): same-origin design frames get the
+    overlay-scrollbar law installed in their content document on load
+    (native bar hidden + a floating self-drawn thumb) — the frame's
+    viewport width is the contract, a scrollbar must never reflow the
+    ref'd page. See overlay-scrollbar.ts for the law and the
+    scroll-virtual ruling.
   - ID DISCIPLINE: the id lands on the figure root (the DOM anchor
     that survives the notice state); dev mode warns on a duplicate id
     within the nearest canvas scope, first occurrence wins as the
@@ -45,6 +51,7 @@
   import { cn } from '$lib/utils';
   import { isDevMode } from './context';
   import type { PrototypeTheme } from './context';
+  import { installOverlayScrollbar } from './overlay-scrollbar';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     /** DOM anchor id, unique within the canvas (dev warning on dup) */
@@ -159,6 +166,27 @@
     }
   }
 
+  // ---- overlay scrollbar (#22): the frame document's scrollbar must
+  // never steal layout width from the ref'd page's viewport. Installed
+  // on load (each reload gets a fresh law), released before every
+  // reinstall and on teardown. Same-origin design frames only — the
+  // pathname probe doubles as the cross-origin guard.
+  let overlayRelease: (() => void) | null = null;
+
+  function refreshOverlayScrollbar(): void {
+    overlayRelease?.();
+    overlayRelease = null;
+    const doc = iframeEl?.contentDocument;
+    const win = iframeEl?.contentWindow;
+    if (!doc || !win) return;
+    try {
+      if (!win.location.pathname.startsWith('/__design__/')) return;
+    } catch {
+      return; // cross-origin — not ours to touch
+    }
+    overlayRelease = installOverlayScrollbar(win, doc);
+  }
+
   onMount(() => {
     if (isDevMode()) warnOnDuplicateId();
 
@@ -169,6 +197,10 @@
       cleanups.push(() => observer.disconnect());
       fitToShell();
     }
+    cleanups.push(() => {
+      overlayRelease?.();
+      overlayRelease = null;
+    });
     return () => {
       for (const cleanup of cleanups) cleanup();
     };
@@ -234,7 +266,10 @@
           name="jixoai-design-frame-{id}"
           {width}
           height={effectiveHeight}
-          onload={measureFrame}
+          onload={() => {
+            measureFrame();
+            refreshOverlayScrollbar();
+          }}
         ></iframe>
       </div>
     </div>
