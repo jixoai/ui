@@ -268,7 +268,7 @@ export default {
               posture's two timings — 'auto' rides the name's HAND-TUNED pair, custom
               flips in a number input seeded from the tuned value (0 linger = no
               residue). <code>lingerType</code> picks the opacity mode (auto /
-              fade-out / fade-in / both). Changing the name resets all three to auto.
+              fade-out / pre-boundary fade-in / both). Changing the name resets all three to auto.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -506,7 +506,7 @@ export default {
           { name: 'size', type: 'number | string', default: 'var(--jx-icon)', description: "The svg posture's square edge. ABSENT rides the density ruler's var(--jx-icon) (presentation attributes cannot carry var(), so the default lands as a CSS width/height); an explicit value (or a slot config) pins it. The text posture paints var(--jx-text) and ignores the slot." },
           { name: 'interval', type: "number | 'auto'", default: "'auto'", description: 'The frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner’s HAND-TUNED catalog pair. The svg lane ignores it (its clock is the SMIL document).' },
           { name: 'linger', type: "number | 'auto'", default: "'auto'", description: "The frame linger duration: each retiring frame stays in the cursor’s own grid cell fading out LINEARLY for this long. 'auto' = the spinner’s HAND-TUNED catalog pair (dots 160, line 0…); 0 = hide at the interval handoff. The trail depth = linger / interval. Context/plugin injectable like the interval; reduced motion is a static CSS kill." },
-          { name: 'lingerType', type: "'auto' | 'end' | 'start' | 'both'", default: "'auto'", description: "The opacity animation mode: 'end' fades OUT after the duty window (the default trail); 'start' fades IN at the slot start and hides discretely at the handoff (simpleDots); 'both' breathes — fade in, hold, fade out (arc, toggle3, growVertical). 'auto' (the default) resolves the spinner’s tuned type; linger 0 collapses every type to the discrete blink. Context/plugin injectable." },
+          { name: 'lingerType', type: "'auto' | 'end' | 'start' | 'both'", default: "'auto'", description: "The opacity animation mode: 'end' fades OUT after the duty window (the default trail); 'start' fades IN through the previous frame's window and COMPLETES exactly at the handoff — the frame arrives solid the instant the previous one exits (simpleDots); 'both' breathes — fade in, hold, fade out (arc, toggle3, growVertical). 'auto' (the default) resolves the spinner’s tuned type; linger 0 collapses every type to the discrete blink. Context/plugin injectable." },
           { name: 'children', type: 'Snippet', default: '—', description: 'Wrapping content = container posture with scrim + aria-busy.' },
           { name: 'class', type: 'string', default: "''", description: 'Lands on the root (the inline span, the svg, or the wrapping grid).' },
         ]}

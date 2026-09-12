@@ -3549,7 +3549,9 @@ resolving the catalog's HAND-TUNED pair per spinner (no formula;
 explicit prop > the Defaults slot > the tuned pair), and
 `lingerType` `'auto' | 'end' | 'start' | 'both'` ('auto' =
 the tuned type) choosing the opacity shape — end fades out,
-start fades in and hides discretely, both breathes; the
+start fades in through the PREVIOUS frame's window completing
+exactly at the handoff (the frame arrives solid as the
+predecessor exits) and hides discretely, both breathes; the
 SOLID-FRAME law caps the entry fade at interval/2 whenever
 linger ≥ interval (a frame always lands solid — degenerate
 pairs peaked opacity for a single instant); linger 0 collapses

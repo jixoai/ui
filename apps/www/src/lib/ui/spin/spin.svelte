@@ -134,18 +134,25 @@
 
   /**
    * The shared slot-shape keyframes for one parameter set, in the
-   * lingerType shape the tuning asks for (round 5; polished round 6):
-   *   'end'   (default) — instant appear, hold through the duty
-   *           window, fade LINEARLY out across the linger tail
-   *   'start' — fade LINEARLY in, hold, hide DISCRETELY at the handoff
+   * lingerType shape the tuning asks for (round 5; rounds 6-7 polish):
+   *   'end'   (default) — solid through the duty window, fade LINEARLY
+   *           out across the linger tail after the handoff
+   *   'start' — THE PRE-SLOT ENTRY (round 7, the Owner's correction):
+   *           the fade-in occupies the TAIL of the PREVIOUS frame's
+   *           window and COMPLETES exactly at the handoff — the frame
+   *           ARRIVES solid at the instant the previous frame exits
+   *           (perfect接续: nothing dims, nothing overlaps past the
+   *           boundary), holds solid through its slot, then hides
+   *           discretely. The entry ride sits in the cycle's last
+   *           segment [pre, 100%] — with the negative delay phasing
+   *           that lands precisely in the preceding frame's window.
    *   'both'  — fade in, hold, fade out (the breathing entry+exit)
-   * THE SOLID-FRAME LAW (round 6): the ENTRY fade never eats the whole
-   * slot. When linger ≥ interval the naive shape peaks opacity 1 for a
-   * single instant (growVertical sampled 89-95, never solid — the
-   * fade-in consumed the entire duty window), so the entry fade
-   * collapses to interval/2 and the frame lands SOLID for at least
-   * half its slot. Tuned pairs with linger < interval are untouched
-   * (toggle3's 500/1000 breathing keeps its exact shape).
+   * THE SOLID-FRAME LAW (round 6, 'both'): the in-slot entry fade
+   * never eats the whole slot — when linger ≥ interval it collapses to
+   * interval/2 so the frame lands solid (the naive shape peaked for a
+   * single instant; growVertical sampled 89-95). Tuned pairs with
+   * linger < interval are untouched (toggle3's 500/1000 keeps its
+   * exact shape).
    * linger 0 collapses every type to the discrete blink: hold 1
    * through duty, then steps(1, start) jumps to 0 — two stops at the
    * SAME percentage MERGE in CSS keyframes (the later block wins), so
@@ -164,17 +171,21 @@
     const cycle = count * stepMs;
     const duty = pct(stepMs / cycle);
     const tail = pct((stepMs + lingerMs) / cycle);
-    // the solid-frame law: entry fade ≤ interval/2 whenever it would
-    // otherwise consume the whole slot (linger ≥ interval)
-    const entryMs = lingerMs < stepMs ? lingerMs : stepMs / 2;
-    const head = pct(entryMs / cycle);
+    // 'both': the solid-frame law — entry fade ≤ interval/2 whenever it
+    // would otherwise consume the whole slot (linger ≥ interval)
+    const bothHead = pct((lingerMs < stepMs ? lingerMs : stepMs / 2) / cycle);
+    // 'start': the pre-slot entry — one full slot max (the previous
+    // frame's window), halved for two-frame spinners so the stops stay
+    // strictly ordered (pre > duty always)
+    const startEntryMs = Math.min(lingerMs, count > 2 ? stepMs : stepMs / 2);
+    const startPre = pct((cycle - startEntryMs) / cycle);
     const body =
       lingerMs <= 0
         ? `0%{opacity:1}${duty}%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}`
         : type === 'start'
-          ? `0%{opacity:0}${head}%{opacity:1}${duty}%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}`
+          ? `0%{opacity:1}${duty}%{opacity:1;animation-timing-function:steps(1,start)}${startPre}%{opacity:0}100%{opacity:1}`
           : type === 'both'
-            ? `0%{opacity:0}${head}%{opacity:1}${duty}%{opacity:1}${tail}%{opacity:0}100%{opacity:0}`
+            ? `0%{opacity:0}${bothHead}%{opacity:1}${duty}%{opacity:1}${tail}%{opacity:0}100%{opacity:0}`
             : `0%{opacity:1}${duty}%{opacity:1}${tail}%{opacity:0}100%{opacity:0}`;
     ensureFrameKeyframes(name, `@keyframes ${name}{${body}}`);
     return name;

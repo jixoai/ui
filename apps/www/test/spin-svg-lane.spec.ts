@@ -164,10 +164,11 @@ describe('spin — text posture', () => {
       (toggle3.container.querySelector('[data-jx-spin-frame]')!.getAttribute('style') ?? '').match(/--kf: ([^;]+)/)?.[1],
     ).toBe('jx-spin-f2-i1000-l500-both');
     const sheet = document.head.querySelector('style[data-jx-spin-frames]')!.textContent!;
-    // the solid-frame law (round 6): linger ≥ interval collapses the ENTRY
-    // fade to interval/2 so the frame lands solid — simpleDots 160/160:
-    // entry 80ms = 12.5% of the 640ms cycle, duty 25%
-    expect(sheet).toContain('@keyframes jx-spin-f4-i160-l160-start{0%{opacity:0}12.5%{opacity:1}25%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}}');
+    // the PRE-SLOT ENTRY (round 7, the Owner's correction): simpleDots'
+    // fade-in occupies the PREVIOUS frame's window and completes exactly
+    // at the handoff — solid from 0% (arrival), steps-hide at duty 25%,
+    // then rises 0→1 across [75%,100%] (the tail of the previous slot)
+    expect(sheet).toContain('@keyframes jx-spin-f4-i160-l160-start{0%{opacity:1}25%{opacity:1;animation-timing-function:steps(1,start)}75%{opacity:0}100%{opacity:1}}');
     // arc 120/120 both: entry 60ms = 8.333% of 720ms, duty 16.667%,
     // fade-out lands at (120+120)/720 = 33.333%
     expect(sheet).toContain('@keyframes jx-spin-f6-i120-l120-both{0%{opacity:0}8.333%{opacity:1}16.667%{opacity:1}33.333%{opacity:0}100%{opacity:0}}');
