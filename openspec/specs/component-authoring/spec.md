@@ -3606,7 +3606,14 @@ dangles a dependent timeline, and the round-1 lockstep compromise
 is retired. An svg→svg switch SHALL rebuild the whole <svg>
 element ({#key} on the artifact data): swapping {@html} payload
 inside a persistent svg leaves Chrome's SMIL activation dead
-(lab-measured 1/12 vs 12/12 for fresh insertion).
+(lab-measured 1/12 vs 12/12 for fresh insertion). Dynamic
+insertions (readyState 'complete' — never hydration-claimed SSR
+nodes) SHALL receive the activation kicks: re-assigning
+textContent once on every inline <style> (Chrome parses
+innerHTML-inserted SVG stylesheets incompletely — empty rule
+bodies, animationName none) and setCurrentTime(0) on the fresh
+root (activates late-attached SMIL dependents; nothing is running
+yet, so no phase is lost).
 
 #### Scenario: the svg root contract holds
 

@@ -16,7 +16,7 @@ import { SPINNER_NAME_PATTERN } from '../../src/spinners/resolve.js';
 import { BLOCKS_WAVE_SVG } from '../../src/spinners/manifest.js';
 
 const PACKS = [
-  { id: 'magecdn', pack: magecdnSpinners, minCount: 109 },
+  { id: 'magecdn', pack: magecdnSpinners, minCount: 94 },
   { id: 'svg-loaders', pack: svgLoadersSpinners, minCount: 12 },
 ] as const;
 
@@ -29,7 +29,7 @@ describe('the vendored loader packs (review R2)', () => {
   });
 
   test('both packs carry their full vendored counts', () => {
-    expect(Object.keys(magecdnSpinners)).toHaveLength(109);
+    expect(Object.keys(magecdnSpinners)).toHaveLength(94); // 109 vendored − 15 dynamic-context exclusions (round 10)
     expect(Object.keys(svgLoadersSpinners)).toHaveLength(12);
   });
 

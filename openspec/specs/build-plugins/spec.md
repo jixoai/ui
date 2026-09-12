@@ -864,7 +864,13 @@ file).
 ### Requirement: the vendored loader packs ship as injectable sub-entries
 
 The package SHALL ship two loader packs as independent sub-entries:
-`./spinners/magecdn` (the complete 109-loader magecdn catalog) and
+`./spinners/magecdn` (the 94 VERIFIED-WORKING loaders of the magecdn
+catalog — 109 vendored minus 15 dynamic-context exclusions: the
+relay-chained SMIL and blank-rendering inline-CSS families that are
+unreliable through the component's createElementNS + svg.innerHTML
+insertion path in Chrome, each excluded with a receipt in the pack
+generator; upstream credit shubhamjain/svg-spinners, the collection
+magecdn distributes, itself aggregating SamHerbert's MIT set) and
 `./spinners/svg-loaders` (SamHerbert's classic 12-loader MIT set) —
 each exporting a `Readonly<Record<string, SpinnerSource>>` the
 consumer SPREADS into `spinners.spinners` (same-name entries

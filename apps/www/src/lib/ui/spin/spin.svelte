@@ -326,13 +326,22 @@
 
   $effect(() => {
     if (typeof window === 'undefined' || svgData === null) return;
-    // NO clock kick (round 6): SMIL starts at HTML parse for SSR'd
-    // svgs (measured: motion by ~0.6s, well before hydration) and at
-    // insertion for swapped instances (~80ms) — the round-5
-    // setCurrentTime(0) "kick" fixed nothing measurable and ADDED a
-    // visible artifact: at hydration it reset every already-running
-    // loader back to its phase-0 pose (the 2.1s snap-back the Owner
-    // caught). The engine's native timelines are left untouched.
+    // the ACTIVATION KICKS (round 10) — dynamic-insertion only
+    // (readyState 'complete': post-load switches; hydration-time
+    // claimed SSR nodes run from parse and are never touched — the
+    // round-6 snap-back cannot recur). Two measured rescues:
+    //   1. CSS reprocess: Chrome parses <style> sheets inside
+    //      innerHTML-inserted SVGs INCOMPLETELY (lab: the rule's
+    //      selector lands with an EMPTY body, animationName none —
+    //      the whole cog/square/wifi CSS-animated family frozen);
+    //      re-assigning textContent once forces the reprocess.
+    //   2. the SMIL clock anchor: setCurrentTime(0) on the fresh node
+    //      (nothing running yet — no phase to lose) activates the
+    //      late-attached dependents (13 lab-rescued loaders).
+    if (document.readyState === 'complete' && root) {
+      for (const st of root.querySelectorAll('style')) st.textContent = st.textContent;
+      if (typeof root.setCurrentTime === 'function') root.setCurrentTime(0);
+    }
     const mql =
       typeof window.matchMedia === 'function'
         ? window.matchMedia('(prefers-reduced-motion: reduce)')
