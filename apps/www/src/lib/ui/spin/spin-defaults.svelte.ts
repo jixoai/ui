@@ -25,9 +25,9 @@
  *            default re-times every spinner at once. The svg lane
  *            ignores it (its clock is the SMIL document's own).
  *   linger   the frame linger duration — number | 'auto' (review
- *            R6/R7 + round 2): 'auto' = (frames-1)×interval keeps
- *            every frame visible; 0 hides at the interval handoff;
- *            context/plugin injectable like the interval.
+ *            R6/R7 + rounds 2/3): 'auto' = (frames-1)×interval/2
+ *            keeps half the cycle visible; 0 hides at the interval
+ *            handoff; context/plugin injectable like the interval.
  *   density  class a, the open axis with NO family own — no opinion:
  *            the indicator never stamped data-density and does not
  *            start now; the slot declares the channel OPEN without
@@ -55,8 +55,8 @@ export const spinSizeSlot = absentSlot<number | string>();
 export const spinIntervalSlot = absentSlot<number>();
 
 /** the frame linger duration — how long each retiring frame fades in
- *  its cell. ABSENT resolves 'auto' = (frames-1)×interval (every
- *  frame of the cycle stays visible); 0 = hide at the handoff
+ *  its cell. ABSENT resolves 'auto' = (frames-1)×interval/2 (half
+ *  the cycle lingers, review round 3); 0 = hide at the handoff
  *  (review R6/R7 + round 2). Context/plugin-injectable like the
  *  interval */
 export const spinLingerSlot = absentSlot<number | 'auto'>();

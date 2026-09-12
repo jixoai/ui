@@ -275,17 +275,18 @@ describe('spin — the two timings', () => {
     // is covered by the reduce-clears test + the real-browser walkthrough
   });
 
-  it("linger 'auto' (the default) = (frames − 1) × interval — the whole cycle stays visible", async () => {
+  it("linger 'auto' (the default) = (frames − 1) × interval / 2 — half the cycle lingers (review round 3)", async () => {
     vi.useFakeTimers();
     stubMatchMedia(false);
     const { container } = render(Spin); // no linger prop — 'auto' default
     const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    // dots carries 10 frames: (10 − 1) × 80 = 720ms
-    expect(cursor.getAttribute('style')).toBe('--jx-linger-ms: 720ms;');
+    // dots carries 10 frames: (10 − 1) × 80 / 2 = 360ms
+    expect(cursor.getAttribute('style')).toBe('--jx-linger-ms: 360ms;');
     flushSync();
-    await vi.advanceTimersByTimeAsync(80 * 9); // the whole cycle retires once
+    await vi.advanceTimersByTimeAsync(80 * 10); // ten ticks: spawns at 80..800
     flushSync();
-    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBe(9); // frames 0..8 lingered — frame 9 is the live one
+    // alive = spawns in (T−360, T] = (440, 800] → 480,560,640,720,800 = 5
+    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBe(5);
   });
 
   it('linger 0 hides at the handoff — no residue entries ever', async () => {

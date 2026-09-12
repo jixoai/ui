@@ -121,13 +121,13 @@ export default {
   // calls back — the driven instance below crosses BOTH corpora live
   // catalog-anchored initial timings (review round 2): the controls
   // start at the EFFECTIVE values (dots: interval 80, linger auto =
-  // (10-1)×80 = 720) and re-anchor when the name changes — a control
+  // (10-1)×80/2 = 360) and re-anchor when the name changes — a control
   // showing 0 for "catalog default" read as broken
   const catalogOf = (name: TextSpinnerName | SpinName): (typeof SPINNER_CATALOG)[TextSpinnerName] | undefined =>
     Object.hasOwn(SPINNER_CATALOG, name) ? SPINNER_CATALOG[name as TextSpinnerName] : undefined;
   const autoLinger = (name: TextSpinnerName | SpinName): number => {
     const cat = catalogOf(name);
-    return cat ? (cat.frames.length - 1) * cat.interval : 0;
+    return cat ? Math.round(((cat.frames.length - 1) * cat.interval) / 2) : 0;
   };
   const canvasInitial = {
     spinner: 'dots' as TextSpinnerName | SpinName,
@@ -146,7 +146,7 @@ export default {
     const cat = catalogOf(spinner);
     if (cat) {
       interval = cat.interval;
-      linger = (cat.frames.length - 1) * cat.interval;
+      linger = autoLinger(spinner);
     }
   });
   function resetCanvas(): void {
@@ -258,8 +258,8 @@ export default {
               svg posture's square edge — absent rides <code>var(--jx-icon)</code>.
               <code>interval</code> and <code>linger</code> are the text
               posture's two timings — the frame step and the frame residue duration
-              ('auto' = (frames−1)×interval; 0 = none). Changing the name re-anchors
-              both to the catalog; the controls are live (type, then tab out).
+              ('auto' = (frames−1)×interval/2; 0 = none). Changing the name re-anchors
+              both to the catalog; the controls commit live (typing and the −/+ pair).
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -292,7 +292,7 @@ export default {
         headerRegion="linger-trail"
         eyebrow="timings"
         title="The linger trail — the frame residue timing"
-        summary="`linger` is how long each retiring frame stays visible in the cursor's own grid cell, fading out linearly — the trail's depth emerges from linger / interval. Type `number | 'auto'`: the default 'auto' = (frames − 1) × interval (every frame of the cycle stays on screen — the gallery above runs it), 0 hides at the interval handoff. `interval` overrides the frame step (explicit prop > the Defaults slot > the spinner's catalog value); both ride the family's one Defaults contract, so a context — or the plugin mounting one — can set them ambiently for every spinner at once."
+        summary="`linger` is how long each retiring frame stays visible in the cursor's own grid cell, fading out linearly — the trail's depth emerges from linger / interval. Type `number | 'auto'`: the default 'auto' = (frames − 1) × interval / 2 (half the cycle lingers — the gallery above runs it), 0 hides at the interval handoff. `interval` overrides the frame step (explicit prop > the Defaults slot > the spinner's catalog value); both ride the family's one Defaults contract, so a context — or the plugin mounting one — can set them ambiently for every spinner at once."
       >
         <div class="flex flex-col gap-6">
           <div class="flex flex-wrap items-start gap-x-12 gap-y-6">
@@ -488,7 +488,7 @@ export default {
           { name: 'label', type: 'string', default: "'loading'", description: 'Announced to assistive tech ("loading checks").' },
           { name: 'size', type: 'number | string', default: 'var(--jx-icon)', description: "The svg posture's square edge. ABSENT rides the density ruler's var(--jx-icon) (presentation attributes cannot carry var(), so the default lands as a CSS width/height); an explicit value (or a slot config) pins it. The text posture paints var(--jx-text) and ignores the slot." },
           { name: 'interval', type: 'number', default: 'the catalog value', description: 'The frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner’s own catalog interval (line 130ms, simpleDots 400ms…). The svg lane ignores it (its clock is the SMIL document).' },
-          { name: 'linger', type: "number | 'auto'", default: "'auto'", description: "The frame linger duration: each retiring frame stays in the cursor’s own grid cell fading out LINEARLY for this long. 'auto' = (frames − 1) × interval — the whole cycle stays visible; 0 = hide at the interval handoff. The trail depth = linger / interval. Context/plugin injectable like the interval; never spawns under reduced motion." },
+          { name: 'linger', type: "number | 'auto'", default: "'auto'", description: "The frame linger duration: each retiring frame stays in the cursor’s own grid cell fading out LINEARLY for this long. 'auto' = (frames − 1) × interval / 2 — half the cycle lingers; 0 = hide at the interval handoff. The trail depth = linger / interval. Context/plugin injectable like the interval; never spawns under reduced motion." },
           { name: 'children', type: 'Snippet', default: '—', description: 'Wrapping content = container posture with scrim + aria-busy.' },
           { name: 'class', type: 'string', default: "''", description: 'Lands on the root (the inline span, the svg, or the wrapping grid).' },
         ]}

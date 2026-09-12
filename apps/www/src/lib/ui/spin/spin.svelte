@@ -39,8 +39,8 @@
   `linger` is the FRAME LINGER duration — how long each retiring
   frame stays visible in the cursor's own grid cell, fading out
   LINEARLY, before it hides. Type `number | 'auto'` (default
-  'auto' = (frames − 1) × interval — every frame of the cycle stays
-  on screen; 0 = hide at the interval handoff, no residue). The
+  'auto' = (frames − 1) × interval / 2 — half the cycle lingers;
+  0 = hide at the interval handoff, no residue). The
   trail's depth emerges from linger / interval. `interval`
   overrides the frame step (explicit prop > the Defaults slot > the
   spinner's catalog value) — the pair shapes the trail together,
@@ -162,13 +162,14 @@
     typeof resolved.size === 'number' ? `${resolved.size}px` : resolved.size,
   );
 
-  // the two timings shape the trail together (review R6/R7 + round 2):
-  // the frame step and the linger duration — 'auto' = (frames-1)×step so
-  // the whole cycle stays visible; 0 hides at the handoff
+  // the two timings shape the trail together (review R6/R7 + rounds
+  // 2/3): the frame step and the linger duration — 'auto' =
+  // (frames-1)×step/2 (half the cycle lingers, review round 3);
+  // 0 hides at the handoff
   const stepMs = $derived(resolved.interval ?? text.interval);
   const lingerMs = $derived(
     resolved.linger === undefined || resolved.linger === 'auto'
-      ? (text.frames.length - 1) * stepMs
+      ? Math.round(((text.frames.length - 1) * stepMs) / 2)
       : resolved.linger > 0
         ? resolved.linger
         : 0,

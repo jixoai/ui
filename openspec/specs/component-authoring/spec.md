@@ -3543,7 +3543,7 @@ breathes. Two timings SHALL shape the text posture: `interval`
 `linger` (the frame residue duration — how long each retiring frame
 stays visible fading out LINEARLY in the cursor's own grid cell;
 type `number | 'auto'` with default 'auto' = (frames − 1) ×
-interval so the whole cycle stays visible, and 0 hiding at the
+interval / 2 (half the cycle lingers), and 0 hiding at the
 interval handoff; lingered frames never spawn under reduce and
 clear on the change). Both timings ride the family's single
 Defaults contract, so a context (or the plugin mounting one) sets
