@@ -315,27 +315,14 @@
     void refreshPromotions();
   }
 
-  // the panel-edit HMR fallback (r2 T8): when HMR does not carry a
-  // panel edit into the frame, reload the OWNING frame iframe by its
-  // kit name (same-origin), else the whole canvas document
+  // panel-edit events (#19, Owner walkthrough 2026-09-12): the reload
+  // fallback is DEAD — HMR has carried every edit since the T0d spike
+  // (proven by probe, GATE-0 and the Owner's own session), while the
+  // fallback's reload was the visible refresh the Owner felt AND the
+  // race behind #18's full-reload broadcast chain. The event stays as
+  // a seam (future listeners); no reload path remains.
   $effect(() => {
-    const onPanelEdited = (event: Event): void => {
-      const detail = (event as CustomEvent<{ frameId: string | null; file: string }>).detail;
-      const doc = canvasIframe?.contentDocument;
-      // DEFERRED 3.5s: HMR carries the edit in <1s (the T0d spike and
-      // every probe since). A reload racing the update disconnects the
-      // owning frame's vite client mid-propagation — the update then
-      // finds no home and vite broadcasts a FULL-RELOAD to every
-      // client, wiping the studio page (the GATE-0 W4 killer, caught
-      // by marker-probe: reload fired, sessionStorage survived, the
-      // pre-bus restore did not). The late reload is a harmless
-      // no-op re-render of content HMR already applied.
-      const reloadTarget =
-        doc !== null && doc !== undefined && detail.frameId !== null
-          ? (doc.querySelector(`iframe[name="${FRAME_NAME_PREFIX}${detail.frameId}"]`) as HTMLIFrameElement | null)
-          : canvasIframe;
-      setTimeout(() => reloadTarget?.contentWindow?.location.reload(), 3500);
-    };
+    const onPanelEdited = (_event: Event): void => {};
     window.addEventListener('jx-design:panel-edited', onPanelEdited);
     return () => window.removeEventListener('jx-design:panel-edited', onPanelEdited);
   });
