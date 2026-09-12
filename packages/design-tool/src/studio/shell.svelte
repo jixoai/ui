@@ -66,6 +66,11 @@
     seams.__jixoaiDesignSelect = (incoming: import('./selection.ts').DesignSelection | null): void => {
       window.dispatchEvent(new CustomEvent('jx-design:select', { detail: incoming }));
     };
+    // the hover twin (#31): the picker calls it on canvas hover — the
+    // tree listens and highlights the matching row (same relay law)
+    seams.__jixoaiDesignHover = (incoming: import('./selection.ts').DesignSelection | null): void => {
+      window.dispatchEvent(new CustomEvent('jx-design:hover', { detail: incoming }));
+    };
   }
 </script>
 
@@ -114,7 +119,6 @@
 
   let manifest: ManifestEntry[] = $state([]);
   let currentName: string | null = $state(null);
-  let frameHash: string | null = $state(null);
   let manifestError: string | null = $state(null);
   /** the ONE selection (r2 T4): picker and tree both feed this */
   let selection: DesignSelection | null = $state(null);
@@ -147,11 +151,7 @@
   // ?studio=1 puts the canvas doc in kit STUDIO MODE (#24): natural-
   // size matrix + metrics reporting + the ⌘wheel relay — the embed's
   // contract with its document
-  const previewSrc = $derived(
-    current === null
-      ? null
-      : current.path + '?studio=1' + (frameHash === null ? '' : `#${frameHash}`),
-  );
+  const previewSrc = $derived(current === null ? null : `${current.path}?studio=1`);
 
   /**
    * The panel's edit target (#12 T0 layer 2): the selection's frame →
@@ -243,9 +243,14 @@
     }
   }
 
-  function selectCanvas(name: string, hash: string | null = null): void {
+  /** the tree's page-folder anchor (#32): a CAMERA move handed to the
+   *  stage — never an iframe src change (the hash-append reloaded every
+   *  frame per click); the nonce re-fires for repeat clicks */
+  let anchorRequest = $state<{ frameId: string; nonce: number } | null>(null);
+  let anchorNonce = 0;
+
+  function selectCanvas(name: string): void {
     currentName = name;
-    frameHash = hash;
     // the selection addressed the PREVIOUS canvas's frames — gone
     selection = null;
     persistSelection();
@@ -454,7 +459,8 @@
         {selection}
         onSelect={(incoming) => { selection = incoming; persistSelection(); }}
         onAnchorFrame={(frameId) => {
-          if (currentName !== null) selectCanvas(currentName, frameId);
+          anchorNonce += 1;
+          anchorRequest = { frameId, nonce: anchorNonce };
         }}
       />
     {/key}
@@ -463,7 +469,12 @@
   <!-- r3 issue #21: the stage is StageView — the camera (zoom/pan/fit)
        over the canvas iframe lives there, transform-only, the iframe's
        size/URL invariant; the tree keeps the live iframe via onIframe -->
-  <StageView src={previewSrc} title={`canvas ${currentName}`} onIframe={(element) => (canvasIframe = element)} />
+  <StageView
+    src={previewSrc}
+    title={`canvas ${currentName}`}
+    anchor={anchorRequest}
+    onIframe={(element) => (canvasIframe = element)}
+  />
 
   <!-- r3 T2: the inspector — the property panel zone on top (ALWAYS
        mounted; unselected renders the empty-state flow guide), the

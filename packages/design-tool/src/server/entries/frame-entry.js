@@ -64,23 +64,27 @@ if (import.meta.hot) {
   import.meta.hot.on('jx-design:surface-reload', () => window.location.reload());
 }
 
-// the ⌘wheel relay (#24, 2026-09-12): ctrl/meta wheel over the frame
-// zooms the STAGE, not this document. The frame is an event black
-// hole to the studio — postMessage to the parent (the canvas doc adds
-// this iframe's offset and forwards; the studio applies the cursor-
-// anchored zoom through its lens). Plain wheel keeps native scroll.
+// the wheel relay (#24 → #29, the Figma gesture set): wheel over the
+// design is the CANVAS's gesture — ⌘/Ctrl = cursor-anchored zoom,
+// plain/shift = pan. The frame is an event black hole to the studio —
+// postMessage to the parent (the canvas doc adds this iframe's offset,
+// classifies, and forwards). The frame's own scroll is intentionally
+// sacrificed: at fit scale the workspace IS the scroll surface.
 // Embedded only: standalone frame URLs have no parent to serve.
 if (window.parent !== window) {
   window.addEventListener(
     'wheel',
     (event) => {
-      if (!event.ctrlKey && !event.metaKey) return;
       event.preventDefault();
       window.parent.postMessage(
         {
           type: 'jx-design:frame-wheel',
           deltaY: event.deltaY,
+          deltaX: event.deltaX,
           deltaMode: event.deltaMode,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
           clientX: event.clientX,
           clientY: event.clientY,
         },

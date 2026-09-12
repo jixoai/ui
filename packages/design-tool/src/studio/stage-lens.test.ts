@@ -16,6 +16,7 @@ import {
   STAGE_LENS_MIN_SCALE,
   STAGE_LENS_STORE_KEY,
   STAGE_LENS_STEP,
+  centerStageOn,
   clampStageScale,
   fitStageLens,
   formatStageZoom,
@@ -149,6 +150,22 @@ test('fitStageLens stays a fixed point: a stage-sized sheet fits at 1, offset 0'
   assert.equal(fit.scale, 1);
   assert.equal(fit.x, 48);
   assert.equal(fit.y, 48);
+});
+
+/* ── the anchor camera (#32) ──────────────────────────────────────────── */
+
+test('centerStageOn keeps the zoom and centers a canvas-space box', () => {
+  const lens = { scale: 0.5, x: 100, y: -40 };
+  const centered = centerStageOn(lens, 1020, 900, { x: 400, y: 1200, width: 300, height: 500 });
+  assert.equal(centered.scale, 0.5, 'zoom untouched');
+  // the box's center projects to the stage's center
+  assert.ok(Math.abs(centered.x + (400 + 150) * 0.5 - 510) < 1e-9, 'x centers');
+  assert.ok(Math.abs(centered.y + (1200 + 250) * 0.5 - 450) < 1e-9, 'y centers');
+});
+
+test('centerStageOn degrades to the unchanged lens on non-finite input', () => {
+  const lens = { scale: 1, x: 3, y: 4 };
+  assert.equal(centerStageOn(lens, 1020, 900, { x: Number.NaN, y: 0, width: 10, height: 10 }), lens);
 });
 
 /* ── the wheel factor ────────────────────────────────────────────────── */

@@ -57,9 +57,11 @@
   网格」(#24/#25). Svelte 5 runes.
 -->
 <script lang="ts">
+  import { untrack } from 'svelte';
   import {
     STAGE_LENS_HOME,
     STAGE_LENS_STEP,
+    centerStageOn,
     fitStageLens,
     formatStageZoom,
     panStageLens,
@@ -67,7 +69,8 @@
     serializeStageLens,
     stageLensTransform,
     stageWheelFactor,
-    zoomStageLensBy,
+    zoomStageLens,
+  zoomStageLensBy,
     STAGE_LENS_STORE_KEY,
     type StageAnchor,
     type StageLens,
@@ -80,8 +83,11 @@
     title: string;
     /** the shell's iframe seam — the component tree walks its document */
     onIframe?: (element: HTMLIFrameElement | null) => void;
+    /** the tree's page-folder anchor (#32): center this frame id — a
+     *  CAMERA move (the nonce re-fires for repeat clicks on the same id) */
+    anchor?: { frameId: string; nonce: number } | null;
   }
-  let { src, title, onIframe }: Props = $props();
+  let { src, title, onIframe, anchor = null }: Props = $props();
 
   let stageEl: HTMLDivElement | null = $state(null);
   let iframeEl: HTMLIFrameElement | null = $state(null);
@@ -161,14 +167,19 @@
 
   /* ── zoom ─────────────────────────────────────────────────────────── */
 
-  /** the workspace's wheel: ⌘/Ctrl (macOS pinch arrives as ctrl+wheel);
-   *  a PLAIN wheel keeps page/iframe scroll semantics — untouched.
-   *  Direct hits only: the mode sheet's zoom bubbles here too */
+  /** the workspace's wheel (#29, the Figma gesture set): plain wheel
+   *  pans (shift / deltaX = horizontal), ⌘/Ctrl zooms cursor-anchored
+   *  (macOS pinch arrives as ctrl+wheel). Direct hits only: the mode
+   *  sheet's zoom bubbles here too */
   function onSurroundWheel(event: WheelEvent): void {
     if (event.target !== event.currentTarget) return;
-    if (!event.ctrlKey && !event.metaKey) return;
     event.preventDefault();
-    applyLens(zoomStageLensBy(lens, stageWheelFactor(event.deltaY, event.deltaMode), anchorAt(event.clientX, event.clientY)));
+    if (event.ctrlKey || event.metaKey) {
+      applyLens(zoomStageLensBy(lens, stageWheelFactor(event.deltaY, event.deltaMode), anchorAt(event.clientX, event.clientY)));
+      return;
+    }
+    const { dx, dy } = panDeltas(event);
+    applyLens(panStageLens(lens, -dx, -dy));
   }
 
   /** lens mode's wheel: the iframe is covered, so ANY wheel zooms */
@@ -179,6 +190,18 @@
 
   function hudZoom(factor: number): void {
     applyLens(zoomStageLensBy(lens, factor, stageCenter()));
+  }
+
+  /** a wheel event → screen-space pan deltas: line/page modes
+   *  normalize to px; a shift-held vertical notch pans horizontally */
+  function panDeltas(
+    event: WheelEvent | { deltaY: number; deltaX: number; deltaMode?: number; shiftKey?: boolean },
+  ): { dx: number; dy: number } {
+    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1;
+    const x = event.deltaX * unit;
+    const y = event.deltaY * unit;
+    if (event.shiftKey === true && x === 0) return { dx: y, dy: 0 };
+    return { dx: x, dy: y };
   }
 
   /* ── the relayed ⌘+wheel (#24): anywhere over the canvas ──────────── */
@@ -196,6 +219,13 @@
     );
   }
 
+  /** the relayed plain wheel (#29): Figma semantics — pan the camera
+   *  by screen-space deltas (wheel down moves the content up) */
+  function onRelayPan(dx: number, dy: number): void {
+    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
+    applyLens(panStageLens(lens, -dx, -dy));
+  }
+
   function onMessage(event: MessageEvent): void {
     if (event.source !== iframeEl?.contentWindow) return;
     const data = event.data as
@@ -211,6 +241,12 @@
       typeof data.y === 'number'
     ) {
       onRelayZoom({ deltaY: data.deltaY, deltaMode: data.deltaMode, x: data.x, y: data.y });
+    } else if (
+      data.type === 'jx-design:wheel-pan' &&
+      typeof data.dx === 'number' &&
+      typeof data.dy === 'number'
+    ) {
+      onRelayPan(data.dx, data.dy);
     }
   }
 
@@ -297,6 +333,35 @@
   $effect(() => {
     if (iframeEl === null) return;
     sheet = null;
+  });
+
+  // the tree's page-folder anchor (#32): center the frame's element —
+  // a CAMERA move on the live document (the r2 hash-append swapped the
+  // whole iframe per click; every frame reloaded on a mere expand)
+  $effect(() => {
+    if (anchor === null || iframeEl === null) return;
+    const doc = iframeEl.contentDocument;
+    const element = doc?.getElementById(anchor.frameId) ?? null;
+    if (element === null) return;
+    const rect = element.getBoundingClientRect();
+    const stageRect = stageEl?.getBoundingClientRect();
+    if (stageRect === undefined) return;
+    // UNTRACK the lens read: this effect WRITES the lens — a tracked
+    // read turns every camera move (wheel, drag) into an anchor
+    // re-centering that undoes it (the round-4 probe catch)
+    applyLens(
+      centerStageOn(
+        untrack(() => lens),
+        stageRect.width,
+        stageRect.height,
+        {
+          x: rect.left,
+          y: rect.top,
+          width: rect.width,
+          height: rect.height,
+        },
+      ),
+    );
   });
 
   // the relay + resize wiring: messages from the live canvas document,
@@ -403,6 +468,14 @@
           aria-label="zoom in"
           onclick={() => hudZoom(STAGE_LENS_STEP)}
         >+</button>
+        <span class="studio-stage-sep" aria-hidden="true"></span>
+        <button
+          class="studio-stage-btn"
+          type="button"
+          data-act="actual"
+          aria-label="zoom to 100% (natural size)"
+          onclick={() => applyLens(zoomStageLens(lens, 1, stageCenter()))}
+        >100%</button>
         <button
           class="studio-stage-btn"
           type="button"
@@ -479,7 +552,10 @@
     height: 100%;
     border: 0;
     background: transparent;
-    color-scheme: dark;
+    /* NO color-scheme here (#30, Owner 2026-09-12): the UA paints the
+       iframe's canvas from the scheme and IGNORES background:
+       transparent — an immovable white ground. The canvas document
+       carries its own .dark class for its content. */
   }
   /* lens mode (#24 visibility): tint + dashed rim — the mode must be
      SEEN on, not inferred from behavior */
@@ -549,5 +625,11 @@
     text-align: center;
     font-variant-numeric: tabular-nums;
     user-select: none;
+  }
+  .studio-stage-sep {
+    width: 1px;
+    align-self: stretch;
+    margin: 0.125rem 0.1875rem;
+    background: #262320;
   }
 </style>

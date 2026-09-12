@@ -2,11 +2,14 @@
   @jixoai/ui-design (studio) — the unified canvas tree (r2 T5 → r3 #20).
 
   Orthogonal intent (1): ONE tree per canvas — the manifest's frames as
-  `page: <id>` folders (the navigator's old anchor rows, W1) plus the
-  canvas document's own kit usages as the `components: canvas` group
-  (the old stamp tree's canvas layer), rendered by the registry's own
-  tree-view item (issue #20: "use our own components") — one dogfood
-  level deeper than the r3 T4 list-item skin.
+  `page: <id>` folders (the navigator's old anchor rows, W1), rendered
+  by the registry's own tree-view item (issue #20: "use our own
+  components") — one dogfood level deeper than the r3 T4 list-item
+  skin. The r2-era `components: canvas` group is RETIRED (#33, Owner
+  2026-09-12): pages+components are joined INSIDE the page folders;
+  the canvas doc's own kit wrappers (prototype-kit #1…#12) are
+  structural scaffolding, not content — they stay canvas-pickable but
+  leave the tree.
 
   Dynamic loading (#20): a frame's stamp records are collected ONLY
   when its page node is expanded (collectFrameRecords by the kit iframe
@@ -44,7 +47,6 @@
     FRAME_NAME_PREFIX,
     buildSelectionTree,
     collectFrameRecords,
-    collectStampRecords,
     type DesignFrameSeams,
     type DesignSelection,
     type DesignStudioSeams,
@@ -52,9 +54,8 @@
     type StampRecord,
   } from './selection.ts';
 
-  /** page-folder name prefix + the canvas-doc group id (tree paths) */
+  /** page-folder name prefix (tree paths) */
   const PAGE_PREFIX = 'page: ';
-  const CANVAS_GROUP = 'components: canvas';
 
   /** per-node payload handed back by every tree-view ctx */
   type TreeMeta =
@@ -86,13 +87,11 @@
 
   /* ── the records state: canvas layer eager, frame layers lazy ──────── */
 
-  let canvasRecords: StampRecord[] = $state([]);
   // #12/T0 layer 3 (same-type audit) — per-SOURCE signature gates.
   // Non-reactive on purpose; a poll that leaves a source's stamp tree
-  // unchanged writes NOTHING (zero re-derivation downstream). Both
-  // gates reset per iframe lifecycle (canvas switch / anchor reload
-  // forces one honest re-write).
-  let canvasGate: string | null = null;
+  // unchanged writes NOTHING (zero re-derivation downstream). Gates
+  // reset per iframe lifecycle (a canvas switch forces one honest
+  // re-write).
   const frameGates: Record<string, string | null> = {};
   /** frameId → its stamp records (presence = the frame was walked) */
   const frameRecords = $state<Record<string, StampRecord[]>>({});
@@ -140,32 +139,12 @@
   }
 
   /** the #20 evidence channel: non-reactive counters, never rendered */
-  function bumpWalk(frameId: string | null): void {
+  function bumpWalk(frameId: string): void {
     if (typeof window === 'undefined') return;
     const seams = window as unknown as DesignStudioSeams;
     seams.__jixoaiDesignWalks ??= { canvas: 0, frames: {} };
-    if (frameId === null) seams.__jixoaiDesignWalks.canvas += 1;
-    else
-      seams.__jixoaiDesignWalks.frames[frameId] =
-        (seams.__jixoaiDesignWalks.frames[frameId] ?? 0) + 1;
-  }
-
-  function refreshCanvas(): void {
-    bumpWalk(null);
-    const doc = safeDocument(iframe);
-    let next: StampRecord[] = [];
-    if (doc !== null) {
-      try {
-        next = collectStampRecords(doc.body, null);
-      } catch {
-        next = []; // mid-teardown document — the next event re-walks
-      }
-    }
-    const signature = recordsSignature(next);
-    if (signature !== canvasGate) {
-      canvasGate = signature;
-      canvasRecords = next;
-    }
+    seams.__jixoaiDesignWalks.frames[frameId] =
+      (seams.__jixoaiDesignWalks.frames[frameId] ?? 0) + 1;
   }
 
   function walkFrame(frameId: string): void {
@@ -186,9 +165,9 @@
     }
   }
 
-  /** the gated poll: the canvas layer (eager) + ONLY expanded page folders */
+  /** the gated poll: ONLY expanded page folders (#33 — the canvas
+   *  layer retired with its group) */
   function refresh(): void {
-    refreshCanvas();
     for (const id of expandedMirror) {
       if (!id.startsWith(PAGE_PREFIX)) continue;
       walkFrame(id.slice(PAGE_PREFIX.length));
@@ -207,27 +186,61 @@
   }
 
   const nodes = $derived.by(() => {
-    const pageFolders: TreeNode<TreeMeta>[] = frames.map((frame) => ({
+    return frames.map((frame) => ({
       name: `${PAGE_PREFIX}${frame.id}`,
       // [] (never undefined): a page node is ALWAYS a folder —
       // expandable from the start, children arrive on the lazy walk
       children: usageNodes(buildSelectionTree(frameRecords[frame.id] ?? [])),
       meta: { kind: 'page', frameId: frame.id, ref: frame.ref },
     }));
-    return [
-      ...pageFolders,
-      {
-        name: CANVAS_GROUP,
-        children: usageNodes(buildSelectionTree(canvasRecords)),
-        meta: { kind: 'canvas-group' },
-      },
-    ];
   });
 
   /** selection → the leaf/folder path it addresses (row highlight) */
   const selectedPath = $derived.by(() =>
     selection === null ? undefined : findUsagePath(nodes, selection),
   );
+
+  /** the hover twin (#31): the canvas picker reports hovers up; the
+   *  matching row lights (transient — never persisted, never selected) */
+  let hoverSelection: DesignSelection | null = $state(null);
+  const hoverPath = $derived.by(() =>
+    hoverSelection === null ? undefined : findUsagePath(nodes, hoverSelection),
+  );
+
+  $effect(() => {
+    const onHover = (event: Event): void => {
+      hoverSelection = (event as CustomEvent<DesignSelection | null>).detail;
+    };
+    window.addEventListener('jx-design:hover', onHover);
+    return () => window.removeEventListener('jx-design:hover', onHover);
+  });
+
+  /** row hover (#31, the DOWN direction): light the element in its frame */
+  function hoverUsage(node: SelectionTreeNode): void {
+    const doc = safeDocument(iframe);
+    if (doc === null) return;
+    const target =
+      node.frameId === null
+        ? iframe?.contentWindow
+        : (Array.from(doc.querySelectorAll('iframe')).find(
+            (f) => f.name === `${FRAME_NAME_PREFIX}${node.frameId}`,
+          )?.contentWindow ?? null);
+    const seams = target as (Window & DesignFrameSeams) | null;
+    seams?.__jixoaiDesignHover?.({ usageIndex: node.usageIndex, iterationIndex: null });
+  }
+  function unhoverUsage(): void {
+    hoverClearAll();
+  }
+  function hoverClearAll(): void {
+    const doc = safeDocument(iframe);
+    if (doc === null) return;
+    // every frame's hover seam clears; canvas-doc usages are tree-
+    // invisible since #33, so the frame set is complete
+    for (const frame of doc.querySelectorAll('iframe')) {
+      const seams = frame.contentWindow as (Window & DesignFrameSeams) | null;
+      seams?.__jixoaiDesignHover?.(null);
+    }
+  }
 
   function findUsagePath(
     list: readonly TreeNode<TreeMeta>[],
@@ -312,7 +325,6 @@
     // `iframe` there throws 'removeEventListener of null' and can
     // abort the surrounding flush (GATE-0 diagnosis, 2026-09-12)
     const element = iframe;
-    canvasGate = null; // fresh iframe lifecycle — force the first write
     for (const key of Object.keys(frameGates)) delete frameGates[key];
     refresh();
     const interval = setInterval(() => refresh(), 1000);
@@ -328,7 +340,11 @@
 {#snippet usageLabel(ctx: TreeItemCtx<TreeMeta>)}
   {#if ctx.node.meta?.kind === 'usage'}
     {@const node = ctx.node.meta.node}
-    <span class="tree-usage{ctx.id === selectedPath ? ' selected' : ''}">
+    <span
+      class="tree-usage{ctx.id === selectedPath ? ' selected' : ''}{ctx.id === hoverPath ? ' hovered' : ''}"
+      onmouseenter={() => hoverUsage(node)}
+      onmouseleave={() => unhoverUsage()}
+    >
       {node.component}{' '}
       <span class="tree-usage-index">#{node.usageIndex}</span>
       {#if node.instanceCount > 1}
@@ -342,7 +358,7 @@
 
 <section class="tree">
   <header class="tree-head">{canvas ?? 'canvas'}</header>
-  {#if frames.length === 0 && canvasRecords.length === 0}
+  {#if frames.length === 0}
     <Empty
       density="xs"
       class="tree-empty"
@@ -413,6 +429,11 @@
   }
   .tree-usage.selected {
     color: #f5f1e8;
+  }
+  /* #31: hover reads as the canvas hover outline's twin — the same
+     lower-opacity accent, never the selected weight */
+  .tree-usage.hovered {
+    color: #d3e4ff;
   }
   .tree-usage-index {
     color: #a39a8b;

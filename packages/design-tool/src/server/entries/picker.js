@@ -22,6 +22,13 @@
  * window.__jixoaiDesignHighlight({usageIndex, iterationIndex} | null)
  * highlights (and scrolls to) a usage inside THIS document.
  *
+ * The hover loop (#31, Owner 2026-09-12): a HOVER outline (a distinct
+ * hue at LOWER opacity than selection — never the same weight) rides
+ * mouseover/mouseout on stamped elements, reports up through the
+ * studio's window.__jixoaiDesignHover seam (the tree lights its row),
+ * and window.__jixoaiDesignHover({usageIndex, iterationIndex} | null)
+ * is the down-seam twin (tree hover lights the element, NO scroll).
+ *
  * Honest degradation (the r2 matrix): clicks on unstamped content
  * (native elements, components without a single-root rest spread,
  * third-party components) pass through untouched — unselectable, by
@@ -36,6 +43,7 @@
 
 const FRAME_NAME_PREFIX = 'jixoai-design-frame-';
 const HIGHLIGHT_CLASS = 'jx-design-pick-highlight';
+const HOVER_CLASS = 'jx-design-pick-hover';
 
 /**
  * Walk up a same-origin parent chain (bounded) for the studio hook.
@@ -80,6 +88,17 @@ function applyHighlight(element) {
   }
 }
 
+/* the hover outline (#31): its own element, its own color, lower
+   opacity than the selection ring — the two never read as one state */
+let hovered = null;
+
+function applyHover(element) {
+  if (hovered === element) return;
+  if (hovered !== null) hovered.classList.remove(HOVER_CLASS);
+  hovered = element;
+  if (element !== null && element !== highlighted) element.classList.add(HOVER_CLASS);
+}
+
 function elementFor(target) {
   if (target === null) return null;
   const elements = document.querySelectorAll(
@@ -104,6 +123,12 @@ export function initDesignPicker() {
   style.textContent = [
     `.${HIGHLIGHT_CLASS} {`,
     `  outline: 2px solid #e05656;`,
+    `  outline-offset: 2px;`,
+    `}`,
+    // #31: hover = the blue twin at lower opacity — a different color
+    // family from the selection red, explicitly lighter in weight
+    `.${HOVER_CLASS} {`,
+    `  outline: 2px solid rgba(96, 140, 255, 0.45);`,
     `  outline-offset: 2px;`,
     `}`,
   ].join('\n');
@@ -158,4 +183,58 @@ export function initDesignPicker() {
   window.__jixoaiDesignHighlight = (target) => {
     applyHighlight(target === null ? null : elementFor(target));
   };
+
+  // the hover DOWN seam (#31): tree hover lights the element — the
+  // highlight twin WITHOUT the scroll (hover never moves the viewport)
+  window.__jixoaiDesignHover = (target) => {
+    applyHover(target === null ? null : elementFor(target));
+  };
+
+  // the hover UP loop (#31): mouseover/mouseout on stamped elements —
+  // outline locally + report to the studio (the tree lights its row).
+  // Passive + capture: cheap, and no click semantics are touched.
+  document.addEventListener(
+    'mouseover',
+    (event) => {
+      const target = event.target;
+      if (target === null || typeof target.closest !== 'function') return;
+      const stamped = target.closest('[data-jx-component]');
+      const element = stamped === null ? null : stamped;
+      applyHover(element);
+      if (element === null) return;
+      const usageIndex = Number(element.getAttribute('data-jx-instance'));
+      const component = element.getAttribute('data-jx-component');
+      if (!Number.isInteger(usageIndex) || component === null) return;
+      const all = document.querySelectorAll(`[data-jx-instance="${String(usageIndex)}"]`);
+      const iterationIndex = all.length > 1 ? Array.prototype.indexOf.call(all, element) : null;
+      const studio = findStudioWindow();
+      if (studio !== null && typeof studio.__jixoaiDesignHover === 'function') {
+        studio.__jixoaiDesignHover({
+          frameId: frameIdFromWindowName(window.name),
+          usageIndex,
+          iterationIndex,
+          component,
+          instanceCount: all.length,
+        });
+      }
+    },
+    { capture: true, passive: true },
+  );
+  document.addEventListener(
+    'mouseout',
+    (event) => {
+      // only when truly LEAVING the stamped element (not crossing a child)
+      if (event.relatedTarget !== null && event.target !== null) {
+        const from = event.target.closest ? event.target.closest('[data-jx-component]') : null;
+        const to = event.relatedTarget.closest ? event.relatedTarget.closest('[data-jx-component]') : null;
+        if (from !== null && from === to) return;
+      }
+      applyHover(null);
+      const studio = findStudioWindow();
+      if (studio !== null && typeof studio.__jixoaiDesignHover === 'function') {
+        studio.__jixoaiDesignHover(null);
+      }
+    },
+    { capture: true, passive: true },
+  );
 }
