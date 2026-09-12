@@ -1,0 +1,185 @@
+/**
+ * stage-lens tests — the issue #21 camera model: clamp bounds, the
+ * cursor-anchored zoom invariant, free pan, the wheel factor, and the
+ * sessionStorage codec (structural storage fakes — no DOM dependency,
+ * the selection.ts discipline).
+ *
+ * Original need: design-studio-r3 issue #21 (2026-09-12).
+ */
+
+import { strict as assert } from 'node:assert';
+import test from 'node:test';
+
+import {
+  STAGE_LENS_HOME,
+  STAGE_LENS_MAX_SCALE,
+  STAGE_LENS_MIN_SCALE,
+  STAGE_LENS_STORE_KEY,
+  STAGE_LENS_STEP,
+  clampStageScale,
+  formatStageZoom,
+  isStageLensHome,
+  panStageLens,
+  parseStageLens,
+  restoreStageLens,
+  serializeStageLens,
+  stageLensTransform,
+  stageWheelFactor,
+  zoomStageLens,
+  zoomStageLensBy,
+  type StageLensStorage,
+} from './stage-lens.ts';
+
+/* ── fixtures ───────────────────────────────────────────────────────── */
+
+function memoryStorage(initial: Record<string, string> = {}): StageLensStorage & {
+  dump(): Record<string, string>;
+} {
+  const data = new Map(Object.entries(initial));
+  return {
+    getItem(key: string): string | null {
+      return data.get(key) ?? null;
+    },
+    dump(): Record<string, string> {
+      return Object.fromEntries(data);
+    },
+  };
+}
+
+/** project a canvas-space point through the lens (the invariant probe) */
+function throughLens(lens: StageLens, u: { x: number; y: number }): { x: number; y: number } {
+  return { x: lens.x + lens.scale * u.x, y: lens.y + lens.scale * u.y };
+}
+
+/* ── the clamp ───────────────────────────────────────────────────────── */
+
+test('clampStageScale pins the 0.25–3.0 legal range', () => {
+  assert.equal(clampStageScale(0.01), STAGE_LENS_MIN_SCALE);
+  assert.equal(clampStageScale(99), STAGE_LENS_MAX_SCALE);
+  assert.equal(clampStageScale(1), 1);
+  assert.equal(clampStageScale(1.5), 1.5);
+});
+
+test('clampStageScale degrades non-finite input to home zoom', () => {
+  assert.equal(clampStageScale(Number.NaN), 1);
+  assert.equal(clampStageScale(Number.POSITIVE_INFINITY), 1);
+});
+
+/* ── the cursor-anchored zoom ────────────────────────────────────────── */
+
+test('zoomStageLens keeps the anchor point visually pinned', () => {
+  const lens = { scale: 1, x: 40, y: -20 };
+  const anchor = { x: 300, y: 200 };
+  const canvasPoint = { x: (anchor.x - lens.x) / lens.scale, y: (anchor.y - lens.y) / lens.scale };
+  for (const next of [0.25, 0.5, 1.75, 3]) {
+    const zoomed = zoomStageLens(lens, next, anchor);
+    const screen = throughLens(zoomed, canvasPoint);
+    assert.ok(Math.abs(screen.x - anchor.x) < 1e-9, `scale ${next}: x pinned`);
+    assert.ok(Math.abs(screen.y - anchor.y) < 1e-9, `scale ${next}: y pinned`);
+  }
+});
+
+test('zoomStageLens clamps the request and stays anchored', () => {
+  const before = { scale: 2.9, x: 0, y: 0 };
+  const anchor = { x: 100, y: 100 };
+  const zoomed = zoomStageLens(before, 9, anchor);
+  assert.equal(zoomed.scale, STAGE_LENS_MAX_SCALE);
+  // the canvas point the cursor sat on at scale 2.9 must still project
+  // to the cursor at the clamped scale 3 — even though the requested 9
+  // was refused
+  const canvasPoint = { x: anchor.x / before.scale, y: anchor.y / before.scale };
+  assert.deepEqual(throughLens(zoomed, canvasPoint), anchor);
+});
+
+test('zoomStageLensBy compounds multiplicatively from the current scale', () => {
+  const zoomed = zoomStageLensBy(STAGE_LENS_HOME, STAGE_LENS_STEP, { x: 0, y: 0 });
+  assert.ok(Math.abs(zoomed.scale - STAGE_LENS_STEP) < 1e-12);
+  const out = zoomStageLensBy(zoomed, 1 / STAGE_LENS_STEP, { x: 0, y: 0 });
+  assert.ok(Math.abs(out.scale - 1) < 1e-12);
+});
+
+/* ── pan ─────────────────────────────────────────────────────────────── */
+
+test('panStageLens is an unclamped screen-space delta (free canvas)', () => {
+  const panned = panStageLens({ scale: 2, x: 10, y: 10 }, -500, 1234.5);
+  assert.deepEqual(panned, { scale: 2, x: -490, y: 1244.5 });
+});
+
+test('panStageLens ignores non-finite deltas (a dropped pointer sample)', () => {
+  const lens = { scale: 1, x: 5, y: 6 };
+  assert.equal(panStageLens(lens, Number.NaN, 1), lens);
+});
+
+/* ── the wheel factor ────────────────────────────────────────────────── */
+
+test('stageWheelFactor: scroll down zooms out, up zooms in, |notch| ≈ 1.19×', () => {
+  assert.ok(stageWheelFactor(-100) > 1, 'scroll up zooms in');
+  assert.ok(stageWheelFactor(100) < 1, 'scroll down zooms out');
+  const notch = stageWheelFactor(-100);
+  assert.ok(notch > 1.1 && notch < 1.3, `a ±100px notch is a clean step (got ${notch.toFixed(3)})`);
+  // symmetric: one tick in then one tick out returns to the scale
+  const round = zoomStageLensBy(zoomStageLensBy(STAGE_LENS_HOME, notch, { x: 0, y: 0 }), 1 / notch, { x: 0, y: 0 });
+  assert.ok(Math.abs(round.scale - 1) < 1e-12);
+});
+
+test('stageWheelFactor normalizes line/page deltaMode', () => {
+  // 3 lines ≈ 48px — must differ from 3 raw pixels and match 48px
+  assert.ok(Math.abs(stageWheelFactor(3, 1) - stageWheelFactor(48)) < 1e-12);
+  assert.ok(Math.abs(stageWheelFactor(2, 2) - stageWheelFactor(200)) < 1e-12);
+});
+
+/* ── formats & css ───────────────────────────────────────────────────── */
+
+test('formatStageZoom renders the clamped whole-percent readout', () => {
+  assert.equal(formatStageZoom(1), '100%');
+  assert.equal(formatStageZoom(0.25), '25%');
+  assert.equal(formatStageZoom(3), '300%');
+  assert.equal(formatStageZoom(1.174), '117%');
+  assert.equal(formatStageZoom(99), '300%');
+});
+
+test('stageLensTransform is translate-then-scale (origin 0 0)', () => {
+  assert.equal(stageLensTransform({ scale: 1, x: 0, y: 0 }), 'translate(0px, 0px) scale(1)');
+  assert.equal(stageLensTransform({ scale: 0.5, x: -30, y: 12 }), 'translate(-30px, 12px) scale(0.5)');
+});
+
+test('isStageLensHome is exact-identity (fit restores the frozen home)', () => {
+  assert.ok(isStageLensHome(STAGE_LENS_HOME));
+  assert.ok(!isStageLensHome({ scale: 1, x: 0, y: 0.5 }));
+  assert.ok(!isStageLensHome({ scale: 0.999, x: 0, y: 0 }));
+});
+
+/* ── the persistence codec ───────────────────────────────────────────── */
+
+test('serialize → parse round-trips a real lens exactly', () => {
+  const lens = zoomStageLens(panStageLens(STAGE_LENS_HOME, 33.5, -12.25), 1.75, { x: 10, y: 10 });
+  assert.deepEqual(parseStageLens(serializeStageLens(lens)), lens);
+});
+
+test('parseStageLens rejects structural junk (→ null → home on restore)', () => {
+  for (const junk of ['{', 'null', '"x"', '{"scale":"1","x":0,"y":0}', '{"scale":1,"x":0}', '[]']) {
+    assert.equal(parseStageLens(junk), null, `junk ${junk}`);
+  }
+  assert.equal(parseStageLens(null), null);
+});
+
+test('parseStageLens rejects non-finite coordinates', () => {
+  assert.equal(parseStageLens('{"scale":1,"x":1e999,"y":0}'), null); // Infinity via JSON overflow
+});
+
+test('parseStageLens clamps a stored scale that left the legal range', () => {
+  const parsed = parseStageLens('{"scale":6,"x":-40,"y":80}');
+  assert.deepEqual(parsed, { scale: STAGE_LENS_MAX_SCALE, x: -40, y: 80 });
+});
+
+test('restoreStageLens: empty storage → home, stored → lens, throwing → home', () => {
+  assert.equal(restoreStageLens(memoryStorage()), STAGE_LENS_HOME);
+  const stored = memoryStorage({ [STAGE_LENS_STORE_KEY]: serializeStageLens({ scale: 0.5, x: 12, y: -8 }) });
+  assert.deepEqual(restoreStageLens(stored), { scale: 0.5, x: 12, y: -8 });
+  const locked: StageLensStorage = {
+    getItem(): string | null {
+      throw new Error('SecurityError — private mode');
+    },
+  };
+  assert.equal(restoreStageLens(locked), STAGE_LENS_HOME);
+});
