@@ -116,27 +116,40 @@ if (studio && window.parent !== window) {
   document.addEventListener('readystatechange', () => reportMetrics());
   reportMetrics();
 
-  // ⌘wheel over THIS document zooms the stage (cursor-anchored in
-  // canvas-doc coords — the studio's lens maps them: screen = t + z·c)
+  // wheel over THIS document = the canvas gesture (#29, Figma):
+  // ⌘/Ctrl zooms cursor-anchored (canvas-doc coords — the studio's
+  // lens maps them: screen = t + z·c); plain/shift pans (line/page
+  // modes normalize; a shift-held vertical notch pans horizontally)
+  function relayedPan(event) {
+    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1;
+    const x = event.deltaX * unit;
+    const y = event.deltaY * unit;
+    if (event.shiftKey === true && x === 0) return { dx: y, dy: 0 };
+    return { dx: x, dy: y };
+  }
   window.addEventListener(
     'wheel',
     (event) => {
-      if (!event.ctrlKey && !event.metaKey) return;
       event.preventDefault();
-      post({
-        type: 'jx-design:wheel-zoom',
-        deltaY: event.deltaY,
-        deltaMode: event.deltaMode,
-        x: event.clientX,
-        y: event.clientY,
-      });
+      if (event.ctrlKey || event.metaKey) {
+        post({
+          type: 'jx-design:wheel-zoom',
+          deltaY: event.deltaY,
+          deltaMode: event.deltaMode,
+          x: event.clientX,
+          y: event.clientY,
+        });
+      } else {
+        const { dx, dy } = relayedPan(event);
+        post({ type: 'jx-design:wheel-pan', dx, dy });
+      }
     },
     { passive: false },
   );
 
-  // frame-wheel forwarding: a frame document's relayed ctrl/wheel
+  // frame-wheel forwarding (#29): a frame document's relayed wheel
   // arrives in FRAME-doc coords; add the child iframe's offset within
-  // THIS document, then forward (still canvas-doc coords)
+  // THIS document, classify (zoom vs pan), and forward
   window.addEventListener('message', (event) => {
     const data = event.data;
     if (data === null || typeof data !== 'object' || data.type !== 'jx-design:frame-wheel') return;
@@ -146,13 +159,18 @@ if (studio && window.parent !== window) {
     );
     if (frame === undefined) return;
     const rect = frame.getBoundingClientRect();
-    post({
-      type: 'jx-design:wheel-zoom',
-      deltaY: data.deltaY,
-      deltaMode: data.deltaMode,
-      x: data.clientX + rect.left,
-      y: data.clientY + rect.top,
-    });
+    if (data.ctrlKey === true || data.metaKey === true) {
+      post({
+        type: 'jx-design:wheel-zoom',
+        deltaY: data.deltaY,
+        deltaMode: data.deltaMode,
+        x: data.clientX + rect.left,
+        y: data.clientY + rect.top,
+      });
+    } else {
+      const { dx, dy } = relayedPan(data);
+      post({ type: 'jx-design:wheel-pan', dx, dy });
+    }
   });
 }
 

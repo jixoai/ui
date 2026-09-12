@@ -67,16 +67,21 @@ try {
   await page.locator('.studio-canvas', { hasText: 'welcome' }).first().click();
   await page.locator('li[role=treeitem]').first().waitFor({ timeout: 30_000 });
   // unified tree: the page node's row anchors (activate = anchor + expand)
-  const heroPageNode = page.locator('li[data-path="page: hero-mobile-390-light"] .jx-tree-row');
+  const heroPageNode = page.locator('li[data-path="page: hero-mobile-390-light"] > .jx-tree-row');
   await heroPageNode.waitFor({ timeout: 20_000 });
+  const srcBeforeAnchor = await page.locator('.studio-preview iframe').getAttribute('src');
+  let canvasNavigationsDuringAnchor = 0;
+  page.on('framenavigated', (f) => { if (f.url().includes('/prototypes/welcome')) canvasNavigationsDuringAnchor += 1; });
   await heroPageNode.click();
-  await sleep(1200);
+  await sleep(1400);
   const afterAnchor = await page.locator('.studio-preview iframe').getAttribute('src');
-  record('W1', '② frame anchor appends hash', (afterAnchor?.includes('#hero-mobile-390-light')) === true, afterAnchor ?? '');
+  // #32: the anchor is a CAMERA move — the iframe src NEVER changes and
+  // the canvas document never re-navigates (the r2 hash-append reloaded
+  // every frame per expand/collapse; Owner 2026-09-12)
+  record('W1', '② frame anchor is camera-only (no src change, no reload)', afterAnchor === srcBeforeAnchor && canvasNavigationsDuringAnchor === 0, `src stable: ${afterAnchor === srcBeforeAnchor}; canvas navigations: ${canvasNavigationsDuringAnchor}`);
   await page.screenshot({ path: `${SHOT_DIR}w1-browse.png` });
 
   /* ── W2 select via canvas path + 10s silence ────────────────── */
-  // go back to plain canvas (no hash)
   await page.locator('.studio-canvas', { hasText: 'welcome' }).first().click();
   await page.waitForSelector('.studio-preview iframe', { timeout: 30_000 });
   await sleep(1500);
