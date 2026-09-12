@@ -67,6 +67,29 @@ export function hasDesignHost(): boolean {
   return typeof window !== 'undefined' && window.__jixoaiDesignHost === true;
 }
 
+// ---- studio-embed detection (#24) ----------------------------------------
+
+declare global {
+  interface Window {
+    /** set by the canvas entry when the studio embeds the page
+     *     (?studio=1) — the natural-size + metrics + wheel-relay mode */
+    __jixoaiDesignStudio?: boolean;
+  }
+}
+
+/**
+ * True inside the design STUDIO's canvas embed (#24, 2026-09-12): the
+ * studio appends ?studio=1 and the canvas entry sets this flag. In
+ * studio mode the kit renders the matrix at NATURAL size (max-content
+ * tracks, frame scale 1) and the document reports its metrics +
+ * relays ⌘/Ctrl+wheel to the studio — the stage's camera (zoom/pan/
+ * auto-fit) takes over as the one view-scaling authority. Standalone
+ * canvas pages keep the responsive scale-to-fit regime untouched.
+ */
+export function isStudioHost(): boolean {
+  return typeof window !== 'undefined' && window.__jixoaiDesignStudio === true;
+}
+
 /** dev-mode gate for the id-conflict warning (vite DEV flag; vitest
  *  runs under vite so the warning stays test-assertable) */
 export function isDevMode(): boolean {

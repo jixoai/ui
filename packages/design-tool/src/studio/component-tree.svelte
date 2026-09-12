@@ -415,10 +415,10 @@
     color: #f5f1e8;
   }
   .tree-usage-index {
-    color: #8d8578;
+    color: #a39a8b;
   }
   .tree-count {
-    color: #8d8578;
+    color: #a39a8b;
     font-size: 0.625rem;
   }
 </style>

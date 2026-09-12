@@ -17,6 +17,7 @@ import {
   STAGE_LENS_STORE_KEY,
   STAGE_LENS_STEP,
   clampStageScale,
+  fitStageLens,
   formatStageZoom,
   isStageLensHome,
   panStageLens,
@@ -108,6 +109,46 @@ test('panStageLens is an unclamped screen-space delta (free canvas)', () => {
 test('panStageLens ignores non-finite deltas (a dropped pointer sample)', () => {
   const lens = { scale: 1, x: 5, y: 6 };
   assert.equal(panStageLens(lens, Number.NaN, 1), lens);
+});
+
+/* ── the auto camera's fit (#24) ──────────────────────────────────────── */
+
+test('fitStageLens centers a sheet smaller than the stage at natural size (scale 1 ceiling)', () => {
+  const fit = fitStageLens(1020, 900, 800, 600);
+  assert.equal(fit.scale, 1);
+  assert.equal(fit.x, (1020 - 800) / 2);
+  assert.equal(fit.y, (900 - 600) / 2);
+});
+
+test('fitStageLens shrinks an oversized sheet to the binding axis, centered with padding clearance', () => {
+  // the hero matrix: ~2500px natural width in a ~1020px stage — the
+  // "1280 frame at 0.27×" world the r2 scale-to-fit produced
+  const fit = fitStageLens(1020, 900, 2500, 1800, 48);
+  assert.equal(fit.scale, (1020 - 96) / 2500);
+  // the fitted sheet projects centered on BOTH axes
+  const width = 2500 * fit.scale;
+  const height = 1800 * fit.scale;
+  assert.ok(Math.abs(fit.x - (1020 - width) / 2) < 1e-9, 'x centered');
+  assert.ok(Math.abs(fit.y - (900 - height) / 2) < 1e-9, 'y centered');
+  assert.ok(width <= 1020 - 48 + 1e-9 && height <= 900 - 48 + 1e-9, 'clears the padding');
+});
+
+test('fitStageLens respects the min-scale floor for absurd sheets', () => {
+  const fit = fitStageLens(1020, 900, 100000, 100000);
+  assert.equal(fit.scale, STAGE_LENS_MIN_SCALE);
+});
+
+test('fitStageLens degrades non-finite/non-positive inputs to identity (pre-metrics rest)', () => {
+  assert.equal(fitStageLens(Number.NaN, 900, 800, 600), STAGE_LENS_HOME);
+  assert.equal(fitStageLens(1020, 900, 0, 600), STAGE_LENS_HOME);
+  assert.equal(fitStageLens(1020, 900, 800, -5), STAGE_LENS_HOME);
+});
+
+test('fitStageLens stays a fixed point: a stage-sized sheet fits at 1, offset 0', () => {
+  const fit = fitStageLens(1000, 800, 1000 - 96, 800 - 96, 48);
+  assert.equal(fit.scale, 1);
+  assert.equal(fit.x, 48);
+  assert.equal(fit.y, 48);
 });
 
 /* ── the wheel factor ────────────────────────────────────────────────── */

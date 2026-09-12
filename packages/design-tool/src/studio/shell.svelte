@@ -144,7 +144,14 @@
   let promotionsRequest = 0;
 
   const current = $derived(manifest.find((entry) => entry.name === currentName) ?? null);
-  const previewSrc = $derived(current === null ? null : current.path + (frameHash === null ? '' : `#${frameHash}`));
+  // ?studio=1 puts the canvas doc in kit STUDIO MODE (#24): natural-
+  // size matrix + metrics reporting + the ⌘wheel relay — the embed's
+  // contract with its document
+  const previewSrc = $derived(
+    current === null
+      ? null
+      : current.path + '?studio=1' + (frameHash === null ? '' : `#${frameHash}`),
+  );
 
   /**
    * The panel's edit target (#12 T0 layer 2): the selection's frame →
@@ -597,7 +604,9 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
-    background: #e05656;
+    /* the brand hue rides the token sheet (#23): the document-level
+       .dark scope (studio-entry) carries it — one accent everywhere */
+    background: var(--primary, #e05656);
   }
   .studio-error {
     margin: 0;
@@ -670,7 +679,7 @@
   }
   .studio-updates-diff summary {
     cursor: pointer;
-    color: #6f6759;
+    color: #8d8578;
     font-size: 0.6875rem;
   }
   .studio-updates-diff pre {
@@ -688,7 +697,7 @@
   }
   .studio-updates-hint {
     margin: 0;
-    color: #6f6759;
+    color: #8d8578;
     font-size: 0.625rem;
   }
   /* the error lines' retry buttons (ID3/ID6) — button-scoped residue;
