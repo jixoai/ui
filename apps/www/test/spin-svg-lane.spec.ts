@@ -138,8 +138,10 @@ describe('spin — text posture', () => {
     const { container } = render(Spin, { props: { interval: 100, linger: 0 } });
     const style = document.head.querySelector('style[data-jx-spin-frames]')!;
     expect(style.textContent).toContain('jx-spin-f10-i100-l0');
-    // linger 0 → the fade stop lands ON the duty stop (discrete hide)
-    expect(style.textContent).toContain('@keyframes jx-spin-f10-i100-l0{0%{opacity:1}10%{opacity:1}10%{opacity:0}100%{opacity:0}}');
+    // linger 0 → the DISCRETE hide: steps(1,start) on the duty stop
+    // (two stops at the same percentage would MERGE — the silent
+    // whole-window-fade bug the Owner caught in review round 5)
+    expect(style.textContent).toContain('@keyframes jx-spin-f10-i100-l0{0%{opacity:1}10%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}}');
     const frames = [...container.querySelectorAll('[data-jx-spin-frame]')];
     expect((frames[1]!.getAttribute('style') ?? '')).toContain('--dur: 1000ms'); // 10 × 100
   });

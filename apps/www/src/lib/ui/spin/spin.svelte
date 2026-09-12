@@ -131,20 +131,25 @@
 
   /**
    * The shared slot-shape keyframes for one parameter set: hold
-   * opacity 1 across the duty window (interval / cycle), fade
-   * LINEARLY to 0 across the linger tail, rest at 0 through the
-   * remainder of the cycle. Per-frame phasing is the negative delay
-   * (--d), so EVERY frame animates the SAME rule — only the delay
-   * differs, the Owner's observation.
+   * opacity 1 across the duty window (interval / cycle), then either
+   * fade LINEARLY to 0 across the linger tail (lingered) or hide
+   * DISCRETELY at the handoff (linger 0 — the Owner catch: two stops
+   * at the SAME percentage MERGE in CSS keyframes, the later block
+   * winning, so a zero-length fade segment silently became a
+   * whole-duty-window linear fade; the discrete jump is
+   * steps(1, start) ON the duty stop, jumping to the segment's end
+   * value the instant the handoff arrives). Per-frame phasing is the
+   * negative delay (--d), so EVERY frame animates the SAME rule —
+   * only the delay differs, the Owner's observation.
    */
   function frameKeyframes(count: number, stepMs: number, lingerMs: number): string {
     const name = `jx-spin-f${count}-i${stepMs}-l${lingerMs}`;
     const duty = pct(stepMs / (count * stepMs));
-    const fade = pct((stepMs + lingerMs) / (count * stepMs));
-    ensureFrameKeyframes(
-      name,
-      `@keyframes ${name}{0%{opacity:1}${duty}%{opacity:1}${fade}%{opacity:0}100%{opacity:0}}`,
-    );
+    const body =
+      lingerMs > 0
+        ? `0%{opacity:1}${duty}%{opacity:1}${pct((stepMs + lingerMs) / (count * stepMs))}%{opacity:0}100%{opacity:0}`
+        : `0%{opacity:1}${duty}%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}`;
+    ensureFrameKeyframes(name, `@keyframes ${name}{${body}}`);
     return name;
   }
 </script>
