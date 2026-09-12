@@ -32,6 +32,7 @@ function paramsOf(src: string): URLSearchParams {
 
 afterEach(() => {
   delete window.__jixoaiDesignHost;
+  delete window.__jixoaiDesignStudio;
   if (window.location.pathname !== '/') window.history.pushState(null, '', '/');
   cleanup();
 });
@@ -271,6 +272,59 @@ describe('canvas grid', () => {
     expect(caption.tagName).toBe('P');
     expect(caption.style.gridColumn).toBe('1 / -1');
     expect(caption.textContent).toContain('hero matrix');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// studio mode (#24): the design studio's embed — natural size, camera
+// authority handed to the stage
+// ---------------------------------------------------------------------------
+describe('studio mode', () => {
+  it('numeric tracks swap to max-content (natural size, count preserved)', () => {
+    host();
+    window.__jixoaiDesignStudio = true;
+    const { container } = render(FrameHost, {
+      props: { canvasProps: { gridCols: 3 } },
+    });
+    const canvas = container.querySelector<HTMLElement>('[data-jx-prototype-canvas]')!;
+    expect(canvas.style.gridTemplateColumns).toBe('repeat(3, max-content)');
+  });
+
+  it('the adaptive default swaps to auto-fill max-content', () => {
+    host();
+    window.__jixoaiDesignStudio = true;
+    const { container } = render(FrameHost);
+    const canvas = container.querySelector<HTMLElement>('[data-jx-prototype-canvas]')!;
+    expect(canvas.style.gridTemplateColumns).toBe('repeat(auto-fill, max-content)');
+  });
+
+  it('string tracks stay verbatim (the author escape hatch beats the mode)', () => {
+    host();
+    window.__jixoaiDesignStudio = true;
+    const { container } = render(FrameHost, {
+      props: { canvasProps: { gridCols: '[full-start] 1fr [full-end]' } },
+    });
+    const canvas = container.querySelector<HTMLElement>('[data-jx-prototype-canvas]')!;
+    expect(canvas.style.gridTemplateColumns).toBe('[full-start] 1fr [full-end]');
+  });
+
+  it('the frame shell drops the max-width clamp (natural width)', () => {
+    host();
+    window.__jixoaiDesignStudio = true;
+    const { container } = render(FrameHost);
+    const shell = container.querySelector<HTMLElement>('#hero-light > div')!;
+    expect(shell.style.maxWidth).toBe('');
+  });
+
+  it('outside the studio the responsive regime is untouched (regression pair)', () => {
+    host();
+    const { container } = render(FrameHost);
+    const canvas = container.querySelector<HTMLElement>('[data-jx-prototype-canvas]')!;
+    expect(canvas.style.gridTemplateColumns).toBe(
+      'repeat(auto-fill, minmax(min(100%, 30rem), 1fr))'
+    );
+    const shell = container.querySelector<HTMLElement>('#hero-light > div')!;
+    expect(shell.style.maxWidth).toBe('100%');
   });
 });
 

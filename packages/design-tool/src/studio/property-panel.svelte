@@ -355,10 +355,10 @@
   }
 </script>
 
-<!-- the theme's own dark scope (the design language's .dark token
-     block) — the family's token-driven paint then lands on the
-     studio's dark chrome instead of the document's light default -->
-<section class="panel dark" class:panel-locked={locked}>
+<!-- the document-level .dark scope (studio-entry, #23) carries the
+     family's tokens now — the panel's own local scope retired with it
+     (one source: the whole studio paints the dark token set) -->
+<section class="panel" class:panel-locked={locked}>
   <header class="panel-head">
     <span class="panel-title">props</span>
     {#if selection !== null}
@@ -561,7 +561,7 @@
     flex-direction: column;
   }
   .row-readonly {
-    color: #6f6759;
+    color: #8d8578;
     font-size: 0.6875rem;
     white-space: nowrap;
   }

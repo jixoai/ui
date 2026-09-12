@@ -352,7 +352,7 @@
   }
   .chat-done {
     font-size: 0.6875rem;
-    color: #6f6759;
+    color: #8d8578;
   }
   .chat-error {
     margin: 0;

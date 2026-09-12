@@ -13,6 +13,9 @@
     (transform: scale, origin top-left) so the real viewport is never
     faked — the shell's layout height is set to the scaled height so
     grid rows flow correctly (grid supplies layout; transform is ink).
+    STUDIO MODE (#24): embedded by the studio the shell keeps NATURAL
+    width and scale 1 — the stage's camera (zoom/pan/auto-fit) is the
+    one view-scaling authority; standalone hosts keep scale-to-fit.
   - ADAPTIVE HEIGHT (component frames, fill not locked): the initial
     height is the prop; once the design frame loads, the SAME-ORIGIN
     content document is measured (documentElement/body scrollHeight)
@@ -49,7 +52,7 @@
   import { onMount } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { isDevMode } from './context';
+  import { isDevMode, isStudioHost } from './context';
   import type { PrototypeTheme } from './context';
   import { installOverlayScrollbar } from './overlay-scrollbar';
 
@@ -111,6 +114,14 @@
 
   // ---- scale-to-fit -------------------------------------------------------
   function fitToShell(): void {
+    // studio mode (#24): natural size, always — the stage's camera is
+    // the one view-scaling authority (the r2 scale-to-fit shrank the
+    // 1280 frame to 0.27× inside its ~340px cell: unreadable by
+    // construction, the "缩放也有问题" root)
+    if (isStudioHost()) {
+      scale = 1;
+      return;
+    }
     if (!shell) return;
     const available = shell.clientWidth;
     if (!available || !Number.isFinite(available)) return; // jsdom: no layout
@@ -250,7 +261,7 @@
       bind:this={shell}
       class="overflow-hidden rounded-(--radius) border border-border"
       style:height="{effectiveHeight * scale}px"
-      style:max-width="100%"
+      style:max-width={isStudioHost() ? undefined : '100%'}
     >
       <div
         style:width="{width}px"
