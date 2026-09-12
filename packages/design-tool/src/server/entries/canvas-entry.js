@@ -58,19 +58,36 @@ const loader = key === null ? undefined : canvases[key];
 // walk as of r3 T6)
 initDesignPicker();
 
+// the #28 surface half: a design-file full-reload retargeted by the
+// design server reaches the SURFACES as this event — the canvas page
+// reloads ITSELF (the studio chrome never wipes)
+if (import.meta.hot) {
+  import.meta.hot.on('jx-design:surface-reload', () => window.location.reload());
+}
+
 /* ── studio mode (#24) ─────────────────────────────────────────────── */
 
 const studio = new URLSearchParams(window.location.search).has('studio');
 
 if (studio && window.parent !== window) {
   window.__jixoaiDesignStudio = true;
-  // the sheet's breathing room: the matrix floats on the workspace
-  // with its own margin — the studio's blueprint grid reads around it
-  document.documentElement.classList.add('jx-studio-canvas');
+  // the sheet floats ON the blueprint (#27): the document carries the
+  // dark token set (frame captions/muted ink read on the deep blue)
+  // and paints no ground of its own — the frames are the content
+  document.documentElement.classList.add('dark');
+  document.documentElement.style.background = 'transparent';
+  document.body.style.background = 'transparent';
   document.body.style.boxSizing = 'border-box';
   document.body.style.width = 'max-content';
-  document.body.style.minWidth = '100%';
   document.body.style.padding = '24px';
+  // #26 (the infinite shrink, Owner 2026-09-12): htmlShell's
+  // `#canvas-root{min-height:100vh}` makes the root chase the VIEWPORT
+  // — parent sizes the iframe to H, root inflates to H, body padding
+  // stacks +48 → report H+48 → forever (+48/cycle, probe-verified to
+  // 9884px). In studio mode the document sizes to CONTENT exactly;
+  // the metrics fixed point holds and the auto camera converges.
+  const canvasRoot = document.getElementById('canvas-root');
+  if (canvasRoot !== null) canvasRoot.style.minHeight = '0';
 
   const post = (payload) => window.parent.postMessage(payload, window.location.origin);
 
