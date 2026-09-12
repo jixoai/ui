@@ -3597,7 +3597,13 @@ reduce` the component SHALL call the root's `pauseAnimations()`
 CSS-keyframed loaders (`:where([data-jx-spin-svg] *)` unlayered
 carve-out). The wrapping posture (aria-busy, scrim owning
 pointers, the one-cell grid host) SHALL remain byte-equivalent in
-law to the pre-change contract.
+law to the pre-change contract. Every instance's SMIL ids SHALL be
+namespaced at render (id + .begin/.end + url(#..)/href(#..) refs,
+deterministic literal surgery over the RAW-gated payload, artifact
+bytes untouched) — syncbase graphs self-contained per instance:
+duplicate-name instances never cross-resolve (the freeze-on-switch
+bug), unmounting never dangles a dependent timeline, and the
+round-1 lockstep compromise is retired.
 
 #### Scenario: the svg root contract holds
 

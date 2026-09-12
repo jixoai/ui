@@ -389,13 +389,14 @@ export default {
             conflated — a custom loader chooses its engine by how its artwork is written.
           </p>
           <p class="text-muted-foreground text-[13px] leading-6">
-            <strong class="text-foreground font-medium">Multi-instance lockstep.</strong> SMIL
-            syncbase references resolve by element id, and duplicate ids across instances resolve
-            to the first match in document order — so same-artwork instances animate in
-            <em>lockstep</em>, and if that first instance unmounts first (SPA navigation), the
-            dependents' timelines become engine-defined (they may freeze or reset). Independent
-            phasing would require rewriting ids inside the trusted payload at render time; the
-            byte-faithful law wins and the sharp edge is documented here instead.
+            <strong class="text-foreground font-medium">Independent instance timelines.</strong> SMIL
+            syncbase references resolve by element id ACROSS THE DOCUMENT — duplicate ids across
+            instances used to cross-wire (a freshly switched-to loader resolved its begin chains onto
+            another instance's long-past timeline and froze until a lucky re-insertion). Every
+            instance now namespaces its ids at render (<code class="text-accent">id</code>,
+            <code class="text-accent">.begin/.end</code> refs, gradient <code class="text-accent">url(#…)</code>):
+            each syncbase graph is self-contained, unmount-safe, and independently phased — the
+            deterministic transform rides RAW-gated payload only; artifact bytes stay verbatim.
           </p>
           <p class="text-muted-foreground text-[13px] leading-6">
             <strong class="text-foreground font-medium">Native SMIL timelines.</strong>

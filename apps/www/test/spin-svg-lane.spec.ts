@@ -397,6 +397,36 @@ describe('spin-set artifact snapshot', () => {
     expect(getSpin('line')).toBeNull();
   });
 
+  it('per-instance SMIL id namespacing: two blocks-wave instances never share a syncbase id (round 8)', () => {
+    const a = render(Spin, { props: { spinner: 'blocks-wave' } });
+    const b = render(Spin, { props: { spinner: 'blocks-wave' } });
+    const idsOf = (c: HTMLElement): string[] =>
+      [...c.querySelectorAll('[id]')].map((el) => el.id);
+    const idsA = idsOf(a.container as HTMLElement);
+    const idsB = idsOf(b.container as HTMLElement);
+    // both instances carry the full animate graph, each under its OWN suffix
+    expect(idsA.length).toBeGreaterThan(0);
+    expect(idsB.length).toBe(idsA.length);
+    expect(idsA.some((id) => idsB.includes(id))).toBe(false);
+    // every begin reference inside an instance points at ITS OWN ids
+    // (self-contained: no bare unsuffixed spinner_* refs remain)
+    for (const c of [a.container, b.container] as HTMLElement[]) {
+      const svg = c.querySelector('[data-jx-spin-svg]')!;
+      expect(svg.innerHTML).not.toMatch(/begin="[^"]*\bspinner_[A-Za-z0-9]+\./);
+      // the payload graph is whole: nine rects, thirty-six animates
+      expect(svg.querySelectorAll('rect').length).toBe(9);
+      expect(svg.querySelectorAll('rect > animate').length).toBe(36);
+    }
+    // gradient refs scope too (tail-spin's url(#a) family)
+    const ts1 = render(Spin, { props: { spinner: 'tail-spin' } });
+    const ts2 = render(Spin, { props: { spinner: 'tail-spin' } });
+    const grad1 = [...ts1.container.querySelectorAll('linearGradient')].map((g) => g.id);
+    const grad2 = [...ts2.container.querySelectorAll('linearGradient')].map((g) => g.id);
+    expect(grad1.length).toBeGreaterThan(0);
+    expect(grad1.some((id) => grad2.includes(id))).toBe(false);
+    expect(ts1.container.querySelector('[data-jx-spin-svg]')!.innerHTML).toContain(`url(#${grad1[0]})`);
+  });
+
   it('the loader-pack picks ride the artifact (review R2 dogfood)', () => {
     for (const name of ['3-dots-bounce', 'bars-scale', 'clock', 'tail-spin', 'spinning-circles']) {
       const data = getSpin(name as Parameters<typeof getSpin>[0]);

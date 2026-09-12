@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-12T20:00:24.671Z",
+  "generatedAt": "2026-09-12T20:25:20.709Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3245,8 +3245,8 @@
           "source": "registry/files/ui/spin/spin.svelte",
           "mirror": "apps/www/src/lib/ui/spin/spin.svelte",
           "target": "@ui/spin/spin.svelte",
-          "sourceSha": "0311186e3d03fd57c3cab6266b3998d538eadb069dc9e9b844b6ed5e9a85da16",
-          "mirrorSha": "0311186e3d03fd57c3cab6266b3998d538eadb069dc9e9b844b6ed5e9a85da16"
+          "sourceSha": "d20131e4c18c6baf93839fc14726607de60038b9e9a74d49b1ed4dac1bbd83af",
+          "mirrorSha": "d20131e4c18c6baf93839fc14726607de60038b9e9a74d49b1ed4dac1bbd83af"
         },
         {
           "source": "registry/files/ui/spin/spin-catalog.ts",

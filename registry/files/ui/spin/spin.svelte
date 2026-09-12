@@ -51,7 +51,10 @@
   remaining $effect (pauseAnimations/unpauseAnimations on the live
   matchMedia listener — design §3's first named channel;
   CSS-keyframed svg loaders ride spin.css's static kill, the second
-  channel — never conflated).
+  channel — never conflated). Every instance's SMIL ids are
+  NAMESPACED at render (round 8) — see scopeSvgIds below — retiring
+  the round-1 lockstep/dangling compromise: instances are fully
+  independent timelines.
 
   Two postures:
     bare (default)  <Spin label="loading checks" /> — inline glyph
@@ -105,6 +108,42 @@
     console.warn(
       `[jixoai/spin] unknown spinner '${name}' — rendering the 'dots' catalog fallback`,
     );
+  }
+
+  // ── per-instance SMIL id namespacing (review round 8) ─────────────
+  // Loaders with syncbase chains (begin="spinner_X.end+0.2s",
+  // begin="root.begin+0.1s") resolve those ids ACROSS THE WHOLE
+  // DOCUMENT — with two instances of the same name on the page (the
+  // docs page carries several statics + the driven one), a freshly
+  // inserted instance's chain resolves onto the FIRST instance's
+  // timeline, whose begin instants are long past; Chrome frequently
+  // never activates such late-attached dependents → the switched-to
+  // loader freezes (removal + re-insertion re-resolves and sometimes
+  // lands on a live timeline — the "switch to text and back fixes it"
+  // ritual the Owner observed; blocks-wave, worst: the most statics).
+  // Scoping every id (and its .begin/.end / url(#..) / href(#..)
+  // references) per instance makes each syncbase graph SELF-CONTAINED:
+  // no cross-instance resolution, no dangling when the first instance
+  // unmounts, no lockstep — the round-1 compromise retires. The
+  // transform is deterministic literal surgery over RAW-gated payload
+  // (no scripts ever), artifact bytes untouched.
+  let svgInstanceSeq = 0;
+
+  function scopeSvgIds(html: string, suffix: string): string {
+    const ids = [...new Set([...html.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]!))];
+    if (ids.length === 0) return html;
+    // longest first — an id that is a prefix of another must not
+    // partially rewrite it
+    let out = html;
+    for (const id of ids.sort((a, b) => b.length - a.length)) {
+      out = out
+        .replaceAll(` id="${id}"`, ` id="${id}${suffix}"`)
+        .replaceAll(`${id}.begin`, `${id}${suffix}.begin`)
+        .replaceAll(`${id}.end`, `${id}${suffix}.end`)
+        .replaceAll(`url(#${id})`, `url(#${id}${suffix})`)
+        .replaceAll(`href="#${id}"`, `href="#${id}${suffix}"`);
+    }
+    return out;
   }
 
   // ── the injected keyframes registry (review round 4) ─────────────
@@ -231,6 +270,11 @@
   // the unified name lane, artifact FIRST (design §4)
   const svgData = $derived(isSpinName(spinner) ? getSpin(spinner) : null);
 
+  // this instance's SMIL id namespace (round 8): stable for the mount,
+  // unique across every instance the page ever renders
+  const smilSuffix = `-jx${svgInstanceSeq++}`;
+  const scopedPayload = $derived(svgData === null ? '' : scopeSvgIds(svgData.d, smilSuffix));
+
   // catalog second; both lanes miss (only via a cast) → dots frame 0
   const unknownName = $derived(svgData === null && !Object.hasOwn(SPINNER_CATALOG, spinner));
   const text = $derived(textOf(spinner));
@@ -326,7 +370,7 @@
     aria-hidden="true"
     data-jx-spin-svg=""
     class="text-primary"
-  >{@html data.d}</svg>
+  >{@html scopedPayload}</svg>
 {/snippet}
 
 {#snippet textCursor()}
