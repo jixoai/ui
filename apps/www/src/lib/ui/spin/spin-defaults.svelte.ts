@@ -64,7 +64,7 @@ export const spinLingerSlot = absentSlot<number | 'auto'>();
 /** the opacity animation mode — ABSENT falls back to the spinner's
  *  tuned lingerType ('end' unless tuned otherwise, review round 5);
  *  context/plugin-injectable like the timings */
-export const spinLingerTypeSlot = absentSlot<'end' | 'start' | 'both'>();
+export const spinLingerTypeSlot = absentSlot<'end' | 'start' | 'both' | 'auto'>();
 
 export const SpinDefaults = defineComponentDefaults({
   size: spinSizeSlot,

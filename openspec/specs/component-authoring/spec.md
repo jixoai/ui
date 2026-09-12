@@ -3547,11 +3547,14 @@ breathes. Two timings and a mode SHALL shape the text posture: `interval`
 and `linger`, both `number | 'auto'` with default 'auto'
 resolving the catalog's HAND-TUNED pair per spinner (no formula;
 explicit prop > the Defaults slot > the tuned pair), and
-`lingerType` `'end' | 'start' | 'both'` (absent = the tuned
-type) choosing the opacity shape — end fades out, start fades in
-and hides discretely, both breathes; linger 0 collapses every
-type to the discrete blink via steps(1,start) on the duty stop
-(same-percentage keyframe stops MERGE — never emit them). The
+`lingerType` `'auto' | 'end' | 'start' | 'both'` ('auto' =
+the tuned type) choosing the opacity shape — end fades out,
+start fades in and hides discretely, both breathes; the
+SOLID-FRAME law caps the entry fade at interval/2 whenever
+linger ≥ interval (a frame always lands solid — degenerate
+pairs peaked opacity for a single instant); linger 0 collapses
+every type to the discrete blink via steps(1,start) on the duty
+stop (same-percentage keyframe stops MERGE — never emit them). The
 catalog may carry per-spinner frame overrides (simpleDots' ·)
 and a font hint (arc rides font-family: math). All three ride
 the family's single Defaults contract, so a context (or the

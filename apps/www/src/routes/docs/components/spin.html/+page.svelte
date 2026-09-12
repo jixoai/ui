@@ -130,20 +130,20 @@ export default {
     size: 16,
     interval: 'auto' as 'auto' | number,
     linger: 'auto' as 'auto' | number,
-    lingerType: 'end' as LingerType, // dots' tuned type
+    lingerType: 'auto' as 'auto' | LingerType,
   };
   let spinner = $state<TextSpinnerName | SpinName>(canvasInitial.spinner);
   let size = $state(canvasInitial.size);
   let interval = $state<'auto' | number>(canvasInitial.interval);
   let linger = $state<'auto' | number>(canvasInitial.linger);
-  let lingerType = $state<LingerType>(canvasInitial.lingerType);
+  let lingerType = $state<'auto' | LingerType>(canvasInitial.lingerType);
   // name changes reset the timings to auto (the tuned pair + type follow
   // the name; custom values belong to the name they were tuned on)
   $effect(() => {
-    const name = spinner;
+    spinner;
     interval = 'auto';
     linger = 'auto';
-    lingerType = catalogOf(name)?.lingerType ?? 'end';
+    lingerType = 'auto';
   });
   function resetCanvas(): void {
     spinner = canvasInitial.spinner;
@@ -249,8 +249,9 @@ export default {
             </PlayRow>
             <PlayRow label="lingerType">
               <PlaySegmented
-                value={lingerType}
+                bind:value={lingerType}
                 options={[
+                  { value: 'auto' as const, label: 'auto' },
                   { value: 'end' as const, label: 'end' },
                   { value: 'start' as const, label: 'start' },
                   { value: 'both' as const, label: 'both' },
@@ -266,8 +267,8 @@ export default {
               <code>interval</code> and <code>linger</code> are the text
               posture's two timings — 'auto' rides the name's HAND-TUNED pair, custom
               flips in a number input seeded from the tuned value (0 linger = no
-              residue). <code>lingerType</code> picks the opacity mode (fade-out /
-              fade-in / both). Changing the name resets all three to the catalog.
+              residue). <code>lingerType</code> picks the opacity mode (auto /
+              fade-out / fade-in / both). Changing the name resets all three to auto.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -397,10 +398,10 @@ export default {
             byte-faithful law wins and the sharp edge is documented here instead.
           </p>
           <p class="text-muted-foreground text-[13px] leading-6">
-            <strong class="text-foreground font-medium">Mount-aligned SMIL clocks.</strong>
-            The SMIL document timeline belongs to the PAGE, so a late-hydrated loader can inherit a stalled
-            or mid-document phase; the component anchors every instance's clock at mount
-            (<code class="text-accent">setCurrentTime(0)</code>) — no initial stall, deterministic phasing.
+            <strong class="text-foreground font-medium">Native SMIL timelines.</strong>
+            The svg lane's clock is the engine's own: SSR'd loaders animate from HTML parse
+            (motion by ~0.6s, before hydration), swapped instances from insertion (~80ms) — the component
+            never touches the clock, so hydration cannot snap a running loader back to its resting pose.
           </p>
           <p class="text-muted-foreground text-[13px] leading-6">
             <strong class="text-foreground font-medium">Custom svg spinners</strong> come from
@@ -505,7 +506,7 @@ export default {
           { name: 'size', type: 'number | string', default: 'var(--jx-icon)', description: "The svg posture's square edge. ABSENT rides the density ruler's var(--jx-icon) (presentation attributes cannot carry var(), so the default lands as a CSS width/height); an explicit value (or a slot config) pins it. The text posture paints var(--jx-text) and ignores the slot." },
           { name: 'interval', type: "number | 'auto'", default: "'auto'", description: 'The frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner’s HAND-TUNED catalog pair. The svg lane ignores it (its clock is the SMIL document).' },
           { name: 'linger', type: "number | 'auto'", default: "'auto'", description: "The frame linger duration: each retiring frame stays in the cursor’s own grid cell fading out LINEARLY for this long. 'auto' = the spinner’s HAND-TUNED catalog pair (dots 160, line 0…); 0 = hide at the interval handoff. The trail depth = linger / interval. Context/plugin injectable like the interval; reduced motion is a static CSS kill." },
-          { name: 'lingerType', type: "'end' | 'start' | 'both'", default: "the catalog's tuned type ('end')", description: "The opacity animation mode: 'end' fades OUT after the duty window (the default trail); 'start' fades IN at the slot start and hides discretely at the handoff (simpleDots); 'both' breathes — fade in, hold, fade out (arc, toggle3, growVertical). Absent = the spinner’s tuned type; linger 0 collapses every type to the discrete blink. Context/plugin injectable." },
+          { name: 'lingerType', type: "'auto' | 'end' | 'start' | 'both'", default: "'auto'", description: "The opacity animation mode: 'end' fades OUT after the duty window (the default trail); 'start' fades IN at the slot start and hides discretely at the handoff (simpleDots); 'both' breathes — fade in, hold, fade out (arc, toggle3, growVertical). 'auto' (the default) resolves the spinner’s tuned type; linger 0 collapses every type to the discrete blink. Context/plugin injectable." },
           { name: 'children', type: 'Snippet', default: '—', description: 'Wrapping content = container posture with scrim + aria-busy.' },
           { name: 'class', type: 'string', default: "''", description: 'Lands on the root (the inline span, the svg, or the wrapping grid).' },
         ]}

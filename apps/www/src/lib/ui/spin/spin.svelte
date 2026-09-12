@@ -134,21 +134,25 @@
 
   /**
    * The shared slot-shape keyframes for one parameter set, in the
-   * lingerType shape the tuning asks for (review round 5):
+   * lingerType shape the tuning asks for (round 5; polished round 6):
    *   'end'   (default) — instant appear, hold through the duty
    *           window, fade LINEARLY out across the linger tail
-   *   'start' — fade LINEARLY in across the first linger of the
-   *           slot, hold, hide DISCRETELY at the handoff
+   *   'start' — fade LINEARLY in, hold, hide DISCRETELY at the handoff
    *   'both'  — fade in, hold, fade out (the breathing entry+exit)
+   * THE SOLID-FRAME LAW (round 6): the ENTRY fade never eats the whole
+   * slot. When linger ≥ interval the naive shape peaks opacity 1 for a
+   * single instant (growVertical sampled 89-95, never solid — the
+   * fade-in consumed the entire duty window), so the entry fade
+   * collapses to interval/2 and the frame lands SOLID for at least
+   * half its slot. Tuned pairs with linger < interval are untouched
+   * (toggle3's 500/1000 breathing keeps its exact shape).
    * linger 0 collapses every type to the discrete blink: hold 1
-   * through duty, then steps(1, start) jumps to 0 — the Owner catch
-   * of round 5's predecessor: two stops at the SAME percentage MERGE
-   * in CSS keyframes (the later block wins), so a zero-length fade
-   * segment silently became a whole-duty-window linear fade; the
-   * discrete jump is a timing function ON the duty stop, jumping to
-   * the segment's end value the instant the handoff arrives.
-   * Per-frame phasing is the negative delay (--d), so EVERY frame
-   * animates the SAME rule — only the delay differs.
+   * through duty, then steps(1, start) jumps to 0 — two stops at the
+   * SAME percentage MERGE in CSS keyframes (the later block wins), so
+   * a zero-length fade segment silently becomes a whole-duty-window
+   * linear fade; the discrete jump is a timing function ON the duty
+   * stop. Per-frame phasing is the negative delay (--d), so EVERY
+   * frame animates the SAME rule — only the delay differs.
    */
   function frameKeyframes(
     count: number,
@@ -157,9 +161,13 @@
     type: LingerType,
   ): string {
     const name = `jx-spin-f${count}-i${stepMs}-l${lingerMs}-${type}`;
-    const duty = pct(stepMs / (count * stepMs));
-    const tail = pct((stepMs + lingerMs) / (count * stepMs));
-    const head = pct(lingerMs / (count * stepMs));
+    const cycle = count * stepMs;
+    const duty = pct(stepMs / cycle);
+    const tail = pct((stepMs + lingerMs) / cycle);
+    // the solid-frame law: entry fade ≤ interval/2 whenever it would
+    // otherwise consume the whole slot (linger ≥ interval)
+    const entryMs = lingerMs < stepMs ? lingerMs : stepMs / 2;
+    const head = pct(entryMs / cycle);
     const body =
       lingerMs <= 0
         ? `0%{opacity:1}${duty}%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}`
@@ -191,8 +199,8 @@
     interval?: number | 'auto';
     /** frame linger ms — 'auto' (default) = the catalog's tuned pair; 0 = hide at the handoff; explicit > Defaults slot > tuned */
     linger?: number | 'auto';
-    /** the opacity animation mode — absent = the catalog's tuned type; 'end' fades out, 'start' fades in, 'both' breathes */
-    lingerType?: LingerType;
+    /** the opacity animation mode — 'auto' (default) = the catalog's tuned type; 'end' fades out, 'start' fades in, 'both' breathes */
+    lingerType?: LingerType | 'auto';
     /** wrapping content = container posture with scrim + aria-busy */
     children?: Snippet;
     class?: string;
@@ -229,7 +237,7 @@
       interval: interval !== undefined && interval !== 'auto' && interval > 0 ? interval : undefined,
       linger:
         linger === 0 ? 0 : linger !== undefined && linger !== 'auto' && linger > 0 ? linger : undefined,
-      lingerType,
+      lingerType: lingerType !== undefined && lingerType !== 'auto' ? lingerType : undefined,
     }),
   );
 
@@ -263,14 +271,13 @@
 
   $effect(() => {
     if (typeof window === 'undefined' || svgData === null) return;
-    // the mount kick (review round 5, the Owner's #10): the SMIL
-    // document timeline is the PAGE's, so an svg hydrated late inherits
-    // a mid-document phase (or worse, a stalled one — engines differ on
-    // innerHTML-inserted SMIL clock starts). setCurrentTime(0) anchors
-    // every begin="0…" chain to MOUNT: no perceived initial stall, and
-    // every instance's phase is deterministic. jsdom carries no SMIL
-    // clock — the call is feature-tested.
-    if (root && typeof root.setCurrentTime === 'function') root.setCurrentTime(0);
+    // NO clock kick (round 6): SMIL starts at HTML parse for SSR'd
+    // svgs (measured: motion by ~0.6s, well before hydration) and at
+    // insertion for swapped instances (~80ms) — the round-5
+    // setCurrentTime(0) "kick" fixed nothing measurable and ADDED a
+    // visible artifact: at hydration it reset every already-running
+    // loader back to its phase-0 pose (the 2.1s snap-back the Owner
+    // caught). The engine's native timelines are left untouched.
     const mql =
       typeof window.matchMedia === 'function'
         ? window.matchMedia('(prefers-reduced-motion: reduce)')

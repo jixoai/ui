@@ -158,11 +158,22 @@ describe('spin — text posture', () => {
     ).toBe('jx-spin-f6-i120-l120-both');
     // arc's cursor rides the math font hint
     expect(both.container.querySelector('[data-jx-spin-cursor]')!.getAttribute('style')).toBe('font-family: math;'); // jsdom appends the trailing ;
+    both.unmount();
+    const toggle3 = render(Spin, { props: { spinner: 'toggle3' } }); // 1000/500 'both'
+    expect(
+      (toggle3.container.querySelector('[data-jx-spin-frame]')!.getAttribute('style') ?? '').match(/--kf: ([^;]+)/)?.[1],
+    ).toBe('jx-spin-f2-i1000-l500-both');
     const sheet = document.head.querySelector('style[data-jx-spin-frames]')!.textContent!;
-    // start: fade-in to 1 by 160/640=25%, hold, steps-out at duty 25%… simpleDots duty = 160/640 = 25%
-    expect(sheet).toContain('@keyframes jx-spin-f4-i160-l160-start{0%{opacity:0}25%{opacity:1}25%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}}');
-    // both: fade-in 0→1 by 120/720≈16.667%, hold, fade-out by 240/720≈33.333%
-    expect(sheet).toContain('@keyframes jx-spin-f6-i120-l120-both{0%{opacity:0}16.667%{opacity:1}16.667%{opacity:1}33.333%{opacity:0}100%{opacity:0}}');
+    // the solid-frame law (round 6): linger ≥ interval collapses the ENTRY
+    // fade to interval/2 so the frame lands solid — simpleDots 160/160:
+    // entry 80ms = 12.5% of the 640ms cycle, duty 25%
+    expect(sheet).toContain('@keyframes jx-spin-f4-i160-l160-start{0%{opacity:0}12.5%{opacity:1}25%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}}');
+    // arc 120/120 both: entry 60ms = 8.333% of 720ms, duty 16.667%,
+    // fade-out lands at (120+120)/720 = 33.333%
+    expect(sheet).toContain('@keyframes jx-spin-f6-i120-l120-both{0%{opacity:0}8.333%{opacity:1}16.667%{opacity:1}33.333%{opacity:0}100%{opacity:0}}');
+    // toggle3 1000/500 both (linger < interval — UNTOUCHED by the law):
+    // entry 500ms = 25% of 2000ms, duty 50%, fade-out at 75%
+    expect(sheet).toContain('@keyframes jx-spin-f2-i1000-l500-both{0%{opacity:0}25%{opacity:1}50%{opacity:1}75%{opacity:0}100%{opacity:0}}');
   });
 
   it("spinner='line' renders the line corpus flat (the retired /—\\| cycle, tuned 160/0)", () => {
