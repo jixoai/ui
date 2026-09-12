@@ -40,7 +40,9 @@
   Svelte 5 runes.
 -->
 <script lang="ts">
+  import Icon from '#jixoai/icon';
   import Empty from '#jixoai/empty';
+  import Spin from '#jixoai/spin';
   import TreeView, { type TreeItemCtx, type TreeNode } from '#jixoai/tree-view';
   import { recordsSignature } from './equivalence.ts';
   import {
@@ -195,6 +197,35 @@
     }));
   });
 
+  /** #35: an expanded page folder with no stamps yet reads LOADING —
+   *  honest while the owning frame iframe mounts/loads; resolves to
+   *  false the moment records arrive or the frame proves empty */
+  function frameLoading(frameId: string): boolean {
+    const records = frameRecords[frameId];
+    if (records !== undefined && records.length > 0) return false;
+    const doc = safeDocument(iframe);
+    if (doc === null) return true; // canvas itself loading
+    const frameEl = Array.from(doc.querySelectorAll('iframe')).find(
+      (f) => f.name === `${FRAME_NAME_PREFIX}${frameId}`,
+    );
+    if (frameEl === undefined) return true; // not mounted yet
+    // mounted: loading until the REAL frame document completed — a
+    // fresh iframe starts at about:blank whose readyState is already
+    // 'complete' (the false-negative hole), so the /__design__/frame
+    // pathname gates it; complete-but-unstamped after that = genuinely
+    // empty, the chevron's call
+    try {
+      const doc = frameEl.contentDocument;
+      return (
+        doc === null ||
+        !doc.location.pathname.startsWith('/__design__/') ||
+        doc.readyState !== 'complete'
+      );
+    } catch {
+      return true; // cross-origin mid-teardown — treat as loading
+    }
+  }
+
   /** selection → the leaf/folder path it addresses (row highlight) */
   const selectedPath = $derived.by(() =>
     selection === null ? undefined : findUsagePath(nodes, selection),
@@ -337,6 +368,18 @@
   });
 </script>
 
+<!-- #35: the caret override (registry component/tree-view-caret) — the
+     loading page folder's chevron becomes a Spin; every other node keeps
+     the native chevron look inside the jx-tree-caret span (rotation CSS
+     still applies) -->
+{#snippet studioCaret(ctx: TreeItemCtx<TreeMeta>)}
+  {#if ctx.node.meta?.kind === 'page' && ctx.expanded && frameLoading(ctx.node.meta.frameId)}
+    <Spin spinner="dots" size={10} interval="auto" linger="auto" label="loading frame" />
+  {:else}
+    <Icon name="chevronDown" size={10} />
+  {/if}
+{/snippet}
+
 {#snippet usageLabel(ctx: TreeItemCtx<TreeMeta>)}
   {#if ctx.node.meta?.kind === 'usage'}
     {@const node = ctx.node.meta.node}
@@ -378,6 +421,7 @@
         selected={selectedPath}
         ariaLabel={`canvas tree: ${canvas ?? ''}`}
         indent={14}
+        caret={studioCaret}
         onactivate={onActivate}
         ontoggle={onToggle}
         onselect={onSelectLeaf}
@@ -416,6 +460,7 @@
   }
   .tree-flow {
     overflow-y: auto;
+    overflow-x: hidden; /* #36: long row names never leak page width */
     min-height: 0;
     flex: 1 1 0;
   }

@@ -24,10 +24,13 @@ export default defineConfig({
   resolve: {
     // Svelte 5: mount() needs the browser runtime, not index-server.js
     conditions: ['browser'],
-    alias: {
-      // the kit imports cn() the way every registry item does
-      $lib: fileURLToPath(new URL('../../../../registry/files/lib', import.meta.url)),
-    },
+    // ordered, longest-prefix first: `$lib/ui/*` → the registry's ui
+    // items (tree-view's own icon import), then the generic `$lib` →
+    // the shared lib (the kit's cn())
+    alias: [
+      { find: '$lib/ui', replacement: fileURLToPath(new URL('../../../../registry/files/ui', import.meta.url)) },
+      { find: '$lib', replacement: fileURLToPath(new URL('../../../../registry/files/lib', import.meta.url)) },
+    ],
   },
   test: {
     environment: 'jsdom',

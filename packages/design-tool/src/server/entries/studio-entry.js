@@ -24,6 +24,10 @@ import 'virtual:jixoai-design/css';
 import 'virtual:jixoai-icons.css';
 
 document.documentElement.classList.add('dark');
+// the app-shell clamp (#36, Owner 2026-09-12「整个页面横向纵向溢出」):
+// the studio is a full-bleed app surface — panels scroll INTERNALLY,
+// the document itself must never grow scrollbars on either axis
+document.documentElement.style.overflow = 'hidden';
 
 import Studio from '/design/studio.svelte';
 
