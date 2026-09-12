@@ -40,8 +40,8 @@ import type { DesignHostInfo } from './probe.ts';
 import { probeDesignHost } from './probe.ts';
 import { resolvePackageEntry } from './resolver.ts';
 import { scanPrototypes } from './manifest.ts';
-import { buildStampPlugin } from './stamp/index.ts';
-import type { Plugin, InlineConfig, Alias, ViteDevServer } from 'vite';
+import { buildStampHmrPlugin, buildStampPlugin } from './stamp/index.ts';
+import type { HMRPayload, Plugin, InlineConfig, Alias, ViteDevServer } from 'vite';
 
 /* ── stable module ids and the real files behind them ─────────────────── */
 
@@ -403,6 +403,12 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
       // stamps land in the svelte SOURCE before vite-plugin-svelte
       // compiles it, and a host's production build never sees it
       buildStampPlugin({ host }),
+      // the #28 companion (enforce post): broadens svelte's compiled
+      // acceptExports to cover the stamp transform's __jxUsageMap —
+      // without it every panel edit changes an UNACCEPTED export, vite
+      // finds no hot boundary and broadcasts full-reload (the whole
+      // studio wiped per edit, server log `page reload`, 2026-09-12)
+      buildStampHmrPlugin(),
       svelteFactory(),
       tailwindFactory(),
       ...jixoaiPlugins,
@@ -461,5 +467,36 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
     },
   };
 
-  return viteMod.createServer(inlineConfig);
+  const server = await viteMod.createServer(inlineConfig);
+  retargetDesignFullReloads(server);
+  return server;
+}
+
+/* ── #28 hardening: design full-reloads never wipe the studio ────────── */
+
+/**
+ * A vite "page reload" broadcast for a DESIGN file must never wipe the
+ * STUDIO chrome (#28, Owner 2026-09-12): the studio page is a product
+ * surface, and the frames/canvas documents are the only documents whose
+ * content a design/ change invalidates. Full-reloads whose path sits
+ * under /design/ are retargeted to a custom event the SURFACE entries
+ * (frame-entry, canvas-entry) act on by reloading themselves; anything
+ * else (studio-code changes, config invalidations) keeps vite's native
+ * broadcast.
+ */
+function retargetDesignFullReloads(server: ViteDevServer): void {
+  const rawSend = server.ws.send.bind(server.ws) as (payload: HMRPayload) => void;
+  server.ws.send = ((payload: HMRPayload) => {
+    const path = payload.type === 'full-reload' ? payload.path : undefined;
+    // PROTOTYPE CONTENT only (design/prototypes/**): design/studio.svelte
+    // IS studio chrome — its full-reloads keep the native broadcast
+    if (
+      typeof path === 'string' &&
+      `/${path.replace(/^\//, '')}`.startsWith('/design/prototypes/')
+    ) {
+      rawSend({ type: 'custom', event: 'jx-design:surface-reload', data: { path } });
+      return;
+    }
+    rawSend(payload);
+  }) as typeof server.ws.send;
 }

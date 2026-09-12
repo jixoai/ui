@@ -56,6 +56,14 @@ if (h) document.documentElement.style.height = `${h}px`;
 // documents (unstamped AND stamped clicks pass through untouched)
 initDesignPicker();
 
+// the #28 surface half: a design-file full-reload retargeted by the
+// design server reaches the SURFACES as this event — a frame reloads
+// ITSELF (the studio chrome never wipes). No listener in a standalone
+// browser tab: import.meta.hot exists only through the dev server.
+if (import.meta.hot) {
+  import.meta.hot.on('jx-design:surface-reload', () => window.location.reload());
+}
+
 // the ⌘wheel relay (#24, 2026-09-12): ctrl/meta wheel over the frame
 // zooms the STAGE, not this document. The frame is an event black
 // hole to the studio — postMessage to the parent (the canvas doc adds

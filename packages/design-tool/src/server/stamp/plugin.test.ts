@@ -15,7 +15,7 @@ import { strict as assert } from 'node:assert';
 import test from 'node:test';
 
 import type { DesignHostInfo } from '../probe.ts';
-import { buildStampPlugin } from './plugin.ts';
+import { buildStampHmrPlugin, buildStampPlugin } from './plugin.ts';
 import { STAMP_COMPONENT_ATTR, USAGE_MAP_EXPORT } from './transform.ts';
 
 /** a minimal-but-complete host info for the plugin's two anchors */
@@ -101,4 +101,45 @@ test('VD3 posture: dev-only by construction (apply serve + enforce pre)', async 
   assert.equal(plugin.apply, 'serve');
   assert.equal(plugin.enforce, 'pre');
   assert.equal(plugin.name, 'jixoai-design-stamp');
+});
+
+/* ── the #28 HMR acceptance broadener ─────────────────────────────────── */
+
+/** the compiled-module shape vite-plugin-svelte emits for a stamped file */
+const COMPILED_STAMPED = [
+  'import { createHotContext as __vite__createHotContext } from "/@vite/client";',
+  'import.meta.hot = __vite__createHotContext("/design/prototypes/demo/pages/hero.svelte");',
+  `export const ${USAGE_MAP_EXPORT} = {"1":{"component":"press-button"}};`,
+  'if (import.meta.hot) {',
+  '\timport.meta.hot.acceptExports(["default"],(module) => {',
+  '\t\tHero = module.default;',
+  '\t});',
+  '}',
+].join('\n');
+
+test('#28 the broadener widens the accept set on stamped compiled modules', async () => {
+  const plugin = buildStampHmrPlugin();
+  assert.equal(plugin.name, 'jixoai-design-stamp-hmr');
+  assert.equal(plugin.enforce, 'post');
+  const result = await plugin.transform!.call(
+    {} as never,
+    COMPILED_STAMPED,
+    '/design/prototypes/demo/pages/hero.svelte',
+  );
+  assert.notEqual(result, null, 'a stamped compiled module is amended');
+  const code = (result as { code: string }).code;
+  assert.equal(code.includes('acceptExports(["default", "__jxUsageMap"]'), true, 'the export joins the acceptance');
+  assert.equal(code.includes('acceptExports(["default"],'), false, 'the narrow form is gone');
+});
+
+test('#28 the broadener leaves plain modules and sub-requests untouched', async () => {
+  const plugin = buildStampHmrPlugin();
+  // a plain compiled component (no usage map) is none of its business
+  const plain = 'import.meta.hot.acceptExports(["default"],(module) => {});';
+  assert.equal(await plugin.transform!.call({} as never, plain, '/src/App.svelte'), null);
+  // style sub-requests never carry the accept call
+  assert.equal(
+    await plugin.transform!.call({} as never, `export const ${USAGE_MAP_EXPORT} = {};`, '/x/y.svelte?svelte&type=style&lang.css'),
+    null,
+  );
 });

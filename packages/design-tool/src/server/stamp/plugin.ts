@@ -31,7 +31,7 @@ import { relative, sep } from 'node:path';
 import type { DesignHostInfo } from '../probe.ts';
 import { ITEM_ALIAS_PREFIX } from '../probe.ts';
 import type { Plugin } from 'vite';
-import { collectImports, stampSvelteSource } from './transform.ts';
+import { collectImports, stampSvelteSource, USAGE_MAP_EXPORT } from './transform.ts';
 
 /** is `file` inside `base` (or equal to it)? */
 function isUnder(file: string, base: string): boolean {
@@ -115,6 +115,42 @@ export function buildStampPlugin(options: StampPluginOptions): Plugin {
       // injection shifts only what follows that script. Best effort,
       // per the r2 brief.
       return { code: stamped.code, map: null };
+    },
+  };
+}
+
+/* ── the HMR acceptance broadener (#28, 2026-09-12) ─────────────────────── */
+
+/** svelte's compiled self-acceptance, verbatim from vite-plugin-svelte's output */
+const ACCEPT_DEFAULT_EXPORTS = 'import.meta.hot.acceptExports(["default"]';
+/** the broadened set: the stamp transform's second export joins the acceptance */
+const ACCEPT_STAMPED_EXPORTS = 'import.meta.hot.acceptExports(["default", "__jxUsageMap"]';
+
+/**
+ * The #28 companion (Owner 2026-09-12「props 修改之后，仍然会触发整页面
+ * 重载」): the stamp transform adds a SECOND export (`__jxUsageMap`) to every
+ * stamped module, but vite-plugin-svelte's compiled self-acceptance covers
+ * only `["default"]` — an edit changes BOTH exports, vite sees the changed
+ * set exceed the accepted set, finds NO hot boundary, and broadcasts
+ * full-reload: the entire studio wipes on every panel edit (server log:
+ * `page reload design/prototypes/…`, probe-verified 5/6 edits).
+ *
+ * This post transform broadens the acceptance on the COMPILED module so
+ * `__jxUsageMap` rides the same hot boundary: the frame re-renders in place
+ * (svelte's callback swaps the component; the usage map flows through the
+ * live binding) and no reload ever leaves the frame.
+ */
+export function buildStampHmrPlugin(): Plugin {
+  return {
+    name: 'jixoai-design-stamp-hmr',
+    enforce: 'post',
+    apply: 'serve',
+
+    transform(code, id) {
+      if (id.includes('?')) return null; // style/sub modules never carry the accept call
+      if (!code.includes(USAGE_MAP_EXPORT)) return null; // not a stamped module
+      if (!code.includes(ACCEPT_DEFAULT_EXPORTS)) return null; // svelte already broadened/no hmr
+      return { code: code.replace(ACCEPT_DEFAULT_EXPORTS, ACCEPT_STAMPED_EXPORTS), map: null };
     },
   };
 }

@@ -136,9 +136,12 @@
 
   // the canvas document's metrics (#24): natural size + growth. An
   // auto camera re-fits; a manual camera only re-sizes the sheet (the
-  // user's zoom/pan is never silently re-taken)
+  // user's zoom/pan is never silently re-taken). An identical report
+  // is a no-op — the #26 loop taught that RO over-firing must never
+  // churn the camera when the numbers stand still
   function onCanvasMetrics(width: number, height: number): void {
     if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return;
+    if (sheet !== null && sheet.width === width && sheet.height === height) return;
     sheet = { width, height };
     if (!manual) autoFit();
   }
@@ -353,7 +356,6 @@
            canvas switches never reset the lens -->
       <div
         class="studio-stage-lens"
-        class:auto={!manual}
         data-stage-lens
         data-scale={lens.scale}
         style:transform={stageLensTransform(lens)}
@@ -422,8 +424,9 @@
     margin: auto;
     color: #8d8578;
   }
-  /* the workspace (#25): the blueprint field — deep blue, the grid
-     layer above it, everything else above that. overflow clips the
+  /* the workspace (#25→#27): true cyanotype — a deep Prussian blue
+     field, WHITE-print linework (the blueprint print exposes to white),
+     a paper-weight vignette at the edges. overflow clips the
      transformed sheet (zoomed-in ink must not spill into the columns) */
   .studio-stage {
     position: relative;
@@ -433,14 +436,17 @@
     overflow: hidden;
     touch-action: none; /* pointer pan owns touch gestures on the workspace */
     cursor: grab; /* the exposed workspace (zoomed-out / panned) drags */
-    background: #0a0f1c;
+    background:
+      radial-gradient(ellipse 120% 90% at 50% 45%, rgba(21, 62, 106, 0.92) 0%, rgba(10, 32, 58, 0.97) 62%, rgba(5, 20, 38, 1) 100%),
+      #0a2038;
   }
   .studio-stage.panning {
     cursor: grabbing;
   }
-  /* the blueprint grid: two tiers of lines via repeating gradients
-     (minor every cell, major every 5 cells). Sits UNDER the sheet; its
-     size/position ride the camera (inline style) so it never swims */
+  /* the blueprint grid: two tiers of WHITE-print lines (cyanotype —
+     the print's ink is the LIGHT color) via repeating gradients. Sits
+     UNDER the sheet; its size/position ride the camera (inline style)
+     so it never swims */
   .studio-stage-grid {
     position: absolute;
     inset: 0;
@@ -448,10 +454,10 @@
     /* 4 layers in paint order: major-v, major-h (heavier), then minor-v,
        minor-h (fainter) — the camera's inline size/position ride all 4 */
     background-image:
-      linear-gradient(to right, rgba(96, 140, 255, 0.22) 0 1px, transparent 1px 100%),
-      linear-gradient(to bottom, rgba(96, 140, 255, 0.22) 0 1px, transparent 1px 100%),
-      linear-gradient(to right, rgba(96, 140, 255, 0.08) 0 1px, transparent 1px 100%),
-      linear-gradient(to bottom, rgba(96, 140, 255, 0.08) 0 1px, transparent 1px 100%);
+      linear-gradient(to right, rgba(198, 226, 255, 0.2) 0 1px, transparent 1px 100%),
+      linear-gradient(to bottom, rgba(198, 226, 255, 0.2) 0 1px, transparent 1px 100%),
+      linear-gradient(to right, rgba(198, 226, 255, 0.07) 0 1px, transparent 1px 100%),
+      linear-gradient(to bottom, rgba(198, 226, 255, 0.07) 0 1px, transparent 1px 100%);
     background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
   }
   .studio-stage-lens {
@@ -460,30 +466,20 @@
     left: 0;
     transform-origin: 0 0;
     will-change: transform;
-    /* the sheet's rim on the workspace (#25): hairline + lift shadow —
-       pre-metrics (no size yet) it still fills like the old inset-0 */
+    /* the ground IS the blueprint (#27, Owner 2026-09-12「直接蓝图
+       底色就好」): no white sheet under the matrix — frames float on
+       the workspace; pre-metrics (no size yet) it still fills like
+       the old inset-0 */
     width: 100%;
     height: 100%;
-    border-radius: 6px;
-    box-shadow:
-      0 0 0 1px rgba(96, 140, 255, 0.35),
-      0 1.5rem 3rem rgba(2, 6, 18, 0.55);
-    overflow: hidden;
-    background: #fff;
-  }
-  /* the auto camera's affordance: while auto, the sheet's rim reads as
-     grounded (solid); a manual camera dims it — subtle, HUD-less state */
-  .studio-stage-lens.auto {
-    box-shadow:
-      0 0 0 1px rgba(96, 140, 255, 0.45),
-      0 1.5rem 3rem rgba(2, 6, 18, 0.55);
   }
   .studio-iframe {
     display: block;
     width: 100%;
     height: 100%;
     border: 0;
-    background: #fff;
+    background: transparent;
+    color-scheme: dark;
   }
   /* lens mode (#24 visibility): tint + dashed rim — the mode must be
      SEEN on, not inferred from behavior */
@@ -492,8 +488,8 @@
     inset: 0;
     z-index: 2;
     cursor: grab;
-    background: rgba(96, 140, 255, 0.05);
-    outline: 1px dashed rgba(120, 160, 255, 0.5);
+    background: rgba(198, 226, 255, 0.06);
+    outline: 1px dashed rgba(198, 226, 255, 0.55);
     outline-offset: -3px;
   }
   .studio-stage-sheet.panning {
@@ -511,15 +507,15 @@
     background: #0d0c0bee;
     border: 1px solid #262320;
     border-radius: 4px;
-    box-shadow: 0 0.5rem 1.25rem rgba(2, 6, 18, 0.5);
+    box-shadow: 0 0.5rem 1.25rem rgba(3, 14, 28, 0.55);
     backdrop-filter: blur(4px);
     pointer-events: none; /* the gaps click through to the canvas */
   }
   .studio-stage-hud.lensing {
-    border-color: rgba(120, 160, 255, 0.5);
+    border-color: rgba(198, 226, 255, 0.55);
   }
   .studio-stage-mode {
-    color: #8ba8ff;
+    color: #b8d4ff;
     font-size: 0.625rem;
     letter-spacing: 0.08em;
     padding: 0.1875rem 0.375rem;

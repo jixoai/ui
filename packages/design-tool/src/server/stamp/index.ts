@@ -16,5 +16,5 @@ export {
   stampSvelteSource,
 } from './transform.ts';
 export type { PropSpan, StampOptions, StampResult, UsageEntry, UsageMap } from './transform.ts';
-export { buildStampPlugin } from './plugin.ts';
+export { buildStampHmrPlugin, buildStampPlugin } from './plugin.ts';
 export type { StampPluginOptions } from './plugin.ts';
