@@ -111,6 +111,27 @@ export function fitStageLens(
   };
 }
 
+/**
+ * The ANCHOR camera (#32, the tree's page-folder seam): keep the zoom,
+ * center a canvas-space box in the stage — the folder click becomes a
+ * camera move (the r2 hash-append rebuilt the whole iframe per click;
+ * every frame reloaded on a mere expand). Non-finite input degrades to
+ * the unchanged lens.
+ */
+export function centerStageOn(
+  lens: StageLens,
+  stageW: number,
+  stageH: number,
+  box: { x: number; y: number; width: number; height: number },
+): StageLens {
+  if (![box.x, box.y, box.width, box.height, stageW, stageH].every((n) => Number.isFinite(n))) {
+    return lens;
+  }
+  const cx = box.x + box.width / 2;
+  const cy = box.y + box.height / 2;
+  return { scale: lens.scale, x: stageW / 2 - cx * lens.scale, y: stageH / 2 - cy * lens.scale };
+}
+
 /** zoom by a multiplicative factor (wheel ticks, HUD +/- steps) */
 export function zoomStageLensBy(lens: StageLens, factor: number, anchor: StageAnchor): StageLens {
   return zoomStageLens(lens, lens.scale * factor, anchor);

@@ -55,6 +55,8 @@ export interface DesignWalkStats {
 /** the studio-side window seam (picker calls UP; shell installs it) */
 export interface DesignStudioSeams {
   __jixoaiDesignSelect?: (selection: DesignSelection | null) => void;
+  /** the hover twin (#31): canvas hover reports up; the tree highlights */
+  __jixoaiDesignHover?: (selection: DesignSelection | null) => void;
   __jixoaiDesignRefreshTree?: () => void;
   /** walk counters (r3 #20) — see DesignWalkStats */
   __jixoaiDesignWalks?: DesignWalkStats;
@@ -63,6 +65,8 @@ export interface DesignStudioSeams {
 /** the frame-side window seam (tree selection calls DOWN to highlight) */
 export interface DesignFrameSeams {
   __jixoaiDesignHighlight?: (target: DesignHighlightTarget | null) => void;
+  /** the hover twin (#31): tree hover highlights down (no scroll) */
+  __jixoaiDesignHover?: (target: DesignHighlightTarget | null) => void;
 }
 
 export interface DesignHighlightTarget {
