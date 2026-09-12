@@ -1,8 +1,8 @@
 <!--
   jixoai spin (registry/files/ui/spin/spin.svelte,
   spin-ora-svg-lane C2, design §2-§4, 2026-09-11;
-  review round 2026-09-12: the density ruler, whitespace-pre,
-  the linger trail).
+  review rounds 2026-09-12: the density ruler, whitespace-pre, the
+  linger trail; round 4: the CSS flat engine + hand-tuned pairs).
 
   The loading indicator, ora's voice: one `spinner` name lane over two
   corpora — the generated svg artifact ($lib/spin-set.gen, direct
@@ -13,41 +13,45 @@
   remains as `line`). role=status + aria-label (polite by
   construction; loading is never an interruption).
 
-  The frame engine (design §2) is ora's own mechanism — a $state frame
-  index + $effect interval at the catalog's per-spinner interval. SSR
-  renders frame 0 statically (the effect never runs server-side;
-  hydration matches, no mismatch). prefers-reduced-motion is observed
-  LIVE: the matchMedia change listener tears the interval down under
-  reduce (frame rests on 0 — the retired CSS kill's static first-frame
-  landing) and restarts it on un-reduce. The svg posture's SMIL clock
-  freezes through the SAME listener (pauseAnimations/unpauseAnimations
-  — design §3's first named channel; CSS-keyframed loaders ride
-  spin.css's static kill, the second channel — never conflated).
+  THE CSS FLAT ENGINE (review round 4, the Owner ruling): every frame
+  of the spinner renders ONCE, flat, as its own grid cell span — no
+  element add/remove, no JS animation loop, no JS clock of any kind
+  for the text lane. JS only FILLS the animation parameters: one
+  shared keyframes rule per unique (frames × interval × linger) set
+  (injected once into a single <style data-jx-spin-frames>, idempotent
+  by name), and per-frame CSS vars (--kf name, --dur cycle, --d the
+  NEGATIVE delay phasing each frame into its slot — negative so the
+  timeline is already mid-cycle at mount: the browser never waits a
+  beat). The CSS engine animates opacity through the slot shape:
+  hold 1 across the frame's duty window, fade LINEARLY to 0 across
+  the linger tail, rest at 0 — the trail IS the animation. Being pure
+  CSS it is silk-smooth, rides the compositor, AND shows up in the
+  DevTools Animations panel (scrub/pause/replay work). Reduced motion
+  is a static @media kill (animation: none) landing on the base
+  rules' face: frame 0 alone — LIVE media semantics, zero JS.
+
+  The timing pairs (round 4): 'auto' is NOT a formula — every
+  catalog name carries HAND-TUNED interval/linger (the Owner's five:
+  dots 80/160, dots2 120/0, pipe 120/120, line 160/0, simpleDots
+  160/160; the rest family-curation — see spin-catalog.ts). Both
+  props take number | 'auto' (default 'auto' = the tuned pair):
+  explicit prop > the Defaults slot (context/plugin injectable) >
+  the catalog. Non-positive interval falls back to 'auto'.
 
   The glyph rides the density ruler (review R1/R4): text frames paint
-  at var(--jx-text), the svg's DEFAULT square edge at var(--jx-icon)
-  — one ruler, both postures, so density rungs size the whole
-  indicator together and the two postures keep comparable boxes (the
-  explicit `size` prop still pins the svg edge when given; the size
-  slot is an absentSlot — absent IS the state, the ruler var fills
-  it). Frame text renders whitespace-pre (review R3): catalog frames
-  carry meaningful spaces (simpleDots' blank frame is three of them)
-  — collapsing them makes the glyph box breathe frame-to-frame; pre
-  keeps every frame of one spinner at its mono advance width.
+  var(--jx-text), the svg's DEFAULT square edge at var(--jx-icon)
+  through CSS (presentation attributes cannot carry var(); an
+  explicit `size` or slot config pins concrete attributes). Frame
+  text renders whitespace-pre inside the one-cell grid — every frame
+  holds the cell at the widest frame's advance width (simpleDots'
+  blank frame included), so the box never breathes.
 
-  The two timings (review R6/R7; round 2 renames ghost → linger):
-  `linger` is the FRAME LINGER duration — how long each retiring
-  frame stays visible in the cursor's own grid cell, fading out
-  LINEARLY, before it hides. Type `number | 'auto'` (default
-  'auto' = (frames − 1) × interval / 2 — half the cycle lingers;
-  0 = hide at the interval handoff, no residue). The
-  trail's depth emerges from linger / interval. `interval`
-  overrides the frame step (explicit prop > the Defaults slot > the
-  spinner's catalog value) — the pair shapes the trail together,
-  and BOTH ride the family's single Defaults contract, so a context
-  (or the plugin mounting one) can set them ambiently. Lingered
-  frames never spawn under reduced motion and clear on freeze; SSR
-  renders none (hydration matches).
+  The svg posture keeps its OWN engine (the SMIL document inside the
+  artwork): reduced motion freezes it through the component's one
+  remaining $effect (pauseAnimations/unpauseAnimations on the live
+  matchMedia listener — design §3's first named channel;
+  CSS-keyframed svg loaders ride spin.css's static kill, the second
+  channel — never conflated).
 
   Two postures:
     bare (default)  <Spin label="loading checks" /> — inline glyph
@@ -99,6 +103,50 @@
       `[jixoai/spin] unknown spinner '${name}' — rendering the 'dots' catalog fallback`,
     );
   }
+
+  // ── the injected keyframes registry (review round 4) ─────────────
+  // ONE <style data-jx-spin-frames> in <head> accumulates every unique
+  // parameter set's rule, keyed by its own name — idempotent, shared by
+  // every instance, bounded by the distinct (frames × interval ×
+  // linger) sets actually rendered. Client-only (SSR renders the vars;
+  // the keyframes arrive with hydration — before then the base rules
+  // show frame 0 alone, so first paint is correct too).
+  const injectedKeyframes = new Set<string>();
+
+  function ensureFrameKeyframes(name: string, css: string): void {
+    if (typeof document === 'undefined' || injectedKeyframes.has(name)) return;
+    injectedKeyframes.add(name);
+    let style = document.head.querySelector<HTMLStyleElement>('style[data-jx-spin-frames]');
+    if (style === null) {
+      style = document.createElement('style');
+      style.dataset.jxSpinFrames = '';
+      document.head.append(style);
+    }
+    style.textContent += css;
+  }
+
+  /** clamp + trim a keyframe percentage (0..100, no trailing zeros) */
+  const pct = (ratio: number): string =>
+    Math.min(Math.max(ratio * 100, 0), 100).toFixed(3).replace(/\.?0+$/, '');
+
+  /**
+   * The shared slot-shape keyframes for one parameter set: hold
+   * opacity 1 across the duty window (interval / cycle), fade
+   * LINEARLY to 0 across the linger tail, rest at 0 through the
+   * remainder of the cycle. Per-frame phasing is the negative delay
+   * (--d), so EVERY frame animates the SAME rule — only the delay
+   * differs, the Owner's observation.
+   */
+  function frameKeyframes(count: number, stepMs: number, lingerMs: number): string {
+    const name = `jx-spin-f${count}-i${stepMs}-l${lingerMs}`;
+    const duty = pct(stepMs / (count * stepMs));
+    const fade = pct((stepMs + lingerMs) / (count * stepMs));
+    ensureFrameKeyframes(
+      name,
+      `@keyframes ${name}{0%{opacity:1}${duty}%{opacity:1}${fade}%{opacity:0}100%{opacity:0}}`,
+    );
+    return name;
+  }
 </script>
 
 <script lang="ts">
@@ -115,9 +163,9 @@
     label?: string;
     /** the svg posture's square edge — absent rides var(--jx-icon), the density ruler */
     size?: number | string;
-    /** the frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner's catalog interval */
-    interval?: number;
-    /** frame linger: how long each retiring frame fades in its cell (ms), 'auto' = (frames-1)×interval, 0 = none — explicit > Defaults slot */
+    /** the frame step in ms — 'auto' (default) = the catalog's tuned pair; explicit > Defaults slot > tuned */
+    interval?: number | 'auto';
+    /** frame linger ms — 'auto' (default) = the catalog's tuned pair; 0 = hide at the handoff; explicit > Defaults slot > tuned */
     linger?: number | 'auto';
     /** wrapping content = container posture with scrim + aria-busy */
     children?: Snippet;
@@ -140,20 +188,20 @@
   // catalog second; both lanes miss (only via a cast) → dots frame 0
   const unknownName = $derived(svgData === null && !Object.hasOwn(SPINNER_CATALOG, spinner));
   const text = $derived(textOf(spinner));
+  if (unknownName) warnUnknownOnce(spinner);
 
   // the family's single read point: the absentSlots — explicit props
   // (or a consumer's slot config) resolve; ABSENT resolves undefined
   // and the component falls back: size rides the density ruler's
-  // --jx-icon (review R1), interval rides the spinner's catalog
-  // value, linger rides 'auto'. Both timings are context/plugin
-  // injectable through the one Defaults contract (review R7)
+  // --jx-icon (review R1), the timings ride the catalog's tuned pair
+  // ('auto' and non-positive numbers both mean absent here; linger
+  // carries 0 through — it is the explicit "no residue" setting)
   const resolved = $derived(
     SpinDefaults.resolve({
       size,
-      // non-positive timings mean "absent" (the playground's 0 = catalog/off
-      // convention) — a 0ms interval must never reach setInterval
-      interval: interval !== undefined && interval > 0 ? interval : undefined,
-      linger,
+      interval: interval !== undefined && interval !== 'auto' && interval > 0 ? interval : undefined,
+      linger:
+        linger === 0 ? 0 : linger !== undefined && linger !== 'auto' && linger > 0 ? linger : undefined,
     }),
   );
 
@@ -162,108 +210,42 @@
     typeof resolved.size === 'number' ? `${resolved.size}px` : resolved.size,
   );
 
-  // the two timings shape the trail together (review R6/R7 + rounds
-  // 2/3): the frame step and the linger duration — 'auto' =
-  // (frames-1)×step/2 (half the cycle lingers, review round 3);
-  // 0 hides at the handoff
+  // the resolved timing pair: explicit > slot > the catalog's tuning
   const stepMs = $derived(resolved.interval ?? text.interval);
-  const lingerMs = $derived(
-    resolved.linger === undefined || resolved.linger === 'auto'
-      ? Math.round(((text.frames.length - 1) * stepMs) / 2)
-      : resolved.linger > 0
-        ? resolved.linger
-        : 0,
+  const lingerMs = $derived(resolved.linger ?? text.linger);
+
+  // the CSS engine's parameter fill (review round 4): the shared
+  // keyframes name + each frame's cycle and negative phase delay.
+  // Runs during render (client) — the injector is idempotent and
+  // SSR-guarded; the vars are inert until the keyframes exist.
+  const cycleMs = $derived(text.frames.length * stepMs);
+  const kfName = $derived(
+    text.frames.length > 1 ? frameKeyframes(text.frames.length, stepMs, lingerMs) : '',
   );
-  const lingerStyle = $derived(lingerMs > 0 ? `--jx-linger-ms: ${lingerMs}ms` : undefined);
+  const frameStyle = (i: number): string =>
+    `--kf: ${kfName}; --dur: ${cycleMs}ms; --d: ${-((text.frames.length - i) * stepMs)}ms`;
 
-  // one trail entry per retired frame, removed by its own timeout —
-  // written only from the interval callback (outside dependency
-  // capture, the frame-index law)
-  interface LingerEntry {
-    readonly id: number;
-    readonly char: string;
-  }
-  let lingers = $state<LingerEntry[]>([]);
-  let lingerSeq = 0;
-
-  let frame = $state(0);
+  // the svg posture's reduced-motion channel (design §3, the FIRST
+  // named channel): SMIL freezes through the LIVE matchMedia listener
+  // — the text lane needs nothing here (its kill is static CSS)
   let root: SVGSVGElement | undefined;
 
   $effect(() => {
-    if (typeof window === 'undefined') return;
-
-    // dep pins — spinner/posture/timings change re-runs the whole engine
-    // (cleanup + restart at the new interval, design §2)
-    const svg = svgData !== null;
-    const count = text.frames.length;
-    const step = stepMs;
-    const trail = lingerMs;
-    if (unknownName) warnUnknownOnce(spinner);
-    lingers = [];
-
-    // per-entry removal timers — every one clears on teardown
-    const pendingLingers = new Set<ReturnType<typeof setTimeout>>();
-
-    // the reduced-motion channel (design §2/§3): guarded the house way
-    // (hue-runtime/surface-motion precedent — jsdom and other bare
-    // environments carry no matchMedia; the un-observed default is
-    // motion-on, the browser default)
+    if (typeof window === 'undefined' || svgData === null) return;
     const mql =
       typeof window.matchMedia === 'function'
         ? window.matchMedia('(prefers-reduced-motion: reduce)')
         : null;
-
-    let id: ReturnType<typeof setInterval> | undefined;
-    let i = 0;
-
-    // LIVE semantics: applied immediately, re-applied on every media
-    // change — under reduce the interval is torn down, lingered
-    // frames clear, and SMIL freezes (pauseAnimations); on un-reduce
-    // both restart
-    const onChange = () => {
-      const reduced = mql?.matches ?? false;
-      if (mql && root) {
-        if (reduced) root.pauseAnimations();
-        else root.unpauseAnimations();
-      }
-      if (reduced) {
-        if (id !== undefined) {
-          clearInterval(id);
-          id = undefined;
-        }
-        for (const t of pendingLingers) clearTimeout(t);
-        pendingLingers.clear();
-        lingers = [];
-        frame = 0;
-      } else if (id === undefined && !svg) {
-        frame = 0;
-        i = 0;
-        // the callback writes `frame`/`lingers` — the
-        // async writes sit outside this effect's dependency capture by
-        // construction (no re-subscribe on tick, design §2)
-        id = setInterval(() => {
-          if (trail > 0) {
-            const gid = lingerSeq++;
-            lingers.push({ id: gid, char: text.frames[i % count] });
-            const t = setTimeout(() => {
-              lingers = lingers.filter((g) => g.id !== gid);
-            }, trail);
-            pendingLingers.add(t);
-          }
-          i += 1;
-          frame = i % count;
-        }, step);
-      }
+    const onChange = (): void => {
+      if (!mql || !root) return;
+      if (mql.matches) root.pauseAnimations();
+      else root.unpauseAnimations();
     };
-
     onChange();
     mql?.addEventListener('change', onChange);
-
     return () => {
-      if (id !== undefined) clearInterval(id);
-      for (const t of pendingLingers) clearTimeout(t);
-      pendingLingers.clear();
       mql?.removeEventListener('change', onChange);
+      root = undefined;
     };
   });
 </script>
@@ -291,24 +273,19 @@
 {/snippet}
 
 {#snippet textCursor()}
-  <!-- the one-cell cursor (review R3/R6): every frame — current and
-       lingered — occupies the SAME grid cell, whitespace-pre keeps
-       each at its mono advance width, so the box never breathes. The
-       lingered frames render BEFORE the live one (later grid children
-       paint on top) and fade linearly over --jx-linger-ms -->
+  <!-- the flat CSS engine (review round 4): every frame rendered ONCE
+       in its own cell, phased by a negative animation delay; the base
+       rules rest all-but-frame-0 at opacity 0 (the no-JS/static
+       face), the injected keyframes + per-frame vars drive the cycle.
+       The cell holds the widest frame's advance width (whitespace-pre) -->
   <span
     data-jx-spin-cursor=""
     class="relative inline-grid whitespace-pre font-mono text-[length:var(--jx-text)] text-primary"
-    style={lingerStyle}
     aria-hidden="true"
   >
-    {#each lingers as g (g.id)}
-      <span
-        data-jx-spin-linger=""
-        class="pointer-events-none [grid-area:1/1] animate-[jx-spin-linger_var(--jx-linger-ms)_linear_forwards]"
-      >{g.char}</span>
+    {#each text.frames as f, i (i)}
+      <span data-jx-spin-frame="" class="jx-spin-frame" style={frameStyle(i)}>{f}</span>
     {/each}
-    <span data-jx-spin-frame="" class="[grid-area:1/1]">{text.frames[frame]}</span>
   </span>
 {/snippet}
 

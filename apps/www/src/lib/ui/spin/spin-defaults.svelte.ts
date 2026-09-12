@@ -19,15 +19,15 @@
  *            — so density rungs size the glyph; explicit values (or
  *            an ambient slot config) pin a concrete edge. Text
  *            posture ignores the slot (it paints var(--jx-text)).
- *   interval the frame step in ms — an absent slot (review R7):
- *            unset falls back to the spinner's CATALOG interval
- *            (line 130ms, simpleDots 400ms…); a context/plugin
- *            default re-times every spinner at once. The svg lane
- *            ignores it (its clock is the SMIL document's own).
- *   linger   the frame linger duration — number | 'auto' (review
- *            R6/R7 + rounds 2/3): 'auto' = (frames-1)×interval/2
- *            keeps half the cycle visible; 0 hides at the interval
- *            handoff; context/plugin injectable like the interval.
+ *   interval the frame step in ms — number | 'auto' (round 4):
+ *            unset/'auto' falls back to the spinner's HAND-TUNED
+ *            catalog pair; a context/plugin default re-times every
+ *            spinner at once. The svg lane ignores it (its clock is
+ *            the SMIL document's own).
+ *   linger   the frame linger duration — number | 'auto' (rounds
+ *            2-4): unset/'auto' falls back to the HAND-TUNED pair;
+ *            0 hides at the interval handoff; context/plugin
+ *            injectable like the interval.
  *   density  class a, the open axis with NO family own — no opinion:
  *            the indicator never stamped data-density and does not
  *            start now; the slot declares the channel OPEN without
@@ -49,15 +49,15 @@ import { densitySlot } from '$lib/density.svelte';
  *  or ambient) still pins a concrete edge */
 export const spinSizeSlot = absentSlot<number | string>();
 
-/** the frame step in ms — ABSENT falls back to the spinner's catalog
- *  interval (review R7): a context/plugin-injected default re-times
- *  every spinner at once, an explicit prop still wins per instance */
-export const spinIntervalSlot = absentSlot<number>();
+/** the frame step in ms — number | 'auto' (round 4): ABSENT/'auto'
+ *  falls back to the spinner's HAND-TUNED catalog pair; a
+ *  context/plugin-injected default re-times every spinner at once,
+ *  an explicit prop still wins per instance */
+export const spinIntervalSlot = absentSlot<number | 'auto'>();
 
-/** the frame linger duration — how long each retiring frame fades in
- *  its cell. ABSENT resolves 'auto' = (frames-1)×interval/2 (half
- *  the cycle lingers, review round 3); 0 = hide at the handoff
- *  (review R6/R7 + round 2). Context/plugin-injectable like the
+/** the frame linger duration — number | 'auto' (rounds 2-4): ABSENT/
+ *  'auto' falls back to the spinner's HAND-TUNED catalog pair; 0 =
+ *  hide at the interval handoff. Context/plugin-injectable like the
  *  interval */
 export const spinLingerSlot = absentSlot<number | 'auto'>();
 

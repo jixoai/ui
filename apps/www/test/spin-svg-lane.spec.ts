@@ -1,24 +1,33 @@
 /**
- * spin-ora-svg-lane www battery (V1, design §6, 2026-09-11).
+ * spin-ora-svg-lane www battery (V1, design §6, 2026-09-11; the CSS
+ * flat-engine rewrite, review round 4, 2026-09-12).
  *
  * The measured-acceptance locks for the rewritten spin family:
- *   - frame-0 SSR markup — the bracket cursor is dead (pinned byte
+ *   - the FLAT CSS ENGINE: every frame rendered once as its own cell
+ *     span, phased by a NEGATIVE per-frame delay; one injected
+ *     keyframes rule per parameter set; NO JS clock (the timing tests
+ *     assert the animation parameters, not timer-driven DOM churn)
+ *   - frame-0 static face — the bracket cursor is dead (pinned byte
  *     assertions: no [ or ] anywhere in the rendered region)
  *   - the spinner prop union — text catalog lane + svg artifact lane
  *     (owned root attrs, animate children present through the {@html}
  *     sink)
- *   - size resolution through SpinDefaults' open literal slot
- *   - reduced-motion paths (mocked matchMedia): the interval never
- *     starts / restarts on un-reduce (LIVE semantics, design §2) and
- *     the svg root freezes via pauseAnimations (design §3 channel one)
+ *   - size resolution through SpinDefaults' absent slot (the density
+ *     ruler var vs pinned attributes)
+ *   - the svg posture's reduced-motion path (mocked matchMedia +
+ *     pauseAnimations stub — the TEXT lane's kill is static CSS)
  *   - wrapping posture regression (scrim/aria-busy/pill law unchanged)
  *   - catalog snapshot — names count + verbatim frames spot-checked
- *     against the cli-spinners devDep corpus data (design §1)
+ *     against the cli-spinners devDep corpus data + the HAND-TUNED
+ *     timing pairs (the Owner's five pinned)
  *
- * jsdom gaps (probed: both undefined): window.matchMedia and the SMIL
- * SVGSVGElement#pauseAnimations/unpauseAnimations pair — the component
- * guards matchMedia the house way (motion-on default), the tests stub
- * whichever surface the case needs.
+ * jsdom gaps (probed): window.matchMedia and the SMIL
+ * SVGSVGElement#pauseAnimations/unpauseAnimations pair are undefined —
+ * the component guards matchMedia the house way (motion-on default),
+ * the tests stub whichever surface the case needs. jsdom does not
+ * RUN animations — the engine is asserted through its parameters and
+ * the injected <style> content; real motion is the browser
+ * walkthrough's evidence.
  */
 import { render } from '@testing-library/svelte';
 import { createRawSnippet, flushSync } from 'svelte';
@@ -84,12 +93,14 @@ function stubSmilClock() {
 // text posture — frame 0, no brackets (design §1/§2)
 // ---------------------------------------------------------------------------
 describe('spin — text posture', () => {
-  it('renders frame 0 of the dots default with no bracket cursor anywhere', () => {
+  it('renders EVERY frame flat — no bracket cursor anywhere (the CSS engine, review round 4)', () => {
     const { container } = render(Spin);
     const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    // the cursor is a one-cell grid (ghosts + the live frame) — the frame
-    // span is the glyph; whitespace-pre keeps markup noise out of the box
-    expect(cursor.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
+    // ALL ten dots frames rendered ONCE, in DOM order, each in its own
+    // cell span — no JS adds or removes elements ever again
+    const frames = [...cursor.querySelectorAll('[data-jx-spin-frame]')];
+    expect(frames.length).toBe(SPINNER_CATALOG.dots.frames.length);
+    expect(frames.map((f) => f.textContent)).toEqual([...SPINNER_CATALOG.dots.frames]);
     expect(cursor.className).toContain('whitespace-pre');
     // the wrapping decoration this change kills (Owner ruling #1) —
     // pinned on the whole rendered region, nbsp included
@@ -102,19 +113,42 @@ describe('spin — text posture', () => {
     expect(status.getAttribute('aria-label')).toBe('loading');
   });
 
-  it('spinner="line" renders the line corpus frame 0 (the retired /—\\| cycle)', () => {
-    const { container } = render(Spin, { props: { spinner: 'line' } });
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('-');
+  it('every frame carries the animation params: shared keyframes name, cycle duration, negative phase delay', () => {
+    const { container } = render(Spin); // dots: 10 frames × 80ms = 800ms cycle
+    const frames = [...container.querySelectorAll('[data-jx-spin-frame]')];
+    const readVar = (el: Element, name: string): string | undefined =>
+      (el.getAttribute('style') ?? '').match(new RegExp(`--${name}: ([^;]+)`))?.[1];
+    for (const [i, f] of frames.entries()) {
+      expect(readVar(f, 'kf')).toBe('jx-spin-f10-i80-l160'); // frames × interval × linger
+      expect(readVar(f, 'dur')).toBe('800ms'); // 10 × 80
+      // frame i's slot starts at i×80 → the negative delay phases it in
+      expect(readVar(f, 'd')).toBe(`${-((SPINNER_CATALOG.dots.frames.length - i) * 80)}ms`);
+    }
+    // the shared keyframes rule IS injected (one style tag, idempotent)
+    const style = document.head.querySelector('style[data-jx-spin-frames]');
+    expect(style?.textContent).toContain('@keyframes jx-spin-f10-i80-l160');
+    // the slot shape: duty 10% hold, fade landing at (80+160)/800 = 30%
+    expect(style?.textContent).toContain('0%{opacity:1}10%{opacity:1}30%{opacity:0}100%{opacity:0}');
   });
 
-  it('the frame engine cycles at the catalog interval (dots 80ms)', async () => {
-    vi.useFakeTimers();
-    stubMatchMedia(false);
-    const { container } = render(Spin);
-    flushSync();
-    await vi.advanceTimersByTimeAsync(160); // two ticks: ⠋ → ⠙ → ⠹
-    flushSync();
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠹');
+  it('explicit interval/linger change the parameter set — a second keyframes rule joins the sheet', () => {
+    const first = render(Spin);
+    expect(document.head.querySelector('style[data-jx-spin-frames]')?.textContent).toContain('jx-spin-f10-i80-l160');
+    first.unmount();
+    const { container } = render(Spin, { props: { interval: 100, linger: 0 } });
+    const style = document.head.querySelector('style[data-jx-spin-frames]')!;
+    expect(style.textContent).toContain('jx-spin-f10-i100-l0');
+    // linger 0 → the fade stop lands ON the duty stop (discrete hide)
+    expect(style.textContent).toContain('@keyframes jx-spin-f10-i100-l0{0%{opacity:1}10%{opacity:1}10%{opacity:0}100%{opacity:0}}');
+    const frames = [...container.querySelectorAll('[data-jx-spin-frame]')];
+    expect((frames[1]!.getAttribute('style') ?? '')).toContain('--dur: 1000ms'); // 10 × 100
+  });
+
+  it("spinner='line' renders the line corpus flat (the retired /—\\| cycle, tuned 160/0)", () => {
+    const { container } = render(Spin, { props: { spinner: 'line' } });
+    const frames = [...container.querySelectorAll('[data-jx-spin-frame]')];
+    expect(frames.map((f) => f.textContent)).toEqual(['-', '\\', '|', '/']);
+    expect((frames[0]!.getAttribute('style') ?? '')).toContain('--dur: 640ms'); // 4 × 160
   });
 });
 
@@ -172,40 +206,6 @@ describe('spin — svg posture', () => {
 // ---------------------------------------------------------------------------
 // reduced motion — the LIVE frame-engine semantics (design §2)
 // ---------------------------------------------------------------------------
-describe('spin — reduced motion', () => {
-  it('the interval never starts under reduce (fake timers advance, frame stays 0)', async () => {
-    vi.useFakeTimers();
-    const { factory } = stubMatchMedia(true);
-    const { container } = render(Spin);
-    flushSync();
-    expect(factory).toHaveBeenCalledWith('(prefers-reduced-motion: reduce)');
-    await vi.advanceTimersByTimeAsync(10_000);
-    flushSync();
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
-  });
-
-  it('LIVE semantics: change events tear down and restart the engine mid-flight', async () => {
-    vi.useFakeTimers();
-    const { fire } = stubMatchMedia(false);
-    const { container } = render(Spin);
-    flushSync();
-    await vi.advanceTimersByTimeAsync(160);
-    flushSync();
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠹');
-    // reduce mid-animation: interval cleared, frame rests on 0
-    fire(true);
-    flushSync();
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
-    await vi.advanceTimersByTimeAsync(10_000);
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
-    // un-reduce: the engine restarts (one 80ms tick → frame 1)
-    fire(false);
-    await vi.advanceTimersByTimeAsync(80);
-    flushSync();
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠙');
-  });
-});
-
 // ---------------------------------------------------------------------------
 // unknown names — the dev-warn lane (design §4)
 // ---------------------------------------------------------------------------
@@ -229,119 +229,57 @@ describe('spin — unknown spinner names', () => {
 });
 
 // ---------------------------------------------------------------------------
-// the two timings — interval override + the linger trail (review R6/R7
-// + round 2: ghost renamed linger, type number | 'auto')
+// the timing pairs — hand-tuned catalog + explicit overrides (round 4)
 // ---------------------------------------------------------------------------
-describe('spin — the two timings', () => {
-  it('interval overrides the catalog step (dots re-timed to 200ms; 0 and undefined mean absent)', async () => {
-    vi.useFakeTimers();
-    stubMatchMedia(false);
-    const { container } = render(Spin, { props: { interval: 200 } });
-    flushSync();
-    await vi.advanceTimersByTimeAsync(199);
-    flushSync();
-    // 199ms < one 200ms step: still frame 0
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠋');
-    await vi.advanceTimersByTimeAsync(1);
-    flushSync();
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠙');
-  });
-
-  it('interval=0 falls back to the catalog value (the playground 0 convention)', async () => {
-    vi.useFakeTimers();
-    stubMatchMedia(false);
-    const { container } = render(Spin, { props: { interval: 0 } });
-    flushSync();
-    await vi.advanceTimersByTimeAsync(80); // dots catalog step
-    flushSync();
-    expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠙');
-  });
-
-  it('linger spawns one entry per retired frame at the steady state and sets the CSS var', async () => {
-    vi.useFakeTimers();
-    stubMatchMedia(false);
-    const { container } = render(Spin, { props: { linger: 240 } });
-    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    expect(cursor.getAttribute('style')).toBe('--jx-linger-ms: 240ms;'); // jsdom appends the trailing ;
-    flushSync();
-    await vi.advanceTimersByTimeAsync(240); // ticks at 80/160/240 → three lingered entries (each lives 240ms past its spawn)
-    flushSync();
-    const lingers = [...cursor.querySelectorAll('[data-jx-spin-linger]')];
-    expect(lingers.length).toBe(3); // the trail's steady state = linger / interval = 240/80
-    // the linger utility carries the linear fade over the var
-    expect(lingers[0]!.className).toContain('animate-[jx-spin-linger_var(--jx-linger-ms)_linear_forwards]');
-    expect(lingers[0]!.className).toContain('[grid-area:1/1]');
-    // teardown clears everything (reduce fires below); the per-entry expiry
-    // is covered by the reduce-clears test + the real-browser walkthrough
-  });
-
-  it("linger 'auto' (the default) = (frames − 1) × interval / 2 — half the cycle lingers (review round 3)", async () => {
-    vi.useFakeTimers();
-    stubMatchMedia(false);
-    const { container } = render(Spin); // no linger prop — 'auto' default
-    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    // dots carries 10 frames: (10 − 1) × 80 / 2 = 360ms
-    expect(cursor.getAttribute('style')).toBe('--jx-linger-ms: 360ms;');
-    flushSync();
-    await vi.advanceTimersByTimeAsync(80 * 10); // ten ticks: spawns at 80..800
-    flushSync();
-    // alive = spawns in (T−360, T] = (440, 800] → 480,560,640,720,800 = 5
-    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBe(5);
-  });
-
-  it('linger 0 hides at the handoff — no residue entries ever', async () => {
-    vi.useFakeTimers();
-    stubMatchMedia(false);
-    const { container } = render(Spin, { props: { linger: 0 } });
-    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    expect(cursor.getAttribute('style')).toBeNull();
-    flushSync();
-    await vi.advanceTimersByTimeAsync(800);
-    flushSync();
-    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBe(0);
-  });
-
-  it('lingered frames never spawn under reduce and clear on the change (review R6)', async () => {
-    vi.useFakeTimers();
-    const { fire } = stubMatchMedia(false);
-    const { container } = render(Spin, { props: { linger: 400 } });
-    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    flushSync();
-    await vi.advanceTimersByTimeAsync(160);
-    flushSync();
-    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBeGreaterThan(0);
-    fire(true); // reduce mid-flight
-    flushSync();
-    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBe(0);
-  });
-
-  it('the svg posture spawns no lingered frames (the trail is text-only)', async () => {
-    vi.useFakeTimers();
-    stubMatchMedia(false);
-    stubSmilClock(); // jsdom ships no SMIL methods — the effect calls unpause
-    const { container } = render(Spin, { props: { spinner: 'blocks-wave', linger: 400 } });
-    flushSync();
-    await vi.advanceTimersByTimeAsync(500);
-    expect(container.querySelector('[data-jx-spin-linger]')).toBeNull();
-  });
-
-  it('the ghost trail never moves layout: cursor width holds across frames (simpleDots, review R3/R4)', async () => {
-    vi.useFakeTimers();
-    stubMatchMedia(false);
-    const { container } = render(Spin, { props: { spinner: 'simpleDots' } });
-    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    for (let i = 0; i < 8; i++) {
-      await vi.advanceTimersByTimeAsync(100); // corpus step is 400ms; probes land mid-frame
-      flushSync();
-      // the box-stability invariants: pre whitespace + every child pinned
-      // to the ONE grid cell (the live-browser probe pinned the constant
-      // 23.41px advance width across the blank '   ' frame)
-      expect(cursor.className).toContain('whitespace-pre');
-      expect(cursor.className).toContain('inline-grid');
-      for (const child of [...cursor.children]) {
-        expect((child as HTMLElement).className).toContain('[grid-area:1/1]');
-      }
+describe('spin — the timing pairs', () => {
+  it("the Owner's five tuned pairs ride the catalog verbatim", () => {
+    const pairs: [TextSpinnerNameish, number, number][] = [
+      ['dots', 80, 160],
+      ['dots2', 120, 0],
+      ['pipe', 120, 120],
+      ['line', 160, 0],
+      ['simpleDots', 160, 160],
+    ];
+    for (const [name, interval, linger] of pairs) {
+      expect(SPINNER_CATALOG[name].interval, `${name} interval`).toBe(interval);
+      expect(SPINNER_CATALOG[name].linger, `${name} linger`).toBe(linger);
     }
+  });
+
+  it("every catalog entry carries a tuning pair (the build's TUNINGS law)", () => {
+    for (const [name, entry] of Object.entries(SPINNER_CATALOG)) {
+      expect(Number.isFinite(entry.interval), `${name} interval`).toBe(true);
+      expect(Number.isFinite(entry.linger), `${name} linger`).toBe(true);
+      expect(entry.interval, `${name} interval > 0`).toBeGreaterThan(0);
+      expect(entry.linger, `${name} linger >= 0`).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("'auto' (the default) resolves the tuned pair; explicit numbers override", () => {
+    const auto = render(Spin, { props: { spinner: 'dots' } });
+    expect((auto.container.querySelector('[data-jx-spin-frame]')!.getAttribute('style') ?? '')).toContain(
+      'jx-spin-f10-i80-l160',
+    );
+    auto.unmount();
+    const custom = render(Spin, { props: { spinner: 'dots', interval: 120, linger: 60 } });
+    expect((custom.container.querySelector('[data-jx-spin-frame]')!.getAttribute('style') ?? '')).toContain(
+      'jx-spin-f10-i120-l60',
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// reduced motion — the svg lane's LIVE SMIL freeze (the text lane's kill
+// is the static media rule in spin.css, browser-walkthrough evidence)
+// ---------------------------------------------------------------------------
+describe('spin — reduced motion', () => {
+  it('the SMIL clock freezes via pauseAnimations (channel one, design §3)', () => {
+    stubMatchMedia(true);
+    const { pause, unpause } = stubSmilClock();
+    render(Spin, { props: { spinner: 'blocks-wave' } });
+    flushSync();
+    expect(pause).toHaveBeenCalledTimes(1);
+    expect(unpause).not.toHaveBeenCalled();
   });
 });
 
@@ -378,18 +316,19 @@ describe('spin catalog snapshot', () => {
     expect(Object.hasOwn(cliSpinners, 'bouncingBar')).toBe(true);
   });
 
-  it('frames and intervals ride VERBATIM from cli-spinners@2.9.2 (spot checks)', () => {
+  it('frames ride VERBATIM from cli-spinners@2.9.2; timings are the HAND-TUNED pairs (round 4)', () => {
     for (const name of ['dots', 'line', 'simpleDots', 'star', 'pong', 'aesthetic']) {
       expect(SPINNER_CATALOG[name as keyof typeof SPINNER_CATALOG].frames)
         .toEqual(cliSpinners[name]!.frames);
-      expect(SPINNER_CATALOG[name as keyof typeof SPINNER_CATALOG].interval)
-        .toBe(cliSpinners[name]!.interval);
     }
     // pinned bytes the JSON round-trip could silently mangle: trailing
-    // spaces inside simpleDots frames, the em-dash family in line2
+    // spaces inside simpleDots frames
     expect(SPINNER_CATALOG.simpleDots.frames).toEqual(['.  ', '.. ', '...', '   ']);
-    expect(SPINNER_CATALOG.line.interval).toBe(130);
+    // the tuning pairs deliberately diverge from the corpus intervals
+    // (dots keeps 80; line tunes 130→160, simpleDots 400→160)
     expect(SPINNER_CATALOG.dots.interval).toBe(80);
+    expect(SPINNER_CATALOG.line.interval).toBe(160);
+    expect(SPINNER_CATALOG.simpleDots.interval).toBe(160);
   });
 });
 

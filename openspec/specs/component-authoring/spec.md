@@ -3528,26 +3528,29 @@ RETIRED (bare frames only). One `spinner` prop SHALL govern both
 postures — `SpinName | TextSpinnerName`, default `'dots'` — with
 artifact-first resolution (an svg spinner named like a text one
 overrides it; unknown names fall back to frame 0 of `dots` with one
-dev warn, never a blank region). Frame cycling SHALL be a JS
-interval driven by `$effect`: SSR paints frame 0, and
-`prefers-reduced-motion` never starts the interval (the
-frozen-first-frame law). The glyph SHALL ride the density ruler:
+dev warn, never a blank region). Frame cycling SHALL be a FLAT
+CSS-animation engine (review round 4): every frame renders once in
+the cursor's one-cell grid, JS only fills the animation parameters
+(one shared keyframes rule per parameter set, injected
+idempotently, plus a NEGATIVE per-frame delay phasing it into its
+slot) — no element churn, no JS clock, the cycle is compositor-
+smooth and DevTools-Animations-controllable; the static face
+(frame 0 alone) holds SSR, first paint, and reduced motion through
+a static media kill. The glyph SHALL ride the density ruler:
 text frames paint `var(--jx-text)`, the svg posture's ABSENT size
 rides `var(--jx-icon)` through CSS (presentation attributes cannot
 carry var(); an explicit `size` or slot config pins concrete
 attributes). Frame text SHALL render `whitespace-pre` inside a
 one-cell grid — every frame of one spinner holds its mono advance
 width (simpleDots' blank frame included), so the box never
-breathes. Two timings SHALL shape the text posture: `interval`
-(explicit prop > the Defaults slot > the catalog value) and
-`linger` (the frame residue duration — how long each retiring frame
-stays visible fading out LINEARLY in the cursor's own grid cell;
-type `number | 'auto'` with default 'auto' = (frames − 1) ×
-interval / 2 (half the cycle lingers), and 0 hiding at the
-interval handoff; lingered frames never spawn under reduce and
-clear on the change). Both timings ride the family's single
-Defaults contract, so a context (or the plugin mounting one) sets
-them ambiently.
+breathes. Two timings SHALL shape the text posture: `interval` and
+`linger`, both `number | 'auto'` with default 'auto' resolving the
+catalog's HAND-TUNED pair per spinner (no formula — the Owner's
+five: dots 80/160, dots2 120/0, pipe 120/120, line 160/0,
+simpleDots 160/160; the rest family-curation; explicit prop >
+the Defaults slot > the tuned pair). Both ride the family's
+single Defaults contract, so a context (or the plugin mounting
+one) sets them ambiently.
 
 #### Scenario: the default spinner renders bare frames
 

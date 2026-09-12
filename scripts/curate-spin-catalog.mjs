@@ -154,23 +154,55 @@ for (const mustKeep of ['star', 'hamburger', 'toggle12']) {
 if (kept.includes('bouncingBar')) throw new Error('bouncingBar must be EXCLUDED by name — bracket art');
 
 const serializeFrame = (f) => JSON.stringify(f); // byte-exact incl. trailing spaces, backslashes
+
+// ── the hand-tuned timing pairs (review round 4, 2026-09-12) ─────────
+// interval/linger per spinner — 'auto' resolves THESE (the formula is
+// dead: no single formula fits every family). The five Owner-tuned
+// pairs ride verbatim; the rest are family-curation (dots family
+// 80/160, two-state flips 120/0, sweeps 120/120, wide word-frames
+// 160/0). Every kept name MUST have a pair — the build fails loudly
+// when the corpus grows.
+const TUNINGS = {
+  dots: [80, 160], dots2: [120, 0], dots3: [80, 160], dots4: [80, 160],
+  dots5: [80, 160], dots6: [80, 160], dots7: [80, 160], dots8: [80, 160],
+  dots9: [80, 160], dots10: [80, 160], dots11: [100, 160], dots13: [80, 160],
+  line: [160, 0], line2: [120, 0], pipe: [120, 120],
+  simpleDots: [160, 160], simpleDotsScrolling: [160, 160],
+  star: [120, 120], star2: [120, 0], flip: [120, 0], hamburger: [120, 0],
+  growVertical: [120, 120], growHorizontal: [120, 120],
+  balloon: [120, 120], balloon2: [120, 120], noise: [120, 120],
+  bounce: [120, 120], boxBounce: [120, 120], boxBounce2: [120, 120],
+  triangle: [120, 0], binary: [120, 0], arc: [120, 120], circle: [120, 120],
+  squareCorners: [160, 160], circleQuarters: [120, 120], circleHalves: [120, 120],
+  squish: [120, 0], toggle: [240, 0], toggle2: [120, 0], toggle3: [120, 0],
+  toggle4: [120, 0], toggle5: [120, 0], toggle6: [240, 0], toggle7: [120, 0],
+  toggle8: [120, 0], toggle9: [120, 0], toggle10: [120, 0], toggle11: [120, 0],
+  toggle12: [120, 0], toggle13: [120, 0], arrow: [120, 120], arrow3: [120, 120],
+  bouncingBall: [160, 0], pong: [160, 0], dqpb: [120, 120], grenade: [120, 0],
+  point: [160, 160], layer: [120, 120], betaWave: [120, 0], aesthetic: [120, 120],
+};
+const missing = kept.filter((n) => !TUNINGS[n]);
+if (missing.length) throw new Error(`no hand-tuned pair for: ${missing.join(', ')} — tune it (interval/linger) and add it to TUNINGS`);
+const unusedTuning = Object.keys(TUNINGS).filter((n) => !kept.includes(n));
+if (unusedTuning.length) throw new Error(`TUNINGS carries excluded/unknown names: ${unusedTuning.join(', ')}`);
+
 const body = kept
   .map((name) => {
     const spinner = corpus[name];
     const frames = spinner.frames.map(serializeFrame).join(', ');
-    const interval = typeof spinner.interval === 'number' ? spinner.interval : DEFAULT_INTERVAL;
-    return `  ${name}: {\n    frames: [${frames}],\n    interval: ${interval},\n  },`;
+    const [interval, linger] = TUNINGS[name];
+    return `  ${name}: {\n    frames: [${frames}],\n    interval: ${interval},\n    linger: ${linger},\n  },`;
   })
   .join('\n');
 
 const output = `// GENERATED — do not edit (writer: scripts/curate-spin-catalog.mjs,
 // data: cli-spinners@2.9.2 MIT — sindresorhus, ora's spinner corpus).
-// spin-ora-svg-lane C1, 2026-09-11.
+// spin-ora-svg-lane C1, 2026-09-11; timing pairs review round 4, 2026-09-12.
 //
 // Intents:
-// 1. the frozen text corpus — frames and per-spinner intervals VERBATIM
-//    from the corpus (never hand-transcribed; braille glyphs are
-//    transcription traps); re-run the curator to reproduce these bytes.
+// 1. the frozen text corpus — frames VERBATIM from the corpus (never
+//    hand-transcribed; braille glyphs are transcription traps); re-run
+//    the curator to reproduce these bytes.
 // 2. pure data — zero imports; installs with the registry:ui spin family.
 //
 // Curation rule: every cli-spinners@2.9.2 entry whose frames carry no
@@ -181,9 +213,15 @@ const output = `// GENERATED — do not edit (writer: scripts/curate-spin-catalo
 // Excluded by name: bouncingBar — its frames are [ ] bracket art, the
 // wrapping decoration this change kills (Owner ruling #1).
 
+// The timing pairs are HAND-TUNED (review round 4): interval/linger
+// in ms — the five Owner pairs (dots 80/160, dots2 120/0, pipe
+// 120/120, line 160/0, simpleDots 160/160) verbatim, the rest
+// family-curation. interval 'auto' / linger 'auto' on <Spin>
+// resolve THESE values; explicit numbers override.
 export interface TextSpinner {
   readonly frames: readonly string[];
   readonly interval: number;
+  readonly linger: number;
 }
 
 export type TextSpinnerName =

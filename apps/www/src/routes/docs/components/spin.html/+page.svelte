@@ -28,7 +28,7 @@
   import { SPINNER_CATALOG, TEXT_SPINNER_NAMES, type TextSpinnerName } from '$lib/ui/spin/spin-catalog';
   import { SPIN_NAMES, type SpinName } from '$lib/spin-set.gen';
   import { registrySourceUrl } from '$lib/registry-source';
-  import { PlayFields, PlayHelp, PlayNumber, PlayRow, PlaySelect } from '$lib/playground';
+  import { PlayFields, PlayHelp, PlayNumber, PlayRow, PlaySelect, PlayTiming } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site
@@ -119,35 +119,28 @@ export default {
 
   // playground protocol (P1): the page owns the state; the canvas only
   // calls back — the driven instance below crosses BOTH corpora live
-  // catalog-anchored initial timings (review round 2): the controls
-  // start at the EFFECTIVE values (dots: interval 80, linger auto =
-  // (10-1)×80/2 = 360) and re-anchor when the name changes — a control
-  // showing 0 for "catalog default" read as broken
+  // the timing pairs ride 'auto' by default (review round 4): every
+  // catalog name carries a HAND-TUNED interval/linger pair — the
+  // PlayTiming controls flip between auto (the tuned pair) and a
+  // custom number, seeded from the tuned value when flipping
   const catalogOf = (name: TextSpinnerName | SpinName): (typeof SPINNER_CATALOG)[TextSpinnerName] | undefined =>
     Object.hasOwn(SPINNER_CATALOG, name) ? SPINNER_CATALOG[name as TextSpinnerName] : undefined;
-  const autoLinger = (name: TextSpinnerName | SpinName): number => {
-    const cat = catalogOf(name);
-    return cat ? Math.round(((cat.frames.length - 1) * cat.interval) / 2) : 0;
-  };
   const canvasInitial = {
     spinner: 'dots' as TextSpinnerName | SpinName,
     size: 16,
-    interval: SPINNER_CATALOG.dots.interval,
-    linger: autoLinger('dots'),
+    interval: 'auto' as 'auto' | number,
+    linger: 'auto' as 'auto' | number,
   };
   let spinner = $state<TextSpinnerName | SpinName>(canvasInitial.spinner);
   let size = $state(canvasInitial.size);
-  let interval = $state(canvasInitial.interval);
-  let linger = $state(canvasInitial.linger);
-  // name changes re-anchor the timings to the catalog (the driven
-  // instance always passes explicit numbers; the 'auto' default lives
-  // on the static instances across this page)
+  let interval = $state<'auto' | number>(canvasInitial.interval);
+  let linger = $state<'auto' | number>(canvasInitial.linger);
+  // name changes reset the timings to auto (the tuned pair follows the
+  // name; custom values belong to the name they were tuned on)
   $effect(() => {
-    const cat = catalogOf(spinner);
-    if (cat) {
-      interval = cat.interval;
-      linger = autoLinger(spinner);
-    }
+    spinner;
+    interval = 'auto';
+    linger = 'auto';
   });
   function resetCanvas(): void {
     spinner = canvasInitial.spinner;
@@ -233,7 +226,7 @@ export default {
               driven by the playground
             </span>
             <Spin {spinner} {size} {interval} {linger} label="loading checks" />
-            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Spin spinner=&quot;{spinner}&quot; size={size} {interval} {linger} /&gt;</code>
+            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Spin spinner=&quot;{spinner}&quot; size={size} interval={interval} linger={linger} /&gt;</code>
           </div>
         </div>
         {#snippet playground()}
@@ -245,10 +238,10 @@ export default {
               <PlayNumber bind:value={size} min={8} max={48} />
             </PlayRow>
             <PlayRow label="interval">
-              <PlayNumber bind:value={interval} min={0} max={1200} step={10} />
+              <PlayTiming bind:value={interval} fallback={SPINNER_CATALOG.dots.interval} max={1200} />
             </PlayRow>
             <PlayRow label="linger">
-              <PlayNumber bind:value={linger} min={0} max={3000} step={40} />
+              <PlayTiming bind:value={linger} fallback={SPINNER_CATALOG.dots.linger} />
             </PlayRow>
             <PlayHelp>
               <code>spinner</code> takes any member of <code>TextSpinnerName</code>
@@ -257,9 +250,9 @@ export default {
               spinner named like a text one overrides the catalog entry. <code>size</code> is the
               svg posture's square edge — absent rides <code>var(--jx-icon)</code>.
               <code>interval</code> and <code>linger</code> are the text
-              posture's two timings — the frame step and the frame residue duration
-              ('auto' = (frames−1)×interval/2; 0 = none). Changing the name re-anchors
-              both to the catalog; the controls commit live (typing and the −/+ pair).
+              posture's two timings — 'auto' rides the name's HAND-TUNED pair, custom
+              flips in a number input seeded from the tuned value (0 linger = no
+              residue). Changing the name resets both to auto.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -279,7 +272,7 @@ export default {
             <div class="flex min-w-24 flex-col items-center gap-2">
               <Spin spinner={name} label={name} />
               <code class="text-muted-foreground font-mono text-[11px]">{name}</code>
-              <span class="text-muted-foreground font-mono text-[10px]">{SPINNER_CATALOG[name].interval}ms</span>
+              <span class="text-muted-foreground font-mono text-[10px]">{SPINNER_CATALOG[name].interval}/{SPINNER_CATALOG[name].linger}</span>
             </div>
           {/each}
         </div>
@@ -291,35 +284,37 @@ export default {
         family="linger-trail"
         headerRegion="linger-trail"
         eyebrow="timings"
-        title="The linger trail — the frame residue timing"
-        summary="`linger` is how long each retiring frame stays visible in the cursor's own grid cell, fading out linearly — the trail's depth emerges from linger / interval. Type `number | 'auto'`: the default 'auto' = (frames − 1) × interval / 2 (half the cycle lingers — the gallery above runs it), 0 hides at the interval handoff. `interval` overrides the frame step (explicit prop > the Defaults slot > the spinner's catalog value); both ride the family's one Defaults contract, so a context — or the plugin mounting one — can set them ambiently for every spinner at once."
+        title="The linger trail — hand-tuned timing pairs"
+        summary="Every catalog name carries a HAND-TUNED interval/linger pair (the Owner's five: dots 80/160, dots2 120/0, pipe 120/120, line 160/0, simpleDots 160/160 — the rest family-curation; the gallery captions show each pair). Both props take number | 'auto' with 'auto' (the default) resolving the tuned pair; explicit numbers override, and both ride the family's one Defaults contract, so a context — or the plugin mounting one — can set them ambiently for every spinner at once."
       >
         <div class="flex flex-col gap-6">
           <div class="flex flex-wrap items-start gap-x-12 gap-y-6">
             <div class="flex min-w-36 flex-col items-center gap-2">
               <Spin spinner="growVertical" label="loading" />
-              <code class="text-muted-foreground font-mono text-[11px]">growVertical · linger 'auto' (default)</code>
+              <code class="text-muted-foreground font-mono text-[11px]">growVertical · auto (120/120)</code>
             </div>
             <div class="flex min-w-36 flex-col items-center gap-2">
-              <Spin spinner="dqpb" linger={500} label="loading" />
-              <code class="text-muted-foreground font-mono text-[11px]">dqpb · linger 500</code>
+              <Spin spinner="dots" label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">dots · auto (80/160)</code>
             </div>
             <div class="flex min-w-36 flex-col items-center gap-2">
               <Spin spinner="dots" interval={160} linger={480} label="loading" />
-              <code class="text-muted-foreground font-mono text-[11px]">dots · interval 160 + linger 480</code>
+              <code class="text-muted-foreground font-mono text-[11px]">dots · custom 160/480</code>
             </div>
             <div class="flex min-w-36 flex-col items-center gap-2">
-              <Spin spinner="pong" interval={120} linger={0} label="loading" />
+              <Spin spinner="pong" linger={0} label="loading" />
               <code class="text-muted-foreground font-mono text-[11px]">pong · linger 0 — no residue</code>
             </div>
           </div>
           <p class="text-muted-foreground text-[13px] leading-6">
-            <strong class="text-foreground font-medium">Stable by construction.</strong>
-            Every frame — live and lingered — renders in the SAME grid cell with
-            <code class="text-accent">white-space: pre</code>, so the trail never moves layout: a slow blank frame
-            (simpleDots' three spaces) holds its advance width, and switching names never jitters the box. Lingered
-            frames never spawn under <code class="text-accent">prefers-reduced-motion</code> and clear the moment
-            reduce engages; SSR renders none, so hydration matches.
+            <strong class="text-foreground font-medium">Pure CSS, flat, DevTools-friendly.</strong>
+            Every frame of the spinner renders ONCE in the SAME grid cell with
+            <code class="text-accent">white-space: pre</code> — no element churn, no JS clock; JS only fills the
+            animation parameters (one shared keyframes rule per parameter set + a negative per-frame delay phasing
+            it into its slot), so the cycle is compositor-smooth, scrub/pause/replay-able in the DevTools Animations
+            panel, and freezes on frame 0 under <code class="text-accent">prefers-reduced-motion</code> through a
+            static media kill — zero JS in the reduced-motion path. The box never breathes: a slow blank frame
+            (simpleDots' three spaces) holds the widest frame's advance width.
           </p>
         </div>
       </SectionCard>
@@ -487,8 +482,8 @@ export default {
           { name: 'spinner', type: 'SpinName | TextSpinnerName', default: "'dots'", description: "The spinner's name — the generated svg artifact resolves FIRST, the text catalog second; an svg spinner named like a text one overrides it (explicit config beats built-ins, the icons law). The union closes at build time — a typo is a compile error." },
           { name: 'label', type: 'string', default: "'loading'", description: 'Announced to assistive tech ("loading checks").' },
           { name: 'size', type: 'number | string', default: 'var(--jx-icon)', description: "The svg posture's square edge. ABSENT rides the density ruler's var(--jx-icon) (presentation attributes cannot carry var(), so the default lands as a CSS width/height); an explicit value (or a slot config) pins it. The text posture paints var(--jx-text) and ignores the slot." },
-          { name: 'interval', type: 'number', default: 'the catalog value', description: 'The frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner’s own catalog interval (line 130ms, simpleDots 400ms…). The svg lane ignores it (its clock is the SMIL document).' },
-          { name: 'linger', type: "number | 'auto'", default: "'auto'", description: "The frame linger duration: each retiring frame stays in the cursor’s own grid cell fading out LINEARLY for this long. 'auto' = (frames − 1) × interval / 2 — half the cycle lingers; 0 = hide at the interval handoff. The trail depth = linger / interval. Context/plugin injectable like the interval; never spawns under reduced motion." },
+          { name: 'interval', type: "number | 'auto'", default: "'auto'", description: 'The frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner’s HAND-TUNED catalog pair. The svg lane ignores it (its clock is the SMIL document).' },
+          { name: 'linger', type: "number | 'auto'", default: "'auto'", description: "The frame linger duration: each retiring frame stays in the cursor’s own grid cell fading out LINEARLY for this long. 'auto' = the spinner’s HAND-TUNED catalog pair (dots 160, line 0…); 0 = hide at the interval handoff. The trail depth = linger / interval. Context/plugin injectable like the interval; reduced motion is a static CSS kill." },
           { name: 'children', type: 'Snippet', default: '—', description: 'Wrapping content = container posture with scrim + aria-busy.' },
           { name: 'class', type: 'string', default: "''", description: 'Lands on the root (the inline span, the svg, or the wrapping grid).' },
         ]}

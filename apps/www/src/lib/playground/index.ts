@@ -5,6 +5,7 @@ export { default as PlayRange } from './play-range.svelte';
 export { default as PlaySelect } from './play-select.svelte';
 export { default as PlaySegmented } from './play-segmented.svelte';
 export { default as PlayNumber } from './play-number.svelte';
+export { default as PlayTiming } from './play-timing.svelte';
 export { default as PlayText } from './play-text.svelte';
 export { default as PlayHelp } from './play-help.svelte';
 // the typed state object (canvas-floor-lab 2.1): page-owned control

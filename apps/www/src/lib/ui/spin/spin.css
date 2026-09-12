@@ -1,35 +1,48 @@
 @layer theme, base, components, utilities;
 
 /* jixoai spin — D1-exempt residue (spin-ora-svg-lane C3, 2026-09-11;
- * review rounds 2026-09-12: the linger keyframes join, ghost renamed).
- * Two rules' worth of non-utility CSS:
+ * review round 4, 2026-09-12: the flat CSS frame engine's base rules
+ * replace the JS interval engine entirely). Two rule groups:
  *
- * 1. the linger trail's linear fade (review R6) — keyframes are not
- *    utilities (the original frame-engine ruling, carried over); the
- *    lingered entries' animation utility supplies the timing function,
- *    the fill mode, and the var(--jx-linger-ms) duration, so only the
- *    two opacity stops live here.
+ * 1. the flat frame engine's base: every frame rests at opacity 0
+ *    EXCEPT the first — the no-JS/static face (SSR, first paint,
+ *    reduced motion, DevTools animation pause) is frame 0 alone. The
+ *    ANIMATION (the per-parameter keyframes injected into
+ *    <style data-jx-spin-frames> + the per-frame vars --kf/--dur/--d
+ *    set inline) overrides these while it runs — negative delays put
+ *    every frame mid-cycle from the first frame of rendering, so the
+ *    base face never flashes. grid-area lands each frame in the
+ *    cursor's ONE cell (the widest frame sizes it).
  * 2. the svg posture's reduced-motion kill (design §3's SECOND named
  *    channel): CSS-keyframed svg artwork under [data-jx-spin-svg]
  *    stops under reduce, riding the unlayered :where carve-out (the
  *    toggle/Part A precedent). SMIL freezes through
  *    root.pauseAnimations() driven by the component's matchMedia
  *    listener — the FIRST channel. Two named channels, never
- *    conflated. The lingered entries need no kill here: they only
- *    spawn while the interval runs, and the listener clears them on
- *    reduce. */
+ *    conflated. The text frames need no kill elsewhere — the
+ *    animation:none rule inside the same media query IS their kill,
+ *    landing on the base face: frame 0, LIVE media semantics, zero
+ *    JS. */
 
-@keyframes jx-spin-linger {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+[data-jx-spin-cursor] > .jx-spin-frame {
+  grid-area: 1 / 1;
+  opacity: 0;
+  animation-name: var(--kf, none);
+  animation-duration: var(--dur, 0ms);
+  animation-delay: var(--d, 0ms);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+[data-jx-spin-cursor] > .jx-spin-frame:first-child {
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
   :where([data-jx-spin-svg] *) {
+    animation: none;
+  }
+  [data-jx-spin-cursor] > .jx-spin-frame {
     animation: none;
   }
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-12T06:56:48.297Z",
+  "generatedAt": "2026-09-12T11:42:01.916Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3245,15 +3245,15 @@
           "source": "registry/files/ui/spin/spin.svelte",
           "mirror": "apps/www/src/lib/ui/spin/spin.svelte",
           "target": "@ui/spin/spin.svelte",
-          "sourceSha": "697b30b9206bb3e2635465e41ede473158053b933e5c1723084288fc282709d4",
-          "mirrorSha": "697b30b9206bb3e2635465e41ede473158053b933e5c1723084288fc282709d4"
+          "sourceSha": "d5c4cd63c23e9d8884d60e3603fb17c6292d3e831ad89b86352a1a212d7e8c12",
+          "mirrorSha": "d5c4cd63c23e9d8884d60e3603fb17c6292d3e831ad89b86352a1a212d7e8c12"
         },
         {
           "source": "registry/files/ui/spin/spin-catalog.ts",
           "mirror": "apps/www/src/lib/ui/spin/spin-catalog.ts",
           "target": "@ui/spin/spin-catalog.ts",
-          "sourceSha": "1081776ca1c6a50e4733f92bb94f566a91ad6651cbae712e1e85562b8c97c323",
-          "mirrorSha": "1081776ca1c6a50e4733f92bb94f566a91ad6651cbae712e1e85562b8c97c323"
+          "sourceSha": "b76371726c64140be9573955a7efac640a9dd2e777d66efe2b9cb9bc125af265",
+          "mirrorSha": "b76371726c64140be9573955a7efac640a9dd2e777d66efe2b9cb9bc125af265"
         },
         {
           "source": "registry/files/ui/spin/index.ts",
@@ -3266,15 +3266,15 @@
           "source": "registry/files/ui/spin/spin.css",
           "mirror": "apps/www/src/lib/ui/spin/spin.css",
           "target": "@ui/spin/spin.css",
-          "sourceSha": "202a3df57b0e10397bb1f884a1e284c151f54ac0b9232bd83cd26e08d4af1ac0",
-          "mirrorSha": "202a3df57b0e10397bb1f884a1e284c151f54ac0b9232bd83cd26e08d4af1ac0"
+          "sourceSha": "a52f2fc258019bf9fdfcc0ff3c78d1c0892d2ccc44a4200d945ff65fece2b32f",
+          "mirrorSha": "a52f2fc258019bf9fdfcc0ff3c78d1c0892d2ccc44a4200d945ff65fece2b32f"
         },
         {
           "source": "registry/files/ui/spin/spin-defaults.svelte.ts",
           "mirror": "apps/www/src/lib/ui/spin/spin-defaults.svelte.ts",
           "target": "@ui/spin/spin-defaults.svelte.ts",
-          "sourceSha": "9911468f94467ee4f6b8bd1740ff1b21f81b31691479b80b830b940624ea3b17",
-          "mirrorSha": "9911468f94467ee4f6b8bd1740ff1b21f81b31691479b80b830b940624ea3b17"
+          "sourceSha": "1c6916097c43d25f416104d6a355f2e0a5cff8f6053ce70a16e51d48230bc3a6",
+          "mirrorSha": "1c6916097c43d25f416104d6a355f2e0a5cff8f6053ce70a16e51d48230bc3a6"
         }
       ]
     },
