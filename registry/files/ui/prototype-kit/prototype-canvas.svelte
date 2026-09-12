@@ -23,20 +23,27 @@
   - LABEL: a full-row caption (grid-column: 1 / -1), aria-label on
     the section; the label is chrome, never a heading (the page
     outline stays page-owned — the component-canvas floor law).
+  - OVERLAY SCROLLBAR (#22): on a design server's canvas PAGE the
+    document's viewport scrollbar becomes the overlay law (native bar
+    hidden + floating thumb) — the grid's 1fr cells never lose width
+    to a scrollbar. See overlay-scrollbar.ts.
 
   Original requirement input: Owner 2026-09-11 — the prototype
-  standard (canvas/page/component) for `jixoai-ui design`.
+  standard (canvas/page/component) for `jixoai-ui design`;
+  2026-09-12 issue #22 (the canvas-page scrollbar law).
 -->
 <script lang="ts">
-  import { setContext } from 'svelte';
+  import { onMount, setContext } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import {
     PROTOTYPE_KIT_KEY,
     derivePrototypeFromLocation,
     getPrototypeContext,
+    hasDesignHost,
     type PrototypeKitContext,
   } from './context';
+  import { installOverlayScrollbar } from './overlay-scrollbar';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     /** explicit column tracks: number → repeat(N, minmax(0,1fr)),
@@ -77,6 +84,21 @@
       return resolvedPrototype;
     },
   } satisfies PrototypeKitContext);
+
+  // the #22 law on the canvas page itself: the /prototypes/ document
+  // the design server serves hosts this grid, and its viewport
+  // scrollbar would steal layout width from every 1fr frame cell the
+  // moment the grid overflows — the overlay law installs instead.
+  // Scoped tight: design-host canvas PAGES only (nested canvases hit
+  // the re-entrancy guard in overlay-scrollbar.ts; tests, embedded
+  // mounts and every other host document stay untouched).
+  onMount(() => {
+    if (!hasDesignHost()) return;
+    if (typeof location === 'undefined' || !location.pathname.startsWith('/prototypes/')) {
+      return;
+    }
+    return installOverlayScrollbar(window, document);
+  });
 
   function trackStyle(
     value: number | string | undefined,

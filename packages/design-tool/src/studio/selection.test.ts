@@ -13,6 +13,7 @@ import test from 'node:test';
 import {
   buildSelectionTree,
   collectCanvasRecords,
+  collectFrameRecords,
   collectStampRecords,
   frameIdFromName,
   selectionChatPrefix,
@@ -181,4 +182,34 @@ test('degenerate documents: null body / unstamped trees walk empty, never throw'
   assert.deepEqual(collectStampRecords(null, 'f'), []);
   assert.deepEqual(collectStampRecords(fakeElement({ children: [{}, { children: [{}] }] }), 'f'), []);
   assert.deepEqual(collectCanvasRecords({ body: null }, []), []);
+});
+
+/* ── the #20 lazy collector ────────────────────────────────────────── */
+
+test('per-frame collection: ONE frame by id, its document only (the lazy walk)', () => {
+  const hero = fakeIframe('jixoai-design-frame-hero-mobile-390-light', {
+    children: [
+      { component: 'badge', instance: 1 },
+      { component: 'press-button', instance: 2 },
+    ],
+  });
+  const press = fakeIframe('jixoai-design-frame-press-idle-light', {
+    children: [{ component: 'press-button', instance: 1 }],
+  });
+  const records = collectFrameRecords([hero, press], 'hero-mobile-390-light');
+  // hero's two usages, ALL addressed to hero — press's document untouched
+  assert.equal(records.length, 2);
+  assert.equal(records.every((record) => record.frameId === 'hero-mobile-390-light'), true);
+  assert.deepEqual(
+    records.map((record) => record.component),
+    ['badge', 'press-button'],
+  );
+});
+
+test('per-frame collection: unknown id / mid-load frame walks empty, never throws', () => {
+  const hero = fakeIframe('jixoai-design-frame-hero', { children: [{ component: 'badge', instance: 1 }] });
+  assert.deepEqual(collectFrameRecords([hero], 'not-mounted-yet'), []);
+  const midLoad = fakeIframe('jixoai-design-frame-hero', null); // no body yet
+  assert.deepEqual(collectFrameRecords([midLoad], 'hero'), []);
+  assert.deepEqual(collectFrameRecords([], 'hero'), []);
 });

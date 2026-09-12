@@ -20,8 +20,11 @@
  * The registry items the studio chrome consumes today:
  * - list-item (T3): the property panel's row family — ItemGroup /
  *   ItemField / ItemToggle / ItemSelect / ItemInput
- *   (T4): the component-tree rows (grouped, nested per branch) and
- *   the navigator's canvas/frame rows (standalone chrome-none)
+ *   (T4): the navigator's canvas rows (standalone chrome-none; the
+ *   frame rows merged into the unified tree, r3 #20)
+ * - tree-view (r3 #20): the unified canvas tree — pages + components
+ *   in ONE registry ARIA tree (the former list-item stamp-tree skin
+ *   retired with the merge)
  * - separator (T3): the panel head's rim
  *   (T4): the nav's canvases/tree section divide
  * - alert (T3): panel notices (transient edit failures + the
@@ -52,4 +55,5 @@ export const STUDIO_CHROME_ITEMS: readonly string[] = [
   'input',
   'press-button',
   'textarea',
+  'tree-view',
 ] as const;
