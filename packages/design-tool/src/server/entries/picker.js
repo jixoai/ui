@@ -125,11 +125,15 @@ export function initDesignPicker() {
     `  outline: 2px solid #e05656;`,
     `  outline-offset: 2px;`,
     `}`,
-    // #31: hover = the blue twin at lower opacity — a different color
-    // family from the selection red, explicitly lighter in weight
+    // #37 (Owner 2026-09-12): the two states render on INDEPENDENT
+    // properties — selection owns `outline`, hover owns a box-shadow
+    // RING. One shared `outline` made hover→selected stale: the click
+    // added the selection class without removing hover's, and CSS
+    // order kept the outline BLUE until the mouse moved. Independent
+    // layers also COMPOSE: selected+hovered shows both (the Figma
+    // read), and layout stays untouched (shadow paints no box)
     `.${HOVER_CLASS} {`,
-    `  outline: 2px solid rgba(96, 140, 255, 0.45);`,
-    `  outline-offset: 2px;`,
+    `  box-shadow: 0 0 0 2px rgba(96, 140, 255, 0.45);`,
     `}`,
   ].join('\n');
   document.head.appendChild(style);

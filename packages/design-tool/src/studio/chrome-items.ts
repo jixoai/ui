@@ -41,6 +41,10 @@
  * - press-button (T5): the chat's send button — loading pose = the
  *   streaming 加载锁 (ID2)
  * - textarea (T5): the chat's draft composer
+ * - icon + spin (#35, 2026-09-12): the tree caret's glyphs — the
+ *   loading page folder's chevron swaps for a Spin (the caret
+ *   snippet extension, component/tree-view-caret); the native
+ *   chevron look rides Icon
  *
  * T4 (tree, navigator) appends its items here.
  */
@@ -56,4 +60,6 @@ export const STUDIO_CHROME_ITEMS: readonly string[] = [
   'press-button',
   'textarea',
   'tree-view',
+  'icon',
+  'spin',
 ] as const;
