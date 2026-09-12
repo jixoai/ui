@@ -229,7 +229,8 @@ describe('spin — unknown spinner names', () => {
 });
 
 // ---------------------------------------------------------------------------
-// the two timings — interval override + the ghost trail (review R6/R7)
+// the two timings — interval override + the linger trail (review R6/R7
+// + round 2: ghost renamed linger, type number | 'auto')
 // ---------------------------------------------------------------------------
 describe('spin — the two timings', () => {
   it('interval overrides the catalog step (dots re-timed to 200ms; 0 and undefined mean absent)', async () => {
@@ -256,46 +257,71 @@ describe('spin — the two timings', () => {
     expect(container.querySelector('[data-jx-spin-frame]')!.textContent).toBe('⠙');
   });
 
-  it('ghost spawns one entry per retired frame, expires after its duration, and sets the CSS var', async () => {
+  it('linger spawns one entry per retired frame at the steady state and sets the CSS var', async () => {
     vi.useFakeTimers();
     stubMatchMedia(false);
-    const { container } = render(Spin, { props: { ghost: 240 } });
+    const { container } = render(Spin, { props: { linger: 240 } });
     const cursor = container.querySelector('[data-jx-spin-cursor]')!;
-    expect(cursor.getAttribute('style')).toBe('--jx-ghost-ms: 240ms;'); // jsdom appends the trailing ;
+    expect(cursor.getAttribute('style')).toBe('--jx-linger-ms: 240ms;'); // jsdom appends the trailing ;
     flushSync();
-    await vi.advanceTimersByTimeAsync(240); // ticks at 80/160/240 → three ghosts spawned (none expired: each lives 240ms past its spawn)
+    await vi.advanceTimersByTimeAsync(240); // ticks at 80/160/240 → three lingered entries (each lives 240ms past its spawn)
     flushSync();
-    const ghosts = [...cursor.querySelectorAll('[data-jx-spin-ghost]')];
-    expect(ghosts.length).toBe(3); // the trail's steady state = ghost / interval = 240/80
-    // the ghost utility carries the linear fade over the var
-    expect(ghosts[0]!.className).toContain('animate-[jx-spin-ghost_var(--jx-ghost-ms)_linear_forwards]');
-    expect(ghosts[0]!.className).toContain('[grid-area:1/1]');
+    const lingers = [...cursor.querySelectorAll('[data-jx-spin-linger]')];
+    expect(lingers.length).toBe(3); // the trail's steady state = linger / interval = 240/80
+    // the linger utility carries the linear fade over the var
+    expect(lingers[0]!.className).toContain('animate-[jx-spin-linger_var(--jx-linger-ms)_linear_forwards]');
+    expect(lingers[0]!.className).toContain('[grid-area:1/1]');
     // teardown clears everything (reduce fires below); the per-entry expiry
     // is covered by the reduce-clears test + the real-browser walkthrough
   });
 
-  it('ghosts never spawn under reduce and clear on the change (review R6)', async () => {
+  it("linger 'auto' (the default) = (frames − 1) × interval — the whole cycle stays visible", async () => {
+    vi.useFakeTimers();
+    stubMatchMedia(false);
+    const { container } = render(Spin); // no linger prop — 'auto' default
+    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
+    // dots carries 10 frames: (10 − 1) × 80 = 720ms
+    expect(cursor.getAttribute('style')).toBe('--jx-linger-ms: 720ms;');
+    flushSync();
+    await vi.advanceTimersByTimeAsync(80 * 9); // the whole cycle retires once
+    flushSync();
+    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBe(9); // frames 0..8 lingered — frame 9 is the live one
+  });
+
+  it('linger 0 hides at the handoff — no residue entries ever', async () => {
+    vi.useFakeTimers();
+    stubMatchMedia(false);
+    const { container } = render(Spin, { props: { linger: 0 } });
+    const cursor = container.querySelector('[data-jx-spin-cursor]')!;
+    expect(cursor.getAttribute('style')).toBeNull();
+    flushSync();
+    await vi.advanceTimersByTimeAsync(800);
+    flushSync();
+    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBe(0);
+  });
+
+  it('lingered frames never spawn under reduce and clear on the change (review R6)', async () => {
     vi.useFakeTimers();
     const { fire } = stubMatchMedia(false);
-    const { container } = render(Spin, { props: { ghost: 400 } });
+    const { container } = render(Spin, { props: { linger: 400 } });
     const cursor = container.querySelector('[data-jx-spin-cursor]')!;
     flushSync();
     await vi.advanceTimersByTimeAsync(160);
     flushSync();
-    expect(cursor.querySelectorAll('[data-jx-spin-ghost]').length).toBeGreaterThan(0);
+    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBeGreaterThan(0);
     fire(true); // reduce mid-flight
     flushSync();
-    expect(cursor.querySelectorAll('[data-jx-spin-ghost]').length).toBe(0);
+    expect(cursor.querySelectorAll('[data-jx-spin-linger]').length).toBe(0);
   });
 
-  it('the svg posture spawns no ghosts (the trail is text-only)', async () => {
+  it('the svg posture spawns no lingered frames (the trail is text-only)', async () => {
     vi.useFakeTimers();
     stubMatchMedia(false);
     stubSmilClock(); // jsdom ships no SMIL methods — the effect calls unpause
-    const { container } = render(Spin, { props: { spinner: 'blocks-wave', ghost: 400 } });
+    const { container } = render(Spin, { props: { spinner: 'blocks-wave', linger: 400 } });
     flushSync();
     await vi.advanceTimersByTimeAsync(500);
-    expect(container.querySelector('[data-jx-spin-ghost]')).toBeNull();
+    expect(container.querySelector('[data-jx-spin-linger]')).toBeNull();
   });
 
   it('the ghost trail never moves layout: cursor width holds across frames (simpleDots, review R3/R4)', async () => {

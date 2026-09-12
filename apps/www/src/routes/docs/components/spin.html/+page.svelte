@@ -119,21 +119,41 @@ export default {
 
   // playground protocol (P1): the page owns the state; the canvas only
   // calls back — the driven instance below crosses BOTH corpora live
+  // catalog-anchored initial timings (review round 2): the controls
+  // start at the EFFECTIVE values (dots: interval 80, linger auto =
+  // (10-1)×80 = 720) and re-anchor when the name changes — a control
+  // showing 0 for "catalog default" read as broken
+  const catalogOf = (name: TextSpinnerName | SpinName): (typeof SPINNER_CATALOG)[TextSpinnerName] | undefined =>
+    Object.hasOwn(SPINNER_CATALOG, name) ? SPINNER_CATALOG[name as TextSpinnerName] : undefined;
+  const autoLinger = (name: TextSpinnerName | SpinName): number => {
+    const cat = catalogOf(name);
+    return cat ? (cat.frames.length - 1) * cat.interval : 0;
+  };
   const canvasInitial = {
     spinner: 'dots' as TextSpinnerName | SpinName,
     size: 16,
-    interval: 0, // 0 = the spinner's catalog value
-    ghost: 0, // 0 = off
+    interval: SPINNER_CATALOG.dots.interval,
+    linger: autoLinger('dots'),
   };
   let spinner = $state<TextSpinnerName | SpinName>(canvasInitial.spinner);
   let size = $state(canvasInitial.size);
   let interval = $state(canvasInitial.interval);
-  let ghost = $state(canvasInitial.ghost);
+  let linger = $state(canvasInitial.linger);
+  // name changes re-anchor the timings to the catalog (the driven
+  // instance always passes explicit numbers; the 'auto' default lives
+  // on the static instances across this page)
+  $effect(() => {
+    const cat = catalogOf(spinner);
+    if (cat) {
+      interval = cat.interval;
+      linger = (cat.frames.length - 1) * cat.interval;
+    }
+  });
   function resetCanvas(): void {
     spinner = canvasInitial.spinner;
     size = canvasInitial.size;
     interval = canvasInitial.interval;
-    ghost = canvasInitial.ghost;
+    linger = canvasInitial.linger;
   }
   // the gallery reps + every generated svg name — the driven select is
   // the name-lane story in miniature (text ↔ svg crossing, zero edits
@@ -212,8 +232,8 @@ export default {
             <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
               driven by the playground
             </span>
-            <Spin {spinner} {size} {interval} {ghost} label="loading checks" />
-            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Spin spinner=&quot;{spinner}&quot; size={size} interval={interval || 'catalog'} ghost={ghost || 'off'} /&gt;</code>
+            <Spin {spinner} {size} {interval} {linger} label="loading checks" />
+            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Spin spinner=&quot;{spinner}&quot; size={size} {interval} {linger} /&gt;</code>
           </div>
         </div>
         {#snippet playground()}
@@ -227,8 +247,8 @@ export default {
             <PlayRow label="interval">
               <PlayNumber bind:value={interval} min={0} max={1200} step={10} />
             </PlayRow>
-            <PlayRow label="ghost">
-              <PlayNumber bind:value={ghost} min={0} max={2000} step={50} />
+            <PlayRow label="linger">
+              <PlayNumber bind:value={linger} min={0} max={3000} step={40} />
             </PlayRow>
             <PlayHelp>
               <code>spinner</code> takes any member of <code>TextSpinnerName</code>
@@ -236,9 +256,10 @@ export default {
               svg set — <code>blocks-wave</code> plus the curated pack picks). The artifact lane resolves FIRST: an svg
               spinner named like a text one overrides the catalog entry. <code>size</code> is the
               svg posture's square edge — absent rides <code>var(--jx-icon)</code>.
-              <code>interval</code> (0 = the catalog value) and <code>ghost</code>
-              (0 = off) are the text posture's two timings — the frame step and the
-              ghost trail's linear fade-out; try <code>ghost 500</code> on any spinner.
+              <code>interval</code> and <code>linger</code> are the text
+              posture's two timings — the frame step and the frame residue duration
+              ('auto' = (frames−1)×interval; 0 = none). Changing the name re-anchors
+              both to the catalog; the controls are live (type, then tab out).
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -265,40 +286,40 @@ export default {
       </SectionCard>
     </div>
 
-    <div id="ghost-trail" data-reveal="">
+    <div id="linger-trail" data-reveal="">
       <SectionCard
-        family="ghost-trail"
-        headerRegion="ghost-trail"
+        family="linger-trail"
+        headerRegion="linger-trail"
         eyebrow="timings"
-        title="The ghost trail — two timings, one trail"
-        summary="`ghost` is a fade-out duration: each retiring frame stays in the cursor's own grid cell, fading out linearly, so several frames coexist — the trail's length emerges from ghost / interval. `interval` overrides the frame step (explicit prop > the Defaults slot > the spinner's catalog value); both ride the family's one Defaults contract, so a context — or the plugin mounting one — can set them ambiently for every spinner at once."
+        title="The linger trail — the frame residue timing"
+        summary="`linger` is how long each retiring frame stays visible in the cursor's own grid cell, fading out linearly — the trail's depth emerges from linger / interval. Type `number | 'auto'`: the default 'auto' = (frames − 1) × interval (every frame of the cycle stays on screen — the gallery above runs it), 0 hides at the interval handoff. `interval` overrides the frame step (explicit prop > the Defaults slot > the spinner's catalog value); both ride the family's one Defaults contract, so a context — or the plugin mounting one — can set them ambiently for every spinner at once."
       >
         <div class="flex flex-col gap-6">
           <div class="flex flex-wrap items-start gap-x-12 gap-y-6">
             <div class="flex min-w-36 flex-col items-center gap-2">
-              <Spin spinner="growVertical" ghost={600} label="loading" />
-              <code class="text-muted-foreground font-mono text-[11px]">growVertical · ghost 600ms</code>
+              <Spin spinner="growVertical" label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">growVertical · linger 'auto' (default)</code>
             </div>
             <div class="flex min-w-36 flex-col items-center gap-2">
-              <Spin spinner="dqpb" ghost={500} label="loading" />
-              <code class="text-muted-foreground font-mono text-[11px]">dqpb · ghost 500ms</code>
+              <Spin spinner="dqpb" linger={500} label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">dqpb · linger 500</code>
             </div>
             <div class="flex min-w-36 flex-col items-center gap-2">
-              <Spin spinner="dots" interval={160} ghost={480} label="loading" />
-              <code class="text-muted-foreground font-mono text-[11px]">dots · interval 160 + ghost 480</code>
+              <Spin spinner="dots" interval={160} linger={480} label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">dots · interval 160 + linger 480</code>
             </div>
             <div class="flex min-w-36 flex-col items-center gap-2">
-              <Spin spinner="pong" interval={120} ghost={840} label="loading" />
-              <code class="text-muted-foreground font-mono text-[11px]">pong · interval 120 + ghost 840</code>
+              <Spin spinner="pong" interval={120} linger={0} label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">pong · linger 0 — no residue</code>
             </div>
           </div>
           <p class="text-muted-foreground text-[13px] leading-6">
             <strong class="text-foreground font-medium">Stable by construction.</strong>
-            Every frame — live and ghost — renders in the SAME grid cell with
+            Every frame — live and lingered — renders in the SAME grid cell with
             <code class="text-accent">white-space: pre</code>, so the trail never moves layout: a slow blank frame
-            (simpleDots' three spaces) holds its advance width, and switching names never jitters the box. Ghosts
-            never spawn under <code class="text-accent">prefers-reduced-motion</code> and clear the moment reduce
-            engages; SSR renders none, so hydration matches.
+            (simpleDots' three spaces) holds its advance width, and switching names never jitters the box. Lingered
+            frames never spawn under <code class="text-accent">prefers-reduced-motion</code> and clear the moment
+            reduce engages; SSR renders none, so hydration matches.
           </p>
         </div>
       </SectionCard>
@@ -467,7 +488,7 @@ export default {
           { name: 'label', type: 'string', default: "'loading'", description: 'Announced to assistive tech ("loading checks").' },
           { name: 'size', type: 'number | string', default: 'var(--jx-icon)', description: "The svg posture's square edge. ABSENT rides the density ruler's var(--jx-icon) (presentation attributes cannot carry var(), so the default lands as a CSS width/height); an explicit value (or a slot config) pins it. The text posture paints var(--jx-text) and ignores the slot." },
           { name: 'interval', type: 'number', default: 'the catalog value', description: 'The frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner’s own catalog interval (line 130ms, simpleDots 400ms…). The svg lane ignores it (its clock is the SMIL document).' },
-          { name: 'ghost', type: 'number', default: 'off', description: 'The text-posture ghost trail: each retiring frame fades out LINEARLY over this many ms in the cursor’s own grid cell — several frames coexist, the trail length = ghost / interval. Context/plugin injectable like the interval; never spawns under reduced motion.' },
+          { name: 'linger', type: "number | 'auto'", default: "'auto'", description: "The frame linger duration: each retiring frame stays in the cursor’s own grid cell fading out LINEARLY for this long. 'auto' = (frames − 1) × interval — the whole cycle stays visible; 0 = hide at the interval handoff. The trail depth = linger / interval. Context/plugin injectable like the interval; never spawns under reduced motion." },
           { name: 'children', type: 'Snippet', default: '—', description: 'Wrapping content = container posture with scrim + aria-busy.' },
           { name: 'class', type: 'string', default: "''", description: 'Lands on the root (the inline span, the svg, or the wrapping grid).' },
         ]}

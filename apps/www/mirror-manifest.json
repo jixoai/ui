@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-11T20:05:17.073Z",
+  "generatedAt": "2026-09-12T06:44:13.585Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3245,8 +3245,8 @@
           "source": "registry/files/ui/spin/spin.svelte",
           "mirror": "apps/www/src/lib/ui/spin/spin.svelte",
           "target": "@ui/spin/spin.svelte",
-          "sourceSha": "9cf712244d8b76813e62bad05d45ce81695a1807aa9d0a11b85cf124c7796a06",
-          "mirrorSha": "9cf712244d8b76813e62bad05d45ce81695a1807aa9d0a11b85cf124c7796a06"
+          "sourceSha": "6531de217db883df027cac2450a070073d6a73ae2a87c9aeb88441feccbdf306",
+          "mirrorSha": "6531de217db883df027cac2450a070073d6a73ae2a87c9aeb88441feccbdf306"
         },
         {
           "source": "registry/files/ui/spin/spin-catalog.ts",
@@ -3266,15 +3266,15 @@
           "source": "registry/files/ui/spin/spin.css",
           "mirror": "apps/www/src/lib/ui/spin/spin.css",
           "target": "@ui/spin/spin.css",
-          "sourceSha": "173e8e016bb9b388652e0e93ed675a87fba4d8caf4e51496e231cbf3475a19d6",
-          "mirrorSha": "173e8e016bb9b388652e0e93ed675a87fba4d8caf4e51496e231cbf3475a19d6"
+          "sourceSha": "202a3df57b0e10397bb1f884a1e284c151f54ac0b9232bd83cd26e08d4af1ac0",
+          "mirrorSha": "202a3df57b0e10397bb1f884a1e284c151f54ac0b9232bd83cd26e08d4af1ac0"
         },
         {
           "source": "registry/files/ui/spin/spin-defaults.svelte.ts",
           "mirror": "apps/www/src/lib/ui/spin/spin-defaults.svelte.ts",
           "target": "@ui/spin/spin-defaults.svelte.ts",
-          "sourceSha": "83a26091d9ebbb2d493168385429f2fbe84a9787c43e27fecd56f8dadf07000d",
-          "mirrorSha": "83a26091d9ebbb2d493168385429f2fbe84a9787c43e27fecd56f8dadf07000d"
+          "sourceSha": "18940109ad2673b9188dc6c238d6725fa55be5e60ea3ba449140a6501356e9f2",
+          "mirrorSha": "18940109ad2673b9188dc6c238d6725fa55be5e60ea3ba449140a6501356e9f2"
         }
       ]
     },

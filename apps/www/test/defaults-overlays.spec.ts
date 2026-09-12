@@ -263,12 +263,12 @@ describe('in-window unit resolution — the own-defaults projection', () => {
         CommandDefaults.resolve({}),
       ]),
     ).toEqual([
-      // spin review round (2026-09-12): the three absent slots — size
+      // spin review rounds (2026-09-12): the three absent slots — size
       // (absent rides the density ruler's var(--jx-icon)), interval and
-      // ghost (absent = the catalog step / trail off). ABSENT IS the
-      // state: unset resolves undefined, explicit wins
-      { density: undefined, size: undefined, interval: undefined, ghost: undefined },
-      { density: undefined, size: 24, interval: undefined, ghost: undefined },
+      // linger (absent = the catalog step / the component's 'auto').
+      // ABSENT IS the state: unset resolves undefined, explicit wins
+      { density: undefined, size: undefined, interval: undefined, linger: undefined },
+      { density: undefined, size: 24, interval: undefined, linger: undefined },
       { density: undefined },
       { density: undefined },
       { variant: 'fused', density: undefined },

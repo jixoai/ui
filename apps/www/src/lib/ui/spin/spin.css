@@ -1,13 +1,13 @@
 @layer theme, base, components, utilities;
 
 /* jixoai spin — D1-exempt residue (spin-ora-svg-lane C3, 2026-09-11;
- * review round 2026-09-12: the ghost keyframes join). Two rules'
- * worth of non-utility CSS:
+ * review rounds 2026-09-12: the linger keyframes join, ghost renamed).
+ * Two rules' worth of non-utility CSS:
  *
- * 1. the ghost trail's linear fade (review R6) — keyframes are not
+ * 1. the linger trail's linear fade (review R6) — keyframes are not
  *    utilities (the original frame-engine ruling, carried over); the
- *    ghost entries' animation utility supplies the timing function,
- *    the fill mode, and the var(--jx-ghost-ms) duration, so only the
+ *    lingered entries' animation utility supplies the timing function,
+ *    the fill mode, and the var(--jx-linger-ms) duration, so only the
  *    two opacity stops live here.
  * 2. the svg posture's reduced-motion kill (design §3's SECOND named
  *    channel): CSS-keyframed svg artwork under [data-jx-spin-svg]
@@ -15,11 +15,11 @@
  *    toggle/Part A precedent). SMIL freezes through
  *    root.pauseAnimations() driven by the component's matchMedia
  *    listener — the FIRST channel. Two named channels, never
- *    conflated. The ghost entries need no kill here: they only spawn
- *    while the interval runs, and the listener clears them on
+ *    conflated. The lingered entries need no kill here: they only
+ *    spawn while the interval runs, and the listener clears them on
  *    reduce. */
 
-@keyframes jx-spin-ghost {
+@keyframes jx-spin-linger {
   from {
     opacity: 1;
   }
