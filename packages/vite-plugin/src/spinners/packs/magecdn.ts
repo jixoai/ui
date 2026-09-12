@@ -4,7 +4,7 @@
  *
  * The magecdn svg-loaders catalog as an injectable pack — every loader the site serves, vendored verbatim.
  *
- * Vendoring receipt: extracted 2026-09-11 from
+ * Vendoring receipt: extracted 2026-09-12 from
  * https://magecdn.com/tools/svg-loaders (the full 109-loader catalog) — complete, unmodified artwork bytes per loader (the
  * magecdn pages' astro-island props embeds; the SamHerbert repo files).
  * License: MIT (magecdn — commercial and personal use, no attribution required). NOTE: several entries (audio, hearts, ball-triangle…) are Sam Herbert's artwork served by magecdn.

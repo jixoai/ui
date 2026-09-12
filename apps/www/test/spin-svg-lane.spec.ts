@@ -119,31 +119,50 @@ describe('spin — text posture', () => {
     const readVar = (el: Element, name: string): string | undefined =>
       (el.getAttribute('style') ?? '').match(new RegExp(`--${name}: ([^;]+)`))?.[1];
     for (const [i, f] of frames.entries()) {
-      expect(readVar(f, 'kf')).toBe('jx-spin-f10-i80-l160'); // frames × interval × linger
+      expect(readVar(f, 'kf')).toBe('jx-spin-f10-i80-l160-end'); // frames × interval × linger × type
       expect(readVar(f, 'dur')).toBe('800ms'); // 10 × 80
       // frame i's slot starts at i×80 → the negative delay phases it in
       expect(readVar(f, 'd')).toBe(`${-((SPINNER_CATALOG.dots.frames.length - i) * 80)}ms`);
     }
     // the shared keyframes rule IS injected (one style tag, idempotent)
     const style = document.head.querySelector('style[data-jx-spin-frames]');
-    expect(style?.textContent).toContain('@keyframes jx-spin-f10-i80-l160');
+    expect(style?.textContent).toContain('@keyframes jx-spin-f10-i80-l160-end');
     // the slot shape: duty 10% hold, fade landing at (80+160)/800 = 30%
     expect(style?.textContent).toContain('0%{opacity:1}10%{opacity:1}30%{opacity:0}100%{opacity:0}');
   });
 
   it('explicit interval/linger change the parameter set — a second keyframes rule joins the sheet', () => {
     const first = render(Spin);
-    expect(document.head.querySelector('style[data-jx-spin-frames]')?.textContent).toContain('jx-spin-f10-i80-l160');
+    expect(document.head.querySelector('style[data-jx-spin-frames]')?.textContent).toContain('jx-spin-f10-i80-l160-end');
     first.unmount();
     const { container } = render(Spin, { props: { interval: 100, linger: 0 } });
     const style = document.head.querySelector('style[data-jx-spin-frames]')!;
-    expect(style.textContent).toContain('jx-spin-f10-i100-l0');
+    expect(style.textContent).toContain('jx-spin-f10-i100-l0-end');
     // linger 0 → the DISCRETE hide: steps(1,start) on the duty stop
     // (two stops at the same percentage would MERGE — the silent
     // whole-window-fade bug the Owner caught in review round 5)
-    expect(style.textContent).toContain('@keyframes jx-spin-f10-i100-l0{0%{opacity:1}10%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}}');
+    expect(style.textContent).toContain('@keyframes jx-spin-f10-i100-l0-end{0%{opacity:1}10%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}}');
     const frames = [...container.querySelectorAll('[data-jx-spin-frame]')];
     expect((frames[1]!.getAttribute('style') ?? '')).toContain('--dur: 1000ms'); // 10 × 100
+  });
+
+  it('lingerType shapes the keyframes: start fades in discretely-out, both breathes (round 5)', () => {
+    const start = render(Spin, { props: { spinner: 'simpleDots' } }); // 160/160 'start', 4 frames
+    expect(
+      (start.container.querySelector('[data-jx-spin-frame]')!.getAttribute('style') ?? '').match(/--kf: ([^;]+)/)?.[1],
+    ).toBe('jx-spin-f4-i160-l160-start');
+    start.unmount();
+    const both = render(Spin, { props: { spinner: 'arc' } }); // 120/120 'both', 6 frames + font math
+    expect(
+      (both.container.querySelector('[data-jx-spin-frame]')!.getAttribute('style') ?? '').match(/--kf: ([^;]+)/)?.[1],
+    ).toBe('jx-spin-f6-i120-l120-both');
+    // arc's cursor rides the math font hint
+    expect(both.container.querySelector('[data-jx-spin-cursor]')!.getAttribute('style')).toBe('font-family: math;'); // jsdom appends the trailing ;
+    const sheet = document.head.querySelector('style[data-jx-spin-frames]')!.textContent!;
+    // start: fade-in to 1 by 160/640=25%, hold, steps-out at duty 25%… simpleDots duty = 160/640 = 25%
+    expect(sheet).toContain('@keyframes jx-spin-f4-i160-l160-start{0%{opacity:0}25%{opacity:1}25%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}}');
+    // both: fade-in 0→1 by 120/720≈16.667%, hold, fade-out by 240/720≈33.333%
+    expect(sheet).toContain('@keyframes jx-spin-f6-i120-l120-both{0%{opacity:0}16.667%{opacity:1}16.667%{opacity:1}33.333%{opacity:0}100%{opacity:0}}');
   });
 
   it("spinner='line' renders the line corpus flat (the retired /—\\| cycle, tuned 160/0)", () => {
@@ -234,18 +253,29 @@ describe('spin — unknown spinner names', () => {
 // the timing pairs — hand-tuned catalog + explicit overrides (round 4)
 // ---------------------------------------------------------------------------
 describe('spin — the timing pairs', () => {
-  it("the Owner's five tuned pairs ride the catalog verbatim", () => {
-    const pairs: [TextSpinnerNameish, number, number][] = [
-      ['dots', 80, 160],
-      ['dots2', 120, 0],
-      ['pipe', 120, 120],
-      ['line', 160, 0],
-      ['simpleDots', 160, 160],
+  it("the Owner's tuned pairs ride the catalog verbatim (rounds 4-5)", () => {
+    const pairs: [keyof typeof SPINNER_CATALOG, number, number, 'end' | 'start' | 'both' | undefined][] = [
+      ['dots', 80, 160, undefined],
+      ['dots2', 120, 0, undefined],
+      ['pipe', 120, 120, undefined],
+      ['line', 160, 0, undefined],
+      ['simpleDots', 160, 160, 'start'],
+      // round-5 retunes
+      ['arrow', 120, 0, undefined],
+      ['bounce', 160, 20, undefined],
+      ['star', 160, 80, undefined],
+      ['toggle3', 1000, 500, 'both'],
+      ['growVertical', 120, 120, 'both'],
+      ['arc', 120, 120, 'both'],
     ];
-    for (const [name, interval, linger] of pairs) {
+    for (const [name, interval, linger, lingerType] of pairs) {
       expect(SPINNER_CATALOG[name].interval, `${name} interval`).toBe(interval);
       expect(SPINNER_CATALOG[name].linger, `${name} linger`).toBe(linger);
+      expect(SPINNER_CATALOG[name].lingerType, `${name} lingerType`).toBe(lingerType);
     }
+    // arc rides font-family: math (round 5: its six glyphs only sit a
+    // true circle in math fonts)
+    expect(SPINNER_CATALOG.arc.font).toBe('math');
   });
 
   it("every catalog entry carries a tuning pair (the build's TUNINGS law)", () => {
@@ -260,12 +290,12 @@ describe('spin — the timing pairs', () => {
   it("'auto' (the default) resolves the tuned pair; explicit numbers override", () => {
     const auto = render(Spin, { props: { spinner: 'dots' } });
     expect((auto.container.querySelector('[data-jx-spin-frame]')!.getAttribute('style') ?? '')).toContain(
-      'jx-spin-f10-i80-l160',
+      'jx-spin-f10-i80-l160-end',
     );
     auto.unmount();
     const custom = render(Spin, { props: { spinner: 'dots', interval: 120, linger: 60 } });
     expect((custom.container.querySelector('[data-jx-spin-frame]')!.getAttribute('style') ?? '')).toContain(
-      'jx-spin-f10-i120-l60',
+      'jx-spin-f10-i120-l60-end',
     );
   });
 });
@@ -311,21 +341,26 @@ describe('spin — wrapping posture regression', () => {
 // catalog + artifact snapshots (design §1 — verbatim corpus law)
 // ---------------------------------------------------------------------------
 describe('spin catalog snapshot', () => {
-  it('carries exactly the 60 curated names; bouncingBar is excluded by name', () => {
-    expect(Object.keys(SPINNER_CATALOG).length).toBe(60);
+  it('carries exactly the 59 curated names; bouncingBar and circle are excluded by name', () => {
+    expect(Object.keys(SPINNER_CATALOG).length).toBe(59);
     expect(Object.hasOwn(SPINNER_CATALOG, 'bouncingBar')).toBe(false);
-    // the exclusion is ours, not the corpus's absence
+    // circle: the Owner removal (round 5) — the corpus still carries it
+    expect(Object.hasOwn(SPINNER_CATALOG, 'circle')).toBe(false);
+    expect(Object.hasOwn(cliSpinners, 'circle')).toBe(true);
+    // the exclusions are ours, not the corpus's absence
     expect(Object.hasOwn(cliSpinners, 'bouncingBar')).toBe(true);
   });
 
   it('frames ride VERBATIM from cli-spinners@2.9.2; timings are the HAND-TUNED pairs (round 4)', () => {
-    for (const name of ['dots', 'line', 'simpleDots', 'star', 'pong', 'aesthetic']) {
+    for (const name of ['dots', 'line', 'star', 'pong', 'aesthetic']) {
       expect(SPINNER_CATALOG[name as keyof typeof SPINNER_CATALOG].frames)
         .toEqual(cliSpinners[name]!.frames);
     }
+    // simpleDots' frames are the ROUND-5 · override — verbatim EXCEPT the glyph
     // pinned bytes the JSON round-trip could silently mangle: trailing
     // spaces inside simpleDots frames
-    expect(SPINNER_CATALOG.simpleDots.frames).toEqual(['.  ', '.. ', '...', '   ']);
+    // the ROUND-5 Owner glyph override: · instead of . (trailing spaces intact)
+    expect(SPINNER_CATALOG.simpleDots.frames).toEqual(['\u00b7  ', '\u00b7\u00b7 ', '\u00b7\u00b7\u00b7', '   ']);
     // the tuning pairs deliberately diverge from the corpus intervals
     // (dots keeps 80; line tunes 130→160, simpleDots 400→160)
     expect(SPINNER_CATALOG.dots.interval).toBe(80);

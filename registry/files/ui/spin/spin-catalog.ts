@@ -14,7 +14,8 @@
 // curator; a blanket 0x2600-0x27bf range is WRONG: ✶✸✹✺ dingbats and the
 // ☰ trigrams are text presentation and stay), ≤ 30 frames, ≤ 10ch wide.
 // Excluded by name: bouncingBar — its frames are [ ] bracket art, the
-// wrapping decoration this change kills (Owner ruling #1).
+// wrapping decoration this change kills (Owner ruling #1); circle — Owner
+// removal (round 5).
 
 // The timing pairs are HAND-TUNED (review round 4): interval/linger
 // in ms — the five Owner pairs (dots 80/160, dots2 120/0, pipe
@@ -25,6 +26,12 @@ export interface TextSpinner {
   readonly frames: readonly string[];
   readonly interval: number;
   readonly linger: number;
+  /** the opacity animation mode — 'end' (default): fade-out tail;
+   *  'start': fade-in entry, discrete exit; 'both': fade-in + fade-out */
+  readonly lingerType?: 'end' | 'start' | 'both';
+  /** per-spinner font override (arc: 'math' — its six glyphs only sit
+   *  a true circle in math fonts) */
+  readonly font?: string;
 }
 
 export type TextSpinnerName =
@@ -60,7 +67,6 @@ export type TextSpinnerName =
   | 'triangle'
   | 'binary'
   | 'arc'
-  | 'circle'
   | 'squareCorners'
   | 'circleQuarters'
   | 'circleHalves'
@@ -123,7 +129,6 @@ export const TEXT_SPINNER_NAMES: readonly TextSpinnerName[] = [
   'triangle',
   'binary',
   'arc',
-  'circle',
   'squareCorners',
   'circleQuarters',
   'circleHalves',
@@ -230,9 +235,10 @@ export const SPINNER_CATALOG: Readonly<Record<TextSpinnerName, TextSpinner>> = {
     linger: 120,
   },
   simpleDots: {
-    frames: [".  ", ".. ", "...", "   "],
+    frames: ["·  ", "·· ", "···", "   "],
     interval: 160,
     linger: 160,
+    lingerType: 'start',
   },
   simpleDotsScrolling: {
     frames: [".  ", ".. ", "...", " ..", "  .", "   "],
@@ -241,8 +247,8 @@ export const SPINNER_CATALOG: Readonly<Record<TextSpinnerName, TextSpinner>> = {
   },
   star: {
     frames: ["✶", "✸", "✹", "✺", "✹", "✷"],
-    interval: 120,
-    linger: 120,
+    interval: 160,
+    linger: 80,
   },
   star2: {
     frames: ["+", "x", "*"],
@@ -263,6 +269,7 @@ export const SPINNER_CATALOG: Readonly<Record<TextSpinnerName, TextSpinner>> = {
     frames: ["▁", "▃", "▄", "▅", "▆", "▇", "▆", "▅", "▄", "▃"],
     interval: 120,
     linger: 120,
+    lingerType: 'both',
   },
   growHorizontal: {
     frames: ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "▊", "▋", "▌", "▍", "▎"],
@@ -286,8 +293,8 @@ export const SPINNER_CATALOG: Readonly<Record<TextSpinnerName, TextSpinner>> = {
   },
   bounce: {
     frames: ["⠁", "⠂", "⠄", "⠂"],
-    interval: 120,
-    linger: 120,
+    interval: 160,
+    linger: 20,
   },
   boxBounce: {
     frames: ["▖", "▘", "▝", "▗"],
@@ -313,11 +320,8 @@ export const SPINNER_CATALOG: Readonly<Record<TextSpinnerName, TextSpinner>> = {
     frames: ["◜", "◠", "◝", "◞", "◡", "◟"],
     interval: 120,
     linger: 120,
-  },
-  circle: {
-    frames: ["◡", "⊙", "◠"],
-    interval: 120,
-    linger: 120,
+    lingerType: 'both',
+    font: 'math',
   },
   squareCorners: {
     frames: ["◰", "◳", "◲", "◱"],
@@ -351,8 +355,9 @@ export const SPINNER_CATALOG: Readonly<Record<TextSpinnerName, TextSpinner>> = {
   },
   toggle3: {
     frames: ["□", "■"],
-    interval: 120,
-    linger: 0,
+    interval: 1000,
+    linger: 500,
+    lingerType: 'both',
   },
   toggle4: {
     frames: ["■", "□", "▪", "▫"],
@@ -407,7 +412,7 @@ export const SPINNER_CATALOG: Readonly<Record<TextSpinnerName, TextSpinner>> = {
   arrow: {
     frames: ["←", "↖", "↑", "↗", "→", "↘", "↓", "↙"],
     interval: 120,
-    linger: 120,
+    linger: 0,
   },
   arrow3: {
     frames: ["▹▹▹▹▹", "▸▹▹▹▹", "▹▸▹▹▹", "▹▹▸▹▹", "▹▹▹▸▹", "▹▹▹▹▸"],

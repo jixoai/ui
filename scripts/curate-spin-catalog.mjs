@@ -81,6 +81,7 @@ const EMOJI_PRESENTATION_RANGES = /** @type {const} */ ([
 const NAME_EXCLUSIONS = new Map([
   // name → ruling (the receipt prints it verbatim)
   ['bouncingBar', 'bracket-art frames ([ ]) — the wrapping decoration this change kills (Owner ruling #1)'],
+  ['circle', 'Owner removal (review round 5, 2026-09-12) — the ◡⊙◠ trio reads broken next to arc'],
 ]);
 
 /** The first emoji-presentation offender in a frame, or null. */
@@ -152,6 +153,7 @@ for (const mustKeep of ['star', 'hamburger', 'toggle12']) {
   }
 }
 if (kept.includes('bouncingBar')) throw new Error('bouncingBar must be EXCLUDED by name — bracket art');
+if (kept.includes('circle')) throw new Error('circle must be EXCLUDED by name — Owner removal (review round 5)');
 
 const serializeFrame = (f) => JSON.stringify(f); // byte-exact incl. trailing spaces, backslashes
 
@@ -167,19 +169,28 @@ const TUNINGS = {
   dots5: [80, 160], dots6: [80, 160], dots7: [80, 160], dots8: [80, 160],
   dots9: [80, 160], dots10: [80, 160], dots11: [100, 160], dots13: [80, 160],
   line: [160, 0], line2: [120, 0], pipe: [120, 120],
-  simpleDots: [160, 160], simpleDotsScrolling: [160, 160],
-  star: [120, 120], star2: [120, 0], flip: [120, 0], hamburger: [120, 0],
-  growVertical: [120, 120], growHorizontal: [120, 120],
+  simpleDots: [160, 160, 'start'], simpleDotsScrolling: [160, 160],
+  star: [160, 80], star2: [120, 0], flip: [120, 0], hamburger: [120, 0],
+  growVertical: [120, 120, 'both'], growHorizontal: [120, 120],
   balloon: [120, 120], balloon2: [120, 120], noise: [120, 120],
-  bounce: [120, 120], boxBounce: [120, 120], boxBounce2: [120, 120],
-  triangle: [120, 0], binary: [120, 0], arc: [120, 120], circle: [120, 120],
+  bounce: [160, 20], boxBounce: [120, 120], boxBounce2: [120, 120],
+  triangle: [120, 0], binary: [120, 0], arc: [120, 120, 'both'],
   squareCorners: [160, 160], circleQuarters: [120, 120], circleHalves: [120, 120],
-  squish: [120, 0], toggle: [240, 0], toggle2: [120, 0], toggle3: [120, 0],
+  squish: [120, 0], toggle: [240, 0], toggle2: [120, 0], toggle3: [1000, 500, 'both'],
   toggle4: [120, 0], toggle5: [120, 0], toggle6: [240, 0], toggle7: [120, 0],
   toggle8: [120, 0], toggle9: [120, 0], toggle10: [120, 0], toggle11: [120, 0],
-  toggle12: [120, 0], toggle13: [120, 0], arrow: [120, 120], arrow3: [120, 120],
+  toggle12: [120, 0], toggle13: [120, 0], arrow: [120, 0], arrow3: [120, 120],
   bouncingBall: [160, 0], pong: [160, 0], dqpb: [120, 120], grenade: [120, 0],
   point: [160, 160], layer: [120, 120], betaWave: [120, 0], aesthetic: [120, 120],
+};
+// round-5 Owner overrides (2026-09-12): simpleDots' glyph ·, arc rides
+// font-family: math (the six arc glyphs only sit a true circle in math
+// fonts — U+25DC..25FF metrics)
+const FRAMES_OVERRIDES = {
+  simpleDots: ['\u00b7  ', '\u00b7\u00b7 ', '\u00b7\u00b7\u00b7', '   '],
+};
+const FONT_HINTS = {
+  arc: 'math',
 };
 const missing = kept.filter((n) => !TUNINGS[n]);
 if (missing.length) throw new Error(`no hand-tuned pair for: ${missing.join(', ')} — tune it (interval/linger) and add it to TUNINGS`);
@@ -189,9 +200,15 @@ if (unusedTuning.length) throw new Error(`TUNINGS carries excluded/unknown names
 const body = kept
   .map((name) => {
     const spinner = corpus[name];
-    const frames = spinner.frames.map(serializeFrame).join(', ');
-    const [interval, linger] = TUNINGS[name];
-    return `  ${name}: {\n    frames: [${frames}],\n    interval: ${interval},\n    linger: ${linger},\n  },`;
+    const frames = (FRAMES_OVERRIDES[name] ?? spinner.frames).map(serializeFrame).join(', ');
+    const [interval, linger, lingerType] = TUNINGS[name];
+    const font = FONT_HINTS[name];
+    const extra = [
+      lingerType !== undefined ? `lingerType: '${lingerType}',` : '',
+      font !== undefined ? `font: '${font}',` : '',
+    ].filter(Boolean).join('\n    ');
+    const extraBlock = extra ? `\n    ${extra}` : '';
+    return `  ${name}: {\n    frames: [${frames}],\n    interval: ${interval},\n    linger: ${linger},${extraBlock}\n  },`;
   })
   .join('\n');
 
@@ -211,7 +228,8 @@ const output = `// GENERATED — do not edit (writer: scripts/curate-spin-catalo
 // curator; a blanket 0x2600-0x27bf range is WRONG: ✶✸✹✺ dingbats and the
 // ☰ trigrams are text presentation and stay), ≤ 30 frames, ≤ 10ch wide.
 // Excluded by name: bouncingBar — its frames are [ ] bracket art, the
-// wrapping decoration this change kills (Owner ruling #1).
+// wrapping decoration this change kills (Owner ruling #1); circle — Owner
+// removal (round 5).
 
 // The timing pairs are HAND-TUNED (review round 4): interval/linger
 // in ms — the five Owner pairs (dots 80/160, dots2 120/0, pipe
@@ -222,6 +240,12 @@ export interface TextSpinner {
   readonly frames: readonly string[];
   readonly interval: number;
   readonly linger: number;
+  /** the opacity animation mode — 'end' (default): fade-out tail;
+   *  'start': fade-in entry, discrete exit; 'both': fade-in + fade-out */
+  readonly lingerType?: 'end' | 'start' | 'both';
+  /** per-spinner font override (arc: 'math' — its six glyphs only sit
+   *  a true circle in math fonts) */
+  readonly font?: string;
 }
 
 export type TextSpinnerName =

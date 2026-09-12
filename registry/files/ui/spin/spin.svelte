@@ -71,6 +71,9 @@
   import { SPIN_NAMES, type SpinData, type SpinName } from '$lib/spin-set.gen';
   import { SPINNER_CATALOG, type TextSpinner, type TextSpinnerName } from './spin-catalog';
 
+  /** the opacity animation mode (review round 5) — see frameKeyframes */
+  type LingerType = 'end' | 'start' | 'both';
+
   // SPIN_NAMES widened to readonly string[] for the includes() probe —
   // the sanctioned boundary cast of the name lane: the prop arrives as
   // the OPEN union SpinName | TextSpinnerName, which .includes() cannot
@@ -130,25 +133,41 @@
     Math.min(Math.max(ratio * 100, 0), 100).toFixed(3).replace(/\.?0+$/, '');
 
   /**
-   * The shared slot-shape keyframes for one parameter set: hold
-   * opacity 1 across the duty window (interval / cycle), then either
-   * fade LINEARLY to 0 across the linger tail (lingered) or hide
-   * DISCRETELY at the handoff (linger 0 — the Owner catch: two stops
-   * at the SAME percentage MERGE in CSS keyframes, the later block
-   * winning, so a zero-length fade segment silently became a
-   * whole-duty-window linear fade; the discrete jump is
-   * steps(1, start) ON the duty stop, jumping to the segment's end
-   * value the instant the handoff arrives). Per-frame phasing is the
-   * negative delay (--d), so EVERY frame animates the SAME rule —
-   * only the delay differs, the Owner's observation.
+   * The shared slot-shape keyframes for one parameter set, in the
+   * lingerType shape the tuning asks for (review round 5):
+   *   'end'   (default) — instant appear, hold through the duty
+   *           window, fade LINEARLY out across the linger tail
+   *   'start' — fade LINEARLY in across the first linger of the
+   *           slot, hold, hide DISCRETELY at the handoff
+   *   'both'  — fade in, hold, fade out (the breathing entry+exit)
+   * linger 0 collapses every type to the discrete blink: hold 1
+   * through duty, then steps(1, start) jumps to 0 — the Owner catch
+   * of round 5's predecessor: two stops at the SAME percentage MERGE
+   * in CSS keyframes (the later block wins), so a zero-length fade
+   * segment silently became a whole-duty-window linear fade; the
+   * discrete jump is a timing function ON the duty stop, jumping to
+   * the segment's end value the instant the handoff arrives.
+   * Per-frame phasing is the negative delay (--d), so EVERY frame
+   * animates the SAME rule — only the delay differs.
    */
-  function frameKeyframes(count: number, stepMs: number, lingerMs: number): string {
-    const name = `jx-spin-f${count}-i${stepMs}-l${lingerMs}`;
+  function frameKeyframes(
+    count: number,
+    stepMs: number,
+    lingerMs: number,
+    type: LingerType,
+  ): string {
+    const name = `jx-spin-f${count}-i${stepMs}-l${lingerMs}-${type}`;
     const duty = pct(stepMs / (count * stepMs));
+    const tail = pct((stepMs + lingerMs) / (count * stepMs));
+    const head = pct(lingerMs / (count * stepMs));
     const body =
-      lingerMs > 0
-        ? `0%{opacity:1}${duty}%{opacity:1}${pct((stepMs + lingerMs) / (count * stepMs))}%{opacity:0}100%{opacity:0}`
-        : `0%{opacity:1}${duty}%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}`;
+      lingerMs <= 0
+        ? `0%{opacity:1}${duty}%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}`
+        : type === 'start'
+          ? `0%{opacity:0}${head}%{opacity:1}${duty}%{opacity:1;animation-timing-function:steps(1,start)}100%{opacity:0}`
+          : type === 'both'
+            ? `0%{opacity:0}${head}%{opacity:1}${duty}%{opacity:1}${tail}%{opacity:0}100%{opacity:0}`
+            : `0%{opacity:1}${duty}%{opacity:1}${tail}%{opacity:0}100%{opacity:0}`;
     ensureFrameKeyframes(name, `@keyframes ${name}{${body}}`);
     return name;
   }
@@ -172,6 +191,8 @@
     interval?: number | 'auto';
     /** frame linger ms — 'auto' (default) = the catalog's tuned pair; 0 = hide at the handoff; explicit > Defaults slot > tuned */
     linger?: number | 'auto';
+    /** the opacity animation mode — absent = the catalog's tuned type; 'end' fades out, 'start' fades in, 'both' breathes */
+    lingerType?: LingerType;
     /** wrapping content = container posture with scrim + aria-busy */
     children?: Snippet;
     class?: string;
@@ -183,6 +204,7 @@
     size,
     interval,
     linger,
+    lingerType,
     children,
     class: className = '',
   }: Props = $props();
@@ -207,6 +229,7 @@
       interval: interval !== undefined && interval !== 'auto' && interval > 0 ? interval : undefined,
       linger:
         linger === 0 ? 0 : linger !== undefined && linger !== 'auto' && linger > 0 ? linger : undefined,
+      lingerType,
     }),
   );
 
@@ -215,9 +238,10 @@
     typeof resolved.size === 'number' ? `${resolved.size}px` : resolved.size,
   );
 
-  // the resolved timing pair: explicit > slot > the catalog's tuning
+  // the resolved timing triple: explicit > slot > the catalog's tuning
   const stepMs = $derived(resolved.interval ?? text.interval);
   const lingerMs = $derived(resolved.linger ?? text.linger);
+  const lingerKind = $derived(resolved.lingerType ?? text.lingerType ?? 'end');
 
   // the CSS engine's parameter fill (review round 4): the shared
   // keyframes name + each frame's cycle and negative phase delay.
@@ -225,7 +249,9 @@
   // SSR-guarded; the vars are inert until the keyframes exist.
   const cycleMs = $derived(text.frames.length * stepMs);
   const kfName = $derived(
-    text.frames.length > 1 ? frameKeyframes(text.frames.length, stepMs, lingerMs) : '',
+    text.frames.length > 1
+      ? frameKeyframes(text.frames.length, stepMs, lingerMs, lingerKind)
+      : '',
   );
   const frameStyle = (i: number): string =>
     `--kf: ${kfName}; --dur: ${cycleMs}ms; --d: ${-((text.frames.length - i) * stepMs)}ms`;
@@ -237,6 +263,14 @@
 
   $effect(() => {
     if (typeof window === 'undefined' || svgData === null) return;
+    // the mount kick (review round 5, the Owner's #10): the SMIL
+    // document timeline is the PAGE's, so an svg hydrated late inherits
+    // a mid-document phase (or worse, a stalled one — engines differ on
+    // innerHTML-inserted SMIL clock starts). setCurrentTime(0) anchors
+    // every begin="0…" chain to MOUNT: no perceived initial stall, and
+    // every instance's phase is deterministic. jsdom carries no SMIL
+    // clock — the call is feature-tested.
+    if (root && typeof root.setCurrentTime === 'function') root.setCurrentTime(0);
     const mql =
       typeof window.matchMedia === 'function'
         ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -286,6 +320,7 @@
   <span
     data-jx-spin-cursor=""
     class="relative inline-grid whitespace-pre font-mono text-[length:var(--jx-text)] text-primary"
+    style={text.font !== undefined ? `font-family: ${text.font}` : undefined}
     aria-hidden="true"
   >
     {#each text.frames as f, i (i)}

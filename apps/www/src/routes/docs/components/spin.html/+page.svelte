@@ -28,7 +28,7 @@
   import { SPINNER_CATALOG, TEXT_SPINNER_NAMES, type TextSpinnerName } from '$lib/ui/spin/spin-catalog';
   import { SPIN_NAMES, type SpinName } from '$lib/spin-set.gen';
   import { registrySourceUrl } from '$lib/registry-source';
-  import { PlayFields, PlayHelp, PlayNumber, PlayRow, PlaySelect, PlayTiming } from '$lib/playground';
+  import { PlayFields, PlayHelp, PlayNumber, PlayRow, PlaySelect, PlaySegmented, PlayTiming } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site
@@ -109,7 +109,6 @@ export default {
     'pipe',
     'simpleDots',
     'arc',
-    'circle',
     'arrow',
     'bounce',
     'growVertical',
@@ -125,28 +124,33 @@ export default {
   // custom number, seeded from the tuned value when flipping
   const catalogOf = (name: TextSpinnerName | SpinName): (typeof SPINNER_CATALOG)[TextSpinnerName] | undefined =>
     Object.hasOwn(SPINNER_CATALOG, name) ? SPINNER_CATALOG[name as TextSpinnerName] : undefined;
+  type LingerType = 'end' | 'start' | 'both';
   const canvasInitial = {
     spinner: 'dots' as TextSpinnerName | SpinName,
     size: 16,
     interval: 'auto' as 'auto' | number,
     linger: 'auto' as 'auto' | number,
+    lingerType: 'end' as LingerType, // dots' tuned type
   };
   let spinner = $state<TextSpinnerName | SpinName>(canvasInitial.spinner);
   let size = $state(canvasInitial.size);
   let interval = $state<'auto' | number>(canvasInitial.interval);
   let linger = $state<'auto' | number>(canvasInitial.linger);
-  // name changes reset the timings to auto (the tuned pair follows the
-  // name; custom values belong to the name they were tuned on)
+  let lingerType = $state<LingerType>(canvasInitial.lingerType);
+  // name changes reset the timings to auto (the tuned pair + type follow
+  // the name; custom values belong to the name they were tuned on)
   $effect(() => {
-    spinner;
+    const name = spinner;
     interval = 'auto';
     linger = 'auto';
+    lingerType = catalogOf(name)?.lingerType ?? 'end';
   });
   function resetCanvas(): void {
     spinner = canvasInitial.spinner;
     size = canvasInitial.size;
     interval = canvasInitial.interval;
     linger = canvasInitial.linger;
+    lingerType = canvasInitial.lingerType;
   }
   // the gallery reps + every generated svg name — the driven select is
   // the name-lane story in miniature (text ↔ svg crossing, zero edits
@@ -225,8 +229,8 @@ export default {
             <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
               driven by the playground
             </span>
-            <Spin {spinner} {size} {interval} {linger} label="loading checks" />
-            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Spin spinner=&quot;{spinner}&quot; size={size} interval={interval} linger={linger} /&gt;</code>
+            <Spin {spinner} {size} {interval} {linger} {lingerType} label="loading checks" />
+            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Spin spinner=&quot;{spinner}&quot; size={size} interval={interval} linger={linger} lingerType=&quot;{lingerType}&quot; /&gt;</code>
           </div>
         </div>
         {#snippet playground()}
@@ -243,6 +247,16 @@ export default {
             <PlayRow label="linger">
               <PlayTiming bind:value={linger} fallback={SPINNER_CATALOG.dots.linger} />
             </PlayRow>
+            <PlayRow label="lingerType">
+              <PlaySegmented
+                value={lingerType}
+                options={[
+                  { value: 'end' as const, label: 'end' },
+                  { value: 'start' as const, label: 'start' },
+                  { value: 'both' as const, label: 'both' },
+                ]}
+              />
+            </PlayRow>
             <PlayHelp>
               <code>spinner</code> takes any member of <code>TextSpinnerName</code>
               ({TEXT_SPINNER_NAMES.length} catalog names) or <code>SpinName</code> (the generated
@@ -252,7 +266,8 @@ export default {
               <code>interval</code> and <code>linger</code> are the text
               posture's two timings — 'auto' rides the name's HAND-TUNED pair, custom
               flips in a number input seeded from the tuned value (0 linger = no
-              residue). Changing the name resets both to auto.
+              residue). <code>lingerType</code> picks the opacity mode (fade-out /
+              fade-in / both). Changing the name resets all three to the catalog.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -272,7 +287,7 @@ export default {
             <div class="flex min-w-24 flex-col items-center gap-2">
               <Spin spinner={name} label={name} />
               <code class="text-muted-foreground font-mono text-[11px]">{name}</code>
-              <span class="text-muted-foreground font-mono text-[10px]">{SPINNER_CATALOG[name].interval}/{SPINNER_CATALOG[name].linger}</span>
+              <span class="text-muted-foreground font-mono text-[10px]">{SPINNER_CATALOG[name].interval}/{SPINNER_CATALOG[name].linger}{SPINNER_CATALOG[name].lingerType ? `·${SPINNER_CATALOG[name].lingerType}` : ''}</span>
             </div>
           {/each}
         </div>
@@ -382,6 +397,12 @@ export default {
             byte-faithful law wins and the sharp edge is documented here instead.
           </p>
           <p class="text-muted-foreground text-[13px] leading-6">
+            <strong class="text-foreground font-medium">Mount-aligned SMIL clocks.</strong>
+            The SMIL document timeline belongs to the PAGE, so a late-hydrated loader can inherit a stalled
+            or mid-document phase; the component anchors every instance's clock at mount
+            (<code class="text-accent">setCurrentTime(0)</code>) — no initial stall, deterministic phasing.
+          </p>
+          <p class="text-muted-foreground text-[13px] leading-6">
             <strong class="text-foreground font-medium">Custom svg spinners</strong> come from
             <code class="text-accent">@jixoai/ui-vite-plugin</code>'s spinners feature: opt in with
             <code class="text-accent">jixoai({'{'} spinners {'}'})</code>, name your svg files, and
@@ -484,6 +505,7 @@ export default {
           { name: 'size', type: 'number | string', default: 'var(--jx-icon)', description: "The svg posture's square edge. ABSENT rides the density ruler's var(--jx-icon) (presentation attributes cannot carry var(), so the default lands as a CSS width/height); an explicit value (or a slot config) pins it. The text posture paints var(--jx-text) and ignores the slot." },
           { name: 'interval', type: "number | 'auto'", default: "'auto'", description: 'The frame step in ms — explicit prop > the Defaults slot (context/plugin injectable) > the spinner’s HAND-TUNED catalog pair. The svg lane ignores it (its clock is the SMIL document).' },
           { name: 'linger', type: "number | 'auto'", default: "'auto'", description: "The frame linger duration: each retiring frame stays in the cursor’s own grid cell fading out LINEARLY for this long. 'auto' = the spinner’s HAND-TUNED catalog pair (dots 160, line 0…); 0 = hide at the interval handoff. The trail depth = linger / interval. Context/plugin injectable like the interval; reduced motion is a static CSS kill." },
+          { name: 'lingerType', type: "'end' | 'start' | 'both'", default: "the catalog's tuned type ('end')", description: "The opacity animation mode: 'end' fades OUT after the duty window (the default trail); 'start' fades IN at the slot start and hides discretely at the handoff (simpleDots); 'both' breathes — fade in, hold, fade out (arc, toggle3, growVertical). Absent = the spinner’s tuned type; linger 0 collapses every type to the discrete blink. Context/plugin injectable." },
           { name: 'children', type: 'Snippet', default: '—', description: 'Wrapping content = container posture with scrim + aria-busy.' },
           { name: 'class', type: 'string', default: "''", description: 'Lands on the root (the inline span, the svg, or the wrapping grid).' },
         ]}

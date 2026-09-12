@@ -870,9 +870,14 @@ each exporting a `Readonly<Record<string, SpinnerSource>>` the
 consumer SPREADS into `spinners.spinners` (same-name entries
 override by spread order, the icons override law). Vendoring SHALL
 normalize only namespace noise (an `xml:space` attribute and a
-habit-declared `xmlns:xlink` with zero uses are stripped); every
-other byte rides verbatim with the source + license named in the
-file header.
+habit-declared `xmlns:xlink` with zero uses are stripped) and
+literal white ink (stroke/fill `#fff`, any case, becomes
+currentColor — the component contract paints currentColor, and
+literal white is invisible on light themes; spinning-circles
+shipped blank before the round-5 catch; gradient stop-color and
+inline-<style> CSS are OUT of scope of the rewrite); every other
+byte rides verbatim with the source + license named in the file
+header.
 
 #### Scenario: a pack spread joins the union
 

@@ -3543,14 +3543,19 @@ carry var(); an explicit `size` or slot config pins concrete
 attributes). Frame text SHALL render `whitespace-pre` inside a
 one-cell grid — every frame of one spinner holds its mono advance
 width (simpleDots' blank frame included), so the box never
-breathes. Two timings SHALL shape the text posture: `interval` and
-`linger`, both `number | 'auto'` with default 'auto' resolving the
-catalog's HAND-TUNED pair per spinner (no formula — the Owner's
-five: dots 80/160, dots2 120/0, pipe 120/120, line 160/0,
-simpleDots 160/160; the rest family-curation; explicit prop >
-the Defaults slot > the tuned pair). Both ride the family's
-single Defaults contract, so a context (or the plugin mounting
-one) sets them ambiently.
+breathes. Two timings and a mode SHALL shape the text posture: `interval`
+and `linger`, both `number | 'auto'` with default 'auto'
+resolving the catalog's HAND-TUNED pair per spinner (no formula;
+explicit prop > the Defaults slot > the tuned pair), and
+`lingerType` `'end' | 'start' | 'both'` (absent = the tuned
+type) choosing the opacity shape — end fades out, start fades in
+and hides discretely, both breathes; linger 0 collapses every
+type to the discrete blink via steps(1,start) on the duty stop
+(same-percentage keyframe stops MERGE — never emit them). The
+catalog may carry per-spinner frame overrides (simpleDots' ·)
+and a font hint (arc rides font-family: math). All three ride
+the family's single Defaults contract, so a context (or the
+plugin mounting one) sets them ambiently.
 
 #### Scenario: the default spinner renders bare frames
 
