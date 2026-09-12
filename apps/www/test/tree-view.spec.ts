@@ -178,3 +178,31 @@ describe('tree-view-multiselect extension', () => {
     expect(checkState(row(container, 'host multi', 'src'))).toBe('mixed');
   });
 });
+
+// ---------------------------------------------------------------------------
+// the caret override (design-studio #35, 2026-09-12): a consumer caret
+// snippet owns the glyph column — wins over both built-in toggle glyphs
+// ---------------------------------------------------------------------------
+describe('caret override', () => {
+  it('renders the consumer glyph in the caret cell (built-in chevron gone)', async () => {
+    const { container } = render(Host);
+    const tree = container.querySelector('[role="tree"][aria-label="host caret"]')!;
+    expect(tree).toBeTruthy();
+    // the consumer's chevron svg lives inside the caret cell
+    const cells = tree.querySelectorAll('.jx-tree-caret');
+    expect(cells.length).toBeGreaterThan(0);
+    expect(tree.querySelector('.host-caret-chevron')).toBeTruthy();
+    // the built-in icon svg (lucide) no longer paints in this tree
+    expect(tree.querySelector('.jx-tree-caret svg.lucide')).toBeNull();
+  });
+
+  it('the glyph is per-node ctx — the loading folder shows the spinner glyph', async () => {
+    const { container } = render(Host);
+    const tree = container.querySelector('[role="tree"][aria-label="host caret"]')!;
+    const legacyRow = tree.querySelector('li[data-path="legacy"] .jx-tree-row')!;
+    expect(legacyRow.querySelector('.host-caret-loading')).toBeTruthy();
+    const srcRow = tree.querySelector('li[data-path="src"] .jx-tree-row')!;
+    expect(srcRow.querySelector('.host-caret-loading')).toBeNull();
+    expect(srcRow.querySelector('.host-caret-chevron')).toBeTruthy();
+  });
+});

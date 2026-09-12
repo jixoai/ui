@@ -140,6 +140,15 @@
     onSuffixSlotRender?: TreeSlotRender<T>;
     /** label override (default: node.name) */
     label?: Snippet<[TreeItemCtx<T>]>;
+    /**
+     * Caret-cell override — the expand chevron column (design-studio
+     * #35, 2026-09-12): when provided, the consumer owns the glyph for
+     * every node (a loading spinner for pending folders, the default
+     * chevron otherwise — keep the `jx-tree-caret` span so the
+     * collapse-rotation CSS still applies). Wins over both built-in
+     * `toggle` glyphs.
+     */
+    caret?: Snippet<[TreeItemCtx<T>]>;
     /** click / Enter / Space — runs first; ctx.preventDefault() cancels default */
     onactivate?: (ctx: TreeItemCtx<T>) => void;
     /** folder expand/collapse; ctx.expanded is the NEW state */
@@ -170,6 +179,7 @@
     selected,
     prefix,
     suffix,
+    caret,
     onPrefixSlotRender,
     onSuffixSlotRender,
     label,
@@ -379,7 +389,11 @@
           }}
         >
           <span class="jx-tree-caret inline-flex items-center justify-center h-[1em] w-[0.75rem] flex-none text-muted-foreground transition-transform duration-150 ease-[ease]" aria-hidden="true">
-            {#if isDir}
+            {#if caret}
+              <!-- the consumer owns the glyph (loading states et al.);
+                   the jx-tree-caret span keeps the collapse rotation -->
+              {@render caret(ctx)}
+            {:else if isDir}
               {#if toggle === 'plus'}
                 <Icon name={isCollapsed ? 'plus' : 'minus'} size={10} />
               {:else}
