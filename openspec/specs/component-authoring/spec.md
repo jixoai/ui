@@ -3601,9 +3601,12 @@ law to the pre-change contract. Every instance's SMIL ids SHALL be
 namespaced at render (id + .begin/.end + url(#..)/href(#..) refs,
 deterministic literal surgery over the RAW-gated payload, artifact
 bytes untouched) — syncbase graphs self-contained per instance:
-duplicate-name instances never cross-resolve (the freeze-on-switch
-bug), unmounting never dangles a dependent timeline, and the
-round-1 lockstep compromise is retired.
+duplicate-name instances never cross-resolve, unmounting never
+dangles a dependent timeline, and the round-1 lockstep compromise
+is retired. An svg→svg switch SHALL rebuild the whole <svg>
+element ({#key} on the artifact data): swapping {@html} payload
+inside a persistent svg leaves Chrome's SMIL activation dead
+(lab-measured 1/12 vs 12/12 for fresh insertion).
 
 #### Scenario: the svg root contract holds
 

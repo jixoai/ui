@@ -401,7 +401,16 @@
   <div data-jx-spin-wrap="" class={cn('grid isolate', className)} aria-busy="true">
     <div data-jx-spin-live="" class="z-[1] [grid-area:1/1] place-self-center px-3.5 py-2 border border-border bg-popover shadow" role="status" aria-label={label}>
       {#if svgData}
-        {@render svgGlyph(svgData)}
+        <!-- {#key} forces a FRESH <svg> element on every svg→svg switch
+             (round 9): swapping {@html} payload INSIDE a persistent svg
+             leaves Chrome's SMIL activation dead (measured 1/12 in the
+             lab vs 12/12 for fresh insertion — the Owner's freeze; the
+             text→svg detour worked because the branch swap built a new
+             element). Keying on the data object: spinner changes
+             rebuild, prop changes don't. -->
+        {#key svgData}
+          {@render svgGlyph(svgData)}
+        {/key}
       {:else}
         {@render textCursor()}
       {/if}
@@ -414,7 +423,9 @@
 {:else}
   <span data-jx-spin-inline="" class={cn('inline-flex items-center text-[length:var(--jx-text)] text-primary', className)} role="status" aria-label={label}>
     {#if svgData}
-      {@render svgGlyph(svgData)}
+      {#key svgData}
+        {@render svgGlyph(svgData)}
+      {/key}
     {:else}
       {@render textCursor()}
     {/if}
