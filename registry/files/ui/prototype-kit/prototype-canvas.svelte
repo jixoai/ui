@@ -14,6 +14,10 @@
     responsive wrap whose 1fr cells stretch while frames keep their
     real viewport (the frame shell scales to fit, never stretches).
     gridRows follows the same three forms; gap is number(px)|string.
+    STUDIO MODE (#24): embedded by the design studio (?studio=1 →
+    isStudioHost), numeric/adaptive tracks swap to max-content — the
+    matrix renders at natural size and the studio's camera owns all
+    view scaling; standalone pages keep the responsive regime.
   - CONTEXT: `prototype ?? inherited ?? derived-from-location` — an
     explicit prop wins, a nested canvas inherits the nearest outer
     canvas unless it provides its own, and the top-level canvas falls
@@ -41,6 +45,7 @@
     derivePrototypeFromLocation,
     getPrototypeContext,
     hasDesignHost,
+    isStudioHost,
     type PrototypeKitContext,
   } from './context';
   import { installOverlayScrollbar } from './overlay-scrollbar';
@@ -105,12 +110,21 @@
     fallback: string | undefined
   ): string | undefined {
     if (value === undefined) return fallback;
-    if (typeof value === 'number') return `repeat(${value}, minmax(0, 1fr))`;
+    if (typeof value === 'number') {
+      // studio mode (#24): natural-size tracks — the authored COUNT
+      // stands, the sizing regime swaps (the stage's camera is the one
+      // view-scaling authority; max-content keeps the matrix
+      // container-independent, so the metrics report is stable)
+      return isStudioHost() ? `repeat(${value}, max-content)` : `repeat(${value}, minmax(0, 1fr))`;
+    }
     return value;
   }
 
   const columnsStyle = $derived(
-    trackStyle(gridCols, 'repeat(auto-fill, minmax(min(100%, 30rem), 1fr))')
+    trackStyle(
+      gridCols,
+      isStudioHost() ? 'repeat(auto-fill, max-content)' : 'repeat(auto-fill, minmax(min(100%, 30rem), 1fr))'
+    )
   );
   const rowsStyle = $derived(trackStyle(gridRows, undefined));
   const gapStyle = $derived(typeof gap === 'number' ? `${gap}px` : gap);

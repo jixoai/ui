@@ -56,6 +56,33 @@ if (h) document.documentElement.style.height = `${h}px`;
 // documents (unstamped AND stamped clicks pass through untouched)
 initDesignPicker();
 
+// the ⌘wheel relay (#24, 2026-09-12): ctrl/meta wheel over the frame
+// zooms the STAGE, not this document. The frame is an event black
+// hole to the studio — postMessage to the parent (the canvas doc adds
+// this iframe's offset and forwards; the studio applies the cursor-
+// anchored zoom through its lens). Plain wheel keeps native scroll.
+// Embedded only: standalone frame URLs have no parent to serve.
+if (window.parent !== window) {
+  window.addEventListener(
+    'wheel',
+    (event) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      window.parent.postMessage(
+        {
+          type: 'jx-design:frame-wheel',
+          deltaY: event.deltaY,
+          deltaMode: event.deltaMode,
+          clientX: event.clientX,
+          clientY: event.clientY,
+        },
+        window.location.origin,
+      );
+    },
+    { passive: false },
+  );
+}
+
 if (proto === '' || ref === '') {
   loudError(
     'missing ?p= / ?f= query parameters',

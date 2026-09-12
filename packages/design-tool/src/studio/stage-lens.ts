@@ -45,7 +45,8 @@ export interface StageAnchor {
 
 export const STAGE_LENS_MIN_SCALE = 0.25;
 export const STAGE_LENS_MAX_SCALE = 3;
-/** the fit target: identity transform (the wrapper's inset-0 home) */
+/** identity — the pre-metrics fallback; once canvas metrics arrive the
+ *  auto camera replaces it with fitStageLens (#24) */
 export const STAGE_LENS_HOME: StageLens = Object.freeze({ scale: 1, x: 0, y: 0 });
 /** the +/- HUD step (multiplicative — perceptually uniform) */
 export const STAGE_LENS_STEP = 1.2;
@@ -81,6 +82,33 @@ export function zoomStageLens(lens: StageLens, nextScale: number, anchor: StageA
   const ux = (anchor.x - lens.x) / lens.scale;
   const uy = (anchor.y - lens.y) / lens.scale;
   return { scale, x: anchor.x - ux * scale, y: anchor.y - uy * scale };
+}
+
+/**
+ * The AUTO camera (#24): fit a content sheet of contentW×contentH into
+ * the stage with `padding` clearance on all sides, centered. Scale is
+ * capped at 1 (natural size is the ceiling — blowing a small canvas UP
+ * past 100% on load reads as an accident, not a fit). Non-finite or
+ * non-positive inputs degrade to identity (the pre-metrics camera).
+ */
+export function fitStageLens(
+  stageW: number,
+  stageH: number,
+  contentW: number,
+  contentH: number,
+  padding = 48,
+): StageLens {
+  if (![stageW, stageH, contentW, contentH].every((n) => Number.isFinite(n) && n > 0)) {
+    return STAGE_LENS_HOME;
+  }
+  const scale = clampStageScale(
+    Math.min((stageW - padding * 2) / contentW, (stageH - padding * 2) / contentH, 1),
+  );
+  return {
+    scale,
+    x: (stageW - contentW * scale) / 2,
+    y: (stageH - contentH * scale) / 2,
+  };
 }
 
 /** zoom by a multiplicative factor (wheel ticks, HUD +/- steps) */

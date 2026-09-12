@@ -1,58 +1,69 @@
 <!--
   @jixoai/ui-design (studio) — the stage view (design-studio r3, issue
-  #21: canvas zoom / pan / reset).
+  #21: canvas zoom / pan / reset; r3 polish #24/#25: the natural-size
+  sheet + auto camera + blueprint workspace).
 
-  Orthogonal intent (1): the CAMERA over the preview iframe. The lens
+  Orthogonal intent (1): the CAMERA over the canvas iframe. The lens
   law (stage-lens.ts): scale + translate ride one css transform on the
-  wrapper around the iframe — the iframe's layout size (its REAL
-  viewport) and its URL never change under a lens operation. What zooms
-  is the studio's view of the canvas, not the canvas. Transform is ink,
-  layout is law (frame-view.svelte's scale-to-fit precedent).
+  wrapper around the iframe — the iframe's URL never changes under a
+  lens operation. Its LAYOUT SIZE now follows the canvas document's
+  reported natural metrics (#24): the sheet is the canvas at authored
+  size (kit studio mode renders frames unscaled), and the stage is the
+  workspace around it. Transform is ink, layout is law.
 
-  Interaction surfaces (the iframe is an event black hole — pointer and
-  wheel over it belong to its document; the stage works AROUND that
-  without ever touching the picker/kit inside):
+  The auto camera (#24): until the user takes it (wheel / drag / HUD
+  zoom), every metrics report and stage resize re-fits the sheet
+  centered (fitStageLens, scale ≤ 1). The HUD's fit returns to auto.
+  A stored lens from a previous canvas restores MANUAL — an explicit
+  camera must never be silently re-fitted away.
 
-    zoom    ⌘/Ctrl + wheel over the exposed stage surround (the area a
-            zoom-out or pan reveals around the canvas) — cursor-anchored;
-            ⌥/Space lens-mode makes wheel zoom ANYWHERE (see below);
+  The blueprint workspace (#25, Owner 2026-09-12「画布背景改成一种
+  蓝图风格的网格」): the stage paints a deep-blue two-tier grid that
+  lives in CAMERA space — cell size and position derive from the lens,
+  so the grid pans and zooms WITH the design (anchored in canvas
+  coordinates; a static grid would swim against the content).
+
+  Interaction surfaces (the iframe is an event black hole — the stage
+  works AROUND that without ever touching the picker/kit inside):
+
+    zoom    ⌘/Ctrl + wheel over the exposed workspace — cursor-anchored;
+            OVER the canvas the wheel relays up (#24): frame-entry →
+            canvas-entry → here (same-origin postMessage), so the
+            natural gesture works anywhere the design is;
+            ⌥/Space lens-mode makes wheel + drag work ANYWHERE;
             the HUD's −/+ step around the stage center
-    pan     drag the exposed surround (left or middle button — free
-            canvas, out-of-bounds is legal); ⌥/Space lens-mode drags
-            ANYWHERE
-    reset   the HUD's fit — identity transform, one key home
-    lens    hold ⌥ (option) or Space → a transparent sheet interposes
-            mode     above the iframe: the parent receives pointer +
-                     wheel over the whole stage, so drag pans and wheel
-                     zooms everywhere; picking inside the iframe is
-                     suspended only while the modifier is held. Focus
-                     caveat (documented): if the caret/focus sits INSIDE
-                     the iframe document, the parent window misses the
-                     keydown — click any studio chrome first. Released
-                     on keyup and on window blur.
+    pan     drag the workspace (left or middle button); ⌥/Space
+            lens-mode drags ANYWHERE
+    reset   the HUD's fit — back to the auto camera
+    lens    hold ⌥ (option) or Space → a tinted sheet with a dashed
+            mode rim interposes above the iframe + the HUD shows the
+            mode tag (the r2 transparent sheet was INVISIBLE — 04-lens-
+            mode.png was byte-identical to 03-zoomed.png); picking is
+            suspended only while the modifier is held. Released on
+            keyup and on window blur.
 
-  The DOM contract the walkthrough scripts rely on is preserved: the
-  root keeps .studio-preview, the iframe keeps .studio-iframe and
-  stays a `.studio-preview iframe` descendant; the {#key src} remount
-  seam is unchanged. The iframe element flows up through onIframe (the
+  The DOM contract the walkthrough scripts rely on: the root keeps
+  .studio-preview, the iframe keeps .studio-iframe; the {#key src}
+  remount seam is unchanged; the iframe flows up through onIframe (the
   shell's tree walks its same-origin document).
 
-  State persistence: the lens lives in sessionStorage (the selection
-  store's sibling) — vite's full-reload broadcasts (every design/ file
-  write) reload the studio page; the camera survives them and canvas
-  switches (the lens state outlives the {#key src} remount).
+  State persistence: a MANUAL lens persists to sessionStorage — vite's
+  full-reload broadcasts (every design/ file write) reload the studio
+  page and the explicit camera survives. The AUTO camera never writes
+  (a stored auto-fit from a bigger canvas would straitjacket the next).
 
   Original need: Owner 2026-09-11 —「中间的画布要能支持缩放拖动复位等
-  操作」(design-studio-r3 issue #21, 2026-09-12). Svelte 5 runes.
+  操作」(#21); 2026-09-12 —「缩放也有问题…画布背景改成一种蓝图风格的
+  网格」(#24/#25). Svelte 5 runes.
 -->
 <script lang="ts">
   import {
     STAGE_LENS_HOME,
     STAGE_LENS_STEP,
+    fitStageLens,
     formatStageZoom,
-    isStageLensHome,
     panStageLens,
-    restoreStageLens,
+    parseStageLens,
     serializeStageLens,
     stageLensTransform,
     stageWheelFactor,
@@ -75,33 +86,61 @@
   let stageEl: HTMLDivElement | null = $state(null);
   let iframeEl: HTMLIFrameElement | null = $state(null);
 
-  // the camera — restored from sessionStorage at init (sync initializer,
-  // plain proven code; the shell's selection ghost taught us to keep
-  // side-effectful restores out of effects, not out of initializers)
-  function initialLens(): StageLens {
+  // a stored lens is an EXPLICIT camera from a previous session — it
+  // restores as manual; a fresh session starts on the auto camera
+  function initialLens(): { lens: StageLens; manual: boolean } {
     try {
-      return restoreStageLens(sessionStorage);
+      const stored = parseStageLens(sessionStorage.getItem(STAGE_LENS_STORE_KEY));
+      if (stored !== null) return { lens: stored, manual: true };
     } catch {
-      return STAGE_LENS_HOME; // private mode etc. — camera without memory
+      /* private mode — camera without memory */
     }
+    return { lens: STAGE_LENS_HOME, manual: false };
   }
-  let lens: StageLens = $state(initialLens());
+  const boot = initialLens();
+  let lens: StageLens = $state(boot.lens);
+  /** the camera's regime: auto re-fits on every metrics/resize report;
+   *  the FIRST manual gesture freezes it (fit is the way back) */
+  let manual = $state(boot.manual);
 
-  /** ⌥/Space lens mode: the transparent sheet above the iframe is up */
+  /** the canvas document's reported natural size (null = pre-metrics) */
+  let sheet: { width: number; height: number } | null = $state(null);
+
+  /** ⌥/Space lens mode: the mode sheet above the iframe is up */
   let lensMode = $state(false);
   /** a pan gesture is live (cursor affordance only) */
   let panning = $state(false);
   /** the live pan gesture's origin (screen coords + the lens it started from) */
   let panOrigin: { pointerId: number; clientX: number; clientY: number; from: StageLens } | null = null;
 
-  /** every lens mutation persists — explicit sites, the selection pattern */
-  function applyLens(next: StageLens): void {
+  /** every MANUAL lens mutation persists; the auto camera never writes */
+  function applyLens(next: StageLens, nextManual = true): void {
     lens = next;
+    manual = nextManual;
     try {
-      sessionStorage.setItem(STAGE_LENS_STORE_KEY, serializeStageLens(next));
+      if (nextManual) sessionStorage.setItem(STAGE_LENS_STORE_KEY, serializeStageLens(next));
+      else sessionStorage.removeItem(STAGE_LENS_STORE_KEY);
     } catch {
       /* persistence is best-effort */
     }
+  }
+
+  /* ── the auto camera: fit the sheet into the stage, centered ──────── */
+
+  function autoFit(): void {
+    if (manual) return;
+    const rect = stageEl?.getBoundingClientRect();
+    if (rect === undefined || sheet === null) return;
+    lens = fitStageLens(rect.width, rect.height, sheet.width, sheet.height);
+  }
+
+  // the canvas document's metrics (#24): natural size + growth. An
+  // auto camera re-fits; a manual camera only re-sizes the sheet (the
+  // user's zoom/pan is never silently re-taken)
+  function onCanvasMetrics(width: number, height: number): void {
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return;
+    sheet = { width, height };
+    if (!manual) autoFit();
   }
 
   /* ── anchors ──────────────────────────────────────────────────────── */
@@ -119,10 +158,9 @@
 
   /* ── zoom ─────────────────────────────────────────────────────────── */
 
-  /** the surround's wheel: ⌘/Ctrl (macOS pinch arrives as ctrl+wheel);
+  /** the workspace's wheel: ⌘/Ctrl (macOS pinch arrives as ctrl+wheel);
    *  a PLAIN wheel keeps page/iframe scroll semantics — untouched.
-   *  Direct hits only: the sheet's zoom bubbles here too (it must not
-   *  double-apply inside lens mode) */
+   *  Direct hits only: the mode sheet's zoom bubbles here too */
   function onSurroundWheel(event: WheelEvent): void {
     if (event.target !== event.currentTarget) return;
     if (!event.ctrlKey && !event.metaKey) return;
@@ -140,13 +178,46 @@
     applyLens(zoomStageLensBy(lens, factor, stageCenter()));
   }
 
-  /* ── pan (shared by the surround and the lens-mode sheet) ─────────── */
+  /* ── the relayed ⌘+wheel (#24): anywhere over the canvas ──────────── */
+
+  // frame-entry posts to the canvas doc (canvas-doc coords); the canvas
+  // doc adds the child iframe's offset and forwards (still canvas-doc
+  // coords). The lens maps canvas-doc px → stage px: screen = t + z·c,
+  // so the anchor needs no rect math at all.
+  function onRelayZoom(detail: { deltaY: number; deltaMode?: number; x: number; y: number }): void {
+    applyLens(
+      zoomStageLensBy(lens, stageWheelFactor(detail.deltaY, detail.deltaMode ?? 0), {
+        x: lens.x + detail.x * lens.scale,
+        y: lens.y + detail.y * lens.scale,
+      }),
+    );
+  }
+
+  function onMessage(event: MessageEvent): void {
+    if (event.source !== iframeEl?.contentWindow) return;
+    const data = event.data as
+      | { type?: string; width?: number; height?: number; deltaY?: number; deltaMode?: number; x?: number; y?: number }
+      | null;
+    if (data === null || typeof data !== 'object') return;
+    if (data.type === 'jx-design:canvas-metrics' && typeof data.width === 'number' && typeof data.height === 'number') {
+      onCanvasMetrics(data.width, data.height);
+    } else if (
+      data.type === 'jx-design:wheel-zoom' &&
+      typeof data.deltaY === 'number' &&
+      typeof data.x === 'number' &&
+      typeof data.y === 'number'
+    ) {
+      onRelayZoom({ deltaY: data.deltaY, deltaMode: data.deltaMode, x: data.x, y: data.y });
+    }
+  }
+
+  /* ── pan (shared by the workspace and the lens-mode sheet) ────────── */
 
   function onPanPointerDown(event: PointerEvent): void {
     if (event.button !== 0 && event.button !== 1) return; // left / middle only
-    // DIRECT hits only: the sheet's pointerdown bubbles here too (a
-    // child handler + this one would double-apply every move), and the
-    // HUD's buttons must click, not pan — children run their own paths
+    // DIRECT hits only: the mode sheet's pointerdown bubbles here too
+    // (a child handler + this one would double-apply every move), and
+    // the HUD's buttons must click, not pan — children run their own paths
     if (event.target !== event.currentTarget) return;
     event.preventDefault(); // no text selection, no middle-button autoscroll
     panOrigin = { pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY, from: lens };
@@ -194,13 +265,65 @@
   /* ── reset ────────────────────────────────────────────────────────── */
 
   function fit(): void {
-    applyLens(STAGE_LENS_HOME);
+    // back to the AUTO camera: the next metrics/resize re-fit covers
+    // the common case; an immediate fit covers the no-metrics rest
+    manual = false;
+    try {
+      sessionStorage.removeItem(STAGE_LENS_STORE_KEY);
+    } catch {
+      /* best-effort */
+    }
+    const rect = stageEl?.getBoundingClientRect();
+    if (rect !== undefined && sheet !== null) {
+      lens = fitStageLens(rect.width, rect.height, sheet.width, sheet.height);
+    } else {
+      lens = STAGE_LENS_HOME;
+    }
   }
 
   // the iframe seam: {#key src} remounts re-bind, unmount nulls — the
-  // effect re-runs on each, the shell's tree always holds the live frame
+  // effect re-runs on each, the shell's tree always holds the live frame.
+  // A canvas switch also drops the metrics channel — the new document
+  // reports its own; the auto camera re-fits on that report (reading
+  // `manual` here would re-run the effect on every fit() and lose the
+  // sheet mid-session — the report path owns the camera instead)
   $effect(() => {
     onIframe?.(iframeEl);
+  });
+
+  $effect(() => {
+    if (iframeEl === null) return;
+    sheet = null;
+  });
+
+  // the relay + resize wiring: messages from the live canvas document,
+  // stage resizes re-fitting an auto camera
+  $effect(() => {
+    if (stageEl === null) return;
+    window.addEventListener('message', onMessage);
+    const observer = new ResizeObserver(() => autoFit());
+    observer.observe(stageEl);
+    return () => {
+      window.removeEventListener('message', onMessage);
+      observer.disconnect();
+    };
+  });
+
+  /* ── the blueprint grid's camera-space parameters (#25) ───────────── */
+
+  const GRID_CELL = 24; // minor cell, canvas px (major = 5 cells)
+  const gridStyle = $derived.by(() => {
+    const cell = GRID_CELL * lens.scale;
+    const major = cell * 5;
+    const cellSize = `${cell}px ${cell}px`;
+    const majorSize = `${major}px ${major}px`;
+    const origin = `${lens.x}px ${lens.y}px`;
+    return {
+      // 4 layers in paint order (major-v, major-h, minor-v, minor-h) —
+      // size/position lists map to layers one-to-one
+      backgroundSize: `${majorSize}, ${majorSize}, ${cellSize}, ${cellSize}`,
+      backgroundPosition: `${origin}, ${origin}, ${origin}, ${origin}`,
+    } as const;
   });
 </script>
 
@@ -222,23 +345,29 @@
       onpointerup={onPanPointerEnd}
       onpointercancel={onPanPointerEnd}
     >
-      <!-- the camera: transform-only, origin 0 0; the iframe inside keeps
-           its full layout size — {#key src} lives INSIDE so canvas
-           switches never reset the lens -->
+      <!-- the blueprint grid (#25): camera-space cell size + position —
+           the workspace's texture pans and zooms WITH the design -->
+      <div class="studio-stage-grid" data-stage-grid style:background-size={gridStyle.backgroundSize} style:background-position={gridStyle.backgroundPosition}></div>
+      <!-- the camera: transform-only, origin 0 0. The wrapper carries the
+           sheet's reported natural size (#24); {#key src} lives INSIDE so
+           canvas switches never reset the lens -->
       <div
         class="studio-stage-lens"
-        class:shifted={!isStageLensHome(lens)}
+        class:auto={!manual}
         data-stage-lens
         data-scale={lens.scale}
         style:transform={stageLensTransform(lens)}
+        style:width={sheet === null ? undefined : `${sheet.width}px`}
+        style:height={sheet === null ? undefined : `${sheet.height}px`}
       >
         {#key src}
           <iframe class="studio-iframe" {src} {title} bind:this={iframeEl}></iframe>
         {/key}
       </div>
       {#if lensMode}
-        <!-- the transparent sheet: while ⌥/Space is held the parent owns
-             the whole stage — drag pans, wheel zooms, anywhere -->
+        <!-- the mode sheet: while ⌥/Space is held the parent owns the
+             whole stage — drag pans, wheel zooms, anywhere. Tinted +
+             rimmed (#24): the r2 transparent sheet was invisible -->
         <div
           class="studio-stage-sheet"
           class:panning
@@ -253,8 +382,10 @@
       {/if}
       <!-- the HUD: chrome-less buttons (button.studio-frame's look —
            the studio's own chrome-less family), gaps click through to
-           the canvas underneath -->
-      <div class="studio-stage-hud">
+           the canvas underneath; floats on the workspace, never over
+           the sheet at fit (scale ≤ 1 leaves workspace margin) -->
+      <div class="studio-stage-hud" class:lensing={lensMode}>
+        {#if lensMode}<span class="studio-stage-mode" data-stage-mode>lens</span>{/if}
         <button
           class="studio-stage-btn"
           type="button"
@@ -262,7 +393,7 @@
           aria-label="zoom out"
           onclick={() => hudZoom(1 / STAGE_LENS_STEP)}
         >−</button>
-        <span class="studio-stage-zoom" data-stage-zoom title="⌘/Ctrl+wheel or ⌥/Space + wheel zooms — drag pans">{formatStageZoom(lens.scale)}</span>
+        <span class="studio-stage-zoom" data-stage-zoom title="⌘/Ctrl+wheel zooms (anywhere over the canvas too) — drag pans">{formatStageZoom(lens.scale)}</span>
         <button
           class="studio-stage-btn"
           type="button"
@@ -274,7 +405,7 @@
           class="studio-stage-btn"
           type="button"
           data-act="fit"
-          aria-label="reset the camera to 100% and center"
+          aria-label="reset the camera to fit"
           onclick={fit}
         >fit</button>
       </div>
@@ -286,37 +417,66 @@
   .studio-preview {
     display: flex;
     min-width: 0;
-    background: #161412;
   }
   .studio-preview-empty {
     margin: auto;
     color: #8d8578;
   }
-  /* the stage: the lens-mode sheet, the lens wrapper and the HUD all
-     anchor here — overflow clips the transformed canvas (a zoomed-in
-     lens paints outside; that ink must not spill into the columns) */
+  /* the workspace (#25): the blueprint field — deep blue, the grid
+     layer above it, everything else above that. overflow clips the
+     transformed sheet (zoomed-in ink must not spill into the columns) */
   .studio-stage {
     position: relative;
     flex: 1;
     min-width: 0;
     min-height: 0;
     overflow: hidden;
-    touch-action: none; /* pointer pan owns touch gestures on the surround */
-    cursor: grab; /* the exposed surround (zoomed-out / panned) drags */
+    touch-action: none; /* pointer pan owns touch gestures on the workspace */
+    cursor: grab; /* the exposed workspace (zoomed-out / panned) drags */
+    background: #0a0f1c;
   }
   .studio-stage.panning {
     cursor: grabbing;
   }
-  .studio-stage-lens {
+  /* the blueprint grid: two tiers of lines via repeating gradients
+     (minor every cell, major every 5 cells). Sits UNDER the sheet; its
+     size/position ride the camera (inline style) so it never swims */
+  .studio-stage-grid {
     position: absolute;
     inset: 0;
+    pointer-events: none;
+    /* 4 layers in paint order: major-v, major-h (heavier), then minor-v,
+       minor-h (fainter) — the camera's inline size/position ride all 4 */
+    background-image:
+      linear-gradient(to right, rgba(96, 140, 255, 0.22) 0 1px, transparent 1px 100%),
+      linear-gradient(to bottom, rgba(96, 140, 255, 0.22) 0 1px, transparent 1px 100%),
+      linear-gradient(to right, rgba(96, 140, 255, 0.08) 0 1px, transparent 1px 100%),
+      linear-gradient(to bottom, rgba(96, 140, 255, 0.08) 0 1px, transparent 1px 100%);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  }
+  .studio-stage-lens {
+    position: absolute;
+    top: 0;
+    left: 0;
     transform-origin: 0 0;
     will-change: transform;
+    /* the sheet's rim on the workspace (#25): hairline + lift shadow —
+       pre-metrics (no size yet) it still fills like the old inset-0 */
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 1px rgba(96, 140, 255, 0.35),
+      0 1.5rem 3rem rgba(2, 6, 18, 0.55);
+    overflow: hidden;
+    background: #fff;
   }
-  /* the shifted affordance: once the camera leaves home the canvas
-     carries its own dashed rim, so the "lens" is visible as a thing */
-  .studio-stage-lens.shifted {
-    outline: 1px dashed #3a352f;
+  /* the auto camera's affordance: while auto, the sheet's rim reads as
+     grounded (solid); a manual camera dims it — subtle, HUD-less state */
+  .studio-stage-lens.auto {
+    box-shadow:
+      0 0 0 1px rgba(96, 140, 255, 0.45),
+      0 1.5rem 3rem rgba(2, 6, 18, 0.55);
   }
   .studio-iframe {
     display: block;
@@ -325,11 +485,16 @@
     border: 0;
     background: #fff;
   }
+  /* lens mode (#24 visibility): tint + dashed rim — the mode must be
+     SEEN on, not inferred from behavior */
   .studio-stage-sheet {
     position: absolute;
     inset: 0;
     z-index: 2;
     cursor: grab;
+    background: rgba(96, 140, 255, 0.05);
+    outline: 1px dashed rgba(120, 160, 255, 0.5);
+    outline-offset: -3px;
   }
   .studio-stage-sheet.panning {
     cursor: grabbing;
@@ -338,7 +503,7 @@
     position: absolute;
     right: 0.75rem;
     bottom: 0.75rem;
-    z-index: 3; /* above the sheet: fit stays reachable mid-lens-mode */
+    z-index: 3; /* above the mode sheet: fit stays reachable mid-lens-mode */
     display: flex;
     align-items: center;
     gap: 0.125rem;
@@ -346,7 +511,18 @@
     background: #0d0c0bee;
     border: 1px solid #262320;
     border-radius: 4px;
+    box-shadow: 0 0.5rem 1.25rem rgba(2, 6, 18, 0.5);
+    backdrop-filter: blur(4px);
     pointer-events: none; /* the gaps click through to the canvas */
+  }
+  .studio-stage-hud.lensing {
+    border-color: rgba(120, 160, 255, 0.5);
+  }
+  .studio-stage-mode {
+    color: #8ba8ff;
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    padding: 0.1875rem 0.375rem;
   }
   /* explicit selectors — a scoped `> *` rule proved droppable by the
      svelte compiler's unused-selector pass (the iframe then ate the
