@@ -193,3 +193,26 @@ a binding gap. All fixed BEFORE any measurement:
    replaced.
 
 Post-F6 rule unchanged: evidence re-scores, never re-defines.
+
+### F7 — THIS COMMIT (2026-09-13): Gate-1 PASS hygiene (round-6 B items)
+
+Gate 1 round 6 verdict: **8.3/10 PASS** (trajectory 6.2 → 7.1 → 7.0 →
+7.4 → 7.1 → 8.3). Execution unblocked. The five B items landed NOW:
+
+1. D1-06 debug pin: `debug: true` frozen into BOTH spike modes;
+   data-style-src asserted as the debug-gated attribute it is (the
+   non-debug prod assumption dropped, not carried).
+2. Validator binds the OUTER media range too (D2-12 requires both
+   jx-pure.css:2256-2264 inner and 2255-2269 outer anchors in the
+   manifest row).
+3. lockfileNames extraction frozen: package-lock.json `packages`
+   keys, strip leading node_modules/, keep LAST segment, drop root
+   "" — same parser for all four configs.
+4. Config receipts must record package.json + lockfile sha256 +
+   generation commands + registry state per configuration.
+5. Stale round-wording in design.md replaced with F-series labels;
+   tasks.md Gate rows updated to the PASS verdict.
+
+Environment note: disk was freed (~179Gi available) between rounds 6
+and this commit — the disk-blocked lanes (R2 rebuild, spike installs)
+are unblocked. Machine memory discipline stays: heavy lanes serial.

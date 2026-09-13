@@ -170,7 +170,10 @@ function runChecks(manifestText) {
     const line = rowLine(id);
     if (!line) { failures.push(`manifest-bind ${id}: no manifest row found`); continue; }
     const needles = [spec.sel.replace(' {', ''), `${spec.file}:${block.start}-${block.end}`];
-    if (spec.nested) needles.push(`${spec.file}:${block.start}-${block.end}`); // nested anchor already the block's
+    if (spec.nested) {
+      needles.push(`${spec.file}:${block.start}-${block.end}`); // nested anchor already the block's
+      if (block.outer) needles.push(`${spec.file}:${block.outer}`); // AND the outer media range (Gate-1 r6 B2)
+    }
     for (const [helper, owner] of Object.entries(ownerMap)) {
       if (owner !== id || !found[helper]) continue;
       needles.push(blocks[helper].sel.replace(' {', ''), `${blocks[helper].file}:${found[helper].start}-${found[helper].end}`);
