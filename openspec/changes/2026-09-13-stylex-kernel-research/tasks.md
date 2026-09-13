@@ -74,6 +74,11 @@
       arbitrary-value carriers, forced-colors branches, kernel
       couplings); risk register; gates-touched mapping (design §1.4
       refined to per-gate verdicts).
+- [ ] The class={expr} surface (Gate-1 r2 B): AST/controlled-string
+      extraction of TW utilities inside cn()/template literals — the
+      2340 figure is the literal-class LOWER BOUND; the ≥51-file
+      cn()-string surface gets its own row (R5's grammar frozen in
+      the R5 tooling, receipt-committed like r0).
 
 ## R6 — synthesis & decision (L4)
 
