@@ -28,6 +28,12 @@
        an agent turn locks the whole panel (chat streaming state).
        Failure notices are TRANSIENT (r3 T1/ID5): every show arms the
        6s self-dismiss (notice.ts) and valid actions clear them.
+       The SLOT TEXT rows (issue #38) ride the same endpoint's
+       discriminator ({slot:'children', textIndex, value}) and the
+       same lock laws: the usage's own direct Text fragments, one
+       textarea per children.text[n] (「默认内容」 — position facts,
+       never meta.ts semantic names), Enter commits, Shift+Enter
+       newlines, empty deletes the visible fragment.
 
   Selection contract: B's DesignSelection (selection.ts) — the panel
   is a pure CONSUMER. instanceCount > 1 honestly labels the shared
@@ -168,6 +174,26 @@
     return row.unit === undefined ? row.label : `${row.label} (${row.unit})`;
   }
 
+  /* ── slot text (issue #38 B2: the children.text[n] rows) ───────────── */
+
+  /** the dry-run payload's slot-text row (index = the children.text[n] ordinal) */
+  export interface SlotTextSpan {
+    readonly index: number;
+    readonly text: string;
+  }
+
+  /**
+   * The text row's label — an honest POSITION fact under the content
+   * API (the Owner ruling: no meta.ts semantic names for free slot
+   * composition). One significant fragment reads as the slot itself
+   * (「默认内容」 — the Heading/Button copy case); once a boundary
+   * (expression, comment, nested usage) splits the slot, each run
+   * gets its positional 1-based fragment number.
+   */
+  export function slotTextLabel(index: number, count: number): string {
+    return count <= 1 ? '默认内容' : `默认内容 · 片段 ${index + 1}`;
+  }
+
   /** the row's description line — x-ui.description, the i18n key folded
    *  in (the family's label element has no title slot for a tooltip) */
   export function descriptionOf(row: ControlRow): string | undefined {
@@ -209,6 +235,10 @@
   let usageValues: Record<string, { representable: boolean; value?: RowValue }> = $state({});
   let originallyUnset: Set<string> = $state(new Set());
   let usageShared = $state(false);
+  /** the usage's slot-text rows (issue #38) — seeded by the same dry-run
+   *  POST as the prop values: the SERVER parses the source; the client
+   *  never reads the compiled module's __jxUsageMap */
+  let textSpans: SlotTextSpan[] = $state([]);
   let file: string | null = $state(null);
   let notice: string | null = $state(null);
   let saving = false;
@@ -260,6 +290,7 @@
     metaError = null;
     usageValues = {};
     usageShared = false;
+    textSpans = [];
     clearNotice();
     if (current === null) return;
     file = current.file;
@@ -279,7 +310,7 @@
           });
           if (dryResponse.ok) {
             if (generation !== seedGeneration) return; // superseded mid-seed
-            const dryBody = (await dryResponse.json()) as { ok?: boolean; values?: Record<string, { representable: boolean; value?: RowValue }>; shared?: boolean };
+            const dryBody = (await dryResponse.json()) as { ok?: boolean; values?: Record<string, { representable: boolean; value?: RowValue }>; shared?: boolean; textSpans?: SlotTextSpan[] };
             if (dryBody.ok === true && dryBody.values !== undefined) {
               usageValues = dryBody.values;
               // P2-2: remember which props were ABSENT at seed — an
@@ -289,6 +320,9 @@
                   .filter(([, v]) => v.representable === true && v.value === undefined)
                   .map(([name]) => name),
               );
+            }
+            if (dryBody.ok === true && Array.isArray(dryBody.textSpans)) {
+              textSpans = dryBody.textSpans;
             }
             if (dryBody.shared === true) usageShared = true;
           }
@@ -353,6 +387,66 @@
     if (event.key !== 'Enter') return;
     void commitProp(row.prop, event.currentTarget.value);
   }
+
+  /* ── slot text (issue #38): the children.text[n] rows ─────────────── */
+
+  /** Enter commits; Shift+Enter keeps the textarea's default newline */
+  function onSlotTextKey(span: SlotTextSpan, event: KeyboardEvent): void {
+    if (event.key !== 'Enter' || event.shiftKey) return;
+    event.preventDefault();
+    void commitSlotText(span.index, event.currentTarget.value);
+  }
+
+  async function commitSlotText(textIndex: number, value: string): Promise<void> {
+    const current = selection;
+    const targetFile = file;
+    if (current === null || targetFile === null || locked || saving) return;
+    const seed = seedTargetOf(current, targetFile);
+    saving = true;
+    clearNotice();
+    try {
+      const response = await fetch(propEditUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: targetFile, component: current.component, usageIndex: current.usageIndex, slot: 'children', textIndex, value }),
+      });
+      const body = (await response.json()) as { ok?: boolean; reason?: string; message?: string };
+      if (response.ok && body.ok === true) {
+        // re-seed the ordinals from the SERVER's view — a delete (empty
+        // value) can shrink the fragment list and shift later ordinals;
+        // local bookkeeping alone would address the wrong span next
+        try {
+          const dryResponse = await fetch(propEditUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file: targetFile, component: current.component, usageIndex: current.usageIndex, dryRun: true }),
+          });
+          if (dryResponse.ok) {
+            const dryBody = (await dryResponse.json()) as { ok?: boolean; textSpans?: SlotTextSpan[] };
+            const stillSelected = seedTargetOf(selection, selectionFile);
+            if (dryBody.ok === true && Array.isArray(dryBody.textSpans) && stillSelected !== null && seed !== null && seedSignature(stillSelected) === seedSignature(seed)) {
+              textSpans = dryBody.textSpans;
+            }
+          }
+        } catch {
+          // the edit itself landed; the reseed is best-effort bookkeeping
+        }
+        // HMR fallback path (pre-built): the shell listens and reloads
+        // the owning frame when HMR does not carry the edit in
+        window.dispatchEvent(new CustomEvent('jx-design:panel-edited', { detail: { frameId: current.frameId, file: targetFile } }));
+      } else if (response.status === 409) {
+        showNotice('concurrent write detected — edit abandoned, retry');
+      } else if (body.reason === 'text-not-found') {
+        showNotice(body.message ?? 'that text fragment no longer exists — reselect the component');
+      } else {
+        showNotice(body.message ?? `text edit failed (${body.reason ?? response.status})`);
+      }
+    } catch (cause) {
+      showNotice(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      saving = false;
+    }
+  }
 </script>
 
 <!-- the document-level .dark scope (studio-entry, #23) carries the
@@ -407,97 +501,121 @@
         </Alert>
       {/if}
 
-      {#if rows.length === 0}
+      {#if rows.length === 0 && textSpans.length === 0}
         <Empty title="no panel props" description={`no panel-renderable props for ${selection.component}`} />
       {:else}
-        <div class="panel-rows">
-          <!-- the dock precedent's row grammar: plain mode (the panel
-               owns the surface), sm density, the family's field
-               adapters per kind; every control honors the lock -->
-          <ItemGroup mode="plain" controlChrome="integrated" density="sm">
-            {#each rows as row (row.prop)}
-              {#if row.kind === 'toggle'}
-                <ItemToggle
-                  id={`prop-${row.prop}`}
-                  label={labelOf(row)}
-                  description={descriptionOf(row)}
-                  checked={row.value === true}
-                  disabled={locked || file === null}
-                  onchange={(event) => void commitProp(row.prop, event.currentTarget.checked)}
-                />
-              {:else if row.kind === 'select'}
-                <ItemSelect
-                  id={`prop-${row.prop}`}
-                  label={labelOf(row)}
-                  description={descriptionOf(row)}
-                  value={String(row.value ?? '')}
-                  disabled={locked || file === null}
-                  onchange={(event) => void commitProp(row.prop, event.currentTarget.value)}
-                >
-                  {#each row.options as option (option)}
-                    <option value={option}>{option}</option>
-                  {/each}
-                </ItemSelect>
-              {:else if row.kind === 'text'}
-                <ItemInput
-                  id={`prop-${row.prop}`}
-                  label={labelOf(row)}
-                  description={descriptionOf(row)}
-                  value={typeof row.value === 'string' ? row.value : ''}
-                  disabled={locked || file === null}
-                  onkeydown={(event) => onTextEnter(row, event)}
-                />
-              {:else if row.kind === 'stepper'}
-                <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
-                  {#snippet control(field: ItemFieldContext)}
-                    <div class="stepper" role="group" aria-labelledby={field.labelId} aria-describedby={field.describedBy}>
-                      <button
-                        type="button"
-                        class="stepper-btn"
-                        aria-label={`Decrease ${row.label}`}
-                        disabled={locked || file === null}
-                        onclick={() => step(row, -1)}
-                      >−</button>
-                      <span class="stepper-value">{row.value ?? '—'}</span>
-                      <button
-                        type="button"
-                        class="stepper-btn"
-                        aria-label={`Increase ${row.label}`}
-                        disabled={locked || file === null}
-                        onclick={() => step(row, 1)}
-                      >+</button>
-                    </div>
-                  {/snippet}
-                </ItemField>
-              {:else if row.kind === 'segmented'}
-                <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
-                  {#snippet control(field: ItemFieldContext)}
-                    <div class="seg" role="group" aria-labelledby={field.labelId} aria-describedby={field.describedBy}>
-                      {#each row.options as option (option)}
+        {#if rows.length > 0}
+          <div class="panel-rows">
+            <!-- the dock precedent's row grammar: plain mode (the panel
+                 owns the surface), sm density, the family's field
+                 adapters per kind; every control honors the lock -->
+            <ItemGroup mode="plain" controlChrome="integrated" density="sm">
+              {#each rows as row (row.prop)}
+                {#if row.kind === 'toggle'}
+                  <ItemToggle
+                    id={`prop-${row.prop}`}
+                    label={labelOf(row)}
+                    description={descriptionOf(row)}
+                    checked={row.value === true}
+                    disabled={locked || file === null}
+                    onchange={(event) => void commitProp(row.prop, event.currentTarget.checked)}
+                  />
+                {:else if row.kind === 'select'}
+                  <ItemSelect
+                    id={`prop-${row.prop}`}
+                    label={labelOf(row)}
+                    description={descriptionOf(row)}
+                    value={String(row.value ?? '')}
+                    disabled={locked || file === null}
+                    onchange={(event) => void commitProp(row.prop, event.currentTarget.value)}
+                  >
+                    {#each row.options as option (option)}
+                      <option value={option}>{option}</option>
+                    {/each}
+                  </ItemSelect>
+                {:else if row.kind === 'text'}
+                  <ItemInput
+                    id={`prop-${row.prop}`}
+                    label={labelOf(row)}
+                    description={descriptionOf(row)}
+                    value={typeof row.value === 'string' ? row.value : ''}
+                    disabled={locked || file === null}
+                    onkeydown={(event) => onTextEnter(row, event)}
+                  />
+                {:else if row.kind === 'stepper'}
+                  <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
+                    {#snippet control(field: ItemFieldContext)}
+                      <div class="stepper" role="group" aria-labelledby={field.labelId} aria-describedby={field.describedBy}>
                         <button
                           type="button"
-                          class="seg-btn"
-                          aria-pressed={row.value === option}
+                          class="stepper-btn"
+                          aria-label={`Decrease ${row.label}`}
                           disabled={locked || file === null}
-                          onclick={() => void commitProp(row.prop, option)}
-                        >{option}</button>
-                      {/each}
-                    </div>
-                  {/snippet}
-                </ItemField>
-              {:else}
-                <!-- the unrepresentable row: read-only in the family's
-                     own row rhythm (ItemField), the value lane saying
-                     why — edits belong to the code -->
-                <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
-                  {#snippet control(field: ItemFieldContext)}
-                    <span class="row-readonly" id={field.controlId}>edit in code</span>
-                  {/snippet}
-                </ItemField>
-              {/if}
+                          onclick={() => step(row, -1)}
+                        >−</button>
+                        <span class="stepper-value">{row.value ?? '—'}</span>
+                        <button
+                          type="button"
+                          class="stepper-btn"
+                          aria-label={`Increase ${row.label}`}
+                          disabled={locked || file === null}
+                          onclick={() => step(row, 1)}
+                        >+</button>
+                      </div>
+                    {/snippet}
+                  </ItemField>
+                {:else if row.kind === 'segmented'}
+                  <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
+                    {#snippet control(field: ItemFieldContext)}
+                      <div class="seg" role="group" aria-labelledby={field.labelId} aria-describedby={field.describedBy}>
+                        {#each row.options as option (option)}
+                          <button
+                            type="button"
+                            class="seg-btn"
+                            aria-pressed={row.value === option}
+                            disabled={locked || file === null}
+                            onclick={() => void commitProp(row.prop, option)}
+                          >{option}</button>
+                        {/each}
+                      </div>
+                    {/snippet}
+                  </ItemField>
+                {:else}
+                  <!-- the unrepresentable row: read-only in the family's
+                       own row rhythm (ItemField), the value lane saying
+                       why — edits belong to the code -->
+                  <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
+                    {#snippet control(field: ItemFieldContext)}
+                      <span class="row-readonly" id={field.controlId}>edit in code</span>
+                    {/snippet}
+                  </ItemField>
+                {/if}
+              {/each}
+            </ItemGroup>
+          </div>
+        {/if}
+        {#if textSpans.length > 0}
+          <!-- the slot-text rows (issue #38): the usage's own direct Text
+               fragments, one textarea per children.text[n]; positional
+               labels (the Owner's no-semantic-names ruling); every row
+               honors the agent lock and the unresolved-file read-only
+               law like the prop controls above -->
+          <div class="slot-text">
+            <p class="slot-text-hint">slot 内容 · Enter 提交 · Shift+Enter 换行 · 留空删除</p>
+            {#each textSpans as span (span.index)}
+              <label class="slot-text-label" for={`slot-text-${span.index}`}>{slotTextLabel(span.index, textSpans.length)}</label>
+              <textarea
+                id={`slot-text-${span.index}`}
+                class="slot-text-input"
+                rows={span.text.includes('\n') ? 3 : 2}
+                spellcheck="false"
+                value={span.text}
+                disabled={locked || file === null}
+                onkeydown={(event) => onSlotTextKey(span, event)}
+              ></textarea>
             {/each}
-          </ItemGroup>
-        </div>
+          </div>
+        {/if}
       {/if}
     </div>
   {/if}
@@ -559,6 +677,46 @@
   .panel-rows {
     display: flex;
     flex-direction: column;
+  }
+  /* the slot-text rows (issue #38) — the multi-line lane the family's
+     fixed end-lane fields don't shape; the panel's own layout-skeleton
+     posture holds, paint rides the theme tokens like every control */
+  .slot-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 0.5rem;
+  }
+  .slot-text-hint {
+    margin: 0;
+    color: #8d8578;
+    font-size: 0.625rem;
+  }
+  .slot-text-label {
+    color: #b9b2a6;
+    font-size: 0.6875rem;
+  }
+  .slot-text-input {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: 2.2rem;
+    resize: vertical;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid color-mix(in oklab, var(--muted-foreground, #8d8578) 35%, transparent);
+    border-radius: 4px;
+    background: var(--background, #16140f);
+    color: var(--foreground, #e8e4dd);
+    font-family: inherit;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+  }
+  .slot-text-input:focus-visible {
+    outline: 2px solid var(--ring, #a9c4a9);
+    outline-offset: 1px;
+  }
+  .slot-text-input:disabled {
+    opacity: 0.45;
+    cursor: default;
   }
   .row-readonly {
     color: #8d8578;

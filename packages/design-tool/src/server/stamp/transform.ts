@@ -89,6 +89,8 @@ interface AstFragment {
 interface UsageNode extends AstNode {
   readonly name: string;
   readonly attributes: readonly AstAttribute[];
+  /** the modern AST carries the children fragment here */
+  readonly fragment?: AstFragment;
 }
 
 /** svelte Attribute shapes (modern AST) */
@@ -159,6 +161,76 @@ export interface PropSpan {
   readonly value?: string | number | boolean | null;
 }
 
+/**
+ * One editable slot-text fragment (issue #38 B1, frozen contract):
+ * a usage element's DIRECT Text child, trimmed, in ORIGINAL-source
+ * coordinates. The B1 laws:
+ *   - direct fragment children only — no recursion into blocks, and
+ *     ExpressionTag/Comment/HtmlTag/elements are BOUNDARIES, never
+ *     text (each Text run is its own span, never merged across them)
+ *   - half-open `[start,end)` UTF-16 offsets into the raw SOURCE —
+ *     entity length never perturbs coordinates
+ *   - the trim touches ONLY raw ASCII whitespace (` `, `\t`, `\r`,
+ *     `\n`); entities are CONTENT (`&#x20;` survives a trim)
+ *   - `text` = the decoded visible text of the trimmed slice
+ *     (Text.data sliced by the same raw trim counts — raw ASCII
+ *     whitespace passes through entity decoding verbatim, so the
+ *     counts transfer); `raw` = the trimmed source slice itself
+ *   - whitespace-only Text nodes are NOT spans — the Text-only
+ *     ordinal space (children.text[n]) counts significant fragments
+ *     only, and every collector (map, dry-run, edit) shares this
+ *     predicate
+ */
+export interface TextSpan {
+  /** trimmed span start (original source coords) */
+  readonly start: number;
+  /** trimmed span end (exclusive) */
+  readonly end: number;
+  /** decoded visible text of the trimmed raw slice */
+  readonly text: string;
+  /** the trimmed RAW source slice (entities still encoded) */
+  readonly raw: string;
+}
+
+/** the structural shape shared by Text nodes in both AST flavors */
+interface TextNodeShape {
+  readonly type: string;
+  readonly start: number;
+  readonly end: number;
+  readonly data?: string;
+}
+
+/** the trim policy's whole vocabulary — raw ASCII whitespace only */
+const ASCII_WHITESPACE = new Set([' ', '\t', '\r', '\n']);
+
+/**
+ * Collect the editable TextSpans of a usage's DIRECT fragment
+ * children (the B1 collector — one source of truth for the usage
+ * map, the panel dry-run and the edit kernel). `nodes` is either
+ * AST flavor's child list (modern fragment.nodes / legacy children);
+ * non-Text nodes never contribute.
+ */
+export function collectTextSpans(nodes: readonly TextNodeShape[], source: string): readonly TextSpan[] {
+  const spans: TextSpan[] = [];
+  for (const node of nodes) {
+    if (node.type !== 'Text') continue; // boundaries, not text
+    const rawFull = source.slice(node.start, node.end);
+    const data = typeof node.data === 'string' ? node.data : rawFull;
+    let lead = 0;
+    while (lead < rawFull.length && ASCII_WHITESPACE.has(rawFull[lead]!)) lead += 1;
+    let trail = 0;
+    while (trail < rawFull.length - lead && ASCII_WHITESPACE.has(rawFull[rawFull.length - 1 - trail]!)) trail += 1;
+    if (lead + trail >= rawFull.length) continue; // whitespace-only — not a fragment
+    spans.push({
+      start: node.start + lead,
+      end: node.end - trail,
+      text: data.slice(lead, data.length - trail),
+      raw: rawFull.slice(lead, rawFull.length - trail),
+    });
+  }
+  return spans;
+}
+
 /** one usage site: the panel's full addressing input */
 export interface UsageEntry {
   /** registry item id ("press-button") — the stamp's component value */
@@ -173,6 +245,10 @@ export interface UsageEntry {
   /** present props only — an absent prop is simply unkeyed ('none' is
    * the reserved kind for absent props; insertion uses insertAt below) */
   readonly props: Readonly<Record<string, PropSpan>>;
+  /** the usage's editable slot-text fragments (issue #38 B1; the
+   * panel's 「默认内容」 rows — a FIELD of this entry, never a new
+   * module export, so the HMR acceptance set cannot grow) */
+  readonly textSpans: readonly TextSpan[];
   /** where a missing prop's ` name={value}` inserts (after the stamps) */
   readonly insertAt: number;
   /** statically inside an {#each} — N iterations share this usage */
@@ -319,6 +395,7 @@ export async function stampSvelteSource(source: string, options: StampOptions): 
             start: usage.start,
             end: usage.end,
             props,
+            textSpans: collectTextSpans(usage.fragment?.nodes ?? [], source),
             insertAt,
             inEachBlock: ancestors.includes('EachBlock'),
           };

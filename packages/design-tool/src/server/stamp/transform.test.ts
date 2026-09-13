@@ -225,3 +225,107 @@ test('jsStringLiteral: U+2028/U+2029 escape as source sequences, never literals'
   assert.notEqual(result, null);
   compile(result!.code, { generate: 'client' });
 });
+
+/* ── textSpans (issue #38 B1: the slot-text coordinate contract) ──────── */
+
+test('textSpans: the direct Text child of a usage, raw half-open coords, ASCII trim', async () => {
+  const source = `<script module>import P from '#jixoai/press-button';</script>\n<P>\n    Start designing\n  </P>`;
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { P: 'press-button' } });
+  assert.notEqual(result, null);
+  const spans = result!.usageMap['1']!.textSpans;
+  assert.equal(spans.length, 1);
+  const span = spans[0]!;
+  // raw coords: the trimmed slice of the ORIGINAL source (the law —
+  // entity/whitespace length never perturbs coordinates)
+  assert.equal(source.slice(span.start, span.end), 'Start designing');
+  assert.equal(span.raw, 'Start designing');
+  assert.equal(span.text, 'Start designing');
+});
+
+test('textSpans: entities are CONTENT — text decodes, raw stays source-shaped', async () => {
+  const source = `<script module>import P from '#jixoai/press-button';</script>\n<P>&amp; &quot; &#x41;&#x20;x</P>`;
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { P: 'press-button' } });
+  assert.notEqual(result, null);
+  const span = result!.usageMap['1']!.textSpans[0]!;
+  // raw = the source slice verbatim; text = decoded visible text; the
+  // trailing &#x20; (a whitespace ENTITY) survives — only raw ASCII
+  // whitespace trims, entities are content (B1)
+  assert.equal(span.raw, '&amp; &quot; &#x41;&#x20;x');
+  assert.equal(span.text, '& " A x');
+  assert.equal(source.slice(span.start, span.end), '&amp; &quot; &#x41;&#x20;x');
+});
+
+test('textSpans: CRLF peripheral whitespace trims; the span keeps its inner offset', async () => {
+  const source = `<script module>import P from '#jixoai/press-button';</script>\r\n<P>\r\n  hello\r\n</P>`;
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { P: 'press-button' } });
+  assert.notEqual(result, null);
+  const span = result!.usageMap['1']!.textSpans[0]!;
+  assert.equal(span.raw, 'hello');
+  assert.equal(span.text, 'hello');
+  assert.equal(source.slice(span.start, span.end), 'hello');
+});
+
+test('textSpans: comments are boundaries — adjacent Text runs stay separate spans', async () => {
+  const source = `<script module>import P from '#jixoai/press-button';</script>\n<P>hello<!-- c -->world</P>`;
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { P: 'press-button' } });
+  assert.notEqual(result, null);
+  const spans = result!.usageMap['1']!.textSpans;
+  assert.equal(spans.length, 2, 'never merged across a comment');
+  assert.equal(spans[0]!.raw, 'hello');
+  assert.equal(spans[1]!.raw, 'world');
+  // the ordinals are position facts (children.text[0] / [1])
+  assert.equal(source.slice(spans[1]!.start, spans[1]!.end), 'world');
+});
+
+test('textSpans: expression alternation — each static run is its own span', async () => {
+  const source = `<script module>import P from '#jixoai/press-button';</script>\n<P>hello {name} world</P>`;
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { P: 'press-button' } });
+  assert.notEqual(result, null);
+  const spans = result!.usageMap['1']!.textSpans;
+  assert.equal(spans.length, 2);
+  // node-edge whitespace trims (the span is the visible fragment; the
+  // space hugging the expression stays peripheral — deleting the
+  // fragment keeps it)
+  assert.equal(spans[0]!.raw, 'hello');
+  assert.equal(spans[0]!.text, 'hello');
+  assert.equal(spans[1]!.raw, 'world');
+});
+
+test('textSpans: whitespace-only Text nodes are not fragments (ordinal space = significant only)', async () => {
+  // <P> whitespace </P> around a nested usage — the parent's own Text
+  // children are whitespace-only and must not claim an ordinal
+  const source = [
+    `<script module>import Card from '#jixoai/card'; import B from '#jixoai/badge';</script>`,
+    `<Card>\n  <B>x</B>\n</Card>`,
+  ].join('\n');
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { Card: 'card', B: 'badge' } });
+  assert.notEqual(result, null);
+  assert.deepEqual(result!.usageMap['1']!.textSpans, [], 'the card usage has no significant direct text');
+  // the nested usage's OWN text is its own span — nesting is drill-down
+  const badgeSpan = result!.usageMap['2']!.textSpans[0]!;
+  assert.equal(badgeSpan.raw, 'x');
+});
+
+test('textSpans: block interiors are not direct children (no recursion)', async () => {
+  const source = `<script module>import P from '#jixoai/press-button';</script>\n<P>before{#if ok}inside{/if}after</P>`;
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { P: 'press-button' } });
+  assert.notEqual(result, null);
+  const spans = result!.usageMap['1']!.textSpans;
+  assert.equal(spans.length, 2, 'the {#if} block is a boundary; its interior text never leaks');
+  assert.equal(spans[0]!.raw, 'before');
+  assert.equal(spans[1]!.raw, 'after');
+});
+
+test('textSpans ride the __jxUsageMap FIELD only — no new module export, the accept set cannot grow (B4)', async () => {
+  const source = `<script module>import P from '#jixoai/press-button';</script>\n<P>go</P>`;
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { P: 'press-button' } });
+  assert.notEqual(result, null);
+  assert.equal(result!.usageMap['1']!.textSpans[0]!.raw, 'go');
+  // the emitted module gains EXACTLY ONE export statement (the usage
+  // map) — textSpans are a field of that object, so vite-plugin-svelte
+  // still sees a single extra export and the #28 broadener's
+  // ["default", "__jxUsageMap"] acceptance stays sufficient
+  const exportStatements = result!.code.match(/(^|\n)\s*export\s+const\s+/g) ?? [];
+  assert.equal(exportStatements.length, 1, 'one export statement only');
+  compile(result!.code, { generate: 'client' }); // and it still compiles
+});
