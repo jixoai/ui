@@ -167,6 +167,15 @@ const indicators = new Map(); // kind → element (host only)
 let trackIdleTimer = 0;
 let targetObserver = null;
 let lensScale = 1; // host: the studio's current zoom (stroke compensation)
+/* #44 state law (the deselect/ghost-ring bugs, Owner 2026-09-14):
+ * each ring has an OWNER — the document that last placed a real box
+ * (a frameName, 'canvas', or null). Only the owner's null clears the
+ * ring; late nulls from a frame the pointer already left are ignored
+ * (the leave-A / enter-B cross-document ordering race). The last
+ * box+meta are kept so a lens change can re-apply ONLY the chrome
+ * (stroke/badge compensation) without touching placement. */
+const ringOwner = { hover: null, selected: null };
+const ringLast = { hover: null, selected: null }; // {box, meta} | null
 
 /** frame-side: ship a box (or null) to the canvas host */
 function reportIndicator(kind, element) {
@@ -211,8 +220,10 @@ function placeIndicatorBox(kind, box, meta) {
   const el = ensureIndicator(kind);
   if (box === null) {
     el.style.display = 'none';
+    ringLast[kind] = null;
     return;
   }
+  ringLast[kind] = { box, meta: meta ?? null };
   const k = 1 / Math.max(lensScale, 0.05);
   el.style.display = 'block';
   el.style.transform = `translate(${box.x}px, ${box.y}px)`;
@@ -237,8 +248,9 @@ function placeIndicatorBox(kind, box, meta) {
 
 /** reposition a placed overlay for a LOCAL element (host's own stamps) */
 function placeIndicator(kind, element) {
+  ringOwner[kind] = element !== null && element.isConnected ? 'canvas' : ringOwner[kind];
   if (element === null || !element.isConnected) {
-    placeIndicatorBox(kind, null);
+    if (ringOwner[kind] === 'canvas') placeIndicatorBox(kind, null);
     return;
   }
   const rect = element.getBoundingClientRect();
@@ -259,8 +271,18 @@ function trackIndicators() {
   }
   for (const [kind, el] of indicators) {
     if (el.style.display === 'none') continue;
-    el.classList.add('jx-tracking');
-    placeIndicator(kind, kind === 'selected' ? highlighted : hovered);
+    if (ringOwner[kind] === 'canvas') {
+      el.classList.add('jx-tracking');
+      placeIndicator(kind, kind === 'selected' ? highlighted : hovered);
+    } else {
+      // frame-owned: re-apply ONLY the zoom-compensated chrome from the
+      // stored box — the host's own null locals must never clobber it
+      const last = ringLast[kind];
+      if (last !== null) {
+        el.classList.add('jx-tracking');
+        placeIndicatorBox(kind, last.box, last.meta);
+      }
+    }
   }
   clearTimeout(trackIdleTimer);
   trackIdleTimer = setTimeout(() => {
@@ -322,9 +344,15 @@ export function initDesignPicker() {
       );
       if (frame === undefined) return;
       if (data.payload === null) {
-        placeIndicatorBox(data.kind, null);
+        // ONLY the current owner may clear (a late null from a frame
+        // the pointer already left must not ghost the ring)
+        if (ringOwner[data.kind] === data.frameName) {
+          ringOwner[data.kind] = null;
+          placeIndicatorBox(data.kind, null);
+        }
         return;
       }
+      ringOwner[data.kind] = data.frameName;
       const rect = frame.getBoundingClientRect();
       const badge =
         data.kind === 'selected' && data.payload.component !== null
@@ -408,27 +436,27 @@ export function initDesignPicker() {
     applyHover(target === null ? null : elementFor(target));
   };
 
-  // the hover loop (#31→#46): the ring follows the ELEMENT UNDER THE
-  // POINTER (the child, not its component ancestor — Figma's
-  // smallest-hovered-box read); the tree-row sync fires only when the
-  // ringed element is itself a stamped usage (a raw child rings
-  // honestly without pretending to be its component)
+  // the hover loop (#46→rev, Owner 2026-09-14): hover granularity is
+  // the NEAREST STAMPED ANCESTOR — the SAME target a click selects.
+  // The ring promises exactly what a click does (the raw-child
+  // experiment made hover and click disagree: rings on raw children
+  // whose clicks selected the ancestor — "点击没有效果" 的体感);
+  // outside any stamped usage there is NO ring and clicks pass
+  // through, also consistent. Stamped CHILDREN ring themselves
+  // (the innermost ancestor), which is the #46 intent.
   document.addEventListener(
     'mouseover',
     (event) => {
       const target = event.target;
       if (target === null || typeof target.closest !== 'function') return;
-      if (target === document.documentElement || target === document.body) {
-        applyHover(null);
-        return;
-      }
-      applyHover(target);
-      if (!target.hasAttribute('data-jx-component')) return;
-      const usageIndex = Number(target.getAttribute('data-jx-instance'));
-      const component = target.getAttribute('data-jx-component');
+      const stamped = target.closest('[data-jx-component]');
+      applyHover(stamped);
+      if (stamped === null) return;
+      const usageIndex = Number(stamped.getAttribute('data-jx-instance'));
+      const component = stamped.getAttribute('data-jx-component');
       if (!Number.isInteger(usageIndex) || component === null) return;
       const all = document.querySelectorAll(`[data-jx-instance="${String(usageIndex)}"]`);
-      const iterationIndex = all.length > 1 ? Array.prototype.indexOf.call(all, target) : null;
+      const iterationIndex = all.length > 1 ? Array.prototype.indexOf.call(all, stamped) : null;
       const studio = findStudioWindow();
       if (studio !== null && typeof studio.__jixoaiDesignHover === 'function') {
         studio.__jixoaiDesignHover({
@@ -441,7 +469,7 @@ export function initDesignPicker() {
       }
     },
     { capture: true, passive: true },
-  );
+  )
   document.addEventListener(
     'mouseout',
     (event) => {
