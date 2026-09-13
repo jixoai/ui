@@ -6,23 +6,24 @@
   // server-rendered first paint.
   import * as stylex from '@stylexjs/stylex';
   import '../app.css';
+  import { themeStore } from '../lib/theme.svelte';
 
   if (import.meta.env.DEV) {
     // @ts-expect-error virtual module not typed
     $effect(() => import('virtual:stylex:runtime'));
   }
 
-  // root-level theme/density state (D1-10's toggleable .dark +
-  // [data-density] on the ROOT element)
-  let { data, children } = $props();
+  // root-level theme/density (D1-10's toggleable .dark +
+  // [data-density] on the ROOT element); client-side only — the
+  // prerendered HTML ships the default (light/default) statically.
+  const theme = themeStore();
 
   $effect(() => {
-    document.documentElement.classList.toggle('dark', data.theme === 'dark');
-    document.documentElement.setAttribute(
-      'data-density',
-      data.density === 'lg' ? 'lg' : 'default',
-    );
+    document.documentElement.classList.toggle('dark', theme.theme === 'dark');
+    document.documentElement.setAttribute('data-density', theme.density);
   });
+
+  let { children } = $props();
 
   const styles = stylex.create({
     shell: {

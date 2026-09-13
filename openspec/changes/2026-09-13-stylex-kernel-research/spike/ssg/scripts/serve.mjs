@@ -22,11 +22,20 @@ export function serveDir(dir, port) {
       const url = new URL(req.url, 'http://x');
       let path = decodeURIComponent(url.pathname);
       if (path.endsWith('/')) path += 'index.html';
-      const file = normalize(join(dir, path));
+      let file = normalize(join(dir, path));
       if (!file.startsWith(normalize(dir))) {
         res.statusCode = 403;
         res.end();
         return;
+      }
+      // static-host convention (adapter-static without fallback):
+      // extensionless paths resolve to <path>.html
+      try {
+        await readFile(file);
+      } catch {
+        if (!extname(path)) {
+          file = normalize(join(dir, `${path}.html`));
+        }
       }
       const body = await readFile(file);
       res.statusCode = 200;

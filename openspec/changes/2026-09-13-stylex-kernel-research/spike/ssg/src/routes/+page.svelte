@@ -4,10 +4,10 @@
   // root toggles), hover + keyframes (D1-09 prod parity with
   // spike/minimal).
   import * as stylex from '@stylexjs/stylex';
-  import { goto } from '$app/navigation';
   import { ssgVars } from '../lib/tokens.stylex';
+  import { themeStore } from '../lib/theme.svelte';
 
-  let { data } = $props();
+  const theme = themeStore();
 
   const spin = stylex.keyframes({
     '0%': { transform: 'rotate(0deg)' },
@@ -60,8 +60,8 @@
     },
   });
 
-  const setTheme = (t: 'light' | 'dark') => goto(`?theme=${t}&density=${data.density ?? 'default'}`);
-  const setDensity = (d: 'default' | 'lg') => goto(`?theme=${data.theme ?? 'light'}&density=${d}`);
+  const setTheme = (t: 'light' | 'dark') => theme.setTheme(t);
+  const setDensity = (d: 'default' | 'lg') => theme.setDensity(d);
 </script>
 
 <div {...stylex.attrs(styles.hero)} data-ssg="hero">
