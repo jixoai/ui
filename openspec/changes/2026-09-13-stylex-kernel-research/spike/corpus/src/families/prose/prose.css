@@ -1,0 +1,63 @@
+@layer theme, base, components, utilities;
+
+/* prose.css — the typography scope's residue sheet, CARRIED (the
+ * descendant presence lanes are StyleX-inexpressible: [data-jx-ty-*]
+ * :is([data-jx-text='p']) is a descendant+attr selector, and the
+ * drop-cap needs @supports BOTH-ARMS). Byte-copied rules from
+ * registry/files/ui/prose/prose.css for the lanes the corpus demo
+ * exercises: leading / indent / initial-letter / gradient ink + the
+ * print and forced-colors restores.
+ *
+ * The HOST's inheritance lane (size/family/ink/ground/align/wrap/
+ * hyphens) is StyleX-side (prose.styles.ts) — the split IS the
+ * family's two-channel law, restated in StyleX terms. */
+@layer components {
+  [data-jx-ty-leading] :is([data-jx-text='p']) {
+    line-height: var(--jx-ty-leading);
+  }
+
+  [data-jx-ty-indent] :is([data-jx-text='p']) {
+    text-indent: var(--jx-ty-indent);
+  }
+
+  @supports (initial-letter: 2) {
+    [data-jx-ty-initial] :is([data-jx-text='p'])::first-letter {
+      initial-letter: var(--jx-ty-initial);
+    }
+  }
+  @supports not (initial-letter: 2) {
+    [data-jx-ty-initial] :is([data-jx-text='p'])::first-letter {
+      float: inline-start;
+      font-size: calc(var(--jx-ty-initial) * 1em);
+      line-height: 1;
+    }
+  }
+  [data-jx-ty-initial][data-jx-ty-indent] :is([data-jx-text='p']) {
+    text-indent: 0;
+  }
+
+  [data-jx-ty-ink='gradient'] :is([data-jx-text='p'], [data-jx-heading]) {
+    background-image: var(--jx-ty-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  [data-jx-ty-ink='gradient'] [data-jx-text]:not([data-jx-text='p']) {
+    -webkit-text-fill-color: currentcolor;
+  }
+
+  @media print {
+    [data-jx-ty-ink='gradient'] :is([data-jx-text='p'], [data-jx-heading]) {
+      background-image: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: var(--jx-ty-ink-solid, currentcolor);
+    }
+  }
+
+  @media (forced-colors: active) {
+    [data-jx-ty-ink='gradient'] :is([data-jx-text='p'], [data-jx-heading]) {
+      background-image: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: currentcolor;
+    }
+  }
+}
