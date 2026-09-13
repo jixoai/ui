@@ -102,7 +102,7 @@
       "name": "list-item",
       "type": "registry:ui",
       "title": "List item",
-      "description": "The list row as a system (F7 coverage, shadcn composition): AUTO-VARIANT chrome — standalone rows carry their own terminal surface, ItemGroup owns the frame (native section+ul, default/muted/plain modes, optional label, divider policy: 38% auto hairlines structurally exclusive with full-strength ItemDivider). The ItemEnd lane hosts after/actions/chevron; the grid presence matrix stays four bits (:has()-driven, no implicit tracks). ItemField wires settings rows (label[for], describedby chains) and five thin adapters — ItemToggle/ItemCheckbox/ItemRadio/ItemSelect/ItemInput — compose the existing controls without reimplementing them. layout=media rides custom properties; narrow groups wrap the end lane at 30rem via container query.",
+      "description": "The list row as a system (F7 coverage, shadcn composition): AUTO-VARIANT chrome — standalone rows carry their own terminal surface, ItemGroup owns the frame (native section+ul, default/muted/plain modes, optional label, divider policy: 38% auto hairlines structurally exclusive with full-strength ItemDivider). The ItemEnd lane hosts after/actions/chevron; the grid presence matrix stays four bits (:has()-driven, no implicit tracks). ItemField wires settings rows (label[for], describedby chains, icon glyph inline-start of the label) and seven thin adapters — ItemToggle/ItemCheckbox/ItemRadio/ItemSelect/ItemInput/ItemSegmented/ItemStepper — compose the existing controls without reimplementing them (segmented rides native radio ToggleGroup semantics, stepper rides NumberInput with typing first-class). layout=media rides custom properties; narrow groups wrap the end lane at 30rem via container query.",
       "files": [
         {
           "path": "registry/files/ui/list-item/item.svelte",
@@ -210,6 +210,16 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/list-item/item-segmented.svelte",
+          "target": "@ui/list-item/item-segmented.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item-stepper.svelte",
+          "target": "@ui/list-item/item-stepper.svelte",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/list-item/list-item-defaults.svelte.ts",
           "target": "@ui/list-item/list-item-defaults.svelte.ts",
           "type": "registry:file"
@@ -222,6 +232,8 @@
         "@jixoai/radio",
         "@jixoai/native-select",
         "@jixoai/input",
+        "@jixoai/toggle-group",
+        "@jixoai/number-input",
         "@jixoai/icon",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
@@ -2142,7 +2154,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: variant? ('outline' default | 'tonal'), assertive?, title?, icon? (snippet), children? (body; omit for title-only). Hue seam: class=\"jx-hue-error\" (intent utilities; arbitrary form for unlisted hues).",
+      "docs": "Props: variant? ('outline' default | 'tonal'), assertive?, title?, icon? (snippet), dismiss? ('manual' | 'auto' — the lifecycle axis: undefined persistent, manual renders the × button firing onDismiss('button'), auto adds a mount-armed dismissAfter timer firing onDismiss('timer'); presence stays the caller's; a same-instance message swap does not reset the clock — key the alert), dismissAfter? (ms, default 6000; a change re-arms), onDismiss? ((how: 'button' | 'timer') => void), dismissLabel? (the × button's aria-label, default 'dismiss'), children? (body; omit for title-only). Hue seam: class=\"jx-hue-error\" (intent utilities; arbitrary form for unlisted hues).",
       "meta": {
         "group": "feedback",
         "href": "/docs/components/alert.html"
@@ -3064,12 +3076,13 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: name (REQUIRED for type=single — radio grouping and arrow-walking are name-scoped; optional for multiple), type ('single'|'multiple'), value ($bindable string|string[]), label (required a11y name), required (single mode only — forwards to every input), disabled, density, onValueChange ((value) => void; native event forwarding rides the spread alongside, never instead). NATIVE contract: single rides label>input[type=radio] (arrow-walk, ONE tab stop, no re-press clear — an explicit none item is the optional-empty pattern); multiple rides checkboxes — FormData carries one entry per active value in DOM order (server reads getAll); the jx-form-field bridge is GONE. DOM checked is the uncontrolled truth; form.reset() re-syncs the projection via the reset event. The paint law is the shared Part A .jx-tgroup class (@jixoai/jx-native-contract); segments compose as ToggleGroupItem parts (label.jx-tgroup-item > input + span.jx-tgroup-content, slotStart/slotEnd snippets, no interactive descendants inside the label).",
+      "docs": "Props: name (REQUIRED for type=single — radio grouping and arrow-walking are name-scoped; optional for multiple), type ('single'|'multiple'), value ($bindable string|string[]), label (required a11y name — omitted from the DOM when the caller wires aria-labelledby; one naming source), required (single mode only — forwards to every input), disabled, density, chrome ('frame' default | 'bare'; explicit ?? the CONTROL_CHROME ambient — an integrated field row resolves bare, the borderless-chrome rung in the shared sheet), onValueChange ((value) => void; native event forwarding rides the spread alongside, never instead). NATIVE contract: single rides label>input[type=radio] (arrow-walk, ONE tab stop, no re-press clear — an explicit none item is the optional-empty pattern); multiple rides checkboxes — FormData carries one entry per active value in DOM order (server reads getAll); the jx-form-field bridge is GONE. DOM checked is the uncontrolled truth; form.reset() re-syncs the projection via the reset event. The paint law is the shared .jx-html-tgroup subtree utility (jixoai.css standard layer — framed by default, [data-chrome=bare] the integrated rung); segments compose as ToggleGroupItem parts (label > input + span, slotStart/slotEnd snippets, no interactive descendants inside the label).",
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/control-chrome"
       ],
       "meta": {
         "group": "data-entry",

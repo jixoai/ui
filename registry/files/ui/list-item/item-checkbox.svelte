@@ -5,7 +5,7 @@
   duplicate label/error/labelSide plumbing is reserved away.
 -->
 <script lang="ts">
-  import type { ComponentProps } from 'svelte';
+  import type { ComponentProps, Snippet } from 'svelte';
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
   import ItemField from './item-field.svelte';
   import type { ItemEndFit, ItemEndInset } from './item-end.svelte';
@@ -21,6 +21,8 @@
 
   interface Props extends Omit<ControlProps, 'checked' | 'indeterminate' | 'disabled'> {
     label: string;
+    /** decorative glyph inline-start of the label (grindstone #17-2) */
+    icon?: Snippet;
     description?: string;
     error?: string;
     id?: string;
@@ -40,6 +42,7 @@
 
   let {
     label,
+    icon,
     description,
     error,
     id,
@@ -63,6 +66,7 @@
 
 <ItemField
   {label}
+  {icon}
   {description}
   {error}
   {id}

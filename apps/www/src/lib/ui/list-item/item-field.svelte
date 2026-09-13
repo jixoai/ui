@@ -11,6 +11,19 @@
   and the control MUST consume aria-labelledby={labelId} (the mode
   for non-labelable controls). Never a second <label> ELEMENT around
   the control — siblings only.
+
+  icon slot (grindstone #17-2, 2026-09-13): an optional decorative
+  glyph rendered INLINE-START OF THE LABEL ELEMENT — the alert family's
+  "icon snippet lands inline-start of the title" law, moved into the
+  row. Zero grid-face change: the glyph lives INSIDE the content lane's
+  label, so the presence matrix's four top-level bits and the subgrid
+  rulers are untouched (that is why the label lane, not the media
+  track, is the home — a media-track icon would pay the avatar-width
+  gutter under subgrid). bring-your-own Snippet (lucide/svg/text glyph
+  — the registry keeps zero icon dependency); aria-hidden by contract:
+  the accessible name is ALWAYS the label's alone. The four-branch
+  flat chain below keeps the icon-less branches byte-identical to the
+  pre-slot DOM (one if-chain anchor, no per-branch anchors).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -39,6 +52,10 @@
   interface Props {
     /** the control's name — becomes the field's accessible name */
     label: string;
+    /** decorative glyph inline-start of the label (bring your own
+     *  snippet — lucide/svg/text glyph); aria-hidden — the accessible
+     *  name stays the label's alone (grindstone #17-2) */
+    icon?: Snippet;
     /** optional one-line muted qualifier under the label */
     description?: string;
     /** error text → the control's aria-invalid + describedby chain */
@@ -71,6 +88,7 @@
 
   let {
     label,
+    icon,
     description,
     error,
     id,
@@ -117,8 +135,12 @@
 
 <Item variant={d.variant} density={d.density} {layout} class={cn('jx-item-field', className)} data-item-field={labelMode} data-control-chrome={controlChrome}>
   <ItemContent>
-    {#if labelMode === 'for'}
+    {#if labelMode === 'for' && icon}
+      <label class="jx-item-field-label" id={labelId} for={controlId}><span class="jx-item-field-icon" aria-hidden="true">{@render icon()}</span>{label}</label>
+    {:else if labelMode === 'for'}
       <label class="jx-item-field-label" id={labelId} for={controlId}>{label}</label>
+    {:else if icon}
+      <span class="jx-item-field-label" id={labelId}><span class="jx-item-field-icon" aria-hidden="true">{@render icon()}</span>{label}</span>
     {:else}
       <span class="jx-item-field-label" id={labelId}>{label}</span>
     {/if}

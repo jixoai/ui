@@ -5,7 +5,7 @@
   plumbing is reserved away.
 -->
 <script lang="ts">
-  import type { ComponentProps } from 'svelte';
+  import type { ComponentProps, Snippet } from 'svelte';
   import Input from '$lib/ui/input/input.svelte';
   import ItemField from './item-field.svelte';
   import type { ItemEndFit, ItemEndInset } from './item-end.svelte';
@@ -16,11 +16,26 @@
 
   type ControlProps = Omit<
     ComponentProps<typeof Input>,
-    'label' | 'error' | 'id' | 'aria-labelledby' | 'aria-describedby' | 'class' | 'children' | 'density' | 'value' | 'type'
+    | 'label'
+    | 'error'
+    | 'id'
+    | 'aria-labelledby'
+    | 'aria-describedby'
+    | 'class'
+    | 'children'
+    | 'density'
+    | 'value'
+    | 'type'
+    | 'icon'
   >;
 
   interface Props extends Omit<ControlProps, 'disabled'> {
     label: string;
+    /** decorative glyph inline-start of the LABEL (grindstone #17-2) —
+     *  NOT the Input shell's semantic glyph, which is sealed away from
+     *  the adapter surface (the family's one-name law: icon is the
+     *  field lane's) */
+    icon?: Snippet;
     description?: string;
     error?: string;
     id?: string;
@@ -40,6 +55,7 @@
 
   let {
     label,
+    icon,
     description,
     error,
     id,
@@ -63,6 +79,7 @@
 
 <ItemField
   {label}
+  {icon}
   {description}
   {error}
   {id}
