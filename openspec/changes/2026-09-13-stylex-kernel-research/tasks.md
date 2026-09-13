@@ -84,9 +84,11 @@
 ## R6 — synthesis & decision (L4)
 
 - [ ] D1/D2/D3 hard-gate verdicts (fixture tables, raw evidence
-      pointers); D4–D7 scored at 0/3/5 anchors with weights, total,
-      the D4 ≥ 3 rule, weight-sensitivity recompute, missing-data
-      flags; GO/NO-GO + (GO) follow-up blueprint / (NO-GO) fallback
+      pointers); D4–D6 scored at 0/3/5 anchors with weights, total
+      (max 35, bar ≥21, D4 ≥ 3 — F8), weight-sensitivity recompute,
+      missing-data flags; the census difficulty register presented
+      as 难点重点 (D5 + blueprint sequencing input, never a score —
+      F8); GO/NO-GO + (GO) follow-up blueprint / (NO-GO) fallback
       ranking + revisit conditions. Output: `research/decision.md`.
 
 ## RQ8 — environment risk table
