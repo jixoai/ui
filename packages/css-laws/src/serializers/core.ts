@@ -297,6 +297,32 @@ export function serializeLaw(
         declarations: s.declarations,
       }),
     );
+  // attribute-gated rungs (the chrome axis): AFTER plain states so the
+  // gate wins the cascade by order; the un-gated path never moves
+  (law.rungs ?? []).forEach((rung, ri) => {
+    // format anchors apply to rungs too: a face projection without an
+    // elementSelector emits NOTHING (the opt-in law), same as base
+    const gated = buildSelector(law, opts, rung.gate);
+    if (gated === '') return;
+    if (hasDeclarations(rung.base)) {
+      push(ORDER.state + 40 + ri, { selector: gated, declarations: rung.base! });
+    }
+    for (const [si, sub] of (rung.subtrees ?? []).entries()) {
+      if (hasDeclarations(sub.declarations)) {
+        push(ORDER.state + 41 + ri * 10 + si, {
+          selector: `${gated} ${sub.selector}`,
+          declarations: sub.declarations,
+        });
+      }
+      for (const [ti, st] of (sub.states ?? []).entries()) {
+        if (!hasDeclarations(st.declarations)) continue;
+        push(ORDER.state + 42 + ri * 10 + si * 3 + ti, {
+          selector: `${gated} ${sub.selector}${st.selector}`,
+          declarations: st.declarations,
+        });
+      }
+    }
+  });
   if (law.media?.length) {
     const t = emitMedia(law, opts, indent);
     if (t) blocks.push({ order: ORDER.media, text: t });

@@ -256,6 +256,25 @@
   white-space: nowrap;
 }
 
+.jx-tgroup[data-chrome='bare'] {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.jx-tgroup[data-chrome='bare'] > label {
+  border-inline-end: 0;
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+.jx-tgroup[data-chrome='bare'] > label:not(:has(input:disabled)):hover {
+  color: var(--foreground);
+  background-color: color-mix(in oklab, var(--muted) 55%, transparent);
+}
+
   @media (prefers-reduced-motion: reduce) {
     .jx-tgroup> label {
       transition: none;

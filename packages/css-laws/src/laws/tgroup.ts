@@ -106,4 +106,45 @@ export const tgroupLaw: ComponentLaw = {
       rules: [{ selector: ' > label', declarations: { transition: 'none' } }],
     },
   ],
+  /* The chrome axis — BARE rung (grindstone #17-3, 2026-09-13): an
+     integrated field row owns the frame, so its in-row segment group
+     dissolves the box (the borderless-chrome law — no box-in-a-box).
+     The affordance carries itself: ghost cells, muted hover wash, the
+     checked primary fill (the shared rules above). This rung absorbs
+     the canvas-authored .jx-canvas-seg idiom as the standard layer,
+     including its r2 lesson: cells flex-grow so a wrapped line fills
+     its remainder edge to edge (without growth, the folded line's
+     empty tail reads as a slab). The FRAMED path above is untouched —
+     a rung only ever adds. */
+  rungs: [
+    {
+      gate: "[data-chrome='bare']",
+      base: {
+        border: '0',
+        background: 'transparent',
+        'box-shadow': 'none',
+        'border-radius': '0',
+        overflow: 'visible',
+      },
+      subtrees: [
+        {
+          selector: '> label',
+          declarations: {
+            'border-inline-end': '0',
+            flex: '1 1 auto',
+            'justify-content': 'center',
+          },
+          states: [
+            {
+              selector: ':not(:has(input:disabled)):hover',
+              declarations: {
+                color: 'var(--foreground)',
+                'background-color': 'color-mix(in oklab, var(--muted) 55%, transparent)',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ],
 };

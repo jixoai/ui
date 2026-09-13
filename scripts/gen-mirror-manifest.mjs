@@ -82,6 +82,9 @@ const CANONICAL_MAIN_OVERRIDES = {
   'scroll-run': 'registry/files/ui/scroll-run/scroll-run.svelte.ts',
   // glass's main is the builders module (the front door), not a component
   glass: 'registry/files/ui/glass/glass.ts',
+  // prototype-kit's main is the canvas container (the standard's entry),
+  // not a name-identical component (the kit ships the canvas/page trio)
+  'prototype-kit': 'registry/files/ui/prototype-kit/prototype-canvas.svelte',
 };
 // mirror-path overrides for files whose mirror does not follow the
 // default rule (pre-migration item css living at src/lib root)

@@ -101,6 +101,22 @@ export interface SupportsRule {
   readonly states?: readonly StateRule[];
 }
 
+/**
+ * one attribute-gated rung: `gate` appends to the law selector
+ * (e.g. `[data-chrome='bare']` → `.jx-html-x[...]`), `base` overrides
+ * the gated element, `subtrees` re-declare subtree seams UNDER the
+ * gate (selector relative, e.g. `> label`) with their own states.
+ */
+export interface LawRung {
+  readonly gate: string;
+  readonly base?: Declarations;
+  readonly subtrees?: readonly {
+    readonly selector: string;
+    readonly declarations: Declarations;
+    readonly states?: readonly StateRule[];
+  }[];
+}
+
 // ── the law interface ───────────────────────────────────────────────
 
 export interface ComponentLaw {
@@ -115,6 +131,15 @@ export interface ComponentLaw {
 
   /** state machine rules (:checked, :hover, :focus-visible, :disabled…) */
   readonly states?: readonly StateRule[];
+
+  /**
+   * attribute-gated override rungs (the chrome axis, 2026-09-14): a
+   * gated variant of the law — e.g. [data-chrome='bare'] — that
+   * overrides the law's base declarations AND its subtree rules under
+   * the gate. Emitted AFTER states (they win the cascade by order);
+   * the un-gated (framed) path's bytes are untouched by construction.
+   */
+  readonly rungs?: readonly LawRung[];
 
   /** subtree rules (tgroup's '> label' seam family) */
   readonly subtrees?: readonly SubtreeRule[];

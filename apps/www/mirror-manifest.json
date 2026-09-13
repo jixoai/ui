@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-13T19:26:48.506Z",
+  "generatedAt": "2026-09-13T21:41:51.556Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -34,6 +34,7 @@
     "prose": "registry/files/ui/prose/prose.svelte",
     "tree-view": "registry/files/ui/tree-view/tree-view.svelte",
     "component-canvas": "registry/files/ui/component-canvas/component-canvas.svelte",
+    "prototype-kit": "registry/files/ui/prototype-kit/prototype-canvas.svelte",
     "checkbox": "registry/files/ui/checkbox/checkbox.svelte",
     "radio": "registry/files/ui/radio/radio.svelte",
     "toggle": "registry/files/ui/toggle/toggle.svelte",
@@ -119,8 +120,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "80fcbb109bfc9c841da45322e0cd92bc008b82bbe8a9db4fe5115c96bec2363b",
-          "mirrorSha": "80fcbb109bfc9c841da45322e0cd92bc008b82bbe8a9db4fe5115c96bec2363b"
+          "sourceSha": "29ae457322b4cc67ab843d03dac66de22e34dacd36f692d4f058dd511ad274c5",
+          "mirrorSha": "29ae457322b4cc67ab843d03dac66de22e34dacd36f692d4f058dd511ad274c5"
         }
       ]
     },
@@ -838,8 +839,8 @@
           "source": "registry/files/theme/jx-pure.css",
           "mirror": "apps/www/src/lib/jx-pure.css",
           "target": "@lib/jx-pure.css",
-          "sourceSha": "40ee0ba3c3a74d34740eab80d36fc5e67db4c23a34f17c8da1c143dba5311af3",
-          "mirrorSha": "40ee0ba3c3a74d34740eab80d36fc5e67db4c23a34f17c8da1c143dba5311af3"
+          "sourceSha": "e6913f30f1fe3d2a3b47146ece55ebc4ca80097b7be5785ab5f1795733b0c390",
+          "mirrorSha": "e6913f30f1fe3d2a3b47146ece55ebc4ca80097b7be5785ab5f1795733b0c390"
         }
       ]
     },
@@ -1385,6 +1386,69 @@
           "target": "@ui/component-canvas/component-canvas.css",
           "sourceSha": "2ea1e57d2436013bc9bc3cc26aa7e09bf23b494a6866bf99fb21f14c65ef4968",
           "mirrorSha": "2ea1e57d2436013bc9bc3cc26aa7e09bf23b494a6866bf99fb21f14c65ef4968"
+        }
+      ]
+    },
+    {
+      "itemName": "prototype-kit",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/prototype-kit/prototype-canvas.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/prototype-kit/prototype-canvas.svelte",
+          "mirror": "apps/www/src/lib/ui/prototype-kit/prototype-canvas.svelte",
+          "target": "@ui/prototype-kit/prototype-canvas.svelte",
+          "sourceSha": "3e125e7f7887bb595bbe3a0bf15c6edfb68850af7c74795a936b94ff9c130bd3",
+          "mirrorSha": "3e125e7f7887bb595bbe3a0bf15c6edfb68850af7c74795a936b94ff9c130bd3"
+        },
+        {
+          "source": "registry/files/ui/prototype-kit/prototype-page.svelte",
+          "mirror": "apps/www/src/lib/ui/prototype-kit/prototype-page.svelte",
+          "target": "@ui/prototype-kit/prototype-page.svelte",
+          "sourceSha": "f476d05cc6ec545f7a6612bf535bc59a3af81affe4c0c1d284761b7e16fc9837",
+          "mirrorSha": "f476d05cc6ec545f7a6612bf535bc59a3af81affe4c0c1d284761b7e16fc9837"
+        },
+        {
+          "source": "registry/files/ui/prototype-kit/prototype-component.svelte",
+          "mirror": "apps/www/src/lib/ui/prototype-kit/prototype-component.svelte",
+          "target": "@ui/prototype-kit/prototype-component.svelte",
+          "sourceSha": "bd7d2512c8954384f3e2203c709c3c2b1f9c447245d1b72059adf52398a148c3",
+          "mirrorSha": "bd7d2512c8954384f3e2203c709c3c2b1f9c447245d1b72059adf52398a148c3"
+        },
+        {
+          "source": "registry/files/ui/prototype-kit/frame-view.svelte",
+          "mirror": "apps/www/src/lib/ui/prototype-kit/frame-view.svelte",
+          "target": "@ui/prototype-kit/frame-view.svelte",
+          "sourceSha": "18dda0d8093984a235ded01d83a97c6312594a92c1bbda9cc11aaa62d9faade7",
+          "mirrorSha": "18dda0d8093984a235ded01d83a97c6312594a92c1bbda9cc11aaa62d9faade7"
+        },
+        {
+          "source": "registry/files/ui/prototype-kit/context.ts",
+          "mirror": "apps/www/src/lib/ui/prototype-kit/context.ts",
+          "target": "@ui/prototype-kit/context.ts",
+          "sourceSha": "a7fd73afaf65eff90f7cbeafb2e61dbe1118df0eab955fb5e9aab0c2a90bccaa",
+          "mirrorSha": "a7fd73afaf65eff90f7cbeafb2e61dbe1118df0eab955fb5e9aab0c2a90bccaa"
+        },
+        {
+          "source": "registry/files/ui/prototype-kit/frame-url.ts",
+          "mirror": "apps/www/src/lib/ui/prototype-kit/frame-url.ts",
+          "target": "@ui/prototype-kit/frame-url.ts",
+          "sourceSha": "857af755c066474147fe9916e1b5ea2f7d0209ca7e75c2494630694ec2c5ca03",
+          "mirrorSha": "857af755c066474147fe9916e1b5ea2f7d0209ca7e75c2494630694ec2c5ca03"
+        },
+        {
+          "source": "registry/files/ui/prototype-kit/overlay-scrollbar.ts",
+          "mirror": "apps/www/src/lib/ui/prototype-kit/overlay-scrollbar.ts",
+          "target": "@ui/prototype-kit/overlay-scrollbar.ts",
+          "sourceSha": "2ce2ca1ca3c0b5c96a5419abc1035efd9beb4668a63e48ff10d2191259b2eded",
+          "mirrorSha": "2ce2ca1ca3c0b5c96a5419abc1035efd9beb4668a63e48ff10d2191259b2eded"
+        },
+        {
+          "source": "registry/files/ui/prototype-kit/index.ts",
+          "mirror": "apps/www/src/lib/ui/prototype-kit/index.ts",
+          "target": "@ui/prototype-kit/index.ts",
+          "sourceSha": "ba568363cbcf231345234ea35aa34e2ce122c84189a0aa8a48aba2f746239911",
+          "mirrorSha": "ba568363cbcf231345234ea35aa34e2ce122c84189a0aa8a48aba2f746239911"
         }
       ]
     },
