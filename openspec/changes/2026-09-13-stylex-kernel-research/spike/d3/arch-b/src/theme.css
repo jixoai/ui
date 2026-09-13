@@ -1,0 +1,196 @@
+/*
+ * theme.css — spike/corpus CSS entry + the token ENVIRONMENT (a
+ * documented SUBSET of registry/files/theme/jixoai.css, byte-copied
+ * token values; provenance per block). StyleX styles consume these
+ * through var() refs — the same architecture as the real theme sheet
+ * (tokens live in CSS; components reference), so re-authored families
+ * read REAL tokens, not invented ones.
+ *
+ * The CSS entry itself is MANDATORY (spike-report §5.2: without one,
+ * unplugin 0.19 writes an unlinked assets/stylex.css on vite 8).
+ *
+ * Layer statement: the F9 opening order (full layer declaration first)
+ * is the law for TW coexistence; this spike carries NO tailwind, but
+ * the statement stays so the folder-css residue (which keeps the real
+ * system's `@layer components` + :where() shape) sorts lawfully.
+ */
+@layer theme, base, components, utilities;
+
+:root {
+  /* ── color tokens — byte-copied from jixoai.css :root (light) ── */
+  --brand-hue: 330;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0.6489 0.237 var(--brand-hue));
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.968 0.211 109.7692);
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.9551 0 0);
+  --muted-foreground: oklch(0.3211 0 0);
+  --accent: oklch(0.5635 0.2408 260.8178);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0 0 0);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0 0 0);
+  --ring: var(--primary);
+  --success: oklch(0.62 0.19 145);
+  --warning: oklch(0.82 0.18 85);
+  --info: oklch(0.62 0.16 245);
+  --error: oklch(0.6 0.2 25);
+
+  --font-sans: 'JetBrains Mono Variable', 'JetBrains Mono', SFMono-Regular, Menlo,
+    Consolas, 'Liberation Mono', monospace;
+  --font-mono: var(--font-sans);
+  --font-nav: 'Share Tech Mono', 'JetBrains Mono Variable', monospace;
+
+  /* ── shadow/press poses — byte-copied ── */
+  --shadow-xs: 2px 2px 0px 0px hsl(0 0% 0% / 0.5);
+  --shadow-sm: 2px 2px 0px 0px hsl(0 0% 0% / 1), 1px 1px 0px 1px hsl(0 0% 100% / 0.5);
+  --shadow-xs-press: 1px 1px 0px 0px hsl(0 0% 0% / 0.5);
+  --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 0% / 1), 0px 0px 0px 1px hsl(0 0% 100% / 0.5);
+  --jx-engrave-shade: hsl(0 0% 0% / 0.4);
+  --jx-engrave-glow: hsl(0 0% 100% / 0.96);
+  --shadow-engrave: inset 1px 1px 0px 0px var(--jx-engrave-shade),
+    inset -1px -1px 0px 0px var(--jx-engrave-glow);
+
+  /* ── density scale (jixoai.css :root 896-1030, tier rungs) ── */
+  --jx-unit: 0.25rem;
+  --jx-text-base: 0.8125rem;
+  --jx-hit-floor: calc(var(--jx-unit) * 7);
+  --jx-density-text-sm: calc(var(--jx-text-base) - calc(var(--jx-unit) / 4));
+  --jx-density-text-default: var(--jx-text-base);
+  --jx-density-text-lg: calc(var(--jx-text-base) + calc(var(--jx-unit) / 2));
+  --jx-density-leading-sm: 1.5;
+  --jx-density-leading-default: calc(20 / 13);
+  --jx-density-leading-lg: 1.6;
+  --jx-density-line-sm: calc(var(--jx-density-text-sm) * var(--jx-density-leading-sm));
+  --jx-density-line-default: calc(
+    var(--jx-density-text-default) * var(--jx-density-leading-default)
+  );
+  --jx-density-line-lg: calc(var(--jx-density-text-lg) * var(--jx-density-leading-lg));
+  --jx-density-inline-factor-sm: 2;
+  --jx-density-inline-factor-default: 3;
+  --jx-density-inline-factor-lg: 4;
+  --jx-density-stack-factor-sm: 1;
+  --jx-density-stack-factor-default: 2;
+  --jx-density-stack-factor-lg: 2;
+  --jx-density-row-floor-sm: 8;
+  --jx-density-row-floor-default: 10;
+  --jx-density-row-floor-lg: 12;
+  --jx-density-inline-gap-sm: calc(var(--jx-unit) * var(--jx-density-inline-factor-sm));
+  --jx-density-inline-gap-default: calc(
+    var(--jx-unit) * var(--jx-density-inline-factor-default)
+  );
+  --jx-density-inline-gap-lg: calc(var(--jx-unit) * var(--jx-density-inline-factor-lg));
+  --jx-density-stack-gap-sm: calc(var(--jx-unit) * var(--jx-density-stack-factor-sm));
+  --jx-density-stack-gap-default: calc(
+    var(--jx-unit) * var(--jx-density-stack-factor-default)
+  );
+  --jx-density-stack-gap-lg: calc(var(--jx-unit) * var(--jx-density-stack-factor-lg));
+  --jx-density-inline-inset-sm: var(--jx-density-inline-gap-sm);
+  --jx-density-inline-inset-default: var(--jx-density-inline-gap-default);
+  --jx-density-inline-inset-lg: var(--jx-density-inline-gap-lg);
+  --jx-density-row-min-sm: max(
+    calc(var(--jx-density-text-sm) * var(--jx-density-leading-sm)),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-sm))
+  );
+  --jx-density-row-min-default: max(
+    calc(var(--jx-density-text-default) * var(--jx-density-leading-default)),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-default))
+  );
+  --jx-density-row-min-lg: max(
+    calc(var(--jx-density-text-lg) * var(--jx-density-leading-lg)),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-lg))
+  );
+  --jx-density-hit-min-sm: max(var(--jx-density-row-min-sm), var(--jx-hit-floor));
+  --jx-density-hit-min-default: max(var(--jx-density-row-min-default), var(--jx-hit-floor));
+  --jx-density-hit-min-lg: max(var(--jx-density-row-min-lg), var(--jx-hit-floor));
+  --jx-density-media-icon-sm: var(--jx-density-line-sm);
+  --jx-density-media-icon-default: var(--jx-density-line-default);
+  --jx-density-media-icon-lg: var(--jx-density-line-lg);
+}
+
+/* ── density alias blocks — jixoai.css 2133-2184 shape, :where scope ── */
+:where(:root:not([data-density]), [data-density='default']) {
+  --jx-text: var(--jx-density-text-default);
+  --jx-line: var(--jx-density-line-default);
+  --jx-gap: var(--jx-density-inline-gap-default);
+  --jx-stack: var(--jx-density-stack-gap-default);
+  --jx-inset: var(--jx-density-inline-inset-default);
+  --jx-hit: var(--jx-density-hit-min-default);
+  --jx-icon: var(--jx-density-media-icon-default);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+}
+:where([data-density='sm']) {
+  --jx-text: var(--jx-density-text-sm);
+  --jx-line: var(--jx-density-line-sm);
+  --jx-gap: var(--jx-density-inline-gap-sm);
+  --jx-stack: var(--jx-density-stack-gap-sm);
+  --jx-inset: var(--jx-density-inline-inset-sm);
+  --jx-hit: var(--jx-density-hit-min-sm);
+  --jx-icon: var(--jx-density-media-icon-sm);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+}
+:where([data-density='lg']) {
+  --jx-text: var(--jx-density-text-lg);
+  --jx-line: var(--jx-density-line-lg);
+  --jx-gap: var(--jx-density-inline-gap-lg);
+  --jx-stack: var(--jx-density-stack-gap-lg);
+  --jx-inset: var(--jx-density-inline-inset-lg);
+  --jx-hit: var(--jx-density-hit-min-lg);
+  --jx-icon: var(--jx-density-media-icon-lg);
+  --jx-toggle-track: var(--jx-line);
+  --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
+  --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
+}
+
+/* ── dark tokens — byte-copied from jixoai.css .dark ── */
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.3211 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.3211 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.9691 0.2005 109.6228);
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.2178 0 0);
+  --muted-foreground: oklch(0.8452 0 0);
+  --accent: oklch(0.6755 0.1765 252.2592);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(1 0 0);
+  --destructive-foreground: oklch(0 0 0);
+  --border: oklch(1 0 0);
+  --ring: var(--primary);
+  --success: oklch(0.72 0.16 145);
+  --warning: oklch(0.78 0.17 85);
+  --info: oklch(0.74 0.14 245);
+  --error: oklch(0.72 0.16 25);
+  --shadow-xs: 2px 2px 0px 0px hsl(0 0% 100% / 0.5);
+  --shadow-sm: 2px 2px 0px 0px hsl(0 0% 100% / 1), 1px 1px 0px 1px hsl(0 0% 0% / 1);
+  --shadow-xs-press: 1px 1px 0px 0px hsl(0 0% 100% / 0.5);
+  --shadow-sm-press: 1px 1px 0px 0px hsl(0 0% 100% / 1), 0px 0px 0px 1px hsl(0 0% 0% / 1);
+  --jx-engrave-shade: hsl(0 0% 100% / 0.4);
+  --jx-engrave-glow: hsl(0 0% 0% / 0.96);
+  --shadow-engrave: inset 1px 1px 0px 0px var(--jx-engrave-shade),
+    inset -1px -1px 0px 0px var(--jx-engrave-glow);
+}
+
+/* demo-page ground (the corpus pages' own chrome — NOT a family token) */
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--background);
+  color: var(--foreground);
+  padding: 24px;
+}

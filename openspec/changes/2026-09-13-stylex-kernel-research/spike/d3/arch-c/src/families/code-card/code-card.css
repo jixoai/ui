@@ -1,0 +1,56 @@
+@layer theme, base, components, utilities;
+
+/* code-card.css — the folder-css RESIDUE. Only the --tok-* palette +
+ * its ANCESTOR-SCOPED theme adaptations stay css: StyleX cannot
+ * express `.dark .jx-code-card` lineage overrides (createTheme
+ * classes must ride the element itself — the JS-would-need-theme-
+ * state tax, recorded in the ledger); var() formulas stay
+ * scope-correct under the css authoring.
+ * The pre scrollport law + veils + focus rings moved to StyleX
+ * (code-card.styles.ts) — everything there is expressible.
+ * Byte-copied from registry/files/ui/code-card/code-card.css (values). */
+@layer components {
+  :where([data-kind="code"]) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+    --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+
+    --tok-foreground: var(--foreground);
+    --tok-background: transparent;
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 44%, transparent);
+    --tok-token-string: var(--accent);
+    --tok-token-string-expression: var(--accent);
+    --tok-token-keyword: var(--primary);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 62%, transparent);
+    --tok-token-link: var(--accent);
+    --tok-token-inserted: var(--success);
+    --tok-token-deleted: var(--error);
+    --tok-token-changed: var(--warning);
+  }
+  :where(.dark [data-kind="code"]) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
+
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 30%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 70%, oklch(0 0 0));
+    --tok-token-function: color-mix(in oklch, var(--primary) 58%, oklch(1 0 0));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 76%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 36%, transparent);
+  }
+  :where(.jx-light [data-kind="code"]) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 44%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 62%, transparent);
+  }
+}
