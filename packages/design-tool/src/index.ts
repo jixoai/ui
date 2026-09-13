@@ -96,3 +96,28 @@ export type { PropEditRequest, PropEditResponse, UsageValues, EditOutcome, EditV
 // the dogfooding inventory (r3 §2.3): the registry items the studio
 // chrome imports via #jixoai/ — pure data, node-safe
 export { STUDIO_CHROME_ITEMS } from './studio/chrome-items.ts';
+// the prebuilt studio bundle (issue #18): input hashing, the build
+// manifest, and the staleness oracle the CLI warns from — node-side
+export {
+  STUDIO_DIST_DIR,
+  STUDIO_DIST_DIRNAME,
+  computeStudioInputsHash,
+  studioInputRoots,
+  readStudioBuildManifest,
+  writeStudioBuildManifest,
+  studioDistStatus,
+  mimeFor,
+  serveStudioIndex,
+  serveStudioAsset,
+  resolveStudioAsset,
+  studioMissingGuidance,
+} from './server/studio-dist.ts';
+export type {
+  StudioBuildManifest,
+  StudioDistState,
+  StudioDistStatus,
+} from './server/studio-dist.ts';
+// the per-file svelte alias table shared by the dev server and the
+// studio static build (scripts/build-studio.mjs)
+export { svelteFileAliases } from './server/svelte-aliases.ts';
+

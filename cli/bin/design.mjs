@@ -288,6 +288,24 @@ export async function main(argv) {
       (host.moduleRoot === null ? " (plugin set via plain bare imports)" : ` (plugin set from ${host.moduleRoot})`),
   );
 
+  // 1a. the prebuilt studio bundle (issue #18, 2026-09-13): the studio
+  // chrome is a static artifact the server HOSTS — surface a missing or
+  // stale bundle at startup, before the browser lands on the guidance
+  // page. Content-hash comparison (mtime lies after rebase/checkout).
+  // Never auto-builds: spawning vite inside every CLI boot would tax
+  // every start; the warning names the command instead.
+  const studioDist = design.studioDistStatus();
+  if (studioDist.state === "missing") {
+    console.warn(
+      `jixoai-ui design: studio bundle missing (${studioDist.distDir}) — build it first: npm run build:studio ` +
+        `(frames, canvases and /__design__/api/* stay live; /__design__/ serves the guidance page)`,
+    );
+  } else if (studioDist.state === "stale") {
+    console.warn(
+      `jixoai-ui design: studio bundle stale — the inputs changed since ${studioDist.manifest?.builtAt ?? "the last build"}; rebuild: npm run build:studio`,
+    );
+  }
+
   // 1b. vehicle tsconfig bootstrap (V5 catch, 2026-09-11): a sveltekit
   // vehicle that never ran `svelte-kit sync` has apps/<app>/tsconfig.json
   // extending ./.svelte-kit/tsconfig.json — missing in fresh checkouts —
