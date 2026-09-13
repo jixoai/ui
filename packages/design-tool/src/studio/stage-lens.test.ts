@@ -18,6 +18,7 @@ import {
   STAGE_LENS_STEP,
   centerStageOn,
   clampStageScale,
+  lerpStageLens,
   fitStageLens,
   formatStageZoom,
   isStageLensHome,
@@ -166,6 +167,28 @@ test('centerStageOn keeps the zoom and centers a canvas-space box', () => {
 test('centerStageOn degrades to the unchanged lens on non-finite input', () => {
   const lens = { scale: 1, x: 3, y: 4 };
   assert.equal(centerStageOn(lens, 1020, 900, { x: Number.NaN, y: 0, width: 10, height: 10 }), lens);
+});
+
+/* ── the tween frame (#39) ───────────────────────────────────────────── */
+
+test('lerpStageLens: endpoints exact, zoom in log space, translate linear', () => {
+  const from = { scale: 0.5, x: 0, y: 0 };
+  const to = { scale: 2, x: 100, y: -40 };
+  assert.equal(lerpStageLens(from, to, 0), from);
+  assert.equal(lerpStageLens(from, to, 1), to);
+  // midway (pre-ease t=.5 → eased .875): scale = 0.5·(4)^.875
+  const mid = lerpStageLens(from, to, 0.5);
+  assert.ok(Math.abs(mid.scale - 0.5 * 4 ** 0.875) < 1e-9, 'log-space zoom');
+  assert.ok(Math.abs(mid.x - 100 * 0.875) < 1e-9, 'linear translate x');
+  assert.ok(Math.abs(mid.y - -40 * 0.875) < 1e-9, 'linear translate y');
+});
+
+test('lerpStageLens degrades non-finite/out-of-range progress to endpoints', () => {
+  const from = { scale: 1, x: 0, y: 0 };
+  const to = { scale: 3, x: 9, y: 9 };
+  assert.equal(lerpStageLens(from, to, Number.NaN), from);
+  assert.equal(lerpStageLens(from, to, -1), from);
+  assert.equal(lerpStageLens(from, to, 5), to);
 });
 
 /* ── the wheel factor ────────────────────────────────────────────────── */

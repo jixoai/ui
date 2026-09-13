@@ -62,6 +62,7 @@
     STAGE_LENS_HOME,
     STAGE_LENS_STEP,
     centerStageOn,
+    lerpStageLens,
     fitStageLens,
     formatStageZoom,
     panStageLens,
@@ -119,8 +120,39 @@
   /** the live pan gesture's origin (screen coords + the lens it started from) */
   let panOrigin: { pointerId: number; clientX: number; clientY: number; from: StageLens } | null = null;
 
+  /* ── the smooth camera (#39): a short eased tween for anchor/fit/100%
+   *  — any user gesture (wheel, drag, HUD button) cancels it instantly.
+   *  The usage-row highlight scrolls smooth INSIDE its frame; the page
+   *  anchor snapped the stage camera in one step (Owner 2026-09-12) */
+  let tween: { raf: number; from: StageLens; to: StageLens; start: number } | null = null;
+
+  function cancelTween(): void {
+    if (tween === null) return;
+    cancelAnimationFrame(tween.raf);
+    tween = null;
+  }
+
+  function animateLensTo(target: StageLens, durationMs = 320): void {
+    cancelTween();
+    const from = { ...lens };
+    const start = performance.now();
+    const step = (): void => {
+      const t = (performance.now() - start) / durationMs;
+      lens = lerpStageLens(from, target, t);
+      if (t < 1) {
+        tween = { raf: requestAnimationFrame(step), from, to: target, start };
+      } else {
+        tween = null;
+        lens = target;
+      }
+    };
+    tween = { raf: requestAnimationFrame(step), from, to: target, start };
+  }
+
   /** every MANUAL lens mutation persists; the auto camera never writes */
   function applyLens(next: StageLens, nextManual = true): void {
+    cancelTween(); // a gesture always owns the camera over an animation
+    tween = null;
     lens = next;
     manual = nextManual;
     try {
@@ -314,9 +346,9 @@
     }
     const rect = stageEl?.getBoundingClientRect();
     if (rect !== undefined && sheet !== null) {
-      lens = fitStageLens(rect.width, rect.height, sheet.width, sheet.height);
+      animateLensTo(fitStageLens(rect.width, rect.height, sheet.width, sheet.height));
     } else {
-      lens = STAGE_LENS_HOME;
+      animateLensTo(STAGE_LENS_HOME);
     }
   }
 
@@ -349,7 +381,7 @@
     // UNTRACK the lens read: this effect WRITES the lens — a tracked
     // read turns every camera move (wheel, drag) into an anchor
     // re-centering that undoes it (the round-4 probe catch)
-    applyLens(
+    animateLensTo(
       centerStageOn(
         untrack(() => lens),
         stageRect.width,
@@ -474,7 +506,7 @@
           type="button"
           data-act="actual"
           aria-label="zoom to 100% (natural size)"
-          onclick={() => applyLens(zoomStageLens(lens, 1, stageCenter()))}
+          onclick={() => animateLensTo(zoomStageLens(lens, 1, stageCenter()))}
         >100%</button>
         <button
           class="studio-stage-btn"
