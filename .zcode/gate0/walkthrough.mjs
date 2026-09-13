@@ -145,22 +145,22 @@ try {
   record('W3', '① tree node → selection press-button', chip3.toLowerCase().includes('press-button'), chip3.replace(/\n/g, ' '));
   const panel3 = await page.locator('.studio-panel-zone').first().innerText();
   record('W3', '② panel renders schema rows', /raised|loading|variant|edit in code/i.test(panel3), panel3.slice(0, 80).replace(/\n/g, ' '));
-  // highlight reaches into the frame doc (second layer): the #43 DOM
-  // indicator — a [data-jx-indicator="selected"] overlay placed on a
-  // press-button's box (visible + carrying the metadata badge)
+  // highlight reaches the usage through the CANVAS-HOSTED ring pair
+  // (#44): ONE [data-jx-indicator="selected"] overlay in the canvas
+  // document, badge naming the frame-reported press-button + size
   let highlightSeen = false;
   for (const f of page.frames()) {
-    if (!f.url().includes('/__design__/frame')) continue;
+    if (!f.url().includes('/prototypes/')) continue;
     const rings = await f.locator('[data-jx-indicator="selected"]').evaluateAll((els) =>
       els.map((el) => ({
-        visible: getComputedStyle(el).display !== 'none',
+        // #48: rings fade (opacity), never display-flip — visible = painted
+        visible: getComputedStyle(el).display !== 'none' && getComputedStyle(el).opacity !== '0',
         badge: el.querySelector('.jx-indicator-badge')?.textContent ?? '',
-        w: el.style.width,
       })),
     );
     if (rings.some((r) => r.visible && r.badge.includes('press-button'))) { highlightSeen = true; break; }
   }
-  record('W3', '③ highlight reaches the frame usage', highlightSeen, 'the selected-indicator overlay on a press-button (badge names it + size)');
+  record('W3', '③ highlight reaches the frame usage', highlightSeen, 'the canvas-hosted selected ring (badge names the frame-reported press-button)');
   await page.screenshot({ path: `${SHOT_DIR}w3-tree-select.png` });
 
   /* ── W4 prop edits: toggle add/remove + no flash ────────────── */
