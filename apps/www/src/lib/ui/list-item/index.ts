@@ -32,4 +32,6 @@ export { default as ItemCheckbox } from './item-checkbox.svelte';
 export { default as ItemRadio } from './item-radio.svelte';
 export { default as ItemSelect } from './item-select.svelte';
 export { default as ItemInput } from './item-input.svelte';
+export { default as ItemSegmented } from './item-segmented.svelte';
+export { default as ItemStepper } from './item-stepper.svelte';
 export { ListItemDefaults, type ItemVariant, type ItemTone } from './list-item-defaults.svelte';

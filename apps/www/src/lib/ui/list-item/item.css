@@ -492,6 +492,18 @@
     text-transform: uppercase;
     color: var(--foreground);
   }
+  /* the decorative glyph lane inline-start of the label (grindstone
+     #17-2): inside the label ELEMENT, so no grid face changes — the
+     alert family's title-icon law, moved into the row */
+  :where(.jx-item-field-icon) {
+    display: inline-flex;
+    align-items: center;
+    margin-inline-end: calc(var(--jx-gap) / 2);
+  }
+  :where(.jx-item-field-icon svg) {
+    width: var(--jx-icon);
+    height: var(--jx-icon);
+  }
   :where(label.jx-item-field-label) {
     cursor: pointer;
   }

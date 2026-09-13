@@ -7,7 +7,7 @@
   compile-time Omit (openspec list-item-systemization design §3).
 -->
 <script lang="ts">
-  import type { ComponentProps } from 'svelte';
+  import type { ComponentProps, Snippet } from 'svelte';
   import Toggle from '$lib/ui/toggle/toggle.svelte';
   import ItemField from './item-field.svelte';
   import type { ItemEndFit, ItemEndInset } from './item-end.svelte';
@@ -23,6 +23,8 @@
 
   interface Props extends Omit<ControlProps, 'checked' | 'disabled' | 'size' | 'density'> {
     label: string;
+    /** decorative glyph inline-start of the label (grindstone #17-2) */
+    icon?: Snippet;
     description?: string;
     error?: string;
     id?: string;
@@ -42,6 +44,7 @@
 
   let {
     label,
+    icon,
     description,
     error,
     id,
@@ -64,6 +67,7 @@
 
 <ItemField
   {label}
+  {icon}
   {description}
   {error}
   {id}

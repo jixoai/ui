@@ -31,6 +31,17 @@
   Composition-first (2026-08-25): the root owns state + the value
   law only — ToggleGroupItem parts render label+input pairs reading
   the group context; the caller's values ARE the identity.
+
+  Chrome axis (grindstone #17-3, 2026-09-13): `chrome` prop ?? the
+  CONTROL_CHROME ambient ?? 'frame', stamped data-chrome — the
+  NumberInput one-liner law. The shared sheet's framed paint is the
+  default path (byte-frozen); 'bare' is the integrated-field rung
+  (the borderless-chrome law: a frame-owning row dissolves in-row
+  boxes — ghost cells + hover wash + the checked primary fill carry
+  the affordance). aria: the self-rendered aria-label OMITS when the
+  caller supplies aria-labelledby (the visible-label wiring —
+  duplicate naming sources retired; the label prop stays required as
+  the fallback name).
 -->
 <script module lang="ts">
   /** the group's context surface: the value law's static frame */
@@ -53,8 +64,9 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import type { Density } from '$lib/density.svelte';
+  import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import { ToggleGroupDefaults } from './toggle-group-defaults.svelte';
-  import { setContext } from 'svelte';
+  import { getContext, setContext } from 'svelte';
   import { cn } from '$lib/utils';
 
   interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onchange'> {
@@ -69,7 +81,13 @@
     required?: boolean;
     density?: Density;
     'data-density'?: string;
-    /** group landmark label — announced to assistive tech */
+    /** frame posture: explicit ?? the integration ambient ?? 'frame'
+     *  (the control-chrome axis — a frame-owning row declares its
+     *  in-row controls bare; the shared sheet's bare rung paints it) */
+    chrome?: ControlChrome;
+    /** group landmark label — announced to assistive tech; omitted
+     *  from the DOM when the caller wires aria-labelledby (the
+     *  visible-label law — one naming source) */
     label: string;
     class?: string;
     /** the value callback — fires whenever the projected value changes
@@ -89,13 +107,18 @@
     required = false,
     density,
     'data-density': _callerDensity,
+    chrome: chromeProp = undefined,
     label,
     class: className = '',
     onValueChange,
     onchange,
+    'aria-labelledby': ariaLabelledBy,
     children,
     ...rest
   }: Props = $props();
+
+  // the chrome axis ambient (inline read — see lib/control-chrome.svelte.ts)
+  const ambientChrome = getContext<{ chrome?: ControlChrome }>(CONTROL_CHROME_KEY)?.chrome;
 
   // init-time contract check, deliberately non-reactive (a mode/name
   // swap after mount cannot re-run it; the rendered inputs keep their
@@ -189,7 +212,9 @@
   class={cn('jx-html-tgroup', className)}
   {...rest}
   role={type === 'single' ? 'radiogroup' : 'group'}
-  aria-label={label}
+  aria-label={ariaLabelledBy ? undefined : label}
+  aria-labelledby={ariaLabelledBy}
+  data-chrome={chromeProp ?? ambientChrome ?? 'frame'}
   onchange={handleChange}
 >
   {@render children()}

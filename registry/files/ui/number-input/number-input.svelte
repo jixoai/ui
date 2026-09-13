@@ -93,6 +93,12 @@
     id?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
     error?: string;
+    /** caller-supplied validation relations — used only when the
+        control's own error wiring is absent (the ItemField adapters
+        own the error text; their computed chains must survive — the
+        Input merge law, grindstone #17-3) */
+    'aria-invalid'?: 'true' | 'false' | undefined;
+    'aria-describedby'?: string | undefined;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -108,6 +114,8 @@
     label,
     id = autoId,
     error,
+    'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedBy,
     disabled = false,
     class: className = '',
     chrome: chromeProp = undefined,
@@ -123,8 +131,10 @@
   // legacy helper channels
   const d = $derived(NumberInputDefaults.resolve({ density }));
   const invalid = $derived(error != null && error !== '');
-  const describedBy = $derived(invalid ? errorId : undefined);
-  const invalidAttr = $derived(invalid ? 'true' : undefined);
+  // the Input merge law: the own error wiring wins, the caller's
+  // relations survive otherwise (the ItemField adapters own the text)
+  const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
+  const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
 
   // float-step safety: snap arithmetic to the step's decimal precision
   // (step 0.1 must land on 0.2, not 0.30000000000000004)

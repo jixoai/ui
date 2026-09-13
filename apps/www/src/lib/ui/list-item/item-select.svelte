@@ -21,6 +21,8 @@
 
   interface Props extends Omit<ControlProps, 'disabled'> {
     label: string;
+    /** decorative glyph inline-start of the label (grindstone #17-2) */
+    icon?: Snippet;
     description?: string;
     error?: string;
     id?: string;
@@ -41,6 +43,7 @@
 
   let {
     label,
+    icon,
     description,
     error,
     id,
@@ -64,6 +67,7 @@
 
 <ItemField
   {label}
+  {icon}
   {description}
   {error}
   {id}

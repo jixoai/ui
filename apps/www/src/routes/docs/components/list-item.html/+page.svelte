@@ -6,7 +6,7 @@
   2. One ComponentCanvas: the base composition (the end lane).
   3. Proof sections: standalone ladder (auto-variant), group modes,
      slot topology, media layout + the narrow container law, the
-     settings section (five adapters), the ItemField escape hatch,
+     settings section (seven adapters + the icon glyph), the ItemField escape hatch,
      selection & links, recipes (accordion + checkbox group).
   4. Usage CodeBlock: the copyable composition sample (the canvas
      drawer shares the same string).
@@ -49,6 +49,8 @@
     ItemRadio,
     ItemSelect,
     ItemInput,
+    ItemSegmented,
+    ItemStepper,
   } from '$lib/ui/list-item/index';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -111,6 +113,8 @@ ${close}
   let projectName = $state('');
   let retentionDays = $state(30);
   let channel = $state('Instantly');
+  let previewMode = $state('balanced');
+  let workers = $state(4);
 
   // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
   // the proof sections below — the same-source resolveRawCode migration
@@ -374,14 +378,21 @@ ${close}
     ItemRadio,
     ItemSelect,
     ItemInput,
+    ItemSegmented,
+    ItemStepper,
   } from '@ui/list-item/index';
+  import Icon from '@ui/icon';
 
   let autoplay = $state(true);
   let telemetry = $state(false);
   let density = $state('default');
   let alertEmail = $state('ops@jixoai.dev');
   let projectName = $state('');
+  let previewMode = $state('balanced');
+  let workers = $state(4);
 ${close}
+
+{#snippet cpuGlyph()}<Icon name="braces" />{/snippet}
 
 <ItemGroup label="workspace">
   <ItemToggle
@@ -399,6 +410,19 @@ ${close}
   </ItemSelect>
   <ItemInput type="email" label="Alert email" description="url/tel/email/search carry their glyph by default — the trailing edge inside a list-item lane" bind:value={alertEmail} />
   <ItemInput label="Project name" description="text carries the Type glyph by default — like every text-like type; icon={null} opts out" bind:value={projectName} />
+  <ItemSegmented
+    label="Preview"
+    description="native radio semantics — arrow-walk, one tab stop"
+    options={[{ value: 'off' }, { value: 'balanced' }, { value: 'full' }]}
+    bind:value={previewMode}
+  />
+  <ItemStepper
+    label="Build workers"
+    icon={cpuGlyph}
+    min={1}
+    max={16}
+    bind:value={workers}
+  />
 </ItemGroup>`;
 
   const listItemSizeContractDemo = `<script lang="ts">
@@ -569,7 +593,7 @@ ${close}
   <title>List item · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai list-item family: a GRID row with a :has()-driven presence matrix and AUTO-VARIANT chrome — standalone rows carry their own terminal surface, groups own the frame. Native ul/li groups, the ItemEnd trailing lane (after · actions · chevron), ItemField + five settings-row adapters, divider policy, media layout and the 30rem container wrap."
+    content="The jixoai list-item family: a GRID row with a :has()-driven presence matrix and AUTO-VARIANT chrome — standalone rows carry their own terminal surface, groups own the frame. Native ul/li groups, the ItemEnd trailing lane (after · actions · chevron), ItemField + seven settings-row adapters, divider policy, media layout and the 30rem container wrap."
   />
 </svelte:head>
 
@@ -946,7 +970,7 @@ ${close}
         headerRegion="settings-section"
         eyebrow="proof"
         title="Settings section (adapters)"
-        summary="The five thin adapters are the settings page as one-liners: ItemToggle, ItemCheckbox, ItemRadio, ItemSelect, ItemInput. Each is ItemField + the existing control — the control keeps every native behavior (keyboard, form participation, bindable state); the adapter only wires ids and suppresses the control's duplicate label plumbing. label[for] makes click-row-to-activate free; description and error chain into aria-describedby; error flips aria-invalid. The live state below is bound — flip anything."
+        summary="The seven thin adapters are the settings page as one-liners: ItemToggle, ItemCheckbox, ItemRadio, ItemSelect, ItemInput, ItemSegmented, ItemStepper. Each is ItemField + the existing control — the control keeps every native behavior (keyboard, form participation, bindable state); the adapter only wires ids and suppresses the control's duplicate label plumbing. ItemSegmented rides native radio semantics (arrow-walk, one tab stop, no re-press clear) and resolves the borderless bare rung inside the integrated row; ItemStepper rides NumberInput — typing first-class, hold acceleration, min/max clamp. Every adapter (and ItemField itself) takes an icon snippet: a decorative glyph inline-start of the label, aria-hidden, bring-your-own. label[for] makes click-row-to-activate free; description and error chain into aria-describedby; error flips aria-invalid. The live state below is bound — flip anything."
       >
         <ComponentCanvas
           title="list-item · settings adapters"
@@ -954,6 +978,7 @@ ${close}
           stage="fill"
         >
         <div class="max-w-lg">
+          {#snippet cpuGlyph()}<Icon name="braces" />{/snippet}
           <ItemGroup label="workspace">
             <ItemToggle
               label="Fast builds"
@@ -970,10 +995,23 @@ ${close}
             </ItemSelect>
             <ItemInput type="email" label="Alert email" description="url/tel/email/search carry their glyph by default — the trailing edge inside a list-item lane" bind:value={alertEmail} />
             <ItemInput label="Project name" description="text carries the Type glyph by default — like every text-like type; icon={null} opts out" bind:value={projectName} />
+            <ItemSegmented
+              label="Preview"
+              description="native radio semantics — arrow-walk, one tab stop"
+              options={[{ value: 'off' }, { value: 'balanced' }, { value: 'full' }]}
+              bind:value={previewMode}
+            />
+            <ItemStepper
+              label="Build workers"
+              icon={cpuGlyph}
+              min={1}
+              max={16}
+              bind:value={workers}
+            />
           </ItemGroup>
           <p class="text-muted-foreground mt-3 text-[11px] uppercase tracking-[0.14em]">
             bound: {autoplay ? 'fast on' : 'fast off'} · {telemetry ? 'telemetry on' : 'telemetry off'} ·
-            {density} · "{alertEmail}" · "{projectName}"
+            {density} · "{alertEmail}" · "{projectName}" · {previewMode} · {workers}
           </p>
         </div>
         </ComponentCanvas>
