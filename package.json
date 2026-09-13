@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build-site.mjs",
+    "build:studio": "node scripts/build-studio.mjs",
+    "dev:studio": "node scripts/build-studio.mjs --watch",
     "build:registry": "shadcn build",
     "build:blueprints": "node scripts/build-blueprints.mjs",
     "shots": "node scripts/capture-baseline.mjs",

@@ -15,6 +15,10 @@ apps/www/node_modules/
 apps/www/dist/
 apps/www/.svelte-kit/
 
+# the prebuilt studio chrome bundle (issue #18 — npm run build:studio
+# output; the build manifest's content hash, never mtime, dates it)
+packages/design-tool/dist-studio/
+
 # blueprint incremental-build cache (derivable; SVGs are committed)
 scripts/blueprints/.cache.json
 .zcode/

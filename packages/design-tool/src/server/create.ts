@@ -26,7 +26,7 @@
  */
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -41,7 +41,9 @@ import { probeDesignHost } from './probe.ts';
 import { resolvePackageEntry } from './resolver.ts';
 import { scanPrototypes } from './manifest.ts';
 import { buildStampHmrPlugin, buildStampPlugin } from './stamp/index.ts';
-import type { HMRPayload, Plugin, InlineConfig, Alias, ViteDevServer } from 'vite';
+import { serveStudioAsset, serveStudioIndex, STUDIO_DIST_DIR } from './studio-dist.ts';
+import { svelteFileAliases } from './svelte-aliases.ts';
+import type { Plugin, InlineConfig, Alias, ViteDevServer } from 'vite';
 
 /* ── stable module ids and the real files behind them ─────────────────── */
 
@@ -92,7 +94,6 @@ ${extraHead}<style>html,body{margin:0;padding:0}#${rootId}{min-height:100vh}</st
 /* ── the surface plugin: entry ids + HTML/API middlewares ─────────────── */
 
 function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent): Plugin {
-  const studioHtml = () => htmlShell('jixoai design studio', 'studio-root', STUDIO_ENTRY);
   const frameHtml = () => htmlShell('frame — jixoai design', 'frame-root', FRAME_ENTRY);
   const canvasHtml = () => htmlShell('canvas — jixoai design', 'canvas-root', CANVAS_ENTRY);
 
@@ -125,11 +126,12 @@ function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent): Plugin 
         const pathname = (req.url ?? '').split('?')[0]!;
         if (req.method !== 'GET' && req.method !== 'HEAD') return next();
 
-        // studio SPA
+        // studio SPA — the PREBUILT static bundle (issue #18): the
+        // chrome is a product surface the server HOSTS, never compiles.
+        // Absent bundle → the LOUD guidance page (503, points at
+        // `npm run build:studio`) — no silent fallback to a dev studio
         if (pathname === '/__design__' || pathname === '/__design__/' || pathname === '/__design__/index.html') {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'text/html; charset=utf-8');
-          res.end(studioHtml());
+          serveStudioIndex(STUDIO_DIST_DIR, res);
           return;
         }
 
@@ -176,6 +178,15 @@ function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent): Plugin 
           res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
           res.end(JSON.stringify(promotionStatus(host.root)));
+          return;
+        }
+
+        // static studio assets: the bundle's hashed files (base
+        // '/__design__/', so the built index.html references land right
+        // back here). Runs AFTER the routes above — frame/api own their
+        // subpaths, and only paths that map to a real bundle file are
+        // consumed (everything else falls through to vite)
+        if (serveStudioAsset(STUDIO_DIST_DIR, pathname, res)) {
           return;
         }
 
@@ -291,49 +302,6 @@ async function importFromModuleRoot<T>(moduleRoot: string | null, spec: string):
  * caller owns the lifecycle: `const s = await createDesignViteServer(
  * root, { agent }); await s.listen();` (the CLI wraps exactly that).
  */
-/**
- * Exact-file aliases for EVERY runtime export of svelte ('svelte',
- * 'svelte/internal/client', …) read from the moduleRoot install's
- * exports map with browser-priority conditions. Why per-file: a
- * directory alias cannot work (svelte maps internals into src/ via
- * the exports map — a direct <pkg>/internal path does not exist), and
- * the split-install repository has no svelte reachable from the vite
- * root, so every bare svelte id must be pinned to a real file. The
- * export set is the same one vite-plugin-svelte enumerates for its
- * optimizer (SVELTE_IMPORTS).
- */
-function svelteFileAliases(moduleRoot: string | null, root: string): Alias[] {
-  const entry = moduleRoot === null ? null : resolvePackageEntry(moduleRoot, 'svelte');
-  if (entry === null) return [];
-  let dir = dirname(entry);
-  while (!existsSync(join(dir, 'package.json'))) {
-    const parent = dirname(dir);
-    if (parent === dir) return [];
-    dir = parent;
-  }
-  let pkg: { exports?: Record<string, string | Record<string, string>> };
-  try {
-    pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as typeof pkg;
-  } catch {
-    return [];
-  }
-  const pick = (node: string | Record<string, string>): string | null => {
-    if (typeof node === 'string') return node;
-    const file = node.browser ?? node.default;
-    if (typeof file !== 'string') return null; // types-only export
-    return file;
-  };
-  const aliases: Alias[] = [];
-  for (const [key, node] of Object.entries(pkg.exports ?? {})) {
-    if (key === './package.json') continue;
-    const file = pick(node);
-    if (file === null) continue;
-    const spec = key === '.' ? 'svelte' : `svelte${key.slice(1)}`;
-    aliases.push({ find: new RegExp(`^${spec.replaceAll('/', '\\/')}$`), replacement: join(dir, file) });
-  }
-  return aliases;
-}
-
 export async function createDesignViteServer(rootInput: string, options: CreateDesignServerOptions = {}): Promise<ViteDevServer> {
   const root = resolve(rootInput);
   const host = probeDesignHost(root);
@@ -383,7 +351,7 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
     { find: '#jixoai-design/shell', replacement: join(PACKAGE_DIR, 'src/studio/shell.svelte') },
     { find: /^#jixoai\//, replacement: `${host.itemAliasBase.replaceAll('\\', '/')}/` },
     { find: /^\$lib\//, replacement: `${host.libAliasBase.replaceAll('\\', '/')}/` },
-    ...svelteFileAliases(moduleRoot, root),
+    ...svelteFileAliases(moduleRoot),
   ];
 
   const inlineConfig: InlineConfig = {
@@ -468,35 +436,18 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
   };
 
   const server = await viteMod.createServer(inlineConfig);
-  retargetDesignFullReloads(server);
   return server;
 }
 
-/* ── #28 hardening: design full-reloads never wipe the studio ────────── */
-
-/**
- * A vite "page reload" broadcast for a DESIGN file must never wipe the
- * STUDIO chrome (#28, Owner 2026-09-12): the studio page is a product
- * surface, and the frames/canvas documents are the only documents whose
- * content a design/ change invalidates. Full-reloads whose path sits
- * under /design/ are retargeted to a custom event the SURFACE entries
- * (frame-entry, canvas-entry) act on by reloading themselves; anything
- * else (studio-code changes, config invalidations) keeps vite's native
- * broadcast.
- */
-function retargetDesignFullReloads(server: ViteDevServer): void {
-  const rawSend = server.ws.send.bind(server.ws) as (payload: HMRPayload) => void;
-  server.ws.send = ((payload: HMRPayload) => {
-    const path = payload.type === 'full-reload' ? payload.path : undefined;
-    // PROTOTYPE CONTENT only (design/prototypes/**): design/studio.svelte
-    // IS studio chrome — its full-reloads keep the native broadcast
-    if (
-      typeof path === 'string' &&
-      `/${path.replace(/^\//, '')}`.startsWith('/design/prototypes/')
-    ) {
-      rawSend({ type: 'custom', event: 'jx-design:surface-reload', data: { path } });
-      return;
-    }
-    rawSend(payload);
-  }) as typeof server.ws.send;
-}
+/* ── note on the retired #28 ws.send redirect (issue #18) ───────────────
+ *
+ * retargetDesignFullReloads (design/prototype full-reloads retargeted to
+ * the jx-design:surface-reload custom event) is RETIRED with the static
+ * studio: the studio document no longer carries the vite HMR client, so
+ * a native full-reload broadcast physically cannot wipe it (#28's harm
+ * is gone by construction), while the frame/canvas documents keep their
+ * vite clients and reload themselves through the native path. The
+ * surface-reload LISTENERS stay in frame-entry/canvas-entry (guarded by
+ * import.meta.hot — dead but harmless); the stamp HMR broadener
+ * (buildStampHmrPlugin) stays live so per-edit stamp exports keep
+ * riding true HMR on the dynamic faces. */
