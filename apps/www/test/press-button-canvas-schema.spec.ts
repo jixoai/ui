@@ -23,11 +23,13 @@ import Page from '../src/routes/docs/components/press-button.html/+page.svelte';
 describe('pilot page schema playground', () => {
   it('renders schema-driven rows and drives the stage instance', async () => {
     const { container } = render(Page);
-    // rows: variant, effect, loading, popovertarget, raised
-    // (segmented/segmented/toggle/text/toggle — r13 added popovertarget,
-    // the raised physics axis added its toggle, Owner 2026-09-03)
+    // rows: variant, effect, loading, disabled, popovertarget, raised
+    // (segmented/segmented/toggle/toggle/text/toggle — r13 added
+    // popovertarget, the raised physics axis added its toggle, Owner
+    // 2026-09-03; the native inert pose disabled added its toggle,
+    // issue #4, 2026-09-13)
     const rows = container.querySelectorAll('[data-jx-canvas-row]');
-    expect(rows.length).toBe(5);
+    expect(rows.length).toBe(6);
     expect(container.querySelector('[data-jx-canvas-toggle]')).not.toBeNull();
     // no hand-written kit selects remain (the canvas-everywhere sweep,
     // 2026-09-08, mounts the dock chrome on every canvas — each carries

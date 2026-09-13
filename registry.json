@@ -987,7 +987,9 @@
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/entity",
+        "@jixoai/popover"
       ]
     },
     {

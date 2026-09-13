@@ -95,7 +95,8 @@
      *  the pin; opt out for plain bubbles) */
     arrow?: boolean;
     href?: string;
-    /** Opens non-internal hrefs (not starting with "/") in a new tab. */
+    /** New-tab override, forwarded to press-button — the default
+     *  derives from the href (absolute http(s) only; #5, 2026-09-13). */
     external?: boolean;
     onclick?: () => void;
     type?: 'button' | 'submit';

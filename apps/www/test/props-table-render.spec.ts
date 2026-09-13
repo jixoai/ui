@@ -35,7 +35,10 @@ describe('PropsTable — meta mode (the single source)', () => {
     });
 
     const rows = [...container.querySelectorAll('tbody tr')];
-    expect(rows.length).toBe(10);
+    // 11 = the 11 described props (onchange and disabled joined the
+    // generated truth with 87496db9, the #6 commit hook fix — this
+    // count pin was missed there; re-pinned 2026-09-13)
+    expect(rows.length).toBe(11);
 
     // enum + default straight from the GENERATED zone; the slot's
     // literal family surfaces the frozen three-state marker

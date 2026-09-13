@@ -21,6 +21,10 @@ export const meta = defineComponentMeta(
       "external": {
         "kind": "boolean"
       },
+      "disabled": {
+        "kind": "boolean",
+        "default": false
+      },
       "loading": {
         "kind": "boolean",
         "default": false
@@ -57,6 +61,14 @@ export const meta = defineComponentMeta(
       "children": {
         "kind": "snippet",
         "typeText": "Snippet"
+      },
+      "'aria-label'": {
+        "kind": "opaque",
+        "typeText": "unknown"
+      },
+      "'aria-disabled'": {
+        "kind": "opaque",
+        "typeText": "unknown"
       },
       "rest": {
         "kind": "opaque",
