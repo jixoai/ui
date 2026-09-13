@@ -39,21 +39,26 @@ browser, same cache protocol as R2. If the counterfactual closes the
 P1/P2 gap the engine swap claims to close, D4 prices that honestly.
 
 > **R0 preliminary receipts (2026-09-13, full data in
-> research/r0-census.md)**: main sheet 0.BINDZyoA.css = 300,245B raw /
-> 43,352B gzip, 2309 top-level rules; attribution TW-generated 45.5%
-> (utilities 106,954B / 1501 rules) · jx-pure 34.4% · jixoai.css 14.5%
-> (nearly all OUTSIDE layers, per the cascade law) · component css
-> 2.2% · site+residual 3.4%. The single-sheet assertion HOLDS,
-> sharpened: 126/126 pages mount the main sheet + ~13 full-page
-> shared assets (~20-file fixed common set); per-page
-> render-blocking 337.8–466.5KB raw (mean 386KB / 63.4KB gzip); 31
-> more assets ride only client-side navigation. Attribution ran over
-> the 2026-09-11 20:59 dist (baseline d17abd58; CSS-input drift to
-> HEAD = spin.css ±56 lines ×2) because the machine hit **disk 100%
-> (254Mi free)** and killed both fresh build attempts — ENOSPC at
-> prerender, receipts carry the incident. Disk-dependent lanes
-> (R2/R2b rebuilds, spike installs) wait for space; numbers above
-> are the committed interim anchor.
+> research/r0-census.md — HISTORICAL ARTIFACT RECEIPT, Gate-1 r3
+> demotion)**: the attribution below was measured over the 2026-09-11
+> 20:59 dist (baseline d17abd58). The d17abd58→current-HEAD input
+> drift is NOT just spin.css: 19 files, 2,575 insertions including new
+> static Tailwind classes (spin component, docs pages' new max-w-* /
+> gap-* / text-* candidates) that TW4 folds into the shared utility
+> sheet. Therefore these numbers are (a) NOT the current-HEAD
+> performance baseline and (b) NOT the movable-share estimate for D4.
+> They are an order-of-magnitude anchor only. R2's FIRST act after
+> disk frees is a rebuild at the frozen HEAD; R2/R2b comparisons start
+> from THAT build. Interim anchor, for orientation only: main sheet
+> 0.BINDZyoA.css = 300,245B raw / 43,352B gzip, 2309 top-level rules;
+> TW-generated ≈45% (utilities 106,954B / 1501 rules) · jx-pure 34.4%
+> · jixoai.css 14.5% (nearly all OUTSIDE layers, per the cascade law)
+> · component css 2.2% · site+residual 3.4%; 126/126 pages mount this
+> one sheet + ~13 full-page shared assets; per-page render-blocking
+> 337.8–466.5KB raw (mean 386KB / 63.4KB gzip); 31 more assets ride
+> only client-side navigation. Disk incident: the machine hit **disk
+> 100% (254Mi free)** killing both fresh build attempts — ENOSPC at
+> prerender, receipts carry the incident.
 
 ## §1.2 The styling-surface inventory (replaces "three channels")
 
@@ -149,6 +154,7 @@ law-probing www suites, each classified for this research:
 | verify:shadcn-add | REAL consumer install contract | **research input**: RQ4 rides this infra (Gate-1 B2) |
 | verify:km / isolation / print (managed) | browser probes over own server | observation: probe method reused for D1/D2 fixtures |
 | www law suites: tw-context-probe, tw-standard-layer-probe, jx-pure-parity, dld-layers, density-adoption ×5, density-context, props-table-print-hook, registry-payload-parity, press-button, hook-law (scripts/verify-hook-law.mjs), check-tw4-prereq | layer law, Tier-2 parity, density ladder, print hooks, payload parity, hook vocabulary, consumer prereq | research-evidence: D2 matrix fixtures derive FROM these suites' expectations; the tw-* probes are the direct TW-coupling gates a GO retires or rewrites |
+| specialized cascade probes (Gate-1 r2 B addition): scripts/verify-folder-css.mjs, verify-layer-law.mjs, verify-jx-pure.mjs, verify-jx-pure-engines.mjs, verify-press.mjs, verify-surface.mjs, verify-trygrid.mjs, verify-native-parity.mjs | folder-sheet layering, the layer law per sheet, jx-pure Part A–D engines, press physics, the surface kernel, trygrid, native parity | research-evidence: D2-14/D2-15 derive from verify-surface's enumerated-override registry; a GO rewrites every probe whose selector vocabulary moves |
 | ~170 component suites (batch*, per-family) | behavior + paint contracts | follow-up-apply: paint assertions rewritten where computed styles move to stylex classes |
 
 ## §2 Research questions
@@ -227,59 +233,60 @@ law-probing www suites, each classified for this research:
 
 ### Hard gates
 
-**D1 feasibility — fixture matrix (every row must pass; any fail ⇒ D1
-FAIL)**. Scope: the pinned version set recorded in spike/minimal
-(verdict is version-scoped; upstream bumps re-open D1).
+**D1 feasibility — the committed fixture manifest
+(research/fixtures/d1-fixture-manifest.md) is the contract**: 13 rows
+(D1-01..D1-13), each with setup / probe / PASS criterion / media
+state / mode; FOUC is numerically decided at D1-03 (probe element's
+computed background at the FCP entry timestamp MUST equal the
+authored value — styled first paint, gap recorded either way); the
+version pin set is frozen in the manifest (svelte 5.57.0,
+@sveltejs/kit 2.70.3, vite 8.3.0, @stylexjs/stylex+unplugin+
+babel-plugin 0.19.0, tailwindcss+@tailwindcss/vite 4.3.3 — npm
+registry 2026-09-13); the verdict is scoped to EXACTLY that set, any
+bump re-opens D1 via the amendment ledger. Any mandatory row failing
+⇒ D1 FAIL; unavailable browser runtimes are LIMITATION rows feeding
+the missing-data flags, never silent passes.
 
-| fixture | assertion |
-|---|---|
-| dev: style injection | runtime `<style data-stylex>` present; edits HMR without full reload |
-| dev: FOUC probe | first-paint not unstyled beyond a recorded threshold (performance entries) |
-| prod: static CSS asset | classes in prerendered HTML resolve against a real `<link>` CSS file (no runtime injection needed) |
-| SSR/prerender HTML | class attrs are compile-time constants in output HTML |
-| hydration | zero Svelte 5 hydration warnings from stylex attrs |
-| no-JS | prod page renders styled with JS disabled |
-| dynamic values | runtime-computed styles degrade to styleq+inline style correctly; no class churn errors |
-| pseudo/keyframes | :hover/:checked/keyframes render identical dev vs prod |
-| dark + density scopes | theme switching repaints without cascade surprises |
-| print / forced-colors / reduced-motion | degradation laws hold |
-| TS types | token typos fail compile; VarGroup flows |
-| browser smoke | Chromium full matrix; WebKit + Firefox smoke (limitation recorded if not locally runnable) |
+**D2 override law — the committed fixture manifest
+(research/fixtures/d2-fixture-manifest.md) is the contract**: 15 rows
+(D2-01..D2-15), each pinning markup essence, the selector under test,
+the property, and the EXPECTED outcome; run on build O1 (stylex
+layers after `utilities` — lawful) and, where marked O2-INV, on build
+O2 (layers before utilities — the EXPECTED INVERSION is the
+assertion, proving misconfiguration is detectable). Core rows (i–iv)
+plus the surface-kernel rows are hard: (xiv) the `.jx-tip.jx-surface
+::after` notch-mask override with NATURAL specificity (the
+:where-sensitivity micro-fixture asserts the same rule under
+:where() LOSES — the specificity math is load-bearing), (xv) the
+terminal-header `.jx-nav .jx-pop.jx-subpanel*` enumerated
+foreign-surface override. Tier-2 fixtures copy the REAL `.jx-input`
+Part A block byte-referenced, not a replica. The floating-surface
+corpus family is FROZEN to popover (the css-architecture enumerated
+case); dialog defers to the follow-up change.
 
-**D2 override law — fixture matrix** (fixed selectors, declarations,
-expected computed values — pinned per fixture in spike/coexist; TW
-import order both ways):
+**D3 distribution — quantified dimensions and TOLERANCE VECTORS**
+(per architecture A/B/C, measured on the real clean consumer; the
+TW4-today column is the baseline; Gate-1 r3 makes the pass rule
+mechanical):
 
-core: (i) consumer TW utility beats kernel stylex paint; (ii) Tier-2
-unlayered alias beats BOTH; (iii) state-machine carve-out (`:checked`
-unlayered repaint) beats component-own stylex paint, while static
-paint stays consumer-overridable; (iv) print whitelist wins under
-print media over display/overflow utilities.
-extended: (v) negative — consumer utility does NOT beat Tier-2;
-(vi) consumer `!important` wins; (vii) same-layer source-order case
-(TW merge semantics preserved); (viii) inline style channel (glass
-stamps) precedence over stylex for its own properties only; (ix)
-custom-property precedence (stylex vars vs theme :root vars — scope
-semantics defined); (x) dark+density combined; (xi) reduced-motion
-kill of animate-*; (xii) forced-colors; (xiii) print-sim exclusion.
-Every row: expected computed value + dev/prod + import-order variant.
-
-**D3 distribution — quantified dimensions** (per architecture A/B/C,
-against today's TW4 prereq on the SAME real consumer infra):
-
-| dimension | TW4 today | measured how |
+| vector | TW4 today (baseline) | pass tolerance (vs baseline) |
 |---|---|---|
-| packages to install | tailwindcss + @tailwindcss/vite | shadcn-add consumer install |
-| install bytes | npm install --dry-run delta | same |
-| config surface (lines + files) | vite plugin line + entry import | counted in consumer |
-| boilerplate beyond config | entry css import only | dev-HMR snippet presence/size |
-| build-time delta p50/p95 | baseline | www-scale corpus build |
-| misconfiguration blast radius | — | enumerated failure modes + symptom severity (qualitative, listed) |
+| consumer install-closure packages | 2 (tailwindcss, @tailwindcss/vite) | Δ ≤ +2 |
+| installed bytes (lockfile dry-run) | measured | Δ ≤ +5MB |
+| config files touched | 1 (vite.config) | Δ = 0 (stylex wiring rides the SAME vite.config) |
+| config lines added | 1 plugin line + 1 css import | Δ ≤ +6 lines |
+| boilerplate beyond config (dev-HMR snippet etc.) | 0 | ≤ 10 lines, generated BY the tooling not hand-copied |
+| build time cold/warm p50/p95 | measured | p95 Δ ≤ +15% |
 
-Hard-gate rule: D3 passes for whichever architecture is NOT heavier
-than TW4-today in packages+config+boilerplate combined, or whose extra
-weight is absorbed by architecture B into an @jixoai package the
-consumer installs anyway.
+- Architecture B's plugin dependency closure COUNTS in the consumer
+  install vector (nothing "absorbed" out of existence — Gate-1 r3
+  ruling); what B may legitimately shave is config/boilerplate, by
+  generating them.
+- **D3 PASSES for an architecture iff EVERY vector is within
+  tolerance.** No aggregation, no trade-offs between vectors.
+- Blast-radius enumeration stays qualitative (failure modes listed
+  with symptom severity) — it informs the report, never the pass
+  rule.
 
 ### Scored dimensions (0/3/5 anchors, pre-registered)
 

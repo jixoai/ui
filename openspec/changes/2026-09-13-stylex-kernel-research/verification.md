@@ -10,15 +10,26 @@ operability requirements for gates and anchors (A5–B3).
 - The four docs cross-agree (proposal ⊆ design ⊆ tasks ⊆
   verification); the styling-surface inventory (design §1.2) is the
   single redundancy model everywhere.
-- Decision criteria are PRE-REGISTERED: D1 fixture matrix, D2 fixture
-  matrix, D3 dimension table, D4–D7 0/3/5 anchors + weights + the
-  D4≥3 rule + sensitivity + missing-data rules — all frozen before
-  R2/R3 measurement runs; the corpus and fixture lists are frozen at
-  design time.
+- Decision criteria are PRE-REGISTERED and COMMITTED as artifacts, not
+  prose promises: research/fixtures/d1-fixture-manifest.md (13 rows,
+  numeric FOUC criterion, version pin set) and
+  research/fixtures/d2-fixture-manifest.md (15 rows incl. the
+  surface-kernel natural-specificity and terminal-header foreign
+  override cases; popover frozen; O1/O2 build matrix), D3 tolerance
+  vectors (design §4), D4–D7 0/3/5 anchors + weights + the D4≥3 rule
+  + sensitivity + missing-data rules.
+- The amendment ledger (research/amendment-ledger.md) records the
+  freeze lineage (F1 pre-R1 → F2 post-R1 re-freeze with the R1-
+  influence enumeration → F3 execution freeze); post-F3, R2/R3
+  evidence may re-score but never re-define gates — Gate 2 diffs the
+  ledger against fixture commits to prove no silent drift.
+- openspec structural validation passing is a STRUCTURAL claim only —
+  it is never evidence about D1–D3 or CSS performance (Gate-1 r2 B).
 - The gate inventory (design §1.4) covers the full verify-all chain +
-  law-probing suites, each classified research-evidence vs
-  follow-up-apply.
-- openspec structural validation passes for the change folder.
+  law-probing suites + the specialized cascade probes
+  (verify-folder-css / layer-law / jx-pure / jx-pure-engines / press /
+  surface / trygrid / native-parity), each classified
+  research-evidence vs follow-up-apply.
 
 ## External intel (R1)
 
@@ -44,6 +55,9 @@ operability requirements for gates and anchors (A5–B3).
 
 ## Baselines & counterfactual (R2/R2b)
 
+- The r0-census §f attribution is a d17abd58 HISTORICAL artifact
+  receipt (amendment §h) — usable for orientation ONLY; R2's first
+  act is the frozen-HEAD rebuild, and all comparisons start there.
 - Frozen corpus, device, browser, cache protocol IDENTICAL for R2 and
   R2b; the counterfactual is a REAL build (route-family sheet split +
   prune), not an estimate.

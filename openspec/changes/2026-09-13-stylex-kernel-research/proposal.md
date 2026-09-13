@@ -11,11 +11,12 @@ motivations, plus one standing constraint:
    the built main sheet is 300,245B raw / 43,352B gzip — TW-generated
    content is 45.5% (utilities 106,954B / 1501 rules), jx-pure 34.4%,
    jixoai.css 14.5%, component css 2.2%, site 3.4% (r0-census
-   attribution over the 2026-09-11 dist); 126/126 built pages load
-   this one sheet plus ~13 shared assets — per-page render-blocking
-   averages 386KB raw / 63.4KB gzip. The engine swap's DIRECT lever
-   is the 45.5% utility slice; the ~49% law-sheet share prices the
-   hype-asymmetry risk (design §6). Whether the pain is sheet size,
+   attribution over the 2026-09-11 dist — a HISTORICAL artifact
+   receipt pending the current-HEAD rebuild, not yet a baseline);
+   126/126 built pages load this one sheet plus ~13 shared assets —
+   per-page render-blocking averages 386KB raw / 63.4KB gzip. The
+   engine swap's DIRECT lever is the ~45% utility slice; the ~49%
+   law-sheet share prices the hype-asymmetry risk (design §6). Whether the pain is sheet size,
    parse/recalc cost, dev-mode scanning, or FOUC must be MEASURED,
    not assumed (R2) — including the null hypothesis that the symptom
    is addressable without an engine swap.
@@ -51,9 +52,12 @@ is an evidence-backed GO/NO-GO decision, and if GO, the blueprint
     probes; adapter-static SSG extraction path;
   - migration scope census and cost model (106 ui items + 1 stray
     file, 140 registry items total; 94 TW-bearing component files /
-    218 svelte with 2340 tokens — r0-census frozen grammar; docs
-    routes 16.8k tracked-source tokens; variant tables, cn() fate,
-    registry distribution prerequisites);
+    218 svelte with 2340 LITERAL-CLASS tokens — the frozen-grammar
+    LOWER BOUND; class={expr} sites are excluded by the grammar, the
+    class={cn('…utilities…')} surface spans ≥51 further files and is
+    a separate R5 census row; docs routes 16.8k tracked-source
+    tokens; variant tables, cn() fate, registry distribution
+    prerequisites);
   - alternatives scan (null hypothesis "fix Tailwind in place" +
     ranked fallback engines) — the decision is only honest if the
     counterfactuals were priced.

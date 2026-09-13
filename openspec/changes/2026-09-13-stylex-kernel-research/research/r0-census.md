@@ -518,3 +518,29 @@ up to +130KB raw on the heaviest page.**
    be tracked or one stray string breaks the whole scan). The committed
    script `research/r0-sheet-attribution.cjs` encodes both fixes — R2's
    `baseline.md` should reuse it rather than re-derive.
+
+---
+
+## §h Amendment (2026-09-13, Gate-1 r3 — drift correction, append-only)
+
+The §f attribution narrative compressed the d17abd58→current-HEAD
+input drift to "spin.css ±56 lines ×2". Codex Gate-1 round 2 measured
+the real drift: `git diff d17abd58..3f770d5e -- apps/www/src
+registry/files` = **19 files, 2575 insertions(+), 166 deletions(-)**,
+including NEW STATIC TAILWIND CLASSES (the spin component's
+`inline-flex items-center text-[length:var(--jx-text)] text-primary`
+family; docs pages' new max-w-*/gap-*/text-* candidates). TW4 folds
+such candidates into the page-shared utility sheet. Therefore:
+
+1. The §f attribution (45.5% TW / 34.4% jx-pure / 14.5% jixoai.css /
+   mean 386KB per page) is a **d17abd58 HISTORICAL artifact receipt**.
+   It is NOT the current-HEAD baseline and NOT a movable-share
+   estimate for the decision.
+2. R2's first act after disk space frees is a full rebuild at the
+   frozen HEAD; R2/R2b comparisons start from THAT build.
+3. The census source-side numbers (94/218, 2340, 16.8k, dependency
+   tables) are current-HEAD-valid and unaffected — the drift affects
+   only built-sheet attribution.
+
+No number in §a–§g was edited (append-only law); this section
+supersedes §f's drift characterization only.
