@@ -8,6 +8,7 @@ The official jixoai design-language CLI. It **shares shadcn's
   // ...shadcn fields stay untouched (style, aliases, registries, ...)...
   "registries": { "@jixoai": "https://ui.jixoai.com/r/{name}.json" },
   "jixoai": { "brandHue": 160 }
+  // `--css <path>` adds "cssPath": "<path>" here — see Flags below
 }
 ```
 
@@ -23,6 +24,29 @@ npx jixoai-ui upgrade          # refresh locked items + run upgrade tasks
 npx jixoai-ui hue 165          # retheme by changing one number
 npx jixoai-ui config           # print the resolved jixoai config
 ```
+
+## Flags
+
+- **`--css <path>`** (`init`/`hue`/`add`/`upgrade`) — where `jixoai.css`
+  lives, overriding the whole `aliases.lib` hunt. For consumers whose
+  `$lib` alias maps nowhere (`hue` fails with the exact reason), one
+  `--css` fixes every later run: the path is remembered as
+  `jixoai.cssPath` inside the `jixoai` block. `--css=<path>` works too.
+- **`--registry <dir|url>`** (`init`/`add`/`adopt`/`upgrade`) — override
+  `registries["@jixoai"]` for one run, no config edit. A local directory
+  of `<name>.json` payloads (a checkout's built `public/r/`, or any
+  mirror's output) is read straight off disk; a url template must
+  contain `{name}` (`file://` or an http(s) mirror on localhost). The
+  spawned shadcn fetches the same override (http(s) only — shadcn cannot
+  read `file://`), and your configured url is restored afterwards.
+  When the registry is unreachable, every fetch error carries the way
+  out: retry, `--registry` mirror, and `npx jixoai-ui@latest` (a stale
+  npx cache may be serving an outdated CLI).
+- **`--overwrite`** (`init`/`add`) — forwarded to shadcn. Under
+  non-interactive stdin (CI, agent shells) it is implied: shadcn's
+  overwrite confirmation cannot be answered at EOF and would cancel the
+  whole write phase. An install whose files never landed fails with
+  exit code 1 — nothing enters `jixoai-ui.lock` unverified.
 
 ## Group aliases
 
@@ -67,7 +91,8 @@ and in any shell loop.
   `{ items: { [name]: { files: { [path]: sha256 } } } }`. Paths are resolved
   through `components.json` aliases (`$lib`-rooted values resolve through
   the project's tsconfig/jsconfig `compilerOptions.paths`, the same map
-  shadcn uses); hashes cover canonical registry content
+  shadcn uses — wildcard-only tables and `extends` chains included); hashes
+  cover canonical registry content
   (pre-hue, pre-task). A missing or empty lock fails with exit code 1 and
   tells you to `add` first.
 - **Refresh**: every locked item is fetched from `registries["@jixoai"]`

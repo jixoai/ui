@@ -39,6 +39,28 @@
  * `src/@ui/` and `src/vite-plugins/` directories to their alias-resolved
  * destinations, and item-name parsing skips `--` tokens (flags never
  * masquerade as `@jixoai/--help`).
+ *
+ * Release hygiene (2026-09-13, npm issues #2/#1/#8):
+ *   #2  `--css <path>` overrides the whole aliases.lib hunt for the theme
+ *       sheet and is REMEMBERED as `jixoai.cssPath` in components.json
+ *       (one flag fixes every later run). The $-alias resolver now reads
+ *       wildcard-only tables (`$lib` via a `$lib/*` mapping) and follows
+ *       `extends` chains (SvelteKit keeps the real map in
+ *       .svelte-kit/tsconfig.json). A standalone `hue` that cannot locate
+ *       the css FAILS with the exact way out (--css or paths) instead of
+ *       promising a next-run application that would fail identically.
+ *   #1  under non-interactive stdin the run forwards `--overwrite`
+ *       itself (same intent as the forced `--yes`: shadcn's confirm
+ *       cannot be answered at EOF — it cancels the WHOLE write phase),
+ *       and install-integrity refusals now exit non-zero — a canceled
+ *       install is a failed install, never a green exit.
+ *   #8  `--registry <dir|url>` overrides registries["@jixoai"] for one
+ *       run (a local directory of <name>.json payloads becomes a
+ *       file://{name} template; http(s) mirrors pass through) — the
+ *       spawned shadcn gets the same override for its own fetches, with
+ *       the configured url restored afterwards. Fetch failures carry
+ *       the way out: retry, local mirror, and the stale-npx trap
+ *       (`npx jixoai-ui@latest`).
  */
 
 import { spawnSync } from "node:child_process";
@@ -50,10 +72,12 @@ import {
   readFileSync,
   renameSync,
   rmdirSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 import { upgradeTasks } from "./upgrade-tasks.mjs";
 
@@ -84,6 +108,22 @@ Commands:
                                      hue, and run the idempotent upgrade
                                      tasks (repeat runs perform zero writes)
   jixoai-ui config                   print the resolved jixoai config
+
+Flags:
+  --css <path>        (init/hue/add/upgrade) where jixoai.css lives —
+                      overrides the aliases.lib resolution when the $lib
+                      alias has no tsconfig paths mapping; remembered in
+                      components.json as jixoai.cssPath
+  --registry <dir|url>
+                      (init/add/adopt/upgrade) override the @jixoai
+                      registry for this run — a local directory of
+                      <name>.json payloads, or a url template containing
+                      {name} (file:// or an http(s) mirror); the spawned
+                      shadcn fetches the same override (http(s) only —
+                      shadcn cannot read file://)
+  --overwrite         (init/add) forwarded to shadcn; implied when stdin
+                      is non-interactive (the overwrite confirm cannot be
+                      answered at EOF — it cancels the whole write phase)
 
 The CLI extends shadcn's components.json — run \`npx shadcn init\` first in
 projects that don't have one yet.`;
@@ -117,30 +157,57 @@ function ensureNamespace(config) {
   }
 }
 
-/* ── $-alias resolution (effect-attachments Lane H, 2026-09-10) ──
+/* ── $-alias resolution (effect-attachments Lane H, 2026-09-10;
+ *    release-hygiene #2, 2026-09-13) ──
  *
  * shadcn-svelte consumers carry `$lib`-ROOTED alias values
  * (`"ui": "$lib/ui"` — the frozen table the clean-install harness
- * proves). A literal `$lib` directory never exists on disk, so every
- * alias base must first resolve through the project's
- * tsconfig/jsconfig `compilerOptions.paths` (the same map shadcn
- * itself resolves aliases with) before it becomes a filesystem path.
- * Before this, `add` on such consumers installed fine but the lock
- * found ZERO files at "(no) install path" and recorded nothing —
- * `upgrade` went dead while the files sat in place. A base that maps
- * nowhere keeps its literal meaning; `extends`-chained configs are a
- * known limit (the direct paths table wins). */
+ * proves; plain-vite consumers mandate `"lib": "$lib"` outright, the
+ * env-debt-cleanup alias shape). A literal `$lib` directory never
+ * exists on disk, so every alias base must first resolve through the
+ * project's tsconfig/jsconfig `compilerOptions.paths` (the same map
+ * shadcn itself resolves aliases with) before it becomes a filesystem
+ * path. Before this, `add` on such consumers installed fine but the
+ * lock found ZERO files at "(no) install path" and recorded nothing —
+ * `upgrade` went dead while the files sat in place.
+ *
+ * Release-hygiene #2 closed the two shapes the direct-table pass
+ * missed, both observed on plain-vite consumers whose `hue` never
+ * applied: a BARE base (`$lib`) against a wildcard-only table
+ * (`{"$lib/*": ["src/lib/*"]}` — the exact-key entry is absent), and
+ * `extends`-chained configs (SvelteKit's standard layout keeps the
+ * real map in ./.svelte-kit/tsconfig.json). A base that maps nowhere
+ * keeps its literal meaning — and `themeCssPath` treats that as the
+ * actionable failure it is (see cssNotFoundMessage), never as a
+ * silent "next run will fix it". */
 const aliasResolverCache = new Map(); // cwd → (base → resolved base)
 
 function tsconfigPathsFor(cwd) {
-  for (const name of ["tsconfig.json", "jsconfig.json"]) {
-    const path = join(cwd, name);
-    if (!existsSync(path)) continue;
+  // walk the config graph breadth-first: the DIRECT table wins; extends
+  // targets (relative to their extending config, or bare package
+  // specifiers through node_modules) enqueue behind jsconfig.json so a
+  // sibling jsconfig still outranks an inherited table
+  const queue = [join(cwd, "tsconfig.json"), join(cwd, "jsconfig.json")];
+  const visited = new Set();
+  for (let depth = 0; queue.length > 0 && depth < 8; depth++) {
+    const path = queue.shift();
+    if (!path || visited.has(path) || !existsSync(path)) continue;
+    visited.add(path);
+    let config;
     try {
-      const paths = JSON.parse(readFileSync(path, "utf8"))?.compilerOptions?.paths;
-      if (paths && typeof paths === "object") return paths;
+      config = JSON.parse(readFileSync(path, "utf8"));
     } catch {
-      // an unparseable config is not fatal — the literal base stands
+      continue; // comments/trailing commas: an unparseable config is not fatal
+    }
+    const paths = config?.compilerOptions?.paths;
+    if (paths && typeof paths === "object") return paths;
+    const ext = config?.extends;
+    const refs = Array.isArray(ext) ? ext : typeof ext === "string" ? [ext] : [];
+    for (const ref of refs) {
+      const base = ref.startsWith(".")
+        ? resolve(dirname(path), ref)
+        : resolve(cwd, "node_modules", ref);
+      queue.push(base.endsWith(".json") ? base : `${base}.json`);
     }
   }
   return null;
@@ -153,12 +220,18 @@ function aliasBaseResolver(cwd) {
   const resolveBase = (base) => {
     if (!paths || !base.startsWith("$")) return base;
     if (paths[base] !== undefined) return star(paths[base]);
+    // wildcard keys: `$lib/*` owns BOTH `$lib/ui` and the bare `$lib`
+    // itself (release-hygiene #2 — the bare base used to fall through
+    // to the literal `$lib` and hue never applied). The boundary is
+    // exact-or-slash so `$library` never rides a `$lib` mapping.
     const wildcards = Object.keys(paths)
       .filter((k) => k.endsWith("/*"))
-      .map((k) => k.slice(0, -1)) // '$lib/*' → '$lib/'
+      .map((k) => k.slice(0, -2)) // '$lib/*' → '$lib'
       .sort((a, b) => b.length - a.length); // longest prefix wins
     for (const prefix of wildcards) {
-      if (base.startsWith(prefix)) return star(paths[`${prefix}*`]) + base.slice(prefix.length);
+      if (base !== prefix && !base.startsWith(`${prefix}/`)) continue;
+      const target = star(paths[`${prefix}/*`]);
+      return base === prefix ? target : target + base.slice(prefix.length);
     }
     return base;
   };
@@ -172,6 +245,14 @@ function aliasDir(aliasValue, cwd) {
 }
 
 function themeCssPath(config, cwd) {
+  // an explicit --css (remembered as jixoai.cssPath) outranks the whole
+  // alias hunt — the release-hygiene #2 escape hatch for consumers whose
+  // $lib maps nowhere
+  const configured = config.jixoai?.cssPath;
+  if (typeof configured === "string" && configured) {
+    const candidate = resolve(cwd, configured);
+    if (existsSync(candidate)) return candidate;
+  }
   const lib = config.aliases?.lib;
   if (typeof lib !== "string") return null;
   const base = aliasBaseResolver(cwd)(lib);
@@ -182,25 +263,95 @@ function themeCssPath(config, cwd) {
   return null;
 }
 
+/**
+ * The actionable form of "the theme css was not found" (release-hygiene
+ * #2): names the exact dead end — a configured cssPath that vanished, a
+ * `$`-alias no paths table resolves, or a plain alias whose target the
+ * theme was never installed into — and the two ways out (--css, or the
+ * missing paths mapping). Callers that CAN apply hue later (init/add/
+ * upgrade after a successful install) warn with this; the standalone
+ * `hue` command fails on it — its entire job is that one write.
+ */
+function cssNotFoundMessage(config, cwd) {
+  const configured = config.jixoai?.cssPath;
+  if (typeof configured === "string" && configured) {
+    return (
+      `jixoai.css not found at the configured jixoai.cssPath (\`${configured}\`) — ` +
+      `install the theme first (\`npx jixoai-ui init\`), or correct it: \`jixoai-ui hue <degrees> --css <path>\``
+    );
+  }
+  const lib = config.aliases?.lib;
+  if (typeof lib !== "string") {
+    return (
+      "components.json has no aliases.lib — point at the theme sheet directly: " +
+      "`jixoai-ui hue <degrees> --css <path>` (remembered as jixoai.cssPath)"
+    );
+  }
+  if (lib.startsWith("$")) {
+    const base = aliasBaseResolver(cwd)(lib);
+    if (base.startsWith("$")) {
+      return (
+        `aliases.lib is \`${lib}\` and no tsconfig/jsconfig compilerOptions.paths entry resolves it ` +
+        `(looked for \`${lib}\` and \`${lib}/*\`) — add the mapping ` +
+        `(e.g. \`{ "compilerOptions": { "paths": { "${lib}": ["src/lib"] } } }\`), ` +
+        "or point at the css directly: `--css <path>` (remembered as jixoai.cssPath)"
+      );
+    }
+    const expected = toPosix(relative(cwd, resolve(cwd, base, "jixoai.css")));
+    return (
+      `jixoai.css not found at \`${expected}\` (aliases.lib \`${lib}\` resolved to ` +
+      `\`${toPosix(relative(cwd, base))}\`) — install the theme first (\`npx jixoai-ui init\`), ` +
+      "or pass `--css <path>` if the sheet lives elsewhere"
+    );
+  }
+  return (
+    `jixoai.css not found at \`${toPosix(join(lib, "jixoai.css"))}\` — ` +
+    "install the theme first (`npx jixoai-ui init`), or pass `--css <path>` if the sheet lives elsewhere"
+  );
+}
+
 function applyHue(cssPath, hue) {
   if (!cssPath) {
-    console.warn(
-      "jixoai-ui: jixoai.css not found yet — the hue will be applied on the next init/add.",
-    );
-    return;
+    throw new Error("applyHue requires a css path — callers surface cssNotFoundMessage first");
   }
   const css = readFileSync(cssPath, "utf8");
   const next = css.replace(/--brand-hue:\s*[\d.]+/, `--brand-hue: ${hue}`);
   if (next !== css) {
     writeFileSync(cssPath, next);
     console.log(`jixoai-ui: --brand-hue: ${hue} → ${cssPath}`);
+  } else if (!/--brand-hue:\s*[\d.]+/.test(css)) {
+    console.warn(
+      `jixoai-ui: no \`--brand-hue\` token in ${cssPath} — not a jixoai theme sheet? ` +
+        "pass `--css <path>` if jixoai.css lives elsewhere",
+    );
   }
 }
 
-function shadcn(args, cwd, configPath, config) {
+/** apply hue when the css resolves; otherwise surface the guidance
+ * (warn — install/upgrade runs may have succeeded at everything else) */
+function applyHueLocated(config, cwd, hue) {
+  const cssPath = themeCssPath(config, cwd);
+  if (cssPath) {
+    applyHue(cssPath, hue);
+    return true;
+  }
+  console.warn(`jixoai-ui: ${cssNotFoundMessage(config, cwd)}`);
+  return false;
+}
+
+function shadcn(args, cwd, configPath, config, registryOverride) {
   // shadcn 4.18 rejects unknown top-level keys (our jixoai block), so the
   // extension fields are stripped for the call and restored afterwards.
   const { jixoai, ...rest } = config;
+  // --registry (release-hygiene #8): the spawned shadcn fetches
+  // registries["@jixoai"] ITSELF, so an override only this CLI honored
+  // would still send shadcn at the dead registry — write the override
+  // into the spawned config and restore the configured url afterwards.
+  const originalRegistry = rest.registries?.[NAMESPACE];
+  if (registryOverride && originalRegistry !== registryOverride) {
+    rest.registries ??= {};
+    rest.registries[NAMESPACE] = registryOverride;
+  }
   writeConfig(configPath, rest);
   const result = spawnSync(
     "npx",
@@ -209,10 +360,21 @@ function shadcn(args, cwd, configPath, config) {
   );
   if (result.status !== 0) {
     writeConfig(configPath, config); // restore even on failure
-    fail(`\`shadcn ${args.join(" ")}\` exited with ${result.status}`);
+    fail(
+      `\`shadcn ${args.join(" ")}\` exited with ${result.status}` +
+        (registryOverride && registryOverride.startsWith("file:")
+          ? ` — the --registry override \`${registryOverride}\` is a file:// template and shadcn needs an http(s) url; serve the directory locally (e.g. \`python3 -m http.server\`) and pass its url`
+          : ""),
+    );
   }
   const after = readConfig(cwd);
   after.config.jixoai = jixoai;
+  if (registryOverride && after.config.registries?.[NAMESPACE] === registryOverride) {
+    // shadcn preserved the override in components.json — put the
+    // configured url back so the override stays run-scoped
+    if (originalRegistry === undefined) delete after.config.registries[NAMESPACE];
+    else after.config.registries[NAMESPACE] = originalRegistry;
+  }
   writeConfig(after.path, after.config);
 }
 
@@ -227,6 +389,77 @@ function hueFromArgs(args, fallback = DEFAULT_HUE) {
   return Math.round(value);
 }
 
+/** pull `--name <value>` / `--name=<value>` out of an args list:
+ * returns [value | null, remaining args] — the VALUE leaves with the
+ * flag, so `add toc --css src/lib/jixoai.css` never mistakes the path
+ * for an item name and never forwards either token to shadcn */
+function extractFlagValue(args, name) {
+  const spaced = args.indexOf(name);
+  if (spaced !== -1) {
+    const value = args[spaced + 1];
+    if (typeof value !== "string" || value.startsWith("--")) {
+      fail(`\`${name}\` needs a value (\`${name} <path>\`)`);
+    }
+    return [value, [...args.slice(0, spaced), ...args.slice(spaced + 2)]];
+  }
+  const eq = `${name}=`;
+  const glued = args.findIndex((a) => a.startsWith(eq));
+  if (glued !== -1) {
+    const value = args[glued].slice(eq.length);
+    if (!value) fail(`\`${name}=\` needs a value (\`${name}=<path>\`)`);
+    return [value, [...args.slice(0, glued), ...args.slice(glued + 1)]];
+  }
+  return [null, args];
+}
+
+/** --registry <dir|url> (release-hygiene #8): a url template (http(s)://
+ * or file://, must contain {name}) or a LOCAL DIRECTORY of <name>.json
+ * payloads — a checkout's built public/r/, or the exact shape the issue
+ * #8 consumer hand-rolled a ~40-line server to serve. A directory
+ * normalizes to a file://{name} template so fetchText's file:// lane
+ * reads payloads straight off disk: zero network, zero config edits. */
+function registryOverrideTemplate(value, cwd) {
+  if (value.includes("://")) return value;
+  const dir = resolve(cwd, value);
+  let isDirectory = false;
+  try {
+    isDirectory = statSync(dir).isDirectory();
+  } catch {
+    // missing paths fall through to the failure below
+  }
+  if (!isDirectory) {
+    fail(
+      `--registry \`${value}\` is neither a url template (expected http(s)://…/{name}.json or file://…) ` +
+        `nor an existing directory of <name>.json payloads (looked at ${dir})`,
+    );
+  }
+  return `${pathToFileURL(dir).href}/{name}.json`;
+}
+
+/** remember a --css override as jixoai.cssPath (cwd-relative when the
+ * sheet lives inside the project, absolute otherwise) — one flag fixes
+ * every later run; consumers whose $lib maps nowhere need it forever */
+function cssPathKey(cwd, cssOverride) {
+  const abs = resolve(cwd, cssOverride);
+  const rel = relative(cwd, abs);
+  return rel.startsWith("..") ? toPosix(abs) : toPosix(rel);
+}
+
+/** non-interactive stdin cannot answer shadcn's overwrite confirmation —
+ * EOF cancels the WHOLE write phase (the #1 phantom-success report on
+ * jixoai-ui@0.3.0: zero files landed, the CLI still said locked) — so
+ * the run forwards --overwrite itself, the same intent as the forced
+ * --yes. Interactive runs keep the prompt. */
+function nonInteractiveOverwriteFlags(flags) {
+  if (flags.includes("--overwrite")) return [];
+  if (process.stdin.isTTY) return [];
+  console.log(
+    "jixoai-ui: non-interactive stdin — forwarding --overwrite " +
+      "(shadcn's overwrite confirmation cannot be answered at EOF; leaving it would cancel the write phase)",
+  );
+  return ["--overwrite"];
+}
+
 /* ── install manifest (jixoai-ui.lock) + shared install/upgrade core ── */
 
 function sha256(text) {
@@ -237,12 +470,32 @@ function toPosix(path) {
   return path.split("\\").join("/");
 }
 
-function registryUrlFor(config) {
-  const url = config.registries?.[NAMESPACE] ?? REGISTRY_URL;
+function registryUrlFor(config, override) {
+  const url = override ?? config.registries?.[NAMESPACE] ?? REGISTRY_URL;
   if (!url.includes("{name}")) {
     fail(`the ${NAMESPACE} registry url must contain a {name} template (got \`${url}\`)`);
   }
   return url;
+}
+
+/** network errors surface as a bare "fetch failed" (undici hides the
+ * errno) — unwrap cause.cause so the consumer sees ECONNREFUSED & co. */
+function fetchCauseDetail(cause) {
+  const code = cause?.cause?.code ?? cause?.code;
+  return code ? `${cause.message} (${code})` : cause.message;
+}
+
+/** the way out when the registry cannot be reached (release-hygiene #8,
+ * the 2026-09-10 outage): retry (the most common cause is transient
+ * egress), a local mirror via --registry (no components.json edit), and
+ * the stale-npx trap — an old cached CLI may carry an outdated registry
+ * url; `npx jixoai-ui@latest` sidesteps the cache */
+function unreachableRegistryHints() {
+  return (
+    "\n  — retry the command: transient egress/CDN failures are the most common cause" +
+    "\n  — run offline against a mirror: `--registry <dir|url>` (a directory of <name>.json payloads, or a file:// / http(s) {name} template) — no components.json edit needed" +
+    "\n  — a stale npx cache may be serving an outdated CLI: `npx jixoai-ui@latest`"
+  );
 }
 
 async function fetchText(url) {
@@ -264,7 +517,10 @@ async function fetchRegistryItem(registryUrl, name) {
   try {
     raw = await fetchText(url);
   } catch (cause) {
-    throw new Error(`cannot fetch registry item \`${name}\` from ${url}: ${cause.message}`);
+    throw new Error(
+      `cannot fetch registry item \`${name}\` from ${url}: ${fetchCauseDetail(cause)}` +
+        unreachableRegistryHints(),
+    );
   }
   let json;
   try {
@@ -293,7 +549,10 @@ async function fetchRegistryIndex(registryUrl) {
   try {
     raw = await fetchText(url);
   } catch (cause) {
-    throw new Error(`cannot fetch the registry index from ${url}: ${cause.message}`);
+    throw new Error(
+      `cannot fetch the registry index from ${url}: ${fetchCauseDetail(cause)}` +
+        unreachableRegistryHints(),
+    );
   }
   let json;
   try {
@@ -491,11 +750,15 @@ function writeLock(path, lock) {
  * `upgrade` reported it as managed while nothing was installed. A miss
  * now keeps the item OUT of the lock and prints the missing paths with
  * the recovery guidance.
+ *
+ * Returns the number of REFUSED items (release-hygiene #1): callers
+ * exit non-zero on a positive count — a canceled install is a failed
+ * install, never a green exit for scripts to trust.
  */
-async function recordInstalledItems(cwd, config, names) {
-  const registryUrl = registryUrlFor(config);
+async function recordInstalledItems(cwd, config, names, registryUrl) {
   const { path, lock, existed } = readLock(cwd, { required: false });
   let recorded = 0;
+  let refused = 0;
   for (const name of names) {
     try {
       const item = await fetchRegistryItem(registryUrl, name);
@@ -511,6 +774,7 @@ async function recordInstalledItems(cwd, config, names) {
         files[key] = sha256(file.content);
       }
       if (missing.length > 0) {
+        refused++;
         console.warn(
           `jixoai-ui: ${name} NOT locked in ${LOCK_NAME} — ${missing.length} of ` +
             `${item.files.length} file(s) missing at their install path(s):`,
@@ -535,6 +799,7 @@ async function recordInstalledItems(cwd, config, names) {
   if (recorded > 0 || existed) {
     writeLock(path, lock);
   }
+  return refused;
 }
 
 /* ── post-add relocation (consumer-feedback-fixes P0-3) ── */
@@ -657,8 +922,7 @@ function runUpgradeTasks(cwd, config, lock) {
   return { ran, skipped };
 }
 
-async function runUpgrade(cwd, config) {
-  const registryUrl = registryUrlFor(config);
+async function runUpgrade(cwd, config, registryUrl) {
   const { path: lockPath, lock } = readLock(cwd, { required: true });
   const names = Object.keys(lock.items);
   if (names.length === 0) {
@@ -695,7 +959,7 @@ async function runUpgrade(cwd, config) {
     writeLock(lockPath, lock); // persist per item so an abort keeps progress
   }
 
-  applyHue(themeCssPath(config, cwd), config.jixoai?.brandHue ?? DEFAULT_HUE);
+  applyHueLocated(config, cwd, config.jixoai?.brandHue ?? DEFAULT_HUE);
 
   const tasks = runUpgradeTasks(cwd, config, lock);
 
@@ -712,24 +976,68 @@ const cwd = process.cwd();
 
 switch (command) {
   case "init": {
+    const [cssOverride, initRest] = extractFlagValue(rest, "--css");
+    const [registryOverride, initArgs] = extractFlagValue(initRest, "--registry");
     const { path, config } = readConfig(cwd);
-    const hue = hueFromArgs(rest.filter((a) => !a.startsWith("--")), config.jixoai?.brandHue ?? DEFAULT_HUE);
+    // UNfiltered args: `--hue 120` is the DOCUMENTED form and the --hue
+    // branch below only sees it when the flag survives filtering (the
+    // filtered call always fell back to the previous/default hue — the
+    // "default 330" the #2 reporter could not move)
+    const hue = hueFromArgs(initArgs, config.jixoai?.brandHue ?? DEFAULT_HUE);
+    const overrideTemplate = registryOverride ? registryOverrideTemplate(registryOverride, cwd) : undefined;
+    const registryUrl = registryUrlFor(config, overrideTemplate);
     ensureNamespace(config);
-    config.jixoai = { ...(config.jixoai ?? {}), brandHue: hue };
+    config.jixoai = {
+      ...(config.jixoai ?? {}),
+      brandHue: hue,
+      ...(cssOverride ? { cssPath: cssPathKey(cwd, cssOverride) } : {}),
+    };
     writeConfig(path, config);
     console.log(`jixoai-ui: ${NAMESPACE} namespace + jixoai config written → ${path}`);
-    shadcn(["add", `${NAMESPACE}/${THEME_ITEM}`], cwd, path, config);
+    // passthrough + non-interactive overwrite semantics (release-hygiene
+    // #1): same flag discipline as add — user flags forward verbatim
+    // (--hue is OURS, never shadcn's), --overwrite joins them when stdin
+    // cannot answer the confirm
+    const initFlags = initArgs.filter(
+      (a) => a.startsWith("--") && a !== "--yes" && a !== "--help" && a !== "-h" && a !== "--hue",
+    );
+    const overwrite = nonInteractiveOverwriteFlags(initFlags);
+    shadcn(["add", `${NAMESPACE}/${THEME_ITEM}`, ...initFlags, ...overwrite], cwd, path, config, overrideTemplate);
     relocateMisplacedFiles(cwd, readConfig(cwd).config);
-    applyHue(themeCssPath(config, cwd), hue);
-    await recordInstalledItems(cwd, readConfig(cwd).config, [THEME_ITEM]);
+    applyHueLocated(config, cwd, hue);
+    const refused = await recordInstalledItems(cwd, readConfig(cwd).config, [THEME_ITEM], registryUrl);
+    if (refused > 0) {
+      fail(
+        "init incomplete — the theme item failed the install-integrity gate " +
+          "(its files are missing on disk; see the warnings above). " +
+          "Resolve the conflict and re-run `npx jixoai-ui init`",
+      );
+    }
     break;
   }
   case "hue": {
-    const hue = hueFromArgs(["--hue", rest.find((a) => !a.startsWith("--"))]);
+    // --css (release-hygiene #2): an explicit sheet location beats the
+    // whole aliases.lib hunt and is remembered — one flag fixes every
+    // later run. A hue that cannot find the sheet FAILS honestly: the
+    // next run would miss it identically (the old "will be applied on
+    // the next init/add" promise was a lie under an unresolvable $lib).
+    const [cssOverride, hueRest] = extractFlagValue(rest, "--css");
+    const hue = hueFromArgs(["--hue", hueRest.find((a) => !a.startsWith("--"))]);
     const { path, config } = readConfig(cwd);
-    config.jixoai = { ...(config.jixoai ?? {}), brandHue: hue };
+    if (cssOverride && !existsSync(resolve(cwd, cssOverride))) {
+      fail(`--css points at \`${cssOverride}\` (${resolve(cwd, cssOverride)}) which does not exist`);
+    }
+    config.jixoai = {
+      ...(config.jixoai ?? {}),
+      brandHue: hue,
+      ...(cssOverride ? { cssPath: cssPathKey(cwd, cssOverride) } : {}),
+    };
     writeConfig(path, config);
-    applyHue(themeCssPath(config, cwd), hue);
+    const css = themeCssPath(config, cwd);
+    if (!css) {
+      fail(cssNotFoundMessage(config, cwd));
+    }
+    applyHue(css, hue);
     break;
   }
   case "add": {
@@ -740,7 +1048,12 @@ switch (command) {
       console.log(USAGE);
       break;
     }
-    const items = rest.filter((a) => !a.startsWith("--"));
+    // --css / --registry leave WITH their values (extractFlagValue), so
+    // the value never masquerades as an item name and neither token is
+    // forwarded to shadcn (release-hygiene #2/#8)
+    const [cssOverride, addRest1] = extractFlagValue(rest, "--css");
+    const [registryOverride, addRest] = extractFlagValue(addRest1, "--registry");
+    const items = addRest.filter((a) => !a.startsWith("--"));
     if (items.length === 0) {
       fail("add needs at least one item name (e.g. `toc`, a group id like `effects`, or `effects/glass`)");
     }
@@ -750,26 +1063,49 @@ switch (command) {
     // carries jixoai.css in two items) dead-ended on shadcn's overwrite
     // confirm under non-interactive stdin — the only escape was calling
     // shadcn directly with the config stripped. Flags forward verbatim,
-    // one flag list shared by every per-item spawn.
-    const flags = rest.filter((a) => a.startsWith("--") && a !== "--yes" && a !== "--help" && a !== "-h");
+    // one flag list shared by every per-item spawn; under non-interactive
+    // stdin --overwrite joins them automatically (release-hygiene #1).
+    const flags = addRest.filter((a) => a.startsWith("--") && a !== "--yes" && a !== "--help" && a !== "-h");
+    const overwrite = nonInteractiveOverwriteFlags(flags);
     const { path, config } = readConfig(cwd);
+    const overrideTemplate = registryOverride ? registryOverrideTemplate(registryOverride, cwd) : undefined;
+    const registryUrl = registryUrlFor(config, overrideTemplate);
+    if (cssOverride) {
+      // remember BEFORE the shadcn loop: every spawn strips and restores
+      // the jixoai block, and the restored block must carry the cssPath
+      config.jixoai = { ...(config.jixoai ?? {}), cssPath: cssPathKey(cwd, cssOverride) };
+      writeConfig(path, config);
+    }
     // group aliases (effect-attachments Lane H): `add effects` /
     // `add effects/glass` resolve to ITEM names BEFORE the shadcn
     // loop — the loop, the lock and the recording all speak RESOLVED
     // names (so `add effects` locks glass + press-button, never an
     // `effects` key)
-    const resolved = await resolveAddNames(registryUrlFor(config), items);
+    const resolved = await resolveAddNames(registryUrl, items);
     const hue = config.jixoai?.brandHue ?? DEFAULT_HUE;
     // one shadcn invocation PER ITEM, each carrying the @jixoai/ prefix
     // itself (consumer-feedback-fixes P0-3 audit: the prefix must never
     // depend on shell/shadcn multi-arg behavior — the loop re-reads the
     // config because shadcn may rewrite it between spawns)
     for (const item of resolved) {
-      shadcn(["add", `${NAMESPACE}/${item}`, ...flags], cwd, path, readConfig(cwd).config);
+      shadcn(
+        ["add", `${NAMESPACE}/${item}`, ...flags, ...overwrite],
+        cwd,
+        path,
+        readConfig(cwd).config,
+        overrideTemplate,
+      );
     }
     relocateMisplacedFiles(cwd, readConfig(cwd).config);
-    applyHue(themeCssPath(config, cwd), hue);
-    await recordInstalledItems(cwd, readConfig(cwd).config, resolved);
+    applyHueLocated(readConfig(cwd).config, cwd, hue);
+    const refused = await recordInstalledItems(cwd, readConfig(cwd).config, resolved, registryUrl);
+    if (refused > 0) {
+      fail(
+        `add incomplete — ${refused} item(s) failed the install-integrity gate ` +
+          "(their files are missing on disk; see the warnings above — nothing was locked for them). " +
+          "Resolve the conflicts and re-run the add",
+      );
+    }
     break;
   }
   case "adopt": {
@@ -780,15 +1116,27 @@ switch (command) {
     // hashes — subsequent upgrades are fully idempotent. Item names only:
     // group aliases (`effects`, `effects/glass`) are an ADD-time
     // convenience and never expand here (see resolveAddNames).
-    const names = rest.filter((a) => !a.startsWith("--"));
+    const [registryOverride, adoptRest] = extractFlagValue(rest, "--registry");
+    const names = adoptRest.filter((a) => !a.startsWith("--"));
     if (names.length === 0) {
       fail("adopt needs item names (e.g. `adopt toc jixoai-theme`) — items whose files live at their components.json targets");
     }
     const { config } = readConfig(cwd);
+    const registryUrl = registryUrlFor(
+      config,
+      registryOverride ? registryOverrideTemplate(registryOverride, cwd) : undefined,
+    );
     const { path, lock } = readLock(cwd, { required: false });
     let recorded = 0;
     for (const name of names) {
-      const item = await fetchRegistryItem(registryUrlFor(config), name);
+      let item;
+      try {
+        item = await fetchRegistryItem(registryUrl, name);
+      } catch (cause) {
+        // a fetch failure used to escape as an unhandled rejection with
+        // a stack trace — fail with the message (and its guidance) instead
+        fail(cause.message);
+      }
       assertRegistryFiles(name, item.files);
       const files = {};
       const missing = [];
@@ -814,13 +1162,23 @@ switch (command) {
     break;
   }
   case "upgrade": {
-    const { config } = readConfig(cwd);
-    await runUpgrade(cwd, config);
+    const [registryOverride] = extractFlagValue(rest, "--registry");
+    const [cssOverride] = extractFlagValue(rest, "--css");
+    const { path, config } = readConfig(cwd);
+    if (cssOverride) {
+      config.jixoai = { ...(config.jixoai ?? {}), cssPath: cssPathKey(cwd, cssOverride) };
+      writeConfig(path, config);
+    }
+    const registryUrl = registryUrlFor(
+      config,
+      registryOverride ? registryOverrideTemplate(registryOverride, cwd) : undefined,
+    );
+    await runUpgrade(cwd, config, registryUrl);
     break;
   }
   case "config": {
     const { config } = readConfig(cwd);
-    console.log(JSON.stringify({ registry: REGISTRY_URL, ...config.jixoai }, null, 2));
+    console.log(JSON.stringify({ registry: config.registries?.[NAMESPACE] ?? REGISTRY_URL, ...config.jixoai }, null, 2));
     break;
   }
   default:

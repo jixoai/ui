@@ -26,6 +26,7 @@
     "verify:laws": "cd packages/css-laws && node_modules/.bin/tsx src/build.ts --check",
     "verify:standards": "node scripts/verify-standards.mjs",
     "verify:deps": "node scripts/verify-deps.mjs",
+    "verify:cli": "node scripts/verify-jixoai-cli.mjs",
     "verify:icons": "node scripts/gen-icon-set.mjs --check",
     "verify:spins": "node scripts/gen-spin-set.mjs --check",
     "verify:migration": "node scripts/verify-icon-migration.mjs --check",
