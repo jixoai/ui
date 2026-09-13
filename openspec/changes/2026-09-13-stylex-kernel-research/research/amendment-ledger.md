@@ -112,3 +112,46 @@ BEFORE any R2/R3 measurement (no evidence existed to bias):
 
 Owner informed via session report. Post-F4 the F3 rule applies
 unchanged: evidence re-scores, never re-defines.
+
+### F5 — THIS COMMIT (2026-09-13): Gate-1 r5 precision closure (pre-execution)
+
+Reason: Codex Gate-1 round 4 (7.4/10) found five precision gaps. All
+fixed BEFORE any measurement (no evidence existed to bias):
+
+1. D2-02 token ambiguity resolved: the manifest now declares the
+   SYNTHETIC TOKEN ENV explicitly (spike app.css carries `:root {
+   --jx-gap: 0.5rem; --jx-inset: 0.75rem; --jx-hit: 2.5rem; }`) —
+   8px 12px is exact under it; the real-theme path (density-default
+   block, jixoai.css:2133-2157) is the SECONDARY control-build
+   equality check (precedence is the invariant, literal recorded).
+2. All "in-spike" deferrals eliminated: D2-03's carve-out rule text
+   frozen verbatim (`:where(.switch-host:has(input:checked)) .rail {
+   background: rgb(255, 0, 0) }`); D2-10 binds via control-build
+   equality with block-verified anchors (.dark --primary
+   jixoai.css:194; lg rung 261-285); D2-13's sim rule frozen verbatim
+   (rgb(18, 52, 86) under @media not print); D1-11 points at the
+   D2-12 frozen pair.
+3. validate-manifests.mjs upgraded to BLOCK-SCOPED verification
+   (brace-matched block per selector, declarations verified INSIDE
+   the block, real line ranges printed) + a --self-test mode with
+   three deliberately-wrong anchors that MUST fail (proving drift
+   detection; both modes green at F5).
+4. D1-03 fresh-navigation protocol: every measurement starts from a
+   NEW navigation with the observer installed via addInitScript
+   before parsing (the r4 wording could ride the already-waited D1-01
+   page and miss the insertion event); style_ready never observed ⇒
+   FAIL; records: navigationStart, observer-install ts, insertion ts,
+   FCP, resource timing, settled computed bg.
+5. D3 sample math fixed: bytes = 3 DEDICATED npm ci runs per config
+   (separate from builds); builds = 5 rounds × [TW,A,B,C,C,B,A,TW]
+   with each position = cold (npm ci + timed build) + immediate warm
+   (timed build) ⇒ exactly 5 cold + 5 warm per config (40 runs);
+   p50/p95 = NEAREST-RANK (n=5: 3rd / 5th smallest); vectors renamed
+   to node_modules du median with Δ-over-common-base semantics (the
+   fixture's svelte/vite/@jixoai closure excluded; styling-engine
+   closure only).
+6. Non-blocking: design header carries the baseline labels (source
+   census @ 3c9097e0; protocol freeze @ F5); tasks.md gate rows
+   updated to the real round history (6.2/7.1/7.0/7.4).
+
+Post-F5 rule unchanged: evidence re-scores, never re-defines.

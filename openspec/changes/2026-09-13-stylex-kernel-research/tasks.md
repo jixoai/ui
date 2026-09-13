@@ -98,10 +98,11 @@
 
 ## R7 — review gates (remix)
 
-- [x] Gate 1 round 1: 6.2/10 REVISE (receipts, channel model,
-      boundary, gate inventory, D1–D3 operability, null build, corpus
-      — all addressed in r2 docs).
-- [ ] Gate 1 round 2: Codex re-reviews the revised doc set.
+- [x] Gate 1 rounds 1–4 scores: 6.2 → 7.1 → 7.0 → 7.4 (all REVISE;
+      each round's blockers addressed in r2/r3/r4/r5 docs; ledger
+      F2–F5 record the freeze lineage).
+- [ ] Gate 1 round 5 (r5 docs, HEAD = the gate-1 r5 commit): Codex
+      re-reviews; PASS required before execution scoring begins.
 - [ ] Gate 2: dossier review; Codex re-runs ≥2 spot-check numbers;
       iterate to stable verdict; score + reasons recorded.
 
