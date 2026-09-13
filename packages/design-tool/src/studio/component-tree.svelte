@@ -375,7 +375,8 @@
 {#snippet studioCaret(ctx: TreeItemCtx<TreeMeta>)}
   {#if ctx.node.meta?.kind === 'page' && ctx.expanded && frameLoading(ctx.node.meta.frameId)}
     <Spin spinner="dots" size={10} interval="auto" linger="auto" label="loading frame" />
-  {:else}
+  {:else if ctx.isFolder}
+    <!-- #41: leaves paint NOTHING (the built-in {#if isDir} law) -->
     <Icon name="chevronDown" size={10} />
   {/if}
 {/snippet}

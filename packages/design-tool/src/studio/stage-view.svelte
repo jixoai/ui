@@ -381,19 +381,22 @@
     // UNTRACK the lens read: this effect WRITES the lens — a tracked
     // read turns every camera move (wheel, drag) into an anchor
     // re-centering that undoes it (the round-4 probe catch)
-    animateLensTo(
-      centerStageOn(
-        untrack(() => lens),
-        stageRect.width,
-        stageRect.height,
-        {
-          x: rect.left,
-          y: rect.top,
-          width: rect.width,
-          height: rect.height,
-        },
-      ),
+    const target = centerStageOn(
+      untrack(() => lens),
+      stageRect.width,
+      stageRect.height,
+      {
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height,
+      },
     );
+    // #42: the animation START is untracked too — animateLensTo reads
+    // the current lens as its from-point; that tracked read re-ran this
+    // effect on every camera move, restarting the anchor tween until it
+    // yanked the camera back on release (the "locked view")
+    untrack(() => animateLensTo(target));
   });
 
   // the relay + resize wiring: messages from the live canvas document,

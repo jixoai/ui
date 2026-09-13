@@ -66,6 +66,22 @@ try {
   record('W1', '① canvas switch re-points iframe', afterSwitch?.includes('echo-demo') === true, afterSwitch ?? '');
   await page.locator('.studio-canvas', { hasText: 'welcome' }).first().click();
   await page.locator('li[role=treeitem]').first().waitFor({ timeout: 30_000 });
+  // settle the FRESH canvas document before listening: the {#key} remount
+  // creates a new iframe whose initial navigation may commit slower than
+  // any blind sleep under compile load — waiting the LIVE frame's load
+  // state removes the harness's own race (the W1② false-positive this
+  // round); resolves immediately if already loaded
+  await page.waitForSelector('.studio-preview iframe', { timeout: 30_000 });
+  let canvasSettled = false;
+  for (let i = 0; i < 40 && !canvasSettled; i += 1) {
+    const cf = page.frames().filter((f) => f.url().includes('/prototypes/welcome')).at(-1);
+    if (cf !== undefined) {
+      await cf.waitForLoadState('load', { timeout: 20_000 }).then(() => { canvasSettled = true; }).catch(() => {});
+    } else {
+      await sleep(250);
+    }
+  }
+  await sleep(400);
   // unified tree: the page node's row anchors (activate = anchor + expand)
   const heroPageNode = page.locator('li[data-path="page: hero-mobile-390-light"] > .jx-tree-row');
   await heroPageNode.waitFor({ timeout: 20_000 });
@@ -129,16 +145,22 @@ try {
   record('W3', '① tree node → selection press-button', chip3.toLowerCase().includes('press-button'), chip3.replace(/\n/g, ' '));
   const panel3 = await page.locator('.studio-panel-zone').first().innerText();
   record('W3', '② panel renders schema rows', /raised|loading|variant|edit in code/i.test(panel3), panel3.slice(0, 80).replace(/\n/g, ' '));
-  // highlight reaches into the frame doc (second layer): outline on the usage
+  // highlight reaches into the frame doc (second layer): the #43 DOM
+  // indicator — a [data-jx-indicator="selected"] overlay placed on a
+  // press-button's box (visible + carrying the metadata badge)
   let highlightSeen = false;
   for (const f of page.frames()) {
     if (!f.url().includes('/__design__/frame')) continue;
-    const outlines = await f.locator('[data-jx-component="press-button"]').evaluateAll((els) =>
-      els.map((el) => getComputedStyle(el).outlineStyle + '/' + getComputedStyle(el).outlineWidth),
+    const rings = await f.locator('[data-jx-indicator="selected"]').evaluateAll((els) =>
+      els.map((el) => ({
+        visible: getComputedStyle(el).display !== 'none',
+        badge: el.querySelector('.jx-indicator-badge')?.textContent ?? '',
+        w: el.style.width,
+      })),
     );
-    if (outlines.some((o) => o !== 'none/0px')) { highlightSeen = true; break; }
+    if (rings.some((r) => r.visible && r.badge.includes('press-button'))) { highlightSeen = true; break; }
   }
-  record('W3', '③ highlight reaches the frame usage', highlightSeen, 'computed outline on a press-button in a frame doc');
+  record('W3', '③ highlight reaches the frame usage', highlightSeen, 'the selected-indicator overlay on a press-button (badge names it + size)');
   await page.screenshot({ path: `${SHOT_DIR}w3-tree-select.png` });
 
   /* ── W4 prop edits: toggle add/remove + no flash ────────────── */
