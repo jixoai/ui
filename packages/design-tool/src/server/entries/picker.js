@@ -125,14 +125,19 @@ function applyHover(element) {
  */
 
 const INDICATOR_CSS = [
+  // the shared-element glide (#48): the ring NEVER leaves the layout
+  // (display flips kill CSS transitions — the glide must survive
+  // crossing gaps/frames). Boxes ride a SPRING (easeOutBack,
+  // ~240ms — Owner: 弹簧/iOS 曲线, not linear); opacity fades plain.
   `[data-jx-indicator] {`,
   `  position: absolute;`,
   `  top: 0; left: 0;`,
   `  pointer-events: none;`,
   `  z-index: 2147483646;`,
   `  box-sizing: border-box;`,
-  `  transition: transform 120ms ease, width 120ms ease, height 120ms ease;`,
-  `  will-change: transform, width, height;`,
+  `  opacity: 0;`,
+  `  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), width 240ms cubic-bezier(0.34, 1.56, 0.64, 1), height 240ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 140ms ease;`,
+  `  will-change: transform, width, height, opacity;`,
   `}`,
   `[data-jx-indicator].jx-tracking {`,
   `  transition: none;`,
@@ -215,17 +220,32 @@ function ensureIndicator(kind) {
   return el;
 }
 
+/** the hover fade-window (#48): a transient null (crossing a gap or a
+ * frame boundary) does not hide the ring immediately — a new box
+ * within the window cancels the fade and GLIDES there; only a real
+ * rest clears it. Selection nulls are deliberate and apply at once. */
+const hoverFadeTimers = new Map(); // kind → timeout (hover only)
+
 /** host: reposition a placed overlay from a canvas-space box */
 function placeIndicatorBox(kind, box, meta) {
   const el = ensureIndicator(kind);
   if (box === null) {
-    el.style.display = 'none';
     ringLast[kind] = null;
+    const applyFade = () => { el.style.opacity = '0'; };
+    if (kind === 'hover') {
+      clearTimeout(hoverFadeTimers.get(kind));
+      hoverFadeTimers.set(kind, setTimeout(applyFade, 160));
+    } else {
+      clearTimeout(hoverFadeTimers.get(kind));
+      applyFade();
+    }
     return;
   }
+  if (kind === 'hover') clearTimeout(hoverFadeTimers.get(kind));
   ringLast[kind] = { box, meta: meta ?? null };
   const k = 1 / Math.max(lensScale, 0.05);
   el.style.display = 'block';
+  el.style.opacity = '1';
   el.style.transform = `translate(${box.x}px, ${box.y}px)`;
   el.style.width = `${box.w}px`;
   el.style.height = `${box.h}px`;
@@ -291,7 +311,11 @@ function trackIndicators() {
 }
 
 /** content resize follows the CURRENT targets (a growing button keeps
- *  its ring and badge honest) */
+ *  its ring and badge honest). The FIRST callback per observe() is the
+ *  RO's initial report — firing trackIndicators there kills the glide
+ *  transition on every retarget (the #48 bug: sweep hover → ring
+ *  snaps). Expected-initial counting suppresses exactly those. */
+let roPendingInitial = 0;
 function observeTargets() {
   if (typeof ResizeObserver === 'undefined') return;
   targetObserver?.disconnect();
@@ -300,7 +324,14 @@ function observeTargets() {
     ['hover', hovered],
   ].filter(([, el]) => el !== null && el.isConnected);
   if (watch.length === 0) return;
-  targetObserver = new ResizeObserver(() => trackIndicators());
+  roPendingInitial = watch.length;
+  targetObserver = new ResizeObserver(() => {
+    if (roPendingInitial > 0) {
+      roPendingInitial -= 1;
+      return;
+    }
+    trackIndicators();
+  });
   for (const [, el] of watch) targetObserver.observe(el);
 }
 
