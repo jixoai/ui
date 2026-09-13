@@ -101,8 +101,10 @@
 - [x] Gate 1 rounds 1–4 scores: 6.2 → 7.1 → 7.0 → 7.4 (all REVISE;
       each round's blockers addressed in r2/r3/r4/r5 docs; ledger
       F2–F5 record the freeze lineage).
-- [ ] Gate 1 round 5 (r5 docs, HEAD = the gate-1 r5 commit): Codex
-      re-reviews; PASS required before execution scoring begins.
+- [x] Gate 1 rounds 5–6: 7.1 → **8.3 PASS** (round 6, HEAD
+      c177569b + the F7 hygiene commit) — execution unblocked; the
+      five round-6 B-items land in F7 or at receipt/decision stage
+      per the verdict.
 - [ ] Gate 2: dossier review; Codex re-runs ≥2 spot-check numbers;
       iterate to stable verdict; score + reasons recorded.
 

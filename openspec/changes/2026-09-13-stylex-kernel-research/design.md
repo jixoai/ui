@@ -346,7 +346,13 @@ fixes the r4 sample-math contradiction)**:
   npm hoisting / dedupe / shared transitives are handled implicitly
   by measuring the actual tree, never by per-package arithmetic;
   packages Δ = |lockfileNames(config) \ lockfileNames(TW)| — the
-  count of NEW package names only.
+  count of NEW package names only. lockfileNames is FROZEN as: parse
+  `package-lock.json` `packages` object keys — strip the leading
+  `node_modules/`, keep the LAST `node_modules/` segment (handles
+  nested dedup), drop the root `""` key; same parser for all four
+  configs. Receipts additionally record each config's package.json,
+  lockfile sha256, the exact generation commands, and the registry
+  state (local dir / pin) that produced them.
 
 ### Scored dimensions (0/3/5 anchors, pre-registered)
 
