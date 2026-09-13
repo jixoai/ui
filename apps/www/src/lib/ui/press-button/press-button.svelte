@@ -305,10 +305,21 @@ export interface PulseOptions {
    * prop that the rest spread forwards onto the root, where the
    * runtime's attribute_effect branch mounts it — data-jx-attach="root"
    * stays as the optional named mounting-point stamp, never the
-   * forwarding mechanism */
+   * forwarding mechanism.
+   *
+   * THE CONSUMER-SEMANTICS SEAM (#4, 2026-09-13): an attribute the
+   * component also STAMPS after the spread (aria-label, aria-disabled)
+   * must be destructured and COMPOSED, never re-declared blind — a
+   * bare `aria-label={ariaLabel}` after the spread erases a
+   * pass-through `aria-label` the moment the typed prop is unset, the
+   * exact silent drop the issue names. `disabled` joins the typed
+   * props under the same law: native on the button, and on the anchor
+   * form the loading pose's inert contract (aria-disabled + blocked
+   * navigation) — `disabled` is not an anchor attribute, and the rest
+   * lane never leaks button-only attributes onto the <a> */
   interface Props extends Omit<
     HTMLAttributes<HTMLElement>,
-    'onclick' | 'class' | 'aria-label' | 'style' | 'type'
+    'onclick' | 'class' | 'aria-disabled' | 'aria-label' | 'type'
   > {
     /** DENSITY override: explicit ?? ambient ?? no-opinion — resolved
      *  through PressButtonDefaults (the family contract); undefined
@@ -321,8 +332,20 @@ export interface PulseOptions {
      *  scope), else the frozen own 'outline' — explicit always wins */
     variant?: PressButtonVariant;
     href?: string;
-    /** Opens non-internal hrefs (not starting with "/") in a new tab. */
+    /** Forces the new-tab pair on/off. The DEFAULT derives from the
+     *  href itself, link.svelte's codified law (#5, 2026-09-13): ONLY
+     *  an absolute http(s) URL is external — /^https?:\/\//i — so app
+     *  routes ("/…"), same-document anchors ("#", "#section") and every
+     *  other scheme keep the same-tab default. */
     external?: boolean;
+    /** the INERT pose with native semantics (#4): the button form
+     *  carries the native disabled attribute (the platform drops it
+     *  from the tab order and suppresses activation); the anchor form
+     *  maps to the loading pose's inert contract instead —
+     *  aria-disabled="true" + blocked navigation — because `disabled`
+     *  is not an anchor attribute (interactive descendants belong
+     *  OUTSIDE anchors). Paint and the press law ride unchanged */
+    disabled?: boolean;
     /** the ASYNC pose (enhance-picker-feedback): aria-disabled="true",
      *  focusable, pointer AND keyboard activation suppressed, href
      *  navigation blocked, spinner glyph in the leading lane — the
@@ -369,10 +392,13 @@ export interface PulseOptions {
     href,
     external = undefined,
     loading = false,
+    disabled = false,
     onclick,
     type = 'button',
     popovertarget = undefined,
     ariaLabel,
+    'aria-label': ariaLabelAttr = undefined,
+    'aria-disabled': ariaDisabledAttr = undefined,
     square = false,
     raised = undefined,
     class: className = '',
@@ -472,20 +498,25 @@ export interface PulseOptions {
     link: 'text-primary underline-offset-4 hover:underline forced-colors:text-[LinkText]',
   } as const;
 
-  // ---- the loading lock (the anchor contract's enforcement seam) ------
+  // ---- the activation lock (the anchor contract's enforcement seam) --
   // EVERY activation path funnels through click — native buttons
   // synthesize it from Enter AND Space, anchors from Enter — so one
-  // guard covers pointer and keyboard alike. loading: buttons no-op;
-  // anchors preventDefault (the navigation itself is blocked). Tab
-  // order is untouched — aria-disabled, never the disabled attribute.
+  // guard covers pointer and keyboard alike. loading AND disabled
+  // share the seam (the #4 law: disabled is the native inert pose —
+  // the platform already suppresses a disabled button, the guard
+  // makes the seam component-owned and testable; anchors get
+  // preventDefault — the navigation itself is blocked). Tab order is
+  // untouched for loading — aria-disabled, never the disabled
+  // attribute (disabled DOES drop a button from the tab order, which
+  // is the native pose consumers ask for by name).
   // (the effect loops never ride this seam — pressEffect() owns its own
   // gesture surface through the attachment, effect-attachments §2b)
   function onButtonClick(): void {
-    if (loading) return;
+    if (loading || disabled) return;
     onclick?.();
   }
   function onAnchorClick(event: MouseEvent & { currentTarget: HTMLAnchorElement }): void {
-    if (loading) {
+    if (loading || disabled) {
       event.preventDefault();
     }
   }
@@ -507,7 +538,12 @@ export interface PulseOptions {
   );
 
   const classes = $derived(`${base} ${variantClasses}${className ? ` ${className}` : ''}`);
-  const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
+  // #5 (2026-09-13): link.svelte's codified external law — ONLY an
+  // absolute http(s) URL is external (no origin comparison: window.
+  // location has no place in an SSR-safe registry component). The old
+  // "anything not starting with /" rule judged every same-document
+  // anchor ("#", "#section") external and minted target=_blank for it.
+  const isExternal = $derived(external ?? (href !== undefined && /^https?:\/\//i.test(href)));
 
   // the leading lane (enhance-picker-feedback): loading swaps in the
   // bracket-cursor spinner (the spin family's glyph, inlined), the
@@ -536,8 +572,8 @@ export interface PulseOptions {
     {href}
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
-    aria-label={ariaLabel}
-    aria-disabled={loading ? 'true' : undefined}
+    aria-label={ariaLabel ?? ariaLabelAttr}
+    aria-disabled={loading || disabled ? 'true' : ariaDisabledAttr}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
     data-density={d.density}
     data-jx-press-button={d.variant}
@@ -554,8 +590,9 @@ export interface PulseOptions {
     {...rest}
     {type}
     onclick={onButtonClick}
-    aria-label={ariaLabel}
-    aria-disabled={loading ? 'true' : undefined}
+    disabled={disabled}
+    aria-label={ariaLabel ?? ariaLabelAttr}
+    aria-disabled={loading || disabled ? 'true' : ariaDisabledAttr}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
     data-density={d.density}
     data-jx-press-button={d.variant}

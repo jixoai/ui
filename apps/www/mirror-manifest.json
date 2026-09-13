@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-13T13:21:55.636Z",
+  "generatedAt": "2026-09-13T18:59:49.870Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -146,8 +146,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "8e69deb6683c96bc70ec1ec9aa60a9f2fe3b43f760737a55f5dc1263aa42777c",
-          "mirrorSha": "8e69deb6683c96bc70ec1ec9aa60a9f2fe3b43f760737a55f5dc1263aa42777c"
+          "sourceSha": "8f1ed9387f07d33376ee330a5edcbcd49ed751541625b46e4490f04375437168",
+          "mirrorSha": "8f1ed9387f07d33376ee330a5edcbcd49ed751541625b46e4490f04375437168"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -4044,8 +4044,8 @@
           "source": "registry/files/ui/icon-button/icon-button.svelte",
           "mirror": "apps/www/src/lib/ui/icon-button/icon-button.svelte",
           "target": "@ui/icon-button/icon-button.svelte",
-          "sourceSha": "f52cc14d56aa77c4cb6385cce0ff5cd5ab51000e7c6a010ef19db3dffd5873c7",
-          "mirrorSha": "f52cc14d56aa77c4cb6385cce0ff5cd5ab51000e7c6a010ef19db3dffd5873c7"
+          "sourceSha": "db9253f0f0928b5c8699445ced10c1da541f88dd6d0852762a10f5a231af77ef",
+          "mirrorSha": "db9253f0f0928b5c8699445ced10c1da541f88dd6d0852762a10f5a231af77ef"
         },
         {
           "source": "registry/files/ui/icon-button/index.ts",
