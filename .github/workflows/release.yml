@@ -1,10 +1,10 @@
 name: Release
 
-# TODO (owner closeout 2026-08-29): every workflow in this repo (the
-# ghostty-wasm-sync PR automation, the deploy wasm cache, this dual
-# publish) has passed LOCAL rehearsal only — none has run on real GitHub
-# Actions yet; expect small first-run frictions (permissions, branch
-# protection on the automation PR, cache paths).
+# First-real-run ledger (2026-09-13, v0.5.0): this dual publish ran end
+# to end — the CLI green outright, the plugin green once its npm trusted
+# publisher binding existed (configured the same day); the only residual
+# friction was uploads.github.com 500ing during a platform incident (the
+# tarball was re-attached by hand once it cleared).
 #
 # Publishes the jixoai-ui CLI and the @jixoai/ui-vite-plugin package to npm
 # via Trusted Publishing (OIDC). Each package's npm trusted publisher is
@@ -62,12 +62,12 @@ jobs:
           files: cli/jixoai-ui-*.tgz
           generate_release_notes: true
 
-  # Owner TODO (publishing prerequisite): configure the npm trusted
-  # publisher for @jixoai/ui-vite-plugin on npmjs.com, bound to this
+  # The npm trusted publisher for @jixoai/ui-vite-plugin is bound to this
   # repository + this workflow file (release.yml) + the `npm-publish`
-  # environment. Until that binding exists this job fails at the publish
-  # step; in-repo development is unaffected (apps/www resolves the plugin
-  # via file:../../packages/vite-plugin, published or not).
+  # environment (configured 2026-09-13; the first publish rode it the same
+  # day). In-repo development never depends on the publish anyway (apps/www
+  # resolves the plugin via file:../../packages/vite-plugin, published or
+  # not).
   #
   # The plugin is a self-contained npm project (own package-lock.json +
   # devDependencies), so `npm ci` never touches the root install. The
