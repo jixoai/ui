@@ -429,7 +429,7 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
       [lucideScan('check')],
     );
     // the 38 built-ins — NO second payload for lucide:check
-    expect(icons).toHaveLength(38);
+    expect(icons).toHaveLength(39);
     expect(icons.map((icon) => icon.name)).not.toContain('lucide:check');
     expect(aliases).toEqual({});
     expect(equivalences).toEqual({ 'lucide:check': 'check' });
@@ -445,7 +445,7 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
       "export const EQUIVALENCES: Readonly<Record<string, string>> = {\n  'lucide:check': 'check',\n};",
     );
     expect(artifact).not.toContain('ALIASES');
-    expect(report.iconCount).toBe(38); // canonicals only
+    expect(report.iconCount).toBe(39); // canonicals only
     const namesBlock = artifact.split('export const ICON_NAMES = [')[1]!.split('\n] as readonly IconName[];')[0]!;
     expect(namesBlock).toContain("  'check',\n  'lucide:check',"); // adjacent to its canonical
     expect(artifact).toContain(
@@ -473,7 +473,7 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
       [lucideScan('check')],
     );
     expect(equivalences).toEqual({ 'lucide:check': 'check' });
-    expect(icons).toHaveLength(38); // the override replaced the built-in in place
+    expect(icons).toHaveLength(39); // the override replaced the built-in in place
     const generated = generateIconLibraryArtifacts(icons, { equivalences });
     const mod = await importArtifact(generated.artifact);
     // lucide:check resolves to the OVERRIDE artwork, not lucide's check
@@ -521,7 +521,7 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
       checker(),
       [lucideScan('check', 'c2')],
     );
-    expect(icons).toHaveLength(38);
+    expect(icons).toHaveLength(39);
     expect(aliases).toEqual({ c2: 'lucide:check' });
     expect(equivalences).toEqual({ 'lucide:check': 'check' });
 
@@ -542,7 +542,7 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
     expect(artifact).toContain(
       '  return Object.hasOwn(EQUIVALENCES, aliased) ? EQUIVALENCES[aliased] : aliased;',
     );
-    expect(report.iconCount).toBe(38); // canonicals only — neither row is a payload
+    expect(report.iconCount).toBe(39); // canonicals only — neither row is a payload
     expect(report.perIconBytes['lucide:check']).toBeGreaterThan(0); // the row costs its bytes
     expect(report.perIconBytes['c2']).toBeGreaterThan(0);
 
@@ -565,7 +565,7 @@ describe('the EQUIVALENCES law — scanned lucide refs dedupe against packed nam
       checker(),
       [lucideScan('check', 'constructor')],
     );
-    expect(icons).toHaveLength(38); // the alias rows never pack a payload
+    expect(icons).toHaveLength(39); // the alias rows never pack a payload
     expect(aliases).toEqual({ constructor: 'lucide:check' });
     expect(equivalences).toEqual({ 'lucide:check': 'check' });
 

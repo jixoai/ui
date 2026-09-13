@@ -125,14 +125,14 @@ describe('library options validation (A1)', () => {
   });
 });
 
-describe('the built-in manifest migration (GROUPS order, 38 entries)', () => {
-  test('carries exactly the 38 names in the frozen GROUPS order', () => {
-    expect(DEFAULT_LIBRARY_MANIFEST).toHaveLength(38);
+describe('the built-in manifest migration (GROUPS order, 39 entries)', () => {
+  test('carries exactly the 39 names in the frozen GROUPS order', () => {
+    expect(DEFAULT_LIBRARY_MANIFEST).toHaveLength(39);
     expect(DEFAULT_LIBRARY_NAMES).toEqual([
       'arrowRight', 'arrowLeft', 'rotateCcw', 'copy', 'chevronDown', 'chevronRight',
       'x', 'externalLink', 'check',
       'folder', 'folderOpen', 'file', 'fileCode', 'fileText', 'braces', 'palette',
-      'plus', 'minus', 'ellipsis',
+      'plus', 'minus', 'ellipsis', 'gripVertical',
       'calendar', 'clock', 'pipette',
       'sun', 'moon', 'monitor', 'languages', 'image', 'fileVideo', 'fileAudio',
       'upload', 'chevronLeft',

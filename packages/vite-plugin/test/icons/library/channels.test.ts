@@ -307,10 +307,10 @@ describe('channel resolution — the REAL packages (A2)', () => {
       io,
       createSafetyChecker({ mode: 'warn' }),
     );
-    // the 38 built-ins untouched, the channel icon appended (override law)
-    expect(icons).toHaveLength(39);
-    expect(icons[37]!.name).toBe('type'); // the manifest's frozen last entry
-    expect(icons[38]!.name).toBe('mdHome');
+    // the 39 built-ins + the channel icon = 40 (the override law)
+    expect(icons).toHaveLength(40);
+    expect(icons[38]!.name).toBe('type'); // the manifest's frozen last entry
+    expect(icons[39]!.name).toBe('mdHome');
   });
 
   test('a resolver returning a RELATIVE path fails the absolute contract by name (diff-r1 M1)', async () => {

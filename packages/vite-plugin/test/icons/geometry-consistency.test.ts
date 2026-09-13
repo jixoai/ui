@@ -36,6 +36,7 @@ import {
   FileVideo,
   Folder,
   FolderOpen,
+  GripVertical,
   Image,
   Languages,
   Link,
@@ -77,7 +78,7 @@ const SHARED_SLOTS: readonly { slot: IconSlot; icon: IconNode }[] = [
   { slot: 'clear', icon: X },
 ];
 
-/** the artifact's full built-in manifest (38 icons, GROUPS order) mapped
+/** the artifact's full built-in manifest (39 icons, GROUPS order) mapped
  *  to the lucide IconNode whose serialization each `d` payload must be */
 const BUILTINS: Readonly<Record<IconName, IconNode>> = {
   arrowRight: ArrowRight,
@@ -99,6 +100,7 @@ const BUILTINS: Readonly<Record<IconName, IconNode>> = {
   plus: Plus,
   minus: Minus,
   ellipsis: Ellipsis,
+  gripVertical: GripVertical,
   calendar: Calendar,
   clock: Clock,
   pipette: Pipette,
@@ -150,19 +152,19 @@ describe('geometry consistency gate (C4)', () => {
     }
   });
 
-  // the LUCIDE geometry law covers the BUILT-IN manifest (the 38) —
+  // the LUCIDE geometry law covers the BUILT-IN manifest (the 39) —
   // the dogfood era (2026-09-07) rides preset/scanned names in the
   // same artifact with their OWN families' geometry (material's
   // 0 -960 960 960 viewBox, fill natures), exactly by design
   const builtInNames = DEFAULT_LIBRARY_MANIFEST.map(([name]) => name) as IconName[];
 
   it('the artifact embeds lucide geometry for every built-in (d payload, byte-exact)', () => {
-    expect(builtInNames.length, 'the built-in manifest is the 38').toBe(38);
-    // 44 = 38 built-ins + 4 scanned channel canonicals (md:copy_all,
+    expect(builtInNames.length, 'the built-in manifest is the 39').toBe(39);
+    // 45 = 39 built-ins + 4 scanned channel canonicals (md:copy_all,
     // md:home, ph:atom, rx:system:add-line) + 1 alias (copy2) + 1
     // equivalence key (lucide:check → the packed check — icon-channel-api
     // design §1: the scanned lucide ref dedupes, ONE payload)
-    expect(ICON_NAMES.length, 'dogfood era: the artifact also carries the scanned set').toBe(44);
+    expect(ICON_NAMES.length, 'dogfood era: the artifact also carries the scanned set').toBe(45);
     for (const name of builtInNames) {
       const data = getIcon(name);
       expect(data, `${name} present in the artifact`).not.toBeNull();

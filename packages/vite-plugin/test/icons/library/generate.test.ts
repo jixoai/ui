@@ -50,19 +50,20 @@ describe('the pure core imports no vite (root-script adapter contract)', () => {
   });
 });
 
-describe('the MEASURED default-set acceptance (38 built-ins, default options)', () => {
+describe('the MEASURED default-set acceptance (39 built-ins, default options)', () => {
   test('chunk count, per-chunk byte totals and the artifact import list — from real output', async () => {
     const assets = await defaultSet();
-    expect(assets).toHaveLength(38);
+    expect(assets).toHaveLength(39);
 
     const { artifact, chunks, report } = generateIconLibraryArtifacts(assets, {});
 
     // MEASURED (2026-09-06, lucide 0.472 canonical bytes, svgo no-op
-    // pin): one chunk, 6602 serialized entry bytes, zero lazy chunks —
+    // pin; re-measured 2026-09-13 for the 39th built-in gripVertical):
+    // one chunk, 6839 serialized entry bytes, zero lazy chunks —
     // the default-config artifact is plugin-free by construction
-    expect(report.iconCount).toBe(38);
+    expect(report.iconCount).toBe(39);
     expect(report.chunkCount).toBe(1);
-    expect([...report.chunkBytes.entries()]).toEqual([[0, 6602]]);
+    expect([...report.chunkBytes.entries()]).toEqual([[0, 6839]]);
     expect(report.lazyChunks).toEqual([]);
     expect(report.warnings).toEqual([]);
 
