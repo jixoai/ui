@@ -133,7 +133,7 @@ class, and never count projections-of-one-law as removable duplication
 |---|---|---|
 | **implementation inputs** — a GO would EDIT these | `registry/files/ui/**` (markup paint, variant tables), `registry/files/lib/utils.ts` (cn), theme-sheet authoring regions (jixoai.css hand regions + @theme mapping + @custom-variant), `packages/css-laws/src/**` (serializers — IF channel (c) collapses or mounts change carrier), `registry/files/app.css` + `apps/www/src/app.css` (entry), BOTH vite configs (byte-locked pair), registry.json dependency edges, consumer-facing install docs/prereq gate (check-tw4-prereq.mjs) | studied AND drafted against; never observation-only |
 | **observation-only consumers** | www docs routes (16.8k tracked-source utility tokens — stays TW, doubles as coexistence proof), demo/, examples/, packages/vite-plugin (BECOMES an implementation input only under distribution architecture B), openspec specs (read as law, amended only by the follow-up change) | measured, not modified |
-| **generated artifacts** (fresh-through-generators, byte-locked) | theme sheet css-laws slots, mount sheets, icon/spin artifacts, mirror manifest, blueprints, www dist | re-derivable; receipts pin their bytes |
+| **generated artifacts** (fresh-through-generators, byte-locked) | theme sheet css-laws slots, mount sheets, icon/spin artifacts, mirror manifest, blueprints, www dist; **the byte-mirror object set (Gate-1 r3 B): `apps/www/src/lib/ui/**`, `apps/www/src/lib/jixoai.css`, `apps/www/src/lib/jx-pure.css` (+ app.css pair) — registry/files is the CANONICAL source, the www tree is the regenerated mirror (devMirrorSync + verify:mirror); any kernel edit lands canonical-first and regenerates** | re-derivable; receipts pin their bytes |
 | **gates & mirrors** | the §1.4 inventory | every gate gets a row: touched-or-not, why, research-evidence vs follow-up-apply |
 
 ## §1.4 The gate inventory (Gate-1 A5 ruling)
@@ -154,7 +154,7 @@ law-probing www suites, each classified for this research:
 | verify:shadcn-add | REAL consumer install contract | **research input**: RQ4 rides this infra (Gate-1 B2) |
 | verify:km / isolation / print (managed) | browser probes over own server | observation: probe method reused for D1/D2 fixtures |
 | www law suites: tw-context-probe, tw-standard-layer-probe, jx-pure-parity, dld-layers, density-adoption ×5, density-context, props-table-print-hook, registry-payload-parity, press-button, hook-law (scripts/verify-hook-law.mjs), check-tw4-prereq | layer law, Tier-2 parity, density ladder, print hooks, payload parity, hook vocabulary, consumer prereq | research-evidence: D2 matrix fixtures derive FROM these suites' expectations; the tw-* probes are the direct TW-coupling gates a GO retires or rewrites |
-| specialized cascade probes (Gate-1 r2 B addition): scripts/verify-folder-css.mjs, verify-layer-law.mjs, verify-jx-pure.mjs, verify-jx-pure-engines.mjs, verify-press.mjs, verify-surface.mjs, verify-trygrid.mjs, verify-native-parity.mjs | folder-sheet layering, the layer law per sheet, jx-pure Part A–D engines, press physics, the surface kernel, trygrid, native parity | research-evidence: D2-14/D2-15 derive from verify-surface's enumerated-override registry; a GO rewrites every probe whose selector vocabulary moves |
+| specialized cascade probes (Gate-1 r2 B addition; invocation annotated r4): STANDALONE npm-script gates — verify:press, verify:surface, verify:trygrid, verify:parity (root package.json); SCRIPT-LEVEL probes without npm aliases — verify-folder-css.mjs, verify-layer-law.mjs, verify-jx-pure.mjs, verify-jx-pure-engines.mjs (reached via other gates / on demand; R5 census records exact call sites); supply-chain standalone — verify:betlang-pin (online leg rides wasm-sync) | folder-sheet layering, the layer law per sheet, jx-pure Part A–D engines, press physics, the surface kernel, trygrid, native parity | research-evidence: D2-14/D2-15 derive from verify-surface's enumerated-override registry; a GO rewrites every probe whose selector vocabulary moves |
 | ~170 component suites (batch*, per-family) | behavior + paint contracts | follow-up-apply: paint assertions rewritten where computed styles move to stylex classes |
 
 ## §2 Research questions
@@ -236,10 +236,11 @@ law-probing www suites, each classified for this research:
 **D1 feasibility — the committed fixture manifest
 (research/fixtures/d1-fixture-manifest.md) is the contract**: 13 rows
 (D1-01..D1-13), each with setup / probe / PASS criterion / media
-state / mode; FOUC is numerically decided at D1-03 (probe element's
-computed background at the FCP entry timestamp MUST equal the
-authored value — styled first paint, gap recorded either way); the
-version pin set is frozen in the manifest (svelte 5.57.0,
+state / mode; FOUC is numerically decided at D1-03 (style-ready ≤
+FCP_start, both timestamps deterministic — resource-timing
+responseEnd / MutationObserver insertion vs paint entry startTime;
+SOFT-FAIL band 0–100ms, hard FAIL beyond); the version pin set is
+frozen in the manifest (svelte 5.57.0,
 @sveltejs/kit 2.70.3, vite 8.3.0, @stylexjs/stylex+unplugin+
 babel-plugin 0.19.0, tailwindcss+@tailwindcss/vite 4.3.3 — npm
 registry 2026-09-13); the verdict is scoped to EXACTLY that set, any
@@ -249,20 +250,23 @@ the missing-data flags, never silent passes.
 
 **D2 override law — the committed fixture manifest
 (research/fixtures/d2-fixture-manifest.md) is the contract**: 15 rows
-(D2-01..D2-15), each pinning markup essence, the selector under test,
-the property, and the EXPECTED outcome; run on build O1 (stylex
-layers after `utilities` — lawful) and, where marked O2-INV, on build
-O2 (layers before utilities — the EXPECTED INVERSION is the
-assertion, proving misconfiguration is detectable). Core rows (i–iv)
-plus the surface-kernel rows are hard: (xiv) the `.jx-tip.jx-surface
-::after` notch-mask override with NATURAL specificity (the
-:where-sensitivity micro-fixture asserts the same rule under
-:where() LOSES — the specificity math is load-bearing), (xv) the
-terminal-header `.jx-nav .jx-pop.jx-subpanel*` enumerated
-foreign-surface override. Tier-2 fixtures copy the REAL `.jx-input`
-Part A block byte-referenced, not a replica. The floating-surface
-corpus family is FROZEN to popover (the css-architecture enumerated
-case); dialog defers to the follow-up change.
+(D2-01..D2-15) pinning the CONCRETE selector (with file:line source
+anchor), property, and EXPECTED computed literal — verified against
+the real repo CSS TODAY by
+research/fixtures/validate-manifests.mjs (24 anchor checks, exit 1 on
+drift): the Tier-2 alias is the REAL `.jx-control` block
+(jx-pure.css:265), the forced-colors row pins the REAL Part C
+declarations (jx-pure.css:2255-2264), the surface-kernel row is the
+REAL `.jx-tip.jx-surface::after { content: none }` override with the
+notch on the `.jx-tip-shadow` child (tooltip.css:37-90) plus the
+:where-sensitivity micro-fixture, and the foreign-override row is
+the REAL two-selector terminal-header block overriding through
+`--jx-panel-pad`/`--jx-pop-pad*` vars and the enumerated
+`position-area … !important` over inline style
+(terminal-header.css:154+). Runs on build O1 (stylex layers after
+`utilities` — lawful) and, where marked O2-INV, on O2 (the EXPECTED
+INVERSION is the assertion). The floating-surface corpus family is
+FROZEN to popover; dialog defers to the follow-up change.
 
 **D3 distribution — quantified dimensions and TOLERANCE VECTORS**
 (per architecture A/B/C, measured on the real clean consumer; the
@@ -287,6 +291,28 @@ mechanical):
 - Blast-radius enumeration stays qualitative (failure modes listed
   with symptom severity) — it informs the report, never the pass
   rule.
+
+**D3 measurement protocol — the baseline UNIT is frozen (Gate-1 r4)**:
+
+- Fixture: ONE clean consumer built by the verify-shadcn-add pattern
+  (fresh dir, npm project, shadcn add of the affected items); the
+  SAME fixture lineage measures all four configurations (TW4
+  baseline, A, B, C) — plus the distribution constraint: shadcn
+  copies SOURCE (no runtime dependency on us), so the consumer's
+  bundler boundary is THEIR vite; rollback = per-family source revert
+  (git), recorded in RQ4's risk row.
+- Environment (this machine, frozen): node v24.21.0, npm 11.19.0
+  (npm ONLY — no pnpm/yarn variance), Apple M1 16GB, swap state
+  recorded per run.
+- Install: `npm ci` from a committed lockfile; 3 fresh installs
+  (rm -rf node_modules between) per configuration; BYTES = median
+  `du -sk node_modules` (the vector) + lockfile bytes + `npm install
+  --dry-run` tarball total (all three recorded; the vector uses the
+  du median).
+- Build: 5 cold (fresh npm ci → build) + 5 warm (immediate second
+  build) per configuration; p50/p95 over each 5-sample set; timing =
+  wall `real` (user/sys recorded); run order INTERLEAVED
+  (TW,A,B,C,C,B,A,TW) to cancel machine drift.
 
 ### Scored dimensions (0/3/5 anchors, pre-registered)
 
@@ -335,7 +361,13 @@ Independence: fixtures and corpus are frozen in THIS commit (design
 time) — before any measurement runs; receipts are immutable once
 committed; no result-conditional scope changes to corpus/fixtures;
 failures and 未查到 are preserved in all reports; Gate-2 reviewer
-independently re-derives spot-check numbers.
+independently re-derives spot-check numbers. Blind-label control
+(Gate-1 r3 B): during measurement and scoring, configurations and
+architectures are labeled anonymously in receipts (ENG-α/ENG-β/…,
+ARCH-A/B/C shuffled per artifact); the mapping is sealed in the
+ledger and revealed only in decision.md — the synthesizer scores
+before unsealing, and Gate 2 re-scores one dimension from raw
+receipts to check for label leakage.
 
 ## §6 Risks & biases (declared upfront)
 
