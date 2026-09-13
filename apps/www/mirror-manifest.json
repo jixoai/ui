@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-12T21:39:06.765Z",
+  "generatedAt": "2026-09-13T08:59:14.220Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1306,8 +1306,8 @@
           "source": "registry/files/ui/tree-view/tree-view.svelte",
           "mirror": "apps/www/src/lib/ui/tree-view/tree-view.svelte",
           "target": "@ui/tree-view/tree-view.svelte",
-          "sourceSha": "836b9773e6f3c4cfbc18597c40beebb3d38293fccb047e94679bec814eb7b3ab",
-          "mirrorSha": "836b9773e6f3c4cfbc18597c40beebb3d38293fccb047e94679bec814eb7b3ab"
+          "sourceSha": "f5ecb835329ae7b48ff054a34bc70dff27dd7f7c3ccfbbb8788b835bc23845c2",
+          "mirrorSha": "f5ecb835329ae7b48ff054a34bc70dff27dd7f7c3ccfbbb8788b835bc23845c2"
         },
         {
           "source": "registry/files/ui/tree-view/index.ts",
