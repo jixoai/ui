@@ -127,8 +127,9 @@ function applyHover(element) {
 const INDICATOR_CSS = [
   // the shared-element glide (#48): the ring NEVER leaves the layout
   // (display flips kill CSS transitions — the glide must survive
-  // crossing gaps/frames). Boxes ride a SPRING (easeOutBack,
-  // ~240ms — Owner: 弹簧/iOS 曲线, not linear); opacity fades plain.
+  // crossing gaps/frames). Boxes ride the CLASSIC iOS CURVE
+  // cubic-bezier(0.25, 0.1, 0.25, 1) — smooth, NO overshoot (Owner
+  // 2026-09-14: the spring was too much); opacity fades plain ease.
   `[data-jx-indicator] {`,
   `  position: absolute;`,
   `  top: 0; left: 0;`,
@@ -136,7 +137,7 @@ const INDICATOR_CSS = [
   `  z-index: 2147483646;`,
   `  box-sizing: border-box;`,
   `  opacity: 0;`,
-  `  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), width 240ms cubic-bezier(0.34, 1.56, 0.64, 1), height 240ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 140ms ease;`,
+  `  transition: transform 240ms cubic-bezier(0.25, 0.1, 0.25, 1), width 240ms cubic-bezier(0.25, 0.1, 0.25, 1), height 240ms cubic-bezier(0.25, 0.1, 0.25, 1), opacity 140ms ease;`,
   `  will-change: transform, width, height, opacity;`,
   `}`,
   `[data-jx-indicator].jx-tracking {`,
