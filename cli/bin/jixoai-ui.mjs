@@ -744,6 +744,14 @@ switch (command) {
     if (items.length === 0) {
       fail("add needs at least one item name (e.g. `toc`, a group id like `effects`, or `effects/glass`)");
     }
+    // passthrough flags (2026-09-14, the jixoai.com markdown install):
+    // `--overwrite` used to be silently DROPPED here, so an item whose
+    // closure writes one file TWICE intra-run (markdown's dep tree
+    // carries jixoai.css in two items) dead-ended on shadcn's overwrite
+    // confirm under non-interactive stdin — the only escape was calling
+    // shadcn directly with the config stripped. Flags forward verbatim,
+    // one flag list shared by every per-item spawn.
+    const flags = rest.filter((a) => a.startsWith("--") && a !== "--yes" && a !== "--help" && a !== "-h");
     const { path, config } = readConfig(cwd);
     // group aliases (effect-attachments Lane H): `add effects` /
     // `add effects/glass` resolve to ITEM names BEFORE the shadcn
@@ -757,7 +765,7 @@ switch (command) {
     // depend on shell/shadcn multi-arg behavior — the loop re-reads the
     // config because shadcn may rewrite it between spawns)
     for (const item of resolved) {
-      shadcn(["add", `${NAMESPACE}/${item}`], cwd, path, readConfig(cwd).config);
+      shadcn(["add", `${NAMESPACE}/${item}`, ...flags], cwd, path, readConfig(cwd).config);
     }
     relocateMisplacedFiles(cwd, readConfig(cwd).config);
     applyHue(themeCssPath(config, cwd), hue);
