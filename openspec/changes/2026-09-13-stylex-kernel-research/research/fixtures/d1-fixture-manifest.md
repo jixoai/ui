@@ -1,6 +1,8 @@
 # D1 fixture manifest — mechanically decidable, StyleX-install-free
 
-> Frozen at design time (2026-09-13, Gate-1 r3). Every row: id / setup
+> Frozen at design time 2026-09-13; correction lineage F2–F6 in
+> research/amendment-ledger.md (content carries the latest F-state;
+> per-round diffs live in the ledger, not in this header). Every row: id / setup
 > / probe / PASS criterion / media state / mode. A row FAILS only on
 > its stated criterion; limitations (runtimes unavailable) are recorded
 > as LIMITATION, never as pass. No numeric value is decided at
@@ -29,7 +31,7 @@ copies of this table; `npm ls` output is part of the spike receipt.
 |---|---|---|---|---|---|
 | D1-01 | spike/minimal dev server | wait ≤2s for `style[data-stylex]`; read probe el computed bg | style tag EXISTS ∧ computed bg == authored value | screen | dev |
 | D1-02 | D1-01 + websocket attached | edit one stylex.create value (file write) | computed style updates ≤3s ∧ `performance.getEntriesByType('navigation').length === 1` (no full reload) | screen | dev |
-| D1-03 | FRESH NAVIGATION per measurement (not the D1-01 page — an already-waited page would MISS the insertion event): observer installed via `addInitScript` BEFORE document parsing (dev); prod uses resource timing. style-ready is DEFINED: prod = max(responseEnd) over the page's render-blocking `<link rel=stylesheet>` entries; dev = performance.now() at the MutationObserver insertion of `style[data-stylex]` | style-ready timestamp vs FCP (= paint entry startTime). style_ready missing/never observed ⇒ FAIL | PASS ⟺ style_ready ≤ FCP_start. If style_ready > FCP_start: gap ≤ 100ms → SOFT-FAIL (counts as FAIL, flagged for Owner overrule via ledger); gap > 100ms → hard FAIL. Records kept regardless: navigationStart, observer-install ts, insertion ts, FCP startTime, resource timing, probe's settled computed bg | screen | dev+prod |
+| D1-03 | FRESH NAVIGATION per measurement (not the D1-01 page — an already-waited page would MISS the insertion event): observer installed via `addInitScript` BEFORE document parsing (dev); prod uses resource timing. style-ready is DEFINED: prod = max(responseEnd) over the page's render-blocking `<link rel=stylesheet>` entries; dev = performance.now() at the MutationObserver insertion of `style[data-stylex]` — the CALLBACK timestamp, a conservative UPPER BOUND of true insertion time (callback delay recorded; a SOFT-FAIL verdict may be re-examined against it). FCP paint entry missing ⇒ FAIL (LIMITATION only if the browser emits no paint entries at all, recorded verbatim) | style-ready timestamp vs FCP (= paint entry startTime). style_ready missing/never observed ⇒ FAIL | PASS ⟺ style_ready ≤ FCP_start. If style_ready > FCP_start: gap ≤ 100ms → SOFT-FAIL (counts as FAIL, flagged for Owner overrule via ledger); gap > 100ms → hard FAIL. Records kept regardless: navigationStart, observer-install ts, insertion ts, FCP startTime, resource timing, probe's settled computed bg | screen | dev+prod |
 | D1-04 | spike/ssg `vite build` output HTML | grep prerendered HTML for the class constant extracted from built CSS | class attr present in HTML == compiled constant (string equal) | screen | prod |
 | D1-05 | built page, JS ON | probe el computed style ∧ ∃ `<link rel=stylesheet>` whose bytes contain the class rule | computed == authored ∧ link rule exists | screen | prod |
 | D1-06 | dev AND prod loads with hydration | capture console | ZERO messages matching /hydrat\|mismatch/i ∧ `data-style-src` attrs present after hydrate | screen | dev+prod |

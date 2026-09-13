@@ -320,16 +320,33 @@ fixes the r4 sample-math contradiction)**:
   build runs; BYTES = median `du -sk node_modules` over the 3 runs
   (lockfile bytes + `npm install --dry-run` tarball total recorded
   alongside).
-- Build schedule — 40 runs, fully enumerated: 5 rounds × the
-  interleave cycle [TW,A,B,C,C,B,A,TW]. Each cycle position = one
-  COLD run (`rm -rf node_modules && npm ci && timed build`)
-  immediately followed by one WARM run (timed build on the same
-  install). 5 rounds ⇒ each configuration gets exactly 5 cold + 5
-  warm samples.
+- Build schedule — 40 timed builds, fully enumerated (Gate-1 r6 FIXES
+  the r5 count bug: the old 8-slot cycle held each config TWICE per
+  round, yielding 10+10). Five rounds; each round visits each
+  configuration EXACTLY ONCE, rotating:
+
+  | round | order |
+  |---|---|
+  | 1 | TW, A, B, C |
+  | 2 | B, C, TW, A |
+  | 3 | C, TW, A, B |
+  | 4 | A, B, C, TW |
+  | 5 | TW, A, B, C |
+
+  Each of the 20 positions = one COLD run (`rm -rf node_modules &&
+  npm ci && timed build`) immediately followed by one WARM run (timed
+  build on the same install) ⇒ 40 timed builds total, EXACTLY 5 cold
+  + 5 warm per configuration.
 - Percentiles: NEAREST-RANK on each 5-sample set (p50 = 3rd smallest;
   p95 = 5th smallest = max); timing = wall `real` (user/sys
   recorded); each run's raw timings are receipt rows before any
   aggregation.
+- Δ formulas (Gate-1 r6, reproducible): bytes Δ = du_median(config
+  fixture) − du_median(TW fixture) — whole-tree node_modules du, so
+  npm hoisting / dedupe / shared transitives are handled implicitly
+  by measuring the actual tree, never by per-package arithmetic;
+  packages Δ = |lockfileNames(config) \ lockfileNames(TW)| — the
+  count of NEW package names only.
 
 ### Scored dimensions (0/3/5 anchors, pre-registered)
 
