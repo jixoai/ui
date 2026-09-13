@@ -1,218 +1,356 @@
-# Design: the StyleX kernel research program
+# Design: the StyleX kernel research program (r2, post Gate-1 review)
 
 > Orthogonal intents: (1) concretize the Owner's perf/redundancy
 > complaints into measurable claims; (2) pre-register the decision
-> framework BEFORE evidence lands (bias control); (3) define the
-> research lanes, spikes, and orchestration; (4) fix the evidence
-> standard every finding must meet. Owner input 2026-09-13: "彻底放弃
-> 对 Tailwind CSS 的依赖，改成用 stylex……不排除开发者自己搭配
-> Tailwind……我们自己的内核和 stylex 做集成".
+> framework BEFORE evidence lands (bias control); (3) define research
+> lanes, spikes, and orchestration; (4) fix the evidence standard every
+> finding must meet. Owner input 2026-09-13: "彻底放弃对 Tailwind CSS
+> 的依赖，改成用 stylex……不排除开发者自己搭配 Tailwind……我们自己
+> 的内核和 stylex 做集成".
+>
+> r2 (2026-09-13): full revision after Codex Gate-1 (6.2/10, REVISE) —
+> styling-surface inventory replaces the naive "three-channel" model
+> (A2/A3), the kernel boundary becomes a four-role scope table (A4),
+> the gate inventory is enumerated (A5), D1/D2 get pre-registered
+> fixture matrices (A6/A7), D3 gets quantified dimensions and a REAL
+> TW4-counterfactual build (A8), the spike corpus is mandatory and
+> frozen (A9), plus non-blocking adoptions (B1–B4).
 
-## §1 Problem statement, concretized
-
-### 1.1 The performance claim to test
+## §1.1 The performance claim, decomposed and measured
 
 "Tailwind 对整个 CSS 的渲染性能带来很大的困难" decomposes into four
-falsifiable sub-claims (R2 measures each; R5 re-measures under StyleX):
+falsifiable sub-claims. R2 measures each on a FROZEN corpus (same
+pages, same states, same device, cold cache, recorded env) — and R2b
+builds a REAL counterfactual, not a thought experiment:
 
-| # | sub-claim | measurable proxy |
+| # | sub-claim | measurement |
 |---|---|---|
-| P1 | one monolithic render-blocking sheet | built CSS bytes + rule count per origin; whether ALL pages load ALL css |
-| P2 | sheet content is mostly irrelevant to any given page | per-page USED-selector ratio (devtools coverage-style sampling on representative pages) |
-| P3 | dev-loop cost (TW4 scanning/generate) | dev cold-start + HMR timings, www scale |
-| P4 | style-recalc/dynamic-class cost | rule count × mutation surface (heuristic; honest label: proxy only) |
+| P1 | one monolithic render-blocking sheet | built CSS assets: bytes raw/gzip/br, rule counts, attribution by origin (R0 receipts method); per-page `<link>` analysis — how many distinct CSS files exist, how many bytes each page actually loads |
+| P2 | sheet content mostly irrelevant per page | used-selector ratio sampled on 3 frozen representative pages (index, a heavy docs page, a component page) via headless-browser coverage-style probing |
+| P3 | dev-loop cost (TW4 scan/generate) | dev cold-start + HMR settle times, median of ≥5 runs each, on www scale |
+| P4 | style-recalc / dynamic-class cost | AUXILIARY ONLY: rule count × dynamic-class census heuristic, plus — if tooling permits within budget — a scripted interaction trace (DevTools protocol recalc-style event counts on the docs icon page). P4 CANNOT drive GO/NO-GO alone (Gate-1 A8 ruling) |
 
-The NULL HYPOTHESIS must be priced equally: the same four proxies under
-"stay on TW4 + targeted fixes" (sheet splitting per route family,
-pruning the docs-page utility surface from the kernel sheet, etc.).
-An engine swap is only justified if the gap the swap closes is real
-AND not closable in place.
+**R2b — the null hypothesis is BUILT, not estimated**: a TW4
+counterfactual variant of www where (a) docs-route utility generation
+splits into a route-family sheet loaded only by docs pages (TW4
+multiple-entry CSS), and (b) kernel-sheet content prunable without
+touching component source is measured. Same corpus, same device, same
+browser, same cache protocol as R2. If the counterfactual closes the
+P1/P2 gap the engine swap claims to close, D4 prices that honestly.
 
-### 1.2 The redundancy claim (already evidenced by the R0 census)
+> **R0 preliminary receipts (2026-09-13, full data in
+> research/r0-census.md)**: main sheet 0.BINDZyoA.css = 300,245B raw /
+> 43,352B gzip, 2309 top-level rules; attribution TW-generated 45.5%
+> (utilities 106,954B / 1501 rules) · jx-pure 34.4% · jixoai.css 14.5%
+> (nearly all OUTSIDE layers, per the cascade law) · component css
+> 2.2% · site+residual 3.4%. The single-sheet assertion HOLDS,
+> sharpened: 126/126 pages mount the main sheet + ~13 full-page
+> shared assets (~20-file fixed common set); per-page
+> render-blocking 337.8–466.5KB raw (mean 386KB / 63.4KB gzip); 31
+> more assets ride only client-side navigation. Attribution ran over
+> the 2026-09-11 20:59 dist (baseline d17abd58; CSS-input drift to
+> HEAD = spin.css ±56 lines ×2) because the machine hit **disk 100%
+> (254Mi free)** and killed both fresh build attempts — ENOSPC at
+> prerender, receipts carry the incident. Disk-dependent lanes
+> (R2/R2b rebuilds, spike installs) wait for space; numbers above
+> are the committed interim anchor.
 
-Three token channels + one deliberate dual supply:
+## §1.2 The styling-surface inventory (replaces "three channels")
+
+Gate-1 A2/A3 ruling: the earlier "three token channels + dual supply"
+model conflated INDEPENDENT CHANNELS with PROJECTIONS OF ONE LAW and
+mislabeled INTENTIONAL carrier hierarchies as duplication. The honest
+inventory, with equivalence classes (each row carries its receipt;
+R4 turns this into a per-declaration table with byte counts):
 
 ```
-            intent: "primary color at density sm"
-  ┌──────────────────────────────────────────────────────────┐
-  │ (a) TW4 @theme inline → text-primary / bg-muted utilities │
-  │ (b) context → --jx-text/--jx-inset vars → arbitrary-value │
-  │     utilities  px-[var(--jx-inset)]  (press-button:449)   │
-  │ (c) css-laws vocab  .jx-html-* / Tier-2 unlayered aliases │
-  │ (d) icon dual supply: virtual:jixoai-icons.css ≡ jx-pure  │
-  │     icon-vocab slot (byte-identical, by construction)     │
-  └──────────────────────────────────────────────────────────┘
+STYLING SURFACES (2026-09-13, HEAD 3c9097e0)
+├─ LAW SOURCES (single owner, typed TS)          [class: OWNER]
+│  └─ packages/css-laws/src/laws/*.ts — 13 laws
+│     └─ 5 projections from ONE source (generate.ts:127-145):
+│        utility → jixoai.css @layer components slot
+│        face    → jx-pure.css Part B (:where(.jx-pure))
+│        alias   → jx-pure.css Part A (unlayered, Tier-2 by design)
+│        vocab   → jx-pure.css jx-icon-vocab slot
+│        mount   → component folder css <law>-mount slots
+│        ⇒ 5 outputs, 1 declaration source — projection, NOT
+│          channel duplication (verify:laws gates freshness)
+├─ THEME SHEET HAND REGIONS (single owner: jixoai.css)
+│  ├─ OKLCH token blocks (:root/.dark)           [OWNER]
+│  ├─ density ladder ([data-density] scopes)     [OWNER]
+│  ├─ jx-hue-*/jx-pair-* intent utilities        [OWNER — legal layer,
+│  │   css-laws boundary law names it out of scope]  (jixoai.css:1084+)
+│  └─ glass family / print whitelist region      [OWNER]
+├─ TW4 INTEGRATION REGION (single owner: app.css + jixoai.css @theme)
+│  ├─ @import 'tailwindcss' (sole fan-in, app.css:23)  [OWNER]
+│  └─ @theme inline token→utility mapping        [OWNER — THIS is the
+│      (jixoai.css:783-843)                         region a StyleX
+│      GO would rewrite or retire]
+├─ AUTHORING LAYERS (per component)
+│  ├─ utilities-in-markup (Tier-1 paint)         [the layer the GO
+│  │   press-button variant tables etc.              migrates]
+│  └─ folder css (placement law #2: at-rules,
+│      pseudo geometry, @container, keyframes)  [stays CSS under any
+│      outcome — StyleX has no container queries (L1 §9)]
+├─ RUNTIME CHANNELS (spec-mandated)
+│  ├─ density TWO-CHANNEL contract: Svelte policy context +
+│  │  data-density CSS scopes (component-authoring:495-504 — the
+│  │  spec itself mandates both)                 [LAW, not redundancy]
+│  ├─ hue: runtime setProperty --brand-hue (hue-runtime)  [CHANNEL]
+│  ├─ glass: glassAttrs stamps style:--jx-glass-* (glass.ts:188-208)
+│  │                                             [CHANNEL — inline
+│  │                                              style, not class]
+│  └─ typography context → --jx-ty-* vars        [CHANNEL]
+└─ ICON CARRIER HIERARCHY (placement law B2 — INTENTIONAL)
+   ├─ inline SVG (component contexts)            [carrier tier 1]
+   ├─ mask carrier (CSS-only contexts)           [carrier tier 2]
+   ├─ UA-pseudo background fallback              [carrier tier 3]
+   └─ THE one true byte-duplication: virtual:jixoai-icons.css ≡
+      jx-pure icon-vocab slot (byte-identical by construction,
+      bounded ≤2 copies, locked by icons-dogfood.spec.ts:153-170,
+      240-256) — deliberate TW-generate-phase workaround [FALLBACK,
+      documented as dual supply; a GO may retire it, R4 prices it]
 ```
 
-The research question is NOT "can StyleX express our tokens" but
-"which channels COLLAPSE". A design that keeps (b)+(c) untouched and
-adds StyleX as channel (e) fails the motivation outright.
+**TRUE-DUPLICATION candidates** (the Owner's complaint, quantified in
+R4 as declaration/byte counts, per equivalence class): semantic
+intent expressible simultaneously via (a) TW token utilities, (b)
+context vars bridged by arbitrary-value utilities, (c) alias
+vocabulary; the @theme mapping region's own byte mass; the icon dual
+supply. R4's acceptance bar (RQ3): each candidate architecture must
+REDUCE the true-duplication class — never grow the runtime-channel
+class, and never count projections-of-one-law as removable duplication
+(retiring a projection is a serializer change, not a channel collapse).
 
-### 1.3 The kernel boundary (research scope)
+## §1.3 The kernel boundary — four roles (Gate-1 A4 ruling)
 
-IN: `registry/files/ui/**` (106 ui items, 94 TW-bearing files,
-2191 utility tokens), `registry/files/lib/**` (context-plugin,
-defaults axes, utils/cn), the theme sheet authoring surface
-(jixoai.css `@theme` region), `packages/vite-plugin` (as a
-distribution vehicle to STUDY), registry.json metadata edges.
+| role | contents | meaning for research |
+|---|---|---|
+| **implementation inputs** — a GO would EDIT these | `registry/files/ui/**` (markup paint, variant tables), `registry/files/lib/utils.ts` (cn), theme-sheet authoring regions (jixoai.css hand regions + @theme mapping + @custom-variant), `packages/css-laws/src/**` (serializers — IF channel (c) collapses or mounts change carrier), `registry/files/app.css` + `apps/www/src/app.css` (entry), BOTH vite configs (byte-locked pair), registry.json dependency edges, consumer-facing install docs/prereq gate (check-tw4-prereq.mjs) | studied AND drafted against; never observation-only |
+| **observation-only consumers** | www docs routes (16.8k tracked-source utility tokens — stays TW, doubles as coexistence proof), demo/, examples/, packages/vite-plugin (BECOMES an implementation input only under distribution architecture B), openspec specs (read as law, amended only by the follow-up change) | measured, not modified |
+| **generated artifacts** (fresh-through-generators, byte-locked) | theme sheet css-laws slots, mount sheets, icon/spin artifacts, mirror manifest, blueprints, www dist | re-derivable; receipts pin their bytes |
+| **gates & mirrors** | the §1.4 inventory | every gate gets a row: touched-or-not, why, research-evidence vs follow-up-apply |
 
-OUT: www docs routes (site surface, 13k+ tokens — stays Tailwind and
-doubles as the coexistence proof), `packages/css-laws` generated
-sheets (pure CSS, cascade-contract only — studied, not changed),
-betlang-wasm, cli/, the alpha-track inline-style lane
-(layout-family law is a separate posture by design).
+## §1.4 The gate inventory (Gate-1 A5 ruling)
+
+Every gate in `verify:all` (scripts/verify-all.mjs) plus the
+law-probing www suites, each classified for this research:
+
+| gate | what it locks | StyleX relevance |
+|---|---|---|
+| registry dependency shape (A4 prefix law) | @jixoai/* edges | follow-up-apply: edge set changes if utils/theme deps change |
+| verify:standards (B1/B2) | css-laws boundary, icon slot system | research-evidence: which laws a GO rewrites |
+| verify:laws / icons / spins / migration | generator freshness | observation: generators untouched during research |
+| verify:mirror | registry ⇄ www byte-identity | research-evidence: mirror law survives any outcome |
+| verify:context | context coverage vocabulary | research-evidence: runtime channels stay (spec-mandated) |
+| verify:deps / budgets / docs / meta | dep shape, byte budgets, docs taxonomy, metadata | follow-up-apply: budgets/docs change with any migration |
+| vite.config.ts dual-app byte-identity | www ≡ registry configs | follow-up-apply: any StyleX vite wiring lands in BOTH |
+| ghostty-pin / betlang-pin / registry-test-mirror | supply chain, local mirrors | untouched |
+| verify:shadcn-add | REAL consumer install contract | **research input**: RQ4 rides this infra (Gate-1 B2) |
+| verify:km / isolation / print (managed) | browser probes over own server | observation: probe method reused for D1/D2 fixtures |
+| www law suites: tw-context-probe, tw-standard-layer-probe, jx-pure-parity, dld-layers, density-adoption ×5, density-context, props-table-print-hook, registry-payload-parity, press-button, hook-law (scripts/verify-hook-law.mjs), check-tw4-prereq | layer law, Tier-2 parity, density ladder, print hooks, payload parity, hook vocabulary, consumer prereq | research-evidence: D2 matrix fixtures derive FROM these suites' expectations; the tw-* probes are the direct TW-coupling gates a GO retires or rewrites |
+| ~170 component suites (batch*, per-family) | behavior + paint contracts | follow-up-apply: paint assertions rewritten where computed styles move to stylex classes |
 
 ## §2 Research questions
 
 - **RQ1 Toolchain feasibility** — StyleX WITHOUT React in Svelte 5 +
-  Vite 8 + SvelteKit adapter-static: which transform path compiles
-  `stylex.create()` in .ts/.svelte context (babel-plugin via which
-  vite integration; unplugin wrappers; what the Svelte compiler
-  tolerates); dev-mode style injection; PROD css delivery for SSG
-  (runtime injection vs prerender-time extraction vs static bundle);
-  class-name determinism when the SAME source is compiled by the
-  kernel build and by a consumer build.
-- **RQ2 Cascade & the override law** — consumer TW utilities MUST beat
-  kernel StyleX paint; the three css-architecture exceptions (Tier-2
-  unlayered, state-machine carve-out, surface-kernel override) must
-  keep their semantics; StyleX insertion/layer options vs TW4's
-  `@layer theme, base, components, utilities`; print whitelist and
-  forced-colors behavior under the new engine.
-- **RQ3 Theming & context fusion** — StyleX `defineVars`/`createTheme`
-  vs the OKLCH var sheet: can stylex values reference existing custom
-  properties (`var(--primary)` legality); `.dark` scope, `[data-density]`
-  scopes, runtime hue (`--brand-hue` written at runtime); does the
-  fusion SHRINK the channel count (1.2) — the acceptance bar.
-- **RQ4 Distribution model** — shadcn-add consumers copy SOURCE.
-  Today's prereq: TW4 + @tailwindcss/vite + entry css
-  (check-tw4-prereq). Tomorrow's prereq under each candidate
-  architecture (A: consumer runs StyleX toolchain directly; B:
-  @jixoai/ui-vite-plugin absorbs the transform; C: kernel ships
-  pre-compiled css + plain class strings). Install weight, config
-  surface, failure modes for each; registry.json dependency edges
-  (utils item, theme item) under each.
-- **RQ5 Performance evidence** — R2 baselines vs spike measurements:
-  critical CSS per representative page, total shipped CSS, dev-loop
-  timings, FOUC behavior in dev and SSG output. Includes the null
-  hypothesis (1.1).
-- **RQ6 Migration scope & cost** — per-family census (variant tables,
-  cn() call sites, arbitrary-value carriers, forced-colors branches,
-  WAAPI/floating-surface/print couplings); effort model; the blast
-  radius on verify gates (tw4-prereq, hook-law, context-coverage,
-  mirror, standards).
-- **RQ7 Alternatives** — the slot is "compile-time, (near-)zero
-  runtime, Svelte-5-native, atomic, Tailwind-coexistent". Rank:
-  null-hypothesis (TW4 + fixes), UnoCSS, Panda CSS, vanilla-extract,
-  PigmentCSS, Linaria, style9. Only depth on the top 2 fallbacks —
-  enough to know what we'd do if StyleX fails a hard gate.
+  Vite 8 + SvelteKit adapter-static: transform path (@stylexjs/unplugin
+  `.svelte` support is official since 2026-04 — L1 §4; Vite 8 and
+  adapter-static are the TWO unverified blind spots), dev injection,
+  prod CSS delivery, class determinism kernel-build vs consumer-build.
+- **RQ2 Cascade & the override law** — the §4 D2 fixture matrix, in
+  full, against TW4's layer stack.
+- **RQ3 Theming & channel fusion** — defineVars referencing existing
+  custom properties (`var(--primary)` is legal — L1 §6, compile-tested);
+  `.dark` scope, density scopes, runtime hue; the §1.2 true-duplication
+  table before/after per candidate architecture.
+- **RQ4 Distribution model** — architectures A (consumer runs unplugin
+  directly) / B (@jixoai/ui-vite-plugin absorbs the transform) /
+  C (pre-compiled CSS + plain class strings); measured by the D3
+  dimension table; validated on a REAL clean consumer via the
+  verify:shadcn-add infra pattern (clean dir, shadcn add, source↔payload
+  parity, install, build).
+- **RQ5 Performance evidence** — R2 + R2b + spike measurements under
+  one frozen protocol.
+- **RQ6 Migration scope & cost** — per-family census with effort,
+  file counts, and the risk register; feeds D7.
+- **RQ7 Alternatives** — null hypothesis (R2b) priced equally; ranked
+  fallbacks (L1: Panda CSS, vanilla-extract, UnoCSS; PigmentCSS
+  excluded — on hold; style9/Linaria dead/fading).
+- **RQ8 Environment & deployment risk table** (Gate-1 B1) — browser
+  support matrix (Chromium full / WebKit+Firefox smoke), CSP & no-JS
+  behavior (prod static link vs dev runtime injection), RTL/i18n
+  (StyleX auto ltr/rtl dual rules vs current authored CSS), source-map
+  & debug DX (data-style-src, experimental intellisense), upgrade/
+  rollback path (0.x pinning strategy, per-family rollback via source
+  distribution), license scan (expected MIT — verified in spike),
+  Svelte-chain ownership debt (5-month-old upstream integration — who
+  fixes Svelte-specific breakage).
 
 ## §3 Method per lane
 
-- **L1 external intel** (general-purpose subagent, web): StyleX
-  state-of-art dossier; 10 fixed question areas (versions/maintenance,
-  framework-agnosticism boundary, Vite path, Svelte precedents,
-  SSR/SSG, theming, cascade/layers, performance data, capability
-  gaps: keyframes/pseudos/container-queries/variants/RTL/TS,
-  production adoption). Evidence standard: every claim a URL; unknown
-  = "未查到", never silence.
-- **L2 repo baseline** (general-purpose subagent, local): P1–P4
-  measurements on a real www build (main checkout, process-reclaim
-  discipline); sheet attribution by origin (TW utilities vs jixoai.css
-  vs jx-pure.css vs folder css vs site modules); per-page used-ratio
-  sampling on 3 representative pages; dev cold-start/HMR timings; R6
-  census tables. Output: numbers + reproduction commands, committed
-  as `baseline.md`.
-- **L3 spike lab** (general-purpose subagent, local): three committed
-  scratch projects under `spike/` (pinned manifests, NO node_modules,
-  NO dist committed):
-  - `spike/minimal` — Svelte 5 + Vite 8 + StyleX, no React. Prove:
-    transform path, dev injection, prod output shape, TS types.
-  - `spike/coexist` — TW4 + StyleX one app; the override-law probes:
-    (i) consumer TW utility beats kernel stylex paint; (ii) unlayered
-    Tier-2 vocabulary still wins; (iii) state-machine carve-out
-    semantics; (iv) print whitelist wins under print media. Each probe
-    = a real-browser check (computed styles), screenshot optional,
-    numbers mandatory.
-  - `spike/ssg` — SvelteKit adapter-static + StyleX: the prod CSS
-    delivery path that RQ1 names; measure delivered bytes per page.
-  - Stretch (only if L1 names a viable path): a 3-component kernel
-    excerpt (press-button's variant table, one css-law face, one
-    context-driven density consumer) re-authored in StyleX inside the
-    spike — the ergonomics reality-check.
-- **L4 synthesis** (main agent): decision matrix, GO/NO-GO, report,
-  follow-up-change blueprint if GO.
+- **L1 external intel** — DONE (research/external-stylex.md; completed
+  during Gate 1, explicitly excluded from that review's considerations).
+- **L0 receipts** (running) — research/r0-census.md + r0-census.mjs:
+  frozen token grammar, pinned HEADs (main 3477a6d0 ≡ branch HEAD
+  3c9097e0 for measured trees, diff-stated), raw outputs, built-sheet
+  attribution with method + error sources, real www build (one build,
+  process-reclaim receipts).
+- **L2 baseline + counterfactual** — R2 (P1–P4 on frozen corpus) and
+  R2b (the TW4 split/prune counterfactual BUILD, measured under the
+  identical protocol); R6 census tables.
+- **L3 spike lab** — four committed scratch projects under `spike/`
+  (pinned manifests; no node_modules/dist committed):
+  - `spike/minimal` — Svelte5+Vite8+StyleX, no React. Records toolchain
+    choice, dev injection behavior, prod output shape, TS types, and
+    the VERSION PIN SET the whole D1 verdict is scoped to.
+  - `spike/ssg` — SvelteKit adapter-static: ≥2 routes, one with
+    dynamic/runtime-computed style values, theme (.dark) and density
+    scope switching, hydration-mismatch watch, no-JS snapshot, per-page
+    delivered CSS bytes.
+  - `spike/coexist` — TW4 + StyleX; the FULL D2 fixture matrix (§4),
+    every fixture a computed-style assertion with pinned expected
+    values; dev/prod × TW-import-order variants.
+  - `spike/corpus` — THE MANDATORY FIXED CORPUS (was "stretch",
+    Gate-1 A9): 8 frozen families re-authored in StyleX — press-button
+    (variant table + density + press-physics), range (law mount +
+    container-query geometry — folder-css boundary proof), dialog or
+    popover (floating-surface kernel), icon usage (inline + mask
+    carrier), code-card (print + scroll hooks), prose (typography
+    context vars), switch (state-machine carve-out), separator
+    (subtraction ink law). Records: files rewritten, LOC before/after,
+    dynamic-style branches, expressibility failures. This corpus is
+    FROZEN at design time — no result-conditional additions/removals.
+- **L4 synthesis** (main agent) — decision matrix, GO/NO-GO, blueprint.
 
-## §4 Decision framework (pre-registered)
+## §4 Decision framework (pre-registered, r2)
 
-HARD GATES — any fail ⇒ NO-GO for StyleX (the fallback ranking from
-RQ7 takes over):
+### Hard gates
 
-- **D1 feasibility**: spike/minimal + spike/ssg produce correct
-  styling in Svelte 5 + Vite 8 + adapter-static with a toolchain a
-  consumer can install from npm TODAY (no forked StyleX).
-- **D2 override law**: spike/coexist passes ALL four probes (i)–(iv).
-- **D3 distribution**: the consumer prereq under the chosen
-  architecture is not heavier than today's TW4 prereq (install
-  surface, config lines, build-time cost — L1+L3 evidence).
+**D1 feasibility — fixture matrix (every row must pass; any fail ⇒ D1
+FAIL)**. Scope: the pinned version set recorded in spike/minimal
+(verdict is version-scoped; upstream bumps re-open D1).
 
-SCORED (0–5 each, weights noted in the final matrix):
+| fixture | assertion |
+|---|---|
+| dev: style injection | runtime `<style data-stylex>` present; edits HMR without full reload |
+| dev: FOUC probe | first-paint not unstyled beyond a recorded threshold (performance entries) |
+| prod: static CSS asset | classes in prerendered HTML resolve against a real `<link>` CSS file (no runtime injection needed) |
+| SSR/prerender HTML | class attrs are compile-time constants in output HTML |
+| hydration | zero Svelte 5 hydration warnings from stylex attrs |
+| no-JS | prod page renders styled with JS disabled |
+| dynamic values | runtime-computed styles degrade to styleq+inline style correctly; no class churn errors |
+| pseudo/keyframes | :hover/:checked/keyframes render identical dev vs prod |
+| dark + density scopes | theme switching repaints without cascade surprises |
+| print / forced-colors / reduced-motion | degradation laws hold |
+| TS types | token typos fail compile; VarGroup flows |
+| browser smoke | Chromium full matrix; WebKit + Firefox smoke (limitation recorded if not locally runnable) |
 
-- **D4 measured perf**: critical-CSS bytes per page, total sheet,
-  dev-loop time — vs BOTH baseline and null-hypothesis pricing (w×3).
-- **D5 authoring ergonomics**: variants, pseudos, keyframes, container
-  queries, conditional/dynamic values, TS experience, debug class
-  names (w×2).
-- **D6 ecosystem risk**: StyleX maintenance health, Svelte-support
-  ownership (if WE own the adapter, that's debt we pay — price it)
-  (w×2).
-- **D7 migration cost**: R6 census × risk register (w×1).
+**D2 override law — fixture matrix** (fixed selectors, declarations,
+expected computed values — pinned per fixture in spike/coexist; TW
+import order both ways):
 
-NO-GO outputs: the fallback recommendation + what WOULD have to change
-for a revisit. GO outputs: follow-up change blueprint + channel-
-collapse design.
+core: (i) consumer TW utility beats kernel stylex paint; (ii) Tier-2
+unlayered alias beats BOTH; (iii) state-machine carve-out (`:checked`
+unlayered repaint) beats component-own stylex paint, while static
+paint stays consumer-overridable; (iv) print whitelist wins under
+print media over display/overflow utilities.
+extended: (v) negative — consumer utility does NOT beat Tier-2;
+(vi) consumer `!important` wins; (vii) same-layer source-order case
+(TW merge semantics preserved); (viii) inline style channel (glass
+stamps) precedence over stylex for its own properties only; (ix)
+custom-property precedence (stylex vars vs theme :root vars — scope
+semantics defined); (x) dark+density combined; (xi) reduced-motion
+kill of animate-*; (xii) forced-colors; (xiii) print-sim exclusion.
+Every row: expected computed value + dev/prod + import-order variant.
 
-## §5 Orchestration (remix)
+**D3 distribution — quantified dimensions** (per architecture A/B/C,
+against today's TW4 prereq on the SAME real consumer infra):
+
+| dimension | TW4 today | measured how |
+|---|---|---|
+| packages to install | tailwindcss + @tailwindcss/vite | shadcn-add consumer install |
+| install bytes | npm install --dry-run delta | same |
+| config surface (lines + files) | vite plugin line + entry import | counted in consumer |
+| boilerplate beyond config | entry css import only | dev-HMR snippet presence/size |
+| build-time delta p50/p95 | baseline | www-scale corpus build |
+| misconfiguration blast radius | — | enumerated failure modes + symptom severity (qualitative, listed) |
+
+Hard-gate rule: D3 passes for whichever architecture is NOT heavier
+than TW4-today in packages+config+boilerplate combined, or whose extra
+weight is absorbed by architecture B into an @jixoai package the
+consumer installs anyway.
+
+### Scored dimensions (0/3/5 anchors, pre-registered)
+
+- **D4 measured perf (w×3)** — 0: no improvement or regression vs
+  baseline AND counterfactual; 3: beats baseline on ≥2 of
+  {per-page critical CSS bytes, total CSS bytes, dev-loop time} but
+  not the counterfactual everywhere; 5: beats BOTH by ≥20% on
+  critical-path bytes with no regression on the others.
+- **D5 authoring ergonomics (w×2)** — 0: >30% of kernel idioms
+  inexpressible or unacceptable workarounds; 3: all expressible
+  (pseudos/keyframes/media/variants hand-rolled; container queries
+  lawfully in folder css) with LOC delta ≤ +50%; 5: all expressible +
+  token-typo compile failures materialize + LOC delta ≤ +30%.
+- **D6 ecosystem & owned debt (w×2, split per Gate-1 B3)** — D6a
+  ecosystem: 0 = EOL/unmaintained; 3 = healthy but 0.x single-vendor;
+  5 = stable semver, multi-vendor. D6b owned debt: 0 = we fork/patch
+  StyleX; 3 = we own glue only (config wrapper, boilerplate generator,
+  Svelte-chain watch); 5 = zero owned surface. D6 = mean(a,b).
+- **D7 migration cost (w×1)** — 0: >60 files or any high-risk family
+  (surface kernel, print, density, press-physics) has no proven path;
+  3: ≤40 files, high-risk families proven on corpus; 5: ≤20 files,
+  all families routine.
+
+**Total**: max 40 (5×[3+2+2+1]). GO additionally requires D4 ≥ 3.
+**Weight sensitivity**: verdict recomputed with each weight ±1
+(one-at-a-time); any flip is REPORTED, not hidden.
+**Missing-data rule**: an unevidenced dimension scores 0 AND is
+flagged; ≥2 flagged ⇒ verdict PROVISIONAL (Owner decides).
+Amendments after evidence lands: logged reason required (§6).
+
+## §5 Orchestration & independence controls (Gate-1 B4)
 
 ```
-Main (ZCode)          L1 intel (web)      L2 baseline (local)   L3 spike (local)
-  │ change docs ─────────────────────────────────────────────────────▶ Codex
-  │ ◀── gate 1: change-doc review (herdr, async callback) ────────────┘
-  ├─ launch L1 (already in flight at doc time), L2, L3 ──▶ subagents
-  │        (L2 ∥ L3 parallel; L1 informs L3's transform choice)
-  ├─ integrate; cross-check subagent claims vs diffs/artifacts
-  │ ◀── gate 2: dossier review (herdr, async callback) ─────────────▶ Codex
-  ├─ iterate until score/verdict stable
-  └─ archive + blueprint + commit
+Main (ZCode)         L0 receipts       L1 intel(✓)   L2+R2b baseline   L3 spikes
+  │ ◀─ Gate 1 r2 (this revision) ─────────────────────────────────────▶ Codex
+  ├─ launch L0 (running), then L2 ∥ L3 (serialized heavy builds)
+  ├─ freeze corpus & fixtures BEFORE measurements; commit immutable
+  │  raw receipts (append-only; corrections as new sections, never
+  │  silent edits)
+  ├─ cross-check subagent claims vs artifacts; friction write-back
+  │ ◀─ Gate 2: dossier review; Codex re-runs ≥2 spot-check numbers
+  └─ iterate to stable verdict → decision → archive/blueprint/commit
 ```
 
-Subagent feedback protocol applies: every subagent reports friction
-with its brief; the orchestrator cross-checks claims against artifacts
-before accepting (the vision-hallucination law: no judgment from
-unreadable evidence; every probe result is a computed-style number).
+Independence: fixtures and corpus are frozen in THIS commit (design
+time) — before any measurement runs; receipts are immutable once
+committed; no result-conditional scope changes to corpus/fixtures;
+failures and 未查到 are preserved in all reports; Gate-2 reviewer
+independently re-derives spot-check numbers.
 
 ## §6 Risks & biases (declared upfront)
 
-- **React-shaped evidence**: StyleX docs/benchmarks assume React.
-  Every claim must be re-grounded in OUR Svelte spike, never quoted
-  from React benchmarks as proof.
-- **Hype asymmetry**: atomic-CSS marketing numbers vs our ACTUAL sheet
-  composition (much of our sheet is laws/tokens, not utilities — the
-  swap only moves the utility slice; 1.1 attribution decides how big
-  that slice is).
-- **Sunk-cost drift**: the pre-registered gates (§4) bind; criteria
-  are not renegotiated after evidence arrives. Amendments require a
-  logged reason in the decision doc.
-- **Spike naivety**: a 3-file spike proving "it works" ≠ 106-item
-  kernel reality; D5/D7 price the gap explicitly.
-- **Cognitive bias check**: the Owner WANTS StyleX; the research owes
-  the null hypothesis equal rigor, or the decision is theater.
+- React-shaped evidence: re-ground every claim in OUR Svelte spike.
+- Hype asymmetry: atomic-CSS marketing vs our sheet composition —
+  R0 attribution decides how big the movable slice actually is.
+- Sunk-cost drift: §4 binds; amendments logged.
+- Spike naivety: the corpus prices D5/D7 — but corpus ≠ 106 items;
+  D7 anchors carry the extrapolation risk explicitly.
+- Owner-preference bias: R2b counterfactual measured identically; the
+  decision table shows both columns to the Owner.
+- Risk table (RQ8): browser matrix, CSP/no-JS, RTL, sourcemap DX,
+  upgrade/rollback, license, Svelte-chain ownership — each researched
+  and reported even if it cannot flip the verdict.
 
 ## §7 Evidence standard
 
 1. External facts: URL + quote ≤ 2 lines, dated.
-2. Repo numbers: command + full output line, reproducible from repo
-   root.
-3. Spike results: computed-style assertions (getComputedStyle), pixel
-   screenshots only as secondary corroboration; every screenshot
-   preceded by a non-triviality check (the black-image law).
-4. Unknowns are WRITTEN as unknowns; inference chains are labeled.
+2. Repo numbers: command + raw output, reproducible from a stated
+   HEAD; the R0 receipts are the template.
+3. Spike results: computed-style assertions with pinned expected
+   values; screenshots secondary, non-triviality-checked first
+   (black-image law).
+4. Unknowns written as unknowns; inference chains labeled.
+5. Receipts immutable once committed; corrections append.
