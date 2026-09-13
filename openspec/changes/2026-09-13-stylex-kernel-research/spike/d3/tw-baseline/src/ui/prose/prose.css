@@ -1,0 +1,139 @@
+@layer theme, base, components, utilities;
+
+/* jixoai prose — the typography scope's residue sheet
+ * (registry/files/ui/prose/prose.css, typography-context-and-parts
+ * Lane A, 2026-09-07).
+ *
+ * The FIRST LINE above is LOAD-BEARING SPEC TEXT, not hygiene: without
+ * the canonical layer statement a sheet injected before the Tailwind
+ * entry reorders the cascade (components would sort before base and
+ * preflight would beat these rules — the P0.1 finding). With it, this
+ * sheet's components-layer rules sit in the ladder exactly where the
+ * design drew it:
+ *
+ *   face element rules   (0,1,1)  :where(.jx-pure) p:not(…)
+ *   prose residue rules  (0,2,0)  [data-jx-ty-X] :is([data-jx-text='p'])
+ *   markdown sheet rules (0,2,1)  [data-jx-markdown] p (§2a) / trio (0,3,0)
+ *   consumer utilities   utilities layer (always wins)
+ *
+ * SOVEREIGNTY: every residue rule here is DELIBERATELY (0,2,0) — it
+ * beats every face element rule (max (0,1,1)) regardless of bundle
+ * order, and LOSES to the markdown sheet's §2a (0,2,1) and typography
+ * trio (0,3,0) inside [data-jx-markdown]: an outer <Prose size
+ * leading> can never fight <Markdown typography=…> (the sovereignty
+ * contract, by cascade, zero JS masking). The hooks are data-jx-* only
+ * (shadow-clean; no invented jx-* classes); the .jx-pure face is
+ * mounted by the provider host and consumed, never redefined here.
+ *
+ * The PRESENCE law: every rule is gated on a data-jx-ty-* attr the
+ * provider stamps ONLY when the knob is set. An ungated
+ * var(--jx-ty-leading, inherit) rule at (0,2,0) would fire always and
+ * break the face's p{1.6} for every non-prose region (F13, the
+ * no-opinion stamp law, CSS edition). Ambient flow: the attrs and vars
+ * inherit — a nested prose region keeps every knob it does not set
+ * (nearest setter wins). */
+
+@layer components {
+  /* ── 1 · the leading lane (the un-short-circuit generalization) ──
+     The face declares p { line-height: 1.6 } AT THE ELEMENT (0,1,1) —
+     an inherited wrapper leading can never reach it. This rule, at
+     (0,2,0) gated on the presence attr, restores the reach: P rides
+     the region's --jx-ty-leading. Headings keep their own leading
+     (component utility / face 1.25); pre keeps 1.55 (code's own law);
+     inside markdown the §2a (0,2,1) line-height:inherit wins instead
+     — the trio's root leading is sovereign there. */
+  [data-jx-ty-leading] :is([data-jx-text='p']) {
+    line-height: var(--jx-ty-leading);
+  }
+
+  /* ── 2 · the indent lane (P-only) ─────────────────────────────────
+     First-line indent at (0,2,0), P-only by the :is() hook — headings
+     never inherit a first-line indent (a heading is not a paragraph).
+     Loses to the markdown sheet inside [data-jx-markdown] only where
+     that sheet speaks; it never speaks text-indent, so the indent
+     flows into markdown paragraphs too (deliberate: 中文稿纸惯例 is a
+     REGION opinion). */
+  [data-jx-ty-indent] :is([data-jx-text='p']) {
+    text-indent: var(--jx-ty-indent);
+  }
+
+  /* ── 3 · the drop cap — BOTH arms (ruling A6) ─────────────────────
+     A browser-class-dependent drop cap reads as a bug: the modern
+     initial-letter path ships inside @supports, the float
+     ::first-letter fallback arms everywhere else. P-only, depth from
+     --jx-ty-initial (2–5). Drop caps KEEP printing on paper — the
+     manuscript posture (the recorded print decision). */
+  @supports (initial-letter: 2) {
+    [data-jx-ty-initial] :is([data-jx-text='p'])::first-letter {
+      initial-letter: var(--jx-ty-initial);
+    }
+  }
+  @supports not (initial-letter: 2) {
+    [data-jx-ty-initial] :is([data-jx-text='p'])::first-letter {
+      float: inline-start;
+      font-size: calc(var(--jx-ty-initial) * 1em);
+      line-height: 1;
+    }
+  }
+  /* indent suppression on the SAME P — a drop cap plus a first-line
+     indent double-counts. The compound selector is (0,3,0), beating
+     the indent lane above regardless of source order (it only fires
+     when both knobs are set on the same host) */
+  [data-jx-ty-initial][data-jx-ty-indent] :is([data-jx-text='p']) {
+    text-indent: 0;
+  }
+
+  /* ── 4 · the gradient lane — FILL-ONLY (A7/F9/F12) ────────────────
+     The provider emits the parts as vars; this lane assembles them on
+     the P and Heading hooks: background-image from --jx-ty-gradient,
+     clip to the glyphs, fill transparent. NEVER color: transparent —
+     currentcolor on a mark would resolve to the inherited transparent
+     and vanish (the F9 trap); the SOLID color stays inherited so
+     currentcolor restores against it. Headings join by their
+     data-jx-heading hook (the component owns no gradient knowledge —
+     hook carriers, reached by hook). (0,2,0): beats the face rules,
+     loses to consumer utilities, and sits under the markdown §2a
+     wherever that sheet speaks (it never speaks fill). */
+  [data-jx-ty-ink='gradient'] :is([data-jx-text='p'], [data-jx-heading]) {
+    background-image: var(--jx-ty-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  /* the mark restore: every hooked mark inside a gradient region
+     paints SOLID — fill: currentcolor as an ELEMENT rule (0,3,0)
+     beats the inherited transparent fill; currentcolor resolves
+     against the region's inherited solid ink, so strong/em/del/mark/
+     ins/sub/sup keep their voice inside the gradient. Bare unhooked
+     inline elements are outside the reading-content family contract —
+     use the parts. */
+  [data-jx-ty-ink='gradient'] [data-jx-text]:not([data-jx-text='p']) {
+    -webkit-text-fill-color: currentcolor;
+  }
+
+  /* ── 5 · print restore (ruling per F10) ───────────────────────────
+     The paged.js clone never re-runs the JS provider — a plugin
+     cannot reach it, so the restore lives HERE. Same selector shape
+     as the fill rule, later in source order (equal specificity,
+     in-sheet determinism): gradient fill/color restore to the solid
+     token, clip dropped. Drop caps keep printing (§3's posture). */
+  @media print {
+    [data-jx-ty-ink='gradient'] :is([data-jx-text='p'], [data-jx-heading]) {
+      background-image: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: var(--jx-ty-ink-solid, currentcolor);
+    }
+  }
+
+  /* ── 6 · forced-colors restore ────────────────────────────────────
+     The forced-colors engine overrides colors but never background
+     images — a clipped gradient would keep painting under CanvasText.
+     Drop the image and clip, restore the fill: currentcolor resolves
+     to the forced text color (CanvasText), the lawful degradation. */
+  @media (forced-colors: active) {
+    [data-jx-ty-ink='gradient'] :is([data-jx-text='p'], [data-jx-heading]) {
+      background-image: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: currentcolor;
+    }
+  }
+}
