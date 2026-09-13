@@ -216,7 +216,9 @@ describe('floor: schema mode coexistence (no regression)', () => {
     const { container } = render(CanvasFloorSchemaHost);
     const rows = container.querySelectorAll('[data-jx-canvas-row]');
     expect(rows.length).toBe(1);
-    expect(container.querySelector('[data-jx-canvas-seg-option="tonal"]')).not.toBeNull();
+    // grindstone #17-3: the segmented schema row rides ItemSegmented —
+    // the native radio's value is the segment identity
+    expect(container.querySelector('[data-jx-canvas-seg] input[value="tonal"]')).not.toBeNull();
 
     const stage = container.querySelector<HTMLElement>('[data-jx-canvas-stage]')!;
     await fireEvent.click(

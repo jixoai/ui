@@ -183,15 +183,15 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
       resolve(here, '../src/lib/ui/component-canvas/component-canvas.css'),
       'utf8',
     );
-    // the seg + stepper frames retired (a box in a bounded box reads
-    // catastrophic — the Owner ruling); the output rows drop their
-    // cell borders in the markup
-    const seg = /:where\(\.jx-canvas-seg\)\s*\{[^}]*\}/.exec(canvasCss)?.[0] ?? '';
-    expect(seg).not.toContain('border: 1px');
-    const stepper = /:where\(\.jx-canvas-stepper\)\s*\{[^}]*\}/.exec(canvasCss)?.[0] ?? '';
-    expect(stepper).not.toContain('border: 1px');
-    const value = /:where\(\.jx-canvas-step-value\)\s*\{[^}]*\}/.exec(canvasCss)?.[0] ?? '';
-    expect(value).not.toContain('border-inline');
+    // grindstone #17-3: the seg + stepper idioms retired ENTIRELY into
+    // ItemSegmented/ItemStepper (the shared .jx-html-tgroup bare rung
+    // and the NumberInput's bare livery own the paint) — a rule
+    // reborn here would be a frame reborn (a box in a bounded box
+    // reads catastrophic — the Owner ruling); the output rows drop
+    // their cell borders in the markup
+    for (const retired of ['.jx-canvas-seg', '.jx-canvas-stepper', '.jx-canvas-step']) {
+      expect(canvasCss).not.toContain(retired);
+    }
     const src = readFileSync(
       resolve(here, '../src/lib/ui/component-canvas/canvas-playground.svelte'),
       'utf8',

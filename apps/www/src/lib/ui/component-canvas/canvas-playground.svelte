@@ -74,8 +74,7 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { ItemGroup, ItemField, ItemToggle, ItemSelect, ItemInput } from '$lib/ui/list-item';
-  import type { ItemFieldContext } from '$lib/ui/list-item';
+  import { ItemGroup, ItemToggle, ItemSelect, ItemInput, ItemSegmented, ItemStepper } from '$lib/ui/list-item';
   import type { Density } from '$lib/density.svelte';
   import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
   import Icon from '$lib/ui/icon';
@@ -178,21 +177,9 @@
 
   const rowValue = (row: ControlRow): unknown => values?.[row.key] ?? row.default;
 
-  function stepValue(row: ControlRow, direction: 1 | -1): void {
-    let next = Number(rowValue(row));
-    if (!Number.isFinite(next)) next = row.minimum ?? 0;
-    if (row.minimum !== undefined) next = Math.max(row.minimum, next);
-    if (row.maximum !== undefined) next = Math.min(row.maximum, next);
-    next += row.step * direction;
-    if (row.minimum !== undefined) next = Math.max(row.minimum, next);
-    if (row.maximum !== undefined) next = Math.min(row.maximum, next);
-    setValue(row.key, next);
-  }
-
-  const stepText = (row: ControlRow): string => {
-    const n = Number(rowValue(row));
-    return Number.isFinite(n) ? String(n) : String(row.minimum ?? 0);
-  };
+  // the unit folds into the label (the adapter convention — ItemStepper
+  // carries no unit lane; the studio panel's labelOf does the same)
+  const rowLabel = (row: ControlRow): string => (row.unit ? `${row.label} (${row.unit})` : row.label);
 
   // the ItemField id seed: deterministic + canvas-scoped so two canvases
   // on one page never collide (label/description ids derive from it)
@@ -503,55 +490,48 @@
                     data-jx-canvas-slider
                   />
                 {:else if row.control === 'stepper'}
-                  <ItemField id={ctlId(row.key)} labelMode="text" label={row.label} description={row.description}>
-                    {#snippet control(field: ItemFieldContext)}
-                      <div
-                        class="jx-canvas-stepper"
-                        role="group"
-                        aria-labelledby={field.labelId}
-                        aria-describedby={field.describedBy}
-                        data-jx-canvas-stepper
-                      >
-                        <button
-                          type="button"
-                          class="jx-press jx-canvas-step-btn"
-                          data-jx-canvas-step="dec"
-                          aria-label={`Decrease ${row.label}`}
-                          onclick={() => stepValue(row, -1)}
-                        >−</button>
-                        <span class="jx-canvas-step-value" data-jx-canvas-stepper-value>{stepText(row)}{row.unit ? ` ${row.unit}` : ''}</span>
-                        <button
-                          type="button"
-                          class="jx-press jx-canvas-step-btn"
-                          data-jx-canvas-step="inc"
-                          aria-label={`Increase ${row.label}`}
-                          onclick={() => stepValue(row, 1)}
-                        >+</button>
-                      </div>
-                    {/snippet}
-                  </ItemField>
+                  <!-- grindstone #17-3: the stepper trio retired INTO
+                       ItemStepper (ItemField + NumberInput) — hold
+                       acceleration, min/max clamp and step snap are the
+                       control's own; direct typing + native ↑/↓ are
+                       first-class upgrades. THE BIND IS THE STEP CHANNEL
+                       (NumberInput fires change on typing alone — the
+                       button steps write through bind:value into the
+                       schema values); onchange keeps the onvalue seam
+                       alive for typing commits. data-jx-canvas-stepper
+                       rides the rest lane onto the native input (the
+                       dock's DOM contract anchor) -->
+                  <ItemStepper
+                    id={ctlId(row.key)}
+                    label={rowLabel(row)}
+                    description={row.description}
+                    bind:value={values[row.key]}
+                    min={row.minimum}
+                    max={row.maximum}
+                    step={row.step}
+                    onchange={(event) => {
+                      const n = event.currentTarget.valueAsNumber;
+                      if (Number.isFinite(n)) setValue(row.key, n);
+                    }}
+                    data-jx-canvas-stepper
+                  />
                 {:else}
-                  <ItemField id={ctlId(row.key)} labelMode="text" label={row.label} description={row.description}>
-                    {#snippet control(field: ItemFieldContext)}
-                      <div
-                        class="jx-canvas-seg"
-                        role="group"
-                        aria-labelledby={field.labelId}
-                        aria-describedby={field.describedBy}
-                        data-jx-canvas-seg
-                      >
-                        {#each row.values ?? [] as option (option)}
-                          <button
-                            type="button"
-                            class="jx-press jx-canvas-seg-btn"
-                            data-jx-canvas-seg-option={option}
-                            aria-pressed={String(rowValue(row)) === option}
-                            onclick={() => setValue(row.key, option)}
-                          >{option}</button>
-                        {/each}
-                      </div>
-                    {/snippet}
-                  </ItemField>
+                  <!-- grindstone #17-3: the aria-pressed button row
+                       retired INTO ItemSegmented (ItemField + ToggleGroup
+                       single) — native radios own the arrow-walk and the
+                       single tab stop the buttons could never claim;
+                       the segment's identity is the radio's VALUE.
+                       data-jx-canvas-seg rides the rest lane onto the
+                       radiogroup root (the dock's DOM contract anchor) -->
+                  <ItemSegmented
+                    id={ctlId(row.key)}
+                    label={row.label}
+                    description={row.description}
+                    options={(row.values ?? []).map((option) => ({ value: option }))}
+                    value={String(rowValue(row) ?? '')}
+                    onValueChange={(option) => setValue(row.key, option)}
+                    data-jx-canvas-seg
+                  />
                 {/if}
               </div>
             {/each}

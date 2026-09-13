@@ -117,8 +117,10 @@ describe('dock: reset wiring (onreset || schema-defaults fallback)', () => {
 
   it('no onreset + schema: reset restores the schema defaults', async () => {
     const { container } = render(CanvasSchemaHost);
+    // grindstone #17-3: the segmented row rides ItemSegmented — the
+    // segment's identity is the native radio's value
     await fireEvent.click(
-      container.querySelector<HTMLButtonElement>('[data-jx-canvas-seg-option="outline"]')!,
+      container.querySelector<HTMLInputElement>('[data-jx-canvas-seg] input[value="outline"]')!,
     );
     await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-reset]')!);
     expect(JSON.parse(container.querySelector('[data-testid="stage-demo"]')!.textContent!)).toEqual(
@@ -166,7 +168,7 @@ describe('dock: output foot + ItemGroup composition', () => {
     const dock = container.querySelector<HTMLElement>('[data-jx-canvas-dock]')!;
     expect(dock.querySelector('[data-testid="custom-playground"]')).not.toBeNull();
     expect(dock.querySelectorAll('[data-jx-canvas-row]').length).toBe(0);
-    expect(dock.querySelector('[data-jx-canvas-seg-option]')).toBeNull();
+    expect(dock.querySelector('[data-jx-canvas-seg]')).toBeNull();
   });
 });
 

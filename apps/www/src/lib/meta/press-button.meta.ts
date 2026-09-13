@@ -92,12 +92,15 @@ export const meta = defineComponentMeta(
 // Rows the pilot playground shows: variant / attach (the page-side effect
 // enum) / loading; the props that would only add noise to the pane opt out
 // with control: "none" (snippet/opaque kinds are excluded by the lowering
-// already).
+// already). icon hints (grindstone #17-2 activation, 2026-09-13): the
+// studio panel's lucide mini-map renders the glyph inline-start of the
+// row label through the list-item icon lane.
 export const annotations = defineAnnotations({
   variant: {
     'x-ui': {
       control: 'segmented',
       label: 'variant',
+      icon: 'layers',
       description: 'Prominence ladder rung — one physics for every rung; semantic hue injects through classes at the call site, never the variant.',
     },
   },
@@ -112,6 +115,7 @@ export const annotations = defineAnnotations({
     'x-ui': {
       control: 'toggle',
       label: 'loading',
+      icon: 'power',
       description: 'The async pose: aria-disabled, pointer AND keyboard activation suppressed, spinner in the leading lane.',
     },
   },
