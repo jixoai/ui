@@ -472,6 +472,7 @@
   <StageView
     src={previewSrc}
     title={`canvas ${currentName}`}
+    canvas={currentName}
     anchor={anchorRequest}
     onIframe={(element) => (canvasIframe = element)}
   />
