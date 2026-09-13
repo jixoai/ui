@@ -155,3 +155,41 @@ fixed BEFORE any measurement (no evidence existed to bias):
    updated to the real round history (6.2/7.1/7.0/7.4).
 
 Post-F5 rule unchanged: evidence re-scores, never re-defines.
+
+### F6 — THIS COMMIT (2026-09-13): Gate-1 r6 count-fix + manifest binding (pre-execution)
+
+Reason: Codex Gate-1 round 5 (7.1/10) caught a real arithmetic bug and
+a binding gap. All fixed BEFORE any measurement:
+
+1. D3 schedule count FIXED (the r5 bug): the 8-slot cycle
+   [TW,A,B,C,C,B,A,TW] held each config twice per round (10+10=80
+   builds, n=5 percentiles invalid). Now: 5 rounds × 4-position
+   ROTATION (each config exactly once per round) = 20 positions ×
+   (cold + immediate warm) = 40 timed builds = exactly 5 cold + 5
+   warm per config; nearest-rank n=5 valid.
+2. validate-manifests.mjs v3 binds the MANIFEST itself: tier-1 rows
+   (D2-02/10/12/14/15) must carry BOTH the selector string AND the
+   anchor EXACTLY equal to the source's real block range (helpers
+   bound whole-text); --self-test now proves THREE detections: wrong
+   source declaration, tampered manifest anchor, tampered manifest
+   selector (all caught; both modes green).
+3. D2-14 anchor corrected to the real block tooltip.css:42-44 (was
+   37-41 — comment lines, not the rule); D2-15 sub-anchors made
+   exact (154-184 / 190-192 / 201-210); D2-12 upgraded to
+   SELECTOR-LEVEL: the checkbox selector-list block
+   (jx-pure.css:2256-2264) is located INSIDE the media block and the
+   pinned pair verified there (a move to radio/range now fails).
+4. D1-03 semantics: the MutationObserver timestamp is declared a
+   conservative UPPER BOUND (callback delay recorded; SOFT-FAIL may
+   be re-examined against it); missing FCP paint entry ⇒ FAIL
+   (LIMITATION only when the browser emits no paint entries at all).
+5. Δ formulas made reproducible: bytes Δ = du_median(config) −
+   du_median(TW) (whole-tree du — hoisting/dedupe implicit); packages
+   Δ = |lockfileNames(config) \ lockfileNames(TW)| (new names only).
+6. Non-blocking folds: manifest headers now carry the F2–F6 lineage
+   (not stale round labels); D2 manifest declares ROW KINDS
+   (repo-derived = file:line anchor, machine-verified; synthetic =
+   frozen rule text is the anchor); design's stale "Gate-1 r3" label
+   replaced.
+
+Post-F6 rule unchanged: evidence re-scores, never re-defines.
