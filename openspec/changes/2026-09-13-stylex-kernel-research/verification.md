@@ -12,12 +12,19 @@ operability requirements for gates and anchors (A5–B3).
   single redundancy model everywhere.
 - Decision criteria are PRE-REGISTERED and COMMITTED as artifacts, not
   prose promises: research/fixtures/d1-fixture-manifest.md (13 rows,
-  numeric FOUC criterion, version pin set) and
-  research/fixtures/d2-fixture-manifest.md (15 rows incl. the
-  surface-kernel natural-specificity and terminal-header foreign
-  override cases; popover frozen; O1/O2 build matrix), D3 tolerance
-  vectors (design §4), D4–D7 0/3/5 anchors + weights + the D4≥3 rule
-  + sensitivity + missing-data rules.
+  numeric FOUC criterion: style-ready ≤ FCP_start with deterministic
+  timestamps and the SOFT-FAIL band; version pin set) and
+  research/fixtures/d2-fixture-manifest.md (15 rows pinning CONCRETE
+  selectors with file:line anchors and computed literals — `.jx-control`
+  not `.jx-input`, `content: none` on `.jx-tip.jx-surface::after`,
+  the two real `.jx-subpanel` selectors; popover frozen; O1/O2 build
+  matrix), all verified against the real repo CSS by
+  research/fixtures/validate-manifests.mjs (exit 1 on drift — it runs
+  in Gate 1 AND Gate 2); D3 tolerance vectors PLUS the frozen
+  measurement protocol (fixture lineage, node/npm pins, npm-only,
+  3× install / 5+5 build interleave, bytes = median du node_modules)
+  (design §4); D4–D7 0/3/5 anchors + weights + the D4≥3 rule +
+  sensitivity + missing-data rules.
 - The amendment ledger (research/amendment-ledger.md) records the
   freeze lineage (F1 pre-R1 → F2 post-R1 re-freeze with the R1-
   influence enumeration → F3 execution freeze); post-F3, R2/R3

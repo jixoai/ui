@@ -9,15 +9,16 @@
 
 ## R0 — receipts (Gate-1 A1)
 
-- [~] `research/r0-census.mjs` — frozen token grammar, zero-dep.
-- [~] `research/r0-census.md` — pinned HEADs (3477a6d0 ≡ 3c9097e0 for
-      measured trees, diff-stated), dependency table, recomputed
-      census (registry ui/routes/lib, www, demo, examples; old numbers
-      cross-checked one by one), sheet line counts, item counts.
-- [~] Built-sheet attribution from the real www build (one build,
-      process-reclaim receipts): CSS asset inventory raw/gzip, the
-      single-sheet assertion per page, content attribution by origin
-      with method + error sources.
+- [x] `research/r0-census.mjs` — frozen token grammar, zero-dep.
+- [x] `research/r0-census.md` — pinned HEADs, dependency table,
+      recomputed census, sheet line counts, item counts. STATUS
+      SEMANTICS: the SOURCE census is complete and current-HEAD-valid;
+      the BUILT-sheet attribution inside it is a d17abd58 HISTORICAL
+      artifact (amendment §h) — the current-HEAD build attribution is
+      OWED and lands as R2's first act (disk-blocked).
+- [~] Current-HEAD build attribution (blocked on disk space): rebuild
+      www at the frozen HEAD, re-run r0-sheet-attribution.cjs, append
+      the fresh attribution as a new receipt section.
 
 ## R1 — external intel (L1)
 
