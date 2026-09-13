@@ -1355,8 +1355,8 @@
           "source": "registry/files/ui/component-canvas/canvas-playground.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/canvas-playground.svelte",
           "target": "@ui/component-canvas/canvas-playground.svelte",
-          "sourceSha": "598d88a4ad1837816a7307ed69a432f48dd35a75b0b98dffa2faeff707300e43",
-          "mirrorSha": "598d88a4ad1837816a7307ed69a432f48dd35a75b0b98dffa2faeff707300e43"
+          "sourceSha": "762314b96e8c51f8a280a60ef1ef327208fd90b89668d98cac78b83b2f276fa0",
+          "mirrorSha": "762314b96e8c51f8a280a60ef1ef327208fd90b89668d98cac78b83b2f276fa0"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-schema.svelte.ts",
@@ -1383,8 +1383,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.css",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.css",
           "target": "@ui/component-canvas/component-canvas.css",
-          "sourceSha": "1a83836b28badf045bed6ec2b5e3bd63157a41dec61fbfe236702aab74afd10c",
-          "mirrorSha": "1a83836b28badf045bed6ec2b5e3bd63157a41dec61fbfe236702aab74afd10c"
+          "sourceSha": "2ea1e57d2436013bc9bc3cc26aa7e09bf23b494a6866bf99fb21f14c65ef4968",
+          "mirrorSha": "2ea1e57d2436013bc9bc3cc26aa7e09bf23b494a6866bf99fb21f14c65ef4968"
         }
       ]
     },

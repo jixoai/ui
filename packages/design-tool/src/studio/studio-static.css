@@ -1,0 +1,31 @@
+/* -------------------------------------------------------------------------
+ * @jixoai/ui-design (studio) — the static studio's tailwind fan-in
+ * (issue #18, the studio style base).
+ *
+ * The minimal transplant of apps/www/src/app.css's three-way fan-in
+ * (tw4 P2.2): `tailwindcss` + the canonical theme sheets, all compiled
+ * by @tailwindcss/vite in the studio build. The registry theme files
+ * CANNOT be loaded raw: they carry TW4 compiler at-rules (@custom-variant
+ * dark, @theme inline, @utility jx-*) that browsers drop — the jx-press /
+ * jx-surface / jx-hue-* laws would silently vanish.
+ *
+ * EXPLICIT @source — the highest-risk line of the static build: TW4's
+ * automatic content detection bases itself on the vite config ROOT
+ * (packages/design-tool), which does NOT cover the component trees the
+ * studio chrome compiles from (the #jixoai/ → registry/files/ui and
+ * $lib → apps/www/src/lib build aliases). Without these two lines the
+ * utility classes inside those trees silently drop out of the output —
+ * no error, a broken studio. The studio chrome's own tree stays under
+ * the vite root and rides automatic detection.
+ *
+ * The icons vocabulary block does NOT belong here:
+ * 'virtual:jixoai-icons.css' cannot be CSS-@imported under
+ * @tailwindcss/vite (enhanced-resolve skips plugin hooks — the
+ * apps/www app.css comment is the authoritative record); it rides the
+ * JS entry instead (studio-static-entry.js).
+ * ---------------------------------------------------------------------- */
+@import 'tailwindcss';
+@import '../../../../registry/files/theme/jixoai.css';
+@import '../../../../registry/files/theme/jx-pure.css';
+@source '../../../../registry/files/ui';
+@source '../../../../apps/www/src/lib';

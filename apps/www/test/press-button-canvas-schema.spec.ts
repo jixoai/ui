@@ -41,15 +41,21 @@ describe('pilot page schema playground', () => {
     expect(container.querySelector('select')!.getAttribute('aria-label')).toBe('Density');
 
     // flip variant → the driven instance restamps data-jx-press-button
+    // (grindstone #17-3: the segmented rows ride ItemSegmented — the
+    // segment's identity is the native radio's value)
     const driven = container.querySelector<HTMLButtonElement>('[data-jx-press-button="fill"]');
     expect(driven).not.toBeNull();
-    await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-seg-option="ghost"]')!);
+    await fireEvent.click(
+      container.querySelector<HTMLInputElement>('[data-jx-canvas-seg] input[value="ghost"]')!,
+    );
     expect(container.querySelector('[data-jx-press-button="ghost"]')).not.toBeNull();
 
     // the attach row via the onvalue seam: names → the factory (the
     // DRIVEN ghost instance paints the pulse layer through pressEffect —
     // the static demo row also has one)
-    await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-seg-option="pulse"]')!);
+    await fireEvent.click(
+      container.querySelector<HTMLInputElement>('[data-jx-canvas-seg] input[value="pulse"]')!,
+    );
     expect(container.querySelector('[data-jx-press-button="ghost"] .jx-pulse-layer')).not.toBeNull();
 
     // usage overlay tracks live values (the component-tag form the page

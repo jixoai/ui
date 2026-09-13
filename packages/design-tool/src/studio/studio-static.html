@@ -1,0 +1,26 @@
+<!doctype html>
+<!--
+  @jixoai/ui-design (studio) — the STATIC studio document (issue #18).
+
+  The build input for `npm run build:studio` (scripts/build-studio.mjs):
+  vite compiles THIS html + ./studio-static-entry.js into
+  packages/design-tool/dist-studio (base '/__design__/'), which the
+  design server HOSTS as a product surface — never compiles on demand
+  (the dev-side twin is src/server/entries/studio-entry.js, which
+  mounts the HOST dogfood page through the dev pipeline).
+
+  Same document contract as the dev htmlShell (create.ts): zero
+  margins, #studio-root min-height, module entry in body.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jixoai design studio</title>
+<style>html,body{margin:0;padding:0}#studio-root{min-height:100vh}</style>
+</head>
+<body>
+<div id="studio-root"></div>
+<script type="module" src="./studio-static-entry.js"></script>
+</body>
+</html>

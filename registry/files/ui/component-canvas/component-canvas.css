@@ -28,14 +28,17 @@
  * the rows ride the ItemField adapters inside the dock's integrated
  * ItemGroup — the row scaffold (grid grammar, label/description lanes,
  * native control paint, focus rings) is the family's own (item.css +
- * the leaf controls); what remains here is the dock's ROW TIGHTENING
- * (kit parity with .jx-play-row) and the canvas-authored segmented/
- * stepper control idioms (button rows without a registry adapter yet).
+ * the leaf controls). The canvas-authored segmented/stepper idioms are
+ * RETIRED (grindstone #17-3, 2026-09-13): the rows ride
+ * ItemSegmented/ItemStepper, the shared .jx-html-tgroup bare rung and
+ * the NumberInput's own bare livery carrying the paint — what remains
+ * here is the dock's ROW TIGHTENING (kit parity with .jx-play-row).
  *
  * The floor (canvas-floor-lab, 2026-08-30 → 2026-09-01): the header's
  * stage toggles are the REGISTRY toggle-group (native radios painted by
- * the shared .jx-html-tgroup law) — .jx-canvas-seg/-btn below remains
- * the SCHEMA-ROW segmented idiom only. The two-file tabs drawer was
+ * the shared .jx-html-tgroup law) — and since grindstone #17-3 the
+ * schema-row segmented control rides the SAME law through
+ * ItemSegmented. The two-file tabs drawer was
  * REVERTED (Owner, 2026-09-01) — the tree pane is the one drawer shape
  * at every file count, so the side-by-side window applies to
  * .jx-canvas-code-panels unconditionally (container-query tiers).
@@ -284,79 +287,14 @@
   padding-block: 0.3125rem;
 }
 
-/* segmented (schema rows, inside ItemField's end lane): the kit's
-   terminal idiom — muted gap seam, primary active. flex-grow fills
-   every wrapped line edge to edge: inside the dock the family's
-   narrow law (jx-items ≤30rem — always true at dock width) folds the
-   seg to its own full row, and without growth the last line's empty
-   remainder would expose the seam's INK background as a slab (the r2
-   regression reborn) */
-:where(.jx-canvas-seg-btn) {
-  flex: 1 1 auto;
-}
-/* THE BORDERLESS-CHROME LAW (Owner, 2026-09-09: "有明确边界的组件内，
-   尽量不要再出现有 border 的控件") — inside a bounded surface a
-   control frame is a box-in-a-box (visually catastrophic); the
-   AFFORDANCE carries itself: ghost cells, hover wash, the active
-   option's primary fill. The seg's old 1px frame + 1px gap-seam
-   background retired with the law */
-:where(.jx-canvas-seg) {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 1px;
-}
-:where(.jx-canvas-seg-btn) {
-  min-block-size: var(--jx-hit);
-  min-inline-size: 1.75rem;
-  padding-inline: 0.5rem;
-  border: 0;
-  background: var(--background);
-  color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  cursor: pointer;
-}
-:where(.jx-canvas-seg-btn:hover) {
-  color: var(--foreground);
-  background: color-mix(in oklab, var(--muted) 55%, transparent);
-}
-:where(.jx-canvas-seg-btn[aria-pressed='true']) {
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-
-/* stepper (schema rows, inside ItemField's end lane): bordered trio,
-   mono value, hit-height buttons */
-:where(.jx-canvas-stepper) {
-  display: inline-flex;
-  align-items: stretch;
-}
-:where(.jx-canvas-step-btn) {
-  min-block-size: var(--jx-hit);
-  min-inline-size: 1.6rem;
-  border: 0;
-  background: transparent;
-  color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-}
-:where(.jx-canvas-step-btn:hover) {
-  color: var(--foreground);
-  background: color-mix(in oklab, var(--muted) 55%, transparent);
-}
-:where(.jx-canvas-step-value) {
-  display: inline-flex;
-  align-items: center;
-  min-block-size: var(--jx-hit);
-  padding-inline: 0.55rem;
-  color: var(--foreground);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
+/* segmented + stepper (schema rows) — RETIRED (grindstone #17-3,
+   2026-09-13): the rows ride ItemSegmented (ToggleGroup single on the
+   shared .jx-html-tgroup bare rung — ghost cells, hover wash, primary
+   active, the wrap-lesson flex fill) and ItemStepper (NumberInput's
+   bare livery); the dock's own idiom rules are gone with the law they
+   taught: THE BORDERLESS-CHROME LAW (Owner, 2026-09-09: "有明确边界的
+   组件内，尽量不要再出现有 border 的控件") lives on in the standard
+   layer's bare rung */
 
 /* slider: the native track stretched to the lane */
 :where(.jx-canvas-slider) {
@@ -367,10 +305,10 @@
 }
 
 /* focus rings: the site's contained-ring law at canvas scale. The
-   adapter-rendered leaf controls (toggle/select/text/slider) own
-   their focus paint; only the canvas-authored chrome + the segmented/
-   stepper idioms + the dock head's chrome cluster (chevron, theme
-   button, density select) ride this block */
+   adapter-rendered leaf controls (toggle/select/text/slider, and since
+   grindstone #17-3 segmented/stepper too) own their focus paint; only
+   the canvas-authored chrome + the dock head's chrome cluster
+   (chevron, theme button, density select) ride this block */
 :where(.jx-canvas-reset:focus-visible),
 :where(.jx-canvas-copy-usage:focus-visible),
 :where(.jx-canvas-code-toggle:focus-visible),
@@ -378,9 +316,7 @@
 :where(.jx-canvas-install:focus-visible),
 :where(.jx-canvas-dock-toggle:focus-visible),
 :where(.jx-canvas-dock-theme:focus-visible),
-:where(.jx-canvas-dock-density:focus-visible),
-:where(.jx-canvas-seg-btn:focus-visible),
-:where(.jx-canvas-step-btn:focus-visible) {
+:where(.jx-canvas-dock-density:focus-visible) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
