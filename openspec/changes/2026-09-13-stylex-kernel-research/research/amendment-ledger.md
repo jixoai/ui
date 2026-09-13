@@ -242,3 +242,49 @@ least-biased moment, as presented at ruling time):
 4. The anchor-0 file-count trap (146 > 60 under any honest reading)
    is thereby dissolved, not re-anchored — the ruler is withdrawn,
    not recalibrated.
+
+### F9 — THIS COMMIT (2026-09-13): the coexist layer-order correction (orchestrator ruling, evidence-backed)
+
+The L3a spike proved the manifest's frozen app.css order
+(`@import 'tailwindcss' → token vars → layer statement`) composes
+BADLY with unplugin 0.19.0's append behavior: TW's own layer
+statement lands first in the concatenated output, stylex layers
+append last, and CSS first-declaration ordering makes stylex
+PERMANENTLY beat consumer utilities — the UNLAWFUL cascade (D2-01
+O1 measured 12px vs the lawful 42px; D2-03 unchecked sub-assertion
+likewise). The O1-H diagnostic build proves the remedy: hoisting
+the layer statement ABOVE the import (CSS-legal) restores BOTH rows
+to the manifest's expected literals with ZERO regressions across
+all other rows.
+
+RULING (orchestrator level; Owner informed in the session report;
+Gate 2 reviews it): the frozen order was SETUP SCAFFOLDING, not the
+law — D2-01's expectation (consumer utility WINS) IS the law
+(css-architecture: utilities win). Correcting scaffolding to
+achieve the lawful configuration is fidelity to the contract. BUT
+honesty rule: decision.md reports D2 BOTH ways — "as-run FAIL under
+the frozen order (root cause documented)" AND "PASS under the F9
+configuration" — with the F9 configuration defined as: `app.css`
+opens with the full layer statement (theme, base, components,
+utilities, then the stylex-prefixed layers per useCSSLayers),
+followed by `@import 'tailwindcss'` and token vars. The corpus
+spike (L3b) and any consumer-boilerplate generation use the F9
+order.
+
+Strategic consequence recorded for D3/RQ4: the coexistence footgun
+is REAL and SILENT (a wrong order quietly inverts the override law;
+dev-mode adds a second inversion via the virtual-css tag preceding
+TW base) — this is prime evidence that architecture A (consumers
+hand-wire unplugin) carries real blast radius, and that
+architecture B (the @jixoai plugin generates the correct entry +
+layer statement, the footgun becomes impossible) earns its keep.
+
+Additional spike facts logged as D5 evidence (no ruling needed):
+shorthand properties (background/border) are silently dropped by
+babel-plugin 0.19 defaults (propertyValidationMode silent; throw
+mode reveals) — StyleX requires longhands; Svelte 5 static class +
+spread class do NOT merge (silent replacement; a mix helper is
+owed); createTheme rides attrs; dynamic values' type-safe path is
+the factory pattern; $lib aliases break babel module resolution;
+Vite 8 + rolldown without a CSS entry silently drops the stylex
+stylesheet link (a CSS entry is MANDATORY).
