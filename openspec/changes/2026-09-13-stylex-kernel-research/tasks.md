@@ -83,7 +83,7 @@
 
 ## R6 — synthesis & decision (L4)
 
-- [ ] D1/D2/D3 hard-gate verdicts (fixture tables, raw evidence
+- [x] D1/D2/D3 hard-gate verdicts (fixture tables, raw evidence
       pointers); D4–D6 scored at 0/3/5 anchors with weights, total
       (max 35, bar ≥21, D4 ≥ 3 — F8), weight-sensitivity recompute,
       missing-data flags; the census difficulty register presented
@@ -93,7 +93,7 @@
 
 ## RQ8 — environment risk table
 
-- [ ] Browser matrix (Chromium full; WebKit/Firefox smoke), CSP/no-JS,
+- [x] Browser matrix (Chromium full; WebKit/Firefox smoke), CSP/no-JS,
       RTL/i18n, sourcemap/debug DX, upgrade/rollback, license scan
       (verified in spike install), Svelte-chain ownership debt.
       Output: section in `research/decision.md`.
