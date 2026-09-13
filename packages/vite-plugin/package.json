@@ -1,6 +1,6 @@
 {
   "name": "@jixoai/ui-vite-plugin",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Vite plugin supplying the pinned ghostty-vt wasm: resolve (env -> cache -> verified download) -> serve (dev middleware) -> emit (content-addressed asset) -> hand over the URL via the virtual:jixoai-ghostty module. Also ships the icon system (svg/lucide/font providers + serializer + safety) behind the ./icons subpath and the jixoai() icons feature option, the canvas same-source extractor + standalone canvasPlugin() behind the ./canvas subpath, and the svg-spinner set generator (vendored blocks-wave + custom sources -> spin-set.gen.ts, behind the ./spinners subpath and the jixoai() spinners feature option) plus the two injectable loader packs (the 94 verified-working magecdn loaders — pixel-swept through the component path — and the 12-loader SamHerbert SVG-Loaders set as ./spinners/[magecdn|svg-loaders] sub-entries). Ships the jixoai-ghostty-probe ABI sentinel bin.",
   "license": "MIT",
   "type": "module",
