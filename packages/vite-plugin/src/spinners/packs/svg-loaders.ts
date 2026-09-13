@@ -13,6 +13,9 @@
  */
 
 import type { SpinnerSource } from '../types.js';
+import { defineSpinnerChannel } from '../channel/define.js';
+import type { SpinnerChannel } from '../channel/types.js';
+import { pickPackEntries } from './pick.js';
 
 export const svgLoadersSpinners: Readonly<Record<string, SpinnerSource>> = {
   'audio': '<svg width="55" height="80" viewBox="0 0 55 80" xmlns="http://www.w3.org/2000/svg" fill="currentColor">\n    <g transform="matrix(1 0 0 -1 0 80)">\n        <rect width="10" height="20" rx="3">\n            <animate attributeName="height"\n                 begin="0s" dur="4.3s"\n                 values="20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20" calcMode="linear"\n                 repeatCount="indefinite" />\n        </rect>\n        <rect x="15" width="10" height="80" rx="3">\n            <animate attributeName="height"\n                 begin="0s" dur="2s"\n                 values="80;55;33;5;75;23;73;33;12;14;60;80" calcMode="linear"\n                 repeatCount="indefinite" />\n        </rect>\n        <rect x="30" width="10" height="50" rx="3">\n            <animate attributeName="height"\n                 begin="0s" dur="1.4s"\n                 values="50;34;78;23;56;23;34;76;80;54;21;50" calcMode="linear"\n                 repeatCount="indefinite" />\n        </rect>\n        <rect x="45" width="10" height="30" rx="3">\n            <animate attributeName="height"\n                 begin="0s" dur="2s"\n                 values="30;45;13;80;56;72;45;76;34;23;67;30" calcMode="linear"\n                 repeatCount="indefinite" />\n        </rect>\n    </g>\n</svg>',
@@ -28,3 +31,28 @@ export const svgLoadersSpinners: Readonly<Record<string, SpinnerSource>> = {
   'tail-spin': '<svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">\n    <defs>\n        <linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">\n            <stop stop-color="#fff" stop-opacity="0" offset="0%"/>\n            <stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/>\n            <stop stop-color="#fff" offset="100%"/>\n        </linearGradient>\n    </defs>\n    <g fill="none" fill-rule="evenodd">\n        <g transform="translate(1 1)">\n            <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2">\n                <animateTransform\n                    attributeName="transform"\n                    type="rotate"\n                    from="0 18 18"\n                    to="360 18 18"\n                    dur="0.9s"\n                    repeatCount="indefinite" />\n            </path>\n            <circle fill="currentColor" cx="36" cy="18" r="1">\n                <animateTransform\n                    attributeName="transform"\n                    type="rotate"\n                    from="0 18 18"\n                    to="360 18 18"\n                    dur="0.9s"\n                    repeatCount="indefinite" />\n            </circle>\n        </g>\n    </g>\n</svg>\n',
   'three-dots': '<svg width="120" height="30" viewBox="0 0 120 30" xmlns="http://www.w3.org/2000/svg" fill="currentColor">\n    <circle cx="15" cy="15" r="15">\n        <animate attributeName="r" from="15" to="15"\n                 begin="0s" dur="0.8s"\n                 values="15;9;15" calcMode="linear"\n                 repeatCount="indefinite" />\n        <animate attributeName="fill-opacity" from="1" to="1"\n                 begin="0s" dur="0.8s"\n                 values="1;.5;1" calcMode="linear"\n                 repeatCount="indefinite" />\n    </circle>\n    <circle cx="60" cy="15" r="9" fill-opacity="0.3">\n        <animate attributeName="r" from="9" to="9"\n                 begin="0s" dur="0.8s"\n                 values="9;15;9" calcMode="linear"\n                 repeatCount="indefinite" />\n        <animate attributeName="fill-opacity" from="0.5" to="0.5"\n                 begin="0s" dur="0.8s"\n                 values=".5;1;.5" calcMode="linear"\n                 repeatCount="indefinite" />\n    </circle>\n    <circle cx="105" cy="15" r="15">\n        <animate attributeName="r" from="15" to="15"\n                 begin="0s" dur="0.8s"\n                 values="15;9;15" calcMode="linear"\n                 repeatCount="indefinite" />\n        <animate attributeName="fill-opacity" from="1" to="1"\n                 begin="0s" dur="0.8s"\n                 values="1;.5;1" calcMode="linear"\n                 repeatCount="indefinite" />\n    </circle>\n</svg>\n',
 };
+
+/**
+ * `sam(options?)` — the CHANNEL form of this pack (spinner-channel-api
+ * design §3): all 12 SamHerbert loaders, or exactly the picked
+ * channel-relative names, joining the artifact as `sam:…` keys. The
+ * short-prefix law (the icons md/ph/rx precedent): id `svg-loaders`,
+ * prefix `sam` — `sam:tail-spin` reads, `svgloaders:tail-spin` does
+ * not. The spread lane above stays byte-identical (0.4.0 configs are
+ * sacred); the two lanes may coexist as distinct members.
+ */
+export interface SamChannelOptions {
+  /** channel-relative names to keep (default: all 12). a FILTER —
+   *  the pack record's key order wins, duplicate picks dedupe;
+   *  unknown or empty picks are named errors */
+  readonly pick?: readonly string[];
+}
+
+export function sam(options: Readonly<SamChannelOptions> = {}): SpinnerChannel {
+  return defineSpinnerChannel({
+    id: 'svg-loaders',
+    prefix: 'sam',
+    spinners: pickPackEntries('svg-loaders', svgLoadersSpinners, options.pick),
+    defaultsNote: `SamHerbert's SVG-Loaders (${Object.keys(svgLoadersSpinners).length} loaders, sam:…; MIT)`,
+  });
+}

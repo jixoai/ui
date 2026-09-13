@@ -58,6 +58,7 @@ describe('normalizeSpinnersOptions (the frozen defaults)', () => {
     expect(normalizeSpinnersOptions({})).toEqual({
       includeDefaults: true,
       spinners: {},
+      channels: [],
       output: 'src/lib/spin-set.gen.ts',
       write: false,
     });

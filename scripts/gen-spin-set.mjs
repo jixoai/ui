@@ -27,6 +27,7 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkSpinSetArtifact, writeSpinSetArtifact } from '../packages/vite-plugin/dist/spinners.js';
+import { defineSpinnerChannel } from '../packages/vite-plugin/dist/spinners.js';
 import { magecdnSpinners } from '../packages/vite-plugin/dist/spinners/magecdn.js';
 import { svgLoadersSpinners } from '../packages/vite-plugin/dist/spinners/svg-loaders.js';
 
@@ -40,6 +41,15 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // CONFIG-PARITY law).
 const pick = (pack, names) => Object.fromEntries(names.map((name) => [name, pack[name]]));
 const SPINNERS_OPTIONS = {
+  // the docs channel mirrors the app configs (CONFIG-PARITY — the
+  // third site; the two vite configs carry the same channel)
+  channels: [
+    defineSpinnerChannel({
+      id: 'docs',
+      prefix: 'docs',
+      spinners: { cadence: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="12" r="4" fill="currentColor"><animate attributeName="r" values="4;1.5;4" dur="0.9s" repeatCount="indefinite"/></circle><circle cx="16" cy="12" r="4" fill="currentColor"><animate attributeName="r" values="1.5;4;1.5" dur="0.9s" repeatCount="indefinite"/></circle></svg>' },
+    }),
+  ],
   spinners: {
     ...pick(magecdnSpinners, ['3-dots-bounce', 'bars-scale', 'clock']),
     ...pick(svgLoadersSpinners, ['tail-spin', 'spinning-circles']),

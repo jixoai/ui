@@ -5,6 +5,7 @@ import { md } from '@jixoai/ui-vite-plugin/icons/md';
 import { ph } from '@jixoai/ui-vite-plugin/icons/ph';
 import { rx } from '@jixoai/ui-vite-plugin/icons/rx';
 import { canvasPlugin } from '@jixoai/ui-vite-plugin';
+import { defineSpinnerChannel } from '@jixoai/ui-vite-plugin/spinners';
 import { magecdnSpinners } from '@jixoai/ui-vite-plugin/spinners/magecdn';
 import { svgLoadersSpinners } from '@jixoai/ui-vite-plugin/spinners/svg-loaders';
 import tailwindcss from '@tailwindcss/vite';
@@ -179,6 +180,16 @@ const jixoaiPlugins = jixoai({
   // wiring); the packs themselves ship as ./spinners/magecdn (the
   // 109-loader catalog) and ./spinners/svg-loaders (SamHerbert's 12).
   spinners: {
+    // the docs channel (spinner-channel-api dogfood): one AUTHORED
+    // inline loader namespaced as docs:cadence — the docs page renders
+    // it live beside the pack picks
+    channels: [
+      defineSpinnerChannel({
+        id: 'docs',
+        prefix: 'docs',
+        spinners: { cadence: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="12" r="4" fill="currentColor"><animate attributeName="r" values="4;1.5;4" dur="0.9s" repeatCount="indefinite"/></circle><circle cx="16" cy="12" r="4" fill="currentColor"><animate attributeName="r" values="1.5;4;1.5" dur="0.9s" repeatCount="indefinite"/></circle></svg>' },
+      }),
+    ],
     spinners: {
       ...Object.fromEntries(['3-dots-bounce', 'bars-scale', 'clock'].map((name) => [name, magecdnSpinners[name]])),
       ...Object.fromEntries(['tail-spin', 'spinning-circles'].map((name) => [name, svgLoadersSpinners[name]])),

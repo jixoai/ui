@@ -61,24 +61,38 @@ ${close}
 <Spin label="syncing">…content…</Spin>`;
 
   const customLoader = `// vite.config.ts — @jixoai/ui-vite-plugin's spinners feature
-import { jixoai } from '@jixoai/ui-vite-plugin';
-// the vendored loader packs (review R2): the full 109-loader magecdn
-// catalog and SamHerbert's 12 — spread what you want, or bring files
-import { magecdnSpinners } from '@jixoai/ui-vite-plugin/spinners/magecdn';
-import { svgLoadersSpinners } from '@jixoai/ui-vite-plugin/spinners/svg-loaders';
+import { jixoai, defineSpinnerChannel } from '@jixoai/ui-vite-plugin';
+import { magecdn } from '@jixoai/ui-vite-plugin/spinners/magecdn';
+import { sam } from '@jixoai/ui-vite-plugin/spinners/svg-loaders';
 
 export default {
   plugins: [
     jixoai({
-      // bare {} = the vendored blocks-wave only; custom loaders join by
-      // name — a kebab grammar, and an svg spinner named like a text
-      // spinner OVERRIDES the catalog entry (explicit config beats
-      // built-ins, the icons law)
+      // bare {} = the vendored blocks-wave only. Custom loaders ride
+      // either lane — a CHANNEL (an id + prefix + its own record, the
+      // icon channel contract; entries join as prefix:name keys) or
+      // the flat record (kebab or prefix:name keys; explicit beats
+      // channels and built-ins, the icons override law)
       spinners: {
+        channels: [
+          // your own channel — the public factory validates shape +
+          // grammar; one channel per prefix is enforced at config time
+          defineSpinnerChannel({
+            id: 'myco',
+            prefix: 'myco',
+            spinners: {
+              'cadence': '<svg …>…</svg>',        // inline literal
+              'wave-loader': { file: './src/loaders/wave.svg' },
+            },
+          }),
+          // a pack as a channel — pick is a filter over the 94
+          magecdn({ pick: ['clock', 'bars-scale'] }),
+          // SamHerbert's 12 under the sam: prefix
+          sam(),
+        ],
         spinners: {
-          ...magecdnSpinners, // every magecdn loader joins the union
-          'my-loader': { file: './src/loaders/my-loader.svg' },
-          ...svgLoadersSpinners, // later spread wins on name overlap
+          'flat-loader': { file: './src/loaders/flat.svg' },
+          'myco:cadence': '<svg …>…</svg>', // same FULL name overrides the channel entry
         },
       },
     }),
@@ -87,7 +101,8 @@ export default {
 
 // then regenerate the committed artifact (the repo's single writer):
 //   npm run gen:spins
-// <Spin spinner="my-loader" /> now type-checks and renders — the
+// <Spin spinner="myco:cadence" />, <Spin spinner="magecdn:clock" />,
+// <Spin spinner="sam:tail-spin" /> — all type-check and render; the
 // SpinName union closes with the artifact, so a typo is a compile
 // error exactly like the text lane.`;
 
@@ -375,6 +390,15 @@ export default {
             <div class="flex min-w-40 flex-col items-center gap-2">
               <Spin spinner="clock" label="loading" />
               <code class="text-muted-foreground font-mono text-[11px]">clock</code>
+            </div>
+          </div>
+          <!-- the channel face dogfood (spinner-channel-api): this
+               loader arrives through a docs channel registered in the
+               vite config — its artifact key carries the namespace -->
+          <div class="flex flex-wrap items-start gap-x-10 gap-y-6">
+            <div class="flex min-w-40 flex-col items-center gap-2">
+              <Spin spinner="docs:cadence" label="loading" />
+              <code class="text-muted-foreground font-mono text-[11px]">docs:cadence — a channel entry</code>
             </div>
           </div>
           <p class="text-muted-foreground text-[13px] leading-6">

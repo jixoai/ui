@@ -32,9 +32,16 @@ export {
   normalizeSpinnersOptions,
   resolveSpinnerInputs,
   SPINNER_NAME_PATTERN,
+  SPINNER_FULL_NAME_PATTERN,
   DEFAULT_SPIN_OUTPUT,
 } from './resolve.js';
 export type { NormalizedSpinnersOptions, SpinnerResolution } from './resolve.js';
+
+// channels (spinner-channel-api §0–§2 — the icon channel contract:
+// the public factory + the set-level normalizer + the instance type)
+export { defineSpinnerChannel, normalizeSpinnerChannels } from './channel/index.js';
+export type { DefineSpinnerChannelSpec, SpinnerChannel } from './channel/index.js';
+export { CHANNEL_ID_PATTERN, CHANNEL_PREFIX_PATTERN } from './channel/index.js';
 
 // the RAW safety checker (the icons checker re-exported — R2 law)
 export { createSafetyChecker } from './safety.js';

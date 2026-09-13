@@ -1,15 +1,21 @@
 /**
  * @jixoai/ui-vite-plugin (spinners) — the svg-spinner face's types (P1,
- * openspec spin-ora-svg-lane design §5).
+ * openspec spin-ora-svg-lane design §5; channels added by
+ * spinner-channel-api, 2026-09-13 — the icon channel contract
+ * carried over; see channel/types.ts).
  *
- * ONE face, much simpler than the icons library: no chunks, no
- * channels, no scanner, no virtual modules, no CSS face. The types
- * here are the ONLY surface the pure generator and the two adapters
- * (vite + root script) share; the split between SpinnerSource
- * (config, unresolved) and ResolvedSpinner (generator input) makes
- * I/O smuggling through the pure core untypeable — the icons'
- * library/types.ts discipline, carried over verbatim in miniature.
+ * ONE face, simpler than the icons library: no chunks, no scanner,
+ * no virtual modules, no CSS face — channels are enumerable name
+ * SETS (the artifact is all-or-nothing), not per-ref resolvers. The
+ * types here are the ONLY surface the pure generator and the two
+ * adapters (vite + root script) share; the split between
+ * SpinnerSource (config, unresolved) and ResolvedSpinner (generator
+ * input) makes I/O smuggling through the pure core untypeable — the
+ * icons' library/types.ts discipline, carried over verbatim in
+ * miniature.
  */
+
+import type { SpinnerChannel } from './channel/types.js';
 
 // ── sources ────────────────────────────────────────────────────────
 
@@ -36,11 +42,20 @@ export interface SpinnersPluginOptions {
   /** include the vendored blocks-wave manifest (default true). `false`
    *  with no custom spinners packs the empty set */
   readonly includeDefaults?: boolean;
-  /** add + override spinners (same name = override; names match
-   *  /^[a-z][a-z0-9-]*$/, the kebab grammar of the icon channel ids).
-   *  custom spinners pack after the built-ins in config insertion
-   *  order */
+  /** add + override spinners (same FULL name = override, last-writer
+   *  in insertion order; names match the flat grammar
+   *  /^[a-z0-9][a-z0-9-]*$/ or the namespaced
+   *  /^[a-z][a-z0-9]*:[a-z0-9][a-z0-9-]*$/ — a namespaced flat key
+   *  overrides a channel's entry, the icons override law). custom
+   *  spinners pack after the built-ins and after `channels` */
   readonly spinners?: Readonly<Record<string, SpinnerSource>>;
+  /** registered channels (spinner-channel-api §0–§2): each folds its
+   *  record in as `prefix:name` keys between the built-ins and the
+   *  flat record. build instances with defineSpinnerChannel or the
+   *  shipped pack factories; validation is the icon channel law
+   *  (factory checks at define time, set-level uniqueness at config
+   *  normalization) */
+  readonly channels?: readonly SpinnerChannel[];
   /** artifact write target, project-root-relative — ONLY used when
    *  `write` is on (consumer apps). default 'src/lib/spin-set.gen.ts' */
   readonly output?: string;

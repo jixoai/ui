@@ -1126,7 +1126,7 @@
       "name": "spin-set",
       "type": "registry:lib",
       "title": "Generated spin set",
-      "description": "The svg-spinner artifact behind <Spin spinner>: the vendored blocks-wave loader (3×3 SMIL grid, currentColor, magecdn/MIT) packed by @jixoai/ui-vite-plugin's spinners face into a typed SpinName union + getSpin() over {v,n,d} payloads (viewBox / artwork nature fill|stroke / inner markup incl. <animate>). Single inline module, always-sync, zero npm deps — plugin-free for the default artifact (getSpin answers synchronously, SSR paints the frozen first frame). Custom svg loaders: jixoai({ spinners: { spinners: { 'my-loader': { file } } } }) from @jixoai/ui-vite-plugin regenerates the artifact (the npm run gen:spins contract — the repo's single writer).",
+      "description": "The svg-spinner artifact behind <Spin spinner>: the vendored blocks-wave loader (3×3 SMIL grid, currentColor, magecdn/MIT) packed by @jixoai/ui-vite-plugin's spinners face into a typed SpinName union + getSpin() over {v,n,d} payloads (viewBox / artwork nature fill|stroke / inner markup incl. <animate>). Single inline module, always-sync, zero npm deps — plugin-free for the default artifact (getSpin answers synchronously, SSR paints the frozen first frame). Custom svg loaders ride either lane from @jixoai/ui-vite-plugin: a CHANNEL (defineSpinnerChannel({ id, prefix, spinners }) or the pack factories magecdn({ pick? }) / sam({ pick? }); entries join as prefix:name keys, the icon channel contract) or the flat record (jixoai({ spinners: { spinners: { 'my-loader': { file } } } })); the npm run gen:spins contract regenerates the artifact (the repo's single writer).",
       "dependencies": [],
       "files": [
         {

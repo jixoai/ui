@@ -24,19 +24,16 @@
 
 import type { ProviderContext, SafetyChecker } from '../icons/types.js';
 import { DEFAULT_SPINNERS_MANIFEST } from './manifest.js';
+import { normalizeSpinnerChannels } from './channel/normalize.js';
+import type { SpinnerChannel } from './channel/types.js';
+import { SPINNER_FULL_NAME_PATTERN, SPINNER_NAME_PATTERN } from './grammar.js';
 import type { ResolvedSpinner, SpinnerSource, SpinnersPluginOptions } from './types.js';
 
-/**
- * spinner names are kebab and tame (the icon channel-id grammar, NOT
- * the icons' lowerCamel) with one relaxation (review R2, 2026-09-12):
- * a DIGIT may lead — the magecdn pack's names are its site URLs
- * ('180-ring', '12-dots-scale-rotate') and keeping them verbatim is
- * the discoverability contract; quoted artifact keys and string-
- * literal union members carry digit-leading names fine. The unified
- * name lane stays legible against the text catalog's camelCase
- * (design §4)
- */
-export const SPINNER_NAME_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
+// the grammar lives in the dependency-free leaf (grammar.ts) so the
+// channel factory/normalizer share it without a module cycle; the
+// re-exports keep this module the patterns' public home (the full
+// doc comments live on the leaf's definitions)
+export { SPINNER_NAME_PATTERN, SPINNER_FULL_NAME_PATTERN };
 
 /** default artifact target, project-root-relative (consumer-app shape;
  *  in-repo the root gen:spins script writes its own canonical target) */
@@ -46,28 +43,35 @@ export const DEFAULT_SPIN_OUTPUT = 'src/lib/spin-set.gen.ts';
 export interface NormalizedSpinnersOptions {
   readonly includeDefaults: boolean;
   readonly spinners: Readonly<Record<string, SpinnerSource>>;
+  /** validated channel instances, carried through so re-normalizing a
+   *  normalized config is a no-op (the vite adapter normalizes at
+   *  config time and resolveSpinnerInputs normalizes again inside —
+   *  the icons idempotence law, spinner-channel-api §2a) */
+  readonly channels: readonly SpinnerChannel[];
   readonly output: string;
   readonly write: boolean;
 }
 
 /**
  * Validate + normalize spinners options. Throws named, teaching
- * errors for illegal shapes (bad names, absolute/escaping output
- * paths) — misconfiguration must fail at startup, not mid-build.
- * Spinners have ONE face, so a bare `{}` normalizes cleanly to
- * "blocks-wave only" (no ≥1-of-2 matrix — design §5).
+ * errors for illegal shapes (bad names — both grammar forms taught;
+ * absolute/escaping output paths; channel set violations via
+ * normalizeSpinnerChannels) — misconfiguration must fail at startup,
+ * not mid-build. Spinners have ONE face, so a bare `{}` normalizes
+ * cleanly to "blocks-wave only" (no ≥1-of-2 matrix — design §5).
  */
 export function normalizeSpinnersOptions(
   options: SpinnersPluginOptions,
 ): NormalizedSpinnersOptions {
   if (options.spinners !== undefined) {
     for (const name of Object.keys(options.spinners)) {
-      if (!SPINNER_NAME_PATTERN.test(name)) {
+      if (!SPINNER_FULL_NAME_PATTERN.test(name)) {
         throw new Error(
           `[jixoai-spinners] spinner name "${name}" is illegal — names must match ` +
-            '/^[a-z0-9][a-z0-9-]*$/ (kebab-case, digit-leading legal — the ' +
-            'magecdn pack keeps its site URLs verbatim; they become ' +
-            'TS union members), e.g. blocks-wave or my-loader',
+            '/^[a-z0-9][a-z0-9-]*$/ (kebab-case, digit-leading legal — the magecdn ' +
+            'pack keeps its site URLs verbatim) or, for a channel namespace, ' +
+            '/^[a-z][a-z0-9]*:[a-z0-9][a-z0-9-]*$/ (e.g. blocks-wave, my-loader, ' +
+            'magecdn:180-ring, or a myco:pulse override of a channel entry)',
         );
       }
     }
@@ -83,6 +87,7 @@ export function normalizeSpinnersOptions(
   return {
     includeDefaults: options.includeDefaults ?? true,
     spinners: options.spinners ?? {},
+    channels: normalizeSpinnerChannels(options.channels ?? []),
     output,
     write: options.write ?? false,
   };
@@ -101,17 +106,28 @@ interface PendingSpinner {
 }
 
 /**
- * merge the built-in manifest with the config's spinners into packing
- * order: the vendored blocks-wave first, custom spinners after in
- * config insertion order; a same-name custom entry OVERRIDES the
- * built-in in place (no duplicates — Map key insertion order provides
- * both rules; the icons override law, design §5).
+ * merge the built-in manifest, the registered channels, and the
+ * config's flat record into packing order (spinner-channel-api §2):
+ * the vendored blocks-wave first, then channels in `channels: [...]`
+ * registration order — each entry folding in as `prefix:name` keys —
+ * then the flat record in config insertion order. A same-FULL-name
+ * entry OVERRIDES in place (no duplicates — Map key insertion order
+ * provides both rules; the icons override law, design §5). Channel
+ * keys always carry `:` and flat built-ins never do, so the two
+ * lanes cannot collide; a flat `myco:pulse` overriding a channel's
+ * entry IS the documented explicit-override case.
  */
 function mergeSources(normalized: NormalizedSpinnersOptions): PendingSpinner[] {
   const byName = new Map<string, PendingSpinner>();
   if (normalized.includeDefaults) {
     for (const entry of DEFAULT_SPINNERS_MANIFEST) {
       byName.set(entry.name, { name: entry.name, source: entry.svg });
+    }
+  }
+  for (const channel of normalized.channels) {
+    for (const [name, source] of Object.entries(channel.spinners)) {
+      const fullName = `${channel.prefix}:${name}`;
+      byName.set(fullName, { name: fullName, source });
     }
   }
   for (const [name, source] of Object.entries(normalized.spinners)) {
