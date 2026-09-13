@@ -132,6 +132,25 @@ export function centerStageOn(
   return { scale: lens.scale, x: stageW / 2 - cx * lens.scale, y: stageH / 2 - cy * lens.scale };
 }
 
+/**
+ * One tween frame (#39, the smooth anchor): interpolate `from → to` at
+ * progress `t` (0–1). The zoom rides LOG space — equal perceptual steps
+ * at any magnification (a linear scale tween visibly crawls at the
+ * start and snaps at the end); translate rides linear. Non-finite
+ * guards degrade to the endpoints.
+ */
+export function lerpStageLens(from: StageLens, to: StageLens, t: number): StageLens {
+  if (!Number.isFinite(t) || t <= 0) return from;
+  if (t >= 1) return to;
+  const eased = 1 - (1 - t) ** 3; // easeOutCubic — fast away, gentle arrival
+  const scale = from.scale * (to.scale / from.scale) ** eased;
+  return {
+    scale,
+    x: from.x + (to.x - from.x) * eased,
+    y: from.y + (to.y - from.y) * eased,
+  };
+}
+
 /** zoom by a multiplicative factor (wheel ticks, HUD +/- steps) */
 export function zoomStageLensBy(lens: StageLens, factor: number, anchor: StageAnchor): StageLens {
   return zoomStageLens(lens, lens.scale * factor, anchor);
