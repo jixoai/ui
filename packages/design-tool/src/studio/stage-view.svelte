@@ -87,28 +87,33 @@
     /** the tree's page-folder anchor (#32): center this frame id — a
      *  CAMERA move (the nonce re-fires for repeat clicks on the same id) */
     anchor?: { frameId: string; nonce: number } | null;
+    /** the canvas's name (#45): the viewport record is PER canvas —
+     *  each page remembers its own x/y/scale */
+    canvas?: string | null;
   }
-  let { src, title, onIframe, anchor = null }: Props = $props();
+  let { src, title, onIframe, anchor = null, canvas = null }: Props = $props();
 
   let stageEl: HTMLDivElement | null = $state(null);
   let iframeEl: HTMLIFrameElement | null = $state(null);
 
-  // a stored lens is an EXPLICIT camera from a previous session — it
-  // restores as manual; a fresh session starts on the auto camera
-  function initialLens(): { lens: StageLens; manual: boolean } {
+  // #45: the viewport record is PER CANVAS (each page remembers its
+  // own x/y/scale); switching canvases swaps the record wholesale
+  function lensKeyFor(name: string | null): string {
+    return name === null ? STAGE_LENS_STORE_KEY : `${STAGE_LENS_STORE_KEY}:${name}`;
+  }
+  function loadLensFor(name: string | null): { lens: StageLens; manual: boolean } {
     try {
-      const stored = parseStageLens(sessionStorage.getItem(STAGE_LENS_STORE_KEY));
+      const stored = parseStageLens(sessionStorage.getItem(lensKeyFor(name)));
       if (stored !== null) return { lens: stored, manual: true };
     } catch {
       /* private mode — camera without memory */
     }
     return { lens: STAGE_LENS_HOME, manual: false };
   }
-  const boot = initialLens();
-  let lens: StageLens = $state(boot.lens);
+  let lens: StageLens = $state(loadLensFor(canvas).lens);
   /** the camera's regime: auto re-fits on every metrics/resize report;
    *  the FIRST manual gesture freezes it (fit is the way back) */
-  let manual = $state(boot.manual);
+  let manual = $state(loadLensFor(canvas).manual);
 
   /** the canvas document's reported natural size (null = pre-metrics) */
   let sheet: { width: number; height: number } | null = $state(null);
@@ -144,23 +149,31 @@
       } else {
         tween = null;
         lens = target;
+        // the animation's resting view is the page's record (#45):
+        // anchors/fit persist, so revisits open on the same camera
+        persistLens(target, false);
       }
     };
     tween = { raf: requestAnimationFrame(step), from, to: target, start };
   }
 
-  /** every MANUAL lens mutation persists; the auto camera never writes */
+  /** every MANUAL lens mutation persists (per canvas); the auto camera
+   *  persists only its FIRST fit for a canvas (the page's opening view
+   *  is a record too — Owner 2026-09-12「默认做 fit，然后记录存储」) */
+  function persistLens(value: StageLens, explicit: boolean): void {
+    try {
+      sessionStorage.setItem(lensKeyFor(canvas), serializeStageLens(value));
+      void explicit;
+    } catch {
+      /* persistence is best-effort */
+    }
+  }
   function applyLens(next: StageLens, nextManual = true): void {
     cancelTween(); // a gesture always owns the camera over an animation
     tween = null;
     lens = next;
     manual = nextManual;
-    try {
-      if (nextManual) sessionStorage.setItem(STAGE_LENS_STORE_KEY, serializeStageLens(next));
-      else sessionStorage.removeItem(STAGE_LENS_STORE_KEY);
-    } catch {
-      /* persistence is best-effort */
-    }
+    if (nextManual) persistLens(next, true);
   }
 
   /* ── the auto camera: fit the sheet into the stage, centered ──────── */
@@ -170,6 +183,16 @@
     const rect = stageEl?.getBoundingClientRect();
     if (rect === undefined || sheet === null) return;
     lens = fitStageLens(rect.width, rect.height, sheet.width, sheet.height);
+    // the page's opening view is its first record (#45): revisit = same view
+    if (!hasRecord(canvas)) persistLens(lens, false);
+  }
+
+  function hasRecord(name: string | null): boolean {
+    try {
+      return sessionStorage.getItem(lensKeyFor(name)) !== null;
+    } catch {
+      return false;
+    }
   }
 
   // the canvas document's metrics (#24): natural size + growth. An
@@ -345,11 +368,13 @@
       /* best-effort */
     }
     const rect = stageEl?.getBoundingClientRect();
-    if (rect !== undefined && sheet !== null) {
-      animateLensTo(fitStageLens(rect.width, rect.height, sheet.width, sheet.height));
-    } else {
-      animateLensTo(STAGE_LENS_HOME);
-    }
+    const target =
+      rect !== undefined && sheet !== null
+        ? fitStageLens(rect.width, rect.height, sheet.width, sheet.height)
+        : STAGE_LENS_HOME;
+    // fit recomputes the page's RECORD (auto regime + stored view)
+    persistLens(target, false);
+    animateLensTo(target);
   }
 
   // the iframe seam: {#key src} remounts re-bind, unmount nulls — the
@@ -365,6 +390,16 @@
   $effect(() => {
     if (iframeEl === null) return;
     sheet = null;
+  });
+
+  // #45: canvas switch = viewport record swap — restore this page's
+  // camera, or start auto (the first fit below persists as its record)
+  $effect(() => {
+    if (canvas === null) return;
+    void canvas; // the dep: identity change swaps the record
+    const record = loadLensFor(canvas);
+    manual = record.manual;
+    lens = record.lens;
   });
 
   // the tree's page-folder anchor (#32): center the frame's element —
@@ -410,6 +445,15 @@
       window.removeEventListener('message', onMessage);
       observer.disconnect();
     };
+  });
+
+  // #44: the lens broadcast — the canvas HOST's single ring pair
+  // compensates stroke/badge size by zoom (the box itself is canvas
+  // space; only the chrome scales inverse)
+  $effect(() => {
+    const target = iframeEl?.contentWindow;
+    if (target === null || target === undefined) return;
+    target.postMessage({ type: 'jx-design:lens', scale: lens.scale }, window.location.origin);
   });
 
   /* ── the blueprint grid's camera-space parameters (#25) ───────────── */

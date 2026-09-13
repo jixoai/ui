@@ -22,14 +22,18 @@
  * window.__jixoaiDesignHighlight({usageIndex, iterationIndex} | null)
  * highlights (and scrolls to) a usage inside THIS document.
  *
- * The INDICATOR era (#31→#43, Owner 2026-09-12): two DOM-level
- * overlays per document — a HOVER ring (blue, subtle, gliding between
- * elements via CSS transition) and a SELECTION ring (red) carrying a
- * metadata badge (component id, usage index, live W×H). They track
- * the target box through resize (ResizeObserver) and scroll
- * (transition suppressed while tracking so the ring stays glued) and
- * REPLACE the css-outline/box-shadow pair: a DOM indicator composes,
- * animates, and carries information css-only never could.
+ * The INDICATOR era (#43→#44, Owner 2026-09-12): ONE ring pair per
+ * CANVAS, not per frame. The CANVAS document is the single HOST (its
+ * overlays ride the whole-canvas coordinate space, so a selection
+ * moving between frames GLIDES across the canvas, and the studio's
+ * lens broadcast compensates stroke/badge size so the ring stays
+ * constant on screen at any zoom). FRAME documents are REPORTERS:
+ * they own no overlays — hover/selection/track events ship the box
+ * (frame viewport coords + frame name) up to the host, which maps
+ * iframe-offset + box into canvas coordinates and places the ring.
+ * #46: hover granularity is the actual element under the pointer
+ * (the child, not its component ancestor); selection stays
+ * component-granular (nearest stamped ancestor).
  *
  * Honest degradation (the r2 matrix): clicks on unstamped content
  * (native elements, components without a single-root rest spread,
@@ -81,11 +85,16 @@ let highlighted = null;
 function applyHighlight(element) {
   if (highlighted === element) return;
   highlighted = element;
-  if (element !== null) {
+  if (element !== null && !IS_CANVAS_HOST) {
+    // scroll only INSIDE the owning frame (the host has no frame bounds)
     element.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
   }
-  placeIndicator('selected', element);
-  observeTargets();
+  if (IS_CANVAS_HOST) {
+    placeIndicator('selected', element);
+    observeTargets();
+  } else {
+    reportIndicator('selected', element);
+  }
 }
 
 /* the hover indicator (#31→#43): its own overlay, its own color,
@@ -95,8 +104,13 @@ let hovered = null;
 function applyHover(element) {
   if (hovered === element) return;
   hovered = element;
-  placeIndicator('hover', element !== null && element !== highlighted ? element : null);
-  observeTargets();
+  const ring = element !== null && element !== highlighted ? element : null;
+  if (IS_CANVAS_HOST) {
+    placeIndicator('hover', ring);
+    observeTargets();
+  } else {
+    reportIndicator('hover', ring);
+  }
 }
 
 /* ── the DOM-level indicators (#43, Owner 2026-09-12) ──────────────────
@@ -145,9 +159,36 @@ const INDICATOR_CSS = [
   `}`,
 ].join('\n');
 
-const indicators = new Map(); // kind → element
+// the ROLE split (#44): canvas pages HOST the one ring pair; frame
+// surfaces REPORT into it. A standalone frame (no embedding) keeps
+// its selection seams and simply paints nothing.
+const IS_CANVAS_HOST = typeof location !== 'undefined' && location.pathname.startsWith('/prototypes/');
+const indicators = new Map(); // kind → element (host only)
 let trackIdleTimer = 0;
 let targetObserver = null;
+let lensScale = 1; // host: the studio's current zoom (stroke compensation)
+
+/** frame-side: ship a box (or null) to the canvas host */
+function reportIndicator(kind, element) {
+  if (IS_CANVAS_HOST) return; // hosts place directly
+  if (window.parent === window) return; // standalone — nobody to host
+  let payload = null;
+  if (element !== null && element.isConnected) {
+    const rect = element.getBoundingClientRect();
+    payload = {
+      x: rect.left,
+      y: rect.top,
+      w: rect.width,
+      h: rect.height,
+      component: element.getAttribute('data-jx-component'),
+      instance: element.getAttribute('data-jx-instance'),
+    };
+  }
+  window.parent.postMessage(
+    { type: 'jx-design:indicator-report', kind, frameName: window.name, payload },
+    window.location.origin,
+  );
+}
 
 function ensureIndicator(kind) {
   let el = indicators.get(kind);
@@ -165,31 +206,57 @@ function ensureIndicator(kind) {
   return el;
 }
 
-/** reposition a placed overlay (and refresh the badge text) */
-function placeIndicator(kind, element) {
+/** host: reposition a placed overlay from a canvas-space box */
+function placeIndicatorBox(kind, box, meta) {
   const el = ensureIndicator(kind);
-  if (element === null || !element.isConnected) {
+  if (box === null) {
     el.style.display = 'none';
     return;
   }
-  const rect = element.getBoundingClientRect();
+  const k = 1 / Math.max(lensScale, 0.05);
   el.style.display = 'block';
-  el.style.transform = `translate(${rect.left + window.scrollX}px, ${rect.top + window.scrollY}px)`;
-  el.style.width = `${rect.width}px`;
-  el.style.height = `${rect.height}px`;
+  el.style.transform = `translate(${box.x}px, ${box.y}px)`;
+  el.style.width = `${box.w}px`;
+  el.style.height = `${box.h}px`;
+  el.style.borderWidth = `${1.5 * k}px`;
+  el.style.borderRadius = `${2 * k}px`;
   if (kind === 'selected') {
     const badge = el.querySelector('.jx-indicator-badge');
     if (badge !== null) {
-      const component = element.getAttribute('data-jx-component') ?? '?';
-      const instance = element.getAttribute('data-jx-instance') ?? '?';
-      badge.textContent = `${component} #${instance} · ${Math.round(rect.width)}×${Math.round(rect.height)}`;
+      badge.style.top = `${-19 * k}px`;
+      badge.style.left = `${-1.5 * k}px`;
+      badge.style.padding = `${1 * k}px ${5 * k}px`;
+      badge.style.fontSize = `${10 * k}px`;
+      badge.style.lineHeight = `${1.4}`;
+      badge.style.borderWidth = `${1 * k}px`;
+      badge.style.borderRadius = `${3 * k}px`;
+      badge.textContent = meta;
     }
   }
+}
+
+/** reposition a placed overlay for a LOCAL element (host's own stamps) */
+function placeIndicator(kind, element) {
+  if (element === null || !element.isConnected) {
+    placeIndicatorBox(kind, null);
+    return;
+  }
+  const rect = element.getBoundingClientRect();
+  placeIndicatorBox(kind, { x: rect.left + window.scrollX, y: rect.top + window.scrollY, w: rect.width, h: rect.height },
+    element.getAttribute('data-jx-component') !== null
+      ? `${element.getAttribute('data-jx-component')} #${element.getAttribute('data-jx-instance') ?? '?'} · ${Math.round(rect.width)}×${Math.round(rect.height)}`
+      : `${Math.round(rect.width)}×${Math.round(rect.height)}`);
 }
 
 /** scroll/resize repositioning: transitions OFF while tracking (glued),
  *  back ON after a short idle so the next target change glides again */
 function trackIndicators() {
+  if (!IS_CANVAS_HOST) {
+    // frame side: the host needs the fresh box (content moved inside us)
+    reportIndicator('selected', highlighted);
+    reportIndicator('hover', hovered !== null && hovered !== highlighted ? hovered : null);
+    return;
+  }
   for (const [kind, el] of indicators) {
     if (el.style.display === 'none') continue;
     el.classList.add('jx-tracking');
@@ -231,16 +298,59 @@ export function initDesignPicker() {
   // per click by the lazy walk below
   const forced = new URLSearchParams(window.location.search).get('pick') === '1';
 
-  // the indicator style (#43): overlays + badge. Injected
-  // unconditionally — nothing paints until code places them, so a
-  // standalone document stays visually byte-identical.
-  const style = document.createElement('style');
-  style.textContent = INDICATOR_CSS;
-  document.head.appendChild(style);
+  // the indicator style (#44): the HOST document owns the one ring
+  // pair; reporter frames inject nothing visual
+  if (IS_CANVAS_HOST) {
+    const style = document.createElement('style');
+    style.textContent = INDICATOR_CSS;
+    document.head.appendChild(style);
+  }
 
-  // scroll keeps the rings glued (transition suppressed while tracking)
+  // scroll keeps the rings glued (transition suppressed while tracking;
+  // reporters re-ship their boxes so the host follows)
   document.addEventListener('scroll', () => trackIndicators(), { capture: true, passive: true });
   window.addEventListener('resize', () => trackIndicators(), { passive: true });
+
+  // HOST: frame reports arrive here — iframe offset + box = canvas box
+  if (IS_CANVAS_HOST) {
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (data === null || typeof data !== 'object' || data.type !== 'jx-design:indicator-report') return;
+      if (event.source === null || event.source === window) return;
+      const frame = Array.from(document.querySelectorAll('iframe')).find(
+        (el) => el.contentWindow === event.source,
+      );
+      if (frame === undefined) return;
+      if (data.payload === null) {
+        placeIndicatorBox(data.kind, null);
+        return;
+      }
+      const rect = frame.getBoundingClientRect();
+      const badge =
+        data.kind === 'selected' && data.payload.component !== null
+          ? `${data.payload.component} #${data.payload.instance ?? '?'} · ${Math.round(data.payload.w)}×${Math.round(data.payload.h)}`
+          : null;
+      placeIndicatorBox(
+        data.kind,
+        {
+          x: rect.left + window.scrollX + data.payload.x,
+          y: rect.top + window.scrollY + data.payload.y,
+          w: data.payload.w,
+          h: data.payload.h,
+        },
+        badge,
+      );
+    });
+    // the studio's lens broadcast: stroke/badge compensation only (the
+    // overlay lives in canvas space — the box itself never needs mapping)
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (data === null || typeof data !== 'object' || data.type !== 'jx-design:lens') return;
+      if (typeof data.scale !== 'number' || !Number.isFinite(data.scale)) return;
+      lensScale = Math.min(Math.max(data.scale, 0.05), 10);
+      trackIndicators();
+    });
+  }
 
   document.addEventListener(
     'click',
@@ -298,23 +408,27 @@ export function initDesignPicker() {
     applyHover(target === null ? null : elementFor(target));
   };
 
-  // the hover UP loop (#31): mouseover/mouseout on stamped elements —
-  // outline locally + report to the studio (the tree lights its row).
-  // Passive + capture: cheap, and no click semantics are touched.
+  // the hover loop (#31→#46): the ring follows the ELEMENT UNDER THE
+  // POINTER (the child, not its component ancestor — Figma's
+  // smallest-hovered-box read); the tree-row sync fires only when the
+  // ringed element is itself a stamped usage (a raw child rings
+  // honestly without pretending to be its component)
   document.addEventListener(
     'mouseover',
     (event) => {
       const target = event.target;
       if (target === null || typeof target.closest !== 'function') return;
-      const stamped = target.closest('[data-jx-component]');
-      const element = stamped === null ? null : stamped;
-      applyHover(element);
-      if (element === null) return;
-      const usageIndex = Number(element.getAttribute('data-jx-instance'));
-      const component = element.getAttribute('data-jx-component');
+      if (target === document.documentElement || target === document.body) {
+        applyHover(null);
+        return;
+      }
+      applyHover(target);
+      if (!target.hasAttribute('data-jx-component')) return;
+      const usageIndex = Number(target.getAttribute('data-jx-instance'));
+      const component = target.getAttribute('data-jx-component');
       if (!Number.isInteger(usageIndex) || component === null) return;
       const all = document.querySelectorAll(`[data-jx-instance="${String(usageIndex)}"]`);
-      const iterationIndex = all.length > 1 ? Array.prototype.indexOf.call(all, element) : null;
+      const iterationIndex = all.length > 1 ? Array.prototype.indexOf.call(all, target) : null;
       const studio = findStudioWindow();
       if (studio !== null && typeof studio.__jixoaiDesignHover === 'function') {
         studio.__jixoaiDesignHover({
