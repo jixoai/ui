@@ -1491,6 +1491,62 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "prototype-kit",
+      "type": "registry:ui",
+      "title": "Prototype kit",
+      "description": "The prototype standard's three declarative frame components (design-studio): PrototypeCanvas — a CSS grid container (gridCols/gridRows/gap; number → repeat(N, minmax(0,1fr)), string verbatim, omitted → adaptive auto-fill wrap) that nests freely and provides the prototype-folder context to its frames (explicit prop ?? inherited canvas ?? derived from the /prototypes/<name>/ canvas-page URL); PrototypePage — a declarative viewport iframe whose src is the design server's frame surface, /__design__/frame?p=<prototype>&f=<ref minus leading ./>&theme=<light|dark|auto>&w=<px>&h=<px> (real media/container queries follow the frame viewport; width overflow scales visually, the real viewport is never faked); PrototypeComponent — the same frame with adaptive content height (height is the initial value until same-origin measurement takes over; fill locks it — the URL carries &fill=0|1). Frame ids are DOM anchors (unique per canvas, dev warning on conflict, first wins). Outside a design-server host the frames render a visible \"requires the design server\" notice instead of a dead iframe.",
+      "registryDependencies": [
+        "@jixoai/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/prototype-kit/prototype-canvas.svelte",
+          "target": "@ui/prototype-kit/prototype-canvas.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-kit/prototype-page.svelte",
+          "target": "@ui/prototype-kit/prototype-page.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-kit/prototype-component.svelte",
+          "target": "@ui/prototype-kit/prototype-component.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-kit/frame-view.svelte",
+          "target": "@ui/prototype-kit/frame-view.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-kit/context.ts",
+          "target": "@ui/prototype-kit/context.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-kit/frame-url.ts",
+          "target": "@ui/prototype-kit/frame-url.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-kit/overlay-scrollbar.ts",
+          "target": "@ui/prototype-kit/overlay-scrollbar.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-kit/index.ts",
+          "target": "@ui/prototype-kit/index.ts",
+          "type": "registry:file"
+        }
+      ],
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/prototype-kit.html"
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "checkbox",
       "type": "registry:ui",
       "title": "Checkbox",
