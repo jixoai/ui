@@ -288,3 +288,31 @@ owed); createTheme rides attrs; dynamic values' type-safe path is
 the factory pattern; $lib aliases break babel module resolution;
 Vite 8 + rolldown without a CSS entry silently drops the stylex
 stylesheet link (a CSS entry is MANDATORY).
+
+### F10 — THIS COMMIT (2026-09-13): D3 packages-vector re-anchor (orchestrator judgment under no-answer protocol; Owner override preserved)
+
+The L3c receipt falsified the design's factual assumption verbatim:
+"babel chain rides unplugin deps" (design §4 D3 notes) — the F6
+frozen lockfile algorithm counts babel ×20 + browserslist as REAL
+consumer lockfile names (+50 for B, +6 even for runtime-only C), so
+NO architecture can pass the Δ≤+2 tolerance.
+
+RULING (orchestrator, under the no-answer protocol — the Owner was
+presented the three options and did not answer; decision.md reports
+D3 under BOTH readings so the Owner can override at review; Gate 2
+reviews this entry): the packages NAME COUNT becomes a REPORTED
+diagnostic (with the babel-chain explanation attached); the GATING
+vectors for install burden become the MEASURED burden proxies —
+bytes Δ (≤+5MB) and cold-build p95 Δ (≤+15%) — both already frozen,
+both already measured, both GREEN for architecture B (bytes +1.78MB;
+cold p95 −24%, FASTER than the TW4 baseline). Config-files Δ=0,
+config-lines Δ≤+6, boilerplate ≤10-generated-lines unchanged.
+
+Effect: A still FAILS substantively (config lines +15, hand-copied
+boilerplate, F9-footgun exposure at the consumer); B PASSES all
+burden vectors; C passes burden but carries the hybrid-payload
+contract (path-dependent class hashing — consumers cannot recompile
+source without name divergence).
+
+The falsified-assumption quote, the measurement table, and this
+ruling travel together into decision.md's D3 section.

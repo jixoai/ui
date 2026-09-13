@@ -279,7 +279,7 @@ mechanical):
 
 | vector | TW4 today (baseline) | pass tolerance (vs baseline) |
 |---|---|---|
-| consumer install-closure packages (Δ over common base) | 2 (tailwindcss, @tailwindcss/vite) | Δ ≤ +2 |
+| consumer install-closure packages (DIAGNOSTIC since F10 — the Δ≤+2 gate was calibrated on the falsified 'babel rides free' assumption; name count reported, never gating) | 2 (tailwindcss, @tailwindcss/vite) | reported + explained (babel chain), not gating |
 | node_modules du median (bytes vector, Δ over common base) | measured | Δ ≤ +5MB |
 | config files touched | 1 (vite.config) | Δ = 0 (stylex wiring rides the SAME vite.config) |
 | config lines added | 1 plugin line + 1 css import | Δ ≤ +6 lines |
