@@ -544,3 +544,27 @@ such candidates into the page-shared utility sheet. Therefore:
 
 No number in §a–§g was edited (append-only law); this section
 supersedes §f's drift characterization only.
+
+---
+
+## §i 当前 HEAD 归因 (2026-09-13, R2 — append-only)
+
+The §h-mandated rebuild at the frozen HEAD happened (R2 lane): worktree
+`ui-stylex` @ `0f2b837e`, `npm ci` + `vite build` in apps/www (18.53s,
+exit 0; disk 179Gi free — the §e ENOSPC state is resolved). Full receipt:
+research/baseline.md. Headline vs the §f 09-11 artifact:
+
+| | 09-11 (§f, d17abd58) | HEAD 0f2b837e (R2) | drift |
+|---|---|---|---|
+| main sheet | 0.BINDZyoA.css 300,245B / 2,309 rules | 0.C3M4OLbU.css **300,233B / 2,310 rules** | −12B / +1 rule |
+| TW utilities | 106,954B / 1,501 | 106,942B / 1,502 | −12B / +1 |
+| jx-pure / jixoai / all other buckets | — | — | **byte-identical** |
+
+**§h's drift worry (19→28 files, +2,575→+3,641 insertions folding "new
+static Tailwind classes" into the sheet) is refuted at sheet level**:
+every new candidate was already a generated utility on 09-11; the entire
+HEAD delta is −12B in the utilities layer. The §f table therefore doubles
+as the current-HEAD attribution to within 12 bytes. R2's P1/P2/P3/P4
+measurements and the R2b counterfactual (which prices the in-place split
+at ≈4% recovery, docs pages regressing +4.6%) start from THIS build —
+research/baseline.md + research/counterfactual.md carry the numbers.
