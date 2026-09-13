@@ -73,3 +73,21 @@
   }}
 />
 <p class="host-intercepted">intercepted: {intercepted}</p>
+
+<!-- the caret override (design-studio #35): the consumer owns the glyph
+     column — a spinner for the "loading" folder, the default chevron
+     look otherwise; the jx-tree-caret span keeps the rotation CSS -->
+<TreeView
+  {nodes}
+  defaultExpanded={['src']}
+  ariaLabel="host caret"
+  caret={hostCaret}
+>
+  {#snippet hostCaret(ctx: TreeItemCtx)}
+    {#if ctx.id === 'legacy'}
+      <span class="host-caret-loading" role="status" aria-label="loading">↻</span>
+    {:else}
+      <svg class="host-caret-chevron" viewBox="0 0 24 24" width="10" height="10" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    {/if}
+  {/snippet}
+</TreeView>
