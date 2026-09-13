@@ -389,7 +389,14 @@ function textSpansOf(usage: UsageInfo, source: string): readonly TextSpan[] {
  * surfaces as text-not-found — the resolver maps that to 409 on a CAS
  * retry (stale address, never a wrong-span write).
  */
-export function applyTextEdit(source: string, component: string, usageIndex: number, textIndex: number, value: string): TextEditOutcome {
+export function applyTextEdit(
+  source: string,
+  component: string,
+  usageIndex: number,
+  textIndex: number,
+  value: string,
+  expectedRaw?: string,
+): TextEditOutcome {
   const located = locateInStampSpace(source, component, usageIndex);
   if (!located.ok) return { ok: false, reason: located.reason, message: located.message };
   const usage = located.usage;
@@ -401,6 +408,19 @@ export function applyTextEdit(source: string, component: string, usageIndex: num
         ? 'the usage has no direct editable text fragments (expressions, comments, elements and block interiors are boundaries)'
         : `the usage has ${spans.length} text fragment${spans.length === 1 ? '' : 's'} (children.text[0..${spans.length - 1}])`;
     return { ok: false, reason: 'text-not-found', message: `children.text[${textIndex}] not found — ${kindNote}` };
+  }
+  // the RAW FINGERPRINT (Codex round-2 P1): children.text[n] is
+  // POSITIONAL — a competing write that inserts a text node before the
+  // target leaves the ordinal legal while it now names a DIFFERENT
+  // fragment (the silent wrong-write). The request carries the span's
+  // original raw; any relocation (first read OR a CAS retry) whose
+  // target raw differs is a lost identity, never a shifted guess.
+  if (expectedRaw !== undefined && target.raw !== expectedRaw) {
+    return {
+      ok: false,
+      reason: 'text-shifted',
+      message: `children.text[${textIndex}] no longer holds the fragment you seeded (got a different raw) — a competing write reshaped this usage; reselect and retry`,
+    };
   }
   const magic = new MagicString(source);
   if (value.length === 0) {
@@ -422,6 +442,9 @@ export interface UsageText {
   readonly index: number;
   /** the decoded visible text (the textarea's seed) */
   readonly text: string;
+  /** the trimmed RAW source slice — the edit request echoes it back as
+   *  the identity fingerprint (a shifted ordinal 409s, never guesses) */
+  readonly raw: string;
 }
 
 export interface UsageValues {
@@ -451,7 +474,7 @@ export function dryRunUsage(source: string, component: string, usageIndex: numbe
   return {
     shared: usage.insideEach,
     values,
-    texts: textSpansOf(usage, source).map((span, index) => ({ index, text: span.text })),
+    texts: textSpansOf(usage, source).map((span, index) => ({ index, text: span.text, raw: span.raw })),
   };
 }
 
@@ -491,6 +514,10 @@ export interface PropEditRequest {
   readonly slot?: 'children';
   /** the children.text[n] ordinal (0-based, significant fragments) */
   readonly textIndex?: number;
+  /** the seeded fragment's raw source (the #38 fingerprint): the edit
+   *  409s when a competing write shifted the ordinal onto another
+   *  fragment — never a positional guess */
+  readonly expectedRaw?: string;
 }
 
 export type PropEditResponse =
@@ -595,7 +622,7 @@ export async function resolvePropEditRequest(root: string, body: unknown, fileOp
    *  the kernel; CAS retries call this again with the fresh bytes */
   const applyOnce = (src: string): EditOutcome | TextEditOutcome =>
     textMode
-      ? applyTextEdit(src, request.component, request.usageIndex, request.textIndex!, request.value as string)
+      ? applyTextEdit(src, request.component, request.usageIndex, request.textIndex!, request.value as string, request.expectedRaw)
       : applyPropEdit(src, request.component, request.usageIndex, request.prop!, request.value ?? null);
 
   // CAS: hash at read time, re-read before write, one re-location retry

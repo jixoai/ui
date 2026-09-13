@@ -180,6 +180,10 @@
   export interface SlotTextSpan {
     readonly index: number;
     readonly text: string;
+    /** the seeded fragment's raw source — echoed on commit as the
+     *  identity fingerprint: a shifted ordinal 409s server-side, never
+     *  a positional guess (Codex round-2 P1) */
+    readonly raw?: string;
   }
 
   /**
@@ -401,6 +405,11 @@
     const current = selection;
     const targetFile = file;
     if (current === null || targetFile === null || locked || saving) return;
+    // the FINGERPRINT: this row's seeded raw rides the request — if a
+    // competing write (agent, another editor) reshaped the usage so the
+    // ordinal now names a different fragment, the server 409s instead
+    // of silently editing the wrong text (Codex round-2 P1)
+    const expectedRaw = textSpans.find((span) => span.index === textIndex)?.raw;
     const seed = seedTargetOf(current, targetFile);
     saving = true;
     clearNotice();
@@ -408,7 +417,7 @@
       const response = await fetch(propEditUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file: targetFile, component: current.component, usageIndex: current.usageIndex, slot: 'children', textIndex, value }),
+        body: JSON.stringify({ file: targetFile, component: current.component, usageIndex: current.usageIndex, slot: 'children', textIndex, value, expectedRaw }),
       });
       const body = (await response.json()) as { ok?: boolean; reason?: string; message?: string };
       if (response.ok && body.ok === true) {
@@ -421,21 +430,35 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ file: targetFile, component: current.component, usageIndex: current.usageIndex, dryRun: true }),
           });
+          let reseeded = false;
           if (dryResponse.ok) {
             const dryBody = (await dryResponse.json()) as { ok?: boolean; textSpans?: SlotTextSpan[] };
             const stillSelected = seedTargetOf(selection, selectionFile);
             if (dryBody.ok === true && Array.isArray(dryBody.textSpans) && stillSelected !== null && seed !== null && seedSignature(stillSelected) === seedSignature(seed)) {
               textSpans = dryBody.textSpans;
+              reseeded = true;
             }
           }
+          if (!reseeded) {
+            // Codex round-2 secondary: a failed reseed must NOT leave
+            // stale ordinals addressable — clear the rows; the operator
+            // reseeds by reselecting (one honest action, no guesses)
+            textSpans = [];
+            showNotice('fragment list re-sync failed — reselect the component to reseed its text rows');
+          }
         } catch {
-          // the edit itself landed; the reseed is best-effort bookkeeping
+          // the edit itself landed; the reseed failed ENTIRELY — same
+          // law: stale ordinals die here, never survive as live rows
+          textSpans = [];
+          showNotice('fragment list re-sync failed — reselect the component to reseed its text rows');
         }
         // HMR fallback path (pre-built): the shell listens and reloads
         // the owning frame when HMR does not carry the edit in
         window.dispatchEvent(new CustomEvent('jx-design:panel-edited', { detail: { frameId: current.frameId, file: targetFile } }));
       } else if (response.status === 409) {
-        showNotice('concurrent write detected — edit abandoned, retry');
+        showNotice(body.reason === 'text-shifted' ? 'this fragment moved — a competing write reshaped the component; reselect and retry' : 'concurrent write detected — edit abandoned, retry');
+      } else if (body.reason === 'text-shifted') {
+        showNotice('this fragment moved — a competing write reshaped the component; reselect and retry');
       } else if (body.reason === 'text-not-found') {
         showNotice(body.message ?? 'that text fragment no longer exists — reselect the component');
       } else {

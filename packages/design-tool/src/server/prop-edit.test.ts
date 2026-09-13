@@ -412,7 +412,7 @@ test('text: dry-run seeds the fragments (decoded text, ordinals) for the panel',
   const dry = dryRunUsage(TEXT_HERO, 'press-button', 2, ['variant']);
   assert.ok(!('error' in dry));
   if ('error' in dry) return;
-  assert.deepEqual(dry.texts, [{ index: 0, text: 'Read\n    the standard' }]);
+  assert.deepEqual(dry.texts, [{ index: 0, text: 'Read\n    the standard', raw: 'Read\n    the standard' }]);
   const none = dryRunUsage(TEXT_HERO, 'badge', 4, ['tone']);
   assert.ok(!('error' in none));
   if ('error' in none) return;
@@ -439,7 +439,7 @@ test('text resolver: 200 write path — the disk file carries the edit', async (
     // and the dry-run reflects the new text (the panel's reseed source)
     const dry = await resolvePropEditRequest(root, { file: 'hero.svelte', component: 'press-button', usageIndex: 1, dryRun: true });
     assert.equal(dry.status, 200);
-    if (dry.body.ok) assert.deepEqual(dry.body.textSpans, [{ index: 0, text: 'Ship it' }]);
+    if (dry.body.ok) assert.deepEqual(dry.body.textSpans, [{ index: 0, text: 'Ship it', raw: 'Ship it' }]);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -536,4 +536,43 @@ test('text resolver: CAS — a benign racing write re-locates and lands', async 
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+
+/* ── the raw fingerprint (Codex round-2 P1): ordinal identity ───────── */
+
+test('#38-P1 a competing INSERT before the target shifts the ordinal — the fingerprint 409s, never edits the wrong fragment', async () => {
+  // Codex's exact repro: target children.text[1] = "two"; the external
+  // write prepends zero<!--x--> so text[1] is now "one" — still legal,
+  // but WRONG. Without the fingerprint this silently edits "one".
+  const before = '<script module>import P from \'#jixoai/text\';</script>\n<P>one<!--c-->two</P>';
+  const after = '<script module>import P from \'#jixoai/text\';</script>\n<P>zero<!--x-->one<!--c-->two</P>';
+  // seeded against BEFORE: fragment 1 raw is "two"
+  const seeded = applyTextEdit(before, 'text', 1, 1, 'edited');
+  assert.equal(seeded.ok, true, 'sanity: against the seeded source it edits');
+  // replayed against AFTER (the CAS retry's fresh bytes): fragment 1
+  // raw is now "one" — identity lost, must refuse
+  const replay = applyTextEdit(after, 'text', 1, 1, 'edited', 'two');
+  assert.equal(replay.ok, false);
+  assert.equal((replay as { reason?: string }).reason, 'text-shifted');
+  // and the disk content is UNTOUCHED by the refused attempt (pure fn)
+  assert.equal(after.includes('>edited<'), false);
+});
+
+test('#38-P1 benign relocations pass — same raw, external prop edits elsewhere', async () => {
+  const before = '<script module>import P from \'#jixoai/text\';</script>\n<P variant="a">hello</P>';
+  const after = '<script module>import P from \'#jixoai/text\';</script>\n<P variant="b">hello</P>';
+  const outcome = applyTextEdit(after, 'text', 1, 0, 'hi', 'hello');
+  assert.equal(outcome.ok, true, 'same raw → the edit lands despite the external prop change');
+  assert.equal((outcome as { output?: string }).output?.includes('>hi<'), true);
+});
+
+test('#38-P1 an entity at the tail followed by ASCII whitespace trims correctly (Codex non-blocking pin)', async () => {
+  // the raw ends with an ENTITY then a space: only the space is
+  // peripheral; the entity is content, decoded text keeps the &.
+  // Raw: "a &amp; " → trimmed raw "a &amp;", decoded "a &"
+  const src = '<script module>import P from \'#jixoai/text\';</script>\n<P>a &amp; </P>';
+  const outcome = applyTextEdit(src, 'text', 1, 0, 'X', 'a &amp;');
+  assert.equal(outcome.ok, true);
+  assert.equal((outcome as { output?: string }).output?.includes('>X '), true, 'the entity+space tail trims; the peripheral space survives the edit');
 });
