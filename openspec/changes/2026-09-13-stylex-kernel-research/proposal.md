@@ -8,18 +8,27 @@ motivations, plus one standing constraint:
 
 1. **Render performance** — Tailwind is making "the whole CSS rendering"
    difficult. The census confirms the physical shape: every page loads
-   ONE compiled sheet (TW4 preflight + utilities for the whole site +
-   the 2273-line jixoai.css + the 2363-line jx-pure.css + every folder
-   css), and the docs routes alone carry 13k+ utility tokens. Whether
-   the pain is sheet size, parse/recalc cost, dev-mode scanning, or
-   FOUC must be MEASURED, not assumed (R2) — including the null
-   hypothesis that the symptom is addressable without an engine swap.
-2. **Context redundancy** — the same design intent currently lives in
-   THREE parallel channels: (a) TW4 `@theme inline` semantic utilities,
-   (b) context-system CSS variables (`--jx-*`) bridged back into markup
-   as arbitrary-value utilities (`px-[var(--jx-inset)]`), and (c) the
-   css-laws generated vocabulary — plus the deliberate icon dual
-   supply. A new engine must COLLAPSE channels, not add a fourth (RQ3).
+   the built main sheet is 300,245B raw / 43,352B gzip — TW-generated
+   content is 45.5% (utilities 106,954B / 1501 rules), jx-pure 34.4%,
+   jixoai.css 14.5%, component css 2.2%, site 3.4% (r0-census
+   attribution over the 2026-09-11 dist); 126/126 built pages load
+   this one sheet plus ~13 shared assets — per-page render-blocking
+   averages 386KB raw / 63.4KB gzip. The engine swap's DIRECT lever
+   is the 45.5% utility slice; the ~49% law-sheet share prices the
+   hype-asymmetry risk (design §6). Whether the pain is sheet size,
+   parse/recalc cost, dev-mode scanning, or FOUC must be MEASURED,
+   not assumed (R2) — including the null hypothesis that the symptom
+   is addressable without an engine swap.
+2. **Context redundancy** — the honest inventory (design §1.2, r2)
+   distinguishes OWNERS, PROJECTIONS of one law (css-laws' 5 outputs
+   from 13 typed sources), INTENTIONAL carrier hierarchies (icon
+   tiers), spec-mandated runtime channels (density's two-channel
+   contract), and TRUE duplication — semantic intent expressible
+   simultaneously via TW4 `@theme` utilities, context vars bridged as
+   arbitrary-value utilities, and alias vocabulary; the @theme mapping
+   region itself; the icon dual supply. R4 quantifies the
+   true-duplication class per candidate architecture: a new engine
+   must SHRINK it, never add a channel (RQ3 acceptance bar).
 3. **Coexistence constraint** — end developers may still pair Tailwind.
    The kernel must live beside consumer Tailwind without cascade
    fights, and the consumer override law (consumer utilities beat
@@ -40,8 +49,11 @@ is an evidence-backed GO/NO-GO decision, and if GO, the blueprint
   - feasibility spikes (committed, runnable): Svelte 5 + Vite 8 +
     StyleX minimal; StyleX⇄Tailwind v4 coexistence with override-law
     probes; adapter-static SSG extraction path;
-  - migration scope census and cost model (106 ui items, variant
-    tables, cn() fate, registry distribution prerequisites);
+  - migration scope census and cost model (106 ui items + 1 stray
+    file, 140 registry items total; 94 TW-bearing component files /
+    218 svelte with 2340 tokens — r0-census frozen grammar; docs
+    routes 16.8k tracked-source tokens; variant tables, cn() fate,
+    registry distribution prerequisites);
   - alternatives scan (null hypothesis "fix Tailwind in place" +
     ranked fallback engines) — the decision is only honest if the
     counterfactuals were priced.
@@ -57,16 +69,30 @@ is an evidence-backed GO/NO-GO decision, and if GO, the blueprint
 ## Impact
 
 - **Specs: none modified in this change.** The research INVENTORIES the
-  laws a GO would later touch (placement law #1 "utility-first",
-  styling-posture requirement, check-tw4-prereq consumer gate, the
-  zero-npm context-plugin boundary, mirror/verify gates) — the deltas
+  laws a GO would later touch — the placement law #1 "utility-first",
+  the styling-posture requirement, the consumer prereq gate
+  (check-tw4-prereq), the zero-npm context-plugin boundary — the deltas
   themselves belong to the follow-up change.
 - **Files: this change folder only** (docs + spike/ scratch projects
   with pinned manifests, no node_modules, no dist). No production
-  file, gate, or public API changes. Baseline measurements RUN builds
-  but commit only their reports.
-- **Gates: untouched.** Nothing in verify:all changes during research.
-- **Not in scope**: any actual component migration, www docs-page
-  restyling, css-laws sheet changes, and the vite-plugin's runtime
-  behavior (the plugin is STUDIED as a distribution vehicle, not
-  modified).
+  file, gate, or public API changes. R0/R2 measurements RUN builds in
+  the main checkout (gitignored dist) and commit only reports +
+  receipts.
+- **Gates: untouched at runtime.** But the research ENUMERATES them
+  (design §1.4, Gate-1 A5): the verify-all chain (dependency shape,
+  standards, laws/icons/spins/migration, mirror, context, deps,
+  budgets, docs, meta, vite-config dual-app byte-identity, ghostty/
+  betlang pins, registry-test mirror, shadcn-add, managed km/
+  isolation/print), the law-probing suites (tw-context-probe,
+  tw-standard-layer-probe, jx-pure-parity, dld-layers, density-adoption
+  ×5, density-context, props-table-print-hook, registry-payload-parity,
+  hook-law, check-tw4-prereq), and the ~170 component suites — each
+  classified research-evidence vs follow-up-apply.
+- **Kernel boundary (design §1.3, r2)**: `packages/css-laws/src/**`
+  is an IMPLEMENTATION INPUT (its serializers are the projection layer
+  a channel-collapse touches), not an observation-only object; theme
+  sheets are generated artifacts with receipts; www docs routes stay
+  Tailwind as the coexistence proof.
+- **Not in scope**: actual component migration, www docs-page
+  restyling, css-laws sheet edits, vite-plugin behavior changes (the
+  plugin is studied as distribution-architecture B's vehicle only).
