@@ -8,17 +8,19 @@
        family (r3 T3, the dogfooding rebuild — rebuild-plan §2.2,
        dock precedent canvas-playground.svelte): rows ride ItemGroup
        mode="plain" density="sm" (the panel owns the surface);
-       boolean → ItemToggle, enum ≤5 → segmented (ItemField control
-       snippet), enum >5 → ItemSelect, number → stepper (ItemField
-       control snippet), string → ItemInput; non-representable rows
+       boolean → ItemToggle, enum ≤5 → ItemSegmented, enum >5 →
+       ItemSelect, number → ItemStepper, string → ItemInput (grindstone
+       #17-3: the hand-written segmented/stepper control snippets
+       retired INTO the registry adapters); non-representable rows
        keep the read-only "edit in code" lane. Notices ride `alert`
-       (transient failures keep the 6s self-dismiss, ID5), the
+       (transient failures self-dismiss through the component's own
+       dismiss="auto", ID5 + grindstone #17-1), the
        unresolved-frame state is a PERSISTENT alert (ID7), the
        no-selection and no-props states ride `empty` (W3 flow
        guidance), the head's rim is `separator`. x-ui.label/unit/
-       description/i18n decorate the rows; the lucide icon mini-map
-       stays DORMANT (the family's field rows expose no leading icon
-       slot — grindstone ledger, rebuild-plan §6.1).
+       description/i18n decorate the rows; the lucide icon mini-map is
+       LIVE (grindstone #17-2): every row kind renders its leading
+       glyph through the family's icon snippet lane.
     2. EDIT — code-first (design.md §4): a control change POSTs the
        usage {file, component, usageIndex, prop, value} to the
        CAS-arbitrated prop-edit endpoint; success expects HMR to carry
@@ -26,8 +28,9 @@
        CustomEvent as the fallback path; non-representable props
        (bound / non-literal) render read-only with "edit in code";
        an agent turn locks the whole panel (chat streaming state).
-       Failure notices are TRANSIENT (r3 T1/ID5): every show arms the
-       6s self-dismiss (notice.ts) and valid actions clear them.
+       Failure notices are TRANSIENT (r3 T1/ID5 + grindstone #17-1):
+       each notice mounts a KEYED alert with dismiss="auto" — the
+       component owns the 6s clock — and valid actions clear them.
        The SLOT TEXT rows (issue #38) ride the same endpoint's
        discriminator ({slot:'children', textIndex, value}) and the
        same lock laws: the usage's own direct Text fragments, one
@@ -53,7 +56,6 @@
   Svelte 5 runes.
 -->
 <script module lang="ts">
-  import { createNoticeDismissal } from './notice.ts';
   import { seedSignature, seedTargetOf } from './equivalence.ts';
   import type { DesignSelection } from './selection.ts';
 
@@ -213,7 +215,7 @@
   import Alert from '#jixoai/alert';
   import Empty from '#jixoai/empty';
   import Separator from '#jixoai/separator';
-  import { ItemField, ItemGroup, ItemInput, ItemSelect, ItemToggle } from '#jixoai/list-item';
+  import { ItemField, ItemGroup, ItemInput, ItemSegmented, ItemSelect, ItemStepper, ItemToggle } from '#jixoai/list-item';
   import type { ItemFieldContext } from '#jixoai/list-item';
 
   let {
@@ -247,27 +249,12 @@
   let notice: string | null = $state(null);
   let saving = false;
 
-  // ID5 (r3 T1): transient failure notices self-dismiss after 6s —
-  // they hung until the next selection in r2, reading as a permanent
-  // panel state. Valid actions (a new commit, a selection change)
-  // clear them explicitly via clearNotice; this timer is the floor.
-  const noticeDismissal = createNoticeDismissal(() => {
-    notice = null;
-  });
-
-  function showNotice(message: string): void {
-    notice = message;
-    noticeDismissal.schedule();
-  }
-
-  function clearNotice(): void {
-    notice = null;
-    noticeDismissal.cancel();
-  }
-
-  // teardown: a pending dismissal never fires after unmount
-  $effect(() => () => noticeDismissal.cancel());
-
+  // ID5 (r3 T1) + grindstone #17-1: the transient-notice SCHEDULER is
+  // retired — the alert component owns the 6s clock (dismiss="auto",
+  // armed at mount, cancelled at unmount). The panel keeps only the
+  // $state: a new message remounts the keyed alert (a fresh clock —
+  // the old "new show replaces the old timer" law), a valid action
+  // (commit, selection change) nulls it and the unmount cancels.
   const rows = $derived(meta === null ? [] : rowsFor(meta, usageValues));
   const shareCount = $derived(selection?.instanceCount ?? 1);
 
@@ -295,7 +282,7 @@
     usageValues = {};
     usageShared = false;
     textSpans = [];
-    clearNotice();
+    notice = null;
     if (current === null) return;
     file = current.file;
     void (async () => {
@@ -347,7 +334,7 @@
     // raised={false} residue (P2-2, vision r2 catch)
     if (value === false && originallyUnset.has(prop)) value = null;
     saving = true;
-    clearNotice();
+    notice = null;
     try {
       const response = await fetch(propEditUrl, {
         method: 'POST',
@@ -363,26 +350,18 @@
         // the owning frame when HMR does not carry the edit in
         window.dispatchEvent(new CustomEvent('jx-design:panel-edited', { detail: { frameId: current.frameId, file } }));
       } else if (response.status === 409) {
-        showNotice('concurrent write detected — edit abandoned, retry');
+        notice = 'concurrent write detected — edit abandoned, retry';
       } else if (body.reason === 'non-representable') {
         usageValues = { ...usageValues, [prop]: { representable: false } };
-        showNotice(`"${prop}" is bound or non-literal — edit in code`);
+        notice = `"${prop}" is bound or non-literal — edit in code`;
       } else {
-        showNotice(body.message ?? `edit failed (${body.reason ?? response.status})`);
+        notice = body.message ?? `edit failed (${body.reason ?? response.status})`;
       }
     } catch (cause) {
-      showNotice(cause instanceof Error ? cause.message : String(cause));
+      notice = cause instanceof Error ? cause.message : String(cause);
     } finally {
       saving = false;
     }
-  }
-
-  function step(row: ControlRow, delta: number): void {
-    const current = typeof row.value === 'number' ? row.value : row.minimum ?? 0;
-    let next = current + delta;
-    if (row.minimum !== undefined) next = Math.max(row.minimum, next);
-    if (row.maximum !== undefined) next = Math.min(row.maximum, next);
-    void commitProp(row.prop, next);
   }
 
   // the text rows' commit trigger (the old form-submit, now the
@@ -412,7 +391,7 @@
     const expectedRaw = textSpans.find((span) => span.index === textIndex)?.raw;
     const seed = seedTargetOf(current, targetFile);
     saving = true;
-    clearNotice();
+    notice = null;
     try {
       const response = await fetch(propEditUrl, {
         method: 'POST',
@@ -444,28 +423,28 @@
             // stale ordinals addressable — clear the rows; the operator
             // reseeds by reselecting (one honest action, no guesses)
             textSpans = [];
-            showNotice('fragment list re-sync failed — reselect the component to reseed its text rows');
+            notice = 'fragment list re-sync failed — reselect the component to reseed its text rows';
           }
         } catch {
           // the edit itself landed; the reseed failed ENTIRELY — same
           // law: stale ordinals die here, never survive as live rows
           textSpans = [];
-          showNotice('fragment list re-sync failed — reselect the component to reseed its text rows');
+          notice = 'fragment list re-sync failed — reselect the component to reseed its text rows';
         }
         // HMR fallback path (pre-built): the shell listens and reloads
         // the owning frame when HMR does not carry the edit in
         window.dispatchEvent(new CustomEvent('jx-design:panel-edited', { detail: { frameId: current.frameId, file: targetFile } }));
       } else if (response.status === 409) {
-        showNotice(body.reason === 'text-shifted' ? 'this fragment moved — a competing write reshaped the component; reselect and retry' : 'concurrent write detected — edit abandoned, retry');
+        notice = body.reason === 'text-shifted' ? 'this fragment moved — a competing write reshaped the component; reselect and retry' : 'concurrent write detected — edit abandoned, retry';
       } else if (body.reason === 'text-shifted') {
-        showNotice('this fragment moved — a competing write reshaped the component; reselect and retry');
+        notice = 'this fragment moved — a competing write reshaped the component; reselect and retry';
       } else if (body.reason === 'text-not-found') {
-        showNotice(body.message ?? 'that text fragment no longer exists — reselect the component');
+        notice = body.message ?? 'that text fragment no longer exists — reselect the component';
       } else {
-        showNotice(body.message ?? `text edit failed (${body.reason ?? response.status})`);
+        notice = body.message ?? `text edit failed (${body.reason ?? response.status})`;
       }
     } catch (cause) {
-      showNotice(cause instanceof Error ? cause.message : String(cause));
+      notice = cause instanceof Error ? cause.message : String(cause);
     } finally {
       saving = false;
     }
@@ -506,10 +485,16 @@
         <Alert title="agent turn in progress — panel is read-only"></Alert>
       {/if}
       {#if notice !== null}
-        <!-- transient (ID5): the 6s self-dismiss owns WHEN it leaves;
-             the alert is only the surface (no dismiss affordance of
-             its own — grindstone ledger) -->
-        <Alert variant="tonal" class="jx-hue-error">{notice}</Alert>
+        <!-- transient (ID5 + grindstone #17-1): the alert owns the
+             clock — dismiss="auto" arms the 6s timer at mount and the
+             × button fires onDismiss('button'); {#key} gives every NEW
+             message a fresh mount (a fresh clock — the notice.ts
+             "new show replaces the old timer" law, keyed-remount
+             edition). Presence stays here: both paths null the $state
+             and the unmount cancels the timer -->
+        {#key notice}
+          <Alert variant="tonal" class="jx-hue-error" dismiss="auto" onDismiss={() => (notice = null)}>{notice}</Alert>
+        {/key}
       {/if}
       {#if shareCount > 1}
         <p class="panel-hint">{shareCount} instances share this usage — edits land once, at the usage site</p>
@@ -534,11 +519,25 @@
                  adapters per kind; every control honors the lock -->
             <ItemGroup mode="plain" controlChrome="integrated" density="sm">
               {#each rows as row (row.prop)}
+                <!-- the row's leading glyph (grindstone #17-2): the lucide
+                     mini-map becomes a per-row Snippet riding the family's
+                     icon lane — inline-start of the label, aria-hidden,
+                     unknown names degrade to the two-letter monogram -->
+                {#snippet glyph()}
+                  {#if iconPathsOf(row.icon)}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      {#each iconPathsOf(row.icon) ?? [] as d}<path d={d} />{/each}
+                    </svg>
+                  {:else if row.icon}
+                    <span>{monogramOf(row.label)}</span>
+                  {/if}
+                {/snippet}
                 {#if row.kind === 'toggle'}
                   <ItemToggle
                     id={`prop-${row.prop}`}
                     label={labelOf(row)}
                     description={descriptionOf(row)}
+                    icon={row.icon ? glyph : undefined}
                     checked={row.value === true}
                     disabled={locked || file === null}
                     onchange={(event) => void commitProp(row.prop, event.currentTarget.checked)}
@@ -548,6 +547,7 @@
                     id={`prop-${row.prop}`}
                     label={labelOf(row)}
                     description={descriptionOf(row)}
+                    icon={row.icon ? glyph : undefined}
                     value={String(row.value ?? '')}
                     disabled={locked || file === null}
                     onchange={(event) => void commitProp(row.prop, event.currentTarget.value)}
@@ -561,53 +561,53 @@
                     id={`prop-${row.prop}`}
                     label={labelOf(row)}
                     description={descriptionOf(row)}
+                    icon={row.icon ? glyph : undefined}
                     value={typeof row.value === 'string' ? row.value : ''}
                     disabled={locked || file === null}
                     onkeydown={(event) => onTextEnter(row, event)}
                   />
                 {:else if row.kind === 'stepper'}
-                  <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
-                    {#snippet control(field: ItemFieldContext)}
-                      <div class="stepper" role="group" aria-labelledby={field.labelId} aria-describedby={field.describedBy}>
-                        <button
-                          type="button"
-                          class="stepper-btn"
-                          aria-label={`Decrease ${row.label}`}
-                          disabled={locked || file === null}
-                          onclick={() => step(row, -1)}
-                        >−</button>
-                        <span class="stepper-value">{row.value ?? '—'}</span>
-                        <button
-                          type="button"
-                          class="stepper-btn"
-                          aria-label={`Increase ${row.label}`}
-                          disabled={locked || file === null}
-                          onclick={() => step(row, 1)}
-                        >+</button>
-                      </div>
-                    {/snippet}
-                  </ItemField>
+                  <!-- grindstone #17-3: the stepper idiom retired INTO
+                       ItemStepper (ItemField + NumberInput) — clamp/snap/
+                       hold are the control's own, direct typing and
+                       native ↑/↓ are first-class upgrades; min/max ride
+                       the schema bounds (the panel's step() helper died
+                       with the hand-written chrome) -->
+                  <ItemStepper
+                    id={`prop-${row.prop}`}
+                    label={labelOf(row)}
+                    description={descriptionOf(row)}
+                    icon={row.icon ? glyph : undefined}
+                    value={typeof row.value === 'number' ? row.value : undefined}
+                    min={row.minimum}
+                    max={row.maximum}
+                    disabled={locked || file === null}
+                    onchange={(event) => {
+                      const n = event.currentTarget.valueAsNumber;
+                      void commitProp(row.prop, Number.isFinite(n) ? n : undefined);
+                    }}
+                  />
                 {:else if row.kind === 'segmented'}
-                  <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
-                    {#snippet control(field: ItemFieldContext)}
-                      <div class="seg" role="group" aria-labelledby={field.labelId} aria-describedby={field.describedBy}>
-                        {#each row.options as option (option)}
-                          <button
-                            type="button"
-                            class="seg-btn"
-                            aria-pressed={row.value === option}
-                            disabled={locked || file === null}
-                            onclick={() => void commitProp(row.prop, option)}
-                          >{option}</button>
-                        {/each}
-                      </div>
-                    {/snippet}
-                  </ItemField>
+                  <!-- grindstone #17-3: the segmented idiom retired INTO
+                       ItemSegmented (ItemField + ToggleGroup single) —
+                       native radios own the arrow-walk and the single
+                       tab stop the aria-pressed button rows could never
+                       claim; the enum options ride the data lane -->
+                  <ItemSegmented
+                    id={`prop-${row.prop}`}
+                    label={labelOf(row)}
+                    description={descriptionOf(row)}
+                    icon={row.icon ? glyph : undefined}
+                    options={row.options.map((option) => ({ value: option }))}
+                    value={String(row.value ?? '')}
+                    disabled={locked || file === null}
+                    onValueChange={(option) => void commitProp(row.prop, option)}
+                  />
                 {:else}
                   <!-- the unrepresentable row: read-only in the family's
                        own row rhythm (ItemField), the value lane saying
                        why — edits belong to the code -->
-                  <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)}>
+                  <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)} icon={row.icon ? glyph : undefined}>
                     {#snippet control(field: ItemFieldContext)}
                       <span class="row-readonly" id={field.controlId}>edit in code</span>
                     {/snippet}
@@ -645,12 +645,13 @@
 </section>
 
 <style>
-  /* r3 T3: the panel's residual CSS is LAYOUT SKELETON ONLY (the
-     grid/flex anatomy, the head's spacing, the scroller) plus the
-     segmented/stepper snippet chrome the dock precedent authors on
-     tokens too (component-canvas.css) — every control's paint is the
-     family's own; colors resolve through the theme tokens the .dark
-     scope provides */
+  /* r3 T3 + grindstone #17-3: the panel's residual CSS is LAYOUT
+     SKELETON ONLY (the grid/flex anatomy, the head's spacing, the
+     scroller) — the hand-written segmented/stepper chrome retired
+     INTO the registry adapters (ItemSegmented/ItemStepper, bare
+     chrome through the integrated group's ambient), so every
+     control's paint is the family's own; colors resolve through the
+     theme tokens the .dark scope provides */
   .panel {
     display: flex;
     flex-direction: column;
@@ -745,73 +746,6 @@
     color: #8d8578;
     font-size: 0.6875rem;
     white-space: nowrap;
-  }
-  /* the segmented idiom (ItemField control snippet) — the dock
-     precedent's token-driven chrome, verbatim grammar */
-  .seg {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 1px;
-  }
-  .seg-btn {
-    min-block-size: var(--jx-hit, 1.375rem);
-    min-inline-size: 1.75rem;
-    padding-inline: 0.5rem;
-    border: 0;
-    background: var(--background);
-    color: var(--muted-foreground);
-    font-family: var(--font-mono, ui-monospace);
-    font-size: 11px;
-    cursor: pointer;
-  }
-  .seg-btn:hover:not(:disabled) {
-    color: var(--foreground);
-    background: color-mix(in oklab, var(--muted) 55%, transparent);
-  }
-  .seg-btn[aria-pressed='true'] {
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-  /* the stepper idiom (ItemField control snippet) — same source */
-  .stepper {
-    display: inline-flex;
-    align-items: stretch;
-  }
-  .stepper-btn {
-    min-block-size: var(--jx-hit, 1.375rem);
-    min-inline-size: 1.6rem;
-    border: 0;
-    background: transparent;
-    color: var(--muted-foreground);
-    font-family: var(--font-mono, ui-monospace);
-    font-size: 13px;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .stepper-btn:hover:not(:disabled) {
-    color: var(--foreground);
-    background: color-mix(in oklab, var(--muted) 55%, transparent);
-  }
-  .stepper-value {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: var(--jx-hit, 1.375rem);
-    padding-inline: 0.55rem;
-    color: var(--foreground);
-    font-family: var(--font-mono, ui-monospace);
-    font-size: 11px;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .seg-btn:disabled,
-  .stepper-btn:disabled {
-    opacity: 0.45;
-    cursor: default;
-  }
-  .seg-btn:focus-visible,
-  .stepper-btn:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
   }
   .panel-locked .panel-body { opacity: 0.6; }
 </style>

@@ -20,6 +20,10 @@
  * The registry items the studio chrome consumes today:
  * - list-item (T3): the property panel's row family — ItemGroup /
  *   ItemField / ItemToggle / ItemSelect / ItemInput
+ *   (grindstone #17-3, 2026-09-13): + ItemSegmented / ItemStepper —
+ *   the panel's hand-written seg/stepper chrome retired into the
+ *   adapters; every field row renders its x-ui.icon glyph through
+ *   the icon snippet lane (#17-2)
  *   (T4): the navigator's canvas rows (standalone chrome-none; the
  *   frame rows merged into the unified tree, r3 #20)
  * - tree-view (r3 #20): the unified canvas tree — pages + components
@@ -29,6 +33,8 @@
  *   (T4): the nav's canvases/tree section divide
  * - alert (T3): panel notices (transient edit failures + the
  *   persistent unresolved-frame state)
+ *   (grindstone #17-1, 2026-09-13): the transient pose rides the
+ *   component's own dismiss="auto" — the notice.ts scheduler retired
  * - empty (T3): the panel's no-selection / no-props flow guidance,
  *   and (T5) the guide index's filtered-to-nothing state
  *   (T4): the tree's no-stamped-components state + the navigator's
