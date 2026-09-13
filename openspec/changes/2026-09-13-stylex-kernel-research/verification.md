@@ -23,8 +23,8 @@ operability requirements for gates and anchors (A5–B3).
   in Gate 1 AND Gate 2); D3 tolerance vectors PLUS the frozen
   measurement protocol (fixture lineage, node/npm pins, npm-only,
   3× install / 5+5 build interleave, bytes = median du node_modules)
-  (design §4); D4–D7 0/3/5 anchors + weights + the D4≥3 rule +
-  sensitivity + missing-data rules.
+  (design §4); D4–D6 0/3/5 anchors + weights + the D4≥3 rule +
+  the F8 bar (≥21/35) + sensitivity + missing-data rules.
 - The amendment ledger (research/amendment-ledger.md) records the
   freeze lineage (F1 pre-R1 → F2 post-R1 re-freeze with the R1-
   influence enumeration → F3 execution freeze); post-F3, R2/R3
@@ -85,8 +85,10 @@ operability requirements for gates and anchors (A5–B3).
 ## Decision (R6)
 
 - Verdict answers D1/D2/D3 per fixture/dimension with evidence
-  pointers; D4–D7 scored at the pre-registered anchors; total + D4≥3
-  rule + weight-sensitivity recomputes + missing-data flags shown.
+  pointers; D4–D6 scored at the pre-registered anchors; total (max 35) + the
+  F8 bar (≥21/35, D4≥3) + weight-sensitivity recomputes +
+  missing-data flags shown; the difficulty register appears as
+  难点重点, never as a score (F8).
 - The null hypothesis column appears beside StyleX in every table.
 - Any criterion amended after evidence carries a logged reason.
 - If GO: blueprint lists every spec law the follow-up change touches

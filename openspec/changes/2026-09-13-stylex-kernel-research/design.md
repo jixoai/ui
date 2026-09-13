@@ -371,14 +371,16 @@ fixes the r4 sample-math contradiction)**:
   5 = stable semver, multi-vendor. D6b owned debt: 0 = we fork/patch
   StyleX; 3 = we own glue only (config wrapper, boilerplate generator,
   Svelte-chain watch); 5 = zero owned surface. D6 = mean(a,b).
-- **D7 migration cost (w×1)** — 0: >60 files or any high-risk family
-  (surface kernel, print, density, press-physics) has no proven path;
-  3: ≤40 files, high-risk families proven on corpus; 5: ≤20 files,
-  all families routine.
+- ~~**D7 migration cost (w×1)**~~ — REMOVED by Owner ruling
+  (ledger F8, 2026-09-13): a cost-no-object breaking rewrite — the
+  census's 27-family risk register survives as DIFFICULTY evidence
+  feeding D5 and the blueprint's sequencing, never a score.
 
-**Total**: max 40 (5×[3+2+2+1]). GO additionally requires D4 ≥ 3.
+**Total**: max 35 (5×[3+2+2]). GO additionally requires D4 ≥ 3 and
+weighted total ≥ 21/35 (the 60% bar, proportionally recalibrated
+from 24/40 at F8 — before D4/D5/D6 evidence landed).
 **Weight sensitivity**: verdict recomputed with each weight ±1
-(one-at-a-time); any flip is REPORTED, not hidden.
+(one-at-a-time) over D4, D5, D6; any flip is REPORTED, not hidden.
 **Missing-data rule**: an unevidenced dimension scores 0 AND is
 flagged; ≥2 flagged ⇒ verdict PROVISIONAL (Owner decides).
 Amendments after evidence lands: logged reason required (§6).

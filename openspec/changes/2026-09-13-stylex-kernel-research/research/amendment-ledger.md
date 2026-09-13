@@ -216,3 +216,29 @@ Gate 1 round 6 verdict: **8.3/10 PASS** (trajectory 6.2 → 7.1 → 7.0 →
 Environment note: disk was freed (~179Gi available) between rounds 6
 and this commit — the disk-blocked lanes (R2 rebuild, spike installs)
 are unblocked. Machine memory discipline stays: heavy lanes serial.
+
+### F8 — THIS COMMIT (2026-09-13): Owner ruling — D7 REMOVED (difficulty replaces cost)
+
+Owner ruling, verbatim (2026-09-13, session):
+
+  「为什么要讨论迁移成本，这次是全部组件级别的破坏性更新，
+  本身就是一个不计成本的工作。我们只讨论难点重点，不讨论成本。」
+
+Effect, effective immediately (BEFORE D4/D5/D6 evidence lands — the
+least-biased moment, as presented at ruling time):
+
+1. **D7 (migration cost, w×1) is REMOVED from the scored dimensions.**
+   The migration is a declared cost-no-object breaking rewrite (the
+   standing Owner posture: 破坏性更新、默认忽略迁移工作). No
+   file-count / family-count / hours arithmetic enters the verdict.
+2. The census's high-risk data SURVIVES as DIFFICULTY/PRIORITY
+   evidence: the 27-family risk register feeds D5 (ergonomics
+   pressure points) and the follow-up blueprint's sequencing (which
+   families prove the hard paths first) — never a score.
+3. Scored set becomes D4(w3) + D5(w2) + D6(w2): max 35. The GO bar
+   recalibrates PROPORTIONALLY: 24/40 = 60% → **≥21/35**, with the
+   unchanged additional rule D4 ≥ 3. Weight sensitivity recomputes
+   over the two heaviest remaining (D4, D5/D6).
+4. The anchor-0 file-count trap (146 > 60 under any honest reading)
+   is thereby dissolved, not re-anchored — the ruler is withdrawn,
+   not recalibrated.
