@@ -18,6 +18,13 @@
  *      editor) → re-locate once on the fresh content, a second
  *      mismatch abandons with 409. Never a blind write (design.md
  *      §4, review H1).
+ *   4. SLOT TEXT (issue #38, Owner 2026-09-12「props 面板可编辑组件
+ *      slot 文本」) — the same locate/rewrite/CAS spine over the
+ *      usage's DIRECT Text fragments (children.text[n], the B1/B2/B3
+ *      contract): the panel's 默认内容 rows edit the source's own
+ *      text — no prop-ification, no recursion into nested usages, and
+ *      a node-type change under a racing write 409s instead of
+ *      writing a shifted guess.
  *
  * Indexing law (P0 fix, vision r2 2026-09-11): usageIndex counts ALL
  * jixoai usages in document order, 1-based — the SAME space as the
@@ -39,6 +46,8 @@ import { isAbsolute, relative, resolve } from 'node:path';
 
 import MagicString from 'magic-string';
 import { parse as parseSvelte } from 'svelte/compiler';
+
+import { collectTextSpans, type TextSpan } from './stamp/transform.ts';
 
 /* ── the svelte AST shapes this locator consumes (structural) ─────────── */
 
@@ -338,12 +347,89 @@ export function applyPropEdit(source: string, component: string, usageIndex: num
   return { ok: true, output: magic.toString(), shared: usage.insideEach };
 }
 
+/* ── the slot-text edit kernel (issue #38 B3, Owner 2026-09-12) ───────── */
+
+/**
+ * The Svelte text-context serializer (the B3 write contract): escape
+ * IN ORDER `&` `<` `>` `{` `}` so an edited value can never re-open an
+ * entity, a tag, an expression or a comment boundary in the template.
+ * Quotes are NOT escaped (a text node carries them literally); multi-
+ * line values keep their raw newlines — the panel sends text, never a
+ * JSON string literal.
+ */
+export function serializeTemplateText(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('{', '&#123;')
+    .replaceAll('}', '&#125;');
+}
+
+export type TextEditOutcome =
+  | { ok: true; output: string; shared: boolean }
+  | { ok: false; reason: 'component-not-found' | 'usage-not-found' | 'text-not-found'; message: string };
+
+/** the usage's significant direct-Text fragments, shared predicate
+ *  with the stamp transform's textSpans (the children.text[n] space) */
+function textSpansOf(usage: UsageInfo, source: string): readonly TextSpan[] {
+  const children = (usage.node as { children?: unknown }).children;
+  if (!Array.isArray(children)) return [];
+  return collectTextSpans(children as readonly { type: string; start: number; end: number; data?: string }[], source);
+}
+
+/**
+ * Apply ONE slot-text edit to a source text (issue #38): replace the
+ * textIndex-th significant direct Text fragment of the usage. Pure,
+ * re-locating from a FRESH AST parse on every call — CAS retries hand
+ * it the current disk content, never a stale offset. The empty string
+ * DELETES the visible fragment and keeps the surrounding whitespace
+ * (the B3 deletion law). A node-type change (text became an
+ * expression/element) removes the fragment from the ordinal space and
+ * surfaces as text-not-found — the resolver maps that to 409 on a CAS
+ * retry (stale address, never a wrong-span write).
+ */
+export function applyTextEdit(source: string, component: string, usageIndex: number, textIndex: number, value: string): TextEditOutcome {
+  const located = locateInStampSpace(source, component, usageIndex);
+  if (!located.ok) return { ok: false, reason: located.reason, message: located.message };
+  const usage = located.usage;
+  const spans = textSpansOf(usage, source);
+  const target = spans[textIndex];
+  if (target === undefined) {
+    const kindNote =
+      spans.length === 0
+        ? 'the usage has no direct editable text fragments (expressions, comments, elements and block interiors are boundaries)'
+        : `the usage has ${spans.length} text fragment${spans.length === 1 ? '' : 's'} (children.text[0..${spans.length - 1}])`;
+    return { ok: false, reason: 'text-not-found', message: `children.text[${textIndex}] not found — ${kindNote}` };
+  }
+  const magic = new MagicString(source);
+  if (value.length === 0) {
+    // delete the VISIBLE fragment, keep the peripheral whitespace
+    magic.remove(target.start, target.end);
+  } else {
+    magic.overwrite(target.start, target.end, serializeTemplateText(value), { contentOnly: true });
+  }
+  return { ok: true, output: magic.toString(), shared: usage.insideEach };
+}
+
 /* ── dry-run: the usage's current literal facts (the panel's seed) ────── */
+
+/** one slot-text row for the dry-run payload (issue #38 B2/B3: the
+ *  panel's data path — the SERVER parses the source, the client never
+ *  reads the compiled module's __jxUsageMap) */
+export interface UsageText {
+  /** the children.text[n] ordinal (0-based, significant fragments) */
+  readonly index: number;
+  /** the decoded visible text (the textarea's seed) */
+  readonly text: string;
+}
 
 export interface UsageValues {
   readonly shared: boolean;
   /** per prop: representable (+ the current literal, absent = unset) or not */
   readonly values: Record<string, { representable: true; value?: EditValue } | { representable: false }>;
+  /** the usage's editable slot-text fragments (issue #38) */
+  readonly texts: readonly UsageText[];
 }
 
 export function dryRunUsage(source: string, component: string, usageIndex: number, props?: readonly string[]): UsageValues | { error: 'component-not-found' | 'usage-not-found'; message: string } {
@@ -362,7 +448,11 @@ export function dryRunUsage(source: string, component: string, usageIndex: numbe
       values[name] = { representable: true }; // unset at this usage — the schema default applies
     }
   }
-  return { shared: usage.insideEach, values };
+  return {
+    shared: usage.insideEach,
+    values,
+    texts: textSpansOf(usage, source).map((span, index) => ({ index, text: span.text })),
+  };
 }
 
 /* ── the server: file resolution + CAS arbitration + middleware ───────── */
@@ -395,11 +485,28 @@ export interface PropEditRequest {
   readonly value?: EditValue | null;
   readonly dryRun?: boolean;
   readonly props?: readonly string[];
+  /** slot-text edit mode (issue #38): 'children' addresses the usage's
+   *  default slot — textIndex + value target children.text[n]; `prop`
+   *  is not part of that request shape */
+  readonly slot?: 'children';
+  /** the children.text[n] ordinal (0-based, significant fragments) */
+  readonly textIndex?: number;
 }
 
 export type PropEditResponse =
-  | { status: 200; body: { ok: true; file: string; shared: boolean; wrote: boolean; values?: UsageValues['values'] } }
-  | { status: 200; body: { ok: false; reason: 'component-not-found' | 'usage-not-found' | 'non-representable'; message: string } }
+  | {
+      status: 200;
+      body: {
+        ok: true;
+        file: string;
+        shared: boolean;
+        wrote: boolean;
+        values?: UsageValues['values'];
+        /** dry-run only: the usage's slot-text rows (issue #38) */
+        textSpans?: readonly UsageText[];
+      };
+    }
+  | { status: 200; body: { ok: false; reason: 'component-not-found' | 'usage-not-found' | 'non-representable' | 'text-not-found'; message: string } }
   | { status: 409; body: { ok: false; reason: 'cas-conflict'; message: string } }
   | { status: 400; body: { ok: false; reason: 'bad-request'; message: string } }
   | { status: 404; body: { ok: false; reason: 'file-not-found'; message: string } };
@@ -424,22 +531,38 @@ export async function resolvePropEditRequest(root: string, body: unknown, fileOp
   if (!Number.isInteger(request.usageIndex) || (request.usageIndex ?? 0) < 1) {
     return { status: 400, body: { ok: false, reason: 'bad-request', message: 'usageIndex (integer >= 1, document order, 1-based) is required' } };
   }
+  // the issue #38 discriminator: slot "children" routes the request to
+  // the slot-text kernel (textIndex + value); anything else is a prop
+  // edit and keeps the original shape/validation verbatim
+  const textMode = request.slot === 'children';
+  if (request.slot !== undefined && !textMode) {
+    return { status: 400, body: { ok: false, reason: 'bad-request', message: 'slot must be "children" (the default slot) — named snippets are not addressable yet' } };
+  }
   const dryRun = request.dryRun === true;
   if (!dryRun) {
-    if (typeof request.prop !== 'string' || request.prop.length === 0) {
-      return { status: 400, body: { ok: false, reason: 'bad-request', message: 'prop (string) is required (or dryRun: true)' } };
-    }
-    const value = request.value;
-    // null = REMOVE (P2-2) — allowed through; the final review caught
-    // the pure-kernel pin sailing past this gate while the real panel
-    // request 400'd (typeof null === 'object', 2026-09-11)
-    if (
-      value !== null &&
-      typeof value !== 'string' &&
-      typeof value !== 'number' &&
-      typeof value !== 'boolean'
-    ) {
-      return { status: 400, body: { ok: false, reason: 'bad-request', message: 'value (string | number | boolean | null-to-remove) is required' } };
+    if (textMode) {
+      if (!Number.isInteger(request.textIndex) || (request.textIndex ?? -1) < 0) {
+        return { status: 400, body: { ok: false, reason: 'bad-request', message: 'textIndex (integer >= 0, the children.text[n] ordinal) is required for slot "children"' } };
+      }
+      if (typeof request.value !== 'string') {
+        return { status: 400, body: { ok: false, reason: 'bad-request', message: 'value (string; "" deletes the visible fragment) is required for slot "children"' } };
+      }
+    } else {
+      if (typeof request.prop !== 'string' || request.prop.length === 0) {
+        return { status: 400, body: { ok: false, reason: 'bad-request', message: 'prop (string) is required (or dryRun: true)' } };
+      }
+      const value = request.value;
+      // null = REMOVE (P2-2) — allowed through; the final review caught
+      // the pure-kernel pin sailing past this gate while the real panel
+      // request 400'd (typeof null === 'object', 2026-09-11)
+      if (
+        value !== null &&
+        typeof value !== 'string' &&
+        typeof value !== 'number' &&
+        typeof value !== 'boolean'
+      ) {
+        return { status: 400, body: { ok: false, reason: 'bad-request', message: 'value (string | number | boolean | null-to-remove) is required' } };
+      }
     }
   }
 
@@ -462,13 +585,23 @@ export async function resolvePropEditRequest(root: string, body: unknown, fileOp
     if ('error' in result) {
       return { status: 200, body: { ok: false, reason: result.error, message: result.message } };
     }
-    return { status: 200, body: { ok: true, file: rel.replaceAll('\\', '/'), shared: result.shared, wrote: false, values: result.values } };
+    return {
+      status: 200,
+      body: { ok: true, file: rel.replaceAll('\\', '/'), shared: result.shared, wrote: false, values: result.values, textSpans: result.texts },
+    };
   }
+
+  /** one edit attempt over the given content — the discriminator picks
+   *  the kernel; CAS retries call this again with the fresh bytes */
+  const applyOnce = (src: string): EditOutcome | TextEditOutcome =>
+    textMode
+      ? applyTextEdit(src, request.component, request.usageIndex, request.textIndex!, request.value as string)
+      : applyPropEdit(src, request.component, request.usageIndex, request.prop!, request.value ?? null);
 
   // CAS: hash at read time, re-read before write, one re-location retry
   let source = drySource;
   let hash = sha256(source);
-  let outcome = applyPropEdit(source, request.component, request.usageIndex, request.prop!, request.value ?? null);
+  let outcome = applyOnce(source);
   if (!outcome.ok) {
     return { status: 200, body: { ok: false, reason: outcome.reason, message: outcome.message } };
   }
@@ -477,8 +610,17 @@ export async function resolvePropEditRequest(root: string, body: unknown, fileOp
     // external write raced us — re-locate ONCE on the fresh content
     source = before;
     hash = sha256(source);
-    outcome = applyPropEdit(source, request.component, request.usageIndex, request.prop!, request.value ?? null);
+    outcome = applyOnce(source);
     if (!outcome.ok) {
+      if (textMode) {
+        // the text address died under the external write — a fragment
+        // became an expression/element (node type change) or the
+        // ordinal left the range. Never write a shifted guess: 409.
+        return {
+          status: 409,
+          body: { ok: false, reason: 'cas-conflict', message: `the external write changed the slot text — children.text[${request.textIndex}] no longer resolves (${outcome.message}); reselect and retry` },
+        };
+      }
       return { status: 200, body: { ok: false, reason: outcome.reason, message: `re-location after an external write: ${outcome.message}` } };
     }
     before = fileOps.read(filePath);

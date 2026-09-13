@@ -12,6 +12,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { copyFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import type { DesignHostInfo } from '../probe.ts';
@@ -142,4 +145,63 @@ test('#28 the broadener leaves plain modules and sub-requests untouched', async 
     await plugin.transform!.call({} as never, `export const ${USAGE_MAP_EXPORT} = {};`, '/x/y.svelte?svelte&type=style&lang.css'),
     null,
   );
+});
+
+/* ── the #38 B4 law: the broadener holds on REAL vite-plugin-svelte
+      output — the acceptance covers the textSpans-bearing map without
+      ever growing the export set (which would mean full-reload) ──────── */
+
+function resolvePathUp(levels: number): string {
+  return dirname(join(fileURLToPath(import.meta.url), ...Array.from({ length: levels }, () => '..')));
+}
+
+const WORKTREE_ROOT = resolvePathUp(5);
+const REAL_HERO = join(WORKTREE_ROOT, 'design/prototypes/welcome/pages/hero.svelte');
+const REAL_ITEMS = join(WORKTREE_ROOT, 'registry/files/ui');
+
+test('#38 the broadened acceptance rides REAL vite-plugin-svelte output (dev transform of the real hero.svelte)', async () => {
+  const { createServer } = await import('vite');
+  const { svelte } = await import('@sveltejs/vite-plugin-svelte');
+  // the temp vite root lives INSIDE the package (not os.tmpdir): the
+  // compiled module's `svelte/internal/*` imports must resolve through
+  // the package's node_modules chain like any real consumer
+  const root = mkdtempSync(join(resolvePathUp(3), '.tmp-broadener-'));
+  try {
+    // the REAL welcome hero, byte-identical (Heading/P/PressButton text
+    // children included — the textSpans-bearing shape this issue ships)
+    copyFileSync(REAL_HERO, join(root, 'hero.svelte'));
+    const server = await createServer({
+      root,
+      configFile: false,
+      envDir: false,
+      appType: 'custom',
+      logLevel: 'error',
+      plugins: [buildStampPlugin({ host: fakeHost() }), buildStampHmrPlugin(), svelte()],
+      resolve: { alias: [{ find: /^#jixoai\//, replacement: `${REAL_ITEMS.replaceAll('\\', '/')}/` }] },
+      server: { middlewareMode: true },
+      optimizeDeps: { noDiscovery: true },
+    });
+    try {
+      const result = await server.transformRequest('/hero.svelte');
+      assert.notEqual(result, null, 'the real hero transformed');
+      const code = result!.code;
+      // REAL compiled self-acceptance, broadened: textSpans are a FIELD
+      // of __jxUsageMap, so ["default", "__jxUsageMap"] stays SUFFICIENT
+      assert.ok(
+        code.includes('acceptExports(["default", "__jxUsageMap"]'),
+        'the broadened set is present on real vite-plugin-svelte output',
+      );
+      assert.ok(!code.includes('acceptExports(["default"],'), 'the narrow acceptance never survives');
+      // the stamp export (now textSpans-bearing) rode the real compile
+      assert.ok(code.includes(USAGE_MAP_EXPORT), 'the usage-map export is in the compiled module');
+      assert.ok(code.includes('"textSpans"'), 'the compiled map carries the textSpans field');
+      // and the module still exports nothing BEYOND the two accepted names
+      const constExports = [...code.matchAll(/\bexport\s+const\s+(\w+)/g)].map((m) => m[1]);
+      assert.deepEqual(constExports, [USAGE_MAP_EXPORT], 'no third export appeared');
+    } finally {
+      await server.close();
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
