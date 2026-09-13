@@ -22,12 +22,14 @@
  * window.__jixoaiDesignHighlight({usageIndex, iterationIndex} | null)
  * highlights (and scrolls to) a usage inside THIS document.
  *
- * The hover loop (#31, Owner 2026-09-12): a HOVER outline (a distinct
- * hue at LOWER opacity than selection — never the same weight) rides
- * mouseover/mouseout on stamped elements, reports up through the
- * studio's window.__jixoaiDesignHover seam (the tree lights its row),
- * and window.__jixoaiDesignHover({usageIndex, iterationIndex} | null)
- * is the down-seam twin (tree hover lights the element, NO scroll).
+ * The INDICATOR era (#31→#43, Owner 2026-09-12): two DOM-level
+ * overlays per document — a HOVER ring (blue, subtle, gliding between
+ * elements via CSS transition) and a SELECTION ring (red) carrying a
+ * metadata badge (component id, usage index, live W×H). They track
+ * the target box through resize (ResizeObserver) and scroll
+ * (transition suppressed while tracking so the ring stays glued) and
+ * REPLACE the css-outline/box-shadow pair: a DOM indicator composes,
+ * animates, and carries information css-only never could.
  *
  * Honest degradation (the r2 matrix): clicks on unstamped content
  * (native elements, components without a single-root rest spread,
@@ -42,8 +44,6 @@
  */
 
 const FRAME_NAME_PREFIX = 'jixoai-design-frame-';
-const HIGHLIGHT_CLASS = 'jx-design-pick-highlight';
-const HOVER_CLASS = 'jx-design-pick-hover';
 
 /**
  * Walk up a same-origin parent chain (bounded) for the studio hook.
@@ -80,23 +80,139 @@ let highlighted = null;
 
 function applyHighlight(element) {
   if (highlighted === element) return;
-  if (highlighted !== null) highlighted.classList.remove(HIGHLIGHT_CLASS);
   highlighted = element;
   if (element !== null) {
-    element.classList.add(HIGHLIGHT_CLASS);
     element.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
   }
+  placeIndicator('selected', element);
+  observeTargets();
 }
 
-/* the hover outline (#31): its own element, its own color, lower
-   opacity than the selection ring — the two never read as one state */
+/* the hover indicator (#31→#43): its own overlay, its own color,
+   lower visual weight than the selection ring */
 let hovered = null;
 
 function applyHover(element) {
   if (hovered === element) return;
-  if (hovered !== null) hovered.classList.remove(HOVER_CLASS);
   hovered = element;
-  if (element !== null && element !== highlighted) element.classList.add(HOVER_CLASS);
+  placeIndicator('hover', element !== null && element !== highlighted ? element : null);
+  observeTargets();
+}
+
+/* ── the DOM-level indicators (#43, Owner 2026-09-12) ──────────────────
+ *
+ * Two overlays per document — [data-jx-indicator="hover"|"selected"] —
+ * absolutely positioned at document level (appended to documentElement:
+ * body rewrites must not kill them), pointer-events:none, glued to the
+ * target's box. The selection overlay carries a metadata badge
+ * (component id · usage index · live W×H). CSS transitions make target
+ * changes glide; a `tracking` class suppresses them during scroll/resize
+ * so the ring stays welded instead of rubber-banding.
+ */
+
+const INDICATOR_CSS = [
+  `[data-jx-indicator] {`,
+  `  position: absolute;`,
+  `  top: 0; left: 0;`,
+  `  pointer-events: none;`,
+  `  z-index: 2147483646;`,
+  `  box-sizing: border-box;`,
+  `  transition: transform 120ms ease, width 120ms ease, height 120ms ease;`,
+  `  will-change: transform, width, height;`,
+  `}`,
+  `[data-jx-indicator].jx-tracking {`,
+  `  transition: none;`,
+  `}`,
+  `[data-jx-indicator="hover"] {`,
+  `  border: 1.5px solid rgba(96, 140, 255, 0.55);`,
+  `  border-radius: 2px;`,
+  `}`,
+  `[data-jx-indicator="selected"] {`,
+  `  border: 1.5px solid #e05656;`,
+  `  border-radius: 2px;`,
+  `}`,
+  `[data-jx-indicator] .jx-indicator-badge {`,
+  `  position: absolute;`,
+  `  top: -19px;`,
+  `  left: -1.5px;`,
+  `  padding: 1px 5px;`,
+  `  font: 10px/1.4 ui-monospace, 'SF Mono', Menlo, monospace;`,
+  `  white-space: nowrap;`,
+  `  color: #ffe3e3;`,
+  `  background: #2a1214;`,
+  `  border: 1px solid #e05656;`,
+  `  border-radius: 3px;`,
+  `}`,
+].join('\n');
+
+const indicators = new Map(); // kind → element
+let trackIdleTimer = 0;
+let targetObserver = null;
+
+function ensureIndicator(kind) {
+  let el = indicators.get(kind);
+  if (el !== undefined && el.isConnected) return el;
+  el = document.createElement('div');
+  el.setAttribute('data-jx-indicator', kind);
+  el.setAttribute('aria-hidden', 'true');
+  if (kind === 'selected') {
+    const badge = document.createElement('span');
+    badge.className = 'jx-indicator-badge';
+    el.appendChild(badge);
+  }
+  document.documentElement.appendChild(el);
+  indicators.set(kind, el);
+  return el;
+}
+
+/** reposition a placed overlay (and refresh the badge text) */
+function placeIndicator(kind, element) {
+  const el = ensureIndicator(kind);
+  if (element === null || !element.isConnected) {
+    el.style.display = 'none';
+    return;
+  }
+  const rect = element.getBoundingClientRect();
+  el.style.display = 'block';
+  el.style.transform = `translate(${rect.left + window.scrollX}px, ${rect.top + window.scrollY}px)`;
+  el.style.width = `${rect.width}px`;
+  el.style.height = `${rect.height}px`;
+  if (kind === 'selected') {
+    const badge = el.querySelector('.jx-indicator-badge');
+    if (badge !== null) {
+      const component = element.getAttribute('data-jx-component') ?? '?';
+      const instance = element.getAttribute('data-jx-instance') ?? '?';
+      badge.textContent = `${component} #${instance} · ${Math.round(rect.width)}×${Math.round(rect.height)}`;
+    }
+  }
+}
+
+/** scroll/resize repositioning: transitions OFF while tracking (glued),
+ *  back ON after a short idle so the next target change glides again */
+function trackIndicators() {
+  for (const [kind, el] of indicators) {
+    if (el.style.display === 'none') continue;
+    el.classList.add('jx-tracking');
+    placeIndicator(kind, kind === 'selected' ? highlighted : hovered);
+  }
+  clearTimeout(trackIdleTimer);
+  trackIdleTimer = setTimeout(() => {
+    for (const el of indicators.values()) el.classList.remove('jx-tracking');
+  }, 160);
+}
+
+/** content resize follows the CURRENT targets (a growing button keeps
+ *  its ring and badge honest) */
+function observeTargets() {
+  if (typeof ResizeObserver === 'undefined') return;
+  targetObserver?.disconnect();
+  const watch = [
+    ['selected', highlighted],
+    ['hover', hovered],
+  ].filter(([, el]) => el !== null && el.isConnected);
+  if (watch.length === 0) return;
+  targetObserver = new ResizeObserver(() => trackIndicators());
+  for (const [, el] of watch) targetObserver.observe(el);
 }
 
 function elementFor(target) {
@@ -115,28 +231,16 @@ export function initDesignPicker() {
   // per click by the lazy walk below
   const forced = new URLSearchParams(window.location.search).get('pick') === '1';
 
-  // the highlight style: outline only (layout-neutral — measurements
-  // like the kit's adaptive height must not see the picker). Injected
-  // unconditionally: the class does nothing until code adds it, so a
+  // the indicator style (#43): overlays + badge. Injected
+  // unconditionally — nothing paints until code places them, so a
   // standalone document stays visually byte-identical.
   const style = document.createElement('style');
-  style.textContent = [
-    `.${HIGHLIGHT_CLASS} {`,
-    `  outline: 2px solid #e05656;`,
-    `  outline-offset: 2px;`,
-    `}`,
-    // #37 (Owner 2026-09-12): the two states render on INDEPENDENT
-    // properties — selection owns `outline`, hover owns a box-shadow
-    // RING. One shared `outline` made hover→selected stale: the click
-    // added the selection class without removing hover's, and CSS
-    // order kept the outline BLUE until the mouse moved. Independent
-    // layers also COMPOSE: selected+hovered shows both (the Figma
-    // read), and layout stays untouched (shadow paints no box)
-    `.${HOVER_CLASS} {`,
-    `  box-shadow: 0 0 0 2px rgba(96, 140, 255, 0.45);`,
-    `}`,
-  ].join('\n');
+  style.textContent = INDICATOR_CSS;
   document.head.appendChild(style);
+
+  // scroll keeps the rings glued (transition suppressed while tracking)
+  document.addEventListener('scroll', () => trackIndicators(), { capture: true, passive: true });
+  window.addEventListener('resize', () => trackIndicators(), { passive: true });
 
   document.addEventListener(
     'click',
