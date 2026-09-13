@@ -205,7 +205,7 @@ interval 注入），断言 panel seed effect 不重跑（计数器/spy）；
 | input | textarea 形态与 autogrow（chat 输入需要） | 待 T5 实证 |
 | press-button | loading 态语义（icon 位/文字替换）是否够「加载锁」表达（ID2） | 待 T5 实证 |
 | badge | 语义位（warning/updates）与可交互徽标（badge as button） | 待 T4 实证 |
-| alert | dismiss 消退与常驻两种模式 | 待 T1/T3 实证 |
+| alert | dismiss 消退与常驻两种模式 | 已闭环（grindstone #17-1：alert 内建 dismiss='manual'/'auto'，2026-09-13 W2c 面板 transient 换 `dismiss="auto"`+`{#key notice}`、persistent 两处不传 dismiss 原样，notice.ts 退役） |
 | empty | 带 CTA 的空态（引导文案+动作） | 待 T3 实证 |
 
 ### 6.2 与 dogfooding 量化挂钩
