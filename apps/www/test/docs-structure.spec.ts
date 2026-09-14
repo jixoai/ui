@@ -283,11 +283,12 @@ describe('docs-route-model — install targets & the legacy map', () => {
     ]);
     const canonical = CATALOG.filter((e) => e.type === 'registry:ui').map((e) => e.href.split('#')[0]);
     const expected = new Set([
-      // /probe-folder-css + /parity.html are internal gate surfaces
-      // (the css probe + the native-parity fixtures), never catalog pages;
+      // /probe-folder-css + /probe-popover-area + /parity.html are
+      // internal gate surfaces (the css probe, the popover position-area
+      // probe, and the native-parity fixtures), never catalog pages;
       // /prototypes/list-item-fusion is the isolated prototype stage
       // (nothing in production imports it), likewise never a catalog page
-      '/', '/probe-folder-css', '/parity.html', '/prototypes/list-item-fusion', '/docs.html', '/docs/components.html',
+      '/', '/probe-folder-css', '/probe-popover-area', '/parity.html', '/prototypes/list-item-fusion', '/docs.html', '/docs/components.html',
       '/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html',
       '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/context-defaults.html', '/docs/demo-standard.html', '/docs/density-2xs.html', '/docs/paged.html', '/docs/llms-txt.html', '/docs/icons.html', '/tokens.html', '/blueprints.html', '/patterns.html',
       ...canonical,
