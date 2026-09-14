@@ -29,6 +29,29 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tokens",
+      "type": "registry:lib",
+      "title": "jixoai typed tokens (StyleX)",
+      "description": "The typed mirror of the jixoai theme sheet for StyleX atoms: 60 defineVars members whose values are verbatim var(--primary)-style references to the sheet (the sheet stays the single source — this module re-maps, never re-computes). A typo'd token key is a compile error naming the key. Named keys keep the emitted custom properties stable across builds; dark/density/hue keep cascading through the existing runtime channels.",
+      "files": [
+        {
+          "path": "registry/files/lib/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Compiled by the jixoai build only (the @jixoai/ui-vite-plugin stylex feature): the shipped payload is plain class-constant strings + css, so a consumer of this item never owes any @stylexjs/* package (F11). Installing it pulls the theme sheet too (the var() references need it present) — import the css, never the engine.",
+      "meta": {
+        "group": "engines",
+        "href": "/tokens.html"
+      },
+      "dependencies": [],
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "toc-engine",
       "type": "registry:lib",
       "title": "ToC geometry engine",
