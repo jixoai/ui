@@ -4,15 +4,21 @@
 
 ### Requirement: consumer contract
 
-A consumer installing any kernel item SHALL owe NO styling-engine
-tooling: the payload carries compiled class constants + item CSS,
-and the sole wiring is importing the item CSS (exactly the
-jixoai.css import consumers perform today). Consumers MAY run
-Tailwind, StyleX, or any engine for their own markup — the
-canonical layer law keeps consumer utilities above kernel paint
-either way. The retired check-tw4-prereq gate is replaced by the
-zero-engine-lockfile assertion in verify:shadcn-add (the clean
-consumer's lockfile contains no @stylexjs/* entries).
+A consumer installing a COMPILED KERNEL PAYLOAD ITEM (an item whose
+paint ships as compiled class constants + item CSS — the phase-1+
+migration state) SHALL owe NO styling-engine tooling: the sole
+wiring is importing the item CSS (exactly the jixoai.css import
+consumers perform today). Consumers MAY run Tailwind, StyleX, or any
+engine for their OWN markup — that is a consumer choice, never a
+kernel prerequisite; the canonical layer law keeps consumer
+utilities above kernel paint either way. TRANSITIONAL: LEGACY
+utility-first items (not yet migrated) keep the standing TW4
+prerequisite and check-tw4-prereq applies to THEM until their
+migration lands; the gate's applicability narrows as the phase train
+advances and retires with the last legacy item. The zero-engine
+assertion in verify:shadcn-add checks the clean consumer's lockfile
+for @stylexjs/stylex, @stylexjs/unplugin, AND @stylexjs/babel-plugin
+— all three must be absent.
 
 #### Scenario: namespace registration
 

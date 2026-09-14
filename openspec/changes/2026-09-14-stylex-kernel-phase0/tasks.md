@@ -41,8 +41,10 @@
 ## P0.3 — the typed token layer
 
 - [ ] registry/files/lib (new lib item): tokens.stylex.ts wrapping
-      the jixoai sheet via defineVars with verbatim var() values;
-      registry.json edge; mirror + blueprint per the standing laws.
+      the jixoai sheet via defineVars with verbatim var() values.
+      ACCEPTANCE, itemized: registry.json edge added; mirror-
+      manifest regenerated + verify:mirror green; blueprint scene
+      committed; the byte-twin vite configs updated identically.
 - [ ] Type-safety probe: a typo'd token fails the kernel build
       (compiles green otherwise).
 
@@ -67,8 +69,10 @@
 ## P0.6 — the corpus dogfood
 
 - [ ] The 8 research families compile through the real pipeline;
-      equivalence check vs the spike's compiled outputs (receipt in
-      research/).
+      equivalence check vs the spike's compiled outputs via the
+      COMMITTED comparator script (serialization normalization:
+      number formats, pseudo content, steps() timing); receipt in
+      research/.
 - [ ] No production markup switches paint (phase 1); the dogfood
       runs as a build fixture, not a shipped page.
 

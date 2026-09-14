@@ -29,8 +29,7 @@ by the kernel build. The authoring rules, with their enforcement:
 
 - GIVEN an atom-authored component with compiled atom paint
 - WHEN the consumer passes any token utility on `class`
-- THEN the consumer's utility wins by the canonical layer law —
-  the pre-refactor silent-loss defect stays dead
+- THEN the consumer's utility wins by the canonical layer law
 
 #### Scenario: consumer restyles a migrated component
 

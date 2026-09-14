@@ -107,9 +107,15 @@ ui/<item>/<item>.svelte      ──┐
    alignment; the fix is either the correct area value or the
    comment's correction (whichever the measurement rules).
 
-Both probes become permanent verify rows (regression teeth), and
-both fixes are commits structured for cherry-pick to main if the
-Owner wants them shipped ahead of the phase train.
+Both probes become permanent verify rows (regression teeth) with
+FIXED protocols: viewport 1280×800 headless Chromium, alignment
+deltas measured in px with a ≤0.5px tolerance, negative controls
+(the swapped placement) asserted to differ; the range probe is
+RETIRED to the API-trap note (its verdict: renderer healthy,
+untrustworthy read path). Both fixes are commits structured for
+cherry-pick to main if the Owner wants them shipped ahead of the
+phase train. P0.1's forensic receipts are COMMITTED
+(research/p0-bug-probes.md, 14 shots, 2 raw JSONs).
 
 ## §6 What phase 0 deliberately does NOT do
 
@@ -126,5 +132,11 @@ The corpus dogfood equivalence check (the 8 families compiled
 through the real pipeline vs the research spike's compiled outputs)
 is phase 0's acceptance centerpiece: the foundations must reproduce
 the research's measured behavior inside the production build, not
-just in the lab. Every gate added here runs in verify:all from day
+just in the lab. The comparison method is FIXED (the archive's
+serialization lessons applied): normalize number formats,
+::before/::after content strings, and steps(1,) timing serializations
+before diffing — a committed comparator script owns the
+normalization; raw diffs ride alongside. verify:all ordering for the
+new gates: authoring → payload → mirror → the two probes → shadcn
+consumer gate (probes need a fresh build; consumers gate last). Every gate added here runs in verify:all from day
 one.
