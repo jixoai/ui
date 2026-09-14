@@ -136,13 +136,43 @@
 
 ## P0.6 — the corpus dogfood
 
-- [ ] The 8 research families compile through the real pipeline;
+- [x] The 8 research families compile through the real pipeline;
       equivalence check vs the spike's compiled outputs via the
       COMMITTED comparator script (serialization normalization:
       number formats, pseudo content, steps() timing); receipt in
-      research/.
-- [ ] No production markup switches paint (phase 1); the dogfood
-      runs as a build fixture, not a shipped page.
+      research/. [IMPL-C, 2026-09-15. 9 modules at apps/www/src/lib/
+      __probe__/stylex-corpus/ (8 families + the spike's demo chrome —
+      both sides of the comparison carry it), authored under the §4
+      law: static longhands, typed tokens for theme refs, plain var()
+      seams; icon factory re-authored as the --jx-icon-size seam,
+      press-button defineVars/createTheme as atom fallbacks (§4.2).
+      Wired into the REAL www build via the noindex /probe-stylex-
+      corpus route. Comparator of record: DIFFERENT (334 vs 342
+      selectors) — by design; ACCEPTANCE = every one of the 112 diffs
+      root-caused, ZERO unexplained (research/dogfood/analyze-diffs.mjs
+      exit 0): T=37 typed indirection (§2/§4.1), F=13 seam fallbacks
+      (§4.2), P=12 spike-only machinery (icon @property/--x-* + the
+      defineVars/createTheme blocks). 282/334 matched EXACTLY under
+      N1-N5 incl. @keyframes xfeh6hy-B under its identical
+      content-derived name; F9 byte-0 statement re-verified in both
+      builds; layer wrappers stripped for comparison (the spike is
+      pre-F9; useCSSLayers rides CSS-generation only — same babel
+      atoms, N5 absorbs the :not(#\#) bump difference). Receipt:
+      research/p0-dogfood-receipt.md; raw diff research/dogfood-diff
+      .json; extracts + extractor + analyzer committed under
+      research/dogfood/ for Gate-2 re-runs. LEDGER SEEDED: repo-root
+      research/migration-ledger.json ({version:1, files:[9 posix
+      repo-root-relative .stylex.ts paths]} — the path interpretation
+      of record: the ledger is read ROOT-relative, never
+      change-relative, because the change directory archives away
+      while the authoring gate (P0.5) reads the ledger long-term).]
+- [x] No production markup switches paint (phase 1); the dogfood
+      runs as a build fixture, not a shipped page. [IMPL-C — the
+      fixture renders nothing visible (one hidden marker div);
+      registry/files untouched (phase 1 authors the real
+      <item>.stylex.ts in place); __probe__/ is a SITE_ONLY_PREFIX so
+      the mirror manifest is untouched (verify:mirror GREEN); route
+      is noindex, no inbound links.]
 
 ## P0.7 — gates + docs
 

@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "files": [
+    "apps/www/src/lib/__probe__/stylex-corpus/code-card.stylex.ts",
+    "apps/www/src/lib/__probe__/stylex-corpus/icon.stylex.ts",
+    "apps/www/src/lib/__probe__/stylex-corpus/popover.stylex.ts",
+    "apps/www/src/lib/__probe__/stylex-corpus/press-button.stylex.ts",
+    "apps/www/src/lib/__probe__/stylex-corpus/prose.stylex.ts",
+    "apps/www/src/lib/__probe__/stylex-corpus/range.stylex.ts",
+    "apps/www/src/lib/__probe__/stylex-corpus/separator.stylex.ts",
+    "apps/www/src/lib/__probe__/stylex-corpus/switch.stylex.ts",
+    "apps/www/src/lib/__probe__/stylex-corpus/demo.stylex.ts"
+  ]
+}
