@@ -1,0 +1,432 @@
+@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
+@layer stylex.priority1;
+
+@layer stylex.priority2 {
+  .xujm0qo {
+    border-color: color-mix(in oklab,var(--jx-tonal, var(--jx-primary)) 45%,transparent);
+  }
+
+  .x9r1u3d {
+    border-color: #0000;
+  }
+
+  .x1v5t2t {
+    border-color: var(--jx-fill, var(--jx-primary));
+  }
+
+  .x1m622hh {
+    border-color: var(--jx-outline, var(--jx-border));
+  }
+
+  .x1y0btm7 {
+    border-style: solid;
+  }
+
+  .xmkeg23 {
+    border-width: 1px;
+  }
+
+  .x1okw0bk {
+    flex: none;
+  }
+
+  .xiouwu1 {
+    gap: var(--jx-gap);
+  }
+
+  .xwwigjq {
+    padding-inline: var(--jx-inset);
+  }
+
+  .xnroaok {
+    transition: translate .15s ease-out, box-shadow .15s ease-out, background-color .15s ease-out, border-color .15s ease-out, color .15s ease-out;
+  }
+
+  .x1xtu34k:focus-visible {
+    outline: 2px solid highlight;
+  }
+
+  @media (forced-colors: active) {
+    .x1ylmb6m.x1ylmb6m {
+      border-color: buttontext;
+    }
+
+    .x1w1tqly.x1w1tqly {
+      border-color: canvastext;
+    }
+
+    .x16rn130.x16rn130 {
+      border-color: #0000;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .x9kvfbb.x9kvfbb {
+      transition: none;
+    }
+  }
+}
+
+@layer stylex.priority3 {
+  .x6s0dn4 {
+    align-items: center;
+  }
+
+  .x1t83zlg {
+    animation-delay: .2s;
+  }
+
+  .x1xwhvez {
+    animation-delay: .4s;
+  }
+
+  .x1nrwgbl {
+    animation-delay: .6s;
+  }
+
+  .xemfg65 {
+    animation-duration: .8s;
+  }
+
+  .xa4qsjk {
+    animation-iteration-count: infinite;
+  }
+
+  .x1ief7js {
+    animation-name: xfeh6hy-B;
+  }
+
+  .x1nxgg22 {
+    animation-timing-function: step-end;
+  }
+
+  .x10pxzsq {
+    background-color: color-mix(in oklab,var(--jx-tonal, var(--jx-primary)) 12%,transparent);
+  }
+
+  .xjbqb8w {
+    background-color: #0000;
+  }
+
+  .x1kkbjiu {
+    background-color: var(--jx-fill, var(--jx-primary));
+  }
+
+  .xzgn1n2 {
+    box-shadow: var(--jx-press-shadow, var(--jx-shadow-xs));
+  }
+
+  .x9f619 {
+    box-sizing: border-box;
+  }
+
+  .x2jy0tw {
+    color: var(--jx-fill-ink, var(--jx-primary-foreground));
+  }
+
+  .xl8unsv {
+    color: var(--jx-foreground);
+  }
+
+  .x18as732 {
+    color: var(--jx-primary);
+  }
+
+  .x17xghzz {
+    color: var(--jx-tonal, var(--jx-primary));
+  }
+
+  .x3nfvp2 {
+    display: inline-flex;
+  }
+
+  .xwz0xwf {
+    display: inline-grid;
+  }
+
+  .x1mwizrc {
+    font-family: var(--jx-font-mono);
+  }
+
+  .xc68ue2 {
+    font-family: var(--jx-font-sans);
+  }
+
+  .xxguibh {
+    font-size: var(--jx-text);
+  }
+
+  .x1j61x8r {
+    font-style: normal;
+  }
+
+  .xk50ysn {
+    font-weight: 500;
+  }
+
+  .xcrlgei {
+    grid-column-start: 1;
+  }
+
+  .x1agbcgv {
+    grid-row-start: 1;
+  }
+
+  .xl56j7k {
+    justify-content: center;
+  }
+
+  .xn212u0 {
+    line-height: var(--jx-line);
+  }
+
+  .x1n2onr6 {
+    position: relative;
+  }
+
+  .x2b8uid {
+    text-align: center;
+  }
+
+  .xkrqix3 {
+    text-decoration-line: none;
+  }
+
+  .x1kuah0p {
+    text-decoration-thickness: from-font;
+  }
+
+  .x3pynha {
+    text-underline-offset: 4px;
+  }
+
+  .x3ajldb {
+    vertical-align: bottom;
+  }
+
+  .xlshs6z {
+    visibility: hidden;
+  }
+
+  .xnpuxes {
+    visibility: visible;
+  }
+
+  .x7s97pk:focus-visible {
+    outline-offset: 2px;
+  }
+
+  .x1n5puvy:hover {
+    background-color: color-mix(in oklab,var(--jx-tonal, var(--jx-primary)) 8%,transparent);
+  }
+
+  .x153txnh:hover {
+    box-shadow: var(--jx-press-shadow-hover, var(--jx-shadow-sm));
+  }
+
+  .xytmldf:hover {
+    color: var(--jx-tonal, var(--jx-primary));
+  }
+
+  .x1sur9pj:hover {
+    text-decoration-line: underline;
+  }
+
+  .x1unuef7:active {
+    box-shadow: var(--jx-press-shadow-active, var(--jx-shadow-sm-press));
+  }
+
+  .xxingfx:active {
+    translate: var(--jx-press-move, 1px 1px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .x1aquc0h.x1aquc0h {
+      animation-name: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .xnwy5bs.xnwy5bs {
+      background-color: buttonface;
+    }
+
+    .x9yvj25.x9yvj25 {
+      background-color: canvas;
+    }
+
+    .x1qbsd4u.x1qbsd4u {
+      background-color: #0000;
+    }
+
+    .x1ggml12.x1ggml12 {
+      color: buttontext;
+    }
+
+    .xs5hli.xs5hli {
+      color: canvastext;
+    }
+
+    .x1ljrylj.x1ljrylj {
+      color: linktext;
+    }
+
+    .x1tvaz0g.x1tvaz0g:hover {
+      background-color: buttonface;
+    }
+
+    .xme02mz.xme02mz:hover {
+      color: buttontext;
+    }
+  }
+}
+
+@layer stylex.priority4 {
+  .x1bhj078 {
+    min-height: var(--jx-hit);
+  }
+
+  .xu9qwbo {
+    min-width: var(--jx-hit);
+  }
+
+  .xayc3bl {
+    width: 1ch;
+  }
+}
+
+@layer stylex.priority5 {
+  .x117h8l:active:before {
+    inset: -1px;
+  }
+}
+
+@layer stylex.priority6 {
+  .x198b5v:active:before {
+    border-color: #0000;
+  }
+
+  .xcshi6i:active:before {
+    border-radius: inherit;
+  }
+
+  .x18y30we:active:before {
+    border-style: solid;
+  }
+
+  .x1oyek6m:active:before {
+    border-width: 1px;
+  }
+}
+
+@layer stylex.priority7 {
+  .x3t03n0:active:before {
+    -webkit-mask-composite: xor;
+  }
+
+  .xhv4qot:active:before {
+    -webkit-mask-image: linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);
+  }
+
+  .x1xzl2b1:active:before {
+    background-image: linear-gradient(to bottom right,color-mix(in oklab,var(--jx-engrave-shade) 55%,transparent),transparent 60%),linear-gradient(to top left,color-mix(in oklab,var(--jx-engrave-glow) 55%,transparent),transparent 60%);
+  }
+
+  .x9jfcoq:active:before {
+    content: "";
+  }
+
+  .xtbvb47:active:before {
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .x1xqyx04:active:before {
+    -webkit-mask-image: linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);
+    mask-image: linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);
+  }
+
+  .xrjd2uv:active:before {
+    pointer-events: none;
+  }
+
+  .x1yqlv2b:active:before {
+    position: absolute;
+  }
+}
+
+@layer utilities;
+
+@keyframes xfeh6hy-B {
+  0%, 24% {
+    visibility: visible;
+  }
+
+  25%, 100% {
+    visibility: hidden;
+  }
+}
+
+:root, .xbpgcew {
+  --jx-brand-hue: var(--brand-hue);
+  --jx-background: var(--background);
+  --jx-foreground: var(--foreground);
+  --jx-card: var(--card);
+  --jx-card-foreground: var(--card-foreground);
+  --jx-popover: var(--popover);
+  --jx-popover-foreground: var(--popover-foreground);
+  --jx-primary: var(--primary);
+  --jx-primary-foreground: var(--primary-foreground);
+  --jx-secondary: var(--secondary);
+  --jx-secondary-foreground: var(--secondary-foreground);
+  --jx-muted: var(--muted);
+  --jx-muted-foreground: var(--muted-foreground);
+  --jx-accent: var(--accent);
+  --jx-accent-foreground: var(--accent-foreground);
+  --jx-destructive: var(--destructive);
+  --jx-destructive-foreground: var(--destructive-foreground);
+  --jx-border: var(--border);
+  --jx-input: var(--input);
+  --jx-ring: var(--ring);
+  --jx-terminal: var(--terminal);
+  --jx-terminal-foreground: var(--terminal-foreground);
+  --jx-terminal-hover: var(--terminal-hover);
+  --jx-terminal-muted: var(--terminal-muted);
+  --jx-success: var(--success);
+  --jx-success-foreground: var(--success-foreground);
+  --jx-warning: var(--warning);
+  --jx-warning-foreground: var(--warning-foreground);
+  --jx-info: var(--info);
+  --jx-info-foreground: var(--info-foreground);
+  --jx-error: var(--error);
+  --jx-error-foreground: var(--error-foreground);
+  --jx-chart-1: var(--chart-1);
+  --jx-chart-2: var(--chart-2);
+  --jx-chart-3: var(--chart-3);
+  --jx-chart-4: var(--chart-4);
+  --jx-chart-5: var(--chart-5);
+  --jx-font-sans: var(--font-sans);
+  --jx-font-mono: var(--font-mono);
+  --jx-font-nav: var(--font-nav);
+  --jx-radius: var(--radius);
+  --jx-shadow-color: var(--shadow-color);
+  --jx-shadow-2xs: var(--shadow-2xs);
+  --jx-shadow-xs: var(--shadow-xs);
+  --jx-shadow-sm: var(--shadow-sm);
+  --jx-shadow: var(--shadow);
+  --jx-shadow-md: var(--shadow-md);
+  --jx-shadow-xs-press: var(--shadow-xs-press);
+  --jx-shadow-sm-press: var(--shadow-sm-press);
+  --jx-shadow-md-press: var(--shadow-md-press);
+  --jx-shadow-engrave: var(--shadow-engrave);
+  --jx-shadow-well: var(--shadow-well);
+  --jx-shadow-well-hover: var(--shadow-well-hover);
+  --jx-shadow-paper: var(--shadow-paper);
+  --jx-scrim: var(--scrim);
+  --jx-surface-shadow: var(--surface-shadow);
+  --jx-scrollbar-track: var(--scrollbar-track);
+  --jx-scrollbar-thumb: var(--scrollbar-thumb);
+  --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+  --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+}
+/* buildId: 60807e498baf091b1e47652e09051c40fe6817a687a7e2b1e63402a96062740f · generator: @jixoai/ui-vite-plugin@0.3.0 · engine: @stylexjs/unplugin@0.19.0 */

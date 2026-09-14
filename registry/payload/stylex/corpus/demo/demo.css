@@ -1,0 +1,221 @@
+@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
+@layer stylex.priority1 {
+  :root, .xbpgcew {
+    --jx-brand-hue: var(--brand-hue);
+    --jx-background: var(--background);
+    --jx-foreground: var(--foreground);
+    --jx-card: var(--card);
+    --jx-card-foreground: var(--card-foreground);
+    --jx-popover: var(--popover);
+    --jx-popover-foreground: var(--popover-foreground);
+    --jx-primary: var(--primary);
+    --jx-primary-foreground: var(--primary-foreground);
+    --jx-secondary: var(--secondary);
+    --jx-secondary-foreground: var(--secondary-foreground);
+    --jx-muted: var(--muted);
+    --jx-muted-foreground: var(--muted-foreground);
+    --jx-accent: var(--accent);
+    --jx-accent-foreground: var(--accent-foreground);
+    --jx-destructive: var(--destructive);
+    --jx-destructive-foreground: var(--destructive-foreground);
+    --jx-border: var(--border);
+    --jx-input: var(--input);
+    --jx-ring: var(--ring);
+    --jx-terminal: var(--terminal);
+    --jx-terminal-foreground: var(--terminal-foreground);
+    --jx-terminal-hover: var(--terminal-hover);
+    --jx-terminal-muted: var(--terminal-muted);
+    --jx-success: var(--success);
+    --jx-success-foreground: var(--success-foreground);
+    --jx-warning: var(--warning);
+    --jx-warning-foreground: var(--warning-foreground);
+    --jx-info: var(--info);
+    --jx-info-foreground: var(--info-foreground);
+    --jx-error: var(--error);
+    --jx-error-foreground: var(--error-foreground);
+    --jx-chart-1: var(--chart-1);
+    --jx-chart-2: var(--chart-2);
+    --jx-chart-3: var(--chart-3);
+    --jx-chart-4: var(--chart-4);
+    --jx-chart-5: var(--chart-5);
+    --jx-font-sans: var(--font-sans);
+    --jx-font-mono: var(--font-mono);
+    --jx-font-nav: var(--font-nav);
+    --jx-radius: var(--radius);
+    --jx-shadow-color: var(--shadow-color);
+    --jx-shadow-2xs: var(--shadow-2xs);
+    --jx-shadow-xs: var(--shadow-xs);
+    --jx-shadow-sm: var(--shadow-sm);
+    --jx-shadow: var(--shadow);
+    --jx-shadow-md: var(--shadow-md);
+    --jx-shadow-xs-press: var(--shadow-xs-press);
+    --jx-shadow-sm-press: var(--shadow-sm-press);
+    --jx-shadow-md-press: var(--shadow-md-press);
+    --jx-shadow-engrave: var(--shadow-engrave);
+    --jx-shadow-well: var(--shadow-well);
+    --jx-shadow-well-hover: var(--shadow-well-hover);
+    --jx-shadow-paper: var(--shadow-paper);
+    --jx-scrim: var(--scrim);
+    --jx-surface-shadow: var(--surface-shadow);
+    --jx-scrollbar-track: var(--scrollbar-track);
+    --jx-scrollbar-thumb: var(--scrollbar-thumb);
+    --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+    --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+  }
+}
+
+@layer stylex.priority2 {
+  .x19bbpc0 {
+    margin: 0 auto;
+  }
+
+  .x1ghz6dp {
+    margin: 0;
+  }
+
+  .x1tamke2 {
+    padding: 16px;
+  }
+
+  .x1dumkz1 {
+    padding: 2px 6px;
+  }
+
+  .xmfpazt {
+    padding: 2px 8px;
+  }
+}
+
+@layer stylex.priority3 {
+  .xwi7vqo {
+    border-color: var(--jx-border);
+  }
+
+  .x1y0btm7 {
+    border-style: solid;
+  }
+
+  .xmkeg23 {
+    border-width: 1px;
+  }
+
+  .x1v2ro7d {
+    gap: 12px;
+  }
+
+  .x1c1vhfx {
+    gap: 20px;
+  }
+
+  .x167g77z {
+    gap: 8px;
+  }
+
+  .x1hl2dhg {
+    text-decoration: none;
+  }
+}
+
+@layer stylex.priority4 {
+  .x6s0dn4 {
+    align-items: center;
+  }
+
+  .x13udha1 {
+    background-color: var(--jx-card);
+  }
+
+  .x1yn5p49 {
+    background-color: var(--jx-muted);
+  }
+
+  .xl2d5wq {
+    background-image: linear-gradient(90deg, #0f051d, #d2c7ea);
+    background-image: linear-gradient(90deg, lab(2.64531% 6.29573 -11.9048), lab(82.0172% 9.08092 -16.0861));
+  }
+
+  .xl8unsv {
+    color: var(--jx-foreground);
+  }
+
+  .xowzrx4 {
+    color: var(--jx-muted-foreground);
+  }
+
+  .x1ypdohk {
+    cursor: pointer;
+  }
+
+  .x78zum5 {
+    display: flex;
+  }
+
+  .xdt5ytf {
+    flex-direction: column;
+  }
+
+  .x1a02dak {
+    flex-wrap: wrap;
+  }
+
+  .x1qt5hsa {
+    font-size: 11.5px;
+  }
+
+  .x1j6dyjg {
+    font-size: 11px;
+  }
+
+  .xfifm61 {
+    font-size: 12px;
+  }
+
+  .x1jvydc1 {
+    font-size: 15px;
+  }
+
+  .x1s688f {
+    font-weight: 600;
+  }
+
+  .x9pfba7 {
+    letter-spacing: .08em;
+  }
+
+  .x1dbl2gt {
+    line-height: 1.6;
+  }
+
+  .xtvhhri {
+    text-transform: uppercase;
+  }
+}
+
+@layer stylex.priority5 {
+  .x1g6nami {
+    border-bottom-color: var(--jx-border);
+  }
+
+  .x1q0q8m5 {
+    border-bottom-style: solid;
+  }
+
+  .xso031l {
+    border-bottom-width: 1px;
+  }
+
+  .x8x9d4c {
+    margin-left: auto;
+  }
+
+  .x1uedy8c {
+    max-width: 880px;
+  }
+
+  .xsag5q8 {
+    padding-bottom: 12px;
+  }
+}
+
+@layer utilities;
+/* buildId: 60807e498baf091b1e47652e09051c40fe6817a687a7e2b1e63402a96062740f · generator: @jixoai/ui-vite-plugin@0.3.0 · engine: @stylexjs/unplugin@0.19.0 */

@@ -1,0 +1,324 @@
+@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
+@layer stylex.priority1 {
+  :root, .xbpgcew {
+    --jx-brand-hue: var(--brand-hue);
+    --jx-background: var(--background);
+    --jx-foreground: var(--foreground);
+    --jx-card: var(--card);
+    --jx-card-foreground: var(--card-foreground);
+    --jx-popover: var(--popover);
+    --jx-popover-foreground: var(--popover-foreground);
+    --jx-primary: var(--primary);
+    --jx-primary-foreground: var(--primary-foreground);
+    --jx-secondary: var(--secondary);
+    --jx-secondary-foreground: var(--secondary-foreground);
+    --jx-muted: var(--muted);
+    --jx-muted-foreground: var(--muted-foreground);
+    --jx-accent: var(--accent);
+    --jx-accent-foreground: var(--accent-foreground);
+    --jx-destructive: var(--destructive);
+    --jx-destructive-foreground: var(--destructive-foreground);
+    --jx-border: var(--border);
+    --jx-input: var(--input);
+    --jx-ring: var(--ring);
+    --jx-terminal: var(--terminal);
+    --jx-terminal-foreground: var(--terminal-foreground);
+    --jx-terminal-hover: var(--terminal-hover);
+    --jx-terminal-muted: var(--terminal-muted);
+    --jx-success: var(--success);
+    --jx-success-foreground: var(--success-foreground);
+    --jx-warning: var(--warning);
+    --jx-warning-foreground: var(--warning-foreground);
+    --jx-info: var(--info);
+    --jx-info-foreground: var(--info-foreground);
+    --jx-error: var(--error);
+    --jx-error-foreground: var(--error-foreground);
+    --jx-chart-1: var(--chart-1);
+    --jx-chart-2: var(--chart-2);
+    --jx-chart-3: var(--chart-3);
+    --jx-chart-4: var(--chart-4);
+    --jx-chart-5: var(--chart-5);
+    --jx-font-sans: var(--font-sans);
+    --jx-font-mono: var(--font-mono);
+    --jx-font-nav: var(--font-nav);
+    --jx-radius: var(--radius);
+    --jx-shadow-color: var(--shadow-color);
+    --jx-shadow-2xs: var(--shadow-2xs);
+    --jx-shadow-xs: var(--shadow-xs);
+    --jx-shadow-sm: var(--shadow-sm);
+    --jx-shadow: var(--shadow);
+    --jx-shadow-md: var(--shadow-md);
+    --jx-shadow-xs-press: var(--shadow-xs-press);
+    --jx-shadow-sm-press: var(--shadow-sm-press);
+    --jx-shadow-md-press: var(--shadow-md-press);
+    --jx-shadow-engrave: var(--shadow-engrave);
+    --jx-shadow-well: var(--shadow-well);
+    --jx-shadow-well-hover: var(--shadow-well-hover);
+    --jx-shadow-paper: var(--shadow-paper);
+    --jx-scrim: var(--scrim);
+    --jx-surface-shadow: var(--surface-shadow);
+    --jx-scrollbar-track: var(--scrollbar-track);
+    --jx-scrollbar-thumb: var(--scrollbar-thumb);
+    --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+    --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+  }
+}
+
+@layer stylex.priority2 {
+  .xkdpibf {
+    margin: -1px;
+  }
+
+  .x1ghz6dp {
+    margin: 0;
+  }
+
+  .x1717udv {
+    padding: 0;
+  }
+}
+
+@layer stylex.priority3 {
+  .xng3xce {
+    border-style: none;
+  }
+
+  .xc342km {
+    border-width: 0;
+  }
+
+  .xpj7pl4 {
+    gap: .375rem;
+  }
+
+  .x8233eu {
+    gap: .75rem;
+  }
+
+  .x195vfkc {
+    gap: 2px;
+  }
+
+  .x10no89f {
+    inset-block: 0;
+  }
+
+  .x17y0mx6 {
+    inset-inline: 0;
+  }
+
+  .x1jneikf {
+    margin-block: calc(var(--jx-icon, 1.5rem) / 2);
+  }
+
+  .xrxpjvj {
+    margin-inline: 0;
+  }
+
+  .x1sz5sl3 {
+    margin-inline: calc(var(--jx-icon, 1.5rem) / 2);
+  }
+
+  .xb3r6kr {
+    overflow: hidden;
+  }
+}
+
+@layer stylex.priority4 {
+  .x1pha0wt {
+    align-items: baseline;
+  }
+
+  .x1qjc9v5 {
+    align-items: stretch;
+  }
+
+  .xkh2ocl {
+    align-self: stretch;
+  }
+
+  .xx27f0d {
+    background-image: repeating-linear-gradient(to bottom,var(--jx-border) 0 1px,transparent 1px var(--jx-tick-step));
+  }
+
+  .x1mbdtfs {
+    background-image: repeating-linear-gradient(to right,var(--jx-border) 0 1px,transparent 1px var(--jx-tick-step));
+  }
+
+  .xeh89do {
+    clip: rect(0 0 0 0);
+  }
+
+  .xb7qa0x {
+    color: var(--jx-error);
+  }
+
+  .xl8unsv {
+    color: var(--jx-foreground);
+  }
+
+  .x1lliihq {
+    display: block;
+  }
+
+  .x78zum5 {
+    display: flex;
+  }
+
+  .xdt5ytf {
+    flex-direction: column;
+  }
+
+  .x1q0g3np {
+    flex-direction: row;
+  }
+
+  .x1mwizrc {
+    font-family: var(--jx-font-mono);
+  }
+
+  .xxguibh {
+    font-size: var(--jx-text);
+  }
+
+  .x1j61x8r {
+    font-style: normal;
+  }
+
+  .xss6m8b {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .x1xlr1w8 {
+    font-weight: 700;
+  }
+
+  .x1o0tod {
+    inset-inline-start: 0;
+  }
+
+  .x1qughib {
+    justify-content: space-between;
+  }
+
+  .xn212u0 {
+    line-height: var(--jx-line);
+  }
+
+  .xgpuomr {
+    margin-inline-end: .35em;
+  }
+
+  .x10l6tqk {
+    position: absolute;
+  }
+
+  .x1n2onr6 {
+    position: relative;
+  }
+
+  .xuxw1ft {
+    white-space: nowrap;
+  }
+
+  .x4gfg63:is(:lang(ae), :lang(ar), :lang(arc), :lang(bcc), :lang(bqi), :lang(ckb), :lang(dv), :lang(fa), :lang(glk), :lang(he), :lang(ku), :lang(mzn), :lang(nqo), :lang(pnb), :lang(ps), :lang(sd), :lang(ug), :lang(ur), :lang(yi)) {
+    background-image: repeating-linear-gradient(to left,var(--jx-border) 0 1px,transparent 1px var(--jx-tick-step));
+  }
+}
+
+@layer stylex.priority5 {
+  .x16wp3ig {
+    height: .25rem;
+  }
+
+  .x5yr21d {
+    height: 100%;
+  }
+
+  .xjm9jq1 {
+    height: 1px;
+  }
+
+  .xt7dq6l {
+    height: auto;
+  }
+
+  .x72edsj {
+    margin-top: .125rem;
+  }
+
+  .x13vifvy {
+    top: 0;
+  }
+
+  .x80663w {
+    top: auto;
+  }
+
+  .x1jw3ynk {
+    width: .75rem;
+  }
+
+  .xh8yej3 {
+    width: 100%;
+  }
+
+  .x1i1rx1s {
+    width: 1px;
+  }
+}
+
+@layer stylex.priority6 {
+  .xm4hkmz:after {
+    background-color: var(--jx-border);
+  }
+
+  .x100rkj9:after {
+    content: "";
+  }
+
+  .x1unh1gc:after {
+    inset-inline-end: 0;
+  }
+
+  .x1j6awrg:after {
+    position: absolute;
+  }
+}
+
+@layer stylex.priority7 {
+  .x1xrz1ek:after {
+    bottom: 0;
+  }
+
+  .xcock1l:after {
+    height: 1px;
+  }
+
+  .x17cx49:after {
+    left: 0;
+  }
+
+  .xnbfe2x:after {
+    right: 0;
+  }
+
+  .x1m1drc7:after {
+    top: 0;
+  }
+
+  .x1i63x89:after {
+    top: auto;
+  }
+
+  .xv6d0c5:after {
+    width: 1px;
+  }
+
+  .x183bm9d:after {
+    width: auto;
+  }
+}
+
+@layer utilities;
+/* buildId: 60807e498baf091b1e47652e09051c40fe6817a687a7e2b1e63402a96062740f · generator: @jixoai/ui-vite-plugin@0.3.0 · engine: @stylexjs/unplugin@0.19.0 */
