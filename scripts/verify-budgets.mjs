@@ -126,9 +126,24 @@ const BASELINES = {
   // fast path died, smaller than the comment noise it shed); B-face
   // 13368->13483 measured under threshold (+0.9%, the icons page's
   // define-your-own-channel section) — both left at their baselines.
+  //
+  // re-recorded 2026-09-15 (stylex-kernel-phase0 P0.2):
+  // B-consumer-vite 2710->3865 — the umbrella entry gains the stylex
+  // bridge: the delegated dynamic-import loader (./stylex/vite-
+  // plugin.js), the kernel-scope realpath gate (vite passes
+  // /private/var while configs say /var — lexical startsWith never
+  // matched), the F9 layer-law statement source, and the stylex
+  // options surface. The ENGINE stays external (the bare
+  // @stylexjs/unplugin specifier survives in dist; zero engine
+  // symbols in the entry — the F11 build-side law); the wrapper
+  // itself rides the sub-chunk. Still build-time dist only — the
+  // consumer-shipped runtime stays the artifact lane
+  // (verify:shadcn-add clean-consumer probes, 22 cases green).
+  // B-consumer-icons 857->858 measured under threshold (rebuild
+  // jitter) — left at its baseline.
   'B-source': 37636,
   'B-face': 13368,
-  'B-consumer-vite': 2710,
+  'B-consumer-vite': 3865,
   'B-consumer-icons': 857,
 };
 const THRESHOLD_FACTOR = 1.05;
