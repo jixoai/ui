@@ -983,6 +983,33 @@ export default defineConfig({
     },
   },
   {
+    id: 'stylex-tokens',
+    // stylex-kernel-phase0 P0.4 (the registry delta's zero-engine
+    // clause): the stylex-adjacent lib item installs CLEAN — the theme
+    // sheet (its declared dependency) arrives for the css import, the
+    // typed module lands at @lib, and the consumer owes ZERO
+    // @stylexjs/* packages (compiled payload wiring rides phase 1;
+    // today the registry ships the SOURCE module + the sheet, never
+    // the engine)
+    items: ['tokens'],
+    app: `<script lang="ts">
+  // the documented install prerequisite: import the item/theme css —
+  // exactly what a compiled-payload consumer does (post-migration)
+  import '$lib/jixoai.css';
+</script>
+
+<main class="bg-background text-foreground p-4">tokens installed clean</main>
+`,
+    extraChecks(ctx) {
+      check('stylex-tokens: tokens.stylex.ts landed at @lib', ctx.exists('src/lib/tokens.stylex.ts'));
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      const stylexDeps = Object.keys(deps).filter((d) => d.startsWith('@stylexjs/'));
+      check('stylex-tokens: zero @stylexjs/* in the consumer package.json', stylexDeps.length === 0, stylexDeps.join(', ') || 'clean');
+      check('stylex-tokens: the theme sheet arrived (the css-import prerequisite)', ctx.exists('src/lib/jixoai.css'));
+    },
+  },
+  {
     id: 'effects-group',
     // effect-attachments Lane H (2026-09-10, the r5 Owner request #2):
     // the GROUP ALIAS runs through the REAL jixoai-ui CLI — `add
@@ -1728,6 +1755,19 @@ for (const testCase of CASES) {
   }
 
   testCase.extraChecks?.(ctx);
+
+  // GENERIC (stylex-kernel-phase0 P0.4, the registry delta): the
+  // consumer's LOCKFILE owes zero @stylexjs/* — the spec names
+  // @stylexjs/stylex, @stylexjs/unplugin AND @stylexjs/babel-plugin;
+  // the pattern covers the whole scope. The engine is build-side only
+  // (F11): no item, no dependency chain, no transitive haul may ever
+  // land one in a clean install.
+  {
+    const lockFile = join(dir, 'package-lock.json');
+    const lockText = existsSync(lockFile) ? readFileSync(lockFile, 'utf8') : '';
+    const lockHits = [...new Set([...lockText.matchAll(/node_modules\/(@stylexjs\/[a-z-]+)/g)].map((m) => m[1]))];
+    check('lockfile carries zero @stylexjs/* (stylex/unplugin/babel-plugin absent)', lockHits.length === 0, lockHits.join(', ') || 'clean');
+  }
 
   console.log('  vite build (import resolution + svelte compile gate)…');
   const build = await runIn(dir, 'npx', ['vite', 'build'], { timeoutMs: 600_000, label: `case ${testCase.id}: vite build` });
