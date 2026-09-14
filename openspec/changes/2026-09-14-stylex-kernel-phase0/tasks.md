@@ -23,8 +23,42 @@
       family inline is span-left) + comment fix, navigation-menu-
       panel.svelte L137 intent check; visual regression across
       nav/dropdown/tooltip/float-button/hue.
-- [ ] Implement the popover-area fix as cherry-pickable commits +
-      permanent regression probe rows (waits for Gate 1).
+- [x] Implement the popover-area fix as cherry-pickable commits +
+      permanent regression probe rows. [IMPL-B, 2026-09-15. FIX COMMIT:
+      popover.svelte placement→area map span-suffix swap (*-start →
+      span-right, *-end → span-left — now agreeing with the r23
+      physical map); terminal-header.css override → `bottom span-left
+      !important` (RIGHT edges under the pill, rendered DIRECT —
+      pre-fix the mega panels rode the ICB clamp at [512,1440],
+      aligned to neither edge); navigation-menu-panel family inline →
+      span-right (LEFT edges under the item — the family's intent,
+      evidenced by the header's pre-fix comment + the deliberate
+      non-default inline; receipt verdict "right-aligned where left
+      was intended"); composition-f.spec.ts updated (it asserted the
+      buggy value); mirror manifest re-hashed (141 items / 532 pairs
+      green). PROBE COMMIT: scripts/verify-popover-area-align.mjs +
+      `npm run verify:popover-area` + verify-all row (4c — after the
+      mirror-class gates, BEFORE every consumer gate, per design.md's
+      final ordering authoring → payload → mirror → popover probe →
+      consumer) + the /probe-popover-area fixture route (REAL Popover
+      on the area path, ?placement-driven, geometry authored to keep
+      both arms inside 1440×900 so no rescue masks the alignment).
+      Protocol of record executed: ONE metric panelLeft − pillLeft;
+      PASS = |primary| ≤ 0.5px ∧ |control − primary| ≥ 1px. RECEIPTS:
+      post-fix primary=0px / control=−171px / exit 0; TEETH — the map
+      swapped back on a rebuilt dist → primary=−171px, FAIL exit 1;
+      restored + rebuilt → PASS again. Geometric sweep, 10 real
+      surfaces pre/post: nav mega panels clamped → dR=0; nav family
+      demo right-aligned → dL=0 (left, its intent); hue-popover pixel-
+      identical (mechanism now direct); dropdown/tooltip/float-button
+      IDENTICAL pre/post (own maps, untouched). typecheck: zero type
+      errors, failure set identical to clean HEAD (43 pre-existing
+      live-wasm/env failures + the load-flaky markdown-ssr, both
+      trees). openspec --strict green. KNOWN FOLLOW-UP (out of P0.1
+      territory): dropdown-menu.svelte, tooltip.svelte, float-button.
+      svelte, menubar-panel.svelte carry the same inverted span maps
+      and still ride overflow-rescue — the phase-1 corpus sweep owns
+      them.]
 
 ## P0.2 — the engine rides the plugin (build-side)
 

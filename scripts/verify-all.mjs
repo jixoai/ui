@@ -132,6 +132,23 @@ try {
   }
 }
 
+// ── 4c. the popover position-area alignment probe (stylex-kernel-phase0
+// P0.1, the ONE permanent probe — design.md §5 THE PROBE CONTRACT):
+// real rendered geometry on the built site (self-managed server, the
+// stacking-isolation pattern), ONE metric panelLeft − pillLeft at
+// 1440×900; PRIMARY bottom-start ≤ 0.5px, CONTROL the swapped
+// placement ≥ 1px apart. Gates popover.svelte's placement→area map
+// AND the engine's span-suffix semantics. design.md's final ordering
+// is authoring → payload → mirror → popover probe → shadcn consumer;
+// the authoring/payload gates land with P0.4/P0.5 — this row slots
+// after the mirror-class gates and BEFORE every consumer gate ──────
+step('verify:popover-area (browser probe — self-managed server)');
+try {
+  execFileSync('node', ['scripts/verify-popover-area-align.mjs'], { cwd: root, stdio: 'inherit' });
+} catch {
+  die('popover-area');
+}
+
 // ── 5. real-consumer install contract ────────────────────────────────
 step('verify:shadcn-add (real consumer proof)');
 try {
