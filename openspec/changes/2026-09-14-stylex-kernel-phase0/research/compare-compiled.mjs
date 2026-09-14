@@ -1,11 +1,17 @@
 #!/usr/bin/env node
-// compare-compiled.mjs v4 — the P0.6 corpus-dogfood equivalence comparator
-// (gate-1-r5 blocker A1: v3 still misjudged four semantic boundaries that
-// adversarial probing exposed — URL contents eaten by N1/lowercase, custom-
-// property values unconditionally lowercased, @media/@supports nesting
-// context dropped by the flat parser, and same-selector conflict order
-// swallowed by rule merging. v4 scopes every normalization to where it is
-// lawful and makes the parser structure-aware:)
+// compare-compiled.mjs v5 — the P0.6 corpus-dogfood equivalence comparator
+// (gate-1-r6 blocker A1: v4 closed the r5 boundaries (URL/custom-prop
+// value/media ancestry/cascade conflict order) but adversarial probing
+// still found three cascade-global gaps — @layer BLOCK order was absorbed
+// by the unordered N5 pool (layer stack order decides the cascade), the
+// at-keyword prelude normalizer lowercased SEMANTIC names (@layer Foo ≡
+// @layer foo, @keyframes Spin ≡ @keyframes spin), and custom-ident
+// property values were lowercased (animation-name: Spin ≡ spin). v5 adds
+// the document-level @layer first-mention order vector compared as an
+// ordered sequence in BOTH modes, shields prelude NAME tokens from
+// lowercasing, and routes custom-ident properties through the
+// case-preserving value path. v4's structure-aware parser and scoping
+// laws carry over unchanged:)
 //   - selectors: whitespace-only structural normalization (comma collapse)
 //   - declarations: split at the first colon; property names are never
 //     number-normalized; custom-property VALUES keep their case
@@ -85,19 +91,50 @@ const normSelector = (s) => s.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ',').trim
 // At-rule prelude normalization (for @media conditions, @layer names,
 // blockless @import/@charset, and ancestry keys): structural whitespace +
 // lowercase keywords + N1 on numbers, with urls and --custom-property
-// names shielded so their case and digits stay verbatim.
+// At-rule prelude normalization. The at-keyword itself and condition
+// syntax are case-insensitive (lowercased); the NAME tokens are semantic
+// identifiers and keep their case verbatim: @layer names (comma lists
+// included), @keyframes names, and an optional named @container query.
+// @scope preludes carry selector text (class names are case-sensitive),
+// so they skip lowercasing entirely. urls and --custom-property names
+// are shielded in every path. Sentinel \u0005 shields name tokens
+// (disjoint from \u0000 custom-props and \u0001 urls).
 const normPrelude = (p) => {
-  const { out: s1, urls } = shieldUrls(p);
+  const { out: s0, urls } = shieldUrls(p);
   const cps = [];
-  const s2 = s1.replace(/--[a-z0-9_-]+/gi, (m) => `\u0000${cps.push(m) - 1}\u0000`);
-  return numSpan(s2
-    .replace(/\s+/g, ' ')
-    .replace(/\s*,\s*/g, ',')
-    .replace(/\s*:\s*/g, ':')
-    .replace(/\(\s+/g, '(')
-    .replace(/\s+\)/g, ')')
-    .toLowerCase())
-    .replace(/\u0000(\d+)\u0000/g, (_m, i) => cps[+i]);
+  const names = [];
+  const shieldCps = (s) => s.replace(/--[a-z0-9_-]+/gi, (m) => `\u0000${cps.push(m) - 1}\u0000`);
+  const shieldName = (s) => s.replace(/[^,\s]+/g, (m) => `\u0005${names.push(m) - 1}\u0005`);
+  const syntax = (s, keepCase = false) => {
+    let t = s
+      .replace(/\s+/g, ' ')
+      .replace(/\s*,\s*/g, ',')
+      .replace(/\s*:\s*/g, ':')
+      .replace(/\(\s+/g, '(')
+      .replace(/\s+\)/g, ')');
+    if (!keepCase) t = t.toLowerCase();
+    return numSpan(shieldCps(t));
+  };
+  const restore = (s) => s
+    .replace(/\u0000(\d+)\u0000/g, (_m, i) => cps[+i])
+    .replace(/\u0005(\d+)\u0005/g, (_m, i) => names[+i])
+    .replace(/\u0001(\d+)\u0001/g, (_m, i) => urls[+i]);
+  const nm = s0.match(/^@([-\w]+)([\s\S]*)$/);
+  if (!nm) return restore(syntax(s0));
+  const atkw = `@${nm[1].toLowerCase()}`;
+  const rest = nm[2];
+  if (atkw === '@layer' && rest.trim()) {
+    // a layer name or comma list of names — every token is semantic
+    return restore(`${atkw} ${syntax(shieldName(rest.trim()), true)}`.replace(/\s+/g, ' ').trim());
+  }
+  if (atkw === '@keyframes' || atkw === '@container') {
+    // optional leading NAME token before the condition/query parens
+    return restore(`${atkw} ${syntax(rest.replace(/^(\s*)([^\s(]+)/, (_m, ws_, tok) => ws_ + shieldName(tok)))}`.replace(/\s+/g, ' ').trim());
+  }
+  if (atkw === '@scope') {
+    return restore(`${atkw} ${syntax(rest, true)}`.replace(/\s+/g, ' ').trim());
+  }
+  return restore(`${atkw} ${syntax(rest)}`.replace(/\s+/g, ' ').trim());
 };
 
 // Value normalization: url(...) shielded first (canonical url(value) form,
@@ -126,14 +163,27 @@ const normValue = (raw, keepCase = false) => {
   return restoreUrls(out, urls);
 };
 
+// Properties whose unquoted values are custom-ident token streams
+// (keyframe names, view-transition names, counter names, timeline/anchor
+// names) — case-sensitive references to author-defined identifiers, so
+// their values take the case-preserving path. Shorthands are included:
+// a keyword inside them keeping its case is a conservative false-DIFFERENT.
+const CUSTOM_IDENT_PROPS = new Set([
+  'animation', 'animation-name', 'animation-timeline',
+  'view-transition-name', 'view-transition-class',
+  'counter-reset', 'counter-increment', 'counter-set',
+  'scroll-timeline-name', 'timeline-scope', 'anchor-name', 'position-try',
+]);
+
 // Declaration normalization: split at the FIRST colon (a quoted value may
 // contain colons, a property name cannot). The property name is lowercased
-// but never number-normalized; custom-property values keep their case.
+// but never number-normalized; custom-property values and custom-ident
+// property values keep their case.
 const normDecl = (d) => {
   const ci = d.indexOf(':');
   if (ci === -1) return d.replace(/\s+/g, ' ').trim().toLowerCase();
   const prop = d.slice(0, ci).replace(/\s+/g, ' ').trim().toLowerCase();
-  return `${prop}:${normValue(d.slice(ci + 1), prop.startsWith('--'))}`;
+  return `${prop}:${normValue(d.slice(ci + 1), prop.startsWith('--') || CUSTOM_IDENT_PROPS.has(prop))}`;
 };
 
 // Quote-aware top-level ';' split — a ';' inside a quoted string never splits.
@@ -176,25 +226,48 @@ const OCC = '\u0003'; // occurrence separator inside one selector's cascade sequ
 //   occs — declaration sets in occurrence order (cascade conflicts keep order)
 function parseCss(text) {
   const map = new Map();
+  // Global @layer order: the first-mention sequence of layer paths
+  // decides the layer stack, so it is captured document-wide and compared
+  // as an ordered vector (blockless lists mention their names in order;
+  // anonymous layers get unique ids — each anonymous block is a DISTINCT
+  // layer that can never be reopened).
+  const layerOrder = [];
+  const seenLayers = new Set();
+  let anonLayer = 0;
+  const mentionLayer = (path) => {
+    if (!seenLayers.has(path)) {
+      seenLayers.add(path);
+      layerOrder.push(path);
+    }
+  };
   const add = (key, ctx, leaf, atRule, decls) => {
     const e = map.get(key);
     if (e) e.occs.push(decls);
     else map.set(key, { key, ctx, leaf, atRule, occs: [decls] });
   };
-  const walk = (src, ancestors) => {
+  const walk = (src, ancestors, layerPath) => {
     let i = 0;
     while (i < src.length) {
       const open = src.indexOf('{', i);
       const semi = src.indexOf(';', i);
       if (open === -1 && semi === -1) {
         const tail = src.slice(i).replace(/\/\*[\s\S]*?\*\//g, '').trim();
-        if (tail) add(normPrelude(tail), ancestors.map(normPrelude).join('\u0002'), normPrelude(tail), true, []);
+        if (tail && !/^@layer\b/i.test(tail)) add(normPrelude(tail), ancestors.map(normPrelude).join('\u0002'), normPrelude(tail), true, []);
         break;
       }
       if (semi !== -1 && (open === -1 || semi < open)) {
         const seg = src.slice(i, semi).replace(/\/\*[\s\S]*?\*\//g, '').trim();
-        // blockless at-rule (@import, @charset, bare @layer)
-        if (seg) add(normPrelude(seg), ancestors.map(normPrelude).join('\u0002'), normPrelude(seg), true, []);
+        if (seg) {
+          if (/^@layer\b/i.test(seg)) {
+            // blockless @layer statement: order-establishing names only
+            for (const tok of seg.replace(/^@layer\s*/i, '').split(',')) {
+              const name = tok.trim();
+              if (name) mentionLayer([...layerPath, name].join('.'));
+            }
+          } else {
+            add(normPrelude(seg), ancestors.map(normPrelude).join('\u0002'), normPrelude(seg), true, []);
+          }
+        }
         i = semi + 1;
         continue;
       }
@@ -209,7 +282,16 @@ function parseCss(text) {
       }
       const body = src.slice(open + 1, j);
       if (AT_RULE_CONTAINERS.test(prelude)) {
-        walk(body, [...ancestors, prelude]);
+        if (/^@layer\b/i.test(prelude)) {
+          const restName = prelude.replace(/^@layer\s*/i, '').trim();
+          const name = restName || `\u0004${anonLayer++}`;
+          mentionLayer([...layerPath, name].join('.'));
+          // canonical ancestor keeps the (case-sensitive) name verbatim;
+          // normPrelude is idempotent on it
+          walk(body, [...ancestors, `@layer ${name}`], [...layerPath, name]);
+        } else {
+          walk(body, [...ancestors, prelude], layerPath);
+        }
       } else {
         const ctx = ancestors.map(normPrelude).join('\u0002');
         const leaf = normSelector(prelude);
@@ -218,8 +300,8 @@ function parseCss(text) {
       i = j + 1;
     }
   };
-  walk(text.replace(/\/\*[\s\S]*?\*\//g, ''), []);
-  return map;
+  walk(text.replace(/\/\*[\s\S]*?\*\//g, ''), [], []);
+  return { map, layerOrder };
 }
 function parseJson(text) {
   const map = new Map();
@@ -237,7 +319,7 @@ function parseJson(text) {
     }
   };
   walk(JSON.parse(text));
-  return map;
+  return { map, layerOrder: [] };
 }
 
 const isJson = (p) => p.endsWith('.json');
@@ -245,11 +327,15 @@ const a = (isJson(aPath) ? parseJson : parseCss)(readFileSync(aPath, 'utf8'));
 const b = (isJson(bPath) ? parseJson : parseCss)(readFileSync(bPath, 'utf8'));
 
 const diffs = [];
+// Document-level: the @layer stack order (first-mention vector) is a
+// cascade-deciding global — compared as an ORDERED sequence in BOTH modes.
+if (a.layerOrder.join(' → ') !== b.layerOrder.join(' → ')) {
+  diffs.push({ selector: '(document) @layer order', a: a.layerOrder.join(' → ') || '(none)', b: b.layerOrder.join(' → ') || '(none)' });
+}
 if (strictSelectors) {
-  const seq = (e) => (e?.occs || []).map((o) => o.join(';')).join(OCC);
-  for (const k of new Set([...a.keys(), ...b.keys()])) {
-    const da = seq(a.get(k));
-    const db = seq(b.get(k));
+  for (const k of new Set([...a.map.keys(), ...b.map.keys()])) {
+    const da = (a.map.get(k)?.occs || []).map((o) => o.join(';')).join(OCC);
+    const db = (b.map.get(k)?.occs || []).map((o) => o.join(';')).join(OCC);
     if (da !== db) diffs.push({ selector: k, a: da, b: db });
   }
 } else {
@@ -259,8 +345,8 @@ if (strictSelectors) {
   const semanticLeaf = (e) => (e.atRule || /@([-\w]+-)?keyframes\b/i.test(e.ctx) ? e.leaf : '');
   const sig = (e) => `${e.ctx}${OCC}${semanticLeaf(e)}${OCC}${e.occs.map((o) => o.slice().sort().join(';')).join(OCC)}`;
   const pool = [];
-  for (const e of b.values()) pool.push({ k: e.key, sig: sig(e) });
-  for (const e of a.values()) {
+  for (const e of b.map.values()) pool.push({ k: e.key, sig: sig(e) });
+  for (const e of a.map.values()) {
     const s0 = sig(e);
     const idx = pool.findIndex((p) => p.sig === s0);
     if (idx === -1) diffs.push({ selector: e.key, a: s0, b: '(no structural match)' });
@@ -270,7 +356,7 @@ if (strictSelectors) {
 }
 
 const verdict = diffs.length ? 'DIFFERENT' : 'EQUIVALENT';
-const report = `compare-compiled: ${verdict} (${a.size} vs ${b.size} selectors, normalizations N1-N${strictSelectors ? 4 : 5} applied)\n` +
+const report = `compare-compiled: ${verdict} (${a.map.size} vs ${b.map.size} selectors, normalizations N1-N${strictSelectors ? 4 : 5} applied)\n` +
   diffs.slice(0, 20).map((d) => `  ✗ ${d.selector}\n    a: ${d.a}\n    b: ${d.b}`).join('\n');
 if (rawOut) writeFileSync(rawOut, JSON.stringify({ a: aPath, b: bPath, equivalent: diffs.length === 0, diffs }, null, 2));
 console.log(report);
