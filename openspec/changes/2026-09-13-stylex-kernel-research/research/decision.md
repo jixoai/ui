@@ -74,10 +74,13 @@ D3 to FAIL-for-all and the verdict below flips.
   scale (interleaved n=10: 477 vs 399ms medians; the earlier −21%
   run was a non-interleaved confound, superseded). HMR cross-ref:
   stylex D1-02 = 103ms no-reload vs TW www-scale ~333ms (scale-
-  incomparable, flagged). **Anchor items beaten: total CSS ✓ AND
-  per-page critical CSS ✓ — both at fixture scale where they are the
-  SAME deterministic number (−74.3%); dev-loop ✗ (stable loss).**
-  D4=3 therefore rests on a READING: whether the anchor's two CSS
+  incomparable, flagged). **Anchor items beaten (STRICT reading, Gate-2-r3 adjudicated):
+  total CSS ✓ (−74.3%, the one deterministic engine-attributable
+  win); per-page critical CSS = UNSCORED (no independent per-page
+  measurement exists — the fixture CSS is the same artifact, not a
+  second indicator; Codex r3: "同一 47,073B 产物不能同时证明两个
+  独立指标"); dev-loop ✗ (stable, twice-reproduced loss).**
+  D4=3 therefore rests on the Owner-only permissive READING: whether the anchor's two CSS
   items (written with site-scale semantics, where they differ) can
   be satisfied by one fixture-scale measurement (where they
   coincide). **This reading is contestable and is flagged for
@@ -230,8 +233,10 @@ Instrument (committed): spike/d3/scripts/measure-cold-start.mjs +
 interleaved variant; vite self-reported "ready in N ms" (ANSI-
 stripped), process-GROUP kills (the overnight-hang root cause:
 SIGKILL on npm orphaned vite grandchildren holding stdout pipes).
-Payload symmetry proof: spike/d3/logs/payload-symmetry.txt (tree
-hashes both fixtures; the v1 script's hmr-probe pollution of
+Payload snapshot proof: spike/d3/logs/payload-symmetry.txt (tree
+hashes pin each fixture's SOURCE identity — the two trees
+legitimately differ (TW form vs StyleX form); the proof is snapshot
+identity for re-run comparison, NOT semantic-payload equivalence; the v1 script's hmr-probe pollution of
 tw-baseline/App.svelte was restored byte-identical to the L3c
 commit before runs 2–3).
 
@@ -239,12 +244,13 @@ commit before runs 2–3).
 |---|---|---|---|---|---|
 | 1 | paired back-to-back, n=5 | 354ms | 281ms | **−21% (faster)** | superseded by run 3 — non-interleaved, cache-state confound |
 | 2 | paired rerun, n=5 | 270ms | 353ms | **+31% (slower)** | logs/devloop-paired.jsonl |
-| 3 | **INTERLEAVED tw/a alternating, n=10 each** | 399ms | 477ms | **+19.5% (slower, STABLE)** | logs/devloop-interleaved.jsonl |
+| 3 | **INTERLEAVED tw/a alternating, n=10 each** | 399ms | 477ms | **+19.5% (slower, STABLE)** | superseded by run 4 (script now committed) |
+| 4 | **INTERLEAVED rerun from the COMMITTED script, strict JSONL** (scripts/measure-cold-start-interleaved.mjs, header documents order/samples/kill semantics) | 370ms | 482ms | **+30.3% (slower)** | logs/devloop-interleaved.jsonl (strict JSONL, every line an object) |
 
-**The stable answer is run 3**: arch-b dev cold start is ~19.5%
-SLOWER (477 vs 399ms medians; arch-b also carries the heavy tail —
-790/1569ms outliers = babel cold paths). Run 1's opposite direction
-is retained as recorded evidence of the metric's noise under
-non-interleaved designs. **Dev-loop is a stable LOSS at fixture
-scale.** Site-scale dev-loop under stylex is unmeasurable
-pre-migration (www TW baseline: 1,812ms).
+**The stable answer is runs 3+4 (both interleaved): arch-b dev cold
+start is 19.5–30.3% SLOWER (babel cold paths; arch-b carries the
+heavy tails). Run 1's opposite direction is retained as recorded
+evidence of the metric's noise under non-interleaved designs.**
+**Dev-loop is a stable, twice-reproduced LOSS at fixture scale.**
+Site-scale dev-loop under stylex is unmeasurable pre-migration (www
+TW baseline: 1,812ms).
