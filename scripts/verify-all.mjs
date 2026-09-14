@@ -69,7 +69,15 @@ try {
 // stale server holding old dist once satisfied it blind for six days.
 // It runs below as a MANAGED probe against this composite's own
 // throwaway server, km's pattern, --url contract.
-for (const name of ['verify:laws', 'verify:icons', 'verify:spins', 'verify:migration', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
+//
+// stylex-kernel-phase0 P0.7 (design §7's final ordering): the two new
+// gates slot authoring → payload → mirror — BEFORE verify:mirror (the
+// byte-twin class), with the popover probe already after the
+// mirror-class gates (4c) and every consumer gate after THAT (step 5).
+// The gates need no build first (the payload generator compiles
+// through the pinned engine itself; the authoring gate scans the
+// ledger), so they run in the cheap early block.
+for (const name of ['verify:laws', 'verify:icons', 'verify:spins', 'verify:migration', 'verify:stylex-authoring', 'verify:stylex-payload', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
   step(name);
   try {
     execFileSync('npm', ['run', '--silent', name], { cwd: root, stdio: 'inherit' });

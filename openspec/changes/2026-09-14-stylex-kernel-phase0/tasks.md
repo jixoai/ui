@@ -112,18 +112,73 @@
 
 ## P0.4 — the payload generator + consistency gate
 
-- [ ] Generator: compiled class-constant modules + per-item CSS from
-      ONE build pass (same-build hash).
-- [ ] scripts/verify-stylex-payload.mjs: re-derives both artifacts,
+- [x] Generator: compiled class-constant modules + per-item CSS from
+      ONE build pass (same-build hash). [IMPL-D, 2026-09-15.
+      scripts/lib/stylex-payload.mjs (the compile core — generator and
+      gate import the SAME law, the css-laws slots precedent) +
+      scripts/gen-stylex-payload.mjs. Item set is DATA-DRIVEN: registry
+      items owning .stylex.ts (today: `tokens`) + the migration
+      ledger's non-registry modules (keyed corpus/<basename> — phase 0
+      has no migrated production component, so the ledger corpus keeps
+      the pipeline on REAL atoms; phase-1 migrations move families to
+      registry keys by the same derivation). Compile = the pinned
+      engine's own vite factory driven through its public surface +
+      __stylexCollectCss (the accessor the wrapper already licenses),
+      babel pins mirroring vite-plugin.ts EXACTLY (throw mode ON);
+      per-item isolation via the unplugin shared-store clear.
+      classModule = plain joined class strings ($$css markers dropped,
+      F11); css = F9 statement at BYTE ZERO + collected rules. buildId
+      = the spec formula, canonical serialization (U+000A joins +
+      trailing sep, POSIX repo-root-relative paths — the ledger's
+      established base, recorded in the core header; byte-sorted
+      items+sources; lowercase hex), stamped into every artifact so a
+      cross-build mix is mechanically decidable. LANDING: registry/
+      payload/stylex/ — OUTSIDE the mirror trees (registry/files ⇄
+      apps/www/src/lib never sees it; verify:mirror re-run GREEN),
+      outside public/r (shadcn build owns that), registry/ is private.
+      10 items / 175 class constants; regeneration byte-deterministic
+      (--check: 0 drift across processes).]
+- [x] scripts/verify-stylex-payload.mjs: re-derives both artifacts,
       asserts hash identity + spot-compiles a consumer import; wired
-      into verify:all.
-- [ ] verify:shadcn-add extended: the clean consumer's lockfile
+      into verify:all. [IMPL-D — failure modes in the spec's order:
+      missing-rule (constants ↦ escaped selectors), cross-build
+      (artifact buildId stamps + the formula recomputed from current
+      sources), manual edit (recorded sha256 vs bytes), same-build
+      emission (full byte re-derivation). Consumer spot-compile = a
+      REAL plain-vite build, zero plugins/deps, importing a payload
+      classModule + item css: build green, F9 layer first-mention
+      order survives the consumer's lightningcss normalization,
+      item rules land. ALWAYS-ON planted self-tests (popover-probe
+      negative-control precedent): missing-rule planted with a
+      sha-consistent manifest → caught naming item+class; cross-build
+      planted via a REAL second compile of a tweaked source (new atom
+      export) with only its css swapped in → caught on the stamps;
+      manual-edit planted as a trailing comment → caught on the sha.
+      Gate GREEN; receipts in research/p0-gates-receipt.md.]
+- [x] verify:shadcn-add extended: the clean consumer's lockfile
       contains ZERO @stylexjs/* entries; items work via CSS import.
+      [IMPL-D — a GENERIC per-case assertion (package-lock.json
+      carries no node_modules/@stylexjs/* key — the spec's three
+      named packages and the whole scope) + a stylex-tokens case: the
+      registry's stylex-adjacent lib item installs clean, the theme
+      sheet arrives for the css import, zero @stylexjs/* in package
+      .json, consumer build green. The full item-via-CSS-import proof
+      for COMPILED payloads rides the payload gate's spot-compile
+      (phase 0 ships no compiled item through shadcn yet — the
+      registry delta's transitional clause; phase 1 wires the payload
+      into the shadcn payload tree).]
 
 ## P0.5 — the authoring law's teeth
 
-- [ ] babel propertyValidationMode:'throw' in kernel builds.
-- [ ] scripts/verify-stylex-authoring.mjs: forbidden patterns
+- [x] babel propertyValidationMode:'throw' in kernel builds. [IMPL-D
+      — VERIFIED ALREADY LIVE (IMPL-A's f0b560f5): src AND dist carry
+      the pin (packages/vite-plugin/src/stylex/vite-plugin.ts:254,
+      dist/stylex/vite-plugin.js:73). Plus the gate's ALWAYS-ON
+      receipt: a planted `background:` shorthand through the REAL
+      babel transform under the kernel pins THROWS ("background is
+      not supported. Use background-color…") every gate run — the
+      P0.5 row is proven, not assumed.]
+- [x] scripts/verify-stylex-authoring.mjs: forbidden patterns
       (factory calls at non-markup level, vars-keys, shorthands in
       .stylex.ts) → fail naming file+pattern; wired into verify:all.
       SCAN SCOPE is the MIGRATION LEDGER — research/migration-ledger.json
@@ -131,8 +186,36 @@
       maintained: each migration commit appends its family's files;
       P0 seeds it with the phase-0 dogfood files; the authoring gate
       and the canonical-statement check read it, legacy trees are
-      never scanned).
-- [ ] The law text lands in the spec deltas (this change's specs/).
+      never scanned). [IMPL-D — the ledger's 9 modules PASS. The
+      shorthand blacklist is DERIVED AT GATE RUNTIME from the pinned
+      babel-plugin's own throwing table (18 names: the background/
+      border/all/animation family + logical-side aliases) with a
+      pin-count assertion (18) so an engine bump that moves the list
+      fails the gate loudly; margin/padding/inset/gap/flex/overflow/
+      textDecoration (spike §5.3: engine-expandable, throw mode
+      passes them — the dogfood carries them as-is) are LAWFUL —
+      the IMPL-C risk (textDecoration:'none' in demo.stylex.ts) is
+      resolved BY the derivation, not by an exemption. Comments are
+      stripped before scanning (the corpus documents its law in
+      prose). Ledger .css sheets (phase 1): exact canonical FULL
+      statement at the top + no hand-pasted compiled-atom rules
+      (engine output is the plugin's). ALWAYS-ON teeth: planted
+      factory/vars-key/shorthand each FAIL naming file+pattern; the
+      sanctioned idioms pass (no false positives); varied/lawful/
+      engine-output planted sheets exercise the canonical-statement
+      scenarios. Gate GREEN; receipts in research/p0-gates-receipt.md.]
+- [x] The law text lands in the spec deltas (this change's specs/).
+      [IMPL-D — COVERAGE CHECKED, no edits needed: component-authoring
+      MODIFIED carries static-atoms-only + shorthands-forbidden +
+      throw-mode + factory/vars-keys forbidden with the gate named;
+      css-architecture ADDED carries the canonical layer law's four
+      scenarios (incl. the engine-statement and varied-statement
+      cases) + the same-build payload consistency requirement with
+      the buildId formula, canonical serialization and the three
+      planted-defect self-tests; registry MODIFIED carries the
+      zero-engine consumer contract naming all three @stylexjs
+      packages + the TW4 transitional clause. The gates implement
+      exactly these texts.]
 
 ## P0.6 — the corpus dogfood
 
@@ -176,10 +259,32 @@
 
 ## P0.7 — gates + docs
 
-- [ ] verify-all chain gains: stylex-payload, stylex-authoring, the
-      popover regression probe (ONE permanent probe).
-- [ ] Docs: the install prerequisite page (import the item CSS;
-      engine tooling optional for consumers' own use).
+- [x] verify-all chain gains: stylex-payload, stylex-authoring, the
+      popover regression probe (ONE permanent probe). [IMPL-D — the
+      two new gates slot into the npm-script block as authoring →
+      payload → mirror (design §7's final ordering; the popover probe
+      already sits after the mirror-class gates at 4c and every
+      consumer gate after THAT at step 5). npm scripts added:
+      gen:stylex-payload / verify:stylex-payload /
+      verify:stylex-authoring.]
+- [x] Docs: the install prerequisite page (import the item CSS;
+      engine tooling optional for consumers' own use). [IMPL-D —
+      apps/www/src/routes/docs/install.html (+page.svelte +page.ts),
+      neighbor-page style (SectionCard/CodeBlock/A11yTable/pills):
+      one css entry; the compiled-payload contract (plain class
+      strings + item css, zero @stylexjs/* owed, engine tooling
+      OPTIONAL for consumers' own markup); the transitional lane
+      (legacy utility-authored items keep the TW4 prerequisite until
+      their family's migration — the registry delta's clause); the
+      layer law (utilities always win); install verification. Nav:
+      docs-route-model Sections lead entry. Prerender round-trip
+      completed: svelte.config entries + docs-structure spec expected
+      set (12/12 green — the spec ALSO carries the pre-existing
+      /probe-stylex-corpus drift P0.6c left in that exact-set row,
+      fixed in passing: the route was in svelte.config but absent
+      from the expected probe list). svelte-check: zero errors from
+      the new page (864→862 total, the 2 removed were the page's own
+      parse errors mid-fix; baseline otherwise unchanged).]
 
 ## P0.8 — review gates (remix)
 
