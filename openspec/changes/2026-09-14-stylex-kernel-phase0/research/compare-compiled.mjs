@@ -101,6 +101,12 @@ const normSelector = (s) => s.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ',').trim
 // (disjoint from \u0000 custom-props and \u0001 urls).
 const normPrelude = (p) => {
   const { out: s0, urls } = shieldUrls(p);
+  // selector(...) arguments carry SELECTOR text — class names are
+  // case-sensitive — so they get selector-grade normalization (structural
+  // whitespace only) and are shielded from the condition-syntax lowering.
+  // Sentinel \u0006 is disjoint from \u0000/\u0001/\u0005.
+  const sels = [];
+  const s0s = s0.replace(/selector\(\s*([^)]*?)\s*\)/gi, (_m, inner) => `\u0006${sels.push(inner.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ',').trim()) - 1}\u0006`);
   const cps = [];
   const names = [];
   const shieldCps = (s) => s.replace(/--[a-z0-9_-]+/gi, (m) => `\u0000${cps.push(m) - 1}\u0000`);
@@ -118,9 +124,10 @@ const normPrelude = (p) => {
   const restore = (s) => s
     .replace(/\u0000(\d+)\u0000/g, (_m, i) => cps[+i])
     .replace(/\u0005(\d+)\u0005/g, (_m, i) => names[+i])
-    .replace(/\u0001(\d+)\u0001/g, (_m, i) => urls[+i]);
-  const nm = s0.match(/^@([-\w]+)([\s\S]*)$/);
-  if (!nm) return restore(syntax(s0));
+    .replace(/\u0001(\d+)\u0001/g, (_m, i) => urls[+i])
+    .replace(/\u0006(\d+)\u0006/g, (_m, i) => `selector(${sels[+i]})`);
+  const nm = s0s.match(/^@([-\w]+)([\s\S]*)$/);
+  if (!nm) return restore(syntax(s0s));
   const atkw = `@${nm[1].toLowerCase()}`;
   const rest = nm[2];
   if (atkw === '@layer' && rest.trim()) {
