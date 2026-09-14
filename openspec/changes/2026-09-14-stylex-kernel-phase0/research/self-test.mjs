@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // self-test.mjs — the comparator's pinned test matrix (gate-1-r3 A1,
-// extended gate-1-r4 A1): every normalization carries a POSITIVE pair
-// (must compare EQUIVALENT) and a NEGATIVE pair (must compare DIFFERENT).
-// r4 additions pin the scoping law itself: quoted-content digits stay
-// verbatim, numeric class names stay distinct under --strict-selectors,
-// --custom-property names are never number-normalized; N5 renaming and
-// flag positioning are now in-matrix too. Exit 0 iff all rows verdict
-// as expected.
+// extended gate-1-r4 + gate-1-r5 A1): every normalization carries a
+// POSITIVE pair (must compare EQUIVALENT) and a NEGATIVE pair (must
+// compare DIFFERENT). r4 pinned the number/quote scoping law (quoted
+// digits verbatim, numeric classes distinct under --strict-selectors,
+// --custom-property names never number-normalized). r5 pins the four
+// adversarial boundaries Codex probed beyond the matrix: url() contents
+// (digits + case), custom-property VALUE case, @media/@supports nesting
+// ancestry, and same-selector cascade conflict order. Exit 0 iff all
+// rows verdict as expected.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -35,7 +37,23 @@ const rows = [
   ['N3 NEG steps(1) vs steps(2)', '.x{animation-timing-function:steps(1)}', '.x{animation-timing-function:steps(2)}', false],
   ['N4 pos decl order', '.x{color:red;padding:1px}', '.x{padding:1px;color:red}', true],
   ['N4 NEG value', '.x{color:red}', '.x{color:blue}', false],
+  ['N4 pos quoted semicolon', '.x{content:"a;b";color:red}', '.x{color:red;content:"a;b"}', true],
   ['N5 pos renamed class', '.x01{color:red}', '.x1{color:red}', true],
+  ['URL NEG unquoted digits', '.x{background:url(asset01.png)}', '.x{background:url(asset1.png)}', false],
+  ['URL NEG case', '.x{background:url(Asset.png)}', '.x{background:url(asset.png)}', false],
+  ['URL NEG quoted digits', '.x{background:url("a01.png")}', '.x{background:url("a1.png")}', false],
+  ['URL pos quote form', '.x{background:url("a.png")}', '.x{background:url(a.png)}', true],
+  ['URL pos surrounding ws', '.x{background:url( a.png )}', '.x{background:url(a.png)}', true],
+  ['CPV NEG case', '.y{--x:Foo}', '.y{--x:foo}', false],
+  ['MEDIA NEG width', '@media (min-width:12px){.x{color:red}}', '@media (min-width:13px){.x{color:red}}', false],
+  ['MEDIA pos number format', '@media (min-width:12.0px){.x{color:red}}', '@media (min-width:12px){.x{color:red}}', true],
+  ['MEDIA pos ws', '@media (min-width: 12px){.x{color:red}}', '@media (min-width:12px){.x{color:red}}', true],
+  ['NESTED NEG supports>media', '@supports (a:b){@media (min-width:12px){.x{color:red}}}', '@supports (a:b){@media (min-width:13px){.x{color:red}}}', false],
+  ['NESTED pos ws', '@supports ( a:b ){@media (min-width: 12px){.x{color:red}}}', '@supports (a:b){@media (min-width:12px){.x{color:red}}}', true],
+  ['CASCADE NEG reversed conflict', '.x{color:red}.x{color:blue}', '.x{color:blue}.x{color:red}', false],
+  ['CASCADE NEG merge split', '.x{color:red;padding:0}', '.x{color:red}.x{padding:0}', false],
+  ['CASCADE NEG duplicate vs single', '.x{color:red}.x{color:red}', '.x{color:red}', false],
+  ['CASCADE pos decl order in sequence', '.x{color:red;padding:0}.x{color:blue}', '.x{padding:0;color:red}.x{color:blue}', true],
   ['STRICT NEG numeric class .x01', '.x01{color:red}', '.x1{color:red}', false, { flags: ['--strict-selectors'] }],
   ['STRICT pos identical', '.x01{color:red}', '.x01{color:red}', true, { flags: ['--strict-selectors'] }],
   ['FLAG NEG strict-before-paths', '.x01{color:red}', '.x1{color:red}', false, { flags: ['--strict-selectors'], flagsBeforePaths: true }],
