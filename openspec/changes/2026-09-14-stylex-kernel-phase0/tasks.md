@@ -28,25 +28,53 @@
 
 ## P0.2 — the engine rides the plugin (build-side)
 
-- [ ] packages/vite-plugin: devDep @stylexjs/unplugin @0.19.0
+- [x] packages/vite-plugin: devDep @stylexjs/unplugin @0.19.0
       ( + peer review of the version pin policy: exact pin, bump =
-      re-run D1 fixtures).
-- [ ] The jixoai() wiring for our builds: transform scope = the
+      re-run D1 fixtures). [f0b560f5 — + @stylexjs/stylex@0.19.0
+      (test fixtures + the apps' type surface); policy in
+      src/stylex/vite-plugin.ts header + README; engine kept EXTERNAL
+      in tsdown (bare specifier, F11)]
+- [x] The jixoai() wiring for our builds: transform scope = the
       kernel trees only (registry/files, apps/www/src/lib mirror),
-      NOT docs routes.
-- [ ] The F9 canonical layer statement baked into emitted CSS (the
-      plugin owns it; no author hand-writing).
-- [ ] The vite twins stay byte-identical (gate green).
+      NOT docs routes. [f0b560f5 + d7891b37 — the kernel-scope gate
+      (realpath-normalized; vite hands realpath'd ids) + the bridge
+      (the icons-bridge law; enforce-undefined plugin-order trick);
+      twins opt in via stylex.include]
+- [x] The F9 canonical layer statement baked into emitted CSS (the
+      plugin owns it; no author hand-writing). [f0b560f5 —
+      STYLEX_LAYER_STATEMENT at byte zero of every emitted css
+      carrying stylex output (mirrored re-hash emission); verified in
+      the REAL www build: dist entry css starts with the FULL
+      statement, 4 @layer stylex blocks, the defineVars :root block;
+      dev /virtual:stylex.css carries it too; the §5.2 css-entry trap
+      warns with the named fix]
+- [x] The vite twins stay byte-identical (gate green). [d7891b37 —
+      cmp-verified both pairs (vite.config.ts + package.json twins);
+      registry-side root math resolves to match-nothing dirs, the
+      established twin path-math precedent]
 
 ## P0.3 — the typed token layer
 
-- [ ] registry/files/lib (new lib item): tokens.stylex.ts wrapping
+- [x] registry/files/lib (new lib item): tokens.stylex.ts wrapping
       the jixoai sheet via defineVars with verbatim var() values.
       ACCEPTANCE, itemized: registry.json edge added; mirror-
       manifest regenerated + verify:mirror green; blueprint scene
       committed; the byte-twin vite configs updated identically.
-- [ ] Type-safety probe: a typo'd token fails the kernel build
-      (compiles green otherwise).
+      [d79bc320 + fe12cde7 — 60 tokens, key --jx-<sheet-name>, value
+      verbatim var(--sheet-name); the sheet's own --jx-* kernel
+      channels excluded (self-reference cycle); item 'tokens'
+      (registry:lib, engines) with the @jixoai/jixoai-theme install
+      prerequisite; mirror 141 items / 532 pairs GREEN; scene
+      tokens.svelte + tokens.svg through the real pipeline (first
+      real atoms: static longhands, zero-runtime sx() table); found +
+      fixed the serializer's wide-gamut gap (three sheet hues are
+      out-of-srgb; parseRgb now clamps negative/>1 color(srgb)
+      components)]
+- [x] Type-safety probe: a typo'd token fails the kernel build
+      (compiles green otherwise). [a3d00956 —
+      research/stylex-typo-probe.mjs: clean exit=0; typo exit=1
+      naming the key ("Did you mean '--jx-primary'?"); receipt in
+      research/p0-engine-token-receipts.md]
 
 ## P0.4 — the payload generator + consistency gate
 
