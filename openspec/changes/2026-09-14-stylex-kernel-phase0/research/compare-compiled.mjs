@@ -1,5 +1,10 @@
 #!/usr/bin/env node
-// compare-compiled.mjs v5 — the P0.6 corpus-dogfood equivalence comparator
+// compare-compiled.mjs v6 — the P0.6 corpus-dogfood equivalence comparator
+// (gate-1-r8 blocker: same-name @keyframes blocks MERGED across block
+// boundaries, but CSS semantics REPLACE — a later same-name block in the
+// same at-rule context supersedes the earlier one entirely, frames never
+// merge. v6 drops the superseded block's entries at parse time, keyed by
+// the full context path so keyframes under different @media coexist.)
 // (gate-1-r6 blocker A1: v4 closed the r5 boundaries (URL/custom-prop
 // value/media ancestry/cascade conflict order) but adversarial probing
 // still found three cascade-global gaps — @layer BLOCK order was absorbed
@@ -252,6 +257,11 @@ function parseCss(text) {
     if (e) e.occs.push(decls);
     else map.set(key, { key, ctx, leaf, atRule, occs: [decls] });
   };
+  // Same-name @keyframes blocks: CSS semantics REPLACE — a later block
+  // with the same name (in the same at-rule context) supersedes the
+  // earlier one ENTIRELY; frames never merge across blocks. Keyed by the
+  // full context path so keyframes under different @media coexist.
+  const kfSupersede = new Map();
   const walk = (src, ancestors, layerPath) => {
     let i = 0;
     while (i < src.length) {
@@ -296,6 +306,16 @@ function parseCss(text) {
           // canonical ancestor keeps the (case-sensitive) name verbatim;
           // normPrelude is idempotent on it
           walk(body, [...ancestors, `@layer ${name}`], [...layerPath, name]);
+        } else if (/^@([-\w]+-)?keyframes\b/i.test(prelude)) {
+          // last same-name block in the same context wins outright —
+          // drop the previous block's entries, then record this block's
+          const supersedeKey = `${ancestors.map(normPrelude).join('\u0002')}\u0002${normPrelude(prelude)}`;
+          const prevKeys = kfSupersede.get(supersedeKey);
+          if (prevKeys) for (const k of prevKeys) map.delete(k);
+          const before = new Set(map.keys());
+          walk(body, [...ancestors, prelude], layerPath);
+          const added = [...map.keys()].filter((k) => !before.has(k));
+          kfSupersede.set(supersedeKey, new Set(added));
         } else {
           walk(body, [...ancestors, prelude], layerPath);
         }
