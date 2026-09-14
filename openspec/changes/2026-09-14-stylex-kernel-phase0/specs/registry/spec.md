@@ -27,12 +27,15 @@ for @stylexjs/stylex, @stylexjs/unplugin, AND @stylexjs/babel-plugin
 - THEN Svelte 5 consumers receive them first-class; theme/lib/engine
   items stay framework-free
 
-#### Scenario: a clean consumer installs an item
+#### Scenario: a clean consumer installs a compiled payload item
 
 - GIVEN a fresh consumer project with no styling engine installed
-- WHEN it shadcn-adds a kernel item and imports the item CSS
-- THEN the components render correctly and the lockfile gains zero
-  @stylexjs/* entries
+- WHEN it shadcn-adds a COMPILED PAYLOAD item (post-migration) and
+  imports the item CSS
+- THEN the components render correctly and the lockfile gains none
+  of @stylexjs/stylex, @stylexjs/unplugin, @stylexjs/babel-plugin;
+  a LEGACY item meanwhile keeps the standing TW4 prerequisite
+  (transitional applicability)
 
 #### Scenario: a Tailwind consumer overrides kernel paint
 

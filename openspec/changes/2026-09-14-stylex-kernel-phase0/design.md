@@ -107,15 +107,16 @@ ui/<item>/<item>.svelte      ──┐
    alignment; the fix is either the correct area value or the
    comment's correction (whichever the measurement rules).
 
-Both probes become permanent verify rows (regression teeth) with
-FIXED protocols: viewport 1280×800 headless Chromium, alignment
-deltas measured in px with a ≤0.5px tolerance, negative controls
-(the swapped placement) asserted to differ; the range probe is
-RETIRED to the API-trap note (its verdict: renderer healthy,
-untrustworthy read path). Both fixes are commits structured for
-cherry-pick to main if the Owner wants them shipped ahead of the
-phase train. P0.1's forensic receipts are COMMITTED
-(research/p0-bug-probes.md, 14 shots, 2 raw JSONs).
+THE PROBE CONTRACT (final, single voice): the POPOVER alignment
+probe is the ONE permanent verify row, protocol of record per the
+receipt appendix — viewport 1440×900 headless Chromium, ≤0.5px
+tolerance, swapped-placement negative control asserted to differ by
+≥1px, PASS/fail fields explicit. The RANGE probe is RETIRED to the
+API-trap receipt (renderer healthy; the untrustworthy
+getComputedStyle-on-UA-shadow read path is the kernel note) — it
+does NOT enter verify:all. Only the popover fix is a cherry-pickable
+commit. P0.1's forensic receipts are COMMITTED
+(research/p0-bug-probes.md + appendix, 14 shots, 2 raw JSONs).
 
 ## §6 What phase 0 deliberately does NOT do
 

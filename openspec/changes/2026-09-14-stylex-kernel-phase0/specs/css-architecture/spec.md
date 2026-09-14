@@ -21,11 +21,14 @@ engine's emission.)
   tooling (@jixoai/ui-vite-plugin) — never hand-authored.
 - FOLDER SHEETS (`ui/<item>/<item>.css`): the standing law that
   every folder sheet opens with the canonical layer statement
-  CONTINUES, with the canonical text now the FULL statement above
-  (extended from the old four-layer form); the authoring gate
-  verifies the statement matches the canonical text EXACTLY, so
-  hand-varied orders fail while the lawful copy passes — no
-  false-positive on legal folder CSS.
+  CONTINUES — TRANSITIONALLY SCOPED: NEW and MIGRATED sheets (any
+  sheet touched by the stylex phase train) MUST carry the FULL
+  statement above; LEGACY sheets (~147 today) keep the old
+  four-layer form LAWFULLY until their family's migration lands
+  (the header update rides each family's migration commit). The
+  authoring gate scans ONLY stylex-touched trees (the migration
+  ledger's file list), so legacy sheets never fail it — no
+  mass-failure, no silent exemption.
 - Any import order composes: whichever sheet arrives first
   establishes the same full order.
 
@@ -76,7 +79,11 @@ payload-manifest.json := {
 ```
 
 - Canonical paths: `classModule` → the registry payload's compiled
-  constants module; `css` → the payload's item CSS.
+  constants module; `css` → the payload's item CSS. buildId
+  serialization is CANONICAL: UTF-8; fields joined by U+000A with a
+  trailing separator; paths POSIX-normalized relative to the
+  registry root; the source list sorted by path bytes; hashes
+  lowercase hex sha256.
 - Reverse lookup: EVERY class-constant string in a classModule
   SHALL appear as an (escaped) selector in that item's css.
 - verify:stylex-payload re-derives the manifest from the payload

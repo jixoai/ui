@@ -27,12 +27,16 @@
   patterns (factory/vars-key) naming file + pattern.
 - **Corpus dogfood equivalence**: the 8 families' compiled outputs
   through the real pipeline match the research spike's artifacts
-  (byte or semantic equivalence, method stated in the receipt).
-- **Bug probes**: both probes produce verdicts from real rendered
-  geometry (computed styles, not CSS-text regexes — the research's
-  lesson: www suites regex the text and missed the thumb ring);
-  confirmed bugs carry fixes + permanent regression rows; fixes are
-  cherry-pick-structured.
+  per the COMMITTED comparator (research/compare-compiled.mjs —
+  normalizations N1 number formats, N2 pseudo content, N3 steps(),
+  N4 order-insensitive rule sets; run: `node compare-compiled.mjs
+  <a> <b> --raw-out research/dogfood-diff.json`).
+- **Bug probes**: the POPOVER alignment probe is the permanent
+  verify row (protocol of record: 1440×900, ≤0.5px, swapped-
+  placement negative control ≥1px apart); the RANGE probe is
+  retired to the API-trap receipt — verify:all carries ONE probe,
+  not two. Verdicts come from real rendered geometry (bounding
+  boxes), not CSS-text regexes.
 - **Standing gates**: the full verify:all chain green including the
   byte-twin vite configs and mirror byte-identity.
 - **Process discipline**: every dev server/build process the lanes
