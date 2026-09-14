@@ -120,7 +120,13 @@
      handling only; the panel's links are the interactive elements. The
      hide() is EXPLICIT: preventDefault on the keydown cancels the
      native close request, so without it focus would return over a
-     still-open panel (Codex r1 blocking #1, browser-reproduced) -->
+     still-open panel (Codex r1 blocking #1, browser-reproduced). -->
+<!-- SPAN SEMANTICS (2026-09-15, measured — research/p0-bug-probes.md,
+     stylex-kernel-phase0 P0.1): span-right START-aligns (panel left
+     edge on the item's left edge), span-left END-aligns — the family's
+     own law is LEFT edges aligned under the item, so the inline writes
+     span-right; the terminal-header override flips it to span-left for
+     its right-aligned header law. -->
 <div
   id={panelId}
   popover="auto"
@@ -134,7 +140,7 @@
   data-variant={bar.variant}
   data-density={bar.density}
   bind:this={panelEl}
-  style="position-anchor: {item.anchorName}; --jx-surface-in-x: 0px; --jx-surface-in-y: 6px; --jx-surface-ox: 6px; --jx-surface-oy: 6px; inset-area: bottom span-left; position-area: bottom span-left;"
+  style="position-anchor: {item.anchorName}; --jx-surface-in-x: 0px; --jx-surface-in-y: 6px; --jx-surface-ox: 6px; --jx-surface-oy: 6px; inset-area: bottom span-right; position-area: bottom span-right;"
   ontoggle={handleToggle}
   onkeydown={handleKeydown}
 >

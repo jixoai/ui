@@ -185,16 +185,25 @@
     }
     return tokens.join(' ');
   });
+  // SPAN SEMANTICS (2026-09-15, measured — research/p0-bug-probes.md,
+  // stylex-kernel-phase0 P0.1): in Chromium's position-area the span
+  // keywords run OPPOSITE the intuitive reading — `span-right`
+  // START-aligns (panel left edge on pill left edge), `span-left`
+  // END-aligns (right edges together). The map pairs each logical
+  // placement with the span that MEASURES as its intended alignment
+  // (*-start → span-right, *-end → span-left), agreeing with the r23
+  // physical map above; the pre-fix values encoded the inverted model
+  // and contradicted it.
   const area = $derived(
     placement === 'bottom' ? 'bottom' :
-    placement === 'bottom-end' ? 'bottom span-right' :
-    placement === 'bottom-start' ? 'bottom span-left' :
+    placement === 'bottom-end' ? 'bottom span-left' :
+    placement === 'bottom-start' ? 'bottom span-right' :
     placement === 'top' ? 'top' :
-    placement === 'top-end' ? 'top span-right' :
+    placement === 'top-end' ? 'top span-left' :
     placement === 'left' ? 'left' :
     placement === 'right' ? 'right' :
     placement === 'center' ? 'center' :
-    'top span-left'
+    'top span-right'
   );
 
   let panel = $state<HTMLElement | null>(null);

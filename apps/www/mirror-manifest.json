@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-14T19:42:51.768Z",
+  "generatedAt": "2026-09-14T20:15:34.807Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -474,8 +474,8 @@
           "source": "registry/files/ui/terminal-header/terminal-header.css",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.css",
           "target": "@ui/terminal-header/terminal-header.css",
-          "sourceSha": "277abf453584a5c38c18b8b2afa5bfb40f697eba15c0c55b73b69b85d8db2e5f",
-          "mirrorSha": "277abf453584a5c38c18b8b2afa5bfb40f697eba15c0c55b73b69b85d8db2e5f"
+          "sourceSha": "134b5778c97c22aca65da636358f4fc1d14f5671d0756800d5e25ecb88b649ac",
+          "mirrorSha": "134b5778c97c22aca65da636358f4fc1d14f5671d0756800d5e25ecb88b649ac"
         }
       ]
     },
@@ -1015,8 +1015,8 @@
           "source": "registry/files/ui/popover/popover.svelte",
           "mirror": "apps/www/src/lib/ui/popover/popover.svelte",
           "target": "@ui/popover/popover.svelte",
-          "sourceSha": "af30747a2c479695d9f56bbe6f51172f883b57832ebf2c0a11a9fd8ca8273b94",
-          "mirrorSha": "af30747a2c479695d9f56bbe6f51172f883b57832ebf2c0a11a9fd8ca8273b94"
+          "sourceSha": "94a8bbb2332a46c861980b6473735a2595a6b95575522ad94f6c6d9482c1f31c",
+          "mirrorSha": "94a8bbb2332a46c861980b6473735a2595a6b95575522ad94f6c6d9482c1f31c"
         },
         {
           "source": "registry/files/ui/popover/index.ts",
@@ -2985,8 +2985,8 @@
           "source": "registry/files/ui/navigation-menu/navigation-menu-panel.svelte",
           "mirror": "apps/www/src/lib/ui/navigation-menu/navigation-menu-panel.svelte",
           "target": "@ui/navigation-menu/navigation-menu-panel.svelte",
-          "sourceSha": "5bd076120a9d02573391f5d80c9ae6d4c090e09353f23e5fa6920842f32bbcce",
-          "mirrorSha": "5bd076120a9d02573391f5d80c9ae6d4c090e09353f23e5fa6920842f32bbcce"
+          "sourceSha": "c781211c364f271626ae936816514e9c98f44440b44fbba8fd6e724cf5f6e8c5",
+          "mirrorSha": "c781211c364f271626ae936816514e9c98f44440b44fbba8fd6e724cf5f6e8c5"
         },
         {
           "source": "registry/files/ui/navigation-menu/navigation-menu-trigger.svelte",
