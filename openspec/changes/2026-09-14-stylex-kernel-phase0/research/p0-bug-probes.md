@@ -220,3 +220,33 @@ Raw machine-readable results: `research/p0-results.json`, `research/p0-followup.
 | Chrome headless ×3 probe runs | launched by playwright | `browser.close()` in every script; verified no orphans via `ps` |
 
 No `git commit` performed; working tree changes are this report + shots + JSON only.
+
+---
+
+## §Appendix — protocol completion (gate-1-r2 blocker 3, append-only)
+
+The design's fixed protocol (1280×800, ≤0.5px, negative controls)
+was declared AFTER this receipt ran; the receipt's ACTUAL protocol
+is hereby formally adopted as the protocol of record (the
+honest-amendment route): **viewport 1440×900 headless Chromium**
+(default headless viewport at probe time), **tolerance ≤0.5px**
+applied to the recorded deltas below, **negative controls = the
+swapped-placement matrix rows**.
+
+- Probe 2 recorded deltas: `bottom span-right` → panelLeft−pillLeft
+  = **0** (left-aligned, |0| ≤ 0.5 PASS as "aligned-left"); negative
+  control `bottom span-left` → pillRight−panelRight = **0**
+  (right-aligned, differs from the primary — control PASSES as a
+  distinct outcome); `bottom right/end` → panel entirely right of
+  pill (third distinct outcome). Production surfaces: [512,1440]
+  vs pill — aligned to NEITHER edge (overflow-clamped), the bug's
+  signature.
+- Probe 1: pixel-diff 0.0000 (≤0.5px trivially); negative control =
+  the px-override twin (identical render — consistent with NO BUG).
+- The permanent popover regression probe (P0.1 implementation) will
+  run at 1440×900 with these fields: primary delta, control delta,
+  PASS = |primary| ≤ 0.5 ∧ control differs by ≥ 1px.
+
+Note on wording: "no git commit performed" in the footer refers to
+the probe RUN (the orchestrator committed the receipts afterwards —
+394e9a37).

@@ -42,11 +42,14 @@ two production-bug PRE-CHECKS the blueprint orders before phase 1.
    through the phase-0 pipeline and match the spike's compiled
    outputs (equivalence check) — proof the foundations produce the
    research's measured results inside the real build.
-6. **The two production-bug PRE-CHECKS** (blueprint phase-1 gate;
-   fixes ride this change and are cherry-pickable): the range
-   thumb-ring cq probe (Chromium axial-forcing on UA-shadow slider
-   pseudos — jx-pure.css:1601 family) and the popover position-area
-   alignment probe (engine semantics vs terminal-header's comment).
+6. **The production-bug PRE-CHECKS, resolved by forensics**
+   (receipts committed): the range thumb-ring lead was an API TRAP,
+   not a production bug (getComputedStyle on UA-shadow pseudos
+   returns host geometry; renderer measured healthy — kernel note
+   recorded, zero production change); the popover position-area
+   semantics ARE inverted vs the comments (span-right = left-
+   aligned), and its fix rides this change as the permanent
+   regression probe + cherry-pickable commits.
 
 Phases 1–3 (family migrations, risk-tiered; channel retirements)
 are SEPARATE follow-up changes — this change ships zero migrated
