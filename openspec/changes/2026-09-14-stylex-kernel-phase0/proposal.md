@@ -65,7 +65,7 @@ production components.
   prerequisite becomes "import the item CSS" (MODIFIED).
 - **Files**: packages/vite-plugin/** (engine absorption + generator);
   registry/files/lib (token accessors — a new lib item); scripts/
-  (verify:stylex-payload, the authoring lint, the two probes);
+  (verify:stylex-payload, the authoring lint, the popover regression probe — ONE permanent probe; the range lead closed as an API-trap receipt);
   apps/www + registry vite configs (the twin wiring); verify-all
   chain gains the new gates.
 - **Gates**: NEW verify:stylex-payload (same-build consistency);
