@@ -376,3 +376,23 @@ Effects:
    becomes static atoms + CSS-var bindings (factories retire).
 
 The one remaining verdict switch is the D4 reading (§5).
+
+### F12 — THIS COMMIT (2026-09-14): Owner signs the D4 permissive reading — VERDICT: GO
+
+Owner ruling, verbatim (2026-09-14, structured-question answer):
+「宽松读法 → GO（推荐）」
+
+With F10 superseded (F11) and D4=3 Owner-signed, every verdict
+condition is resolved:
+
+- D1 PASS (three engines, pin-set scoped)
+- D2 PASS under the F9 lawful configuration (15/15, dual-column kept)
+- D3 PASS under F11 compiled-output shipping (zero consumer engine
+  packages; burden vectors green from the L3c arch-c lineage)
+- D4 = 3 (Owner-signed permissive reading; total CSS −74.3%
+  deterministic; dev-loop loss twice-reproduced and on record as OUR
+  build-side cost with mitigation noted)
+- D5 = 5, D6 = 3 → total 25/35 ≥ 21 bar
+
+**The research verdict is GO.** The follow-up implementation change
+owns the blueprint (decision.md §6, F11 edition).
