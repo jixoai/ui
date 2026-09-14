@@ -16,9 +16,8 @@
       the BUILT-sheet attribution inside it is a d17abd58 HISTORICAL
       artifact (amendment §h) — the current-HEAD build attribution is
       OWED and lands as R2's first act (disk-blocked).
-- [~] Current-HEAD build attribution (blocked on disk space): rebuild
-      www at the frozen HEAD, re-run r0-sheet-attribution.cjs, append
-      the fresh attribution as a new receipt section.
+- [x] Current-HEAD build attribution: DONE (baseline.md + r0-census §i;
+      rebuilt at HEAD, attribution reconciled to -12B/+1 rule).
 
 ## R1 — external intel (L1)
 
@@ -34,48 +33,47 @@
 
 ## R2 — repo baseline (L2)
 
-- [ ] P1 sheet attribution + per-page `<link>` analysis (from R0
+- [x] P1 sheet attribution + per-page `<link>` analysis (from R0
       build receipt, extended if needed).
-- [ ] P2 used-selector ratio on 3 FROZEN representative pages.
-- [ ] P3 dev cold-start + HMR settle (median of ≥5).
-- [ ] P4 auxiliary recalc heuristic (+ trace if budget allows).
-- [ ] Output: `research/baseline.md` (numbers + repro commands).
+- [x] P2 used-selector ratio on 3 FROZEN representative pages (22.3/28.5/32.2%).
+- [x] P3 dev cold-start + HMR settle (1,812ms / ~333ms medians).
+- [x] P4 auxiliary recalc heuristic (labeled auxiliary in baseline.md).
+- [x] Output: `research/baseline.md` (committed 9a31a647).
 
 ## R2b — the null-hypothesis BUILD (Gate-1 A8)
 
-- [ ] TW4 counterfactual variant: docs-route utility sheet split +
+- [x] TW4 counterfactual variant: docs-route utility sheet split +
       prunable kernel-sheet content, built and measured under the
       IDENTICAL frozen protocol as R2.
-- [ ] Output: `research/counterfactual.md` (what it changed, what it
-      closed, what it could not).
+- [x] Output: `research/counterfactual.md` (committed 9a31a647).
 
 ## R3 — spike lab (L3)
 
-- [ ] `spike/minimal`: Svelte5+Vite8+StyleX no-React — toolchain,
+- [x] `spike/minimal`: Svelte5+Vite8+StyleX no-React — toolchain,
       dev injection, prod output, TS; records the D1 VERSION PIN SET.
-- [ ] `spike/ssg`: adapter-static, ≥2 routes, dynamic values, theme/
+- [x] `spike/ssg`: adapter-static, ≥2 routes, dynamic values, theme/
       density switching, hydration watch, no-JS snapshot, per-page
       delivered bytes.
-- [ ] `spike/coexist`: the FULL D2 matrix (core i–iv + extended v–
+- [x] `spike/coexist`: the FULL D2 matrix (core i–iv + extended v–
       xiii), computed-style assertions, dev/prod × TW import order.
-- [ ] `spike/corpus`: the FROZEN 8-family re-authoring (press-button,
+- [x] `spike/corpus` (committed 00f5de28): the FROZEN 8-family re-authoring (press-button,
       range, dialog|popover, icon, code-card, prose, switch,
       separator) — files/LOC/dynamic-branches/expressibility ledger.
-- [ ] Output: `research/spike-report.md`.
+- [x] Output: `research/spike-report.md` (+ corpus-report.md; §7/§8 Gate-2 corrections appended).
 
 ## R4 — theming/channel-fusion design (L4)
 
-- [ ] §1.2 inventory → per-declaration true-duplication table with
+- [x] §1.2 inventory → per-declaration true-duplication table with
       byte counts; before/after per architecture A/B/C.
-- [ ] var()-reference + scope semantics settled by spike evidence.
+- [x] var()-reference + scope semantics settled by spike evidence (D2-08/09/10).
 
 ## R5 — migration census (L2)
 
-- [ ] Per-family effort table (variant tables, cn() sites,
+- [x] Per-family effort table (variant tables, cn() sites,
       arbitrary-value carriers, forced-colors branches, kernel
       couplings); risk register; gates-touched mapping (design §1.4
       refined to per-gate verdicts).
-- [ ] The class={expr} surface (Gate-1 r2 B): AST/controlled-string
+- [x] The class={expr} surface (Gate-1 r2 B): AST/controlled-string
       extraction of TW utilities inside cn()/template literals — the
       2340 figure is the literal-class LOWER BOUND; the ≥51-file
       cn()-string surface gets its own row (R5's grammar frozen in
@@ -93,7 +91,7 @@
 
 ## RQ8 — environment risk table
 
-- [x] Browser matrix (Chromium full; WebKit/Firefox smoke), CSP/no-JS,
+- [x] (decision.md §3) Browser matrix (Chromium full; WebKit/Firefox smoke), CSP/no-JS,
       RTL/i18n, sourcemap/debug DX, upgrade/rollback, license scan
       (verified in spike install), Svelte-chain ownership debt.
       Output: section in `research/decision.md`.

@@ -391,3 +391,31 @@ cd ../ssg && npm install && npm run prepare && npm run build && npm run probe
 # engines
 ENGINE=webkit node scripts/probe-dev.mjs   (etc. per spike)
 ```
+
+---
+
+## §7 Correction — the D1 roll-up unification (Gate-2 r1 blocker 1, 2026-09-13, append-only)
+
+This report was written BEFORE the L3b corpus run closed Firefox. Two
+stale statements above (§0's "Firefox=LIMITATION" and the D1-13 row)
+are superseded by research/corpus-report.md §6: the Firefox engine
+was installed and the D1-13 smoke subset {01,04,05,09} measured
+ALL-PASS (minimal dev 6/6, prod 5/5; ssg 9/9 incidentally green) —
+raw outputs live in corpus-report.md.
+
+**The unified D1 roll-up**: 13/13 fixtures PASS across Chromium
+(full), WebKit (full), Firefox (smoke subset per the manifest —
+D1-13's design). Row-count language: "13/13 fixtures" is the
+manifest-unit count; "16/17 measured rows" elsewhere counts dev/prod
+split-rows of D1-03 — the manifest's 13 is the contractual unit.
+decision.md cites THIS section for the three-engine claim.
+
+## §8 NODE_ENV footnote (Gate-2 r1 B-item)
+
+§3's note "vite does not set NODE_ENV" is imprecise: what the L3c
+stub falsified is vite 8's CONFIG-HOOK injection (`config()` hook
+mutating mode for plugin consumers does not reach unplugin's
+dev/prod branch); the vite CLI itself DOES set process.env.NODE_ENV
+= production|development on `vite build`|`vite dev` at the pinned
+versions (stub-verified). Both facts stand; they answer different
+questions.
