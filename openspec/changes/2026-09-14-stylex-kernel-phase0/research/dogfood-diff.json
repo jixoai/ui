@@ -1,0 +1,567 @@
+{
+  "a": "research/dogfood/dogfood-delta.css",
+  "b": "research/dogfood/spike-stylex.css",
+  "equivalent": false,
+  "diffs": [
+    {
+      "selector": ".xujm0qo",
+      "a": "\u0003\u0003border-color: color-mix(in oklab,var(--jx-tonal,var(--jx-primary)) 45%,transparent)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xwi7vqo",
+      "a": "\u0003\u0003border-color: var(--jx-border)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1v5t2t",
+      "a": "\u0003\u0003border-color: var(--jx-fill,var(--jx-primary))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1m622hh",
+      "a": "\u0003\u0003border-color: var(--jx-outline,var(--jx-border))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x14acvgp:focus-visible",
+      "a": "\u0003\u0003outline: 1px solid var(--jx-ring)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x14b2esq:focus-visible",
+      "a": "\u0003\u0003outline: 2px solid var(--jx-ring)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xe6n8c8",
+      "a": "\u0003\u0003background-color: color-mix(in oklab,var(--jx-popover) 72%,transparent)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x10pxzsq",
+      "a": "\u0003\u0003background-color: color-mix(in oklab,var(--jx-tonal,var(--jx-primary)) 12%,transparent)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xn7yb31",
+      "a": "\u0003\u0003background-color: var(--jx-accent)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1rnfs7p",
+      "a": "\u0003\u0003background-color: var(--jx-background)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xnf7tsy",
+      "a": "\u0003\u0003background-color: var(--jx-border)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x13udha1",
+      "a": "\u0003\u0003background-color: var(--jx-card)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1kkbjiu",
+      "a": "\u0003\u0003background-color: var(--jx-fill,var(--jx-primary))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1yn5p49",
+      "a": "\u0003\u0003background-color: var(--jx-muted)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xfmjrly",
+      "a": "\u0003\u0003background-color: var(--jx-popover)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1yill5n",
+      "a": "\u0003\u0003background-color: var(--jx-secondary)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1uhehlj",
+      "a": "\u0003\u0003background-color: var(--jx-surface-shadow,#ffffff52)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": "@supports (color:lab(0% 0 0))\u0002.x1uhehlj",
+      "a": "@supports (color:lab(0% 0 0))\u0003\u0003background-color: var(--jx-surface-shadow,lab(100% 0 0 / 0.32))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xx27f0d",
+      "a": "\u0003\u0003background-image: repeating-linear-gradient(to bottom,var(--jx-border) 0 1px,transparent 1px var(--jx-tick-step))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1mbdtfs",
+      "a": "\u0003\u0003background-image: repeating-linear-gradient(to right,var(--jx-border) 0 1px,transparent 1px var(--jx-tick-step))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xbgdi8x",
+      "a": "\u0003\u0003box-shadow: 0 0 0 1px var(--jx-border) inset",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xzgn1n2",
+      "a": "\u0003\u0003box-shadow: var(--jx-press-shadow,var(--jx-shadow-xs))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xj0zi7g",
+      "a": "\u0003\u0003box-shadow: var(--jx-shadow-xs)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xb7qa0x",
+      "a": "\u0003\u0003color: var(--jx-error)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x2jy0tw",
+      "a": "\u0003\u0003color: var(--jx-fill-ink,var(--jx-primary-foreground))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xl8unsv",
+      "a": "\u0003\u0003color: var(--jx-foreground)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xowzrx4",
+      "a": "\u0003\u0003color: var(--jx-muted-foreground)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x18as732",
+      "a": "\u0003\u0003color: var(--jx-primary)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x17xghzz",
+      "a": "\u0003\u0003color: var(--jx-tonal,var(--jx-primary))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1fwvsoz",
+      "a": "\u0003\u0003color: var(--tok-foreground,var(--jx-foreground))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1mwizrc",
+      "a": "\u0003\u0003font-family: var(--jx-font-mono)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xzavzzj",
+      "a": "\u0003\u0003font-family: var(--jx-font-nav)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xc68ue2",
+      "a": "\u0003\u0003font-family: var(--jx-font-sans)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x18yi6u2:hover:not(:checked):not(:disabled)",
+      "a": "\u0003\u0003box-shadow: 0 0 0 1px var(--jx-primary) inset",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x4gfg63:is(:lang(ae),:lang(ar),:lang(arc),:lang(bcc),:lang(bqi),:lang(ckb),:lang(dv),:lang(fa),:lang(glk),:lang(he),:lang(ku),:lang(mzn),:lang(nqo),:lang(pnb),:lang(ps),:lang(sd),:lang(ug),:lang(ur),:lang(yi))",
+      "a": "\u0003\u0003background-image: repeating-linear-gradient(to left,var(--jx-border) 0 1px,transparent 1px var(--jx-tick-step))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xg9knx0:checked",
+      "a": "\u0003\u0003background-color: var(--jx-primary)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1n5puvy:hover",
+      "a": "\u0003\u0003background-color: color-mix(in oklab,var(--jx-tonal,var(--jx-primary)) 8%,transparent)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1fxrjlo:hover",
+      "a": "\u0003\u0003background-color: var(--jx-muted)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x153txnh:hover",
+      "a": "\u0003\u0003box-shadow: var(--jx-press-shadow-hover,var(--jx-shadow-sm))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1ll51s2:hover",
+      "a": "\u0003\u0003box-shadow: var(--jx-shadow-sm)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xytmldf:hover",
+      "a": "\u0003\u0003color: var(--jx-tonal,var(--jx-primary))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1unuef7:active",
+      "a": "\u0003\u0003box-shadow: var(--jx-press-shadow-active,var(--jx-shadow-sm-press))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1i1q1sf:active",
+      "a": "\u0003\u0003box-shadow: var(--jx-shadow-sm-press)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xxingfx:active",
+      "a": "\u0003\u0003translate: var(--jx-press-move,1px 1px)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": "@media (prefers-reduced-transparency:reduce)\u0002.x1t4lvf3.x1t4lvf3",
+      "a": "@media (prefers-reduced-transparency:reduce)\u0003\u0003background-color: var(--jx-popover)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1g6nami",
+      "a": "\u0003\u0003border-bottom-color: var(--jx-border)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x17uqirv",
+      "a": "\u0003\u0003height: var(--jx-icon-size,var(--jx-icon,1.5rem))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xkd2l6g",
+      "a": "\u0003\u0003width: var(--jx-icon-size,var(--jx-icon,1.5rem))",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x4ku27x:before",
+      "a": "\u0003\u0003border-color: var(--jx-primary)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xd5hkx5:before",
+      "a": "\u0003\u0003background-color: var(--jx-background)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".xm4hkmz:after",
+      "a": "\u0003\u0003background-color: var(--jx-border)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": ".x1dtxr84:checked:before",
+      "a": "\u0003\u0003background-color: var(--jx-primary-foreground)",
+      "b": "(no structural match)"
+    },
+    {
+      "selector": "@property --x-height",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003inherits: false;syntax: \"*\""
+    },
+    {
+      "selector": "@property --x-width",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003inherits: false;syntax: \"*\""
+    },
+    {
+      "selector": ":root,.x13bcgva",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003--jx-fill-ink: var(--primary-foreground);--jx-fill: var(--primary);--jx-outline: var(--border);--jx-tonal: var(--primary)"
+    },
+    {
+      "selector": ":root,.x1ae9fy0",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003--jx-press-move: 1px 1px;--jx-press-shadow-active: var(--shadow-sm-press);--jx-press-shadow-hover: var(--shadow-sm);--jx-press-shadow: var(--shadow-xs)"
+    },
+    {
+      "selector": ".x1d326p7.x1d326p7,.x1d326p7.x1d326p7:root",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003--jx-fill-ink: var(--destructive-foreground);--jx-fill: var(--destructive)"
+    },
+    {
+      "selector": ".x1ldno3o.x1ldno3o,.x1ldno3o.x1ldno3o:root",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003--jx-press-move: none;--jx-press-shadow-active: var(--shadow-engrave);--jx-press-shadow-hover: none;--jx-press-shadow: none"
+    },
+    {
+      "selector": ".x1n1jzgs.x1n1jzgs,.x1n1jzgs.x1n1jzgs:root",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003--jx-press-shadow-active: none;--jx-press-shadow-hover: none;--jx-press-shadow: none"
+    },
+    {
+      "selector": ".x9qx8o2.x9qx8o2,.x9qx8o2.x9qx8o2:root",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003--jx-tonal: var(--success)"
+    },
+    {
+      "selector": ".xvjspsj:not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003border-color: color-mix(in oklab,var(--jx-tonal) 45%,transparent)"
+    },
+    {
+      "selector": ".x1io3bm2:not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003border-color: var(--border)"
+    },
+    {
+      "selector": ".xugmw4y:not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003border-color: var(--jx-fill)"
+    },
+    {
+      "selector": ".xg9oa76:not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003border-color: var(--jx-outline)"
+    },
+    {
+      "selector": ".x114y1c1:focus-visible:not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003outline: 1px solid var(--ring)"
+    },
+    {
+      "selector": ".xybh4k3:focus-visible:not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003outline: 2px solid var(--ring)"
+    },
+    {
+      "selector": ".xf1wjqb:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: color-mix(in oklab,var(--jx-tonal) 12%,transparent)"
+    },
+    {
+      "selector": ".x1u67apm:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: color-mix(in oklab,var(--popover) 72%,transparent)"
+    },
+    {
+      "selector": ".xwnonoy:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--accent)"
+    },
+    {
+      "selector": ".x11gw9ax:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--background)"
+    },
+    {
+      "selector": ".xms2ikn:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--border)"
+    },
+    {
+      "selector": ".x1ep7253:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--card)"
+    },
+    {
+      "selector": ".x1wy2m0j:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--jx-fill)"
+    },
+    {
+      "selector": ".xuhz2es:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--muted)"
+    },
+    {
+      "selector": ".xqy2nev:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--popover)"
+    },
+    {
+      "selector": ".x1ut2sa4:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--secondary)"
+    },
+    {
+      "selector": ".x1k4peil:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--surface-shadow,#ffffff52)"
+    },
+    {
+      "selector": "@supports (color:lab(0% 0 0))\u0002.x1k4peil:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "@supports (color:lab(0% 0 0))\u0003\u0003background-color: var(--surface-shadow,lab(100% 0 0 / 0.32))"
+    },
+    {
+      "selector": ".x4301iv:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-image: repeating-linear-gradient(to bottom,var(--border) 0 1px,transparent 1px var(--jx-tick-step))"
+    },
+    {
+      "selector": ".x1scd3q6:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-image: repeating-linear-gradient(to right,var(--border) 0 1px,transparent 1px var(--jx-tick-step))"
+    },
+    {
+      "selector": ".x1912r8m:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003box-shadow: 0 0 0 1px var(--border) inset"
+    },
+    {
+      "selector": ".xbrdurs:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003box-shadow: var(--jx-press-shadow)"
+    },
+    {
+      "selector": ".xkrwg70:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003box-shadow: var(--shadow-xs)"
+    },
+    {
+      "selector": ".x19150mw:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003color: var(--error)"
+    },
+    {
+      "selector": ".x11jfisy:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003color: var(--foreground)"
+    },
+    {
+      "selector": ".x1n85tha:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003color: var(--jx-fill-ink)"
+    },
+    {
+      "selector": ".xzbs2vq:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003color: var(--jx-tonal)"
+    },
+    {
+      "selector": ".xrvchh:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003color: var(--muted-foreground)"
+    },
+    {
+      "selector": ".xzwifym:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003color: var(--primary)"
+    },
+    {
+      "selector": ".xni05rx:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003color: var(--tok-foreground,var(--foreground))"
+    },
+    {
+      "selector": ".xpw0y0u:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003font-family: var(--font-mono)"
+    },
+    {
+      "selector": ".x1bjkxns:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003font-family: var(--font-nav)"
+    },
+    {
+      "selector": ".xhtk421:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003font-family: var(--font-sans)"
+    },
+    {
+      "selector": ".x19z9sk5:hover:not(:checked):not(:disabled):not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003box-shadow: 0 0 0 1px var(--primary) inset"
+    },
+    {
+      "selector": ".x1hsawpp:is(:lang(ae),:lang(ar),:lang(arc),:lang(bcc),:lang(bqi),:lang(ckb),:lang(dv),:lang(fa),:lang(glk),:lang(he),:lang(ku),:lang(mzn),:lang(nqo),:lang(pnb),:lang(ps),:lang(sd),:lang(ug),:lang(ur),:lang(yi)):not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-image: repeating-linear-gradient(to left,var(--border) 0 1px,transparent 1px var(--jx-tick-step))"
+    },
+    {
+      "selector": ".x1bww20j:checked:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--primary)"
+    },
+    {
+      "selector": ".x18a98v2:hover:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: color-mix(in oklab,var(--jx-tonal) 8%,transparent)"
+    },
+    {
+      "selector": ".x1qxz5y:hover:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--muted)"
+    },
+    {
+      "selector": ".x18oaz0e:hover:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003box-shadow: var(--jx-press-shadow-hover)"
+    },
+    {
+      "selector": ".xfzc84r:hover:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003box-shadow: var(--shadow-sm)"
+    },
+    {
+      "selector": ".x1py0k6j:hover:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003color: var(--jx-tonal)"
+    },
+    {
+      "selector": ".x1mz70g8:active:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003box-shadow: var(--jx-press-shadow-active)"
+    },
+    {
+      "selector": ".x1lnxkn6:active:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003box-shadow: var(--shadow-sm-press)"
+    },
+    {
+      "selector": ".x181jbsp:active:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003translate: var(--jx-press-move)"
+    },
+    {
+      "selector": "@media (prefers-reduced-transparency:reduce)\u0002.x1gmqelw.x1gmqelw:not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "@media (prefers-reduced-transparency:reduce)\u0003\u0003background-color: var(--popover)"
+    },
+    {
+      "selector": ".x6fu8a9:not(#\\#):not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003border-bottom-color: var(--border)"
+    },
+    {
+      "selector": ".x16ye13r:not(#\\#):not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003height: var(--x-height)"
+    },
+    {
+      "selector": ".x5lhr3w:not(#\\#):not(#\\#):not(#\\#):not(#\\#)",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003width: var(--x-width)"
+    },
+    {
+      "selector": ".xefkghh:not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):before",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003border-color: var(--primary)"
+    },
+    {
+      "selector": ".x335uk2:not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):before",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--background)"
+    },
+    {
+      "selector": ".xlav4h:not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):after",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--border)"
+    },
+    {
+      "selector": ".x1utro9o:checked:not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):not(#\\#):before",
+      "a": "(no structural match)",
+      "b": "\u0003\u0003background-color: var(--primary-foreground)"
+    }
+  ]
+}
