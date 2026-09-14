@@ -158,6 +158,24 @@ function devMirrorSync(): Plugin {
 // the lucide provider registers no watched files, so the alias can
 // never go stale short of a restart.)
 const jixoaiPlugins = jixoai({
+  // stylex-kernel phase 0 (P0.2, 2026-09-15): the StyleX engine rides
+  // the umbrella — transform scope = the kernel trees ONLY (the src/lib
+  // mirror + the canonical registry/files tree); docs routes never
+  // enter the transform. The plugin owns the F9 canonical layer
+  // statement (byte-zero of every emitted css carrying stylex output)
+  // and the css-entry trap warning; the engine is build-side only
+  // (F11 — registry consumers never owe @stylexjs/*). Twin note: this
+  // file is byte-identical with registry/vite.config.ts; from the
+  // registry app's root the www-relative math resolves to nothing
+  // (nonexistent include dirs match zero modules, never an error) —
+  // the established twin path-math precedent (devRegistryFallback
+  // above); the registry standalone stream owns its own wiring.
+  stylex: {
+    include: [
+      resolve(dirname(fileURLToPath(import.meta.url)), 'src/lib'),
+      resolve(dirname(fileURLToPath(import.meta.url)), '../../registry/files'),
+    ],
+  },
   icons: {
     provider: lucideIconProvider(),
     safety: { mode: 'warn' },
