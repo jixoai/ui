@@ -316,3 +316,17 @@ source without name divergence).
 
 The falsified-assumption quote, the measurement table, and this
 ruling travel together into decision.md's D3 section.
+
+### F10-status — THIS COMMIT (2026-09-14): Owner presented twice, no answer; dispositions recorded
+
+F10 was presented to the Owner twice via structured question (session
+2026-09-13/14) with no answer received. Dispositions under the
+no-answer protocol: F10 signed PRO-TEM by the orchestrator (corrects
+a falsified fact; burden vectors pre-registered; dual-column
+preserved); the D4 permissive reading deliberately NOT signed
+(post-evidence meaning-change is beyond solo orchestrator authority —
+strict reading holds D4<3 → NO-GO as-scored). decision.md §5 now
+carries the dual-pending table + the orchestrator's recommendation
+(sign both). The Owner's word on either ruling is the switch; a
+rejection is final and respected (fallback: RQ7 ranking or in-place
+TW4).
