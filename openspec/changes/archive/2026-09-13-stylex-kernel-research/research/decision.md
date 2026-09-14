@@ -164,68 +164,52 @@ likely collapses, jx-pure.css:1601; popover position-area semantics
 left-aligned vs the source comment) are PRE-EXISTING, independent of
 this decision — recommended as a small separate change.
 
-## 5. VERDICT: one switch remains — the D4 reading (Owner)
+## 5. VERDICT: **GO** (Owner-signed, 2026-09-14)
 
-**F11 (Owner directive, 2026-09-14) fixed the distribution model**:
-compiled-output shipping (architecture C+) — the StyleX toolchain
-lives only in our build; consumers get pre-compiled class constants +
-CSS, imported exactly like today's jixoai.css (L3c arch-c
-measurements: bytes −15.5MB, 0.42s builds, +1 line, ZERO engine
-packages at the consumer — F10 is superseded, not signed; the F9
-layer statement is baked into our emitted CSS; dynamic values author
-as static atoms + CSS-var bindings per D1-08's proven degradation
-path).
-
-| ruling | state | effect |
+| gate/score | verdict | note |
 |---|---|---|
-| F10 (D3 packages) | **SUPERSEDED by F11** — the consumer installs no engine tooling; the controversy's premise is gone | D3 = PASS (burden vectors green from L3c arch-c) |
-| D4 reading | **THE remaining switch** | permissive → D4=3 → **GO**; strict (Codex-adjudicated protocol reading: per-page UNSCORED, one deterministic win + a twice-reproduced dev-loop loss) → D4<3 → **NO-GO as-scored** |
+| D1 feasibility | PASS | 13/13 fixtures, three engines, pin-set scoped |
+| D2 override law | PASS (F9 config) | 15/15; as-frozen FAIL dual-column preserved |
+| D3 distribution | PASS (F11) | compiled-output shipping — ZERO consumer engine packages |
+| D4 perf | 3/5 (Owner-signed permissive) | total CSS −74.3% deterministic; dev-loop +19.5/+30.3% on record (our build-side cost, mitigation noted) |
+| D5 ergonomics | 5/5 | corpus 8/8, −52% LOC; trilogy retired by the CSS-var idiom (F11) |
+| D6 ecosystem/debt | 3/5 | 0.x single-vendor healthy / glue-only owned debt |
+| **Total** | **25/35 ≥ 21** | GO bar met |
 
-Orchestrator's recommendation stands: the permissive reading, because
-the strict reading's failure mode is a site-scale measurement that
-physically cannot exist before migration, while every measurable
-proxy favors the swap (−74.3% deterministic CSS; 68–78% per-page
-irrelevance structural to TW4's union-of-all-sources scanning with
-the in-place counterfactual dead at ~4% recovery; corpus −52% LOC).
-The dev-loop loss (+19.5%/+30.3%, twice reproduced, babel cold
-paths) is real and enters the record — under F11 it is OUR build's
-cost, not the consumer's, and mitigations exist (devPersistToDisk
-pre-warm).
+Owner rulings chain: F8 (difficulty-not-cost) → F11 (compiled-output
+shipping) → F12 (D4 permissive). Full lineage in the amendment
+ledger; every dual-column and honesty flag remains readable in this
+document's history.
 
-## 6. The blueprint (the follow-up change, if GO stands)
+## 6. The blueprint (F11 edition — compiled-output shipping)
 
-- **Phase 0 — foundations**: the typed vars wrapper (.stylex.ts over
-  the token sheet, `var(--primary)` references); the class-mix helper
-  lib item; `propertyValidationMode:'throw'`; @jixoai/ui-vite-plugin
-  absorbs unplugin + generates the F9 entry/layer statement + HMR
-  wiring (the L3c stub becomes production); check-tw4-prereq → the
-  plugin prereq; the F9 layer-order law lands as a spec requirement.
-- **Phase 1 — the proven 8**: production-migrate the corpus families,
-  all gates green, mirror sync.
-- **Phase 2 — the remaining 98 by risk tier** (the 19 mapped-high
+- **Phase 0 — foundations (our build side only)**: the typed vars
+  wrapper (.stylex.ts over the token sheet — `var(--primary)`
+  references, compile-proven); @jixoai/ui-vite-plugin as OUR build
+  tool absorbing unplugin + baking the F9 canonical layer statement
+  into every emitted CSS; the PAYLOAD GENERATOR — emits, from ONE
+  build, the compiled class-constant modules + per-item CSS that the
+  registry ships (the payload-consistency gate pins both to the same
+  build hash; consumers never recompile our source); the authoring
+  law: STATIC ATOMS + CSS-VAR BINDINGS for dynamic values (the
+  D1-08-proven degradation path becomes the idiom — factories
+  retire, the styleq runtime becomes avoidable); propertyValidation
+  Mode:'throw' in kernel builds; check-tw4-prereq retires into a
+  one-line "import the item css" doc (consumers keep whatever engine
+  they like for their own markup).
+- **Phase 1 — the proven 8**: production-migrate the corpus families
+  through the phase-0 pipeline; all gates green; mirror sync; the
+  two production-bug PRE-CHECKS (range thumb-ring cq probe, popover
+  position-area alignment) run BEFORE this phase.
+- **Phase 2 — the remaining 98 by risk tier** (19 mapped-high
   first: glass, date-picker, component-canvas …), family-by-family
   with its verify suite; per-family revert = rollback.
-- **Phase 3 — channel retirements**: @theme mapping region retires
-  from the kernel sheet (~61 lines); icon dual-supply retirement
-  queued to the site phase; www docs pages STAY Tailwind as the
-  standing coexistence proof until a separate site change.
-- **Spec deltas + the itemized touch surface** (Gate-2-r1 expansion
-  of proposal Impact + design §1.4, per gate):
-
-  | touch | change | gate/acceptance |
-  |---|---|---|
-  | css-architecture placement law #1 | utility-first → atom-first; folder-css boundary unchanged; the F9 layer-order LAW lands as a requirement (plugin-generated entry) | verify-layer-law, verify-folder-css rewritten engine-agnostic |
-  | component-authoring styling posture | cn() demoted to consumer-class merge only; the dynamic-value safety rule (single-word-key factory at markup level) becomes an authoring law + a COMPILE/LINT GATE (propertyValidationMode:'throw' + the trilogy lint — Gate-2-r1 B-item) | hook-law unchanged; new authoring gate |
-  | context-plugin boundary | UNCHANGED in contract (zero-npm law holds — the plugin wrapper is a BUILD-time devDependency, never a runtime import of the kernel) — explicit delta entry confirming no change, per proposal Impact | verify:context vocabulary stable |
-  | css-laws serializers | untouched in phase 0–2 (projections are engine-agnostic CSS); phase 3 reviews the utility-projection's consumers | verify:laws freshness unchanged |
-  | registry prerequisites | check-tw4-prereq → the @jixoai plugin prereq (TW4 prereq becomes the CONSUMER-side optional doc) | verify:shadcn-add extended to the plugin wiring |
-  | registry.json deps | utils/theme edges unchanged; plugin added to install docs (not a registry dep) | dependency-shape gate |
-  | budgets/docs/meta | byte budgets recomputed for atom output; docs pages regenerate | verify:budgets/docs/meta |
-  | dual vite configs | BOTH byte-twins gain the plugin wiring (byte-identity law preserved) | vite-config parity gate |
-  | ~170 component suites | paint assertions rewritten per family AS it migrates (phase 2's per-family definition of done) | family-by-family in phase 2 |
-  | production bug leads | PRE-CHECKS before phase 1: the range thumb-ring cq probe + the popover position-area alignment probe on the live site (two small fixes or confirmed non-issues) | new probes; Gate-2-r1 B-item |
-
-
+- **Phase 3 — channel retirements**: the @theme mapping region
+  retires from the kernel sheet (~61 lines); the icon dual-supply
+  retirement queues to the site phase; www docs pages STAY Tailwind
+  as the standing coexistence proof until a separate site change.
+- **Spec deltas** (the touch-surface table above stands; the prereq
+  row now reads: consumers import item CSS — no engine tooling owed).
 
 ## §7 Receipt — the dev-loop measurement saga (2026-09-14, three runs, all raw logs committed)
 
