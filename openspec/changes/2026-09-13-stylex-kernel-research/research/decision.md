@@ -164,33 +164,33 @@ likely collapses, jx-pure.css:1601; popover position-area semantics
 left-aligned vs the source comment) are PRE-EXISTING, independent of
 this decision — recommended as a small separate change.
 
-## 5. VERDICT: dual-pending — the Owner's one-word switch decides
+## 5. VERDICT: one switch remains — the D4 reading (Owner)
 
-All evidence is in and committed; the verdict now hangs on exactly
-TWO rulings, each presented to the Owner twice in-session (no
-answer received; orchestrator dispositions recorded transparently):
+**F11 (Owner directive, 2026-09-14) fixed the distribution model**:
+compiled-output shipping (architecture C+) — the StyleX toolchain
+lives only in our build; consumers get pre-compiled class constants +
+CSS, imported exactly like today's jixoai.css (L3c arch-c
+measurements: bytes −15.5MB, 0.42s builds, +1 line, ZERO engine
+packages at the consumer — F10 is superseded, not signed; the F9
+layer statement is baked into our emitted CSS; dynamic values author
+as static atoms + CSS-var bindings per D1-08's proven degradation
+path).
 
-| ruling | orchestrator disposition | effect if accepted | effect if rejected |
-|---|---|---|---|
-| **F10** (D3 packages → burden vectors) | SIGNED pro-tem (corrects a falsified FACT — the "babel rides free" assumption; burden vectors were pre-registered F5 and B passes them) | D3 = PASS for architecture B | D3 = FAIL for all → NO-GO |
-| **D4 reading** (fixture-scale satisfies both CSS anchor items) | NOT SIGNED (post-evidence meaning-change; the strict reading is more defensible analytically) | D4 = 3 → **GO** (all conditions) | D4 < 3 → **NO-GO as-scored** |
+| ruling | state | effect |
+|---|---|---|
+| F10 (D3 packages) | **SUPERSEDED by F11** — the consumer installs no engine tooling; the controversy's premise is gone | D3 = PASS (burden vectors green from L3c arch-c) |
+| D4 reading | **THE remaining switch** | permissive → D4=3 → **GO**; strict (Codex-adjudicated protocol reading: per-page UNSCORED, one deterministic win + a twice-reproduced dev-loop loss) → D4<3 → **NO-GO as-scored** |
 
-**Orchestrator's recommendation (stated, not decided)**: sign F10 AND
-the permissive D4 reading — the strict reading's failure mode is an
-unmeasurable-BEFORE-migration metric blocking a direction whose
-every directly measurable proxy strongly favors it (−74.3%
-deterministic CSS, P2's structural 68–78% irrelevance, counterfactual
-dead, corpus −52% LOC); the dev-loop loss (+19.5% fixture-scale,
-babel cold paths) is real, small, and enters the record either way —
-mitigable (babel cache warming, phase-0 plugin work) and not a
-consumer-facing cost. The Owner's NO on either ruling is final and
-respected: the fallback path is RQ7's ranking (Panda CSS /
-vanilla-extract) or in-place TW4.
-
-Dev-loop loss mitigation note (for the record): unplugin's babel
-chain is the identified cost; architecture B can pre-warm/persist
-the transform cache (devPersistToDisk exists upstream) — a phase-0
-work item if the GO stands.
+Orchestrator's recommendation stands: the permissive reading, because
+the strict reading's failure mode is a site-scale measurement that
+physically cannot exist before migration, while every measurable
+proxy favors the swap (−74.3% deterministic CSS; 68–78% per-page
+irrelevance structural to TW4's union-of-all-sources scanning with
+the in-place counterfactual dead at ~4% recovery; corpus −52% LOC).
+The dev-loop loss (+19.5%/+30.3%, twice reproduced, babel cold
+paths) is real and enters the record — under F11 it is OUR build's
+cost, not the consumer's, and mitigations exist (devPersistToDisk
+pre-warm).
 
 ## 6. The blueprint (the follow-up change, if GO stands)
 
