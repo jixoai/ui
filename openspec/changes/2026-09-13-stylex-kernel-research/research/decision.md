@@ -6,7 +6,11 @@
 > with the pre-registered anchors (F8: D4–D6 only, max 35, bar
 > ≥21/35 with D4≥3), sensitivity recomputes, missing-data flags,
 > RQ8, the difficulty register, the verdict, and the blueprint.
-> Written by the orchestrator, 2026-09-13, at HEAD 98a733e7.
+> Written by the orchestrator, 2026-09-13. Dossier base: HEAD
+> 6ba61d87; Gate-2 round-1 corrections (receipt unification,
+> sensitivity recompute, D4 dev-loop measurement, D6a receipts,
+> blueprint expansion) land in the Gate-2-r2 commit — provenance is
+> the amendment ledger + git history, not a single HEAD.
 
 ## 1. Hard gates
 
@@ -20,7 +24,9 @@ styled; hydration clean with data-style-src; dynamic values degrade
 to inline custom properties; pseudo/keyframes dev≡prod; dark+density
 same-frame; three degradation laws + control equality; typo'd tokens
 fail compile naming the token; Chromium + WebKit + Firefox all green
-(Firefox closed by L3b after engine install). The two official blind
+(Firefox closed by L3b after engine install; roll-up unified in
+spike-report.md §7 — the manifest's 13 fixtures are the contractual
+unit; dev/prod split-rows are reporting detail). The two official blind
 spots are DEAD: Vite 8 works (CSS entry MANDATORY — rolldown silently
 drops the link otherwise), adapter-static works as predicted.
 Scope: the F-series pin set exactly (svelte 5.57.0 / kit 2.70.3 /
@@ -64,6 +70,18 @@ D3 to FAIL-for-all and the verdict below flips.
   corpus LOC −52%. The law-sheet share (~49% of the today-sheet:
   jx-pure 103.2KB + jixoai tokens 43.6KB) is engine-invariant and
   stays shared by design.
+- Dev-loop (Gate-2-r1 supplementary measurement, PAIRED same-session
+  run 2026-09-14, vite self-reported "ready in X ms", 5 runs each,
+  process-group kills, raw rows in the Gate-2-r2 commit): tw-baseline
+  cold starts 497/225/354/261/365 → median **354ms**; arch-b
+  984/327/280/281/281 → median **281ms** — StyleX dev cold start is
+  ~21% FASTER at identical payload. (A prior unpaired run under
+  overnight swap pressure showed 1078ms TW-median — kept as recorded
+  variance, the paired run is decision-grade.) HMR is cross-referenced
+  not re-measured at fixture scale: stylex D1-02 = 103ms no-reload
+  (spike-report) vs TW www-scale ~333ms (baseline.md P3) — flagged
+  scale-incomparable. **Anchor items beaten: total CSS ✓ (−74.3%,
+  same-payload) + dev-loop ✓ (−21% cold start, paired) = 2 of 3.**
 - Not 5: per-page critical-CSS at WWW SCALE was not measured
   directly (that requires the actual migration); the payload proxy +
   the structural P2 argument carry the score. FLAGGED as proxied.
@@ -87,20 +105,33 @@ D3 to FAIL-for-all and the verdict below flips.
   class-mix helper glue (static+spread non-merge).
 
 **D6 ecosystem & owned debt — 3/5 (w×2 → 6)**
-- D6a=3: healthy but 0.x single-vendor (1.43M downloads/wk, Meta
-  full-line, official Svelte support 2026-04, Figma/Snowflake/
-  HubSpot; minors DO break — #1834 happened).
+- D6a=3: healthy but 0.x single-vendor. RECEIPTS (Gate-2-r1: facts
+  independently re-verified by the orchestrator against the registry
+  on 2026-09-13, satisfying F2's re-grounding rule): `npm view
+  @stylexjs/stylex` → 0.19.0, time.modified 2026-06-16 (0.x, quarterly
+  cadence); downloads api last-week = 1,425,917 (2026-09-05..11) —
+  matching external-stylex.md §1; official Svelte support since PR
+  #1454 (2026-04-01) + example-sveltekit (URLs in external-stylex.md
+  §1/§4); #1834 breaking-minor precedent (external-stylex.md §1).
+  The ADOPTION-scope claims (Meta full-line, Figma/Snowflake/HubSpot)
+  are vendor-sourced (Meta engineering blog, linked in §1/§10) and
+  are NOT load-bearing for the anchor — "0.x + single-vendor" holds
+  on registry facts alone.
 - D6b=3: we own glue only — the @jixoai plugin wrapper + F9 entry
   generation + mix helper + Svelte-chain watch. No fork, no patch.
 
 **Total: 9 + 10 + 6 = 25 / 35 ≥ 21 (bar), D4 = 3 ≥ 3.**
 
-Weight sensitivity (±1, one-at-a-time): D4→2: 22 ✓; D4→4: 28 ✓;
-D5→3(already at 5? then 5→4-equivalent −2): 23 ✓; D6→2: 23 ✓;
-D6→4: 27 ✓. **No single-weight flip.** Worst honest combo (D4→2 AND
-D5 down-weighted to 3's score): 6+6+6=18 <21 → flip — reported, not
-hidden; that combo requires BOTH a heavier D4 devaluation AND
-discounting the corpus evidence, which Gate 2 should adjudicate.
+Weight sensitivity (±1, one-at-a-time; Gate-2-r1 correction — the
+earlier "no single-weight flip" was ARITHMETICALLY WRONG and is
+retracted): D4 w3→2: 25−3=22 ✓ stands; D4 w3→4: 28 ✓; **D5 w2→1:
+25−5=20 <21 → FLIPS to FAIL** (retracted claim said 23); D6 w2→1:
+25−3=22 ✓ stands (retracted claim said 23). **One single-weight flip
+exists: de-weighting D5 (the corpus-evidence dimension) by 1 kills
+the GO.** The verdict therefore leans on the corpus's 5/5 — the
+dimension with the most direct artifact evidence (8 families, 43/43
+assertions, −52% LOC) and the least projection. Reported, not
+hidden; Gate 2 adjudicates whether that lean is acceptable.
 
 ## 3. RQ8 — environment & deployment risk table
 
@@ -160,8 +191,38 @@ L3c's payload trims are disclosed in its receipt.
   from the kernel sheet (~61 lines); icon dual-supply retirement
   queued to the site phase; www docs pages STAY Tailwind as the
   standing coexistence proof until a separate site change.
-- **Spec deltas the follow-up change carries**: css-architecture
-  placement law #1 (utility-first → atom-first with the folder-css
-  boundary), component-authoring styling posture, registry
-  prerequisites, the dynamic-value safety rule (single-word-key
-  factory at markup level) as an authoring law.
+- **Spec deltas + the itemized touch surface** (Gate-2-r1 expansion
+  of proposal Impact + design §1.4, per gate):
+
+  | touch | change | gate/acceptance |
+  |---|---|---|
+  | css-architecture placement law #1 | utility-first → atom-first; folder-css boundary unchanged; the F9 layer-order LAW lands as a requirement (plugin-generated entry) | verify-layer-law, verify-folder-css rewritten engine-agnostic |
+  | component-authoring styling posture | cn() demoted to consumer-class merge only; the dynamic-value safety rule (single-word-key factory at markup level) becomes an authoring law + a COMPILE/LINT GATE (propertyValidationMode:'throw' + the trilogy lint — Gate-2-r1 B-item) | hook-law unchanged; new authoring gate |
+  | context-plugin boundary | UNCHANGED in contract (zero-npm law holds — the plugin wrapper is a BUILD-time devDependency, never a runtime import of the kernel) — explicit delta entry confirming no change, per proposal Impact | verify:context vocabulary stable |
+  | css-laws serializers | untouched in phase 0–2 (projections are engine-agnostic CSS); phase 3 reviews the utility-projection's consumers | verify:laws freshness unchanged |
+  | registry prerequisites | check-tw4-prereq → the @jixoai plugin prereq (TW4 prereq becomes the CONSUMER-side optional doc) | verify:shadcn-add extended to the plugin wiring |
+  | registry.json deps | utils/theme edges unchanged; plugin added to install docs (not a registry dep) | dependency-shape gate |
+  | budgets/docs/meta | byte budgets recomputed for atom output; docs pages regenerate | verify:budgets/docs/meta |
+  | dual vite configs | BOTH byte-twins gain the plugin wiring (byte-identity law preserved) | vite-config parity gate |
+  | ~170 component suites | paint assertions rewritten per family AS it migrates (phase 2's per-family definition of done) | family-by-family in phase 2 |
+  | production bug leads | PRE-CHECKS before phase 1: the range thumb-ring cq probe + the popover position-area alignment probe on the live site (two small fixes or confirmed non-issues) | new probes; Gate-2-r1 B-item |
+
+
+
+## §7 Receipt — the paired dev-loop run (2026-09-14, devloop-paired-run)
+
+Instrument: /tmp/coldonly.mjs pattern — `npm run dev` per fixture,
+vite's self-reported "ready in N ms" (ANSI-stripped), 5 runs each,
+process-GROUP kills (the v1/v2 scripts' orphaned vite grandchildren
+held stdout pipes open — root cause of the overnight hang, process
+tree reclaimed), fixtures run back-to-back on the same machine state.
+
+```json
+{"fixture":"tw-baseline","runs":[497,225,354,261,365],"median":354}
+{"fixture":"arch-b","runs":[984,327,280,281,281],"median":281}
+```
+
+Δ = −20.6% (arch-b faster). Prior unpaired overnight run (swap
+pressure 17.5GB recorded): tw-baseline colds
+1078/3286/1082/552/763 → median 1078 — retained as variance context;
+the paired run is the decision-grade artifact.
