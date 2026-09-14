@@ -18,11 +18,12 @@
 - The vite twin configs (apps/www ≡ registry, byte-identity gate)
   gain the stylex wiring identically.
 - **The F9 canonical layer law is baked here**: every kernel-emitted
-  CSS opens with the full layer statement — `theme, base,
-  components, utilities`, then the atoms layer — BEFORE any engine
-  output appends (the research's O1-H diagnostic build proved this
-  is the lawful order; the as-frozen order inverted the override
-  law). The plugin owns the statement; authors never hand-write it.
+  CSS establishes the ONE canonical FULL statement — `@layer
+  properties, theme, base, components, stylex.priority1,
+  stylex.priority2, stylex.priority3, utilities;` (the O1-H-measured
+  order; the as-frozen order inverted the override law). The plugin
+  owns engine-emitted statements; folder sheets carry the same FULL
+  text per the transitionally-scoped law (specs delta).
 
 ## §2 The typed token layer
 
@@ -108,15 +109,17 @@ ui/<item>/<item>.svelte      ──┐
    comment's correction (whichever the measurement rules).
 
 THE PROBE CONTRACT (final, single voice): the POPOVER alignment
-probe is the ONE permanent verify row, protocol of record per the
-receipt appendix — viewport 1440×900 headless Chromium, ≤0.5px
-tolerance, swapped-placement negative control asserted to differ by
-≥1px, PASS/fail fields explicit. The RANGE probe is RETIRED to the
-API-trap receipt (renderer healthy; the untrustworthy
-getComputedStyle-on-UA-shadow read path is the kernel note) — it
-does NOT enter verify:all. Only the popover fix is a cherry-pickable
-commit. P0.1's forensic receipts are COMMITTED
-(research/p0-bug-probes.md + appendix, 14 shots, 2 raw JSONs).
+probe is the ONE permanent verify row — protocol of record per the
+receipt appendix: viewport 1440×900 headless Chromium; ONE metric
+(panelLeft − pillLeft); PRIMARY assertion |delta| ≤ 0.5px; NEGATIVE
+CONTROL = the swapped placement measured on the SAME metric (recorded
+−146px) asserted |control − primary| ≥ 1px — same-metric, mechanically
+decidable. The RANGE probe is RETIRED to the API-trap receipt
+(renderer healthy; the untrustworthy getComputedStyle-on-UA-shadow
+read path is the kernel note) — it does NOT enter verify:all. Only
+the popover fix is a cherry-pickable commit. P0.1's forensic receipts
+are COMMITTED (research/p0-bug-probes.md + appendix, 14 shots, 2 raw
+JSONs).
 
 ## §6 What phase 0 deliberately does NOT do
 
@@ -138,6 +141,7 @@ serialization lessons applied): normalize number formats,
 ::before/::after content strings, and steps(1,) timing serializations
 before diffing — a committed comparator script owns the
 normalization; raw diffs ride alongside. verify:all ordering for the
-new gates: authoring → payload → mirror → the two probes → shadcn
-consumer gate (probes need a fresh build; consumers gate last). Every gate added here runs in verify:all from day
+new gates: authoring → payload → mirror → the popover probe (the
+ONE permanent probe; needs a fresh build) → shadcn consumer gate
+(consumers gate last). Every gate added here runs in verify:all from day
 one.

@@ -64,6 +64,12 @@
 - [ ] scripts/verify-stylex-authoring.mjs: forbidden patterns
       (factory calls at non-markup level, vars-keys, shorthands in
       .stylex.ts) → fail naming file+pattern; wired into verify:all.
+      SCAN SCOPE is the MIGRATION LEDGER — research/migration-ledger.json
+      (schema: { version, files: [posix-relative stylex-touched paths] };
+      maintained: each migration commit appends its family's files;
+      P0 seeds it with the phase-0 dogfood files; the authoring gate
+      and the canonical-statement check read it, legacy trees are
+      never scanned).
 - [ ] The law text lands in the spec deltas (this change's specs/).
 
 ## P0.6 — the corpus dogfood
@@ -79,7 +85,7 @@
 ## P0.7 — gates + docs
 
 - [ ] verify-all chain gains: stylex-payload, stylex-authoring, the
-      two bug probes.
+      popover regression probe (ONE permanent probe).
 - [ ] Docs: the install prerequisite page (import the item CSS;
       engine tooling optional for consumers' own use).
 

@@ -244,8 +244,12 @@ swapped-placement matrix rows**.
 - Probe 1: pixel-diff 0.0000 (≤0.5px trivially); negative control =
   the px-override twin (identical render — consistent with NO BUG).
 - The permanent popover regression probe (P0.1 implementation) will
-  run at 1440×900 with these fields: primary delta, control delta,
-  PASS = |primary| ≤ 0.5 ∧ control differs by ≥ 1px.
+  run at 1440×900 with ONE metric (panelLeft − pillLeft) and these
+  fields: primary delta, control delta (the swapped placement, SAME
+  metric — recorded −146px in the matrix above), PASS = |primary|
+  ≤ 0.5px ∧ |control − primary| ≥ 1px — same-metric, mechanically
+  decidable (gate-1-r3 A3 correction: the earlier phrasing compared
+  two DIFFERENT metrics, both zero, which could not discriminate).
 
 Note on wording: "no git commit performed" in the footer refers to
 the probe RUN (the orchestrator committed the receipts afterwards —
