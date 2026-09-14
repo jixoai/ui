@@ -171,3 +171,51 @@ npx jixoai-ghostty-probe --wasm ./node_modules/.cache/jixoai-ghostty/<sha256>.wa
 Prints the pin fragment `{ variant, sha256, size, buildInfo }` on
 success; exits non-zero with a named reason on any ABI drift (import
 face, required exports, marshalling smoke, simd128).
+
+## The stylex feature (`stylex`, default off)
+
+The StyleX engine wiring — build-side ONLY (the stylex-kernel phase 0
+law F11): the registry ships compiled output, and consumers of any
+registry item never owe a `@stylexjs/*` package. Opting in names the
+kernel trees whose modules may enter the transform:
+
+```ts
+import { jixoai } from '@jixoai/ui-vite-plugin';
+
+export default {
+  plugins: [
+    sveltekit(),
+    tailwindcss(),
+    ...jixoai({
+      stylex: { include: ['src/lib', '../../registry/files'] },
+    }),
+  ],
+};
+```
+
+What the feature owns (decisions and receipts live in
+`src/stylex/vite-plugin.ts`):
+
+- **the kernel-scope gate** — only modules under the `include` dirs
+  are transformed; docs routes never enter, whatever they import.
+- **the F9 canonical layer law** — every emitted css asset carrying
+  stylex output starts with the one canonical FULL layer statement
+  (`properties, theme, base, components, stylex.priority1..3,
+  utilities`) at byte zero, ahead of Tailwind's layers; authors never
+  hand-write it.
+- **the css-entry trap warning** — a build with stylex output but no
+  css asset warns by name (Vite 8/rolldown silently drops the css
+  otherwise) and writes a fallback `assets/stylex.css`.
+- **the kernel babel pins** — `propertyValidationMode: 'throw'` (the
+  silent shorthand-drop guard), `debug`, and explicit
+  dev/runtimeInjection flags.
+
+### Version pin policy
+
+`@stylexjs/unplugin` is EXACT-pinned `0.19.0` as a devDependency and
+kept EXTERNAL in the build (dist carries the bare specifier, resolved
+from this package's own install — never from a consumer's tree).
+Bumping the pin is a research-level event: re-run the research
+dossier's D1 fixtures
+(`openspec/changes/archive/2026-09-13-stylex-kernel-research`) and
+re-audit the wrapper before any bump lands.
