@@ -73,8 +73,10 @@ describe('the dist graph-purity gate (design §9)', () => {
     const dynamicImports = [...code.matchAll(/import\(\s*['"]([^'"]+)['"]\s*\)/g)].map(
       (match) => match[1]!,
     );
-    // the ONLY dynamic import in the umbrella is the icons bridge load
-    expect(dynamicImports).toEqual(['./icons/vite-plugin.js']);
+    // the umbrella's dynamic imports are the TWO bridges: the icons
+    // load (this gate) + the stylex engine load (stylex-kernel phase
+    // 0 P0.2 — pinned here so neither silently regresses to static)
+    expect(dynamicImports).toEqual(['./icons/vite-plugin.js', './stylex/vite-plugin.js']);
     // and the published package actually carries it (the pack shape)
     expect(existsSync(dist('icons', 'vite-plugin.js'))).toBe(true);
   });

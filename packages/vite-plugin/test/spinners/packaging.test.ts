@@ -71,12 +71,15 @@ describe('per-entry dist purity (design §5 — small and pure, no bridge needed
 });
 
 describe('the umbrella wiring pin (direct, not a bridge)', () => {
-  test('dist/index.js carries EXACTLY ONE dynamic import — the icons bridge', () => {
+  test('dist/index.js carries EXACTLY TWO dynamic imports — the icons + stylex bridges', () => {
     const code = stripComments(readFileSync(dist('index.js'), 'utf8'));
     const dynamicImports = [...code.matchAll(/import\(\s*['"]([^'"]+)['"]\s*\)/g)].map(
       (match) => match[1]!,
     );
-    expect(dynamicImports).toEqual(['./icons/vite-plugin.js']);
+    // the spinners wiring added NONE (direct, static — the next test);
+    // the stylex bridge (stylex-kernel phase 0 P0.2) is the second
+    // sanctioned bridge
+    expect(dynamicImports).toEqual(['./icons/vite-plugin.js', './stylex/vite-plugin.js']);
   });
 
   test('dist/index.js STATICALLY reaches the spinners adapter (the direct wiring)', async () => {

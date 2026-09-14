@@ -74,7 +74,22 @@ export default defineConfig([
     platform: 'node',
     target: 'node20',
     dts: true,
-    external: ['opentype.js', 'wawoff2', 'svgo', 'svelte', 'svelte/compiler'],
+    external: [
+      'opentype.js',
+      'wawoff2',
+      'svgo',
+      'svelte',
+      'svelte/compiler',
+      // the stylex engine (stylex-kernel phase 0 P0.2): a
+      // devDependency kept EXTERNAL on purpose — dist carries the bare
+      // specifier, resolved at build time from this package's own
+      // node_modules (the F11 build-side posture: the engine NEVER
+      // appears in any consumer's dependency tree). EXACT pin 0.19.0;
+      // bumps re-run the research D1 fixtures (layer-law + wrapper
+      // audit come with them)
+      '@stylexjs/unplugin',
+      '@stylexjs/unplugin/vite',
+    ],
     copy: [{ from: 'src/client.d.ts', to: 'dist' }],
     outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
     plugins: [shebangProbeBin],

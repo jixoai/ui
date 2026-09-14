@@ -130,6 +130,8 @@
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@material-symbols/svg-400": "^0.47.1",
     "@phosphor-icons/core": "^2.1.1",
+    "@stylexjs/stylex": "0.19.0",
+    "@stylexjs/unplugin": "0.19.0",
     "@types/node": "^24.0.0",
     "lucide": "^0.472.0",
     "remixicon": "^4.9.1",
