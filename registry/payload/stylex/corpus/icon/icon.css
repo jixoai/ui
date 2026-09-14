@@ -1,0 +1,19 @@
+@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
+@layer stylex.priority1 {
+  .x1rg5ohu {
+    display: inline-block;
+  }
+}
+
+@layer stylex.priority2 {
+  .x17uqirv {
+    height: var(--jx-icon-size, var(--jx-icon, 1.5rem));
+  }
+
+  .xkd2l6g {
+    width: var(--jx-icon-size, var(--jx-icon, 1.5rem));
+  }
+}
+
+@layer utilities;
+/* buildId: 60807e498baf091b1e47652e09051c40fe6817a687a7e2b1e63402a96062740f · generator: @jixoai/ui-vite-plugin@0.3.0 · engine: @stylexjs/unplugin@0.19.0 */

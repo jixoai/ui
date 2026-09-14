@@ -1,0 +1,398 @@
+@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
+@layer stylex.priority1 {
+  :root, .xbpgcew {
+    --jx-brand-hue: var(--brand-hue);
+    --jx-background: var(--background);
+    --jx-foreground: var(--foreground);
+    --jx-card: var(--card);
+    --jx-card-foreground: var(--card-foreground);
+    --jx-popover: var(--popover);
+    --jx-popover-foreground: var(--popover-foreground);
+    --jx-primary: var(--primary);
+    --jx-primary-foreground: var(--primary-foreground);
+    --jx-secondary: var(--secondary);
+    --jx-secondary-foreground: var(--secondary-foreground);
+    --jx-muted: var(--muted);
+    --jx-muted-foreground: var(--muted-foreground);
+    --jx-accent: var(--accent);
+    --jx-accent-foreground: var(--accent-foreground);
+    --jx-destructive: var(--destructive);
+    --jx-destructive-foreground: var(--destructive-foreground);
+    --jx-border: var(--border);
+    --jx-input: var(--input);
+    --jx-ring: var(--ring);
+    --jx-terminal: var(--terminal);
+    --jx-terminal-foreground: var(--terminal-foreground);
+    --jx-terminal-hover: var(--terminal-hover);
+    --jx-terminal-muted: var(--terminal-muted);
+    --jx-success: var(--success);
+    --jx-success-foreground: var(--success-foreground);
+    --jx-warning: var(--warning);
+    --jx-warning-foreground: var(--warning-foreground);
+    --jx-info: var(--info);
+    --jx-info-foreground: var(--info-foreground);
+    --jx-error: var(--error);
+    --jx-error-foreground: var(--error-foreground);
+    --jx-chart-1: var(--chart-1);
+    --jx-chart-2: var(--chart-2);
+    --jx-chart-3: var(--chart-3);
+    --jx-chart-4: var(--chart-4);
+    --jx-chart-5: var(--chart-5);
+    --jx-font-sans: var(--font-sans);
+    --jx-font-mono: var(--font-mono);
+    --jx-font-nav: var(--font-nav);
+    --jx-radius: var(--radius);
+    --jx-shadow-color: var(--shadow-color);
+    --jx-shadow-2xs: var(--shadow-2xs);
+    --jx-shadow-xs: var(--shadow-xs);
+    --jx-shadow-sm: var(--shadow-sm);
+    --jx-shadow: var(--shadow);
+    --jx-shadow-md: var(--shadow-md);
+    --jx-shadow-xs-press: var(--shadow-xs-press);
+    --jx-shadow-sm-press: var(--shadow-sm-press);
+    --jx-shadow-md-press: var(--shadow-md-press);
+    --jx-shadow-engrave: var(--shadow-engrave);
+    --jx-shadow-well: var(--shadow-well);
+    --jx-shadow-well-hover: var(--shadow-well-hover);
+    --jx-shadow-paper: var(--shadow-paper);
+    --jx-scrim: var(--scrim);
+    --jx-surface-shadow: var(--surface-shadow);
+    --jx-scrollbar-track: var(--scrollbar-track);
+    --jx-scrollbar-thumb: var(--scrollbar-thumb);
+    --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+    --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+  }
+}
+
+@layer stylex.priority2 {
+  .x1ghz6dp {
+    margin: 0;
+  }
+}
+
+@layer stylex.priority3 {
+  .x3qsdy5 {
+    border-color: var(--readonly-code-border);
+  }
+
+  .x1y0btm7 {
+    border-style: solid;
+  }
+
+  .xmkeg23 {
+    border-width: 1px;
+  }
+
+  .x98rzlu {
+    flex: 1;
+  }
+
+  .x8233eu {
+    gap: .75rem;
+  }
+
+  .xb3r6kr {
+    overflow: hidden;
+  }
+
+  .x1f1z27m {
+    padding-block: .32rem;
+  }
+
+  .x142x9wm {
+    padding-block: .875rem;
+  }
+
+  .x1ryrjj2 {
+    padding-inline: .75rem;
+  }
+
+  .x7hf3t {
+    padding-inline: max(.875rem - var(--jx-scrollbar-thin, 0px),0px);
+  }
+
+  .x14b2esq:focus-visible {
+    outline: 2px solid var(--jx-ring);
+  }
+
+  @media print {
+    .x1hhue18.x1hhue18 {
+      overflow: visible;
+    }
+  }
+}
+
+@layer stylex.priority4 {
+  .x6s0dn4 {
+    align-items: center;
+  }
+
+  .x10g96x4 {
+    background-color: var(--readonly-code-bg);
+  }
+
+  .xpzske6 {
+    background-color: var(--readonly-code-meta-bg);
+  }
+
+  .x1ym7tfx {
+    color: var(--readonly-code-meta-fg);
+  }
+
+  .x1fwvsoz {
+    color: var(--tok-foreground, var(--jx-foreground));
+  }
+
+  .x78zum5 {
+    display: flex;
+  }
+
+  .xdt5ytf {
+    flex-direction: column;
+  }
+
+  .x1mwizrc {
+    font-family: var(--jx-font-mono);
+  }
+
+  .xzavzzj {
+    font-family: var(--jx-font-nav);
+  }
+
+  .x1j6dyjg {
+    font-size: 11px;
+  }
+
+  .x1ct8sxb {
+    font-size: 12.5px;
+  }
+
+  .x1qughib {
+    justify-content: space-between;
+  }
+
+  .x9pfba7 {
+    letter-spacing: .08em;
+  }
+
+  .x1labic3 {
+    letter-spacing: .14em;
+  }
+
+  .x1dbl2gt {
+    line-height: 1.6;
+  }
+
+  .x18km98s {
+    opacity: .75;
+  }
+
+  .xqfkjy8 {
+    padding-inline-end: .5rem;
+  }
+
+  .x1m83qfk {
+    padding-inline-start: .75rem;
+  }
+
+  .x1n2onr6 {
+    position: relative;
+  }
+
+  .xliy32w {
+    scrollbar-gutter: stable both-edges;
+  }
+
+  .x1k5ss6i {
+    tab-size: 4;
+  }
+
+  .xlyipyv {
+    text-overflow: ellipsis;
+  }
+
+  .xtvhhri {
+    text-transform: uppercase;
+  }
+
+  .xuxw1ft {
+    white-space: nowrap;
+  }
+
+  .x1bqaal:focus-visible {
+    outline-offset: -2px;
+  }
+
+  @media print {
+    .xbjcvb9.xbjcvb9 {
+      display: none;
+    }
+  }
+}
+
+@layer stylex.priority5 {
+  .xb2d4eo {
+    border-bottom-color: var(--readonly-code-border);
+  }
+
+  .x1q0q8m5 {
+    border-bottom-style: solid;
+  }
+
+  .xso031l {
+    border-bottom-width: 1px;
+  }
+
+  .x7n9ejg {
+    border-top-color: var(--readonly-code-border);
+  }
+
+  .x13fuv20 {
+    border-top-style: solid;
+  }
+
+  .x178xt8z {
+    border-top-width: 1px;
+  }
+
+  .x5yr21d {
+    height: 100%;
+  }
+
+  .x8x9d4c {
+    margin-left: auto;
+  }
+
+  .x2lwn1j {
+    min-height: 0;
+  }
+
+  .x1a5yqsw {
+    min-height: 2.1rem;
+  }
+
+  .xeuugli {
+    min-width: 0;
+  }
+
+  .xw2csxc {
+    overflow-x: auto;
+  }
+
+  .x1odjw0f {
+    overflow-y: auto;
+  }
+
+  .xryxfnj {
+    overflow-y: visible;
+  }
+
+  .x7p5m3t {
+    overscroll-behavior-x: contain;
+  }
+
+  .xe0cj4x {
+    padding-bottom: .3rem;
+  }
+
+  .x30hkwx {
+    padding-top: .3rem;
+  }
+}
+
+@layer stylex.priority6 {
+  .x1nc033x:before, .xd54j2p:after {
+    inset-block: 0;
+  }
+}
+
+@layer stylex.priority7 {
+  .x3sh4h5:after, .xp6epc3:before {
+    -webkit-backdrop-filter: contrast(.5);
+  }
+
+  .x15k16ov:after {
+    -webkit-mask-image: linear-gradient(to left, #000, #0000);
+  }
+
+  .x1w1d2iz:before {
+    -webkit-mask-image: linear-gradient(to right, #000, #0000);
+  }
+
+  .x12ip6w2:after, .xxlzmds:before {
+    backdrop-filter: contrast(.5);
+  }
+
+  .x13rawyw:after {
+    background-image: linear-gradient(to left, #000, #0000);
+  }
+
+  .xdr5qw3:before {
+    background-image: linear-gradient(to right, #000, #0000);
+  }
+
+  .x100rkj9:after, .x10tli2e:before {
+    content: "";
+  }
+
+  .x1unh1gc:after {
+    inset-inline-end: 0;
+  }
+
+  .x1682cnc:before {
+    inset-inline-start: 0;
+  }
+
+  .xtveyhk:after {
+    -webkit-mask-image: linear-gradient(to left, #000, #0000);
+    mask-image: linear-gradient(to left, #000, #0000);
+  }
+
+  .x12udz3x:before {
+    -webkit-mask-image: linear-gradient(to right, #000, #0000);
+    mask-image: linear-gradient(to right, #000, #0000);
+  }
+
+  .x124lp2h:before, .xmf22ne:after {
+    opacity: 0;
+  }
+
+  .x1rw2j67:after, .xfbg1o9:before {
+    opacity: 1;
+  }
+
+  .x2q1x1w:after, .xkk1bqk:before {
+    pointer-events: none;
+  }
+
+  .x1hmns74:before, .x1j6awrg:after {
+    position: absolute;
+  }
+
+  .x13o46a3:before, .x7l6x83:after {
+    transition-duration: .15s;
+  }
+
+  .x1de4urk:before, .x1hbq0ec:after {
+    transition-property: opacity;
+  }
+
+  .x11yo84x:after, .xy5ulmt:before {
+    transition-timing-function: ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .x13sdc92.x13sdc92:before, .x4oqjru.x4oqjru:after {
+      transition-duration: 0s;
+    }
+  }
+}
+
+@layer stylex.priority8 {
+  .x12s5fzi:before, .xsfccug:after {
+    width: 1.75rem;
+  }
+}
+
+@layer utilities;
+/* buildId: 60807e498baf091b1e47652e09051c40fe6817a687a7e2b1e63402a96062740f · generator: @jixoai/ui-vite-plugin@0.3.0 · engine: @stylexjs/unplugin@0.19.0 */

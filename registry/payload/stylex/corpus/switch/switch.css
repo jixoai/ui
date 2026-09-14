@@ -1,0 +1,258 @@
+@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
+@layer stylex.priority1 {
+  :root, .xbpgcew {
+    --jx-brand-hue: var(--brand-hue);
+    --jx-background: var(--background);
+    --jx-foreground: var(--foreground);
+    --jx-card: var(--card);
+    --jx-card-foreground: var(--card-foreground);
+    --jx-popover: var(--popover);
+    --jx-popover-foreground: var(--popover-foreground);
+    --jx-primary: var(--primary);
+    --jx-primary-foreground: var(--primary-foreground);
+    --jx-secondary: var(--secondary);
+    --jx-secondary-foreground: var(--secondary-foreground);
+    --jx-muted: var(--muted);
+    --jx-muted-foreground: var(--muted-foreground);
+    --jx-accent: var(--accent);
+    --jx-accent-foreground: var(--accent-foreground);
+    --jx-destructive: var(--destructive);
+    --jx-destructive-foreground: var(--destructive-foreground);
+    --jx-border: var(--border);
+    --jx-input: var(--input);
+    --jx-ring: var(--ring);
+    --jx-terminal: var(--terminal);
+    --jx-terminal-foreground: var(--terminal-foreground);
+    --jx-terminal-hover: var(--terminal-hover);
+    --jx-terminal-muted: var(--terminal-muted);
+    --jx-success: var(--success);
+    --jx-success-foreground: var(--success-foreground);
+    --jx-warning: var(--warning);
+    --jx-warning-foreground: var(--warning-foreground);
+    --jx-info: var(--info);
+    --jx-info-foreground: var(--info-foreground);
+    --jx-error: var(--error);
+    --jx-error-foreground: var(--error-foreground);
+    --jx-chart-1: var(--chart-1);
+    --jx-chart-2: var(--chart-2);
+    --jx-chart-3: var(--chart-3);
+    --jx-chart-4: var(--chart-4);
+    --jx-chart-5: var(--chart-5);
+    --jx-font-sans: var(--font-sans);
+    --jx-font-mono: var(--font-mono);
+    --jx-font-nav: var(--font-nav);
+    --jx-radius: var(--radius);
+    --jx-shadow-color: var(--shadow-color);
+    --jx-shadow-2xs: var(--shadow-2xs);
+    --jx-shadow-xs: var(--shadow-xs);
+    --jx-shadow-sm: var(--shadow-sm);
+    --jx-shadow: var(--shadow);
+    --jx-shadow-md: var(--shadow-md);
+    --jx-shadow-xs-press: var(--shadow-xs-press);
+    --jx-shadow-sm-press: var(--shadow-sm-press);
+    --jx-shadow-md-press: var(--shadow-md-press);
+    --jx-shadow-engrave: var(--shadow-engrave);
+    --jx-shadow-well: var(--shadow-well);
+    --jx-shadow-well-hover: var(--shadow-well-hover);
+    --jx-shadow-paper: var(--shadow-paper);
+    --jx-scrim: var(--scrim);
+    --jx-surface-shadow: var(--surface-shadow);
+    --jx-scrollbar-track: var(--scrollbar-track);
+    --jx-scrollbar-thumb: var(--scrollbar-thumb);
+    --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+    --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+  }
+}
+
+@layer stylex.priority2 {
+  .x1ghz6dp {
+    margin: 0;
+  }
+
+  .x1w89k0k {
+    padding: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2 - 1px);
+  }
+}
+
+@layer stylex.priority3 {
+  .xtkphhm {
+    border-radius: 3.40282e38px;
+  }
+
+  .xng3xce {
+    border-style: none;
+  }
+
+  .xc342km {
+    border-width: 0;
+  }
+
+  .x1okw0bk {
+    flex: none;
+  }
+
+  .x6y0dih {
+    transition: background-color .2s cubic-bezier(.22, 1, .36, 1), box-shadow .2s cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .x14acvgp:focus-visible {
+    outline: 1px solid var(--jx-ring);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .x9kvfbb.x9kvfbb {
+      transition: none;
+    }
+  }
+}
+
+@layer stylex.priority4 {
+  .x1lugfcp {
+    -webkit-appearance: none;
+  }
+
+  .xjyslct {
+    appearance: none;
+  }
+
+  .x1yn5p49 {
+    background-color: var(--jx-muted);
+  }
+
+  .xbgdi8x {
+    box-shadow: 0 0 0 1px var(--jx-border) inset;
+  }
+
+  .x9f619 {
+    box-sizing: border-box;
+  }
+
+  .xl8unsv {
+    color: var(--jx-foreground);
+  }
+
+  .x1ypdohk {
+    cursor: pointer;
+  }
+
+  .xxguibh {
+    font-size: var(--jx-text);
+  }
+
+  .xn212u0 {
+    line-height: var(--jx-line);
+  }
+
+  .x1n2onr6 {
+    position: relative;
+  }
+
+  .x18yi6u2:hover:not(:checked):not(:disabled) {
+    box-shadow: 0 0 0 1px var(--jx-primary) inset;
+  }
+
+  .xy9f4xx:focus-visible {
+    outline-offset: -1px;
+  }
+
+  .x1s07b3s:disabled {
+    cursor: not-allowed;
+  }
+
+  .xijokvz:disabled {
+    opacity: .5;
+  }
+
+  .xg9knx0:checked {
+    background-color: var(--jx-primary);
+  }
+}
+
+@layer stylex.priority5 {
+  .xo805f9 {
+    height: var(--jx-toggle-track, 1.5rem);
+  }
+
+  .x62ywxn {
+    width: var(--jx-toggle-width, 2.5rem);
+  }
+}
+
+@layer stylex.priority6 {
+  .x4ku27x:before {
+    border-color: var(--jx-primary);
+  }
+
+  .x1ql9qlr:before {
+    border-radius: 3.40282e38px;
+  }
+
+  .x1fo1fc9:before {
+    border-style: solid;
+  }
+
+  .xz8fyzm:before {
+    border-width: 1px;
+  }
+
+  .x1qzzs4r:before {
+    inset-block: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2 - 1px);
+  }
+
+  .x1v6rcj3:before {
+    transition: transform .2s cubic-bezier(.22, 1, .36, 1), background-color .2s cubic-bezier(.22, 1, .36, 1), border-color .2s cubic-bezier(.22, 1, .36, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .x1fgujza.x1fgujza:before {
+      transition: none;
+    }
+  }
+}
+
+@layer stylex.priority7 {
+  .xd5hkx5:before {
+    background-color: var(--jx-background);
+  }
+
+  .xtql2tq:before {
+    box-sizing: border-box;
+  }
+
+  .x10tli2e:before {
+    content: "";
+  }
+
+  .x1yyf8ht:before {
+    inset-inline-start: calc((var(--jx-toggle-track, 1.5rem) - var(--jx-toggle-knob, 1rem)) / 2 - 1px);
+  }
+
+  .x1hmns74:before {
+    position: absolute;
+  }
+
+  .x1458kei:before {
+    transform: translateX(0);
+  }
+
+  .x1dtxr84:checked:before {
+    background-color: var(--jx-primary-foreground);
+  }
+
+  .xsnaal3:checked:before {
+    transform: translateX(calc(var(--jx-toggle-width, 2.5rem) - var(--jx-toggle-track, 1.5rem)));
+  }
+}
+
+@layer stylex.priority8 {
+  .x101mhmm:before {
+    height: calc(var(--jx-toggle-knob, 1rem) + 2px);
+  }
+
+  .x10kowwv:before {
+    width: calc(var(--jx-toggle-knob, 1rem) + 2px);
+  }
+}
+
+@layer utilities;
+/* buildId: 60807e498baf091b1e47652e09051c40fe6817a687a7e2b1e63402a96062740f · generator: @jixoai/ui-vite-plugin@0.3.0 · engine: @stylexjs/unplugin@0.19.0 */
