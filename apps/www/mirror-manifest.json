@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-12T21:39:06.765Z",
+  "generatedAt": "2026-09-14T19:42:51.768Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -121,6 +121,19 @@
           "target": "@lib/jixoai.css",
           "sourceSha": "37c5dc95d5ccf2c9210407483ded104d122832c1c22d289c214f017685d946a4",
           "mirrorSha": "37c5dc95d5ccf2c9210407483ded104d122832c1c22d289c214f017685d946a4"
+        }
+      ]
+    },
+    {
+      "itemName": "tokens",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/tokens.stylex.ts",
+          "mirror": "apps/www/src/lib/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "sourceSha": "36147d15ad2523624603cc4da1d52bc59f9f7b3474192f24747356de33931144",
+          "mirrorSha": "36147d15ad2523624603cc4da1d52bc59f9f7b3474192f24747356de33931144"
         }
       ]
     },
