@@ -154,12 +154,15 @@
 .jx-nav .jx-pop.jx-subpanel {
   margin: 2px 0 0; /* flush hugging (r22): the adaptive shadow falls outward — a hair only, so the panel border never merges with the bar's */
   /* the header's subpanel geometry overrides the family's INLINE
-     position-area (bottom span-left = left edges aligned): the
-     pre-composition law was bottom-end (the Popover primitive's
-     default) — right edges aligned under the pill; !important is the
-     only thing that beats an inline style, so it is enumerated here */
-  inset-area: bottom span-right !important;
-  position-area: bottom span-right !important;
+     position-area (the family's own law: LEFT edges aligned under the
+     item). The header's law is the pre-composition bottom-end default
+     — RIGHT edges aligned under the pill. Span keywords are inverted
+     from the intuitive reading (measured 2026-09-15, research/p0-bug-probes.md):
+     span-left END-aligns (right edges), span-right START-aligns (left
+     edges). !important is the only thing that beats an inline style,
+     so it is enumerated here */
+  inset-area: bottom span-left !important;
+  position-area: bottom span-left !important;
   --jx-panel-pad: 0.25rem;
   /* the panel's scroll ring carries the padding — retune BOTH
      axes here (jx-surface law, 2026-08-22: the panel itself never

@@ -161,8 +161,11 @@ describe('terminal-header — no TerminalNavItem-shaped props anywhere', () => {
     expect(headerCss).toContain('jx-subpanel-mega');
     // …while the navColumns pinning classes died with the prop
     expect(headerCss).not.toContain('jx-nav-cols');
-    // the panel side stays the pre-composition bottom-end law
-    expect(headerCss).toContain('position-area: bottom span-right !important');
+    // the panel side stays the pre-composition bottom-end law — RIGHT
+    // edges under the pill, which MEASURES as span-left (span keywords
+    // inverted from the intuitive reading; stylex-kernel-phase0 P0.1,
+    // research/p0-bug-probes.md 2026-09-15)
+    expect(headerCss).toContain('position-area: bottom span-left !important');
   });
 });
 
