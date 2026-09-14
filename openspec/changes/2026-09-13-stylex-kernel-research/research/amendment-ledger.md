@@ -330,3 +330,49 @@ carries the dual-pending table + the orchestrator's recommendation
 (sign both). The Owner's word on either ruling is the switch; a
 rejection is final and respected (fallback: RQ7 ranking or in-place
 TW4).
+
+### F11 — THIS COMMIT (2026-09-14): Owner distribution directive — compiled-output shipping (architecture C+); F10 SUPERSEDED
+
+Owner directive, verbatim (2026-09-14, session):
+
+  「我并不想把它下放到我的开发者那边。我说过，我只是想让他
+  用来替代我们项目里面的 Tailwind CSS，然后把我们 context 的
+  一些 token 跟他去做一些关联。最终的效果，我只是想让他直接
+  编译出一些 class name，仅此而已。开发者如果自己想用
+  StyleX，让他自己去安装就好了。我们 jixoai-ui 只提供编译好
+  的这些 className。」
+
+With a worked example: `stylex.create({ red: { color:
+some_design_token.cssVar } })` compiles at OUR build to `{ className:
+'x1e2nbdu' }` + `.x1e2nbdu { color: var(--some-design-token); }` —
+only the OUTPUT ships.
+
+Effects:
+
+1. Distribution architecture is FIXED as compiled-output shipping
+   (the L3c arch-C lineage, strengthened): the StyleX toolchain
+   (unplugin/babel) lives ONLY in the jixoai-ui build; consumers
+   receive pre-compiled class-name constants + CSS and import the CSS
+   exactly as they import jixoai.css today. Architecture B's
+   consumer-side plugin is RETIRED from the distribution model (the
+   @jixoai/ui-vite-plugin may still exist as OUR build-side tool).
+2. **F10 is SUPERSEDED, not signed**: the packages-vector controversy
+   existed only because architectures A/B pushed tooling into the
+   consumer's lockfile. Under compiled-output shipping the consumer
+   adds ZERO engine packages (or at most the styleq runtime closure,
+   +6 names, IF any shipped component keeps runtime composition —
+   phase 0's target is zero via CSS-var bindings for dynamic values,
+   the degradation path D1-08 already proved natural).
+3. F9's silent layer-order footgun becomes build-side-controlled: the
+   canonical layer statement is baked into the emitted CSS by our
+   build; consumers cannot misconfigure it.
+4. The path-dependent-hash caveat becomes a build discipline: class
+   constants and CSS ship from the SAME build (payload-consistency
+   gate); consumers never recompile our source.
+5. D3's verdict re-derives from the L3c arch-c measurements: bytes
+   −15.5MB, fastest builds (0.42s), +1 config line — every burden
+   vector passes; the decision's D3 section is rewritten accordingly.
+6. The dynamic-value trilogy softens: the sanctioned authoring idiom
+   becomes static atoms + CSS-var bindings (factories retire).
+
+The one remaining verdict switch is the D4 reading (§5).
