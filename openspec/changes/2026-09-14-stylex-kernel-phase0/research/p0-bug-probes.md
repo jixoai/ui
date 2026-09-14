@@ -233,23 +233,29 @@ honest-amendment route): **viewport 1440×900 headless Chromium**
 applied to the recorded deltas below, **negative controls = the
 swapped-placement matrix rows**.
 
-- Probe 2 recorded deltas: `bottom span-right` → panelLeft−pillLeft
-  = **0** (left-aligned, |0| ≤ 0.5 PASS as "aligned-left"); negative
-  control `bottom span-left` → pillRight−panelRight = **0**
-  (right-aligned, differs from the primary — control PASSES as a
-  distinct outcome); `bottom right/end` → panel entirely right of
-  pill (third distinct outcome). Production surfaces: [512,1440]
-  vs pill — aligned to NEITHER edge (overflow-clamped), the bug's
-  signature.
+- Probe 2 recorded deltas — HISTORICAL raw observations (field notes
+  of the run; NOT the gate's judgment metric): primary placement
+  `bottom span-right` → panelLeft−pillLeft = **0**; control placement
+  `bottom span-left` → panelLeft−pillLeft = **−146px** (p0-results.json
+  `.probe2.matrix[0]`, same metric as the primary). The run's ORIGINAL
+  appendix text quoted a second metric for the control
+  (pillRight−panelRight = 0) — deprecated by the gate-1-r4 A2
+  correction: two different zero-valued metrics cannot discriminate,
+  so the appendix now carries ONE metric only. `bottom right/end` →
+  panel entirely right of pill (third distinct outcome). Production
+  surfaces: [512,1440] vs pill — aligned to NEITHER edge
+  (overflow-clamped), the bug's signature.
 - Probe 1: pixel-diff 0.0000 (≤0.5px trivially); negative control =
   the px-override twin (identical render — consistent with NO BUG).
 - The permanent popover regression probe (P0.1 implementation) will
   run at 1440×900 with ONE metric (panelLeft − pillLeft) and these
   fields: primary delta, control delta (the swapped placement, SAME
-  metric — recorded −146px in the matrix above), PASS = |primary|
+  metric — the −146px historical observation above). This is the
+  ONLY executable judgment in this appendix: PASS = |primary|
   ≤ 0.5px ∧ |control − primary| ≥ 1px — same-metric, mechanically
-  decidable (gate-1-r3 A3 correction: the earlier phrasing compared
-  two DIFFERENT metrics, both zero, which could not discriminate).
+  decidable (gate-1-r3 A3 + gate-1-r4 A2 corrections: earlier
+  phrasings compared two DIFFERENT metrics, both zero, which could
+  not discriminate).
 
 Note on wording: "no git commit performed" in the footer refers to
 the probe RUN (the orchestrator committed the receipts afterwards —
