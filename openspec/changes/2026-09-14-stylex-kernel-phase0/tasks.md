@@ -7,13 +7,24 @@
 
 ## P0.1 — the production-bug pre-checks (phase-1 gate; cherry-pickable)
 
-- [ ] scripts/verify-range-thumb-ring.mjs: build www, drive the real
-      range in headless Chromium, measure the thumb ring; verdict +
-      raw output committed.
-- [ ] scripts/verify-popover-area-align.mjs: measure the rendered
-      subpanel edge alignment vs the anchor; verdict + raw output.
-- [ ] If either confirms: the fix lands with its verify row and a
-      cherry-pickable commit structure.
+- [x] scripts/verify-range-thumb-ring.mjs equivalent: PROBED
+      (research/p0-bug-probes.md) — verdict **NO BUG**: Chrome 152
+      renders the cq law healthily (pixel-diff 0.0000 vs px
+      overrides); the L3b lead was an API trap
+      (getComputedStyle(el,'::-webkit-slider-thumb') returns HOST
+      geometry — untrustworthy for UA-shadow pseudos; recorded as a
+      kernel-note, no production change).
+- [x] scripts/verify-popover-area-align.mjs equivalent: PROBED —
+      verdict **CONFIRMED BACKWARDS**: span-right measures LEFT-
+      aligned, span-left RIGHT-aligned; production surfaces ride
+      overflow-rescue (hue via flip-inline). Fix plan (from the
+      receipt): popover.svelte placement-mapping span-suffix swap
+      (L189-197), terminal-header.css override -> span-left (or drop;
+      family inline is span-left) + comment fix, navigation-menu-
+      panel.svelte L137 intent check; visual regression across
+      nav/dropdown/tooltip/float-button/hue.
+- [ ] Implement the popover-area fix as cherry-pickable commits +
+      permanent regression probe rows (waits for Gate 1).
 
 ## P0.2 — the engine rides the plugin (build-side)
 
