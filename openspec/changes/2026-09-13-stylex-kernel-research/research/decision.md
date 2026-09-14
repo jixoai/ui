@@ -70,18 +70,20 @@ D3 to FAIL-for-all and the verdict below flips.
   corpus LOC −52%. The law-sheet share (~49% of the today-sheet:
   jx-pure 103.2KB + jixoai tokens 43.6KB) is engine-invariant and
   stays shared by design.
-- Dev-loop (Gate-2-r1 supplementary measurement, PAIRED same-session
-  run 2026-09-14, vite self-reported "ready in X ms", 5 runs each,
-  process-group kills, raw rows in the Gate-2-r2 commit): tw-baseline
-  cold starts 497/225/354/261/365 → median **354ms**; arch-b
-  984/327/280/281/281 → median **281ms** — StyleX dev cold start is
-  ~21% FASTER at identical payload. (A prior unpaired run under
-  overnight swap pressure showed 1078ms TW-median — kept as recorded
-  variance, the paired run is decision-grade.) HMR is cross-referenced
-  not re-measured at fixture scale: stylex D1-02 = 103ms no-reload
-  (spike-report) vs TW www-scale ~333ms (baseline.md P3) — flagged
-  scale-incomparable. **Anchor items beaten: total CSS ✓ (−74.3%,
-  same-payload) + dev-loop ✓ (−21% cold start, paired) = 2 of 3.**
+- Dev-loop (§7, three-run saga): **STABLE LOSS +19.5%** at fixture
+  scale (interleaved n=10: 477 vs 399ms medians; the earlier −21%
+  run was a non-interleaved confound, superseded). HMR cross-ref:
+  stylex D1-02 = 103ms no-reload vs TW www-scale ~333ms (scale-
+  incomparable, flagged). **Anchor items beaten: total CSS ✓ AND
+  per-page critical CSS ✓ — both at fixture scale where they are the
+  SAME deterministic number (−74.3%); dev-loop ✗ (stable loss).**
+  D4=3 therefore rests on a READING: whether the anchor's two CSS
+  items (written with site-scale semantics, where they differ) can
+  be satisfied by one fixture-scale measurement (where they
+  coincide). **This reading is contestable and is flagged for
+  Gate-2 adjudication + Owner visibility; under a strict distinct-
+  items reading D4 < 3 and the pre-registered D4≥3 rule fails the
+  GO.** The dev-loop loss stands regardless and enters the record.
 - Not 5: per-page critical-CSS at WWW SCALE was not measured
   directly (that requires the actual migration); the payload proxy +
   the structural P2 argument carry the score. FLAGGED as proxied.
@@ -163,7 +165,10 @@ this decision — recommended as a small separate change.
 
 Conditions: (1) Gate 2 upholds ledger rulings F9 + F10 (or the Owner
 overrides knowingly — striking either flips the corresponding gate);
-(2) distribution architecture **B** (the @jixoai/ui-vite-plugin
+(1b) the D4 reading is adjudicated: fixture-scale-satisfies-both-CSS-
+items keeps D4=3 and the GO; a strict distinct-items reading fails
+D4≥3 and flips the verdict to NO-GO — the Owner chooses with the
+dev-loop loss visible either way; (2) distribution architecture **B** (the @jixoai/ui-vite-plugin
 absorbs the wiring — the only architecture that passes the burden
 vectors AND deletes the silent F9 footgun class); (3) the pin set is
 locked at kernel-build time and bumps re-run D1's fixtures.
@@ -209,20 +214,27 @@ L3c's payload trims are disclosed in its receipt.
 
 
 
-## §7 Receipt — the paired dev-loop run (2026-09-14, devloop-paired-run)
+## §7 Receipt — the dev-loop measurement saga (2026-09-14, three runs, all raw logs committed)
 
-Instrument: /tmp/coldonly.mjs pattern — `npm run dev` per fixture,
-vite's self-reported "ready in N ms" (ANSI-stripped), 5 runs each,
-process-GROUP kills (the v1/v2 scripts' orphaned vite grandchildren
-held stdout pipes open — root cause of the overnight hang, process
-tree reclaimed), fixtures run back-to-back on the same machine state.
+Instrument (committed): spike/d3/scripts/measure-cold-start.mjs +
+interleaved variant; vite self-reported "ready in N ms" (ANSI-
+stripped), process-GROUP kills (the overnight-hang root cause:
+SIGKILL on npm orphaned vite grandchildren holding stdout pipes).
+Payload symmetry proof: spike/d3/logs/payload-symmetry.txt (tree
+hashes both fixtures; the v1 script's hmr-probe pollution of
+tw-baseline/App.svelte was restored byte-identical to the L3c
+commit before runs 2–3).
 
-```json
-{"fixture":"tw-baseline","runs":[497,225,354,261,365],"median":354}
-{"fixture":"arch-b","runs":[984,327,280,281,281],"median":281}
-```
+| run | design | tw median | arch-b median | Δ | log |
+|---|---|---|---|---|---|
+| 1 | paired back-to-back, n=5 | 354ms | 281ms | **−21% (faster)** | superseded by run 3 — non-interleaved, cache-state confound |
+| 2 | paired rerun, n=5 | 270ms | 353ms | **+31% (slower)** | logs/devloop-paired.jsonl |
+| 3 | **INTERLEAVED tw/a alternating, n=10 each** | 399ms | 477ms | **+19.5% (slower, STABLE)** | logs/devloop-interleaved.jsonl |
 
-Δ = −20.6% (arch-b faster). Prior unpaired overnight run (swap
-pressure 17.5GB recorded): tw-baseline colds
-1078/3286/1082/552/763 → median 1078 — retained as variance context;
-the paired run is the decision-grade artifact.
+**The stable answer is run 3**: arch-b dev cold start is ~19.5%
+SLOWER (477 vs 399ms medians; arch-b also carries the heavy tail —
+790/1569ms outliers = babel cold paths). Run 1's opposite direction
+is retained as recorded evidence of the metric's noise under
+non-interleaved designs. **Dev-loop is a stable LOSS at fixture
+scale.** Site-scale dev-loop under stylex is unmeasurable
+pre-migration (www TW baseline: 1,812ms).

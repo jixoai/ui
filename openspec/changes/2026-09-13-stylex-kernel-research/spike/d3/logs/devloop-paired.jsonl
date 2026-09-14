@@ -1,0 +1,12 @@
+{"fixture":"tw-baseline","run":1,"ms":549}
+{"fixture":"tw-baseline","run":2,"ms":259}
+{"fixture":"tw-baseline","run":3,"ms":288}
+{"fixture":"tw-baseline","run":4,"ms":270}
+{"fixture":"tw-baseline","run":5,"ms":254}
+{"fixture":"tw-baseline","done":true}
+{"fixture":"arch-b","run":1,"ms":646}
+{"fixture":"arch-b","run":2,"ms":350}
+{"fixture":"arch-b","run":3,"ms":362}
+{"fixture":"arch-b","run":4,"ms":353}
+{"fixture":"arch-b","run":5,"ms":347}
+{"fixture":"arch-b","done":true}
