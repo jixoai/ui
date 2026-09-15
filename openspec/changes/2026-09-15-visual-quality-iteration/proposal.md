@@ -117,7 +117,8 @@ Plus the phase-0 leftovers this round folds in (Owner 2026-09-15, item 5 —
   geometry, theme-scope resolution — zero paint, zero ARIA) + a
   hand-drawn INTERACTION ADAPTER (idle fade, hover grow, drag pin,
   keyboard, the thumb's a11y contract) + the native CAPABILITY STYLES.
-- `scroll-area` reworked: ALWAYS hand-drawn (the `variant` prop retires,
+- `scroll-area` reworked: ALWAYS hand-drawn (the standing `scrollbar?:
+  ScrollbarVariant` prop and its type retire — no mode branch at all,
   breaking). Capsule thumb, hover growth, idle fade with testable pins
   (region focus-within, thumb focus, drag, hover — the thumb never
   leaves the accessibility tree while pinned), keyboard affordances —
@@ -152,8 +153,9 @@ Plus the phase-0 leftovers this round folds in (Owner 2026-09-15, item 5 —
   family law; the spec-true position-area law); `css-architecture` — one
   requirement MODIFIED (the grid-supplies-stacking law's abspos exemption
   list loses its two timeline examples, which the drawn spine retires).
-- **Components (breaking, no compat)**: `scroll-area` (variant prop
-  retires), `timeline` (line(i) seam becomes the spine contract), plus the
+- **Components (breaking, no compat)**: `scroll-area` (the `scrollbar`
+  prop + `ScrollbarVariant` type retire), `timeline` (line(i) seam
+  becomes the spine contract), plus the
   new `native-scroll-area` registry item and the new `scroll-area-kit` lib
   item.
 - **Components (additive)**: `mermaid` (backdrop prop), press-button's
@@ -163,10 +165,13 @@ Plus the phase-0 leftovers this round folds in (Owner 2026-09-15, item 5 —
 - **Docs**: the four component pages + effects page gain/refresh demos;
   registry.json descriptions update to the new shapes.
 - **Mirror/payload**: every registry item this change touches syncs to the
-  `apps/www/src/lib/**` mirror with the manifest updated, and the
-  source-to-mirror + source-to-payload invariants are proven
-  (`verify:mirror`, `shadcn build` + payload parity, `verify:deps` — the
-  mirror-sync spec's contract).
+  `apps/www/src/lib/**` mirror with the manifest updated, and BOTH
+  invariants are proven separately — source-to-mirror via
+  `verify:mirror` + `verify:deps`, and source-to-payload via
+  `pnpm build:registry` + `pnpm verify:stylex-payload` (the StyleX
+  manifest contract) + `pnpm --filter @jixoai/www exec vitest run
+  test/registry-payload-parity.spec.ts` (the public-payload parity
+  gate) — the mirror-sync and css-architecture specs' contracts.
 - **Verification posture**: every visual claim in this change carries BOTH a
   deterministic probe (computed style / geometry, the discipline this
   session established: vision reads only ride on top of programmatic

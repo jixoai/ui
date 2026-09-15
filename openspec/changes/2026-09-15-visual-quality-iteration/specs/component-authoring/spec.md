@@ -99,7 +99,7 @@ snippet receiving the measured geometry) replaces it. Breaking, no compat.
 
 #### Scenario: scroll-progress is a stroke draw
 
-- GIVEN `anim='scroll'`
+- GIVEN `animation='scroll'` (the standing prop, unchanged)
 - THEN the progress spine draws as `stroke-dashoffset` along the measured
   path in response to scroll position (the abspos/implicit-track
   machinery retires)
@@ -113,8 +113,10 @@ snippet receiving the measured geometry) replaces it. Breaking, no compat.
 
 ### Requirement: the scroll-area family — one hand-drawn law, a native sibling, one shared kit (Owner 2026-09-15)
 
-`scroll-area` SHALL hand-draw its scrollbar ALWAYS (the `variant` prop
-RETIRES — no native mode, breaking). A separate `native-scroll-area` item
+`scroll-area` SHALL hand-draw its scrollbar ALWAYS (the standing
+`scrollbar?: ScrollbarVariant` prop — `'native' | 'overlay'` at
+`scroll-area.svelte:45,54` — and its `ScrollbarVariant` type RETIRE;
+the new component has NO mode branch at all, breaking). A separate `native-scroll-area` item
 SHALL ship the platform scrollbar under the scrollbar-token law with the
 native best practices as capability styles, and SHALL mount NO custom
 scrollbar ARIA — no drawn thumb exists, and the platform scrollbar IS the
@@ -172,12 +174,15 @@ untouched.
   scroll-area and native-scroll-area share the core while touching
   disjoint kit parts
 
-#### Scenario: the variant prop is gone
+#### Scenario: the scrollbar mode prop is gone
 
 - GIVEN the breaking migration
-- THEN a source scan finds no `variant` prop on scroll-area and no
-  `'native'`/'overlay' consumer site in the shipped surface (routes
-  excluded per the glass-canary precedent)
+- THEN a source scan finds no `scrollbar` prop and no `ScrollbarVariant`
+  type on scroll-area, no `'native'`/`'overlay'` consumer site in the
+  shipped surface, and NO mode branch of any name inside the component
+  (routes excluded per the glass-canary precedent; the canary's
+  two-directional fixture plants a live `scrollbar` prop to prove it
+  reddens)
 
 ### Requirement: floating surfaces speak spec-true position-area (Owner 2026-09-15)
 
