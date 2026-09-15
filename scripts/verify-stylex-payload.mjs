@@ -28,14 +28,33 @@
 // copy of the payload tree + a consistently-updated manifest — so ONLY
 // the mode's own detector can catch it — and asserts the gate FAILS
 // naming the item and the mode. The popover-probe negative-control
-// precedent: teeth proven every run, not once.
+// precedent: teeth proven every run, not once. A FOURTH plant (Gate-2
+// P1-1) shapes the layer-law escape itself — a css whose priority
+// tiers escape past `utilities` (top-level stylex.* blocks after a
+// short statement) — caught by BOTH the tree detector and the REAL
+// browser arm below.
+//
+// Plus the DUAL-ORDER BROWSER ASSERTION (Gate-2 P1-1, the teeth the
+// first-mention text check never had): a self-managed static server +
+// headless Chromium (the popover-probe pattern) loads one payload item
+// css against a Tailwind-shaped consumer stylesheet in BOTH orders —
+// kernel→consumer AND consumer→kernel — and asserts the consumer
+// utility's COMPUTED value wins in both (the spec scenario's
+// mechanical form). The planted escape css runs the same two pages and
+// must show the ATOM winning (the failure the law exists to prevent,
+// observed live) — the negative control.
 //
 // Usage (from repo root): node scripts/verify-stylex-payload.mjs
+// (browser discovery: CHROME_PATH wins, then the playwright cache's
+// chromium-* dirs newest-first, then system installs)
 
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { createServer as createHttpServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { chromium } from 'playwright-core';
 import {
   artifactBytes,
   artifactPaths,
@@ -52,10 +71,44 @@ const check = (name, ok, detail = '') => {
   console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`);
 };
 
-// the F9 statement, read from the BUILT plugin dist (never re-typed)
-const { STYLEX_LAYER_STATEMENT } = await import(
+// the F9 canonical layer law — from the BUILT plugin dist (never re-typed)
+const { canonicalLayerStatement, maxStylexPriority, parseCanonicalStatement } = await import(
   pathToFileURL(join(root, 'packages/vite-plugin/dist/stylex/layer-law.js')).href
 );
+
+// ── browser discovery: CHROME_PATH, then the playwright cache, then
+//    system installs (the popover-probe contract, verbatim) ──────────
+function findChrome() {
+  if (process.env.CHROME_PATH && existsSync(process.env.CHROME_PATH)) return process.env.CHROME_PATH;
+  const caches = [
+    join(homedir(), 'Library/Caches/ms-playwright'),
+    process.env.XDG_CACHE_HOME ? join(process.env.XDG_CACHE_HOME, 'ms-playwright') : join(homedir(), '.cache/ms-playwright'),
+  ];
+  for (const cache of caches) {
+    if (!existsSync(cache)) continue;
+    const versions = readdirSync(cache).filter((d) => d.startsWith('chromium-')).sort().reverse();
+    for (const v of versions) {
+      for (const name of [
+        'Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+        'chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium',
+        'chrome-linux64/chrome',
+        'chrome-linux/chrome',
+      ]) {
+        const p = join(cache, v, name);
+        if (existsSync(p)) return p;
+      }
+    }
+  }
+  const system = [
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+  ];
+  for (const p of system) if (existsSync(p)) return p;
+  return null;
+}
 
 const die = (msg) => {
   console.error(`\n✗ verify:stylex-payload FAILED — ${msg}`);
@@ -116,9 +169,17 @@ function checkTree(treeDir, manifest, fresh) {
       }
     }
 
-    // the F9 law: byte-zero canonical statement on every item css
-    if (!css.startsWith(STYLEX_LAYER_STATEMENT)) {
-      push('missing-rule', itemKey, `${entry.css.path} does not open with the F9 canonical layer statement at byte zero`);
+    // the F9 law (Gate-2 P1-1): byte-zero canonical statement covering
+    // EVERY tier the css carries, tiers nested under components, no
+    // top-level stylex.* escape
+    const parsed = parseCanonicalStatement(css);
+    if (!parsed) {
+      push('missing-rule', itemKey, `${entry.css.path} does not open with the canonical layer statement at byte zero`);
+    } else if (parsed.maxPriority < maxStylexPriority(css)) {
+      push('missing-rule', itemKey, `${entry.css.path}: the statement covers priority1..${parsed.maxPriority} but the css carries stylex.priority${maxStylexPriority(css)} — the uncovered tier escapes past utilities`);
+    }
+    if (/(?:^|\n)@layer stylex\.priority/.test(css)) {
+      push('missing-rule', itemKey, `${entry.css.path}: a TOP-LEVEL @layer stylex.priorityN block — tiers must nest under components (components.stylex.*) or they sort after the consumer's utilities`);
     }
 
     // 4. same-build emission: byte-identical re-derivation
@@ -202,7 +263,8 @@ console.log('━━ verify:stylex-payload · consumer spot-compile (plain vite, 
   // (lightningcss re-serializes them — css-legal); the F9 invariant
   // that survives any consumer pipeline is the layer FIRST-MENTION
   // ORDER (the comparator's own N5 law): properties < theme < base <
-  // components < stylex.priority1..3 < utilities
+  // components < components.stylex.priority1..N < utilities — the
+  // canonical vector for THIS item's tier count
   const firstMentions = [];
   for (const m of distCss.matchAll(/@layer\s+([^;{]+)/g)) {
     for (const name of m[1].split(',')) {
@@ -210,7 +272,15 @@ console.log('━━ verify:stylex-payload · consumer spot-compile (plain vite, 
       if (trimmed && !firstMentions.includes(trimmed)) firstMentions.push(trimmed);
     }
   }
-  const canonical = ['properties', 'theme', 'base', 'components', 'stylex.priority1', 'stylex.priority2', 'stylex.priority3', 'utilities'];
+  const itemTiers = maxStylexPriority(readFileSync(paths.css, 'utf8'));
+  const canonical = [
+    'properties',
+    'theme',
+    'base',
+    'components',
+    ...Array.from({ length: itemTiers }, (_, i) => `components.stylex.priority${i + 1}`),
+    'utilities',
+  ];
   const present = canonical.filter((n) => firstMentions.includes(n));
   const ranks = present.map((n) => firstMentions.indexOf(n));
   check(
@@ -224,7 +294,104 @@ console.log('━━ verify:stylex-payload · consumer spot-compile (plain vite, 
   check('consumer package.json owes zero dependencies (no @stylexjs/stylex, @stylexjs/unplugin, @stylexjs/babel-plugin)', Object.keys(projectDeps.dependencies ?? {}).length === 0 && Object.keys(projectDeps.devDependencies ?? {}).length === 0);
 }
 
-// ── the always-on planted-defect self-tests (one per failure mode) ───
+// ── the dual-order browser assertion (Gate-2 P1-1 — the teeth) ──────
+
+console.log('━━ verify:stylex-payload · dual-order browser assertion (real Chromium, both import orders) ━━━━━━━━━━━');
+await (async () => {
+  const CHROME = findChrome();
+  if (!CHROME) die('no Chromium found for the dual-order assertion (CHROME_PATH, playwright cache, system installs) — the F9 law cannot be verified as text alone');
+
+  // the kernel css: the payload item carrying a display atom in a HIGH
+  // tier (≥4 — the tier class that escaped utilities in the Gate-2
+  // finding); the atom class + its value are DISCOVERED from the css,
+  // never hand-pinned
+  const pick = [...fresh.items.keys()]
+    .sort()
+    .map((key) => {
+      const paths = artifactPaths(root, key);
+      const css = readFileSync(paths.css, 'utf8');
+      let tier = 0;
+      for (const block of css.matchAll(/@layer components\.stylex\.priority(\d+) \{([\s\S]*?)(?=\n@layer |\n\/\* buildId:|$)/g)) {
+        if (Number(block[1]) < 4) continue;
+        const rule = /\.([a-z0-9]+) \{[^}]*display: ([a-z-]+)/.exec(block[2]);
+        if (rule) {
+          tier = Number(block[1]);
+          return { key, paths, css, atomClass: rule[1], atomDisplay: rule[2], tier };
+        }
+      }
+      return null;
+    })
+    .find(Boolean);
+  if (!pick) die('no payload item carries a display atom in a tier ≥ 4 — the dual-order fixture lost its probe atom (regenerate the payload)');
+
+  // the consumer stylesheet: Tailwind-shaped (the prelude registers
+  // properties…utilities; the utility rides @layer utilities) — the
+  // spec scenario's consumer page shape
+  const consumerCss = [
+    '@layer properties, theme, base, components, utilities;',
+    '@layer utilities { .consumer-grid { display: grid; } }',
+    '',
+  ].join('\n');
+
+  // the PLANTED ESCAPE (the negative control): the css as it was at the
+  // Gate-2 finding — statement stopping at priority3 + TOP-LEVEL
+  // stylex.* tier blocks, the shape that sorts after the consumer's
+  // utilities and beats them
+  const escapeCss = `${canonicalLayerStatement(3)}\n${pick.css.split('\n').slice(1).join('\n').replaceAll('@layer components.stylex.priority', '@layer stylex.priority')}`;
+
+  const server = createHttpServer((req, res) => {
+    const [path, query] = (req.url ?? '').split('?');
+    const planted = new URLSearchParams(query ?? '').get('planted') === '1';
+    const kernel = planted ? escapeCss : pick.css;
+    const html = (kernelFirst) =>
+      `<!doctype html><html><head>${
+        kernelFirst
+          ? `<link rel="stylesheet" href="/kernel.css?planted=${planted ? 1 : 0}"><link rel="stylesheet" href="/consumer.css">`
+          : `<link rel="stylesheet" href="/consumer.css"><link rel="stylesheet" href="/kernel.css?planted=${planted ? 1 : 0}">`
+      }</head><body><div id="probe" class="${pick.atomClass} consumer-grid">x</div></body></html>`;
+    if (path === '/kernel.css') {
+      res.writeHead(200, { 'content-type': 'text/css' });
+      res.end(kernel);
+    } else if (path === '/consumer.css') {
+      res.writeHead(200, { 'content-type': 'text/css' });
+      res.end(consumerCss);
+    } else if (path === '/kernel-first.html' || path === '/consumer-first.html') {
+      res.writeHead(200, { 'content-type': 'text/html' });
+      res.end(html(path === '/kernel-first.html'));
+    } else {
+      res.writeHead(404);
+      res.end('not found');
+    }
+  });
+  await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen));
+  const base = `http://127.0.0.1:${server.address().port}`;
+
+  const browser = await chromium.launch({ executablePath: CHROME, headless: true });
+  try {
+    const measure = async (url) => {
+      const page = await browser.newPage();
+      await page.goto(url);
+      const value = await page.evaluate(() => getComputedStyle(document.getElementById('probe')).display);
+      await page.close();
+      return value;
+    };
+    const detail = `${pick.key} · atom .${pick.atomClass} (tier ${pick.tier}, display:${pick.atomDisplay}) vs consumer .consumer-grid (layer utilities, display:grid)`;
+    const kernelFirst = await measure(`${base}/kernel-first.html`);
+    check('kernel css first → the consumer utility wins (computed)', kernelFirst === 'grid', `display=${kernelFirst} · ${detail}`);
+    const consumerFirst = await measure(`${base}/consumer-first.html`);
+    check('consumer css first → the consumer utility wins (computed)', consumerFirst === 'grid', `display=${consumerFirst} · ${detail}`);
+    const escaped = await measure(`${base}/consumer-first.html?planted=1`);
+    check(
+      'negative control: the escaped-tier css (top-level stylex.*, statement stuck at priority3) lets the ATOM win — the exact failure the law forbids',
+      escaped !== 'grid' && escaped === pick.atomDisplay,
+      `display=${escaped} (the atom's value — the escape is observable, so the green arms above are meaningful)`,
+    );
+  } finally {
+    await browser.close().catch(() => {});
+    await new Promise((resolveClose) => server.close(resolveClose));
+  }
+})();
+
 
 console.log('━━ verify:stylex-payload · planted-defect self-tests (the teeth) ━━━━━━━━━━━');
 {
@@ -294,6 +461,23 @@ console.log('━━ verify:stylex-payload · planted-defect self-tests (the teet
     const planted = readFileSync(cmPath, 'utf8') + '\n/* hand tweak */\n';
     writeFileSync(cmPath, planted);
     expectOneFailure('manual-edit (a hand-edited constant module)', dir, JSON.parse(JSON.stringify(manifest)), 'manual-edit');
+  }
+
+  // T4 layer-law escape (Gate-2 P1-1): the css exactly as the Gate-2
+  // finding shaped it — canonical statement stopping at priority3 +
+  // TOP-LEVEL stylex.* tier blocks (shas consistent, stamps intact) —
+  // only the F9 detectors can name it (the uncovered tier + the
+  // top-level block). The browser arm above proves the same plant's
+  // computed-style failure is REAL; this arm proves the TREE check
+  // catches it without a browser.
+  {
+    const dir = sandbox('layer-escape');
+    const cssPath = join(dir, relOf(paths.css));
+    const original = readFileSync(cssPath, 'utf8');
+    const planted = `${canonicalLayerStatement(3)}\n${original.split('\n').slice(1).join('\n').replaceAll('@layer components.stylex.priority', '@layer stylex.priority')}`;
+    writeFileSync(cssPath, planted);
+    const m = JSON.parse(JSON.stringify(manifest));
+    expectOneFailure('layer-escape (top-level stylex.* tiers past a priority3 statement)', dir, reStampManifest(m, sha256(planted)), 'missing-rule');
   }
 }
 

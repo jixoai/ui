@@ -1,5 +1,7 @@
-@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-@layer stylex.priority1 {
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
   :root, .xbpgcew {
     --jx-brand-hue: var(--brand-hue);
     --jx-background: var(--background);
@@ -64,7 +66,7 @@
   }
 }
 
-@layer stylex.priority2 {
+@layer components.stylex.priority2 {
   .xjbqb8w {
     background-color: #0000;
   }

@@ -1,5 +1,7 @@
-@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-@layer stylex.priority1 {
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, components.stylex.priority5, components.stylex.priority6, components.stylex.priority7, components.stylex.priority8, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
   :root, .xbpgcew {
     --jx-brand-hue: var(--brand-hue);
     --jx-background: var(--background);
@@ -64,7 +66,7 @@
   }
 }
 
-@layer stylex.priority2 {
+@layer components.stylex.priority2 {
   .x1ghz6dp {
     margin: 0;
   }
@@ -74,7 +76,7 @@
   }
 }
 
-@layer stylex.priority3 {
+@layer components.stylex.priority3 {
   .xtkphhm {
     border-radius: 3.40282e38px;
   }
@@ -106,7 +108,7 @@
   }
 }
 
-@layer stylex.priority4 {
+@layer components.stylex.priority4 {
   .x1lugfcp {
     -webkit-appearance: none;
   }
@@ -168,7 +170,7 @@
   }
 }
 
-@layer stylex.priority5 {
+@layer components.stylex.priority5 {
   .xo805f9 {
     height: var(--jx-toggle-track, 1.5rem);
   }
@@ -178,7 +180,7 @@
   }
 }
 
-@layer stylex.priority6 {
+@layer components.stylex.priority6 {
   .x4ku27x:before {
     border-color: var(--jx-primary);
   }
@@ -210,7 +212,7 @@
   }
 }
 
-@layer stylex.priority7 {
+@layer components.stylex.priority7 {
   .xd5hkx5:before {
     background-color: var(--jx-background);
   }
@@ -244,7 +246,7 @@
   }
 }
 
-@layer stylex.priority8 {
+@layer components.stylex.priority8 {
   .x101mhmm:before {
     height: calc(var(--jx-toggle-knob, 1rem) + 2px);
   }

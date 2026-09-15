@@ -46,10 +46,16 @@
 // beyond whitespace-collapse happens here — semantic normalization is
 // the comparator's job (research/compare-compiled.mjs, of record).
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const STATEMENT =
-  '@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;';
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../../..');
+
+// the F9 law (Gate-2 P1-1: dynamic tiers nested under components) —
+// read from the BUILT plugin dist so this tool never re-types it
+const { canonicalLayerStatement, maxStylexPriority } = await import(
+  pathToFileURL(join(repoRoot, 'packages/vite-plugin/dist/stylex/layer-law.js')).href
+);
 
 const die = (msg) => {
   console.error(`[extract-stylex] ${msg}`);
@@ -93,7 +99,7 @@ function findStylexCssAsset(dir) {
       const p = join(d, name);
       const st = statSync(p);
       if (st.isDirectory()) walk(p);
-      else if (name.endsWith('.css') && readFileSync(p, 'utf8').includes('@layer stylex.')) hits.push(p);
+      else if (name.endsWith('.css') && /@layer (?:components\.)?stylex\./.test(readFileSync(p, 'utf8'))) hits.push(p);
     }
   };
   walk(dir);
@@ -106,8 +112,9 @@ const [cmd, a, b, c, outPath] = process.argv.slice(2);
 if (cmd === 'extract') {
   const src = statSync(a).isDirectory() ? findStylexCssAsset(a) : a;
   const css = readFileSync(src, 'utf8');
-  if (!css.startsWith(STATEMENT)) {
-    die(`F9 FAIL: ${src} does not start with the canonical layer statement (got: ${css.slice(0, 80)}…)`);
+  const statement = canonicalLayerStatement(maxStylexPriority(css));
+  if (!css.startsWith(statement)) {
+    die(`F9 FAIL: ${src} does not start with the canonical layer statement for its tiers (want: ${statement.slice(0, 90)}…; got: ${css.slice(0, 90)}…)`);
   }
   // The stylex surface = the plugin-appended TAIL: every top-level unit
   // from the FIRST stylex-owned unit to EOF (blockless priority mentions,
@@ -118,16 +125,16 @@ if (cmd === 'extract') {
   // layers, and TW's own '@layer utilities {…}' is a CONTENT block that
   // can never match the blockless bookkeeping form).
   const units = topUnits(css);
-  const firstStylex = units.findIndex((u) => /^@layer\s+stylex\./.test(u));
+  const firstStylex = units.findIndex((u) => /^@layer\s+(?:components\.)?stylex\./.test(u));
   if (firstStylex === -1) die(`no '@layer stylex.*' unit in ${src}`);
   const tail = units.slice(firstStylex);
   const out = [];
   let layers = 0;
   for (const unit of tail) {
     const one = norm(unit);
-    if (/^@layer stylex\.[\w.]+;$/.test(one)) continue; // blockless priority mention
+    if (/^@layer (?:components\.)?stylex\.[\w.]+;$/.test(one)) continue; // blockless priority mention
     if (one === '@layer utilities;') continue; // the engine's trailing bookkeeping re-mention
-    const m = /^@layer (stylex\.[\w.]+) \{([\s\S]*)\}$/.exec(one);
+    const m = /^@layer ((?:components\.)?stylex\.[\w.]+) \{([\s\S]*)\}$/.exec(one);
     if (m) {
       layers++;
       // strip ONE indentation level (the unplugin nests with 2 spaces)

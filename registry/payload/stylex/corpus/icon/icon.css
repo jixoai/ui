@@ -1,11 +1,13 @@
-@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-@layer stylex.priority1 {
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
   .x1rg5ohu {
     display: inline-block;
   }
 }
 
-@layer stylex.priority2 {
+@layer components.stylex.priority2 {
   .x17uqirv {
     height: var(--jx-icon-size, var(--jx-icon, 1.5rem));
   }

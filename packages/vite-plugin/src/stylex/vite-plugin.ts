@@ -16,12 +16,17 @@
 //      dirs: registry/files + the apps/www/src/lib mirror in OUR
 //      repo). Docs routes and consumer trees NEVER enter the
 //      transform, whatever they import.
-//   2. THE F9 LAYER LAW — every emitted CSS asset that carries stylex
-//      output starts with the ONE canonical FULL statement
-//      (STYLEX_LAYER_STATEMENT) at byte zero, ahead of Tailwind's own
-//      layers — the O1-H-measured remedy (spike-report §5.1): without
-//      it, unplugin 0.19.0's appended stylex CSS inscribes its layers
-//      LAST and consumer utilities can never win (D2-01/D2-03).
+//   2. THE F9 LAYER LAW (Gate-2 P1-1 revision) — every emitted CSS
+//      asset that carries stylex output starts with the ONE canonical
+//      FULL statement at byte zero, listing EVERY priority tier the
+//      css carries (priority1..N, utilities CONSTANTLY last), and the
+//      engine's tiers NEST UNDER `components` (prefix
+//      'components.stylex') — together the two mechanics keep consumer
+//      utilities above kernel atoms under EITHER import order (the
+//      top-level-tier form lost the consumer-first order: cascade
+//      layer registration is append-only, so a late top-level stylex
+//      layer sorts after the consumer's utilities and beats them —
+//      layer-law.ts carries the full ruling).
 //   3. THE CSS-ENTRY LESSON (spike-report §5.2, Vite 8 + rolldown):
 //      a build that produces stylex CSS but NO css asset silently
 //      drops it — the upstream writeBundle fallback writes an
@@ -47,7 +52,7 @@ import * as nodePath from 'node:path';
 import { realpathSync } from 'node:fs';
 import stylexVite from '@stylexjs/unplugin/vite';
 import type { ViteDevServer } from 'vite';
-import { STYLEX_LAYER_STATEMENT } from './layer-law.js';
+import { canonicalLayerStatement, maxStylexPriority, parseCanonicalStatement, STYLEX_LAYERS_AFTER, STYLEX_LAYERS_BEFORE, STYLEX_LAYER_PREFIX } from './layer-law.js';
 
 /**
  * the stylex feature's options as the UMBRELLA defines them
@@ -246,13 +251,20 @@ export function createStylexEngine(
     );
   }
 
-  // the engine instance — the KERNEL babel pins ride here (header §4)
+  // the engine instance — the KERNEL babel pins ride here (header §4).
+  // The layer config rides the F9 law (layer-law.ts): tiers nest under
+  // `components` + before/after anchor the engine's own statement —
+  // keep in lockstep with scripts/lib/stylex-payload.mjs's pins.
   const engine = stylexVite({
     dev: ctx.command === 'serve',
     runtimeInjection: ctx.command === 'serve',
     debug: true,
     propertyValidationMode: 'throw',
-    useCSSLayers: { prefix: 'stylex', after: ['utilities'] },
+    useCSSLayers: {
+      before: [...STYLEX_LAYERS_BEFORE],
+      prefix: STYLEX_LAYER_PREFIX,
+      after: [...STYLEX_LAYERS_AFTER],
+    },
     unstable_moduleResolution: { type: 'commonJS', rootDir: ctx.root },
   }) as StylexInternalPlugin;
 
@@ -289,9 +301,15 @@ export function createStylexEngine(
   // emission state (mirrors the upstream cssInjectedInGenerateBundle flag)
   let cssInjected = false;
 
-  /** the F9-baked payload: the canonical statement first, then whatever css exists, then the stylex output */
-  const bakeF9 = (current: string, css: string): string =>
-    current ? `${STYLEX_LAYER_STATEMENT}\n${current}\n${css}` : `${STYLEX_LAYER_STATEMENT}\n${css}`;
+  /**
+   * the F9-baked payload: the canonical statement (covering every tier
+   * the combined css carries) first, then whatever css exists, then
+   * the stylex output
+   */
+  const bakeF9 = (current: string, css: string): string => {
+    const statement = canonicalLayerStatement(Math.max(maxStylexPriority(css), maxStylexPriority(current)));
+    return current ? `${statement}\n${current}\n${css}` : `${statement}\n${css}`;
+  };
 
   const isServerConsumer = (context: StylexHookContext): boolean =>
     context.environment?.config?.consumer === 'server';
@@ -333,7 +351,7 @@ export function createStylexEngine(
       engine.handleHotUpdate?.(ctx_);
     },
 
-    configureServer(server) {
+      configureServer(server) {
       // the F9 statement rides the DEV virtual css too — dev layer
       // order should read the same law as prod (registered BEFORE the
       // engine's own middleware so THIS handler answers DEV_CSS_PATH)
@@ -345,7 +363,8 @@ export function createStylexEngine(
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/css');
         res.setHeader('Cache-Control', 'no-store');
-        res.end(`${STYLEX_LAYER_STATEMENT}\n${collectCss()}`);
+        const css = collectCss();
+        res.end(`${canonicalLayerStatement(maxStylexPriority(css))}\n${css}`);
       });
       engine.configureServer?.(server);
     },
@@ -363,7 +382,7 @@ export function createStylexEngine(
         return; // writeBundle writes the fallback + warns (the §5.2 trap)
       }
       const current = assetSourceString(target);
-      if (current.startsWith(STYLEX_LAYER_STATEMENT)) return; // already baked (idempotence)
+      if (parseCanonicalStatement(current) !== null) return; // already baked (idempotence, any tier count)
       replaceCssAssetWithHashedCopy(this, bundle, target, bakeF9(current, css));
       cssInjected = true;
     },

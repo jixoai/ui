@@ -22,8 +22,11 @@
 //      the installed pin at gate runtime, so an engine bump that moves
 //      the list fails HERE loudly instead of silently narrowing).
 //      margin/padding/inset/gap/flex/overflow/textDecoration and every
-//      other engine-expandable shorthand are LAWFUL (spike §5.3: they
-//      compile correctly; the dogfood corpus carries them as-is).
+//      other engine-ACCEPTED shorthand are LAWFUL (Gate-2 P1-3: the
+//      engine passes them through to the compiled css as standard CSS
+//      — browsers expand shorthand at parse time; the dogfood corpus
+//      carries them as-is). The law's line is the ENGINE's line: what
+//      throw mode rejects is forbidden, what it accepts is legal.
 //
 //   Plus the canonical layer law on the ledger's .css files (the
 //   spec's scenarios): every stylex-touched folder sheet opens with
@@ -88,8 +91,8 @@ function deriveThrowingShorthands() {
 const THROWING_SHORTHANDS = deriveThrowingShorthands();
 const SHORTHAND_RE = new RegExp(`(?:^|[^\\w-])(?:${THROWING_SHORTHANDS.join('|')})\\s*:`, 'g');
 
-// the canonical layer statement — from the BUILT plugin dist (single source)
-const { STYLEX_LAYER_STATEMENT } = await import(
+// the canonical layer law — from the BUILT plugin dist (single source)
+const { canonicalLayerStatement, maxStylexPriority, parseCanonicalStatement } = await import(
   pathToFileURL(join(root, 'packages/vite-plugin/dist/stylex/layer-law.js')).href
 );
 
@@ -148,11 +151,18 @@ function scanStylexModule(file, code) {
 function scanSheet(file, css) {
   const findings = [];
   const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s+/, '');
-  if (!stripped.startsWith(STYLEX_LAYER_STATEMENT)) {
+  const parsed = parseCanonicalStatement(stripped);
+  if (!parsed) {
     findings.push({
       file,
       pattern: 'canonical-statement',
-      detail: `the sheet must open with the exact canonical FULL statement (found: ${JSON.stringify(stripped.slice(0, 80))}…)`,
+      detail: `the sheet must open with the exact canonical statement (found: ${JSON.stringify(stripped.slice(0, 80))}…)`,
+    });
+  } else if (parsed.maxPriority < maxStylexPriority(stripped)) {
+    findings.push({
+      file,
+      pattern: 'canonical-statement',
+      detail: `the statement covers priority1..${parsed.maxPriority} but the sheet mentions stylex.priority${maxStylexPriority(stripped)} — every carried tier must be covered, utilities last`,
     });
   }
   // engine output never lives in a hand-authored sheet: a standalone
@@ -263,7 +273,7 @@ console.log('━━ verify:stylex-authoring · planted defects (the teeth) ━�
             runtimeInjection: false,
             debug: true,
             propertyValidationMode: 'throw',
-            useCSSLayers: { prefix: 'stylex', after: ['utilities'] },
+            useCSSLayers: { before: ['properties', 'theme', 'base', 'components'], prefix: 'components.stylex', after: ['utilities'] },
             unstable_moduleResolution: { type: 'commonJS', rootDir: root },
           },
         ],
@@ -279,12 +289,53 @@ console.log('━━ verify:stylex-authoring · planted defects (the teeth) ━�
     );
   }
 
-  // the canonical-statement teeth on planted sheets
-  const varied = plant('varied.css', `@layer properties, theme, base, components, utilities;\n.x { color: red; }\n`);
-  const lawful = plant('lawful.css', `${STYLEX_LAYER_STATEMENT}\n@layer components {\n  .x { color: red; }\n}\n`);
-  const engineish = plant('engineish.css', `${STYLEX_LAYER_STATEMENT}\n.x10w6t97 { color: red; }\n`);
-  const sheetFindings = scanLedgerFiles([varied, lawful, engineish]);
+  // the P1-3 acceptance pair (the law's line = the engine's line):
+  // (a) an engine-ACCEPTED shorthand compiles through the REAL kernel
+  //     pipeline and its declaration lands in the compiled css —
+  //     margin/padding/gap/flex/overflow/inset/textDecoration are
+  //     lawful authoring surface, not an exemption;
+  // (b) covered above — a throw-table name fails the scan AND the
+  //     engine itself.
+  {
+    const { compileItem } = await import('./lib/stylex-payload.mjs');
+    const lawfulShorthand = plant(
+      'shorthand-ok.stylex.ts',
+      [
+        "import * as stylex from '@stylexjs/stylex';",
+        'export const ok = stylex.create({',
+        "  card: { margin: 0, padding: '4px 8px', gap: '12px', flex: 'none', overflow: 'hidden', inset: 0, textDecoration: 'none' },",
+        '});',
+        '',
+      ].join('\n'),
+    );
+    try {
+      const { css } = await compileItem(root, [lawfulShorthand.path]);
+      const decls = ['margin', 'padding', 'gap', 'flex', 'overflow', 'inset', 'text-decoration'];
+      const landed = decls.filter((d) => new RegExp(`${d}(?:-[a-z]+)?\\s*:`).test(css));
+      check(
+        'an engine-accepted shorthand compiles and its declarations land in the css (P1-3a)',
+        landed.length === decls.length,
+        landed.length === decls.length ? `${landed.join(', ')} present` : `missing: ${decls.filter((d) => !landed.includes(d)).join(', ')}`,
+      );
+    } catch (e) {
+      check('an engine-accepted shorthand compiles and its declarations land in the css (P1-3a)', false, String(e?.message ?? e).split('\n')[0].slice(0, 120));
+    }
+  }
+
+  // the canonical-statement teeth on planted sheets (the lawful form
+  // uses the canonical builder — tiers nested under components,
+  // utilities last; the sheet form with zero tiers is legal, so the
+  // varied plant must actually VARY: reordered layers)
+  const varied = plant('varied.css', `@layer properties, theme, utilities, base, components;\n.x { color: red; }\n`);
+  const shortStatement = plant(
+    'short-statement.css',
+    `${canonicalLayerStatement(3)}\n@layer stylex.priority4 { .x { color: red; } }\n`,
+  );
+  const lawful = plant('lawful.css', `${canonicalLayerStatement(3)}\n@layer components {\n  .x { color: red; }\n}\n`);
+  const engineish = plant('engineish.css', `${canonicalLayerStatement(3)}\n.x10w6t97 { color: red; }\n`);
+  const sheetFindings = scanLedgerFiles([varied, shortStatement, lawful, engineish]);
   check('a varied layer statement fails naming the file + divergence', sheetFindings.some((f) => f.file === 'varied.css' && f.pattern === 'canonical-statement'));
+  check('a statement that stops short of the sheet’s carried tiers fails', sheetFindings.some((f) => f.file === 'short-statement.css' && f.pattern === 'canonical-statement'));
   check('a lawful sheet passes (no false positive on folder css)', !sheetFindings.some((f) => f.file === 'lawful.css'));
   check('a hand-pasted engine rule in a sheet fails', sheetFindings.some((f) => f.file === 'engineish.css' && f.pattern === 'hand-authored-engine-output'));
 }

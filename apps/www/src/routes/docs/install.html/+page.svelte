@@ -33,8 +33,8 @@
 @import '$lib/jixoai.css';    /* the jixoai token sheet, AFTER tailwind */`;
 
   const layerOrder = `@layer properties, theme, base, components,
-  stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-/*        ↑ kernel atom paint            ↑ your utilities — always last */`;
+  components.stylex.priority1, …, components.stylex.priorityN, utilities;
+/*              ↑ kernel atom paint (nested in components)   ↑ your utilities — always last */`;
 </script>
 
 <svelte:head>

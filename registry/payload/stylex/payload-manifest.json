@@ -12,7 +12,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/code-card/code-card.css",
-        "sha256": "a3e6d46d45506276ebb9507e7e1c0983e962b84837d591702e51e63bb1ae3e61"
+        "sha256": "0a1d15a779dff0355fb1b0287418b6db418c7b523ec7f8c1ed059a8678e4e11d"
       },
       "sourceSnapshot": [
         {
@@ -32,7 +32,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/demo/demo.css",
-        "sha256": "a59f9aa9d09684b29f08194cad93a63cbd2b162837794f9f366e9d32991c7512"
+        "sha256": "13232193ae475b4581938586f4c06c7974b31211c94ddd194f12b90c420dc95b"
       },
       "sourceSnapshot": [
         {
@@ -52,7 +52,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/icon/icon.css",
-        "sha256": "67800447c2dfd3c7dbe30aae1d80cd914c3f29b9360f42b7ca308575074b1cc3"
+        "sha256": "d090e5ee439082c62dee07960650fbd5d9548fb1a6e533c0d5024d75b69640c7"
       },
       "sourceSnapshot": [
         {
@@ -68,7 +68,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/popover/popover.css",
-        "sha256": "e05af64a693da2e4159446d8dc5f768057147cf35a4c03454a9d1b26b7334f63"
+        "sha256": "2b6daacd5a4bef438d50ed817317ddc82f09af1910ffbc767ba7029ae4d3a1fc"
       },
       "sourceSnapshot": [
         {
@@ -88,7 +88,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/press-button/press-button.css",
-        "sha256": "b691db8f1ea362d239cbac3af5ca9fd29700431c85c1d7368914b7429352e5c2"
+        "sha256": "d21a2ede984975a8ca7caf132a084d238afdafaa28b5e1f401b8f115ea4299c5"
       },
       "sourceSnapshot": [
         {
@@ -108,7 +108,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/prose/prose.css",
-        "sha256": "c5d817179a495772d44088a417900e96074fea93442015ea135c7adfb6183ced"
+        "sha256": "acd8b5b5a72cd29ee9fd7f45cefdba4ce37b542c90a0b52befe656e52446573d"
       },
       "sourceSnapshot": [
         {
@@ -128,7 +128,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/range/range.css",
-        "sha256": "a9f94838b53e69938f971a0139b65ff974330d5378fec6acae29a24f950912ee"
+        "sha256": "1469619e069362922a8f30898600897894a7542fa99332be59236ad871a86841"
       },
       "sourceSnapshot": [
         {
@@ -148,7 +148,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/separator/separator.css",
-        "sha256": "b7320f77fe171cd0eb52b910164617fdf06b14d662ce2905f45eb300cd656694"
+        "sha256": "893a95ba2f98468f9d01634e45006534373e1632aec33ef3bc4ca8e2df4a504c"
       },
       "sourceSnapshot": [
         {
@@ -168,7 +168,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/corpus/switch/switch.css",
-        "sha256": "f602f8212568e15f9f44d4c0835d806f834870782cd0897a2b57651d51f1702e"
+        "sha256": "f73653eb186d22780222ef84d5a2ceacd7b2844f1a302ab47adfdb13831087e9"
       },
       "sourceSnapshot": [
         {
@@ -188,7 +188,7 @@
       },
       "css": {
         "path": "registry/payload/stylex/tokens/tokens.css",
-        "sha256": "08dcb9f17a704cbc1135fe4f21f020c52b34e53d4465d3459afca42362814836"
+        "sha256": "b63cf43a75525ac17efb42410b43d673a1e534fea638fccd786a274435c332fc"
       },
       "sourceSnapshot": [
         {

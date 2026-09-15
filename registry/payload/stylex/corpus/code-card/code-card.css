@@ -1,5 +1,7 @@
-@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-@layer stylex.priority1 {
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, components.stylex.priority5, components.stylex.priority6, components.stylex.priority7, components.stylex.priority8, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
   :root, .xbpgcew {
     --jx-brand-hue: var(--brand-hue);
     --jx-background: var(--background);
@@ -64,13 +66,13 @@
   }
 }
 
-@layer stylex.priority2 {
+@layer components.stylex.priority2 {
   .x1ghz6dp {
     margin: 0;
   }
 }
 
-@layer stylex.priority3 {
+@layer components.stylex.priority3 {
   .x3qsdy5 {
     border-color: var(--readonly-code-border);
   }
@@ -122,7 +124,7 @@
   }
 }
 
-@layer stylex.priority4 {
+@layer components.stylex.priority4 {
   .x6s0dn4 {
     align-items: center;
   }
@@ -230,7 +232,7 @@
   }
 }
 
-@layer stylex.priority5 {
+@layer components.stylex.priority5 {
   .xb2d4eo {
     border-bottom-color: var(--readonly-code-border);
   }
@@ -300,13 +302,13 @@
   }
 }
 
-@layer stylex.priority6 {
+@layer components.stylex.priority6 {
   .x1nc033x:before, .xd54j2p:after {
     inset-block: 0;
   }
 }
 
-@layer stylex.priority7 {
+@layer components.stylex.priority7 {
   .x3sh4h5:after, .xp6epc3:before {
     -webkit-backdrop-filter: contrast(.5);
   }
@@ -388,7 +390,7 @@
   }
 }
 
-@layer stylex.priority8 {
+@layer components.stylex.priority8 {
   .x12s5fzi:before, .xsfccug:after {
     width: 1.75rem;
   }
