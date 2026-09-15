@@ -35,6 +35,7 @@ do not reintroduce it.
 | opentray | `222` | `218` | `#00a6f4` | `#00a6f4` |
 | iweb (openiweb) | `253` | `249` | `#008bff` | `#008bff` |
 | dweb (opendweb) | `95` | `91` | `#bd8600` | `#bd8600` |
+| skill-creator | `129` | `125` | `#5fa600` | its own |
 
 Hues are sourced from the project's OWN logo (sample dominant saturated
 colors, convert to oklch hue); `dweb` moved 87→95 on 2026-09-06 when the
