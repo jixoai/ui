@@ -102,12 +102,23 @@
   // id is mount-stable by contract (popover ids + CSS anchors are wired
   // once); $derived keeps the anchor name truthful if it ever flips
   const anchorName = $derived(`--jx-menu-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+  // SPAN SEMANTICS (W5 sweep, 2026-09-15 — spec-true position-area,
+  // the popover.svelte law): position-area names the region the
+  // SURFACE occupies relative to its anchor — `bottom span-right`
+  // puts the panel below the anchor, START-aligned (spanning from
+  // the anchor's inline-start edge rightward: left edges together),
+  // `bottom span-left` END-aligns (right edges together). The map
+  // pairs each logical placement with the span that MEASURES as its
+  // intended alignment (*-start → span-right, *-end → span-left);
+  // the pre-sweep table encoded the inverted model. ONE table feeds
+  // BOTH emissions below (position-area + the legacy inset-area
+  // alias) — no divergence between the channels
   const area = $derived(
     placement === 'bottom' ? 'bottom'
-    : placement === 'bottom-end' ? 'bottom span-right'
-    : placement === 'bottom-start' ? 'bottom span-left'
+    : placement === 'bottom-start' ? 'bottom span-right'
+    : placement === 'bottom-end' ? 'bottom span-left'
     : placement === 'top' ? 'top'
-    : placement === 'top-end' ? 'top span-right'
+    : placement === 'top-start' ? 'top span-right'
     : 'top span-left'
   );
 

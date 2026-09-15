@@ -1,0 +1,42 @@
+[popover-area] primary  bottom-start (authored span-right, expect LEFT edges): delta=0px  computed="span-right bottom"  pill=[208,345] panel=[208,516] w=308
+[popover-area] control  bottom-end   (authored span-left,  expect RIGHT edges): delta=-171px  computed="span-left bottom"  pill=[208,345] panel=[37,345] w=308
+[dropdown-area] RED  bottom-start             geo={"dLeft":-132.9,"dRight":20.3,"above":-224.3,"below":36.3,"panelW":282.2} area="span-left bottom" — side-below(gap=36.3); align-start(dLeft=-132.9 dRight=20.3); area(computed="span-left bottom" expected="bottom span-right")
+[dropdown-area] ok   bottom                   geo={"dLeft":-76.6,"dRight":76.6,"above":-196,"below":8,"panelW":282.2} area="bottom"
+[dropdown-area] RED  bottom-end               geo={"dLeft":8,"dRight":161.2,"above":-196,"below":8,"panelW":282.2} area="span-right bottom" — align-end(dRight=161.2 dLeft=8); area(computed="span-right bottom" expected="bottom span-left")
+[dropdown-area] RED  top-start                geo={"dLeft":-161.2,"dRight":-8,"above":8,"below":-196,"panelW":282.2} area="span-left top" — align-start(dLeft=-161.2 dRight=-8); area(computed="span-left top" expected="top span-right")
+[dropdown-area] ok   top                      geo={"dLeft":-76.6,"dRight":76.6,"above":8,"below":-196,"panelW":282.2} area="top"
+[dropdown-area] RED  top-end                  geo={"dLeft":8,"dRight":161.2,"above":8,"below":-196,"panelW":282.2} area="span-right top" — align-end(dRight=161.2 dLeft=8); area(computed="span-right top" expected="top span-left")
+[dropdown-area] RED  collision-flip-block     geo={"dLeft":-161.2,"dRight":-8,"above":8,"below":-196,"panelW":282.2} area="span-left top" — align-start(dLeft=-161.2 dRight=-8); area(computed="span-left top" expected="top span-right")
+[dropdown-area] ok   collision-flip-inline    geo={"dLeft":-161.2,"dRight":-8,"above":-196,"below":8,"panelW":282.2} area="span-left bottom"
+[dropdown-area] red  swapped-map control (old "bottom span-left" planted): align-start, area red — geo={"dLeft":-161.2,"dRight":-8,"above":-196,"below":8,"panelW":282.2} area="span-left bottom"
+[tooltip-area] RED  top-start                geo={"dLeft":-182,"dRight":-6,"above":6,"below":-123.5,"panelW":288} area="span-left top" — align-start(dLeft=-182 dRight=-6); area(computed="span-left top" expected="top span-right")
+[tooltip-area] ok   top                      geo={"dLeft":-88,"dRight":88,"above":6,"below":-123.5,"panelW":288} area="top"
+[tooltip-area] RED  top-end                  geo={"dLeft":6,"dRight":182,"above":6,"below":-123.5,"panelW":288} area="span-right top" — align-end(dRight=182 dLeft=6); area(computed="span-right top" expected="top span-left")
+[tooltip-area] RED  bottom-start             geo={"dLeft":-182,"dRight":-6,"above":-123.5,"below":6,"panelW":288} area="span-left bottom" — align-start(dLeft=-182 dRight=-6); area(computed="span-left bottom" expected="bottom span-right")
+[tooltip-area] ok   bottom                   geo={"dLeft":-88,"dRight":88,"above":-123.5,"below":6,"panelW":288} area="bottom"
+[tooltip-area] RED  bottom-end               geo={"dLeft":6,"dRight":182,"above":-123.5,"below":6,"panelW":288} area="span-right bottom" — align-end(dRight=182 dLeft=6); area(computed="span-right bottom" expected="bottom span-left")
+[tooltip-area] RED  collision-flip-block     geo={"dLeft":-182,"dRight":-6,"above":6,"below":-123.5,"panelW":288} area="span-left top" — align-start(dLeft=-182 dRight=-6); area(computed="span-left top" expected="top span-right")
+[tooltip-area] ok   collision-flip-inline    geo={"dLeft":-182,"dRight":-6,"above":-123.5,"below":6,"panelW":288} area="span-left bottom"
+[tooltip-area] red  swapped-map control (old "top span-left" planted): align-start, area red — geo={"dLeft":-182,"dRight":-6,"above":6,"below":-123.5,"panelW":288} area="span-left top"
+[float-button-area] RED  default-corner-direct    geo={"dLeft":-128.9,"dRight":16.3,"above":-16.3,"below":-129.7,"panelW":185.2} area="span-left top" — side-above(gap=-16.3); align-end(dRight=16.3 dLeft=-128.9)
+[float-button-area] ok   mirror-corner-flip-inline geo={"dLeft":12,"dRight":157.2,"above":12,"below":-158,"panelW":185.2} area="span-right top"
+[float-button-area] red  swapped-map control (old "top span-right" planted): align-end, area red — geo={"dLeft":-96,"dRight":8,"above":12,"below":-218,"panelW":144} area="span-right top"
+[menubar-area] RED  direct                   geo={"dLeft":-73,"dRight":21.4,"above":-214,"below":8,"panelW":160} area="span-left bottom" — align-start(dLeft=-73 dRight=21.4); area(computed="span-left bottom" expected="bottom span-right")
+[menubar-area] RED  collision-flip-block     geo={"dLeft":-73,"dRight":21.4,"above":-85,"below":-121,"panelW":160} area="span-left bottom" — side-above(gap=-85); align-start(dLeft=-73 dRight=21.4); area(computed="span-left bottom" expected="top span-right")
+[menubar-area] red  swapped-map control (old "bottom span-left" planted): align-start, area red — geo={"dLeft":-73,"dRight":21.4,"above":-214,"below":8,"panelW":160} area="span-left bottom"
+[popover-area] FAIL — dropdown/bottom-start: side-below(gap=36.3); align-start(dLeft=-132.9 dRight=20.3); area(computed="span-left bottom" expected="bottom span-right")
+[popover-area] FAIL — dropdown/bottom-end: align-end(dRight=161.2 dLeft=8); area(computed="span-right bottom" expected="bottom span-left")
+[popover-area] FAIL — dropdown/top-start: align-start(dLeft=-161.2 dRight=-8); area(computed="span-left top" expected="top span-right")
+[popover-area] FAIL — dropdown/top-end: align-end(dRight=161.2 dLeft=8); area(computed="span-right top" expected="top span-left")
+[popover-area] FAIL — dropdown/collision-flip-block: align-start(dLeft=-161.2 dRight=-8); area(computed="span-left top" expected="top span-right")
+[popover-area] FAIL — tooltip/top-start: align-start(dLeft=-182 dRight=-6); area(computed="span-left top" expected="top span-right")
+[popover-area] FAIL — tooltip/top-end: align-end(dRight=182 dLeft=6); area(computed="span-right top" expected="top span-left")
+[popover-area] FAIL — tooltip/bottom-start: align-start(dLeft=-182 dRight=-6); area(computed="span-left bottom" expected="bottom span-right")
+[popover-area] FAIL — tooltip/bottom-end: align-end(dRight=182 dLeft=6); area(computed="span-right bottom" expected="bottom span-left")
+[popover-area] FAIL — tooltip/collision-flip-block: align-start(dLeft=-182 dRight=-6); area(computed="span-left top" expected="top span-right")
+[popover-area] FAIL — float-button/default-corner-direct: side-above(gap=-16.3); align-end(dRight=16.3 dLeft=-128.9)
+[popover-area] FAIL — menubar/direct: align-start(dLeft=-73 dRight=21.4); area(computed="span-left bottom" expected="bottom span-right")
+[popover-area] FAIL — menubar/collision-flip-block: side-above(gap=-85); align-start(dLeft=-73 dRight=21.4); area(computed="span-left bottom" expected="top span-right")
+{"probe":"popover-area-align","primaryDelta":0,"controlDelta":-171,"sweep":{"dropdown":{"arms":8,"red":5},"tooltip":{"arms":8,"red":5},"float-button":{"arms":2,"red":1},"menubar":{"arms":2,"red":2}},"swappedControlReds":{"dropdown":2,"tooltip":2,"float-button":2,"menubar":2},"pass":false}
+
+popover-area-align: RED

@@ -1,0 +1,229 @@
+{
+  "note": "pre (dev server, inverted maps live) vs post (dist, corrected maps) per-arm pixel diff; >8-level threshold; bbox = moved region",
+  "confounds": [
+    "tooltip center arms moved only because the fixture tip text changed to unbreakable tokens (the flip-arm armature); center placements were never inverted",
+    "dropdown/float-button collision-flip-inline and float-button mirror-corner are 0-diff by design: pre-fix rendered the same FINAL pose via engine rescue (flip-inline on overflow); post-fix renders it directly from the authored map \u2014 the mechanism change is proven by computed position-area + the swapped-map control"
+  ],
+  "arms": [
+    {
+      "arm": "dropdown-bottom-end",
+      "movedPixels": 24261,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        855,
+        483
+      ]
+    },
+    {
+      "arm": "dropdown-bottom",
+      "movedPixels": 0,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        149,
+        22
+      ]
+    },
+    {
+      "arm": "dropdown-bottom-start",
+      "movedPixels": 20135,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        944,
+        784
+      ]
+    },
+    {
+      "arm": "dropdown-collision-flip-block",
+      "movedPixels": 23894,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        855,
+        798
+      ]
+    },
+    {
+      "arm": "dropdown-collision-flip-inline",
+      "movedPixels": 0,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        149,
+        22
+      ]
+    },
+    {
+      "arm": "dropdown-top-end",
+      "movedPixels": 25286,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        855,
+        272
+      ]
+    },
+    {
+      "arm": "dropdown-top",
+      "movedPixels": 0,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        149,
+        22
+      ]
+    },
+    {
+      "arm": "dropdown-top-start",
+      "movedPixels": 25286,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        855,
+        272
+      ]
+    },
+    {
+      "arm": "float-button-default-corner-direct",
+      "movedPixels": 4549,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        1440,
+        900
+      ]
+    },
+    {
+      "arm": "float-button-mirror-corner-flip-inline",
+      "movedPixels": 0,
+      "totalPixels": 1296000,
+      "bbox": [
+        20,
+        14,
+        149,
+        880
+      ]
+    },
+    {
+      "arm": "menubar-collision-flip-block",
+      "movedPixels": 16512,
+      "totalPixels": 1296000,
+      "bbox": [
+        1,
+        14,
+        260,
+        892
+      ]
+    },
+    {
+      "arm": "menubar-direct",
+      "movedPixels": 10055,
+      "totalPixels": 1296000,
+      "bbox": [
+        6,
+        14,
+        261,
+        342
+      ]
+    },
+    {
+      "arm": "tooltip-bottom-end",
+      "movedPixels": 11653,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        860,
+        460
+      ]
+    },
+    {
+      "arm": "tooltip-bottom",
+      "movedPixels": 8167,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        766,
+        460
+      ]
+    },
+    {
+      "arm": "tooltip-bottom-start",
+      "movedPixels": 11710,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        860,
+        460
+      ]
+    },
+    {
+      "arm": "tooltip-collision-flip-block",
+      "movedPixels": 11081,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        860,
+        795
+      ]
+    },
+    {
+      "arm": "tooltip-collision-flip-inline",
+      "movedPixels": 8062,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        1406,
+        460
+      ]
+    },
+    {
+      "arm": "tooltip-top-end",
+      "movedPixels": 12213,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        860,
+        308
+      ]
+    },
+    {
+      "arm": "tooltip-top",
+      "movedPixels": 7790,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        766,
+        298
+      ]
+    },
+    {
+      "arm": "tooltip-top-start",
+      "movedPixels": 11910,
+      "totalPixels": 1296000,
+      "bbox": [
+        77,
+        14,
+        860,
+        314
+      ]
+    }
+  ]
+}
