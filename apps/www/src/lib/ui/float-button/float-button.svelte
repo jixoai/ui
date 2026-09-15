@@ -118,6 +118,17 @@
     style="anchor-name: {anchorName}"
     bind:this={anchorEl}
   >
+    <!-- position-area law (W5 sweep, 2026-09-15 — spec-true): the menu
+         occupies the region ABOVE the stack, END-aligned — `top
+         span-left` names exactly that (spanning from the left edge
+         inward to the stack's inline-end: right edges together), the
+         classic corner-FAB look and the DIRECT geometry for the
+         default bottom-right corner. The mirror corners are adapted
+         by DESIGN through the css's flip-inline (an engine-derived
+         spec-grammar flip, never an ad-hoc inset). The pre-sweep
+         literal `top span-right` (which renders start-aligned)
+         encoded the inverted model. ONE literal feeds BOTH emissions
+         (position-area + the legacy inset-area alias) -->
     <div
       id={autoId}
       popover="auto"
@@ -125,7 +136,7 @@
       class={cn('jx-fab-menu jx-surface', motion.supported && 'jx-waapi')}
       data-variant={d.variant}
       bind:this={panel}
-      style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;"
+      style="position-anchor: {anchorName}; inset-area: top span-left; position-area: top span-left;"
       ontoggle={(e: Event) => {
         const el = e.currentTarget as HTMLElement;
         open = el.matches(':popover-open');

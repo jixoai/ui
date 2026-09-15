@@ -179,17 +179,31 @@
 
   // id is mount-stable by contract; $derived keeps the name truthful
   const anchorName = $derived(`--jx-tip-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+  // SPAN SEMANTICS (W5 sweep, 2026-09-15 — spec-true position-area,
+  // the popover.svelte law): position-area names the region the
+  // SURFACE occupies relative to its anchor — `top span-right` puts
+  // the bubble above the anchor, START-aligned (spanning from the
+  // anchor's inline-start edge rightward: left edges together), `top
+  // span-left` END-aligns (right edges together). The map pairs each
+  // logical placement with the span that MEASURES as its intended
+  // alignment (*-start → span-right, *-end → span-left); the
+  // pre-sweep table encoded the inverted model. ONE table feeds BOTH
+  // emissions below (position-area + the legacy inset-area alias) —
+  // no divergence between the channels
   const area = $derived(
     placement === 'top' ? 'top'
-    : placement === 'top-start' ? 'top span-left'
-    : placement === 'top-end' ? 'top span-right'
+    : placement === 'top-start' ? 'top span-right'
+    : placement === 'top-end' ? 'top span-left'
     : placement === 'bottom' ? 'bottom'
-    : placement === 'bottom-start' ? 'bottom span-left'
-    : 'bottom span-right'
+    : placement === 'bottom-start' ? 'bottom span-right'
+    : 'bottom span-left'
   );
   // the anchor point the tab aims at: center placements → the side
-  // midpoint, -start/-end → the matching corner (physical left/right,
-  // mirroring the physical span-left/span-right choice in `area`)
+  // midpoint, -start/-end → the matching corner (physical left/right
+  // — CONVERGENT with the corrected area map: a *-start bubble is
+  // start-aligned (span-right), so its leading edge sits on the
+  // anchor's left corner, exactly where the tab aims; *-end the
+  // mirror)
   const aimSide = $derived(
     placement.endsWith('-start') ? 'left'
     : placement.endsWith('-end') ? 'right'

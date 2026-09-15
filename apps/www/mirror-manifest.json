@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-14T20:15:34.807Z",
+  "generatedAt": "2026-09-15T12:21:25.151Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -89,6 +89,7 @@
     "tour": "registry/files/ui/tour/tour.svelte",
     "highlight-detect-default": "registry/files/ui/highlight-detect-default/highlight-detect-default.svelte",
     "scroll-area": "registry/files/ui/scroll-area/scroll-area.svelte",
+    "native-scroll-area": "registry/files/ui/native-scroll-area/native-scroll-area.svelte",
     "scroll-virtual": "registry/files/ui/scroll-virtual/scroll-virtual.svelte",
     "scroll-run": "registry/files/ui/scroll-run/scroll-run.svelte.ts",
     "icon": "registry/files/ui/icon/icon.svelte",
@@ -159,8 +160,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "8e69deb6683c96bc70ec1ec9aa60a9f2fe3b43f760737a55f5dc1263aa42777c",
-          "mirrorSha": "8e69deb6683c96bc70ec1ec9aa60a9f2fe3b43f760737a55f5dc1263aa42777c"
+          "sourceSha": "15e0fe90f3ce0d9341d8133d3a9b49985116b2ef5feb6c57c17c36ff8e809b1e",
+          "mirrorSha": "15e0fe90f3ce0d9341d8133d3a9b49985116b2ef5feb6c57c17c36ff8e809b1e"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -173,8 +174,8 @@
           "source": "registry/files/ui/press-button/press-button.css",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.css",
           "target": "@ui/press-button/press-button.css",
-          "sourceSha": "e17e59591c7ba8cfafe9c675d4f1b43d7b496e122e8d79bbdcd93df000c9f300",
-          "mirrorSha": "e17e59591c7ba8cfafe9c675d4f1b43d7b496e122e8d79bbdcd93df000c9f300"
+          "sourceSha": "f6e195f7d7d14148bd8bfcdec45e1dfb2c48b76afd9e198ee8877fa793e45bd9",
+          "mirrorSha": "f6e195f7d7d14148bd8bfcdec45e1dfb2c48b76afd9e198ee8877fa793e45bd9"
         },
         {
           "source": "registry/files/ui/press-button/ripple.svelte.ts",
@@ -187,8 +188,8 @@
           "source": "registry/files/ui/press-button/press-effect-runtime.ts",
           "mirror": "apps/www/src/lib/ui/press-button/press-effect-runtime.ts",
           "target": "@ui/press-button/press-effect-runtime.ts",
-          "sourceSha": "4bec026881e288b74b7abf1005b55a346237d68cafe2bce71d86d9a9fff18bbe",
-          "mirrorSha": "4bec026881e288b74b7abf1005b55a346237d68cafe2bce71d86d9a9fff18bbe"
+          "sourceSha": "fc4f44bcb1c5779ec0bea45d104c1221c78b493235f8731bc2998bae11efb57c",
+          "mirrorSha": "fc4f44bcb1c5779ec0bea45d104c1221c78b493235f8731bc2998bae11efb57c"
         },
         {
           "source": "registry/files/ui/press-button/press-button-defaults.svelte.ts",
@@ -2110,8 +2111,8 @@
           "source": "registry/files/ui/tooltip/tooltip.svelte",
           "mirror": "apps/www/src/lib/ui/tooltip/tooltip.svelte",
           "target": "@ui/tooltip/tooltip.svelte",
-          "sourceSha": "65bfb8ccb62e31b04f1f223c0e915a2e7de5a1f1d959d4ebe09456129c11a13b",
-          "mirrorSha": "65bfb8ccb62e31b04f1f223c0e915a2e7de5a1f1d959d4ebe09456129c11a13b"
+          "sourceSha": "0ee50db59495b0537434d1e2fd08ecfdfdfcf31334629fc00b893a267e4b15ae",
+          "mirrorSha": "0ee50db59495b0537434d1e2fd08ecfdfdfcf31334629fc00b893a267e4b15ae"
         },
         {
           "source": "registry/files/ui/tooltip/index.ts",
@@ -2124,8 +2125,8 @@
           "source": "registry/files/ui/tooltip/tooltip.css",
           "mirror": "apps/www/src/lib/ui/tooltip/tooltip.css",
           "target": "@ui/tooltip/tooltip.css",
-          "sourceSha": "337edfd3a5ebd0ceacf92f67d99209c9dca0be4b699a46a9d69c715364cdbc79",
-          "mirrorSha": "337edfd3a5ebd0ceacf92f67d99209c9dca0be4b699a46a9d69c715364cdbc79"
+          "sourceSha": "dc92a366113a179fd6c9776d3cd17e5064946d5e9f565111c097ce641f2dca92",
+          "mirrorSha": "dc92a366113a179fd6c9776d3cd17e5064946d5e9f565111c097ce641f2dca92"
         },
         {
           "source": "registry/files/ui/tooltip/tooltip-defaults.svelte.ts",
@@ -2222,8 +2223,8 @@
           "source": "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
           "mirror": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
           "target": "@ui/dropdown-menu/dropdown-menu.svelte",
-          "sourceSha": "d1844490739ee8970da00b62ea2dbac84a40e935aae606815cdc3fe65ed4c823",
-          "mirrorSha": "d1844490739ee8970da00b62ea2dbac84a40e935aae606815cdc3fe65ed4c823"
+          "sourceSha": "f757eab256bfb3ecd4f97a0acc94eb52f120aa3f2245584ef8fcf561fb30ac93",
+          "mirrorSha": "f757eab256bfb3ecd4f97a0acc94eb52f120aa3f2245584ef8fcf561fb30ac93"
         },
         {
           "source": "registry/files/ui/dropdown-menu/dropdown-menu-item.svelte",
@@ -2243,8 +2244,8 @@
           "source": "registry/files/ui/dropdown-menu/dropdown-menu.css",
           "mirror": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.css",
           "target": "@ui/dropdown-menu/dropdown-menu.css",
-          "sourceSha": "a211483c6546419da8d47aa1e7ca84e194d972c6e27440d4e57832ec13a69f1e",
-          "mirrorSha": "a211483c6546419da8d47aa1e7ca84e194d972c6e27440d4e57832ec13a69f1e"
+          "sourceSha": "ba67d1cff52f1f163a5ec681400735b64404abc8cda412288229de1851ef4464",
+          "mirrorSha": "ba67d1cff52f1f163a5ec681400735b64404abc8cda412288229de1851ef4464"
         },
         {
           "source": "registry/files/ui/dropdown-menu/dropdown-menu-defaults.svelte.ts",
@@ -3041,8 +3042,8 @@
           "source": "registry/files/ui/menubar/menubar-panel.svelte",
           "mirror": "apps/www/src/lib/ui/menubar/menubar-panel.svelte",
           "target": "@ui/menubar/menubar-panel.svelte",
-          "sourceSha": "124bd4b38c0cf905f41ebb644a24d6a1d96b1a3e672065bad8c8391a136c5838",
-          "mirrorSha": "124bd4b38c0cf905f41ebb644a24d6a1d96b1a3e672065bad8c8391a136c5838"
+          "sourceSha": "7b700da30d9df349b43bacec6b0a919cefe369cbaa8717cfe36b8c74cfe4e7c6",
+          "mirrorSha": "7b700da30d9df349b43bacec6b0a919cefe369cbaa8717cfe36b8c74cfe4e7c6"
         },
         {
           "source": "registry/files/ui/menubar/menubar-trigger.svelte",
@@ -3055,8 +3056,8 @@
           "source": "registry/files/ui/menubar/menubar.css",
           "mirror": "apps/www/src/lib/ui/menubar/menubar.css",
           "target": "@ui/menubar/menubar.css",
-          "sourceSha": "bfc93d268c98c9afd987ddef11dc2bc96e712ff75fdc87fd86b694d19a78f03f",
-          "mirrorSha": "bfc93d268c98c9afd987ddef11dc2bc96e712ff75fdc87fd86b694d19a78f03f"
+          "sourceSha": "43500b22400278b0a7ee2a4ddbb68f51e7b95728715e16c52bbb14f18386e20b",
+          "mirrorSha": "43500b22400278b0a7ee2a4ddbb68f51e7b95728715e16c52bbb14f18386e20b"
         },
         {
           "source": "registry/files/ui/menubar/menubar.svelte",
@@ -3517,8 +3518,8 @@
           "source": "registry/files/ui/float-button/float-button.svelte",
           "mirror": "apps/www/src/lib/ui/float-button/float-button.svelte",
           "target": "@ui/float-button/float-button.svelte",
-          "sourceSha": "20e7ed8c399ebe0a2a9af417e672fbc72624c1ea5547cdd3798c598babb520b1",
-          "mirrorSha": "20e7ed8c399ebe0a2a9af417e672fbc72624c1ea5547cdd3798c598babb520b1"
+          "sourceSha": "72359d620876c00cb1b0a47193ff5d03e50b39314c06a19c2508782afd353df4",
+          "mirrorSha": "72359d620876c00cb1b0a47193ff5d03e50b39314c06a19c2508782afd353df4"
         },
         {
           "source": "registry/files/ui/float-button/index.ts",
@@ -3531,8 +3532,8 @@
           "source": "registry/files/ui/float-button/float-button.css",
           "mirror": "apps/www/src/lib/ui/float-button/float-button.css",
           "target": "@ui/float-button/float-button.css",
-          "sourceSha": "7dcc299a57e6bffd2b1d1d3bb417eef4886aeacb249aeb4c4e0fc96df43bed23",
-          "mirrorSha": "7dcc299a57e6bffd2b1d1d3bb417eef4886aeacb249aeb4c4e0fc96df43bed23"
+          "sourceSha": "08737e33816b49924052cd768b8714d002f37a7dc661f7d4575df5593ded101d",
+          "mirrorSha": "08737e33816b49924052cd768b8714d002f37a7dc661f7d4575df5593ded101d"
         },
         {
           "source": "registry/files/ui/float-button/float-button-defaults.svelte.ts",
@@ -3938,8 +3939,8 @@
           "source": "registry/files/ui/scroll-area/scroll-area.svelte",
           "mirror": "apps/www/src/lib/ui/scroll-area/scroll-area.svelte",
           "target": "@ui/scroll-area/scroll-area.svelte",
-          "sourceSha": "7bc35aa1bf88737d121d9e45f0c5a76d02cc1b9d681b24f9d36718bb66617420",
-          "mirrorSha": "7bc35aa1bf88737d121d9e45f0c5a76d02cc1b9d681b24f9d36718bb66617420"
+          "sourceSha": "cf734e665361e3e86dd1d8f59f1252e8f3e3d98838042d3552e86ae2acf15ba8",
+          "mirrorSha": "cf734e665361e3e86dd1d8f59f1252e8f3e3d98838042d3552e86ae2acf15ba8"
         },
         {
           "source": "registry/files/ui/scroll-area/index.ts",
@@ -3952,8 +3953,63 @@
           "source": "registry/files/ui/scroll-area/scroll-area.css",
           "mirror": "apps/www/src/lib/ui/scroll-area/scroll-area.css",
           "target": "@ui/scroll-area/scroll-area.css",
-          "sourceSha": "06db7fd53f9e5ed9702c409ab48b491c295cad292e1b7423a62630fa00cb62ce",
-          "mirrorSha": "06db7fd53f9e5ed9702c409ab48b491c295cad292e1b7423a62630fa00cb62ce"
+          "sourceSha": "6625ca6b53a539f98cb487f81dae3e5fe7240921b93b24847f7aba8a1b6d6789",
+          "mirrorSha": "6625ca6b53a539f98cb487f81dae3e5fe7240921b93b24847f7aba8a1b6d6789"
+        }
+      ]
+    },
+    {
+      "itemName": "native-scroll-area",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/native-scroll-area/native-scroll-area.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/native-scroll-area/native-scroll-area.svelte",
+          "mirror": "apps/www/src/lib/ui/native-scroll-area/native-scroll-area.svelte",
+          "target": "@ui/native-scroll-area/native-scroll-area.svelte",
+          "sourceSha": "b3a59e7bcb33161483dd087d5e5760f6178309bd662bbd9f109b6b465613711b",
+          "mirrorSha": "b3a59e7bcb33161483dd087d5e5760f6178309bd662bbd9f109b6b465613711b"
+        },
+        {
+          "source": "registry/files/ui/native-scroll-area/index.ts",
+          "mirror": "apps/www/src/lib/ui/native-scroll-area/index.ts",
+          "target": "@ui/native-scroll-area/index.ts",
+          "sourceSha": "90e328a13bb0a0ea1045c45059aba7001e3b5db5cb953ca7d255a9a2b64f9d03",
+          "mirrorSha": "90e328a13bb0a0ea1045c45059aba7001e3b5db5cb953ca7d255a9a2b64f9d03"
+        },
+        {
+          "source": "registry/files/ui/native-scroll-area/native-scroll-area.css",
+          "mirror": "apps/www/src/lib/ui/native-scroll-area/native-scroll-area.css",
+          "target": "@ui/native-scroll-area/native-scroll-area.css",
+          "sourceSha": "918a6f09947dc72a1d264cef3935ab4ec866b69ec1f665fd87c91dc86d58ed63",
+          "mirrorSha": "918a6f09947dc72a1d264cef3935ab4ec866b69ec1f665fd87c91dc86d58ed63"
+        }
+      ]
+    },
+    {
+      "itemName": "scroll-area-kit",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/scroll-area-kit/core.ts",
+          "mirror": "apps/www/src/lib/scroll-area-kit/core.ts",
+          "target": "@lib/scroll-area-kit/core.ts",
+          "sourceSha": "5b741536c4e97246e6530c27f3a04daab8e1d8676512f29b60127d983b2a7914",
+          "mirrorSha": "5b741536c4e97246e6530c27f3a04daab8e1d8676512f29b60127d983b2a7914"
+        },
+        {
+          "source": "registry/files/lib/scroll-area-kit/hand-drawn.svelte.ts",
+          "mirror": "apps/www/src/lib/scroll-area-kit/hand-drawn.svelte.ts",
+          "target": "@lib/scroll-area-kit/hand-drawn.svelte.ts",
+          "sourceSha": "9998a7c1be487704b3fe60ea771ad72b1eeba2be280e910d9a17fe3dd546bae8",
+          "mirrorSha": "9998a7c1be487704b3fe60ea771ad72b1eeba2be280e910d9a17fe3dd546bae8"
+        },
+        {
+          "source": "registry/files/lib/scroll-area-kit/native-capability.css",
+          "mirror": "apps/www/src/lib/scroll-area-kit/native-capability.css",
+          "target": "@lib/scroll-area-kit/native-capability.css",
+          "sourceSha": "7f7ef921acb0c1048bc93c39e48e2ba64e9bc28f5c0853c6bdc997620a7bdb51",
+          "mirrorSha": "7f7ef921acb0c1048bc93c39e48e2ba64e9bc28f5c0853c6bdc997620a7bdb51"
         }
       ]
     },
@@ -3966,8 +4022,8 @@
           "source": "registry/files/ui/scroll-virtual/scroll-virtual.svelte",
           "mirror": "apps/www/src/lib/ui/scroll-virtual/scroll-virtual.svelte",
           "target": "@ui/scroll-virtual/scroll-virtual.svelte",
-          "sourceSha": "4ef13bc88a9d52eb3e4cd7129dd334da43bd828c69f2c4c724ba6f2028567022",
-          "mirrorSha": "4ef13bc88a9d52eb3e4cd7129dd334da43bd828c69f2c4c724ba6f2028567022"
+          "sourceSha": "741ab05307c1908623f0ba312e337e9c7a692c1c562342afce40689ae3216c6d",
+          "mirrorSha": "741ab05307c1908623f0ba312e337e9c7a692c1c562342afce40689ae3216c6d"
         },
         {
           "source": "registry/files/ui/scroll-virtual/index.ts",
@@ -4632,8 +4688,8 @@
           "source": "registry/files/lib/mermaid-engine.ts",
           "mirror": "apps/www/src/lib/mermaid-engine.ts",
           "target": "@lib/mermaid-engine.ts",
-          "sourceSha": "d11f133214ec2a7def340d11b0db4f715c13839a2a3548e4bac4968f674956df",
-          "mirrorSha": "d11f133214ec2a7def340d11b0db4f715c13839a2a3548e4bac4968f674956df"
+          "sourceSha": "390bc31c8a71c0b512084cab923226b0596f4e63f67d62e4737a06ae29485cbe",
+          "mirrorSha": "390bc31c8a71c0b512084cab923226b0596f4e63f67d62e4737a06ae29485cbe"
         }
       ]
     },
@@ -4695,15 +4751,15 @@
           "source": "registry/files/ui/mermaid/mermaid.svelte",
           "mirror": "apps/www/src/lib/ui/mermaid/mermaid.svelte",
           "target": "@ui/mermaid/mermaid.svelte",
-          "sourceSha": "678bcef32d89ed2d31c5137fc0f678864dad8be92bdfaf4262cb7ab1257ed9a6",
-          "mirrorSha": "678bcef32d89ed2d31c5137fc0f678864dad8be92bdfaf4262cb7ab1257ed9a6"
+          "sourceSha": "541cde27c5b66325ec4c698676b0805246a1f6f1818078471b5db1cbfc543b7b",
+          "mirrorSha": "541cde27c5b66325ec4c698676b0805246a1f6f1818078471b5db1cbfc543b7b"
         },
         {
           "source": "registry/files/ui/mermaid/mermaid.css",
           "mirror": "apps/www/src/lib/ui/mermaid/mermaid.css",
           "target": "@ui/mermaid/mermaid.css",
-          "sourceSha": "0f2b83b8351d0476ecb8d55b62f9cad2dd447c043f3a369f2b8fcf1e95b4d951",
-          "mirrorSha": "0f2b83b8351d0476ecb8d55b62f9cad2dd447c043f3a369f2b8fcf1e95b4d951"
+          "sourceSha": "b71e6de7f5950733fb46f1f217a1008c024df8f5f74d5c8521e9cea9a26ff59a",
+          "mirrorSha": "b71e6de7f5950733fb46f1f217a1008c024df8f5f74d5c8521e9cea9a26ff59a"
         },
         {
           "source": "registry/files/ui/mermaid/index.ts",
