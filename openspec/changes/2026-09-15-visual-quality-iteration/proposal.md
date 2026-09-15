@@ -74,45 +74,62 @@ Plus the phase-0 leftovers this round folds in (Owner 2026-09-15, item 5 —
 `registry/files/ui/mermaid/`:
 
 - New `backdrop` prop (default ON): when the EFFECTIVE theme (pin or
-  resolved) is dark, the viewport paints a designed dark surface —
-  `backdrop-filter` blur + a translucent tint derived from the theme's own
-  `background` token, rounded, padded, subtle border — replacing today's
-  opaque hard-edge `#000000` fill. `backdrop={false}` restores transparency.
-- Graceful floor under `@supports not (backdrop-filter)`: today's opaque
-  fill.
+  resolved) is dark, the viewport paints a designed dark veil built on
+  `backdrop-filter` with ZERO ink (the subtraction ink law — no dark
+  background, no hand-mixed tint): a subtractive blur + contrast/
+  brightness chain pulls the page behind toward the dark ground, in a
+  rounded, padded, subtly bordered box — replacing today's opaque
+  hard-edge `#000000` fill. `backdrop={false}` restores transparency.
+- Graceful floor under `@supports not (backdrop-filter)`: the component's
+  own opaque theme-ground fill (today's behavior, the standing
+  surface-ground floor).
 - Light theme behavior unchanged.
-- A contrast pass over the derived dark palette (vision measured
-  black-on-black node borders on the current paint).
+- A contrast pass with FIXED acceptance over the derived dark palette
+  (labels ≥ 4.5:1, graphics ≥ 3:1, probe-sampled on the pinned-Chromium
+  screenshot — vision measured black-on-black node borders on the
+  current paint).
 
 ### W3 — timeline's spine is drawn, not backgrounded (rework)
 
 `registry/files/ui/timeline/` reworked to a hybrid engine:
 
 - Items/content/dots stay DOM (text layout, a11y, density contract).
-- The spine becomes ONE whole-list SVG layer (measured from the live item
-  geometry): continuous connectors across items (no per-item seams), real
-  dash patterns with the dot-edge phase-anchor law preserved, beam presets
-  with actual width and glow, and the scroll-progress spine as a
-  stroke-draw. Axis/direction/RTL variants resolve in one coordinate space.
+- The spine becomes ONE whole-list SVG layer mounted as a `grid-area:
+  1/1` sibling of the item list in the one-cell grid host (the
+  css-architecture overlay dialect — no abspos layout), painted under
+  the dots and content by source order, the ladder isolated at the list
+  root: continuous connectors across items (no per-item seams), real
+  dash patterns with the dot-edge phase-anchor law preserved, beam
+  presets with actual width and glow, and the scroll-progress spine as a
+  stroke-draw. Axis/direction/RTL variants resolve in one coordinate
+  space. Two standing abspos exemptions RETIRE (the timeline beam and
+  the scroll-progress absolute channel).
 - A no-JS floor: the SSR paint keeps a simple CSS line per item; hydration
-  upgrades to the measured SVG spine (progressive enhancement, the code-card
-  posture).
+  upgrades to the measured SVG spine (progressive enhancement, the
+  code-card posture).
 - The `line(i)` snippet seam evolves into the spine-preset contract
   (breaking; no compat shims — the Owner's one-step ruling).
 
 ### W4 — the scroll-area family: one hand-drawn law + a native sibling on a shared kit (rework)
 
 - New `registry/files/lib/scroll-area-kit/` (the control-chrome lib
-  precedent): the measurement runtime (overflow verdict, thumb geometry,
-  drag/hover/idle-fade state machine, keyboard scrolling, the custom
-  scrollbar's a11y contract) — shared, family-neutral.
+  precedent), SPLIT BY CONCERN: a shared CORE (overflow verdict, thumb
+  geometry, theme-scope resolution — zero paint, zero ARIA) + a
+  hand-drawn INTERACTION ADAPTER (idle fade, hover grow, drag pin,
+  keyboard, the thumb's a11y contract) + the native CAPABILITY STYLES.
 - `scroll-area` reworked: ALWAYS hand-drawn (the `variant` prop retires,
-  breaking). Capsule thumb, hover growth, idle fade, drag opacity, keyboard
-  affordances — the complete style-control surface the Owner asked for.
+  breaking). Capsule thumb, hover growth, idle fade with testable pins
+  (region focus-within, thumb focus, drag, hover — the thumb never
+  leaves the accessibility tree while pinned), keyboard affordances —
+  the complete style-control surface the Owner asked for.
 - New `native-scroll-area`: the platform scrollbar under the site's
-  scrollbar-token law, with the native best practices packaged as capability
-  styles (`scrollbar-gutter: stable`, `color-scheme` alignment,
-  `scrollbar-width` tiers).
+  scrollbar-token law, with the native best practices packaged as
+  capability styles (`scrollbar-gutter: stable`, theme-scope-aligned
+  `color-scheme`, `scrollbar-width` tiers, `overscroll-behavior`
+  containment) — and NO custom scrollbar ARIA (the platform bar IS the
+  accessibility contract).
+- Both new items enter the clean-consumer proof harness (real install,
+  not just registry entries).
 - Boundary: `scroll-run` (the linear strip edge system) is a DIFFERENT
   shared system and stays untouched — the kit models boxed-region
   scrollbars, one axis pair per region.
@@ -146,5 +163,8 @@ Plus the phase-0 leftovers this round folds in (Owner 2026-09-15, item 5 —
 - **Verification posture**: every visual claim in this change carries BOTH a
   deterministic probe (computed style / geometry, the discipline this
   session established: vision reads only ride on top of programmatic
-  verification) and a screenshot receipt; www + plugin suites + openspec
-  strict stay the standing gates.
+  verification) and a screenshot receipt, all landing in this change's
+  `research/` directory; the two NEW registry items additionally prove
+  themselves through the clean-consumer install harness (the registry
+  spec's real-install proof); www + plugin suites + openspec strict stay
+  the standing gates.

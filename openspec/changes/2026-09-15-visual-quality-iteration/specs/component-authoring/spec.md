@@ -12,8 +12,9 @@ answers light/dark first; the OS scheme answers ONLY when the whole
 ancestor chain carries no scope. The auto fill COLOR SHALL be the effective
 canvas — the nearest OPAQUE ancestor background (walk-up + parse), falling
 back to white/black by the resolved context — and SHALL follow live scope
-mutation (class observer on the ancestor chain, disconnected on cleanup).
-The CSS `Canvas` keyword SHALL NOT appear in the auto path. Explicit fills
+mutation (a scope observer on the ancestor chain watching class AND
+`data-theme` attribute mutations, both, disconnected on cleanup). The CSS
+`Canvas` keyword SHALL NOT appear in the auto path. Explicit fills
 (solidFill minting, numeric fills) are untouched.
 
 #### Scenario: the stage's theme answers, not the OS
@@ -42,11 +43,13 @@ The CSS `Canvas` keyword SHALL NOT appear in the auto path. Explicit fills
 
 #### Scenario: the fill follows a live scope flip
 
-- GIVEN a rendered shimmer under a scope that flips class
-  (`jx-light` → `dark`)
-- WHEN the observer fires
+- GIVEN a rendered shimmer under a scope that mutates — a class flip
+  (`jx-light` → `dark`) OR an attribute flip
+  (`data-theme="light"` → `data-theme="dark"`)
+- WHEN the observer fires on either mutation kind
 - THEN the fill re-resolves to the new context's canvas without a
-  re-mount, and the observer disconnects on destroy
+  re-mount, and the observer disconnects on destroy (both mutation
+  kinds probe-asserted)
 
 #### Scenario: rainbow rides the same channel
 
@@ -57,9 +60,15 @@ The CSS `Canvas` keyword SHALL NOT appear in the auto path. Explicit fills
 ### Requirement: the timeline spine is drawn (Owner 2026-09-15)
 
 The timeline's spine SHALL be ONE whole-list SVG layer — measured from the
-live item geometry, absolutely positioned over the list, `pointer-events:
-none`, painted UNDER the dots and content — never per-item background
-seams. Items, content, titles, times, and dots stay DOM. A no-JS floor
+live item geometry, mounted as a `grid-area: 1/1` SIBLING of the item
+list inside the one-cell grid host (the law's overlay dialect — never
+`position: absolute` for layout), `pointer-events: none`, painted UNDER
+the dots and content by source order (the zero-z dialect), the ladder
+rooted by `isolation: isolate` on the list root — never per-item
+background seams. The standing abspos exemptions RETIRE with it: the
+timeline beam (TRANSIENT INK) now lives inside the SVG layer, and the
+scroll-progress spine's absolute channel (CONTAINING-BLOCK NEEDS,
+2026-09-02) is replaced by the whole-list stroke draw. Items, content, titles, times, and dots stay DOM. A no-JS floor
 SHALL paint a simple CSS line per item before hydration (progressive
 enhancement); hydration upgrades to the measured spine. The `line(i)`
 per-item snippet seam RETIRES; the spine contract (a `spine` prop taking
@@ -107,12 +116,17 @@ snippet receiving the measured geometry) replaces it. Breaking, no compat.
 `scroll-area` SHALL hand-draw its scrollbar ALWAYS (the `variant` prop
 RETIRES — no native mode, breaking). A separate `native-scroll-area` item
 SHALL ship the platform scrollbar under the scrollbar-token law with the
-native best practices as capability styles. Both SHALL share the
-`scroll-area-kit` lib kernel (the control-chrome precedent): overflow
-verdict, thumb geometry, the interaction state machine, and the custom
-scrollbar's a11y contract — behavior in the kit, paint in the consumer.
-`scroll-run` (the linear strip edge system) is a DIFFERENT shared system
-and is untouched.
+native best practices as capability styles, and SHALL mount NO custom
+scrollbar ARIA — no drawn thumb exists, and the platform scrollbar IS the
+accessibility contract (a `role="scrollbar"` on a nonexistent thumb is a
+violation, not a feature). Both SHALL share the `scroll-area-kit` lib
+kernel (the control-chrome precedent), SPLIT BY CONCERN: a shared CORE
+(overflow verdict, thumb geometry math, theme-scope resolution — zero
+paint, zero ARIA of its own) and a HAND-DRAWN INTERACTION ADAPTER (idle
+fade, hover growth, drag pinning, keyboard scrolling, the thumb's a11y
+contract) consumed ONLY by the hand-drawn component. Behavior lives in
+the kit; paint lives in the consumer. `scroll-run` (the linear strip
+edge system) is a DIFFERENT shared system and is untouched.
 
 #### Scenario: the hand-drawn law owns the styled component
 
@@ -122,12 +136,16 @@ and is untouched.
   keyboard affordances on region and thumb — restyled by tokens without
   JS, in both light and dark scopes
 
-#### Scenario: auto-hide never hides the affordance from keyboard/AT
+#### Scenario: auto-hide never hides the affordance from keyboard users
 
-- GIVEN a focused or AT-engaged scroll-area
-- THEN the thumb pins visible (focus/AT context suspends the idle fade)
-  — `role="scrollbar"`, orientation, and value semantics live on the
-  thumb
+- GIVEN a scroll-area whose region or thumb holds focus, or whose thumb
+  is being dragged or hovered
+- WHEN the idle fade's timer would fire
+- THEN the thumb pins visible — focus, drag, and hover EACH suspend the
+  fade (three separately probe-asserted pins) — and the thumb node
+  stays in the accessibility tree with its role intact and
+  `aria-valuenow` tracking position ("AT-engaged" is not a detectable
+  platform state and is deliberately NOT the contract)
 
 #### Scenario: the native sibling is capability styles
 
@@ -135,14 +153,18 @@ and is untouched.
 - THEN the platform scrollbar renders under the site's scrollbar-token
   law, with `scrollbar-gutter: stable`, theme-scope-aligned
   `color-scheme`, `scrollbar-width` tiers, and `overscroll-behavior`
-  containment packaged as the component's declared capabilities
+  containment packaged as the component's declared capabilities — and
+  NO drawn thumb and NO custom scrollbar ARIA mount anywhere inside it
 
-#### Scenario: the kit is family-neutral
+#### Scenario: the kit is family-neutral and split by concern
 
 - GIVEN the kit's exported runtime
-- THEN scroll-area and any consumer-built scroller mount the same
-  verdict/geometry/state/a11y machinery with zero family paint — a new
-  consumer adopts it with no CSS of the kit's look
+- THEN the shared CORE (verdict/geometry/scope) mounts with zero paint
+  and zero ARIA of its own; the interaction adapter is a SEPARATE
+  export the hand-drawn component composes — a new consumer adopts the
+  core with no CSS of the kit's look and no ARIA it did not author,
+  and scroll-area and native-scroll-area share the core while touching
+  disjoint adapters
 
 #### Scenario: the variant prop is gone
 
@@ -188,20 +210,23 @@ engine (a code-split singleton — the engine never rides a page's
 critical path) swaps the rendered, sanitized SVG into the same box.
 When the EFFECTIVE theme (pinned or resolved) is dark, the surface
 SHALL carry its own dark backdrop by default (Owner 2026-09-15): a
-designed veil built on `backdrop-filter` — blur plus a translucent tint
-derived from the theme's own background token, rounded, padded, subtly
-bordered — never the opaque hard-edge fill. The backdrop SHALL be
-switchable off (`backdrop={false}` → transparent, as light mode today),
-and SHALL degrade to today's opaque fill where `backdrop-filter` is
-unsupported. Light themes never paint a backdrop.
+designed veil built on `backdrop-filter` that adds ZERO ink (the
+subtraction ink law — no dark `background`, no hand-mixed tint): a
+subtractive filter chain (blur + contrast/brightness pulling the page
+behind toward the dark ground), rounded, padded, subtly bordered —
+never the opaque hard-edge fill. The backdrop SHALL be switchable off
+(`backdrop={false}` → transparent, as light mode today), and SHALL
+degrade to the component's own opaque theme-ground fill where
+`backdrop-filter` is unsupported (the surface-ground floor, the
+standing pre-change behavior). Light themes never paint a backdrop.
 
 #### Scenario: the floor upgrades after hydration
 
 - GIVEN a prerendered page with a mermaid diagram
 - THEN the served HTML shows the diagram source as escaped plain text
-  - AND after hydration the engine chunk loads and the rendered SVG
-    replaces the floor inside the same box (fade-in, reduced-motion
-    respected)
+- AND after hydration the engine chunk loads and the rendered SVG
+  replaces the floor inside the same box (fade-in, reduced-motion
+  respected)
 
 #### Scenario: the site theme flip re-renders the palette
 
@@ -244,12 +269,17 @@ unsupported. Light themes never paint a backdrop.
 
 - GIVEN a mermaid surface whose effective theme is dark, mounted on a
   light page, with the default props
-- THEN the viewport paints the backdrop-filter veil (blur + the
-  theme-background-derived translucent tint, rounded, padded, subtle
-  border) — no opaque hard-edge rectangle, the page readable through
-  the translucency
-- AND the derived dark palette keeps node fills and borders readable
-  against the tinted ground (probe-measured contrast, not eyeballed)
+- THEN the viewport paints the subtractive backdrop-filter veil (blur +
+  a contrast/brightness chain pulling the page behind toward the dark
+  ground, rounded, padded, subtle border) — no opaque hard-edge
+  rectangle, and the veil layer itself paints ZERO background ink (the
+  subtraction ink law, probe-asserted: computed `background` of the
+  veil layer is transparent)
+- AND the derived dark palette keeps node fills, borders, and labels
+  readable against the darkened ground (contrast probe: WCAG ratio,
+  labels ≥ 4.5:1 against their node fill, node fill/border ≥ 3:1
+  against the adjacent veil ground — sampled on the pinned-Chromium
+  screenshot; any sampled pair below threshold fails the probe)
 
 #### Scenario: the backdrop switches off
 
@@ -265,8 +295,8 @@ unsupported. Light themes never paint a backdrop.
 
 > Effect discipline SHALL match the code-card generation law: prop
 > changes drop the previous paint booking, out-of-order resolutions
-> no-op, and the floor shows the CURRENT source while a render is
-> in flight; render ids SHALL follow the engine's collision contract (a
+> no-op, and the floor shows the CURRENT source while a render is in
+> flight; render ids SHALL follow the engine's collision contract (a
 > per-instance monotonic base + per-render suffix — two instances,
 > same-named instances, and consecutive re-renders never share a live
 > id), and the engine's serial queue SHALL order initialize/render
@@ -308,7 +338,8 @@ unsupported. Light themes never paint a backdrop.
 > NON-EMPTY accessible name at ALL times — the trimmed ladder
 > `name?.trim() || labels?.diagram?.trim() || 'Diagram'` (an empty or
 > whitespace `name` falls through; a nameless diagram never mounts a
-> nameless img). The backdrop law (2026-09-15) rides the EFFECTIVE
+> nameless img).
+ The backdrop law (2026-09-15) rides the EFFECTIVE
 > theme — the same resolution the palette uses — so a dark-pinned
 > surface on a light page veils, a `theme="auto"` surface inside a dark
 > scope veils, and the `backdrop={false}` switch and the
