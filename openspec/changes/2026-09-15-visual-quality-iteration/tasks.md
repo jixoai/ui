@@ -48,15 +48,17 @@ change-wide parity proof).
   line-core pixel versus a ground patch 2px past the stroke edge along
   the normal, the patch the mean of its 3×3 device-pixel window —
   pinned Chromium 2× screenshot sampling on the dark-pinned demo; any
-  sampled pair below threshold fails; derived-palette lift (through
+  unoccluded sampled pair below threshold fails; occlusions (sample
+  point or ground patch) by nodes, adjacent connectors, or edge-label
+  chips re-sample per the rule and are recorded as skips when unclear;
+  derived-palette lift (through
   its own tokens) only if measurement demands, recorded. The probe
   fixes the remaining sampling mechanics: device-pixel rounding
   (sample coordinates rounded to integers in device space), the normal
   direction for CURVED connectors (the local tangent's perpendicular
-  at the sample point), and the ground-patch overlap rule (a patch
-  falling on a node or an adjacent connector re-samples along the
-  normal until clear, max 3 steps, else the sample is skipped and
-  recorded)
+  at the sample point), and the occlusion rule above (re-sample, max 3
+  steps, recorded skips — the Gate-2 r1 amendment admitting edge-label
+  chips as diagram furniture alongside nodes)
 - [x] 2.3 Tests: unit (prop matrix: effective theme × backdrop ×
   supports), probe (veil computed style on/off/unsupported —
   `background` transparent on the veil layer), screenshot receipts
@@ -108,7 +110,10 @@ change-wide parity proof).
   both detectors redden;
   the four testable pins (region focus-within, thumb focus, drag,
   hover) each suspend the idle fade + thumb stays in the accessibility
-  tree with live `aria-valuenow` (probe-asserted)
+  tree with live `aria-valuenow` (probe-asserted); the POINTER-TIER
+  floor asserted both ways (fine pointer draws, emulated coarse
+  pointer serves the platform bar with no drawn chrome — media-state
+  capability, Gate-2 r1 amendment)
 - [x] 4.3 `native-scroll-area` item: platform bar + capability styles
   (gutter stable, scoped color-scheme, scrollbar-width tiers,
   overscroll-behavior); NO drawn thumb, NO custom scrollbar ARIA

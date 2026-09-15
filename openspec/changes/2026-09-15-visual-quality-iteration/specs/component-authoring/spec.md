@@ -116,7 +116,16 @@ snippet receiving the measured geometry) replaces it. Breaking, no compat.
 `scroll-area` SHALL hand-draw its scrollbar ALWAYS (the standing
 `scrollbar?: ScrollbarVariant` prop — `'native' | 'overlay'` at
 `scroll-area.svelte:45,54` — and its `ScrollbarVariant` type RETIRE;
-the new component has NO mode branch at all, breaking). A separate `native-scroll-area` item
+the new component has NO mode branch at all, breaking). A POINTER-TIER
+floor parallels the no-JS floor (Gate-2 r1 amendment, the
+implementation's honest shape): FINE pointers always draw; COARSE
+pointers (touch) keep the platform scrollbar — the native best
+practice for touch (momentum and edge behaviors; the hover-growth and
+drag-pin interaction model has no touch equivalent) — a declared
+CAPABILITY of the hand-drawn component, not a mode (no prop, no API
+surface; the tier follows `pointer: coarse` media state, prerender
+output keeps the platform bar exactly as the no-JS floor does). A
+separate `native-scroll-area` item
 SHALL ship the platform scrollbar under the scrollbar-token law with the
 native best practices as capability styles, and SHALL mount NO custom
 scrollbar ARIA — no drawn thumb exists, and the platform scrollbar IS the
@@ -140,6 +149,15 @@ untouched.
   fade (~700ms), hover growth + brightening, drag-pinned opacity,
   keyboard affordances on region and thumb — restyled by tokens without
   JS, in both light and dark scopes
+
+#### Scenario: coarse pointers keep the platform bar (the capability floor, Gate-2 r1)
+
+- GIVEN a scroll-area under a coarse pointer (touch emulation)
+- WHEN the component mounts
+- THEN the platform scrollbar serves the region and NO drawn chrome
+  mounts (the touch best practice — momentum and edge behaviors ride
+  the platform), while a fine pointer on the SAME component always
+  draws (probe-asserted both tiers, no prop involved)
 
 #### Scenario: auto-hide never hides the affordance from keyboard users
 
@@ -298,8 +316,11 @@ standing pre-change behavior). Light themes never paint a backdrop.
   sampled antialias-proof — every edge connector in the fixture, at
   three equally spaced centerline points (1/4, 1/2, 3/4), the stroke's
   line-core pixel versus a ground patch 2px past the stroke edge along
-  the normal, the patch the mean of its 3×3 device-pixel window; any
-  sampled pair below threshold fails the probe)
+  the normal, the patch the mean of its 3×3 device-pixel window;
+  occlusions — of a sample point or a ground patch — by nodes,
+  adjacent connectors, or edge-label chips re-sample per the rule
+  (max 3 steps) and are RECORDED as skips when still unclear; any
+  unoccluded sampled pair below threshold fails the probe)
 
 #### Scenario: the backdrop switches off
 

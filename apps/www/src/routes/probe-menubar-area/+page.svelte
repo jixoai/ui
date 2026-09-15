@@ -1,5 +1,13 @@
 <script lang="ts">
   import MenubarAreaProbe from '$lib/__probe__/menubar-area-probe.svelte';
+  import { onMount } from 'svelte';
+  // hydration readiness stamp for verify-popover-area-align.mjs —
+  // the gate this page's measurements wait on (pre-hydration DOM
+  // measures stale geometry, the Gate-2 r1 dev-server red)
+  let hydrated = false;
+  onMount(() => {
+    hydrated = true;
+  });
 </script>
 
 <svelte:head>
@@ -8,7 +16,7 @@
   <meta name="robots" content="noindex" />
 </svelte:head>
 
-<main class="p-8">
+<main class="p-8" data-hydrated={hydrated ? '1' : '0'}>
   <h1 class="mb-4 text-lg font-semibold">W5.1 menubar position-area probe</h1>
   <p class="text-muted-foreground mb-6 max-w-prose text-[13px] leading-6">
     Internal verification surface: scripts/verify-popover-area-align.mjs loads this
