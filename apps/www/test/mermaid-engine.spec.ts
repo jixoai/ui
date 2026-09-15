@@ -57,7 +57,10 @@ vi.mock('$lib/color-utils', async (importOriginal) => {
 import type { MermaidConfig } from 'mermaid';
 import {
   createRenderIdMinter,
+  DARK_MUTED_FILL_LIFT,
+  DARK_NODE_FILL_LIFT,
   deriveThemeVariables,
+  isDarkHex,
   MermaidRenderError,
   readThemeTokens,
   renderDiagram,
@@ -298,6 +301,54 @@ describe('lib/mermaid-engine', () => {
 
     const withFont = deriveThemeVariables({ ...sheetTokens, font: 'F, monospace' }, 'dark');
     expect(withFont.fontFamily).toBe('F, monospace');
+  });
+
+  // ---- the dark node-fill lift (W2 backdrop calibration, 2026-09-15) ──
+
+  it('derives the DARK sheet through the node-fill lift — fills interpolate toward white through their own tokens, never a hand-mixed hex', () => {
+    const darkSheet: ThemeTokens = {
+      background: '#000000',
+      foreground: '#ffffff',
+      primary: '#d970dd',
+      secondary: '#ffff33',
+      accent: '#3399ff',
+      muted: '#1a1a1a',
+      border: '#ffffff',
+      error: '#f97770',
+      chart: ['#d970dd', '#5bbe62', '#54b3fd', '#e9ac00', '#f97770'],
+    };
+    const dark = deriveThemeVariables(darkSheet, 'dark');
+    // the dark sheet's base tokens SIT AT the ground's luminance (#000000
+    // background = the veil ground) — the lift moves node fills toward
+    // white by the exported fractions, computed from the token value
+    expect(dark.mainBkg).toBe('#717171'); // #000000 + DARK_NODE_FILL_LIFT
+    expect(dark.actorBkg).toBe('#717171');
+    expect(dark.clusterBkg).toBe('#707070'); // #1a1a1a + DARK_MUTED_FILL_LIFT
+    expect(dark.loopColor).toBe('#707070');
+    expect(dark.noteBkgColor).toBe('#707070');
+    expect(dark.edgeLabelBackground).toBe('#707070');
+    // the ink-bearing fields keep their one token source untouched
+    expect(dark.textColor).toBe('#ffffff');
+    expect(dark.nodeBorder).toBe('#ffffff');
+    expect(dark.lineColor).toBe('#ffffff');
+    expect(dark.background).toBe('#000000'); // the sheet ground itself stays raw
+    // the fractions are the calibration constants the W2 probe records
+    expect(DARK_NODE_FILL_LIFT).toBe(0.55);
+    expect(DARK_MUTED_FILL_LIFT).toBe(0.42);
+    // a hand-tuned token flows through the SAME interpolation (the lift
+    // is token-derived, not a lookup): a lighter --background lifts less
+    const lifted = deriveThemeVariables({ ...darkSheet, background: '#303030' }, 'dark');
+    expect(lifted.mainBkg).not.toBe(dark.mainBkg);
+    expect(lifted.mainBkg.startsWith('#')).toBe(true); // mermaid-safe hex out
+  });
+
+  it('isDarkHex: the oklch-lightness dark verdict — the veil\u2019s effective-theme signal', () => {
+    expect(isDarkHex('#000000')).toBe(true);
+    expect(isDarkHex('#1a1a1a')).toBe(true);
+    expect(isDarkHex('#717171')).toBe(false); // the lifted fill stays light-side
+    expect(isDarkHex('#ffffff')).toBe(false);
+    expect(isDarkHex('var(--background)')).toBe(false); // unparseable answers light
+    expect(isDarkHex('')).toBe(false);
   });
 
   // ---- the serial queue + fingerprint ──────────────────────────────────

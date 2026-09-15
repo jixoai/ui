@@ -98,6 +98,11 @@ export interface ThemeTokens {
  * shape — every field lists exactly ONE token source, so no assignment
  * order can matter). The user config's themeVariables overlay rides
  * FIELD-WISE above these defaults (see buildInitializePayload).
+ *
+ * Dark-sheet node fills (mainBkg, actorBkg, clusterBkg, loopColor,
+ * noteBkgColor, edgeLabelBackground) derive from their listed token
+ * through the dark node-fill lift (DARK_NODE_FILL_LIFT /
+ * DARK_MUTED_FILL_LIFT) — see the calibration block above the derivation.
  */
 export interface ThemeVariables {
   /** --background */
@@ -225,6 +230,46 @@ export function resolveTheme(mode: MermaidThemeMode): 'light' | 'dark' {
 }
 
 /**
+ * Dark verdict from a resolved token value (oklch lightness < 0.5) — the
+ * veil's EFFECTIVE-theme signal (W2 backdrop, 2026-09-15): the surface
+ * asks "did the palette come out dark?" through the same hex the probe
+ * pipeline produced, so a dark pin on a light page answers dark and a
+ * scoped `.jx-light` stage answers light even under a dark document.
+ * Unparseable input answers light (no veil — the honest default).
+ */
+export function isDarkHex(hex: string): boolean {
+  const parsed = parseColor(hex);
+  return parsed !== null && parsed.l < 0.5;
+}
+
+// ── the dark-sheet node-fill lift (W2 backdrop calibration, 2026-09-15) ──
+
+/**
+ * On the dark ground, node fills riding the dark sheet's own base tokens
+ * read as holes: `--background` IS #000000 and `--muted` IS #1a1a1a, so
+ * mainBkg sat at the ground's own luminance (the vision receipt's
+ * black-on-black). The lift moves those fills toward white THROUGH THEIR
+ * OWN TOKENS — an oklab interpolation toward the white point by a fixed
+ * fraction, computed from the live token value at derive time. NEVER a
+ * hand-mixed hex: the fractions below are calibration constants for the
+ * W2 contrast probe (labels ≥ 4.5:1, graphics ≥ 3:1 — the thresholds are
+ * the acceptance and do not move; the fractions move only until the
+ * measured ratios clear them with margin). Light sheets derive unchanged.
+ */
+export const DARK_NODE_FILL_LIFT = 0.55;
+/** cluster/loop/note/edge-chip fills derive from --muted, not --background. */
+export const DARK_MUTED_FILL_LIFT = 0.42;
+
+/** oklab interpolation toward the white point by `fraction` (token-derived). */
+function liftTowardWhite(hex: string, fraction: number): string {
+  const parsed = parseColor(hex);
+  if (!parsed) return hex; // unparseable passes through — the safe floor owns it
+  const l = parsed.l + (1 - parsed.l) * fraction;
+  const c = parsed.c * (1 - fraction);
+  return formatColor({ ...parsed, l, c }, 'hex');
+}
+
+/**
  * Read the live tokens for `root`'s subtree (default documentElement —
  * a scoped root reads ITS tokens, never the page's) through the probe +
  * parseColor pipeline:
@@ -345,23 +390,30 @@ function fallbackTokens(theme: 'light' | 'dark'): ThemeTokens {
 /**
  * Map tokens onto mermaid's themeVariables for theme 'base'. Light/dark is
  * a RE-DERIVE (tokens re-read after the flip), not a filter: the table is
- * identical for both sheets — only the token VALUES differ. `font` rides
+ * identical for both sheets — only the token VALUES differ — with ONE
+ * dark-only derivation: the node-fill lift (see DARK_NODE_FILL_LIFT — the
+ * dark sheet's base tokens sit AT the ground's luminance, so the fills
+ * interpolate toward white through their own tokens). `font` rides
  * only when the probe resolved it (mermaid's default family otherwise).
  */
-export function deriveThemeVariables(tokens: ThemeTokens, _theme: 'light' | 'dark'): ThemeVariables {
-  // _theme is intentionally unread: the mapping is theme-invariant (the
-  // signature keeps the design contract — callers may re-derive per sheet)
+export function deriveThemeVariables(tokens: ThemeTokens, theme: 'light' | 'dark'): ThemeVariables {
+  const dark = theme === 'dark';
+  // the lifted dark node fills (measurement-calibrated, see constants):
+  // node boxes/actors from --background, clusters/loops/notes/edge chips
+  // from --muted; every other field keeps its one token source
+  const nodeBkg = dark ? liftTowardWhite(tokens.background, DARK_NODE_FILL_LIFT) : tokens.background;
+  const mutedBkg = dark ? liftTowardWhite(tokens.muted, DARK_MUTED_FILL_LIFT) : tokens.muted;
   const variables: ThemeVariables = {
     background: tokens.background,
-    mainBkg: tokens.background,
+    mainBkg: nodeBkg,
     primaryTextColor: tokens.foreground,
     textColor: tokens.foreground,
     primaryColor: tokens.primary,
     primaryBorderColor: tokens.primary,
     lineColor: tokens.border,
     nodeBorder: tokens.border,
-    clusterBkg: tokens.muted,
-    clusterBorder: tokens.muted,
+    clusterBkg: mutedBkg,
+    clusterBorder: mutedBkg,
     secondaryColor: tokens.secondary,
     tertiaryColor: tokens.accent,
     cScale0: tokens.chart[0],
@@ -371,17 +423,17 @@ export function deriveThemeVariables(tokens: ThemeTokens, _theme: 'light' | 'dar
     cScale4: tokens.chart[4],
     errorBkgColor: tokens.error,
     // diagram-family specifics (see ThemeVariables for the rationale)
-    actorBkg: tokens.background,
+    actorBkg: nodeBkg,
     actorBorder: tokens.border,
     actorLineColor: tokens.border,
     actorTextColor: tokens.foreground,
     signalColor: tokens.foreground,
     signalTextColor: tokens.foreground,
-    loopColor: tokens.muted,
-    noteBkgColor: tokens.muted,
+    loopColor: mutedBkg,
+    noteBkgColor: mutedBkg,
     noteTextColor: tokens.foreground,
     activationBorderColor: tokens.primary,
-    edgeLabelBackground: tokens.muted,
+    edgeLabelBackground: mutedBkg,
   };
   if (tokens.font !== undefined) variables.fontFamily = tokens.font;
   return variables;

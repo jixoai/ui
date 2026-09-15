@@ -37,6 +37,12 @@
   data-jx-scroll-run, chips, or veils inside; the negative contract).
   math-block (a true horizontal strip) rides the full shared contract
   instead.
+
+  Backdrop (Owner 2026-09-15, W2): a dark EFFECTIVE theme paints the
+  viewport as a subtractive backdrop-filter veil with ZERO ink (the
+  subtraction ink law) — see the veil effect below + mermaid.css; the
+  opaque theme-ground fill survives ONLY as the no-backdrop-filter
+  floor. `backdrop={false}` opts out to full transparency.
 -->
 <script module lang="ts">
   /** the control + a11y vocabulary — absent entries fall to shipped English */
@@ -58,6 +64,7 @@
   import { cn } from '$lib/utils';
   import {
     createRenderIdMinter,
+    isDarkHex,
     MermaidRenderError,
     readThemeTokens,
     renderDiagram,
@@ -73,6 +80,10 @@
     /** head tab label + render-id base */
     name?: string;
     theme?: MermaidThemeMode;
+    /** the dark veil switch (Owner 2026-09-15): on = the subtractive
+     *  backdrop-filter veil when the effective theme is dark; off = no
+     *  veil and no ground (transparent, exactly as a light surface) */
+    backdrop?: boolean;
     copyable?: boolean;
     zoomable?: boolean;
     labels?: MermaidLabels;
@@ -85,6 +96,7 @@
     source,
     name,
     theme = 'auto',
+    backdrop = true,
     copyable = true,
     zoomable = true,
     labels = {},
@@ -144,29 +156,54 @@
       });
   });
 
-  /** the crossed-pin canvas (Owner acceptance, 2026-09-07): an explicit
-   *  pin against the page's live theme paints the viewport with the
-   *  TARGET sheet's own background + ink — target-designed nodes and
-   *  edges never float on the opposite canvas (contrast safety), and
-   *  the card reads as pinned at a glance (the always-dark terminal
-   *  bezel precedent). Auto and same-direction pins keep the page's
-   *  canvas (transparent). Runs alongside the render effect — the
-   *  tokens read is the SAME explicit-theme read the engine performs
-   *  (local wrapper, never a global mutation). */
+  /** THE DARK BACKDROP VEIL (Owner 2026-09-15, W2): when the EFFECTIVE
+   *  theme is dark and `backdrop` is on (default), the viewport paints a
+   *  designed dark veil built on backdrop-filter with ZERO ink (the
+   *  subtraction ink law — design-tokens: no dark background, no
+   *  hand-mixed tint): the CSS chain blurs + subtracts whatever sits
+   *  behind the viewport toward the dark ground. The verdict rides the
+   *  EFFECTIVE theme — the SAME token resolution the palette uses
+   *  (readThemeTokens through the figure, pin wrapper for explicit
+   *  themes): a dark pin on a light page reads DARK tokens and veils,
+   *  an `auto` surface inside a dark scope veils, a scoped `.jx-light`
+   *  stage reads LIGHT tokens and never veils, and light themes never
+   *  paint a backdrop at all.
+   *
+   *  `backdrop={false}`: no veil AND no ground — the inline paints clear
+   *  (transparent, exactly as a light-theme surface today).
+   *
+   *  THE SURFACE-GROUND FLOOR (this change's named boundary): where
+   *  backdrop-filter is unsupported (the data-jx-mermaid-veil='floor'
+   *  lane + the CSS @supports-not block in mermaid.css), the component's
+   *  OWN opaque theme-ground fill returns — the standing PRE-VEIL
+   *  behavior. A surface may paint its ground; a VEIL may not add ink —
+   *  the opaque fill under no-support is the surface's ground, not a
+   *  tint over content. */
   let viewportEl = $state<HTMLElement>();
   $effect(() => {
     void themeEpoch;
     const viewport = viewportEl;
-    if (!viewport || theme === 'auto') return;
-    const crossed = resolveTheme(theme) !== resolveTheme('auto');
-    if (!crossed) {
+    const root = figureEl;
+    if (!viewport || !root) return;
+    const tokens = readThemeTokens(root, theme === 'auto' ? undefined : resolveTheme(theme));
+    if (!(backdrop && isDarkHex(tokens.background))) {
+      viewport.removeAttribute('data-jx-mermaid-veil');
+      viewport.style.removeProperty('--jx-mermaid-veil-ground');
       viewport.style.removeProperty('background-color');
       viewport.style.removeProperty('color');
       return;
     }
-    const tokens = readThemeTokens(figureEl, resolveTheme(theme));
-    viewport.style.backgroundColor = tokens.background;
+    // ZERO ink on the veil layer: `background` is never set here — the
+    // ground var feeds ONLY the no-support floor (the @supports-not
+    // block + the 'floor' lane in mermaid.css); the supported branch
+    // paints none (probe-asserted: computed background transparent)
+    viewport.style.setProperty('--jx-mermaid-veil-ground', tokens.background);
     viewport.style.color = tokens.foreground; // the scrollbar law's currentColor link
+    const supported =
+      typeof CSS !== 'undefined' &&
+      typeof CSS.supports === 'function' &&
+      CSS.supports('backdrop-filter', 'blur(1px)');
+    viewport.setAttribute('data-jx-mermaid-veil', supported ? 'on' : 'floor');
   });
 
   // theme='auto' effective-scope watch: a class observer on the document

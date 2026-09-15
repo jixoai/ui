@@ -1,7 +1,10 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
 /* jixoai mermaid — the diagram surface law sheet
- * (registry/files/ui/mermaid/mermaid.css, 2026-09-06 katex-mermaid).
+ * (registry/files/ui/mermaid/mermaid.css, 2026-09-06 katex-mermaid;
+ * header migrated to the canonical five-layer statement 2026-09-15
+ * visual-quality-iteration W2 — the standing transitional law's
+ * ride-along clause).
  *
  * What lives here (all @layer components behind :where() per the
  * placement law — consumer utilities win):
@@ -14,6 +17,14 @@
  *   - --jx-mermaid-floor-min: the CLS reserve token (default 6rem,
  *     consumer-tunable — a diagram's true height is unknowable
  *     pre-render; the reserve bounds the collapse);
+ *   - the dark backdrop veil (Owner 2026-09-15, W2): the subtractive
+ *     chain tokens + the veil box (radius, padding, 1px border) —
+ *     ZERO background ink on the veil layer (the subtraction ink law,
+ *     design-tokens: no dark background, no hand-mixed tint; the page
+ *     behind is SUBTRACTED toward the dark ground), with the opaque
+ *     theme-ground fill returning ONLY where backdrop-filter is
+ *     unsupported (the surface-ground floor — this change's named
+ *     boundary);
  *   - the viewport pan law: the TWO-AXIS scroll-run exemption (scrollbar
  *     token law both axes — the theme sheet's global thin-currentColor
  *     * rule paints the thumbs via --scrollbar-thumb*; overscroll
@@ -41,6 +52,19 @@
     /* the CLS reserve (the accepted residual — see design.md §9):
        min-height while the floor stands or a render is in flight */
     --jx-mermaid-floor-min: 6rem;
+
+    /* the subtractive veil chain (Owner 2026-09-15, W2) — consumer-
+       tunable calibration constants; the chain order is the contract:
+       blur, then contrast, then brightness, then saturate. contrast
+       pushes the backdrop's extremes OUT, brightness crushes it toward
+       the dark ground, blur flattens any texture crossing the window.
+       Calibrated for the W2 contrast probe on the near-white readonly
+       stage (labels ≥ 4.5:1, graphics ≥ 3:1 — the thresholds are the
+       acceptance; these four numbers are the calibration) */
+    --jx-mermaid-veil-blur: 12px;
+    --jx-mermaid-veil-contrast: 1.05;
+    --jx-mermaid-veil-brightness: 0.12;
+    --jx-mermaid-veil-saturate: 0.9;
   }
   :where(.dark .jx-mermaid) {
     --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
@@ -66,6 +90,51 @@
   :where([data-jx-mermaid-viewport]) {
     overflow: auto;
     overscroll-behavior: contain;
+  }
+
+  /* THE DARK BACKDROP VEIL (Owner 2026-09-15, W2) — subtraction ink,
+     not a tint: the veil layer paints ZERO background and SUBTRACTS
+     whatever sits behind the viewport toward the dark ground through
+     the backdrop-filter chain (the design-tokens subtraction ink law —
+     a dark background or hand-mixed tint here is retired practice).
+     The box carries the card dialect's geometry: the radius token, the
+     veil's own inner padding, and a 1px token-law border (currentColor
+     = the dark sheet's foreground ink, set inline by the veil effect —
+     the same currentColor that links the pan scrollbars). The
+     attribute is stamped ONLY when the effective theme resolved dark
+     AND the backdrop prop is on; both the off-switch and light themes
+     never match this selector at all */
+  :where([data-jx-mermaid-viewport][data-jx-mermaid-veil]) {
+    background: transparent; /* ZERO ink — probe-asserted */
+    backdrop-filter: blur(var(--jx-mermaid-veil-blur)) contrast(var(--jx-mermaid-veil-contrast))
+      brightness(var(--jx-mermaid-veil-brightness)) saturate(var(--jx-mermaid-veil-saturate));
+    border-radius: var(--radius);
+    padding: 0.5rem;
+    border: 1px solid color-mix(in oklab, currentColor 25%, transparent);
+  }
+
+  /* THE SURFACE-GROUND FLOOR (this change's named boundary): where
+     backdrop-filter is unsupported the veil degrades to the
+     component's OWN opaque theme-ground fill — the standing
+     PRE-VEIL behavior. A SURFACE may paint its ground; a VEIL may not
+     add ink: this is the surface's own ground (the diagram never
+     loses it), not a tint over content. The ground VALUE is the live
+     token read stamped inline by the veil effect
+     (--jx-mermaid-veil-ground, pin-correct even under the opposite
+     page scope); var(--background) is the no-JS belt-and-braces
+     fallback */
+  @supports not (backdrop-filter: blur(1px)) {
+    :where([data-jx-mermaid-viewport][data-jx-mermaid-veil]) {
+      background: var(--jx-mermaid-veil-ground, var(--background));
+      backdrop-filter: none;
+    }
+  }
+  /* the JS-detected floor lane (CSS.supports('backdrop-filter', …) ===
+     false): the same surface-ground paint keyed off the attribute
+     value, so the floor is probe-exercisable in a supporting browser */
+  :where([data-jx-mermaid-viewport][data-jx-mermaid-veil='floor']) {
+    background: var(--jx-mermaid-veil-ground, var(--background));
+    backdrop-filter: none;
   }
 
   /* the CLS reserve: the floor box keeps its min-height while

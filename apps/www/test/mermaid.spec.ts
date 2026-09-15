@@ -14,8 +14,12 @@
  * observe nothing), error state + floor survival, rest passthrough with
  * the component's own stamps winning their fields, the no-chrome
  * viewport exemption, zoom as a pure transform, the accessible-name
- * trimmed ladder, and the css-source laws (min-height reserve,
- * reduced-motion kill) the jsdom stylesheet engine cannot compute.
+ * trimmed ladder, the css-source laws (min-height reserve,
+ * reduced-motion kill) the jsdom stylesheet engine cannot compute, and
+ * the dark backdrop veil matrix (effective theme × backdrop × support —
+ * the zero-ink state stamp, the surface-ground floor lane, and the
+ * veil sheet laws; the computed-style lanes belong to the browser
+ * probe in this change's research/w2/).
  */
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
@@ -415,7 +419,7 @@ describe('Mermaid surface', () => {
   // ---- css-source laws (jsdom cannot compute them) ─────────────────────
 
   it('reserves the floor min-height through the documented token; the fade dies under reduced motion', () => {
-    expect(mermaidCss).toContain('@layer theme, base, components, utilities;');
+    expect(mermaidCss).toContain('@layer properties, theme, base, components, utilities;');
     expect(mermaidCss).toContain('--jx-mermaid-floor-min: 6rem'); // consumer-tunable default
     expect(mermaidCss).toContain('min-height: var(--jx-mermaid-floor-min)');
     expect(mermaidCss).toMatch(/data-state='floor'/);
@@ -426,34 +430,134 @@ describe('Mermaid surface', () => {
     expect(mermaidCss).toContain('overscroll-behavior: contain');
   });
 
-  // ── the crossed-pin canvas (Owner acceptance, 2026-09-07) ────────────
-  it('a CROSSED pin brings its own canvas — the viewport paints the target sheet background + ink; auto and same-direction pins stay page-owned', async () => {
+  // ---- the veil's css-source law (W2, 2026-09-15 — jsdom cannot
+  // compute backdrop-filter; the browser probe owns the computed-style
+  // lanes, these pin the SHEET) ------------------------------------------
+  it('the veil sheet: subtractive chain on the veil selector, ZERO background ink, the surface-ground floor behind @supports-not', () => {
+    // the veil box: the subtractive chain in the contract's order +
+    // the card dialect's radius token, padding, and a 1px border
+    const veilRule = mermaidCss.match(
+      /\[data-jx-mermaid-viewport\]\[data-jx-mermaid-veil\]\)\s*\{([^}]*)\}/,
+    )!;
+    expect(veilRule).not.toBeNull();
+    expect(veilRule[1]).toContain('background: transparent'); // ZERO ink
+    expect(veilRule[1]).toMatch(
+      /backdrop-filter:\s*blur\(var\(--jx-mermaid-veil-blur\)\)\s*contrast\(var\(--jx-mermaid-veil-contrast\)\)/,
+    );
+    expect(veilRule[1]).toMatch(/brightness\(var\(--jx-mermaid-veil-brightness\)\)\s*saturate\(var\(--jx-mermaid-veil-saturate\)\)/);
+    expect(veilRule[1]).toContain('border-radius: var(--radius)');
+    expect(veilRule[1]).toContain('border: 1px solid');
+    // the veil's own body never sets an opaque background (the chain is
+    // the ONLY darkening mechanism on the supported branch)
+    expect(veilRule[1].replace(/background: transparent/, '')).not.toMatch(/background(-color)?:\s*(?!transparent)/);
+    // the floor: @supports-not returns the component's own opaque
+    // theme ground (the named surface-ground boundary), the JS floor
+    // lane mirrors it, and the chain tokens are consumer-tunable
+    expect(mermaidCss).toMatch(
+      /@supports not \(backdrop-filter: blur\(1px\)\)\s*\{\s*:where\(\[data-jx-mermaid-viewport\]\[data-jx-mermaid-veil\]\)\s*\{[^}]*background: var\(--jx-mermaid-veil-ground, var\(--background\)\)/,
+    );
+    expect(mermaidCss).toMatch(
+      /\[data-jx-mermaid-viewport\]\[data-jx-mermaid-veil='floor'\]\)\s*\{[^}]*background: var\(--jx-mermaid-veil-ground, var\(--background\)\)/,
+    );
+    for (const token of ['--jx-mermaid-veil-blur', '--jx-mermaid-veil-contrast', '--jx-mermaid-veil-brightness', '--jx-mermaid-veil-saturate']) {
+      expect(mermaidCss).toContain(`${token}:`);
+    }
+  });
+
+  // ── the dark backdrop veil (Owner 2026-09-15, W2) ────────────────────
+  // jsdom ships no CSS interface at all — the component's support probe
+  // answers false by default (the 'floor' lane); a stubbed CSS.supports
+  // flips it to 'on'. The EFFECTIVE-theme verdict rides the same token
+  // read the palette uses — in jsdom that is the safe-hex oracle (the
+  // dark pin reads the dark column, auto follows the document root).
+  const veilOf = (container: HTMLElement): string | null =>
+    container.querySelector('[data-jx-mermaid-viewport]')!.getAttribute('data-jx-mermaid-veil');
+  const viewportOf = (container: HTMLElement): HTMLElement =>
+    container.querySelector('[data-jx-mermaid-viewport]') as HTMLElement;
+
+  it('the veil matrix — dark effective + backdrop on stamps the veil (on|floor by support); the off-switch and light effective stamp nothing', async () => {
     document.documentElement.classList.remove('dark'); // a LIGHT page
+    const supports = vi.fn(() => true);
+    vi.stubGlobal('CSS', { supports });
 
-    // dark pin against the light page: the dark sheet's safe-hex pair
-    const dark = render(Mermaid, { props: { theme: 'dark', source: 'flowchart LR\n  a-->b' } });
-    await vi.waitFor(() => {
-      const viewport = dark.container.querySelector('[data-jx-mermaid-viewport]') as HTMLElement;
-      expect(viewport.style.backgroundColor).toBe('rgb(0, 0, 0)'); // dark --background (jsdom normalizes hex)
-      expect(viewport.style.color).toBe('rgb(255, 255, 255)'); // dark --foreground
-    });
-    dark.unmount();
+    // dark pin + default backdrop + SUPPORTED → the 'on' veil: ZERO
+    // inline background (the veil layer paints none — the ground var
+    // feeds ONLY the no-support floor), the scrollbar currentColor
+    // link stands
+    const on = render(Mermaid, { props: { theme: 'dark', source: 'flowchart LR\n  a-->b' } });
+    await vi.waitFor(() => expect(veilOf(on.container)).toBe('on'));
+    const onViewport = viewportOf(on.container);
+    expect(onViewport.style.backgroundColor).toBe(''); // zero ink, probe-asserted lane
+    expect(onViewport.style.getPropertyValue('--jx-mermaid-veil-ground')).toBe('#000000'); // the dark safe hex
+    expect(onViewport.style.color).toBe('rgb(255, 255, 255)'); // the scrollbar law's ink link
+    on.unmount();
+    vi.unstubAllGlobals(); // no CSS interface again — the floor lane below
 
-    // same-direction pin: page canvas keeps ownership (no inline paint)
-    const same = render(Mermaid, { props: { theme: 'light', source: 'flowchart LR\n  a-->b' } });
-    await vi.waitFor(() => {
-      const viewport = same.container.querySelector('[data-jx-mermaid-viewport]') as HTMLElement;
-      expect(viewport.style.backgroundColor).toBe('');
-    });
-    same.unmount();
+    // dark pin + default backdrop + UNSUPPORTED (no CSS interface) →
+    // the 'floor' lane: same state stamp, the opaque ground var rides
+    // for the CSS surface-ground floor
+    const floor = render(Mermaid, { props: { theme: 'dark', source: 'flowchart LR\n  a-->b' } });
+    await vi.waitFor(() => expect(veilOf(floor.container)).toBe('floor'));
+    expect(viewportOf(floor.container).style.getPropertyValue('--jx-mermaid-veil-ground')).toBe('#000000');
+    floor.unmount();
 
-    // auto: never its own canvas
-    const auto = render(Mermaid, { props: { source: 'flowchart LR\n  a-->b' } });
-    await vi.waitFor(() => {
-      const viewport = auto.container.querySelector('[data-jx-mermaid-viewport]') as HTMLElement;
-      expect(viewport.style.backgroundColor).toBe('');
+    // backdrop={false} → no veil AND no ground: every inline paint clears
+    const off = render(Mermaid, {
+      props: { theme: 'dark', backdrop: false, source: 'flowchart LR\n  a-->b' },
     });
-    auto.unmount();
+    await waitFor(() => expect(stateOf(off.container)).toBe('rendered'));
+    const offViewport = viewportOf(off.container);
+    expect(veilOf(off.container)).toBeNull();
+    expect(offViewport.style.backgroundColor).toBe('');
+    expect(offViewport.style.color).toBe('');
+    expect(offViewport.style.getPropertyValue('--jx-mermaid-veil-ground')).toBe('');
+    off.unmount();
+
+    // LIGHT effective (explicit pin on a light page) never paints a backdrop
+    const light = render(Mermaid, { props: { theme: 'light', source: 'flowchart LR\n  a-->b' } });
+    await waitFor(() => expect(stateOf(light.container)).toBe('rendered'));
+    expect(veilOf(light.container)).toBeNull();
+    expect(viewportOf(light.container).style.getPropertyValue('--jx-mermaid-veil-ground')).toBe('');
+    light.unmount();
+
+    // AUTO on a light page: no veil
+    const autoLight = render(Mermaid, { props: { source: 'flowchart LR\n  a-->b' } });
+    await waitFor(() => expect(stateOf(autoLight.container)).toBe('rendered'));
+    expect(veilOf(autoLight.container)).toBeNull();
+    autoLight.unmount();
+
+    // AUTO inside a DARK scope veils — the theme flip re-resolves the
+    // veil with the same epoch the re-render rides (no re-mount)
+    vi.stubGlobal('CSS', { supports: () => true });
+    const autoDark = render(Mermaid, { props: { source: 'flowchart LR\n  a-->b' } });
+    await waitFor(() => expect(stateOf(autoDark.container)).toBe('rendered'));
+    expect(veilOf(autoDark.container)).toBeNull(); // light page first
+    document.documentElement.classList.add('dark');
+    await vi.waitFor(() => expect(veilOf(autoDark.container)).toBe('on'), { timeout: 2000 });
+    autoDark.unmount();
+    vi.unstubAllGlobals();
+  });
+
+  it('a live backdrop prop flip re-stamps the veil (the prop is reactive, not init-only)', async () => {
+    document.documentElement.classList.remove('dark');
+    vi.stubGlobal('CSS', { supports: () => true });
+
+    const mounted = render(Mermaid, {
+      props: { theme: 'dark', backdrop: false, source: 'flowchart LR\n  a-->b' },
+    });
+    await waitFor(() => expect(stateOf(mounted.container)).toBe('rendered'));
+    expect(veilOf(mounted.container)).toBeNull(); // off at mount
+
+    // flipping the prop on mounts the veil WITHOUT a re-mount — the
+    // figure element survives the rerender, the effect re-runs
+    const figure = mounted.container.querySelector('figure[data-jx-mermaid]')!;
+    await mounted.rerender({ theme: 'dark', backdrop: true, source: 'flowchart LR\n  a-->b' });
+    await vi.waitFor(() => expect(veilOf(mounted.container)).toBe('on'));
+    expect(mounted.container.querySelector('figure[data-jx-mermaid]')).toBe(figure);
+    await mounted.rerender({ theme: 'dark', backdrop: false, source: 'flowchart LR\n  a-->b' });
+    await vi.waitFor(() => expect(veilOf(mounted.container)).toBeNull());
+    mounted.unmount();
+    vi.unstubAllGlobals();
   });
 
 });

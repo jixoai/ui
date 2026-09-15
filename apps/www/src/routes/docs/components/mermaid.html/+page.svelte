@@ -184,6 +184,40 @@ ${close}
     { name: 'mermaid-theme-demo.svelte', content: mermaidThemeDemo, kind: 'usage' },
   ];
 
+  // ---- backdrop demo (Owner 2026-09-15, W2): the fixture pair the
+  // contrast probe samples — dark pin on the light stage, veil on/off
+  // (TD + short labels: the fixture renders inside the half-grid card
+  // without pan overflow, so sampling never meets a scrollbar)
+  const backdropSource = `flowchart TD
+    A[source floor] --> B[hydrated svg]
+    B -- theme flip --> C[re-derived palette]
+    B --> D[zoom + pan]
+    C --> E([registry payload])
+    D --> E`;
+
+  const mermaidBackdropDemo = `<script lang="ts">
+  import Mermaid from '@ui/mermaid';
+${close}
+
+<div class="grid gap-5 min-[760px]:grid-cols-2">
+  <div class="flex flex-col gap-2">
+    <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+      theme="dark" + backdrop (default on)
+    </p>
+    <Mermaid theme="dark" source={backdropSource} zoomable={false} copyable={false} class="w-full" />
+  </div>
+  <div class="flex flex-col gap-2">
+    <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+      theme="dark" + backdrop={'{false}'}
+    </p>
+    <Mermaid theme="dark" backdrop={false} source={backdropSource} zoomable={false} copyable={false} class="w-full" />
+  </div>
+</div>`;
+
+  const mermaidBackdropFiles: TreeFile[] = [
+    { name: 'mermaid-backdrop-demo.svelte', content: mermaidBackdropDemo, kind: 'usage' },
+  ];
+
   const mermaidZoomDemo = `<script lang="ts">
   import Mermaid from '@ui/mermaid';
 
@@ -370,6 +404,64 @@ ${close}
       </SectionCard>
     </div>
 
+    <!-- the dark backdrop (Owner 2026-09-15, W2) -->
+    <div id="mermaid-backdrop" data-region="mermaid-backdrop" data-reveal="">
+      <SectionCard
+        family="mermaid-backdrop"
+        headerRegion="mermaid-backdrop"
+        eyebrow="backdrop"
+        title="The dark backdrop is subtractive ink — never a tint"
+        summary="When the EFFECTIVE theme is dark, the viewport paints a designed veil built on backdrop-filter: a blur + contrast/brightness chain SUBTRACTS the page behind toward the dark ground. The veil layer itself paints zero background (the subtraction ink law), in a rounded, padded, 1px-bordered box — replacing the opaque hard-edge fill this surface used to paint."
+      >
+        <div class="flex flex-col gap-5">
+          <ComponentCanvas title="mermaid · backdrop" stage="fill" files={mermaidBackdropFiles}>
+            <div class="grid gap-5 min-[760px]:grid-cols-2">
+              <div class="flex flex-col gap-2">
+                <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                  theme="dark" + backdrop (default on)
+                </p>
+                <Mermaid
+                  theme="dark"
+                  source={backdropSource}
+                  zoomable={false}
+                  copyable={false}
+                  class="w-full"
+                  data-testid="backdrop-on"
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                  theme="dark" + backdrop={'{false}'}
+                </p>
+                <Mermaid
+                  theme="dark"
+                  backdrop={false}
+                  source={backdropSource}
+                  zoomable={false}
+                  copyable={false}
+                  class="w-full"
+                  data-testid="backdrop-off"
+                />
+              </div>
+            </div>
+          </ComponentCanvas>
+          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+            The veil rides the <code class="text-accent">EFFECTIVE</code> theme — the same token
+            resolution the palette uses: a dark pin on this light stage veils (the left card),
+            <code class="text-accent">theme="auto"</code> inside a dark scope veils, and light
+            themes never paint a backdrop. <code class="text-accent">backdrop={'{false}'}</code>
+            (the right card) opts out to full transparency. Where
+            <code class="text-accent">backdrop-filter</code> is unsupported, the component's own
+            opaque theme-ground fill returns — the diagram never loses its ground. The dark
+            palette's node fills are lifted toward white through their own tokens so fills,
+            borders, labels, and connectors clear the WCAG thresholds on the subtractive ground
+            (labels ≥ 4.5:1, graphics ≥ 3:1 — probe-sampled receipts in this change's
+            research/w2/).
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
     <!-- zoom & pan -->
     <div id="mermaid-zoom" data-region="mermaid-zoom" data-reveal="">
       <SectionCard
@@ -477,13 +569,14 @@ ${close}
       headerRegion="api"
       eyebrow="api"
       title="API"
-      summary="Nine props plus the HTML rest; source is the only required one — everything else is composition."
+      summary="Ten props plus the HTML rest; source is the only required one — everything else is composition."
     >
       <PropsTable
         props={[
           { name: 'source', type: 'string', default: '—', description: 'Diagram source (runtime prop — the code-card rule: never markup-inlined text).', required: true },
           { name: 'name', type: 'string', default: '—', description: 'Head tab label + the render-id base (sanitized to [a-z0-9-]; illegal input falls to the jx-mermaid default).' },
           { name: 'theme', type: "'auto' | 'light' | 'dark'", default: "'auto'", description: "'auto' follows the live theme across the figure's effective scope (any ancestor flip re-renders); explicit pins read the target sheet." },
+          { name: 'backdrop', type: 'boolean', default: 'true', description: 'The dark veil switch: when the EFFECTIVE theme is dark, the viewport paints a subtractive backdrop-filter veil (blur + contrast/brightness chain, zero background ink — the subtraction ink law) in a rounded, padded, 1px-bordered box; false = no veil and no ground (transparent, exactly as a light surface). Degrades to the component\u2019s own opaque theme-ground fill where backdrop-filter is unsupported.' },
           { name: 'copyable', type: 'boolean', default: 'true', description: 'Copy control on the footer bar (payload = the raw source, press physics, clipboard fallback).' },
           { name: 'zoomable', type: 'boolean', default: 'true', description: 'Zoom trio — ±0.25 steps clamped 0.5–3, reset; a pure transform, no engine call.' },
           { name: 'labels', type: 'MermaidLabels', default: '—', description: 'Localization payload: { copy, copied, zoomIn, zoomOut, zoomReset, renderError, diagram }; absent = English verbatim.' },
