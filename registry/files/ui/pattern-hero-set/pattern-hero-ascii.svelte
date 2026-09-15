@@ -49,7 +49,7 @@
   class={`mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8 ${className}`}
 >
   <div class="min-w-0">
-    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary">{eyebrow}</p>
+    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary-text">{eyebrow}</p>
     <!-- the mono scale law: size clamps with the viewport, the banner
          scrolls its own lane — ascii never reflows -->
     <pre
