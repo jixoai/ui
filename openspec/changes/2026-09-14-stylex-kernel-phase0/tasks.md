@@ -301,8 +301,16 @@
 ## P0.8 — review gates (remix)
 
 - [x] Gate 1: Codex reviews this change doc set (fresh agent).
-- [ ] Gate 2: Codex reviews the implementation + receipts; iterate
+- [x] Gate 2: Codex reviews the implementation + receipts; iterate
       to ≥ the research bar (8.0+); score + reasons recorded.
+      [stylex-impl-g2, 5 rounds — 5.8 → 7.7 → 7.8 → 7.9 → 8.8 PASS;
+      the r1 dual-order runtime counterexample reshaped the F9 law
+      (components nesting — the append-only first-mention repair);
+      r2 coverage-aware idempotence; r3 EXACTLY-ONE statement; r4 the
+      semantic whitespace-tolerant matcher; final verdict: the
+      implementation EXCEEDS Gate 1's doc score because it cashed the
+      contracts with real builds, browsers, consumer installs, and
+      manifest verification]
       [r1 verdict 5.8/10 INSUFFICIENT — four P1 blockers: (1) the F9
       statement fixed at priority1..3 while the payload emits
       priority2..9, no computed-style proof; (2) the compiled payload
