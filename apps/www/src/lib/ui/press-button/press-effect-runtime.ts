@@ -125,32 +125,97 @@ function parseColor(color: string): [number, number, number, number] | null {
   return null;
 }
 
-/** the Context's theme state (the Owner's r12 ruling: the fill default
- *  FOLLOWS the context's dark/light): the site's own toggle first
- *  (html.dark), then the scheme */
-export function contextIsDark(): boolean {
-  if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
-    return true;
+/* ── the theme-scope ladder (visual-quality-iteration W1, Owner
+ *  2026-09-15): the Context resolves FROM THE HOST ELEMENT, never
+ *  from the document alone. The standing r12 ladder read html.dark
+ *  (never set by this site's themed stages, which toggle
+ *  [data-theme]/.jx-light/.dark on a stage ANCESTOR) and then fell to
+ *  the OS scheme — so a light stage on an OS-dark machine painted a
+ *  dark sweep: the Owner's reported symptom. The law (change design
+ *  §W1): walk the host's ancestor chain (self included) for the
+ *  NEAREST theme scope — [data-theme="light"|"dark"], .dark,
+ *  .jx-light — first hit wins; the OS scheme answers ONLY when the
+ *  whole chain carries no scope (an unthemed page follows the user,
+ *  honest fallback). html.dark is merely the root-most scope of the
+ *  same walk. */
+/** one element's scope marker — data-theme outranks the classes on
+ *  the same element (an explicit attribute beats a utility class);
+ *  non-light/dark data-theme values are no scope at all */
+function scopeIsDark(el: Element): boolean | null {
+  const theme = el.getAttribute('data-theme');
+  if (theme === 'dark') return true;
+  if (theme === 'light') return false;
+  if (el.classList.contains('dark')) return true;
+  if (el.classList.contains('jx-light')) return false;
+  return null;
+}
+
+/** the OPACITY probe the canvas walk needs — hex/rgb() through
+ *  parseColor; MODERN color functions (oklch/oklab/lab/lch/hsl/hwb/
+ *  color()) opaque unless they carry an explicit < 1 alpha. This
+ *  site's own body background computes to oklch(1 0 0), which the
+ *  canvas normalizer ROUND-TRIPS instead of converting — without this
+ *  probe the walk would skip a perfectly opaque canvas and fall to
+ *  the scheme fallback (the measured base cannot lie, W1's own law) */
+function colorAlpha(color: string): number | null {
+  const parsed = parseColor(color);
+  if (parsed) return parsed[3];
+  const m = /^(?:oklch|oklab|lch|lab|hsl|hwb|color)\(([^)]*)\)$/i.exec(color.trim());
+  if (!m) return null;
+  const slash = m[1].lastIndexOf('/');
+  if (slash === -1) return 1;
+  const alpha = m[1].slice(slash + 1).trim();
+  if (alpha === 'none') return 1;
+  if (alpha.endsWith('%')) return Math.min(parseFloat(alpha) / 100, 1);
+  const n = parseFloat(alpha);
+  return Number.isNaN(n) ? null : Math.min(Math.max(n, 0), 1);
+}
+
+/** the Context's theme state (the Owner's r12 ruling, W1-scoped): the
+ *  NEAREST ancestor theme scope of the HOST (self included) first —
+ *  a dark stage on a light site is dark — and only an entirely
+ *  unscoped chain falls to the OS scheme */
+export function contextIsDark(host?: Element): boolean {
+  for (
+    let el: Element | null = host ?? (typeof document !== 'undefined' ? document.documentElement : null);
+    el;
+    el = el.parentElement
+  ) {
+    const scoped = scopeIsDark(el);
+    if (scoped !== null) return scoped;
   }
   return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-/** the Context's base color — the page root's own background when it
- *  is opaque (the visible page base), else the scheme's white/black
- *  (never the --background TOKEN: measured dark even under this
- *  site's light theme — tokens lie, the rendered root does not) */
-export function contextBaseCss(): string {
+/** the Context's base color — for a HOST: the nearest OPAQUE ANCESTOR
+ *  backgroundColor (walk-up + parse; semi-transparent alpha < 1
+ *  ancestors are SKIPPED until an opaque one is found — a
+ *  gradient-having stage resolves to the opaque base UNDER the
+ *  gradient, correct for light/dark reading). The walk starts at the
+ *  parent: the fill sits on what is BEHIND the host, and the docs'
+ *  law names the nearest opaque ANCESTOR (the scope walk includes
+ *  self, the canvas walk does not). Hostless (solidFill's standing
+ *  shape): the page root's own background, the pre-W1 behavior.
+ *  Never the --background TOKEN: measured dark even under this
+ *  site's light theme — tokens lie, the rendered root does not */
+export function contextBaseCss(host?: Element): string {
   if (typeof document !== 'undefined') {
-    const bg = getComputedStyle(document.documentElement).backgroundColor;
-    const parsed = parseColor(bg);
-    if (parsed && parsed[3] === 1) return bg;
+    for (
+      let el: Element | null = host ? host.parentElement : document.documentElement;
+      el;
+      el = el.parentElement
+    ) {
+      const bg = getComputedStyle(el).backgroundColor;
+      const alpha = colorAlpha(bg);
+      if (alpha === 1) return bg; // opaque measured canvas — the raw string stamps fine (oklch paints)
+    }
   }
-  return contextIsDark() ? '#000000' : '#ffffff';
+  return contextIsDark(host) ? '#000000' : '#ffffff';
 }
 
 /** the base as the fill channel's own unit — a 0xRRGGBB number */
-export function contextBase(): number {
-  const [r, g, b] = parseColor(contextBaseCss()) ?? [255, 255, 255];
+export function contextBase(host?: Element): number {
+  const [r, g, b] = parseColor(contextBaseCss(host)) ?? [255, 255, 255];
   return (r << 16) | (g << 8) | b;
 }
 
@@ -176,20 +241,70 @@ function fillToCss(fill: number): string {
   return `rgb(${(fill >> 16) & 255} ${(fill >> 8) & 255} ${fill & 255})`;
 }
 
-/** the fill channel's resolution, shared by the rim kernels (r11/r13):
- *  number → opaque rgb(); null → the TRUE cutout where the engine
- *  clips border-area, else the blend emulation (white + darken in
- *  light contexts, black + lighten in dark); undefined → Canvas, the
- *  color-scheme system color (the face follows the Context's
- *  dark/light live) */
-function resolveFill(fill: number | null | undefined): { fillCss: string; blend: 'darken' | 'lighten' | null } {
+/** the fill channel's resolution, shared by the rim kernels (r11/r13,
+ *  W1-scoped 2026-09-15): number → opaque rgb(); null → the TRUE
+ *  cutout where the engine clips border-area, else the blend
+ *  emulation (white + darken in light contexts, black + lighten in
+ *  dark — now read from the HOST's scope); undefined → the EFFECTIVE
+ *  CANVAS of the host's context — the nearest opaque ancestor
+ *  backgroundColor (the CSS Canvas keyword is RETIRED from the auto
+ *  path: it follows color-scheme/OS, not the stage, which was the
+ *  Owner's exact symptom) */
+function resolveFill(fill: number | null | undefined, host?: Element): { fillCss: string; blend: 'darken' | 'lighten' | null } {
   if (fill === null && !borderAreaSupported()) {
-    const dark = contextIsDark();
+    const dark = contextIsDark(host);
     return { fillCss: fillToCss(dark ? 0x000000 : 0xffffff), blend: dark ? 'lighten' : 'darken' };
   }
   if (fill === null) return { fillCss: 'transparent', blend: null };
-  if (fill === undefined) return { fillCss: 'Canvas', blend: null };
+  if (fill === undefined) return { fillCss: contextBaseCss(host), blend: null };
   return { fillCss: fillToCss(fill), blend: null };
+}
+
+/** the host's ancestor chain as a list — self through root (the
+ *  design's own words for the observer's reach) */
+function scopeChain(element: Element): Element[] {
+  const chain: Element[] = [];
+  for (let el: Element | null = element; el; el = el.parentElement) chain.push(el);
+  return chain;
+}
+
+/** ONE MutationObserver per mounted context-resolved effect (W1):
+ *  attributeFilter ['class', 'data-theme'] on every element of the
+ *  host's CURRENT ancestor chain (self through root) — a class flip
+ *  (jx-light → dark) AND an attribute flip (data-theme="light" →
+ *  "dark") both re-resolve — plus ONE childList/subtree registration
+ *  on the document root as the REPARENT channel (the Gate-1 r5
+ *  residual made explicit: attribute observation cannot see a host
+ *  changing parents, and the old chain's registrations go stale the
+ *  moment the host moves). Structural mutations only ever wake a
+ *  CHAIN COMPARE — a pure parentNode identity walk, no style reads —
+ *  so unrelated DOM churn never pays for a re-resolution; only a
+ *  genuinely moved host re-resolves AND rebinds to its new chain.
+ *  An unrelated element's class change triggers nothing (the chain
+ *  registrations are per-element, never subtree). Disconnected on
+ *  effect cleanup. */
+function watchScope(element: HTMLElement, reresolve: () => void): () => void {
+  if (typeof MutationObserver === 'undefined') return () => {};
+  let chain = scopeChain(element);
+  const root = element.ownerDocument?.documentElement ?? null;
+  const observer = new MutationObserver((records) => {
+    const attributeFlip = records.some((record) => record.type === 'attributes');
+    const live = scopeChain(element);
+    const moved = live.length !== chain.length || live.some((el, i) => el !== chain[i]);
+    if (!attributeFlip && !moved) return; // structural churn elsewhere — nothing of ours changed
+    reresolve();
+    if (moved) {
+      observer.disconnect();
+      chain = live;
+      bind();
+    }
+  });
+  const bind = (): void => {
+    for (const el of chain) observer.observe(el, { attributeFilter: ['class', 'data-theme'] });
+    if (root) observer.observe(root, { childList: true, subtree: true });
+  };
+  bind();
+  return () => observer.disconnect();
 }
 
 /** the rim kernels' clip pair — border-area where the engine answers,
@@ -284,21 +399,37 @@ function svgNode(tag: string): SVGElement {
  *      mix-blend-mode: darken on the host; dark context → black
  *      fill + lighten — the face reads as glass over whatever sits
  *      behind, which is why the demo band exists
- *    • fill undefined → the context's own base color, opaque
+ *    • fill undefined → the EFFECTIVE CANVAS of the host's context
+ *      (W1: nearest opaque ancestor background, scope-resolved
+ *      fallback) — the sweep follows the STAGE, live (a scope
+ *      observer re-resolves class/data-theme flips and reparents
+ *      without a remount; the CSS Canvas keyword is retired)
  *  Teardown strips the class, the vars, and restores the host's
  *  prior mix-blend-mode untouched */
 export function applyShimmer(element: HTMLElement, fx: ShimmerEffect): () => void {
   element.setAttribute('data-jx-shimmer-host', '');
   const added = addClasses(element, ['jx-shimmer-host']);
-  const { fillCss, blend } = resolveFill(fx.fill);
-  stampVars(
-    element,
-    `--shimmer-shine: ${fx.shine}; --shimmer-base: ${fx.ringColor}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${rimClipCss()}`,
-    VAR_SHIMMER
-  );
   const priorBlend = element.style.mixBlendMode;
-  if (blend) element.style.mixBlendMode = blend;
+  const apply = (): void => {
+    const { fillCss, blend } = resolveFill(fx.fill, element);
+    stampVars(
+      element,
+      `--shimmer-shine: ${fx.shine}; --shimmer-base: ${fx.ringColor}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${rimClipCss()}`,
+      VAR_SHIMMER
+    );
+    // the blend stamp is ours while mounted: set it when the channel
+    // asks, restore the consumer's prior when it does not (idempotent
+    // under re-resolution — the undefined arm never blends)
+    if (blend) element.style.mixBlendMode = blend;
+    else if (element.style.mixBlendMode !== priorBlend) element.style.mixBlendMode = priorBlend;
+  };
+  apply();
+  // numeric fills are explicit and context-free — no observer at all;
+  // the context-resolved arms (undefined canvas, null blend direction)
+  // re-resolve live through ONE observer on the ancestor chain
+  const unwatch = typeof fx.fill === 'number' ? undefined : watchScope(element, apply);
   return () => {
+    unwatch?.();
     element.style.mixBlendMode = priorBlend;
     element.removeAttribute('data-jx-shimmer-host');
     for (const cls of added) element.classList.remove(cls);
@@ -335,26 +466,33 @@ export function applyPulse(element: HTMLElement, fx: PulseEffect): () => void {
  *  image hidden; the wrap-stop train rides background layer 2 through
  *  the SAME border-area gate and fill channel as shimmer — number =
  *  opaque face, null = the true cutout / blend emulation, undefined =
- *  Canvas, theme-live). The ONE span that remains is the under-glow
+ *  the host context's EFFECTIVE CANVAS, theme-live through the same
+ *  W1 scope observer). The ONE span that remains is the under-glow
  *  bar (the Owner's ruling: 「blur 的彩虹光影不用改」) — it keeps its
  *  own paint and now INHERITS the registered shift from the animating
  *  host (one animation drives both carriers) */
 export function applyRainbow(element: HTMLElement, fx: RainbowEffect): () => void {
   element.setAttribute('data-jx-rainbow-host', '');
   const added = addClasses(element, ['jx-rainbow-host', ...HOST_CLASSES]); // the glow span still needs the stacking pose
-  const { fillCss, blend } = resolveFill(fx.fill);
-  stampVars(
-    element,
-    `--rainbow-speed: ${fx.speed}ms; --rainbow-ring-w: ${fx.ringW}; --rainbow-fill: ${fillCss}; --rainbow-clip: ${rimClipCss()}; ${fx.colors
-      .map((c, i2) => `--c${i2 + 1}: ${c}`)
-      .join('; ')}`,
-    VAR_RAINBOW
-  );
   const priorBlend = element.style.mixBlendMode;
-  if (blend) element.style.mixBlendMode = blend;
+  const apply = (): void => {
+    const { fillCss, blend } = resolveFill(fx.fill, element);
+    stampVars(
+      element,
+      `--rainbow-speed: ${fx.speed}ms; --rainbow-ring-w: ${fx.ringW}; --rainbow-fill: ${fillCss}; --rainbow-clip: ${rimClipCss()}; ${fx.colors
+        .map((c, i2) => `--c${i2 + 1}: ${c}`)
+        .join('; ')}`,
+      VAR_RAINBOW
+    );
+    if (blend) element.style.mixBlendMode = blend;
+    else if (element.style.mixBlendMode !== priorBlend) element.style.mixBlendMode = priorBlend;
+  };
+  apply();
+  const unwatch = typeof fx.fill === 'number' ? undefined : watchScope(element, apply);
   const glow = span('jx-rainbow-glow');
   element.prepend(glow);
   return () => {
+    unwatch?.();
     element.style.mixBlendMode = priorBlend;
     glow.remove();
     element.removeAttribute('data-jx-rainbow-host');

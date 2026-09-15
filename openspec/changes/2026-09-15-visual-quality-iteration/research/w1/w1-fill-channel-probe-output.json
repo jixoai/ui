@@ -1,0 +1,86 @@
+{
+  "run": "2026-09-15T12:11:04.987Z",
+  "results": [
+    {
+      "name": "A · light stage + OS-dark → the context is LIGHT (the scope, not the OS)",
+      "ok": true,
+      "detail": "contextIsDark=false osDark=true"
+    },
+    {
+      "name": "A · the auto fill var resolves the STAGE base, Canvas retired",
+      "ok": true,
+      "detail": "shimmer=rgb(248, 250, 252) rainbow=rgb(248, 250, 252)"
+    },
+    {
+      "name": "A · the sheet paints the mounted host (conic live)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "A · PIXEL: the shimmer face samples LIGHT on the light stage (the Owner symptom inverted)",
+      "ok": true,
+      "detail": "face pixel rgb(248, 250, 252)"
+    },
+    {
+      "name": "E · PIXEL: rainbow rides the same channel — light fill on the light stage",
+      "ok": true,
+      "detail": "face pixel rgb(247, 250, 252)"
+    },
+    {
+      "name": "B · dark stage + OS-light → dark context, dark base",
+      "ok": true,
+      "detail": "contextIsDark=true osDark=false fill=rgb(16, 16, 20)"
+    },
+    {
+      "name": "B · PIXEL: the face samples DARK on the dark stage",
+      "ok": true,
+      "detail": "face pixel rgb(16, 16, 20)"
+    },
+    {
+      "name": "C · class-scoped light stage starts light",
+      "ok": true,
+      "detail": "rgb(248, 250, 252)"
+    },
+    {
+      "name": "C · the class flip re-resolves LIVE, no remount",
+      "ok": true,
+      "detail": "fill=rgb(16, 16, 20) hostStamped=true"
+    },
+    {
+      "name": "C · PIXEL: the face flipped dark live",
+      "ok": true,
+      "detail": "face pixel rgb(16, 16, 20)"
+    },
+    {
+      "name": "D · the data-theme flip re-resolves LIVE (the docs stages' mechanism)",
+      "ok": true,
+      "detail": "rgb(16, 16, 20)"
+    },
+    {
+      "name": "F · teardown: vars stripped, later flips re-stamp nothing",
+      "ok": true,
+      "detail": "var=\"\" stamped=false"
+    },
+    {
+      "name": "G · no scope anywhere → the OS scheme answers (dark under emulateMedia dark)",
+      "ok": true,
+      "detail": "contextIsDark=true"
+    },
+    {
+      "name": "G · the unscoped base = the measured page base (body background)",
+      "ok": true,
+      "detail": "base=oklch(1 0 0) bodyBg=oklch(1 0 0) stamped=oklch(1 0 0)"
+    },
+    {
+      "name": "docs · the shimmer demo hosts resolve the BAND base (#101014) in BOTH stage themes on an OS-dark machine",
+      "ok": true,
+      "detail": "band=rgb(16, 16, 20) light=[\"rgb(16, 16, 20)\",\"rgb(16, 16, 20)\",\"rgb(16, 16, 20)\"] dark=[\"rgb(16, 16, 20)\",\"rgb(16, 16, 20)\",\"rgb(16, 16, 20)\"]"
+    },
+    {
+      "name": "docs · the rainbow demo hosts resolve the BAND base (#101014) in BOTH stage themes on an OS-dark machine",
+      "ok": true,
+      "detail": "band=rgb(16, 16, 20) light=[\"rgb(16, 16, 20)\",\"rgb(16, 16, 20)\",\"rgb(16, 16, 20)\"] dark=[\"rgb(16, 16, 20)\",\"rgb(16, 16, 20)\",\"rgb(16, 16, 20)\"]"
+    }
+  ],
+  "failed": 0
+}

@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
 /* jixoai press-button — effect loops (tw4, 2026-08-24; recipes re-ruled
  * r4 2026-09-10 and re-ruled AGAIN r5 the same day — the Owner's
@@ -129,7 +129,7 @@
   border-color: transparent !important;
   border-image: none !important;
   background-image:
-    linear-gradient(var(--rainbow-fill, Canvas), var(--rainbow-fill, Canvas)),
+    linear-gradient(var(--rainbow-fill, transparent), var(--rainbow-fill, transparent)),
     linear-gradient(
       90deg,
       var(--c1) 0%,
