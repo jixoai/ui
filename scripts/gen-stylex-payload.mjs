@@ -24,15 +24,23 @@
 // OUTSIDE the byte-mirror trees (verify:mirror covers registry/files ⇄
 // apps/www/src/lib only; a payload file inside either tree would need
 // two-synced-copies for zero benefit), OUTSIDE public/r/ (shadcn build
-// owns and regenerates that tree; the phase-1 wiring reads this tree
-// when it folds the payload into the shadcn payloads), OUTSIDE the
-// registry npm package (registry/ is private @jixoai/www).
+// owns and regenerates that tree), OUTSIDE the registry npm package
+// (registry/ is private @jixoai/www).
+//
+// PUBLISHING (Gate-2 P1-2, the spec's "generator wired into the
+// registry build" clause): `--publish <dir>` re-copies the payload
+// tree + manifest into `<dir>/payload/stylex/` after writing — the
+// build pipeline calls it with the deploy tree (public/), so the
+// compiled class modules + item css ship at
+// https://ui.jixoai.com/payload/stylex/<item>/… for zero-engine
+// consumers; verify:shadcn-add consumes the SAME published manifest.
 //
 // Usage (from repo root):
-//   node scripts/gen-stylex-payload.mjs          # write the payload tree + manifest
-//   node scripts/gen-stylex-payload.mjs --check  # report drift only (verify:stylex-payload is the real gate)
+//   node scripts/gen-stylex-payload.mjs                        # write the payload tree + manifest
+//   node scripts/gen-stylex-payload.mjs --check                # report drift only (verify:stylex-payload is the real gate)
+//   node scripts/gen-stylex-payload.mjs --publish public       # + copy the tree into public/payload/stylex/
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -48,6 +56,8 @@ import {
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const checkOnly = process.argv.includes('--check');
+const publishIdx = process.argv.indexOf('--publish');
+const publishDir = publishIdx >= 0 ? join(root, process.argv[publishIdx + 1] ?? '') : null;
 
 const { buildId, items } = await derivePayload(root);
 
@@ -104,6 +114,20 @@ if (!checkOnly) {
   console.log(
     `[gen:stylex-payload] ${sortedItems.length} item(s) · buildId ${buildId.slice(0, 12)}… · ${total} class constants · manifest written`,
   );
+
+  // the publish step (Gate-2 P1-2): mirror the payload tree + manifest
+  // into the deploy tree — the same bytes, a second landing spot
+  if (publishDir) {
+    const target = join(publishDir, 'payload', 'stylex');
+    rmSync(target, { recursive: true, force: true });
+    mkdirSync(dirname(target), { recursive: true });
+    cpSync(payloadRoot(root), target, { recursive: true });
+    if (!existsSync(join(target, 'payload-manifest.json'))) {
+      console.error('[gen:stylex-payload] publish failed: payload-manifest.json missing in the target');
+      process.exit(1);
+    }
+    console.log(`[gen:stylex-payload] published ${sortedItems.length} item(s) → ${toPosix(root, target)}/`);
+  }
 } else {
   console.log(`[gen:stylex-payload] --check: ${sortedItems.length} item(s) derived, ${drift} drifted artifact(s)`);
   process.exit(drift === 0 ? 0 : 1);

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build-site.mjs",
-    "build:registry": "shadcn build",
+    "build:registry": "shadcn build && node scripts/gen-stylex-payload.mjs --publish public",
     "build:blueprints": "node scripts/build-blueprints.mjs",
     "shots": "node scripts/capture-baseline.mjs",
     "gen:icons": "node scripts/gen-icon-set.mjs",

@@ -181,6 +181,27 @@ function buildRegistry() {
   }
 }
 
+/** 5.5 The compiled stylex payload → public/payload/stylex/ (stylex-
+ * kernel-phase0 Gate-2 P1-2; the spec's "generator wired into the
+ * registry build" clause): re-derive through the pinned kernel
+ * pipeline and publish the class modules + item css into the deploy
+ * tree — the zero-engine consumer surface at
+ * https://ui.jixoai.com/payload/stylex/<item>/. The generator is
+ * idempotent (byte-deterministic), so re-running it here can only
+ * fail loudly on source drift, never silently diverge. */
+function publishStylexPayload() {
+  const result = spawnSync(process.execPath, ["scripts/gen-stylex-payload.mjs", "--publish", "public"], {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
+  if (result.status !== 0) {
+    die(`stylex payload generation/publish failed (exit ${result.status})`);
+  }
+  if (!existsSync(path.join(publicDir, "payload", "stylex", "payload-manifest.json"))) {
+    die("public/payload/stylex/payload-manifest.json missing after the publish step");
+  }
+}
+
 /** 6. AI-facing exports from the FINAL public/ (llms.txt, llms-full.txt,
  * per-page .md). Config lives here — inline, next to the pipeline it owns.
  * The generator only touches its declared outputs and fails loudly on
@@ -265,6 +286,8 @@ async function main() {
   emitLegacyShells();
   console.log("[build-site] 5/8 building registry JSON → public/r/");
   buildRegistry();
+  console.log("[build-site] 5.5/8 generating + publishing the compiled stylex payload → public/payload/stylex/");
+  publishStylexPayload();
 
   // Fail BEFORE generating the index: an index whose registry link 404s
   // must never be written, and an artifact without its domain would
