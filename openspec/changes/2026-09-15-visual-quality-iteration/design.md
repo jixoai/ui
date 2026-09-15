@@ -99,8 +99,9 @@ threshold to the reviewer — retired. The contract:
 - Objects: (a) diagram LABEL text against its own node fill; (b) node
   fill and node border against the veil ground sampled ADJACENT to the
   node (2px out, past the border); (c) CONNECTOR strokes against the
-  veil ground sampled adjacent to the stroke (midpoint of the
-  diagram's longest edge).
+  veil ground — sampled antialias-proof: the stroke's LINE-CORE pixel
+  (the center of the stroke width) versus a ground patch offset along
+  the stroke's NORMAL direction, past the stroke's edge.
 - Thresholds: labels ≥ 4.5:1; non-text graphics (fills, borders,
   connectors) ≥ 3:1.
 - Fixture: the docs page's dark-pinned demo diagram rendered on the light
@@ -237,7 +238,10 @@ relative to its anchor — the surface that should sit ABOVE its anchor
 declares the area `top`, never the inverse. The four sites' mapping tables
 (and the two literal strings) flip to this grammar; the corrected
 side × align tables are written INTO the components' source as the single
-mapping truth.
+mapping truth, and the SAME corrected table feeds BOTH emission channels —
+the modern `position-area` string AND the legacy `inset-area` fallback
+string (the components currently stamp both; one table, two emissions, no
+divergence between them).
 
 **The probe protocol (reused, not invented).** The standing
 `scripts/verify-popover-area-align.mjs` harness extends to the four

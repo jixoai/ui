@@ -40,11 +40,12 @@ change-wide parity proof).
   transparent
 - [ ] 2.2 Contrast probe per the fixed acceptance: WCAG ratio, labels
   ≥ 4.5:1 vs node fill; fill, border, and connector strokes ≥ 3:1 vs
-  the veil ground sampled adjacent to each object (2px past the node
-  border; midpoint of the longest edge connector), pinned Chromium 2×
-  screenshot sampling on the dark-pinned demo; any pair below
-  threshold fails; derived-palette lift (through its own tokens) only
-  if measurement demands, recorded
+  the veil ground — connectors sampled antialias-proof (line-core
+  pixel vs a ground patch along the stroke's normal, past the edge),
+  nodes sampled 2px past the border — pinned Chromium 2× screenshot
+  sampling on the dark-pinned demo; any pair below threshold fails;
+  derived-palette lift (through its own tokens) only if measurement
+  demands, recorded
 - [ ] 2.3 Tests: unit (prop matrix: effective theme × backdrop ×
   supports), probe (veil computed style on/off/unsupported —
   `background` transparent on the veil layer), screenshot receipts
@@ -86,7 +87,10 @@ change-wide parity proof).
   ARIA) + the hand-drawn INTERACTION ADAPTER (idle fade, hover grow,
   drag pin, keyboard, thumb a11y) + the native CAPABILITY STYLES
 - [ ] 4.2 `scroll-area` rework: always hand-drawn, capsule thumb,
-  token-law look, both axes; `variant` retires (source-scan canary);
+  token-law look, both axes; the `scrollbar` prop + `ScrollbarVariant`
+  type retire and NO mode branch remains (source-scan canary with a
+  two-directional fixture — a planted live `scrollbar` prop reddens
+  it);
   the four testable pins (region focus-within, thumb focus, drag,
   hover) each suspend the idle fade + thumb stays in the accessibility
   tree with live `aria-valuenow` (probe-asserted)
@@ -105,7 +109,9 @@ change-wide parity proof).
 
 - [ ] 5.1 Flip the four inverted `position-area` sites to spec semantics
   (surface-occupies-the-named-region grammar); corrected side × align
-  mapping tables land in the components' source; extend
+  mapping tables land in the components' source and feed BOTH the
+  `position-area` string and the legacy `inset-area` fallback string
+  (one table, two emissions); extend
   `scripts/verify-popover-area-align.mjs` to the four surfaces with
   thresholds + swapped-map negative control + baseline-diff screenshots
 - [ ] 5.2 The eight enumerated css paths (press-button, mermaid,
@@ -118,12 +124,13 @@ change-wide parity proof).
   receipts
 - [ ] 5.4 MIRROR/PAYLOAD CLOSURE for every registry item this change
   touches (modified components + the two new items): sync each to the
-  `apps/www/src/lib/**` mirror, update mirror-manifest.json,
-  `verify:mirror` green, `shadcn build` + payload parity
-  (`registry/payload/stylex/payload-manifest.json` regenerated,
-  SHA-verified), `verify:deps` green, and the two real-install
-  clean-consumer cases from 4.4 green — the source-to-mirror and
-  source-to-payload invariants both hold (mirror-sync spec)
+  `apps/www/src/lib/**` mirror, update mirror-manifest.json, then the
+  TWO invariants separately — source-to-mirror: `pnpm verify:mirror` +
+  `pnpm verify:deps` green; source-to-payload: `pnpm build:registry` +
+  `pnpm verify:stylex-payload` (the StyleX manifest contract,
+  css-architecture spec) + `pnpm --filter @jixoai/www exec vitest run
+  test/registry-payload-parity.spec.ts` green — each with its own
+  receipt, plus the two real-install clean-consumer cases from 4.4
 
 ## Gate
 
