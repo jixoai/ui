@@ -662,13 +662,15 @@
       "object": "connector",
       "path": 1,
       "at": 0.5,
-      "reason": "centerline occluded by the edge-label chip (the label paints over the line)"
+      "resampled": 0,
+      "reason": "centerline occluded by the edge-label chip (the label paints over the line) — re-sampled 0 step(s), still occluded"
     },
     {
       "object": "connector",
       "path": 1,
       "at": 0.75,
-      "reason": "centerline occluded by the edge-label chip (the label paints over the line)"
+      "resampled": 0,
+      "reason": "centerline occluded by the edge-label chip (the label paints over the line) — re-sampled 0 step(s), still occluded"
     }
   ],
   "summary": {

@@ -155,7 +155,7 @@ change-wide parity proof).
 
 ## Gate
 
-- [ ] G1 Codex change-doc review (herdr, gpt-5.6-terra xhigh) — iterate
+- [x] G1 Codex change-doc review (herdr, gpt-5.6-terra xhigh) — iterate
   until PASS ≥ 8.0
-- [ ] G2 Codex implementation review against the receipts — iterate until
+- [x] G2 Codex implementation review against the receipts — iterate until
   PASS ≥ 8.0; then archive + push

@@ -602,21 +602,40 @@ try {
 
   // CONNECTORS: the canonical protocol — every edge, 1/4 1/2 3/4 centerline
   for (const [pi, path] of onGeo.paths.entries()) {
-    for (const s of path.samples) {
+    for (const s0 of path.samples) {
+      // sample-point occlusion (chip/node) re-samples along the
+      // centerline to a shifted fraction, max 3 steps (the contract's
+      // rule — Gate-2 r2 makes the centerline re-sample verbatim; a
+      // still-occluded point records as a skip with its step count)
+      let s = s0;
+      let steps = 0;
+      let occluded = null;
+      while (steps < 3) {
+        if (insideAnyBox(s.pt, chipBoxes, 1)) {
+          occluded = 'centerline occluded by the edge-label chip (the label paints over the line)';
+        } else if (insideAnyBox(s.pt, onGeo.nodes.map((n) => n.shape), 0)) {
+          occluded = 'centerline under a node box (the node paints over the line)';
+        } else {
+          occluded = null;
+          break;
+        }
+        const shift = 0.06 * (steps + 1);
+        const next = path.samples.find((c) => Math.abs(c.f - (s0.f + shift)) < 0.025)
+          ?? path.samples.find((c) => Math.abs(c.f - (s0.f - shift)) < 0.025);
+        if (!next || next === s) break;
+        s = next;
+        steps++;
+      }
+      if (occluded) {
+        report.skipped.push({ object: 'connector', path: pi, at: s0.f, resampled: steps, reason: occluded + ' — re-sampled ' + steps + ' step(s), still occluded' });
+        continue;
+      }
+      if (steps > 0) {
+        (report.resamples ??= []).push({ object: 'connector', path: pi, from: s0.f, to: s.f, steps, reason: 'sample point occluded — re-sampled clear' });
+      }
       const tlen = Math.hypot(s.tan.x, s.tan.y) || 1;
       const nx = -s.tan.y / tlen; // the local tangent's perpendicular
       const ny = s.tan.x / tlen;
-      // a centerline point covered by an edge-label chip (the chip paints
-      // OVER the line by design) cannot sample the stroke — skipped + recorded
-      if (insideAnyBox(s.pt, chipBoxes, 1)) {
-        report.skipped.push({ object: 'connector', path: pi, at: s.f, reason: 'centerline occluded by the edge-label chip (the label paints over the line)' });
-        continue;
-      }
-      // likewise a centerline point running under a NODE box
-      if (insideAnyBox(s.pt, onGeo.nodes.map((n) => n.shape), 0)) {
-        report.skipped.push({ object: 'connector', path: pi, at: s.f, reason: 'centerline under a node box (the node paints over the line)' });
-        continue;
-      }
       // the line-core lock: the painted core within 7 device px of the
       // mapped centerline point (see the header note) — an absent stroke
       // leaves the window at ground and the pair fails on ground-vs-ground
