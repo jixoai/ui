@@ -99,6 +99,7 @@ export { canvasPlugin } from './canvas/vite-plugin.js';
 export {
   CANONICAL_STATEMENT_PATTERN,
   canonicalLayerStatement,
+  countCanonicalStatements,
   maxStylexPriority,
   parseCanonicalStatement,
   stripCanonicalStatements,

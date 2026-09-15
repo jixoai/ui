@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { build } from 'vite';
 
-import { jixoai, canonicalLayerStatement, maxStylexPriority, parseCanonicalStatement } from '../../src/index.ts';
+import { jixoai, canonicalLayerStatement, countCanonicalStatements, maxStylexPriority, parseCanonicalStatement, stripCanonicalStatements } from '../../src/index.ts';
 import { createStylexEngine } from '../../src/stylex/vite-plugin.ts';
 
 const packageRoot = join(fileURLToPath(new URL('../..', import.meta.url)));
@@ -105,12 +105,26 @@ async function findCssFiles(dir: string): Promise<string[]> {
   return out;
 }
 
-// Gate-2 r3 P1: the merged asset carries EXACTLY ONE canonical
-// statement (counted by the exact-bytes pattern, any tier count)
-const countCanonicalStatements = (css: string): number =>
-  (css.match(/@layer properties, theme, base, components(?:, components\.stylex\.priority[0-9]+)*, utilities;/g) ?? []).length;
-
 describe('the stylex feature (build side, F11)', () => {
+  it('the semantic canonical matcher is whitespace/minification tolerant (Gate-2 r4)', () => {
+    // the r4 finding: real vite re-serializes a sheet statement to the
+    // no-space form — the exact-bytes matcher was blind to it
+    const spaced = canonicalLayerStatement(0);
+    const minified = spaced.replace(/, /g, ',');
+    const tiersMin = canonicalLayerStatement(3).replace(/, /g, ',');
+    expect(countCanonicalStatements(minified)).toBe(1);
+    expect(countCanonicalStatements(tiersMin)).toBe(1);
+    expect(countCanonicalStatements(`${spaced}\n${minified}`)).toBe(2);
+    // strip removes every variant, keeps the engine's internal
+    // non-canonical prelude verbatim
+    const enginePrelude = '@layer properties, theme, base, components;';
+    expect(stripCanonicalStatements(`${minified}\n${enginePrelude}\nbody{}`)).toBe(`${enginePrelude}\nbody{}`);
+    expect(stripCanonicalStatements(`${spaced}\n${tiersMin}\n.x{}`)).toBe('.x{}');
+    // and the near-miss shapes do NOT count (not the canonical form)
+    expect(countCanonicalStatements(enginePrelude)).toBe(0);
+    expect(countCanonicalStatements('@layer utilities;')).toBe(0);
+  });
+
   it('canonicalLayerStatement pins the F9 canonical statement verbatim (dynamic tiers, utilities last)', () => {
     expect(canonicalLayerStatement(3)).toBe(F9_CANONICAL_N3);
     expect(canonicalLayerStatement(0)).toBe(F9_CANONICAL_SHEET);
