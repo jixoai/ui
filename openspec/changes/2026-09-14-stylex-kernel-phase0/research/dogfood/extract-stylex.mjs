@@ -144,7 +144,10 @@ if (cmd === 'extract') {
     out.push(unit.replace(/\n  /g, '\n')); // bare @keyframes / vars / rules verbatim
   }
   if (out.length === 0) die(`no stylex rules extracted from ${src}`);
-  const body = out.join('\n\n');
+  // trailing whitespace never enters a committed artifact (the
+  // Gate-2 P1-4 hygiene law); semantically inert for every consumer
+  // of these extracts (the delta pass whitespace-collapses)
+  const body = out.join('\n\n').replace(/[ \t]+\n/g, '\n');
   writeFileSync(b, body + '\n');
   console.log(
     `[extract-stylex] ${src} → ${b}: F9 statement at byte 0 OK; tail from unit ${firstStylex}/${units.length}; ` +

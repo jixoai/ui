@@ -1,9 +1,10 @@
 # P0.6 receipts — the corpus dogfood (8 families + demo chrome)
 
-> stylex-kernel phase 0 (IMPL-C, 2026-09-15). Working tree
-> `jixoai-labs/ui-stylex` (worktree, branch stylex-integration, HEAD
-> `d816aaa5` at task start). Every command below is re-runnable from
-> the change directory
+> stylex-kernel phase 0 (IMPL-C, 2026-09-15; re-measured at the
+> Gate-2 P1 fix round by IMPL-E, same day — §5/§6 and the extracts
+> carry the re-run). Working tree `jixoai-labs/ui-stylex` (worktree,
+> branch stylex-integration, HEAD `d816aaa5` at task start). Every
+> command below is re-runnable from the change directory
 > (`openspec/changes/2026-09-14-stylex-kernel-phase0`).
 
 ## 1. Fixture placement (design §6 ruling, recorded)
@@ -39,11 +40,13 @@ comparison must too).
 Law mapping (design §4, verified under the REAL pipeline's
 `propertyValidationMode:'throw'`):
 
-- **static longhand atoms ONLY** — zero factory calls, zero vars-keys
-  inside `create()`, zero shorthands (the spike-proven
-  `textDecoration:'none'` / `outline` / `padding` compound values pass
-  the throw-mode validator as unambiguous longhand-compatible forms,
-  unchanged from the spike authoring);
+- **static atoms ONLY** — zero factory calls, zero vars-keys inside
+  `create()`; shorthands follow the ENGINE'S LINE (Gate-2 P1-3): the
+  throw-table names never appear, the engine-ACCEPTED shorthands the
+  spike used (`textDecoration:'none'`, `margin`/`padding`/`gap`
+  compounds) pass throw mode and ride the compiled css as standard
+  CSS (an earlier line here claimed "longhand only" — measured
+  wrong: the engine serializes `margin: 0` as `margin: 0`);
 - **theme refs ride the typed token layer** (design §2/§4.1, the
   P0.3b scene idiom): whole-value refs are `tokens['--jx-…']` members;
   refs embedded in composite values name the member literally
@@ -192,16 +195,24 @@ same names both sides).
 | switch | EQUIVALENT modulo T | T: border/primary/muted/background/ring/primary-foreground (track ring shadow, hover ring, checked grounds, knob border, focus ring); the whole state machine verbatim |
 | demo chrome | EQUIVALENT modulo T | T: muted-foreground/border/card/foreground/muted |
 
-## 5. F9 layer law — re-verified in the dogfood build
+## 5. F9 layer law — re-verified in the dogfood build (IMPL-E re-run)
 
-`apps/www/dist/_app/immutable/assets/0.BJgD5RCQ.css` byte 0 =
-`@layer properties, theme, base, components, stylex.priority1,
-stylex.priority2, stylex.priority3, utilities;` (asserted by the
-extractor in BOTH builds). The stylex tail rides
-`@layer stylex.priority2 … priority9` blocks (one per nesting depth;
-`priority1` mentioned blockless) + the trailing `@layer utilities;`
-re-mention, then bare `@keyframes xfeh6hy-B` and the 60-member
-defineVars `:root, .xbpgcew` block. Same in the baseline build.
+`apps/www/dist/_app/immutable/assets/0.4rso-tO1.css` byte 0 = the
+canonical statement in its GENERAL form (Gate-2 P1-1): `@layer
+properties, theme, base, components, components.stylex.priority1,
+…, components.stylex.priority9, utilities;` — DYNAMIC over the
+build's highest tier (9 here, one per nesting depth), `utilities`
+CONSTANTLY last, tiers NESTED UNDER `components` (asserted by the
+extractor in BOTH builds; the block inventory: `@layer
+components.stylex.priority2 … priority9` blocks + `priority1`
+mentioned blockless + the trailing `@layer utilities;` bookkeeping
+re-mention; ZERO top-level `stylex.*` mentions). The nesting is
+load-bearing, not cosmetic: with the OLD top-level form, a tier
+first mentioned after the consumer's utilities registration sorted
+after it and beat utilities — measured (consumer-first import,
+computed display=flex over the utility's grid); nested, the utility
+wins BOTH import orders (grid/grid — verify:stylex-payload's
+dual-order browser arm). Same in the baseline build.
 
 ## 6. Process evidence
 
@@ -210,8 +221,18 @@ defineVars `:root, .xbpgcew` block. Same in the baseline build.
   no background processes started (the extractor/comparator are
   one-shot node scripts).
 - `node research/self-test.mjs` → 56/56 (re-run in the final gate).
+- IMPL-E re-run (2026-09-15, Gate-2 P1 fix round): full site rebuild
+  (`npm run build` at the repo root, exit 0) with the nesting law,
+  then the SAME invocation chain: extract → 340 rules (unchanged —
+  layer wrappers are stripped for comparison, so the prefix change
+  is comparison-neutral BY DESIGN), delta 326, comparator DIFFERENT
+  (by design), analyzer `T=37 F=13 P=12 U=0` — the verdict table
+  below stands unchanged on the new build.
 - artifacts committed alongside this receipt:
   `research/dogfood/{extract-stylex.mjs, analyze-diffs.mjs,
   baseline-stylex.css, dogfood-stylex.css, dogfood-delta.css,
   spike-stylex.css}` + `research/dogfood-diff.json` (the raw diff, of
   record) — Gate 2 can re-run step 5/6 on the committed extracts.
+  The IMPL-E regeneration also stripped the frozen extracts' trailing
+  whitespace (4 lines in baseline-stylex.css; comparison-neutral —
+  the delta pass whitespace-collapses by its own normalization).
