@@ -148,9 +148,11 @@
      *  mints these from any CSS color against the context base), or
      *  null for TRANSPARENT — the true border-area cutout where the
      *  engine supports it, the white/black + darken/lighten blend
-     *  emulation where it does not. Default: undefined = the
-     *  context's theme token var(--background) — light/dark follows
-     *  the Context live (「默认不透明」) */
+     *  emulation where it does not. Default: undefined = the host
+     *  context's EFFECTIVE CANVAS (W1: the nearest opaque ancestor
+     *  background, scope-resolved light/dark when nothing opaque
+     *  sits behind) — the face follows the HOST's theme scope, live
+     *  on class/data-theme flips (「默认不透明」) */
     fill?: number | null;
   }
   export interface ShimmerEffect {
@@ -222,8 +224,8 @@ export interface PulseOptions {
     ringW?: number | string;
     /** the FACE — the same channel as shimmer's fill: an opaque
      *  0xRRGGBB number (solidFill() mints these), null for the true
-     *  cutout / blend emulation, undefined (default) for Canvas (the
-     *  color-scheme system color, theme-live) */
+     *  cutout / blend emulation, undefined (default) for the host
+     *  context's effective canvas (W1's scope law, theme-live) */
     fill?: number | null;
   }
   export interface RainbowEffect {

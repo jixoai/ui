@@ -363,7 +363,9 @@ describe('press-button effects', () => {
     expect(rainbowHost.classList.contains('jx-rainbow-host')).toBe(true);
     expect(rainbowHost.getAttribute('style')).toContain('--rainbow-speed: 4000ms');
     expect(rainbowHost.getAttribute('style')).toContain('--c1: hsl(0 100% 63%)');
-    expect(rainbowHost.getAttribute('style')).toContain('--rainbow-fill: Canvas');
+    // W1: the auto fill is the scope-resolved effective canvas (jsdom
+    // bare host: unscoped + no opaque ancestor → the light fallback)
+    expect(rainbowHost.getAttribute('style')).toContain('--rainbow-fill: #ffffff');
     expect(rainbowHost.querySelector(':scope > .jx-rainbow-ring')).toBeNull();
     expect(rainbowHost.querySelector(':scope > .jx-rainbow-glow')).toBeTruthy();
     rainbowed.unmount();
