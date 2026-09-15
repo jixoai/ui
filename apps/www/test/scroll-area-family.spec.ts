@@ -1,13 +1,28 @@
 /*
- * scroll-area family specs (2026-08-22): the scrollable-region component
- * (native + overlay variants), the TanStack virtual wrapper, the toc-outline
- * derivation lib, and toc-engine's derived-extents path. jsdom has no
- * layout — geometry assertions live in rect stubs; component specs assert
- * structure, variant gating and the instance surface.
+ * scroll-area family specs (2026-08-22; REWORKED 2026-09-15,
+ * visual-quality-iteration W4): the scrollable-region component is now
+ * ALWAYS hand-drawn (the dual-mode `scrollbar` prop + ScrollbarVariant
+ * type retired, no mode branch at all), the TanStack virtual wrapper
+ * rides the same law, the toc-outline derivation lib and toc-engine's
+ * derived-extents path stand. jsdom has no layout — geometry
+ * assertions live in rect stubs; component specs assert structure,
+ * chrome gating and the instance surface.
+ *
+ * THE RETIREMENT ACCEPTANCE (the change's statically-assertable
+ * three-part canary — task 4.2): (1) a pinned Props snapshot freezing
+ * the COMPLETE allowlist (no scrollbar field, no mode-shaped field of
+ * any name — axis capabilities like orientation are NOT mode-shaped;
+ * no ScrollbarVariant export); (2) a source scan for retired-API
+ * consumer sites across the shipped surface (routes excluded per the
+ * glass-canary precedent); (3) a two-directional fixture planting a
+ * live scrollbar prop proving BOTH detectors redden.
  */
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { cleanup, fireEvent, render } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { tick } from 'svelte';
+import scrollAreaSource from '$lib/ui/scroll-area/scroll-area.svelte?raw';
 import ScrollVirtual from '$lib/ui/scroll-virtual/scroll-virtual.svelte';
 import Toc from '$lib/ui/toc/toc.svelte';
 import ScrollAreaHost from './fixtures/scroll-area-host.svelte';
@@ -62,7 +77,7 @@ const rectStub = (top: number, bottom: number, width = 1024): DOMRect =>
     toJSON: () => ({}),
   }) as unknown as DOMRect;
 
-describe('scroll-area', () => {
+describe('scroll-area (reworked — always hand-drawn)', () => {
   it('renders the nativeHTML shell: a labeled, focusable scrollport region', async () => {
     const { container } = render(ScrollAreaHost, {});
     await tick();
@@ -73,9 +88,6 @@ describe('scroll-area', () => {
     expect(viewport.getAttribute('tabindex')).toBe('0');
     // restProps passthrough lands on the scrollport
     expect(viewport.getAttribute('data-testid')).toBe('passthrough');
-    expect(container.querySelector('.jx-scroll-area')!.getAttribute('data-scrollbar')).toBe('native');
-    // native variant: no custom thumb layer exists
-    expect(container.querySelector('.jx-scroll-thumb')).toBeNull();
   });
 
   it('maps orientation onto the data attribute (overflow axes)', async () => {
@@ -86,23 +98,26 @@ describe('scroll-area', () => {
     expect(document.querySelector('.jx-scroll-area')!.getAttribute('data-orientation')).toBe('horizontal');
   });
 
-  it('overlay variant draws thumbs ONLY for fine pointers (touch keeps native)', async () => {
+  it('the drawn chrome mounts ONLY for fine pointers (touch keeps the platform bar — an environmental floor, never an API mode)', async () => {
+    // coarse: no drawn lanes at all (the platform bar serves touch)
     let finePointer = false;
     const restore = stubMatchMedia((query) => finePointer && query === '(pointer: fine)');
-    // coarse: no custom thumbs, overlay never activates (touch keeps native)
-    const coarse = render(ScrollAreaHost, { props: { scrollbar: 'overlay' } });
+    const coarse = render(ScrollAreaHost, {});
     await tick();
     expect(coarse.container.querySelector('.jx-scroll-thumb')).toBeNull();
-    expect(coarse.container.querySelector('.jx-scroll-area')!.getAttribute('data-overlay')).toBeNull();
+    expect(coarse.container.querySelector('.jx-scroll-area')!.getAttribute('data-chrome')).toBeNull();
     cleanup();
 
-    // fine pointer: the thumb layer mounts, vertical axis only
+    // fine pointer: the lanes mount — vertical axis only for the
+    // default orientation, hidden while jsdom's zero layout says none
     finePointer = true;
-    const fine = render(ScrollAreaHost, { props: { scrollbar: 'overlay' } });
+    const fine = render(ScrollAreaHost, {});
     await tick();
     expect(fine.container.querySelectorAll('.jx-scroll-thumb')).toHaveLength(1);
     expect(fine.container.querySelector('.jx-scroll-thumb')!.classList.contains('y')).toBe(true);
-    expect(fine.container.querySelector('.jx-scroll-area')!.getAttribute('data-overlay')).toBe('on');
+    expect(fine.container.querySelector('.jx-scroll-area')!.getAttribute('data-chrome')).toBe('on');
+    // the none verdict (jsdom zero layout) hides the affordance
+    expect(fine.container.querySelector('.jx-scroll-thumb')!.hidden).toBe(true);
     restore();
   });
 
@@ -119,6 +134,114 @@ describe('scroll-area', () => {
     expect(scrollSpy).toHaveBeenCalledWith({ top: 40 });
     await fireEvent.scroll(viewport);
     expect(onscroll).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// THE RETIREMENT ACCEPTANCE — the `scrollbar` prop + ScrollbarVariant
+// type are gone, statically assertable in three parts (task 4.2)
+// ---------------------------------------------------------------------------
+
+/** strip comments (/* *\/, //, svelte/html) — documentation is not usage */
+function stripComments(src: string): string {
+  return src
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+}
+
+/** extract the Props interface's keys from a component source — the
+ * static Props surface the snapshot freezes */
+function parsePropsKeys(src: string): string[] {
+  const iface = src.match(/interface Props \{[\s\S]*?\n  \}/);
+  expect(iface, 'the source must carry a Props interface to snapshot').toBeTruthy();
+  const keys: string[] = [];
+  const re = /^\s{4}(?:\/\*\*[\s\S]*?\*\/\s*)?(?:readonly\s+)?(\w+)\??\s*:/gm;
+  for (const m of iface[0].matchAll(re)) keys.push(m[1]);
+  return keys;
+}
+
+/** the retired API's consumer shapes — the bare `scrollbar` token in
+ * PROP POSITION (a field, attr, or key — NOT the -width/-gutter/-color
+ * css family, NOT compound identifiers like scrollbarWidth, NOT the
+ * --scrollbar-* token family, NOT the quoted 'scrollbar' ROLE literal
+ * the thumb contract legitimately carries) plus the retired type name
+ * and the retired data channel */
+const RETIRED_PROP = /(?<![-\w'"])scrollbar(?!\s*[-\w])/;
+const RETIRED_TYPE = /ScrollbarVariant/;
+const RETIRED_CHANNEL = /data-scrollbar(?!\s*[-\w])/;
+const matchRetired = (src: string): string[] => {
+  const hits: string[] = [];
+  if (RETIRED_PROP.test(src)) hits.push('scrollbar prop');
+  if (RETIRED_TYPE.test(src)) hits.push('ScrollbarVariant');
+  if (RETIRED_CHANNEL.test(src)) hits.push('data-scrollbar');
+  return hits;
+};
+
+function walk(dir: string, out: string[] = []): string[] {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, entry.name);
+    if (entry.isDirectory()) walk(p, out);
+    else if (/\.(ts|svelte|css|js|mjs)$/.test(entry.name)) out.push(p);
+  }
+  return out;
+}
+
+describe('the scrollbar mode prop is gone (the three-part acceptance)', () => {
+  const source = stripComments(scrollAreaSource);
+
+  it('(1) pinned Props snapshot — the COMPLETE allowlist, frozen: no scrollbar field, no mode-shaped field of any name', () => {
+    // axis capabilities (orientation) are NOT mode-shaped — they stay
+    expect(parsePropsKeys(source).sort()).toEqual([
+      'children',
+      'class',
+      'label',
+      'onscroll',
+      'orientation',
+      'pad',
+      'style',
+    ]);
+    // the retired type is absent from the item's exports
+    expect(matchRetired(source)).toEqual([]);
+  });
+
+  it('(2) source scan — zero retired-API consumer sites in the shipped surface (routes excluded, the glass-canary precedent)', () => {
+    const wwwLib = resolve(process.cwd(), 'src/lib');
+    const registryFiles = resolve(process.cwd(), '../../registry/files');
+    const registryRoutes = join(registryFiles, 'routes');
+    const offenders: string[] = [];
+    for (const root of [wwwLib, registryFiles]) {
+      for (const file of walk(root)) {
+        // registry/files/routes is the gitignored dev-syncer mirror of
+        // the www ROUTES — out of the source canary's scope
+        if (file.startsWith(registryRoutes)) continue;
+        const hits = matchRetired(stripComments(readFileSync(file, 'utf8')));
+        if (hits.length) offenders.push(`${file.replace(root, '')}: ${hits.join('+')}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('(3) the two-directional fixture — a planted live scrollbar prop reddens BOTH detectors', () => {
+    // the planted consumer site: a live scrollbar prop usage (what a
+    // stale consumer would carry after the breaking migration)
+    const plantedUsage = stripComments(`
+      <ScrollArea scrollbar="overlay" class="h-72">content</ScrollArea>
+    `);
+    expect(matchRetired(plantedUsage)).toContain('scrollbar prop');
+
+    // the same plant spliced into a COPY of the component's Props
+    // interface — the SNAPSHOT detector must see the mode-shaped field
+    const plantedInterface = source.replace(
+      'interface Props {',
+      `interface Props {\n    scrollbar?: 'native' | 'overlay';`,
+    );
+    expect(plantedInterface).not.toBe(source); // the splice landed
+    expect(matchRetired(plantedInterface)).toContain('scrollbar prop'); // scan detector reds
+    expect(parsePropsKeys(plantedInterface)).toContain('scrollbar'); // snapshot detector reds
+    // against the frozen allowlist the plant is exactly the delta
+    const frozen = ['children', 'class', 'label', 'onscroll', 'orientation', 'pad', 'style'];
+    expect(parsePropsKeys(plantedInterface).filter((k) => !frozen.includes(k))).toEqual(['scrollbar']);
   });
 });
 

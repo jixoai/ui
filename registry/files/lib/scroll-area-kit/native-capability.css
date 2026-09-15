@@ -1,0 +1,70 @@
+@layer properties, theme, base, components, utilities;
+
+/* jixoai scroll-area-kit — THE PLATFORM CAPABILITY STYLES
+ * (registry/files/lib/scroll-area-kit/native-capability.css, Owner
+ * 2026-09-15). PART (c) of the kit's concern split — consumed ONLY by
+ * the platform sibling (native-scroll-area). NEVER by the hand-drawn
+ * component (it hides the platform bar and draws its own capsule).
+ *
+ * The PACKAGED best practices — the platform path's cross-consumer
+ * law, keyed on the kit's own hook (.jx-native-scroll) and the
+ * sibling's data channels:
+ *   - scrollbar-gutter: stable both-edges on vertical-capable axes —
+ *     overflow arriving never shifts layout (a horizontal-only port
+ *     can never grow a block-axis bar; stable would reserve dead
+ *     space forever — the scrollbar law's carve-out);
+ *   - theme-scope-aligned color-scheme — the bar follows the STAGE
+ *     scope (data-scheme, resolved from the nearest theme scope by
+ *     the kit core's resolveThemeScope, live), not just the OS;
+ *   - scrollbar-width tiers auto | thin | none (data-width) — the
+ *     theme's global thin law stays the default, the tiers are the
+ *     consumer's dial;
+ *   - overscroll-behavior containment — a boxed region's momentum
+ *     stops at its edge (the scroll chaining stays INSIDE by
+ *     explicit choice, the standing family posture).
+ *
+ * ZERO drawn chrome: no thumb, no track, no pseudo-element paint —
+ * the platform scrollbar under the theme's scrollbar-token law (the
+ * global * rule in jixoai-theme paints it currentColor) IS the look
+ * and IS the accessibility contract. */
+
+/* the packaged gutter law — vertical-capable axes only */
+:where(.jx-native-scroll[data-orientation='vertical']),
+:where(.jx-native-scroll[data-orientation='both']) {
+  scrollbar-gutter: stable both-edges;
+}
+
+/* the width tiers (default: the theme's inherited thin — no data
+ * attribute, no override, the global law stands) */
+:where(.jx-native-scroll[data-width='auto']) {
+  scrollbar-width: auto;
+}
+:where(.jx-native-scroll[data-width='thin']) {
+  scrollbar-width: thin;
+}
+:where(.jx-native-scroll[data-width='none']) {
+  scrollbar-width: none;
+}
+
+/* the scheme follows the stage scope, not just the OS — the W1
+ * lesson applied to the platform bar (the sibling's runtime resolves
+ * the nearest scope and re-resolves on live scope flips) */
+:where(.jx-native-scroll[data-scheme='light']) {
+  color-scheme: light;
+}
+:where(.jx-native-scroll[data-scheme='dark']) {
+  color-scheme: dark;
+}
+
+/* overscroll containment — the family's standing posture */
+:where(.jx-native-scroll) {
+  overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* nothing animated lives here — the platform bar's own hit fades
+   * are the OS's; the sheet merely keeps its guarantees static */
+  :where(.jx-native-scroll) {
+    scroll-behavior: auto;
+  }
+}

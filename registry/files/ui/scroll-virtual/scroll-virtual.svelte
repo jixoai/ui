@@ -7,7 +7,8 @@
   virtual-core）的 DOM 接线层：窗口化语义、动态测量、scrollToIndex/Offset、
   lanes、getItemKey…… 全部是 TanStack 的，直接读 TanStack Virtual 文档
   (https://tanstack.com/virtual)。本组件 adds only:
-    1. ScrollArea 组合（scrollbar 变体 / label / class 透传）；
+    1. ScrollArea 组合（label / class 透传；scrollbar 变体随 2026-09-15
+       家族重构退役 —— 组合方永远手绘，平台路径是 native-scroll-area）；
     2. 定位层代劳 —— spacer(totalSize) + 绝对定位行 + 行上自动
        item.measureElement（动态高度开箱即用，比裸 TanStack 少一步）；
     3. 逃生舱 —— getVirtualizer() 拿原始实例做任何 TanStack 文档里的事，
@@ -30,7 +31,7 @@
     VirtualizerOptions,
   } from '@tanstack/svelte-virtual';
   import type { Snippet } from 'svelte';
-  import ScrollArea, { type ScrollbarVariant, type ViewportScrollEvent } from '$lib/ui/scroll-area/scroll-area.svelte';
+  import ScrollArea, { type ViewportScrollEvent } from '$lib/ui/scroll-area/scroll-area.svelte';
 
   type ScrollElement = HTMLDivElement;
   type ItemElement = HTMLDivElement;
@@ -56,8 +57,6 @@
      *  TanStack verbatim (reserved keys count/estimateSize/overscan/
      *  horizontal/getScrollElement are overridden by this component) */
     virtualOptions?: Partial<VirtualizerOptions<ScrollElement, ItemElement>>;
-    /** scrollbar presentation of the composed ScrollArea (default native) */
-    scrollbar?: ScrollbarVariant;
     /** a11y name for the scrollable region */
     label?: string;
     class?: string;
@@ -75,7 +74,6 @@
     overscan,
     horizontal = false,
     virtualOptions = {},
-    scrollbar = 'native',
     label = 'virtual list',
     class: className = '',
     onscroll,
@@ -145,7 +143,7 @@
     };
 </script>
 
-<ScrollArea bind:this={scrollAreaEl} {scrollbar} {label} {onscroll} orientation={horizontal ? 'horizontal' : 'vertical'} class={className}>
+<ScrollArea bind:this={scrollAreaEl} {label} {onscroll} orientation={horizontal ? 'horizontal' : 'vertical'} class={className}>
   <div
     data-jx-sv-spacer
     class="relative"

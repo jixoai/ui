@@ -1,0 +1,18 @@
+@layer properties, theme, base, components, utilities;
+
+/* jixoai native-scroll-area — the platform sibling's OWN surface
+ * (2026-09-15, visual-quality-iteration W4). Deliberately tiny: the
+ * packaged native best practices live in the kit
+ * (scroll-area-kit/native-capability.css — gutter stability, scoped
+ * color-scheme, width tiers, overscroll containment, keyed on the
+ * .jx-native-scroll hook); THIS sheet owns only what is this
+ * component's own:
+ *   - the region's keyboard focus ring (the inset ring law);
+ *   - nothing else. No thumb, no track, no pseudo-element paint —
+ *     zero drawn chrome by contract (probe-asserted). */
+
+/* the scrollport's keyboard focus: the inset ring law */
+:where(.jx-native-scroll-viewport:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
