@@ -26,20 +26,17 @@
   // output shows the rail empty, then it fills).
   const pageOutline = { root: '#sa-content', levels: [2] };
 
-  // ---- canvas playground (site-polish F10: the standard opening) -----------
+  // ---- canvas playground (the standard opening) — REWORKED 2026-09-15:
+  // the scrollbar variant prop retired; the chrome is always hand-drawn ---
   type ScrollOrientationOpt = 'vertical' | 'horizontal';
-  type ScrollbarOpt = 'native' | 'overlay';
   const canvasInitial = {
-    scrollbar: 'native' as ScrollbarOpt,
     orientation: 'vertical' as ScrollOrientationOpt,
     pad: 0.75,
   };
-  let canvasScrollbar = $state(canvasInitial.scrollbar);
   let canvasOrientation = $state(canvasInitial.orientation);
   let canvasPad = $state(canvasInitial.pad);
 
   function resetScrollAreaCanvas(): void {
-    canvasScrollbar = canvasInitial.scrollbar;
     canvasOrientation = canvasInitial.orientation;
     canvasPad = canvasInitial.pad;
   }
@@ -48,7 +45,6 @@
     [
       '<ScrollArea',
       '  label="config demo"',
-      `  scrollbar="${canvasScrollbar}"`,
       `  orientation="${canvasOrientation}"`,
       `  pad="${canvasPad}rem"`,
       '  class="h-40"',
@@ -73,10 +69,6 @@
   ];
 
   // ---- toc-metadata demo: the inner scroller linkage, engine-direct ----
-  // The Toc component assumes the page shell (its line law measures the
-  // scaffold header); an ARBITRARY inner scroller pairs toc-engine +
-  // toc-outline directly — scrollRoot = the ScrollArea viewport, extents =
-  // the derived outline, line = the viewport's own top in page coordinates.
   let metaArea = $state<{ getViewport(): HTMLDivElement | null } | null>(null);
   let metaViewport = $state<HTMLDivElement | null>(null);
   let metaPick = $state('');
@@ -108,19 +100,20 @@
   ];
 
   // ---- usage snippets ----
-  const nativeUsage = `<script lang="ts">
+  const basicUsage = `<script lang="ts">
   import ScrollArea from '@ui/scroll-area.svelte';
 ${close}
 
-<!-- native variant (default): the theme scrollbar law, gutter compensated -->
+<!-- ALWAYS hand-drawn: the capsule thumb on the scrollbar-token law -->
 <ScrollArea class="h-72" label="release notes" pad="0.75rem">
   {#each notes as note (note.id)}
     <article>…</article>
   {/each}
 </ScrollArea>`;
 
-  const overlayUsage = `<ScrollArea scrollbar="overlay" class="h-72" label="terminal log">
-  <!-- overlay thumb: desktop (fine pointer) only; touch keeps native -->
+  const horizontalUsage = `<ScrollArea orientation="horizontal" class="w-full" label="filmstrip">
+  <!-- both axes ride the same capsule chrome; RTL mirrors through
+       logical geometry -->
 </ScrollArea>`;
 
   const tocUsage = `import { deriveTocOutline, tocOutlineToSections } from '@lib/toc-outline';
@@ -138,60 +131,32 @@ const sections = tocOutlineToSections(entries);
     { name: 'registry/files/lib/toc-outline.ts', content: tocOutlineSource },
   ];
 
-  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirrors of
-  // the effect-only demo regions below — the same-source resolveRawCode
-  // migration of these strings is the recorded follow-up -------------
-  // the native variant demo (scroll-native section): the scrollbar law
-  // over a 40-item list
-  const scrollNativeDemo = `<script lang="ts">
+  // the hand-drawn law demo (scroll-capsule section): the capsule chrome
+  // over a terminal log
+  const scrollCapsuleDemo = `<script lang="ts">
   import ScrollArea from '@ui/scroll-area.svelte';
 ${close}
 
-<ScrollArea class="h-56" label="law demo" pad="0.75rem">
-  <ol class="flex flex-col gap-2">
-    {#each Array(40) as _, i (i)}
-      <li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">
-        item {i + 1} — scroll me: the scrollbar is thin, themed, and the content inset
-        stays symmetric
-      </li>
-    {/each}
-  </ol>
-</ScrollArea>`;
-
-  const scrollNativeFiles: TreeFile[] = [
-    { name: 'scroll-area-native-demo.svelte', content: scrollNativeDemo, kind: 'usage' },
-  ];
-
-  // the overlay variant demo (scroll-overlay section): the virtual
-  // thumb over a terminal log
-  const scrollOverlayDemo = `<script lang="ts">
-  import ScrollArea from '@ui/scroll-area.svelte';
-${close}
-
-<ScrollArea scrollbar="overlay" class="h-56" label="overlay demo">
+<ScrollArea class="h-56" label="capsule demo">
   <div class="jx-log">
     {#each Array(60) as _, i (i)}
-      <p class="jx-log-line">
-        <span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb
-        rendered without a single native scrollbar pixel
-      </p>
+      <p class="jx-log-line">log line {i} — capsule thumb, idle fade, the four pins</p>
     {/each}
   </div>
 </ScrollArea>`;
 
-  const scrollOverlayFiles: TreeFile[] = [
-    { name: 'scroll-area-overlay-demo.svelte', content: scrollOverlayDemo, kind: 'usage' },
+  const scrollCapsuleFiles: TreeFile[] = [
+    { name: 'scroll-area-capsule-demo.svelte', content: scrollCapsuleDemo, kind: 'usage' },
   ];
 
-  // the variants pair (types section): the native law against the
-  // overlay thumb, side by side
+  // the axes pair (types section): vertical against horizontal, the same law
   const scrollAreaTypesDemo = `<script lang="ts">
   import ScrollArea from '@ui/scroll-area.svelte';
 ${close}
 
 <div class="grid gap-4 min-[760px]:grid-cols-2">
-  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">native (default)</span><ScrollArea class="h-40" label="native sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(12) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></div>
-  <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">overlay</span><ScrollArea scrollbar="overlay" class="h-40" label="overlay sample"><div class="jx-log">{#each Array(16) as _, i (i)}<p class="jx-log-line"><span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb, desktop fine-pointer only</p>{/each}</div></ScrollArea></div>
+  <div><span>vertical</span><ScrollArea class="h-40" label="vertical sample" pad="0.75rem"><ol>{#each Array(12) as _, i (i)}<li>item {i + 1}</li>{/each}</ol></ScrollArea></div>
+  <div><span>horizontal</span><ScrollArea orientation="horizontal" class="h-40 w-full" label="horizontal sample"><ol class="flex gap-2">{#each Array(16) as _, i (i)}<li class="w-36 flex-none">card {i + 1}</li>{/each}</ol></ScrollArea></div>
 </div>`;
 
   const scrollAreaTypesFiles: TreeFile[] = [
@@ -203,7 +168,7 @@ ${close}
   <title>Scroll area · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai scroll-area family: a W3C-first nativeHTML scrollable region (native + overlay virtual scrollbar variants), TanStack-backed virtual scrolling, and automatic ToC outline export."
+    content="The jixoai scroll-area family, reworked 2026-09-15: the styled component hand-draws its scrollbar ALWAYS (capsule thumb on the scrollbar-token law, idle fade with four testable pins), the native-scroll-area sibling ships the platform path, and both share the scroll-area-kit kernel."
   />
 </svelte:head>
 
@@ -222,29 +187,29 @@ ${close}
       headingLevel={1}
       tone="hero"
       eyebrow="registry:ui · scroll-area family"
-      title="scroll-area — the scrollable region, nativeHTML"
-      summary="A dedicated scrollable-region component after shadcnui, with the jixoai law: the component IS a native scroll container — wheel, touch momentum, keyboard and scroll-snap stay platform behavior. Two scrollbar variants (native = the theme scrollbar law; overlay = the custom virtual scrollbar, desktop-fine-pointer only), The windowed-list sibling (scroll-virtual) lives on its own page now, and the ToC metadata export lets a table of contents derive itself from your content."
+      title="scroll-area — the scrollable region, always hand-drawn"
+      summary="A dedicated scrollable-region component after shadcnui, with the jixoai law: the component IS a native scroll container — wheel, touch momentum, keyboard and scroll-snap stay platform behavior — and the scrollbar is ALWAYS HAND-DRAWN (the 2026-09-15 rework retired the dual-mode scrollbar prop; no mode branch exists, breaking). Capsule thumb on the scrollbar-token law, idle fade with four testable auto-hide pins, hover growth, drag pinning, keyboard affordances on region and thumb. The platform path is its own sibling (native-scroll-area); both share the scroll-area-kit kernel. The windowed-list sibling (scroll-virtual) lives on its own page, and the ToC metadata export lets a table of contents derive itself from your content."
     >
       <div class="flex flex-wrap gap-3">
         <span class="pill">nativeHTML scrollport</span>
-        <span class="pill">overlay virtual scrollbar</span>
-        <span class="pill">sibling: scroll-virtual</span>
+        <span class="pill">hand-drawn capsule, always</span>
+        <span class="pill">sibling: native-scroll-area</span>
+        <span class="pill">shared: scroll-area-kit</span>
         <span class="pill">auto ToC outline</span>
       </div>
     </SectionCard>
   </div>
 
-  <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
+  <!-- component canvas (the standard opening): live demo + PLAYGROUND -->
   <div data-reveal="">
     <ComponentCanvas
       title="scroll-area"
-      description="the component IS a native scroll container — wheel, touch momentum, keyboard and scroll-snap stay platform behavior; the variants dress the scrollbar."
+      description="the component IS a native scroll container — wheel, touch momentum, keyboard and scroll-snap stay platform behavior; the chrome is the hand-drawn capsule on the token law."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/scroll-area/scroll-area.svelte"
       files={canvasFiles}
       stage="center"
       onreset={resetScrollAreaCanvas}
       output={[
-        { label: 'scrollbar', value: canvasScrollbar },
         { label: 'orientation', value: canvasOrientation },
       ]}
       resolveFileContent={resolveScrollAreaUsage}
@@ -252,7 +217,6 @@ ${close}
       <div class="flex w-full max-w-md flex-col gap-3">
         <ScrollArea
           label="config demo"
-          scrollbar={canvasScrollbar}
           orientation={canvasOrientation}
           pad={`${canvasPad}rem`}
           class="h-40"
@@ -260,7 +224,7 @@ ${close}
           <ol class="flex flex-col gap-2">
             {#each Array(12) as _, i (i)}
               <li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">
-                item {i + 1} — scroll me in both variants
+                item {i + 1} — scroll me: the capsule fades in, idles out
               </li>
             {/each}
           </ol>
@@ -268,15 +232,6 @@ ${close}
       </div>
       {#snippet playground()}
         <PlayFields>
-          <PlayRow label="scrollbar">
-            <PlaySegmented
-              bind:value={canvasScrollbar}
-              options={[
-                { value: 'native', label: 'native' },
-                { value: 'overlay', label: 'overlay' },
-              ]}
-            />
-          </PlayRow>
           <PlayRow label="orientation">
             <PlaySegmented
               bind:value={canvasOrientation}
@@ -290,8 +245,9 @@ ${close}
             <PlayNumber bind:value={canvasPad} />
           </PlayRow>
           <PlayHelp>
-            native encapsulates the theme scrollbar law; overlay floats a square virtual thumb
-            (desktop fine-pointer only, fades after idle).
+            the capsule chrome is always hand-drawn — hover the lane to widen and brighten
+            the thumb, drag it (it pins the active tone), Tab to the region or the thumb
+            and the idle fade suspends.
           </PlayHelp>
         </PlayFields>
       {/snippet}
@@ -300,60 +256,79 @@ ${close}
 
   <div data-reveal="">
     <SectionCard
-      family="scroll-native"
-      headerRegion="scroll-native"
-      eyebrow="variant 1"
-      title="native — the scrollbar law, componentized"
+      family="scroll-capsule"
+      headerRegion="scroll-capsule"
+      eyebrow="the hand-drawn law"
+      title="capsule — the complete style-control surface"
     >
       <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
-        The default variant encapsulates the theme scrollbar law: thin, theme-linked thumbs over a
-        transparent track with the hover chain — plus <code class="text-accent">stable both-edges</code>
-        gutters whose reservation <code class="text-accent">pad</code> hands back (the inline
-        compensation recipe). On classic-scrollbar systems the visual inset stays exactly
-        <code class="text-accent">pad</code> on both edges; on overlay-scrollbar systems nothing is
-        reserved at all.
+        The thumb is a full-radius capsule painted by the scrollbar-token law
+        (<code class="text-accent">currentColor</code> family) — themes and dark stages restyle
+        it without a line of JS. It auto-hides after ~700ms idle, and FOUR pins suspend the
+        fade, each separately probe-asserted: region focus-within, thumb focus, active drag,
+        hover. While any pin holds, the thumb stays in the accessibility tree with its
+        <code class="text-accent">role="scrollbar"</code> intact and
+        <code class="text-accent">aria-valuenow</code> tracking position. Hover widens +
+        brightens; drag pins the active tone; the thumb is focusable and keyboard-draggable
+        (arrows step, PageUp/PageDown page, Home/End jump); track-click pages. Content that
+        fits draws nothing; touch keeps the platform's own momentum bars; reduced motion
+        keeps the chrome statically visible.
       </p>
-      <ComponentCanvas title="scroll-area · native" stage="fill" class="mt-4" files={scrollNativeFiles}>
-        <ScrollArea class="h-56" label="law demo" pad="0.75rem">
-          <ol class="flex flex-col gap-2">
-            {#each Array(40) as _, i (i)}
-              <li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">
-                item {i + 1} — scroll me: the scrollbar is thin, themed, and the content inset
-                stays symmetric
-              </li>
-            {/each}
-          </ol>
-        </ScrollArea>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
-
-  <div data-reveal="">
-    <SectionCard
-      family="scroll-overlay"
-      headerRegion="scroll-overlay"
-      eyebrow="variant 2"
-      title="overlay — the virtual scrollbar"
-    >
-      <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
-        The custom scrollbar: native bars hidden, a square theme-token thumb floats over full-width
-        content — the overlay effect even on classic-scrollbar desktops. Pointer-drag it (capture
-        law), watch it fade after ~700ms idle. On touch devices it stays pure native: the OS already
-        paints overlay bars during momentum — the mobile/desktop behavioral split is the law.
-        <code class="text-accent">prefers-reduced-motion</code> keeps the thumb statically visible.
-      </p>
-      <ComponentCanvas title="scroll-area · overlay" stage="fill" class="mt-4" files={scrollOverlayFiles}>
-        <ScrollArea scrollbar="overlay" class="h-56" label="overlay demo">
+      <ComponentCanvas title="scroll-area · capsule" stage="fill" class="mt-4" files={scrollCapsuleFiles}>
+        <ScrollArea class="h-56" label="capsule demo">
           <div class="jx-log">
             {#each Array(60) as _, i (i)}
               <p class="jx-log-line">
-                <span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb
-                rendered without a single native scrollbar pixel
+                <span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] capsule thumb,
+                idle fade, four pins — not a single platform scrollbar pixel
               </p>
             {/each}
           </div>
         </ScrollArea>
       </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="platform-sibling" data-reveal="">
+    <SectionCard
+      family="platform-sibling"
+      headerRegion="platform-sibling"
+      eyebrow="family sibling"
+      title="native-scroll-area — the platform path, its own item"
+    >
+      <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
+        The 2026-09-15 rework did NOT split native vs non-native inside one component: the
+        platform scrollbar ships as its own registry item under the same token law, with the
+        native best practices packaged as capability styles (stable gutter, stage-scoped
+        color-scheme, width tiers, overscroll containment) — and NO custom scrollbar ARIA:
+        the platform bar IS the accessibility contract there. It lives on
+        <a class="text-accent" href="/docs/components/native-scroll-area.html">/docs/components/native-scroll-area.html</a>.
+      </p>
+    </SectionCard>
+  </div>
+
+  <div id="the-kit" data-reveal="">
+    <SectionCard
+      family="the-kit"
+      headerRegion="the-kit"
+      eyebrow="registry:lib · scroll-area-kit"
+      title="scroll-area-kit — one kernel, split by concern"
+      summary="The family's shared lib item (the control-chrome precedent): behavior lives in the kit; paint lives in the consumer."
+    >
+      <p class="max-w-[64ch] text-pretty text-[13px] leading-6 text-muted-foreground sm:text-[14px]">
+        THREE parts, so a consumer adopts exactly what it is: <strong>(a) the shared CORE</strong>
+        (<code class="text-accent">core.ts</code>) — the overflow verdict (the scroll-run
+        verdict's shape, one per axis pair), thumb geometry math, the RTL inline-engine
+        funnel, and theme-scope resolution; zero paint, zero ARIA.
+        <strong>(b) the HAND-DRAWN INTERACTION ADAPTER</strong>
+        (<code class="text-accent">hand-drawn.svelte.ts</code>, consumed ONLY by scroll-area) —
+        the idle fade, the four pins, drag pinning, keyboard scrolling, track paging, and the
+        thumb's a11y contract mounted on consumer-rendered bare nodes.
+        <strong>(c) the NATIVE CAPABILITY STYLES</strong>
+        (<code class="text-accent">native-capability.css</code>, consumed ONLY by
+        native-scroll-area) — the packaged platform best practices. The siblings share the
+        core while touching disjoint kit parts.
+      </p>
     </SectionCard>
   </div>
 
@@ -435,18 +410,17 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <!-- Material3 sections (2026-08-26): inside #sa-content so the
-       outline-mode rail derives their entries from the h2 tree. -->
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two scrollbar presentations over the same native scrollport; three orientation axes.">
-    <ComponentCanvas title="scroll-area · variants" stage="fill" files={scrollAreaTypesFiles}><div class="grid gap-4 min-[760px]:grid-cols-2">
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">native (default)</span><ScrollArea class="h-40" label="native sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(12) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></div>
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">overlay</span><ScrollArea scrollbar="overlay" class="h-40" label="overlay sample"><div class="jx-log">{#each Array(16) as _, i (i)}<p class="jx-log-line"><span class="text-muted-foreground">[{(i * 137) % 1000}</span> ms] overlay thumb, desktop fine-pointer only</p>{/each}</div></ScrollArea></div>
+  <!-- Material3 sections: inside #sa-content so the outline-mode rail
+       derives their entries from the h2 tree. -->
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One hand-drawn law over both axes; three orientation modes."><ComponentCanvas title="scroll-area · axes" stage="fill" files={scrollAreaTypesFiles}><div class="grid gap-4 min-[760px]:grid-cols-2">
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">vertical (default)</span><ScrollArea class="h-40" label="vertical sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(12) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></div>
+      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">horizontal</span><ScrollArea orientation="horizontal" class="h-40 w-full" label="horizontal sample"><ol class="flex gap-2">{#each Array(16) as _, i (i)}<li class="border border-border/40 bg-muted/40 w-36 flex-none px-3 py-1.5 text-[12.5px]">card {i + 1}</li>{/each}</ol></ScrollArea></div>
     </div></ComponentCanvas>
   </SectionCard></div>
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a height, a label, and pad for the gutter compensation; the rest is a native scroll container."><div class="flex flex-col gap-4"><CodeBlock code={nativeUsage} lang="svelte" meta="native" /><CodeBlock code={overlayUsage} lang="svelte" meta="overlay" /><CodeBlock code={tocUsage} lang="ts" meta="toc-outline" /></div></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The WAI scrollable-region pattern: role=region + name + tabindex makes the scrollport itself keyboard-focusable."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the scrollable area' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'pointer drag', action: 'The overlay thumb drags with pointer capture; keyboard never needs it' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative overlay thumbs' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The scrollbar law is token-driven: thin themed thumbs, transparent tracks, gutter compensation via pad."><div class="flex flex-col gap-6"><DensityDemo><ScrollArea class="h-36" label="density sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(10) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'thin thumb width', source: 'component' }, { name: '--jx-scroll-thumb-w', default: 'overlay thumb width', source: 'component' }, { name: '--jx-scroll-pad', default: 'pad prop', source: 'component', description: 'The ring padding the gutter compensation recipe hands back' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollArea Props interface; getViewport()/scrollTo() are the imperative exports."><PropsTable props={[{ name: 'orientation', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes scroll: overflow-y/x mapping.' }, { name: 'scrollbar', type: "'native' | 'overlay'", default: "'native'", description: 'Theme scrollbar law or the custom overlay thumb (fine-pointer only).' }, { name: 'label', type: 'string', default: "'scrollable content'", description: 'a11y name for the region.' }, { name: 'pad', type: 'string', default: '0', description: 'Ring padding (CSS length), inline-axis — feeds the gutter compensation recipe.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'style', type: 'string', default: '—', description: 'Style passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'Scroll callback from the viewport.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The scrolling content.', required: true }, { name: 'getViewport()', type: '() => HTMLDivElement | null', default: 'export', description: 'The scrollport element — Toc scrollRoot / engine-direct linkage.' }]} /></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a height, a label, and pad for the thumb lane; the rest is a native scroll container."><div class="flex flex-col gap-4"><CodeBlock code={basicUsage} lang="svelte" meta="basic" /><CodeBlock code={horizontalUsage} lang="svelte" meta="horizontal" /><CodeBlock code={tocUsage} lang="ts" meta="toc-outline" /></div></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The WAI scrollable-region pattern, PLUS the thumb's own scrollbar contract — mounted by the kit's adapter."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the scrollable area (the region, then the thumb)' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'arrows / PgUp / PgDn / Home / End on the thumb', action: 'Keyboard-drag the thumb itself — steps, pages, jumps (role=scrollbar contract)' }, { key: 'pointer drag / track click', action: 'The thumb drags with pointer capture; a track click pages toward the click' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern' }, { name: 'role (thumb)', value: 'scrollbar', description: 'The thumb\'s contract: aria-controls → the viewport, aria-valuenow tracking 0..100, aria-orientation, focusable, keyboard-draggable' }, { name: 'the four pins', value: 'focus-within / thumb focus / drag / hover', description: 'Each suspends the idle fade; while any pin holds the thumb stays in the accessibility tree ("AT-engaged" is not a detectable platform state and is deliberately not a pin)' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The capsule look rides the scrollbar-token law: currentColor family, no JS."><div class="flex flex-col gap-6"><DensityDemo><ScrollArea class="h-36" label="density sample" pad="0.75rem"><ol class="flex flex-col gap-2">{#each Array(10) as _, i (i)}<li class="border border-border/40 bg-muted/40 px-3 py-1.5 text-[12.5px]">item {i + 1}</li>{/each}</ol></ScrollArea></DensityDemo><TokenTable tokens={[{ name: '--scrollbar-thumb / -hover / -active', default: 'currentColor steps', source: 'theme', description: 'The token law the capsule paints with — dark stages restyle for free' }, { name: '--jx-scroll-thumb-w', default: '8px (hover grows)', source: 'component', description: 'The capsule\'s resting cross-axis width' }, { name: '--jx-scroll-track-w', default: '12px', source: 'component', description: 'The lane the capsule rides in' }, { name: '--jx-scroll-pad', default: 'pad prop', source: 'component', description: 'The ring padding keeping content clear of the thumb lane' }] } /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollArea Props interface (the scrollbar variant prop retired with the dual-mode era); getViewport()/scrollTo() are the imperative exports."><PropsTable props={[{ name: 'orientation', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes scroll: overflow-y/x mapping.' }, { name: 'label', type: 'string', default: "'scrollable content'", description: 'a11y name for the region.' }, { name: 'pad', type: 'string', default: '0', description: 'Ring padding (CSS length), inline-axis — keeps content clear of the thumb lane.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'style', type: 'string', default: '—', description: 'Style passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'Scroll callback from the viewport.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The scrolling content.', required: true }, { name: 'getViewport()', type: '() => HTMLDivElement | null', default: 'export', description: 'The scrollport element — Toc scrollRoot / engine-direct linkage.' }]} /></SectionCard></div>
   </div>
 </div>
 

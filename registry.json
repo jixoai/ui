@@ -4348,7 +4348,7 @@
       "name": "scroll-area",
       "type": "registry:ui",
       "title": "Scroll area",
-      "description": "The dedicated scrollable-region component (Owner request, 2026-08-22, after shadcnui — but W3C-first nativeHTML): the component IS a native scroll container; wheel, touch momentum, keyboard, PageUp/Home, scroll-snap and overscroll chaining stay native. scrollbar='native' (default) encapsulates the theme scrollbar law (thin + currentColor thumbs + both-edges gutters with the pad-compensation recipe); scrollbar='overlay' draws the custom virtual scrollbar — square theme-token thumb floating over full-width content, pointer-drag via setPointerCapture, auto-hide with reduced-motion static visibility — active ONLY on (pointer: fine); touch devices keep pure native. Instance exports (bind:this): getViewport() / scrollTo().",
+      "description": "The dedicated scrollable-region component (Owner request, 2026-08-22, after shadcnui — but W3C-first nativeHTML), REWORKED 2026-09-15 (Owner ruling): the component IS a native scroll container — wheel, touch momentum, keyboard, PageUp/Home, scroll-snap and overscroll chaining stay platform behavior — and the scrollbar is ALWAYS HAND-DRAWN (the standing dual-mode scrollbar prop and its ScrollbarVariant type retired; no mode branch exists, breaking). Capsule thumb (full radius) on the scrollbar-token law (currentColor family — themes/dark stages restyle without JS), idle fade (~700ms) with FOUR testable auto-hide pins (region focus-within, thumb focus, active drag, hover — each suspends the fade; while any pin holds the thumb stays in the accessibility tree with aria-valuenow tracking), hover widens + brightens, drag pins the active tone, keyboard affordances on region AND thumb (role=scrollbar, keyboard-draggable), track-click paging, both axes, RTL. The platform path is its own sibling item (native-scroll-area); both share the scroll-area-kit lib kernel — this component consumes the hand-drawn interaction adapter over the shared core. Floors: fitted content draws nothing (the none verdict), coarse pointers keep the platform bar, no-JS output keeps the platform bar (hydration upgrades), reduced-motion keeps the chrome statically visible. Instance exports (bind:this): getViewport() / scrollTo().",
       "files": [
         {
           "path": "registry/files/ui/scroll-area/scroll-area.svelte",
@@ -4366,22 +4366,89 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), scrollbar? ('native' | 'overlay'), label?, pad? (CSS length — inline ring padding, compensated against the reserved gutter), class/style + restProps passthrough to the viewport, children snippet. getViewport() feeds Toc scrollRoot / toc-outline root / toc-engine extents — the zero-boilerplate ToC pairing.",
+      "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), label?, pad? (CSS length — inline ring padding, keeps content clear of the thumb lane), class/style + restProps passthrough to the viewport, children snippet. The thumb's a11y contract (role=scrollbar, aria-controls → the viewport, aria-valuenow, aria-orientation, keyboard-draggable) is mounted by the kit's hand-drawn adapter. getViewport() feeds Toc scrollRoot / toc-outline root / toc-engine extents — the zero-boilerplate ToC pairing.",
       "meta": {
         "group": "layout",
         "href": "/docs/components/scroll-area.html"
       },
       "registryDependencies": [
+        "@jixoai/scroll-area-kit",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "native-scroll-area",
+      "type": "registry:ui",
+      "title": "Native scroll area",
+      "description": "The scroll-area family's PLATFORM sibling (Owner ruling, 2026-09-15: do NOT split native vs non-native inside one component — the styled component hand-draws always; this item ships the platform path). Zero drawn chrome: the platform scrollbar under the site's scrollbar-token law (the theme's global currentColor chain paints it) with the native best practices packaged as CAPABILITY STYLES from the scroll-area-kit kernel: scrollbar-gutter stable both-edges on vertical-capable axes (overflow arriving never shifts layout), color-scheme aligned with the STAGE SCOPE not just the OS (the nearest [data-theme]/.dark/.jx-light resolves and re-resolves live through a class+data-theme observer on the ancestor chain — the fill-channel lesson applied to the platform bar), scrollbar-width tiers auto|thin|none (the theme's thin law is the default), overscroll-behavior containment. NO custom scrollbar ARIA mounts anywhere inside — no drawn thumb exists and the platform scrollbar IS the accessibility contract (probe-asserted absent). The region keeps the WAI scrollable-region pattern (role=region + name + tabindex). Instance exports (bind:this): getViewport() / scrollTo().",
+      "files": [
+        {
+          "path": "registry/files/ui/native-scroll-area/native-scroll-area.svelte",
+          "target": "@ui/native-scroll-area/native-scroll-area.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/native-scroll-area/index.ts",
+          "target": "@ui/native-scroll-area/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/native-scroll-area/native-scroll-area.css",
+          "target": "@ui/native-scroll-area/native-scroll-area.css",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), scrollbarWidth? ('auto' | 'thin' | 'none', default thin — the theme's global scrollbar law), label?, class/style + restProps passthrough to the viewport, children snippet. getViewport() feeds the family's ToC pairing exactly like the styled sibling.",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/native-scroll-area.html"
+      },
+      "dependencies": [],
+      "registryDependencies": [
+        "@jixoai/scroll-area-kit",
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scroll-area-kit",
+      "type": "registry:lib",
+      "title": "Scroll-area kit (core / hand-drawn adapter / native capability styles)",
+      "description": "The scroll-area family's shared kernel (Owner 2026-09-15), SPLIT BY CONCERN into three parts — the Gate-1 r1 ruling: one monolithic state machine would force the platform sibling to mount custom-thumb ARIA it cannot honestly carry. (a) THE SHARED CORE (core.ts): the overflow verdict (the scroll-run verdict's shape — none | start-closed | end-closed | open, one per axis pair), thumb geometry math (ratio/position fractions, the drag factor), the RTL inline-engine funnel (its own copy — scroll-run stays a DIFFERENT, untouched system), and theme-scope resolution (nearest [data-theme]/.dark/.jx-light, self included; null = unscoped, the OS answers) — ZERO paint, ZERO ARIA. (b) THE HAND-DRAWN INTERACTION ADAPTER (hand-drawn.svelte.ts, consumed ONLY by scroll-area): the ~700ms idle fade, the FOUR testable auto-hide pins (region focus-within, thumb focus, active drag, hover — while any pin holds the thumb stays in the accessibility tree with aria-valuenow tracking), drag pinning (pointer capture), keyboard scrolling (arrows step, PageUp/PageDown page, Home/End jump), track-click paging, and the thumb's a11y contract (role=scrollbar, aria-controls/aria-valuenow/aria-orientation, focusable, keyboard-draggable) mounted on consumer-rendered bare nodes. (c) THE NATIVE CAPABILITY STYLES (native-capability.css, consumed ONLY by native-scroll-area): scrollbar-gutter stable, scoped color-scheme, scrollbar-width tiers, overscroll containment. Behavior lives in the kit; paint lives in the consumer.",
+      "files": [
+        {
+          "path": "registry/files/lib/scroll-area-kit/core.ts",
+          "target": "@lib/scroll-area-kit/core.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/scroll-area-kit/hand-drawn.svelte.ts",
+          "target": "@lib/scroll-area-kit/hand-drawn.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/scroll-area-kit/native-capability.css",
+          "target": "@lib/scroll-area-kit/native-capability.css",
+          "type": "registry:file"
+        }
+      ],
+      "docs": "scroll-area imports { createHandDrawnScrollbar } from '@lib/scroll-area-kit/hand-drawn.svelte' + the core's types; native-scroll-area imports { resolveThemeScope } from '@lib/scroll-area-kit/core' + '@lib/scroll-area-kit/native-capability.css'. A NEW consumer adopts the core with no CSS of the kit's look and no ARIA it did not author; the two siblings share the core while touching disjoint kit parts.",
+      "meta": {
+        "group": "engines",
+        "href": "/docs/components/scroll-area.html"
+      },
+      "dependencies": [],
+      "registryDependencies": []
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "scroll-virtual",
       "type": "registry:ui",
       "title": "Scroll virtual (TanStack)",
-      "description": "Virtual scrolling for the scroll-area family — STRONGLY associated with @tanstack/svelte-virtual (the official Svelte 5 adapter over @tanstack/virtual-core) with deliberately THIN coupling: windowing semantics, dynamic measurement, scrollToIndex/scrollToOffset, lanes, getItemKey are all TanStack's; read TanStack Virtual's docs directly. This component adds only the DOM wiring: composes scroll-area (variant/label passthrough), owns the positioning layer (totalSize spacer + absolutely positioned rows), and calls item.measureElement on its own row wrappers so dynamic heights work out of the box. Opt-in by design — scroll-area alone has ZERO TanStack dependency.",
+      "description": "Virtual scrolling for the scroll-area family — STRONGLY associated with @tanstack/svelte-virtual (the official Svelte 5 adapter over @tanstack/virtual-core) with deliberately THIN coupling: windowing semantics, dynamic measurement, scrollToIndex/scrollToOffset, lanes, getItemKey are all TanStack's; read TanStack Virtual's docs directly. This component adds only the DOM wiring: composes scroll-area (label passthrough — the variant prop retired with the 2026-09-15 family rework: the composed area is always hand-drawn; the platform path is native-scroll-area), owns the positioning layer (totalSize spacer + absolutely positioned rows), and calls item.measureElement on its own row wrappers so dynamic heights work out of the box. Opt-in by design — scroll-area alone has ZERO TanStack dependency.",
       "dependencies": [
         "@tanstack/svelte-virtual"
       ],
@@ -4401,7 +4468,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: count, estimateSize? (px or per-index fn, default 48), overscan?, horizontal?, virtualOptions? (TanStack VirtualizerOptions passthrough), scrollbar?/label?/class? (ScrollArea passthrough), children: Snippet<[VirtualItem]>. Instance: scrollToIndex/scrollToOffset/measure/getVirtualizer (the raw instance — or use @tanstack/svelte-virtual directly, the documented escape hatch).",
+      "docs": "Props: count, estimateSize? (px or per-index fn, default 48), overscan?, horizontal?, virtualOptions? (TanStack VirtualizerOptions passthrough), label?/class? (ScrollArea passthrough), children: Snippet<[VirtualItem]>. Instance: scrollToIndex/scrollToOffset/measure/getVirtualizer (the raw instance — or use @tanstack/svelte-virtual directly, the documented escape hatch).",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/scroll-virtual.html"
