@@ -1161,6 +1161,45 @@ export default defineConfig({
       );
     },
   },
+  {
+    // visual-quality-iteration W4 (2026-09-15): the scroll-area family's
+    // platform sibling gets its clean-consumer case, and the SAME case
+    // is the scroll-area-kit LIB-ITEM INSTALL-PROOF LANE — the kit is a
+    // registry:lib item (the control-chrome/highlight-folder precedent)
+    // with no consumer mount of its own: its files must ride the
+    // dependency closure of its consumer and land at their canonical
+    // @lib targets exactly once
+    id: 'native-scroll-area',
+    items: ['native-scroll-area'],
+    app: `<script lang="ts">
+  import NativeScrollArea from '$lib/ui/native-scroll-area';
+</script>
+
+<NativeScrollArea label="clean install probe" class="h-40">
+  <p>the platform scrollbar under the token law, capability styles included</p>
+</NativeScrollArea>
+`,
+    extraChecks(ctx) {
+      // the lib-item install-proof lane: the kit's three parts arrive
+      // via the registryDependencies closure, each exactly once
+      const kit = [
+        'src/lib/scroll-area-kit/core.ts',
+        'src/lib/scroll-area-kit/hand-drawn.svelte.ts',
+        'src/lib/scroll-area-kit/native-capability.css',
+      ];
+      const missing = kit.filter((f) => !ctx.exists(f));
+      check('native-scroll-area: scroll-area-kit lib closure arrived', missing.length === 0, missing.join(', ') || 'complete');
+      for (const f of kit) {
+        const base = f.split('/').at(-1);
+        check(`native-scroll-area: ${base} exactly once tree-wide`, countTree(join(ctx.dir, 'src'), base) === 1);
+      }
+      // the family's opt-in TanStack dep never rides this install (the
+      // kit and the sibling are framework-free, zero npm deps of their own)
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      check('native-scroll-area: zero tanstack/stylex packages arrived', !Object.keys(deps).some((d) => d.includes('tanstack') || d.startsWith('@stylexjs')));
+    },
+  },
 ];
 
 // ── 4b. engine-matrix cases (highlight-engine-matrix, 2026-09-06 r2-4) ──

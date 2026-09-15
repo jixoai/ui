@@ -117,7 +117,14 @@ export function deriveItemSet(root) {
   const ledgerPath = join(root, 'research/migration-ledger.json');
   const ledger = JSON.parse(readFileSync(ledgerPath, 'utf8'));
   if (ledger.version !== 1) throw new Error(`stylex-payload: unknown migration-ledger version ${ledger.version}`);
+  // the ledger is DUAL-KIND by schema (verify-stylex-authoring line ~183:
+  // ".stylex.ts modules and stylex-touched .css sheets") — this lane
+  // consumes ONLY the modules; a .css sheet has no stylex transform
+  // (engine.transform returns undefined for it — first seen 2026-09-15
+  // W4, when the W1 css sheets already committed to the ledger made the
+  // payload publish throw on corpus/press-button.css)
   for (const file of ledger.files) {
+    if (!file.endsWith('.stylex.ts')) continue; // css sheets belong to the authoring gate, not the compiled corpus
     const abs = resolve(root, file);
     if (registryStylexFiles.has(abs)) continue; // owned by a registry item above (e.g. tokens.stylex.ts)
     if (!existsSync(abs)) throw new Error(`stylex-payload: ledger file missing: ${file}`);
