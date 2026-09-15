@@ -7,8 +7,9 @@
  *      ahead of any other css (the O1-H remedy position; the
  *      statement text itself is pinned to the F9 ruling verbatim).
  *   2. the engine output really rides the asset (defineVars vars +
- *      @layer stylex.priorityN blocks) — the positive end-to-end path
- *      through vite build + the bridge.
+ *      @layer components.stylex.priorityN blocks, nested under
+ *      components — the Gate-2 P1-1 general law) — the positive
+ *      end-to-end path through vite build + the bridge.
  *   3. THE CSS-ENTRY TRAP (spike-report §5.2): a build with stylex
  *      output but NO css asset writes the fallback assets/stylex.css
  *      (statement-first) instead of losing the css silently.
@@ -104,6 +105,11 @@ async function findCssFiles(dir: string): Promise<string[]> {
   return out;
 }
 
+// Gate-2 r3 P1: the merged asset carries EXACTLY ONE canonical
+// statement (counted by the exact-bytes pattern, any tier count)
+const countCanonicalStatements = (css: string): number =>
+  (css.match(/@layer properties, theme, base, components(?:, components\.stylex\.priority[0-9]+)*, utilities;/g) ?? []).length;
+
 describe('the stylex feature (build side, F11)', () => {
   it('canonicalLayerStatement pins the F9 canonical statement verbatim (dynamic tiers, utilities last)', () => {
     expect(canonicalLayerStatement(3)).toBe(F9_CANONICAL_N3);
@@ -150,6 +156,8 @@ describe('the stylex feature (build side, F11)', () => {
     const expected = canonicalLayerStatement(maxStylexPriority(css));
     expect(css.startsWith(`${expected}\n`)).toBe(true);
     expect((parseCanonicalStatement(css)?.maxPriority ?? 0) >= maxStylexPriority(css)).toBe(true);
+    // EXACTLY ONE canonical statement in the merged asset (Gate-2 r3)
+    expect(countCanonicalStatements(css)).toBe(1);
     // the pre-existing entry css survived the bake (minifier-safe match)
     expect(css).toMatch(/margin:\s*0/);
     // the engine output really rode the asset: defineVars vars +
@@ -189,6 +197,32 @@ describe('the stylex feature (build side, F11)', () => {
     expect(css).toContain('--jx-probe:');
     expect(css).toContain('@layer components.stylex.priority1');
     expect(css).toMatch(/margin:\s*0/);
+    // EXACTLY ONE — the incoming sheet statement was STRIPPED, not kept
+    expect(countCanonicalStatements(css)).toBe(1);
+  });
+
+  it('coverage-aware idempotence (Gate-2 r3): a tier-covering IMPORTED statement without the live atoms still bakes', async () => {
+    // the includes() guard's negative case: an entry css opening with a
+    // tier-covering canonical statement (the imported-payload shape)
+    // whose atoms are NOT this build's — the live atoms must still be
+    // baked in (skipping on coverage alone would drop them silently)
+    await writeKernelFixture(true, `${canonicalLayerStatement(3)}\nbody { margin: 0; }\n`);
+    const outDir = join(outRoot, 'dist-imported-statement');
+    await build({
+      root: fixtureRoot,
+      logLevel: 'silent',
+      plugins: jixoai({ ghostty: false, stylex: { include: ['src/kernel'] } }),
+      build: {
+        outDir,
+        emptyOutDir: true,
+        rollupOptions: { input: join(fixtureRoot, 'src', 'kernel', 'entry.ts') },
+      },
+    });
+    const cssFiles = await findCssFiles(outDir);
+    expect(cssFiles.length).toBe(1);
+    const css = await readFile(cssFiles[0]!, 'utf8');
+    expect(css).toContain('--jx-probe:'); // the LIVE atoms landed
+    expect(countCanonicalStatements(css)).toBe(1); // and exactly one statement
   });
 
   it('coverage-aware idempotence (Gate-2 r2 P1): a COMPLETE previous bake is skipped — atoms appear exactly once, no fallback, no duplicate', async () => {
@@ -231,6 +265,7 @@ describe('the stylex feature (build side, F11)', () => {
     // would append the collected css a second time)
     expect(css.match(/--jx-probe:/g)?.length).toBe(1);
     expect((css.match(/@layer components\.stylex\.priority1 \{/g) ?? []).length).toBe(1);
+    expect(countCanonicalStatements(css)).toBe(1);
   });
 
   it('css-entry trap (§5.2): no css asset → fallback assets/stylex.css, statement-first, nothing silently lost', async () => {
