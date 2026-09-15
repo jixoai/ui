@@ -324,13 +324,14 @@ for these CATEGORIES (each USE carries a site comment naming its
 category — the exemption list is open by category, closed by
 un-annotated use):
 
-- TRANSIENT INK — effect pseudos (toast pulse/sweep, timeline beam,
-  press-button shimmer/spark) and decorative carriers (the liquid-SVG
-  zero-size filter def);
+- TRANSIENT INK — effect pseudos (toast pulse/sweep, press-button
+  shimmer/spark — the timeline beam retired into the drawn spine layer,
+  2026-09-15) and decorative carriers (the liquid-SVG zero-size filter
+  def);
 - CONTAINING-BLOCK NEEDS — the indicator span inside the scroll run
-  (its containing block is the scroller so it travels with content);
-  the timeline scroll-progress spine's absolute channel (geometry
-  that must span implicit tracks, 2026-09-02);
+  (its containing block is the scroller so it travels with content) —
+  the timeline scroll-progress spine's absolute channel (2026-09-02)
+  retired with the drawn-spine stroke draw (2026-09-15);
 - PLATFORM POSITIONING — popover/anchor engines (position-anchor,
   top layer) and visually-hidden skip targets.
 
