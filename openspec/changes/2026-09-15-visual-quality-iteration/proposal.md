@@ -122,7 +122,11 @@ Plus the phase-0 leftovers this round folds in (Owner 2026-09-15, item 5 —
   breaking). Capsule thumb, hover growth, idle fade with testable pins
   (region focus-within, thumb focus, drag, hover — the thumb never
   leaves the accessibility tree while pinned), keyboard affordances —
-  the complete style-control surface the Owner asked for.
+  the complete style-control surface the Owner asked for. A
+  pointer-tier floor parallels the no-JS floor (Gate-2 r1): fine
+  pointers always draw; coarse pointers (touch) keep the platform bar
+  — the native touch best practice, a media-state capability, not a
+  mode.
 - New `native-scroll-area`: the platform scrollbar under the site's
   scrollbar-token law, with the native best practices packaged as
   capability styles (`scrollbar-gutter: stable`, theme-scope-aligned

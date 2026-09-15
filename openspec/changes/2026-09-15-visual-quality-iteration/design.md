@@ -108,7 +108,13 @@ threshold to the reviewer — retired. The contract:
 - Fixture: the docs page's dark-pinned demo diagram rendered on the light
   page (the Owner's exact viewing condition), pinned Chromium, 2× DPI
   screenshot, pixel sampling at label strokes and node boundaries.
-- Fail condition: ANY sampled pair below its threshold reds the probe.
+- Fail condition: ANY unoccluded sampled pair below its threshold reds
+  the probe. Occlusions — of a sample point OR a ground patch — by
+  nodes, adjacent connectors, or EDGE-LABEL CHIPS re-sample per the
+  rule (max 3 steps) and are recorded as skips when still unclear (the
+  Gate-2 r1 amendment: edge-label chips are diagram furniture exactly
+  as nodes are; the two chip-occluded skips in the r1 run are lawful
+  under this rule).
 - The filter-chain constants are calibrated to pass; the THRESHOLD is the
   acceptance and does not move. If the token-derived palette cannot clear
   the graphics threshold on the subtractive ground, the derived palette
@@ -203,7 +209,13 @@ it cannot honestly carry):
 (full-radius), auto-hiding with idle fade (~700ms), hover widens +
 brightens, drag pins opaque, keyboard focus ring on the region + thumb,
 track-click paging, both axes, RTL. The look follows the scrollbar TOKEN
-law (currentColor family) so themes/dark stages restyle without JS.
+law (currentColor family) so themes/dark stages restyle without JS. A
+POINTER-TIER floor parallels the no-JS floor (Gate-2 r1 amendment):
+fine pointers always draw; coarse pointers (touch) keep the platform
+scrollbar — the native best practice for touch (momentum, edge
+behaviors; hover-growth and drag-pin have no touch equivalent) — a
+media-state capability, not a mode (no prop; prerender output keeps
+the platform bar exactly as the no-JS floor does).
 
 **The auto-hide pins (testable, not aspirational).** "AT-engaged" is not a
 detectable platform state and is deliberately NOT the contract. The pins

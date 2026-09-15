@@ -195,6 +195,12 @@ function fixtureUrl(route, params) {
 // open the fixture at a placement, settle, and measure the ONE metric
 async function measureArm(page, placement) {
   await page.goto(fixtureUrl('probe-popover-area', `placement=${placement}`), { waitUntil: 'load' });
+  // hydration readiness gate (Gate-2 r1) — see runSweepArm's note
+  await page.waitForFunction(
+    () => document.querySelector('main[data-hydrated]')?.getAttribute('data-hydrated') === '1',
+    undefined,
+    { timeout: 15000 },
+  );
   // read-back guard: the param must have reached the component before
   // any click (a dropped param would silently measure a stale arm)
   await page.waitForFunction(
@@ -408,6 +414,17 @@ async function runSweepArm(context, surface, arm, mode) {
   const page = await context.newPage();
   try {
     await page.goto(fixtureUrl(surface.route, arm.params), { waitUntil: 'load' });
+    // hydration readiness gate (Gate-2 r1): the fixture's <main> only
+    // carries data-hydrated="1" after Svelte's onMount — measuring the
+    // pre-hydration DOM yields settled-but-stale geometry (the dev
+    // server's slower hydration made the first arm read the un-anchored
+    // position); self-hosted dist hydrates before the old 60ms sleeps,
+    // which is why only the --url runs were flaky
+    await page.waitForFunction(
+      () => document.querySelector('main[data-hydrated]')?.getAttribute('data-hydrated') === '1',
+      undefined,
+      { timeout: 15000 },
+    );
     // read-back guard: every param the arm names must have reached
     // the fixture before any click (dropped params measure stale arms)
     const wants = Object.entries(surface.readback).map(([attr, param]) => ({
