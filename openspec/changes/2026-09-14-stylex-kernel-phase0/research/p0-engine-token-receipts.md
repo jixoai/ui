@@ -135,7 +135,7 @@ Test Files  1 failed | 42 passed (43)
   truncating the transfer… NOT pin drift"). Its 6 tests SKIP after
   the failed setup (the 6-skipped count above is exactly this suite).
 - Zero test failures in the 499 that ran (serial), including the re-pinned
-  stylex suite (12/12: the dynamic-statement pins, the
+  stylex suite (12/12 AT THIS STAGE — grew to 16/16 by the Gate-2 r4 fix round: the dynamic-statement pins, the
   parse/coverage round-trip, the byte-zero bake with nested tiers,
   the css-entry trap, the dist law).
 - Attribution honesty: the IMPL-A "500/500" was that day's machine
