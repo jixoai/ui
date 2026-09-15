@@ -196,9 +196,9 @@ verify:km ✓ · verify:isolation ✓ · verify:print ✓ (all on the
 
 - `openspec validate 2026-09-14-stylex-kernel-phase0 --strict` →
   valid (after the P1 spec-delta revisions).
-- `npm test` (packages/vite-plugin, SERIAL `-- --maxWorkers=1`): 498
-  passed | 6 skipped (gate-2 r3/r4 corrections — the two idempotence
-  regressions + the packaging pattern pin postdate the 495 run;
+- `npm test` (packages/vite-plugin, SERIAL `-- --maxWorkers=1`): 499
+  passed | 6 skipped (correction trail 495→497→498→499: idempotence
+  regressions, the packaging pattern pin, the r4 semantic matcher;
   parallel runs race the packaging build), zero
   failing tests; the one file-level failure is the hmos e2e suite
   whose Ghostty-wasm fixture download arrives proxy-truncated on
@@ -254,3 +254,23 @@ Regression tests (wiring.test.ts, both green):
 Full-chain rerun of record for this addendum: see the commit message
 of the fix (verify:all exit 0 with CHROME_PATH exported; stylex
 wiring suite 8/8).
+
+## Addendum 2 — the Gate-2 r4 semantic matcher (2026-09-15)
+
+Gate 2 round 4 (7.9/10) found the r3 strip was byte-naive: real vite
+re-serializes an entry sheet's statement to the no-space form
+(`@layer properties,theme,base,components,utilities;`) — semantically
+identical, invisible to the exact-space matcher, so the merged asset
+still carried a second (minified) canonical statement in REAL builds
+while the exact-byte fixtures passed. The fix: strip and count now
+ride ONE whitespace/minification-tolerant semantic matcher (layer
+names and order strict, tier numbers unconstrained — the prepended
+full statement always re-covers a superset of the stripped
+registrations); the EMITTED statement's exact bytes stay pinned by
+the unchanged CANONICAL_STATEMENT_PATTERN + packaging gate. The
+integration tests count with the exported semantic counter, and a
+dedicated unit row pins the minified/tiered variants + the
+near-miss shapes (the engine's internal prelude is NOT canonical and
+survives verbatim). Receipts: stylex suites 16/16; serial plugin
+suite 499 | 6 | 0; verify:all exit 0 (CHROME_PATH); validate strict
+green; git diff --check clean.

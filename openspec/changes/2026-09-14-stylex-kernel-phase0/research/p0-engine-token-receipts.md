@@ -124,7 +124,7 @@ machine)** — the real counts replace the round number:
 
 ```
 Test Files  1 failed | 42 passed (43)
-     Tests  498 passed | 6 skipped (504)   [gate-2 r3/r4 corrections: 495→497 (the two coverage-aware idempotence regressions) →498 (the packaging gate now pins the EXPORTED one-source pattern); command of record: npm test -- --maxWorkers=1 (SERIAL — the default parallel run races the packaging build)]
+     Tests  499 passed | 6 skipped (505)   [correction trail: 495→497 (two idempotence regressions) →498 (packaging pins the EXPORTED pattern) →499 (the semantic whitespace-tolerant matcher unit, Gate-2 r4); command of record: npm test -- --maxWorkers=1 (SERIAL — the default parallel run races the packaging build)]
 ```
 
 - The ONE file-level failure is `test/icons/library/example-hmos.test.ts`
@@ -134,12 +134,12 @@ Test Files  1 failed | 42 passed (43)
   expects 1006740; the script's own diagnosis names it: "a proxy
   truncating the transfer… NOT pin drift"). Its 6 tests SKIP after
   the failed setup (the 6-skipped count above is exactly this suite).
-- Zero test failures in the 498 that ran (serial), including the re-pinned
+- Zero test failures in the 499 that ran (serial), including the re-pinned
   stylex suite (12/12: the dynamic-statement pins, the
   parse/coverage round-trip, the byte-zero bake with nested tiers,
   the css-entry trap, the dist law).
 - Attribution honesty: the IMPL-A "500/500" was that day's machine
-  state (unproxied); on THIS machine the suite is 498 green + 1
+  state (unproxied); on THIS machine the suite is 499 green + 1
   environment-blocked file. CI (unproxied) is the authoritative lane
   for the hmos suite.
 

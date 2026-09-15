@@ -103,14 +103,40 @@ export function parseCanonicalStatement(css: string): CanonicalStatement | null 
 }
 
 /**
+ * The canonical statement's SEMANTIC pattern — whitespace/minification
+ * tolerant (Gate-2 r4: real vite re-serializes an entry sheet's
+ * statement as `@layer properties,theme,base,components,utilities;` —
+ * semantically identical, byte-different). Layer names, their ORDER,
+ * and the trailing utilities stay strict; tier numbers are not
+ * required consecutive here (the stripped statement's registrations
+ * are always re-covered by the prepended full statement's superset).
+ */
+const CANONICAL_STATEMENT_TOLERANT =
+  '@layer\\s*properties\\s*,\\s*theme\\s*,\\s*base\\s*,\\s*components(?:\\s*,\\s*components\\.stylex\\.priority[0-9]+)*\\s*,\\s*utilities\\s*;';
+
+/**
  * Remove EVERY canonical-form statement from a css (Gate-2 r3 P1: the
  * merged asset carries EXACTLY ONE — bakeF9 strips the incoming ones
- * before prepending the fresh full statement). Re-mentions are
+ * before prepending the fresh full statement). Matches ALL legal
+ * whitespace/minification variants of the canonical form (the exact
+ * bytes we EMIT stay pinned by CANONICAL_STATEMENT_PATTERN — this is
+ * the semantic matcher for what we STRIP). Re-mentions are
  * semantically inert (registered layers keep their first-mention
  * order), so removal is render-neutral; NON-canonical preludes (the
- * engine's internal `@layer properties, theme, base, components;`)
- * are left verbatim.
+ * engine's internal `@layer properties, theme, base, components;`) —
+ * no trailing utilities, not the canonical form — are left verbatim.
  */
 export function stripCanonicalStatements(css: string): string {
-  return css.replace(new RegExp(CANONICAL_STATEMENT_PATTERN + '\\n?', 'g'), '');
+  return css.replace(new RegExp(`${CANONICAL_STATEMENT_TOLERANT}\\n?`, 'g'), '');
+}
+
+/**
+ * Count the canonical-form statements in a css, semantically
+ * (whitespace/minification tolerant — the same matcher the strip
+ * uses). The uniqueness gates count with THIS, never with an
+ * exact-bytes pattern (the Gate-2 r4 finding: an exact-space counter
+ * is blind to the minified variants a real vite build produces).
+ */
+export function countCanonicalStatements(css: string): number {
+  return (css.match(new RegExp(CANONICAL_STATEMENT_TOLERANT, 'g')) ?? []).length;
 }
