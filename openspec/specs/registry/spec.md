@@ -230,9 +230,21 @@ Generation happens at exactly one point (never inside the vite build).
 
 ### Requirement: consumer contract
 
-Consumers SHALL register the namespace
-`"@jixoai": "https://ui.jixoai.com/r/{name}.json"` in components.json;
-Svelte 5 is first-class and theme/lib/engine items stay framework-free.
+A consumer installing a COMPILED KERNEL PAYLOAD ITEM (an item whose
+paint ships as compiled class constants + item CSS — the phase-1+
+migration state) SHALL owe NO styling-engine tooling: the sole
+wiring is importing the item CSS (exactly the jixoai.css import
+consumers perform today). Consumers MAY run Tailwind, StyleX, or any
+engine for their OWN markup — that is a consumer choice, never a
+kernel prerequisite; the canonical layer law keeps consumer
+utilities above kernel paint either way. TRANSITIONAL: LEGACY
+utility-first items (not yet migrated) keep the standing TW4
+prerequisite and check-tw4-prereq applies to THEM until their
+migration lands; the gate's applicability narrows as the phase train
+advances and retires with the last legacy item. The zero-engine
+assertion in verify:shadcn-add checks the clean consumer's lockfile
+for @stylexjs/stylex, @stylexjs/unplugin, AND @stylexjs/babel-plugin
+— all three must be absent.
 
 #### Scenario: namespace registration
 
@@ -241,11 +253,22 @@ Svelte 5 is first-class and theme/lib/engine items stay framework-free.
 - THEN Svelte 5 consumers receive them first-class; theme/lib/engine
   items stay framework-free
 
-Consumers register the namespace
-`"@jixoai": "https://ui.jixoai.com/r/{name}.json"` in components.json.
-Svelte 5 is first-class (all jixoai sites are SvelteKit); the engine and
-theme items are framework-free so non-Svelte consumers can still install
-`jixoai-theme` / `toc-engine` / `jx-pure`.
+#### Scenario: a clean consumer installs a compiled payload item
+
+- GIVEN a fresh consumer project with no styling engine installed
+- WHEN it shadcn-adds a COMPILED PAYLOAD item (post-migration) and
+  imports the item CSS
+- THEN the components render correctly and the lockfile gains none
+  of @stylexjs/stylex, @stylexjs/unplugin, @stylexjs/babel-plugin;
+  a LEGACY item meanwhile keeps the standing TW4 prerequisite
+  (transitional applicability)
+
+#### Scenario: a Tailwind consumer overrides kernel paint
+
+- GIVEN a consumer running Tailwind for its own markup
+- WHEN it passes a token utility to a kernel component
+- THEN the utility wins (canonical layer law) under either import
+  order
 
 ### Requirement: catalog groups are the display taxonomy
 
