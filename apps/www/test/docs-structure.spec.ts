@@ -126,9 +126,11 @@ describe('docs-route-model — the section spine', () => {
     // taxonomy shape totals 106; alpha is a meta stamp, never a
     // distribution exemption, so the taxonomy counts them like any
     // resident.
+    // Re-frozen 2026-09-15 (visual-quality-iteration W4): the scroll-area
+    // family's platform sibling joins layout (19->20, native-scroll-area).
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:13', 'terminal:4', 'layout:19', 'navigation:10', 'layer:10',
+      'general:13', 'terminal:4', 'layout:20', 'navigation:10', 'layer:10',
       'data-entry:19', 'data-display:24', 'feedback:5', 'effects:2',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);
