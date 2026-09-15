@@ -39,13 +39,15 @@ change-wide parity proof).
   `@supports not (backdrop-filter)` floor; `backdrop={false}` →
   transparent
 - [ ] 2.2 Contrast probe per the fixed acceptance: WCAG ratio, labels
-  ≥ 4.5:1 vs node fill; fill, border, and connector strokes ≥ 3:1 vs
-  the veil ground — connectors sampled antialias-proof (line-core
-  pixel vs a ground patch along the stroke's normal, past the edge),
-  nodes sampled 2px past the border — pinned Chromium 2× screenshot
-  sampling on the dark-pinned demo; any pair below threshold fails;
-  derived-palette lift (through its own tokens) only if measurement
-  demands, recorded
+  ≥ 4.5:1 vs node fill; node fill and node border ≥ 3:1 vs the veil
+  ground sampled 2px past the node border; connectors ≥ 3:1 sampled
+  antialias-proof — every edge connector in the fixture, at three
+  equally spaced centerline points (1/4, 1/2, 3/4), the stroke's
+  line-core pixel versus a ground patch 2px past the stroke edge along
+  the normal, the patch the mean of its 3×3 device-pixel window —
+  pinned Chromium 2× screenshot sampling on the dark-pinned demo; any
+  sampled pair below threshold fails; derived-palette lift (through
+  its own tokens) only if measurement demands, recorded
 - [ ] 2.3 Tests: unit (prop matrix: effective theme × backdrop ×
   supports), probe (veil computed style on/off/unsupported —
   `background` transparent on the veil layer), screenshot receipts
@@ -88,9 +90,11 @@ change-wide parity proof).
   drag pin, keyboard, thumb a11y) + the native CAPABILITY STYLES
 - [ ] 4.2 `scroll-area` rework: always hand-drawn, capsule thumb,
   token-law look, both axes; the `scrollbar` prop + `ScrollbarVariant`
-  type retire and NO mode branch remains (source-scan canary with a
-  two-directional fixture — a planted live `scrollbar` prop reddens
-  it);
+  type retire with a STATICALLY assertable acceptance — (1) a pinned
+  Props snapshot (no `scrollbar` field, no mode-shaped field of any
+  name, no `ScrollbarVariant` export), (2) a source scan for
+  `'native'`/`'overlay'` consumer sites, (3) a two-directional fixture
+  planting a live `scrollbar` prop proving both detectors redden;
   the four testable pins (region focus-within, thumb focus, drag,
   hover) each suspend the idle fade + thumb stays in the accessibility
   tree with live `aria-valuenow` (probe-asserted)
