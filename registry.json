@@ -3659,7 +3659,7 @@
       "name": "timeline",
       "type": "registry:ui",
       "title": "Timeline",
-      "description": "The activity stream rebuilt as a 5-lane grid engine: direction ltr/revert/interlaced, axis vertical/horizontal, per-node 9-grid dots (8 logical slots + center dot via grid+subgrid), the line authored-free by default and replaceable through a line(i) snippet, preset line components (Dashed, animated Beam), scroll- and view-driven animations (@supports-gated, reduced-motion-safe). timeline-connector is retired — the line IS grid tracks.",
+      "description": "The activity stream with a DRAWN spine: a one-cell grid host stacks the semantic ol over one whole-list SVG spine layer measured from the live geometry (grid-area 1/1 sibling, source-order under the items, pointer-transparent, zero abspos) — connectors as continuous center-to-center paths, dashed as real stroke-dasharray phase-anchored to the node's flow-end edge, beam as a traveling gradient stroke with actual width, scroll-progress as a stroke-dashoffset draw. axis/direction/interlacing/RTL resolve in one coordinate space; a no-JS per-item CSS floor upgrades to the measured spine on hydration. The spine prop takes 'plain' | 'dashed' | 'beam' or a custom snippet receiving the geometry payload (the line(i) seam and the line-preset components retired, breaking).",
       "files": [
         {
           "path": "registry/files/ui/timeline/timeline.svelte",
@@ -3677,13 +3677,8 @@
           "type": "registry:file"
         },
         {
-          "path": "registry/files/ui/timeline/timeline-line-dashed.svelte",
-          "target": "@ui/timeline/timeline-line-dashed.svelte",
-          "type": "registry:file"
-        },
-        {
-          "path": "registry/files/ui/timeline/timeline-line-beam.svelte",
-          "target": "@ui/timeline/timeline-line-beam.svelte",
+          "path": "registry/files/ui/timeline/timeline-spine.svelte.ts",
+          "target": "@ui/timeline/timeline-spine.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -3717,7 +3712,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Timeline props: axis ('vertical'|'horizontal'), direction ('ltr'|'revert'|'interlaced'), animation ('none'|'view'|'scroll'). TimelineDot: 8 logical snippet slots (blockStart/inlineStart/inlineEnd/blockEnd and the four corners) + center dot, variant square/round/ring. Line presets: TimelineLineDashed, TimelineLineBeam; or replace wholesale with a line(i) snippet.",
+      "docs": "Timeline props: axis ('vertical'|'horizontal'), direction ('ltr'|'revert'|'interlaced'), animation ('none'|'view'|'scroll'), spine ('plain'|'dashed'|'beam' or a Snippet<[TimelineSpineGeometry]> — node centers in list-root coordinates in flow order, axis/direction/interlaced/rtl metadata, per-segment path data with the dot-edge phase anchor, the density scale). TimelineDot: 8 logical snippet slots + center dot, variant square/round/ring. No-JS floor: the plain per-item CSS line until hydration measures.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/timeline.html"

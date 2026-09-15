@@ -9,6 +9,9 @@
     "apps/www/src/lib/__probe__/stylex-corpus/range.stylex.ts",
     "apps/www/src/lib/__probe__/stylex-corpus/separator.stylex.ts",
     "apps/www/src/lib/__probe__/stylex-corpus/switch.stylex.ts",
-    "apps/www/src/lib/__probe__/stylex-corpus/demo.stylex.ts"
+    "apps/www/src/lib/__probe__/stylex-corpus/demo.stylex.ts",
+    "registry/files/ui/press-button/press-button.css",
+    "registry/files/ui/mermaid/mermaid.css",
+    "registry/files/ui/timeline/timeline.css"
   ]
 }
