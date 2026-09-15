@@ -149,7 +149,9 @@ Plus the phase-0 leftovers this round folds in (Owner 2026-09-15, item 5 —
 - **Specs**: `component-authoring` — one requirement MODIFIED (the mermaid
   source-first floor gains the backdrop law), four requirements ADDED (the
   fill-channel scope law; the timeline drawn-spine law; the scroll-area
-  family law; the spec-true position-area law).
+  family law; the spec-true position-area law); `css-architecture` — one
+  requirement MODIFIED (the grid-supplies-stacking law's abspos exemption
+  list loses its two timeline examples, which the drawn spine retires).
 - **Components (breaking, no compat)**: `scroll-area` (variant prop
   retires), `timeline` (line(i) seam becomes the spine contract), plus the
   new `native-scroll-area` registry item and the new `scroll-area-kit` lib
@@ -160,6 +162,11 @@ Plus the phase-0 leftovers this round folds in (Owner 2026-09-15, item 5 —
   `menubar-panel` (position-area semantics).
 - **Docs**: the four component pages + effects page gain/refresh demos;
   registry.json descriptions update to the new shapes.
+- **Mirror/payload**: every registry item this change touches syncs to the
+  `apps/www/src/lib/**` mirror with the manifest updated, and the
+  source-to-mirror + source-to-payload invariants are proven
+  (`verify:mirror`, `shadcn build` + payload parity, `verify:deps` — the
+  mirror-sync spec's contract).
 - **Verification posture**: every visual claim in this change carries BOTH a
   deterministic probe (computed style / geometry, the discipline this
   session established: vision reads only ride on top of programmatic

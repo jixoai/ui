@@ -120,13 +120,16 @@ native best practices as capability styles, and SHALL mount NO custom
 scrollbar ARIA — no drawn thumb exists, and the platform scrollbar IS the
 accessibility contract (a `role="scrollbar"` on a nonexistent thumb is a
 violation, not a feature). Both SHALL share the `scroll-area-kit` lib
-kernel (the control-chrome precedent), SPLIT BY CONCERN: a shared CORE
-(overflow verdict, thumb geometry math, theme-scope resolution — zero
-paint, zero ARIA of its own) and a HAND-DRAWN INTERACTION ADAPTER (idle
-fade, hover growth, drag pinning, keyboard scrolling, the thumb's a11y
-contract) consumed ONLY by the hand-drawn component. Behavior lives in
-the kit; paint lives in the consumer. `scroll-run` (the linear strip
-edge system) is a DIFFERENT shared system and is untouched.
+kernel (the control-chrome precedent), SPLIT BY CONCERN into THREE
+parts: a shared CORE (overflow verdict, thumb geometry math,
+theme-scope resolution — zero paint, zero ARIA of its own), a
+HAND-DRAWN INTERACTION ADAPTER (idle fade, hover growth, drag pinning,
+keyboard scrolling, the thumb's a11y contract) consumed ONLY by the
+hand-drawn component, and the NATIVE CAPABILITY STYLES (the packaged
+native best-practice styles) consumed ONLY by the native sibling.
+Behavior lives in the kit; paint lives in the consumer. `scroll-run`
+(the linear strip edge system) is a DIFFERENT shared system and is
+untouched.
 
 #### Scenario: the hand-drawn law owns the styled component
 
@@ -138,14 +141,16 @@ edge system) is a DIFFERENT shared system and is untouched.
 
 #### Scenario: auto-hide never hides the affordance from keyboard users
 
-- GIVEN a scroll-area whose region or thumb holds focus, or whose thumb
-  is being dragged or hovered
+- GIVEN a scroll-area in any of FOUR pinned states — the REGION holds
+  focus within (focus-within), the THUMB holds focus, the thumb is
+  being dragged, or the thumb/track is hovered
 - WHEN the idle fade's timer would fire
-- THEN the thumb pins visible — focus, drag, and hover EACH suspend the
-  fade (three separately probe-asserted pins) — and the thumb node
-  stays in the accessibility tree with its role intact and
-  `aria-valuenow` tracking position ("AT-engaged" is not a detectable
-  platform state and is deliberately NOT the contract)
+- THEN the thumb pins visible — FOUR separately probe-asserted pins,
+  one per state (region focus-within, thumb focus, drag, hover; each
+  tested in isolation) — and while any pin holds, the thumb node stays
+  in the accessibility tree with its role intact and `aria-valuenow`
+  tracking position ("AT-engaged" is not a detectable platform state
+  and is deliberately NOT the contract)
 
 #### Scenario: the native sibling is capability styles
 
@@ -160,11 +165,12 @@ edge system) is a DIFFERENT shared system and is untouched.
 
 - GIVEN the kit's exported runtime
 - THEN the shared CORE (verdict/geometry/scope) mounts with zero paint
-  and zero ARIA of its own; the interaction adapter is a SEPARATE
-  export the hand-drawn component composes — a new consumer adopts the
-  core with no CSS of the kit's look and no ARIA it did not author,
-  and scroll-area and native-scroll-area share the core while touching
-  disjoint adapters
+  and zero ARIA of its own; the hand-drawn interaction adapter and the
+  native capability styles are SEPARATE exports, each consumed by
+  exactly its own component — a new consumer adopts the core with no
+  CSS of the kit's look and no ARIA it did not author, and
+  scroll-area and native-scroll-area share the core while touching
+  disjoint kit parts
 
 #### Scenario: the variant prop is gone
 
@@ -275,10 +281,12 @@ standing pre-change behavior). Light themes never paint a backdrop.
   rectangle, and the veil layer itself paints ZERO background ink (the
   subtraction ink law, probe-asserted: computed `background` of the
   veil layer is transparent)
-- AND the derived dark palette keeps node fills, borders, and labels
-  readable against the darkened ground (contrast probe: WCAG ratio,
-  labels ≥ 4.5:1 against their node fill, node fill/border ≥ 3:1
-  against the adjacent veil ground — sampled on the pinned-Chromium
+- AND the derived dark palette keeps node fills, borders, labels, and
+  connectors readable against the darkened ground (contrast probe:
+  WCAG ratio, labels ≥ 4.5:1 against their node fill; node fill,
+  node border, and connector strokes ≥ 3:1 against the veil ground
+  sampled adjacent to each object — 2px past the node border, and at
+  the midpoint of the longest edge connector — on the pinned-Chromium
   screenshot; any sampled pair below threshold fails the probe)
 
 #### Scenario: the backdrop switches off
@@ -339,7 +347,7 @@ standing pre-change behavior). Light themes never paint a backdrop.
 > `name?.trim() || labels?.diagram?.trim() || 'Diagram'` (an empty or
 > whitespace `name` falls through; a nameless diagram never mounts a
 > nameless img).
- The backdrop law (2026-09-15) rides the EFFECTIVE
+> The backdrop law (2026-09-15) rides the EFFECTIVE
 > theme — the same resolution the palette uses — so a dark-pinned
 > surface on a light page veils, a `theme="auto"` surface inside a dark
 > scope veils, and the `backdrop={false}` switch and the

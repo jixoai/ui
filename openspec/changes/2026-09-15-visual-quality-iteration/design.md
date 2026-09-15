@@ -98,8 +98,10 @@ threshold to the reviewer — retired. The contract:
 - Algorithm: WCAG 2.x relative-luminance contrast ratio.
 - Objects: (a) diagram LABEL text against its own node fill; (b) node
   fill and node border against the veil ground sampled ADJACENT to the
-  node (2px out, past the border).
-- Thresholds: labels ≥ 4.5:1; non-text graphics (fills/borders/
+  node (2px out, past the border); (c) CONNECTOR strokes against the
+  veil ground sampled adjacent to the stroke (midpoint of the
+  diagram's longest edge).
+- Thresholds: labels ≥ 4.5:1; non-text graphics (fills, borders,
   connectors) ≥ 3:1.
 - Fixture: the docs page's dark-pinned demo diagram rendered on the light
   page (the Owner's exact viewing condition), pinned Chromium, 2× DPI
