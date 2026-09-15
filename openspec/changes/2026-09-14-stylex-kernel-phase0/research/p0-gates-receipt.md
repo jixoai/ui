@@ -196,7 +196,10 @@ verify:km ✓ · verify:isolation ✓ · verify:print ✓ (all on the
 
 - `openspec validate 2026-09-14-stylex-kernel-phase0 --strict` →
   valid (after the P1 spec-delta revisions).
-- `npm test` (packages/vite-plugin): 495 passed | 6 skipped, zero
+- `npm test` (packages/vite-plugin, SERIAL `-- --maxWorkers=1`): 498
+  passed | 6 skipped (gate-2 r3/r4 corrections — the two idempotence
+  regressions + the packaging pattern pin postdate the 495 run;
+  parallel runs race the packaging build), zero
   failing tests; the one file-level failure is the hmos e2e suite
   whose Ghostty-wasm fixture download arrives proxy-truncated on
   this machine (environment — full attribution in

@@ -80,16 +80,37 @@ export interface CanonicalStatement {
 }
 
 /**
+ * The canonical statement's exact-bytes pattern for any tier count
+ * (N ≥ 0) — exported so the packaging gate asserts the PUBLISHED dist
+ * against the ONE source (the bytes cannot drift between the two).
+ */
+export const CANONICAL_STATEMENT_PATTERN =
+  '@layer properties, theme, base, components(?:, components\\.stylex\\.priority[0-9]+)*, utilities;';
+
+/**
  * Parse a css's opening statement as the canonical form. Returns null
  * when the css does not open with `canonicalLayerStatement(N)` for
  * some N ≥ 0 (exact bytes, tiers strictly priority1..priorityN).
  */
 export function parseCanonicalStatement(css: string): CanonicalStatement | null {
-  const m = /^@layer properties, theme, base, components,(?: components\.stylex\.priority[0-9]+,)* utilities;\n/.exec(css);
+  const m = new RegExp(`^(?:${CANONICAL_STATEMENT_PATTERN})\\n`).exec(css);
   if (!m) return null;
   const tiers = [...m[0].matchAll(/components\.stylex\.priority([0-9]+)/g)].map((t) => Number.parseInt(t[1]!, 10));
   for (let i = 0; i < tiers.length; i++) {
     if (tiers[i] !== i + 1) return null; // must be exactly priority1..priorityN, in order
   }
   return { maxPriority: tiers.length };
+}
+
+/**
+ * Remove EVERY canonical-form statement from a css (Gate-2 r3 P1: the
+ * merged asset carries EXACTLY ONE — bakeF9 strips the incoming ones
+ * before prepending the fresh full statement). Re-mentions are
+ * semantically inert (registered layers keep their first-mention
+ * order), so removal is render-neutral; NON-canonical preludes (the
+ * engine's internal `@layer properties, theme, base, components;`)
+ * are left verbatim.
+ */
+export function stripCanonicalStatements(css: string): string {
+  return css.replace(new RegExp(CANONICAL_STATEMENT_PATTERN + '\\n?', 'g'), '');
 }

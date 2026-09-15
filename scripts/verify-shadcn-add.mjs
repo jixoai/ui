@@ -1002,9 +1002,9 @@ export default defineConfig({
     // clause): the stylex-adjacent lib item installs CLEAN — the theme
     // sheet (its declared dependency) arrives for the css import, the
     // typed module lands at @lib, and the consumer owes ZERO
-    // @stylexjs/* packages (compiled payload wiring rides phase 1;
-    // today the registry ships the SOURCE module + the sheet, never
-    // the engine)
+    // @stylexjs/* packages (this case ships the SOURCE module + the
+    // sheet; the compiled-payload lane LANDED in Gate-2 P1-2 and is
+    // covered by the stylex-compiled-payload case below)
     items: ['tokens'],
     app: `<script lang="ts">
   // the documented install prerequisite: import the item/theme css —
@@ -1033,8 +1033,8 @@ export default defineConfig({
     // the plain-string class constants, and builds — owing ZERO
     // @stylexjs/* (the F11 form, end-to-end). No shadcn add runs:
     // phase 0 ships no registry item carrying compiled files[] yet —
-    // the install is the manifest-driven copy phase-1's item wiring
-    // will replace, byte-for-byte the same artifacts.
+    // the install is the manifest-driven copy; phase 1's real item
+    // wiring will replace it with byte-for-byte the same artifacts.
     items: [],
     skipAdd: true,
     app: `<script lang="ts">

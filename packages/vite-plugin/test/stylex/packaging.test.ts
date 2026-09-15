@@ -25,6 +25,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { walkStaticImports } from '../icons/library/import-graph.js';
+import { CANONICAL_STATEMENT_PATTERN } from '../../src/stylex/layer-law.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const dist = (...parts: string[]): string => join(packageRoot, 'dist', ...parts);
@@ -85,11 +86,16 @@ describe('the stylex bridge law (phase 0 P0.2)', () => {
   test('the F9 canonical layer law ships in dist/stylex/layer-law.js (dynamic tiers, components nesting)', () => {
     const code = readFileSync(dist('stylex', 'layer-law.js'), 'utf8');
     // the nesting prefix + the standing frame (quote-agnostic — tsdown
-    // emits double quotes) + the parser's exact statement shape
+    // emits double quotes) + the parser's exact statement pattern —
+    // asserted against the EXPORTED one-source pattern so the published
+    // bytes cannot drift from the law (Gate-2 r3: the regex-literal
+    // refactor moved the bytes; this pins them forever)
     expect(code).toMatch(/["']components\.stylex["']/);
     expect(code).toMatch(/["']properties["'],\s*["']theme["'],\s*["']base["'],\s*["']components["']/);
     expect(code).toMatch(/["']utilities["']/);
-    expect(code).toContain('@layer properties, theme, base, components,');
-    expect(code).toContain('utilities;\\n');
+    // the pattern's ESCAPED form — the dist file carries the string
+    // literal's source bytes (backslashes doubled), so compare against
+    // the JSON-escaped runtime value
+    expect(code).toContain(JSON.stringify(CANONICAL_STATEMENT_PATTERN).slice(1, -1));
   });
 });

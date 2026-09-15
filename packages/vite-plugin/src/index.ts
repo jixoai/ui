@@ -97,9 +97,11 @@ export { canvasPlugin } from './canvas/vite-plugin.js';
 // P1-1: the statement is dynamic over the css's highest priority tier,
 // and the tiers nest under `components` — see layer-law.ts)
 export {
+  CANONICAL_STATEMENT_PATTERN,
   canonicalLayerStatement,
   maxStylexPriority,
   parseCanonicalStatement,
+  stripCanonicalStatements,
   STYLEX_LAYERS_AFTER,
   STYLEX_LAYERS_BEFORE,
   STYLEX_LAYER_PREFIX,

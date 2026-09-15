@@ -52,7 +52,7 @@ import * as nodePath from 'node:path';
 import { realpathSync } from 'node:fs';
 import stylexVite from '@stylexjs/unplugin/vite';
 import type { ViteDevServer } from 'vite';
-import { canonicalLayerStatement, maxStylexPriority, parseCanonicalStatement, STYLEX_LAYERS_AFTER, STYLEX_LAYERS_BEFORE, STYLEX_LAYER_PREFIX } from './layer-law.js';
+import { canonicalLayerStatement, maxStylexPriority, parseCanonicalStatement, stripCanonicalStatements, STYLEX_LAYERS_AFTER, STYLEX_LAYERS_BEFORE, STYLEX_LAYER_PREFIX } from './layer-law.js';
 
 /**
  * the stylex feature's options as the UMBRELLA defines them
@@ -308,7 +308,11 @@ export function createStylexEngine(
    */
   const bakeF9 = (current: string, css: string): string => {
     const statement = canonicalLayerStatement(Math.max(maxStylexPriority(css), maxStylexPriority(current)));
-    return current ? `${statement}\n${current}\n${css}` : `${statement}\n${css}`;
+    // Gate-2 r3 P1: the merged asset carries EXACTLY ONE canonical
+    // statement — strip the incoming ones (semantically inert
+    // re-mentions) before prepending the fresh full statement
+    const cleaned = stripCanonicalStatements(current);
+    return cleaned ? `${statement}\n${cleaned}\n${css}` : `${statement}\n${css}`;
   };
 
   const isServerConsumer = (context: StylexHookContext): boolean =>
