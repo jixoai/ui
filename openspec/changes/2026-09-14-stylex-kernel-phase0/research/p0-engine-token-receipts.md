@@ -1,6 +1,8 @@
 # P0.2 + P0.3 receipts — the engine wiring + the typed token layer
 
-> stylex-kernel phase 0 (IMPL-A, 2026-09-15). Every receipt below is
+> stylex-kernel phase 0 (IMPL-A, 2026-09-15; the F9 section and the
+> package-gate counts re-measured at the Gate-2 P1 fix round by
+> IMPL-E, same day — both marked below). Every receipt below is
 > re-runnable from this tree; commands verbatim. Commits:
 > `f0b560f5` (P0.2a), `d7891b37` (P0.2b), `d79bc320` (P0.3a),
 > `fe12cde7` (P0.3b), + the probe commit (P0.3c, this file).
@@ -47,8 +49,8 @@ lexical (`/var/…`) — lexical `startsWith` silently never matches
 ### The F9 layer law — baked in the REAL site build
 
 `npm run build:blueprints` → `vite build` (apps/www, the twins'
-wiring) emits `apps/www/dist/_app/immutable/assets/0._qpb1Ijj.css`
-(the TW-compiled entry css) which:
+wiring) emits the TW-compiled entry css which (as FIRST measured
+here, IMPL-A edition):
 
 ```
 byte 0:      @layer properties, theme, base, components, stylex.priority1,
@@ -61,12 +63,36 @@ contains:    every atom rule (.x1wgjywl { background-color: var(--jx-primary) }
              … border/color/font-family/box-shadow atoms)
 ```
 
-The statement is PLUGIN-OWNED (`STYLEX_LAYER_STATEMENT` in
-`src/stylex/layer-law.ts`, exported from the package root; pinned
-verbatim by tests). Authors never write it; the O1-H evidence chain
-(spike-report §5.1) is the mechanism's provenance. Dev also carries
-it: the `/virtual:stylex.css` middleware serves statement + collected
-css.
+**IMPL-E re-measure (Gate-2 P1-1, 2026-09-15)** — the statement's
+GENERAL form replaced the fixed priority1..3 (the O1-H 1..3 was that
+corpus's special case; the dogfood corpus emits through priority9):
+
+```
+byte 0:      @layer properties, theme, base, components,
+             components.stylex.priority1, …, components.stylex.priority9,
+             utilities;                      ← DYNAMIC N, utilities last
+contains:    @layer components.stylex.priority2 … priority9 blocks
+             (one per nesting depth; priority1 blockless)
+             + the trailing @layer utilities; bookkeeping re-mention
+contains:    ZERO top-level stylex.* mentions (the escape the dual-order
+             gate plants against)
+```
+
+The NESTING (tiers under `components`) is the load-bearing half of
+the law: cascade-layer registration is append-only by first mention,
+so top-level tiers arriving after the consumer's utilities
+registration permanently beat utilities (measured consumer-first
+failure); nested, the consumer utility wins BOTH import orders —
+the dual-order browser arm of verify:stylex-payload is the standing
+proof.
+
+The statement is PLUGIN-OWNED (`layer-law.ts` —
+`canonicalLayerStatement(N)` / `maxStylexPriority(css)` /
+`parseCanonicalStatement`, exported from the package root; pinned by
+tests). Authors never write it; the O1-H evidence chain (spike-report
+§5.1) is the mechanism's provenance. Dev also carries it: the
+`/virtual:stylex.css` middleware serves the statement (dynamic over
+the collected css) + collected css.
 
 ### The css-entry trap (§5.2) — no longer silent
 
@@ -87,11 +113,35 @@ twin path-math precedent, documented in the config comment.
 
 ### Package gates
 
-`npm test` in packages/vite-plugin: **500/500 green** (one earlier
-single-test flake did not reproduce across two clean reruns).
-The umbrella's dynamic-import pin moved 1 → 2
+`npm test` in packages/vite-plugin (IMPL-A edition): **500/500
+green** (one earlier single-test flake did not reproduce across two
+clean reruns). The umbrella's dynamic-import pin moved 1 → 2
 (`./icons/vite-plugin.js`, `./stylex/vite-plugin.js`) in both existing
 purity gates — deliberate, pinned by the new packaging test.
+
+**IMPL-E re-run (Gate-2 P1-4 honesty fix, 2026-09-15, this
+machine)** — the real counts replace the round number:
+
+```
+Test Files  1 failed | 42 passed (43)
+     Tests  495 passed | 6 skipped (501)
+```
+
+- The ONE file-level failure is `test/icons/library/example-hmos.test.ts`
+  — ENVIRONMENT, not code: its fixture build downloads the pinned
+  Ghostty wasm and the transfer arrived TRUNCATED through this
+  machine's proxy on all 3 attempts (received 1006943 bytes, pin
+  expects 1006740; the script's own diagnosis names it: "a proxy
+  truncating the transfer… NOT pin drift"). Its 6 tests SKIP after
+  the failed setup (the 6-skipped count above is exactly this suite).
+- Zero test failures in the 495 that ran, including the re-pinned
+  stylex suite (12/12: the dynamic-statement pins, the
+  parse/coverage round-trip, the byte-zero bake with nested tiers,
+  the css-entry trap, the dist law).
+- Attribution honesty: the IMPL-A "500/500" was that day's machine
+  state (unproxied); on THIS machine the suite is 495 green + 1
+  environment-blocked file. CI (unproxied) is the authoritative lane
+  for the hmos suite.
 
 ## P0.3 — the typed token layer
 
