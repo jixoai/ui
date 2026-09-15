@@ -2263,6 +2263,17 @@ contract: prerender paints the escaped diagram source as a readable
 plain-text floor (zero JS), and after hydration the lazily-loaded
 engine (a code-split singleton — the engine never rides a page's
 critical path) swaps the rendered, sanitized SVG into the same box.
+When the EFFECTIVE theme (pinned or resolved) is dark, the surface
+SHALL carry its own dark backdrop by default (Owner 2026-09-15): a
+designed veil built on `backdrop-filter` that adds ZERO ink (the
+subtraction ink law — no dark `background`, no hand-mixed tint): a
+subtractive filter chain (blur + contrast/brightness pulling the page
+behind toward the dark ground), rounded, padded, subtly bordered —
+never the opaque hard-edge fill. The backdrop SHALL be switchable off
+(`backdrop={false}` → transparent, as light mode today), and SHALL
+degrade to the component's own opaque theme-ground fill where
+`backdrop-filter` is unsupported (the surface-ground floor, the
+standing pre-change behavior). Light themes never paint a backdrop.
 
 #### Scenario: the floor upgrades after hydration
 
@@ -2308,6 +2319,42 @@ critical path) swaps the rendered, sanitized SVG into the same box.
 - THEN the inner wrapper scales and the viewport becomes the pan
   surface, with no engine call, no SVG regeneration, and no shared
   scroll chrome inside the viewport
+
+#### Scenario: dark carries its own backdrop (Owner 2026-09-15)
+
+- GIVEN a mermaid surface whose effective theme is dark, mounted on a
+  light page, with the default props
+- THEN the viewport paints the subtractive backdrop-filter veil (blur +
+  a contrast/brightness chain pulling the page behind toward the dark
+  ground, rounded, padded, subtle border) — no opaque hard-edge
+  rectangle, and the veil layer itself paints ZERO background ink (the
+  subtraction ink law, probe-asserted: computed `background` of the
+  veil layer is transparent)
+- AND the derived dark palette keeps node fills, borders, labels, and
+  connectors readable against the darkened ground (contrast probe on
+  the pinned-Chromium 2× screenshot, WCAG ratio: labels ≥ 4.5:1
+  against their node fill; node fill and node border ≥ 3:1 against the
+  veil ground sampled 2px past the node border; connectors ≥ 3:1
+  sampled antialias-proof — every edge connector in the fixture, at
+  three equally spaced centerline points (1/4, 1/2, 3/4), the stroke's
+  line-core pixel versus a ground patch 2px past the stroke edge along
+  the normal, the patch the mean of its 3×3 device-pixel window;
+  occlusions — of a sample point or a ground patch — by nodes,
+  adjacent connectors, or edge-label chips re-sample per the rule
+  (max 3 steps) and are RECORDED as skips when still unclear; any
+  unoccluded sampled pair below threshold fails the probe)
+
+#### Scenario: the backdrop switches off
+
+- GIVEN the same surface with `backdrop={false}`
+- THEN no veil and no opaque fill paint — the diagram sits on the page
+  transparently, exactly as a light-theme surface does today
+
+#### Scenario: no backdrop-filter support keeps a readable floor
+
+- GIVEN a browser without `backdrop-filter` support
+- THEN the veil degrades to the opaque theme-background fill (today's
+  behavior) — the diagram never loses its ground
 
 > Effect discipline SHALL match the code-card generation law: prop
 > changes drop the previous paint booking, out-of-order resolutions
@@ -2355,6 +2402,12 @@ critical path) swaps the rendered, sanitized SVG into the same box.
 > `name?.trim() || labels?.diagram?.trim() || 'Diagram'` (an empty or
 > whitespace `name` falls through; a nameless diagram never mounts a
 > nameless img).
+> The backdrop law (2026-09-15) rides the EFFECTIVE
+> theme — the same resolution the palette uses — so a dark-pinned
+> surface on a light page veils, a `theme="auto"` surface inside a dark
+> scope veils, and the `backdrop={false}` switch and the
+> no-backdrop-filter floor both keep the surface readable with zero
+> config beyond the one boolean.
 
 ### Requirement: the structural kernel law (four layers, stickers, and the attach test)
 
@@ -3656,3 +3709,233 @@ yet, so no phase is lost).
   pointer events over the content cell, and the status pill holds
   the spinner glyph — identical structure to the pre-change
   component modulo the glyph itself
+
+### Requirement: the press-effect fill channel resolves from the host's theme scope (Owner 2026-09-15)
+
+The press-effect runtime's AUTO fill (shimmer sweep, rainbow wash —
+`fill: undefined`) SHALL resolve the Context from the HOST ELEMENT, never
+from the OS scheme when a theme scope exists: the nearest ancestor theme
+scope (`[data-theme="light"|"dark"]`, `.dark`, `.jx-light`, self included)
+answers light/dark first; the OS scheme answers ONLY when the whole
+ancestor chain carries no scope. The auto fill COLOR SHALL be the effective
+canvas — the nearest OPAQUE ancestor background (walk-up + parse), falling
+back to white/black by the resolved context — and SHALL follow live scope
+mutation (a scope observer on the ancestor chain watching class AND
+`data-theme` attribute mutations, both, disconnected on cleanup). The CSS
+`Canvas` keyword SHALL NOT appear in the auto path. Explicit fills
+(solidFill minting, numeric fills) are untouched.
+
+#### Scenario: the stage's theme answers, not the OS
+
+- GIVEN a shimmer host inside a light theme scope (`[data-theme="light"]`
+  or `.jx-light`) on a page whose OS scheme is dark
+- WHEN the effect mounts with `fill` omitted
+- THEN the sweep paints LIGHT (the scope-resolved effective canvas) and
+  the OS scheme never reaches the fill; the dark-stage converse on an
+  OS-light page paints dark
+
+#### Scenario: the nearest scope wins over the site root
+
+- GIVEN a dark stage mounted on a site whose root carries `dark` off (or
+  on)
+- WHEN the fill resolves
+- THEN the STAGE's scope answers (a `.dark` panel inside a light site
+  paints the dark sweep), `html.dark` being merely the root-most scope in
+  the same walk
+
+#### Scenario: no scope anywhere follows the user
+
+- GIVEN a host whose entire ancestor chain carries no theme scope
+- THEN the OS scheme answers (the honest fallback for unthemed pages) and
+  the fill derives from the measured page base
+
+#### Scenario: the fill follows a live scope flip
+
+- GIVEN a rendered shimmer under a scope that mutates — a class flip
+  (`jx-light` → `dark`) OR an attribute flip
+  (`data-theme="light"` → `data-theme="dark"`)
+- WHEN the observer fires on either mutation kind
+- THEN the fill re-resolves to the new context's canvas without a
+  re-mount, and the observer disconnects on destroy (both mutation
+  kinds probe-asserted)
+
+#### Scenario: rainbow rides the same channel
+
+- GIVEN rainbow's fill default shares `resolveFill`
+- THEN the same scope ladder governs it — one battery, both effects,
+  asserted by the same probes
+
+### Requirement: the timeline spine is drawn (Owner 2026-09-15)
+
+The timeline's spine SHALL be ONE whole-list SVG layer — measured from the
+live item geometry, mounted as a `grid-area: 1/1` SIBLING of the item
+list inside the one-cell grid host (the law's overlay dialect — never
+`position: absolute` for layout), `pointer-events: none`, painted UNDER
+the dots and content by source order (the zero-z dialect), the ladder
+rooted by `isolation: isolate` on the list root — never per-item
+background seams. The standing abspos exemptions RETIRE with it: the
+timeline beam (TRANSIENT INK) now lives inside the SVG layer, and the
+scroll-progress spine's absolute channel (CONTAINING-BLOCK NEEDS,
+2026-09-02) is replaced by the whole-list stroke draw. Items, content, titles, times, and dots stay DOM. A no-JS floor
+SHALL paint a simple CSS line per item before hydration (progressive
+enhancement); hydration upgrades to the measured spine. The `line(i)`
+per-item snippet seam RETIRES; the spine contract (a `spine` prop taking
+`'plain' | 'dashed' | 'beam'` presets, names preserved, or a custom
+snippet receiving the measured geometry) replaces it. Breaking, no compat.
+
+#### Scenario: connectors are continuous paths
+
+- GIVEN a multi-item timeline on any axis/direction/interlacing variant
+- WHEN the spine draws
+- THEN the connector runs item-center to item-center as ONE path per
+  run — no per-item seams, no dead windows at node edges, verified by
+  probe (path geometry) across the axis × direction × RTL matrix
+
+#### Scenario: the dash phase anchors to the node edge
+
+- GIVEN the dashed preset
+- THEN `stroke-dashoffset` phase-anchors the pattern so a dash STARTS at
+  the node's flow-end edge regardless of density scale (the
+  background-position phase law's SVG successor, probe-pinned)
+
+#### Scenario: the beam has width and travels the path
+
+- GIVEN the beam preset
+- THEN the light paints as a stroked gradient segment with visible
+  inline width and soft edges, animated along the path, frozen under
+  prefers-reduced-motion (a static lit segment, not a disappearance)
+
+#### Scenario: scroll-progress is a stroke draw
+
+- GIVEN `animation='scroll'` (the standing prop, unchanged)
+- THEN the progress spine draws as `stroke-dashoffset` along the measured
+  path in response to scroll position (the abspos/implicit-track
+  machinery retires)
+
+#### Scenario: the no-JS floor stands and upgrades
+
+- GIVEN a prerendered (pre-hydration) timeline
+- THEN every item shows the plain CSS line floor; after hydration the
+  measured SVG spine replaces it with no layout shift beyond the
+  spine's own width
+
+### Requirement: the scroll-area family — one hand-drawn law, a native sibling, one shared kit (Owner 2026-09-15)
+
+`scroll-area` SHALL hand-draw its scrollbar ALWAYS (the standing
+`scrollbar?: ScrollbarVariant` prop — `'native' | 'overlay'` at
+`scroll-area.svelte:45,54` — and its `ScrollbarVariant` type RETIRE;
+the new component has NO mode branch at all, breaking). A POINTER-TIER
+floor parallels the no-JS floor (Gate-2 r1 amendment, the
+implementation's honest shape): FINE pointers always draw; COARSE
+pointers (touch) keep the platform scrollbar — the native best
+practice for touch (momentum and edge behaviors; the hover-growth and
+drag-pin interaction model has no touch equivalent) — a declared
+CAPABILITY of the hand-drawn component, not a mode (no prop, no API
+surface; the tier follows `pointer: coarse` media state, prerender
+output keeps the platform bar exactly as the no-JS floor does). A
+separate `native-scroll-area` item
+SHALL ship the platform scrollbar under the scrollbar-token law with the
+native best practices as capability styles, and SHALL mount NO custom
+scrollbar ARIA — no drawn thumb exists, and the platform scrollbar IS the
+accessibility contract (a `role="scrollbar"` on a nonexistent thumb is a
+violation, not a feature). Both SHALL share the `scroll-area-kit` lib
+kernel (the control-chrome precedent), SPLIT BY CONCERN into THREE
+parts: a shared CORE (overflow verdict, thumb geometry math,
+theme-scope resolution — zero paint, zero ARIA of its own), a
+HAND-DRAWN INTERACTION ADAPTER (idle fade, hover growth, drag pinning,
+keyboard scrolling, the thumb's a11y contract) consumed ONLY by the
+hand-drawn component, and the NATIVE CAPABILITY STYLES (the packaged
+native best-practice styles) consumed ONLY by the native sibling.
+Behavior lives in the kit; paint lives in the consumer. `scroll-run`
+(the linear strip edge system) is a DIFFERENT shared system and is
+untouched.
+
+#### Scenario: the hand-drawn law owns the styled component
+
+- GIVEN a scroll-area on either axis, any theme
+- THEN the scrollbar is fully drawn: capsule thumb (full-radius), idle
+  fade (~700ms), hover growth + brightening, drag-pinned opacity,
+  keyboard affordances on region and thumb — restyled by tokens without
+  JS, in both light and dark scopes
+
+#### Scenario: coarse pointers keep the platform bar (the capability floor, Gate-2 r1)
+
+- GIVEN a scroll-area under a coarse pointer (touch emulation)
+- WHEN the component mounts
+- THEN the platform scrollbar serves the region and NO drawn chrome
+  mounts (the touch best practice — momentum and edge behaviors ride
+  the platform), while a fine pointer on the SAME component always
+  draws (probe-asserted both tiers, no prop involved)
+
+#### Scenario: auto-hide never hides the affordance from keyboard users
+
+- GIVEN a scroll-area in any of FOUR pinned states — the REGION holds
+  focus within (focus-within), the THUMB holds focus, the thumb is
+  being dragged, or the thumb/track is hovered
+- WHEN the idle fade's timer would fire
+- THEN the thumb pins visible — FOUR separately probe-asserted pins,
+  one per state (region focus-within, thumb focus, drag, hover; each
+  tested in isolation) — and while any pin holds, the thumb node stays
+  in the accessibility tree with its role intact and `aria-valuenow`
+  tracking position ("AT-engaged" is not a detectable platform state
+  and is deliberately NOT the contract)
+
+#### Scenario: the native sibling is capability styles
+
+- GIVEN a native-scroll-area
+- THEN the platform scrollbar renders under the site's scrollbar-token
+  law, with `scrollbar-gutter: stable`, theme-scope-aligned
+  `color-scheme`, `scrollbar-width` tiers, and `overscroll-behavior`
+  containment packaged as the component's declared capabilities — and
+  NO drawn thumb and NO custom scrollbar ARIA mount anywhere inside it
+
+#### Scenario: the kit is family-neutral and split by concern
+
+- GIVEN the kit's exported runtime
+- THEN the shared CORE (verdict/geometry/scope) mounts with zero paint
+  and zero ARIA of its own; the hand-drawn interaction adapter and the
+  native capability styles are SEPARATE exports, each consumed by
+  exactly its own component — a new consumer adopts the core with no
+  CSS of the kit's look and no ARIA it did not author, and
+  scroll-area and native-scroll-area share the core while touching
+  disjoint kit parts
+
+#### Scenario: the scrollbar mode prop is gone
+
+- GIVEN the breaking migration
+- THEN the acceptance is STATICALLY assertable, in three parts: (1) a
+  pinned Props assertion snapshots the component's exported prop list
+  and finds no `scrollbar` field and no mode-shaped field of any
+  name, and the `ScrollbarVariant` type is absent from the item's
+  exports; (2) a source scan finds no `'native'`/`'overlay'` consumer
+  site in the shipped surface (routes excluded per the glass-canary
+  precedent); (3) the canary's two-directional fixture plants a live
+  `scrollbar` prop and proves BOTH detectors redden — the snapshot
+  (a mode-shaped field would appear) and the scan (routes excluded,
+  the planted site is inside the scanned surface)
+
+### Requirement: floating surfaces speak spec-true position-area (Owner 2026-09-15)
+
+Every floating surface that places through CSS anchor positioning
+(`dropdown-menu`, `tooltip`, `float-button`, `menubar-panel` — the four
+recorded inverted sites, and any future anchored surface) SHALL map its
+side/align props to `position-area` values with the SPEC's semantics
+(the area names where the SURFACE wants to sit relative to its anchor),
+never the inverse. Each surface's placement matrix (side × align ×
+collision flip) SHALL be verified by probe + screenshot against the
+pre-sweep baseline.
+
+#### Scenario: the four recorded sites flip to spec semantics
+
+- GIVEN dropdown-menu, tooltip, float-button, and menubar-panel carry
+  inverted `{area}` mapping tables or literal area strings
+- WHEN the sweep lands
+- THEN every placement in each surface's matrix lands where the spec's
+  `position-area` grammar says (probe: computed anchor/area + screenshot
+  diff against the recorded wrong baseline)
+
+#### Scenario: collision flips stay in the spec grammar
+
+- GIVEN a placement that flips on collision
+- THEN the flipped area is still a spec-grammar area string derived
+  from the same mapping — no ad-hoc insets patching a wrong area
