@@ -47,6 +47,9 @@
   --popover-foreground: oklch(0 0 0);
   --primary: oklch(0.6489 0.237 var(--brand-hue));
   --primary-foreground: oklch(0 0 0);
+  /* text-role green: L0.55/C0.12 is the AA floor across the family hue
+     range (worst 4.54 at hue 165) — filled surfaces keep the brighter
+     primary; text on light backgrounds uses this (2026-09-15 ruling). */
   --primary-text: oklch(0.55 0.12 var(--brand-hue));
   --secondary: oklch(0.968 0.211 109.7692);
   --secondary-foreground: oklch(0 0 0);

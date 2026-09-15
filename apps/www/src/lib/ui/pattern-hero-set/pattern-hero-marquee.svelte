@@ -59,7 +59,7 @@
   class={`mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8 ${className}`}
 >
   <div class="min-w-0">
-    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary">{eyebrow}</p>
+    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary-text">{eyebrow}</p>
     {#if title}
       <h2
         data-jx-hero-marquee-title=""
@@ -99,7 +99,7 @@
           {#each items as token (token)}
             <li class="flex items-center gap-[var(--jx-hero-marquee-gap)]">
               <span class="whitespace-nowrap font-nav text-xs tracking-[0.14em] uppercase text-muted-foreground">{token}</span>
-              <span aria-hidden="true" class="text-primary text-xs">·</span>
+              <span aria-hidden="true" class="text-primary-text text-xs">·</span>
             </li>
           {/each}
         </ul>

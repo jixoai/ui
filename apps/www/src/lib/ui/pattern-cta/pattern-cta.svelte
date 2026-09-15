@@ -80,7 +80,7 @@
   aria-label="call to action"
 >
   <div class="min-w-0">
-    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary">$ npx jixoai-ui add …</p>
+    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary-text">$ npx jixoai-ui add …</p>
     <h2
       data-jx-cta-title=""
       class="mt-3 max-w-[24ch] text-[clamp(1.6rem,3.2vw,2.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"

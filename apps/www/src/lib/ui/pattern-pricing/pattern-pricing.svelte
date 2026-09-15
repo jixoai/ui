@@ -82,7 +82,7 @@
 </script>
 
 <section data-jx-pattern-pricing="" class={`jx-pattern-pricing w-full ${className}`}>
-  <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary">{eyebrow}</p>
+  <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary-text">{eyebrow}</p>
 
   <div class="mt-4">
     <Table {caption}>
