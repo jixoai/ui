@@ -1,18 +1,22 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
-/* jixoai scroll-area — D1-exempt residue (tw4, 2026-08-24). The
- * container, the orientation overflow laws and the thumb's static
- * paint/geometry live as token utilities in the markup; what remains
- * is the machinery utilities cannot express, on the UNLAYERED :where()
- * carve-out (it must override the component's own utility paint —
- * thumb liveness beats the opacity-0/pointer-events-none utilities;
- * the toggle/Part A precedent):
- *   - the native scrollbar law (stable gutters + the --jx-scroll-pad
- *     compensation recipe) on vertical-capable axes;
- *   - the overlay variant's native-bar hiding, incl. the webkit
- *     pseudo-element build;
- *   - thumb liveness, hover/active repaints, focus-visible,
- *     reduced-motion. */
+/* jixoai scroll-area — the HAND-DRAWN chrome's paint (rework,
+ * 2026-09-15: always hand-drawn — the dual-mode variant era retired
+ * with its scrollbar prop). Behavior lives in the kit
+ * (scroll-area-kit/hand-drawn.svelte — idle fade, pins, drag,
+ * keyboard, the thumb's a11y contract); the LOOK lives here, on the
+ * scrollbar TOKEN law (currentColor family — themes and dark stages
+ * restyle without JS):
+ *   - capsule thumb (full radius), logical geometry per axis, RTL
+ *     mirrors through inset-inline;
+ *   - hover widens + brightens (the token family's hover step);
+ *   - drag pins the active tone (the family's top step);
+ *   - the lanes fade with the idle timer (data-thumb-live — opacity
+ *     only: a pinned thumb NEVER leaves the accessibility tree);
+ *   - the platform bar hides only while the drawn chrome owns the
+ *     region (data-chrome=on; the no-JS/prerender floor keeps it);
+ *   - keyboard focus rings on the region AND the thumb;
+ *   - reduced motion: no transitions, statically visible chrome. */
 
 /* the scrollport's keyboard focus: the inset ring law */
 :where(.jx-scroll-viewport:focus-visible) {
@@ -20,42 +24,100 @@
   outline-offset: -1px;
 }
 
-/* native variant = the theme scrollbar law, vertical-capable axes only
-   (a horizontal-only scrollport can never grow a vertical scrollbar —
-   stable would reserve dead space forever, the law's carve-out) */
-:where(.jx-scroll-area:not([data-overlay='on'])[data-orientation='vertical'] .jx-scroll-viewport),
-:where(.jx-scroll-area:not([data-overlay='on'])[data-orientation='both'] .jx-scroll-viewport) {
-  scrollbar-gutter: stable both-edges;
-  padding-inline: max(var(--jx-scroll-pad, 0px) - var(--jx-scrollbar-thin, 0px), 0px);
-}
-
-/* overlay variant live: hide every native scrollbar (standard property
-   + the webkit pseudos for engines without scrollbar-width — scoped to
-   this component only, never global) */
-:where(.jx-scroll-area[data-overlay='on'] .jx-scroll-viewport) {
+/* the platform bar retires only while the drawn chrome is live —
+   prerendered/no-JS output keeps the platform bar (the floor) */
+:where(.jx-scroll-area[data-chrome='on'] .jx-scroll-viewport) {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-:where(.jx-scroll-area[data-overlay='on'] .jx-scroll-viewport)::-webkit-scrollbar {
+:where(.jx-scroll-area[data-chrome='on'] .jx-scroll-viewport)::-webkit-scrollbar {
   display: none;
   height: 0;
   width: 0;
 }
 
-/* the virtual thumb's liveness: visible state comes from data-thumb-live */
-:where(.jx-scroll-area[data-thumb-live='on'] .jx-scroll-thumb) {
+/* the lanes: hover-reachable only while live (a faded lane must never
+   eat content clicks); the vertical lane is a narrow column at the
+   inline-end edge, the horizontal lane a wide band at the block-end
+   edge — cross-axis size 12px, main axis stretches */
+:where(.jx-scroll-track) {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 180ms ease-out;
+  z-index: 1;
+}
+:where(.jx-scroll-track.y) {
+  inset-block: 2px;
+  inset-inline-end: 2px;
+  inline-size: var(--jx-scroll-track-w, 12px);
+}
+:where(.jx-scroll-track.x) {
+  block-size: var(--jx-scroll-track-w, 12px);
+  inset-block-end: 2px;
+  inset-inline: 2px;
+}
+:where(.jx-scroll-area[data-thumb-live='on'] .jx-scroll-track) {
   opacity: 1;
   pointer-events: auto;
 }
-:where(.jx-scroll-thumb:hover) {
-  background: var(--scrollbar-thumb-hover);
+
+/* the capsule thumb: full radius, the token law's currentColor steps.
+   TRANSIENT INK (the law's category exit): the hover-revealed thumb
+   is effect ink over the scrollport's content — the fade is opacity
+   only, and the min sizes keep the affordance graspable at any ratio */
+:where(.jx-scroll-thumb) {
+  background: var(--scrollbar-thumb);
+  border-radius: calc(infinity * 1px);
+  opacity: 1;
+  position: absolute;
 }
-:where(.jx-scroll-thumb:active) {
+:where(.jx-scroll-thumb.y) {
+  inset-inline: 2px;
+  min-block-size: 24px;
+  transition: inset-inline 160ms ease-out, background-color 160ms ease-out;
+}
+:where(.jx-scroll-thumb.x) {
+  inset-block: 2px;
+  min-inline-size: 24px;
+  transition: inset-block 160ms ease-out, background-color 160ms ease-out;
+}
+/* hover widens + brightens: the cross-axis inset narrows (the growth
+   stays centered in the lane), the tone steps up the token family */
+:where(.jx-scroll-thumb.y:hover) {
+  background: var(--scrollbar-thumb-hover);
+  inset-inline: 1px;
+}
+:where(.jx-scroll-thumb.x:hover) {
+  background: var(--scrollbar-thumb-hover);
+  inset-block: 1px;
+}
+/* the drag pin paints the family's top step (the adapter keeps the
+   lane live through the whole gesture) */
+:where(.jx-scroll-area[data-pin-drag='on'] .jx-scroll-thumb) {
   background: var(--scrollbar-thumb-active);
+}
+/* the thumb's keyboard focus ring (the adapter made it focusable —
+   role=scrollbar, keyboard-draggable) */
+:where(.jx-scroll-thumb:focus-visible) {
+  outline: 1px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* the content ring padding: plain inline padding now (no gutter to
+   compensate — the platform bar is hidden while chrome is live) */
+:where(.jx-scroll-area[data-chrome='on'] .jx-scroll-viewport > [data-jx-scroll-content]) {
+  padding-inline: var(--jx-scroll-pad, 0px);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :where(.jx-scroll-track),
   :where(.jx-scroll-thumb) {
     transition: none;
+  }
+  /* statically visible — the adapter never schedules the fade under
+     reduced motion; the sheet agrees even pre-hydration */
+  :where(.jx-scroll-track) {
+    opacity: 1;
   }
 }

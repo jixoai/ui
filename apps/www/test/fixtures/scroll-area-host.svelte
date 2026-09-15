@@ -1,7 +1,8 @@
 <!--
   Test host for the scroll-area family specs: real children snippet, props
   passthrough, and the instance surface exposed through the host's own
-  exports (rendered.component.getArea()).
+  exports (rendered.component.getArea()). Reworked 2026-09-15: the
+  scrollbar variant prop retired with the dual-mode era.
 -->
 <script lang="ts">
   import ScrollArea from '$lib/ui/scroll-area/scroll-area.svelte';
@@ -9,13 +10,11 @@
 
   let {
     orientation = 'vertical',
-    scrollbar = 'native',
     label = 'test area',
     pad,
     onscroll,
   }: {
     orientation?: 'vertical' | 'horizontal' | 'both';
-    scrollbar?: 'native' | 'overlay';
     label?: string;
     pad?: string;
     onscroll?: (event: ViewportScrollEvent) => void;
@@ -31,6 +30,6 @@
   }
 </script>
 
-<ScrollArea bind:this={area} {orientation} {scrollbar} {label} {pad} {onscroll} data-testid="passthrough">
+<ScrollArea bind:this={area} {orientation} {label} {pad} {onscroll} data-testid="passthrough">
   <p data-content>content</p>
 </ScrollArea>
