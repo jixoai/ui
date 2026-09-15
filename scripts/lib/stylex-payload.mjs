@@ -23,7 +23,8 @@
 //      (__stylexCollectCss — stable within the pin). The babel pins
 //      mirror packages/vite-plugin/src/stylex/vite-plugin.ts EXACTLY
 //      (dev:false, runtimeInjection:false, debug:true,
-//      propertyValidationMode:'throw', useCSSLayers, commonJS
+//      propertyValidationMode:'throw', useCSSLayers with the
+//      components.stylex nesting + before/after anchors, commonJS
 //      moduleResolution rooted at the REPO root): same pins, same
 //      serializer, same bytes as the real www build's stylex lane.
 //      Per-item isolation: the unplugin's cross-instance shared store
@@ -36,8 +37,10 @@
 //        debug markers dropped), defineVars tables stay verbatim
 //        (their __varGroupHash__ value IS a class constant the
 //        reverse-lookup law covers);
-//      - css: the F9 canonical layer statement at BYTE ZERO + the
-//        engine-collected rules for the item's .stylex.ts closure.
+//      - css: the F9 canonical layer statement at BYTE ZERO (dynamic
+//        over the css's highest priority tier — layer-law.ts, the
+//        Gate-2 P1-1 law) + the engine-collected rules for the item's
+//        .stylex.ts closure.
 //   4. THE buildId — the spec formula, canonical serialization:
 //      UTF-8; fields joined by U+000A WITH a trailing separator;
 //      paths POSIX repo-root-relative; items sorted by path BYTES;
@@ -86,8 +89,8 @@ const unpluginRoot = pluginRequire.resolve('@stylexjs/unplugin/vite').match(/^(.
 if (!unpluginRoot) throw new Error('stylex-payload: cannot locate the @stylexjs/unplugin package root');
 export const ENGINE_VERSION = `@stylexjs/unplugin@${JSON.parse(readFileSync(join(unpluginRoot, 'package.json'), 'utf8')).version}`;
 
-/** the F9 canonical layer statement — imported from the BUILT plugin dist (single source, never re-typed) */
-const { STYLEX_LAYER_STATEMENT } = await import(pathToFileURL(join(vitePluginDir, 'dist/stylex/layer-law.js')).href);
+/** the F9 canonical layer law — imported from the BUILT plugin dist (single source, never re-typed) */
+const { canonicalLayerStatement, maxStylexPriority, STYLEX_LAYERS_AFTER, STYLEX_LAYERS_BEFORE, STYLEX_LAYER_PREFIX } = await import(pathToFileURL(join(vitePluginDir, 'dist/stylex/layer-law.js')).href);
 
 // ── the item set ─────────────────────────────────────────────────────
 
@@ -195,7 +198,7 @@ export async function compileItem(root, sources, sourceOverrides = new Map()) {
     runtimeInjection: false,
     debug: true,
     propertyValidationMode: 'throw',
-    useCSSLayers: { prefix: 'stylex', after: ['utilities'] },
+    useCSSLayers: { before: [...STYLEX_LAYERS_BEFORE], prefix: STYLEX_LAYER_PREFIX, after: [...STYLEX_LAYERS_AFTER] },
     unstable_moduleResolution: { type: 'commonJS', rootDir: root },
   });
   // per-item isolation: the unplugin's cross-instance store accumulates
@@ -329,7 +332,9 @@ export function artifactBytes(itemKey, buildId, { classModule, css }) {
     ...stampLines(buildId).map((l) => `// ${l}`),
   ].join('\n');
   const classModuleBytes = `${header}\n${classModule}\n`;
-  // the F9 statement at BYTE ZERO (the canonical layer law); the stamp rides a trailing comment
-  const cssBytes = `${STYLEX_LAYER_STATEMENT}\n${css.replace(/\s*$/, '\n')}/* ${stampLines(buildId).join(' · ')} */\n`;
+  // the F9 statement at BYTE ZERO (the canonical layer law, dynamic
+  // over the css's highest tier — utilities constantly last); the
+  // stamp rides a trailing comment
+  const cssBytes = `${canonicalLayerStatement(maxStylexPriority(css))}\n${css.replace(/\s*$/, '\n')}/* ${stampLines(buildId).join(' · ')} */\n`;
   return { classModule: classModuleBytes, css: cssBytes };
 }

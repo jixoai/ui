@@ -1,5 +1,7 @@
-@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-@layer stylex.priority1 {
+@layer properties, theme, base, components, components.stylex.priority1, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
   :root, .x8oqhs8 {
     --jx-brand-hue: var(--brand-hue);
     --jx-background: var(--background);

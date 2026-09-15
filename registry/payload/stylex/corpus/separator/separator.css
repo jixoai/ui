@@ -1,5 +1,7 @@
-@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-@layer stylex.priority1 {
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
   :root, .xbpgcew {
     --jx-brand-hue: var(--brand-hue);
     --jx-background: var(--background);
@@ -64,7 +66,7 @@
   }
 }
 
-@layer stylex.priority2 {
+@layer components.stylex.priority2 {
   .xng3xce {
     border-style: none;
   }
@@ -78,7 +80,7 @@
   }
 }
 
-@layer stylex.priority3 {
+@layer components.stylex.priority3 {
   .xbzouxq {
     -webkit-backdrop-filter: contrast(.5);
   }
@@ -229,7 +231,7 @@
   }
 }
 
-@layer stylex.priority4 {
+@layer components.stylex.priority4 {
   .xjm9jq1 {
     height: 1px;
   }

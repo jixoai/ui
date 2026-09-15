@@ -1,5 +1,7 @@
-@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-@layer stylex.priority1 {
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, components.stylex.priority5, components.stylex.priority6, components.stylex.priority7, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
   :root, .xbpgcew {
     --jx-brand-hue: var(--brand-hue);
     --jx-background: var(--background);
@@ -64,7 +66,7 @@
   }
 }
 
-@layer stylex.priority2 {
+@layer components.stylex.priority2 {
   .xkdpibf {
     margin: -1px;
   }
@@ -78,7 +80,7 @@
   }
 }
 
-@layer stylex.priority3 {
+@layer components.stylex.priority3 {
   .xng3xce {
     border-style: none;
   }
@@ -124,7 +126,7 @@
   }
 }
 
-@layer stylex.priority4 {
+@layer components.stylex.priority4 {
   .x1pha0wt {
     align-items: baseline;
   }
@@ -226,7 +228,7 @@
   }
 }
 
-@layer stylex.priority5 {
+@layer components.stylex.priority5 {
   .x16wp3ig {
     height: .25rem;
   }
@@ -268,7 +270,7 @@
   }
 }
 
-@layer stylex.priority6 {
+@layer components.stylex.priority6 {
   .xm4hkmz:after {
     background-color: var(--jx-border);
   }
@@ -286,7 +288,7 @@
   }
 }
 
-@layer stylex.priority7 {
+@layer components.stylex.priority7 {
   .x1xrz1ek:after {
     bottom: 0;
   }

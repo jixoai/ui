@@ -82,10 +82,14 @@ describe('the stylex bridge law (phase 0 P0.2)', () => {
     expect(code).not.toContain('node_modules/@stylexjs');
   });
 
-  test('the F9 canonical statement ships verbatim in dist/stylex/layer-law.js', () => {
+  test('the F9 canonical layer law ships in dist/stylex/layer-law.js (dynamic tiers, components nesting)', () => {
     const code = readFileSync(dist('stylex', 'layer-law.js'), 'utf8');
-    expect(code).toContain(
-      '@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;',
-    );
+    // the nesting prefix + the standing frame (quote-agnostic — tsdown
+    // emits double quotes) + the parser's exact statement shape
+    expect(code).toMatch(/["']components\.stylex["']/);
+    expect(code).toMatch(/["']properties["'],\s*["']theme["'],\s*["']base["'],\s*["']components["']/);
+    expect(code).toMatch(/["']utilities["']/);
+    expect(code).toContain('@layer properties, theme, base, components,');
+    expect(code).toContain('utilities;\\n');
   });
 });

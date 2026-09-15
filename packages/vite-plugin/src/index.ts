@@ -91,10 +91,20 @@ import { resolveGhosttyWasm, type ResolvedGhosttyWasm, type ResolveGhosttyWasmOp
 // chunk stays svelte-free either way (F1/F7).
 export { canvasPlugin } from './canvas/vite-plugin.js';
 
-// the F9 canonical layer statement — ONE source (layer-law.ts), part
-// of the public surface so the payload tooling (phase 0 P0.4) and the
-// verification probes read the same bytes the plugin bakes
-export { STYLEX_LAYER_STATEMENT } from './stylex/layer-law.js';
+// the F9 canonical layer law — ONE source (layer-law.ts), part of the
+// public surface so the payload tooling (phase 0 P0.4) and the
+// verification probes read the same bytes the plugin bakes (Gate-2
+// P1-1: the statement is dynamic over the css's highest priority tier,
+// and the tiers nest under `components` — see layer-law.ts)
+export {
+  canonicalLayerStatement,
+  maxStylexPriority,
+  parseCanonicalStatement,
+  STYLEX_LAYERS_AFTER,
+  STYLEX_LAYERS_BEFORE,
+  STYLEX_LAYER_PREFIX,
+} from './stylex/layer-law.js';
+export type { CanonicalStatement } from './stylex/layer-law.js';
 
 export { readPin, resolveGhosttyWasm };
 export type { ResolvedGhosttyWasm, ResolveGhosttyWasmOptions };

@@ -1,7 +1,7 @@
-@layer properties, theme, base, components, stylex.priority1, stylex.priority2, stylex.priority3, utilities;
-@layer stylex.priority1;
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, components.stylex.priority5, components.stylex.priority6, components.stylex.priority7, utilities;
+@layer properties, theme, base, components, components.stylex.priority1;
 
-@layer stylex.priority2 {
+@layer components.stylex.priority2 {
   .xujm0qo {
     border-color: color-mix(in oklab,var(--jx-tonal, var(--jx-primary)) 45%,transparent);
   }
@@ -67,7 +67,7 @@
   }
 }
 
-@layer stylex.priority3 {
+@layer components.stylex.priority3 {
   .x6s0dn4 {
     align-items: center;
   }
@@ -281,7 +281,7 @@
   }
 }
 
-@layer stylex.priority4 {
+@layer components.stylex.priority4 {
   .x1bhj078 {
     min-height: var(--jx-hit);
   }
@@ -295,13 +295,13 @@
   }
 }
 
-@layer stylex.priority5 {
+@layer components.stylex.priority5 {
   .x117h8l:active:before {
     inset: -1px;
   }
 }
 
-@layer stylex.priority6 {
+@layer components.stylex.priority6 {
   .x198b5v:active:before {
     border-color: #0000;
   }
@@ -319,7 +319,7 @@
   }
 }
 
-@layer stylex.priority7 {
+@layer components.stylex.priority7 {
   .x3t03n0:active:before {
     -webkit-mask-composite: xor;
   }
