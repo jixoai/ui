@@ -6,7 +6,8 @@
  *                 comparison (duplicates/gaps cannot corrupt), the
  *                 done-marker button law, bind:current, connector css
  *   timeline    — Dice anatomy parts, pending as attribute paint,
- *                 free-children body, spine/connector css
+ *                 free-children body, the W3 drawn spine (one-cell
+ *                 grid host + measured svg layer + the css floor)
  *   descriptions— term prop → dt, children → dd, em-dash fallback,
  *                 columns/bordered HOW-props via context
  *
@@ -14,11 +15,12 @@
  * GUARD: the vitest pipeline compiles client-side (browser condition
  * in vitest.config), so svelte/server cannot execute the components —
  * instead these suites pin that NO hydration-only lifecycle path
- * exists in the family sources (onMount/onDestroy/$effect/
- * addEventListener) while every semantic attribute is asserted on the
- * rendered DOM. CSS whose selectors jsdom cannot apply (self-hides,
- * attribute paint) is pinned as a source guard, per the list-item.spec
- * convention.
+ * exists in the family sources (timeline's W3 exception: measurement
+ * is post-hydration by contract, its floor-pinned replacement lives
+ * in the timeline blocks below) while every semantic attribute is
+ * asserted on the rendered DOM. CSS whose selectors jsdom cannot
+ * apply (self-hides, attribute paint) is pinned as a source guard,
+ * per the list-item.spec convention.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -417,9 +419,11 @@ describe('Steps family — SSR-honest first paint', () => {
 // Timeline — Dice anatomy, pending attribute paint, free-children body
 // ---------------------------------------------------------------------------
 describe('Timeline family — composed anatomy', () => {
-  it('ol of items carrying dot, the authored-free line, content, time and title', () => {
+  it('ol of items carrying dot, the floor line, content, time and title', () => {
     const { container } = render(TimelineHost);
-    const ol = container.querySelector('ol[data-jx-timeline]')!;
+    const host = container.querySelector('[data-jx-tl-host][data-jx-timeline]')!;
+    const ol = host.querySelector(':scope > [data-jx-tl-list]')!;
+    expect(ol.tagName).toBe('OL');
     expect(ol.getAttribute('role')).toBe('list');
     const items = [...ol.querySelectorAll(':scope > [data-jx-tl-item]')];
     expect(items.length).toBe(2);
@@ -454,12 +458,12 @@ describe('Timeline family — composed anatomy', () => {
   });
 });
 
-describe('Timeline family — the grid engine (css law)', () => {
-  it('timeline.css carries the subgrid engine, the line essence and the pending pair', () => {
-    // the 5-lane root + the item subgrid
+describe('Timeline family — the drawn-spine engine (W3, 2026-09-15)', () => {
+  it('timeline.css carries the subgrid engine, the floor-line essence and the pending pair', () => {
+    // the 5-lane list + the item subgrid
     expect(timelineCss).toContain("[data-axis='vertical']");
     expect(timelineCss).toContain('grid-template-columns: subgrid');
-    // the line: the dot's two block neighbors + the center, bridged
+    // the floor line: the dot's two block neighbors + the center, bridged
     expect(timelineCss).toContain('grid-row: bs-start / be-end');
     expect(timelineCss).toContain('margin-block-end: calc(-1 * var(--jx-stack))');
     // the 8 logical-direction slot cells
@@ -473,7 +477,25 @@ describe('Timeline family — the grid engine (css law)', () => {
     expect(timelineCss).not.toMatch(/\.jx-tl/);
   });
 
-  it('the line is authored-free — auto-rendered on every item including the last', () => {
+  it('the one-cell grid host: spine layer and list stack by grid-area, never abspos', () => {
+    // the host is a grid; the spine svg and the list share ONE cell
+    expect(timelineCss).toMatch(/:where\(\[data-jx-tl-host\]\)\s*\{[^}]*display: grid/);
+    expect(timelineCss).toMatch(/grid-area: 1 \/ 1/);
+    expect(timelineCss).toContain('[data-jx-tl-spine]');
+    expect(timelineCss).toContain('pointer-events: none');
+    // the ladder roots at the host AND the list isolates its own
+    // (the law's timeline ruling: the TRUE common parent)
+    expect(timelineCss).toMatch(/:where\(\[data-jx-tl-host\]\)\s*\{[^}]*isolation: isolate/);
+    expect(timelineCss).toMatch(/:where\(\[data-jx-tl-list\]\)\s*\{[^}]*isolation: isolate/);
+    // ZERO abspos: the two standing exemptions RETIRED into the svg layer
+    expect(timelineCss).not.toMatch(/position:\s*(absolute|relative|sticky)/);
+    // the retired machinery is gone: no beam pseudo, no scale-draw
+    // keyframes, no progress span channel
+    expect(timelineCss).not.toMatch(/jx-tl-beam-v|jx-tl-beam-h|jx-tl-grow-y|jx-tl-grow-x/);
+    expect(timelineCss).not.toContain('::after');
+  });
+
+  it('the floor line is authored-free on every item — the no-JS paint', () => {
     const { container } = render(TimelineHost);
     expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(2);
   });
@@ -485,41 +507,46 @@ describe('Timeline family — the grid engine (css law)', () => {
     expect(bs!.textContent).toBe('07:02');
   });
 
-  // RTL (Codex P2, 2026-09-02): the horizontal travelers — the scroll
-  // spine's scaleX origin and the beam's travel direction — are
-  // physical; without :dir(rtl) branches both run backwards against
-  // the reading direction. The toast countdown/sweep house pattern.
-  it('the horizontal progress spine and beam carry :dir(rtl) mirror branches', () => {
-    const spineRtl = timelineCss.match(
-      /:where\(\[data-axis='horizontal'\]\[data-anim='scroll'\] > \[data-jx-tl-progress\]\):dir\(rtl\)\s*\{[^}]*\}/,
-    )?.[0] ?? '';
-    expect(spineRtl).not.toBe('');
-    expect(spineRtl).toContain('transform-origin: right');
-
-    // the beam's :dir(rtl) rides OUTSIDE the :where (specificity: the
-    // base beam rule is un-:where'd — an inside-:where mirror loses
-    // the cascade to the shorthand's animation-direction, re-attack P2)
-    const beamRtl = timelineCss.match(
-      /:where\(\[data-jx-tl-line\]\[data-line='beam'\]\):dir\(rtl\)::after\s*\{[^}]*\}/,
-    )?.[0] ?? '';
-    expect(beamRtl).not.toBe('');
-    expect(beamRtl).toContain('animation-direction: reverse');
-    // the physical LTR originals stay the defaults
-    expect(timelineCss).toContain('transform-origin: left');
-    expect(timelineCss).toMatch(/@keyframes jx-tl-beam-h\s*\{[^@]*left: -40%/s);
-    expect(timelineCss).toMatch(/@keyframes jx-tl-beam-h\s*\{[^@]*left: 100%/s);
+  it('the floor/drawn switch retires the per-item line under data-jx-spine=drawn (child-chain scoped)', () => {
+    // the css hides floor lines ONLY through the child chain — a nested
+    // timeline's floor is its own concern
+    expect(timelineCss).toMatch(
+      /:where\(\[data-jx-spine='drawn'\] > \[data-jx-tl-list\] > \[data-jx-tl-item\]\) > :where\(\[data-jx-tl-line\]\)/,
+    );
   });
 });
 
-describe('Timeline family — SSR-honest first paint', () => {
-  it('no hydration-only lifecycle path exists in the family sources', () => {
-    const sources = familySources('timeline');
-    for (const pattern of HYDRATION_ONLY) expect(sources).not.toMatch(pattern);
+describe('Timeline family — the floor posture (W3 progressive enhancement)', () => {
+  // The W3 rework (2026-09-15) retired the family's zero-lifecycle law
+  // for the SPINE only: measurement is post-hydration by contract. The
+  // floor law that replaces it: no onMount/onDestroy/addEventListener
+  // anywhere, the $effect confined to timeline.svelte's spine mount,
+  // and the SSR paint complete (floor lines, anatomy, attributes).
+  it('lifecycle is confined to the spine mount ($effect only, in the root)', () => {
+    const root = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline.svelte'), 'utf8');
+    const item = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline-item.svelte'), 'utf8');
+    for (const pattern of [/onMount\s*\(/, /onDestroy\s*\(/, /addEventListener\s*\(/]) {
+      expect(root).not.toMatch(pattern);
+      expect(item).not.toMatch(pattern);
+    }
+    expect(root).toMatch(/\$effect\s*\(/);
+    expect(item).not.toMatch(/\$effect\s*\(/);
+  });
+
+  it('the measurement engine degrades to the floor (no ResizeObserver, degenerate boxes)', () => {
+    // jsdom: zero boxes + no ResizeObserver — the render must not throw,
+    // the floor stays, and the spine never flips to drawn
+    const { container } = render(TimelineHost);
+    const host = container.querySelector('[data-jx-tl-host]')!;
+    expect(host.getAttribute('data-jx-spine')).toBe('floor');
+    expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(2);
+    expect(container.querySelector('[data-jx-tl-spine] > path')).toBeNull();
   });
 
   it('the first render carries the full anatomy + pending attribute', () => {
     const { container } = render(TimelineHost, { props: { pending: true } });
-    const ol = container.querySelector('ol[data-jx-timeline]')!;
+    const host = container.querySelector('[data-jx-tl-host][data-jx-timeline]')!;
+    const ol = host.querySelector(':scope > [data-jx-tl-list]')!;
     expect(ol.getAttribute('role')).toBe('list');
     const items = [...ol.querySelectorAll(':scope > [data-jx-tl-item]')];
     expect(items.length).toBe(2);
@@ -531,117 +558,94 @@ describe('Timeline family — SSR-honest first paint', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Timeline — the 2026-09-02 fix-wave laws: the scroll spine (C-1), the
-// chrome span vs of-type selectors (C-4), nested-family scoping (C-15),
-// the dashed phase anchor (V2-5), the line seam contract (C-5/C-10)
+// Timeline — the drawn-spine laws (W3, 2026-09-15): the stroke-draw
+// progress (C-1's abspos channel retired), the of-type end caps (C-4),
+// nested-family child-chain scoping (C-15), the dash phase anchor
+// (V2-5's SVG successor), the spine seam
 // ---------------------------------------------------------------------------
-describe('Timeline family — the scroll spine and chrome laws (2026-09-02)', () => {
-  it("anim='scroll' mounts the spine as the ol's FIRST child — the li-scoped of-type selectors must survive it", () => {
+describe('Timeline family — the scroll-progress stroke draw (W3)', () => {
+  it("anim='scroll' paints data-anim on the host; the progress stroke is a measured svg path, not the ol's chrome span", () => {
     const { container } = render(TimelineHost, { props: { animation: 'scroll' } });
-    const ol = container.querySelector('ol[data-jx-timeline]')!;
-    expect(ol.getAttribute('data-anim')).toBe('scroll');
-    const spine = ol.querySelector(':scope > [data-jx-tl-progress]')!;
-    expect(spine).toBeTruthy();
-    expect(spine.getAttribute('aria-hidden')).toBe('true');
-    // the chrome span precedes the items — :first-child would hit NOTHING,
-    // :nth-child would flip the interlaced phase (the C-4 defect)
-    const firstElement = ol.firstElementChild!;
-    expect(firstElement).toBe(spine);
-    const items = [...ol.querySelectorAll(':scope > [data-jx-tl-item]')];
-    expect(items.length).toBe(2);
-    expect(items.map((li) => li.tagName)).toEqual(['LI', 'LI']);
-    // no spine outside anim='scroll'
-    const plain = render(TimelineHost).container;
-    expect(plain.querySelector('[data-jx-tl-progress]')).toBeNull();
+    const host = container.querySelector('[data-jx-tl-host][data-jx-timeline]')!;
+    expect(host.getAttribute('data-anim')).toBe('scroll');
+    // the ol carries no chrome span anymore — items only
+    const ol = host.querySelector(':scope > [data-jx-tl-list]')!;
+    expect([...ol.children].map((li) => li.tagName)).toEqual(['LI', 'LI']);
+    // pre-measurement (jsdom degenerate) the progress path never mounts
+    expect(container.querySelector('[data-jx-tl-progress]')).toBeNull();
   });
 
-  it("the spine never spans implicit-only tracks (C-1): the flow axis has no explicit rows, so the spine rides the absolute-positioning channel with a deliberate long span instead", () => {
-    // the root becomes the containing-block anchor exactly when the spine runs
+  it('the progress spine is a stroke-dashoffset draw on the measured run path (the abspos/implicit-track machinery retired)', () => {
+    // the draw-on keyframes ride the measured run length var
     expect(timelineCss).toMatch(
-      /\[data-jx-timeline\]\[data-anim='scroll'\]\) \{\s*\r?\n\s*position: relative/,
+      /@keyframes jx-tl-progress-draw\s*\{[^@]*stroke-dashoffset: var\(--jx-tl-run\)/s,
     );
-    // the spine is out of flow (the shared rule); the axis rules give it a
-    // containing block that covers every item-born track — `1 / -1` resolved
-    // against the empty explicit grid and collapsed to 0×0 (Chromium-probed;
-    // see .agents/scripts/probe-c1-spine.mjs for the before/after geometry)
-    const sharedSpine = timelineCss.match(
-      /:where\(\[data-anim='scroll'\] > \[data-jx-tl-progress\]\) \{([^}]*)\}/,
-    )!;
-    expect(sharedSpine).toBeTruthy();
-    expect(sharedSpine[1]).toContain('position: absolute');
-    const vSpine = timelineCss.match(
-      /:where\(\[data-axis='vertical'\]\[data-anim='scroll'\] > \[data-jx-tl-progress\]\) \{([^}]*)\}/,
-    )!;
-    expect(vSpine).toBeTruthy();
-    expect(vSpine[1]).toContain('grid-column: dot'); // cross axis: the dot lane
-    expect(vSpine[1]).toContain('grid-row: 1 / span 10000'); // flow axis: every item-born row
-    expect(vSpine[1]).toContain('inset-block: 0');
-    expect(vSpine[1]).not.toContain('1 / -1'); // the zero-size collapse is gone
-    const hSpine = timelineCss.match(
-      /:where\(\[data-axis='horizontal'\]\[data-anim='scroll'\] > \[data-jx-tl-progress\]\) \{([^}]*)\}/,
-    )!;
-    expect(hSpine[1]).toContain('grid-row: dot');
-    expect(hSpine[1]).toContain('grid-column: 1 / span 10000'); // overflowed item columns included
-    expect(hSpine[1]).toContain('inset-inline: 0');
-    expect(hSpine[1]).not.toContain('1 / -1');
+    // @supports-gated on the scroll() timeline, axis-keyed
+    expect(timelineCss).toMatch(/animation-timeline: scroll\(nearest block\)/);
+    expect(timelineCss).toMatch(/animation-timeline: scroll\(nearest inline\)/);
+    // the retired channel is gone: no absolute positioning, no long spans
+    expect(timelineCss).not.toContain('span 10000');
+    expect(timelineCss).not.toMatch(/position:\s*absolute/);
   });
 
-  it('the engine selectors are direct-child scoped (C-15): a nested timeline of another axis cannot be painted by the outer engine', () => {
-    // every axis/direction engine selector hops ol > li (and li > part)
-    expect(timelineCss).toMatch(/\[data-jx-timeline\]\[data-axis='vertical'\] > \[data-jx-tl-item\]/);
-    expect(timelineCss).toMatch(/\[data-jx-timeline\]\[data-axis='horizontal'\] > \[data-jx-tl-item\]/);
+  it('the engine selectors are child-chain scoped through the list (C-15): a nested timeline of another axis cannot be painted by the outer engine', () => {
+    // every axis/direction engine selector hops host > list > item
     expect(timelineCss).toMatch(
-      /\[data-jx-timeline\]\[data-direction='interlaced'\]\[data-axis='vertical'\] > \[data-jx-tl-item\]:nth-of-type\(odd\)\) > \[data-jx-tl-content\]/,
+      /\[data-jx-timeline\]\[data-axis='vertical'\] > \[data-jx-tl-list\] > \[data-jx-tl-item\]/,
+    );
+    expect(timelineCss).toMatch(
+      /\[data-jx-timeline\]\[data-axis='horizontal'\] > \[data-jx-tl-list\] > \[data-jx-tl-item\]/,
+    );
+    expect(timelineCss).toMatch(
+      /\[data-jx-timeline\]\[data-direction='interlaced'\]\[data-axis='vertical'\] > \[data-jx-tl-list\] > \[data-jx-tl-item\]:nth-of-type\(odd\)\) > \[data-jx-tl-content\]/,
     );
     // no bare descendant axis hop survives anywhere in the sheet
     expect(timelineCss).not.toMatch(/\[data-axis='[a-z]+'\] \[data-jx-tl-/);
     expect(timelineCss).not.toMatch(/\[data-direction='[a-z]+'\] \[data-jx-tl-/);
   });
 
-  it('end-caps and interlaced phases count li TYPES, not children (C-4) — the chrome span never shifts them', () => {
+  it('end-caps and interlaced phases count li TYPES, not children (C-4)', () => {
     expect(timelineCss).toMatch(/\[data-jx-tl-item\]:first-of-type\) > \[data-jx-tl-line\]/);
     expect(timelineCss).toMatch(/\[data-jx-tl-item\]:last-of-type\) > \[data-jx-tl-line\]/);
     expect(timelineCss).not.toContain(':first-child');
     expect(timelineCss).not.toContain(':nth-child(');
   });
 
-  it('the dashed preset phase-anchors its chain to the dot edge (V2-5)', () => {
-    const vDashed = timelineCss.match(
-      /:where\(\[data-jx-timeline\]\[data-axis='vertical'\] > \[data-jx-tl-item\]\) > \[data-jx-tl-line\]\[data-line='dashed'\] \{([^}]*)\}/,
-    )!;
-    expect(vDashed[1]).toContain('repeating-linear-gradient(180deg, var(--border) 0 4px, transparent 4px 8px)');
-    // the tiling origin rides --jx-icon: a dash STARTS at the dot's flow-end
-    // edge at every density (default icon 20px ≡ 4 mod 8 left a dead window)
-    expect(vDashed[1]).toContain('background-position: 0 var(--jx-icon)');
-    const hDashed = timelineCss.match(
-      /:where\(\[data-jx-timeline\]\[data-axis='horizontal'\] > \[data-jx-tl-item\]\) > \[data-jx-tl-line\]\[data-line='dashed'\] \{([^}]*)\}/,
-    )!;
-    expect(hDashed[1]).toContain('background-position: var(--jx-icon) 0');
+  it('the dashed preset phase-anchors a dash START at the node flow-end edge (V2-5 SVG successor)', () => {
+    // the segments carry stroke-dasharray + the measured edge phase
+    const root = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline.svelte'), 'utf8');
+    expect(root).toContain('stroke-dasharray="4 4"');
+    expect(root).toContain('stroke-dashoffset={segment.edgePhase}');
+    expect(timelineCss).toMatch(/:where\(\[data-jx-tl-spine\] > \[data-jx-tl-seg\]\)/);
+    // the phase math lives in the measurement runtime (measured radius,
+    // so density scales anchor for free) — the background-position
+    // tiling retired with the per-item backgrounds
+    expect(timelineCss).not.toContain('repeating-linear-gradient');
+    const runtime = readFileSync(
+      resolve(specDir, '../src/lib/ui/timeline/timeline-spine.svelte.ts'),
+      'utf8',
+    );
+    expect(runtime).toMatch(/TIMELINE_DASH_PERIOD - \(nodeRadius % TIMELINE_DASH_PERIOD\)/);
   });
 });
 
-describe('Timeline family — the line seam (C-5 instantiation order, C-10 getter context)', () => {
-  it('a line(i) snippet replaces the authored-free line, receiving instantiation-order indices', () => {
-    const { container } = render(TimelineHost, { props: { useLine: true } });
-    // the authored snippet wins over the default span — everywhere
-    expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(0);
-    const authored = [...container.querySelectorAll('[data-testid="tl-authored-line"]')];
-    expect(authored.map((n) => n.textContent)).toEqual(['L0', 'L1']); // document order = index order
-  });
-
-  it('the root context reads the line seam through a GETTER — swapping the prop retiles mounted items (C-10)', async () => {
-    const { container, rerender } = render(TimelineHost);
+describe('Timeline family — the spine seam (W3: presets or a geometry-payload snippet)', () => {
+  it("a preset string keeps the floor pre-measurement and names the spine on the host's data attrs", () => {
+    const { container } = render(TimelineHost, { props: { spine: 'dashed' } });
+    const host = container.querySelector('[data-jx-tl-host]')!;
+    expect(host.getAttribute('data-axis')).toBe('vertical');
+    expect(host.getAttribute('data-direction')).toBe('ltr');
+    // degenerate box: the floor stays the paint
     expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(2);
-    await rerender({ useLine: true });
-    expect(container.querySelectorAll('[data-jx-tl-line]').length).toBe(0);
-    expect([...container.querySelectorAll('[data-testid="tl-authored-line"]')].length).toBe(2);
+    expect(container.querySelector('[data-testid="tl-custom-spine"]')).toBeNull();
   });
 
-  it('the seam contract is documented where the index is minted (C-5: keyed reorders keep first-mount indices)', () => {
+  it('the spine prop accepts a custom snippet — the geometry payload is the documented seam (source guard: jsdom never measures)', () => {
     const root = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline.svelte'), 'utf8');
-    const item = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline-item.svelte'), 'utf8');
-    expect(root).toContain('THE line(index) SEAM CONTRACT');
-    expect(item).toMatch(/keyed \{#each\} reorder MOVES this/);
+    expect(root).toMatch(/spine\?: TimelineSpinePreset \| Snippet<\[TimelineSpineGeometry\]>/);
+    expect(root).toContain('{@render spine(geometry)}');
+    // the retired line(i) seam is GONE from the family sources
+    expect(root).not.toContain('THE line(index) SEAM CONTRACT');
   });
 });
 

@@ -1,14 +1,15 @@
 <!-- composition-a spec fixture: the timeline family composed — the
-     grid-engine anatomy (Dot + its spatial slots / auto-line /
-     Content/Time/Title) with a free-children body and a parameterized
-     pending flag on the last entry. The line is AUTHORED-FREE since
-     the 2026-09-01 rebuild (no Connector part anymore). The 2026-09-02
-     fix wave added two engine probes as props: `animation` (the
-     scroll-spine chrome child) and `useLine` (the root line seam
-     swapping the authored-free line for an index-echoing snippet). -->
+     drawn-spine anatomy (host grid + measured SVG spine / Dot + its
+     spatial slots / floor line / Content/Time/Title) with a free-
+     children body and a parameterized pending flag on the last entry.
+     The W3 rework (2026-09-15) replaced the line(i) per-item seam
+     with the root `spine` prop: this fixture exposes it as props
+     (preset names + a custom geometry-echoing snippet for the payload
+     seam test) alongside the `animation` engine probe. -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Timeline, {
+    type TimelineSpineGeometry,
     TimelineItem,
     TimelineDot,
     TimelineContent,
@@ -19,23 +20,35 @@
   interface Props {
     /** the last entry's in-flight flag */
     pending?: boolean;
-    /** root pass-through for the chrome-child probe (anim='scroll') */
+    /** root pass-through for the engine probe (anim='scroll') */
     animation?: 'none' | 'view' | 'scroll';
-    /** swap the authored-free line for a line(i) snippet echoing i */
-    useLine?: boolean;
+    /** the spine seam: a preset name, or the custom-snippet mode */
+    spine?: 'plain' | 'dashed' | 'beam' | 'custom';
   }
 
-  let { pending = false, animation = 'none', useLine = false }: Props = $props();
+  let { pending = false, animation = 'none', spine = 'plain' }: Props = $props();
 </script>
 
-{#snippet authoredLine(i: number)}
-  <span data-testid="tl-authored-line">L{i}</span>
+{#snippet customSpine(geometry: TimelineSpineGeometry)}
+  <path
+    data-testid="tl-custom-spine"
+    d={geometry.runPath}
+    data-nodes={geometry.nodes.length}
+    data-axis={geometry.axis}
+    data-rtl={geometry.rtl ? 'true' : 'false'}
+    fill="none"
+    stroke="var(--border)"
+    stroke-width="1"
+  ></path>
 {/snippet}
 
 <!-- the double cast bridges svelte-check's dual-Snippet-type artifact
      (template-declared snippets vs the barrel's Snippet import resolve
      to unrelated symbol types in this fixture context) -->
-<Timeline {animation} line={useLine ? (authoredLine as unknown as Snippet<[number]>) : undefined}>
+<Timeline
+  {animation}
+  spine={spine === 'custom' ? (customSpine as unknown as Snippet<[TimelineSpineGeometry]>) : spine}
+>
   <TimelineItem>
     <TimelineDot>
       {#snippet blockStart()}<span>07:02</span>{/snippet}
