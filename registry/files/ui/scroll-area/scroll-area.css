@@ -24,6 +24,13 @@
   outline-offset: -1px;
 }
 
+/* the region roots its own ladder: the track/thumb lanes (z 1 over
+   the scrollport content) stay component-private — the grid-supplies-
+   stacking law's isolation clause (the ladder's common parent) */
+:where(.jx-scroll-area) {
+  isolation: isolate;
+}
+
 /* the platform bar retires only while the drawn chrome is live —
    prerendered/no-JS output keeps the platform bar (the floor) */
 :where(.jx-scroll-area[data-chrome='on'] .jx-scroll-viewport) {
