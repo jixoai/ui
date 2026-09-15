@@ -1,0 +1,750 @@
+{
+  "fixture": {
+    "url": "http://localhost:5199/docs/components/mermaid.html",
+    "thresholds": {
+      "labels": 4.5,
+      "graphics": 3
+    },
+    "baseline": false
+  },
+  "veilComputed": {
+    "on": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "none",
+      "backdropFilter": "blur(12px) contrast(1.05) brightness(0.12) saturate(0.9)",
+      "borderRadius": "8px",
+      "borderWidth": "1px",
+      "padding": "8px",
+      "overflow": "none",
+      "veilAttribute": "on"
+    },
+    "off": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "none",
+      "backdropFilter": "none",
+      "borderRadius": "0px",
+      "borderWidth": "0px",
+      "padding": "0px",
+      "overflow": "none",
+      "veilAttribute": null
+    },
+    "pageDark": false,
+    "floor": {
+      "backgroundColor": "rgb(0, 0, 0)",
+      "backgroundImage": "none",
+      "backdropFilter": "none",
+      "borderRadius": "8px",
+      "borderWidth": "1px",
+      "padding": "8px",
+      "overflow": "none",
+      "veilAttribute": "floor"
+    }
+  },
+  "ground": {
+    "corners": [
+      {
+        "at": [
+          16,
+          16
+        ],
+        "color": [
+          31,
+          31,
+          31
+        ],
+        "hex": "#1f1f1f"
+      },
+      {
+        "at": [
+          745,
+          16
+        ],
+        "color": [
+          31,
+          31,
+          31
+        ],
+        "hex": "#1f1f1f"
+      },
+      {
+        "at": [
+          16,
+          592
+        ],
+        "color": [
+          31,
+          31,
+          31
+        ],
+        "hex": "#1f1f1f"
+      },
+      {
+        "at": [
+          745,
+          592
+        ],
+        "color": [
+          31,
+          31,
+          31
+        ],
+        "hex": "#1f1f1f"
+      }
+    ]
+  },
+  "labels": [
+    {
+      "node": "source floor",
+      "glyph": {
+        "at": [
+          391,
+          86
+        ],
+        "hex": "#ffffff",
+        "distance": 246
+      },
+      "fill": "#717171",
+      "ratio": 4.88,
+      "threshold": 4.5
+    },
+    {
+      "node": "hydrated svg",
+      "glyph": {
+        "at": [
+          298,
+          223
+        ],
+        "hex": "#ffffff",
+        "distance": 246
+      },
+      "fill": "#717171",
+      "ratio": 4.88,
+      "threshold": 4.5
+    },
+    {
+      "node": "re-derived palette",
+      "glyph": {
+        "at": [
+          178,
+          391
+        ],
+        "hex": "#ffffff",
+        "distance": 246
+      },
+      "fill": "#717171",
+      "ratio": 4.88,
+      "threshold": 4.5
+    },
+    {
+      "node": "zoom + pan",
+      "glyph": {
+        "at": [
+          472,
+          396
+        ],
+        "hex": "#ffffff",
+        "distance": 246
+      },
+      "fill": "#717171",
+      "ratio": 4.88,
+      "threshold": 4.5
+    },
+    {
+      "node": "registry payload",
+      "glyph": {
+        "at": [
+          314,
+          518
+        ],
+        "hex": "#ffffff",
+        "distance": 246
+      },
+      "fill": "#717171",
+      "ratio": 4.88,
+      "threshold": 4.5
+    }
+  ],
+  "nodes": [
+    {
+      "node": "source floor",
+      "fill": {
+        "at": [
+          276,
+          92
+        ],
+        "hex": "#717171"
+      },
+      "border": {
+        "at": [
+          256,
+          92
+        ],
+        "hex": "#acacac"
+      },
+      "ground": {
+        "at": [
+          250,
+          92
+        ],
+        "steps": 0,
+        "hex": "#1f1f1f"
+      },
+      "fillVsGround": 3.38,
+      "borderVsGround": 7.26,
+      "thresholds": {
+        "fillVsGround": 3,
+        "borderVsGround": 3
+      }
+    },
+    {
+      "node": "hydrated svg",
+      "fill": {
+        "at": [
+          276,
+          229
+        ],
+        "hex": "#717171"
+      },
+      "border": {
+        "at": [
+          256,
+          229
+        ],
+        "hex": "#acacac"
+      },
+      "ground": {
+        "at": [
+          250,
+          229
+        ],
+        "steps": 0,
+        "hex": "#1f1f1f"
+      },
+      "fillVsGround": 3.38,
+      "borderVsGround": 7.26,
+      "thresholds": {
+        "fillVsGround": 3,
+        "borderVsGround": 3
+      }
+    },
+    {
+      "node": "re-derived palette",
+      "fill": {
+        "at": [
+          76,
+          398
+        ],
+        "hex": "#717171"
+      },
+      "border": {
+        "at": [
+          57,
+          398
+        ],
+        "hex": "#909090"
+      },
+      "ground": {
+        "at": [
+          51,
+          398
+        ],
+        "steps": 0,
+        "hex": "#1f1f1f"
+      },
+      "fillVsGround": 3.38,
+      "borderVsGround": 5.16,
+      "thresholds": {
+        "fillVsGround": 3,
+        "borderVsGround": 3
+      }
+    },
+    {
+      "node": "zoom + pan",
+      "fill": {
+        "at": [
+          449,
+          398
+        ],
+        "hex": "#717171"
+      },
+      "border": {
+        "at": [
+          430,
+          398
+        ],
+        "hex": "#999999"
+      },
+      "ground": {
+        "at": [
+          424,
+          398
+        ],
+        "steps": 0,
+        "hex": "#1f1f1f"
+      },
+      "fillVsGround": 3.38,
+      "borderVsGround": 5.79,
+      "thresholds": {
+        "fillVsGround": 3,
+        "borderVsGround": 3
+      }
+    },
+    {
+      "node": "registry payload",
+      "fill": {
+        "at": [
+          262,
+          526
+        ],
+        "hex": "#717171"
+      },
+      "border": {
+        "at": [
+          254,
+          526
+        ],
+        "hex": "#b8b8b8"
+      },
+      "ground": {
+        "at": [
+          248,
+          526
+        ],
+        "steps": 0,
+        "hex": "#1f1f1f"
+      },
+      "fillVsGround": 3.38,
+      "borderVsGround": 8.31,
+      "thresholds": {
+        "fillVsGround": 3,
+        "borderVsGround": 3
+      }
+    }
+  ],
+  "connectors": [
+    {
+      "path": 0,
+      "at": 0.25,
+      "lineCore": {
+        "at": [
+          371,
+          143
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 0
+      },
+      "ground": {
+        "at": [
+          365,
+          143
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 0,
+      "at": 0.5,
+      "lineCore": {
+        "at": [
+          371,
+          158
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 0
+      },
+      "ground": {
+        "at": [
+          365,
+          158
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 0,
+      "at": 0.75,
+      "lineCore": {
+        "at": [
+          371,
+          173
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 0
+      },
+      "ground": {
+        "at": [
+          365,
+          173
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 1,
+      "at": 0.25,
+      "lineCore": {
+        "at": [
+          273,
+          282
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 1.4
+      },
+      "ground": {
+        "at": [
+          270,
+          277
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 2,
+      "at": 0.25,
+      "lineCore": {
+        "at": [
+          469,
+          282
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 1.4
+      },
+      "ground": {
+        "at": [
+          466,
+          287
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 2,
+      "at": 0.5,
+      "lineCore": {
+        "at": [
+          500,
+          301
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 1
+      },
+      "ground": {
+        "at": [
+          497,
+          306
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 2,
+      "at": 0.75,
+      "lineCore": {
+        "at": [
+          525,
+          325
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 1.4
+      },
+      "ground": {
+        "at": [
+          520,
+          328
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 3,
+      "at": 0.25,
+      "lineCore": {
+        "at": [
+          218,
+          463
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 2
+      },
+      "ground": {
+        "at": [
+          214,
+          467
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 3,
+      "at": 0.5,
+      "lineCore": {
+        "at": [
+          241,
+          478
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 1.4
+      },
+      "ground": {
+        "at": [
+          238,
+          483
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 3,
+      "at": 0.75,
+      "lineCore": {
+        "at": [
+          269,
+          490
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 2
+      },
+      "ground": {
+        "at": [
+          267,
+          496
+        ],
+        "steps": 0,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 4,
+      "at": 0.25,
+      "lineCore": {
+        "at": [
+          525,
+          461
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 0
+      },
+      "ground": {
+        "at": [
+          518,
+          454
+        ],
+        "steps": 1,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 4,
+      "at": 0.5,
+      "lineCore": {
+        "at": [
+          501,
+          478
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 1
+      },
+      "ground": {
+        "at": [
+          497,
+          469
+        ],
+        "steps": 1,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    },
+    {
+      "path": 4,
+      "at": 0.75,
+      "lineCore": {
+        "at": [
+          476,
+          489
+        ],
+        "hex": "#ffffff",
+        "lockOffsetDev": 1.4
+      },
+      "ground": {
+        "at": [
+          472,
+          480
+        ],
+        "steps": 1,
+        "dir": 1,
+        "hex": "#1f1f1f"
+      },
+      "ratio": 16.48,
+      "threshold": 3
+    }
+  ],
+  "chips": [
+    {
+      "chip": "theme flip",
+      "fill": {
+        "at": [
+          216,
+          316
+        ],
+        "hex": "#707070",
+        "via": "cluster(3226px of dominant #707070 @76%)"
+      },
+      "ground": {
+        "at": [
+          140,
+          314
+        ],
+        "steps": 0,
+        "hex": "#1f1f1f"
+      },
+      "fillVsGround": 3.33,
+      "threshold": 3
+    },
+    {
+      "chip": "theme flip (text)",
+      "glyph": {
+        "at": [
+          246,
+          298
+        ],
+        "hex": "#ffffff"
+      },
+      "ratio": 4.95,
+      "threshold": 4.5
+    }
+  ],
+  "skipped": [
+    {
+      "object": "connector",
+      "path": 1,
+      "at": 0.5,
+      "reason": "centerline occluded by the edge-label chip (the label paints over the line)"
+    },
+    {
+      "object": "connector",
+      "path": 1,
+      "at": 0.75,
+      "reason": "centerline occluded by the edge-label chip (the label paints over the line)"
+    }
+  ],
+  "summary": {
+    "samples": {
+      "labels": 5,
+      "nodes": 5,
+      "connectors": 13,
+      "chips": 2,
+      "skipped": 2
+    },
+    "minRatios": {
+      "label": 4.88,
+      "nodeFillVsGround": 3.38,
+      "nodeBorderVsGround": 5.16,
+      "connector": 16.48,
+      "chip": 3.33
+    },
+    "fails": {
+      "labels": 0,
+      "nodes": 0,
+      "chips": 0,
+      "connectors": 0
+    },
+    "banners": [
+      [
+        "veil(on) background transparent",
+        true,
+        "rgba(0, 0, 0, 0)"
+      ],
+      [
+        "veil(on) subtractive chain paints",
+        true,
+        "blur(12px) contrast(1.05) brightness(0.12) saturate(0.9)"
+      ],
+      [
+        "veil(on) carries the box (radius/padding/border)",
+        true,
+        "[\"8px\",\"1px\",\"8px\"]"
+      ],
+      [
+        "veil(off) no attribute, no chain, transparent",
+        true,
+        "[null,\"none\",\"rgba(0, 0, 0, 0)\"]"
+      ],
+      [
+        "the page is LIGHT (the Owner condition)",
+        true,
+        "false"
+      ],
+      [
+        "fixture fits the pan viewport (no scrollbars in the sampling field)",
+        true,
+        "none"
+      ],
+      [
+        "floor lane: JS support probe answers false",
+        true,
+        "floor"
+      ],
+      [
+        "floor lane: the opaque theme ground returns",
+        true,
+        "rgb(0, 0, 0)"
+      ],
+      [
+        "floor lane: the chain is off",
+        true,
+        "none"
+      ]
+    ]
+  },
+  "baselineStory": {
+    "preChangeMainBkg": "#000000",
+    "measuredVeilGround": "#1f1f1f",
+    "fillVsGround": 1.27,
+    "threshold": 3,
+    "verdict": "FAIL — the unlifted dark palette cannot clear the graphics threshold on the subtractive ground (the lift is measurement-demanded, not taste)"
+  }
+}
