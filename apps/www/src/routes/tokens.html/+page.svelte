@@ -106,7 +106,8 @@ playing.subscribe((v) => (isPlaying = v));
 
   const brand: TokenEntry[] = [
     { name: '--primary', value: 'oklch(0.6489 0.237 var(--brand-hue))' },
-    { name: '--primary-foreground', value: 'oklch(1 0 0) / oklch(0 0 0)' },
+    { name: '--primary-foreground', value: 'oklch(0 0 0) / oklch(0 0 0)' },
+    { name: '--primary-text', value: 'oklch(0.55 0.12 var(--brand-hue)) / var(--primary)' },
     { name: '--secondary', value: 'oklch(0.968 0.211 109.7692)' },
     { name: '--secondary-foreground', value: 'oklch(0 0 0)' },
     { name: '--accent', value: 'oklch(0.5635 0.2408 260.8178)' },
