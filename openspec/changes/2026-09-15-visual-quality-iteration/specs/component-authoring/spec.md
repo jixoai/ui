@@ -177,12 +177,16 @@ untouched.
 #### Scenario: the scrollbar mode prop is gone
 
 - GIVEN the breaking migration
-- THEN a source scan finds no `scrollbar` prop and no `ScrollbarVariant`
-  type on scroll-area, no `'native'`/`'overlay'` consumer site in the
-  shipped surface, and NO mode branch of any name inside the component
-  (routes excluded per the glass-canary precedent; the canary's
-  two-directional fixture plants a live `scrollbar` prop to prove it
-  reddens)
+- THEN the acceptance is STATICALLY assertable, in three parts: (1) a
+  pinned Props assertion snapshots the component's exported prop list
+  and finds no `scrollbar` field and no mode-shaped field of any
+  name, and the `ScrollbarVariant` type is absent from the item's
+  exports; (2) a source scan finds no `'native'`/`'overlay'` consumer
+  site in the shipped surface (routes excluded per the glass-canary
+  precedent); (3) the canary's two-directional fixture plants a live
+  `scrollbar` prop and proves BOTH detectors redden — the snapshot
+  (a mode-shaped field would appear) and the scan (routes excluded,
+  the planted site is inside the scanned surface)
 
 ### Requirement: floating surfaces speak spec-true position-area (Owner 2026-09-15)
 
@@ -287,12 +291,15 @@ standing pre-change behavior). Light themes never paint a backdrop.
   subtraction ink law, probe-asserted: computed `background` of the
   veil layer is transparent)
 - AND the derived dark palette keeps node fills, borders, labels, and
-  connectors readable against the darkened ground (contrast probe:
-  WCAG ratio, labels ≥ 4.5:1 against their node fill; node fill,
-  node border, and connector strokes ≥ 3:1 against the veil ground
-  sampled adjacent to each object — 2px past the node border, and at
-  the midpoint of the longest edge connector — on the pinned-Chromium
-  screenshot; any sampled pair below threshold fails the probe)
+  connectors readable against the darkened ground (contrast probe on
+  the pinned-Chromium 2× screenshot, WCAG ratio: labels ≥ 4.5:1
+  against their node fill; node fill and node border ≥ 3:1 against the
+  veil ground sampled 2px past the node border; connectors ≥ 3:1
+  sampled antialias-proof — every edge connector in the fixture, at
+  three equally spaced centerline points (1/4, 1/2, 3/4), the stroke's
+  line-core pixel versus a ground patch 2px past the stroke edge along
+  the normal, the patch the mean of its 3×3 device-pixel window; any
+  sampled pair below threshold fails the probe)
 
 #### Scenario: the backdrop switches off
 

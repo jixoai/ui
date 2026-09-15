@@ -97,11 +97,12 @@ threshold to the reviewer — retired. The contract:
 
 - Algorithm: WCAG 2.x relative-luminance contrast ratio.
 - Objects: (a) diagram LABEL text against its own node fill; (b) node
-  fill and node border against the veil ground sampled ADJACENT to the
-  node (2px out, past the border); (c) CONNECTOR strokes against the
-  veil ground — sampled antialias-proof: the stroke's LINE-CORE pixel
-  (the center of the stroke width) versus a ground patch offset along
-  the stroke's NORMAL direction, past the stroke's edge.
+  fill and node border against the veil ground sampled 2px past the
+  node border; (c) CONNECTORS ≥ 3:1 sampled antialias-proof — every
+  edge connector in the fixture, at three equally spaced centerline
+  points (1/4, 1/2, 3/4), the stroke's line-core pixel versus a ground
+  patch 2px past the stroke edge along the normal, the patch the mean
+  of its 3×3 device-pixel window.
 - Thresholds: labels ≥ 4.5:1; non-text graphics (fills, borders,
   connectors) ≥ 3:1.
 - Fixture: the docs page's dark-pinned demo diagram rendered on the light
