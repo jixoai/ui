@@ -75,13 +75,19 @@
       (the icons-bridge law; enforce-undefined plugin-order trick);
       twins opt in via stylex.include]
 - [x] The F9 canonical layer statement baked into emitted CSS (the
-      plugin owns it; no author hand-writing). [f0b560f5 —
-      STYLEX_LAYER_STATEMENT at byte zero of every emitted css
-      carrying stylex output (mirrored re-hash emission); verified in
-      the REAL www build: dist entry css starts with the FULL
-      statement, 4 @layer stylex blocks, the defineVars :root block;
-      dev /virtual:stylex.css carries it too; the §5.2 css-entry trap
-      warns with the named fix]
+      plugin owns it; no author hand-writing). [f0b560f5, superseded by
+      the Gate-2 P1-1 general law in abfdd8b1 — layer-law.ts is the
+      ONE law source: canonicalLayerStatement(N) with the stylex tiers
+      NESTED under components (components.stylex.priorityN, the
+      append-only first-mention repair) and utilities eternally last;
+      N covers every tier the css carries (dynamic — the O1-H 1..3
+      reading was that corpus's special case); generateBundle bakes it
+      at byte zero coverage-aware (Gate-2 r2: a canonical(0) sheet
+      opening is NOT a bake — the atoms land in the linked asset); the
+      real www build + payload items + dev /virtual:stylex.css all
+      carry it; the §5.2 css-entry trap warns with the named fix; the
+      dual-order browser assertion reads grid/grid in
+      verify:stylex-payload]
 - [x] The vite twins stay byte-identical (gate green). [d7891b37 —
       cmp-verified both pairs (vite.config.ts + package.json twins);
       registry-side root math resolves to match-nothing dirs, the
@@ -162,11 +168,17 @@
       named packages and the whole scope) + a stylex-tokens case: the
       registry's stylex-adjacent lib item installs clean, the theme
       sheet arrives for the css import, zero @stylexjs/* in package
-      .json, consumer build green. The full item-via-CSS-import proof
-      for COMPILED payloads rides the payload gate's spot-compile
-      (phase 0 ships no compiled item through shadcn yet — the
-      registry delta's transitional clause; phase 1 wires the payload
-      into the shadcn payload tree).]
+      .json, consumer build green. SUPERSEDED-SCOPE (Gate-2 P1-2,
+      764ae180): the compiled payload NOW rides the build chain —
+      gen-stylex-payload --publish lands the payload tree + manifest
+      in public/payload/stylex/, build-site step 5.5 + root
+      build:registry wire it, and the stylex-compiled-payload case
+      installs corpus/code-card FROM THE PUBLISHED MANIFEST (sha
+      verified, one CSS import + plain strings, zero $$css, zero
+      @stylexjs/*, build green, the inlined css carries the nesting
+      law). 23 cases ALL GREEN. (The earlier phase-1 deferral note is
+      obsolete; a real registry-item CLI install replaces the
+      manifest-driven copy in phase 1.)]
 
 ## P0.5 — the authoring law's teeth
 

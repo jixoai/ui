@@ -45,7 +45,7 @@ beforeEach(async () => {
   fixtureRoot = join(outRoot, 'fixture');
 });
 
-async function writeKernelFixture(withCssEntry: boolean): Promise<void> {
+async function writeKernelFixture(withCssEntry: boolean, entryCss = 'body { margin: 0; }\n'): Promise<void> {
   await mkdir(join(fixtureRoot, 'src', 'kernel'), { recursive: true });
   await mkdir(join(fixtureRoot, 'src', 'docs'), { recursive: true });
   // treeshakeCompensation keeps the (unused, side-effect-free) stylex
@@ -90,7 +90,7 @@ async function writeKernelFixture(withCssEntry: boolean): Promise<void> {
     ].join('\n'),
   );
   if (withCssEntry) {
-    await writeFile(join(fixtureRoot, 'src', 'kernel', 'entry.css'), 'body { margin: 0; }\n');
+    await writeFile(join(fixtureRoot, 'src', 'kernel', 'entry.css'), entryCss);
   }
 }
 
@@ -157,6 +157,80 @@ describe('the stylex feature (build side, F11)', () => {
     expect(css).toContain('--jx-probe:');
     expect(css).toContain('@layer components.stylex.priority1');
     expect(css).toContain('@layer components.stylex.priority2');
+  });
+
+  it('coverage-aware idempotence (Gate-2 r2 P1): a canonical(0) sheet entry is NOT a bake — atoms land in the linked asset, no unlinked fallback', async () => {
+    // the legal folder-sheet opening (canonical(0), no stylex tiers) in
+    // the entry css — the OLD code early-returned on "statement found"
+    // and the atoms never reached the linked asset (writeBundle then
+    // wrote an UNLINKED assets/stylex.css + warned)
+    await writeKernelFixture(true, `${F9_CANONICAL_SHEET}\nbody { margin: 0; }\n`);
+    const outDir = join(outRoot, 'dist-sheet-entry');
+    await build({
+      root: fixtureRoot,
+      logLevel: 'silent',
+      plugins: jixoai({ ghostty: false, stylex: { include: ['src/kernel'] } }),
+      build: {
+        outDir,
+        emptyOutDir: true,
+        rollupOptions: { input: join(fixtureRoot, 'src', 'kernel', 'entry.ts') },
+      },
+    });
+
+    const cssFiles = await findCssFiles(outDir);
+    // ONE css asset — the linked entry, baked; NO unlinked fallback
+    expect(cssFiles.map((f) => f.slice(outDir.length))).not.toContain('/assets/stylex.css');
+    expect(cssFiles.length).toBe(1);
+    const css = await readFile(cssFiles[0]!, 'utf8');
+    // the bake REPLACED the sheet statement with the full tier-covering
+    // one at byte zero, and the atoms really rode the linked asset
+    expect(css.startsWith(`${canonicalLayerStatement(maxStylexPriority(css))}\n`)).toBe(true);
+    expect((parseCanonicalStatement(css)?.maxPriority ?? 0) >= maxStylexPriority(css)).toBe(true);
+    expect(css).toContain('--jx-probe:');
+    expect(css).toContain('@layer components.stylex.priority1');
+    expect(css).toMatch(/margin:\s*0/);
+  });
+
+  it('coverage-aware idempotence (Gate-2 r2 P1): a COMPLETE previous bake is skipped — atoms appear exactly once, no fallback, no duplicate', async () => {
+    // round 1: a normal bake; round 2: that OUTPUT is the entry css —
+    // statement covers the tiers AND the collected atoms are already in
+    // the asset, so the bake must skip (the pre-fix code instead dropped
+    // cssInjected and wrote an unlinked duplicate fallback + warning).
+    // Both rounds build UNMINIFIED: the includes() guard matches the
+    // raw collected bytes (a MINIFIED prior bake re-bakes safely —
+    // duplicate atom rules render identically; the guard errs toward
+    // baking because a false positive drops atoms)
+    const unminified = {
+      root: fixtureRoot,
+      logLevel: 'silent' as const,
+      plugins: jixoai({ ghostty: false, stylex: { include: ['src/kernel'] } }),
+      build: {
+        minify: false,
+        emptyOutDir: true,
+        rollupOptions: { input: join(fixtureRoot, 'src', 'kernel', 'entry.ts') },
+      },
+    };
+    await writeKernelFixture(true);
+    const round1Dir = join(outRoot, 'dist-idem-r1');
+    await build({ ...unminified, build: { ...unminified.build, outDir: round1Dir } });
+    const r1Files = await findCssFiles(round1Dir);
+    expect(r1Files.length).toBe(1);
+    const baked = await readFile(r1Files[0]!, 'utf8');
+    expect(baked).toContain('--jx-probe:');
+
+    // round 2: the previous bake rides in as the entry css (the fixture
+    // already exists from round 1 — only the entry css changes)
+    await writeFile(join(fixtureRoot, 'src', 'kernel', 'entry.css'), baked);
+    const round2Dir = join(outRoot, 'dist-idem-r2');
+    await build({ ...unminified, build: { ...unminified.build, outDir: round2Dir } });
+    const cssFiles = await findCssFiles(round2Dir);
+    expect(cssFiles.map((f) => f.slice(round2Dir.length))).not.toContain('/assets/stylex.css');
+    expect(cssFiles.length).toBe(1);
+    const css = await readFile(cssFiles[0]!, 'utf8');
+    // the skip held: the atom payload appears EXACTLY once (a re-bake
+    // would append the collected css a second time)
+    expect(css.match(/--jx-probe:/g)?.length).toBe(1);
+    expect((css.match(/@layer components\.stylex\.priority1 \{/g) ?? []).length).toBe(1);
   });
 
   it('css-entry trap (§5.2): no css asset → fallback assets/stylex.css, statement-first, nothing silently lost', async () => {
