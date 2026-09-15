@@ -12,6 +12,13 @@
     "apps/www/src/lib/__probe__/stylex-corpus/demo.stylex.ts",
     "registry/files/ui/press-button/press-button.css",
     "registry/files/ui/mermaid/mermaid.css",
-    "registry/files/ui/timeline/timeline.css"
+    "registry/files/ui/timeline/timeline.css",
+    "registry/files/ui/scroll-area/scroll-area.css",
+    "registry/files/ui/native-scroll-area/native-scroll-area.css",
+    "registry/files/lib/scroll-area-kit/native-capability.css",
+    "registry/files/ui/menubar/menubar.css",
+    "registry/files/ui/dropdown-menu/dropdown-menu.css",
+    "registry/files/ui/tooltip/tooltip.css",
+    "registry/files/ui/float-button/float-button.css"
   ]
 }
