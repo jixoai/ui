@@ -1,4 +1,4 @@
-# component-authoring delta — stylex-kernel-phase0
+# component-authoring delta — stylex-kernel-phase0 (r2, Gate-2 P1-3)
 
 ## MODIFIED Requirements
 
@@ -8,10 +8,18 @@ Tier-1 components' paint SHALL be authored as StyleX static atoms
 against the typed token accessors (`.stylex.ts` modules), compiled
 by the kernel build. The authoring rules, with their enforcement:
 
-- STATIC ATOMS ONLY for declarations: `stylex.create` objects with
-  longhand properties; shorthand properties are FORBIDDEN
-  (`propertyValidationMode:'throw'` makes a dropped shorthand a
-  build error).
+- STATIC ATOMS ONLY for declarations: `stylex.create` objects. The
+  shorthand line is THE ENGINE'S LINE (Gate-2 P1-3): properties the
+  pinned engine's throw table rejects (the background/border/all/
+  animation family + their logical-side aliases — 18 names under the
+  0.19.0 pin, DERIVED at gate runtime from the installed
+  babel-plugin's own table with a pin-count assertion) are FORBIDDEN
+  (`propertyValidationMode:'throw'` makes each a build error);
+  properties the pinned engine ACCEPTS (margin, padding, inset, gap,
+  flex, overflow, textDecoration, …) are LAWFUL — the engine passes
+  them to the compiled css as standard CSS shorthand declarations
+  (browsers expand shorthand at parse time; the serialized form is
+  the engine's, not a hand promise of longhand expansion).
 - Dynamic values = CSS-var bindings: atoms consume
   `var(--jx-*)`/component custom properties; the component computes
   the vars at runtime. Factory functions, `vars` keys inside
@@ -72,3 +80,14 @@ by the kernel build. The authoring rules, with their enforcement:
 - THEN the atom consumes `var(--component-state-ink)` and the
   component computes the var (possibly via `color-mix` inline) —
   no runtime style composition against atoms
+
+#### Scenario: an engine-accepted shorthand is authored
+
+- GIVEN a `.stylex.ts` atom carrying `margin`, `padding`, `gap`,
+  `flex`, `overflow`, `inset`, or `textDecoration`
+- WHEN the kernel build compiles it and verify:stylex-authoring runs
+- THEN the build succeeds and the compiled css carries the
+  declaration (however the engine serializes it) — lawful surface,
+  not an exemption; AND a throw-table name (e.g. `background`) in
+  the same file fails the scan naming file + pattern and throws the
+  real engine build error

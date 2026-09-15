@@ -17,13 +17,31 @@
   icon/channel features keep their current consumers.
 - The vite twin configs (apps/www ≡ registry, byte-identity gate)
   gain the stylex wiring identically.
-- **The F9 canonical layer law is baked here**: every kernel-emitted
-  CSS establishes the ONE canonical FULL statement — `@layer
-  properties, theme, base, components, stylex.priority1,
-  stylex.priority2, stylex.priority3, utilities;` (the O1-H-measured
-  order; the as-frozen order inverted the override law). The plugin
-  owns engine-emitted statements; folder sheets carry the same FULL
-  text per the transitionally-scoped law (specs delta).
+- **The F9 canonical layer law is baked here** (Gate-2 P1-1 revision,
+  measured into place by the dual-order Chromium fixture): every
+  kernel-emitted CSS establishes the ONE canonical FULL statement —
+  `@layer properties, theme, base, components,
+  components.stylex.priority1, …, components.stylex.priorityN,
+  utilities;` where N = the highest priority tier THAT css carries
+  (derived at bake time from the engine's own emission; the O1-H
+  measurement of 1..3 was that corpus's special case, not the law),
+  `utilities` constantly last — AND the engine's tiers NEST UNDER
+  `components` (the useCSSLayers prefix `components.stylex`). The
+  nesting is not cosmetic: cascade-layer registration is append-only
+  by first mention, so a TOP-LEVEL stylex tier first mentioned after
+  the consumer's `utilities` registration (the consumer's stylesheet
+  loaded first) sorts after it and permanently beats utilities —
+  measured: consumer-first import + top-level tiers = the atom wins
+  (display=flex over the utility's grid); the same css with nested
+  tiers = the utility wins in BOTH orders (grid/grid). The plugin
+  owns engine-emitted statements (layer-law.ts is the single source;
+  dev virtual css, build assets, and payload item css all carry it);
+  folder sheets carry the sheet form (the five standing layers) per
+  the transitionally-scoped law (specs delta). The law's teeth:
+  verify:stylex-payload loads a payload item css against a
+  Tailwind-shaped consumer stylesheet in BOTH orders in headless
+  Chromium and asserts the utility's COMPUTED value wins, with the
+  escaped-tier shape as the always-run negative control.
 
 ## §2 The typed token layer
 
@@ -65,6 +83,17 @@ ui/<item>/<item>.svelte      ──┐
   consistency gate (verify:stylex-payload) re-derives both and
   asserts hash identity — a class constant whose rule is missing
   from the CSS (or vice versa) FAILS the build.
+- **The publish lane (Gate-2 P1-2)**: the build pipeline ships the
+  payload into the deploy tree (`public/payload/stylex/` — the
+  zero-engine consumer surface at /payload/stylex/<item>/): the
+  generator's `--publish` step runs inside build-site right after
+  `shadcn build`, and the root `build:registry` script chains it.
+  verify:shadcn-add regenerates the same published tree and installs
+  a compiled item FROM its manifest in a real consumer (class module
+  + item css, one css import, zero @stylexjs/* in the built
+  consumer) — the phase-0 answer to "wired into the registry build";
+  phase-1 migrations fold the artifacts into registry items' files[]
+  and retire the manual copy.
 - Path-dependent hashing (the research's L3c anomaly ①) is moot:
   we are the only compiler; the discipline is same-build emission,
   enforced by the gate.
@@ -75,8 +104,21 @@ ui/<item>/<item>.svelte      ──┐
 ## §4 The authoring law (and its teeth)
 
 1. Kernel paint = `stylex.create` static atoms against the typed
-   tokens. Longhands only (shorthands throw:
-   `propertyValidationMode:'throw'` — the silent-drop finding).
+   tokens. The shorthand line is THE ENGINE'S LINE (Gate-2 P1-3,
+   option A — the implementation was already right, the law text was
+   wrong): properties the pinned engine's throw table rejects (18
+   names under the 0.19.0 pin, derived at gate runtime from the
+   installed babel-plugin + a pin-count assertion) are FORBIDDEN;
+   properties the engine ACCEPTS (margin, padding, inset, gap, flex,
+   overflow, textDecoration — the corpus uses them) are LAWFUL: the
+   compiled css carries them as standard CSS shorthand declarations
+   (browsers expand at parse time; the engine serializes `margin: 0`
+   as `margin: 0`, NOT as longhand expansion — an earlier draft of
+   this law claimed expansion and was wrong). Option B (pure
+   longhand corpus rewrite) was rejected: no evidence the corpus's
+   engine-accepted shorthands ever miscompiled; rewriting 9 modules
+   to satisfy an over-strict text is law-text appeasement, not
+   engineering.
 2. Dynamic values = CSS-var bindings ONLY: atoms consume
    `var(--jx-*)`/component vars; components compute the vars at
    runtime (inline style or scoped stamp) — the D1-08-proven

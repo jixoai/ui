@@ -288,6 +288,69 @@
 
 ## P0.8 — review gates (remix)
 
-- [ ] Gate 1: Codex reviews this change doc set (fresh agent).
+- [x] Gate 1: Codex reviews this change doc set (fresh agent).
 - [ ] Gate 2: Codex reviews the implementation + receipts; iterate
       to ≥ the research bar (8.0+); score + reasons recorded.
+      [r1 verdict 5.8/10 INSUFFICIENT — four P1 blockers: (1) the F9
+      statement fixed at priority1..3 while the payload emits
+      priority2..9, no computed-style proof; (2) the compiled payload
+      not wired into the shadcn build chain; (3) the longhand law
+      text contradicting the implementation's engine-line; (4) the
+      receipts claiming exit 0 where transcripts show FAILED. IMPL-E
+      fix round, 2026-09-15 — P1-1/P1-2/P1-3 implemented, P1-4
+      receipts rewritten at the final HEAD; details in the task rows
+      below and research/p0-gates-receipt.md §Gate-2 fixes.]
+
+## P0.9 — the Gate-2 P1 fix round (IMPL-E, 2026-09-15)
+
+- [x] P1-1 the F9 general law: dynamic statement (priority1..N, N =
+      the css's highest tier, utilities constantly last) + THE
+      NESTING LAW (tiers under `components.stylex.*` via the
+      useCSSLayers prefix — cascade-layer registration is
+      append-only, so top-level tiers arriving after the consumer's
+      utilities registration permanently beat utilities; measured:
+      consumer-first + top-level tiers = atom wins, nested = utility
+      wins BOTH orders). layer-law.ts rebuilt as the statement's
+      single source (canonicalLayerStatement/maxStylexPriority/
+      parseCanonicalStatement); vite-plugin.ts + scripts/lib/
+      stylex-payload.mjs pins updated in lockstep (dev virtual css /
+      build assets / payload css all consistent); plugin tests
+      re-pinned; payload regenerated (10 items, same buildId + 175
+      constants); the dogfood extractor + install docs updated. TEETH:
+      verify:stylex-payload's dual-order browser assertion (headless
+      Chromium, kernel-first AND consumer-first, computed value =
+      the utility's) + the always-run negative control (the escaped
+      shape shows the atom winning) + the planted layer-escape
+      tree self-test.
+- [x] P1-2 the compiled payload wired into the build chain: the
+      generator's `--publish` step (build-site step 5.5 + the root
+      build:registry script) ships the payload tree + manifest into
+      public/payload/stylex/; verify:shadcn-add regenerates the same
+      published tree and its stylex-compiled-payload case installs a
+      compiled item FROM the manifest into a real consumer (one css
+      import + plain-string constants, zero @stylexjs/* in
+      package.json/lockfile, consumer build green, built css carries
+      the canonical statement + atom rules). The "rides phase 1"
+      deferral is retired — the spec's wiring clause is live.
+- [x] P1-3 the shorthand law reconciled (option A): the spec/design
+      text now states the ENGINE'S LINE — throw-table properties
+      forbidden (18 names, gate-runtime derivation + pin-count
+      assertion kept), engine-accepted shorthands lawful (compiled
+      css carries them as standard CSS; the earlier "expands to
+      longhand" claim was measured wrong — `margin: 0` serializes as
+      `margin: 0`). New acceptance pair in verify:stylex-authoring:
+      a lawful shorthand compiles through the real kernel pipeline
+      with its declarations landing in the css (P1-3a) + the
+      throw-table plant keeps failing scan AND engine. All scenario
+      names preserved; one scenario ADDED (an engine-accepted
+      shorthand is authored).
+- [x] P1-4 the receipts rewritten for honesty at the final HEAD:
+      p0-gates-receipt.md (the budgets-abort contradiction replaced
+      by the real chain run + the re-baseline story + CHROME_PATH
+      env notes), p0-engine-token-receipts.md (the real npm test
+      counts + the Ghostty wasm environment attribution + the
+      re-measured layer inventory under the nesting law),
+      p0-dogfood-receipt.md (the F9 section re-measured on the
+      rebuilt dist; extracts regenerated, trailing whitespace
+      cleaned). All three name the final HEAD + rerun commands +
+      environment conditions.

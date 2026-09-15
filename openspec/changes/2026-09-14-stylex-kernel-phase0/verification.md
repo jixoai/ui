@@ -11,20 +11,31 @@
 
 ## Implementation gates (Gate 2 readiness)
 
-- **F9 layer law**: a probe asserts a consumer utility beats a
-  kernel atom class in a compiled-output fixture (the D2-01
-  transposition) — the plugin's baked statement is the only source
-  of layer order.
+- **F9 layer law**: a REAL dual-order browser assertion (headless
+  Chromium, self-managed server): a payload item css against a
+  Tailwind-shaped consumer stylesheet, kernel-first AND
+  consumer-first, asserting the consumer utility's COMPUTED value
+  wins in both — plus the always-run negative control (the
+  escaped-tier shape shows the atom winning) and the planted
+  layer-escape tree self-test. The statement is dynamic
+  (priority1..N, utilities constantly last) and the tiers nest
+  under `components` — the plugin's baked statement is the only
+  source of layer order.
 - **Payload consistency**: verify:stylex-payload re-derives class
   constants + item CSS and asserts same-build hash identity; a
   deliberately desynced pair FAILS the gate (self-test like the
-  research's manifest validator).
+  research's manifest validator). The build PUBLISHES the payload
+  (public/payload/stylex/) and verify:shadcn-add installs a compiled
+  item from the published manifest (zero @stylexjs/*, item usable
+  via CSS import).
 - **Zero consumer tooling**: verify:shadcn-add's clean consumer
   lockfile contains no @stylexjs/* names; the items render via CSS
   import alone.
 - **Authoring teeth**: the throw-mode build fails on a planted
-  shorthand; verify:stylex-authoring fails on planted forbidden
-  patterns (factory/vars-key) naming file + pattern.
+  shorthand (a throw-table name); verify:stylex-authoring fails on
+  planted forbidden patterns (factory/vars-key) naming file +
+  pattern; an engine-ACCEPTED shorthand compiles green with its
+  declarations landing in the css (the P1-3 acceptance pair).
 - **Corpus dogfood equivalence**: the 8 families' compiled outputs
   through the real pipeline match the research spike's artifacts
   per the COMMITTED comparator (research/compare-compiled.mjs v6 —
