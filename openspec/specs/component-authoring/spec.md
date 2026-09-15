@@ -134,69 +134,93 @@ untouched).
 
 ### Requirement: styling posture
 
-Tier-1 components are migrating to utility-first: paint is composed as
-Tailwind v4 utilities in markup against the jixoai token-sheet
-`@theme` mappings. WHEN a Tier-1 component is migrated to
-utility-authored paint, its affected public class slots SHALL merge
-through `cn()` for class-string hygiene — `cn()` is NOT a cascade mechanism;
-override behavior comes from the layer law (css-architecture spec).
+Tier-1 components' paint SHALL be authored as StyleX static atoms
+against the typed token accessors (`.stylex.ts` modules), compiled
+by the kernel build. The authoring rules, with their enforcement:
+
+- STATIC ATOMS ONLY for declarations: `stylex.create` objects. The
+  shorthand line is THE ENGINE'S LINE (Gate-2 P1-3): properties the
+  pinned engine's throw table rejects (the background/border/all/
+  animation family + their logical-side aliases — 18 names under the
+  0.19.0 pin, DERIVED at gate runtime from the installed
+  babel-plugin's own table with a pin-count assertion) are FORBIDDEN
+  (`propertyValidationMode:'throw'` makes each a build error);
+  properties the pinned engine ACCEPTS (margin, padding, inset, gap,
+  flex, overflow, textDecoration, …) are LAWFUL — the engine passes
+  them to the compiled css as standard CSS shorthand declarations
+  (browsers expand shorthand at parse time; the serialized form is
+  the engine's, not a hand promise of longhand expansion).
+- Dynamic values = CSS-var bindings: atoms consume
+  `var(--jx-*)`/component custom properties; the component computes
+  the vars at runtime. Factory functions, `vars` keys inside
+  `create()`, and closure-composed dynamic values are FORBIDDEN
+  (verify:stylex-authoring names the file + pattern) — each was
+  proven to silently break or never reach the compiled rules.
+- `cn()` merges CONSUMER-passed classes with the compiled constants
+  (plain strings); it is not a cascade mechanism — the layer law
+  (css-architecture) owns precedence.
+- The transition state: components not yet migrated to atoms keep
+  the utility-first posture with no override-guarantee change until
+  their migration lands (phase train).
 
 #### Scenario: consumer restyles an installed component
 
-- GIVEN a utility-authored component with paint in `@layer components`
+- GIVEN an atom-authored component with compiled atom paint
 - WHEN the consumer passes any token utility on `class`
-- THEN the consumer's utility wins by the layer/specificity law — the
-  pre-refactor silent-loss defect (scoped-style specificity inversion)
-  is gone; this scenario name carries that history
-- AND unmigrated components, while any remain, keep legacy behavior
-  with no override guarantee (the migration's transitional state)
+- THEN the consumer's utility wins by the canonical layer law
 
 #### Scenario: consumer restyles a migrated component
 
-- GIVEN a utility-authored component with paint in `@layer components`
+- GIVEN an atom-authored component with compiled atom paint
 - WHEN the consumer passes any token utility on `class`
-- THEN the consumer's utility wins by the layer/specificity law — the
-  pre-refactor silent-loss defect is gone
+- THEN the consumer's utility wins by the canonical layer law
 
 #### Scenario: unmigrated component (transitional)
 
-- GIVEN a Tier-1 component still on scoped `<style>` (pre-P3)
-- THEN it carries no cn() obligation and its legacy string-concat
-  class merge stands until its migration lands
+- GIVEN a Tier-1 component still on utility-authored paint (pre-
+  phase-train)
+- THEN it keeps its current behavior and cn() merge discipline
+  until its migration lands
 
 #### Scenario: component needs non-utility css
 
-- WHEN paint requires selectors utilities cannot express
+- WHEN paint requires selectors atoms cannot express
 - THEN it lands in `<item>.css` in the folder and still loses to
   consumer utilities (layer law)
 
 #### Scenario: Tier-2 consume-only
 
-- GIVEN a component using `.jx-input-lane` (jx-pure Part A)
+- GIVEN a component using `.jx-control` (jx-pure Part A)
 - WHEN the component is refactored
-- THEN the class is consumed as-is; no component-side copy, re-wrap, or
-  cascade-altering redefinition exists, and it never routes through
-  `cn()`
+- THEN the class is consumed as-is; no component-side copy, re-wrap,
+  or cascade-altering redefinition exists, and it never routes
+  through `cn()`
 
-> — which resolve for consumers ONLY under the
-> canonical entry setup (tailwind entry → jixoai theme import; see the
-> registry spec), declared as the documented install prerequisite of
-> utility-authored items
->
-> (deduping conflicting
-> utilities inside one string)
->
-> Components not yet migrated (P0–P2 transitional state) keep their
-> existing class-merge behavior and carry NO cn() obligation. CSS that
-> utilities cannot express SHALL live in the component folder as
-> `<item>.css` (`@layer components` + `:where()`, `jx-`-prefixed). The
-> frozen Tier-2 vocabulary (jx-pure Part A) and the element-default
-> laws (Parts A–D) MUST be consumed only — never copied, moved,
-> redefined, or re-wrapped; Tier-2 classes MUST NOT route through
-> `cn()` as a redefinition entry. Scoped-style migration MUST
-> explicitly re-express selector boundaries (`:global()` child
-> selectors, pseudo-elements, `@supports`, media queries) rather than
-> pattern-copying.
+#### Scenario: a forbidden dynamic idiom is authored
+
+- GIVEN a `.stylex.ts` file containing a factory call outside
+  markup-level use, or a `vars` key inside `create()`
+- WHEN verify:stylex-authoring runs
+- THEN it fails naming the file and the pattern, and the throw-mode
+  build independently fails shorthands
+
+#### Scenario: a component needs a runtime color mix
+
+- WHEN a state color derives from props
+- THEN the atom consumes `var(--component-state-ink)` and the
+  component computes the var (possibly via `color-mix` inline) —
+  no runtime style composition against atoms
+
+#### Scenario: an engine-accepted shorthand is authored
+
+- GIVEN a `.stylex.ts` atom carrying `margin`, `padding`, `gap`,
+  `flex`, `overflow`, `inset`, or `textDecoration`
+- WHEN the kernel build compiles it and verify:stylex-authoring runs
+- THEN the build succeeds and the compiled css carries the
+  declaration (however the engine serializes it) — lawful surface,
+  not an exemption; AND a throw-table name (e.g. `background`) in
+  the same file fails the scan naming file + pattern and throws the
+  real engine build error
 
 ### Requirement: semantic hooks are data-jx-* attributes, never css-less classes
 
