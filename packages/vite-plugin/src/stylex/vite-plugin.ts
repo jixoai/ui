@@ -382,7 +382,24 @@ export function createStylexEngine(
         return; // writeBundle writes the fallback + warns (the §5.2 trap)
       }
       const current = assetSourceString(target);
-      if (parseCanonicalStatement(current) !== null) return; // already baked (idempotence, any tier count)
+      // coverage-aware idempotence (Gate-2 r2 P1): skip the bake ONLY
+      // when the asset is a COMPLETE previous bake — the canonical
+      // statement covers every tier this css carries AND the collected
+      // atoms are already in the asset. Coverage alone is NOT enough in
+      // either direction: a legal folder sheet opens with canonical(0)
+      // (no tiers — early-returning there left the atoms out of the
+      // linked asset, and writeBundle then wrote an UNLINKED fallback +
+      // warned), and an imported payload item css opens with a
+      // tier-covering statement while THIS build's live atoms are still
+      // pending (early-returning there silently dropped them). A false
+      // negative on the includes() (post-bake minification re-serializing
+      // the atoms) only re-bakes — duplicate rules render identically;
+      // a false positive drops atoms, so the guard errs toward baking.
+      const parsed = parseCanonicalStatement(current);
+      if (parsed && parsed.maxPriority >= maxStylexPriority(css) && current.includes(css)) {
+        cssInjected = true;
+        return;
+      }
       replaceCssAssetWithHashedCopy(this, bundle, target, bakeF9(current, css));
       cssInjected = true;
     },

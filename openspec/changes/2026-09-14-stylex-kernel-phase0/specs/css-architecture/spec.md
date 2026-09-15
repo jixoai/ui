@@ -128,8 +128,10 @@ payload-manifest.json := {
   constants module; `css` → the payload's item CSS. buildId
   serialization is CANONICAL: UTF-8; fields joined by U+000A with a
   trailing separator; paths POSIX-normalized relative to the
-  registry root; the source list sorted by path bytes; hashes
-  lowercase hex sha256.
+  repository root (the Gate-2 discretion promoted from code comment
+  to law: the manifest outlives any single registry layout, and the
+  migration ledger already anchors repo-root-relative); the source
+  list sorted by path bytes; hashes lowercase hex sha256.
 - Reverse lookup: EVERY class-constant string in a classModule
   SHALL appear as an (escaped) selector in that item's css.
 - verify:stylex-payload re-derives the manifest from the payload

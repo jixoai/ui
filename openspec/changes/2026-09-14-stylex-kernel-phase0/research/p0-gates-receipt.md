@@ -219,3 +219,35 @@ verify:km ✓ · verify:isolation ✓ · verify:print ✓ (all on the
   and the 16GB machine discipline); no dev server was started by any
   lane; post-run `ps` audit found no residual node/vite/python
   processes from these lanes.
+
+## Addendum — the Gate-2 r2 idempotence fix (2026-09-15)
+
+Gate 2 round 2 (7.7/10) found one remaining P1: `generateBundle`
+treated ANY canonical statement in the linked asset as "already
+baked" — a legal folder sheet's canonical(0) opening (zero stylex
+tiers) made the hook return early WITHOUT baking the atoms and
+WITHOUT setting `cssInjected`, so `writeBundle` wrote an UNLINKED
+`assets/stylex.css` fallback + warned (the atoms never reached the
+page); a tier-covering statement produced a duplicate fallback.
+
+The fix (coverage-aware idempotence): skip the bake ONLY when the
+statement covers every tier the collected css carries AND the
+collected atoms are already in the asset (`current.includes(css)`).
+The includes() guard goes one step beyond the reviewer's sketch
+deliberately: a tier-covering statement can arrive from an IMPORTED
+payload item css while THIS build's live atoms are still pending —
+skipping on coverage alone would silently drop them. The guard errs
+toward baking: a false negative (a minified prior bake re-serialized)
+re-bakes, and duplicate atom rules render identically; a false
+positive drops atoms.
+
+Regression tests (wiring.test.ts, both green):
+- canonical(0) sheet entry + live atoms → ONE linked css asset, full
+  statement at byte zero, atoms IN the asset, no fallback file;
+- a COMPLETE previous bake as the entry css (unminified rounds so the
+  raw bytes match) → bake skipped, atoms appear EXACTLY once, no
+  fallback, no duplicate.
+
+Full-chain rerun of record for this addendum: see the commit message
+of the fix (verify:all exit 0 with CHROME_PATH exported; stylex
+wiring suite 8/8).
