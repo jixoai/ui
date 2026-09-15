@@ -432,6 +432,20 @@ console.log('shadcn build (generate public/r payloads)…');
 }
 if (!existsSync(join(publicR, 'registry.json'))) die('public/r/registry.json missing after shadcn build');
 
+// ── 0.5 the compiled stylex payload under test (stylex-kernel-phase0
+// Gate-2 P1-2, the spec's "verify:shadcn-add consumes the manifest"
+// clause): the SAME publish step build-site runs — the manifest +
+// artifacts the compiled-payload case installs FROM, at their deployed
+// landing spot (public/payload/stylex/, the zero-engine surface). ────
+console.log('stylex payload publish (generate public/payload/stylex)…');
+{
+  const publish = spawnSync(process.execPath, ['scripts/gen-stylex-payload.mjs', '--publish', 'public'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+  if (publish.status !== 0) die(`stylex payload publish failed:\n${publish.stdout}\n${publish.stderr}`);
+}
+if (!existsSync(join(root, 'public', 'payload', 'stylex', 'payload-manifest.json'))) {
+  die('public/payload/stylex/payload-manifest.json missing after the publish step');
+}
+
 // ── 1. scratch registry = the generated public/r payloads ──────────
 // the single-instance lock is already held (acquired before anything
 // touched the shared world — see acquireLock at the top); the scratch
@@ -1007,6 +1021,76 @@ export default defineConfig({
       const stylexDeps = Object.keys(deps).filter((d) => d.startsWith('@stylexjs/'));
       check('stylex-tokens: zero @stylexjs/* in the consumer package.json', stylexDeps.length === 0, stylexDeps.join(', ') || 'clean');
       check('stylex-tokens: the theme sheet arrived (the css-import prerequisite)', ctx.exists('src/lib/jixoai.css'));
+    },
+  },
+  {
+    id: 'stylex-compiled-payload',
+    // stylex-kernel-phase0 Gate-2 P1-2 (the css-architecture delta's
+    // "generator wired into the registry build; verify:shadcn-add
+    // consumes the manifest"): a consumer installs a COMPILED payload
+    // item FROM THE PUBLISHED MANIFEST (public/payload/stylex/, the
+    // deploy tree build-site ships), wires it with ONE css import +
+    // the plain-string class constants, and builds — owing ZERO
+    // @stylexjs/* (the F11 form, end-to-end). No shadcn add runs:
+    // phase 0 ships no registry item carrying compiled files[] yet —
+    // the install is the manifest-driven copy phase-1's item wiring
+    // will replace, byte-for-byte the same artifacts.
+    items: [],
+    skipAdd: true,
+    app: `<script lang="ts">
+  // the compiled-payload install: ONE css import (the item css, layer
+  // law baked at byte zero) + plain-string class constants — no engine
+  import './stylex-payload/code-card.css';
+  import * as codeCard from './stylex-payload/code-card.styles.js';
+  const firstClass = Object.values(codeCard).find((v) => typeof v === 'string') ?? '';
+</script>
+
+<main class={firstClass}>compiled payload installed clean</main>
+`,
+    extraChecks(ctx) {
+      // install FROM THE PUBLISHED MANIFEST (the deploy tree, not the
+      // private registry/ tree): read it, resolve the item's artifacts,
+      // copy both into the consumer — sha-verified against the record
+      const manifestPath = join(root, 'public', 'payload', 'stylex', 'payload-manifest.json');
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+      const entry = manifest.items['corpus/code-card'] ?? Object.values(manifest.items)[0];
+      check('stylex-compiled-payload: the published manifest names the item', !!entry, 'corpus/code-card');
+      const pick = (art) => join(root, art.path.replace(/^registry\/payload\/stylex\//, 'public/payload/stylex/'));
+      for (const art of [entry.classModule, entry.css]) {
+        const from = pick(art);
+        const bytes = readFileSync(from, 'utf8');
+        check(`stylex-compiled-payload: published ${art.path.split('/').pop()} sha matches the manifest`, createHash('sha256').update(bytes).digest('hex') === art.sha256);
+      }
+      const target = join(ctx.dir, 'src', 'stylex-payload');
+      mkdirSync(target, { recursive: true });
+      cpSync(dirname(pick(entry.classModule)), target, { recursive: true });
+      check('stylex-compiled-payload: classModule + item css landed in the consumer', ctx.exists('src/stylex-payload/code-card.styles.js') && ctx.exists('src/stylex-payload/code-card.css'));
+      // F11: the classModule is PLAIN STRINGS — no $$css markers, no engine imports
+      const module = ctx.read('src/stylex-payload/code-card.styles.js');
+      check('stylex-compiled-payload: the classModule is plain string constants (zero $$css markers)', !module.includes('$$css'));
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      check('stylex-compiled-payload: zero @stylexjs/* in the consumer package.json', Object.keys(deps).filter((d) => d.startsWith('@stylexjs/')).length === 0);
+    },
+    postBuild(ctx) {
+      // the built css carries the item: every stylex tier NESTED under
+      // components (the bundler re-serializes statements freely —
+      // minified, deduped, block order shuffled; the law that survives
+      // ANY consumer pipeline is the nesting + the top-level
+      // first-mention order with utilities after components) + the
+      // compiled atom rules themselves
+      const dist = join(ctx.dir, 'dist');
+      const cssHits = walkFilesNamed(dist, (name) => name.endsWith('.css'));
+      const built = cssHits.map((f) => readFileSync(f, 'utf8')).join('\n');
+      const mentions = [...built.matchAll(/@layer\s+([^;{]+)/g)].flatMap((m) => m[1].split(',').map((n) => n.trim()));
+      const topLevel = mentions.filter((n) => !n.includes('.'));
+      const escaped = mentions.filter((n) => /^stylex\./.test(n));
+      check('stylex-compiled-payload: every stylex tier arrives nested under components (zero top-level escapes)', escaped.length === 0, escaped.join(', ') || 'clean');
+      const compIdx = topLevel.indexOf('components');
+      const utilIdx = topLevel.indexOf('utilities');
+      check('stylex-compiled-payload: the consumer build keeps components before utilities (first mention)', compIdx !== -1 && utilIdx !== -1 && compIdx < utilIdx, topLevel.join(' < '));
+      const atom = (ctx.read('src/stylex-payload/code-card.styles.js').match(/"(x[0-9a-z]{4,12})"/) ?? [])[1];
+      check('stylex-compiled-payload: built css carries the item atom rules', !!atom && built.includes(`.${atom}`), `.${atom ?? 'none'}`);
     },
   },
   {
@@ -1632,8 +1716,12 @@ for (const testCase of CASES) {
   // install through the REAL CLI — `node cli/bin/jixoai-ui.mjs add
   // <args…>` — so the group-alias resolution (index fetch, membership
   // validation, registry-order expansion) runs exactly as a consumer
-  // invokes it; the standing cases keep the raw shadcn form
-  const add = testCase.jixoaiUi
+  // invokes it; the standing cases keep the raw shadcn form. skipAdd
+  // cases (the compiled-payload consumer) run no installer at all —
+  // their extraChecks stage performs the install itself.
+  const add = testCase.skipAdd
+    ? { status: 0, stdout: '', timedOut: false }
+    : testCase.jixoaiUi
     ? await runIn(dir, process.execPath, [cliBin, 'add', ...testCase.jixoaiUi], {
         timeoutMs: 420_000, // two sequential shadcn spawns + the closure's npm-adjacent work
         label: `case ${testCase.id}: jixoai-ui add`,
@@ -1649,7 +1737,7 @@ for (const testCase of CASES) {
 
   // ── the template contract (env-debt-cleanup D2, asserted once after the
   // first successful add — the five frozen groups) ─────────────────────
-  if (!templateContractChecked) {
+  if (!templateContractChecked && !testCase.skipAdd) {
     templateContractChecked = true;
     // (a) the consumer's on-disk aliases are exactly the frozen $lib table
     {
