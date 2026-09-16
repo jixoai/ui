@@ -159,10 +159,12 @@ describe('timeline drawn spine — the geometry payload', () => {
     // EDGE-TO-EDGE (Owner r3): each gap's subpath runs dot-edge to
     // dot-edge (nodeRadius 10 shaved at both ends) — the axis never
     // crosses a dot
-    expect(g.segments[0]!.d).toBe('M 40 20 L 40 80');
-    expect(g.segments[0]!.length).toBe(60);
+    // the JOINT-LAP (r4): shave = R − 1 → endpoints 1px INSIDE the
+    // bounding edges, hidden under the dot's own ink
+    expect(g.segments[0]!.d).toBe('M 40 19 L 40 81');
+    expect(g.segments[0]!.length).toBe(62);
     // ONE path element, per-gap subpaths (gaps at the dots)
-    expect(g.runPath).toBe('M 40 20 L 40 80 M 40 100 L 40 160');
+    expect(g.runPath).toBe('M 40 19 L 40 81 M 40 99 L 40 161');
     // the CHORD field keeps its documented center-space meaning
     expect(g.runLength).toBe(160);
     expect(g.axis).toBe('vertical');
@@ -190,9 +192,29 @@ describe('timeline drawn spine — the geometry payload', () => {
     expect(g.interlaced).toBe(true);
     // flow order preserved: the path runs right → left physically,
     // dot-edge to dot-edge (nodeRadius 10 shaved per end — r3)
-    expect(g.runPath).toBe('M 350 30 L 210 30 M 190 30 L 50 30');
+    expect(g.runPath).toBe('M 351 30 L 209 30 M 191 30 L 49 30');
     expect(g.runLength).toBe(320);
     spy.mockRestore();
+  });
+
+  it('degenerate spacing (dist < 2·(R−1)) collapses to the midpoint — never a reversed subpath (the lap review)', () => {
+    // R=10, centers 10px apart (overlapping dots): shave clamps to
+    // dist/2 = 5 → both endpoints coincide at the gap's midpoint
+    const { host, list } = synthTimeline({
+      centers: [
+        { x: 40, y: 10 },
+        { x: 40, y: 20 },
+      ],
+    });
+    const g = measureTimelineSpine(host, list)!;
+    expect(g.segments.length).toBe(1);
+    expect(g.segments[0]!.length).toBe(0);
+    expect(g.segments[0]!.from.y).toBe(g.segments[0]!.to.y);
+    expect(g.segments[0]!.from.y).toBe(15); // the midpoint
+    // the runPath skips the zero-length gap entirely
+    expect(g.runPath).toBe('');
+    // and the dash preset's renderer never sees a reversed d
+    expect(g.segments[0]!.d).toBe('M 40 15 L 40 15');
   });
 
   it('the dash phase anchor: edgePhase lands a dash START at the measured flow-end edge, whatever the density scale', () => {

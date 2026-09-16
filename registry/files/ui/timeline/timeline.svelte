@@ -89,6 +89,7 @@
   import type { Density } from '$lib/density.svelte';
   import { TimelineDefaults } from './timeline-defaults.svelte';
   import {
+    JOINT_LAP,
     mountTimelineSpine,
     timelineProgressLength,
     type TimelineSpineGeometry,
@@ -258,8 +259,12 @@
       <defs>
         <mask id={dotMaskId} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
           <rect x="0" y="0" width={geometry.width} height={geometry.height} fill="#fff"></rect>
+          <!-- the JOINT-LAP law rides the mask too: subtract r−JOINT_LAP
+               so the dash-driven strokes lap under the dot's edge band —
+               the same ink-under-ink join the base segments carry (ONE
+               shared constant, imported from the engine) -->
           {#each geometry.nodes as node (node.x + ':' + node.y)}
-            <circle cx={node.x} cy={node.y} r={geometry.nodeRadius} fill="#000"></circle>
+            <circle cx={node.x} cy={node.y} r={Math.max(0, geometry.nodeRadius - JOINT_LAP)} fill="#000"></circle>
           {/each}
         </mask>
       </defs>

@@ -3816,7 +3816,13 @@ snippet receiving the measured geometry) replaces it. Breaking, no compat.
   node (hollow and pending dots show no line through their centers —
   the Owner's r3 ruling, superseding the center-to-center W3 freeze),
   no per-item seams, verified by
-  probe (path geometry) across the axis × direction × RTL matrix
+  probe (path geometry) across the axis × direction × RTL matrix —
+  AND every join carries THE JOINT-LAP (r4): each subpath laps 1px
+  INTO the node's edge band (`shave = nodeRadius − 1`; the dot mask's
+  circles shrink in step), the lap hiding UNDER the dot's own ink —
+  the join is structural ink-under-ink, never a knife-edge butt
+  against the beveled diamond's vertex (raster: zero background
+  slivers at the join rows, hollow interiors clean)
 
 #### Scenario: the dash phase anchors to the node edge
 

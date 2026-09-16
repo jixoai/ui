@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-16T10:40:14.390Z",
+  "generatedAt": "2026-09-16T14:28:02.447Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3329,8 +3329,8 @@
           "source": "registry/files/ui/timeline/timeline.svelte",
           "mirror": "apps/www/src/lib/ui/timeline/timeline.svelte",
           "target": "@ui/timeline/timeline.svelte",
-          "sourceSha": "e72010cdc2aa776606b6b34d06284b32416283866b3a94e52f23512dd357bf3a",
-          "mirrorSha": "e72010cdc2aa776606b6b34d06284b32416283866b3a94e52f23512dd357bf3a"
+          "sourceSha": "5557f180394616cf10e82affb45c195c9c191dd8804dc000a2a166251c6a04f8",
+          "mirrorSha": "5557f180394616cf10e82affb45c195c9c191dd8804dc000a2a166251c6a04f8"
         },
         {
           "source": "registry/files/ui/timeline/timeline-item.svelte",
@@ -3357,8 +3357,8 @@
           "source": "registry/files/ui/timeline/timeline-spine.svelte.ts",
           "mirror": "apps/www/src/lib/ui/timeline/timeline-spine.svelte.ts",
           "target": "@ui/timeline/timeline-spine.svelte.ts",
-          "sourceSha": "ef1f413685c641d0d12954cc685915d16d8dd6127f8ec8aa84acdf5e0aae85ec",
-          "mirrorSha": "ef1f413685c641d0d12954cc685915d16d8dd6127f8ec8aa84acdf5e0aae85ec"
+          "sourceSha": "6e66e743dcf78ae7081141670857323644a5d14a1c2ad9ce6db39546d4d29d5d",
+          "mirrorSha": "6e66e743dcf78ae7081141670857323644a5d14a1c2ad9ce6db39546d4d29d5d"
         },
         {
           "source": "registry/files/ui/timeline/timeline-content.svelte",

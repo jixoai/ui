@@ -54,8 +54,9 @@ export interface TimelineSpineNode {
   y: number;
 }
 
-/** one connector, dot-edge to dot-edge (Owner r3: the axis never
- * crosses a dot — the subpath stops at both nodes' edges) */
+/** one connector, dot-edge to dot-edge + the JOINT-LAP (r3/r4: the
+ * axis never crosses a dot, and each end laps 1px INTO the node's
+ * edge band — shave = min(R − 1, dist/2), ink under the dot's ink) */
 export interface TimelineSpineSegment {
   from: TimelineSpineNode;
   to: TimelineSpineNode;
@@ -136,6 +137,12 @@ export type TimelineSpinePreset = 'plain' | 'dashed' | 'beam';
 /** the dash preset's period (4 on / 4 off — the floor era's rhythm) */
 export const TIMELINE_DASH_PERIOD = 8;
 
+/** the JOINT-LAP (r4): how far the connector laps INTO the node's
+ * edge band — 1px, hiding under the dot's own ink (the filled face,
+ * or the 1px border band on hollow dots). ONE shared definition for
+ * the segment shave and the template's dot mask — no drift */
+export const JOINT_LAP = 1;
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
@@ -174,11 +181,15 @@ export function measureTimelineSpine(
   }
   if (nodes.length === 0) return null;
 
-  // EDGE-TO-EDGE segments (Owner r3: the axis NEVER crosses a dot):
-  // each gap's subpath runs from node i's OUTGOING edge to node i+1's
-  // INCOMING edge (the center-line direction, offset nodeRadius at
-  // both ends) — a gap of the dot's diameter interrupts the stroke at
-  // every node, exactly like the no-JS floor's ground cutouts
+  // EDGE-TO-EDGE segments + THE JOINT-LAP LAW (Owner r3 + the r4
+  // seam close): the axis never crosses a dot, BUT a knife-edge butt
+  // against the shape's vertex reads as a GAP at normal zoom (the
+  // beveled diamond's tip is a 45° point; antialiasing leaves light
+  // seams on both slopes). The connector therefore LAPS 1px INTO the
+  // node's edge band (shave = nodeRadius − 1): the lap hides UNDER
+  // the dot's own ink (the filled face, or the 1px border band on
+  // hollow dots — the dot layer paints OVER the spine svg), so the
+  // join is structural ink-under-ink, never a floating butt
   const segments: TimelineSpineSegment[] = [];
   const edgeSubpaths: string[] = [];
   for (let i = 0; i + 1 < nodes.length; i++) {
@@ -189,9 +200,14 @@ export function measureTimelineSpine(
     const dist = Math.hypot(dx, dy);
     const ux = dist > 0 ? dx / dist : 0;
     const uy = dist > 0 ? dy / dist : 0;
-    const edgeLen = Math.max(0, dist - 2 * nodeRadius);
-    const a = { x: round2(from.x + ux * nodeRadius), y: round2(from.y + uy * nodeRadius) };
-    const b = { x: round2(to.x - ux * nodeRadius), y: round2(to.y - uy * nodeRadius) };
+    // the per-gap shave: the lap clamped by half the distance — a
+    // degenerate spacing (dist < 2·(R−1), overlapping or tangent dots)
+    // collapses the gap to its midpoint (a coincident zero-length
+    // subpath, never a REVERSED one crossing the nodes)
+    const shave = Math.min(Math.max(0, nodeRadius - JOINT_LAP), dist / 2);
+    const edgeLen = round2(dist - 2 * shave);
+    const a = { x: round2(from.x + ux * shave), y: round2(from.y + uy * shave) };
+    const b = { x: round2(to.x - ux * shave), y: round2(to.y - uy * shave) };
     segments.push({
       from: a,
       to: b,

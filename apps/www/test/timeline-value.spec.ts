@@ -360,7 +360,7 @@ describe('timeline stops protocol — the measured milestone table', () => {
     ]);
     expect(g.pathLength).toBe(160);
     // the base layer's edge subpaths + the continuous flowPath both ship
-    expect(g.runPath).toBe('M 40 20 L 40 80 M 40 100 L 40 160');
+    expect(g.runPath).toBe('M 40 19 L 40 81 M 40 99 L 40 161');
     expect(g.flowPath).toBe('M 40 10 L 40 90 L 40 170');
     // stops[0].arc is 0 on the unique-first-step ladder (the default)
     expect(g.stops[0]!.arc).toBe(0);
@@ -439,8 +439,9 @@ describe('timeline stops protocol — the measured milestone table', () => {
       ],
     });
     const g = measureTimelineSpine(host, list)!;
-    // EDGE segments (the base layer): each 100px leg − 2×R10 = 80px
-    expect(g.segments.map((s) => s.length)).toEqual([80, 80]);
+    // EDGE segments (the base layer, JOINT-LAP r4): each 100px leg −
+    // 2×(R10−1) = 82px
+    expect(g.segments.map((s) => s.length)).toEqual([82, 82]);
     expect(g.runLength).toBe(120); // the chord — kept for payload compat
     expect(g.pathLength).toBe(200); // the CENTER polyline — the dasharray basis
     expect(g.pathLength).not.toBe(g.runLength);
