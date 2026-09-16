@@ -121,6 +121,19 @@
     isolation: isolate;
   }
 
+  /* ── THE STROKE-ALIGNMENT LAW (Owner r5): the structural spine
+     strokes and the dot's border are ONE weight — both consume this
+     token, so they can never drift apart (set it once, the whole
+     family follows). Caps are BUTT: the lapped tips end exactly at
+     the endpoint (no cap overshoot), the crisp edge grammar of the
+     beveled site. The beam is exempt — it is a traveling LIGHT, not
+     a connector: its 4px + round + blur is the preset's own glow
+     grammar. The ring dot's 2px border stays its variant identity
+     (the identity-outranks law, same as its colors). */
+  :where([data-jx-timeline]) {
+    --jx-tl-stroke-w: 1px;
+  }
+
   /* ── the spine layer: a measured, inert, decorative overlay ──
      No viewBox — user units map 1:1 to the cell's CSS px, which IS
      the geometry payload's list-root space. overflow visible: the
@@ -136,8 +149,8 @@
   :where([data-jx-tl-spine] > [data-jx-tl-base]) {
     fill: none;
     stroke: var(--border);
-    stroke-width: 2px;
-    stroke-linecap: round;
+    stroke-width: var(--jx-tl-stroke-w);
+    stroke-linecap: butt;
   }
   /* the dashed preset: per-segment strokes whose stroke-dashoffset
      (an attribute, per segment) phase-anchors a dash START at the
@@ -147,7 +160,8 @@
   :where([data-jx-tl-spine] > [data-jx-tl-seg]) {
     fill: none;
     stroke: var(--border);
-    stroke-width: 2px;
+    stroke-width: var(--jx-tl-stroke-w);
+    stroke-linecap: butt;
   }
   /* the beam preset: the traveling light — a gradient-stroked dash
      with real width and soft edges (blur), animated along the run
@@ -156,6 +170,8 @@
      reader's way with no mirror branch */
   :where([data-jx-tl-spine] > [data-jx-tl-beam]) {
     fill: none;
+    /* the stroke-alignment law's standing exemption (r5): a light,
+       not a connector — glow width and round caps are the preset */
     stroke-width: 4px;
     stroke-linecap: round;
     filter: blur(1.5px);
@@ -170,8 +186,8 @@
     display: none;
     fill: none;
     stroke: var(--primary);
-    stroke-width: 2px;
-    stroke-linecap: round;
+    stroke-width: var(--jx-tl-stroke-w);
+    stroke-linecap: butt;
   }
   /* the value-driven stroke: paints whenever the scroll animation
      does NOT own the channel — the inline dashoffset
@@ -300,7 +316,9 @@
     justify-content: center;
     min-inline-size: var(--jx-icon);
     min-block-size: var(--jx-icon);
-    border: 1px solid var(--border);
+    /* the stroke-alignment law's other half (r5): the dot's border
+       IS the spine's weight — one token, no drift */
+    border: var(--jx-tl-stroke-w) solid var(--border);
     background: transparent;
   }
   :where([data-jx-tl-dot][data-variant='round']) {

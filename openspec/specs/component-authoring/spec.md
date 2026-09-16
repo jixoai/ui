@@ -3822,7 +3822,18 @@ snippet receiving the measured geometry) replaces it. Breaking, no compat.
   circles shrink in step), the lap hiding UNDER the dot's own ink —
   the join is structural ink-under-ink, never a knife-edge butt
   against the beveled diamond's vertex (raster: zero background
-  slivers at the join rows, hollow interiors clean)
+  slivers at the join rows, hollow interiors clean) — AND the
+  STRUCTURAL strokes carry THE STROKE-ALIGNMENT LAW (Owner r5):
+  `stroke-linecap: butt` on the plain, dashed, and progress strokes
+  (the crisp edge grammar of the beveled site — no cap overshoot
+  past the lapped tip), and the stroke weight IS the dot's border
+  width through ONE shared token `--jx-tl-stroke-w` (the default
+  dot's `border-width` and those `stroke-width`s consume the same
+  variable — they can never drift apart); the beam preset is the
+  standing EXEMPTION (a traveling light, not a connector — its
+  width, round caps, and blur are the glow grammar), and the ring
+  dot's 2px border keeps its variant identity (identity outranks
+  the shared token, as it outranks the state paints)
 
 #### Scenario: the dash phase anchors to the node edge
 

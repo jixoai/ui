@@ -479,7 +479,7 @@ describe('timeline value contract — the css channel', () => {
 
   it('the completed token paint rides the ladder base (dot hollow → filled, title muted → ink)', () => {
     expect(css).toMatch(
-      /:where\(\[data-jx-tl-dot\]\)\s*\{[^}]*min-inline-size:\s*var\(--jx-icon\);[^}]*border:\s*1px solid var\(--border\);[^}]*background:\s*transparent;/s,
+      /:where\(\[data-jx-tl-dot\]\)\s*\{[^}]*min-inline-size:\s*var\(--jx-icon\);[^}]*border:\s*var\(--jx-tl-stroke-w\) solid var\(--border\);[^}]*background:\s*transparent;/s,
     );
     expect(css).toMatch(
       /:where\(\[data-jx-tl-item\]\[data-completed\]\) > :where\(\[data-jx-tl-dot\]\)\s*\{[^}]*background:\s*var\(--primary\);/,
