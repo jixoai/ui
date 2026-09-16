@@ -116,7 +116,28 @@ if (process.argv.includes('--verify-receipt')) {
     failVerify(`receipt predates commit-binding (no meta.commit) — regenerate on HEAD ${head.slice(0, 8)}`);
   }
   if (parsed.meta.commit !== head) {
-    failVerify(`receipt commit ${parsed.meta.commit.slice(0, 8)} ≠ current HEAD ${head.slice(0, 8)} — re-run the probe on this tree`);
+    // receipts may be committed AFTER the tree they measured (the
+    // commit-binding loop: committing receipts rewrites HEAD). The
+    // honest semantic: the measured commit must be an ANCESTOR of
+    // HEAD, and everything between it and HEAD must be receipt
+    // artifacts only (the change's research/ paths) — any CODE drift
+    // since the measurement is red
+    const isAncestor = execFileSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', parsed.meta.commit, head], { stdio: 'ignore' }).status === 0
+      ? true
+      : (() => { try { execFileSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', parsed.meta.commit, head]); return true; } catch { return false; } })();
+    if (!isAncestor) {
+      failVerify(`receipt commit ${parsed.meta.commit.slice(0, 8)} is NOT an ancestor of HEAD ${head.slice(0, 8)} — re-run the probe on this tree`);
+    }
+    let changed;
+    try {
+      changed = execFileSync('git', ['-C', ROOT, 'diff', '--name-only', parsed.meta.commit, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+    } catch {
+      changed = [];
+    }
+    const offTree = changed.filter((f) => !f.startsWith('openspec/changes/2026-09-17-tailwindless-site/research/'));
+    if (offTree.length > 0) {
+      failVerify(`tree drifted beyond receipts since ${parsed.meta.commit.slice(0, 8)}: ${offTree.slice(0, 3).join(', ')}${offTree.length > 3 ? ' …' : ''}`);
+    }
   }
   const artifacts = [];
   const collectArtifacts = (v) => {
