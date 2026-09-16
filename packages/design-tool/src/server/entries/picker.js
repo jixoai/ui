@@ -133,11 +133,15 @@ function applyHighlight(element, origin = 'pick') {
   ensureAlignLoop();
 }
 
-/* the hover ring hides over the selected element (the selection ring
-   already marks it) — the twin of the old #46 law, kept */
+/* the two indicators work INDEPENDENTLY (Owner 2026-09-17): the hover
+   ring marks what is under the pointer, the selection ring marks what
+   is selected — hovering the selected element simply stacks both
+   rings. The old #46 coupling (hide hover over the selection) plus a
+   frame's stale local record made a formerly-selected button
+   un-hoverable — a law nobody could recite; deleted. */
 function applyHover(element, origin = 'pick') {
   hovered = element;
-  emit('hover', element !== null && element !== highlighted ? element : null, origin);
+  emit('hover', element, origin);
   ensureAlignLoop();
 }
 
@@ -297,7 +301,7 @@ function armTrackingClass() {
  *  report is ignored by law 2, no guard needed here */
 function trackIndicators() {
   emit('selected', highlighted, 'refresh');
-  emit('hover', hovered !== null && hovered !== highlighted ? hovered : null, 'refresh');
+  emit('hover', hovered, 'refresh');
   if (IS_CANVAS_HOST) {
     rehostFrameRing('selected', true);
     rehostFrameRing('hover', true);
@@ -340,7 +344,7 @@ function alignStep() {
   // local targets: re-read and re-report on movement only
   for (const [kind, el] of [
     ['selected', highlighted],
-    ['hover', hovered !== null && hovered !== highlighted ? hovered : null],
+    ['hover', hovered],
   ]) {
     const key = el === null || el === undefined ? 'null' : payloadKey(rectOf(el));
     if (key !== lastSent[kind]) emit(kind, el ?? null, 'refresh');
@@ -513,10 +517,12 @@ export function initDesignPicker() {
     applyHover(target === null ? null : elementFor(target), 'pick');
   };
 
-  // the hover loop (#46→rev, Owner 2026-09-14): hover granularity is
+  // the hover loop (#46→rev, Owner 2026-09-17): hover granularity is
   // the NEAREST STAMPED ANCESTOR — the SAME target a click selects.
   // The ring promises exactly what a click does; outside any stamped
   // usage there is NO ring and clicks pass through, also consistent.
+  // The indicators stay INDEPENDENT — hovering the selected element
+  // stacks both rings (the old hide-over-selection coupling is gone).
   document.addEventListener(
     'mouseover',
     (event) => {
