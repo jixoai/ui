@@ -23,9 +23,30 @@
 // the explicit, count-bounded TIER2_GRANDFATHER ledger (never a
 // silent pass).
 //
+// Gate-5 hardening (2026-09-16, Codex round-5 adversarial pass — four
+// more demonstrated bypasses, all closed here): (1) the allowlist's
+// OWN budget was ratchetless — counts raised inside files[] and
+// canonicalized sailed through; the pinned totals are now bounded by
+// the script-embedded RATCHET constants (files/identities/
+// occurrences/zones/forms — lifting a ceiling means editing the gate
+// source, which is review-visible); (2) formsByFile was stripped as
+// "census" and never compared — it is now deep-compared per file (no
+// new rel, no new form, no padding past the forms budget) with the
+// forms total riding the RATCHET; (3) a LEGAL stylex module could
+// smuggle arbitrary producers as extra exports — the exemption is now
+// per EXPORT: only authoring-call results (stylex.create / defineVars
+// / createTheme) and STYLEX_MODULE_HELPERS-registered joiners (cx)
+// are the stylex lane, every other export at a class position is an
+// unregistered producer; (4) the tier-2 families grew
+// animationDuration/animationDelay/animationTimingFunction, fontWeight
+// widened to any 1..1000 value, quoted property keys parse exactly
+// like identifier keys, and the TIER2_GRANDFATHER ledger gained the
+// REVERSE check — a stale entry whose literal already migrated is RED
+// until the entry is deleted.
+//
 //   node scripts/verify-tailwindless.mjs --pin       # write the allowlist instance
 //   node scripts/verify-tailwindless.mjs --check     # the gate (verify:tailwindless)
-//   node scripts/verify-tailwindless.mjs --selftest  # negative fixtures (the nine reds)
+//   node scripts/verify-tailwindless.mjs --selftest  # negative fixtures (the thirteen reds)
 //
 // AST BOUNDARY (what the extractor reads — see allowlist.exclusions):
 //   * Svelte markup: `class=` attribute parts (Text chunks + the string
@@ -121,7 +142,11 @@ const THEME_PROP_RE =
 const LENGTH_LITERAL_RE = /^-?(?:\d+\.?\d*|\.\d+)(?:px|em|rem)$/;
 // Gate-4 family shapes:
 const UNITLESS_NUMBER_RE = /^\d+(?:\.\d+)?$/; // the leading multiplier: lineHeight 1.6 (numeric literal text matches too)
-const FONT_WEIGHT_RE = /^(?:[1-9]00|normal|bold|bolder|lighter)$/; // '600' / 600 / 'bold'
+// Gate-5: fontWeight widened from the [1-9]00 steps to ANY 1..1000
+// value, numeric literal or string numeric (the Codex attack planted
+// 550 — a non-step weight — and rode the gap); keywords stay tier-2.
+const FONT_WEIGHT_NUMERIC_RE = /^(?:[1-9]\d{0,2}|1000)(?:\.\d+)?$/; // 1..1000 — '550' / 550 / '550.5' alike
+const FONT_WEIGHT_KEYWORD_RE = /^(?:normal|bold|bolder|lighter)$/;
 const RADIUS_LITERAL_RE = /^(?:-?(?:\d+\.?\d*|\.\d+)(?:px|em|rem)|\d+(?:\.\d+)?%)$/; // calc(infinity*1px)/inherit are geometry, not scale steps
 const DURATION_RE = /^(?!0+(?:\.\d+)?(?:ms|s)$)\d+(?:\.\d+)?(?:ms|s)$/; // zero = the motion-kill (reduced-motion freeze law) — structural
 const EASING_RE = /^(?:linear|ease|ease-in|ease-out|ease-in-out|step-start|step-end|cubic-bezier\([^)]*\)|steps\([^)]*\))$/;
@@ -141,12 +166,16 @@ function tier2KeyOf(prop, value) {
     if (prop === 'lineHeight' && UNITLESS_NUMBER_RE.test(value)) return `${prop}:${value}`; // unitless leading is a theme slot
     return null;
   }
-  if (prop === 'fontWeight') return FONT_WEIGHT_RE.test(value) ? `${prop}:${value}` : null;
+  if (prop === 'fontWeight') return (FONT_WEIGHT_NUMERIC_RE.test(value) || FONT_WEIGHT_KEYWORD_RE.test(value)) ? `${prop}:${value}` : null;
   if (prop === 'borderRadius') return RADIUS_LITERAL_RE.test(value) ? `${prop}:${value}` : null;
   if (prop === 'transitionDuration') return DURATION_RE.test(value) ? `${prop}:${value}` : null;
   if (prop === 'transitionTimingFunction') return EASING_RE.test(value) ? `${prop}:${value}` : null;
   if (prop === 'boxShadow') return SHADOW_LENGTH_RE.test(value) ? `${prop}:${value}` : null;
   if (prop === 'transition') return COMPOSITE_DURATION_RE.test(value) || COMPOSITE_EASING_RE.test(value) ? `${prop}:${value}` : null; // 'none' passes
+  // Gate-5: the animation slot families (the Codex attack planted
+  // animationDuration: 1ms and rode the coverage gap)
+  if (prop === 'animationDuration' || prop === 'animationDelay') return DURATION_RE.test(value) ? `${prop}:${value}` : null;
+  if (prop === 'animationTimingFunction') return EASING_RE.test(value) ? `${prop}:${value}` : null;
   return null;
 }
 
@@ -156,7 +185,12 @@ function tier2KeyOf(prop, value) {
 // and count-bounded, never a silent pass: the same literal anywhere
 // else, or a count above these numbers, is RED. When a ledger entry's
 // literal migrates to a token, DELETE the entry — a stale entry
-// re-opens the slot it froze.
+// re-opens the slot it froze. Gate-5 made that law MECHANICAL: the
+// reverse check reds any entry whose literal no longer exists in the
+// current source (a fully-migrated file must have its section
+// emptied; a retired FILE sleeps — no file, no debt). The Gate-5
+// animation-slot extension froze press-button's five animation
+// literals below (measured 2026-09-16, same census as the scan).
 const TIER2_GRANDFATHER = {
   'apps/www/src/lib/__probe__/stylex-corpus/code-card.stylex.ts': {
     'lineHeight:1.6': 1,
@@ -176,6 +210,11 @@ const TIER2_GRANDFATHER = {
   'apps/www/src/lib/__probe__/stylex-corpus/press-button.stylex.ts': {
     'fontWeight:500': 1,
     'transition:translate 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out': 1,
+    'animationDuration:800ms': 1,
+    'animationTimingFunction:steps(1)': 1,
+    'animationDelay:200ms': 1,
+    'animationDelay:400ms': 1,
+    'animationDelay:600ms': 1,
   },
   'apps/www/src/lib/__probe__/stylex-corpus/prose.stylex.ts': {
     'lineHeight:1.6': 1,
@@ -269,6 +308,104 @@ function stylexModuleVerified(root, rel) {
   return verified;
 }
 
+// Gate-5: per-EXPORT classification of an authored .stylex module —
+// the module-level bar (a top-level authoring call SOMEWHERE) let a
+// legal module smuggle arbitrary producers as extra exports (the
+// Codex bypass-4 attack: `export const evil = (x) => ...` + a route
+// consumer rode the module's exemption wholesale). A `.stylex`
+// module's exports are on the stylex lane ONLY as (a) a direct
+// authoring-call result (stylex.create / defineVars / createTheme,
+// wraps unwrapped) or (b) a STYLEX_MODULE_HELPERS-registered joiner.
+// Everything else — function, string constant, re-export, destructured
+// export — is 'rogue': using it at a class position is an unregistered
+// producer. The registry is the authority pattern (same as
+// SEMANTIC_RULES): registering a helper means naming its nature here.
+const STYLEX_MODULE_HELPERS = {
+  // cx (timeline-docs.stylex.ts) — the implementation was READ before
+  // registering (Gate-5 due diligence): `styles.filter(Boolean)
+  // .map(Object.entries → string members, $$css dropped).join(' ')`
+  // — a PURE string joiner over stylex dev objects; it cannot invent
+  // tokens, only re-emit the string values of the style objects its
+  // callers pass (which are stylex.create members). Registered
+  // 2026-09-16.
+  'apps/www/src/lib/surface/timeline-docs.stylex.ts': {
+    cx: 'the payload join (separator serialize law) — pure string joiner over stylex dev-object members',
+  },
+};
+const STYLEX_EXPORT_CACHE = new Map(); // `${root}::${rel}::${mtime}::${size}` → Map(name → 'stylex'|'helper'|'rogue') | null
+
+// classify every export of a transform-root .stylex module (null when
+// the module fails the Gate-4 bar). Note: `export default` classifies
+// under 'default'; a default-IMPORT binding resolves there via its
+// importKind, so a rogue default export cannot hide either.
+function stylexExportClasses(root, rel) {
+  let stat;
+  try { stat = statSync(join(root, rel)); } catch { return null; }
+  const key = `${root}::${rel}::${stat.mtimeMs}::${stat.size}`;
+  const cached = STYLEX_EXPORT_CACHE.get(key);
+  if (cached !== undefined) return cached;
+  let classes = null;
+  if (stylexModuleVerified(root, rel)) {
+    try {
+      const src = readFileSync(join(root, rel), 'utf8');
+      const sf = ts.createSourceFile(rel, src, ts.ScriptTarget.Latest, true, /\.(?:m|c)?js$/.test(rel) ? ts.ScriptKind.JS : ts.ScriptKind.TS);
+      const stylexNames = new Set();
+      for (const stmt of sf.statements) {
+        if (!ts.isImportDeclaration(stmt) || !stmt.importClause || !STYLEX_RUNTIME_SOURCE_RE.test(stmt.moduleSpecifier.text)) continue;
+        const clause = stmt.importClause;
+        if (clause.name) stylexNames.add(clause.name.text);
+        const bindings = clause.namedBindings;
+        if (!bindings) continue;
+        if (ts.isNamespaceImport(bindings)) stylexNames.add(bindings.name.text);
+        else if (ts.isNamedImports(bindings)) for (const el of bindings.elements) stylexNames.add(el.name.text);
+      }
+      const isAuthoringCall = (n) => {
+        if (!n || !ts.isCallExpression(n)) return false;
+        const e = n.expression;
+        if (ts.isPropertyAccessExpression(e)) return ts.isIdentifier(e.expression) && stylexNames.has(e.expression.text) && STYLEX_AUTHORING_CALLS.has(e.name.text);
+        return ts.isIdentifier(e) && STYLEX_AUTHORING_CALLS.has(e.text) && stylexNames.has(e.text);
+      };
+      const unwrap = (e) => {
+        let c = e;
+        while (c && (ts.isAsExpression(c) || ts.isSatisfiesExpression(c) || ts.isTypeAssertionExpression(c) || ts.isParenthesizedExpression(c) || ts.isNonNullExpression(c))) c = c.expression;
+        return c;
+      };
+      const helperNames = STYLEX_MODULE_HELPERS[rel] ?? {};
+      const isFn = (n) => !!n && (ts.isArrowFunction(n) || ts.isFunctionExpression(n) || ts.isFunctionDeclaration(n));
+      classes = new Map();
+      const record = (name, node) => {
+        if (!name) return;
+        const init = unwrap(node);
+        if (isAuthoringCall(init)) classes.set(name, 'stylex');
+        else if (helperNames[name] && isFn(init)) classes.set(name, 'helper');
+        else classes.set(name, 'rogue');
+      };
+      const hasExport = (stmt) => (stmt.modifiers ?? []).some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+      for (const stmt of sf.statements) {
+        if (ts.isVariableStatement(stmt)) {
+          if (!hasExport(stmt)) continue;
+          for (const d of stmt.declarationList.declarations) {
+            if (ts.isIdentifier(d.name)) record(d.name.text, d.initializer);
+            else if (ts.isObjectBindingPattern(d.name) || ts.isArrayBindingPattern(d.name)) {
+              for (const el of d.name.elements) if (el && ts.isIdentifier(el.name)) record(el.name.text, null); // destructured export — no single initializer: rogue
+            }
+          }
+        } else if (ts.isFunctionDeclaration(stmt) && stmt.name && hasExport(stmt)) {
+          record(stmt.name.text, stmt);
+        } else if (ts.isClassDeclaration(stmt) && stmt.name && hasExport(stmt)) {
+          record(stmt.name.text, null);
+        } else if (ts.isExportAssignment(stmt)) {
+          record('default', stmt.expression);
+        } else if (ts.isExportDeclaration(stmt) && stmt.exportClause && ts.isNamedExports(stmt.exportClause)) {
+          for (const el of stmt.exportClause.elements) record(el.name.text, null); // re-export — unresolvable here: rogue
+        }
+      }
+    } catch { classes = null; }
+  }
+  STYLEX_EXPORT_CACHE.set(key, classes);
+  return classes;
+}
+
 // registered semantic rules (lane-2 composites — tailwindless-site
 // task 3.3): recurring composite clusters authored in a sheet with
 // owner + selector family + declaration scope recorded. A class name
@@ -355,6 +492,27 @@ const SEMANTIC_RULES = [
   },
 ];
 const SEMANTIC_CLASS_NAMES = new Set(SEMANTIC_RULES.flatMap((r) => r.classes ?? [r.class]));
+
+// ── the monotonic budget ratchet (Gate-5, bypass-2) ─────────────────
+// The pin IS the budget — but the pin lives in a JSON file an
+// attacker can rewrite and canonicalize: Codex's round-5 attack
+// raised a pinned identity count 1→999 and stayed GREEN. These
+// script-embedded ceilings bound the PINNED totals (authority mode,
+// same as SEMANTIC_RULES): equal is legal (a fresh pin), less is
+// migration progress (lower them at the next pin), MORE IS RED.
+// Raising a budget now requires editing THIS file — the gate source —
+// which is review-visible. Values = the 2026-09-17 pin, measured
+// 2026-09-16 (totalsOf over the pinned instance; forms = the
+// resolveTextStyle() formsByFile census, 21 forms × the two mirror
+// sides).
+const RATCHET = {
+  files: 470, // pinned files[] entries — net-new unretired entries red here too
+  identities: 11437,
+  occurrences: 25024,
+  zones: { routes: 15445, 'site-libs': 4171, ui: 5408 },
+  forms: 42,
+};
+const RATCHET_ZONE_KEYS = ['routes', 'site-libs', 'ui'];
 
 // ── canonical JSON (sorted keys, 2-space indent, trailing newline) ──
 function canonicalize(value) {
@@ -556,7 +714,14 @@ class FileExtraction {
         } else if (n.type === 'ImportDeclaration') {
           for (const spec of n.specifiers ?? []) {
             const name = spec.local?.name ?? spec.imported?.name;
-            if (name) this.bindings.set(name, { kind: 'import', source: n.source?.value });
+            if (!name) continue;
+            // Gate-5: importKind/importedName record WHAT the binding
+            // binds — the stylex channel is verified per EXPORT, so a
+            // rename (`import { evil as ok }`) must resolve to the
+            // module's ACTUAL export name, and namespaces/defaults
+            // have their own rules
+            const importKind = spec.type === 'ImportNamespaceSpecifier' ? 'namespace' : spec.type === 'ImportDefaultSpecifier' ? 'default' : 'named';
+            this.bindings.set(name, { kind: 'import', source: n.source?.value, importKind, importedName: spec.imported?.name ?? name });
           }
         }
         // EVERY function's parameters are dynamic inputs (a param is
@@ -621,18 +786,47 @@ class FileExtraction {
   // Gate-4: the runtime arm (@stylexjs/*) is always the engine; an
   // authored module arm must resolve into a transform root AND
   // AST-verify (a @stylexjs import + a top-level authoring call) —
-  // the `.stylex` suffix alone is no longer a channel.
-  isStylexImport(binding) {
+  // the `.stylex` suffix alone is not a channel.
+  // Gate-5: module verification alone is still too coarse — a legal
+  // create-bearing module could smuggle rogue exports. The authored
+  // arm is now verified per EXPORT: this import is channel-legal only
+  // when it binds an authoring-call result or a HELPERS-registered
+  // joiner (namespace imports require EVERY export legal; default
+  // imports resolve to the 'default' export).
+  isStylexChannelImport(name, binding) {
     if (binding?.kind !== 'import' || typeof binding.source !== 'string') return false;
-    if (STYLEX_RUNTIME_SOURCE_RE.test(binding.source)) return true;
+    if (STYLEX_RUNTIME_SOURCE_RE.test(binding.source)) return true; // the engine seam — module-level by nature
     const resolved = resolveStylexSource(this.root, this.rel, binding.source);
-    return resolved !== null && stylexModuleVerified(this.root, resolved);
+    if (resolved === null) return false;
+    const classes = stylexExportClasses(this.root, resolved);
+    if (classes === null) return false;
+    if (binding.importKind === 'namespace') {
+      for (const cls of classes.values()) if (cls === 'rogue') return false;
+      return true;
+    }
+    const exportName = binding.importKind === 'default' ? 'default' : binding.importedName ?? name;
+    const cls = classes.get(exportName);
+    return cls === 'stylex' || cls === 'helper';
+  }
+  // red-note for the smuggled-export shape: the module IS a verified
+  // atom module, but THIS export is not on the stylex lane
+  stylexRogueNote(name, binding) {
+    if (binding?.kind !== 'import' || typeof binding.source !== 'string' || STYLEX_RUNTIME_SOURCE_RE.test(binding.source)) return '';
+    const resolved = resolveStylexSource(this.root, this.rel, binding.source);
+    if (resolved === null) return '';
+    const classes = stylexExportClasses(this.root, resolved);
+    if (classes === null) return '';
+    const exportName = binding.importKind === 'default' ? 'default' : binding.importedName ?? name;
+    const rogue = binding.importKind === 'namespace'
+      ? [...classes.values()].includes('rogue')
+      : classes.get(exportName) === 'rogue';
+    return rogue ? ` — verified stylex module '${binding.source}', but export \`${exportName}\` is neither stylex.create output nor a registered helper (the channel is per export, not per module)` : '';
   }
   isStylexNamespaceIdent(nameNode) {
     const t = nodeType(nameNode);
     if (!t?.Ident) return false;
     const name = isTsFlavor(nameNode) ? nameNode.text : nameNode.name;
-    return this.isStylexImport(this.bindings.get(name));
+    return this.isStylexChannelImport(name, this.bindings.get(name));
   }
   // does the expression chain root at a stylex namespace (stylex.create /
   // stylex.attrs / …) or a local binding initialized from one?
@@ -655,7 +849,7 @@ class FileExtraction {
     if (t.Ident) {
       const name = isTsFlavor(node) ? node.text : node.name;
       const binding = this.bindings.get(name);
-      if (this.isStylexImport(binding)) return true;
+      if (this.isStylexChannelImport(name, binding)) return true;
       // stylex.create binding: const s = stylex.create({...}) → member over it is a seam
       if (binding?.kind === 'local' && this.callNameOf(binding.node) != null) {
         const init = binding.node;
@@ -767,8 +961,8 @@ class FileExtraction {
       return; // caller-supplied class channel — counted in the caller's file
     }
     if (binding.kind === 'import') {
-      if (this.isStylexImport(binding)) return; // stylex namespace — the destination lane
-      this.red(`unregistered dynamic class producer (imported value \`${name}\` from '${binding.source}' at a class position) — register the producer or compose through cn()/clsx()`, node);
+      if (this.isStylexChannelImport(name, binding)) return; // stylex lane — the destination
+      this.red(`unregistered dynamic class producer (imported value \`${name}\` from '${binding.source}' at a class position)${this.stylexRogueNote(name, binding)} — register the producer or compose through cn()/clsx()`, node);
       return;
     }
     // local binding
@@ -889,9 +1083,9 @@ class FileExtraction {
         if (t.Arrow || (binding.fn && init.body)) { this.verifyProducerFn(init, node, scopes, depth); return; }
         if (t.Call && this.isStylexSite(init)) return;
       }
-      if (binding?.kind === 'import' && this.isStylexImport(binding)) return;
+      if (binding?.kind === 'import' && this.isStylexChannelImport(name, binding)) return;
       if (binding?.kind === 'prop') return;
-      this.red(`unregistered dynamic class producer (call to \`${name}\`${binding?.kind === 'import' ? ` imported from '${binding.source}'` : ''} at a class position) — route it through cn()/clsx() or register it in producers[]`, node);
+      this.red(`unregistered dynamic class producer (call to \`${name}\`${binding?.kind === 'import' ? ` imported from '${binding.source}'` : ''} at a class position)${binding?.kind === 'import' ? this.stylexRogueNote(name, binding) : ''} — route it through cn()/clsx() or register it in producers[]`, node);
       return;
     }
     this.red(`unregistered dynamic class producer (call \`${describeExpr(node)}\` at a class position)`, node);
@@ -927,8 +1121,8 @@ class FileExtraction {
       if (!binding) { this.red(`unregistered dynamic class producer (unresolved \`${name}.${keys.map((k) => k.key ?? '[]').join('.')}\` at a class position)`, node); return; }
       if (binding.kind === 'prop') return; // props.x — caller data
       if (binding.kind === 'import') {
-        if (this.isStylexImport(binding)) return;
-        this.red(`unregistered dynamic class producer (imported \`${name}\` at a class position)`, node);
+        if (this.isStylexChannelImport(name, binding)) return;
+        this.red(`unregistered dynamic class producer (imported \`${name}\` at a class position)${this.stylexRogueNote(name, binding)}`, node);
         return;
       }
       let init = binding.node;
@@ -1072,10 +1266,11 @@ class FileExtraction {
         }
       }
       if (ts.isImportDeclaration(n) && n.importClause) {
+        const source = n.moduleSpecifier.text;
         const named = n.importClause.namedBindings;
-        if (named && ts.isNamespaceImport(named)) this.bindings.set(named.name.text, { kind: 'import', source: n.moduleSpecifier.text });
-        if (named && ts.isNamedImports(named)) for (const el of named.elements) this.bindings.set(el.name.text, { kind: 'import', source: n.moduleSpecifier.text });
-        if (n.importClause.name) this.bindings.set(n.importClause.name.text, { kind: 'import', source: n.moduleSpecifier.text });
+        if (named && ts.isNamespaceImport(named)) this.bindings.set(named.name.text, { kind: 'import', source, importKind: 'namespace' });
+        if (named && ts.isNamedImports(named)) for (const el of named.elements) this.bindings.set(el.name.text, { kind: 'import', source, importKind: 'named', importedName: el.propertyName?.text ?? el.name.text });
+        if (n.importClause.name) this.bindings.set(n.importClause.name.text, { kind: 'import', source, importKind: 'default', importedName: 'default' });
       }
       ts.forEachChild(n, visit);
     };
@@ -1328,7 +1523,14 @@ function stylexTier2Literals(root) {
       // string AND numeric literals: the tier-2 families' shapes are
       // text shapes ('600' and 600 are the same theme slot)
       if (inCreate.length && ts.isPropertyAssignment(n) && (ts.isStringLiteral(n.initializer) || ts.isNumericLiteral(n.initializer))) {
-        const prop = ts.isIdentifier(n.name) ? n.name.text : n.name.getText?.() ?? '';
+        // Gate-5: quoted property keys ('fontWeight': '550') parse to
+        // the SAME prop text as identifier keys — the quoted-key form
+        // was a coverage hole (getText() kept the quotes)
+        const prop = ts.isIdentifier(n.name)
+          ? n.name.text
+          : ts.isStringLiteral(n.name) || ts.isNoSubstitutionTemplateLiteral(n.name)
+            ? n.name.text
+            : n.name.getText?.() ?? '';
         const key = tier2KeyOf(prop, n.initializer.text);
         if (key) fileMap.set(key, (fileMap.get(key) ?? 0) + 1);
       }
@@ -1386,8 +1588,10 @@ function producersBlock(root, pinnedAt = null) {
 // re-derived from THIS script (producersBlock's constant fields +
 // SEMANTIC_RULES) and deep-compared against the pinned copy — a pinned
 // value can only match by BEING the script's value. formsByFile is
-// stripped from both sides: it is a source census (budget class,
-// ratcheted in check), not contract.
+// stripped from both sides here: it is a source census (budget class),
+// not contract — but since Gate-5 the census has its OWN ratchet in
+// check() (deep per-file compare + the RATCHET.forms budget), so the
+// strip no longer means "invisible".
 function stripCensusFields(p) {
   const rest = { ...p };
   delete rest.formsByFile;
@@ -1491,7 +1695,7 @@ function totalsOf(instance) {
   let identities = 0;
   const zones = { routes: 0, 'site-libs': 0, ui: 0, other: 0 };
   const zoneFiles = { routes: 0, 'site-libs': 0, ui: 0, other: 0 };
-  for (const f of instance.files) {
+  for (const f of instance.files ?? []) {
     const n = Object.values(f.identities).reduce((a, b) => a + b, 0);
     occurrences += n;
     identities += Object.keys(f.identities).length;
@@ -1516,6 +1720,21 @@ function check(root, allowlistPath) {
   // script-defined registry — a canonically re-serialized edit of the
   // pinned copy is not a legitimate state of the allowlist
   red.push(...contractViolations(root, pinned));
+
+  // Gate-5 monotonic ratchet (bypass-2): the pinned budget itself is
+  // bounded by the script's RATCHET constants — raising counts inside
+  // files[] and canonicalizing (the Codex attack: an identity 1→999,
+  // occurrences 25024→26022, GREEN) now trips the ceiling. The only
+  // way to lift one is editing this script (review-visible).
+  const rt = totalsOf(pinned);
+  const budgetOver = [];
+  if (rt.files > RATCHET.files) budgetOver.push(`files ${rt.files} > ${RATCHET.files} (net-new unretired file entries)`);
+  if (rt.identities > RATCHET.identities) budgetOver.push(`identities ${rt.identities} > ${RATCHET.identities}`);
+  if (rt.occurrences > RATCHET.occurrences) budgetOver.push(`occurrences ${rt.occurrences} > ${RATCHET.occurrences}`);
+  for (const z of RATCHET_ZONE_KEYS) if ((rt.zones[z] ?? 0) > RATCHET.zones[z]) budgetOver.push(`zone ${z} ${rt.zones[z]} > ${RATCHET.zones[z]}`);
+  for (const over of budgetOver) {
+    red.push(`pinned budget RAISED above the script ratchet: ${over} — the RATCHET constants live in scripts/verify-tailwindless.mjs; lifting a ceiling is a gate-source change (review-visible), never an allowlist edit`);
+  }
 
   // re-extract
   const { entries, violations } = extractAll(root);
@@ -1556,6 +1775,30 @@ function check(root, allowlistPath) {
     red.push('producers[] lost the resolveTextStyle() registration');
   }
 
+  // Gate-5 (bypass-3): formsByFile was stripped as "census" and never
+  // compared — a canonical rewrite to evil-only stayed GREEN. The
+  // census is now deep-compared per file: the current rel set must be
+  // ⊆ the pinned rels, no current form may be missing from its pinned
+  // file's list, and the pinned forms total rides the RATCHET (census
+  // padding is a budget raise). Form/rel removal stays legal — that
+  // is the migration direction (monotonic decrease).
+  const pinnedFormsByFile = rtsPinned?.formsByFile;
+  if (!Array.isArray(pinnedFormsByFile)) {
+    red.push('producers[] lost the resolveTextStyle() formsByFile census — the census is ratcheted, not strippable (Gate-5)');
+  } else {
+    const currentFormsByFile = resolveTextStyleForms(root);
+    const pinnedFormsRels = new Set(pinnedFormsByFile.map((e) => e.rel));
+    const pinnedFormsTotal = pinnedFormsByFile.reduce((a, e) => a + (Array.isArray(e.forms) ? e.forms.length : 0), 0);
+    if (pinnedFormsTotal > RATCHET.forms) red.push(`formsByFile census budget RAISED: ${pinnedFormsTotal} forms > ratchet ${RATCHET.forms} — padding the census is a budget raise (RATCHET lives in the script)`);
+    for (const { rel, forms } of currentFormsByFile) {
+      if (!pinnedFormsRels.has(rel)) red.push(`${rel}: producer census file is NEW against the pinned formsByFile (bypass-3: the census no longer strips away)`);
+      const pinnedFormsSet = new Set(pinnedFormsByFile.find((e) => e.rel === rel)?.forms ?? []);
+      for (const form of forms) {
+        if (!pinnedFormsSet.has(form)) red.push(`${rel}: producer census form '${form}' is NEW against the pinned formsByFile (bypass-3: the census no longer strips away)`);
+      }
+    }
+  }
+
   // @utility freeze (growth red; removal legal)
   const pinnedUtils = pinned.jxCssUtilities;
   if (pinnedUtils) {
@@ -1583,6 +1826,18 @@ function check(root, allowlistPath) {
       else if (count > pc) red.push(`${rel}: stylex tier-2 literal '${key}' count grew ${pc} → ${count}`);
     }
   }
+  // Gate-5 (bypass-5), the REVERSE ledger check: a grandfather entry
+  // whose literal no longer exists in the source is STALE — the
+  // migration happened; leaving the entry in place re-opens the slot
+  // it froze. A retired FILE sleeps (no file, no debt), but a live
+  // file with a fully-migrated literal must have its entry deleted.
+  for (const [rel, entries] of Object.entries(TIER2_GRANDFATHER)) {
+    if (!existsSync(join(root, rel))) continue;
+    const live = currentTier2.get(rel);
+    for (const key of Object.keys(entries)) {
+      if (!live?.has(key)) red.push(`${rel}: stale ledger entry '${key}' — the literal migrated, delete the entry (TIER2_GRANDFATHER in scripts/verify-tailwindless.mjs; a stale entry re-opens the slot it froze)`);
+    }
+  }
 
   if (red.length) {
     console.error(`[tailwindless] ✗ RED — ${red.length} violation(s):`);
@@ -1591,6 +1846,19 @@ function check(root, allowlistPath) {
   }
   const totals = totalsOf(pinned);
   console.log(`[tailwindless] ✓ GREEN — ${entries.size} class-bearing files against the pin (pinned ${totals.files} files · ${totals.identities} identities · ${totals.occurrences} occurrences); no growth, no new identities, no unregistered producers, contract intact (producers/semantics = script-defined), @utility freeze ${pinned.jxCssUtilities.count}, tier-2 literals ${Object.keys(pinnedTier2).length} file(s)`);
+  // Gate-5: pinned < ratchet means the migration moved — surface the
+  // headroom so the constants get lowered at the next pin (a ratchet
+  // that never ratchets down is just a ceiling)
+  const headroom = [];
+  if (rt.files < RATCHET.files) headroom.push(`files ${RATCHET.files}→${rt.files}`);
+  if (rt.identities < RATCHET.identities) headroom.push(`identities ${RATCHET.identities}→${rt.identities}`);
+  if (rt.occurrences < RATCHET.occurrences) headroom.push(`occurrences ${RATCHET.occurrences}→${rt.occurrences}`);
+  for (const z of RATCHET_ZONE_KEYS) if ((rt.zones[z] ?? 0) < RATCHET.zones[z]) headroom.push(`${z} ${RATCHET.zones[z]}→${rt.zones[z]}`);
+  if (Array.isArray(pinnedFormsByFile)) {
+    const formsTotal = pinnedFormsByFile.reduce((a, e) => a + (Array.isArray(e.forms) ? e.forms.length : 0), 0);
+    if (formsTotal < RATCHET.forms) headroom.push(`forms ${RATCHET.forms}→${formsTotal}`);
+  }
+  if (headroom.length) console.log(`[tailwindless] ratchet headroom (migration progressed — lower the RATCHET constants at the next pin): ${headroom.join(', ')}`);
   return { ok: true, red: [] };
 }
 
@@ -1672,17 +1940,21 @@ function buildSandbox() {
 function selftest() {
   const cases = [];
   // each case gets a FRESH sandbox + baseline pin, mutates, checks,
-  // and is removed — mutations can never bleed across cases
+  // and is removed — mutations can never bleed across cases (a case
+  // may mutate SCRIPT state too — the ledger — and then must return a
+  // restore function, called before the sandbox goes down)
   const runCase = (name, mutate, expect) => {
     const { sandbox, p } = buildSandbox();
     const allowlist = join(sandbox, 'allowlist.json');
+    let cleanup;
     try {
       pin(sandbox, allowlist, '2026-09-17');
-      mutate(p);
+      cleanup = mutate(p);
       const { ok, red } = check(sandbox, allowlist);
       const hit = red.filter((line) => expect.test(line));
       cases.push({ name, triggered: !ok && hit.length > 0, evidence: hit.slice(0, 2) });
     } finally {
+      if (typeof cleanup === 'function') cleanup();
       rmSync(sandbox, { recursive: true, force: true });
     }
   };
@@ -1799,6 +2071,86 @@ export const evil = (extra: string) => \`shadow-xl blur-sm \${extra}\`;
       writeFileSync(file, before.replace("label: { fontSize: tokens['--jx-text-secondary'] },", "label: { fontSize: tokens['--jx-text-secondary'], fontWeight: '600' },"));
     },
     /tier-2 literal 'fontWeight:600'/,
+  );
+
+  runCase(
+    '(j) rogue export smuggled through a LEGAL stylex module (the channel is per export, not per module)',
+    (p) => {
+      // the Gate-5 bypass-4 attack: the module KEEPS its legal
+      // stylex.create — the module-level verification passes — and
+      // smuggles an arbitrary producer as one extra export
+      const file = p('apps/www/src/lib/wg.stylex.ts');
+      writeFileSync(file, readFileSync(file, 'utf8') + `\nexport const evil = (extra: string) => \`shadow-xl blur-sm \${extra}\`;\n`);
+      const page = p('apps/www/src/routes/rogue-export.html/+page.svelte');
+      mkdirSync(dirname(page), { recursive: true });
+      writeFileSync(page, `<script lang="ts">
+  import { evil } from '$lib/wg.stylex';
+</script>
+
+<div class={evil('p-4')}>rogue export in a verified module</div>
+`);
+    },
+    /export `evil` is neither stylex\.create output nor a registered helper/,
+  );
+
+  runCase(
+    '(k) animationDuration planted in a legal .stylex.ts (tier-2 animation-family coverage)',
+    (p) => {
+      // the Gate-5 bypass-5 attack: 1ms in an uncovered family sailed
+      // through — animationDuration/animationDelay/animationTimingFunction
+      // are tier-2 slots now
+      const file = p('apps/www/src/lib/wg.stylex.ts');
+      const before = readFileSync(file, 'utf8');
+      writeFileSync(file, before.replace("label: { fontSize: tokens['--jx-text-secondary'] },", "label: { fontSize: tokens['--jx-text-secondary'], animationDuration: '1ms' },"));
+    },
+    /tier-2 literal 'animationDuration:1ms'/,
+  );
+
+  runCase(
+    '(l) grandfather ledger entry deleted while its literal still has stock',
+    (p) => {
+      // the probe-corpus file appears AFTER the pin — the ledger is its
+      // only coverage (the real tree's state: the pin predates the
+      // family extension). Deleting the still-needed entry un-covers
+      // the literal → NEW. The ledger mutation is SCRIPT state: restore.
+      const rel = 'apps/www/src/lib/__probe__/stylex-corpus/code-card.stylex.ts';
+      const file = p(rel);
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, `import * as stylex from '@stylexjs/stylex';
+
+export const codeCardStyles = stylex.create({
+  card: {
+    lineHeight: '1.6',
+    transitionDuration: '150ms',
+    transitionTimingFunction: 'ease-out',
+  },
+});
+`);
+      delete TIER2_GRANDFATHER[rel]['lineHeight:1.6'];
+      return () => { TIER2_GRANDFATHER[rel]['lineHeight:1.6'] = 1; };
+    },
+    /tier-2 literal 'lineHeight:1\.6' is NEW/,
+  );
+
+  runCase(
+    '(m) source retired a ledger literal but the ledger entry stays (stale-entry reverse check)',
+    (p) => {
+      // lineHeight:1.6 migrated to a token; the OTHER ledger literals
+      // remain — the stale entry must go red until deleted
+      const rel = 'apps/www/src/lib/__probe__/stylex-corpus/code-card.stylex.ts';
+      const file = p(rel);
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, `import * as stylex from '@stylexjs/stylex';
+
+export const codeCardStyles = stylex.create({
+  card: {
+    transitionDuration: '150ms',
+    transitionTimingFunction: 'ease-out',
+  },
+});
+`);
+    },
+    /stale ledger entry 'lineHeight:1\.6'/,
   );
 
   console.log(`\n[tailwindless] selftest — ${cases.length} negative fixtures:`);

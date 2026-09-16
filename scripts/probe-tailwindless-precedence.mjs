@@ -35,11 +35,21 @@
 // pid/port/chrome-leftover evidence lands in the receipt. Exit 0
 // only when every row is green.
 //
+// Receipt chain (Gate-5 hardening, 2026-09-16 — Codex round-5,
+// bypass 6): this receipt carries the same provenance as the pilot's
+// (meta.commit / meta.dirty / meta.runAt) PLUS a summaryHash over the
+// canonical {commit, summary, rows} payload. It is VERIFIED by the
+// pilot probe's combined gate — one command checks every receipt:
+//   node scripts/probe-tailwindless-pilot.mjs --verify-receipt
+// (a stale receipt — bound to an older commit with non-research drift
+// since, e.g. this change's own probe-code commits — goes red there).
+//
 // Run: node scripts/probe-tailwindless-precedence.mjs
 // Receipt: openspec/changes/2026-09-17-tailwindless-site/research/precedence-receipt.json
 
 import { chromium } from 'playwright-core';
 import { spawn, execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -59,6 +69,19 @@ const GHOSTTY_WASM =
   '/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/.cache/jixoai-ghostty/0fb5949ce28da01bf265143782b2b44487568fefd6ff40528900688565ec6a12.wasm';
 const CHROME =
   '/Users/kzf/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
+
+// ── receipt-chain primitives (must stay IDENTICAL to the copies in
+// probe-tailwindless-pilot.mjs — that probe's --verify-receipt gate
+// recomputes this receipt's hash with its own copy; drift here would
+// false-red every verify) ──
+const canonicalJson = (v) =>
+  v === null || typeof v !== 'object'
+    ? JSON.stringify(v)
+    : Array.isArray(v)
+      ? `[${v.map(canonicalJson).join(',')}]`
+      : `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(',')}}`;
+const chainPayloadOf = (r) => ({ commit: r?.meta?.commit ?? null, summary: r?.summary ?? null, rows: r?.matrix ?? r?.rows ?? null });
+const summaryHashOf = (r) => createHash('sha256').update(canonicalJson(chainPayloadOf(r))).digest('hex').slice(0, 16);
 
 const commitSha = execFileSync('git', ['-C', ROOT, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const dirtyFiles = execFileSync('git', ['-C', ROOT, 'status', '--porcelain'], { encoding: 'utf8' })
@@ -371,7 +394,11 @@ try {
     receipt.server.teardown.chromeLeftovers = '(none)';
   }
   receipt.rows = rows;
-  receipt.summary = { total: rows.length, passed: rows.length - rows.filter((r) => !r.ok).length, failed: rows.filter((r) => !r.ok).length };
+  receipt.summary = { total: rows.length, passed: rows.length - rows.filter((r) => r.ok).length, failed: rows.filter((r) => !r.ok).length };
+  // Gate-5 content binding: hash BEFORE writing, over the exact body
+  // being persisted — probe-tailwindless-pilot.mjs --verify-receipt
+  // recomputes it alongside the pilot receipt's own
+  receipt.summaryHash = summaryHashOf(receipt);
   writeFileSync(RECEIPT, JSON.stringify(receipt, null, 2) + '\n');
   console.log(`receipt → ${RECEIPT}`);
 }

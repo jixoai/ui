@@ -35,9 +35,21 @@
 // matrix row is green.
 //
 // Run: node scripts/probe-tailwindless-pilot.mjs
-// Verify a receipt against the working tree (Gate-4 fix, 2026-09-16 —
-// receipts are commit-bound; re-run after the fix commit):
+// Verify BOTH change receipts against the working tree (Gate-5
+// hardening, 2026-09-16 — closes the three Codex round-5 bypasses):
 //   node scripts/probe-tailwindless-pilot.mjs --verify-receipt
+// Verifies pilot-matrix-receipt.json AND precedence-receipt.json:
+//   · clean tree   — git status --porcelain must be empty outside the
+//     change's research/ dir (the receipts are the thing verified, so
+//     their own edits are exempt; uncommitted CODE is red)
+//   · fail-closed — any git failure is RED, never a default value
+//   · commit bind  — meta.commit is HEAD, or an ancestor with
+//     research/-only drift since (kills the stale precedence receipt)
+//   · content bind — summaryHash (sha256 over the canonical
+//     {commit, summary, rows} payload, 16 hex) must recompute: an
+//     edited summary or meta.commit is red
+//   · artifact bind — exactly the 10 matrix shots, unique paths, byte
+//     size + sha256 per file (exists-only is spoofable)
 // Receipt: openspec/changes/2026-09-17-tailwindless-site/research/pilot-matrix-receipt.json
 // Shots:   openspec/changes/2026-09-17-tailwindless-site/research/matrix/{after|before}-w{375|768|1099|1100|1440}.png
 //
@@ -47,7 +59,8 @@
 
 import { chromium } from 'playwright-core';
 import { spawn, execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, statSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,12 +69,36 @@ const WWW = join(ROOT, 'apps/www');
 const RESEARCH = join(ROOT, 'openspec/changes/2026-09-17-tailwindless-site/research');
 const MATRIX_DIR = join(RESEARCH, 'matrix');
 const RECEIPT = join(RESEARCH, 'pilot-matrix-receipt.json');
+const PRECEDENCE_RECEIPT = join(RESEARCH, 'precedence-receipt.json');
+const RESEARCH_REL = 'openspec/changes/2026-09-17-tailwindless-site/research';
 
 const AFTER_BASE = 'http://localhost:5198';
 const BEFORE_BASE = 'http://localhost:5199'; // READ-ONLY (Owner's main server)
 const PAGE_PATH = '/docs/components/timeline.html';
 const VIEWPORTS = [375, 768, 1099, 1100, 1440];
 const DSF = 2;
+
+// the FIXED artifact set: 2 sides × 5 viewports, repo-relative — the
+// verify side asserts the receipt binds EXACTLY these (count, set,
+// uniqueness), never "whatever .png strings it happens to contain"
+const artifactRel = (side, w) => `${RESEARCH_REL}/matrix/${side}-w${w}.png`;
+const EXPECTED_ARTIFACTS = ['after', 'before'].flatMap((side) => VIEWPORTS.map((w) => artifactRel(side, w)));
+
+// ── receipt-chain primitives (shared by generation + --verify-receipt;
+// duplicated in probe-tailwindless-precedence.mjs so each probe stays a
+// self-contained single-file tool) ──
+const sha256File = (abs) => createHash('sha256').update(readFileSync(abs)).digest('hex');
+const canonicalJson = (v) =>
+  v === null || typeof v !== 'object'
+    ? JSON.stringify(v)
+    : Array.isArray(v)
+      ? `[${v.map(canonicalJson).join(',')}]`
+      : `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(',')}}`;
+// the chain payload: what a receipt VOUCHES for. Hashing commit+summary+rows
+// (not rows alone) makes a hand-edit of meta.commit or of the summary numbers
+// detectable — the Codex round-5 bypass (b).
+const chainPayloadOf = (r) => ({ commit: r?.meta?.commit ?? null, summary: r?.summary ?? null, rows: r?.matrix ?? r?.rows ?? null });
+const summaryHashOf = (r) => createHash('sha256').update(canonicalJson(chainPayloadOf(r))).digest('hex').slice(0, 16);
 
 const MAIN_REPO = '/Users/kzf/Dev/GitHub/jixoai-labs/ui'; // read-only neighbor (main@eb0c9aed)
 // The verified wasm from the MAIN repo's content-addressed cache — sha256
@@ -94,66 +131,133 @@ const SEL = {
   },
 };
 
-// ── --verify-receipt: bind a receipt to the CURRENT tree (Gate-4 fix,
-// 2026-09-16). The receipt's meta.commit must equal the current HEAD
-// and every recorded artifact path must exist — the orchestrator runs
-// this after the fix commit to re-bind the receipt. Any mismatch (or
-// a pre-binding receipt without meta.commit) exits 1.
+// ── --verify-receipt (Gate-5 hardening, 2026-09-16 — Codex round-5):
+// verifies BOTH change receipts against the CURRENT tree. The old
+// Gate-4 form was bypassable three ways: (a) a dirty working tree
+// passed (only commit ancestry + commit-to-commit diff were checked),
+// (b) meta.commit/summary were editable with no content binding, (c)
+// artifacts were exists-only — 20 spoofable paths over 10 real shots.
+// Now: clean tree (research/ exempt), fail-closed git, commit
+// ancestry + research-only drift, summaryHash content binding, and
+// exact artifact-set sha256+bytes binding. Any red exits 1.
 if (process.argv.includes('--verify-receipt')) {
-  const failVerify = (msg) => {
-    console.error(`FAIL  --verify-receipt: ${msg}`);
+  const failVerify = (label, msg) => {
+    console.error(`FAIL  --verify-receipt[${label}]: ${msg}`);
     process.exit(1);
   };
-  if (!existsSync(RECEIPT)) failVerify(`no receipt at ${RECEIPT} — run the probe first`);
-  let parsed;
-  try {
-    parsed = JSON.parse(readFileSync(RECEIPT, 'utf8'));
-  } catch (e) {
-    failVerify(`receipt is not valid JSON: ${e.message}`);
-  }
-  const head = execFileSync('git', ['-C', ROOT, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-  if (!parsed.meta?.commit) {
-    failVerify(`receipt predates commit-binding (no meta.commit) — regenerate on HEAD ${head.slice(0, 8)}`);
-  }
-  if (parsed.meta.commit !== head) {
-    // receipts may be committed AFTER the tree they measured (the
-    // commit-binding loop: committing receipts rewrites HEAD). The
-    // honest semantic: the measured commit must be an ANCESTOR of
-    // HEAD, and everything between it and HEAD must be receipt
-    // artifacts only (the change's research/ paths) — any CODE drift
-    // since the measurement is red
-    let isAncestor;
+  // every git call fail-closed: an exception IS a red, never a default value
+  const gitOrRed = (label, args) => {
     try {
-      execFileSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', parsed.meta.commit, head], { stdio: 'ignore' });
-      isAncestor = true;
-    } catch {
-      isAncestor = false;
+      return execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8' });
+    } catch (e) {
+      failVerify(label, `git ${args.join(' ')} failed (fail-closed): ${e.message.split('\n')[0]}`);
     }
-    if (!isAncestor) {
-      failVerify(`receipt commit ${parsed.meta.commit.slice(0, 8)} is NOT an ancestor of HEAD ${head.slice(0, 8)} — re-run the probe on this tree`);
-    }
-    let changed;
-    try {
-      changed = execFileSync('git', ['-C', ROOT, 'diff', '--name-only', parsed.meta.commit, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-    } catch {
-      changed = [];
-    }
-    const offTree = changed.filter((f) => !f.startsWith('openspec/changes/2026-09-17-tailwindless-site/research/'));
-    if (offTree.length > 0) {
-      failVerify(`tree drifted beyond receipts since ${parsed.meta.commit.slice(0, 8)}: ${offTree.slice(0, 3).join(', ')}${offTree.length > 3 ? ' …' : ''}`);
-    }
-  }
-  const artifacts = [];
-  const collectArtifacts = (v) => {
-    if (typeof v === 'string' && v.endsWith('.png')) artifacts.push(v);
-    else if (v && typeof v === 'object') Object.values(v).forEach(collectArtifacts);
   };
-  collectArtifacts(parsed);
-  if (!artifacts.length) failVerify('receipt records no screenshot artifacts (.png) — nothing to bind');
-  const missing = artifacts.filter((p) => !existsSync(p));
-  if (missing.length) failVerify(`missing artifacts:\n  ${missing.join('\n  ')}`);
-  console.log(`PASS  --verify-receipt: commit ${head.slice(0, 8)} matches; ${artifacts.length}/${artifacts.length} artifacts exist`);
-  console.log(`      runAt ${parsed.meta.runAt ?? '(pre-binding)'} · dirty at run: ${parsed.meta.dirty ? `${parsed.meta.dirty.fileCount} files` : 'clean'}`);
+
+  // 0 ── the working tree itself: a receipt cannot vouch for a tree
+  // with uncommitted CODE. Edits inside the change's research/ dir are
+  // exempt — the receipts and shots are the very objects verified.
+  const statusOut = gitOrRed('tree', ['status', '--porcelain']);
+  const dirtyPaths = statusOut
+    .split('\n')
+    .filter(Boolean)
+    .map((l) => l.slice(3).split(' -> ').pop()); // "XY path" (rename: old -> new)
+  const offTree = dirtyPaths.filter((p) => !p.startsWith(`${RESEARCH_REL}/`));
+  if (offTree.length > 0) {
+    failVerify('tree', `working tree is dirty outside ${RESEARCH_REL}/ — uncommitted code voids every receipt:\n  ${offTree.join('\n  ')}`);
+  }
+
+  const head = gitOrRed('tree', ['rev-parse', 'HEAD']).trim();
+
+  const verifyOne = (label, receiptPath, expectedArtifacts) => {
+    if (!existsSync(receiptPath)) failVerify(label, `no receipt at ${receiptPath} — run the probe first`);
+    let parsed;
+    try {
+      parsed = JSON.parse(readFileSync(receiptPath, 'utf8'));
+    } catch (e) {
+      failVerify(label, `receipt is not valid JSON: ${e.message}`);
+    }
+    if (!parsed.meta?.commit) {
+      failVerify(label, `receipt predates commit-binding (no meta.commit) — regenerate on HEAD ${head.slice(0, 8)}`);
+    }
+
+    // 1 ── commit binding: HEAD, or an ancestor with research/-only
+    // drift since (receipts are committed AFTER the tree they measured)
+    if (parsed.meta.commit !== head) {
+      let isAncestor = false;
+      try {
+        execFileSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', parsed.meta.commit, head], { stdio: 'ignore' });
+        isAncestor = true;
+      } catch (e) {
+        // exit 1 = "not an ancestor"; anything else is a git failure = red
+        if (e.status !== 1) failVerify(label, `git merge-base --is-ancestor failed (fail-closed): ${e.message}`);
+      }
+      if (!isAncestor) {
+        failVerify(label, `receipt commit ${parsed.meta.commit.slice(0, 8)} is NOT an ancestor of HEAD ${head.slice(0, 8)} — re-run the probe on this tree`);
+      }
+      const changed = gitOrRed(label, ['diff', '--name-only', parsed.meta.commit, head]).trim().split('\n').filter(Boolean);
+      const offReceipts = changed.filter((f) => !f.startsWith(`${RESEARCH_REL}/`));
+      if (offReceipts.length > 0) {
+        failVerify(label, `tree drifted beyond receipts since ${parsed.meta.commit.slice(0, 8)}: ${offReceipts.slice(0, 3).join(', ')}${offReceipts.length > 3 ? ' …' : ''}`);
+      }
+    }
+
+    // 2 ── content binding: summaryHash over the canonical
+    // {commit, summary, rows} payload — an edited meta.commit or
+    // summary (the "67/0/67 forgery") recomputes to a different hash
+    if (!parsed.summaryHash) {
+      failVerify(label, `receipt predates content-binding (no summaryHash) — regenerate on HEAD ${head.slice(0, 8)}`);
+    }
+    const recomputed = summaryHashOf(parsed);
+    if (recomputed !== parsed.summaryHash) {
+      failVerify(label, `summaryHash mismatch — receipt body (meta.commit/summary/rows) was edited after generation (recorded ${parsed.summaryHash}, recomputed ${recomputed})`);
+    }
+    const rowsArr = parsed.matrix ?? parsed.rows;
+    if (Array.isArray(rowsArr) && parsed.summary) {
+      const passed = rowsArr.filter((r) => r.ok).length;
+      if (parsed.summary.total !== rowsArr.length || parsed.summary.passed !== passed || parsed.summary.failed !== rowsArr.length - passed) {
+        failVerify(label, `summary does not match the rows array (summary=${JSON.stringify(parsed.summary)}, rows=${rowsArr.length} with ${passed} ok)`);
+      }
+    }
+
+    // 3 ── artifact binding: EXACTLY the expected shot set — count,
+    // set membership, uniqueness — and per-file bytes + sha256
+    if (expectedArtifacts) {
+      const arts = parsed.artifacts;
+      if (!Array.isArray(arts)) {
+        failVerify(label, `receipt predates artifact-binding (no artifacts[]) — regenerate on HEAD ${head.slice(0, 8)}`);
+      }
+      const paths = arts.map((a) => a?.path);
+      const expected = new Set(expectedArtifacts);
+      if (paths.length !== expectedArtifacts.length || paths.some((p) => !expected.has(p))) {
+        failVerify(label, `artifact set is not exactly the ${expectedArtifacts.length} expected matrix shots — got ${paths.length} paths: ${paths.join(', ')}`);
+      }
+      if (new Set(paths).size !== paths.length) {
+        failVerify(label, `artifact paths are not unique (${new Set(paths).size}/${paths.length}) — duplicated shots cannot stand in for the full set`);
+      }
+      for (const a of arts) {
+        const abs = join(ROOT, a.path);
+        try {
+          if (!existsSync(abs)) failVerify(label, `artifact missing: ${a.path}`);
+          const bytes = statSync(abs).size;
+          if (a.bytes !== bytes) failVerify(label, `artifact byte-size drift: ${a.path} recorded ${a.bytes}, found ${bytes}`);
+          const sha = sha256File(abs);
+          if (a.sha256 !== sha) failVerify(label, `artifact sha256 mismatch: ${a.path} recorded ${a.sha256?.slice(0, 16)}…, found ${sha.slice(0, 16)}…`);
+        } catch (e) {
+          failVerify(label, `artifact check failed on ${a.path} (fail-closed): ${e.message}`);
+        }
+      }
+    }
+    return parsed;
+  };
+
+  const pilot = verifyOne('pilot', RECEIPT, EXPECTED_ARTIFACTS);
+  const precedence = verifyOne('precedence', PRECEDENCE_RECEIPT, null);
+
+  const bind = (r) => (r.meta.commit === head ? `commit ${head.slice(0, 8)} = HEAD` : `commit ${r.meta.commit.slice(0, 8)} ≤ HEAD, research-only drift`);
+  console.log(`PASS  --verify-receipt[pilot]: ${bind(pilot)} · ${EXPECTED_ARTIFACTS.length}/${EXPECTED_ARTIFACTS.length} artifacts sha256+bytes verified · summaryHash ${pilot.summaryHash} · ${pilot.summary?.passed ?? '?'}/${pilot.summary?.total ?? '?'} rows`);
+  console.log(`PASS  --verify-receipt[precedence]: ${bind(precedence)} · summaryHash ${precedence.summaryHash} · ${precedence.summary?.passed ?? '?'}/${precedence.summary?.total ?? '?'} rows`);
+  console.log(`PASS  --verify-receipt: tree clean outside research/ · both receipts commit- + content- + artifact-bound`);
   process.exit(0);
 }
 
@@ -378,9 +482,16 @@ async function collectViewport(browser, side, base, width) {
   await freezeHue(page);
   const shot = join(MATRIX_DIR, `${side}-w${width}.png`);
   await page.screenshot({ path: shot, fullPage: true });
+  // Gate-5 (Codex round-5, bypass 7): the freeze was only asserted once,
+  // 150ms after setting — the runtime could unstick the inline var any
+  // frame after that, including the screenshot instant. Re-read AFTER the
+  // capture; the matrix row below turns red unless it is still '300'.
+  const hueAfterShot = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue('--brand-hue').trim(),
+  );
   const computed = await readComputed(page, SEL[side]);
   await ctx.close();
-  return { ...computed, screenshot: shot };
+  return { ...computed, hueAfterShot, screenshot: artifactRel(side, width) };
 }
 
 async function collectDarkScope(browser, side, base) {
@@ -499,6 +610,16 @@ const writeReceipt = () => {
   const failed = rows.filter((r) => !r.ok);
   receipt.matrix = rows;
   receipt.summary = { total: rows.length, passed: rows.length - failed.length, failed: failed.length };
+  // Gate-5 binding (Codex round-5): the receipt vouches for its shots
+  // (exact set + bytes + sha256, computed from disk at write time) and
+  // for its own body (summaryHash over {commit, summary, rows}).
+  // A run that died before writing a shot records it missing → verify red.
+  receipt.artifacts = EXPECTED_ARTIFACTS.map((rel) => {
+    const abs = join(ROOT, rel);
+    if (!existsSync(abs)) return { path: rel, missing: true };
+    return { path: rel, bytes: statSync(abs).size, sha256: sha256File(abs) };
+  });
+  receipt.summaryHash = summaryHashOf(receipt);
   writeFileSync(RECEIPT, JSON.stringify(receipt, null, 2) + '\n');
 };
 
@@ -543,6 +664,12 @@ try {
     parity(`viewport ${w}: frame border (width/style/color)`, A[w].frame, B[w].frame, `after=${JSON.stringify(A[w].frame)} before=${JSON.stringify(B[w].frame)}`);
     parity(`viewport ${w}: stepper control voice`, A[w].ctl, B[w].ctl, `after=${JSON.stringify(A[w].ctl)} before=${JSON.stringify(B[w].ctl)}`);
     parity(`viewport ${w}: body text voice`, A[w].bodyText, B[w].bodyText, `after=${JSON.stringify(A[w].bodyText)} before=${JSON.stringify(B[w].bodyText)}`);
+    // Gate-5 (bypass 7): hue sampled AFTER the capture, asserted frozen
+    // per side AND at parity across sides — a mid-capture unfreeze
+    // (wall-clock riding the inline var) makes the row red, honestly
+    expect(`viewport ${w}: brand hue still ${HUE_FREEZE} after the capture (after)`, A[w].hueAfterShot === HUE_FREEZE, `hue=${A[w].hueAfterShot}`);
+    expect(`viewport ${w}: brand hue still ${HUE_FREEZE} after the capture (before)`, B[w].hueAfterShot === HUE_FREEZE, `hue=${B[w].hueAfterShot}`);
+    parity(`viewport ${w}: brand hue parity (post-capture)`, A[w].hueAfterShot, B[w].hueAfterShot);
     expect(`viewport ${w}: no "[object Object]" in rendered HTML`, !A[w].objectObject && !B[w].objectObject, `after=${A[w].objectObject} before=${B[w].objectObject}`);
   }
 
@@ -565,6 +692,21 @@ try {
   parity('light-scope: body background', A.dark.light.bodyBg, B.dark.light.bodyBg, `after=${A.dark.light.bodyBg} before=${B.dark.light.bodyBg}`);
   parity('light-scope: eyebrow color', A.dark.light.eyebrowColor, B.dark.light.eyebrowColor, `after=${A.dark.light.eyebrowColor} (hue ${A.dark.light.hue}) before=${B.dark.light.eyebrowColor} (hue ${B.dark.light.hue})`);
   expect('dark-scope: the dark class actually applied on both sides', A.dark.dark.dark && B.dark.dark.dark, `after=${A.dark.dark.dark} before=${B.dark.dark.dark}`);
+  // Gate-5 (bypass 7): the dark-scope color reads are hue-crossing
+  // guarded — BOTH scopes' hue readings must be the frozen value, on
+  // BOTH sides, and at parity across sides
+  expect(
+    `dark-scope: hue frozen at ${HUE_FREEZE} across the light+dark reads (after)`,
+    A.dark.light.hue === HUE_FREEZE && A.dark.dark.hue === HUE_FREEZE,
+    `light=${A.dark.light.hue} dark=${A.dark.dark.hue}`,
+  );
+  expect(
+    `dark-scope: hue frozen at ${HUE_FREEZE} across the light+dark reads (before)`,
+    B.dark.light.hue === HUE_FREEZE && B.dark.dark.hue === HUE_FREEZE,
+    `light=${B.dark.light.hue} dark=${B.dark.dark.hue}`,
+  );
+  parity('dark-scope: brand hue parity (light read)', A.dark.light.hue, B.dark.light.hue);
+  parity('dark-scope: brand hue parity (dark read)', A.dark.dark.hue, B.dark.dark.hue);
 
   // keyboard focus
   expect('focus: Tab order reaches the first stepper control (both sides)', A.focus.reached && B.focus.reached, `after tabs=${A.focus.tabs} reached=${A.focus.reached}; before tabs=${B.focus.tabs} reached=${B.focus.reached}`);
