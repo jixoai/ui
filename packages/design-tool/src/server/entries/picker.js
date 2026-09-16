@@ -405,6 +405,25 @@ function elementFor(target) {
   return elements[index] ?? null;
 }
 
+/** the OUTWARD half of the target law (Owner 2026-09-17: "hover 只能向
+ *  children，无法向 parent" — the resolution must run both ways). Over
+ *  unstamped content inside an embedded frame, the nearest stamped
+ *  ancestor lives in the HOST document (the kit container owning this
+ *  iframe); same-origin frameElement reaches across the document
+ *  boundary. Returns a DOWN-seam target for the host, or null when the
+ *  pointer is truly outside any stamped usage. */
+function hostAncestorTarget() {
+  if (IS_CANVAS_HOST || window.parent === window) return null;
+  const frameEl = window.frameElement; // null cross-origin — nothing to promote to
+  if (frameEl === null || typeof frameEl.closest !== 'function') return null;
+  const container = frameEl.closest('[data-jx-component]');
+  if (container === null) return null;
+  const usageIndex = Number(container.getAttribute('data-jx-instance'));
+  const component = container.getAttribute('data-jx-component');
+  if (!Number.isInteger(usageIndex) || component === null) return null;
+  return { usageIndex, iterationIndex: null, component };
+}
+
 export function initDesignPicker() {
   // ?pick=1 forces activation regardless of the studio walk (the
   // standalone-frame debug surface); otherwise activation is decided
@@ -471,7 +490,24 @@ export function initDesignPicker() {
       const target = event.target;
       if (target === null || typeof target.closest !== 'function') return;
       const stamped = target.closest('[data-jx-component]');
-      if (stamped === null) return; // unstamped content passes through
+      if (stamped === null) {
+        // the outward half: unstamped content inside an embedded frame
+        // still sits INSIDE the host's container — promote the click to
+        // it (the ring promised exactly that). Stays a pass-through on
+        // the host's own ground and in standalone frames.
+        const hostTarget = hostAncestorTarget();
+        if (hostTarget !== null) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (typeof window.parent.__jixoaiDesignHighlight === 'function') {
+            window.parent.__jixoaiDesignHighlight(hostTarget);
+          }
+          if (studio !== null) {
+            studio.__jixoaiDesignSelect({ frameId: null, ...hostTarget, instanceCount: 1 });
+          }
+        }
+        return; // unstamped content passes through (or was promoted above)
+      }
       event.preventDefault();
       event.stopPropagation();
       const usageIndex = Number(stamped.getAttribute('data-jx-instance'));
@@ -518,17 +554,28 @@ export function initDesignPicker() {
   };
 
   // the hover loop (#46→rev, Owner 2026-09-17): hover granularity is
-  // the NEAREST STAMPED ANCESTOR — the SAME target a click selects.
-  // The ring promises exactly what a click does; outside any stamped
-  // usage there is NO ring and clicks pass through, also consistent.
-  // The indicators stay INDEPENDENT — hovering the selected element
-  // stacks both rings (the old hide-over-selection coupling is gone).
+  // the NEAREST STAMPED ANCESTOR — resolved BOTH ways (Owner's law:
+  // "只能向 children，无法向 parent" was the bug): entering a child
+  // narrows the ring; leaving the child for the container's own
+  // ground widens it back — across the document boundary too (the
+  // promote reach below). The ring promises exactly what a click
+  // does; the indicators stay INDEPENDENT — hovering the selected
+  // element stacks both rings.
   document.addEventListener(
     'mouseover',
     (event) => {
       const target = event.target;
       if (target === null || typeof target.closest !== 'function') return;
       const stamped = target.closest('[data-jx-component]');
+      if (stamped === null) {
+        // the outward half: hovering unstamped content inside an
+        // embedded frame promotes to the HOST container — not a clear
+        const hostTarget = hostAncestorTarget();
+        if (hostTarget !== null && typeof window.parent.__jixoaiDesignHover === 'function') {
+          window.parent.__jixoaiDesignHover(hostTarget);
+          return;
+        }
+      }
       applyHover(stamped, 'pick');
       if (stamped === null) return;
       const usageIndex = Number(stamped.getAttribute('data-jx-instance'));
