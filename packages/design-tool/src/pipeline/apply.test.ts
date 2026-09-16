@@ -25,7 +25,7 @@ import { buildTestHost } from './test-host.ts';
 function setupDrift(host: ReturnType<typeof buildTestHost>, v2Hero: string): void {
   promote(host.root, 'checkout');
   writeFileSync(host.heroPath, v2Hero, 'utf8');
-  saveDesignCommit(host.root, 'checkout', 'design moved ahead');
+  saveDesignCommit(host.root, { proto: 'checkout', note: 'design moved ahead' });
   releaseDesignTag(host.root, 'r2', 'tonal rung');
 }
 
@@ -156,7 +156,7 @@ test('ref removed from the design: apply skips with a named reason (no resurrect
     promote(host.root, 'checkout');
     // the design deletes the ref at r2
     rmSync(host.heroPath);
-    saveDesignCommit(host.root, 'checkout', 'drop hero');
+    saveDesignCommit(host.root, { proto: 'checkout', note: 'drop hero' });
     releaseDesignTag(host.root, 'r2', 'hero removed');
 
     const report = applyDrift(host.root);

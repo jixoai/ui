@@ -1,14 +1,34 @@
 #!/usr/bin/env node
 /**
- * GATE-0 walkthrough (design-studio r3) — W0..W5, run by the orchestrator
+ * GATE-0 walkthrough (design-studio r3) — W0..W6, run by the orchestrator
  * PERSONALLY against a real browser + real dsh/glm agent, per the promise
  * to the Owner: no Owner invitation before every step is green.
  *
  * Assertions follow openspec/changes/design-studio-r3/walkthrough-flow.md.
  * Evidence: screenshots + a printed assertion table + console-error log.
+ *
+ * FIXTURE CONTRACT (M7 收官轮 — read before every run; the W4 preflight
+ * checks both and answers a NAMED precondition failure, never a mid-run
+ * FATAL):
+ *   1. The hero seed's press-button (id a4) must carry the LITERAL
+ *      `raised={false}` — a present prop-expr buffer. An absent or
+ *      expression prop is not addressable by the panel (the recorded
+ *      kernel gap), so W4①'s check would be a no-op against an already-
+ *      checked box. Reset: `git checkout -- design/prototypes/welcome/
+ *      pages/hero.svelte` then hand-set raised={false} (or edit the seed
+ *      to match) before the run. W6 restores its own pre-edit bytes at
+ *      the end, so back-to-back runs keep this contract.
+ *   2. `design/.jx-collab/` must be the SAME PROTOCOL GENERATION as the
+ *      running code — the journal's tree items reference prop-expr holes
+ *      (bytes an M3-era planner cannot produce). A stale-generation
+ *      journal underreports buffers (the #prop-raised "edit in code"
+ *      symptom). The server's startup reconcile (M7 收官轮) self-heals
+ *      known pages, but the preflight still verifies the era: full reset
+ *      = delete design/.jx-collab and restart the server (adoption
+ *      re-mints identity).
  */
 import { createRequire } from 'node:module';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { mkdirSync } from 'node:fs';
 
 const require = createRequire('/Users/kzf/.npm/_npx/e41f203b7505f1fb/');
@@ -164,12 +184,39 @@ try {
   await page.screenshot({ path: `${SHOT_DIR}w3-tree-select.png` });
 
   /* ── W4 prop edits: toggle add/remove + no flash ────────────── */
+  // M7a note: the panel edits ride the collab op lane — the check
+  // lands a §4 text op through admission, the canonical projection is
+  // written back to the file server-side (atomic write-back) and HMR
+  // carries it. The seed contract: the selected press-button must
+  // carry a LITERAL raised prop at seed (a present buffer — an absent
+  // prop is not yet in the protocol, the recorded kernel gap).
   const heroPath = '/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/design/prototypes/welcome/pages/hero.svelte';
+  // the W4 PREFLIGHT (fixture contract, M7 收官轮): named precondition
+  // failures instead of a mid-run FATAL — see the header's contract note
   const before4 = readFileSync(heroPath, 'utf8');
+  const seedOk = /raised=\{false\}/.test(before4);
+  record('W4', '⓪a seed contract: hero press-button carries the raised={false} literal', seedOk,
+    seedOk ? 'present prop-expr buffer — the checkbox can land a §4 op' : 'FIX THE FIXTURE: hand-set raised={false} on the hero seed (or `git checkout -- design/prototypes/welcome/pages/hero.svelte` + re-apply) and re-run — W4① needs an uncheck-checked transition');
+  const journalPath = '/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/design/.jx-collab/journal.ndjson';
+  let eraOk = false;
+  let eraDetail = 'journal missing';
+  try {
+    const journalText = readFileSync(journalPath, 'utf8');
+    eraOk = journalText.includes('"how":"prop-expr"');
+    eraDetail = eraOk ? 'prop-expr holes present in tree items — same generation' : 'no prop-expr hole bytes anywhere — an older protocol generation wrote this journal';
+  } catch (error) {
+    eraDetail = `unreadable (${error instanceof Error ? error.message : String(error)})`;
+  }
+  record('W4', '⓪b .jx-collab is the same protocol generation as the running code', eraOk,
+    eraOk ? eraDetail : `${eraDetail} — delete design/.jx-collab and restart the server (adoption re-mints; the startup reconcile then realigns)`);
+  if (!(seedOk && eraOk)) {
+    record('W4', '①-④ skipped', false, 'the fixture contract failed (see ⓪a/⓪b) — fix the fixture and re-run; W5/W6 still run for their own signals');
+  }
+  if (seedOk && eraOk) {
   const raised = page.locator('.studio-panel-zone #prop-raised');
   await raised.waitFor({ timeout: 10_000 });
   const disabledDuring = await raised.isDisabled();
-  record('W4', '⓪ control not locked outside agent turn', !disabledDuring);
+  record('W4', '⓪ control not locked outside conflict (op lane)', !disabledDuring);
   await raised.check();
   await sleep(2500); // POST + CAS + HMR
   let src = readFileSync(heroPath, 'utf8');
@@ -187,11 +234,15 @@ try {
   src = readFileSync(heroPath, 'utf8');
   const removed = !/raised/.test(src);
   const flippedFalse = /raised=\{false\}/.test(src);
-  record('W4', '② uncheck honors the seed (removed or {false})', removed || flippedFalse, removed ? 'attribute removed (absent-seed branch)' : flippedFalse ? 'flipped to {false} (present-at-seed branch — the panel re-seeded through the post-check reload, honest per P2-2)' : 'raised still truthy!');
+  // M7a: the buffer law — a present literal prop flips to {false}; the
+  // "attribute REMOVED" branch retired with the file-CAS lane (an
+  // absent prop is a scaffold change, the recorded kernel gap)
+  record('W4', '② uncheck honors the buffer (removed legacy or {false})', removed || flippedFalse, removed ? 'attribute removed (legacy seed state)' : flippedFalse ? 'flipped to {false} (the buffer law — the present-literal branch)' : 'raised still truthy!');
   record('W4', '③ meta refetch bounded across edits', metaRequests.length - metaDuring4 <= 2, `meta ${metaDuring4}→${metaRequests.length} (a reload legitimately re-seeds; W2④ pins silence)`);
   const variantRow = await page.locator('.studio-panel-zone').first().innerText();
   record('W4', '④ slot-derived variant honestly degraded', !/variant\s*(segmented|fill|tonal)/i.test(variantRow), variantRow.includes('variant') ? 'variant row present (unexpected)' : 'variant row absent — the extraction ceiling; hint-row gap tracked on GitHub');
   await page.screenshot({ path: `${SHOT_DIR}w4-props.png` });
+  }
 
   /* ── W5 agent turn with selection context ───────────────────── */
   // W5a: a SHORT turn settles in seconds — proves lock/settle/unlock without
@@ -201,11 +252,18 @@ try {
   // lock check immediately after send
   const chipAtSend = (await page.locator('[data-jx-chip], .chat-chip').count()) > 0 ? await page.locator('[data-jx-chip], .chat-chip').first().innerText() : '(none)';
   await sendBtn.click();
-  // wait for the turn to actually START (a user block renders), then probe the lock
+  // wait for the turn to actually START (a user block renders), then probe the panel
   await page.waitForSelector('.chat-message, .chat-flow > *', { timeout: 60_000 }).catch(() => {});
   await sleep(3000);
-  const lockedDuring = await page.locator('.studio-panel-zone input, .studio-panel-zone select, .studio-panel-zone button:visible').evaluateAll((els) => els.length > 0 && els.every((el) => el.disabled));
-  record('W5', '① panel locked during agent turn', lockedDuring, 'all panel controls disabled mid-stream');
+  const panelControls = await page.locator('.studio-panel-zone input, .studio-panel-zone select, .studio-panel-zone button:visible').evaluateAll((els) => els);
+  // M7a CONTRACT UPGRADE (collab-protocol): the SSE client decorative
+  // lock is RETIRED — admission is the authority. Mid-agent-turn the
+  // panel stays EDITABLE (a concurrent human edit auto-merges or raises
+  // the §6 inline conflict card `data-jx-conflict`, never a blanket
+  // disable). The old W5① asserted "all controls disabled mid-stream".
+  const editableDuringTurn = panelControls.length === 0 || panelControls.some((el) => !el.disabled);
+  record('W5', '① panel stays editable during agent turn (admission-authority, SSE lock retired)', editableDuringTurn,
+    panelControls.length === 0 ? 'no panel controls rendered (no selection)' : 'at least one control enabled mid-stream');
   // wait for the turn to settle (dsh+glm can take minutes)
   const settled = await page.waitForFunction(
     () => !document.querySelector('.chat [class*=streaming]') && document.body.innerText.includes('turn closed'),
@@ -223,7 +281,7 @@ try {
     unlocked = await page.locator('.studio-panel-zone input[type=checkbox]').first().isDisabled().then((d) => !d).catch(() => false);
     if (!unlocked) await sleep(1000);
   }
-  record('W5', '④ panel unlocked after the short turn (the real task below re-locks)', unlocked);
+  record('W5', '④ panel editable after the short turn (no residual suspension)', unlocked);
   record('W5', '②b real task dispatched', true);
   const after5 = readFileSync(heroPath, 'utf8');
   record('W5', '⑤ agent artifact / file surface changed or new proto', true, `hero ${before4 === after5 ? 'unchanged (agent worked elsewhere — expected)' : 'touched'}; destructive-demo dir checked below`);
@@ -236,6 +294,153 @@ try {
   }
   record('W5', '⑥ destructive-demo prototype exists', artifactLanded, artifactLanded ? 'fs assertion (polled)' : 'not created within ~9 minutes');
   await page.screenshot({ path: `${SHOT_DIR}w5-agent-turn.png`, fullPage: false });
+
+  /* ── W6 three-way interleave: human debounce × agent /admit × hand ingest ── */
+  // (collab-protocol M7 tasks item) — three actors, ONE page (hero), three
+  // DISTINCT buffers of the same press-button usage (a4, parsed from the
+  // seed): human → raised (the panel checkbox, the 350ms debounce op
+  // lane); agent → t-0 (a /admit text op built from the /sync mirror);
+  // hand → variant (a raw fs edit, the §8 watcher ingest lane). The
+  // survival contract: all three effects live in the final file (fusion
+  // on distinct buffers — or a visible conflict card, never a silent
+  // loss), the journal accounts all three actors, and the file settles
+  // at the canonical projection.
+  const w6seed = readFileSync(heroPath, 'utf8');
+  const a4match = /<PressButton id="([^"]+)"[^>]*raised/.exec(w6seed);
+  const a4 = a4match?.[1] ?? 'a4';
+  // re-anchor the selection (W5's chat turns may have moved focus)
+  const w6pageNode = page.locator('li[data-path="page: hero-mobile-390-light"]');
+  await w6pageNode.waitFor({ timeout: 20_000 });
+  if ((await page.locator('li[data-path^="page: hero-mobile-390-light/"]').count()) === 0) {
+    await w6pageNode.locator('.jx-tree-row').first().click();
+  }
+  const w6press = page.locator('li[data-path^="page: hero-mobile-390-light/"]').filter({ hasText: 'press-button' }).first();
+  await w6press.locator('.jx-tree-row').first().click();
+  await sleep(1800);
+  const w6raised = page.locator('.studio-panel-zone #prop-raised');
+  const w6panelOk = await w6raised.waitFor({ timeout: 15_000 }).then(() => true).catch(() => false);
+  record('W6', '⓪ the panel addresses the press-button (raised row live)', w6panelOk, w6panelOk ? `component ${a4}` : 'no #prop-raised row — check the seed contract (W4 ⓪a) and the selection');
+
+  // the journal marker: only rows appended AFTER this point count for W6③
+  const w6journalBefore = readFileSync(journalPath, 'utf8').split('\n').filter((line) => line.length > 0).length;
+  const pageerrorsBefore = consoleErrors.length;
+
+  let w6humanLanded = false;
+  if (w6panelOk) {
+    // LANE 1 — human: the checkbox ride (the debounce lane commits a §4
+    // op; the write-back + HMR settle before the other lanes fire, so
+    // the panel's own overlay is never the thing being raced away)
+    const isUnchecked = await w6raised.isChecked().catch(() => false);
+    if (!isUnchecked) await w6raised.uncheck().catch(() => {}); // normalize to {false} first
+    await sleep(1200);
+    await w6raised.check();
+    for (let poll = 0; poll < 15 && !w6humanLanded; poll++) {
+      w6humanLanded = /raised=\{true\}/.test(readFileSync(heroPath, 'utf8'));
+      if (!w6humanLanded) await sleep(500);
+    }
+  }
+  record('W6', '① human lane: the panel debounce edit lands (raised={true} in the file)', w6humanLanded, w6humanLanded ? 'fs assertion (polled)' : w6panelOk ? 'never landed — a silent loss on the human lane!' : 'panel row absent — ⓪ already carries this failure');
+
+  // LANES 2+3 — agent /admit op (t-0) × hand fs edit (variant), fired
+  // near-simultaneously: the agent's projection push and the watcher's
+  // §8 ingest of the hand edit interleave on the same page
+  let agentStatus = 0;
+  const agentLane = (async () => {
+    const { LoroDoc } = createRequire('/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/packages/design-tool/package.json')('loro-crdt');
+    const doc = new LoroDoc();
+    doc.setPeerId(0x6a66);
+    const syncResp = await (await fetch(`${BASE}/__design__/api/collab/sync`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    })).json();
+    doc.import(Buffer.from(syncResp.updateB64, 'base64'));
+    doc.commit();
+    const container = `b:${a4}:t-0`;
+    const current = doc.getText(container).toString();
+    const cursor = doc.getText(container).getCursor(0, 0);
+    if (cursor === undefined) throw new Error(`cannot anchor the agent op on ${container}`);
+    const envelope = {
+      actor: 'walkthrough-agent',
+      opId: `walkthrough-agent:w6:${Date.now()}`,
+      baseFrontiers: doc.frontiers(),
+      domain: 'text',
+      kind: 'replace',
+      target: { componentId: a4, buffer: 't-0' },
+      cursorBytesB64: Buffer.from(cursor.encode()).toString('base64'),
+      offset: 0,
+      length: current.length,
+      text: 'Read the standard twice',
+      timestamp: Date.now(),
+    };
+    const admitResp = await fetch(`${BASE}/__design__/api/collab/admit`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(envelope),
+    });
+    agentStatus = admitResp.status;
+    return current;
+  })().catch((error) => {
+    record('W6', '②b agent lane error', false, String(error instanceof Error ? error.message : error));
+    return '';
+  });
+  const handLane = (async () => {
+    // a hand editor's save on the VARIANT literal (a different buffer of
+    // the SAME usage) — scoped to the a4 line
+    const scoped = new RegExp(`(id="${a4}"[^>]*variant=")ghost(")`);
+    writeFileSync(heroPath, readFileSync(heroPath, 'utf8').replace(scoped, '$1tonal$2'));
+  })();
+  const agentBefore = await agentLane;
+  await handLane;
+
+  // settle: every lane's effect must appear in the file (fusion), and
+  // the bytes must then be STABLE (the converged fixed point)
+  const allSurvive = (text) => /raised=\{true\}/.test(text) && />Read the standard twice</.test(text) && new RegExp(`id="${a4}"[^>]*variant="tonal"`).test(text);
+  let w6settled = false;
+  let stableBytes = '';
+  for (let poll = 0; poll < 40 && !w6settled; poll++) {
+    const text = readFileSync(heroPath, 'utf8');
+    if (allSurvive(text) && text === stableBytes) w6settled = true;
+    else stableBytes = text;
+    if (!w6settled) await sleep(1000);
+  }
+  const finalText = readFileSync(heroPath, 'utf8');
+  record('W6', '② all three lanes SURVIVE in the file (fusion, no silent loss)', w6settled && allSurvive(finalText),
+    w6settled ? `agent admit ${String(agentStatus)}; human+agent+hand effects coexist (agent replaced "${agentBefore}" on t-0)` : `agent admit ${String(agentStatus)}; final bytes carry: raised=${String(/raised=\{true\}/.test(finalText))}, agent-text=${String(/>Read the standard twice</.test(finalText))}, hand-variant=${String(/variant="tonal"/.test(finalText))}`);
+
+  // the kernel's buffer texts must equal the file's literals (the file
+  // IS the canonical projection, checked per-buffer through /usage)
+  let kernelMatch = false;
+  let kernelDetail = 'usage unresolved';
+  for (let index = 1; index <= 10 && !kernelMatch; index++) {
+    const usageResp = await (await fetch(`${BASE}/__design__/api/collab/usage`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: 'design/prototypes/welcome/pages/hero.svelte', component: 'press-button', usageIndex: index }),
+    })).json();
+    if (usageResp.componentId !== a4) continue;
+    const byName = new Map((usageResp.buffers ?? []).map((buffer) => [buffer.buffer, buffer.text]));
+    kernelMatch = byName.get('raised') === 'true' && byName.get('t-0') === 'Read the standard twice' && byName.get('variant') === 'tonal';
+    kernelDetail = `raised=${String(byName.get('raised'))} t-0=${String(byName.get('t-0'))} variant=${String(byName.get('variant'))}`;
+  }
+  record('W6', '③ the file settles at the canonical projection (kernel buffer texts == file literals)', kernelMatch, kernelDetail);
+
+  // journal accounting: the three actors all journaled for this usage
+  const journalAfter = readFileSync(journalPath, 'utf8').split('\n').filter((line) => line.length > 0);
+  const w6rows = journalAfter.slice(w6journalBefore).filter((line) => line.includes(`"componentId":"${a4}"`) || line.includes(`"containerKey":"b:${a4}:`));
+  const w6actors = new Set(w6rows.map((line) => (/\"actor\":\"([^\"]+)\"/.exec(line)?.[1]) ?? '?'));
+  record('W6', '④ journal accounts all three actors', w6actors.has('human') && w6actors.has('walkthrough-agent') && w6actors.has('file-system'),
+    `actors seen: ${[...w6actors].sort().join(', ') || '(no rows!)'} across ${String(w6rows.length)} rows for ${a4}`);
+
+  // the no-silent-loss rider: zero NEW page errors, and a conflict card
+  // (if one rose) is an explicit survival path — never required here
+  const newPageErrors = consoleErrors.slice(pageerrorsBefore).filter((e) => !e.includes('favicon'));
+  const conflictCards = await page.locator('[data-jx-conflict]').count();
+  record('W6', '⑤ clean interleave (no new console errors; conflict card only if explicitly resolved)', newPageErrors.length === 0,
+    `${String(newPageErrors.length)} new console errors; ${String(conflictCards)} conflict card(s) standing (distinct buffers fuse — a standing card is a separate finding)`);
+  await page.screenshot({ path: `${SHOT_DIR}w6-three-way.png` });
+
+  // restore the fixture: W6 hands back its pre-edit bytes so the W4 seed
+  // contract (raised={false}) holds for the next run — the restore is
+  // itself one more §8 hand-edit cycle (journaled, converged)
+  writeFileSync(heroPath, w6seed);
+  await sleep(1500);
+  record('W6', '⑥ fixture restored (hero returned to its pre-W6 bytes)', readFileSync(heroPath, 'utf8') === w6seed, 'the next run\'s W4 preflight re-checks the seed contract');
 } catch (error) {
   record('FATAL', 'walkthrough crashed', false, error.message);
   await page.screenshot({ path: `${SHOT_DIR}fatal.png` }).catch(() => {});

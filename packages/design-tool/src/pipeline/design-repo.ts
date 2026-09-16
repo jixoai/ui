@@ -9,7 +9,9 @@
  *      fallback keeps commits working on hosts with no global git
  *      identity. initDesignRepo is IDEMPOTENT — re-runs fill gaps.
  *   2. the checkpoint verbs over that repo: saveDesignCommit (wip
- *      commit, repo-wide or per-proto pathspec) and releaseDesignTag
+ *      commit over an EXPLICIT path set — declared paths, a proto
+ *      scope, or the bare consolidation snapshot; never a repo-wide
+ *      `git add -A`, M7 collab-protocol round1) and releaseDesignTag
  *      (annotated tag — the deliberate version checkpoint; notes are
  *      the release notes / intent summary). Discipline: re-releasing
  *      an existing name refuses, releasing an unchanged tree refuses
@@ -30,7 +32,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 
 /** one annotated release tag — notes are the intent summary ledger */
 export interface ReleaseTag {
@@ -162,35 +164,209 @@ export interface SaveCommitResult {
   readonly committed: boolean;
   readonly commitSha: string | null;
   readonly subject: string;
+  /**
+   * The explicit path set this save committed (repo-relative, sorted —
+   * empty when nothing committed). The audit surface of the M7 staging
+   * contract: a save's commit contains EXACTLY these paths and nothing
+   * else — another role's uncommitted files never ride along.
+   */
+  readonly paths: readonly string[];
 }
 
 /**
- * `design save [proto] [-n note]`: wip commit of the design repo
- * (pathspec-scoped to prototypes/<proto> when proto is given — the
- * rest of the tree stays staged for its own save). Unchanged → no
- * commit, honestly reported.
+ * The save options — one of three staging lanes (M7 collab-protocol:
+ * 嵌套 git save 显式路径集 staging, round1 review):
+ *
+ *   1. `paths` (the role-attributed lane — PRIMARY for callers who know
+ *      what they touched): stage and commit EXACTLY the declared
+ *      repo-relative paths. Anything else in the tree — another role's
+ *      working-tree edits, even another role's ALREADY-STAGED content —
+ *      stays out of the commit.
+ *   2. `proto` (the prototype scope lane): the declared set is every
+ *      changed path under `prototypes/<proto>/` — a directory-scoped
+ *      path set, never repo-wide.
+ *   3. neither (the bare consolidation lane): the default set is the
+ *      save operation's own touched set — every path git reports changed
+ *      at snapshot time (staged + unstaged + untracked, tool-managed
+ *      files like .gitignore included) — enumerated EXPLICITLY. This is
+ *      the workspace-consolidating lane (`jixoai-ui design save` at the
+ *      terminal); role-attributed callers MUST declare paths or a proto.
+ *
+ * There is NO repo-wide `git add -A` anywhere: `git add` only ever
+ * receives the explicit path list, and the commit itself is
+ * pathspec-scoped (`git commit -- <paths>`), so pre-staged foreign
+ * content stays staged for its own owner instead of riding this
+ * commit (the round1 attack: a save sweeping files other roles had
+ * not committed).
+ *
+ * Frozen concurrency behavior (M7 注记): the path set is snapshotted
+ * once per save call; two interleaved saves with disjoint declared
+ * sets cannot contaminate each other (each commits only its own
+ * list). Overlapping declared sets resolve last-writer-wins per file
+ * as two sequential commits. A file reverted by a concurrent writer
+ * in the window between this save's `git add` and its commit surfaces
+ * as git's own nothing-to-commit failure (a DesignRepoError), never
+ * as a wrong-content commit.
  */
-export function saveDesignCommit(root: string, proto?: string, note?: string): SaveCommitResult {
-  const { designDir } = initDesignRepo(root);
-  const subject = note !== undefined && note.length > 0 ? `wip: ${note}` : `wip ${new Date().toISOString()}`;
-  // repo-wide when no proto is named: the tool-managed files (.gitignore
-  // updates) ride along — a prototypes-only default deadlocks against the
-  // release dirty check, which is repo-wide (observed on the real vehicle
-  // 2026-09-11: the .dsh-home ignore landed, save reported unchanged,
-  // release refused the dirty .gitignore forever)
-  const add = proto === undefined
-    ? runGit(designDir, ['add', '-A'], { allowFailure: true })
-    : runGit(designDir, ['add', '--', `prototypes/${proto}`], { allowFailure: true });
-  if (add.code !== 0) {
-    throw new DesignRepoError(`nothing matches prototypes/${proto ?? ''} — does the prototype exist?`, 'git add', add.stderr);
+export interface SaveDesignCommitOptions {
+  /** pathspec scope shorthand: everything changed under prototypes/<proto>/ */
+  readonly proto?: string;
+  /** the wip subject note (agent-turn summary) */
+  readonly note?: string;
+  /**
+   * The declared touched set — repo-relative paths (relative to design/).
+   * Invalid entries (absolute paths, `..` escapes, empty strings, an
+   * empty array, paths git cannot match at all) fail the save with a
+   * DesignRepoError naming the problem.
+   */
+  readonly paths?: readonly string[];
+}
+
+/** validate a declared path list — repo-relative, no escapes, no empties */
+function validateDeclaredPaths(paths: readonly string[]): readonly string[] {
+  if (paths.length === 0) {
+    throw new DesignRepoError('declared an empty path set — a role-attributed save names at least one path (use the bare lane to consolidate everything)', 'saveDesignCommit', '');
   }
-  const staged = proto === undefined
-    ? runGit(designDir, ['diff', '--cached', '--quiet'], { allowFailure: true })
-    : runGit(designDir, ['diff', '--cached', '--quiet', '--', `prototypes/${proto}`], { allowFailure: true });
-  if (staged.code === 0) return { committed: false, commitSha: null, subject };
-  runGit(designDir, ['commit', '-m', subject]);
+  const seen = new Set<string>();
+  for (const raw of paths) {
+    if (raw.length === 0) throw new DesignRepoError('declared path set contains an empty path', 'saveDesignCommit', '');
+    if (isAbsolute(raw)) throw new DesignRepoError(`declared path ${JSON.stringify(raw)} must be repo-relative (relative to design/)`, 'saveDesignCommit', '');
+    const segments = raw.split('/');
+    if (segments.includes('..') || raw.includes('\\') || raw.startsWith('/')) {
+      throw new DesignRepoError(`declared path ${JSON.stringify(raw)} escapes the design repo`, 'saveDesignCommit', '');
+    }
+    seen.add(raw);
+  }
+  return [...seen].sort((a, b) => (a < b ? -1 : 1));
+}
+
+/**
+ * Enumerate the changed paths `git status --porcelain -z` reports,
+ * optionally filtered under one pathspec prefix. Rename entries carry
+ * the post-image path plus the pre-image path as a second record — both
+ * join the set (the commit pathspec needs both sides; probe-verified
+ * 2026-09-15: `git commit -- new old` records the R100 pair).
+ */
+function enumerateChangedPaths(designDir: string, prefix?: string): readonly string[] {
+  // -uall: untracked files list INDIVIDUALLY — the default collapses an
+  // untracked directory to one `?? dir/` entry, hiding the files inside
+  // it from the prefix filter (the seed-save regression, probe-traced)
+  const out = runGit(designDir, ['status', '--porcelain', '-z', '--untracked-files=all'], { allowFailure: true });
+  if (out.code !== 0) {
+    throw new DesignRepoError('git status failed while enumerating the save path set', 'git status --porcelain -z', out.stderr);
+  }
+  const records = out.stdout.split('\0').filter((record) => record.length > 0);
+  const paths: string[] = [];
+  let expectPreimage = false;
+  for (const record of records) {
+    if (expectPreimage) {
+      // the rename/copy PRE-image rides as a bare record right after the
+      // post-image one (-z format: `R  new\0old\0`) — no status prefix
+      paths.push(record);
+      expectPreimage = false;
+      continue;
+    }
+    // XY <path> — two status columns, then the path verbatim (-z never quotes)
+    if (record.length < 4) continue;
+    const status = record.slice(0, 2);
+    paths.push(record.slice(3));
+    if (status[0] === 'R' || status[0] === 'C') expectPreimage = true;
+  }
+  const unique = [...new Set(paths)];
+  return (prefix === undefined ? unique : unique.filter((path) => path === prefix || path.startsWith(`${prefix}/`))).sort((a, b) => (a < b ? -1 : 1));
+}
+
+/**
+ * `design save`: wip commit over an EXPLICIT path set (see
+ * {@link SaveDesignCommitOptions} for the three lanes and the frozen
+ * concurrency behavior). Unchanged for the declared set → no commit,
+ * honestly reported with `paths: []`.
+ */
+export function saveDesignCommit(root: string, options: SaveDesignCommitOptions = {}): SaveCommitResult {
+  const { designDir } = initDesignRepo(root);
+  const subject = options.note !== undefined && options.note.length > 0 ? `wip: ${options.note}` : `wip ${new Date().toISOString()}`;
+
+  // 1. resolve the target path set (declared | proto-scoped | bare
+  //    consolidation snapshot — never a repo-wide `add -A`)
+  let target: readonly string[];
+  if (options.paths !== undefined) {
+    target = validateDeclaredPaths(options.paths);
+  } else if (options.proto !== undefined) {
+    const scope = `prototypes/${options.proto}`;
+    target = enumerateChangedPaths(designDir, scope);
+    // typo guard (the r2 contract): a named prototype with no directory
+    // and no changes under it is almost certainly a misspelling
+    if (target.length === 0 && !existsSync(join(designDir, scope))) {
+      throw new DesignRepoError(`nothing matches ${scope} — does the prototype exist?`, 'git add', '');
+    }
+  } else {
+    // the bare lane: everything changed at snapshot time, enumerated
+    // explicitly (tool-managed files like .gitignore ride here — the
+    // 2026-09-11 vehicle deadlock stays solved without ever going -A)
+    target = enumerateChangedPaths(designDir);
+  }
+
+  // 2. stage: `git add` only the paths that still need staging. Fully
+  //    staged entries (X column set, Y column blank — staged deletions,
+  //    staged renames' old side) are already in the index; re-adding a
+  //    rename's dropped old path would fatal ("did not match any
+  //    files"). Unstaged edits, unstaged deletions (staged by the add —
+  //    probe-verified) and untracked files all go through.
+  if (options.paths === undefined && target.length > 0) {
+    const addTargets = target.filter((path) => needsStaging(designDir, path));
+    if (addTargets.length > 0) {
+      const add = runGit(designDir, ['add', '--', ...addTargets], { allowFailure: true });
+      if (add.code !== 0) {
+        throw new DesignRepoError(`staging the save path set failed (${addTargets.join(', ')})`, 'git add', add.stderr);
+      }
+    }
+  } else if (options.paths !== undefined) {
+    // the declared lane stages verbatim — a declared path git cannot
+    // match is a caller bug, surfaced as git's own fatal
+    const add = runGit(designDir, ['add', '--', ...target], { allowFailure: true });
+    if (add.code !== 0) {
+      throw new DesignRepoError(`nothing matches the declared path set (${target.join(', ')}) — every declared path must exist or be tracked`, 'git add', add.stderr);
+    }
+  }
+
+  // 3. unchanged check scoped to the target set ONLY — foreign staged
+  //    content outside the set does not count (and does not commit)
+  if (target.length > 0) {
+    const staged = runGit(designDir, ['diff', '--cached', '--quiet', '--', ...target], { allowFailure: true });
+    if (staged.code === 0) return { committed: false, commitSha: null, subject, paths: [] };
+  } else {
+    return { committed: false, commitSha: null, subject, paths: [] };
+  }
+
+  // 4. the pathspec-scoped commit: only the target paths ride, whatever
+  //    else the index holds stays staged for its owner
+  const commit = runGit(designDir, ['commit', '-m', subject, '--', ...target], { allowFailure: true });
+  if (commit.code !== 0) {
+    throw new DesignRepoError(
+      `committing the save path set failed (${target.join(', ')}) — a concurrent writer likely reverted a staged file mid-save (frozen behavior: fail, never commit wrong content)`,
+      'git commit',
+      commit.stderr,
+    );
+  }
   const sha = runGit(designDir, ['rev-parse', 'HEAD']).stdout.trim();
-  return { committed: true, commitSha: sha, subject };
+  return { committed: true, commitSha: sha, subject, paths: target };
+}
+
+/**
+ * Does this enumerated path still need `git add`? True when the file
+ * exists in the worktree (modifications, untracked files, rename
+ * post-images) or is tracked-but-missing (an UNSTAGED deletion — `git
+ * add` stages the removal). False for entries whose change is already
+ * fully staged (Y column blank): staged deletions and a staged
+ * rename's dropped pre-image — re-adding those fatals.
+ */
+function needsStaging(designDir: string, path: string): boolean {
+  if (existsSync(join(designDir, path))) return true;
+  // missing from the worktree: stage only while the index still tracks
+  // it (the unstaged deletion); a staged deletion or a rename's dropped
+  // old side is already done
+  const tracked = runGit(designDir, ['ls-files', '--', path], { allowFailure: true });
+  return tracked.code === 0 && tracked.stdout.trim().length > 0;
 }
 
 /* ── release (annotated tag) ────────────────────────────────────────────── */

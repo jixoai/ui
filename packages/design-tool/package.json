@@ -38,6 +38,8 @@
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tailwindcss/vite": "^4.2.1",
     "magic-string": "^0.30.21",
+    "loro-crdt": "1.16.1",
+    "quickjs-emscripten": "0.32.0",
     "svelte": "^5.55.5",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3",

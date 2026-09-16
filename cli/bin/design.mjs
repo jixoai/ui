@@ -59,9 +59,12 @@ const DESIGN_USAGE = `jixoai-ui design — the agent-driven prototype canvas
       create the nested design/ git repo (idempotent; design/ stays
       host-gitignored — zero pollution)
 
-  jixoai-ui design save [<proto>] [-n <note>]
-      wip commit of the design repo (proto scopes the pathspec);
-      unchanged saves commit nothing
+  jixoai-ui design save [<proto>] [-n <note>] [--path <p>...]
+      wip commit over an EXPLICIT path set: --path names the exact
+      repo-relative files this role touched (others' uncommitted
+      files never ride along); a proto scopes the set to
+      prototypes/<proto>/; neither consolidates everything changed
+      (snapshotted at save time). Unchanged saves commit nothing
 
   jixoai-ui design release [<name>] [-n <notes>] [--export <proto>...]
       the version checkpoint: an annotated tag over the committed
@@ -131,14 +134,18 @@ export function parseDesignArgs(argv) {
 
 /* ── pipeline subcommand parsers (r2 rev2 T10) ─────────────────────────── */
 
-/** save: [<proto>] [-n <note>] — proto optional (repo-wide wip commit) */
+/** save: [<proto>] [-n <note>] [--path <p>...] — explicit path-set staging (M7) */
 function parseSaveArgs(argv) {
-  const out = { proto: undefined, note: undefined };
+  const out = { proto: undefined, note: undefined, paths: undefined };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--note" || arg === "-n") {
       out.note = argv[++i];
       if (out.note === undefined) fail(`--note needs a value\n\n${DESIGN_USAGE}`);
+    } else if (arg === "--path") {
+      const path = argv[++i];
+      if (path === undefined || path.startsWith("--")) fail(`--path needs a repo-relative path value\n\n${DESIGN_USAGE}`);
+      out.paths = [...(out.paths ?? []), path];
     } else if (out.proto === undefined) {
       out.proto = arg;
     } else {
@@ -387,7 +394,7 @@ async function runPipelineSubcommand(command, rest) {
 
   if (command === "save") {
     const args = parseSaveArgs(rest);
-    const result = design.saveDesignCommit(process.cwd(), args.proto, args.note);
+    const result = design.saveDesignCommit(process.cwd(), { proto: args.proto, note: args.note, paths: args.paths });
     if (!result.committed) {
       console.log(`jixoai-ui design: nothing to save — the design repo is unchanged`);
       return;

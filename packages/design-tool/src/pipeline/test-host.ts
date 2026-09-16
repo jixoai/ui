@@ -81,7 +81,7 @@ export function buildTestHost(proto = 'checkout'): TestHost {
   writeFileSync(join(protoDir, 'components/cta.svelte'), CTA_SOURCE, 'utf8');
   // the design history: init → wip save → r1 release
   const { designDir } = initDesignRepo(root);
-  saveDesignCommit(root, proto, 'seed');
+  saveDesignCommit(root, { proto, note: 'seed' });
   const { tag } = releaseDesignTag(root, 'r1', 'first release');
   return {
     root,

@@ -52,7 +52,7 @@ test('the artifact changelog follows the tag ledger (notes intact, version = ord
   const host = buildTestHost();
   try {
     writeFileSync(host.heroPath, readFileSync(host.heroPath, 'utf8').replace('Deploy', 'Ship it'), 'utf8');
-    saveDesignCommit(host.root, 'checkout', 'v2 wip');
+    saveDesignCommit(host.root, { proto: 'checkout', note: 'v2 wip' });
     const r2 = releaseDesignTag(host.root, 'r2', 'deploy → ship it');
 
     const parsed = JSON.parse(readFileSync(exportDesignFile(host.root, 'checkout', r2.tag), 'utf8')) as ReturnType<typeof parseDesignFile>;

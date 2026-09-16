@@ -22,6 +22,10 @@
  *       panel's input): usageIndex → prop → {start,end,kind,value} in
  *       ORIGINAL-source coordinates (the panel rewrites the file on
  *       disk — the injected stamp text must never leak into spans).
+ *       M7a: every entry also carries the usage's NATIVE `id` literal
+ *       when one exists (collab-protocol §2 — id-first addressing;
+ *       absent = the page awaits ingest, the panel's transitional
+ *       write-disable defense).
  *     → emit `export const __jxUsageMap = …` as a module-script
  *       export: injected BEFORE the existing module script's closing
  *       tag, or appended as a NEW `<script module>` block at file end
@@ -239,6 +243,16 @@ export interface UsageEntry {
   readonly tag: string;
   /** 1-based document order, file-global (the instance-attr value) */
   readonly usageIndex: number;
+  /**
+   * the usage's NATIVE `id` attribute literal (collab-protocol §2 /
+   * M7a id-first addressing) — present iff the attribute exists as a
+   * single plain Text literal. Post-ingest every component carries one
+   * (the identity kernel adopts or mints); ABSENT means the page has
+   * not been ingested yet — the panel disables writes and points at
+   * the ingest (the transitional defense, M7a). A non-literal id
+   * (expression / multi-part) is honestly omitted, never guessed.
+   */
+  readonly id?: string;
   /** the whole usage tag span (original source coords) */
   readonly start: number;
   readonly end: number;
@@ -277,6 +291,24 @@ export interface StampOptions {
 /** an ExpressionTag value part ({…} inside an attribute value) */
 interface ExpressionTagPart extends AstNode {
   readonly expression?: AstNode & { readonly type?: string; readonly value?: unknown };
+}
+
+/**
+ * The usage's native `id` literal (M7a id-first addressing): a single
+ * plain Text value part (`id="a4"`) reads its decoded data; a bare,
+ * expression or multi-part id reads undefined — never a guess.
+ */
+function nativeIdOf(attributes: readonly AstAttribute[]): string | undefined {
+  for (const attribute of attributes) {
+    if (attribute.type !== 'Attribute' || attribute.name !== 'id') continue;
+    const value = attribute.value;
+    if (Array.isArray(value) && value.length === 1 && value[0]!.type === 'Text') {
+      const data = (value[0] as AstNode & { data?: string }).data;
+      return typeof data === 'string' ? data : undefined;
+    }
+    return undefined;
+  }
+  return undefined;
 }
 
 /**
@@ -388,10 +420,12 @@ export async function stampSvelteSource(source: string, options: StampOptions): 
             if (attribute.type !== 'Attribute' || typeof attribute.name !== 'string') continue;
             props[attribute.name] = propSpanOf(attribute);
           }
+          const id = nativeIdOf(attributes);
           map[String(counter)] = {
             component: item,
             tag: usage.name,
             usageIndex: counter,
+            ...(id !== undefined ? { id } : {}),
             start: usage.start,
             end: usage.end,
             props,

@@ -329,3 +329,22 @@ test('textSpans ride the __jxUsageMap FIELD only — no new module export, the a
   assert.equal(exportStatements.length, 1, 'one export statement only');
   compile(result!.code, { generate: 'client' }); // and it still compiles
 });
+
+/* ── M7a: the native id field (id-first addressing, §2) ──────────────── */
+
+test('usage map: a post-ingest native id rides the entry verbatim; non-literal ids are honestly absent', async () => {
+  const source = [
+    '<script module>import P from "#jixoai/press-button";</script>',
+    '<P id="a4" variant="fill">go</P>',
+    '<P id={dynamic}>second</P>',
+    '<P>third</P>',
+  ].join('\n');
+  const result = await stampSvelteSource(source, { filename: 'x.svelte', bindings: { P: 'press-button' } });
+  assert.notEqual(result, null);
+  assert.equal(result!.usageMap['1']!.id, 'a4', 'the single-Text id literal is the addressing key');
+  assert.equal(result!.usageMap['2']!.id, undefined, 'an expression id is never guessed');
+  assert.equal(result!.usageMap['3']!.id, undefined, 'no id = the page awaits ingest (the panel write-disable defense)');
+  // the id field serializes into the emitted map (the module surface carries it)
+  assert.equal(result!.code.includes('"id": "a4"'), true);
+  compile(result!.code, { generate: 'client' });
+});

@@ -120,7 +120,7 @@ test('repeated promotion refuses with a diff and leaves the host untouched; --fo
 
     // design evolves to r2; developer touches the host copy
     writeFileSync(host.heroPath, `${readFileSync(host.heroPath, 'utf8')}<!-- v2 -->\n`, 'utf8');
-    saveDesignCommit(host.root, 'checkout', 'v2 edits');
+    saveDesignCommit(host.root, { proto: 'checkout', note: 'v2 edits' });
     releaseDesignTag(host.root, 'r2', 'second release');
     writeFileSync(host.promotedHeroPath, `${before}<!-- dev edit -->\n`, 'utf8');
 
@@ -180,7 +180,7 @@ test('status: drift through git ranges — changelog = tag notes, diff = git uni
 
     // design moves to r2: a real line edit + release notes
     writeFileSync(host.heroPath, readFileSync(host.heroPath, 'utf8').replace('Deploy', 'Ship it'), 'utf8');
-    saveDesignCommit(host.root, 'checkout', 'irrelevant wip note');
+    saveDesignCommit(host.root, { proto: 'checkout', note: 'irrelevant wip note' });
     releaseDesignTag(host.root, 'r2', 'deploy → ship it');
 
     status = promotionStatus(host.root);
@@ -199,7 +199,7 @@ test('status: drift through git ranges — changelog = tag notes, diff = git uni
 
     // wip drift (no release yet): drifted via the git range, empty changelog
     writeFileSync(host.heroPath, readFileSync(host.heroPath, 'utf8').replace('Ship it', 'Launch'), 'utf8');
-    saveDesignCommit(host.root, 'checkout', 'wip only');
+    saveDesignCommit(host.root, { proto: 'checkout', note: 'wip only' });
     const wipStatus = promotionStatus(host.root);
     const wipHero = wipStatus.promotions.find((p) => p.ref === 'pages/hero.svelte')!;
     assert.equal(wipHero.drifted, true, 'git range sees the wip commit');
@@ -223,7 +223,7 @@ test('tag-between grouping: drift across MULTIPLE prototypes reports per prototy
     const dir = join(host.root, 'design/prototypes/landing/pages');
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'intro.svelte'), "<script module lang=\"ts\">\n  import Badge from '#jixoai/badge';\n</script>\n\n<Badge>landing</Badge>\n", 'utf8');
-    saveDesignCommit(host.root, 'landing', 'add landing');
+    saveDesignCommit(host.root, { proto: 'landing', note: 'add landing' });
     releaseDesignTag(host.root, 'r2', 'landing arrives');
 
     promote(host.root, 'checkout');
@@ -232,7 +232,7 @@ test('tag-between grouping: drift across MULTIPLE prototypes reports per prototy
     // r3: BOTH prototypes change
     writeFileSync(host.heroPath, readFileSync(host.heroPath, 'utf8').replace('Deploy', 'Ship'), 'utf8');
     writeFileSync(join(dir, 'intro.svelte'), "<script module lang=\"ts\">\n  import Badge from '#jixoai/badge';\n</script>\n\n<Badge variant=\"fill\">landing</Badge>\n", 'utf8');
-    saveDesignCommit(host.root, undefined, 'both change');
+    saveDesignCommit(host.root, { note: 'both change' });
     releaseDesignTag(host.root, 'r3', 'both move');
 
     const status = promotionStatus(host.root);

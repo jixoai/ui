@@ -41,7 +41,7 @@ export {
   runGit,
   listTree,
 } from './pipeline/design-repo.ts';
-export type { ReleaseTag, ReleaseResult, SaveCommitResult, MergeFileResult, ParsedConflict } from './pipeline/design-repo.ts';
+export type { ReleaseTag, ReleaseResult, SaveCommitResult, SaveDesignCommitOptions, MergeFileResult, ParsedConflict } from './pipeline/design-repo.ts';
 export { DesignRepoError } from './pipeline/design-repo.ts';
 export {
   openDesignFile,
@@ -74,8 +74,7 @@ export { applyDrift } from './pipeline/apply.ts';
 export type { ApplyReport, ApplyFileReport, ApplyDriftOptions, ApplySkipReason, AppliedConflict } from './pipeline/apply.ts';
 export { unifiedDiff, diffHunks } from './pipeline/diff.ts';
 export type { DiffHunk } from './pipeline/diff.ts';
-// metadata + property editing (r2 T7/T8): the on-demand schema
-// endpoint and the CAS-arbitrated source editor
+// metadata (r2 T7): the on-demand schema endpoint
 export { metaMiddleware, resolveMetaResponse, META_PATH_PREFIX } from './server/meta/endpoint.ts';
 export {
   extractItemSchema,
@@ -84,15 +83,49 @@ export {
   TypescriptUnavailableError,
 } from './server/meta/extract.ts';
 export type { ItemSchemaResult, SchemaObject, SchemaPropNode, XUIPanel, ExtractOptions } from './server/meta/extract.ts';
+// the §3 serializer authority (the prop-edit file-CAS lane retired by
+// collab-protocol M7a; collab/bridge.ts consumes these two)
+export { renderValue, serializeTemplateText } from './server/prop-edit.ts';
+export type { EditValue } from './server/prop-edit.ts';
+// the panel's collab op lane (M7a): usage/admit/sync/undo over the
+// workspace's hosted kernel
 export {
-  propEditMiddleware,
-  resolvePropEditRequest,
-  applyPropEdit,
-  dryRunUsage,
-  locateUsages,
-  PROP_EDIT_PATH,
-} from './server/prop-edit.ts';
-export type { PropEditRequest, PropEditResponse, UsageValues, EditOutcome, EditValue, FileOps } from './server/prop-edit.ts';
+  collabApiMiddleware,
+  resolveCollabApiRequest,
+  resolveUsage,
+  envelopeFromJson,
+  admissionToJson,
+  receiptToJson,
+  errorToJson,
+  pageOfFile,
+  COLLAB_API_BASE,
+  PANEL_ACTOR,
+} from './server/collab-api.ts';
+export type { CollabApiResponse, UsageResolution } from './server/collab-api.ts';
+// the panel's browser-side collab client (M7a): the LoroDoc mirror +
+// overlay + §6 conflict-card state machine
+export {
+  PanelCollabClient,
+  fetchTransport,
+  containerKeyOf,
+  bufferSlugOf,
+  diffText,
+  parsePropLiteral,
+  renderPropLiteral,
+  bytesToB64,
+  b64ToBytes,
+  PANEL_ACTOR as PANEL_CLIENT_ACTOR,
+} from './studio/panel-collab.ts';
+export type {
+  PanelTransport,
+  PanelUsageInfo,
+  PanelCollabSnapshot,
+  PanelBufferState,
+  PanelConflictState,
+  TextDiff,
+  PropValue,
+  SyncCursorJson,
+} from './studio/panel-collab.ts';
 // the dogfooding inventory (r3 §2.3): the registry items the studio
 // chrome imports via #jixoai/ — pure data, node-safe
 export { STUDIO_CHROME_ITEMS } from './studio/chrome-items.ts';

@@ -1,8 +1,8 @@
 /**
  * @jixoai/ui-design (agent) — the dsh adapter (T8, v0: headless
- * per-turn).
+ * per-turn; M6b: file-system actor lane).
  *
- * Orthogonal intents (3):
+ * Orthogonal intents (4):
  * 1. One chat turn = ONE `dsh --profile headless <job>` run with cwd =
  *    the host root (the agent sees design/ and the whole project). The
  *    knowledge pack's systemPrompt rides as the job preamble (dsh
@@ -19,6 +19,16 @@
  *    an error AgentEvent (never a crash) carrying the npmmirror install
  *    hint — the official registry tarball CDN is unreachable from this
  *    network (dsh-probe.md, problem #1).
+ * 4. M6b 迁轨 — the dsh subprocess stays a BLACK-BOX external writer
+ *    (its own binary, unmodified); its writes are COLLECTED through
+ *    the collab kernel when one is hosted: each changed `.svelte`
+ *    routes through the design server's CollabHost §8 cycle
+ *    (identity injection, journal accounting as actor `file-system`,
+ *    conflict 409 → auto-rebase). 409/deferred/failure envelopes are
+ *    surfaced as chat text (信封可见); clean landings stay quiet (the
+ *    file events carry them). When no kernel is hosted (standalone
+ *    agent use) the legacy mtime-diff behavior stands unchanged. The
+ *    turn-time SSE panel lock is deliberately untouched (M7).
  *
  * Original need: Owner 2026-09-11 (`jixoai-ui design` on the dsh base).
  * Experimental boundary: availability preflight (dshPreflight) lets the
@@ -28,9 +38,10 @@
 import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, sep } from 'node:path';
+import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { findCollabHost, type CollabHost, type CollabSyncOutcome } from '../server/collab-host.ts';
 import { loadKnowledgePack } from '../knowledge/knowledge.ts';
 import type { AgentEvent, DesignAgent } from './types.ts';
 
@@ -137,6 +148,71 @@ function snapshotPrototypes(hostRoot: string): Map<string, number> {
 
 const toPosix = (hostRoot: string, abs: string): string => relative(hostRoot, abs).split(sep).join('/');
 
+/* ── M6b: the file-system actor lane (turn-end §8 routing) ────────────── */
+
+/** one routed file's outcome, distilled for the chat log */
+export interface TurnResyncEntry {
+  /** the changed file, host-relative POSIX (the file-event vocabulary) */
+  readonly path: string;
+  readonly outcome: CollabSyncOutcome;
+}
+
+export interface TurnResyncResult {
+  readonly entries: readonly TurnResyncEntry[];
+  /** chat-visible envelope lines (409/deferred/failure) — empty when every page landed clean */
+  readonly envelopes: readonly string[];
+}
+
+/** the chat-visible line for one outcome — undefined when nothing notable */
+function envelopeLineOf(entry: TurnResyncEntry): string | undefined {
+  const { outcome } = entry;
+  if (outcome.kind === 'conflict') {
+    const code = outcome.conflict?.code ?? 'conflict';
+    const detail = outcome.detail === undefined ? '' : ` — ${outcome.detail}`;
+    return `collab: 409 ${code} on ${entry.path}${detail}`;
+  }
+  if (outcome.kind === 'failed') {
+    return `collab: resync failed on ${entry.path} — ${outcome.detail ?? 'unknown error'} (the file keeps its bytes)`;
+  }
+  if (outcome.conflict !== undefined && outcome.kind === 'rebased') {
+    return `collab: 409 ${outcome.conflict.code} on ${entry.path} — auto-rebased and landed`;
+  }
+  if (outcome.deferred !== undefined && outcome.deferred.length > 0) {
+    const kinds = [...new Set(outcome.deferred.map((item) => item.kind))].join(', ');
+    return `collab: ${entry.path} landed with deferred entries (${kinds}) — kernel gaps, reported not lost`;
+  }
+  if (outcome.kind === 'skipped') {
+    return `collab: ${entry.path} skipped — ${outcome.detail ?? 'not routable'}`;
+  }
+  return undefined;
+}
+
+/**
+ * Route one turn's changed `.svelte` files through the hosted collab
+ * kernel (M6b dsh 迁轨): each write is collected as `file-system`
+ * actor ops — identity injection, journal accounting, conflict 409 →
+ * auto-rebase — and the file converges to the canonical projection.
+ * Sequential by design (one admission lane per turn); an outcome never
+ * throws (failures are entries the chat log renders).
+ */
+export async function routeTurnWrites(collab: CollabHost, changedFiles: readonly string[]): Promise<TurnResyncResult> {
+  const entries: TurnResyncEntry[] = [];
+  const envelopes: string[] = [];
+  for (const file of changedFiles) {
+    if (!file.endsWith('.svelte')) continue;
+    const outcome = await collab.syncExternalChange(file);
+    // display vocabulary: the page path (design-relative POSIX) when
+    // routable; skipped outcomes echo the input (absolute) — make both
+    // readable design-relative POSIX
+    const path = isAbsolute(outcome.page) ? toPosix(collab.designDir, file) : outcome.page;
+    const entry: TurnResyncEntry = { path, outcome };
+    entries.push(entry);
+    const line = envelopeLineOf(entry);
+    if (line !== undefined) envelopes.push(line);
+  }
+  return { entries, envelopes };
+}
+
 /** compose the headless job: knowledge preamble + the user's message */
 export function composeDshJob(message: string): string {
   const pack = loadKnowledgePack();
@@ -154,6 +230,7 @@ export function composeDshJob(message: string): string {
 export function createDshAgent(hostRoot: string): DesignAgent {
   const model = process.env.JIXOAI_DESIGN_LLM_MODEL ?? DEFAULT_LLM_MODEL;
   const patchFile = renderDesignPatch();
+  const designDir = join(hostRoot, 'design');
   return {
     info: () => ({ kind: 'dsh', model }),
     async *chat(_sessionId: string, message: string): AsyncIterable<AgentEvent> {
@@ -224,13 +301,38 @@ export function createDshAgent(hostRoot: string): DesignAgent {
         return;
       }
 
-      // tree diff → file events (host-relative POSIX paths, echo.ts parity)
+      // tree diff → the changed set (mtime snapshot, echo.ts parity)
       const after = snapshotPrototypes(hostRoot);
+      const changed: string[] = [];
       for (const [path, mtime] of after) {
         const prev = before.get(path);
         if (prev === undefined || prev !== mtime) {
-          yield { type: 'file', path: toPosix(hostRoot, path) };
+          changed.push(path);
         }
+      }
+
+      // M6b: collect the turn's `.svelte` writes through the hosted
+      // kernel (file-system actor lane) BEFORE announcing them — the
+      // file events then carry the converged canonical projection.
+      // No host (standalone agent use) → the legacy announcement stands.
+      const collab = findCollabHost(designDir);
+      if (collab !== undefined && changed.some((path) => path.endsWith('.svelte'))) {
+        yield { type: 'tool', name: 'collab-resync', state: 'start' };
+        try {
+          const resync = await routeTurnWrites(collab, changed);
+          for (const line of resync.envelopes) {
+            yield { type: 'text', text: line };
+          }
+        } catch (error) {
+          // the routing lane never takes the turn down — envelope it
+          const detail = error instanceof Error ? error.message : String(error);
+          yield { type: 'text', text: `collab: turn resync errored — ${detail} (files keep their bytes)` };
+        }
+        yield { type: 'tool', name: 'collab-resync', state: 'end' };
+      }
+
+      for (const path of changed) {
+        yield { type: 'file', path: toPosix(hostRoot, path) };
       }
       yield { type: 'tool', name: 'dsh-headless', state: 'end' };
       yield { type: 'done' };

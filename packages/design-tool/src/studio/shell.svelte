@@ -37,9 +37,12 @@
        that remains the ONLY clear path (r3 T2 re-layout added none).
     4. the property panel mount (r2 T8, re-homed by r3 T2): the
        inspector's top zone — ALWAYS present; unselected is the empty
-       state's flow guide, not a blank. The chat's streaming state
-       locks it read-only; panel edits ride HMR with a targeted frame
-       reload as the fallback path.
+       state's flow guide, not a blank. M7a: the chat-streaming
+       read-only lock is RETIRED — the panel edits ride the collab op
+       lane and the admission gate arbitrates concurrency (a racing
+       agent turn auto-merges or raises the panel's inline conflict
+       card); panel edits reach frames through the canonical
+       projection's server-side write-back + HMR.
     5. promotion drift badge (r2 T11): the navigator's canvases carry
        an "updates" badge when their promoted files lag the design
        file (the promotions.json status endpoint, A's pipeline); the
@@ -124,8 +127,6 @@
   let selection: DesignSelection | null = $state(null);
   /** the live canvas iframe (the tree walks its DOM, same-origin) */
   let canvasIframe: HTMLIFrameElement | null = $state(null);
-  /** the chat's streaming state — the property panel's read-only lock (r2 §4) */
-  let chatStreaming = $state(false);
   /** the open updates-badge proto (null = all collapsed) */
   let updatesOpen: string | null = $state(null);
   /** the inspector's bottom-zone tab (r3 T2): chat is the default
@@ -483,7 +484,7 @@
        inactive one carries `hidden` so chat state survives switches -->
   <aside class="studio-inspector">
     <div class="studio-panel-zone">
-      <PropertyPanel {selection} {selectionFile} locked={chatStreaming} />
+      <PropertyPanel {selection} {selectionFile} />
     </div>
     <div class="studio-tab-zone">
       <div class="studio-tabs" role="tablist" aria-label="inspector panels">
@@ -511,7 +512,6 @@
           {selection}
           onClearSelection={() => { selection = null; persistSelection(); }}
           onTurnSettled={() => void refreshManifest()}
-          onStreamingChange={(value) => (chatStreaming = value)}
         />
       </div>
       <div class="studio-tab-panel" role="tabpanel" aria-labelledby="studio-tab-guide" hidden={railTab !== 'guide'}>

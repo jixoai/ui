@@ -1,63 +1,51 @@
 <!--
   @jixoai/ui-design (studio) — the property panel (design-studio-r2
-  T8, RENDER layer rebuilt by r3 T3).
+  T8, r3 T3 rebuild; EDIT intent migrated to the collab op lane by
+  collab-protocol M7a, 2026-09-15).
 
   Orthogonal intents (2):
     1. RENDER — the selected usage's component schema (the T7 meta
        endpoint, x-ui conventions) as controls on the LIST-ITEM
-       family (r3 T3, the dogfooding rebuild — rebuild-plan §2.2,
-       dock precedent canvas-playground.svelte): rows ride ItemGroup
+       family (r3 T3, the dogfooding rebuild): rows ride ItemGroup
        mode="plain" density="sm" (the panel owns the surface);
        boolean → ItemToggle, enum ≤5 → ItemSegmented, enum >5 →
-       ItemSelect, number → ItemStepper, string → ItemInput (grindstone
-       #17-3: the hand-written segmented/stepper control snippets
-       retired INTO the registry adapters); non-representable rows
-       keep the read-only "edit in code" lane. Notices ride `alert`
-       (transient failures self-dismiss through the component's own
-       dismiss="auto", ID5 + grindstone #17-1), the
-       unresolved-frame state is a PERSISTENT alert (ID7), the
-       no-selection and no-props states ride `empty` (W3 flow
-       guidance), the head's rim is `separator`. x-ui.label/unit/
-       description/i18n decorate the rows; the lucide icon mini-map is
-       LIVE (grindstone #17-2): every row kind renders its leading
-       glyph through the family's icon snippet lane.
-    2. EDIT — code-first (design.md §4): a control change POSTs the
-       usage {file, component, usageIndex, prop, value} to the
-       CAS-arbitrated prop-edit endpoint; success expects HMR to carry
-       it into the frame (the T0d assumption) with a frame-refresh
-       CustomEvent as the fallback path; non-representable props
-       (bound / non-literal) render read-only with "edit in code";
-       an agent turn locks the whole panel (chat streaming state).
-       Failure notices are TRANSIENT (r3 T1/ID5 + grindstone #17-1):
-       each notice mounts a KEYED alert with dismiss="auto" — the
-       component owns the 6s clock — and valid actions clear them.
-       The SLOT TEXT rows (issue #38) ride the same endpoint's
-       discriminator ({slot:'children', textIndex, value}) and the
-       same lock laws: the usage's own direct Text fragments, one
-       textarea per children.text[n] (「默认内容」 — position facts,
-       never meta.ts semantic names), Enter commits, Shift+Enter
-       newlines, empty deletes the visible fragment.
+       ItemSelect, number → ItemStepper, string → ItemInput;
+       non-representable rows keep the read-only "edit in code" lane.
+       Notices ride `alert` (transient failures self-dismiss through
+       the component's own dismiss="auto"); the unresolved-frame and
+       awaiting-ingest states are PERSISTENT alerts; the head's rim
+       is `separator`. x-ui.label/unit/description/i18n decorate the
+       rows; the lucide icon mini-map is LIVE: every row kind renders
+       its leading glyph through the family's icon snippet lane.
+    2. EDIT — the op lane (M7a): a control change writes the row's
+       DESIRED buffer text into the PanelCollabClient (the browser-
+       side LoroDoc mirror + pending overlay — panel-collab.ts) and
+       the debounced fragment commits ride POST
+       /__design__/api/collab/admit as §4 text-op envelopes through
+       the workspace admission gate; canonical projections reach the
+       .svelte file server-side (atomic write-back → HMR). Component
+       addressing is ID-FIRST (the /usage resolution — native `id`,
+       never usageIndex); a usage without an id parks the panel
+       read-only (the awaiting-ingest defense). Same-buffer overlap
+       409s raise the INLINE CONFLICT CARD (§6): 旧值 → 你的 / Agent
+       的, 「用我的」 withdraws the human's interleaved fragments via
+       the undo face then re-asserts, 「用 Agent 的」 accepts canonical;
+       the conflicted row suspends until the choice lands. The SSE
+       client decorative lock is RETIRED with this migration — the
+       admission gate is the authority; concurrent agent turns
+       auto-merge or conflict-card, never blanket-disable.
 
   Selection contract: B's DesignSelection (selection.ts) — the panel
-  is a pure CONSUMER. instanceCount > 1 honestly labels the shared
-  usage; edits always land on the usage site. The edit target arrives
-  as selectionFile (a primitive the shell resolves) — the panel keeps
-  NO object dependency, so poll churn upstream cannot re-seed it
-  (#12 T0 layer 2; equivalence.ts).
-
-  Dogfooding main path (rebuild-plan §2.1): the panel imports the
-  host's REAL components through the #jixoai/ alias (the design
-  server's itemAliasBase) — the studio is the library's first
-  consumer; the section carries the theme's own .dark scope so the
-  family's tokens paint against the studio's dark chrome.
+  is a pure CONSUMER; the shell resolves selectionFile (a primitive).
 
   Original need: Owner 2026-09-11 (design-studio-r2 T8; VD1/VD1e);
-  rebuild 2026-09-12 (design-studio-r3 T3, issues #10/#13).
-  Svelte 5 runes.
+  rebuild 2026-09-12 (design-studio-r3 T3); op lane 2026-09-15
+  (collab-protocol M7a). Svelte 5 runes.
 -->
 <script module lang="ts">
   import { seedSignature, seedTargetOf } from './equivalence.ts';
   import type { DesignSelection } from './selection.ts';
+  import { parsePropLiteral, renderPropLiteral, type PropValue } from './panel-collab.ts';
 
   /** the meta endpoint's payload (the T7 contract) */
   export interface MetaPayload {
@@ -120,7 +108,7 @@
     const rows: ControlRow[] = [];
     for (const [prop, node] of Object.entries(meta.schema?.properties ?? {})) {
       if (node['x-ui']?.control === 'none') continue; // panel-excluded (snippet/opaque/opt-out)
-      const dry = values[prop] ?? { representable: true };
+      const dry = values[prop] ?? { representable: false }; // M7a: no buffer = not in the protocol yet
       const kind = dry.representable ? kindOf(node) : 'readonly';
       rows.push({
         prop,
@@ -176,87 +164,97 @@
     return row.unit === undefined ? row.label : `${row.label} (${row.unit})`;
   }
 
-  /* ── slot text (issue #38 B2: the children.text[n] rows) ───────────── */
+  /* ── slot text (the t-<n> buffer rows — issue #38's lane, M7a's buffers) */
 
-  /** the dry-run payload's slot-text row (index = the children.text[n] ordinal) */
+  /** one slot-text row sourced from a `t-<n>` buffer */
   export interface SlotTextSpan {
-    readonly index: number;
+    /** the buffer NAME (t-<n>) — the commit target */
+    readonly buffer: string;
     readonly text: string;
-    /** the seeded fragment's raw source — echoed on commit as the
-     *  identity fingerprint: a shifted ordinal 409s server-side, never
-     *  a positional guess (Codex round-2 P1) */
-    readonly raw?: string;
   }
 
   /**
    * The text row's label — an honest POSITION fact under the content
    * API (the Owner ruling: no meta.ts semantic names for free slot
    * composition). One significant fragment reads as the slot itself
-   * (「默认内容」 — the Heading/Button copy case); once a boundary
-   * (expression, comment, nested usage) splits the slot, each run
-   * gets its positional 1-based fragment number.
+   * (「默认内容」); once a boundary splits the slot, each run gets its
+   * positional 1-based fragment number.
    */
   export function slotTextLabel(index: number, count: number): string {
     return count <= 1 ? '默认内容' : `默认内容 · 片段 ${index + 1}`;
   }
 
-  /** the row's description line — x-ui.description, the i18n key folded
-   *  in (the family's label element has no title slot for a tooltip) */
+  /** the row's description line — x-ui.description, the i18n key folded in */
   export function descriptionOf(row: ControlRow): string | undefined {
     if (row.description === '') return row.i18n === undefined ? undefined : `i18n: ${row.i18n}`;
     return row.i18n === undefined ? row.description : `${row.description} · i18n: ${row.i18n}`;
+  }
+
+  /** the buffer-ordinal of a t-<n> name (sorting key) */
+  export function slotOrdinal(buffer: string): number {
+    const match = /^t-(\d+)$/.exec(buffer);
+    return match === null ? Number.MAX_SAFE_INTEGER : Number(match[1]);
   }
 </script>
 
 <script lang="ts">
   // the dogfooding main path (r3 T3): the host's REAL components via
   // the design server's #jixoai/ alias — the dock precedent's family
-  // grammar (canvas-playground.svelte L447-559) carried into the panel
+  // grammar carried into the panel
   import Alert from '#jixoai/alert';
   import Empty from '#jixoai/empty';
   import Separator from '#jixoai/separator';
   import { ItemField, ItemGroup, ItemInput, ItemSegmented, ItemSelect, ItemStepper, ItemToggle } from '#jixoai/list-item';
   import type { ItemFieldContext } from '#jixoai/list-item';
+  import { onDestroy } from 'svelte';
+  import { PanelCollabClient, fetchTransport, type PanelCollabSnapshot, type PanelUsageInfo } from './panel-collab.ts';
 
   let {
     selection = null,
     selectionFile = null,
-    locked = false,
     metaUrlBase = '/__design__/api/meta',
-    propEditUrl = '/__design__/api/prop-edit',
+    collabUrl = '/__design__/api/collab',
   }: {
     selection?: DesignSelection | null;
     /** the shell-resolved edit target (selection frameId → source file)
-     *  — a PRIMITIVE (#12 T0 layer 2): the last object dependency this
-     *  panel had (frameFiles table) is gone; the seed effect depends on
+     *  — a PRIMITIVE (#12 T0 layer 2): the seed effect depends on
      *  primitives only, so poll churn upstream cannot re-seed it */
     selectionFile?: string | null;
-    locked?: boolean;
     metaUrlBase?: string;
-    propEditUrl?: string;
+    /** the collab op lane base (M7a) — usage/admit/sync/undo */
+    collabUrl?: string;
   } = $props();
 
   let meta: MetaPayload | null = $state(null);
   let metaError: string | null = $state(null);
-  let usageValues: Record<string, { representable: boolean; value?: RowValue }> = $state({});
-  let originallyUnset: Set<string> = $state(new Set());
-  let usageShared = $state(false);
-  /** the usage's slot-text rows (issue #38) — seeded by the same dry-run
-   *  POST as the prop values: the SERVER parses the source; the client
-   *  never reads the compiled module's __jxUsageMap */
-  let textSpans: SlotTextSpan[] = $state([]);
-  let file: string | null = $state(null);
+  let usageState: PanelCollabSnapshot | null = $state(null);
   let notice: string | null = $state(null);
-  let saving = false;
+  /** the live client (non-reactive; its snapshot drives usageState) */
+  let client: PanelCollabClient | null = null;
 
-  // ID5 (r3 T1) + grindstone #17-1: the transient-notice SCHEDULER is
-  // retired — the alert component owns the 6s clock (dismiss="auto",
-  // armed at mount, cancelled at unmount). The panel keeps only the
-  // $state: a new message remounts the keyed alert (a fresh clock —
-  // the old "new show replaces the old timer" law), a valid action
-  // (commit, selection change) nulls it and the unmount cancels.
-  const rows = $derived(meta === null ? [] : rowsFor(meta, usageValues));
+  // ID5 + grindstone #17-1: the transient-notice SCHEDULER is retired —
+  // the alert component owns the 6s clock; a new message remounts the
+  // keyed alert (a fresh clock), a valid action nulls it.
+  const file = $derived(seedTargetOf(selection, selectionFile)?.file ?? null);
   const shareCount = $derived(selection?.instanceCount ?? 1);
+  const propValues = $derived.by(() => {
+    const values: Record<string, { representable: boolean; value?: RowValue }> = {};
+    for (const buffer of usageState?.buffers ?? []) {
+      if (buffer.how !== 'prop-quoted' && buffer.how !== 'prop-expr') continue;
+      const parsed = parsePropLiteral(buffer.text, buffer.how);
+      values[buffer.buffer] = parsed === null ? { representable: false } : { representable: true, value: parsed };
+    }
+    return values;
+  });
+  const rows = $derived(meta === null ? [] : rowsFor(meta, propValues));
+  const slotRows = $derived.by(() => {
+    const buffers = usageState?.buffers ?? [];
+    return buffers
+      .filter((buffer) => buffer.how === 'template-text')
+      .map((buffer) => ({ buffer: buffer.buffer, text: buffer.text }))
+      .sort((a, b) => slotOrdinal(a.buffer) - slotOrdinal(b.buffer));
+  });
+  const conflictCards = $derived(usageState?.conflicts ?? []);
 
   // #12 T0 layer 2 — the seed effect's no-op guards (non-reactive,
   // never rendered): lastSeed makes an identity-only re-run provably
@@ -264,14 +262,11 @@
   // after a newer selection switched the target
   let lastSeed: string | null = null;
   let seedGeneration = 0;
+  let unmounted = false;
 
   $effect(() => {
     // primitive deps ONLY (#12 T0 layer 2 + r2 P2-1): the seed's whole
-    // world is the four primitives inside seedTargetOf (selection keys
-    // + the shell-resolved selectionFile). An identity-only change —
-    // the tree recreating the selection OBJECT after a panel write, a
-    // manifest poll re-deriving upstream — hits the seedSignature
-    // guard and becomes a no-op: no reset, no refetch, no flicker.
+    // world is the four primitives inside seedTargetOf
     const current = seedTargetOf(selection, selectionFile);
     const seed = current === null ? null : seedSignature(current);
     if (seed === lastSeed) return;
@@ -279,186 +274,135 @@
     const generation = ++seedGeneration;
     meta = null;
     metaError = null;
-    usageValues = {};
-    usageShared = false;
-    textSpans = [];
+    usageState = null;
     notice = null;
+    client?.dispose();
+    client = null;
     if (current === null) return;
-    file = current.file;
     void (async () => {
       try {
         const response = await fetch(`${metaUrlBase}/${current.component}.json`, { cache: 'no-store' });
         if (!response.ok) throw new Error(`meta HTTP ${response.status}`);
-        if (generation !== seedGeneration) return; // superseded mid-fetch
+        if (generation !== seedGeneration || unmounted) return; // superseded mid-fetch
         meta = (await response.json()) as MetaPayload;
-        // seed the usage's current literals (dry-run — no write)
-        if (current.file !== null) {
-          const propNames = Object.keys(meta.schema?.properties ?? {});
-          const dryResponse = await fetch(propEditUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ file: current.file, component: current.component, usageIndex: current.usageIndex, dryRun: true, props: propNames }),
-          });
-          if (dryResponse.ok) {
-            if (generation !== seedGeneration) return; // superseded mid-seed
-            const dryBody = (await dryResponse.json()) as { ok?: boolean; values?: Record<string, { representable: boolean; value?: RowValue }>; shared?: boolean; textSpans?: SlotTextSpan[] };
-            if (dryBody.ok === true && dryBody.values !== undefined) {
-              usageValues = dryBody.values;
-              // P2-2: remember which props were ABSENT at seed — an
-              // uncheck on those must REMOVE (null), not write false
-              originallyUnset = new Set(
-                Object.entries(dryBody.values)
-                  .filter(([, v]) => v.representable === true && v.value === undefined)
-                  .map(([name]) => name),
-              );
-            }
-            if (dryBody.ok === true && Array.isArray(dryBody.textSpans)) {
-              textSpans = dryBody.textSpans;
-            }
-            if (dryBody.shared === true) usageShared = true;
+        if (current.file === null) return; // the unresolved-file read-only path
+        // M7a: resolve the selection onto the protocol (id-first) and
+        // seed the mirror client — the canonical projection is the
+        // seed, never a raw file read
+        const usageResponse = await fetch(`${collabUrl}/usage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file: current.file, component: current.component, usageIndex: current.usageIndex }),
+        });
+        const usageBody = (await usageResponse.json()) as { ok?: boolean; reason?: string; message?: string } & Partial<PanelUsageInfo>;
+        if (generation !== seedGeneration || unmounted) return; // superseded mid-seed
+        if (usageResponse.status !== 200 || usageBody.ok !== true) {
+          if (usageBody.reason === 'awaiting-ingest') {
+            // the transitional defense: no native id yet — writes stay
+            // off until the §8 cycle adopts the page (persistent state)
+            metaError = usageBody.message ?? 'this usage is not in the collab protocol yet (awaiting ingest) — the panel is read-only';
+          } else {
+            metaError = usageBody.message ?? `usage resolution failed (${usageResponse.status})`;
           }
+          return;
+        }
+        const usage: PanelUsageInfo = {
+          page: usageBody.page!,
+          componentId: usageBody.componentId!,
+          shared: usageBody.shared === true,
+          buffers: usageBody.buffers ?? [],
+        };
+        const created = new PanelCollabClient(fetchTransport(collabUrl));
+        const unsubscribe = created.subscribe(() => {
+          usageState = created.snapshot();
+        });
+        // the mounted mirror poll (§1 canonical→mirror): keep the
+        // panel's worldview current while it is open — agent turns and
+        // hand edits land as visible rebases, concurrent writes fuse
+        const poll = setInterval(() => {
+          void created.syncNow().catch(() => undefined);
+        }, 4000);
+        const originalDispose = created.dispose.bind(created);
+        created.dispose = (): void => {
+          clearInterval(poll);
+          unsubscribe();
+          originalDispose();
+        };
+        client = created;
+        await created.seed(usage);
+        if (generation !== seedGeneration || unmounted) {
+          created.dispose();
+          if (client === created) client = null;
         }
       } catch (cause) {
-        if (generation === seedGeneration) {
+        if (generation === seedGeneration && !unmounted) {
           metaError = cause instanceof Error ? cause.message : String(cause);
         }
       }
     })();
   });
 
-  async function commitProp(prop: string, value: RowValue): Promise<void> {
-    const current = selection;
-    if (current === null || file === null || value === undefined || locked || saving) return;
-    // boolean uncheck on an originally-absent prop → REMOVE (null) so
-    // the source returns to its seed state instead of gaining
-    // raised={false} residue (P2-2, vision r2 catch)
-    if (value === false && originallyUnset.has(prop)) value = null;
-    saving = true;
-    notice = null;
-    try {
-      const response = await fetch(propEditUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file, component: current.component, usageIndex: current.usageIndex, prop, value }),
-      });
-      const body = (await response.json()) as { ok?: boolean; reason?: string; message?: string };
-      if (response.ok && body.ok === true) {
-        usageValues = value === null
-          ? { ...usageValues, [prop]: { representable: true } }
-          : { ...usageValues, [prop]: { representable: true, value } };
-        // HMR fallback path (pre-built): the shell listens and reloads
-        // the owning frame when HMR does not carry the edit in
-        window.dispatchEvent(new CustomEvent('jx-design:panel-edited', { detail: { frameId: current.frameId, file } }));
-      } else if (response.status === 409) {
-        notice = 'concurrent write detected — edit abandoned, retry';
-      } else if (body.reason === 'non-representable') {
-        usageValues = { ...usageValues, [prop]: { representable: false } };
-        notice = `"${prop}" is bound or non-literal — edit in code`;
-      } else {
-        notice = body.message ?? `edit failed (${body.reason ?? response.status})`;
-      }
-    } catch (cause) {
-      notice = cause instanceof Error ? cause.message : String(cause);
-    } finally {
-      saving = false;
+  // unmount teardown (component lifecycle, not effect lifecycle): the
+  // mirror poll, the subscription and the debounce timers die here
+  onDestroy(() => {
+    unmounted = true;
+    client?.dispose();
+    client = null;
+  });
+
+  // transient errors off the client's snapshot → the keyed alert lane
+  let lastError: string | null = null;
+  $effect(() => {
+    const error = usageState?.error ?? null;
+    if (error !== null && error !== lastError) {
+      lastError = error;
+      notice = error;
     }
+  });
+
+  async function commitProp(prop: string, value: RowValue): Promise<void> {
+    if (client === null || value === undefined) return;
+    const buffer = (usageState?.buffers ?? []).find((candidate) => candidate.buffer === prop);
+    if (buffer === undefined) return; // not a protocol buffer — the row was read-only
+    client.setDesired(prop, renderPropLiteral(value as PropValue, buffer.how === 'prop-quoted' ? 'prop-quoted' : 'prop-expr'));
   }
 
-  // the text rows' commit trigger (the old form-submit, now the
-  // Input's Enter): the CURRENT field value is the edit's payload
+  // the text rows' commit trigger: the CURRENT field value is the edit's payload
   function onTextEnter(row: ControlRow, event: KeyboardEvent): void {
     if (event.key !== 'Enter') return;
     void commitProp(row.prop, event.currentTarget.value);
   }
 
-  /* ── slot text (issue #38): the children.text[n] rows ─────────────── */
+  /* ── slot text (the t-<n> buffer rows) ─────────────────────────────── */
 
   /** Enter commits; Shift+Enter keeps the textarea's default newline */
   function onSlotTextKey(span: SlotTextSpan, event: KeyboardEvent): void {
     if (event.key !== 'Enter' || event.shiftKey) return;
     event.preventDefault();
-    void commitSlotText(span.index, event.currentTarget.value);
+    client?.setDesired(span.buffer, event.currentTarget.value);
   }
 
-  async function commitSlotText(textIndex: number, value: string): Promise<void> {
-    const current = selection;
-    const targetFile = file;
-    if (current === null || targetFile === null || locked || saving) return;
-    // the FINGERPRINT: this row's seeded raw rides the request — if a
-    // competing write (agent, another editor) reshaped the usage so the
-    // ordinal now names a different fragment, the server 409s instead
-    // of silently editing the wrong text (Codex round-2 P1)
-    const expectedRaw = textSpans.find((span) => span.index === textIndex)?.raw;
-    const seed = seedTargetOf(current, targetFile);
-    saving = true;
-    notice = null;
-    try {
-      const response = await fetch(propEditUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file: targetFile, component: current.component, usageIndex: current.usageIndex, slot: 'children', textIndex, value, expectedRaw }),
-      });
-      const body = (await response.json()) as { ok?: boolean; reason?: string; message?: string };
-      if (response.ok && body.ok === true) {
-        // re-seed the ordinals from the SERVER's view — a delete (empty
-        // value) can shrink the fragment list and shift later ordinals;
-        // local bookkeeping alone would address the wrong span next
-        try {
-          const dryResponse = await fetch(propEditUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ file: targetFile, component: current.component, usageIndex: current.usageIndex, dryRun: true }),
-          });
-          let reseeded = false;
-          if (dryResponse.ok) {
-            const dryBody = (await dryResponse.json()) as { ok?: boolean; textSpans?: SlotTextSpan[] };
-            const stillSelected = seedTargetOf(selection, selectionFile);
-            if (dryBody.ok === true && Array.isArray(dryBody.textSpans) && stillSelected !== null && seed !== null && seedSignature(stillSelected) === seedSignature(seed)) {
-              textSpans = dryBody.textSpans;
-              reseeded = true;
-            }
-          }
-          if (!reseeded) {
-            // Codex round-2 secondary: a failed reseed must NOT leave
-            // stale ordinals addressable — clear the rows; the operator
-            // reseeds by reselecting (one honest action, no guesses)
-            textSpans = [];
-            notice = 'fragment list re-sync failed — reselect the component to reseed its text rows';
-          }
-        } catch {
-          // the edit itself landed; the reseed failed ENTIRELY — same
-          // law: stale ordinals die here, never survive as live rows
-          textSpans = [];
-          notice = 'fragment list re-sync failed — reselect the component to reseed its text rows';
-        }
-        // HMR fallback path (pre-built): the shell listens and reloads
-        // the owning frame when HMR does not carry the edit in
-        window.dispatchEvent(new CustomEvent('jx-design:panel-edited', { detail: { frameId: current.frameId, file: targetFile } }));
-      } else if (response.status === 409) {
-        notice = body.reason === 'text-shifted' ? 'this fragment moved — a competing write reshaped the component; reselect and retry' : 'concurrent write detected — edit abandoned, retry';
-      } else if (body.reason === 'text-shifted') {
-        notice = 'this fragment moved — a competing write reshaped the component; reselect and retry';
-      } else if (body.reason === 'text-not-found') {
-        notice = body.message ?? 'that text fragment no longer exists — reselect the component';
-      } else {
-        notice = body.message ?? `text edit failed (${body.reason ?? response.status})`;
-      }
-    } catch (cause) {
-      notice = cause instanceof Error ? cause.message : String(cause);
-    } finally {
-      saving = false;
-    }
+  /* ── the §6 conflict card actions ──────────────────────────────────── */
+
+  function conflictOn(buffer: string): boolean {
+    return conflictCards.some((card) => card.buffer === buffer);
+  }
+
+  function rowSuspended(row: ControlRow): boolean {
+    return file === null || conflictOn(row.prop);
   }
 </script>
 
 <!-- the document-level .dark scope (studio-entry, #23) carries the
      family's tokens now — the panel's own local scope retired with it
      (one source: the whole studio paints the dark token set) -->
-<section class="panel" class:panel-locked={locked}>
+<section class="panel">
   <header class="panel-head">
     <span class="panel-title">props</span>
     {#if selection !== null}
-      <span class="panel-target" title={file ?? 'frame file unresolved'}>{selection.component} #{selection.usageIndex}</span>
+      <span class="panel-target" title={file ?? 'frame file unresolved'}
+        >{selection.component} #{selection.usageIndex}{usageState?.componentId ? ` · ${usageState.componentId}` : ''}</span
+      >
     {/if}
   </header>
   <!-- the head's own rim (the dock precedent's anatomy: a solid
@@ -473,7 +417,7 @@
     </div>
   {:else if metaError !== null}
     <div class="panel-body">
-      <Alert variant="tonal" assertive title="meta failed" class="jx-hue-error">{metaError}</Alert>
+      <Alert variant="tonal" assertive title="panel unavailable" class="jx-hue-error">{metaError}</Alert>
     </div>
   {:else if meta === null}
     <div class="panel-body">
@@ -481,24 +425,18 @@
     </div>
   {:else}
     <div class="panel-body">
-      {#if locked}
-        <Alert title="agent turn in progress — panel is read-only"></Alert>
-      {/if}
       {#if notice !== null}
         <!-- transient (ID5 + grindstone #17-1): the alert owns the
              clock — dismiss="auto" arms the 6s timer at mount and the
              × button fires onDismiss('button'); {#key} gives every NEW
-             message a fresh mount (a fresh clock — the notice.ts
-             "new show replaces the old timer" law, keyed-remount
-             edition). Presence stays here: both paths null the $state
-             and the unmount cancels the timer -->
+             message a fresh mount -->
         {#key notice}
           <Alert variant="tonal" class="jx-hue-error" dismiss="auto" onDismiss={() => (notice = null)}>{notice}</Alert>
         {/key}
       {/if}
       {#if shareCount > 1}
         <p class="panel-hint">{shareCount} instances share this usage — edits land once, at the usage site</p>
-      {:else if usageShared}
+      {:else if usageState?.shared}
         <p class="panel-hint">loop usage — instances share this usage; edits land at the usage site</p>
       {/if}
       {#if file === null}
@@ -509,20 +447,45 @@
         </Alert>
       {/if}
 
-      {#if rows.length === 0 && textSpans.length === 0}
+      {#if conflictCards.length > 0}
+        <!-- the §6 inline conflict cards: a landed write collided with
+             this row's submitted fragment — 旧值 → 你的 / Agent 的;
+             edits on the row suspend until the choice lands -->
+        <div class="conflict-zone">
+          {#each conflictCards as card (card.buffer)}
+            <div class="conflict-card" data-jx-conflict={card.buffer}>
+              <p class="conflict-title">冲突 · {card.buffer}</p>
+              <dl class="conflict-values">
+                <div><dt>旧值</dt><dd>{card.oldValue}</dd></div>
+                <div><dt>你的</dt><dd>{card.mine}</dd></div>
+                <div><dt>{card.actors.length > 0 ? card.actors.join(', ') : '对方'} 的</dt><dd>{card.theirs}</dd></div>
+              </dl>
+              <div class="conflict-actions">
+                <button type="button" class="conflict-button" disabled={card.resolving} onclick={() => void client?.chooseOverride(card.buffer)}
+                  >用我的（override）</button
+                >
+                <button type="button" class="conflict-button" disabled={card.resolving} onclick={() => void client?.chooseGiveUp(card.buffer)}
+                  >用 Agent 的（give-up）</button
+                >
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+
+      {#if rows.length === 0 && slotRows.length === 0}
         <Empty title="no panel props" description={`no panel-renderable props for ${selection.component}`} />
       {:else}
         {#if rows.length > 0}
           <div class="panel-rows">
             <!-- the dock precedent's row grammar: plain mode (the panel
                  owns the surface), sm density, the family's field
-                 adapters per kind; every control honors the lock -->
+                 adapters per kind -->
             <ItemGroup mode="plain" controlChrome="integrated" density="sm">
               {#each rows as row (row.prop)}
-                <!-- the row's leading glyph (grindstone #17-2): the lucide
-                     mini-map becomes a per-row Snippet riding the family's
-                     icon lane — inline-start of the label, aria-hidden,
-                     unknown names degrade to the two-letter monogram -->
+                <!-- the row's leading glyph: the lucide mini-map rides
+                     the family's icon lane — inline-start of the label,
+                     aria-hidden, unknown names degrade to the monogram -->
                 {#snippet glyph()}
                   {#if iconPathsOf(row.icon)}
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -539,7 +502,7 @@
                     description={descriptionOf(row)}
                     icon={row.icon ? glyph : undefined}
                     checked={row.value === true}
-                    disabled={locked || file === null}
+                    disabled={rowSuspended(row)}
                     onchange={(event) => void commitProp(row.prop, event.currentTarget.checked)}
                   />
                 {:else if row.kind === 'select'}
@@ -549,7 +512,7 @@
                     description={descriptionOf(row)}
                     icon={row.icon ? glyph : undefined}
                     value={String(row.value ?? '')}
-                    disabled={locked || file === null}
+                    disabled={rowSuspended(row)}
                     onchange={(event) => void commitProp(row.prop, event.currentTarget.value)}
                   >
                     {#each row.options as option (option)}
@@ -563,16 +526,14 @@
                     description={descriptionOf(row)}
                     icon={row.icon ? glyph : undefined}
                     value={typeof row.value === 'string' ? row.value : ''}
-                    disabled={locked || file === null}
+                    disabled={rowSuspended(row)}
                     onkeydown={(event) => onTextEnter(row, event)}
                   />
                 {:else if row.kind === 'stepper'}
-                  <!-- grindstone #17-3: the stepper idiom retired INTO
-                       ItemStepper (ItemField + NumberInput) — clamp/snap/
-                       hold are the control's own, direct typing and
-                       native ↑/↓ are first-class upgrades; min/max ride
-                       the schema bounds (the panel's step() helper died
-                       with the hand-written chrome) -->
+                  <!-- the stepper idiom rides ItemStepper (ItemField +
+                       NumberInput) — clamp/snap/hold are the control's
+                       own, direct typing and native ↑/↓ are first-class
+                       upgrades; min/max ride the schema bounds -->
                   <ItemStepper
                     id={`prop-${row.prop}`}
                     label={labelOf(row)}
@@ -581,18 +542,17 @@
                     value={typeof row.value === 'number' ? row.value : undefined}
                     min={row.minimum}
                     max={row.maximum}
-                    disabled={locked || file === null}
+                    disabled={rowSuspended(row)}
                     onchange={(event) => {
                       const n = event.currentTarget.valueAsNumber;
                       void commitProp(row.prop, Number.isFinite(n) ? n : undefined);
                     }}
                   />
                 {:else if row.kind === 'segmented'}
-                  <!-- grindstone #17-3: the segmented idiom retired INTO
-                       ItemSegmented (ItemField + ToggleGroup single) —
-                       native radios own the arrow-walk and the single
-                       tab stop the aria-pressed button rows could never
-                       claim; the enum options ride the data lane -->
+                  <!-- the segmented idiom rides ItemSegmented (ItemField +
+                       ToggleGroup single) — native radios own the
+                       arrow-walk and the single tab stop; the enum
+                       options ride the data lane -->
                   <ItemSegmented
                     id={`prop-${row.prop}`}
                     label={labelOf(row)}
@@ -600,13 +560,15 @@
                     icon={row.icon ? glyph : undefined}
                     options={row.options.map((option) => ({ value: option }))}
                     value={String(row.value ?? '')}
-                    disabled={locked || file === null}
+                    disabled={rowSuspended(row)}
                     onValueChange={(option) => void commitProp(row.prop, option)}
                   />
                 {:else}
                   <!-- the unrepresentable row: read-only in the family's
                        own row rhythm (ItemField), the value lane saying
-                       why — edits belong to the code -->
+                       why — a buffer this session cannot address (bound,
+                       non-literal, or not yet ingested) belongs to the
+                       code -->
                   <ItemField id={`prop-${row.prop}`} labelMode="text" label={labelOf(row)} description={descriptionOf(row)} icon={row.icon ? glyph : undefined}>
                     {#snippet control(field: ItemFieldContext)}
                       <span class="row-readonly" id={field.controlId}>edit in code</span>
@@ -617,23 +579,22 @@
             </ItemGroup>
           </div>
         {/if}
-        {#if textSpans.length > 0}
-          <!-- the slot-text rows (issue #38): the usage's own direct Text
-               fragments, one textarea per children.text[n]; positional
-               labels (the Owner's no-semantic-names ruling); every row
-               honors the agent lock and the unresolved-file read-only
-               law like the prop controls above -->
+        {#if slotRows.length > 0}
+          <!-- the slot-text rows: the usage's own t-<n> buffers, one
+               textarea per fragment; positional labels; every row
+               honors the conflict-suspension and unresolved-file
+               read-only laws like the prop controls above -->
           <div class="slot-text">
-            <p class="slot-text-hint">slot 内容 · Enter 提交 · Shift+Enter 换行 · 留空删除</p>
-            {#each textSpans as span (span.index)}
-              <label class="slot-text-label" for={`slot-text-${span.index}`}>{slotTextLabel(span.index, textSpans.length)}</label>
+            <p class="slot-text-hint">slot 内容 · Enter 提交 · Shift+Enter 换行</p>
+            {#each slotRows as span, index (span.buffer)}
+              <label class="slot-text-label" for={`slot-text-${span.buffer}`}>{slotTextLabel(index, slotRows.length)}</label>
               <textarea
-                id={`slot-text-${span.index}`}
+                id={`slot-text-${span.buffer}`}
                 class="slot-text-input"
                 rows={span.text.includes('\n') ? 3 : 2}
                 spellcheck="false"
                 value={span.text}
-                disabled={locked || file === null}
+                disabled={file === null || conflictOn(span.buffer)}
                 onkeydown={(event) => onSlotTextKey(span, event)}
               ></textarea>
             {/each}
@@ -645,13 +606,10 @@
 </section>
 
 <style>
-  /* r3 T3 + grindstone #17-3: the panel's residual CSS is LAYOUT
-     SKELETON ONLY (the grid/flex anatomy, the head's spacing, the
-     scroller) — the hand-written segmented/stepper chrome retired
-     INTO the registry adapters (ItemSegmented/ItemStepper, bare
-     chrome through the integrated group's ambient), so every
-     control's paint is the family's own; colors resolve through the
-     theme tokens the .dark scope provides */
+  /* the panel's residual CSS is LAYOUT SKELETON ONLY (the grid/flex
+     anatomy, the head's spacing, the scroller) — every control's paint
+     is the family's own; colors resolve through the theme tokens the
+     .dark scope provides */
   .panel {
     display: flex;
     flex-direction: column;
@@ -702,9 +660,75 @@
     display: flex;
     flex-direction: column;
   }
-  /* the slot-text rows (issue #38) — the multi-line lane the family's
-     fixed end-lane fields don't shape; the panel's own layout-skeleton
-     posture holds, paint rides the theme tokens like every control */
+  /* the §6 inline conflict card — the human's suspension state (the
+     retired SSE lock's honest successor): the collided row's old/mine/
+     theirs and the two §6 resolutions */
+  .conflict-zone {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .conflict-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 0.5rem;
+    border: 1px solid color-mix(in oklab, var(--destructive, #e08585) 55%, transparent);
+    border-radius: 4px;
+    background: color-mix(in oklab, var(--destructive, #e08585) 8%, transparent);
+  }
+  .conflict-title {
+    margin: 0;
+    color: #e08585;
+    font-weight: 700;
+    font-size: 0.6875rem;
+  }
+  .conflict-values {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .conflict-values div {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+  .conflict-values dt {
+    color: #8d8578;
+    font-size: 0.625rem;
+  }
+  .conflict-values dd {
+    margin: 0;
+    color: #e8e4dd;
+    font-size: 0.6875rem;
+    overflow-wrap: anywhere;
+  }
+  .conflict-actions {
+    display: flex;
+    gap: 0.375rem;
+  }
+  .conflict-button {
+    all: unset;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    border: 1px solid #3a352f;
+    color: #e8e4dd;
+    font-family: inherit;
+    font-size: 0.625rem;
+    white-space: nowrap;
+  }
+  .conflict-button:hover:not(:disabled) {
+    background: #1b1917;
+  }
+  .conflict-button:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  /* the slot-text rows — the multi-line lane the family's fixed
+     end-lane fields don't shape */
   .slot-text {
     display: flex;
     flex-direction: column;
@@ -747,5 +771,4 @@
     font-size: 0.6875rem;
     white-space: nowrap;
   }
-  .panel-locked .panel-body { opacity: 0.6; }
 </style>

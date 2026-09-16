@@ -12,7 +12,8 @@
  *      /__design__/ studio SPA (host-owned design/studio.svelte),
  *      /__design__/frame ref-mounting surface (?p=&f=&theme=&w=&h=),
  *      /prototypes/<name>/ canvas pages — plus the API endpoints
- *      (manifest.json, knowledge.json, agent.json, chat SSE).
+ *      (manifest.json, knowledge.json, agent.json, chat SSE and the
+ *      M7a collab op lane /__design__/api/collab/*).
  *   3. module plumbing for split installs: the plugin set is imported
  *      through the probe's moduleRoot (this repo installs per-vehicle,
  *      not at the root), the stable virtual entry ids resolve to REAL
@@ -34,8 +35,9 @@ import type { DesignAgent } from '../agent/types.ts';
 import { agentMiddleware } from '../agent/sse.ts';
 import { loadKnowledgePack } from '../knowledge/knowledge.ts';
 import { promotionStatus } from '../pipeline/promote.ts';
+import { collabApiMiddleware } from './collab-api.ts';
+import { openCollabHost, viteWatcherAdapter, type CollabHost } from './collab-host.ts';
 import { metaMiddleware } from './meta/endpoint.ts';
-import { propEditMiddleware } from './prop-edit.ts';
 import type { DesignHostInfo } from './probe.ts';
 import { probeDesignHost } from './probe.ts';
 import { resolvePackageEntry } from './resolver.ts';
@@ -93,7 +95,18 @@ ${extraHead}<style>html,body{margin:0;padding:0}#${rootId}{min-height:100vh}</st
 
 /* ── the surface plugin: entry ids + HTML/API middlewares ─────────────── */
 
-function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent): Plugin {
+/**
+ * The late-bound collab host reference: vite assembles the server (and
+ * runs configureServer) BEFORE createDesignViteServer opens the collab
+ * host — the middleware closes over this cell and reads it per request
+ * (requests only arrive after listen, when the cell is populated or
+ * honestly undefined — the M6b corrupt-journal degrade).
+ */
+export interface CollabHostCell {
+  host: CollabHost | undefined;
+}
+
+function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent, collab: CollabHostCell): Plugin {
   const frameHtml = () => htmlShell('frame — jixoai design', 'frame-root', FRAME_ENTRY);
   const canvasHtml = () => htmlShell('canvas — jixoai design', 'canvas-root', CANVAS_ENTRY);
 
@@ -116,11 +129,12 @@ function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent): Plugin 
       // agent seam first (POST chat + agent info)
       server.middlewares.use(agentMiddleware(agent));
 
-      // the property-panel service pair (r2 T7/T8): on-demand schema
-      // extraction over the itemAliasBase anchor + the CAS-arbitrated
-      // source editor
+      // the property-panel service pair (r2 T7/T8 → M7a): on-demand
+      // schema extraction over the itemAliasBase anchor + the collab op
+      // lane (usage/admit/sync/undo — the prop-edit file-CAS endpoint
+      // retired with the panel's migration)
       server.middlewares.use(metaMiddleware(host));
-      server.middlewares.use(propEditMiddleware(host.root));
+      server.middlewares.use(collabApiMiddleware(() => collab.host));
 
       server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
         const pathname = (req.url ?? '').split('?')[0]!;
@@ -301,8 +315,16 @@ async function importFromModuleRoot<T>(moduleRoot: string | null, spec: string):
  * <root> (the host root — the directory containing design/). The
  * caller owns the lifecycle: `const s = await createDesignViteServer(
  * root, { agent }); await s.listen();` (the CLI wraps exactly that).
+ *
+ * M6b: the returned server also HOSTS the design workspace's collab
+ * kernel — `server.collab` (CollabKernel + AdmissionGate + ResyncStation,
+ * `.jx-collab/` at the design root, idempotent per workspace). The
+ * station rides the server's OWN vite watcher (no second handle), and
+ * `server.close()` disposes the host (settle in-flight §8 cycles,
+ * release watcher routing) before the vite teardown. Internal
+ * accessor only — no new HTTP surface (panels are M7).
  */
-export async function createDesignViteServer(rootInput: string, options: CreateDesignServerOptions = {}): Promise<ViteDevServer> {
+export async function createDesignViteServer(rootInput: string, options: CreateDesignServerOptions = {}): Promise<ViteDevServer & { collab: CollabHost | undefined }> {
   const root = resolve(rootInput);
   const host = probeDesignHost(root);
   const agent = options.agent ?? (await import('../agent/none.ts')).createNoneAgent();
@@ -354,6 +376,10 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
     ...svelteFileAliases(moduleRoot),
   ];
 
+  // the M7a late-binding cell — see CollabHostCell: populated right
+  // after createServer resolves, read per request by the collab API
+  const collabCell: CollabHostCell = { host: undefined };
+
   const inlineConfig: InlineConfig = {
     root,
     configFile: false,
@@ -381,7 +407,7 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
       tailwindFactory(),
       ...jixoaiPlugins,
       designIconsCssEntryPlugin(jixoaiPlugins),
-      designSurfacesPlugin(host, agent),
+      designSurfacesPlugin(host, agent, collabCell),
     ],
     resolve: { alias },
     server: {
@@ -436,7 +462,32 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
   };
 
   const server = await viteMod.createServer(inlineConfig);
-  return server;
+
+  // M6b: host the collab kernel over this design workspace. The open is
+  // idempotent per workspace (the dsh adapter reuses the same instance
+  // through the process registry); a corrupted `.jx-collab/` journal
+  // must NOT take the whole studio down — degrade loudly instead
+  // (kernel law is fail-stop, the SERVER's posture is read-only studio).
+  let collab: CollabHost | undefined;
+  try {
+    // reconcileAtOpen (M7 收官轮): every KNOWN page runs one §8 reconcile
+    // cycle at startup — unhosted hand-edit drift lands, and cross-era
+    // `.jx-collab` tree meta realigns to the current planner (the panel's
+    // buffer underreport after a protocol upgrade)
+    collab = openCollabHost(host.designDir, { watcher: viteWatcherAdapter(server.watcher), reconcileAtOpen: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[design-server] collab host failed to open (${host.designDir}): ${message} — collaborative lanes degraded; the studio/canvas surfaces are unaffected`);
+  }
+  collabCell.host = collab; // the late-binding cell — the API middleware reads this per request
+  // server.close() settles the collab host first (§8 never aborts a
+  // mid-flight cycle, watcher routing stops), then runs the vite teardown
+  const closeServer = server.close.bind(server);
+  server.close = async (): Promise<void> => {
+    await collab?.dispose();
+    await closeServer();
+  };
+  return Object.assign(server, { collab });
 }
 
 /* ── note on the retired #28 ws.send redirect (issue #18) ───────────────

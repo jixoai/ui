@@ -60,10 +60,14 @@ test('the transient notice rides dismiss="auto" inside {#key notice} — onDismi
   assert.match(keyed, /jx-hue-error/, 'the transient failure hue survives the migration');
 });
 
-test('the two PERSISTENT alerts pass no dismiss — the ID7 byte-stability ruling', () => {
-  const persistent = panel.match(/\{#if locked\}[\s\S]{0,200}?<\/Alert>\s*\{\/if\}/)?.[0] ?? '';
-  assert.match(persistent, /title="agent turn in progress/, 'the agent-lock alert');
-  assert.doesNotMatch(persistent, /dismiss/, 'persistent = no lifecycle axis');
+test('the PERSISTENT alert passes no dismiss — the ID7 byte-stability ruling', () => {
+  // M7a CONTRACT UPGRADE (collab-protocol): the agent-lock alert
+  // RETIRED with the SSE client decorative lock (admission is the
+  // authority — a racing agent turn auto-merges or raises the §6
+  // inline conflict card, never a blanket read-only). The remaining
+  // persistent alert is the unresolved-frame state.
+  assert.doesNotMatch(panel, /agent turn in progress/, 'the SSE decorative lock alert is retired');
+  assert.doesNotMatch(panel, /\blocked\b/, 'no locked prop survives the migration');
   const unresolved = panel.match(/\{#if file === null\}[\s\S]{0,600}?<\/Alert>\s*\{\/if\}/)?.[0] ?? '';
   assert.match(unresolved, /frame file unresolved/, 'the unresolved-frame alert');
   assert.doesNotMatch(unresolved, /dismiss=/, 'persistent = no lifecycle axis');
