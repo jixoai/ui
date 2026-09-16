@@ -1,6 +1,6 @@
 {
-  "what": "programmatic pixel parity — pilot before(5199 main, read-only)/after(5198 worktree) pairs; vision subagent unavailable (builtin:zai not configured) so parity is proven pixel-level per the fallback discipline; thresholds: delta>8 channel diff counts",
-  "generatedAt": "2026-09-16T20:44:37.878Z",
+  "what": "programmatic pixel parity — pilot before(5199 main, read-only)/after(5198 worktree) pairs, hue FROZEN at 300 on both sides via the runtime's own manual-pause channel, reveals re-settled post-freeze",
+  "generatedAt": "2026-09-16T20:50:06.534Z",
   "pairs": [
     {
       "width": 375,
@@ -9,11 +9,11 @@
       ],
       "sameDims": true,
       "pixels": 1350000,
-      "diffPixels": 337584,
-      "diffPct": 25.0062,
-      "maxDelta": 248,
-      "meanDelta": 17.517,
-      "diffRuns": 2142
+      "diffPixels": 268,
+      "diffPct": 0.0199,
+      "maxDelta": 21,
+      "meanDelta": 0.004,
+      "diffRuns": 134
     },
     {
       "width": 768,
@@ -22,11 +22,11 @@
       ],
       "sameDims": true,
       "pixels": 2764800,
-      "diffPixels": 236565,
-      "diffPct": 8.5563,
-      "maxDelta": 153,
-      "meanDelta": 2.504,
-      "diffRuns": 1034
+      "diffPixels": 711,
+      "diffPct": 0.0257,
+      "maxDelta": 93,
+      "meanDelta": 0.009,
+      "diffRuns": 168
     },
     {
       "width": 1099,
@@ -35,11 +35,11 @@
       ],
       "sameDims": true,
       "pixels": 3956400,
-      "diffPixels": 363635,
-      "diffPct": 9.1911,
-      "maxDelta": 231,
-      "meanDelta": 6.393,
-      "diffRuns": 2015
+      "diffPixels": 261,
+      "diffPct": 0.0066,
+      "maxDelta": 23,
+      "meanDelta": 0.001,
+      "diffRuns": 138
     },
     {
       "width": 1100,
@@ -48,11 +48,11 @@
       ],
       "sameDims": true,
       "pixels": 3960000,
-      "diffPixels": 1029,
-      "diffPct": 0.026,
-      "maxDelta": 116,
-      "meanDelta": 0.033,
-      "diffRuns": 239
+      "diffPixels": 821,
+      "diffPct": 0.0207,
+      "maxDelta": 61,
+      "meanDelta": 0.006,
+      "diffRuns": 197
     },
     {
       "width": 1440,
@@ -61,11 +61,21 @@
       ],
       "sameDims": true,
       "pixels": 5184000,
-      "diffPixels": 389559,
-      "diffPct": 7.5146,
-      "maxDelta": 239,
-      "meanDelta": 6.259,
-      "diffRuns": 2158
+      "diffPixels": 253,
+      "diffPct": 0.0049,
+      "maxDelta": 23,
+      "meanDelta": 0.001,
+      "diffRuns": 132
     }
-  ]
+  ],
+  "attribution": {
+    "verdict": "parity PROVEN: all five pairs < 0.03% differing pixels (antialiasing-level noise); no structural drift",
+    "methodNotes": [
+      "the brand hue rides the wall clock (5s entrance spin + cruising) — frozen to 300 on BOTH sides through the hue popover slider (setHueManually auto-pauses the cycle); freeze-stick asserted",
+      "the freeze interaction re-arms data-reveal observers near the viewport edge — settleReveal runs after the freeze (mid-reveal bands were the second-order diff source)",
+      "w1440 full-run and all widths final: sub-0.03% residuals are AA noise (max channel deltas <=93 at isolated runs)"
+    ],
+    "visionFallback": "the vision subagent is unavailable this session (builtin:zai not configured) — parity is proven pixel-level + computed-style matrix (67/67) per the fallback discipline; a vision pass remains a nice-to-have when the model returns"
+  },
+  "coverageNote": "matrix screenshots are 900-css-px viewport captures (page top); full-page structural coverage comes from the computed-style matrix assertions (grid tracks at every width, svg counts in print emulation) and the DOM checks"
 }

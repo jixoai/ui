@@ -336,6 +336,10 @@ async function freezeHue(page) {
   // close the popover — captures must not carry the overlay
   await page.keyboard.press('Escape');
   await page.waitForTimeout(150);
+  // the header-button click + Escape can nudge scroll/observers and
+  // re-arm data-reveal entrances near the viewport edge — the settle
+  // must run AFTER the freeze, or one side captures mid-reveal
+  if (typeof settleReveal === 'function') await settleReveal(page);
 }
 
 async function collectViewport(browser, side, base, width) {
