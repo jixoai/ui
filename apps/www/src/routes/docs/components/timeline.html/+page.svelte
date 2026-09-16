@@ -3,7 +3,9 @@
   W4 reui-family upgrade, Owner 2026-09-15; grid-engine rebuild
   2026-09-01; tailwindless-site P0 pilot 2026-09-17 — every utility
   composition replaced by the surface atom module + the REGISTERED
-  lane-2 semantic sheet below, DOM/text/data-attrs untouched).
+  lane-2 semantic sheet $lib/site/timeline-docs.css (Gate-4 fix
+  2026-09-16: @layer components + :where(), consumer utilities
+  always win), DOM/text/data-attrs untouched).
   Intents:
   1. Hero summary comes from the registry catalog (CATALOG lookup,
      fail-loud on miss — never hand-write registry copy).
@@ -37,10 +39,12 @@
   import { PlayFields, PlayRow, PlayToggle, PlayNumber, PlayHelp } from '$lib/playground';
   // tailwindless-site P0 (2026-09-17): the page's paint rides the site
   // atom lane — single-concern atoms from the surface module + the
-  // REGISTERED lane-2 semantic composites in this file's <style> sheet
-  // (registry: the tailwindless gate's semantics[]). No Tailwind
-  // utility composes this markup anymore.
+  // REGISTERED lane-2 semantic composites in the site module sheet
+  // $lib/site/timeline-docs.css (@layer components + :where(), Gate-4
+  // fix 2026-09-16; registry: the tailwindless gate's semantics[]). No
+  // Tailwind utility composes this markup anymore.
   import { cx, tlDocs } from '$lib/surface/timeline-docs.stylex';
+  import '$lib/site/timeline-docs.css';
   import Timeline, {
     TimelineItem,
     TimelineDot,
@@ -1519,119 +1523,3 @@ ${close}
     <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Timeline props"><PropsTable props={[{ name: 'defaultValue', type: 'number', default: '1', description: 'THE VALUE CONTRACT — the uncontrolled current step\'s seed (reui parity). Decimals are first-class and never rounded: 1.5 completes item 1, not item 2, and paints the progress stroke halfway between nodes 1 and 2.' }, { name: 'value', type: 'number', default: '—', description: 'The controlled current step — overrides the read side while setStep reports through onValueChange. The value maps onto the measured run through the STOPS milestone table as the progress stroke (300ms stroke-dashoffset transition; reduced motion drops the transition, the position stays). Under animation=\'scroll\' the scroller owns the stroke channel — the value then drives only the discrete data-completed paint.' }, { name: 'onValueChange', type: '(v: number) => void', default: '—', description: 'Fires on every setStep change — same-value repeats included (reui\'s exact semantics; the consumer decides what changed).' }, { name: 'step (TimelineItem)', type: 'number', default: 'DOM order + 1', description: 'The item\'s declared ladder position. Strictly ascending in DOM order — a duplicate is owned by its later item (dev-warned); the milestone table dedupes for the stroke math while both items keep the discrete completed paint. Declared gaps (e.g. 1 then 4) interpolate across the gap\'s arc.' }, { name: 'axis', type: "'vertical' | 'horizontal'", default: "'vertical'", description: 'The flow axis; the engine transposes, slot names stay logical.' }, { name: 'direction', type: "'ltr' | 'revert' | 'interlaced'", default: "'ltr'", description: 'Which zone(s) content takes; interlaced alternates item by item.' }, { name: 'animation', type: "'none' | 'view' | 'scroll'", default: "'none'", description: 'view = per-item entrance as it enters the scrollport; scroll = the progress stroke draws on with the nearest scroller (the scroller then OWNS the stroke; the value keeps the discrete paint). Both @supports-gated.' }, { name: 'spine', type: "'plain' | 'dashed' | 'beam' | Snippet<[TimelineSpineGeometry]>", default: "'plain'", description: 'The drawn spine: a preset by name, or a custom snippet receiving the measured geometry payload (node centers in list-root coordinates in flow order · axis/direction/interlaced/rtl metadata · per-segment path data with the dot-edge phase anchor · the STOPS table + pathLength · the density scale). The snippet renders inside the spine svg — author path/circle/… directly. BREAKING successor of the retired line(i) seam.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'pending (TimelineItem)', type: 'boolean', default: 'false', description: 'In-flight entry: hollow dot + muted title (attribute paint — the LOUDER channel, winning over data-completed while both stay legible with styles off).' }, { name: 'variant', type: "'square' | 'round' | 'ring'", default: "'square' · Own default, not ambient", description: 'TimelineDot corner grammar. Defaults: literal slot — own ’square’, not ambient (the dot is outside the paint zone’s frozen availability table). Dot children (the icon/avatar pattern) render INSIDE the node — centered, the node grows around them, the min size keeps.' }, { name: 'class', type: 'string', description: 'Adds consumer classes (lands on the grid host — the component root).' }] } /></SectionCard></div>
   </div>
 </div>
-
-<style>
-  /*
-   * The timeline docs page's lane-2 sheet (tailwindless-site P0 task
-   * 3.3, 2026-09-17) — REGISTERED semantic composites, scoped to this
-   * route (Svelte scoping IS the sheet's scope: nothing here is
-   * consumable outside the page, the blueprints.html bp-stage site
-   * precedent; single-concern paint stays in the page's atom module,
-   * $lib/surface/timeline-docs.stylex.ts). The registry of record is
-   * the tailwindless gate's semantics[] (scripts/
-   * verify-tailwindless.mjs SEMANTIC_RULES) — owner + selector family
-   * + declaration scope per rule. Theme-able values ride the site
-   * voice scale (jixoai.css "The site voice scale" segment); the
-   * media-query THRESHOLDS are structural (Tailwind's own px/rem
-   * seam values, kept verbatim for breakpoint parity — a viewport-
-   * owned seam stays a viewport media rule, not a container query,
-   * so the 1099/1100 flip lands exactly where the utility did).
-   *
-   * Intents (orthogonal count: 4):
-   *   1. .tl-shell — the page shell measure + rhythm (sm/lg media
-   *      seams re-pin the inline padding step).
-   *   2. .tl-eyebrow / .tl-body — the page's two fixed voices
-   *      (label, body).
-   *   3. .tl-col / .tl-frame / .tl-grid-3 / .tl-grid-matrix — the
-   *      demo-stage geometry (label-over-stage column, hairline
-   *      frame, responsive grids with their min-1100 / min-900 +
-   *      min-1300 media seams).
-   *   4. .tl-ctl — the stepper control (hover seams as NATIVE
-   *      pseudos; --primary variant).
-   */
-  .tl-shell {
-    margin-inline: auto;
-    width: 100%;
-    max-width: var(--shell-w);
-    padding-inline: var(--space-16);
-    padding-block: var(--space-40);
-  }
-  @media (min-width: 40rem) {
-    .tl-shell {
-      padding-inline: var(--space-24);
-    }
-  }
-  @media (min-width: 64rem) {
-    .tl-shell {
-      padding-inline: var(--space-32);
-    }
-  }
-
-  .tl-eyebrow {
-    font-family: var(--font-nav);
-    color: var(--primary);
-    font-size: var(--text-label);
-    text-transform: uppercase;
-    letter-spacing: var(--track-label);
-  }
-
-  .tl-body {
-    font-size: var(--text-small);
-    color: var(--muted-foreground);
-  }
-
-  .tl-col {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-8);
-  }
-
-  .tl-frame {
-    border: var(--hairline) solid var(--border);
-  }
-
-  .tl-grid-3,
-  .tl-grid-matrix {
-    display: grid;
-    gap: var(--space-24);
-  }
-  @media (min-width: 900px) {
-    .tl-grid-matrix {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1100px) {
-    .tl-grid-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1300px) {
-    .tl-grid-matrix {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  .tl-ctl {
-    border-radius: var(--radius);
-    border: var(--hairline) solid var(--border);
-    background: var(--background);
-    padding-inline: var(--space-10);
-    padding-block: var(--space-4);
-    font-family: var(--font-nav);
-    font-size: var(--text-label-lg);
-    text-transform: uppercase;
-    letter-spacing: var(--track-wide);
-    color: var(--foreground);
-  }
-  .tl-ctl:hover {
-    background: var(--muted);
-  }
-  .tl-ctl--primary {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-  .tl-ctl--primary:hover {
-    opacity: 0.9;
-  }
-</style>

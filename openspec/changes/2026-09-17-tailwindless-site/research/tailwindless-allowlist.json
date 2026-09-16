@@ -14427,7 +14427,7 @@
     {
       "class": "tl-shell",
       "id": "tl-shell",
-      "owner": "apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
       "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
       "scope": "measure + rhythm: max-width, centered, padding-inline/block steps; registered media seams sm(40rem)/lg(64rem) re-pin the inline step",
       "selector": ".tl-shell — the docs page shell"
@@ -14435,7 +14435,7 @@
     {
       "class": "tl-eyebrow",
       "id": "tl-eyebrow",
-      "owner": "apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
       "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
       "scope": "typography role: font-nav, primary ink, label size, uppercase, label tracking",
       "selector": ".tl-eyebrow — the canvas demo label voice (span)"
@@ -14443,7 +14443,7 @@
     {
       "class": "tl-body",
       "id": "tl-body",
-      "owner": "apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
       "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
       "scope": "typography role: small size + muted ink",
       "selector": ".tl-body — the demo body voice (p, ul)"
@@ -14451,7 +14451,7 @@
     {
       "class": "tl-col",
       "id": "tl-col",
-      "owner": "apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
       "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
       "scope": "layout: flex column with the 8px label-to-stage gap",
       "selector": ".tl-col — the demo column (label over stage)"
@@ -14459,7 +14459,7 @@
     {
       "class": "tl-frame",
       "id": "tl-frame",
-      "owner": "apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
       "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
       "scope": "box: hairline-weight solid border on the border color role (padding composed as atoms)",
       "selector": ".tl-frame — the bordered demo frame"
@@ -14467,7 +14467,7 @@
     {
       "class": "tl-grid-3",
       "id": "tl-grid-3",
-      "owner": "apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
       "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
       "scope": "layout: grid, 24px gutter; registered media seam min-1100px flips to 3 equal tracks (breakpoint-parity law: viewport seam stays a viewport media rule)",
       "selector": ".tl-grid-3 — the three-up demo grid"
@@ -14475,7 +14475,7 @@
     {
       "class": "tl-grid-matrix",
       "id": "tl-grid-matrix",
-      "owner": "apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
       "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
       "scope": "layout: grid, 24px gutter; registered media seams min-900px (2 tracks) and min-1300px (3 tracks)",
       "selector": ".tl-grid-matrix — the geometry matrix grid"
@@ -14487,7 +14487,7 @@
         "tl-ctl--primary"
       ],
       "id": "tl-ctl",
-      "owner": "apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
       "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
       "scope": "control: radius/border/background/padding + the control-label voice; hover seams are NATIVE pseudos (outline variant → muted ground, primary variant → 0.9 opacity)",
       "selector": ".tl-ctl (+ .tl-ctl--primary accent) — the stepper control button"
@@ -14503,13 +14503,16 @@
       "gap:0.75rem": 2,
       "letterSpacing:0.08em": 1,
       "letterSpacing:0.14em": 1,
+      "lineHeight:1.6": 1,
       "paddingBlock:0.32rem": 1,
       "paddingBlock:0.875rem": 1,
       "paddingBottom:0.3rem": 1,
       "paddingInline:0.75rem": 1,
       "paddingInlineEnd:0.5rem": 1,
       "paddingInlineStart:0.75rem": 1,
-      "paddingTop:0.3rem": 1
+      "paddingTop:0.3rem": 1,
+      "transitionDuration:150ms": 2,
+      "transitionTimingFunction:ease-out": 2
     },
     "apps/www/src/lib/__probe__/stylex-corpus/demo.stylex.ts": {
       "borderBottomWidth:1px": 1,
@@ -14518,24 +14521,36 @@
       "fontSize:11px": 2,
       "fontSize:12px": 2,
       "fontSize:15px": 1,
+      "fontWeight:600": 1,
       "gap:12px": 3,
       "gap:20px": 1,
       "gap:8px": 2,
       "letterSpacing:0.08em": 1,
+      "lineHeight:1.6": 1,
       "padding:16px": 2,
       "paddingBottom:12px": 1
     },
     "apps/www/src/lib/__probe__/stylex-corpus/popover.stylex.ts": {
       "borderWidth:1px": 2,
       "fontSize:0.875rem": 1,
+      "fontWeight:500": 1,
       "gap:0.625rem": 1,
       "paddingBlock:0.625rem": 1,
-      "paddingInline:0.875rem": 1
+      "paddingInline:0.875rem": 1,
+      "transition:translate 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out": 1,
+      "transitionDuration:150ms": 1,
+      "transitionTimingFunction:ease-out": 1
     },
     "apps/www/src/lib/__probe__/stylex-corpus/press-button.stylex.ts": {
-      "borderWidth:1px": 2
+      "borderWidth:1px": 2,
+      "fontWeight:500": 1,
+      "transition:translate 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out": 1
+    },
+    "apps/www/src/lib/__probe__/stylex-corpus/prose.stylex.ts": {
+      "lineHeight:1.6": 1
     },
     "apps/www/src/lib/__probe__/stylex-corpus/range.stylex.ts": {
+      "fontWeight:700": 1,
       "gap:0.375rem": 2,
       "gap:0.75rem": 1,
       "gap:2px": 1,
@@ -14544,7 +14559,9 @@
       "marginInlineEnd:0.35em": 1
     },
     "apps/www/src/lib/__probe__/stylex-corpus/switch.stylex.ts": {
-      "borderWidth:1px": 1
+      "borderWidth:1px": 1,
+      "boxShadow:0 0 0 1px var(--jx-border) inset": 1,
+      "boxShadow:0 0 0 1px var(--jx-primary) inset": 1
     }
   },
   "version": 1

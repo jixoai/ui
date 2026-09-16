@@ -30,3 +30,22 @@
   families — separator first"), Pfinal canonical-prelude freeze
   (utilities tier removed; generator + negative test), verify:print
   provenance (it IS in verify-all's managed-server phase).
+- **Round 4 (implementation review) — NO-GO 6.2/10, adversarial**: the
+  review attacked the gate itself and found two real holes — (1) the
+  allowlist's producers[]/semantics[] metadata was tamper-able
+  (canonical format checked, content not re-verified against the
+  script's authoritative definitions — Codex demonstrated a silent
+  GREEN after rewriting legal/scope); (2) the stylex lane was
+  trusted by filename suffix (a rogue .stylex.ts producer passed)
+  and THEME_PROP_RE missed fontWeight/borderRadius/boxShadow/motion
+  slots. Plus (3) the pilot's lane-2 <style> block lacked
+  @layer components + :where() (placement-law contract), and (4) the
+  pilot receipt's provenance wasn't bound to the commit (generated
+  pre-commit, paths split between repo root and the change dir).
+  Confirmed non-blocking: separator three-copy/payload/consumer
+  receipts all real; a REAL registry-install fixture (shadcn add
+  path) is recommended for P2. → fixes: gate hardening (authority
+  re-verification + AST stylex.create validation + property schema
+  extension, selftests g/h/i), lane-2 migration to
+  lib/site/timeline-docs.css with a browser precedence probe, and
+  probe provenance (SHA-bound receipts + --verify-receipt mode).

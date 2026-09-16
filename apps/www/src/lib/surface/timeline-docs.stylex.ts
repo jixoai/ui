@@ -7,7 +7,8 @@
 // src/lib; the route imports, never authors). The pilot page's
 // recurring SINGLE-concern paint lives here; recurring COMPOSITES
 // (eyebrow, body voice, frame, grids, stepper control) are the
-// REGISTERED semantic rules in the page's lane-2 <style> sheet —
+// REGISTERED semantic rules in the site lane-2 sheet
+// ($lib/site/timeline-docs.css — @layer components + :where()) —
 // never utility lookalikes.
 //
 // Value law (three tiers):

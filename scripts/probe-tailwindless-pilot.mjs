@@ -35,18 +35,25 @@
 // matrix row is green.
 //
 // Run: node scripts/probe-tailwindless-pilot.mjs
-// Receipt: research/pilot-matrix-receipt.json
-// Shots:   research/matrix/{after|before}-w{375|768|1099|1100|1440}.png
+// Verify a receipt against the working tree (Gate-4 fix, 2026-09-16 —
+// receipts are commit-bound; re-run after the fix commit):
+//   node scripts/probe-tailwindless-pilot.mjs --verify-receipt
+// Receipt: openspec/changes/2026-09-17-tailwindless-site/research/pilot-matrix-receipt.json
+// Shots:   openspec/changes/2026-09-17-tailwindless-site/research/matrix/{after|before}-w{375|768|1099|1100|1440}.png
+//
+// Artifact placement (Gate-4 fix, 2026-09-16): products land IN the
+// change's research/ dir (receipt + matrix/); a stale artifact found
+// there is overwritten and recorded in meta.overwrote.
 
 import { chromium } from 'playwright-core';
 import { spawn, execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WWW = join(ROOT, 'apps/www');
-const RESEARCH = join(ROOT, 'research');
+const RESEARCH = join(ROOT, 'openspec/changes/2026-09-17-tailwindless-site/research');
 const MATRIX_DIR = join(RESEARCH, 'matrix');
 const RECEIPT = join(RESEARCH, 'pilot-matrix-receipt.json');
 
@@ -87,6 +94,44 @@ const SEL = {
   },
 };
 
+// ── --verify-receipt: bind a receipt to the CURRENT tree (Gate-4 fix,
+// 2026-09-16). The receipt's meta.commit must equal the current HEAD
+// and every recorded artifact path must exist — the orchestrator runs
+// this after the fix commit to re-bind the receipt. Any mismatch (or
+// a pre-binding receipt without meta.commit) exits 1.
+if (process.argv.includes('--verify-receipt')) {
+  const failVerify = (msg) => {
+    console.error(`FAIL  --verify-receipt: ${msg}`);
+    process.exit(1);
+  };
+  if (!existsSync(RECEIPT)) failVerify(`no receipt at ${RECEIPT} — run the probe first`);
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(RECEIPT, 'utf8'));
+  } catch (e) {
+    failVerify(`receipt is not valid JSON: ${e.message}`);
+  }
+  const head = execFileSync('git', ['-C', ROOT, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  if (!parsed.meta?.commit) {
+    failVerify(`receipt predates commit-binding (no meta.commit) — regenerate on HEAD ${head.slice(0, 8)}`);
+  }
+  if (parsed.meta.commit !== head) {
+    failVerify(`receipt commit ${parsed.meta.commit.slice(0, 8)} ≠ current HEAD ${head.slice(0, 8)} — re-run the probe on this tree`);
+  }
+  const artifacts = [];
+  const collectArtifacts = (v) => {
+    if (typeof v === 'string' && v.endsWith('.png')) artifacts.push(v);
+    else if (v && typeof v === 'object') Object.values(v).forEach(collectArtifacts);
+  };
+  collectArtifacts(parsed);
+  if (!artifacts.length) failVerify('receipt records no screenshot artifacts (.png) — nothing to bind');
+  const missing = artifacts.filter((p) => !existsSync(p));
+  if (missing.length) failVerify(`missing artifacts:\n  ${missing.join('\n  ')}`);
+  console.log(`PASS  --verify-receipt: commit ${head.slice(0, 8)} matches; ${artifacts.length}/${artifacts.length} artifacts exist`);
+  console.log(`      runAt ${parsed.meta.runAt ?? '(pre-binding)'} · dirty at run: ${parsed.meta.dirty ? `${parsed.meta.dirty.fileCount} files` : 'clean'}`);
+  process.exit(0);
+}
+
 if (!existsSync(CHROME)) {
   console.error(`FAIL  Chrome not found at ${CHROME}`);
   process.exit(1);
@@ -98,19 +143,38 @@ if (!existsSync(GHOSTTY_WASM)) {
 
 mkdirSync(MATRIX_DIR, { recursive: true });
 
+// Gate-4 fix (2026-09-16): provenance is COMMIT-BOUND. The receipt
+// records the exact HEAD it was generated on plus the dirty-file list;
+// --verify-receipt re-asserts both later (a receipt from another
+// commit — or pre-binding, without meta.commit — refuses to verify).
+const commitSha = execFileSync('git', ['-C', ROOT, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const dirtyFiles = execFileSync('git', ['-C', ROOT, 'status', '--porcelain'], { encoding: 'utf8' })
+  .split('\n')
+  .filter(Boolean);
+// stale artifacts from earlier runs (e.g. the pre-Gate-4 copies moved
+// by hand into the change dir) are overwritten — and said so
+const overwrote = [];
+if (existsSync(RECEIPT)) overwrote.push(RECEIPT);
+if (existsSync(MATRIX_DIR)) overwrote.push(...readdirSync(MATRIX_DIR).map((f) => join(MATRIX_DIR, f)));
+
 const receipt = {
   meta: {
     change: '2026-09-17-tailwindless-site',
     task: '4.1 — the P0 acceptance matrix (pinned probe)',
+    runAt: new Date().toISOString(),
     generatedAt: new Date().toISOString(),
     page: PAGE_PATH,
     viewports: VIEWPORTS,
     deviceScaleFactor: DSF,
     playwright: JSON.parse(readFileSync(join(ROOT, 'node_modules/playwright-core/package.json'), 'utf8')).version,
     chrome: CHROME,
+    commit: commitSha,
+    commitShort: commitSha.slice(0, 8),
+    dirty: dirtyFiles.length ? { fileCount: dirtyFiles.length, files: dirtyFiles } : false,
+    overwrote: overwrote.length ? overwrote : false,
     provenance: {
       before: `main server ${BEFORE_BASE} — READ-ONLY (HTTP GET + headless browsing only; never restarted/written/killed); serves main@${execFileSync('git', ['-C', MAIN_REPO, 'rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim()} (the pre-migration Tailwind page, prerendered build)`,
-      after: `worktree dev server ${AFTER_BASE} — vite dev over apps/www, branch ${execFileSync('git', ['-C', ROOT, 'branch', '--show-current'], { encoding: 'utf8' }).trim()}, HEAD ${execFileSync('git', ['-C', ROOT, 'rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim()} + the uncommitted migration working tree`,
+      after: `worktree dev server ${AFTER_BASE} — vite dev over apps/www, branch ${execFileSync('git', ['-C', ROOT, 'branch', '--show-current'], { encoding: 'utf8' }).trim()}, HEAD ${commitSha} (meta.commit; dirty: ${dirtyFiles.length} files — see meta.dirty)`,
       ghosttyWasm: `JIXOAI_GHOSTTY_WASM_PATH=${GHOSTTY_WASM} (sha256 matches ghostty.pin.json "full"; the env override never writes any cache)`,
     },
   },

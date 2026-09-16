@@ -1,0 +1,126 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+/**
+ * jixoai timeline docs lane-2 sheet
+ * (apps/www/src/lib/site/timeline-docs.css).
+ * The tailwindless pilot page's REGISTERED semantic composites
+ * (tailwindless-site P0 task 3.3; Gate-4 fix 2026-09-16 — moved out
+ * of the page's Svelte <style>, which compiled UNLAYERED + scoped
+ * and thus beat consumer utilities, violating the placement law).
+ * Lane-2 contract: rules live in @layer components under :where()
+ * (zero specificity) — any consumer utility in the later utilities
+ * layer ALWAYS wins; scripts/probe-tailwindless-precedence.mjs
+ * proves the flip in a real browser. Single-concern paint stays in
+ * the page's atom module ($lib/surface/timeline-docs.stylex.ts);
+ * the registry of record is the tailwindless gate's semantics[]
+ * (scripts/verify-tailwindless.mjs SEMANTIC_RULES) — owner +
+ * selector family + declaration scope per rule. Theme-able values
+ * ride the site voice scale (jixoai.css "The site voice scale"
+ * segment); the media-query THRESHOLDS are structural (Tailwind's
+ * own px/rem seam values, kept verbatim for breakpoint parity — a
+ * viewport-owned seam stays a viewport media rule, not a container
+ * query, so the 1099/1100 flip lands exactly where the utility
+ * did). Loaded by the timeline docs page alone (side-effect
+ * import in the route); class names are page-unique.
+ * Owner: site (never a registry item).
+ *
+ * Intents (orthogonal count: 4):
+ *   1. .tl-shell — the page shell measure + rhythm (sm/lg media
+ *      seams re-pin the inline padding step).
+ *   2. .tl-eyebrow / .tl-body — the page's two fixed voices
+ *      (label, body).
+ *   3. .tl-col / .tl-frame / .tl-grid-3 / .tl-grid-matrix — the
+ *      demo-stage geometry (label-over-stage column, hairline
+ *      frame, responsive grids with their min-1100 / min-900 +
+ *      min-1300 media seams).
+ *   4. .tl-ctl — the stepper control (hover seams as NATIVE
+ *      pseudos; --primary variant).
+ */
+
+:where(.tl-shell){
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--shell-w);
+  padding-inline: var(--space-16);
+  padding-block: var(--space-40);
+}
+@media (min-width: 40rem) {
+  :where(.tl-shell){
+    padding-inline: var(--space-24);
+  }
+}
+@media (min-width: 64rem) {
+  :where(.tl-shell){
+    padding-inline: var(--space-32);
+  }
+}
+
+:where(.tl-eyebrow){
+  font-family: var(--font-nav);
+  color: var(--primary);
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+}
+
+:where(.tl-body){
+  font-size: var(--text-small);
+  color: var(--muted-foreground);
+}
+
+:where(.tl-col){
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+:where(.tl-frame){
+  border: var(--hairline) solid var(--border);
+}
+
+:where(.tl-grid-3),
+:where(.tl-grid-matrix){
+  display: grid;
+  gap: var(--space-24);
+}
+@media (min-width: 900px) {
+  :where(.tl-grid-matrix){
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1100px) {
+  :where(.tl-grid-3){
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1300px) {
+  :where(.tl-grid-matrix){
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+:where(.tl-ctl){
+  border-radius: var(--radius);
+  border: var(--hairline) solid var(--border);
+  background: var(--background);
+  padding-inline: var(--space-10);
+  padding-block: var(--space-4);
+  font-family: var(--font-nav);
+  font-size: var(--text-label-lg);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--foreground);
+}
+:where(.tl-ctl:hover){
+  background: var(--muted);
+}
+:where(.tl-ctl--primary){
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+:where(.tl-ctl--primary:hover){
+  opacity: 0.9;
+}
+}

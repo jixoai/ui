@@ -1,6 +1,6 @@
 {
   "what": "clean consumer receipt — tailwindless-site P0 task 2.3 (separator, the first migrated registry family)",
-  "generatedAt": "2026-09-16T18:48:25.356Z",
+  "generatedAt": "2026-09-16T19:42:35.276Z",
   "fixture": {
     "dir": "/Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/.agents/fixtures/tailwindless-consumer",
     "packageJson": {
@@ -23,7 +23,7 @@
   "assertions": {
     "the zero-tooling consumer builds green": {
       "ok": true,
-      "detail": "index-Ce-JNCPJ.css"
+      "detail": "index-D8Ll81Kg.css"
     },
     "the built css carries the separator atom rules": {
       "ok": true,
@@ -126,9 +126,9 @@
     "bytes": 18680
   },
   "teardown": {
-    "browserPid": "57368,57379,57380,57382,57386,57388,57389",
+    "browserPid": "61815,61968,61969,61982,62021,62037,62038",
     "browserGone": true,
-    "serverPort": 54018,
+    "serverPort": 65410,
     "serverRefused": true,
     "fixtureDirRemoved": true
   }

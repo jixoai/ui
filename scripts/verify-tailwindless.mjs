@@ -9,9 +9,23 @@
 // or a hand edit of the allowlist itself. Identity removal and file
 // zeroing are LEGAL — that is the migration direction.
 //
+// Gate-4 hardening (2026-09-16, Codex adversarial review): the gate
+// also fails on (1) a canonically re-serialized tamper of the
+// allowlist's CONTRACT blocks — producers[]/semantics[] are deep-
+// compared against THIS script's own definitions, so an edit that
+// survives the canonical-format check still goes red; and (2) a
+// spoofed .stylex channel — the import suffix alone proves nothing:
+// the source must resolve into a transform root AND the module must
+// AST-verify a top-level stylex authoring call (stylex.create /
+// defineVars / createTheme). Tier-2 coverage grew the token-bound
+// families with the weight/radius/shadow/motion/leading slots; the
+// probe-corpus occurrences that predate the extension are frozen in
+// the explicit, count-bounded TIER2_GRANDFATHER ledger (never a
+// silent pass).
+//
 //   node scripts/verify-tailwindless.mjs --pin       # write the allowlist instance
 //   node scripts/verify-tailwindless.mjs --check     # the gate (verify:tailwindless)
-//   node scripts/verify-tailwindless.mjs --selftest  # negative fixtures (the five reds)
+//   node scripts/verify-tailwindless.mjs --selftest  # negative fixtures (the nine reds)
 //
 // AST BOUNDARY (what the extractor reads — see allowlist.exclusions):
 //   * Svelte markup: `class=` attribute parts (Text chunks + the string
@@ -48,7 +62,7 @@ import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, posix, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REAL_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -95,21 +109,165 @@ const DOC_PROP_BLACKLIST = {
 
 // theme-able .stylex.ts property families (tier-2 — token-bound only);
 // structural geometry (display, flexDirection, blockSize, width, …)
-// lives OUTSIDE these families and stays lawful as literals
+// lives OUTSIDE these families and stays lawful as literals.
+// THEME_PROP_RE carries the LENGTH families; the Gate-4 extension
+// (weight/radius/shadow/motion/leading) lives in tier2KeyOf below,
+// each with its own literal shape — and its own deliberate exclusions:
+// motion-kill values ('none', 0ms/0s) and mask/gradient geometry
+// strings are STRUCTURE, not theme slots; a var()-chain shadow already
+// eats tokens (only a hardcoded length fragment makes it tier-2).
 const THEME_PROP_RE =
   /^(?:padding|margin|gap)(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?$|^(?:fontSize|letterSpacing|lineHeight|color|backgroundColor|borderColor)$|^border(?:Top|Right|Bottom|Left|Inline|Block)?Width$/;
 const LENGTH_LITERAL_RE = /^-?(?:\d+\.?\d*|\.\d+)(?:px|em|rem)$/;
+// Gate-4 family shapes:
+const UNITLESS_NUMBER_RE = /^\d+(?:\.\d+)?$/; // the leading multiplier: lineHeight 1.6 (numeric literal text matches too)
+const FONT_WEIGHT_RE = /^(?:[1-9]00|normal|bold|bolder|lighter)$/; // '600' / 600 / 'bold'
+const RADIUS_LITERAL_RE = /^(?:-?(?:\d+\.?\d*|\.\d+)(?:px|em|rem)|\d+(?:\.\d+)?%)$/; // calc(infinity*1px)/inherit are geometry, not scale steps
+const DURATION_RE = /^(?!0+(?:\.\d+)?(?:ms|s)$)\d+(?:\.\d+)?(?:ms|s)$/; // zero = the motion-kill (reduced-motion freeze law) — structural
+const EASING_RE = /^(?:linear|ease|ease-in|ease-out|ease-in-out|step-start|step-end|cubic-bezier\([^)]*\)|steps\([^)]*\))$/;
+const SHADOW_LENGTH_RE = /-?\d+(?:\.\d+)?(?:px|em|rem)\b/; // a pure var() fallback chain carries no lengths — it already eats tokens
+const COMPOSITE_DURATION_RE = /\b(?:[1-9]\d*|\d*[1-9]\d*)(?:\.\d+)?m?s\b/; // non-zero duration inside a shorthand
+const COMPOSITE_EASING_RE = /\b(?:linear|ease-in-out|ease-in|ease-out|ease|step-start|step-end)\b|cubic-bezier\s*\(|steps\s*\(/;
 
-// a stylex MODULE source: the @stylexjs packages, or any authored
-// atom module — the <name>.stylex[.ts|.js|.svelte] convention (the
-// site-surface lane's documented consumption form, tailwindless-site
-// task 3.1: routes import { tlDocs } from '$lib/surface/
-// timeline-docs.stylex' and put members at class positions; the
-// registry components' './separator.stylex' imports are the same
-// seam). Without the suffix arm the member-at-class-position pattern
-// reads as an unregistered producer — the destination lane must be
-// recognized by module path, not by never being referenced.
-const STYLEX_MODULE_RE = /(^|\/)@?stylex|\.stylex(?:\.[cm]?[jt]s)?$/;
+// tier-2 key for a (prop, literal-text) pair, or null when the slot is
+// not theme-bound. `value` is the literal's TEXT — string literal or
+// numeric literal alike (the shapes above are text shapes, so '600'
+// and 600 both match FONT_WEIGHT_RE). A key means token-bound-only:
+// a fresh literal is RED, the grandfathered probe-corpus occurrences
+// below are the frozen debt.
+function tier2KeyOf(prop, value) {
+  if (THEME_PROP_RE.test(prop)) {
+    if (LENGTH_LITERAL_RE.test(value)) return `${prop}:${value}`;
+    if (prop === 'lineHeight' && UNITLESS_NUMBER_RE.test(value)) return `${prop}:${value}`; // unitless leading is a theme slot
+    return null;
+  }
+  if (prop === 'fontWeight') return FONT_WEIGHT_RE.test(value) ? `${prop}:${value}` : null;
+  if (prop === 'borderRadius') return RADIUS_LITERAL_RE.test(value) ? `${prop}:${value}` : null;
+  if (prop === 'transitionDuration') return DURATION_RE.test(value) ? `${prop}:${value}` : null;
+  if (prop === 'transitionTimingFunction') return EASING_RE.test(value) ? `${prop}:${value}` : null;
+  if (prop === 'boxShadow') return SHADOW_LENGTH_RE.test(value) ? `${prop}:${value}` : null;
+  if (prop === 'transition') return COMPOSITE_DURATION_RE.test(value) || COMPOSITE_EASING_RE.test(value) ? `${prop}:${value}` : null; // 'none' passes
+  return null;
+}
+
+// the Gate-4 family extension's frozen debt: probe-corpus occurrences
+// that predate the extension (the pinned tier-2 block has no entry for
+// them — the extension itself is what makes them visible). EXPLICIT
+// and count-bounded, never a silent pass: the same literal anywhere
+// else, or a count above these numbers, is RED. When a ledger entry's
+// literal migrates to a token, DELETE the entry — a stale entry
+// re-opens the slot it froze.
+const TIER2_GRANDFATHER = {
+  'apps/www/src/lib/__probe__/stylex-corpus/code-card.stylex.ts': {
+    'lineHeight:1.6': 1,
+    'transitionDuration:150ms': 2,
+    'transitionTimingFunction:ease-out': 2,
+  },
+  'apps/www/src/lib/__probe__/stylex-corpus/demo.stylex.ts': {
+    'fontWeight:600': 1,
+    'lineHeight:1.6': 1,
+  },
+  'apps/www/src/lib/__probe__/stylex-corpus/popover.stylex.ts': {
+    'fontWeight:500': 1,
+    'transition:translate 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out': 1,
+    'transitionDuration:150ms': 1,
+    'transitionTimingFunction:ease-out': 1,
+  },
+  'apps/www/src/lib/__probe__/stylex-corpus/press-button.stylex.ts': {
+    'fontWeight:500': 1,
+    'transition:translate 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out': 1,
+  },
+  'apps/www/src/lib/__probe__/stylex-corpus/prose.stylex.ts': {
+    'lineHeight:1.6': 1,
+  },
+  'apps/www/src/lib/__probe__/stylex-corpus/range.stylex.ts': {
+    'fontWeight:700': 1,
+  },
+  'apps/www/src/lib/__probe__/stylex-corpus/switch.stylex.ts': {
+    'boxShadow:0 0 0 1px var(--jx-border) inset': 1,
+    'boxShadow:0 0 0 1px var(--jx-primary) inset': 1,
+  },
+};
+
+// a stylex channel source, post-Gate-4: EITHER the runtime itself
+// (@stylexjs/* — the engine seam, stylex.create/.attrs/… namespaces)
+// OR an authored atom module — a `.stylex` import that (a) resolves
+// into a transform root (apps/www/src/lib | registry/files) AND
+// (b) AST-verifies as a real atom module: a @stylexjs import plus a
+// TOP-LEVEL authoring call (stylex.create / defineVars / createTheme —
+// create is the gate's minimum bar; defineVars/createTheme because the
+// tokens three-copy IS a transform-root stylex module). The bare
+// filename suffix was a spoofable channel (an evil.stylex.ts dynamic
+// class producer rode it); now the module must PROVE itself, and
+// anything else is an unregistered producer.
+const STYLEX_RUNTIME_SOURCE_RE = /^@stylexjs\//;
+const STYLEX_SUFFIX_RE = /\.stylex(?:\.[cm]?[jt]s)?$/;
+const STYLEX_TRANSFORM_ROOTS = ['apps/www/src/lib/', 'registry/files/'];
+const STYLEX_AUTHORING_CALLS = new Set(['create', 'defineVars', 'createTheme']);
+const STYLEX_MODULE_CACHE = new Map(); // `${root}::${rel}::${mtime}::${size}` → boolean (mutation-safe across pin/check in one process)
+
+// resolve a `.stylex` import specifier (as written at the import site)
+// against the importing file → repo-relative path inside a transform
+// root, or null. `$lib/` is the svelte alias for apps/www/src/lib.
+function resolveStylexSource(root, importerRel, source) {
+  let base = null;
+  if (source.startsWith('$lib/')) base = `apps/www/src/lib/${source.slice('$lib/'.length)}`;
+  else if (source.startsWith('./') || source.startsWith('../')) base = posix.normalize(posix.join(posix.dirname(importerRel), source));
+  else return null; // bare specifier — only the runtime arm can carry it
+  if (!STYLEX_SUFFIX_RE.test(base)) return null;
+  for (const cand of [base, `${base}.ts`, `${base}.js`, `${base}.mjs`, `${base}.cjs`]) {
+    if (STYLEX_TRANSFORM_ROOTS.some((zone) => cand.startsWith(zone)) && existsSync(join(root, cand))) return cand;
+  }
+  return null;
+}
+
+// AST-verify an authored atom module: a @stylexjs import binding a
+// local name, and a top-level statement whose root expression is an
+// authoring call on that name (const/export const/export default —
+// the `export const styles = stylex.create({...})` corpus shape).
+function stylexModuleVerified(root, rel) {
+  let stat;
+  try { stat = statSync(join(root, rel)); } catch { return false; }
+  const key = `${root}::${rel}::${stat.mtimeMs}::${stat.size}`;
+  const cached = STYLEX_MODULE_CACHE.get(key);
+  if (cached !== undefined) return cached;
+  let verified = false;
+  try {
+    const src = readFileSync(join(root, rel), 'utf8');
+    const sf = ts.createSourceFile(rel, src, ts.ScriptTarget.Latest, true, /\.(?:m|c)?js$/.test(rel) ? ts.ScriptKind.JS : ts.ScriptKind.TS);
+    const stylexNames = new Set();
+    for (const stmt of sf.statements) {
+      if (!ts.isImportDeclaration(stmt) || !stmt.importClause || !STYLEX_RUNTIME_SOURCE_RE.test(stmt.moduleSpecifier.text)) continue;
+      const clause = stmt.importClause;
+      if (clause.name) stylexNames.add(clause.name.text);
+      const bindings = clause.namedBindings;
+      if (!bindings) continue;
+      if (ts.isNamespaceImport(bindings)) stylexNames.add(bindings.name.text);
+      else if (ts.isNamedImports(bindings)) for (const el of bindings.elements) stylexNames.add(el.name.text);
+    }
+    if (stylexNames.size) {
+      const isAuthoringCall = (n) => {
+        if (!n || !ts.isCallExpression(n)) return false;
+        const e = n.expression;
+        if (ts.isPropertyAccessExpression(e)) return ts.isIdentifier(e.expression) && stylexNames.has(e.expression.text) && STYLEX_AUTHORING_CALLS.has(e.name.text);
+        return ts.isIdentifier(e) && STYLEX_AUTHORING_CALLS.has(e.text) && stylexNames.has(e.text); // import { create } from '@stylexjs/stylex'
+      };
+      const unwrap = (e) => {
+        let c = e;
+        while (c && (ts.isAsExpression(c) || ts.isSatisfiesExpression(c) || ts.isTypeAssertionExpression(c) || ts.isParenthesizedExpression(c) || ts.isNonNullExpression(c))) c = c.expression;
+        return c;
+      };
+      outer: for (const stmt of sf.statements) {
+        const exprs = [];
+        if (ts.isVariableStatement(stmt)) for (const d of stmt.declarationList.declarations) exprs.push(d.initializer);
+        else if (ts.isExpressionStatement(stmt) || ts.isExportAssignment(stmt)) exprs.push(stmt.expression);
+        for (const e of exprs) if (isAuthoringCall(unwrap(e))) { verified = true; break outer; }
+      }
+    }
+  } catch { verified = false; }
+  STYLEX_MODULE_CACHE.set(key, verified);
+  return verified;
+}
 
 // registered semantic rules (lane-2 composites — tailwindless-site
 // task 3.3): recurring composite clusters authored in a sheet with
@@ -133,7 +291,7 @@ const SEMANTIC_RULES = [
   {
     id: 'tl-shell',
     class: 'tl-shell',
-    owner: 'apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>',
+    owner: 'apps/www/src/lib/site/timeline-docs.css',
     selector: '.tl-shell — the docs page shell',
     scope: 'measure + rhythm: max-width, centered, padding-inline/block steps; registered media seams sm(40rem)/lg(64rem) re-pin the inline step',
     registeredAt: '2026-09-17 (tailwindless-site P0 pilot, task 3.3)',
@@ -141,7 +299,7 @@ const SEMANTIC_RULES = [
   {
     id: 'tl-eyebrow',
     class: 'tl-eyebrow',
-    owner: 'apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>',
+    owner: 'apps/www/src/lib/site/timeline-docs.css',
     selector: '.tl-eyebrow — the canvas demo label voice (span)',
     scope: 'typography role: font-nav, primary ink, label size, uppercase, label tracking',
     registeredAt: '2026-09-17 (tailwindless-site P0 pilot, task 3.3)',
@@ -149,7 +307,7 @@ const SEMANTIC_RULES = [
   {
     id: 'tl-body',
     class: 'tl-body',
-    owner: 'apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>',
+    owner: 'apps/www/src/lib/site/timeline-docs.css',
     selector: '.tl-body — the demo body voice (p, ul)',
     scope: 'typography role: small size + muted ink',
     registeredAt: '2026-09-17 (tailwindless-site P0 pilot, task 3.3)',
@@ -157,7 +315,7 @@ const SEMANTIC_RULES = [
   {
     id: 'tl-col',
     class: 'tl-col',
-    owner: 'apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>',
+    owner: 'apps/www/src/lib/site/timeline-docs.css',
     selector: '.tl-col — the demo column (label over stage)',
     scope: 'layout: flex column with the 8px label-to-stage gap',
     registeredAt: '2026-09-17 (tailwindless-site P0 pilot, task 3.3)',
@@ -165,7 +323,7 @@ const SEMANTIC_RULES = [
   {
     id: 'tl-frame',
     class: 'tl-frame',
-    owner: 'apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>',
+    owner: 'apps/www/src/lib/site/timeline-docs.css',
     selector: '.tl-frame — the bordered demo frame',
     scope: 'box: hairline-weight solid border on the border color role (padding composed as atoms)',
     registeredAt: '2026-09-17 (tailwindless-site P0 pilot, task 3.3)',
@@ -173,7 +331,7 @@ const SEMANTIC_RULES = [
   {
     id: 'tl-grid-3',
     class: 'tl-grid-3',
-    owner: 'apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>',
+    owner: 'apps/www/src/lib/site/timeline-docs.css',
     selector: '.tl-grid-3 — the three-up demo grid',
     scope: 'layout: grid, 24px gutter; registered media seam min-1100px flips to 3 equal tracks (breakpoint-parity law: viewport seam stays a viewport media rule)',
     registeredAt: '2026-09-17 (tailwindless-site P0 pilot, task 3.3)',
@@ -181,7 +339,7 @@ const SEMANTIC_RULES = [
   {
     id: 'tl-grid-matrix',
     class: 'tl-grid-matrix',
-    owner: 'apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>',
+    owner: 'apps/www/src/lib/site/timeline-docs.css',
     selector: '.tl-grid-matrix — the geometry matrix grid',
     scope: 'layout: grid, 24px gutter; registered media seams min-900px (2 tracks) and min-1300px (3 tracks)',
     registeredAt: '2026-09-17 (tailwindless-site P0 pilot, task 3.3)',
@@ -190,7 +348,7 @@ const SEMANTIC_RULES = [
     id: 'tl-ctl',
     class: 'tl-ctl',
     classes: ['tl-ctl', 'tl-ctl--primary'], // the --primary accent is the family's BEM modifier
-    owner: 'apps/www/src/routes/docs/components/timeline.html/+page.svelte <style>',
+    owner: 'apps/www/src/lib/site/timeline-docs.css',
     selector: '.tl-ctl (+ .tl-ctl--primary accent) — the stepper control button',
     scope: 'control: radius/border/background/padding + the control-label voice; hover seams are NATIVE pseudos (outline variant → muted ground, primary variant → 0.9 opacity)',
     registeredAt: '2026-09-17 (tailwindless-site P0 pilot, task 3.3)',
@@ -359,8 +517,9 @@ function templateParts(n) {
 // Per-file extraction
 // ════════════════════════════════════════════════════════════════════
 class FileExtraction {
-  constructor(rel) {
+  constructor(rel, root) {
     this.rel = rel;
+    this.root = root; // extraction root (the real tree or a selftest sandbox)
     this.identities = new Map(); // token → count
     this.violations = []; // {kind, detail}
     this.seenSites = new Set(); // AST nodes already counted (source-site counting)
@@ -459,12 +618,15 @@ class FileExtraction {
   }
 
   // ── stylex seam detection ────────────────────────────────────────
+  // Gate-4: the runtime arm (@stylexjs/*) is always the engine; an
+  // authored module arm must resolve into a transform root AND
+  // AST-verify (a @stylexjs import + a top-level authoring call) —
+  // the `.stylex` suffix alone is no longer a channel.
   isStylexImport(binding) {
-    return (
-      binding?.kind === 'import' &&
-      typeof binding.source === 'string' &&
-      STYLEX_MODULE_RE.test(binding.source)
-    );
+    if (binding?.kind !== 'import' || typeof binding.source !== 'string') return false;
+    if (STYLEX_RUNTIME_SOURCE_RE.test(binding.source)) return true;
+    const resolved = resolveStylexSource(this.root, this.rel, binding.source);
+    return resolved !== null && stylexModuleVerified(this.root, resolved);
   }
   isStylexNamespaceIdent(nameNode) {
     const t = nodeType(nameNode);
@@ -1029,7 +1191,7 @@ function describeExpr(node) {
 // ════════════════════════════════════════════════════════════════════
 function extractFile(root, rel) {
   const src = readFileSync(join(root, rel), 'utf8');
-  const fx = new FileExtraction(rel);
+  const fx = new FileExtraction(rel, root);
   if (rel.endsWith('.svelte')) {
     const ast = svelteParse(src, { filename: rel });
     for (const script of [ast.module, ast.instance]) {
@@ -1147,7 +1309,7 @@ function jxCssUtilities(root) {
 function stylexTier2Literals(root) {
   const out = new Map(); // rel → Map('prop:value' → count)
   for (const rel of scanSources(root)) {
-    if (!rel.endsWith('.stylex.ts')) continue;
+    if (!/\.stylex\.[cm]?[jt]s$/.test(rel)) continue;
     const src = readFileSync(join(root, rel), 'utf8');
     const program = ts.createSourceFile(rel, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     const fileMap = new Map();
@@ -1163,13 +1325,12 @@ function stylexTier2Literals(root) {
           return;
         }
       }
-      if (inCreate.length && ts.isPropertyAssignment(n) && ts.isStringLiteral(n.initializer)) {
+      // string AND numeric literals: the tier-2 families' shapes are
+      // text shapes ('600' and 600 are the same theme slot)
+      if (inCreate.length && ts.isPropertyAssignment(n) && (ts.isStringLiteral(n.initializer) || ts.isNumericLiteral(n.initializer))) {
         const prop = ts.isIdentifier(n.name) ? n.name.text : n.name.getText?.() ?? '';
-        const value = n.initializer.text;
-        if (THEME_PROP_RE.test(prop) && LENGTH_LITERAL_RE.test(value)) {
-          const key = `${prop}:${value}`;
-          fileMap.set(key, (fileMap.get(key) ?? 0) + 1);
-        }
+        const key = tier2KeyOf(prop, n.initializer.text);
+        if (key) fileMap.set(key, (fileMap.get(key) ?? 0) + 1);
       }
       ts.forEachChild(n, visit);
     };
@@ -1213,6 +1374,64 @@ function producersBlock(root, pinnedAt = null) {
   ];
   void pinnedAt;
   return producers;
+}
+
+// ── the structural contract (Gate-4 anti-tamper) ────────────────────
+// The allowlist has two tamper classes, and --check names the one it
+// caught. The FILE-LEVEL IDENTITY BUDGET (files[]) is source-derived —
+// the gate re-extracts and ratchets it. The STRUCTURAL CONTRACT
+// (producers[]/semantics[]) is the registration metadata that decides
+// what counts as legal; Gate-4 proved a canonically re-serialized edit
+// of those blocks sailed through the format check, so the contract is
+// re-derived from THIS script (producersBlock's constant fields +
+// SEMANTIC_RULES) and deep-compared against the pinned copy — a pinned
+// value can only match by BEING the script's value. formsByFile is
+// stripped from both sides: it is a source census (budget class,
+// ratcheted in check), not contract.
+function stripCensusFields(p) {
+  const rest = { ...p };
+  delete rest.formsByFile;
+  return rest;
+}
+function contractProducers(root) {
+  return producersBlock(root).map(stripCensusFields);
+}
+function contractViolations(root, pinned) {
+  const diffs = [];
+  const preview = (v) => {
+    if (v === undefined) return 'undefined';
+    const s = typeof v === 'string' ? v : JSON.stringify(v);
+    return `'${s.length > 60 ? `${s.slice(0, 57)}…` : s}'`;
+  };
+  const walk = (where, contract, pinnedValue) => {
+    if (Array.isArray(contract) || Array.isArray(pinnedValue)) {
+      if (!Array.isArray(contract) || !Array.isArray(pinnedValue)) {
+        diffs.push(`${where}: pinned ${preview(pinnedValue)} is not the contract's array`);
+        return;
+      }
+      if (pinnedValue.length !== contract.length) {
+        diffs.push(`${where}: pinned ${pinnedValue.length} ${pinnedValue.length === 1 ? 'entry' : 'entries'} ≠ contract ${contract.length} (${pinnedValue.length > contract.length ? 'injected' : 'deleted'} registration)`);
+      }
+      for (let i = 0; i < Math.min(contract.length, pinnedValue.length); i++) walk(`${where}[${i}]`, contract[i], pinnedValue[i]);
+      return;
+    }
+    if (contract !== null && typeof contract === 'object') {
+      if (pinnedValue === null || typeof pinnedValue !== 'object' || Array.isArray(pinnedValue)) {
+        diffs.push(`${where}: pinned ${preview(pinnedValue)} is not the contract's object`);
+        return;
+      }
+      for (const k of Object.keys(contract)) {
+        if (!(k in pinnedValue)) diffs.push(`${where}.${k}: DELETED from pinned (contract field missing)`);
+        else walk(`${where}.${k}`, contract[k], pinnedValue[k]);
+      }
+      for (const k of Object.keys(pinnedValue)) if (!(k in contract)) diffs.push(`${where}.${k}: INJECTED into pinned (no such contract field)`);
+      return;
+    }
+    if (contract !== pinnedValue) diffs.push(`${where}: value tampered — pinned ${preview(pinnedValue)} ≠ contract ${preview(contract)}`);
+  };
+  walk('producers', contractProducers(root), Array.isArray(pinned.producers) ? pinned.producers.map(stripCensusFields) : (pinned.producers ?? []));
+  walk('semantics', SEMANTIC_RULES, Array.isArray(pinned.semantics) ? pinned.semantics : (pinned.semantics ?? []));
+  return diffs.map((d) => `allowlist CONTRACT tampered: ${d} — producers[]/semantics[] are script-defined (single writer --pin; an intentional registry change is made IN THE SCRIPT, then re-pinned)`);
 }
 
 function buildInstance(root, pinnedAt) {
@@ -1293,6 +1512,11 @@ function check(root, allowlistPath) {
   if (pinned.generator !== GENERATOR) red.push(`allowlist generator mismatch: ${pinned.generator}`);
   if (pinned.version !== 1) red.push(`allowlist version != 1`);
 
+  // structural contract (Gate-4): producers[]/semantics[] must BE the
+  // script-defined registry — a canonically re-serialized edit of the
+  // pinned copy is not a legitimate state of the allowlist
+  red.push(...contractViolations(root, pinned));
+
   // re-extract
   const { entries, violations } = extractAll(root);
   for (const v of violations) red.push(v.detail);
@@ -1344,11 +1568,15 @@ function check(root, allowlistPath) {
     red.push('allowlist lost the jxCssUtilities freeze');
   }
 
-  // .stylex.ts tier-2 literals (growth red; removal legal)
+  // .stylex.ts tier-2 literals (growth red; removal legal). Baseline =
+  // the pinned block ∪ the explicit Gate-4 grandfather ledger, taking
+  // the max per key (the ledger only backfills pre-extension keys).
   const pinnedTier2 = pinned.stylexTier2Literals ?? {};
   const currentTier2 = stylexTier2Literals(root);
   for (const [rel, map] of currentTier2) {
-    const pinnedMap = pinnedTier2[rel] ?? {};
+    const grandfather = TIER2_GRANDFATHER[rel] ?? {};
+    const pinnedMap = { ...grandfather, ...(pinnedTier2[rel] ?? {}) };
+    for (const [k, c] of Object.entries(grandfather)) if ((pinnedMap[k] ?? 0) < c) pinnedMap[k] = c;
     for (const [key, count] of map) {
       const pc = pinnedMap[key];
       if (pc === undefined) red.push(`${rel}: stylex tier-2 literal '${key}' is NEW (theme-able slot, token-bound only — promote the value to a token step)`);
@@ -1362,7 +1590,7 @@ function check(root, allowlistPath) {
     return { ok: false, red };
   }
   const totals = totalsOf(pinned);
-  console.log(`[tailwindless] ✓ GREEN — ${entries.size} class-bearing files against the pin (pinned ${totals.files} files · ${totals.identities} identities · ${totals.occurrences} occurrences); no growth, no new identities, no unregistered producers, @utility freeze ${pinned.jxCssUtilities.count}, tier-2 literals ${Object.keys(pinnedTier2).length} file(s)`);
+  console.log(`[tailwindless] ✓ GREEN — ${entries.size} class-bearing files against the pin (pinned ${totals.files} files · ${totals.identities} identities · ${totals.occurrences} occurrences); no growth, no new identities, no unregistered producers, contract intact (producers/semantics = script-defined), @utility freeze ${pinned.jxCssUtilities.count}, tier-2 literals ${Object.keys(pinnedTier2).length} file(s)`);
   return { ok: true, red: [] };
 }
 
@@ -1525,6 +1753,52 @@ function selftest() {
       writeFileSync(allowlist, JSON.stringify(parsed, null, 4) + '\n'); // wrong indent + unsorted keys
     },
     /not the canonical serialization/,
+  );
+
+  runCase(
+    '(g) canonically-serialized allowlist with tampered contract fields (producers[].legal / semantics[].scope)',
+    (p) => {
+      const allowlist = join(p(''), 'allowlist.json');
+      const parsed = JSON.parse(readFileSync(allowlist, 'utf8'));
+      // the Gate-4 attack: edit the contract CONTENT, re-serialize
+      // canonically — the format check passes; only the deep compare
+      // against the script's own definitions can catch it
+      parsed.producers[0].legal = ['<passthrough — TAMPERED: any class goes>'];
+      parsed.semantics[0].scope = 'tampered scope — anything goes';
+      writeFileSync(allowlist, canonicalJson(parsed));
+    },
+    /allowlist CONTRACT tampered: (producers\[\d+\]\.legal|semantics\[\d+\]\.scope)/,
+  );
+
+  runCase(
+    '(h) spoofed .stylex.ts channel — a dynamic producer hiding behind the suffix (no stylex.create)',
+    (p) => {
+      const rogue = p('apps/www/src/lib/rogue.stylex.ts');
+      mkdirSync(dirname(rogue), { recursive: true });
+      writeFileSync(rogue, `// NO @stylexjs import, NO top-level stylex.create — the suffix
+// alone is not a stylex channel (the Gate-4 spoof)
+export const evil = (extra: string) => \`shadow-xl blur-sm \${extra}\`;
+`);
+      const page = p('apps/www/src/routes/rogue-stylex.html/+page.svelte');
+      mkdirSync(dirname(page), { recursive: true });
+      writeFileSync(page, `<script lang="ts">
+  import { evil } from '$lib/rogue.stylex';
+</script>
+
+<div class={evil('p-4')}>spoofed stylex channel</div>
+`);
+    },
+    /unregistered dynamic class producer \(call to `evil` imported from '\$lib\/rogue\.stylex'/,
+  );
+
+  runCase(
+    '(i) fontWeight string literal planted in a legal .stylex.ts (theme slot — token-bound only)',
+    (p) => {
+      const file = p('apps/www/src/lib/wg.stylex.ts');
+      const before = readFileSync(file, 'utf8');
+      writeFileSync(file, before.replace("label: { fontSize: tokens['--jx-text-secondary'] },", "label: { fontSize: tokens['--jx-text-secondary'], fontWeight: '600' },"));
+    },
+    /tier-2 literal 'fontWeight:600'/,
   );
 
   console.log(`\n[tailwindless] selftest — ${cases.length} negative fixtures:`);
