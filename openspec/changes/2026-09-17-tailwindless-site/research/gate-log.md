@@ -49,3 +49,27 @@
   extension, selftests g/h/i), lane-2 migration to
   lib/site/timeline-docs.css with a browser precedence probe, and
   probe provenance (SHA-bound receipts + --verify-receipt mode).
+- **Round 5 (fresh adversarial reviewer, tw-gate2) — NO-GO 4.0/10**:
+  the deeper attack pass demonstrated six more real bypasses — (1)
+  receipt provenance (no dirty-tree check, content tamper passes,
+  artifacts existence-only with 20 paths → 10 unique files);
+  (2) the pinned budget can be RAISED (identity count 1→999 stays
+  green — no monotone ratchet); (3) formsByFile has no independent
+  ratchet; (4) a legal stylex.create module can smuggle arbitrary
+  producer exports (module-level verification exempts every export);
+  (5) tier-2 gaps (animationDuration/Delay/TimingFunction missing,
+  fontWeight only integer-hundreds — 550 passes, quoted keys
+  unparsed) and the grandfather ledger lacks the REVERSE check
+  (stale entries after migration stay green); (6) the committed
+  precedence receipt is stale (bound to d41dd6e9 with 9 dirty
+  files); (7) hue assertions incomplete (checked once, not per-row,
+  not post-shot). → fixes dispatched: script-internal monotone
+  RATCHET constants + per-file forms ratchet + per-export stylex
+  verification with a registered-helpers table + animation/weight/
+  quoted-key coverage + grandfather reverse traversal (gate agent);
+  fail-closed verify (dirty tree, git errors, SHA-256-bound
+  artifact set, summaryHash content integrity) + per-viewport and
+  post-shot hue assertions + precedence receipt provenance (probe
+  agent). Note the score dipped 6.2→4.0 because the reviewer went
+  DEEPER, not because the gate regressed — each round's fixes are
+  cumulative and the bypass surface is visibly converging.
