@@ -9,6 +9,8 @@ export { default as TimelineDot } from './timeline-dot.svelte';
 export * from './timeline-dot.svelte';
 export { default as TimelineContent } from './timeline-content.svelte';
 export * from './timeline-content.svelte';
+export { default as TimelineHeader } from './timeline-header.svelte';
+export * from './timeline-header.svelte';
 export { default as TimelineTime } from './timeline-time.svelte';
 export * from './timeline-time.svelte';
 export { default as TimelineTitle } from './timeline-title.svelte';
@@ -18,8 +20,10 @@ export {
   TIMELINE_DASH_PERIOD,
   measureTimelineSpine,
   mountTimelineSpine,
+  timelineProgressLength,
   type TimelineSpineGeometry,
   type TimelineSpineNode,
   type TimelineSpinePreset,
   type TimelineSpineSegment,
+  type TimelineSpineStop,
 } from './timeline-spine.svelte';

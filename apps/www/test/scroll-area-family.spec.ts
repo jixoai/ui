@@ -191,7 +191,8 @@ describe('the scrollbar mode prop is gone (the three-part acceptance)', () => {
   const source = stripComments(scrollAreaSource);
 
   it('(1) pinned Props snapshot — the COMPLETE allowlist, frozen: no scrollbar field, no mode-shaped field of any name', () => {
-    // axis capabilities (orientation) are NOT mode-shaped — they stay
+    // axis capabilities (orientation) and the r2 chrome parameters
+    // (radius/width — Owner 2026-09-15 r2) are NOT mode-shaped — they stay
     expect(parsePropsKeys(source).sort()).toEqual([
       'children',
       'class',
@@ -199,7 +200,9 @@ describe('the scrollbar mode prop is gone (the three-part acceptance)', () => {
       'onscroll',
       'orientation',
       'pad',
+      'radius',
       'style',
+      'width',
     ]);
     // the retired type is absent from the item's exports
     expect(matchRetired(source)).toEqual([]);
@@ -240,7 +243,7 @@ describe('the scrollbar mode prop is gone (the three-part acceptance)', () => {
     expect(matchRetired(plantedInterface)).toContain('scrollbar prop'); // scan detector reds
     expect(parsePropsKeys(plantedInterface)).toContain('scrollbar'); // snapshot detector reds
     // against the frozen allowlist the plant is exactly the delta
-    const frozen = ['children', 'class', 'label', 'onscroll', 'orientation', 'pad', 'style'];
+    const frozen = ['children', 'class', 'label', 'onscroll', 'orientation', 'pad', 'radius', 'style', 'width'];
     expect(parsePropsKeys(plantedInterface).filter((k) => !frozen.includes(k))).toEqual(['scrollbar']);
   });
 });

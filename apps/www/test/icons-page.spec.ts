@@ -417,8 +417,8 @@ describe('/docs/icons.html — the prefix compiler (scanned names + as aliases)'
     const grid = container.querySelector('[data-named-icon-grid]');
     const items = grid?.querySelectorAll('li') ?? [];
     expect(items.length).toBe(ICON_NAMES.length);
-    expect(ICON_NAMES.length).toBe(45); // 39 built-ins (gripVertical, 2026-09-08) + 4 scanned canonicals + 1 alias + 1 equivalence key
-    for (const name of ['md:copy_all', 'copy2', 'md:home', 'ph:atom', 'rx:system:add-line', 'lucide:check']) {
+    expect(ICON_NAMES.length).toBe(49); // 39 built-ins (gripVertical, 2026-09-08) + 8 scanned canonicals (4 + the timeline git-activity family's lucide:git-*, 2026-09-16 r2) + 1 alias + 1 equivalence key
+    for (const name of ['md:copy_all', 'copy2', 'md:home', 'ph:atom', 'rx:system:add-line', 'lucide:check', 'lucide:git-fork', 'lucide:git-merge', 'lucide:git-pull-request', 'lucide:git-compare-arrows']) {
       expect(ICON_NAMES, 'the scanned set rides the artifact').toContain(name);
     }
     // adjacency law: the alias sits next to its ref

@@ -3717,9 +3717,18 @@ The press-effect runtime's AUTO fill (shimmer sweep, rainbow wash —
 from the OS scheme when a theme scope exists: the nearest ancestor theme
 scope (`[data-theme="light"|"dark"]`, `.dark`, `.jx-light`, self included)
 answers light/dark first; the OS scheme answers ONLY when the whole
-ancestor chain carries no scope. The auto fill COLOR SHALL be the effective
-canvas — the nearest OPAQUE ancestor background (walk-up + parse), falling
-back to white/black by the resolved context — and SHALL follow live scope
+ancestor chain carries no scope (the CONTEXT ladder — it feeds the
+blend emulation's light/dark read; the COLOR basis below never
+measures). The auto fill COLOR SHALL ride the SAME basis as text and
+border — the theme scope's canvas TOKEN: the computed
+`--background` of the nearest theme-scope ancestor (self included; an
+entirely unscoped chain reads the root element's token first), falling
+back to white/black by the resolved context when the token is absent,
+unparsable, or non-opaque. The nearest-opaque-ancestor measured walk
+RETIRES from the auto path (and from `solidFill`'s default base): a
+decorative opaque band behind the host is NOT the fill's context — the
+stage's theme switching is by design and never the fill's business
+(the Owner's r2 correction). The fill SHALL follow live scope
 mutation (a scope observer on the ancestor chain watching class AND
 `data-theme` attribute mutations, both, disconnected on cleanup). The CSS
 `Canvas` keyword SHALL NOT appear in the auto path. Explicit fills
@@ -3730,9 +3739,19 @@ mutation (a scope observer on the ancestor chain watching class AND
 - GIVEN a shimmer host inside a light theme scope (`[data-theme="light"]`
   or `.jx-light`) on a page whose OS scheme is dark
 - WHEN the effect mounts with `fill` omitted
-- THEN the sweep paints LIGHT (the scope-resolved effective canvas) and
+- THEN the sweep paints LIGHT — the scope's canvas token — and
   the OS scheme never reaches the fill; the dark-stage converse on an
   OS-light page paints dark
+
+#### Scenario: a decorative band is not the context (the r2 gallery case)
+
+- GIVEN a shimmer or rainbow host sitting on a deliberately DARK opaque
+  decorative band inside a LIGHT theme scope (the effects gallery's
+  glass-band, OS scheme irrelevant)
+- WHEN the fill resolves
+- THEN the fill is the scope's LIGHT canvas token — the band's measured
+  background never reaches the auto path (probe-asserted: the painted
+  fill layer differs from the band's background)
 
 #### Scenario: the nearest scope wins over the site root
 
@@ -3746,8 +3765,12 @@ mutation (a scope observer on the ancestor chain watching class AND
 #### Scenario: no scope anywhere follows the user
 
 - GIVEN a host whose entire ancestor chain carries no theme scope
-- THEN the OS scheme answers (the honest fallback for unthemed pages) and
-  the fill derives from the measured page base
+- THEN the fill derives from the ROOT element's canvas token (the
+  same basis text and border read there on a jixoai page — `:root`
+  always carries `--background`), and white/black by the resolved
+  context is the TERMINAL fallback, firing only on a non-token page
+  (no `--background` anywhere, where the resolved context itself has
+  fallen to the OS scheme)
 
 #### Scenario: the fill follows a live scope flip
 
@@ -3832,8 +3855,20 @@ practice for touch (momentum and edge behaviors; the hover-growth and
 drag-pin interaction model has no touch equivalent) — a declared
 CAPABILITY of the hand-drawn component, not a mode (no prop, no API
 surface; the tier follows `pointer: coarse` media state, prerender
-output keeps the platform bar exactly as the no-JS floor does). A
-separate `native-scroll-area` item
+output keeps the platform bar exactly as the no-JS floor does). The
+drawn chrome's geometry is PARAMETERIZED (Owner r2): the thumb radius
+defaults to `0` (square-cut) and is configurable (`radius`: a px
+number or `'full'` for the retired-by-default capsule); the chrome
+WIDTH rides tiers (`width`: `'auto'` | `'thin'` | `'wide'`,
+mirroring the native sibling's tier vocabulary — `none` is
+native-only, a hand-drawn scrollbar that draws nothing is the
+platform tier); the track sits FLUSH against the region edge (no
+decorative standoff inset); and the hover/drag growth is
+EDGE-ANCHORED — the outer (edge-side) flank pins to the device pixel
+while the cross size grows INTO the content (the
+`transform-origin: right center` semantics for an inline-end vertical
+track; RTL mirrors through logical properties; the horizontal axis
+anchors its block-end flank). A separate `native-scroll-area` item
 SHALL ship the platform scrollbar under the scrollbar-token law with the
 native best practices as capability styles, and SHALL mount NO custom
 scrollbar ARIA — no drawn thumb exists, and the platform scrollbar IS the
@@ -3853,8 +3888,12 @@ untouched.
 #### Scenario: the hand-drawn law owns the styled component
 
 - GIVEN a scroll-area on either axis, any theme
-- THEN the scrollbar is fully drawn: capsule thumb (full-radius), idle
-  fade (~700ms), hover growth + brightening, drag-pinned opacity,
+- THEN the scrollbar is fully drawn: square-cut thumb (radius 0 by
+  default, `radius` configurable to any px or the `'full'` capsule),
+  `width` tiers sizing the chrome (thin/auto/wide), a track FLUSH to
+  the region edge, idle
+  fade (~700ms), hover growth + brightening (edge-anchored, growing
+  into the content), drag-pinned opacity,
   keyboard affordances on region and thumb — restyled by tokens without
   JS, in both light and dark scopes
 
@@ -3914,6 +3953,20 @@ untouched.
   (a mode-shaped field would appear) and the scan (routes excluded,
   the planted site is inside the scanned surface)
 
+#### Scenario: the chrome geometry is parameterized and edge-anchored (r2)
+
+- GIVEN a hand-drawn scroll-area on a fine pointer
+- THEN the thumb's computed `border-radius` is `0px` by default, paints
+  any configured px, and `'full'` paints the capsule; the `width`
+  tiers size the lane (thin/auto/wide, probe-measured track widths
+  8/12/16; resting thumb cross sizes 4/8/12 — both flanks at the 2px
+  resting inset; hover/drag 6/10/14); the track's computed edge inset
+  is `0` (flush); and under hover the thumb's edge-side flank
+  coordinate (2px inside the flush track) is UNCHANGED (to the device
+  pixel) while its cross size grows strictly inward, never crossing
+  the region boundary — probe-asserted on both axes and under RTL
+  (the anchor mirrors with the logical edge)
+
 ### Requirement: floating surfaces speak spec-true position-area (Owner 2026-09-15)
 
 Every floating surface that places through CSS anchor positioning
@@ -3939,3 +3992,91 @@ pre-sweep baseline.
 - GIVEN a placement that flips on collision
 - THEN the flipped area is still a spec-grammar area string derived
   from the same mapping — no ad-hoc insets patching a wrong area
+
+### Requirement: the timeline speaks the reui step contract with fractional spine progress (Owner 2026-09-15 r2)
+
+The timeline SHALL carry the reui-standard value contract: `defaultValue`
+(default `1`), `value` (controlled, overrides), and `onValueChange` —
+DECIMAL numbers first-class, never rounded. `TimelineItem` SHALL accept
+`step?: number` (defaulting to DOM order + 1; steps strictly ascending
+in DOM order — duplicates drop, last wins, dev-mode warned) and paint
+`data-completed` when `step <= current` (attribute paint, the
+`pending` precedent; `pending` WINS the paint when both apply — the
+louder state). Completed dots, titles, and times restyle through
+tokens. The family SHALL ship a `TimelineHeader` part (reui parity)
+and `TimelineDot` SHALL accept `children` rendered inside the node
+(the reui indicator-icon pattern) beside the kept 8-directional slot
+grammar and variants. BEYOND reui, the drawn spine SHALL map the value
+onto the measured path through a FROZEN STOPS PROTOCOL: the geometry
+payload carries `stops: { step: number; arc: number }[]` — the DEDUPED
+milestone table; each `arc` is the milestone's OWNING node's CUMULATIVE
+polyline length (the sum of per-segment lengths — the standing
+first↔last CHORD `runLength`
+retires from every dasharray consumer: the scroll-progress stroke and
+the beam both ride `pathLength = stops.at(-1).arc`); `stops[0].arc`
+is 0 on the unique-first-step ladder (the default) and non-zero only
+when the first step duplicates (the owner is a later node); a value
+below the first milestone maps to length 0; a value inside a
+declared step gap interpolates across that gap's arc. The progress
+stroke runs from the first node center to the interpolated point at
+`value` via stroke-dashoffset arithmetic, with a CSS transition on
+the dashoffset (reduced motion: none) so tweening the value animates
+the draw. `animation: 'scroll'` SHALL keep owning the stroke channel —
+the value-driven inline dashoffset is NOT PAINTED under scroll mode
+(no CSS-accident reliance; probe-asserted) — while the value contract
+still drives discrete completion; `view` composes. The no-JS floor,
+RTL, density, spine presets + custom geometry snippet (payload
+extended additively with the stops table), and `pending` are KEPT
+(our highlights).
+
+#### Scenario: the value contract is reui-shaped
+
+- GIVEN a timeline with items and no explicit `value`
+- THEN `defaultValue` seeds the current step; the consumer's setter
+  (or bound state) moves it; every change fires `onValueChange`; and a
+  controlled `value` overrides the internal state — unit-asserted,
+  including a decimal default (`1.5`: item 1 completed, item 2 not)
+
+#### Scenario: fractional progress draws between the nodes
+
+- GIVEN a measured spine with ≥ 2 nodes and `value` between two
+  bracketing steps a < value < b
+- THEN the progress stroke's tip lands at the STEP-SPACE interpolated
+  arc position — probe-sampled at the node1→node2 midpoint for `1.5`
+  on the default 1,2,3… ladder (±1px on the path length),
+  zero-length at the first step on the unique-step ladder (the
+  default), the full run at the last; a fractional value inside a
+  DECLARED gap (steps 2 and 5, value 3.5) interpolates across that
+  gap's arc; and a DUPLICATED first step (1,1,2) draws `value = 1`
+  to the milestone's owning later node, with sub-first values
+  clamped to 0 — all unit/probe-asserted
+
+#### Scenario: the stops protocol retires the chord
+
+- GIVEN a non-collinear spine (interlaced or horizontal) with the
+  scroll-progress stroke or the beam active
+- THEN the dasharray total equals the cumulative polyline length
+  (`pathLength = stops.at(-1).arc`), NOT the first↔last chord —
+  unit-asserted against a 3-node fixture whose chord < polyline
+
+#### Scenario: tweening the value animates the draw
+
+- GIVEN a rendered progress stroke and a value change
+- THEN the dashoffset transitions (two sampled frames differ; reduced
+  motion: instant)
+
+#### Scenario: scroll animation keeps the stroke channel
+
+- GIVEN `animation: 'scroll'`
+- THEN the nearest scroller drives the progress stroke exactly as
+  before (probe re-asserted; the value-driven inline dashoffset is
+  ABSENT from the element under scroll mode), while
+  `data-completed` still follows the value contract
+
+#### Scenario: the reui parity parts exist
+
+- GIVEN the family's exports
+- THEN `TimelineHeader` renders the plain wrapper; `TimelineDot`
+  composes `children` inside the node; `TimelineTime` maps reui's
+  `TimelineDate`; `axis: 'horizontal'` maps reui's `orientation` —
+  statically assertable in the item's exports and props table

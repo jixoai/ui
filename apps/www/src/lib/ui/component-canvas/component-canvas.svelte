@@ -246,6 +246,14 @@
     resolveFileContent?: (file: TreeFile) => string;
     /** Explicit id override when two canvases on one page would slug-collide. */
     id?: string;
+    /**
+     * The stage element's aria-label override — default `${title} demo`.
+     * The timeline family page pins frozen probe identifiers this way
+     * (the reui family inventory's mapping table, W4 2026-09-15): a
+     * stage must read "timeline demo · <family>" exactly, a shape the
+     * title-derived default cannot compose.
+     */
+    stageLabel?: string;
     class?: string;
   }
 
@@ -268,6 +276,7 @@
     output,
     resolveFileContent,
     id,
+    stageLabel,
     class: className = '',
   }: Props = $props();
 
@@ -492,7 +501,7 @@ let codeOpen = $state(false);
           stage === 'start' && 'flex-wrap items-start justify-start',
           stage === 'fill' && 'flex-wrap items-stretch [justify-content:stretch]',
         )}
-        aria-label={`${title} demo`}
+        aria-label={stageLabel ?? `${title} demo`}
       >
         <!-- the demo-content scope (site-polish F10): consumer-authored
              demo markup renders inside this marker so the docs structure

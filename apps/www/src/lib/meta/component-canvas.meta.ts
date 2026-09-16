@@ -85,6 +85,9 @@ export const meta = defineComponentMeta(
       "id": {
         "kind": "string"
       },
+      "stageLabel": {
+        "kind": "string"
+      },
       "class": {
         "kind": "string",
         "default": ""

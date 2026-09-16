@@ -568,12 +568,16 @@ describe("the fill channel's scope ladder (W1)", () => {
   };
   /** every stage this battery mounts — removed in afterEach */
   const stages: HTMLDivElement[] = [];
-  /** a themed stage: scope marker + optional opaque inline base */
-  function stage(scope: { attr?: [string, string]; classes?: string[]; bg?: string }): HTMLDivElement {
+  /** a themed stage: scope marker + the scope's canvas TOKEN (the r2
+   * basis — auto fill reads `--background` at the scope, never a
+   * measured ancestor background; `band` plants a decorative opaque
+   * BACKGROUND the fill must IGNORE) */
+  function stage(scope: { attr?: [string, string]; classes?: string[]; token?: string; band?: string }): HTMLDivElement {
     const el = document.createElement('div');
     if (scope.attr) el.setAttribute(scope.attr[0], scope.attr[1]);
     if (scope.classes) el.className = scope.classes.join(' ');
-    if (scope.bg) el.style.backgroundColor = scope.bg;
+    if (scope.token) el.style.setProperty('--background', scope.token);
+    if (scope.band) el.style.backgroundColor = scope.band;
     document.body.append(el);
     stages.push(el);
     return el;
@@ -617,31 +621,31 @@ describe("the fill channel's scope ladder (W1)", () => {
   it('the LADDER: nearest scope beats html.dark beats the OS scheme — a light stage on an OS-dark page paints LIGHT (the Owner symptom, inverted)', () => {
     // html.dark set (the old ladder's only root signal) AND the OS
     // dark — the light STAGE still wins: the walk reads the host's
-    // chain, nearest first
+    // chain, nearest first — the r2 basis reads the scope's TOKEN
     document.documentElement.classList.add('dark');
     stubScheme(true);
-    const lightStage = stage({ attr: ['data-theme', 'light'], bg: '#f8fafc' });
+    const lightStage = stage({ attr: ['data-theme', 'light'], token: '#f8fafc' });
     const el = scopedHost(lightStage);
     const detach = pressEffect(shimmer())(el);
-    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(248, 250, 252)');
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(248 250 252)');
     detach();
     // .jx-light spells the same scope
-    const jxLight = stage({ classes: ['jx-light'], bg: '#f8fafc' });
+    const jxLight = stage({ classes: ['jx-light'], token: '#f8fafc' });
     const el2 = scopedHost(jxLight);
     const detach2 = pressEffect(shimmer())(el2);
-    expect(fillVar(el2, '--shimmer-fill')).toBe('rgb(248, 250, 252)');
+    expect(fillVar(el2, '--shimmer-fill')).toBe('rgb(248 250 252)');
     detach2();
-    // and a .dark panel inside a light-scoped page is dark (nearest
+    // and a .dark panel inside a light page is dark (nearest
     // wins over FARTHER scopes, not just over the root)
-    const darkPanel = stage({ classes: ['dark'], bg: '#0a0a0a' });
+    const darkPanel = stage({ classes: ['dark'], token: '#0a0a0a' });
     const el3 = scopedHost(darkPanel);
     const detach3 = pressEffect(shimmer())(el3);
-    expect(fillVar(el3, '--shimmer-fill')).toBe('rgb(10, 10, 10)');
+    expect(fillVar(el3, '--shimmer-fill')).toBe('rgb(10 10 10)');
     detach3();
   });
 
   it('no scope ANYWHERE → the OS scheme answers (the honest unthemed fallback)', () => {
-    const bare = stage({ bg: undefined });
+    const bare = stage({});
     const el = scopedHost(bare);
     stubScheme(true);
     const detach = pressEffect(shimmer())(el);
@@ -653,41 +657,43 @@ describe("the fill channel's scope ladder (W1)", () => {
     detach2();
   });
 
-  it('the walk-up canvas: semi-transparent (alpha < 1) ancestors are SKIPPED; a gradient-having stage resolves to the opaque base UNDER it', () => {
-    // the gradient stage: paint lives in background-image, its
-    // backgroundColor reads transparent — the walk must pass it; the
-    // semi-transparent veil under it is skipped the same way
-    const opaqueRoot = stage({ bg: '#e2e8f0' }); // the base under everything
-    const gradientStage = document.createElement('div');
-    gradientStage.style.backgroundImage = 'linear-gradient(#fff, #000)';
-    gradientStage.style.backgroundColor = 'transparent';
-    opaqueRoot.append(gradientStage);
+  it('the token basis: a decorative opaque band is NOT the context; scope-less wrappers never interrupt the walk (the r2 gallery case)', () => {
+    // the r2 ruling: auto rides the SAME basis as text/border — the
+    // scope's --background TOKEN. A deliberately DARK opaque band
+    // (the effects gallery's glass-band) behind the host inside a
+    // LIGHT scope must NOT dark the fill; scope-less intermediate
+    // wrappers (gradients, veils — elements carrying no scope
+    // marker) are not stops on the walk at all
+    const scopeStage = stage({ classes: ['jx-light'], token: '#f8fafc', band: 'rgb(16 16 20)' });
     const veil = document.createElement('div');
-    veil.style.backgroundColor = 'rgba(10, 10, 10, 0.55)'; // alpha 0.55 — SKIPPED
-    gradientStage.append(veil);
+    veil.style.backgroundColor = 'rgba(10, 10, 10, 0.55)'; // scope-less — invisible to the walk
+    scopeStage.append(veil);
     const el = scopedHost(veil);
     const detach = pressEffect(shimmer())(el);
-    // veil skipped, transparent gradient stage skipped, the opaque
-    // base UNDER the gradient answers
-    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(226, 232, 240)');
+    // the scope's LIGHT token answers; the band's rgb(16,16,20) and
+    // the veil's translucency never reach the fill
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(248 250 252)');
+    expect(fillVar(el, '--shimmer-fill')).not.toBe('rgb(16 16 20)');
     detach();
   });
 
-  it('modern color functions measure honestly: opaque oklch IS the canvas, sub-1 alpha oklch is SKIPPED (the canvas normalizer round-trips them — this site\'s own body is oklch)', () => {
-    const opaqueRoot = stage({ bg: 'oklch(0.985 0.002 247.839)' });
+  it('modern color tokens parse through color-utils: opaque oklch IS the canvas, sub-1 alpha oklch falls to the ladder (the alpha pre-pass)', () => {
+    const opaqueRoot = stage({ classes: ['jx-light'], token: 'oklch(0.985 0.002 247.839)' });
     const el = scopedHost(opaqueRoot);
     const detach = pressEffect(shimmer())(el);
-    // the raw oklch string stamps straight into the var — CSS paints it
-    expect(fillVar(el, '--shimmer-fill')).toBe('oklch(0.985 0.002 247.839)');
+    // the oklch token parses to its sRGB form via color-utils (the
+    // raw string never stamps — Chrome's canvas normalizer cannot
+    // read oklch, the lab-verified fact that forced this path).
+    // oklch(0.985 0.002 247.839) ≈ rgb(249, 250, 251) — measured
+    // through color-utils itself, not hand-waved
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(249 250 251)');
     detach();
-    // a translucent oklch veil walks past to the base under it
-    const root = stage({ bg: '#e2e8f0' });
-    const veil = document.createElement('div');
-    veil.style.backgroundColor = 'oklch(1 0 0 / 0.5)';
-    root.append(veil);
-    const el2 = scopedHost(veil);
+    // a translucent oklch token is rejected by the alpha pre-pass —
+    // the scope's light/dark answers white instead
+    const root = stage({ classes: ['jx-light'], token: 'oklch(1 0 0 / 0.5)' });
+    const el2 = scopedHost(root);
     const detach2 = pressEffect(shimmer())(el2);
-    expect(fillVar(el2, '--shimmer-fill')).toBe('rgb(226, 232, 240)');
+    expect(fillVar(el2, '--shimmer-fill')).toBe('#ffffff');
     detach2();
   });
 
@@ -747,53 +753,53 @@ describe("the fill channel's scope ladder (W1)", () => {
     // tint, and a scope flip re-measures whatever the new scope
     // paints (style churn ALONE is outside the live contract: the
     // observer watches class/data-theme, the design's own filter)
-    const scopeStage = stage({ classes: ['jx-light'], bg: '#e2e8f0' });
+    const scopeStage = stage({ classes: ['jx-light'], token: '#e2e8f0' });
     const el = scopedHost(scopeStage);
     const detach = pressEffect(shimmer())(el);
-    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(226, 232, 240)'); // the TINT, not white
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(226 232 240)'); // the TINT, not white
     // flip to dark: the class fires the observer; the new scope's
     // tinted base re-measures with it (jsdom cannot cascade tokens, so
     // the flip sets both — the simulation of a token-driven stage)
     scopeStage.classList.remove('jx-light');
     scopeStage.classList.add('dark');
-    scopeStage.style.backgroundColor = '#101014';
+    scopeStage.style.setProperty('--background', '#101014');
     await flush();
-    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(16, 16, 20)');
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(16 16 20)');
     detach();
   });
 
   it('a REPARENTED host re-walks its NEW chain (attribute observation cannot see a host changing parents — the reparent channel)', async () => {
-    const lightStage = stage({ classes: ['jx-light'], bg: '#f8fafc' });
-    const darkStage = stage({ classes: ['dark'], bg: '#0a0a0a' });
+    const lightStage = stage({ classes: ['jx-light'], token: '#f8fafc' });
+    const darkStage = stage({ classes: ['dark'], token: '#0a0a0a' });
     const el = scopedHost(lightStage);
     const detach = pressEffect(shimmer())(el);
-    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(248, 250, 252)');
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(248 250 252)');
     darkStage.append(el); // the move — no attribute mutation anywhere
     await flush();
-    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(10, 10, 10)'); // the NEW chain answers
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(10 10 10)'); // the NEW chain answers
     // the rebound observer still catches scope flips on the new chain
     darkStage.setAttribute('data-theme', 'light');
-    darkStage.style.backgroundColor = '#f1f5f9';
+    darkStage.style.setProperty('--background', '#f1f5f9');
     await flush();
-    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(241, 245, 249)');
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(241 245 249)');
     detach();
   });
 
   it('rainbow rides the SAME channel — the scope ladder + walk-up + both flip kinds govern it (one battery, both effects)', async () => {
-    const scopeStage = stage({ attr: ['data-theme', 'light'], bg: '#f8fafc' });
+    const scopeStage = stage({ attr: ['data-theme', 'light'], token: '#f8fafc' });
     const el = scopedHost(scopeStage);
     const detach = pressEffect(rainbow())(el);
-    expect(fillVar(el, '--rainbow-fill')).toBe('rgb(248, 250, 252)');
+    expect(fillVar(el, '--rainbow-fill')).toBe('rgb(248 250 252)');
     scopeStage.setAttribute('data-theme', 'dark');
-    scopeStage.style.backgroundColor = '#0a0a0a';
+    scopeStage.style.setProperty('--background', '#0a0a0a');
     await flush();
-    expect(fillVar(el, '--rainbow-fill')).toBe('rgb(10, 10, 10)');
+    expect(fillVar(el, '--rainbow-fill')).toBe('rgb(10 10 10)');
     // class flip on the same host
     scopeStage.removeAttribute('data-theme');
     scopeStage.className = 'jx-light';
-    scopeStage.style.backgroundColor = '#f8fafc';
+    scopeStage.style.setProperty('--background', '#f8fafc');
     await flush();
-    expect(fillVar(el, '--rainbow-fill')).toBe('rgb(248, 250, 252)');
+    expect(fillVar(el, '--rainbow-fill')).toBe('rgb(248 250 252)');
     detach();
   });
 
@@ -814,7 +820,7 @@ describe("the fill channel's scope ladder (W1)", () => {
   });
 
   it('unrelated class churn never re-resolves (the chain registrations are per-element, never subtree)', async () => {
-    const scopeStage = stage({ classes: ['jx-light'], bg: '#f8fafc' });
+    const scopeStage = stage({ classes: ['jx-light'], token: '#f8fafc' });
     const el = scopedHost(scopeStage);
     const detach = pressEffect(shimmer())(el);
     const stranger = document.createElement('div');
@@ -822,7 +828,7 @@ describe("the fill channel's scope ladder (W1)", () => {
     document.body.append(stranger);
     stranger.classList.add('mutating'); // class flip OFF the chain
     await flush();
-    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(248, 250, 252)'); // unchanged — and no crash
+    expect(fillVar(el, '--shimmer-fill')).toBe('rgb(248 250 252)'); // unchanged — and no crash
     detach();
   });
 });

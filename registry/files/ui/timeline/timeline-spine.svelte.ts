@@ -19,6 +19,14 @@
  *   - axis / direction / interlaced / rtl metadata;
  *   - per-segment path data (center to center, plus the dash phase
  *     anchor at the from-node's flow-end edge);
+ *   - the STOPS table — the DEDUPED milestone ladder: one
+ *     { step, arc } per unique step, arc = the milestone's OWNING
+ *     node's cumulative polyline length (the item's declared
+ *     `data-step`, defaulting to DOM order + 1; a duplicated step is
+ *     OWNED by its LATER node — the earlier one is a pass-through
+ *     point, never a milestone); `pathLength` = the polyline's true
+ *     cumulative total (= stops.at(-1).arc under the ascending
+ *     contract);
  *   - the density scale (the resolved data-density name).
  *
  * RTL RESOLVES IN THE COORDINATE TRANSFORM (physical geometry,
@@ -62,6 +70,17 @@ export interface TimelineSpineSegment {
   edgePhase: number;
 }
 
+/**
+ * one milestone of the STOPS table: the unique step and its OWNING
+ * node's cumulative polyline length (arc 0 at the first milestone on
+ * the unique-first-step ladder — non-zero only when the first step
+ * duplicates, the owner then being a later node)
+ */
+export interface TimelineSpineStop {
+  step: number;
+  arc: number;
+}
+
 /** the measured geometry, per list — the custom spine snippet payload */
 export interface TimelineSpineGeometry {
   axis: 'vertical' | 'horizontal';
@@ -78,7 +97,21 @@ export interface TimelineSpineGeometry {
   segments: TimelineSpineSegment[];
   /** ONE continuous center-to-center path per run (no per-item seams) */
   runPath: string;
+  /**
+   * the first↔last CHORD (kept for payload compatibility with custom
+   * spine snippets) — RETIRED from every dasharray consumer: the
+   * scroll-progress stroke and the beam ride `pathLength`, the
+   * cumulative polyline length, which is the correct dash basis on
+   * non-collinear runs (the standing chord bug, W3 2026-09-15)
+   */
   runLength: number;
+  /** the DEDUPED milestone table — later node owns a duplicated step */
+  stops: TimelineSpineStop[];
+  /** the polyline's TRUE cumulative total (the last DOM node's arc) —
+   *  the dasharray basis for every stroke consumer; identical to
+   *  stops.at(-1).arc under the ascending contract, and the honest
+   *  denominator when an authored inversion normalizes (Gate-2 r3) */
+  pathLength: number;
   /** the measured dot radius (half the dot's inline size) */
   nodeRadius: number;
   /** the resolved density scale name ('' when ambient) */
@@ -109,8 +142,11 @@ export function measureTimelineSpine(
 
   const items = list.querySelectorAll(':scope > [data-jx-tl-item]');
   const nodes: TimelineSpineNode[] = [];
+  const steps: number[] = [];
   let nodeRadius = 0;
+  let itemIndex = 0;
   for (const li of items) {
+    itemIndex++;
     const dot = li.querySelector(':scope > [data-jx-tl-dot]');
     if (!dot) continue;
     const r = dot.getBoundingClientRect();
@@ -119,6 +155,11 @@ export function measureTimelineSpine(
       x: round2(r.left + r.width / 2 - origin.left),
       y: round2(r.top + r.height / 2 - origin.top),
     });
+    // the milestone ladder: the item's DECLARED data-step, defaulting
+    // to DOM order + 1 among the timeline's items (the default ladder
+    // is strictly ascending by construction)
+    const declared = Number.parseFloat(li.getAttribute('data-step') ?? '');
+    steps.push(Number.isFinite(declared) ? declared : itemIndex);
     nodeRadius = round2(r.width / 2);
   }
   if (nodes.length === 0) return null;
@@ -144,6 +185,51 @@ export function measureTimelineSpine(
   const fs = nodes[0]!;
   const runLength = round2(Math.hypot(ols.x - fs.x, ols.y - fs.y));
 
+  // THE STOPS TABLE: cumulative polyline arcs (arc[i] = the sum of the
+  // per-segment euclidean lengths before node i — NEVER the chord),
+  // deduped over steps with the LATER node owning a duplicated step
+  // (an earlier duplicate is a pass-through point, never a milestone),
+  // then NORMALIZED to ascending step order (Gate-2 r1: an authored
+  // inversion like [3,1,2] must never yield a non-monotone ladder —
+  // warn once naming the offending sequence, sort the table; the arcs
+  // stay bound to their owning nodes so the mapping stays total)
+  const stops: TimelineSpineStop[] = [];
+  let cumulative = 0;
+  const domOrdered: TimelineSpineStop[] = [];
+  for (let i = 0; i < nodes.length; i++) {
+    if (i > 0) cumulative += segments[i - 1]!.length;
+    const stop: TimelineSpineStop = { step: steps[i]!, arc: round2(cumulative) };
+    const claimed = domOrdered.findIndex((s) => s.step === stop.step);
+    if (claimed >= 0) domOrdered[claimed] = stop;
+    else domOrdered.push(stop);
+  }
+  for (let i = 0; i + 1 < domOrdered.length; i++) {
+    if (domOrdered[i]!.step >= domOrdered[i + 1]!.step) {
+      console.warn(
+        `[timeline] steps must be strictly ascending in DOM order — got [${domOrdered
+          .map((s) => s.step)
+          .join(', ')}]; the milestone table is normalized to ascending order (arcs stay bound to their owning nodes)`,
+      );
+      break;
+    }
+  }
+  stops.push(...domOrdered.sort((a, b) => a.step - b.step));
+  // the MONOTONE clamp (Gate-2 r2): sorting by step can leave an arc
+  // BELOW its predecessor (the [3,1,2] inversion: 3@0 after 2@160) —
+  // the interpolation would RETRACT mid-range. Each stop's arc clamps
+  // to the running max (weakly increasing), so the value→arc map is
+  // monotone and total; the inverted milestone rides the highest arc
+  // reached on the ladder
+  let runningMaxArc = -Infinity;
+  for (const stop of stops) {
+    if (stop.arc < runningMaxArc) stop.arc = runningMaxArc;
+    else runningMaxArc = stop.arc;
+  }
+  // pathLength = the polyline's TRUE cumulative total (the last DOM
+  // node's arc) — under the ascending contract it equals
+  // stops.at(-1).arc; an inversion keeps the honest denominator
+  const pathLength = round2(cumulative);
+
   const axis = (host.getAttribute('data-axis') as TimelineSpineGeometry['axis']) ?? 'vertical';
   const direction =
     (host.getAttribute('data-direction') as TimelineSpineGeometry['direction']) ?? 'ltr';
@@ -161,9 +247,60 @@ export function measureTimelineSpine(
     segments,
     runPath,
     runLength,
+    stops,
+    pathLength,
     nodeRadius,
     density: host.getAttribute('data-density') ?? '',
   };
+}
+
+// ── the value → arc mapping (the frozen STOPS protocol, W3 r3) ───────
+
+/**
+ * The drawn length the value maps to on the measured run — the frozen
+ * step-space interpolation:
+ *
+ *     k   = min(value, stops.at(-1).step)        // clamp the TOP only
+ *     len = value < stops[0].step
+ *             ? 0                                // sub-first → nothing
+ *             : k === stops[0].step
+ *                 ? stops[0].arc                 // the first owner's arc
+ *                 : a.arc + (k − a.step)/(b.step − a.step) × (b.arc − a.arc)
+ *
+ * (a, b) = the bracketing stops pair (a.step < k ≤ b.step); a
+ * fractional value inside a DECLARED gap interpolates across that
+ * gap's arc — the path is the truth, the steps are its milestones.
+ * `stroke-dasharray = pathLength; stroke-dashoffset = pathLength −
+ * len` completes the arithmetic at the consumer. Decimals are
+ * first-class; nothing rounds.
+ */
+export function timelineProgressLength(
+  stops: TimelineSpineStop[],
+  value: number,
+  pathLength?: number,
+): number {
+  if (stops.length === 0) return 0;
+  const first = stops[0]!;
+  const last = stops[stops.length - 1]!;
+  if (value < first.step) return 0;
+  // the full-run denominator: the caller's measured polyline total —
+  // under the ascending contract it IS stops.at(-1).arc; an authored
+  // inversion (warned, normalized) still ends the stroke at the
+  // path's TRUE end, not at a mis-ordered milestone's arc
+  const total = pathLength ?? last.arc;
+  if (value >= last.step) return total;
+  const k = Math.min(value, last.step);
+  if (k === first.step) return first.arc;
+  for (let i = 1; i < stops.length; i++) {
+    const a = stops[i - 1]!;
+    const b = stops[i]!;
+    if (k <= b.step) {
+      const span = b.step - a.step;
+      if (span <= 0) return b.arc;
+      return a.arc + ((k - a.step) / span) * (b.arc - a.arc);
+    }
+  }
+  return total;
 }
 
 // ── the mount engine (observers + the floor→drawn upgrade) ──────────
@@ -199,9 +336,10 @@ export function mountTimelineSpine(
       : null;
   ro?.observe(list);
   // membership mutation: items added/removed re-measure (subtree too —
-  // dot slots appearing inside items change node geometry)
+  // dot slots appearing inside items change node geometry; data-step
+  // flips re-ladder the milestone table)
   const mo = new MutationObserver(remeasure);
-  mo.observe(list, { childList: true, subtree: true, attributeFilter: ['data-jx-tl-pending'] });
+  mo.observe(list, { childList: true, subtree: true, attributeFilter: ['data-jx-tl-pending', 'data-step'] });
   // ambient density re-scopes (the data-density attr on the root)
   const moRoot = new MutationObserver(remeasure);
   moRoot.observe(host, { attributeFilter: ['data-density', 'data-axis', 'data-direction'] });

@@ -20,9 +20,15 @@
     the four corners        the diagonal compositions
 
   The dot variant: 'square' (default, the site square) | 'round' |
-  'ring'. The FILL is attribute paint — timeline.css fills it primary
-  and hollows it when the owning item carries data-jx-tl-pending — so
-  every part stays stateless.
+  'ring'. The FILL is attribute paint — timeline.css fills the node
+  when the owning item carries data-completed and hollows it when it
+  carries data-jx-tl-pending (the louder channel) — so every part
+  stays stateless.
+
+  CHILDREN (the reui indicator-icon pattern, W3 2026-09-15): free
+  content rendered INSIDE the node span — timeline.css centers it and
+  the node grows its box around it (the min size keeps); the 8
+  directional slots and the variant grammar are untouched.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -33,6 +39,8 @@
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     /** square (default) · round · ring */
     variant?: TimelineDotVariant;
+    /** content INSIDE the node (the icon pattern; centered, node grows) */
+    children?: Snippet;
     /** the cell before the flow — a labeled cutout ON the spine */
     blockStart?: Snippet;
     /** the cell after the flow — a labeled cutout ON the spine */
@@ -50,6 +58,7 @@
 
   let {
     variant,
+    children,
     blockStart,
     blockEnd,
     inlineStart,
@@ -95,4 +104,6 @@
   class={className}
   {...rest}
   aria-hidden="true"
-></span>
+>
+  {#if children}{@render children()}{/if}
+</span>

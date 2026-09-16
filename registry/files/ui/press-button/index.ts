@@ -6,14 +6,14 @@ export * from './press-button.svelte';
 export { PressButtonDefaults, type PressButtonPaintVariant } from './press-button-defaults.svelte';
 // the attachment face (effect-attachments): the self-listening factory
 // + the imperative kernels; the builders stay in the component's module
-// script (export * above carries them). solidFill/contextBase mint the
-// shimmer fill channel's opaque numbers (r11)
+// script (export * above carries them). solidFill/contextCanvasCss mint
+// the fill channel's opaque numbers (r11; the W1 scope-token basis,
+// Owner r2 — contextBase/contextBaseCss retired with the measured walk)
 export {
   pressEffect,
   applyShimmer,
   applyPulse,
   applyRainbow,
   solidFill,
-  contextBase,
-  contextBaseCss,
+  contextCanvasCss,
 } from './press-effect-runtime';

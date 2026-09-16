@@ -60,6 +60,13 @@ import type {
   RippleEffect,
   ShimmerEffect,
 } from './press-button.svelte';
+// the scope token's parser (timeline-reui W1, Owner r2): this site's
+// --background tokens are oklch strings and the local canvas-fillStyle
+// normalization does NOT convert them (Chrome returns oklch verbatim,
+// lab-verified 2026-09-15), so the fill basis crosses color-utils'
+// OKLCH→sRGB bridge — the established channel (the item declares
+// @jixoai/color-utils)
+import { oklchToRgb, parseColor as parseTokenColor } from '$lib/color-utils';
 import { createRipple } from './ripple.svelte';
 
 /** corner-shape gates the bevel ink's support marker; where it's missing
@@ -150,25 +157,24 @@ function scopeIsDark(el: Element): boolean | null {
   return null;
 }
 
-/** the OPACITY probe the canvas walk needs — hex/rgb() through
- *  parseColor; MODERN color functions (oklch/oklab/lab/lch/hsl/hwb/
- *  color()) opaque unless they carry an explicit < 1 alpha. This
- *  site's own body background computes to oklch(1 0 0), which the
- *  canvas normalizer ROUND-TRIPS instead of converting — without this
- *  probe the walk would skip a perfectly opaque canvas and fall to
- *  the scheme fallback (the measured base cannot lie, W1's own law) */
-function colorAlpha(color: string): number | null {
-  const parsed = parseColor(color);
-  if (parsed) return parsed[3];
-  const m = /^(?:oklch|oklab|lch|lab|hsl|hwb|color)\(([^)]*)\)$/i.exec(color.trim());
-  if (!m) return null;
-  const slash = m[1].lastIndexOf('/');
-  if (slash === -1) return 1;
-  const alpha = m[1].slice(slash + 1).trim();
-  if (alpha === 'none') return 1;
-  if (alpha.endsWith('%')) return Math.min(parseFloat(alpha) / 100, 1);
-  const n = parseFloat(alpha);
-  return Number.isNaN(n) ? null : Math.min(Math.max(n, 0), 1);
+/** the RAW token's slash-alpha, read BEFORE any parser touches the
+ *  string (the Owner r2 ladder): color-utils' parseColor DISCARDS oklch
+ *  alpha (its model is opaque — registry/files/lib/color-utils.ts:203),
+ *  so opacity is judged on the raw token alone — alpha absent, `/ 1`,
+ *  or `/ 100%` proceeds; `/ none` (a css MISSING component), any alpha
+ *  < 1, or an unparsable alpha tail takes the fallback ladder
+ *  (conservative: a semi-transparent scope token is not a canvas) */
+function tokenAlphaIsOpaque(raw: string): boolean {
+  const slash = raw.lastIndexOf('/');
+  if (slash === -1) return true;
+  // function colors keep their closing paren on the computed token
+  // (`oklch(0 0 0 / 100%)`) — strip it before judging the alpha tail
+  const tail = raw.slice(slash + 1).replace(/\)\s*$/, '').trim();
+  if (tail === '' || tail === 'none') return false;
+  const pct = tail.endsWith('%');
+  const n = parseFloat(pct ? tail.slice(0, -1) : tail);
+  if (!Number.isFinite(n)) return false;
+  return (pct ? n / 100 : n) === 1;
 }
 
 /** the Context's theme state (the Owner's r12 ruling, W1-scoped): the
@@ -187,50 +193,67 @@ export function contextIsDark(host?: Element): boolean {
   return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-/** the Context's base color — for a HOST: the nearest OPAQUE ANCESTOR
- *  backgroundColor (walk-up + parse; semi-transparent alpha < 1
- *  ancestors are SKIPPED until an opaque one is found — a
- *  gradient-having stage resolves to the opaque base UNDER the
- *  gradient, correct for light/dark reading). The walk starts at the
- *  parent: the fill sits on what is BEHIND the host, and the docs'
- *  law names the nearest opaque ANCESTOR (the scope walk includes
- *  self, the canvas walk does not). Hostless (solidFill's standing
- *  shape): the page root's own background, the pre-W1 behavior.
- *  Never the --background TOKEN: measured dark even under this
- *  site's light theme — tokens lie, the rendered root does not */
-export function contextBaseCss(host?: Element): string {
+/** the Context's CANVAS (Owner r2, timeline-reui W1): the auto fill
+ *  rides the SAME basis as text/border — the theme scope's
+ *  --background TOKEN, never a measured ancestor. A decorative opaque
+ *  band (the effects gallery's dark glass-band) is not the fill's
+ *  context: the fill sitting next to the scope's own text/border ink
+ *  steps with the THEME. Walk the host's ancestor chain (self
+ *  included; hostless starts at the document root) for the NEAREST
+ *  theme scope — the same predicate contextIsDark uses — and read
+ *  that scope element's computed --background; an entirely unscoped
+ *  chain reads the ROOT element's token first (on jixoai pages :root
+ *  always carries --background — the root token IS the text/border
+ *  basis, so it is the fill's basis too; the OS scheme does NOT enter
+ *  the color path). The token parses OPAQUE through
+ *  @jixoai/color-utils' oklch bridge (this site's tokens are oklch
+ *  strings; the canvas-fillStyle normalizer does not convert them)
+ *  after the raw-string alpha pre-pass; unparsable or non-opaque
+ *  tokens — and a world with no document at all — take the TERMINAL
+ *  white/black ladder by contextIsDark (it fires only on non-token
+ *  pages, where contextIsDark itself has fallen to the OS scheme) */
+export function contextCanvasCss(host?: Element): string {
   if (typeof document !== 'undefined') {
+    let scope: Element | undefined;
     for (
-      let el: Element | null = host ? host.parentElement : document.documentElement;
+      let el: Element | null = host ?? document.documentElement;
       el;
       el = el.parentElement
     ) {
-      const bg = getComputedStyle(el).backgroundColor;
-      const alpha = colorAlpha(bg);
-      if (alpha === 1) return bg; // opaque measured canvas — the raw string stamps fine (oklch paints)
+      if (scopeIsDark(el) !== null || el === document.documentElement) {
+        scope = el; // the nearest scope — else the root element, the unscoped terminal
+        break;
+      }
+    }
+    if (scope) {
+      const raw = getComputedStyle(scope).getPropertyValue('--background').trim();
+      if (raw !== '' && tokenAlphaIsOpaque(raw)) {
+        const parsed = parseTokenColor(raw);
+        if (parsed) {
+          const { r, g, b } = oklchToRgb(parsed);
+          return `rgb(${Math.round(r)} ${Math.round(g)} ${Math.round(b)})`;
+        }
+      }
     }
   }
   return contextIsDark(host) ? '#000000' : '#ffffff';
 }
 
-/** the base as the fill channel's own unit — a 0xRRGGBB number */
-export function contextBase(host?: Element): number {
-  const [r, g, b] = parseColor(contextBaseCss(host)) ?? [255, 255, 255];
-  return (r << 16) | (g << 8) | b;
-}
-
 /**
  * solidFill — the fill channel's minter (Owner r11): take ANY CSS
- * color, composite it over the context's base color (light/dark true
- * by construction), and return the guaranteed-OPAQUE 0xRRGGBB number
- * shimmer's `fill` accepts. An explicit base overrides the context's
+ * color, composite it over the context's base — the theme scope's
+ * --background token, the SAME basis the auto fill rides (Owner r2,
+ * W1) — and return the guaranteed-OPAQUE 0xRRGGBB number shimmer's
+ * `fill` accepts. The base is minted HOSTLESS (call-time, often
+ * pre-mount — no host param, the document root's token through the
+ * same ladder). An explicit base overrides the context's
  * (deterministic minting for tests and design tokens):
  *
  *   shimmer({ fill: solidFill('rgba(255, 255, 255, 0.35)') })
  */
 export function solidFill(color: string, base?: string): number {
   const src = parseColor(color) ?? [255, 255, 255, 1];
-  const dst = parseColor(base ?? contextBaseCss()) ?? [255, 255, 255, 1];
+  const dst = parseColor(base ?? contextCanvasCss()) ?? [255, 255, 255, 1];
   const a = Math.min(Math.max(src[3], 0), 1);
   const over = (s: number, d: number): number => Math.round(s * a + d * (1 - a));
   return (over(src[0], dst[0]) << 16) | (over(src[1], dst[1]) << 8) | over(src[2], dst[2]);
@@ -245,18 +268,17 @@ function fillToCss(fill: number): string {
  *  W1-scoped 2026-09-15): number → opaque rgb(); null → the TRUE
  *  cutout where the engine clips border-area, else the blend
  *  emulation (white + darken in light contexts, black + lighten in
- *  dark — now read from the HOST's scope); undefined → the EFFECTIVE
- *  CANVAS of the host's context — the nearest opaque ancestor
- *  backgroundColor (the CSS Canvas keyword is RETIRED from the auto
- *  path: it follows color-scheme/OS, not the stage, which was the
- *  Owner's exact symptom) */
+ *  dark — read from the HOST's scope); undefined → the theme scope's
+ *  --background TOKEN (Owner r2: the SAME basis as text/border —
+ *  never a measured ancestor; the CSS Canvas keyword AND the measured
+ *  opaque-ancestor walk are both retired from the auto path) */
 function resolveFill(fill: number | null | undefined, host?: Element): { fillCss: string; blend: 'darken' | 'lighten' | null } {
   if (fill === null && !borderAreaSupported()) {
     const dark = contextIsDark(host);
     return { fillCss: fillToCss(dark ? 0x000000 : 0xffffff), blend: dark ? 'lighten' : 'darken' };
   }
   if (fill === null) return { fillCss: 'transparent', blend: null };
-  if (fill === undefined) return { fillCss: contextBaseCss(host), blend: null };
+  if (fill === undefined) return { fillCss: contextCanvasCss(host), blend: null };
   return { fillCss: fillToCss(fill), blend: null };
 }
 
@@ -399,9 +421,10 @@ function svgNode(tag: string): SVGElement {
  *      mix-blend-mode: darken on the host; dark context → black
  *      fill + lighten — the face reads as glass over whatever sits
  *      behind, which is why the demo band exists
- *    • fill undefined → the EFFECTIVE CANVAS of the host's context
- *      (W1: nearest opaque ancestor background, scope-resolved
- *      fallback) — the sweep follows the STAGE, live (a scope
+ *    • fill undefined → the theme scope's --background TOKEN (W1-r2,
+ *      Owner ruling: auto rides the SAME basis as text/border — never
+ *      a measured ancestor; the gallery's dark glass-band is scenery,
+ *      not context) — the sweep follows the scope, live (a scope
  *      observer re-resolves class/data-theme flips and reparents
  *      without a remount; the CSS Canvas keyword is retired)
  *  Teardown strips the class, the vars, and restores the host's
@@ -466,8 +489,8 @@ export function applyPulse(element: HTMLElement, fx: PulseEffect): () => void {
  *  image hidden; the wrap-stop train rides background layer 2 through
  *  the SAME border-area gate and fill channel as shimmer — number =
  *  opaque face, null = the true cutout / blend emulation, undefined =
- *  the host context's EFFECTIVE CANVAS, theme-live through the same
- *  W1 scope observer). The ONE span that remains is the under-glow
+ *  the theme scope's --background TOKEN (the text/border basis),
+ *  theme-live through the same W1 scope observer). The ONE span that remains is the under-glow
  *  bar (the Owner's ruling: 「blur 的彩虹光影不用改」) — it keeps its
  *  own paint and now INHERITS the registered shift from the animating
  *  host (one animation drives both carriers) */

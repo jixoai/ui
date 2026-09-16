@@ -1,0 +1,154 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import Timeline, {
+    TimelineItem,
+    TimelineDot,
+    TimelineContent,
+    TimelineTime,
+    TimelineTitle,
+  } from '$lib/ui/timeline';
+
+  // hydration readiness stamp for timeline-progress-probe.mjs — the
+  // gate the stroke measurements wait on (pre-hydration DOM measures
+  // stale geometry, the probe-popover-area precedent)
+  let hydrated = $state(false);
+  onMount(() => {
+    hydrated = true;
+  });
+
+  // arm B — the decimal tween: value 1 → 3 over ~1.2s (rAF), driving
+  // the inline dashoffset through the 1.5-style mid-states
+  let tweenValue = $state(1);
+  let tweening = false;
+  function runTween() {
+    if (tweening) return;
+    tweening = true;
+    const start = performance.now();
+    const dur = 1200;
+    const from = 1;
+    const to = 3;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / dur);
+      tweenValue = from + (to - from) * p;
+      if (p < 1) requestAnimationFrame(tick);
+      else tweening = false;
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // arm C — the duplicate-first ladder (declared steps 1, 1, 2): the
+  // LATER node owns the duplicated milestone (value 1 → node 2's arc)
+  let dupValue = $state(0.5);
+</script>
+
+<svelte:head>
+  <title>Timeline progress probe · jixoai-ui</title>
+  <!-- internal verification surface (research/w3/timeline-progress-probe.mjs) — never indexed -->
+  <meta name="robots" content="noindex" />
+</svelte:head>
+
+<main class="p-8" data-hydrated={hydrated ? '1' : '0'}>
+  <h1 class="mb-4 text-lg font-semibold">W3 timeline progress probe</h1>
+
+  <!-- arm A — the fractional midpoint: value 1.5 on the default ladder -->
+  <section data-arm="a" class="mb-10 max-w-md">
+    <h2 class="mb-2 font-medium">A · value=1.5 (default ladder)</h2>
+    <Timeline value={1.5}>
+      <TimelineItem>
+        <TimelineDot />
+        <TimelineContent>
+          <TimelineTime datetime="2026-09-15T07:02:00Z">07:02</TimelineTime>
+          <TimelineTitle>pushed</TimelineTitle>
+        </TimelineContent>
+      </TimelineItem>
+      <TimelineItem>
+        <TimelineDot />
+        <TimelineContent>
+          <TimelineTime datetime="2026-09-15T08:14:00Z">08:14</TimelineTime>
+          <TimelineTitle>audited</TimelineTitle>
+        </TimelineContent>
+      </TimelineItem>
+      <TimelineItem>
+        <TimelineDot />
+        <TimelineContent>
+          <TimelineTime datetime="2026-09-15T09:30:00Z">09:30</TimelineTime>
+          <TimelineTitle>shipped</TimelineTitle>
+        </TimelineContent>
+      </TimelineItem>
+    </Timeline>
+  </section>
+
+  <!-- arm B — the tween: dashoffset animates frame over frame -->
+  <section data-arm="b" class="mb-10 max-w-md">
+    <h2 class="mb-2 font-medium">B · tween 1 → 3</h2>
+    <button data-testid="tween-run" class="mb-2 rounded border px-2 py-1 text-sm" onclick={runTween}>
+      run tween
+    </button>
+    <Timeline value={tweenValue}>
+      <TimelineItem>
+        <TimelineDot />
+        <TimelineContent><TimelineTitle>one</TimelineTitle></TimelineContent>
+      </TimelineItem>
+      <TimelineItem>
+        <TimelineDot />
+        <TimelineContent><TimelineTitle>two</TimelineTitle></TimelineContent>
+      </TimelineItem>
+      <TimelineItem>
+        <TimelineDot />
+        <TimelineContent><TimelineTitle>three</TimelineTitle></TimelineContent>
+      </TimelineItem>
+    </Timeline>
+  </section>
+
+  <!-- arm C — the duplicate-first ladder (steps 1, 1, 2) -->
+  <section data-arm="c" class="mb-10 max-w-md">
+    <h2 class="mb-2 font-medium">C · duplicate-first (1,1,2)</h2>
+    <div class="mb-2 flex gap-2 text-sm">
+      <button data-testid="dup-set-05" class="rounded border px-2 py-1" onclick={() => (dupValue = 0.5)}>
+        value 0.5
+      </button>
+      <button data-testid="dup-set-1" class="rounded border px-2 py-1" onclick={() => (dupValue = 1)}>
+        value 1
+      </button>
+    </div>
+    <Timeline value={dupValue}>
+      <TimelineItem step={1}>
+        <TimelineDot />
+        <TimelineContent><TimelineTitle>dup-a</TimelineTitle></TimelineContent>
+      </TimelineItem>
+      <TimelineItem step={1}>
+        <TimelineDot />
+        <TimelineContent><TimelineTitle>dup-b (owner)</TimelineTitle></TimelineContent>
+      </TimelineItem>
+      <TimelineItem step={2}>
+        <TimelineDot />
+        <TimelineContent><TimelineTitle>last</TimelineTitle></TimelineContent>
+      </TimelineItem>
+    </Timeline>
+  </section>
+
+  <!-- arm D — scroll owns the stroke channel: NO value dashoffset inline -->
+  <section data-arm="d" class="max-w-md">
+    <h2 class="mb-2 font-medium">D · animation='scroll'</h2>
+    <div class="h-64 overflow-y-auto rounded border p-4" data-scroller>
+      <Timeline animation="scroll">
+        <TimelineItem>
+          <TimelineDot />
+          <TimelineContent><TimelineTitle>alpha</TimelineTitle></TimelineContent>
+        </TimelineItem>
+        <TimelineItem>
+          <TimelineDot />
+          <TimelineContent><TimelineTitle>beta</TimelineTitle></TimelineContent>
+        </TimelineItem>
+        <TimelineItem>
+          <TimelineDot />
+          <TimelineContent><TimelineTitle>gamma</TimelineTitle></TimelineContent>
+        </TimelineItem>
+        <TimelineItem>
+          <TimelineDot />
+          <TimelineContent><TimelineTitle>delta</TimelineTitle></TimelineContent>
+        </TimelineItem>
+      </Timeline>
+    </div>
+  </section>
+</main>

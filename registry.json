@@ -118,7 +118,8 @@
         "@jixoai/density",
         "@jixoai/icon",
         "@jixoai/paint",
-        "@jixoai/defaults"
+        "@jixoai/defaults",
+        "@jixoai/color-utils"
       ]
     },
     {
@@ -3677,6 +3678,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/timeline/timeline-header.svelte",
+          "type": "registry:file",
+          "target": "@ui/timeline/timeline-header.svelte"
+        },
+        {
           "path": "registry/files/ui/timeline/timeline-spine.svelte.ts",
           "target": "@ui/timeline/timeline-spine.svelte.ts",
           "type": "registry:file"
@@ -3712,7 +3718,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Timeline props: axis ('vertical'|'horizontal'), direction ('ltr'|'revert'|'interlaced'), animation ('none'|'view'|'scroll'), spine ('plain'|'dashed'|'beam' or a Snippet<[TimelineSpineGeometry]> — node centers in list-root coordinates in flow order, axis/direction/interlaced/rtl metadata, per-segment path data with the dot-edge phase anchor, the density scale). TimelineDot: 8 logical snippet slots + center dot, variant square/round/ring. No-JS floor: the plain per-item CSS line until hydration measures.",
+      "docs": "Timeline props: axis ('vertical'|'horizontal'), direction ('ltr'|'revert'|'interlaced'), animation ('none'|'view'|'scroll'), spine ('plain'|'dashed'|'beam' or a Snippet<[TimelineSpineGeometry]> — node centers in list-root coordinates in flow order, axis/direction/interlaced/rtl metadata, per-segment path data with the dot-edge phase anchor, the density scale). The VALUE contract (reui parity + beyond): defaultValue (default 1, decimals first-class), value (controlled), onValueChange; TimelineItem step (default DOM order + 1, strictly ascending — duplicates: the later node owns the milestone; inversions normalize with a dev warn); completed paints data-completed when step <= current (pending wins); the progress stroke draws along the measured path at fractional values (1.5 = halfway between nodes, 300ms dashoffset transition; animation='scroll' owns the stroke channel). TimelineDot: 8 logical snippet slots + center dot + children (the indicator-icon pattern), variant square/round/ring. TimelineHeader: the plain wrapper (reui parity). No-JS floor: the plain per-item CSS line until hydration measures.",
       "meta": {
         "group": "data-display",
         "href": "/docs/components/timeline.html"
@@ -4419,7 +4425,7 @@
       "name": "scroll-area",
       "type": "registry:ui",
       "title": "Scroll area",
-      "description": "The dedicated scrollable-region component (Owner request, 2026-08-22, after shadcnui — but W3C-first nativeHTML), REWORKED 2026-09-15 (Owner ruling): the component IS a native scroll container — wheel, touch momentum, keyboard, PageUp/Home, scroll-snap and overscroll chaining stay platform behavior — and the scrollbar is ALWAYS HAND-DRAWN (the standing dual-mode scrollbar prop and its ScrollbarVariant type retired; no mode branch exists, breaking). Capsule thumb (full radius) on the scrollbar-token law (currentColor family — themes/dark stages restyle without JS), idle fade (~700ms) with FOUR testable auto-hide pins (region focus-within, thumb focus, active drag, hover — each suspends the fade; while any pin holds the thumb stays in the accessibility tree with aria-valuenow tracking), hover widens + brightens, drag pins the active tone, keyboard affordances on region AND thumb (role=scrollbar, keyboard-draggable), track-click paging, both axes, RTL. The platform path is its own sibling item (native-scroll-area); both share the scroll-area-kit lib kernel — this component consumes the hand-drawn interaction adapter over the shared core. Floors: fitted content draws nothing (the none verdict), coarse pointers keep the platform bar, no-JS output keeps the platform bar (hydration upgrades), reduced-motion keeps the chrome statically visible. Instance exports (bind:this): getViewport() / scrollTo().",
+      "description": "The dedicated scrollable-region component (Owner request, 2026-08-22, after shadcnui — but W3C-first nativeHTML), REWORKED 2026-09-15 (Owner ruling): the component IS a native scroll container — wheel, touch momentum, keyboard, PageUp/Home, scroll-snap and overscroll chaining stay platform behavior — and the scrollbar is ALWAYS HAND-DRAWN (the standing dual-mode scrollbar prop and its ScrollbarVariant type retired; no mode branch exists, breaking). Square-cut thumb (radius 0 by default; `radius` prop — px or 'full' for the capsule opt-in) on the scrollbar-token law (currentColor family — themes/dark stages restyle without JS), width tiers (`width` prop: thin/auto/wide — track 8/12/16, thumb resting 4/8/12), a track FLUSH to the region edge with the thumb's edge-side flank pinned 2px inside, hover growth strictly INTO the content (the inset-carried transform-origin: right center law; RTL mirrors), idle fade (~700ms) with FOUR testable auto-hide pins (region focus-within, thumb focus, active drag, hover — each suspends the fade; while any pin holds the thumb stays in the accessibility tree with aria-valuenow tracking), hover widens + brightens, drag pins the active tone, keyboard affordances on region AND thumb (role=scrollbar, keyboard-draggable), track-click paging, both axes, RTL. The platform path is its own sibling item (native-scroll-area); both share the scroll-area-kit lib kernel — this component consumes the hand-drawn interaction adapter over the shared core. Floors: fitted content draws nothing (the none verdict), coarse pointers keep the platform bar, no-JS output keeps the platform bar (hydration upgrades), reduced-motion keeps the chrome statically visible. Instance exports (bind:this): getViewport() / scrollTo().",
       "files": [
         {
           "path": "registry/files/ui/scroll-area/scroll-area.svelte",
@@ -4437,7 +4443,7 @@
           "type": "registry:file"
         }
       ],
-      "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), label?, pad? (CSS length — inline ring padding, keeps content clear of the thumb lane), class/style + restProps passthrough to the viewport, children snippet. The thumb's a11y contract (role=scrollbar, aria-controls → the viewport, aria-valuenow, aria-orientation, keyboard-draggable) is mounted by the kit's hand-drawn adapter. getViewport() feeds Toc scrollRoot / toc-outline root / toc-engine extents — the zero-boilerplate ToC pairing.",
+      "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), radius? (number px | 'full' — default 0, the square-cut), width? ('auto' | 'thin' | 'wide' — default 'auto'; the chrome-width tiers), label?, pad? (CSS length — inline ring padding, keeps content clear of the thumb lane), class/style + restProps passthrough to the viewport, children snippet. The thumb's a11y contract (role=scrollbar, aria-controls → the viewport, aria-valuenow, aria-orientation, keyboard-draggable) is mounted by the kit's hand-drawn adapter. getViewport() feeds Toc scrollRoot / toc-outline root / toc-engine extents — the zero-boilerplate ToC pairing.",
       "meta": {
         "group": "layout",
         "href": "/docs/components/scroll-area.html"

@@ -34,7 +34,25 @@
  *   [data-jx-tl-item]                  li; SUBGRID into the lanes —
  *                                      its own rows are the node's
  *                                      9-grid rows (bs/dot/be)
+ *   [data-jx-tl-item][data-completed]  the value contract's discrete
+ *                                      paint (reui parity): dot fills,
+ *                                      title steps to full ink, time
+ *                                      steps to muted — the LOUDER
+ *                                      pending paint WINS over it
+ *   [data-step]                        the item's DECLARED ladder
+ *                                      position (painted only when
+ *                                      the author set step; the
+ *                                      geometry engine reads it to
+ *                                      build the STOPS milestone
+ *                                      table)
+ *   [data-jx-tl-header]                the plain heading chrome (reui
+ *                                      parity) — placed by the
+ *                                      chrome-span law, never
+ *                                      shifting the engine selectors
  *   [data-jx-tl-dot]                   the center cell of the 9-grid
+ *                                      (grows around its children —
+ *                                      the icon pattern; min size
+ *                                      keeps)
  *   [data-jx-tl-slot][data-dir=…]      the 8 logical-direction cells
  *                                      around the dot
  *   [data-jx-tl-line]                  THE FLOOR LINE (no-JS): by
@@ -53,14 +71,20 @@
  *   [data-jx-tl-beam]                  the beam preset's traveling
  *                                      light (a stroked gradient
  *                                      dash with real width)
- *   [data-jx-tl-progress]              the scroll-driven progress
- *                                      stroke (anim='scroll') — a
- *                                      stroke-dashoffset draw-on
+ *   [data-jx-tl-progress]              the progress stroke — TWO
+ *                                      owners, one channel: the
+ *                                      scroll() timeline under
+ *                                      data-anim='scroll', else the
+ *                                      VALUE contract (inline
+ *                                      dashoffset = pathLength −
+ *                                      len(value), transitioned)
  *
  * Direction zones are grid tracks, not margins (minmax(0,0fr)
- * collapses a lane); logical slot names never change meaning when the
- * axis flips — the engine transposes. Pending stays ATTRIBUTE PAINT
- * (data-jx-tl-pending hollows the dot, mutes the title).
+ * collapses a lane); logical slot names never change meaning when
+ * the axis flips — the engine transposes. Pending and completed stay
+ * ATTRIBUTE PAINT (data-jx-tl-pending hollows the dot and mutes the
+ * title — winning over completed; data-completed fills the dot,
+ * inks the title, mutes the time).
  *
  * NESTING LAW (2026-09-02): every ENGINE selector (axis · direction ·
  * placement) is CHILD-CHAIN scoped through the list —
@@ -136,19 +160,25 @@
     filter: blur(1.5px);
     animation: jx-tl-beam-travel 2.4s linear infinite;
   }
-  /* the scroll-progress spine (anim='scroll'): a stroke-dashoffset
-     draw-on over the base run — the absolute-positioning channel and
-     its implicit-track span RETIRED (the C-1 lesson's machinery is
-     gone; the stroke draw replaces it). Path start = the FIRST node
-     (flow order), so the draw follows chronology under RTL without
-     transform-origin branches. Engines without scroll() timelines
-     never show it. */
+  /* the progress stroke's shared paint — the channel has TWO owners:
+     the scroll() timeline under anim='scroll' (@supports-gated below,
+     engines without scroll() never show it), else the VALUE contract.
+     The dash basis is pathLength (the cumulative polyline length —
+     the chord retired), carried by the inline dasharray. */
   :where([data-jx-tl-spine] > [data-jx-tl-progress]) {
     display: none;
     fill: none;
     stroke: var(--primary);
     stroke-width: 2px;
     stroke-linecap: round;
+  }
+  /* the value-driven stroke: paints whenever the scroll animation
+     does NOT own the channel — the inline dashoffset
+     (pathLength − len(value), from the STOPS mapping) transitions so
+     tweening the value draws the spine (reduced motion: none) */
+  :where([data-jx-timeline]:not([data-anim='scroll']) > [data-jx-tl-spine] > [data-jx-tl-progress]) {
+    display: inline;
+    transition: stroke-dashoffset 300ms ease;
   }
 
   /* ── the floor/drawn switch: the per-item CSS line retires once the
@@ -264,21 +294,37 @@
   :where([data-jx-tl-dot]) {
     z-index: 1;
     box-sizing: border-box;
-    inline-size: var(--jx-icon);
-    block-size: var(--jx-icon);
-    border: 1px solid var(--primary);
-    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--jx-icon);
+    min-block-size: var(--jx-icon);
+    border: 1px solid var(--border);
+    background: transparent;
   }
   :where([data-jx-tl-dot][data-variant='round']) {
     border-radius: 9999px;
   }
+  /* completed: the value contract's discrete paint — the milestone
+     has passed, the dot FILLS primary (attribute paint on the owning
+     item; the dot is its DIRECT child) */
+  :where([data-jx-tl-item][data-completed]) > :where([data-jx-tl-dot]) {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  /* the ring keeps its hollow grammar across the state paints — the
+     variant's identity outranks the completed fill (border COLOR
+     still steps with the ladder) */
   :where([data-jx-tl-dot][data-variant='ring']) {
     background: transparent;
     border-width: 2px;
   }
-  /* pending: attribute paint — hollow center, muted title (the dot is
-     a DIRECT child of the pending li; the title rides the content part) */
+  /* pending: the LOUDER channel — hollow center + primary ring +
+     muted title even when the step has completed (the dot is a
+     DIRECT child of the pending li; the title rides the content
+     part); source order places it AFTER the completed paint */
   :where([data-jx-tl-pending]) > :where([data-jx-tl-dot]) {
+    border-color: var(--primary);
     background: transparent;
   }
 
@@ -445,12 +491,32 @@
     padding-block-end: var(--jx-gap);
   }
 
-  /* ── the title's attribute paint ── */
+  /* ── the title's attribute paint — the ladder base is muted; the
+     completed milestone steps to FULL INK; pending (the louder
+     channel, later in source order) mutes it back ── */
   :where([data-jx-tl-title]) {
+    color: var(--muted-foreground);
+  }
+  :where([data-jx-tl-item][data-completed]) :where([data-jx-tl-title]) {
     color: var(--foreground);
   }
   :where([data-jx-tl-pending]) :where([data-jx-tl-title]) {
     color: var(--muted-foreground);
+  }
+  /* the completed entry's timestamp steps to muted (the token-level
+     contract; the part's own utility class already rides this) */
+  :where([data-jx-tl-item][data-completed]) :where([data-jx-tl-time]) {
+    color: var(--muted-foreground);
+  }
+
+  /* ── the header: the plain chrome row/column above the items (the
+     chrome-span law — the engine's item selectors stay li-type-scoped
+     and never see it; the list's own gaps carry the spacing) ── */
+  :where([data-jx-timeline][data-axis='vertical'] > [data-jx-tl-list]) > :where([data-jx-tl-header]) {
+    grid-column: 1 / -1;
+  }
+  :where([data-jx-timeline][data-axis='horizontal'] > [data-jx-tl-list]) > :where([data-jx-tl-header]) {
+    grid-row: 1 / -1;
   }
 
   /* ── the scroll-progress stroke draw (@supports-gated; the axis
@@ -513,8 +579,10 @@
 @media (prefers-reduced-motion: reduce) {
   /* the beam rests as a LIT SEGMENT at the run head (parked just past
      the first node's edge — decorative motion removed, the light
-     stays); view entries rest in place; the progress stroke stays
-     hidden — no frozen mid-flight paint anywhere */
+     stays); view entries rest in place; the scroll-driven progress
+     stroke stays hidden (no frozen mid-flight paint) while the
+     VALUE-driven stroke simply skips its transition — the position is
+     state, not motion */
   :where([data-jx-tl-beam]) {
     animation: none;
     stroke-dashoffset: var(--jx-tl-beam-park, 0);
@@ -523,7 +591,10 @@
   :where([data-jx-tl-spine] > [data-jx-tl-progress]) {
     animation: none;
   }
-  :where([data-jx-tl-spine] > [data-jx-tl-progress]) {
+  :where([data-jx-timeline][data-anim='scroll'] > [data-jx-tl-spine] > [data-jx-tl-progress]) {
     display: none;
+  }
+  :where([data-jx-timeline]:not([data-anim='scroll']) > [data-jx-tl-spine] > [data-jx-tl-progress]) {
+    transition: none;
   }
 }

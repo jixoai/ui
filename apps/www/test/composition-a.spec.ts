@@ -522,7 +522,7 @@ describe('Timeline family — the floor posture (W3 progressive enhancement)', (
   // floor law that replaces it: no onMount/onDestroy/addEventListener
   // anywhere, the $effect confined to timeline.svelte's spine mount,
   // and the SSR paint complete (floor lines, anatomy, attributes).
-  it('lifecycle is confined to the spine mount ($effect only, in the root)', () => {
+  it("lifecycle is confined to the spine mount + the item's step registration ($effect in the root; the item's ONE registration-only effect, r2)", () => {
     const root = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline.svelte'), 'utf8');
     const item = readFileSync(resolve(specDir, '../src/lib/ui/timeline/timeline-item.svelte'), 'utf8');
     for (const pattern of [/onMount\s*\(/, /onDestroy\s*\(/, /addEventListener\s*\(/]) {
@@ -530,7 +530,15 @@ describe('Timeline family — the floor posture (W3 progressive enhancement)', (
       expect(item).not.toMatch(pattern);
     }
     expect(root).toMatch(/\$effect\s*\(/);
-    expect(item).not.toMatch(/\$effect\s*\(/);
+    // the value contract (r2) adds the item's step-registration effect —
+    // REGISTRATION ONLY: no paint, no geometry, no listener (the floor
+    // posture's substance — SSR paints, hydration upgrades — is
+    // untouched; the effect count stays exactly one)
+    expect((item.match(/\$effect\s*\(/g) ?? []).length).toBe(1);
+    expect(item).toMatch(/registerStep/);
+    for (const paintPattern of [/getBoundingClientRect/, /\.style\./, /querySelector/]) {
+      expect(item).not.toMatch(paintPattern);
+    }
   });
 
   it('the measurement engine degrades to the floor (no ResizeObserver, degenerate boxes)', () => {

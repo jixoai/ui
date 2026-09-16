@@ -2,15 +2,28 @@
 
 /* jixoai scroll-area — the HAND-DRAWN chrome's paint (rework,
  * 2026-09-15: always hand-drawn — the dual-mode variant era retired
- * with its scrollbar prop). Behavior lives in the kit
+ * with its scrollbar prop; chrome PARAMS + EDGE ANCHOR the same day,
+ * Owner r2). Behavior lives in the kit
  * (scroll-area-kit/hand-drawn.svelte — idle fade, pins, drag,
  * keyboard, the thumb's a11y contract); the LOOK lives here, on the
  * scrollbar TOKEN law (currentColor family — themes and dark stages
  * restyle without JS):
- *   - capsule thumb (full radius), logical geometry per axis, RTL
- *     mirrors through inset-inline;
+ *   - SQUARE-CUT thumb by default (radius 0 — the hard capsule
+ *     retired); the `radius` prop paints any px or the 'full'
+ *     capsule through the region's --jx-scroll-thumb-radius;
+ *   - width tiers (`width` prop → data-width): thin 8px / auto
+ *     12px / wide 16px lanes, the thumb resting at a 2px inset per
+ *     flank (4/8/12 cross size; hover/drag 6/10/14);
+ *   - the TRACK runs FLUSH to the region edge (the 2px edge standoff
+ *     retired from the lane — an invisible lane paints nothing
+ *     there) and the thumb's growth is EDGE-ANCHORED: the outer
+ *     (edge-side) flank pins at 2px and NEVER moves, hover/drag
+ *     narrow ONLY the inner flank (growth strictly INTO the content,
+ *     never across the region boundary — the transform-origin:
+ *     right center law carried as an inset anchor; RTL mirrors
+ *     through logical geometry);
  *   - hover widens + brightens (the token family's hover step);
- *   - drag pins the active tone (the family's top step);
+ *   - drag pins the active tone AND the widened state;
  *   - the lanes fade with the idle timer (data-thumb-live — opacity
  *     only: a pinned thumb NEVER leaves the accessibility tree);
  *   - the platform bar hides only while the drawn chrome owns the
@@ -43,10 +56,27 @@
   width: 0;
 }
 
+/* the width tiers (Owner r2): the region's data-width stamps the
+   drawn lane's size — `wide` is a DELIBERATE extension beyond the
+   native trio (the hand-drawn chrome owns its paint); `none` is
+   native-only vocabulary and never reaches this table */
+:where(.jx-scroll-area[data-width='thin']) {
+  --jx-scroll-track-w: 8px;
+}
+:where(.jx-scroll-area[data-width='auto']) {
+  --jx-scroll-track-w: 12px;
+}
+:where(.jx-scroll-area[data-width='wide']) {
+  --jx-scroll-track-w: 16px;
+}
+
 /* the lanes: hover-reachable only while live (a faded lane must never
    eat content clicks); the vertical lane is a narrow column at the
    inline-end edge, the horizontal lane a wide band at the block-end
-   edge — cross-axis size 12px, main axis stretches */
+   edge — cross-axis size rides the width tier, main axis stretches.
+   FLUSH (Owner r2): the lane runs to the region edge — the 2px edge
+   standoff retired from the TRACK (an invisible lane paints nothing
+   there); the thumb carries the anchor instead */
 :where(.jx-scroll-track) {
   opacity: 0;
   pointer-events: none;
@@ -55,49 +85,64 @@
   z-index: 1;
 }
 :where(.jx-scroll-track.y) {
-  inset-block: 2px;
-  inset-inline-end: 2px;
+  inset-block: 0;
+  inset-inline-end: 0;
   inline-size: var(--jx-scroll-track-w, 12px);
 }
 :where(.jx-scroll-track.x) {
   block-size: var(--jx-scroll-track-w, 12px);
-  inset-block-end: 2px;
-  inset-inline: 2px;
+  inset-block-end: 0;
+  inset-inline: 0;
 }
 :where(.jx-scroll-area[data-thumb-live='on'] .jx-scroll-track) {
   opacity: 1;
   pointer-events: auto;
 }
 
-/* the capsule thumb: full radius, the token law's currentColor steps.
-   TRANSIENT INK (the law's category exit): the hover-revealed thumb
-   is effect ink over the scrollport's content — the fade is opacity
-   only, and the min sizes keep the affordance graspable at any ratio */
+/* the thumb: SQUARE-CUT by default (radius 0 — the hard capsule
+   retired, Owner r2; the region's --jx-scroll-thumb-radius paints any
+   configured px or the 'full' capsule), the token law's currentColor
+   steps. TRANSIENT INK (the law's category exit): the hover-revealed
+   thumb is effect ink over the scrollport's content — the fade is
+   opacity only, and the min sizes keep the affordance graspable at
+   any ratio */
 :where(.jx-scroll-thumb) {
   background: var(--scrollbar-thumb);
-  border-radius: calc(infinity * 1px);
+  border-radius: var(--jx-scroll-thumb-radius, 0px);
   opacity: 1;
   position: absolute;
 }
+/* EDGE-ANCHORED cross geometry (the transform-origin: right center
+   law, inset-carried): the outer (edge-side) flank pins at the 2px
+   resting inset — it NEVER moves; the inner flank alone carries the
+   hover/drag growth (2px → 0, growth strictly INTO the content).
+   Resting cross size = track − 2×2px (4/8/12 across tiers) */
 :where(.jx-scroll-thumb.y) {
-  inset-inline: 2px;
+  inset-inline-end: 2px;
+  inset-inline-start: 2px;
   min-block-size: 24px;
   transition: inset-inline 160ms ease-out, background-color 160ms ease-out;
 }
 :where(.jx-scroll-thumb.x) {
-  inset-block: 2px;
+  inset-block-end: 2px;
+  inset-block-start: 2px;
   min-inline-size: 24px;
   transition: inset-block 160ms ease-out, background-color 160ms ease-out;
 }
-/* hover widens + brightens: the cross-axis inset narrows (the growth
-   stays centered in the lane), the tone steps up the token family */
-:where(.jx-scroll-thumb.y:hover) {
+/* hover widens + brightens: ONLY the inner flank narrows to 0 (the
+   edge-side anchor holds — the widened thumb, 6/10/14 across tiers,
+   never crosses the region boundary), the tone steps up the token
+   family. The drag channel rides the same inset so the widened state
+   holds through the whole gesture */
+:where(.jx-scroll-thumb.y:hover),
+:where(.jx-scroll-area[data-pin-drag='on'] .jx-scroll-thumb.y) {
   background: var(--scrollbar-thumb-hover);
-  inset-inline: 1px;
+  inset-inline-start: 0;
 }
-:where(.jx-scroll-thumb.x:hover) {
+:where(.jx-scroll-thumb.x:hover),
+:where(.jx-scroll-area[data-pin-drag='on'] .jx-scroll-thumb.x) {
   background: var(--scrollbar-thumb-hover);
-  inset-block: 1px;
+  inset-block-start: 0;
 }
 /* the drag pin paints the family's top step (the adapter keeps the
    lane live through the whole gesture) */

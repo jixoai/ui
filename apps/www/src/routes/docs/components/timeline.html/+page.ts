@@ -4,10 +4,14 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'directions', label: 'direction' },
-  { id: 'axis', label: 'axis' },
+  { id: 'families-chronology', label: 'families · chronology' },
+  { id: 'families-tracking', label: 'families · tracking' },
+  { id: 'families-activity', label: 'families · git + activity' },
+  { id: 'families-axis', label: 'families · axis forms' },
   { id: 'node', label: 'the 9-grid node' },
   { id: 'spine', label: 'the drawn spine' },
+  { id: 'value', label: 'the value contract' },
+  { id: 'directions', label: 'direction' },
   { id: 'matrix', label: 'geometry matrix' },
   { id: 'animation', label: 'animation' },
   { id: 'types', label: 'types' },

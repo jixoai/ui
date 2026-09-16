@@ -11,9 +11,17 @@
   component consumes the kit's hand-drawn interaction adapter (idle
   fade, hover growth, drag pin, keyboard, the thumb's a11y contract)
   over the shared core (verdict, geometry, scope math). Behavior lives
-  in the kit; paint lives here (scroll-area.css — the capsule look on
-  the scrollbar-token law, currentColor family, themes/dark stages
-  restyle without JS).
+  in the kit; paint lives here (scroll-area.css — the chrome on the
+  scrollbar-token law, currentColor family, themes/dark stages
+  restyle without JS). Chrome PARAMS (Owner r2, same day): the thumb
+  is SQUARE-CUT by default (radius 0 — the hard capsule retired; the
+  `radius` prop paints any px or the 'full' capsule via the region's
+  --jx-scroll-thumb-radius) and the chrome WIDTH rides tiers (`width`
+  prop: thin 8px / auto 12px / wide 16px lanes, stamped data-width;
+  `none` is native-only vocabulary — a hand-drawn scrollbar that
+  draws nothing is the platform tier). The track runs FLUSH to the
+  region edge and the hover/drag growth is EDGE-ANCHORED: the thumb's
+  edge-side flank pins while the cross size grows INTO the content.
 
   The thumb contract (the kit's adapter mounts it): role="scrollbar",
   aria-controls → the named viewport, aria-valuenow tracking position
@@ -36,9 +44,10 @@
   ToC 联动 unchanged: getViewport() feeds Toc's scrollRoot,
   toc-outline's root, toc-engine's extents — the zero-boilerplate pair.
 
-  API contract（克制原则）: orientation / label / pad / class / style /
-  onscroll + restProps 透传到滚动口 + children. Instance exports
-  (bind:this): getViewport() / scrollTo(). 仅此而已。
+  API contract（克制原则）: orientation / label / pad / radius /
+  width / class / style / onscroll + restProps 透传到滚动口 +
+  children. Instance exports (bind:this): getViewport() / scrollTo().
+  仅此而已。
 -->
 <script lang="ts" module>
   /** per-instance viewport ids — aria-controls targets (the thumb's
@@ -54,6 +63,11 @@
   import './scroll-area.css';
 
   export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
+  /** the chrome width tiers (Owner r2): the drawn lane's size —
+   * thin 8px / auto 12px / wide 16px. `none` is native-only
+   * vocabulary (a hand-drawn scrollbar that draws nothing is the
+   * platform tier, not this component's). */
+  export type ScrollWidthTier = 'auto' | 'thin' | 'wide';
   export type ViewportScrollEvent = HTMLElementEventMap['scroll'] & {
     currentTarget: EventTarget & HTMLDivElement;
   };
@@ -66,6 +80,13 @@
     /** ring padding (CSS length) around the content, inline-axis —
      *  keeps content clear of the thumb lane. Default 0. */
     pad?: string;
+    /** thumb corner radius: a px number, or 'full' for the capsule.
+     *  Default undefined → 0 (square-cut) — the hard capsule retired
+     *  (Owner r2); stamped as --jx-scroll-thumb-radius on the region. */
+    radius?: number | 'full';
+    /** the chrome width tier sizing the drawn lane (thin 8 / auto 12
+     *  / wide 16); stamped data-width on the region. Default 'auto'. */
+    width?: ScrollWidthTier;
     class?: string;
     style?: string;
     onscroll?: (event: ViewportScrollEvent) => void;
@@ -76,12 +97,21 @@
     orientation = 'vertical',
     label = 'scrollable content',
     pad,
+    radius,
+    width = 'auto',
     class: className = '',
     style,
     onscroll,
     children,
     ...restProps
   }: Props = $props();
+
+  // the thumb radius as a CSS value — stamped on the REGION (the
+  // sheet's var consumer); undefined paints nothing and the sheet's
+  // 0px default applies (square-cut, the r2 default look)
+  const thumbRadius = $derived(
+    radius === undefined ? undefined : radius === 'full' ? 'calc(infinity * 1px)' : `${radius}px`,
+  );
 
   const viewportId = `jx-scroll-viewport-${++nextViewportId}`;
 
@@ -163,9 +193,11 @@
 <div
   class="jx-scroll-area relative"
   data-orientation={orientation}
+  data-width={width}
   data-chrome={chromeOn ? 'on' : undefined}
   data-verdict-y={verdictY}
   data-verdict-x={verdictX}
+  style={thumbRadius === undefined ? undefined : `--jx-scroll-thumb-radius: ${thumbRadius}`}
   bind:this={regionEl}
 >
   <!-- svelte-ignore a11y_no_noninteractive_tabindex (the WAI scrollable-

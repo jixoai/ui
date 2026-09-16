@@ -1,0 +1,1256 @@
+
+ RUN  v4.1.11 /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www
+
+ ❯ test/docs-nav-filter.spec.ts (20 tests | 1 failed) 336ms
+     ✓ unfiltered: every section page is listed, no marks 52ms
+     ✓ matches subtitles: "wrapping" keeps only the recipes entry, marked in the sub line 26ms
+     ✓ matches titles: "jx" keeps only jx-pure; groups hide when their line drops 16ms
+     ✓ fuzzy is a superset of substring: "dt" hits non-substring pages, group order intact 20ms
+     ✓ multi-word queries ride spaces: "print pipe" hits the paged subtitle 16ms
+     ✓ no matches: the empty state shows 11ms
+     ✓ the × button restores the full list 22ms
+     ✓ emptying the input restores the full list 25ms
+     ✓ Escape clears the filter and does not leak upward 17ms
+     ✓ Escape with an empty filter bubbles to the page 9ms
+     ✓ the mobile bar input shares the filter (dual mounts, one state) 18ms
+     ✓ inside /docs/components* the rail IS the component catalog 37ms
+     ✓ the filter searches component names: "date" keeps date-picker, marked 32ms
+     × fuzzy hits keep taxonomy group order: "sel" 33ms
+     ✓ the band mounts INSIDE the rail surface, in the grid dialect (dies with it below 1200px) 0ms
+     ✓ ONE cell, three layers: head and groups share the [stack] area; the rail head carries no sticky 0ms
+     ✓ the list IS the scroller: overflow + gutter + the timeline name moved inward 0ms
+     ✓ the band carries NO site className: [data-jx-pblur] is the anchor, and only the END edge steps aside (Owner, 2026-09-05) 0ms
+     ✓ the clearance is MEASURED (the RO var), never hardcoded — with a no-JS css fallback 0ms
+     ✓ the inline insets align head and list on one line: outside the scroller max(inset, thin), inside inset−thin 0ms
+ ❯ test/blueprints.spec.ts (6 tests | 4 failed) 46ms
+     × every catalog entry has a scene component (nothing unrenderable) 5ms
+     × every catalog entry has a committed blueprint SVG (run npm run build:blueprints) 1ms
+     × scene files are not empty stubs 6ms
+     ✓ no orphan scenes or SVGs (both directions locked) 1ms
+     × generated SVGs are real vector scenes, not empty canvases 33ms
+     ✓ the gallery route is registered in svelte.config entries 0ms
+5:03:42 AM [vite-plugin-svelte] src/lib/ui/props-table/props-table.svelte:35:5 This reference only captures the initial value of `meta`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:03:42 AM [vite-plugin-svelte] src/lib/ui/props-table/props-table.svelte:35:14 This reference only captures the initial value of `props`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ❯ test/props-table-render.spec.ts (3 tests | 1 failed) 33ms
+     ✓ renders the projection with the lint marker and the four columns 24ms
+     × renders select rows from the GENERATED truth (enum cells, defaults, badges) 6ms
+     ✓ renders the hand-written array unchanged 2ms
+ ❯ test/docs-structure.spec.ts (12 tests | 1 failed) 30ms
+     ✓ exactly three sections: Sections / Components / Registry 1ms
+     ✓ no planned placeholders in production nav (design D4) 0ms
+     ✓ Components nav = registry:ui only; non-UI items never listed 2ms
+     ✓ taxonomy snapshot: group ids + ui member counts are deliberate (r4) 0ms
+     ✓ layer group sits between navigation and data-entry (design D3) 1ms
+     ✓ covers every ui item exactly once, neighbors correct 9ms
+     ✓ related is nearest-first within the same group (-1, +1, -2, +2) 6ms
+     ✓ installTargets = every non-UI item, all with a host href 0ms
+     ✓ legacy manifest is the EXACT derived set (closed loop, r2 P1-3) 2ms
+     × svelte.config entries are the EXACT derived set (no silent prerender drift) 5ms
+     ✓ built dist closes the loop for every canonical page (r2 P1-3) 1ms
+     ✓ the catalog index page IS the UI inventory (r2 P1-1 source guard) 2ms
+ ❯ test/mouse-probe.spec.ts (13 tests | 13 failed) 6ms
+     × MOUSE_TRACKING is a bool flipped by DECSET/DECRST (X10 and button-event) 3ms
+     × onMouseTrackingChange fires only on flips (not on unrelated writes) 0ms
+     × reset() (RIS) turns tracking off and observers see the flip 0ms
+     × press/release/motion produce xterm SGR sequences with 1-based cells 0ms
+     × any-event tracking (?1003) reports button-less motion with Cb=35 0ms
+     × button enum encodes LEFT=0 MIDDLE=1 RIGHT=2 FOUR=64 FIVE=65 0ms
+     × mods add shift=4 alt=8 ctrl=16 to the SGR button code 0ms
+     × WITHOUT cellSize every position is out-of-viewport: press drops, release garbage 0ms
+     × X10 (DECSET ?9) encodes presses as ESC [ M +3 biased bytes and drops releases 0ms
+     × out-of-viewport presses are dropped even WITH cellSize (upstream rule) 0ms
+     × SGR_PIXELS (DECSET ?1016) reports raw pixels (SIZE feeds only the viewport bound) 0ms
+     × throws a typed error after free; free is idempotent 0ms
+     × new() clears the mouse-tracking registry (design freeze) 0ms
+ ❯ test/osc-probe.spec.ts (17 tests | 17 failed) 6ms
+     × the wasm imports NOTHING: no import boundary exists for host functions 3ms
+     × the exported indirect function table rejects plain JS functions (funcref discipline) 0ms
+     × pumps `52;c;aGVsbG8=` and ends at BEL with command_type CLIPBOARD_CONTENTS 0ms
+     × keeps parser state across split feeds and accepts the ST terminator byte 0ms
+     × GhosttyOscCommandData has NO clipboard payload data type (the payload falsification) 0ms
+     × parses set and query requests with c and empty selectors, BEL and ST terminators 0ms
+     × drops other selectors, empty payloads, and non-52 OSC sequences 0ms
+     × survives mixed streams (text + CSI + OSC 52) and the terminal still renders the text 0ms
+     × reassembles one OSC 52 split across TWO vtWrite feeds (the golden split case) 0ms
+     × handles two OSC 52 sequences in one feed and resyncs after an aborted one 0ms
+     × keeps an unterminated sequence buffered without emitting (no terminator, no event) 0ms
+     × drops sequences exceeding the observer raw cap (~4 MiB) and recovers 0ms
+     × onOsc52 subscriptions are individually disposable 0ms
+     × new() clears the registry; free() silences forever (design freeze) 0ms
+     × readTitle starts empty and tracks OSC 0 / OSC 2 with either terminator 0ms
+     × onTitleChange fires on changes only (no duplicate for same-title writes) 0ms
+     × RIS clears the title and observers see the flip 0ms
+ ❯ test/selection-probe.spec.ts (5 tests | 4 failed) 9ms
+     × drag press→drag→release produces the cross-line span, text, and row spans 5ms
+     × double-click (tier 2) selects the word under the pointer 1ms
+     × triple-click (tier 3) selects the whole line and clear() drops it 1ms
+     × cell drag within one row selects the cells before the pointer 1ms
+     ✓ placeholder keeps the file single-purpose 1ms
+ ❯ test/cursor-probe.spec.ts (2 tests | 1 failed) 5ms
+     × tracks the cursor through writes and DECSCUSR styles 3ms
+     ✓ survives the full passthrough (16-test suite still green) 1ms
+ ❯ test/title-timing.spec.ts (2 tests | 2 failed) 3ms
+     × readTitle reflects the write synchronously 2ms
+     × onTitleChange fires on the SAME write 0ms
+ ❯ test/scrollbar-probe.spec.ts (1 test | 1 failed) 3ms
+     × delta scrolls by exact lines; huge deltas clamp, never jump 2ms
+ ❯ test/docs-ambient-vocabulary.spec.ts (0 test)
+ ❯ test/title-prop.spec.ts (0 test)
+stderr | test/print-pipeline.spec.ts > the paper theme stamp > an invalid theme fails loud (the grammar's boundary)
+[print/pipeline] run failed: PageConfigError: [print/page-config] theme: unknown value "blue" (light | dark)
+    at parseTheme (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/page-config.ts:192:11)
+    at parsePageConfig (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/page-config.ts:268:12)
+    at parsedSignature (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:292:7)
+    at stylesheetHashFor (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:309:19)
+    at run (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:645:24)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:935:15
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:954:5)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+
+stderr | test/print-pipeline.spec.ts > the mounted-artifact fast path honors the declaration > a mounted artifact + an INVALID theme fails loud (the fast path parses too)
+[print/pipeline] run failed: PageConfigError: [print/page-config] theme: unknown value "blue" (light | dark)
+    at parseTheme (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/page-config.ts:192:11)
+    at parsePageConfig (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/page-config.ts:268:12)
+    at parsedSignature (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:292:7)
+    at stylesheetHashFor (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:309:19)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:928:9
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:1006:5)
+    at Object.runPrint (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:1112:13)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline.spec.ts:259:27
+    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | test/print-pipeline.spec.ts > fail-loud contracts > the DOM-commit barrier refuses a half-intervened tree
+[print/pipeline] run failed: Error: [print/freeze] DOM-commit barrier: source root data-density="default", expected "sm" — the plugin intervention has not committed; refusing to clone a half-intervened tree
+    at prepareSnapshot (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/freeze.svelte.ts:1080:15)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at run (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:612:11)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:935:15
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:954:5)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at Object.runSim (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:1076:5)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline.spec.ts:361:5
+
+stderr | test/print-pipeline.spec.ts > fail-loud contracts > an unmeasurable output root fails instead of emitting zero-size pages
+[print/pipeline] run failed: Error: [print/pipeline] the output root is not measurable (offsetWidth=0) — paged.js would emit zero-size pages; use offscreen positioning, not display:none
+    at run (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:703:13)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:935:15
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:954:5)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at Object.runSim (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:1076:5)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline.spec.ts:369:5
+    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | test/print-pipeline.spec.ts > fail-loud contracts > preparation-phase cancellation aborts the transaction
+[print/pipeline] run failed: PrepareAborted: [print/freeze] prepareSnapshot aborted: cancel
+    at prepareSnapshot (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/freeze.svelte.ts:1076:40)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at run (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:612:11)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:935:15
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:954:5)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at Object.runSim (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:1076:5)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline.spec.ts:379:5
+
+stderr | test/print-pipeline.spec.ts > cleanup and diagnostics > a failed retry leaves no residue (the failure road)
+[print/pipeline] run failed: Error: [print/pipeline] the output root is not measurable (offsetWidth=0) — paged.js would emit zero-size pages; use offscreen positioning, not display:none
+    at run (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:703:13)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:935:15
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:954:5)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at Object.runSim (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:1076:5)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline.spec.ts:413:5
+    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+ ✓ test/print-pipeline.spec.ts (25 tests) 8131ms
+     ✓ feeds exactly kernel-print.css + the compiled @page css — sim-shell NEVER appears  326ms
+     ✓ absent theme stamps LIGHT by law: jx-light scope + color-scheme on the output root  307ms
+     ✓ theme:'dark' declares the exception: dark scope + the stamp the kernel keys on  303ms
+     ✓ a theme-only change REBUILDS (the stamp never survives the other scope) — idempotent re-stamp  598ms
+     ✓ DARK keeps them — the utilities ARE the declared adaptation  306ms
+     ✓ a mounted LIGHT sim + a dark direct print REBUILDS (never prints the stale scope)  603ms
+     ✓ the SAME config keeps the r7 zero-rebuild fast path (the bar print law holds)  306ms
+     ✓ screen → direct print: self-stamps; afterprint removes ONLY it; medium re-derives screen  309ms
+     ✓ sim → off → on: the second run rebuilds cleanly (no stale pages)  613ms
+     ✓ the same config reuses the completed artifact (one preview)  350ms
+     ✓ a config change invalidates (different stylesheet hash → rebuild)  652ms
+     ✓ post-preview cancellation leaves no residue (best-effort removal)  309ms
+     ✓ a failed retry leaves no residue (the failure road)  630ms
+     ✓ WAAPI owners continue with a structured diagnostic row (no throw)  316ms
+ ✓ test/tabs-indicator.spec.ts (67 tests) 2831ms
+ ✓ test/hover-stability.spec.ts (2 tests) 2723ms
+     ✓ no scoped :hover rule moves its body (transform/translate)  2706ms
+ ✓ test/tw-standard-layer-probe.spec.ts (7 tests) 2052ms
+     ✓ P2: a sheet in the entry @import chain can @apply a custom @utility from another sheet  618ms
+ ✓ test/ghostty-term.spec.ts (54 tests) 2370ms
+     ✓ accumulates the multi-click tier within 250ms on the same cell  349ms
+5:04:10 AM [vite-plugin-svelte] src/lib/ui/component-canvas/component-canvas.svelte:146:17 This reference only captures the initial value of `id`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:10 AM [vite-plugin-svelte] src/lib/ui/component-canvas/component-canvas.svelte:146:23 This reference only captures the initial value of `title`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/component-canvas/canvas-playground.svelte:92:15 This reference only captures the initial value of `title`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/component-canvas/canvas-playground.svelte:260:2 `<div>` with a pointerdown, pointermove, pointerup or pointercancel handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:24:19 This reference only captures the initial value of `inset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:24:43 This reference only captures the initial value of `inset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:24:69 This reference only captures the initial value of `inset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:25:26 This reference only captures the initial value of `inset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:25:71 This reference only captures the initial value of `inset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:26:11 This reference only captures the initial value of `inset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:26:33 This reference only captures the initial value of `inset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:31:4 This reference only captures the initial value of `wrap`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/list-item/item-end.svelte:31:24 This reference only captures the initial value of `fit`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/radio/radio.svelte:64:6 The attribute 'aria-invalid' is not supported by the role 'radio'. This role is implicit on the element `<input>`
+https://svelte.dev/e/a11y_role_supports_aria_props_implicit
+5:04:11 AM [vite-plugin-svelte] src/lib/ui/date-picker/calendar.svelte:211:0 `<div>` with a pointerleave handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+5:04:11 AM [vite-plugin-svelte] src/lib/docs-install.svelte:25:37 This reference only captures the initial value of `name`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/docs-install.svelte:26:20 This reference only captures the initial value of `item`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:11 AM [vite-plugin-svelte] src/lib/docs-install.svelte:26:70 This reference only captures the initial value of `item`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/icons-page.spec.ts (37 tests) 1580ms
+stderr | test/print-pipeline-lifecycle.spec.ts > P1-5: post-prepare failure roads unwind the self-stamp > a preview failure releases the transaction's own stamp (the medium re-derives screen)
+[print/pipeline] run failed: Error: preview exploded (test fixture)
+    at Previewer.preview (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline-lifecycle.spec.ts:68:31)
+    at run (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:732:36)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:935:15
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:954:5)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at Object.runPrint (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:1080:5)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline-lifecycle.spec.ts:307:5
+    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | test/print-pipeline-lifecycle.spec.ts > P1-5: post-prepare failure roads unwind the self-stamp > the measurability failure road releases the self-stamp too
+[print/pipeline] run failed: Error: [print/pipeline] the output root is not measurable (offsetWidth=0) — paged.js would emit zero-size pages; use offscreen positioning, not display:none
+    at run (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:703:13)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:935:15
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:954:5)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at Object.runPrint (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:1080:5)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline-lifecycle.spec.ts:317:5
+    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | test/print-pipeline-lifecycle.spec.ts > codex r2: the afterprint wait and the config-failure road close > a config the grammar rejects releases the self-stamp (no stranded medium)
+[print/pipeline] run failed: PageConfigError: [print/page-config] margin.top: expected a non-negative finite number, got -1
+    at parseMargin (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/page-config.ts:173:13)
+    at parsePageConfig (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/page-config.ts:266:13)
+    at parsedSignature (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:292:7)
+    at stylesheetHashFor (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:309:19)
+    at run (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:645:24)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:935:15
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+    at guarded (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/print/pipeline.svelte.ts:954:5)
+    at Module.track_reactivity_loss (/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/svelte/src/internal/client/reactivity/async.js:194:14)
+
+stderr | test/print-pipeline-lifecycle.spec.ts > codex r3: destroy is terminal and enforced > a late preview REJECT after destroy re-arms nothing (the error branch disposes, but the flag holds)
+[print/pipeline] run failed: Error: late rejection (test fixture)
+    at /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/test/print-pipeline-lifecycle.spec.ts:536:26
+    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+ ✓ test/print-pipeline-lifecycle.spec.ts (20 tests) 1467ms
+     ✓ prewarm fetches the icon once and the stamp carries the data URI (synchronous bytes)  315ms
+     ✓ a pending flight carries stage text and a disabled print button; ready enables it  315ms
+ ✓ test/tw-context-probe.spec.ts (4 tests) 915ms
+ ✓ test/mermaid.spec.ts (19 tests) 1385ms
+     ✓ auto watches the EFFECTIVE SCOPE: a scoped ancestor .jx-light→dark flip re-initializes with changed colors  405ms
+5:04:21 AM [vite-plugin-svelte] src/lib/playground/play-segmented.svelte:40:0 Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions
+5:04:21 AM [vite-plugin-svelte] src/lib/playground/play-timing.svelte:26:56 This reference only captures the initial value of `fallback`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/component-canvas-floor.spec.ts (16 tests) 1370ms
+     ✓ dialog page mounts with a derived source link, tree drawer and toggles  514ms
+     ✓ badge and chip pages mount with derived links, tree drawers and play-state labs  308ms
+ ✓ test/search-client.spec.ts (15 tests) 1095ms
+ ✓ test/context-coverage.spec.ts (17 tests) 599ms
+     ✓ human output mode: RED names the violations, GREEN prints the ✓ lines  407ms
+5:04:26 AM [vite-plugin-svelte] src/lib/ui/system-dialog/system-dialog-host.svelte:40:18 This reference only captures the initial value of `initialValue`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:26 AM [vite-plugin-svelte] src/lib/ui/system-dialog/system-dialog-host.svelte:88:6 `<div>` with a keydown handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+ ✓ test/system-dialog-trio.spec.ts (9 tests) 856ms
+     ✓ the host unmounts after the exit window (no leaking DOM)  662ms
+ ✓ test/batch3-components.spec.ts (13 tests) 862ms
+     ✓ dismiss paints the exit frame BEFORE the toast leaves the DOM  350ms
+ ✓ test/canvas-same-source.spec.ts (41 tests) 896ms
+       ✓ every authored canvas id is extracted (nothing skipped, nothing stale)  699ms
+ ✓ test/button-group.spec.ts (32 tests) 741ms
+5:04:32 AM [vite-plugin-svelte] src/lib/ui/popover/popover.svelte:102:31 This reference only captures the initial value of `id`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/table-grid-toolbar-pages.spec.ts (5 tests) 757ms
+     ✓ table — the recipe suite renders end to end  375ms
+stdout | test/markdown-ssr.spec.ts
+[setup] node environment — jsdom polyfills skipped
+
+ ✓ test/markdown-ssr.spec.ts (1 test) 519ms
+     ✓ the streaming frame carries cursor + stamp; the static frame does not (the pure-function law)  519ms
+5:04:36 AM [vite-plugin-svelte] src/routes/docs/components/input-group.html/+page.svelte:68:11 This reference only captures the initial value of `usageLive`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:36 AM [vite-plugin-svelte] src/routes/docs/components/button-group.html/+page.svelte:98:11 This reference only captures the initial value of `usageLive`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:04:36 AM [vite-plugin-svelte] src/routes/docs/components/button-group.html/+page.svelte:103:11 This reference only captures the initial value of `scrollUsageLive`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/form-family-docs-pages.spec.ts (3 tests) 659ms
+ ✓ test/composition-d.spec.ts (11 tests) 553ms
+ ✓ test/batch4b-components.spec.ts (13 tests) 521ms
+ ✓ test/shiki-lib.spec.ts (14 tests) 488ms
+stderr | test/defaults-form-families.spec.ts > input-group — inherit-then-provide > a parent flip re-resolves the group AND its child in the same render (derived_references_self pin)
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+ ✓ test/defaults-form-families.spec.ts (28 tests) 454ms
+ ✓ test/composition-e.spec.ts (18 tests) 411ms
+ ✓ test/code-card-backend.spec.ts (20 tests) 414ms
+5:04:44 AM [vite-plugin-svelte] src/lib/ui/terminal-card/terminal-card.svelte:35:19 This reference only captures the initial value of `theme`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/terminal-patterns.spec.ts (34 tests) 173ms
+stderr | test/effect-attachments.spec.ts > mounted channel laws (the real pipeline) > the NATIVE component-tag form: <Host {@attach fn}> mounts at the SPREAD element; undefined SKIPS; disarm tears down; unmount never double-runs
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/effect-attachments.spec.ts > mounted channel laws (the real pipeline) > the NATIVE component-tag form: <Host {@attach fn}> mounts at the SPREAD element; undefined SKIPS; disarm tears down; unmount never double-runs
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/effect-attachments.spec.ts > mounted channel laws (the real pipeline) > the UNDEFINED ARM (lane-B spike, pinned): an always-mounted element skips the call — arm mounts, disarm tears down
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/effect-attachments.spec.ts > mounted channel laws (the real pipeline) > the UNDEFINED ARM (lane-B spike, pinned): an always-mounted element skips the call — arm mounts, disarm tears down
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/effect-attachments.spec.ts > mounted channel laws (the real pipeline) > the INTERNAL material mount (tabs indicator, r4): material on → mounts; flip off → teardown only; flip back → fresh mount
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/effect-attachments.spec.ts > mounted channel laws (the real pipeline) > the INTERNAL material mount (tabs indicator, r4): material on → mounts; flip off → teardown only; flip back → fresh mount
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ✓ test/effect-attachments.spec.ts (53 tests) 438ms
+ ✓ test/canvas-playground.spec.ts (19 tests) 377ms
+ ✓ test/math-block.spec.ts (18 tests) 359ms
+ ✓ test/code-card.spec.ts (12 tests) 343ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ✓ test/liquid-glass-action.spec.ts (18 tests) 345ms
+ ✓ test/markdown-streaming.spec.ts (12 tests) 344ms
+ ✓ test/batch2-components.spec.ts (24 tests) 306ms
+5:04:51 AM [vite-plugin-svelte] test/fixtures/statistic-countdown-host.svelte:16:25 This reference only captures the initial value of `durationMs`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/table-grid-toolbar.spec.ts (25 tests) 321ms
+ ✓ test/batch1-components.spec.ts (27 tests) 326ms
+ ✓ test/component-canvas-schema.spec.ts (8 tests) 370ms
+ ✓ test/search-palette-global.spec.ts (6 tests) 319ms
+stderr | test/defaults-buttons.spec.ts > density through the family slots > an opinion-less group under a density parent inherits WITHOUT self-reference, and a parent flip re-resolves
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+ ✓ test/defaults-buttons.spec.ts (14 tests) 304ms
+ ✓ test/card.spec.ts (25 tests) 301ms
+Not implemented: navigation to another Document
+ ✓ test/composition-b.spec.ts (24 tests) 307ms
+ ✓ test/markdown-render.spec.ts (65 tests) 300ms
+ ✓ test/scroll-area-family.spec.ts (19 tests) 253ms
+ ✓ test/input-picker-bridge.spec.ts (28 tests) 431ms
+ ✓ test/button-group-overflow.spec.ts (9 tests) 291ms
+ ✓ test/carved-action-band.spec.ts (10 tests) 289ms
+ ✓ test/color-picker.spec.ts (20 tests) 270ms
+ ✓ test/component-canvas.spec.ts (8 tests) 377ms
+ ✓ test/mermaid-engine.spec.ts (23 tests) 278ms
+stderr | test/composition-c.spec.ts > composition-c: duplicate-id first-wins > two panels under one derived id: only the FIRST ever opens
+jixoai menubar: duplicate registration — panel id "dup-panel" / anchor name "--jx-menubar-dup" already claimed; first registration wins
+
+ ✓ test/composition-c.spec.ts (14 tests) 291ms
+ ✓ test/press-button-canvas-schema.spec.ts (1 test) 336ms
+     ✓ renders schema-driven rows and drives the stage instance  335ms
+5:05:09 AM [vite-plugin-svelte] test/fixtures/provider-probe.svelte:15:4 This reference only captures the initial value of `register`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:05:09 AM [vite-plugin-svelte] test/fixtures/provider-probe.svelte:18:6 This reference only captures the initial value of `register`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/reference-interaction.spec.ts (3 tests) 239ms
+ ✓ test/figure.spec.ts (9 tests) 233ms
+ ✓ test/defaults-w4-content.spec.ts (19 tests) 422ms
+ ✓ test/print-freeze.spec.ts (48 tests) 241ms
+ ✓ test/composition-a.spec.ts (52 tests) 446ms
+ ✓ test/toast-v2.spec.ts (32 tests) 230ms
+5:05:15 AM [vite-plugin-svelte] src/lib/ui/date-picker/date-picker.svelte:301:6 The attribute 'aria-invalid' is not supported by the role 'button'. This role is implicit on the element `<button>`
+https://svelte.dev/e/a11y_role_supports_aria_props_implicit
+Not implemented: navigation to another Document
+ ✓ test/enhance-picker-feedback.spec.ts (27 tests) 314ms
+ ✓ test/prose-scope.spec.ts (27 tests) 235ms
+ ✓ test/print-stylesheet-gate.spec.ts (17 tests) 374ms
+     ✓ no import/usage of the family survives (source, barrel, routes, tests)  364ms
+ ✓ test/tree-view.spec.ts (12 tests) 225ms
+5:05:19 AM [vite-plugin-svelte] src/lib/ui/spin/spin.svelte:211:4 This reference only captures the initial value of `unknownName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:05:19 AM [vite-plugin-svelte] src/lib/ui/spin/spin.svelte:211:33 This reference only captures the initial value of `spinner`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/batch5-antd-components.spec.ts (19 tests) 231ms
+ ✓ test/reference.spec.ts (7 tests) 191ms
+ ✓ test/navigation-menu-indicator.spec.ts (9 tests) 225ms
+ ✓ test/code-card-lang-detector.spec.ts (11 tests) 170ms
+5:05:22 AM [vite-plugin-svelte] test/fixtures/density-slot-probe.svelte:17:15 This reference only captures the initial value of `kind`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/paint-axis.spec.ts (12 tests) 211ms
+ ✓ test/button-group-scroll.spec.ts (16 tests) 158ms
+ ✓ test/form-components.spec.ts (30 tests) 214ms
+5:05:24 AM [vite-plugin-svelte] src/lib/ui/terminal-header/terminal-header.svelte:59:19 This reference only captures the initial value of `theme`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/density-adoption-form-boolean.spec.ts (14 tests) 158ms
+stderr | test/scroll-run.spec.ts > scroll-run · custom chip content > a chip can be DECLARED disabled (default rendered) — a disabled chip does not render AT ALL
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/scroll-run.spec.ts > scroll-run · the merged ramp builder + chrome ownership > ScrollChrome owns the run effect attributes: type + per-toggle flags, cleared on flips
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/scroll-run.spec.ts > scroll-run · the merged ramp builder + chrome ownership > ScrollChrome owns the run effect attributes: type + per-toggle flags, cleared on flips
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/scroll-run.spec.ts > scroll-run · the merged ramp builder + chrome ownership > ScrollChrome owns the ramp MAGNITUDES: distance/radius land on the run as inline vars, cleared with their toggles (round 3)
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/scroll-run.spec.ts > scroll-run · the merged ramp builder + chrome ownership > ScrollChrome owns the ramp MAGNITUDES: distance/radius land on the run as inline vars, cleared with their toggles (round 3)
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+ ✓ test/scroll-run.spec.ts (21 tests) 152ms
+ ✓ test/range.spec.ts (49 tests) 167ms
+ ✓ test/search-corpus.spec.ts (19 tests | 1 skipped) 192ms
+ ✓ test/inline-code.spec.ts (22 tests) 135ms
+ ✓ test/defaults-overlays.spec.ts (13 tests) 159ms
+ ✓ test/press-button.spec.ts (35 tests) 215ms
+ ✓ test/display-currency.spec.ts (2 tests) 209ms
+5:05:31 AM [vite-plugin-svelte] src/lib/ui/carousel/carousel.svelte:142:4 noninteractive element cannot have nonnegative tabIndex value
+https://svelte.dev/e/a11y_no_noninteractive_tabindex
+ ✓ test/batch4-components.spec.ts (12 tests) 130ms
+ ✓ test/composition-f.spec.ts (11 tests) 168ms
+ ✓ test/icon-button.spec.ts (18 tests) 164ms
+ ✓ test/batch8-closure-components.spec.ts (14 tests) 146ms
+ ✓ test/form-expansion.spec.ts (26 tests) 187ms
+ ✓ test/chip.spec.ts (20 tests) 118ms
+ ✓ test/date-picker-fragments.spec.ts (29 tests) 182ms
+stderr | test/defaults-nav-providers.spec.ts > the eager capture: inherit without self-reference, re-resolve on flip > each provider adopts the parent tier and a flip re-resolves every lane
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+ ✓ test/defaults-nav-providers.spec.ts (7 tests) 116ms
+ ✓ test/list-item-end-cluster.spec.ts (4 tests) 127ms
+ ✓ test/hue-injection.spec.ts (13 tests) 322ms
+     ✓ component sources teach the pair UTILITY, not the arbitrary destructive pair  303ms
+ ✓ test/registry-payload-parity.spec.ts (1 test) 115ms
+ ✓ test/code-card-backend-tree-sitter.spec.ts (14 tests) 115ms
+ ✓ test/timeline-spine.spec.ts (10 tests) 106ms
+ ✓ test/list-item-field.spec.ts (6 tests) 122ms
+ ✓ test/section-numbering.spec.ts (11 tests) 101ms
+ ✓ test/code-card-backend-highlightjs.spec.ts (15 tests) 115ms
+ ✓ test/dialog-ghost-scope.spec.ts (1 test) 103ms
+ ✓ test/ghostty-vt.spec.ts (32 tests) 88ms
+ ✓ test/props-table-print-hook.spec.ts (2 tests) 131ms
+ ✓ test/toast.spec.ts (10 tests) 84ms
+ ✓ test/list-item-end-inset.spec.ts (5 tests) 97ms
+ ✓ test/spin-svg-lane.spec.ts (20 tests) 90ms
+ ✓ test/variant-grammar.spec.ts (2 tests) 29ms
+ ✓ test/list-item-control-chrome.spec.ts (6 tests) 83ms
+ ✓ test/input-semantic-icon.spec.ts (10 tests) 78ms
+ ✓ test/dialog-grid.spec.ts (20 tests) 83ms
+ ✓ test/reading-content-family.spec.ts (23 tests) 71ms
+5:05:50 AM [vite-plugin-svelte] src/lib/ui/badge-indicator/badge-indicator.svelte:31:13 This reference only captures the initial value of `dot`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:05:50 AM [vite-plugin-svelte] src/lib/ui/badge-indicator/badge-indicator.svelte:32:18 This reference only captures the initial value of `children`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/batch6-antd2-components.spec.ts (18 tests) 86ms
+ ✓ test/glass-map.spec.ts (21 tests) 68ms
+ ✓ test/llms-txt.spec.ts (22 tests) 63ms
+ ✓ test/list-item.spec.ts (10 tests) 79ms
+ ✓ test/glass-effect.spec.ts (37 tests) 201ms
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+ ✓ test/language-switcher.spec.ts (14 tests) 73ms
+Not implemented: navigation to another Document
+ ✓ test/list-item-size-contract.spec.ts (5 tests) 70ms
+ ✓ test/composition-regressions.spec.ts (3 tests) 65ms
+ ✓ test/density-adoption-form-text.spec.ts (4 tests) 70ms
+ ✓ test/chart-components.spec.ts (20 tests) 65ms
+ ✓ test/numbering-provider.spec.ts (4 tests) 57ms
+ ✓ test/markdown-parse.spec.ts (38 tests) 52ms
+ ✓ test/defaults-kbd-badge-chip.spec.ts (10 tests) 55ms
+ ✓ test/scroll-area-kit.spec.ts (26 tests) 62ms
+5:05:58 AM [vite-plugin-svelte] test/fixtures/context-plugin-root.svelte:9:36 This reference only captures the initial value of `plugins`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:05:58 AM [vite-plugin-svelte] test/fixtures/context-plugin-root.svelte:9:47 This reference only captures the initial value of `root`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:05:58 AM [vite-plugin-svelte] test/fixtures/context-plugin-root.svelte:10:4 This reference only captures the initial value of `holder`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+5:05:58 AM [vite-plugin-svelte] test/fixtures/context-plugin-root.svelte:10:12 This reference only captures the initial value of `holder`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+ ✓ test/context-plugin.spec.ts (36 tests) 57ms
+ ✓ test/progressive-blur.spec.ts (13 tests) 43ms
+ ✓ test/betlang-detector.spec.ts (17 tests) 94ms
+ ✓ test/theme-toggle.spec.ts (7 tests) 52ms
+ ✓ test/batch7-antd3-components.spec.ts (6 tests) 49ms
+ ✓ test/composition-props.spec.ts (5 tests) 47ms
+ ✓ test/density-adoption-buttons.spec.ts (2 tests) 58ms
+stderr | test/density-adoption-menus.spec.ts > density adoption: the honest-opinion provider (chrome-density-tier r3) > the context is reactive in BOTH directions — established and withdrawn opinions reach the nested consumer
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+stderr | test/density-adoption-menus.spec.ts > density adoption: the honest-opinion provider (chrome-density-tier r3) > the context is reactive in BOTH directions — established and withdrawn opinions reach the nested consumer
+rerender({ props: { ... } }) deprecated, use rerender({ ... }) instead
+
+ ✓ test/density-adoption-menus.spec.ts (4 tests) 48ms
+ ✓ test/input-group.spec.ts (14 tests) 71ms
+ ✓ test/code-card-backend-sugar-high.spec.ts (10 tests) 53ms
+stderr | test/popover-gap.spec.ts > Popover gap prop > invalid strings are dropped — no declaration smuggling
+[popover] invalid gap "8px 0 0 0 } ; color: red" — ignored (1–4 CSS lengths or a number)
+[popover] invalid gap "1px 2px 3px 4px 5px" — ignored (1–4 CSS lengths or a number)
+[popover] invalid gap "big" — ignored (1–4 CSS lengths or a number)
+
+stderr | test/popover-gap.spec.ts > Popover gap prop > malformed lengths and non-finite numbers are dropped (Codex impl-r1)
+[popover] invalid gap "1..2px 0 0 0" — ignored (1–4 CSS lengths or a number)
+[popover] invalid gap "...px" — ignored (1–4 CSS lengths or a number)
+[popover] invalid gap NaN — ignored (finite number or 1–4 CSS lengths)
+[popover] invalid gap Infinity — ignored (finite number or 1–4 CSS lengths)
+
+ ✓ test/popover-gap.spec.ts (5 tests) 50ms
+ ✓ test/math-inline.spec.ts (5 tests) 39ms
+ ✓ test/dld-layers.spec.ts (46 tests) 45ms
+ ✓ test/card-grid.spec.ts (14 tests) 39ms
+ ✓ test/select-onchange.spec.ts (4 tests) 39ms
+ ✓ test/playground-bridge.spec.ts (1 test) 39ms
+ ✓ test/paint-zone-availability.spec.ts (4 tests) 36ms
+ ✓ test/defaults-nav-clean.spec.ts (6 tests) 33ms
+ ✓ test/prototype-layout-family.spec.ts (32 tests) 97ms
+ ✓ test/entity.spec.ts (7 tests) 37ms
+ ✓ test/sheet-defaults.spec.ts (4 tests) 37ms
+ ✓ test/table.spec.ts (6 tests) 34ms
+ ✓ test/dialog-defaults.spec.ts (4 tests) 38ms
+ ✓ test/density-adoption-data.spec.ts (3 tests) 43ms
+ ✓ test/print-relocate.spec.ts (15 tests) 40ms
+ ✓ test/figure-numbering.spec.ts (13 tests) 27ms
+ ✓ test/text-modifiers.spec.ts (15 tests) 41ms
+ ✓ test/separator.spec.ts (9 tests) 33ms
+ ✓ test/print-viewport.spec.ts (7 tests) 29ms
+ ✓ test/kbd.spec.ts (4 tests) 38ms
+ ✓ test/medium-context.spec.ts (6 tests) 22ms
+ ✓ test/density-context.spec.ts (6 tests) 20ms
+ ✓ test/icon-own-attrs.spec.ts (4 tests) 19ms
+ ✓ test/website-scaffold.spec.ts (4 tests) 18ms
+ ✓ test/jx-pure-parity.spec.ts (9 tests) 9ms
+ ✓ test/catalog.spec.ts (10 tests) 11ms
+ ✓ test/katex.spec.ts (11 tests) 14ms
+ ✓ test/props-table-meta-drift.spec.ts (28 tests) 7ms
+ ✓ test/icons-dogfood.spec.ts (5 tests) 9ms
+ ✓ test/llms-txt-converter.spec.ts (32 tests) 6ms
+ ✓ test/chart-math.spec.ts (40 tests) 6ms
+ ✓ test/print-page-config.spec.ts (16 tests) 6ms
+ ✓ test/nav-filter.spec.ts (14 tests) 5ms
+ ✓ test/print-plugin.spec.ts (13 tests) 4ms
+ ✓ test/defaults.spec.ts (13 tests) 5ms
+ ✓ test/color-utils.spec.ts (16 tests) 5ms
+ ✓ test/schema2form.spec.ts (11 tests) 4ms
+ ✓ test/schema-lower.spec.ts (6 tests) 3ms
+ ✓ test/theme-slot-scoping.spec.ts (4 tests) 3ms
+ ✓ test/guide-same-source.spec.ts (2 tests) 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/docs-ambient-vocabulary.spec.ts [ test/docs-ambient-vocabulary.spec.ts ]
+Error: ENOENT: no such file or directory, open '/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/openspec/changes/2026-09-04-env-debt-cleanup/tasks.md'
+ ❯ test/docs-ambient-vocabulary.spec.ts:413:19
+    411| // a missing one.)
+    412| describe('matrix↔tasks bijection', () => {
+    413|   const tasksMd = readFileSync(
+       |                   ^
+    414|     // the ACTIVE change's living tasks copy (not the frozen archive):…
+    415|   // bijection runs against the LIVE route universe, and a page rename
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/47]⎯
+
+ FAIL  test/title-prop.spec.ts [ test/title-prop.spec.ts ]
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/title-prop.spec.ts:22:19
+     20| import GhosttyTerm from '../../../registry/files/ui/ghostty-term/ghost…
+     21|
+     22| const wasmBytes = readFileSync('/tmp/ghostty-research/ghostty-vt.wasm'…
+       |                   ^
+     23|
+     24| describe('component title propagation (real wasm)', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/47]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 45 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/blueprints.spec.ts > blueprint pipeline coverage > every catalog entry has a scene component (nothing unrenderable)
+AssertionError: catalog/guide entries without scenes/<name>.svelte: expected [ 'spin-set', …(5) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "spin-set",
++   "native-scroll-area",
++   "scroll-area-kit",
++   "prototype-flex",
++   "prototype-grid",
++   "prototype-waterfall",
++ ]
+
+ ❯ test/blueprints.spec.ts:49:75
+     47|     const scenes = sceneFiles();
+     48|     const missing = [...expectedNames()].filter((name) => !scenes.has(…
+     49|     expect(missing, 'catalog/guide entries without scenes/<name>.svelt…
+       |                                                                           ^
+     50|   });
+     51|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/47]⎯
+
+ FAIL  test/blueprints.spec.ts > blueprint pipeline coverage > every catalog entry has a committed blueprint SVG (run npm run build:blueprints)
+AssertionError: catalog/guide entries without static/blueprints/<name>.svg: expected [ 'native-scroll-area', …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "native-scroll-area",
++   "scroll-area-kit",
++ ]
+
+ ❯ test/blueprints.spec.ts:55:83
+     53|     const svgs = svgFiles();
+     54|     const missing = [...expectedNames()].filter((name) => !svgs.has(na…
+     55|     expect(missing, 'catalog/guide entries without static/blueprints/<…
+       |                                                                                   ^
+     56|   });
+     57|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/47]⎯
+
+ FAIL  test/blueprints.spec.ts > blueprint pipeline coverage > scene files are not empty stubs
+Error: ENOENT: no such file or directory, open '/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/src/lib/blueprints/scenes/spin-set.svelte'
+ ❯ test/blueprints.spec.ts:60:22
+     58|   it('scene files are not empty stubs', () => {
+     59|     for (const name of expectedNames()) {
+     60|       const source = readFileSync(resolve(scenesDir, `${name}.svelte`)…
+       |                      ^
+     61|       expect(source.length, `${name}.svelte looks empty`).toBeGreaterT…
+     62|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/47]⎯
+
+ FAIL  test/blueprints.spec.ts > blueprint pipeline coverage > generated SVGs are real vector scenes, not empty canvases
+Error: ENOENT: no such file or directory, open '/Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/apps/www/static/blueprints/native-scroll-area.svg'
+ ❯ test/blueprints.spec.ts:77:19
+     75|     // produced ~250 byte files — a real scene carries glyph paths
+     76|     for (const name of expectedNames()) {
+     77|       const svg = readFileSync(resolve(svgsDir, `${name}.svg`), 'utf8'…
+       |                   ^
+     78|       expect(svg.length, `${name}.svg is suspiciously small — rerun bu…
+     79|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/47]⎯
+
+ FAIL  test/cursor-probe.spec.ts > readCursor (live wasm) > tracks the cursor through writes and DECSCUSR styles
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/cursor-probe.spec.ts:17:45
+     15| describe('readCursor (live wasm)', () => {
+     16|   it('tracks the cursor through writes and DECSCUSR styles', async () …
+     17|     const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmP…
+       |                                             ^
+     18|     vt.new(80, 24);
+     19|     const c0 = vt.readCursor();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/47]⎯
+
+ FAIL  test/docs-nav-filter.spec.ts > docs sections nav — components-tree mode > fuzzy hits keep taxonomy group order: "sel"
+AssertionError: expected [ 'progressive-blur', …(6) ] to deeply equal [ 'progressive-blur', …(5) ]
+
+- Expected
++ Received
+
+  [
+    "progressive-blur",
+    "website-scaffold",
++   "system-dialog",
+    "select",
+    "native-select",
+    "carousel",
+    "skeleton",
+  ]
+
+ ❯ test/docs-nav-filter.spec.ts:233:26
+    231|     // skeleton, website-scaffold and progressive-blur are FUZZY hits;
+    232|     // the order is group order × registry order, never score order
+    233|     expect(railTitles()).toEqual([
+       |                          ^
+    234|       'progressive-blur',
+    235|       'website-scaffold',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/47]⎯
+
+ FAIL  test/docs-structure.spec.ts > docs-route-model — install targets & the legacy map > svelte.config entries are the EXACT derived set (no silent prerender drift)
+AssertionError: entries exact-set drift: expected { missing: [], extra: [ …(4) ] } to deeply equal { missing: [], extra: [] }
+
+- Expected
++ Received
+
+  {
+-   "extra": [],
++   "extra": [
++     "/probe-dropdown-area",
++     "/probe-tooltip-area",
++     "/probe-float-button-area",
++     "/probe-menubar-area",
++   ],
+    "missing": [],
+  }
+
+ ❯ test/docs-structure.spec.ts:301:59
+    299|     const missing = [...expected].filter((e) => !entries.has(e));
+    300|     const extra = [...entries].filter((e) => !expected.has(e));
+    301|     expect({ missing, extra }, 'entries exact-set drift').toEqual({ mi…
+       |                                                           ^
+    302|     // every canonical path has a real source route dir
+    303|     for (const path of canonical) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouse tracking mode (live wasm) > MOUSE_TRACKING is a bool flipped by DECSET/DECRST (X10 and button-event)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:38:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouse tracking mode (live wasm) > onMouseTrackingChange fires only on flips (not on unrelated writes)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:56:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouse tracking mode (live wasm) > reset() (RIS) turns tracking off and observers see the flip
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:76:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode SGR bytes (live wasm) > press/release/motion produce xterm SGR sequences with 1-based cells
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:90:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode SGR bytes (live wasm) > any-event tracking (?1003) reports button-less motion with Cb=35
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:105:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode SGR bytes (live wasm) > button enum encodes LEFT=0 MIDDLE=1 RIGHT=2 FOUR=64 FIVE=65
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:113:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode SGR bytes (live wasm) > mods add shift=4 alt=8 ctrl=16 to the SGR button code
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:127:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode SIZE necessity + format differences (live wasm) > WITHOUT cellSize every position is out-of-viewport: press drops, release garbage
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:140:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode SIZE necessity + format differences (live wasm) > X10 (DECSET ?9) encodes presses as ESC [ M +3 biased bytes and drops releases
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:151:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode SIZE necessity + format differences (live wasm) > out-of-viewport presses are dropped even WITH cellSize (upstream rule)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:163:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode SIZE necessity + format differences (live wasm) > SGR_PIXELS (DECSET ?1016) reports raw pixels (SIZE feeds only the viewport bound)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:175:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode lifecycle discipline > throws a typed error after free; free is idempotent
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:189:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/47]⎯
+
+ FAIL  test/mouse-probe.spec.ts > mouseEncode lifecycle discipline > new() clears the mouse-tracking registry (design freeze)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ loadVT test/mouse-probe.spec.ts:31:58
+     29|
+     30| async function loadVT(): Promise<GhosttyVT> {
+     31|   const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(…
+       |                                                          ^
+     32|   vt.new(80, 24);
+     33|   return vt;
+ ❯ test/mouse-probe.spec.ts:197:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 route 1 evidence — OPT callbacks are unreachable from JS > the wasm imports NOTHING: no import boundary exists for host functions
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ test/osc-probe.spec.ts:59:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 route 1 evidence — OPT callbacks are unreachable from JS > the exported indirect function table rejects plain JS functions (funcref discipline)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ test/osc-probe.spec.ts:64:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 route 2 evidence — byte pump + end, type only, no data channel > pumps `52;c;aGVsbG8=` and ends at BEL with command_type CLIPBOARD_CONTENTS
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:82:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 route 2 evidence — byte pump + end, type only, no data channel > keeps parser state across split feeds and accepts the ST terminator byte
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:98:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 route 2 evidence — byte pump + end, type only, no data channel > GhosttyOscCommandData has NO clipboard payload data type (the payload falsification)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:122:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > parses set and query requests with c and empty selectors, BEL and ST terminators
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:141:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > drops other selectors, empty payloads, and non-52 OSC sequences
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:156:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > survives mixed streams (text + CSI + OSC 52) and the terminal still renders the text
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:169:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > reassembles one OSC 52 split across TWO vtWrite feeds (the golden split case)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:182:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > handles two OSC 52 sequences in one feed and resyncs after an aborted one
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:193:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > keeps an unterminated sequence buffered without emitting (no terminator, no event)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:207:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > drops sequences exceeding the observer raw cap (~4 MiB) and recovers
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:222:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > onOsc52 subscriptions are individually disposable
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:237:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > OSC 52 observer (route 3 goldens, live wasm) > new() clears the registry; free() silences forever (design freeze)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:249:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > title surface (live wasm) > readTitle starts empty and tracks OSC 0 / OSC 2 with either terminator
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:262:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > title surface (live wasm) > onTitleChange fires on changes only (no duplicate for same-title writes)
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:272:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/47]⎯
+
+ FAIL  test/osc-probe.spec.ts > title surface (live wasm) > RIS clears the title and observers see the flip
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ wasmBytes test/osc-probe.spec.ts:40:15
+     38| /** explicit copy so the array's buffer is a plain ArrayBuffer (Buffer…
+     39| function wasmBytes(): Uint8Array<ArrayBuffer> {
+     40|   const raw = readFileSync(resolve(wasmPath));
+       |               ^
+     41|   const copy = new Uint8Array(new ArrayBuffer(raw.length));
+     42|   copy.set(raw);
+ ❯ loadVT test/osc-probe.spec.ts:48:43
+ ❯ test/osc-probe.spec.ts:290:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/47]⎯
+
+ FAIL  test/props-table-render.spec.ts > PropsTable — meta mode (the single source) > renders select rows from the GENERATED truth (enum cells, defaults, badges)
+AssertionError: expected 11 to be 10 // Object.is equality
+
+- Expected
++ Received
+
+- 10
++ 11
+
+ ❯ test/props-table-render.spec.ts:38:25
+     36|
+     37|     const rows = [...container.querySelectorAll('tbody tr')];
+     38|     expect(rows.length).toBe(10);
+       |                         ^
+     39|
+     40|     // enum + default straight from the GENERATED zone; the slot's
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/47]⎯
+
+ FAIL  test/scrollbar-probe.spec.ts > readScrollbar live (owner scroll-bug fix) > delta scrolls by exact lines; huge deltas clamp, never jump
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/scrollbar-probe.spec.ts:16:47
+     14| describe('readScrollbar live (owner scroll-bug fix)', () => {
+     15|   it('delta scrolls by exact lines; huge deltas clamp, never jump', as…
+     16|     const core = await loadGhosttyVT({ bytes: readFileSync(resolve(was…
+       |                                               ^
+     17|     const term = new Terminal({ core, cols: 80, rows: 10 });
+     18|     const enc = new TextEncoder();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/47]⎯
+
+ FAIL  test/selection-probe.spec.ts > selection (live wasm) > drag press→drag→release produces the cross-line span, text, and row spans
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/selection-probe.spec.ts:26:45
+     24| describe('selection (live wasm)', () => {
+     25|   it('drag press→drag→release produces the cross-line span, text, and …
+     26|     const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmP…
+       |                                             ^
+     27|     vt.resize(40, 6);
+     28|     vt.vtWrite(enc('hello world\r\nsecond line here\r\nthird'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/47]⎯
+
+ FAIL  test/selection-probe.spec.ts > selection (live wasm) > double-click (tier 2) selects the word under the pointer
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/selection-probe.spec.ts:54:45
+     52|
+     53|   it('double-click (tier 2) selects the word under the pointer', async…
+     54|     const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmP…
+       |                                             ^
+     55|     vt.resize(40, 6);
+     56|     vt.vtWrite(enc('hello world\r\nsecond line here\r\nthird'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/47]⎯
+
+ FAIL  test/selection-probe.spec.ts > selection (live wasm) > triple-click (tier 3) selects the whole line and clear() drops it
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/selection-probe.spec.ts:80:45
+     78|
+     79|   it('triple-click (tier 3) selects the whole line and clear() drops i…
+     80|     const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmP…
+       |                                             ^
+     81|     vt.resize(40, 6);
+     82|     vt.vtWrite(enc('hello world\r\nsecond line here\r\nthird'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/47]⎯
+
+ FAIL  test/selection-probe.spec.ts > selection (live wasm) > cell drag within one row selects the cells before the pointer
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/selection-probe.spec.ts:99:45
+     97|
+     98|   it('cell drag within one row selects the cells before the pointer', …
+     99|     const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmP…
+       |                                             ^
+    100|     vt.resize(40, 6);
+    101|     vt.vtWrite(enc('hello world'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/47]⎯
+
+ FAIL  test/title-timing.spec.ts > title timing (off-by-one hunt) > readTitle reflects the write synchronously
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/title-timing.spec.ts:7:45
+      5| describe('title timing (off-by-one hunt)', () => {
+      6|   it('readTitle reflects the write synchronously', async () => {
+      7|     const vt = await loadGhosttyVT({ bytes: readFileSync(wasmPath) });
+       |                                             ^
+      8|     vt.new(80, 24);
+      9|     expect(vt.readTitle()).toBe('');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/47]⎯
+
+ FAIL  test/title-timing.spec.ts > title timing (off-by-one hunt) > onTitleChange fires on the SAME write
+Error: ENOENT: no such file or directory, open '/tmp/ghostty-research/ghostty-vt.wasm'
+ ❯ test/title-timing.spec.ts:15:45
+     13|   });
+     14|   it('onTitleChange fires on the SAME write', async () => {
+     15|     const vt = await loadGhosttyVT({ bytes: readFileSync(wasmPath) });
+       |                                             ^
+     16|     vt.new(80, 24);
+     17|     const seen: string[] = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/47]⎯
+
+
+ Test Files  12 failed | 166 passed (178)
+      Tests  45 failed | 2709 passed | 1 skipped (2755)
+   Start at  05:03:39
+   Duration  167.77s (transform 9.53s, setup 18.43s, import 11.86s, tests 54.82s, environment 58.66s)
+

@@ -24,10 +24,23 @@
                  receiving the measured TimelineSpineGeometry payload
                  (node centers in list-root coordinates, flow order;
                  axis/direction/interlaced/rtl metadata; per-segment
-                 path data with the dot-edge phase anchor; the density
-                 scale). The snippet renders INSIDE the spine svg —
-                 author <path>/<circle>/… directly. BREAKING
-                 successor of the retired line(i) per-item seam.
+                 path data with the dot-edge phase anchor; the STOPS
+                 milestone table + pathLength; the density scale).
+                 The snippet renders INSIDE the spine svg — author
+                 <path>/<circle>/… directly. BREAKING successor of the
+                 retired line(i) per-item seam.
+
+    THE VALUE CONTRACT (reui parity, W3 2026-09-15): defaultValue = 1
+    seeds the uncontrolled current step; `value` overrides read-side
+    (controlled); every setStep change fires onValueChange; decimals
+    are first-class (never rounded). Items register their step through
+    the context channel (step defaults to DOM order + 1; strictly
+    ascending — duplicates normalize through the milestone table, the
+    LATER node owning the milestone, dev-warned). The value maps onto
+    the measured run through the STOPS protocol (timelineProgressLength)
+    as the progress stroke — EXCEPT under animation='scroll', where the
+    scroller owns the stroke channel and the value drives only the
+    discrete data-completed paint.
 
   THE FLOOR (the code-card posture): SSR and pre-hydration paint the
   plain per-item CSS line (the authored-free [data-jx-tl-line] every
@@ -45,14 +58,35 @@
   semantic stays the per-item `pending` flag. role=list survives
   list-none (Safari strips list semantics from marker-less lists).
 -->
+<script module lang="ts">
+  /** the value-contract context channel (items read `current`, drive
+   *  `setStep`, and register their resolved step for the duplicate
+   *  warn — reui's TimelineContext, Svelte-shaped) */
+  export interface TimelineApi {
+    /** the effective current step (controlled value ?? internal state) */
+    readonly current: number;
+    /** move the current step; fires onValueChange (reui's exact semantics) */
+    setStep(step: number): void;
+    /** an item's resolved ladder position (the dev duplicate-warn channel) */
+    registerStep(el: HTMLElement, step: number): void;
+    unregisterStep(el: HTMLElement): void;
+  }
+
+  /** context key — global symbol registry so the family files stay
+   *  independent registry items (the menubar precedent) */
+  export const TIMELINE_KEY = Symbol.for('jx-timeline-value');
+</script>
+
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
   import type { Density } from '$lib/density.svelte';
   import { TimelineDefaults } from './timeline-defaults.svelte';
   import {
     mountTimelineSpine,
+    timelineProgressLength,
     type TimelineSpineGeometry,
     type TimelineSpinePreset,
   } from './timeline-spine.svelte';
@@ -67,6 +101,12 @@
     animation?: 'none' | 'view' | 'scroll';
     /** the drawn spine: 'plain' | 'dashed' | 'beam' or a custom snippet */
     spine?: TimelineSpinePreset | Snippet<[TimelineSpineGeometry]>;
+    /** the uncontrolled seed (decimals first-class — never rounded) */
+    defaultValue?: number;
+    /** the controlled current step (overrides the internal state) */
+    value?: number;
+    /** fires on every setStep change */
+    onValueChange?: (v: number) => void;
     density?: Density;
     class?: string;
     children: Snippet;
@@ -77,6 +117,9 @@
     direction = 'ltr',
     animation = 'none',
     spine = 'plain',
+    defaultValue = 1,
+    value,
+    onValueChange,
     density,
     class: className = '',
     children,
@@ -87,6 +130,59 @@
   // slot: explicit ?? inherited ?? undefined; no opinion stamps
   // nothing, the ambient css scope channel keeps flowing)
   const d = $derived(TimelineDefaults.resolve({ density }));
+
+  const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
+
+  // ── the value contract (reui parity): one $state number, the
+  //    controlled input wins read-side, setStep is the context drive —
+  //    uncontrolled writes flow, controlled consumers sync through
+  //    onValueChange; every change fires the callback ──
+  // svelte-ignore state_referenced_locally
+  let activeStep = $state(defaultValue);
+  const current = $derived(value ?? activeStep);
+
+  function setStep(step: number): void {
+    if (value === undefined) activeStep = step;
+    onValueChange?.(step);
+  }
+
+  // the step registry: the dev strictly-ascending-warn channel (the
+  // geometry engine builds the milestone table from the items'
+  // data-step attributes — this registration exists to catch the
+  // violation at author time: duplicates AND inversions, Gate-2 r1)
+  const stepOwners = new Map<HTMLElement, number>();
+  function registerStep(el: HTMLElement, step: number): void {
+    stepOwners.set(el, step);
+    if (!dev) return;
+    // the Map's iteration order is registration order (DOM order in
+    // practice) — adjacent pairs carry the whole ladder check
+    const ladder = [...stepOwners.values()];
+    for (let i = 0; i + 1 < ladder.length; i++) {
+      const a = ladder[i]!;
+      const b = ladder[i + 1]!;
+      if (b === a) {
+        console.warn(
+          `jixoai timeline: duplicate step ${a} — steps must be strictly ascending in DOM order; the later item owns the milestone, the earlier keeps its discrete completed paint`,
+        );
+      } else if (b < a) {
+        console.warn(
+          `jixoai timeline: step ${a} → ${b} descends — steps must be strictly ascending in DOM order; the milestone table normalizes to ascending (arcs stay bound to their owning nodes)`,
+        );
+      }
+    }
+  }
+  function unregisterStep(el: HTMLElement): void {
+    stepOwners.delete(el);
+  }
+
+  setContext<TimelineApi>(TIMELINE_KEY, {
+    get current() {
+      return current;
+    },
+    setStep,
+    registerStep,
+    unregisterStep,
+  });
 
   // ── the measured spine (post-hydration only; SSR paints the floor) ──
   let geometry = $state<TimelineSpineGeometry | null>(null);
@@ -106,10 +202,18 @@
     });
   });
 
+  // ── the stroke channel's lengths — ALL dasharray consumers ride the
+  //    cumulative polyline pathLength (the chord runLength RETIRED
+  //    from this arithmetic: it under-measured non-collinear runs) ──
+  const pathLength = $derived(geometry?.pathLength ?? 0);
+  const progressLen = $derived(
+    geometry ? timelineProgressLength(geometry.stops, current, geometry.pathLength) : 0,
+  );
+
   // the beam segment's inline length: a fifth of the run, floor 48px
   // (the 1px×11px pulse era is what this rework retires)
   const beamLen = $derived(
-    geometry ? Math.max(48, Math.round(geometry.runLength * 0.2)) : 0,
+    geometry ? Math.max(48, Math.round(geometry.pathLength * 0.2)) : 0,
   );
 </script>
 
@@ -167,18 +271,32 @@
           data-jx-tl-beam=""
           d={geometry.runPath}
           stroke="url(#jx-tl-beam-grad)"
-          stroke-dasharray="{beamLen} {geometry.runLength}"
-          style="--jx-tl-run: {geometry.runLength}px; --jx-tl-beam-len: {beamLen}px; --jx-tl-beam-park: -{geometry.nodeRadius}px"
+          stroke-dasharray="{beamLen} {pathLength}"
+          style="--jx-tl-run: {pathLength}px; --jx-tl-beam-len: {beamLen}px; --jx-tl-beam-park: -{geometry.nodeRadius}px"
         ></path>
       {:else}
         <path data-jx-tl-base="" d={geometry.runPath}></path>
       {/if}
       {#if animation === 'scroll'}
+        <!-- the scroller OWNS the stroke channel under scroll mode:
+             the value-driven inline dashoffset is NOT painted at all
+             (the frozen interplay — value still drives data-completed) -->
         <path
           data-jx-tl-progress=""
           d={geometry.runPath}
-          stroke-dasharray="{geometry.runLength} {geometry.runLength}"
-          style="--jx-tl-run: {geometry.runLength}px"
+          stroke-dasharray="{pathLength} {pathLength}"
+          style="--jx-tl-run: {pathLength}px"
+        ></path>
+      {:else}
+        <!-- the value-driven progress stroke: dasharray = pathLength,
+             dashoffset = pathLength − len(value) from the STOPS mapping
+             (the 300ms css transition on the dashoffset lives in
+             timeline.css; reduced motion: none) -->
+        <path
+          data-jx-tl-progress=""
+          d={geometry.runPath}
+          stroke-dasharray={pathLength}
+          stroke-dashoffset={pathLength - progressLen}
         ></path>
       {/if}
     {/if}
