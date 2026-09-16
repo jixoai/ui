@@ -59,7 +59,26 @@ const WWW = join(ROOT, 'apps/www');
 const RESEARCH = join(ROOT, 'openspec/changes/2026-09-17-tailwindless-site/research');
 const RECEIPT = join(RESEARCH, 'precedence-receipt.json');
 
-const AFTER_BASE = 'http://localhost:5198';
+// Gate-6 ownership law: the probe must measure ITS OWN server. Three
+// defenses — (1) the spawned child's exit/error is watched (a vite
+// that dies on 'port in use' goes red immediately, never silently
+// riding a stale 200); (2) after readiness, lsof must show the port
+// owned by OUR pid; (3) the port is RANDOM-free (the fixed 5198 was a
+// pre-emption surface). Plus --ownership-selftest: pre-occupy a port
+// and demand startServer fail.
+import { createServer as createTcpServer } from 'node:net';
+const freePort = () =>
+  new Promise((resolve, reject) => {
+    const s = createTcpServer();
+    s.listen(0, '127.0.0.1', () => {
+      const { port } = s.address();
+      s.close(() => resolve(port));
+    });
+    s.on('error', reject);
+  });
+let SERVER_PORT = null;
+let FORCE_PORT = null; // --ownership-selftest: pre-empted port
+const afterBase = () => `http://localhost:${SERVER_PORT}`;
 const PAGE_PATH = '/docs/components/timeline.html';
 
 // The verified wasm from the MAIN repo's content-addressed cache (env
@@ -104,7 +123,7 @@ const receipt = {
     playwright: JSON.parse(readFileSync(join(ROOT, 'node_modules/playwright-core/package.json'), 'utf8')).version,
     chrome: CHROME,
     provenance: {
-      after: `worktree dev server ${AFTER_BASE} — vite dev over apps/www, HEAD ${commitSha} (meta.commit; dirty: ${dirtyFiles.length} files — see meta.dirty)`,
+      after: `worktree dev server ${afterBase()} — vite dev over apps/www, HEAD ${commitSha} (meta.commit; dirty: ${dirtyFiles.length} files — see meta.dirty)`,
       ghosttyWasm: `JIXOAI_GHOSTTY_WASM_PATH=${GHOSTTY_WASM} (env override; never writes any cache)`,
       sheet: 'apps/www/src/lib/site/timeline-docs.css — @layer components { :where(.tl-*) { … } }',
     },
@@ -125,13 +144,17 @@ const expect = (id, ok, detail) => row(id, ok, detail);
 let server = null;
 const startServer = async () => {
   const bin = join(WWW, 'node_modules/.bin/vite');
-  server = spawn(bin, ['dev', '--port', '5198', '--strictPort'], {
+  SERVER_PORT = FORCE_PORT ?? (await freePort());
+  server = spawn(bin, ['dev', '--port', String(SERVER_PORT), '--strictPort'], {
     cwd: WWW,
     env: { ...process.env, JIXOAI_GHOSTTY_WASM_PATH: GHOSTTY_WASM },
     detached: true, // own process group: kill(-pid) reaps vite + esbuild children
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const logPath = `/tmp/probe-precedence-dev-${server.pid}.log`;
+  let serverDied = null;
+  server.on('exit', (code, signal) => { serverDied ??= { code, signal }; });
+  server.on('error', (err) => { serverDied ??= { error: String(err) }; });
   let log = '';
   server.stdout.on('data', (d) => (log += d));
   server.stderr.on('data', (d) => (log += d));
@@ -145,18 +168,36 @@ const startServer = async () => {
   };
   const deadline = Date.now() + 240_000;
   for (;;) {
+    if (serverDied) {
+      writeFileSync(logPath, log);
+      throw new Error(`dev server DIED before readiness (${JSON.stringify(serverDied)}) — a stale listener or a spawn failure; log: ${logPath}`);
+    }
     if (Date.now() > deadline) {
       writeFileSync(logPath, log);
-      throw new Error(`dev server never answered 200 on ${AFTER_BASE}${PAGE_PATH} (log: ${logPath})`);
+      throw new Error(`dev server never answered 200 on ${afterBase()}${PAGE_PATH} (log: ${logPath})`);
     }
     try {
-      const res = await fetch(`${AFTER_BASE}${PAGE_PATH}`);
+      const res = await fetch(`${afterBase()}${PAGE_PATH}`);
       if (res.ok) break;
     } catch {
       /* not up yet */
     }
     await new Promise((r) => setTimeout(r, 500));
   }
+  // OWNERSHIP: the answering port must belong to THIS spawn — a stale
+  // server's 200 must never satisfy the probe (the Gate-6 catch)
+  let owners = [];
+  try {
+    owners = execFileSync('lsof', [`-ti:${SERVER_PORT}`], { encoding: 'utf8' })
+      .trim().split('\n').filter(Boolean);
+  } catch (e) {
+    throw new Error(`ownership check failed to run lsof (${String(e)}) — fail-closed`);
+  }
+  if (!owners.includes(String(server.pid))) {
+    writeFileSync(logPath, log);
+    throw new Error(`port ${SERVER_PORT} is owned by [${owners.join(', ')}], not our spawn (pid ${server.pid}) — measuring a foreign server is forbidden`);
+  }
+  receipt.server.spawn.port = SERVER_PORT;
   return logPath;
 };
 const stopServer = async () => {
@@ -230,7 +271,8 @@ const censusTlRules = () => {
 
 // ── main ──
 let browser = null;
-try {
+const OWNERSHIP_SELFTEST = process.argv.includes('--ownership-selftest');
+if (!OWNERSHIP_SELFTEST) try {
   if (!existsSync(CHROME)) throw new Error(`Chrome not found at ${CHROME}`);
   if (!existsSync(GHOSTTY_WASM)) throw new Error(`ghostty wasm not found at ${GHOSTTY_WASM}`);
   mkdirSync(RESEARCH, { recursive: true });
@@ -242,7 +284,7 @@ try {
   browser = await chromium.launch({ executablePath: CHROME });
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   const page = await ctx.newPage();
-  await page.goto(`${AFTER_BASE}${PAGE_PATH}`, { waitUntil: 'load', timeout: 90_000 });
+  await page.goto(`${afterBase()}${PAGE_PATH}`, { waitUntil: 'load', timeout: 90_000 });
   await page.waitForSelector('[data-jx-tl-spine] path', { timeout: 45_000, state: 'attached' }); // hydrated spine
 
   // 1 ── placement: the families live in @layer components, in :where()
@@ -425,4 +467,29 @@ try {
   receipt.summaryHash = summaryHashOf(receipt);
   writeFileSync(RECEIPT, JSON.stringify(receipt, null, 2) + '\n');
   console.log(`receipt → ${RECEIPT}`);
+}
+
+// ── --ownership-selftest: a pre-occupied port MUST fail the probe ──
+// the occupier answers REAL HTTP 200 (the Gate-6 hole was a stale
+// server's 200 satisfying readiness) — the OWNERSHIP guard must red
+if (OWNERSHIP_SELFTEST) {
+  const { createServer } = await import('node:http');
+  const occupier = createServer((req, res) => { res.writeHead(200); res.end('stale'); });
+  await new Promise((resolve) => occupier.listen(0, '127.0.0.1', resolve));
+  const { port } = occupier.address();
+  FORCE_PORT = port;
+  console.log(`ownership-selftest: HTTP-200 occupier on :${port} — startServer must die red`);
+  try {
+    await startServer();
+    console.log('✗ FAIL — startServer succeeded against a foreign HTTP server (the stale-server hole is OPEN)');
+    process.exitCode = 1;
+  } catch (e) {
+    const msg = String(e?.message ?? e);
+    const right = /owned by|DIED before readiness/.test(msg);
+    console.log(`${right ? '✓ PASS' : '✗ FAIL'} — startServer threw: ${msg.slice(0, 140)}`);
+    if (!right) process.exitCode = 1;
+  } finally {
+    try { if (server?.pid) process.kill(-server.pid, 'SIGTERM'); } catch {}
+    occupier.close();
+  }
 }

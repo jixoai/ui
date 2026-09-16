@@ -72,7 +72,26 @@ const RECEIPT = join(RESEARCH, 'pilot-matrix-receipt.json');
 const PRECEDENCE_RECEIPT = join(RESEARCH, 'precedence-receipt.json');
 const RESEARCH_REL = 'openspec/changes/2026-09-17-tailwindless-site/research';
 
-const AFTER_BASE = 'http://localhost:5198';
+// Gate-6 ownership law: the probe must measure ITS OWN server. Three
+// defenses — (1) the spawned child's exit/error is watched (a vite
+// that dies on 'port in use' goes red immediately, never silently
+// riding a stale 200); (2) after readiness, lsof must show the port
+// owned by OUR pid; (3) the port is RANDOM-free (the fixed 5198 was a
+// pre-emption surface). Plus --ownership-selftest: pre-occupy a port
+// and demand startServer fail.
+import { createServer as createTcpServer } from 'node:net';
+const freePort = () =>
+  new Promise((resolve, reject) => {
+    const s = createTcpServer();
+    s.listen(0, '127.0.0.1', () => {
+      const { port } = s.address();
+      s.close(() => resolve(port));
+    });
+    s.on('error', reject);
+  });
+let SERVER_PORT = null;
+let FORCE_PORT = null; // --ownership-selftest: pre-empted port
+const afterBase = () => `http://localhost:${SERVER_PORT}`;
 const BEFORE_BASE = 'http://localhost:5199'; // READ-ONLY (Owner's main server)
 const PAGE_PATH = '/docs/components/timeline.html';
 const VIEWPORTS = [375, 768, 1099, 1100, 1440];
@@ -306,7 +325,7 @@ const receipt = {
     overwrote: overwrote.length ? overwrote : false,
     provenance: {
       before: `main server ${BEFORE_BASE} — READ-ONLY (HTTP GET + headless browsing only; never restarted/written/killed); serves main@${execFileSync('git', ['-C', MAIN_REPO, 'rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim()} (the pre-migration Tailwind page, prerendered build)`,
-      after: `worktree dev server ${AFTER_BASE} — vite dev over apps/www, branch ${execFileSync('git', ['-C', ROOT, 'branch', '--show-current'], { encoding: 'utf8' }).trim()}, HEAD ${commitSha} (meta.commit; dirty: ${dirtyFiles.length} files — see meta.dirty)`,
+      after: `worktree dev server ${afterBase()} — vite dev over apps/www, branch ${execFileSync('git', ['-C', ROOT, 'branch', '--show-current'], { encoding: 'utf8' }).trim()}, HEAD ${commitSha} (meta.commit; dirty: ${dirtyFiles.length} files — see meta.dirty)`,
       ghosttyWasm: `JIXOAI_GHOSTTY_WASM_PATH=${GHOSTTY_WASM} (sha256 matches ghostty.pin.json "full"; the env override never writes any cache)`,
     },
   },
@@ -330,13 +349,17 @@ const expect = (id, ok, detail) => row(id, ok, detail, null, null);
 let server = null;
 const startServer = async () => {
   const bin = join(WWW, 'node_modules/.bin/vite');
-  server = spawn(bin, ['dev', '--port', '5198', '--strictPort'], {
+  SERVER_PORT = FORCE_PORT ?? (await freePort());
+  server = spawn(bin, ['dev', '--port', String(SERVER_PORT), '--strictPort'], {
     cwd: WWW,
     env: { ...process.env, JIXOAI_GHOSTTY_WASM_PATH: GHOSTTY_WASM },
     detached: true, // own process group: kill(-pid) reaps vite + esbuild children
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const logPath = `/tmp/probe-tailwindless-dev-${server.pid}.log`;
+  let serverDied = null;
+  server.on('exit', (code, signal) => { serverDied ??= { code, signal }; });
+  server.on('error', (err) => { serverDied ??= { error: String(err) }; });
   let log = '';
   server.stdout.on('data', (d) => (log += d));
   server.stderr.on('data', (d) => (log += d));
@@ -350,21 +373,39 @@ const startServer = async () => {
   };
   const deadline = Date.now() + 240_000;
   for (;;) {
+    if (serverDied) {
+      writeFileSync(logPath, log);
+      throw new Error(`dev server DIED before readiness (${JSON.stringify(serverDied)}) — a stale listener or a spawn failure; log: ${logPath}`);
+    }
     if (Date.now() > deadline) {
       writeFileSync(logPath, log);
-      throw new Error(`dev server never answered 200 on ${AFTER_BASE}${PAGE_PATH} (log: ${logPath})`);
+      throw new Error(`dev server never answered 200 on ${afterBase()}${PAGE_PATH} (log: ${logPath})`);
     }
     try {
-      const res = await fetch(`${AFTER_BASE}${PAGE_PATH}`);
+      const res = await fetch(`${afterBase()}${PAGE_PATH}`);
       if (res.ok) break;
     } catch {
       /* not up yet */
     }
     await new Promise((r) => setTimeout(r, 500));
   }
+  // OWNERSHIP: the answering port must belong to THIS spawn — a stale
+  // server's 200 must never satisfy the probe (the Gate-6 catch)
+  let owners = [];
+  try {
+    owners = execFileSync('lsof', [`-ti:${SERVER_PORT}`], { encoding: 'utf8' })
+      .trim().split('\n').filter(Boolean);
+  } catch (e) {
+    throw new Error(`ownership check failed to run lsof (${String(e)}) — fail-closed`);
+  }
+  if (!owners.includes(String(server.pid))) {
+    writeFileSync(logPath, log);
+    throw new Error(`port ${SERVER_PORT} is owned by [${owners.join(', ')}], not our spawn (pid ${server.pid}) — measuring a foreign server is forbidden`);
+  }
+  receipt.server.spawn.port = SERVER_PORT;
   // settle: one throwaway compile + hydration before measurements
   try {
-    const res = await fetch(`${AFTER_BASE}${PAGE_PATH}`);
+    const res = await fetch(`${afterBase()}${PAGE_PATH}`);
     receipt.server.spawn.warmupStatus = res.status;
   } catch {}
   return logPath;
@@ -626,9 +667,10 @@ const writeReceipt = () => {
   writeFileSync(RECEIPT, JSON.stringify(receipt, null, 2) + '\n');
 };
 
+const OWNERSHIP_SELFTEST = process.argv.includes('--ownership-selftest');
 // ── main ──
 let browser = null;
-try {
+if (!OWNERSHIP_SELFTEST) try {
   console.log('→ starting worktree dev server on :5198 …');
   await startServer();
   console.log(`   dev server up (pid ${server.pid})`);
@@ -639,7 +681,7 @@ try {
   // hue-step boundary between two distant reads would fake a color diff
   console.log('→ collecting viewport matrix, after/before interleaved …');
   for (const w of VIEWPORTS) {
-    receipt.sides.after[w] = await collectViewport(browser, 'after', AFTER_BASE, w);
+    receipt.sides.after[w] = await collectViewport(browser, 'after', afterBase(), w);
     receipt.sides.before[w] = await collectViewport(browser, 'before', BEFORE_BASE, w);
     console.log(
       `   w${w}: after grid3=${receipt.sides.after[w].grid3Tracks} matrix=${receipt.sides.after[w].matrixTracks} · before grid3=${receipt.sides.before[w].grid3Tracks} matrix=${receipt.sides.before[w].matrixTracks}`,
@@ -647,13 +689,13 @@ try {
   }
 
   console.log('→ dark-scope / focus / forced-colors / print (paired) …');
-  receipt.sides.after.dark = await collectDarkScope(browser, 'after', AFTER_BASE);
+  receipt.sides.after.dark = await collectDarkScope(browser, 'after', afterBase());
   receipt.sides.before.dark = await collectDarkScope(browser, 'before', BEFORE_BASE);
-  receipt.sides.after.focus = await collectFocus(browser, 'after', AFTER_BASE);
+  receipt.sides.after.focus = await collectFocus(browser, 'after', afterBase());
   receipt.sides.before.focus = await collectFocus(browser, 'before', BEFORE_BASE);
-  receipt.sides.after.forcedColors = await collectForcedColors(browser, 'after', AFTER_BASE);
+  receipt.sides.after.forcedColors = await collectForcedColors(browser, 'after', afterBase());
   receipt.sides.before.forcedColors = await collectForcedColors(browser, 'before', BEFORE_BASE);
-  receipt.sides.after.print = await collectPrint(browser, 'after', AFTER_BASE);
+  receipt.sides.after.print = await collectPrint(browser, 'after', afterBase());
   receipt.sides.before.print = await collectPrint(browser, 'before', BEFORE_BASE);
 
   // ── the matrix rows ──
@@ -760,4 +802,29 @@ try {
   }
   writeReceipt();
   console.log(`receipt → ${RECEIPT}`);
+}
+
+// ── --ownership-selftest: a pre-occupied port MUST fail the probe ──
+// the occupier answers REAL HTTP 200 (the Gate-6 hole was a stale
+// server's 200 satisfying readiness) — the OWNERSHIP guard must red
+if (OWNERSHIP_SELFTEST) {
+  const { createServer } = await import('node:http');
+  const occupier = createServer((req, res) => { res.writeHead(200); res.end('stale'); });
+  await new Promise((resolve) => occupier.listen(0, '127.0.0.1', resolve));
+  const { port } = occupier.address();
+  FORCE_PORT = port;
+  console.log(`ownership-selftest: HTTP-200 occupier on :${port} — startServer must die red`);
+  try {
+    await startServer();
+    console.log('✗ FAIL — startServer succeeded against a foreign HTTP server (the stale-server hole is OPEN)');
+    process.exitCode = 1;
+  } catch (e) {
+    const msg = String(e?.message ?? e);
+    const right = /owned by|DIED before readiness/.test(msg);
+    console.log(`${right ? '✓ PASS' : '✗ FAIL'} — startServer threw: ${msg.slice(0, 140)}`);
+    if (!right) process.exitCode = 1;
+  } finally {
+    try { if (server?.pid) process.kill(-server.pid, 'SIGTERM'); } catch {}
+    occupier.close();
+  }
 }
