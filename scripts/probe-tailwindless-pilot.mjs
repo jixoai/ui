@@ -314,6 +314,30 @@ const readComputed = (page, sel) =>
     };
   }, sel);
 
+// the brand hue rides the wall clock (hue-runtime: a 5s entrance spin,
+// then continuous cruising) — a parity measurement must CONTROL it:
+// freeze BOTH sides to one fixed hue before any capture, and assert
+// the freeze stuck (the runtime writes the same inline channel, so a
+// later frame could unstick it — the assertion catches that)
+const HUE_FREEZE = '300';
+async function freezeHue(page) {
+  // the sanctioned channel: the hue popover's slider rides
+  // setHueManually — manual interaction AUTO-PAUSES the cycle at the
+  // given value (cruising frames no longer overwrite the inline var)
+  await page.click('[aria-label="Brand hue & theme"]');
+  await page.evaluate((hue) => {
+    const input = document.querySelector('[aria-label="Brand hue"]');
+    input.value = hue;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }, HUE_FREEZE);
+  await page.waitForTimeout(150);
+  const stuck = await page.evaluate(() => document.documentElement.style.getPropertyValue('--brand-hue'));
+  if (stuck !== HUE_FREEZE) throw new Error(`hue freeze did not stick (got '${stuck}') — the runtime overwrites it`);
+  // close the popover — captures must not carry the overlay
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(150);
+}
+
 async function collectViewport(browser, side, base, width) {
   const ctx = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: DSF });
   const page = await ctx.newPage();
@@ -322,6 +346,7 @@ async function collectViewport(browser, side, base, width) {
   // Playwright's visibility gate would never open on them
   await page.waitForSelector('[data-jx-tl-spine] path', { timeout: 45_000, state: 'attached' }); // hydrated spine
   await settleReveal(page);
+  await freezeHue(page);
   const shot = join(MATRIX_DIR, `${side}-w${width}.png`);
   await page.screenshot({ path: shot, fullPage: true });
   const computed = await readComputed(page, SEL[side]);
@@ -334,6 +359,7 @@ async function collectDarkScope(browser, side, base) {
   const page = await ctx.newPage();
   await page.goto(`${base}${PAGE_PATH}`, { waitUntil: 'load', timeout: 90_000 });
   await page.waitForSelector('[data-jx-tl-spine] path', { timeout: 45_000, state: 'attached' });
+  await freezeHue(page); // color-parity section — same wall-clock control
   const read = () =>
     page.evaluate((sel) => {
       const hue = getComputedStyle(document.documentElement).getPropertyValue('--brand-hue').trim();

@@ -1,6 +1,6 @@
 {
   "what": "programmatic pixel parity — pilot before(5199 main, read-only)/after(5198 worktree) pairs; vision subagent unavailable (builtin:zai not configured) so parity is proven pixel-level per the fallback discipline; thresholds: delta>8 channel diff counts",
-  "generatedAt": "2026-09-16T19:37:56.258Z",
+  "generatedAt": "2026-09-16T20:44:37.878Z",
   "pairs": [
     {
       "width": 375,
@@ -9,11 +9,11 @@
       ],
       "sameDims": true,
       "pixels": 1350000,
-      "diffPixels": 1039,
-      "diffPct": 0.077,
-      "maxDelta": 142,
-      "meanDelta": 0.047,
-      "diffRuns": 186
+      "diffPixels": 337584,
+      "diffPct": 25.0062,
+      "maxDelta": 248,
+      "meanDelta": 17.517,
+      "diffRuns": 2142
     },
     {
       "width": 768,
@@ -22,11 +22,11 @@
       ],
       "sameDims": true,
       "pixels": 2764800,
-      "diffPixels": 12128,
-      "diffPct": 0.4387,
-      "maxDelta": 28,
-      "meanDelta": 0.172,
-      "diffRuns": 3878
+      "diffPixels": 236565,
+      "diffPct": 8.5563,
+      "maxDelta": 153,
+      "meanDelta": 2.504,
+      "diffRuns": 1034
     },
     {
       "width": 1099,
@@ -35,11 +35,11 @@
       ],
       "sameDims": true,
       "pixels": 3956400,
-      "diffPixels": 1494,
-      "diffPct": 0.0378,
-      "maxDelta": 10,
-      "meanDelta": 0.004,
-      "diffRuns": 314
+      "diffPixels": 363635,
+      "diffPct": 9.1911,
+      "maxDelta": 231,
+      "meanDelta": 6.393,
+      "diffRuns": 2015
     },
     {
       "width": 1100,
@@ -48,11 +48,11 @@
       ],
       "sameDims": true,
       "pixels": 3960000,
-      "diffPixels": 158,
-      "diffPct": 0.004,
-      "maxDelta": 22,
-      "meanDelta": 0.004,
-      "diffRuns": 67
+      "diffPixels": 1029,
+      "diffPct": 0.026,
+      "maxDelta": 116,
+      "meanDelta": 0.033,
+      "diffRuns": 239
     },
     {
       "width": 1440,
@@ -61,23 +61,11 @@
       ],
       "sameDims": true,
       "pixels": 5184000,
-      "diffPixels": 0,
-      "diffPct": 0,
-      "maxDelta": 7,
-      "meanDelta": 0.039,
-      "diffRuns": 0
+      "diffPixels": 389559,
+      "diffPct": 7.5146,
+      "maxDelta": 239,
+      "meanDelta": 6.259,
+      "diffRuns": 2158
     }
-  ],
-  "attribution": {
-    "what": "the residual diffs on w375/w768 are ATTRIBUTED to the documented brand-hue wall-clock (WS-D receipt: --brand-hue drifts ~1°/4min; before/after captures are minutes apart on different servers), NOT structural drift",
-    "evidence": [
-      "w768 diff samples are color-only hue shifts on hue-riding elements (e.g. rgb(0,178,198) vs rgb(0,181,170): green channel ±28, geometry unchanged)",
-      "w375 max-delta cluster is bounded to the ~55x55 top-left logo mark (hue-token AA-dense region), rows 34-89 only",
-      "w1440 — captured closest in time — is pixel-ZERO diff (0 diff pixels, max sub-threshold delta 7)",
-      "the computed-style matrix (pilot-matrix-receipt.json) proved identical computed values at capture time across all five widths, both servers"
-    ],
-    "verdict": "programmatic pixel parity PROVEN: structural parity holds; residual color deltas are the hue clock"
-  },
-  "coverageNote": "the matrix screenshots are 900-css-px viewport captures (page top); full-page structural coverage comes from the computed-style matrix assertions (grid tracks at every width, svg counts in print emulation) and the section-by-section DOM checks",
-  "visionFallback": "the vision subagent is unavailable this session (builtin:zai not configured) — per the discipline, parity falls back to pixel-level programmatic proof + computed-style matrix; a vision walkthrough remains a nice-to-have when the model returns"
+  ]
 }
