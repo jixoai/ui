@@ -1049,6 +1049,54 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-icon-optical: 0px;
 }
 
+/* ============================================================
+   The site voice scale (tailwindless-site P0, 2026-09-17) — the
+   pilot's promoted steps, the 收纳: every recurring bracket/utility
+   value the timeline docs page actually met, collected ONCE here so
+   the sheet (not the markup) owns it. Fixed-voice steps, NOT
+   density rungs: a page's eyebrow/label/body keeps its measure
+   inside every density scope (density is the CONTENT axis; page
+   chrome is not content). Space steps are equations from the ruler
+   (--jx-unit) like the density ladder above — same physics, wider
+   reach (up to 40px block padding). Typed access: the
+   tokens.stylex.ts map wraps each member (--jx-<name> →
+   var(--<name>), the separator's naming precedent); the map's cycle
+   law is why these sheet names carry NO jx prefix. 13px is NOT
+   re-promoted: --jx-text-base (the ruler's T_base) already IS the
+   body step; 15px is unused by the pilot and stays un-promoted
+   (the promotion table is a seed, actual usage governs).
+   ============================================================ */
+:root {
+  /* the fixed micro-typography voice */
+  --text-micro: 0.625rem;     /* 10px — slot corner annotations */
+  --text-label: 0.6875rem;    /* 11px — the eyebrow/label voice */
+  --text-label-lg: 0.75rem;   /* 12px — the control-label voice */
+  --text-small: 0.78125rem;   /* 12.5px — the demo body voice */
+  --track-label: 0.24em;      /* the eyebrow tracking */
+  --track-wide: 0.08em;       /* the control-label tracking */
+
+  /* page measures */
+  --shell-w: 90rem;           /* the docs page shell */
+  --stage-w: 28rem;           /* the demo stage measure */
+
+  /* the page space ladder — equations from the ruler */
+  --space-4: calc(var(--jx-unit) * 1);
+  --space-6: calc(var(--jx-unit) * 1.5);
+  --space-8: calc(var(--jx-unit) * 2);
+  --space-10: calc(var(--jx-unit) * 2.5);
+  --space-12: calc(var(--jx-unit) * 3);
+  --space-16: calc(var(--jx-unit) * 4);
+  --space-20: calc(var(--jx-unit) * 5);
+  --space-24: calc(var(--jx-unit) * 6);
+  --space-32: calc(var(--jx-unit) * 8);
+  --space-40: calc(var(--jx-unit) * 10);
+
+  /* the hairline frame weight (one weight everywhere a page draws a
+     box; the timeline family's --jx-tl-stroke-w is the same law at
+     family scope) */
+  --hairline: 1px;
+}
+
 /* ── variant grammar (openspec/changes/variant-grammar, frozen r1) ─
    The paint ladder's four global hue slots: fill (solid ground +
    same-hue border), tonal (12%/45% tint recipe), outline (structural

@@ -42,9 +42,10 @@
 import * as stylex from '@stylexjs/stylex';
 
 /**
- * The typed theme table. 60 members, order mirroring the sheet's own
- * declaration order (auditability); the doc comment inside each group
- * names the sheet law it mirrors.
+ * The typed theme table. 79 members (60 + the site voice scale's 19,
+ * tailwindless-site P0), order mirroring the sheet's own declaration
+ * order (auditability); the doc comment inside each group names the
+ * sheet law it mirrors.
  */
 export const tokens = stylex.defineVars({
   // the ONE per-project value (sheet: --brand-hue; hue drifts -4° dark)
@@ -131,4 +132,30 @@ export const tokens = stylex.defineVars({
   '--jx-scrollbar-thumb': 'var(--scrollbar-thumb)',
   '--jx-scrollbar-thumb-hover': 'var(--scrollbar-thumb-hover)',
   '--jx-scrollbar-thumb-active': 'var(--scrollbar-thumb-active)',
+
+  // the site voice scale (tailwindless-site P0, 2026-09-17): the
+  // pilot's promoted steps — fixed micro-typography, page measures,
+  // the space ladder, the hairline. Sheet names carry no jx prefix
+  // precisely so these typed keys can exist (the cycle law above);
+  // 13px body text stays --jx-text-base, a kernel channel the map
+  // must never wrap.
+  '--jx-text-micro': 'var(--text-micro)',
+  '--jx-text-label': 'var(--text-label)',
+  '--jx-text-label-lg': 'var(--text-label-lg)',
+  '--jx-text-small': 'var(--text-small)',
+  '--jx-track-label': 'var(--track-label)',
+  '--jx-track-wide': 'var(--track-wide)',
+  '--jx-shell-w': 'var(--shell-w)',
+  '--jx-stage-w': 'var(--stage-w)',
+  '--jx-space-4': 'var(--space-4)',
+  '--jx-space-6': 'var(--space-6)',
+  '--jx-space-8': 'var(--space-8)',
+  '--jx-space-10': 'var(--space-10)',
+  '--jx-space-12': 'var(--space-12)',
+  '--jx-space-16': 'var(--space-16)',
+  '--jx-space-20': 'var(--space-20)',
+  '--jx-space-24': 'var(--space-24)',
+  '--jx-space-32': 'var(--space-32)',
+  '--jx-space-40': 'var(--space-40)',
+  '--jx-hairline': 'var(--hairline)',
 });

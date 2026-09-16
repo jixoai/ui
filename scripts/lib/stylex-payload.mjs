@@ -127,6 +127,13 @@ export function deriveItemSet(root) {
     if (!file.endsWith('.stylex.ts')) continue; // css sheets belong to the authoring gate, not the compiled corpus
     const abs = resolve(root, file);
     if (registryStylexFiles.has(abs)) continue; // owned by a registry item above (e.g. tokens.stylex.ts)
+    // SITE-SURFACE boundary (tailwindless-site P0, 2026-09-17): apps/www/
+    // src/lib/surface/** modules are www-internal atom tables — authored
+    // under the transform root, listed in the ledger for the AUTHORING
+    // gate's scope, but owing NO consumer contract: never a payload item.
+    // (Deliberately NOT the shared site-only list — the __probe__ corpus
+    // IS mirror-site-only yet ships as the kernel/payload fixture.)
+    if (toPosix(root, abs).startsWith('apps/www/src/lib/surface/')) continue;
     if (!existsSync(abs)) throw new Error(`stylex-payload: ledger file missing: ${file}`);
     const key = `corpus/${toPosix(root, abs).split('/').at(-1).replace(/\.stylex\.ts$/, '')}`;
     if (itemSet.has(key)) throw new Error(`stylex-payload: duplicate corpus key ${key} (two ledger modules share a basename)`);

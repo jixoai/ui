@@ -1,7 +1,9 @@
 <!--
   Docs page for the timeline family (W3 drawn-spine rework +
   W4 reui-family upgrade, Owner 2026-09-15; grid-engine rebuild
-  2026-09-01).
+  2026-09-01; tailwindless-site P0 pilot 2026-09-17 — every utility
+  composition replaced by the surface atom module + the REGISTERED
+  lane-2 semantic sheet below, DOM/text/data-attrs untouched).
   Intents:
   1. Hero summary comes from the registry catalog (CATALOG lookup,
      fail-loud on miss — never hand-write registry copy).
@@ -33,6 +35,12 @@
   import type { IconName } from '$lib/icon-set.gen';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayRow, PlayToggle, PlayNumber, PlayHelp } from '$lib/playground';
+  // tailwindless-site P0 (2026-09-17): the page's paint rides the site
+  // atom lane — single-concern atoms from the surface module + the
+  // REGISTERED lane-2 semantic composites in this file's <style> sheet
+  // (registry: the tailwindless gate's semantics[]). No Tailwind
+  // utility composes this markup anymore.
+  import { cx, tlDocs } from '$lib/surface/timeline-docs.stylex';
   import Timeline, {
     TimelineItem,
     TimelineDot,
@@ -819,8 +827,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class="tl-shell">
+  <div class={cx(tlDocs.flex, tlDocs.minW0, tlDocs.col, tlDocs.gap32)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -829,7 +837,7 @@ ${close}
         title="timeline — the drawn activity spine"
         summary={entry.summary}
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(tlDocs.flex, tlDocs.wrap, tlDocs.gap12)}>
           <span class="pill">ol · order is chronology</span>
           <span class="pill">value contract · decimals first-class</span>
           <span class="pill">progress stroke · 300ms dashoffset</span>
@@ -851,7 +859,7 @@ ${close}
         output={[{ label: 'value', value: canvasValue }, { label: 'last entry pending', value: pending }]}
         resolveFileContent={resolveUsage}
       >
-        <div class="w-full max-w-md">
+        <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
           <Timeline value={canvasValue}>
             <TimelineItem>
               <TimelineDot>
@@ -860,7 +868,7 @@ ${close}
               <TimelineContent>
                 <TimelineTime datetime="2026-08-22T07:02:41Z">07:02</TimelineTime>
                 <TimelineTitle>pushed</TimelineTitle>
-                <p class="text-[12.5px] text-muted-foreground">feat: popover family on CSS anchors · 4f2a1c</p>
+                <p class="tl-body">feat: popover family on CSS anchors · 4f2a1c</p>
               </TimelineContent>
             </TimelineItem>
             <TimelineItem>
@@ -870,7 +878,7 @@ ${close}
               <TimelineContent>
                 <TimelineTime datetime="2026-08-22T07:03:19Z">07:03</TimelineTime>
                 <TimelineTitle>checks passed</TimelineTitle>
-                <p class="text-[12.5px] text-muted-foreground">12 checks · 0 failed · 8.2s</p>
+                <p class="tl-body">12 checks · 0 failed · 8.2s</p>
               </TimelineContent>
             </TimelineItem>
             <TimelineItem {pending}>
@@ -879,7 +887,7 @@ ${close}
               </TimelineDot>
               <TimelineContent>
                 <TimelineTitle>deploying</TimelineTitle>
-                <p class="text-[12.5px] text-muted-foreground">edge cache warming — 2 of 7 regions live</p>
+                <p class="tl-body">edge cache warming — 2 of 7 regions live</p>
               </TimelineContent>
             </TimelineItem>
           </Timeline>
@@ -893,10 +901,10 @@ ${close}
               <PlayToggle bind:value={pending} />
             </PlayRow>
             <PlayHelp>
-              <code class="text-accent">value</code> is the contract's read side — 2.5 completes items 1 and 2,
-              paints the stroke halfway to node 3, and leaves the third entry's hollow <code class="text-accent">pending</code>
-              paint in charge. <code class="text-accent">pending</code> stays the per-item in-flight channel; the
-              <code class="text-accent">blockStart</code> slot on each dot is the timestamp cutout riding the spine.
+              <code class={cx(tlDocs.accent)}>value</code> is the contract's read side — 2.5 completes items 1 and 2,
+              paints the stroke halfway to node 3, and leaves the third entry's hollow <code class={cx(tlDocs.accent)}>pending</code>
+              paint in charge. <code class={cx(tlDocs.accent)}>pending</code> stays the per-item in-flight channel; the
+              <code class={cx(tlDocs.accent)}>blockStart</code> slot on each dot is the timestamp cutout riding the spine.
             </PlayHelp>
           </PlayFields>
         {/snippet}
@@ -917,7 +925,7 @@ ${close}
           description="Dates, titles, bodies. defaultValue 2 completes the first two entries — the rest stay muted until the value moves."
           files={basicFiles}
         >
-          <div class="w-full max-w-md">
+          <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
             <Timeline defaultValue={2}>
               {#each basicEvents as ev, i (ev.iso)}
                 <TimelineItem pending={i === basicEvents.length - 1}>
@@ -925,7 +933,7 @@ ${close}
                   <TimelineContent>
                     <TimelineTime datetime={ev.iso}>{ev.time}</TimelineTime>
                     <TimelineTitle>{ev.title}</TimelineTitle>
-                    <p class="text-[12.5px] text-muted-foreground">{ev.body}</p>
+                    <p class="tl-body">{ev.body}</p>
                   </TimelineContent>
                 </TimelineItem>
               {/each}
@@ -935,20 +943,20 @@ ${close}
         <ComponentCanvas
           title="timeline · roadmap"
           stageLabel="timeline demo · roadmap"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="Roadmap phases with TimelineHeader chrome. value 2.5 — a decimal: planning and design complete, development in flight, the progress stroke halfway between nodes 2 and 3."
           files={roadmapFiles}
         >
-          <div class="w-full max-w-md">
+          <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
             <Timeline value={2.5}>
-              <TimelineHeader class="font-nav text-[13px] tracking-[0.08em] uppercase">2026 product roadmap — v3</TimelineHeader>
+              <TimelineHeader class={cx(tlDocs.fontNav, tlDocs.textBase, tlDocs.trackWide, tlDocs.upper)}>2026 product roadmap — v3</TimelineHeader>
               {#each roadmapPhases as phase (phase.iso)}
                 <TimelineItem pending={phase.pending}>
                   <TimelineDot variant="round" />
                   <TimelineContent>
                     <TimelineTime datetime={phase.iso}>{phase.q}</TimelineTime>
                     <TimelineTitle>{phase.phase}</TimelineTitle>
-                    <p class="text-[12.5px] text-muted-foreground">{phase.note}</p>
+                    <p class="tl-body">{phase.note}</p>
                   </TimelineContent>
                 </TimelineItem>
               {/each}
@@ -958,11 +966,11 @@ ${close}
         <ComponentCanvas
           title="timeline · roadmap items"
           stageLabel="timeline demo · roadmap items"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="Phases that carry item lists — free body children under interlaced zones; the current phase pending."
           files={roadmapItemsFiles}
         >
-          <div class="w-full max-w-2xl">
+          <div class={cx(tlDocs.wFull, tlDocs.maxW42)}>
             <Timeline defaultValue={2} direction="interlaced">
               {#each roadmapItemPhases as phase (phase.iso)}
                 <TimelineItem pending={phase.pending}>
@@ -970,9 +978,9 @@ ${close}
                   <TimelineContent>
                     <TimelineTime datetime={phase.iso}>{phase.q}</TimelineTime>
                     <TimelineTitle>{phase.phase}</TimelineTitle>
-                    <ul class="m-0 list-none p-0 text-[12.5px] text-muted-foreground">
+                    <ul class="tl-body {cx(tlDocs.listReset)}">
                       {#each phase.items as item (item)}
-                        <li class="flex items-center gap-1.5"><span class="text-primary">·</span>{item}</li>
+                        <li class={cx(tlDocs.flex, tlDocs.itemsCenter, tlDocs.gap6)}><span class={cx(tlDocs.primary)}>·</span>{item}</li>
                       {/each}
                     </ul>
                   </TimelineContent>
@@ -998,18 +1006,18 @@ ${close}
           description="Order tracking with status badges and amounts. value 2.4 — paid and placed complete, the stroke 40% of the way to shipped."
           files={orderStatusFiles}
         >
-          <div class="w-full max-w-md">
+          <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
             <Timeline value={2.4}>
               {#each orderSteps as step (step.iso)}
                 <TimelineItem>
                   <TimelineDot variant="round" />
                   <TimelineContent>
-                    <div class="flex items-baseline justify-between gap-3">
+                    <div class={cx(tlDocs.flex, tlDocs.itemsBaseline, tlDocs.between, tlDocs.gap12)}>
                       <TimelineTime datetime={step.iso}>{step.time}</TimelineTime>
                       <Badge variant={step.variant}>{step.badge}</Badge>
                     </div>
                     <TimelineTitle>{step.title}</TimelineTitle>
-                    <p class="text-[12.5px] text-muted-foreground">{step.body}</p>
+                    <p class="tl-body">{step.body}</p>
                   </TimelineContent>
                 </TimelineItem>
               {/each}
@@ -1019,11 +1027,11 @@ ${close}
         <ComponentCanvas
           title="timeline · milestones"
           stageLabel="timeline demo · milestones"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="Funding rounds with dates — round dots, defaultValue 3 completes through series a; the upcoming round stays pending."
           files={milestonesFiles}
         >
-          <div class="w-full max-w-md">
+          <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
             <Timeline defaultValue={3}>
               {#each fundingRounds as round (round.iso)}
                 <TimelineItem pending={round.pending}>
@@ -1031,7 +1039,7 @@ ${close}
                   <TimelineContent>
                     <TimelineTime datetime={round.iso}>{round.date}</TimelineTime>
                     <TimelineTitle>{round.round}</TimelineTitle>
-                    <p class="text-[12.5px] text-muted-foreground">{round.note}</p>
+                    <p class="tl-body">{round.note}</p>
                   </TimelineContent>
                 </TimelineItem>
               {/each}
@@ -1041,11 +1049,11 @@ ${close}
         <ComponentCanvas
           title="timeline · pipeline steps"
           stageLabel="timeline demo · pipeline steps"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="CI/CD pipeline — checkout and install complete; tests in flight: the pending hollow dot carries a spinner in its children."
           files={pipelineFiles}
         >
-          <div class="w-full max-w-md">
+          <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
             <Timeline defaultValue={2}>
               {#each pipelineStages as stage (stage.title)}
                 <TimelineItem pending={stage.pending}>
@@ -1055,7 +1063,7 @@ ${close}
                   <TimelineContent>
                     <TimelineTime datetime={stage.iso}>{stage.time}</TimelineTime>
                     <TimelineTitle>{stage.title}</TimelineTitle>
-                    <p class="text-[12.5px] text-muted-foreground">{stage.body}</p>
+                    <p class="tl-body">{stage.body}</p>
                   </TimelineContent>
                 </TimelineItem>
               {/each}
@@ -1065,23 +1073,23 @@ ${close}
         <ComponentCanvas
           title="timeline · deployment log"
           stageLabel="timeline demo · deployment log"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="Deploy log entries with environment badges — fill for production, tonal for staging, outline for preview; the preview build pending."
           files={deployLogFiles}
         >
-          <div class="w-full max-w-md">
+          <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
             <Timeline defaultValue={2}>
-              <TimelineHeader class="font-nav text-[13px] tracking-[0.08em] uppercase">deployments · jixoai-ui</TimelineHeader>
+              <TimelineHeader class={cx(tlDocs.fontNav, tlDocs.textBase, tlDocs.trackWide, tlDocs.upper)}>deployments · jixoai-ui</TimelineHeader>
               {#each deployEntries as dep (dep.iso)}
                 <TimelineItem pending={dep.pending}>
                   <TimelineDot variant="round" />
                   <TimelineContent>
-                    <div class="flex items-baseline justify-between gap-3">
+                    <div class={cx(tlDocs.flex, tlDocs.itemsBaseline, tlDocs.between, tlDocs.gap12)}>
                       <TimelineTime datetime={dep.iso}>{dep.time}</TimelineTime>
                       <Badge variant={dep.variant}>{dep.env}</Badge>
                     </div>
                     <TimelineTitle>{dep.title}</TimelineTitle>
-                    <p class="text-[12.5px] text-muted-foreground">{dep.body}</p>
+                    <p class="tl-body">{dep.body}</p>
                   </TimelineContent>
                 </TimelineItem>
               {/each}
@@ -1105,7 +1113,7 @@ ${close}
           description="Git events as icon badges — fork, pull request, compare, merge — one lucide glyph inside each node, a distinct token tint per type."
           files={gitFiles}
         >
-          <div class="w-full max-w-md">
+          <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
             <Timeline value={3}>
               {#each gitEvents as ev (ev.title)}
                 <TimelineItem pending={ev.pending}>
@@ -1117,7 +1125,7 @@ ${close}
                   </TimelineDot>
                   <TimelineContent>
                     <TimelineTitle>{ev.title}</TimelineTitle>
-                    <p class="text-[12.5px] text-muted-foreground">{ev.body}</p>
+                    <p class="tl-body">{ev.body}</p>
                   </TimelineContent>
                 </TimelineItem>
               {/each}
@@ -1127,11 +1135,11 @@ ${close}
         <ComponentCanvas
           title="timeline · activity feed"
           stageLabel="timeline demo · activity feed"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="An activity feed with avatars — the repo avatar renders inside each node (initials fallback, no image needed); the merge in flight stays pending."
           files={activityFeedFiles}
         >
-          <div class="w-full max-w-md">
+          <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
             <Timeline value={2.5}>
               {#each feedEvents as ev (ev.title)}
                 <TimelineItem pending={ev.pending}>
@@ -1140,7 +1148,7 @@ ${close}
                   </TimelineDot>
                   <TimelineContent>
                     <TimelineTitle>{ev.title}</TimelineTitle>
-                    <p class="text-[12.5px] text-muted-foreground">{ev.body}</p>
+                    <p class="tl-body">{ev.body}</p>
                   </TimelineContent>
                 </TimelineItem>
               {/each}
@@ -1164,7 +1172,7 @@ ${close}
           description="The plain vertical form at sm density — the whole ruler steps down: dots, gaps, text."
           files={verticalFiles}
         >
-          <div class="w-full max-w-sm">
+          <div class={cx(tlDocs.wFull, tlDocs.maxW24)}>
             <Timeline defaultValue={2} density="sm">
               {#each verticalEvents as ev (ev.title)}
                 <TimelineItem pending={ev.pending}>
@@ -1181,12 +1189,12 @@ ${close}
         <ComponentCanvas
           title="timeline · horizontal leading labels"
           stageLabel="timeline demo · horizontal leading labels"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="axis horizontal with a label leading each node — the blockStart slot flanks the dot against the flow on the transposed engine."
           files={horizontalLeadingFiles}
         >
-          <div class="w-full overflow-x-auto border border-border p-6">
-            <Timeline axis="horizontal" defaultValue={3} class="min-w-[34rem]">
+          <div class="tl-frame {cx(tlDocs.wFull, tlDocs.oxAuto, tlDocs.p24)}">
+            <Timeline axis="horizontal" defaultValue={3} class={cx(tlDocs.minW34)}>
               {#each leadingYears as year (year.label)}
                 <TimelineItem>
                   <TimelineDot variant="round">
@@ -1201,12 +1209,12 @@ ${close}
         <ComponentCanvas
           title="timeline · compact horizontal milestone"
           stageLabel="timeline demo · compact horizontal milestone"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="The low-profile strip — horizontal axis, sm density, bare titles; defaultValue 2 lights the first two stops."
           files={compactMilestoneFiles}
         >
-          <div class="w-full overflow-x-auto border border-border p-4">
-            <Timeline axis="horizontal" defaultValue={2} density="sm" class="min-w-[30rem]">
+          <div class="tl-frame {cx(tlDocs.wFull, tlDocs.oxAuto, tlDocs.p16)}">
+            <Timeline axis="horizontal" defaultValue={2} density="sm" class={cx(tlDocs.minW30)}>
               {#each compactStops as stop (stop)}
                 <TimelineItem>
                   <TimelineDot variant="round" />
@@ -1228,22 +1236,22 @@ ${close}
         summary="Every dot is the center of a 3×3 grid. blockStart/blockEnd ride the SPINE channel as labeled cutouts (their opaque ground interrupts the drawn spine, by essence); inlineStart/inlineEnd flank the dot; the four corners complete the compass. Logical names never change meaning when the axis flips."
       >
         <ComponentCanvas title="timeline · node slots" stage="fill" files={timelineNodeFiles}>
-          <div class="w-full max-w-md border border-border p-6">
+          <div class="tl-frame {cx(tlDocs.wFull, tlDocs.measure28, tlDocs.p24)}">
             <Timeline>
               <TimelineItem>
                 <TimelineDot>
-                  {#snippet blockStartInlineStart()}<span class="text-[10px]">bsIs</span>{/snippet}
+                  {#snippet blockStartInlineStart()}<span class={cx(tlDocs.micro)}>bsIs</span>{/snippet}
                   {#snippet blockStart()}<span>bs</span>{/snippet}
-                  {#snippet blockStartInlineEnd()}<span class="text-[10px]">bsIe</span>{/snippet}
+                  {#snippet blockStartInlineEnd()}<span class={cx(tlDocs.micro)}>bsIe</span>{/snippet}
                   {#snippet inlineStart()}<span>is</span>{/snippet}
                   {#snippet inlineEnd()}<span>ie</span>{/snippet}
-                  {#snippet blockEndInlineStart()}<span class="text-[10px]">beIs</span>{/snippet}
+                  {#snippet blockEndInlineStart()}<span class={cx(tlDocs.micro)}>beIs</span>{/snippet}
                   {#snippet blockEnd()}<span>be</span>{/snippet}
-                  {#snippet blockEndInlineEnd()}<span class="text-[10px]">beIe</span>{/snippet}
+                  {#snippet blockEndInlineEnd()}<span class={cx(tlDocs.micro)}>beIe</span>{/snippet}
                 </TimelineDot>
                 <TimelineContent>
                   <TimelineTitle>free spatial composition</TimelineTitle>
-                  <p class="text-[12.5px] text-muted-foreground">all eight slots authored at once — the dot stays the anchor</p>
+                  <p class="tl-body">all eight slots authored at once — the dot stays the anchor</p>
                 </TimelineContent>
               </TimelineItem>
               <TimelineItem>
@@ -1265,24 +1273,24 @@ ${close}
         summary="One whole-list SVG layer paints the spine: connectors run dot-edge to dot-edge as per-gap subpaths of ONE path element (the axis never crosses a dot); dashed is a real stroke-dasharray whose phase anchors a dash START at the node's flow-end edge — at every density, because the anchor is measured; beam is a stroked gradient segment with actual width and soft edges. The spine prop takes a preset name or a custom snippet receiving the measured geometry payload."
       >
         <ComponentCanvas title="timeline · spine presets" stage="fill" files={timelinePresetsFiles}>
-          <div class="grid gap-6 min-[1100px]:grid-cols-3">
-            <div class="flex flex-col gap-2">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">plain (default) · one continuous run path</span>
+          <div class="tl-grid-3">
+            <div class="tl-col">
+              <span class="tl-eyebrow">plain (default) · one continuous run path</span>
               <Timeline spine="plain">
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>plain</TimelineTitle></TimelineContent></TimelineItem>
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>plain</TimelineTitle></TimelineContent></TimelineItem>
               </Timeline>
             </div>
-            <div class="flex flex-col gap-2">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">dashed · dash STARTS at the node edge</span>
+            <div class="tl-col">
+              <span class="tl-eyebrow">dashed · dash STARTS at the node edge</span>
               <Timeline spine="dashed">
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>alpha</TimelineTitle></TimelineContent></TimelineItem>
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>beta</TimelineTitle></TimelineContent></TimelineItem>
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>gamma</TimelineTitle></TimelineContent></TimelineItem>
               </Timeline>
             </div>
-            <div class="flex flex-col gap-2">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">beam · a traveling light with real width</span>
+            <div class="tl-col">
+              <span class="tl-eyebrow">beam · a traveling light with real width</span>
               <Timeline spine="beam">
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>live channel</TimelineTitle></TimelineContent></TimelineItem>
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>live channel</TimelineTitle></TimelineContent></TimelineItem>
@@ -1293,11 +1301,11 @@ ${close}
         <ComponentCanvas
           title="timeline · custom geometry"
           stage="fill"
-          class="mt-6"
+          class={cx(tlDocs.mt24)}
           description="The custom seam: a snippet receiving the measured TimelineSpineGeometry — node centers in list-root coordinates, per-segment path data, the stops table — rendering authored svg straight into the spine layer."
           files={timelineGeometryFiles}
         >
-          <div class="w-full max-w-md border border-border p-6">
+          <div class="tl-frame {cx(tlDocs.wFull, tlDocs.measure28, tlDocs.p24)}">
             <Timeline>
               {#snippet spine(geometry: TimelineSpineGeometry)}
                 <path
@@ -1334,43 +1342,43 @@ ${close}
           files={valueFiles}
           output={[{ label: 'value', value: Number(stepperValue.toFixed(2)) }]}
         >
-          <div class="flex w-full flex-col gap-4">
-            <div class="flex flex-wrap items-center gap-2" data-stepper-controls="">
+          <div class={cx(tlDocs.flex, tlDocs.wFull, tlDocs.col, tlDocs.gap16)}>
+            <div class={cx(tlDocs.flex, tlDocs.wrap, tlDocs.itemsCenter, tlDocs.gap8)} data-stepper-controls="">
               <button
                 type="button"
                 data-testid="tl-step-prev"
-                class="rounded border border-border bg-background px-2.5 py-1 font-nav text-[12px] uppercase tracking-[0.08em] text-foreground hover:bg-muted"
+                class="tl-ctl"
                 onclick={stepPrev}>prev</button>
               <button
                 type="button"
                 data-testid="tl-step-next"
-                class="rounded border border-border bg-background px-2.5 py-1 font-nav text-[12px] uppercase tracking-[0.08em] text-foreground hover:bg-muted"
+                class="tl-ctl"
                 onclick={stepNext}>next</button>
               <button
                 type="button"
                 data-testid="tl-step-reset"
-                class="rounded border border-border bg-background px-2.5 py-1 font-nav text-[12px] uppercase tracking-[0.08em] text-foreground hover:bg-muted"
+                class="tl-ctl"
                 onclick={stepReset}>reset</button>
               <button
                 type="button"
                 data-testid="tl-step-random"
-                class="rounded border border-border bg-background px-2.5 py-1 font-nav text-[12px] uppercase tracking-[0.08em] text-foreground hover:bg-muted"
+                class="tl-ctl"
                 onclick={stepRandom}>random</button>
               <button
                 type="button"
                 data-testid="tl-tween-toggle"
-                class="rounded border border-primary bg-primary text-primary-foreground px-2.5 py-1 font-nav text-[12px] uppercase tracking-[0.08em] hover:opacity-90"
+                class="tl-ctl tl-ctl--primary"
                 onclick={toggleTween}>{tweenOn ? 'pause' : 'play tween'}</button>
-              <span class="ml-1 font-mono text-[13px] tabular-nums text-foreground" data-testid="tl-value-readout">value = {stepperValue.toFixed(2)}</span>
+              <span class={cx(tlDocs.ml4, tlDocs.fontMono, tlDocs.textBase, tlDocs.tabular, tlDocs.fg)} data-testid="tl-value-readout">value = {stepperValue.toFixed(2)}</span>
             </div>
-            <div class="w-full max-w-md">
+            <div class={cx(tlDocs.wFull, tlDocs.measure28)}>
               <Timeline value={stepperValue}>
                 {#each Array(STEPS) as _, i (i)}
                   <TimelineItem>
                     <TimelineDot variant={i === Math.min(STEPS - 1, Math.floor(stepperValue) - 1) ? 'round' : undefined} />
                     <TimelineContent>
                       <TimelineTitle>step {i + 1}</TimelineTitle>
-                      <p class="text-[12.5px] text-muted-foreground">{i + 1 <= stepperValue ? `≤ ${stepperValue.toFixed(2)} — complete` : `> ${stepperValue.toFixed(2)} — pending`}</p>
+                      <p class="tl-body">{i + 1 <= stepperValue ? `≤ ${stepperValue.toFixed(2)} — complete` : `> ${stepperValue.toFixed(2)} — pending`}</p>
                     </TimelineContent>
                   </TimelineItem>
                 {/each}
@@ -1390,23 +1398,23 @@ ${close}
         summary="Direction picks which zone(s) the content takes: ltr collapses the start zone (the classic reading rail), revert mirrors it, interlaced keeps both zones and alternates item by item — the center-stage chronology. Zones are grid tracks (minmax(0,0fr) collapses a lane), never margins."
       >
         <ComponentCanvas title="timeline · directions" stage="fill" files={timelineDirectionsFiles}>
-          <div class="grid gap-6 min-[1100px]:grid-cols-3">
-            <div class="flex flex-col gap-2">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">ltr (default)</span>
+          <div class="tl-grid-3">
+            <div class="tl-col">
+              <span class="tl-eyebrow">ltr (default)</span>
               <Timeline direction="ltr">
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
               </Timeline>
             </div>
-            <div class="flex flex-col gap-2">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">revert</span>
+            <div class="tl-col">
+              <span class="tl-eyebrow">revert</span>
               <Timeline direction="revert">
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
               </Timeline>
             </div>
-            <div class="flex flex-col gap-2">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">interlaced</span>
+            <div class="tl-col">
+              <span class="tl-eyebrow">interlaced</span>
               <Timeline direction="interlaced">
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>build</TimelineTitle></TimelineContent></TimelineItem>
                 <TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>test</TimelineTitle></TimelineContent></TimelineItem>
@@ -1426,15 +1434,15 @@ ${close}
         title="the geometry matrix — axis × direction × RTL in one coordinate space"
         summary="The measurement runtime emits node centers in list-root coordinates in FLOW order, with axis/direction/interlaced/rtl metadata; RTL resolves in the coordinate transform (physical geometry, logical chronology) — a horizontal RTL list draws its run right-to-left because the path starts at the chronologically-first node, with zero mirror branches. Every cell of the matrix carries a data-variant hook for the probe battery."
       >
-        <div class="grid gap-6 min-[900px]:grid-cols-2 min-[1300px]:grid-cols-3">
+        <div class="tl-grid-matrix">
           {#each matrixVariants as variant (variant.id)}
-            <div dir={variant.rtl ? 'rtl' : undefined} class="flex flex-col gap-2" data-variant={variant.id}>
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">
+            <div dir={variant.rtl ? 'rtl' : undefined} class="tl-col" data-variant={variant.id}>
+              <span class="tl-eyebrow">
                 {variant.id}{variant.rtl ? ' · dir=rtl' : ''}
               </span>
               {#if variant.axis === 'horizontal'}
-                <div class="w-full overflow-x-auto border border-border p-3">
-                  <Timeline axis="horizontal" direction={variant.direction} class="min-w-[26rem]">
+                <div class="tl-frame {cx(tlDocs.wFull, tlDocs.oxAuto, tlDocs.p12)}">
+                  <Timeline axis="horizontal" direction={variant.direction} class={cx(tlDocs.minW26)}>
                     {#each matrixPhases as phase (phase)}
                       <TimelineItem>
                         <TimelineDot variant="round" />
@@ -1444,7 +1452,7 @@ ${close}
                   </Timeline>
                 </div>
               {:else}
-                <div class="border border-border p-3">
+                <div class="tl-frame {cx(tlDocs.p12)}">
                   <Timeline direction={variant.direction}>
                     {#each matrixPhases as phase (phase)}
                       <TimelineItem>
@@ -1470,10 +1478,10 @@ ${close}
         summary="animation='view' gives every item a rise entrance as it enters the scrollport; animation='scroll' draws the progress stroke along the measured run path with the nearest scroller — a stroke-dashoffset draw-on that starts at the chronologically-first node (RTL needs no branch). Both are scroll-driven CSS (@supports-gated): engines without the timeline APIs render the final state, and reduced motion removes the decorative motion. Under scroll mode the scroller OWNS the stroke channel — the value contract still drives the discrete data-completed paint, but no value dashoffset is painted."
       >
         <ComponentCanvas title="timeline · animation" stage="fill" files={timelineAnimationFiles}>
-          <div class="flex w-full flex-col gap-6">
-            <div class="flex flex-col gap-2">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="scroll" · scroll this box</span>
-              <div class="max-h-64 overflow-y-auto border border-border p-6">
+          <div class={cx(tlDocs.flex, tlDocs.wFull, tlDocs.col, tlDocs.gap24)}>
+            <div class="tl-col">
+              <span class="tl-eyebrow">animation="scroll" · scroll this box</span>
+              <div class="tl-frame {cx(tlDocs.maxH64, tlDocs.oyAuto, tlDocs.p24)}">
                 <Timeline animation="scroll">
                   {#each ['commit', 'build', 'test', 'package', 'deploy', 'verify', 'announce'] as phase (phase)}
                     <TimelineItem>
@@ -1486,9 +1494,9 @@ ${close}
                 </Timeline>
               </div>
             </div>
-            <div class="flex flex-col gap-2">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="view"</span>
-              <div class="max-h-64 overflow-y-auto border border-border p-6">
+            <div class="tl-col">
+              <span class="tl-eyebrow">animation="view"</span>
+              <div class="tl-frame {cx(tlDocs.maxH64, tlDocs.oyAuto, tlDocs.p24)}">
                 <Timeline animation="view">
                   {#each ['alpha', 'beta', 'rc', 'ga'] as phase}
                     <TimelineItem>
@@ -1504,10 +1512,126 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Timeline anatomy" summary="Timeline is composition-first: header, item, dot (the 9-grid node), content, time, title and free-form body remain independent parts; the spine is a measured layer, never authored markup. The value contract and the per-item pending flag are ATTRIBUTE paint — the parts stay stateless."><ComponentCanvas title="timeline · anatomy" stage="start" files={timelineAnatomyFiles}><div class="max-w-md"><Timeline><TimelineHeader>release train</TimelineHeader><TimelineItem><TimelineDot>{#snippet blockStart()}<span>today</span>{/snippet}</TimelineDot><TimelineContent><TimelineTime datetime="2026-09-01">today</TimelineTime><TimelineTitle>released</TimelineTitle><p>Build promoted.</p></TimelineContent></TimelineItem></Timeline></div></ComponentCanvas></SectionCard></div>
+    <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Timeline anatomy" summary="Timeline is composition-first: header, item, dot (the 9-grid node), content, time, title and free-form body remain independent parts; the spine is a measured layer, never authored markup. The value contract and the per-item pending flag are ATTRIBUTE paint — the parts stay stateless."><ComponentCanvas title="timeline · anatomy" stage="start" files={timelineAnatomyFiles}><div class={cx(tlDocs.measure28)}><Timeline><TimelineHeader>release train</TimelineHeader><TimelineItem><TimelineDot>{#snippet blockStart()}<span>today</span>{/snippet}</TimelineDot><TimelineContent><TimelineTime datetime="2026-09-01">today</TimelineTime><TimelineTitle>released</TimelineTitle><p>Build promoted.</p></TimelineContent></TimelineItem></Timeline></div></ComponentCanvas></SectionCard></div>
     <div id="usage" data-reveal=""><SectionCard summary="The composition contract in one sample: import the family from the registry barrel (@ui/timeline/index — per-part targets exist per file), author one TimelineItem per entry with the parts you need. There is no items[] prop and no body snippet — the body is plain children. The value contract rides the root: defaultValue seeds, value controls, decimals included." eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'ol', value: 'timeline list', description: 'Preserves chronological list semantics (role=list survives list-none).' }, { name: 'time', value: 'datetime', description: 'Provides machine-readable event time.' }, { name: 'aria-hidden', value: 'spine svg · dot · floor line', description: 'The drawn spine, the dots and the floor lines are decoration — the svg layer is pointer-transparent too. The cutout SLOTS are readable content — they carry text and are never hidden. The progress stroke is the same decorative layer: the value it paints is state, exposed through data-completed semantics on the items, never through the stroke alone.' }, { name: 'data-completed', value: 'step ≤ value', description: 'The value contract\'s discrete paint — a completed milestone is legible with styles off (the attribute is on the li), and the in-flight pending flag stays the louder per-item channel.' }] } /></SectionCard></div>
-    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Timeline defaultValue={2}><TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>event</TimelineTitle></TimelineContent></TimelineItem></Timeline></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-tl-stroke-w', default: '1px', source: 'stroke-alignment law (r5): the spine strokes and the dot border share ONE weight' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }] } /></div></SectionCard></div>
+    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Timeline defaultValue={2}><TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>event</TimelineTitle></TimelineContent></TimelineItem></Timeline></DensityDemo><div class={cx(tlDocs.mt20)}><TokenTable tokens={[{ name: '--jx-tl-stroke-w', default: '1px', source: 'stroke-alignment law (r5): the spine strokes and the dot border share ONE weight' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }] } /></div></SectionCard></div>
     <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Timeline props"><PropsTable props={[{ name: 'defaultValue', type: 'number', default: '1', description: 'THE VALUE CONTRACT — the uncontrolled current step\'s seed (reui parity). Decimals are first-class and never rounded: 1.5 completes item 1, not item 2, and paints the progress stroke halfway between nodes 1 and 2.' }, { name: 'value', type: 'number', default: '—', description: 'The controlled current step — overrides the read side while setStep reports through onValueChange. The value maps onto the measured run through the STOPS milestone table as the progress stroke (300ms stroke-dashoffset transition; reduced motion drops the transition, the position stays). Under animation=\'scroll\' the scroller owns the stroke channel — the value then drives only the discrete data-completed paint.' }, { name: 'onValueChange', type: '(v: number) => void', default: '—', description: 'Fires on every setStep change — same-value repeats included (reui\'s exact semantics; the consumer decides what changed).' }, { name: 'step (TimelineItem)', type: 'number', default: 'DOM order + 1', description: 'The item\'s declared ladder position. Strictly ascending in DOM order — a duplicate is owned by its later item (dev-warned); the milestone table dedupes for the stroke math while both items keep the discrete completed paint. Declared gaps (e.g. 1 then 4) interpolate across the gap\'s arc.' }, { name: 'axis', type: "'vertical' | 'horizontal'", default: "'vertical'", description: 'The flow axis; the engine transposes, slot names stay logical.' }, { name: 'direction', type: "'ltr' | 'revert' | 'interlaced'", default: "'ltr'", description: 'Which zone(s) content takes; interlaced alternates item by item.' }, { name: 'animation', type: "'none' | 'view' | 'scroll'", default: "'none'", description: 'view = per-item entrance as it enters the scrollport; scroll = the progress stroke draws on with the nearest scroller (the scroller then OWNS the stroke; the value keeps the discrete paint). Both @supports-gated.' }, { name: 'spine', type: "'plain' | 'dashed' | 'beam' | Snippet<[TimelineSpineGeometry]>", default: "'plain'", description: 'The drawn spine: a preset by name, or a custom snippet receiving the measured geometry payload (node centers in list-root coordinates in flow order · axis/direction/interlaced/rtl metadata · per-segment path data with the dot-edge phase anchor · the STOPS table + pathLength · the density scale). The snippet renders inside the spine svg — author path/circle/… directly. BREAKING successor of the retired line(i) seam.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'pending (TimelineItem)', type: 'boolean', default: 'false', description: 'In-flight entry: hollow dot + muted title (attribute paint — the LOUDER channel, winning over data-completed while both stay legible with styles off).' }, { name: 'variant', type: "'square' | 'round' | 'ring'", default: "'square' · Own default, not ambient", description: 'TimelineDot corner grammar. Defaults: literal slot — own ’square’, not ambient (the dot is outside the paint zone’s frozen availability table). Dot children (the icon/avatar pattern) render INSIDE the node — centered, the node grows around them, the min size keeps.' }, { name: 'class', type: 'string', description: 'Adds consumer classes (lands on the grid host — the component root).' }] } /></SectionCard></div>
   </div>
 </div>
+
+<style>
+  /*
+   * The timeline docs page's lane-2 sheet (tailwindless-site P0 task
+   * 3.3, 2026-09-17) — REGISTERED semantic composites, scoped to this
+   * route (Svelte scoping IS the sheet's scope: nothing here is
+   * consumable outside the page, the blueprints.html bp-stage site
+   * precedent; single-concern paint stays in the page's atom module,
+   * $lib/surface/timeline-docs.stylex.ts). The registry of record is
+   * the tailwindless gate's semantics[] (scripts/
+   * verify-tailwindless.mjs SEMANTIC_RULES) — owner + selector family
+   * + declaration scope per rule. Theme-able values ride the site
+   * voice scale (jixoai.css "The site voice scale" segment); the
+   * media-query THRESHOLDS are structural (Tailwind's own px/rem
+   * seam values, kept verbatim for breakpoint parity — a viewport-
+   * owned seam stays a viewport media rule, not a container query,
+   * so the 1099/1100 flip lands exactly where the utility did).
+   *
+   * Intents (orthogonal count: 4):
+   *   1. .tl-shell — the page shell measure + rhythm (sm/lg media
+   *      seams re-pin the inline padding step).
+   *   2. .tl-eyebrow / .tl-body — the page's two fixed voices
+   *      (label, body).
+   *   3. .tl-col / .tl-frame / .tl-grid-3 / .tl-grid-matrix — the
+   *      demo-stage geometry (label-over-stage column, hairline
+   *      frame, responsive grids with their min-1100 / min-900 +
+   *      min-1300 media seams).
+   *   4. .tl-ctl — the stepper control (hover seams as NATIVE
+   *      pseudos; --primary variant).
+   */
+  .tl-shell {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--shell-w);
+    padding-inline: var(--space-16);
+    padding-block: var(--space-40);
+  }
+  @media (min-width: 40rem) {
+    .tl-shell {
+      padding-inline: var(--space-24);
+    }
+  }
+  @media (min-width: 64rem) {
+    .tl-shell {
+      padding-inline: var(--space-32);
+    }
+  }
+
+  .tl-eyebrow {
+    font-family: var(--font-nav);
+    color: var(--primary);
+    font-size: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: var(--track-label);
+  }
+
+  .tl-body {
+    font-size: var(--text-small);
+    color: var(--muted-foreground);
+  }
+
+  .tl-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .tl-frame {
+    border: var(--hairline) solid var(--border);
+  }
+
+  .tl-grid-3,
+  .tl-grid-matrix {
+    display: grid;
+    gap: var(--space-24);
+  }
+  @media (min-width: 900px) {
+    .tl-grid-matrix {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .tl-grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1300px) {
+    .tl-grid-matrix {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .tl-ctl {
+    border-radius: var(--radius);
+    border: var(--hairline) solid var(--border);
+    background: var(--background);
+    padding-inline: var(--space-10);
+    padding-block: var(--space-4);
+    font-family: var(--font-nav);
+    font-size: var(--text-label-lg);
+    text-transform: uppercase;
+    letter-spacing: var(--track-wide);
+    color: var(--foreground);
+  }
+  .tl-ctl:hover {
+    background: var(--muted);
+  }
+  .tl-ctl--primary {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  .tl-ctl--primary:hover {
+    opacity: 0.9;
+  }
+</style>

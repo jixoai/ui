@@ -40,6 +40,7 @@ export const SITE_ONLY_PREFIXES = [
   'apps/www/src/lib/blueprints/', // blueprint scene stage (site-only)
   'apps/www/src/lib/components/', // site-composed components
   'apps/www/src/lib/site/', // site-only surface modules (tw4 P2.2 placement law)
+  'apps/www/src/lib/surface/', // tailwindless-site P0: the site's stylex atom modules (the placement law's lane-1 site extension — routes import them; never a registry item, never mirrored)
   'apps/www/src/lib/playground/', // component-canvas demo controls (site-only, canvas redesign 2026-08-25)
   'apps/www/src/lib/schema/', // jsonSchema kernel (www-only, canvas-schema-pipeline 2026-08-30)
   'apps/www/src/lib/meta/', // generated + annotated component meta (canvas-schema-pipeline 2026-08-30)

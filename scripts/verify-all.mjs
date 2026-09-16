@@ -77,7 +77,11 @@ try {
 // The gates need no build first (the payload generator compiles
 // through the pinned engine itself; the authoring gate scans the
 // ledger), so they run in the cheap early block.
-for (const name of ['verify:laws', 'verify:icons', 'verify:spins', 'verify:migration', 'verify:stylex-authoring', 'verify:stylex-payload', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
+// verify:tailwindless (2026-09-17 tailwindless-site P0): the ratchet
+// over the pinned utility-class identity census — standalone source
+// scan (no server, no build), slotted right after the mirror class
+// since it reads the same apps/www/src + registry/files trees
+for (const name of ['verify:laws', 'verify:icons', 'verify:spins', 'verify:migration', 'verify:stylex-authoring', 'verify:stylex-payload', 'verify:mirror', 'verify:tailwindless', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
   step(name);
   try {
     execFileSync('npm', ['run', '--silent', name], { cwd: root, stdio: 'inherit' });

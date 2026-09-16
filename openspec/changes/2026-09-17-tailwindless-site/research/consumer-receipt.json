@@ -1,0 +1,135 @@
+{
+  "what": "clean consumer receipt — tailwindless-site P0 task 2.3 (separator, the first migrated registry family)",
+  "generatedAt": "2026-09-16T18:48:25.356Z",
+  "fixture": {
+    "dir": "/Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/.agents/fixtures/tailwindless-consumer",
+    "packageJson": {
+      "name": "tailwindless-consumer",
+      "private": true,
+      "type": "module"
+    },
+    "vite": {
+      "version": "8.2.2",
+      "resolvedFrom": "apps/www/node_modules (the spot-compile precedent — the CONSUMER project itself owes no tooling)"
+    },
+    "installed": {
+      "public/theme/jixoai.css": "the jixoai-theme item sheet (raw asset — tokens live here)",
+      "src/installed/tokens/tokens.css": "the payload token projection (registry/payload/stylex/tokens/)",
+      "src/installed/separator/separator.css": "the payload item css (registry/payload/stylex/separator/)",
+      "src/installed/separator/separator.styles.js": "the payload class module — plain string constants (F11)"
+    },
+    "zeroStyleEngineImports": true
+  },
+  "assertions": {
+    "the zero-tooling consumer builds green": {
+      "ok": true,
+      "detail": "index-Ce-JNCPJ.css"
+    },
+    "the built css carries the separator atom rules": {
+      "ok": true,
+      "detail": ".xh8yej3"
+    },
+    "the built css carries the ghost rule": {
+      "ok": true,
+      "detail": ""
+    },
+    "consumer package.json owes zero dependencies (no tailwindcss, no @stylexjs/*)": {
+      "ok": true,
+      "detail": "{\"name\":\"tailwindless-consumer\",\"private\":true,\"type\":\"module\"}"
+    },
+    "horizontal: the ghost is live (backdrop-filter contrast(0.5))": {
+      "ok": true,
+      "detail": "contrast(0.5)"
+    },
+    "horizontal: the hr reset is atomic (margin 0, border 0)": {
+      "ok": true,
+      "detail": "margin 0px · border 0px"
+    },
+    "horizontal: full panel width, 1px lane": {
+      "ok": true,
+      "detail": "320×1"
+    },
+    "vertical: the inline-block posture (bare, non-flex context)": {
+      "ok": true,
+      "detail": "inline-block"
+    },
+    "vertical: stretches the row cross axis at 1px width": {
+      "ok": true,
+      "detail": "1×96 (row 96)"
+    },
+    "vertical: the ghost is live": {
+      "ok": true,
+      "detail": "contrast(0.5)"
+    },
+    "solid: paints the --border token (not transparent, ghost off)": {
+      "ok": true,
+      "detail": "oklch(0 0 0) · filter none"
+    },
+    "horizontal: the ghost PAINTS (pixel deltas vs the undisturbed backdrop)": {
+      "ok": true,
+      "detail": "143/156 columns differ (92%)"
+    },
+    "vertical: the ghost PAINTS": {
+      "ok": true,
+      "detail": "43/46 rows differ (93%)"
+    },
+    "solid: the --border fill PAINTS over white": {
+      "ok": true,
+      "detail": "156/156 columns differ (100%)"
+    },
+    "the screenshot is non-trivial (gradient panels present, not a black frame)": {
+      "ok": true,
+      "detail": "luma span 0..255"
+    }
+  },
+  "computed": {
+    "horizontal": {
+      "backdropFilter": "contrast(0.5)",
+      "margin": "0px",
+      "borderWidth": "0px",
+      "box": {
+        "x": 24,
+        "y": 48,
+        "width": 320,
+        "height": 1
+      }
+    },
+    "vertical": {
+      "display": "inline-block",
+      "backdropFilter": "contrast(0.5)",
+      "box": {
+        "x": 84.015625,
+        "y": 232,
+        "width": 1,
+        "height": 96
+      },
+      "rowHeight": 96
+    },
+    "solid": {
+      "backgroundColor": "oklch(0 0 0)",
+      "backdropFilter": "none",
+      "box": {
+        "x": 24,
+        "y": 176,
+        "width": 320,
+        "height": 1
+      }
+    }
+  },
+  "pixels": {
+    "horizontalGhostColumnRatio": 0.9166666666666666,
+    "verticalGhostRowRatio": 0.9347826086956522,
+    "solidFillColumnRatio": 1
+  },
+  "screenshot": {
+    "path": "/Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/openspec/changes/2026-09-17-tailwindless-site/research/consumer-separator.png",
+    "bytes": 18680
+  },
+  "teardown": {
+    "browserPid": "57368,57379,57380,57382,57386,57388,57389",
+    "browserGone": true,
+    "serverPort": 54018,
+    "serverRefused": true,
+    "fixtureDirRemoved": true
+  }
+}

@@ -63,6 +63,25 @@
     --jx-scrollbar-thumb: var(--scrollbar-thumb);
     --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
     --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+    --jx-text-micro: var(--text-micro);
+    --jx-text-label: var(--text-label);
+    --jx-text-label-lg: var(--text-label-lg);
+    --jx-text-small: var(--text-small);
+    --jx-track-label: var(--track-label);
+    --jx-track-wide: var(--track-wide);
+    --jx-shell-w: var(--shell-w);
+    --jx-stage-w: var(--stage-w);
+    --jx-space-4: var(--space-4);
+    --jx-space-6: var(--space-6);
+    --jx-space-8: var(--space-8);
+    --jx-space-10: var(--space-10);
+    --jx-space-12: var(--space-12);
+    --jx-space-16: var(--space-16);
+    --jx-space-20: var(--space-20);
+    --jx-space-24: var(--space-24);
+    --jx-space-32: var(--space-32);
+    --jx-space-40: var(--space-40);
+    --jx-hairline: var(--hairline);
   }
 }
 
@@ -273,4 +292,4 @@
 }
 
 @layer utilities;
-/* buildId: d2f8f1efd193cdbf3ee9e9e340a002ffaaf0f5071638076c2f0d3a165f5e94d4 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
+/* buildId: 10eaa095ab1529669335f17d32334f85db0e3dba504ea36826a8c22973f00253 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

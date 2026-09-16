@@ -88,7 +88,20 @@ const CANONICAL_MAIN_OVERRIDES = {
 };
 // mirror-path overrides for files whose mirror does not follow the
 // default rule (pre-migration item css living at src/lib root)
-const MIRROR_PATH_OVERRIDES = {};
+const MIRROR_PATH_OVERRIDES = {
+  // tailwindless-site P0 (2026-09-17): the files-ROOT tokens bridge.
+  // registry/files/lib/tokens.stylex.ts stays the canonical lib pair,
+  // but a ui/<item>/<item>.stylex.ts sits two levels deep, where the
+  // lib-relative path only resolves in the www tree — the babel
+  // module resolution takes RELATIVE .stylex imports only (the ssg
+  // lesson), so the registry tree, the www mirror, and consumer
+  // installs (@lib/tokens.stylex.ts → $lib/tokens.stylex.ts) all read
+  // '../../tokens.stylex'. This override pairs the bridge with the
+  // SAME www mirror the canonical pair hashes against, so all three
+  // copies are byte-gated transitively (the separator item carries
+  // the bridge in its files[]).
+  'registry/files/tokens.stylex.ts': 'apps/www/src/lib/tokens.stylex.ts',
+};
 
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';

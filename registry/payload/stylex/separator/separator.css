@@ -1,0 +1,294 @@
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, components.stylex.priority5, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
+  :root, .x1klgzij {
+    --jx-brand-hue: var(--brand-hue);
+    --jx-background: var(--background);
+    --jx-foreground: var(--foreground);
+    --jx-card: var(--card);
+    --jx-card-foreground: var(--card-foreground);
+    --jx-popover: var(--popover);
+    --jx-popover-foreground: var(--popover-foreground);
+    --jx-primary: var(--primary);
+    --jx-primary-foreground: var(--primary-foreground);
+    --jx-secondary: var(--secondary);
+    --jx-secondary-foreground: var(--secondary-foreground);
+    --jx-muted: var(--muted);
+    --jx-muted-foreground: var(--muted-foreground);
+    --jx-accent: var(--accent);
+    --jx-accent-foreground: var(--accent-foreground);
+    --jx-destructive: var(--destructive);
+    --jx-destructive-foreground: var(--destructive-foreground);
+    --jx-border: var(--border);
+    --jx-input: var(--input);
+    --jx-ring: var(--ring);
+    --jx-terminal: var(--terminal);
+    --jx-terminal-foreground: var(--terminal-foreground);
+    --jx-terminal-hover: var(--terminal-hover);
+    --jx-terminal-muted: var(--terminal-muted);
+    --jx-success: var(--success);
+    --jx-success-foreground: var(--success-foreground);
+    --jx-warning: var(--warning);
+    --jx-warning-foreground: var(--warning-foreground);
+    --jx-info: var(--info);
+    --jx-info-foreground: var(--info-foreground);
+    --jx-error: var(--error);
+    --jx-error-foreground: var(--error-foreground);
+    --jx-chart-1: var(--chart-1);
+    --jx-chart-2: var(--chart-2);
+    --jx-chart-3: var(--chart-3);
+    --jx-chart-4: var(--chart-4);
+    --jx-chart-5: var(--chart-5);
+    --jx-font-sans: var(--font-sans);
+    --jx-font-mono: var(--font-mono);
+    --jx-font-nav: var(--font-nav);
+    --jx-radius: var(--radius);
+    --jx-shadow-color: var(--shadow-color);
+    --jx-shadow-2xs: var(--shadow-2xs);
+    --jx-shadow-xs: var(--shadow-xs);
+    --jx-shadow-sm: var(--shadow-sm);
+    --jx-shadow: var(--shadow);
+    --jx-shadow-md: var(--shadow-md);
+    --jx-shadow-xs-press: var(--shadow-xs-press);
+    --jx-shadow-sm-press: var(--shadow-sm-press);
+    --jx-shadow-md-press: var(--shadow-md-press);
+    --jx-shadow-engrave: var(--shadow-engrave);
+    --jx-shadow-well: var(--shadow-well);
+    --jx-shadow-well-hover: var(--shadow-well-hover);
+    --jx-shadow-paper: var(--shadow-paper);
+    --jx-scrim: var(--scrim);
+    --jx-surface-shadow: var(--surface-shadow);
+    --jx-scrollbar-track: var(--scrollbar-track);
+    --jx-scrollbar-thumb: var(--scrollbar-thumb);
+    --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+    --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+    --jx-text-micro: var(--text-micro);
+    --jx-text-label: var(--text-label);
+    --jx-text-label-lg: var(--text-label-lg);
+    --jx-text-small: var(--text-small);
+    --jx-track-label: var(--track-label);
+    --jx-track-wide: var(--track-wide);
+    --jx-shell-w: var(--shell-w);
+    --jx-stage-w: var(--stage-w);
+    --jx-space-4: var(--space-4);
+    --jx-space-6: var(--space-6);
+    --jx-space-8: var(--space-8);
+    --jx-space-10: var(--space-10);
+    --jx-space-12: var(--space-12);
+    --jx-space-16: var(--space-16);
+    --jx-space-20: var(--space-20);
+    --jx-space-24: var(--space-24);
+    --jx-space-32: var(--space-32);
+    --jx-space-40: var(--space-40);
+    --jx-hairline: var(--hairline);
+  }
+}
+
+@layer components.stylex.priority2 {
+  .x1ghz6dp {
+    margin: 0;
+  }
+}
+
+@layer components.stylex.priority3 {
+  .xng3xce {
+    border-style: none;
+  }
+
+  .xc342km {
+    border-width: 0;
+  }
+
+  .x1okw0bk {
+    flex: none;
+  }
+}
+
+@layer components.stylex.priority4 {
+  .xbzouxq {
+    -webkit-backdrop-filter: contrast(.5);
+  }
+
+  .x5cpf72 {
+    -webkit-mask-image: radial-gradient(1px at 1px 1px, #000 99%, #0000 100%);
+  }
+
+  .x1fb04h1 {
+    -webkit-mask-image: repeating-linear-gradient(#000 0 3px, #0000 3px 6px);
+  }
+
+  .x1mauu7a {
+    -webkit-mask-image: repeating-linear-gradient(#000 0 6px, #0000 6px 10px);
+  }
+
+  .x1n3fem5 {
+    -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 3px, #0000 3px 6px);
+  }
+
+  .xxg92ui {
+    -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 6px, #0000 6px 10px);
+  }
+
+  .x1is8714 {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6'%3E%3Cpath d='M0 3 Q3 .4 6 3 T12 3' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E");
+  }
+
+  .x1tmcpx8 {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='12'%3E%3Cpath d='M3 0 Q.4 3 3 6 T3 12' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E");
+  }
+
+  .x1wix2xn {
+    -webkit-mask-repeat: repeat-x;
+  }
+
+  .xi0he60 {
+    -webkit-mask-repeat: repeat-y;
+  }
+
+  .xrqyqz2 {
+    -webkit-mask-size: 12px 6px;
+  }
+
+  .x1a1638o {
+    -webkit-mask-size: 2px 5px;
+  }
+
+  .x1pf8epq {
+    -webkit-mask-size: 5px 2px;
+  }
+
+  .x8x7f8w {
+    -webkit-mask-size: 6px 12px;
+  }
+
+  .xkh2ocl {
+    align-self: stretch;
+  }
+
+  .x1s3qnfn {
+    backdrop-filter: contrast(.5);
+  }
+
+  .x1t853zo {
+    backdrop-filter: none;
+  }
+
+  .xnf7tsy {
+    background-color: var(--jx-border);
+  }
+
+  .xm93v8h {
+    background-image: linear-gradient(#0000, #ffffff59 30%, #fff9 50%, #ffffff59 70%, #0000);
+  }
+
+  .x1go0ci8 {
+    background-image: linear-gradient(90deg, #0000, #ffffff59 30%, #fff9 50%, #ffffff59 70%, #0000);
+  }
+
+  .x1rg5ohu {
+    display: inline-block;
+  }
+
+  .xzw1ypj {
+    -webkit-mask-image: radial-gradient(1px at 1px 1px, #000 99%, #0000 100%);
+    mask-image: radial-gradient(1px at 1px 1px, #000 99%, #0000 100%);
+  }
+
+  .x3q4nmu {
+    -webkit-mask-image: repeating-linear-gradient(#000 0 3px, #0000 3px 6px);
+    mask-image: repeating-linear-gradient(#000 0 3px, #0000 3px 6px);
+  }
+
+  .x130xnox {
+    -webkit-mask-image: repeating-linear-gradient(#000 0 6px, #0000 6px 10px);
+    mask-image: repeating-linear-gradient(#000 0 6px, #0000 6px 10px);
+  }
+
+  .xdm3r4a {
+    -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 3px, #0000 3px 6px);
+    mask-image: repeating-linear-gradient(90deg, #000 0 3px, #0000 3px 6px);
+  }
+
+  .x1ycxmf {
+    -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 6px, #0000 6px 10px);
+    mask-image: repeating-linear-gradient(90deg, #000 0 6px, #0000 6px 10px);
+  }
+
+  .x1uv594n {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6'%3E%3Cpath d='M0 3 Q3 .4 6 3 T12 3' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6'%3E%3Cpath d='M0 3 Q3 .4 6 3 T12 3' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E");
+  }
+
+  .xwrgzkm {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='12'%3E%3Cpath d='M3 0 Q.4 3 3 6 T3 12' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='12'%3E%3Cpath d='M3 0 Q.4 3 3 6 T3 12' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E");
+  }
+
+  .x1wsrsg2 {
+    -webkit-mask-repeat: repeat-x;
+    mask-repeat: repeat-x;
+  }
+
+  .xcljghj {
+    -webkit-mask-repeat: repeat-y;
+    mask-repeat: repeat-y;
+  }
+
+  .x3d3ze {
+    -webkit-mask-size: 12px 6px;
+    mask-size: 12px 6px;
+  }
+
+  .xhxtcz0 {
+    -webkit-mask-size: 2px 5px;
+    mask-size: 2px 5px;
+  }
+
+  .xsbdu3q {
+    -webkit-mask-size: 5px 2px;
+    mask-size: 5px 2px;
+  }
+
+  .x1j3x0ap {
+    -webkit-mask-size: 6px 12px;
+    mask-size: 6px 12px;
+  }
+
+  .x6176g0 {
+    mix-blend-mode: difference;
+  }
+}
+
+@layer components.stylex.priority5 {
+  .xjm9jq1 {
+    height: 1px;
+  }
+
+  .x36qwtl {
+    height: 2px;
+  }
+
+  .xols6we {
+    height: 6px;
+  }
+
+  .xh8yej3 {
+    width: 100%;
+  }
+
+  .x1i1rx1s {
+    width: 1px;
+  }
+
+  .xfo62xy {
+    width: 2px;
+  }
+
+  .x1v4s8kt {
+    width: 6px;
+  }
+}
+
+@layer utilities;
+/* buildId: 10eaa095ab1529669335f17d32334f85db0e3dba504ea36826a8c22973f00253 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

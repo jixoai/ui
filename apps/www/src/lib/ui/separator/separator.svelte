@@ -24,15 +24,19 @@
   Orientation swaps the mask axis
   (the vertical posture reads the same laws top-to-bottom).
 
+  tailwindless-site P0 (2026-09-17): the paint rides the family's
+  stylex ATOMS (separator.stylex.ts — the corpus re-authoring landed
+  as the registry canonical; every ink rule moved there). The composed
+  class strings below are the payload's own join form (see cx).
+
   Length stays the consumer's job (block horizontal / inline-block
-  vertical — width/height via the class prop or the parent's layout);
-  the ink engine (backdrop-filter, mask data-URIs, blend) lives in
-  separator.css — utilities cannot express it (the D1-exempt law).
+  vertical — width/height via the class prop or the parent's layout).
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { SeparatorDefaults, type SeparatorVariant } from './separator-defaults.svelte';
+  import { separatorStyles } from './separator.stylex';
   import './separator.css';
 
   interface Props extends HTMLAttributes<HTMLHRElement> {
@@ -45,6 +49,54 @@
      *  (SeparatorDefaults — a declared own, not ambient) */
     variant?: SeparatorVariant;
   }
+
+  // the payload's own join (scripts/lib/stylex-payload.mjs
+  // serializeTable): every string declaration except the $$css
+  // marker, space-joined — the exact string registry/payload/stylex/
+  // separator/separator.styles.js ships as each atom's value (F11:
+  // the component owes NO @stylexjs runtime for class composition —
+  // the pinned engine inlines neither attrs() nor props(), so the
+  // join is ours, and it matches the shipped payload byte for byte).
+  // Size overrides (dotted/wavy lanes over the 1px base) resolve by
+  // the engine's own emission order — base first, variant later
+  // within the same priority tier — the same cascade the payload's
+  // composed consumers ride.
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
+  // the variant × orientation ladder — every cx() call walks static
+  // table members, so each entry is a plain class string; runtime is
+  // a pure lookup (the tokens.svelte blueprint precedent's shape,
+  // minus the runtime dependency)
+  const VARIANT_CLASS: Record<'horizontal' | 'vertical', Record<SeparatorVariant, string>> = {
+    horizontal: {
+      fused: cx(separatorStyles.horizontal),
+      solid: cx(separatorStyles.horizontal, separatorStyles.solidHorizontal),
+      dashed: cx(separatorStyles.horizontal, separatorStyles.dashedH),
+      dense: cx(separatorStyles.horizontal, separatorStyles.denseH),
+      dotted: cx(separatorStyles.horizontal, separatorStyles.dottedH),
+      wavy: cx(separatorStyles.horizontal, separatorStyles.wavyH),
+      fade: cx(separatorStyles.horizontal, separatorStyles.fadeH),
+    },
+    vertical: {
+      fused: cx(separatorStyles.vertical),
+      solid: cx(separatorStyles.vertical, separatorStyles.solidVertical),
+      dashed: cx(separatorStyles.vertical, separatorStyles.dashedV),
+      dense: cx(separatorStyles.vertical, separatorStyles.denseV),
+      dotted: cx(separatorStyles.vertical, separatorStyles.dottedV),
+      wavy: cx(separatorStyles.vertical, separatorStyles.wavyV),
+      fade: cx(separatorStyles.vertical, separatorStyles.fadeV),
+    },
+  };
 
   let { orientation = 'horizontal', variant, class: className = '', ...rest }: Props =
     $props();
@@ -62,7 +114,7 @@
   <div
     data-jx-separator={d.variant}
     data-orientation="vertical"
-    class={cn('inline-block self-stretch flex-none', className)}
+    class={cn(VARIANT_CLASS.vertical[d.variant], className)}
     {...(rest as HTMLAttributes<HTMLDivElement>)}
     role="separator"
     aria-orientation="vertical"
@@ -71,7 +123,7 @@
   <hr
     data-jx-separator={d.variant}
     data-orientation="horizontal"
-    class={cn('flex-none m-0 border-0', className)}
+    class={cn(VARIANT_CLASS.horizontal[d.variant], className)}
     {...rest}
   />
 {/if}

@@ -2110,6 +2110,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/separator/separator.stylex.ts",
+          "target": "@ui/separator/separator.stylex.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/separator/index.ts",
           "target": "@ui/separator/index.ts",
           "type": "registry:file"
@@ -2118,9 +2123,14 @@
           "path": "registry/files/ui/separator/separator-defaults.svelte.ts",
           "target": "@ui/separator/separator-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
-      "docs": "Props: orientation? ('horizontal' default | 'vertical').",
+      "docs": "Props: orientation? ('horizontal' default | 'vertical'). StyleX edition (tailwindless P0, 2026-09-17): paint rides separator.stylex.ts atoms (the registry/files root carries the tokens.stylex.ts bridge copy so the relative import resolves as installed). Zero-engine consumers import the compiled payload instead — registry/payload/stylex/separator/ (class strings + css) + tokens.css + the theme sheet: no @stylexjs/* owed (F11).",
       "meta": {
         "group": "layout",
         "href": "/docs/components/separator.html"
@@ -2129,7 +2139,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
