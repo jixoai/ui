@@ -351,24 +351,45 @@ try {
   //      the layer (outline control → the muted ground). The consumer
   //      probe (step 4) is REMOVED first — its utilities-layer override
   //      would otherwise legitimately beat the in-layer :hover rule.
-  await page.hover('[data-testid="tl-step-prev"]');
-  await page.waitForTimeout(120);
-  const hover = await page.evaluate(() => {
+  // the cleanup runs BEFORE the hover (the comment always said so;
+  // the code used to remove inside the read — hover landed on the
+  // still-overridden button and the read raced the background
+  // transition back, the intermittent-white flake)
+  await page.evaluate(() => {
     document.getElementById('probe-consumer-utilities')?.remove();
-    const ctl = document.querySelector('[data-testid="tl-step-prev"]');
-    ctl.classList.remove('probe-ctl-utility');
-    const sentinel = document.createElement('div');
-    sentinel.style.background = 'var(--muted)';
-    document.body.appendChild(sentinel);
-    const muted = getComputedStyle(sentinel).backgroundColor;
-    sentinel.remove();
-    return { hoveredBg: getComputedStyle(ctl).backgroundColor, mutedGround: muted };
+    document.querySelector('[data-testid="tl-step-prev"]')?.classList.remove('probe-ctl-utility');
+    document.querySelector('.probe-eyebrow-utility')?.classList.remove('probe-eyebrow-utility');
   });
+  await page.waitForTimeout(350); // the override transition settles back
+  // hover measurement with arbitration: :hover can be LOST between
+  // hover() and the read (smooth-scroll drift moves the element off
+  // the static mouse — a measurement artifact, the resting paint is
+  // the page's own white). The loop distinguishes artifact from
+  // defect: matches(':hover') true but the wrong color IS a defect
+  // (hard red); matches false is an artifact — re-hover, up to 3
+  let hover = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await page.hover('[data-testid="tl-step-prev"]');
+    await page.waitForTimeout(150);
+    hover = await page.evaluate(() => {
+      const ctl = document.querySelector('[data-testid="tl-step-prev"]');
+      const sentinel = document.createElement('div');
+      sentinel.style.background = 'var(--muted)';
+      document.body.appendChild(sentinel);
+      const muted = getComputedStyle(sentinel).backgroundColor;
+      sentinel.remove();
+      return { hoveredBg: getComputedStyle(ctl).backgroundColor, mutedGround: muted, hoveredMatch: ctl.matches(':hover') };
+    });
+    hover.attempt = attempt;
+    if (hover.hoveredMatch) break; // a real hover reading — judge below
+  }
   receipt.hover = hover;
   expect(
     'hover: .tl-ctl:hover paints the muted ground (native pseudo, in-layer)',
-    hover.hoveredBg === hover.mutedGround && hover.hoveredBg !== 'rgba(0, 0, 0, 0)',
-    JSON.stringify(hover),
+    hover.hoveredMatch
+      ? hover.hoveredBg === hover.mutedGround && hover.hoveredBg !== 'rgba(0, 0, 0, 0)'
+      : false, // three artifacts in a row — still red, but the detail names it
+    hover.hoveredMatch ? JSON.stringify(hover) : JSON.stringify({ ...hover, note: ':hover never matched — mouse/element drift for 3 attempts' }),
   );
 
   await ctx.close();
