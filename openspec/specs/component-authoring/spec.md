@@ -3829,11 +3829,14 @@ snippet receiving the measured geometry) replaces it. Breaking, no compat.
   past the lapped tip), and the stroke weight IS the dot's border
   width through ONE shared token `--jx-tl-stroke-w` (the default
   dot's `border-width` and those `stroke-width`s consume the same
-  variable — they can never drift apart); the beam preset is the
-  standing EXEMPTION (a traveling light, not a connector — its
-  width, round caps, and blur are the glow grammar), and the ring
-  dot's 2px border keeps its variant identity (identity outranks
-  the shared token, as it outranks the state paints)
+  variable — they can never drift apart) — with UNIFORM WEIGHT for
+  EVERY dot variant (Owner r6): the ring dot's border rides the same
+  token (no weight exemption; its variant identity is PERMANENT
+  HOLLOWNESS — it outranks the completed fill, its border COLOR still
+  steps with the ladder, but its weight is not part of the identity).
+  The beam preset is the ONE standing exemption (a traveling light,
+  not a connector — its width, round caps, and blur are the glow
+  grammar)
 
 #### Scenario: the dash phase anchors to the node edge
 

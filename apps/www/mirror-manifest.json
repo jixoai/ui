@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-16T15:29:29.433Z",
+  "generatedAt": "2026-09-16T16:14:22.948Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3385,8 +3385,8 @@
           "source": "registry/files/ui/timeline/timeline.css",
           "mirror": "apps/www/src/lib/ui/timeline/timeline.css",
           "target": "@ui/timeline/timeline.css",
-          "sourceSha": "2ea123ff78c041f88a29bf1de6ae2250df5f6d2199c3052bb0c16ff917d13aa3",
-          "mirrorSha": "2ea123ff78c041f88a29bf1de6ae2250df5f6d2199c3052bb0c16ff917d13aa3"
+          "sourceSha": "4f1b186efda3492441e55792455805abfb38f5716a3b9c82f6cd5a872faecf98",
+          "mirrorSha": "4f1b186efda3492441e55792455805abfb38f5716a3b9c82f6cd5a872faecf98"
         },
         {
           "source": "registry/files/ui/timeline/index.ts",

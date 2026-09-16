@@ -331,12 +331,14 @@
     border-color: var(--primary);
     background: var(--primary);
   }
-  /* the ring keeps its hollow grammar across the state paints — the
-     variant's identity outranks the completed fill (border COLOR
-     still steps with the ladder) */
+  /* the ring's identity is PERMANENT HOLLOWNESS across the state
+     paints — it outranks the completed fill (border COLOR still
+     steps with the ladder). Its WEIGHT is not part of the identity
+     (Owner r6): the border rides the shared --jx-tl-stroke-w token
+     inherited from the base dot rule — no exemption, uniform with
+     the spine strokes */
   :where([data-jx-tl-dot][data-variant='ring']) {
     background: transparent;
-    border-width: 2px;
   }
   /* pending: the LOUDER channel — hollow center + primary ring +
      muted title even when the step has completed (the dot is a
