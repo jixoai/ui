@@ -12,8 +12,10 @@
  *     retired); the `radius` prop paints any px or the 'full'
  *     capsule through the region's --jx-scroll-thumb-radius;
  *   - width tiers (`width` prop → data-width): thin 8px / auto
- *     12px / wide 16px lanes, the thumb resting at a 2px inset per
- *     flank (4/8/12 cross size; hover/drag 6/10/14);
+ *     12px / wide 16px lanes, the thumb's edge-side flank AT the
+ *     region edge with the 2px resting inset on the START side
+ *     (6/10/14 cross size = track − 2; hover/drag 8/12/16 = the
+ *     track — Owner r3);
  *   - the TRACK runs FLUSH to the region edge (the 2px edge standoff
  *     retired from the lane — an invisible lane paints nothing
  *     there) and the thumb's growth is EDGE-ANCHORED: the outer
@@ -113,18 +115,20 @@
   position: absolute;
 }
 /* EDGE-ANCHORED cross geometry (the transform-origin: right center
-   law, inset-carried): the outer (edge-side) flank pins at the 2px
-   resting inset — it NEVER moves; the inner flank alone carries the
-   hover/drag growth (2px → 0, growth strictly INTO the content).
-   Resting cross size = track − 2×2px (4/8/12 across tiers) */
+   law, inset-carried — Owner r3: TRULY flush): the outer (edge-side)
+   flank sits AT the region edge (inset 0) and NEVER moves; the 2px
+   resting inset lives on the START side alone, and the inner flank
+   alone carries the hover/drag growth (2px → 0, growth strictly INTO
+   the content). Resting cross size = track − 2px (6/10/14 across
+   tiers); hover/drag = the track (8/12/16) */
 :where(.jx-scroll-thumb.y) {
-  inset-inline-end: 2px;
+  inset-inline-end: 0;
   inset-inline-start: 2px;
   min-block-size: 24px;
   transition: inset-inline 160ms ease-out, background-color 160ms ease-out;
 }
 :where(.jx-scroll-thumb.x) {
-  inset-block-end: 2px;
+  inset-block-end: 0;
   inset-block-start: 2px;
   min-inline-size: 24px;
   transition: inset-block 160ms ease-out, background-color 160ms ease-out;

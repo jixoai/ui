@@ -156,10 +156,14 @@ describe('timeline drawn spine — the geometry payload', () => {
       { x: 40, y: 170 },
     ]);
     expect(g.segments.length).toBe(2);
-    expect(g.segments[0]!.d).toBe('M 40 10 L 40 90');
-    expect(g.segments[0]!.length).toBe(80);
-    // ONE continuous run path, first-center → last-center
-    expect(g.runPath).toBe('M 40 10 L 40 90 L 40 170');
+    // EDGE-TO-EDGE (Owner r3): each gap's subpath runs dot-edge to
+    // dot-edge (nodeRadius 10 shaved at both ends) — the axis never
+    // crosses a dot
+    expect(g.segments[0]!.d).toBe('M 40 20 L 40 80');
+    expect(g.segments[0]!.length).toBe(60);
+    // ONE path element, per-gap subpaths (gaps at the dots)
+    expect(g.runPath).toBe('M 40 20 L 40 80 M 40 100 L 40 160');
+    // the CHORD field keeps its documented center-space meaning
     expect(g.runLength).toBe(160);
     expect(g.axis).toBe('vertical');
     expect(g.direction).toBe('ltr');
@@ -184,8 +188,9 @@ describe('timeline drawn spine — the geometry payload', () => {
     expect(g.rtl).toBe(true);
     expect(g.axis).toBe('horizontal');
     expect(g.interlaced).toBe(true);
-    // flow order preserved: the path runs right → left physically
-    expect(g.runPath).toBe('M 360 30 L 200 30 L 40 30');
+    // flow order preserved: the path runs right → left physically,
+    // dot-edge to dot-edge (nodeRadius 10 shaved per end — r3)
+    expect(g.runPath).toBe('M 350 30 L 210 30 M 190 30 L 50 30');
     expect(g.runLength).toBe(320);
     spy.mockRestore();
   });

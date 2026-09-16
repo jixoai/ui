@@ -3810,8 +3810,12 @@ snippet receiving the measured geometry) replaces it. Breaking, no compat.
 
 - GIVEN a multi-item timeline on any axis/direction/interlacing variant
 - WHEN the spine draws
-- THEN the connector runs item-center to item-center as ONE path per
-  run — no per-item seams, no dead windows at node edges, verified by
+- THEN the connector runs dot-EDGE to dot-EDGE as one path element per
+  run (per-gap subpaths, `M edge L edge`) — the axis NEVER crosses a
+  dot: a gap of the dot's diameter interrupts the stroke at every
+  node (hollow and pending dots show no line through their centers —
+  the Owner's r3 ruling, superseding the center-to-center W3 freeze),
+  no per-item seams, verified by
   probe (path geometry) across the axis × direction × RTL matrix
 
 #### Scenario: the dash phase anchors to the node edge
@@ -3864,8 +3868,10 @@ mirroring the native sibling's tier vocabulary — `none` is
 native-only, a hand-drawn scrollbar that draws nothing is the
 platform tier); the track sits FLUSH against the region edge (no
 decorative standoff inset); and the hover/drag growth is
-EDGE-ANCHORED — the outer (edge-side) flank pins to the device pixel
-while the cross size grows INTO the content (the
+EDGE-ANCHORED — the thumb's outer (edge-side) flank sits AT the
+region edge (the r3 ruling: `inset-inline-end: 0` / block-end `0` —
+truly flush, the 2px resting inset lives on the START side) while
+the cross size grows INTO the content (the
 `transform-origin: right center` semantics for an inline-end vertical
 track; RTL mirrors through logical properties; the horizontal axis
 anchors its block-end flank). A separate `native-scroll-area` item
@@ -3959,13 +3965,14 @@ untouched.
 - THEN the thumb's computed `border-radius` is `0px` by default, paints
   any configured px, and `'full'` paints the capsule; the `width`
   tiers size the lane (thin/auto/wide, probe-measured track widths
-  8/12/16; resting thumb cross sizes 4/8/12 — both flanks at the 2px
-  resting inset; hover/drag 6/10/14); the track's computed edge inset
-  is `0` (flush); and under hover the thumb's edge-side flank
-  coordinate (2px inside the flush track) is UNCHANGED (to the device
-  pixel) while its cross size grows strictly inward, never crossing
-  the region boundary — probe-asserted on both axes and under RTL
-  (the anchor mirrors with the logical edge)
+  8/12/16; resting thumb cross sizes 6/10/14 = track − 2, the 2px
+  resting inset on the START side; hover/drag 8/12/16 = the track —
+  growth always exactly 2px inward); the track's computed edge inset
+  is `0` (flush) and the thumb's edge-side flank sits AT the region
+  edge (`0`); under hover the thumb's edge-side flank coordinate is
+  UNCHANGED (to the device pixel) while its cross size grows strictly
+  inward — probe-asserted on both axes and under RTL (the anchor
+  mirrors with the logical edge)
 
 ### Requirement: floating surfaces speak spec-true position-area (Owner 2026-09-15)
 
@@ -4009,16 +4016,21 @@ and `TimelineDot` SHALL accept `children` rendered inside the node
 grammar and variants. BEYOND reui, the drawn spine SHALL map the value
 onto the measured path through a FROZEN STOPS PROTOCOL: the geometry
 payload carries `stops: { step: number; arc: number }[]` — the DEDUPED
-milestone table; each `arc` is the milestone's OWNING node's CUMULATIVE
-polyline length (the sum of per-segment lengths — the standing
-first↔last CHORD `runLength`
-retires from every dasharray consumer: the scroll-progress stroke and
-the beam both ride `pathLength = stops.at(-1).arc`); `stops[0].arc`
-is 0 on the unique-first-step ladder (the default) and non-zero only
+milestone table; each `arc` is the milestone's OWNING node's CENTER
+position on the CONTINUOUS center-to-center `flowPath` (the r3-review
+close: Chromium restarts the dash phase at every M subpath, so the
+dash-driven strokes — progress and beam — MUST ride one continuous
+path; the Owner-r3 dot gaps come from a MASK — white ground, one
+black circle per node at the measured radius, a per-instance id —
+applied to those strokes, never from their path data; the BASE
+layer's `runPath` carries the per-gap edge-to-edge subpaths; the
+standing first↔last CHORD `runLength` stays
+retired from every dasharray consumer); `stops[0].arc` is 0 on the
+unique-first-step ladder (the default) and non-zero only
 when the first step duplicates (the owner is a later node); a value
 below the first milestone maps to length 0; a value inside a
 declared step gap interpolates across that gap's arc. The progress
-stroke runs from the first node center to the interpolated point at
+stroke runs from the path's start to the interpolated point at
 `value` via stroke-dashoffset arithmetic, with a CSS transition on
 the dashoffset (reduced motion: none) so tweening the value animates
 the draw. `animation: 'scroll'` SHALL keep owning the stroke channel —
@@ -4042,12 +4054,15 @@ extended additively with the stops table), and `pending` are KEPT
 - GIVEN a measured spine with ≥ 2 nodes and `value` between two
   bracketing steps a < value < b
 - THEN the progress stroke's tip lands at the STEP-SPACE interpolated
-  arc position — probe-sampled at the node1→node2 midpoint for `1.5`
-  on the default 1,2,3… ladder (±1px on the path length),
-  zero-length at the first step on the unique-step ladder (the
-  default), the full run at the last; a fractional value inside a
-  DECLARED gap (steps 2 and 5, value 3.5) interpolates across that
-  gap's arc; and a DUPLICATED first step (1,1,2) draws `value = 1`
+  arc position on the continuous flowPath — probe-sampled at the
+  node1→node2 gap's visual midpoint for `1.5`
+  on the default 1,2,3… ladder (the dot MASK renders the
+  center-space tip at the dot's edge; ±1px on the path length),
+  zero-length at the first step, the full run at the last; a
+  fractional value inside a
+  DECLARED gap (steps 2 and 5, value 3.5)
+  interpolates across that gap's arc; and a DUPLICATED first step
+  (1,1,2) draws `value = 1`
   to the milestone's owning later node, with sub-first values
   clamped to 0 — all unit/probe-asserted
 

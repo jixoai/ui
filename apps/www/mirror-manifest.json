@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-16T08:29:10.911Z",
+  "generatedAt": "2026-09-16T10:40:14.390Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -3329,8 +3329,8 @@
           "source": "registry/files/ui/timeline/timeline.svelte",
           "mirror": "apps/www/src/lib/ui/timeline/timeline.svelte",
           "target": "@ui/timeline/timeline.svelte",
-          "sourceSha": "677cda63bc97c3f2dc072befc95fdc0d06fa0db6a80498b509085618b78b5c4c",
-          "mirrorSha": "677cda63bc97c3f2dc072befc95fdc0d06fa0db6a80498b509085618b78b5c4c"
+          "sourceSha": "e72010cdc2aa776606b6b34d06284b32416283866b3a94e52f23512dd357bf3a",
+          "mirrorSha": "e72010cdc2aa776606b6b34d06284b32416283866b3a94e52f23512dd357bf3a"
         },
         {
           "source": "registry/files/ui/timeline/timeline-item.svelte",
@@ -3357,8 +3357,8 @@
           "source": "registry/files/ui/timeline/timeline-spine.svelte.ts",
           "mirror": "apps/www/src/lib/ui/timeline/timeline-spine.svelte.ts",
           "target": "@ui/timeline/timeline-spine.svelte.ts",
-          "sourceSha": "6caf5eb0bd4d39b6027a5fbcd4f08a64603c71ea5ac8e76aa6393c6492b8f503",
-          "mirrorSha": "6caf5eb0bd4d39b6027a5fbcd4f08a64603c71ea5ac8e76aa6393c6492b8f503"
+          "sourceSha": "ef1f413685c641d0d12954cc685915d16d8dd6127f8ec8aa84acdf5e0aae85ec",
+          "mirrorSha": "ef1f413685c641d0d12954cc685915d16d8dd6127f8ec8aa84acdf5e0aae85ec"
         },
         {
           "source": "registry/files/ui/timeline/timeline-content.svelte",
@@ -3385,8 +3385,8 @@
           "source": "registry/files/ui/timeline/timeline.css",
           "mirror": "apps/www/src/lib/ui/timeline/timeline.css",
           "target": "@ui/timeline/timeline.css",
-          "sourceSha": "891469fa93ceedab4c97590f30808f375b7c6fb7d6fe511330123f4b5873bc8f",
-          "mirrorSha": "891469fa93ceedab4c97590f30808f375b7c6fb7d6fe511330123f4b5873bc8f"
+          "sourceSha": "416f955332941df0b2f1dbff88b1e960900f77418f08106e8008148165b48337",
+          "mirrorSha": "416f955332941df0b2f1dbff88b1e960900f77418f08106e8008148165b48337"
         },
         {
           "source": "registry/files/ui/timeline/index.ts",
@@ -3960,8 +3960,8 @@
           "source": "registry/files/ui/scroll-area/scroll-area.css",
           "mirror": "apps/www/src/lib/ui/scroll-area/scroll-area.css",
           "target": "@ui/scroll-area/scroll-area.css",
-          "sourceSha": "6d79d57b30f7f0c836c2f65fa4c1cab643c0fa48ec6c20de23b6110e14cb7e69",
-          "mirrorSha": "6d79d57b30f7f0c836c2f65fa4c1cab643c0fa48ec6c20de23b6110e14cb7e69"
+          "sourceSha": "ce7fa6f0369d82d6193df834c7244421b961ac97a07a41f3138082c1f4483c02",
+          "mirrorSha": "ce7fa6f0369d82d6193df834c7244421b961ac97a07a41f3138082c1f4483c02"
         }
       ]
     },

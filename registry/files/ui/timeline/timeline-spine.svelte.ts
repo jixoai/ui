@@ -17,8 +17,8 @@
  *     list-root space IS svg user space; no viewBox, user units map
  *     1:1 to CSS px);
  *   - axis / direction / interlaced / rtl metadata;
- *   - per-segment path data (center to center, plus the dash phase
- *     anchor at the from-node's flow-end edge);
+ *   - per-segment path data (dot-EDGE to dot-edge, Owner r3, plus
+ *     the dash phase anchor at the from-node's flow-end edge);
  *   - the STOPS table — the DEDUPED milestone ladder: one
  *     { step, arc } per unique step, arc = the milestone's OWNING
  *     node's cumulative polyline length (the item's declared
@@ -54,11 +54,12 @@ export interface TimelineSpineNode {
   y: number;
 }
 
-/** one connector, node-center to node-center */
+/** one connector, dot-edge to dot-edge (Owner r3: the axis never
+ * crosses a dot — the subpath stops at both nodes' edges) */
 export interface TimelineSpineSegment {
   from: TimelineSpineNode;
   to: TimelineSpineNode;
-  /** `M from L to` — center to center, run under the dots */
+  /** `M from L to` — the EDGE-to-EDGE gap connector (the base layer) */
   d: string;
   length: number;
   /**
@@ -95,8 +96,15 @@ export interface TimelineSpineGeometry {
   nodes: TimelineSpineNode[];
   /** per-segment connectors, flow order */
   segments: TimelineSpineSegment[];
-  /** ONE continuous center-to-center path per run (no per-item seams) */
+  /** ONE path element per run, per-gap edge-to-edge subpaths (Owner r3:
+   *  the axis never crosses a dot; no per-item seams) — the BASE layer */
   runPath: string;
+  /** ONE CONTINUOUS center-to-center path per run — the DASH-DRIVEN
+   *  layer (progress stroke + beam): Chromium restarts the dash phase
+   *  at every M subpath, so the draw-on/beam math needs a single
+   *  subpath; the Owner r3 gaps come from the dot MASK the template
+   *  applies to these strokes, never from the path data */
+  flowPath: string;
   /**
    * the first↔last CHORD (kept for payload compatibility with custom
    * spine snippets) — RETIRED from every dasharray consumer: the
@@ -107,10 +115,12 @@ export interface TimelineSpineGeometry {
   runLength: number;
   /** the DEDUPED milestone table — later node owns a duplicated step */
   stops: TimelineSpineStop[];
-  /** the polyline's TRUE cumulative total (the last DOM node's arc) —
-   *  the dasharray basis for every stroke consumer; identical to
-   *  stops.at(-1).arc under the ascending contract, and the honest
-   *  denominator when an authored inversion normalizes (Gate-2 r3) */
+  /** the CENTER polyline's cumulative total (the flowPath's length) —
+   *  the dasharray basis for every dash-driven stroke (progress, beam);
+   *  identical to stops.at(-1).arc under the ascending contract, and
+   *  the honest denominator when an authored inversion normalizes
+   *  (Gate-2 r3). The BASE layer's edge subpaths are SHORTER — the
+   *  dots' diameters never enter the dash math */
   pathLength: number;
   /** the measured dot radius (half the dot's inline size) */
   nodeRadius: number;
@@ -164,40 +174,60 @@ export function measureTimelineSpine(
   }
   if (nodes.length === 0) return null;
 
+  // EDGE-TO-EDGE segments (Owner r3: the axis NEVER crosses a dot):
+  // each gap's subpath runs from node i's OUTGOING edge to node i+1's
+  // INCOMING edge (the center-line direction, offset nodeRadius at
+  // both ends) — a gap of the dot's diameter interrupts the stroke at
+  // every node, exactly like the no-JS floor's ground cutouts
   const segments: TimelineSpineSegment[] = [];
+  const edgeSubpaths: string[] = [];
   for (let i = 0; i + 1 < nodes.length; i++) {
     const from = nodes[i]!;
     const to = nodes[i + 1]!;
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const dist = Math.hypot(dx, dy);
+    const ux = dist > 0 ? dx / dist : 0;
+    const uy = dist > 0 ? dy / dist : 0;
+    const edgeLen = Math.max(0, dist - 2 * nodeRadius);
+    const a = { x: round2(from.x + ux * nodeRadius), y: round2(from.y + uy * nodeRadius) };
+    const b = { x: round2(to.x - ux * nodeRadius), y: round2(to.y - uy * nodeRadius) };
     segments.push({
-      from,
-      to,
-      d: `M ${from.x} ${from.y} L ${to.x} ${to.y}`,
-      length: round2(Math.hypot(to.x - from.x, to.y - from.y)),
+      from: a,
+      to: b,
+      d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
+      length: round2(edgeLen),
       // dashoffset lands pattern position 0 at the flow-end edge:
       // pos(L) = (L + offset) mod period must be 0 at L = radius
       edgePhase: round2((TIMELINE_DASH_PERIOD - (nodeRadius % TIMELINE_DASH_PERIOD)) % TIMELINE_DASH_PERIOD),
     });
+    if (edgeLen > 0) edgeSubpaths.push(`M ${a.x} ${a.y} L ${b.x} ${b.y}`);
   }
 
-  const runPath =
-    'M ' + nodes.map((n) => `${n.x} ${n.y}`).join(' L ');
+  // ONE path element, per-gap subpaths (the r3 supersession of the W3
+  // center-to-center freeze: continuity of ELEMENT, gaps at nodes)
+  const runPath = edgeSubpaths.join(' ');
+  // the CONTINUOUS center polyline — the dash-driven layer's path
+  // (Chromium restarts dash phase at every M; the gaps come from the
+  // template's dot mask instead)
+  const flowPath = 'M ' + nodes.map((n) => `${n.x} ${n.y}`).join(' L ');
   const ols = nodes[nodes.length - 1]!;
   const fs = nodes[0]!;
   const runLength = round2(Math.hypot(ols.x - fs.x, ols.y - fs.y));
 
-  // THE STOPS TABLE: cumulative polyline arcs (arc[i] = the sum of the
-  // per-segment euclidean lengths before node i — NEVER the chord),
-  // deduped over steps with the LATER node owning a duplicated step
-  // (an earlier duplicate is a pass-through point, never a milestone),
-  // then NORMALIZED to ascending step order (Gate-2 r1: an authored
+  // THE STOPS TABLE in CENTER space (the dash-driven layer's basis —
+  // milestone k at node k's CENTER on the continuous flowPath; the dot
+  // MASK makes the visual tip land at the dot's edge for free): deduped
+  // over steps with the LATER node owning a duplicated step (an
+  // earlier duplicate is a pass-through point, never a milestone), then
+  // NORMALIZED to ascending step order (Gate-2 r1: an authored
   // inversion like [3,1,2] must never yield a non-monotone ladder —
-  // warn once naming the offending sequence, sort the table; the arcs
-  // stay bound to their owning nodes so the mapping stays total)
+  // warn once naming the offending sequence, sort the table)
   const stops: TimelineSpineStop[] = [];
   let cumulative = 0;
   const domOrdered: TimelineSpineStop[] = [];
   for (let i = 0; i < nodes.length; i++) {
-    if (i > 0) cumulative += segments[i - 1]!.length;
+    if (i > 0) cumulative += Math.hypot(nodes[i]!.x - nodes[i - 1]!.x, nodes[i]!.y - nodes[i - 1]!.y);
     const stop: TimelineSpineStop = { step: steps[i]!, arc: round2(cumulative) };
     const claimed = domOrdered.findIndex((s) => s.step === stop.step);
     if (claimed >= 0) domOrdered[claimed] = stop;
@@ -225,9 +255,9 @@ export function measureTimelineSpine(
     if (stop.arc < runningMaxArc) stop.arc = runningMaxArc;
     else runningMaxArc = stop.arc;
   }
-  // pathLength = the polyline's TRUE cumulative total (the last DOM
-  // node's arc) — under the ascending contract it equals
-  // stops.at(-1).arc; an inversion keeps the honest denominator
+  // pathLength = the CENTER polyline's cumulative total (the
+  // flowPath's length) — the dash basis; the chord stays retired; an
+  // inversion keeps the honest denominator
   const pathLength = round2(cumulative);
 
   const axis = (host.getAttribute('data-axis') as TimelineSpineGeometry['axis']) ?? 'vertical';
@@ -246,6 +276,7 @@ export function measureTimelineSpine(
     nodes,
     segments,
     runPath,
+    flowPath,
     runLength,
     stops,
     pathLength,

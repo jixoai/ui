@@ -350,12 +350,18 @@ describe('timeline stops protocol — the measured milestone table', () => {
       ],
     });
     const g = measureTimelineSpine(host, list)!;
+    // CENTER SPACE (the dash-driven layer's basis — r3-review close:
+    // the flowPath stays continuous, the dot MASK subtracts the dots):
+    // milestone k at node k's center, pathLength = the center polyline
     expect(g.stops).toEqual([
       { step: 1, arc: 0 },
       { step: 2, arc: 80 },
       { step: 3, arc: 160 },
     ]);
     expect(g.pathLength).toBe(160);
+    // the base layer's edge subpaths + the continuous flowPath both ship
+    expect(g.runPath).toBe('M 40 20 L 40 80 M 40 100 L 40 160');
+    expect(g.flowPath).toBe('M 40 10 L 40 90 L 40 170');
     // stops[0].arc is 0 on the unique-first-step ladder (the default)
     expect(g.stops[0]!.arc).toBe(0);
   });
@@ -377,7 +383,7 @@ describe('timeline stops protocol — the measured milestone table', () => {
       { step: 2, arc: 160 },
       { step: 3, arc: 160 },
     ]);
-    // pathLength = the polyline's TRUE total, not the mis-ordered arc
+    // pathLength = the CENTER polyline's total, not the mis-ordered arc
     expect(g.pathLength).toBe(160);
   });
 
@@ -417,7 +423,8 @@ describe('timeline stops protocol — the measured milestone table', () => {
       { step: 2, arc: 160 },
     ]);
     // the owner mapping through the frozen mapping: value 1 draws to
-    // node 2's center, value 0.5 draws nothing
+    // node 2's center (the dot MASK shows the tip at its edge), value
+    // 0.5 draws nothing
     expect(timelineProgressLength(g.stops, 1)).toBe(80);
     expect(timelineProgressLength(g.stops, 0.5)).toBe(0);
   });
@@ -432,9 +439,10 @@ describe('timeline stops protocol — the measured milestone table', () => {
       ],
     });
     const g = measureTimelineSpine(host, list)!;
-    expect(g.segments.map((s) => s.length)).toEqual([100, 100]);
+    // EDGE segments (the base layer): each 100px leg − 2×R10 = 80px
+    expect(g.segments.map((s) => s.length)).toEqual([80, 80]);
     expect(g.runLength).toBe(120); // the chord — kept for payload compat
-    expect(g.pathLength).toBe(200); // the polyline — the dasharray basis
+    expect(g.pathLength).toBe(200); // the CENTER polyline — the dasharray basis
     expect(g.pathLength).not.toBe(g.runLength);
     expect(g.stops.at(-1)!.arc).toBe(200);
   });

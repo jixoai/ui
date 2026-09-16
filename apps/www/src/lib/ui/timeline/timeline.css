@@ -63,7 +63,7 @@
  *                                      retires under
  *                                      data-jx-spine='drawn'
  *   [data-jx-tl-base]                  the drawn plain spine: ONE
- *                                      continuous run path
+ *                                      continuous run path — the drawn era's BASE layer is one path element of edge subpaths
  *   [data-jx-tl-seg]                   the dashed preset's
  *                                      per-segment strokes
  *                                      (stroke-dashoffset phase-
@@ -131,7 +131,8 @@
     overflow: visible;
     pointer-events: none;
   }
-  /* the plain spine: ONE continuous center-to-center run path */
+  /* the plain spine: ONE path element, per-gap edge-to-edge subpaths
+     (Owner r3: the axis never crosses a dot) */
   :where([data-jx-tl-spine] > [data-jx-tl-base]) {
     fill: none;
     stroke: var(--border);

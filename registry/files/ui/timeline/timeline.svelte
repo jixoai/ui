@@ -73,8 +73,12 @@
   }
 
   /** context key — global symbol registry so the family files stay
-   *  independent registry items (the menubar precedent) */
+   * independent registry items (the menubar precedent) */
   export const TIMELINE_KEY = Symbol.for('jx-timeline-value');
+
+  /** per-instance id source for the dot mask (the SMIL namespacing
+   * law's id hygiene — every instance references its own def) */
+  let uidCounter = 0;
 </script>
 
 <script lang="ts">
@@ -215,6 +219,17 @@
   const beamLen = $derived(
     geometry ? Math.max(48, Math.round(geometry.pathLength * 0.2)) : 0,
   );
+
+  // ── the DOT MASK (Owner r3: the axis never crosses a dot) ─────────
+  // the dash-driven strokes (progress, beam) ride the CONTINUOUS
+  // center-to-center flowPath — Chromium restarts the dash phase at
+  // every M subpath, so per-gap subpaths would duplicate the drawn
+  // progress in every gap (the r3-review catch). The gaps come from
+  // THIS mask instead: white everywhere, one black circle per node
+  // (the measured radius) — the math stays single-path, the visual
+  // stays dot-free. Per-instance id (the SMIL namespacing law)
+  const instanceUid = uidCounter++;
+  const dotMaskId = `jx-tl-dot-mask-${instanceUid}`;
 </script>
 
 <div
@@ -235,6 +250,19 @@
        map 1:1 to the overlay's CSS px (the payload's list-root space) -->
   <svg data-jx-tl-spine="" aria-hidden="true">
     {#if geometry}
+      <!-- the DOT MASK (Owner r3): white ground + one black circle per
+           node at the measured radius — the dash-driven strokes ride
+           the CONTINUOUS flowPath and the mask subtracts the dot areas
+           (Chromium restarts dash phase at every M subpath, so the
+           draw-on math must stay single-path; per-instance id) -->
+      <defs>
+        <mask id={dotMaskId} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
+          <rect x="0" y="0" width={geometry.width} height={geometry.height} fill="#fff"></rect>
+          {#each geometry.nodes as node (node.x + ':' + node.y)}
+            <circle cx={node.x} cy={node.y} r={geometry.nodeRadius} fill="#000"></circle>
+          {/each}
+        </mask>
+      </defs>
       {#if typeof spine === 'function'}
         {@render spine(geometry)}
       {:else if spine === 'dashed'}
@@ -269,8 +297,9 @@
         </defs>
         <path
           data-jx-tl-beam=""
-          d={geometry.runPath}
+          d={geometry.flowPath}
           stroke="url(#jx-tl-beam-grad)"
+          mask="url(#{dotMaskId})"
           stroke-dasharray="{beamLen} {pathLength}"
           style="--jx-tl-run: {pathLength}px; --jx-tl-beam-len: {beamLen}px; --jx-tl-beam-park: -{geometry.nodeRadius}px"
         ></path>
@@ -283,7 +312,8 @@
              (the frozen interplay — value still drives data-completed) -->
         <path
           data-jx-tl-progress=""
-          d={geometry.runPath}
+          d={geometry.flowPath}
+          mask="url(#{dotMaskId})"
           stroke-dasharray="{pathLength} {pathLength}"
           style="--jx-tl-run: {pathLength}px"
         ></path>
@@ -294,7 +324,8 @@
              timeline.css; reduced motion: none) -->
         <path
           data-jx-tl-progress=""
-          d={geometry.runPath}
+          d={geometry.flowPath}
+          mask="url(#{dotMaskId})"
           stroke-dasharray={pathLength}
           stroke-dashoffset={pathLength - progressLen}
         ></path>

@@ -1262,7 +1262,7 @@ ${close}
         headerRegion="spine"
         eyebrow="seam"
         title="the spine — drawn, not backgrounded"
-        summary="One whole-list SVG layer paints the spine: connectors run item-center to item-center as ONE continuous path per run; dashed is a real stroke-dasharray whose phase anchors a dash START at the node's flow-end edge — at every density, because the anchor is measured; beam is a stroked gradient segment with actual width and soft edges. The spine prop takes a preset name or a custom snippet receiving the measured geometry payload."
+        summary="One whole-list SVG layer paints the spine: connectors run dot-edge to dot-edge as per-gap subpaths of ONE path element (the axis never crosses a dot); dashed is a real stroke-dasharray whose phase anchors a dash START at the node's flow-end edge — at every density, because the anchor is measured; beam is a stroked gradient segment with actual width and soft edges. The spine prop takes a preset name or a custom snippet receiving the measured geometry payload."
       >
         <ComponentCanvas title="timeline · spine presets" stage="fill" files={timelinePresetsFiles}>
           <div class="grid gap-6 min-[1100px]:grid-cols-3">
