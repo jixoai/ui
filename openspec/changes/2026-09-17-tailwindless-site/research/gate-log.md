@@ -73,3 +73,18 @@
   agent). Note the score dipped 6.2→4.0 because the reviewer went
   DEEPER, not because the gate regressed — each round's fixes are
   cumulative and the bypass surface is visibly converging.
+- **Round 6 (tw-gate2) — NO-GO 7.8/10**: every attack class from
+  rounds 4–5 re-verified CLOSED (ten named reds), and exactly ONE P0
+  blocker remained — found by reproduction in a temp worktree: the
+  probes' startServer only waited for ANY 200 on the fixed :5198, so
+  a stale server let the probe's own (already-dead, 'port in use')
+  vite pass readiness and measure a FOREIGN tree green. → closed
+  four ways: child exit/error watch (instant red), post-readiness
+  lsof OWNERSHIP check (both pids named in the abort), RANDOM free
+  port for the after side (5199 before-baseline untouched), and
+  --ownership-selftest with a REAL HTTP-200 occupier (the hole's
+  exact shape) — both probes PASS the negative. Receipts regenerated
+  on the guarded probes (86/86 + 25/25), verify-receipt green on
+  both paths. Non-P0 trust boundary noted by the reviewer: local
+  receipts are self-signed — CI signing/immutable manifest for
+  formal releases (Pfinal consideration).
