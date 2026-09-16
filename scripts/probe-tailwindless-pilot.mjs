@@ -93,7 +93,10 @@ const canonicalJson = (v) =>
     ? JSON.stringify(v)
     : Array.isArray(v)
       ? `[${v.map(canonicalJson).join(',')}]`
-      : `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(',')}}`;
+      // undefined keys must drop EXACTLY like JSON.stringify does at
+      // write time — else the generation hash covers keys the file
+      // never carries and every recompute mismatches (the Gate-5 bug)
+      : `{${Object.keys(v).filter((k) => v[k] !== undefined).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(',')}}`;
 // the chain payload: what a receipt VOUCHES for. Hashing commit+summary+rows
 // (not rows alone) makes a hand-edit of meta.commit or of the summary numbers
 // detectable — the Codex round-5 bypass (b).

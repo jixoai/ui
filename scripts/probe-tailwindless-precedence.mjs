@@ -79,7 +79,10 @@ const canonicalJson = (v) =>
     ? JSON.stringify(v)
     : Array.isArray(v)
       ? `[${v.map(canonicalJson).join(',')}]`
-      : `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(',')}}`;
+      // undefined keys must drop EXACTLY like JSON.stringify does at
+      // write time — else the generation hash covers keys the file
+      // never carries and every recompute mismatches (the Gate-5 bug)
+      : `{${Object.keys(v).filter((k) => v[k] !== undefined).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(',')}}`;
 const chainPayloadOf = (r) => ({ commit: r?.meta?.commit ?? null, summary: r?.summary ?? null, rows: r?.matrix ?? r?.rows ?? null });
 const summaryHashOf = (r) => createHash('sha256').update(canonicalJson(chainPayloadOf(r))).digest('hex').slice(0, 16);
 
@@ -415,7 +418,7 @@ try {
     receipt.server.teardown.chromeLeftovers = '(none)';
   }
   receipt.rows = rows;
-  receipt.summary = { total: rows.length, passed: rows.length - rows.filter((r) => r.ok).length, failed: rows.filter((r) => !r.ok).length };
+  receipt.summary = { total: rows.length, passed: rows.filter((r) => r.ok).length, failed: rows.filter((r) => !r.ok).length };
   // Gate-5 content binding: hash BEFORE writing, over the exact body
   // being persisted — probe-tailwindless-pilot.mjs --verify-receipt
   // recomputes it alongside the pilot receipt's own
