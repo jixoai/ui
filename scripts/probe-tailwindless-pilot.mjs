@@ -122,9 +122,13 @@ if (process.argv.includes('--verify-receipt')) {
     // HEAD, and everything between it and HEAD must be receipt
     // artifacts only (the change's research/ paths) — any CODE drift
     // since the measurement is red
-    const isAncestor = execFileSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', parsed.meta.commit, head], { stdio: 'ignore' }).status === 0
-      ? true
-      : (() => { try { execFileSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', parsed.meta.commit, head]); return true; } catch { return false; } })();
+    let isAncestor;
+    try {
+      execFileSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', parsed.meta.commit, head], { stdio: 'ignore' });
+      isAncestor = true;
+    } catch {
+      isAncestor = false;
+    }
     if (!isAncestor) {
       failVerify(`receipt commit ${parsed.meta.commit.slice(0, 8)} is NOT an ancestor of HEAD ${head.slice(0, 8)} — re-run the probe on this tree`);
     }
