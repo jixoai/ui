@@ -2,8 +2,8 @@
   "meta": {
     "change": "2026-09-17-tailwindless-site",
     "task": "4.1 — the P0 acceptance matrix (pinned probe)",
-    "runAt": "2026-09-16T22:08:40.389Z",
-    "generatedAt": "2026-09-16T22:08:40.389Z",
+    "runAt": "2026-09-16T23:41:38.100Z",
+    "generatedAt": "2026-09-16T23:41:38.100Z",
     "page": "/docs/components/timeline.html",
     "viewports": [
       375,
@@ -15,21 +15,11 @@
     "deviceScaleFactor": 2,
     "playwright": "1.63.0",
     "chrome": "/Users/kzf/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
-    "commit": "74ed7de016475a3aade83d64c245553c721c6563",
-    "commitShort": "74ed7de0",
+    "commit": "cd339590fd6f95a1bc25d0486985dc95f695c177",
+    "commitShort": "cd339590",
     "dirty": {
-      "fileCount": 12,
+      "fileCount": 2,
       "files": [
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1099.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1100.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1440.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w375.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w768.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1099.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1100.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1440.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w375.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w768.png",
         " M openspec/changes/2026-09-17-tailwindless-site/research/pilot-matrix-receipt.json",
         " M openspec/changes/2026-09-17-tailwindless-site/research/precedence-receipt.json"
       ]
@@ -49,7 +39,7 @@
     ],
     "provenance": {
       "before": "main server http://localhost:5199 — READ-ONLY (HTTP GET + headless browsing only; never restarted/written/killed); serves main@eb0c9aed (the pre-migration Tailwind page, prerendered build)",
-      "after": "worktree dev server http://localhost:5198 — vite dev over apps/www, branch tailwindless-site, HEAD 74ed7de016475a3aade83d64c245553c721c6563 (meta.commit; dirty: 12 files — see meta.dirty)",
+      "after": "worktree dev server http://localhost:null — vite dev over apps/www, branch tailwindless-site, HEAD cd339590fd6f95a1bc25d0486985dc95f695c177 (meta.commit; dirty: 2 files — see meta.dirty)",
       "ghosttyWasm": "JIXOAI_GHOSTTY_WASM_PATH=/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/.cache/jixoai-ghostty/0fb5949ce28da01bf265143782b2b44487568fefd6ff40528900688565ec6a12.wasm (sha256 matches ghostty.pin.json \"full\"; the env override never writes any cache)"
     }
   },
@@ -57,17 +47,18 @@
     "spawn": {
       "cmd": "/Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/apps/www/node_modules/.bin/vite dev --port 5198 --strictPort",
       "cwd": "/Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/apps/www",
-      "pid": 25302,
-      "pgid": 25302,
+      "pid": 2453,
+      "pgid": 2453,
       "envJixoaiGhosttyWasmPath": "/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/.cache/jixoai-ghostty/0fb5949ce28da01bf265143782b2b44487568fefd6ff40528900688565ec6a12.wasm",
-      "logPath": "/tmp/probe-tailwindless-dev-25302.log",
+      "logPath": "/tmp/probe-tailwindless-dev-2453.log",
+      "port": 53749,
       "warmupStatus": 200
     },
     "teardown": {
-      "pid": 25302,
-      "psBefore": "",
-      "killedBy": "group SIGTERM failed: kill ESRCH",
-      "portAfter": "61895",
+      "pid": 2453,
+      "psBefore": "PID  PGID COMMAND\n 2453  2453 node /Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/apps/www/node_modules/.bin/vite dev --port 53749 --strictPort",
+      "killedBy": "SIGTERM → process group -2453",
+      "portAfter": "(empty — port free)",
       "logTail": "",
       "chromeLeftovers": "(none)"
     }
@@ -1300,54 +1291,54 @@
   "artifacts": [
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w375.png",
-      "bytes": 170991,
-      "sha256": "c9a907ea0fb0fe61706846614784179ed0decbf5f2491ef1f473fc89de219cd6"
+      "bytes": 170955,
+      "sha256": "e50f9f6f42350b13e4a045c22e0c8fa05bc08addb6b4d229949922d9ca92b301"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w768.png",
-      "bytes": 218391,
-      "sha256": "a094da282f24b5686122a7132dd93da11c21e0cedbdabc5f69585a2662552d0f"
+      "bytes": 218295,
+      "sha256": "9d6827033f248debda0fc67cba7eeb27652667d4c68fa1f42495bc24156d2f08"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1099.png",
-      "bytes": 277607,
-      "sha256": "1a07afc22cbefff2a0a829cecea207223bc2728a6bbb672e01b96f6f47cd8a35"
+      "bytes": 277529,
+      "sha256": "da6c83a60e4246c5410e0244ce82e5408a86b456c8fdc65b51d4bddec89b5103"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1100.png",
-      "bytes": 278253,
-      "sha256": "5b98a1af9a9e677cdbfc0b1c9cd889552e240c662c1a90d25fd7e10b60cb4dec"
+      "bytes": 285845,
+      "sha256": "7d18d5716d08fe5d9213c3f96b13dc87defd68d2e853e247ec85903ea95c750a"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1440.png",
-      "bytes": 356829,
-      "sha256": "bb3571df81e6836edd0fc936f5759520affd57ffd97a58c356f5e10d8ca68142"
+      "bytes": 364499,
+      "sha256": "d95f97067c2045507dc305eb6e19ade91ffbfebf6233941d3fa437568ea66c63"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w375.png",
-      "bytes": 170885,
-      "sha256": "2ff8dc1a7e2586de357b5b1f8bc079a51ddd419d3dffd1923f426032f9ba7d83"
+      "bytes": 171008,
+      "sha256": "49c6433cee8ff922d5748f25c2dcf0932bc1ebe4d3123d7d55dc7eacc32bd99e"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w768.png",
-      "bytes": 218234,
-      "sha256": "02cdc9f02554171f3a9ce38bf5625888a1e50969ecfa34f0706b00605d995626"
+      "bytes": 224157,
+      "sha256": "f73f3398837c3901972ab9c86d98994a05f962153fd4bf84949104c5fbaffb4c"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1099.png",
-      "bytes": 277627,
-      "sha256": "cb93397743f80f1b12ea44819dc2cf6eea2a2e55c87ccd2087a9d6c656c21d96"
+      "bytes": 290277,
+      "sha256": "a22b02806cb193665bdb21b17cdaaaf5f051e27660e5bd45fa89294e75862f1f"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1100.png",
-      "bytes": 278228,
-      "sha256": "b2dabc32e79df33a54eb1c5863abdfd3ee5382613dfb339dc0038c746927c53d"
+      "bytes": 285971,
+      "sha256": "095fb2e6df598e61bd5844566b95be18ac977dc72b8814c8ede19d5dc6c79f3a"
     },
     {
       "path": "openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1440.png",
-      "bytes": 356905,
-      "sha256": "af1bec3c4e797fc733c363df73e3941c7ea41e90c0af87a682e3d64f9c854601"
+      "bytes": 356904,
+      "sha256": "b3afe17e2851766cead0ca9d18d20db05526adba74fd13945a77301332c6fa19"
     }
   ],
-  "summaryHash": "c888c916a8164440"
+  "summaryHash": "c44e0185a9cb3940"
 }

@@ -2,24 +2,14 @@
   "meta": {
     "change": "2026-09-17-tailwindless-site",
     "task": "Gate-4 fix (2026-09-16) — lane-2 precedence probe: semantic sheet placement + consumer-utility override",
-    "runAt": "2026-09-16T22:08:22.728Z",
+    "runAt": "2026-09-16T23:41:18.669Z",
     "page": "/docs/components/timeline.html",
-    "commit": "74ed7de016475a3aade83d64c245553c721c6563",
-    "commitShort": "74ed7de0",
+    "commit": "cd339590fd6f95a1bc25d0486985dc95f695c177",
+    "commitShort": "cd339590",
     "branch": "tailwindless-site",
     "dirty": {
-      "fileCount": 12,
+      "fileCount": 2,
       "files": [
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1099.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1100.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w1440.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w375.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/after-w768.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1099.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1100.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w1440.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w375.png",
-        " M openspec/changes/2026-09-17-tailwindless-site/research/matrix/before-w768.png",
         " M openspec/changes/2026-09-17-tailwindless-site/research/pilot-matrix-receipt.json",
         " M openspec/changes/2026-09-17-tailwindless-site/research/precedence-receipt.json"
       ]
@@ -27,7 +17,7 @@
     "playwright": "1.63.0",
     "chrome": "/Users/kzf/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
     "provenance": {
-      "after": "worktree dev server http://localhost:5198 — vite dev over apps/www, HEAD 74ed7de016475a3aade83d64c245553c721c6563 (meta.commit; dirty: 12 files — see meta.dirty)",
+      "after": "worktree dev server http://localhost:null — vite dev over apps/www, HEAD cd339590fd6f95a1bc25d0486985dc95f695c177 (meta.commit; dirty: 2 files — see meta.dirty)",
       "ghosttyWasm": "JIXOAI_GHOSTTY_WASM_PATH=/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/.cache/jixoai-ghostty/0fb5949ce28da01bf265143782b2b44487568fefd6ff40528900688565ec6a12.wasm (env override; never writes any cache)",
       "sheet": "apps/www/src/lib/site/timeline-docs.css — @layer components { :where(.tl-*) { … } }"
     }
@@ -36,16 +26,17 @@
     "spawn": {
       "cmd": "/Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/apps/www/node_modules/.bin/vite dev --port 5198 --strictPort",
       "cwd": "/Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/apps/www",
-      "pid": 23883,
-      "pgid": 23883,
+      "pid": 2037,
+      "pgid": 2037,
       "envJixoaiGhosttyWasmPath": "/Users/kzf/Dev/GitHub/jixoai-labs/ui/node_modules/.cache/jixoai-ghostty/0fb5949ce28da01bf265143782b2b44487568fefd6ff40528900688565ec6a12.wasm",
-      "logPath": "/tmp/probe-precedence-dev-23883.log"
+      "logPath": "/tmp/probe-precedence-dev-2037.log",
+      "port": 53554
     },
     "teardown": {
-      "pid": 23883,
-      "psBefore": "",
-      "killedBy": "group SIGTERM failed: kill ESRCH",
-      "portAfter": "61895",
+      "pid": 2037,
+      "psBefore": "PID  PGID COMMAND\n 2037  2037 node /Users/kzf/Dev/GitHub/jixoai-labs/ui-tailwindless/apps/www/node_modules/.bin/vite dev --port 53554 --strictPort",
+      "killedBy": "SIGTERM → process group -2037",
+      "portAfter": "(empty — port free)",
       "logTail": "",
       "chromeLeftovers": "(none)"
     }
@@ -269,5 +260,5 @@
     "hoveredMatch": true,
     "attempt": 1
   },
-  "summaryHash": "c99789c031446916"
+  "summaryHash": "df401cbc3cedbe1f"
 }
