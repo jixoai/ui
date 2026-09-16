@@ -36,6 +36,13 @@
  *      `override-redo` (the human actor's UndoManager session, opened
  *      idempotently by this endpoint so panel commits are recorded).
  *      `status` reports the session's undo/redo availability.
+ *   5. MATERIALIZE — `POST /materialize` (design-studio-acceptance-fixes
+ *      §3): the composite lane turning a bare-boolean or absent prop
+ *      into an addressable buffer in ONE atomic `commitTransaction`
+ *      group (re-toasted scaffold tree update + the new hole's text
+ *      insert, §7 compile gate on the candidate), then one §8 drive.
+ *      `receiptFor(opId)` owns the retry; the usage response's
+ *      `skipped` list is the panel's materializable-vs-readonly evidence.
  *
  * Degradation law (create.ts's M6b posture): a workspace whose
  * `.jx-collab/` journal failed to open has NO host — every route
@@ -49,6 +56,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { treeItemsOf, projectSource } from './collab/bridge.ts';
 import { cliSync } from './collab/cli.ts';
 import type { CollabHost } from './collab-host.ts';
+import { MaterializeError, materializeProp } from './collab/prop-materialize.ts';
 import type {
   AdmissionResult,
   CommitReceipt,
@@ -276,6 +284,13 @@ export interface UsageResolution {
   readonly componentId: string;
   readonly shared: boolean;
   readonly buffers: readonly { readonly buffer: string; readonly how: string; readonly text: string }[];
+  /**
+   * the component's non-buffer props (design-studio-acceptance-fixes §3):
+   * bare booleans (materializable), expressions (readonly), directives —
+   * the `why` vocabulary is the planner's own, so the panel classifies
+   * 「可物化」 vs 「保持 readonly 的表达式」 with evidence, never guesswork.
+   */
+  readonly skipped: readonly { readonly name: string; readonly why: string }[];
 }
 
 /**
@@ -314,7 +329,10 @@ export async function resolveUsage(
   const buffers = report.buffers
     .filter((buffer) => buffer.componentId === entry.id)
     .map((buffer) => ({ buffer: buffer.buffer, how: buffer.how, text: kernel.bufferText(buffer.containerKey) }));
-  return { ok: true, page, componentId: entry.id, shared: entry.inEachBlock, buffers };
+  const skipped = report.skipped
+    .filter((skip) => skip.componentId === entry.id)
+    .map((skip) => ({ name: skip.name, why: skip.why }));
+  return { ok: true, page, componentId: entry.id, shared: entry.inEachBlock, buffers, skipped };
 }
 
 /** the panel's `file` (host-root-relative) → the design page path */
@@ -378,7 +396,7 @@ export function collabApiMiddleware(getHost: () => CollabHost | undefined): (req
     if (!pathname.startsWith(`${COLLAB_API_BASE}/`)) return next();
     if (req.method !== 'POST') return next();
     const route = pathname.slice(COLLAB_API_BASE.length + 1);
-    if (route !== 'usage' && route !== 'admit' && route !== 'sync' && route !== 'undo') return next();
+    if (route !== 'usage' && route !== 'admit' && route !== 'sync' && route !== 'undo' && route !== 'materialize') return next();
 
     let size = 0;
     const chunks: Buffer[] = [];
@@ -436,6 +454,8 @@ export async function resolveCollabApiRequest(host: CollabHost, route: string, b
         return await handleUsage(host, body);
       case 'admit':
         return await handleAdmit(host, body);
+      case 'materialize':
+        return await handleMaterialize(host, body);
       case 'sync':
         return handleSync(host, body);
       case 'undo':
@@ -507,6 +527,7 @@ async function handleUsage(host: CollabHost, body: unknown): Promise<CollabApiRe
       componentId: resolution.componentId,
       shared: resolution.shared,
       buffers: resolution.buffers,
+      skipped: resolution.skipped,
       ...(adopted !== undefined ? { adopted } : {}),
       ...(reconciled !== undefined ? { reconciled } : {}),
     },
@@ -527,6 +548,95 @@ async function handleAdmit(host: CollabHost, body: unknown): Promise<CollabApiRe
     status: result.status,
     body: { ...admissionToJson(result), ...(projection !== undefined ? { projection } : {}) },
   };
+}
+
+/* ── /materialize — the composite prop-materialization lane (§3) ──────── */
+
+/**
+ * POST /materialize {file, componentId, prop, value, opId, syncCursor}:
+ * turn a bare-boolean or absent prop into an addressable buffer in ONE
+ * atomic `commitTransaction` group (tree update + the new hole's text
+ * insert, §7 compile gate on the candidate), then drive ONE §8 cycle so
+ * the canonical projection reaches the file. Idempotency is the §5.0
+ * lane — `receiptFor(opId)` replays the original receipt (commit or
+ * rejection); the kernel's transaction core has none of its own.
+ */
+async function handleMaterialize(host: CollabHost, body: unknown): Promise<CollabApiResponse> {
+  if (!isObj(body)) return { status: 400, body: { ok: false, reason: 'bad-request', message: 'body must be a JSON object' } };
+  if (!isStr(body.file) || body.file.length === 0) return { status: 400, body: { ok: false, reason: 'bad-request', message: 'file (string) is required' } };
+  if (!isStr(body.componentId) || body.componentId.length === 0) return { status: 400, body: { ok: false, reason: 'bad-request', message: 'componentId (non-empty string) is required' } };
+  if (!isStr(body.prop) || body.prop.length === 0) return { status: 400, body: { ok: false, reason: 'bad-request', message: 'prop (non-empty string) is required' } };
+  if (typeof body.value !== 'string' && typeof body.value !== 'number' && typeof body.value !== 'boolean') {
+    return { status: 400, body: { ok: false, reason: 'bad-request', message: 'value (string | number | boolean) is required' } };
+  }
+  if (!isStr(body.opId) || body.opId.length === 0) return { status: 400, body: { ok: false, reason: 'bad-request', message: 'opId (non-empty string) is required' } };
+  const syncCursor = body.syncCursor === undefined ? undefined : syncCursorFromJson(body.syncCursor, 'syncCursor');
+  const page = pageOfFile(body.file);
+  if (page === null) return { status: 400, body: { ok: false, reason: 'bad-request', message: `file escapes the design workspace or is not a .svelte page: ${body.file}` } };
+
+  // §5.0 — the receipt lane owns the retry (commitTransaction is not
+  // idempotent on its own; the tree-update op carries this opId). The
+  // recorded answer may be a commit receipt OR the durable rejection —
+  // admissionToJson serializes either lane verbatim.
+  const replay = host.kernel.receiptFor(body.opId);
+  if (replay !== undefined) return { status: replay.status, body: admissionToJson(replay) };
+
+  // the human's UndoManager session opens BEFORE the commit (the §6
+  // override lane), exactly like the admit lane
+  host.kernel.openOverrideSession(PANEL_ACTOR);
+
+  let receipts;
+  try {
+    receipts = await materializeProp(host.gate, {
+      page,
+      componentId: body.componentId,
+      prop: body.prop,
+      value: body.value,
+      opId: body.opId,
+      actor: PANEL_ACTOR,
+      ...(syncCursor !== undefined ? { syncCursor } : {}),
+    });
+  } catch (error) {
+    if (error instanceof MaterializeError) {
+      return { status: error.status, body: { ok: false, reason: error.code, opId: body.opId, message: error.message } };
+    }
+    throw error; // the resolver's 500 lane — never a half-answer
+  }
+  if (receipts.status !== 'accepted') {
+    return {
+      status: 422,
+      body: { ok: false, reason: 'compile-failed', opId: body.opId, message: receipts.diagnostics ?? 'the transaction compile gate rejected the materialization group (zero effect)' },
+    };
+  }
+
+  // the §8 drive — the handleAdmit shape: canonical advanced out-of-band,
+  // the file verifiably holds a prior projection, the push lane converges
+  const outcome = await host.syncExternalChange(page);
+  if (outcome.writeBackGuard === true) {
+    return {
+      status: 409,
+      body: {
+        ok: false,
+        reason: 'write-back-guarded',
+        opId: body.opId,
+        message: `canonical committed the materialization but the external file holds divergent scaffold bytes — the guard kept them; reselect (the /usage reconcile drive converges the page)`,
+        projection: outcome.kind,
+      },
+    };
+  }
+  if (outcome.kind === 'failed' || outcome.kind === 'skipped' || outcome.kind === 'conflict') {
+    return {
+      status: 409,
+      body: { ok: false, reason: 'write-back-failed', opId: body.opId, message: `the §8 drive could not reach the file (${outcome.kind}${outcome.detail === undefined ? '' : `: ${outcome.detail}`}) — canonical holds the materialization; a projection-pending row records the gap`, projection: outcome.kind },
+    };
+  }
+  // the receipt the kernel minted under the request's opId (the tree
+  // update) — byte-equal with the replay lane above
+  const receipt = host.kernel.receiptFor(body.opId);
+  if (receipt === undefined || receipt.status !== 200) {
+    return { status: 500, body: { ok: false, reason: 'internal', message: 'the materialization committed but its receipt is unlocatable (internal)' } };
+  }
+  return { status: 200, body: { ...receiptToJson(receipt), projection: outcome.kind } };
 }
 
 /* ── /sync — the client log-cursor increment + tail-5 (§9) ────────────── */

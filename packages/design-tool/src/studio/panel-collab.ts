@@ -98,6 +98,18 @@ export interface UndoJson {
   readonly receipt?: { readonly updateB64?: string; readonly syncCursor?: SyncCursorJson };
 }
 
+/** the /materialize response (§5 receipt shape on 200; reason/message on failure) */
+export interface MaterializeJson {
+  readonly status?: number;
+  readonly code?: string;
+  readonly reason?: string;
+  readonly opId?: string;
+  readonly updateB64?: string;
+  readonly syncCursor?: SyncCursorJson;
+  readonly detail?: string;
+  readonly message?: string;
+}
+
 /** the transport seam — fetch in the studio, a stub in the tests */
 export interface PanelTransport {
   post(path: string, body: unknown): Promise<unknown>;
@@ -232,6 +244,13 @@ export interface PanelUsageInfo {
   readonly componentId: string;
   readonly shared: boolean;
   readonly buffers: readonly { readonly buffer: string; readonly how: string; readonly text: string }[];
+  /**
+   * the component's non-buffer props (design-studio-acceptance-fixes §3):
+   * bare booleans (materializable) and expressions (readonly) with the
+   * planner's own `why` vocabulary — the panel's row-classification
+   * evidence for the materialize lane.
+   */
+  readonly skipped?: readonly { readonly name: string; readonly why: string }[];
 }
 
 /* ── the observable snapshot (svelte copies this into $state) ─────────── */
@@ -600,6 +619,49 @@ export class PanelCollabClient {
       timestamp: Date.now(),
       ...(this.#cursor !== undefined ? { syncCursor: this.#cursor } : {}),
     };
+  }
+
+  /* ── the materialize lane (design-studio-acceptance-fixes §3) ────────── */
+
+  /**
+   * Materialize one not-yet-editable prop (a bare boolean or an absent
+   * prop the schema knows) into an addressable buffer through the
+   * server-side COMPOSITE transaction (tree update + the new hole's
+   * text insert, one atomic rollback group). The opId is the endpoint's
+   * idempotency key (`panel:<session>:m<seq>` — the #envelopeOf
+   * namespace); the response's update imports into the mirror like any
+   * admit receipt. The buffer SET changed, so the caller MUST re-seed
+   * (/usage + seed) after a `true` return — the new prop then rides the
+   * ordinary toggle/input channel; unchecking is a `true→false` replace,
+   * never an attribute removal (the buffer law).
+   *
+   * Returns false on rejection with `snapshot().error` carrying the
+   * server's reason (non-silent by contract).
+   */
+  async materialize(prop: string, value: PropValue): Promise<boolean> {
+    this.#assertLive();
+    const info = this.#info;
+    if (info === undefined) throw new Error('the panel collab client has no usage to materialize against — seed it first');
+    this.#seq += 1;
+    const json = (await this.#transport.post('materialize', {
+      file: info.page,
+      componentId: info.componentId,
+      prop,
+      value,
+      opId: `panel:${this.#sessionId}:m${this.#seq}`,
+      timestamp: Date.now(),
+      ...(this.#cursor !== undefined ? { syncCursor: this.#cursor } : {}),
+    })) as MaterializeJson;
+    if (json?.status === 200) {
+      this.#import(json.updateB64);
+      if (json.syncCursor !== undefined) this.#cursor = json.syncCursor;
+      this.#error = null;
+      this.#notify();
+      return true;
+    }
+    this.#error = json?.message ?? json?.detail ?? `materialize rejected (${String(json?.reason ?? json?.code ?? 'unknown')})`;
+    this.#notify();
+    return false;
   }
 
   /* ── the §6 conflict card resolutions ───────────────────────────────── */

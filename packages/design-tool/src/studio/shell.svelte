@@ -13,6 +13,10 @@
        semantics). Manifest polling is GATED (#12/T0):
        a structurally unchanged response never rewrites $state, and
        the panel receives selectionFile (a primitive), not a table.
+       The first-pull gate (design-studio-acceptance §2): until ONE
+       fetch has completed (ok or failed) the navigator renders the
+       loading line — `manifest.length === 0` alone never asserts
+       "no prototypes yet".
        r3 T4 skin: the canvas rows are the host's REAL list-item
        family (#jixoai/ link rows, intercepted activation — semantics
        untouched) and the drift badge is the badge item; .studio-canvas
@@ -35,6 +39,10 @@
        the chat chip and the property panel all read the same state.
        Canvas switches clear it (the frames it addressed are gone) —
        that remains the ONLY clear path (r3 T2 re-layout added none).
+       The sessionStorage RESTORE drives DOWN too (design-studio-
+       acceptance §1 恢复): the stored record rides the tree-pick
+       seam (__jixoaiDesignHighlight) to its canvas document once one
+       is live — the ring rebuilds from the same source as the panel.
     4. the property panel mount (r2 T8, re-homed by r3 T2): the
        inspector's top zone — ALWAYS present; unselected is the empty
        state's flow guide, not a blank. M7a: the chat-streaming
@@ -80,6 +88,7 @@
 <script lang="ts">
   // the dogfooding main path (r3 T4, issue #10): the host's REAL
   // components via the design server's #jixoai/ alias
+  import { untrack } from 'svelte';
   import Badge from '#jixoai/badge';
   import Empty from '#jixoai/empty';
   import Separator from '#jixoai/separator';
@@ -95,7 +104,13 @@
   import GuidePanel from './guide-panel.svelte';
   import PropertyPanel from './property-panel.svelte';
   import StageView from './stage-view.svelte';
-  import { FRAME_NAME_PREFIX, type DesignSelection, type DesignStudioSeams } from './selection.ts';
+  import {
+    FRAME_NAME_PREFIX,
+    type DesignFrameSeams,
+    type DesignHighlightTarget,
+    type DesignSelection,
+    type DesignStudioSeams,
+  } from './selection.ts';
 
   export interface ShellEndpoints {
     manifestUrl?: string;
@@ -123,6 +138,11 @@
   let manifest: ManifestEntry[] = $state([]);
   let currentName: string | null = $state(null);
   let manifestError: string | null = $state(null);
+  /** the manifest's first-pull gate (design-studio-acceptance §2): has
+   *  at least ONE fetch completed (ok OR failed)? Until it has, the
+   *  navigator shows the loading line — `manifest.length === 0` alone
+   *  must never assert "no prototypes yet" (absent is not empty) */
+  let manifestLoadedOnce = $state(false);
   /** the ONE selection (r2 T4): picker and tree both feed this */
   let selection: DesignSelection | null = $state(null);
   /** the live canvas iframe (the tree walks its DOM, same-origin) */
@@ -199,6 +219,8 @@
         manifest = next;
       }
       manifestError = null;
+      // §2: a completed pull (ok or failed) lifts the first-pull gate
+      manifestLoadedOnce = true;
       // first landing prefers the scaffold's welcome demo — the
       // manifest otherwise opens on whatever sorts first (V5 catch:
       // it landed on a broken probe canvas)
@@ -210,6 +232,9 @@
     } catch (cause) {
       if (request === manifestRequest) {
         manifestError = cause instanceof Error ? cause.message : String(cause);
+        // §2: a FAILED first pull still completes the pull — the error
+        // line owns the message, the loading line leaves
+        manifestLoadedOnce = true;
       }
     }
   }
@@ -227,10 +252,25 @@
    * explicit sites cost four lines).
    */
   const SELECTION_STORE_KEY = 'jx-design:selection';
-  function restoreSelection(): DesignSelection | null {
+  /** the stored record rides the canvas it was picked on: usageIndex
+   *  is FILE-scoped, so the same number on another canvas names a
+   *  DIFFERENT usage — a record that lands on the wrong canvas
+   *  restores nothing (the acceptance-review B2 blind spot: a wrong-
+   *  canvas drive either rings an unrelated usage forever or retries
+   *  into eternity). */
+  interface StoredSelection {
+    canvas: string;
+    selection: DesignSelection;
+  }
+  function restoreStoredSelection(): StoredSelection | null {
     try {
       const raw = sessionStorage.getItem(SELECTION_STORE_KEY);
-      return raw === null ? null : (JSON.parse(raw) as DesignSelection);
+      if (raw === null) return null;
+      const parsed = JSON.parse(raw) as Partial<StoredSelection>;
+      if (typeof parsed.canvas !== 'string' || parsed.selection === null || typeof parsed.selection !== 'object') {
+        return null; // a legacy or foreign record restores nothing
+      }
+      return parsed as StoredSelection;
     } catch {
       return null;
     }
@@ -238,11 +278,114 @@
   function persistSelection(): void {
     try {
       if (selection === null) sessionStorage.removeItem(SELECTION_STORE_KEY);
-      else sessionStorage.setItem(SELECTION_STORE_KEY, JSON.stringify(selection));
+      else if (currentName !== null) {
+        sessionStorage.setItem(SELECTION_STORE_KEY, JSON.stringify({ canvas: currentName, selection }));
+      }
     } catch {
       /* private mode etc. — persistence is best-effort */
     }
   }
+
+  /* ── the restore's DOWN drive (design-studio-acceptance §1 恢复 /
+   *    task 1.4): a restored selection must reach its canvas document —
+   *    a panel selection over a ring-less canvas was the asymmetry. The
+   *    canvas (and its frames) load long after bootstrap, so the record
+   *    stays PENDING until a live document accepts it; any selection
+   *    that is not the restored record itself (a live pick drove its
+   *    own document, a canvas switch cleared) retires the drive. */
+
+  let restoreDrive: DesignSelection | null = null;
+  /** the drive's identity key: $state DEEP-PROXIES the selection on
+   *  assignment (svelte 5), so object identity can never compare — the
+   *  serialized record is the stable identity (a live pick of the SAME
+   *  usage re-drives the same ring; only a DIFFERENT record retires) */
+  let restoreDriveKey = '';
+
+  /* the restore gate: bootstrap stashes the record, but the canvas
+   *  only lands when the first manifest pull resolves (the studio
+   *  always reopens on the preferred canvas — the picker's canvas is
+   *  NOT persisted). Until the name lands the record waits; a name
+   *  MISMATCH drops it: usageIndex is file-scoped, so the "same"
+   *  number on this canvas names a different usage — restoring it
+   *  would drive the ring onto an unrelated element (the acceptance
+   *  review's B2 blind spot). */
+  let pendingRestore: StoredSelection | null = null;
+  $effect(() => {
+    if (currentName === null || pendingRestore === null) return;
+    const stored = pendingRestore;
+    pendingRestore = null;
+    if (stored.canvas !== currentName) return; // a record from another canvas restores nothing
+    // OUT of the tracking scope (the select-bus effect below owns the
+    // ghost story: a synchronous dispatch tracks itself into a flush
+    // loop — the microtask escapes)
+    queueMicrotask(() => {
+      window.dispatchEvent(new CustomEvent('jx-design:select', { detail: stored.selection }));
+      // the DOWN drive: the record is the panel's selection now — its
+      // ring is owed on the canvas once a document is ready
+      restoreDrive = stored.selection;
+      restoreDriveKey = JSON.stringify(stored.selection);
+    });
+  });
+
+  /** the tree-pick seam precedent (component-tree.svelte pick): the
+   *  selection's frame id → the kit iframe's contentWindow → its
+   *  __jixoaiDesignHighlight. False while the target document is not
+   *  ready (no frame window / no seam yet) — the driver retries */
+  function driveHighlightDown(target: DesignSelection): boolean {
+    const element = canvasIframe;
+    if (element === null) return false;
+    const doc = element.contentDocument;
+    if (doc === null) return false;
+    const contentWindow: Window | null =
+      target.frameId === null
+        ? element.contentWindow
+        : (Array.from(doc.querySelectorAll('iframe')).find(
+            (frame) => frame.name === `${FRAME_NAME_PREFIX}${target.frameId}`,
+          )?.contentWindow ?? null);
+    const seams = contentWindow as (Window & DesignFrameSeams) | null;
+    if (seams === null || typeof seams.__jixoaiDesignHighlight !== 'function') return false;
+    // READINESS: the seam registers at picker init — BEFORE the canvas
+    // svelte mount renders its stamps. A call into an empty document
+    // highlights nothing and the drive would consume itself ringless
+    // (probe-caught). The picker's own elementFor lookup is the
+    // oracle: the usage's stamp must already exist in the target doc.
+    const targetDoc = contentWindow.document;
+    if (targetDoc === null || targetDoc.querySelector(`[data-jx-instance="${target.usageIndex}"]`) === null) {
+      return false;
+    }
+    seams.__jixoaiDesignHighlight({
+      usageIndex: target.usageIndex,
+      iterationIndex: target.iterationIndex,
+    } satisfies DesignHighlightTarget);
+    return true;
+  }
+
+  // the drive's freshness bus (the tree's law, GATE-0): the canvas
+  // iframe's load event covers the document itself, the light poll
+  // covers the nested frames that load after it. The element is
+  // captured once — cleanup runs after onIframe has already nulled
+  // the reactive prop; the selection read stays UNTRACKED (a tracked
+  // read would rewire this bus on every selection change)
+  $effect(() => {
+    if (canvasIframe === null) return;
+    const element = canvasIframe;
+    const attempt = (): void => {
+      if (restoreDrive === null) return;
+      const liveKey = untrack(() => (selection === null ? 'null' : JSON.stringify(selection)));
+      if (liveKey !== restoreDriveKey) {
+        restoreDrive = null; // a live pick owns the ring — it drove its own document
+        return;
+      }
+      if (driveHighlightDown(restoreDrive)) restoreDrive = null;
+    };
+    attempt();
+    const timer = setInterval(attempt, 1000);
+    element.addEventListener('load', attempt);
+    return () => {
+      clearInterval(timer);
+      element.removeEventListener('load', attempt);
+    };
+  });
 
   /** the tree's page-folder anchor (#32): a CAMERA move handed to the
    *  stage — never an iframe src change (the hash-append reloaded every
@@ -265,30 +408,17 @@
   // problems ledger). The relay uses only proven mechanisms: the
   // picker-facing seam installs at MODULE level (see below the
   // component) and dispatches a CustomEvent this effect listens for.
-  // The RESTORE rides the same bus: the $state initializer proved to
-  // be ghost territory too (a reloaded page with a populated store
-  // still rendered empty), while the event-callback write path is the
-  // one every click has proven — so bootstrap re-dispatches the
-  // stored selection to ourselves right after the listener attaches.
+  // The RESTORE rides the same bus once it clears the canvas gate
+  // above — bootstrap only stashes the record here (pendingRestore),
+  // the gate effect re-dispatches it on the canvas it belongs to.
   $effect(() => {
     const onSelectEvent = (event: Event): void => {
       selection = (event as CustomEvent<DesignSelection | null>).detail;
       persistSelection();
     };
     window.addEventListener('jx-design:select', onSelectEvent);
-    const stored = restoreSelection();
-    if (stored !== null) {
-      // OUT of the tracking scope: a synchronous dispatch here runs the
-      // listener INSIDE this effect's execution — persistSelection's
-      // read of `selection` gets tracked as the effect's own dependency,
-      // the listener's write re-triggers the effect, the bootstrap
-      // dispatches again: effect_update_depth_exceeded, the flush aborts
-      // torn (register-without-cleanup states — the original 'vanishing
-      // assignment' ghost's true face). The microtask escapes tracking.
-      queueMicrotask(() => {
-        window.dispatchEvent(new CustomEvent('jx-design:select', { detail: stored }));
-      });
-    }
+    const stored = restoreStoredSelection();
+    if (stored !== null) pendingRestore = stored; // the gate effect picks it up (canvas must land first)
     return () => window.removeEventListener('jx-design:select', onSelectEvent);
   });
 
@@ -369,7 +499,13 @@
            4s poll also keeps self-healing in the background -->
       <p class="studio-error">promotions unavailable — <button class="studio-frame" onclick={retryPromotions}>retry</button></p>
     {/if}
-    {#if manifest.length === 0 && manifestError === null}
+    {#if !manifestLoadedOnce}
+      <!-- the first-pull loading line (design-studio-acceptance §2):
+           until the manifest has completed ONE fetch (ok or failed) the
+           navigator must not claim "no prototypes yet" — a pulsing dot
+           line, visually distinct from the Empty no-data state below -->
+      <p class="studio-loading" data-manifest-loading><span class="studio-loading-dot" aria-hidden="true"></span>loading manifest…</p>
+    {:else if manifest.length === 0 && manifestError === null}
       <Empty
         density="xs"
         class="studio-empty"
@@ -624,6 +760,40 @@
     margin: 0;
     color: #e08585;
     line-height: 1.5;
+  }
+  /* the manifest's first-pull line (§2): a muted pulse — distinct from
+     the no-data Empty (a claim) and from the error line (a failure):
+     this one says the answer simply is not in yet */
+  .studio-loading {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: #8d8578;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+  }
+  .studio-loading-dot {
+    flex: none;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--primary, #e05656);
+    animation: studio-loading-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes studio-loading-pulse {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .studio-loading-dot {
+      animation: none;
+    }
   }
   .studio-empty {
     margin: 0 0.25rem;

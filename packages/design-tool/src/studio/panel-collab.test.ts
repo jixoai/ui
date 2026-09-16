@@ -378,3 +378,35 @@ test('the conflict card 旧值 reads the CONFLICTED buffer\'s own tail row — n
   assert.notEqual(card.oldValue, 'maybe', 'never the raised sibling row');
   client.dispose();
 });
+
+/* ── the materialize lane (design-studio-acceptance-fixes §3) ─────────── */
+
+test('materialize: the client lane lands the composite op — the file gains disabled={true}, the mirror the new buffer', async (t) => {
+  const ws = harness(t, PAGE_SOURCE.replace('raised={true} ', 'disabled '));
+  const usage = await ws.usage();
+  const client = ws.makeClient();
+  await client.seed({ page: 'prototypes/demo/canvas.svelte', componentId: usage.componentId, shared: false, buffers: usage.buffers });
+
+  const landed = await client.materialize('disabled', true);
+  assert.equal(landed, true);
+  assert.equal(client.snapshot().error, null);
+  assert.match(ws.readPage(), /disabled=\{true\}/);
+  // the response's increment imported — the mirror answers the NEW buffer
+  // even before the reseed refreshes the client's buffer set
+  assert.equal(client.mirrorTextOf('disabled'), 'true');
+  client.dispose();
+});
+
+test('materialize: a rejected lane surfaces the server\'s reason (non-silent)', async (t) => {
+  const ws = harness(t, PAGE_SOURCE.replace('raised={true} ', 'disabled '));
+  const usage = await ws.usage();
+  const client = ws.makeClient();
+  await client.seed({ page: 'prototypes/demo/canvas.svelte', componentId: usage.componentId, shared: false, buffers: usage.buffers });
+  assert.equal(await client.materialize('disabled', true), true);
+  // the second attempt re-materializes an already-materialized prop
+  assert.equal(await client.materialize('disabled', true), false);
+  const error = client.snapshot().error;
+  assert.ok(error !== null && /already carries a value/.test(error), `the rejection carries the server's reason (${String(error)})`);
+  assert.match(ws.readPage(), /disabled=\{true\}/, 'the landed first materialization stands');
+  client.dispose();
+});

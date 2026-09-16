@@ -79,9 +79,11 @@ test('seg/stepper rows ride ItemSegmented/ItemStepper — the hand-written chrom
   assert.match(panel, /import \{[^}]*ItemSegmented[^}]*\} from '#jixoai\/list-item'/);
   assert.match(panel, /import \{[^}]*ItemStepper[^}]*\} from '#jixoai\/list-item'/);
   // the adapters carry the rows: the markup branches exist and commit
-  // through the same endpoint seam as every other kind
-  assert.match(panel, /<ItemStepper[\s\S]{0,700}?onchange=\{\(event\) =>/);
-  assert.match(panel, /<ItemSegmented[\s\S]{0,700}?onValueChange=\{\(option\) => void commitProp\(row\.prop, option\)\}/);
+  // through the same endpoint seam as every other kind (commitRow —
+  // the M8 dispatcher that routes materializable rows to /materialize
+  // and ordinary rows to the admit lane)
+  assert.match(panel, /<ItemStepper[\s\S]{0,700}?void commitRow\(row, /);
+  assert.match(panel, /<ItemSegmented[\s\S]{0,700}?onValueChange=\{\(option\) => void commitRow\(row, option\)\}/);
   assert.match(panel, /min=\{row\.minimum\}/);
   assert.match(panel, /max=\{row\.maximum\}/);
   // the retired chrome: no seg/stepper classes, no aria-pressed button

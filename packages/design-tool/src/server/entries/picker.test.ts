@@ -17,7 +17,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { findStudioWindowFrom } from './picker.js';
+import { findStudioWindowFrom, resolveRingUpdate } from './picker.js';
 
 /** a window-shaped fake: parent chain by reference, seam via getter
  *  (typeof triggers the getter — the cross-origin throw channel) */
@@ -90,4 +90,49 @@ test('a cross-origin ancestor read bails to null, not a throw', () => {
   const frame = fakeWindow({ parent: canvas });
   assert.equal(findStudioWindowFrom(frame), null); // the walk SURVIVED the hostile parent
   assert.equal(findStudioWindowFrom(hostile), null); // reading the hostile window itself bails too
+});
+
+/* ── the three ring laws (the acceptance-fixes rewrite, Owner
+   2026-09-17: the laws a user can recite) — resolveRingUpdate is the
+   pure decision core; every scenario below is a real session shape,
+   including the P3 probe sequence that exposed the old guard bug
+   (select a frame component, re-pick the container: the panel moved,
+   the ring stayed). */
+
+const F1 = 'jixoai-design-frame-a';
+const F2 = 'jixoai-design-frame-b';
+
+test('law 1 — hover with a box: the last event always wins', () => {
+  assert.deepEqual(resolveRingUpdate(F1, 'hover', F2, true, false), { owner: F2, apply: true });
+  assert.deepEqual(resolveRingUpdate('canvas', 'hover', F1, true, true), { owner: F1, apply: true });
+  assert.deepEqual(resolveRingUpdate(null, 'hover', 'canvas', true, false), { owner: 'canvas', apply: true });
+});
+
+test('law 2 — selected with a box: a pick always wins and takes ownership', () => {
+  // a stale frame's REFRESH is ignored (the late-report steal), but any PICK wins
+  assert.deepEqual(resolveRingUpdate('canvas', 'selected', F1, true, false), { owner: 'canvas', apply: false });
+  assert.deepEqual(resolveRingUpdate('canvas', 'selected', F1, true, true), { owner: F1, apply: true });
+  // the owner's own refresh re-applies (repeated placement of the same element is harmless)
+  assert.deepEqual(resolveRingUpdate(F1, 'selected', F1, true, false), { owner: F1, apply: true });
+});
+
+test('law 3 — clearing: only the current owner may clear', () => {
+  assert.deepEqual(resolveRingUpdate(F1, 'selected', F2, false, true), { owner: F1, apply: false });
+  assert.deepEqual(resolveRingUpdate(F1, 'selected', F1, false, true), { owner: null, apply: true });
+  assert.deepEqual(resolveRingUpdate(F1, 'hover', F2, false, false), { owner: F1, apply: false });
+  assert.deepEqual(resolveRingUpdate(null, 'selected', 'canvas', false, true), { owner: null, apply: false });
+});
+
+test('the P3 sequence — re-picking the container after a frame pick', () => {
+  // initial pick of the container (canvas): wins from nothing
+  assert.deepEqual(resolveRingUpdate(null, 'selected', 'canvas', true, true), { owner: 'canvas', apply: true });
+  // frame component picked inside frame A: the pick wins and takes ownership
+  assert.deepEqual(resolveRingUpdate('canvas', 'selected', F1, true, true), { owner: F1, apply: true });
+  // the user re-picks the container caption: a pick wins — the ring MUST move
+  // (the old idempotence guard short-circuited exactly here: panel moved, ring stayed)
+  assert.deepEqual(resolveRingUpdate(F1, 'selected', 'canvas', true, true), { owner: 'canvas', apply: true });
+  // the frame's later refresh must NOT steal the ring back
+  assert.deepEqual(resolveRingUpdate('canvas', 'selected', F1, true, false), { owner: 'canvas', apply: false });
+  // nor may its null clear what it no longer owns
+  assert.deepEqual(resolveRingUpdate('canvas', 'selected', F1, false, true), { owner: 'canvas', apply: false });
 });

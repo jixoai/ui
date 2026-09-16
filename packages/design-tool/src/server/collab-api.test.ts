@@ -462,3 +462,183 @@ test('admit: the drive outcome is the host lane vocabulary — a panel edit repo
   assert.match(ws.readPage(), /variant="solid"/);
   assert.equal(ws.readPage(), projectSource(ws.host.kernel, ws.page).source);
 });
+
+/* ── /materialize — the composite prop-materialization lane (§3) ─────── */
+
+test('materialize: a bare boolean lands as disabled={true} (file bytes) and /usage answers the new buffer with the skip gone', async (t) => {
+  const ws = workspace(t, PAGE_SOURCE.replace('raised={true} ', 'disabled '));
+  const seeded = await resolveCollabApiRequest(ws.host, 'usage', { file: `design/${ws.page}`, component: 'press-button', usageIndex: 1 });
+  assert.equal(seeded.status, 200);
+  const seededBody = seeded.body as { skipped: { name: string; why: string }[] };
+  assert.ok(seededBody.skipped.some((skip) => skip.name === 'disabled' && skip.why.startsWith('bare boolean attribute')), 'the pre-state classifies disabled as a bare boolean');
+
+  const response = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'disabled', value: true, opId: 'human:m1' });
+  assert.equal(response.status, 200);
+  const body = response.body as { status: number; opId: string; transactionId: string; updateB64: string; syncCursor: unknown; projection: string };
+  assert.equal(body.opId, 'human:m1');
+  assert.equal(body.transactionId, 'tx:human:m1');
+  assert.ok(body.updateB64.length > 0, 'the response carries the canonical increment for the mirror');
+  assert.equal(body.projection, 'written');
+  // the FILE bytes: the atomic group reached the projection write-back
+  assert.match(ws.readPage(), /disabled=\{true\}/);
+  assert.equal(ws.readPage(), projectSource(ws.host.kernel, ws.page).source, 'the file holds the canonical projection');
+
+  // /usage answers the prop-expr buffer and the skip left the report
+  const usage = await resolveCollabApiRequest(ws.host, 'usage', { file: `design/${ws.page}`, component: 'press-button', usageIndex: 1 });
+  assert.equal(usage.status, 200);
+  const usageBody = usage.body as { buffers: { buffer: string; how: string; text: string }[]; skipped: { name: string }[] };
+  const disabled = usageBody.buffers.find((buffer) => buffer.buffer === 'disabled');
+  assert.equal(disabled?.how, 'prop-expr');
+  assert.equal(disabled?.text, 'true');
+  assert.ok(!usageBody.skipped.some((skip) => skip.name === 'disabled'), 'the materialized prop left the skipped report');
+
+  // the journal's transaction rows are actor=human under one transactionId
+  const txRows = ws.host.kernel.journalEntries().filter((entry) => entry.type === 'commit' && entry.transactionId === 'tx:human:m1');
+  assert.ok(txRows.length >= 2, 'the tree update and the buffer seed share one transaction');
+  assert.ok(txRows.every((row) => row.type === 'commit' && row.actor === 'human'));
+});
+
+test('materialize: absent props land per the §3 laws — string quoted, boolean braced', async (t) => {
+  const ws = workspace(t, PAGE_SOURCE.replace(' raised={true}', ''));
+  await resolveCollabApiRequest(ws.host, 'usage', { file: `design/${ws.page}`, component: 'press-button', usageIndex: 1 });
+  const label = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'label', value: 'hero', opId: 'human:m2a' });
+  assert.equal(label.status, 200);
+  assert.match(ws.readPage(), /variant="ghost" label="hero"/);
+  const quiet = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'quiet', value: false, opId: 'human:m2b' });
+  assert.equal(quiet.status, 200);
+  assert.match(ws.readPage(), /quiet=\{false\}/);
+  assert.equal(ws.readPage(), projectSource(ws.host.kernel, ws.page).source);
+});
+
+test('materialize: the same opId replays the original receipt — zero new effects', async (t) => {
+  const ws = workspace(t, PAGE_SOURCE.replace('raised={true} ', 'disabled '));
+  await resolveCollabApiRequest(ws.host, 'usage', { file: `design/${ws.page}`, component: 'press-button', usageIndex: 1 });
+  const first = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'disabled', value: true, opId: 'human:m3' });
+  assert.equal(first.status, 200);
+  const commitsAfterFirst = ws.host.kernel.journalEntries().filter((entry) => entry.type === 'commit').length;
+  const bytesAfterFirst = ws.readPage();
+
+  const retry = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'disabled', value: true, opId: 'human:m3' });
+  assert.equal(retry.status, 200);
+  assert.equal((retry.body as { opId: string }).opId, 'human:m3');
+  assert.equal(ws.host.kernel.journalEntries().filter((entry) => entry.type === 'commit').length, commitsAfterFirst, 'the replay landed nothing');
+  assert.equal(ws.readPage(), bytesAfterFirst, 'the file is untouched by the replay');
+  assert.equal(ws.host.kernel.journalEntries().filter((entry) => entry.type === 'commit' && entry.opId === 'human:m3').length, 1, 'exactly one commit row under the opId');
+});
+
+test('materialize: an already-materialized prop answers 409 prop-not-materializable with zero journal cost', async (t) => {
+  const ws = workspace(t);
+  await resolveCollabApiRequest(ws.host, 'usage', { file: `design/${ws.page}`, component: 'press-button', usageIndex: 1 });
+  const commitsBefore = ws.host.kernel.journalEntries().filter((entry) => entry.type === 'commit').length;
+  const refusal = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'variant', value: 'x', opId: 'human:m4' });
+  assert.equal(refusal.status, 409);
+  assert.equal((refusal.body as { reason: string }).reason, 'prop-not-materializable');
+  assert.equal(ws.host.kernel.journalEntries().filter((entry) => entry.type === 'commit').length, commitsBefore, 'zero commits');
+  const badShape = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'label', value: { nope: true }, opId: 'human:m4b' });
+  assert.equal(badShape.status, 400, 'a non-literal value is a bad request');
+});
+
+test('materialize: a compile failure rolls back with zero effect — the file, canonical and journal commits untouched', async (t) => {
+  const ws = workspace(t);
+  await resolveCollabApiRequest(ws.host, 'usage', { file: `design/${ws.page}`, component: 'press-button', usageIndex: 1 });
+  // poison the raised prop-expr buffer through the ordinary admit lane
+  // (single text ops carry no gate) — the projection now reads
+  // raised={await x}, which PARSES (the orchestration's own planPage
+  // must survive) but fails the svelte compile (the await validation) —
+  // exactly the transaction compile gate's lane
+  const poison = await ws.host.gate.admit({
+    actor: 'agent:t',
+    opId: 'agent:t:poison1',
+    baseFrontiers: ws.host.kernel.frontiers(),
+    domain: 'text',
+    kind: 'replace',
+    target: { componentId: 'a1', buffer: 'raised' },
+    cursorBytes: bufferAnchor(ws.host.kernel, 'a1', 'raised', 0),
+    offset: 0,
+    length: 4,
+    text: 'await x',
+    timestamp: Date.now(),
+  });
+  assert.equal(poison.status, 200);
+  // the direct gate call does not drive the §8 cycle — push the poisoned
+  // projection to the file explicitly (the route's admit lane would)
+  const pushed = await ws.host.syncExternalChange(ws.page);
+  assert.ok(pushed.kind === 'written' || pushed.kind === 'idempotent');
+  assert.match(ws.readPage(), /raised=\{await x\}/, 'the poisoning projection reached the file');
+  const poisonedBytes = ws.readPage();
+  const poisonedProjection = projectSource(ws.host.kernel, ws.page).source;
+  const commitsBefore = ws.host.kernel.journalEntries().filter((entry) => entry.type === 'commit').length;
+
+  const response = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'label', value: 'hero', opId: 'human:m5' });
+  assert.equal(response.status, 422);
+  assert.equal((response.body as { reason: string }).reason, 'compile-failed');
+  assert.match(String((response.body as { message: string }).message), /failed the Svelte compile gate/);
+
+  // ZERO EFFECT: the file, the canonical projection and the commit rows
+  // all stand exactly where the poison left them (the audit rejection
+  // row under the opId is the §5.0 durable record, not an effect)
+  assert.equal(ws.readPage(), poisonedBytes);
+  assert.equal(projectSource(ws.host.kernel, ws.page).source, poisonedProjection);
+  assert.equal(ws.host.kernel.journalEntries().filter((entry) => entry.type === 'commit').length, commitsBefore);
+  assert.equal(ws.host.kernel.hasBuffer(containerKeyOf('a1', 'label')), false, 'no buffer container was created');
+  // the rejection replay: the SAME opId answers the recorded rejection
+  // (the §5 envelope's own field name — `code`)
+  const replay = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'label', value: 'hero', opId: 'human:m5' });
+  assert.equal(replay.status, 422);
+  assert.equal((replay.body as { code?: string; reason?: string }).code, 'compile-failed');
+});
+
+test('materialize: pre-anchored cursors survive — an edit on a pre-existing buffer lands after materialization', async (t) => {
+  const ws = workspace(t, PAGE_SOURCE.replace('variant="ghost"', 'disabled variant="ghost"'));
+  await resolveCollabApiRequest(ws.host, 'usage', { file: `design/${ws.page}`, component: 'press-button', usageIndex: 1 });
+  const mirror = new Mirror(ws.host);
+  await mirror.sync();
+  // anchor BEFORE the materialization (the panel's live mirror state)
+  const anchorB64 = mirror.anchorB64('a1', 'raised', 0);
+  const baseFrontiers = mirror.frontiers();
+
+  const materialized = await resolveCollabApiRequest(ws.host, 'materialize', { file: `design/${ws.page}`, componentId: 'a1', prop: 'disabled', value: true, opId: 'human:m6' });
+  assert.equal(materialized.status, 200);
+  assert.match(ws.readPage(), /disabled=\{true\}/);
+
+  // the PRE-materialization anchor + base still admit: the tree update
+  // never touched the Text containers, so no cursor lost its footing
+  const edit = await resolveCollabApiRequest(ws.host, 'admit', {
+    actor: 'human',
+    opId: 'human:after-materialize-1',
+    baseFrontiers,
+    domain: 'text',
+    kind: 'replace',
+    target: { componentId: 'a1', buffer: 'raised' },
+    cursorBytesB64: anchorB64,
+    offset: 0,
+    length: 4,
+    text: 'false',
+    timestamp: Date.now(),
+  });
+  assert.equal(edit.status, 200, 'the pre-anchored edit lands (tree updates never disturb Text containers)');
+  assert.match(ws.readPage(), /raised=\{false\}/);
+  assert.match(ws.readPage(), /disabled=\{true\}/);
+});
+
+test('usage: skipped rides the response — bare bool and expression whys (the panel evidence)', async (t) => {
+  const ws = workspace(
+    t,
+    `<script module lang="ts">
+  import Button from '#jixoai/press-button';
+  let starting = false;
+</script>
+
+<main>
+  <Button id="a1" disabled loading={starting} variant="ghost">Start designing</Button>
+</main>
+`,
+  );
+  const response = await resolveCollabApiRequest(ws.host, 'usage', { file: `design/${ws.page}`, component: 'press-button', usageIndex: 1 });
+  assert.equal(response.status, 200);
+  const body = response.body as { skipped: { name: string; why: string }[] };
+  const byName = new Map(body.skipped.map((skip) => [skip.name, skip.why]));
+  assert.match(byName.get('disabled') ?? '', /^bare boolean attribute/, 'the bare bool carries the materializable why');
+  assert.match(byName.get('loading') ?? '', /^expression prop/, 'the expression carries the readonly why');
+  assert.equal(body.skipped.some((skip) => skip.name === 'variant'), false, 'buffers are never in the skipped list');
+});

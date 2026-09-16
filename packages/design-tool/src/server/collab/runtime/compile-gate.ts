@@ -21,6 +21,12 @@
  * descriptor (kind/path/id/tag fields present and stringly) — tree
  * ops that mangle payloads fail the gate, not the compile.
  *
+ * design-studio-acceptance-fixes (2026-09-16): the how whitelist admits
+ * `prop-expr` holes — a page whose scaffold holds literal-expression
+ * prop buffers ({true}/{42}, the materialize endpoint's own product)
+ * is COMPILED like any other page, never misread as "no page" and
+ * silently skipped.
+ *
  * Contract with kernel.ts: failures throw `CompileGateError` — the
  * kernel recognizes the class STRUCTURALLY by `error.name` (the
  * cycle-free boundary; see kernel's `transactionErrorOf`).
@@ -83,7 +89,7 @@ function isPageItem(value: unknown): value is PageShape {
       hole !== null &&
       typeof (hole as { componentId?: unknown }).componentId === 'string' &&
       typeof (hole as { buffer?: unknown }).buffer === 'string' &&
-      ['template-text', 'prop-quoted', 'verbatim'].includes(String((hole as { how?: unknown }).how)),
+      ['template-text', 'prop-quoted', 'prop-expr', 'verbatim'].includes(String((hole as { how?: unknown }).how)),
   );
 }
 

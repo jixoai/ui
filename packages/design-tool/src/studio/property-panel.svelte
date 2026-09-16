@@ -34,6 +34,15 @@
        client decorative lock is RETIRED with this migration — the
        admission gate is the authority; concurrent agent turns
        auto-merge or conflict-card, never blanket-disable.
+       MATERIALIZE (design-studio-acceptance-fixes §3, 2026-09-16): a
+       bare-boolean or absent prop's FIRST change rides the composite
+       /__design__/api/collab/materialize endpoint (one atomic
+       tree-update + buffer-seed transaction server-side), then the
+       panel RE-SEEDS (/usage + seed) — the prop becomes an ordinary
+       buffer and later changes take the admit channel (unchecking a
+       materialized boolean is a true→false replace, never a removal);
+       expression props stay readonly ("edit in code") on the /usage
+       skipped evidence, never guesswork.
 
   Selection contract: B's DesignSelection (selection.ts) — the panel
   is a pure CONSUMER; the shell resolves selectionFile (a primitive).
@@ -76,6 +85,17 @@
 
   export type RowValue = string | number | boolean | undefined;
 
+  /**
+   * The not-yet-editable classification (design-studio-acceptance-fixes
+   * §3): `bare-bool` — the usage carries `disabled` bare (materializes
+   * to `disabled={true}`); `absent` — the schema knows the prop, the
+   * usage never wrote it (materializes to ` <prop>=<literal>`). Both
+   * ride the composite /materialize endpoint on their FIRST change;
+   * expression props keep the readonly "edit in code" lane (binding
+   * runtime state — the edit semantics are not the panel's to invent).
+   */
+  export type MaterializeLane = 'bare-bool' | 'absent';
+
   /** the rendered control row (the kind default, overridable by x-ui.control) */
   export interface ControlRow {
     readonly prop: string;
@@ -90,6 +110,8 @@
     readonly unit: string | undefined;
     readonly value: RowValue;
     readonly representable: boolean;
+    /** present on materializable rows — the first change rides /materialize */
+    readonly materialize?: MaterializeLane;
   }
 
   /** enum ≤5 → segmented, else select (the schema2form convention, simplified for v0) */
@@ -104,12 +126,25 @@
     return 'readonly';
   }
 
-  export function rowsFor(meta: MetaPayload, values: Record<string, { representable: boolean; value?: RowValue }>): ControlRow[] {
+  /** the per-prop edit surface: buffer value | materialization lane | readonly */
+  export interface PropSurface {
+    readonly representable: boolean;
+    readonly value?: RowValue;
+    readonly materialize?: MaterializeLane;
+  }
+
+  export function rowsFor(meta: MetaPayload, values: Record<string, PropSurface>): ControlRow[] {
     const rows: ControlRow[] = [];
     for (const [prop, node] of Object.entries(meta.schema?.properties ?? {})) {
       if (node['x-ui']?.control === 'none') continue; // panel-excluded (snippet/opaque/opt-out)
-      const dry = values[prop] ?? { representable: false }; // M7a: no buffer = not in the protocol yet
-      const kind = dry.representable ? kindOf(node) : 'readonly';
+      const dry = values[prop] ?? { representable: false }; // no surface = not in the protocol's reach
+      const kind: ControlRow['kind'] = dry.representable
+        ? kindOf(node)
+        : dry.materialize === undefined
+          ? 'readonly'
+          : dry.materialize === 'bare-bool'
+            ? 'toggle' // a bare boolean IS a boolean — the schema's say-so is a courtesy here
+            : kindOf(node);
       rows.push({
         prop,
         kind,
@@ -121,8 +156,9 @@
         minimum: node.minimum,
         maximum: node.maximum,
         unit: node['x-ui']?.unit,
-        value: dry.representable ? (dry.value ?? node.default) : undefined,
+        value: dry.representable || dry.materialize !== undefined ? (dry.value ?? node.default) : undefined,
         representable: dry.representable,
+        ...(dry.materialize !== undefined ? { materialize: dry.materialize } : {}),
       });
     }
     return rows;
@@ -229,6 +265,8 @@
   let metaError: string | null = $state(null);
   let usageState: PanelCollabSnapshot | null = $state(null);
   let notice: string | null = $state(null);
+  /** the usage's non-buffer props (§3 evidence: bare-bool vs expression) */
+  let usageSkipped: readonly { name: string; why: string }[] = $state([]);
   /** the live client (non-reactive; its snapshot drives usageState) */
   let client: PanelCollabClient | null = null;
 
@@ -238,11 +276,28 @@
   const file = $derived(seedTargetOf(selection, selectionFile)?.file ?? null);
   const shareCount = $derived(selection?.instanceCount ?? 1);
   const propValues = $derived.by(() => {
-    const values: Record<string, { representable: boolean; value?: RowValue }> = {};
-    for (const buffer of usageState?.buffers ?? []) {
-      if (buffer.how !== 'prop-quoted' && buffer.how !== 'prop-expr') continue;
-      const parsed = parsePropLiteral(buffer.text, buffer.how);
-      values[buffer.buffer] = parsed === null ? { representable: false } : { representable: true, value: parsed };
+    const values: Record<string, PropSurface> = {};
+    const skippedByName = new Map(usageSkipped.map((skip) => [skip.name, skip.why]));
+    for (const [prop, node] of Object.entries(meta?.schema?.properties ?? {})) {
+      const buffer = (usageState?.buffers ?? []).find((candidate) => candidate.buffer === prop && candidate.how !== 'template-text');
+      if (buffer !== undefined) {
+        const parsed = parsePropLiteral(buffer.text, buffer.how === 'prop-quoted' ? 'prop-quoted' : 'prop-expr');
+        values[prop] = parsed === null ? { representable: false } : { representable: true, value: parsed };
+        continue;
+      }
+      // no buffer — the /usage skipped list is the classification evidence
+      const why = skippedByName.get(prop);
+      if (why !== undefined && why.startsWith('bare boolean attribute')) {
+        values[prop] = { representable: false, materialize: 'bare-bool', value: true };
+        continue;
+      }
+      if (why === undefined && kindOf(node) !== 'readonly') {
+        // absent: the schema knows it, the usage never wrote it, and the
+        // type survives the serialization law (string/bool/number/enum)
+        values[prop] = { representable: false, materialize: 'absent', value: node.default };
+        continue;
+      }
+      values[prop] = { representable: false }; // expression / directive / opaque — edit in code
     }
     return values;
   });
@@ -275,6 +330,7 @@
     meta = null;
     metaError = null;
     usageState = null;
+    usageSkipped = [];
     notice = null;
     client?.dispose();
     client = null;
@@ -289,29 +345,6 @@
         // M7a: resolve the selection onto the protocol (id-first) and
         // seed the mirror client — the canonical projection is the
         // seed, never a raw file read
-        const usageResponse = await fetch(`${collabUrl}/usage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ file: current.file, component: current.component, usageIndex: current.usageIndex }),
-        });
-        const usageBody = (await usageResponse.json()) as { ok?: boolean; reason?: string; message?: string } & Partial<PanelUsageInfo>;
-        if (generation !== seedGeneration || unmounted) return; // superseded mid-seed
-        if (usageResponse.status !== 200 || usageBody.ok !== true) {
-          if (usageBody.reason === 'awaiting-ingest') {
-            // the transitional defense: no native id yet — writes stay
-            // off until the §8 cycle adopts the page (persistent state)
-            metaError = usageBody.message ?? 'this usage is not in the collab protocol yet (awaiting ingest) — the panel is read-only';
-          } else {
-            metaError = usageBody.message ?? `usage resolution failed (${usageResponse.status})`;
-          }
-          return;
-        }
-        const usage: PanelUsageInfo = {
-          page: usageBody.page!,
-          componentId: usageBody.componentId!,
-          shared: usageBody.shared === true,
-          buffers: usageBody.buffers ?? [],
-        };
         const created = new PanelCollabClient(fetchTransport(collabUrl));
         const unsubscribe = created.subscribe(() => {
           usageState = created.snapshot();
@@ -329,7 +362,7 @@
           originalDispose();
         };
         client = created;
-        await created.seed(usage);
+        await seedClient(created, current);
         if (generation !== seedGeneration || unmounted) {
           created.dispose();
           if (client === created) client = null;
@@ -341,6 +374,55 @@
       }
     })();
   });
+
+  /** the /usage fetch — the awaiting-ingest lane's message carries its own read-only note */
+  async function fetchUsage(current: { readonly file: string; readonly component: string; readonly usageIndex: number }): Promise<PanelUsageInfo> {
+    const usageResponse = await fetch(`${collabUrl}/usage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: current.file, component: current.component, usageIndex: current.usageIndex }),
+    });
+    const usageBody = (await usageResponse.json()) as { ok?: boolean; reason?: string; message?: string } & Partial<PanelUsageInfo>;
+    if (usageResponse.status !== 200 || usageBody.ok !== true) {
+      throw new Error(usageBody.message ?? `usage resolution failed (${usageResponse.status})`);
+    }
+    return {
+      page: usageBody.page!,
+      componentId: usageBody.componentId!,
+      shared: usageBody.shared === true,
+      buffers: usageBody.buffers ?? [],
+      skipped: usageBody.skipped ?? [],
+    };
+  }
+
+  /**
+   * /usage → client.seed — the RE-ENTERABLE seed core (§3): the initial
+   * seed AND the post-materialize reseed share it, because a landed
+   * materialization changed the buffer SET (a fresh prop-expr/quoted
+   * buffer) and the skipped classification with it.
+   */
+  async function seedClient(target: PanelCollabClient, current: { readonly file: string; readonly component: string; readonly usageIndex: number }): Promise<void> {
+    const usage = await fetchUsage(current);
+    usageSkipped = usage.skipped ?? [];
+    await target.seed(usage);
+  }
+
+  /**
+   * The post-materialize reseed: re-run /usage + seed on the LIVE client
+   * (its mirror already imported the transaction's update — the seed
+   * refreshes the buffer set and the row classification). A failure is a
+   * transient notice, never a panel teardown (the meta is already loaded).
+   */
+  async function reseedAfterMaterialize(): Promise<void> {
+    const current = seedTargetOf(selection, selectionFile);
+    if (current === null || current.file === null || client === null) return;
+    try {
+      await seedClient(client, current);
+      notice = null;
+    } catch (cause) {
+      notice = cause instanceof Error ? cause.message : String(cause);
+    }
+  }
 
   // unmount teardown (component lifecycle, not effect lifecycle): the
   // mirror poll, the subscription and the debounce timers die here
@@ -367,10 +449,30 @@
     client.setDesired(prop, renderPropLiteral(value as PropValue, buffer.how === 'prop-quoted' ? 'prop-quoted' : 'prop-expr'));
   }
 
+  /**
+   * The row-commit dispatcher (§3): a materializable row's FIRST change
+   * rides the composite /materialize endpoint (atomic tree update +
+   * buffer seed), then reseeds — the prop becomes an ordinary buffer and
+   * every later change takes the commitProp channel. Unchecking a
+   * materialized boolean is a `true→false` replace on the buffer, never
+   * an attribute removal (the buffer law). A rejected materialization is
+   * non-silent: the client's snapshot().error surfaces it.
+   */
+  async function commitRow(row: ControlRow, value: RowValue): Promise<void> {
+    if (value === undefined) return;
+    if (!row.representable && row.materialize !== undefined) {
+      if (client === null) return;
+      const landed = await client.materialize(row.prop, value as PropValue);
+      if (landed) await reseedAfterMaterialize();
+      return;
+    }
+    await commitProp(row.prop, value);
+  }
+
   // the text rows' commit trigger: the CURRENT field value is the edit's payload
   function onTextEnter(row: ControlRow, event: KeyboardEvent): void {
     if (event.key !== 'Enter') return;
-    void commitProp(row.prop, event.currentTarget.value);
+    void commitRow(row, event.currentTarget.value);
   }
 
   /* ── slot text (the t-<n> buffer rows) ─────────────────────────────── */
@@ -503,7 +605,7 @@
                     icon={row.icon ? glyph : undefined}
                     checked={row.value === true}
                     disabled={rowSuspended(row)}
-                    onchange={(event) => void commitProp(row.prop, event.currentTarget.checked)}
+                    onchange={(event) => void commitRow(row, event.currentTarget.checked)}
                   />
                 {:else if row.kind === 'select'}
                   <ItemSelect
@@ -513,7 +615,7 @@
                     icon={row.icon ? glyph : undefined}
                     value={String(row.value ?? '')}
                     disabled={rowSuspended(row)}
-                    onchange={(event) => void commitProp(row.prop, event.currentTarget.value)}
+                    onchange={(event) => void commitRow(row, event.currentTarget.value)}
                   >
                     {#each row.options as option (option)}
                       <option value={option}>{option}</option>
@@ -545,7 +647,7 @@
                     disabled={rowSuspended(row)}
                     onchange={(event) => {
                       const n = event.currentTarget.valueAsNumber;
-                      void commitProp(row.prop, Number.isFinite(n) ? n : undefined);
+                      void commitRow(row, Number.isFinite(n) ? n : undefined);
                     }}
                   />
                 {:else if row.kind === 'segmented'}
@@ -561,7 +663,7 @@
                     options={row.options.map((option) => ({ value: option }))}
                     value={String(row.value ?? '')}
                     disabled={rowSuspended(row)}
-                    onValueChange={(option) => void commitProp(row.prop, option)}
+                    onValueChange={(option) => void commitRow(row, option)}
                   />
                 {:else}
                   <!-- the unrepresentable row: read-only in the family's

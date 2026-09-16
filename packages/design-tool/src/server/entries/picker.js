@@ -1,50 +1,49 @@
 /**
- * @jixoai/ui-design (server entries) — the canvas picker (r2 T4,
- * lazy activation r3 T6).
+ * @jixoai/ui-design (server entries) — the canvas picker, rewritten
+ * around ONE truth (the acceptance-fixes round, Owner 2026-09-17:
+ * "做减法 — the laws a user can recite").
  *
  * The frame-surface half of the selection loop: in studio-embedded
  * frames (or with ?pick=1 forced on), a click resolves the NEAREST
- * STAMPED ancestor (data-jx-component — the usage-site stamp, r2 §3),
- * highlights it, and reports the selection UP the same-origin iframe
- * chain to the studio's window.__jixoaiDesignSelect hook (the frame's
- * parent chain IS the studio — no postMessage round-trip needed).
+ * STAMPED ancestor (data-jx-component — the usage-site stamp) and
+ * reports the selection UP the same-origin iframe chain to the
+ * studio's window.__jixoaiDesignSelect hook. Lazy per-click activation
+ * (r3 T6): every click re-walks the (cheap, bounded) parent chain, so
+ * a frame embedded any time after its load picks up on the very next
+ * click, and a standalone document passes through untouched.
  *
- * Lazy activation (r3 T6, #14 P1-1): the studio lookup ran ONCE at
- * init — a frame document whose load races the studio seam (vite HMR
- * reloads both; the fresh seam may not exist yet when a reloaded
- * frame's picker initializes) stayed dead forever with no self-heal.
- * Now every CLICK re-walks the (cheap, bounded) parent chain: a frame
- * embedded any time after its load picks up on the very next click,
- * and a standalone document — the walk still finds nothing — passes
- * through untouched, byte-identical to before.
+ * THE SINGLE-TRUTH MODEL (#44 kept, the state split removed): the
+ * CANVAS document is the host and the ONLY place a ring is placed.
+ * Every document — host or frame — does exactly two things: REPORT
+ * (a box, a source name, and whether this is a user pick or a
+ * follow-along refresh) and ANSWER the host's DOWN seams. Three laws,
+ * no exceptions, all of them in resolveRingUpdate:
  *
- * Also exposes the DOWN direction for the ComponentTreeView (T5):
- * window.__jixoaiDesignHighlight({usageIndex, iterationIndex} | null)
- * highlights (and scrolls to) a usage inside THIS document.
+ *   1. hover with a box: the LAST event wins (the pointer is the
+ *      truth — whoever it just entered takes the ring).
+ *   2. selected with a box: a user PICK always wins and names its
+ *      source document the owner; a refresh only counts when it comes
+ *      from the current owner (a stale frame cannot steal the ring).
+ *   3. clearing (no box): only the current owner may clear.
  *
- * The INDICATOR era (#43→#44, Owner 2026-09-12): ONE ring pair per
- * CANVAS, not per frame. The CANVAS document is the single HOST (its
- * overlays ride the whole-canvas coordinate space, so a selection
- * moving between frames GLIDES across the canvas, and the studio's
- * lens broadcast compensates stroke/badge size so the ring stays
- * constant on screen at any zoom). FRAME documents are REPORTERS:
- * they own no overlays — hover/selection/track events ship the box
- * (frame viewport coords + frame name) up to the host, which maps
- * iframe-offset + box into canvas coordinates and places the ring.
- * #46: hover granularity is the actual element under the pointer
- * (the child, not its component ancestor); selection stays
- * component-granular (nearest stamped ancestor).
+ * THE FOLLOW-ALONG (one law, not four event kinds): while a document
+ * has a target (or the host hosts a frame-owned ring), a rAF loop
+ * re-reads the target's rect every frame and re-reports/re-hosts ONLY
+ * when it moved — BCR changes of any cause (reflow, style, resize,
+ * scroll, DOM churn) align by construction; an idle frame sends no
+ * message and writes no style (the rect reads are the whole cost);
+ * background tabs pause on their own (rAF), and the loop stops
+ * entirely once nothing is marked. The
+ * host re-hosts frame-owned rings from its OWN iframe measurement
+ * against the kept in-frame box — no cross-document query, no down
+ * channel. #48's glide/fade windows and the lens compensation ride
+ * unchanged.
  *
  * Honest degradation (the r2 matrix): clicks on unstamped content
- * (native elements, components without a single-root rest spread,
- * third-party components) pass through untouched — unselectable, by
- * design, never an error.
+ * pass through untouched — unselectable, by design, never an error.
  *
  * Plain JS browser code (the entries house style), self-styled: the
  * frame document may carry any theme.
- *
- * Original need: Owner 2026-09-11 (design-studio-r2 T4); lazy
- * activation Owner 2026-09-12 (design-studio-r3 T6, #14 P1-1).
  */
 
 const FRAME_NAME_PREFIX = 'jixoai-design-frame-';
@@ -70,6 +69,22 @@ export function findStudioWindowFrom(root, maxDepth = 6) {
   return null;
 }
 
+/**
+ * The three laws (pure — the decision, never the effect). Given the
+ * ring's current owner, the report's kind/source/boxness and whether
+ * it is a user pick, decide `{ owner, apply }`. Everything the host's
+ * accept() does is place-or-ignore exactly what this returns.
+ */
+export function resolveRingUpdate(prevOwner, kind, frameName, hasBox, isPick) {
+  if (hasBox) {
+    if (kind === 'hover') return { owner: frameName, apply: true };
+    if (isPick || prevOwner === frameName) return { owner: frameName, apply: true };
+    return { owner: prevOwner, apply: false };
+  }
+  if (prevOwner === frameName) return { owner: null, apply: true };
+  return { owner: prevOwner, apply: false };
+}
+
 function findStudioWindow() {
   return findStudioWindowFrom(window);
 }
@@ -80,49 +95,57 @@ function frameIdFromWindowName(name) {
     : null;
 }
 
+/* ── per-document record (for refresh reports and the DOWN seams) ── */
 let highlighted = null;
-
-function applyHighlight(element) {
-  if (highlighted === element) return;
-  highlighted = element;
-  if (element !== null && !IS_CANVAS_HOST) {
-    // scroll only INSIDE the owning frame (the host has no frame bounds)
-    element.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
-  }
-  if (IS_CANVAS_HOST) {
-    placeIndicator('selected', element);
-    observeTargets();
-  } else {
-    reportIndicator('selected', element);
-  }
-}
-
-/* the hover indicator (#31→#43): its own overlay, its own color,
-   lower visual weight than the selection ring */
 let hovered = null;
 
-function applyHover(element) {
-  if (hovered === element) return;
-  hovered = element;
-  const ring = element !== null && element !== highlighted ? element : null;
-  if (IS_CANVAS_HOST) {
-    placeIndicator('hover', ring);
-    observeTargets();
-  } else {
-    reportIndicator('hover', ring);
+const IS_CANVAS_HOST = typeof location !== 'undefined' && location.pathname.startsWith('/prototypes/');
+
+/* ── the report: one shape, one road ──────────────────────────────── */
+function emit(kind, element, origin) {
+  const connected = element !== null && element !== undefined && element.isConnected;
+  let payload = null;
+  if (connected) {
+    const rect = element.getBoundingClientRect();
+    payload = { x: rect.left + (IS_CANVAS_HOST ? window.scrollX : 0), y: rect.top + (IS_CANVAS_HOST ? window.scrollY : 0),
+      w: rect.width, h: rect.height,
+      component: element.getAttribute('data-jx-component'), instance: element.getAttribute('data-jx-instance') };
   }
+  lastSent[kind] = payloadKey(payload); // the align loop keys off every send, pick or refresh
+  if (IS_CANVAS_HOST) {
+    accept(kind, 'canvas', payload, origin, null);
+    return;
+  }
+  if (window.parent === window) return; // standalone — nobody to host
+  window.parent.postMessage(
+    { type: 'jx-design:indicator-report', kind, frameName: window.name, payload, origin },
+    window.location.origin,
+  );
 }
 
-/* ── the DOM-level indicators (#43, Owner 2026-09-12) ──────────────────
- *
- * Two overlays per document — [data-jx-indicator="hover"|"selected"] —
- * absolutely positioned at document level (appended to documentElement:
- * body rewrites must not kill them), pointer-events:none, glued to the
- * target's box. The selection overlay carries a metadata badge
- * (component id · usage index · live W×H). CSS transitions make target
- * changes glide; a `tracking` class suppresses them during scroll/resize
- * so the ring stays welded instead of rubber-banding.
- */
+function applyHighlight(element, origin = 'pick') {
+  highlighted = element;
+  // scroll only INSIDE the owning frame (the host has no frame bounds)
+  if (element !== null && !IS_CANVAS_HOST) {
+    element.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+  }
+  emit('selected', element, origin);
+  ensureAlignLoop();
+}
+
+/* the hover ring hides over the selected element (the selection ring
+   already marks it) — the twin of the old #46 law, kept */
+function applyHover(element, origin = 'pick') {
+  hovered = element;
+  emit('hover', element !== null && element !== highlighted ? element : null, origin);
+  ensureAlignLoop();
+}
+
+/* ── the host's ring pair (#44: ONE pair per canvas) ──────────────── */
+const indicators = new Map(); // kind → element (host only)
+const ringOwner = { hover: null, selected: null }; // the source document each ring answers to
+const ringLast = { hover: null, selected: null }; // { box, frameBox, meta } | null
+let lensScale = 1; // the studio's current zoom (stroke compensation)
 
 const INDICATOR_CSS = [
   // the shared-element glide (#48): the ring NEVER leaves the layout
@@ -165,46 +188,6 @@ const INDICATOR_CSS = [
   `}`,
 ].join('\n');
 
-// the ROLE split (#44): canvas pages HOST the one ring pair; frame
-// surfaces REPORT into it. A standalone frame (no embedding) keeps
-// its selection seams and simply paints nothing.
-const IS_CANVAS_HOST = typeof location !== 'undefined' && location.pathname.startsWith('/prototypes/');
-const indicators = new Map(); // kind → element (host only)
-let trackIdleTimer = 0;
-let targetObserver = null;
-let lensScale = 1; // host: the studio's current zoom (stroke compensation)
-/* #44 state law (the deselect/ghost-ring bugs, Owner 2026-09-14):
- * each ring has an OWNER — the document that last placed a real box
- * (a frameName, 'canvas', or null). Only the owner's null clears the
- * ring; late nulls from a frame the pointer already left are ignored
- * (the leave-A / enter-B cross-document ordering race). The last
- * box+meta are kept so a lens change can re-apply ONLY the chrome
- * (stroke/badge compensation) without touching placement. */
-const ringOwner = { hover: null, selected: null };
-const ringLast = { hover: null, selected: null }; // {box, meta} | null
-
-/** frame-side: ship a box (or null) to the canvas host */
-function reportIndicator(kind, element) {
-  if (IS_CANVAS_HOST) return; // hosts place directly
-  if (window.parent === window) return; // standalone — nobody to host
-  let payload = null;
-  if (element !== null && element.isConnected) {
-    const rect = element.getBoundingClientRect();
-    payload = {
-      x: rect.left,
-      y: rect.top,
-      w: rect.width,
-      h: rect.height,
-      component: element.getAttribute('data-jx-component'),
-      instance: element.getAttribute('data-jx-instance'),
-    };
-  }
-  window.parent.postMessage(
-    { type: 'jx-design:indicator-report', kind, frameName: window.name, payload },
-    window.location.origin,
-  );
-}
-
 function ensureIndicator(kind) {
   let el = indicators.get(kind);
   if (el !== undefined && el.isConnected) return el;
@@ -222,13 +205,16 @@ function ensureIndicator(kind) {
 }
 
 /** the hover fade-window (#48): a transient null (crossing a gap or a
- * frame boundary) does not hide the ring immediately — a new box
- * within the window cancels the fade and GLIDES there; only a real
- * rest clears it. Selection nulls are deliberate and apply at once. */
+ *  frame boundary) does not hide the ring immediately — a new box
+ *  within the window cancels the fade and GLIDES there; only a real
+ *  rest clears it. Selection nulls are deliberate and apply at once. */
 const hoverFadeTimers = new Map(); // kind → timeout (hover only)
 
-/** host: reposition a placed overlay from a canvas-space box */
-function placeIndicatorBox(kind, box, meta) {
+/** host: place an overlay from a canvas-space box (the ONLY placement
+ *  path — accept() decides, this paints). `frameBox` keeps the frame
+ *  viewport box for frame-owned rings so the host can re-measure the
+ *  iframe offset locally on any host-side layout change. */
+function placeIndicatorBox(kind, box, meta, frameBox = null) {
   const el = ensureIndicator(kind);
   if (box === null) {
     ringLast[kind] = null;
@@ -243,7 +229,7 @@ function placeIndicatorBox(kind, box, meta) {
     return;
   }
   if (kind === 'hover') clearTimeout(hoverFadeTimers.get(kind));
-  ringLast[kind] = { box, meta: meta ?? null };
+  ringLast[kind] = { box, frameBox, meta: meta ?? null };
   const k = 1 / Math.max(lensScale, 0.05);
   el.style.display = 'block';
   el.style.opacity = '1';
@@ -267,73 +253,142 @@ function placeIndicatorBox(kind, box, meta) {
   }
 }
 
-/** reposition a placed overlay for a LOCAL element (host's own stamps) */
-function placeIndicator(kind, element) {
-  ringOwner[kind] = element !== null && element.isConnected ? 'canvas' : ringOwner[kind];
-  if (element === null || !element.isConnected) {
-    if (ringOwner[kind] === 'canvas') placeIndicatorBox(kind, null);
-    return;
-  }
-  const rect = element.getBoundingClientRect();
-  placeIndicatorBox(kind, { x: rect.left + window.scrollX, y: rect.top + window.scrollY, w: rect.width, h: rect.height },
-    element.getAttribute('data-jx-component') !== null
-      ? `${element.getAttribute('data-jx-component')} #${element.getAttribute('data-jx-instance') ?? '?'} · ${Math.round(rect.width)}×${Math.round(rect.height)}`
-      : `${Math.round(rect.width)}×${Math.round(rect.height)}`);
+function badgeOf(payload) {
+  return payload.component !== null
+    ? `${payload.component} #${payload.instance ?? '?'} · ${Math.round(payload.w)}×${Math.round(payload.h)}`
+    : `${Math.round(payload.w)}×${Math.round(payload.h)}`;
 }
 
-/** scroll/resize repositioning: transitions OFF while tracking (glued),
- *  back ON after a short idle so the next target change glides again */
-function trackIndicators() {
-  if (!IS_CANVAS_HOST) {
-    // frame side: the host needs the fresh box (content moved inside us)
-    reportIndicator('selected', highlighted);
-    reportIndicator('hover', hovered !== null && hovered !== highlighted ? hovered : null);
-    return;
-  }
-  for (const [kind, el] of indicators) {
-    if (el.style.display === 'none') continue;
-    if (ringOwner[kind] === 'canvas') {
-      el.classList.add('jx-tracking');
-      placeIndicator(kind, kind === 'selected' ? highlighted : hovered);
-    } else {
-      // frame-owned: re-apply ONLY the zoom-compensated chrome from the
-      // stored box — the host's own null locals must never clobber it
-      const last = ringLast[kind];
-      if (last !== null) {
-        el.classList.add('jx-tracking');
-        placeIndicatorBox(kind, last.box, last.meta);
-      }
-    }
-  }
+/** host: the single adjudication gate — the three laws, nothing else */
+function accept(kind, frameName, payload, origin, frameBox) {
+  const ruling = resolveRingUpdate(ringOwner[kind], kind, frameName, payload !== null, origin === 'pick');
+  if (!ruling.apply) return;
+  if (ringOwner[kind] !== ruling.owner) ownerIframe[kind] = null; // re-resolve the owner's iframe
+  ringOwner[kind] = ruling.owner;
+  placeIndicatorBox(
+    kind,
+    payload,
+    kind === 'selected' && payload !== null ? badgeOf(payload) : null,
+    frameBox,
+  );
+  ensureAlignLoop();
+}
+
+function iframeByName(name) {
+  return document.querySelector(`iframe[name="${name}"]`) ?? null;
+}
+
+/** host: re-host frame-owned rings — the iframe offset is host-side
+ *  truth, measured here and now against the kept in-frame box (the
+ *  lens chrome compensation rides the same re-placement). */
+/* transitions OFF while tracking (glued), back ON after a short idle
+ * so the next target change glides again (#48) */
+let trackIdleTimer = 0;
+function armTrackingClass() {
+  for (const el of indicators.values()) el.classList.add('jx-tracking');
   clearTimeout(trackIdleTimer);
   trackIdleTimer = setTimeout(() => {
     for (const el of indicators.values()) el.classList.remove('jx-tracking');
   }, 160);
 }
 
-/** content resize follows the CURRENT targets (a growing button keeps
- *  its ring and badge honest). The FIRST callback per observe() is the
- *  RO's initial report — firing trackIndicators there kills the glide
- *  transition on every retarget (the #48 bug: sweep hover → ring
- *  snaps). Expected-initial counting suppresses exactly those. */
-let roPendingInitial = 0;
-function observeTargets() {
-  if (typeof ResizeObserver === 'undefined') return;
-  targetObserver?.disconnect();
-  const watch = [
+/** the follow-along refresh (explicit re-sync: the lens broadcast) —
+ *  force re-hosts (the chrome scales) and re-reports; a stale frame's
+ *  report is ignored by law 2, no guard needed here */
+function trackIndicators() {
+  emit('selected', highlighted, 'refresh');
+  emit('hover', hovered !== null && hovered !== highlighted ? hovered : null, 'refresh');
+  if (IS_CANVAS_HOST) {
+    rehostFrameRing('selected', true);
+    rehostFrameRing('hover', true);
+    armTrackingClass();
+  }
+}
+
+/* ── the align loop: every frame, read the rects, act on change ────
+ * The whole follow-along law. While anything is marked (a live local
+ * target, or — host-side — a frame-owned ring), one rAF step per
+ * frame re-reads and re-reports ONLY movements (an idle frame sends
+ * no message and writes no style — the rect reads are the whole
+ * cost); when nothing is marked the loop is not scheduled at all. A
+ * target that left the DOM unmarks itself; a host whose owning frame
+ * left the canvas retires the ring it owned. */
+let alignRaf = 0;
+const lastSent = { selected: null, hover: null }; // payload keys ('null' for none)
+const ownerIframe = { selected: null, hover: null }; // host cache: owner frame name → element
+
+function payloadKey(p) {
+  return p === null ? 'null' : `${p.x.toFixed(1)} ${p.y.toFixed(1)} ${p.w.toFixed(1)} ${p.h.toFixed(1)}`;
+}
+
+function hasAlignWork() {
+  if ((highlighted !== null && highlighted.isConnected) || (hovered !== null && hovered.isConnected)) return true;
+  return IS_CANVAS_HOST && (ringOwner.selected !== null || ringOwner.hover !== null);
+}
+
+function ensureAlignLoop() {
+  if (alignRaf !== 0 || !hasAlignWork()) return;
+  alignRaf = requestAnimationFrame(alignStep);
+}
+
+function alignStep() {
+  alignRaf = 0;
+  // dead targets unmark themselves (HMR churn, canvas re-mounts) —
+  // the next key compare emits the clearing null and the loop can stop
+  if (highlighted !== null && !highlighted.isConnected) highlighted = null;
+  if (hovered !== null && !hovered.isConnected) hovered = null;
+  // local targets: re-read and re-report on movement only
+  for (const [kind, el] of [
     ['selected', highlighted],
-    ['hover', hovered],
-  ].filter(([, el]) => el !== null && el.isConnected);
-  if (watch.length === 0) return;
-  roPendingInitial = watch.length;
-  targetObserver = new ResizeObserver(() => {
-    if (roPendingInitial > 0) {
-      roPendingInitial -= 1;
-      return;
-    }
-    trackIndicators();
-  });
-  for (const [, el] of watch) targetObserver.observe(el);
+    ['hover', hovered !== null && hovered !== highlighted ? hovered : null],
+  ]) {
+    const key = el === null || el === undefined ? 'null' : payloadKey(rectOf(el));
+    if (key !== lastSent[kind]) emit(kind, el ?? null, 'refresh');
+  }
+  if (IS_CANVAS_HOST) {
+    rehostFrameRing('selected', false);
+    rehostFrameRing('hover', false);
+  }
+  if (hasAlignWork()) alignRaf = requestAnimationFrame(alignStep);
+}
+
+/** host: re-host a frame-owned ring from the host's OWN iframe
+ *  measurement against the kept in-frame box. `force` re-places even
+ *  without movement (the lens broadcast — the chrome scales with the
+ *  zoom while the box does not move). A vanished owning frame retires
+ *  the ring (its document is gone; the canvas-switch path clears the
+ *  panel selection on its own). */
+function rehostFrameRing(kind, force) {
+  const owner = ringOwner[kind];
+  if (owner === null || owner === 'canvas') return;
+  const last = ringLast[kind];
+  if (last === null || last.frameBox === null) return;
+  let ifr = ownerIframe[kind];
+  if (ifr === null || !ifr.isConnected) {
+    ifr = iframeByName(owner); // owner IS the full frame name
+    ownerIframe[kind] = ifr;
+  }
+  if (ifr === null) {
+    ringOwner[kind] = null;
+    ownerIframe[kind] = null;
+    placeIndicatorBox(kind, null);
+    return;
+  }
+  const rect = ifr.getBoundingClientRect();
+  const box = { x: rect.left + window.scrollX + last.frameBox.x, y: rect.top + window.scrollY + last.frameBox.y,
+    w: last.frameBox.w, h: last.frameBox.h };
+  if (force || payloadKey(box) !== payloadKey(last.box)) {
+    placeIndicatorBox(kind, box, last.meta, last.frameBox);
+    armTrackingClass();
+  }
+}
+
+/** the reporter's in-frame rect (viewport coords — the host adds the
+ *  iframe offset); the host's own targets read in document coords */
+function rectOf(el) {
+  const rect = el.getBoundingClientRect();
+  return { x: rect.left + (IS_CANVAS_HOST ? window.scrollX : 0), y: rect.top + (IS_CANVAS_HOST ? window.scrollY : 0),
+    w: rect.width, h: rect.height };
 }
 
 function elementFor(target) {
@@ -352,7 +407,7 @@ export function initDesignPicker() {
   // per click by the lazy walk below
   const forced = new URLSearchParams(window.location.search).get('pick') === '1';
 
-  // the indicator style (#44): the HOST document owns the one ring
+  // the indicator pair (#44): the HOST document owns the one ring
   // pair; reporter frames inject nothing visual
   if (IS_CANVAS_HOST) {
     const style = document.createElement('style');
@@ -360,13 +415,12 @@ export function initDesignPicker() {
     document.head.appendChild(style);
   }
 
-  // scroll keeps the rings glued (transition suppressed while tracking;
-  // reporters re-ship their boxes so the host follows)
-  document.addEventListener('scroll', () => trackIndicators(), { capture: true, passive: true });
-  window.addEventListener('resize', () => trackIndicators(), { passive: true });
+  // the follow-along is the align loop (rAF, change-detected) — no
+  // event listeners to keep in sync; a scroll/resize/style/DOM churn
+  // all surface as the same thing: the target's rect moved
 
-  // HOST: frame reports arrive here — iframe offset + box = canvas box
   if (IS_CANVAS_HOST) {
+    // frame reports arrive here — iframe offset + box = canvas box
     window.addEventListener('message', (event) => {
       const data = event.data;
       if (data === null || typeof data !== 'object' || data.type !== 'jx-design:indicator-report') return;
@@ -375,34 +429,23 @@ export function initDesignPicker() {
         (el) => el.contentWindow === event.source,
       );
       if (frame === undefined) return;
+      const origin = data.origin === 'pick' ? 'pick' : 'refresh';
       if (data.payload === null) {
-        // ONLY the current owner may clear (a late null from a frame
-        // the pointer already left must not ghost the ring)
-        if (ringOwner[data.kind] === data.frameName) {
-          ringOwner[data.kind] = null;
-          placeIndicatorBox(data.kind, null);
-        }
+        accept(data.kind, data.frameName, null, origin, null);
         return;
       }
-      ringOwner[data.kind] = data.frameName;
       const rect = frame.getBoundingClientRect();
-      const badge =
-        data.kind === 'selected' && data.payload.component !== null
-          ? `${data.payload.component} #${data.payload.instance ?? '?'} · ${Math.round(data.payload.w)}×${Math.round(data.payload.h)}`
-          : null;
-      placeIndicatorBox(
-        data.kind,
-        {
-          x: rect.left + window.scrollX + data.payload.x,
-          y: rect.top + window.scrollY + data.payload.y,
-          w: data.payload.w,
-          h: data.payload.h,
-        },
-        badge,
+      accept(
+        data.kind, data.frameName,
+        { x: rect.left + window.scrollX + data.payload.x, y: rect.top + window.scrollY + data.payload.y,
+          w: data.payload.w, h: data.payload.h, component: data.payload.component ?? null, instance: data.payload.instance ?? null },
+        origin,
+        { x: data.payload.x, y: data.payload.y, w: data.payload.w, h: data.payload.h },
       );
     });
     // the studio's lens broadcast: stroke/badge compensation only (the
-    // overlay lives in canvas space — the box itself never needs mapping)
+    // overlay lives in canvas space — the box itself never needs
+    // mapping; rehost also re-measures iframe offsets)
     window.addEventListener('message', (event) => {
       const data = event.data;
       if (data === null || typeof data !== 'object' || data.type !== 'jx-design:lens') return;
@@ -418,8 +461,7 @@ export function initDesignPicker() {
       // lazy activation (r3 T6): re-walk the chain on EVERY click —
       // the studio seam may have appeared after this document loaded
       // (the HMR double-reload race), and a walk that still finds
-      // nothing means standalone: pass through, untouched, same as
-      // never having been injected
+      // nothing means standalone: pass through, untouched
       const studio = findStudioWindow();
       if (studio === null && !forced) return;
       const target = event.target;
@@ -433,7 +475,7 @@ export function initDesignPicker() {
       if (!Number.isInteger(usageIndex) || component === null) return;
       const all = document.querySelectorAll(`[data-jx-instance="${String(usageIndex)}"]`);
       const iterationIndex = all.length > 1 ? Array.prototype.indexOf.call(all, stamped) : null;
-      applyHighlight(stamped);
+      applyHighlight(stamped, 'pick');
       if (studio !== null) {
         studio.__jixoaiDesignSelect({
           frameId: frameIdFromWindowName(window.name),
@@ -447,42 +489,41 @@ export function initDesignPicker() {
     true,
   );
 
-  // Escape clears the selection (the chip's other removal path)
+  // Escape clears the selection (the chip's other removal path). The
+  // panel follows ONLY when the ring answered to THIS document (the
+  // owner law's UI twin): a frame-owned selection survives the HOST
+  // document's Escape — its owner (the frame) is the one that may
+  // clear it, from inside the frame.
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape' || highlighted === null) return;
-    applyHighlight(null);
+    applyHighlight(null, 'pick');
+    if (IS_CANVAS_HOST && ringOwner.selected !== null && ringOwner.selected !== 'canvas') return;
     const studio = findStudioWindow();
     if (studio !== null) studio.__jixoaiDesignSelect(null);
   });
 
-  // the DOWN seam: tree selection highlights inside this document.
-  // Registered unconditionally — a standalone document simply has no
-  // caller, and a document embedded later is reachable immediately.
+  // the DOWN seams: tree selection and tree hover drive THIS document
+  // (a pick — the tree click is a user action; registered
+  // unconditionally, a standalone document simply has no caller)
   window.__jixoaiDesignHighlight = (target) => {
-    applyHighlight(target === null ? null : elementFor(target));
+    applyHighlight(target === null ? null : elementFor(target), 'pick');
   };
-
-  // the hover DOWN seam (#31): tree hover lights the element — the
-  // highlight twin WITHOUT the scroll (hover never moves the viewport)
   window.__jixoaiDesignHover = (target) => {
-    applyHover(target === null ? null : elementFor(target));
+    // the highlight twin WITHOUT the scroll (hover never moves the viewport)
+    applyHover(target === null ? null : elementFor(target), 'pick');
   };
 
   // the hover loop (#46→rev, Owner 2026-09-14): hover granularity is
   // the NEAREST STAMPED ANCESTOR — the SAME target a click selects.
-  // The ring promises exactly what a click does (the raw-child
-  // experiment made hover and click disagree: rings on raw children
-  // whose clicks selected the ancestor — "点击没有效果" 的体感);
-  // outside any stamped usage there is NO ring and clicks pass
-  // through, also consistent. Stamped CHILDREN ring themselves
-  // (the innermost ancestor), which is the #46 intent.
+  // The ring promises exactly what a click does; outside any stamped
+  // usage there is NO ring and clicks pass through, also consistent.
   document.addEventListener(
     'mouseover',
     (event) => {
       const target = event.target;
       if (target === null || typeof target.closest !== 'function') return;
       const stamped = target.closest('[data-jx-component]');
-      applyHover(stamped);
+      applyHover(stamped, 'pick');
       if (stamped === null) return;
       const usageIndex = Number(stamped.getAttribute('data-jx-instance'));
       const component = stamped.getAttribute('data-jx-component');
@@ -501,7 +542,7 @@ export function initDesignPicker() {
       }
     },
     { capture: true, passive: true },
-  )
+  );
   document.addEventListener(
     'mouseout',
     (event) => {
@@ -511,7 +552,7 @@ export function initDesignPicker() {
         const to = event.relatedTarget.closest ? event.relatedTarget.closest('[data-jx-component]') : null;
         if (from !== null && from === to) return;
       }
-      applyHover(null);
+      applyHover(null, 'pick');
       const studio = findStudioWindow();
       if (studio !== null && typeof studio.__jixoaiDesignHover === 'function') {
         studio.__jixoaiDesignHover(null);

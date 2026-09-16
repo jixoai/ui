@@ -42,6 +42,15 @@
             suspended only while the modifier is held. Released on
             keyup and on window blur.
 
+  The two-beat load (design-studio-acceptance §2): between the iframe
+  mount and the FIRST metrics report the lens falls back to 100% blank
+  — the stage now paints a blueprint skeleton there. Beat 1 is the
+  iframe's OWN load event (the document shell is in — the caption
+  says so); beat 2 is the first jx-design:canvas-metrics (sheet — the
+  skeleton leaves). The {#key src} remount re-arms both beats; the
+  skeleton is pointer-transparent, so the workspace's pan/zoom keep
+  working through it.
+
   The DOM contract the walkthrough scripts rely on: the root keeps
   .studio-preview, the iframe keeps .studio-iframe; the {#key src}
   remount seam is unchanged; the iframe flows up through onIframe (the
@@ -117,6 +126,12 @@
 
   /** the canvas document's reported natural size (null = pre-metrics) */
   let sheet: { width: number; height: number } | null = $state(null);
+
+  /** beat 1 of the two-beat load (design-studio-acceptance §2): the
+   *  iframe's OWN load event — the document shell is in. Beat 2 is the
+   *  first metrics report (sheet). The iframeEl effect below re-arms
+   *  it on every {#key src} remount */
+  let shellReady = $state(false);
 
   /** ⌥/Space lens mode: the mode sheet above the iframe is up */
   let lensMode = $state(false);
@@ -205,6 +220,13 @@
     if (sheet !== null && sheet.width === width && sheet.height === height) return;
     sheet = { width, height };
     if (!manual) autoFit();
+  }
+
+  /** the two beats' first arm (§2): the iframe finished loading its
+   *  document — the skeleton's caption moves to the shell-ready line;
+   *  the skeleton itself stays until beat 2 (the first metrics report) */
+  function onIframeLoad(): void {
+    shellReady = true;
   }
 
   /* ── anchors ──────────────────────────────────────────────────────── */
@@ -387,9 +409,12 @@
     onIframe?.(iframeEl);
   });
 
+  // a fresh iframe element (the {#key src} remount) drops the metrics
+  // channel AND re-arms beat 1 (§2): a fresh document loads fresh
   $effect(() => {
     if (iframeEl === null) return;
     sheet = null;
+    shellReady = false;
   });
 
   // #45: canvas switch = viewport record swap — restore this page's
@@ -507,8 +532,25 @@
         style:height={sheet === null ? undefined : `${sheet.height}px`}
       >
         {#key src}
-          <iframe class="studio-iframe" {src} {title} bind:this={iframeEl}></iframe>
+          <iframe class="studio-iframe" {src} {title} bind:this={iframeEl} onload={onIframeLoad}></iframe>
         {/key}
+        {#if sheet === null}
+          <!-- the two-beat skeleton (§2): beat 1 (the iframe's own load)
+               swaps the caption to the shell-ready line, beat 2 (the first
+               metrics report) removes the layer. Pointer-transparent —
+               pan/zoom pass through to the workspace underneath -->
+          <div class="studio-stage-skeleton" data-stage-skeleton data-beat={shellReady ? 'shell' : 'loading'} aria-hidden="true">
+            <div class="studio-stage-skeleton-wire">
+              <span class="studio-stage-sk studio-stage-sk-bar"></span>
+              <span class="studio-stage-sk studio-stage-sk-main"></span>
+              <div class="studio-stage-sk-side">
+                <span class="studio-stage-sk studio-stage-sk-a"></span>
+                <span class="studio-stage-sk studio-stage-sk-b"></span>
+              </div>
+            </div>
+            <p class="studio-stage-skeleton-label" data-stage-skeleton-label>{shellReady ? 'shell ready · compiling' : 'loading <canvas>'}</p>
+          </div>
+        {/if}
       </div>
       {#if lensMode}
         <!-- the mode sheet: while ⌥/Space is held the parent owns the
@@ -710,5 +752,82 @@
     align-self: stretch;
     margin: 0.125rem 0.1875rem;
     background: #262320;
+  }
+  /* the two-beat skeleton (§2): the gap between the iframe mount and
+     the first metrics report (sheet) was a 100%-blank lens. A
+     WHITE-print dashed wireframe pulses over the cyanotype; the UA's
+     blank-white loading document behind it is veiled back to the
+     blueprint ground. Sits INSIDE the lens wrapper (design §2) —
+     pre-metrics the wrapper fills the stage; explicit child classes
+     carry the stagger (the scoped `> *` lesson above) */
+  .studio-stage-skeleton {
+    position: absolute;
+    inset: 0;
+    z-index: 1; /* above the iframe, under the mode sheet (z 2) + HUD (z 3) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    pointer-events: none; /* the workspace's pan/zoom pass through */
+    background: rgba(10, 32, 58, 0.9);
+  }
+  .studio-stage-skeleton-wire {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    grid-template-rows: 0.875rem 1fr;
+    gap: 0.5rem;
+    width: min(23rem, 70%);
+    height: 9.5rem;
+  }
+  .studio-stage-sk {
+    border: 1px dashed rgba(198, 226, 255, 0.4);
+    border-radius: 2px;
+    opacity: 0.55;
+    animation: studio-sk-pulse 1.6s ease-in-out infinite;
+  }
+  .studio-stage-sk-bar {
+    grid-column: 1 / -1;
+  }
+  .studio-stage-sk-side {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .studio-stage-sk-a,
+  .studio-stage-sk-b {
+    flex: 1;
+  }
+  .studio-stage-sk-bar {
+    animation-delay: 0s;
+  }
+  .studio-stage-sk-main {
+    animation-delay: 0.2s;
+  }
+  .studio-stage-sk-a {
+    animation-delay: 0.4s;
+  }
+  .studio-stage-sk-b {
+    animation-delay: 0.6s;
+  }
+  .studio-stage-skeleton-label {
+    margin: 0;
+    color: rgba(198, 226, 255, 0.78);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em; /* the HUD mode tag's tracking */
+  }
+  @keyframes studio-sk-pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .studio-stage-sk {
+      animation: none; /* freeze the pulse — the wireframe stays legible */
+    }
   }
 </style>

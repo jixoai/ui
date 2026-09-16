@@ -166,6 +166,9 @@ interface ValuePartNode {
 interface AttributeNode {
   readonly type: string;
   readonly name?: string;
+  /** source offsets (Svelte AST contract — the materialize transform anchors on them) */
+  readonly start?: number;
+  readonly end?: number;
   readonly value?: true | readonly ValuePartNode[] | { readonly type: string };
 }
 
@@ -663,10 +666,15 @@ function treeInsertEnvelope(opId: string, componentId: string, item: unknown, pa
  * replacing a stored page/component item with the CURRENT plan's. The
  * fresh/rebase lanes still DEFER scaffold changes (the external-bytes
  * guard); the reconcile lane is the explicit opt-in that lands them.
+ *
+ * EXPORTED for the materialize endpoint (design-studio-acceptance-fixes
+ * §3): the atomic group's tree-update op is the same M5a vocabulary —
+ * `actor` defaults to the station's file-system identity; the composite
+ * panel lane passes the human actor.
  */
-function treeUpdateEnvelope(opId: string, componentId: string, item: unknown, base: Frontier): TreeOpEnvelope {
+export function treeUpdateEnvelope(opId: string, componentId: string, item: unknown, base: Frontier, actor: string = FILE_SYSTEM_ACTOR): TreeOpEnvelope {
   return {
-    actor: FILE_SYSTEM_ACTOR,
+    actor,
     opId,
     baseFrontiers: base,
     domain: 'tree',
