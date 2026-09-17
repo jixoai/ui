@@ -26,6 +26,24 @@
   import CodeCard from '$lib/ui/code-card';
   import HighlightDetectDefault from '$lib/ui/highlight-detect-default';
   import { AUTO_LANG, defaultLangDetector } from '$lib/highlight/default-detector';
+  import { rt } from '$lib/surface/routes.stylex';
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /**
    * The detection lab (site-only, 2026-09-07): type code (or pick an
@@ -158,30 +176,28 @@
   };
 </script>
 
-<div class="grid gap-4 min-[980px]:grid-cols-2">
+<div class={cx(rt.dpgGrid)}>
   <!-- input side -->
-  <div class="flex flex-col gap-3">
-    <div class="flex flex-wrap items-center gap-1.5">
+  <div class={cx(rt.col12)}>
+    <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap6)}>
       {#each EXAMPLES as example (example.id)}
         <button
           type="button"
           onclick={() => pick(example)}
-          class="cursor-pointer rounded-sm border px-2 py-1 font-mono text-[11px] transition-colors {activeExample === example.id
-            ? 'border-accent bg-accent/10 text-accent'
-            : 'border-border text-muted-foreground hover:border-accent/60 hover:text-foreground'}"
+          class={cx(rt.cursorPointer, rt.radius0, rt.frameW, rt.px8, rt.py4, rt.fontMono, rt.text11, rt.transitionColors, activeExample === example.id ? rt.dpgBtnOn : rt.dpgBtnOff)}
         >
           {example.label}
         </button>
       {/each}
     </div>
-    <label class="flex items-center gap-2 text-[12px] text-muted-foreground">
-      <span class="font-nav shrink-0 uppercase tracking-[0.18em]">filename</span>
+    <label class={cx(rt.rowC8, rt.text12, rt.inkMuted)}>
+      <span class={cx(rt.fontNav, rt.shrink0, rt.upper, rt.track18)}>filename</span>
       <input
         value={filename}
         oninput={onFilenameInput}
         placeholder="(optional — feeds L1's tables verbatim)"
         spellcheck="false"
-        class="w-full rounded-sm border border-border bg-background px-2 py-1.5 font-mono text-[12px] text-foreground outline-none focus:border-accent"
+        class={cx(rt.wFull, rt.radius0, rt.frame, rt.bgBackground, rt.px8, rt.py6, rt.fontMono, rt.text12, rt.inkFg, rt.dpgFieldFocus)}
       />
     </label>
     <textarea
@@ -189,9 +205,9 @@
       oninput={onCodeInput}
       rows="12"
       spellcheck="false"
-      class="w-full resize-y rounded-sm border border-border bg-background p-3 font-mono text-[12.5px] leading-5 text-foreground outline-none focus:border-accent"
+      class={cx(rt.wFull, rt.dpgResizeY, rt.radius0, rt.frame, rt.bgBackground, rt.p12, rt.fontMono, rt.text125, rt.lead5, rt.inkFg, rt.dpgFieldFocus)}
     ></textarea>
-    <p class="text-[12px] leading-5 text-muted-foreground">
+    <p class={cx(rt.text12, rt.lead5, rt.inkMuted)}>
       Detection is debounced 250 ms and re-runs the whole waterfall — no cache (design D6);
       the card below rides the REAL consumer path (lang=&quot;auto&quot; inside the wrapper),
       not a pre-computed verdict.
@@ -199,24 +215,24 @@
   </div>
 
   <!-- verdict + log side -->
-  <div class="flex flex-col gap-3">
-    <div class="border border-border bg-muted/40 px-4 py-3">
+  <div class={cx(rt.col12)}>
+    <div class={cx(rt.frame, rt.bgMuted40, rt.px16, rt.py12)}>
       {#if verdict === 'pending'}
-        <p class="font-mono text-[12.5px] text-muted-foreground">detecting…</p>
+        <p class={cx(rt.fontMono, rt.text125, rt.inkMuted)}>detecting…</p>
       {:else if verdict === 'error'}
-        <p class="font-mono text-[12.5px] text-destructive">detector rejected — see console</p>
+        <p class={cx(rt.fontMono, rt.text125, rt.dpgInkDestructive)}>detector rejected — see console</p>
       {:else if verdict === null}
-        <p class="font-mono text-[12.5px] text-muted-foreground">
+        <p class={cx(rt.fontMono, rt.text125, rt.inkMuted)}>
           no opinion anywhere — the card stays plain text (the [detect:all] law)
         </p>
       {:else}
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span class="font-mono text-[15px] font-semibold text-foreground">{verdict.lang}</span>
-          <span class="rounded-sm border border-accent/50 bg-accent/10 px-1.5 py-0.5 font-mono text-[11px] text-accent">
+        <div class={cx(rt.flex, rt.wrap, rt.itemsBaseline, rt.gapX12, rt.gapY4)}>
+          <span class={cx(rt.fontMono, rt.text15, rt.semibold, rt.inkFg)}>{verdict.lang}</span>
+          <span class={cx(rt.dpgChip, rt.radius0, rt.px6, rt.py2, rt.fontMono, rt.text11, rt.inkAccent)}>
             source: {verdict.source}
           </span>
           {#if verdict.confidence !== undefined}
-            <span class="font-mono text-[11px] text-muted-foreground">
+            <span class={cx(rt.fontMono, rt.text11, rt.inkMuted)}>
               confidence {verdict.confidence.toFixed(3)}
             </span>
           {/if}
@@ -224,30 +240,30 @@
       {/if}
     </div>
 
-    <div class="border border-border">
-      <div class="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-2">
-        <span class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">waterfall log</span>
-        <span class="font-mono text-[11px] text-muted-foreground">{traceLog.length} executed</span>
+    <div class={cx(rt.frame)}>
+      <div class={cx(rt.flex, rt.itemsCenter, rt.justifyBetween, rt.bBorder, rt.bgMuted40, rt.px16, rt.py8)}>
+        <span class={cx(rt.eyebrow, rt.inkMuted)}>waterfall log</span>
+        <span class={cx(rt.fontMono, rt.text11, rt.inkMuted)}>{traceLog.length} executed</span>
       </div>
-      <ol class="divide-y divide-border">
-        {#each rows as row (row.layer)}
-          <li class="flex items-start gap-3 px-4 py-2.5">
+      <ol>
+        {#each rows as row, i (row.layer)}
+          <li class={cx(rt.flex, rt.itemsStart, rt.gap12, rt.px16, rt.py10, i > 0 ? rt.tBorder : undefined)}>
             <span
-              class="mt-0.5 w-24 shrink-0 font-mono text-[11px] {row.state === 'hit'
-                ? 'text-accent'
+              class={cx(rt.dpgMt2, rt.dpgW96, rt.shrink0, rt.fontMono, rt.text11, row.state === 'hit'
+                ? rt.inkAccent
                 : row.state === 'miss'
-                  ? 'text-foreground'
-                  : 'text-muted-foreground/60'}"
+                  ? rt.inkFg
+                  : rt.inkMuted60)}
             >
               {row.layer} {layerNames[row.layer]}
             </span>
-            <span class="w-12 shrink-0 font-mono text-[11px] {row.state === 'hit' ? 'text-accent' : 'text-muted-foreground/60'}">
+            <span class={cx(rt.dpgW48, rt.shrink0, rt.fontMono, rt.text11, row.state === 'hit' ? rt.inkAccent : rt.inkMuted60)}>
               {row.state === 'hit' ? '● hit' : row.state === 'miss' ? '○ miss' : row.state === 'skipped' ? '⤷ skip' : '—'}
             </span>
-            <span class="min-w-0 flex-1 text-[12.5px] leading-5 {row.state === 'hit' || row.state === 'miss' ? 'text-foreground' : 'text-muted-foreground/60'}">
+            <span class={cx(rt.minW0, rt.grow, rt.text125, rt.lead5, row.state === 'hit' || row.state === 'miss' ? rt.inkFg : rt.inkMuted60)}>
               {row.detail}
               {#if row.state === 'hit' || row.state === 'miss'}
-                <span class="ml-1 font-mono text-[11px] text-muted-foreground/70">{row.ms.toFixed(1)}ms</span>
+                <span class={cx(rt.ml4, rt.fontMono, rt.text11, rt.inkMuted70)}>{row.ms.toFixed(1)}ms</span>
               {/if}
             </span>
           </li>
@@ -257,7 +273,7 @@
   </div>
 
   <!-- the live paint: the real consumer path -->
-  <div class="min-[980px]:col-span-2">
+  <div class={cx(rt.dpgSpan2)}>
     <HighlightDetectDefault>
       <CodeCard
         lang={AUTO_LANG}

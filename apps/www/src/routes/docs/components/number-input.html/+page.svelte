@@ -7,6 +7,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import NumberInput from '$lib/ui/number-input/number-input.svelte';
@@ -114,6 +115,24 @@ ${close}
   const numberInputTypesFiles: TreeFile[] = [
     { name: 'number-input-types-demo.svelte', content: numberInputTypesDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -125,14 +144,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -142,7 +161,7 @@ ${close}
       title="number-input — the [- NUM +] stepper"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">click / hold / type</span>
         <span class="pill">min / max / step clamp</span>
         <span class="pill">hold acceleration</span>
@@ -167,7 +186,7 @@ ${close}
       ]}
       resolveFileContent={resolveNumberUsage}
     >
-      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+      <div class={cx(rt.flex, rt.wFull, rt.niMaxWXs, rt.col, rt.itemsStart, rt.gap12)}>
         <NumberInput label="workers" bind:value={canvasWorkers} min={1} max={16} />
       </div>
       {#snippet playground()}
@@ -193,47 +212,47 @@ ${close}
       title="A segmented control, not a text-field fork"
       summary="Two full-height 28px-wide stepper buttons (text glyphs in font-nav bold — no icon dependency) around a borderless, centered native number input whose spinners are hidden but whose ↑/↓ stepping survives. The row renders at the family's 40px law like every text-like control. Click steps once and clamps into [min, max]; hold accelerates — one step, 300ms, then a step every 100ms until you release. Typing is first-class: the value commits on change and clamps."
     >
-      <div class="flex flex-col gap-5">
-        <div class="grid gap-5 min-[760px]:grid-cols-3">
-          <div class="flex flex-col gap-3">
+      <div class={cx(rt.flex, rt.col, rt.gap20)}>
+        <div class={cx(rt.niGrid760x3)}>
+          <div class={cx(rt.col12)}>
             <NumberInput label="workers" bind:value={workers} min={1} max={16} />
-            <span class="text-muted-foreground text-[12.5px]">
-              min 1 · max 16 · value: <code class="text-accent">{workers}</code>
+            <span class={cx(rt.text125, rt.inkMuted)}>
+              min 1 · max 16 · value: <code class={cx(rt.inkAccent)}>{workers}</code>
             </span>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <NumberInput label="timeout (s)" bind:value={timeout} min={0.5} max={5} step={0.5} placeholder="0.5" />
-            <span class="text-muted-foreground text-[12.5px]">
-              step 0.5 · decimal-safe · value: <code class="text-accent">{timeout}</code>
+            <span class={cx(rt.text125, rt.inkMuted)}>
+              step 0.5 · decimal-safe · value: <code class={cx(rt.inkAccent)}>{timeout}</code>
             </span>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <NumberInput label="disabled" value={3} min={1} max={8} disabled />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.text125, rt.inkMuted)}>
               buttons disable in lockstep · input readonly — frozen but readable
             </span>
           </div>
         </div>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.bodyMuted, rt.pretty)}>
           The row is plain flex with logical properties only, so
-          <code class="text-accent">dir="rtl"</code> flips it by itself — minus lands on the
+          <code class={cx(rt.inkAccent)}>dir="rtl"</code> flips it by itself — minus lands on the
           inline-end, plus on the inline-start, the same swap the select panel's primary edge
           performs. Tab into the input: ↑/↓ step with min/max/step read straight off the
           element — the native behavior, kept.
         </p>
-        <div class="border-border mt-1 border-t pt-5">
-          <h3 class="text-[15px] font-bold tracking-tight">RTL — geometry from logical properties</h3>
-          <ComponentCanvas class="mt-4" title="number-input · rtl" stage="fill" files={numberInputRtlFiles}>
-            <div class="grid gap-5 min-[760px]:grid-cols-2">
-              <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+        <div class={cx(rt.mt4, rt.tBorder, rt.pt20)}>
+          <h3 class={cx(rt.title15)}>RTL — geometry from logical properties</h3>
+          <ComponentCanvas class={cx(rt.mt16)} title="number-input · rtl" stage="fill" files={numberInputRtlFiles}>
+            <div class={cx(rt.grid760a)}>
+              <div dir="rtl" class={cx(rt.flex, rt.col, rt.gap16, rt.frame, rt.p16)}>
                 <NumberInput label="workers (rtl)" bind:value={workersRtl} min={1} max={16} />
-                <span class="text-muted-foreground text-[12px]">
+                <span class={cx(rt.inkMuted, rt.text12)}>
                   dir="rtl" on the wrapper — the [- +] order flips without a physical property in
                   sight
                 </span>
               </div>
-              <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
-                <p class="text-pretty">
+              <div class={cx(rt.flex, rt.col, rt.justifyCenter, rt.gap8, rt.bodyMuted)}>
+                <p class={cx(rt.pretty)}>
                   Nothing in the component branches on direction: the stepper is a flex row in DOM
                   order (minus, input, plus). The writing mode does the rest.
                 </p>
@@ -251,7 +270,7 @@ ${close}
 <!-- Material3 standard sections (2026-08-26): types / usage / a11y /
      theming / api appended after the demo sections, same wrapper law as
      checkbox.html. -->
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="types" data-reveal="">
     <SectionCard
       family="types"
@@ -261,11 +280,11 @@ ${close}
       summary="The integer stepper, the decimal-step stepper, the error state, and the disabled field."
     >
       <ComponentCanvas title="number-input · variants" stage="fill" files={numberInputTypesFiles}>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="border border-border p-4"><NumberInput label="workers" value={4} min={1} max={16} /></div>
-          <div class="border border-border p-4"><NumberInput label="timeout (s)" value={1.5} min={0.5} max={5} step={0.5} /></div>
-          <div class="border border-border p-4"><NumberInput label="error" value={7} min={1} max={4} error="max 4 workers per pod" /></div>
-          <div class="border border-border p-4"><NumberInput label="disabled" value={3} min={1} max={8} disabled /></div>
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}><NumberInput label="workers" value={4} min={1} max={16} /></div>
+          <div class={cx(rt.panel)}><NumberInput label="timeout (s)" value={1.5} min={0.5} max={5} step={0.5} /></div>
+          <div class={cx(rt.panel)}><NumberInput label="error" value={7} min={1} max={4} error="max 4 workers per pod" /></div>
+          <div class={cx(rt.panel)}><NumberInput label="disabled" value={3} min={1} max={8} disabled /></div>
         </div>
       </ComponentCanvas>
     </SectionCard>
@@ -313,7 +332,7 @@ ${close}
       title="Density and tokens"
       summary="The shell row and the stepper buttons share the density hit token; resize the scope and the whole stepper follows."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <DensityDemo>
           <NumberInput label="density sample" value={4} min={1} max={16} />
         </DensityDemo>

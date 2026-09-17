@@ -14,6 +14,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -104,6 +105,24 @@ ${close}
     { name: 'registry/files/ui/list-item/item.css', content: itemCssSource },
     { name: 'src/lib/ui/list-item-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 
   // settings-section state (the adapters prove binding/disabled/error live)
   let autoplay = $state(true);
@@ -586,8 +605,7 @@ ${close}
   <Item><ItemContent><ItemTitle>auto</ItemTitle><ItemDescription>resolved from context</ItemDescription></ItemContent></Item>
 </div>`;
 
-  // ToC outline: pairs with +page.ts, in page order.
-</script>
+  // ToC outline: pairs with +page.ts, in page order.</script>
 
 <svelte:head>
   <title>List item · jixoai-ui</title>
@@ -597,8 +615,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -607,7 +625,7 @@ ${close}
         title="list-item — the row, as a system"
         summary={entry.summary}
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">auto-variant chrome</span>
           <span class="pill">native ul/li groups</span>
           <span class="pill">ItemEnd trailing lane</span>
@@ -625,17 +643,17 @@ ${close}
         files={canvasFiles}
         stage="fill"
       >
-        <div class="w-full max-w-lg">
+        <div class={cx(rt.wFull, rt.maxWLg)}>
           <Item variant="outline">
             <ItemContent>
               <ItemTitle>Deploy #482</ItemTitle>
               <ItemDescription>main · 4f2a1c · 2 minutes ago</ItemDescription>
             </ItemContent>
             <ItemEnd>
-              <IconButton iconOnly text="Rerun deploy" class="size-7!">
+              <IconButton iconOnly text="Rerun deploy" class={cx(rt.lsiSize7Imp)}>
                 {#snippet icon()}<Icon name="check" />{/snippet}
               </IconButton>
-              <IconButton iconOnly text="More actions" class="size-7!">
+              <IconButton iconOnly text="More actions" class={cx(rt.lsiSize7Imp)}>
                 {#snippet icon()}<Icon name="ellipsis" />{/snippet}
               </IconButton>
             </ItemEnd>
@@ -644,8 +662,8 @@ ${close}
         {#snippet playground()}
           <PlayFields>
             <PlayHelp>
-              zero layout props on purpose: <code class="text-accent">variant</code> and
-              <code class="text-accent">size</code> are geometry-neutral paint, structure comes
+              zero layout props on purpose: <code class={cx(rt.inkAccent)}>variant</code> and
+              <code class={cx(rt.inkAccent)}>size</code> are geometry-neutral paint, structure comes
               from which slots you render, and the narrow-group wrap is a container query —
               never a breakpoint prop.
             </PlayHelp>
@@ -668,9 +686,9 @@ ${close}
           files={[{ name: 'list-item-standalone-ladder-demo.svelte', content: listItemStandaloneLadderDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="grid w-full gap-6 md:grid-cols-2">
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">auto · surface</span>
+        <div class={cx(rt.lsiGridMd)}>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.inkMuted, rt.text11, rt.upper, rt.track14)}>auto · surface</span>
             <Item>
               <ItemContent>
                 <ItemTitle>the auto row</ItemTitle>
@@ -687,8 +705,8 @@ ${close}
               </Item>
             {/each}
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">density</span>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.inkMuted, rt.text11, rt.upper, rt.track14)}>density</span>
             {#each ['default', 'sm', 'xs'] as const as s (s)}
               <Item density={s}>
                 <ItemContent>
@@ -717,9 +735,9 @@ ${close}
           files={[{ name: 'list-item-group-modes-demo.svelte', content: listItemGroupModesDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="grid w-full gap-6 lg:grid-cols-2">
-          <div class="flex flex-col gap-4">
-            <ItemGroup label="registry" ruler="media-content-end" class="max-w-lg">
+        <div class={cx(rt.lsiGridLg)}>
+          <div class={cx(rt.flex, rt.col, rt.gap16)}>
+            <ItemGroup label="registry" ruler="media-content-end" class={cx(rt.maxWLg)}>
               <Item href="#group-modes">
                 <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
                 <ItemContent>
@@ -744,7 +762,7 @@ ${close}
                 <ItemEnd><ItemChevron /></ItemEnd>
               </Item>
             </ItemGroup>
-            <ItemGroup mode="muted" label="strong relations" class="max-w-lg">
+            <ItemGroup mode="muted" label="strong relations" class={cx(rt.maxWLg)}>
               <Item>
                 <ItemContent>
                   <ItemTitle>muted slab</ItemTitle>
@@ -759,8 +777,8 @@ ${close}
               </Item>
             </ItemGroup>
           </div>
-          <div class="flex flex-col gap-4">
-            <ItemGroup mode="plain" dividers="auto" label="host-owned (plain)" class="max-w-lg">
+          <div class={cx(rt.flex, rt.col, rt.gap16)}>
+            <ItemGroup mode="plain" dividers="auto" label="host-owned (plain)" class={cx(rt.maxWLg)}>
               <Item>
                 <ItemContent>
                   <ItemTitle>plain group</ItemTitle>
@@ -774,7 +792,7 @@ ${close}
                 <ItemEnd><ItemChevron /></ItemEnd>
               </Item>
             </ItemGroup>
-            <ItemGroup mode="default" inset label="inset" class="max-w-lg">
+            <ItemGroup mode="default" inset label="inset" class={cx(rt.maxWLg)}>
               <Item>
                 <ItemContent>
                   <ItemTitle>inset group</ItemTitle>
@@ -808,7 +826,7 @@ ${close}
           files={[{ name: 'list-item-slot-topology-demo.svelte', content: listItemSlotTopologyDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="flex w-full max-w-lg flex-col gap-2">
+        <div class={cx(rt.flex, rt.wFull, rt.maxWLg, rt.col, rt.gap8)}>
           <Item variant="outline">
             <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
             <ItemContent>
@@ -817,7 +835,7 @@ ${close}
             </ItemContent>
             <ItemEnd>
               <ItemAfter tone="default">3 open</ItemAfter>
-              <span class="text-[10px] opacity-60">edit</span>
+              <span class={cx(rt.text10, rt.lsiOpacity60)}>edit</span>
             </ItemEnd>
           </Item>
           <Item variant="outline">
@@ -840,7 +858,7 @@ ${close}
           </Item>
           <Item variant="outline">
             <ItemHeader>
-              <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">
+              <span class={cx(rt.inkMuted, rt.text11, rt.upper, rt.track14)}>
                 pull request #2182
               </span>
               <span class="pill">open</span>
@@ -850,13 +868,13 @@ ${close}
               <ItemDescription>@gaubee wants to merge 3 commits into main</ItemDescription>
             </ItemContent>
             <ItemEnd>
-              <IconButton iconOnly text="Close pull request" class="size-7!">
+              <IconButton iconOnly text="Close pull request" class={cx(rt.lsiSize7Imp)}>
                 {#snippet icon()}<Icon name="x" />{/snippet}
               </IconButton>
             </ItemEnd>
             <ItemFooter>
-              <span class="text-muted-foreground text-[11px]">3 checks passed · 2 files changed</span>
-              <span class="text-muted-foreground text-[11px]">updated 14 minutes ago</span>
+              <span class={cx(rt.inkMuted, rt.text11)}>3 checks passed · 2 files changed</span>
+              <span class={cx(rt.inkMuted, rt.text11)}>updated 14 minutes ago</span>
             </ItemFooter>
           </Item>
         </div>
@@ -878,8 +896,8 @@ ${close}
           files={[{ name: 'list-item-media-narrow-demo.svelte', content: listItemMediaNarrowDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="flex w-full flex-col gap-6">
-          <ItemGroup layout="media" ruler="media-content-end" mode="plain" dividers="auto" class="max-w-lg">
+        <div class={cx(rt.flex, rt.wFull, rt.col, rt.gap24)}>
+          <ItemGroup layout="media" ruler="media-content-end" mode="plain" dividers="auto" class={cx(rt.maxWLg)}>
             <Item>
               <ItemMedia>
                 <Avatar name="Grace Hopper" size="sm" tooltip={false} />
@@ -901,11 +919,11 @@ ${close}
               <ItemEnd><ItemAfter>dynabook</ItemAfter></ItemEnd>
             </Item>
           </ItemGroup>
-          <div class="flex max-w-lg flex-col gap-1.5">
-            <span class="text-muted-foreground text-[11px]">
+          <div class={cx(rt.flex, rt.maxWLg, rt.col, rt.gap6)}>
+            <span class={cx(rt.inkMuted, rt.text11)}>
               narrow group (container ≤ 30rem): the end lane takes its own row
             </span>
-            <div class="max-w-[19rem]">
+            <div class={cx(rt.lsiMaxW19)}>
               <ItemGroup mode="plain" dividers="auto" ruler="media-content-end">
                 <Item href="#media-narrow">
                   <ItemMedia variant="icon"><Icon name="fileText" /></ItemMedia>
@@ -944,10 +962,10 @@ ${close}
           files={[{ name: 'list-item-density-ladder-demo.svelte', content: listItemDensityLadderDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="flex w-full max-w-lg flex-col gap-4">
+        <div class={cx(rt.flex, rt.wFull, rt.maxWLg, rt.col, rt.gap16)}>
           {#each [['lg', 'the lg row · 15px text · 24px line · 48px'], ['default', 'the default row · 13px · 20px · 40px'], ['sm', 'the sm row · 12px · 18px · 32px'], ['xs', 'the xs row · 11px · 16px · 28px']] as const as [d, note] (d)}
             <div>
-              <span class="text-muted-foreground mb-1 block text-[11px] uppercase tracking-[0.14em]">{d}</span>
+              <span class={cx(rt.inkMuted, rt.mb4, rt.block, rt.text11, rt.upper, rt.track14)}>{d}</span>
               <ItemGroup mode="plain" dividers="auto" density={d}>
                 <Item>
                   <ItemContent>
@@ -977,7 +995,7 @@ ${close}
           files={[{ name: 'list-item-settings-demo.svelte', content: listItemSettingsDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="max-w-lg">
+        <div class={cx(rt.maxWLg)}>
           {#snippet cpuGlyph()}<Icon name="braces" />{/snippet}
           <ItemGroup label="workspace">
             <ItemToggle
@@ -1009,7 +1027,7 @@ ${close}
               bind:value={workers}
             />
           </ItemGroup>
-          <p class="text-muted-foreground mt-3 text-[11px] uppercase tracking-[0.14em]">
+          <p class={cx(rt.inkMuted, rt.mt12, rt.text11, rt.upper, rt.track14)}>
             bound: {autoplay ? 'fast on' : 'fast off'} · {telemetry ? 'telemetry on' : 'telemetry off'} ·
             {density} · "{alertEmail}" · "{projectName}" · {previewMode} · {workers}
           </p>
@@ -1032,9 +1050,9 @@ ${close}
           files={[{ name: 'list-item-size-contract-demo.svelte', content: listItemSizeContractDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="grid w-full gap-6 md:grid-cols-2">
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">wide · the ladder rungs</span>
+        <div class={cx(rt.lsiGridMd)}>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.inkMuted, rt.text11, rt.upper, rt.track14)}>wide · the ladder rungs</span>
             <ItemGroup label="delivery">
               <ItemSelect fit="lg" label="Digest channel" bind:value={channel}>
                 <option>Instantly</option>
@@ -1056,8 +1074,8 @@ ${close}
               </Item>
             </ItemGroup>
           </div>
-          <div class="flex max-w-[17rem] flex-col gap-2">
-            <span class="text-muted-foreground text-[11px] uppercase tracking-[0.14em]">17rem pane · the narrow rung</span>
+          <div class={cx(rt.flex, rt.lsiMaxW17, rt.col, rt.gap8)}>
+            <span class={cx(rt.inkMuted, rt.text11, rt.upper, rt.track14)}>17rem pane · the narrow rung</span>
             <ItemGroup label="narrow">
               <ItemSelect fit="lg" label="Digest channel" bind:value={channel}>
                 <option>Instantly</option>
@@ -1086,7 +1104,7 @@ ${close}
           files={[{ name: 'list-item-item-field-demo.svelte', content: listItemItemFieldDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="max-w-lg">
+        <div class={cx(rt.maxWLg)}>
           <ItemGroup mode="plain" dividers="auto">
             <ItemField id="xf-labelable" label="Custom slider" description="for-mode on a labelable input">
               {#snippet control(f)}
@@ -1101,7 +1119,7 @@ ${close}
             >
               {#snippet control(f)}
                 <div
-                  class="inline-flex items-center gap-2 border border-border px-2 py-1 text-[0.75rem]"
+                  class={cx(rt.inlineFlex, rt.rowC8, rt.frame, rt.px8, rt.lsiPy4, rt.text12)}
                   role="status"
                   aria-labelledby={f.labelId}
                 >
@@ -1129,7 +1147,7 @@ ${close}
           files={[{ name: 'list-item-selection-links-demo.svelte', content: listItemSelectionLinksDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="max-w-lg">
+        <div class={cx(rt.maxWLg)}>
           <ItemGroup label="navigation">
             <Item href="#selection-links" aria-current="page" selected>
               <ItemContent>
@@ -1151,7 +1169,7 @@ ${close}
                 <ItemDescription>interactive descendants belong outside anchors</ItemDescription>
               </ItemContent>
               <ItemEnd>
-                <IconButton iconOnly text="Retry" class="size-7!">
+                <IconButton iconOnly text="Retry" class={cx(rt.lsiSize7Imp)}>
                   {#snippet icon()}<Icon name="rotateCcw" />{/snippet}
               </IconButton>
             </ItemEnd>
@@ -1176,14 +1194,14 @@ ${close}
           files={[{ name: 'list-item-recipes-demo.svelte', content: listItemRecipesDemo, kind: 'usage' }]}
           stage="fill"
         >
-        <div class="grid w-full gap-6 lg:grid-cols-2">
-          <div class="max-w-lg">
+        <div class={cx(rt.lsiGridLg)}>
+          <div class={cx(rt.maxWLg)}>
             <Accordion>
               <AccordionItem>
                 {#snippet summary()}
-                  <span class="flex min-w-0 flex-1 items-center justify-between gap-2">
+                  <span class={cx(rt.flex, rt.minW0, rt.grow, rt.itemsCenter, rt.justifyBetween, rt.gap8)}>
                     <span>expandable row (accordion recipe)</span>
-                    <span class="text-[10px] opacity-60">details/summary</span>
+                    <span class={cx(rt.text10, rt.lsiOpacity60)}>details/summary</span>
                   </span>
                 {/snippet}
                 <p>
@@ -1199,13 +1217,13 @@ ${close}
               </AccordionItem>
             </Accordion>
           </div>
-          <div class="max-w-lg">
+          <div class={cx(rt.maxWLg)}>
             <ItemGroup mode="plain" dividers="auto" label="checkbox group (one form name)">
               {#each ['build', 'lint', 'test'] as const as step (step)}
                 <ItemCheckbox name="pipeline" value={step} label={step} />
               {/each}
             </ItemGroup>
-            <p class="text-muted-foreground mt-3 text-[11px] uppercase tracking-[0.14em]">
+            <p class={cx(rt.inkMuted, rt.mt12, rt.text11, rt.upper, rt.track14)}>
               native same-form participation
             </p>
           </div>
@@ -1231,11 +1249,11 @@ ${close}
         files={[{ name: 'list-item-types-demo.svelte', content: listItemTypesDemo, kind: 'usage' }]}
         stage="fill"
       >
-      <div class="grid gap-3 sm:grid-cols-2"><Item variant="default"><ItemContent><ItemTitle>default</ItemTitle><ItemDescription>host surface</ItemDescription></ItemContent></Item><Item variant="outline"><ItemContent><ItemTitle>outline</ItemTitle><ItemDescription>framed row</ItemDescription></ItemContent></Item><Item variant="muted"><ItemContent><ItemTitle>muted</ItemTitle><ItemDescription>quiet slab</ItemDescription></ItemContent></Item><Item><ItemContent><ItemTitle>auto</ItemTitle><ItemDescription>resolved from context</ItemDescription></ItemContent></Item></div>
+      <div class={cx(rt.lsiGridSm)}><Item variant="default"><ItemContent><ItemTitle>default</ItemTitle><ItemDescription>host surface</ItemDescription></ItemContent></Item><Item variant="outline"><ItemContent><ItemTitle>outline</ItemTitle><ItemDescription>framed row</ItemDescription></ItemContent></Item><Item variant="muted"><ItemContent><ItemTitle>muted</ItemTitle><ItemDescription>quiet slab</ItemDescription></ItemContent></Item><Item><ItemContent><ItemTitle>auto</ItemTitle><ItemDescription>resolved from context</ItemDescription></ItemContent></Item></div>
       </ComponentCanvas>
     </SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'a', value: 'href rows', description: 'Use href for navigable rows.' }, { name: 'selected', value: 'visual only', description: 'Does not emit aria-selected; add selection semantics to the owning pattern.' }]} /></SectionCard></div>
-    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Item variant="outline"><ItemContent><ItemTitle>density row</ItemTitle><ItemDescription>scoped</ItemDescription></ItemContent></Item></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-row-min', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-gap-content', default: 'density scale', source: 'density' }, { name: '--jx-gap-end', default: 'density scale', source: 'density' }, { name: '--jx-media-gutter', default: 'density scale', source: 'density' }, { name: '--jx-image', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-icon-optical', default: '0px', source: 'component' }, { name: '--jx-unit', default: 'density scale', source: 'density' }, { name: '--jx-avatar-md', default: 'image scale', source: 'component' }, { name: '--jx-item-column-gap', default: 'gap', source: 'component' }, { name: '--jx-item-row-gap', default: 'stack', source: 'component' }, { name: '--jx-item-media-size', default: 'image', source: 'component' }, { name: '--jx-item-media-gutter', default: 'media gutter', source: 'component' }, { name: '--jx-item-content-gap', default: 'gap-content', source: 'component' }, { name: '--jx-item-end-gap', default: 'gap-end', source: 'component' }]} /></div></SectionCard></div>
+    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Item variant="outline"><ItemContent><ItemTitle>density row</ItemTitle><ItemDescription>scoped</ItemDescription></ItemContent></Item></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-row-min', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-gap-content', default: 'density scale', source: 'density' }, { name: '--jx-gap-end', default: 'density scale', source: 'density' }, { name: '--jx-media-gutter', default: 'density scale', source: 'density' }, { name: '--jx-image', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-icon-optical', default: '0px', source: 'component' }, { name: '--jx-unit', default: 'density scale', source: 'density' }, { name: '--jx-avatar-md', default: 'image scale', source: 'component' }, { name: '--jx-item-column-gap', default: 'gap', source: 'component' }, { name: '--jx-item-row-gap', default: 'stack', source: 'component' }, { name: '--jx-item-media-size', default: 'image', source: 'component' }, { name: '--jx-item-media-gutter', default: 'media gutter', source: 'component' }, { name: '--jx-item-content-gap', default: 'gap-content', source: 'component' }, { name: '--jx-item-end-gap', default: 'gap-end', source: 'component' }]} /></div></SectionCard></div>
     <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Item props"><PropsTable props={[{ name: 'variant', type: "'auto' | 'default' | 'outline' | 'muted'", default: "'auto' · Own default, not ambient", description: 'Controls visual chrome (auto resolves it from the group policy). Defaults: literal slot — own \'auto\', ambient when a table freeze lands.' }, { name: 'layout', type: 'ItemLayout', default: "'auto'", description: 'Selects row layout mode.' }, { name: 'selected', type: 'boolean', default: 'false', description: 'Visual selection state only.' }, { name: 'href', type: 'string', description: 'Renders the root as an anchor.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit tier ?? the ItemGroup provider / ambient scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
   </div>
 </div>

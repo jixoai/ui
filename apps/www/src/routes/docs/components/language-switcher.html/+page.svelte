@@ -1,5 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -103,6 +104,22 @@ ${close}
   const typesFiles: TreeFile[] = [
     { name: 'language-switcher-types-demo.svelte', content: languageSwitcherTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -114,12 +131,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -128,7 +145,7 @@ ${close}
       title="language-switcher — anchors, not buttons"
       summary="Locales are links, not JavaScript state: every entry carries its own href, so the switcher works on fully prerendered sites with zero hydration owed. pair is the bilingual segmented group after the openspecui reference; menu is the dropdown for three or more locales — hard-shadow list on the terminal surface, closing on select, outside click, or Escape."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">pair · menu</span>
         <span class="pill">SSG-safe anchors</span>
         <span class="pill">outside click · Escape close</span>
@@ -150,13 +167,13 @@ ${close}
     >
       <!-- the component speaks currentColor + terminal tokens; the dark
            bezel box is its native habitat -->
-      <div class="flex w-full flex-col gap-6 border border-border bg-terminal p-5 text-terminal-foreground sm:p-6">
-        <div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
-          <label class="flex items-center gap-2.5 text-xs text-terminal-foreground/70">
+      <div class={cx(rt.lsStage)}>
+        <div class={cx(rt.lsChips)}>
+          <label class={cx(rt.lsLabel)}>
             <span>pair</span>
             <LanguageSwitcher variant="pair" current="en" locales={pairLocales} />
           </label>
-          <label class="flex items-center gap-2.5 text-xs text-terminal-foreground/70">
+          <label class={cx(rt.lsLabel)}>
             <span>menu</span>
             <LanguageSwitcher
               variant="menu"
@@ -166,8 +183,8 @@ ${close}
             />
           </label>
         </div>
-        <div class="flex flex-col items-center gap-2.5 border-t border-terminal-foreground/15 pt-5">
-          <span class="font-nav text-[10px] uppercase tracking-[0.24em] text-terminal-foreground/60">
+        <div class={cx(rt.lsFoot)}>
+          <span class={cx(rt.microEyebrow, rt.lsInk60)}>
             driven by the playground
           </span>
           {#if variant === 'pair'}
@@ -199,19 +216,19 @@ ${close}
       title="Why href, not onclick"
       summary="A locale switch is navigation, not state mutation. Each locale knows the localized path of the current page, so the anchor carries the full destination and the switcher stays a pure link — crawlable, restorable, and functional before hydration (or without it entirely)."
     >
-      <ul class="flex flex-col gap-2 text-[13px] leading-6">
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span><code class="text-accent">locales</code> is data:
-            <code class="text-accent">&#123; code, label, href &#125;</code> — pair renders the
+      <ul class={cx(rt.col8, rt.body13)}>
+        <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span><code class={cx(rt.inkAccent)}>locales</code> is data:
+            <code class={cx(rt.inkAccent)}>&#123; code, label, href &#125;</code> — pair renders the
             first two, menu renders all of them</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span>menu semantics: <code class="text-accent">aria-haspopup="listbox"</code> on the
-            trigger, <code class="text-accent">role="option"</code> +
-            <code class="text-accent">aria-selected</code> on entries</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span>styling speaks <code class="text-accent">currentColor</code> and the terminal
+        <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span>menu semantics: <code class={cx(rt.inkAccent)}>aria-haspopup="listbox"</code> on the
+            trigger, <code class={cx(rt.inkAccent)}>role="option"</code> +
+            <code class={cx(rt.inkAccent)}>aria-selected</code> on entries</span></li>
+        <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span>styling speaks <code class={cx(rt.inkAccent)}>currentColor</code> and the terminal
             tokens — it drops onto any bezel or themed surface unchanged</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
           <span>pair caps itself at two entries by design; the bilingual case is a distinct visual
             pattern, not a truncated menu</span></li>
       </ul>
@@ -220,17 +237,17 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two variants split by locale count: pair for the bilingual case, menu for three or more.">
     <ComponentCanvas title="language-switcher · types" stage="fill" files={typesFiles}>
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pair</span><LanguageSwitcher variant="pair" current="en" locales={pairLocales} /><span class="text-muted-foreground text-[12.5px]">segmented group — caps at two entries by design</span></div>
-      <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">menu</span><LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={menuLocales} /><span class="text-muted-foreground text-[12.5px]">nav disclosure — three or more locales</span></div>
+    <div class={cx(rt.wrapStart24)}>
+      <div class={cx(rt.lsPanel)}><span class={cx(rt.eyebrowPrimary)}>pair</span><LanguageSwitcher variant="pair" current="en" locales={pairLocales} /><span class={cx(rt.noteSmall)}>segmented group — caps at two entries by design</span></div>
+      <div class={cx(rt.lsPanel)}><span class={cx(rt.eyebrowPrimary)}>menu</span><LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={menuLocales} /><span class={cx(rt.noteSmall)}>nav disclosure — three or more locales</span></div>
     </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="locales is data — every entry carries the localized href of the current page."><CodeBlock code={usage} lang="svelte" meta="LanguageSwitcher usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="pair is a group of links; menu is a nav-landmark popover of real anchors — links navigate, so no listbox/option fiction (honesty pass, 2026-09-02)."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the locale anchors (pair) or the trigger then the open list (menu)' }, { key: 'Enter', action: 'Follows the focused locale anchor — navigation, not state' }, { key: 'Escape', action: 'Closes the menu; outside click closes it too' }]} aria={[{ name: 'aria-label', value: 'ariaLabel ("Language")', description: 'Accessible name for the menu trigger and pair group' }, { name: 'aria-expanded', value: 'true | false', description: 'On the menu trigger — a bare disclosure, no haspopup (the panel is navigation, not a select).' }, { name: 'role', value: 'group / navigation', description: 'pair is a link group; the menu panel is a nav landmark (aria-label) of plain anchors — the current locale carries aria-current="page".' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Bezel-born: the switcher speaks currentColor and terminal surface tokens, so it inherits the surrounding chrome — no jx density tokens of its own."><div class="flex flex-col gap-6"><DensityDemo><LanguageSwitcher variant="pair" current="en" locales={pairLocales} /></DensityDemo><TokenTable tokens={[{ name: 'currentColor', default: 'inherited', source: 'color', description: 'All strokes and fills track the surrounding text color' }, { name: 'terminal tokens', default: 'bg-terminal / text-terminal-foreground', source: 'color', description: 'Native habitat; drops onto any themed surface unchanged' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Bezel-born: the switcher speaks currentColor and terminal surface tokens, so it inherits the surrounding chrome — no jx density tokens of its own."><div class={cx(rt.col24)}><DensityDemo><LanguageSwitcher variant="pair" current="en" locales={pairLocales} /></DensityDemo><TokenTable tokens={[{ name: 'currentColor', default: 'inherited', source: 'color', description: 'All strokes and fills track the surrounding text color' }, { name: 'terminal tokens', default: 'bg-terminal / text-terminal-foreground', source: 'color', description: 'Native habitat; drops onto any themed surface unchanged' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the LanguageSwitcher Props interface; SwitcherLocale is the data contract. Persistence: a locale click writes its code to localStorage key `lang` — the site's language bootstrap reads the same key."><PropsTable props={[{ name: 'variant', type: "'pair' | 'menu'", default: "'pair' · Own default, not ambient", description: 'Segmented bilingual pair or dropdown menu. Defaults: literal slot — own \'pair\' (a structural selector, never a paint rung).' }, { name: 'locales', type: 'readonly SwitcherLocale[]', default: '—', description: '{ code, label, href } entries; pair renders the first two, menu renders all.', required: true }, { name: 'current', type: 'string', default: '—', description: 'Active locale code; matched against entry codes.', required: true }, { name: 'ariaLabel', type: 'string', default: "'Language'", description: 'Accessible name for the trigger / group.' }, { name: 'storage key', type: "'lang'", default: 'target locale code', description: 'Written on every locale click (try/catch, silent on storage failure); navigation stays pure anchors — the site\'s language-negotiation bootstrap reads this key.' }]} /></SectionCard></div>
 </div>

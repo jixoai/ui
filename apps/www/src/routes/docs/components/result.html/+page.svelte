@@ -1,6 +1,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -41,6 +42,23 @@ ${close}
   ];
 
   // ToC outline: pairs with the section ids below, in page order.
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -49,13 +67,13 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="result — the thin outcome surface" summary="Status glyph + title + description + actions — no routing logic, no illustration system. empty is not result: no-data vs operation-outcome stay different components.">
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">success · error · warning · info</span>
           <span class="pill">actions snippet</span>
           <span class="pill">empty is not result</span>
@@ -71,13 +89,13 @@ ${close}
       files={canvasFiles}
       stage="fill"
     >
-      <div class="grid gap-6 min-[720px]:grid-cols-2">
-        <div class="border border-border bg-card">
+      <div class={cx(rt.rsGrid)}>
+        <div class={cx(rt.frame, rt.bgCard)}>
           <Result status="success" title="Deployed" description="Build 4f2a is live — 12 checks green.">
             {#snippet actions()}<PressButton href="/docs/components.html">view components</PressButton>{/snippet}
           </Result>
         </div>
-        <div class="border border-border bg-card">
+        <div class={cx(rt.frame, rt.bgCard)}>
           <Result status="error" title="Build failed" description="The bundle exceeded the size budget by 12 KB.">
             {#snippet actions()}<PressButton variant="outline">view log</PressButton>{/snippet}
           </Result>
@@ -95,10 +113,10 @@ ${close}
   </div>
 
   
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Outcome states" summary="Result distinguishes success, error, warning and info without taking over routing or recovery logic."><ComponentCanvas title="result · states" stage="fill" files={resultTypesFiles}><div class="grid gap-4 md:grid-cols-2"><Result status="success" title="Deployed" /><Result status="error" title="Build failed" /></div></ComponentCanvas></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Outcome states" summary="Result distinguishes success, error, warning and info without taking over routing or recovery logic."><ComponentCanvas title="result · states" stage="fill" files={resultTypesFiles}><div class={cx(rt.rsGridMd2)}><Result status="success" title="Deployed" /><Result status="error" title="Build failed" /></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'status', value: 'visible glyph and title', description: 'Status is communicated with text, not color alone.' }, { name: 'actions', value: 'native controls', description: 'Keep recovery actions keyboard reachable.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Result status="info" title="No changes" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Result status="info" title="No changes" /></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Result props"><PropsTable props={[{ name: 'title', type: 'string', description: 'Outcome heading.', required: true }, { name: 'status', type: "'success' | 'error' | 'warning' | 'info'", default: "'info'", description: 'Outcome tone and glyph.' }, { name: 'description', type: 'string', description: 'Optional supporting copy.' }, { name: 'icon', type: 'Snippet', description: 'Replaces the default glyph.' }, { name: 'actions', type: 'Snippet', description: 'Renders next steps.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
   </div>
 </div>

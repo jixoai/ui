@@ -1,6 +1,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Empty from '$lib/ui/empty/empty.svelte';
@@ -41,6 +42,23 @@ ${close}
 </div>`;
 
   // ToC outline: pairs with the section ids below, in page order.
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -49,13 +67,13 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="empty — the no-data state, nothing more" summary="The eight-state machine's no-data member (error/loading/404 are alert/result surfaces — ruled separate). Terminal illustration slot, title, description, actions. Zero JS.">
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">zero JS</span>
         <span class="pill">illustration slot</span>
         <span class="pill">actions snippet owns the fix</span>
@@ -71,7 +89,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/empty.svelte"
       files={canvasFiles}
     >
-      <div class="w-full max-w-md">
+      <div class={cx(rt.wFull, rt.maxWMd)}>
         <Empty title="no checks yet" description="Add the first check to start the audit pipeline.">
           {#snippet actions()}
             <PressButton>add check</PressButton>
@@ -90,11 +108,11 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Empty composition" summary="Empty has one required title and optional description, illustration and actions slots."><ComponentCanvas title="empty · composition" stage="fill" files={[{ name: 'empty-composition-demo.svelte', content: emptyCompositionDemo, kind: 'usage' }]}><div class="grid gap-4 md:grid-cols-2"><Empty title="no artifacts" /><Empty title="no checks" description="Add the first check.">{#snippet actions()}<PressButton>add check</PressButton>{/snippet}</Empty></div></ComponentCanvas></SectionCard></div>
+
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Empty composition" summary="Empty has one required title and optional description, illustration and actions slots."><ComponentCanvas title="empty · composition" stage="fill" files={[{ name: 'empty-composition-demo.svelte', content: emptyCompositionDemo, kind: 'usage' }]}><div class={cx(rt.emGrid)}><Empty title="no artifacts" /><Empty title="no checks" description="Add the first check.">{#snippet actions()}<PressButton>add check</PressButton>{/snippet}</Empty></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'figure', value: 'empty root', description: 'Groups the no-data message.' }, { name: 'figcaption', value: 'title + description', description: 'Keeps the message discoverable.' }, { name: 'aria-hidden', value: 'illustration', description: 'Prevents decorative art from interrupting the message.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Empty title="no results" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Empty title="no results" /></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Empty props"><PropsTable props={[{ name: 'title', type: 'string', description: 'No-data heading.', required: true }, { name: 'description', type: 'string', description: 'Optional supporting copy.' }, { name: 'illustration', type: 'Snippet', description: 'Replaces the default illustration.' }, { name: 'actions', type: 'Snippet', description: 'Renders recovery actions.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
   </div>
 </div>

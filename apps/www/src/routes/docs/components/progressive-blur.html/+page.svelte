@@ -1,5 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -35,6 +36,23 @@ ${close}
 
   // the demo list: enough rows to make both scrollers truly scroll
   const rows = Array.from({ length: 18 }, (_, i) => `entry-${String(i + 1).padStart(2, '0')}`);
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -46,9 +64,9 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -57,7 +75,7 @@ ${close}
       title="progressive blur — content scrolls UNDER a pinned head and diffuses"
       summary="The same-layer-sticky practice made literal: a list scrolling inside its own container gets a pinned head, and whatever passes beneath it diffuses instead of slicing. Stacked backdrop-filter bands, each masked to its own gradient rung, ramp blur from ~clear at the inner edge to the full stack at the scrollport edge. Zero JS: the pin is a sticky h-0 root (absolutely positioned overlays scroll away — probed), and the reveal rides the CSS scroll timeline, so nothing blurs while the list rests at the top."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">zero JS</span>
         <span class="pill">sticky h-0 pin</span>
         <span class="pill">scroll-timeline reveal</span>
@@ -72,43 +90,43 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/progressive-blur/progressive-blur.svelte"
       files={canvasFiles}
     >
-      <div class="flex w-full flex-col gap-6 sm:flex-row sm:gap-8">
-        <div class="w-full sm:flex-1">
-          <p class="text-muted-foreground font-nav mb-2 text-[10px] uppercase tracking-[0.18em]">
+      <div class={cx(rt.prPair)}>
+        <div class={cx(rt.prHalf)}>
+          <p class={cx(rt.inkMuted, rt.fontNav, rt.mb8, rt.text10, rt.upper, rt.track18)}>
             sticky head · reveal scroll — the rail law
           </p>
-          <div class="border-border bg-background relative h-64 overflow-auto border">
-            <ProgressiveBlur position="top" reveal="scroll" height="7.5rem" class="z-[5]" />
-            <div class="sticky top-0 z-10 pt-4">
-              <p class="text-muted-foreground font-nav mb-2 ps-3 text-[10px] uppercase tracking-[0.24em]">
+          <div class={cx(rt.prScroll64)}>
+            <ProgressiveBlur position="top" reveal="scroll" height="7.5rem" class={cx(rt.prZ5)} />
+            <div class={cx(rt.sticky, rt.top0, rt.z10, rt.pt16)}>
+              <p class={cx(rt.microEyebrow, rt.inkMuted, rt.mb8, rt.ps12)}>
                 components
               </p>
-              <div class="px-3 pb-2">
+              <div class={cx(rt.px12, rt.pb8)}>
                 <input
-                  class="border-border bg-background/55 text-foreground border w-full px-2 py-1.5 font-mono text-[11px]"
+                  class={cx(rt.frame, rt.bgBackground55, rt.inkFg, rt.wFull, rt.px8, rt.py6, rt.fontMono, rt.text11)}
                   type="search"
                   placeholder="filter…"
                   aria-label="Demo filter"
                 />
               </div>
             </div>
-            <ul class="flex flex-col gap-1 p-3 pt-1" role="list">
+            <ul class={cx(rt.flex, rt.col, rt.gap4, rt.p12, rt.pt4)} role="list">
               {#each rows as row (row)}
-                <li class="border-border/50 bg-muted/30 border px-2 py-2 font-mono text-[11px]">
+                <li class={cx(rt.prRow)}>
                   {row}
                 </li>
               {/each}
             </ul>
           </div>
         </div>
-        <div class="w-full sm:flex-1">
-          <p class="text-muted-foreground font-nav mb-2 text-[10px] uppercase tracking-[0.18em]">
+        <div class={cx(rt.prHalf)}>
+          <p class={cx(rt.inkMuted, rt.fontNav, rt.mb8, rt.text10, rt.upper, rt.track18)}>
             position bottom · reveal static
           </p>
-          <div class="border-border bg-background relative h-64 overflow-auto">
-            <ul class="flex flex-col gap-1 p-3" role="list">
+          <div class={cx(rt.prScroll64)}>
+            <ul class={cx(rt.flex, rt.col, rt.gap4, rt.p12)} role="list">
               {#each rows as row (row)}
-                <li class="border-border/50 bg-muted/30 border px-2 py-2 font-mono text-[11px]">
+                <li class={cx(rt.prRow)}>
                   {row}
                 </li>
               {/each}
@@ -118,7 +136,7 @@ ${close}
         </div>
       </div>
       {#snippet playground()}
-        <p class="text-muted-foreground text-pretty text-[11.5px] leading-5">
+        <p class={cx(rt.inkMuted, rt.pretty, rt.text115, rt.lead5)}>
           the docs rail you are browsing wears the left card's exact law — pinned head, band
           z-under it, reveal='scroll'. Engines without scroll timelines keep the resting clean
           state (the reveal degrades to no effect, never a wrongly-painted band).
@@ -136,7 +154,7 @@ ${close}
       eyebrow="the technique"
       title="How the ladder works"
     >
-      <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+      <p class={cx(rt.para)}>
         Each layer blurs everything painted beneath it — including the earlier layers — so
         stacking masked runs compounds. With the default eight levels, layer i owns the rung
         between i·12.5% and (i+3)·12.5% of the band: near the inner edge only the half-pixel
@@ -160,19 +178,19 @@ backdrop-filter: blur(levels[i]px);`}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="The band hangs from any scrollport edge; the pin dialect picks the positioning law; reveal chooses resting paint or scroll-in fade.">
-    <div class="grid gap-4 min-[760px]:grid-cols-3">
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">position top / bottom</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">The band hangs into the viewport from that edge via a sticky h-0 root.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">position both</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Two pinned roots — keeps both edges progressive instead of one uniform-blur element.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">position start / end / inline</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">The inline-axis edges of a horizontal-overflow strip; inline renders the start+end pair as two roots.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pin sticky / grid</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">sticky = the zero-height root inside a scroller (any edge); grid = a position-free item of the host one-cell grid — inline edges only, else it is a compile error.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">hold (grid only)</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">The outer share (0–100) holding the ladder peak — the ramp compresses inboard for strips with a blank control lane at the clip edge.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">reveal static / scroll</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">static paints always (Magic UI parity); scroll fades the ladder in with the nearest scroller — inline edges keep the static law.</p></div>
+    <div class={cx(rt.grid760c)}>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>position top / bottom</span><p class={cx(rt.bodyMuted, rt.mt8)}>The band hangs into the viewport from that edge via a sticky h-0 root.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>position both</span><p class={cx(rt.bodyMuted, rt.mt8)}>Two pinned roots — keeps both edges progressive instead of one uniform-blur element.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>position start / end / inline</span><p class={cx(rt.bodyMuted, rt.mt8)}>The inline-axis edges of a horizontal-overflow strip; inline renders the start+end pair as two roots.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>pin sticky / grid</span><p class={cx(rt.bodyMuted, rt.mt8)}>sticky = the zero-height root inside a scroller (any edge); grid = a position-free item of the host one-cell grid — inline edges only, else it is a compile error.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>hold (grid only)</span><p class={cx(rt.bodyMuted, rt.mt8)}>The outer share (0–100) holding the ladder peak — the ramp compresses inboard for strips with a blank control lane at the clip edge.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>reveal static / scroll</span><p class={cx(rt.bodyMuted, rt.mt8)}>static paints always (Magic UI parity); scroll fades the ladder in with the nearest scroller — inline edges keep the static law.</p></div>
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Mount the band as an EARLY child of the scroll container, before the sticky head it sits under."><CodeBlock code={usage} lang="svelte" meta="ProgressiveBlur usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Pure scenery: the band is aria-hidden, pointer-events-none decoration over the scroller's real content."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'The band is decoration; screen readers skip it entirely' }, { name: 'pointer-events', value: 'none', description: 'The band never intercepts pointer input over the scrolling content' }, { name: 'scroll()', value: '@supports-gated', description: 'Engines without scroll timelines keep the resting clean state — never a wrongly-painted band' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint — the band is dimensionless chrome; its one token tunes the scroll-in ramp distance."><div class="flex flex-col gap-6"><DensityDemo><div class="relative h-40 overflow-auto border border-border"><ProgressiveBlur position="top" reveal="scroll" height="4rem" class="z-[5]" /><div class="sticky top-0 z-10 bg-background/60 p-2 text-[11px]">pinned head</div><ul class="flex flex-col gap-1 p-3" role="list">{#each rows.slice(0, 8) as row (row)}<li class="border border-border/50 bg-muted/30 px-2 py-2 font-mono text-[11px]">{row}</li>{/each}</ul></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pblur-ramp', default: '72px', source: 'component', description: 'Scroll distance of the reveal fade-in (scroll timeline range)' }, { name: 'height', default: "'6rem'", source: 'component', description: 'Band height — any definite CSS length; % unsupported' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint — the band is dimensionless chrome; its one token tunes the scroll-in ramp distance."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.prScroll40)}><ProgressiveBlur position="top" reveal="scroll" height="4rem" class={cx(rt.prZ5)} /><div class={cx(rt.prPinnedHead)}>pinned head</div><ul class={cx(rt.flex, rt.col, rt.gap4, rt.p12)} role="list">{#each rows.slice(0, 8) as row (row)}<li class={cx(rt.prRow)}>{row}</li>{/each}</ul></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pblur-ramp', default: '72px', source: 'component', description: 'Scroll distance of the reveal fade-in (scroll timeline range)' }, { name: 'height', default: "'6rem'", source: 'component', description: 'Band height — any definite CSS length; % unsupported' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ProgressiveBlurProps interface (a dialect-discriminated union); the component ships no script at all."><PropsTable props={[{ name: 'pin', type: "'sticky' | 'grid'", default: "'sticky'", description: 'How the band pins to its edge. sticky = the zero-layout sticky root inside a scroller (any edge); grid = a position-free item of the host one-cell grid (grid-area 1/1 + justify-self per edge, inline edges only).' }, { name: 'position', type: "'top' | 'bottom' | 'both' | 'start' | 'end' | 'inline'", default: "'bottom'", description: 'Which scrollport edge(s) the band hangs from: both = the block pair, inline = the start+end pair (the horizontal-overflow strip). Narrows to start | end under pin=grid — other combos are compile-time errors (the runtime fallback is start).' }, { name: 'hold', type: 'number', default: '0', description: 'Grid dialect only: the outer share of the band (0–100, clamped) that holds the ladder peak instead of ramping — the ramp compresses into the inboard (100-hold)% for strips whose readable content parks inboard of the clip edge.' }, { name: 'height', type: 'string', default: "'6rem'", description: 'Band size along its hang axis — any definite CSS length (px/rem); % unsupported.' }, { name: 'blurLevels', type: 'number[]', default: '[0.5, 1, 2, 4, 8, 16, 32, 64]', description: 'Per-layer blur px, inner-edge first; at least 2 levels (fewer falls back to the default ladder).' }, { name: 'reveal', type: "'static' | 'scroll'", default: "'static'", description: 'static = always painted; scroll = fades in with the nearest scroller (@supports-gated; inline edges keep the always-painted static law).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to each pinned root.' }]} /></SectionCard></div>
 </div>

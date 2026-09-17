@@ -15,6 +15,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -109,6 +110,24 @@ two tiers
     { name: 'registry/files/ui/terminal-header/terminal-header.css', content: terminalHeaderCss },
     { name: 'src/lib/ui/terminal-header-usage.svelte', content: usage },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -120,12 +139,12 @@ two tiers
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -134,7 +153,7 @@ two tiers
         title="terminal-header — the two-wing bezel, chrome only"
         summary="The site nav bar: LEFT carries the brand (logo slot, wordmark, domain, subtitle — the page's identity), RIGHT carries the navigation pill group plus the switcher slot — the wings never mix, and the bar is a CRT bezel locked dark by default (theme=&quot;light&quot; or &quot;system&quot; unlocks). The header owns CHROME ONLY: the nav slot hosts composed navigation-menu parts — triggers with panels whose mega grids you author inside, links-only entries as bare links — and the mobile drawer holds your drawer snippet behind the hamburger fold. The three-level item config tree is gone: what renders is your tree."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">two wings, never mixed</span>
           <span class="pill">composed nav · family parts</span>
           <span class="pill">authored mega grids</span>
@@ -151,19 +170,19 @@ two tiers
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-header/terminal-header.svelte"
         {files}
       >
-        <div class="flex w-full flex-col gap-5">
+        <div class={cx(rt.flex, rt.wFull, rt.col, rt.gap20)}>
           <!-- styled non-heading card (site-polish F10): concept-copy must
                not emit a real heading into the page outline -->
-          <div class="border border-border bg-card shadow-xs">
-            <div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
-              <div class="flex flex-col gap-2.5">
-                <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">live stage, replaced</p>
-                <p class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight text-foreground sm:text-[1.22rem]">You are already wearing the demo</p>
-                <p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">The bar above this page — brand left, pills right, hue switcher in the switcher slot — is the component, rendered exactly once by the site layout with the nav composed from the navigation-menu family. Rendering a second instance here would nest one banner landmark inside the page and duplicate the primary navigation, so the stage shows the structure instead.</p>
+          <div class={cx(rt.frame, rt.bgCard, rt.shadowXs)}>
+            <div class={cx(rt.thdCardHead)}>
+              <div class={cx(rt.flex, rt.col, rt.gap10)}>
+                <p class={cx(rt.eyebrowPrimary)}>live stage, replaced</p>
+                <p class={cx(rt.fontNav, rt.thdTitle, rt.trackTight)}>You are already wearing the demo</p>
+                <p class={cx(rt.thdPara)}>The bar above this page — brand left, pills right, hue switcher in the switcher slot — is the component, rendered exactly once by the site layout with the nav composed from the navigation-menu family. Rendering a second instance here would nest one banner landmark inside the page and duplicate the primary navigation, so the stage shows the structure instead.</p>
               </div>
             </div>
-            <div class="px-4 py-4 sm:px-5 sm:py-5">
-              <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+            <div class={cx(rt.thdPad)}>
+              <p class={cx(rt.bodyMuted, rt.pretty)}>
                 Open the code drawer below for the verbatim source (the chrome + the three css
                 bands), then click the <em>Components</em> pill in the real header above — the
                 mega panel that drops is the docs tree mapped onto NavigationMenuItem/Trigger/Panel
@@ -196,25 +215,25 @@ two tiers
         title="How it attaches"
         summary="The header renders once per site, inside the shell's header slot. It takes no nav data: the navigation is composed from the navigation-menu family into the default slot (the pill box), and the mobile drawer's contents arrive as the drawer snippet — structure lives in your tree, the bezel comes from the header."
       >
-        <div class="flex flex-col gap-5">
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the pill box + the sliding indicator (<code class="text-accent">vt-nav-active</code>)
+        <div class={cx(rt.flex, rt.col, rt.gap20)}>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>the pill box + the sliding indicator (<code class={cx(rt.inkAccent)}>vt-nav-active</code>)
               are chrome — the header repaints the indicator from the DOM
-              (<code class="text-accent">aria-current</code> flips), because it never sees your nav
+              (<code class={cx(rt.inkAccent)}>aria-current</code> flips), because it never sees your nav
               data</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>opt panels into the bezel surface with <code class="text-accent">jx-subpanel</code>
-              (<code class="text-accent">jx-subpanel-mega</code> for the wide multi-column ceiling);
-              the column count is your grid — <code class="text-accent">navColumns</code> died with
+            <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>opt panels into the bezel surface with <code class={cx(rt.inkAccent)}>jx-subpanel</code>
+              (<code class={cx(rt.inkAccent)}>jx-subpanel-mega</code> for the wide multi-column ceiling);
+              the column count is your grid — <code class={cx(rt.inkAccent)}>navColumns</code> died with
               the config tree</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>panels stay the browser's — <code class="text-accent">popover="auto"</code> light
+            <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>panels stay the browser's — <code class={cx(rt.inkAccent)}>popover="auto"</code> light
               dismiss, Escape, one-at-a-time, CSS anchoring; the header adds only
-              <code class="text-accent">closeAll()</code> navigation cleanup</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <code class={cx(rt.inkAccent)}>closeAll()</code> navigation cleanup</span></li>
+            <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>the drawer is a shell: hamburger fold, bounded scroller, Escape; your snippet
-              holds the rows, and <code class="text-accent">bind:open</code> is your reset signal
+              holds the rows, and <code class={cx(rt.inkAccent)}>bind:open</code> is your reset signal
               for disclosure state</span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
@@ -224,16 +243,16 @@ two tiers
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One bar shell, two tiers, three bezel locks — the nav itself is always composed family parts.">
-    <div class="grid gap-4 min-[760px]:grid-cols-3">
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">desktop tier (≥sm)</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Full brand stack + pill group with the sliding indicator + switcher slot.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">mobile tier (&lt;sm)</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Hamburger folds the drawer snippet into a grid-rows 0fr→1fr disclosure, bounded by the in-bar scroller.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">bezel lock</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">theme dark (default) | light | system — the CRT shell swap, same as terminal-card.</p></div>
+    <div class={cx(rt.grid760c)}>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>desktop tier (≥sm)</span><p class={cx(rt.mt8, rt.bodyMuted)}>Full brand stack + pill group with the sliding indicator + switcher slot.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>mobile tier (&lt;sm)</span><p class={cx(rt.mt8, rt.bodyMuted)}>Hamburger folds the drawer snippet into a grid-rows 0fr→1fr disclosure, bounded by the in-bar scroller.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>bezel lock</span><p class={cx(rt.mt8, rt.bodyMuted)}>theme dark (default) | light | system — the CRT shell swap, same as terminal-card.</p></div>
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Render once per site in the shell's header slot; compose the nav from the navigation-menu family."><CodeBlock code={usage} lang="svelte" meta="TerminalHeader usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A banner landmark whose panels stay the browser's popovers; the drawer is a disclosure with Escape."><A11yTable keys={[{ key: 'Tab', action: 'Brand, the family roving pill walk, switcher — in wing order' }, { key: 'Escape', action: 'Closes the drawer and any open panel (popover=auto native behavior)' }]} aria={[{ name: 'aria-current', value: 'page', description: 'The indicator repaints from the DOM — the header never sees your nav data' }, { name: 'banner', value: 'landmark', description: 'The bar renders once per site; a second instance would duplicate the primary navigation' }, { name: 'popover', value: 'auto', description: 'Panels get light dismiss + top layer from the platform; the header adds only closeAll() cleanup' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Fixed chrome, no density scaling: the bezel speaks the surface tokens; the pill pads and panel pads are the css-band variables."><div class="flex flex-col gap-6"><DensityDemo><div class="flex items-center justify-between border border-border bg-muted/40 px-3 py-2"><span class="font-nav text-[11px] uppercase tracking-[0.2em]">brand wing</span><span class="font-mono text-[11px]">pill wing</span></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: 'panel block pad', source: 'component' }, { name: '--jx-pop-pad-inline', default: 'panel inline pad', source: 'component' }, { name: '--jx-panel-pad', default: 'subpanel pad', source: 'component' }, { name: '--jx-surface-solid-fill', default: 'solid bezel fill', source: 'color' }, { name: '--jx-surface-acrylic-fill', default: 'acrylic bezel fill', source: 'color' }, { name: '--jx-surface-border-color', default: 'bezel border', source: 'color' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Fixed chrome, no density scaling: the bezel speaks the surface tokens; the pill pads and panel pads are the css-band variables."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.flex, rt.itemsCenter, rt.justifyBetween, rt.frame, rt.bgMuted40, rt.px12, rt.py8)}><span class={cx(rt.fontNav, rt.text11, rt.upper, rt.thdTrack20)}>brand wing</span><span class={cx(rt.fontMono, rt.text11)}>pill wing</span></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: 'panel block pad', source: 'component' }, { name: '--jx-pop-pad-inline', default: 'panel inline pad', source: 'component' }, { name: '--jx-panel-pad', default: 'subpanel pad', source: 'component' }, { name: '--jx-surface-solid-fill', default: 'solid bezel fill', source: 'color' }, { name: '--jx-surface-acrylic-fill', default: 'acrylic bezel fill', source: 'color' }, { name: '--jx-surface-border-color', default: 'bezel border', source: 'color' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the TerminalHeader Props interface — brand strings, bezel lock, four snippet seams, and the switcher frame law."><PropsTable props={[{ name: 'brand', type: 'string', default: '—', description: 'The wordmark line of the brand block.', required: true }, { name: 'domain', type: 'string', default: '—', description: 'Second brand line (the domain).' }, { name: 'subtitle', type: 'string', default: '—', description: 'Third brand line — desktop tier only.' }, { name: 'homeHref', type: 'string', default: '—', description: "The brand block's link target." }, { name: 'theme', type: "'dark' | 'light' | 'system'", default: "'dark'", description: 'Bezel theme lock.' }, { name: 'logo', type: 'Snippet', default: '—', description: 'The brand mark (logo slot).' }, { name: 'switcher', type: 'Snippet', default: '—', description: 'Right-wing control slot (theme toggle, hue switcher…).' }, { name: 'switcherFrame', type: 'boolean', default: 'true', description: 'Wrap the switcher slot in the bezel frame (border + p-0.5, the 38px outer band shared with the pill box); opt out for controls carrying their own frame.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The desktop nav slot — compose NavigationMenu parts here.' }, { name: 'drawer', type: 'Snippet', default: '—', description: "The mobile drawer's contents (the stacked tier's nav)." }, { name: 'open', type: 'boolean', default: '—', description: "The drawer's open state; bind:open is your reset signal.", bindable: true }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the bar root.' }]} /></SectionCard></div>
 </div>

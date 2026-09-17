@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import BadgeIndicator from '$lib/ui/badge-indicator/badge-indicator.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -32,6 +33,23 @@
   ];
 
   // ToC outline: pairs with the section ids below, in page order.
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -40,10 +58,10 @@
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -52,7 +70,7 @@
         title="badge-indicator — the live count/dot overlay"
         summary="antd Badge's live half, split from the static chip (badge.svelte): the count/dot rides a corner of its child. dot is presence without a number — label carries the accessible name; count caps at 99+ and zero hides honestly unless showZero. Standalone (no child) is an inline chip."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">dot · count · standalone</span>
           <span class="pill">99+ overflow cap</span>
           <span class="pill">zero hides honestly</span>
@@ -68,12 +86,12 @@
         files={canvasFiles}
         stage="center"
       >
-        <div class="flex flex-wrap items-center gap-8">
+        <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap32)}>
           <BadgeIndicator dot label="2 unread">
-            <span class="inline-flex size-8 items-center justify-center border border-border bg-muted font-mono text-[11px]">GB</span>
+            <span class={cx(rt.biChild)}>GB</span>
           </BadgeIndicator>
           <BadgeIndicator count={5}>
-            <span class="inline-flex size-8 items-center justify-center border border-border bg-muted font-mono text-[11px]">AL</span>
+            <span class={cx(rt.biChild)}>AL</span>
           </BadgeIndicator>
           <BadgeIndicator count={250} />
         </div>
@@ -102,29 +120,29 @@
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="BadgeIndicator variants" summary="Three postures — dot, count, standalone — plus the honest zero rule.">
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">dot — presence, no number</p>
-        <BadgeIndicator dot label="2 unread"><span class="inline-flex size-8 items-center justify-center border border-border bg-muted font-mono text-[11px]">GB</span></BadgeIndicator>
+    <div class={cx(rt.gridSm2)}>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>dot — presence, no number</p>
+        <BadgeIndicator dot label="2 unread"><span class={cx(rt.biChild)}>GB</span></BadgeIndicator>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">count — capped at 99+</p>
-        <BadgeIndicator count={250}><span class="inline-flex size-8 items-center justify-center border border-border bg-muted font-mono text-[11px]">AL</span></BadgeIndicator>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>count — capped at 99+</p>
+        <BadgeIndicator count={250}><span class={cx(rt.biChild)}>AL</span></BadgeIndicator>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">standalone chip</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>standalone chip</p>
         <BadgeIndicator count={5} />
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">showZero</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>showZero</p>
         <BadgeIndicator count={0} showZero />
       </div>
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Anything with a corner carries the badge; omit children for the standalone chip."><CodeBlock code={usage} lang="svelte" meta="BadgeIndicator usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The overlay is decoration riding the child; the meaning lives in the label/count text."><A11yTable keys={[{ key: '—', action: 'Not focusable — the wrapped child keeps its own interaction' }]} aria={[{ name: 'aria-label', value: 'label | count', description: 'The dot requires a label (its accessible name); counts announce their text.' }, { name: 'role', value: 'img', description: 'On the dot only — presence with no text content of its own.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Fixed micro geometry — the dot (10px) and count chip (18px min) do not ride the density scale."><div class="flex flex-col gap-5"><DensityDemo><div class="flex items-center gap-6"><BadgeIndicator dot label="2 unread"><span class="inline-flex size-8 items-center justify-center border border-border bg-muted font-mono text-[11px]">GB</span></BadgeIndicator><BadgeIndicator count={12}><span class="inline-flex size-8 items-center justify-center border border-border bg-muted font-mono text-[11px]">AL</span></BadgeIndicator><BadgeIndicator count={250} /></div></DensityDemo><TokenTable tokens={[{ name: '--radius', default: 'theme radius', source: 'structural', description: 'The chip corner — the jixoai radius law.' }, { name: 'dot box', default: '10px (w-2.5 h-2.5)', source: 'structural' }, { name: 'count chip', default: '18px min (min-w-[1.125rem])', source: 'structural' }, { name: 'text', default: '10px, fixed', source: 'structural' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Fixed micro geometry — the dot (10px) and count chip (18px min) do not ride the density scale."><div class={cx(rt.col20)}><DensityDemo><div class={cx(rt.rowC24)}><BadgeIndicator dot label="2 unread"><span class={cx(rt.biChild)}>GB</span></BadgeIndicator><BadgeIndicator count={12}><span class={cx(rt.biChild)}>AL</span></BadgeIndicator><BadgeIndicator count={250} /></div></DensityDemo><TokenTable tokens={[{ name: '--radius', default: 'theme radius', source: 'structural', description: 'The chip corner — the jixoai radius law.' }, { name: 'dot box', default: '10px (w-2.5 h-2.5)', source: 'structural' }, { name: 'count chip', default: '18px min (min-w-[1.125rem])', source: 'structural' }, { name: 'text', default: '10px, fixed', source: 'structural' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Seven props; dot beats count, zero hides honestly."><PropsTable props={[{ name: 'dot', type: 'boolean', default: '—', description: 'The presence idiom — beats count when only presence matters.' }, { name: 'count', type: 'number', default: '—', description: 'The count idiom; hidden at 0 unless showZero.' }, { name: 'overflow', type: 'number', default: '99', description: 'Cap before "n+".' }, { name: 'showZero', type: 'boolean', default: 'false', description: 'Render count=0 instead of hiding.' }, { name: 'children', type: 'Snippet', default: '—', description: 'What the indicator rides on; omitted = standalone chip.' }, { name: 'label', type: 'string', default: "'new activity'", description: 'Accessible name for the dot (required in dot mode).' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the wrapper/standalone element.' }]} /></SectionCard></div>
 </div>

@@ -154,6 +154,7 @@
     "apps/www/src/lib/ui/density-demo/density-demo.stylex.ts",
     "apps/www/src/lib/surface/blueprints-a.stylex.ts",
     "apps/www/src/lib/surface/blueprints-b.stylex.ts",
-    "apps/www/src/lib/surface/site-chrome.stylex.ts"
+    "apps/www/src/lib/surface/site-chrome.stylex.ts",
+    "apps/www/src/lib/surface/routes.stylex.ts"
   ]
 }

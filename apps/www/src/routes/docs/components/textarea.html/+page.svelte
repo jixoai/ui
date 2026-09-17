@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -111,6 +112,23 @@ ${close}
   const textareaTypesFiles: TreeFile[] = [
     { name: 'textarea-types-demo.svelte', content: textareaTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -122,14 +140,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -139,7 +157,7 @@ ${close}
       title="textarea — the multiline text shell"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">resize: vertical</span>
         <span class="pill">toolbar + status slot rows</span>
         <span class="pill">count readout</span>
@@ -161,7 +179,7 @@ ${close}
       output={[{ label: 'length', value: canvasText.length }]}
       resolveFileContent={resolveTextareaUsage}
     >
-      <div class="flex w-full max-w-md flex-col gap-3">
+      <div class={cx(rt.taLane)}>
         <Textarea
           label="notes"
           bind:value={canvasText}
@@ -199,8 +217,8 @@ ${close}
       title="The shell, unchanged from input"
       summary="Same 1px border, radius 0, hover lift, and inset focus outline as the input shell — only taller. rows passes through verbatim (default 4), maxlength rides through restProps, and resize locks to the vertical axis so the box law survives the drag."
     >
-      <div class="flex flex-col gap-5">
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.grid760a)}>
           <Textarea
             label="textarea (resize: vertical)"
             name="demo_notes"
@@ -229,7 +247,7 @@ ${close}
       title="Slot system — toolbar + status rows"
       summary="textarea adds inner-block-start / inner-block-end behind 1px hairlines for toolbar and status rows, plus count for an N / maxLength readout. The shell owns border, background, hover, and the inset focus outline, so slot content never repaints the box law — and value is $bindable: a bound field turns controlled, an unbound one stays purely uncontrolled (FormData and form.reset untouched)."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <Textarea
           label="notes (toolbar + count)"
           name="slot_notes"
@@ -246,11 +264,11 @@ ${close}
           {/snippet}
           {#snippet innerBlockEnd()}<span>draft — autosaves on blur</span>{/snippet}
         </Textarea>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           Slot content lands muted at 0.75rem behind the hairline rows; the wrapper is scoped,
           so override it with an important utility
-          (<code class="text-accent">text-foreground!</code>) or an inline style. The count
-          readout lives in the status row — <code class="text-accent">N / maxLength</code>,
+          (<code class={cx(rt.inkAccent)}>text-foreground!</code>) or an inline style. The count
+          readout lives in the status row — <code class={cx(rt.inkAccent)}>N / maxLength</code>,
           computed off the bound value, never a second source of truth.
         </p>
         <CodeBlock code={slotUsage} lang="svelte" meta="slots" />
@@ -267,8 +285,8 @@ ${close}
       title="label + error wiring"
       summary="The error prop is pure semantics: it sets aria-invalid='true', wires aria-describedby to the “! message” line, and dashes the shell border — a monochrome invalid signal, because the one-hue law has no error red."
     >
-      <div class="flex flex-col gap-5">
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.grid760a)}>
           <Textarea label="bio" error="bio is required" rows={2}></Textarea>
           <Textarea label="notes" name="demo_err_notes" rows={2} placeholder="optional…" />
         </div>
@@ -282,7 +300,7 @@ ${close}
 <!-- Material3 standard sections (2026-08-26): types / usage / a11y /
      theming / api appended after the demo sections, same wrapper law as
      checkbox.html. -->
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal="">
     <SectionCard
       family="types"
@@ -292,11 +310,11 @@ ${close}
       summary="The plain shell, the toolbar + count posture, the error state, and the disabled field."
     >
       <ComponentCanvas title="textarea · variants" stage="fill" files={textareaTypesFiles}>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="border border-border p-4"><Textarea label="plain" name="types-plain" rows={3} placeholder="multiline…" /></div>
-          <div class="border border-border p-4"><Textarea label="count" name="types-count" rows={3} maxlength={280} count placeholder="N / maxLength readout…" /></div>
-          <div class="border border-border p-4"><Textarea label="error" name="types-error" rows={2} error="bio is required"></Textarea></div>
-          <div class="border border-border p-4"><Textarea label="disabled" name="types-disabled" rows={2} placeholder="not allowed" disabled /></div>
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}><Textarea label="plain" name="types-plain" rows={3} placeholder="multiline…" /></div>
+          <div class={cx(rt.panel)}><Textarea label="count" name="types-count" rows={3} maxlength={280} count placeholder="N / maxLength readout…" /></div>
+          <div class={cx(rt.panel)}><Textarea label="error" name="types-error" rows={2} error="bio is required"></Textarea></div>
+          <div class={cx(rt.panel)}><Textarea label="disabled" name="types-disabled" rows={2} placeholder="not allowed" disabled /></div>
         </div>
       </ComponentCanvas>
     </SectionCard>
@@ -341,7 +359,7 @@ ${close}
       title="Density and tokens"
       summary="The shell, lane padding, and label/error rhythm are pure density-scope tokens; resize the scope and the whole field stack follows."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <DensityDemo>
           <Textarea label="density sample" name="density-textarea" rows={3} placeholder="Type here..." />
         </DensityDemo>

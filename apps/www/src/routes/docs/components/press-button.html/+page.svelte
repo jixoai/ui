@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -263,6 +264,23 @@ ${close}
   const pressButtonTypesFiles: TreeFile[] = [
     { name: 'press-button-types-demo.svelte', content: pressButtonTypesDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -274,9 +292,9 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -285,7 +303,7 @@ ${close}
         title="press-button — one physics, the ladder, four effects"
         summary="The only button in the grammar, and the animation is deliberately quiet: hover never moves the body — the hard shadow alone grows from xs to sm; active presses the body one pixel into the page while the shadow stays exactly where it was. Variants are a prominence ladder, never a color decision: fill for the one action that matters, tonal for the supporting seat, outline for the rest (the default), ghost and link for the quiet seats — link is the grammar's one interaction exception. Semantic color is hue injection through the global tokens: destructive actions fill with the destructive pair, metadata tones down through --jx-tonal, the copied transient is tonal + success. One opt-in effect loop adds attention without breaking the restraint: shimmer (a spark walks the perimeter), pulse (sonar rings breathe outward), rainbow (a gradient flows around the border), ripple (ink expands from the press point) — typed builders with options, all frozen under reduced motion."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">hover: shadow only</span>
           <span class="pill">active: anchored press</span>
           <span class="pill">raised={false}: flat — the press is an inset, the body never moves</span>
@@ -310,45 +328,45 @@ ${close}
         onvalue={onCanvasValue}
         resolveFileContent={resolveUsage}
       >
-        <div class="flex flex-col items-center gap-6">
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+        <div class={cx(rt.col24, rt.itemsCenter)}>
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20)}>
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>fill</span>
               <PressButton variant="fill">deploy</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>tonal</span>
               <PressButton variant="tonal">invite</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>outline</span>
               <PressButton variant="outline">cancel</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>ghost</span>
               <PressButton variant="ghost">dismiss</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>link</span>
               <PressButton variant="link">details</PressButton>
             </label>
           </div>
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <div class={cx(rt.tBorder, rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20, rt.pt20)}>
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>flat · outline</span>
               <PressButton variant="outline" raised={false}>cancel</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>flat · tonal</span>
               <PressButton variant="tonal" raised={false}>invite</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>flat · ghost — press me</span>
               <PressButton variant="ghost" raised={false}>dismiss</PressButton>
             </label>
           </div>
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <div class={cx(rt.tBorder, rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20, rt.pt20)}>
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>destructive action</span>
               <PressButton
                 variant="fill"
@@ -357,39 +375,39 @@ ${close}
                 delete
               </PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>neutral tonal</span>
               <PressButton variant="tonal" class="jx-hue-neutral">invite</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>success — copied</span>
               <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
             </label>
           </div>
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <div class={cx(rt.tBorder, rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20, rt.pt20)}>
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>shimmer</span>
               <PressButton variant="fill" {@attach pressEffect(shimmer())}>deploy</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>pulse · ring</span>
               <PressButton variant="fill" {@attach pressEffect(pulse({ variant: 'ring' }))}>deploy</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>rainbow</span>
               <PressButton variant="outline" {@attach pressEffect(rainbow())}>upgrade</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>rainbow · fill</span>
               <PressButton variant="fill" {@attach pressEffect(rainbow())}>deploy</PressButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>ripple — press me</span>
               <PressButton variant="fill" {@attach pressEffect(ripple({ duration: 800 }))}>deploy</PressButton>
             </label>
           </div>
-          <div class="flex flex-col items-center gap-2.5 border-t border-border pt-5">
-            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
+          <div class={cx(rt.col10, rt.tBorder, rt.itemsCenter, rt.pt20)}>
+            <span class={cx(rt.microEyebrow, rt.inkMuted)}>
               driven by the playground
             </span>
             <PressButton
@@ -412,15 +430,15 @@ ${close}
         title="The ambient zone — variant by context"
         summary="A lone button defaults to outline — the frozen own. The SAME button inside a zone scope defaults to the zone's variant with no prop passed anywhere: explicit ?? ambient zone ?? own, left to right, no exceptions. Two doors set the zone: ButtonVariantScope (zero-DOM — free-floating buttons keep their placement) and ButtonGroup (zone plus the hairline join). Dialog's head and foot zones are the canonical consumers: every unprefixed button inside a dialog is ghost, while the page floor stays outline."
       >
-        <div class="flex flex-col gap-5">
-          <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+        <div class={cx(rt.col20)}>
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gapX8, rt.gapY20)}>
+            <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>outside — own default</span>
               <PressButton>cancel</PressButton>
             </div>
             <ButtonVariantScope variant="ghost">
-              <div class="flex flex-wrap items-center gap-2.5">
-                <span class="text-muted-foreground text-xs">inside the scope</span>
+              <div class={cx(rt.rowC10, rt.wrap)}>
+                <span class={cx(rt.inkMuted, rt.text12)}>inside the scope</span>
                 <PressButton>adopts ghost</PressButton>
                 <PressButton>adopts ghost</PressButton>
                 <PressButton variant="fill">keeps fill</PressButton>
@@ -443,7 +461,7 @@ ${close}
             lang="svelte"
             meta="the zone door — ButtonVariantScope"
           />
-          <div class="flex flex-wrap gap-3">
+          <div class={cx(rt.wrap12)}>
             <a class="pill" href="/docs/components/button-group.html#variant-scope">button-group — the zone's family</a>
             <a class="pill" href="/docs/context-defaults.html">context &amp; defaults — the recipes</a>
           </div>
@@ -459,13 +477,13 @@ ${close}
         title="Button or anchor"
         summary="href switches the element from button to anchor — internal hrefs navigate in place, anything else opens a new tab with noreferrer automatically. The label is a snippet, so icons compose inline with the component's own gap."
       >
-        <div class="flex flex-col gap-5">
-          <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+        <div class={cx(rt.col20)}>
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gapX8, rt.gapY20)}>
+            <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>internal → same tab</span>
               <PressButton variant="fill" href="/docs/components.html">overview</PressButton>
             </div>
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>external → new tab</span>
               <PressButton variant="outline" href="https://github.com/jixoai/ui">
                 <svg
@@ -476,7 +494,7 @@ ${close}
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   aria-hidden="true"
-                  class="h-[13px] w-[13px]"
+                  class={cx(rt.pbDot13)}
                 >
                   <path d="M7 17 17 7" />
                   <path d="M7 7h10v10" />
@@ -484,7 +502,7 @@ ${close}
                 <span>github</span>
               </PressButton>
             </div>
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>button → no navigation</span>
               <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
             </div>
@@ -503,8 +521,8 @@ ${close}
         summary="loading is an ANCHOR CONTRACT: aria-disabled='true' (the button stays focusable — tab order unchanged, opaque to why it is inert), pointer AND keyboard activation suppressed (Enter/Space no-op), and for href anchors the navigation itself is blocked. The spinner glyph takes the leading lane and the press law holds unchanged — hover grows only the shadow, active still presses +1px. On settle, the one-shot flash() swaps the leading lane to a ✓ check for 1.2s, then the button rests."
       >
         <ComponentCanvas title="press-button · async two-step" stage="fill" files={pressButtonAsyncFiles}>
-          <div id="async-demo" class="flex flex-wrap items-center gap-x-8 gap-y-5">
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <div id="async-demo" class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gapX8, rt.gapY20)}>
+            <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>async deploy</span>
               <PressButton
                 bind:this={deployBtn}
@@ -515,15 +533,15 @@ ${close}
                 deploy
               </PressButton>
             </div>
-            <div id="async-anchor-demo" class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <div id="async-anchor-demo" class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>loading anchor</span>
               <PressButton variant="tonal" onclick={navTask}>start fake task</PressButton>
               <PressButton variant="outline" href="/docs/components.html" loading={navLoading}>
                 read the docs
               </PressButton>
             </div>
-            <span class="text-muted-foreground text-[12.5px]" data-async-echo>{deployEcho}</span>
-            <span class="text-muted-foreground text-[12.5px]">{navEcho}</span>
+            <span class={cx(rt.noteSmall)} data-async-echo>{deployEcho}</span>
+            <span class={cx(rt.noteSmall)}>{navEcho}</span>
           </div>
         </ComponentCanvas>
       </SectionCard>
@@ -537,59 +555,59 @@ ${close}
         title="Why the shadow is the affordance"
         summary="No fills-in-motion, no glows, no ripple. The one-hue grammar expresses state through elevation alone, so the button reads identically in light and dark themes and survives the hue runtime without a second rule."
       >
-        <ul class="flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">variant</code> selects only the ladder rung —
-              <code class="text-accent">fill</code>,
-              <code class="text-accent">tonal</code>,
-              <code class="text-accent">outline</code>,
-              <code class="text-accent">ghost</code>, plus
-              <code class="text-accent">link</code>, the one interaction exception — the
-              press law is the theme's shared <code class="text-accent">.jx-press</code> class, one
+        <ul class={cx(rt.col8, rt.body13)}>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>variant</code> selects only the ladder rung —
+              <code class={cx(rt.inkAccent)}>fill</code>,
+              <code class={cx(rt.inkAccent)}>tonal</code>,
+              <code class={cx(rt.inkAccent)}>outline</code>,
+              <code class={cx(rt.inkAccent)}>ghost</code>, plus
+              <code class={cx(rt.inkAccent)}>link</code>, the one interaction exception — the
+              press law is the theme's shared <code class={cx(rt.inkAccent)}>.jx-press</code> class, one
               source for every button in the grammar</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>semantic color is hue injection, never a variant: destructive actions carry
-              <code class="text-accent">fill</code> +
-              <code class="text-accent">jx-pair-destructive</code>
+              <code class={cx(rt.inkAccent)}>fill</code> +
+              <code class={cx(rt.inkAccent)}>jx-pair-destructive</code>
               (the pair utility — fill and ink in one class), metadata softens through
-              <code class="text-accent">jx-hue-neutral</code>, and the
-              copied transient is <code class="text-accent">tonal</code> +
-              <code class="text-accent">jx-hue-success</code></span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>the shadow is the body's own <code class="text-accent">box-shadow</code>: hover
+              <code class={cx(rt.inkAccent)}>jx-hue-neutral</code>, and the
+              copied transient is <code class={cx(rt.inkAccent)}>tonal</code> +
+              <code class={cx(rt.inkAccent)}>jx-hue-success</code></span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>the shadow is the body's own <code class={cx(rt.inkAccent)}>box-shadow</code>: hover
               grows it (xs → sm) and nothing else; active slides the body +1px while the shadow's
               offsets counter-shrink 1px (the theme's
-              <code class="text-accent">*-press</code> poses) — the shadow's paint never moves on
+              <code class={cx(rt.inkAccent)}>*-press</code> poses) — the shadow's paint never moves on
               screen, no pseudo layer involved</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">effect</code> accepts ONE typed builder exported from
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>effect</code> accepts ONE typed builder exported from
               the component's module script —
-              <code class="text-accent">shimmer()</code> (a conic spark walks the perimeter),
-              <code class="text-accent">pulse()</code> (sonar rings from the body's silhouette,
-              three variants), <code class="text-accent">rainbow()</code> (a gradient flows around
+              <code class={cx(rt.inkAccent)}>shimmer()</code> (a conic spark walks the perimeter),
+              <code class={cx(rt.inkAccent)}>pulse()</code> (sonar rings from the body's silhouette,
+              three variants), <code class={cx(rt.inkAccent)}>rainbow()</code> (a gradient flows around
               the border, optional under-glow),
-              <code class="text-accent">ripple()</code> (ink circles from the exact press point,
+              <code class={cx(rt.inkAccent)}>ripple()</code> (ink circles from the exact press point,
               center on keyboard activation) — every loop takes typed options
-              (<code class="text-accent">speed</code>, <code class="text-accent">color</code>,
-              <code class="text-accent">distance</code>, …), modeled on the animation-svelte
+              (<code class={cx(rt.inkAccent)}>speed</code>, <code class={cx(rt.inkAccent)}>color</code>,
+              <code class={cx(rt.inkAccent)}>distance</code>, …), modeled on the animation-svelte
               reference</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">href</code> switches the element to an anchor;
-              hrefs not starting with <code class="text-accent">/</code> open a new tab with
-              <code class="text-accent">noreferrer</code> automatically</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">loading</code> is the async pose with an explicit anchor
-              contract: <code class="text-accent">aria-disabled="true"</code> (focusable — tab order
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>href</code> switches the element to an anchor;
+              hrefs not starting with <code class={cx(rt.inkAccent)}>/</code> open a new tab with
+              <code class={cx(rt.inkAccent)}>noreferrer</code> automatically</span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>loading</code> is the async pose with an explicit anchor
+              contract: <code class={cx(rt.inkAccent)}>aria-disabled="true"</code> (focusable — tab order
               unchanged), pointer AND keyboard activation suppressed (Enter/Space no-op), and
-              <code class="text-accent">href</code> navigation blocked; the spinner glyph takes the
+              <code class={cx(rt.inkAccent)}>href</code> navigation blocked; the spinner glyph takes the
               leading lane and the press law holds unchanged — pair with the one-shot
-              <code class="text-accent">flash()</code> helper (bind:this) for the ✓ success flash</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <code class={cx(rt.inkAccent)}>flash()</code> helper (bind:this) for the ✓ success flash</span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>the label is a snippet, so icons compose inline — spacing comes from the
-              component's own <code class="text-accent">gap-2.5</code></span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>reduced motion ships inside the <code class="text-accent">.jx-press</code> law:
-              <code class="text-accent">prefers-reduced-motion</code> drops every press transition
+              component's own <code class={cx(rt.inkAccent)}>gap-2.5</code></span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>reduced motion ships inside the <code class={cx(rt.inkAccent)}>.jx-press</code> law:
+              <code class={cx(rt.inkAccent)}>prefers-reduced-motion</code> drops every press transition
               to none</span></li>
         </ul>
       </SectionCard>
@@ -599,7 +617,7 @@ ${close}
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="The variant ladder" summary="Choose the prominence rung first; semantic hue is injected separately through the grammar tokens. Every rung keeps the same hit target and press physics.">
       <ComponentCanvas title="press-button · ladder" stage="fill" files={pressButtonTypesFiles}>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div class={cx(rt.pbGrid5)}>
           {#each [
             ['fill', 'The one action'],
             ['tonal', 'Supporting seat'],
@@ -607,37 +625,37 @@ ${close}
             ['ghost', 'Quiet seat'],
             ['link', 'Inline navigation'],
           ] as item}
-            <div class="border border-border/60 p-3">
+            <div class={cx(rt.panel60P12)}>
               <PressButton variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost' | 'link'}>{item[1]}</PressButton>
-              <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
+              <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>{item[0]}</p>
             </div>
           {/each}
         </div>
-        <div class="mt-6">
-          <p class="font-nav mb-4 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+        <div class={cx(rt.mt24)}>
+          <p class={cx(rt.eyebrow, rt.mb16, rt.inkMuted)}>
             semantic injection recipes — hue, not a rung
           </p>
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="border border-border/60 p-3">
+          <div class={cx(rt.pbGrid4)}>
+            <div class={cx(rt.panel60P12)}>
               <PressButton
                 variant="fill"
                 class="jx-pair-destructive"
               >
                 delete
               </PressButton>
-              <p class="mt-2 text-xs text-muted-foreground">destructive ACTION<br />fill + the destructive pair</p>
+              <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>destructive ACTION<br />fill + the destructive pair</p>
             </div>
-            <div class="border border-border/60 p-3">
+            <div class={cx(rt.panel60P12)}>
               <PressButton variant="tonal" class="jx-hue-neutral">invite</PressButton>
-              <p class="mt-2 text-xs text-muted-foreground">neutral / meta<br />tonal + muted-foreground</p>
+              <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>neutral / meta<br />tonal + muted-foreground</p>
             </div>
-            <div class="border border-border/60 p-3">
+            <div class={cx(rt.panel60P12)}>
               <PressButton variant="tonal" class="jx-hue-success">copied</PressButton>
-              <p class="mt-2 text-xs text-muted-foreground">success status<br />tonal + success</p>
+              <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>success status<br />tonal + success</p>
             </div>
-            <div class="border border-border/60 p-3">
+            <div class={cx(rt.panel60P12)}>
               <PressButton variant="fill">deploy</PressButton>
-              <p class="mt-2 text-xs text-muted-foreground">brand (default hue)<br />fill, no injection</p>
+              <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>brand (default hue)<br />fill, no injection</p>
             </div>
           </div>
         </div>
@@ -662,9 +680,9 @@ ${close}
 
   <div id="theming" data-reveal="">
     <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one scope change updates every instance together. The canvas dock's density select (xs / sm / default / lg) is the live proof — it re-scopes only the stage; the DensityDemo four-copy hack is retired by it.">
-      <div class="flex flex-col gap-5">
-        <p class="text-muted-foreground text-[13px] leading-6">
-          flip the dock's density select above to <code class="text-accent">sm</code> — the workbench
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.bodyMuted)}>
+          flip the dock's density select above to <code class={cx(rt.inkAccent)}>sm</code> — the workbench
           canvas re-densifies its own stage (the density scope lands on the stage element only),
           never the docs chrome around it. Both theme seats work the same way.
         </p>

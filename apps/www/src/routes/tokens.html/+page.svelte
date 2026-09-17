@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   // the glass demo rides the SHARED stamp channel — the law sheet must
   // be loaded for the paint (glass-effect design §6)
@@ -135,6 +136,23 @@ playing.subscribe((v) => (isPlaying = v));
     { id: 'terminal-tokens', label: 'Terminal surfaces (always dark)', entries: terminal },
     { id: 'charts', label: 'Charts', entries: charts },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -146,12 +164,12 @@ playing.subscribe((v) => (isPlaying = v));
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- Page head. -->
   <div data-reveal="">
     <SectionCard
@@ -161,8 +179,8 @@ playing.subscribe((v) => (isPlaying = v));
       title="One variable is the whole identity"
       summary="Colors are OKLCH with fixed lightness and chroma shared across every jixoai site; only --brand-hue varies. On this site it runs free — seeded from the time of day and one full day = one full 360° turn (4 minutes per degree). Use the palette popover in the header (or the slider below) to take manual control."
     >
-      <div class="flex flex-wrap gap-3">
-        <span class="pill">--brand-hue: <span class="tabular-nums text-primary">{Math.round(hue)}°</span> live</span>
+      <div class={cx(rt.wrap12)}>
+        <span class="pill">--brand-hue: <span class={cx(rt.tabular, rt.inkPrimary)}>{Math.round(hue)}°</span> live</span>
         <span class="pill">OKLCH · fixed L/C law</span>
         <span class="pill">dark drift −4°</span>
         <span class="pill">radius 0 + bevel upgrade</span>
@@ -186,49 +204,49 @@ playing.subscribe((v) => (isPlaying = v));
         { label: 'cycle', value: isPlaying ? 'auto · wall-clock' : 'paused · manual' },
       ]}
     >
-      <div class="flex w-full flex-col items-start gap-6">
+      <div class={cx(rt.col24, rt.wFull, rt.itemsStart)}>
         <!-- live swatches in the CURRENT theme -->
-        <div class="grid w-full gap-4 min-[760px]:grid-cols-2">
-          <div class="border border-border">
+        <div class={cx(rt.grid760b, rt.wFull)}>
+          <div class={cx(rt.frame)}>
             <div class="swatch-chip" style="background: var(--primary)"></div>
-            <p class="px-3 py-2 text-[11.5px]">--primary (current theme)</p>
+            <p class={cx(rt.px12, rt.py8, rt.text115)}>--primary (current theme)</p>
           </div>
-          <div class="bg-terminal border border-border">
-            <div class="flex h-[2.6rem] items-center px-3">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">
+          <div class={cx(rt.frame, rt.bgTerminal)}>
+            <div class={cx(rt.tkRow)}>
+              <span class={cx(rt.eyebrowPrimary)}>
                 jixoai-ui
               </span>
             </div>
-            <p class="text-terminal-foreground/70 px-3 py-2 text-[11.5px]">header brand eyebrow</p>
+            <p class={cx(rt.inkTermFg70, rt.px12, rt.py8, rt.text115)}>header brand eyebrow</p>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
+        <div class={cx(rt.rowC12, rt.wrap)}>
           <PressButton variant="fill">fill button</PressButton>
           <PressButton variant="outline">outline button</PressButton>
-          <span class="text-muted-foreground text-[12.5px]">
+          <span class={cx(rt.noteSmall)}>
             press physics follow the hue automatically — no second variable
           </span>
         </div>
 
-        <div class="w-full">
+        <div class={cx(rt.wFull)}>
           <CodeBlock code={hueLawCode} lang="css" meta="lib/jixoai.css" />
         </div>
       </div>
       {#snippet playground()}
         <PlayFields>
-          <div class="flex flex-col gap-2">
-            <div class="flex flex-wrap items-baseline justify-between gap-3">
-              <label class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground" for="hue-slider">
+          <div class={cx(rt.col8)}>
+            <div class={cx(rt.wrap12, rt.itemsBaseline, rt.justifyBetween)}>
+              <label class={cx(rt.eyebrow, rt.inkMuted)} for="hue-slider">
                 --brand-hue
               </label>
-              <div class="flex items-center gap-3">
-                <output for="hue-slider" class="font-nav text-primary text-[13px] tabular-nums">
+              <div class={cx(rt.rowC12)}>
+                <output for="hue-slider" class={cx(rt.fontNav, rt.inkPrimary, rt.text13, rt.tabular)}>
                   {Math.round(hue)}°
                 </output>
                 <button
                   type="button"
-                  class="border border-border px-2 py-0.5 text-[10px] font-nav transition-colors hover:bg-muted"
+                  class={cx(rt.tkChip)}
                   onclick={toggleHuePlay}
                   aria-label={isPlaying ? 'Pause auto-cycle' : 'Resume auto-cycle'}
                 >
@@ -267,10 +285,10 @@ playing.subscribe((v) => (isPlaying = v));
       title="The density kernel"
       summary="One ruler, five densities (2xs: the opt-in pro-tool rung). Every dimension is an equation from --jx-unit (4px) and --jx-text-base (13px) — no hand-picked values. Components consume the inherited --jx-* tokens; [data-density] scopes switch all values simultaneously. Context injection (Kotlin Compose-inspired): providers set the scope, every child inherits."
     >
-      <div class="flex flex-col gap-8">
-        <div class="flex flex-col gap-3">
-          <h3 class="text-[15px] font-bold tracking-tight">Five densities, live</h3>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+      <div class={cx(rt.col32)}>
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.title15)}>Five densities, live</h3>
+          <p class={cx(rt.para)}>
             The same component at every density — text, spacing, hit targets, and media all scale
             from the ruler. No per-size branches in component CSS.
           </p>
@@ -289,9 +307,9 @@ playing.subscribe((v) => (isPlaying = v));
           </DensityDemo>
         </div>
 
-        <div class="flex flex-col gap-3">
-          <h3 class="text-[15px] font-bold tracking-tight">The five-row table</h3>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.title15)}>The five-row table</h3>
+          <p class={cx(rt.para)}>
             All dimensions computed at the 16px root, columns in ladder order 2xs / xs /
             sm / default / lg. These are the RESOLVED values the kernel gate asserts in
             real Chromium. Two honest footnotes at 2xs: its hit is the ONE scoped floor
@@ -316,9 +334,9 @@ playing.subscribe((v) => (isPlaying = v));
           />
         </div>
 
-        <div class="flex flex-col gap-3">
-          <h3 class="text-[15px] font-bold tracking-tight">Component supplement tokens</h3>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.title15)}>Component supplement tokens</h3>
+          <p class={cx(rt.para)}>
             Components ADD tokens the global set doesn't cover — toggle geometry, slider rails,
             textarea heights. These are owned by their component and documented on each
             component's page.
@@ -337,8 +355,8 @@ playing.subscribe((v) => (isPlaying = v));
           />
         </div>
 
-        <div class="flex flex-col gap-3">
-          <h3 class="text-[15px] font-bold tracking-tight">Usage</h3>
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.title15)}>Usage</h3>
           <CodeBlock
             code={`<!-- Scope switch: one attribute, every child inherits -->
 <div data-density="sm">
@@ -375,17 +393,17 @@ playing.subscribe((v) => (isPlaying = v));
       title="The full sheet, current theme"
       summary="Values are literal from the registry token sheet (light / dark where they differ). Switch the site theme (header toggle or palette popover) to compare the other mode — no dual panels here."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         {#each groups as group (group.id)}
-          <div class="flex flex-col gap-3">
-            <h3 class="text-[15px] font-bold tracking-tight">{group.label}</h3>
-            <dl class="grid grid-cols-1 gap-2 min-[560px]:grid-cols-2 min-[860px]:grid-cols-3">
+          <div class={cx(rt.col12)}>
+            <h3 class={cx(rt.title15)}>{group.label}</h3>
+            <dl class={cx(rt.tkSwatchGrid)}>
               {#each group.entries as entry (entry.name)}
-                <div class="swatch border border-border">
+                <div class={cx('swatch', rt.frame)}>
                   <div class="swatch-chip" style:background={`var(${entry.name})`}></div>
-                  <div class="flex flex-col gap-0.5 px-2 py-1.5">
+                  <div class={cx(rt.flex, rt.col, rt.gap2, rt.px8, rt.py6)}>
                     <dt>{entry.name}</dt>
-                    <dd class="text-muted-foreground">{entry.value}</dd>
+                    <dd class={cx(rt.inkMuted)}>{entry.value}</dd>
                   </div>
                 </div>
               {/each}
@@ -405,74 +423,74 @@ playing.subscribe((v) => (isPlaying = v));
       title="Rules that look negotiable but are not"
       summary="Neutrals stay pure achromatic (no warm/cool grays), shadows stay hard (zero blur, tiny soft layer only at md+), radius stays 0 except the bevel upgrade and small status pills, and the terminal bar is dark in BOTH themes — it reads as a CRT bezel, not a themed surface."
     >
-      <div class="flex flex-col gap-7">
-        <div class="grid gap-4 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-2.5">
-            <h3 class="text-[15px] font-bold tracking-tight">Hard offset shadows</h3>
-            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+      <div class={cx(rt.col28)}>
+        <div class={cx(rt.grid760b)}>
+          <div class={cx(rt.col10)}>
+            <h3 class={cx(rt.title15)}>Hard offset shadows</h3>
+            <p class={cx(rt.para)}>
               The shadow IS the affordance. Dark mode inverts the shadow color — including the
               small tiers — or press buttons lose their lift on the pure-black canvas.
             </p>
-            <div class="flex flex-wrap items-center gap-5 border border-border bg-card p-5">
-              {#each [['2xs', 'shadow-2xs'], ['xs', 'shadow-xs'], ['sm', 'shadow-sm'], ['md', 'shadow-md']] as [label, shadow] (label)}
-                <div class="flex flex-col items-center gap-2">
-                  <div class="border border-border bg-card size-12 {shadow}"></div>
-                  <span class="text-muted-foreground text-[10.5px]">{label}</span>
+            <div class={cx(rt.wrapRow20, rt.frame, rt.bgCard, rt.p20)}>
+              {#each [['2xs', rt.shadow2xs], ['xs', rt.shadowXs], ['sm', rt.shadowSm], ['md', rt.shadowMd]] as [label, shadow] (label)}
+                <div class={cx(rt.flex, rt.col, rt.itemsCenter, rt.gap8)}>
+                  <div class={cx(rt.frame, rt.bgCard, rt.tkSize12, shadow)}></div>
+                  <span class={cx(rt.inkMuted, rt.text105)}>{label}</span>
                 </div>
               {/each}
             </div>
           </div>
-          <div class="flex flex-col gap-2.5">
-            <h3 class="text-[15px] font-bold tracking-tight">Radius law</h3>
-            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          <div class={cx(rt.col10)}>
+            <h3 class={cx(rt.title15)}>Radius law</h3>
+            <p class={cx(rt.para)}>
               --radius is 0px; where CSS supports it, corner-shape: bevel upgrades it to 8px.
               rounded-full is reserved exclusively for small status dots and pills.
             </p>
-            <div class="flex flex-wrap items-center gap-5 border border-border bg-card p-5">
-              <div class="border border-border bg-card size-12"></div>
-              <span class="text-muted-foreground text-[10.5px]">radius 0 (bevel where supported)</span>
+            <div class={cx(rt.wrapRow20, rt.frame, rt.bgCard, rt.p20)}>
+              <div class={cx(rt.frame, rt.bgCard, rt.tkSize12)}></div>
+              <span class={cx(rt.inkMuted, rt.text105)}>radius 0 (bevel where supported)</span>
               <span class="pill">pill</span>
-              <span class="text-muted-foreground text-[10.5px]">the only rounded-full</span>
+              <span class={cx(rt.inkMuted, rt.text105)}>the only rounded-full</span>
             </div>
           </div>
         </div>
-        <div class="grid gap-4 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-2.5">
-            <h3 class="text-[15px] font-bold tracking-tight">Glass material</h3>
-            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <div class={cx(rt.grid760b)}>
+          <div class={cx(rt.col10)}>
+            <h3 class={cx(rt.title15)}>Glass material</h3>
+            <p class={cx(rt.para)}>
               The glass effect: translucent surface + real backdrop blur (14px, saturation 1.35),
               painted by the shared glass law sheet off the <code>data-jx-effect="blur"</code> stamp
               and tuned through <code>--jx-glass-*</code> vars. Drawn with an outline instead of a
               border so the box line never shifts layout. The mobile ToC rail is made of this.
               (forced-colors: this demo page is exempt from the consumer Canvas map by declaration.)
             </p>
-            <div class="relative overflow-hidden border border-border bg-card p-6">
+            <div class={cx(rt.relative, rt.overflowHidden, rt.frame, rt.bgCard, rt.p24)}>
               <div
-                class="absolute inset-0 flex items-center justify-center gap-3"
+                class={cx(rt.absolute, rt.inset0, rt.flex, rt.itemsCenter, rt.justifyCenter, rt.gap12)}
                 aria-hidden="true"
               >
                 {#each ['#d945d1', '#f5e13a', '#3d7bff'] as color (color)}
-                  <span class="size-10" style:background={color}></span>
+                  <span class={cx(rt.tkSize10)} style:background={color}></span>
                 {/each}
               </div>
-              <div data-jx-effect="blur" class="relative flex items-center border p-4">
-                <span class="text-[12.5px]">the blur effect over brand primaries</span>
+              <div data-jx-effect="blur" class={cx(rt.relative, rt.flex, rt.itemsCenter, rt.frameW, rt.p16)}>
+                <span class={cx(rt.text125)}>the blur effect over brand primaries</span>
               </div>
             </div>
           </div>
-          <div class="flex flex-col gap-2.5">
-            <h3 class="text-[15px] font-bold tracking-tight">Beyond sRGB on purpose</h3>
-            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          <div class={cx(rt.col10)}>
+            <h3 class={cx(rt.title15)}>Beyond sRGB on purpose</h3>
+            <p class={cx(rt.para)}>
               Several chroma values intentionally exceed the sRGB gamut (secondary renders as pure
               #ffff00 after clipping). The neon clip IS the brutalist look. An HSL formulation was
               tried and rejected: sRGB HSL lightness is hue-dependent and distorts perceived
               weight; OKLCH keeps it perceptual.
             </p>
-            <div class="flex flex-wrap items-center gap-5 border border-border bg-card p-5">
-              <span class="border border-border size-12" style="background: var(--secondary)"></span>
-              <span class="border border-border size-12" style="background: var(--accent)"></span>
-              <span class="border border-border size-12" style="background: var(--chart-4)"></span>
-              <span class="text-muted-foreground text-[10.5px]">secondary · accent · chart-4</span>
+            <div class={cx(rt.wrapRow20, rt.frame, rt.bgCard, rt.p20)}>
+              <span class={cx(rt.frame, rt.tkSize12)} style="background: var(--secondary)"></span>
+              <span class={cx(rt.frame, rt.tkSize12)} style="background: var(--accent)"></span>
+              <span class={cx(rt.frame, rt.tkSize12)} style="background: var(--chart-4)"></span>
+              <span class={cx(rt.inkMuted, rt.text105)}>secondary · accent · chart-4</span>
             </div>
           </div>
         </div>

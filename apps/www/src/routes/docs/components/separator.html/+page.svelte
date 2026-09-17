@@ -17,6 +17,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -167,6 +168,22 @@ ${close}
   const separatorTypesFiles: TreeFile[] = [
     { name: 'separator-types-demo.svelte', content: separatorTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -178,12 +195,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -192,7 +209,7 @@ ${close}
         title="separator — <hr> is the separator"
         summary="The W3C already built this one: <hr> carries thematic-break semantics, announcements, and styling for free. Only the vertical posture — splitting inline peers — has no native element, so it takes the ARIA route: a div with role=separator. The ink paints no color: the default variant, fused, is the backdrop's own contrast ghost, every shaped variant rides the same engine, and solid is the one plain-fill escape."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;hr&gt;</span>
           <span class="pill">role=separator vertical</span>
           <span class="pill">contrast ghost ink</span>
@@ -209,17 +226,17 @@ ${close}
         files={canvasFiles}
         stage="center"
       >
-        <div class="flex w-full max-w-md flex-col gap-4">
-          <p class="text-[13px] leading-6">A paragraph of ordinary copy above the rule.</p>
+        <div class={cx(rt.col16, rt.wFull, rt.maxWMd)}>
+          <p class={cx(rt.body13)}>A paragraph of ordinary copy above the rule.</p>
           <Separator />
-          <div class="flex items-center gap-4 text-[13px]">
+          <div class={cx(rt.rowC16, rt.text13)}>
             <span>first</span>
-            <Separator orientation="vertical" class="h-4" />
+            <Separator orientation="vertical" class={cx(rt.sepH4)} />
             <span>second</span>
-            <Separator orientation="vertical" class="h-4" />
+            <Separator orientation="vertical" class={cx(rt.sepH4)} />
             <span>third</span>
           </div>
-          <p class="text-[13px] leading-6">And copy below it — the thematic break reads natively.</p>
+          <p class={cx(rt.body13)}>And copy below it — the thematic break reads natively.</p>
         </div>
         {#snippet playground()}
           <PlayFields>
@@ -242,24 +259,24 @@ ${close}
         summary="A separator paints no color (Owner ruling, 2026-09-01): border-color is for borders. The default variant is NAMED fused — the backdrop's own CONTRAST GHOST, a backdrop-filter: contrast(0.5) strip that reads as a tonal shift over any ground. Dashed, dense, dotted and wavy are MASKS over that same strip; fade rides the BLEND engine — an alpha-ramped white gradient under mix-blend-mode: difference, inverting the backdrop toward mid exactly as its alpha ramps: transparent → light → dark → light → transparent. The one exception: solid (Owner amendment, 2026-09-08) turns the ghost off and paints plain var(--border) — the escape for grounds where the ghost's exact-mid blind spot or a patterned backdrop defeats subtraction."
       >
         <ComponentCanvas title="separator · ink engine" stage="fill" files={separatorInkFiles}>
-          <div class="flex flex-col gap-6">
-            <div class="flex w-full max-w-lg flex-col gap-4">
+          <div class={cx(rt.col24)}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWLg)}>
               {#each [['fused', 'the contrast ghost (default)'], ['solid', 'the plain-fill escape — var(--border), ghost off'], ['dashed', '6/4 dashes'], ['dense', '3/3 dense dashes'], ['dotted', 'a chain of dots'], ['wavy', 'the SVG sine mask'], ['fade', 'blend: transparent → dark → transparent']] as [v, label]}
-                <div class="flex flex-col gap-1.5">
-                  <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">{v}</span>
+                <div class={cx(rt.flex, rt.col, rt.gap6)}>
+                  <span class={cx(rt.eyebrowPrimary)}>{v}</span>
                   <Separator variant={v} />
-                  <span class="text-muted-foreground text-[12px]">{label}</span>
+                  <span class={cx(rt.inkMuted, rt.text12)}>{label}</span>
                 </div>
               {/each}
             </div>
-            <div class="flex w-full max-w-lg flex-col gap-4 border border-border p-4"
+            <div class={cx(rt.col16, rt.wFull, rt.maxWLg, rt.panel)}
               style="background: linear-gradient(90deg, oklch(0.98 0 0), oklch(0.35 0 0), oklch(0.98 0 0))"
             >
-              <span class="w-fit self-start rounded-sm bg-background px-1.5 py-0.5 font-nav text-[11px] uppercase tracking-[0.24em] text-foreground">auto-adaptive proof — over a light→dark→light gradient</span>
+              <span class={cx(rt.sepChip11)}>auto-adaptive proof — over a light→dark→light gradient</span>
               <Separator />
               <Separator variant="dashed" />
               <Separator variant="fade" />
-              <span class="w-fit self-start rounded-sm bg-background px-1.5 py-0.5 text-[12px] text-foreground">the ghost and its masks track the whole ramp; the fade's blend eases toward exact mid-gray — its one blind spot — and stays a tonal shift everywhere else. No color token anywhere.</span>
+              <span class={cx(rt.sepChip12)}>the ghost and its masks track the whole ramp; the fade's blend eases toward exact mid-gray — its one blind spot — and stays a tonal shift everywhere else. No color token anywhere.</span>
             </div>
           </div>
         </ComponentCanvas>
@@ -275,20 +292,20 @@ ${close}
         summary="The component draws the line; the consumer decides how long it is. Horizontal rules stretch to their container (or any width class); vertical rules stretch the container's cross axis — put one in a fixed-height flex row and it fills it."
       >
         <ComponentCanvas title="separator · length" stage="fill" files={separatorLengthFiles}>
-          <div class="flex w-full max-w-md flex-col gap-5">
-            <div class="flex flex-col">
-              <span class="text-muted-foreground text-[11px]">full width — the default stretch</span>
+          <div class={cx(rt.col20, rt.wFull, rt.maxWMd)}>
+            <div class={cx(rt.flex, rt.col)}>
+              <span class={cx(rt.note11)}>full width — the default stretch</span>
               <Separator />
             </div>
-            <div class="flex flex-col">
-              <span class="text-muted-foreground text-[11px]">class="w-1/2" — any width class</span>
-              <Separator class="w-1/2" />
+            <div class={cx(rt.flex, rt.col)}>
+              <span class={cx(rt.note11)}>class={cx(rt.sepWHalf)} — any width class</span>
+              <Separator class={cx(rt.sepWHalf)} />
             </div>
-            <div class="flex flex-col">
-              <span class="text-muted-foreground text-[11px]">class="my-6" — length is also rhythm</span>
-              <Separator class="my-6" />
+            <div class={cx(rt.flex, rt.col)}>
+              <span class={cx(rt.note11)}>class={cx(rt.sepMy24)} — length is also rhythm</span>
+              <Separator class={cx(rt.sepMy24)} />
             </div>
-            <div class="flex h-8 items-stretch gap-4 text-[13px]">
+            <div class={cx(rt.sepRow8)}>
               <span>h-8 row</span>
               <Separator orientation="vertical" />
               <span>the rule fills the cross axis</span>
@@ -312,17 +329,17 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two postures: the native hr for thematic breaks, the ARIA div for inline peer splits.">
     <ComponentCanvas title="separator · types" stage="center" files={separatorTypesFiles}>
-      <div class="flex flex-wrap items-start gap-6">
-        <div class="flex min-w-56 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">horizontal (default)</span><Separator /><span class="text-muted-foreground text-[12.5px]">the native hr — thematic break between blocks</span></div>
-        <div class="flex min-w-56 flex-col items-center gap-3 border border-border p-4"><span class="font-nav text-primary self-start text-[11px] uppercase tracking-[0.24em]">vertical</span><div class="flex h-10 items-stretch gap-4 text-[13px]"><span>first</span><Separator orientation="vertical" /><span>second</span></div><span class="text-muted-foreground self-start text-[12.5px]">role=separator div — splits inline peers, stretches the cross axis</span></div>
+      <div class={cx(rt.wrapStart24)}>
+        <div class={cx(rt.col12, rt.sepMinW56, rt.panel)}><span class={cx(rt.eyebrowPrimary)}>horizontal (default)</span><Separator /><span class={cx(rt.inkMuted, rt.text125)}>the native hr — thematic break between blocks</span></div>
+        <div class={cx(rt.col12, rt.itemsCenter, rt.sepMinW56, rt.panel)}><span class={cx(rt.eyebrowPrimary, rt.sepSelfStart)}>vertical</span><div class={cx(rt.sepRow10)}><span>first</span><Separator orientation="vertical" /><span>second</span></div><span class={cx(rt.inkMuted, rt.sepSelfStart, rt.text125)}>role=separator div — splits inline peers, stretches the cross axis</span></div>
       </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="One prop, no length API on purpose — length is your layout's job."><CodeBlock code={usage} lang="svelte" meta="Separator usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Horizontal needs no ARIA at all — the browser announces hr natively; vertical carries the WAI-ARIA separator pattern."><A11yTable keys={[]} aria={[{ name: 'hr', value: 'native', description: 'Announced as a separator/thematic break by the platform — zero wiring owed' }, { name: 'role', value: 'separator', description: 'On the vertical path only (component-owned, not overridable)' }, { name: 'aria-orientation', value: '"vertical"', description: 'Set with the role on the vertical path' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No color decision of its own — the ink is physics, not palette: the contrast ghost adapts to whatever ground it crosses, the blend fade inverts it, and the one plain fill (solid) simply reads the --border token. Length comes from layout."><div class="flex flex-col gap-6"><DensityDemo><div class="flex h-8 items-stretch gap-4 text-[13px]"><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: 'contrast ghost', default: 'backdrop-filter: contrast(0.5)', source: 'ink engine', description: 'The default ink — the backdrop\'s own tonal shift, over any ground' }, { name: 'blend fade', default: 'mix-blend-mode: difference', source: 'ink engine', description: 'The alpha-ramped gradient inverts the backdrop toward mid: transparent → light → dark → light → transparent' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No color decision of its own — the ink is physics, not palette: the contrast ghost adapts to whatever ground it crosses, the blend fade inverts it, and the one plain fill (solid) simply reads the --border token. Length comes from layout."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.sepRow8)}><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: 'contrast ghost', default: 'backdrop-filter: contrast(0.5)', source: 'ink engine', description: 'The default ink — the backdrop\'s own tonal shift, over any ground' }, { name: 'blend fade', default: 'mix-blend-mode: difference', source: 'ink engine', description: 'The alpha-ramped gradient inverts the backdrop toward mid: transparent → light → dark → light → transparent' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div. The mask axis swaps with it.' }, { name: 'variant', type: "'fused' | 'solid' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade'", default: "'fused' · Own default, not ambient", description: 'The ink geometry: fused is the bare contrast ghost (the named default); dashed (6/4), dense (3/3), dotted and wavy are masks over it; fade rides the blend engine; solid is the plain-fill var(--border) escape — the subtraction-ink exception (Owner 2026-09-08). Own default, not ambient (ink geometry is never a paint-zone rung).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
 </div>

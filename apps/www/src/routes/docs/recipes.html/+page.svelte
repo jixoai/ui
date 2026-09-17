@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -113,6 +114,22 @@ const watermarkRecipe =
   ];
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? watermarkUsage : file.content;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -124,12 +141,12 @@ const watermarkRecipe =
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -138,7 +155,7 @@ const watermarkRecipe =
       title="where wrapping stops"
       summary="Four shadcn items are deliberately NOT components here — each ruling from the batch-4 design review: the platform already owns it (aspect-ratio), composition IS the product (data-table, sidebar), or the honest surface is a semantic table (chart until an SVG-primitive lib earns its place). The recipes below are the contract, and they are runnable — the watermark one runs live in the workbench."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">aspect-ratio = CSS</span>
         <span class="pill">data-table = composition</span>
         <span class="pill">chart = semantic first</span>
@@ -159,17 +176,17 @@ const watermarkRecipe =
       output={[{ label: 'text', value: wmText || '—' }]}
       resolveFileContent={resolveUsage}
     >
-      <div class="jx-wm-stage w-full max-w-[38rem]">
-        <div class="flex flex-col items-start gap-4">
-          <p class="text-[13px] leading-6">
+      <div class={cx('jx-wm-stage', rt.wFull, rt.rcpMax38)}>
+        <div class={cx(rt.col16, rt.itemsStart)}>
+          <p class={cx(rt.body13)}>
             the protected surface — select this text, click the button: input passes through the
             overlay untouched.
           </p>
-          <div class="flex flex-wrap items-center gap-3">
-            <span class="border-border size-10 border" style="background: var(--primary)"></span>
-            <span class="border-border size-10 border" style="background: var(--secondary)"></span>
-            <span class="border-border size-10 border" style="background: var(--accent)"></span>
-            <span class="text-muted-foreground text-[10.5px]">brand primaries under the layer</span>
+          <div class={cx(rt.wrapRow12)}>
+            <span class={cx(rt.frame, rt.rcpSize10)} style="background: var(--primary)"></span>
+            <span class={cx(rt.frame, rt.rcpSize10)} style="background: var(--secondary)"></span>
+            <span class={cx(rt.frame, rt.rcpSize10)} style="background: var(--accent)"></span>
+            <span class={cx(rt.inkMuted, rt.text105)}>brand primaries under the layer</span>
           </div>
           <PressButton variant="outline">an interactive child</PressButton>
         </div>
@@ -378,7 +395,7 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
       title="mentions — not covered, by ruling"
       summary="Mentions (caret tracking, trigger characters, token insertion/deletion, IME coordination) is a different state machine from a whole-field combobox. The combobox is an adjacent foundation, NOT a mentions replacement — recorded as an honest boundary, no fake 1:1 recipe."
     >
-      <p class="text-[12.5px] text-muted-foreground">
+      <p class={cx(rt.inkMuted, rt.text125)}>
         boundary: no component, no mapping — until a real use case funds the deep design.
       </p>
     </SectionCard>
@@ -392,7 +409,7 @@ Search hits render as <mark>match</mark> — native emphasis semantics.`}
       title="tour — deferred with its design contract on record"
       summary="Deferred to its own deep-design batch (the ruling). The contract when it lands: anchor-name injection as a reversible per-instance LEASE on the target (set on open/step, restored on close/unmount — the same class of wiring as popovertarget, not style-writing); the highlight is CSS-anchor + a target-sized transparent hole + one huge box-shadow (no geometry JS, no four-block mask); popover=manual + role=dialog + aria-modal=false — non-modal, page scrollable, default scrim pointer-events:none; per-step target re-resolution with deterministic skip when unavailable; Escape/Skip ends and restores the invoker focus."
     >
-      <p class="text-[12.5px] text-muted-foreground">
+      <p class={cx(rt.inkMuted, rt.text125)}>
         this card IS the contract — tour lands only against it, in its own batch.
       </p>
     </SectionCard>

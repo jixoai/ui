@@ -17,6 +17,7 @@
   // gallery cells are static literals BY LAW (the scanner's own
   // dogfood) — extraction just quotes them back.
   import { resolveRawCode } from 'virtual:jixoai-canvas/docs/icons.html/+page';
+  import { rt } from '$lib/surface/routes.stylex';
 
   const sizesUsage = usageFile({ Icon: '@ui/icon' }, resolveRawCode('sizes'));
   const channelGalleryUsage = usageFile({ Icon: '@ui/icon' }, resolveRawCode('channel-gallery'));
@@ -514,6 +515,23 @@ plain beside a stock ink is impossible by construction.`;
   const demoOverride = toDataUri(CHECK_SOURCE);
 
   const SEARCH_PAINT = 'background-color: currentColor; -webkit-mask: var(--jx-icon-search) center / contain no-repeat; mask: var(--jx-icon-search) center / contain no-repeat;';
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -524,8 +542,8 @@ plain beside a stock ink is impossible by construction.`;
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -534,7 +552,7 @@ plain beside a stock ink is impossible by construction.`;
         title="icons — one pipeline, two faces, one component"
         summary="Every glyph in jixoai ships from one generator with two consumption faces. The component face: <Icon name> renders the generated set through a closed IconName union — a typo is a compile error, the inline core paints synchronously (SSR-safe), lazy overflow reserves its box and warms through preloadIcons. The slot face: the --jx-icon-* CSS vocabulary the form sheet paints through mask and background-image, with an ink matrix for UA-shadow pseudos that reject author paint. The vite plugin feeds both — jixoai(&#123; icons &#125;) with a library face and a provider face that share nothing but the safety checker."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">&lt;Icon name> · IconName union</span>
           <span class="pill">ICON_NAMES — built-ins + scanned channels</span>
           <span class="pill">inline core · SSR-safe</span>
@@ -545,7 +563,7 @@ plain beside a stock ink is impossible by construction.`;
       </SectionCard>
     </div>
 
-    <div data-reveal="" class="flex flex-col gap-3">
+    <div data-reveal="" class={cx(rt.col12)}>
       <DocsInstall name="icon" />
       <DocsInstall name="icon-set" />
     </div>
@@ -558,7 +576,7 @@ plain beside a stock ink is impossible by construction.`;
         title="The Icon component — &lt;Icon name=&quot;…&quot; /&gt;"
         summary="The named-glyph renderer every component shares: name is the generated IconName union (a wrong name never ships — it fails the compile), the component owns the whole svg root (currentColor by artwork nature, aria-hidden baked in), and size / strokeWidth are props, never wrapper CSS. The full API table, the interactive playground and the async-paths walkthrough live on the component's own page."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <ComponentCanvas
             id="sizes"
             title="the size ladder — one prop, four cells"
@@ -566,27 +584,27 @@ plain beside a stock ink is impossible by construction.`;
             files={sizesFiles}
             stage="center"
           >
-            <div class="flex flex-wrap items-end justify-center gap-x-10 gap-y-5" data-icon-size-demo="">
-              <div class="flex flex-col items-center gap-2">
+            <div class={cx(rt.flex, rt.wrap, rt.itemsEnd, rt.justifyCenter, rt.gapX10, rt.gapY20)} data-icon-size-demo="">
+              <div class={cx(rt.col8, rt.itemsCenter)}>
                 <Icon name="eye" size={12} />
-                <code class="text-muted-foreground font-mono text-[11px]">size={12}</code>
+                <code class={cx(rt.note11, rt.fontMono)}>size={12}</code>
               </div>
-              <div class="flex flex-col items-center gap-2">
+              <div class={cx(rt.col8, rt.itemsCenter)}>
                 <Icon name="eye" size={16} />
-                <code class="text-muted-foreground font-mono text-[11px]">size={16}</code>
+                <code class={cx(rt.note11, rt.fontMono)}>size={16}</code>
               </div>
-              <div class="flex flex-col items-center gap-2">
+              <div class={cx(rt.col8, rt.itemsCenter)}>
                 <Icon name="eye" size={24} />
-                <code class="text-muted-foreground font-mono text-[11px]">size={24}</code>
+                <code class={cx(rt.note11, rt.fontMono)}>size={24}</code>
               </div>
-              <div class="flex flex-col items-center gap-2">
+              <div class={cx(rt.col8, rt.itemsCenter)}>
                 <Icon name="eye" size={32} />
-                <code class="text-muted-foreground font-mono text-[11px]">size={32}</code>
+                <code class={cx(rt.note11, rt.fontMono)}>size={32}</code>
               </div>
             </div>
           </ComponentCanvas>
           <a
-            class="text-accent w-fit text-[13px] underline underline-offset-2"
+            class={cx(rt.linkAccent, rt.wFit, rt.text13)}
             href="/docs/components/icon.html"
           >
             icon — the component page: playground, PropsTable, type-safety &amp; async paths →
@@ -603,35 +621,35 @@ plain beside a stock ink is impossible by construction.`;
         title="The named library — ICON_NAMES"
         summary="{ICON_NAMES.length} names, generated. This grid walks ICON_NAMES itself: a glyph added to the library config — or a channel ref scanned from this site's own source — regenerates icon-set.gen.ts and appears here with ZERO page edit — the grid can never lie about the set. The prefixed names below (md:/ph:/rx:/lucide:) are the scanner's own findings: the literals live in this page's source. Every cell renders the real component (the same <Icon name> above); the label is the IconName you type."
       >
-        <div class="flex flex-col gap-5">
-          <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" data-named-icon-grid="">
+        <div class={cx(rt.col20)}>
+          <ul class={cx(rt.icGrid)} data-named-icon-grid="">
             {#each ICON_NAMES as name (name)}
               <li
-                class="border-border/60 bg-card/40 flex items-center gap-3 border px-3 py-2"
+                class={cx(rt.rowC12, rt.frame60, rt.bgCard40, rt.px12, rt.py8)}
                 data-icon-name={name}
               >
-                <span class="text-foreground shrink-0"><Icon name={name} size={18} /></span>
-                <span class="flex min-w-0 flex-col">
-                  <code class="font-mono text-[12.5px] leading-5">{name}</code>
-                  <code class="text-muted-foreground font-mono text-[10.5px] leading-4">{'<Icon name="' + name + '" />'}</code>
+                <span class={cx(rt.inkFg, rt.shrink0)}><Icon name={name} size={18} /></span>
+                <span class={cx(rt.flex, rt.minW0, rt.col)}>
+                  <code class={cx(rt.fontMono, rt.text125, rt.lead5)}>{name}</code>
+                  <code class={cx(rt.inkMuted, rt.fontMono, rt.text105, rt.lead4)}>{'<Icon name="' + name + '" />'}</code>
                 </span>
               </li>
             {/each}
           </ul>
-          <p class="text-muted-foreground text-[13px] leading-6">
-            Generated by the root <code class="text-accent">gen:icons</code> script (the repo's
-            single writer — the <code class="text-accent">verify:icons</code> gate fails the build
+          <p class={cx(rt.bodyMuted)}>
+            Generated by the root <code class={cx(rt.inkAccent)}>gen:icons</code> script (the repo's
+            single writer — the <code class={cx(rt.inkAccent)}>verify:icons</code> gate fails the build
             the moment the committed artifact drifts from the library config), mirrored byte-identical
-            into <code class="text-accent">$lib/icon-set.gen</code>. Names resolve synchronously
-            through <code class="text-accent">getIcon()</code> in the inline core; the full union
-            rides <code class="text-accent">IconName</code>, the iterable rides
-            <code class="text-accent">ICON_NAMES</code>.
+            into <code class={cx(rt.inkAccent)}>$lib/icon-set.gen</code>. Names resolve synchronously
+            through <code class={cx(rt.inkAccent)}>getIcon()</code> in the inline core; the full union
+            rides <code class={cx(rt.inkAccent)}>IconName</code>, the iterable rides
+            <code class={cx(rt.inkAccent)}>ICON_NAMES</code>.
           </p>
         </div>
       </SectionCard>
     </div>
 
-    <div id="plugin" data-reveal="" class="flex flex-col gap-8">
+    <div id="plugin" data-reveal="" class={cx(rt.col32)}>
       <SectionCard
         family="plugin"
         headerRegion="plugin"
@@ -639,34 +657,34 @@ plain beside a stock ink is impossible by construction.`;
         title="jixoai(&#123; icons: &#123; library &#125; &#125;) — the generator's knobs"
         summary="The library face answers what &lt;Icon name&gt; can render. Sources arrive five ways — an inline SVG literal, &#123; file &#125; (the plugin owns ALL file I/O), a lucide: ref resolved at build time so the emitted artifact carries zero lucide references, a channel ref (md:/ph:/rx:/your own) resolving ONE icon from a registered channel, or a font file whose glyph outline is extracted at build time. Same-name entries OVERRIDE built-ins; every icon crosses the raw safety checker before svgo. Without the icons option the plugin never loads; provider and library are independent — either alone is legal."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={libraryConfig} lang="ts" meta="vite.config.ts" />
-          <table class="w-full border-collapse text-left">
+          <table class={cx(rt.tableShell)}>
             <thead>
-              <tr class="border-b border-border">
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Option</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Default</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">What it does</th>
+              <tr class={cx(rt.bBorder)}>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Option</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Default</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>What it does</th>
               </tr>
             </thead>
             <tbody>
               {#each libraryOptions as row (row.option)}
-                <tr class="border-b border-border/50">
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.option}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.def}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.what}</td>
+                <tr class={cx(rt.bBorder50)}>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar, rt.nowrap)}>{row.option}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar2, rt.inkMuted, rt.nowrap)}>{row.def}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>{row.what}</td>
                 </tr>
               {/each}
             </tbody>
           </table>
-          <p class="text-muted-foreground text-[13px] leading-6">
-            <code class="text-accent">write</code> stays <code class="text-accent">false</code>
+          <p class={cx(rt.bodyMuted)}>
+            <code class={cx(rt.inkAccent)}>write</code> stays <code class={cx(rt.inkAccent)}>false</code>
             everywhere in this repo: the vite adapter serves the lazy chunks as virtual modules
-            (<code class="text-accent">virtual:jixoai-icons/chunk/K</code>) and drift-warns in dev —
-            the root <code class="text-accent">gen:icons</code> script is the one writer of the
+            (<code class={cx(rt.inkAccent)}>virtual:jixoai-icons/chunk/K</code>) and drift-warns in dev —
+            the root <code class={cx(rt.inkAccent)}>gen:icons</code> script is the one writer of the
             canonical artifact (the single-writer law). Consumer apps may opt into
-            <code class="text-accent">write: true</code> + their own
-            <code class="text-accent">output</code> for dev ergonomics.
+            <code class={cx(rt.inkAccent)}>write: true</code> + their own
+            <code class={cx(rt.inkAccent)}>output</code> for dev ergonomics.
           </p>
         </div>
       </SectionCard>
@@ -678,40 +696,40 @@ plain beside a stock ink is impossible by construction.`;
         title="Icon libraries as channels — one import, one ref each"
         summary="library.channels registers icon channels; each channel contributes a prefixed reference form that resolves exactly ONE icon at build time through the same safety→svgo→extract pipeline — no bulk bundling, per-icon nature detection. Every channel package is an optional peer: absent installs fail loudly with the npm install line, and referencing a prefix you have not enabled is a named startup error listing the enabled set. The shipped channels import from their OWN sub-entries of the same package — lucide is the default-registered one (zero-import) and yours ride the very same defineIconChannel base."
       >
-        <div class="flex flex-col gap-5" data-channel-table="">
-          <table class="w-full border-collapse text-left">
+        <div class={cx(rt.col20)} data-channel-table="">
+          <table class={cx(rt.tableShell)}>
             <thead>
-              <tr class="border-b border-border">
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Channel</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Ref form</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Sub-entry</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Package (optional peer)</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">License</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Default mapping</th>
+              <tr class={cx(rt.bBorder)}>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Channel</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Ref form</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Sub-entry</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Package (optional peer)</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>License</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Default mapping</th>
               </tr>
             </thead>
             <tbody>
               {#each channelRows as row (row.id)}
-                <tr class="border-b border-border/50">
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.id}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.prefix}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.entry}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.pkg}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.license}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.mapping}</td>
+                <tr class={cx(rt.bBorder50)}>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar, rt.nowrap)}>{row.id}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar, rt.nowrap)}>{row.prefix}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar2, rt.inkMuted, rt.nowrap)}>{row.entry}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar2, rt.inkMuted, rt.nowrap)}>{row.pkg}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar2, rt.inkMuted, rt.nowrap)}>{row.license}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>{row.mapping}</td>
                 </tr>
               {/each}
             </tbody>
           </table>
           <CodeBlock code={channelConfig} lang="ts" meta="channels: [md(), ph(), rx()]" />
-          <div class="flex flex-col gap-4">
-            <p class="text-muted-foreground text-[13px] leading-6">
+          <div class={cx(rt.col16)}>
+            <p class={cx(rt.bodyMuted)}>
               Rendered live, from THIS site's own build — not stock artwork. The cells below are the
-              real <code class="text-accent">&lt;Icon name&gt;</code> component resolving channel refs the
+              real <code class={cx(rt.inkAccent)}>&lt;Icon name&gt;</code> component resolving channel refs the
               scanner collected out of this very page's source (and the vite config you would read
               alongside it registers the channels for real). The last pair is the equivalence law,
-              visible: the scanned <code class="text-accent">lucide:check</code> cell renders the
-              SAME glyph as the built-in <code class="text-accent">check</code> cell beside it —
+              visible: the scanned <code class={cx(rt.inkAccent)}>lucide:check</code> cell renders the
+              SAME glyph as the built-in <code class={cx(rt.inkAccent)}>check</code> cell beside it —
               one payload, an EQUIVALENCES row chaining the lookups. The source is the reference:
               an AI reading apps/www/vite.config.ts + this file sees the capability exercised
               end-to-end.
@@ -723,62 +741,62 @@ plain beside a stock ink is impossible by construction.`;
               files={channelGalleryFiles}
               stage="fill"
             >
-              <div class="flex flex-col gap-3" data-channel-gallery="">
+              <div class={cx(rt.col12)} data-channel-gallery="">
                 <!-- STATIC literals by law: the scanner collects static
                      name="…" attributes only — a dynamic name={expr} here
                      would be unpacked at runtime (the runtime lane), not
                      scanned. These six cells ARE the dogfood. -->
-                <div class="flex flex-wrap gap-3">
-                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:home">
+                <div class={cx(rt.wrap12)}>
+                  <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="md:home">
                     <Icon name="md:home" size={24} />
-                    <code class="text-muted-foreground font-mono text-[11px]">md:home</code>
-                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · outlined/400</span>
+                    <code class={cx(rt.note11, rt.fontMono)}>md:home</code>
+                    <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>material · outlined/400</span>
                   </div>
-                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:copy_all">
+                  <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="md:copy_all">
                     <Icon name="md:copy_all" size={24} />
-                    <code class="text-muted-foreground font-mono text-[11px]">md:copy_all</code>
-                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · snake_case</span>
+                    <code class={cx(rt.note11, rt.fontMono)}>md:copy_all</code>
+                    <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>material · snake_case</span>
                   </div>
-                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="ph:atom">
+                  <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="ph:atom">
                     <Icon name="ph:atom" size={24} />
-                    <code class="text-muted-foreground font-mono text-[11px]">ph:atom</code>
-                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">phosphor · regular</span>
+                    <code class={cx(rt.note11, rt.fontMono)}>ph:atom</code>
+                    <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>phosphor · regular</span>
                   </div>
-                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="rx:system:add-line">
+                  <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="rx:system:add-line">
                     <Icon name="rx:system:add-line" size={24} />
-                    <code class="text-muted-foreground font-mono text-[11px]">rx:system:add-line</code>
-                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">remix · category-prefixed</span>
+                    <code class={cx(rt.note11, rt.fontMono)}>rx:system:add-line</code>
+                    <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>remix · category-prefixed</span>
                   </div>
-                  <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="check">
+                  <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="check">
                     <Icon name="check" size={24} />
-                    <code class="text-muted-foreground font-mono text-[11px]">check</code>
-                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · built-in</span>
+                    <code class={cx(rt.note11, rt.fontMono)}>check</code>
+                    <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>lucide · built-in</span>
                   </div>
-                  <div class="border-primary/40 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="lucide:check">
+                  <div class={cx(rt.col8, rt.framePrimary40, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="lucide:check">
                     <Icon name="lucide:check" size={24} />
-                    <code class="text-muted-foreground font-mono text-[11px]">lucide:check</code>
-                    <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · equivalence → check</span>
+                    <code class={cx(rt.note11, rt.fontMono)}>lucide:check</code>
+                    <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>lucide · equivalence → check</span>
                   </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-3 border-border border p-4" data-alias-demo="">
+                <div class={cx(rt.rowC12, rt.panel, rt.wrap)} data-alias-demo="">
                   <Icon name="md:copy_all as copy2" size={20} />
                   <Icon name="copy2" size={20} />
-                  <span class="text-muted-foreground text-[13px] leading-6">
-                    the <code class="text-accent">as</code> form, live: the left cell writes the full literal, the right
+                  <span class={cx(rt.bodyMuted)}>
+                    the <code class={cx(rt.inkAccent)}>as</code> form, live: the left cell writes the full literal, the right
                     resolves the alias — ONE packed payload, three legal spellings (the artifact's ALIASES row)
                   </span>
                 </div>
               </div>
             </ComponentCanvas>
           </div>
-          <div class="border-border flex flex-col gap-2 border p-4" data-not-shipped-note="">
-            <p class="font-nav text-[11px] uppercase tracking-[0.24em]">not shipped — and why</p>
-            <p class="text-[13px] leading-6">
+          <div class={cx(rt.col8, rt.panel)} data-not-shipped-note="">
+            <p class={cx(rt.eyebrow)}>not shipped — and why</p>
+            <p class={cx(rt.body13)}>
               <strong>tabler</strong> and <strong>hugeicons</strong> ship no per-icon SVG source
               package on npm (tabler's SVGs are repo-only; hugeicons is JS data, not files) — a
               channel needs a node-resolvable .svg per icon, so both are out until that changes.
             </p>
-            <p class="text-[13px] leading-6">
+            <p class={cx(rt.body13)}>
               <strong>SF Symbols is rejected on licensing</strong>
               <span aria-hidden="true">—</span> Apple's system-provided image terms restrict the
               glyphs to Apple-platform apps and prohibit SVG export or redistribution. Shipping a
@@ -796,16 +814,16 @@ plain beside a stock ink is impossible by construction.`;
         title="defineIconChannel — one call replaces per-icon config"
         summary="The channel is the product: the same base every shipped lane rides is public. ONE defineIconChannel call — an id, a prefix, an optional peer package, and a resolveFile mapping — registers a myco: namespace that works everywhere a built-in prefix does: config refs, source scanning, the IconName template union, and the enabled-prefix laws. The channel LOCATES the artwork (node resolution); the plugin still owns the READ and the shared safety→svgo→extract pipeline — your channel inherits the built-ins' guarantees by construction."
       >
-        <div class="flex flex-col gap-5" data-define-channel-docs="">
+        <div class={cx(rt.col20)} data-define-channel-docs="">
           <CodeBlock code={defineChannelSnippet} lang="ts" meta="vite.config.ts — the myco: channel" />
-          <p class="text-muted-foreground text-[13px] leading-6">
-            Grammar: the prefix matches <code class="text-accent">/^[a-z][a-z0-9]*$/</code> and the
-            id <code class="text-accent">/^[a-z][a-z0-9-]*$/</code>; both <code class="text-accent">lucide</code>
+          <p class={cx(rt.bodyMuted)}>
+            Grammar: the prefix matches <code class={cx(rt.inkAccent)}>/^[a-z][a-z0-9]*$/</code> and the
+            id <code class={cx(rt.inkAccent)}>/^[a-z][a-z0-9-]*$/</code>; both <code class={cx(rt.inkAccent)}>lucide</code>
             spellings are reserved (the default-registered channel owns them), and duplicate ids or
             prefixes fail at startup naming both entries. v1 channels are FILE-BACKED
-            (<code class="text-accent">resolveFile</code> → .svg); lucide's IconNode lane is the
+            (<code class={cx(rt.inkAccent)}>resolveFile</code> → .svg); lucide's IconNode lane is the
             one documented built-in asymmetry. Sub-entry imports stay pure: the
-            <code class="text-accent">…/icons/channel</code> graph reaches no lucide/svgo/opentype
+            <code class={cx(rt.inkAccent)}>…/icons/channel</code> graph reaches no lucide/svgo/opentype
             code, so configuring channels costs nothing at import time.
           </p>
         </div>
@@ -818,32 +836,32 @@ plain beside a stock ink is impossible by construction.`;
         title="The battle-tested reference — examples/hmos-icons"
         summary="A committed consumer project, not a fixture: plain Vite + Svelte, the registry icon component, and one channel over a REAL third-party set — an 11-file HarmonyOS subset (local archive, Sketch-export artwork). A gate installs it for real (the file: dependency on the built plugin), builds it twice (client + SSR), and asserts the FINAL OUTPUT only. Building it forced two production fixes worth reading before you ship your own channel."
       >
-        <div class="flex flex-col gap-5" data-battle-tested-docs="">
+        <div class={cx(rt.col20)} data-battle-tested-docs="">
           <CodeBlock code={hmosChannelSnippet} lang="ts" meta="the whole channel — no npm peer, local svgs" />
-          <div class="flex flex-col gap-4">
-            <p class="font-nav text-[11px] uppercase tracking-[0.24em]">what the exercise taught (both shipped as laws)</p>
-            <ul class="text-muted-foreground flex list-disc flex-col gap-2.5 pl-5 text-[13px] leading-6">
+          <div class={cx(rt.col16)}>
+            <p class={cx(rt.eyebrow)}>what the exercise taught (both shipped as laws)</p>
+            <ul class={cx(rt.col10, rt.bodyMuted, rt.listDisc, rt.pl20)}>
               <li>
-                <strong class="text-foreground">Sketch-export artwork is the norm, not the edge.</strong>
+                <strong class={cx(rt.inkFg)}>Sketch-export artwork is the norm, not the edge.</strong>
                 HarmonyOS-class sets are defs + mask + use, and svgo collapses each to
-                <code class="text-accent">defs + use</code> while minifying EVERY icon's id to the
+                <code class={cx(rt.inkAccent)}>defs + use</code> while minifying EVERY icon's id to the
                 same short token. Two laws came out of that: the RAW safety gate passes
-                same-document fragment references (<code class="text-accent">#frag</code>,
-                <code class="text-accent">xlink:href</code>, <code class="text-accent">xmlns</code>
+                same-document fragment references (<code class={cx(rt.inkAccent)}>#frag</code>,
+                <code class={cx(rt.inkAccent)}>xlink:href</code>, <code class={cx(rt.inkAccent)}>xmlns</code>
                 declarations) and rejects only external ones; and packed ids scope under the
                 canonical name at pack time, so two such icons on one page can never cross-resolve
                 their use elements.
               </li>
               <li>
-                <strong class="text-foreground">Static name literals are the scan surface.</strong>
+                <strong class={cx(rt.inkFg)}>Static name literals are the scan surface.</strong>
                 The example's preview column keeps literals in source; the moment a page moves to
                 dynamic name expressions, the icons silently leave the packed set. The derived
                 columns (nature, viewBox, payload, loading lane) come from the artifact at runtime —
-                the loading column honestly OBSERVES the 20<span class="px-[0.2em]" aria-hidden="true">·</span>KiB
+                the loading column honestly OBSERVES the 20<span class={cx(rt.icDotPad)} aria-hidden="true">·</span>KiB
                 budget split instead of hardcoding it.
               </li>
               <li>
-                <strong class="text-foreground">Assert the final output, never intermediates.</strong>
+                <strong class={cx(rt.inkFg)}>Assert the final output, never intermediates.</strong>
                 The gate cross-checks the built bundle against an independent svgo re-optimization
                 of the SOURCE svgs (not the committed artifact), executes the SSR bundle and asserts
                 the rendered document (real paths, id uniqueness, reserved boxes for lazy names),
@@ -852,29 +870,29 @@ plain beside a stock ink is impossible by construction.`;
               </li>
             </ul>
           </div>
-          <table class="w-full border-collapse text-left">
+          <table class={cx(rt.tableShell)}>
             <thead>
-              <tr class="border-b border-border">
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Read the source</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">What it proves</th>
+              <tr class={cx(rt.bBorder)}>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Read the source</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>What it proves</th>
               </tr>
             </thead>
             <tbody>
-              <tr class="border-b border-border/50">
-                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[12px] whitespace-nowrap">examples/hmos-icons/</td>
-                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">the whole consumer — README (provenance), vite.config.ts (write: true wiring), the icon table page</td>
+              <tr class={cx(rt.bBorder50)}>
+                <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.text12, rt.nowrap)}>examples/hmos-icons/</td>
+                <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>the whole consumer — README (provenance), vite.config.ts (write: true wiring), the icon table page</td>
               </tr>
-              <tr class="border-b border-border/50">
-                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[12px] whitespace-nowrap">…/src/lib/icons/hmos.ts</td>
-                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">the entire channel integration (quoted above)</td>
+              <tr class={cx(rt.bBorder50)}>
+                <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.text12, rt.nowrap)}>…/src/lib/icons/hmos.ts</td>
+                <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>the entire channel integration (quoted above)</td>
               </tr>
-              <tr class="border-b border-border/50">
-                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[12px] whitespace-nowrap">…/src/App.svelte</td>
-                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">static literals + runtime-derived columns; the budget split visible on the page</td>
+              <tr class={cx(rt.bBorder50)}>
+                <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.text12, rt.nowrap)}>…/src/App.svelte</td>
+                <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>static literals + runtime-derived columns; the budget split visible on the page</td>
               </tr>
-              <tr class="border-b border-border/50">
-                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[12px] whitespace-nowrap">packages/vite-plugin/test/icons/library/example-hmos.test.ts</td>
-                <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">the E2E gate — real install, dual builds, final-output assertions</td>
+              <tr class={cx(rt.bBorder50)}>
+                <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.text12, rt.nowrap)}>packages/vite-plugin/test/icons/library/example-hmos.test.ts</td>
+                <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>the E2E gate — real install, dual builds, final-output assertions</td>
               </tr>
             </tbody>
           </table>
@@ -888,39 +906,39 @@ plain beside a stock ink is impossible by construction.`;
         title="md:copy_all — scanned names, as aliases, three tiers of safety"
         summary="Registering a channel turns on a source scanner: static name=&quot;md:…&quot; literals in your .svelte/.ts/.js/.html files enter the set with ZERO configuration — and lucide: literals scan the same way (the default-registered channel rides the identical lane). The scanner has two entries that always agree — an eager project walk at build start (and inside gen:icons, so the committed artifact and the dev server can never diverge) and a dev transform collector whose findings refresh the artifact like a config edit. Unknown prefixes (fa:) are ignored fail-safe: they fail at the TYPE level instead. A ref the channel cannot resolve fails the build by name — never a silently blank glyph."
       >
-        <div class="flex flex-col gap-5" data-prefix-compiler-docs="">
+        <div class={cx(rt.col20)} data-prefix-compiler-docs="">
           <CodeBlock code={prefixCompilerSnippet} lang="svelte" meta="App.svelte — no declarations" />
-          <table class="w-full border-collapse text-left">
+          <table class={cx(rt.tableShell)}>
             <thead>
-              <tr class="border-b border-border">
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Tier</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">What it checks</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">How it fails</th>
+              <tr class={cx(rt.bBorder)}>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Tier</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>What it checks</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>How it fails</th>
               </tr>
             </thead>
             <tbody>
               {#each scanTiers as row (row.tier)}
-                <tr class="border-b border-border/50">
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.tier}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground whitespace-nowrap">{row.what}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.how}</td>
+                <tr class={cx(rt.bBorder50)}>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar, rt.nowrap)}>{row.tier}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted, rt.nowrap)}>{row.what}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>{row.how}</td>
                 </tr>
               {/each}
             </tbody>
           </table>
           <CodeBlock code={aliasArtifactSnippet} lang="ts" meta="as aliases + lucide equivalences — one payload each" />
-          <p class="text-muted-foreground text-[13px] leading-6">
-            The <code class="text-accent">as</code> form declares a local alias: 双键并存 — both keys
+          <p class={cx(rt.bodyMuted)}>
+            The <code class={cx(rt.inkAccent)}>as</code> form declares a local alias: 双键并存 — both keys
             coexist forever, your sources are <strong>never rewritten</strong>, and the scanned keys
             ride alongside hand-written ones. The payload packs <strong>exactly once</strong> under the
-            canonical <code class="text-accent">md:copy_all</code> key; each alias costs exactly one
+            canonical <code class={cx(rt.inkAccent)}>md:copy_all</code> key; each alias costs exactly one
             ALIASES-table row in the budget, and ICON_NAMES emits it adjacent to its ref. A scanned
-            <code class="text-accent">lucide:X</code> whose <code class="text-accent">X</code> is
+            <code class={cx(rt.inkAccent)}>lucide:X</code> whose <code class={cx(rt.inkAccent)}>X</code> is
             already packed dedupes identically through the separate EQUIVALENCES table — the
             gallery's lucide:check cell is that row, rendered. Collisions
             fail the build by name: an alias shadowing a declared name, two refs claiming one alias,
             or an alias breaking the camelCase law. Dynamic composition
-            (<code class="text-accent">{'name={`md:${iconKey}`}'}</code>) is intentionally unscanned
+            (<code class={cx(rt.inkAccent)}>{'name={`md:${iconKey}`}'}</code>) is intentionally unscanned
             — it rides the runtime lane above: getIcon() answers null, the component renders its
             reserved box, and loadIcon() explains both possible causes (artifact drift or a
             dynamic/never-scanned name).
@@ -935,11 +953,11 @@ plain beside a stock ink is impossible by construction.`;
         title="A font file is an icon source"
         summary="The missing lane from the original icon-direction brief, landed build-time-only: &#123; font, code &#125; extracts the codepoint's glyph outline and &#123; font, liga &#125; tries the ligature lookup (best-effort — opentype.js GSUB coverage is thin). The extracted outline normalizes through the exact contain-fit math the slot face's fontIconProvider uses, enters the artifact as fill-nature artwork, and the runtime stays pure SVG — SSR, print, no-JS and chunking guarantees unchanged."
       >
-        <div class="flex flex-col gap-5" data-font-source-docs="">
+        <div class={cx(rt.col20)} data-font-source-docs="">
           <CodeBlock code={fontSourceSnippet} lang="ts" meta="fonts → glyphs, at build time" />
-          <p class="text-muted-foreground text-[13px] leading-6">
-            The font file joins <code class="text-accent">watchFile</code> like any
-            <code class="text-accent">&#123; file &#125;</code> source — an edit re-extracts on the
+          <p class={cx(rt.bodyMuted)}>
+            The font file joins <code class={cx(rt.inkAccent)}>watchFile</code> like any
+            <code class={cx(rt.inkAccent)}>&#123; file &#125;</code> source — an edit re-extracts on the
             next HMR refresh. Codepoint mapping is the primary lane; a ligature the parser cannot
             resolve fails by name, listing the font's resolvable ligatures when the parser exposes
             them (else the glyph-name/cmap hint) — never a silent blank glyph.
@@ -954,32 +972,32 @@ plain beside a stock ink is impossible by construction.`;
         title="Two tiers — plugin-free by default"
         summary="The default tier installs and builds standalone: the committed artifact is the default-config output (38 built-ins, one inline chunk, ZERO lazy chunks), so the two registry items carry zero npm dependencies and zero virtual imports. The overflow tier kicks in the moment your config emits lazy chunks — and there the plugin becomes a documented PREREQUISITE, failing with one named build error instead of a silent 404."
       >
-        <div class="flex flex-col gap-5">
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="border-border flex flex-col gap-2 border p-4">
-              <p class="font-nav text-[11px] uppercase tracking-[0.24em]">default — plugin-free</p>
-              <p class="text-[13px] leading-6">
-                <code class="text-accent">npx jixoai-ui add icon</code> (pulls
-                <code class="text-accent">icon-set</code> + the theme) lands files that build with
+        <div class={cx(rt.col20)}>
+          <div class={cx(rt.gridSm2)}>
+            <div class={cx(rt.col8, rt.panel)}>
+              <p class={cx(rt.eyebrow)}>default — plugin-free</p>
+              <p class={cx(rt.body13)}>
+                <code class={cx(rt.inkAccent)}>npx jixoai-ui add icon</code> (pulls
+                <code class={cx(rt.inkAccent)}>icon-set</code> + the theme) lands files that build with
                 zero npm deps and zero virtual imports — every getIcon() call answers synchronously.
               </p>
             </div>
-            <div class="border-primary/40 flex flex-col gap-2 border p-4">
-              <p class="font-nav text-[11px] uppercase tracking-[0.24em]">overflow — plugin prerequisite</p>
-              <p class="text-[13px] leading-6">
-                Past the budget (big libraries, <code class="text-accent">inlineFirstChunk: false</code>)
+            <div class={cx(rt.col8, rt.framePrimary40, rt.p16)}>
+              <p class={cx(rt.eyebrow)}>overflow — plugin prerequisite</p>
+              <p class={cx(rt.body13)}>
+                Past the budget (big libraries, <code class={cx(rt.inkAccent)}>inlineFirstChunk: false</code>)
                 the artifact emits lazy imports of
-                <code class="text-accent">virtual:jixoai-icons/chunk/*</code> — wiring
-                <code class="text-accent">jixoai(&#123; icons: &#123; library &#125; &#125;)</code>
-                from <code class="text-accent">@jixoai/ui-vite-plugin</code> becomes REQUIRED.
+                <code class={cx(rt.inkAccent)}>virtual:jixoai-icons/chunk/*</code> — wiring
+                <code class={cx(rt.inkAccent)}>jixoai(&#123; icons: &#123; library &#125; &#125;)</code>
+                from <code class={cx(rt.inkAccent)}>@jixoai/ui-vite-plugin</code> becomes REQUIRED.
               </p>
             </div>
           </div>
           <CodeBlock code={OVERFLOW_SENTINEL} lang="text" meta="the named build error (byte-exact — never paraphrase it)" />
-          <p class="text-muted-foreground text-[13px] leading-6">
+          <p class={cx(rt.bodyMuted)}>
             The sentinel fires from the plugin's resolver when the plugin IS present but the library
             face is not configured, and again at runtime from the artifact's LAZY catch (with the
-            original error as <code class="text-accent">cause</code>). Plugin absent entirely:
+            original error as <code class={cx(rt.inkAccent)}>cause</code>). Plugin absent entirely:
             vite's generic unresolved-import error is unavoidable — wire the plugin first.
           </p>
         </div>
@@ -992,24 +1010,24 @@ plain beside a stock ink is impossible by construction.`;
         title="Inline core, lazy overflow"
         summary="The default case is synchronous: chunk 0 rides inline in the artifact, so SSR paints core glyphs in the server HTML and hydration matches with zero wiring. Lazy chunks exist only past the budget — they load through cached promises into a FIXED reserved box whose pending and rejected markup are identical (hydration never rewrites it), and preloadIcons warms them ahead of a mount."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={asyncLaw} lang="text" meta="the chunk law" />
-          <table class="w-full border-collapse text-left">
+          <table class={cx(rt.tableShell)}>
             <thead>
-              <tr class="border-b border-border">
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">chunking</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">inlineFirstChunk</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Layout</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Artifact imports</th>
+              <tr class={cx(rt.bBorder)}>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>chunking</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>inlineFirstChunk</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Layout</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Artifact imports</th>
               </tr>
             </thead>
             <tbody>
               {#each modeMatrix as row (row.chunking + row.inline)}
-                <tr class="border-b border-border/50">
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.chunking}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.inline}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.layout}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.imports}</td>
+                <tr class={cx(rt.bBorder50)}>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar, rt.nowrap)}>{row.chunking}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar2, rt.inkMuted, rt.nowrap)}>{row.inline}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>{row.layout}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>{row.imports}</td>
                 </tr>
               {/each}
             </tbody>
@@ -1018,7 +1036,7 @@ plain beside a stock ink is impossible by construction.`;
       </SectionCard>
     </div>
 
-    <div id="css-slots" data-reveal="" class="flex flex-col gap-8">
+    <div id="css-slots" data-reveal="" class={cx(rt.col32)}>
       <SectionCard
         family="css-slots"
         headerRegion="css-slots"
@@ -1026,14 +1044,14 @@ plain beside a stock ink is impossible by construction.`;
         title="--jx-icon-* — the mask / currentColor law"
         summary="The second face paints its icons as CSS, no component: one alpha-only URI per glyph, declared on the vocabulary sheet (the encoded stroke is an ALPHA SOURCE ONLY). Author-painted rules theme through mask + background-color: currentColor; UA-shadow pseudos that reject author mask paint take the -ink variants, and .dark / .jx-light flip the whole set to white/black ink. The glyph column below consumes the vocabulary face itself — a slot that changes geometry changes here with zero edit."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <IconTable rows={cssSlotRows} />
-          <p class="text-muted-foreground text-[13px] leading-6">
-            The <code class="text-accent">Overridable</code> column names the plugin CONCEPT slot:
+          <p class={cx(rt.bodyMuted)}>
+            The <code class={cx(rt.inkAccent)}>Overridable</code> column names the plugin CONCEPT slot:
             covering a concept re-bakes every variable it owns (the derived-ink law below). The
-            <code class="text-accent">palette</code> variable exists only as an inline mask fallback
+            <code class={cx(rt.inkAccent)}>palette</code> variable exists only as an inline mask fallback
             (no :root line — the wrapper paints
-            <code class="text-accent">var(--jx-icon-palette, …)</code>), so its glyph column mirrors
+            <code class={cx(rt.inkAccent)}>var(--jx-icon-palette, …)</code>), so its glyph column mirrors
             that same embedding expression.
           </p>
         </div>
@@ -1046,41 +1064,41 @@ plain beside a stock ink is impossible by construction.`;
         title="The slot pipeline — providers and concept slots"
         summary="The same jixoai(&#123; icons &#125;) call opens a second, independent face: a provider answers every concept slot with structured artwork, the serializer is the only code that generates CSS, and the safety checker runs before serialization in both modes — no unvalidated SVG ever reaches output. Opt-in with one feature flag; without the icons option the plugin never loads."
       >
-        <div class="flex flex-col gap-5">
-          <table class="w-full border-collapse text-left">
+        <div class={cx(rt.col20)}>
+          <table class={cx(rt.tableShell)}>
             <thead>
-              <tr class="border-b border-border">
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Provider</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Source</th>
-                <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Nature</th>
+              <tr class={cx(rt.bBorder)}>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Provider</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Source</th>
+                <th class={cx(rt.fontNav, rt.padStack, rt.padInset, rt.textVar2, rt.upper, rt.track14)}>Nature</th>
               </tr>
             </thead>
             <tbody>
               {#each providerRows as row (row.provider)}
-                <tr class="border-b border-border/50">
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">{row.provider}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[13px] text-muted-foreground">{row.source}</td>
-                  <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">{row.nature}</td>
+                <tr class={cx(rt.bBorder50)}>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar, rt.nowrap)}>{row.provider}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.text13, rt.inkMuted)}>{row.source}</td>
+                  <td class={cx(rt.padStack, rt.padInset, rt.fontMono, rt.textVar2, rt.inkMuted, rt.nowrap)}>{row.nature}</td>
                 </tr>
               {/each}
             </tbody>
           </table>
-          <p class="text-muted-foreground text-[13px] leading-6">
+          <p class={cx(rt.bodyMuted)}>
             Providers never touch the filesystem — the plugin owns ALL file I/O and hands loaded bytes
-            (and HMR watches) through a ProviderContext. <code class="text-accent">safety</code>
-            defaults to <code class="text-accent">warn</code>: a rejected icon logs and serves the
+            (and HMR watches) through a ProviderContext. <code class={cx(rt.inkAccent)}>safety</code>
+            defaults to <code class={cx(rt.inkAccent)}>warn</code>: a rejected icon logs and serves the
             standard layer's inline fallback (warn means don't crash the build, NOT let unvalidated
-            content through); pass <code class="text-accent">{`{ mode: 'error' }`}</code> — with
-            optional <code class="text-accent">maxBytes</code> (10KB) /
-            <code class="text-accent">maxPathCommands</code> (500) limits — to fail instead, e.g. for
+            content through); pass <code class={cx(rt.inkAccent)}>{`{ mode: 'error' }`}</code> — with
+            optional <code class={cx(rt.inkAccent)}>maxBytes</code> (10KB) /
+            <code class={cx(rt.inkAccent)}>maxPathCommands</code> (500) limits — to fail instead, e.g. for
             HTTP-sourced artwork.
           </p>
           <pre class="jx-derivation-diagram" aria-label="concept slot derivation diagram"><code>{derivationDiagram}</code></pre>
           <CodeBlock code={slotConfig} lang="ts" meta="vite.config.ts + app.css" />
-          <p class="text-muted-foreground text-[13px] leading-6">
-            <code class="text-accent">virtual:jixoai-icons</code> is the slot face's only injection
+          <p class={cx(rt.bodyMuted)}>
+            <code class={cx(rt.inkAccent)}>virtual:jixoai-icons</code> is the slot face's only injection
             path: the plugin serves it as a virtual CSS module
-            (<code class="text-accent">@layer theme</code> custom properties) for your CSS entry.
+            (<code class={cx(rt.inkAccent)}>@layer theme</code> custom properties) for your CSS entry.
             Watched sources invalidate the virtual module — HMR re-runs the provider with fresh
             bytes.
           </p>
@@ -1094,32 +1112,32 @@ plain beside a stock ink is impossible by construction.`;
         title="One wrapper, one override — a real repaint"
         summary="The vocabulary is plain CSS custom properties, so a scope can re-define one: the right box lives inside a wrapper that redefines --jx-icon-search (a style attribute — the same seam a plugin override writes at sheet scale). Both boxes paint through the identical mask expression; only the variable's value differs. No screenshots, no fakes — the browser repaints the pair live."
       >
-        <div class="grid gap-4 sm:grid-cols-2" data-icon-override-demo="">
-          <div class="border-border flex flex-col gap-3 border p-4">
-            <p class="font-nav text-[11px] uppercase tracking-[0.24em]">default — :root value</p>
-            <div class="flex items-center gap-3">
-              <span class="demo-glyph size-6" data-icon-demo-default="" aria-hidden="true" style={SEARCH_PAINT}></span>
-              <code class="text-muted-foreground font-mono text-[11.5px]">mask: var(--jx-icon-search)</code>
+        <div class={cx(rt.gridSm2)} data-icon-override-demo="">
+          <div class={cx(rt.col12, rt.panel)}>
+            <p class={cx(rt.eyebrow)}>default — :root value</p>
+            <div class={cx(rt.rowC12)}>
+              <span class="demo-glyph {cx(rt.icGlyph16)}" data-icon-demo-default="" aria-hidden="true" style={SEARCH_PAINT}></span>
+              <code class={cx(rt.inkMuted, rt.fontMono, rt.text115)}>mask: var(--jx-icon-search)</code>
             </div>
           </div>
           <div
-            class="border-primary/40 border p-4"
+            class={cx(rt.framePrimary40, rt.p16)}
             data-icon-override-scope=""
             style={'--jx-icon-search: ' + demoOverride}
           >
-            <p class="font-nav text-[11px] uppercase tracking-[0.24em]">overridden — wrapper scope</p>
-            <div class="flex items-center gap-3">
-              <span class="demo-glyph size-6" data-icon-demo-override="" aria-hidden="true" style={SEARCH_PAINT}></span>
-              <code class="text-muted-foreground font-mono text-[11.5px]">style=&quot;--jx-icon-search: url(…)&quot;</code>
+            <p class={cx(rt.eyebrow)}>overridden — wrapper scope</p>
+            <div class={cx(rt.rowC12)}>
+              <span class="demo-glyph {cx(rt.icGlyph16)}" data-icon-demo-override="" aria-hidden="true" style={SEARCH_PAINT}></span>
+              <code class={cx(rt.inkMuted, rt.fontMono, rt.text115)}>style=&quot;--jx-icon-search: url(…)&quot;</code>
             </div>
           </div>
         </div>
-        <p class="text-muted-foreground mt-5 text-[13px] leading-6">
+        <p class={cx(rt.bodyMuted, rt.mt20)}>
           Dogfood: this very site runs BOTH faces through the
-          <code class="text-accent">jixoai(&#123; icons &#125;)</code> pipeline — the slot face
+          <code class={cx(rt.inkAccent)}>jixoai(&#123; icons &#125;)</code> pipeline — the slot face
           paints the default box on the left in production (the site's build smoke-asserts it renders
           byte-equal to the shipped sheet), and the library face generated the very
-          <code class="text-accent">icon-set.gen</code> the grid above walks.
+          <code class={cx(rt.inkAccent)}>icon-set.gen</code> the grid above walks.
         </p>
       </SectionCard>
     </div>

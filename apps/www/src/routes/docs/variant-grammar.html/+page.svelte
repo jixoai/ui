@@ -1,5 +1,6 @@
 <script lang="ts">
   import Alert from '$lib/ui/alert/alert.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import Badge from '$lib/ui/badge/badge.svelte';
   import Blockquote from '$lib/ui/blockquote/blockquote.svelte';
   import Chip from '$lib/ui/chip/chip.svelte';
@@ -166,6 +167,23 @@ split — two utilities; both properties land:
   // the live dedupe demo's third badge (computed so the sample and the
   // stage can never disagree)
   const dedupedClass = cn('jx-hue-error', 'jx-hue-success');
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -176,8 +194,8 @@ split — two utilities; both properties land:
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -186,7 +204,7 @@ split — two utilities; both properties land:
         title="one ladder, four slots — and a TW4 plugin with zero JS"
         summary="Every painted surface in this registry answers two orthogonal questions. HOW LOUD is it? — the prominence ladder: fill, tonal, outline, ghost, plus fused (the backdrop-fusion rung, promoted 2026-09-08 — paint derived from the ground behind the element). WHAT DOES IT MEAN? — a hue injected into four global, inheritable slots (--jx-fill, --jx-fill-ink, --jx-tonal, --jx-outline). The old semantic-name variants (primary, secondary, destructive as prop values) are retired: they multiplied a color union into every component and fused prominence with meaning. The grammar keeps one small ladder per surface and moves intent to the call site — and since 2026-08-27 the curated intents ship as Tailwind v4 @utility rules authored inside the theme sheet itself: installing the theme IS installing the plugin. This page is the standard and the plugin's manual."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">4 rungs + 1 exception + 1 fusion</span>
           <span class="pill">4 hue slots</span>
           <span class="pill">@utility intent layer</span>
@@ -204,7 +222,7 @@ split — two utilities; both properties land:
         title="The ladder — fill, tonal, outline, ghost, fused"
         summary="Prominence is a ladder, and it is the ONLY thing the variant prop encodes. fill speaks loudest (solid ground, same-hue border, inverted ink); tonal is the tinted voice (a 12% tint of the hue); outline draws structure only (transparent ground, border-colored border); ghost is interactive chrome (transparent at rest, tonal on hover, geometry preserved through a transparent border). fused is the backdrop-fusion rung (2026-09-08): paint derived from the ground BEHIND the element — a transparent chip + a backdrop contrast filter pull whatever sits behind toward mid, so the band reads over any ground with zero color tokens; the quietest rung, no own color, the filter IS the frame (forced-colors repaints it CanvasText). link is deliberately NOT on the ladder — it is PressButton's one interaction exception: no frame, no press shadow, primary text, hover underline. Availability is per-component: banners never get fill (readability), badges never get ghost (they are display, not chrome), quotes stop at outline/tonal — quote readability excludes fill/ghost, and ghost is interactive-chrome vocabulary a static quote misuses (the Blockquote row joins the frozen availability table in the same two-rung shape as Alert)."
       >
-        <div class="flex flex-col gap-6">
+        <div class={cx(rt.col24)}>
           <ComponentCanvas
             id="ladder"
             title="the ladder — every rung, live"
@@ -213,10 +231,10 @@ split — two utilities; both properties land:
             stage="fill"
             scroll="grow"
           >
-            <div class="flex flex-col gap-6">
-              <div class="flex flex-col gap-3">
-                <span class="text-muted-foreground text-[11px]">PressButton — the full union (default: outline)</span>
-                <div class="flex flex-wrap items-center gap-3">
+            <div class={cx(rt.col24)}>
+              <div class={cx(rt.col12)}>
+                <span class={cx(rt.note11)}>PressButton — the full union (default: outline)</span>
+                <div class={cx(rt.rowC12, rt.wrap)}>
                   <PressButton variant="fill">deploy</PressButton>
                   <PressButton variant="tonal">preview</PressButton>
                   <PressButton variant="outline">cancel</PressButton>
@@ -224,26 +242,26 @@ split — two utilities; both properties land:
                   <PressButton variant="link">read the docs</PressButton>
                 </div>
               </div>
-              <div class="grid gap-6 min-[760px]:grid-cols-2">
-                <div class="flex flex-col gap-3">
-                  <span class="text-muted-foreground text-[11px]">Badge — fill / tonal (default) / outline</span>
-                  <div class="flex flex-wrap items-center gap-3">
+              <div class={cx(rt.grid760g24)}>
+                <div class={cx(rt.col12)}>
+                  <span class={cx(rt.note11)}>Badge — fill / tonal (default) / outline</span>
+                  <div class={cx(rt.rowC12, rt.wrap)}>
                     <Badge variant="fill">new</Badge>
                     <Badge>running</Badge>
                     <Badge variant="outline">beta</Badge>
                   </div>
-                  <span class="text-muted-foreground text-[11px]">
+                  <span class={cx(rt.note11)}>
                     Chip — all four rungs, control-scale on the hit lane
                   </span>
-                  <div class="flex flex-wrap items-center gap-3">
+                  <div class={cx(rt.rowC12, rt.wrap)}>
                     <Chip variant="fill">filter: owner</Chip>
                     <Chip>filter: open</Chip>
                     <Chip variant="outline">filter: label</Chip>
                     <Chip variant="ghost">clear filters</Chip>
                   </div>
                 </div>
-                <div class="flex flex-col gap-3">
-                  <span class="text-muted-foreground text-[11px]">
+                <div class={cx(rt.col12)}>
+                  <span class={cx(rt.note11)}>
                     Alert — outline (default) / tonal; Blockquote — outline (default) / tonal;
                     InlineCode — fused (default) / tonal / outline
                   </span>
@@ -262,7 +280,7 @@ split — two utilities; both properties land:
                     the rule itself is now the shadow channel (an inset rule at 1px by default, the
                     rule×size axis beside the rungs).
                   </Blockquote>
-                  <p class="text-[13px] leading-6">
+                  <p class={cx(rt.body13)}>
                     Inline code rides the same ladder:
                     <InlineCode>npm run verify</InlineCode> is the fused default (the band fused
                     from the backdrop behind it), and
@@ -329,7 +347,7 @@ split — two utilities; both properties land:
         title="The four tokens — global, inheritable, theme-owned"
         summary="Variant paint never names a color; it consumes four custom properties defined once on :root (and the byte-identical registry mirror). They are inheritable by nature: mount an injection on a subtree and every ladder consumer inside retunes. They are density-free: color only, no geometry. And the set is closed on purpose — there is no --jx-ghost (ghost derives its hover tint from --jx-tonal) and no --jx-tonal-ink (tonal text IS the hue)."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={tokenBlock} lang="css" meta="jixoai.css — live extract" />
           <TokenTable
             tokens={[
@@ -354,25 +372,25 @@ split — two utilities; both properties land:
               },
             ]}
           />
-          <div class="grid gap-5 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-3 text-[13px] leading-6">
-              <h3 class="text-[15px] font-bold">The color-mix math</h3>
-              <p class="text-muted-foreground">
+          <div class={cx(rt.grid760a)}>
+            <div class={cx(rt.col12, rt.body13)}>
+              <h3 class={cx(rt.title15Plain)}>The color-mix math</h3>
+              <p class={cx(rt.inkMuted)}>
                 tonal grounds at 12% of the hue over transparent, borders at 45%, and sets text to
                 the hue at 100% — one hue, three weights, no derived ink token needed. outline's
-                interactive hover adds an 8% overlay of <code class="text-accent">--jx-tonal</code>
+                interactive hover adds an 8% overlay of <code class={cx(rt.inkAccent)}>--jx-tonal</code>
                 with the border unchanged; ghost rests transparent and hovers to the same 8% ground
                 plus tonal ink. The mixes ride
-                <code class="text-accent">color-mix(in oklab, …)</code> so tints stay perceptual,
-                and the utilities emit <code class="text-accent">@supports</code> fallbacks to the
+                <code class={cx(rt.inkAccent)}>color-mix(in oklab, …)</code> so tints stay perceptual,
+                and the utilities emit <code class={cx(rt.inkAccent)}>@supports</code> fallbacks to the
                 plain var() for engines without color-mix.
               </p>
-              <h3 class="text-[15px] font-bold">The .pill lineage</h3>
-              <p class="text-muted-foreground">
+              <h3 class={cx(rt.title15Plain)}>The .pill lineage</h3>
+              <p class={cx(rt.inkMuted)}>
                 The recipe has a fossil in this very site: the item-name pill in the docs tables
                 hardcodes the 12%/45%/primary triple. The tonal rung is that pill with its hue
-                source generalized from <code class="text-accent">var(--primary)</code> to
-                <code class="text-accent">var(--jx-tonal)</code>.
+                source generalized from <code class={cx(rt.inkAccent)}>var(--primary)</code> to
+                <code class={cx(rt.inkAccent)}>var(--jx-tonal)</code>.
               </p>
             </div>
             <CodeBlock code={pillLineage} lang="css" meta="the ancestor" />
@@ -389,7 +407,7 @@ split — two utilities; both properties land:
         title="Semantic hue injection — meaning rides the slots"
         summary="A failed build is not a variant of loudness, so failure is not a variant name. Intent is expressed by injecting a semantic value into the slots, and ONE law governs the vocabulary: action vs status is MANDATORY. destructive is an ACTION hue — it may only ride the fill pair, on things that delete. error is a STATUS hue — it rides the tonal slot, on things that report. The split is not stylistic: destructive stays the theme's monochrome inversion pair (black-on-light, white-on-dark) while error is the red semantic — conflating them painted delete buttons red and failure banners inverted, both wrong."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <div class="table-scroll">
             <table class="data-table">
               <thead>
@@ -448,10 +466,10 @@ split — two utilities; both properties land:
             stage="fill"
             scroll="grow"
           >
-            <div class="grid gap-6 min-[760px]:grid-cols-2">
-              <div class="flex flex-col gap-3">
-                <span class="text-muted-foreground text-[11px]">STATUS hues — the tonal slot, reported states</span>
-                <div class="flex flex-wrap items-center gap-3">
+            <div class={cx(rt.grid760g24)}>
+              <div class={cx(rt.col12)}>
+                <span class={cx(rt.note11)}>STATUS hues — the tonal slot, reported states</span>
+                <div class={cx(rt.rowC12, rt.wrap)}>
                   <Badge class="jx-hue-neutral">draft</Badge>
                   <Badge class="jx-hue-error">failed</Badge>
                   <Badge shape="pill" class="jx-hue-success">
@@ -461,41 +479,41 @@ split — two utilities; both properties land:
                   <Badge class="jx-hue-warning">degraded</Badge>
                   <Badge class="jx-hue-info">canary</Badge>
                 </div>
-                <span class="text-muted-foreground text-[11px]">ACTION hue — the fill pair, verbs that destroy</span>
-                <div class="flex flex-wrap items-center gap-3">
+                <span class={cx(rt.note11)}>ACTION hue — the fill pair, verbs that destroy</span>
+                <div class={cx(rt.rowC12, rt.wrap)}>
                   <PressButton variant="fill" class="jx-pair-destructive">delete workspace</PressButton>
                   <PressButton variant="outline">cancel</PressButton>
                 </div>
-                <p class="text-muted-foreground text-[13px] leading-6">
-                  The pair law: <code class="text-accent">--jx-fill</code> and
-                  <code class="text-accent">--jx-fill-ink</code> are ALWAYS injected together — one
+                <p class={cx(rt.bodyMuted)}>
+                  The pair law: <code class={cx(rt.inkAccent)}>--jx-fill</code> and
+                  <code class={cx(rt.inkAccent)}>--jx-fill-ink</code> are ALWAYS injected together — one
                   without the other paints brand ink on a destructive ground.
                 </p>
               </div>
-              <div class="flex flex-col gap-3">
-                <span class="text-muted-foreground text-[11px]">
+              <div class={cx(rt.col12)}>
+                <span class={cx(rt.note11)}>
                   the same failure, both grammars — STATUS error (left) vs ACTION destructive (right)
                 </span>
-                <div class="grid gap-3">
+                <div class={cx(rt.grid, rt.gap12)}>
                   <Alert variant="tonal" assertive title="Canary failed">
                     The canary build errored on seat 3 — an error STATUS reads tonal + the error hue.
                   </Alert>
-                  <div class="flex flex-wrap items-center gap-3">
-                    <span class="text-muted-foreground text-[11px]">confirm the destructive action:</span>
+                  <div class={cx(rt.rowC12, rt.wrap)}>
+                    <span class={cx(rt.note11)}>confirm the destructive action:</span>
                     <PressButton variant="fill" class="jx-pair-destructive">discard changes</PressButton>
                   </div>
                 </div>
-                <span class="text-muted-foreground text-[11px]">
+                <span class={cx(rt.note11)}>
                   inheritance — one injection on the wrapper retunes every consumer below
                 </span>
-                <div class="jx-hue-info flex flex-wrap items-center gap-3">
+                <div class="jx-hue-info {cx(rt.rowC12, rt.wrap)}">
                   <Badge>info badge</Badge>
                   <Chip>info chip</Chip>
                   <PressButton variant="tonal">tonal button</PressButton>
                   <PressButton variant="outline">outline — hover me</PressButton>
                 </div>
-                <p class="text-muted-foreground text-[13px] leading-6">
-                  The wrapper carries <code class="text-accent">class="jx-hue-info"</code> — the
+                <p class={cx(rt.bodyMuted)}>
+                  The wrapper carries <code class={cx(rt.inkAccent)}>class="jx-hue-info"</code> — the
                   slots are ordinary custom properties, so the subtree inherits them; even the
                   outline rung's 8% hover overlay follows the retuned hue.
                 </p>
@@ -514,7 +532,7 @@ split — two utilities; both properties land:
         title="The intent layer — a Tailwind v4 plugin with zero JS"
         summary="The arbitrary-property seam (class with bracketed custom properties) works everywhere, but it is verbose, typo-fragile — a misspelled token still emits a well-formed rule that silently dead-styles — and its pair invariant was enforced only by prose. The fix is not a JavaScript plugin: the intent names are authored as TW4-native @utility rules INSIDE the theme sheet. Installing the theme IS installing the plugin; registry consumers need zero JS setup. The set is closed, so a typo matches nothing and emits nothing — a compile-time miss instead of silent dead CSS. And the emission is not an approximation: on the resolved Tailwind 4.3.3, @tailwindcss/node's candidatesToCss probes the @utility output as declaration-equivalent to the arbitrary-property form — identical declarations, predictably different selectors."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={utilityBlock} lang="css" meta="jixoai.css — live extract" />
           <div class="table-scroll">
             <table class="data-table">
@@ -569,7 +587,7 @@ split — two utilities; both properties land:
               </tbody>
             </table>
           </div>
-          <div class="grid gap-6 min-[760px]:grid-cols-2">
+          <div class={cx(rt.grid760g24)}>
             <ComponentCanvas
               id="intent-utilities"
               title="the intent layer — live"
@@ -577,9 +595,9 @@ split — two utilities; both properties land:
               files={intentUtilitiesFiles}
               stage="fill"
             >
-              <div class="flex flex-col gap-4">
-                <span class="text-muted-foreground text-[11px]">the closed set, live — every intent is one class</span>
-                <div class="flex flex-wrap items-center gap-3">
+              <div class={cx(rt.col16)}>
+                <span class={cx(rt.note11)}>the closed set, live — every intent is one class</span>
+                <div class={cx(rt.rowC12, rt.wrap)}>
                   <Badge class="jx-hue-primary">primary</Badge>
                   <Badge class="jx-hue-neutral">neutral</Badge>
                   <Badge class="jx-hue-error">error</Badge>
@@ -587,32 +605,32 @@ split — two utilities; both properties land:
                   <Badge class="jx-hue-warning">warning</Badge>
                   <Badge class="jx-hue-info">info</Badge>
                 </div>
-                <span class="text-muted-foreground text-[11px]">
+                <span class={cx(rt.note11)}>
                   jx-pair-destructive vs the arbitrary pair it replaces
                 </span>
-                <div class="flex flex-wrap items-center gap-3">
+                <div class={cx(rt.rowC12, rt.wrap)}>
                   <PressButton variant="fill" class="jx-pair-destructive">the pair utility</PressButton>
                   <PressButton
                     variant="fill"
-                    class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
+                    class={cx(rt.vgFillDestructive, rt.vgInkDestructive)}
                   >
                     the arbitrary pair
                   </PressButton>
                 </div>
-                <p class="text-muted-foreground text-[13px] leading-6">
+                <p class={cx(rt.bodyMuted)}>
                   Identical paint — but the utility cannot half-apply, cannot typo a token name, and
                   documents its intent in the class list.
                 </p>
-                <span class="text-muted-foreground text-[11px]">the escape hatch — anything outside the closed set</span>
-                <div class="flex flex-wrap items-center gap-3">
-                  <Badge class="[--jx-tonal:oklch(0.72_0.14_300)]">untitled violet</Badge>
-                  <span class="text-muted-foreground text-[11px]">
+                <span class={cx(rt.note11)}>the escape hatch — anything outside the closed set</span>
+                <div class={cx(rt.rowC12, rt.wrap)}>
+                  <Badge class={cx(rt.vgTonalViolet)}>untitled violet</Badge>
+                  <span class={cx(rt.note11)}>
                     a hue no semantic token owns — the arbitrary form stays canonical for it
                   </span>
                 </div>
               </div>
             </ComponentCanvas>
-            <div class="flex flex-col gap-4">
+            <div class={cx(rt.col16)}>
               <ComponentCanvas
                 id="dedupe"
                 title="cn() dedupe — last-wins"
@@ -620,36 +638,36 @@ split — two utilities; both properties land:
                 files={dedupeFiles}
                 stage="fill"
               >
-                <div class="flex flex-col gap-4">
-                  <span class="text-muted-foreground text-[11px]">
+                <div class={cx(rt.col16)}>
+                  <span class={cx(rt.note11)}>
                     cn() dedupe — last-wins, exactly like the arbitrary form
                   </span>
-                  <div class="flex flex-wrap items-center gap-3">
+                  <div class={cx(rt.rowC12, rt.wrap)}>
                     <Badge class="jx-hue-error">base — error</Badge>
                     <Badge class="jx-hue-error jx-hue-success">naive concat</Badge>
                     <Badge class={cn('jx-hue-error', 'jx-hue-success')}>cn() deduped</Badge>
                   </div>
                 </div>
               </ComponentCanvas>
-              <p class="text-muted-foreground text-[13px] leading-6">
+              <p class={cx(rt.bodyMuted)}>
                 The middle badge carries BOTH classes — the winner is the sheet's internal sort
                 order, not the order you typed and not your intent. cn() registers the closed set
                 as tailwind-merge dedupe groups, so the third badge resolves to
-                <code class="text-accent">{dedupedClass}</code> — one class, one hue, guaranteed.
+                <code class={cx(rt.inkAccent)}>{dedupedClass}</code> — one class, one hue, guaranteed.
               </p>
               <CodeBlock code={dedupeCode} lang="ts" meta="cn() — class hygiene" />
               <CodeBlock code={intentUsage} lang="svelte" meta="usage" />
             </div>
           </div>
-          <div class="border-border border-t pt-4">
-            <h3 class="text-[15px] font-bold">One form per slot — the mixing law</h3>
-            <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
+          <div class={cx(rt.tBorder, rt.pt16)}>
+            <h3 class={cx(rt.title15Plain)}>One form per slot — the mixing law</h3>
+            <p class={cx(rt.para, rt.mt8)}>
               Intent utilities are canonical for the curated set; the arbitrary-property class is
               the escape hatch. They are not composable: cross-form mixing is not dedupable — cn()
               cannot see that a utility and an arbitrary property fight over the same slot, so the
               sheet's sort order decides again. The law: ONE form per slot in a class list.
             </p>
-            <div class="mt-3 max-w-xl">
+            <div class={cx(rt.mt12, rt.maxWXl)}>
               <CodeBlock code={oneFormLaw} lang="svelte" meta="the mixing law" />
             </div>
           </div>
@@ -665,66 +683,66 @@ split — two utilities; both properties land:
         title="The TW4 laws this grammar rides"
         summary="The grammar is authored as utilities in the markup, which buys theme-scale retuning at the cost of living inside Tailwind's cascade. Three laws keep that trade honest."
       >
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold">Sole border-color source per rung</h3>
-            <p class="text-muted-foreground">
+        <div class={cx(rt.grid760a)}>
+          <div class={cx(rt.col12, rt.body13)}>
+            <h3 class={cx(rt.title15Plain)}>Sole border-color source per rung</h3>
+            <p class={cx(rt.inkMuted)}>
               The war story: an early map gave the shared frame a named border-color utility
-              (<code class="text-accent">border-something</code>) and let rungs override it with
+              (<code class={cx(rt.inkAccent)}>border-something</code>) and let rungs override it with
               the arbitrary form. But in a TW4 sheet, NAMED border-color utilities sort AFTER
               arbitrary ones, and same-family utility order inside one class list is not
               consumer-guaranteed — so the frame's color silently, deterministically, wrongly won.
               The paint looked fine in isolation and drifted the moment anyone composed classes.
               The law that ended it: the frame contributes WIDTH and PHYSICS only
-              (<code class="text-accent">jx-press border</code>), and every rung is the sole
+              (<code class={cx(rt.inkAccent)}>jx-press border</code>), and every rung is the sole
               source of each paint channel it sets — no two same-property utilities ever meet in
               one class list. Collision-free by construction, in Badge, Chip, PressButton, Alert
               and InlineCode alike.
             </p>
-            <h3 class="text-[15px] font-bold">The glued-pair trap</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15Plain)}>The glued-pair trap</h3>
+            <p class={cx(rt.inkMuted)}>
               Two arbitrary properties typed without the space glue into ONE class token —
               Tailwind emits only the first property and the pair silently half-applies (fill
               without its ink). The guard suite walks every .svelte file and fails on the
               adjacency of a closing bracket directly followed by an opening
-              <code class="text-accent">[--jx-</code> property — this page's own demo string is
+              <code class={cx(rt.inkAccent)}>[--jx-</code> property — this page's own demo string is
               concatenated at runtime to keep the file itself clean.
             </p>
-            <div class="max-w-xl">
+            <div class={cx(rt.maxWXl)}>
               <CodeBlock code={gluedDemo} lang="text" meta="glued vs split" />
             </div>
           </div>
-          <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold">kbd-law geometry; the hit lane belongs to controls</h3>
-            <p class="text-muted-foreground">
+          <div class={cx(rt.col12, rt.body13)}>
+            <h3 class={cx(rt.title15Plain)}>kbd-law geometry; the hit lane belongs to controls</h3>
+            <p class={cx(rt.inkMuted)}>
               A Badge is display: its height comes from
-              <code class="text-accent">--jx-line-secondary</code> with inline insets only — it
+              <code class={cx(rt.inkAccent)}>--jx-line-secondary</code> with inline insets only — it
               never claims a hit lane, and no paint decision ever changes that. A Chip is a
               control wearing badge paint: its root carries
-              <code class="text-accent">min-block-size: var(--jx-hit)</code> (control-scale,
+              <code class={cx(rt.inkAccent)}>min-block-size: var(--jx-hit)</code> (control-scale,
               ~44px at default density), measured on the real box — pseudo-element lane expansion
               was rejected in design review. Paint and lane are separate axes; the ladder touches
               only the first.
             </p>
-            <h3 class="text-[15px] font-bold">Press physics never change with paint</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15Plain)}>Press physics never change with paint</h3>
+            <p class={cx(rt.inkMuted)}>
               One press law for every rung: hover grows the shadow only — the body never moves;
               active presses +1px into the page while the shadow's offsets counter-shrink, so the
               shadow paint stays anchored. Variant paint swaps color channels and nothing else.
               ghost is not an exception — it keeps the box geometry (the width class is
               load-bearing; a bare transparent color would compute the border away) and opts out
               of the SHADOW through the theme's own pose tokens
-              (<code class="text-accent">--jx-press-shadow*</code> set to none), while link opts
+              (<code class={cx(rt.inkAccent)}>--jx-press-shadow*</code> set to none), while link opts
               out of the frame entirely.
             </p>
-            <h3 class="text-[15px] font-bold">Valued hooks, not class probes</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15Plain)}>Valued hooks, not class probes</h3>
+            <p class={cx(rt.inkMuted)}>
               Each module publishes its rung on a valued data attribute —
-              <code class="text-accent">data-jx-badge</code>,
-              <code class="text-accent">data-jx-chip</code>,
-              <code class="text-accent">data-jx-press-button</code>,
-              <code class="text-accent">data-jx-alert</code>,
-              <code class="text-accent">data-jx-blockquote</code> — so tests and assistive tooling
+              <code class={cx(rt.inkAccent)}>data-jx-badge</code>,
+              <code class={cx(rt.inkAccent)}>data-jx-chip</code>,
+              <code class={cx(rt.inkAccent)}>data-jx-press-button</code>,
+              <code class={cx(rt.inkAccent)}>data-jx-alert</code>,
+              <code class={cx(rt.inkAccent)}>data-jx-blockquote</code> — so tests and assistive tooling
               read the variant without reverse-engineering utility soup.
             </p>
           </div>
@@ -740,7 +758,7 @@ split — two utilities; both properties land:
         title="Forced colors — explicit degradation"
         summary="Under forced-colors the color-mix tints do not drop on their own — the r2 review's Chromium probe measured exactly that — so every rung carries its own degradation utilities instead of trusting the engine. A full forced-colors browser probe for all five modules is a pending gate of the variant-grammar contract (see its verification.md honest-gaps list). The system palette gets the message across; the 1px border survives; nothing informational is lost."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <div class="table-scroll">
             <table class="data-table">
               <thead>
@@ -773,9 +791,9 @@ split — two utilities; both properties land:
               </tbody>
             </table>
           </div>
-          <p class="text-muted-foreground text-[13px] leading-6">
+          <p class={cx(rt.bodyMuted)}>
             The focus law rides above every rung:
-            <code class="text-accent">2px solid Highlight, offset 2 — never removed.</code>
+            <code class={cx(rt.inkAccent)}>2px solid Highlight, offset 2 — never removed.</code>
             The site's ring variable does not survive forced colors, so the degradation pins the
             system color directly.
           </p>
@@ -791,7 +809,7 @@ split — two utilities; both properties land:
         title="Old vocabulary → the grammar"
         summary="The frozen mapping tables (variant-grammar design.md §5, plus the intent-utility mapping). The one deliberate visual change: the old yellow secondary button softens to tonal + neutral — Owner-reviewed in the browser before release."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <div class="table-scroll">
             <table class="data-table">
               <thead>
@@ -824,7 +842,7 @@ split — two utilities; both properties land:
               </tbody>
             </table>
           </div>
-          <div class="grid gap-5 min-[760px]:grid-cols-2">
+          <div class={cx(rt.grid760a)}>
             <div class="table-scroll">
               <table class="data-table">
                 <thead>
@@ -918,9 +936,9 @@ split — two utilities; both properties land:
               </tbody>
             </table>
           </div>
-          <p class="text-muted-foreground text-[13px] leading-6">
+          <p class={cx(rt.bodyMuted)}>
             SystemDialogAction migrated INTO the grammar: its
-            <code class="text-accent">tone: destructive | primary</code> prop is replaced by the
+            <code class={cx(rt.inkAccent)}>tone: destructive | primary</code> prop is replaced by the
             same variant + injection interface. IconButton forwards the new union rather than
             owning a separate color decision. The tone-law prose on the alert and badge pages was
             rewritten to the grammar's terms.
@@ -937,38 +955,38 @@ split — two utilities; both properties land:
         title="Guards & a11y — what the suite locks"
         summary="A grammar this small only survives if drift fails loudly. Spec files and guards lock the source today; the contrast and forced-colors browser probes are the contract's pending gates."
       >
-        <div class="grid gap-6 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold">test/hue-injection.spec.ts — the intent layer</h3>
-            <p class="text-muted-foreground">
+        <div class={cx(rt.grid760g24)}>
+          <div class={cx(rt.col12, rt.body13)}>
+            <h3 class={cx(rt.title15Plain)}>test/hue-injection.spec.ts — the intent layer</h3>
+            <p class={cx(rt.inkMuted)}>
               Four locks: the theme sheet carries every @utility of the closed set VERBATIM (the
               regexes match the exact emission, not a fuzzy contains); every injected var()
               target exists as a real token in the light or dark block; no
-              <code class="text-accent">jx-hue-destructive</code> may ever appear — the
+              <code class={cx(rt.inkAccent)}>jx-hue-destructive</code> may ever appear — the
               action/status split holds by construction, not convention; and cn() dedupes the
               closed set last-wins, matching the arbitrary form's semantics.
             </p>
-            <h3 class="text-[15px] font-bold">test/variant-grammar.spec.ts — the seam</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15Plain)}>test/variant-grammar.spec.ts — the seam</h3>
+            <p class={cx(rt.inkMuted)}>
               No glued arbitrary-property utilities anywhere under src (the one-dead-token trap
               from the laws section), and every docs source drawer names REAL registry paths —
               the same-source law, mechanically enforced.
             </p>
-            <h3 class="text-[15px] font-bold">The browser probes</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15Plain)}>The browser probes</h3>
+            <p class={cx(rt.inkMuted)}>
               The contract's PLAN (pending gates, honestly listed in the variant-grammar
               change's verification.md): a contrast probe walking every shipped semantic
               injection's used fg/bg pairs, light and dark, representative hues — REPORTING
               failures, never recomputing --primary; a forced-colors probe covering all five
               modules against the degradation table. SHIPPED today: the physical hit probe
               asserts the Chip root's rectangle clears
-              <code class="text-accent">var(--jx-hit)</code>, verify-press drives the
+              <code class={cx(rt.inkAccent)}>var(--jx-hit)</code>, verify-press drives the
               five-rung × four-effect paint matrix in real Chromium, the hook-law checks pin
               the valued data-jx-* attributes to the variant unions, and the registry mirror
               regenerates against byte identity.
             </p>
           </div>
-          <div class="flex flex-col gap-4">
+          <div class={cx(rt.col16)}>
             <A11yTable
               aria={[
                 {
@@ -1002,7 +1020,7 @@ split — two utilities; both properties land:
                 },
               ]}
             />
-            <p class="text-muted-foreground text-[13px] leading-6">
+            <p class={cx(rt.bodyMuted)}>
               Deferred on record: style-attribute injection waits for rest-attribute forwarding
               on PressButton/Alert; promoting this grammar to a standalone design-tokens spec
               section is a candidate follow-up change.
@@ -1020,7 +1038,7 @@ split — two utilities; both properties land:
         title="Elevation — the shadow physics"
         summary="Paint says what a surface is; elevation says where it sits. Shadow offset ∝ the distance between an element's plane and the surface it casts upon (Owner ruling, 2026-09-01): the website-scaffold's top layer floats above the shell body, so what crosses that gap projects large, what stays in the layer lifts little, and what is cut into the plane casts nothing outward at all. Ink inverts per theme; geometry never drifts between themes."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <ComponentCanvas
             id="elevation"
             title="elevation — the five expressions, live"
@@ -1028,24 +1046,24 @@ split — two utilities; both properties land:
             files={elevationFiles}
             stage="fill"
           >
-            <div class="flex flex-wrap items-end gap-x-10 gap-y-5 text-[12.5px]">
-              <div class="text-muted-foreground flex flex-col gap-2">
+            <div class={cx(rt.flex, rt.wrap, rt.itemsEnd, rt.gapX10, rt.gapY20, rt.text125)}>
+              <div class={cx(rt.col8, rt.inkMuted)}>
                 <PressButton variant="fill">raise</PressButton>
                 <span>press law · xs → sm on hover</span>
               </div>
-              <div class="text-muted-foreground flex flex-col gap-2">
+              <div class={cx(rt.col8, rt.inkMuted)}>
                 <Kbd>engrave</Kbd>
                 <span>--shadow-engrave · incised inset</span>
               </div>
-              <div class="text-muted-foreground flex max-w-[16rem] flex-col gap-2">
+              <div class={cx(rt.col8, rt.inkMuted, rt.maxW16)}>
                 <Blockquote rule="shadow" ruleSize={4}>inset rule — blockquote's rule channel</Blockquote>
                 <span>shadow-4 · the inset standard consumed as structure</span>
               </div>
-              <div class="text-muted-foreground flex flex-col gap-2">
+              <div class={cx(rt.col8, rt.inkMuted)}>
                 <Chip variant="outline">raise twin</Chip>
                 <span>badge scale, press physics</span>
               </div>
-              <div class="text-muted-foreground flex flex-col gap-2">
+              <div class={cx(rt.col8, rt.inkMuted)}>
                 <Badge>flush</Badge>
                 <span>display glyph · no elevation</span>
               </div>
@@ -1060,12 +1078,12 @@ split — two utilities; both properties land:
               { name: 'well', default: '--shadow-well (+ -hover)', source: 'fillable container recess — input/textarea/select shells' },
             ]}
           />
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>interaction NEVER changes an element's tier: a well's hover deepens the
-              inset's intensity only (<code class="text-accent">--shadow-well-hover</code>), and its focus
+              inset's intensity only (<code class={cx(rt.inkAccent)}>--shadow-well-hover</code>), and its focus
               tints border + caret color — the shadow's hierarchy never moves</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>these are the DEFAULT expressions: a deliberate off-default modulation is a
               prop or a --jx-press-shadow* custom (e.g. code-card's quiet copy button), never a
               per-component invention</span></li>
@@ -1082,7 +1100,7 @@ split — two utilities; both properties land:
         title="The entity law — border is objecthood"
         summary="Elevation says where a surface sits; entity says whether it should BE a surface at all. Border is objecthood: a bordered box asserts itself as a solid object, and inside an already-solid entity (a dialog panel) every extra FILL is another object competing with its container. The law is mathematical, not per-component taste (Owner rulings 2026-09-01 + r14-12): the entity context ACCUMULATES depth — at depth ≥1 a form control is an engraved WELL of the entity’s surface: the GROUND dissolves (the entity’s surface is the basin’s interior — never a second opaque fill, backdrop-filter as the tint) while the well’s hairline EDGE STAYS (a boundary must never ride on the shadow alone; the edge is structure, not objecthood); data-assert-border force-spends the ground back early, and data-dissolve-border opts a flush edge-to-edge field out (the palette’s head — the edge there would double the panel’s border)."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <TokenTable
             tokens={[
               { name: 'depth 0', default: 'the page floor', source: 'entity context — the control border IS its object edge: visible' },
@@ -1091,12 +1109,12 @@ split — two utilities; both properties land:
               { name: 'data-dissolve-border', default: 'the opt-out', source: 'the full dissolve on demand — edge transparent too, for flush edge-to-edge fields (the palette’s head)' },
             ]}
           />
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>the channel is the Context technique: provideEntity() (dialog panels today, the
               popover family next) reads the ambient depth and accumulates +1 — nesting is
               automatic, no per-component accounting</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>a hairline is NOT an entity border: the dialog head/foot rules organize their
               panel; they never objectify. The law governs object edges only</span></li>
           </ul>

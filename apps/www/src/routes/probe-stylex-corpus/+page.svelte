@@ -1,5 +1,23 @@
 <script lang="ts">
   import CorpusFixture from '$lib/__probe__/stylex-corpus/corpus-fixture.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -8,9 +26,9 @@
   <meta name="robots" content="noindex" />
 </svelte:head>
 
-<main class="p-8">
-  <h1 class="mb-4 text-lg font-semibold">P0.6 stylex kernel/payload fixture</h1>
-  <p class="text-muted-foreground mb-6 max-w-prose text-[13px] leading-6">
+<main class={cx(rt.pscP32)}>
+  <h1 class={cx(rt.mb16, rt.textLg, rt.semibold)}>P0.6 stylex kernel/payload fixture</h1>
+  <p class={cx(rt.inkMuted, rt.pscMb24, rt.pscMaxWProse, rt.body13)}>
     Internal KERNEL/PAYLOAD FIXTURE — not a registry consumer proof: the 8
     research families + the demo chrome are authored as StyleX static atoms
     under the phase-0 authoring law

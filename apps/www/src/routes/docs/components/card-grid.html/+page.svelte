@@ -1,5 +1,6 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
@@ -74,6 +75,22 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
   const usageLive = $derived(assembleUsage(minPx, optOut));
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -85,12 +102,12 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -99,7 +116,7 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
         title="card-grid — the subgrid equalizer"
         summary="Shared header and body rows keep card tops aligned and bodies filled to the tallest: grid + subgrid, works with any two-block card."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">subgrid rows</span>
           <span class="pill">any two-block card</span>
           <span class="pill">min prop</span>
@@ -135,14 +152,14 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
                row — SectionCard headings are the functional data being
                aligned, so this subtree opts out of the no-headings rule -->
           <div data-doc-demo-scope="headings-ok">
-            <CardGrid min={`${minPx}px`} class="w-full">
+            <CardGrid min={`${minPx}px`} class={cx(rt.wFull)}>
             <SectionCard
               eyebrow="card 01"
               title="Short header"
               summary="One summary line — this header is short, yet it reserves the same shared row height as card 02's taller block."
             >
-              <div class="flex h-full flex-col justify-between gap-3">
-                <p class="text-[13px] leading-6">A short body. The subgrid row still stretches it to the tallest card's extent.</p>
+              <div class={cx(rt.flex, rt.hFull, rt.col, rt.justifyBetween, rt.gap12)}>
+                <p class={cx(rt.body13)}>A short body. The subgrid row still stretches it to the tallest card's extent.</p>
                 <p class="jx-grid-hint">body row: shared</p>
               </div>
             </SectionCard>
@@ -151,11 +168,11 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
               title="A deliberately much longer header that wraps to two lines"
               summary="The tallest header block sets the shared header row for every card in the grid — resize the stage with the Playground slider and watch the alignment hold at every column count."
             >
-              <div class="flex h-full flex-col justify-between gap-3">
-                <ul class="flex flex-col gap-1.5 text-[13px] leading-6">
-                  <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span><span>headers align to the tallest header</span></li>
-                  <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span><span>bodies fill to the tallest body</span></li>
-                  <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span><span>rows live on the GRID, not on each card</span></li>
+              <div class={cx(rt.flex, rt.hFull, rt.col, rt.justifyBetween, rt.gap12)}>
+                <ul class={cx(rt.flex, rt.col, rt.gap6, rt.body13)}>
+                  <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span><span>headers align to the tallest header</span></li>
+                  <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span><span>bodies fill to the tallest body</span></li>
+                  <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span><span>rows live on the GRID, not on each card</span></li>
                 </ul>
                 <p class="jx-grid-hint">body row: shared</p>
               </div>
@@ -167,7 +184,7 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
                   title="Opted out — data-no-subgrid"
                   summary="This child wraps itself in data-no-subgrid: it keeps its grid cell but leaves the shared rows, so its body stops stretching."
                 >
-                  <p class="text-[13px] leading-6">A plain auto row — shorter, by choice.</p>
+                  <p class={cx(rt.body13)}>A plain auto row — shorter, by choice.</p>
                 </SectionCard>
               </div>
             {:else}
@@ -176,8 +193,8 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
                 title="Opted out — data-no-subgrid"
                 summary="This card is the same two-block card as the others while the Playground checkbox is off; flip it to watch the opt-out collapse the shared-row contract."
               >
-                <div class="flex h-full flex-col justify-between gap-3">
-                  <p class="text-[13px] leading-6">Same law as cards 01 and 02 — spanning and subgridding the shared rows.</p>
+                <div class={cx(rt.flex, rt.hFull, rt.col, rt.justifyBetween, rt.gap12)}>
+                  <p class={cx(rt.body13)}>Same law as cards 01 and 02 — spanning and subgridding the shared rows.</p>
                   <p class="jx-grid-hint">body row: shared</p>
                 </div>
               </SectionCard>
@@ -212,18 +229,18 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
         title="Rows live on the grid"
         summary="The grid defines the two shared rows and every child subgrids into them; a card never measures its siblings. That is why the alignment survives any column count, any card content, and any resize — and why opting out is a single attribute instead of a prop."
       >
-        <div class="flex flex-col gap-5">
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the GRID owns <code class="text-accent">grid-template-rows: auto 1fr</code>;
-                each child <code class="text-accent">grid-row: span 2</code> +
-                <code class="text-accent">grid-template-rows: subgrid</code> — no JS, no
+        <div class={cx(rt.col20)}>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>the GRID owns <code class={cx(rt.inkAccent)}>grid-template-rows: auto 1fr</code>;
+                each child <code class={cx(rt.inkAccent)}>grid-row: span 2</code> +
+                <code class={cx(rt.inkAccent)}>grid-template-rows: subgrid</code> — no JS, no
                 measurement, no ResizeObserver</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>works with any two-block card: the grid never asks what the child is —
                 section-card qualifies unchanged</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the opt-out is an attribute, not a prop: <code class="text-accent">data-no-subgrid</code>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>the opt-out is an attribute, not a prop: <code class={cx(rt.inkAccent)}>data-no-subgrid</code>
                 on a wrapper keeps the cell but restores the child's own rows</span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
@@ -233,25 +250,25 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Card grid variants" summary="One layout, three postures: the shared-row grid, the opted-out cell, and the lone-child cap.">
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">shared rows (default)</p>
-        <p class="text-[13px] leading-6">Every child spans <code class="text-accent">auto 1fr</code> and subgrids — headers align, bodies fill.</p>
+    <div class={cx(rt.cgGridMd3)}>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb8)}>shared rows (default)</p>
+        <p class={cx(rt.body13)}>Every child spans <code class={cx(rt.inkAccent)}>auto 1fr</code> and subgrids — headers align, bodies fill.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">data-no-subgrid opt-out</p>
-        <p class="text-[13px] leading-6">A wrapper attribute keeps the cell but restores the child's own rows — not a prop.</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb8)}>data-no-subgrid opt-out</p>
+        <p class={cx(rt.body13)}>A wrapper attribute keeps the cell but restores the child's own rows — not a prop.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">lone child</p>
-        <p class="text-[13px] leading-6">auto-fit would stretch a lone card into a banner; it is capped at an editorial measure.</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb8)}>lone child</p>
+        <p class={cx(rt.body13)}>auto-fit would stretch a lone card into a banner; it is capped at an editorial measure.</p>
       </div>
     </div>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Pure layout — no semantics added or removed; the entrance stagger respects reduced motion."><A11yTable keys={[{ key: '—', action: 'Not interactive — a layout container; children keep their own semantics' }]} aria={[{ name: '(none)', value: '—', description: 'The grid adds no roles or labels; DOM order is the reading order.' }, { name: 'prefers-reduced-motion', value: 'reduce', description: 'The internal entrance cascade is skipped — cards render fully visible.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Column geometry rides the inline --jx-grid-min token; the entrance stagger is a per-index delay."><div class="flex flex-col gap-5"><DensityDemo><CardGrid min="220px" class="w-full"><SectionCard eyebrow="card 01" title="Shared header" summary="Header row shared across the grid."><p class="text-[13px] leading-6">Body fills to the tallest row.</p></SectionCard><SectionCard eyebrow="card 02" title="Another header" summary="Second card in the density demo."><p class="text-[13px] leading-6">The gap and rows are fixed; density does not rescale the grid.</p></SectionCard></CardGrid></DensityDemo><TokenTable tokens={[{ name: '--jx-grid-min', default: '320px (min prop)', source: 'component', description: 'Column collapse width — auto-fit minmax floor.' }, { name: '--jx-card-i', default: '0–7', source: 'component', description: 'Per-child stagger index driving the entrance delay.' }, { name: 'stagger step', default: '70ms (capped at 8th child)', source: 'structural' }, { name: 'gap', default: '20px (gap-5)', source: 'structural' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Column geometry rides the inline --jx-grid-min token; the entrance stagger is a per-index delay."><div class={cx(rt.col20)}><DensityDemo><CardGrid min="220px" class={cx(rt.wFull)}><SectionCard eyebrow="card 01" title="Shared header" summary="Header row shared across the grid."><p class={cx(rt.body13)}>Body fills to the tallest row.</p></SectionCard><SectionCard eyebrow="card 02" title="Another header" summary="Second card in the density demo."><p class={cx(rt.body13)}>The gap and rows are fixed; density does not rescale the grid.</p></SectionCard></CardGrid></DensityDemo><TokenTable tokens={[{ name: '--jx-grid-min', default: '320px (min prop)', source: 'component', description: 'Column collapse width — auto-fit minmax floor.' }, { name: '--jx-card-i', default: '0–7', source: 'component', description: 'Per-child stagger index driving the entrance delay.' }, { name: 'stagger step', default: '70ms (capped at 8th child)', source: 'structural' }, { name: 'gap', default: '20px (gap-5)', source: 'structural' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Three props — the grid is layout only; everything else is the children's own contract."><PropsTable meta={cardGridMeta} docs={CARD_GRID_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from

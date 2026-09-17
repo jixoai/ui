@@ -9,6 +9,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -73,6 +74,22 @@ ${close}
     'jx-pure tier-1',
     'variant grammar',
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -83,7 +100,7 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell, rt.flex, rt.col, rt.gap32)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -92,7 +109,7 @@ ${close}
       title="pattern-hero-set — three forms, one grammar"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">terminal-window hero</span>
         <span class="pill">ascii-art headline</span>
         <span class="pill">badge marquee · reduced-motion static</span>
@@ -109,7 +126,7 @@ ${close}
       install="pattern-hero-set"
       files={canvasFiles}
     >
-      <div class="w-full border border-border bg-muted/40">
+      <div class={cx(rt.phsStage)}>
         <PatternHeroSet
           eyebrow="your-app · v0"
           summary="A compact instance with the real composition rules — the copy stays yours, the law stays ours. The terminal demo types the same command the CTA copies."
@@ -126,7 +143,7 @@ ${close}
       {#snippet playground()}
         <PlayFields>
           <PlayHelp>
-            <code class="text-accent">copyCommand</code> is the one payload: press the CTA and the
+            <code class={cx(rt.inkAccent)}>copyCommand</code> is the one payload: press the CTA and the
             command hits the clipboard while the terminal types the same string. Narrow the stage
             past 1100px — the terminal drops below the lead (hero-section's column law).
           </PlayHelp>
@@ -144,7 +161,7 @@ ${close}
       install="pattern-hero-set"
       files={canvasFiles}
     >
-      <div class="w-full border border-border bg-muted/40">
+      <div class={cx(rt.phsStage)}>
         <PatternHeroAscii
           art={asciiBanner}
           eyebrow="$ figlet -f standard jixoai"
@@ -159,7 +176,7 @@ ${close}
         <PlayFields>
           <PlayHelp>
             generate the banner with <code>figlet -f standard</code> and paste it into
-            <code class="text-accent">art</code> — whitespace is payload, the pre preserves it.
+            <code class={cx(rt.inkAccent)}>art</code> — whitespace is payload, the pre preserves it.
             The CTA row is press-button: fill primary, outline escape.
           </PlayHelp>
         </PlayFields>
@@ -176,7 +193,7 @@ ${close}
       install="pattern-hero-set"
       files={canvasFiles}
     >
-      <div class="w-full border border-border bg-muted/40">
+      <div class={cx(rt.phsStage)}>
         <PatternHeroMarquee items={marqueeItems} ctaLabel="get started" ctaHref="/docs.html">
           {#snippet title()}Every atom, one grammar.{/snippet}
         </PatternHeroMarquee>
@@ -184,7 +201,7 @@ ${close}
       {#snippet playground()}
         <PlayFields>
           <PlayHelp>
-            <code class="text-accent">items</code> is plain string payload — the strip renders
+            <code class={cx(rt.inkAccent)}>items</code> is plain string payload — the strip renders
             readable row + aria-hidden duplicate and translates -50% seamlessly. Enable your OS's
             reduced-motion setting: the strip settles into one static, scrollable row.
           </PlayHelp>
@@ -201,18 +218,18 @@ ${close}
       title="Picking a form"
       summary="Three forms, one decision: what does the first screen prove?"
     >
-      <div class="grid gap-4 min-[760px]:grid-cols-3">
-        <div class="border border-border p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">terminal-window</span>
-          <p class="text-muted-foreground mt-2 text-[13px] leading-6">The product IS a command. The typed demo proves the install story before a single scroll — pair with a copy CTA.</p>
+      <div class={cx(rt.grid760c)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>terminal-window</span>
+          <p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>The product IS a command. The typed demo proves the install story before a single scroll — pair with a copy CTA.</p>
         </div>
-        <div class="border border-border p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">ascii-art</span>
-          <p class="text-muted-foreground mt-2 text-[13px] leading-6">The brand IS a wordmark. Brutalist confidence with one paragraph of air — nothing else competes with the banner.</p>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>ascii-art</span>
+          <p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>The brand IS a wordmark. Brutalist confidence with one paragraph of air — nothing else competes with the banner.</p>
         </div>
-        <div class="border border-border p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">badge-marquee</span>
-          <p class="text-muted-foreground mt-2 text-[13px] leading-6">The value IS a list of properties. The strip keeps moving under a quiet headline — proof by inventory.</p>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>badge-marquee</span>
+          <p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>The value IS a list of properties. The strip keeps moving under a quiet headline — proof by inventory.</p>
         </div>
       </div>
     </SectionCard>

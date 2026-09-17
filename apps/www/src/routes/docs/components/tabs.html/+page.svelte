@@ -1,5 +1,6 @@
 <script lang="ts">
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -412,6 +413,23 @@ ${close}
   const tabsActivationFiles: TreeFile[] = [
     { name: 'tabs-activation-demo.svelte', content: tabsActivationDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -423,12 +441,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -437,7 +455,7 @@ ${close}
       title="tabs — one value, four files, any layout"
       summary="The WAI-ARIA tabs pattern, composition-first: the root owns only the selected value and hands it to the family through context — tablist, triggers and panels lay out anywhere in the subtree. Selection paint lives in the indicator engine: a single shared element measured to the active trigger and translated between positions, in five materials — line, pill, outline, glass, liquid — or none at all, or replaced entirely by your own snippet paint. Triggers carry the Material grammar (icon lanes, icon-only, stacked columns) and the strip lays out inline, grow, scroll or wrap — every horizontal strip degrading to a hidden-scrollbar scroll run with on-demand DOM chevron buttons when content outgrows the container. The keyboard contract is untouched: automatic activation (focus moves select), roving tabindex, deterministic trigger/panel ids, and hidden — attribute, not CSS — background panels."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">APG tablist contract</span>
         <span class="pill">sliding indicator · 5 materials + none</span>
         <span class="pill">icon lanes · icon-only · stack</span>
@@ -460,7 +478,7 @@ ${close}
       ]}
       resolveFileContent={resolveUsage}
     >
-      <div class="flex w-full max-w-xl flex-col gap-4">
+      <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
         <Tabs bind:value={tab} onchange={(v) => (lastChange = v)}>
           <TabsList>
             <TabsTrigger value="preview">preview</TabsTrigger>
@@ -469,16 +487,16 @@ ${close}
             <TabsTrigger value="audit" disabled>audit</TabsTrigger>
           </TabsList>
           <TabsContent value="preview">
-            <p class="text-[13px] leading-6">The rendered surface — what reviewers see by default.</p>
+            <p class={cx(rt.body13)}>The rendered surface — what reviewers see by default.</p>
           </TabsContent>
           <TabsContent value="raw">
-            <p class="text-[13px] leading-6">The exact bytes, escaping untouched.</p>
+            <p class={cx(rt.body13)}>The exact bytes, escaping untouched.</p>
           </TabsContent>
           <TabsContent value="diff">
-            <p class="text-[13px] leading-6">Against the previous revision, word-granular.</p>
+            <p class={cx(rt.body13)}>Against the previous revision, word-granular.</p>
           </TabsContent>
           <TabsContent value="audit">
-            <p class="text-[13px] leading-6">Disabled until the audit run completes.</p>
+            <p class={cx(rt.body13)}>Disabled until the audit run completes.</p>
           </TabsContent>
         </Tabs>
       </div>
@@ -511,9 +529,9 @@ ${close}
       summary="Selection paint lives in exactly one place: a single shared indicator element, measured to the active trigger and translated between positions — 240ms cubic-bezier(0.2, 0.8, 0.2, 1) travel, no travel at all under prefers-reduced-motion, and a ResizeObserver re-fit that lands without animation when triggers resize or the strip reflows. The triggers stay restrained (text-foreground emphasis only) while the material carries the paint: line is the 2px var(--primary) bar riding the list edge — the default, now sliding — pill a tonal translucent fill hugging the trigger, outline a 1px box for the segmented feel, glass the frost member of the shared glass law sheet (a blur + saturate frosted pill), and liquid the LENS — the glass item's liquidGlass attachment (the component's OWN material mount, derived from indicator='liquid') carries the refraction chain over the pill (the retired feTurbulence noise SVG is gone). Engines without url() backdrop-filters keep liquid on its frost base — same geometry, honest paint."
     >
       <ComponentCanvas title="tabs · indicator materials" stage="fill" files={tabsIndicatorsFiles}>
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">line</span>
+        <div class={cx(rt.tabsGrid)}>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>line</span>
           <Tabs value="preview">
             <TabsList>
               <TabsTrigger value="preview">preview</TabsTrigger>
@@ -522,10 +540,10 @@ ${close}
               <TabsTrigger value="audit">audit</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">the 2px var(--primary) bar riding the list edge — the default, now sliding.</span>
+          <span class={cx(rt.note12)}>the 2px var(--primary) bar riding the list edge — the default, now sliding.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pill</span>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>pill</span>
           <Tabs value="build">
             <TabsList indicator="pill">
               <TabsTrigger value="build">build</TabsTrigger>
@@ -534,10 +552,10 @@ ${close}
               <TabsTrigger value="audit">audit</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">a tonal translucent fill hugging the active trigger.</span>
+          <span class={cx(rt.note12)}>a tonal translucent fill hugging the active trigger.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">outline</span>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>outline</span>
           <Tabs value="day">
             <TabsList indicator="outline">
               <TabsTrigger value="day">day</TabsTrigger>
@@ -546,11 +564,11 @@ ${close}
               <TabsTrigger value="all">all</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">a 1px outline box — the segmented-control feel.</span>
+          <span class={cx(rt.note12)}>a 1px outline box — the segmented-control feel.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">glass</span>
-          <div class="rounded-md bg-[linear-gradient(115deg,oklch(0.8_0.15_var(--brand-hue)),oklch(0.8_0.14_260),oklch(0.84_0.13_145))] p-3">
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>glass</span>
+          <div class={cx(rt.radius0, rt.tabsGradA, rt.p12)}>
             <Tabs value="frost">
               <TabsList indicator="glass">
                 <TabsTrigger value="frost">frost</TabsTrigger>
@@ -560,11 +578,11 @@ ${close}
               </TabsList>
             </Tabs>
           </div>
-          <span class="text-muted-foreground text-[12px]">a frosted pill — backdrop blur + saturate, staged here over three brand hues.</span>
+          <span class={cx(rt.note12)}>a frosted pill — backdrop blur + saturate, staged here over three brand hues.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">liquid</span>
-          <div class="rounded-md bg-[linear-gradient(115deg,oklch(0.8_0.14_260),oklch(0.8_0.15_var(--brand-hue)),oklch(0.84_0.13_145))] p-3">
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>liquid</span>
+          <div class={cx(rt.radius0, rt.tabsGradB, rt.p12)}>
             <Tabs value="flow">
               <TabsList indicator="liquid">
                 <TabsTrigger value="flow">flow</TabsTrigger>
@@ -574,10 +592,10 @@ ${close}
               </TabsList>
             </Tabs>
           </div>
-          <span class="text-muted-foreground text-[12px]">the liquid lens — the glass item's liquidGlass attachment mounts kube's refraction chain over the pill (the component's OWN material mount, r4 — no consumer hook); the retired noise SVG is gone, frost stands where url() backdrop-filters are unsupported.</span>
+          <span class={cx(rt.note12)}>the liquid lens — the glass item's liquidGlass attachment mounts kube's refraction chain over the pill (the component's OWN material mount, r4 — no consumer hook); the retired noise SVG is gone, frost stands where url() backdrop-filters are unsupported.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">none</span>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>none</span>
           <Tabs value="plain">
             <TabsList indicator="none">
               <TabsTrigger value="plain">plain</TabsTrigger>
@@ -586,7 +604,7 @@ ${close}
               <TabsTrigger value="still">still</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">no paint at all — the selected trigger's own emphasis carries the selection.</span>
+          <span class={cx(rt.note12)}>no paint at all — the selected trigger's own emphasis carries the selection.</span>
         </div>
         </div>
       </ComponentCanvas>
@@ -602,9 +620,9 @@ ${close}
       summary="A trigger is a text label by default. icon adds the leading lane, iconEnd the trailing lane, stack flips to the Material icon-over-label column, and the icon-only form passes just the snippet plus aria-label. Icons ride the slot-vs-padding law: the lane replaces its side's padding, so an icon rides the edge at half the inset instead of widening the hit box — and the icon-only trigger demands aria-label, because an accessible name is never optional. The selected trigger keeps its text-foreground emphasis under every anatomy."
     >
       <ComponentCanvas title="tabs · anatomy" stage="fill" files={tabsAnatomyFiles}>
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text — default</span>
+        <div class={cx(rt.tabsGrid)}>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>text — default</span>
           <Tabs value="preview">
             <TabsList>
               <TabsTrigger value="preview">preview</TabsTrigger>
@@ -612,10 +630,10 @@ ${close}
               <TabsTrigger value="diff">diff</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">the bare micro-label — all a tab usually needs.</span>
+          <span class={cx(rt.note12)}>the bare micro-label — all a tab usually needs.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">leading icon</span>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>leading icon</span>
           <Tabs value="code">
             <TabsList>
               <TabsTrigger value="code">
@@ -628,10 +646,10 @@ ${close}
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">the icon lane replaces the start padding — the glyph rides the edge.</span>
+          <span class={cx(rt.note12)}>the icon lane replaces the start padding — the glyph rides the edge.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">trailing icon</span>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>trailing icon</span>
           <Tabs value="open">
             <TabsList>
               <TabsTrigger value="open">
@@ -644,10 +662,10 @@ ${close}
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">iconEnd mirrors the lane on the far side — disclosure glyphs live here.</span>
+          <span class={cx(rt.note12)}>iconEnd mirrors the lane on the far side — disclosure glyphs live here.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">icon-only</span>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>icon-only</span>
           <Tabs value="term">
             <TabsList>
               <TabsTrigger value="term" aria-label="terminal">
@@ -661,10 +679,10 @@ ${close}
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">the snippet is the glyph; aria-label is the name — never skip it.</span>
+          <span class={cx(rt.note12)}>the snippet is the glyph; aria-label is the name — never skip it.</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">stack</span>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>stack</span>
           <Tabs value="overview">
             <TabsList>
               <TabsTrigger value="overview" stack>
@@ -677,7 +695,7 @@ ${close}
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">the Material stacked tab — icon over label in a centered column.</span>
+          <span class={cx(rt.note12)}>the Material stacked tab — icon over label in a centered column.</span>
         </div>
         </div>
       </ComponentCanvas>
@@ -693,9 +711,9 @@ ${close}
       summary="The strip's geometry is a prop, and it composes with every material. inline (the default) sizes the strip to its content. grow stretches every trigger to an equal share of the full width — the Material full-bleed top bar. scroll declares a horizontal overflow run; wrap flows multiple rows instead of scrolling. Overflow is a contract, not a memory: every horizontal strip degrades to a hidden-scrollbar scroll run the moment its content outgrows the container, and DOM chevron buttons overlay the inline edges on demand — only toward the direction that can still travel, fading as the run approaches its boundary (the glyphs are css vars: override them per context). Travel is smooth and settles on triggers by proximity snap, and the edge treatment is the scrollEffect builder — ramp() by default (the ONE member-ramp: opacity/blur/translate toggles, all on; ramp(&#123; blur: false &#125;) the cheapest posture), progressBlur()/shadow() for the veiled edges (the blur ladder · the contrast ghost). Grow, scroll and wrap accept any indicator — the demos stage grow with pill and scroll with the default line on purpose; wrap rides the default line too, where each row underlines its own active tab."
     >
       <ComponentCanvas title="tabs · layouts" stage="fill" files={tabsLayoutsFiles}>
-        <div class="flex w-full max-w-2xl flex-col gap-7">
-        <div class="flex flex-col gap-2.5">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">inline — default</span>
+        <div class={cx(rt.col28, rt.wFull, rt.maxW2xl)}>
+        <div class={cx(rt.col10)}>
+          <span class={cx(rt.eyebrowPrimary)}>inline — default</span>
           <Tabs value="preview">
             <TabsList>
               <TabsTrigger value="preview">preview</TabsTrigger>
@@ -704,23 +722,23 @@ ${close}
               <TabsTrigger value="audit">audit</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">intrinsic widths — the strip is exactly its content.</span>
+          <span class={cx(rt.note12)}>intrinsic widths — the strip is exactly its content.</span>
         </div>
-        <div class="flex flex-col gap-2.5">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">grow</span>
+        <div class={cx(rt.col10)}>
+          <span class={cx(rt.eyebrowPrimary)}>grow</span>
           <Tabs value="editor">
-            <TabsList layout="grow" indicator="pill" class="w-full max-w-md">
+            <TabsList layout="grow" indicator="pill" class={cx(rt.wFull, rt.maxWMd)}>
               <TabsTrigger value="editor">editor</TabsTrigger>
               <TabsTrigger value="review">review</TabsTrigger>
               <TabsTrigger value="ship">ship</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">equal-width stretched triggers — the Material full-bleed bar, staged with the pill material.</span>
+          <span class={cx(rt.note12)}>equal-width stretched triggers — the Material full-bleed bar, staged with the pill material.</span>
         </div>
-        <div class="flex flex-col gap-2.5">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">scroll</span>
+        <div class={cx(rt.col10)}>
+          <span class={cx(rt.eyebrowPrimary)}>scroll</span>
           <Tabs value="gamma">
-            <TabsList layout="scroll" class="max-w-md">
+            <TabsList layout="scroll" class={cx(rt.maxWMd)}>
               <TabsTrigger value="alpha">alpha</TabsTrigger>
               <TabsTrigger value="beta">beta</TabsTrigger>
               <TabsTrigger value="gamma">gamma</TabsTrigger>
@@ -735,12 +753,12 @@ ${close}
               <TabsTrigger value="mu">mu</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">twelve triggers in the overflow run — the scrollbar is hidden, the chevron fades scroll-driven toward the boundary it reaches, the walk is not.</span>
+          <span class={cx(rt.note12)}>twelve triggers in the overflow run — the scrollbar is hidden, the chevron fades scroll-driven toward the boundary it reaches, the walk is not.</span>
         </div>
-        <div class="flex flex-col gap-2.5">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">wrap</span>
+        <div class={cx(rt.col10)}>
+          <span class={cx(rt.eyebrowPrimary)}>wrap</span>
           <Tabs value="gamma">
-            <TabsList layout="wrap" class="max-w-sm">
+            <TabsList layout="wrap" class={cx(rt.maxWSm)}>
               <TabsTrigger value="alpha">alpha</TabsTrigger>
               <TabsTrigger value="beta">beta</TabsTrigger>
               <TabsTrigger value="gamma">gamma</TabsTrigger>
@@ -755,12 +773,12 @@ ${close}
               <TabsTrigger value="mu">mu</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">twelve triggers flowing rows — no scroll run, and the line material underlines each row's own active tab.</span>
+          <span class={cx(rt.note12)}>twelve triggers flowing rows — no scroll run, and the line material underlines each row's own active tab.</span>
         </div>
-        <div class="flex flex-col gap-2.5">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">scroll · scrollEffect=ramp()</span>
+        <div class={cx(rt.col10)}>
+          <span class={cx(rt.eyebrowPrimary)}>scroll · scrollEffect=ramp()</span>
           <Tabs value="gamma">
-            <TabsList layout="scroll" scrollEffect={ramp()} class="max-w-md">
+            <TabsList layout="scroll" scrollEffect={ramp()} class={cx(rt.maxWMd)}>
               <TabsTrigger value="alpha">alpha</TabsTrigger>
               <TabsTrigger value="beta">beta</TabsTrigger>
               <TabsTrigger value="gamma">gamma</TabsTrigger>
@@ -775,12 +793,12 @@ ${close}
               <TabsTrigger value="mu">mu</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">triggers blur, fade and slide as they clip under the run's edges — each ramp follows its own clipped fraction (scroll-following stamps, every engine); the toggles and magnitudes (radius, distance) are builder options.</span>
+          <span class={cx(rt.note12)}>triggers blur, fade and slide as they clip under the run's edges — each ramp follows its own clipped fraction (scroll-following stamps, every engine); the toggles and magnitudes (radius, distance) are builder options.</span>
         </div>
-        <div class="flex flex-col gap-2.5">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">scroll · scrollEffect=progressBlur()</span>
+        <div class={cx(rt.col10)}>
+          <span class={cx(rt.eyebrowPrimary)}>scroll · scrollEffect=progressBlur()</span>
           <Tabs value="gamma">
-            <TabsList layout="scroll" scrollEffect={progressBlur()} class="max-w-md">
+            <TabsList layout="scroll" scrollEffect={progressBlur()} class={cx(rt.maxWMd)}>
               <TabsTrigger value="alpha">alpha</TabsTrigger>
               <TabsTrigger value="beta">beta</TabsTrigger>
               <TabsTrigger value="gamma">gamma</TabsTrigger>
@@ -795,12 +813,12 @@ ${close}
               <TabsTrigger value="mu">mu</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">the progressive-blur ladder veils both edges — twin grid bands over the run, entering by scroll-driven translate (width is a builder option).</span>
+          <span class={cx(rt.note12)}>the progressive-blur ladder veils both edges — twin grid bands over the run, entering by scroll-driven translate (width is a builder option).</span>
         </div>
-        <div class="flex flex-col gap-2.5">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">scroll · scrollEffect=shadow()</span>
+        <div class={cx(rt.col10)}>
+          <span class={cx(rt.eyebrowPrimary)}>scroll · scrollEffect=shadow()</span>
           <Tabs value="gamma">
-            <TabsList layout="scroll" scrollEffect={shadow({ width: "5rem" })} class="max-w-md">
+            <TabsList layout="scroll" scrollEffect={shadow({ width: "5rem" })} class={cx(rt.maxWMd)}>
               <TabsTrigger value="alpha">alpha</TabsTrigger>
               <TabsTrigger value="beta">beta</TabsTrigger>
               <TabsTrigger value="gamma">gamma</TabsTrigger>
@@ -815,7 +833,7 @@ ${close}
               <TabsTrigger value="mu">mu</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span class="text-muted-foreground text-[12px]">the contrast-ghost veil (the separator ink law): backdrop-filter contrast() subtracts color toward mid tone — light grounds dim, dark grounds lift, no black overlay anywhere.</span>
+          <span class={cx(rt.note12)}>the contrast-ghost veil (the separator ink law): backdrop-filter contrast() subtracts color toward mid tone — light grounds dim, dark grounds lift, no black overlay anywhere.</span>
         </div>
         </div>
       </ComponentCanvas>
@@ -830,59 +848,59 @@ ${close}
       title="Vertical — the sidebar shape"
       summary="orientation=vertical swaps the arrow axis to ↑/↓ and moves the indicator to the right edge — line keeps the Material edge bar, pill hugs the active trigger instead. The panels are ordinary subtree — any layout receives them."
     >
-      <div class="grid gap-6 md:grid-cols-2">
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">line — the bar rides the right edge</span>
+      <div class={cx(rt.tabsGrid24)}>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>line — the bar rides the right edge</span>
           <Tabs value="overview">
-            <div class="flex gap-6">
-              <TabsList orientation="vertical" class="min-w-36">
+            <div class={cx(rt.flex, rt.gap24)}>
+              <TabsList orientation="vertical" class={cx(rt.minW36)}>
                 <TabsTrigger value="overview">overview</TabsTrigger>
-                <TabsTrigger value="activity">activity <Badge class="ml-1">3</Badge></TabsTrigger>
+                <TabsTrigger value="activity">activity <Badge class={cx(rt.ml4)}>3</Badge></TabsTrigger>
                 <TabsTrigger value="keys">keys</TabsTrigger>
               </TabsList>
-              <div class="min-w-0 flex-1 py-1">
+              <div class={cx(rt.minW0, rt.grow, rt.py4)}>
                 <TabsContent value="overview">
-                  <p class="text-[13px] leading-6">The project front page: what it is, where it lives.</p>
+                  <p class={cx(rt.body13)}>The project front page: what it is, where it lives.</p>
                 </TabsContent>
                 <TabsContent value="activity">
-                  <p class="text-[13px] leading-6">Three events this week — pushes, releases, audits.</p>
+                  <p class={cx(rt.body13)}>Three events this week — pushes, releases, audits.</p>
                 </TabsContent>
                 <TabsContent value="keys">
-                  <p class="text-[13px] leading-6">Deploy keys, rotated quarterly.</p>
+                  <p class={cx(rt.body13)}>Deploy keys, rotated quarterly.</p>
                 </TabsContent>
               </div>
             </div>
           </Tabs>
         </div>
-        <div class="flex flex-col gap-3 border border-border/60 p-4">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pill — the fill hugs the trigger</span>
+        <div class={cx(rt.col12, rt.panel60)}>
+          <span class={cx(rt.eyebrowPrimary)}>pill — the fill hugs the trigger</span>
           <Tabs value="general">
-            <div class="flex gap-6">
-              <TabsList orientation="vertical" indicator="pill" class="min-w-36">
+            <div class={cx(rt.flex, rt.gap24)}>
+              <TabsList orientation="vertical" indicator="pill" class={cx(rt.minW36)}>
                 <TabsTrigger value="general">general</TabsTrigger>
                 <TabsTrigger value="members">members</TabsTrigger>
                 <TabsTrigger value="billing">billing</TabsTrigger>
                 <TabsTrigger value="danger" disabled>danger</TabsTrigger>
               </TabsList>
-              <div class="min-w-0 flex-1 py-1">
+              <div class={cx(rt.minW0, rt.grow, rt.py4)}>
                 <TabsContent value="general">
-                  <p class="text-[13px] leading-6">Workspace name, default branch, timezone.</p>
+                  <p class={cx(rt.body13)}>Workspace name, default branch, timezone.</p>
                 </TabsContent>
                 <TabsContent value="members">
-                  <p class="text-[13px] leading-6">Six seats, two pending invitations.</p>
+                  <p class={cx(rt.body13)}>Six seats, two pending invitations.</p>
                 </TabsContent>
                 <TabsContent value="billing">
-                  <p class="text-[13px] leading-6">Team plan, renews on the first.</p>
+                  <p class={cx(rt.body13)}>Team plan, renews on the first.</p>
                 </TabsContent>
                 <TabsContent value="danger">
-                  <p class="text-[13px] leading-6">Transfer or delete — gated behind a confirmation.</p>
+                  <p class={cx(rt.body13)}>Transfer or delete — gated behind a confirmation.</p>
                 </TabsContent>
               </div>
             </div>
           </Tabs>
         </div>
       </div>
-      <div class="mt-5">
+      <div class={cx(rt.mt20)}>
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>
     </SectionCard>
@@ -896,12 +914,12 @@ ${close}
       title="Own the paint, not the geometry"
       summary="indicator also accepts a snippet block: pass an indicator(geo) children block and you replace the PAINT while the engine keeps the absolutely-positioned wrapper, the measurement, the 240ms travel and the ResizeObserver re-fit. The snippet receives the live geometry — x, y, w, h and orientation, in list-local pixels — so the paint can react to where the indicator sits and how wide the active trigger is. Here a gradient wash whose opacity densifies as the active trigger narrows — capped low enough that the label's ink keeps its contrast on top; the wrapper it fills is the engine's decision, never yours."
     >
-      <div class="flex max-w-xl flex-col gap-4">
+      <div class={cx(rt.col16, rt.maxWXl)}>
         <Tabs value="nodes">
           <TabsList>
             {#snippet indicator(geo)}
               <div
-                class="h-full w-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--accent))]"
+                class={cx(rt.tabsPillPaint, rt.tabsGradPill)}
                 style="opacity: {Math.max(0.15, 0.55 - geo.w / 300)}"
               ></div>
             {/snippet}
@@ -916,10 +934,10 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Activation and orientation" summary="Tabs use automatic activation by default; vertical lists change the navigation axis."><ComponentCanvas title="tabs · activation" stage="fill" files={tabsActivationFiles}><div class="grid gap-4 md:grid-cols-2"><Tabs value="one"><TabsList><TabsTrigger value="one">automatic</TabsTrigger></TabsList><TabsContent value="one">Focus selects this panel.</TabsContent></Tabs></div></ComponentCanvas></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Activation and orientation" summary="Tabs use automatic activation by default; vertical lists change the navigation axis."><ComponentCanvas title="tabs · activation" stage="fill" files={tabsActivationFiles}><div class={cx(rt.grid, rt.gap16, rt.tabsMd2)}><Tabs value="one"><TabsList><TabsTrigger value="one">automatic</TabsTrigger></TabsList><TabsContent value="one">Focus selects this panel.</TabsContent></Tabs></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between enabled tabs.' }, { key: 'Home / End', action: 'Move to the first or last tab.' }, { key: 'Enter / Space', action: 'Select a focused tab in manual mode.' }]} aria={[{ name: 'role', value: 'tablist, tab, tabpanel', description: 'Exposes the APG tabs pattern.' }, { name: 'aria-selected', value: 'boolean', description: 'Marks the selected trigger.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs each trigger with its panel.' }, { name: 'aria-label', value: 'icon-only triggers', description: 'The accessible name when the snippet is the only content — the indicator materials stay decorative.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Tabs value="token"><TabsList><TabsTrigger value="token">tab</TabsTrigger></TabsList><TabsContent value="token">panel</TabsContent></Tabs></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-glass-radius / --jx-glass-saturate', default: "'2px' / 1.6 (liquid indicator)", source: 'component', description: 'The liquid indicator\'s frost tuning through the shared glass law sheet — ONE effect object through the data-jx-effect stamp channel. The lens itself rides the glass item\'s liquidGlass attachment (the component\'s OWN internal material mount); the old hand-composed liquid filter var and its feTurbulence noise SVG are retired.' }, { name: '--jx-tabs-veil', default: 'calc(var(--jx-inset) * 6)', source: 'component', description: 'The edge-veil band width — the chevron lane (inset·2, where snap parks content blank) plus the ramp that must reach the parked label. The width knob on progressBlur()/shadow() overrides it inline on the host.' }, { name: '--jx-tabs-progress', default: 'JS-stamped 0–1', source: 'component', description: 'The run\'s normalized inline travel (RTL-true), stamped by the scroll handler — the one number the chevron fade and the veil entrance calc from.' }, { name: '--jx-tabs-chevron-size', default: 'var(--jx-text-secondary)', source: 'component', description: 'The chevron glyph size — the family\'s icon token, never a hardcoded px.' }, { name: '--jx-tabs-chevron-inline-start', default: 'lucide chevron-left svg', source: 'component', description: 'Context-swappable chevron glyphs (mask boxes) — the lucide geometry, stroke 2, same source as the icon vocabulary; override per context by resetting the var.' }, { name: '--jx-tabs-chevron-inline-end', default: 'lucide chevron-right svg', source: 'component', description: 'The far side\'s glyph — same law, mirrored path.' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Three halves of one family: the root owns the value, the list owns the keyboard walk and the indicator engine, the trigger owns the anatomy. The keyboard surface is unchanged by every row below."><div class="flex flex-col gap-6"><PropsTable title="Tabs props" props={[{ name: 'value', type: 'string', default: "''", description: 'Selected tab value.', bindable: true }, { name: 'activation', type: "'automatic' | 'manual'", default: "'automatic'", description: 'Selection behavior while moving focus.' }, { name: 'onchange', type: '(value: string) => void', description: 'Receives selection changes.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /><PropsTable title="TabsList props" props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Axis of travel: horizontal ←/→, vertical ↑/↓ with the indicator on the right edge.' }, { name: 'indicator', type: "'line' | 'pill' | 'outline' | 'glass' | 'liquid' | 'none' | Snippet", default: "'line'", description: 'The selection paint — one shared element measured to the active trigger and animated between positions. A snippet block (indicator(geo), receiving x/y/w/h/orientation in list-local px) replaces the paint while the engine keeps the measured wrapper.' }, { name: 'layout', type: "'inline' | 'grow' | 'scroll' | 'wrap'", default: "'inline'", description: 'inline is content-sized; grow stretches triggers to equal widths (the Material full-bleed bar); scroll declares a horizontal overflow run; wrap flows rows instead of scrolling. Every horizontal strip degrades to a hidden-scrollbar scroll run when content outgrows the container, with on-demand DOM chevron buttons overlaying the open direction. Composes with any material.' }, { name: 'scrollEffect', type: 'ramp() | progressBlur() | shadow()', default: 'ramp()', description: 'Edge treatment while the run scrolls, built by the typed builders (the press-button effect convention). ramp({ opacity, blur, translate, distance, radius }) is the ONE member-ramp builder — every toggle defaults ON; each trigger ramps by its clipped fraction as it crosses an edge (scroll-following, consumed squared, every engine), and a toggle turned off never pays its property (ramp({ blur: false }) is the cheapest posture, the old slide). progressBlur({ blurLevels, width }) veils both edges with the progressive-blur ladder; shadow({ width }) is the single-layer contrast ghost — backdrop-filter contrast() subtracts color toward mid tone (light dims, dark lifts), never adds black. Both veils enter by scroll-driven translate; width overrides the band width.' }, { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes.' }, { name: '...rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'Every other attribute lands on the tablist element.' }]} /><PropsTable title="TabsTrigger props" props={[{ name: 'value', type: 'string', default: '—', description: 'The tab identity — pairs with the same value on a TabsContent.', required: true }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Skipped by the arrow walk and the roving tab stop.' }, { name: 'icon', type: 'Snippet', default: '—', description: 'Leading icon lane — replaces the start padding (the slot-vs-padding law); with no label text this is the icon-only form.' }, { name: 'iconEnd', type: 'Snippet', default: '—', description: 'Trailing icon lane — replaces the end padding.' }, { name: 'stack', type: 'boolean', default: 'false', description: 'The Material stacked tab: icon over label in a centered column.' }, { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes.' }, { name: '...rest', type: 'HTMLButtonAttributes', default: 'spread', description: 'Every other button attribute rides through — aria-label lands here for icon-only triggers.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Tabs value="token"><TabsList><TabsTrigger value="token">tab</TabsTrigger></TabsList><TabsContent value="token">panel</TabsContent></Tabs></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-glass-radius / --jx-glass-saturate', default: "'2px' / 1.6 (liquid indicator)", source: 'component', description: 'The liquid indicator\'s frost tuning through the shared glass law sheet — ONE effect object through the data-jx-effect stamp channel. The lens itself rides the glass item\'s liquidGlass attachment (the component\'s OWN internal material mount); the old hand-composed liquid filter var and its feTurbulence noise SVG are retired.' }, { name: '--jx-tabs-veil', default: 'calc(var(--jx-inset) * 6)', source: 'component', description: 'The edge-veil band width — the chevron lane (inset·2, where snap parks content blank) plus the ramp that must reach the parked label. The width knob on progressBlur()/shadow() overrides it inline on the host.' }, { name: '--jx-tabs-progress', default: 'JS-stamped 0–1', source: 'component', description: 'The run\'s normalized inline travel (RTL-true), stamped by the scroll handler — the one number the chevron fade and the veil entrance calc from.' }, { name: '--jx-tabs-chevron-size', default: 'var(--jx-text-secondary)', source: 'component', description: 'The chevron glyph size — the family\'s icon token, never a hardcoded px.' }, { name: '--jx-tabs-chevron-inline-start', default: 'lucide chevron-left svg', source: 'component', description: 'Context-swappable chevron glyphs (mask boxes) — the lucide geometry, stroke 2, same source as the icon vocabulary; override per context by resetting the var.' }, { name: '--jx-tabs-chevron-inline-end', default: 'lucide chevron-right svg', source: 'component', description: 'The far side\'s glyph — same law, mirrored path.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Three halves of one family: the root owns the value, the list owns the keyboard walk and the indicator engine, the trigger owns the anatomy. The keyboard surface is unchanged by every row below."><div class={cx(rt.col24)}><PropsTable title="Tabs props" props={[{ name: 'value', type: 'string', default: "''", description: 'Selected tab value.', bindable: true }, { name: 'activation', type: "'automatic' | 'manual'", default: "'automatic'", description: 'Selection behavior while moving focus.' }, { name: 'onchange', type: '(value: string) => void', description: 'Receives selection changes.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /><PropsTable title="TabsList props" props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Axis of travel: horizontal ←/→, vertical ↑/↓ with the indicator on the right edge.' }, { name: 'indicator', type: "'line' | 'pill' | 'outline' | 'glass' | 'liquid' | 'none' | Snippet", default: "'line'", description: 'The selection paint — one shared element measured to the active trigger and animated between positions. A snippet block (indicator(geo), receiving x/y/w/h/orientation in list-local px) replaces the paint while the engine keeps the measured wrapper.' }, { name: 'layout', type: "'inline' | 'grow' | 'scroll' | 'wrap'", default: "'inline'", description: 'inline is content-sized; grow stretches triggers to equal widths (the Material full-bleed bar); scroll declares a horizontal overflow run; wrap flows rows instead of scrolling. Every horizontal strip degrades to a hidden-scrollbar scroll run when content outgrows the container, with on-demand DOM chevron buttons overlaying the open direction. Composes with any material.' }, { name: 'scrollEffect', type: 'ramp() | progressBlur() | shadow()', default: 'ramp()', description: 'Edge treatment while the run scrolls, built by the typed builders (the press-button effect convention). ramp({ opacity, blur, translate, distance, radius }) is the ONE member-ramp builder — every toggle defaults ON; each trigger ramps by its clipped fraction as it crosses an edge (scroll-following, consumed squared, every engine), and a toggle turned off never pays its property (ramp({ blur: false }) is the cheapest posture, the old slide). progressBlur({ blurLevels, width }) veils both edges with the progressive-blur ladder; shadow({ width }) is the single-layer contrast ghost — backdrop-filter contrast() subtracts color toward mid tone (light dims, dark lifts), never adds black. Both veils enter by scroll-driven translate; width overrides the band width.' }, { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes.' }, { name: '...rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'Every other attribute lands on the tablist element.' }]} /><PropsTable title="TabsTrigger props" props={[{ name: 'value', type: 'string', default: '—', description: 'The tab identity — pairs with the same value on a TabsContent.', required: true }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Skipped by the arrow walk and the roving tab stop.' }, { name: 'icon', type: 'Snippet', default: '—', description: 'Leading icon lane — replaces the start padding (the slot-vs-padding law); with no label text this is the icon-only form.' }, { name: 'iconEnd', type: 'Snippet', default: '—', description: 'Trailing icon lane — replaces the end padding.' }, { name: 'stack', type: 'boolean', default: 'false', description: 'The Material stacked tab: icon over label in a centered column.' }, { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes.' }, { name: '...rest', type: 'HTMLButtonAttributes', default: 'spread', description: 'Every other button attribute rides through — aria-label lands here for icon-only triggers.' }]} /></div></SectionCard></div>
   </div>
 </div>

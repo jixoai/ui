@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import { page } from '$app/state';
+  import { rt } from '$lib/surface/routes.stylex';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { docsSections, flatComponents } from '$lib/docs-route-model';
   import Icon from '$lib/ui/icon';
@@ -18,6 +19,23 @@
   const hrefNormalized = (href: string): string =>
     href.replace(/\.html$/, '').split('#')[0].replace(/\/+$/, '') || '/';
   const installTargets = CATALOG.filter((e) => e.type !== 'registry:ui');
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -28,8 +46,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex flex-col gap-10">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.flex, rt.col, rt.gap40)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -38,7 +56,7 @@
         title="Docs — the learning path"
         summary="Three sections carry the docs: Sections is the curriculum — theming & tokens, the boundary rulings (where wrapping stops) and the componentless face (jx-pure). Components is the UI-module inventory. Registry is the distribution protocol; its overview carries every installable target. The left rail is exactly these three."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">{flatComponents.length} ui modules</span>
           <span class="pill">{installTargets.length} install targets</span>
           <span class="pill">curriculum · inventory · protocol</span>
@@ -47,32 +65,32 @@
     </div>
 
     <!-- the section cards: the curriculum index -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-reveal="">
+    <div class={cx(rt.dxGrid)} data-reveal="">
       {#each sections as section (section.id)}
         <section
-          class="border-border bg-card flex flex-col gap-3 border p-5"
+          class={cx(rt.frame, rt.bgCard, rt.flex, rt.col, rt.gap12, rt.p20)}
           aria-label="{section.label} section"
         >
-          <div class="flex items-baseline justify-between gap-3">
-            <h2 class="font-nav text-[1.05rem] tracking-tight">{section.label}</h2>
+          <div class={cx(rt.flex, rt.itemsBaseline, rt.justifyBetween, rt.gap12)}>
+            <h2 class={cx(rt.fontNav, rt.dxHeading, rt.trackTight)}>{section.label}</h2>
           </div>
-          <ul class="flex flex-col gap-2" role="list">
+          <ul class={cx(rt.col8)} role="list">
             {#each section.pages as pg (pg.title)}
               <li>
                 <a
-                  class="grid grid-cols-[auto_1fr] items-baseline gap-x-2 gap-y-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                  class={cx(rt.dxNavLink)}
                   href={pg.href}
                   aria-current={hrefNormalized(pg.href) === normalized ? 'page' : undefined}
                 >
-                  <span class="text-primary col-start-1 row-start-1 flex items-center" aria-hidden="true"><Icon name="arrowRight" size={12} /></span>
-                  <span class="col-start-2 row-start-1 flex items-baseline gap-2">
-                    <span class="font-mono text-xs">{pg.title}</span>
+                  <span class={cx(rt.inkPrimary, rt.dxCol1, rt.dxRow1, rt.flex, rt.itemsCenter)} aria-hidden="true"><Icon name="arrowRight" size={12} /></span>
+                  <span class={cx(rt.dxCol2, rt.dxRow1, rt.flex, rt.itemsBaseline, rt.gap8)}>
+                    <span class={cx(rt.fontMono, rt.text12)}>{pg.title}</span>
                     {#if pg.count !== undefined}
-                      <span class="font-mono text-[10px] opacity-50">{pg.count}</span>
+                      <span class={cx(rt.fontMono, rt.text10, rt.dxOpacity50)}>{pg.count}</span>
                     {/if}
                   </span>
                   {#if pg.subtitle}
-                    <span class="text-muted-foreground/70 col-start-2 row-start-2 font-nav text-[10px] tracking-[0.02em]">
+                    <span class={cx(rt.inkMuted70, rt.dxCol2, rt.dxRow2, rt.fontNav, rt.text10, rt.dxTrack02)}>
                       {pg.subtitle}
                     </span>
                   {/if}

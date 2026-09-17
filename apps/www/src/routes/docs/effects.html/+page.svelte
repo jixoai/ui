@@ -17,6 +17,7 @@
 -->
 <script lang="ts">
   import type { Attachment } from 'svelte/attachments';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -515,6 +516,23 @@ ${close}
   ];
   const resolveRippleUsage = (file: TreeFile): string =>
     file.name.endsWith('ripple-usage.svelte') ? rippleUsage : file.content;
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -525,8 +543,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -535,7 +553,7 @@ ${close}
         title="effects — attachments, not components"
         summary={"The effect family's one law: an effect is an ATTACHMENT — a factory you mount on an element, never a component you render. The leaf form ({@attach pressEffect(shimmer())}) puts a loop on your own button; the component-tag form (<PressButton {@attach pressEffect(…) }>) reaches a host's root through its rest spread — data-jx-attach names the mounting point, the optional stamp. Every effect is element-level paint: it never owns semantics, never moves the body, and degrades honestly (frost before lens, frozen loops under reduced motion). Scroll-driven motion is a different domain — scroll-run owns it, linked below. Two residents share this home: glass (frost, the liquid lens, the SwiftUI semantic layer) and the press loops (shimmer, pulse, rainbow, ripple)."}
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">leaf form · your own element</span>
           <span class="pill">component tag · the host's root</span>
           <span class="pill">fromAction · the action bridge</span>
@@ -556,7 +574,7 @@ ${close}
          the family block has none — there is no `effects` registry
          item. -->
     <div data-reveal="">
-      <div class="flex flex-col gap-3">
+      <div class={cx(rt.col12)}>
         <DocsInstall name="effects" item={null} />
         <DocsInstall name="effects/glass" item="glass" />
         <DocsInstall name="effects/press-button" item="press-button" />
@@ -571,10 +589,10 @@ ${close}
         title="Usage"
         summary={"Two mount forms and one bridge. Build the effect object with a typed builder, feed it to a factory, mount the factory — the whole {@attach} expression is the attachment, on a leaf element or a host's component tag alike. Never write into a mounted fx; never hand an action-shaped helper to {@attach} raw."}
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={usage} lang="svelte" meta="Effects usage" />
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-            <strong class="text-foreground">The param-flow law.</strong> Params FLOW — derive the fx
+          <p class={cx(rt.para)}>
+            <strong class={cx(rt.inkFg)}>The param-flow law.</strong> Params FLOW — derive the fx
             object ($derived) and let a change replace the factory call; never mutate a mounted fx in
             place. The channel has no update call: a replaced fx is a fresh closure, an identity
             remount (old teardown, fresh mount — the glass maps regenerate in single-digit ms). Deep
@@ -583,8 +601,8 @@ ${close}
             reads — so mutation re-runs the attachment while the old closure stays captured. Replace,
             always.
           </p>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-            <strong class="text-foreground">The two-channel law.</strong> <code>data-jx-attach</code>
+          <p class={cx(rt.para)}>
+            <strong class={cx(rt.inkFg)}>The two-channel law.</strong> <code>data-jx-attach</code>
             is the JS channel — WHERE effects mount: the host stamps it on the mounting-point
             element ('root' on press-button/chip/icon-button, 'indicator' on tabs). Its value is
             the point's name, nothing more — an optional, queryable stamp, never the forwarding
@@ -613,10 +631,10 @@ ${close}
         ]}
         resolveFileContent={resolveUsage}
       >
-        <div class="flex w-full flex-col gap-4">
+        <div class={cx(rt.col16, rt.wFull)}>
           <div
             data-glass-demo-band
-            class="glass-band relative w-full overflow-hidden rounded-lg"
+            class="glass-band {cx(rt.relative, rt.wFull, rt.overflowHidden, rt.radius0)}"
             aria-label="glass effect demo band"
           >
             <div class="glass-band-bg" aria-hidden="true"></div>
@@ -627,9 +645,9 @@ ${close}
                 <span>liquid glass · refraction — the lens bends what sits behind it</span>
               </div>
             </div>
-            <div class="relative flex flex-col gap-8 px-6 pt-[11rem] pb-8 sm:px-10">
+            <div class={cx(rt.efStage)}>
               <!-- the physical layer — driven by the dock's sliders -->
-              <div class="flex flex-wrap items-start gap-7">
+              <div class={cx(rt.flex, rt.wrap, rt.itemsStart, rt.gap28)}>
                 <div
                   data-glass-demo-search
                   class="glass-box"
@@ -637,10 +655,10 @@ ${close}
                   {@attach liquidGlass(physicalFx)}
                 >
                   <div class="glass-chrome" aria-hidden="true"></div>
-                  <div class="glass-content flex-row items-center gap-3 px-6">
-                    <span class="text-[15px]" aria-hidden="true">⌕</span>
-                    <span class="glass-ink flex-1">Search</span>
-                    <span class="glass-ink text-[11px] opacity-75">⌘K</span>
+                  <div class="glass-content {cx(rt.flex, rt.itemsCenter, rt.gap12, rt.px24)}">
+                    <span class={cx(rt.text15)} aria-hidden="true">⌕</span>
+                    <span class="glass-ink {cx(rt.grow)}">Search</span>
+                    <span class="glass-ink {cx(rt.text11, rt.opacity75)}">⌘K</span>
                   </div>
                 </div>
                 <div
@@ -650,9 +668,9 @@ ${close}
                   {@attach liquidGlass(physicalFx)}
                 >
                   <div class="glass-chrome" aria-hidden="true"></div>
-                  <div class="glass-content flex-col items-start gap-1.5 p-5">
-                    <p class="glass-ink m-0 text-[12.5px] font-semibold">liquid() — kube.io's generator, ported</p>
-                    <p class="glass-ink glass-meta m-0" data-glass-demo-meta>{metaLine}</p>
+                  <div class="glass-content {cx(rt.col, rt.itemsStart, rt.gap6, rt.p20)}">
+                    <p class="glass-ink {cx(rt.m0, rt.text125, rt.semibold)}">liquid() — kube.io's generator, ported</p>
+                    <p class="glass-ink glass-meta {cx(rt.m0)}" data-glass-demo-meta>{metaLine}</p>
                   </div>
                 </div>
                 <div
@@ -662,36 +680,36 @@ ${close}
                   {@attach liquidGlass(physicalFx)}
                 >
                   <div class="glass-chrome" aria-hidden="true"></div>
-                  <div class="glass-content flex-row items-center px-5">
-                    <span class="glass-ink text-[12px]">wide pill · uniform bezel</span>
+                  <div class="glass-content {cx(rt.flex, rt.itemsCenter, rt.px20)}">
+                    <span class="glass-ink {cx(rt.text12)}">wide pill · uniform bezel</span>
                   </div>
                 </div>
                 <!-- the frost member — zero JS, css-only, every engine -->
                 <div
                   data-glass-demo-blur
-                  class="glass-box min-w-[260px] flex-1"
+                  class="glass-box {cx(rt.efMinW260, rt.grow)}"
                   {...stampedChrome(frostFx, FROST_GEOMETRY)}
                 >
                   <div class="glass-chrome" aria-hidden="true"></div>
-                  <div class="glass-content flex-col items-start gap-1.5 p-5">
-                    <p class="glass-ink m-0 text-[12.5px] font-semibold">blur() — the zero-JS frost member</p>
-                    <p class="glass-ink glass-meta m-0">css-only: the stamp + vars, no mount — this is also liquid's fallback paint</p>
+                  <div class="glass-content {cx(rt.col, rt.itemsStart, rt.gap6, rt.p20)}">
+                    <p class="glass-ink {cx(rt.m0, rt.text125, rt.semibold)}">blur() — the zero-JS frost member</p>
+                    <p class="glass-ink glass-meta {cx(rt.m0)}">css-only: the stamp + vars, no mount — this is also liquid's fallback paint</p>
                   </div>
                 </div>
               </div>
               <!-- the semantic layer — the dock's variant, compiled down,
                    then the approved prototype's demo row -->
-              <div class="flex flex-wrap items-center gap-x-4 gap-y-5">
+              <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gapX16, rt.gapY20)}>
                 <button
                   type="button"
                   data-glass-demo-apple-live
-                  class="glass-box glass-live cursor-pointer"
+                  class="glass-box glass-live {cx(rt.cursorPointer)}"
                   style="width: 210px; height: 48px; border-radius: 24px"
                   {@attach appleMount(liveAppleFx)}
                 >
                   <div class="glass-chrome" aria-hidden="true"></div>
-                  <div class="glass-content flex-row items-center px-4">
-                    <span class="glass-ink text-[12px] font-semibold">apple() · {semanticVariant}</span>
+                  <div class="glass-content {cx(rt.flex, rt.itemsCenter, rt.px16)}">
+                    <span class="glass-ink {cx(rt.text12, rt.semibold)}">apple() · {semanticVariant}</span>
                   </div>
                 </button>
                 {#each APPLE_GALLERY as item (item.key)}
@@ -699,13 +717,13 @@ ${close}
                     <button
                       type="button"
                       data-glass-demo-apple={item.key}
-                      class="glass-box glass-chip cursor-pointer"
+                      class="glass-box glass-chip {cx(rt.cursorPointer)}"
                       style="width: 190px; height: 44px; border-radius: 22px"
                       {@attach appleMount(item.fx)}
                     >
                       <div class="glass-chrome" aria-hidden="true"></div>
-                      <div class="glass-content flex-row items-center px-4">
-                        <span class="glass-ink text-[12px]">{item.label}</span>
+                      <div class="glass-content {cx(rt.flex, rt.itemsCenter, rt.px16)}">
+                        <span class="glass-ink {cx(rt.text12)}">{item.label}</span>
                       </div>
                     </button>
                   {:else if item.key === 'identity'}
@@ -715,8 +733,8 @@ ${close}
                       {...stampedChrome(item.fx, CHIP_GEOMETRY)}
                     >
                       <div class="glass-chrome" aria-hidden="true"></div>
-                      <div class="glass-content flex-row items-center px-4">
-                        <span class="glass-ink text-[12px]">{item.label}</span>
+                      <div class="glass-content {cx(rt.flex, rt.itemsCenter, rt.px16)}">
+                        <span class="glass-ink {cx(rt.text12)}">{item.label}</span>
                       </div>
                     </div>
                   {:else}
@@ -727,8 +745,8 @@ ${close}
                       {@attach appleMount(item.fx)}
                     >
                       <div class="glass-chrome" aria-hidden="true"></div>
-                      <div class="glass-content flex-row items-center px-4">
-                        <span class="glass-ink text-[12px]">{item.label}</span>
+                      <div class="glass-content {cx(rt.flex, rt.itemsCenter, rt.px16)}">
+                        <span class="glass-ink {cx(rt.text12)}">{item.label}</span>
                       </div>
                     </div>
                   {/if}
@@ -736,7 +754,7 @@ ${close}
               </div>
             </div>
           </div>
-          <p class="text-muted-foreground m-0 font-mono text-[11px]" data-glass-demo-engine>
+          <p class={cx(rt.note11, rt.m0, rt.fontMono)} data-glass-demo-engine>
             {engineLens === true
               ? 'engine: url() backdrop-filter supported — the lens is live (Chromium)'
               : engineLens === false
@@ -794,8 +812,8 @@ ${close}
         title="Two layers, one stamp channel"
         summary="The physical layer is the objective fact; the semantic layer is the iOS standard compiled down and exposes no physics. Both land on the same data-jx-effect stamp with the same tuning vars — the law sheet owns the paint, the mount owns the lens."
       >
-        <div class="flex flex-col gap-5">
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.para)}>
             <code>{'liquid({...})'}</code> carries kube.io's generator: the surface profile
             <code>d(s) = T.x/T.y · (H(s)·thickness + bezel)</code> — a 1-D ray trace with the
             glass-slab path term — normalized by max displacement and swept along the border as a
@@ -826,52 +844,52 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         title="Degradation is the design, not the fallback"
         summary="The frost base paints unconditionally — for liquid it IS the no-JS, pre-hydration and unsupported-engine paint. The lens is an enhancement, never a dependency: frost → lens on mount, never unfiltered → lens."
       >
-        <div class="flex flex-col gap-5">
-          <div class="overflow-x-auto">
-            <table class="w-full min-w-[560px] border-collapse text-left text-[12.5px]">
+        <div class={cx(rt.col20)}>
+          <div class={cx(rt.oxAuto)}>
+            <table class={cx(rt.efTable)}>
               <thead>
-                <tr class="border-border border-b">
-                  <th class="text-muted-foreground font-nav p-2 text-[11px] uppercase tracking-[0.18em]">environment</th>
-                  <th class="text-muted-foreground font-nav p-2 text-[11px] uppercase tracking-[0.18em]">paint</th>
+                <tr class={cx(rt.bBorder)}>
+                  <th class={cx(rt.note11, rt.fontNav, rt.p8, rt.upper, rt.track18)}>environment</th>
+                  <th class={cx(rt.note11, rt.fontNav, rt.p8, rt.upper, rt.track18)}>paint</th>
                 </tr>
               </thead>
-              <tbody class="align-top">
-                <tr class="border-border/60 border-b">
-                  <td class="p-2">Chromium, JS on</td>
-                  <td class="text-muted-foreground p-2">the lens, from the first painted frame after mount (the pointer-only @supports branch)</td>
+              <tbody class={cx(rt.alignTop)}>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8)}>Chromium, JS on</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>the lens, from the first painted frame after mount (the pointer-only @supports branch)</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2">Chromium, JS off / pre-hydration</td>
-                  <td class="text-muted-foreground p-2">frost — the unconditional base paint holds (attachments are SSR-inert; disable JS on this page: the band stays frosted)</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8)}>Chromium, JS off / pre-hydration</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>frost — the unconditional base paint holds (attachments are SSR-inert; disable JS on this page: the band stays frosted)</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2">Safari / Firefox</td>
-                  <td class="text-muted-foreground p-2">frost — the @supports branch never applies; same geometry, honest paint</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8)}>Safari / Firefox</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>frost — the @supports branch never applies; same geometry, honest paint</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2">no 2D canvas / zero-size box</td>
-                  <td class="text-muted-foreground p-2">the mount stamps vars and returns — frost stands, no crash; a ResizeObserver rebuilds when the element appears</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8)}>no 2D canvas / zero-size box</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>the mount stamps vars and returns — frost stands, no crash; a ResizeObserver rebuilds when the element appears</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2">prefers-reduced-transparency</td>
-                  <td class="text-muted-foreground p-2">solid fill (<code>--jx-glass-solid-fill</code> over the background token), no filters</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8)}>prefers-reduced-transparency</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>solid fill (<code>--jx-glass-solid-fill</code> over the background token), no filters</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2">prefers-reduced-motion</td>
-                  <td class="text-muted-foreground p-2">every press loop and the band scenery freeze; the interactive press choreography drops (motion is an enhancement too)</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8)}>prefers-reduced-motion</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>every press loop and the band scenery freeze; the interactive press choreography drops (motion is an enhancement too)</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2">print</td>
-                  <td class="text-muted-foreground p-2">filters off, the fill stays readable on paper</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8)}>print</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>filters off, the fill stays readable on paper</td>
                 </tr>
                 <tr>
-                  <td class="p-2">forced-colors</td>
-                  <td class="text-muted-foreground p-2">no law block by design — consumers carry their own Canvas grounds</td>
+                  <td class={cx(rt.p8)}>forced-colors</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>no law block by design — consumers carry their own Canvas grounds</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          <p class={cx(rt.para)}>
             The lens's host svg is a zero-size, aria-hidden fragment appended to the document body —
             pure scenery, never in the accessibility tree. The element itself keeps whatever role it
             had: the effect never owns semantics.
@@ -888,8 +906,8 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         title="Element chrome is consumer-owned"
         summary="kube's own component css, not law: consumers ship the tint fill, the shadow and the border-radius. The mount measures the element's border-radius (or the shape override) and builds the lens to fit — the chrome never fights the effect."
       >
-        <div class="flex flex-col gap-5">
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.para)}>
             The tint layer rides an inset child (so the law sheet's fill paint stays untouched),
             the shadow and the radius ride the host. The semantic layer's <code>tint</code> option
             compiles to the same shape: a 30% color-mix fill written into the stamp vars — no extra
@@ -923,13 +941,13 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         resolveFileContent={resolveShimmerUsage}
       >
         <div
-          class="glass-band fx-band isolate relative w-full overflow-hidden rounded-lg"
+          class="glass-band fx-band {cx(rt.isolate, rt.relative, rt.wFull, rt.overflowHidden, rt.radius0)}"
           data-fx-band="shimmer"
           aria-label="shimmer demo stage over the animated band"
         >
           <div class="glass-band-bg" aria-hidden="true"></div>
           <div class="glass-band-grid" aria-hidden="true"></div>
-          <div class="fx-stage fx-stage-band relative" aria-label="shimmer demo stage">
+          <div class="fx-stage fx-stage-band {cx(rt.relative)}" aria-label="shimmer demo stage">
             <button
               type="button"
               class="fx-host fx-host-fill"
@@ -1079,13 +1097,13 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         resolveFileContent={resolvePulseUsage}
       >
         <div
-          class="glass-band fx-band isolate relative w-full overflow-hidden rounded-lg"
+          class="glass-band fx-band {cx(rt.isolate, rt.relative, rt.wFull, rt.overflowHidden, rt.radius0)}"
           data-fx-band="pulse"
           aria-label="pulse demo stage over the animated band"
         >
           <div class="glass-band-bg" aria-hidden="true"></div>
           <div class="glass-band-grid" aria-hidden="true"></div>
-          <div class="fx-stage fx-stage-band relative" aria-label="pulse demo stage">
+          <div class="fx-stage fx-stage-band {cx(rt.relative)}" aria-label="pulse demo stage">
           <button
             type="button"
             class="fx-host fx-host-fill"
@@ -1174,13 +1192,13 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         resolveFileContent={resolveRainbowUsage}
       >
         <div
-          class="glass-band fx-band isolate relative w-full overflow-hidden rounded-lg"
+          class="glass-band fx-band {cx(rt.isolate, rt.relative, rt.wFull, rt.overflowHidden, rt.radius0)}"
           data-fx-band="rainbow"
           aria-label="rainbow demo stage over the animated band"
         >
           <div class="glass-band-bg" aria-hidden="true"></div>
           <div class="glass-band-grid" aria-hidden="true"></div>
-          <div class="fx-stage fx-stage-band relative" aria-label="rainbow demo stage">
+          <div class="fx-stage fx-stage-band {cx(rt.relative)}" aria-label="rainbow demo stage">
           <button
             type="button"
             class="fx-host fx-host-fill"
@@ -1289,13 +1307,13 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
         resolveFileContent={resolveRippleUsage}
       >
         <div
-          class="glass-band fx-band isolate relative w-full overflow-hidden rounded-lg"
+          class="glass-band fx-band {cx(rt.isolate, rt.relative, rt.wFull, rt.overflowHidden, rt.radius0)}"
           data-fx-band="ripple"
           aria-label="ripple demo stage over the animated band"
         >
           <div class="glass-band-bg" aria-hidden="true"></div>
           <div class="glass-band-grid" aria-hidden="true"></div>
-          <div class="fx-stage fx-stage-band relative" aria-label="ripple demo stage">
+          <div class="fx-stage fx-stage-band {cx(rt.relative)}" aria-label="ripple demo stage">
           <button
             type="button"
             class="fx-host fx-host-fill"
@@ -1370,7 +1388,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="theming" data-reveal="">
     <SectionCard
       family="theming"
@@ -1401,7 +1419,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
       title="API"
       summary="Builders build typed fx objects (pure — they never touch the document); factories turn an fx into an attachment; hosts expose named hooks. Glass numeric args clamp into range, NaN / ±Infinity / non-finite throws TypeError at construction, surface validates against the enum."
     >
-      <div class="flex flex-col gap-8">
+      <div class={cx(rt.col32)}>
         <PropsTable
           title="liquid(o) — the physical layer (LiquidGlassOptions)"
           props={[
@@ -1446,36 +1464,36 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
             { name: 'ripple(o)', type: 'RippleEffect', default: 'see below', description: 'Ink expands from the exact press point, centered on keyboard activation — a css-animated svg dot with an optional feGaussianBlur soft edge (soft, default 0 — 0 disables the filter), riding a seat that inherits the host’s border-radius with overflow hidden, removed on animationend. Options: color? (default currentColor), duration? (default 600ms), soft? (default 0), shape? — round | bevel (bevel cuts the corners into a diamond).' },
           ]}
         />
-        <div class="flex flex-col gap-3">
-          <p class="text-primary font-nav m-0 text-[11px] uppercase tracking-[0.24em]">
+        <div class={cx(rt.col12)}>
+          <p class={cx(rt.eyebrowPrimary, rt.m0)}>
             the semantic compile table — Apple parameter → physical compilation
           </p>
-          <div class="overflow-x-auto">
-            <table class="w-full min-w-[560px] border-collapse text-left text-[12.5px]">
-              <tbody class="align-top">
-                <tr class="border-border/60 border-b">
-                  <td class="w-[220px] p-2 font-mono">variant: 'regular'</td>
-                  <td class="text-muted-foreground p-2">the physical defaults verbatim (liquid() ≡ liquid.apple() — deep-equal, pinned by tests)</td>
+          <div class={cx(rt.oxAuto)}>
+            <table class={cx(rt.efTable)}>
+              <tbody class={cx(rt.alignTop)}>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.efCell220, rt.p8, rt.fontMono)}>variant: 'regular'</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>the physical defaults verbatim (liquid() ≡ liquid.apple() — deep-equal, pinned by tests)</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2 font-mono">variant: 'clear'</td>
-                  <td class="text-muted-foreground p-2">{`{ blur: 0, fill: background 22% mix, rimSaturate: 2.5, specular: 0.12 }`} — less frosting, more transparency, a quieter rim</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8, rt.fontMono)}>variant: 'clear'</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>{`{ blur: 0, fill: background 22% mix, rimSaturate: 2.5, specular: 0.12 }`} — less frosting, more transparency, a quieter rim</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2 font-mono">variant: 'identity' / isEnabled: false</td>
-                  <td class="text-muted-foreground p-2">the frost member — <code>blur({'{ radius: 2px, saturate: 1.6 }'})</code>; Apple’s no-op at zero lens cost</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8, rt.fontMono)}>variant: 'identity' / isEnabled: false</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>the frost member — <code>blur({'{ radius: 2px, saturate: 1.6 }'})</code>; Apple’s no-op at zero lens cost</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2 font-mono">tint</td>
-                  <td class="text-muted-foreground p-2">fill = color-mix(in oklab, &lt;tint&gt; 30%, transparent)</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8, rt.fontMono)}>tint</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>fill = color-mix(in oklab, &lt;tint&gt; 30%, transparent)</td>
                 </tr>
-                <tr class="border-border/60 border-b">
-                  <td class="p-2 font-mono">interactive</td>
-                  <td class="text-muted-foreground p-2">the effect flag → <code>--jx-glass-interactive:1</code> → the law sheet’s press motion</td>
+                <tr class={cx(rt.bBorder60)}>
+                  <td class={cx(rt.p8, rt.fontMono)}>interactive</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>the effect flag → <code>--jx-glass-interactive:1</code> → the law sheet’s press motion</td>
                 </tr>
                 <tr>
-                  <td class="p-2 font-mono">shape</td>
-                  <td class="text-muted-foreground p-2">the mount’s radius override ('capsule' = min(w,h)/2; number = px, clamped); unset = the element’s border-radius</td>
+                  <td class={cx(rt.p8, rt.fontMono)}>shape</td>
+                  <td class={cx(rt.inkMuted, rt.p8)}>the mount’s radius override ('capsule' = min(w,h)/2; number = px, clamped); unset = the element’s border-radius</td>
                 </tr>
               </tbody>
             </table>
@@ -1531,38 +1549,38 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
       title="Migrating to attachments"
       summary="The effect-attachments migration (2026-09-09; r4 2026-09-10) retired the action-directive mounts, the builder-prop form and the attachments record: every effect now mounts through a factory — the leaf form on your own elements, the component-tag form through hosts."
     >
-      <div class="flex flex-col gap-5">
-        <div class="overflow-x-auto">
-          <table class="w-full min-w-[560px] border-collapse text-left text-[12.5px]">
-            <tbody class="align-top">
-              <tr class="border-border/60 border-b">
-                <td class="w-[280px] p-2 font-mono">{'use:pressEffect(fx)'}</td>
-                <td class="text-muted-foreground p-2">→ <code>{'{@attach pressEffect(fx)}'}</code> — the same factory, the attachment channel. The element-level action directive is retired repo-wide; the canary in the spec battery holds it at zero.</td>
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.oxAuto)}>
+          <table class={cx(rt.efTable)}>
+            <tbody class={cx(rt.alignTop)}>
+              <tr class={cx(rt.bBorder60)}>
+                <td class={cx(rt.efCell280, rt.p8, rt.fontMono)}>{'use:pressEffect(fx)'}</td>
+                <td class={cx(rt.inkMuted, rt.p8)}>→ <code>{'{@attach pressEffect(fx)}'}</code> — the same factory, the attachment channel. The element-level action directive is retired repo-wide; the canary in the spec battery holds it at zero.</td>
               </tr>
-              <tr class="border-border/60 border-b">
-                <td class="p-2 font-mono">{'<PressButton effect={…}>'}</td>
-                <td class="text-muted-foreground p-2">→ <code>{'<PressButton {@attach pressEffect(shimmer())}>'}</code> — the builder-prop retired with the host’s effect branches, and the r4 review retired the record that briefly replaced it: the component tag is the one uniform syntax, the host’s rest spread lands it at the stamped root. Chip’s default ripple died with its prop — attach through the tag.</td>
+              <tr class={cx(rt.bBorder60)}>
+                <td class={cx(rt.p8, rt.fontMono)}>{'<PressButton effect={…}>'}</td>
+                <td class={cx(rt.inkMuted, rt.p8)}>→ <code>{'<PressButton {@attach pressEffect(shimmer())}>'}</code> — the builder-prop retired with the host’s effect branches, and the r4 review retired the record that briefly replaced it: the component tag is the one uniform syntax, the host’s rest spread lands it at the stamped root. Chip’s default ripple died with its prop — attach through the tag.</td>
               </tr>
-              <tr class="border-border/60 border-b">
-                <td class="p-2 font-mono">{'<PressButton attachments={{ root: … }}>'}</td>
-                <td class="text-muted-foreground p-2">→ <code>{'<PressButton {@attach pressEffect(…)}>'}</code> — the attachments record (r2’s interim shape) retired with r4: the same mount through the tag, one less prop, the same stamped root.</td>
+              <tr class={cx(rt.bBorder60)}>
+                <td class={cx(rt.p8, rt.fontMono)}>{'<PressButton attachments={{ root: … }}>'}</td>
+                <td class={cx(rt.inkMuted, rt.p8)}>→ <code>{'<PressButton {@attach pressEffect(…)}>'}</code> — the attachments record (r2’s interim shape) retired with r4: the same mount through the tag, one less prop, the same stamped root.</td>
               </tr>
-              <tr class="border-border/60 border-b">
-                <td class="p-2 font-mono">{'use:liquidGlass(fx)'}</td>
-                <td class="text-muted-foreground p-2">→ <code>{'{@attach liquidGlass(fx)}'}</code> — liquidGlass IS the factory now; the kernel (attachLiquidGlass) stays exported for framework-agnostic use.</td>
+              <tr class={cx(rt.bBorder60)}>
+                <td class={cx(rt.p8, rt.fontMono)}>{'use:liquidGlass(fx)'}</td>
+                <td class={cx(rt.inkMuted, rt.p8)}>→ <code>{'{@attach liquidGlass(fx)}'}</code> — liquidGlass IS the factory now; the kernel (attachLiquidGlass) stays exported for framework-agnostic use.</td>
               </tr>
-              <tr class="border-border/60 border-b">
-                <td class="p-2 font-mono">{'use:someAction(el, p)'}</td>
-                <td class="text-muted-foreground p-2">→ <code>{'{@attach fromAction(someAction, () => p)}'}</code> — action-shaped helpers (update/destroy objects) MUST ride the bridge: a bare attach silently drops the object return and leaks (the spec battery’s counter-example). This is also how the repo’s own internals mounted.</td>
+              <tr class={cx(rt.bBorder60)}>
+                <td class={cx(rt.p8, rt.fontMono)}>{'use:someAction(el, p)'}</td>
+                <td class={cx(rt.inkMuted, rt.p8)}>→ <code>{'{@attach fromAction(someAction, () => p)}'}</code> — action-shaped helpers (update/destroy objects) MUST ride the bridge: a bare attach silently drops the object return and leaks (the spec battery’s counter-example). This is also how the repo’s own internals mounted.</td>
               </tr>
               <tr>
-                <td class="p-2 font-mono">toast’s ToastEffect</td>
-                <td class="text-muted-foreground p-2">NOT this family — a material stamp (the toast surface’s own paint), untouched by the migration; its battery stays green, canary-guarded.</td>
+                <td class={cx(rt.p8, rt.fontMono)}>toast’s ToastEffect</td>
+                <td class={cx(rt.inkMuted, rt.p8)}>NOT this family — a material stamp (the toast surface’s own paint), untouched by the migration; its battery stays green, canary-guarded.</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           The glass channel’s earlier migration rides the same page: the retired hand-tuned
           <code>.jx-glass</code> class is a stamp-channel member now — <code>blur()</code> defaults
           ARE the retired values verbatim (14px · 1.35 · background 68%), so an unconfigured
@@ -1589,7 +1607,7 @@ blur({ radius, saturate, fill, brightness })   // the frost member, zero JS`}
        the docs reading chain (data, not a hand list) -->
   <div data-reveal="">
     <DocsSeeAlso name="glass" />
-    <div class="mt-3 flex flex-wrap gap-3">
+    <div class={cx(rt.wrap12, rt.mt12)}>
       <a class="pill" href="/docs/components/scroll-run.html">scroll-run — the motion domain (out of family by ruling)</a>
       <a class="pill" href="/docs/components/tabs.html">tabs — the liquid indicator demo (both channels)</a>
       <a class="pill" href="/tokens.html">tokens — theming &amp; the stamp channel</a>

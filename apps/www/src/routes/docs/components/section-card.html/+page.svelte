@@ -1,5 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -105,6 +106,22 @@ ${close}
 </SectionCard>`);
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -116,12 +133,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -130,7 +147,7 @@ ${close}
         title="section-card — the content atom"
         summary="The content atom of the site grammar: bordered card, eyebrow in brand hue, font-nav title, text-pretty summary, body snippet slot."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">eyebrow · title · summary · body</span>
           <span class="pill">tone=hero</span>
           <span class="pill">headingLevel</span>
@@ -157,14 +174,14 @@ ${close}
                no-headings lint rule. -->
           <div data-doc-demo-scope="headings-ok">
             <SectionCard
-              class="w-full max-w-2xl"
+              class={cx(rt.wFull, rt.maxW2xl)}
               headingLevel={2}
               tone={demoTone}
               eyebrow={demoEyebrow === '' ? undefined : demoEyebrow}
               title={demoTitle}
               summary={showSummary ? demoSummary : undefined}
             >
-              <div class="flex flex-wrap gap-3">
+              <div class={cx(rt.wrap12)}>
                 <span class="pill">body snippet</span>
                 <span class="pill">heading: h2</span>
                 <span class="pill">tone: {demoTone}</span>
@@ -206,18 +223,18 @@ ${close}
         title="Anatomy & ToC wiring"
         summary="Four optional slots — eyebrow, title, summary, body — and three attributes that make the card legible to the toc-engine. The card is the only place a page writes headings: it renders h1 or h2 itself so the level never skips."
       >
-        <div class="flex flex-col gap-5">
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">headingLevel</code> picks h1 (hero head, one per
+        <div class={cx(rt.col20)}>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>headingLevel</code> picks h1 (hero head, one per
                 route) or h2 (the everyday section) — pages never hand-roll their own heading
                 markup on top</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">family</code> stamps <code class="text-accent">data-family</code>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>family</code> stamps <code class={cx(rt.inkAccent)}>data-family</code>
                 on the section root — the whole-extent marker the ToC spine reads</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">region</code> stamps a leaf on the root when the body
-                carries NO child regions; <code class="text-accent">headerRegion</code> stamps the
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>region</code> stamps a leaf on the root when the body
+                carries NO child regions; <code class={cx(rt.inkAccent)}>headerRegion</code> stamps the
                 header block only when it does — non-overlapping leaves by construction</span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
@@ -227,17 +244,17 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two tones: the everyday bordered section and the inner-page hero head.">
     <ComponentCanvas title="section-card · tones" stage="fill" files={sectionCardTypesFiles}>
-    <div class="flex flex-wrap items-start gap-6" data-doc-demo-scope="headings-ok">
-      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone default · h2</span><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="The everyday content atom: eyebrow row, muted summary, body slot."><p class="text-[13px]">body snippet slot</p></SectionCard><p class="text-muted-foreground text-[12.5px]">every section on a page</p></div>
-      <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone hero · h1</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class="flex flex-wrap gap-3"><span class="pill">hero body</span></div></SectionCard><p class="text-muted-foreground text-[12.5px]">the inner-page head (S4.1 unique-h1 law)</p></div>
+    <div class={cx(rt.wrapStart24)} data-doc-demo-scope="headings-ok">
+      <div class={cx(rt.col12, rt.panel, rt.grow, rt.scMinW64)}><span class={cx(rt.eyebrowPrimary)}>tone default · h2</span><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="The everyday content atom: eyebrow row, muted summary, body slot."><p class={cx(rt.text13)}>body snippet slot</p></SectionCard><p class={cx(rt.inkMuted, rt.text125)}>every section on a page</p></div>
+      <div class={cx(rt.col12, rt.panel, rt.grow, rt.scMinW64)}><span class={cx(rt.eyebrowPrimary)}>tone hero · h1</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class={cx(rt.wrap12)}><span class="pill">hero body</span></div></SectionCard><p class={cx(rt.inkMuted, rt.text125)}>the inner-page head (S4.1 unique-h1 law)</p></div>
     </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pages never hand-roll heading markup — the card renders h1/h2 itself so levels never skip."><CodeBlock code={usage} lang="svelte" meta="SectionCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The card owns the heading tree: one h1 per route, h2 sections beneath, no skipped levels."><A11yTable keys={[]} aria={[{ name: 'heading structure', value: 'h1 | h2', description: 'headingLevel picks the level; the card is the only heading author on a page' }, { name: 'data-family / data-region', value: 'toc extents', description: 'Machine-readable section extents — not user-facing, but keep the pairing consistent for the rail' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Site chrome, not a density-scaled control: the card sizes from the page type ramp and theme tokens only."><div class="flex flex-col gap-6"><DensityDemo><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="One paragraph of context."><p class="text-[13px]">Body slot at this density.</p></SectionCard></DensityDemo><TokenTable tokens={[{ name: 'eyebrow', default: '--primary · 0.24em tracking', source: 'color' }, { name: 'border', default: 'border-border hairline', source: 'color' }, { name: 'tone hero', default: 'clamp-scaled title', source: 'component', description: 'text-balance title, foreground summary at 78%' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Site chrome, not a density-scaled control: the card sizes from the page type ramp and theme tokens only."><div class={cx(rt.col24)}><DensityDemo><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="One paragraph of context."><p class={cx(rt.text13)}>Body slot at this density.</p></SectionCard></DensityDemo><TokenTable tokens={[{ name: 'eyebrow', default: '--primary · 0.24em tracking', source: 'color' }, { name: 'border', default: 'border-border hairline', source: 'color' }, { name: 'tone hero', default: 'clamp-scaled title', source: 'component', description: 'text-balance title, foreground summary at 78%' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the SectionCard Props interface — four content slots plus the ToC wiring attributes."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'The font-nav heading (h1 or h2 by headingLevel).', required: true }, { name: 'eyebrow', type: 'string', default: '—', description: 'Optional eyebrow row in brand hue, tracked 0.24em.' }, { name: 'summary', type: 'string', default: '—', description: 'Optional muted text-pretty lead.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The body slot below the hairline.', required: true }, { name: 'headingLevel', type: '1 | 2', default: '2', description: 'The heading level the card renders.' }, { name: 'tone', type: "'default' | 'hero'", default: "'default' · Own default, not ambient", description: 'Everyday bordered section or inner-page hero head.' }, { name: 'family', type: 'string', default: '—', description: 'data-family on the section root (toc-engine parent extent).' }, { name: 'region', type: 'string', default: '—', description: 'data-region on the section root (toc-engine leaf) when the body carries NO child regions.' }, { name: 'headerRegion', type: 'string', default: '—', description: 'data-region on the header block only — the section leaf when the body carries child regions.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 </div>

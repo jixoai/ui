@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -134,6 +135,22 @@ ${close}
     }
     return entry;
   }
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -145,14 +162,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -162,7 +179,7 @@ ${close}
       title="Data Entry forms — the family hub"
       summary="The form family names its components after the elements they are, and each now owns a canonical page. The native control is the contract: every input type passes through untouched, and the only repaint is the shell — border, background, the inset focus outline. The selectors redraw their own paint in pure CSS (checkbox, radio, toggle strip appearance and draw their glyphs with pseudo-elements while the native input keeps every behavior). The select family splits in two — NativeSelect keeps the platform popup, Select builds a popover listbox — and the two controls the platform cannot paint our way split out as full customs: range (the fully custom slider) and color-picker (the oklch-hub popover). This hub keeps the tour; the depth lives one hop away."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">14 canonical pages</span>
         <span class="pill">all native types</span>
         <span class="pill">pure-CSS selectors</span>
@@ -178,18 +195,18 @@ ${close}
   {#each hubGroups as group (group.id)}
     <section id={group.id} aria-label={group.title} data-region={group.id}>
       <h2
-        class="font-nav flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]"
+        class={cx(rt.fontNav, rt.itemsBaseline, rt.gap16, rt.textLg, rt.upper, rt.frmTrack30)}
         data-reveal=""
       >
         {group.title}
-        <span class="bg-border h-px flex-1" aria-hidden="true"></span>
+        <span class={cx(rt.frmRule)} aria-hidden="true"></span>
       </h2>
-      <p class="text-muted-foreground mt-3 max-w-[80ch] text-pretty text-[13px] leading-6" data-reveal="">
+      <p class={cx(rt.para, rt.mt12, rt.frmMax80)} data-reveal="">
         {group.guide}
       </p>
       <!-- min narrower than the overview default: these blurbs are short,
            three-up reads better through the laptop band -->
-      <CardGrid class="mt-6" min="260px">
+      <CardGrid class={cx(rt.mt24)} min="260px">
         {#each group.members as name (name)}
           {@const entry = member(name)}
           <!-- the card re-opts into the shared subgrid rows (homepage law);
@@ -220,12 +237,12 @@ ${close}
         stage="fill"
         files={[{ name: 'form-density-ladder-demo.svelte', content: formDensityLadderDemo, kind: 'usage' }]}
       >
-        <div class="grid gap-4 min-[760px]:grid-cols-5" data-density-ladder>
+        <div class={cx(rt.frmGrid760c5)} data-density-ladder>
           {#each ['2xs', 'xs', 'sm', 'default', 'lg'] as density}
-            <div data-density={density} data-density-scope={density} class="flex min-w-0 flex-col gap-[var(--jx-gap)]">
-              <span class="font-nav text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">{density}</span>
+            <div data-density={density} data-density-scope={density} class={cx(rt.flex, rt.minW0, rt.col, rt.frmGapVar)}>
+              <span class={cx(rt.fontNav, rt.textVar2, rt.upper, rt.track14)}>{density}</span>
               <Input label={`${density} input`} placeholder="click target" />
-              <button type="button" data-density-click-target class="min-h-[var(--jx-hit)] border border-border px-[var(--jx-inset)] text-[length:var(--jx-text)]">probe</button>
+              <button type="button" data-density-click-target class={cx(rt.frmHitLane)}>probe</button>
             </div>
           {/each}
         </div>
@@ -242,28 +259,28 @@ ${close}
       title="the NativeHTML base"
       summary="Why the family is named after the elements: the component adds semantics and paint, never a second control. Three rules carry the whole base."
     >
-      <div class="flex flex-col gap-5">
-        <ol class="flex flex-col gap-3">
-          <li class="flex flex-col gap-1">
-            <p class="text-[13.5px] font-semibold">1 · native type passthrough — the type prop IS the native type</p>
-            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-              No <code class="text-accent">TextField</code>/<code class="text-accent">NumberField</code>
-              forks: <code class="text-accent">type</code> lands on the element verbatim
+      <div class={cx(rt.col20)}>
+        <ol class={cx(rt.col12)}>
+          <li class={cx(rt.flex, rt.col, rt.gap4)}>
+            <p class={cx(rt.text135, rt.semibold)}>1 · native type passthrough — the type prop IS the native type</p>
+            <p class={cx(rt.para)}>
+              No <code class={cx(rt.inkAccent)}>TextField</code>/<code class={cx(rt.inkAccent)}>NumberField</code>
+              forks: <code class={cx(rt.inkAccent)}>type</code> lands on the element verbatim
               (text/password/email/number/search/url/tel/date/time/file/hidden…), and every other
               attribute (placeholder, min/max/step, accept, autocomplete…) rides through
               restProps. If the platform grows a new type tomorrow, this component already
               supports it.
             </p>
           </li>
-          <li class="flex flex-col gap-1">
-            <p class="text-[13.5px] font-semibold">2 · repaint strategy — keep the input, redraw the paint</p>
-            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          <li class={cx(rt.flex, rt.col, rt.gap4)}>
+            <p class={cx(rt.text135, rt.semibold)}>2 · repaint strategy — keep the input, redraw the paint</p>
+            <p class={cx(rt.para)}>
               The split happens at the paint, never the control. checkbox / radio / toggle set
-              <code class="text-accent">appearance: none</code> and draw their own glyphs with
+              <code class={cx(rt.inkAccent)}>appearance: none</code> and draw their own glyphs with
               pseudo-elements — a clip-path check, a scaled dot, a sliding knob — while the
               native input underneath still owns state, keyboard toggling, and FormData.
               The remaining platform widgets are repainted by the Tier-1 class vocabulary (jx-pure Part A):
-              <code class="text-accent">range</code> becomes the pure-CSS slider (the zero-JS
+              <code class={cx(rt.inkAccent)}>range</code> becomes the pure-CSS slider (the zero-JS
               cqw shadow fill, ringed disc thumb), color becomes the swatch-plus-pipette field, and
               the date/time/number lanes restyle the platform's own picker indicator and
               spinners; file and dates have their own professional controls —
@@ -271,16 +288,16 @@ ${close}
               calendar popover) — while their bare native types still pass through this component.
             </p>
           </li>
-          <li class="flex flex-col gap-1">
-            <p class="text-[13.5px] font-semibold">3 · label / error wiring — label[for] + aria-describedby</p>
-            <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-              The <code class="text-accent">label</code> prop renders
-              <code class="text-accent">label[for]</code> against an auto-generated id
-              (<code class="text-accent">$props.id()</code>, override with
-              <code class="text-accent">id</code>). The <code class="text-accent">error</code> prop
+          <li class={cx(rt.flex, rt.col, rt.gap4)}>
+            <p class={cx(rt.text135, rt.semibold)}>3 · label / error wiring — label[for] + aria-describedby</p>
+            <p class={cx(rt.para)}>
+              The <code class={cx(rt.inkAccent)}>label</code> prop renders
+              <code class={cx(rt.inkAccent)}>label[for]</code> against an auto-generated id
+              (<code class={cx(rt.inkAccent)}>$props.id()</code>, override with
+              <code class={cx(rt.inkAccent)}>id</code>). The <code class={cx(rt.inkAccent)}>error</code> prop
               renders the “! message” line, links it with
-              <code class="text-accent">aria-describedby</code>, sets
-              <code class="text-accent">aria-invalid</code>, and dashes the shell border. Screen
+              <code class={cx(rt.inkAccent)}>aria-describedby</code>, sets
+              <code class={cx(rt.inkAccent)}>aria-invalid</code>, and dashes the shell border. Screen
               readers announce the error when the control is focused — no extra wiring owed.
             </p>
           </li>
@@ -292,16 +309,16 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="The family splits by how far the paint strays from the platform: passthrough lanes, the select fork, and the pure-CSS selectors.">
-    <div class="grid gap-4 min-[760px]:grid-cols-3">
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">native lanes & full customs</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">input (every native type), number-input (stepper), range, date-picker, color-picker, combobox, tags-input, file-input.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">select family & textarea</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">native-select keeps the platform popup; select builds a popover listbox; textarea is the taller text shell.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">pure-CSS selectors</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">checkbox, radio, toggle — appearance: none + pseudo-element glyphs, native state kept.</p></div>
+    <div class={cx(rt.grid760c)}>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>native lanes & full customs</span><p class={cx(rt.bodyMuted, rt.mt8)}>input (every native type), number-input (stepper), range, date-picker, color-picker, combobox, tags-input, file-input.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>select family & textarea</span><p class={cx(rt.bodyMuted, rt.mt8)}>native-select keeps the platform popup; select builds a popover listbox; textarea is the taller text shell.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>pure-CSS selectors</span><p class={cx(rt.bodyMuted, rt.mt8)}>checkbox, radio, toggle — appearance: none + pseudo-element glyphs, native state kept.</p></div>
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose uncontrolled fields into a form; read FormData once at submit — no per-field state owed."><CodeBlock code={installUsage} lang="svelte" meta="form family usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Every member keeps the native control's semantics; the family contract wires labels and validation text once."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus field to field in DOM order — native elements, native order' }, { key: 'native keys', action: 'Each member keeps its control keys: Space toggles selectors, ↑/↓ steppers and listboxes, Enter submits' }]} aria={[{ name: 'label[for]', value: '{id}', description: 'The label prop renders a programmatic label against the auto-generated id' }, { name: 'aria-invalid', value: 'true', description: 'Set by the error prop on every member' }, { name: 'aria-describedby', value: '{id}-error', description: 'Links the "! message" line so readers announce it on focus' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="One density rhythm across every field shell: hit target, text size, and leading scale together (see the density-ladder section above)."><div class="flex flex-col gap-6"><DensityDemo><Input label="field" placeholder="density sample" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: 'field height, scope-scaled', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-leading', default: 'line-height, scope-scaled', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="One density rhythm across every field shell: hit target, text size, and leading scale together (see the density-ladder section above)."><div class={cx(rt.col24)}><DensityDemo><Input label="field" placeholder="density sample" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: 'field height, scope-scaled', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-leading', default: 'line-height, scope-scaled', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The hub documents the shared field contract (Input's shell, the canonical member); each child page carries its full interface."><PropsTable props={[{ name: 'type', type: 'string', default: "'text'", description: 'Any native input type — lands on the element verbatim.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'label', type: 'string', default: '—', description: 'Field label; renders label[for] above the control.' }, { name: 'id', type: 'string', default: 'auto', description: 'Wired into label[for] / error[id]; auto-generated when omitted.' }, { name: 'error', type: 'string', default: '—', description: 'Error text → aria-invalid + aria-describedby + dashed border.' }, { name: 'clearable', type: 'boolean', default: 'false', description: 'Text-like only: × button in the inner-inline-end area.' }, { name: 'innerInlineStart', type: 'Snippet', default: '—', description: 'Inside the shell, left of the input (prefix icon / unit).' }, { name: 'innerInlineEnd', type: 'Snippet', default: '—', description: 'Inside the shell, right of the input (suffix / unit / action).' }, { name: 'outerBlockStart', type: 'Snippet', default: '—', description: 'Outside the shell, above — replaces the label prop when given.' }, { name: 'outerBlockEnd', type: 'Snippet', default: '—', description: 'Outside the shell, below — renders below the error line.' }, { name: 'value', type: 'string | number', default: '—', description: 'Bound ⇒ controlled, absent ⇒ purely uncontrolled.', bindable: true }]} /></SectionCard></div>
 </div>

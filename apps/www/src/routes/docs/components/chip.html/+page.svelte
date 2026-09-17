@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -204,6 +205,23 @@ ${close}
 <Chip class="jx-hue-warning">degraded</Chip>
 <Chip class="jx-hue-neutral">metadata</Chip>
 <Chip variant="fill" class="jx-pair-destructive">clear</Chip>`;
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -215,9 +233,9 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -226,7 +244,7 @@ ${close}
         title="chip — the grammar's compact activation"
         summary="The chip is what a filter, a toggle, or an inline nav target looks like in this language: the badge's font-nav uppercase micro-label voice at badge scale — badge geometry verbatim, the ONLY structural difference being the activation root (button/anchor, press physics, the focus law; Owner ruling 2026-09-01, superseding the control-scale hit-lane floor). The paint is the frozen variant ladder consumed as global tokens — fill for the one active filter, tonal for the resting set, outline for structure, ghost for the quiet seats — and semantic hue is always injected (jx-hue-success), never named. Press physics are the theme's shared .jx-press law; effect loops ride the component-tag attachment (r4, 2026-09-10 — the effect prop, its default ripple and the interim record all retired): arm pressEffect(ripple()) through the component tag and ink expands from your pointer."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">badge twin · inline scale</span>
           <span class="pill">fill · tonal · outline · ghost</span>
           <span class="pill">attachment ink</span>
@@ -247,45 +265,45 @@ ${close}
         output={playOutputs(play.current)}
         resolveFileContent={resolveUsage}
       >
-        <div class="flex flex-col items-center gap-6">
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+        <div class={cx(rt.col24, rt.itemsCenter)}>
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20)}>
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>fill</span>
               <Chip variant="fill">deploy</Chip>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>tonal</span>
               <Chip variant="tonal">filters</Chip>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>outline</span>
               <Chip variant="outline">cancel</Chip>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>ghost</span>
               <Chip variant="ghost">dismiss</Chip>
             </label>
           </div>
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 border-t border-border pt-5">
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <div class={cx(rt.tBorder, rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20, rt.pt20)}>
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>plain — zero effect knowledge</span>
               <Chip>filter</Chip>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>ripple · bevel</span>
               <Chip {@attach pressEffect(ripple({ shape: 'bevel', duration: 800 }))}>filter</Chip>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>shimmer</span>
               <Chip variant="fill" {@attach pressEffect(shimmer())}>upgrade</Chip>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>pill</span>
               <Chip shape="pill">tagged</Chip>
             </label>
           </div>
-          <div class="flex flex-col items-center gap-2.5 border-t border-border pt-5">
-            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
+          <div class={cx(rt.col10, rt.tBorder, rt.itemsCenter, rt.pt20)}>
+            <span class={cx(rt.microEyebrow, rt.inkMuted)}>
               driven by the playground
             </span>
             <Chip variant={play.current.variant} shape={play.current.shape} {@attach effectFor(play.current.effect)}>filter</Chip>
@@ -329,18 +347,18 @@ ${close}
         title="Button or anchor"
         summary="href switches the root from button to anchor — internal hrefs navigate in place, anything else opens a new tab with noreferrer automatically. A chip without href is a real button: the onclick demo toggles its own label."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <ComponentCanvas
             title="chip · anchors"
             files={[{ name: 'chip-anchors-demo.svelte', content: chipAnchorsDemo, kind: 'usage' }]}
             stage="center"
           >
-            <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20)}>
+            <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>internal → same tab</span>
               <Chip variant="outline" href="/docs/components.html">overview</Chip>
             </div>
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>external → new tab</span>
               <Chip
                 variant="outline"
@@ -363,7 +381,7 @@ ${close}
                 <span>github</span>
               </Chip>
             </div>
-            <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>button → onclick</span>
               <Chip variant="tonal" onclick={() => (following = !following)}>{following ? 'following' : 'follow'}</Chip>
             </div>
@@ -387,8 +405,8 @@ ${close}
           files={[{ name: 'chip-slots-demo.svelte', content: chipSlotsDemo, kind: 'usage' }]}
           stage="center"
         >
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
-          <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20)}>
+          <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
             <span>start lane</span>
             <Chip shape="pill">
               {#snippet slotStart()}
@@ -407,7 +425,7 @@ ${close}
               filters
             </Chip>
           </div>
-          <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
             <span>both lanes</span>
             <Chip variant="outline" shape="pill">
               {#snippet slotStart()}
@@ -452,34 +470,34 @@ ${close}
         title="The badge's activation twin"
         summary="Chips ride badge geometry verbatim (Owner ruling, 2026-09-01, superseding the control-scale hit-lane floor): height from the secondary line, inline insets only, never block padding — the ONLY structural difference from a Badge is the activation root."
       >
-        <div class="flex flex-col gap-4">
+        <div class={cx(rt.col16)}>
           <ComponentCanvas
             title="chip · badge twin"
             files={[{ name: 'chip-twin-demo.svelte', content: chipTwinDemo, kind: 'usage' }]}
             stage="center"
           >
-            <div class="flex flex-wrap items-end justify-center gap-x-8 gap-y-5">
-              <div class="text-muted-foreground flex flex-col gap-2 text-xs">
+            <div class={cx(rt.flex, rt.wrap, rt.itemsEnd, rt.justifyCenter, rt.gapX8, rt.gapY20)}>
+              <div class={cx(rt.col8, rt.inkMuted, rt.text12)}>
                 <Chip variant="tonal">activation</Chip>
                 <span>chip · button root + press physics</span>
               </div>
-              <div class="text-muted-foreground flex flex-col gap-2 text-xs">
+              <div class={cx(rt.col8, rt.inkMuted, rt.text12)}>
                 <Badge>display</Badge>
                 <span>badge · span, same geometry</span>
               </div>
             </div>
           </ComponentCanvas>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>the scale law: badge geometry verbatim — height from
-              <code class="text-accent">--jx-line-secondary</code>, inline insets from
-              <code class="text-accent">--jx-inset</code>, never block padding; what makes it a
+              <code class={cx(rt.inkAccent)}>--jx-line-secondary</code>, inline insets from
+              <code class={cx(rt.inkAccent)}>--jx-inset</code>, never block padding; what makes it a
               chip is the activation root, not a bigger box</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>slotStart/slotEnd lanes replace their side's padding (the data-icon
               law): the icon lane carries the edge at half the inset — the same law badge
               practices and the input's edge glyph lanes (clear, steppers) take to zero</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>forced colors degrade explicitly (design §6): fill becomes
               ButtonFace/ButtonText, tonal/outline become Canvas/CanvasText with the
               color-mix tints dropped, ghost rests transparent and takes ButtonFace on
@@ -497,16 +515,16 @@ ${close}
         files={[{ name: 'chip-variants-demo.svelte', content: chipVariantsDemo, kind: 'usage' }]}
         stage="fill"
       >
-        <div class="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class={cx(rt.chipGrid)}>
           {#each [
             ['fill', 'Solid ground'],
             ['tonal', 'Tinted rest — the default'],
             ['outline', 'Structural border'],
             ['ghost', 'Quiet seat'],
           ] as item}
-            <div class="border border-border/60 p-3">
+            <div class={cx(rt.panel60P12)}>
               <Chip variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost'}>{item[1]}</Chip>
-              <p class="mt-2 text-xs text-muted-foreground">{item[0]}</p>
+              <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>{item[0]}</p>
             </div>
           {/each}
         </div>
@@ -531,8 +549,8 @@ ${close}
 
   <div id="theming" data-reveal="">
     <SectionCard eyebrow="theming" title="Density and tokens" summary="Geometry rides the inherited density scale; color rides the four global grammar slots — inject a hue anywhere above a chip and every slot consumer inside retunes.">
-      <div class="flex flex-col gap-5">
-        <p class="text-muted-foreground text-[13px] leading-6">
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.bodyMuted)}>
           geometry rides the inherited density scale — flip the canvas dock's density select
           (xs / sm / default / lg) to re-scope the hit lane on the stage alone; the four-copy
           DensityDemo row is retired by that select.
@@ -542,7 +560,7 @@ ${close}
           files={[{ name: 'chip-hue-demo.svelte', content: chipHueDemo, kind: 'usage' }]}
           stage="center"
         >
-          <div class="flex flex-wrap items-center justify-center gap-3">
+          <div class={cx(rt.rowC12, rt.wrap, rt.justifyCenter)}>
             <Chip class="jx-hue-success">passing</Chip>
             <Chip class="jx-hue-warning">degraded</Chip>
             <Chip class="jx-hue-neutral">metadata</Chip>

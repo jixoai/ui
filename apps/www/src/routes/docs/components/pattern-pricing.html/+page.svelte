@@ -9,6 +9,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -57,6 +58,24 @@ ${close}
     { name: 'registry/files/ui/pattern-pricing/pattern-pricing.svelte', content: patternPricingSource },
     { name: 'src/lib/pattern-pricing-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -67,7 +86,7 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell, rt.flex, rt.col, rt.gap32)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -76,7 +95,7 @@ ${close}
       title="pattern-pricing — $ plan --compare"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">table family matrix</span>
         <span class="pill">code-card install rows</span>
         <span class="pill">badge plan labels</span>
@@ -132,7 +151,7 @@ ${close}
         <PlayFields>
           <PlayHelp>
             the matrix is <em>authored content</em> — thead/tbody are yours (the Table contract);
-            opt the recommended column in with <code class="text-accent">data-jx-recommended</code>
+            opt the recommended column in with <code class={cx(rt.inkAccent)}>data-jx-recommended</code>
             on the th AND its td's, and the pattern css paints the brand rules. Press a card's
             copy control: the tier's add command hits the clipboard. Narrow the stage past 30rem —
             the frame folds to card rows with <code>data-label</code> leaders.
@@ -150,19 +169,19 @@ ${close}
       title="Authoring the matrix"
       summary="Structure is yours, paint is the pattern's: rows stay authored content, the recommended column is a consumer opt-in, and the tier cards are payload."
     >
-      <ul class="flex flex-col gap-2 text-[13px] leading-6">
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+      <ul class={cx(rt.col8, rt.body13)}>
+        <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
           <span>the comparison table is the children snippet — author
-            <code class="text-accent">thead/tbody/tfoot</code> exactly as the Table docs teach;
+            <code class={cx(rt.inkAccent)}>thead/tbody/tfoot</code> exactly as the Table docs teach;
             the pattern adds no row machinery</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span><code class="text-accent">data-jx-recommended</code> on the th AND its td's opts a
+        <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span><code class={cx(rt.inkAccent)}>data-jx-recommended</code> on the th AND its td's opts a
             column into the brand paint (rules + tinted head); row hover keeps flowing — the
             recommended cells never paint a background over it</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span><code class="text-accent">tiers</code> is value-domain payload: plan label, install
+        <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span><code class={cx(rt.inkAccent)}>tiers</code> is value-domain payload: plan label, install
             command, recommended flag, note — code strings, the legal prop category</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
           <span>the heading stays OUT of the pattern on purpose — your page owns its h2; the
             pattern opens at the <code>$ plan --compare</code> eyebrow</span></li>
       </ul>

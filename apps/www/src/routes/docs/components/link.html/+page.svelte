@@ -7,6 +7,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
@@ -51,6 +52,23 @@ const external = /^https?:\\/\\//i.test(href);
     { name: 'registry/files/ui/link/link.svelte', content: linkSource },
     { name: 'src/lib/ui/link-icon-usage.svelte', content: iconUsage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -61,8 +79,8 @@ const external = /^https?:\\/\\//i.test(href);
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -71,7 +89,7 @@ const external = /^https?:\\/\\//i.test(href);
         title="link — the typographic lane, standing alone"
         summary="A native <a> carrying the prose face's non-nav lane as its own utilities — primary ink, 4px underline offset, hover underline — so it works with no jx-pure scope in sight; inside one, the values coincide with the face's own channels (same property, same token, deterministic no-op). External detection is PATTERN-based, not origin-based: any absolute http(s) href is external — no window.location semantics dragged into SSR — and externals open a new tab with rel=noreferrer (the fleet convention; doc-link and PressButton both ship bare noreferrer, and modern browsers imply noopener from it). href, title and the external pair land AFTER the spread (the separator law): the contract is the component's, not overridable through rest props."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;a&gt;</span>
           <span class="pill">http(s) = external · new tab</span>
           <span class="pill">rel=noreferrer (noopener implied)</span>
@@ -106,15 +124,15 @@ const external = /^https?:\\/\\//i.test(href);
         files={lanesFiles}
         stage="fill"
       >
-        <div class="flex w-full max-w-xl flex-col gap-3 text-[13.5px] leading-7">
-          <p class="m-0">
+        <div class={cx(rt.flex, rt.wFull, rt.maxWXl, rt.col, rt.gap12, rt.lkBody)}>
+          <p class={cx(rt.m0)}>
             Same document, different lanes: read
             <Link href="/docs/components/markdown.html" title="the markdown page">the markdown page</Link>
             here, or leave for
             <Link href="https://github.com/jixoai/ui" title="the repository">the repository</Link>
             in a new tab.
           </p>
-          <p class="m-0 text-muted-foreground">
+          <p class={cx(rt.m0, rt.inkMuted)}>
             Prose composition — the offset keeps the underline off the descenders:
             <Link href="https://commonmark.org" title="the CommonMark spec">CommonMark</Link>,
             <Link href="https://tailwindcss.com/docs/typography-plugin" title="the Typography plugin">Tailwind Typography</Link>,
@@ -143,22 +161,22 @@ const external = /^https?:\\/\\//i.test(href);
         files={iconFiles}
         stage="fill"
       >
-        <div class="flex w-full max-w-xl flex-col gap-3 text-[13.5px] leading-7">
-          {#snippet arrowGlyph()}<span aria-hidden="true" class="font-mono">→</span>{/snippet}
-          <p class="m-0">
+        <div class={cx(rt.flex, rt.wFull, rt.maxWXl, rt.col, rt.gap12, rt.lkBody)}>
+          {#snippet arrowGlyph()}<span aria-hidden="true" class={cx(rt.fontMono)}>→</span>{/snippet}
+          <p class={cx(rt.m0)}>
             undefined (omitted) — the default glyph on an external:
             <Link href="https://github.com/jixoai/ui">the repository</Link>
           </p>
-          <p class="m-0">
+          <p class={cx(rt.m0)}>
             null — the lane explicitly off:
             <Link href="https://github.com/jixoai/ui" icon={null}>a quiet external</Link>
             (still target=_blank; only the glyph is gone)
           </p>
-          <p class="m-0">
+          <p class={cx(rt.m0)}>
             snippet — custom content in the lane:
             <Link href="https://github.com/jixoai/ui" icon={arrowGlyph}>leaving the document</Link>
           </p>
-          <p class="m-0 text-muted-foreground">
+          <p class={cx(rt.m0, rt.inkMuted)}>
             internal — the lane never ships:
             <Link href="/docs/components/markdown.html">staying in the document</Link>
           </p>
@@ -192,7 +210,7 @@ const external = /^https?:\\/\\//i.test(href);
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"

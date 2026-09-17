@@ -116,7 +116,10 @@ describe('docs pages: table-grid-toolbar (mount + skeleton)', () => {
       'see-also',
     ]);
     // vertical recipe: the Item grid override class landed on cells
-    expect(container.querySelectorAll('#descriptions-vertical .grid-cols-1\\!').length).toBeGreaterThan(0);
+    // (tailwindless Wave 3: the grid-cols-1! utility became the page's
+    // deCols1Imp atom — same important-pinned override, asserted through
+    // the atom membership the cells ride, per the chip.spec law)
+    expect(container.querySelectorAll('#descriptions-vertical [data-jx-desc-cell]').length).toBeGreaterThan(0);
     unmount();
   });
 

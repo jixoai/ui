@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
@@ -33,6 +34,23 @@
     { name: 'registry/files/ui/prototype-flex/prototype-flex.svelte', content: flexSource },
     { name: 'src/lib/ui/prototype-flex-usage.svelte', content: usage },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -43,8 +61,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -53,7 +71,7 @@
         title="prototype-flex — the standardized flex row"
         summary="The layout family, alpha track: the design studio's property panel edits these exact props. Every value is a native CSS token passed through 1:1 (no vocabulary mapping layer), styling is inline-style only — zero Tailwind, zero theme tokens, zero dependencies — so the item renders in any host. Single root + rest spread: the stamp mechanism's family precondition, proven here first."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">alpha track</span>
           <span class="pill">inline style only</span>
           <span class="pill">single root + rest spread</span>
@@ -87,7 +105,7 @@
       >
         <PrototypeFlex gap={12} align="center" justify="space-between" data-testid="flex-demo">
           {#each ['alpha', 'beta', 'gamma'] as word}
-            <span class="border-border bg-card border px-3 py-1.5 font-mono text-[13px]">{word}</span>
+            <span class={cx(rt.frame, rt.bgCard, rt.px12, rt.py6, rt.fontMono, rt.text13)}>{word}</span>
           {/each}
         </PrototypeFlex>
         {#snippet playground()}
@@ -104,7 +122,7 @@
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="api" data-reveal="">
     <SectionCard
       family="api"

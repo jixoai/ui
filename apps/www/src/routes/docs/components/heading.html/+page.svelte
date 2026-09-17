@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
@@ -64,6 +65,22 @@ ${close}
     5: '1em',
     6: '1em',
   };
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -74,8 +91,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -84,7 +101,7 @@ ${close}
         title="heading — the ladder emigrated from the face"
         summary="A native h1–h6 by level (1–6, rounded then clamped), carrying the em size ladder that used to live in the markdown prose face: 1.875em at h1 down through 1em at h5/6. em, never rem — the hierarchy scales with the ambient font-size preset (the typography trio law) and survives the escape from the face. What it owns: font-bold, leading-[1.25], foreground ink, the size. What it refuses: a paint ladder (level IS the structural axis — the separator precedent of a literal-axis-only component), block margins (preflight zeroes them; the container rhythm law owns root spacing), and a Defaults file (level is not a style prop). Default level 2 — h1 is the page's one-per-page title, and a component defaulting to it would mint competing titles."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">native h1–h6</span>
           <span class="pill">em ladder · preset-scaled</span>
           <span class="pill">level = the structural axis</span>
@@ -117,11 +134,11 @@ ${close}
         files={canvasFiles}
         stage="fill"
       >
-        <div class="w-full max-w-xl" data-doc-demo-scope="headings-ok">
-          <div class="flex flex-col gap-3">
+        <div class={cx(rt.wFull, rt.maxWXl)} data-doc-demo-scope="headings-ok">
+          <div class={cx(rt.col12)}>
             {#each levels as lv (lv)}
-              <div class="flex items-baseline gap-4">
-                <code class="w-24 flex-none font-mono text-[11px] text-muted-foreground">h{lv} · {sizes[lv]}</code>
+              <div class={cx(rt.flex, rt.itemsBaseline, rt.gap16)}>
+                <code class={cx(rt.w24, rt.flexNone, rt.fontMono, rt.text11, rt.inkMuted)}>h{lv} · {sizes[lv]}</code>
                 <Heading level={lv}>The level {lv} rung</Heading>
               </div>
             {/each}
@@ -149,12 +166,12 @@ ${close}
         title="Standalone — outside any prose face"
         summary="The component owns its channels outright, so it works with no jx-pure scope in sight: same ink, same weight, same ladder. It carries no margins — the container rhythm owns the spacing, GitHub's container-tight posture — and the markdown map escapes it (no-jx-pure) so the face stops double-painting it."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={ladderUsage} lang="svelte" meta="the six levels" />
-          <div class="max-w-xl rounded-lg border border-border p-5" data-doc-demo-scope="headings-ok">
-            <div class="flex flex-col">
+          <div class={cx(rt.maxWXl, rt.radius0, rt.frame, rt.p20)} data-doc-demo-scope="headings-ok">
+            <div class={cx(rt.flex, rt.col)}>
               <Heading level={3}>No face, no problem</Heading>
-              <p class="text-[13px] leading-6 text-muted-foreground">
+              <p class={cx(rt.bodyMuted)}>
                 The heading above rendered with zero prose-face context — the em ladder, weight
                 and ink are the component's own. The gap you see is this container's rhythm, not
                 the heading's margin.
@@ -167,7 +184,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"

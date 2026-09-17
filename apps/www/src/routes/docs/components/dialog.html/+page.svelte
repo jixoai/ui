@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Dialog from '$lib/ui/dialog/dialog.svelte';
   import CardFooter from '$lib/ui/card/card-footer.svelte';
@@ -262,6 +263,23 @@ ${close}
     { name: 'registry/files/ui/dialog/dialog.svelte', content: dialogSource },
     { name: 'src/lib/ui/dialog-usage.svelte', content: canvasUsage },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -273,10 +291,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -285,7 +303,7 @@ ${close}
       title="dialog — the platform owns the hard parts"
       summary="One native <dialog> element, opened with showModal() and closed with close(). Focus trapping, the inert page behind, top-layer rendering above every sticky header, and the Escape key are browser features — the component only binds open state to them and adds the shared WAAPI surface timeline. Closed dialogs render nothing in the page, with or without JavaScript. Since the structural kernel (2026-09-09) the interior is the CARD DIALECT: the head/body/foot bands, separators, inline ruler and narrow reversal all ride the data-jx-card sticker (card.css), the faces are the Card family parts (<CardHeader>, <CardBody>, <CardFooter> — the retired DialogHeader/DialogFooter were their clones), and the × rides the end-action seat the card sources reserved for it. The dialog owns the mechanism only: material, scrim, motion, close contract."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">&lt;dialog&gt; + showModal()</span>
         <span class="pill">focus trap · inert · top layer</span>
         <span class="pill">::backdrop 14% brand</span>
@@ -308,7 +326,7 @@ ${close}
       onreset={() => play.reset()}
       output={playOutputs(play.current)}
     >
-      <div class="flex flex-col items-center gap-5">
+      <div class={cx(rt.col20, rt.itemsCenter)}>
         <PressButton onclick={() => (play.current.open = true)}>Open dialog</PressButton>
       </div>
       <!-- closed dialogs render nothing — the instance lives right here in
@@ -329,7 +347,7 @@ ${close}
             <Input
               placeholder="Deploy queued"
               aria-label="title"
-              class="w-40 text-[12.5px]"
+              class={cx(rt.dgW40, rt.text125)}
               bind:value={play.current.title}
             />
           </PlayRow>
@@ -351,16 +369,16 @@ ${close}
       title="Basic"
       summary="A PressButton flips a bindable open state; the dialog does the rest. Try the × button, the Escape key, and Tab — focus stays inside the dialog while the page behind is inert."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <ComponentCanvas
           title="dialog · basic"
           files={[{ name: 'dialog-basic-demo.svelte', content: basicUsage, kind: 'usage' }]}
           stage="center"
         >
-          <div class="flex flex-wrap items-center justify-center gap-4">
+          <div class={cx(rt.rowC16, rt.wrap, rt.justifyCenter)}>
             <PressButton onclick={() => (basicOpen = true)}>Open dialog</PressButton>
-            <span class="text-muted-foreground text-[12.5px]">
-              state: <code class="text-accent">open = {basicOpen}</code>
+            <span class={cx(rt.noteSmall)}>
+              state: <code class={cx(rt.inkAccent)}>open = {basicOpen}</code>
             </span>
           </div>
           <!-- closed dialogs render nothing — the instance lives in the
@@ -369,10 +387,10 @@ ${close}
             <p>build #128 is waiting for a runner. The log streams once it picks up.</p>
           </Dialog>
         </ComponentCanvas>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-          Every exit — ×, Escape, or setting <code class="text-accent">open = false</code> from
+        <p class={cx(rt.para)}>
+          Every exit — ×, Escape, or setting <code class={cx(rt.inkAccent)}>open = false</code> from
           code — runs the same 460ms surface timeline before the real
-          <code class="text-accent">close()</code>. Reduced-motion users get the instant close.
+          <code class={cx(rt.inkAccent)}>close()</code>. Reduced-motion users get the instant close.
         </p>
         <CodeBlock code={basicUsage} lang="svelte" meta="usage" />
       </div>
@@ -388,23 +406,23 @@ ${close}
       title="With a footer — form type"
       summary="The footer snippet is the RAW override of the foot zone — and its standard content is <CardFooter>: the buttons passed as children auto-join one button-group at the row's inline end, ghost by default through the Dialog's zone scope, an explicit fill still winning for the primary. Cancel drops the dialog; Confirm does its work first, then closes through the same animated path. The form shells inside are engraved WELLS (the entity law, r14-12): the dialog is the one solid object — the inputs keep their crisp hairline edge while their ground dissolves into the panel's surface, the well inset carrying the depth; focus still tints, hover still deepens."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <ComponentCanvas
           title="dialog · form footer"
           files={[{ name: 'dialog-form-demo.svelte', content: formUsage, kind: 'usage' }]}
           stage="center"
         >
-          <div class="flex flex-wrap items-center justify-center gap-4">
+          <div class={cx(rt.rowC16, rt.wrap, rt.justifyCenter)}>
             <PressButton onclick={() => (formOpen = true)}>Rotate API key…</PressButton>
-            <span class="text-muted-foreground text-[12.5px]">
-              last action: <code class="text-accent">{lastAction ?? '—'}</code>
+            <span class={cx(rt.noteSmall)}>
+              last action: <code class={cx(rt.inkAccent)}>{lastAction ?? '—'}</code>
             </span>
           </div>
           <Dialog title="Rotate API key" bind:open={formOpen}>
-            <div class="flex flex-col gap-3">
+            <div class={cx(rt.col12)}>
               <p>Minting a new key revokes the current one after 24 hours.</p>
-              <label class="flex flex-col gap-1.5 text-[12px]">
-                <span class="text-muted-foreground">key name</span>
+              <label class={cx(rt.flex, rt.col, rt.gap6, rt.text12)}>
+                <span class={cx(rt.inkMuted)}>key name</span>
                 <Input type="text" value="ci-runner" />
               </label>
             </div>
@@ -438,9 +456,9 @@ ${close}
       title="CardFooter — the foot zone's button economy"
       summary="The footer snippet overrides the whole foot — and its standard content is the CardFooter component. Buttons passed as its children auto-join ONE button-group packed at the row's inline end; the ghost default arrives by inheritance from the Dialog's zone scope (Context), so an unprefixed PressButton renders ghost while an explicit variant always wins, and the ghost seams rule the buttons. The cluster OPENS through the group's leadingSeam — the first button's own flush seam pseudo (r14-13), never a sibling element the grid's gap could detach. The end slot is the raw escape hatch — present, it replaces the grouped arrangement entirely, bracket and all."
     >
-      <div class="flex flex-col gap-8">
-        <p class="text-muted-foreground text-[12.5px]">
-          last action: <code class="text-accent">{lastAction ?? '—'}</code>
+      <div class={cx(rt.col32)}>
+        <p class={cx(rt.noteSmall)}>
+          last action: <code class={cx(rt.inkAccent)}>{lastAction ?? '—'}</code>
         </p>
         <ComponentCanvas
           title="dialog · footer clusters"
@@ -450,15 +468,15 @@ ${close}
           ]}
           stage="center"
         >
-          <div class="flex flex-col items-center gap-4">
-            <div class="flex flex-wrap items-center justify-center gap-4">
-              <span class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          <div class={cx(rt.col16, rt.itemsCenter)}>
+            <div class={cx(rt.rowC16, rt.wrap, rt.justifyCenter)}>
+              <span class={cx(rt.eyebrow, rt.inkMuted)}>
                 a · children — one auto group
               </span>
               <PressButton onclick={() => (clusterOpen = true)}>Publish release…</PressButton>
             </div>
-            <div class="flex flex-wrap items-center justify-center gap-4">
-              <span class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            <div class={cx(rt.rowC16, rt.wrap, rt.justifyCenter)}>
+              <span class={cx(rt.eyebrow, rt.inkMuted)}>
                 b · end — the raw slot
               </span>
               <PressButton onclick={() => (endOpen = true)}>4 assets selected…</PressButton>
@@ -494,9 +512,9 @@ ${close}
           <!-- demo B: CardFooter's raw end slot — replaces the grouped
                arrangement entirely -->
           <Dialog title="4 assets selected" bind:open={endOpen}>
-            <div class="flex flex-col gap-2">
+            <div class={cx(rt.col8)}>
               <p>The bundle for the current audit:</p>
-              <ul class="flex flex-col gap-1 font-mono text-[12px] text-muted-foreground">
+              <ul class={cx(rt.note12, rt.flex, rt.col, rt.gap4, rt.fontMono)}>
                 <li>crash-report.sites — 812 KB</li>
                 <li>tokens.json — 3.1 KB</li>
                 <li>hero.tape — 1.2 MB</li>
@@ -506,7 +524,7 @@ ${close}
             {#snippet footer()}
               <CardFooter>
                 {#snippet end()}
-                  <span class="font-mono text-[12px] text-muted-foreground">2.1 MB total</span>
+                  <span class={cx(rt.note12, rt.fontMono)}>2.1 MB total</span>
                   <PressButton
                     variant="fill"
                     onclick={() => {
@@ -521,14 +539,14 @@ ${close}
             {/snippet}
           </Dialog>
         </ComponentCanvas>
-        <div class="flex flex-col gap-3">
-          <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+        <div class={cx(rt.col12)}>
+          <p class={cx(rt.eyebrow, rt.inkMuted)}>
             a · CardFooter children — three buttons, one auto group
           </p>
           <CodeBlock code={multiUsage} lang="svelte" meta="CardFooter — one group" />
         </div>
-        <div class="flex flex-col gap-3">
-          <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+        <div class={cx(rt.col12)}>
+          <p class={cx(rt.eyebrow, rt.inkMuted)}>
             b · CardFooter end — the raw slot, no group
           </p>
           <CodeBlock code={endUsage} lang="svelte" meta="end — raw slot" />
@@ -546,16 +564,16 @@ ${close}
       title="CardHeader — a custom head"
       summary="The head snippet replaces the visible title row, and CardHeader is its content face: children ride flush, edge-to-edge — the content owns the row's height and padding (an Input shell brings its own), no zone insets intervening. The × close button still rides the head grid's end slot, and title keeps naming the dialog for assistive tech even though its visual row is gone — the search palette composes this same seam."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <ComponentCanvas
           title="dialog · custom head"
           files={[{ name: 'dialog-head-demo.svelte', content: headUsage, kind: 'usage' }]}
           stage="center"
         >
-          <div class="flex flex-wrap items-center justify-center gap-4">
+          <div class={cx(rt.rowC16, rt.wrap, rt.justifyCenter)}>
             <PressButton onclick={() => (headOpen = true)}>Filter events…</PressButton>
-            <span class="text-muted-foreground text-[12.5px]">
-              query: <code class="text-accent">{headQuery.trim() || '—'}</code>
+            <span class={cx(rt.noteSmall)}>
+              query: <code class={cx(rt.inkAccent)}>{headQuery.trim() || '—'}</code>
             </span>
           </div>
           <!-- custom head demo: CardHeader + col-start-1 carries the
@@ -563,16 +581,16 @@ ${close}
                keeps its seat on the same row -->
           <Dialog title="Filter events" bind:open={headOpen}>
             {#snippet head()}
-              <CardHeader class="col-start-1">
+              <CardHeader class={cx(rt.dgColStart1)}>
                 <Input
-                  class="w-full min-w-0"
+                  class={cx(rt.wFull, rt.minW0)}
                   placeholder="Filter events…"
                   aria-label="Filter events"
                   bind:value={headQuery}
                 >
                   {#snippet innerInlineStart()}
                     <span
-                      class="flex-none select-none text-muted-foreground"
+                      class={cx(rt.flexNone, rt.selectNone, rt.inkMuted)}
                       aria-hidden="true"><Icon name="search" /></span>
                   {/snippet}
                 </Input>
@@ -581,11 +599,11 @@ ${close}
             {#if filtered.length === 0}
               <p>No events match “{headQuery.trim()}”.</p>
             {:else}
-              <ul class="flex flex-col gap-1">
+              <ul class={cx(rt.flex, rt.col, rt.gap4)}>
                 {#each filtered as e (e)}
-                  <li class="flex items-center gap-2.5">
-                    <span class="size-1 flex-none bg-primary" aria-hidden="true"></span>
-                    <span class="font-mono text-[12px]">{e}</span>
+                  <li class={cx(rt.rowC10)}>
+                    <span class={cx(rt.dgDot1, rt.flexNone, rt.bgPrimary)} aria-hidden="true"></span>
+                    <span class={cx(rt.fontMono, rt.text12)}>{e}</span>
                   </li>
                 {/each}
               </ul>
@@ -606,7 +624,7 @@ ${close}
       title="Scrolling body — head and foot stay pinned"
       summary="The panel itself never scrolls: the scroll ring is a row-ruled grid (head · separator · body · separator · foot) under a height cap, and the body zone is the only scroll environment — its scrollbar rides the zone edge with a stable both-edges gutter while the header bar and footer cluster stay pinned. The scroll itself is DECLARATIVE: scroll={false} asserts the body fits — the scroll authority and the gutter reservation retire together, the content keeps its full width. The class prop here caps the ring (a geometry-only override) so the scroll shows even on tall viewports."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <ComponentCanvas
           title="dialog · scrolling body"
           files={[
@@ -615,21 +633,17 @@ ${close}
           ]}
           stage="center"
         >
-          <div class="flex flex-wrap items-center justify-center gap-4">
+          <div class={cx(rt.rowC16, rt.wrap, rt.justifyCenter)}>
             <PressButton onclick={() => (logOpen = true)}>Event log ({logLines.length} lines)…</PressButton>
             <PressButton onclick={() => (fixedOpen = true)}>Fixed body (scroll off)…</PressButton>
           </div>
           <!-- scrolling body demo: the ring cap comes from the class prop
                (geometry-only) — head and foot pin, the body zone scrolls -->
-          <Dialog
-            title="Event log"
-            bind:open={logOpen}
-            class="[&_[data-jx-card]]:max-h-[22rem]"
-          >
-            <ol class="flex flex-col gap-1 font-mono text-[12px]">
+          <Dialog title="Event log" bind:open={logOpen} class="dg-clamp">
+            <ol class={cx(rt.flex, rt.col, rt.gap4, rt.fontMono, rt.text12)}>
               {#each logLines as line, i (line)}
-                <li class="flex gap-3">
-                  <span class="w-6 flex-none text-right text-muted-foreground">{i + 1}</span>
+                <li class={cx(rt.flex, rt.gap12)}>
+                  <span class={cx(rt.w24, rt.flexNone, rt.textRight, rt.inkMuted)}>{i + 1}</span>
                   <span>{line}</span>
                 </li>
               {/each}
@@ -672,37 +686,37 @@ ${close}
       title="What the platform gives, what we add"
       summary="The design rule for this component: every behavior the browser ships is consumed as-is; the component only owns state binding and one motion. Anything beyond that is a named extension direction, not hidden magic."
     >
-      <div class="grid gap-4 min-[760px]:grid-cols-2">
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">platform-native, free</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">showModal()</code> — top-layer rendering, focus trap, inert background</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">::backdrop</code> — the scrim pseudo-element;
-                <code class="text-accent">--scrim</code>: semi-transparent black in light mode,
+      <div class={cx(rt.grid760b)}>
+        <div class={cx(rt.notePanel)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>platform-native, free</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>showModal()</code> — top-layer rendering, focus trap, inert background</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>::backdrop</code> — the scrim pseudo-element;
+                <code class={cx(rt.inkAccent)}>--scrim</code>: semi-transparent black in light mode,
                 white in dark mode — a scrim dims/lightens, never colors</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>Escape — the <code class="text-accent">cancel</code> event, intercepted only to share the fade</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>Escape — the <code class={cx(rt.inkAccent)}>cancel</code> event, intercepted only to share the fade</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>closed by default — no-JS page loads never paint dialog content inline</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">form method="dialog"</code> — footer submits close natively (instant, skips the fade)</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>form method="dialog"</code> — footer submits close natively (instant, skips the fade)</span></li>
           </ul>
         </div>
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">jixoai additions &amp; extensions</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">bind:open</code> — rising edge calls
-                <code class="text-accent">showModal()</code>, falling edge runs the teardown</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <div class={cx(rt.notePanel)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>jixoai additions &amp; extensions</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>bind:open</code> — rising edge calls
+                <code class={cx(rt.inkAccent)}>showModal()</code>, falling edge runs the teardown</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>surface timeline — the single motion addition: the 460ms --jx-p kernel drives entry, exit, and the scrim; instant under reduced motion</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>floating-surface law — the hard offset shadow is a REAL <code class="text-accent">::after</code> layer; <code class="text-accent">@starting-style</code> entry pulls the layers apart, the close fade presses them back; <code class="text-accent">variant="solid | acrylic | auto"</code> paints the surface (acrylic = dual-layer <code class="text-accent">backdrop-filter</code>)</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>floating-surface law — the hard offset shadow is a REAL <code class={cx(rt.inkAccent)}>::after</code> layer; <code class={cx(rt.inkAccent)}>@starting-style</code> entry pulls the layers apart, the close fade presses them back; <code class={cx(rt.inkAccent)}>variant="solid | acrylic | auto"</code> paints the surface (acrylic = dual-layer <code class={cx(rt.inkAccent)}>backdrop-filter</code>)</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>× close button — press physics, right of the header bar</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>extension: backdrop-click close; intercepting form submits so they fade too</span></li>
           </ul>
         </div>
@@ -711,26 +725,35 @@ ${close}
   </div>
   </div>
 </div>
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Dialog variants" summary="Title and footer are the two compositional axes; variant paints the surface.">
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">titled</p>
-        <p class="text-[13px] leading-6">The header bar renders when <code class="text-accent">title</code> is given — heading left, × close right.</p>
+    <div class={cx(rt.dgGridMd3)}>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb8, rt.inkMuted)}>titled</p>
+        <p class={cx(rt.body13)}>The header bar renders when <code class={cx(rt.inkAccent)}>title</code> is given — heading left, × close right.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">chrome-less / footer</p>
-        <p class="text-[13px] leading-6">Omit title for a bare body; the <code class="text-accent">footer</code> snippet adds the separator-bounded foot zone — its standard content is <code class="text-accent">CardFooter</code>, whose buttons auto-join one end-packed group, ghost by default.</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb8, rt.inkMuted)}>chrome-less / footer</p>
+        <p class={cx(rt.body13)}>Omit title for a bare body; the <code class={cx(rt.inkAccent)}>footer</code> snippet adds the separator-bounded foot zone — its standard content is <code class={cx(rt.inkAccent)}>CardFooter</code>, whose buttons auto-join one end-packed group, ghost by default.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">variant</p>
-        <p class="text-[13px] leading-6"><code class="text-accent">solid | acrylic | auto</code> (default) — acrylic is a dual-layer backdrop-filter, auto defers to the environment's transparency preference.</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb8, rt.inkMuted)}>variant</p>
+        <p class={cx(rt.body13)}><code class={cx(rt.inkAccent)}>solid | acrylic | auto</code> (default) — acrylic is a dual-layer backdrop-filter, auto defers to the environment's transparency preference.</p>
       </div>
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same animated close."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role, focus trap, and Escape are the platform's."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class="flex flex-col gap-5"><p class="text-muted-foreground text-[13px] leading-6">the trigger inherits the density scope, the surface inherits through the DOM tree — flip the canvas dock's density select (xs / sm / default / lg) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that select.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class={cx(rt.col20)}><p class={cx(rt.bodyMuted)}>the trigger inherits the density scope, the surface inherits through the DOM tree — flip the canvas dock's density select (xs / sm / default / lg) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that select.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props — the platform owns every behavior; the component owns state binding, zone presence, and the zone variant scopes. The footer snippet is the RAW full override of the foot zone; the head/footer content faces are the composition components below."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading of the default title row (rendered through CardHeader); omit for a chrome-less body. Still names the dialog (aria-label) when a head snippet replaces the visible row.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint; auto defers to the environment’s transparency preference. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'class', type: 'string', default: "''", description: 'Geometry-only utilities appended after the law’s own (a consumer’s anchor/width, a scroll-ring cap); the platform still paints nothing.' }, { name: 'scroll', type: 'boolean', default: 'true', description: 'The body zone’s scroll authority (the panel never scrolls). false asserts the body fits — the scroll authority and the stable both-edges gutter reservation retire together.' }, { name: 'head', type: 'Snippet', default: '—', description: 'Replaces the visible title row — typically a CardHeader wrapping custom content; the × close still rides the head grid’s end slot.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body — the only scrollable zone.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'The RAW full override of the foot zone — its standard content is a CardFooter (buttons auto-joined in one end-packed group, ghost by the zone’s scope).' }, { name: 'cancelGuard', type: '() => boolean', default: '—', description: 'Consulted on the native cancel request (Escape); returning true holds the dialog open (e.g. through an IME composition).' }]} /></SectionCard></div>
   <div id="composition" data-reveal=""><SectionCard family="composition" headerRegion="composition" eyebrow="api" title="CardHeader · CardFooter — the zone content faces" summary="The slot architecture belongs to the zones' content, carried by components (r14-9): Dialog renders the zones and writes the ghost variant scopes; these two are what the zones usually show. CardHeader is also Dialog's internal default — the untitled title row has exactly one source."><PropsTable props={[{ name: 'CardHeader · title', type: 'string', default: '—', description: 'The default title row (padded chrome bar); yields to children.' }, { name: 'CardHeader · children', type: 'Snippet', default: '—', description: 'Custom head content, FLUSH edge-to-edge — owns its own geometry (the palette’s Input).' }, { name: 'CardFooter · children', type: 'Snippet', default: '—', description: 'The action buttons — auto-joined in ONE ButtonGroup packed at inline-end; ghost inherited from the Dialog zone scope, an explicit variant wins; ghost seams rule the buttons.' }, { name: 'CardFooter · end', type: 'Snippet', default: '—', description: 'Raw inline-end content: present, it replaces the grouped arrangement entirely — the opt-out for non-button content or a custom cluster, bracket and all.' }, { name: 'CardFooter · opening line', type: 'structural', default: 'leadingSeam', description: 'The actions region’s boundary — the ButtonGroup’s leadingSeam capability: the first button’s own flush seam pseudo (r14-13), not a sibling element; gone with the group under the end face.' }, { name: 'CardFooter · label', type: 'string', default: "'Dialog footer'", description: 'The ButtonGroup’s accessible name.' }]} /></SectionCard></div>
 </div>
+
+<style>
+  /* the scrolling-body clamp: the dialog's card face caps at 22rem so
+     the body zone scrolls while head and foot pin (the [&_[data-jx-card]]
+     descendant seam — the page-style lane, the pilot gotcha #4 static law) */
+  .dg-clamp :global([data-jx-card]) {
+    max-height: 22rem;
+  }
+</style>

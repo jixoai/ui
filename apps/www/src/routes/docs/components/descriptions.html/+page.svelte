@@ -17,6 +17,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -83,6 +84,24 @@
     { name: 'registry/files/ui/descriptions/index.ts', content: descriptionsIndexSource },
     { name: 'src/lib/ui/descriptions-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 
   // ---- recipe: responsive columns (the frame rig) -------------------------
   // The dl's own container query clamps to one pair per row under 640px of
@@ -157,8 +176,7 @@ ${close}
 <Descriptions columns={2} bordered>
   <DescriptionsItem term="status">live</DescriptionsItem>
   <DescriptionsItem term="scope">public</DescriptionsItem>
-</Descriptions>`;
-</script>
+</Descriptions>`;</script>
 
 <svelte:head>
   <title>Descriptions · jixoai-ui</title>
@@ -168,8 +186,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -178,7 +196,7 @@ ${close}
         title="descriptions — composed dt/dd pairs, never a table"
         summary={entry.summary}
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">dl · never a table</span>
           <span class="pill">term prop → dt · children → dd</span>
           <span class="pill">columns via container query</span>
@@ -215,7 +233,7 @@ ${close}
         ]}
         resolveFileContent={resolveUsage}
       >
-        <div class="w-full max-w-2xl">
+        <div class={cx(rt.wFull, rt.maxW2xl)}>
           <Descriptions {columns} {bordered}>
             <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
             <DescriptionsItem term="checks">12 passed · 0 failed</DescriptionsItem>
@@ -247,7 +265,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <!-- usage: the ONE h2 -->
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The composition contract in one sample: import the family from the registry barrel (@ui/descriptions/index — per-part targets exist per file). There is no items[] prop and no value snippet — rich cells are plain children of the Item."><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
 
@@ -260,7 +278,7 @@ ${close}
       title="Examples"
       summary="Ability-named recipes: vertical terms, responsive columns, extra header actions."
     >
-      <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+      <p class={cx(rt.m0, rt.bodyMuted)}>
         All three compose public structure — the Item's grid, the dl's container query, and a
         wrapper around the list. Nothing here reaches into the registry.
       </p>
@@ -280,16 +298,16 @@ ${close}
       stage="fill"
       output={[{ label: 'layout', value: 'vertical · grid-cols-1!' }]}
     >
-      <div class="grid w-full max-w-2xl gap-6 min-[720px]:grid-cols-2">
+      <div class={cx(rt.deGrid)}>
         <Descriptions>
-          <DescriptionsItem term="owner" class="grid-cols-1!">@gaubee</DescriptionsItem>
-          <DescriptionsItem term="region" class="grid-cols-1!">iad1 · washington</DescriptionsItem>
-          <DescriptionsItem term="status" class="grid-cols-1!"><Badge>passing</Badge></DescriptionsItem>
+          <DescriptionsItem term="owner" class={cx(rt.deCols1Imp)}>@gaubee</DescriptionsItem>
+          <DescriptionsItem term="region" class={cx(rt.deCols1Imp)}>iad1 · washington</DescriptionsItem>
+          <DescriptionsItem term="status" class={cx(rt.deCols1Imp)}><Badge>passing</Badge></DescriptionsItem>
         </Descriptions>
         <Descriptions bordered>
-          <DescriptionsItem term="build" class="grid-cols-1!">4f2a1c</DescriptionsItem>
-          <DescriptionsItem term="runtime" class="grid-cols-1!">node 24 · bun</DescriptionsItem>
-          <DescriptionsItem term="notes" class="grid-cols-1!" />
+          <DescriptionsItem term="build" class={cx(rt.deCols1Imp)}>4f2a1c</DescriptionsItem>
+          <DescriptionsItem term="runtime" class={cx(rt.deCols1Imp)}>node 24 · bun</DescriptionsItem>
+          <DescriptionsItem term="notes" class={cx(rt.deCols1Imp)} />
         </Descriptions>
       </div>
       {#snippet playground()}
@@ -361,11 +379,11 @@ ${close}
       stage="fill"
       output={[{ label: 'last action', value: extraEcho }]}
     >
-      <div class="w-full max-w-2xl">
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
         <section class="desc-card">
           <header class="desc-card-head">
-            <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em] text-muted-foreground">deploy · iad1 · production</p>
-            <div class="flex gap-2">
+            <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12, rt.inkMuted)}>deploy · iad1 · production</p>
+            <div class={cx(rt.flex, rt.gap8)}>
               <PressButton variant="outline" onclick={() => (extraEcho = 'redeploy queued')}>redeploy</PressButton>
               <PressButton variant="ghost" onclick={() => (extraEcho = 'rollback armed')}>rollback</PressButton>
             </div>
@@ -376,7 +394,7 @@ ${close}
             <DescriptionsItem term="checks">12 passed · 0 failed</DescriptionsItem>
             <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
           </Descriptions>
-          <p class="m-0 px-4 pb-3 font-mono text-[11.5px] text-muted-foreground" aria-live="polite">
+          <p class={cx(rt.m0, rt.px16, rt.dePb12, rt.fontMono, rt.text115, rt.inkMuted)} aria-live="polite">
             last action: {extraEcho}
           </p>
         </section>
@@ -393,9 +411,9 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Description layouts" summary="Descriptions is a semantic dl: choose one or more term/value pairs per row and opt into the bordered treatment."><ComponentCanvas title="descriptions · types" files={[{ name: 'descriptions-types-demo.svelte', content: descriptionsTypesDemo, kind: 'usage' }]} stage="fill"><div class="grid w-full gap-3 md:grid-cols-2"><div class="border border-border p-4"><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div><div class="border border-border p-4"><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div></div></ComponentCanvas></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Description layouts" summary="Descriptions is a semantic dl: choose one or more term/value pairs per row and opt into the bordered treatment."><ComponentCanvas title="descriptions · types" files={[{ name: 'descriptions-types-demo.svelte', content: descriptionsTypesDemo, kind: 'usage' }]} stage="fill"><div class={cx(rt.deGridMd2)}><div class={cx(rt.panel)}><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div><div class={cx(rt.panel)}><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div></div></ComponentCanvas></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'dl', value: 'Descriptions root', description: 'Preserves description-list semantics — wrappers add chrome, never list content.' }, { name: 'dt', value: 'term', description: 'Names each property.' }, { name: 'dd', value: 'value', description: 'Contains the corresponding value.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Descriptions><DescriptionsItem term="density">scoped</DescriptionsItem></Descriptions></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-desc-cols', default: 'columns prop', source: 'structural' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Descriptions><DescriptionsItem term="density">scoped</DescriptionsItem></Descriptions></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-desc-cols', default: 'columns prop', source: 'structural' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Descriptions props"><PropsTable props={[{ name: 'columns', type: 'number', default: '1', description: 'Term/value pairs per row.' }, { name: 'bordered', type: 'boolean', default: 'false', description: 'Paints hairline cell borders. Defaults: literal slot — own false, not ambient.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">
@@ -406,7 +424,7 @@ ${close}
       title="See also"
       summary="The surfaces descriptions composes with."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/table.html">table — the tabular sibling</a>
         <a class="pill" href="/docs/components/badge.html">badge — rich value cells</a>
         <a class="pill" href="/docs/components/press-button.html">press-button — the extra actions</a>

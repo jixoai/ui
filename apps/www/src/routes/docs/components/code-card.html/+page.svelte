@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -624,6 +625,23 @@ ${close}
     <span class="text-[11px] text-muted-foreground">terminal install</span>
   {/snippet}
 </CodeCard>`;
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -635,10 +653,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -648,7 +666,7 @@ ${close}
       title="code-card — the readonly code surface, on Shiki"
       summary="A figure + pre/code base with a filename-tab head and a compact copy control, highlighted by Shiki through lib/shiki: grammars and themes are separate lazy chunks fetched exactly when a card first needs them (shiki/core + the JavaScript regex engine — no WASM), and the default jixoai theme is Shiki's own css-variables recipe bound to the --tok-* palette, so token paint rides the design tokens in both themes. Code is always a runtime prop — Shiki escapes it, so samples containing literal script-closing tags are inert data; the pre is the scrollport: horizontal always, vertical when maxHeight caps it."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">based on Shiki</span>
         <span class="pill">engine matrix · six installable backends</span>
         <span class="pill">lang="auto" · optional detection item</span>
@@ -686,13 +704,13 @@ ${close}
           theme={theme}
           code={sample.code}
           {backend}
-          class="w-full max-w-[40rem]"
+          class={cx(rt.wFull, rt.ccMaxW40)}
         >
           {#snippet header()}
             <span class="pill">{engineShort[engine]} · {lang}</span>
           {/snippet}
           {#snippet footer()}
-            <span class="text-muted-foreground text-[11px] tracking-wide">
+            <span class={cx(rt.note11, rt.ccTrackWide)}>
               powered by {engineLabels[engine]} · theme: {theme}{lang === 'auto' ? ' · lang detected' : ''}
             </span>
           {/snippet}
@@ -712,7 +730,7 @@ ${close}
           <PlayHelp>
             shiki is the default backend — no prop needed, no other engine
             downloads. The other five are one registry item away (see
-            <a href="#code-card-engines" class="text-accent underline underline-offset-2">the engine matrix</a>
+            <a href="#code-card-engines" class={cx(rt.linkAccent)}>the engine matrix</a>
             below); picking one here constructs that backend and hands it to
             the card live. Each engine maps the theme name into its own
             vocabulary, and a lang outside an engine's set rejects by law —
@@ -720,13 +738,13 @@ ${close}
             on anything but shiki). tree-sitter fetches its wasm grammars at
             first paint; microlighter paints zero markup — ranges over the
             plain text. The usage file in the drawer tracks all three picks
-            live. The <strong class="font-semibold">auto</strong> pick swaps in
+            live. The <strong class={cx(rt.semibold)}>auto</strong> pick swaps in
             the detection sample: this card sits inside
-            <code class="text-accent">&lt;HighlightDetectDefault&gt;</code>
+            <code class={cx(rt.inkAccent)}>&lt;HighlightDetectDefault&gt;</code>
             (the wrapper item this site installs like any consumer), the
             filename feeds the DLD's L1 extension table, and the resolved
             language flows through whatever engine is selected — see
-            <a href="#code-card-auto" class="text-accent underline underline-offset-2">lang="auto"</a>
+            <a href="#code-card-auto" class={cx(rt.linkAccent)}>lang="auto"</a>
             below.
           </PlayHelp>
         </PlayFields>
@@ -748,7 +766,7 @@ ${close}
         lang="ts"
         code={scrollSample}
         maxHeight="14rem"
-        class="w-full max-w-[40rem]"
+        class={cx(rt.wFull, rt.ccMaxW40)}
       />
     </ComponentCanvas>
   </div>
@@ -762,31 +780,31 @@ ${close}
       title="Based on Shiki — a facade, not a wrapper"
       summary="lib/shiki adds loading strategy only: a lazy singleton over shiki/core with the JavaScript regex engine, one dynamic import per grammar and theme, and a zero-download default theme from Shiki's css-variables factory. It never re-interprets Shiki output — getHighlighter() hands back the stock HighlighterCore and highlightCode() forwards Shiki's own codeToHtml options (transformers, dual themes, decorations) untouched, so the whole Shiki ecosystem works here as-is."
     >
-      <div class="grid gap-4 min-[760px]:grid-cols-2">
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">what the card owns</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>progressive paint: the prerendered sample is escaped plain text; after hydration Shiki upgrades the SAME <code class="text-accent">&lt;code&gt;</code> element — zero layout shift</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+      <div class={cx(rt.grid760b)}>
+        <div class={cx(rt.notePanel)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>what the card owns</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>progressive paint: the prerendered sample is escaped plain text; after hydration Shiki upgrades the SAME <code class={cx(rt.inkAccent)}>&lt;code&gt;</code> element — zero layout shift</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>on-demand loading: shiki/core + engine on first highlight; every grammar/theme its own lazy chunk, fetched only when requested</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>named themes ride along — the theme's editor colors from Shiki's pre output apply verbatim to the card's pre</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>scroll law: horizontal always, vertical under <code class="text-accent">maxHeight</code>, thin scrollbars, keyboard-focusable pre</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>scroll law: horizontal always, vertical under <code class={cx(rt.inkAccent)}>maxHeight</code>, thin scrollbars, keyboard-focusable pre</span></li>
           </ul>
         </div>
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">what the consumer owes</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <div class={cx(rt.notePanel)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>what the consumer owes</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>a runtime string — never inlined markup between component tags</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>a Shiki language id for <code class="text-accent">lang</code> (aliases like ts/sh/md resolve in lib/shiki)</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>extra grammars/themes in one line: <code class="text-accent">registerLanguage('python', () =&gt; import('shiki/langs/python.mjs'))</code></span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>nothing else — npm <code class="text-accent">shiki</code> installs with the registry item</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>a Shiki language id for <code class={cx(rt.inkAccent)}>lang</code> (aliases like ts/sh/md resolve in lib/shiki)</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>extra grammars/themes in one line: <code class={cx(rt.inkAccent)}>registerLanguage('python', () =&gt; import('shiki/langs/python.mjs'))</code></span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>nothing else — npm <code class={cx(rt.inkAccent)}>shiki</code> installs with the registry item</span></li>
           </ul>
         </div>
       </div>
@@ -802,38 +820,38 @@ ${close}
       title="The engine matrix — one contract, six installable engines"
       summary="shiki is the pinned default: installing code-card installs shiki and nothing else. Five more engines exist as their own registry items, each a factory returning the same HighlightBackend — markup backends write token spans into the card's code element (the paint survives the print pipeline's freeze clone), microlighter is the range model: zero markup, ranges registered in the CSS Custom Highlight API over the plain text (which is why it prints plain — see the table). Every engine is lazy: importing a factory pulls no engine code; the download happens at a card's first paint."
     >
-      <div class="flex flex-col gap-8">
+      <div class={cx(rt.col32)}>
         <!-- the comparison table -->
-        <div class="overflow-x-auto border border-border">
-          <table class="w-full min-w-[70rem] text-[12.5px]">
-            <caption class="sr-only">the six highlight engines compared</caption>
+        <div class={cx(rt.frame, rt.oxAuto)}>
+          <table class={cx(rt.ccTable70)}>
+            <caption class={cx(rt.srOnly)}>the six highlight engines compared</caption>
             <thead>
-              <tr class="border-b border-border bg-muted/40 text-left">
-                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">engine</th>
-                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">output</th>
-                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">size posture</th>
-                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">languages</th>
-                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">tailoring</th>
-                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">print</th>
-                <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">in one line</th>
+              <tr class={cx(rt.bBorder, rt.bgMuted40, rt.textLeft)}>
+                <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>engine</th>
+                <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>output</th>
+                <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>size posture</th>
+                <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>languages</th>
+                <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>tailoring</th>
+                <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>print</th>
+                <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>in one line</th>
               </tr>
             </thead>
             <tbody>
               {#each engineMatrix as row (row.id)}
-                <tr class="border-b border-border align-top {row.id === 'shiki' ? 'bg-primary/5' : ''}">
-                  <th scope="row" class="px-3 py-2.5 text-left font-normal">
-                    <code class="text-accent">{row.factory}</code>
-                    {#if row.id === 'shiki'}<span class="pill ml-1.5">default</span>{/if}
-                    <div class="mt-1 text-[11px] text-muted-foreground">{row.item}</div>
+                <tr class={cx(rt.bBorder, rt.alignTop, row.id === 'shiki' && rt.ccShikiRow)}>
+                  <th scope="row" class={cx(rt.px12, rt.py10, rt.textLeft, rt.weightNormal)}>
+                    <code class={cx(rt.inkAccent)}>{row.factory}</code>
+                    {#if row.id === 'shiki'}<span class="pill {cx(rt.ml6)}">default</span>{/if}
+                    <div class={cx(rt.note11, rt.mt4)}>{row.item}</div>
                   </th>
-                  <td class="px-3 py-2.5">
-                    <span class:font-bold={row.output === 'range'} class:text-primary={row.output === 'range'}>{row.output}</span>
+                  <td class={cx(rt.px12, rt.py10)}>
+                    <span class={cx(row.output === 'range' && rt.bold, row.output === 'range' && rt.inkPrimary)}>{row.output}</span>
                   </td>
-                  <td class="px-3 py-2.5 leading-5">{row.size}</td>
-                  <td class="px-3 py-2.5 leading-5">{row.languages}</td>
-                  <td class="px-3 py-2.5 leading-5">{row.tailoring}</td>
-                  <td class="px-3 py-2.5 leading-5">{row.print}</td>
-                  <td class="px-3 py-2.5 leading-5">{row.line}</td>
+                  <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.size}</td>
+                  <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.languages}</td>
+                  <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.tailoring}</td>
+                  <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.print}</td>
+                  <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.line}</td>
                 </tr>
               {/each}
             </tbody>
@@ -841,53 +859,53 @@ ${close}
         </div>
 
         <!-- install + the breaking note -->
-        <div class="flex flex-col gap-3">
-          <h3 class="font-nav text-[13px] tracking-tight">add an engine — one item per engine</h3>
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.fontNav, rt.text13, rt.trackTight)}>add an engine — one item per engine</h3>
           <CodeBlock code={installCommands} lang="sh" meta="registry install" />
-          <p class="text-[13px] leading-6 text-muted-foreground">
-            Each item lands its factory in <code class="text-accent">$lib/highlight/&lt;engine&gt;</code>
+          <p class={cx(rt.bodyMuted)}>
+            Each item lands its factory in <code class={cx(rt.inkAccent)}>$lib/highlight/&lt;engine&gt;</code>
             and declares only its own npm dependencies — sibling engines never ride along.
-            <strong class="font-semibold text-foreground">microlighter + vite:</strong> its grammar
+            <strong class={cx(rt.semibold, rt.inkFg)}>microlighter + vite:</strong> its grammar
             loading is runtime-templated inside the package and misses fail silently, so hosts owe
             two lines — dev excludes it from the optimizer, builds emit its
-            <code class="text-accent">dist/grammars/*.js</code> next to the engine chunk (this
+            <code class={cx(rt.inkAccent)}>dist/grammars/*.js</code> next to the engine chunk (this
             site's vite.config.ts is the reference implementation).
-            <strong class="font-semibold text-foreground">Breaking (2026-09-06):</strong>
+            <strong class={cx(rt.semibold, rt.inkFg)}>Breaking (2026-09-06):</strong>
             code-card used to bundle prismjs and microlighter as hard npm dependencies — it does
             not anymore, and nothing is shimmed. If you consumed those factories, add the matching
-            item above; the <code class="text-accent">$lib/highlight/&lt;engine&gt;</code> import
+            item above; the <code class={cx(rt.inkAccent)}>$lib/highlight/&lt;engine&gt;</code> import
             path keeps working for every engine you install, and engines you never install simply
             never download. The full migration table lives in the
-            <a href="/docs/registry" class="text-accent underline underline-offset-2">registry docs</a>.
+            <a href="/docs/registry" class={cx(rt.linkAccent)}>registry docs</a>.
           </p>
         </div>
 
           <!-- the three configuration tiers -->
-          <div class="flex flex-col gap-4">
-            <h3 class="font-nav text-[13px] tracking-tight">three configuration tiers</h3>
-            <div class="grid gap-4 min-[760px]:grid-cols-2">
-              <div class="border border-border bg-muted/40 px-4 py-4">
-                <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">① per instance — the backend prop</h4>
-                <p class="mb-3 text-[12.5px] leading-5">
-                  Any consumer, any card: pass a factory product. The <code class="text-accent">langs</code>
+          <div class={cx(rt.col16)}>
+            <h3 class={cx(rt.fontNav, rt.text13, rt.trackTight)}>three configuration tiers</h3>
+            <div class={cx(rt.grid760b)}>
+              <div class={cx(rt.notePanel)}>
+                <h4 class={cx(rt.note12, rt.fontNav, rt.mb4, rt.upper, rt.track18)}>① per instance — the backend prop</h4>
+                <p class={cx(rt.mb12, rt.text125, rt.lead5)}>
+                  Any consumer, any card: pass a factory product. The <code class={cx(rt.inkAccent)}>langs</code>
                   subset is the size lever — one instance's gate never narrows another's.
                 </p>
                 <CodeBlock code={tierOneCode} lang="svelte" meta="per-instance" />
               </div>
-              <div class="border border-border bg-muted/40 px-4 py-4">
-                <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">② subtree default — your ~10-line provider</h4>
-                <p class="mb-3 text-[12.5px] leading-5">
-                  The seam ships with the items (zero dependencies): <code class="text-accent">HIGHLIGHT_KEY</code>.
-                  Cards without a <code class="text-accent">backend</code> prop eat the nearest
+              <div class={cx(rt.notePanel)}>
+                <h4 class={cx(rt.note12, rt.fontNav, rt.mb4, rt.upper, rt.track18)}>② subtree default — your ~10-line provider</h4>
+                <p class={cx(rt.mb12, rt.text125, rt.lead5)}>
+                  The seam ships with the items (zero dependencies): <code class={cx(rt.inkAccent)}>HIGHLIGHT_KEY</code>.
+                  Cards without a <code class={cx(rt.inkAccent)}>backend</code> prop eat the nearest
                   provider's default — the prop always wins.
                 </p>
                 <CodeBlock code={tierTwoCode} lang="svelte" meta="subtree default" />
               </div>
             </div>
-            <div class="border border-border bg-muted/40 px-4 py-4">
-              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">③ kernel plugin — the site form</h4>
-              <p class="mb-3 max-w-[60rem] text-[12.5px] leading-5">
-                Sites that installed <code class="text-accent">@jixoai/context-plugin</code> can project
+            <div class={cx(rt.notePanel)}>
+              <h4 class={cx(rt.note12, rt.fontNav, rt.mb4, rt.upper, rt.track18)}>③ kernel plugin — the site form</h4>
+              <p class={cx(rt.mb12, rt.maxW60, rt.text125, rt.lead5)}>
+                Sites that installed <code class={cx(rt.inkAccent)}>@jixoai/context-plugin</code> can project
                 the default through the plugin kernel — here repairing microlighter's one known
                 limitation: under the print projection, swap the range backend for a markup one so
                 the freeze clone carries real spans. The kernel never rides the registry items;
@@ -909,27 +927,27 @@ ${close}
       title="lang=&quot;auto&quot; — three detection rings, one optional item"
       summary="Setting lang to the AUTO_LANG sentinel (strict equality — 'AUTO' and ' auto ' are ordinary language ids) runs detection before highlighting. The chain has exactly three rings: the langDetector prop, the HIGHLIGHT_DETECT_KEY context, and the backend's own detector — highlight.js instances carry one built in (highlightAuto over exactly the instance's languages). A ring resolving null is a no-opinion: the chain falls through (the rings complement, they never fight); a reject is terminal — plain text plus a warn naming the ring. Three no-opinion rings = plain text with the ids listed; zero rings at all = a runtime reject whose text carries the install command and both wiring forms below. Detection bytes load only when a card actually enters auto: a bare code-card install carries ZERO detector code, and the DLD ships as its own framework-free item whose four layers are each lazy modules — a layer that answers loads none of the layers beneath it."
     >
-      <div class="flex flex-col gap-8">
+      <div class={cx(rt.col32)}>
         <!-- the two wiring forms -->
-        <div class="flex flex-col gap-3">
-          <h3 class="font-nav text-[13px] tracking-tight">two equivalent wirings — pick one</h3>
-          <div class="grid gap-4 min-[760px]:grid-cols-2">
-            <div class="border border-border bg-muted/40 px-4 py-4">
-              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">① the wrapper item — children form</h4>
-              <p class="mb-3 text-[12.5px] leading-5">
-                <code class="text-accent">npx jixoai-ui add @jixoai/highlight-detect-default</code>
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.fontNav, rt.text13, rt.trackTight)}>two equivalent wirings — pick one</h3>
+          <div class={cx(rt.grid760b)}>
+            <div class={cx(rt.notePanel)}>
+              <h4 class={cx(rt.note12, rt.fontNav, rt.mb4, rt.upper, rt.track18)}>① the wrapper item — children form</h4>
+              <p class={cx(rt.mb12, rt.text125, rt.lead5)}>
+                <code class={cx(rt.inkAccent)}>npx jixoai-ui add @jixoai/highlight-detect-default</code>
                 pulls the DLD plus this ~10-line provider — import it from the folder barrel or
-                the direct <code class="text-accent">.svelte</code> path. Svelte context spreads
+                the direct <code class={cx(rt.inkAccent)}>.svelte</code> path. Svelte context spreads
                 downward only: wrap the subtree, siblings stay untouched.
               </p>
               <CodeBlock code={detectFormOneCode} lang="svelte" meta="wrapper item" />
             </div>
-            <div class="border border-border bg-muted/40 px-4 py-4">
-              <h4 class="font-nav mb-1 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">② hand-written — zero components</h4>
-              <p class="mb-3 text-[12.5px] leading-5">
+            <div class={cx(rt.notePanel)}>
+              <h4 class={cx(rt.note12, rt.fontNav, rt.mb4, rt.upper, rt.track18)}>② hand-written — zero components</h4>
+              <p class={cx(rt.mb12, rt.text125, rt.lead5)}>
                 The lib item is framework-free by law; one
-                <code class="text-accent">setContext</code> line at any subtree root wires the
-                same <code class="text-accent">{ '{ detector }' }</code> adapter shape the wrapper
+                <code class={cx(rt.inkAccent)}>setContext</code> line at any subtree root wires the
+                same <code class={cx(rt.inkAccent)}>{ '{ detector }' }</code> adapter shape the wrapper
                 stores — the card's reader cannot tell them apart.
               </p>
               <CodeBlock code={detectFormTwoCode} lang="svelte" meta="hand-written" />
@@ -939,36 +957,36 @@ ${close}
         </div>
 
         <!-- the DLD waterfall -->
-        <div class="flex flex-col gap-3">
-          <h3 class="font-nav text-[13px] tracking-tight">the DLD waterfall — cheap layers first, every layer its own lazy module</h3>
-          <div class="overflow-x-auto border border-border">
-            <table class="w-full min-w-[60rem] text-[12.5px]">
-              <caption class="sr-only">the default language detector's four layers</caption>
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.fontNav, rt.text13, rt.trackTight)}>the DLD waterfall — cheap layers first, every layer its own lazy module</h3>
+          <div class={cx(rt.frame, rt.oxAuto)}>
+            <table class={cx(rt.ccTable60)}>
+              <caption class={cx(rt.srOnly)}>the default language detector's four layers</caption>
               <thead>
-                <tr class="border-b border-border bg-muted/40 text-left">
-                  <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">layer</th>
-                  <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">reads</th>
-                  <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">answers from</th>
-                  <th scope="col" class="px-3 py-2 font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">cost</th>
+                <tr class={cx(rt.bBorder, rt.bgMuted40, rt.textLeft)}>
+                  <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>layer</th>
+                  <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>reads</th>
+                  <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>answers from</th>
+                  <th scope="col" class={cx(rt.eyebrow, rt.px12, rt.py8, rt.inkMuted)}>cost</th>
                 </tr>
               </thead>
               <tbody>
                 {#each waterfall as row (row.layer)}
-                  <tr class="border-b border-border align-top">
-                    <th scope="row" class="px-3 py-2.5 text-left font-normal"><code class="text-accent">{row.layer}</code></th>
-                    <td class="px-3 py-2.5">{row.source}</td>
-                    <td class="px-3 py-2.5 leading-5">{row.answers}</td>
-                    <td class="px-3 py-2.5 leading-5">{row.cost}</td>
+                  <tr class={cx(rt.bBorder, rt.alignTop)}>
+                    <th scope="row" class={cx(rt.px12, rt.py10, rt.textLeft, rt.weightNormal)}><code class={cx(rt.inkAccent)}>{row.layer}</code></th>
+                    <td class={cx(rt.px12, rt.py10)}>{row.source}</td>
+                    <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.answers}</td>
+                    <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.cost}</td>
                   </tr>
                 {/each}
               </tbody>
             </table>
           </div>
-          <p class="max-w-[70rem] text-[13px] leading-6 text-muted-foreground">
+          <p class={cx(rt.bodyMuted, rt.maxW70)}>
             'Four layers' counts the waterfall only — the card's detection rings stay three plus
-            the reject tail. The on-demand law cuts both ways: <strong class="font-semibold text-foreground">a
-            filename hit loads L2-L4 zero bytes</strong> (pick <code class="text-accent">auto</code> in the
-            playground — its filename answers at L1), and <strong class="font-semibold text-foreground">a bare
+            the reject tail. The on-demand law cuts both ways: <strong class={cx(rt.semibold, rt.inkFg)}>a
+            filename hit loads L2-L4 zero bytes</strong> (pick <code class={cx(rt.inkAccent)}>auto</code> in the
+            playground — its filename answers at L1), and <strong class={cx(rt.semibold, rt.inkFg)}>a bare
             install loads the whole capability zero bytes</strong> — the DLD is never a hidden dependency of
             code-card. A detection whose language the active engine's curated set rejects is
             terminal by the same matrix law as any lang: the reject names the engines that cover it.
@@ -976,52 +994,52 @@ ${close}
         </div>
 
         <!-- the two live lanes, no lang named anywhere -->
-        <div class="flex flex-col gap-3">
-          <h3 class="font-nav text-[13px] tracking-tight">live — the filename-less lanes (structure and statistics)</h3>
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.fontNav, rt.text13, rt.trackTight)}>live — the filename-less lanes (structure and statistics)</h3>
           <ComponentCanvas
             title="code-card · auto lanes"
             files={[{ name: 'code-card-auto-demo.svelte', content: codeCardAutoDemo, kind: 'usage' }]}
             stage="fill"
           >
-            <div class="grid w-full gap-4 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-2">
-              <p class="text-[12px] text-muted-foreground">
+            <div class={cx(rt.grid760b, rt.wFull)}>
+            <div class={cx(rt.col8)}>
+              <p class={cx(rt.note12)}>
                 no filename, no shebang — the body's shape answers at <strong>L3</strong>
               </p>
               <!-- the same wrapper item the playground rides in — the demo
                    subtree carries the DLD default; nothing outside does -->
               <HighlightDetectDefault>
-                <CodeCard lang={AUTO_LANG} code={detectStructureSample} class="w-full" copyable={false} />
+                <CodeCard lang={AUTO_LANG} code={detectStructureSample} class={cx(rt.wFull)} copyable={false} />
               </HighlightDetectDefault>
             </div>
-            <div class="flex flex-col gap-2">
-              <p class="text-[12px] text-muted-foreground">
+            <div class={cx(rt.col8)}>
+              <p class={cx(rt.note12)}>
                 no filename, no shebang, no shape — the wasm answers at <strong>L4</strong>
               </p>
               <HighlightDetectDefault>
-                <CodeCard lang={AUTO_LANG} code={detectStatisticalSample} class="w-full" copyable={false} />
+                <CodeCard lang={AUTO_LANG} code={detectStatisticalSample} class={cx(rt.wFull)} copyable={false} />
               </HighlightDetectDefault>
             </div>
           </div>
           </ComponentCanvas>
-          <p class="max-w-[70rem] text-[13px] leading-6 text-muted-foreground">
+          <p class={cx(rt.bodyMuted, rt.maxW70)}>
             Both cards hydrate plain and upgrade after the detector resolves — prerendered output
             is always plain text (detection never runs server-side). The wasm rides the
-            <code class="text-accent">@jixoai/ui-betlang-wasm</code> npm package (betlang
+            <code class={cx(rt.inkAccent)}>@jixoai/ui-betlang-wasm</code> npm package (betlang
             =&nbsp;0.1.1 pinned at the crate, checksum-gated build): vite emits it as a real asset
-            through the <code class="text-accent">?url</code> channel, fetched the first time a
+            through the <code class={cx(rt.inkAccent)}>?url</code> channel, fetched the first time a
             sample falls through L1-L3.
           </p>
         </div>
 
         <!-- the detection lab: type code, watch the waterfall run -->
-        <div class="flex flex-col gap-3">
-          <h3 class="font-nav text-[13px] tracking-tight">the detection lab — type anything, watch the waterfall answer</h3>
-          <p class="max-w-[70rem] text-[13px] leading-6 text-muted-foreground">
+        <div class={cx(rt.col12)}>
+          <h3 class={cx(rt.fontNav, rt.text13, rt.trackTight)}>the detection lab — type anything, watch the waterfall answer</h3>
+          <p class={cx(rt.bodyMuted, rt.maxW70)}>
             The traced DLD reports one row per executed layer — what it consulted, what it
             answered, and how long it took; the layers below a hit render as skipped (the
             short-circuit law made visible). The card at the bottom paints through the real
-            consumer path: <code class="text-accent">lang="auto"</code> inside the wrapper,
+            consumer path: <code class={cx(rt.inkAccent)}>lang="auto"</code> inside the wrapper,
             its own waterfall run, never a pre-computed verdict.
           </p>
           <DetectorPlayground />
@@ -1032,30 +1050,30 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Code card variants" summary="Head and foot are compositional; fill turns the card into a pinned-chrome panel.">
     <ComponentCanvas
       title="code-card · variants"
       files={[{ name: 'code-card-variants-demo.svelte', content: codeCardVariantsDemo, kind: 'usage' }]}
       stage="fill"
     >
-      <div class="grid w-full gap-4 md:grid-cols-3">
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">bare pre</p>
-          <CodeCard lang="ts" code={'const bare = true;'} copyable={false} class="w-full" />
+      <div class={cx(rt.ccGrid)}>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>bare pre</p>
+          <CodeCard lang="ts" code={'const bare = true;'} copyable={false} class={cx(rt.wFull)} />
         </div>
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">filename tab + copy</p>
-          <CodeCard filename="hello.ts" lang="ts" code={'export const hello = "world";'} class="w-full" />
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>filename tab + copy</p>
+          <CodeCard filename="hello.ts" lang="ts" code={'export const hello = "world";'} class={cx(rt.wFull)} />
         </div>
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">header/footer snippets</p>
-          <CodeCard filename="install.sh" lang="bash" code={'npx jixoai-ui add code-card'} class="w-full">
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>header/footer snippets</p>
+          <CodeCard filename="install.sh" lang="bash" code={'npx jixoai-ui add code-card'} class={cx(rt.wFull)}>
             {#snippet header()}
               <span class="pill">registry</span>
             {/snippet}
             {#snippet footer()}
-              <span class="text-[11px] text-muted-foreground">terminal install</span>
+              <span class={cx(rt.note11)}>terminal install</span>
             {/snippet}
           </CodeCard>
         </div>
@@ -1064,6 +1082,6 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Code is always a runtime prop — Shiki escapes it, so samples containing literal closing tags are inert data."><CodeBlock code={usageCode} lang="svelte" meta="CodeCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The pre is a labelled, keyboard-focusable scrollport; the copy control is a real button with state feedback."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the scrollport (pre) and the copy control' }, { key: '← / → / ↑ / ↓', action: 'Scroll the focused pre — long lines horizontal, capped bodies vertical' }, { key: 'Enter / Space', action: 'Activate the copy button' }]} aria={[{ name: 'aria-label', value: '"{filename|lang} code sample"', description: 'On the pre — the scrollport is named whether or not a filename tab exists.' }, { name: 'aria-label', value: 'copy {filename|lang} sample', description: 'On the copy button; flips to "copied" for the 1.6s feedback window.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Token paint end to end — the jixoai theme resolves to the --tok-* palette at paint time; the shell rides the --readonly-code-* tints."><div class="flex flex-col gap-5"><DensityDemo><CodeCard filename="density.ts" lang="ts" code={'export const density = "fixed rhythm";'} class="w-full" copyable={false} /></DensityDemo><TokenTable tokens={[{ name: '--tok-token-keyword', default: 'var(--primary)', source: 'color', description: 'Shiki css-variables palette — one markup, both themes.' }, { name: '--tok-token-string', default: 'var(--accent)', source: 'color' }, { name: '--readonly-code-bg', default: 'muted 42% / background', source: 'color', description: 'Body ground tint.' }, { name: '--readonly-code-meta-bg / -fg', default: 'accent mixes', source: 'color', description: 'Head/foot chrome tints.' }, { name: 'body rhythm', default: '13px mono, fixed padding', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Token paint end to end — the jixoai theme resolves to the --tok-* palette at paint time; the shell rides the --readonly-code-* tints."><div class={cx(rt.col20)}><DensityDemo><CodeCard filename="density.ts" lang="ts" code={'export const density = "fixed rhythm";'} class={cx(rt.wFull)} copyable={false} /></DensityDemo><TokenTable tokens={[{ name: '--tok-token-keyword', default: 'var(--primary)', source: 'color', description: 'Shiki css-variables palette — one markup, both themes.' }, { name: '--tok-token-string', default: 'var(--accent)', source: 'color' }, { name: '--readonly-code-bg', default: 'muted 42% / background', source: 'color', description: 'Body ground tint.' }, { name: '--readonly-code-meta-bg / -fg', default: 'accent mixes', source: 'color', description: 'Head/foot chrome tints.' }, { name: 'body rhythm', default: '13px mono, fixed padding', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Thirteen props; code is the only required one — everything else is composition."><PropsTable props={[{ name: 'code', type: 'string', default: '—', description: 'The sample (runtime prop; the backend escapes it into inert spans).', required: true }, { name: 'backend', type: 'HighlightBackend', default: 'context → shiki()', description: 'Highlight backend instance — shiki() | prismjs() | highlightJs() | sugarHigh() | treeSitter() | microLighter(); see the engine matrix.' }, { name: 'lang', type: 'string', default: "'ts'", description: "Language id; aliases (ts/sh/md/…) resolve in the active backend's table — or 'auto' (the AUTO_LANG sentinel, strict equality) to run the three-ring detection chain first; see lang=\"auto\"." }, { name: 'langDetector', type: 'LanguageDetector', default: '—', description: 'Detection ring ①: an explicit detector outranking context and backend (defaultLangDetector() / betlangDetector() from the highlight-lang-detector item, or any { id, detect } implementation).' }, { name: 'theme', type: 'string', default: "'jixoai'", description: 'Theme name in shiki vocabulary; each backend maps it into its own world.' }, { name: 'filename', type: 'string', default: "''", description: "Filename tab on the head's left; head renders when it or header exists. With lang='auto' it feeds the DLD's L1 tables verbatim (paths included — the detector takes the last segment)." }, { name: 'header', type: 'Snippet', default: '—', description: 'Head-right area; replaces the default lang label.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Footer-left content.' }, { name: 'copyable', type: 'boolean', default: 'true', description: "Copy control on the footer bar's right." }, { name: 'maxHeight', type: 'string', default: "''", description: 'CSS length capping the body; turns on vertical scrolling.' }, { name: 'fill', type: 'boolean', default: 'false', description: 'Stretch to the container height; the pre becomes the only scroll area.' }, { name: 'minHeight', type: 'string', default: "''", description: 'Floors the card height; pairs with fill so short samples open readable.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the figure.' }]} /></SectionCard></div>
 </div>

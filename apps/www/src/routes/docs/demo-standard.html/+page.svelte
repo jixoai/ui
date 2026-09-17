@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
@@ -68,6 +69,22 @@ with clear button and async loading   <!-- TWO capabilities in one name -->`;
     // …every route lands here with its owning change before the flip
   ]
 }`;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -78,8 +95,8 @@ with clear button and async loading   <!-- TWO capabilities in one name -->`;
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <!-- Intro -->
     <div data-reveal="">
       <SectionCard
@@ -89,7 +106,7 @@ with clear button and async loading   <!-- TWO capabilities in one name -->`;
         title="demo-standard — one page skeleton, derived from the market leaders"
         summary="The market research (.agents/audit/2026-08-30-site-walkthrough) is unambiguous: the leading registries win on demo-page CONSISTENCY, not component count. This page is the law every component page follows — and the lint that keeps it true."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">six sections, one order</span>
           <span class="pill">ability-named demos</span>
           <span class="pill">&lt;name&gt;-&lt;ability&gt; variants</span>
@@ -119,7 +136,7 @@ with clear button and async loading   <!-- TWO capabilities in one name -->`;
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <!-- the skeleton, section by section -->
   <div id="skeleton" data-reveal="">
     <SectionCard
@@ -156,17 +173,17 @@ with clear button and async loading   <!-- TWO capabilities in one name -->`;
       title="Demos are named by ability"
       summary="One phrase names one capability — what the demo LETS YOU DO, never a number, never a scene noun, never two capabilities at once."
     >
-      <div class="grid gap-4 lg:grid-cols-2">
-        <div class="flex flex-col gap-3 border border-border p-4">
-          <p class="text-primary font-nav text-[11px] uppercase tracking-[0.24em]">yes — the ability</p>
+      <div class={cx(rt.dsGridLg2)}>
+        <div class={cx(rt.col12, rt.panel)}>
+          <p class={cx(rt.eyebrowPrimary)}>yes — the ability</p>
           <CodeBlock code={goodNames} lang="text" meta="names that carry" />
         </div>
-        <div class="flex flex-col gap-3 border border-border p-4">
-          <p class="text-primary font-nav text-[11px] uppercase tracking-[0.24em]">no — anything else</p>
+        <div class={cx(rt.col12, rt.panel)}>
+          <p class={cx(rt.eyebrowPrimary)}>no — anything else</p>
           <CodeBlock code={badNames} lang="text" meta="names that fail review" />
         </div>
       </div>
-      <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
+      <p class={cx(rt.para, rt.mt16)}>
         The lint enforces the mechanical subset (numbered titles fail); the semantic half — one
         phrase, one capability — is review law. When a demo needs a second capability, it needs a
         second demo.
@@ -184,9 +201,9 @@ with clear button and async loading   <!-- TWO capabilities in one name -->`;
       summary="A demo that ships as its own registry item is <name>-<ability>: the composition, standalone, named after the ability it grants (the @reui/date-picker-range precedent)."
     >
       <CodeBlock code={variantItem} lang="ts" meta="registry item, promoted" />
-      <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
-        The suffix is the demo name, kebab-cased: <code class="text-accent">with clear button</code>
-        promotes to <code class="text-accent">select-with-clear-button</code>. The page-level demo
+      <p class={cx(rt.para, rt.mt16)}>
+        The suffix is the demo name, kebab-cased: <code class={cx(rt.inkAccent)}>with clear button</code>
+        promotes to <code class={cx(rt.inkAccent)}>select-with-clear-button</code>. The page-level demo
         and the registry-level variant share one ability vocabulary — there is no third naming
         scheme.
       </p>
@@ -202,13 +219,13 @@ with clear button and async loading   <!-- TWO capabilities in one name -->`;
       title="Props tables read the generated meta"
       summary="Name, type and default come from the component's GENERATED .meta.ts (component-metadata-gen, drift-gated); the page carries only the docs curation — prose, flags, and corrections where the extractor's documented ceiling bites."
     >
-      <div class="flex flex-col gap-4">
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+      <div class={cx(rt.col16)}>
+        <p class={cx(rt.para)}>
           The curation layer is accountable: the drift lock
-          (<code class="text-accent">test/props-table-meta-drift.spec.ts</code>) pins which override
+          (<code class={cx(rt.inkAccent)}>test/props-table-meta-drift.spec.ts</code>) pins which override
           fields each pilot uses, so a new correction can only land as a conscious edit. As the
-          extractor grows (JSDoc descriptions, <code class="text-accent">$bindable()</code> flags,
-          <code class="text-accent">?</code> optionality, alias-to-union merging), the curation
+          extractor grows (JSDoc descriptions, <code class={cx(rt.inkAccent)}>$bindable()</code> flags,
+          <code class={cx(rt.inkAccent)}>?</code> optionality, alias-to-union merging), the curation
           shrinks — the table never silently disagrees with the interface again. The API section
           below renders from the select meta, live:
         </p>
@@ -227,7 +244,7 @@ with clear button and async loading   <!-- TWO capabilities in one name -->`;
       summary="The skeleton lint hard-fails every in-scope route and warns on the rest while printing the backlog. The scope file is data; the successor change flips the gate global when the backlog is empty."
     >
       <CodeBlock code={scopeFile} lang="ts" meta="scripts/docs-skeleton-scope.json" />
-      <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
+      <p class={cx(rt.para, rt.mt16)}>
         An out-of-scope page missing sections is BACKLOG, not violation — the gate stays green
         while the migration proceeds page by page. When the successor lands, the warn list must be
         empty or the flip fails: the exit criterion is computed, never asserted.

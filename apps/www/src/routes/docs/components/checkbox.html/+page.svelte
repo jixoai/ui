@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
@@ -154,6 +155,22 @@ ${close}
 <Checkbox label="unchecked" name="types-unchecked" />
 <Checkbox label="checked" name="types-checked" checked />
 <Checkbox label="indeterminate" name="types-indeterminate" indeterminate />`;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -165,14 +182,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -182,7 +199,7 @@ ${close}
       title="checkbox — 16px square, clip-path glyph"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">pure CSS · zero icon deps</span>
         <span class="pill">:checked morph</span>
         <span class="pill">:indeterminate dash</span>
@@ -213,7 +230,7 @@ ${close}
       output={[{ label: 'checked', value: canvasChecked }]}
       resolveFileContent={resolveCheckboxUsage}
     >
-      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+      <div class={cx(rt.col12, rt.itemsStart, rt.wFull, rt.cbMaxWxs)}>
         <Checkbox
           label="subscribe"
           name="canvas-checkbox"
@@ -258,8 +275,8 @@ ${close}
       title="The selector, redrawn in pure CSS"
       summary="A control where the paint deserved its own drawing code: the component strips appearance off the native input and draws its glyph with pseudo-elements — a clip-path check on a 45°-rotated box. Zero icon fonts, zero SVG, zero dependencies; the native input underneath keeps form participation, keyboard toggling, and :checked/:indeterminate state."
     >
-      <div class="flex flex-col gap-5">
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
           :checked fills the primary and grows the white check out of a collapsed polygon
           (150ms ease-out); :indeterminate rotates the same box back to 0° and morphs it into
           a dash — one pseudo-element, six vertices in every state, so CSS interpolates the
@@ -310,13 +327,13 @@ ${close}
         files={[{ name: 'checkbox-form-demo.svelte', content: checkboxFormDemo, kind: 'usage' }]}
         stage="fill"
       >
-        <div class="grid w-full gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-        <form class="flex flex-col gap-4" aria-label="consent" onsubmit={onSubmit}>
+        <div class={cx(rt.cbGrid900)}>
+        <form class={cx(rt.col16)} aria-label="consent" onsubmit={onSubmit}>
           <Checkbox label="I agree to the terminal printing my answers" name="consent" value="yes" required />
           <Checkbox label="join the newsletter" name="news" value="yes" />
-          <div class="flex flex-wrap items-center gap-3 pt-1">
+          <div class={cx(rt.wrapRow12, rt.pt4)}>
             <PressButton type="submit" variant="fill">sign up</PressButton>
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.inkMuted, rt.text125)}>
               required fields use native validation — try submitting empty
             </span>
           </div>
@@ -331,9 +348,9 @@ ${close}
               />
             {/key}
           {:else}
-            <div class="border-border bg-muted/40 text-muted-foreground flex h-full min-h-40 flex-col items-center justify-center gap-2 border p-6 text-center text-[13px]">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">awaiting submit</span>
-              <span>check a box and press <code class="text-accent">sign up</code> — the FormData payload prints here</span>
+            <div class={cx('demo-cell', rt.cbCell)}>
+              <span class={cx(rt.eyebrowPrimary)}>awaiting submit</span>
+              <span>check a box and press <code class={cx(rt.inkAccent)}>sign up</code> — the FormData payload prints here</span>
             </div>
           {/if}
         </div>
@@ -344,22 +361,22 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Checkbox variants" summary="Use the native checkbox for binary, tri-state, and validation states.">
     <ComponentCanvas
       title="checkbox · types"
       files={[{ name: 'checkbox-types-demo.svelte', content: checkboxTypesDemo, kind: 'usage' }]}
       stage="fill"
     >
-      <div class="grid w-full gap-4 sm:grid-cols-3">
-        <div class="border border-border p-4"><Checkbox label="unchecked" name="types-unchecked" /></div>
-        <div class="border border-border p-4"><Checkbox label="checked" name="types-checked" checked /></div>
-        <div class="border border-border p-4"><Checkbox label="indeterminate" name="types-indeterminate" indeterminate /></div>
+      <div class={cx(rt.gridSm3, rt.wFull)}>
+        <div class={cx(rt.panel)}><Checkbox label="unchecked" name="types-unchecked" /></div>
+        <div class={cx(rt.panel)}><Checkbox label="checked" name="types-checked" checked /></div>
+        <div class={cx(rt.panel)}><Checkbox label="indeterminate" name="types-indeterminate" indeterminate /></div>
       </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component preserves native checkbox semantics and wires validation text to the input."><A11yTable keys={[{ key: 'Space', action: 'Toggle the focused checkbox' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Density scopes resize the hit target, glyph, and label rhythm together."><div class="flex flex-col gap-5"><DensityDemo><Checkbox label="density sample" name="density-checkbox" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Density scopes resize the hit target, glyph, and label rhythm together."><div class={cx(rt.col20)}><DensityDemo><Checkbox label="density sample" name="density-checkbox" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native HTML input attributes; the entries below are checkbox-specific additions."><PropsTable meta={checkboxMeta} docs={CHECKBOX_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from

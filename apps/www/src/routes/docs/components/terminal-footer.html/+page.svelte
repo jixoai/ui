@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -74,6 +75,22 @@ ${close}
   const terminalFooterTypesFiles: TreeFile[] = [
     { name: 'terminal-footer-types-demo.svelte', content: terminalFooterTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -85,12 +102,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -99,7 +116,7 @@ ${close}
         title="terminal-footer — the ghost wordmark"
         summary="The closing beat of the page narrative: one giant hollow brand word — clamp(3rem, 11vw, 9rem), transparent fill, a 1px text-stroke of the border color at 55% — over a meta row composed as TerminalFooterColumn parts: a column title plus FREE link children (the closed links[] data prop died with the data-driven form). Decorative by declaration: the word is aria-hidden and unselectable, so it is pure sign-off, never information."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">text-stroke recipe</span>
           <span class="pill">@supports fallback</span>
           <span class="pill">aria-hidden · unselectable</span>
@@ -116,8 +133,8 @@ ${close}
         {files}
         stage="fill"
       >
-        <div class="w-full">
-          <p class="text-muted-foreground mb-4 text-center text-[12.5px]">
+        <div class={cx(rt.wFull)}>
+          <p class={cx(rt.inkMuted, rt.mb16, rt.textCenter, rt.text125)}>
             ↓ a live footer, rendered directly — the stage is its viewport
           </p>
           <TerminalFooter ghost="JIXOAI-UI" copyright="© 2026 jixoai · MIT">
@@ -153,20 +170,20 @@ ${close}
         title="The ghost, precisely"
         summary="Three declarations carry the effect; the fourth is honesty about engine support. The wordmark never carries meaning a screen reader needs — the composed link columns below do that work."
       >
-        <div class="flex flex-col gap-5">
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>scale: <code class="text-accent">font-size: clamp(3rem, 11vw, 9rem)</code> with
-              <code class="text-accent">line-height: 0.9</code> — big at every tier, never banner-sized</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <div class={cx(rt.col20)}>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>scale: <code class={cx(rt.inkAccent)}>font-size: clamp(3rem, 11vw, 9rem)</code> with
+              <code class={cx(rt.inkAccent)}>line-height: 0.9</code> — big at every tier, never banner-sized</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>hollow: transparent fill +
-              <code class="text-accent">-webkit-text-stroke: 1px</code> of the border token at 55%</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>fallback: <code class="text-accent">@supports not (-webkit-text-stroke)</code> swaps
+              <code class={cx(rt.inkAccent)}>-webkit-text-stroke: 1px</code> of the border token at 55%</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>fallback: <code class={cx(rt.inkAccent)}>@supports not (-webkit-text-stroke)</code> swaps
               to a 35% border-tinted solid fill</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>etiquette: <code class="text-accent">aria-hidden="true"</code> +
-              <code class="text-accent">select-none</code> — decorative by construction; external
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>etiquette: <code class={cx(rt.inkAccent)}>aria-hidden="true"</code> +
+              <code class={cx(rt.inkAccent)}>select-none</code> — decorative by construction; external
               links are authored by the caller (target/rel are yours to set)</span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
@@ -176,17 +193,17 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One footer shell; the meta row is composed freely — titled or untitled columns of free links.">
     <ComponentCanvas title="terminal-footer · columns" stage="fill" files={terminalFooterTypesFiles}>
-      <div class="flex flex-wrap items-start gap-6">
-        <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">titled column</span><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a><a href="/r/registry.json">Registry JSON</a></TerminalFooterColumn><span class="text-muted-foreground text-[12.5px]">title + free link children</span></div>
-        <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">untitled stack</span><TerminalFooterColumn><a href="/docs.html">Docs</a><a href="/recipes.html">Recipes</a></TerminalFooterColumn><span class="text-muted-foreground text-[12.5px]">omit title for a bare link stack</span></div>
+      <div class={cx(rt.wrapStart24)}>
+        <div class={cx(rt.col12, rt.panel, rt.grow, rt.tfMinW56)}><span class={cx(rt.eyebrowPrimary)}>titled column</span><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a><a href="/r/registry.json">Registry JSON</a></TerminalFooterColumn><span class={cx(rt.inkMuted, rt.text125)}>title + free link children</span></div>
+        <div class={cx(rt.col12, rt.panel, rt.grow, rt.tfMinW56)}><span class={cx(rt.eyebrowPrimary)}>untitled stack</span><TerminalFooterColumn><a href="/docs.html">Docs</a><a href="/recipes.html">Recipes</a></TerminalFooterColumn><span class={cx(rt.inkMuted, rt.text125)}>omit title for a bare link stack</span></div>
       </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the footer from column parts; ghost and copyright are the shell's own strings."><CodeBlock code={usage} lang="svelte" meta="TerminalFooter usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The ghost is decorative by declaration; the real content is the composed landmark and its free links."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the column links in composed order' }]} aria={[{ name: 'aria-hidden', value: 'true', description: 'On the ghost wordmark + select-none — pure sign-off, never information' }, { name: 'footer', value: 'landmark', description: 'The root is a real footer element' }, { name: 'target/rel', value: 'yours', description: 'External link attributes are authored by the caller on the free anchors' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Viewport-scaled chrome, not density-scaled: the ghost breathes by 11vw; the paint is three text-stroke declarations with an @supports fallback."><div class="flex flex-col gap-6"><DensityDemo><TerminalFooter ghost="JIXOAI-UI" copyright="© 2026 jixoai · MIT"><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a></TerminalFooterColumn></TerminalFooter></DensityDemo><TokenTable tokens={[{ name: 'ghost scale', default: 'clamp(3rem, 11vw, 9rem)', source: 'component' }, { name: '-webkit-text-stroke', default: '1px border @ 55%', source: 'color' }, { name: '@supports fallback', default: '35% border-tinted fill', source: 'color' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Viewport-scaled chrome, not density-scaled: the ghost breathes by 11vw; the paint is three text-stroke declarations with an @supports fallback."><div class={cx(rt.col24)}><DensityDemo><TerminalFooter ghost="JIXOAI-UI" copyright="© 2026 jixoai · MIT"><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a></TerminalFooterColumn></TerminalFooter></DensityDemo><TokenTable tokens={[{ name: 'ghost scale', default: 'clamp(3rem, 11vw, 9rem)', source: 'component' }, { name: '-webkit-text-stroke', default: '1px border @ 55%', source: 'color' }, { name: '@supports fallback', default: '35% border-tinted fill', source: 'color' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the TerminalFooter and TerminalFooterColumn Props interfaces."><PropsTable props={[{ name: 'ghost', type: 'string', default: '—', description: 'The ghost wordmark (decorative, aria-hidden).', required: true }, { name: 'copyright', type: 'string', default: '© {live year}', description: 'The © row text.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The meta row — compose TerminalFooterColumn parts.', required: true }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough (footer root / column root).' }, { name: 'Column: title', type: 'string', default: '—', description: 'The column heading; omit for an untitled link stack.' }, { name: 'Column: children', type: 'Snippet', default: '—', description: 'FREE link children — anchors are yours to author.', required: true }]} /></SectionCard></div>
 </div>

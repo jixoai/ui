@@ -18,6 +18,7 @@
 -->
 <script lang="ts">
   import { CATALOG } from '$lib/catalog';
+  import { rt } from '$lib/surface/routes.stylex';
   import { STAGE_H, STAGE_W } from '$lib/blueprints/stage';
   import { SCENES } from '$lib/blueprints/scenes';
 
@@ -27,6 +28,23 @@
     ...CATALOG.map((entry) => ({ name: entry.name })),
     { name: 'recipes' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -34,19 +52,19 @@
   <meta name="robots" content="noindex" />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
-  <h1 class="font-nav text-lg uppercase tracking-[0.3em]">
+<div class={cx(rt.shell, rt.col, rt.gap32)}>
+  <h1 class={cx(rt.fontNav, rt.textLg, rt.upper, rt.bpTrack30)}>
     Blueprint gallery
-    <span class="text-muted-foreground text-[0.8em] tracking-[0.2em]">blueprint rendering</span>
+    <span class={cx(rt.inkMuted, rt.bpText08, rt.bpTrack20)}>blueprint rendering</span>
   </h1>
 
-  <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">
+  <div class={cx(rt.bpGrid)}>
     {#each stages as entry (entry.name)}
       {@const Scene = SCENES[entry.name]}
-      <figure class="flex flex-col gap-2">
-        <figcaption class="font-nav text-muted-foreground text-[11px] uppercase tracking-[0.24em]">
+      <figure class={cx(rt.col8)}>
+        <figcaption class={cx(rt.eyebrow, rt.inkMuted)}>
           {entry.name}
-          {#if !Scene}<span class="text-destructive"> — scene missing</span>{/if}
+          {#if !Scene}<span class={cx(rt.bpInkDestructive)}> — scene missing</span>{/if}
         </figcaption>
         <!-- The stage IS the serialization root: fixed geometry, light
              paper background baked into the SVG (theme-independent

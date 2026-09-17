@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
   import ToggleGroup from '$lib/ui/toggle-group/toggle-group.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ToggleGroupItem from '$lib/ui/toggle-group/toggle-group-item.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
@@ -18,6 +19,22 @@
 
   // the radio state channel is bind:group (the radio component's law)
   let radioGroup = $state('a');
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -26,12 +43,12 @@
   <meta name="robots" content="noindex" />
 </svelte:head>
 
-<main class="flex flex-col gap-10 p-10">
+<main class={cx(rt.flex, rt.col, rt.gap40, rt.parP40)}>
   <!-- attribution (site-polish F7): the page is a gate surface, but it
        must explain itself when reached from a stale link or a search -->
-  <header class="flex flex-col gap-2">
-    <h1 class="font-nav text-lg uppercase tracking-[0.3em]">Native parity fixtures</h1>
-    <p class="text-muted-foreground max-w-prose text-[13px] leading-6">
+  <header class={cx(rt.col8)}>
+    <h1 class={cx(rt.fontNav, rt.textLg, rt.upper, rt.parTrack30)}>Native parity fixtures</h1>
+    <p class={cx(rt.bodyMuted, rt.parProse)}>
       Internal verification surface, not a docs page: every vocabulary row below renders
       TWICE — <code data-parity-note="tier0">tier0</code>, the bare DOM the jx-pure law
       paints, beside <code data-parity-note="tier1">tier1</code>, the registry component —
@@ -45,7 +62,7 @@
   <!-- row: toggle-group — both renderers consume the SAME Part A law
        (.jx-tgroup), so parity here guards against component-side
        overrides ever creeping in -->
-  <section data-parity="toggle-group" class="flex flex-wrap items-start gap-10">
+  <section data-parity="toggle-group" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
       <div class="jx-html-tgroup" role="radiogroup" aria-label="parity tgroup">
         <label><input type="radio" name="parity-tg-0" value="a" checked /><span>a</span></label>
@@ -67,7 +84,7 @@
        sheet OUTSIDE the face (isolated mirror paint). The chevron
        (token-gradient pseudo vs inline SVG) is a visual-oracle matter,
        not computed parity. -->
-  <section data-parity="native-select" class="flex flex-wrap items-start gap-10">
+  <section data-parity="native-select" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
       <div class="jx-pure">
         <select data-probe="select">
@@ -90,7 +107,7 @@
        posture, no face scope). In Chromium the @supports chevron
        gate HOLDS, so the listbox override must still win:
        background-image: none, cursor: default, min-height 5.75rem. -->
-  <section data-parity="select-multi" class="flex flex-wrap items-start gap-10">
+  <section data-parity="select-multi" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
       <div class="jx-pure">
         <select data-probe="select-multi" multiple>
@@ -110,15 +127,15 @@
   <!-- row: checkbox — tier0 is the bare input under the face (B5's
        checkbox law); tier1 is the component's .jx-checkbox mirror.
        Pseudo-glyph builds are screenshot-oracle territory. -->
-  <section data-parity="checkbox" class="flex flex-wrap items-start gap-10">
+  <section data-parity="checkbox" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
-      <div class="jx-pure flex items-center gap-2">
+      <div class={cx('jx-pure', rt.rowC8)}>
         <input type="checkbox" data-probe="check" checked />
         <input type="checkbox" data-probe="check-off" />
         <input type="checkbox" data-probe="check-disabled" disabled checked />
       </div>
     </div>
-    <div data-renderer="tier1" data-density="default" class="flex items-center gap-2">
+    <div data-renderer="tier1" data-density="default" class={cx(rt.rowC8)}>
       <Checkbox checked />
       <Checkbox />
       <Checkbox checked disabled />
@@ -126,14 +143,14 @@
   </section>
 
   <!-- row: radio — B5's radio law ⇄ the .jx-radio mirror -->
-  <section data-parity="radio" class="flex flex-wrap items-start gap-10">
+  <section data-parity="radio" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
-      <div class="jx-pure flex items-center gap-2">
+      <div class={cx('jx-pure', rt.rowC8)}>
         <input type="radio" name="parity-radio-0" data-probe="dot" checked />
         <input type="radio" name="parity-radio-0" data-probe="dot-off" />
       </div>
     </div>
-    <div data-renderer="tier1" data-density="default" class="flex items-center gap-2">
+    <div data-renderer="tier1" data-density="default" class={cx(rt.rowC8)}>
       <Radio label="a" name="parity-radio-1" value="a" bind:group={radioGroup} />
       <Radio label="b" name="parity-radio-1" value="b" bind:group={radioGroup} />
     </div>
@@ -141,7 +158,7 @@
 
   <!-- row: toggle — B13's switch law (input[role=switch] under the
        face) ⇄ the component's sr-hidden driver + track mirror -->
-  <section data-parity="toggle" class="flex flex-wrap items-start gap-10">
+  <section data-parity="toggle" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
       <div class="jx-pure">
         <input type="checkbox" role="switch" data-probe="switch" checked />
@@ -158,29 +175,29 @@
   <!-- row: input — tier0 is Part A's single-box posture (.jx-control on
        the bare input); tier1 is the component's shell+lane (the wrapper
        posture). The box law must compute identically on both owners. -->
-  <section data-parity="input" class="flex flex-wrap items-start gap-10">
+  <section data-parity="input" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
       <input class="jx-control" data-probe="box" value="static.html" />
     </div>
-    <div data-renderer="tier1" data-density="default" class="w-40">
+    <div data-renderer="tier1" data-density="default" class={cx(rt.parW40)}>
       <Input label="page" value="static.html" />
     </div>
   </section>
 
   <!-- row: textarea — tier0 is the bare textarea under the face (B4);
        tier1 the component's shell (the box owner) -->
-  <section data-parity="textarea" class="flex flex-wrap items-start gap-10">
+  <section data-parity="textarea" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
       <div class="jx-pure">
         <textarea data-probe="box" rows="3">alpha</textarea>
       </div>
     </div>
-    <div data-renderer="tier1" data-density="default" class="w-40">
+    <div data-renderer="tier1" data-density="default" class={cx(rt.parW40)}>
       <Textarea label="notes" rows={3} value="alpha" />
     </div>
   </section>
 
-  <section data-parity="native-select@lg" class="flex flex-wrap items-start gap-10">
+  <section data-parity="native-select@lg" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="lg">
       <div class="jx-pure">
         <select data-probe="select">
@@ -195,27 +212,27 @@
     </div>
   </section>
 
-  <section data-parity="checkbox@xs" class="flex flex-wrap items-start gap-10">
+  <section data-parity="checkbox@xs" class={cx(rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="xs">
-      <div class="jx-pure flex items-center gap-2">
+      <div class={cx('jx-pure', rt.rowC8)}>
         <input type="checkbox" data-probe="check" checked />
         <input type="checkbox" data-probe="check-off" />
       </div>
     </div>
-    <div data-renderer="tier1" data-density="xs" class="flex items-center gap-2">
+    <div data-renderer="tier1" data-density="xs" class={cx(rt.rowC8)}>
       <Checkbox checked density="xs" />
       <Checkbox density="xs" />
     </div>
   </section>
 
-  <section data-parity="checkbox@dark" class="dark flex flex-wrap items-start gap-10">
+  <section data-parity="checkbox@dark" class={cx('dark', rt.wrapStart40)}>
     <div data-renderer="tier0" data-density="default">
-      <div class="jx-pure flex items-center gap-2">
+      <div class={cx('jx-pure', rt.rowC8)}>
         <input type="checkbox" data-probe="check" checked />
         <input type="checkbox" data-probe="check-off" />
       </div>
     </div>
-    <div data-renderer="tier1" data-density="default" class="flex items-center gap-2">
+    <div data-renderer="tier1" data-density="default" class={cx(rt.rowC8)}>
       <Checkbox checked />
       <Checkbox />
     </div>

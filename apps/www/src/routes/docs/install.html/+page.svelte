@@ -13,6 +13,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
 
@@ -35,6 +36,23 @@
   const layerOrder = `@layer properties, theme, base, components,
   components.stylex.priority1, …, components.stylex.priorityN, utilities;
 /*              ↑ kernel atom paint (nested in components)   ↑ your utilities — always last */`;
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -45,8 +63,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <!-- Intro -->
     <div data-reveal="">
       <SectionCard
@@ -56,7 +74,7 @@
         title="Install — one css entry, zero engine tooling"
         summary="Adding jixoai-ui items owes exactly one thing: a css entry that imports what the items ship. Compiled-payload items (the atom-authored migration) compile on our side — you import plain css and plain class strings, and never install a styling engine for OUR components. Running one for your own markup is your choice."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">one css entry</span>
           <span class="pill">zero @stylexjs/* owed</span>
           <span class="pill">engine tooling optional</span>
@@ -99,7 +117,7 @@
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="transitional" data-reveal="">
     <SectionCard
       family="transitional"

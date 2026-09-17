@@ -7,6 +7,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
@@ -47,6 +48,24 @@
     { name: 'registry/files/ui/list/list.svelte', content: listSource },
     { name: 'src/lib/ui/list-nav-usage.svelte', content: navUsage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -57,8 +76,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -67,7 +86,7 @@
         title="list — the prose list, the list itself"
         summary="A native <ol|ul> by the ordered prop — the separator's dual-root cast, with start and reversed passed explicitly on the ol branch only. What it owns is the reading channel set: the marker (a 7-word frozen vocabulary — disc|circle|square|decimal|alpha|roman|none, element-agnostic, lowercase only; omitted keeps the per-element platform default byte-parity, explicit overrides), padding-inline-start 1.5rem (none keeps it: the indent is structural), muted marker ink. And nav mode: a nav prop (the aria-label) wraps the list in a landmark <nav data-jx-list-nav> defaulting marker none + ps-0 — class/rest stay on the LIST element, the wrapper carries only the semantics. What it refuses: block margins (the rhythm and flush laws own spacing, as with heading) and any opinion about the rows — children stay native <li> elements, so the element-based rhythm selectors, the flush law and the container-inner sibling stack keep matching the native roots (the markdown map composes exactly this way; list_item stays bare). Not to be confused with list-item: that item is the antd/F7 settings-row system — ItemGroup frames, media/end lanes, five control adapters — a different taxonomy entirely."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;ul&gt; | &lt;ol&gt;</span>
           <span class="pill">ordered · start · reversed</span>
           <span class="pill">marker — 7-word frozen set</span>
@@ -102,10 +121,10 @@
         files={shapesFiles}
         stage="fill"
       >
-        <div class="grid w-full max-w-3xl gap-8 min-[760px]:grid-cols-2">
+        <div class={cx(rt.liGrid)}>
           <List>
             <li>prefix keys freeze while the tail grows</li>
-            <li>the tail mutates in place on its <code class="font-mono text-[0.85em]">:tail</code> key</li>
+            <li>the tail mutates in place on its <code class={cx(rt.fontMono, rt.liCode85)}>:tail</code> key</li>
             <li>
               nesting composes:
               <List>
@@ -143,8 +162,8 @@
         files={markersFiles}
         stage="fill"
       >
-        <div class="grid w-full max-w-3xl gap-x-10 gap-y-6 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-4">
+        <div class={cx(rt.liGridXY)}>
+          <div class={cx(rt.flex, rt.col, rt.gap16)}>
             <List marker="disc">
               <li>disc — the ul platform default</li>
               <li>a core utility; the byte-parity stamp</li>
@@ -162,7 +181,7 @@
               <li>the indent is structural, not decorative</li>
             </List>
           </div>
-          <div class="flex flex-col gap-4">
+          <div class={cx(rt.flex, rt.col, rt.gap16)}>
             <List ordered marker="decimal">
               <li>decimal — the ol platform default</li>
               <li>continues from start when set</li>
@@ -205,24 +224,24 @@
         files={navFiles}
         stage="fill"
       >
-        <div class="grid w-full max-w-3xl gap-8 min-[760px]:grid-cols-2">
-          <div class="jx-pure flex flex-col gap-2">
-            <span class="text-[11px] text-muted-foreground">in a jx-pure scope — bare anchors ride the B2 lane</span>
+        <div class={cx(rt.liGrid)}>
+          <div class="jx-pure {cx(rt.col8)}">
+            <span class={cx(rt.text11, rt.inkMuted)}>in a jx-pure scope — bare anchors ride the B2 lane</span>
             <List nav="On this page">
               <li><a href="#usage">Usage</a></li>
               <li><a href="#markers">The marker matrix</a></li>
               <li><a href="#api">API</a></li>
             </List>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="text-[11px] text-muted-foreground">with an explicit marker — the list-style default yields, ps-0 stays</span>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.text11, rt.inkMuted)}>with an explicit marker — the list-style default yields, ps-0 stays</span>
             <List nav="Chapters" ordered marker="decimal">
               <li>the arrival</li>
               <li>the turn</li>
             </List>
-            <p class="m-0 text-[12.5px] leading-6 text-muted-foreground">
+            <p class={cx(rt.m0, rt.text125, rt.lead6, rt.inkMuted)}>
               Standalone (no face scope), a bare anchor is unstyled by design — compose the
-              <a class="text-accent underline underline-offset-2" href="/docs/components/link.html">Link part</a>
+              <a class={cx(rt.linkAccent)} href="/docs/components/link.html">Link part</a>
               for the prose lane; chrome lists inside app chrome use their own controls.
             </p>
           </div>
@@ -247,18 +266,18 @@
         title="Task lists live in the markdown face"
         summary="The GFM task-item rules — marker suppression on li:has(> input), checkbox middle-alignment — are container-level DOM-shape laws, not list paint, and they stay in the markdown sheet where the li shape is known. This component takes no checkbox wiring: render task lists through the markdown component and the jx-pure bare-checkbox face paints the markers."
       >
-        <div class="flex flex-col gap-4">
-          <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+        <div class={cx(rt.flex, rt.col, rt.gap16)}>
+          <p class={cx(rt.m0, rt.bodyMuted)}>
             A task item is a <em>container</em> judgment: the sheet sees the raw
             <InlineCode lang="text">li:has(&gt; input)</InlineCode>
             shape and suppresses the marker. A standalone list component that rendered checkboxes
             would have to re-own those rules — the double-marker bug would return. The markdown
             map keeps task checkboxes as native disabled inputs for exactly this reason.
           </p>
-          <p class="m-0 text-[13px] leading-6 text-muted-foreground">
-            See the <a class="text-accent underline underline-offset-2" href="/docs/components/markdown.html">markdown page</a>
+          <p class={cx(rt.m0, rt.bodyMuted)}>
+            See the <a class={cx(rt.linkAccent)} href="/docs/components/markdown.html">markdown page</a>
             for the task-list face — and the
-            <a class="text-accent underline underline-offset-2" href="/docs/components/list-item.html">list-item page</a>
+            <a class={cx(rt.linkAccent)} href="/docs/components/list-item.html">list-item page</a>
             for the settings-row system this component deliberately is not.
           </p>
         </div>
@@ -267,7 +286,7 @@
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"

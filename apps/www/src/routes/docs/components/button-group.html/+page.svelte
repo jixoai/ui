@@ -11,6 +11,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -149,6 +150,23 @@ ${close}
   const buttonGroupBoundaryFiles: TreeFile[] = [
     { name: 'button-group-boundary-demo.svelte', content: buttonGroupBoundaryDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -159,8 +177,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -169,7 +187,7 @@ ${close}
         title="button-group — joined actions, one hairline"
         summary="The shadcn Button Group counterpart, native to this registry's laws: a layout container that joins press-buttons edge-to-edge. The group paints NO bezel of its own — adjacent children collapse their 1px borders into ONE hairline seam (a joined row of outline buttons reads as one control, never a 2px double border), and the ButtonGroupDivider replaces the seam wherever clusters need an explicit boundary. The buttons keep their paint ladder and density tier; PHYSICS is the one takeover (2026-09-04): the joined row is ONE control, so it casts ONE convex shadow from the ROOT — per-button convex shadows overlap at the seams, so the subtree rides raised=false by default through the texture context (an explicit raised on any child still wins; icon-buttons follow the same context for free). ROLE LAW: the root is role=group — a named grouping of related actions, NOT a toolbar; and when the children express SELECTION (a pressed state, an active value), the component is wrong: segmented selection is toggle-group's law."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">orientation · justify</span>
           <span class="pill">1px hairline seams</span>
           <span class="pill">one cluster shadow · flat buttons</span>
@@ -206,7 +224,7 @@ ${close}
         ]}
         resolveFileContent={resolveUsage}
       >
-        <div class="flex min-w-0 flex-col items-start gap-5">
+        <div class={cx(rt.flex, rt.minW0, rt.col, rt.itemsStart, rt.gap20)}>
           <ButtonGroup label="export actions" {orientation} {justify}>
             <PressButton variant="outline">copy</PressButton>
             <PressButton variant="outline">move</PressButton>
@@ -246,7 +264,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="btngroup-scroll" data-region="btngroup-scroll" data-family="btngroup-scroll" data-reveal="">
     <ComponentCanvas
       title="with scroll overflow"
@@ -261,8 +279,8 @@ ${close}
       ]}
       resolveFileContent={resolveUsage}
     >
-      <div class="flex min-w-0 flex-col items-start gap-5">
-        <div class="w-full max-w-[360px]">
+      <div class={cx(rt.flex, rt.minW0, rt.col, rt.itemsStart, rt.gap20)}>
+        <div class={cx(rt.wFull, rt.buMaxW360)}>
           <ButtonGroup label="editor actions" overflow="scroll" {scrollEffect}>
             <PressButton variant="outline">format</PressButton>
             <PressButton variant="outline">rename</PressButton>
@@ -293,7 +311,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="usage" data-reveal="">
     <SectionCard
       family="usage"
@@ -314,31 +332,31 @@ ${close}
       title="ButtonVariantScope — change the default, not the layout"
       summary="The family's second face: a zero-DOM context boundary. ButtonGroup is layout + zone (the join, the seams); ButtonVariantScope is the zone alone — what Dialog wraps around its head and foot content so every PressButton and IconButton inside, joined or free-floating, defaults to the scope's variant while keeping its own placement. A button's explicit variant still wins (explicit ?? ambient ?? own), and a ButtonGroup inside inherits the scope's variant when it sets none of its own (inherit-then-provide). Renders its children and nothing else — no element, no paint, no seams."
     >
-      <div class="flex flex-col gap-5">
-        <div class="grid grid-cols-1 gap-5 min-[760px]:grid-cols-2">
+      <div class={cx(rt.flex, rt.col, rt.gap20)}>
+        <div class={cx(rt.buGrid)}>
           <ComponentCanvas title="button-group · variant scope" stage="fill" files={buttonGroupZoneFiles}>
-            <div class="flex flex-col gap-3">
-              <p class="m-0 font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">the scope — zone only</p>
-              <div class="flex flex-wrap items-center gap-3">
+            <div class={cx(rt.col12)}>
+              <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.buTrack20, rt.inkMuted)}>the scope — zone only</p>
+              <div class={cx(rt.wrapRow12)}>
                 <PressButton>lone — outline</PressButton>
                 <ButtonVariantScope variant="ghost">
-                  <div class="flex flex-wrap items-center gap-3">
+                  <div class={cx(rt.wrapRow12)}>
                     <PressButton>adopts ghost</PressButton>
                     <PressButton>adopts ghost</PressButton>
                     <PressButton variant="fill">keeps fill</PressButton>
                   </div>
                 </ButtonVariantScope>
               </div>
-              <span class="text-muted-foreground text-[12.5px]">free-floating: no seams, no group — only the default changed; the lone button outside never saw the zone.</span>
-              <p class="m-0 font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">the group — zone + join</p>
+              <span class={cx(rt.text125, rt.inkMuted)}>free-floating: no seams, no group — only the default changed; the lone button outside never saw the zone.</span>
+              <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.buTrack20, rt.inkMuted)}>the group — zone + join</p>
               <ButtonGroup variant="ghost" label="row actions">
                 <PressButton>adopts ghost</PressButton>
                 <PressButton variant="fill">keeps fill</PressButton>
               </ButtonGroup>
-              <span class="text-muted-foreground text-[12.5px]">same zone, plus the hairline join — one component when both are wanted.</span>
+              <span class={cx(rt.text125, rt.inkMuted)}>same zone, plus the hairline join — one component when both are wanted.</span>
             </div>
           </ComponentCanvas>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <CodeBlock
               code={`<script lang="ts">
   import PressButton from '@ui/press-button/press-button.svelte';
@@ -356,7 +374,7 @@ ${close}
               lang="svelte"
               meta="the scope — copy-paste"
             />
-            <span class="text-muted-foreground text-[12.5px]">link is NOT a zone value — <code>variant="link"</code> is a compile error; the interaction exception keeps its only route through PressButton's own explicit prop.</span>
+            <span class={cx(rt.text125, rt.inkMuted)}>link is NOT a zone value — <code>variant="link"</code> is a compile error; the interaction exception keeps its only route through PressButton's own explicit prop.</span>
           </div>
         </div>
         <PropsTable
@@ -377,7 +395,7 @@ ${close}
       title="Examples"
       summary="Ability-named demos — one phrase, one capability — plus the recorded boundary against the selection family."
     >
-      <p class="m-0 text-muted-foreground text-[13px] leading-6">
+      <p class={cx(rt.m0, rt.bodyMuted)}>
         Nested clusters first, then the boundary note — when the children express SELECTION, the
         law leaves this page for toggle-group.
       </p>
@@ -395,7 +413,7 @@ ${close}
       stage="center"
       output={[{ label: 'clusters', value: '2 · joined by a divider' }]}
     >
-      <div class="flex min-w-0 flex-col items-start gap-5">
+      <div class={cx(rt.flex, rt.minW0, rt.col, rt.itemsStart, rt.gap20)}>
         <ButtonGroup label="editor actions">
           <PressButton variant="fill">save</PressButton>
           <ButtonGroupDivider />
@@ -426,20 +444,20 @@ ${close}
       title="the toggle-group boundary — selection is not this component"
       summary="A button group is ACTION-ONLY: press, effect, navigate — no pressed state, no active value, no form payload. The moment the children express SELECTION, the segmented-selection law applies and the component is toggle-group (native radios/checkboxes under one name — native exclusivity, arrow-walk, FormData). The two may look similar when joined; the difference is semantic, not paint: aria-pressed (or a pressed style) on these buttons is the recorded divergence trap."
     >
-      <div class="grid grid-cols-1 gap-5 min-[760px]:grid-cols-2">
+      <div class={cx(rt.buGrid)}>
         <ComponentCanvas title="button-group · boundary" stage="fill" files={buttonGroupBoundaryFiles}>
-          <div class="flex flex-col gap-3">
-            <p class="font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">actions → button-group</p>
+          <div class={cx(rt.col12)}>
+            <p class={cx(rt.fontNav, rt.text12, rt.upper, rt.buTrack20, rt.inkMuted)}>actions → button-group</p>
             <ButtonGroup label="export actions">
               <PressButton variant="outline">copy</PressButton>
               <PressButton variant="outline">move</PressButton>
               <PressButton variant="outline">delete</PressButton>
             </ButtonGroup>
-            <span class="text-muted-foreground text-[12.5px]">each press performs; nothing stays active.</span>
+            <span class={cx(rt.text125, rt.inkMuted)}>each press performs; nothing stays active.</span>
           </div>
         </ComponentCanvas>
-        <div class="flex flex-col gap-3">
-          <p class="font-nav text-xs uppercase tracking-[0.2em] text-muted-foreground">selection → toggle-group</p>
+        <div class={cx(rt.col12)}>
+          <p class={cx(rt.fontNav, rt.text12, rt.upper, rt.buTrack20, rt.inkMuted)}>selection → toggle-group</p>
           <CodeBlock
             code={`<ToggleGroup name="align" type="single" label="alignment">
   <ToggleGroupItem value="left">left</ToggleGroupItem>
@@ -448,7 +466,7 @@ ${close}
             lang="svelte"
             meta="the selection law"
           />
-          <span class="text-muted-foreground text-[12.5px]">one active value, submitted as a form field.</span>
+          <span class={cx(rt.text125, rt.inkMuted)}>one active value, submitted as a form field.</span>
         </div>
       </div>
     </SectionCard>
@@ -514,7 +532,7 @@ ${close}
       title="Density and tokens"
       summary="The group paints ONE thing — the cluster shadow (--shadow-xs on the root; raised={false}, a flat enclosing zone or a nested position removes it) — and the seams read var(--border); the joined buttons ride the density ruler through the provided context."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.flex, rt.col, rt.gap20)}>
         <DensityDemo>
           <ButtonGroup label="density">
             <PressButton variant="outline">one</PressButton>
@@ -543,7 +561,7 @@ ${close}
       title="See also"
       summary="The families around the joined container."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/press-button.html">press-button — the joined buttons</a>
         <a class="pill" href="/docs/context-defaults.html">context &amp; defaults — the ambient economy</a>
         <a class="pill" href="/docs/components/toggle-group.html">toggle-group — the SELECTION law</a>

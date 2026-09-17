@@ -25,6 +25,7 @@
 -->
 <script lang="ts">
   import { page } from '$app/state';
+  import { rt } from '$lib/surface/routes.stylex';
   import type { Snippet } from 'svelte';
   import { PrintDoc, PrintControls } from '$lib/print';
   import type { PrintPageConfig } from '$lib/print';
@@ -51,10 +52,27 @@
   const printConfig = $derived(
     (page.data.printConfig as PrintPageConfig | undefined) ?? DEFAULT_PRINT_CONFIG,
   );
+
+  // the layout's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <PrintDoc printOptions={{ config: printConfig }}>
-  <div data-jx-print="hide" class="mx-auto w-full max-w-[90rem] px-4 pt-6 sm:px-6 lg:px-8">
+  <div data-jx-print="hide" class={cx(rt.dlControls)}>
     <PrintControls config={printConfig} label="docs · print" />
   </div>
   <!-- the search palette left this subtree for the ROOT layout

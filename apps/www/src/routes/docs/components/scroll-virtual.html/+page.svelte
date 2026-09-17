@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -69,6 +70,22 @@ ${close}
     { name: 'registry/files/ui/scroll-virtual.svelte', content: scrollVirtualSource },
     { name: 'src/lib/ui/scroll-virtual-usage.svelte', content: virtualUsage },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -76,8 +93,8 @@ ${close}
   <meta name="description" content={summary} />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -86,10 +103,10 @@ ${close}
         title="scroll-virtual — the windowed list"
         summary={summary}
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">@tanstack/svelte-virtual</span>
           <span class="pill">window + overscan only</span>
-          <span class="pill">sibling: <a class="text-primary underline-offset-4 hover:underline" href="/docs/components/scroll-area.html">scroll-area</a></span>
+          <span class="pill">sibling: <a class={cx(rt.inkPrimary, rt.svOffset4, rt.svHover)} href="/docs/components/scroll-area.html">scroll-area</a></span>
         </div>
       </SectionCard>
     </div>
@@ -117,7 +134,7 @@ ${close}
           estimateSize={40}
           overscan={6}
           label="virtual list demo"
-          class="h-72"
+          class={cx(rt.svSpacer72)}
           onscroll={() => {
             const items = virtualInstance?.getVirtualizer?.().getVirtualItems();
             if (items) windowSize = items.length;
@@ -141,7 +158,7 @@ ${close}
               <PlayNumber bind:value={jumpIndex} min={0} max={rowCount - 1} />
               <button
                 type="button"
-                class="jx-press inline-flex items-center border border-border bg-background px-2 py-[0.2rem] font-mono text-[12px] text-muted-foreground hover:text-foreground cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+                class={cx('jx-press', rt.svJumpBtn)}
                 onclick={() => virtualInstance?.scrollToIndex(Math.min(Math.max(jumpIndex, 0), rowCount - 1), { align: 'start' })}
               >
                 jump
@@ -162,16 +179,16 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One windowed list, two scroll axes; the composed ScrollArea is always hand-drawn (the variant prop retired, 2026-09-15).">
-    <div class="grid gap-4 min-[760px]:grid-cols-2">
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">vertical (default)</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">TanStack's default y-axis windowing — only the visible window plus overscan exists in the DOM.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">horizontal</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">horizontal={true} virtualizes along x — the same options, the same thin DOM wiring.</p></div>
+    <div class={cx(rt.grid760b)}>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>vertical (default)</span><p class={cx(rt.bodyMuted, rt.mt8)}>TanStack's default y-axis windowing — only the visible window plus overscan exists in the DOM.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>horizontal</span><p class={cx(rt.bodyMuted, rt.mt8)}>horizontal={true} virtualizes along x — the same options, the same thin DOM wiring.</p></div>
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Strong TanStack association, thin coupling: the props speak VirtualizerOptions; rows render through the children snippet."><CodeBlock code={virtualUsage} lang="svelte" meta="ScrollVirtual usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The composed ScrollArea carries the WAI scrollable-region pattern; rows are your content's semantics."><A11yTable keys={[{ key: 'Tab', action: 'Focuses the scrollable region (role=region + tabindex=0 from the composed ScrollArea)' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling; the window re-renders as rows enter and leave' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "virtual list")' }, { name: 'role', value: 'region', description: 'From the composed ScrollArea wrapper' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No tokens of its own: the scroller is the composed ScrollArea (the scrollbar law applies); row paint is fully yours."><div class="flex flex-col gap-6"><DensityDemo><ScrollVirtual count={12} estimateSize={36} label="density sample" class="h-36 border border-border">{#snippet children(item)}<div class="jx-vrow" class:odd={item.index % 2 === 1}>{rowItem(item.index)}</div>{/snippet}</ScrollVirtual></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'via ScrollArea', source: 'component', description: 'The composed ScrollArea supplies the scrollbar-token law (the hand-drawn capsule)' }, { name: 'row paint', default: 'yours', source: 'component', description: 'The children snippet owns the row; sizing is measured automatically' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No tokens of its own: the scroller is the composed ScrollArea (the scrollbar law applies); row paint is fully yours."><div class={cx(rt.col24)}><DensityDemo><ScrollVirtual count={12} estimateSize={36} label="density sample" class={cx(rt.svH36, rt.frame)}>{#snippet children(item)}<div class="jx-vrow" class:odd={item.index % 2 === 1}>{rowItem(item.index)}</div>{/snippet}</ScrollVirtual></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'via ScrollArea', source: 'component', description: 'The composed ScrollArea supplies the scrollbar-token law (the hand-drawn capsule)' }, { name: 'row paint', default: 'yours', source: 'component', description: 'The children snippet owns the row; sizing is measured automatically' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollVirtual Props interface; bind:this exposes the TanStack passthroughs."><PropsTable props={[{ name: 'count', type: 'number', default: '—', description: 'Total item count (TanStack count).', required: true }, { name: 'estimateSize', type: 'number | ((index: number) => number)', default: '48', description: 'Estimated row size in px; dynamic measurement corrects it per row.' }, { name: 'overscan', type: 'number', default: '—', description: 'Items rendered beyond the visible window.' }, { name: 'horizontal', type: 'boolean', default: 'false', description: 'Virtualize along x instead of y.' }, { name: 'virtualOptions', type: 'Partial<VirtualizerOptions>', default: '{}', description: 'TanStack passthrough — scrollMargin / lanes / getItemKey / initialOffset / onChange / rangeExtractor; reserved keys are overridden.' }, { name: 'label', type: 'string', default: "'virtual list'", description: 'a11y name for the scrollable region.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'The composed ScrollArea viewport scroll event.' }, { name: 'children', type: 'Snippet<[VirtualItem]>', default: '—', description: 'Rendered per virtual item — receives TanStack VirtualItem (index/start/size/key/lane).', required: true }, { name: 'bind:this', type: 'scrollToIndex / scrollToOffset / measure / getVirtualizer', default: 'export', description: 'The imperative TanStack surface.' }]} /></SectionCard></div>
 </div>
 

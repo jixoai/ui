@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
@@ -40,6 +41,23 @@
   ];
 
   const heights = [64, 96, 48, 80, 56, 104];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -50,8 +68,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -60,7 +78,7 @@
         title="prototype-waterfall — the standardized masonry column"
         summary="The layout family, alpha track: the design studio's property panel edits these exact props. The engine is CSS multi-column — strategy 'balanced' (v0's only member) is column-fill: balance, the browser-equalized column heights. The tradeoffs are declared, not hidden: children flow in newspaper column order (not shortest-column-first), and break-inside stays the consumer's call. Inline style only — zero Tailwind, zero tokens, zero dependencies — any host. Single root + rest spread: the stamp mechanism's family precondition."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">alpha track</span>
           <span class="pill">CSS multi-column</span>
           <span class="pill">strategy: balanced</span>
@@ -96,7 +114,7 @@
         <PrototypeWaterfall columns={3} gap={16} strategy="balanced" data-testid="waterfall-demo">
           {#each heights as h, i}
             <div
-              class="border-border bg-card mb-4 flex items-center justify-center border font-mono text-[13px]"
+              class={cx(rt.frame, rt.bgCard, rt.mb16, rt.flex, rt.itemsCenter, rt.justifyCenter, rt.fontMono, rt.text13)}
               style="block-size: {h}px; break-inside: avoid"
             >
               {i + 1}
@@ -117,7 +135,7 @@
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="api" data-reveal="">
     <SectionCard
       family="api"

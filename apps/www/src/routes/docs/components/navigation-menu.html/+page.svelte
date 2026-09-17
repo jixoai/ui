@@ -13,6 +13,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -134,6 +135,24 @@ ${close}
   const navMenuIndicatorFiles: TreeFile[] = [
     { name: 'navigation-menu-indicator-demo.svelte', content: navMenuIndicatorDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -145,12 +164,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -159,7 +178,7 @@ ${close}
       title="navigation menu — a bar you WALK, with panels that move"
       summary="The site-nav pattern as an independent thin coordinator: ←/→ walk the top-level triggers (one tab stop, on the current section), click opens a panel, Escape closes and hands focus back. Panels ride the Popover primitive's laws — native popover=auto light dismiss, CSS anchoring, and the WAAPI surface-motion entry/exit — through a DECLARATIVE popovertarget wire, and open state mirrors the native toggle seam only, so aria-expanded never lies. The family composes: the Item owns the one id (Trigger/Panel derive theirs), mega content is Panel children, and bare links sit in-bar with the current-state paint. Panels carry REAL LINKS — navigation moves you; actions belong to dropdown-menu. Click-open only (Owner ruling 2026-08-25): the hover path and its grace timers are retired."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">roving walk</span>
         <span class="pill">click open</span>
         <span class="pill">panels = links</span>
@@ -179,7 +198,7 @@ ${close}
         <NavigationMenuItem>
           <NavigationMenuTrigger>registry</NavigationMenuTrigger>
           <NavigationMenuPanel>
-            <div class="grid grid-cols-2 gap-x-6 gap-y-1">
+            <div class={cx(rt.nmMega)}>
               {#each ['overview', 'items', 'tokens', 'install'] as slug (slug)}
                 <a class="jx-demo-nav-link" href="/docs/components.html">registry: {slug}</a>
               {/each}
@@ -189,7 +208,7 @@ ${close}
         <NavigationMenuItem>
           <NavigationMenuTrigger current>components</NavigationMenuTrigger>
           <NavigationMenuPanel>
-            <div class="grid grid-cols-2 gap-x-6 gap-y-1">
+            <div class={cx(rt.nmMega)}>
               {#each ['menubar', 'navigation-menu', 'toggle-group', 'tabs'] as slug (slug)}
                 <a class="jx-demo-nav-link" href="/docs/components.html">{slug}</a>
               {/each}
@@ -202,7 +221,7 @@ ${close}
         <PlayFields>
           <PlayHelp>
             plain links compose DIRECTLY in the bar with the current-state paint
-            (<code class="text-accent">current</code> on either a trigger or a link); the panel's
+            (<code class={cx(rt.inkAccent)}>current</code> on either a trigger or a link); the panel's
             entry/exit runs on the popover primitive's motion kernel (the floating-surface
             timeline), and open state mirrors the native toggle seam only. No Viewport part —
             per-panel CSS anchoring on native popover replaces Radix's shared container.
@@ -233,8 +252,8 @@ ${close}
   }
 </style>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Navigation variants" summary="Use trigger panels for grouped links and bare links for direct navigation."><ComponentCanvas title="navigation menu · variants" stage="fill" files={navMenuVariantsFiles}><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><NavigationMenu label="grouped"><NavigationMenuItem><NavigationMenuTrigger>Product</NavigationMenuTrigger><NavigationMenuPanel><NavigationMenuLink href="/docs">Overview</NavigationMenuLink></NavigationMenuPanel></NavigationMenuItem></NavigationMenu></div><div class="border border-border p-4"><NavigationMenu label="direct"><NavigationMenuLink href="/docs" current>Docs</NavigationMenuLink></NavigationMenu></div></div></ComponentCanvas></SectionCard></div>
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Navigation variants" summary="Use trigger panels for grouped links and bare links for direct navigation."><ComponentCanvas title="navigation menu · variants" stage="fill" files={navMenuVariantsFiles}><div class={cx(rt.gridSm2)}><div class={cx(rt.panel)}><NavigationMenu label="grouped"><NavigationMenuItem><NavigationMenuTrigger>Product</NavigationMenuTrigger><NavigationMenuPanel><NavigationMenuLink href="/docs">Overview</NavigationMenuLink></NavigationMenuPanel></NavigationMenuItem></NavigationMenu></div><div class={cx(rt.panel)}><NavigationMenu label="direct"><NavigationMenuLink href="/docs" current>Docs</NavigationMenuLink></NavigationMenu></div></div></ComponentCanvas></SectionCard></div>
   <div id="indicator" data-reveal="">
     <SectionCard
       family="indicator"
@@ -244,9 +263,9 @@ ${close}
       summary="NavigationMenuIndicator is the indicator technology as an OPTIONAL part (render it as a child of the bar; omit it and nothing changes). TWO motion laws: motion=navigation (default) stamps a view-transition-name — page-level View Transitions morph the indicator across documents (the app owns the transition wiring; the name is inert when no transition runs, and same-document moves still animate) — and motion=waapi is the pure Web Animations path for apps that never use View Transitions: no name, no cost. The engine measures the bar's current entry (aria-current, DOM-delegated — a MutationObserver catches route swaps; ResizeObserver and fonts.ready re-fit quietly) and slides the hug-box between entries; first placement, resizes and reduced-motion JUMP. Entries inside an open panel never steal the bar indicator."
     >
       <ComponentCanvas title="navigation menu · indicator" stage="fill" files={navMenuIndicatorFiles}>
-        <div class="flex flex-col gap-4">
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground text-[12px]">motion="navigation" — the page-level default</span>
+        <div class={cx(rt.flex, rt.col, rt.gap16)}>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.inkMuted, rt.text12)}>motion="navigation" — the page-level default</span>
             <NavigationMenu label="indicator-demo-a">
               <NavigationMenuIndicator />
               <NavigationMenuLink href="/docs/components/navigation-menu.html" current={true}>navigation-menu</NavigationMenuLink>
@@ -254,8 +273,8 @@ ${close}
               <NavigationMenuLink href="/docs/components/breadcrumb.html" current={false}>breadcrumb</NavigationMenuLink>
             </NavigationMenu>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground text-[12px]">motion="waapi" — no View Transitions, no name</span>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.inkMuted, rt.text12)}>motion="waapi" — no View Transitions, no name</span>
             <NavigationMenu label="indicator-demo-b">
               <NavigationMenuIndicator motion="waapi" />
               <NavigationMenuLink href="/docs/components/tabs.html" current={true}>tabs</NavigationMenuLink>
@@ -268,6 +287,6 @@ ${close}
   </div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Keep navigation links in panels; actions belong in dropdown-menu."><CodeBlock code={usage} lang="svelte" meta="NavigationMenu usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The bar exposes one roving tab stop and keeps every destination a real link."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between top-level triggers and wrap.' }, { key: 'Enter / Space', action: 'Open the focused trigger panel.' }, { key: 'Escape', action: 'Close the panel and restore focus to its trigger.' }]} aria={[{ name: 'aria-current', value: 'page / true', description: 'Marks the current destination.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs a trigger with its panel.' }, { name: 'aria-expanded', value: 'boolean', description: 'Mirrors the native popover toggle state.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Navigation links and panels inherit shared density tokens; the panel adds popover padding tokens."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><NavigationMenu label="density"><NavigationMenuLink href="/docs">docs</NavigationMenuLink></NavigationMenu></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: '12px 14px', source: 'component' }, { name: '--jx-pop-pad-inline', default: '14px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root, item, trigger, panel, and link parts keep navigation composition explicit."><PropsTable title="NavigationMenu" props={[{ name: 'label', type: 'string', default: "'site'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint for every panel in the bar. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'inset', type: 'number', default: '0', description: 'NavigationMenuIndicator hug inset per edge (px). Defaults: literal slot — own 0, not ambient; breathing inside the entry is a declared decision.' }]} /><div class="mt-5"><PropsTable title="NavigationMenuTrigger / Link" props={[{ name: 'current', type: 'boolean', default: 'false', description: 'Paints the current section and sets aria-current.' }, { name: 'href', type: 'string', description: 'Destination for a navigation link.' }, { name: 'id', type: 'string', description: 'Stable item id used to pair trigger and panel.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Navigation links and panels inherit shared density tokens; the panel adds popover padding tokens."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><NavigationMenu label="density"><NavigationMenuLink href="/docs">docs</NavigationMenuLink></NavigationMenu></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: '12px 14px', source: 'component' }, { name: '--jx-pop-pad-inline', default: '14px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root, item, trigger, panel, and link parts keep navigation composition explicit."><PropsTable title="NavigationMenu" props={[{ name: 'label', type: 'string', default: "'site'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint for every panel in the bar. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'inset', type: 'number', default: '0', description: 'NavigationMenuIndicator hug inset per edge (px). Defaults: literal slot — own 0, not ambient; breathing inside the entry is a declared decision.' }]} /><div class={cx(rt.mt20)}><PropsTable title="NavigationMenuTrigger / Link" props={[{ name: 'current', type: 'boolean', default: 'false', description: 'Paints the current section and sets aria-current.' }, { name: 'href', type: 'string', description: 'Destination for a navigation link.' }, { name: 'id', type: 'string', description: 'Stable item id used to pair trigger and panel.' }]} /></div></SectionCard></div>
 </div>

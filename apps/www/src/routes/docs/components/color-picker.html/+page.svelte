@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -121,6 +122,23 @@ ${close}
 <ColorPicker label="hex" value="#007924" format="hex" />
 <ColorPicker label="hsl" value="hsl(145 100% 24%)" format="hsl" />
 <ColorPicker label="oklch" value="oklch(0.6489 0.237 145)" format="oklch" showValue={false} />`;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -132,14 +150,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -149,7 +167,7 @@ ${close}
       title="color-picker — native field, pro editor"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">native input[type=text] field</span>
         <span class="pill">native input[type=color] swatch</span>
         <span class="pill">SV pad + hue bar</span>
@@ -173,7 +191,7 @@ ${close}
       output={[{ label: 'value', value: canvasColor }]}
       resolveFileContent={resolveColorPickerUsage}
     >
-      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+      <div class={cx(rt.cpLane)}>
         <ColorPicker
           label="brand"
           bind:value={canvasColor}
@@ -218,34 +236,34 @@ ${close}
       title="Native base, custom picker surfaces"
       summary="The lane rides native controls (2026-09-01 native rebase): the value field is a REAL input[type=text] — label[for] binds it, name= submits through its own FormData lane, focus, selection and disabled are the platform's — and the swatch is a REAL input[type=color] styled to the swatch chrome, so clicking it opens the ENGINE picker in WebKit/Firefox: every input mode gets a picker. The chevron button opens the rich editor in a terminal-bezel popover (native popover=auto + popovertarget — light dismiss, Escape and top layer are the browser's): a 200×150 saturation/value pad and a 12px full-spectrum hue bar — 2D picker surfaces no native element provides, the same legitimacy class as date-picker's calendar grid — plus a hex/hsl/oklch format switch, a direct value input that parses any notation and reverts invalid drafts, and an Eye Dropper button when window.EyeDropper exists. OKLCH is the conversion hub — the token system's space — so every notation round-trips through one canonical model with zero dependencies (lib/color-utils), and every surface (field typing, swatch pick, editor drag, bind write) flows through the ONE value string."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <ComponentCanvas
           title="color-picker · catalogue"
           files={[{ name: 'color-picker-catalog-demo.svelte', content: colorPickerCatalogDemo, kind: 'usage' }]}
           stage="fill"
         >
-          <div class="grid w-full gap-5 min-[760px]:grid-cols-3">
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.cpGrid760)}>
+          <div class={cx(rt.col12)}>
             <ColorPicker label="brand (hex)" bind:value={brandColor} />
-            <span class="text-muted-foreground text-[12.5px]">
-              bound value: <code class="text-accent">{brandColor}</code>
+            <span class={cx(rt.noteSmall)}>
+              bound value: <code class={cx(rt.inkAccent)}>{brandColor}</code>
             </span>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <ColorPicker label="accent (oklch)" bind:value={accentColor} format="oklch" />
-            <span class="text-muted-foreground text-[12.5px]">
-              notation follows format · value: <code class="text-accent">{accentColor}</code>
+            <span class={cx(rt.noteSmall)}>
+              notation follows format · value: <code class={cx(rt.inkAccent)}>{accentColor}</code>
             </span>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <ColorPicker label="swatch only" bind:value={swatchOnly} showValue={false} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.noteSmall)}>
               showSwatch / showValue shape the trigger
             </span>
           </div>
         </div>
         </ComponentCanvas>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           Type in the field: parsed text commits canonically in the active notation and invalid
           drafts revert on change — native focus and selection throughout. Click the swatch: the
           engine's own color picker opens (a real input[type=color]; the pick re-emits through
@@ -253,14 +271,14 @@ ${close}
           chevron opens the editor — drag the SV pad (saturation right, value up, pinned to ltr —
           the lane, not the map, is what rtl mirrors) or the hue bar, both through Pointer Events
           with capture. Switching format re-emits the SAME color in the new notation; pasting
-          <code class="text-accent">#0f2</code> into an oklch picker parses, converts through
+          <code class={cx(rt.inkAccent)}>#0f2</code> into an oklch picker parses, converts through
           OKLCH, and commits canonical oklch text. The panel anchors under the lane with CSS
           Anchor Positioning (flip-block fallback; engines without it get the authored
           viewport-center), and focus restitutes to the field on every close path.
         </p>
-        <div class="border-border mt-1 border-t pt-5">
-          <h3 class="text-[15px] font-bold tracking-tight">error wiring</h3>
-          <div class="mt-4">
+        <div class={cx(rt.frameBorder, rt.mt4, rt.tBorderW, rt.pt20)}>
+          <h3 class={cx(rt.title15)}>error wiring</h3>
+          <div class={cx(rt.mt16)}>
             <ComponentCanvas
               title="color-picker · error wiring"
               files={[{ name: 'color-picker-error-demo.svelte', content: colorPickerErrorDemo, kind: 'usage' }]}
@@ -268,11 +286,11 @@ ${close}
             >
               <ColorPicker label="theme hue" error="theme hue is required" bind:value={errorColor} />
             </ComponentCanvas>
-            <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
+            <p class={cx(rt.inkMuted, rt.mt16, rt.pretty, rt.text13, rt.lead6)}>
               Same law as every family member: label[for] binds the native field,
-              <code class="text-accent">error</code> dashes the lane border and wires
-              <code class="text-accent">aria-invalid</code> +
-              <code class="text-accent">aria-describedby</code> on the input to the “! message”
+              <code class={cx(rt.inkAccent)}>error</code> dashes the lane border and wires
+              <code class={cx(rt.inkAccent)}>aria-invalid</code> +
+              <code class={cx(rt.inkAccent)}>aria-describedby</code> on the input to the “! message”
               line.
             </p>
           </div>
@@ -284,10 +302,10 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Color picker variants" summary="The lane can show the native swatch (input[type=color]), the native value field (input[type=text]), or both; the value model supports three notations."><ComponentCanvas title="color-picker · types" files={[{ name: 'color-picker-types-demo.svelte', content: colorPickerTypesDemo, kind: 'usage' }]} stage="fill"><div class="grid w-full gap-4 sm:grid-cols-3"><div class="border border-border p-4"><ColorPicker label="hex" value="#007924" format="hex" /></div><div class="border border-border p-4"><ColorPicker label="hsl" value="hsl(145 100% 24%)" format="hsl" /></div><div class="border border-border p-4"><ColorPicker label="oklch" value="oklch(0.6489 0.237 145)" format="oklch" showValue={false} /></div></div></ComponentCanvas></SectionCard></div>
+<div class={cx(rt.shellFlush)}>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Color picker variants" summary="The lane can show the native swatch (input[type=color]), the native value field (input[type=text]), or both; the value model supports three notations."><ComponentCanvas title="color-picker · types" files={[{ name: 'color-picker-types-demo.svelte', content: colorPickerTypesDemo, kind: 'usage' }]} stage="fill"><div class={cx(rt.cpGridSm)}><div class={cx(rt.panel)}><ColorPicker label="hex" value="#007924" format="hex" /></div><div class={cx(rt.panel)}><ColorPicker label="hsl" value="hsl(145 100% 24%)" format="hsl" /></div><div class={cx(rt.panel)}><ColorPicker label="oklch" value="oklch(0.6489 0.237 145)" format="oklch" showValue={false} /></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind a string value and choose the notation emitted by the picker."><CodeBlock code={colorUsage} lang="svelte" meta="ColorPicker usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The value surface is a native input[type=text] (label, focus, selection); the swatch is a native input[type=color]; the popover supplies Escape and light-dismiss behavior."><A11yTable keys={[{ key: 'Type + Enter', action: 'Edit the value in the native field; parsed text commits, invalid drafts revert' }, { key: 'Click swatch', action: 'Open the engine color picker (native input[type=color])' }, { key: 'Enter / Space on chevron', action: 'Open the editor popover (native popover=auto)' }, { key: 'Escape', action: 'Close the popover and restore field focus' }, { key: 'Tab', action: 'Move through the lane controls and picker fields' }, { key: 'Keyboard-only picking (honest limits)', action: 'The SV pad and hue rail are pointer-only decorative aids (aria-hidden); keyboard picking rides the value field (any notation), the format select and the Swatches grid — and the engine picker only while the native swatch is mounted (showSwatch=false removes that path entirely).' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the field when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'Points the field — and the native swatch — at the “! message” line when invalid' }, { name: 'aria-expanded', value: 'true | false', description: 'On the chevron; reflects popover visibility' }, { name: 'aria-haspopup', value: 'true', description: 'On the chevron; the generic promise — the panel opens as role=group, not a dialog' }, { name: 'aria-controls', value: '{id}-panel', description: 'Connects the chevron to its panel' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Trigger lane geometry follows density; the picker panel keeps its color-space dimensions stable."><div class="flex flex-col gap-5"><DensityDemo><ColorPicker label="density sample" value="#007924" /></DensityDemo><TokenTable tokens={[{ name: '--jx-color-lane', default: 'max(var(--jx-hit), calc(var(--jx-icon) + ...))', source: 'component' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-color-picker-hue', default: 'runtime hue angle', source: 'component' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Trigger lane geometry follows density; the picker panel keeps its color-space dimensions stable."><div class={cx(rt.col20)}><DensityDemo><ColorPicker label="density sample" value="#007924" /></DensityDemo><TokenTable tokens={[{ name: '--jx-color-lane', default: 'max(var(--jx-hit), calc(var(--jx-icon) + ...))', source: 'component' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-color-picker-hue', default: 'runtime hue angle', source: 'component' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props control notation, lane content, surface treatment, validation, and the native form contract."><PropsTable props={[{ name: 'value', type: 'string', default: "'#000000'", description: 'Bindable color string emitted in format; every surface (field, swatch, editor, bind) flows through it.', bindable: true }, { name: 'format', type: "'hex' | 'hsl' | 'oklch'", default: "'hex'", description: 'Input and output notation.' }, { name: 'name', type: 'string', default: '—', description: 'Form field name — the native input[type=text] submits its string under it.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'The platform disabled semantics on the field, swatch and chevron.' }, { name: 'showSwatch', type: 'boolean', default: 'true', description: 'Mounts the native input[type=color] swatch riding the COLOR LAW face (the conic well chip, laws/color.ts — the 4th mounting surface, generated not hand-drawn) — the engine picker path.' }, { name: 'showValue', type: 'boolean', default: 'true', description: 'Shows the value text; false keeps the native field as the sr-only value carrier (label, name and ARIA intact).' }, { name: 'lane', type: 'Snippet', default: '—', description: 'A custom lane beside the swatch (the Owner rebase, 2026-09-02): the component is the jx-pure input-color law face plus a SLOT — the default lane is the input-text; with lane, your content owns the visible spot (it sees { text, open, disabled }) while the native field goes sr-only, label[for]/name/ARIA intact.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Popover surface treatment. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and message.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
 </div>

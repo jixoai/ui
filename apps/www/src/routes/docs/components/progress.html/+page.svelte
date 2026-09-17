@@ -1,5 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -53,6 +54,22 @@ ${close}
   }
 
   // ToC outline: pairs with the section ids below, in page order.
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -64,10 +81,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -76,7 +93,7 @@ ${close}
       title="progress — the element, painted"
       summary="W3C-first: progress IS the native <progress> element. Role, value semantics, min/max mapping and the indeterminate state all belong to the browser. The component adds only the jixoai paint — 1px frame, brand fill, a terminal stripe sweep for the indeterminate run — and an optional label with a polite % readout."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">native &lt;progress&gt;</span>
         <span class="pill">indeterminate built-in</span>
         <span class="pill">polite % readout</span>
@@ -94,7 +111,7 @@ ${close}
       onreset={resetCanvas}
       output={[{ label: 'value', value: `${Math.round(value * 100)}%` }]}
     >
-      <div class="flex w-full max-w-md flex-col gap-6">
+      <div class={cx(rt.col24, rt.wFull, rt.maxWMd)}>
         <Progress {value} label="deploy" />
         <Progress label="connecting" />
       </div>
@@ -127,15 +144,15 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Two states, one element: determinate maps a 0..max scale; omitted value means indeterminate."><ComponentCanvas title="progress · states" stage="center" files={progressTypesFiles}>
-    <div class="flex flex-wrap items-start gap-6">
-      <div class="flex min-w-56 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">determinate</span><Progress value={0.42} label="sync" /><span class="text-muted-foreground text-[12.5px]">value present — a real 0..max position with a % readout</span></div>
-      <div class="flex min-w-56 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">indeterminate</span><Progress label="connecting" /><span class="text-muted-foreground text-[12.5px]">value omitted — activity, not progress (terminal stripe sweep)</span></div>
+    <div class={cx(rt.wrapStart24)}>
+      <div class={cx(rt.col12, rt.panel, rt.prgMinW56)}><span class={cx(rt.eyebrowPrimary)}>determinate</span><Progress value={0.42} label="sync" /><span class={cx(rt.inkMuted, rt.text125)}>value present — a real 0..max position with a % readout</span></div>
+      <div class={cx(rt.col12, rt.panel, rt.prgMinW56)}><span class={cx(rt.eyebrowPrimary)}>indeterminate</span><Progress label="connecting" /><span class={cx(rt.inkMuted, rt.text125)}>value omitted — activity, not progress (terminal stripe sweep)</span></div>
     </div>
   </ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pass a 0..max value, or omit it for the honest 'something is happening' state."><CodeBlock code={usage} lang="svelte" meta="Progress usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native element already exposes value semantics; the component adds only a polite % readout."><A11yTable keys={[]} aria={[{ name: 'aria-valuenow / min / max', value: 'native', description: 'Exposed by the <progress> element itself; indeterminate simply omits valuenow' }, { name: 'aria-label', value: 'label ?? "progress"', description: 'Names the bar when no visible label is given' }, { name: 'role: status', value: 'on the % readout', description: 'Polite live region — announced when the reader is idle' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The paint resets both engines' ::-progress pseudo-elements and draws from theme colors — no jx density tokens of its own."><div class="flex flex-col gap-6"><DensityDemo><Progress value={0.42} label="sync" /></DensityDemo><TokenTable tokens={[{ name: 'brand fill', default: '--primary', source: 'color', description: 'The determinate bar fill' }, { name: '1px frame', default: 'border-border', source: 'color' }, { name: 'stripe sweep', default: 'indeterminate run', source: 'component', description: 'Terminal stripe animation when value is omitted' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The paint resets both engines' ::-progress pseudo-elements and draws from theme colors — no jx density tokens of its own."><div class={cx(rt.col24)}><DensityDemo><Progress value={0.42} label="sync" /></DensityDemo><TokenTable tokens={[{ name: 'brand fill', default: '--primary', source: 'color', description: 'The determinate bar fill' }, { name: '1px frame', default: 'border-border', source: 'color' }, { name: 'stripe sweep', default: 'indeterminate run', source: 'component', description: 'Terminal stripe animation when value is omitted' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Progress Props interface — the rest of the element's attributes ride through natively."><PropsTable props={[{ name: 'value', type: 'number', default: '—', description: '0..max; omitted ⇒ indeterminate ("activity", not "progress").' }, { name: 'max', type: 'number', default: '1', description: "The element's own spec default." }, { name: 'label', type: 'string', default: '—', description: 'Visible label above the bar (also names the element).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 </div>

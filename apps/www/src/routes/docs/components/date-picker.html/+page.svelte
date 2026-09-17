@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -128,6 +129,24 @@ const at = $state('2026-08-30T14:05'); // canonical datetime
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? dateUsageLive : file.content;
 
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+
   // ---- sweep usage mirrors (canvas-everywhere-demos, 2026-09-08) ----------
   // Hand-authored mirrors of the wrapped demo regions below; the
   // same-source resolveRawCode migration of these strings is the
@@ -187,14 +206,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -204,7 +223,7 @@ ${close}
       title="date-picker — the zero-dep calendar popover"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">zero date libraries</span>
         <span class="pill">single + range modes</span>
         <span class="pill">ISO value · locale display</span>
@@ -235,7 +254,7 @@ ${close}
       output={[{ label: 'value', value: canvasDate }]}
       resolveFileContent={resolveDateUsage}
     >
-      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+      <div class={cx(rt.flex, rt.wFull, rt.dpMaxWXs, rt.col, rt.itemsStart, rt.gap12)}>
         <DatePicker label="deploy date" bind:value={canvasDate} format={canvasDateFormat} />
       </div>
       {#snippet playground()}
@@ -267,93 +286,93 @@ ${close}
       title="The calendar"
       summary="No native &lt;input type='date'>, no date library: the panel is a Popover API surface — popover='auto' wired with popovertarget, so light dismiss, Escape, one-at-a-time, and top-layer rendering are the browser's — over hand-rolled calendar math (leap years, month lengths, Monday-first grid offsets, strict ISO parse/format/compare). single commits 'YYYY-MM-DD'; range binds a start/end pair with anchor / close / swap-when-backwards semantics and a third click re-anchoring. The grid is one focus stop: ↑↓←→ walk the cursor across month boundaries (the view follows), Enter commits, Escape is native. format changes the display only — the value stays ISO forever."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <ComponentCanvas
           title="date-picker · catalogue"
           files={[{ name: 'date-picker-catalog-demo.svelte', content: datePickerCatalogDemo, kind: 'usage' }]}
           stage="fill"
         >
           <CardGrid min="230px">
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <DatePicker label="deploy date" bind:value={deployDate} />
-            <span class="text-muted-foreground text-[12.5px]">
-              bound value: <code class="text-accent">{deployDate}</code>
+            <span class={cx(rt.text125, rt.inkMuted)}>
+              bound value: <code class={cx(rt.inkAccent)}>{deployDate}</code>
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <DatePicker label="review (locale display)" format="locale" bind:value={localeDate} />
-            <span class="text-muted-foreground text-[12.5px]">
-              display locale · value: <code class="text-accent">{localeDate ?? '—'}</code>
+            <span class={cx(rt.text125, rt.inkMuted)}>
+              display locale · value: <code class={cx(rt.inkAccent)}>{localeDate ?? '—'}</code>
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <DatePicker
               label="windowed (min/max)"
               min="2026-08-04"
               max="2026-09-16"
               bind:value={windowedDate}
             />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.text125, rt.inkMuted)}>
               outside days: opacity 0.3 · not-allowed
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <DatePicker label="sprint (range)" mode="range" bind:range={sprintRange} />
-            <span class="text-muted-foreground text-[12.5px]">
-              start: <code class="text-accent">{sprintRange.start ?? '—'}</code> ·
-              end: <code class="text-accent">{sprintRange.end ?? '—'}</code>
+            <span class={cx(rt.text125, rt.inkMuted)}>
+              start: <code class={cx(rt.inkAccent)}>{sprintRange.start ?? '—'}</code> ·
+              end: <code class={cx(rt.inkAccent)}>{sprintRange.end ?? '—'}</code>
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <DatePicker label="audit date" error="audit date is required" bind:value={auditDate} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.text125, rt.inkMuted)}>
               error wiring: aria-invalid + dashed trigger
             </span>
           </div>
           <!-- picker reach (enhance-picker-feedback, 2026-08-30) -->
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <DatePicker
               label="quick picks (presets)"
               mode="range"
               presets={sprintPresets}
               bind:range={quickRange}
             />
-            <span class="text-muted-foreground text-[12.5px]">
-              preset commit = grid pick: <code class="text-accent"
+            <span class={cx(rt.text125, rt.inkMuted)}>
+              preset commit = grid pick: <code class={cx(rt.inkAccent)}
                 >{quickRange?.start ?? '—'} → {quickRange?.end ?? '—'}</code
               >
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <DatePicker
               label="date + time (showTime)"
               showTime
               format="locale"
               bind:value={datetimeValue}
             />
-            <span class="text-muted-foreground text-[12.5px]">
-              canonical value: <code class="text-accent">{datetimeValue}</code> · grid keeps the
+            <span class={cx(rt.text125, rt.inkMuted)}>
+              canonical value: <code class={cx(rt.inkAccent)}>{datetimeValue}</code> · grid keeps the
               time, stepper keeps the day
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <DatePicker
               label="weekdays only (isDisabled)"
               isDisabled={weekendGuard}
               bind:value={weekdayOnlyDate}
             />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.text125, rt.inkMuted)}>
               weekend cells: not-allowed paint, arrow walk skips them
             </span>
           </div>
         </CardGrid>
         </ComponentCanvas>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.bodyMuted, rt.pretty)}>
           Open one and keep typing: the panel is a terminal bezel like the Select dropdown, the
           month label is font-nav uppercase with clamped ←/→ navigation, today reads a
-          <code class="text-accent">--primary</code> border, selected days fill primary, and
+          <code class={cx(rt.inkAccent)}>--primary</code> border, selected days fill primary, and
           range interiors wash at
-          <code class="text-accent">color-mix(--primary 14%, transparent)</code>. The trigger is
+          <code class={cx(rt.inkAccent)}>color-mix(--primary 14%, transparent)</code>. The trigger is
           the Select trigger's paint — ↑/↓ on it opens the panel, focus restitutes on every
           close path.
         </p>
@@ -364,21 +383,21 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Single commits one ISO day; range binds a start/end pair with anchor/swap semantics.">
     <ComponentCanvas
       title="date-picker · types"
       files={[{ name: 'date-picker-types-demo.svelte', content: datePickerTypesDemo, kind: 'usage' }]}
       stage="fill"
     >
-      <div class="grid w-full gap-4 min-[760px]:grid-cols-2">
-        <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="single (ISO value)" id="types-single" /></div>
-        <div class="flex flex-col gap-3 border border-border p-4"><DatePicker label="range (start/end)" id="types-range" mode="range" /></div>
+      <div class={cx(rt.dpGrid)}>
+        <div class={cx(rt.panel, rt.col12)}><DatePicker label="single (ISO value)" id="types-single" /></div>
+        <div class={cx(rt.panel, rt.col12)}><DatePicker label="range (start/end)" id="types-range" mode="range" /></div>
       </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The grid is one focus stop: arrows walk the cursor across month boundaries and skip disabled days, Enter commits, Escape and light dismiss are the platform's."><A11yTable keys={[{ key: '↑ ↓ ← →', action: 'On the trigger: open the panel; in the grid: walk the cursor across month boundaries (the view follows) — disabled days (min/max, isDisabled) are skipped' }, { key: 'Enter / Space', action: 'Commit the focused day; open the panel from the trigger; preset lane buttons commit like a grid pick' }, { key: 'Escape', action: 'Native popover dismiss — focus restitutes to the trigger on every close path' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the trigger when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }, { name: 'role: grid', value: 'one focus stop', description: 'The calendar grid is a single tab stop with a roving day cursor' }, { name: 'aria-disabled', value: 'true', description: 'Painted on disabled day cells (min/max bounds and isDisabled days)' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The trigger inherits the family's density rhythm; the panel anchors via a generated --jx-date-* anchor name and opens through the shared --jx-p motion number."><div class="flex flex-col gap-6"><DensityDemo><DatePicker label="deploy date" id="density-date" /></DensityDemo><TokenTable tokens={[{ name: '--jx-date-{id}', default: 'anchor-name', source: 'component' }, { name: '--jx-p', default: '0 → 1', source: 'component', description: 'WAAPI-animated @property progress every panel formula derives from' }, { name: 'variant', default: "'solid' | 'acrylic' | 'auto'", source: 'component', description: 'Floating-surface fill; auto defers to reduced-transparency' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The trigger inherits the family's density rhythm; the panel anchors via a generated --jx-date-* anchor name and opens through the shared --jx-p motion number."><div class={cx(rt.col24)}><DensityDemo><DatePicker label="deploy date" id="density-date" /></DensityDemo><TokenTable tokens={[{ name: '--jx-date-{id}', default: 'anchor-name', source: 'component' }, { name: '--jx-p', default: '0 → 1', source: 'component', description: 'WAAPI-animated @property progress every panel formula derives from' }, { name: 'variant', default: "'solid' | 'acrylic' | 'auto'", source: 'component', description: 'Floating-surface fill; auto defers to reduced-transparency' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the DatePicker Props interface; value and range are bindable commit seams."><PropsTable meta={datePickerMeta} docs={DATE_PICKER_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from

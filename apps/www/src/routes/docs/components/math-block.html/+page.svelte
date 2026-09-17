@@ -9,6 +9,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
@@ -174,6 +175,23 @@ ${close}
   const errorFiles: TreeFile[] = [
     { name: 'math-block-error-demo.svelte', content: mathBlockErrorDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -184,8 +202,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <!-- page head -->
     <div data-reveal="">
       <SectionCard
@@ -195,7 +213,7 @@ ${close}
         title="math-block — display math, baked at prerender"
         summary={heroSummary}
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">based on KaTeX</span>
           <span class="pill">sync SSR lane · zero flash</span>
           <span class="pill">scroll-run strip · shared verdict</span>
@@ -234,7 +252,7 @@ ${close}
         output={[{ label: 'formula', value: formulas[formula].label }]}
         resolveFileContent={resolveUsage}
       >
-        <MathBlock {tex} fit={fit === 'true'} class="w-full max-w-[40rem]" />
+        <MathBlock {tex} fit={fit === 'true'} class={cx(rt.wFull, rt.maxW40)} />
         {#snippet playground()}
           <PlayFields>
             <PlayRow label="formula">
@@ -247,7 +265,7 @@ ${close}
               Every pick re-derives the markup synchronously — watch the chips appear the
               moment a formula outgrows its column: the stamp machine re-verdicts on the
               content-growth restamp, the shared scroll-run law riding wholesale. Flip
-              <code class="text-accent">fit</code> on a wide pick and the formula scales
+              <code class={cx(rt.inkAccent)}>fit</code> on a wide pick and the formula scales
               into the column instead (a font-size fit) — the chips dismiss as the verdict
               re-measures; print always fits.
             </PlayHelp>
@@ -266,23 +284,23 @@ ${close}
         summary="A display formula is not prose: it must not wrap. The strip is a scroll-run (data-jx-scroll-run + data-axis=horizontal) inside a one-cell grid host; the stamp verdict gates the shadow veil and the two nudge chips, and a formula that fits paints no chrome at all."
       >
         <ComponentCanvas title="math-block · wide strip" stage="fill" files={stripFiles}>
-          <div class="flex flex-col gap-5">
-          <div class="border border-border p-4">
-            <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          <div class={cx(rt.flex, rt.col, rt.gap20)}>
+          <div class={cx(rt.panel)}>
+            <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb12)}>
               aligned — Maxwell's equations
             </p>
-            <MathBlock tex={maxwellTex} copyable={false} class="w-full max-w-[42rem]" />
+            <MathBlock tex={maxwellTex} copyable={false} class={cx(rt.wFull, rt.mbkMaxW42)} />
           </div>
-          <div class="border border-border p-4">
-            <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          <div class={cx(rt.panel)}>
+            <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb12)}>
               matrices — a linear system wider than the column
             </p>
-            <MathBlock tex={systemTex} class="w-full max-w-[42rem]" />
+            <MathBlock tex={systemTex} class={cx(rt.wFull, rt.mbkMaxW42)} />
           </div>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          <p class={cx(rt.bodyMuted, rt.pretty)}>
             Both ride the same contract as tabs and button-group strips — the ONE
             scrollable-region system, never a local copy. The run measures along the inline
-            axis only; the verdict <code class="text-accent">none | start-closed | end-closed | open</code>
+            axis only; the verdict <code class={cx(rt.inkAccent)}>none | start-closed | end-closed | open</code>
             is the single truth every overlay keys on, and pre-hydration the shared css
             paints nothing (the prerendered markup stands alone).
           </p>
@@ -301,14 +319,14 @@ ${close}
         summary="fit=true forces the formula into the container: a font-size scale (KaTeX is em-based throughout, so it re-lays out honestly — no transform residue, no layout compensation), never scaling up. Print engages fit by DEFAULT (beforeprint/afterprint track the medium): a paged sheet never owes a horizontal scrollport — print this page and the linear system below arrives whole."
       >
         <ComponentCanvas title="math-block · fit" stage="fill" files={fitFiles}>
-          <div class="flex flex-col gap-5">
-          <div class="border border-border p-4">
-            <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          <div class={cx(rt.flex, rt.col, rt.gap20)}>
+          <div class={cx(rt.panel)}>
+            <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb12)}>
               the same linear system, fitted — no strip, no chips
             </p>
-            <MathBlock tex={systemTex} fit copyable={false} class="w-full max-w-[42rem]" />
+            <MathBlock tex={systemTex} fit copyable={false} class={cx(rt.wFull, rt.mbkMaxW42)} />
           </div>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          <p class={cx(rt.bodyMuted, rt.pretty)}>
             The fitter measures the formula's natural width and clamps the wrapper's
             font-size to the run's client box (re-measured on resize); when fit is off
             the inline scale clears and the scroll law owns the strip again — the
@@ -329,18 +347,18 @@ ${close}
         summary="throwOnError:false is the facade default: the bad source run renders error-tinted inside the same box — no error chrome, no thrown exception — and one console.warn carries the KaTeX diagnostic."
       >
         <ComponentCanvas title="math-block · error paint" stage="fill" files={errorFiles}>
-          <div class="flex flex-col gap-5">
-          <div class="border border-border p-4">
-            <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          <div class={cx(rt.flex, rt.col, rt.gap20)}>
+          <div class={cx(rt.panel)}>
+            <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb12)}>
                 an unclosed group — {'\\frac{'} left open
             </p>
-            <MathBlock tex={'\\frac{\\pi}{2} + \\frac{'} class="w-full max-w-[40rem]" />
+            <MathBlock tex={'\\frac{\\pi}{2} + \\frac{'} class={cx(rt.wFull, rt.maxW40)} />
           </div>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-            The error run paints in <code class="text-accent">var(--error)</code> — katex's own
-            output under the facade's <code class="text-accent">errorColor</code> token binding,
+          <p class={cx(rt.bodyMuted, rt.pretty)}>
+            The error run paints in <code class={cx(rt.inkAccent)}>var(--error)</code> — katex's own
+            output under the facade's <code class={cx(rt.inkAccent)}>errorColor</code> token binding,
             so light/dark follows the sheet with zero re-render. A caller forcing
-            <code class="text-accent">throwOnError: true</code> (strict options) still gets a
+            <code class={cx(rt.inkAccent)}>throwOnError: true</code> (strict options) still gets a
             safe surface: the component catches, paints the escaped raw source, and warns —
             errors never escape a component boundary.
           </p>
@@ -351,7 +369,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"

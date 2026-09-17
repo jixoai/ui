@@ -13,6 +13,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
@@ -90,6 +91,24 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
   const nameOptions: { value: IconName; label: string }[] = ICON_NAMES.map(
     (value) => ({ value, label: value }),
   );
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -100,12 +119,12 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell)}>
   <!-- ToC rail: aside precedes the content column in the DOM — desktop
        sticky right column, mobile the glass bar under the scaffold header
        (height 0, see toc.css); the content column reserves its clearance -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -114,7 +133,7 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
         title="icon — a name, not a picture"
         summary="The glyph renderer every component shares. You hand it a NAME from the generated set — the IconName union closes at build time, so a misspelled glyph is a compile error, not a blank square in production. The component owns the whole &lt;svg&gt; root: viewBox from the icon data, the square size edge, currentColor painting by artwork nature (stroke artwork strokes, fill artwork fills), round caps and joins, aria-hidden. Sizing and stroke weight are props — never wrapper CSS fighting an inline svg."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">IconName union — typo = compile error</span>
           <span class="pill">size / strokeWidth props</span>
           <span class="pill">currentColor by artwork nature</span>
@@ -149,35 +168,35 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
         stage="center"
         onreset={resetCanvas}
       >
-        <div class="flex flex-col items-center gap-6">
-          <div class="flex flex-wrap items-end justify-center gap-x-10 gap-y-5">
+        <div class={cx(rt.flex, rt.col, rt.itemsCenter, rt.gap24)}>
+          <div class={cx(rt.flex, rt.wrap, rt.itemsEnd, rt.justifyCenter, rt.icnGapX40, rt.gapY20)}>
             {#each [12, 16, 24, 32] as px (px)}
-              <div class="flex flex-col items-center gap-2">
+              <div class={cx(rt.flex, rt.col, rt.itemsCenter, rt.gap8)}>
                 <Icon name="eye" size={px} />
-                <code class="text-muted-foreground font-mono text-[11px]">size={px}</code>
+                <code class={cx(rt.inkMuted, rt.fontMono, rt.text11)}>size={px}</code>
               </div>
             {/each}
           </div>
-          <div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.icnGapX40, rt.gapY20)}>
             {#each [1.5, 2, 2.5] as sw (sw)}
-              <div class="flex items-center gap-2.5">
+              <div class={cx(rt.flex, rt.itemsCenter, rt.gap10)}>
                 <Icon name="braces" size={20} strokeWidth={sw} />
-                <code class="text-muted-foreground font-mono text-[11px]">sw={sw}</code>
+                <code class={cx(rt.inkMuted, rt.fontMono, rt.text11)}>sw={sw}</code>
               </div>
             {/each}
-            <span class="text-primary flex items-center gap-2 text-[13px]">
+            <span class={cx(rt.inkPrimary, rt.flex, rt.itemsCenter, rt.gap8, rt.text13)}>
               <Icon name="check" /> primary
             </span>
-            <span class="text-muted-foreground flex items-center gap-2 text-[13px]">
+            <span class={cx(rt.inkMuted, rt.flex, rt.itemsCenter, rt.gap8, rt.text13)}>
               <Icon name="check" /> muted
             </span>
           </div>
-          <div class="flex flex-col items-center gap-2.5 border-t border-border pt-5">
-            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
+          <div class={cx(rt.flex, rt.col, rt.itemsCenter, rt.gap10, rt.tBorder, rt.pt20)}>
+            <span class={cx(rt.microEyebrow, rt.inkMuted)}>
               driven by the playground
             </span>
             <Icon {name} {size} {strokeWidth} />
-            <code class="text-muted-foreground font-mono text-[11.5px]">&lt;Icon name=&quot;{name}&quot; size={size} strokeWidth={strokeWidth} /&gt;</code>
+            <code class={cx(rt.inkMuted, rt.fontMono, rt.text115)}>&lt;Icon name=&quot;{name}&quot; size={size} strokeWidth={strokeWidth} /&gt;</code>
           </div>
         </div>
         {#snippet playground()}
@@ -211,14 +230,14 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
         title="The name is a union, not a string"
         summary="IconName is generated together with the set: the union and the runtime data come from one artifact, so the compiler and the renderer can never disagree. A typo fails svelte-check at the exact prop — it never becomes a runtime blank, a silent fallback, or a shipped misspelling."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.flex, rt.col, rt.gap20)}>
           <CodeBlock code={typoLaw} lang="text" meta="the type-safety law" />
-          <p class="text-muted-foreground text-[13px] leading-6">
-            The union, the iterable (<code class="text-accent">ICON_NAMES</code>) and the loaders
-            (<code class="text-accent">getIcon</code> / <code class="text-accent">loadIcon</code> /
-            <code class="text-accent">preloadIcons</code>) all ride the one generated module —
-            <code class="text-accent">$lib/icon-set.gen</code>. Its config, budgets and install
-            tiers live on the <a class="text-accent underline underline-offset-2" href="/docs/icons.html">icons page</a>.
+          <p class={cx(rt.bodyMuted)}>
+            The union, the iterable (<code class={cx(rt.inkAccent)}>ICON_NAMES</code>) and the loaders
+            (<code class={cx(rt.inkAccent)}>getIcon</code> / <code class={cx(rt.inkAccent)}>loadIcon</code> /
+            <code class={cx(rt.inkAccent)}>preloadIcons</code>) all ride the one generated module —
+            <code class={cx(rt.inkAccent)}>$lib/icon-set.gen</code>. Its config, budgets and install
+            tiers live on the <a class={cx(rt.linkAccent)} href="/docs/icons.html">icons page</a>.
           </p>
         </div>
       </SectionCard>
@@ -238,7 +257,7 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Decorative by contract" summary="Every glyph renders aria-hidden — an icon is never the accessible name. The meaning lives in the surrounding text or the control's aria-label.">
       <A11yTable

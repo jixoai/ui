@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import Timeline, {
     TimelineItem,
     TimelineDot,
@@ -39,6 +40,23 @@
   // arm C — the duplicate-first ladder (declared steps 1, 1, 2): the
   // LATER node owns the duplicated milestone (value 1 → node 2's arc)
   let dupValue = $state(0.5);
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -47,12 +65,12 @@
   <meta name="robots" content="noindex" />
 </svelte:head>
 
-<main class="p-8" data-hydrated={hydrated ? '1' : '0'}>
-  <h1 class="mb-4 text-lg font-semibold">W3 timeline progress probe</h1>
+<main class={cx(rt.ptpPad)} data-hydrated={hydrated ? '1' : '0'}>
+  <h1 class={cx(rt.mb16, rt.textLg, rt.semibold)}>W3 timeline progress probe</h1>
 
   <!-- arm A — the fractional midpoint: value 1.5 on the default ladder -->
-  <section data-arm="a" class="mb-10 max-w-md">
-    <h2 class="mb-2 font-medium">A · value=1.5 (default ladder)</h2>
+  <section data-arm="a" class={cx(rt.ptpMb40, rt.maxWMd)}>
+    <h2 class={cx(rt.mb8, rt.medium)}>A · value=1.5 (default ladder)</h2>
     <Timeline value={1.5}>
       <TimelineItem>
         <TimelineDot />
@@ -79,9 +97,9 @@
   </section>
 
   <!-- arm B — the tween: dashoffset animates frame over frame -->
-  <section data-arm="b" class="mb-10 max-w-md">
-    <h2 class="mb-2 font-medium">B · tween 1 → 3</h2>
-    <button data-testid="tween-run" class="mb-2 rounded border px-2 py-1 text-sm" onclick={runTween}>
+  <section data-arm="b" class={cx(rt.ptpMb40, rt.maxWMd)}>
+    <h2 class={cx(rt.mb8, rt.medium)}>B · tween 1 → 3</h2>
+    <button data-testid="tween-run" class={cx(rt.mb8, rt.radius0, rt.frame, rt.px8, rt.py4, rt.textSm)} onclick={runTween}>
       run tween
     </button>
     <Timeline value={tweenValue}>
@@ -101,13 +119,13 @@
   </section>
 
   <!-- arm C — the duplicate-first ladder (steps 1, 1, 2) -->
-  <section data-arm="c" class="mb-10 max-w-md">
-    <h2 class="mb-2 font-medium">C · duplicate-first (1,1,2)</h2>
-    <div class="mb-2 flex gap-2 text-sm">
-      <button data-testid="dup-set-05" class="rounded border px-2 py-1" onclick={() => (dupValue = 0.5)}>
+  <section data-arm="c" class={cx(rt.ptpMb40, rt.maxWMd)}>
+    <h2 class={cx(rt.mb8, rt.medium)}>C · duplicate-first (1,1,2)</h2>
+    <div class={cx(rt.mb8, rt.row8, rt.textSm)}>
+      <button data-testid="dup-set-05" class={cx(rt.radius0, rt.frame, rt.px8, rt.py4)} onclick={() => (dupValue = 0.5)}>
         value 0.5
       </button>
-      <button data-testid="dup-set-1" class="rounded border px-2 py-1" onclick={() => (dupValue = 1)}>
+      <button data-testid="dup-set-1" class={cx(rt.radius0, rt.frame, rt.px8, rt.py4)} onclick={() => (dupValue = 1)}>
         value 1
       </button>
     </div>
@@ -128,9 +146,9 @@
   </section>
 
   <!-- arm D — scroll owns the stroke channel: NO value dashoffset inline -->
-  <section data-arm="d" class="max-w-md">
-    <h2 class="mb-2 font-medium">D · animation='scroll'</h2>
-    <div class="h-64 overflow-y-auto rounded border p-4" data-scroller>
+  <section data-arm="d" class={cx(rt.maxWMd)}>
+    <h2 class={cx(rt.mb8, rt.medium)}>D · animation='scroll'</h2>
+    <div class={cx(rt.ptpScroll, rt.radius0, rt.frame, rt.p16)} data-scroller>
       <Timeline animation="scroll">
         <TimelineItem>
           <TimelineDot />

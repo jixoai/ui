@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -23,7 +24,7 @@
 
   // the demo glyphs (stroke icons, lucide geometry, size-4 = 16px)
   const svgAttr =
-    'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"';
+    'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class={cx(rt.ibSize4)}';
   const playGlyph = `<svg ${svgAttr}><path d="m6 3 14 9-14 9Z"/></svg>`;
   const copyGlyph = `<svg ${svgAttr}><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
   const externalGlyph = `<svg ${svgAttr}><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>`;
@@ -141,6 +142,22 @@ ${close}
 <!-- flat physics: raised={false} is the engrave-tier inset press -->
 <IconButton text="deploy" raised={false}>{#snippet icon()}${playGlyph}{/snippet}</IconButton>
 <IconButton iconOnly tip={false} text="deploy" raised={false}>{#snippet icon()}${playGlyph}{/snippet}</IconButton>`;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -152,13 +169,13 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content column in the DOM — desktop
        sticky right column, mobile the glass bar under the scaffold header
        (height 0, see toc.css); the content column reserves its clearance -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -167,7 +184,7 @@ ${close}
         title="icon-button — icon and text, one contract"
         summary="The button for actions that carry a glyph: an explicit two-part contract where icon is the glyph (always decorative) and text is the ONE label. The text posture renders icon + label side by side; iconOnly collapses to a square where the label does not disappear — it moves to the tooltip and stays the accessible name. The button itself IS a press-button (composition, not a copy): every paint variant, the component-tag attachment (r4 effect-attachments — the tag's symbol-keyed prop chains through this component's rest spread into press-button's own, landing at the wrapped button's root), href anchoring and the press law pass through verbatim — same physics, same shadow tokens, same 42px band."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">text · icon-only</span>
           <span class="pill">inherits press-button verbatim</span>
           <span class="pill">variants + {'{@attach}'} chain through</span>
@@ -187,21 +204,21 @@ ${close}
         onreset={resetCanvas}
         resolveFileContent={resolveUsage}
       >
-        <div class="flex flex-col items-center gap-6">
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+        <div class={cx(rt.col24, rt.itemsCenter)}>
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20)}>
+            <label class={cx(rt.inkMuted, rt.rowC10, rt.text12)}>
               <span>text</span>
               <IconButton text="deploy">
                 {#snippet icon()}{@html playGlyph}{/snippet}
               </IconButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.inkMuted, rt.rowC10, rt.text12)}>
               <span>icon-only</span>
               <IconButton iconOnly text="copy command" placement="bottom">
                 {#snippet icon()}{@html copyGlyph}{/snippet}
               </IconButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.inkMuted, rt.rowC10, rt.text12)}>
               <span>icon-only anchor</span>
               <IconButton
                 iconOnly
@@ -212,7 +229,7 @@ ${close}
                 {#snippet icon()}{@html externalGlyph}{/snippet}
               </IconButton>
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.inkMuted, rt.rowC10, rt.text12)}>
               <span>chained attachment</span>
               <IconButton
                 iconOnly
@@ -224,8 +241,8 @@ ${close}
               </IconButton>
             </label>
           </div>
-          <div class="flex flex-col items-center gap-2.5 border-t border-border pt-5">
-            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
+          <div class={cx(rt.flex, rt.col, rt.itemsCenter, rt.gap10, rt.tBorder, rt.pt20)}>
+            <span class={cx(rt.microEyebrow, rt.inkMuted)}>
               driven by the playground
             </span>
             <IconButton {variant} iconOnly={iconOnly} {placement} text="deploy">
@@ -264,14 +281,14 @@ ${close}
         title="icon-only — the tooltip law"
         summary="In icon-only the text is never thrown away: the same string feeds the tooltip (the hover/focus hint on the popover laws) and the accessible name (aria-label), so the button says itself to pointer users, keyboard users and screen readers from ONE source. The glyph is decorative by construction — the component wraps it aria-hidden."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <ComponentCanvas
             title="icon-button · icon-only"
             stage="center"
             files={[{ name: 'icon-button-icon-only-demo.svelte', content: iconButtonIconOnlyDemo, kind: 'usage' }]}
           >
-            <div class="flex flex-wrap items-center gap-x-8 gap-y-5">
-              <div class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gapX8, rt.gapY20)}>
+              <div class={cx(rt.inkMuted, rt.rowC10, rt.text12)}>
                 <span>hover / focus each one</span>
                 <IconButton iconOnly text="copy command" placement="bottom">
                   {#snippet icon()}{@html copyGlyph}{/snippet}
@@ -295,33 +312,33 @@ ${close}
         title="One label, a full button"
         summary="The contract is two props on purpose: icon carries the picture, text carries the meaning — and the button underneath is the real press-button, so nothing about a text button is missing here."
       >
-        <ul class="flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">text</code> is required and single-sourced: the text
+        <ul class={cx(rt.col8, rt.body13)}>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>text</code> is required and single-sourced: the text
               posture renders it beside the glyph, iconOnly turns it into the tooltip AND
-              <code class="text-accent">aria-label</code> — never handwritten twice</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">icon</code> is always decorative: the component wraps
-              the snippet <code class="text-accent">aria-hidden</code>, so the glyph can never
+              <code class={cx(rt.inkAccent)}>aria-label</code> — never handwritten twice</span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>icon</code> is always decorative: the component wraps
+              the snippet <code class={cx(rt.inkAccent)}>aria-hidden</code>, so the glyph can never
               become the accessible name</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>inheritance is composition: <code class="text-accent">variant</code> (paint),
-              <code class="text-accent">{'{@attach …}'}</code> (the component tag — pressEffect(shimmer()) and kin, chained into the wrapped button's root),
-              <code class="text-accent">raised</code> (physics — the foot-flat zone reaches the
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>inheritance is composition: <code class={cx(rt.inkAccent)}>variant</code> (paint),
+              <code class={cx(rt.inkAccent)}>{'{@attach …}'}</code> (the component tag — pressEffect(shimmer()) and kin, chained into the wrapped button's root),
+              <code class={cx(rt.inkAccent)}>raised</code> (physics — the foot-flat zone reaches the
               square through the same ambient read),
-              <code class="text-accent">href</code> and <code class="text-accent">class</code>
+              <code class={cx(rt.inkAccent)}>href</code> and <code class={cx(rt.inkAccent)}>class</code>
               pass straight through to press-button — one button, one law</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>the icon-only square rides the same 42px band as a text button
-              (<code class="text-accent">size-10.5</code>) — rows stay level and the shadow
-              tokens are identical by construction; <code class="text-accent">placement</code>
+              (<code class={cx(rt.inkAccent)}>size-10.5</code>) — rows stay level and the shadow
+              tokens are identical by construction; <code class={cx(rt.inkAccent)}>placement</code>
               picks the tip's side (top default) and the tip's pointer notch is ON by
-              default (<code class="text-accent">arrow</code> opt-out), aimed at the anchor
+              default (<code class={cx(rt.inkAccent)}>arrow</code> opt-out), aimed at the anchor
               point the placement names</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">href</code> switches the element to an anchor; hrefs
-              not starting with <code class="text-accent">/</code> open a new tab with
-              <code class="text-accent">noreferrer</code> automatically</span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>href</code> switches the element to an anchor; hrefs
+              not starting with <code class={cx(rt.inkAccent)}>/</code> open a new tab with
+              <code class={cx(rt.inkAccent)}>noreferrer</code> automatically</span></li>
         </ul>
       </SectionCard>
     </div>
@@ -334,22 +351,22 @@ ${close}
         stage="center"
         files={[{ name: 'icon-button-postures-demo.svelte', content: iconButtonPosturesDemo, kind: 'usage' }]}
       >
-        <div class="grid gap-3 sm:grid-cols-2">
-          <div class="border border-border/60 p-3">
+        <div class={cx(rt.ibGridSm2)}>
+          <div class={cx(rt.panel60P12)}>
             <IconButton text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
-            <p class="mt-2 text-xs text-muted-foreground">text: glyph and visible label</p>
+            <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>text: glyph and visible label</p>
           </div>
-          <div class="border border-border/60 p-3">
+          <div class={cx(rt.panel60P12)}>
             <IconButton iconOnly text="deploy" variant="fill">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
-            <p class="mt-2 text-xs text-muted-foreground">icon-only: tooltip and aria-label</p>
+            <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>icon-only: tooltip and aria-label</p>
           </div>
         </div>
-        <div class="mt-3 flex flex-wrap items-center gap-x-8 gap-y-5 border-t border-border pt-4">
-          <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+        <div class={cx(rt.mt12, rt.flex, rt.wrap, rt.itemsCenter, rt.gapX8, rt.gapY20, rt.tBorder, rt.pt16)}>
+          <label class={cx(rt.inkMuted, rt.rowC10, rt.text12)}>
             <span>flat — press me</span>
             <IconButton text="deploy" raised={false}>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
           </label>
-          <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+          <label class={cx(rt.inkMuted, rt.rowC10, rt.text12)}>
             <span>flat square</span>
             <IconButton iconOnly tip={false} text="deploy" raised={false}>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
           </label>
@@ -375,7 +392,7 @@ ${close}
 
   <div id="theming" data-reveal="">
     <SectionCard eyebrow="theming" title="Inherited density" summary="Icon-button forwards density to press-button, keeping its square and text postures aligned with the surrounding controls.">
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <DensityDemo>
           <IconButton iconOnly text="deploy">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton>
         </DensityDemo>

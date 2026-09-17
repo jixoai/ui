@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -38,6 +39,23 @@ ${close}
     { name: 'registry/files/ui/highlight-detect-default/highlight-detect-default.svelte', content: wrapperSource },
     { name: 'src/lib/highlight-detect-default-usage.svelte', content: usage },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -48,8 +66,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -58,7 +76,7 @@ ${close}
         title="highlight-detect-default — the detection wrapper"
         summary="The convenience form of the DLD wiring: install @jixoai/highlight-detect-default and wrap a subtree — every &lt;CodeCard lang=&quot;auto&quot;&gt; below eats defaultLangDetector() as its context ring, while the langDetector prop and the backend's own detector keep their priority. The component is ~10 lines of pure wiring (its body IS the hand-written form ②); the detector itself, its four-layer waterfall and the betlang wasm live in the @jixoai/highlight-lang-detector lib item this one depends on. The deep story — the three rings, the null cascade, the layer table — lives on the code-card page's lang=&quot;auto&quot; section."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">children wrapper · form ①</span>
           <span class="pill">context spreads downward only</span>
           <span class="pill">zero styling · zero behavior beyond wiring</span>
@@ -74,14 +92,14 @@ ${close}
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/highlight-detect-default/highlight-detect-default.svelte"
         files={canvasFiles}
       >
-        <div class="flex flex-col gap-4 min-[760px]:grid min-[760px]:grid-cols-2 min-[760px]:gap-4 min-[760px]:flex-none">
+        <div class={cx(rt.hddPair)}>
           <HighlightDetectDefault>
-            <CodeCard filename="main.ts" lang={AUTO_LANG} code={demoCode} class="w-full" copyable={false} />
+            <CodeCard filename="main.ts" lang={AUTO_LANG} code={demoCode} class={cx(rt.wFull)} copyable={false} />
           </HighlightDetectDefault>
-          <CodeCard filename="plain.ts" lang="ts" code={'// outside the wrapper — the ordinary path\nexport const untouched = true;'} class="w-full" copyable={false} />
+          <CodeCard filename="plain.ts" lang="ts" code={'// outside the wrapper — the ordinary path\nexport const untouched = true;'} class={cx(rt.wFull)} copyable={false} />
         </div>
         {#snippet playground()}
-          <p class="text-xs text-muted-foreground">
+          <p class={cx(rt.note12)}>
             static demo — the wrapper takes no knobs: scope IS the API. Wrap a different subtree and
             that subtree's cards change; nothing else does.
           </p>
@@ -92,11 +110,11 @@ ${close}
     <div id="usage" data-reveal="">
       <SectionCard eyebrow="usage" title="Usage" summary="Two equivalent wirings — the wrapper (form ①) or one hand-written setContext line at any subtree root (form ②, zero components). The card's reader cannot tell them apart: both store the same { '{ detector }' } adapter under HIGHLIGHT_DETECT_KEY.">
         <CodeBlock code={usage} lang="svelte" meta="usage" />
-        <p class="mt-3 text-[13px] leading-6 text-muted-foreground">
+        <p class={cx(rt.bodyMuted, rt.mt12)}>
           Install pulls the lib item with it:
-          <code class="text-accent">npx jixoai-ui add @jixoai/highlight-detect-default</code>.
+          <code class={cx(rt.inkAccent)}>npx jixoai-ui add @jixoai/highlight-detect-default</code>.
           The rings, the null-cascade law and the waterfall live in
-          <a href="/docs/components/code-card.html#code-card-auto" class="text-accent underline underline-offset-2">code-card's lang="auto" section</a>.
+          <a href="/docs/components/code-card.html#code-card-auto" class={cx(rt.linkAccent)}>code-card's lang="auto" section</a>.
         </p>
       </SectionCard>
     </div>

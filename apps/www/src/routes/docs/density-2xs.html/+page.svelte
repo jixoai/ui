@@ -9,6 +9,7 @@
   // this page hardcodes a kernel number in prose that the table
   // doesn't derive live.
   import { onMount } from 'svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -161,6 +162,24 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
   // table's live reads provide).
   import sheet from '$lib/jixoai.css?raw';
   const density2xsScope = /\/\* ── the 2xs scope[\s\S]*?\n\}/.exec(sheet)?.[0] ?? '';
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -171,8 +190,8 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -181,7 +200,7 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
         title="2xs — the fifth rung: operation density for pro tools"
         summary="Below xs sits one more rung, and only one: 2xs trades comfort for information density where the audience is a professional non-touch pointer user — inspector panels, data grids, tool palettes (IDE layers panels, Figma property panels). Every number is still an equation from the ruler: text 10px, lines 14px, rows 24px, and the sheet's ONE scoped law — the hit floor redeclares at 6U (24px, the WCAG 2.5.8 AA minimum) inside the scope, because a 2xs subtree is by construction a non-touch surface. Opt-in only, never the default: this page is the rung's standard and its acceptance demo."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">5 rungs</span>
           <span class="pill">T 10px · L 14px</span>
           <span class="pill">rows 24px</span>
@@ -201,10 +220,10 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
         title="Five rungs, computed live — not copied"
         summary="Every bar below consumes its --jx-* alias directly inside each rung's own [data-density] scope, and the numbers are measured used values in this very page (the kernel gate's technique in real Chromium) — move the kernel and this table moves with it; it cannot rot. G stays 8px at 2xs on purpose: the xs optical floor holds one step further down (text needs its gutter, and B = G means the inset cannot shrink alone) — the compactness comes from text and block, not the inline axis."
       >
-        <div class="overflow-x-auto">
-          <div class="min-w-[64rem]">
+        <div class={cx(rt.oxAuto)}>
+          <div class={cx(rt.d2MinW64r)}>
             <div
-              class="grid grid-cols-[5rem_repeat(10,minmax(0,1fr))] items-end gap-x-3 gap-y-1 border-b border-border pb-2 font-nav text-[11px] uppercase tracking-[0.14em] text-muted-foreground"
+              class={cx(rt.d2HeadRow)}
             >
               <span>rung</span>
               {#each AXES as a (a)}<span>{AXIS_HEAD[a]}</span>{/each}
@@ -212,36 +231,36 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
             {#each RUNGS as r (r)}
               <div data-density={r} data-scale-rung={r}>
                 <!-- the measurement cluster: used-value probes, invisible -->
-                <div class="pointer-events-none absolute invisible" aria-hidden="true">
-                  <span data-probe="text" class="text-[length:var(--jx-text)]"></span>
+                <div class={cx(rt.d2PointerNone, rt.absolute, rt.d2Invisible)} aria-hidden="true">
+                  <span data-probe="text" class={cx(rt.textVar)}></span>
                   <span
                     data-probe="line"
-                    class="text-[length:var(--jx-text)] leading-[var(--jx-line)]"
+                    class={cx(rt.textVar, rt.d2LeadLine)}
                   ></span>
-                  <div data-probe="gap" class="flex gap-x-[var(--jx-gap)]"></div>
-                  <div data-probe="stack" class="flex flex-col gap-y-[var(--jx-stack)]"></div>
-                  <div data-probe="inset" class="ps-[var(--jx-inset)]"></div>
-                  <div data-probe="row-min" class="min-h-[var(--jx-row-min)]"></div>
-                  <div data-probe="hit" class="min-h-[var(--jx-hit)]"></div>
-                  <div data-probe="icon" class="w-[var(--jx-icon)]"></div>
-                  <div data-probe="image" class="w-[var(--jx-image)]"></div>
-                  <span data-probe="text-secondary" class="text-[length:var(--jx-text-secondary)]"></span>
+                  <div data-probe="gap" class={cx(rt.flex, rt.d2GapXGap)}></div>
+                  <div data-probe="stack" class={cx(rt.flex, rt.col, rt.d2GapYStack)}></div>
+                  <div data-probe="inset" class={cx(rt.d2PsInset)}></div>
+                  <div data-probe="row-min" class={cx(rt.d2MinHRowMin)}></div>
+                  <div data-probe="hit" class={cx(rt.d2MinHHit)}></div>
+                  <div data-probe="icon" class={cx(rt.d2WIcon)}></div>
+                  <div data-probe="image" class={cx(rt.d2WImage)}></div>
+                  <span data-probe="text-secondary" class={cx(rt.textVar2)}></span>
                 </div>
                 <div
-                  class="grid grid-cols-[5rem_repeat(10,minmax(0,1fr))] items-center gap-x-3 gap-y-2 border-b border-border/50 py-2"
+                  class={cx(rt.d2RungRow)}
                 >
-                  <span class="font-nav text-[11px] uppercase tracking-[0.14em]">{r}</span>
+                  <span class={cx(rt.fontNav, rt.text11, rt.upper, rt.track14)}>{r}</span>
                   {#each AXES as a (a)}
-                    <div class="flex items-center gap-2 overflow-hidden">
+                    <div class={cx(rt.rowC8, rt.overflowHidden)}>
                       <div
-                        class="{VERTICAL.has(a) ? 'self-end' : ''} {a === 'row-min' || a === 'hit'
-                          ? 'bg-primary/70'
-                          : 'bg-primary/30'} {VERTICAL.has(a)
-                          ? 'w-3'
-                          : 'h-3'} shrink-0 rounded-[1px]"
+                        class={cx(VERTICAL.has(a) ? rt.d2SelfEnd : undefined, a === 'row-min' || a === 'hit'
+                          ? rt.d2BgPrimary70
+                          : rt.d2BgPrimary30, VERTICAL.has(a)
+                          ? rt.d2W3
+                          : rt.d2H3, rt.shrink0, rt.d2Radius1)}
                         style="{VERTICAL.has(a) ? 'height' : 'width'}: var({AXIS_VAR[a]})"
                       ></div>
-                      <span class="min-w-0 truncate font-mono text-[11.5px] text-muted-foreground">
+                      <span class={cx(rt.minW0, rt.truncate, rt.fontMono, rt.text115, rt.inkMuted)}>
                         {measured[r]?.[a] !== undefined
                           ? `${Math.round((measured[r]?.[a] ?? 0) * 10) / 10}px`
                           : '—'}
@@ -253,15 +272,15 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
             {/each}
           </div>
         </div>
-        <ul class="mt-4 flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2">
-            <span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>2xs's hit-min (24px) is the ONE scoped floor: <code class="text-accent">--jx-hit-floor</code>
-              redeclares at 6U inside <code class="text-accent">[data-density='2xs']</code>; every other rung and
+        <ul class={cx(rt.mt16, rt.col8, rt.body13)}>
+          <li class={cx(rt.flex, rt.gap8)}>
+            <span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>2xs's hit-min (24px) is the ONE scoped floor: <code class={cx(rt.inkAccent)}>--jx-hit-floor</code>
+              redeclares at 6U inside <code class={cx(rt.inkAccent)}>[data-density='2xs']</code>; every other rung and
               every unpinned read keep the :root 7U guardrail (28px)</span>
           </li>
-          <li class="flex gap-2">
-            <span class="text-primary" aria-hidden="true">&gt;</span>
+          <li class={cx(rt.flex, rt.gap8)}>
+            <span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>2xs's secondary text is honestly degenerate — max(0.625rem, 9px) = 10px = the primary
               size; differentiate secondary roles by ink, never by size, below xs</span>
           </li>
@@ -285,24 +304,24 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
           stage="fill"
           scroll="grow"
         >
-        <div class="grid gap-6 xl:grid-cols-2">
+        <div class={cx(rt.d2SceneGrid)}>
           {#snippet scene(r: Rung, caption: string)}
-            <figure class="min-w-0">
+            <figure class={cx(rt.minW0)}>
               <figcaption
-                class="font-nav mb-[var(--jx-stack)] block text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em] text-muted-foreground"
+                class={cx(rt.d2Caption)}
               >
                 {caption}
               </figcaption>
               <div
                 data-density={r}
-                class="border border-border bg-background p-[var(--jx-inset)]"
+                class={cx(rt.frame, rt.bgBackground, rt.d2PInset)}
               >
                 <!-- the tool strip: hit lanes land on the scoped floor -->
-                <div class="mb-[var(--jx-stack)] flex items-center gap-[var(--jx-gap)]">
-                  <span class="font-nav text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">
+                <div class={cx(rt.d2Toolbar)}>
+                  <span class={cx(rt.d2EyebrowSec)}>
                     layers
                   </span>
-                  <span class="ml-auto flex gap-[var(--jx-gap)]">
+                  <span class={cx(rt.mlAuto, rt.flex, rt.d2GapGap)}>
                     {#each tools as t (t.label)}
                       <PressButton aria-label={t.label} title={t.label}>
                         <svg
@@ -312,7 +331,7 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
                           stroke-width="1.5"
                           stroke-linecap="round"
                           stroke-linejoin="round"
-                          class="size-[1.15em]"
+                          class={cx(rt.d2SizeEm)}
                           aria-hidden="true"
                         >
                           <path d={t.d} />
@@ -349,7 +368,7 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
                   {/each}
                 </ItemGroup>
                 <!-- property rows: real selects at the scoped footprint -->
-                <div class="mt-[var(--jx-stack)] grid gap-[var(--jx-stack)] min-[420px]:grid-cols-2">
+                <div class={cx(rt.d2PropRows)}>
                   <Select label="blend" bind:value={blend} options={blendOptions} />
                   <Select label="fill" bind:value={fill} options={fillOptions} />
                 </div>
@@ -360,15 +379,15 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
           {@render scene('default', 'the same scene · default')}
         </div>
         </ComponentCanvas>
-        <ul class="mt-4 flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2">
-            <span class="text-primary" aria-hidden="true">&gt;</span>
+        <ul class={cx(rt.mt16, rt.col8, rt.body13)}>
+          <li class={cx(rt.flex, rt.gap8)}>
+            <span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>what to see at 2xs: 24px rows (down from 40), 10px body text, 14px icons, 28px images —
               and hit lanes that stop at 24px, the scoped floor, instead of re-inflating to the 28px
               guardrail</span>
           </li>
-          <li class="flex gap-2">
-            <span class="text-primary" aria-hidden="true">&gt;</span>
+          <li class={cx(rt.flex, rt.gap8)}>
+            <span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>the two selects share one bound state with this page — the scene is live, not a
               screenshot; toggle them</span>
           </li>
@@ -385,28 +404,28 @@ secondary  = max(0.625rem, T − U/4)  → 10px — DEGENERATE: equals the prima
         title="The adoption law — opt-in operation surfaces only"
         summary="2xs is a scoped tool, not a product-wide mood. FOR: professional non-touch high-density operation surfaces — inspector panels, property rows, data grids, tool palettes, layers lists — where information density IS the feature and the pointer is precise. NEVER: general marketing or docs UI, prose surfaces, touch-first flows, auth or checkout. NOT the default anywhere: DEFAULT_DENSITY stays 'default', no family fallback becomes 2xs, the canvas stage's density select keeps the standard four stops (xs/sm/default/lg). xs keeps its own role (dense non-touch metadata surfaces); 2xs goes further (operation surfaces) — a product can run an xs nav rail beside a 2xs inspector."
       >
-        <div class="flex flex-col gap-6">
+        <div class={cx(rt.col24)}>
           <CodeBlock code={derivation} lang="text" meta="the 2xs derivation (design §1)" />
           <CodeBlock code={stampCode} lang="svelte" meta="the opt-in" />
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2">
-              <span class="text-primary" aria-hidden="true">&gt;</span>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.flex, rt.gap8)}>
+              <span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>the scoped floor is the sheet's ONLY scoped floor — legal because stamping
-                <code class="text-accent">data-density='2xs'</code> declares the modality (professional
+                <code class={cx(rt.inkAccent)}>data-density='2xs'</code> declares the modality (professional
                 non-touch pointer), the same opt-in semantics the 2026-08-29 ruling established for the
                 28px guardrail; 24px still satisfies WCAG 2.5.8 AA</span>
             </li>
-            <li class="flex gap-2">
-              <span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.flex, rt.gap8)}>
+              <span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>9px body exists in the grammar (one more −U/4 step) and stays UNSHIPPED — going
                 below 10px is a new ruling, not a parameter tweak</span>
             </li>
-            <li class="flex gap-2">
-              <span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.flex, rt.gap8)}>
+              <span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>verified: the kernel gate asserts the whole 2xs row in real Chromium
-                (<code class="text-accent">node scripts/verify-density-kernel.mjs</code>), and the
+                (<code class={cx(rt.inkAccent)}>node scripts/verify-density-kernel.mjs</code>), and the
                 context specs lock resolution + stamping — see the change
-                <code class="text-accent">openspec/changes/2026-09-05-density-2xs</code></span>
+                <code class={cx(rt.inkAccent)}>openspec/changes/2026-09-05-density-2xs</code></span>
             </li>
           </ul>
         </div>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -119,6 +120,23 @@ this.shadowRoot.append(style);
       },
     );
   });
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -129,11 +147,11 @@ this.shadowRoot.append(style);
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell)}>
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -142,7 +160,7 @@ this.shadowRoot.append(style);
         title="jx-pure — the componentless face"
         summary="One stylesheet, the whole jixoai face, zero JS. Mount the jx-pure class on any DOM and the subtree's BARE native elements get the law — inspired by Pico CSS (classless element defaults) and daisyUI (semantic class vocabulary). No framework, no build step, no jixoai-ui knowledge: plain HTML in, jixoai out. The opt-in class vocabulary from the former native-form sheet rides along verbatim (Part A), so the Tier-2 components consume the same file."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">pure CSS · 0 JS</span>
           <span class="pill">:where() + @layer components</span>
           <span class="pill">type allowlist</span>
@@ -159,7 +177,7 @@ this.shadowRoot.append(style);
         title="Getting started"
         summary="jx-pure consumes the token custom properties, so the token sheet comes first. Two link tags and one class — that is the entire runtime. It also drops into any CustomElement's shadow root: import the same two sheets from the shadow <style> (document CSS never crosses the shadow boundary)."
       >
-        <div class="grid gap-4 min-[760px]:grid-cols-2">
+        <div class={cx(rt.grid760b)}>
           <CodeBlock code={install} lang="bash" meta="terminal" />
           <CodeBlock code={usage} lang="html" meta="static page" />
         </div>
@@ -219,10 +237,10 @@ this.shadowRoot.append(style);
           files={jxPureFiles('buttons', resolveRawCode('buttons'))}
           stage="fill"
         >
-          <div class="grid gap-6 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-3">
-              <span class="text-muted-foreground text-[11px]">inside .jx-pure — the law</span>
-              <div class="jx-pure flex flex-wrap items-center gap-3">
+          <div class={cx(rt.grid760g24)}>
+            <div class={cx(rt.col12)}>
+              <span class={cx(rt.note11)}>inside .jx-pure — the law</span>
+              <div class="jx-pure {cx(rt.rowC12, rt.wrap)}">
                 <button type="button">plain button</button>
                 <button type="button" disabled>disabled</button>
                 <input type="button" value="input button" />
@@ -230,14 +248,14 @@ this.shadowRoot.append(style);
                 <a href="#buttons">plain link</a>
               </div>
             </div>
-            <div class="flex flex-col gap-3">
-              <span class="text-muted-foreground text-[11px]">outside the scope — untouched UA paint</span>
-              <div class="flex flex-wrap items-center gap-3">
+            <div class={cx(rt.col12)}>
+              <span class={cx(rt.note11)}>outside the scope — untouched UA paint</span>
+              <div class={cx(rt.rowC12, rt.wrap)}>
                 <button type="button">plain button</button>
                 <button type="button" disabled>disabled</button>
                 <a href="#buttons">plain link</a>
               </div>
-              <span class="text-muted-foreground text-[11px]">
+              <span class={cx(rt.note11)}>
                 opt-in is structural: no class on the ancestor, no jixoai face
               </span>
             </div>
@@ -262,7 +280,7 @@ this.shadowRoot.append(style);
           stage="fill"
           scroll="grow"
         >
-        <div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 60rem">
+        <div class="jx-pure {cx(rt.grid760a)}" style="max-width: 60rem">
           <form onsubmit={(e) => e.preventDefault()}>
             <fieldset>
               <legend>account</legend>
@@ -388,7 +406,7 @@ this.shadowRoot.append(style);
           files={jxPureFiles('nav-lists', resolveRawCode('nav-lists'))}
           stage="fill"
         >
-          <div class="grid gap-6 min-[760px]:grid-cols-2">
+          <div class={cx(rt.grid760g24)}>
             <div class="jx-pure" style="max-width: 28rem">
               <nav>
                 <a href="#nav-lists">docs</a> · <a href="#nav-lists">registry</a> · <a href="#nav-lists">tokens</a>
@@ -448,7 +466,7 @@ this.shadowRoot.append(style);
             </table>
           </div>
         </ComponentCanvas>
-        <p class="text-muted-foreground mt-3 text-[13px] leading-6">
+        <p class={cx(rt.bodyMuted, rt.mt12)}>
           Chromium is the verified engine of record for v1 — the other columns state the authored
           law, not a verified build. Every repaint degrades to native paint under forced-colors,
           so unverified engines never lose the control.
@@ -472,8 +490,8 @@ this.shadowRoot.append(style);
           stage="fill"
           scroll="grow"
         >
-        <div class="grid gap-6 min-[760px]:grid-cols-2">
-          <div class="jx-pure flex flex-col gap-4" style="max-width: 30rem">
+        <div class={cx(rt.grid760g24)}>
+          <div class="jx-pure {cx(rt.col16)}" style="max-width: 30rem">
             <div>
               <small>progress · 60%</small><br />
               <progress value="60" max="100"></progress>
@@ -488,7 +506,7 @@ this.shadowRoot.append(style);
               <meter value="20" min="0" max="100" low="30" high="90" optimum="80"></meter>
               <meter value="95" min="0" max="100" low="30" high="90" optimum="80"></meter>
             </div>
-            <form onsubmit={(e) => e.preventDefault()} class="flex flex-wrap items-center gap-2">
+            <form onsubmit={(e) => e.preventDefault()} class={cx(rt.rowC8, rt.wrap)}>
               <label for="mf-a">a</label>
               <input id="mf-a" type="number" value="6" style="width: 5rem" />
               <label for="mf-b">b</label>
@@ -524,7 +542,7 @@ this.shadowRoot.append(style);
       files={jxPureFiles('switch', resolveRawCode('switch'))}
       stage="fill"
     >
-      <div class="jx-pure flex flex-wrap items-center gap-6" style="max-width: 44rem">
+      <div class="jx-pure {cx(rt.rowC24, rt.wrap)}" style="max-width: 44rem">
         <label class="jx-switch-sm"><input type="checkbox" role="switch" /> sm auto-save</label>
         <label><input type="checkbox" role="switch" /> md notifications</label>
         <label class="jx-switch-lg"><input type="checkbox" role="switch" checked /> lg telemetry</label>
@@ -550,8 +568,8 @@ this.shadowRoot.append(style);
       files={jxPureFiles('validation', resolveRawCode('validation'))}
       stage="fill"
     >
-    <div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 52rem">
-      <form onsubmit={(e) => e.preventDefault()} class="flex flex-col gap-3">
+    <div class="jx-pure {cx(rt.grid760a)}" style="max-width: 52rem">
+      <form onsubmit={(e) => e.preventDefault()} class={cx(rt.col12)}>
         <label for="v-ok">valid lane (aria-invalid='false')</label>
         <input id="v-ok" type="text" value="gaubee" aria-invalid="false" />
         <label for="v-bad">invalid lane (aria-invalid='true')</label>
@@ -559,7 +577,7 @@ this.shadowRoot.append(style);
         <label for="v-sel-bad">invalid select</label>
         <select id="v-sel-bad" aria-invalid="true"><option>pick…</option></select>
       </form>
-      <div class="flex flex-col gap-3">
+      <div class={cx(rt.col12)}>
         <label><input type="checkbox" aria-invalid="true" checked /> invalid checkbox</label>
         <label><input type="checkbox" aria-invalid="false" checked /> valid checkbox</label>
         <label><input type="radio" name="v-radio" aria-invalid="true" checked /> invalid radio</label>
@@ -589,9 +607,9 @@ this.shadowRoot.append(style);
           files={jxPureFiles('dark-mode', resolveRawCode('dark-mode'))}
           stage="fill"
         >
-        <div class="grid gap-6 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground text-[11px]">&lt;div class="jx-pure"&gt; — light (inherits :root)</span>
+        <div class={cx(rt.grid760g24)}>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.note11)}>&lt;div class="jx-pure"&gt; — light (inherits :root)</span>
             <div class="jx-pure" style="max-width: 26rem">
               <p><label for="d-l">label</label><br />
                 <input id="d-l" type="text" placeholder="light lane" /></p>
@@ -601,8 +619,8 @@ this.shadowRoot.append(style);
               </p>
             </div>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground text-[11px]">&lt;div class="dark jx-pure"&gt; — scoped dark island</span>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.note11)}>&lt;div class="dark jx-pure"&gt; — scoped dark island</span>
             <div class="dark jx-pure" style="max-width: 26rem">
               <p><label for="d-d">label</label><br />
                 <input id="d-d" type="text" placeholder="dark lane" /></p>
@@ -612,8 +630,8 @@ this.shadowRoot.append(style);
               </p>
             </div>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground text-[11px]">&lt;div class="jx-light jx-pure"&gt; — forced light under a dark root</span>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.note11)}>&lt;div class="jx-light jx-pure"&gt; — forced light under a dark root</span>
             <div class="dark jx-pure" style="padding: 0.75rem; max-width: 26rem">
               <div class="jx-light jx-pure">
                 <p><label for="d-lf">label</label><br />
@@ -627,24 +645,24 @@ this.shadowRoot.append(style);
           </div>
         </div>
         </ComponentCanvas>
-        <div class="border-border mt-5 border-t pt-5">
-          <h3 class="text-[15px] font-bold tracking-tight">System-follow, still zero JS — .jx-auto-dark</h3>
-          <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
+        <div class={cx(rt.tBorder, rt.mt20, rt.pt20)}>
+          <h3 class={cx(rt.title15)}>System-follow, still zero JS — .jx-auto-dark</h3>
+          <p class={cx(rt.para, rt.mt8)}>
             The zero-JS answer to OS-following dark: mount
-            <code class="text-accent">jx-auto-dark</code> next to the scope class and Part D's
+            <code class={cx(rt.inkAccent)}>jx-auto-dark</code> next to the scope class and Part D's
             <em>generated</em> media-query variant flips the tokens — derived 1:1 from the token
-            sheet's .dark block by <code class="text-accent">scripts/gen-jx-auto-dark.mjs</code>
-            (single source; the parity suite fails on drift). An explicit <code class="text-accent">.dark</code>
-            always wins, <code class="text-accent">.jx-light</code> islands stay light:
+            sheet's .dark block by <code class={cx(rt.inkAccent)}>scripts/gen-jx-auto-dark.mjs</code>
+            (single source; the parity suite fails on drift). An explicit <code class={cx(rt.inkAccent)}>.dark</code>
+            always wins, <code class={cx(rt.inkAccent)}>.jx-light</code> islands stay light:
           </p>
-          <div class="mt-3 max-w-xl">
+          <div class={cx(rt.mt12, rt.maxWXl)}>
             <CodeBlock code={autoDark} lang="html" meta="zero-JS system follow" />
           </div>
-          <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
+          <p class={cx(rt.para, rt.mt8)}>
             Prefer a theme toggle over OS-follow? The host's own 3-line bootstrap remains the
             fully-JS route:
           </p>
-          <div class="mt-3 max-w-xl">
+          <div class={cx(rt.mt12, rt.maxWXl)}>
             <CodeBlock code={bootstrap} lang="js" meta="host-owned bootstrap (the JS alternative)" />
           </div>
         </div>
@@ -659,11 +677,11 @@ this.shadowRoot.append(style);
         title="CustomElement — the shadow-root adoption"
         summary="Document css never crosses the shadow boundary, so a CustomElement brings the two sheets ITSELF: inline the registry copies' text (bundled ?raw here) into <style> nodes inside the shadow root — style nodes parse tolerantly where constructable sheets would throw on the token sheet's build-time at-rules. The fixture below is LIVE — a real <jx-pure-island> element defined by this page, carrying the real token + face sheets this site runs. Fonts stay document-level (@font-face is document-scoped; the shadow inherits the loaded families)."
       >
-        <div class="grid gap-6 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">the live island (shadow internals, view source: it's empty light DOM)</span>
+        <div class={cx(rt.grid760g24)}>
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.note11)}>the live island (shadow internals, view source: it's empty light DOM)</span>
             <jx-pure-island></jx-pure-island>
-            <span class="text-muted-foreground text-[11px]">
+            <span class={cx(rt.note11)}>
               the SAME markup sits outside any shadow root below — painted by the page's own
               import, not the island's sheets (two adoptions, one law):
             </span>
@@ -673,13 +691,13 @@ this.shadowRoot.append(style);
               <p><button type="button">light-dom button</button></p>
             </div>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <CodeBlock code={shadowRecipe} lang="js" meta="the adoption recipe" />
-            <p class="text-muted-foreground text-[13px] leading-6">
-              Resource note: inject as <code class="text-accent">&lt;style&gt;</code> nodes, not
-              constructable sheets — <code class="text-accent">replaceSync</code> throws on the
+            <p class={cx(rt.bodyMuted)}>
+              Resource note: inject as <code class={cx(rt.inkAccent)}>&lt;style&gt;</code> nodes, not
+              constructable sheets — <code class={cx(rt.inkAccent)}>replaceSync</code> throws on the
               token sheet's build-time at-rules while a style node parses tolerantly; strip the
-              fontsource <code class="text-accent">@import</code>s (bare specifiers cannot resolve
+              fontsource <code class={cx(rt.inkAccent)}>@import</code>s (bare specifiers cannot resolve
               inside a shadow style; fonts belong to the document anyway).
             </p>
           </div>
@@ -695,71 +713,71 @@ this.shadowRoot.append(style);
         title="Scope laws"
         summary="The contract edges, so nothing surprises you later."
       >
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold tracking-tight">Opt-in is structural</h3>
-            <p class="text-muted-foreground">
-              Everything rides <code class="text-accent">:where(.jx-pure)</code> inside
-              <code class="text-accent">@layer components</code> — the scope class contributes zero
+        <div class={cx(rt.grid760a)}>
+          <div class={cx(rt.col12, rt.body13)}>
+            <h3 class={cx(rt.title15)}>Opt-in is structural</h3>
+            <p class={cx(rt.inkMuted)}>
+              Everything rides <code class={cx(rt.inkAccent)}>:where(.jx-pure)</code> inside
+              <code class={cx(rt.inkAccent)}>@layer components</code> — the scope class contributes zero
               specificity, so Tailwind utilities and any unlayered author css override it cheaply.
               Outside the wrapper the UA paint stands (see the buttons section's contrast column).
             </p>
-            <div class="jx-pure flex flex-wrap items-center gap-3">
+            <div class="jx-pure {cx(rt.rowC12, rt.wrap)}">
               <button type="button">the law paints me</button>
-              <button type="button" class="bg-muted">…but one utility wins</button>
+              <button type="button" class={cx(rt.bgMuted)}>…but one utility wins</button>
             </div>
-            <p class="text-muted-foreground">
+            <p class={cx(rt.inkMuted)}>
               same .jx-pure subtree, one Tailwind class on the second button — the utilities
               layer beats the components layer regardless of source order.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">Shadow DOM needs its own import</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15)}>Shadow DOM needs its own import</h3>
+            <p class={cx(rt.inkMuted)}>
               Document css never crosses the shadow boundary — the live adoption fixture is the
               CustomElement section above.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">The reverse scope — no-jx-pure</h3>
-            <p class="text-muted-foreground">
-              Inside <code class="text-accent">.jx-pure</code> EVERYTHING is jx (select included —
-              the r1 opt-in stance is overruled). Mount <code class="text-accent">no-jx-pure</code>
+            <h3 class={cx(rt.title15)}>The reverse scope — no-jx-pure</h3>
+            <p class={cx(rt.inkMuted)}>
+              Inside <code class={cx(rt.inkAccent)}>.jx-pure</code> EVERYTHING is jx (select included —
+              the r1 opt-in stance is overruled). Mount <code class={cx(rt.inkAccent)}>no-jx-pure</code>
               on any element and the FACE steps aside for it and its whole subtree — via
-              <code class="text-accent">:not(.no-jx-pure, .no-jx-pure *)</code> on every face
+              <code class={cx(rt.inkAccent)}>:not(.no-jx-pure, .no-jx-pure *)</code> on every face
               rule, so YOUR OWN authoring there (utilities, inline styles, third-party css)
               is untouched, and the opt-in class vocabulary still works (see the select
               demo in Forms).
             </p>
-            <div class="jx-pure flex flex-wrap items-center gap-3">
+            <div class="jx-pure {cx(rt.rowC12, rt.wrap)}">
               <button type="button">the law</button>
               <span class="no-jx-pure" style="display: inline-flex; align-items: center; gap: 0.75rem">
                 <button type="button">skipped button</button>
                 <input class="jx-control" type="text" placeholder="explicit .jx-control still works" style="width: 14rem" aria-label="skipped jx-control" />
               </span>
             </div>
-            <h3 class="text-[15px] font-bold tracking-tight">The type allowlist</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15)}>The type allowlist</h3>
+            <p class={cx(rt.inkMuted)}>
               Text-like styling catches ONLY the 13 text types + no-type inputs. hidden / file /
               checkbox / radio / range / color / button-family are never caught by the box law —
               they have their own lanes or stay native.
             </p>
           </div>
-          <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold tracking-tight">Deprecated: native-form → jx-pure</h3>
-            <p class="text-muted-foreground">
+          <div class={cx(rt.col12, rt.body13)}>
+            <h3 class={cx(rt.title15)}>Deprecated: native-form → jx-pure</h3>
+            <p class={cx(rt.inkMuted)}>
               The native-form sheet lives on verbatim as Part A of this file. The
-              <code class="text-accent">native-form</code> registry item is a same-source alias for
-              one release window (old target <code class="text-accent">@lib/native-form.css</code>);
+              <code class={cx(rt.inkAccent)}>native-form</code> registry item is a same-source alias for
+              one release window (old target <code class={cx(rt.inkAccent)}>@lib/native-form.css</code>);
               input / range / number-input now declare
-              <code class="text-accent">@jixoai/jx-pure</code>.
+              <code class={cx(rt.inkAccent)}>@jixoai/jx-pure</code>.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">Still deferred</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15)}>Still deferred</h3>
+            <p class={cx(rt.inkMuted)}>
               Select popup internals; floating surfaces (dialog / popover / tooltip — Tier-2
               territory); disclosure open/close animation; input repaints beyond the allowlist;
               the Firefox/WebKit measured matrix (authored laws + forced-colors fallbacks are in
               place — the engine table states exactly what is verified). Forced-colors:
               custom-painted controls revert to appearance:auto so the system palette speaks.
             </p>
-            <h3 class="text-[15px] font-bold tracking-tight">Focus is the host's law</h3>
-            <p class="text-muted-foreground">
+            <h3 class={cx(rt.title15)}>Focus is the host's law</h3>
+            <p class={cx(rt.inkMuted)}>
               jx-pure paints focus rings only where repainting would otherwise destroy them
               (checkbox / radio / range / color / summary / lanes). Plain buttons and links keep
               the host's focus law — the site's base layer here, the UA ring on static pages.

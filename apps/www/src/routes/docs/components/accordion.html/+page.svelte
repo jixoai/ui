@@ -1,5 +1,6 @@
 <script lang="ts">
   import Accordion from '$lib/ui/accordion/accordion.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import AccordionItem from '$lib/ui/accordion/accordion-item.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
@@ -97,6 +98,22 @@ ${close}
   const accordionVariantsFiles: TreeFile[] = [
     { name: 'accordion-variants-demo.svelte', content: accordionVariantsDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -108,10 +125,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -120,7 +137,7 @@ ${close}
       title="accordion — details/summary, no framework"
       summary="The platform already ships the accordion: <details>/<summary> carries the toggle, the disclosure state, the keyboard contract, and open-in-SSR — nothing to hydrate, no ARIA to maintain. The group adds the two things a pile of bare details lacks: one collapsed 1px frame, and opt-in exclusive (radio) behavior."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">native details/summary</span>
         <span class="pill">SSR-stable open state</span>
         <span class="pill">capture-phase exclusive guard</span>
@@ -138,10 +155,10 @@ ${close}
       stage="fill"
       onreset={resetCanvas}
     >
-      <div class="w-full max-w-xl">
+      <div class={cx(rt.wFull, rt.maxWXl)}>
         <Accordion {exclusive} {ghost}>
           <AccordionItem>
-            {#snippet summary()}Shipping <Badge class="ml-1">48h</Badge>{/snippet}
+            {#snippet summary()}Shipping <Badge class={cx(rt.ml4)}>48h</Badge>{/snippet}
             Orders leave the warehouse within 48 hours — tracking lands in your inbox the moment
             the label prints.
           </AccordionItem>
@@ -186,33 +203,33 @@ ${close}
       title="What the platform gives, what we add"
       summary="Everything behavioral is the browser's — toggle, keyboard, disclosure semantics, SSR state. The component owns only the frame, the seam, the chevron, the exclusive opt-in, and a progressive height:auto animation (interpolate-size + ::details-content) that degrades to a native snap everywhere else."
     >
-      <div class="grid gap-4 min-[760px]:grid-cols-2">
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">platform-native, free</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>toggle + disclosure semantics on <code class="text-accent">details/summary</code></span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+      <div class={cx(rt.grid760b)}>
+        <div class={cx(rt.acTint)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>platform-native, free</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>toggle + disclosure semantics on <code class={cx(rt.inkAccent)}>details/summary</code></span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>keyboard: Enter/Space on the summary — the browser's own</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>SSR ships the open state in the HTML — no hydration flash</span></li>
           </ul>
         </div>
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">jixoai additions</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <div class={cx(rt.acTint)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>jixoai additions</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>collapsed frame: one 1px border, 1px seams between items</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">exclusive</code> — capture-phase guard closes siblings; works on any details children</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">bind:open</code> per item — manual state participates in the same guard</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>exclusive</code> — capture-phase guard closes siblings; works on any details children</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>bind:open</code> per item — manual state participates in the same guard</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>chevron rotation + height:auto animation, reduced-motion aware</span></li>
           </ul>
         </div>
       </div>
-      <div class="mt-5">
+      <div class={cx(rt.mt20)}>
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>
     </SectionCard>
@@ -220,12 +237,12 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Accordion variants" summary="The group frame, the ghost paint, and the bare one-off disclosure — all the same native details/summary underneath.">
     <ComponentCanvas title="accordion · variants" stage="fill" files={accordionVariantsFiles}>
-      <div class="grid gap-4 md:grid-cols-3">
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">default — framed</p>
+      <div class={cx(rt.gridMd3)}>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>default — framed</p>
           <Accordion>
             <AccordionItem>
               {#snippet summary()}framed{/snippet}
@@ -237,8 +254,8 @@ ${close}
             </AccordionItem>
           </Accordion>
         </div>
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">ghost</p>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>ghost</p>
           <Accordion ghost>
             <AccordionItem>
               {#snippet summary()}ghost{/snippet}
@@ -246,8 +263,8 @@ ${close}
             </AccordionItem>
           </Accordion>
         </div>
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">bare item</p>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>bare item</p>
           <AccordionItem>
             {#snippet summary()}one-off disclosure{/snippet}
             Without the group: a single styled details/summary.
@@ -258,6 +275,6 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Wrap items in the group for the collapsed frame and opt-in exclusive mode; use a bare item for a one-off disclosure."><CodeBlock code={usage} lang="svelte" meta="Accordion usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component adds zero ARIA of its own — the browser maps details/summary to the disclosure pattern, including open state."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus to the summary line' }, { key: 'Enter / Space', action: 'Toggles the focused item open/closed (native summary behavior)' }]} aria={[{ name: 'details / summary', value: 'native semantics', description: 'The platform exposes name, role, and open state; no ARIA attributes are added or needed.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The accordion is utility-authored: the frame, seam, and 13px summary rhythm are fixed literals, so the scopes below leave it unchanged."><div class="flex flex-col gap-5"><DensityDemo><Accordion><AccordionItem>{#snippet summary()}density sample{/snippet}The summary rhythm, chevron, and seam are fixed across xs/sm/default/lg.</AccordionItem></Accordion></DensityDemo><TokenTable tokens={[{ name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: 'border (frame + seam)', default: '1px', source: 'structural' }, { name: 'summary rhythm', default: '13px, fixed utility', source: 'structural' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Two halves: the group owns the frame and the exclusive guard; the item is a styled details/summary with a snippet summary."><div class="flex flex-col gap-6"><PropsTable title="Accordion (group)" props={[{ name: 'exclusive', type: 'boolean', default: 'false', description: 'Radio behavior: opening one direct child closes its siblings via a capture-phase toggle listener.' }, { name: 'ghost', type: 'boolean', default: 'false', description: "antd Collapse ghost paint — frameless, hairline separators only." }, { name: 'children', type: 'Snippet', default: '—', description: 'AccordionItem (or raw details) children.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the group container.' }]} /><PropsTable title="AccordionItem" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Disclosure state; bindable (bind:open) for controlled use.', bindable: true }, { name: 'summary', type: 'Snippet', default: '—', description: 'The summary line — plain text or a composed snippet (no interactive elements).' }, { name: 'children', type: 'Snippet', default: '—', description: 'The expanded body.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the details element.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The accordion is utility-authored: the frame, seam, and 13px summary rhythm are fixed literals, so the scopes below leave it unchanged."><div class={cx(rt.col20)}><DensityDemo><Accordion><AccordionItem>{#snippet summary()}density sample{/snippet}The summary rhythm, chevron, and seam are fixed across xs/sm/default/lg.</AccordionItem></Accordion></DensityDemo><TokenTable tokens={[{ name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: 'border (frame + seam)', default: '1px', source: 'structural' }, { name: 'summary rhythm', default: '13px, fixed utility', source: 'structural' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Two halves: the group owns the frame and the exclusive guard; the item is a styled details/summary with a snippet summary."><div class={cx(rt.col24)}><PropsTable title="Accordion (group)" props={[{ name: 'exclusive', type: 'boolean', default: 'false', description: 'Radio behavior: opening one direct child closes its siblings via a capture-phase toggle listener.' }, { name: 'ghost', type: 'boolean', default: 'false', description: "antd Collapse ghost paint — frameless, hairline separators only." }, { name: 'children', type: 'Snippet', default: '—', description: 'AccordionItem (or raw details) children.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the group container.' }]} /><PropsTable title="AccordionItem" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Disclosure state; bindable (bind:open) for controlled use.', bindable: true }, { name: 'summary', type: 'Snippet', default: '—', description: 'The summary line — plain text or a composed snippet (no interactive elements).' }, { name: 'children', type: 'Snippet', default: '—', description: 'The expanded body.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the details element.' }]} /></div></SectionCard></div>
 </div>

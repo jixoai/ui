@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -40,6 +41,23 @@ ${close}
     { name: 'registry/files/ui/pattern-cta/pattern-cta.svelte', content: patternCtaSource },
     { name: 'src/lib/pattern-cta-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -50,7 +68,7 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell, rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -59,7 +77,7 @@ ${close}
       title="pattern-cta — the shell-prompt band"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">code-card command</span>
         <span class="pill">press-button copy CTA</span>
         <span class="pill">ONE copy affordance</span>

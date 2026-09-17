@@ -12,6 +12,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -80,9 +81,9 @@ ${close}
   } from '@ui/menubar/index';
 ${close}
 
-<div class="grid gap-4 sm:grid-cols-2">
-  <div class="border border-border p-4"><Menubar label="automatic"><MenubarItem id="types-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div>
-  <div class="border border-border p-4"><Menubar label="solid" variant="solid"><MenubarItem id="types-edit"><MenubarTrigger>Edit</MenubarTrigger><MenubarPanel><MenubarMenuItem>Undo</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div>
+<div class={cx(rt.mbarGrid)}>
+  <div class={cx(rt.panel)}><Menubar label="automatic"><MenubarItem id="types-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div>
+  <div class={cx(rt.panel)}><Menubar label="solid" variant="solid"><MenubarItem id="types-edit"><MenubarTrigger>Edit</MenubarTrigger><MenubarPanel><MenubarMenuItem>Undo</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div>
 </div>`;
 
   const typesFiles: TreeFile[] = [
@@ -90,6 +91,23 @@ ${close}
   ];
 
   // ToC outline: pairs with +page.ts, in page order.
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -101,12 +119,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -115,7 +133,7 @@ ${close}
       title="menubar — File, Edit, View, ruled by the platform's gap"
       summary="The application menu bar's top-level contract differs from stacked dropdowns, so it gets its OWN walker: ←/→ move between triggers with panels gliding after an open bar; ↓/↑/Enter opens and focuses the first item; Home/End jump; Escape returns to the trigger. The family composes: MenubarItem owns the ONE id, MenubarTrigger and MenubarPanel derive theirs from it (aria-controls always resolves), the panel registers its imperative handles at init — first registration wins — and the walkers are scoped to the nearest menu so nested dropdown families never leak."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">role=menubar</span>
         <span class="pill">glide walking</span>
         <span class="pill">popover=manual panels</span>
@@ -162,9 +180,9 @@ ${close}
           <PlayHelp>
             the panel walk (↓/↑/Home/End, wrapping) is the menu contract shared with
             dropdown-menu — duplicated deliberately so registry items stay independent. The
-            Item owns the one id; Trigger and Panel derive theirs (<code class="text-accent">{'${id}-trigger'}</code> /
-            <code class="text-accent">{'${id}-panel'}</code>), and the panel's imperative handles
-            register at init under the panel id. Separators stay plain <code class="text-accent">&lt;hr&gt;</code>.
+            Item owns the one id; Trigger and Panel derive theirs (<code class={cx(rt.inkAccent)}>{'${id}-trigger'}</code> /
+            <code class={cx(rt.inkAccent)}>{'${id}-panel'}</code>), and the panel's imperative handles
+            register at init under the panel id. Separators stay plain <code class={cx(rt.inkAccent)}>&lt;hr&gt;</code>.
           </PlayHelp>
         </PlayFields>
       {/snippet}
@@ -175,14 +193,14 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Menubar variants" summary="Compose top-level menus with linked triggers and panels, choosing the surface variant at the root.">
     <ComponentCanvas title="menubar · variants" stage="fill" files={typesFiles}>
-    <div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Menubar label="automatic"><MenubarItem id="types-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div><div class="border border-border p-4"><Menubar label="solid" variant="solid"><MenubarItem id="types-edit"><MenubarTrigger>Edit</MenubarTrigger><MenubarPanel><MenubarMenuItem>Undo</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div></div>
+    <div class={cx(rt.mbarGrid)}><div class={cx(rt.panel)}><Menubar label="automatic"><MenubarItem id="types-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div><div class={cx(rt.panel)}><Menubar label="solid" variant="solid"><MenubarItem id="types-edit"><MenubarTrigger>Edit</MenubarTrigger><MenubarPanel><MenubarMenuItem>Undo</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></div></div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="MenubarItem owns the stable id; Trigger and Panel derive their paired ids from it."><CodeBlock code={usage} lang="svelte" meta="Menubar usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The application menu follows menubar and menu keyboard patterns with a roving top-level tab stop."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move across top-level menus or within an open panel.' }, { key: 'Home / End', action: 'Jump to the first or last menu.' }, { key: 'Escape', action: 'Close the panel and return focus to its trigger.' }]} aria={[{ name: 'role', value: 'menubar / menuitem / menu', description: 'Exposes the application menu hierarchy.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs each trigger with its panel.' }, { name: 'aria-haspopup', value: 'menu', description: 'Identifies triggers that open a menu.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The bar and its menu items consume the shared density rhythm plus a bar gap."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Menubar label="density"><MenubarItem id="density-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></DensityDemo><TokenTable tokens={[{ name: '--jx-bar-gap', default: '8px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The family is intentionally split into root, item, trigger, panel, and leaf props."><PropsTable title="Menubar" props={[{ name: 'label', type: 'string', default: "'menu bar'", description: 'Accessible menubar landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint for every panel in the bar. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }]} /><div class="mt-5"><PropsTable title="MenubarItem / MenubarMenuItem" props={[{ name: 'id', type: 'string', description: 'Stable id owned by MenubarItem.' }, { name: 'href', type: 'string', description: 'Renders a navigating menu item when provided.' }, { name: 'onselect', type: '(event: MouseEvent) => void', description: 'Runs an action before the panel closes.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The bar and its menu items consume the shared density rhythm plus a bar gap."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><Menubar label="density"><MenubarItem id="density-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></DensityDemo><TokenTable tokens={[{ name: '--jx-bar-gap', default: '8px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The family is intentionally split into root, item, trigger, panel, and leaf props."><PropsTable title="Menubar" props={[{ name: 'label', type: 'string', default: "'menu bar'", description: 'Accessible menubar landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint for every panel in the bar. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }]} /><div class={cx(rt.mt20)}><PropsTable title="MenubarItem / MenubarMenuItem" props={[{ name: 'id', type: 'string', description: 'Stable id owned by MenubarItem.' }, { name: 'href', type: 'string', description: 'Renders a navigating menu item when provided.' }, { name: 'onselect', type: '(event: MouseEvent) => void', description: 'Runs an action before the panel closes.' }]} /></div></SectionCard></div>
 </div>

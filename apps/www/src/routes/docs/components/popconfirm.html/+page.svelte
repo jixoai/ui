@@ -11,6 +11,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -95,6 +96,22 @@ ${close}
   const popconfirmTypesFiles: TreeFile[] = [
     { name: 'popconfirm-types-demo.svelte', content: popconfirmTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -106,9 +123,9 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -117,7 +134,7 @@ ${close}
       title="popconfirm — the light sure-bubble"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">role=dialog</span>
         <span class="pill">light dismiss = cancel</span>
         <span class="pill">focus → Cancel</span>
@@ -136,7 +153,7 @@ ${close}
       onreset={resetCanvas}
       output={[{ label: 'outcome', value: outcome || '—' }]}
     >
-      <div class="flex flex-wrap items-center gap-4">
+      <div class={cx(rt.wrapRow16)}>
         <Popconfirm
           title="Delete this row?"
           description="The check history goes with it."
@@ -167,27 +184,27 @@ ${close}
       title="Opening the panel: content / actions"
       summary="The milder ruling (a compact confirm popover, not a page dialog — local-open principle): the trigger stays children, and the panel's two areas open to snippets. content replaces the title/description block (you own the semantics — wire your own aria ids); actions replaces the confirm/cancel row (close through the platform: a popovertarget button, light dismiss, or your own handler). The current rendering stays the default for both."
     >
-      <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-4">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.wrapRow16)}>
           <Popconfirm title="Merge this branch?" onconfirm={() => (outcome = 'merged')}>
             {#snippet content()}
-              <p class="font-nav text-xs tracking-[0.08em] uppercase text-foreground">merge this branch?</p>
-              <p class="text-[0.8125rem] leading-[1.5] text-muted-foreground">3 commits, all checks green — fast-forward is impossible.</p>
+              <p class={cx(rt.fontNav, rt.text12, rt.pcTrack08, rt.upper, rt.inkFg)}>merge this branch?</p>
+              <p class={cx(rt.text13, rt.pcLead15, rt.inkMuted)}>3 commits, all checks green — fast-forward is impossible.</p>
             {/snippet}
             {#snippet actions()}
-              <div class="flex justify-end gap-2">
+              <div class={cx(rt.pcRowEnd)}>
                 <button
                   type="button"
                   popovertarget
                   data-jx-pc-btn=""
-                  class="appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs"
+                  class={cx(rt.pcBtn)}
                 >
                   keep
                 </button>
                 <button
                   type="button"
                   data-jx-pc-btn=""
-                  class="appearance-none px-3 py-[5px] border border-border bg-background text-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase cursor-pointer shadow-2xs"
+                  class={cx(rt.pcBtn)}
                   onclick={() => (outcome = 'merged')}
                 >
                   merge
@@ -204,10 +221,10 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Confirmation variants" summary="Use destructive confirmation by default, or switch the confirm tone for positive actions."><ComponentCanvas title="popconfirm · variants" stage="fill" files={popconfirmTypesFiles}><div class="grid gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Popconfirm title="Delete this row?"><PressButton>destructive</PressButton></Popconfirm></div><div class="border border-border p-4"><Popconfirm title="Merge this branch?" confirmTone="primary"><PressButton>primary</PressButton></Popconfirm></div></div></ComponentCanvas></SectionCard></div>
+<div class={cx(rt.shellFlush)}>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Confirmation variants" summary="Use destructive confirmation by default, or switch the confirm tone for positive actions."><ComponentCanvas title="popconfirm · variants" stage="fill" files={popconfirmTypesFiles}><div class={cx(rt.gridSm2)}><div class={cx(rt.panel)}><Popconfirm title="Delete this row?"><PressButton>destructive</PressButton></Popconfirm></div><div class={cx(rt.panel)}><Popconfirm title="Merge this branch?" confirmTone="primary"><PressButton>primary</PressButton></Popconfirm></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The trigger stays in children; content and actions snippets are optional overrides."><CodeBlock code={usage} lang="svelte" meta="Popconfirm usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A compact dialog-like popover puts the safe cancel action first and treats every light dismissal as cancel."><A11yTable keys={[{ key: 'Tab', action: 'Move between Cancel and Confirm.' }, { key: 'Escape', action: 'Cancel and close the popover.' }]} aria={[{ name: 'role', value: 'dialog', description: 'Exposes the confirmation surface.' }, { name: 'aria-labelledby', value: '{id}-title', description: 'Names the default title content.' }, { name: 'aria-describedby', value: '{id}-desc', description: 'References the optional description.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Confirmation controls use the shared density rhythm plus a small panel gap."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Popconfirm title="Confirm?" onconfirm={() => {}}><PressButton>action</PressButton></Popconfirm></DensityDemo><TokenTable tokens={[{ name: '--jx-pc-gap', default: '8px', source: 'component' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Confirmation controls use the shared density rhythm plus a small panel gap."><div class={cx(rt.col20)}><DensityDemo scopes={['xs', 'default', 'lg']}><Popconfirm title="Confirm?" onconfirm={() => {}}><PressButton>action</PressButton></Popconfirm></DensityDemo><TokenTable tokens={[{ name: '--jx-pc-gap', default: '8px', source: 'component' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Popconfirm props separate the trigger, default copy, callbacks, placement, and snippet escape hatches."><PropsTable props={[{ name: 'title', type: 'string', required: true, description: 'Question shown by the default content.' }, { name: 'description', type: 'string', description: 'Supporting line in the default content.' }, { name: 'onconfirm', type: '() => void', description: 'Runs on confirm before close.' }, { name: 'oncancel', type: '() => void', description: 'Runs on any non-confirm dismissal.' }, { name: 'confirmTone', type: "'destructive' | 'primary'", default: "'destructive'", description: 'Confirm button paint.' }, { name: 'placement', type: "'top' | 'bottom' | 'left' | 'right'", default: "'top'", description: 'Panel anchor placement.' }, { name: 'content', type: 'Snippet', description: 'Replaces the title and description area.' }, { name: 'actions', type: 'Snippet', description: 'Replaces the confirm and cancel row.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows. Provided to the panel subtree.' }]} /></SectionCard></div>
 </div>

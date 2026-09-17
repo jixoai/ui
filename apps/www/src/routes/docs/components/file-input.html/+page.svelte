@@ -1,5 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -179,6 +180,23 @@ ${close}
   </div>
 </div>`;
 
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -190,12 +208,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -204,7 +222,7 @@ ${close}
       title="file-input — a picker that reads like one"
       summary="2026-08-23 redesign: the old trigger was indistinguishable from a button and long filenames broke layouts. The anatomy is borrowed from ant-design Upload with LOCAL-picker semantics — no network, no fake upload progress: a dedicated drop zone (or compact button trigger) plus a selected-file list below, exactly where ant puts it. The zone is a real <button> (Enter/Space open the platform picker) and a real drop target (enter-depth counting, file-drag detection); accept violations are gate-rejected — reported, never entering the value."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">drop zone · button trigger</span>
         <span class="pill">real drag-and-drop</span>
         <span class="pill">accept gate-rejection</span>
@@ -231,7 +249,7 @@ ${close}
       ]}
       resolveFileContent={resolveUsage}
     >
-      <div class="flex w-full max-w-md flex-col items-start gap-3">
+      <div class={cx(rt.fiLane)}>
         <FileInput
           label="demo"
           variant={canvasVariant}
@@ -269,21 +287,21 @@ ${close}
       title="The drop zone — dashed by intent"
       summary="Dashed borders on this site mean two things: invalid shells and drop targets. The zone is the second: 1px dashed var(--border) at rest with the upload glyph, a font-nav CLICK OR DRAG FILES title, and a hint line composed honestly from the field's own contract (accept: image/* · max: 3 files · single file). Under a file drag the dash swaps to var(--primary) and the surface lifts — press physics from the trigger law, magnetism from ant's Dragger; it can never be mistaken for an error, because errors keep the monochrome dash plus the “! message” line."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <ComponentCanvas
           title="file-input · drop zone"
           stage="fill"
           files={[{ name: 'file-input-drop-demo.svelte', content: fileInputDropDemo, kind: 'usage' }]}
         >
-          <div class="grid gap-5 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-3">
+          <div class={cx(rt.grid760a)}>
+            <div class={cx(rt.col12)}>
               <FileInput label="drop zone" multiple bind:files={dropFiles} />
-              <span class="text-muted-foreground text-[12.5px]">
+              <span class={cx(rt.noteSmall)}>
                 default variant · hint composed from the props ·
-                <code class="text-accent">{dropFiles.length}</code> files bound
+                <code class={cx(rt.inkAccent)}>{dropFiles.length}</code> files bound
               </span>
             </div>
-            <div class="flex flex-col gap-3">
+            <div class={cx(rt.col12)}>
               <FileInput
                 label="gate — accept: image/*"
                 accept="image/*"
@@ -291,10 +309,10 @@ ${close}
                 onreject={(rejected) => (lastRejected = rejected.map((f) => f.name).join(', '))}
                 bind:files={gateFiles}
               />
-              <span class="text-muted-foreground text-[12.5px]">
+              <span class={cx(rt.noteSmall)}>
                 drag a non-image onto this one — the gate rejects it:
                 {#if lastRejected}
-                  <code class="text-accent">{lastRejected}</code>
+                  <code class={cx(rt.inkAccent)}>{lastRejected}</code>
                 {:else}
                   nothing rejected yet
                 {/if}
@@ -302,12 +320,12 @@ ${close}
             </div>
           </div>
         </ComponentCanvas>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           The platform picker filters by accept on its own; the gate exists for DROPS, which
           bypass it. Rejected files never enter the bound File[] — the honest contract — they
           surface through the family error line (“N dropped files rejected — accept: …”) and the
-          optional <code class="text-accent">onreject</code> callback. The zone content itself is
-          a snippet (<code class="text-accent">{'{#snippet zone()}'}</code>) when a field needs
+          optional <code class={cx(rt.inkAccent)}>onreject</code> callback. The zone content itself is
+          a snippet (<code class={cx(rt.inkAccent)}>{'{#snippet zone()}'}</code>) when a field needs
           its own illustration.
         </p>
         <CodeBlock code={usage} lang="svelte" meta="FileInput usage" />
@@ -324,12 +342,12 @@ ${close}
       title="The file list — ant rows, local truth"
       summary="Ant puts the selected files in a list under the trigger; so does this. One bordered box of hairline rows, each row [square thumb | name | size | remove ×]: the thumb is a live object-URL preview for images (revoked the instant the row is removed or the component unmounts) or a zero-dependency kind glyph for everything else — inline SVG for image/video/audio/pdf/doc, a font-nav </> for code. A “remove all” tail closes multi-file lists. There is no uploading/done/status theater: a local picker's rows are the truth, and the only statuses that exist are real (the error line's overflow/rejection reports)."
     >
-      <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-2">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap8)}>
           <PressButton onclick={seedMulti}>seed 4 mixed files</PressButton>
           <PressButton onclick={() => (multiFiles = [])}>clear binding</PressButton>
-          <span class="text-muted-foreground text-[12.5px]">
-            bound File[] · length: <code class="text-accent">{multiFiles.length}</code>
+          <span class={cx(rt.noteSmall)}>
+            bound File[] · length: <code class={cx(rt.inkAccent)}>{multiFiles.length}</code>
           </span>
         </div>
         <ComponentCanvas
@@ -337,17 +355,17 @@ ${close}
           stage="fill"
           files={[{ name: 'file-input-rows-demo.svelte', content: fileInputRowsDemo, kind: 'usage' }]}
         >
-          <div class="grid gap-5 min-[760px]:grid-cols-3">
+          <div class={cx(rt.cpGrid760)}>
             <FileInput label="xs rows" density="xs" multiple bind:files={multiFiles} />
             <FileInput label="default rows" density="default" multiple bind:files={multiFiles} />
             <FileInput label="lg rows" density="lg" multiple bind:files={multiFiles} />
           </div>
         </ComponentCanvas>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           Every row is keyboard-operable: the × carries
-          <code class="text-accent">aria-label="remove NAME"</code> and the family's inset focus
+          <code class={cx(rt.inkAccent)}>aria-label="remove NAME"</code> and the family's inset focus
           law; removal presses back into the page. The whole control is logical-property-only,
-          so <code class="text-accent">dir="rtl"</code> mirrors thumbs, names and buttons with
+          so <code class={cx(rt.inkAccent)}>dir="rtl"</code> mirrors thumbs, names and buttons with
           zero branches.
         </p>
       </div>
@@ -368,16 +386,16 @@ ${close}
         stage="fill"
         files={[{ name: 'file-input-postures-demo.svelte', content: fileInputPosturesDemo, kind: 'usage' }]}
       >
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3">
+        <div class={cx(rt.grid760a)}>
+          <div class={cx(rt.col12)}>
             <FileInput label="inline (button)" variant="button" multiple bind:files={buttonFiles} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.noteSmall)}>
               compact trigger · drag-over dashes the button · same rows below
             </span>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <FileInput label="frozen" multiple disabled bind:files={disabledFiles} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.noteSmall)}>
               trigger inert · drops rejected · rows readable, removal locked
             </span>
           </div>
@@ -395,13 +413,13 @@ ${close}
       title="Narrow hosts — the InputGroup law"
       summary="The 2026-08-23 width-overflow fix is law, not tuning: min-width: 0 on the root and every flex child, max-width: 100% on the shells, ellipsized names with native title tooltips. An unbroken 100+-character filename in a 390px host ellipsizes inside its row; the size column and the × keep their flex-none footing; the shell never pushes past its host row."
     >
-      <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-2">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap8)}>
           <PressButton
             onclick={() => (narrowFiles = [sampleImage(165, monsterName), sampleText(monsterName, 3)])}
           >seed monster filenames</PressButton
           >
-          <span class="text-muted-foreground text-[12.5px]">
+          <span class={cx(rt.noteSmall)}>
             hover a row's name for the full title tooltip
           </span>
         </div>
@@ -412,7 +430,7 @@ ${close}
         >
           <!-- 390px: the iPhone-class viewport the hardening is tested against;
                max-w-full keeps the demo itself honest on smaller screens -->
-          <div class="w-[390px] max-w-full border-border border p-4">
+          <div class={cx(rt.fiPhone)}>
             <FileInput label="390px host" multiple bind:files={narrowFiles} />
           </div>
         </ComponentCanvas>
@@ -428,7 +446,7 @@ ${close}
 <!-- Material3 standard sections (2026-08-26): types / usage / a11y /
      theming / api appended after the demo sections, same wrapper law as
      checkbox.html. -->
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal="">
     <SectionCard
       family="types"
@@ -442,22 +460,22 @@ ${close}
         stage="fill"
         files={[{ name: 'file-input-variants-demo.svelte', content: fileInputVariantsDemo, kind: 'usage' }]}
       >
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="flex flex-col gap-3 border border-border p-4">
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.fiPanel)}>
             <FileInput label="drop zone (default)" multiple />
-            <span class="text-muted-foreground text-[12px]">dashed zone · hint composed from the props</span>
+            <span class={cx(rt.note12)}>dashed zone · hint composed from the props</span>
           </div>
-          <div class="flex flex-col gap-3 border border-border p-4">
+          <div class={cx(rt.fiPanel)}>
             <FileInput label="button trigger" variant="button" multiple />
-            <span class="text-muted-foreground text-[12px]">compact inline posture · drop support included</span>
+            <span class={cx(rt.note12)}>compact inline posture · drop support included</span>
           </div>
-          <div class="flex flex-col gap-3 border border-border p-4">
+          <div class={cx(rt.fiPanel)}>
             <FileInput label="accept gate" accept="image/*" multiple />
-            <span class="text-muted-foreground text-[12px]">dropped non-images are rejected, never bound</span>
+            <span class={cx(rt.note12)}>dropped non-images are rejected, never bound</span>
           </div>
-          <div class="flex flex-col gap-3 border border-border p-4">
+          <div class={cx(rt.fiPanel)}>
             <FileInput label="error" multiple error="a screenshot is required" />
-            <span class="text-muted-foreground text-[12px]">dashed destructive surfaces + the “! message” line</span>
+            <span class={cx(rt.note12)}>dashed destructive surfaces + the “! message” line</span>
           </div>
         </div>
       </ComponentCanvas>
@@ -506,7 +524,7 @@ ${close}
       title="Density and tokens"
       summary="Family-local size knobs alias the closed density contract; resize the scope and the zone, rows, and thumbs follow."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <DensityDemo>
           <FileInput label="density sample" />
         </DensityDemo>

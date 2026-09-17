@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -44,6 +45,22 @@ ${close}
     { name: 'registry/files/ui/pattern-faq/pattern-faq.svelte', content: patternFaqSource },
     { name: 'src/lib/pattern-faq-usage.svelte', content: usage, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -54,7 +71,7 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell, rt.col, rt.gap32)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -63,7 +80,7 @@ ${close}
       title="pattern-faq — the man page"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">details/summary accordion</span>
         <span class="pill">exclusive by default</span>
         <span class="pill">NAME · SEE ALSO leaders</span>
@@ -118,19 +135,19 @@ ${close}
       title="Authoring questions"
       summary="The questions are your content: compose AccordionItem children (or bare details) inside the frame."
     >
-      <ul class="flex flex-col gap-2 text-[13px] leading-6">
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span>each question is an <code class="text-accent">AccordionItem</code>: the
+      <ul class={cx(rt.col8, rt.body13)}>
+        <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span>each question is an <code class={cx(rt.inkAccent)}>AccordionItem</code>: the
             <code>summary</code> snippet is the question line, children are the answer — the same
             parts the accordion docs teach</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span><code class="text-accent">command</code> + <code class="text-accent">section</code>
+        <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span><code class={cx(rt.inkAccent)}>command</code> + <code class={cx(rt.inkAccent)}>section</code>
             frame the page as a man entry (<code>jixoai-ui-faq(7)</code> — section 7 is
             miscellany, the honest FAQ home)</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span><code class="text-accent">seeAlso</code> is a snippet — compose your links; the
+        <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span><code class={cx(rt.inkAccent)}>seeAlso</code> is a snippet — compose your links; the
             default line cites <code>jixoai-ui(1), patterns(7)</code></span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
           <span>constraint (the accordion's own): no interactive elements inside a summary —
             per-row actions belong in the body</span></li>
       </ul>

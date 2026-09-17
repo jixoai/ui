@@ -1,6 +1,7 @@
 <script lang="ts">
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -124,6 +125,23 @@ ${close}
   const avatarTypesFiles: TreeFile[] = [
     { name: 'avatar-types-demo.svelte', content: avatarTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -135,10 +153,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -147,7 +165,7 @@ ${close}
       title="avatar — an img, honestly"
       summary="The avatar IS an <img>: lazy, async-decoded, intrinsic width/height so layout never shifts. When the source fails or is absent, it swaps to an initials block derived code-point-wise from the name — CJK-safe (张伟 stays 张伟), halved to one code point at icon size so it never overflows. Three silhouettes ride one geometry: the bevel radius law (default), a true circle, and the squircle superellipse. Hover any avatar and the full name comes back on a tooltip — on by default, tooltip={false} opts out."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">bevel · rounded · squircle</span>
         <span class="pill">sm halves the initials</span>
         <span class="pill">name tooltip on by default</span>
@@ -170,10 +188,10 @@ ${close}
       ]}
       resolveFileContent={resolveCanvasUsage}
     >
-      <div class="flex flex-wrap items-center gap-5">
+      <div class={cx(rt.avWrapRow20)}>
         <Avatar src="/icon.svg" {name} {variant} size="lg" {tooltip} />
         <Avatar {name} {variant} size="lg" {tooltip} />
-        <div class="flex items-center gap-2">
+        <div class={cx(rt.rowC8)}>
           <Avatar src="/icon.svg" {name} {variant} size="sm" {tooltip} />
           <Avatar {name} {variant} size="sm" {tooltip} />
         </div>
@@ -213,13 +231,13 @@ ${close}
       summary="The silhouette is one CSS decision layered on the same box: bevel keeps the jixoai radius law with var(--radius) riding the md baseline and scaled by the same proportion at sm and lg (6 / 8 / 10px — 0 where corner-shape is unsupported, the brutalist square), rounded states corner-shape: round with a 50% radius for a true circle, and squircle states corner-shape: squircle with the same 50% for the superellipse — engines without corner-shape simply round it back to the circle. Nothing degrades ugly."
     >
       <ComponentCanvas title="avatar · silhouettes" stage="center" files={avatarShapesFiles}>
-        <div class="flex flex-col gap-4">
+        <div class={cx(rt.col16)}>
           {#each silhouettes as { variant: v, law } (v)}
-            <div class="flex flex-wrap items-center gap-4">
+            <div class={cx(rt.wrapRow16)}>
               <Avatar name="张伟" variant={v} size="lg" alt="" />
               <Avatar name="JX AoI" variant={v} size="md" alt="" />
               <Avatar name="JX AoI" variant={v} size="sm" alt="" />
-              <code class="text-accent text-[11.5px] leading-5">{law}</code>
+              <code class={cx(rt.inkAccent, rt.text115, rt.lead5)}>{law}</code>
             </div>
           {/each}
         </div>
@@ -242,39 +260,39 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Avatar variants" summary="Three silhouettes on one geometry, three fixed sizes, and a deterministic initials fallback.">
     <ComponentCanvas title="avatar · variants" stage="fill" files={avatarTypesFiles}>
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">silhouettes</p>
-          <div class="flex items-center gap-3">
+      <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>silhouettes</p>
+          <div class={cx(rt.rowC12)}>
             <Avatar name="张伟" variant="bevel" alt="" />
             <Avatar name="JX AoI" variant="rounded" alt="" />
             <Avatar name="JX AoI" variant="squircle" alt="" />
           </div>
         </div>
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">sizes — sm 24 · md 32 · lg 40</p>
-          <div class="flex items-center gap-3">
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>sizes — sm 24 · md 32 · lg 40</p>
+          <div class={cx(rt.rowC12)}>
             <Avatar name="JX AoI" size="sm" alt="" />
             <Avatar name="JX AoI" size="md" alt="" />
             <Avatar name="JX AoI" size="lg" alt="" />
           </div>
         </div>
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">initials fallback</p>
-          <div class="flex items-center gap-3">
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>initials fallback</p>
+          <div class={cx(rt.rowC12)}>
             <Avatar name="Ada Lovelace" alt="" />
             <Avatar name="Gaubee" alt="" />
             <Avatar name="张伟" size="sm" alt="" />
           </div>
         </div>
-        <div class="border border-border p-4">
-          <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">image + tooltip</p>
-          <div class="flex items-center gap-3">
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>image + tooltip</p>
+          <div class={cx(rt.rowC12)}>
             <Avatar src="/icon.svg" name="JX AoI" size="lg" />
-            <span class="text-[12.5px] text-muted-foreground">hover or focus — the full name rides the default tooltip</span>
+            <span class={cx(rt.noteSmall)}>hover or focus — the full name rides the default tooltip</span>
           </div>
         </div>
       </div>
@@ -282,6 +300,6 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a name; the image is optional — the fallback covers failed or missing sources."><CodeBlock code={usage} lang="svelte" meta="Avatar usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The avatar is content: alt defaults to the name, and the fallback block keeps the same label with role=img."><A11yTable keys={[{ key: '—', action: 'Not interactive — an image; the name tooltip also opens on focus' }]} aria={[{ name: 'alt', value: 'name (default)', description: 'The avatar is content; pass alt="" for decorative avatars beside a visible name.' }, { name: 'role', value: 'img', description: 'On the initials fallback block (omitted when decorative).' }, { name: 'aria-label', value: 'name', description: 'On the fallback block, keeping the label identical to the img path.' }, { name: 'aria-hidden', value: 'true', description: 'On the fallback block when alt="" marks it decorative.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Sizes are fixed geometry (24/32/40), not density-driven; the bevel radius rides the theme --radius scale."><div class="flex flex-col gap-5"><DensityDemo><div class="flex items-center gap-3"><Avatar name="JX AoI" size="sm" alt="" /><Avatar name="JX AoI" alt="" /><Avatar name="JX AoI" size="lg" alt="" /></div></DensityDemo><TokenTable tokens={[{ name: '--jx-avatar-md', default: '2rem (32px)', source: 'component', description: 'Context-owned md box — a list-item media host can inject its derived square.' }, { name: '--radius', default: '8px baseline', source: 'structural', description: 'Bevel cut at md; sm/lg ride 0.75×/1.25× of it (6/8/10px).' }, { name: 'size', default: '24 / 32 / 40px', source: 'structural' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Sizes are fixed geometry (24/32/40), not density-driven; the bevel radius rides the theme --radius scale."><div class={cx(rt.col20)}><DensityDemo><div class={cx(rt.rowC12)}><Avatar name="JX AoI" size="sm" alt="" /><Avatar name="JX AoI" alt="" /><Avatar name="JX AoI" size="lg" alt="" /></div></DensityDemo><TokenTable tokens={[{ name: '--jx-avatar-md', default: '2rem (32px)', source: 'component', description: 'Context-owned md box — a list-item media host can inject its derived square.' }, { name: '--radius', default: '8px baseline', source: 'structural', description: 'Bevel cut at md; sm/lg ride 0.75×/1.25× of it (6/8/10px).' }, { name: 'size', default: '24 / 32 / 40px', source: 'structural' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native img attributes (except alt, which defaults to name)."><PropsTable props={[{ name: 'src', type: 'string', default: '—', description: 'Image URL; empty or failed loads swap to the initials fallback.' }, { name: 'name', type: 'string', default: '—', description: 'The person — fuels alt text, the initials fallback, and the tooltip.', required: true }, { name: 'alt', type: 'string', default: 'name', description: 'Pass "" explicitly for a decorative avatar.' }, { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md' · Own default, not ambient", description: 'sm 24px · md 32px · lg 40px.' }, { name: 'variant', type: "'bevel' | 'rounded' | 'squircle'", default: "'bevel' · Own default, not ambient", description: 'The silhouette: the radius law, a true circle, or the superellipse. Defaults: literal slot — own \'bevel\', ambient when an axis opens.' }, { name: 'tooltip', type: 'boolean', default: 'true', description: 'The full name rides a tooltip (hover + focus); false opts out.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the img / fallback block.' }]} /></SectionCard></div>
 </div>

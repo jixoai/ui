@@ -1308,6 +1308,30 @@ const SEMANTIC_RULES = [
     registeredAt: '2026-09-18 (W2 manual registration)',
   },
   {
+    id: 'docs-tables-laws',
+    classes: ['data-table', 'table-scroll'],
+    owner: 'apps/www/src/lib/site/docs-tables.css',
+    selector: 'the :where(.data-table)/:where(.table-scroll) family — the W3-sweep derivation',
+    scope: 'the docs tables sheet owns both (the pill precedent, same sheet)',
+    registeredAt: '2026-09-18 (W3 final sweep)',
+  },
+  {
+    id: 'w3-sweep-page-hooks',
+    classes: ['demo-cell', 'caret', 'row-selected', 'odd', 'active'],
+    owner: 'apps/www/src/routes/docs/components/table.html/+page.svelte + scroll-virtual.html + scroll-area.html',
+    selector: 'manual entry — page <style> keys + the CardGrid demo-grid semantic marker',
+    scope: 'demo-cell is the CardGrid demo marker paired with data-no-subgrid (no css owner by design); caret/row-selected key the table page styles; odd/active key the scroll pages',
+    registeredAt: '2026-09-18 (W3 final sweep)',
+  },
+  {
+    id: 'w3-page-hooks',
+    classes: ['jx-ext-ico', 'jx-ico-18', 'input-fg-hi'],
+    owner: 'apps/www/src/routes/+layout.svelte (the first two) + apps/www/src/routes/docs/components/input.html/+page.svelte',
+    selector: 'manual entry — W3 page-scoped <style> keys',
+    scope: 'page <style> keyed hooks minted by the W3 batches (the svg-size lanes and the foreground !important escape — the W2 derivation pattern applied to the wave its own pages created)',
+    registeredAt: '2026-09-18 (W3 integration)',
+  },
+  {
     id: 'dark-scope',
     classes: ['dark'],
     owner: 'registry/files/theme/jixoai.css',
@@ -1339,10 +1363,10 @@ const SEMANTIC_CLASS_NAMES = new Set(SEMANTIC_RULES.flatMap((r) => r.classes ?? 
 // resolveTextStyle() formsByFile census, 21 forms × the two mirror
 // sides).
 const RATCHET = {
-  files: 136, // pinned files[] entries — net-new unretired entries red here too
-  identities: 4848,
-  occurrences: 15063,
-  zones: { routes: 15063, 'site-libs': 0, ui: 0 },
+  files: 0, // ZERO (2026-09-18, W3 close): the migration is complete —
+  identities: 0, // any class identity anywhere is red unless atoms,
+  occurrences: 0, // tokens, registered semantics, or registered
+  zones: { routes: 0, 'site-libs': 0, ui: 0 }, // producers own it
   forms: 42,
 };
 const RATCHET_ZONE_KEYS = ['routes', 'site-libs', 'ui'];

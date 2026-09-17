@@ -26,6 +26,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import DocsInstall from '$lib/docs-install.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { meta as markdownMeta } from '$lib/meta/markdown.meta';
@@ -421,6 +422,22 @@ ${close}
     { name: 'registry/files/ui/markdown/markdown.css', content: markdownCssSource },
     { name: 'src/lib/ui/markdown-usage.svelte', content: usage, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -431,8 +448,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -442,7 +459,7 @@ ${close}
       title="markdown — the streaming face, AST mapped to first-party parts"
       summary="One component turns a markdown string into jixoai surfaces: fenced code lands in code-card (generation-guard repaint keeps partial code readable mid-stream), tables land in the registry table under a data-kind wrapper, and every prose construct lands on a first-party reading-content part — Blockquote (with GitHub alert detection), Heading, List, the text family, Link, InlineCode, Separator — escaping the jx-pure face exactly where the box-owning blocks need it and composing with it everywhere else. Streaming is keyed-block memoized — the frozen prefix keeps its DOM while append-only chunks re-render only the trailing block — and streaming=false (the default) is a static, final document. The parser core is stream-markdown-parser; the renderer, the mapping vocabulary and the security floor (html:false, validateLink, image sanitize, zero raw-HTML injection) are 100% first-party."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">streaming-first · keyed blocks (L1–L4)</span>
         <span class="pill">AST → blockquote · heading · list · text · link · inline-code · separator · table · code-card</span>
         <span class="pill">html:false security floor</span>
@@ -479,9 +496,9 @@ ${close}
       title="Examples"
       summary="One ability per demo: the GFM vocabulary in one pass, the GitHub alerts matrix, the streaming simulation (a live chunk feed over the public props), the components override seam, and the static document face."
     >
-      <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+      <p class={cx(rt.m0, rt.bodyMuted)}>
         The markdown component exists to render headings — every demo mounts it inside the
-        lint-sanctioned <code class="text-accent">headings-ok</code> scope, and demo sources never
+        lint-sanctioned <code class={cx(rt.inkAccent)}>headings-ok</code> scope, and demo sources never
         mint an h1 (this page owns exactly one). The simulation is page-owned state over public
         component behavior — zero registry edits, zero API bypasses.
       </p>
@@ -499,7 +516,7 @@ ${close}
     >
       <div class="table-scroll">
         <table class="data-table">
-          <caption class="sr-only">markdown node type to registry part mapping</caption>
+          <caption class={cx(rt.srOnly)}>markdown node type to registry part mapping</caption>
           <thead>
             <tr>
               <th>Node type</th>
@@ -537,7 +554,7 @@ ${close}
       {files}
       stage="fill"
     >
-      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+      <div class={cx(rt.wFull, rt.mdMax46)} data-doc-demo-scope="headings-ok">
         <Markdown source={kitchenSink} />
       </div>
       {#snippet playground()}
@@ -566,7 +583,7 @@ ${close}
       stage="fill"
       scroll="grow"
     >
-      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+      <div class={cx(rt.wFull, rt.mdMax46)} data-doc-demo-scope="headings-ok">
         <Markdown source={alertsDoc} />
       </div>
       {#snippet playground()}
@@ -599,7 +616,7 @@ ${close}
       ]}
       stage="fill"
     >
-      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+      <div class={cx(rt.wFull, rt.mdMax46)} data-doc-demo-scope="headings-ok">
         <Markdown source={equivalenceDoc} />
       </div>
       {#snippet playground()}
@@ -631,7 +648,7 @@ ${close}
       ]}
       stage="fill"
     >
-      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+      <div class={cx(rt.wFull, rt.mdMax46)} data-doc-demo-scope="headings-ok">
         <Markdown source={accordionDoc} />
       </div>
       {#snippet playground()}
@@ -662,7 +679,7 @@ ${close}
       ]}
       stage="fill"
     >
-      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+      <div class={cx(rt.wFull, rt.mdMax46)} data-doc-demo-scope="headings-ok">
         <Markdown source={rhythmSample} {typography} />
       </div>
       {#snippet playground()}
@@ -696,15 +713,15 @@ ${close}
         { label: 'streaming', value: playing ? 'true' : 'false' },
       ]}
     >
-      <div class="flex w-full flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-2">
+      <div class={cx(rt.col12, rt.wFull)}>
+        <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap8)}>
           <PressButton onclick={togglePlay}>{playing ? 'pause' : streamDone ? 'replay' : 'play'}</PressButton>
           <PressButton variant="ghost" onclick={resetStream}>reset</PressButton>
-          <span class="font-mono text-[11.5px] text-muted-foreground" aria-live="polite">
+          <span class={cx(rt.fontMono, rt.text115, rt.inkMuted)} aria-live="polite">
             {playing ? 'streaming' : streamDone ? 'final' : 'paused · final face'}
           </span>
         </div>
-        <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+        <div class={cx(rt.wFull, rt.mdMax46)} data-doc-demo-scope="headings-ok">
           <Markdown source={streamSource} streaming={playing} />
         </div>
       </div>
@@ -737,7 +754,7 @@ ${close}
       ]}
       stage="fill"
     >
-      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+      <div class={cx(rt.wFull, rt.mdMax46)} data-doc-demo-scope="headings-ok">
         <Markdown source={overrideDoc} components={{ link: DocLink }} />
       </div>
       {#snippet playground()}
@@ -764,7 +781,7 @@ ${close}
       ]}
       stage="fill"
     >
-      <div class="w-full max-w-[46rem]" data-doc-demo-scope="headings-ok">
+      <div class={cx(rt.wFull, rt.mdMax46)} data-doc-demo-scope="headings-ok">
         <Markdown source={staticDoc} />
       </div>
       {#snippet playground()}
@@ -781,7 +798,7 @@ ${close}
     </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <!-- api: the props table + the floor -->
   <div id="api" data-reveal="">
     <SectionCard
@@ -792,29 +809,29 @@ ${close}
       summary="Three props of the component's own plus the HTML div passthrough. The barrel also exports MarkdownNode — the override delegation seam — and parse.ts's adapter surface (createMarkdownParser, block keys/digests, the full node-type vocabulary)."
     >
       <PropsTable meta={markdownMeta} docs={MARKDOWN_DOCS} />
-      <div class="mt-5 grid gap-4 min-[760px]:grid-cols-2">
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">the security floor (default map)</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">html: false</code> — raw HTML from the source degrades to escaped literal text; nothing is ever parsed as markup</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>unsafe URL schemes (<code class="text-accent">javascript:</code> and friends) demote to plain text at parse time — they never reach an href</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>image src survives <code class="text-accent">sanitizeImageSrc</code> or the img is omitted entirely — bitmap data URLs render, SVG and other schemes never leak</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>zero <code class="text-accent">{'{@html}'}</code> in the renderer — code markup lands as inert, escaped spans</span></li>
+      <div class={cx(rt.mt20, rt.grid760b)}>
+        <div class={cx(rt.frame, rt.bgMuted40, rt.px16, rt.py16)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>the security floor (default map)</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>html: false</code> — raw HTML from the source degrades to escaped literal text; nothing is ever parsed as markup</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>unsafe URL schemes (<code class={cx(rt.inkAccent)}>javascript:</code> and friends) demote to plain text at parse time — they never reach an href</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>image src survives <code class={cx(rt.inkAccent)}>sanitizeImageSrc</code> or the img is omitted entirely — bitmap data URLs render, SVG and other schemes never leak</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>zero <code class={cx(rt.inkAccent)}>{'{@html}'}</code> in the renderer — code markup lands as inert, escaped spans</span></li>
           </ul>
         </div>
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">the trust boundaries</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">components</code> overrides are trusted application code — they own what they render; the floor above covers the DEFAULT map</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <div class={cx(rt.frame, rt.bgMuted40, rt.px16, rt.py16)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>the trust boundaries</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>components</code> overrides are trusted application code — they own what they render; the floor above covers the DEFAULT map</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>ambient markstream plugins (module-global registration) are a trusted process boundary — one dev warning states that BOTH the vocabulary and URL-security guarantees suspend while they are present</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the parser is a library dependency (<code class="text-accent">stream-markdown-parser</code>); the renderer and the mapping vocabulary stay 100% first-party</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>the parser is a library dependency (<code class={cx(rt.inkAccent)}>stream-markdown-parser</code>); the renderer and the mapping vocabulary stay 100% first-party</span></li>
           </ul>
         </div>
       </div>
@@ -827,9 +844,9 @@ ${close}
        docs-see-also.svelte structure with this change's own links -->
   <div id="see-also" data-reveal="">
     <section data-doc-see-also="" aria-label="see also">
-      <h2 class="font-nav text-balance text-[1.05rem] leading-tight tracking-tight sm:text-[1.22rem]">See Also</h2>
-      <p class="mt-2 text-[12.5px] text-muted-foreground">The families the mapping vocabulary composes with.</p>
-      <ul class="mt-3 flex flex-wrap gap-2">
+      <h2 class={cx(rt.mdHero)}>See Also</h2>
+      <p class={cx(rt.mt8, rt.inkMuted, rt.text125)}>The families the mapping vocabulary composes with.</p>
+      <ul class={cx(rt.mt12, rt.row8, rt.wrap)}>
         <li><a class="pill" href="/docs/components/blockquote.html">blockquote — the quote mapping target (GitHub alerts land here)</a></li>
         <li><a class="pill" href="/docs/components/text.html">text — the paragraph and marks mapping target</a></li>
         <li><a class="pill" href="/docs/components/table.html">table — the GFM table mapping target</a></li>

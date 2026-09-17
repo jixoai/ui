@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
@@ -280,6 +281,23 @@ ${close}
   const typesFiles: TreeFile[] = [
     { name: 'input-types-demo.svelte', content: inputTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -291,14 +309,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -308,7 +326,7 @@ ${close}
       title="input — every native type, one shell"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">all native types</span>
         <span class="pill">4 slot seams</span>
         <span class="pill">clearable</span>
@@ -333,7 +351,7 @@ ${close}
       output={playOutputs(play.current)}
       resolveFileContent={resolveInputUsage}
     >
-      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+      <div class={cx(rt.inputLane)}>
         <Input
           type={play.current.inputType}
           label={`endpoint (${play.current.inputType})`}
@@ -414,7 +432,7 @@ ${close}
         </div>
         </CardGrid>
       </ComponentCanvas>
-      <p class="text-muted-foreground mt-4 text-pretty text-[13px] leading-6">
+      <p class={cx(rt.inkMuted, rt.mt16, rt.pretty, rt.text13, rt.lead6)}>
         Tab through the grid: every control is keyboard-reachable with its platform behavior —
         the color swatches, the range arrows, the date/time pickers (the calendar indicator is
         repainted through a mask, and clicking it opens the embedded panel — the custom
@@ -429,29 +447,29 @@ ${close}
         platform popups only on Chromium — Firefox ships no control for them at all (the lanes
         degrade to plain text), so there the embedded panel is the only control on the engine.
       </p>
-      <div class="border-border mt-5 border-t pt-5">
-        <h3 class="text-[15px] font-bold tracking-tight">Tier 1 — the pure-CSS native layer</h3>
-        <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
+      <div class={cx(rt.frameBorder, rt.mt20, rt.tBorderW, rt.pt20)}>
+        <h3 class={cx(rt.title15)}>Tier 1 — the pure-CSS native layer</h3>
+        <p class={cx(rt.inkMuted, rt.mt8, rt.pretty, rt.text13, rt.lead6)}>
           Every native lane above is painted by ONE stylesheet —
-          <code class="text-accent">jx-pure.css</code> (registry item
-          <code class="text-accent">jx-pure</code>, imported once after the token sheet; the
-          class vocabulary is its Part A — <code class="text-accent">native-form</code> remains
+          <code class={cx(rt.inkAccent)}>jx-pure.css</code> (registry item
+          <code class={cx(rt.inkAccent)}>jx-pure</code>, imported once after the token sheet; the
+          class vocabulary is its Part A — <code class={cx(rt.inkAccent)}>native-form</code> remains
           a deprecated same-source alias) —
           with a daisyui-style class vocabulary and zero JS. The same classes the components
           consume style bare markup; type in the first field and watch the placeholder read
           clearly lighter than a value:
         </p>
-        <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3">
+        <div class={cx(rt.mt16, rt.grid760a)}>
+          <div class={cx(rt.col12)}>
             <label class="jx-label" for="tier1-text">bare text</label>
             <input id="tier1-text" class="jx-control" type="text" placeholder="placeholder reads lighter" />
             <input class="jx-control" type="date" aria-label="bare date" />
             <input class="jx-control" type="number" aria-label="bare number" placeholder="↑/↓ steps" min="0" />
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <label class="jx-label" for="tier1-range">bare range</label>
             <input id="tier1-range" class="jx-slider" type="range" min="0" max="100" value="40" />
-            <div class="flex items-center gap-3">
+            <div class={cx(rt.rowC12)}>
               <!-- default: compact 5rem field (swatch + pipette zone) -->
               <label class="jx-color-shell">
                 <input type="color" class="jx-color-swatch" value="#007924" aria-label="bare color" />
@@ -462,14 +480,14 @@ ${close}
                 <input type="color" class="jx-color-swatch" value="#d61f69" aria-label="bare color stretched" />
               </label>
             </div>
-            <span class="text-muted-foreground text-[12px]">
+            <span class={cx(rt.note12)}>
               .jx-control · .jx-slider · .jx-color-shell + .jx-color-swatch — compact 7:4 chip by default,
               .jx-color-expand reclaims the full row; the wrapper label opens the picker from
               the pipette zone too
             </span>
           </div>
         </div>
-        <div class="mt-4">
+        <div class={cx(rt.mt16)}>
           <CodeBlock code={tier1Usage} lang="html" meta="Tier-1 · bare markup" />
         </div>
       </div>
@@ -485,13 +503,13 @@ ${close}
       title="Slot system — the InputGroup posture"
       summary="The shell is a slot host: outer-block-start (takes the label row's place when given), inner-inline-start / inner-inline-end (inside the shell, muted by default, gap-2 seams), and outer-block-end (below the shell — the error line still renders above it). The shell owns border, background, hover, and the inset focus outline, so slot content never repaints the box law — and value is $bindable: a bound field turns controlled, an unbound one stays purely uncontrolled (FormData and form.reset untouched)."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <Input label="endpoint" name="slot_endpoint" placeholder="api.jixoai.com">
           {#snippet innerInlineStart()}<span>https://</span>{/snippet}
-          {#snippet innerInlineEnd()}<span class="text-foreground!">/v1/spawn</span>{/snippet}
+          {#snippet innerInlineEnd()}<span class="input-fg-hi">/v1/spawn</span>{/snippet}
           {#snippet outerBlockEnd()}<span>outer-block-end — helper text below the shell; an error line would render above it</span>{/snippet}
         </Input>
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
+        <div class={cx(rt.grid760a)}>
           <Input
             type="search"
             label="search (clearable)"
@@ -505,14 +523,14 @@ ${close}
             {#snippet innerInlineEnd()}<span>per seat / mo</span>{/snippet}
           </Input>
         </div>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           Type into the search field: the × only appears when there is something to clear, and
           pressing it empties the DOM value, syncs the binding, and re-emits
-          <code class="text-accent">input</code> plus a bubbling
-          <code class="text-accent">clear</code> event — uncontrolled FormData flows and controlled
+          <code class={cx(rt.inkAccent)}>input</code> plus a bubbling
+          <code class={cx(rt.inkAccent)}>clear</code> event — uncontrolled FormData flows and controlled
           bindings both stay correct. Slot content lands muted at 0.75rem; the wrapper is scoped,
           so override it with an important utility
-          (<code class="text-accent">text-foreground!</code>) or an inline style.
+          (<code class={cx(rt.inkAccent)}>text-foreground!</code>) or an inline style.
         </p>
         <CodeBlock code={slotUsage} lang="svelte" meta="slots" />
       </div>
@@ -528,9 +546,9 @@ ${close}
       title="count · reveal · floating label"
       summary="Three family capabilities: a code-point character count with a near-limit live region, the password reveal eye (default on — but the value starts hidden), and the floating bracket label that rides the shell's top border like a fieldset legend."
     >
-      <div class="flex flex-col gap-6">
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-2">
+      <div class={cx(rt.col24)}>
+        <div class={cx(rt.grid760a)}>
+          <div class={cx(rt.col8)}>
             <Input
               label="bio (count, maxlength=20)"
               name="cap_count"
@@ -539,29 +557,29 @@ ${close}
               placeholder="type past 18 chars…"
               bind:value={counted}
             />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.noteSmall)}>
               code-point readout — 你好𠀀👍 counts 4; aria-live flips
-              <code class="text-accent">off → polite</code> from 90% of the cap
+              <code class={cx(rt.inkAccent)}>off → polite</code> from 90% of the cap
             </span>
           </div>
           <Input label="bio (plain n without a cap)" name="cap_count_free" count placeholder="no maxlength" />
         </div>
-        <div class="grid gap-5 min-[760px]:grid-cols-3">
+        <div class={cx(rt.inputGrid760)}>
           <Input type="password" label="reveal (default on)" name="cap_reveal" bind:value={revealDemo} autocomplete="off" />
           <Input type="password" label="reveal = false (opt-out)" name="cap_reveal_off" reveal={false} bind:value={revealOptOut} autocomplete="off" />
           <Input type="password" label="clearable + reveal" name="cap_reveal_clear" value="s3cret" clearable autocomplete="off" />
         </div>
-        <div class="grid gap-5 min-[760px]:grid-cols-3">
+        <div class={cx(rt.inputGrid760)}>
           <Input label="floating (empty)" name="cap_float_empty" labelMode="floating" placeholder="you@host.tld" bind:value={floatingEmpty} />
           <Input label="floating (filled)" name="cap_float_filled" labelMode="floating" bind:value={floatingFilled} />
           <Input label="floating (error)" name="cap_float_error" labelMode="floating" error="email is required" bind:value={floatingError} />
         </div>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           The count readout lives in the hint lane below the shell and counts CODE POINTS —
           surrogate pairs (emoji, ext-B CJK) are one character, never two UTF-16 units — while the
           maxlength clamp itself stays the platform's. The reveal eye mounts by default on
-          <code class="text-accent">type="password"</code> but starts HIDDEN (aria-pressed="false"):
-          pressing it flips only the input's <code class="text-accent">type</code> between
+          <code class={cx(rt.inkAccent)}>type="password"</code> but starts HIDDEN (aria-pressed="false"):
+          pressing it flips only the input's <code class={cx(rt.inkAccent)}>type</code> between
           password/text, so autocomplete and password-manager behavior are untouched, and it takes
           the outermost end-lane seat (snippet &gt; clearable × &gt; eye, each keeping the
           --jx-hit edge-lane geometry). The floating label is the terminal translation: the label
@@ -582,8 +600,8 @@ ${close}
       title="label + error wiring"
       summary="The error prop is pure semantics: it sets aria-invalid='true', wires aria-describedby to the “! message” line, and dashes the shell border — a monochrome invalid signal, because the one-hue law has no error red."
     >
-      <div class="flex flex-col gap-5">
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.grid760a)}>
           <Input type="email" label="email" value="not-an-email" error="email is required" />
           <Input type="search" label="search" name="demo_err_search" placeholder="grep…" error="a query is required" clearable />
         </div>
@@ -601,8 +619,8 @@ ${close}
       title="custom picker bridge"
       summary="The native popups cannot be styled — so the swap is the default. date/datetime-local ride the date-picker Calendar (datetime-local adds a time-stepper row, and a day-pick keeps the panel open for the time adjustment), week rides a Calendar day-pick that commits the ISO week, month rides a year-nav + 12-month grid, time rides the custom HH:MM stepper (live commits), and color rides the color-picker Swatches — all through a Popover-API panel; the input stays a real input: native typing, parsing, ARIA and FormData untouched. The bare boolean attribute — native-controls, the disabled-attribute philosophy — opts back into the platform controls (number's platform spinner included), and a picker snippet overrides the default panel for anything else (its ctx carries value, commit and close)."
     >
-      <div class="flex flex-col gap-5">
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.grid760a)}>
           <Input
             type="date"
             label="date (custom panel — the default)"
@@ -616,7 +634,7 @@ ${close}
             nativeControls
           />
         </div>
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
+        <div class={cx(rt.grid760a)}>
           <Input
             type="color"
             label="color (custom panel — the default)"
@@ -628,7 +646,7 @@ ${close}
             bind:value={bridgeWeek}
           />
         </div>
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
+        <div class={cx(rt.grid760a)}>
           <Input
             type="month"
             label="month (year-nav + 12-month grid)"
@@ -640,7 +658,7 @@ ${close}
             name="bridge_time"
           />
         </div>
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
+        <div class={cx(rt.grid760a)}>
           <Input
             type="datetime-local"
             label="datetime-local (Calendar + time row)"
@@ -653,13 +671,13 @@ ${close}
             locale="zh-CN"
           />
         </div>
-        <p class="font-mono text-xs text-muted-foreground">
+        <p class={cx(rt.code12)}>
           committed: {bridgeDatePicked || '—'} · swatch: {bridgeColor} · week: {bridgeWeek || '—'}
         </p>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           The week panel picks a DAY on the Calendar and commits the ISO week
-          (<code class="text-accent">YYYY-Www</code>, the picked week tinted); the month panel
-          navigates years and commits <code class="text-accent">YYYY-MM</code> from a 12-month
+          (<code class={cx(rt.inkAccent)}>YYYY-Www</code>, the picked week tinted); the month panel
+          navigates years and commits <code class={cx(rt.inkAccent)}>YYYY-MM</code> from a 12-month
           grid; the time panel is the custom HH:MM stepper, committing live as the arrows run —
           the cells are slider-grade: the wheel over a group steps its number, press-drag moves
           it vertically (up increases, the cells wear the ns-resize cursor), and an unset value
@@ -667,9 +685,9 @@ ${close}
           The datetime-local panel is the Calendar plus a time-stepper row — a day-pick keeps
           the panel open so the time can be adjusted before it closes, and the commit carries
           both halves. The panels' vocabulary — month label, weekday heads, month cells —
-          renders through <code class="text-accent">Intl.DateTimeFormat</code>: the page's
-          own <code class="text-accent">&lt;html lang&gt;</code> is the default, or pass
-          <code class="text-accent">locale</code> per field (the zh-CN sample above renders
+          renders through <code class={cx(rt.inkAccent)}>Intl.DateTimeFormat</code>: the page's
+          own <code class={cx(rt.inkAccent)}>&lt;html lang&gt;</code> is the default, or pass
+          <code class={cx(rt.inkAccent)}>locale</code> per field (the zh-CN sample above renders
           2026年8月 / 周一…). On Firefox week and month have no platform control at all (the lanes
           degrade to plain text), so there the embedded panel is the only control on the
           engine.
@@ -684,7 +702,7 @@ ${close}
 <!-- Material3 standard sections (2026-08-26): types / usage / a11y /
      theming / api appended after the demo sections, same wrapper law as
      checkbox.html. -->
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal="">
     <SectionCard
       family="types"
@@ -694,11 +712,11 @@ ${close}
       summary="One component, four rendering lanes: the text-like shell, the clearable search field, the error state, and the disabled field."
     >
       <ComponentCanvas title="input · variants" stage="fill" files={typesFiles}>
-        <div class="grid gap-4 sm:grid-cols-2">
-        <div class="border border-border p-4"><Input type="text" label="text" name="types-text" placeholder="plain text" /></div>
-        <div class="border border-border p-4"><Input type="search" label="search" name="types-search" placeholder="grep…" clearable /></div>
-        <div class="border border-border p-4"><Input type="email" label="error" name="types-error" value="not-an-email" error="email is required" /></div>
-        <div class="border border-border p-4"><Input type="text" label="disabled" name="types-disabled" placeholder="not allowed" disabled /></div>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Input type="text" label="text" name="types-text" placeholder="plain text" /></div>
+        <div class={cx(rt.panel)}><Input type="search" label="search" name="types-search" placeholder="grep…" clearable /></div>
+        <div class={cx(rt.panel)}><Input type="email" label="error" name="types-error" value="not-an-email" error="email is required" /></div>
+        <div class={cx(rt.panel)}><Input type="text" label="disabled" name="types-disabled" placeholder="not allowed" disabled /></div>
         </div>
       </ComponentCanvas>
     </SectionCard>
@@ -747,8 +765,8 @@ ${close}
       title="Density and tokens"
       summary="The shell, label, and error rhythm are pure density-scope tokens; resize the scope and the whole field stack follows."
     >
-      <div class="flex flex-col gap-6">
-        <p class="text-muted-foreground text-[13px] leading-6">
+      <div class={cx(rt.col24)}>
+        <p class={cx(rt.bodyMuted)}>
           the shell, label, and error rhythm are pure density-scope tokens — flip the canvas
           dock's density select (xs / sm / default / lg) above to re-scope the workbench stage
           alone; the docs chrome and every other canvas keep their seats. The four-copy
@@ -800,3 +818,12 @@ ${close}
     </SectionCard>
   </div>
 </div>
+
+<style>
+  /* text-foreground! — the demo's inlineEnd affordance needs the
+     !important spike to beat the input lane's own ink rule; stylex
+     values never carry !important, so the TW channel lands here */
+  .input-fg-hi {
+    color: var(--foreground) !important;
+  }
+</style>

@@ -12,6 +12,7 @@
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import inputOtpSource from '$lib/ui/input-otp/input-otp.svelte?raw';
+  import { rt } from '$lib/surface/routes.stylex';
 
   // ToC outline: the live demo band + the usage closing section.
 
@@ -71,6 +72,22 @@ ${close}
   const typesFiles: TreeFile[] = [
     { name: 'input-otp-types-demo.svelte', content: inputOtpTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -82,12 +99,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -96,7 +113,7 @@ ${close}
       title="input-otp — six slots, one form value"
       summary="Single-character inputs with the mechanics a raw stack lacks: typing overflows into the next slots, backspace steps back, paste distributes, focus entering from outside lands on the first empty slot. The group is not a single native control — exactly the jx-form-field bridge case: the joined code submits as ONE value; a partial code submits empty (never a partial lie)."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">paste distributes</span>
         <span class="pill">backspace steps back</span>
         <span class="pill">one-time-code autocomplete</span>
@@ -116,7 +133,7 @@ ${close}
       output={[{ label: 'value', value: code || '—' }]}
       resolveFileContent={resolveUsage}
     >
-      <div class="flex flex-col items-start gap-4">
+      <div class={cx(rt.col16, rt.itemsStart)}>
         <InputOtp name="demo-otp" length={6} label="one-time code" bind:value={code} />
       </div>
       {#snippet playground()}
@@ -138,7 +155,7 @@ ${close}
 <!-- Material3 standard sections (2026-08-26): types / usage / a11y /
      theming / api appended after the demo sections, same wrapper law as
      checkbox.html. -->
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal="">
     <SectionCard
       family="types"
@@ -148,22 +165,22 @@ ${close}
       summary="The default numeric six-slot code, an alpha code (numeric={false}), a shorter code, and the error state."
     >
       <ComponentCanvas title="input-otp · variants" stage="fill" files={typesFiles}>
-        <div class="grid gap-4 sm:grid-cols-2">
-        <div class="flex flex-col gap-3 border border-border p-4">
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.col12, rt.panel)}>
           <InputOtp label="numeric (6)" length={6} />
-          <span class="text-muted-foreground text-[12px]">digits only · inputmode numeric</span>
+          <span class={cx(rt.inkMuted, rt.text12)}>digits only · inputmode numeric</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border p-4">
+        <div class={cx(rt.col12, rt.panel)}>
           <InputOtp label="alpha (numeric={false})" length={6} numeric={false} />
-          <span class="text-muted-foreground text-[12px]">letters accepted · inputmode text</span>
+          <span class={cx(rt.inkMuted, rt.text12)}>letters accepted · inputmode text</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border p-4">
+        <div class={cx(rt.col12, rt.panel)}>
           <InputOtp label="short code (4)" length={4} />
-          <span class="text-muted-foreground text-[12px]">length clamps to 1…12</span>
+          <span class={cx(rt.inkMuted, rt.text12)}>length clamps to 1…12</span>
         </div>
-        <div class="flex flex-col gap-3 border border-border p-4">
+        <div class={cx(rt.col12, rt.panel)}>
           <InputOtp label="error" length={6} value="123" error="code expired — resend" />
-          <span class="text-muted-foreground text-[12px]">dashed destructive border on every slot</span>
+          <span class={cx(rt.inkMuted, rt.text12)}>dashed destructive border on every slot</span>
         </div>
         </div>
       </ComponentCanvas>
@@ -214,7 +231,7 @@ ${close}
       title="Density and tokens"
       summary="Slot size and rhythm derive from the density scope; resize the scope and the whole code field follows."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <DensityDemo>
           <InputOtp label="density sample" length={6} />
         </DensityDemo>

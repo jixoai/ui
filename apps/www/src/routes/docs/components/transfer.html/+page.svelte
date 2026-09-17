@@ -14,6 +14,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -197,6 +198,23 @@ let typesTitledValue = $state<string[]>(['done']);
   const transferTypesFiles: TreeFile[] = [
     { name: 'transfer-types-demo.svelte', content: transferTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -208,10 +226,10 @@ let typesTitledValue = $state<string[]>(['done']);
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -220,7 +238,7 @@ let typesTitledValue = $state<string[]>(['done']);
       title="transfer — two fieldsets and a batch mover"
       summary="The two-panel selector the ruled way: each side is a real fieldset of real checkbox rows — grouping, labeling and toggling all native. The middle buttons batch-move every checked row at once, then the selection clears (checked is a transient moving state, never the value). Per-panel search filters its own list; disabled rows render but never move. value is the TARGET list — what sits on the right is the answer."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">fieldset + checkbox rows</span>
         <span class="pill">batch move · selection clears</span>
         <span class="pill">per-panel search</span>
@@ -254,7 +272,7 @@ let typesTitledValue = $state<string[]>(['done']);
       output={[{ label: 'target', value: value.length ? value.join(', ') : '—' }]}
       resolveFileContent={resolveUsage}
     >
-      <div class="w-full max-w-2xl">
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
         <Transfer {options} bind:value />
       </div>
       {#snippet playground()}
@@ -271,7 +289,7 @@ let typesTitledValue = $state<string[]>(['done']);
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <!-- usage: the ONE h2 -->
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="value is the target list — what sits on the right is the answer; checked is a transient moving state, never the value."><CodeBlock code={usage} lang="svelte" meta="Transfer usage" /></SectionCard></div>
 
@@ -284,7 +302,7 @@ let typesTitledValue = $state<string[]>(['done']);
       title="Examples"
       summary="Ability-named recipes over the public value/onchange seam — the component ships neither oneWay nor a header select-all, so both are compositions here."
     >
-      <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+      <p class={cx(rt.m0, rt.bodyMuted)}>
         Both recipes page-own the state machine; the component gaps (a native oneWay with a
         checkbox-free target panel, an in-header select-all with custom labels) are recorded in
         the change's followups.md.
@@ -309,9 +327,9 @@ let typesTitledValue = $state<string[]>(['done']);
         { label: 'rejected removals', value: rejected },
       ]}
     >
-      <div class="flex w-full max-w-2xl flex-col gap-3">
+      <div class={cx(rt.trLane)}>
         <Transfer options={oneWayOptions} value={committed} onchange={oneWayGuard} sourceTitle="available" targetTitle="assigned" />
-        <p class="m-0 font-mono text-[11.5px] text-muted-foreground" aria-live="polite">
+        <p class={cx(rt.m0, rt.trMono115)} aria-live="polite">
           rejected removals: {rejected}
         </p>
       </div>
@@ -345,13 +363,13 @@ let typesTitledValue = $state<string[]>(['done']);
         { label: 'labels', value: grantLabels.length ? grantLabels.join(' | ') : '—' },
       ]}
     >
-      <div class="flex w-full max-w-2xl flex-col gap-3">
-        <div class="flex flex-wrap gap-2">
+      <div class={cx(rt.trLane)}>
+        <div class={cx(rt.trWrap8)}>
           <PressButton variant="outline" onclick={selectAll}>select all → move</PressButton>
           <PressButton variant="ghost" onclick={returnAll}>return all</PressButton>
         </div>
         <Transfer options={batchOptions} bind:value={granted} sourceTitle="available" targetTitle={`granted · ${granted.length}`} />
-        <p class="m-0 font-mono text-[11.5px] text-muted-foreground" aria-live="polite">
+        <p class={cx(rt.m0, rt.trMono115)} aria-live="polite">
           granted: {grantLabels.length ? grantLabels.join(', ') : '—'}
         </p>
       </div>
@@ -370,15 +388,15 @@ let typesTitledValue = $state<string[]>(['done']);
 
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Transfer variants" summary="Plain source/target panels by default; titled panels rename the fieldsets, and disabled rows render but never move.">
     <ComponentCanvas title="transfer · variants" stage="fill" files={transferTypesFiles}>
-      <div class="grid w-full items-start gap-4 min-[900px]:grid-cols-2">
-        <div class="border border-border p-4"><Transfer options={typesPlain} bind:value={typesPlainValue} /></div>
-        <div class="border border-border p-4"><Transfer options={typesTitled} bind:value={typesTitledValue} sourceTitle="available" targetTitle="chosen" /></div>
+      <div class={cx(rt.trGrid)}>
+        <div class={cx(rt.panel)}><Transfer options={typesPlain} bind:value={typesPlainValue} /></div>
+        <div class={cx(rt.panel)}><Transfer options={typesTitled} bind:value={typesTitledValue} sourceTitle="available" targetTitle="chosen" /></div>
       </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Grouping, labeling and toggling are all native — each panel is a real fieldset of real checkbox rows."><A11yTable keys={[{ key: 'Tab', action: 'Walk the fieldsets, checkbox rows, search lanes and mover buttons' }, { key: 'Space', action: 'Toggle the focused checkbox row (native input)' }]} aria={[{ name: 'fieldset / legend', value: 'native', description: 'Each panel is a real fieldset; the legend shows visible/total counts.' }, { name: 'aria-label (movers)', value: 'move selected to {side}', description: 'Names each middle mover button.' }, { name: 'aria-label (search)', value: 'filter {panel}', description: 'Names each per-panel search lane.' }, { name: 'aria-live', value: 'polite (recipe)', description: 'The one-way rejection counter and granted readout announce without stealing focus.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Rows, movers and search lanes paint through theme colors; the panels stack under a 480px container query."><div class="flex flex-col gap-5"><DensityDemo><Transfer options={typesPlain} bind:value={typesPlainValue} /></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'stable gutter', source: 'component', description: 'List padding reserves the scrollbar lane when gutters are stable.' }, { name: 'panel surface', default: 'var(--card) + shadow-2xs', source: 'color', description: 'Each fieldset panel.' }, { name: 'hover / focus', default: '--muted / --ring / --primary', source: 'color', description: 'Row hover, search focus outline, mover hover lean.' }, { name: 'stacking law', default: 'max-width 480px', source: 'structural', description: 'Container query: panels stack, movers center between them.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Row and mover targets inside the density scope.' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The target list binds both ways; a name wires the values into FormData through the jx-form-field bridge."><div class="flex flex-col gap-8"><PropsTable props={[{ name: 'options', type: 'TransferOption[]', default: '—', description: 'The full option set; placement derives from value.', required: true }, { name: 'value', type: 'string[]', default: '[]', description: 'Values living on the TARGET side.', bindable: true }, { name: 'name', type: 'string', default: '—', description: 'Form field name — target values submit as multi-entry FormData.' }, { name: 'sourceTitle', type: 'string', default: "'source'", description: 'Source fieldset legend.' }, { name: 'targetTitle', type: 'string', default: "'target'", description: 'Target fieldset legend (the recipes derive it from committed state).' }, { name: 'searchPlaceholder', type: 'string', default: "'filter…'", description: 'Search lane placeholder.' }, { name: 'onchange', type: '(value: string[]) => void', default: '—', description: 'Fires after each batch move with the new target list — the oneWay recipe guards through it.' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the root.' }]} /><PropsTable title="TransferOption" props={[{ name: 'value', type: 'string', default: '—', description: 'The submit value.', required: true }, { name: 'label', type: 'string', default: '—', description: 'Row label.', required: true }, { name: 'disabled', type: 'boolean', default: '—', description: 'Row renders but never moves.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Rows, movers and search lanes paint through theme colors; the panels stack under a 480px container query."><div class={cx(rt.col20)}><DensityDemo><Transfer options={typesPlain} bind:value={typesPlainValue} /></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'stable gutter', source: 'component', description: 'List padding reserves the scrollbar lane when gutters are stable.' }, { name: 'panel surface', default: 'var(--card) + shadow-2xs', source: 'color', description: 'Each fieldset panel.' }, { name: 'hover / focus', default: '--muted / --ring / --primary', source: 'color', description: 'Row hover, search focus outline, mover hover lean.' }, { name: 'stacking law', default: 'max-width 480px', source: 'structural', description: 'Container query: panels stack, movers center between them.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Row and mover targets inside the density scope.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The target list binds both ways; a name wires the values into FormData through the jx-form-field bridge."><div class={cx(rt.col32)}><PropsTable props={[{ name: 'options', type: 'TransferOption[]', default: '—', description: 'The full option set; placement derives from value.', required: true }, { name: 'value', type: 'string[]', default: '[]', description: 'Values living on the TARGET side.', bindable: true }, { name: 'name', type: 'string', default: '—', description: 'Form field name — target values submit as multi-entry FormData.' }, { name: 'sourceTitle', type: 'string', default: "'source'", description: 'Source fieldset legend.' }, { name: 'targetTitle', type: 'string', default: "'target'", description: 'Target fieldset legend (the recipes derive it from committed state).' }, { name: 'searchPlaceholder', type: 'string', default: "'filter…'", description: 'Search lane placeholder.' }, { name: 'onchange', type: '(value: string[]) => void', default: '—', description: 'Fires after each batch move with the new target list — the oneWay recipe guards through it.' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the root.' }]} /><PropsTable title="TransferOption" props={[{ name: 'value', type: 'string', default: '—', description: 'The submit value.', required: true }, { name: 'label', type: 'string', default: '—', description: 'Row label.', required: true }, { name: 'disabled', type: 'boolean', default: '—', description: 'Row renders but never moves.' }]} /></div></SectionCard></div>
 
   <div id="see-also" data-reveal="">
     <SectionCard
@@ -388,7 +406,7 @@ let typesTitledValue = $state<string[]>(['done']);
       title="See also"
       summary="The families around the two-panel mover."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/checkbox.html">checkbox — the panel rows</a>
         <a class="pill" href="/docs/components/press-button.html">press-button — the batch controls</a>
         <a class="pill" href="/docs/components/table.html">table — the selection recipe suite</a>

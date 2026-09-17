@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -99,6 +100,22 @@ ${close}
     <PressButton variant="tonal">check</PressButton>
   </InputGroupAddon>
 </InputGroup>`;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -109,8 +126,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -119,7 +136,7 @@ ${close}
         title="input-group — the joined field shell"
         summary="The Origin UI “Input with X” family over the input's shared shell law: addons compose BESIDE the field, not inside a private composite. One 1px var(--border) bezel carries the shell states (hover lift, inset focus ring, invalid dash); each addon owns exactly one hairline seam facing the lane; the InputGroupInput stays a chromeless Tier-2 control-lane — no double borders by construction. ONE disabled propagation rule: disable the root and the lane renders native disabled while every addon goes inert (the platform's containment — buttons, selects and links inside lose activation and focus at once)."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">composition parts</span>
           <span class="pill">1px hairline seams</span>
           <span class="pill">one disabled rule · inert</span>
@@ -155,7 +172,7 @@ ${close}
         ]}
         resolveFileContent={resolveUsage}
       >
-        <div class="flex w-full max-w-md flex-col items-start gap-3">
+        <div class={cx(rt.col12, rt.itemsStart, rt.wFull, rt.maxWMd)}>
           <InputGroup label="repository url" disabled={locked}>
             <InputGroupAddon>{prefix || 'https://'}</InputGroupAddon>
             <InputGroupInput name="site" bind:value={site} placeholder="jixoai.com" />
@@ -173,8 +190,8 @@ ${close}
               <PlayText bind:value={prefix} placeholder="https://" />
             </PlayRow>
             <PlayHelp>
-              disabling the group sends the lane native <code class="text-accent">disabled</code> and
-              the addons <code class="text-accent">inert</code> — the check button loses activation
+              disabling the group sends the lane native <code class={cx(rt.inkAccent)}>disabled</code> and
+              the addons <code class={cx(rt.inkAccent)}>inert</code> — the check button loses activation
               and focus with them. One rule, no per-child chasing.
             </PlayHelp>
           </PlayFields>
@@ -184,7 +201,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="usage" data-reveal="">
     <SectionCard
       family="usage"
@@ -205,7 +222,7 @@ ${close}
       title="Examples"
       summary="Ability-named demos — one phrase, one capability. Every demo is live; open the code drawer for the exact composition."
     >
-      <p class="m-0 text-muted-foreground text-[13px] leading-6">
+      <p class={cx(rt.m0, rt.bodyMuted)}>
         The demos below live on their own canvases — a select add-on, then the submitted-form
         contract. The disabled propagation rule plays in the live demo up top.
       </p>
@@ -226,10 +243,10 @@ ${close}
         { label: 'host', value: host || '—' },
       ]}
     >
-      <div class="flex w-full max-w-md flex-col items-start gap-3">
+      <div class={cx(rt.col12, rt.itemsStart, rt.wFull, rt.maxWMd)}>
         <InputGroup label="endpoint">
           <InputGroupAddon>
-            <NativeSelect bind:value={protocol} class="text-[12.5px]" aria-label="protocol">
+            <NativeSelect bind:value={protocol} class={cx(rt.text125)} aria-label="protocol">
               <option value="https://">https://</option>
               <option value="http://">http://</option>
             </NativeSelect>
@@ -260,7 +277,7 @@ ${close}
       onreset={resetFormDemo}
       output={[{ label: 'submitted preview', value: submitted === '' ? (submittedEmpty ? '(empty)' : '—') : submitted }]}
     >
-      <form class="flex w-full max-w-md flex-col items-start gap-3" onsubmit={deploy}>
+      <form class={cx(rt.col12, rt.itemsStart, rt.wFull, rt.maxWMd)} onsubmit={deploy}>
         <InputGroup label="deploy preview url">
           <InputGroupAddon>https://</InputGroupAddon>
           <InputGroupInput name="preview" bind:value={preview} placeholder="preview-2026" />
@@ -271,8 +288,8 @@ ${close}
       {#snippet playground()}
         <PlayFields>
           <PlayHelp>
-            <code class="text-accent">name</code> rides the input part, so submission is the
-            platform's: <code class="text-accent">FormData.get('preview')</code>. An untouched field
+            <code class={cx(rt.inkAccent)}>name</code> rides the input part, so submission is the
+            platform's: <code class={cx(rt.inkAccent)}>FormData.get('preview')</code>. An untouched field
             commits the empty string — no invented value, no omitted entry.
           </PlayHelp>
         </PlayFields>
@@ -311,7 +328,7 @@ ${close}
       title="API"
       summary="Three parts, one context: the root owns the disable propagation and the name; the addon owns a lane; the input owns the field."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <PropsTable
           props={[
             { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
@@ -344,7 +361,7 @@ ${close}
       title="Density and tokens"
       summary="The shell, the addon lanes and the field all size from the shared density ruler; the seams read var(--border)."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <DensityDemo>
           <InputGroup label="density">
             <InputGroupAddon>https://</InputGroupAddon>
@@ -372,7 +389,7 @@ ${close}
       title="See also"
       summary="The family around the joined shell."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/input.html">input — the native field</a>
         <a class="pill" href="/docs/components/press-button.html">press-button — addon actions</a>
         <a class="pill" href="/docs/components/native-select.html">native-select — addon pickers</a>

@@ -16,6 +16,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -234,6 +235,23 @@ let cardOpen = $state(false);
   const tourTypesFiles: TreeFile[] = [
     { name: 'tour-types-demo.svelte', content: tourTypesDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -245,9 +263,9 @@ let cardOpen = $state(false);
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -256,7 +274,7 @@ let cardOpen = $state(false);
       title="tour — targets stay data, the card opens"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">anchor-name lease</span>
         <span class="pill">box-shadow hole</span>
         <span class="pill">non-modal</span>
@@ -289,18 +307,18 @@ let cardOpen = $state(false);
       onreset={resetCanvas}
       output={[{ label: 'finished at step', value: finishedAt ?? '—' }]}
     >
-      <div class="flex flex-col items-start gap-6">
-        <div class="flex flex-wrap items-center gap-4">
+      <div class={cx(rt.col24, rt.itemsStart)}>
+        <div class={cx(rt.rowC16, rt.wrap)}>
           <PressButton onclick={() => (open = true)}>start the tour</PressButton>
         </div>
-        <div class="jx-tour-demo-grid w-full max-w-2xl">
-          <section data-tour-demo-a class="border border-border bg-card p-4">
-            <p class="font-nav text-[0.75rem] uppercase tracking-[0.12em]">demo target A</p>
-            <p class="text-[12.5px] text-muted-foreground">this card receives the anchor-name lease on step 1</p>
+        <div class="jx-tour-demo-grid {cx(rt.wFull, rt.maxW2xl)}">
+          <section data-tour-demo-a class={cx(rt.panel, rt.bgCard)}>
+            <p class={cx(rt.fontNav, rt.text12, rt.upper, rt.track12)}>demo target A</p>
+            <p class={cx(rt.noteSmall)}>this card receives the anchor-name lease on step 1</p>
           </section>
-          <section data-tour-demo-b class="border border-border bg-card p-4">
-            <p class="font-nav text-[0.75rem] uppercase tracking-[0.12em]">demo target B</p>
-            <p class="text-[12.5px] text-muted-foreground">…and this one on step 2; the lease moves with the tour</p>
+          <section data-tour-demo-b class={cx(rt.panel, rt.bgCard)}>
+            <p class={cx(rt.fontNav, rt.text12, rt.upper, rt.track12)}>demo target B</p>
+            <p class={cx(rt.noteSmall)}>…and this one on step 2; the lease moves with the tour</p>
           </section>
         </div>
       </div>
@@ -319,7 +337,7 @@ let cardOpen = $state(false);
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <!-- usage: the ONE h2 -->
   <div id="usage" data-reveal="">
     <SectionCard
@@ -342,7 +360,7 @@ let cardOpen = $state(false);
       title="Examples"
       summary="Ability-named recipes: the non-modal scroll proof, the placement matrix, and custom step indicators."
     >
-      <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+      <p class={cx(rt.bodyMuted, rt.m0)}>
         Non-modal is the tour's contract, placement and indicators are compositions over the
         public card/anchor surface — the missing placement prop is recorded in the change's
         followups.md.
@@ -363,17 +381,17 @@ let cardOpen = $state(false);
       stage="fill"
       output={[{ label: 'aria-modal', value: 'false' }, { label: 'tint', value: 'pointer-events:none' }]}
     >
-      <div class="flex w-full max-w-2xl flex-col gap-4">
+      <div class={cx(rt.col16, rt.wFull, rt.maxW2xl)}>
         <PressButton onclick={() => (nonModalOpen = true)}>start the non-modal tour</PressButton>
         <div class="tour-scroll-surface">
-          <section data-tour-log-a class="border border-border bg-card p-3">
-            <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em]">log head</p>
-            <p class="m-0 text-[12.5px] text-muted-foreground">step 1 leases this block — scroll the box while it runs</p>
+          <section data-tour-log-a class={cx(rt.frame, rt.bgCard, rt.p12)}>
+            <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12)}>log head</p>
+            <p class={cx(rt.noteSmall, rt.m0)}>step 1 leases this block — scroll the box while it runs</p>
           </section>
-          <div class="h-72" aria-hidden="true"></div>
-          <section data-tour-log-b class="border border-border bg-card p-3">
-            <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em]">log tail</p>
-            <p class="m-0 text-[12.5px] text-muted-foreground">step 2 — the page and this scrollbox never locked</p>
+          <div class={cx(rt.tourSpacer72)} aria-hidden="true"></div>
+          <section data-tour-log-b class={cx(rt.frame, rt.bgCard, rt.p12)}>
+            <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12)}>log tail</p>
+            <p class={cx(rt.noteSmall, rt.m0)}>step 2 — the page and this scrollbox never locked</p>
           </section>
         </div>
       </div>
@@ -409,10 +427,10 @@ let cardOpen = $state(false);
         { label: 'bottom', value: placeBottom ? 'running' : 'idle' },
       ]}
     >
-      <div class="jx-tour-quadrant-grid w-full max-w-2xl">
-        <section data-tour-place-top-target class="border border-border bg-card p-4">
-          <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em]">target · top quadrant</p>
-          <div class="mt-2 tour-place-top">
+      <div class="jx-tour-quadrant-grid {cx(rt.wFull, rt.maxW2xl)}">
+        <section data-tour-place-top-target class={cx(rt.panel, rt.bgCard)}>
+          <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12)}>target · top quadrant</p>
+          <div class="tour-place-top {cx(rt.mt8)}">
             <PressButton variant="outline" onclick={() => (placeTop = true)}>place card above</PressButton>
             <Tour
               bind:open={placeTop}
@@ -420,9 +438,9 @@ let cardOpen = $state(false);
             />
           </div>
         </section>
-        <section data-tour-place-left-target class="border border-border bg-card p-4">
-          <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em]">target · start quadrant</p>
-          <div class="mt-2 tour-place-left">
+        <section data-tour-place-left-target class={cx(rt.panel, rt.bgCard)}>
+          <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12)}>target · start quadrant</p>
+          <div class="tour-place-left {cx(rt.mt8)}">
             <PressButton variant="outline" onclick={() => (placeLeft = true)}>place card before</PressButton>
             <Tour
               bind:open={placeLeft}
@@ -430,9 +448,9 @@ let cardOpen = $state(false);
             />
           </div>
         </section>
-        <section data-tour-place-right-target class="border border-border bg-card p-4">
-          <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em]">target · end quadrant</p>
-          <div class="mt-2 tour-place-right">
+        <section data-tour-place-right-target class={cx(rt.panel, rt.bgCard)}>
+          <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12)}>target · end quadrant</p>
+          <div class="tour-place-right {cx(rt.mt8)}">
             <PressButton variant="outline" onclick={() => (placeRight = true)}>place card after</PressButton>
             <Tour
               bind:open={placeRight}
@@ -440,9 +458,9 @@ let cardOpen = $state(false);
             />
           </div>
         </section>
-        <section data-tour-place-bottom-target class="border border-border bg-card p-4">
-          <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em]">target · bottom quadrant</p>
-          <div class="mt-2">
+        <section data-tour-place-bottom-target class={cx(rt.panel, rt.bgCard)}>
+          <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12)}>target · bottom quadrant</p>
+          <div class={cx(rt.mt8)}>
             <PressButton variant="outline" onclick={() => (placeBottom = true)}>place card below</PressButton>
             <Tour
               bind:open={placeBottom}
@@ -484,9 +502,9 @@ let cardOpen = $state(false);
         <tbody>
           {#each placements as row (row.placement)}
             <tr>
-              <td class="font-mono text-[12px]">{row.placement}</td>
-              <td class="font-mono text-[12px] text-muted-foreground">{row.block}</td>
-              <td class="font-mono text-[12px] text-muted-foreground">{row.inline}</td>
+              <td class={cx(rt.fontMono, rt.text12)}>{row.placement}</td>
+              <td class={cx(rt.note12, rt.fontMono)}>{row.block}</td>
+              <td class={cx(rt.note12, rt.fontMono)}>{row.inline}</td>
             </tr>
           {/each}
         </tbody>
@@ -507,14 +525,14 @@ let cardOpen = $state(false);
       stage="fill"
       output={[{ label: 'indicator', value: 'dots · card(api)' }]}
     >
-      <div class="flex w-full max-w-xl flex-col gap-4">
+      <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
         <PressButton onclick={() => (indicatorOpen = true)}>start the indicator tour</PressButton>
-        <div class="jx-tour-demo-grid w-full">
-          <section data-tour-ind-a class="border border-border bg-card p-3">
-            <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em]">indicator target A</p>
+        <div class="jx-tour-demo-grid {cx(rt.wFull)}">
+          <section data-tour-ind-a class={cx(rt.frame, rt.bgCard, rt.p12)}>
+            <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12)}>indicator target A</p>
           </section>
-          <section data-tour-ind-b class="border border-border bg-card p-3">
-            <p class="m-0 font-nav text-[0.75rem] uppercase tracking-[0.12em]">indicator target B</p>
+          <section data-tour-ind-b class={cx(rt.frame, rt.bgCard, rt.p12)}>
+            <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track12)}>indicator target B</p>
           </section>
         </div>
       </div>
@@ -538,27 +556,27 @@ let cardOpen = $state(false);
       title="The card(api) snippet"
       summary="steps stay data — targets are behavior domain (driver.js precedent) and title/description are metadata for the DEFAULT card. When you need the interior your way, the card snippet receives TourApi: index, total, the current step object, and next/prev/skip wired to the same lifecycle (spotlight, lease, Escape, deterministic skips). The label props died — callers author the buttons."
     >
-      <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-4">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.rowC16, rt.wrap)}>
           <PressButton onclick={() => (cardOpen = true)}>start the custom-card tour</PressButton>
-          <span class="text-muted-foreground text-[12.5px]">targets live in the workbench above — scroll up if they left the viewport</span>
+          <span class={cx(rt.noteSmall)}>targets live in the workbench above — scroll up if they left the viewport</span>
         </div>
-        <pre class="text-[12px] leading-5 text-muted-foreground">TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125;</pre>
+        <pre class={cx(rt.note12, rt.lead5)}>TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125;</pre>
       </div>
     </SectionCard>
   </div>
 
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Tour variants" summary="Card types over the same lifecycle: the default card renders the steps' title/description metadata; the card(api) snippet authors the whole interior (the indicators recipe lives here).">
     <ComponentCanvas title="tour · variants" stage="fill" files={tourTypesFiles}>
-      <div class="grid w-full gap-4 sm:grid-cols-2">
-        <div class="border border-border p-4"><PressButton onclick={() => (open = true)}>default card tour</PressButton></div>
-        <div class="border border-border p-4"><PressButton onclick={() => (cardOpen = true)}>card(api) tour</PressButton></div>
+      <div class={cx(rt.tourGrid)}>
+        <div class={cx(rt.panel)}><PressButton onclick={() => (open = true)}>default card tour</PressButton></div>
+        <div class={cx(rt.panel)}><PressButton onclick={() => (cardOpen = true)}>card(api) tour</PressButton></div>
       </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Non-modal by contract — no focus trap, the page stays scrollable, and finishing restores the invoker's focus."><A11yTable keys={[{ key: '→', action: 'Advance to the next enterable step' }, { key: '←', action: 'Go back one step' }, { key: 'Enter', action: 'Next (the focused button’s default path)' }, { key: 'Escape', action: 'End the tour — focus returns to the opener' }]} aria={[{ name: 'role', value: 'dialog', description: 'The card panel; landing focus sits on Next (or the panel with a custom card).' }, { name: 'aria-modal', value: 'false', description: 'Non-modal: no trap, no inert, the page scrolls.' }, { name: 'popover', value: 'manual', description: 'Top-layer card + tint; the scrim is pointer-events:none.' }, { name: 'aria-label', value: 'step.title', description: 'The dialog is named by the current step.' }, { name: 'aria-hidden', value: 'true (recipe)', description: 'Indicator dots stay decoration; the named dialog carries progress.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The hole is sized by anchor-size() with zero geometry JS; the panel rides the shared surface-motion kernel."><div class="flex flex-col gap-5"><DensityDemo><PressButton onclick={() => (open = true)}>start</PressButton></DensityDemo><TokenTable tokens={[{ name: '--jx-tour-{id}', default: 'anchor-name lease', source: 'component', description: 'Per-instance lease set on the current target; restored on advance/close/unmount.' }, { name: '--jx-tour-gap', default: '12px', source: 'component', description: 'Panel offset from the leased target — the placement recipes reuse it as the margin term.' }, { name: 'tint', default: 'background 55%', source: 'color', description: 'The hole tint: color-mix(in oklab, var(--background) 55%, transparent).' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Shared surface-motion kernel driving open/close.' }, { name: 'hole border', default: '1px solid var(--primary)', source: 'structural', description: 'The anchored hole outlines the leased target.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Trigger target through the composed control.' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125; — the card snippet's whole surface. No placement prop (composed as page CSS — the recorded followup); no modal mode (non-modal is the contract)."><div class="flex flex-col gap-8"><PropsTable props={[{ name: 'steps', type: 'TourStep[]', default: '—', description: 'Targets + title/description metadata (behavior-domain data).', required: true }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state — the tour runs while true.', bindable: true }, { name: 'startAt', type: 'number', default: '0', description: 'Zero-based first step; skipped-forward past unavailable ones.' }, { name: 'onfinish', type: '(index: number) => void', default: '—', description: 'Fires when the tour finishes (end reached, skipped, or all steps unavailable).' }, { name: 'onstep', type: '(index: number) => void', default: '—', description: 'Step change notification (analytics/progress).' }, { name: 'card', type: 'Snippet<[TourApi]>', default: '—', description: 'Replaces the default card interior; receives TourApi — the indicators recipe composes here.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface variant for the card. Defaults: literal slot — own \'auto\', ambient when an axis opens (the dialog/sheet grammar).' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the card panel.' }]} /><PropsTable title="TourStep" props={[{ name: 'target', type: 'string | () => HTMLElement | null', default: '—', description: 'CSS selector for the step’s target, or a resolver; invalid selectors read as unavailable.', required: true }, { name: 'title', type: 'string', default: '—', description: 'Metadata for the default card (a custom card renders or ignores it).' }, { name: 'description', type: 'string', default: '—', description: 'Metadata for the default card.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The hole is sized by anchor-size() with zero geometry JS; the panel rides the shared surface-motion kernel."><div class={cx(rt.col20)}><DensityDemo><PressButton onclick={() => (open = true)}>start</PressButton></DensityDemo><TokenTable tokens={[{ name: '--jx-tour-{id}', default: 'anchor-name lease', source: 'component', description: 'Per-instance lease set on the current target; restored on advance/close/unmount.' }, { name: '--jx-tour-gap', default: '12px', source: 'component', description: 'Panel offset from the leased target — the placement recipes reuse it as the margin term.' }, { name: 'tint', default: 'background 55%', source: 'color', description: 'The hole tint: color-mix(in oklab, var(--background) 55%, transparent).' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Shared surface-motion kernel driving open/close.' }, { name: 'hole border', default: '1px solid var(--primary)', source: 'structural', description: 'The anchored hole outlines the leased target.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Trigger target through the composed control.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125; — the card snippet's whole surface. No placement prop (composed as page CSS — the recorded followup); no modal mode (non-modal is the contract)."><div class={cx(rt.col32)}><PropsTable props={[{ name: 'steps', type: 'TourStep[]', default: '—', description: 'Targets + title/description metadata (behavior-domain data).', required: true }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state — the tour runs while true.', bindable: true }, { name: 'startAt', type: 'number', default: '0', description: 'Zero-based first step; skipped-forward past unavailable ones.' }, { name: 'onfinish', type: '(index: number) => void', default: '—', description: 'Fires when the tour finishes (end reached, skipped, or all steps unavailable).' }, { name: 'onstep', type: '(index: number) => void', default: '—', description: 'Step change notification (analytics/progress).' }, { name: 'card', type: 'Snippet<[TourApi]>', default: '—', description: 'Replaces the default card interior; receives TourApi — the indicators recipe composes here.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface variant for the card. Defaults: literal slot — own \'auto\', ambient when an axis opens (the dialog/sheet grammar).' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the card panel.' }]} /><PropsTable title="TourStep" props={[{ name: 'target', type: 'string | () => HTMLElement | null', default: '—', description: 'CSS selector for the step’s target, or a resolver; invalid selectors read as unavailable.', required: true }, { name: 'title', type: 'string', default: '—', description: 'Metadata for the default card (a custom card renders or ignores it).' }, { name: 'description', type: 'string', default: '—', description: 'Metadata for the default card.' }]} /></div></SectionCard></div>
 
   <div id="see-also" data-reveal="">
     <SectionCard
@@ -568,7 +586,7 @@ let cardOpen = $state(false);
       title="See also"
       summary="The surfaces a tour composes with."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/press-button.html">press-button — the tour triggers</a>
         <a class="pill" href="/docs/components/popover.html">popover — the anchored-panel law</a>
         <a class="pill" href="/docs/components/dropdown-menu.html">dropdown-menu — the anchored menu law</a>
@@ -597,23 +615,23 @@ let cardOpen = $state(false);
   onfinish={(i) => (finishedAt = i)}
 >
   {#snippet card(api)}
-    <p data-tour-card-title="" class="m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">
+    <p data-tour-card-title="" class={cx(rt.m0, rt.fontNav, rt.text13, rt.upper, rt.track10, rt.inkFg)}>
       {api.step.title} · {api.index + 1}/{api.total}
     </p>
-    <div data-tour-card-actions="" class="mt-1 flex items-center justify-between gap-3">
+    <div data-tour-card-actions="" class={cx(rt.rowC12, rt.mt4, rt.justifyBetween)}>
       <button
         type="button"
         data-tour-card-skip=""
-        class="cursor-pointer appearance-none border-0 bg-transparent font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-muted-foreground underline decoration-dotted hover:text-foreground"
+        class={cx(rt.tourSkipGhost)}
         onclick={api.skip}
       >
         skip
       </button>
-      <div class="flex gap-2">
+      <div class={cx(rt.row8)}>
         <button
           type="button"
           data-tour-card-prev=""
-          class="inline-flex cursor-pointer appearance-none border px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] shadow-2xs disabled:cursor-not-allowed disabled:opacity-40"
+          class={cx(rt.tourCtlGhost)}
           disabled={api.index === 0}
           onclick={api.prev}
         >
@@ -622,7 +640,7 @@ let cardOpen = $state(false);
         <button
           type="button"
           data-tour-card-next=""
-          class="inline-flex cursor-pointer appearance-none border border-primary bg-background px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-primary shadow-2xs"
+          class={cx(rt.framePrimary, rt.inlineFlex, rt.cursorPointer, rt.appearanceNone, rt.bgBackground, rt.px14, rt.py6, rt.fontNav, rt.text11, rt.upper, rt.track10, rt.inkPrimary, rt.shadow2xs)}
           onclick={api.next}
         >
           {api.index === api.total - 1 ? 'done' : 'next'}
@@ -650,23 +668,23 @@ let cardOpen = $state(false);
   ]}
 >
   {#snippet card(api)}
-    <p class="m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">{api.step.title}</p>
-    <div class="flex gap-1.5" role="group" aria-label="tour progress">
+    <p class={cx(rt.m0, rt.fontNav, rt.text13, rt.upper, rt.track10, rt.inkFg)}>{api.step.title}</p>
+    <div class={cx(rt.flex, rt.gap6)} role="group" aria-label="tour progress">
       {#each Array.from({ length: api.total }, (_, i) => i) as i (i)}
         <span class="tour-dot" class:tour-dot-on={i === api.index} aria-hidden="true"></span>
       {/each}
     </div>
-    <div class="flex items-center justify-between gap-3">
+    <div class={cx(rt.rowC12, rt.justifyBetween)}>
       <button
         type="button"
-        class="cursor-pointer appearance-none border-0 bg-transparent font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-muted-foreground underline decoration-dotted hover:text-foreground"
+        class={cx(rt.tourSkipGhost)}
         onclick={api.skip}
       >
         skip
       </button>
       <button
         type="button"
-        class="inline-flex cursor-pointer appearance-none border border-primary bg-background px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-primary shadow-2xs disabled:cursor-not-allowed disabled:opacity-40"
+        class={cx(rt.tourCtlPrimary)}
         disabled={api.index === 0}
         onclick={api.prev}
       >
@@ -674,7 +692,7 @@ let cardOpen = $state(false);
       </button>
       <button
         type="button"
-        class="inline-flex cursor-pointer appearance-none border border-primary bg-background px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-primary shadow-2xs"
+        class={cx(rt.framePrimary, rt.inlineFlex, rt.cursorPointer, rt.appearanceNone, rt.bgBackground, rt.px14, rt.py6, rt.fontNav, rt.text11, rt.upper, rt.track10, rt.inkPrimary, rt.shadow2xs)}
         onclick={api.next}
       >
         {api.index === api.total - 1 ? 'done' : 'next'}

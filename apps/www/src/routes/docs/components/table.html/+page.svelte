@@ -18,6 +18,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
@@ -570,6 +571,23 @@ ${close}
   const tableModesFiles: TreeFile[] = [
     { name: 'table-modes-demo.svelte', content: tableModesDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -581,10 +599,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -594,7 +612,7 @@ ${close}
       title="table — frame-width laws, token paint, composition recipes"
       summary="The figure frame is a named inline-size container, so every responsive decision reads the FRAME's width, never the viewport's. Wide (≥ 30rem): the scroll law — fit-content columns, native overflow-x, consumer cells opt into pinned columns with data-sticky=start|end behind a hairline fold mark. Narrow: the CodePen card law — thead folds away, td[data-label] renders a muted label with the value flushed right. Every color routes through the --jx-table-* locals. On top of the paint sits the RECIPE SUITE: the component owns only the frame, so sorting, filtering, selection, row actions, column visibility and pagination are page-owned state composed from the family — the shadcn data-table tutorial's layering in terminal paint, ending in the tasks table."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">container queries on the frame</span>
         <span class="pill">data-sticky pin law</span>
         <span class="pill">data-label card law</span>
@@ -638,7 +656,7 @@ ${close}
             <tr>
               <th data-sticky="start" scope="col">Consumer</th>
               <th scope="col">Status</th>
-              <th scope="col" class="text-right">Items</th>
+              <th scope="col" class={cx(rt.textRight)}>Items</th>
               <th scope="col">Coverage</th>
               <th scope="col">Since</th>
               <th scope="col">Runtime</th>
@@ -656,7 +674,7 @@ ${close}
                   </div>
                 </td>
                 <td data-label="Status"><span class="badge" data-tone={consumer.status}>{consumer.status}</span></td>
-                <td data-label="Items" class="text-right">{consumer.items}</td>
+                <td data-label="Items" class={cx(rt.textRight)}>{consumer.items}</td>
                 <td data-label="Coverage">
                   <span class="meter" role="img" aria-label="{consumer.coverage}% coverage">
                     <span class="meter-fill" style:width="{consumer.coverage}%"></span>
@@ -673,7 +691,7 @@ ${close}
             {/each}
           </tbody>
           <tfoot>
-            <tr><td>Total</td><td>—</td><td class="text-right">54</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Total</td><td>—</td><td class={cx(rt.textRight)}>54</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           </tfoot>
         </Table>
       </div>
@@ -705,7 +723,7 @@ ${close}
   </div>
   </div>
 
-  <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div class={cx(rt.shellFlush)}>
   <!-- usage: the ONE h2 -->
   <div id="usage" data-reveal="">
     <SectionCard
@@ -728,7 +746,7 @@ ${close}
       title="Examples"
       summary="The composition recipes, one ability per demo: sortable headers, filter row + facets, pagination footer, row selection, row actions + column visibility, sticky header — composed into the tasks table at the end."
     >
-      <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+      <p class={cx(rt.bodyMuted, rt.m0)}>
         The component owns the frame; every interactive layer below is page-owned state over
         public component behavior (composition-first — zero registry edits). Missing atoms are
         recorded in the change's followups, never worked around silently.
@@ -752,7 +770,7 @@ ${close}
         { label: 'direction', value: sortKey === null ? '—' : sortDir },
       ]}
     >
-      <div class="w-full max-w-2xl">
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
         <Table caption="tasks — sortable headers" stack={false}>
           <thead>
             <tr>
@@ -782,11 +800,11 @@ ${close}
           <tbody>
             {#each sortableRows.slice(0, 6) as row (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 <td><Badge variant="outline" class="jx-hue-neutral">{row.status}</Badge></td>
                 <td><span class="prio" data-prio={row.priority}>{row.priority}</span></td>
-                <td class="font-mono text-[12px]">{row.due}</td>
+                <td class={cx(rt.fontMono, rt.text12)}>{row.due}</td>
               </tr>
             {/each}
           </tbody>
@@ -822,17 +840,17 @@ ${close}
         { label: 'rows', value: `${filterRows.length} / ${tasks.length}` },
       ]}
     >
-      <div class="w-full max-w-3xl">
+      <div class={cx(rt.wFull, rt.maxW3xl)}>
         <Table caption="tasks — filter row" stack={false}>
           <thead>
             <tr>
               <th scope="col">id</th>
               <th scope="col">title</th>
               <th scope="col">status</th>
-              <th scope="col" class="text-right">due</th>
+              <th scope="col" class={cx(rt.textRight)}>due</th>
             </tr>
             <tr data-filter-row>
-              <th scope="col"><span class="sr-only">filters</span></th>
+              <th scope="col"><span class={cx(rt.srOnly)}>filters</span></th>
               <th scope="col">
                 <Input type="search" bind:value={titleFilter} aria-label="filter by title" placeholder="contains…" />
               </th>
@@ -848,13 +866,13 @@ ${close}
           <tbody>
             {#each filterRows.slice(0, 6) as row (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 <td><Badge variant="outline" class="jx-hue-neutral">{row.status}</Badge></td>
-                <td class="text-right font-mono text-[12px]">{row.due}</td>
+                <td class={cx(rt.textRight, rt.fontMono, rt.text12)}>{row.due}</td>
               </tr>
             {:else}
-              <tr><td colspan="4" class="text-center text-muted-foreground">no rows match the filters</td></tr>
+              <tr><td colspan="4" class={cx(rt.textCenter, rt.inkMuted)}>no rows match the filters</td></tr>
             {/each}
           </tbody>
         </Table>
@@ -888,7 +906,7 @@ ${close}
         { label: 'rows', value: `${pageRows.length} / ${filterRows.length}` },
       ]}
     >
-      <div class="w-full max-w-3xl">
+      <div class={cx(rt.wFull, rt.maxW3xl)}>
         <Table caption="tasks — pagination footer" stack={false}>
           <thead>
             <tr>
@@ -900,19 +918,19 @@ ${close}
           <tbody>
             {#each pageRows as row (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 <td><Badge variant="outline" class="jx-hue-neutral">{row.status}</Badge></td>
               </tr>
             {/each}
           </tbody>
         </Table>
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <span class="font-mono text-[11.5px] text-muted-foreground">
+        <div class={cx(rt.rowC12, rt.mt12, rt.wrap, rt.justifyBetween)}>
+          <span class={cx(rt.fontMono, rt.text115, rt.inkMuted)}>
             {pageRows.length} of {filterRows.length} tasks
           </span>
-          <div class="flex flex-wrap items-center gap-3">
-            <div class="w-28">
+          <div class={cx(rt.rowC12, rt.wrap)}>
+            <div class={cx(rt.w28)}>
               <Select options={pageSizeOptions} bind:value={pageSize} aria-label="rows per page" placeholder="rows" />
             </div>
             <Pagination>
@@ -966,7 +984,7 @@ ${close}
         { label: 'header box', value: selectionState.all ? 'checked' : selectionState.some ? 'indeterminate' : 'unchecked' },
       ]}
     >
-      <div class="w-full max-w-2xl">
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
         <Table caption="tasks — row selection" stack={false}>
           <thead>
             <tr>
@@ -992,13 +1010,13 @@ ${close}
                     onchange={() => (selected = toggleSelected(selected, row.id))}
                   />
                 </td>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
               </tr>
             {/each}
           </tbody>
         </Table>
-        <p class="mt-2 font-mono text-[11.5px] text-muted-foreground" aria-live="polite">
+        <p class={cx(rt.mt8, rt.fontMono, rt.text115, rt.inkMuted)} aria-live="polite">
           {selected.size} of {selectionRows.length} selected
         </p>
       </div>
@@ -1032,10 +1050,10 @@ ${close}
         { label: 'last action', value: actionEcho },
       ]}
     >
-      <div class="w-full max-w-3xl">
-        <div class="mb-3 flex flex-wrap items-center gap-3">
+      <div class={cx(rt.wFull, rt.maxW3xl)}>
+        <div class={cx(rt.rowC12, rt.mb12, rt.wrap)}>
           <Popover id="actions-columns" triggerLabel="columns">
-            <div class="flex flex-col gap-2 p-2">
+            <div class={cx(rt.col8, rt.p8)}>
               <Checkbox
                 label="priority"
                 checked={actionsVisible.priority}
@@ -1048,7 +1066,7 @@ ${close}
               />
             </div>
           </Popover>
-          <span class="font-mono text-[11.5px] text-muted-foreground">last action: {actionEcho}</span>
+          <span class={cx(rt.fontMono, rt.text115, rt.inkMuted)}>last action: {actionEcho}</span>
         </div>
         <Table caption="tasks — row actions" stack={false}>
           <thead>
@@ -1057,16 +1075,16 @@ ${close}
               <th scope="col">title</th>
               {#if actionsVisible.priority}<th scope="col">priority</th>{/if}
               {#if actionsVisible.assignee}<th scope="col">assignee</th>{/if}
-              <th scope="col"><span class="sr-only">actions</span></th>
+              <th scope="col"><span class={cx(rt.srOnly)}>actions</span></th>
             </tr>
           </thead>
           <tbody>
             {#each tasks.slice(0, 5) as row (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 {#if actionsVisible.priority}<td><span class="prio" data-prio={row.priority}>{row.priority}</span></td>{/if}
-                {#if actionsVisible.assignee}<td class="font-mono text-[12px]">{row.assignee}</td>{/if}
+                {#if actionsVisible.assignee}<td class={cx(rt.fontMono, rt.text12)}>{row.assignee}</td>{/if}
                 <td>
                   <DropdownMenu id={`task-actions-${row.id}`} placement="bottom-end">
                     {#snippet trigger()}
@@ -1074,7 +1092,7 @@ ${close}
                         type="button"
                         popovertarget={`task-actions-${row.id}`}
                         aria-label={`actions for ${row.id}`}
-                        class="jx-press inline-flex cursor-pointer appearance-none border border-border bg-background px-2 py-0.5 text-[13px] leading-5 shadow-2xs"
+                        class="jx-press {cx(rt.frame, rt.inlineFlex, rt.cursorPointer, rt.appearanceNone, rt.bgBackground, rt.px8, rt.py2, rt.text13, rt.lead5, rt.shadow2xs)}"
                       >
                         ⋯
                       </button>
@@ -1116,7 +1134,7 @@ ${close}
       stage="fill"
       output={[{ label: 'scrollport', value: 'frame · 16rem clamp' }, { label: 'rows', value: tasks.length }]}
     >
-      <div class="w-full max-w-2xl">
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
         <Table class="sticky-scroll" caption="event log — the head stays" stack={false}>
           <thead>
             <tr>
@@ -1128,7 +1146,7 @@ ${close}
           <tbody>
             {#each tasks as row, index (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">08-{26 + (index % 4)} · {String(10 + index).padStart(2, '0')}:42</td>
+                <td class={cx(rt.note12, rt.fontMono)}>08-{26 + (index % 4)} · {String(10 + index).padStart(2, '0')}:42</td>
                 <td>{row.title}</td>
                 <td>{index % 3 === 0 ? 'info' : index % 3 === 1 ? 'warn' : 'error'}</td>
               </tr>
@@ -1169,10 +1187,10 @@ ${close}
         { label: 'sort', value: sortKey === null ? '—' : `${sortKey} ${sortDir}` },
       ]}
     >
-      <div class="w-full">
+      <div class={cx(rt.wFull)}>
         <!-- the toolbar: filter + facets + column visibility -->
-        <div class="mb-3 flex flex-wrap items-center gap-3">
-          <div class="w-56">
+        <div class={cx(rt.rowC12, rt.mb12, rt.wrap)}>
+          <div class={cx(rt.w56)}>
             <Input type="search" bind:value={tasksFilter} aria-label="filter tasks by title" placeholder="filter tasks…" />
           </div>
           <ToggleGroup name="tasks-status" type="multiple" label="filter by status" bind:value={tasksFacets}>
@@ -1181,7 +1199,7 @@ ${close}
             {/each}
           </ToggleGroup>
           <Popover id="tasks-columns" triggerLabel="columns">
-            <div class="flex flex-col gap-2 p-2">
+            <div class={cx(rt.col8, rt.p8)}>
               <Checkbox
                 label="priority"
                 checked={tasksVisible.priority}
@@ -1226,7 +1244,7 @@ ${close}
                 </th>
               {/if}
               {#if tasksVisible.assignee}<th scope="col">assignee</th>{/if}
-              <th scope="col"><span class="sr-only">actions</span></th>
+              <th scope="col"><span class={cx(rt.srOnly)}>actions</span></th>
             </tr>
           </thead>
           <tbody>
@@ -1239,11 +1257,11 @@ ${close}
                     onchange={() => (tasksSelected = toggleSelected(tasksSelected, row.id))}
                   />
                 </td>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 <td><Badge variant="outline" class="jx-hue-neutral">{row.status}</Badge></td>
                 {#if tasksVisible.priority}<td><span class="prio" data-prio={row.priority}>{row.priority}</span></td>{/if}
-                {#if tasksVisible.assignee}<td class="font-mono text-[12px]">{row.assignee}</td>{/if}
+                {#if tasksVisible.assignee}<td class={cx(rt.fontMono, rt.text12)}>{row.assignee}</td>{/if}
                 <td>
                   <DropdownMenu id={`tasks-menu-${row.id}`} placement="bottom-end">
                     {#snippet trigger()}
@@ -1251,7 +1269,7 @@ ${close}
                         type="button"
                         popovertarget={`tasks-menu-${row.id}`}
                         aria-label={`actions for ${row.id}`}
-                        class="jx-press inline-flex cursor-pointer appearance-none border border-border bg-background px-2 py-0.5 text-[13px] leading-5 shadow-2xs"
+                        class="jx-press {cx(rt.frame, rt.inlineFlex, rt.cursorPointer, rt.appearanceNone, rt.bgBackground, rt.px8, rt.py2, rt.text13, rt.lead5, rt.shadow2xs)}"
                       >
                         ⋯
                       </button>
@@ -1264,18 +1282,18 @@ ${close}
                 </td>
               </tr>
             {:else}
-              <tr><td colspan="7" class="text-center text-muted-foreground">no tasks match the toolbar</td></tr>
+              <tr><td colspan="7" class={cx(rt.textCenter, rt.inkMuted)}>no tasks match the toolbar</td></tr>
             {/each}
           </tbody>
         </Table>
 
         <!-- the footer: selection readout + page-size + windowed pagination -->
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <span class="font-mono text-[11.5px] text-muted-foreground" aria-live="polite">
+        <div class={cx(rt.rowC12, rt.mt12, rt.wrap, rt.justifyBetween)}>
+          <span class={cx(rt.fontMono, rt.text115, rt.inkMuted)} aria-live="polite">
             {tasksSelected.size} of {tasks.length} selected
           </span>
-          <div class="flex flex-wrap items-center gap-3">
-            <div class="w-28">
+          <div class={cx(rt.rowC12, rt.wrap)}>
+            <div class={cx(rt.w28)}>
               <Select options={pageSizeOptions} bind:value={pageSize} aria-label="rows per page" placeholder="rows" />
             </div>
             <Pagination>
@@ -1300,7 +1318,7 @@ ${close}
           </div>
         </div>
         {#if tasksLog.length}
-          <p class="mt-2 font-mono text-[11.5px] text-muted-foreground">recent: {tasksLog.join(' · ')}</p>
+          <p class={cx(rt.mt8, rt.fontMono, rt.text115, rt.inkMuted)}>recent: {tasksLog.join(' · ')}</p>
         {/if}
       </div>
       {#snippet playground()}
@@ -1327,23 +1345,23 @@ ${close}
       files={[{ name: 'registry/files/ui/table/table.svelte', content: tableSource }]}
       stage="fill"
     >
-      <Table caption="jixoai components — environment support (2026-08)" class="w-full max-w-[40rem]">
+      <Table caption="jixoai components — environment support (2026-08)" class={cx(rt.wFull, rt.maxW40)}>
         <thead>
           <tr>
             <th>Component</th>
             <th>Svelte 5</th>
             <th>Prerendered SSR</th>
-            <th class="text-right">Files</th>
+            <th class={cx(rt.textRight)}>Files</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td data-label="Component">press-button</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class="text-right">1</td></tr>
-          <tr><td data-label="Component">code-card + highlight</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class="text-right">2</td></tr>
-          <tr><td data-label="Component">table</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class="text-right">1</td></tr>
-          <tr><td data-label="Component">tree-view</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class="text-right">1</td></tr>
+          <tr><td data-label="Component">press-button</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class={cx(rt.textRight)}>1</td></tr>
+          <tr><td data-label="Component">code-card + highlight</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class={cx(rt.textRight)}>2</td></tr>
+          <tr><td data-label="Component">table</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class={cx(rt.textRight)}>1</td></tr>
+          <tr><td data-label="Component">tree-view</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class={cx(rt.textRight)}>1</td></tr>
         </tbody>
         <tfoot>
-          <tr><td>Total</td><td>—</td><td>—</td><td class="text-right">5</td></tr>
+          <tr><td>Total</td><td>—</td><td>—</td><td class={cx(rt.textRight)}>5</td></tr>
         </tfoot>
       </Table>
       {#snippet playground()}
@@ -1359,11 +1377,11 @@ ${close}
 
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="Responsive modes" summary="Keep the native table markup; dense reduces row height and stack selects the narrow-frame card law.">
-      <ComponentCanvas title="table · modes" stage="fill" files={tableModesFiles}><div class="grid gap-4 md:grid-cols-2"><Table caption="default"><tbody><tr><td>regular rows</td></tr></tbody></Table><Table dense stack={false} caption="dense scroll"><tbody><tr><td>compact, always scrollable</td></tr></tbody></Table></div></ComponentCanvas>
+      <ComponentCanvas title="table · modes" stage="fill" files={tableModesFiles}><div class={cx(rt.tbGridMd2Full)}><Table caption="default"><tbody><tr><td>regular rows</td></tr></tbody></Table><Table dense stack={false} caption="dense scroll"><tbody><tr><td>compact, always scrollable</td></tr></tbody></Table></div></ComponentCanvas>
     </SectionCard>
   </div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'caption', value: 'native table caption', description: 'Names the table for assistive technology.' }, { name: 'scope', value: 'col | row', description: 'Associates headers with their cells.' }, { name: 'data-label', value: 'string', description: 'Labels values in the narrow card layout.' }, { name: 'aria-sort', value: 'ascending | descending', description: 'Recipe wiring: lives on the sorted th only; the caret glyph stays aria-hidden.' }, { name: 'aria-live', value: 'polite', description: 'Selection count readout announces changes without stealing focus.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Table caption="density"><tbody><tr><td>row</td></tr></tbody></Table></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-table-surface', default: 'var(--background)', source: 'component' }, { name: '--jx-table-head', default: 'var(--muted)', source: 'component' }, { name: '--jx-table-hover', default: 'primary 7% mix', source: 'color' }, { name: '--jx-table-hairline', default: 'border 12% mix', source: 'color' }, { name: '--jx-table-rule', default: 'border 18% mix', source: 'color' }, { name: '--jx-table-edge', default: 'border 34% mix', source: 'color' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Table caption="density"><tbody><tr><td>row</td></tr></tbody></Table></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-table-surface', default: 'var(--background)', source: 'component' }, { name: '--jx-table-head', default: 'var(--muted)', source: 'component' }, { name: '--jx-table-hover', default: 'primary 7% mix', source: 'color' }, { name: '--jx-table-hairline', default: 'border 12% mix', source: 'color' }, { name: '--jx-table-rule', default: 'border 18% mix', source: 'color' }, { name: '--jx-table-edge', default: 'border 34% mix', source: 'color' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Uses compact row padding.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', default: "'sm' · ambient scope", description: 'Explicit override, then the inherited scope, then the family own sm — dense tabular rows are the table’s declared posture (the design-frozen local fallback, now the density slot’s own).' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">
@@ -1374,7 +1392,7 @@ ${close}
       title="See also"
       summary="The families the recipes compose with."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/pagination.html">pagination — the footer family</a>
         <a class="pill" href="/docs/components/checkbox.html">checkbox — the selection column</a>
         <a class="pill" href="/docs/components/dropdown-menu.html">dropdown-menu — the row-actions column</a>

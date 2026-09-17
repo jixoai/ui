@@ -1,5 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import GhosttyTerm from '$lib/ui/ghostty-term/ghostty-term.svelte';
@@ -283,7 +284,7 @@ export default {
   // the interactive shell takes over. Ctrl+C cancels mid-show; the
   // `showcase` command and the title-bar replay button rerun it.
   // reduced-motion collapses every delay to zero.
-  const cx = {
+  const ink = {
     dim: (t: string) => `\u001b[38;5;244m${t}\u001b[0m`,
     blue: (t: string) => `\u001b[38;5;153m${t}\u001b[0m`,
     purple: (t: string) => `\u001b[1;38;5;141m${t}\u001b[0m`,
@@ -325,8 +326,8 @@ export default {
       emit(PROMPT);
     };
 
-    emit(`${cx.purple('ghostty-term')} — the live terminal surface\r\n`);
-    emit(`${cx.dim('real libghostty-vt wasm · rAF dirty-row canvas · zero DOM rows')}\r\n\r\n`);
+    emit(`${ink.purple('ghostty-term')} — the live terminal surface\r\n`);
+    emit(`${ink.dim('real libghostty-vt wasm · rAF dirty-row canvas · zero DOM rows')}\r\n\r\n`);
     await sleep(350 * beat());
     if (!live()) return;
 
@@ -344,14 +345,14 @@ export default {
     ] as const;
     for (const [tag, line] of stages) {
       if (!live()) return;
-      emit(`  ${cx.dim('supply')} ${cx.cyan(tag.padEnd(5))}${cx.dim('·')} ${line}\r\n`);
+      emit(`  ${ink.dim('supply')} ${ink.cyan(tag.padEnd(5))}${ink.dim('·')} ${line}\r\n`);
       await sleep(150 * beat());
     }
 
     if (beat()) {
       const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
       for (let i = 0; i < 14 && live(); i++) {
-        emit(`\r  ${cx.cyan(frames[i % frames.length]!)} ${cx.dim('streaming ghostty-vt.wasm…')}`);
+        emit(`\r  ${ink.cyan(frames[i % frames.length]!)} ${ink.dim('streaming ghostty-vt.wasm…')}`);
         await sleep(75);
       }
       if (!live()) return;
@@ -360,36 +361,36 @@ export default {
       const width = 26;
       for (let pct = 0; pct <= 100 && live(); pct += 4) {
         const filled = Math.round((pct / 100) * width);
-        emit(`\r  ${cx.cyan(`[${'█'.repeat(filled)}${'░'.repeat(width - filled)}]`)} ${String(pct).padStart(3)}%`);
+        emit(`\r  ${ink.cyan(`[${'█'.repeat(filled)}${'░'.repeat(width - filled)}]`)} ${String(pct).padStart(3)}%`);
         await sleep(55);
       }
       if (!live()) return;
       emit('\r\u001b[2K');
     }
 
-    emit(`  ${cx.green('✓')} ghostty-term ready — ${cx.dim('pin + sha256 supply · wasm never in git')}\r\n\r\n`);
+    emit(`  ${ink.green('✓')} ghostty-term ready — ${ink.dim('pin + sha256 supply · wasm never in git')}\r\n\r\n`);
 
     // the xtermjs.org features-box homage — framed, keyword-colored
-    const edge = cx.dim('│');
+    const edge = ink.dim('│');
     emit(
       [
-        ` ${cx.dim('┌ ── features ────────────────────────────────────────────┐')}`,
+        ` ${ink.dim('┌ ── features ────────────────────────────────────────────┐')}`,
         `${edge}                                                                          ${edge}`,
-        `${edge}  ${cx.green('\u001b[1mreal VT core\u001b[0m')}                        ${cx.cyan('\u001b[1mgrapheme-native\u001b[0m')}              ${edge}`,
+        `${edge}  ${ink.green('\u001b[1mreal VT core\u001b[0m')}                        ${ink.cyan('\u001b[1mgrapheme-native\u001b[0m')}              ${edge}`,
         `${edge}  the actual libghostty-vt wasm       CJK 誊 · emoji 🫡 ❤️ cluster-     ${edge}`,
         `${edge}  parses every byte you write         broken by ghostty itself        ${edge}`,
         `${edge}                                                                          ${edge}`,
-        `${edge}  ${cx.purple('\u001b[1mdensity kernel\u001b[0m')}                      ${cx.blue('\u001b[1mzero-dep supply\u001b[0m')}             ${edge}`,
+        `${edge}  ${ink.purple('\u001b[1mdensity kernel\u001b[0m')}                      ${ink.blue('\u001b[1mzero-dep supply\u001b[0m')}             ${edge}`,
         `${edge}  cells derive from --jx-text/--jx-line  pin + sha256, wasm never        ${edge}`,
         `${edge}                                         enters git or your bundle     ${edge}`,
         `${edge}                                                                          ${edge}`,
-        ` ${cx.dim('└──────────────────────────────────────────────────────────────────┘')}`,
+        ` ${ink.dim('└──────────────────────────────────────────────────────────────────┘')}`,
         '',
       ].join('\r\n'),
     );
     emit(`${colorMatrix()}\r\n`);
     emit(
-      `${cx.dim('the shell is yours — ')}${cx.blue('help')}${cx.dim(' · ')}${cx.blue('color')}${cx.dim(' · ')}${cx.blue('showcase')}${cx.dim(' · Ctrl+C cancels')}\r\n\r\n`,
+      `${ink.dim('the shell is yours — ')}${ink.blue('help')}${ink.dim(' · ')}${ink.blue('color')}${ink.dim(' · ')}${ink.blue('showcase')}${ink.dim(' · Ctrl+C cancels')}\r\n\r\n`,
     );
     finish();
   };
@@ -507,6 +508,23 @@ export default {
   const bootTShell = bootWrite(themeLine);
   const bootTCustom = bootWrite(`shell ink/paper ← theme prop override\r\n${ansiLine}`);
 
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -517,8 +535,8 @@ export default {
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <!-- ① hero -->
     <div data-reveal="">
       <SectionCard
@@ -528,7 +546,7 @@ export default {
         title="ghostty-term — the live wasm terminal"
         summary="The brand's live terminal surface: a canvas grid rendered by the real libghostty-vt wasm, not a DOM reimplementation. The component owns painting and geometry — DPR-aware cells derived from the density tokens, rAF-batched dirty-row repaints — while the consumer owns the pty: onData carries terminal input out (keys, gated pastes, wheel) and the bind:this write() feeds pty output back in. Load failures degrade to a data-state machine with a terminal-styled fallback, or the consumer's own face through the children slot."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">real libghostty-vt wasm</span>
           <span class="pill">rAF dirty-row canvas painting</span>
           <span class="pill">density-derived cell metrics</span>
@@ -561,20 +579,20 @@ export default {
              and var(--shadow) is a shadow LIST not a color, so the
              declaration actually computed to none) -->
         <div
-          class="border-border bg-terminal text-terminal-foreground flex h-[380px] w-full flex-col overflow-hidden border shadow-md"
+          class={cx(rt.ghDemoShell)}
         >
           <div
-            class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"
+            class={cx(rt.rowC6, rt.inkTermFg55, rt.bBorderW, rt.px14, rt.py8, rt.fontNav, rt.text12, rt.track10)}
           >
-            <span class="h-2 w-2 flex-none border border-current bg-[oklch(0.7_0.18_25)]" aria-hidden="true"></span>
-            <span class="h-2 w-2 flex-none border border-current bg-[oklch(0.85_0.17_95)]" aria-hidden="true"></span>
-            <span class="h-2 w-2 flex-none border border-current bg-[oklch(0.75_0.17_150)]" aria-hidden="true"></span>
-            <span class="ml-2 truncate">
+            <span class={cx(rt.ghDotRed)} aria-hidden="true"></span>
+            <span class={cx(rt.ghDotYellow)} aria-hidden="true"></span>
+            <span class={cx(rt.ghDotGreen)} aria-hidden="true"></span>
+            <span class={cx(rt.ml8, rt.truncate)}>
               {termTitle || 'jixoai — ghostty-term'}{grid.cols > 0 ? ` — ${grid.cols}×${grid.rows}` : ''}
             </span>
             <button
               type="button"
-              class="ml-auto flex items-center transition-colors hover:text-terminal-foreground"
+              class={cx(rt.ghTitleBtn)}
               onclick={resetCanvas}
               aria-label="replay the showcase"
               title="replay the showcase"
@@ -582,7 +600,7 @@ export default {
               ↻
             </button>
           </div>
-          <div class="relative min-h-0 flex-1">
+          <div class={cx(rt.relative, rt.minH0, rt.grow)}>
             {#key replay}
               <GhosttyTerm
                 bind:this={term}
@@ -624,7 +642,7 @@ export default {
             <PlayRow label="custom background">
               <input
                 type="color"
-                class="h-6 w-10 cursor-pointer border border-border bg-transparent"
+                class={cx(rt.ghBtn)}
                 value={customBg}
                 oninput={(e) => (customBg = e.currentTarget.value)}
                 aria-label="custom background color"
@@ -633,7 +651,7 @@ export default {
             <PlayRow label="custom selection">
               <input
                 type="color"
-                class="h-6 w-10 cursor-pointer border border-border bg-transparent"
+                class={cx(rt.ghBtn)}
                 value={customSel}
                 oninput={(e) => (customSel = e.currentTarget.value)}
                 aria-label="custom selection color"
@@ -661,17 +679,17 @@ export default {
         title="Install prerequisites"
         summary="The one jixoai component with a supply-chain step: the wasm never enters git or your bundle source — the vite plugin pins its sha256, resolves it (env → cache → verified download), and hands the URL over through the virtual:jixoai-ghostty module. Two steps on a tailwind v4 + vite project:"
       >
-        <div class="flex flex-col gap-5">
-          <div class="flex flex-col gap-3">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
+        <div class={cx(rt.col20)}>
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.eyebrowPrimary)}
               >1 — the jixoai base (tw4)</span
             >
             <CodeBlock code={initCode} lang="bash" meta="terminal" />
             <CodeBlock code={registryCode} lang="json" meta="components.json" />
             <CodeBlock code={addCode} lang="bash" meta="terminal" />
           </div>
-          <div class="flex flex-col gap-3">
-            <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.eyebrowPrimary)}
               >2 — the vite plugin (wasm supply)</span
             >
             <CodeBlock code={pluginCode} lang="bash" meta="terminal" />
@@ -691,7 +709,7 @@ export default {
         title="Usage"
         summary="Auto sizing fills the container; explicit cols/rows fixes the grid. The consumer owns the pty loop: onData out, write in."
       >
-        <div class="flex flex-col gap-4">
+        <div class={cx(rt.col16)}>
           <CodeBlock code={usage} lang="svelte" meta="GhosttyTerm usage" />
           <CodeBlock code={loop} lang="text" meta="the pty loop" />
         </div>
@@ -712,34 +730,34 @@ export default {
           stage="fill"
           files={[{ name: 'ghostty-term-degradation-demo.svelte', content: ghosttyDegradationDemo, kind: 'usage' }]}
         >
-          <div class="flex flex-wrap items-start gap-6">
-            <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
+          <div class={cx(rt.wrapStart24)}>
+            <div class={cx(rt.col12, rt.panel, rt.minW64, rt.grow)}>
+              <span class={cx(rt.eyebrowPrimary)}
                 >default fallback (no slot)</span
               >
-              <div class="h-40">
+              <div class={cx(rt.ghStage40)}>
                 <GhosttyTerm wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" />
               </div>
-              <span class="text-muted-foreground text-[12.5px]"
+              <span class={cx(rt.noteSmall)}
                 >role="status" face — the typed GhosttyVTError message names the failure</span
               >
             </div>
-            <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]"
+            <div class={cx(rt.col12, rt.panel, rt.minW64, rt.grow)}>
+              <span class={cx(rt.eyebrowPrimary)}
                 >children slot (consumer face)</span
               >
-              <div class="h-40">
+              <div class={cx(rt.ghStage40)}>
                 <GhosttyTerm wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm">
                   <div
-                    class="absolute inset-0 flex items-center justify-center p-4 font-mono text-[13px] leading-5 text-terminal-foreground"
+                    class={cx(rt.absolute, rt.inset0, rt.flex, rt.itemsCenter, rt.justifyCenter, rt.p16, rt.fontMono, rt.text13, rt.lead5, rt.inkTermFg)}
                     role="status"
                   >
-                    <span class="text-primary mr-2" aria-hidden="true">$</span>
+                    <span class={cx(rt.inkPrimary, rt.mr8)} aria-hidden="true">$</span>
                     consumer fallback — this face is the children slot
                   </div>
                 </GhosttyTerm>
               </div>
-              <span class="text-muted-foreground text-[12.5px]"
+              <span class={cx(rt.noteSmall)}
                 >the slot also covers loading/ready as a plain overlay</span
               >
             </div>
@@ -757,38 +775,38 @@ export default {
         title="Density & theming"
         summary="Density rides the standard token kernels: --jx-text sets the cell font, --jx-line sets the row pitch — the same explicit density prop as every jixoai component. Theming is deliberately one-sided: the theme prop (and the --terminal tokens) restyle only the SHELL paper/ink; ANSI 8/256/truecolor content colors pass through the wasm verbatim."
       >
-        <div class="flex flex-col gap-6">
+        <div class={cx(rt.col24)}>
           <ComponentCanvas
             title="ghostty-term · density"
             stage="fill"
             files={[{ name: 'ghostty-term-density-demo.svelte', content: ghosttyDensityDemo, kind: 'usage' }]}
           >
-            <div class="flex flex-wrap gap-4">
-              <div class="min-w-64 flex-1">
-                <span class="font-nav text-primary mb-2 block text-[11px] uppercase tracking-[0.24em]"
+            <div class={cx(rt.wrap16)}>
+              <div class={cx(rt.minW64, rt.grow)}>
+                <span class={cx(rt.eyebrowPrimary, rt.mb8, rt.block)}
                   >density prop — cell metrics follow</span
                 >
-                <div class="flex flex-col gap-3">
-                  <div class="h-32">
+                <div class={cx(rt.col12)}>
+                  <div class={cx(rt.ghStage32)}>
                     <GhosttyTerm density="sm" bind:this={dSm} onResize={() => bootSm(dSm)} />
                   </div>
-                  <div class="h-32">
+                  <div class={cx(rt.ghStage32)}>
                     <GhosttyTerm bind:this={dDefault} onResize={() => bootDefault(dDefault)} />
                   </div>
-                  <div class="h-32">
+                  <div class={cx(rt.ghStage32)}>
                     <GhosttyTerm density="lg" bind:this={dLg} onResize={() => bootLg(dLg)} />
                   </div>
                 </div>
               </div>
-              <div class="min-w-64 flex-1">
-                <span class="font-nav text-primary mb-2 block text-[11px] uppercase tracking-[0.24em]"
+              <div class={cx(rt.minW64, rt.grow)}>
+                <span class={cx(rt.eyebrowPrimary, rt.mb8, rt.block)}
                   >theme — shell only, ANSI verbatim</span
                 >
-                <div class="flex flex-col gap-3">
-                  <div class="h-[9.5rem]">
+                <div class={cx(rt.col12)}>
+                  <div class={cx(rt.ghStage152)}>
                     <GhosttyTerm bind:this={tShell} onResize={() => bootTShell(tShell)} />
                   </div>
-                  <div class="h-[9.5rem]">
+                  <div class={cx(rt.ghStage152)}>
                     <GhosttyTerm
                       bind:this={tCustom}
                       onResize={() => bootTCustom(tCustom)}
@@ -849,7 +867,7 @@ export default {
         title="API"
         summary="Props from the GhosttyTerm Props interface; the bind:this surface mirrors a pty handle. Rest props spread onto the root."
       >
-        <div class="flex flex-col gap-6">
+        <div class={cx(rt.col24)}>
           <PropsTable
             props={[
               { name: 'cols', type: 'number', default: '—', description: 'Fixed grid columns; any explicit cols/rows (or auto={false}) switches out of auto sizing.' },
@@ -887,18 +905,18 @@ export default {
         title="The wasm is the terminal"
         summary="Nothing re-implements VT here. The platform gives parsing, grid state and scrollback inside libghostty-vt; this component adds exactly the browser-shaped pieces around it — DPR-aware painting, density-derived metrics, the input bridge, the degradation machine."
       >
-        <ul class="flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <ul class={cx(rt.col8, rt.body13)}>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>painting is data, not decoration: rAF batches writes, only dirty rows repaint,
             a row cache serves full repaints (theme/font changes) — no loops, no blink</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>the color boundary is one-sided by design: shell paper/ink resolve from jixoai
               tokens; content colors leave the wasm verbatim — theming never rewrites user
               output</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>the pty is yours: onData out, write in — the component never guesses what a
               shell is (this page’s demo is a loopback, not hidden behavior)</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>V1 bounds, stated plainly: no cursor/selection paint (the frozen vt face exposes
               no cursor read), no hyperlink activation, viewport-only scroll, and a clamped wheel
               shift where the upstream render state under-reports dirty rows</span></li>

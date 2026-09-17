@@ -14,6 +14,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import Kbd from '$lib/ui/kbd/kbd.svelte';
@@ -122,6 +123,23 @@ ${close}
     </CommandGroup>
   </CommandList>
 </Command>`;
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -132,8 +150,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -142,7 +160,7 @@ ${close}
         title="command — the composed ⌘K surface"
         summary="A modal task on a native dialog: showModal gives the focus trap, Escape and the top layer. The family is composed cmdk-style — every CommandItem SELF-MATCHES against the context predicate (match may only answer inclusion; authored tree order is the byte-stable walk order), emptied groups and the no-matches state are pure CSS :has, and the combobox holds focus with aria-activedescendant. IME-safe, deterministic default match (equals > startsWith > token > includes > keywords as a boolean disjunction), per-item onselect — one execution path."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">dialog + showModal</span>
           <span class="pill">self-matching items</span>
           <span class="pill">aria-activedescendant</span>
@@ -165,9 +183,9 @@ ${close}
           { label: 'last action', value: lastAction || '—' },
         ]}
       >
-        <div class="flex flex-wrap items-center gap-4">
+        <div class={cx(rt.wrapRow16)}>
           <PressButton onclick={() => (open = true)}>open palette</PressButton>
-          <span class="text-muted-foreground text-[12.5px]">
+          <span class={cx(rt.text125, rt.inkMuted)}>
             or <Kbd>⌘</Kbd> + <Kbd>K</Kbd> anywhere
           </span>
         </div>
@@ -176,9 +194,9 @@ ${close}
             <PlayHelp>
               keyboard: type to filter, ↑/↓ walk with wrap (skipping disabled), Home/End jump,
               Enter runs and closes, Escape closes with focus restored natively. the
-              <code class="text-accent">match</code> predicate may only answer inclusion —
+              <code class={cx(rt.inkAccent)}>match</code> predicate may only answer inclusion —
               authored order is byte-stable under any custom predicate;
-              <code class="text-accent">closeOnSelect={'{'}false{'}'}</code> keeps it open
+              <code class={cx(rt.inkAccent)}>closeOnSelect={'{'}false{'}'}</code> keeps it open
               for batch actions.
             </PlayHelp>
           </PlayFields>
@@ -227,10 +245,10 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Command variants" summary="Use the palette for keyboard-first actions, optional hotkeys, and batch selection."><ComponentCanvas title="command · types" files={[{ name: 'command-types-demo.svelte', content: commandTypesDemo, kind: 'usage' }]} stage="fill"><div class="grid w-full gap-4 sm:grid-cols-2"><div class="border border-border p-4"><Command><CommandInput placeholder="search actions" /><CommandList><CommandGroup heading="actions"><CommandItem label="Open">Open</CommandItem></CommandGroup></CommandList></Command></div><div class="border border-border p-4"><Command closeOnSelect={false}><CommandInput placeholder="batch actions" /><CommandList><CommandGroup heading="batch"><CommandItem label="Queue">Queue</CommandItem></CommandGroup></CommandList></Command></div></div></ComponentCanvas></SectionCard></div>
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Command variants" summary="Use the palette for keyboard-first actions, optional hotkeys, and batch selection."><ComponentCanvas title="command · types" files={[{ name: 'command-types-demo.svelte', content: commandTypesDemo, kind: 'usage' }]} stage="fill"><div class={cx(rt.cmdGrid)}><div class={cx(rt.panel)}><Command><CommandInput placeholder="search actions" /><CommandList><CommandGroup heading="actions"><CommandItem label="Open">Open</CommandItem></CommandGroup></CommandList></Command></div><div class={cx(rt.panel)}><Command closeOnSelect={false}><CommandInput placeholder="batch actions" /><CommandList><CommandGroup heading="batch"><CommandItem label="Queue">Queue</CommandItem></CommandGroup></CommandList></Command></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the dialog root from its input, list, groups, empty state, and items."><CodeBlock code={usage} lang="svelte" meta="Command usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The input owns focus while the active option is announced through aria-activedescendant."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move through visible, enabled options.' }, { key: 'Home / End', action: 'Jump to the first or last option.' }, { key: 'Enter', action: 'Run the active option and close by default.' }, { key: 'Escape', action: 'Close the dialog and restore focus.' }]} aria={[{ name: 'role', value: 'combobox / listbox / option', description: 'Exposes the command palette interaction model.' }, { name: 'aria-activedescendant', value: 'option id', description: 'Announces the active option while input retains focus.' }, { name: 'aria-expanded', value: 'true', description: 'Indicates the open listbox state.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The palette uses shared density tokens for its input, options, and empty state."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Command><CommandInput placeholder="find" /><CommandList><CommandItem label="Open">Open</CommandItem></CommandList></Command></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root props control lifecycle and matching; item props provide the searchable command contract."><PropsTable title="Command" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Bindable dialog open state.', bindable: true }, { name: 'hotkey', type: 'boolean', default: 'false', description: 'Opt into ⌘K / Ctrl+K handling.' }, { name: 'match', type: 'CommandMatch', description: 'Visibility-only matching predicate.' }, { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close after a successful item selection.' }, { name: 'label', type: 'string', default: "'command palette'", description: 'Accessible dialog and combobox label.' }]} /><div class="mt-5"><PropsTable title="CommandItem" props={[{ name: 'label', type: 'string', required: true, description: 'Match text and accessible name.' }, { name: 'keywords', type: 'string', description: 'Additional match text.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Renders but never walks or activates.' }, { name: 'onselect', type: '() => void', description: 'Runs once when selected.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The palette uses shared density tokens for its input, options, and empty state."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><Command><CommandInput placeholder="find" /><CommandList><CommandItem label="Open">Open</CommandItem></CommandList></Command></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root props control lifecycle and matching; item props provide the searchable command contract."><PropsTable title="Command" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Bindable dialog open state.', bindable: true }, { name: 'hotkey', type: 'boolean', default: 'false', description: 'Opt into ⌘K / Ctrl+K handling.' }, { name: 'match', type: 'CommandMatch', description: 'Visibility-only matching predicate.' }, { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close after a successful item selection.' }, { name: 'label', type: 'string', default: "'command palette'", description: 'Accessible dialog and combobox label.' }]} /><div class={cx(rt.mt20)}><PropsTable title="CommandItem" props={[{ name: 'label', type: 'string', required: true, description: 'Match text and accessible name.' }, { name: 'keywords', type: 'string', description: 'Additional match text.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Renders but never walks or activates.' }, { name: 'onselect', type: '() => void', description: 'Runs once when selected.' }]} /></div></SectionCard></div>
 </div>

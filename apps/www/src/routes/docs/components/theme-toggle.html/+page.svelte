@@ -1,6 +1,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -82,6 +83,24 @@ ${close}
   const themeToggleTypesFiles: TreeFile[] = [
     { name: 'theme-toggle-types-demo.svelte', content: themeToggleTypesDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -93,12 +112,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -107,7 +126,7 @@ ${close}
         title="theme-toggle — light / dark / system, four densities"
         summary="One shared theme contract (localStorage “theme”, the .dark class, colorScheme on the root), four ways to reach it. full is the segmented selector that sets a mode directly; compact, icon, and text are cycling buttons walking light → dark → system. Icons are inline SVG — no icon-library dependency — and the chrome adapts to its container through currentColor."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">4 variants</span>
           <span class="pill">full sets · rest cycle</span>
           <span class="pill">inline SVG icons</span>
@@ -127,27 +146,27 @@ ${close}
         output={[{ label: 'variant', value: variant }]}
         resolveFileContent={resolveUsage}
       >
-        <div class="flex flex-col items-center gap-6">
-          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+        <div class={cx(rt.flex, rt.col, rt.itemsCenter, rt.gap24)}>
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.ttGapX32, rt.gapY20)}>
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>full</span>
               <ThemeToggle variant="full" />
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>compact</span>
               <ThemeToggle variant="compact" />
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>icon</span>
               <ThemeToggle variant="icon" />
             </label>
-            <label class="text-muted-foreground flex items-center gap-2.5 text-xs">
+            <label class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>text</span>
               <ThemeToggle variant="text" />
             </label>
           </div>
-          <div class="flex flex-col items-center gap-2.5 border-t border-border pt-5">
-            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">
+          <div class={cx(rt.flex, rt.col, rt.itemsCenter, rt.gap10, rt.tBorder, rt.pt20)}>
+            <span class={cx(rt.microEyebrow, rt.inkMuted)}>
               driven by the playground
             </span>
             <ThemeToggle {variant} />
@@ -190,42 +209,42 @@ ${close}
         title="The shared theme contract"
         summary="One key, one apply function, two writers. Bootstrap and toggle both go through it, so there is no second source of truth to drift."
       >
-        <ul class="flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>storage key <code class="text-accent">"theme"</code>:
-              <code class="text-accent">light | dark | system</code>; absent means system</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>application = <code class="text-accent">.dark</code> class +
-              <code class="text-accent">colorScheme</code> on the document root — one function, used by
+        <ul class={cx(rt.col8, rt.body13)}>
+          <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>storage key <code class={cx(rt.inkAccent)}>"theme"</code>:
+              <code class={cx(rt.inkAccent)}>light | dark | system</code>; absent means system</span></li>
+          <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>application = <code class={cx(rt.inkAccent)}>.dark</code> class +
+              <code class={cx(rt.inkAccent)}>colorScheme</code> on the document root — one function, used by
               bootstrap and toggle alike</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">system</code> follows
-              <code class="text-accent">prefers-color-scheme</code> live: the media listener stays
+          <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>system</code> follows
+              <code class={cx(rt.inkAccent)}>prefers-color-scheme</code> live: the media listener stays
               attached while system is current</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>full exposes <code class="text-accent">hideLabels</code> for an icons-only segmented
-              row; every variant carries its mode in <code class="text-accent">aria-label</code> or
-              <code class="text-accent">aria-pressed</code></span></li>
+          <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>full exposes <code class={cx(rt.inkAccent)}>hideLabels</code> for an icons-only segmented
+              row; every variant carries its mode in <code class={cx(rt.inkAccent)}>aria-label</code> or
+              <code class={cx(rt.inkAccent)}>aria-pressed</code></span></li>
       </ul>
     </SectionCard>
   </div>
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="Four variants, two behaviors: full sets a mode directly; the rest cycle light → dark → system.">
     <ComponentCanvas title="theme-toggle · variants" stage="center" files={themeToggleTypesFiles}>
-      <div class="flex flex-wrap items-start gap-6">
-        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · sets</span><ThemeToggle variant="full" /><span class="text-muted-foreground text-[12.5px]">segmented group — one click, one mode</span></div>
-        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">compact · cycles</span><ThemeToggle variant="compact" /><span class="text-muted-foreground text-[12.5px]">the default cycling button</span></div>
-        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">icon · cycles</span><ThemeToggle variant="icon" /><span class="text-muted-foreground text-[12.5px]">icon only — aria-label carries the mode</span></div>
-        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text · cycles</span><ThemeToggle variant="text" /><span class="text-muted-foreground text-[12.5px]">the word alone</span></div>
-        <div class="flex flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full · localized</span><ThemeToggle variant="full" labels={{ light: '浅色', dark: '深色', system: '系统', groupAriaLabel: '配色主题' }} /><span class="text-muted-foreground text-[12.5px]">labels payload — zh vocabulary, the stored value stays light|dark|system</span></div>
+      <div class={cx(rt.wrapStart24)}>
+        <div class={cx(rt.panel, rt.col, rt.gap12)}><span class={cx(rt.eyebrowPrimary)}>full · sets</span><ThemeToggle variant="full" /><span class={cx(rt.noteSmall)}>segmented group — one click, one mode</span></div>
+        <div class={cx(rt.panel, rt.col, rt.gap12)}><span class={cx(rt.eyebrowPrimary)}>compact · cycles</span><ThemeToggle variant="compact" /><span class={cx(rt.noteSmall)}>the default cycling button</span></div>
+        <div class={cx(rt.panel, rt.col, rt.gap12)}><span class={cx(rt.eyebrowPrimary)}>icon · cycles</span><ThemeToggle variant="icon" /><span class={cx(rt.noteSmall)}>icon only — aria-label carries the mode</span></div>
+        <div class={cx(rt.panel, rt.col, rt.gap12)}><span class={cx(rt.eyebrowPrimary)}>text · cycles</span><ThemeToggle variant="text" /><span class={cx(rt.noteSmall)}>the word alone</span></div>
+        <div class={cx(rt.panel, rt.col, rt.gap12)}><span class={cx(rt.eyebrowPrimary)}>full · localized</span><ThemeToggle variant="full" labels={{ light: '浅色', dark: '深色', system: '系统', groupAriaLabel: '配色主题' }} /><span class={cx(rt.noteSmall)}>labels payload — zh vocabulary, the stored value stays light|dark|system</span></div>
       </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pair with the no-flash inline bootstrap in app.html — both write the same storage key."><CodeBlock code={usage} lang="svelte" meta="ThemeToggle usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="full is a labeled group with pressed state per option; the cycling buttons name their current mode."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the toggle (one stop: the group or the cycling button)' }, { key: 'Enter / Space', action: 'Sets the focused mode (full) or advances light → dark → system (cycling)' }]} aria={[{ name: 'role', value: 'group', description: 'The full variant group, aria-label "Color theme"' }, { name: 'aria-pressed', value: 'boolean', description: 'On each full-variant option — the current mode reads pressed' }, { name: 'aria-label', value: '"theme: {mode}"', description: 'On the cycling variants; icon-only relies on it entirely' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative inline SVG icons' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The toggle re-themes the page rather than being themed: chrome speaks currentColor, zero tokens of its own."><div class="flex flex-col gap-6"><DensityDemo><ThemeToggle variant="compact" /></DensityDemo><TokenTable tokens={[{ name: 'currentColor', default: 'inherited', source: 'color', description: 'Icons and chrome track the surrounding text color' }, { name: 'storage key', default: '"theme": light | dark | system', source: 'structural', description: '.dark class + colorScheme on the root, applied by one shared function' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The toggle re-themes the page rather than being themed: chrome speaks currentColor, zero tokens of its own."><div class={cx(rt.col24)}><DensityDemo><ThemeToggle variant="compact" /></DensityDemo><TokenTable tokens={[{ name: 'currentColor', default: 'inherited', source: 'color', description: 'Icons and chrome track the surrounding text color' }, { name: 'storage key', default: '"theme": light | dark | system', source: 'structural', description: '.dark class + colorScheme on the root, applied by one shared function' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ThemeToggle Props interface — a variant, one full-only modifier, and the localization payload."><PropsTable props={[{ name: 'variant', type: "'full' | 'compact' | 'icon' | 'text'", default: "'compact' · Own default, not ambient", description: 'full sets a mode directly; the others cycle light → dark → system. Defaults: literal slot — own \'compact\' (a structural selector, never a paint rung).' }, { name: 'hideLabels', type: 'boolean', default: 'false', description: 'full variant only: hide the text labels, show icons alone.' }, { name: 'labels', type: '{ light: string; dark: string; system: string; groupAriaLabel?: string }', default: 'English literals', description: 'Localize the mode labels and the full variant\'s group aria name. Absent = the shipped English (byte-identical); the value domain and the localStorage "theme" contract are never localized.' }]} /></SectionCard></div>
 </div>

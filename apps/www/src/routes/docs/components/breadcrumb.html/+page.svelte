@@ -8,6 +8,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -183,6 +184,23 @@ ${close}
     { label: 'toast', href: '/docs/components/toast.html' },
     { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -194,12 +212,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -208,7 +226,7 @@ ${close}
       title="breadcrumb — the trail the platform already defines"
       summary="nav[aria-label] wrapping an ol of ordinary links, composed part by part: the list carries the order, Link is a real href, Page marks aria-current=page, Separator is pure decoration — the entire semantics in native elements, no roles to maintain. Long trails fold by WRAPPING the middle items in BreadcrumbCollapse: the nesting is the opt-in, no width magic, and the ellipsis stays a live link to the first hidden page."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">nav + ol + a</span>
         <span class="pill">aria-current</span>
         <span class="pill">BreadcrumbCollapse = opt-in fold</span>
@@ -225,7 +243,7 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/breadcrumb/breadcrumb.svelte"
       files={canvasFiles}
     >
-      <div class="flex flex-col items-start gap-5">
+      <div class={cx(rt.flex, rt.col, rt.itemsStart, rt.gap20)}>
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
@@ -280,8 +298,8 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Breadcrumb variants" summary="Use a complete trail for short paths, wrap the middle items for an opt-in fold, or swap the separator glyph through its children snippet (aria-hidden stays by construction)."><ComponentCanvas title="breadcrumb · variants" stage="fill" files={breadcrumbTypesFiles}><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbCollapse href="/docs"><BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem></BreadcrumbCollapse><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class="border border-border p-4"><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator><span class="text-muted-foreground">/</span></BreadcrumbSeparator></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div></div></ComponentCanvas></SectionCard></div>
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Breadcrumb variants" summary="Use a complete trail for short paths, wrap the middle items for an opt-in fold, or swap the separator glyph through its children snippet (aria-hidden stays by construction)."><ComponentCanvas title="breadcrumb · variants" stage="fill" files={breadcrumbTypesFiles}><div class={cx(rt.bcGrid)}><div class={cx(rt.panel)}><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class={cx(rt.panel)}><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbCollapse href="/docs"><BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem></BreadcrumbCollapse><BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div class={cx(rt.panel)}><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem><BreadcrumbItem><BreadcrumbSeparator><span class={cx(rt.inkMuted)}>/</span></BreadcrumbSeparator></BreadcrumbItem><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div></div></ComponentCanvas></SectionCard></div>
 
   <div id="dropdown" data-reveal="">
     <SectionCard
@@ -292,7 +310,7 @@ ${close}
       summary="BreadcrumbDropdown is one trail node that opens a menu of peer destinations: click — or the dropdown-menu keyboard contract (arrows, typeahead, Home/End) — opens the popover; every entry is a REAL anchor, so middle-click, reload and crawlers stay honest; the current page among the peers carries the you-are-here paint; selecting dismisses the menu and navigates."
     >
       <ComponentCanvas title="breadcrumb · dropdown" stage="fill" files={breadcrumbDropdownFiles}>
-        <div class="max-w-xl border border-border p-4">
+        <div class={cx(rt.maxWXl, rt.panel)}>
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
@@ -310,6 +328,6 @@ ${close}
   </div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Author the ordered list directly; the ol order is the hierarchy and the current page remains a real page part."><CodeBlock code={usage} lang="svelte" meta="Breadcrumb usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Native navigation landmark, ordered list, links, and aria-current carry the full semantics. In the dropdown menu, the keyboard walk's highlight is a paint-only data attribute — aria-current on the current entry is never rewritten by the walk, so the you-are-here marker survives navigation with its semantics intact."><A11yTable aria={[{ name: 'aria-label', value: 'Breadcrumb', description: 'Names the navigation landmark.' }, { name: 'aria-current', value: 'page', description: 'Marks the current trail destination — and the current entry inside the dropdown menu (never touched by the menu walk’s highlight).' }, { name: 'aria-hidden', value: 'true', description: 'Hides decorative separators and manual ellipses.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Breadcrumb has no component-specific --jx tokens; parts inherit the shared density context."><div class="flex flex-col gap-5"><DensityDemo scopes={['xs', 'default', 'lg']}><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></DensityDemo><TokenTable tokens={[]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root and composition parts keep the trail structure explicit."><PropsTable title="Breadcrumb" props={[{ name: 'label', type: 'string', default: "'Breadcrumb'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /><div class="mt-5"><PropsTable title="BreadcrumbLink / Page / Collapse / Separator" props={[{ name: 'href', type: 'string', description: 'Destination for a link or collapse target.' }, { name: 'aria-current', type: '"page"', default: 'Page only', description: 'BreadcrumbPage marks the current destination.' }, { name: 'children', type: 'Snippet', required: true, description: 'Composed trail content; on Separator it REPLACES the chevron glyph (data-glyph=custom, aria-hidden stays).' }]} /></div><div class="mt-5"><PropsTable title="BreadcrumbDropdown" props={[{ name: 'label', type: 'string', required: true, description: 'The trail label on the trigger — the section this node stands for.' }, { name: 'items', type: '{ label, href }[]', required: true, description: 'Peer destinations offered in the menu — every entry a REAL anchor.' }, { name: 'current', type: 'string', description: 'href of the current page among the items: aria-current=page + the you-are-here paint.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Breadcrumb has no component-specific --jx tokens; parts inherit the shared density context."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></DensityDemo><TokenTable tokens={[]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root and composition parts keep the trail structure explicit."><PropsTable title="Breadcrumb" props={[{ name: 'label', type: 'string', default: "'Breadcrumb'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /><div class={cx(rt.mt20)}><PropsTable title="BreadcrumbLink / Page / Collapse / Separator" props={[{ name: 'href', type: 'string', description: 'Destination for a link or collapse target.' }, { name: 'aria-current', type: '"page"', default: 'Page only', description: 'BreadcrumbPage marks the current destination.' }, { name: 'children', type: 'Snippet', required: true, description: 'Composed trail content; on Separator it REPLACES the chevron glyph (data-glyph=custom, aria-hidden stays).' }]} /></div><div class={cx(rt.mt20)}><PropsTable title="BreadcrumbDropdown" props={[{ name: 'label', type: 'string', required: true, description: 'The trail label on the trigger — the section this node stands for.' }, { name: 'items', type: '{ label, href }[]', required: true, description: 'Peer destinations offered in the menu — every entry a REAL anchor.' }, { name: 'current', type: 'string', description: 'href of the current page among the items: aria-current=page + the you-are-here paint.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></div></SectionCard></div>
 </div>

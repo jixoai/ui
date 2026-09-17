@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -160,6 +161,23 @@ ${close}
   const tagsTypesFiles: TreeFile[] = [
     { name: 'tags-types-demo.svelte', content: tagsTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -171,14 +189,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -188,7 +206,7 @@ ${close}
       title="tags-input — input × multiselect"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">chips · press-physics removal</span>
         <span class="pill">Enter / comma / Tab / paste-split</span>
         <span class="pill">suggestion popover</span>
@@ -213,7 +231,7 @@ ${close}
       ]}
       resolveFileContent={resolveTagsUsage}
     >
-      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+      <div class={cx(rt.tiLane)}>
         <TagsInput
           label="stack"
           bind:tags={canvasStack}
@@ -251,49 +269,49 @@ ${close}
       title="The high-form input — the shell becomes a chip host"
       summary="The shell becomes a flex-wrap chip host where Enter / comma / Tab commits a tag, Backspace on empty deletes the last chip, maxTags swaps the input for an “N/N tags” readout, and duplicates flash the existing chip (primary border + shake) instead of adding. The panel is the same popover=auto terminal bezel as Select — light dismiss, Escape, and top layer are the browser's; focus never leaves the text field."
     >
-      <div class="flex flex-col gap-5">
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-          Type in the first one: matching suggestions (<code class="text-accent">label</code>
-          or <code class="text-accent">value</code> contains, case-insensitive) pop under the
-          shell with ↑/↓ + Enter; type <code class="text-accent">svelte</code> again to see the
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          Type in the first one: matching suggestions (<code class={cx(rt.inkAccent)}>label</code>
+          or <code class={cx(rt.inkAccent)}>value</code> contains, case-insensitive) pop under the
+          shell with ↑/↓ + Enter; type <code class={cx(rt.inkAccent)}>svelte</code> again to see the
           duplicate flash on the existing chip. Enter / comma / Tab commits chips directly —
-          pasting <code class="text-accent">rust, ffi</code> splits into two — and Backspace on
+          pasting <code class={cx(rt.inkAccent)}>rust, ffi</code> splits into two — and Backspace on
           an empty input deletes the last removable chip.
         </p>
         <CardGrid min="230px">
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <TagsInput label="stack — with suggestions" bind:tags={stackTags} suggestions={tagSuggestions} />
-            <span class="text-muted-foreground text-[12.5px]">
-              bound values: <code class="text-accent">{stackTags.map((t) => t.value).join(', ') || '—'}</code>
+            <span class={cx(rt.noteSmall)}>
+              bound values: <code class={cx(rt.inkAccent)}>{stackTags.map((t) => t.value).join(', ') || '—'}</code>
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <TagsInput label="targets (maxTags 3)" bind:tags={targetTags} suggestions={tagSuggestions} maxTags={3} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.noteSmall)}>
               at the cap the input hides · {targetTags.length}/3 tags
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <TagsInput label="roles — pinned chip" bind:tags={pinnedTags} suggestions={tagSuggestions} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.noteSmall)}>
               removable={'{false}'} hides the × · Backspace skips it
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
             <TagsInput label="labels" error="at least one label is required" suggestions={tagSuggestions} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.noteSmall)}>
               error wiring: aria-invalid + dashed shell
             </span>
           </div>
         </CardGrid>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           The component keeps the popover orchestration law of the family:
-          <code class="text-accent">popover="auto"</code> panels anchored with CSS Anchor
-          Positioning (<code class="text-accent">anchor-size(width)</code>, flip fallbacks,
+          <code class={cx(rt.inkAccent)}>popover="auto"</code> panels anchored with CSS Anchor
+          Positioning (<code class={cx(rt.inkAccent)}>anchor-size(width)</code>, flip fallbacks,
           viewport-center when the engine lacks it), focus that never enters the panel — the
-          roving highlight rides <code class="text-accent">aria-activedescendant</code> +
-          <code class="text-accent">aria-owns</code> off the input itself — and geometry from
-          logical properties only, so <code class="text-accent">dir="rtl"</code> mirrors the
+          roving highlight rides <code class={cx(rt.inkAccent)}>aria-activedescendant</code> +
+          <code class={cx(rt.inkAccent)}>aria-owns</code> off the input itself — and geometry from
+          logical properties only, so <code class={cx(rt.inkAccent)}>dir="rtl"</code> mirrors the
           chip order with zero branches.
         </p>
         <CodeBlock code={tagsUsage} lang="svelte" meta="TagsInput usage" />
@@ -311,17 +329,17 @@ ${close}
       summary="Nothing in the component branches on direction: the chips wrap in logical flow and the suggestion panel anchors with logical offsets. The writing mode does the rest."
       >
         <ComponentCanvas title="tags-input · rtl" stage="fill" files={tagsRtlFiles}>
-          <div class="grid gap-5 min-[760px]:grid-cols-2">
-            <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+          <div class={cx(rt.grid760a)}>
+            <div dir="rtl" class={cx(rt.tiPanel)}>
               <TagsInput label="stack (rtl)" bind:tags={rtlTags} suggestions={tagSuggestions} maxTags={4} />
-              <span class="text-muted-foreground text-[12px]">
+              <span class={cx(rt.note12)}>
                 dir="rtl" — chips right-first, panel edge inline-start
               </span>
             </div>
-            <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
-              <p class="text-pretty">
+            <div class={cx(rt.tiHint)}>
+              <p class={cx(rt.pretty)}>
                 The chip host wraps in logical flow, the selected-row edge is
-                <code class="text-accent">border-inline-start</code>, and the panel anchors with CSS
+                <code class={cx(rt.inkAccent)}>border-inline-start</code>, and the panel anchors with CSS
                 Anchor Positioning whose offsets are logical too. The writing mode does the rest.
               </p>
             </div>
@@ -335,7 +353,7 @@ ${close}
 <!-- Material3 standard sections (2026-08-26): types / usage / a11y /
      theming / api appended after the demo sections, same wrapper law as
      checkbox.html. -->
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal="">
     <SectionCard
       family="types"
@@ -345,17 +363,17 @@ ${close}
       summary="The suggestion-backed host, the maxTags-capped field, a pinned (non-removable) chip, and the error state."
     >
       <ComponentCanvas title="tags-input · variants" stage="fill" files={tagsTypesFiles}>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="border border-border p-4">
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}>
             <TagsInput label="with suggestions" tags={[{ value: 'svelte' }]} suggestions={tagSuggestions} />
           </div>
-          <div class="border border-border p-4">
+          <div class={cx(rt.panel)}>
             <TagsInput label="maxTags 2 (capped)" tags={[{ value: 'node' }, { value: 'bun' }]} maxTags={2} />
           </div>
-          <div class="border border-border p-4">
+          <div class={cx(rt.panel)}>
             <TagsInput label="pinned chip" tags={[{ value: 'owner', removable: false }, { value: 'release' }]} />
           </div>
-          <div class="border border-border p-4">
+          <div class={cx(rt.panel)}>
             <TagsInput label="error" tags={[]} error="at least one label is required" />
           </div>
         </div>
@@ -409,7 +427,7 @@ ${close}
       title="Density and tokens"
       summary="The shell, chips, and suggestion rows share the density-scope rhythm; resize the scope and the whole field follows."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <DensityDemo>
           <TagsInput label="density sample" tags={[{ value: 'svelte' }, { value: 'node' }]} placeholder="Add tag..." />
         </DensityDemo>

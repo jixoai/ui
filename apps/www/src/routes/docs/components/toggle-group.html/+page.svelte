@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -98,6 +99,22 @@ ${close}
   const toggleGroupTypesFiles: TreeFile[] = [
     { name: 'toggle-group-types-demo.svelte', content: toggleGroupTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -109,12 +126,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -123,7 +140,7 @@ ${close}
       title="toggle-group — native segments, one field"
       summary="A joined segment row of NATIVE inputs that submits as ONE form field. single rides label>input[type=radio] under one name — native arrow-walk, one tab stop, native exclusivity (re-press does NOT clear; an explicit none item is the optional-empty pattern). multiple rides checkboxes — every active value submits as its own FormData entry in DOM order (getAll on the server), never a CSV. DOM checked is the uncontrolled truth; bind:value is the projection (change → value, external writes → DOM, form.reset() re-syncs). The jx-form-field bridge is gone — name participates natively (REQUIRED for single: radio grouping is name-scoped). The paint law is the standard-layer jx-html-tgroup utility (single-sourced in jixoai.css) — the component owns only the Svelte law."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">native radio/checkbox</span>
         <span class="pill">FormData multi-entry</span>
         <span class="pill">.jx-tgroup · Part A</span>
@@ -145,7 +162,7 @@ ${close}
       ]}
       resolveFileContent={resolveUsage}
     >
-      <div class="flex flex-col items-start gap-5">
+      <div class={cx(rt.tgStack)}>
         <ToggleGroup name="demo-align" type="single" label="alignment" bind:value={single}>
           <ToggleGroupItem value="left">left</ToggleGroupItem>
           <ToggleGroupItem value="center">center</ToggleGroupItem>
@@ -161,8 +178,8 @@ ${close}
         <PlayFields>
           <PlayHelp>
             buttons carry Space/Enter natively and Tab walks the row; each item's
-            <code class="text-accent">value</code> is its identity (keyed reorders are inert), and
-            <code class="text-accent">disabled</code> on an item dims only that button on top of
+            <code class={cx(rt.inkAccent)}>value</code> is its identity (keyed reorders are inert), and
+            <code class={cx(rt.inkAccent)}>disabled</code> on an item dims only that button on top of
             any group-level disable.
           </PlayHelp>
         </PlayFields>
@@ -195,10 +212,10 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle group variants" summary="Single replaces the active value; multiple keeps an ordered set of pressed values."><ComponentCanvas title="toggle-group · variants" stage="fill" files={toggleGroupTypesFiles}><div class="grid w-full gap-4 sm:grid-cols-2"><div class="border border-border p-4"><ToggleGroup name="types-single" type="single" label="alignment"><ToggleGroupItem value="left">left</ToggleGroupItem><ToggleGroupItem value="center">center</ToggleGroupItem></ToggleGroup></div><div class="border border-border p-4"><ToggleGroup name="types-multiple" type="multiple" label="style"><ToggleGroupItem value="bold">bold</ToggleGroupItem><ToggleGroupItem value="italic">italic</ToggleGroupItem></ToggleGroup></div></div></ComponentCanvas></SectionCard></div>
+<div class={cx(rt.shellFlush)}>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle group variants" summary="Single replaces the active value; multiple keeps an ordered set of pressed values."><ComponentCanvas title="toggle-group · variants" stage="fill" files={toggleGroupTypesFiles}><div class={cx(rt.tgGrid)}><div class={cx(rt.panel)}><ToggleGroup name="types-single" type="single" label="alignment"><ToggleGroupItem value="left">left</ToggleGroupItem><ToggleGroupItem value="center">center</ToggleGroupItem></ToggleGroup></div><div class={cx(rt.panel)}><ToggleGroup name="types-multiple" type="multiple" label="style"><ToggleGroupItem value="bold">bold</ToggleGroupItem><ToggleGroupItem value="italic">italic</ToggleGroupItem></ToggleGroup></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose a group from ToggleGroupItem parts; item values become the form payload identity."><CodeBlock code={usage} lang="svelte" meta="Toggle group usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The group is a labelled landmark over real native inputs — the radio semantics (arrow-walk, one tab stop, checked state) come from the platform, not ARIA re-creation."><A11yTable keys={[{ key: 'Tab', action: 'Enter the group once (single) / walk items (multiple)' }, { key: 'Arrow ← → ↑ ↓', action: 'Walk single-mode segments (native radio)' }, { key: 'Space', action: 'Toggle the focused segment' }]} aria={[{ name: 'role', value: 'radiogroup | group', description: 'Names the set as one landmark (single | multiple)' }, { name: 'aria-label', value: 'label', description: 'Provides the group accessible name' }, { name: 'input checked', value: 'native', description: 'The real radio/checkbox state IS the item state' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Group buttons use the shared hit target, inset, and typography tokens."><div class="flex flex-col gap-5"><DensityDemo><ToggleGroup name="density-group" type="single" label="density"><ToggleGroupItem value="one">one</ToggleGroupItem><ToggleGroupItem value="two">two</ToggleGroupItem></ToggleGroup></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Group buttons use the shared hit target, inset, and typography tokens."><div class={cx(rt.col20)}><DensityDemo><ToggleGroup name="density-group" type="single" label="density"><ToggleGroupItem value="one">one</ToggleGroupItem><ToggleGroupItem value="two">two</ToggleGroupItem></ToggleGroup></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root owns value semantics; item parts contribute their string identities."><PropsTable props={[{ name: 'name', type: 'string', default: '—', description: 'Form field name for submitted values.' }, { name: 'type', type: "'single' | 'multiple'", default: "'single'", description: 'Select one value or a set.' }, { name: 'value', type: 'string | string[]', default: '[]', description: 'Active value(s), bindable.', bindable: true }, { name: 'label', type: 'string', default: 'required', description: 'Accessible group label.', required: true }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the whole group.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'onchange', type: '(value) => void', default: '—', description: 'Called after the active value changes.' }, { name: 'children', type: 'Snippet', default: 'required', description: 'ToggleGroupItem parts.', required: true }]} /></SectionCard></div>
 </div>

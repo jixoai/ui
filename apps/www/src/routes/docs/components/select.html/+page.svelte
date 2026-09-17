@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -109,14 +110,14 @@
   import Select from '@ui/select.svelte';
 ${close}
 
-<div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+<div dir="rtl" class={cx(rt.flex, rt.col, rt.gap16, rt.frame, rt.p16)}>
   <Select
     label="runtime (rtl)"
     bind:value={runtimeRtl}
     options={runtimeOptions.slice(0, 3)}
     placeholder="pick…"
   />
-  <span class="text-muted-foreground text-[12px]">
+  <span class={cx(rt.inkMuted, rt.text12)}>
     dir="rtl" on the wrapper — trigger chevron and panel edge line flipped without a
     physical property in sight
   </span>
@@ -156,6 +157,23 @@ ${close}
   const selectTypesFiles: TreeFile[] = [
     { name: 'select-types-demo.svelte', content: selectTypesDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -167,14 +185,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -184,7 +202,7 @@ ${close}
       title="select — the popover listbox"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">popover=auto panel</span>
         <span class="pill">per-option descriptions</span>
         <span class="pill">↑/↓ roving highlight</span>
@@ -228,7 +246,7 @@ ${close}
       ]}
       resolveFileContent={resolveSelectUsage}
     >
-      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+      <div class={cx(rt.flex, rt.wFull, rt.seMaxWXs, rt.col, rt.itemsStart, rt.gap12)}>
         <Select
           label="runtime"
           bind:value={canvasRuntime}
@@ -257,9 +275,9 @@ ${close}
       title="One family, two selects — native first"
       summary="NativeSelect is the default you should ship: a real <select> (options as <option> children) whose popup list, keyboard, and type-ahead belong to the platform — it rides into FormData with a name/value pair and gets the OS overlay picker on mobile. Select is the same trigger paint on a <button> opening a popover listbox: per-option descriptions, a painted terminal-bezel panel, roving ↑/↓/Enter highlight with focus restitution — reach for it only when the native popup can't say what you need."
     >
-      <div class="flex flex-col gap-5">
-        <div class="grid gap-5 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3">
+      <div class={cx(rt.flex, rt.col, rt.gap20)}>
+        <div class={cx(rt.grid760a)}>
+          <div class={cx(rt.col12)}>
             <NativeSelect
               label="runtime — native popup"
               name="cmp_runtime"
@@ -270,47 +288,47 @@ ${close}
               <option value="bun">bun</option>
               <option value="deno">deno</option>
             </NativeSelect>
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.text125, rt.inkMuted)}>
               platform popup · FormData-ready · bound value:
-              <code class="text-accent">{runtimeNative}</code>
+              <code class={cx(rt.inkAccent)}>{runtimeNative}</code>
             </span>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <Select
               label="runtime — popover listbox"
               bind:value={runtime}
               options={runtimeOptions}
               placeholder="pick a runtime…"
             />
-            <span class="text-muted-foreground text-[12.5px]">
-              popover panel · descriptions · bound value: <code class="text-accent">{runtime}</code>
+            <span class={cx(rt.text125, rt.inkMuted)}>
+              popover panel · descriptions · bound value: <code class={cx(rt.inkAccent)}>{runtime}</code>
             </span>
           </div>
         </div>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-          Open the right one: the panel is <code class="text-accent">popover="auto"</code> wired
-          with <code class="text-accent">popovertarget</code>, so light dismiss, Escape, and
+        <p class={cx(rt.bodyMuted, rt.pretty)}>
+          Open the right one: the panel is <code class={cx(rt.inkAccent)}>popover="auto"</code> wired
+          with <code class={cx(rt.inkAccent)}>popovertarget</code>, so light dismiss, Escape, and
           top-layer rendering are the browser's; the JS only drives
-          <code class="text-accent">role="listbox"</code> /
-          <code class="text-accent">role="option"</code> /
-          <code class="text-accent">aria-activedescendant</code>, the ↑/↓/Home/End/Enter
+          <code class={cx(rt.inkAccent)}>role="listbox"</code> /
+          <code class={cx(rt.inkAccent)}>role="option"</code> /
+          <code class={cx(rt.inkAccent)}>aria-activedescendant</code>, the ↑/↓/Home/End/Enter
           highlight, and focus restitution to the trigger on every close path. The selected row
-          reads <code class="text-accent">--terminal-hover</code> fill with a 2px
-          <code class="text-accent">--primary</code> edge on
-          <code class="text-accent">border-inline-start</code> — under
-          <code class="text-accent">dir="rtl"</code> the edge flips sides by itself.
+          reads <code class={cx(rt.inkAccent)}>--terminal-hover</code> fill with a 2px
+          <code class={cx(rt.inkAccent)}>--primary</code> edge on
+          <code class={cx(rt.inkAccent)}>border-inline-start</code> — under
+          <code class={cx(rt.inkAccent)}>dir="rtl"</code> the edge flips sides by itself.
         </p>
-        <div class="border-border mt-1 border-t pt-5">
-          <h3 class="text-[15px] font-bold tracking-tight">label + error wiring, both selects</h3>
-          <p class="text-muted-foreground mt-2 text-pretty text-[13px] leading-6">
-            The split changes nothing semantically: <code class="text-accent">label[for]</code>
-            binds to the control (the <code class="text-accent">&lt;button&gt;</code> trigger in Select's case), and the
-            <code class="text-accent">error</code> prop wires
-            <code class="text-accent">aria-invalid</code> +
-            <code class="text-accent">aria-describedby</code> + the dashed shell — the same
+        <div class={cx(rt.mt4, rt.tBorder, rt.pt20)}>
+          <h3 class={cx(rt.title15)}>label + error wiring, both selects</h3>
+          <p class={cx(rt.mt8, rt.bodyMuted, rt.pretty)}>
+            The split changes nothing semantically: <code class={cx(rt.inkAccent)}>label[for]</code>
+            binds to the control (the <code class={cx(rt.inkAccent)}>&lt;button&gt;</code> trigger in Select's case), and the
+            <code class={cx(rt.inkAccent)}>error</code> prop wires
+            <code class={cx(rt.inkAccent)}>aria-invalid</code> +
+            <code class={cx(rt.inkAccent)}>aria-describedby</code> + the dashed shell — the same
             monochrome invalid signal as the rest of the family.
           </p>
-          <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
+          <div class={cx(rt.mt16, rt.grid760a)}>
             <NativeSelect label="plan" error="plan is required">
               <option value="">— choose —</option>
               <option value="free">free</option>
@@ -340,25 +358,25 @@ ${close}
       title="RTL — geometry from logical properties"
       summary="Nothing in the component branches on direction: the chevron sits in the flex flow and the selected-row edge is border-inline-start. The writing mode does the rest."
     >
-      <div class="grid gap-5 min-[760px]:grid-cols-2">
+      <div class={cx(rt.grid760a)}>
         <ComponentCanvas title="select · rtl" stage="fill" files={selectRtlFiles}>
-          <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+          <div dir="rtl" class={cx(rt.flex, rt.col, rt.gap16, rt.frame, rt.p16)}>
             <Select
               label="runtime (rtl)"
               bind:value={runtimeRtl}
               options={runtimeOptions.slice(0, 3)}
               placeholder="pick…"
             />
-            <span class="text-muted-foreground text-[12px]">
+            <span class={cx(rt.inkMuted, rt.text12)}>
               dir="rtl" on the wrapper — trigger chevron and panel edge line flipped without a
               physical property in sight
             </span>
           </div>
         </ComponentCanvas>
-        <div class="flex flex-col justify-center gap-2 text-muted-foreground text-[13px] leading-6">
-          <p class="text-pretty">
+        <div class={cx(rt.flex, rt.col, rt.justifyCenter, rt.gap8, rt.bodyMuted)}>
+          <p class={cx(rt.pretty)}>
             The chevron sits in the flex flow, the selected-row edge is
-            <code class="text-accent">border-inline-start</code>, and the panel anchors with CSS
+            <code class={cx(rt.inkAccent)}>border-inline-start</code>, and the panel anchors with CSS
             Anchor Positioning whose offsets are logical too. The writing mode does the rest.
           </p>
         </div>
@@ -371,7 +389,7 @@ ${close}
 <!-- Material3 standard sections (2026-08-26): types / usage / a11y /
      theming / api appended after the demo sections, same wrapper law as
      checkbox.html. -->
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="types" data-reveal="">
     <SectionCard
       family="types"
@@ -381,15 +399,15 @@ ${close}
       summary="The popover listbox with plain rows, rows carrying descriptions, a disabled row, and the error state."
     >
       <ComponentCanvas title="select · variants" stage="fill" files={selectTypesFiles}>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="border border-border p-4">
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}>
             <Select
               label="descriptions"
               options={runtimeOptions}
               placeholder="open for second lines…"
             />
           </div>
-          <div class="border border-border p-4">
+          <div class={cx(rt.panel)}>
             <Select
               label="error"
               options={[
@@ -439,7 +457,7 @@ ${close}
       title="Density and tokens"
       summary="Trigger and panel rows share the density-scope rhythm; resize the scope and the trigger, rows, and label stack resize together."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <DensityDemo>
           <Select label="density sample" options={runtimeOptions} placeholder="pick a runtime…" />
         </DensityDemo>

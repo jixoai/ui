@@ -1,5 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -46,6 +47,23 @@ ${close}
     { name: 'registry/files/ui/scaffold-float.svelte', content: floatSource },
     { name: 'src/lib/ui/scaffold-float-usage.svelte', content: usage },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -57,12 +75,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (standalone toc law, toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -71,7 +89,7 @@ ${close}
         title="scaffold-float — the portal half"
         summary="The consumer half of the float provider: portals children into the scaffold's top layer so they ride the immersive slide with the header."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">portal half</span>
           <span class="pill">rides the header slide</span>
         </div>
@@ -94,16 +112,16 @@ ${close}
                concept card stands in. -->
           <!-- styled non-heading card (site-polish F10): concept-copy
                must not emit a real heading into the page outline -->
-          <div class="border border-border bg-card shadow-xs w-full max-w-3xl">
-            <div class="flex flex-col gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
-              <div class="flex flex-col gap-2.5">
-                <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">portal concept · no LIVE instance</p>
-                <p class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight text-foreground sm:text-[1.22rem]">Authored in the page, adopted by the top layer</p>
-                <p class="max-w-[64ch] text-pretty text-[13px] leading-5 text-muted-foreground sm:text-[14px] sm:leading-6">A float must dock to a website-scaffold provider — and the only one reachable from this page is the site&rsquo;s own shell. So this card explains the adoption instead; every component page&rsquo;s ToC rail rides the real float plane every day (it adopts itself).</p>
+          <div class={cx(rt.sfFloatCard)}>
+            <div class={cx(rt.sfFloatHead)}>
+              <div class={cx(rt.col10)}>
+                <p class={cx(rt.eyebrowPrimary)}>portal concept · no LIVE instance</p>
+                <p class={cx(rt.sfHero)}>Authored in the page, adopted by the top layer</p>
+                <p class={cx(rt.sfPara)}>A float must dock to a website-scaffold provider — and the only one reachable from this page is the site&rsquo;s own shell. So this card explains the adoption instead; every component page&rsquo;s ToC rail rides the real float plane every day (it adopts itself).</p>
               </div>
             </div>
-            <div class="px-4 py-4 sm:px-5 sm:py-5">
-            <div class="flex flex-col gap-5">
+            <div class={cx(rt.sfFloatBody)}>
+            <div class={cx(rt.col20)}>
               <pre class="jx-float-diagram" aria-label="float portal adoption diagram"><code>authoring DOM (full Svelte ownership)     .jx-top-layer (scroll-free plane)
 ────────────────────────────────────     ────────────────────────────────────
 &lt;ScaffoldFloat&gt;                           ├── .jx-scaffold-header
@@ -111,15 +129,15 @@ ${close}
        …children…           ──────►          ├─ any dynamic float
 (hidden anchor stays in place)              └─ aside.docs-aside ← moved
                                            (rides the immersive slide)</code></pre>
-              <ol class="flex flex-col gap-2 text-[13px] leading-6">
-                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">1.</span>
-                  <span><strong class="font-semibold">author</strong> — the portal renders its children wherever you place it in the page; the nodes are ordinary Svelte-owned DOM, not a serialized snapshot</span></li>
-                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">2.</span>
-                  <span><strong class="font-semibold">adopt</strong> — on mount it calls <code class="text-accent">api.adopt(node)</code> from the scaffold's <code class="text-accent">jx-top-layer</code> context; the scaffold's effect re-parents the live node into <code class="text-accent">.jx-float-slot</code> in adoption order (moved, never cloned)</span></li>
-                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">3.</span>
-                  <span><strong class="font-semibold">teardown</strong> — the hidden anchor keeps the authoring position; the release fn returns the node to it so Svelte finds and destroys its own nodes correctly</span></li>
-                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">4.</span>
-                  <span><strong class="font-semibold">ride</strong> — because the float now lives inside the top layer, the immersive hide/reveal carries it together with the header by construction: no second scroll listener exists anywhere</span></li>
+              <ol class={cx(rt.col8, rt.body13)}>
+                <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">1.</span>
+                  <span><strong class={cx(rt.semibold)}>author</strong> — the portal renders its children wherever you place it in the page; the nodes are ordinary Svelte-owned DOM, not a serialized snapshot</span></li>
+                <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">2.</span>
+                  <span><strong class={cx(rt.semibold)}>adopt</strong> — on mount it calls <code class={cx(rt.inkAccent)}>api.adopt(node)</code> from the scaffold's <code class={cx(rt.inkAccent)}>jx-top-layer</code> context; the scaffold's effect re-parents the live node into <code class={cx(rt.inkAccent)}>.jx-float-slot</code> in adoption order (moved, never cloned)</span></li>
+                <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">3.</span>
+                  <span><strong class={cx(rt.semibold)}>teardown</strong> — the hidden anchor keeps the authoring position; the release fn returns the node to it so Svelte finds and destroys its own nodes correctly</span></li>
+                <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">4.</span>
+                  <span><strong class={cx(rt.semibold)}>ride</strong> — because the float now lives inside the top layer, the immersive hide/reveal carries it together with the header by construction: no second scroll listener exists anywhere</span></li>
               </ol>
             </div>
   </div>
@@ -148,18 +166,18 @@ ${close}
         title="Move, never clone"
         summary="The portal moves the live DOM node — appendChild re-parents it into the float slot — instead of serializing and re-rendering a copy. That single decision is what keeps state, event listeners, and Svelte ownership intact on both ends of the trip."
       >
-        <div class="flex flex-col gap-5">
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <div class={cx(rt.col20)}>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>a moved node keeps its listeners, its element state (scroll position, focus),
                 and its Svelte hydration anchors — a clone would lose all three</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>the hidden anchor at the authoring position is the return ticket: teardown
                 hands the node back so Svelte destroys exactly what it created</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>the float plane is ordered multi-node — <code class="text-accent">adopt()</code>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>the float plane is ordered multi-node — <code class={cx(rt.inkAccent)}>adopt()</code>
                 appends in adoption order, so multiple custom floats coexist inside
-                <code class="text-accent">.jx-float-slot</code> (static chrome lives in its own slot — the two never mix)</span></li>
+                <code class={cx(rt.inkAccent)}>.jx-float-slot</code> (static chrome lives in its own slot — the two never mix)</span></li>
           </ul>
           <CodeBlock code={usage} lang="svelte" meta="usage" />
         </div>
@@ -168,17 +186,17 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One portal shape; the area role decides which top-layer cell the shell grid resolves for the adopted node.">
-    <div class="grid gap-4 min-[760px]:grid-cols-3">
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">area="float"</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">Default — the dynamic float slot inside .jx-top-layer; your custom floats.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">area="toc" / "tree"</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">The static chrome cells — the shell grid resolves each cell; static chrome usually lives in the scaffold's chrome snippet instead.</p></div>
-      <div class="border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">multi-node plane</span><p class="text-muted-foreground mt-2 text-[13px] leading-6">adopt() appends in adoption order — multiple custom floats coexist in the slot.</p></div>
+    <div class={cx(rt.grid760c)}>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>area="float"</span><p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>Default — the dynamic float slot inside .jx-top-layer; your custom floats.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>area="toc" / "tree"</span><p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>The static chrome cells — the shell grid resolves each cell; static chrome usually lives in the scaffold's chrome snippet instead.</p></div>
+      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>multi-node plane</span><p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>adopt() appends in adoption order — multiple custom floats coexist in the slot.</p></div>
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Author the float anywhere in the page; the provider adopts the live node on mount."><CodeBlock code={usage} lang="svelte" meta="ScaffoldFloat usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The portal is a DOM move, not a visual layer change: reading order and focus follow the authored semantics."><A11yTable keys={[{ key: 'Tab', action: 'Focus order is unaffected — the moved node keeps its listeners, focus, and scroll state' }]} aria={[{ name: 'aria-label', value: 'yours', description: 'Label the floated content yourself (e.g. aside aria-label="On this page")' }, { name: 'role', value: 'inherited', description: 'The portal adds no roles; the adopted subtree keeps its authored semantics' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint and no tokens of its own — the portal moves your node; the paint is entirely the floated content's."><div class="flex flex-col gap-6"><DensityDemo><div class="border border-border bg-muted/40 px-3 py-2 font-mono text-[11px]">● deploy passing — main #142</div></DensityDemo><TokenTable tokens={[{ name: 'jx-top-layer', default: 'context key', source: 'structural', description: 'The adopt/release contract consumed from the website-scaffold provider' }, { name: '.jx-float-slot', default: 'adoption order', source: 'structural', description: 'Destination cell inside the top layer; children order = adoption order' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint and no tokens of its own — the portal moves your node; the paint is entirely the floated content's."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.sfTint)}>● deploy passing — main #142</div></DensityDemo><TokenTable tokens={[{ name: 'jx-top-layer', default: 'context key', source: 'structural', description: 'The adopt/release contract consumed from the website-scaffold provider' }, { name: '.jx-float-slot', default: 'adoption order', source: 'structural', description: 'Destination cell inside the top layer; children order = adoption order' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScaffoldFloat Props interface — a children snippet plus one semantic role."><PropsTable props={[{ name: 'children', type: 'Snippet', default: '—', description: 'The floated content; the live DOM node is adopted into the top layer on mount.', required: true }, { name: 'area', type: "TopLayerArea: 'toc' | 'tree' | 'float'", default: "'float'", description: 'Semantic placement role; the shell grid resolves the cell.' }]} /></SectionCard></div>
 </div>
 

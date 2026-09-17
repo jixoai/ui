@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
@@ -56,6 +57,22 @@
     { name: 'registry/files/ui/blockquote/blockquote.svelte', content: blockquoteSource },
     { name: 'src/lib/ui/blockquote-icon-usage.svelte', content: iconLaneUsage, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -66,8 +83,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -76,7 +93,7 @@
         title="blockquote — the quote, on the banner's ladder"
         summary="The semantic body IS the native <blockquote>: cite renders the MDN attribution posture (footer > cite after the body), never an element swap. One surface, two postures — outline (own default), transparent ground with a left rule (own shadow-4, a 55%-lightened outline mix) and a 0.875em muted body, the classic GitHub/Tailwind quote; tonal, the alert recipe verbatim (12% tinted ground, 45% border, rounded box), the callout/Notion posture. The left rule is now its own channel (2026-09-07, typography-context-and-parts): rule (shadow|border, own shadow) × ruleSize (the literal 1|4|8 px ladder, own 4 — the R3 ruling: 1px 只适合 xs2 尺寸) — the inset standard (command-item's inset primary, the elevation grammar's WELL tier, kbd's engrave lineage) made a prop. Availability is FROZEN at two rungs: quote readability excludes fill AND ghost — ghost is interactive-chrome vocabulary (rest-transparent, hover-tonal) which a static quote misuses; the borderless manuscript indent is a future structural axis, never a paint rung. The body rides 0.875em of the ambient scale (the R3 ruling) — trio/prose rescaling survives, and the markdown default map mounts it with the box-owning block escape."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;blockquote&gt;</span>
           <span class="pill">outline · tonal (frozen)</span>
           <span class="pill">rule shadow|border × 1|4|8</span>
@@ -111,8 +128,8 @@
         files={rungsFiles}
         stage="fill"
       >
-        <div class="flex w-full max-w-xl flex-col gap-4">
-          <div class="grid gap-4 min-[640px]:grid-cols-2">
+        <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+          <div class={cx(rt.bqGrid640a)}>
             <Blockquote>
               outline (own) — transparent ground, a soft 4px left rule at a lightened mix, 0.875em muted body: the classic quote.
             </Blockquote>
@@ -120,7 +137,7 @@
               tonal — the alert recipe verbatim: 12% tinted ground, 45% border, rounded box.
             </Blockquote>
           </div>
-          <div class="grid gap-4 min-[640px]:grid-cols-2">
+          <div class={cx(rt.bqGrid640a)}>
             <Blockquote variant="tonal" class="jx-hue-info" label="Note">
               The streaming prefix never remounts while chunks arrive.
             </Blockquote>
@@ -157,10 +174,10 @@
         stage="fill"
         scroll="grow"
       >
-        <div class="flex w-full max-w-3xl flex-col gap-6">
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">outline — shadow (own) × border, 1 | 4 | 8</span>
-            <div class="grid gap-4 min-[640px]:grid-cols-3">
+        <div class={cx(rt.col24, rt.wFull, rt.maxW3xl)}>
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.note11)}>outline — shadow (own) × border, 1 | 4 | 8</span>
+            <div class={cx(rt.bqGrid640b)}>
               <Blockquote rule="shadow" ruleSize={1}>shadow-4 — the default: a 1px inset rule painted over geometry.</Blockquote>
               <Blockquote rule="shadow" ruleSize={4}>shadow-4 — the emphasis quote, still 0.875rem of pad.</Blockquote>
               <Blockquote rule="shadow" ruleSize={8}>shadow-8 — the pull quote; ps stays fixed, the paint widens.</Blockquote>
@@ -169,16 +186,16 @@
               <Blockquote rule="border" ruleSize={8}>border-8 — the widest structural edge.</Blockquote>
             </div>
           </div>
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">the resolved default — 4 won the browser review; 1 stays the xs2-scale hairline</span>
-            <div class="grid gap-4 min-[640px]:grid-cols-2">
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.note11)}>the resolved default — 4 won the browser review; 1 stays the xs2-scale hairline</span>
+            <div class={cx(rt.bqGrid640a)}>
               <Blockquote rule="shadow" ruleSize={1}>shadow-1: the hairline — fits xs2-scale contexts only.</Blockquote>
               <Blockquote rule="shadow" ruleSize={4}>shadow-4: the default manuscript bar every quote now ships.</Blockquote>
             </div>
           </div>
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">tonal — the box border stays; the shadow rule rides beside it</span>
-            <div class="grid gap-4 min-[640px]:grid-cols-3">
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.note11)}>tonal — the box border stays; the shadow rule rides beside it</span>
+            <div class={cx(rt.bqGrid640b)}>
               <Blockquote variant="tonal" rule="shadow" ruleSize={1}>tonal + shadow-1: a deliberate near-no-op — axis uniformity over special-casing.</Blockquote>
               <Blockquote variant="tonal" rule="shadow" ruleSize={4}>tonal + shadow-4: the rule starts to read through the tint.</Blockquote>
               <Blockquote variant="tonal" rule="shadow" ruleSize={8}>tonal + shadow-8: two edges, one hue source.</Blockquote>
@@ -210,11 +227,11 @@
         title="The icon lane — bring your own glyph"
         summary="icon is a snippet rendered inline-start of the label, exactly the alert precedent: the component ships no glyph vocabulary, so lucide marks, inline svgs and plain text all land the same way. The label row is the surface's one fixed chrome size (0.8125rem nav caps); the body inherits the ambient scale."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={iconUsage} lang="svelte" meta="the icon snippet" />
           <ComponentCanvas id="icon-lane" title="blockquote · icon lane" stage="fill" files={iconLaneFiles}>
-            <div class="max-w-xl">
-              {#snippet warningGlyph()}<span class="font-mono" aria-hidden="true">▲</span>{/snippet}
+            <div class={cx(rt.maxWXl)}>
+              {#snippet warningGlyph()}<span class={cx(rt.fontMono)} aria-hidden="true">▲</span>{/snippet}
               <Blockquote variant="tonal" class="jx-hue-warning" label="Warning" icon={warningGlyph}>
                 The migration rewrites column names in place — snapshot before upgrading.
               </Blockquote>
@@ -226,7 +243,7 @@
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"

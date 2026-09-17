@@ -1,5 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -125,6 +126,22 @@ ${close}
   ];
 
   // ToC outline: pairs with the section ids below, in page order.
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -136,10 +153,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -148,7 +165,7 @@ ${close}
       title="skeleton — the placeholder, nothing more"
       summary="A muted block with a terminal brightness pulse. Pure CSS, zero JS, aria-hidden by design: each placeholder is scenery. The loading contract — aria-busy on the container, or a visually-hidden live region — belongs to the region being loaded, never to each block."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">pure CSS</span>
         <span class="pill">aria-hidden scenery</span>
         <span class="pill">reduced-motion freeze</span>
@@ -164,19 +181,19 @@ ${close}
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/skeleton.svelte"
       files={canvasFiles}
     >
-      <div class="flex w-full max-w-sm flex-col gap-4" aria-busy="true">
-        <div class="flex items-center gap-3">
-          <Skeleton class="size-10" />
-          <div class="flex flex-col gap-2">
-            <Skeleton class="h-3 w-32" />
-            <Skeleton class="h-3 w-20" />
+      <div class={cx(rt.col16, rt.wFull, rt.skMaxWsm)} aria-busy="true">
+        <div class={cx(rt.rowC12)}>
+          <Skeleton class={cx(rt.skSize10)} />
+          <div class={cx(rt.col8)}>
+            <Skeleton class={cx(rt.skBar, rt.skW32)} />
+            <Skeleton class={cx(rt.skBar, rt.skW20)} />
           </div>
         </div>
         <Separator />
-        <div class="flex flex-col gap-2">
-          <Skeleton class="h-3 w-full" />
-          <Skeleton class="h-3 w-11/12" />
-          <Skeleton class="h-3 w-3/4" />
+        <div class={cx(rt.col8)}>
+          <Skeleton class={cx(rt.skBar, rt.wFull)} />
+          <Skeleton class={cx(rt.skBar, rt.skW1112)} />
+          <Skeleton class={cx(rt.skBar, rt.skW34)} />
         </div>
       </div>
       {#snippet playground()}
@@ -199,53 +216,53 @@ ${close}
       summary="Card, list and table loading mirrors — each shell is your real layout composed from bare blocks, with aria-busy on the shell container. The async-feedback pair: these shells are what shows while a PressButton is in its loading pose or a promise toast says pending."
       >
         <ComponentCanvas title="skeleton · shells" stage="fill" files={skeletonShellsFiles}>
-          <div class="grid gap-4 sm:grid-cols-3">
-            <div class="border border-border p-4">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">card shell</span>
-              <div class="mt-3 flex flex-col gap-3" aria-busy="true">
-                <Skeleton class="h-28 w-full" />
-                <div class="flex items-center gap-3">
-                  <Skeleton class="size-8" />
-                  <div class="flex flex-1 flex-col gap-2">
-                    <Skeleton class="h-3 w-2/3" />
-                    <Skeleton class="h-3 w-1/3" />
+          <div class={cx(rt.gridSm3)}>
+            <div class={cx(rt.panel)}>
+              <span class={cx(rt.eyebrowPrimary)}>card shell</span>
+              <div class={cx(rt.mt12, rt.col12)} aria-busy="true">
+                <Skeleton class={cx(rt.skH28, rt.wFull)} />
+                <div class={cx(rt.rowC12)}>
+                  <Skeleton class={cx(rt.skSize8)} />
+                  <div class={cx(rt.flex, rt.grow, rt.col, rt.gap8)}>
+                    <Skeleton class={cx(rt.skBar, rt.skW23)} />
+                    <Skeleton class={cx(rt.skBar, rt.skW13)} />
                   </div>
                 </div>
               </div>
             </div>
-            <div class="border border-border p-4">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">list shell</span>
-              <div class="mt-3 flex flex-col gap-3" aria-busy="true">
+            <div class={cx(rt.panel)}>
+              <span class={cx(rt.eyebrowPrimary)}>list shell</span>
+              <div class={cx(rt.mt12, rt.col12)} aria-busy="true">
                 {#each [64, 92, 78, 85] as w (w)}
-                  <div class="flex items-center gap-3">
-                    <Skeleton class="size-6" />
-                    <Skeleton class="h-3" style="width: {w}%" />
+                  <div class={cx(rt.rowC12)}>
+                    <Skeleton class={cx(rt.skSize6)} />
+                    <Skeleton class={cx(rt.skBar)} style="width: {w}%" />
                   </div>
                 {/each}
               </div>
             </div>
-            <div class="border border-border p-4">
-              <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">table shell</span>
-              <div class="mt-3 flex flex-col gap-2" aria-busy="true">
-                <div class="grid grid-cols-3 gap-2">
-                  <Skeleton class="h-3" />
-                  <Skeleton class="h-3" />
-                  <Skeleton class="h-3" />
+            <div class={cx(rt.panel)}>
+              <span class={cx(rt.eyebrowPrimary)}>table shell</span>
+              <div class={cx(rt.mt12, rt.col8)} aria-busy="true">
+                <div class={cx(rt.skGrid3)}>
+                  <Skeleton class={cx(rt.skBar)} />
+                  <Skeleton class={cx(rt.skBar)} />
+                  <Skeleton class={cx(rt.skBar)} />
                 </div>
                 {#each [0, 1, 2] as row (row)}
-                  <div class="grid grid-cols-3 gap-2 border-t border-border/60 pt-2">
-                    <Skeleton class="h-3 w-4/5" />
-                    <Skeleton class="h-3 w-full" />
-                    <Skeleton class="h-3 w-2/3" />
+                  <div class={cx(rt.skGrid3T)}>
+                    <Skeleton class={cx(rt.skBar, rt.skW45)} />
+                    <Skeleton class={cx(rt.skBar, rt.wFull)} />
+                    <Skeleton class={cx(rt.skBar, rt.skW23)} />
                   </div>
                 {/each}
               </div>
             </div>
           </div>
         </ComponentCanvas>
-        <p class="text-muted-foreground mt-4 text-[13px] leading-6">
+        <p class={cx(rt.bodyMuted, rt.mt16)}>
         Geometry is always the consumer's — the blocks are bare, the shells are your layout, and the
-        loading STATE lives on the shell (<code class="text-accent">aria-busy="true"</code>), never
+        loading STATE lives on the shell (<code class={cx(rt.inkAccent)}>aria-busy="true"</code>), never
         per block.
       </p>
     </SectionCard>
@@ -265,18 +282,18 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One bare block — every shape (avatar, lane, card) is your geometry via class or parent layout.">
     <ComponentCanvas title="skeleton · types" stage="center" files={skeletonTypesFiles}>
-      <div class="flex flex-wrap items-start gap-6">
-        <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">avatar block</span><Skeleton class="size-10" /><span class="text-muted-foreground text-[12.5px]">class="size-10"</span></div>
-        <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">text lanes</span><div class="flex flex-col gap-2"><Skeleton class="h-3 w-32" /><Skeleton class="h-3 w-20" /></div><span class="text-muted-foreground text-[12.5px]">class="h-3 w-32" and friends</span></div>
-        <div class="flex min-w-52 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">full-bleed card</span><div class="flex flex-col gap-2"><Skeleton class="h-3 w-full" /><Skeleton class="h-3 w-3/4" /></div><span class="text-muted-foreground text-[12.5px]">width/aspect from the parent layout</span></div>
+      <div class={cx(rt.wrapStart24)}>
+        <div class={cx(rt.col12, rt.panel, rt.skMinW52)}><span class={cx(rt.eyebrowPrimary)}>avatar block</span><Skeleton class={cx(rt.skSize10)} /><span class={cx(rt.inkMuted, rt.text125)}>class={cx(rt.skSize10)}</span></div>
+        <div class={cx(rt.col12, rt.panel, rt.skMinW52)}><span class={cx(rt.eyebrowPrimary)}>text lanes</span><div class={cx(rt.col8)}><Skeleton class={cx(rt.skBar, rt.skW32)} /><Skeleton class={cx(rt.skBar, rt.skW20)} /></div><span class={cx(rt.inkMuted, rt.text125)}>class={cx(rt.skBar, rt.skW32)} and friends</span></div>
+        <div class={cx(rt.col12, rt.panel, rt.skMinW52)}><span class={cx(rt.eyebrowPrimary)}>full-bleed card</span><div class={cx(rt.col8)}><Skeleton class={cx(rt.skBar, rt.wFull)} /><Skeleton class={cx(rt.skBar, rt.skW34)} /></div><span class={cx(rt.inkMuted, rt.text125)}>width/aspect from the parent layout</span></div>
       </div>
     </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose blocks into the loading mirror of your real layout; put aria-busy on the container."><CodeBlock code={usage} lang="svelte" meta="Skeleton usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Placeholder blocks are decoration; the loading STATE is semantics that belongs to the container."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'Set on every block — placeholder scenery is never announced' }, { name: 'aria-busy', value: '"true"', description: 'The consumer puts it on the loading container — the contract home' }, { name: 'live region', value: 'optional', description: 'A visually-hidden "loading…" region announces politely once, if aria-busy is not enough' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Muted surface plus a 1px inset border token; the pulse is a brightness oscillation, frozen under reduced motion."><div class="flex flex-col gap-6"><DensityDemo><div class="flex items-center gap-3"><Skeleton class="size-10" /><div class="flex flex-col gap-2"><Skeleton class="h-3 w-32" /><Skeleton class="h-3 w-20" /></div></div></DensityDemo><TokenTable tokens={[{ name: 'bg-muted', default: 'muted surface', source: 'color' }, { name: '--border', default: 'inset 1px ring', source: 'color' }, { name: 'jx-skeleton-pulse', default: '1.4s ease-in-out infinite', source: 'component', description: 'Brightness pulse; prefers-reduced-motion freezes it to a static block' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Muted surface plus a 1px inset border token; the pulse is a brightness oscillation, frozen under reduced motion."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.rowC12)}><Skeleton class={cx(rt.skSize10)} /><div class={cx(rt.col8)}><Skeleton class={cx(rt.skBar, rt.skW32)} /><Skeleton class={cx(rt.skBar, rt.skW20)} /></div></div></DensityDemo><TokenTable tokens={[{ name: 'bg-muted', default: 'muted surface', source: 'color' }, { name: '--border', default: 'inset 1px ring', source: 'color' }, { name: 'jx-skeleton-pulse', default: '1.4s ease-in-out infinite', source: 'component', description: 'Brightness pulse; prefers-reduced-motion freezes it to a static block' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The Props interface adds nothing — a bare block with class passthrough and full attribute spread."><PropsTable props={[{ name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/aspect live here (no length API).' }, { name: '...rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'data-*, id, and the rest pass through untouched; aria-hidden lands after the spread.' }]} /></SectionCard></div>
 </div>

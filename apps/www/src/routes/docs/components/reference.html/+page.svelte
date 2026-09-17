@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
@@ -19,6 +20,23 @@
     { name: 'registry/files/ui/reference/reference.svelte', content: referenceSource },
     { name: 'src/lib/reference-usage.svelte', content: usage },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -29,8 +47,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -39,7 +57,7 @@
         title="reference — the 引 primitive"
         summary="A native <a href> that says what the target says: an equation Figure renders Eq (4.5), a numbered Section renders § 3.2.1, an unnumbered one renders its title. Change the target — kind, chapter, order — and every reference follows. Forward references prerender their ?? fallback carrying the edge claim and resolve on hydration."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">native anchor · zero grammar knowledge</span>
           <span class="pill">target-owned display</span>
           <span class="pill">loud fallback — never a throw</span>
@@ -58,11 +76,11 @@
         <div data-doc-demo-scope="headings-ok">
         <NumberingProvider>
           <SectionCard numbering="decimal" title="Results" headerRegion="results">
-            <div class="flex flex-col gap-4 text-[13.5px]">
+            <div class={cx(rt.col16, rt.text135)}>
               <p>the momentum balance of <Reference to="eq-r" /> holds</p>
               <p>the procedure lives in <Reference to="sec-methods" /></p>
               <p>for notation see <Reference to="sec-unnumbered" /></p>
-              <p class="text-muted-foreground">a broken one renders <Reference to="eq-nope" /> loudly</p>
+              <p class={cx(rt.inkMuted)}>a broken one renders <Reference to="eq-nope" /> loudly</p>
               <Figure kind="equation" id="eq-r" caption="the momentum balance">
                 <CodeBlock code="p = m · v" lang="ts" meta="eq r" />
               </Figure>
@@ -73,7 +91,7 @@
         </NumberingProvider>
         </div>
         {#snippet playground()}
-          <p class="text-xs text-muted-foreground">
+          <p class={cx(rt.text12, rt.inkMuted)}>
             static demo — the missing-id reference keeps its ??(eq-nope) marker and warns in the
             console once settled; production renders the marker too.
           </p>

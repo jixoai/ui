@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -130,6 +131,23 @@ ${close}
   const rangeTypesFiles: TreeFile[] = [
     { name: 'range-types-demo.svelte', content: rangeTypesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <svelte:head>
@@ -141,14 +159,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -158,7 +176,7 @@ ${close}
       title="range — the native slider, semantic surface"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">real input[type=range]</span>
         <span class="pill">platform keyboard + pointer</span>
         <span class="pill">label[for] binding</span>
@@ -180,7 +198,7 @@ ${close}
       output={[{ label: 'value', value: canvasValue }]}
       resolveFileContent={resolveRangeUsage}
     >
-      <div class="flex w-full max-w-xs flex-col gap-3">
+      <div class={cx(rt.rngLane)}>
         <Range
           label="volume"
           bind:value={canvasValue}
@@ -227,53 +245,53 @@ ${close}
       title="Native base — the platform contract, for free"
       summary="A real input[type=range] is the control: pointer behavior, the full keyboard contract (←→/↑↓ step, Home/End jump, PageUp/PageDown stride), RTL mirroring, the label[for] binding and form submission are the ENGINE's own — nothing hand-held, nothing simulated. The registry surface adds what the bare element cannot: the label row with live readout, the tick ruler (one 4px mark per snap point as a repeating gradient, inset to the thumb's travel box — half a thumb per side — with the explicit end tick at 100%; click a mark to snap to it, wheel the slider for one-step fine-tuning), the family error law, and the jx-pure range paint (groove track, ringed disc thumb, primary fill) GENERATED onto the component's own hook from the same css-law — one visual law, machine-projected mounting surfaces."
     >
-      <div class="flex flex-col gap-5">
-        <div class="grid gap-5 min-[760px]:grid-cols-3">
-          <div class="flex flex-col gap-3">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.rngGrid760)}>
+          <div class={cx(rt.col12)}>
             <Range label="volume" bind:value={volume} min={0} max={100} />
-            <span class="text-muted-foreground text-[12.5px]">
-              drag · tap-to-jump · value: <code class="text-accent">{volume}</code>
+            <span class={cx(rt.noteSmall)}>
+              drag · tap-to-jump · value: <code class={cx(rt.inkAccent)}>{volume}</code>
             </span>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <Range label="gain (ticks)" bind:value={gain} min={0} max={10} step={0.5} ticks />
-            <span class="text-muted-foreground text-[12.5px]">
-              step 0.5 · click a mark to snap · value: <code class="text-accent">{gain}</code>
+            <span class={cx(rt.noteSmall)}>
+              step 0.5 · click a mark to snap · value: <code class={cx(rt.inkAccent)}>{gain}</code>
             </span>
           </div>
-          <div class="flex flex-col gap-3">
+          <div class={cx(rt.col12)}>
             <Range label="tolerance" bind:value={tolerance} min={0} max={1} step={0.05} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.noteSmall)}>
               decimals snap at the step's precision · value:
-              <code class="text-accent">{tolerance.toFixed(2)}</code>
+              <code class={cx(rt.inkAccent)}>{tolerance.toFixed(2)}</code>
             </span>
           </div>
         </div>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           Tab into a slider and drive it: ←→/↑↓ step by
-          <code class="text-accent">step</code>, Home/End jump to the bounds, PageUp/PageDown
+          <code class={cx(rt.inkAccent)}>step</code>, Home/End jump to the bounds, PageUp/PageDown
           stride — all the platform's own range behavior, plus its native form semantics
-          (<code class="text-accent">name=</code> submits the numeric string through the
+          (<code class={cx(rt.inkAccent)}>name=</code> submits the numeric string through the
           input's own FormData lane). The mirrored layout below costs the component nothing:
           the engine draws RTL itself.
         </p>
-        <div class="border-border mt-1 border-t pt-5">
-          <h3 class="text-[15px] font-bold tracking-tight">RTL + error wiring</h3>
-          <div class="mt-4 grid gap-5 min-[760px]:grid-cols-2">
-            <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+        <div class={cx(rt.frameBorder, rt.mt4, rt.tBorderW, rt.pt20)}>
+          <h3 class={cx(rt.title15)}>RTL + error wiring</h3>
+          <div class={cx(rt.mt16, rt.grid760a)}>
+            <div dir="rtl" class={cx(rt.rngPanel)}>
               <Range label="volume (rtl)" bind:value={volumeRtl} min={0} max={100} />
               <Range label="gain (rtl, ticks)" bind:value={gain} min={0} max={10} step={0.5} ticks />
-              <span class="text-muted-foreground text-[12px]">
+              <span class={cx(rt.note12)}>
                 fill grows from the right (the law's :dir(rtl) fill mirror), ticks mirror, arrow
                 keys flip — the platform's own RTL
               </span>
             </div>
-            <div class="flex flex-col gap-4">
+            <div class={cx(rt.col16)}>
               <Range label="volume" error="volume is required" min={0} max={100} />
-              <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-                The <code class="text-accent">error</code> prop is the family law on the native
-                control too: <code class="text-accent">aria-invalid</code> +
-                <code class="text-accent">aria-describedby</code> ride the input, the readout
+              <p class={cx(rt.para)}>
+                The <code class={cx(rt.inkAccent)}>error</code> prop is the family law on the native
+                control too: <code class={cx(rt.inkAccent)}>aria-invalid</code> +
+                <code class={cx(rt.inkAccent)}>aria-describedby</code> ride the input, the readout
                 takes the destructive mark, and the thumb border dashes — the monochrome
                 invalid signal, no second hue.
               </p>
@@ -287,10 +305,10 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Range variants" summary="Use a plain slider for continuous input, add steps and ticks when values are discrete, or flip the axis — vertical rides the platform's own vertical face with min at the physical bottom."><ComponentCanvas title="range · variants" stage="fill" files={rangeTypesFiles}><div class="grid gap-4 sm:grid-cols-3"><div class="border border-border p-4"><Range label="continuous" value={40} /></div><div class="border border-border p-4"><Range label="stepped" value={4} min={0} max={10} step={1} /></div><div class="border border-border p-4"><Range label="with ticks" value={50} ticks /></div><div class="border border-border p-4"><Range label="ruler (1/5/10)" bind:value={rulerValue} min={0} max={100} step={1}>{#snippet ticks()}<RangeTick scale={1} /><RangeTick scale={5} /><RangeTick scale={10} />{/snippet}</Range><span class="text-muted-foreground text-[12px]">click a mark to snap · wheel = one detent</span></div><div class="border border-border flex items-center justify-center p-4"><Range label="vertical fader" orientation="vertical" value={30} ticks min={0} max={10} step={1} /></div></div></ComponentCanvas></SectionCard></div>
+<div class={cx(rt.shellFlush)}>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Range variants" summary="Use a plain slider for continuous input, add steps and ticks when values are discrete, or flip the axis — vertical rides the platform's own vertical face with min at the physical bottom."><ComponentCanvas title="range · variants" stage="fill" files={rangeTypesFiles}><div class={cx(rt.gridSm3)}><div class={cx(rt.panel)}><Range label="continuous" value={40} /></div><div class={cx(rt.panel)}><Range label="stepped" value={4} min={0} max={10} step={1} /></div><div class={cx(rt.panel)}><Range label="with ticks" value={50} ticks /></div><div class={cx(rt.panel)}><Range label="ruler (1/5/10)" bind:value={rulerValue} min={0} max={100} step={1}>{#snippet ticks()}<RangeTick scale={1} /><RangeTick scale={5} /><RangeTick scale={10} />{/snippet}</Range><span class={cx(rt.note12)}>click a mark to snap · wheel = one detent</span></div><div class={cx(rt.rngStage)}><Range label="vertical fader" orientation="vertical" value={30} ticks min={0} max={10} step={1} /></div></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Bind the numeric value; min, max, step, ticks, and RTL all remain explicit props."><CodeBlock code={rangeUsage} lang="svelte" meta="Range usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native input IS the slider: the platform's implicit semantics and keyboard contract, named by a real label[for]."><A11yTable keys={[{ key: 'Arrow keys', action: 'Change by step' }, { key: 'Home / End', action: 'Jump to min / max' }, { key: 'Page Up / Down', action: 'Change by a larger step when supported' }, { key: 'Wheel (hover)', action: 'Fine-tune by detent — every detent = one input-step × the axis multiplier; declarative in the touch-action grammar: wheel is true/\u2018xy\u2019 (default) | \u2018y\u2019 | \u2018x\u2019 | false/\u2018none\u2019 | { x, y }. Owned gestures are swallowed and never scroll the page; ctrlKey pinch-zoom is never captured; disabled sliders ignore it.' }, { key: 'Click a tick', action: 'Snap to that mark (pointer-only convenience; the ruler stays aria-hidden — the step semantics live on the input, whose arrows refine from the snapped value).' }, { key: 'Form reset', action: 'The platform restores the input; the component re-syncs the bound value, the readout and aria-valuetext (a reset fires no input events by itself).' }]} aria={[{ name: 'input[type=range]', value: 'implicit slider', description: 'The platform semantics: value/min/max/step are native truth; no roles to maintain.' }, { name: 'label[for]', value: 'the field id', description: 'A REAL label binds to the labelable input (a div never could).' }, { name: 'aria-valuetext', value: 'step-precision readout', description: 'The formatted value for assistive tech (decimal steps); follows form resets too.' }, { name: '.jx-slider-ticks', value: 'aria-hidden', description: 'The tick ruler rides the thumb\u2019s travel box (half a thumb inset per side); a visual aid that also snaps on click — the step semantics stay on the input itself.' }] } /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The slider's geometry chain derives from its own size container (container-type: size): the thumb is the input's full height, the track and the ring are fractions of it — every internal proportion scales as one unit when the height lane changes."><div class="flex flex-col gap-5"><DensityDemo><Range label="density sample" value={50} /></DensityDemo><TokenTable tokens={[{ name: '--jx-range-thumb', default: '100cqh', source: 'component' }, { name: '--jx-range-track', default: 'calc(100cqh / 2.5)', source: 'component' }, { name: '--jx-range-ring', default: 'calc(100cqh / 8)', source: 'component' }, { name: '--jx-slider-fill-color', default: 'var(--primary)', source: 'component' }, { name: '--jx-tick-step', default: 'runtime step percentage (step / (max − min) × 100)', source: 'component' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The slider's geometry chain derives from its own size container (container-type: size): the thumb is the input's full height, the track and the ring are fractions of it — every internal proportion scales as one unit when the height lane changes."><div class={cx(rt.col20)}><DensityDemo><Range label="density sample" value={50} /></DensityDemo><TokenTable tokens={[{ name: '--jx-range-thumb', default: '100cqh', source: 'component' }, { name: '--jx-range-track', default: 'calc(100cqh / 2.5)', source: 'component' }, { name: '--jx-range-ring', default: 'calc(100cqh / 8)', source: 'component' }, { name: '--jx-slider-fill-color', default: 'var(--primary)', source: 'component' }, { name: '--jx-tick-step', default: 'runtime step percentage (step / (max − min) × 100)', source: 'component' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props define the numeric model, naming, visual options, and the error law; form lifecycle is native."><PropsTable props={[{ name: 'value', type: 'number', default: '0', description: 'Bindable committed value; external writes snap into [min, max] on the step.', bindable: true }, { name: 'min', type: 'number', default: '0', description: 'Lower bound (native).' }, { name: 'max', type: 'number', default: '100', description: 'Upper bound (native).' }, { name: 'step', type: 'number', default: '1', description: 'Increment for pointer and keyboard (native); step <= 0 or non-finite falls back to the platform default (1).' }, { name: 'name', type: 'string', description: 'Form field name — the input submits its numeric string itself.' }, { name: 'ticks', type: 'boolean | snippet', default: 'false', description: 'The tick ruler: true draws one default RangeTick per step (inset to the thumb\u2019s travel); a ticks snippet composes RangeTick scales — marks at scale × step periods, lengths grading ascending by value. Clicking a mark snaps the value.' }, { name: 'wheel', type: 'boolean | \u2018x\u2019 | \u2018y\u2019 | \u2018xy\u2019 | \u2018none\u2019 | { x?, y? }', default: 'true', description: 'The wheel fine-tune surface, declarative in the touch-action axis grammar: each axis is false (off), true (one input-step per detent) or a multiplier (0.2 → five detents per input-step). Owned gestures are swallowed and default-prevented; ctrlKey pinch-zoom is never captured.' }, { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Vertical rides the platform\u2019s vertical face (writing-mode + orient): min at the physical bottom, the ruler maps bottom-up on the block axis, height defaults to --jx-range-length (10rem).' }, { name: 'showValue', type: 'boolean', default: 'true', description: 'Shows the current value readout.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and message.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'The platform disabled semantics (pointer, keyboard, form).' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
 </div>

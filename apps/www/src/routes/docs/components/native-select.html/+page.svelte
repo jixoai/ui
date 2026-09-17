@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -255,6 +256,23 @@ ${close}
   const nativeSelectTypesFiles: TreeFile[] = [
     { name: 'native-select-types-demo.svelte', content: nativeSelectTypesDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -266,14 +284,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -283,7 +301,7 @@ ${close}
       title="native-select — the platform popup, kept"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">real FormData pair</span>
         <span class="pill">mobile overlay picker</span>
         <span class="pill">appearance-none repaint</span>
@@ -305,7 +323,7 @@ ${close}
       output={[{ label: 'value', value: canvasValue }]}
       resolveFileContent={resolveNativeSelectUsage}
     >
-      <div class="flex w-full max-w-xs flex-col gap-3">
+      <div class={cx(rt.flex, rt.wFull, rt.nsMaxWXs, rt.col, rt.gap12)}>
         <NativeSelect label="plan" name="canvas-plan" bind:value={canvasValue} disabled={canvasDisabled}>
           <option value="free">free</option>
           <option value="pro">pro</option>
@@ -335,10 +353,10 @@ ${close}
       title="Native first — the default you should ship"
       summary="A real <select> whose popup list, keyboard, and type-ahead belong to the platform. The repaint touches only the closed control: appearance-none plus an inline SVG chevron, absolutely positioned and pointer-events: none. It rides into FormData with a name/value pair and gets the OS overlay picker on mobile."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.flex, rt.col, rt.gap20)}>
         <ComponentCanvas title="native-select · native first" stage="fill" files={nativeFirstFiles}>
           <CardGrid min="230px">
-            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
               <NativeSelect
                 label="runtime — native popup"
                 name="cmp_runtime"
@@ -349,37 +367,37 @@ ${close}
                 <option value="bun">bun</option>
                 <option value="deno">deno</option>
               </NativeSelect>
-              <span class="text-muted-foreground text-[12.5px]">
+              <span class={cx(rt.text125, rt.inkMuted)}>
                 platform popup · FormData-ready · bound value:
-                <code class="text-accent">{runtimeNative}</code>
+                <code class={cx(rt.inkAccent)}>{runtimeNative}</code>
               </span>
             </div>
-            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
               <NativeSelect label="disabled" name="demo_select_disabled" disabled>
                 <option>frozen</option>
               </NativeSelect>
-              <span class="text-muted-foreground text-[12.5px]">
+              <span class={cx(rt.text125, rt.inkMuted)}>
                 the whole control freezes — options and all
               </span>
             </div>
-            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <div class="demo-cell {cx(rt.col12)}" data-no-subgrid>
               <NativeSelect label="multiple (list box)" name="demo_targets" multiple>
                 <option value="linux">linux</option>
                 <option value="macos">macos</option>
                 <option value="windows">windows</option>
               </NativeSelect>
-              <span class="text-muted-foreground text-[12.5px]">
+              <span class={cx(rt.text125, rt.inkMuted)}>
                 native list-box geometry · ctrl/cmd multi-selects
               </span>
             </div>
           </CardGrid>
         </ComponentCanvas>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.bodyMuted, rt.pretty)}>
           When the native popup can't say what you need — per-option descriptions, a painted
           panel, roving highlight — reach for the rich sibling:
-          <a class="text-accent underline decoration-dotted underline-offset-4" href="/docs/components/select.html">select</a>
+          <a class={cx(rt.inkAccent, rt.underline, rt.dotted, rt.nsOffset4)} href="/docs/components/select.html">select</a>
           builds the same trigger paint on a popover listbox. The split changes nothing
-          semantically: both carry <code class="text-accent">label[for]</code> and the family
+          semantically: both carry <code class={cx(rt.inkAccent)}>label[for]</code> and the family
           error law.
         </p>
         <CodeBlock code={usage} lang="svelte" meta="NativeSelect usage" />
@@ -396,7 +414,7 @@ ${close}
       title="label + error wiring"
       summary="The error prop is pure semantics: it sets aria-invalid='true', wires aria-describedby to the “! message” line, and dashes the shell border — a monochrome invalid signal, because the one-hue law has no error red."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.flex, rt.col, rt.gap20)}>
         <NativeSelect label="plan" error="plan is required">
           <option value="">— choose —</option>
           <option value="free">free</option>
@@ -416,16 +434,16 @@ ${close}
       summary="NativeSelect is the select in a submitted form — its name/value pair is the point. Uncontrolled field, native constraint validation (the required bubble belongs to the platform), FormData read once at submit."
     >
       <ComponentCanvas title="native-select · in a form" stage="fill" files={inAFormFiles}>
-        <div class="grid gap-6 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-          <form class="flex flex-col gap-4" aria-label="plan" onsubmit={onSubmit}>
+        <div class={cx(rt.nsGrid900)}>
+          <form class={cx(rt.flex, rt.col, rt.gap16)} aria-label="plan" onsubmit={onSubmit}>
             <NativeSelect label="plan" name="plan" required>
               <option value="">— choose a plan —</option>
               <option value="free">free — community</option>
               <option value="pro">pro — dedicated backend</option>
             </NativeSelect>
-            <div class="flex flex-wrap items-center gap-3 pt-1">
+            <div class={cx(rt.wrapRow12, rt.pt4)}>
               <PressButton type="submit" variant="fill">sign up</PressButton>
-              <span class="text-muted-foreground text-[12.5px]">
+              <span class={cx(rt.text125, rt.inkMuted)}>
                 required fields use native validation — try submitting empty
               </span>
             </div>
@@ -440,9 +458,9 @@ ${close}
                 />
               {/key}
             {:else}
-              <div class="border-border bg-muted/40 text-muted-foreground flex h-full min-h-40 flex-col items-center justify-center gap-2 border p-6 text-center text-[13px]">
-                <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">awaiting submit</span>
-                <span>choose a plan and press <code class="text-accent">sign up</code> — the FormData payload prints here</span>
+              <div class={cx(rt.frame, rt.bgMuted40, rt.inkMuted, rt.flex, rt.hFull, rt.nsMinH40, rt.col, rt.itemsCenter, rt.justifyCenter, rt.gap8, rt.nsP24, rt.textCenter, rt.text13)}>
+                <span class={cx(rt.eyebrowPrimary)}>awaiting submit</span>
+                <span>choose a plan and press <code class={cx(rt.inkAccent)}>sign up</code> — the FormData payload prints here</span>
               </div>
             {/if}
           </div>
@@ -456,7 +474,7 @@ ${close}
 <!-- Material3 standard sections (2026-08-26): types / usage / a11y /
      theming / api appended after the demo sections, same wrapper law as
      checkbox.html. -->
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="types" data-reveal="">
     <SectionCard
       family="types"
@@ -466,28 +484,28 @@ ${close}
       summary="The single popup select, the multiple list-box posture, the error state, and the disabled field."
     >
       <ComponentCanvas title="native-select · variants" stage="fill" files={nativeSelectTypesFiles}>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="border border-border p-4">
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}>
             <NativeSelect label="single" name="types-single">
               <option value="node">node</option>
               <option value="bun">bun</option>
               <option value="deno">deno</option>
             </NativeSelect>
           </div>
-          <div class="border border-border p-4">
+          <div class={cx(rt.panel)}>
             <NativeSelect label="multiple (list box)" name="types-multiple" multiple>
               <option value="linux">linux</option>
               <option value="macos">macos</option>
               <option value="windows">windows</option>
             </NativeSelect>
           </div>
-          <div class="border border-border p-4">
+          <div class={cx(rt.panel)}>
             <NativeSelect label="error" name="types-error" error="plan is required">
               <option value="">— choose —</option>
               <option value="free">free</option>
             </NativeSelect>
           </div>
-          <div class="border border-border p-4">
+          <div class={cx(rt.panel)}>
             <NativeSelect label="disabled" name="types-disabled" disabled>
               <option>frozen</option>
             </NativeSelect>
@@ -537,7 +555,7 @@ ${close}
       title="Density and tokens"
       summary="The closed-control shell, chevron, and label rhythm are density-scope tokens; resize the scope and the whole field follows (the popup stays the platform's)."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <DensityDemo>
           <NativeSelect label="density sample" name="density-native-select">
             <option value="node">node</option>
