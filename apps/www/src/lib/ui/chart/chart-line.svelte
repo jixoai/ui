@@ -34,6 +34,7 @@
   import type { Density } from '$lib/density.svelte';
   import { ChartDefaults } from './chart-defaults.svelte';
   import { cn } from '$lib/utils';
+  import { chartStyles } from './chart.stylex';
   import { linePoints, markerPoints } from './chart.svelte';
   import './chart.css';
 
@@ -73,6 +74,20 @@
   // economy 3.4): density rides the no-opinion axis slot (the
   // ensemble provides, the glyph stamps)
   const d = $derived(ChartDefaults.resolve({ density }));
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
 
   // viewBox constants — the 5:2 frame; y band [1, 39] (the documented
   // 1-unit marker-radius inset; the DATA range maps the full band)
@@ -100,7 +115,7 @@
   data-density={d.density}
   viewBox="0 0 {W} {H}"
   fill="none"
-  class={cn('h-auto w-full max-w-full', className)}
+  class={cn(cx(chartStyles.lineRoot), className)}
 >
   <!-- the hairline grid: geometry, never axes -->
   <line class="jx-chart-grid" x1="0" y1="1" x2="{W}" y2="1" vector-effect="non-scaling-stroke" stroke-width="1" />

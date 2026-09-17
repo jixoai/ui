@@ -16,9 +16,10 @@
     everything else    → inert aria-hidden <span> — no handler, no dead
       affordance.
 
-  State paint (border/background/token colors) is JS-known through the
-  item context, so it rides conditional token utilities (tw4 law) — one
-  rung per vocabulary word, all on the theme's semantic pairs. The
+  State paint (border/background/token colors) rides steps.css keyed
+  on the li's data-jx-step state (tailwindless W1, 2026-09-17 — the
+  connector repaint's own law; one rung per vocabulary word, all on
+  the theme's semantic pairs; the atoms carry geometry only). The
   DISTINCT-PAIRS law (2026-09-02, V2-6): the three confusable pairs are
   shape-separated, not glyph-only —
 
@@ -37,6 +38,7 @@
   import type { HTMLAttributes, HTMLButtonAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { stepsStyles } from './steps.stylex';
   import { STEPS_ITEM_KEY, type StepsItemApi } from './steps-item.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -54,6 +56,20 @@
 
   let { children, child, class: className = '', ...rest }: Props = $props();
 
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
   const item = getContext<StepsItemApi>(STEPS_ITEM_KEY);
   // the family contract is named, not a bare TypeError (the
   // toggle-group-item precedent): rendering this part outside its Item
@@ -61,20 +77,6 @@
   if (!item) {
     throw new Error('jixoai steps: StepsIndicator must live inside a StepsItem');
   }
-
-  // one rung per vocabulary word — the theme's semantic pairs, shaped
-  // per the distinct-pairs law above (V2-6)
-  const markerPaint = {
-    done: 'border-primary bg-primary text-primary-foreground hover:bg-primary/90',
-    current: 'border-primary bg-primary text-primary-foreground',
-    todo: 'border-border bg-card text-muted-foreground',
-    pending: 'border-primary bg-card text-primary',
-    success: 'border-success bg-success text-success-foreground',
-    error: 'border-error bg-error text-error-foreground',
-    hint: 'border-info bg-card text-info',
-    emphasis: 'border-primary bg-card text-primary ring-1 ring-primary ring-offset-2 ring-offset-card',
-    disabled: 'border-dashed border-border/60 bg-transparent text-muted-foreground/60 cursor-not-allowed',
-  } as const;
 
   // the default glyph per state (children override; the number where
   // ordinal identity still speaks). $derived (2026-09-02, C-16): a
@@ -121,9 +123,10 @@
     class: cn(
       // rest spreads FIRST in the props object above, so the authored
       // wiring (type, aria-label, onclick) wins name collisions —
-      // consumer attributes land verbatim
-      'flex-none inline-flex items-center justify-center [width:var(--jx-icon)] [height:var(--jx-icon)] border font-nav [font-size:var(--jx-text-secondary)] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
-      markerPaint[item.state],
+      // consumer attributes land verbatim. The state PAINT rides
+      // steps.css keyed on the li's data-jx-step (the connector
+      // repaint's own law); atoms carry the geometry + the cursor
+      cx(stepsStyles.marker, stepsStyles.markerButton),
       className,
     ),
     onclick: clickWithFocusRest,
@@ -138,11 +141,7 @@
 {:else}
   <span
     data-jx-step-indicator=""
-    class={cn(
-      'flex-none inline-flex items-center justify-center [width:var(--jx-icon)] [height:var(--jx-icon)] border font-nav [font-size:var(--jx-text-secondary)]',
-      markerPaint[item.state],
-      className,
-    )}
+    class={cn(cx(stepsStyles.marker), className)}
     {...rest}
     aria-hidden="true"
   >

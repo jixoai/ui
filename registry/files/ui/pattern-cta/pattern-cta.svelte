@@ -15,17 +15,24 @@
   patched, no atom paint re-implemented.
 
   Elevation (F-7, adversarial-review 2026-09-02): the band floats on
-  the `shadow` utility (--shadow, the elevation grammar's float tier)
-  — the old `[box-shadow:4px_4px_0_0_var(--shadow)]` arbitrary value
-  was doubly wrong: hardcoded geometry OFF the tokens, and var(--shadow)
-  is a full shadow LIST, not a color — the substitution produced five
-  lengths and the whole declaration computed to none (the band rendered
-  shadowless). Geometry lives only in the theme sheet.
+  the --shadow token (the elevation grammar's float tier) — the old
+  `[box-shadow:4px_4px_0_0_var(--shadow)]` arbitrary value was doubly
+  wrong: hardcoded geometry OFF the tokens, and var(--shadow) is a
+  full shadow LIST, not a color — the substitution produced five
+  lengths and the whole declaration computed to none (the band
+  rendered shadowless). Geometry lives only in the theme sheet.
+
+  tailwindless Wave 1 batch 3 (2026-09-17): the paint rides the
+  family's stylex ATOMS (pattern-cta.stylex.ts) joined through cx();
+  the 820px two-track seam rides the band atom's media block at the
+  ORIGINAL threshold (breakpoint parity); the `+` corner brackets
+  stay in pattern-cta.css (pseudo-element content, lane-2).
 -->
 <script lang="ts">
   import Icon from '$lib/ui/icon';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { ctaStyles } from './pattern-cta.stylex';
   import './pattern-cta.css';
 
   interface Props {
@@ -72,30 +79,45 @@
     clearTimeout(copyTimer);
     copyTimer = setTimeout(() => (copied = false), 1400);
   }
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <section
   data-jx-pattern-cta=""
-  class={`jx-pattern-cta box-border grid w-full gap-8 border border-border bg-card px-4 py-8 rounded-(--radius) shadow min-[820px]:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] min-[820px]:items-center min-[820px]:px-8 ${className}`}
+  class={`jx-pattern-cta ${cx(ctaStyles.band)} ${className}`}
   aria-label="call to action"
 >
-  <div class="min-w-0">
-    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary-text">$ npx jixoai-ui add …</p>
+  <div class={cx(ctaStyles.lead)}>
+    <p class={cx(ctaStyles.eyebrow)}>$ npx jixoai-ui add …</p>
     <h2
       data-jx-cta-title=""
-      class="mt-3 max-w-[24ch] text-[clamp(1.6rem,3.2vw,2.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
+      class={cx(ctaStyles.heading)}
     >
       {heading}
     </h2>
-    <p class="mt-3 max-w-[52ch] text-pretty text-[15px] leading-6 text-muted-foreground">
+    <p class={cx(ctaStyles.summary)}>
       {summary}
     </p>
     {#if secondaryLabel}
-      <PressButton variant="outline" href={secondaryHref} class="mt-6">{secondaryLabel}</PressButton>
+      <PressButton variant="outline" href={secondaryHref} class={cx(ctaStyles.escape)}>{secondaryLabel}</PressButton>
     {/if}
   </div>
 
-  <CodeCard lang="bash" code={command} filename="install" copyable={false} class="min-w-0">
+  <CodeCard lang="bash" code={command} filename="install" copyable={false} class={cx(ctaStyles.lead)}>
     {#snippet footer()}
       <PressButton
         variant={copied ? 'tonal' : 'fill'}
@@ -104,10 +126,10 @@
         ariaLabel={`${copied ? 'copied' : actionLabel} ${command}`}
       >
         {#if copied}
-          <span class="inline-flex"><Icon name="check" size={14} strokeWidth={2.5} /></span>
+          <span class={cx(ctaStyles.iconLane)}><Icon name="check" size={14} strokeWidth={2.5} /></span>
           <span>copied</span>
         {:else}
-          <span class="inline-flex"><Icon name="copy" size={14} /></span>
+          <span class={cx(ctaStyles.iconLane)}><Icon name="copy" size={14} /></span>
           <span>{actionLabel}</span>
         {/if}
       </PressButton>

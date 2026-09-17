@@ -1,10 +1,46 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
-/* jixoai terminal-card — D1-exempt residue (tw4, 2026-08-24): ONLY the
- * line-reveal state machine — the .jx-out/.jx-out-shown class pair and
- * the reduced-motion kill. It repaints over the utility cascade
- * (opacity/transform/transition), so it rides the UNLAYERED :where()
- * carve-out (the toggle/Part A precedent). */
+
+/* jixoai terminal-card residue.
+ *
+ * Lane-2 additions (tailwindless one-shot W1, 2026-09-17) under
+ * @layer components — seams atoms cannot own: the body's sm padding
+ * seam (a media rule can never re-pin an atom under the F9 layer
+ * order), the command display voice (font-semibold's 600 has no
+ * weight token — reported for promotion — plus its sm size seam),
+ * and the output stack's `> * + *` sibling rhythm (the accordion
+ * seam precedent). Threshold is Tailwind's own sm (40rem), kept
+ * verbatim (breakpoint parity).
+ *
+ * The line-reveal state machine (tw4, 2026-08-24, kept): the
+ * .jx-out/.jx-out-shown class pair and the reduced-motion kill. It
+ * repaints over the atom cascade (opacity/transform/transition), so
+ * it rides the UNLAYERED :where() carve-out (the toggle/Part A
+ * precedent). */
+
+@layer components {
+  :where([data-jx-terminal-body]) {
+    padding: var(--space-16);
+  }
+  @media (min-width: 40rem) {
+    :where([data-jx-terminal-body]) {
+      padding: var(--space-20);
+    }
+  }
+  :where([data-jx-terminal-command]) {
+    font-size: 1.125rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: -0.025em;
+  }
+  @media (min-width: 40rem) {
+    :where([data-jx-terminal-command]) {
+      font-size: 1.25rem;
+    }
+  }
+  :where([data-jx-terminal-outputs]) > * + * {
+    margin-block-start: var(--space-4);
+  }
+}
 
 :where(.jx-out) {
   color: color-mix(in oklab, var(--terminal-foreground) 65%, transparent);
@@ -15,8 +51,8 @@
   opacity: 1;
   transform: none;
   transition:
-    opacity 150ms ease-out,
-    transform 170ms ease-out;
+    opacity var(--motion-150) var(--motion-ease-out),
+    transform 170ms var(--motion-ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {

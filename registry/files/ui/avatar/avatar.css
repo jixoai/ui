@@ -1,0 +1,39 @@
+@layer properties, theme, base, components, utilities;
+
+/*
+ * jixoai avatar — the silhouette lane-2 sheet
+ * (registry/files/ui/avatar/avatar.css).
+ *
+ * tailwindless one-shot Wave 1 (2026-09-17): the corner geometry
+ * moved here from the utility channel (avatar.stylex.ts carries the
+ * frame/sizes/postures). The three silhouettes are keyed on the
+ * family's own data contract — data-jx-avatar-variant × data-jx-avatar
+ * — under @layer components + :where() (zero specificity: any
+ * consumer utility in the later utilities layer always wins). The
+ * radii ride the --radius token (bevel scales it 6/8/10px across
+ * sm/md/lg; md IS the baseline); the circle's 50% is the geometry of
+ * a circle, not a scale step — recorded here because the tier-2 gate
+ * binds every radius literal to tokens. corner-shape degrades
+ * natively (bevel → square, squircle → circle) where unsupported.
+ */
+
+@layer components {
+:where([data-jx-avatar-variant='bevel']) {
+  corner-shape: bevel;
+  border-radius: calc(var(--radius) * 0.75);
+}
+:where([data-jx-avatar='md'][data-jx-avatar-variant='bevel']) {
+  border-radius: var(--radius);
+}
+:where([data-jx-avatar='lg'][data-jx-avatar-variant='bevel']) {
+  border-radius: calc(var(--radius) * 1.25);
+}
+:where([data-jx-avatar-variant='rounded']) {
+  corner-shape: round;
+  border-radius: 50%;
+}
+:where([data-jx-avatar-variant='squircle']) {
+  corner-shape: squircle;
+  border-radius: 50%;
+}
+}

@@ -1,0 +1,42 @@
+@layer properties, theme, base, components, utilities;
+
+/*
+ * jixoai pagination lane-2 sheet (tailwindless one-shot Wave 1 batch 1,
+ * 2026-09-16). The seams utilities carried that atoms cannot express:
+ *  - the jx-press channel poses: the --jx-press-shadow* custom
+ *    properties configure the shared press @utility law (jixoai.css) —
+ *    stylex atoms cannot author custom properties. An idle chip rides
+ *    the press with hover/active shadow-xs poses; the CURRENT page
+ *    rides the press without any shadow (the closed component's law).
+ *    @layer components — no atom competition on these channels.
+ *  - the hover ink + focus ring: NATIVE pseudos keyed on the family
+ *    hooks (data-jx-page / data-jx-page-edge); UNLAYERED :where() —
+ *    the Part A carve-out (the stylex tiers nest under components, so
+ *    overriding the chips' own idle-ink atoms requires the unlayered
+ *    level). No motion token exists for durations yet (reported).
+ */
+
+@layer components {
+  :where([data-jx-page]),
+  :where([data-jx-page-edge]) {
+    --jx-press-shadow: none;
+    --jx-press-shadow-hover: var(--shadow-xs);
+    --jx-press-shadow-active: var(--shadow-xs-press);
+  }
+  /* the current page: the press law without its shadow */
+  :where([data-jx-page-current]) {
+    --jx-press-shadow-hover: none;
+    --jx-press-shadow-active: none;
+  }
+}
+
+:where([data-jx-page]:hover),
+:where([data-jx-page-edge]:hover) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+:where([data-jx-page]:focus-visible),
+:where([data-jx-page-edge]:focus-visible) {
+  outline: var(--hairline) solid var(--ring);
+  outline-offset: -1px;
+}

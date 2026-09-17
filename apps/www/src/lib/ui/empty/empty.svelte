@@ -15,12 +15,17 @@
 
   tw4 (2026-08-24): pure token utilities, zero css residue; `jx-empty*`
   classes are semantic hooks, css defines them not.
+
+  tailwindless one-shot Wave 1 (2026-09-17): the paint rides the
+  family's stylex ATOMS (empty.stylex.ts); the utility strip below is
+  gone — composed class strings join through the payload's own cx().
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
   import { type Density } from '$lib/density.svelte';
   import { EmptyDefaults } from './empty-defaults.svelte';
+  import { emptyStyles } from './empty.stylex';
 
   interface Props {
     /** density policy: explicit ?? ambient scope, else unstamped */
@@ -39,24 +44,41 @@
   // scope; no opinion stamps nothing, the ambient css scope channel
   // keeps flowing
   const d = $derived(EmptyDefaults.resolve({ density }));
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, so raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<figure data-jx-empty="" data-density={d.density} class={cn('flex flex-col items-center [gap:var(--jx-stack)] border border-dashed border-border bg-muted [padding:calc(var(--jx-inset)*2)]', className)}>
-  <div data-jx-empty-art="" class="flex flex-col [gap:var(--jx-stack)] border border-border bg-card [padding:var(--jx-inset)] shadow-2xs font-mono [font-size:var(--jx-text)]" aria-hidden="true">
+<figure data-jx-empty="" data-density={d.density} class={cn(cx(emptyStyles.figure), className)}>
+  <div data-jx-empty-art="" class={cx(emptyStyles.art)} aria-hidden="true">
     {#if illustration}
       {@render illustration()}
     {:else}
-      <span data-jx-empty-term="" class="text-muted-foreground">ls checks/</span>
-      <span data-jx-empty-zero="" class="text-primary">0 items</span>
+      <span data-jx-empty-term="" class={cx(emptyStyles.term)}>ls checks/</span>
+      <span data-jx-empty-zero="" class={cx(emptyStyles.zero)}>0 items</span>
     {/if}
   </div>
-  <figcaption data-jx-empty-caption="" class="flex flex-col items-center [gap:var(--jx-stack)] text-center">
-    <p data-jx-empty-title="" class="font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] tracking-[0.12em] uppercase text-foreground">{title}</p>
+  <figcaption data-jx-empty-caption="" class={cx(emptyStyles.caption)}>
+    <p data-jx-empty-title="" class={cx(emptyStyles.title)}>{title}</p>
     {#if description}
-      <p data-jx-empty-desc="" class="max-w-[36ch] [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground">{description}</p>
+      <p data-jx-empty-desc="" class={cx(emptyStyles.desc)}>{description}</p>
     {/if}
     {#if actions}
-      <div data-jx-empty-actions="" class="[margin-block-start:var(--jx-stack)] flex flex-wrap justify-center [gap:var(--jx-gap)]">
+      <div data-jx-empty-actions="" class={cx(emptyStyles.actions)}>
         {@render actions()}
       </div>
     {/if}

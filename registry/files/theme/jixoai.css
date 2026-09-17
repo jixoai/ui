@@ -1062,30 +1062,75 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    tokens.stylex.ts map wraps each member (--jx-<name> →
    var(--<name>), the separator's naming precedent); the map's cycle
    law is why these sheet names carry NO jx prefix. 13px is NOT
-   re-promoted: --jx-text-base (the ruler's T_base) already IS the
-   body step; 15px is unused by the pilot and stays un-promoted
-   (the promotion table is a seed, actual usage governs).
-   ============================================================ */
+  re-promoted: --jx-text-base (the ruler's T_base) already IS the
+  body step. Wave 1 of the tailwindless one-shot (2026-09-17)
+  governed the seed: the steps marked (W1) below are the four
+  migration batches' cross-family demand, promoted under actual
+  usage (live seam names honored verbatim; one-off oddballs —
+  10.5px, 16.8px/19.52px hero steps, 0.025em — stay css-exact,
+  un-promoted).
+  ============================================================ */
 :root {
   /* the fixed micro-typography voice */
   --text-micro: 0.625rem;     /* 10px — slot corner annotations */
   --text-label: 0.6875rem;    /* 11px — the eyebrow/label voice */
   --text-label-lg: 0.75rem;   /* 12px — the control-label voice */
   --text-small: 0.78125rem;   /* 12.5px — the demo body voice */
+  --text-sm: 0.875rem;        /* 14px — the sm: responsive step (W1) */
+  --text-body-lg: 0.9375rem;  /* 15px — the summary/lead voice (W1) */
+  --text-body-xl: 1rem;       /* 16px — the hero sm: step (W1) */
   --track-label: 0.24em;      /* the eyebrow tracking */
   --track-wide: 0.08em;       /* the control-label tracking */
+
+  /* the tracking ladder (W1) — numeric steps; the tight slot keeps
+     Wave 1's live seam name (its 1.25 is the demanded value) */
+  --track-tight: -0.02em;
+  --track-04: 0.04em;
+  --track-06: 0.06em;
+  --track-10: 0.1em;
+  --track-12: 0.12em;
+  --track-14: 0.14em;
+  --track-18: 0.18em;
+  --track-20: 0.2em;
+
+  /* the weight ladder (W1) — no weight lived here before Wave 1 */
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* the leading ladder (W1) — fixed ratios, not density rungs;
+     ascending by value, none/tight are the semantic slots */
+  --leading-none: 1;
+  --leading-12: 1.2;
+  --leading-tight: 1.25;
+  --leading-14: 1.4;
+  --leading-145: 1.45;
+  --leading-15: 1.5;
+  --leading-155: 1.55;
+
+  /* the motion family (W1) — the interaction durations + easings;
+     hero is the one long rise, ease-nav the panel/drawer curve */
+  --motion-100: 100ms;
+  --motion-150: 150ms;
+  --motion-200: 200ms;
+  --motion-hero: 480ms;
+  --motion-ease-out: ease-out;
+  --motion-ease-nav: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* page measures */
   --shell-w: 90rem;           /* the docs page shell */
   --stage-w: 28rem;           /* the demo stage measure */
 
   /* the page space ladder — equations from the ruler */
+  --space-2: calc(var(--jx-unit) * 0.5);
   --space-4: calc(var(--jx-unit) * 1);
   --space-6: calc(var(--jx-unit) * 1.5);
   --space-8: calc(var(--jx-unit) * 2);
   --space-10: calc(var(--jx-unit) * 2.5);
   --space-12: calc(var(--jx-unit) * 3);
+  --space-14: calc(var(--jx-unit) * 3.5);
   --space-16: calc(var(--jx-unit) * 4);
+  --space-18: calc(var(--jx-unit) * 4.5);
   --space-20: calc(var(--jx-unit) * 5);
   --space-24: calc(var(--jx-unit) * 6);
   --space-32: calc(var(--jx-unit) * 8);

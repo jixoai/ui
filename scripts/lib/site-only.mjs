@@ -24,14 +24,20 @@ export const SITE_ONLY = [
   { path: 'apps/www/src/lib/ui/docs-pager.css', note: 'docs-restructure: pager styles (site-only)' },
   { path: 'apps/www/src/lib/ui/docs-sections-nav.svelte', note: 'docs-restructure: sections rail (site-only)' },
   { path: 'apps/www/src/lib/ui/docs-sections-nav.css', note: 'sections rail companion sheet — the VT presence law (site-only)' },
+  { path: 'apps/www/src/lib/ui/docs-sections-nav.stylex.ts', note: 'tailwindless W1: the sections-rail atom table (site-only)' },
   { path: 'apps/www/src/lib/ui/a11y-table/a11y-table.svelte', note: 'docs-upgrade: Material3-style a11y reference table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/a11y-table/index.ts', note: 'docs-upgrade: a11y-table barrel (site-only)' },
+  { path: 'apps/www/src/lib/ui/a11y-table/a11y-table.css', note: 'tailwindless W1: the a11y-table lane-2 sheet (site-only docs infra)' },
+  { path: 'apps/www/src/lib/ui/a11y-table/a11y-table.stylex.ts', note: 'tailwindless W1: the a11y-table atom table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/density-demo/density-demo.svelte', note: 'docs-upgrade: all-scopes density wrapper (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/density-demo/index.ts', note: 'docs-upgrade: density-demo barrel (site-only)' },
   { path: 'apps/www/src/lib/ui/props-table/props-table.svelte', note: 'docs-upgrade: API reference table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/props-table/index.ts', note: 'docs-upgrade: props-table barrel (site-only)' },
+  { path: 'apps/www/src/lib/ui/props-table/props-table.css', note: 'tailwindless W1: the props-table lane-2 sheet (site-only docs infra)' },
+  { path: 'apps/www/src/lib/ui/props-table/props-table.stylex.ts', note: 'tailwindless W1: the props-table atom table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/token-table/token-table.svelte', note: 'docs-upgrade: token reference table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/token-table/index.ts', note: 'docs-upgrade: token-table barrel (site-only)' },
+  { path: 'apps/www/src/lib/ui/token-table/token-table.stylex.ts', note: 'tailwindless W1: the token-table atom table (site-only docs infra)' },
   { path: 'apps/www/src/lib/icon-table/icon-table.svelte', note: 'icons-docs: icon vocabulary reference table with live glyph previews (site-only docs infra, token-table precedent)' },
 ];
 
@@ -40,7 +46,7 @@ export const SITE_ONLY_PREFIXES = [
   'apps/www/src/lib/blueprints/', // blueprint scene stage (site-only)
   'apps/www/src/lib/components/', // site-composed components
   'apps/www/src/lib/site/', // site-only surface modules (tw4 P2.2 placement law)
-  'apps/www/src/lib/surface/', // tailwindless-site P0: the site's stylex atom modules (the placement law's lane-1 site extension — routes import them; never a registry item, never mirrored)
+  'apps/www/src/lib/surface/', // tailwindless-site P0: the site's stylex atom modules (the placement law's lane-1 site extension — routes import them; never a registry item, never mirrored). EXCEPT component-canvas.stylex.ts (tailwindless W1): its family's svelte twins import it through $lib, so the item ships the module — an explicit MIRROR_PATH_OVERRIDES pair in gen-mirror-manifest.mjs.
   'apps/www/src/lib/playground/', // component-canvas demo controls (site-only, canvas redesign 2026-08-25)
   'apps/www/src/lib/schema/', // jsonSchema kernel (www-only, canvas-schema-pipeline 2026-08-30)
   'apps/www/src/lib/meta/', // generated + annotated component meta (canvas-schema-pipeline 2026-08-30)

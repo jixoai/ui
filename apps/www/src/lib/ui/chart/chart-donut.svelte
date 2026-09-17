@@ -28,6 +28,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { chartStyles } from './chart.stylex';
   import { ChartDefaults } from './chart-defaults.svelte';
   import { donutGeometry } from './chart.svelte';
   import './chart.css';
@@ -66,6 +67,20 @@
   // no-opinion axis slot (the ensemble provides, the glyph stamps)
   const d = $derived(ChartDefaults.resolve({ size, density }));
   const geo = $derived(donutGeometry(data, d.size, thickness));
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <div
@@ -74,9 +89,9 @@
   aria-label={label}
   data-jx-chart-donut=""
   data-density={d.density}
-  class={cn('grid', className)}
+  class={cn(cx(chartStyles.grid), className)}
 >
-  <svg viewBox="0 0 {d.size} {d.size}" width={d.size} height={d.size} fill="none" aria-hidden="true" class="[grid-area:1/1]">
+  <svg viewBox="0 0 {d.size} {d.size}" width={d.size} height={d.size} fill="none" aria-hidden="true" class={cx(chartStyles.stacked)}>
     <g transform="rotate(-90 {d.size / 2} {d.size / 2})">
       <circle
         class="jx-chart-track"
@@ -104,7 +119,7 @@
   </svg>
   {#if children}
     <!-- the center slot is a grid item of the SAME cell (CR-2, 2026-09-02): grid stacking, not absolute overlay -->
-    <div data-jx-chart-donut-center="" class="[grid-area:1/1] grid place-items-center">
+    <div data-jx-chart-donut-center="" class={cx(chartStyles.stacked, chartStyles.center)}>
       {@render children()}
     </div>
   {/if}

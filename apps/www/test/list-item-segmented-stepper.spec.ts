@@ -154,7 +154,7 @@ describe('ItemSegmented (ItemField + ToggleGroup single)', () => {
 // The chrome axis on the shared sheet — framed frozen, bare source-pinned
 // ---------------------------------------------------------------------------
 describe('toggle-group chrome axis (the shared standard layer)', () => {
-  it('the FRAMED cluster survives #17 byte-for-byte (pre-change git extraction)', () => {
+  it('the FRAMED cluster survives #17 byte-for-byte (re-extracted 2026-09-16 — 37d33f70 interleaved the bare rung into the law source between the sr block and the @media)', () => {
     const framed = `.jx-html-tgroup {
   corner-shape: var(--corner-shape, bevel);
   display: inline-flex;
@@ -225,6 +225,25 @@ describe('toggle-group chrome axis (the shared standard layer)', () => {
   white-space: nowrap;
 }
 
+.jx-html-tgroup[data-chrome='bare'] {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.jx-html-tgroup[data-chrome='bare'] > label {
+  border-inline-end: 0;
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+.jx-html-tgroup[data-chrome='bare'] > label:not(:has(input:disabled)):hover {
+  color: var(--foreground);
+  background-color: color-mix(in oklab, var(--muted) 55%, transparent);
+}
+
   @media (prefers-reduced-motion: reduce) {
     .jx-html-tgroup> label {
       transition: none;
@@ -242,9 +261,10 @@ describe('toggle-group chrome axis (the shared standard layer)', () => {
     expect(containerBlock).toMatch(/border:\s*0/u);
     expect(containerBlock).toMatch(/background:\s*transparent/u);
     expect(containerBlock).toMatch(/box-shadow:\s*none/u);
+    // 37d33f70 normalized the gated selector to "] > label" (space)
     const labelBlock = bare.slice(
-      bare.indexOf(".jx-html-tgroup[data-chrome='bare']> label"),
-      bare.indexOf("\n\n", bare.indexOf(".jx-html-tgroup[data-chrome='bare']> label")),
+      bare.indexOf(".jx-html-tgroup[data-chrome='bare'] > label"),
+      bare.indexOf("\n\n", bare.indexOf(".jx-html-tgroup[data-chrome='bare'] > label")),
     );
     expect(labelBlock).toMatch(/border-inline-end:\s*0/u);
     expect(labelBlock).toMatch(/flex:\s*1 1 auto/u); // the dock r2 fill lesson

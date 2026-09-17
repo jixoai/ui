@@ -294,6 +294,7 @@
   import type { Snippet } from 'svelte';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { chartStyles } from './chart.stylex';
   import { ChartDefaults } from './chart-defaults.svelte';
   import './chart.css';
 
@@ -325,6 +326,6 @@
   const d = $derived(ChartDefaults.resolve({ density }));
 </script>
 
-<div data-jx-chart="" data-density={d.density} class={cn('contents', className)}>
+<div data-jx-chart="" data-density={d.density} class={cn(chartStyles.contents, className)}>
   {@render children()}
 </div>

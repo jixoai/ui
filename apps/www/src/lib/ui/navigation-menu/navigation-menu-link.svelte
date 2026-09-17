@@ -16,6 +16,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { navMenuStyles } from './navigation-menu.stylex';
 
   interface Props extends HTMLAnchorAttributes {
     /** the current page: paints aria-current="page" + the brand color */
@@ -28,13 +29,30 @@
 
   let { current = false, class: className = '', child, children, href, ...rest }: Props = $props();
 
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // the shared trigger/link paint; the current color state is a
   // conditional string (mirroring the pre-composed specificity order:
   // hover beats current on triggers, current wins at rest on links)
   const paint = $derived(
     cn(
-      'jx-navmenu-link inline-flex min-h-[var(--jx-hit)] items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.12em] no-underline transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
-      current ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
+      // hover ink + focus ring: native pseudos in navigation-menu.css
+      cx(navMenuStyles.link),
+      current ? cx(navMenuStyles.inkCurrent) : cx(navMenuStyles.inkIdle),
       className,
     ),
   );

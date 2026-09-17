@@ -21,10 +21,17 @@
   marker retirement, the chevron pseudo build with its [open] rotation,
   the ::details-content height machinery, and the reduced-motion kill
   stay in accordion-item.css (D1-exempt residue).
+
+  tailwindless one-shot W1 (2026-09-17): the summary/body paint rides
+  the family's stylex ATOMS (accordion.stylex.ts) EXCEPT the ink +
+  state seams (hover text, focus-visible outline, the color
+  transition) — those are lane-2 rules in accordion-item.css now (a
+  state rule must own its property outright).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { accordionStyles } from './accordion.stylex';
   import './accordion-item.css';
 
   interface Props {
@@ -37,11 +44,28 @@
   }
 
   let { open = $bindable(false), summary, children, class: className = '' }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<details class={cn('jx-acc-item block', className)} bind:open>
-  <summary class="jx-acc-summary flex items-center gap-2.5 box-border px-3.5 py-[0.6875rem] cursor-pointer list-none select-none font-nav text-[0.8125rem] tracking-[0.08em] uppercase text-foreground transition-colors duration-150 ease-out hover:text-primary-text focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]">{@render summary()}</summary>
-  <div data-jx-acc-body="" class="pl-6 pr-3.5 pb-3.5 text-[0.8125rem] leading-[1.6] text-muted-foreground">
+<details class="jx-acc-item {cn(cx(accordionStyles.item), className)}" bind:open>
+  <!-- the summary's INK lives in accordion-item.css (the placement
+       law: hover/focus-visible own their properties there — the atom
+       tier would shade a lane-2 :hover under the F9 layer order) -->
+  <summary class="jx-acc-summary {cx(accordionStyles.summary)}">{@render summary()}</summary>
+  <div data-jx-acc-body="" class={cx(accordionStyles.body)}>
     {@render children()}
   </div>
 </details>

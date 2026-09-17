@@ -26,10 +26,17 @@
   (the color-mix output tint too); ONLY the line-reveal state machine
   (.jx-out/.jx-out-shown + reduced-motion) stays in terminal-card.css —
   D1-exempt residue on the unlayered carve-out.
+
+  tailwindless one-shot W1 (2026-09-17): bezel/bar/dots/cursor paint
+  ride the family's stylex atoms (terminal-card.stylex.ts); the body
+  padding seam (sm), the command display voice (weight + size seam),
+  and the output sibling rhythm joined the css residue (media and
+  `> * + *` seams atoms cannot own).
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
+  import { terminalCardStyles } from './terminal-card.stylex';
   import './terminal-card.css';
 
   interface Props {
@@ -41,6 +48,20 @@
   }
 
   let { barTitle, command, outputs, theme = 'dark', speed = 1 }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   // scoped token class: dark (default lock) or jx-light (css-defined)
   let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
@@ -107,23 +128,28 @@
 <div
   data-jx-terminal
   class={cn(
-    'border-border bg-terminal text-terminal-foreground w-full border shadow',
-    scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
+    cx(
+      terminalCardStyles.card,
+      scope === 'dark' ? terminalCardStyles.schemeDark : terminalCardStyles.schemeLight,
+    ),
+    scope === 'dark' ? 'dark' : 'jx-light',
   )}
 >
-  <div
-    class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"
-  >
-    <span data-jx-light-dot class="w-2 h-2 flex-none border border-current bg-[oklch(0.7_0.18_25)]" aria-hidden="true"></span>
-    <span data-jx-light-dot data-jx-light-yellow class="w-2 h-2 flex-none border border-current bg-[oklch(0.85_0.17_95)]" aria-hidden="true"></span>
-    <span data-jx-light-dot data-jx-light-green class="w-2 h-2 flex-none border border-current bg-[oklch(0.75_0.17_150)]" aria-hidden="true"></span>
-    <span class="ml-2 truncate">{barTitle}</span>
+  <div class={cx(terminalCardStyles.bar)}>
+    <span data-jx-light-dot class={cx(terminalCardStyles.dot, terminalCardStyles.dotRed)} aria-hidden="true"></span>
+    <span data-jx-light-dot data-jx-light-yellow class={cx(terminalCardStyles.dot, terminalCardStyles.dotYellow)} aria-hidden="true"></span>
+    <span data-jx-light-dot data-jx-light-green class={cx(terminalCardStyles.dot, terminalCardStyles.dotGreen)} aria-hidden="true"></span>
+    <span class={cx(terminalCardStyles.barTitle)}>{barTitle}</span>
   </div>
-  <div class="p-4 sm:p-5">
-    <p class="text-lg font-semibold tracking-tight sm:text-xl">
-      <span class="text-primary mr-2">$</span><span>{typed}</span><span class="jx-cursor inline-block w-[0.58em] h-[1.05em] bg-terminal-foreground align-text-bottom ml-0.5" aria-hidden="true"></span>
+  <!-- the body's padding (p-4 → sm:p-5), the command voice
+       (font-semibold + its sm size seam), and the output stack's
+       sibling rhythm live in terminal-card.css (media/sibling seams
+       atoms cannot own) -->
+  <div data-jx-terminal-body="">
+    <p data-jx-terminal-command="">
+      <span class={cx(terminalCardStyles.prompt)}>$</span><span>{typed}</span><span class="jx-cursor {cx(terminalCardStyles.cursor)}" aria-hidden="true"></span>
     </p>
-    <div class="mt-3 space-y-1 text-[13px] leading-5">
+    <div data-jx-terminal-outputs="" class={cx(terminalCardStyles.outputs)}>
       {#each outputs as line, index (line)}
         <p class={cn('jx-out', index < shownLines && 'jx-out-shown')}>{line}</p>
       {/each}

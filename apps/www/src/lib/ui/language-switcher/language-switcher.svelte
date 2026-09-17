@@ -54,6 +54,8 @@
     LanguageSwitcherDefaults,
     type LanguageSwitcherVariant,
   } from './language-switcher-defaults.svelte';
+  import { langStyles } from './language-switcher.stylex';
+  import './language-switcher.css';
 
   export interface SwitcherLocale {
     code: string;
@@ -69,6 +71,23 @@
   }
 
   let { variant, locales, current, ariaLabel = 'Language' }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // the family Defaults is the single read point (context-defaults-
   // economy 3.4): variant rides a literal slot (own 'pair', never
   // reads context — a structural selector, not a paint rung)
@@ -98,15 +117,15 @@
   const anchor = `--jx-lang-${autoId}`;
 </script>
 
-<div data-jx-lang="" class="flex items-center gap-2">
+<div data-jx-lang="" class={cx(langStyles.root)}>
   <!-- glyphs through the Icon component; sizing/stroke overrides are
        its props (16px / sw 2 defaults) -->
-  <span class="inline-flex opacity-70"><Icon name="languages" size={14} /></span>
+  <span class={cx(langStyles.iconLane)}><Icon name="languages" size={14} /></span>
 
   {#if d.variant === 'pair'}
     <div
       data-jx-lang-seg=""
-      class="inline-flex w-fit max-w-full overflow-hidden border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)]"
+      class={cx(langStyles.bezel)}
       role="group"
       aria-label={ariaLabel}
     >
@@ -119,10 +138,8 @@
           data-jx-lang-active={locale.code === current ? '' : undefined}
           onclick={() => persistLocale(locale.code)}
           class={cn(
-            'px-2.5 py-1 text-xs font-medium no-underline transition-[color,background-color] duration-150 ease-out',
-            locale.code === current
-              ? 'bg-primary text-primary-foreground'
-              : 'text-[color-mix(in_oklab,currentColor_72%,transparent)] hover:bg-[color-mix(in_oklab,currentColor_12%,transparent)] hover:text-current',
+            cx(langStyles.segItem),
+            locale.code === current ? cx(langStyles.segActive) : cx(langStyles.segIdle),
           )}
         >
           {locale.label}
@@ -133,14 +150,14 @@
     <button
       type="button"
       data-jx-lang-btn=""
-      class="inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)] px-2.5 py-1 text-xs font-medium text-[color-mix(in_oklab,currentColor_72%,transparent)] transition-[color,border-color] duration-150 ease-out hover:border-[color-mix(in_oklab,currentColor_70%,transparent)] hover:text-current"
+      class={cx(langStyles.bezelButton)}
       aria-expanded={open}
       aria-label={ariaLabel}
       style="anchor-name: {anchor}"
       onclick={() => menu?.togglePopover()}
     >
       {activeLabel}
-      <span class="inline-flex transition-transform {open ? 'rotate-180' : ''}">
+      <span data-jx-lang-chevron="" class={cn(cx(langStyles.chevron), open ? cx(langStyles.chevronOpen) : '')}>
         <Icon name="chevronDown" size={12} strokeWidth={2.5} />
       </span>
     </button>
@@ -155,11 +172,11 @@
       data-jx-lang-menu=""
       popover="auto"
       aria-label={ariaLabel}
-      class="m-0 min-w-[9rem] border border-border bg-terminal p-1 text-terminal-foreground shadow"
+      class={cx(langStyles.menu)}
       style="position-anchor: {anchor}; position-area: block-end; position-try: flip-block; margin: 0.375rem;"
       ontoggle={(e) => (open = e.newState === 'open')}
     >
-      <ul class="m-0 list-none p-0">
+      <ul class={cx(langStyles.menuList)}>
         {#each locales as locale (locale.code)}
           <li>
             <a
@@ -169,10 +186,8 @@
               data-jx-lang-menu-item=""
               data-jx-lang-menu-active={locale.code === current ? '' : undefined}
               class={cn(
-                'block px-2.5 py-1.5 text-xs no-underline transition-[color,background-color] duration-150 ease-out',
-                locale.code === current
-                  ? 'text-primary'
-                  : 'text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:bg-terminal-hover hover:text-terminal-foreground',
+                cx(langStyles.menuItem),
+                locale.code === current ? cx(langStyles.menuActive) : cx(langStyles.menuIdle),
               )}
               onclick={() => {
                 persistLocale(locale.code);

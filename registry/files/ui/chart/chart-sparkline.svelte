@@ -25,6 +25,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { chartStyles } from './chart.stylex';
   import { ChartDefaults } from './chart-defaults.svelte';
   import { sparkBlocks, sparkBraille } from './chart.svelte';
   import './chart.css';
@@ -57,6 +58,20 @@
   // ensemble provides, the glyph stamps)
   const d = $derived(ChartDefaults.resolve({ density }));
   const glyphs = $derived(cells === 'block' ? sparkBlocks(data) : sparkBraille(data));
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <span
@@ -65,7 +80,7 @@
   aria-label={label}
   data-jx-chart-sparkline={cells}
   data-density={d.density}
-  class={cn('jx-chart-glyphs inline-block align-baseline text-primary', className)}
+  class={cn('jx-chart-glyphs', cx(chartStyles.spark), className)}
 >{glyphs}</span>
 
 {#if table}

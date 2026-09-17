@@ -11,14 +11,19 @@
   viewport pauses on open and resumes on collapse).
 
   The surface rides the dialog family's restrained ground (border +
-  popover + tier shadow; NO scrim — expanding a toast is not a modal
+  popover + tier shadow — the md rung, the dead shadow-lg rung's
+  nearest live tier; NO scrim — expanding a toast is not a modal
   interruption, the page stays reachable). While open, the toast's
   countdown companion freezes with the clock (the drain bar carries
   the paused state).
+
+  tailwindless one-shot W1 (2026-09-17): paint rides the family's
+  stylex atoms (toast.stylex.ts).
 -->
 <script lang="ts">
   import type { ToastItem } from '$lib/toast-store';
   import { cn } from '$lib/utils';
+  import { toastStyles as tst } from './toast.stylex';
   import ToastCountdown from './toast-countdown.svelte';
 
   interface Props {
@@ -32,6 +37,20 @@
   }
 
   let { item, onclose, paused = false, class: className = '' }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   let panel = $state<HTMLElement | null>(null);
 
@@ -60,10 +79,10 @@
   data-jx-toast-dialog={item.id}
   popover="auto"
   class={cn(
-    // pointer-events-auto: the float area is pointer-transparent by law
+    // pointer-events auto: the float area is pointer-transparent by law
     // (grid-not-position); the panel OPTS BACK IN like the cards do —
     // without it the whole subtree is invisible to hit tests
-    'pointer-events-auto box-border m-0 fixed left-1/2 top-[10vh] -translate-x-1/2 w-[min(36rem,calc(100vw-2rem))] max-h-[80vh] overflow-y-auto p-5 border rounded bg-popover text-popover-foreground shadow-lg outline-none cursor-default',
+    cx(tst.panel),
     className,
   )}
     style={`view-transition-name: ${vtName}; view-transition-class: jx-toast-morph;`}
@@ -75,31 +94,31 @@
     if (e.newState === 'closed') requestClose(false);
   }}
 >
-  <div class="grid gap-3">
-    <div class="flex items-start justify-between gap-4">
-      <div class="grid gap-1.5 min-w-0">
-        <p class="font-nav text-xs tracking-[0.1em] uppercase text-foreground">{item.title}</p>
+  <div class={cx(tst.panelGrid)}>
+    <div class={cx(tst.panelHead)}>
+      <div class={cx(tst.panelTitleBlock)}>
+        <p class={cx(tst.title, tst.inkForeground)}>{item.title}</p>
         {#if item.description}
-          <p class="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+          <p class={cx(tst.panelDesc)}>{item.description}</p>
         {/if}
       </div>
       {#if item.leading}
-        <div class="flex-none pt-0.5">{@render item.leading()}</div>
+        <div class={cx(tst.panelLeading)}>{@render item.leading()}</div>
       {/if}
     </div>
     {#if item.trailing}
-      <div data-jx-toast-dialog-trailing="" class="pt-1">{@render item.trailing()}</div>
+      <div data-jx-toast-dialog-trailing="" class={cx(tst.panelTrailing)}>{@render item.trailing()}</div>
     {/if}
-    <div class="flex items-center justify-between gap-3 pt-2 border-t border-border">
-      <div class="flex items-center gap-2.5">
+    <div class={cx(tst.panelFooter)}>
+      <div class={cx(tst.panelCountdownRow)}>
         {#if item.countdown && (item.duration ?? 5000) > 0}
           <ToastCountdown duration={item.duration ?? 5000} {paused} />
         {/if}
       </div>
-      <div class="flex items-center gap-2 pt-2">
+      <div class={cx(tst.panelActions)}>
         <button
           type="button"
-          class="jx-press inline-flex items-center min-h-[var(--jx-hit)] px-[var(--jx-inset)] border border-border bg-transparent text-foreground text-[length:var(--jx-text)] cursor-pointer rounded"
+          class="jx-press {cx(tst.panelAction)}"
           onclick={() => requestClose(false)}
         >
           collapse
@@ -107,7 +126,7 @@
         <button
           type="button"
           data-jx-toast-dialog-dismiss=""
-          class="jx-press inline-flex items-center min-h-[var(--jx-hit)] px-[var(--jx-inset)] border border-border bg-transparent text-foreground text-[length:var(--jx-text)] cursor-pointer rounded"
+          class="jx-press {cx(tst.panelAction)}"
           onclick={() => requestClose(true)}
         >
           dismiss

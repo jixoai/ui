@@ -74,6 +74,7 @@
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import type { Density } from '$lib/density.svelte';
   import { NumberInputDefaults } from './number-input-defaults.svelte';
+  import { numberInputStyles } from './number-input.stylex';
   import './number-input.css';
 
   interface Props extends HTMLInputAttributes {
@@ -206,15 +207,35 @@
     // forward a caller-supplied change handler from the rest props
     (rest as { onchange?: (event: Event) => void }).onchange?.(event);
   }
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div class="jx-field" data-density={d.density} data-self-inset="">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <div
     class={cn(
-      'jx-num flex items-stretch w-full max-w-full min-h-[var(--jx-hit)] border border-border rounded-none bg-background text-foreground transition-[box-shadow] duration-150 ease-out',
-      invalid && 'border-dashed',
-      disabled && 'jx-num-off opacity-50 cursor-not-allowed',
+      'jx-num',
+      cx(
+        numberInputStyles.shell,
+        invalid && numberInputStyles.shellInvalid,
+        disabled && numberInputStyles.shellOff,
+      ),
       className,
     )}
     data-jx-num-invalid={invalid ? '' : undefined}
@@ -223,7 +244,7 @@
     <button
       type="button"
       data-jx-num-minus
-      class="jx-num-btn flex-none min-w-[var(--jx-hit)] min-h-[var(--jx-hit)] -ms-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-[length:var(--jx-text)] leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
+      class={cn('jx-num-btn', cx(numberInputStyles.stepper, numberInputStyles.stepStart))}
       aria-label="decrease"
       {disabled}
       onpointerdown={beginHold.bind(null, -1)}
@@ -234,14 +255,14 @@
          jx-html-control-lane (the STANDARD layer's lane law, B6
          2026-08-28 — previously the face's .jx-control-lane, an @apply
          of the same utility) owns the chromeless typography + placeholder
-         distinction; the utilities here only center the text and flex the
+         distinction; the atoms here only center the text and flex the
          cell (appearance:textfield pins the spinner OFF — this composite
          owns its own [- +] pair, the platform stepper law) -->
     <input
       {...rest}
       {id}
       type="number"
-      class={'jx-html-control-lane ' + cn('jx-num-input flex-1 min-w-0 text-center [appearance:textfield]', disabled && 'cursor-not-allowed')}
+      class={'jx-html-control-lane ' + cn('jx-num-input', cx(numberInputStyles.cell, disabled && numberInputStyles.cellOff))}
       {min}
       {max}
       {step}
@@ -254,7 +275,7 @@
     <button
       type="button"
       data-jx-num-plus
-      class="jx-num-btn flex-none min-w-[var(--jx-hit)] min-h-[var(--jx-hit)] -me-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-[length:var(--jx-text)] leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
+      class={cn('jx-num-btn', cx(numberInputStyles.stepper, numberInputStyles.stepEnd))}
       aria-label="increase"
       {disabled}
       onpointerdown={beginHold.bind(null, 1)}

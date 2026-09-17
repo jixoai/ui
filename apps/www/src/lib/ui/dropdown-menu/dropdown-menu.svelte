@@ -48,6 +48,7 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { DropdownMenuDefaults, type DropdownMenuSurfaceVariant } from './dropdown-menu-defaults.svelte';
+  import { dropdownMenuStyles } from './dropdown-menu.stylex';
   import './dropdown-menu.css';
 
   interface Props {
@@ -260,16 +261,33 @@
   // declarative motion law in jixoai.css). The kernel here only wires
   // the menu's toggle seam and the live anchor wrapper
   const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<span bind:this={anchorEl} data-density={d.density} class="jx-menu-anchor inline-flex" style="anchor-name: {anchorName}">
+<span bind:this={anchorEl} data-density={d.density} class={cn('jx-menu-anchor', cx(dropdownMenuStyles.anchor))} style="anchor-name: {anchorName}">
   {#if trigger}
     {@render trigger()}
   {:else}
     <button
       type="button"
       data-jx-menu-trigger=""
-      class="jx-menu-trigger jx-press inline-flex cursor-pointer items-center border border-border bg-background font-sans font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
+      class={cn('jx-menu-trigger jx-press', cx(dropdownMenuStyles.trigger))}
       popovertarget={id}
       bind:this={triggerEl}
       aria-haspopup="menu"
@@ -278,7 +296,7 @@
       <!-- jx-menu-caret rides the wrapper: dropdown-menu.css flips it via
            :has() + :popover-open; the glyph is the Icon component's
            chevronDown, sized and re-stroked through its props -->
-      <span class="jx-menu-caret flex-none inline-flex transition-transform duration-150 ease-out">
+      <span class={cn('jx-menu-caret', cx(dropdownMenuStyles.caret))}>
         <Icon name="chevronDown" size={13} strokeWidth={2.5} />
       </span>
     </button>
@@ -307,7 +325,7 @@
   <div data-jx-menu-body="" class="jx-surface-body">
     <div
       data-jx-menu-scroll=""
-      class="max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-menu-pad,4px)] [padding-inline:max(var(--jx-menu-pad,4px)-var(--jx-scrollbar-thin,0px),0px)]"
+      class={cx(dropdownMenuStyles.scroll)}
     >
       {@render children()}
     </div>

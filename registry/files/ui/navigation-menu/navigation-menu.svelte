@@ -80,7 +80,8 @@
   import { setContext } from 'svelte';
   import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
-  import { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './navigation-menu-defaults.svelte';
+  import { navMenuStyles } from './navigation-menu.stylex';
+import { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './navigation-menu-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     density?: Density;
@@ -94,6 +95,22 @@
   }
 
   let { label = 'site', density, variant, class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // Density stamping law (chrome-density-tier, 2026-08-26): the CSS
   // scope channel stamps ONLY an OPINION — the attribute lands when the
@@ -250,7 +267,7 @@
 <nav
   bind:this={navEl}
   data-jx-navmenu=""
-  class={cn('flex flex-wrap items-stretch gap-1', className)}
+  class={cn(cx(navMenuStyles.bar), className)}
   {...rest}
   data-density={d.density}
   aria-label={label}

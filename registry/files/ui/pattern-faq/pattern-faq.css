@@ -1,13 +1,28 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai pattern-faq css — D1-exempt residue (tw4, 2026-08-30).
  * ONLY the man-page leader row: the dotted rule that stretches to
  * fill the space between a section label (NAME / SEE ALSO) and its
  * content — a pseudo-element on a flex-grow box, print-manual
  * geometry no utility can express. Static residue, @layer
- * components, :where() so consumer utilities always win. */
+ * components, :where() so consumer utilities always win.
+ *
+ * tailwindless one-shot W1 (2026-09-17): the man LABEL voice moved
+ * here from the markup utilities — the tl-eyebrow precedent (a
+ * recurring composite is a semantic rule, never atom fragments;
+ * font-bold's 700 has no weight token — reported for promotion).
+ * Registered semantics proposal: jx-man-label (owner: this sheet). */
 
 @layer components {
+  :where(.jx-man-label) {
+    font-family: var(--font-nav);
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    text-transform: uppercase;
+    letter-spacing: calc(var(--track-wide) * 1.75);
+    color: var(--foreground);
+  }
   :where(.jx-man-row) {
     display: flex;
     align-items: baseline;

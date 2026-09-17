@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai tree-view — D1-exempt residue (tw4, 2026-08-24). The static
  * row/column/collapse paint lives as token utilities in the markup;
@@ -28,6 +29,36 @@
 :where(.jx-tree-row:hover .jx-tree-typeicon),
 :where(.jx-tree-row.selected .jx-tree-typeicon) {
   color: color-mix(in oklab, var(--accent) 60%, var(--foreground));
+}
+
+/* the row's hover ink + the family's transitions (tailwindless
+   one-shot, 2026-09-16): the hover fill/ink overrode the row's own
+   conditional utilities before — as atoms they sit in the nested
+   components tiers, so the pose rides the UNLAYERED carve-out (the
+   Part A law above). The durations/easings mirror the utilities they
+   replace (150ms ease-out; the caret/group rode ease) — no motion
+   token exists (reported as the --jx-motion-fast promotion
+   candidate). The prefix svgs' 14px sizing rides here too (descendant
+   selector — atoms cannot express it). */
+:where(.jx-tree-row:hover:not(.selected)) {
+  background-color: color-mix(in oklab, var(--foreground) 5%, transparent);
+  color: var(--foreground);
+}
+:where(.jx-tree-row) {
+  transition: background-color var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out), color var(--motion-150) var(--motion-ease-out);
+}
+:where(.jx-tree-caret) {
+  transition: transform var(--motion-150) ease;
+}
+:where(.jx-tree-group) {
+  transition: grid-template-rows var(--motion-150) ease;
+}
+:where(.jx-tree-suffix) {
+  transition: opacity var(--motion-150) var(--motion-ease-out);
+}
+[data-jx-tree-prefix] > svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* suffix column (actions law): revealed on row hover/focus-within */
@@ -78,6 +109,12 @@
 :where(.jx-tree-check:disabled) {
   cursor: not-allowed;
 }
+/* the box's ground/border transition (tailwindless one-shot,
+   2026-09-16 — the utility's 150ms ease-out moved here; the glyph
+   transition below already rode this lane) */
+:where(.jx-tree-check) {
+  transition: background-color var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
+}
 
 /* glyph: the checkbox.svelte 45° clip-path check, scaled to the 10px
    inset box; mixed renders the horizontal dash instead */
@@ -91,9 +128,9 @@
   position: absolute;
   transform: rotate(45deg);
   transition:
-    clip-path 150ms ease-out,
-    opacity 150ms ease-out,
-    transform 150ms ease-out;
+    clip-path var(--motion-150) var(--motion-ease-out),
+    opacity var(--motion-150) var(--motion-ease-out),
+    transform var(--motion-150) var(--motion-ease-out);
 }
 :where(.jx-tree-check:checked)::before {
   clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);

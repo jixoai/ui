@@ -45,6 +45,7 @@
   import { setContext } from 'svelte';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
   import { TabsDefaults } from './tabs-defaults.svelte';
+  import { tabsStyles } from './tabs.stylex';
 
   interface Props {
     density?: Density;
@@ -70,6 +71,22 @@
     activation = 'automatic',
     children,
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // '' = "nothing focused yet" → the selected trigger is the tab stop
   let focused = $state('');
@@ -121,4 +138,4 @@
   });
 </script>
 
-<div data-jx-tabs="" data-density={d.density} class="contents">{@render children()}</div>
+<div data-jx-tabs="" data-density={d.density} class={cx(tabsStyles.root)}>{@render children()}</div>

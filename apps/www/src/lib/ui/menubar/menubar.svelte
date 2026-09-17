@@ -84,6 +84,7 @@
   import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import { MenubarDefaults, type MenubarSurfaceVariant } from './menubar-defaults.svelte';
+  import { menubarStyles } from './menubar.stylex';
   import './menubar.css';
 
   interface Props extends HTMLAttributes<HTMLUListElement> {
@@ -105,6 +106,22 @@
     children,
     ...rest
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // ---- the density lane: inherit-then-provide, boundary-legal ------
   // The CAPTURE is load-bearing and EAGER (r11 first contract,
@@ -306,10 +323,7 @@
 <ul
   bind:this={barEl}
   data-jx-menubar=""
-  class={cn(
-    'flex w-fit list-none flex-wrap items-stretch border border-border bg-card p-0 m-0 shadow-2xs',
-    className,
-  )}
+  class={cn(cx(menubarStyles.bar), className)}
   {...rest}
   data-density={d.density}
   role="menubar"

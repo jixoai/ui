@@ -1,0 +1,22 @@
+@layer properties, theme, base, components, utilities;
+
+/*
+ * jixoai chip — the tailwindless lane-2 residue
+ * (tailwindless-site Wave 1 batch 3, 2026-09-17).
+ *
+ * The family's paint lives as stylex ATOMS (chip.stylex.ts): the
+ * badge-twin body, the silhouette ladder, the four-rung grammar, the
+ * forced-colors degradation. StyleX forbids descendant combinators in
+ * atoms, so the ONE descendant boundary the chip owns stays here —
+ * the slot lanes' glyph sizing (the old [&>svg]:size utility), under
+ * @layer components + :where() per the placement law: zero
+ * specificity, consumer utilities always win.
+ */
+
+@layer components {
+  :where([data-icon='inline-start'] > svg),
+  :where([data-icon='inline-end'] > svg) {
+    width: var(--jx-text-secondary);
+    height: var(--jx-text-secondary);
+  }
+}

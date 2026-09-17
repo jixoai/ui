@@ -154,6 +154,7 @@
   import Editor from '../color-picker/editor.svelte';
   import { parseColor, formatColor } from '$lib/color-utils';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import { inputStyles } from './input.stylex';
   import './input.css';
 
   interface Props extends HTMLInputAttributes {
@@ -580,6 +581,23 @@
     commit: commitFromPanel,
     close: closePicker,
   });
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 {#if isHidden}
@@ -592,7 +610,7 @@
     data-self-inset={showClear || customPicker || innerInlineEnd || (semanticGlyph && iconPosition !== 'start') ? '' : undefined}
 >
     {#if outerBlockStart}
-      <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
+      <div data-jx-outer data-jx-outer-start class={cx(inputStyles.outerStart)}>{@render outerBlockStart()}</div>
     {:else if label && !floating}<label class="jx-label" for={id}>{label}</label>{/if}
     {#if isRange}
       <input
@@ -682,7 +700,7 @@
           ><Icon name="minus" /></button>
         {/if}
         {#if innerInlineStart}
-          <span data-jx-slot data-jx-inline-start class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineStart()}</span>
+          <span data-jx-slot data-jx-inline-start class={cx(inputStyles.slotRow)}>{@render innerInlineStart()}</span>
         {/if}
         <!-- the interception selector anchors on the INPUT: the
              picker indicator pseudo belongs to it, not the shell -->
@@ -711,13 +729,13 @@
           <span
             data-jx-semantic-icon
             aria-hidden="true"
-            class="flex-none inline-flex items-center text-muted-foreground text-xs leading-none"
+            class={cx(inputStyles.iconLane)}
           >
             {#if icon}{@render icon()}{:else if semanticGlyphName}<Icon name={semanticGlyphName} />{/if}
           </span>
         {/if}
         {#if innerInlineEnd}
-          <span data-jx-slot data-jx-inline-end class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineEnd()}</span>
+          <span data-jx-slot data-jx-inline-end class={cx(inputStyles.slotRow)}>{@render innerInlineEnd()}</span>
         {/if}
         {#if customStepper}
           <button
@@ -781,7 +799,7 @@
         <!-- the floating-surface law (arch r3): the popover element is
              the PLATFORM (paints nothing); the bezel fill + border live
              on the surface-body child -->
-        <div class="jx-surface-body px-3.5 py-3">
+        <div class={cn('jx-surface-body', cx(inputStyles.surfaceBodyPad))}>
           {#if picker}
             {@render picker(pickerCtx)}
           {:else if type === 'color'}
@@ -849,7 +867,7 @@
               <!-- the time part gets a REAL control (Owner catch
                    2026-08-29): the stepper commits the T part live; an
                    absent date part defaults to today -->
-              <div class="-mx-3.5 my-3 border-t border-border" aria-hidden="true"></div>
+              <div data-jx-picker-divider="" class={cx(inputStyles.panelDivider)} aria-hidden="true"></div>
               <TimeStepper
                 bind:this={timeStepperRef}
                 value={timeValue}
@@ -867,10 +885,10 @@
       <!-- the hint lane: the "n / max" code-point readout. aria-live sits
            at OFF and flips to polite near the limit (from 90% of the
            maxlength cap) — the readout never chatters per keystroke -->
-      <div data-jx-hint class="flex items-center">
+      <div data-jx-hint class={cx(inputStyles.hintRow)}>
         <p
           data-jx-count
-          class="ms-auto m-0 font-nav text-[11px] tracking-[0.08em] text-muted-foreground"
+          class={cx(inputStyles.countReset, inputStyles.countRow)}
           aria-live={countNear ? 'polite' : 'off'}
           aria-atomic="true"
         >
@@ -878,6 +896,6 @@
         </p>
       </div>
     {/if}
-    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class="text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
+    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class={cx(inputStyles.outerEnd)}>{@render outerBlockEnd()}</div>{/if}
   </div>
 {/if}

@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 @layer components {
 /* jixoai breadcrumb (composition-first, 2026-08-25): ONLY the
@@ -8,8 +9,18 @@
  * (data-glyph="custom") stands the build down by construction. The
  * trail's rhythm comes from the ol's own gap — the glyph adds no
  * margin of its own (symmetric by construction). Everything else
- * (trail layout, link paint, current-page paint) lives as token
- * utilities in the markup. */
+ * (trail layout, link paint, current-page paint) rides the family's
+ * stylex atoms (breadcrumb.stylex.ts) since tailwindless W1
+ * (2026-09-17).
+ *
+ * .jx-bc-link (tailwindless W1): the link/trigger ink transition —
+ * motion literals (no duration/easing tokens yet — reported), riding
+ * a CLASS so the link's child({ props }) replacement-element contract
+ * keeps its animation. Registered semantics proposal: owner this
+ * sheet, scope "the trail link's 150ms color transition". */
+:where(.jx-bc-link) {
+  transition: color var(--motion-150) var(--motion-ease-out);
+}
 :where([data-jx-breadcrumb-separator][data-glyph='chevron'])::before {
   content: '';
   display: inline-block;

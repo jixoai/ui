@@ -37,6 +37,11 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
     // it owns no row here; the rest lane carries it at runtime)
     href: { kind: 'string' },
     external: { kind: 'boolean' },
+    // the loading-anchor contract (disabled joins the typed props; the
+    // quoted literal-typed aria rows are the explicit passthrough the
+    // spread-order fix authored — re-pinned 2026-09-16 when the
+    // committed meta had drifted ahead of this fixture)
+    disabled: { kind: 'boolean', default: false },
     loading: { kind: 'boolean', default: false },
     onclick: { kind: 'opaque', typeText: '() => void' },
     popovertarget: { kind: 'string' },
@@ -46,6 +51,8 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
     raised: { kind: 'boolean' },
     class: { kind: 'string', default: '' },
     children: { kind: 'snippet', typeText: 'Snippet' },
+    "'aria-label'": { kind: 'opaque', typeText: 'unknown' },
+    "'aria-disabled'": { kind: 'opaque', typeText: 'unknown' },
     rest: { kind: 'opaque', typeText: 'unknown (spread passthrough)' },
   },
   hooks: [
@@ -75,6 +82,7 @@ describe('toJSONSchema (press-button fixture)', () => {
         variant: { 'x-ui': { control: 'none', sourceType: 'PressButtonVariant' } },
         href: { type: 'string' },
         external: { type: 'boolean' },
+        disabled: { type: 'boolean', default: false },
         loading: { type: 'boolean', default: false },
         onclick: { 'x-ui': { control: 'none', sourceType: '() => void' } },
         popovertarget: { type: 'string' },
@@ -84,9 +92,12 @@ describe('toJSONSchema (press-button fixture)', () => {
         raised: { type: 'boolean' },
         class: { type: 'string', default: '' },
         children: { 'x-ui': { control: 'none', sourceType: 'Snippet' } },
+        // the quoted literal-typed props lower under their quoted key
+        "'aria-label'": { 'x-ui': { control: 'none', sourceType: 'unknown' } },
+        "'aria-disabled'": { 'x-ui': { control: 'none', sourceType: 'unknown' } },
         rest: { 'x-ui': { control: 'none', sourceType: 'unknown (spread passthrough)' } },
       },
-      required: ['density', 'variant', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'raised', 'children', 'rest'],
+      required: ['density', 'variant', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'raised', 'children', "'aria-label'", "'aria-disabled'", 'rest'],
     });
   });
 
@@ -96,7 +107,7 @@ describe('toJSONSchema (press-button fixture)', () => {
     // zone (regenerated 2026-09-02) — it rides required now. raised
     // joined it 2026-09-04: the default is zone-scoped (context,
     // ButtonVariantScope raised) — no static default remains
-    const withDefaults = ['loading', 'type', 'square', 'class'];
+    const withDefaults = ['disabled', 'loading', 'type', 'square', 'class'];
     expect(out.required).not.toContain(...withDefaults);
     for (const key of Object.keys(out.properties)) {
       if (!withDefaults.includes(key)) expect(out.required).toContain(key);

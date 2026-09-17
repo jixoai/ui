@@ -26,9 +26,25 @@ import { describe, expect, it } from 'vitest';
 
 import { resolveTypoStyle, getTypographyScope } from '../src/lib/typography.svelte';
 import { ProseDefaults } from '../src/lib/ui/prose/prose-defaults.svelte';
+import { chipStyles } from '../src/lib/ui/chip/chip.stylex';
 import Host from './fixtures/prose-scope-host.svelte';
 import PluginHost from './fixtures/prose-plugin-host.svelte';
 import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
+
+// tailwindless Wave 1 (2026-09-17): the chip's paint rides stylex
+// atoms now — asserted through the same cx join the component rides
+// (the progressive-blur.spec precedent)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
 const proseCss = readFileSync(resolve(repoRoot, 'registry/files/ui/prose/prose.css'), 'utf8');
@@ -494,10 +510,11 @@ describe('orthogonality + family', () => {
     // the region's ink is a WRAPPER declaration only — the host style
     // is the only place the muted token appears
     expect(styleOf(host)).toContain('color: var(--muted-foreground)');
-    // the chip carries its OWN element-level ink utilities (the
-    // cascade fact that beats inheritance in a browser); the prose
-    // scope stamps nothing on it
-    expect(chip.classList.contains('text-[color:var(--jx-tonal)]')).toBe(true);
+    // the chip carries its OWN element-level ink atoms (the cascade
+    // fact that beats inheritance in a browser — the default tonal
+    // rung's color rides the chip's own member); the prose scope
+    // stamps nothing on it
+    expect(chip.className).toContain(cx(chipStyles.tonal));
     expect(styleOf(chip)).toBe(''); // no inline style leaked onto chrome
     for (const attr of chip.getAttributeNames()) {
       expect(attr.startsWith('data-jx-ty-')).toBe(false);

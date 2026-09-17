@@ -1,0 +1,86 @@
+@layer properties, theme, base, components, utilities;
+
+/*
+ * jixoai blockquote — the rule-channel lane-2 sheet
+ * (registry/files/ui/blockquote/blockquote.css).
+ *
+ * tailwindless one-shot Wave 1 (2026-09-17): the em-ratio body voice
+ * and the rule channel's SHADOW modes live here (the ground/ink/
+ * chrome atoms + the rule channel's BORDER modes live in
+ * blockquote.stylex.ts — stylex layers nest under components, so the
+ * border widths must ride atoms to keep their cascade slot against
+ * the tonal ground's own border atom). The shadow modes are keyed on
+ * the family's own data contract and ride UNLAYERED :where() (zero
+ * specificity — the command.css carve-out precedent; an unlayered
+ * consumer rule still wins):
+ *   data-jx-blockquote={outline|tonal} × data-jx-blockquote-rule=shadow-{1|4|8}
+ *
+ * The rule channel laws (typography-context-and-parts §2, the R3
+ * rulings): the rule's ink rides the RUNG's single color source
+ * (outline → a LIGHTENED 55% mix of --jx-outline, the "muted 太深"
+ * ruling; tonal → the 45% color-mix), drawn at the Owner's literal
+ * 1/4/8 px enumeration; ONE shadow per root; outline in shadow mode
+ * emits NO border (the shadow IS the rule), tonal keeps its box
+ * border PLUS the shadow rule; ps stays fixed across channels
+ * (border consumes geometry, shadow doesn't). Forced colors: shadow
+ * modes re-materialize as an Npx CanvasText border (the entity law's
+ * "edge is structure" generalized; the widths ride the --hairline
+ * calc ladder — the same equations the border-mode atoms carry).
+ *
+ * The one lane-2 literal: the root's 0.875em body voice — an em
+ * ratio CANNOT be a token (tokens are absolute; the ratio rescales
+ * with the ambient scale, the R3 "字体要变小" ruling preserved
+ * verbatim). Receipted in the wave report.
+ */
+
+@layer components {
+/* the BODY rides 0.875em of the ambient scale (em-based so the
+   typography trio and any prose scope rescale the quote) */
+:where([data-jx-blockquote]) {
+  font-size: 0.875em;
+}
+}
+
+/* ── shadow modes: the inset rule over geometry (UNLAYERED) ─────── */
+:where([data-jx-blockquote='outline'][data-jx-blockquote-rule='shadow-1']) {
+  box-shadow: inset 1px 0 0 color-mix(in oklab, var(--jx-outline) 55%, transparent);
+}
+:where([data-jx-blockquote='outline'][data-jx-blockquote-rule='shadow-4']) {
+  box-shadow: inset 4px 0 0 color-mix(in oklab, var(--jx-outline) 55%, transparent);
+}
+:where([data-jx-blockquote='outline'][data-jx-blockquote-rule='shadow-8']) {
+  box-shadow: inset 8px 0 0 color-mix(in oklab, var(--jx-outline) 55%, transparent);
+}
+:where([data-jx-blockquote='tonal'][data-jx-blockquote-rule='shadow-1']) {
+  box-shadow: inset 1px 0 0 color-mix(in oklab, var(--jx-tonal) 45%, transparent);
+}
+:where([data-jx-blockquote='tonal'][data-jx-blockquote-rule='shadow-4']) {
+  box-shadow: inset 4px 0 0 color-mix(in oklab, var(--jx-tonal) 45%, transparent);
+}
+:where([data-jx-blockquote='tonal'][data-jx-blockquote-rule='shadow-8']) {
+  box-shadow: inset 8px 0 0 color-mix(in oklab, var(--jx-tonal) 45%, transparent);
+}
+
+/* ── forced colors: shadow modes re-materialize as Npx CanvasText
+   (UNLAYERED — the same carve-out; tonal's ground atoms already
+   re-ink its box CanvasText) ──────────────────────────────────── */
+@media (forced-colors: active) {
+  :where([data-jx-blockquote-rule='shadow-1']) {
+    box-shadow: none;
+    border-inline-start-style: solid;
+    border-inline-start-width: var(--hairline);
+  }
+  :where([data-jx-blockquote-rule='shadow-4']) {
+    box-shadow: none;
+    border-inline-start-style: solid;
+    border-inline-start-width: calc(var(--hairline) * 4);
+  }
+  :where([data-jx-blockquote-rule='shadow-8']) {
+    box-shadow: none;
+    border-inline-start-style: solid;
+    border-inline-start-width: calc(var(--hairline) * 8);
+  }
+  :where([data-jx-blockquote='outline'][data-jx-blockquote-rule^='shadow-']) {
+    border-inline-start-color: CanvasText;
+  }
+}

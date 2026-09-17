@@ -1,21 +1,49 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai terminal-footer (composition-first, 2026-08-25) —
  *
- * TWO residues, both beyond utilities:
+ * THREE lanes (tailwindless one-shot W1, 2026-09-17 — the first two
+ * predate it):
  * 1. the text-stroke fallback (tw4, 2026-08-24, kept): engines without
  *    -webkit-text-stroke get a soft solid tint instead of the hollow
- *    word; the rule must override the component's own text-transparent
- *    utility paint, so it rides the UNLAYERED :where() carve-out (the
- *    toggle/Part A precedent).
+ *    word; the rule must override the atoms' transparent ink, so it
+ *    rides the UNLAYERED :where() carve-out (the toggle/Part A
+ *    precedent).
  * 2. free-link paint inside columns: the anchors are consumer-authored
- *    children — no utility slot exists on them, so the meta row's
+ *    children — no atom slot exists on them, so the meta row's
  *    muted→brand hover law lands as layered descendant rules.
+ * 3. the SHELL's measure + rhythm (moved from the markup utilities):
+ *    margin auto + the 90rem cap + the padding steps, with the sm/lg
+ *    seams re-pinning the inline step — the tl-shell pattern. A media
+ *    rule can never re-pin an atom (components.stylex sorts after
+ *    components in the F9 order), so the block lives here WHOLE.
+ *    Thresholds are Tailwind's own seam values, kept verbatim
+ *    (breakpoint parity).
  */
 
 @layer components {
+  :where([data-jx-terminal-footer]) {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 90rem;
+    padding-inline: var(--space-16);
+    padding-block-start: var(--space-32);
+    padding-block-end: var(--space-40);
+  }
+  @media (min-width: 40rem) {
+    :where([data-jx-terminal-footer]) {
+      padding-inline: var(--space-24);
+    }
+  }
+  @media (min-width: 64rem) {
+    :where([data-jx-terminal-footer]) {
+      padding-inline: var(--space-32);
+    }
+  }
+
   :where([data-jx-terminal-footer-column] a) {
-    transition: color 150ms ease-out;
+    transition: color var(--motion-150) var(--motion-ease-out);
   }
   :where([data-jx-terminal-footer-column] a):hover {
     color: var(--primary);

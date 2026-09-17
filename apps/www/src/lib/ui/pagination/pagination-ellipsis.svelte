@@ -10,17 +10,34 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { paginationStyles } from './pagination.stylex';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
   }
 
   let { class: className = '', ...rest }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <span
   data-jx-page-gap=""
-  class={cn('inline-flex items-center px-[var(--jx-inset)] text-muted-foreground select-none', className)}
+  class={cn(cx(paginationStyles.ellipsis), className)}
   {...rest}
   aria-hidden="true"
 >…</span>

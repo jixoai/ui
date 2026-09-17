@@ -39,6 +39,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { menubarStyles } from './menubar.stylex';
 
   interface Props extends HTMLAttributes<HTMLLIElement> {
     /** the ONE id: Trigger/Panel derive theirs from it. Mount-stable. */
@@ -51,6 +52,22 @@
   const autoId = $props.id();
 
   let { id = autoId, class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -86,7 +103,7 @@
 <li data-jx-menubar-item="" class={cn(className)} {...rest} role="none">
   <span
     data-jx-menubar-slot=""
-    class="inline-flex"
+    class={cx(menubarStyles.slot)}
     style="anchor-name: {anchorName}"
     bind:this={slotEl}
   >

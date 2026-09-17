@@ -52,6 +52,7 @@
   import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
   import { NavigationMenuDefaults } from './navigation-menu-defaults.svelte';
+  import { navMenuStyles } from './navigation-menu.stylex';
 
   interface Props {
     /** the motion law: 'navigation' stamps a view-transition-name for
@@ -81,6 +82,22 @@
     inset,
     class: className = '',
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
   // inset resolves through the family contract (the literal slot: own
@@ -277,9 +294,6 @@
   data-jx-navmenu-ind=""
   data-motion={motion}
   aria-hidden="true"
-  class={cn(
-    'pointer-events-none absolute top-0 left-0 z-0 opacity-0 rounded-[calc(var(--radius)-2px)] bg-[color-mix(in_oklab,var(--jx-tonal)_14%,transparent)]',
-    className,
-  )}
+  class={cn(cx(navMenuStyles.indicator), className)}
   style={motion === 'navigation' ? `view-transition-name: ${name};` : undefined}
 ></span>

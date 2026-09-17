@@ -41,6 +41,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { stepsStyles } from './steps.stylex';
   import './steps.css';
   import type { Density } from '$lib/density.svelte';
   import { StepsDefaults } from './steps-defaults.svelte';
@@ -60,6 +61,20 @@
     children,
     ...rest
   }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
   // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
   // density resolves through the family contract (the no-opinion axis
   // slot: explicit ?? inherited ?? undefined; no opinion stamps
@@ -73,6 +88,6 @@
   });
 </script>
 
-<ol data-jx-steps="" data-density={d.density} class={cn('flex flex-wrap', className)} {...rest} role="list">
+<ol data-jx-steps="" data-density={d.density} class={cn(cx(stepsStyles.root), className)} {...rest} role="list">
   {@render children()}
 </ol>

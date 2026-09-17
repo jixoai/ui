@@ -27,6 +27,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { breadcrumbStyles } from './breadcrumb.stylex';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLLIElement> {
@@ -42,6 +43,20 @@
   // the ambient density stamp resolves through the family contract
   // (no-opinion slot: no explicit prop, inherited else nothing)
   const d = $derived(BreadcrumbDefaults.resolve({}));
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   // wrapped items render hidden + carry the fold hook (breadcrumb-item
   // reads this context). The ellipsis li below is authored DIRECTLY —
@@ -75,10 +90,7 @@
     bind:this={ellipsisEl}
     data-jx-breadcrumb-collapse=""
     data-density={d.density}
-    class={cn(
-      'text-muted-foreground tracking-normal no-underline transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-2',
-      className,
-    )}
+    class={cn(cx(breadcrumbStyles.link), 'jx-bc-link', className)}
     href={target}
   >…</a>
 </li>

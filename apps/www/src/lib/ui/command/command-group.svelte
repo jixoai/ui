@@ -12,6 +12,7 @@
 <script lang="ts">
   import { setContext } from 'svelte';
   import { CommandDefaults } from './command-defaults.svelte';
+  import { commandStyles } from './command.stylex';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
@@ -30,13 +31,28 @@
   const d = $derived(CommandDefaults.resolve({}));
 
   setContext('jx-command-group', true);
+
+  // the payload's own join (separator's serialize law)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div data-jx-command-group="" data-density={d.density} class={cn(className)} {...rest}>
   {#if heading}
     <p
       data-jx-command-group-heading=""
-      class="mt-[var(--jx-stack)] mb-[var(--jx-stack)] px-[var(--jx-inset)] font-nav text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em] text-muted-foreground"
+      class={cx(commandStyles.groupHeading)}
       aria-hidden="true"
     >
       {heading}

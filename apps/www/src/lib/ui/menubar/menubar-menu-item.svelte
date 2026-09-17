@@ -21,6 +21,7 @@
   import { cn } from '$lib/utils';
   import { MENUBAR_KEY, type MenubarApi } from './menubar.svelte';
   import { MENUBAR_ITEM_KEY, type MenubarItemApi } from './menubar-item.svelte';
+  import { menubarStyles } from './menubar.stylex';
 
   interface Props extends Omit<HTMLButtonAttributes, 'href'> {
     /** link form: renders an <a role=menuitem> that navigates */
@@ -42,6 +43,22 @@
     ...rest
   }: Props = $props();
 
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const bar = getContext<MenubarApi>(MENUBAR_KEY);
   const item = getContext<MenubarItemApi>(MENUBAR_ITEM_KEY);
   if (!bar || !item) {
@@ -58,7 +75,8 @@
 
   const paint = $derived(
     cn(
-      'jx-menubar-menu-item flex w-full box-border cursor-pointer items-center border-0 bg-transparent text-left font-sans text-inherit no-underline transition-[background-color,color] duration-100 ease-out hover:bg-muted focus-visible:bg-muted focus-visible:outline-none',
+      'jx-menubar-menu-item',
+      cx(menubarStyles.menuItem),
       className,
     ),
   );

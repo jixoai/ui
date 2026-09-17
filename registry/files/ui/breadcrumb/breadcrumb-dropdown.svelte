@@ -45,6 +45,7 @@
 <script lang="ts">
   import { cn } from '$lib/utils';
   import Icon from '$lib/ui/icon';
+  import { breadcrumbStyles } from './breadcrumb.stylex';
   import type { Density } from '$lib/density.svelte';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
   import DropdownMenu from '../dropdown-menu/dropdown-menu.svelte';
@@ -70,6 +71,20 @@
   // (explicit ?? inherited ?? undefined) and feeds the composed menu
   const d = $derived(BreadcrumbDefaults.resolve({ density }));
 
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
   let host = $state<HTMLSpanElement | null>(null);
 
   // raw menu items manage their own close path (dropdown-menu law —
@@ -82,7 +97,7 @@
   }
 </script>
 
-<span bind:this={host} class="inline-flex">
+<span bind:this={host} class={cx(breadcrumbStyles.dropdownHost)}>
   <DropdownMenu id={autoId} density={d.density} placement="bottom-start">
     {#snippet trigger()}
       <button
@@ -91,13 +106,12 @@
         aria-haspopup="menu"
         data-jx-breadcrumb-dropdown=""
         data-density={d.density}
-        class={cn(
-          'inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-muted-foreground transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-2',
-          className,
-        )}
+        class={cn(cx(breadcrumbStyles.trigger), 'jx-bc-link', className)}
       >
         {label}
-        <span class="jx-menu-caret flex-none inline-flex transition-transform duration-150 ease-out">
+        <!-- the caret's transform transition rides dropdown-menu's own
+             .jx-menu-caret rule (the motion-literals lane-2 ruling) -->
+        <span class="jx-menu-caret {cx(breadcrumbStyles.triggerCaret)}">
           <Icon name="chevronDown" size={11} strokeWidth={2.5} />
         </span>
       </button>
@@ -108,7 +122,7 @@
         href={item.href}
         data-jx-breadcrumb-menu-item=""
         aria-current={item.href === current ? 'page' : undefined}
-        class="jx-menu-item flex w-full box-border items-center text-left font-sans bg-transparent text-inherit transition-[background-color,color] duration-100 ease-out"
+        class="jx-menu-item {cx(breadcrumbStyles.menuItem)}"
         onclick={handleNavigate}
       >{item.label}</a>
     {/each}

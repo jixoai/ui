@@ -28,6 +28,23 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import ProgressiveBlur from '../src/lib/ui/progressive-blur/progressive-blur.svelte';
+import { pblurStyles } from '../src/lib/ui/progressive-blur/progressive-blur.stylex';
+
+// tailwindless Wave 1 batch 3 (2026-09-17): the dialect placement
+// paint rides stylex atoms now — asserted through the same cx join
+// the component rides (utility-shaped expectations went with the
+// utilities; the PLACEMENT LAWS are unchanged).
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const css = readFileSync(
   resolve(process.cwd(), 'src/lib/ui/progressive-blur/progressive-blur.css'),
@@ -164,7 +181,7 @@ describe('progressive-blur dialect discrimination (Codex P2, 2026-09-02; block e
     const bands = [...container.querySelectorAll('[data-jx-pblur]')];
     expect(bands.length).toBe(1);
     expect(bands[0]!.getAttribute('data-position')).toBe('start');
-    expect(bands[0]!.className).toContain('justify-self-start');
+    expect(bands[0]!.className).toContain(cx(pblurStyles.gridStart));
   });
 
   it("grid + top renders the BLOCK-EDGE placement law: spans the host's rows/columns, size on height", () => {
@@ -173,10 +190,8 @@ describe('progressive-blur dialect discrimination (Codex P2, 2026-09-02; block e
     });
     const band = container.querySelector('[data-jx-pblur]') as HTMLElement;
     expect(band.getAttribute('data-position')).toBe('top');
-    expect(band.className).toContain('self-start');
-    expect(band.className).toContain('[grid-row:1/-1]');
-    expect(band.className).toContain('[grid-column:1/-1]');
-    expect(band.className).not.toContain('sticky');
+    expect(band.className).toContain(cx(pblurStyles.gridTop));
+    expect(band.className).not.toContain(cx(pblurStyles.stickyRoot));
     expect(band.getAttribute('style')).toContain('height: 7.5rem');
   });
 });
@@ -192,15 +207,14 @@ describe('progressive-blur grid-dialect DOM shape', () => {
     expect(band.getAttribute('aria-hidden')).toBe('true');
     // positioning by GRID (grid-area + justify-self per edge) and the
     // compositor-isolation translateZ, never sticky/absolute
-    expect(band.className).toContain('[grid-area:1/1]');
-    expect(band.className).toContain('justify-self-start');
-    expect(band.className).toContain('[transform:translateZ(0)]');
-    expect(band.className).not.toContain('sticky');
+    expect(band.className).toContain(cx(pblurStyles.gridStart));
+    expect(band.className).toContain(cx(pblurStyles.gridBand));
+    expect(band.className).not.toContain(cx(pblurStyles.stickyRoot));
     expect(band.getAttribute('style')).toContain('width: 3rem');
     const rungs = [...band.querySelectorAll(':scope > .jx-pblur-layer')];
     expect(rungs.length).toBe(8);
     for (const rung of rungs) {
-      expect(rung.className).toContain('[grid-area:1/1]');
+      expect(rung.className).toContain(cx(pblurStyles.gridLayer));
     }
   });
 });

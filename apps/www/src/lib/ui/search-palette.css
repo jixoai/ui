@@ -1,0 +1,17 @@
+@layer properties, theme, base, components, utilities;
+
+
+/* search-palette.css — the docs search palette's lane-2 residue
+ * (tailwindless one-shot W1, 2026-09-17).
+ * ONE rule: the result heading's font-medium — the 500 weight has no
+ * token (reported for promotion; tier-2 slots in atoms are
+ * token-bound only). The flight cue's keyframes stay in the
+ * component's scoped <style> (the jx-flight law, frozen).
+ * Registered semantics proposal: owner this sheet, scope "the search
+ * result heading's 500 weight". */
+
+@layer components {
+  :where(.jx-search-heading) {
+    font-weight: var(--weight-medium);
+  }
+}

@@ -25,6 +25,7 @@
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
+  import { tabsStyles } from './tabs.stylex';
   import './tabs-trigger.css';
 
   interface Props extends HTMLButtonAttributes {
@@ -56,6 +57,22 @@
     ...rest
   }: Props = $props();
 
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const tabs = getContext<TabsApi>(TABS_KEY);
 
   const selected = $derived(tabs.selected === value);
@@ -75,18 +92,16 @@
   aria-controls="{tabs.uid}-panel-{value}"
   tabindex={isTabStop ? 0 : -1}
   data-jx-tab=""
+  data-slot-start={children && icon ? '' : undefined}
+  data-slot-end={children && iconEnd ? '' : undefined}
   class={cn(
-    'relative z-[1] inline-flex appearance-none items-center [padding-inline:var(--jx-inset)] [min-block-size:var(--jx-hit)] font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] uppercase tracking-[0.12em] cursor-pointer transition-colors duration-150 ease-out hover:[&:not(:disabled)]:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    cx(tabsStyles.trigger),
     // stack flips the axis: a tighter column gap replaces the row gap
     // (min-block-size and the padding law stay untouched)
-    stack ? 'flex-col justify-center [gap:calc(var(--jx-gap)*0.35)]' : '[gap:var(--jx-gap)]',
-    // slot-vs-padding law (toggle-group dialect): an icon lane replaces
-    // its side's label inset — ONLY beside a label. An icon-only tab
-    // (no children) keeps the symmetric padding so the glyph centers
-    children
-      ? 'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]'
-      : '',
-    selected ? 'jx-tab-selected text-foreground' : 'text-muted-foreground',
+    stack ? cx(tabsStyles.triggerStacked) : cx(tabsStyles.triggerRow),
+    // the slot-vs-padding halves ride the STATIC data-slot stamps
+    // (tabs-trigger.css) — an icon-only tab keeps the symmetric padding
+    selected ? 'jx-tab-selected ' + cx(tabsStyles.inkSelected) : cx(tabsStyles.inkIdle),
     className,
   )}
   {disabled}
@@ -99,7 +114,7 @@
     tabs.setTabStop(value);
   }}
 >
-  {#if icon}<span data-icon="inline-start" aria-hidden="true" class="inline-flex shrink-0 [&>svg]:size-[var(--jx-text-secondary)]">{@render icon()}</span>{/if}
+  {#if icon}<span data-icon="inline-start" aria-hidden="true" class={cx(tabsStyles.iconLane)}>{@render icon()}</span>{/if}
   {@render children?.()}
-  {#if iconEnd}<span data-icon="inline-end" aria-hidden="true" class="inline-flex shrink-0 [&>svg]:size-[var(--jx-text-secondary)]">{@render iconEnd()}</span>{/if}
+  {#if iconEnd}<span data-icon="inline-end" aria-hidden="true" class={cx(tabsStyles.iconLane)}>{@render iconEnd()}</span>{/if}
 </button>

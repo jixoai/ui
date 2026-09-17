@@ -109,7 +109,7 @@ describe('Input · the picker bridge', () => {
     const stepper = panel.querySelector('[id^="pb-dtl2-ptime"]');
     expect(stepper).not.toBeNull();
     // the divider separates the two fragments inside the surface body
-    expect(panel.querySelector('.jx-surface-body > .border-t')).not.toBeNull();
+    expect(panel.querySelector('.jx-surface-body > [data-jx-picker-divider]')).not.toBeNull();
   });
 
   it('datetime-local: a time commit with NO date part defaults the date to today', async () => {

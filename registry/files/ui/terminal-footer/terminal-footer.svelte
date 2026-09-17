@@ -22,11 +22,18 @@
   residue on the unlayered carve-out (it must override the
   text-transparent utility paint when it fires).
   (props-discipline sweep, 2026-08-25)
+
+  tailwindless one-shot W1 (2026-09-17): the ghost/meta/column paint
+  rides the family's stylex atoms (terminal-footer.stylex.ts); the
+  shell's measure + rhythm (with its sm/lg padding seams) lives in
+  terminal-footer.css — the tl-shell pattern (media rules cannot
+  re-pin atoms under the F9 layer order).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { terminalFooterStyles } from './terminal-footer.stylex';
   import './terminal-footer.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -40,23 +47,34 @@
 
   let { ghost, copyright, class: className = '', children, ...rest }: Props = $props();
   const year = new Date().getFullYear();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
+<!-- the shell's measure + rhythm (margin auto, the 90rem cap, the
+     padding steps and their sm/lg seams) lives in terminal-footer.css —
+     media rules cannot re-pin atoms (the F9 layer order) -->
 <footer
   data-jx-terminal-footer=""
-  class={cn('mx-auto w-full max-w-[90rem] px-4 pb-10 pt-8 sm:px-6 lg:px-8', className)}
+  class={className}
   {...rest}
 >
-  <p
-    class={cn(
-      'jx-footer-ghost font-nav select-none text-transparent text-[clamp(3rem,11vw,9rem)] leading-[0.9] [-webkit-text-stroke:1px_color-mix(in_oklab,var(--border)_55%,transparent)]',
-    )}
-    aria-hidden="true"
-  >{ghost}</p>
-  <div
-    class="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[12.5px] text-muted-foreground"
-  >
-    <div data-jx-terminal-footer-columns="" class="flex flex-wrap items-start gap-x-8 gap-y-4">
+  <p class="jx-footer-ghost {cx(terminalFooterStyles.ghost)}" aria-hidden="true">{ghost}</p>
+  <div class={cx(terminalFooterStyles.metaRow)}>
+    <div data-jx-terminal-footer-columns="" class={cx(terminalFooterStyles.columns)}>
       {@render children()}
     </div>
     <span>{copyright ?? `© ${year}`}</span>

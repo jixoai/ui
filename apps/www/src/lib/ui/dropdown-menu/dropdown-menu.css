@@ -29,6 +29,32 @@
   font-size: var(--jx-text);
   line-height: var(--jx-line);
 }
+/* the trigger's chrome + press poses (tailwindless Wave 1, 2026-09-17):
+   font-medium has NO weight token (reported MISSING —
+   --jx-weight-medium) and the --jx-press* custom-property setters are
+   lane-2 seams by nature (the separator sheet's "press-physics vars
+   land here" law) — both live on the trigger's own hook rule */
+.jx-menu-trigger {
+  --jx-press-shadow: var(--shadow-xs);
+  --jx-press-shadow-hover: var(--shadow-sm);
+  --jx-press-shadow-active: var(--shadow-sm-press);
+  font-weight: 500;
+}
+/* the caret's transform transition (motion literals — no motion tokens
+   yet; the flip state machine below is this sheet's own law) */
+.jx-menu-caret {
+  transition-property: transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+/* the item's ink transition (motion literals — lane-2, same ruling);
+   the hover/walk/focus state machines below ride UNLAYERED and beat
+   this transition's targets, not its motion */
+.jx-menu-item {
+  transition-property: background-color, color;
+  transition-duration: 100ms;
+  transition-timing-function: ease-out;
+}
 @supports not (anchor-name: --jx-menu-fallback) {
   .jx-menu {
     position-anchor: auto !important;

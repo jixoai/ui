@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai color-picker — native rebase (2026-09-01). The lane paint is
  * token/arbitrary utilities in the markup; the .jx-field scaffold is
@@ -162,6 +163,13 @@
 }
 
 /* ---- the state machines (unlayered carve-out) ----------------------- */
+/* the chevron's flip (tailwindless W1): the atom carries
+   rotate: 180deg; the transition rides here — motion literals have
+   no tokens, keyed on the component hook (the reduced-motion kill
+   below already named it) */
+:where(.jx-color-picker-chevron) {
+  transition: rotate var(--motion-150) var(--motion-ease-out);
+}
 /* F-1 well sweep (2026-09-02): the trigger lane is a FILLABLE control —
    the well tier (the input-law / control-shell ruling): resting
    --shadow-well; hover deepens the ink (--shadow-well-hover —
@@ -170,7 +178,7 @@
    retired hover lift and focus shadow-kill are gone. */
 :where(.jx-color-picker-trigger) {
   box-shadow: var(--shadow-well);
-  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+  transition: box-shadow var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
 }
 :where(.jx-color-picker-trigger:hover:not(:has(input:disabled))) {
   box-shadow: var(--shadow-well-hover);

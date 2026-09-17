@@ -28,6 +28,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import { chartStyles } from './chart.stylex';
   import { ChartDefaults } from './chart-defaults.svelte';
   import { barRun, seriesBounds, type ChartVariant } from './chart.svelte';
   import './chart.css';
@@ -72,11 +73,28 @@
   const max = $derived(seriesBounds(data)?.max ?? 0);
   const run = $derived((v: number) => barRun(v, max, cells));
 
-  const ink = {
-    fill: 'text-[color:var(--jx-fill)]',
-    tonal: 'text-[color:color-mix(in_oklab,var(--jx-tonal)_70%,transparent)]',
-    outline: 'text-[color:var(--jx-outline)]',
-  } as const;
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
+  // the variant ladder's ink — atom groups at module scope (the
+  // dynamic-producer law: data-built STRINGS must resolve to
+  // registered identities; the map walks cx() over static members)
+  const INK_CLASS: Record<ChartVariant, string> = {
+    fill: cx(chartStyles.inkFill),
+    tonal: cx(chartStyles.inkTonal),
+    outline: cx(chartStyles.inkOutline),
+  };
 </script>
 
 <div
@@ -85,17 +103,14 @@
   aria-label={label}
   data-jx-chart-bar={d.variant}
   data-density={d.density}
-  class={cn(
-    'inline-flex flex-col [gap:var(--jx-gap)] [font-size:var(--jx-text)] tabular-nums',
-    className,
-  )}
+  class={cn(cx(chartStyles.barRoot), className)}
 >
   {#each data as v, i (i)}
-    <div data-jx-chart-bar-row="" class="grid grid-cols-[auto_1fr_auto] items-baseline [gap:var(--jx-gap)]">
-      <span data-jx-chart-bar-label="" class="min-w-0 truncate text-muted-foreground">{labels?.[i] ?? ''}</span>
-      <span data-jx-chart-bar-run="" class="jx-chart-glyphs {ink[d.variant]}">{run(v)}</span>
+    <div data-jx-chart-bar-row="" class={cx(chartStyles.barRow)}>
+      <span data-jx-chart-bar-label="" class={cx(chartStyles.barLabel)}>{labels?.[i] ?? ''}</span>
+      <span data-jx-chart-bar-run="" class="jx-chart-glyphs {INK_CLASS[d.variant]}">{run(v)}</span>
       {#if values}
-        <span data-jx-chart-bar-value="" class="text-foreground">{Number.isFinite(v) ? v : '—'}</span>
+        <span data-jx-chart-bar-value="" class={cx(chartStyles.barValue)}>{Number.isFinite(v) ? v : '—'}</span>
       {/if}
     </div>
   {/each}

@@ -1,0 +1,47 @@
+@layer properties, theme, base, components, utilities;
+
+/*
+ * jixoai language-switcher lane-2 sheet (tailwindless one-shot Wave 1
+ * batch 1, 2026-09-16). The family's interactive seams — hover poses
+ * as NATIVE pseudos keyed on the family's data hooks (never JS
+ * data-attr state), the color/border transitions the poses rode, and
+ * the medium label weight (no token step exists for 500 — reported as
+ * the --jx-weight-medium promotion candidate). Durations mirror the
+ * theme sheet's own 150ms ease-out constant (no motion token yet —
+ * reported).
+ *
+ * UNLAYERED :where() (the menubar carve-out law): the stylex tiers
+ * nest UNDER components (components.stylex.priorityN sorts after the
+ * parent layer's direct rules), so anything that must override the
+ * family's own ATOM paint (hover color/ground vs the bezel/segment
+ * color atoms) rides the unlayered level behind :where() — zero
+ * specificity, consumer css still ties-wins there.
+ */
+
+:where([data-jx-lang-item]),
+:where([data-jx-lang-btn]),
+:where([data-jx-lang-menu-item]) {
+  font-weight: var(--weight-medium);
+}
+:where([data-jx-lang-item]),
+:where([data-jx-lang-menu-item]) {
+  transition: color var(--motion-150) var(--motion-ease-out), background-color var(--motion-150) var(--motion-ease-out);
+}
+:where([data-jx-lang-btn]) {
+  transition: color var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
+}
+:where([data-jx-lang-item]:hover) {
+  background-color: color-mix(in oklab, currentColor 12%, transparent);
+  color: currentColor;
+}
+:where([data-jx-lang-btn]:hover) {
+  border-color: color-mix(in oklab, currentColor 70%, transparent);
+  color: currentColor;
+}
+:where([data-jx-lang-menu-item]:hover) {
+  background-color: var(--terminal-hover);
+  color: var(--terminal-foreground);
+}
+:where([data-jx-lang-chevron]) {
+  transition: transform var(--motion-150) var(--motion-ease-out);
+}

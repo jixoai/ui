@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 @layer components {
 /* jixoai command palette css (composition-first-apis, Batch E,
@@ -34,6 +35,16 @@
   }
   :where([data-jx-command-list]:not(:has([role=option]:not([hidden])))) :where([data-jx-command-empty]) {
     display: block;
+  }
+  /* the active option's inset rule (tailwindless Wave 1, 2026-09-17):
+     the former shadow-[inset_2px_0_0_var(--primary)] utility — a
+     px-length shadow literal is tier-2 red in stylex atoms, so the
+     standard the blockquote header cites (command-item.svelte:103's
+     inset 2px primary rule) lands here, keyed on the walk's own
+     active data hook. The active GROUND (bg-muted) stays an atom —
+     different property, no contest. */
+  :where([data-jx-command-item-active]) {
+    box-shadow: inset 2px 0 0 var(--primary);
   }
 }
 }

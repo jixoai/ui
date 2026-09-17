@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai steps — the grid anatomy + state engine (2026-09-01).
  * KEYED ON REAL DOM HOOKS (the default-parts law):
@@ -23,13 +24,17 @@
  * The marker's state PAINT (border/background/token colors + the
  * V2-6 distinct-pairs shaping — done solid+✓, pending hollow+⋯,
  * current solid+number, emphasis hollow+halo ring, disabled dashed
- * ring at reduced contrast, todo hollow at full contrast) rides the
- * token utilities in steps-indicator.svelte: the states are JS-known,
- * one rung per vocabulary word. This sheet owns only the geometry and
- * the css-cheapest state laws (connector repaints, the breathe).
+ * ring at reduced contrast, todo hollow at full contrast) lives HERE
+ * since tailwindless W1 (2026-09-17), keyed on the li's data-jx-step
+ * state — the connector repaint's own law (moved from the markup's
+ * conditional utilities: a state rule must own its properties
+ * outright, or the atom tier would shade it under the F9 layer
+ * order; border-STYLE rides the base marker rule below because
+ * disabled flips it to dashed). This sheet owns the geometry AND the
+ * paint; the marker's atoms (steps.stylex.ts) carry geometry only.
  *
- * All same-element paint lives as token utilities in the markup (the
- * :where keeps the residue consumer-overridable under the layer law). */
+ * All rules ride :where so consumer atoms/utilities always win (the
+ * layer law). */
 
 @layer components {
   /* ── the item anatomy: one grid, three lanes ── */
@@ -46,6 +51,7 @@
   :where([data-jx-step-indicator]) {
     grid-column: marker;
     grid-row: 1 / span 2;
+    border-style: solid;
   }
   :where([data-jx-step-title]) {
     grid-column: body;
@@ -54,6 +60,63 @@
   :where([data-jx-step-description]) {
     grid-column: body;
     grid-row: 2;
+  }
+
+  /* ── the marker paint rungs: one per vocabulary word (V2-6) ── */
+  :where([data-jx-step='done']) :where([data-jx-step-indicator]),
+  :where([data-jx-step='current']) :where([data-jx-step-indicator]) {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  :where([data-jx-step='done']) :where([data-jx-step-indicator]):hover {
+    background: color-mix(in oklab, var(--primary) 90%, transparent);
+  }
+  :where([data-jx-step-indicator]):focus-visible {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
+  :where([data-jx-step='todo']) :where([data-jx-step-indicator]) {
+    border-color: var(--border);
+    background: var(--card);
+    color: var(--muted-foreground);
+  }
+  :where([data-jx-step='pending']) :where([data-jx-step-indicator]) {
+    border-color: var(--primary);
+    background: var(--card);
+    color: var(--primary);
+  }
+  :where([data-jx-step='success']) :where([data-jx-step-indicator]) {
+    border-color: var(--success);
+    background: var(--success);
+    color: var(--success-foreground);
+  }
+  :where([data-jx-step='error']) :where([data-jx-step-indicator]) {
+    border-color: var(--error);
+    background: var(--error);
+    color: var(--error-foreground);
+  }
+  :where([data-jx-step='hint']) :where([data-jx-step-indicator]) {
+    border-color: var(--info);
+    background: var(--card);
+    color: var(--info);
+  }
+  /* emphasis: HOLLOW + the halo ring (the V2-6 shape separation) */
+  :where([data-jx-step='emphasis']) :where([data-jx-step-indicator]) {
+    border-color: var(--primary);
+    background: var(--card);
+    color: var(--primary);
+    box-shadow:
+      0 0 0 calc(var(--hairline) * 2) var(--card),
+      0 0 0 calc(var(--hairline) * 3) var(--primary);
+  }
+  /* disabled: the DASHED ring at reduced contrast */
+  :where([data-jx-step='disabled']) :where([data-jx-step-indicator]) {
+    border-style: dashed;
+    border-color: color-mix(in oklab, var(--border) 60%, transparent);
+    background: transparent;
+    color: color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+    cursor: not-allowed;
   }
 
   /* ── the connector: a real box on the marker's center line ── */

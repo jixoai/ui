@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai component-canvas — residue (tw4; redesign 2026-08-25, Codex
  * D5 layering; dock era since canvas-playground-dock, 2026-09-08).
@@ -327,4 +328,85 @@
   :where(.jx-canvas-dock-collapse) {
     transition: none;
   }
+}
+
+/* ── the tailwindless seams (one-shot Wave 1 batch 1, 2026-09-16) ──
+   Everything the markup utilities carried that atoms cannot express.
+   The CONTAINER TIERS are static contracts (@layer components); the
+   press-channel poses, hover poses, transitions and optical nudges
+   override the family's own ATOM paint, so they ride the UNLAYERED
+   :where() carve-out (the Part A law — the stylex tiers nest under
+   components). Durations/easings mirror the replaced utilities; no
+   motion token exists yet (reported). The title/toggle weights have
+   no token either (reported as --jx-weight-* candidates). */
+@layer components {
+  /* the HOST container tier (@container/jx-canvas-host): the section
+     is the named layout container for the ≥48rem drawer window */
+  :where([data-jx-canvas]) {
+    container: jx-canvas-host / inline-size;
+  }
+  /* the NAMED demo container on the scrollport: demo container queries
+     see the width the scrollbar actually leaves */
+  :where([data-jx-canvas-scroll]) {
+    container: jx-canvas / inline-size;
+  }
+}
+
+/* the press-channel poses (the jx-press law's per-element tuning) */
+:where([data-jx-canvas-install]),
+:where(.jx-canvas-copy-usage) {
+  --jx-press-shadow: none;
+  --jx-press-shadow-hover: none;
+  --jx-press-shadow-active: none;
+}
+:where([data-jx-canvas-source]),
+:where(.jx-canvas-code-toggle) {
+  --jx-press-shadow: var(--shadow-2xs);
+  --jx-press-shadow-hover: var(--shadow-xs);
+  --jx-press-shadow-active: var(--shadow-xs-press);
+}
+
+/* the hover poses (native pseudos — never JS state) */
+:where([data-jx-canvas-install]:hover) {
+  color: var(--foreground);
+}
+:where([data-jx-canvas-source]:hover) {
+  color: var(--foreground);
+}
+:where(.jx-canvas-code-toggle:hover) {
+  background-color: var(--muted);
+}
+:where(.jx-canvas-copy-usage:hover) {
+  color: var(--primary);
+}
+:where(.jx-canvas-dock-density:hover) {
+  color: var(--foreground);
+}
+
+/* the transitions the utilities carried */
+:where(.jx-canvas-chevron) {
+  transition: transform var(--motion-150) var(--motion-ease-out);
+}
+:where(.jx-canvas-code-drawer),
+:where(.jx-canvas-dock-collapse) {
+  transition: grid-template-rows var(--motion-200) var(--motion-ease-nav);
+}
+
+/* the chrome optical nudge (pt-[0.1rem]) and the voices' weights */
+:where([data-jx-canvas-head-actions]) {
+  padding-block-start: 0.1rem;
+}
+:where([data-jx-canvas-title]) {
+  font-weight: 400;
+}
+:where(.jx-canvas-code-toggle) {
+  font-weight: var(--weight-medium);
+}
+
+/* the dock's density select: the bare-chrome channel overrides
+   (--jx-icon/--jx-inset are kernel channels — atoms cannot author
+   custom properties) */
+:where(.jx-canvas-dock-density) {
+  --jx-icon: 0.875rem;
+  --jx-inset: 0.5rem;
 }

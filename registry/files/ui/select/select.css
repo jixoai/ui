@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai select — D1-exempt residue (tw4, 2026-08-24): the trigger,
  * rows and scroll ring paint as token utilities in the markup (the
@@ -71,7 +72,7 @@
    hierarchy never moves). */
 :where(.jx-sel-trigger) {
   box-shadow: var(--shadow-well);
-  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+  transition: box-shadow var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
 }
 :where(.jx-sel-trigger:hover:not(:disabled)) {
   box-shadow: var(--shadow-well-hover);
@@ -93,6 +94,17 @@
 :where(.jx-sel-option:hover) {
   background: var(--terminal-hover);
   color: var(--terminal-foreground);
+}
+/* the row/chevron transitions (tailwindless one-shot, 2026-09-16):
+   the utilities' duration-100/150 ease-out constants moved here —
+   no motion token exists, so they mirror the theme sheet's own
+   ease-out law (reported as the --jx-motion-fast promotion
+   candidate). Unlayered with the state machines above. */
+:where(.jx-sel-option) {
+  transition: background-color var(--motion-100) var(--motion-ease-out), color var(--motion-100) var(--motion-ease-out);
+}
+:where(.jx-sel-chevron) {
+  transition: transform var(--motion-150) var(--motion-ease-out);
 }
 /* the list itself is the programmatic focus stop (aria-activedescendant
    roving pattern) — the highlighted row IS the focus indication */

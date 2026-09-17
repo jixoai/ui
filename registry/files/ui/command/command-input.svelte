@@ -13,6 +13,7 @@
   import { CommandDefaults } from './command-defaults.svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { commandStyles } from './command.stylex';
   import { COMMAND_KEY, type CommandApi } from './command.svelte';
 
   interface Props extends HTMLAttributes<HTMLInputElement> {
@@ -40,16 +41,28 @@
     if (composing) return; // IME guard — composition keys are text
     cmd.navigate(event);
   }
+
+  // the payload's own join (separator's serialize law)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <input
   bind:this={el}
   data-jx-command-input=""
   data-density={d.density}
-  class={cn(
-    'box-border min-h-[var(--jx-hit)] w-full border-b border-border bg-transparent px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] leading-[var(--jx-line)] text-foreground placeholder:text-muted-foreground focus:outline-none',
-    className,
-  )}
+  class={cn(cx(commandStyles.input), className)}
   type="text"
   role="combobox"
   aria-label={cmd.label}

@@ -10,10 +10,17 @@
 
   Composition-only: no atom is patched; the press law, the icon
   geometry and the hero grammar all belong to the atoms.
+
+  tailwindless one-shot Wave 1 (2026-09-17): the paint rides
+  pattern-hero-set.stylex.ts atoms (joined through the payload's own
+  cx(); the sm/lg seams ride nested media conditions at Tailwind's
+  own thresholds); the banner's 1.1 leading + thin scrollbar ride
+  pattern-hero-set.css keyed on the data hook.
 -->
 <script lang="ts">
   import Icon from '$lib/ui/icon';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { heroStyles } from './pattern-hero-set.stylex';
   import './pattern-hero-set.css';
 
   interface Props {
@@ -42,31 +49,45 @@
     secondaryHref = '#',
     class: className = '',
   }: Props = $props();
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<section
-  data-jx-hero-ascii=""
-  class={`mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8 ${className}`}
->
-  <div class="min-w-0">
-    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary-text">{eyebrow}</p>
+<section data-jx-hero-ascii="" class={cx(heroStyles.shell, className)}>
+  <div class={cx(heroStyles.inner)}>
+    <p class={cx(heroStyles.eyebrow)}>{eyebrow}</p>
     <!-- the mono scale law: size clamps with the viewport, the banner
          scrolls its own lane — ascii never reflows -->
     <pre
       data-jx-hero-ascii-art=""
-      class="mt-4 max-w-full overflow-x-auto font-mono text-[clamp(0.5rem,2.4vw,1.125rem)] leading-[1.1] tracking-normal text-foreground [scrollbar-width:thin]"
+      class={cx(heroStyles.asciiArt)}
       aria-label="ascii art headline"
     >{art}</pre>
     {#if summary}
-      <p class="mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 text-muted-foreground sm:text-base sm:leading-7">
+      <p class={cx(heroStyles.lead)}>
         {summary}
       </p>
     {/if}
     {#if ctaLabel}
-      <div class="mt-8 flex flex-wrap gap-3">
+      <div class={cx(heroStyles.ctaRow)}>
         <PressButton variant="fill" href={ctaHref}>
           <span>{ctaLabel}</span>
-          <span class="inline-flex" aria-hidden="true"><Icon name="arrowRight" /></span>
+          <span class={cx(heroStyles.ctaGlyph)} aria-hidden="true"><Icon name="arrowRight" /></span>
         </PressButton>
         {#if secondaryLabel}
           <PressButton variant="outline" href={secondaryHref}>{secondaryLabel}</PressButton>

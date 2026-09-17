@@ -18,6 +18,8 @@
 <script lang="ts">
   import { cn } from '$lib/utils';
   import { propsFromMeta, type PropsDocs } from './from-meta';
+  import { propsTableStyles } from './props-table.stylex';
+  import './props-table.css';
   import type { AmbientKind, ComponentMeta } from '$lib/schema/ir';
 
   export interface PropEntry {
@@ -63,6 +65,22 @@
 
   let { props, meta, docs, title = 'Properties', class: className = '' }: Props = $props();
 
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // meta wins when both are given (the migration's direction); neither
   // is a dev-mode bug, named loudly instead of rendering an empty table
   let rows: PropEntry[] = $derived(
@@ -78,34 +96,34 @@
      flattens this wrapper's overflow under print/sim so wide API
      tables flow instead of clipping. Component-owned stamp: pages
      never hand-write it (source-guarded). -->
-<div data-jx-props-table-scroll="" class={cn('w-full overflow-x-auto', className)}>
+<div data-jx-props-table-scroll="" class={cn(cx(propsTableStyles.scroller), className)}>
   {#if title}
-    <h4 class="font-nav mb-[var(--jx-stack)] text-[length:var(--jx-text)] font-medium">{title}</h4>
+    <h4 data-jx-props-table-title="" class={cx(propsTableStyles.title)}>{title}</h4>
   {/if}
-  <table data-doc-props-table="" class="w-full border-collapse text-left">
+  <table data-doc-props-table="" class={cx(propsTableStyles.table)}>
     <thead>
-      <tr class="border-b border-border">
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Property</th>
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Type</th>
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Default</th>
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Description</th>
+      <tr class={cx(propsTableStyles.headRow)}>
+        <th class={cx(propsTableStyles.headCell)}>Property</th>
+        <th class={cx(propsTableStyles.headCell)}>Type</th>
+        <th class={cx(propsTableStyles.headCell)}>Default</th>
+        <th class={cx(propsTableStyles.headCell)}>Description</th>
       </tr>
     </thead>
     <tbody>
       {#each rows as prop (prop.name)}
-        <tr class="border-b border-border/50">
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">
+        <tr class={cx(propsTableStyles.bodyRow)}>
+          <td class={cx(propsTableStyles.nameCell)}>
             {prop.name}
-            {#if prop.required}<span class="text-primary">*</span>{/if}
-            {#if prop.bindable}<code class="text-muted-foreground text-[0.65rem] ml-1">bind</code>{/if}
+            {#if prop.required}<span class={cx(propsTableStyles.required)}>*</span>{/if}
+            {#if prop.bindable}<code class={cx(propsTableStyles.bindChip)}>bind</code>{/if}
           </td>
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground">
+          <td class={cx(propsTableStyles.typeCell)}>
             {prop.type}
           </td>
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground">
+          <td class={cx(propsTableStyles.defaultCell)}>
             {defaultCell(prop)}
           </td>
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text)]">
+          <td class={cx(propsTableStyles.descriptionCell)}>
             {prop.description}
           </td>
         </tr>

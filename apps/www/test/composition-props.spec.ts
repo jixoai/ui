@@ -18,7 +18,25 @@
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 
+import { stepsStyles } from '../src/lib/ui/steps/steps.stylex';
+import { breadcrumbStyles } from '../src/lib/ui/breadcrumb/breadcrumb.stylex';
 import CompositionPropsHost from './fixtures/composition-props-host.svelte';
+
+// tailwindless Wave 1 (2026-09-17): the families' paint rides stylex
+// atoms now — asserted through the same cx join the parts ride (the
+// progressive-blur.spec precedent; nested/pseudo values are skipped —
+// the flat atoms alone identify the member)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 describe('props discipline — consumer attributes flow to the part root', () => {
   it('steps-item: id/data-*/class land on the li (id rides ...rest)', () => {
@@ -27,10 +45,10 @@ describe('props discipline — consumer attributes flow to the part root', () =>
     expect(li.tagName).toBe('LI');
     expect(li.id).toBe('probe-steps-item');
     expect(li.dataset.probeKind).toBe('steps');
-    // class merges through cn(): the part's own utilities survive beside
-    // the consumer's (the grid-anatomy item — a flex-1 lane of the ol)
+    // class merges through cn(): the part's own paint survives beside
+    // the consumer's (the grid-anatomy item — a flex lane of the ol)
     expect(li.className).toContain('probe-extra');
-    expect(li.className).toContain('flex-1');
+    expect(li.className).toContain(cx(stepsStyles.item));
   });
 
   it('breadcrumb-link: id/data-*/class land on the anchor', () => {
@@ -41,7 +59,7 @@ describe('props discipline — consumer attributes flow to the part root', () =>
     expect(a.getAttribute('href')).toBe('/probe');
     expect(a.dataset.probeKind).toBe('breadcrumb');
     expect(a.className).toContain('probe-extra');
-    expect(a.className).toContain('text-muted-foreground');
+    expect(a.className).toContain(cx(breadcrumbStyles.link));
   });
 
   it('toggle-group-item: id/data-* land on the input, class on the label root', () => {

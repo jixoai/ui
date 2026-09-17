@@ -14,15 +14,16 @@
     whatever focusable control you compose inside; the wrapper carries
     the anchor name.
 
-  tw4 (2026-08-24): utility-authored — anchoring extras ride
-  arbitrary-property utilities (position-try/-fallbacks,
-  position-visibility); the panel, surface, and button paint (tone
-  voices conditional per prop) live in the markup; ONLY the
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  paint rides the family's stylex ATOMS (popconfirm.stylex.ts) joined
+  through cx() — anchoring extras (position-try/-fallbacks,
+  position-visibility) are atoms; the panel, surface, and button paint
+  (tone voices conditional per prop) walk atom groups; ONLY the
   ::backdrop and the @supports no-anchor fallback stay in
   popconfirm.css (D1-exempt residue). The platform element still
   paints NOTHING; the theme's jx-surface-body owns fill + border +
   blur, the shadow layer owns the shadow (floating-surface law,
-  intact). NO display utility ever lands on the panel itself — a base
+  intact). NO display atom ever lands on the panel itself — a base
   display override would defeat the UA sheet's closed-popover
   display:none (Codex r1, color-picker.svelte law).
 
@@ -49,6 +50,7 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { PopconfirmDefaults, type PopconfirmSurfaceVariant } from './popconfirm-defaults.svelte';
+  import { pcStyles } from './popconfirm.stylex';
   import './popconfirm.css';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
@@ -199,12 +201,28 @@
   const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 
   onDestroy(() => motion.destroy());
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <span
   bind:this={anchorEl}
   data-jx-pc-anchor=""
-  class={cn('inline-flex', className)}
+  class={cn(cx(pcStyles.anchor), className)}
   {...rest}
   data-density={d.density}
   style="anchor-name: {anchorName}"
@@ -219,7 +237,8 @@
   aria-labelledby={content ? undefined : titleId}
   aria-describedby={description && !content ? descId : undefined}
   class={cn(
-    'jx-pc jx-surface fixed m-[var(--jx-pc-gap,8px)] [position-try-fallbacks:flip-block,flip-inline] [position-try:flip-block,flip-inline] [position-visibility:anchors-visible] w-fit max-w-[min(88vw,18rem)] text-popover-foreground',
+    'jx-pc jx-surface',
+    cx(pcStyles.panel),
     motion.supported && 'jx-waapi',
   )}
   data-variant={d.variant}
@@ -233,24 +252,24 @@
   <div data-jx-pc-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
-  <div data-jx-pc-surface="" class="jx-surface-body flex flex-col gap-[var(--jx-gap)] px-[var(--jx-inset)] py-[var(--jx-stack)]">
+  <div data-jx-pc-surface="" class="jx-surface-body {cx(pcStyles.surfaceBody)}">
   {#if content}
     {@render content()}
   {:else}
-    <p id={titleId} data-jx-pc-title="" class="font-nav text-xs tracking-[0.08em] uppercase text-foreground">{title}</p>
+    <p id={titleId} data-jx-pc-title="" class={cx(pcStyles.title)}>{title}</p>
     {#if description}
-      <p id={descId} data-jx-pc-desc="" class="text-[0.8125rem] leading-[1.5] text-muted-foreground">{description}</p>
+      <p id={descId} data-jx-pc-desc="" class={cx(pcStyles.description)}>{description}</p>
     {/if}
   {/if}
   {#if actions}
     {@render actions()}
   {:else}
-    <div data-jx-pc-actions="" class="flex justify-end gap-2">
+    <div data-jx-pc-actions="" class={cx(pcStyles.actions)}>
     <button
       type="button"
       data-jx-pc-btn=""
       data-jx-pc-cancel=""
-      class="jx-pc-btn min-h-[var(--jx-hit)] appearance-none border border-border bg-background px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] text-foreground font-nav tracking-[0.1em] uppercase cursor-pointer shadow-xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="jx-pc-btn {cx(pcStyles.button)}"
       bind:this={cancelEl}
       onclick={hide}
     >
@@ -263,10 +282,11 @@
       data-jx-pc-confirm-destructive={confirmTone === 'destructive' ? '' : undefined}
       data-jx-pc-confirm-primary={confirmTone !== 'destructive' ? '' : undefined}
       class={cn(
-        'jx-pc-btn min-h-[var(--jx-hit)] appearance-none border border-border bg-background px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] text-foreground font-nav tracking-[0.1em] uppercase cursor-pointer shadow-xs focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]',
+        'jx-pc-btn',
+        cx(pcStyles.button),
         confirmTone === 'destructive'
-          ? 'border-destructive bg-destructive text-destructive-foreground'
-          : 'border-primary text-primary',
+          ? cx(pcStyles.buttonDestructive)
+          : cx(pcStyles.buttonPrimary),
       )}
       onclick={confirm}
     >

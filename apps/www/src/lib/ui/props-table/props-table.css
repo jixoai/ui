@@ -1,0 +1,17 @@
+/*
+ * jixoai props-table lane-2 sheet (tailwindless one-shot Wave 1
+ * batch 1, 2026-09-16). The family's single css seam: the title's
+ * font-medium (500) — a theme-able value with NO token step today
+ * (the tier-2 law forbids the literal in atoms; reported as the
+ * --jx-weight-medium promotion candidate). Registered data-hook
+ * rule, :where()-wrapped at zero specificity under @layer
+ * components — consumer utilities in the later layer always win.
+ * Owner: site (never a registry item — www-only family).
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  :where([data-jx-props-table-title]) {
+    font-weight: 500;
+  }
+}

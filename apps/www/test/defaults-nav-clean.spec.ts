@@ -111,10 +111,15 @@ describe('the read consolidation through the contracts', () => {
   });
 
   it('section-card: tone literal slot drives the title register (own default, hero explicit)', () => {
+    // tailwindless one-shot (2026-09-16): the tone register rides the
+    // root's data-tone + the title data-hook (section-card.css rules)
+    // instead of a utility class string
     const everyday = render(SectionCard, { props: { title: 't', children } });
-    const everydayTitle = everyday.container.querySelector('h2')!;
-    expect(everydayTitle.className).not.toContain('text-[clamp');
+    const everydayRoot = everyday.container.querySelector('[data-jx-section]')!;
+    expect(everydayRoot.getAttribute('data-tone')).toBe('default');
+    expect(everyday.container.querySelector('h2')!.hasAttribute('data-jx-section-title')).toBe(true);
     const hero = render(SectionCard, { props: { title: 't', tone: 'hero', children } });
-    expect(hero.container.querySelector('h2')!.className).toContain('text-[clamp');
+    expect(hero.container.querySelector('[data-jx-section]')!.getAttribute('data-tone')).toBe('hero');
+    expect(hero.container.querySelector('h2')!.hasAttribute('data-jx-section-title')).toBe(true);
   });
 });

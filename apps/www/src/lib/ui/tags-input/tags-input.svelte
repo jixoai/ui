@@ -103,6 +103,7 @@
   import type { Density } from '$lib/density.svelte';
   import { TagsInputDefaults, type TagsInputSurfaceVariant } from './tags-input-defaults.svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import { tagsStyles } from './tags-input.stylex';
   import './tags-input.css';
 
   interface Props extends Omit<HTMLInputAttributes, 'value' | 'type'> {
@@ -157,6 +158,22 @@
     chrome: chromeProp = undefined,
     ...rest
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // the chrome axis ambient (inline read — see lib/control-chrome.svelte.ts)
   const ambientChrome = getContext<{ chrome?: ControlChrome }>(CONTROL_CHROME_KEY)?.chrome;
@@ -392,7 +409,7 @@
        semantics for custom elements and would render disabled="false"
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
-    class="contents"
+    class={cx(tagsStyles.bridge)}
     aria-hidden="true"
     {name}
     value={formValue}
@@ -405,8 +422,9 @@
     <div
       data-jx-tags-invalid={invalid ? '' : undefined}
       class={cn(
-        'jx-tags-shell flex flex-wrap items-center gap-[var(--jx-gap)] w-full max-w-full min-h-[var(--jx-hit)] px-[var(--jx-inset)] py-[var(--jx-gap)] border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
-        invalid && 'border-dashed',
+        'jx-tags-shell',
+        cx(tagsStyles.shell),
+        invalid && cx(tagsStyles.shellInvalid),
         className,
       )}
       role="listbox"
@@ -418,16 +436,17 @@
           role="option"
           aria-selected="true"
           class={cn(
-            'jx-tags-tag inline-flex items-center gap-[var(--jx-gap)] min-h-[var(--jx-row-min)] ps-[var(--jx-inset)] border border-border bg-muted text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] transition-[border-color] duration-100 ease-out',
-            tag.removable === false && 'pe-2',
-            tag.value === flashValue && 'jx-tags-flash border-primary animate-[jx-tags-shake_150ms_ease-in-out]',
+            'jx-tags-tag',
+            cx(tagsStyles.chip),
+            tag.removable === false && cx(tagsStyles.chipFixedEnd),
+            tag.value === flashValue && 'jx-tags-flash ' + cx(tagsStyles.chipFlash),
           )}
         >
-          <span data-jx-tags-tag-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{tag.label ?? tag.value}</span>
+          <span data-jx-tags-tag-label class={cx(tagsStyles.chipLabel)}>{tag.label ?? tag.value}</span>
           {#if tag.removable !== false}
             <button
               type="button"
-              class="jx-tags-remove inline-flex items-center justify-center self-stretch min-w-[var(--jx-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-text)] leading-none cursor-pointer transition-[color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+              class={cn('jx-tags-remove', cx(tagsStyles.remove))}
               aria-label={`remove ${tag.label ?? tag.value}`}
               disabled={isDisabled}
               onclick={() => removeAt(index)}
@@ -440,7 +459,7 @@
         </span>
       {/each}
       {#if full}
-          <span data-jx-tags-full class="text-muted-foreground text-[length:var(--jx-text)] leading-[var(--jx-row-min)]">{tags.length}/{maxTags} tags</span>
+          <span data-jx-tags-full class={cx(tagsStyles.full)}>{tags.length}/{maxTags} tags</span>
       {:else}
         <input
           bind:this={inputEl}
@@ -460,7 +479,7 @@
           autocapitalize="off"
           spellcheck="false"
           data-jx-tags-input
-          class="jx-html-control-lane flex-[1_1_0%] min-w-0 min-h-[var(--jx-row-min)] p-0 border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] placeholder:text-muted-foreground placeholder:opacity-100"
+          class={cn('jx-html-control-lane', cx(tagsStyles.input))}
           {placeholder}
           disabled={isDisabled}
           oninput={onInput}
@@ -488,14 +507,14 @@
          unreachable from WAAPI — the kernel animates it in lockstep
          (Owner ruling r18) -->
     <div data-jx-tags-panel-body class="jx-surface-body">
-    <div data-jx-tags-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
+    <div data-jx-tags-scroll class={cx(tagsStyles.scroll)}>
     {#if filtered.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
       <ul
         id={listboxId}
         data-jx-tags-list
-        class="m-0 p-0 list-none"
+        class={cx(tagsStyles.list)}
         role="listbox"
         aria-label={label ? `${label} suggestions` : 'suggestions'}
         onmousedown={(event) => event.preventDefault()}
@@ -511,9 +530,10 @@
             aria-selected={tags.some((tag) => tag.value === suggestion.value) ? 'true' : 'false'}
             data-jx-tags-suggestion-active={index === active ? '' : undefined}
             class={cn(
-              'jx-tags-suggestion px-[var(--jx-inset)] py-[var(--jx-gap)] min-h-[var(--jx-hit)] text-[length:var(--jx-text)] leading-[var(--jx-leading)] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
-              index === active && 'bg-terminal-hover text-terminal-foreground',
-              tags.some((tag) => tag.value === suggestion.value) && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
+              'jx-tags-suggestion',
+              cx(tagsStyles.suggestion),
+              index === active && cx(tagsStyles.rowActive),
+              tags.some((tag) => tag.value === suggestion.value) && cx(tagsStyles.rowActive, tagsStyles.rowAddedEdge),
             )}
             onclick={() => addTag(suggestion)}
           >

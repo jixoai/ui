@@ -26,11 +26,17 @@
   ONLY the sibling seam (a `> * + *` boundary no utility may own) and
   the @supports interpolate-size gate stay in accordion.css (D1-exempt
   residue, static @layer components).
+
+  tailwindless one-shot W1 (2026-09-17): the frame and ghost paint
+  ride the family's stylex ATOMS (accordion.stylex.ts — structural
+  constants verbatim, theme slots on tokens/ruler channels); the css
+  keeps the sibling seam + the interpolate-size gate.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { fromAction } from 'svelte/attachments';
   import { cn } from '$lib/utils';
+  import { accordionStyles } from './accordion.stylex';
   import './accordion.css';
 
   interface Props {
@@ -45,6 +51,23 @@
   }
 
   let { exclusive = false, ghost = false, children, class: className = '' }: Props = $props();
+
+  // the payload's own join (separator's serialize law, tailwindless
+  // task 2.1): stylex members are objects in dev and joined strings
+  // in shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined), never a raw
+  // interpolation (an object renders [object Object]).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   /** capture-phase toggle delegation (see header note); parameterized so
    *  a dynamic `exclusive` flip takes effect without a remount. Mounted
@@ -74,11 +97,7 @@
 
 <div
   data-jx-accordion-ghost={ghost ? '' : undefined}
-  class={cn(
-    'jx-accordion flex flex-col box-border border border-border bg-card rounded',
-    ghost && 'border-transparent bg-transparent',
-    className,
-  )}
+  class="jx-accordion {cn(cx(accordionStyles.group, ghost && accordionStyles.ghost), className)}"
   {@attach fromAction(exclusiveGuard, () => exclusive)}
 >
   {@render children()}

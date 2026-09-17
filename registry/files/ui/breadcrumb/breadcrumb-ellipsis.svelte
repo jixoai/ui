@@ -10,6 +10,7 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { breadcrumbStyles } from './breadcrumb.stylex';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
@@ -21,12 +22,26 @@
   // the ambient density stamp resolves through the family contract
   // (no-opinion slot: no explicit prop, inherited else nothing)
   const d = $derived(BreadcrumbDefaults.resolve({}));
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <span
   data-jx-breadcrumb-ellipsis=""
   data-density={d.density}
-  class={cn('text-muted-foreground tracking-normal select-none', className)}
+  class={cn(cx(breadcrumbStyles.ellipsis), className)}
   {...rest}
   aria-hidden="true"
 >…</span>

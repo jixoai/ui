@@ -167,9 +167,11 @@ describe('Alert', () => {
     });
     const alert = container.querySelector('[role="status"]')!;
     expect(alert.getAttribute('data-jx-alert')).toBe('outline');
-    // ladder surface: transparent ground + --jx-outline border (no card bg)
-    expect(alert.className).toContain('bg-transparent');
-    expect(alert.className).toContain('[border-color:var(--jx-outline)]');
+    // ladder surface: transparent ground + --jx-outline border (no
+    // card bg) — the StyleX edition (tailwindless W1 batch 3): the
+    // surfaceOutline atom carries the recipe; utility-shaped
+    // expectations went with the utilities
+    expect(alert.className).toContain('alert__alertStyles.surfaceOutline');
     expect(alert.querySelector('[data-jx-alert-title]')?.textContent).toContain('Deployed');
   });
 
@@ -186,10 +188,12 @@ describe('Alert', () => {
     const alert = container.querySelector('[role="alert"]')!;
     expect(alert.getAttribute('data-jx-alert')).toBe('tonal');
     // design.md §1 tonal recipe + the §3 STATUS injection riding class
-    expect(alert.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
+    // (StyleX edition: surfaceTonal carries the 12% recipe, titleTonal
+    // the variant ink)
+    expect(alert.className).toContain('alert__alertStyles.surfaceTonal');
     expect(alert.className).toContain('jx-hue-error');
     const title = alert.querySelector('[data-jx-alert-title]')!;
-    expect(title.className).toContain('[color:var(--jx-tonal)]');
+    expect(title.className).toContain('alert__alertStyles.titleTonal');
   });
 });
 

@@ -1,14 +1,15 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
-/* jixoai transfer — D1-exempt residue (tw4, 2026-08-24): panels, rows,
- * movers and the search lanes paint as token utilities in the markup
- * (the disabled dims ride conditional/disabled: utilities). What
- * remains here:
+
+/* jixoai transfer — D1-exempt residue. Panels, rows, movers and the
+ * search lanes paint as stylex ATOMS since tailwindless W1
+ * (2026-09-17 — transfer.stylex.ts). What remains here:
  *  - the phones @container stacking law (@container size math has no
  *    utilities) — UNLAYERED because it overrides the root's own flex
- *    utilities when it matches (the Part A carve-out precedent);
- *  - the row/mover hover poses and the focus laws (unlayered :where()
- *    carve-out). */
+ *    posture when it matches (the Part A carve-out precedent);
+ *  - the row/mover hover poses, the focus laws, and the mover's
+ *    disabled dim (moved from disabled: utilities — state seams;
+ *    unlayered :where() carve-out). */
 
 /* phones: the two panels stack, movers sit between them */
 @container (max-width: 480px) {
@@ -28,6 +29,10 @@
 :where(.jx-tr-search:focus) {
   outline: 1px solid var(--ring);
   outline-offset: -1px;
+}
+:where(.jx-tr-move:disabled) {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 :where(.jx-tr-move:hover:not(:disabled)) {
   border-color: var(--primary);

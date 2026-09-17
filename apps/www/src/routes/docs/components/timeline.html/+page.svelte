@@ -43,7 +43,7 @@
   // $lib/site/timeline-docs.css (@layer components + :where(), Gate-4
   // fix 2026-09-16; registry: the tailwindless gate's semantics[]). No
   // Tailwind utility composes this markup anymore.
-  import { cx, tlDocs } from '$lib/surface/timeline-docs.stylex';
+  import { tlDocs } from '$lib/surface/timeline-docs.stylex';
   import '$lib/site/timeline-docs.css';
   import Timeline, {
     TimelineItem,
@@ -66,6 +66,22 @@
   import timelineTitleSource from '$lib/ui/timeline/timeline-title.svelte?raw';
   import timelineCssSource from '$lib/ui/timeline/timeline.css?raw';
   import timelineIndexSource from '$lib/ui/timeline/index.ts?raw';
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // catalog sync-binding: the hero summary IS the registry description;
   // a miss means registry.json meta drifted — fail loud, never patch copy.

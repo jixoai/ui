@@ -46,13 +46,14 @@
     terminal: snippet       the right-column demo (terminal-card)
     secondary?: snippet     extra outline CTAs after the copy button
 
-  tw4 (2026-08-24): the entrance cascade rides an animate-* arbitrary
-  utility per step (delay through an animation-delay arbitrary
-  property); the keyframes + the reduced-motion kill stay in
-  hero-section.css (D1-exempt residue). composition-first adds the
-  title-em accent rule — caller-authored content, so a :where()
-  components-layer descendant rule is the only route (consumer
-  utilities still win by the layer law).
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the paint
+  rides the family's stylex ATOMS (hero-section.stylex.ts) joined
+  through cx() — the entrance cascade's channel/delay seam + the
+  container/viewport tiers are atoms; the keyframes + the
+  reduced-motion kill stay in hero-section.css (D1-exempt residue).
+  composition-first keeps the title-em accent rule — caller-authored
+  content, so a :where() components-layer descendant rule is the only
+  route (consumer utilities still win by the layer law).
   (props-discipline sweep, 2026-08-25)
 -->
 <script lang="ts">
@@ -61,6 +62,7 @@
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { heroStyles } from './hero-section.stylex';
   import './hero-section.css';
 
   interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
@@ -102,10 +104,27 @@
   let copied = $state(false);
   let copyTimer: ReturnType<typeof setTimeout> | undefined;
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
   // one cascade law: the entrance animation + its per-step delay (the
-  // rise offset varies per step through --jx-hero-rise)
-  const step =
-    'jx-hero-step animate-[jx-hero-rise_480ms_cubic-bezier(0.22,1,0.36,1)_backwards] [animation-delay:var(--jx-hero-delay,0ms)]';
+  // rise offset varies per step through --jx-hero-rise); the atom
+  // carries the channel, the jx-hero-step hook keeps the css laws
+  // (keyframes + the reduced-motion kill)
+  const step = `jx-hero-step ${cx(heroStyles.step)}`;
 
   const copyCommandToClipboard = async () => {
     try {
@@ -129,7 +148,7 @@
 </script>
 
 <section
-  class={cn('@container/jx-hero mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8', className)}
+  class={cn(cx(heroStyles.shell), className)}
   {...rest}
 >
   <!-- the container tier: ≥64rem CONTENT (the section is the container —
@@ -137,36 +156,36 @@
        tracks are the ergonomic print-measure idiom; the aside drops
        below the tier -->
   <div
-    class="grid @min-[64rem]/jx-hero:grid-cols-[minmax(0,1fr)_minmax(10.5cm,13cm)] @min-[64rem]/jx-hero:items-end gap-10 @min-[64rem]/jx-hero:gap-14"
+    class={cx(heroStyles.row)}
   >
-    <div class="min-w-0">
-      <p class="{step} font-nav text-primary-text text-[11px] uppercase tracking-[0.24em]" style="--jx-hero-delay: 0ms">
+    <div class={cx(heroStyles.lead)}>
+      <p class="{step} {cx(heroStyles.eyebrow)}" style="--jx-hero-delay: 0ms">
         {eyebrow}
       </p>
       {#if title}
         <h1
           data-jx-hero-title=""
-          class="{step} mt-4 max-w-[min(100%,22cm)] text-[clamp(2.4rem,6cqi,4.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
+          class="{step} {cx(heroStyles.title)}"
           style="--jx-hero-delay: 60ms; --jx-hero-rise: 14px"
         >
           {@render title()}
         </h1>
       {/if}
       <p
-        class="{step} text-muted-foreground mt-5 max-w-[min(100%,16cm)] text-pretty text-[15px] leading-6 sm:text-base sm:leading-7"
+        class="{step} {cx(heroStyles.summary)}"
         style="--jx-hero-delay: 120ms"
       >
         {summary}
       </p>
       {#if badges}
         <div
-          class="{step} text-muted-foreground font-nav mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.14em]"
+          class="{step} {cx(heroStyles.badges)}"
           style="--jx-hero-delay: 160ms"
         >
           {@render badges()}
         </div>
       {/if}
-      <div class="{step} mt-8 flex flex-wrap gap-3" style="--jx-hero-delay: 200ms">
+      <div class="{step} {cx(heroStyles.ctaRow)}" style="--jx-hero-delay: 200ms">
         {#if copy}
           {@render copy()}
         {:else}
@@ -180,11 +199,11 @@
               <!-- Icon component glyphs (full lucide copy geometry — the
                    hand-simplified variant retired 2026-08-29); the copied
                    check rides a strokier strokeWidth prop -->
-              <span class="inline-flex">
+              <span class={cx(heroStyles.iconLane)}>
                 <Icon name="check" strokeWidth={2.5} />
               </span>
             {:else}
-              <span class="inline-flex">
+              <span class={cx(heroStyles.iconLane)}>
                 <Icon name="copy" />
               </span>
             {/if}
@@ -197,7 +216,7 @@
       </div>
     </div>
     {#if terminal}
-      <div class="{step} min-w-0" style="--jx-hero-delay: 260ms; --jx-hero-rise: 12px">
+      <div class="{step} {cx(heroStyles.aside)}" style="--jx-hero-delay: 260ms; --jx-hero-rise: 12px">
         {@render terminal()}
       </div>
     {/if}

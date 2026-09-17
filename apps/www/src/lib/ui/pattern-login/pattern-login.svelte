@@ -16,15 +16,18 @@
   patched, no atom paint re-implemented here; every behavior lives in
   the atoms this item declares as registryDependencies.
 
-  tw4: paint is token utilities in the markup; pattern-login.css keeps
-  only the D1-exempt residue — the ascii `+` corner brackets no utility
-  can generate (pseudo-element content).
+  tw4 → tailwindless Wave 1 batch 3 (2026-09-17): the paint rides the
+  family's stylex ATOMS (pattern-login.stylex.ts, shared with the OTP
+  screen) joined through cx(); pattern-login.css keeps only the
+  D1-exempt residue — the ascii `+` corner brackets no utility can
+  generate (pseudo-element content).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Icon from '$lib/ui/icon';
   import Input from '$lib/ui/input/input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { loginStyles } from './pattern-login.stylex';
   import './pattern-login.css';
 
   interface Props {
@@ -78,29 +81,45 @@
     clearTimeout(bootTimer);
     bootTimer = setTimeout(() => (bootCopied = false), 1400);
   }
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <section
   data-jx-pattern-login=""
-  class={`jx-pattern-login box-border mx-auto w-full max-w-[26rem] border border-border bg-card rounded-(--radius) shadow ${className}`}
+  class={`jx-pattern-login ${cx(loginStyles.card)} ${className}`}
   aria-label="terminal login"
 >
-  <header data-jx-pattern-login-echo="" class="border-b border-border px-4 py-2.5" aria-hidden="true">
-    <p class="m-0 truncate font-nav text-xs tracking-[0.08em] text-muted-foreground">
-      <span class="text-primary">$</span>
+  <header data-jx-pattern-login-echo="" class={cx(loginStyles.band)} aria-hidden="true">
+    <p class={cx(loginStyles.echo)}>
+      <span class={cx(loginStyles.prompt)}>$</span>
       ssh {user || 'user'}@{host}
     </p>
   </header>
 
-  <form class="flex flex-col gap-4 px-4 py-5 sm:px-5" novalidate onsubmit={submit}>
+  <form class={cx(loginStyles.form)} novalidate onsubmit={submit}>
     <Input label="user" name="user" placeholder="operator" autocomplete="username" bind:value={user}>
       {#snippet innerInlineStart()}
-        <span class="font-nav text-muted-foreground" aria-hidden="true">user@</span>
+        <span class={cx(loginStyles.glyph)} aria-hidden="true">user@</span>
       {/snippet}
     </Input>
     <Input label="host" name="host" placeholder="server.example" autocomplete="url" bind:value={host}>
       {#snippet innerInlineStart()}
-        <span class="font-nav text-muted-foreground" aria-hidden="true">--host=</span>
+        <span class={cx(loginStyles.glyph)} aria-hidden="true">--host=</span>
       {/snippet}
     </Input>
     <!-- the passphrase reveal is the INPUT's contract (default ON, the
@@ -117,15 +136,15 @@
     {#if children}
       {@render children()}
     {/if}
-    <PressButton type="submit" variant="fill" class="mt-1">connect</PressButton>
+    <PressButton type="submit" variant="fill" class={cx(loginStyles.submitOffset)}>connect</PressButton>
   </form>
 
   <footer
     data-jx-pattern-login-boot=""
-    class="flex items-center gap-3 border-t border-border px-4 py-2.5"
+    class={cx(loginStyles.bandEnd, loginStyles.bootRow)}
   >
-    <code class="min-w-0 flex-1 truncate font-nav text-xs tracking-[0.04em] text-muted-foreground">
-      <span class="text-primary" aria-hidden="true">$</span>
+    <code class={cx(loginStyles.commandLine)}>
+      <span class={cx(loginStyles.promptMark)} aria-hidden="true">$</span>
       {command}
     </code>
     <PressButton
@@ -135,10 +154,10 @@
       ariaLabel={`${bootCopied ? 'copied' : 'copy'} ${command}`}
     >
       {#if bootCopied}
-        <span class="inline-flex"><Icon name="check" size={14} strokeWidth={2.5} /></span>
+        <span class={cx(loginStyles.iconLane)}><Icon name="check" size={14} strokeWidth={2.5} /></span>
         <span>copied</span>
       {:else}
-        <span class="inline-flex"><Icon name="copy" size={14} /></span>
+        <span class={cx(loginStyles.iconLane)}><Icon name="copy" size={14} /></span>
         <span>copy</span>
       {/if}
     </PressButton>

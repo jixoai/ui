@@ -145,6 +145,7 @@
   import { ambientLocale } from '$lib/locale.svelte';
   import Calendar from './calendar.svelte';
   import TimeStepper from './time-stepper.svelte';
+  import { datePickerStyles } from './date-picker.stylex';
   import './date-picker.css';
 
   // mode × showTime is a TYPE-LEVEL contract (enhance-picker-feedback):
@@ -402,11 +403,28 @@
       panelEl?.showPopover();
     }
   }
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-jx-date-field class="flex flex-col items-stretch gap-2 w-full">
+<div data-jx-date-field class={cx(datePickerStyles.field)}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-date-wrap class="relative block w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
+  <span data-jx-date-wrap class={cx(datePickerStyles.wrap)} style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <!-- jx-html-input (B3, ui-plugin-followup): the trigger's form-lane
          law is the standard layer's text-like control box — border, hit,
          inset, text/leading, hover/focus/disabled/invalid states all
@@ -421,7 +439,8 @@
       type="button"
       id={id}
       class={cn(
-        'jx-date-trigger jx-html-input flex items-center gap-3 text-start cursor-pointer',
+        'jx-date-trigger jx-html-input',
+        cx(datePickerStyles.trigger),
         className,
       )}
       popovertarget={panelId}
@@ -436,8 +455,7 @@
         data-jx-date-value
         data-jx-date-placeholder={!hasValue ? '' : undefined}
         class={cn(
-          'flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
-          !hasValue && 'text-muted-foreground',
+          cx(datePickerStyles.valueLane, !hasValue && datePickerStyles.valuePlaceholder),
         )}
       >{triggerText}</span>
       <!-- the calendar trigger = an ICON SLOT (B3): the glyph span paints
@@ -449,8 +467,8 @@
            the sheet; the .jx-date-chevron class stays the css hook. -->
       <span
         class={cn(
-          'jx-date-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
-          open && 'rotate-180',
+          'jx-date-chevron',
+          cx(datePickerStyles.chevron, open && datePickerStyles.chevronOpen),
         )}
         aria-hidden="true"
       ></span>
@@ -476,7 +494,7 @@
          presets are present — bare panels keep the original DOM. -->
     <div
       data-jx-date-surface
-      class={cn('jx-surface-body px-3.5 py-3', hasLane && 'flex items-stretch gap-3')}
+      class={cn('jx-surface-body', cx(datePickerStyles.surfacePad), hasLane && cx(datePickerStyles.surfaceLane))}
     >
       {#snippet calendar()}
         <!-- the embeddable calendar (2026-08-28 extraction): nav + grid +
@@ -509,13 +527,13 @@
             data-jx-date-presets
             role="group"
             aria-label="quick picks"
-            class="flex w-24 flex-none flex-col justify-start gap-0.5 max-h-56 overflow-y-auto border-r border-border pr-2"
+            class={cx(datePickerStyles.presetsLane)}
           >
             {#each laneEntries as entry (entry.label)}
               <button
                 type="button"
                 data-jx-date-preset
-                class="jx-date-nav-btn inline-flex w-full items-center justify-start h-7 px-2 text-start text-xs cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+                class={cn('jx-date-nav-btn', cx(datePickerStyles.presetBtn))}
                 onclick={() => commitPreset(entry)}
               >
                 {#if preset}{@render preset(entry)}{:else}{entry.label}{/if}
@@ -524,14 +542,14 @@
           </div>
         {/if}
         {#if hasLane || timeMode}
-          <div class="flex min-w-0 flex-col gap-2">
+          <div class={cx(datePickerStyles.laneCol)}>
             {@render calendar()}
             {#if timeMode}
               <!-- the showTime row: mutates ONLY the time part (the day is
                    preserved); live commit, the panel stays open -->
               <div
                 data-jx-date-timerow
-                class="flex items-center border-t border-border pt-2"
+                class={cx(datePickerStyles.timeRow)}
               >
                 <TimeStepper value={timeValue} oncommit={commitTime} idPrefix="{id}-time" />
               </div>
@@ -545,6 +563,6 @@
   </div>
 
   {#if invalid}
-    <p id={errorId} class="jx-error"><span data-jx-date-error-mark class="font-bold text-destructive" aria-hidden="true">!</span>{error}</p>
+    <p id={errorId} class="jx-error"><span data-jx-date-error-mark class={cx(datePickerStyles.errorMark)} aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>

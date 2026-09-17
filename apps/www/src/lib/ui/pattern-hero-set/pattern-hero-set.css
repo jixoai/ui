@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai pattern-hero-set css — D1-exempt residue (tw4, 2026-08-30).
  * ONLY the marquee machinery lives here: the seamless-loop track
@@ -15,6 +16,24 @@
 }
 
 @layer components {
+  /* ── the tailwindless lane-2 seam (Wave 1, 2026-09-17) ─────────────
+     Ratio/weight rungs atoms cannot carry (NO tokens yet — reported
+     MISSING: --jx-leading-tight 1.1, --jx-leading-title 1.2,
+     --jx-weight-bold 700, --track-tight -0.02em) + the thin-scrollbar
+     lanes, keyed on the heroes' own data hooks. */
+  :where([data-jx-hero-ascii-art]) {
+    line-height: 1.1;
+    scrollbar-width: thin;
+  }
+  :where([data-jx-hero-marquee-title]) {
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-12);
+    letter-spacing: var(--track-tight);
+  }
+  :where([data-jx-hero-marquee-strip]) {
+    scrollbar-width: thin;
+  }
+
   :where(.jx-hero-marquee-track) {
     --jx-hero-marquee-gap: 1.75rem;
     display: flex;

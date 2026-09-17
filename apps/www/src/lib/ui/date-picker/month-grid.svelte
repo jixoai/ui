@@ -33,6 +33,7 @@
   import { cn } from '$lib/utils';
   import { monthNames, pad2 } from './calendar-math';
   import { ambientLocale } from '$lib/locale.svelte';
+  import { datePickerStyles } from './date-picker.stylex';
   import './date-picker.css';
 
   interface Props {
@@ -168,25 +169,42 @@
   export function focusGrid(): void {
     gridEl?.focus();
   }
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div data-jx-month-grid>
   <!-- same seam law as calendar.svelte's date nav: a positive mb-1
        section gap, not the old -mb-2.5 band overlap -->
-  <div data-jx-month-nav class="flex items-center justify-between gap-2 mb-1">
+  <div data-jx-month-nav class={cx(datePickerStyles.navRow)}>
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class={cn('jx-date-nav-btn', cx(datePickerStyles.navBtn))}
       aria-label="previous year"
       disabled={prevDisabled}
       onclick={() => (viewYear -= 1)}
     >
       <Icon name="chevronLeft" strokeWidth={2.5} />
     </button>
-    <span data-jx-month-year class="font-nav text-[11px] tracking-[0.2em] uppercase">{viewYear}</span>
+    <span data-jx-month-year class={cx(datePickerStyles.monthLabel)}>{viewYear}</span>
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class={cn('jx-date-nav-btn', cx(datePickerStyles.navBtn))}
       aria-label="next year"
       disabled={nextDisabled}
       onclick={() => (viewYear += 1)}
@@ -198,7 +216,7 @@
   <div
     bind:this={gridEl}
     id={`${idPrefix}-grid`}
-    class="jx-date-grid flex flex-col gap-0.5"
+    class={cn('jx-date-grid', cx(datePickerStyles.gridCol))}
     role="grid"
     tabindex="-1"
     aria-label="months"
@@ -206,7 +224,7 @@
     onkeydown={onGridKeydown}
   >
     {#each rows as row}
-      <div role="row" data-jx-month-row class="grid grid-cols-[repeat(3,2rem)] gap-0.5">
+      <div role="row" data-jx-month-row class={cx(datePickerStyles.monthRow)}>
         {#each row as cell (cell.ym)}
           <!-- cells are click-only BY PATTERN (calendar.svelte law): the
                keyboard path rides the focusable grid + the
@@ -217,9 +235,16 @@
             id={`${idPrefix}-m-${cell.ym}`}
             data-jx-date-out={cell.disabled ? '' : undefined}
             class={cn(
-              'jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] font-nav text-[11px] leading-none cursor-pointer select-none transition-[background-color,color] duration-100 ease-out',
-              cell.anchor && 'jx-date-fill bg-primary text-primary-foreground',
-              cell.disabled && 'jx-date-off opacity-30 cursor-not-allowed',
+              'jx-date-day',
+              cx(
+                datePickerStyles.dayBase,
+                datePickerStyles.dayCell,
+                datePickerStyles.dayMonth,
+                cell.anchor && datePickerStyles.dayFill,
+                cell.disabled && datePickerStyles.dayOff,
+              ),
+              cell.anchor && 'jx-date-fill',
+              cell.disabled && 'jx-date-off',
               cell.ym === activeYm && 'jx-date-active',
             )}
             aria-selected={cell.anchor ? 'true' : 'false'}

@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai file-input — D1-exempt residue (tw4, 2026-08-24): the static
  * paint (size knobs as arbitrary-property utilities per size, zone /
@@ -22,6 +23,18 @@
     width: 100%;
     height: 100%;
   }
+  /* the kind glyphs' lighter stroke (tailwindless Wave 1 batch 3,
+     2026-09-17 — the old [&_svg]:stroke-[1.75] utility; a descendant
+     boundary, StyleX atoms cannot express it) */
+  :where(.jx-file-icon) :where(svg) {
+    stroke-width: 1.75;
+  }
+  /* the BUTTON trigger's upload glyph: 90% of the icon knob (the old
+     [&_svg]:w/h-[calc(var(--jx-file-icon)*0.9)] utilities) */
+  :where([data-jx-file-trigger-glyph]) :where(svg) {
+    width: calc(var(--jx-file-icon) * 0.9);
+    height: calc(var(--jx-file-icon) * 0.9);
+  }
   /* ant picture-list: hairline between consecutive file rows */
   :where(.jx-file-row + .jx-file-row) {
     border-top: 1px solid var(--border);
@@ -39,7 +52,7 @@
    their transient lift — a DRAG state, not a hover state. */
 :where(.jx-file) :is(.jx-file-zone, .jx-file-trigger) {
   box-shadow: var(--shadow-well);
-  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+  transition: box-shadow var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
 }
 :where(.jx-file) :is(.jx-file-zone:hover, .jx-file-trigger:hover) {
   box-shadow: var(--shadow-well-hover);

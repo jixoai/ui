@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 @layer components {
 /* jixoai tabs indicator — D1-exempt residue (tw4, 2026-09-01 tabs
@@ -143,4 +144,53 @@
       transition: none;
     }
   }
+}
+
+/* ── the trigger's interactive + slot seams (tailwindless one-shot,
+   2026-09-16) — UNLAYERED :where() (the menubar carve-out law): the
+   stylex tiers nest UNDER components (components.stylex.priorityN
+   sorts after the parent layer's direct rules), so anything that must
+   override the trigger's own ATOM paint (hover ink vs the idle/selected
+   color atoms, the slot half-insets vs the padding atom) rides the
+   unlayered level behind :where() — zero specificity, consumer css
+   still ties-wins there. NATIVE pseudos keyed on the data-jx-tab hook
+   (never JS data-attr state): the hover ink (only an enabled trigger),
+   the disabled pose, the focus-visible ring (hairline-width ring ink
+   at -1px), the color transition (no motion token exists — the
+   duration mirrors the theme sheet's own 150ms ease-out constant;
+   reported as the --jx-motion-fast promotion candidate), the
+   slot-vs-padding halves (the STATIC data-slot stamps the component
+   writes from its structural children-snippet branch — an icon-only
+   tab keeps the symmetric padding), and the icon svgs' secondary text
+   sizing. */
+:where([data-jx-tab]) {
+  transition:
+    color var(--motion-150) var(--motion-ease-out),
+    background-color var(--motion-150) var(--motion-ease-out),
+    border-color var(--motion-150) var(--motion-ease-out),
+    text-decoration-color var(--motion-150) var(--motion-ease-out),
+    fill var(--motion-150) var(--motion-ease-out),
+    stroke var(--motion-150) var(--motion-ease-out);
+}
+:where([data-jx-tab]:hover:not(:disabled)) {
+  color: var(--foreground);
+}
+:where([data-jx-tab]:disabled) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+:where([data-jx-tab]:focus-visible) {
+  outline: var(--hairline) solid var(--ring);
+  outline-offset: -1px;
+}
+:where([data-jx-tab][data-slot-start]) {
+  padding-inline-start: calc(var(--jx-inset) / 2);
+}
+:where([data-jx-tab][data-slot-end]) {
+  padding-inline-end: calc(var(--jx-inset) / 2);
+}
+:where([data-icon='inline-start']) > svg,
+:where([data-icon='inline-end']) > svg {
+  width: var(--jx-text-secondary);
+  height: var(--jx-text-secondary);
 }

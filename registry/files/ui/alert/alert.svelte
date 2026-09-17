@@ -52,17 +52,19 @@
   'auto' with polite (the default). The × button rides INSIDE the
   live region (the toast-viewport family precedent, Owner ruling).
 
-  tw4 (2026-08-24): utility-authored — the banner paint composes from
-  token utilities (layer law: consumer utilities always win); variant
-  maps to ground/border/title color utilities per prop. ONLY the
-  passed-through icon-glyph normalization (a descendant boundary)
-  stays in alert.css; `jx-alert*` classes are semantic hooks, css
-  defines them not.
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  paint rides the family's stylex ATOMS (alert.stylex.ts) joined
+  through cx() — the ladder maps variant → atom groups for the
+  surface/title/body ink; consumer classes still win (the F9 layer
+  law). ONLY the passed-through icon-glyph normalization (a descendant
+  boundary) stays in alert.css; `jx-alert*` classes are semantic
+  hooks, css defines them not.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
   import { AlertDefaults, type AlertVariant } from './alert-defaults.svelte';
+  import { alertStyles } from './alert.stylex';
   import './alert.css';
 
   interface Props {
@@ -116,29 +118,45 @@
   // stamps, the ambient css scope channel keeps flowing
   const d = $derived(AlertDefaults.resolve({ variant }));
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
   // variant grounds (design.md §1 recipes, verbatim) — the ladder
   // surface REPLACES the card ground; the border + hard offset shadow
-  // are the terminal material law and stay. Each rung carries its
-  // design §6 forced-colors degradation: the color-mix tints do NOT
-  // drop on their own under forced colors (probed, r2) — Canvas +
-  // CanvasText with the 1px border surviving is the lawful result.
-  const surface = {
-    outline:
-      'bg-transparent [border-color:var(--jx-outline)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText]',
-    tonal: 'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText]',
-  } as const;
+  // are the terminal material law and stay (the banner atom). Each
+  // rung's atom carries its design §6 forced-colors degradation: the
+  // color-mix tints do NOT drop on their own under forced colors
+  // (probed, r2) — Canvas + CanvasText with the 1px border surviving
+  // is the lawful result.
+  const surface: Record<AlertVariant, string> = {
+    outline: cx(alertStyles.surfaceOutline),
+    tonal: cx(alertStyles.surfaceTonal),
+  };
   // the title consumes the variant ink; the BODY consumes it too on
   // the tonal rung (r2 blocker fix: an error banner no longer paints
   // a red title over gray body copy) — outline keeps the muted body,
   // the neutral rung's own ink ramp for long copy
-  const titleColor = {
-    outline: 'text-foreground forced-colors:text-[CanvasText]',
-    tonal: '[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
-  } as const;
-  const bodyColor = {
-    outline: 'text-muted-foreground forced-colors:text-[CanvasText]',
-    tonal: 'text-[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
-  } as const;
+  const titleColor: Record<AlertVariant, string> = {
+    outline: cx(alertStyles.titleOutline),
+    tonal: cx(alertStyles.titleTonal),
+  };
+  const bodyColor: Record<AlertVariant, string> = {
+    outline: cx(alertStyles.bodyOutline),
+    tonal: cx(alertStyles.bodyTonal),
+  };
 
   // ---- the dismissal timer (grindstone #17-1) — the notice.ts law
   // inlined: armed once at mount, re-armed when dismissAfter (or the
@@ -169,31 +187,27 @@
   <button
     type="button"
     data-jx-alert-dismiss=""
-    class="flex-none appearance-none inline-flex items-center justify-center self-center min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] border-0 bg-transparent p-0 font-nav text-[0.9375rem] font-bold leading-none text-muted-foreground cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px] ms-auto"
+    class={cx(alertStyles.dismissBtn)}
     aria-label={dismissLabel ?? 'dismiss'}
     onclick={() => onDismiss?.('button')}
   ><span aria-hidden="true">×</span></button>
 {/snippet}
 
 <div
-  class={cn(
-    `flex flex-col gap-1.5 box-border border px-3.5 py-3 shadow-2xs rounded`,
-    surface[d.variant],
-    className,
-  )}
+  class={cn(cx(alertStyles.banner), surface[d.variant], className)}
   data-jx-alert={d.variant}
   role={assertive ? 'alert' : 'status'}
 >
   {#if title}
-    <p data-jx-alert-title="" class={cn('flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[d.variant])}>
-      {#if icon}<span class="jx-alert-icon inline-flex">{@render icon()}</span>{/if}{title}
+    <p data-jx-alert-title="" class={cn(cx(alertStyles.titleRow), titleColor[d.variant])}>
+      {#if icon}<span class="jx-alert-icon {cx(alertStyles.iconLane)}">{@render icon()}</span>{/if}{title}
       {#if dismiss}{@render dismissButton()}{/if}
     </p>
   {:else if dismiss}
-    <div data-jx-alert-dismiss-row="" class="flex justify-end">{@render dismissButton()}</div>
+    <div data-jx-alert-dismiss-row="" class={cx(alertStyles.dismissRow)}>{@render dismissButton()}</div>
   {/if}
   {#if children}
-    <div data-jx-alert-body="" class={cn('text-[0.8125rem] leading-[1.55]', bodyColor[d.variant])}>
+    <div data-jx-alert-body="" class={cn(cx(alertStyles.bodyText), bodyColor[d.variant])}>
       {@render children()}
     </div>
   {/if}

@@ -188,7 +188,9 @@ describe('toast v2 — the stacking dialect (viewport)', () => {
     const stack = container.querySelector('[data-jx-toasts]') as HTMLElement;
     expect(stack.getAttribute('data-expanded')).toBeNull(); // collapsed at rest
     const wrappers = [...stack.children].filter((c) =>
-      (c as HTMLElement).className.includes('grid-area'),
+      // tailwindless W1: the wrapper atom's dev name (the grid-area
+      // declaration itself is css-source in toast.stylex.ts)
+      (c as HTMLElement).className.includes('toastStyles.wrapper'),
     ) as HTMLElement[];
     expect(wrappers).toHaveLength(2);
     // the FRONT (newest, i=0) shows its description; the rear slab (i=1)
@@ -200,8 +202,14 @@ describe('toast v2 — the stacking dialect (viewport)', () => {
     expect(front!.style.getPropertyValue('--jx-toast-y')).toBe('0px');
     expect(rear!.style.getPropertyValue('--jx-toast-y')).toBe('-8px'); // -gap·1
     expect(rear!.style.getPropertyValue('--jx-toast-scale')).toBe('0.95');
-    expect(rear!.querySelector('[data-jx-toast-desc]')!.className).toContain('text-transparent');
-    expect(front!.querySelector('[data-jx-toast-desc]')!.className).not.toContain('text-transparent');
+    // tailwindless W1: the withheld ink rides the inkTransparent atom
+    // (dev names may spell letter-by-letter — compare stripped)
+    expect(rear!.querySelector('[data-jx-toast-desc]')!.className.replace(/\s+/g, '')).toContain(
+      'toastStyles.inkTransparent',
+    );
+    expect(front!.querySelector('[data-jx-toast-desc]')!.className.replace(/\s+/g, '')).not.toContain(
+      'toastStyles.inkTransparent',
+    );
   });
 
   it('hovering the stack expands it; leaving collapses (unless expand is forced)', async () => {
@@ -482,7 +490,7 @@ describe('toast v2 — R3 adversarial regressions', () => {
     });
     await new Promise((r) => setTimeout(r, 0));
     const trail = container.querySelector('[data-jx-toast-trailing]') as HTMLElement;
-    expect(trail.style.getPropertyValue('grid-area') + trail.className).toContain('grid-area:trail');
+    expect(trail.style.getPropertyValue('grid-area') + trail.className).toContain('toastStyles.trailing');
     // css-source: the template carries four lanes
     const css = readFileSync('src/lib/ui/toast/toast.css', 'utf8');
     expect(css).toContain("grid-template-areas: 'leading body trail close'");

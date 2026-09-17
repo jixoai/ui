@@ -178,8 +178,12 @@ describe('Breadcrumb family', () => {
     expect(link.className).toContain('text-primary');
     expect(link.className).not.toContain('text-muted-foreground');
     expect(link.className).not.toContain('text-accent');
-    // the part's non-conflicting paint survives the merge
-    expect(link.className).toContain('hover:text-primary');
+    // the part's non-conflicting paint survives the merge — the hover
+    // ink rides the link ATOM's pseudo condition since tailwindless W1
+    // (the state classes ride the joined string; the css is the
+    // engine's :hover rule)
+    expect(link.className).toContain('breadcrumbStyles.link');
+    expect(link.className).toContain('jx-bc-link');
   });
 
   it('Separator: the chevron build hook ships, and a children snippet swaps the glyph', async () => {

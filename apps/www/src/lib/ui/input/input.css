@@ -1,3 +1,5 @@
+@layer properties, theme, base, components, utilities;
+
 /**
  * input.css — the custom-control bridge (2026-08-28; full coverage
  * 2026-08-29, OpenSpec 2026-08-29-input-native-controls).
@@ -43,7 +45,6 @@
  *    CSS :placeholder-shown/:focus-visible/:has ink states, additive
  *    under the .jx-floating modifier) — 2026-08-30
  */
-@layer theme, base, components, utilities;
 
 @layer components {
   /* ---- the clearable ✕ owns the clear job --------------------------------
@@ -158,7 +159,7 @@
     background: transparent;
     color: var(--muted-foreground);
     cursor: pointer;
-    transition: color 150ms ease-out;
+    transition: color var(--motion-150) var(--motion-ease-out);
   }
   :where(button.jx-input-prefix-icon-button):hover:not(:disabled),
   :where(button.jx-input-suffix-icon-button):hover:not(:disabled) {
@@ -204,7 +205,7 @@
     background: transparent;
     color: var(--muted-foreground);
     cursor: pointer;
-    transition: color 150ms ease-out;
+    transition: color var(--motion-150) var(--motion-ease-out);
   }
   :where(button.jx-input-reveal):hover:not(:disabled) {
     color: var(--foreground);
@@ -327,9 +328,9 @@
     background: var(--background);
     font-family: var(--font-nav);
     font-size: var(--jx-text-secondary, 11px);
-    letter-spacing: 0.2em;
+    letter-spacing: var(--track-20);
     text-transform: uppercase;
-    line-height: 1;
+    line-height: var(--leading-none);
     color: var(--muted-foreground);
     z-index: 1;
   }
@@ -377,6 +378,18 @@
   /* Popovers get a ::backdrop too; light dismiss must never dim the page. */
   :where(.jx-picker-panel)::backdrop {
     background: transparent;
+  }
+
+  /* ---- the inline lanes' none rung (tailwindless Wave 1, 2026-09-17)
+     The slot rows + the semantic glyph lane ride input.stylex.ts atoms;
+     their former leading-none utility (line-height: 1) has NO token —
+     the none rung lands here, keyed on the lanes' own data hooks.
+     Reported as a MISSING step (--jx-leading-none) for serial
+     promotion; the family sheet's own floating-label row already
+     carries the same literal. */
+  :where([data-jx-slot]),
+  :where([data-jx-semantic-icon]) {
+    line-height: var(--leading-none);
   }
 }
 

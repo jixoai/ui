@@ -229,10 +229,14 @@ describe('docs sections nav — components-tree mode', () => {
     await type('sel');
     // 'sel' is a substring of only select/native-select/carousel —
     // skeleton, website-scaffold and progressive-blur are FUZZY hits;
-    // the order is group order × registry order, never score order
+    // system-dialog too (s…e…l scattered in the name — re-probed
+    // 2026-09-16: the registry catch-up 6bd09896 landed the member
+    // after the table was first probed); the order is group order ×
+    // registry order, never score order
     expect(railTitles()).toEqual([
       'progressive-blur',
       'website-scaffold',
+      'system-dialog',
       'select',
       'native-select',
       'carousel',

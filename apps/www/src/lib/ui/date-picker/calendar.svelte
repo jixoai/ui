@@ -53,6 +53,7 @@
     weekdayNames,
   } from './calendar-math';
   import { ambientLocale } from '$lib/locale.svelte';
+  import { datePickerStyles } from './date-picker.stylex';
   import './date-picker.css';
 
   interface Props {
@@ -290,6 +291,34 @@
   export function focusGrid(): void {
     gridEl?.focus();
   }
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // the day-cell state ladder (JS-known): base geometry + the
+  // today/fill/tint/off states — the hover/active pose machines and
+  // the transitions live in date-picker.css keyed on the jx-date-*
+  // hooks (motion/state literals never ride atoms)
+  const dayStates = (cell: { today?: boolean; disabled?: boolean }) => [
+    datePickerStyles.dayBase,
+    datePickerStyles.dayCell,
+    cell.today && datePickerStyles.dayToday,
+    cell.disabled && datePickerStyles.dayOff,
+  ];
 </script>
 
 <div data-jx-calendar class={className} onpointerleave={() => (hoverIso = undefined)}>
@@ -298,23 +327,23 @@
        h-7 button boxes (28px) overlapped the h-6 header cells' tops,
        and a hovered nav button painted behind the weekday glyphs
        (Owner catch 2026-08-29: nav 与日期视图错位) -->
-  <div data-jx-date-nav class="flex items-center justify-between gap-2 mb-1">
+  <div data-jx-date-nav class={cx(datePickerStyles.navRow)}>
     <!-- nav glyphs through the Icon component; date-picker.css sizes
          any svg descendant to 13px, the strokier chevrons ride the
          strokeWidth prop -->
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class={cn('jx-date-nav-btn', cx(datePickerStyles.navBtn))}
       aria-label="previous month"
       disabled={prevDisabled}
       onclick={() => stepMonth(-1)}
     >
       <Icon name="chevronLeft" strokeWidth={2.5} />
     </button>
-    <span data-jx-date-month class="font-nav text-[11px] tracking-[0.2em] uppercase">{monthLabel}</span>
+    <span data-jx-date-month class={cx(datePickerStyles.monthLabel)}>{monthLabel}</span>
     <button
       type="button"
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class={cn('jx-date-nav-btn', cx(datePickerStyles.navBtn))}
       aria-label="next month"
       disabled={nextDisabled}
       onclick={() => stepMonth(1)}
@@ -326,20 +355,20 @@
   <div
     bind:this={gridEl}
     id={`${idPrefix}-grid`}
-    class="jx-date-grid flex flex-col gap-0.5"
+    class={cn('jx-date-grid', cx(datePickerStyles.gridCol))}
     role="grid"
     tabindex="-1"
     aria-label={ariaLabel}
     aria-activedescendant={activeCellId}
     onkeydown={onGridKeydown}
   >
-    <div role="row" data-jx-date-headrow class="grid grid-cols-[repeat(7,2rem)] gap-0.5">
+    <div role="row" data-jx-date-headrow class={cx(datePickerStyles.headRow)}>
       {#each weekdayHeads as wd, index (wd)}
-        <span role="columnheader" data-jx-date-weekday class="flex items-center justify-center h-6 font-nav text-[10px] tracking-[0.08em] uppercase text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]" aria-label={weekdayAria[index]}>{wd}</span>
+        <span role="columnheader" data-jx-date-weekday class={cx(datePickerStyles.weekday)} aria-label={weekdayAria[index]}>{wd}</span>
       {/each}
     </div>
     {#each weeks as week}
-      <div role="row" data-jx-date-weekrow class="grid grid-cols-[repeat(7,2rem)] gap-0.5">
+      <div role="row" data-jx-date-weekrow class={cx(datePickerStyles.weekRow)}>
         {#each week as cell (cell.iso)}
           {#if cell.out}
             <!-- out cells join the hover-week preview (the week is 7
@@ -350,8 +379,11 @@
               data-jx-date-out
               data-jx-date-week-hover={inHoverWeek(cell.iso) ? '' : undefined}
               class={cn(
-                'jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-default select-none opacity-35',
-                inHoverWeek(cell.iso) && 'bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
+                cx(
+                  datePickerStyles.dayBase,
+                  datePickerStyles.dayOut,
+                  inHoverWeek(cell.iso) && datePickerStyles.dayTint,
+                ),
               )}
               aria-hidden="true"
               onpointerenter={weekHover ? () => (hoverIso = cell.iso) : undefined}
@@ -368,12 +400,19 @@
               data-jx-date-in={inRange(cell.iso) ? '' : undefined}
               data-jx-date-week-hover={inHoverWeek(cell.iso) ? '' : undefined}
               class={cn(
-                'jx-date-day inline-flex items-center justify-center w-8 h-8 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] tabular-nums leading-none cursor-pointer select-none transition-[background-color,color] duration-100 ease-out',
-                cell.today && 'border-primary',
-                anchorSet.has(cell.iso) && 'jx-date-fill bg-primary text-primary-foreground',
-                inRange(cell.iso) && !anchorSet.has(cell.iso) && 'bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
-                inHoverWeek(cell.iso) && !anchorSet.has(cell.iso) && 'bg-[color-mix(in_oklab,var(--primary)_14%,transparent)]',
-                cell.disabled && 'jx-date-off opacity-30 cursor-not-allowed',
+                'jx-date-day',
+                cx(
+                  datePickerStyles.dayBase,
+                  datePickerStyles.dayCell,
+                  cell.today && datePickerStyles.dayToday,
+                  anchorSet.has(cell.iso) && datePickerStyles.dayFill,
+                  (inRange(cell.iso) || inHoverWeek(cell.iso)) &&
+                    !anchorSet.has(cell.iso) &&
+                    datePickerStyles.dayTint,
+                  cell.disabled && datePickerStyles.dayOff,
+                ),
+                anchorSet.has(cell.iso) && 'jx-date-fill',
+                cell.disabled && 'jx-date-off',
                 cell.iso === activeIso && 'jx-date-active',
               )}
               aria-selected={anchorSet.has(cell.iso) ? 'true' : 'false'}

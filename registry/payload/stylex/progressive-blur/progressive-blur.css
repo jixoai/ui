@@ -1,0 +1,105 @@
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
+  .x15r89dc {
+    grid-area: 1 / 1;
+  }
+
+  .x10a8y8t {
+    inset: 0;
+  }
+}
+
+@layer components.stylex.priority2 {
+  .x1osaytk {
+    grid-column: 1 / -1;
+  }
+
+  .x19bwqal {
+    grid-row: 1 / -1;
+  }
+
+  .x10no89f {
+    inset-block: 0;
+  }
+
+  .x17y0mx6 {
+    inset-inline: 0;
+  }
+}
+
+@layer components.stylex.priority3 {
+  .x7fd4wk {
+    align-self: end;
+  }
+
+  .x1y8v6su {
+    align-self: start;
+  }
+
+  .xkh2ocl {
+    align-self: stretch;
+  }
+
+  .xrvj5dj {
+    display: grid;
+  }
+
+  .xtijo5x {
+    inset-inline-end: 0;
+  }
+
+  .x1o0tod {
+    inset-inline-start: 0;
+  }
+
+  .x1qab1bc {
+    justify-self: end;
+  }
+
+  .x1lqcxt8 {
+    justify-self: start;
+  }
+
+  .x47corl {
+    pointer-events: none;
+  }
+
+  .x10l6tqk {
+    position: absolute;
+  }
+
+  .x7wzq59 {
+    position: sticky;
+  }
+
+  .x17dzmu4 {
+    transform: translateZ(0);
+  }
+
+  .x1n327nk {
+    z-index: 10;
+  }
+}
+
+@layer components.stylex.priority4 {
+  .x1ey2m1c {
+    bottom: 0;
+  }
+
+  .xqtp20y {
+    height: 0;
+  }
+
+  .x13vifvy {
+    top: 0;
+  }
+
+  .xnalus7 {
+    width: 0;
+  }
+}
+
+@layer utilities;
+/* buildId: 7119ccca8c08e569354ee25ccf3745534e92764eb2e7a0f2f9be5fa80bc54567 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

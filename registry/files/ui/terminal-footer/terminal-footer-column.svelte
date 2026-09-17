@@ -12,6 +12,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { terminalFooterStyles } from './terminal-footer.stylex';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** the column heading (omit for an untitled link stack) */
@@ -21,15 +22,29 @@
   }
 
   let { title, class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-jx-terminal-footer-column="" class={cn('flex min-w-0 flex-col gap-1.5', className)} {...rest}>
+<div data-jx-terminal-footer-column="" class={cn(cx(terminalFooterStyles.column), className)} {...rest}>
   {#if title}
-    <span class="font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
+    <span class={cx(terminalFooterStyles.columnTitle)}>
       {title}
     </span>
   {/if}
-  <div data-jx-terminal-footer-links="" class="flex min-w-0 flex-col items-start gap-1">
+  <div data-jx-terminal-footer-links="" class={cx(terminalFooterStyles.columnLinks)}>
     {@render children()}
   </div>
 </div>

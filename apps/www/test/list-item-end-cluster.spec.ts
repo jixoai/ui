@@ -55,7 +55,10 @@ describe('the row provides the flat-physics ambient (r3 follow-up)', () => {
       r.textContent.includes('raw lane row'),
     )!;
     const btn = row.querySelector('[data-jx-press-button]')!;
-    expect(btn.className).toContain('--jx-press-shadow:none');
+    // W1: the flat pose customs can no longer ride a utility seam — the
+    // button carries the flat stamp and press-button.css keys the none/
+    // none/engrave trio on it (the press-button.spec flat precedent)
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
   });
 });
 

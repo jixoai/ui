@@ -9,6 +9,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { stepsStyles } from './steps.stylex';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     class?: string;
@@ -16,11 +17,25 @@
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <span
   data-jx-step-description=""
-  class={cn('[font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] text-muted-foreground opacity-80', className)}
+  class={cn(cx(stepsStyles.description), className)}
   {...rest}
 >
   {@render children()}

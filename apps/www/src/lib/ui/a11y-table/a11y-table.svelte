@@ -1,8 +1,15 @@
 <!--
   jixoai A11yTable — the keyboard/ARIA reference table.
+
+  tailwindless one-shot W1 (2026-09-17): paint rides the table's own
+  stylex atoms (a11y-table.stylex.ts — the density channels flow as
+  plain var() strings); the heading's 500 weight rides the
+  .jx-a11y-heading lane-2 rule (a11y-table.css).
 -->
 <script lang="ts">
   import { cn } from '$lib/utils';
+  import { a11yTableStyles } from './a11y-table.stylex';
+  import './a11y-table.css';
 
   export interface KeyEntry {
     key: string;
@@ -16,17 +23,31 @@
   }
 
   let { keys = [], aria = [], class: className = '' }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class={cn('flex flex-col gap-[var(--jx-gap)]', className)}>
+<div class={cn(cx(a11yTableStyles.root), className)}>
   {#if keys.length > 0}
     <div>
-      <h4 class="font-nav mb-[var(--jx-stack)] text-[length:var(--jx-text)] font-medium">Keyboard</h4>
-      <table class="w-full border-collapse text-left">
+      <h4 class="jx-a11y-heading {cx(a11yTableStyles.heading)}">Keyboard</h4>
+      <table class={cx(a11yTableStyles.table)}>
         <thead>
-          <tr class="border-b border-border">
-            <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Key</th>
-            <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Action</th>
+          <tr class={cx(a11yTableStyles.headRow)}>
+            <th class={cx(a11yTableStyles.headCell)}>Key</th>
+            <th class={cx(a11yTableStyles.headCell)}>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -37,11 +58,11 @@
                collapsing whole pages to their last sections (the
                "gutted dialog/sheet" misdiagnosis) -->
           {#each keys as entry, i (entry.key + ':' + i)}
-            <tr class="border-b border-border/50">
-              <td class="py-[var(--jx-stack)] px-[var(--jx-inset)]">
-                <kbd class="border border-border bg-muted px-[calc(var(--jx-inset)/2)] py-[calc(var(--jx-stack)/3)] font-mono text-[length:var(--jx-text)]">{entry.key}</kbd>
+            <tr class={cx(a11yTableStyles.bodyRow)}>
+              <td class={cx(a11yTableStyles.cell)}>
+                <kbd class={cx(a11yTableStyles.kbd)}>{entry.key}</kbd>
               </td>
-              <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text)]">{entry.action}</td>
+              <td class={cx(a11yTableStyles.cell)}>{entry.action}</td>
             </tr>
           {/each}
         </tbody>
@@ -50,21 +71,21 @@
   {/if}
   {#if aria.length > 0}
     <div>
-      <h4 class="font-nav mb-[var(--jx-stack)] text-[length:var(--jx-text)] font-medium">ARIA</h4>
-      <table class="w-full border-collapse text-left">
+      <h4 class="jx-a11y-heading {cx(a11yTableStyles.heading)}">ARIA</h4>
+      <table class={cx(a11yTableStyles.table)}>
         <thead>
-          <tr class="border-b border-border">
-            <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Attribute</th>
-            <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Value</th>
-            <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Description</th>
+          <tr class={cx(a11yTableStyles.headRow)}>
+            <th class={cx(a11yTableStyles.headCell)}>Attribute</th>
+            <th class={cx(a11yTableStyles.headCell)}>Value</th>
+            <th class={cx(a11yTableStyles.headCell)}>Description</th>
           </tr>
         </thead>
         <tbody>
           {#each aria as entry, i (entry.name + ':' + i)}
-            <tr class="border-b border-border/50">
-              <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)]">{entry.name}</td>
-              <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground">{entry.value}</td>
-              <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text)]">{entry.description}</td>
+            <tr class={cx(a11yTableStyles.bodyRow)}>
+              <td class={cx(a11yTableStyles.cellMono)}>{entry.name}</td>
+              <td class={cx(a11yTableStyles.cellMonoSecondary)}>{entry.value}</td>
+              <td class={cx(a11yTableStyles.cell)}>{entry.description}</td>
             </tr>
           {/each}
         </tbody>

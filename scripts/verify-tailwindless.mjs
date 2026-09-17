@@ -91,7 +91,7 @@ const wwwRequire = createRequire(join(REAL_ROOT, 'apps/www/package.json'));
 const { parse: svelteParse } = wwwRequire('svelte/compiler');
 const ts = wwwRequire('typescript');
 
-const ALLOWLIST_REL = 'openspec/changes/2026-09-17-tailwindless-site/research/tailwindless-allowlist.json';
+const ALLOWLIST_REL = 'openspec/changes/2026-09-17-tailwindless-one-shot/research/tailwindless-allowlist.json';
 const TEXT_STYLE_REL = 'registry/files/lib/text-style.svelte.ts';
 const TEXT_STYLE_MIRROR_REL = 'apps/www/src/lib/text-style.svelte.ts';
 const JX_CSS_REL = 'apps/www/src/lib/jixoai.css';
@@ -320,18 +320,15 @@ function stylexModuleVerified(root, rel) {
 // export — is 'rogue': using it at a class position is an unregistered
 // producer. The registry is the authority pattern (same as
 // SEMANTIC_RULES): registering a helper means naming its nature here.
-const STYLEX_MODULE_HELPERS = {
-  // cx (timeline-docs.stylex.ts) — the implementation was READ before
-  // registering (Gate-5 due diligence): `styles.filter(Boolean)
-  // .map(Object.entries → string members, $$css dropped).join(' ')`
-  // — a PURE string joiner over stylex dev objects; it cannot invent
-  // tokens, only re-emit the string values of the style objects its
-  // callers pass (which are stylex.create members). Registered
-  // 2026-09-16.
-  'apps/www/src/lib/surface/timeline-docs.stylex.ts': {
-    cx: 'the payload join (separator serialize law) — pure string joiner over stylex dev-object members',
-  },
-};
+//
+// EMPTY by the Wave-1 joiner ruling (tailwindless one-shot,
+// 2026-09-17): a .stylex.ts module's only legal exports are
+// stylex.create results — the cx joiner lives INSIDE each consuming
+// component (the separator serialize law, string-passthrough
+// superset form). The machinery + selftests stay for future
+// deliberate exceptions; the timeline-docs pilot registration (the
+// one entry this map ever held) retired with the unification pass.
+const STYLEX_MODULE_HELPERS = {};
 const STYLEX_EXPORT_CACHE = new Map(); // `${root}::${rel}::${mtime}::${size}` → Map(name → 'stylex'|'helper'|'rogue') | null
 
 // classify every export of a transform-root .stylex module (null when
@@ -506,10 +503,10 @@ const SEMANTIC_CLASS_NAMES = new Set(SEMANTIC_RULES.flatMap((r) => r.classes ?? 
 // resolveTextStyle() formsByFile census, 21 forms × the two mirror
 // sides).
 const RATCHET = {
-  files: 470, // pinned files[] entries — net-new unretired entries red here too
-  identities: 11437,
-  occurrences: 25024,
-  zones: { routes: 15445, 'site-libs': 4171, ui: 5408 },
+  files: 434, // pinned files[] entries — net-new unretired entries red here too
+  identities: 8721,
+  occurrences: 20891,
+  zones: { routes: 15445, 'site-libs': 4171, ui: 1275 },
   forms: 42,
 };
 const RATCHET_ZONE_KEYS = ['routes', 'site-libs', 'ui'];

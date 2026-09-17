@@ -29,6 +29,7 @@
   font-size: var(--jx-text);
   line-height: var(--jx-line);
 }
+
 @supports not (anchor-name: --jx-menubar-fallback) {
   .jx-menubar-panel {
     position-anchor: auto !important;
@@ -49,6 +50,46 @@
  * still ties-wins within the unlayered level. The composed family
  * replaced the items[] index with the DOM truth: the last Item's
  * trigger carries no right border (2026-08-25). */
+/* the interactive poses (tailwindless one-shot, 2026-09-16): hover
+ * + focus-visible as NATIVE pseudos and the color transitions that
+ * rode transition-[…] duration-150/100 ease-out utilities — the
+ * lane-2 seam per the placement law (pseudo/transitions cannot be
+ * plain atoms; no motion token exists yet, so the durations mirror
+ * the theme sheet's own 150ms ease-out constant — reported as the
+ * --jx-motion-fast promotion candidate). Focus ring: hairline-width
+ * ring ink at -1px offset (the focus-visible:outline-1/-ring/
+ * -offset-1 triple's translation).
+ *
+ * UNLAYERED with the toggle carve-out below (same law): the stylex
+ * tiers nest UNDER components (components.stylex.priorityN sorts
+ * after the parent layer's direct rules), so a components-layer rule
+ * can never override the family's own ATOM paint (trigger atoms set
+ * background-color/color) — the hover poses ride the unlayered level
+ * behind :where() (zero specificity; consumer css still ties-wins
+ * there). */
+:where(.jx-menubar-trigger) {
+  transition: color 150ms ease-out, background-color 150ms ease-out;
+}
+:where(.jx-menubar-trigger:hover) {
+  background-color: var(--muted);
+  color: var(--foreground);
+}
+:where(.jx-menubar-trigger:focus-visible) {
+  outline: var(--hairline) solid var(--ring);
+  outline-offset: -1px;
+}
+:where(.jx-menubar-menu-item) {
+  transition: background-color 100ms ease-out, color 100ms ease-out;
+}
+:where(.jx-menubar-menu-item:hover),
+:where(.jx-menubar-menu-item:focus-visible) {
+  background-color: var(--muted);
+}
+:where(.jx-menubar-menu-item:focus-visible) {
+  outline: none;
+}
+
+
 :where([data-jx-menubar-item]:last-child) [data-jx-menubar-trigger] {
   border-right-width: 0;
 }

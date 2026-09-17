@@ -79,6 +79,12 @@
   component hooks (D1-exempt residue under the layer law — the
   range.css precedent).
 
+  tailwindless one-shot W1 (2026-09-17): static paint rides the
+  family's stylex atoms (color-picker.stylex.ts). The trigger's
+  transition utilities died — the css well state machine already owns
+  box-shadow/border-color; the chevron's flip transition moved into
+  the css (rotate 150ms ease-out on its hook).
+
   Motion kernel (2026-08-25): the panel rides the shared surface
   motion kernel (lib/surface-motion.ts; popover.svelte wiring law) —
   WAAPI animates the single --jx-p progress number, jixoai.css
@@ -94,6 +100,7 @@
   import { onDestroy, type Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import { colorPickerStyles } from './color-picker.stylex';
   import type { Density } from '$lib/density.svelte';
   import { ColorPickerDefaults, type ColorPickerSurfaceVariant } from './color-picker-defaults.svelte';
   import Editor from './editor.svelte';
@@ -170,6 +177,21 @@
     'aria-describedby': ariaDescribedBy,
     ...rest
   }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
 
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): variant rides the literal slot (own 'auto', ambient
@@ -332,7 +354,7 @@
        the span itself so the panel centers on the whole lane -->
   <span
     data-jx-color-picker-wrap
-    class="jx-color-picker-trigger relative flex items-center w-full border border-border rounded-none bg-background text-foreground transition-[box-shadow,border-color] duration-150 ease-out"
+    class="jx-color-picker-trigger {cx(colorPickerStyles.trigger)}"
     style="anchor-name: {anchorName}"
     bind:this={anchorEl}
   >
@@ -366,7 +388,7 @@
       {...rest}
       type="text"
       data-jx-color-picker-field
-      class={cn('font-mono', (!showValue || lane) && 'sr-only')}
+      class={cn(cx(colorPickerStyles.fieldMono), (!showValue || lane) && cx(colorPickerStyles.srOnly))}
       {name}
       {disabled}
       bind:value={fieldText}
@@ -381,15 +403,15 @@
       <!-- the Owner's slot lane (2026-09-02 rebase): consumer content
            owns the visible spot; the native field above went sr-only —
            one truth (the bindable value), any face -->
-      <div data-jx-color-picker-lane="" class="flex min-w-0 flex-1 items-center gap-2">
+      <div data-jx-color-picker-lane="" class={cx(colorPickerStyles.laneSlot)}>
         {@render lane({ text: fieldText, open, disabled })}
       </div>
     {/if}
     <button
       type="button"
       class={cn(
-        'jx-color-picker-chevron flex-none w-3 h-3 border-0 bg-transparent p-0 text-muted-foreground transition-transform duration-150 ease-out',
-        open && 'rotate-180',
+        cx(colorPickerStyles.chevron),
+        open && cx(colorPickerStyles.chevronOpen),
       )}
       popovertarget={panelId}
       aria-label="open color picker"
@@ -418,7 +440,7 @@
     <!-- surface body (bezel paint + ::after shadow + the flex column);
          the popover element paints nothing (floating-surface law arch
          r3) — the column content is the embeddable Editor -->
-    <div data-jx-color-picker-surface class="jx-surface-body flex flex-col gap-2.5 p-3">
+    <div data-jx-color-picker-surface class="jx-surface-body {cx(colorPickerStyles.surfaceBody)}">
     <Editor value={editorValue} onpick={handlePick} />
     </div>
   </div>

@@ -80,6 +80,7 @@
   import { cn } from '$lib/utils';
   import type { Density } from '$lib/density.svelte';
   import { SelectDefaults } from './select-defaults.svelte';
+  import { selectStyles } from './select.stylex';
   import './select.css';
 
   // 'onchange' is OMITTED from the rest lane ON PURPOSE (issue #6): the
@@ -139,6 +140,22 @@
     class: className = '',
     ...rest
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // form lifecycle: what jx-reset restores, and the form-disable mirror
   const initialValue = value;
@@ -296,7 +313,7 @@
        semantics for custom elements and would render disabled="false"
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
-    class="contents"
+    class={cx(selectStyles.bridge)}
     aria-hidden="true"
     {name}
     value={value ?? ''}
@@ -305,7 +322,7 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-sel-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
+  <span data-jx-sel-wrap class={cx(selectStyles.wrap)} style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <!-- aria-invalid rides the trigger although the checker's per-role
          list doesn't include it: it IS a WAI-ARIA global state, and the
          family law wires invalid state on the control itself -->
@@ -322,7 +339,8 @@
       type="button"
       id={id}
       class={cn(
-        'jx-sel-trigger jx-html-input flex items-center pe-[var(--jx-inset)] text-start cursor-pointer',
+        'jx-sel-trigger jx-html-input',
+        cx(selectStyles.trigger),
         className,
       )}
       popovertarget={panelId}
@@ -339,8 +357,8 @@
         data-jx-sel-value
         data-jx-sel-placeholder={!selected ? '' : undefined}
         class={cn(
-          'flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
-          !selected && 'text-muted-foreground',
+          cx(selectStyles.value),
+          !selected && cx(selectStyles.valuePlaceholder),
         )}
       >
         {selected?.label ?? placeholder}
@@ -357,8 +375,9 @@
            inset+icon, no extra flex gap). -->
       <span
         class={cn(
-          'jx-sel-chevron flex-none w-[var(--jx-icon)] h-[var(--jx-icon)] pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
-          open && 'rotate-180',
+          'jx-sel-chevron',
+          cx(selectStyles.chevron),
+          open && cx(selectStyles.chevronOpen),
         )}
         aria-hidden="true"
       ></span>
@@ -384,11 +403,11 @@
          unreachable from WAAPI — the kernel animates it in lockstep
          (Owner ruling r18) -->
     <div data-jx-sel-panel-body class="jx-surface-body">
-    <div data-jx-sel-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
+    <div data-jx-sel-scroll class={cx(selectStyles.scroll)}>
     <ul
       bind:this={listEl}
       id={listboxId}
-      class="jx-sel-list m-0 p-0 list-none"
+      class={cn('jx-sel-list', cx(selectStyles.list))}
       role="listbox"
       tabindex="-1"
       aria-label={label ?? placeholder}
@@ -409,16 +428,17 @@
           data-jx-sel-selected={option.value === value ? '' : undefined}
           data-jx-sel-disabled={option.disabled ? '' : undefined}
           class={cn(
-            'jx-sel-option flex flex-col gap-[var(--jx-gap)] px-[var(--jx-inset)] py-[var(--jx-gap)] min-h-[var(--jx-hit)] text-[length:var(--jx-text)] leading-[var(--jx-leading)] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
-            index === active && 'bg-terminal-hover text-terminal-foreground',
-            option.value === value && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
-            option.disabled && 'opacity-50 pointer-events-none',
+            'jx-sel-option',
+            cx(selectStyles.option),
+            index === active && cx(selectStyles.rowActive),
+            option.value === value && cx(selectStyles.rowActive, selectStyles.rowSelectedEdge),
+            option.disabled && cx(selectStyles.rowDisabled),
           )}
           onclick={() => choose(option)}
         >
-          <span data-jx-sel-option-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
+          <span data-jx-sel-option-label class={cx(selectStyles.optionLabel)}>{option.label}</span>
           {#if option.description}
-            <span data-jx-sel-option-desc class="text-[11px] leading-[1.4] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">{option.description}</span>
+            <span data-jx-sel-option-desc class={cx(selectStyles.optionDesc)}>{option.description}</span>
           {/if}
         </li>
       {/each}

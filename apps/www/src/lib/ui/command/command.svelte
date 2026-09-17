@@ -129,6 +129,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { CommandDefaults, type CommandSurfaceVariant } from './command-defaults.svelte';
+  import { commandStyles } from './command.stylex';
   import './command.css';
 
   interface Props extends HTMLAttributes<HTMLDialogElement> {
@@ -363,6 +364,23 @@
     return () => window.removeEventListener('keydown', handler);
   });
 
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const handleClose = (): void => {
     // native close (Escape/backdrop) rides the same public seam as
     // programmatic closes — onopenchange fires for every path
@@ -386,7 +404,8 @@
 <dialog
   bind:this={dialog}
   class={cn(
-    'jx-command jx-surface box-border mt-[12vh] mx-auto mb-auto w-[min(560px,calc(100vw-2rem))] max-h-[min(60vh,30rem)] rounded p-0 text-popover-foreground',
+    'jx-command jx-surface',
+    cx(commandStyles.shell),
     motion.supported && 'jx-waapi',
     className,
   )}
@@ -398,7 +417,7 @@
   onclose={handleClose}
 >
   <div data-jx-command-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
-  <div data-jx-command-frame="" class="jx-surface-body flex flex-col [max-height:inherit]">
+  <div data-jx-command-frame="" class={cn('jx-surface-body', cx(commandStyles.frame))}>
     {@render children()}
   </div>
 </dialog>

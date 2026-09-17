@@ -45,7 +45,24 @@
 -->
 <script lang="ts">
   import { cn } from '$lib/utils';
+  import { pblurStyles } from './progressive-blur.stylex';
   import './progressive-blur.css';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   /** band law shared by both dialects — size, ladder and reveal are
    *  dialect-free */
@@ -222,11 +239,12 @@
          full-strength — verified pixel-equal) -->
     <div
       class={cn(
-        'jx-pblur pointer-events-none grid [transform:translateZ(0)]',
-        edge === 'start' && '[grid-area:1/1] justify-self-start self-stretch',
-        edge === 'end' && '[grid-area:1/1] justify-self-end self-stretch',
-        edge === 'top' && 'self-start [grid-row:1/-1] [grid-column:1/-1]',
-        edge === 'bottom' && 'self-end [grid-row:1/-1] [grid-column:1/-1]',
+        'jx-pblur',
+        cx(pblurStyles.scenery, pblurStyles.gridBand),
+        edge === 'start' && cx(pblurStyles.gridStart),
+        edge === 'end' && cx(pblurStyles.gridEnd),
+        edge === 'top' && cx(pblurStyles.gridTop),
+        edge === 'bottom' && cx(pblurStyles.gridBottom),
         className,
       )}
       style="{edge === 'top' || edge === 'bottom' ? 'height' : 'width'}: {height}"
@@ -236,7 +254,7 @@
       aria-hidden="true"
     >
       {#each levels as _, i (i)}
-        <div class="jx-pblur-layer [grid-area:1/1]" style={layerStyle(edge, i)}></div>
+        <div class="jx-pblur-layer {cx(pblurStyles.gridLayer)}" style={layerStyle(edge, i)}></div>
       {/each}
     </div>
   {:else}
@@ -248,12 +266,15 @@
          the edge through a view()-timeline transform (vision r2 finding) -->
     <div
       class={cn(
-        'jx-pblur pointer-events-none sticky z-10',
-        edge === 'top' || edge === 'bottom' ? 'h-0' : 'w-0',
-        edge === 'top' && 'top-0',
-        edge === 'bottom' && 'bottom-0',
-        edge === 'start' && 'start-0',
-        edge === 'end' && 'end-0',
+        'jx-pblur',
+        cx(pblurStyles.scenery, pblurStyles.stickyRoot),
+        edge === 'top' || edge === 'bottom'
+          ? cx(pblurStyles.hZero)
+          : cx(pblurStyles.wZero),
+        edge === 'top' && cx(pblurStyles.topEdge),
+        edge === 'bottom' && cx(pblurStyles.bottomEdge),
+        edge === 'start' && cx(pblurStyles.startEdge),
+        edge === 'end' && cx(pblurStyles.endEdge),
         className,
       )}
       data-jx-pblur=""
@@ -262,15 +283,21 @@
       aria-hidden="true"
     >
       {#if edge === 'top' || edge === 'bottom'}
-        <div class="absolute inset-x-0 {edge === 'top' ? 'top-0' : 'bottom-0'}" style="height: {height}">
+        <div
+          class={cx(pblurStyles.bandBlock, edge === 'top' ? pblurStyles.topEdge : pblurStyles.bottomEdge)}
+          style="height: {height}"
+        >
           {#each levels as _, i (i)}
-            <div class="jx-pblur-layer absolute inset-0" style={layerStyle(edge, i)}></div>
+            <div class="jx-pblur-layer {cx(pblurStyles.layer)}" style={layerStyle(edge, i)}></div>
           {/each}
         </div>
       {:else}
-        <div class="absolute inset-y-0 {edge === 'start' ? 'start-0' : 'end-0'}" style="width: {height}">
+        <div
+          class={cx(pblurStyles.bandInline, edge === 'start' ? pblurStyles.startEdge : pblurStyles.endEdge)}
+          style="width: {height}"
+        >
           {#each levels as _, i (i)}
-            <div class="jx-pblur-layer absolute inset-0" style={layerStyle(edge, i)}></div>
+            <div class="jx-pblur-layer {cx(pblurStyles.layer)}" style={layerStyle(edge, i)}></div>
           {/each}
         </div>
       {/if}

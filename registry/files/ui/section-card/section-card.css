@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai section-card css — THE EDGE-RIDING SEPARATOR (Owner,
  * 2026-09-03 rev.2): the header zone's authored border-b RETIRED into
@@ -42,5 +43,66 @@
   }
   :where([data-jx-section-body]) {
     grid-area: 2 / 1;
+  }
+
+  /* The TITLE and SUMMARY voices (tailwindless one-shot, 2026-09-16):
+   * lane-2 REGISTERED composites — their sizes/leadings/tracking hold
+   * values with NO existing token step (1.05rem / sm:1.22rem, the
+   * display clamp, leading 1.2/1.25, 24px, -0.025em, sm:14px), so the
+   * atoms layer cannot carry them (the tier-2 law); they stay here as
+   * data-hook rules (the family's own hook grammar — no new class
+   * identities), :where()-wrapped at zero specificity under
+   * @layer components. Media seams sit at the ORIGINAL Tailwind
+   * thresholds (sm 40rem / lg 64rem — breakpoint parity). The tone
+   * discriminator rides the section root's data-tone attribute.
+   * Missing steps reported to the wave ledger: a tight leading rung
+   * (1.2/1.25), a display-size pair (16.8px/19.52px), summary 14px,
+   * tight tracking — promote before moving these back to atoms. */
+  :where([data-jx-section-title]) {
+    font-family: var(--font-nav);
+    text-wrap: balance;
+    font-size: 1.05rem;
+    letter-spacing: -0.025em;
+    line-height: var(--leading-tight);
+  }
+  @media (min-width: 40rem) {
+    :where([data-jx-section-title]) {
+      font-size: 1.22rem;
+    }
+  }
+  :where([data-jx-section][data-tone='hero'] [data-jx-section-title]) {
+    max-width: 24ch;
+    font-size: clamp(1.58rem, 2.55vw, 2.7rem);
+    letter-spacing: normal;
+    line-height: var(--leading-12);
+  }
+  @media (min-width: 40rem) {
+    :where([data-jx-section][data-tone='hero'] [data-jx-section-title]) {
+      max-width: 22ch;
+    }
+  }
+  @media (min-width: 64rem) {
+    :where([data-jx-section][data-tone='hero'] [data-jx-section-title]) {
+      max-width: 24ch;
+    }
+  }
+
+  :where([data-jx-section-summary]) {
+    max-width: 64ch;
+    text-wrap: pretty;
+    font-size: var(--jx-text);
+    line-height: var(--jx-line);
+    color: var(--muted-foreground);
+  }
+  :where([data-jx-section][data-tone='hero'] [data-jx-section-summary]) {
+    max-width: 62ch;
+    font-size: var(--jx-text-base);
+    line-height: 1.5rem;
+    color: color-mix(in oklab, var(--foreground) 78%, transparent);
+  }
+  @media (min-width: 40rem) {
+    :where([data-jx-section][data-tone='hero'] [data-jx-section-summary]) {
+      font-size: 14px;
+    }
   }
 }

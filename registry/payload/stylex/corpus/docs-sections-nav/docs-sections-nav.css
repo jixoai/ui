@@ -1,0 +1,11 @@
+@layer properties, theme, base, components, components.stylex.priority1, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
+  .x1u8a7rm {
+    z-index: 5;
+  }
+}
+
+@layer utilities;
+/* buildId: 7119ccca8c08e569354ee25ccf3745534e92764eb2e7a0f2f9be5fa80bc54567 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

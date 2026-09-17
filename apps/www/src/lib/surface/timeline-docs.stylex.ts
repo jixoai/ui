@@ -23,30 +23,12 @@
 //     channel as a PLAIN var() string (the tokens map's cycle law:
 //     a typed key may never share its sheet name).
 //
-// Consumption: members compose by string concatenation in the page
-// (class={tlDocs.flex + ' ' + tlDocs.col}) — the stylex seam the
-// tailwindless gate recognizes by module path.
+// Consumption: members compose through the page's component-local
+// cx join (the separator serialize law, Wave-1 ruling 2026-09-17 —
+// this module exports atoms only, never the joiner).
 
 import * as stylex from '@stylexjs/stylex';
 import { tokens } from '../tokens.stylex';
-
-// the payload's own join (separator's serialize law, tailwindless-site
-// task 2.1): every stylex.create member is an OBJECT in dev (dev name
-// + engine hashes + the $$css marker) and the joined string in
-// shipped payloads — Svelte's class interpolation stringifies objects,
-// so composition goes through THIS joiner: all string values except
-// $$css, space-joined (a plain string member round-trips unchanged,
-// so the same call serves dev and the compiled payload form).
-export const cx = (
-  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
-): string =>
-  styles
-    .filter(Boolean)
-    .map((style) =>
-      Object.entries(style).flatMap(([key, value]) =>
-        key !== '$$css' && typeof value === 'string' ? [value] : [],
-      ).join(' '),
-    ).join(' ');
 
 export const tlDocs = stylex.create({
   // ── layout (structural constants) ──────────────────────────────

@@ -36,6 +36,7 @@
   import { cn } from '$lib/utils';
   import { MENUBAR_KEY, type MenubarApi, type MenubarPanelHandles } from './menubar.svelte';
   import { MENUBAR_ITEM_KEY, type MenubarItemApi } from './menubar-item.svelte';
+  import { menubarStyles } from './menubar.stylex';
   import './menubar.css';
 
   interface Props {
@@ -44,6 +45,22 @@
   }
 
   let { class: className = '', children }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const bar = getContext<MenubarApi>(MENUBAR_KEY);
   const item = getContext<MenubarItemApi>(MENUBAR_ITEM_KEY);
@@ -161,7 +178,7 @@
   <div data-jx-bar-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- the REAL shadow layer: a DOM child because pseudo-elements are
        unreachable from WAAPI — the kernel animates it in lockstep -->
-  <div data-jx-bar-surface="" class="jx-surface-body p-1">
+  <div data-jx-bar-surface="" class={cn('jx-surface-body', cx(menubarStyles.panelBody))}>
     {@render children()}
   </div>
 </div>

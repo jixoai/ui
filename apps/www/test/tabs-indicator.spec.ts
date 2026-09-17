@@ -69,6 +69,23 @@ import {
   type RtlScrollModel,
 } from '../src/lib/ui/tabs/tabs-list.svelte';
 import IndicatorHost from './fixtures/tabs-indicator-host.svelte';
+import { pblurStyles } from '../src/lib/ui/progressive-blur/progressive-blur.stylex';
+
+// tailwindless W1 batch 3 (2026-09-17): the veil bands' placement
+// paint rides progressive-blur stylex atoms — asserted through the
+// same cx join the component rides (the spec-side clone is legal:
+// gate scans stop at test/ boundaries)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 // ---- ResizeObserver resilience ------------------------------------------------
 // test/setup.ts already installs a zero-rect reporting polyfill; keep a
@@ -306,19 +323,23 @@ describe('Tabs · trigger anatomy', () => {
   it('stack switches the trigger to the column axis (flex-col token)', () => {
     const { tabsIn } = setup();
     const [, , , stacked] = tabsIn('anatomy');
-    expect(stacked.className).toContain('flex-col');
+    // tailwindless one-shot (2026-09-16): the axis flip is the
+    // triggerStacked atom group (column + center + the tighter gap)
+    expect(stacked.className).toContain('tabsStyles.triggerStacked');
   });
 
   it('applies the slot-vs-padding law beside a label — never on an icon-only trigger (the glyph centers)', () => {
     const { tabsIn } = setup();
     const [alpha, beta, settings] = tabsIn('anatomy');
-    // an icon eats into the labeled trigger's inline padding — by exactly half
-    expect(alpha.className).toContain('has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)]');
-    expect(beta.className).toContain('has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]');
+    // an icon eats into the labeled trigger's inline padding — by
+    // exactly half (tailwindless: the STATIC data-slot stamps key the
+    // lane-2 rules in tabs-trigger.css)
+    expect(alpha.hasAttribute('data-slot-start')).toBe(true);
+    expect(beta.hasAttribute('data-slot-end')).toBe(true);
     // icon-only: no label, no dialect — the padding stays symmetric so the
     // glyph centers (Owner, 2026-09-01)
-    expect(settings.className).not.toContain('has-[[data-icon=inline-start]]');
-    expect(settings.className).not.toContain('has-[[data-icon=inline-end]]');
+    expect(settings.hasAttribute('data-slot-start')).toBe(false);
+    expect(settings.hasAttribute('data-slot-end')).toBe(false);
   });
 
   it('keeps the jx-tab-selected class token on the selected trigger', () => {
@@ -336,7 +357,8 @@ describe('Tabs · layout contract', () => {
     expect(wrap.getAttribute('data-layout')).toBe('wrap');
     const run = wrap.querySelector('[data-jx-tabs-run]');
     expect(run).toBeTruthy();
-    expect(run!.className).toContain('flex-wrap');
+    // tailwindless one-shot (2026-09-16): the row flow is the wrap atom
+    expect(run!.className).toContain('tabsStyles.wrap');
     expect(run!.getAttribute('data-layout')).toBe('wrap');
   });
 
@@ -390,15 +412,18 @@ describe('Tabs · layout contract', () => {
     expect(bands[1].getAttribute('data-position')).toBe('end');
     // the grid dialect — PURE grid: each band is a grid item of the layer
     // (grid-area + justify-self), and the ladder layers are grid items of
-    // the band; no position tech anywhere. translateZ(0) is compositor
-    // isolation, never positioning
-    expect(bands[0].className).toContain('[grid-area:1/1]');
-    expect(bands[0].className).toContain('[transform:translateZ(0)]');
+    // the band; no position tech anywhere. translateZ(0) rides the
+    // gridBand atom's transform (compositor isolation, never positioning)
+    // — tailwindless W1 batch 3: placement paint rides stylex atoms,
+    // asserted through the same cx join the component rides
+    expect(bands[0].className).toContain(cx(pblurStyles.gridBand));
+    expect(bands[0].className).toContain(cx(pblurStyles.gridStart));
+    expect(bands[0].className).not.toContain(cx(pblurStyles.stickyRoot));
     expect(bands[0].className).not.toContain('sticky');
     expect(bands[0].className).not.toContain('absolute');
     // each band carries the progressive-blur ladder layers (grid items of the band)
     expect(bands[0].querySelectorAll('.jx-pblur-layer').length).toBeGreaterThan(1);
-    expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes('[grid-area:1/1]'))).toBe(true);
+    expect([...bands[0].querySelectorAll('.jx-pblur-layer')].every((l) => l.className.includes(cx(pblurStyles.gridLayer)))).toBe(true);
     // the HOLD law: the outer third (the chevron lane, where snap parks the
     // first label inboard) carries the ladder's peak — the strongest layer's
     // tail stays OPAQUE to 100% instead of tapering (the stop-data split,
@@ -585,7 +610,9 @@ describe('Tabs · layout contract', () => {
   it('the TABLIST IS THE RUN (a11y scroll region and DOM scroller are one element); vertical strips stay flat', () => {
     const { list } = setup();
     const horiz = list('line');
-    expect(horiz.className).toContain('grid');
+    // tailwindless one-shot (2026-09-16): the one-cell grid host and
+    // the flex run are atom groups (display rides the hashed members)
+    expect(horiz.className).toContain('tabsStyles.hostHorizontal');
     const run = horiz.querySelector(':scope > [data-jx-tabs-run]');
     expect(run).toBeTruthy();
     // the run element IS the tablist — role=tablist (no presentation
@@ -593,7 +620,7 @@ describe('Tabs · layout contract', () => {
     expect(run!.getAttribute('role')).toBe('tablist');
     expect(run!.getAttribute('data-jx-tabs-list')).toBe('');
     // the run carries the triggers' flex row
-    expect(run!.className).toContain('flex');
+    expect(run!.className).toContain('tabsStyles.listRun');
     // the flat vertical law: no run classes, triggers are direct tablist children
     const vertical = list('vertical-pill');
     expect(vertical.querySelector('[data-jx-tabs-run]')).toBeNull();

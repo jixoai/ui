@@ -15,11 +15,12 @@
   law (theme .jx-press) at float scale — the --jx-press-shadow* customs
   re-point all three poses to the --shadow family.
 
-  tw4 (2026-08-24): button/stack paint as token utilities (corner is a
-  prop → conditional strings; the stack's inner button swaps fixed for
-  static the same way — the scoped descendant rule is gone); ONLY the
-  MENU panel law (anchor geometry + ::backdrop) remains in
-  float-button.css — D1-exempt residue.
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  button/stack paint rides the family's stylex ATOMS
+  (float-button.stylex.ts) joined through cx() — corner is a prop →
+  per-corner atom groups; the stack's inner button swaps fixed for
+  static the same way; ONLY the MENU panel law (anchor geometry +
+  ::backdrop) remains in float-button.css — D1-exempt residue.
 
   Motion kernel (2026-08-25): the menu panel adopts the shared surface
   motion kernel (lib/surface-motion.ts, popover wiring verbatim) —
@@ -35,6 +36,7 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { FloatButtonDefaults, type FloatButtonSurfaceVariant } from './float-button-defaults.svelte';
+  import { fabStyles } from './float-button.stylex';
   import './float-button.css';
 
   interface Props {
@@ -96,17 +98,32 @@
 
   onDestroy(() => motion.destroy());
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
   // corner → fixed point (top corners clear the sticky bar: 5.5rem)
   const corners = {
-    'bottom-right': 'bottom-5 right-5',
-    'bottom-left': 'bottom-5 left-5',
-    'top-right': 'top-[5.5rem] right-5',
-    'top-left': 'top-[5.5rem] left-5',
+    'bottom-right': cx(fabStyles.bottomRight),
+    'bottom-left': cx(fabStyles.bottomLeft),
+    'top-right': cx(fabStyles.topRight),
+    'top-left': cx(fabStyles.topLeft),
   } as const;
 
-  // press law at float scale: rest on --shadow, hover grows to --shadow-md
-  const fabPaint =
-    'jx-press inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] appearance-none items-center justify-center rounded border border-border bg-popover text-popover-foreground cursor-pointer [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)] hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+  // press law at float scale (the customs re-point all three poses)
+  const fabPaint = cx(fabStyles.body);
 </script>
 
 {#if actions}
@@ -114,7 +131,7 @@
     data-jx-fab-stack=""
     data-density={d.density}
     data-jx-fab={corner}
-    class={cn('fixed z-[80] flex flex-col items-center gap-2', corners[corner], className)}
+    class={cn(cx(fabStyles.stack), corners[corner], className)}
     style="anchor-name: {anchorName}"
     bind:this={anchorEl}
   >
@@ -155,13 +172,13 @@
       <div data-jx-fab-menu-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
       <!-- the REAL shadow layer: a DOM child because pseudo-elements are
            unreachable from WAAPI — the kernel animates it in lockstep -->
-      <div data-jx-fab-menu-body="" class="jx-surface-body p-1">
+      <div data-jx-fab-menu-body="" class="jx-surface-body {cx(fabStyles.menuBody)}">
         {@render actions()}
       </div>
     </div>
     <button
       type="button"
-      class={cn(fabPaint, 'static z-[80]', className)}
+      class={cn('jx-press', fabPaint, cx(fabStyles.stackButton), className)}
       data-density={d.density}
       aria-label={label}
       aria-expanded={open}
@@ -177,7 +194,7 @@
     type="button"
     data-jx-fab={corner}
     data-density={d.density}
-    class={cn(fabPaint, 'fixed z-[80]', corners[corner], className)}
+    class={cn('jx-press', fabPaint, cx(fabStyles.fixedButton), corners[corner], className)}
     aria-label={label}
     {onclick}
   >

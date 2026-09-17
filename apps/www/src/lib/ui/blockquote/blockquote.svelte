@@ -97,6 +97,13 @@
   components-layer rule — the §2c container-inner sibling stack
   (margins between flex items, never collapsed) keeps the inner
   spacing law intact.
+
+  tailwindless one-shot Wave 1 (2026-09-17): ground/ink/chrome ride
+  blockquote.stylex.ts atoms (joined through the payload's own cx());
+  the em-ratio body voice and the rule channel ride blockquote.css
+  keyed on the data contract (data-jx-blockquote ×
+  data-jx-blockquote-rule) — the class channel carries paint, the
+  data channel carries the rule.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -108,6 +115,8 @@
     type BlockquoteRuleSize,
     type BlockquoteVariant,
   } from './blockquote-defaults.svelte';
+  import { blockquoteStyles } from './blockquote.stylex';
+  import './blockquote.css';
 
   interface Props extends HTMLBlockquoteAttributes {
     /** ladder prominence: outline (plain quote) | tonal (tinted
@@ -152,84 +161,85 @@
   // ambient css scope channel keeps flowing
   const d = $derived(BlockquoteDefaults.resolve({ variant, rule, ruleSize }));
 
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // variant grounds (design §1.1 recipes, verbatim), restructured for
   // the rule channel: the rung's own border-color declaration stays
   // the SINGLE color source. Tonal keeps its full alert box border as
   // ground; outline's ground carries NO border at all — its rule (and
-  // its border-color declaration) lives on the rule channel below, so
-  // in shadow mode no dead border-color declaration ships. ps stays
-  // fixed across rungs' rule channels and sizes (border consumes
-  // geometry, shadow doesn't).
-  const ground = {
-    outline: 'ps-[0.875rem]',
-    tonal: 'border bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] rounded px-3.5 py-3 forced-colors:bg-[Canvas] forced-colors:border-[CanvasText]',
+  // its border-color declaration) lives on the RULE CHANNEL: the
+  // border modes ride atoms here (the layer law — stylex nests under
+  // components, so atom border widths keep their cascade slot against
+  // the tonal ground's own border atom), the shadow modes ride
+  // blockquote.css keyed on data-jx-blockquote-rule. ps stays fixed
+  // across rungs' rule channels and sizes (border consumes geometry,
+  // shadow doesn't).
+  const GROUND = {
+    outline: cx(blockquoteStyles.outlineGround),
+    tonal: cx(blockquoteStyles.tonalGround),
   } as const;
-  // the rule channel — probed utilities (TW 4.2.1): the shadow
-  // payload rides the rung's SAME color source (outline → --jx-outline;
-  // tonal → the 45% color-mix — one hue source). ONE shadow utility per
-  // root; outline in shadow mode emits NO border (never border+shadow
-  // on one edge); tonal keeps its box border PLUS the shadow rule (the
-  // documented shadow-1 near-no-op). Forced colors: shadow modes
-  // re-materialize as Npx CanvasText (tonal's box already carries the
-  // CanvasText color); border modes keep the rung degradation.
-  const ruleSurface = {
-    shadow: {
-      1: {
-        outline:
-          'shadow-[inset_1px_0_0_color-mix(in_oklab,var(--jx-outline)_55%,transparent)] forced-colors:shadow-none forced-colors:border-s forced-colors:border-[CanvasText]',
-        tonal:
-          'shadow-[inset_1px_0_0_color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] forced-colors:shadow-none forced-colors:border-s',
-      },
-      4: {
-        outline:
-          'shadow-[inset_4px_0_0_color-mix(in_oklab,var(--jx-outline)_55%,transparent)] forced-colors:shadow-none forced-colors:border-s-[4px] forced-colors:border-[CanvasText]',
-        tonal:
-          'shadow-[inset_4px_0_0_color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] forced-colors:shadow-none forced-colors:border-s-[4px]',
-      },
-      8: {
-        outline:
-          'shadow-[inset_8px_0_0_color-mix(in_oklab,var(--jx-outline)_55%,transparent)] forced-colors:shadow-none forced-colors:border-s-[8px] forced-colors:border-[CanvasText]',
-        tonal:
-          'shadow-[inset_8px_0_0_color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] forced-colors:shadow-none forced-colors:border-s-[8px]',
-      },
-    },
+  // the rule channel's border modes: the widened start edge + the
+  // rung's own ink (outline tints 55%; tonal keeps its ground color)
+  const RULE_SURFACE = {
     border: {
       1: {
-        outline:
-          'border-s [border-color:color-mix(in_oklab,var(--jx-outline)_55%,transparent)] forced-colors:border-[CanvasText]',
-        tonal: 'border-s',
+        outline: cx(blockquoteStyles.ruleBorder1, blockquoteStyles.ruleBorderOutlineTint),
+        tonal: cx(blockquoteStyles.ruleBorder1),
       },
       4: {
-        outline:
-          'border-s-4 [border-color:color-mix(in_oklab,var(--jx-outline)_55%,transparent)] forced-colors:border-[CanvasText]',
-        tonal: 'border-s-4',
+        outline: cx(blockquoteStyles.ruleBorder4, blockquoteStyles.ruleBorderOutlineTint),
+        tonal: cx(blockquoteStyles.ruleBorder4),
       },
       8: {
-        outline:
-          'border-s-8 [border-color:color-mix(in_oklab,var(--jx-outline)_55%,transparent)] forced-colors:border-[CanvasText]',
-        tonal: 'border-s-8',
+        outline: cx(blockquoteStyles.ruleBorder8, blockquoteStyles.ruleBorderOutlineTint),
+        tonal: cx(blockquoteStyles.ruleBorder8),
       },
+    },
+    // shadow modes paint nothing through the class channel — the css
+    // sheet keys them on data-jx-blockquote-rule (empty strings are
+    // dropped by cx's filter)
+    shadow: {
+      1: { outline: '', tonal: '' },
+      4: { outline: '', tonal: '' },
+      8: { outline: '', tonal: '' },
     },
   } as const;
   // the label consumes the variant ink; the BODY consumes the rung's
   // own ramp — outline keeps the face's muted quote body (the
   // manuscript posture), tonal tints both like the alert rows
-  const titleColor = {
-    outline: 'text-foreground forced-colors:text-[CanvasText]',
-    tonal: '[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
+  const TITLE_COLOR = {
+    outline: cx(blockquoteStyles.titleOutline),
+    tonal: cx(blockquoteStyles.titleTonal),
   } as const;
-  const bodyColor = {
-    outline: 'text-muted-foreground forced-colors:text-[CanvasText]',
-    tonal: 'text-[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
+  const BODY_COLOR = {
+    outline: cx(blockquoteStyles.bodyOutline),
+    tonal: cx(blockquoteStyles.bodyTonal),
   } as const;
 </script>
 
 <blockquote
   class={cn(
-    'box-border flex flex-col justify-center text-[0.875em]',
-    ground[d.variant],
-    ruleSurface[d.rule][d.ruleSize][d.variant],
-    bodyColor[d.variant],
+    cx(
+      blockquoteStyles.root,
+      GROUND[d.variant],
+      RULE_SURFACE[d.rule][d.ruleSize][d.variant],
+      BODY_COLOR[d.variant],
+    ),
     className,
   )}
   data-jx-blockquote={d.variant}
@@ -239,13 +249,13 @@
   {#if label}
     <p
       data-jx-blockquote-label=""
-      class={cn('flex items-center gap-2 font-nav text-[0.8125rem] tracking-[0.08em] uppercase', titleColor[d.variant])}
-    >{#if icon}<span class="inline-flex">{@render icon()}</span>{/if}{label}</p>
+      class={cx(blockquoteStyles.labelRow, TITLE_COLOR[d.variant])}
+    >{#if icon}<span class={cx(blockquoteStyles.iconSpan)}>{@render icon()}</span>{/if}{label}</p>
   {/if}
   {@render children?.()}
   {#if cite}
-    <footer data-jx-blockquote-cite="" class="text-[0.8125rem] text-muted-foreground">
-      <cite class="italic">{cite}</cite>
+    <footer data-jx-blockquote-cite="" class={cx(blockquoteStyles.citeRow)}>
+      <cite class={cx(blockquoteStyles.citeItalic)}>{cite}</cite>
     </footer>
   {/if}
 </blockquote>

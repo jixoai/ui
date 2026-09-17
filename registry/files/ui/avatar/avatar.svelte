@@ -39,12 +39,20 @@
   size and silhouette ride the valued attributes `data-jx-avatar={size}`
   and `data-jx-avatar-variant={variant}` (one per dimension, exact-match
   queryable); the initials block adds boolean `data-jx-avatar-fallback`.
+
+  tailwindless one-shot Wave 1 (2026-09-17): frame/sizes/postures ride
+  avatar.stylex.ts atoms (joined through the payload's own cx()); the
+  silhouette geometry rides avatar.css keyed on the data contract
+  above — the class channel carries paint, the data channel carries
+  shape.
 -->
 <script lang="ts">
   import type { HTMLImgAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
   import { AvatarDefaults, type AvatarSize, type AvatarVariant } from './avatar-defaults.svelte';
+  import { avatarStyles } from './avatar.stylex';
+  import './avatar.css';
 
   interface Props extends Omit<HTMLImgAttributes, 'alt'> {
     /** image URL; empty/failed loads fall back to the initials block */
@@ -98,27 +106,33 @@
   const decorative = $derived(alt === '');
   const px = $derived(d.size === 'sm' ? 24 : d.size === 'lg' ? 40 : 32);
 
-  // one geometry, deterministic per combination: the size owns the box,
-  // the silhouette owns the corners (bevel's cut scales with the box —
-  // md IS the var(--radius) baseline, sm/lg ride the same proportion)
-  // md is CONTEXT-OWNED: inside a list-item media host the provider
-  // injects --jx-avatar-md (the derived media square) so the avatar
-  // fills its box with zero override fights (utilities layer keeps
-  // winning over component css — so the size RIDES a token instead);
-  // everywhere else the fallback keeps the classic 2rem
-  const sizeUtilities = {
-    sm: 'w-6 h-6',
-    md: 'w-[var(--jx-avatar-md,2rem)] h-[var(--jx-avatar-md,2rem)]',
-    lg: 'w-10 h-10',
-  } as const;
-  const variantUtilities = {
-    bevel: {
-      sm: '[corner-shape:bevel] rounded-[calc(var(--radius)*0.75)]',
-      md: '[corner-shape:bevel] rounded-(--radius)',
-      lg: '[corner-shape:bevel] rounded-[calc(var(--radius)*1.25)]',
-    },
-    rounded: { sm: '[corner-shape:round] rounded-full', md: '[corner-shape:round] rounded-full', lg: '[corner-shape:round] rounded-full' },
-    squircle: { sm: '[corner-shape:squircle] rounded-full', md: '[corner-shape:squircle] rounded-full', lg: '[corner-shape:squircle] rounded-full' },
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // one geometry, deterministic per combination: the size owns the box
+  // (md is CONTEXT-OWNED: --jx-avatar-md injected by a list-item media
+  // host fills its box, zero override fights; everywhere else the
+  // fallback keeps the classic 2rem); the silhouette owns the corners
+  // (avatar.css, keyed on the data contract — bevel's cut scales with
+  // the box: md IS the var(--radius) baseline)
+  const SIZE_ATOM = {
+    sm: avatarStyles.sizeSm,
+    md: avatarStyles.sizeMd,
+    lg: avatarStyles.sizeLg,
   } as const;
 
   const initials = $derived.by(() => {
@@ -133,13 +147,7 @@
   // nothing to tip on an empty name, whatever the flag says
   const tipped = $derived(tooltip && name.trim().length > 0);
 
-  const shell = $derived(
-    cn(
-      'flex-none box-border object-cover border border-border bg-card text-muted-foreground',
-      sizeUtilities[d.size],
-      variantUtilities[d.variant][d.size],
-    ),
-  );
+  const shell = $derived(cx(avatarStyles.frame, SIZE_ATOM[d.size]));
 </script>
 
 {#snippet body()}
@@ -147,7 +155,7 @@
     <img
       data-jx-avatar={d.size}
       data-jx-avatar-variant={d.variant}
-      class={cn(shell, 'inline-block', className)}
+      class={cn(cx(shell, avatarStyles.imgPosture), className)}
       {src}
       {alt}
       loading="lazy"
@@ -162,7 +170,7 @@
       data-jx-avatar={d.size}
       data-jx-avatar-variant={d.variant}
       data-jx-avatar-fallback
-      class={cn(shell, 'inline-flex items-center justify-center bg-muted font-nav text-xs tracking-[0.06em] uppercase whitespace-nowrap overflow-hidden', className)}
+      class={cn(cx(shell, avatarStyles.fallbackPosture), className)}
       role={decorative ? undefined : 'img'}
       aria-label={decorative ? undefined : name}
       aria-hidden={decorative || undefined}

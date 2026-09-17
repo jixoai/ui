@@ -1,0 +1,14 @@
+@layer theme, base, components, utilities;
+
+/* a11y-table.css — the reference table's lane-2 residue
+ * (tailwindless one-shot W1, 2026-09-17; www-only site component).
+ * ONE rule: the section heading's font-medium — the 500 weight has
+ * no token (reported for promotion), and tier-2 slots in atoms are
+ * token-bound only. Registered semantics proposal: owner this sheet,
+ * scope "the h4 section voice's 500 weight". */
+
+@layer components {
+  :where(.jx-a11y-heading) {
+    font-weight: 500;
+  }
+}

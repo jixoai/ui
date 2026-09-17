@@ -42,9 +42,10 @@
 import * as stylex from '@stylexjs/stylex';
 
 /**
- * The typed theme table. 79 members (60 + the site voice scale's 19,
- * tailwindless-site P0), order mirroring the sheet's own declaration
- * order (auditability); the doc comment inside each group names the
+ * The typed theme table. 110 members (60 + the site voice scale's
+ * 19 + the Wave 1 scale extension's 31, tailwindless one-shot),
+ * order mirroring the sheet's own declaration order
+ * (auditability); the doc comment inside each group names the
  * sheet law it mirrors.
  */
 export const tokens = stylex.defineVars({
@@ -60,6 +61,9 @@ export const tokens = stylex.defineVars({
   '--jx-popover-foreground': 'var(--popover-foreground)',
   '--jx-primary': 'var(--primary)',
   '--jx-primary-foreground': 'var(--primary-foreground)',
+  // primary-tinted surfaces' ink (W1: terminal-header/hero/cta
+  // demanded typed access; the sheet owned the value since r1)
+  '--jx-primary-text': 'var(--primary-text)',
   '--jx-secondary': 'var(--secondary)',
   '--jx-secondary-foreground': 'var(--secondary-foreground)',
   '--jx-muted': 'var(--muted)',
@@ -143,16 +147,50 @@ export const tokens = stylex.defineVars({
   '--jx-text-label': 'var(--text-label)',
   '--jx-text-label-lg': 'var(--text-label-lg)',
   '--jx-text-small': 'var(--text-small)',
+  // the Wave 1 scale extension (tailwindless one-shot, 2026-09-17):
+  // the four migration batches' cross-family demand — sm/body text
+  // steps, the tracking/weight/leading/motion ladders, three space
+  // rungs. Order mirrors the sheet's own voice-scale section.
+  '--jx-text-sm': 'var(--text-sm)',
+  '--jx-text-body-lg': 'var(--text-body-lg)',
+  '--jx-text-body-xl': 'var(--text-body-xl)',
   '--jx-track-label': 'var(--track-label)',
   '--jx-track-wide': 'var(--track-wide)',
+  '--jx-track-tight': 'var(--track-tight)',
+  '--jx-track-04': 'var(--track-04)',
+  '--jx-track-06': 'var(--track-06)',
+  '--jx-track-10': 'var(--track-10)',
+  '--jx-track-12': 'var(--track-12)',
+  '--jx-track-14': 'var(--track-14)',
+  '--jx-track-18': 'var(--track-18)',
+  '--jx-track-20': 'var(--track-20)',
+  '--jx-weight-medium': 'var(--weight-medium)',
+  '--jx-weight-semibold': 'var(--weight-semibold)',
+  '--jx-weight-bold': 'var(--weight-bold)',
+  '--jx-leading-none': 'var(--leading-none)',
+  '--jx-leading-12': 'var(--leading-12)',
+  '--jx-leading-tight': 'var(--leading-tight)',
+  '--jx-leading-14': 'var(--leading-14)',
+  '--jx-leading-145': 'var(--leading-145)',
+  '--jx-leading-15': 'var(--leading-15)',
+  '--jx-leading-155': 'var(--leading-155)',
+  '--jx-motion-100': 'var(--motion-100)',
+  '--jx-motion-150': 'var(--motion-150)',
+  '--jx-motion-200': 'var(--motion-200)',
+  '--jx-motion-hero': 'var(--motion-hero)',
+  '--jx-motion-ease-out': 'var(--motion-ease-out)',
+  '--jx-motion-ease-nav': 'var(--motion-ease-nav)',
   '--jx-shell-w': 'var(--shell-w)',
   '--jx-stage-w': 'var(--stage-w)',
+  '--jx-space-2': 'var(--space-2)',
   '--jx-space-4': 'var(--space-4)',
   '--jx-space-6': 'var(--space-6)',
   '--jx-space-8': 'var(--space-8)',
   '--jx-space-10': 'var(--space-10)',
   '--jx-space-12': 'var(--space-12)',
+  '--jx-space-14': 'var(--space-14)',
   '--jx-space-16': 'var(--space-16)',
+  '--jx-space-18': 'var(--space-18)',
   '--jx-space-20': 'var(--space-20)',
   '--jx-space-24': 'var(--space-24)',
   '--jx-space-32': 'var(--space-32)',

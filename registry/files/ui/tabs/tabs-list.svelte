@@ -132,6 +132,7 @@
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
+  import { tabsStyles } from './tabs.stylex';
   import ScrollChrome from '../scroll-run/scroll-chrome.svelte';
   import { createScrollStamp, nudgeRun, isRtlElement, type ScrollStamp } from '../scroll-run/scroll-run.svelte';
   // the glass/liquid materials ride the SHARED stamp channel
@@ -168,6 +169,22 @@
     children,
     ...rest
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /** name-collision law: a function IS the override snippet (Svelte's
    *  own runtime check for snippets); a string selects a built-in */
@@ -565,7 +582,7 @@
   data-indicator={material}
   data-layout={layout}
   class={cn(
-    'relative box-border',
+    cx(tabsStyles.host),
     // the ONE-CELL GRID HOST (Owner law): the tablist scroller, the
     // veil layer and the chevron buttons stack in the same cell —
     // grid positions them, z-index layers them, never position:*
@@ -573,10 +590,10 @@
     // var family + verdict gates key on it — caught live on the docs
     // page as always-visible ghost chips with no ink and no glyph)
     orientation === 'horizontal'
-      ? 'jx-scroll-host jx-tabs-horizontal grid [grid-template-columns:minmax(0,1fr)]'
-      : 'jx-tabs-vertical flex flex-col items-stretch [gap:var(--jx-gap)]',
-    material === 'line' && (orientation === 'vertical' ? 'border-r border-border' : 'border-b border-border'),
-    orientation === 'vertical' && layout === 'wrap' && 'flex-wrap',
+      ? 'jx-scroll-host jx-tabs-horizontal ' + cx(tabsStyles.hostHorizontal)
+      : 'jx-tabs-vertical ' + cx(tabsStyles.hostVertical),
+    material === 'line' && (orientation === 'vertical' ? cx(tabsStyles.hostBorderRight) : cx(tabsStyles.hostBorderBottom)),
+    orientation === 'vertical' && layout === 'wrap' ? cx(tabsStyles.wrap) : '',
     className,
   )}
   style={hostStyle}
@@ -592,15 +609,15 @@
     aria-orientation={orientation}
     tabindex="-1"
     class={cn(
-      'box-border',
+      cx(tabsStyles.listBase),
       // horizontal: THE run — role=tablist IS the scroller (the a11y
       // scroll region and the DOM scroller are one element); it is the
       // indicator's containing block (position: relative — offsets are
       // run-relative, the bar scrolls WITH the content). Vertical
       // strips keep the flat flex column
       orientation === 'horizontal'
-        ? 'jx-tabs-run relative flex items-stretch overflow-x-auto [gap:var(--jx-gap)]' + (layout === 'wrap' ? ' flex-wrap' : '')
-        : 'flex flex-col',
+        ? 'jx-tabs-run ' + cx(tabsStyles.listRun) + (layout === 'wrap' ? ' ' + cx(tabsStyles.wrap) : '')
+        : cx(tabsStyles.listColumn),
     )}
     data-layout={orientation === 'horizontal' ? layout : undefined}
     onkeydown={handleKeydown}

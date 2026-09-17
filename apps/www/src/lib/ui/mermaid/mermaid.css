@@ -178,6 +178,16 @@
   :where([data-jx-mermaid-error]) {
     background: color-mix(in oklab, var(--error) 8%, var(--background));
   }
+
+  /* the copied check glyph's svg sizing (tailwindless Wave 1 batch 3,
+     2026-09-17): the old [&_svg]:h-3/w-3/stroke-[2.5] utilities — a
+     descendant boundary, StyleX atoms cannot express it; keyed on the
+     EXISTING copied semantic class so only the check lane matches */
+  :where(.jx-mermaid-copy.copied [data-jx-mermaid-icon] svg) {
+    height: calc(var(--jx-unit) * 3);
+    width: calc(var(--jx-unit) * 3);
+    stroke-width: 2.5;
+  }
 }
 
 @keyframes jx-mermaid-fade {

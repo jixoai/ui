@@ -1,0 +1,296 @@
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, components.stylex.priority5, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
+  :root, .x1klgzij {
+    --jx-brand-hue: var(--brand-hue);
+    --jx-background: var(--background);
+    --jx-foreground: var(--foreground);
+    --jx-card: var(--card);
+    --jx-card-foreground: var(--card-foreground);
+    --jx-popover: var(--popover);
+    --jx-popover-foreground: var(--popover-foreground);
+    --jx-primary: var(--primary);
+    --jx-primary-foreground: var(--primary-foreground);
+    --jx-primary-text: var(--primary-text);
+    --jx-secondary: var(--secondary);
+    --jx-secondary-foreground: var(--secondary-foreground);
+    --jx-muted: var(--muted);
+    --jx-muted-foreground: var(--muted-foreground);
+    --jx-accent: var(--accent);
+    --jx-accent-foreground: var(--accent-foreground);
+    --jx-destructive: var(--destructive);
+    --jx-destructive-foreground: var(--destructive-foreground);
+    --jx-border: var(--border);
+    --jx-input: var(--input);
+    --jx-ring: var(--ring);
+    --jx-terminal: var(--terminal);
+    --jx-terminal-foreground: var(--terminal-foreground);
+    --jx-terminal-hover: var(--terminal-hover);
+    --jx-terminal-muted: var(--terminal-muted);
+    --jx-success: var(--success);
+    --jx-success-foreground: var(--success-foreground);
+    --jx-warning: var(--warning);
+    --jx-warning-foreground: var(--warning-foreground);
+    --jx-info: var(--info);
+    --jx-info-foreground: var(--info-foreground);
+    --jx-error: var(--error);
+    --jx-error-foreground: var(--error-foreground);
+    --jx-chart-1: var(--chart-1);
+    --jx-chart-2: var(--chart-2);
+    --jx-chart-3: var(--chart-3);
+    --jx-chart-4: var(--chart-4);
+    --jx-chart-5: var(--chart-5);
+    --jx-font-sans: var(--font-sans);
+    --jx-font-mono: var(--font-mono);
+    --jx-font-nav: var(--font-nav);
+    --jx-radius: var(--radius);
+    --jx-shadow-color: var(--shadow-color);
+    --jx-shadow-2xs: var(--shadow-2xs);
+    --jx-shadow-xs: var(--shadow-xs);
+    --jx-shadow-sm: var(--shadow-sm);
+    --jx-shadow: var(--shadow);
+    --jx-shadow-md: var(--shadow-md);
+    --jx-shadow-xs-press: var(--shadow-xs-press);
+    --jx-shadow-sm-press: var(--shadow-sm-press);
+    --jx-shadow-md-press: var(--shadow-md-press);
+    --jx-shadow-engrave: var(--shadow-engrave);
+    --jx-shadow-well: var(--shadow-well);
+    --jx-shadow-well-hover: var(--shadow-well-hover);
+    --jx-shadow-paper: var(--shadow-paper);
+    --jx-scrim: var(--scrim);
+    --jx-surface-shadow: var(--surface-shadow);
+    --jx-scrollbar-track: var(--scrollbar-track);
+    --jx-scrollbar-thumb: var(--scrollbar-thumb);
+    --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+    --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+    --jx-text-micro: var(--text-micro);
+    --jx-text-label: var(--text-label);
+    --jx-text-label-lg: var(--text-label-lg);
+    --jx-text-small: var(--text-small);
+    --jx-text-sm: var(--text-sm);
+    --jx-text-body-lg: var(--text-body-lg);
+    --jx-text-body-xl: var(--text-body-xl);
+    --jx-track-label: var(--track-label);
+    --jx-track-wide: var(--track-wide);
+    --jx-track-tight: var(--track-tight);
+    --jx-track-04: var(--track-04);
+    --jx-track-06: var(--track-06);
+    --jx-track-10: var(--track-10);
+    --jx-track-12: var(--track-12);
+    --jx-track-14: var(--track-14);
+    --jx-track-18: var(--track-18);
+    --jx-track-20: var(--track-20);
+    --jx-weight-medium: var(--weight-medium);
+    --jx-weight-semibold: var(--weight-semibold);
+    --jx-weight-bold: var(--weight-bold);
+    --jx-leading-none: var(--leading-none);
+    --jx-leading-12: var(--leading-12);
+    --jx-leading-tight: var(--leading-tight);
+    --jx-leading-14: var(--leading-14);
+    --jx-leading-145: var(--leading-145);
+    --jx-leading-15: var(--leading-15);
+    --jx-leading-155: var(--leading-155);
+    --jx-motion-100: var(--motion-100);
+    --jx-motion-150: var(--motion-150);
+    --jx-motion-200: var(--motion-200);
+    --jx-motion-hero: var(--motion-hero);
+    --jx-motion-ease-out: var(--motion-ease-out);
+    --jx-motion-ease-nav: var(--motion-ease-nav);
+    --jx-shell-w: var(--shell-w);
+    --jx-stage-w: var(--stage-w);
+    --jx-space-2: var(--space-2);
+    --jx-space-4: var(--space-4);
+    --jx-space-6: var(--space-6);
+    --jx-space-8: var(--space-8);
+    --jx-space-10: var(--space-10);
+    --jx-space-12: var(--space-12);
+    --jx-space-14: var(--space-14);
+    --jx-space-16: var(--space-16);
+    --jx-space-18: var(--space-18);
+    --jx-space-20: var(--space-20);
+    --jx-space-24: var(--space-24);
+    --jx-space-32: var(--space-32);
+    --jx-space-40: var(--space-40);
+    --jx-hairline: var(--hairline);
+  }
+}
+
+@layer components.stylex.priority2 {
+  .x1ghz6dp {
+    margin: 0;
+  }
+}
+
+@layer components.stylex.priority3 {
+  .x3qsdy5 {
+    border-color: var(--readonly-code-border);
+  }
+
+  .x1y0btm7 {
+    border-style: solid;
+  }
+
+  .x1j5qm77 {
+    border-width: var(--jx-hairline);
+  }
+
+  .x98rzlu {
+    flex: 1;
+  }
+
+  .x1kupzwg {
+    gap: var(--jx-space-12);
+  }
+
+  .xb3r6kr {
+    overflow: hidden;
+  }
+
+  .xeqyaly {
+    padding-block: calc(var(--jx-unit) * 1.28);
+  }
+
+  .xb44xo0 {
+    padding-inline: var(--jx-space-12);
+  }
+}
+
+@layer components.stylex.priority4 {
+  .x6s0dn4 {
+    align-items: center;
+  }
+
+  .x10g96x4 {
+    background-color: var(--readonly-code-bg);
+  }
+
+  .xpzske6 {
+    background-color: var(--readonly-code-meta-bg);
+  }
+
+  .x1ym7tfx {
+    color: var(--readonly-code-meta-fg);
+  }
+
+  .x78zum5 {
+    display: flex;
+  }
+
+  .x3nfvp2 {
+    display: inline-flex;
+  }
+
+  .xdt5ytf {
+    flex-direction: column;
+  }
+
+  .xzavzzj {
+    font-family: var(--jx-font-nav);
+  }
+
+  .x6yizsu {
+    font-size: var(--jx-text-label);
+  }
+
+  .x1qughib {
+    justify-content: space-between;
+  }
+
+  .x13rvg6l {
+    letter-spacing: calc(var(--track-wide) * 1.75);
+  }
+
+  .xp0kdp7 {
+    letter-spacing: var(--jx-track-wide);
+  }
+
+  .x18km98s {
+    opacity: .75;
+  }
+
+  .xbauc9t {
+    padding-inline-end: var(--jx-space-8);
+  }
+
+  .xf0jktp {
+    padding-inline-start: var(--jx-space-12);
+  }
+
+  .x1n2onr6 {
+    position: relative;
+  }
+
+  .xlyipyv {
+    text-overflow: ellipsis;
+  }
+
+  .xtvhhri {
+    text-transform: uppercase;
+  }
+
+  .xuxw1ft {
+    white-space: nowrap;
+  }
+}
+
+@layer components.stylex.priority5 {
+  .xb2d4eo {
+    border-bottom-color: var(--readonly-code-border);
+  }
+
+  .x1q0q8m5 {
+    border-bottom-style: solid;
+  }
+
+  .x15nk5b1 {
+    border-bottom-width: var(--jx-hairline);
+  }
+
+  .x7n9ejg {
+    border-top-color: var(--readonly-code-border);
+  }
+
+  .x13fuv20 {
+    border-top-style: solid;
+  }
+
+  .x8gjool {
+    border-top-width: var(--jx-hairline);
+  }
+
+  .x5yr21d {
+    height: 100%;
+  }
+
+  .x8x9d4c {
+    margin-left: auto;
+  }
+
+  .x2lwn1j {
+    min-height: 0;
+  }
+
+  .x1a5yqsw {
+    min-height: 2.1rem;
+  }
+
+  .xeuugli {
+    min-width: 0;
+  }
+
+  .x1odjw0f {
+    overflow-y: auto;
+  }
+
+  .x1yijxgd {
+    padding-bottom: calc(var(--jx-unit) * 1.2);
+  }
+
+  .x109uazp {
+    padding-top: calc(var(--jx-unit) * 1.2);
+  }
+}
+
+@layer utilities;
+/* buildId: 7119ccca8c08e569354ee25ccf3745534e92764eb2e7a0f2f9be5fa80bc54567 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

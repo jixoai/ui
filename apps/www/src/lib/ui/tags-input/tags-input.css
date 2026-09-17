@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai tags-input — D1-exempt residue (tw4, 2026-08-24): the shell,
  * chips, typing input and suggestion rows paint as token utilities in
@@ -76,7 +77,7 @@
    are gone. */
 :where(.jx-tags-shell) {
   box-shadow: var(--shadow-well);
-  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+  transition: box-shadow var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
 }
 :where(.jx-tags-shell:not(:has(input:disabled)):hover) {
   box-shadow: var(--shadow-well-hover);
@@ -110,6 +111,40 @@
 :where(.jx-tags-suggestion:hover) {
   background: var(--terminal-hover);
   color: var(--terminal-foreground);
+}
+
+/* the seams the utilities carried (tailwindless one-shot, 2026-09-16):
+   the chip/×/row transitions (border-color / color,transform / the
+   row pair — durations mirror the replaced utilities; no motion token
+   exists, reported), the shake animation entry on .jx-tags-flash, the
+   shell's color-scheme pair (scheme-light dark:scheme-dark), the ×
+   disabled cursor, and the typing input's ::placeholder pair. All on
+   the unlayered carve-out: the atoms nest under components, so the
+   poses overriding atom paint ride the unlayered level. */
+:where(.jx-tags-tag) {
+  transition: border-color var(--motion-100) var(--motion-ease-out);
+}
+:where(.jx-tags-tag.jx-tags-flash) {
+  animation: jx-tags-shake var(--motion-150) ease-in-out;
+}
+:where(.jx-tags-remove) {
+  transition: color var(--motion-100) var(--motion-ease-out), transform var(--motion-100) var(--motion-ease-out);
+}
+:where(.jx-tags-remove:disabled) {
+  cursor: not-allowed;
+}
+:where(.jx-tags-suggestion) {
+  transition: background-color var(--motion-100) var(--motion-ease-out), color var(--motion-100) var(--motion-ease-out);
+}
+:where(.jx-tags-shell) {
+  color-scheme: light;
+}
+.dark :where(.jx-tags-shell) {
+  color-scheme: dark;
+}
+:where([data-jx-tags-input])::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

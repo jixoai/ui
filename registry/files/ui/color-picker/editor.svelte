@@ -46,6 +46,7 @@
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
+  import { colorPickerStyles } from './color-picker.stylex';
   import Swatches from './swatches.svelte';
   import './color-picker.css';
   import {
@@ -70,6 +71,20 @@
   }
 
   let { value, onpick, class: className = '' }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   // ---- color state: HSV working model, OKLCH intermediate ---------------
   // the seeds below DELIBERATELY capture the mount-time `value` (external
@@ -237,7 +252,7 @@
 <div
   bind:this={rootEl}
   data-jx-color-picker-editor
-  class={cn('jx-color-picker-editor flex flex-col gap-2.5', className)}
+  class={cn('jx-color-picker-editor', cx(colorPickerStyles.editor), className)}
 >
   <!-- the SV pad and the hue rail are DECORATIVE input aids
        (aria-hidden, E-5 2026-09-02): they are pointer-only surfaces —
@@ -248,7 +263,7 @@
   <div
     bind:this={svEl}
     aria-hidden="true"
-    class="jx-color-picker-sv relative [direction:ltr] w-full h-[150px] border border-border bg-[hsl(var(--jx-color-picker-hue)_100%_50%)] cursor-crosshair touch-none select-none"
+    class="jx-color-picker-sv {cx(colorPickerStyles.svPad)}"
     style="--jx-color-picker-hue: {hue}"
     onpointerdown={onSvDown}
     onpointermove={(event) => dragSV && svFromPointer(event)}
@@ -257,7 +272,7 @@
   >
     <span
       data-jx-color-picker-dot
-      class="absolute w-2.5 h-2.5 rounded-full bg-transparent border border-white pointer-events-none"
+      class={cx(colorPickerStyles.svDot)}
       style="inset-inline-start: calc({sat * 100}% - 5px); top: calc({(1 - val) * 100}% - 5px)"
     ></span>
   </div>
@@ -266,13 +281,13 @@
     bind:this={hueEl}
     data-jx-color-picker-hue
     aria-hidden="true"
-    class="relative [direction:ltr] w-full h-3 border border-border cursor-crosshair touch-none select-none bg-[linear-gradient(to_right,hsl(0_100%_50%),hsl(60_100%_50%),hsl(120_100%_50%),hsl(180_100%_50%),hsl(240_100%_50%),hsl(300_100%_50%),hsl(360_100%_50%))]"
+    class={cx(colorPickerStyles.hueRail)}
     onpointerdown={onHueDown}
     onpointermove={(event) => dragHue && hueFromPointer(event)}
     onpointerup={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
     onpointercancel={(event) => (dragHue = endDrag(hueEl, event, dragHue) ? false : dragHue)}
   >
-    <span data-jx-color-picker-dot data-jx-color-picker-dot-hue class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-transparent border border-white pointer-events-none" style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
+    <span data-jx-color-picker-dot data-jx-color-picker-dot-hue class={cx(colorPickerStyles.hueDot)} style="inset-inline-start: calc({(hue / 360) * 100}% - 5px)"></span>
   </div>
 
   <!-- LAYOUT LAW (final-check report): the VALUE ROW is the column's
@@ -282,12 +297,12 @@
        its end as an icon-button. The pad and the hue bar span the
        FULL column so every edge flushes — no ragged 200px/256px mix.
        The format select takes its own compact row below. -->
-  <div class="flex items-center gap-1.5">
+  <div class={cx(colorPickerStyles.toolbar)}>
     <!-- icon={null}: the hex value lane is a notation field, not prose —
          the Type T would be noise beside the swatch column -->
     <Input
       data-jx-color-picker-input
-      class="font-mono text-[13px] min-w-[29ch]"
+      class={cx(colorPickerStyles.valueField)}
       bind:value={textDraft}
       onchange={commitText}
       icon={null}
@@ -300,7 +315,7 @@
           <!-- IconButton sizes nothing itself (bring-your-own-glyph law)
                — the consuming wrapper flexes, the component owns the
                15px box -->
-          <span class="inline-flex"><Icon name="pipette" size={15} /></span>
+          <span class={cx(colorPickerStyles.pipetteGlyph)}><Icon name="pipette" size={15} /></span>
         {/snippet}
       </IconButton>
     {/if}
@@ -308,7 +323,7 @@
 
   <NativeSelect
     data-jx-color-picker-format
-    class="text-xs"
+    class={cx(colorPickerStyles.formatSelect)}
     value={formatMode}
     onchange={setFormat}
     aria-label="color format"
@@ -321,7 +336,7 @@
   <!-- the shared preset palette (the embeddable half the Input picker
        bridge also mounts); picking stays in the workshop — no close.
        The grid is a fixed 8×22px track block — center it in the column -->
-  <div class="flex justify-center">
+  <div class={cx(colorPickerStyles.swatchesCenter)}>
     <Swatches value={swatch} onpick={pickSwatch} />
   </div>
 </div>

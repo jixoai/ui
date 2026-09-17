@@ -56,6 +56,7 @@
   import CardHeader from '$lib/ui/card/card-header.svelte';
   import { cn } from '$lib/utils';
   import { SheetDefaults, type SheetSurfaceVariant } from './sheet-defaults.svelte';
+  import { sheetStyles } from './sheet.stylex';
   // THE STICKER'S RULE SET (the load-bearing import — stamping
   // data-jx-card without this sheet loads nothing)
   import '$lib/ui/card/card.css';
@@ -108,21 +109,38 @@
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   /** edge docking per side: the margin that hugs the panel to its edge
    *  (inset: 0 + the auto margin on the cross axes pins it there) */
-  const dockUtilities = {
-    left: 'mr-auto',
-    right: 'ml-auto',
-    top: 'mb-auto',
-    bottom: 'mt-auto',
+  const DOCK = {
+    left: cx(sheetStyles.dockLeft),
+    right: cx(sheetStyles.dockRight),
+    top: cx(sheetStyles.dockTop),
+    bottom: cx(sheetStyles.dockBottom),
   } as const;
   /** the docked axis geometry: full-height side panels, full-width
    *  top/bottom panels with a dvh cap */
-  const axisUtilities = {
-    left: 'h-dvh w-[min(var(--jx-sheet-size),92vw)] max-h-none',
-    right: 'h-dvh w-[min(var(--jx-sheet-size),92vw)] max-h-none',
-    top: 'w-screen max-w-[100vw] max-h-[85dvh]',
-    bottom: 'w-screen max-w-[100vw] max-h-[85dvh]',
+  const AXIS = {
+    left: cx(sheetStyles.axisSide),
+    right: cx(sheetStyles.axisSide),
+    top: cx(sheetStyles.axisEdge),
+    bottom: cx(sheetStyles.axisEdge),
   } as const;
 
   $effect(() => {
@@ -172,9 +190,10 @@
 <dialog
   bind:this={dialog}
   class={cn(
-    `jx-sheet jx-sheet-${side} jx-surface inset-0 m-0 p-0 rounded-none text-popover-foreground`,
-    dockUtilities[side],
-    axisUtilities[side],
+    `jx-sheet jx-sheet-${side} jx-surface`,
+    cx(sheetStyles.frame),
+    DOCK[side],
+    AXIS[side],
     closing && 'closing',
   )}
   data-variant={d.variant}
@@ -190,14 +209,14 @@
        host ride h-full on left/right so the kernel's absorbing body
        row bounds the scroll — the old hard cap (100dvh-4.25rem, whose
        68px chrome guess drifted from the real band heights) retires -->
-  <div data-jx-sheet-surface="" class={cn('jx-surface-body', (side === 'left' || side === 'right') && 'h-full')}>
+  <div data-jx-sheet-surface="" class={cn('jx-surface-body', (side === 'left' || side === 'right') && cx(sheetStyles.fill))}>
   <!-- THE STICKER HOST: the kernel's three-band ruler carries the
        drawer (card.css); the stamps carry the band presence -->
   <div
     data-jx-card
     data-sep-head=""
     data-sep-foot={footer ? '' : undefined}
-    class={cn((side === 'left' || side === 'right') && 'h-full')}
+    class={cn((side === 'left' || side === 'right') && cx(sheetStyles.fill))}
   >
     <!-- the head band: ghost zone over the title face + the × seat -->
     <div data-jx-card-head="">
@@ -206,13 +225,13 @@
              content in the content seat — the sheet's own compact
              uppercase rhythm, self-carried) -->
         <CardHeader>
-          <div class="flex w-full min-w-0 items-center gap-3 px-[1.125rem] py-3.5">
+          <div class={cx(sheetStyles.titleRow)}>
             <h2
               data-jx-sheet-title=""
-              class="font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground"
+              class={cx(sheetStyles.title)}
             >{title}</h2>
             {#if header}
-              <div data-jx-sheet-head-extra="" class="flex flex-1 items-center min-w-0">
+              <div data-jx-sheet-head-extra="" class={cx(sheetStyles.headExtra)}>
                 {@render header()}
               </div>
             {/if}
@@ -235,12 +254,13 @@
       class={cn(
         // same-property overrides of the cell's own utilities need the
         // consumer's `!` (the class-append law — order is not
-        // consumer-guaranteed); the max-h cap beats the cell's
-        // max-height:100% by LAYER, no `!` needed
-        '!px-[max(1.125rem-var(--jx-scrollbar-thin,0px),0px)] !py-[1.125rem] text-[0.8125rem] !text-[color:var(--popover-foreground)]',
+        // consumer-guaranteed); the sheet's rhythm/ink escape hatch
+        // lives in sheet.css keyed on .jx-sheet-body-cell (same
+        // !important semantics the former ! utilities carried)
+        'jx-sheet-body-cell',
       )}
     >
-      <div class="flex flex-col gap-4">
+      <div class={cx(sheetStyles.bodyStack)}>
         {@render children()}
       </div>
     </CardBody>

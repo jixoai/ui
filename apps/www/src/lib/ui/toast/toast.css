@@ -1,13 +1,18 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
-/* jixoai toast — residue (tw4, 2026-08-24 → 2026-09-01): the enter/
- * exit keyframes (not expressible as utilities), the reduced-motion
- * kill, and — since the material/effect rebuild — the effect loops
- * and the countdown companion's drain. The enter/exit animations
- * themselves live as arbitrary-value animate utilities in the markup
- * (the leaving swap is a conditional that tailwind-merge resolves
- * inside cn()); the kill overrides them, so it rides UNLAYERED behind
- * :where() — the toggle/Part A precedent.
+
+/* jixoai toast — residue (tw4, 2026-08-24 → 2026-09-01 → tailwindless
+ * W1, 2026-09-17): the enter/exit keyframes AND the animations
+ * themselves (moved from the markup's animate utilities — motion
+ * duration/easing literals are not atom-expressible), the
+ * reduced-motion kill, the press/glass custom-property tuning (moved
+ * from arbitrary-property utilities — custom-property setters are not
+ * atom-expressible; the glass values stay the retired backdrop-blur-md
+ * ground verbatim), the §6 forced-colors degradations (moved from
+ * forced-colors: utilities — every rung collapses to Canvas/CanvasText
+ * exactly as before), the effect loops, and the countdown companion's
+ * drain. The kill overrides the animations, so it rides UNLAYERED
+ * behind :where() — the toggle/Part A precedent.
  *
  * THE EFFECT LOOPS (2026-09-01) paint dedicated LAYERS, never the
  * element's own animation slot (the enter/exit pair owns it):
@@ -38,6 +43,54 @@
 }
 
 @layer components {
+  /* ── the enter/exit animations (tailwindless W1, from the markup) ── */
+  :where([data-jx-toast]:not(.jx-toast-leaving)) {
+    animation: jx-toast-in var(--motion-200) var(--motion-ease-nav);
+  }
+  :where(.jx-toast-leaving) {
+    animation: jx-toast-out 180ms ease-in forwards;
+  }
+
+  /* ── the press physics tuning (float tier — from the markup's
+     arbitrary-property utilities; the .jx-press law sheet reads them) ── */
+  :where([data-jx-toast].jx-press) {
+    --jx-press-shadow: var(--shadow);
+    --jx-press-shadow-hover: var(--shadow-md);
+    --jx-press-shadow-active: var(--shadow-md-press);
+  }
+
+  /* ── the glass material's tuning vars (the law sheet paints off
+     data-jx-effect='blur'; 12px / saturate 1 / 55% fill = the retired
+     backdrop-blur-md ground verbatim — computed-equivalence) ── */
+  :where([data-jx-toast][data-jx-effect='blur']) {
+    --jx-glass-radius: 12px;
+    --jx-glass-saturate: 1;
+    --jx-glass-fill: color-mix(in oklab, var(--popover) 55%, transparent);
+  }
+
+  /* ── the §6 forced-colors degradations (from forced-colors:
+     utilities — the rungs collapse under the system palette) ── */
+  @media (forced-colors: active) {
+    :where([data-jx-toast]) {
+      background: Canvas;
+      border-color: CanvasText;
+    }
+    :where([data-jx-toast-title]),
+    :where([data-jx-toast-desc]) {
+      color: CanvasText;
+    }
+    :where([data-jx-toast-dismiss]) {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+      color: ButtonText;
+    }
+    :where([data-jx-toast-queued]) {
+      background: Canvas;
+      border-color: CanvasText;
+      color: CanvasText;
+    }
+  }
+
   /* ── the effect layers ── */
   :where([data-jx-toast][data-effect='pulse']) {
     position: relative;

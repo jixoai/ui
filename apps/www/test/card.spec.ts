@@ -215,15 +215,17 @@ describe('card — the DOM contract (rendered)', () => {
     const byText = Object.fromEntries(
       [...footZone.querySelectorAll('button')].map((b) => [b.textContent?.trim(), b]),
     ) as Record<string, HTMLElement>;
-    // no explicit prop ⇒ the zone's raised=false default adopts the flat pose
+    // no explicit prop ⇒ the zone's raised=false default adopts the
+    // flat pose (tailwindless W1 batch 0: the four flat seams live in
+    // press-button.css keyed on the data-jx-press-flat stamp — the
+    // utility custom-prop seams retired with the utilities)
     for (const label of ['Cancel', 'Save']) {
-      expect(byText[label].className).toContain('[--jx-press-move:none]');
-      expect(byText[label].className).toContain('[--jx-press-shadow-active:var(--shadow-engrave)]');
+      expect(byText[label].hasAttribute('data-jx-press-flat')).toBe(true);
+      expect(byText[label].className).toContain('press-button__pressButtonStyles');
     }
-    // explicit ALWAYS wins — none of the flat block's seams ride (a
-    // convex ghost keeps its own none-trio; that is r13 law, not flat)
-    expect(byText['Raised'].className).not.toContain('--jx-press-move');
-    expect(byText['Raised'].className).not.toContain('engrave');
+    // explicit ALWAYS wins — the convex rung never stamps flat (that
+    // is r13 law, not flat)
+    expect(byText['Raised'].hasAttribute('data-jx-press-flat')).toBe(false);
   });
   it('a full card: both stamps; zone order [head, sep-head, body, sep-foot, foot]; the foot zone is RAW transport', () => {
     const el = host().querySelector('.card-full')!;

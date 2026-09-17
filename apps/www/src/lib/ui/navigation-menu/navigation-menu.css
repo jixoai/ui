@@ -1,0 +1,31 @@
+@layer properties, theme, base, components, utilities;
+
+/*
+ * jixoai navigation-menu lane-2 sheet (tailwindless one-shot Wave 1
+ * batch 1, 2026-09-16). The entries' interactive seams — hover ink as
+ * NATIVE pseudos keyed on the family hooks (never JS data-attr state)
+ * and the color transitions the poses rode. Durations mirror the
+ * theme sheet's own 150ms ease-out constant (no motion token exists
+ * yet — reported as the --jx-motion-fast promotion candidate).
+ *
+ * UNLAYERED :where() (the menubar carve-out law): the stylex tiers
+ * nest UNDER components (components.stylex.priorityN sorts after the
+ * parent layer's direct rules), so anything that must override the
+ * entries' own ATOM ink (idle/current color atoms) rides the
+ * unlayered level behind :where() — zero specificity, consumer css
+ * still ties-wins there.
+ */
+
+:where([data-jx-navmenu-trigger]),
+:where([data-jx-navmenu-link]) {
+  transition: color var(--motion-150) var(--motion-ease-out), background-color var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
+}
+:where([data-jx-navmenu-trigger:hover]),
+:where([data-jx-navmenu-link:hover]) {
+  color: var(--foreground);
+}
+:where([data-jx-navmenu-trigger]:focus-visible),
+:where([data-jx-navmenu-link]:focus-visible) {
+  outline: var(--hairline) solid var(--ring);
+  outline-offset: -1px;
+}

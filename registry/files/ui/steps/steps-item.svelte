@@ -75,6 +75,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext, setContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { stepsStyles } from './steps.stylex';
   import { STEPS_KEY, type StepsApi } from './steps.svelte';
 
   interface Props extends HTMLAttributes<HTMLLIElement> {
@@ -103,6 +104,20 @@
     children,
     ...rest
   }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   const steps = getContext<StepsApi>(STEPS_KEY);
 
@@ -153,11 +168,11 @@
 <li
   data-jx-step-item=""
   data-jx-step={effective}
-  class={cn('flex-1 min-w-[9rem]', className)}
+  class={cn(cx(stepsStyles.item), className)}
   {...rest}
   tabindex="-1"
   aria-current={effective === 'current' ? 'step' : undefined}
 >
-  <span class="sr-only">{statusText[effective]}</span>
+  <span class={cx(stepsStyles.srOnly)}>{statusText[effective]}</span>
   {@render children()}
 </li>

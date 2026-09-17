@@ -157,7 +157,12 @@ describe('Steps family — marker button only when onclick + done', () => {
     // the child-built element keeps the part's props: class carried, type kept
     expect(replaced.getAttribute('type')).toBe('button');
     // the indicator's glyph box now derives from the ctl icon alias
-    expect(replaced.className).toContain('[width:var(--jx-icon)]');
+    // tailwindless W1: the geometry rides the marker atom (css-source
+    // for the channel declarations themselves)
+    expect(replaced.className.replace(/\s+/g, '')).toContain('stepsStyles.marker');
+    expect(
+      readFileSync(resolve(specDir, '../src/lib/ui/steps/steps.stylex.ts'), 'utf8'),
+    ).toContain("width: 'var(--jx-icon)'");
     // consumer utilities appended after props.class win the merge
     expect(replaced.className).toContain('ring-1');
   });
@@ -262,7 +267,7 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
       expect(li.getAttribute('aria-current')).toBeNull();
       // the middle state is not a control: never a button
       expect(li.querySelector('button')).toBeNull();
-      expect(li.querySelector('[data-jx-step-indicator]')!.className).toContain('border-primary');
+      expect(stepsCss).toContain(`:where([data-jx-step='pending']) :where([data-jx-step-indicator])`);
     });
 
     it("the terminal states carry their semantic glyphs and pairs: success ✓ / error ✕", () => {
@@ -270,29 +275,30 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
       const winLi = last(win.container);
       expect(winLi.getAttribute('data-jx-step')).toBe('success');
       expect(winLi.querySelector('[data-jx-step-index]')!.textContent).toBe('✓');
-      expect(winLi.querySelector('[data-jx-step-indicator]')!.className).toContain('bg-success');
+      expect(stepsCss).toContain(`:where([data-jx-step='success']) :where([data-jx-step-indicator])`);
       win.unmount();
 
       const fail = render(StepsHost, { props: { lastState: 'error' } });
       const failLi = last(fail.container);
       expect(failLi.getAttribute('data-jx-step')).toBe('error');
       expect(failLi.querySelector('[data-jx-step-index]')!.textContent).toBe('✕');
-      expect(failLi.querySelector('[data-jx-step-indicator]')!.className).toContain('bg-error');
+      expect(stepsCss).toContain(`:where([data-jx-step='error']) :where([data-jx-step-indicator])`);
     });
 
     it("hint carries the info pair (i) and emphasis the quest-giver ! (filled)", () => {
       const hint = render(StepsHost, { props: { lastState: 'hint' } });
       const hintLi = last(hint.container);
       expect(hintLi.querySelector('[data-jx-step-index]')!.textContent).toBe('i');
-      expect(hintLi.querySelector('[data-jx-step-indicator]')!.className).toContain('text-info');
+      expect(stepsCss).toContain(`:where([data-jx-step='hint']) :where([data-jx-step-indicator])`);
       hint.unmount();
 
       const emph = render(StepsHost, { props: { lastState: 'emphasis' } });
       const emphLi = last(emph.container);
       expect(emphLi.querySelector('[data-jx-step-index]')!.textContent).toBe('!');
-      // V2-6: emphasis is the hollow + halo ring now (current keeps the fill)
-      expect(emphLi.querySelector('[data-jx-step-indicator]')!.className).toContain('ring-1');
-      expect(emphLi.querySelector('[data-jx-step-indicator]')!.className).not.toContain('bg-primary');
+      // V2-6: emphasis is the hollow + halo ring now (current keeps the
+      // fill) — tailwindless W1: the ring rides the css rung (source)
+      expect(stepsCss).toContain(`:where([data-jx-step='emphasis']) :where([data-jx-step-indicator])`);
+      expect(stepsCss).toContain('box-shadow:');
     });
 
     it('disabled is a DECLARED out-of-reach — dashed, reduced contrast, SPOKEN — unlike todo (the unreached)', () => {
@@ -304,15 +310,18 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
       // the state speaks as TEXT (C-6): aria-disabled on a non-control li
       // is ignored by AT, so disabled rides the sr-only status line
       expect(li.getAttribute('aria-disabled')).toBeNull();
-      expect(li.querySelector('.sr-only')!.textContent).toBe('unavailable');
-      // V2-6: DISABLED ≠ TODO — dashed ring at reduced contrast
-      expect(li.querySelector('[data-jx-step-indicator]')!.className).toContain('border-dashed');
+      expect(li.querySelector(':scope > span')!.textContent).toBe('unavailable');
+      // V2-6: DISABLED ≠ TODO — dashed ring at reduced contrast (the
+      // disabled rung is css-source since tailwindless W1)
+      expect(stepsCss).toContain(`:where([data-jx-step='disabled']) :where([data-jx-step-indicator])`);
+      expect(stepsCss).toContain('border-style: dashed;');
       // the derived trio's todo NEVER carries the disabled grammar (unreached ≠ disabled)
       const todo = [...container.querySelectorAll('[data-jx-step-item]')].at(-2)!;
       expect(todo.getAttribute('data-jx-step')).toBe('todo');
       expect(todo.getAttribute('aria-disabled')).toBeNull();
-      expect(todo.querySelector('.sr-only')!.textContent).toBe('not started');
-      expect(todo.querySelector('[data-jx-step-indicator]')!.className).not.toContain('border-dashed');
+      expect(todo.querySelector(':scope > span')!.textContent).toBe('not started');
+      expect(stepsCss).not.toContain(`:where([data-jx-step='todo']) :where([data-jx-step-indicator']) {
+    border-style: dashed;`);
     });
 
     it("auto keeps the derived trio byte-identical (the override's default)", () => {
@@ -329,7 +338,7 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
       expect(li.getAttribute('data-jx-step')).toBe('current');
       expect(li.getAttribute('aria-current')).toBe('step');
       // and it reads as current to AT through the status text as well
-      expect(li.querySelector('.sr-only')!.textContent).toBe('current step');
+      expect(li.querySelector(':scope > span')!.textContent).toBe('current step');
     });
 
     it('every state is AT-visible as sr-only status text — the words, not the paint (C-6)', () => {
@@ -343,7 +352,7 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
       for (const [state, text] of words) {
         const { container } = render(StepsHost, { props: { lastState: state } });
         const li = last(container);
-        const status = li.querySelector('.sr-only')!;
+        const status = li.querySelector(':scope > span')!;
         expect(status, state).toBeTruthy();
         expect(status.textContent, state).toBe(text);
         // the status rides FIRST inside the item: state before content
@@ -351,7 +360,7 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
       }
       // the trio speaks too
       const trio = render(StepsHost, { props: { ordinals: [0, 1, 2], current: 1 } });
-      const texts = [...trio.container.querySelectorAll('.sr-only')].map((n) => n.textContent);
+      const texts = [...trio.container.querySelectorAll('[data-jx-step-item] > span:first-child')].map((n) => n.textContent);
       expect(texts).toEqual(['completed', 'current step', 'not started']);
     });
 
@@ -364,21 +373,23 @@ describe('Steps family — the grid anatomy and self-hide (css law)', () => {
       const done = render(StepsHost, {
         props: { ordinals: [0, 1, 2], current: 1, interactive: true },
       }).container.querySelector('button[data-jx-step-indicator]')!;
-      expect(done.className).toContain('bg-primary');
-      expect(marker('pending')).toContain('bg-card');
-      expect(marker('pending')).not.toContain('bg-primary');
-      // CURRENT vs EMPHASIS: current keeps the solid fill; emphasis is hollow + halo
-      const current = render(StepsHost, { props: { ordinals: [0, 1, 2], current: 1 } })
-        .container.querySelectorAll('[data-jx-step-item]')[1]!
-        .querySelector('[data-jx-step-indicator]')!;
-      expect(current.className).toContain('bg-primary');
-      const emphasis = marker('emphasis');
-      expect(emphasis).toContain('ring-1');
-      expect(emphasis).toContain('ring-offset-2');
-      expect(emphasis).not.toContain('bg-primary');
+      expect(stepsCss).toContain(`:where([data-jx-step='done']) :where([data-jx-step-indicator])`);
+      expect(stepsCss).toContain(`:where([data-jx-step='pending']) :where([data-jx-step-indicator])`);
+      // CURRENT vs EMPHASIS: current keeps the solid fill; emphasis is
+      // hollow + halo — the paint rungs are css-source since
+      // tailwindless W1 (keyed on the li's data-jx-step state)
+      expect(stepsCss).toContain(`:where([data-jx-step='current']) :where([data-jx-step-indicator])`);
+      const currentRung = stepsCss.indexOf(`:where([data-jx-step='current']) :where([data-jx-step-indicator])`);
+      expect(stepsCss.slice(currentRung)).toContain('background: var(--primary);');
+      const emphRung = stepsCss.indexOf(`:where([data-jx-step='emphasis']) :where([data-jx-step-indicator])`);
+      expect(stepsCss.slice(emphRung, emphRung + 400)).toContain('background: var(--card);');
+      expect(stepsCss.slice(emphRung, emphRung + 400)).toContain('box-shadow:');
       // DISABLED vs TODO: dashed + reduced contrast vs the solid hollow ring
-      expect(marker('disabled')).toMatch(/border-dashed border-border\/60/);
-      expect(marker('todo')).not.toContain('border-dashed');
+      const disRung = stepsCss.indexOf(`:where([data-jx-step='disabled']) :where([data-jx-step-indicator])`);
+      expect(stepsCss.slice(disRung, disRung + 400)).toContain('border-style: dashed;');
+      expect(stepsCss.slice(disRung, disRung + 400)).toContain('60%, transparent');
+      expect(stepsCss).not.toContain(`:where([data-jx-step='todo']) :where([data-jx-step-indicator]) {
+    border-style: dashed;`);
     });
   });
 });

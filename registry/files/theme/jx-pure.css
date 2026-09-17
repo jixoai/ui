@@ -2307,6 +2307,7 @@
       /* the primary hue drifts -4° toward dark, mirroring the reference */
       --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
       --primary-foreground: oklch(0 0 0);
+      --primary-text: var(--primary);
       --secondary: oklch(0.9691 0.2005 109.6228);
       --secondary-foreground: oklch(0 0 0);
       --muted: oklch(0.2178 0 0);

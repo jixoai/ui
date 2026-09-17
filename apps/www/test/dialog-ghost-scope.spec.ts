@@ -45,7 +45,10 @@ describe('the dialog ghost scope (r14-2 → r14-9)', () => {
     // grouped — the group WRITES the flat texture itself now), while
     // an explicit raised=true keeps the convex law (explicit ALWAYS
     // wins)
-    const flatOf = (el?: Element) => el?.className.includes('[--jx-press-move:none]') ?? false;
+    // W1: the flat pose customs can no longer ride a utility seam —
+    // the stamp carries the zone's flat resolution (the press-button
+    // flat precedent)
+    const flatOf = (el?: Element) => el?.hasAttribute('data-jx-press-flat') ?? false;
     expect(flatOf(byLabel['raw-foot-button'])).toBe(true);
     expect(flatOf(byLabel['grouped-ghost'])).toBe(true);
     expect(flatOf(byLabel['explicit-wins'])).toBe(true); // variant-explicit, physics still inherited

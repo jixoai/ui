@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai date-picker — D1-exempt residue (tw4, 2026-08-24): trigger,
  * nav, grid and cell paint as token utilities in the markup (cell
@@ -73,7 +74,7 @@
    hover lift and focus shadow-kill are gone. */
 :where(.jx-date-trigger) {
   box-shadow: var(--shadow-well);
-  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+  transition: box-shadow var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
 }
 :where(.jx-date-trigger:hover:not(:disabled)) {
   box-shadow: var(--shadow-well-hover);
@@ -115,6 +116,46 @@
 :where(.jx-date-day.jx-date-active:not(.jx-date-fill):not(.jx-date-off)) {
   background: var(--terminal-hover);
   color: var(--terminal-foreground);
+}
+
+/* ── the tailwindless lane-2 seam (Wave 1, 2026-09-17) ──────────────
+   Motion/weight/leading literals never ride atoms (no tokens yet —
+   reported MISSING: --jx-weight-bold, --jx-leading-none, the motion
+   family); keyed on the family's own hooks, :where() zero
+   specificity. The day transition now covers out cells too (they
+   have no hover state — inert, parity kept where it paints). */
+:where(.jx-date-trigger),
+:where(.jx-date-nav-btn) {
+  transition-property: background-color, transform;
+  transition-duration: var(--motion-100);
+  transition-timing-function: var(--motion-ease-out);
+}
+:where([data-jx-date-preset]) {
+  transition-property: background-color, transform;
+  transition-duration: var(--motion-100);
+  transition-timing-function: var(--motion-ease-out);
+}
+:where(.jx-date-chevron) {
+  transition-property: transform;
+  transition-duration: var(--motion-150);
+  transition-timing-function: var(--motion-ease-out);
+}
+:where(.jx-date-day) {
+  line-height: var(--leading-none);
+  transition-property: background-color, color;
+  transition-duration: var(--motion-100);
+  transition-timing-function: var(--motion-ease-out);
+}
+:where([data-jx-time-hour]),
+:where([data-jx-time-minute]) {
+  line-height: var(--leading-none);
+}
+:where([data-jx-time-mode]) {
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.025em;
+}
+:where([data-jx-date-error-mark]) {
+  font-weight: var(--weight-bold);
 }
 
 @media (prefers-reduced-motion: reduce) {

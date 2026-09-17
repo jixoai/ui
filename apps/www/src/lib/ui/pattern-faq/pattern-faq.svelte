@@ -12,11 +12,18 @@
   Composition-only laws (terminal-patterns delta): no atom prop is
   patched, no atom paint re-implemented; seeAlso stays a snippet so
   links compose as content.
+
+  tailwindless one-shot W1 (2026-09-17): the framing paint rides the
+  pattern's stylex atoms (pattern-faq.stylex.ts); the man LABEL voice
+  (NAME / SEE ALSO) is the :where(.jx-man-label) semantic rule in
+  pattern-faq.css (font-bold has no weight token — the tl-eyebrow
+  composite precedent).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Icon from '$lib/ui/icon';
   import Accordion from '$lib/ui/accordion/accordion.svelte';
+  import { patternFaqStyles } from './pattern-faq.stylex';
   import './pattern-faq.css';
 
   interface Props {
@@ -44,41 +51,55 @@
     children,
     class: className = '',
   }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <article
   data-jx-pattern-faq=""
-  class={`mx-auto w-full max-w-[52rem] ${className}`}
+  class={`${cx(patternFaqStyles.shell)} ${className}`}
   aria-label={`${command}(${section}) — frequently asked questions`}
 >
-  <header class="border-b border-border pb-4">
-    <p class="m-0 flex items-center gap-2 font-nav text-sm tracking-[0.06em]">
-      <span class="inline-flex text-muted-foreground" aria-hidden="true"><Icon name="fileText" /></span>
-      <strong class="text-foreground">{command}</strong>
-      <span class="text-muted-foreground">({section})</span>
+  <header class={cx(patternFaqStyles.header)}>
+    <p class={cx(patternFaqStyles.commandRow)}>
+      <span class={cx(patternFaqStyles.commandIcon)} aria-hidden="true"><Icon name="fileText" /></span>
+      <strong class={cx(patternFaqStyles.commandName)}>{command}</strong>
+      <span class={cx(patternFaqStyles.commandSection)}>({section})</span>
     </p>
-    <p data-jx-pattern-faq-name="" class="jx-man-row m-0 mt-3">
-      <span class="jx-man-label font-nav text-[11px] font-bold uppercase tracking-[0.14em] text-foreground">NAME</span>
+    <p data-jx-pattern-faq-name="" class="jx-man-row {cx(patternFaqStyles.nameRow)}">
+      <span class="jx-man-label">NAME</span>
       <span class="jx-man-leader" aria-hidden="true"></span>
-      <span class="min-w-0 text-[13px] leading-5 text-muted-foreground">{summary}</span>
+      <span class={cx(patternFaqStyles.summary)}>{summary}</span>
     </p>
   </header>
 
-  <div class="mt-5">
+  <div class={cx(patternFaqStyles.questions)}>
     <Accordion {exclusive}>
       {@render children()}
     </Accordion>
   </div>
 
-  <footer class="mt-5 border-t border-border pt-4">
-    <p data-jx-pattern-faq-see-also="" class="jx-man-row m-0">
-      <span class="jx-man-label font-nav text-[11px] font-bold uppercase tracking-[0.14em] text-foreground">SEE ALSO</span>
+  <footer class={cx(patternFaqStyles.footer)}>
+    <p data-jx-pattern-faq-see-also="" class="jx-man-row {cx(patternFaqStyles.seeAlsoRow)}">
+      <span class="jx-man-label">SEE ALSO</span>
       <span class="jx-man-leader" aria-hidden="true"></span>
-      <span class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-[13px] leading-5">
+      <span class={cx(patternFaqStyles.seeAlsoContent)}>
         {#if seeAlso}
           {@render seeAlso()}
         {:else}
-          <span class="text-muted-foreground">jixoai-ui(1), patterns(7)</span>
+          <span class={cx(patternFaqStyles.seeAlsoDefault)}>jixoai-ui(1), patterns(7)</span>
         {/if}
       </span>
     </p>

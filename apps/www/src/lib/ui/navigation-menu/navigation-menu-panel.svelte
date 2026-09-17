@@ -36,6 +36,7 @@
     NAVIGATION_MENU_ITEM_KEY,
     type NavigationMenuItemApi,
   } from './navigation-menu-item.svelte';
+  import { navMenuStyles } from './navigation-menu.stylex';
   import '$lib/ui/popover/popover.css';
 
   interface Props {
@@ -44,6 +45,22 @@
   }
 
   let { class: className = '', children }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const bar = getContext<NavigationMenuApi>(NAVIGATION_MENU_KEY);
   const item = getContext<NavigationMenuItemApi>(NAVIGATION_MENU_ITEM_KEY);
@@ -134,7 +151,7 @@
   class={cn(
     'jx-pop jx-surface',
     surfaceMotionSupported && 'jx-waapi',
-    'w-fit max-w-[min(92vw,26rem)]',
+    cx(navMenuStyles.panel),
     className,
   )}
   data-variant={bar.variant}
@@ -153,9 +170,9 @@
   <div data-jx-navmenu-surface="" class="jx-surface-body">
     <div
       data-jx-navmenu-scroll=""
-      class="max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-pop-pad,12px_14px)] [padding-inline:max(var(--jx-pop-pad-inline,14px)-var(--jx-scrollbar-thin,0px),0px)]"
+      class={cx(navMenuStyles.scroll)}
     >
-      <div class="flex flex-col" data-jx-navmenu-panel-body="">
+      <div class={cx(navMenuStyles.panelBody)} data-jx-navmenu-panel-body="">
         {@render children()}
       </div>
     </div>

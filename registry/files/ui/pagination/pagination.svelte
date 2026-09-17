@@ -34,6 +34,7 @@
   import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import { PaginationDefaults } from './pagination-defaults.svelte';
+  import { paginationStyles } from './pagination.stylex';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     /** DENSITY override: explicit ?? inherited ?? default */
@@ -46,6 +47,22 @@
 
   let { density, 'data-density': _callerDensity, label = 'Pagination', class: className = '', children, ...rest }: Props = $props();
 
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
   // density resolves through the family contract (the no-opinion axis
   // slot: explicit ?? inherited ?? undefined; no opinion stamps
@@ -53,6 +70,6 @@
   const d = $derived(PaginationDefaults.resolve({ density }));
 </script>
 
-<nav data-jx-pagination="" data-density={d.density} class={cn('block', className)} aria-label={label} {...rest}>
+<nav data-jx-pagination="" data-density={d.density} class={cn(cx(paginationStyles.nav), className)} aria-label={label} {...rest}>
   {@render children()}
 </nav>

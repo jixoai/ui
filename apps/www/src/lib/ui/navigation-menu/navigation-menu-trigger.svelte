@@ -28,6 +28,7 @@
     NAVIGATION_MENU_ITEM_KEY,
     type NavigationMenuItemApi,
   } from './navigation-menu-item.svelte';
+  import { navMenuStyles } from './navigation-menu.stylex';
 
   interface Props extends HTMLButtonAttributes {
     /** the current section: paints aria-current="true" + the brand color */
@@ -37,6 +38,22 @@
   }
 
   let { current = false, class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const bar = getContext<NavigationMenuApi>(NAVIGATION_MENU_KEY);
   const item = getContext<NavigationMenuItemApi>(NAVIGATION_MENU_ITEM_KEY);
@@ -57,12 +74,16 @@
   aria-haspopup="true"
   aria-current={current ? 'true' : undefined}
   class={cn(
-    'jx-navmenu-trigger inline-flex min-h-[var(--jx-hit)] cursor-pointer items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.12em] no-underline transition-colors duration-150 ease-out focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
+    // the hover ink + focus ring are native pseudos in
+    // navigation-menu.css (unlayered :where()); the ink ladder here
+    // keeps the order law: open beats current, hover beats
+    // current-but-closed
+    cx(navMenuStyles.trigger),
     bar.openPanelId === panelId
-      ? 'text-foreground'
+      ? cx(navMenuStyles.inkOpen)
       : current
-        ? 'text-primary hover:text-foreground'
-        : 'text-muted-foreground hover:text-foreground',
+        ? cx(navMenuStyles.inkCurrent)
+        : cx(navMenuStyles.inkIdle),
     className,
   )}
   onfocus={() => bar.setTabStop(triggerId)}

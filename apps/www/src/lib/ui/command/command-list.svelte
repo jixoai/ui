@@ -18,6 +18,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { commandStyles } from './command.stylex';
   import { COMMAND_KEY, type CommandApi } from './command.svelte';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -45,16 +46,28 @@
   onDestroy(() => {
     if (cmd.listEl === el) cmd.listEl = null;
   });
+
+  // the payload's own join (separator's serialize law)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div
   bind:this={el}
   data-jx-command-list=""
   data-density={d.density}
-  class={cn(
-    'overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-[0.375rem] [padding-inline:max(0.375rem-var(--jx-scrollbar-thin,0px),0px)]',
-    className,
-  )}
+  class={cn(cx(commandStyles.list), className)}
   {...rest}
   id={cmd.listId}
   role="listbox"

@@ -36,6 +36,23 @@ import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
 import { BadgeDefaults } from '../src/lib/ui/badge/badge-defaults.svelte';
 import { ChipDefaults } from '../src/lib/ui/chip/chip-defaults.svelte';
 import { KbdDefaults } from '../src/lib/ui/kbd/kbd-defaults.svelte';
+import { chipStyles } from '../src/lib/ui/chip/chip.stylex';
+
+// tailwindless Wave 1 batch 3 (2026-09-17): the chip's silhouette
+// rides stylex atoms now — asserted through the same cx join the
+// component rides (utility-shaped expectations went with the
+// utilities; the shape LAWS are unchanged)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const byTestid = (container: HTMLElement, id: string) =>
   container.querySelector(`[data-testid="${id}"]`)!;
@@ -71,9 +88,9 @@ describe('bare — no providers', () => {
     expect(bare.querySelector('[data-jx-badge="tonal"] + [data-jx-badge]')!.className).toContain(
       'rounded-full',
     );
-    expect(bare.querySelector('[data-jx-chip]')!.className).toContain('rounded-(--radius)');
+    expect(bare.querySelector('[data-jx-chip]')!.className).toContain(cx(chipStyles.square));
     expect(bare.querySelector('button[data-jx-chip] ~ button[data-jx-chip]')!.className).toContain(
-      'rounded-full',
+      cx(chipStyles.pill),
     );
   });
 });

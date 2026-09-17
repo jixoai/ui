@@ -25,6 +25,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { commandStyles } from './command.stylex';
   import { COMMAND_KEY, type CommandApi } from './command.svelte';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -71,6 +72,31 @@
   // active implies walkable: disabled options never hold activeId
   const active = $derived(!disabled && cmd.activeId === itemId);
 
+  // the payload's own join (separator's serialize law)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // the option's state ladder (JS-known): the active ground rides the
+  // atom; the active INSET RULE (2px primary shadow) rides command.css
+  // keyed on data-jx-command-item-active (px-length shadow literals
+  // are tier-2 red in atoms)
+  const ITEM_STATE = {
+    disabled: cx(commandStyles.itemDisabled),
+    active: cx(commandStyles.itemActive),
+    idle: cx(commandStyles.itemIdle),
+  } as const;
+
   function fire(): void {
     if (disabled) return;
     // callback first, then the close — the consumer's handler runs
@@ -96,12 +122,10 @@
   data-jx-command-item-active={active ? '' : undefined}
   hidden={!visible}
   class={cn(
-    'flex min-h-[var(--jx-hit)] items-center justify-between gap-[var(--jx-gap)] px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] text-foreground',
-    disabled
-      ? 'cursor-not-allowed opacity-45'
-      : active
-        ? 'cursor-pointer bg-muted shadow-[inset_2px_0_0_var(--primary)]'
-        : 'cursor-pointer',
+    cx(
+      commandStyles.item,
+      disabled ? ITEM_STATE.disabled : active ? ITEM_STATE.active : ITEM_STATE.idle,
+    ),
     className,
   )}
   onclick={fire}
@@ -109,13 +133,13 @@
     if (!disabled) cmd.setActive(itemId);
   }}
 >
-  <span data-jx-command-label="" class="min-w-0 truncate">
+  <span data-jx-command-label="" class={cx(commandStyles.label)}>
     {#if children}{@render children()}{:else}{label}{/if}
   </span>
   {#if hint}
     <span
       data-jx-command-hint=""
-      class="flex-none border border-border px-[0.375rem] font-nav text-[0.6875rem] tracking-[0.1em] text-muted-foreground"
+      class={cx(commandStyles.hint)}
     >
       {@render hint()}
     </span>

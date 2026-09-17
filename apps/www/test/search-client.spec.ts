@@ -15,7 +15,23 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { tokenize } from '../src/lib/search/tokenizer';
 import { createMinisearchEngine, type CorpusPage } from '../src/lib/search/engine-minisearch';
 import SearchPalette from '../src/lib/ui/search-palette.svelte';
+import { searchPaletteStyles } from '../src/lib/ui/search-palette.stylex';
 import { mount, unmount } from 'svelte';
+
+// tailwindless Wave 1 (2026-09-17): the palette's geometry overrides
+// ride stylex atoms now — asserted through the same cx join the
+// component rides (the progressive-blur.spec precedent)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const FIXTURE: CorpusPage[] = [
   {
@@ -180,9 +196,9 @@ describe('the palette', () => {
     expect(dialog.querySelector(':scope > .jx-surface-body')).not.toBeNull();
     // jsdom has no CSS.registerProperty: the kernel gate stays OFF
     expect(dialog.classList.contains('jx-waapi')).toBe(false);
-    // the palette's geometry-only platform overrides ride the class list
-    expect(dialog.className).toContain('mt-[14vh]');
-    expect(dialog.className).toContain('w-[min(92vw,44rem)]');
+    // the palette's geometry-only platform overrides ride the atom
+    // member (W1: the 14vh drop + the 44rem cap became one member)
+    expect(dialog.className).toContain(cx(searchPaletteStyles.dialog));
     // r13 grid ruler: the palette's head snippet rides the head zone and
     // its separator track; no footer face is passed → no foot zone/stamp
     const scroll = dialog.querySelector('[data-jx-card]')!;

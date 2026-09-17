@@ -35,6 +35,12 @@ const UNREFERENCED_LIB = [
   { path: 'registry/files/lib/search/engine-types.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/lib/search/tokenizer.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/ui/search-palette.svelte', note: 'search stream (85e9f3c) — final classification pending' },
+  // tailwindless W1 (2026-09-17): the palette's stylex/css join the
+  // svelte's pending classification — same-source pairs, referenced by
+  // no registry item (site chrome); retire together when the search
+  // stream lands its final home
+  { path: 'registry/files/ui/search-palette.css', note: 'tailwindless W1 — search-stream family, final classification pending' },
+  { path: 'registry/files/ui/search-palette.stylex.ts', note: 'tailwindless W1 — search-stream family, final classification pending' },
   // nav-fuzzy-filter (2026-09-02): the fuzzysort nav kernel joins the
   // search-stream family's pending classification — same-source pair,
   // referenced by no registry item (the change's N1 ruling: not a
@@ -101,6 +107,13 @@ const MIRROR_PATH_OVERRIDES = {
   // copies are byte-gated transitively (the separator item carries
   // the bridge in its files[]).
   'registry/files/tokens.stylex.ts': 'apps/www/src/lib/tokens.stylex.ts',
+  // tailwindless W1 (2026-09-17): the ONE item-owned surface twin —
+  // component-canvas's svelte consumers import the surface module
+  // through $lib, so the item ships it (batch 1's ruling); every other
+  // surface module stays site-only (the prefix comment in
+  // scripts/lib/site-only.mjs). Without this override the default
+  // rules leave the mirror pointing at the registry file itself.
+  'registry/files/surface/component-canvas.stylex.ts': 'apps/www/src/lib/surface/component-canvas.stylex.ts',
 };
 
 import { createHash } from 'node:crypto';

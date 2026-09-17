@@ -14,12 +14,18 @@
   tw4 (2026-08-24): pure token utilities, zero css residue — status
   maps to icon border/glyph color utilities per prop; `jx-result*`
   classes are semantic hooks, css defines them not.
+
+  tailwindless one-shot (2026-09-16): the utilities became the
+  family's stylex atoms (result.stylex.ts); the status maps are
+  module-scope atom groups joined by cx() — never a
+  raw member interpolation (the serialize law).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
   import { type Density } from '$lib/density.svelte';
   import { ResultDefaults } from './result-defaults.svelte';
+  import { resultStyles } from './result.stylex';
 
   interface Props {
     /** density policy: explicit ?? ambient scope, else unstamped */
@@ -35,6 +41,23 @@
   }
 
   let { density, status = 'info', title, description, icon, actions, class: className = '' }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // the family Defaults is the single read point (context-defaults-
   // economy 3.2): the density slot resolves explicit ?? ambient
   // scope; no opinion stamps nothing, the ambient css scope channel
@@ -44,41 +67,41 @@
   const glyph = $derived(
     status === 'success' ? '✓' : status === 'error' ? '✕' : status === 'warning' ? '!' : 'i',
   );
-  const iconBorder = {
-    success: 'border-primary',
-    error: 'border-destructive',
-    warning: 'border-border',
-    info: 'border-border',
-  } as const;
-  const glyphColor = {
-    success: 'text-primary',
-    error: 'text-destructive',
+  // status → atom groups (module scope, pure lookup): success paints
+  // the brand voice (no green in this language), error the
+  // destructive hue, the neutrals stay --border / the inheriting ink
+  const iconBorder: Record<Props['status'], string> = {
+    success: cx(resultStyles.iconBox, resultStyles.borderPrimary),
+    error: cx(resultStyles.iconBox, resultStyles.borderDestructive),
+    warning: cx(resultStyles.iconBox, resultStyles.borderNeutral),
+    info: cx(resultStyles.iconBox, resultStyles.borderNeutral),
+  };
+  const glyphColor: Record<Props['status'], string> = {
+    success: cx(resultStyles.inkPrimary),
+    error: cx(resultStyles.inkDestructive),
     warning: '',
     info: '',
-  } as const;
+  };
 </script>
 
-<div data-jx-result={status} data-density={d.density} class={cn('flex flex-col items-center [gap:var(--jx-stack)] [padding-inline:calc(var(--jx-inset)*2)] [padding-block:calc(var(--jx-inset)*4)] text-center', className)}>
+<div data-jx-result={status} data-density={d.density} class={cn(cx(resultStyles.root), className)}>
   <div
     data-jx-result-icon=""
-    class={cn(
-      'inline-flex items-center justify-center [width:calc(var(--jx-icon)*2)] [height:calc(var(--jx-icon)*2)] border border-border bg-card shadow-2xs',
-      iconBorder[status],
-    )}
+    class={iconBorder[status]}
     aria-hidden="true"
   >
     {#if icon}
       {@render icon()}
     {:else}
-      <span data-jx-result-glyph="" class={cn('font-mono [font-size:calc(var(--jx-icon)*1.25)] leading-none', glyphColor[status])}>{glyph}</span>
+      <span data-jx-result-glyph="" class={cx(resultStyles.glyph, glyphColor[status] || undefined)}>{glyph}</span>
     {/if}
   </div>
-  <h2 data-jx-result-title="" class="font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] tracking-[0.06em] uppercase text-foreground">{title}</h2>
+  <h2 data-jx-result-title="" class={cx(resultStyles.title)}>{title}</h2>
   {#if description}
-    <p data-jx-result-desc="" class="max-w-[44ch] [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground">{description}</p>
+    <p data-jx-result-desc="" class={cx(resultStyles.description)}>{description}</p>
   {/if}
   {#if actions}
-    <div data-jx-result-actions="" class="[margin-block-start:var(--jx-stack)] flex flex-wrap justify-center [gap:var(--jx-gap)]">
+    <div data-jx-result-actions="" class={cx(resultStyles.actions)}>
       {@render actions()}
     </div>
   {/if}

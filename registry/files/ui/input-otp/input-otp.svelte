@@ -16,11 +16,12 @@
   Keyboard: the slots are real inputs — arrows walk them, and typing
   anywhere advances. disabled dims the whole set.
 
-  tw4 (2026-08-24): static slot/label/error paint is token utilities in
-  the markup (markup-known states — filled/complete/invalid borders —
-  ride conditional utilities); only the :focus outline law (and its
-  complete-state ink) remains in input-otp.css (D1-exempt residue under
-  the layer law).
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  static slot/label/error paint rides the family's stylex ATOMS
+  (input-otp.stylex.ts) joined through cx() — markup-known states
+  (filled/complete/invalid borders) walk conditional atoms; only the
+  :focus outline law (and its complete-state ink) remains in
+  input-otp.css (D1-exempt residue under the layer law).
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -30,6 +31,7 @@
   import './input-otp.css';
   import type { Density } from '$lib/density.svelte';
   import { InputOtpDefaults } from './input-otp-defaults.svelte';
+  import { otpStyles } from './input-otp.stylex';
 
   interface Props extends Omit<HTMLInputAttributes, 'value' | 'type' | 'maxlength'> {
     /** form field name — the joined code submits under this name */
@@ -169,6 +171,22 @@
     slotEls[target]?.focus();
     slotEls[target]?.select();
   }
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <jx-form-field
@@ -181,11 +199,11 @@
   onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
 ></jx-form-field>
 
-<div data-jx-otp data-density={d.density} class={cn('flex flex-col gap-[var(--jx-gap)] w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
+<div data-jx-otp data-density={d.density} class={cn(cx(otpStyles.group), className)} role="group" aria-label={label ?? 'one-time code'}>
     {#if label}
-      <label data-jx-otp-label class="font-nav text-[length:var(--jx-text-secondary)] tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
+      <label data-jx-otp-label class={cx(otpStyles.label)} for="{id}-0">{label}</label>
     {/if}
-    <div data-jx-otp-slots class="flex gap-[var(--jx-gap)]" onfocusin={handleFocusIn}>
+    <div data-jx-otp-slots class={cx(otpStyles.slots)} onfocusin={handleFocusIn}>
       {#each chars as ch, index (index)}
         <input
           id="{id}-{index}"
@@ -196,10 +214,11 @@
           data-jx-otp-filled={ch !== '' ? '' : undefined}
           data-jx-otp-invalid={!!error ? '' : undefined}
           class={cn(
-            'jx-otp-slot box-border min-w-[max(var(--jx-hit),calc(var(--jx-line)*2))] min-h-[max(var(--jx-hit),calc(var(--jx-line)*2))] p-0 border border-border bg-background text-foreground font-mono text-[length:var(--jx-text)] text-center rounded-(--radius) caret-primary disabled:opacity-50 disabled:cursor-not-allowed',
-            ch !== '' && 'border-foreground',
-            complete && 'jx-otp-complete border-primary',
-            !!error && 'border-destructive border-dashed',
+            'jx-otp-slot',
+            cx(otpStyles.slot),
+            ch !== '' && cx(otpStyles.filledBorder),
+            complete && `jx-otp-complete ${cx(otpStyles.completeBorder)}`,
+            !!error && cx(otpStyles.invalidBorder),
           )}
           disabled={isDisabled}
           aria-invalid={error ? 'true' : undefined}
@@ -213,6 +232,6 @@
       {/each}
     </div>
     {#if error}
-      <p id={errorId} data-jx-otp-error class="m-0 flex items-center gap-1.5 text-xs text-destructive"><span aria-hidden="true">!</span>{error}</p>
+      <p id={errorId} data-jx-otp-error class={cx(otpStyles.error)}><span aria-hidden="true">!</span>{error}</p>
     {/if}
   </div>

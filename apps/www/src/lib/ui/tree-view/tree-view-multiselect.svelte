@@ -34,6 +34,7 @@
 <script lang="ts" generics="T = unknown">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { treeStyles } from './tree-view.stylex';
   import TreeView, {
     buildTreeIndex,
     collectFrozenPaths,
@@ -77,6 +78,22 @@
     ariaLabel = 'tree (multiselect)',
     class: className = '',
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const index = $derived(buildTreeIndex(nodes));
   const checkedSet = $derived(new Set(checked));
@@ -149,8 +166,9 @@
     <input
       type="checkbox"
       class={cn(
-        'jx-tree-check appearance-none [-webkit-appearance:none] relative m-0 w-3 h-3 flex-none bg-background border border-border transition-[background-color,border-color] duration-150 ease-out disabled:opacity-50',
-        ctx.disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        'jx-tree-check',
+        cx(treeStyles.check),
+        ctx.disabled ? cx(treeStyles.checkDisabled, treeStyles.checkDisabledInk) : cx(treeStyles.checkEnabled),
       )}
       tabindex={-1}
       checked={state === 'on'}

@@ -20,6 +20,7 @@
   import { cn } from '$lib/utils';
   import { MENUBAR_KEY, type MenubarApi } from './menubar.svelte';
   import { MENUBAR_ITEM_KEY, type MenubarItemApi } from './menubar-item.svelte';
+  import { menubarStyles } from './menubar.stylex';
 
   interface Props extends HTMLButtonAttributes {
     class?: string;
@@ -27,6 +28,22 @@
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const bar = getContext<MenubarApi>(MENUBAR_KEY);
   const item = getContext<MenubarItemApi>(MENUBAR_ITEM_KEY);
@@ -45,8 +62,9 @@
   role="menuitem"
   aria-haspopup="menu"
   class={cn(
-    'jx-menubar-trigger cursor-pointer border-r border-border bg-transparent font-nav uppercase tracking-[0.1em] text-muted-foreground transition-[color,background-color] duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
-    bar.openPanelId === panelId ? 'bg-muted text-foreground' : '',
+    'jx-menubar-trigger',
+    cx(menubarStyles.trigger),
+    bar.openPanelId === panelId ? cx(menubarStyles.triggerOpen) : '',
     className,
   )}
   onfocus={() => bar.setTabStop(triggerId)}

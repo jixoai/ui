@@ -24,11 +24,17 @@
   ONLY the slide law (every DIRECT child sized + snapped — a child
   boundary utilities never own) stays in carousel.css (D1-exempt
   residue, static @layer components).
+
+  tailwindless one-shot W1 (2026-09-17): track/arrows/dots paint
+  rides the family's stylex atoms (carousel.stylex.ts — hover/focus
+  as native pseudo conditions, the on-dot state a later atom); the
+  slide law stays the css residue.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { fromAction } from 'svelte/attachments';
   import { cn } from '$lib/utils';
+  import { carouselStyles } from './carousel.stylex';
   import './carousel.css';
 
   interface Props {
@@ -56,6 +62,20 @@
     prevLabel = '‹',
     nextLabel = '›',
   }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   let track = $state<HTMLDivElement | null>(null);
   let slides = $state<HTMLElement[]>([]);
@@ -159,14 +179,14 @@
   }
 </script>
 
-<div data-jx-carousel="" class={cn('flex flex-col gap-3', className)} role="region" aria-roledescription="carousel" aria-label={label}>
+<div data-jx-carousel="" class={cn(cx(carouselStyles.root), className)} role="region" aria-roledescription="carousel" aria-label={label}>
   <!-- the window is a ONE-CELL GRID (CR-2 P1-3, 2026-09-02): the track
        is the base layer, the arrows are grid items of the same cell —
        self-center + justify-self per side, hung 1rem outside the cell
        by a negative margin (the tabs host dialect; the old
        position:absolute chevrons sat in the grid-law rejection
        scenario verbatim) -->
-  <div data-jx-carousel-window="" class="grid">
+  <div data-jx-carousel-window="" class={cx(carouselStyles.window)}>
     <!-- tabindex: the scroll region itself is the keyboard surface
          (native arrow scrolling); buttons page explicitly -->
     <!-- svelte-ignore a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -- the
@@ -174,7 +194,7 @@
          (mandatory snap eats native arrow keys) and pan with the mouse;
          the dots and arrows remain the explicit controls -->
     <div
-      class="jx-carousel-track [grid-area:1/1] flex gap-3 overflow-x-auto snap-x snap-mandatory overscroll-x-contain pb-1 focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class="jx-carousel-track {cx(carouselStyles.track)}"
       style="--jx-slide-w: {slideWidth}"
       {@attach fromAction(collectSlides)}
       tabindex="0"
@@ -191,7 +211,7 @@
       type="button"
       data-jx-carousel-arrow=""
       data-jx-carousel-prev=""
-      class="[grid-area:1/1] justify-self-start self-center -ml-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class={cx(carouselStyles.arrow, carouselStyles.arrowPrev)}
       aria-label="previous slide"
       onclick={() => step(-1)}
     >{prevLabel}</button>
@@ -199,22 +219,19 @@
       type="button"
       data-jx-carousel-arrow=""
       data-jx-carousel-next=""
-      class="[grid-area:1/1] justify-self-end self-center -mr-4 appearance-none inline-flex items-center justify-center size-8 border border-border bg-popover text-foreground text-lg leading-none cursor-pointer shadow-xs hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px]"
+      class={cx(carouselStyles.arrow, carouselStyles.arrowNext)}
       aria-label="next slide"
       onclick={() => step(1)}
     >{nextLabel}</button>
   </div>
   {#if dots && slides.length > 1}
-    <div data-jx-carousel-dots="" class="flex justify-center gap-2" role="group" aria-label="slides">
+    <div data-jx-carousel-dots="" class={cx(carouselStyles.dots)} role="group" aria-label="slides">
       {#each slides as _, index (index)}
         <button
           type="button"
           data-jx-carousel-dot=""
           data-jx-carousel-dot-on={active === index ? '' : undefined}
-          class={cn(
-            'appearance-none size-2 border border-border bg-muted cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[2px]',
-            active === index && 'bg-primary border-primary',
-          )}
+          class={cn(cx(carouselStyles.dot, active === index && carouselStyles.dotOn))}
           aria-label="go to slide {index + 1}"
           aria-current={active === index ? 'true' : undefined}
           onclick={() => scrollToSlide(index)}

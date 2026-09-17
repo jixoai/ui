@@ -24,6 +24,7 @@
 -->
 <script lang="ts">
   import { cn } from '$lib/utils';
+  import { colorPickerStyles } from './color-picker.stylex';
   import { formatColor, hsvToOklch } from '$lib/color-utils';
 
   interface Props {
@@ -37,6 +38,20 @@
   }
 
   let { value, onpick, colors, class: className = '' }: Props = $props();
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   // ---- the default palette: full spectrum through the system pipeline --
   const COLUMNS = 8;
@@ -117,10 +132,10 @@
   bind:this={rootEl}
   role="grid"
   aria-label="color swatches"
-  class={cn('jx-color-picker-swatches grid grid-cols-[repeat(8,22px)] gap-[3px]', className)}
+  class={cn('jx-color-picker-swatches', cx(colorPickerStyles.swatches), className)}
 >
   {#each rows as row, r}
-    <div role="row" class="contents">
+    <div role="row" class={cx(colorPickerStyles.row)}>
       {#each row as hex, c}
         {@const flat = r * COLUMNS + c}
         <div
@@ -128,7 +143,7 @@
           tabindex={flat === seatIndex ? 0 : -1}
           aria-selected={hex === selected ? 'true' : undefined}
           aria-label={hex}
-          class="jx-color-picker-swatch-cell w-[22px] h-[22px] border border-border cursor-pointer"
+          class="jx-color-picker-swatch-cell {cx(colorPickerStyles.swatchCell)}"
           style:background={hex}
           onfocusin={onCellFocusin}
           onkeydown={onCellKeydown}

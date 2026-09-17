@@ -19,7 +19,12 @@ vi.mock('../../../registry/files/ui/ghostty-term/vt-deps.ts', async () => {
 });
 import GhosttyTerm from '../../../registry/files/ui/ghostty-term/ghostty-term.svelte';
 
-const wasmBytes = readFileSync('/tmp/ghostty-research/ghostty-vt.wasm');
+// the cached wasm (env-first, the osc-probe pattern — the /tmp
+// research default only exists on machines that ran the original
+// ghostty research session)
+const wasmBytes = readFileSync(
+  process.env.JIXOAI_GHOSTTY_WASM_PATH ?? '/tmp/ghostty-research/ghostty-vt.wasm',
+);
 
 describe('component title propagation (real wasm)', () => {
   it('fires onTitleChange for an OSC-only write frame', async () => {

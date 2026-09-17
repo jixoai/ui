@@ -84,6 +84,7 @@
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
+  import { canvasStyles } from '$lib/surface/component-canvas.stylex';
   import type { ControlRow, PlayOutput } from './canvas-schema.svelte';
 
   interface Props {
@@ -123,6 +124,22 @@
     output,
     class: className = '',
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // the single read point (A3): the destructure default keeps the
   // explicit lane permanently hot — the ambient zone never rides the
@@ -276,8 +293,7 @@
 {/snippet}
 {#snippet chevronGlyph()}
   <span
-    class="jx-canvas-chevron inline-flex transition-transform duration-150 ease-out"
-    class:-rotate-90={!open}
+    class={cn('jx-canvas-chevron', cx(canvasStyles.chevron), !open ? cx(canvasStyles.chevronRight) : '')}
     aria-hidden="true"
   >
     <Icon name="chevronDown" size={12} />
@@ -288,10 +304,7 @@
   data-jx-canvas-dock
   bind:this={dockEl}
   style:--jx-dock-x={`${dockX}px`}
-  class={cn(
-    'flex flex-col min-w-0 border border-border shadow-xs text-foreground',
-    className,
-  )}
+  class={cn(cx(canvasStyles.dock), className)}
   aria-label={`Controls for ${title}`}
 >
   <!-- THE HEAD IS A CARVED BAND TOO (carved-action-band round 2, the
@@ -307,7 +320,7 @@
   <div
     data-jx-canvas-dock-head
     data-dragging={dragging || undefined}
-    class="jx-canvas-dock-head flex items-stretch justify-between gap-2"
+    class={cn('jx-canvas-dock-head', cx(canvasStyles.dockHead))}
     bind:this={headEl}
     onpointerdown={onHeadPointerDown}
     onpointermove={onHeadPointerMove}
@@ -318,9 +331,9 @@
     <ButtonVariantScope variant="ghost" raised={false}>
       <!-- the chrome cluster: [grip, theme, size] — the standard row on
            EVERY canvas demo (Owner amendment 2026-09-08) -->
-      <div class="flex items-stretch">
+      <div class={cx(canvasStyles.stretchRow)}>
         <span
-          class="jx-canvas-dock-grip flex items-center px-2 text-muted-foreground"
+          class={cn('jx-canvas-dock-grip', cx(canvasStyles.grip))}
           aria-hidden="true"
           data-jx-canvas-dock-grip
         >
@@ -359,7 +372,7 @@
         <NativeSelect
           chrome="bare"
           data-jx-canvas-density-select
-          class="jx-canvas-dock-density h-full cursor-pointer self-stretch [--jx-icon:0.875rem] [--jx-inset:0.5rem] font-nav text-[10px] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground"
+          class={cn('jx-canvas-dock-density', cx(canvasStyles.dockDensity))}
           aria-label="Density"
           title="Density"
           value={dDensity}
@@ -381,7 +394,7 @@
              (Owner r10: the select↔toggle boundary is a cell boundary
              like any other; the elastic breathing sits between the
              select and THIS group's seam) -->
-        <div class="flex items-stretch">
+        <div class={cx(canvasStyles.stretchRow)}>
           <Separator orientation="vertical" aria-hidden="true" />
           <IconButton
             icon={chevronGlyph}
@@ -409,13 +422,14 @@
        rendered it, another didn't); a shrink-0 sibling of the animated
        collapse is immune to the clip's paint and the flex squeeze, and
        hides with the collapsed body -->
-  <div class="shrink-0" class:hidden={!open}>
+  <div class={cn(cx(canvasStyles.rimWrap), !open ? cx(canvasStyles.rimWrapHidden) : '')}>
     <Separator variant="solid" aria-hidden="true" />
   </div>
   <div
     class={cn(
-      'jx-canvas-dock-collapse grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]',
-      open && 'grid-rows-[1fr]',
+      'jx-canvas-dock-collapse',
+      cx(canvasStyles.dockCollapse),
+      open && cx(canvasStyles.dockCollapseOpen),
     )}
     id={bodyId}
     data-open={open || undefined}
@@ -426,11 +440,11 @@
          collapse, the SCROLLER absorbs (flex + min-block 0 in the css)
          and the pinned bar keeps its full height — a plain block clip
          let the content overflow and cut the bar to half a button -->
-    <div data-jx-canvas-dock-clip class="flex min-h-0 flex-col overflow-hidden">
+    <div data-jx-canvas-dock-clip class={cx(canvasStyles.dockClip)}>
       <!-- the internal scroll surface: capped block size + guttered thin
            scrollbar (the old pane's containment law, dock-sized); the
            output foot below stays pinned -->
-      <div data-jx-canvas-dock-scroll class="jx-canvas-dock-scroll px-2 pb-2 pt-[0.4rem]">
+      <div data-jx-canvas-dock-scroll class={cn('jx-canvas-dock-scroll', cx(canvasStyles.dockScroll))}>
         <ItemGroup mode="plain" controlChrome="integrated" density="sm" data-jx-canvas-dock-group>
           {#if playground}
             <!-- escape-hatch precedence: the snippet renders and the schema
@@ -444,7 +458,7 @@
                  display:contents — the DOM contract the tests key on,
                  without touching the family API -->
             {#each rows ?? [] as row (row.key)}
-              <div data-jx-canvas-row data-jx-canvas-control={row.control} class="contents">
+              <div data-jx-canvas-row data-jx-canvas-control={row.control} class={cx(canvasStyles.rowScope)}>
                 {#if row.control === 'toggle'}
                   <ItemToggle
                     id={ctlId(row.key)}
@@ -540,20 +554,20 @@
         {#if output?.length}
           <!-- the output projection (D4, migrated): read-only rows in the
                item rhythm; dl semantics kept, never a live region -->
-          <dl class="jx-canvas-output m-0 mt-[0.85rem] flex flex-col gap-[0.25rem]">
+          <dl class={cn('jx-canvas-output', cx(canvasStyles.output))}>
             {#each output as item, index (`${item.label}-${index}`)}
               <div
                 data-jx-canvas-output-row
-                class="grid items-baseline gap-[0.6rem] grid-cols-[minmax(5.5rem,auto)_minmax(0,1fr)] bg-[color-mix(in_oklab,var(--muted)_30%,transparent)] px-[0.5rem] py-[0.28rem]"
+                class={cx(canvasStyles.outputRow)}
               >
-                <dt class="text-muted-foreground font-nav text-[10px] tracking-[0.14em] uppercase">{item.label}</dt>
+                <dt class={cx(canvasStyles.outputLabel)}>{item.label}</dt>
                 <!-- VALUE ink = text-foreground (V1-4/V2-9, 2026-09-02):
                      the old --accent-foreground pick was a token-category
                      error — that token is the ink meant to sit ON an
                      accent FILL (white in light, black in dark), so on
                      the neutral pane it rendered near-invisible in BOTH
                      themes (249-on-249 light, black-on-black dark) -->
-                <dd class="text-foreground font-mono text-[11.5px] m-0 min-w-0 [overflow-wrap:anywhere]">{formatOutput(item.value)}</dd>
+                <dd class={cx(canvasStyles.outputValue)}>{formatOutput(item.value)}</dd>
               </div>
             {/each}
           </dl>
@@ -576,7 +590,7 @@
              compact chrome scale. Page-owned onreset wins; schema mode
              falls back to schema defaults -->
         <ButtonVariantScope variant="ghost" raised={false}>
-          <div data-jx-canvas-dock-foot class="flex flex-col">
+          <div data-jx-canvas-dock-foot class={cx(canvasStyles.dockFoot)}>
             <!-- the rim: a Separator instance at SOLID ink (the
                  ghost's blind spot on the dock's uniform ground) -->
             <Separator variant="solid" aria-hidden="true" />

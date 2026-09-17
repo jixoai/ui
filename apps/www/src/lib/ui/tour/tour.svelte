@@ -35,12 +35,14 @@
   tour closes instantly, exactly as it did before the law. Rewiring the
   render guard to keep the node through the exit is a future change.
 
-  tw4 (2026-08-24): title/desc/actions paint as token utilities in the
-  markup (canPrev and last-step states are JS-known → conditional
-  strings); tour.css keeps the D1-exempt geometry — the anchor-size()
-  hole (its @supports form re-sets inset/background, so no inset or
-  background utility may ride the hole), the panel's anchor() placement
-  (+ @supports fallback), and ::backdrop.
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  title/desc/actions paint rides the family's stylex ATOMS
+  (tour.stylex.ts) joined through cx() — canPrev and last-step states
+  are JS-known → conditional atoms; tour.css keeps the D1-exempt
+  geometry — the anchor-size() hole (its @supports form re-sets
+  inset/background, so no inset or background member may ride the
+  hole atom), the panel's anchor() placement (+ @supports fallback),
+  and ::backdrop.
 
   Motion kernel (2026-08-25): adopts the shared WAAPI surface-motion
   kernel (lib/surface-motion.ts) — the open $effect drives the --jx-p
@@ -67,6 +69,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { TourDefaults, type TourSurfaceVariant } from './tour-defaults.svelte';
+  import { tourStyles } from './tour.stylex';
   import './tour.css';
 
   export interface TourStep {
@@ -317,18 +320,33 @@
     }
   }
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
   // nav buttons: the terminal chip (border, bg, shadow-2xs) + the
-  // Next variant's brand lean; disabled rides a conditional swap
-  const navBtn =
-    'inline-flex cursor-pointer appearance-none border px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] shadow-2xs disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+  // Next variant's brand lean; disabled rides the atom's :disabled
+  const navBtn = cx(tourStyles.navBtn);
 </script>
 
 {#if open && step}
   <!-- the hole: target-sized via CSS anchor-size, ONE huge shadow tint.
        inset stays in the css (the anchored form re-sets it — a markup
-       inset utility would beat the components layer and break it) -->
+       inset member would beat the components layer and break it) -->
   <div
-    class="jx-tour-hole fixed pointer-events-none"
+    class="jx-tour-hole {cx(tourStyles.hole)}"
     class:jx-tour-hole-anchored={targetEl !== null}
     style="position-anchor: {leaseName}"
     aria-hidden="true"
@@ -355,27 +373,27 @@
     <div data-jx-tour-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
-    <div data-jx-tour-surface="" class="jx-surface-body flex flex-col gap-2 px-4 py-[0.875rem]">
+    <div data-jx-tour-surface="" class="jx-surface-body {cx(tourStyles.surfaceBody)}">
     {#if card}
       {@render card({ index, total: steps.length, step, next, prev, skip: () => finish(index) })}
     {:else}
     {#if step.title}
-      <p data-jx-tour-title="" class="m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">{step.title}</p>
+      <p data-jx-tour-title="" class={cx(tourStyles.title)}>{step.title}</p>
     {/if}
     {#if step.description}
-      <p data-jx-tour-desc="" class="m-0 text-[0.8125rem] leading-[1.55] text-muted-foreground">{step.description}</p>
+      <p data-jx-tour-desc="" class={cx(tourStyles.description)}>{step.description}</p>
     {/if}
-    <div data-jx-tour-meta="" class="font-mono text-[0.6875rem] text-muted-foreground" aria-hidden="true">{index + 1} / {steps.length}</div>
-    <div data-jx-tour-actions="" class="mt-1 flex items-center justify-between gap-3">
+    <div data-jx-tour-meta="" class={cx(tourStyles.meta)} aria-hidden="true">{index + 1} / {steps.length}</div>
+    <div data-jx-tour-actions="" class={cx(tourStyles.actions)}>
       <button
         type="button"
         data-jx-tour-skip=""
-        class="cursor-pointer appearance-none border-0 bg-transparent font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-muted-foreground underline decoration-dotted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1"
+        class={cx(tourStyles.skip)}
         onclick={() => finish(index)}
       >
         Skip tour
       </button>
-      <div data-jx-tour-nav="" class="flex gap-2">
+      <div data-jx-tour-nav="" class={cx(tourStyles.navRow)}>
         <button type="button" data-jx-tour-btn="" class={navBtn} disabled={!canPrev} onclick={prev}>
           Back
         </button>
@@ -383,7 +401,7 @@
           type="button"
           data-jx-tour-btn=""
           data-jx-tour-next=""
-          class={cn(navBtn, 'border-primary bg-background text-primary')}
+          class={cn(navBtn, cx(tourStyles.navNext))}
           bind:this={nextEl}
           onclick={next}
         >

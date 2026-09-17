@@ -129,12 +129,13 @@ describe('card-grid — the DOM contract (rendered composition)', () => {
     for (const card of [...grid.children].filter((c) => c.hasAttribute('data-jx-section'))) {
       const header = card.querySelector('[data-jx-section-header]')!;
       const body = card.querySelector('[data-jx-section-body]')!;
-      // token-derived formulas resolve to the legacy pixels at default
-      // scope and step with the density scope (before adoption, the
-      // density demo showed four pixel-identical panes)
-      expect(header.className).toContain('--jx-inset');
-      expect(header.className).toContain('--jx-stack');
-      expect(body.className).toContain('--jx-stack');
+      // tailwindless one-shot (2026-09-16): the token-derived formulas
+      // moved from utility strings into the family's stylex atoms
+      // (section-card.stylex.ts header/body members — the dev-class
+      // names carry the member identity; the channel formulas
+      // themselves are source-audited by density-adoption-data)
+      expect(header.className).toContain('sectionCardStyles.header');
+      expect(body.className).toContain('sectionCardStyles.body');
       // the retired vocabulary: viewport variants on the card's own zones
       expect(header.className).not.toMatch(/\bsm:px-|\bsm:py-/);
       expect(body.className).not.toMatch(/\bsm:px-|\bsm:py-/);

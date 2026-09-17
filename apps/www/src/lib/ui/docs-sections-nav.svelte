@@ -39,6 +39,7 @@
   } from '$lib/search/nav-filter';
   import ProgressiveBlur from '$lib/ui/progressive-blur/progressive-blur.svelte';
   import { onMount } from 'svelte';
+  import { dsnStyles } from './docs-sections-nav.stylex';
 
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
@@ -94,6 +95,20 @@
   );
 
   let open = $state(false);
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 
   // ── the layer-grid clearance (2026-09-05, the scaffold's
   // --jx-header-h precedent): the rail is a ONE-CELL layer grid — the
@@ -177,7 +192,7 @@
        lifted with timeline-scope (see the style block). The band
        mounts INSIDE the rail surface (dying with it below 1200px) -->
   <div class="jx-dsn-rail" bind:this={railEl}>
-    <ProgressiveBlur pin="grid" position="top" reveal="scroll" height="7.5rem" class="z-[5]" />
+    <ProgressiveBlur pin="grid" position="top" reveal="scroll" height="7.5rem" class={cx(dsnStyles.bandZ)} />
     <div class="jx-dsn-head" bind:this={headEl}>
       <p class="jx-dsn-title">{railTitle}</p>
       <div class="jx-dsn-search">
@@ -261,7 +276,7 @@
       <!-- the same sticky-head + scroll-edge law on the mobile
            expansion viewport: the filter pins, the groups scroll
            under it through the band -->
-      <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" class="z-[5]" />
+      <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" class={cx(dsnStyles.bandZ)} />
       <div class="jx-dsn-search jx-dsn-bar-search jx-dsn-expand-head">
         <input
           class="jx-dsn-input"

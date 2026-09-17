@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai number-input — D1-exempt residue (tw4, 2026-08-24): the
  * composite's static paint (shell row, steppers, centered cell) lives
@@ -16,10 +17,21 @@
 
 :where(.jx-num) {
   box-shadow: var(--shadow-well);
-  transition: box-shadow 150ms ease-out, border-color 150ms ease-out;
+  transition: box-shadow var(--motion-150) var(--motion-ease-out), border-color var(--motion-150) var(--motion-ease-out);
 }
 :where(.jx-num:hover:not(:focus-within):not(.jx-num-off)) {
   box-shadow: var(--shadow-well-hover);
+}
+
+/* the steppers' chrome trio (tailwindless Wave 1, 2026-09-17): the
+   former font-bold/leading-none utilities + the buttons'
+   background/transform transition moved here — weight and none
+   leading have NO tokens yet (reported MISSING: --jx-weight-bold,
+   --jx-leading-none) and motion literals never ride atoms */
+:where(.jx-num-btn) {
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-none);
+  transition: background-color var(--motion-150) var(--motion-ease-out), transform var(--motion-150) var(--motion-ease-out);
 }
 
 :where(.jx-num-btn:hover:not(:disabled)) {

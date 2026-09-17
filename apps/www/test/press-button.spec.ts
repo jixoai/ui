@@ -31,6 +31,18 @@ import { resolve } from 'node:path';
 import PressButtonHost from './fixtures/press-button-host.svelte';
 import { pressEffect } from '../src/lib/ui/press-button/press-effect-runtime';
 import { pulse, rainbow, ripple, shimmer } from '../src/lib/ui/press-button/press-button.svelte';
+import { pressButtonStyles } from '../src/lib/ui/press-button/press-button.stylex';
+
+// tailwindless Wave 1 (2026-09-17): the utility payload became stylex
+// atoms — a rendered root "carries" a member when every class the
+// member's dev object emits is present in the class list
+const carries = (className: string, member: Record<string, unknown>): boolean =>
+  Object.entries(member).every(
+    ([key, value]) =>
+      key === '$$css' ||
+      (typeof value === 'string' && className.split(/\s+/).includes(value)),
+  );
+const pressCss = () => readFileSync(resolve('src/lib/ui/press-button/press-button.css'), 'utf8');
 
 // ---------------------------------------------------------------------------
 // Variant paint — one physics, the five-rung ladder
@@ -40,8 +52,8 @@ describe('press-button variants', () => {
     const { container } = render(PressButtonHost);
     const btn = container.querySelector('button')!;
     expect(btn.className).toContain('jx-press');
-    expect(btn.className).toContain('bg-transparent');
-    expect(btn.className).toContain('[border-color:var(--jx-outline)]');
+    expect(carries(btn.className, pressButtonStyles.outlineVar)).toBe(true);
+    expect(carries(btn.className, pressButtonStyles.frame)).toBe(true);
     // the valued hook: variant grammar reads back through data-jx-press-button
     expect(btn.getAttribute('data-jx-press-button')).toBe('outline');
     // no effect loop without opting in
@@ -58,11 +70,13 @@ describe('press-button variants', () => {
     const { container } = render(PressButtonHost, { props: { variant: 'ghost' } });
     const btn = container.querySelector('button')!;
     expect(btn.className).toContain('jx-press');
-    expect(btn.className).toContain('[--jx-press-shadow:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-hover:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-active:none]');
-    // ghost's hover tint derives from --jx-tonal, not a named surface
-    expect(btn.className).toContain('hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)]');
+    expect(carries(btn.className, pressButtonStyles.ghost)).toBe(true);
+    // the none-trio pose customs ride the css lane keyed on the ghost
+    // hook (custom-property seams never ride atoms)
+    const css = pressCss();
+    expect(css).toMatch(
+      /:where\(\[data-jx-press-button='ghost'\]\)\s*\{[^}]*--jx-press-shadow: none;[^}]*--jx-press-shadow-hover: none;[^}]*--jx-press-shadow-active: none;/s,
+    );
     expect(btn.getAttribute('data-jx-press-button')).toBe('ghost');
   });
 
@@ -75,26 +89,25 @@ describe('press-button variants', () => {
       expect(btn.hasAttribute(host)).toBe(false);
     }
     expect(btn.classList.contains('jx-rainbow-host')).toBe(false);
-    expect(btn.className).not.toContain('border-border');
-    expect(btn.className).toContain('hover:underline');
+    // the frame-less rung: no frame atom classes, the link atom rides
+    expect(carries(btn.className, pressButtonStyles.link)).toBe(true);
+    expect(
+      carries(btn.className, pressButtonStyles.frame),
+    ).toBe(false);
     expect(btn.getAttribute('data-jx-press-button')).toBe('link');
   });
 
   it('fill paints through the grammar tokens: ground + same-hue border + ink', () => {
     const { container } = render(PressButtonHost, { props: { variant: 'fill' } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('[background:var(--jx-fill)]');
-    expect(btn.className).toContain('[border-color:var(--jx-fill)]');
-    expect(btn.className).toContain('text-[color:var(--jx-fill-ink)]');
+    expect(carries(btn.className, pressButtonStyles.fill)).toBe(true);
     expect(btn.getAttribute('data-jx-press-button')).toBe('fill');
   });
 
   it('tonal paints the 12%/45% color-mix pair with the hue itself as ink', () => {
     const { container } = render(PressButtonHost, { props: { variant: 'tonal' } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
-    expect(btn.className).toContain('border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]');
-    expect(btn.className).toContain('text-[color:var(--jx-tonal)]');
+    expect(carries(btn.className, pressButtonStyles.tonal)).toBe(true);
     expect(btn.getAttribute('data-jx-press-button')).toBe('tonal');
   });
 });
@@ -114,27 +127,29 @@ describe('press-button raised axis — the flat texture', () => {
   it('flat supplies all four seams: none / none / engrave / no move', () => {
     const { container } = render(PressButtonHost, { props: { variant: 'outline', raised: false } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('[--jx-press-shadow:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-hover:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-active:var(--shadow-engrave)]');
-    expect(btn.className).toContain('[--jx-press-move:none]');
+    // the four seams ride the css lane keyed on the flat stamp
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
+    expect(pressCss()).toMatch(
+      /:where\(\[data-jx-press-flat\]\)\s*\{[^}]*--jx-press-shadow: none;[^}]*--jx-press-shadow-hover: none;[^}]*--jx-press-shadow-active: var\(--shadow-engrave\);[^}]*--jx-press-move: none;/s,
+    );
     // the paint rung rides unchanged
-    expect(btn.className).toContain('[border-color:var(--jx-outline)]');
-    expect(btn.className).toContain('jx-press border');
+    expect(carries(btn.className, pressButtonStyles.outlineVar)).toBe(true);
+    expect(btn.className).toContain('jx-press');
   });
 
   it('ghost+flat strips the rung\'s own pose trio first — no same-property collision', () => {
     const { container } = render(PressButtonHost, { props: { variant: 'ghost', raised: false } });
     const btn = container.querySelector('button')!;
-    // ghost's none-trio is REPLACED by the flat block, not doubled
-    expect(btn.className.match(/\[--jx-press-shadow-active:[^\]]*\]/g)).toEqual([
-      '[--jx-press-shadow-active:var(--shadow-engrave)]',
-    ]);
-    expect(btn.className.match(/\[--jx-press-shadow:[^\]]*\]/g)).toEqual(['[--jx-press-shadow:none]']);
-    // the strip takes ghost's block away wholesale — hover pose appears once
-    expect(btn.className.match(/\[--jx-press-shadow-hover:[^\]]*\]/g)).toEqual([
-      '[--jx-press-shadow-hover:none]',
-    ]);
+    // ghost's none-trio is outranked by the flat block, not doubled:
+    // the flat rule sits AFTER the ghost rule in the sheet (source
+    // order is the override — the old string-surgery strip is css now)
+    const css = pressCss();
+    const ghostAt = css.indexOf("[data-jx-press-button='ghost']");
+    const flatAt = css.indexOf('[data-jx-press-flat]');
+    expect(ghostAt).toBeGreaterThan(-1);
+    expect(flatAt).toBeGreaterThan(ghostAt);
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
+    expect(btn.getAttribute('data-jx-press-button')).toBe('ghost');
   });
 
   it('link carries no jx-press — raised is inert there', () => {
@@ -198,9 +213,7 @@ describe('press-button zone texture — the foot-flat context', () => {
   it('a raised={false} zone adopts the flat pose for a bare button with no explicit prop', () => {
     const { container } = render(ZoneHost, { props: { zoneRaised: false } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('[--jx-press-shadow:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-active:var(--shadow-engrave)]');
-    expect(btn.className).toContain('[--jx-press-move:none]');
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
   });
 
   it('an explicit raised=true wins inside a flat zone — explicit ?? zone ?? true', () => {
@@ -216,7 +229,7 @@ describe('press-button zone texture — the foot-flat context', () => {
   it('a group inside a flat zone keeps the flat texture — the group WRITES it itself now (the cluster-shadow law)', () => {
     const { container } = render(ZoneHost, { props: { zoneRaised: false, grouped: true } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('[--jx-press-move:none]');
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
     // the group's PAINT policy still applied alongside (ghost via the scope)
     expect(btn.getAttribute('data-jx-press-button')).toBe('ghost');
   });
@@ -224,8 +237,7 @@ describe('press-button zone texture — the foot-flat context', () => {
   it('a BARE group flattens its joined buttons by default — the context write, no zone needed', () => {
     const { container } = render(ZoneHost, { props: { bareGrouped: true } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('[--jx-press-shadow:none]');
-    expect(btn.className).toContain('[--jx-press-move:none]');
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
     // no variant anywhere: the own outline rung rides on top of the flat pose
     expect(btn.getAttribute('data-jx-press-button')).toBe('outline');
   });
@@ -241,7 +253,7 @@ describe('press-button zone texture — the foot-flat context', () => {
     const { container } = render(ZoneHost, { props: { zoneRaised: false, nested: true } });
     const btn = container.querySelector('button')!;
     // the inner scope narrowed PAINT to outline but inherited the flat physics
-    expect(btn.className).toContain('[--jx-press-move:none]');
+    expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
     expect(btn.getAttribute('data-jx-press-button')).toBe('outline');
   });
 

@@ -127,7 +127,9 @@ describe('ColorPicker · the native field', () => {
     });
     const field = container.querySelector('input[type="text"]') as HTMLInputElement;
     expect(field).not.toBeNull();
-    expect(field.classList.contains('sr-only')).toBe(true);
+    // tailwindless W1: the collapse rides the srOnly ATOM (the v4
+    // clip recipe) — asserted by the atom's dev name
+    expect(field.className).toContain('srOnly');
     expect(field.value).toBe('#007924');
     expect(formDataOf(field).get('accent')).toBe('#007924');
   });
@@ -322,7 +324,7 @@ describe('ColorPicker — the input-color law base + the lane slot (Owner rebase
     const store1 = { v: '#007924' };
     const { container } = render(ColorPickerHost);
     const field = container.querySelector('[data-jx-color-picker-field]') as HTMLElement;
-    expect(field.className).not.toContain('sr-only'); // default: visible
+    expect(field.className).not.toContain('srOnly'); // default: visible
 
     cleanup();
     // a custom lane: a probe span reading the snippet params
@@ -336,7 +338,7 @@ describe('ColorPicker — the input-color law base + the lane slot (Owner rebase
     const host2 = render(ColorPickerHost, { props: { lane: laneSnippet } });
     await new Promise((r) => setTimeout(r, 0));
     const f2 = host2.container.querySelector('[data-jx-color-picker-field]') as HTMLElement;
-    expect(f2.className).toContain('sr-only'); // semantics live, face hidden
+    expect(f2.className).toContain('srOnly'); // semantics live, face hidden
     const probe = host2.container.querySelector('[data-lane-probe]') as HTMLElement;
     expect(probe).toBeTruthy();
     expect(probe.textContent).toContain('#007924'); // live draft text

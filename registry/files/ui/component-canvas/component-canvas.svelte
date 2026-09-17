@@ -121,6 +121,7 @@
   import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
+  import { canvasStyles } from '$lib/surface/component-canvas.stylex';
   import './component-canvas.css';
 
   /** Demo code file for the code drawer: name may carry a path. */
@@ -280,6 +281,22 @@
     class: className = '',
   }: Props = $props();
 
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // deterministic aria wiring: derived from the title so server and client
   // agree (Math.random ids would hydrate-mismatch). Distinct titles slug
   // apart; same-title or collision-prone titles (non-ASCII, "A B" vs "A-B")
@@ -407,16 +424,16 @@ let codeOpen = $state(false);
 <section
   data-jx-canvas
   data-toc-skip=""
-  class={cn('@container/jx-canvas-host bg-background border border-border rounded-none min-w-0', className)}
+  class={cn(cx(canvasStyles.root), className)}
 >
-  <header data-jx-canvas-head class="flex flex-wrap items-start justify-between gap-4 px-4 py-[0.8rem] border-b border-border">
-    <div class="jx-canvas-head-text min-w-0">
+  <header data-jx-canvas-head class={cx(canvasStyles.head)}>
+    <div class={cn('jx-canvas-head-text', cx(canvasStyles.headText))}>
       <!-- OUTLINE LAW (canvas-floor-lab): a STYLED PARAGRAPH, never a real
            heading — the root data-toc-skip plus this demotion keep the
            canvas chrome out of every page ToC (the h2 leak root fix) -->
-      <p data-jx-canvas-title class="m-0 text-foreground font-nav text-[15px] font-normal tracking-[0.01em] leading-[1.3]" id={titleId}>{title}</p>
+      <p data-jx-canvas-title class={cx(canvasStyles.title)} id={titleId}>{title}</p>
       {#if description}
-        <p data-jx-canvas-description class="m-0 mt-[0.3rem] text-muted-foreground text-[12.5px] leading-[1.5] max-w-[62ch] text-pretty">{description}</p>
+        <p data-jx-canvas-description class={cx(canvasStyles.description)}>{description}</p>
       {/if}
     </div>
     <!-- the actions row is POINTER-MODAL CHROME (chrome-density-tier law):
@@ -426,7 +443,7 @@ let codeOpen = $state(false);
          MOVED TO THE DOCK HEAD with the unified-chrome ruling (Owner
          amendment, canvas-playground-dock 2026-09-08) — the header keeps
          title/description/install/source only -->
-    <div data-jx-canvas-head-actions data-jx-chrome class="flex flex-none flex-wrap items-center gap-2 pt-[0.1rem]">
+    <div data-jx-canvas-head-actions data-jx-chrome class={cx(canvasStyles.headActions)}>
       {#if install}
         <!-- copy-command badge (the Terminal-round absorbed output): the
              install argument in mono, clipboard flash on commit -->
@@ -434,7 +451,7 @@ let codeOpen = $state(false);
           type="button"
           data-jx-canvas-install
           data-copied={copiedInstall || undefined}
-          class="jx-press jx-canvas-install inline-flex min-h-[calc(var(--jx-hit)+2px)] items-center gap-[0.45rem] border border-border bg-background px-[0.55rem] text-foreground/80 hover:text-foreground cursor-pointer text-[11px] font-mono whitespace-nowrap [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+          class={cn('jx-press jx-canvas-install', cx(canvasStyles.install))}
           aria-label={copiedInstall ? 'Install command copied' : `Copy the install command for ${install}`}
           title={copiedInstall ? 'copied' : 'copy install command'}
           onclick={() => copyInstall()}
@@ -450,7 +467,7 @@ let codeOpen = $state(false);
              their 1px group border on both edges) — one flush toolbar line -->
         <a
           data-jx-canvas-source
-          class="jx-press inline-flex h-[calc(var(--jx-hit)+2px)] w-[calc(var(--jx-hit)+2px)] flex-none items-center justify-center border border-border bg-background text-foreground/70 hover:text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]"
+          class={cn('jx-press', cx(canvasStyles.source))}
           href={sourceUrl}
           target="_blank"
           rel="noreferrer"
@@ -481,7 +498,7 @@ let codeOpen = $state(false);
     <div
       data-jx-canvas-scroll
       data-scroll={scroll}
-      class="jx-canvas-scroll @container/jx-canvas min-h-0 min-w-0"
+      class={cn('jx-canvas-scroll', cx(canvasStyles.scroll))}
     >
       <div
         data-jx-canvas-stage
@@ -489,7 +506,8 @@ let codeOpen = $state(false);
         data-theme={theme}
         data-density={dDensity}
         class={cn(
-          'jx-canvas-stage flex min-h-[200px] min-w-0 gap-4 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))] text-foreground',
+          'jx-canvas-stage',
+          cx(canvasStyles.stage),
           // theme sheet vocabulary, scoped to the stage subtree only: .dark
           // flips the token set (and dark: utilities) inside the demo;
           // .jx-light pins light tokens even under a dark docs page.
@@ -497,9 +515,9 @@ let codeOpen = $state(false);
           // STAGE's scoped token — the scope classes redefine tokens only,
           // so without it inherited color stays the page's (2026-09-01)
           theme === 'dark' ? 'dark' : 'jx-light',
-          stage === 'center' && 'flex-wrap items-center justify-center',
-          stage === 'start' && 'flex-wrap items-start justify-start',
-          stage === 'fill' && 'flex-wrap items-stretch [justify-content:stretch]',
+          stage === 'center' && cx(canvasStyles.stageCenter),
+          stage === 'start' && cx(canvasStyles.stageStart),
+          stage === 'fill' && cx(canvasStyles.stageFill),
         )}
         aria-label={stageLabel ?? `${title} demo`}
       >
@@ -510,7 +528,7 @@ let codeOpen = $state(false);
              the lint, while this canvas's OWN chrome (title, Playground)
              stays outside the wrapper and exempt. display:contents keeps
              the stage's flex layout on the demo nodes themselves. -->
-        <div data-doc-demo-content="" class="contents">
+        <div data-doc-demo-content="" class={cx(canvasStyles.demoScope)}>
           {@render children()}
         </div>
       </div>
@@ -536,35 +554,34 @@ let codeOpen = $state(false);
     {/if}
   </div>
 
-  <div data-jx-canvas-code-bar class="flex items-center justify-between gap-3 border-t border-border pt-[0.35rem] pe-2 pb-[0.35rem] ps-[0.6rem]">
+  <div data-jx-canvas-code-bar class={cx(canvasStyles.codeBar)}>
     <!-- one disclosure (D6): chevron + Code + the count adjacent; the
          chevron rotates with aria-expanded -->
     <button
       type="button"
       class={cn(
-        'jx-press jx-canvas-code-toggle inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground hover:bg-muted cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
-        '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-        codeOpen && 'bg-muted',
+        'jx-press jx-canvas-code-toggle',
+        cx(canvasStyles.codeToggle),
+        codeOpen && cx(canvasStyles.codeToggleOpen),
       )}
       aria-expanded={codeOpen}
       aria-controls={drawerId}
       onclick={() => (codeOpen = !codeOpen)}
     >
       <span
-        class="jx-canvas-chevron inline-flex transition-transform duration-150 ease-out"
-        class:rotate-180={codeOpen}
+        class={cn('jx-canvas-chevron', cx(canvasStyles.chevron), codeOpen ? cx(canvasStyles.chevronDown) : '')}
         aria-hidden="true"
       >
         <Icon name="chevronDown" size={13} />
       </span>
       <span>Code</span>
-      <span class="text-muted-foreground font-mono text-[10px]">· {files.length}</span>
+      <span class={cx(canvasStyles.count)}>· {files.length}</span>
     </button>
-    <div data-jx-canvas-code-actions class="flex items-center gap-3">
+    <div data-jx-canvas-code-actions class={cx(canvasStyles.codeActions)}>
       {#if usageFile}
         <button
           type="button"
-          class="jx-press jx-canvas-copy-usage inline-flex size-6 items-center justify-center border border-border bg-background text-muted-foreground hover:text-primary cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+          class={cn('jx-press jx-canvas-copy-usage', cx(canvasStyles.copyUsage))}
           aria-label={copiedUsage ? 'Usage copied' : 'Copy the usage snippet'}
           title={copiedUsage ? 'copied' : 'copy usage'}
           onclick={() => copyUsage()}
@@ -577,8 +594,9 @@ let codeOpen = $state(false);
 
   <div
     class={cn(
-      'jx-canvas-code-drawer border-t border-border grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]',
-      codeOpen && 'grid-rows-[1fr]',
+      'jx-canvas-code-drawer',
+      cx(canvasStyles.drawer),
+      codeOpen && cx(canvasStyles.drawerOpen),
     )}
     id={drawerId}
     role="region"
@@ -586,10 +604,10 @@ let codeOpen = $state(false);
     data-open={codeOpen || undefined}
     inert={!codeOpen || undefined}
   >
-    <div data-jx-canvas-code-clip class="min-h-0 overflow-hidden">
-      <div class="jx-canvas-code-panels flex flex-col max-h-[28rem]">
+    <div data-jx-canvas-code-clip class={cx(canvasStyles.drawerClip)}>
+      <div class={cn('jx-canvas-code-panels', cx(canvasStyles.codePanels))}>
         <aside
-          class="jx-canvas-tree bg-background border-b border-border flex-none max-h-40 overflow-y-auto"
+          class={cn('jx-canvas-tree', cx(canvasStyles.treePane))}
           aria-label="demo files"
         >
           <TreeView
@@ -600,7 +618,7 @@ let codeOpen = $state(false);
             onselect={(ctx) => (selectedPath = ctx.id)}
           />
         </aside>
-        <div class="jx-canvas-code-view flex flex-1 flex-col min-h-0 min-w-0">
+        <div class={cn('jx-canvas-code-view', cx(canvasStyles.codeView))}>
           {#if current}
             <!-- copyable=false: the code bar's inline-end copy button owns
                  copying — a footer bar with one duplicate button is noise

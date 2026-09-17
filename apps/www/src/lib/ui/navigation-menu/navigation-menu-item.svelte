@@ -40,6 +40,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { navMenuStyles } from './navigation-menu.stylex';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
     /** the ONE id: Trigger/Panel derive theirs from it. Mount-stable. */
@@ -52,6 +53,22 @@
   const autoId = $props.id();
 
   let { id = autoId, class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -86,7 +103,7 @@
 
 <span
   data-jx-navmenu-item=""
-  class={cn('inline-flex', className)}
+  class={cn(cx(navMenuStyles.slot), className)}
   {...rest}
   style="anchor-name: {anchorName}"
   bind:this={anchorEl}

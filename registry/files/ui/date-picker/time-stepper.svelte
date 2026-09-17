@@ -51,6 +51,7 @@
 <script lang="ts">
   import Icon from '$lib/ui/icon';
   import { pad2 } from './calendar-math';
+  import { datePickerStyles } from './date-picker.stylex';
   import './date-picker.css';
 
   interface Props {
@@ -253,14 +254,31 @@
   export function focusFirst(): void {
     hourEl?.focus();
   }
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-jx-time class="inline-flex items-center gap-1">
-  <div role="group" aria-label="hour" class="inline-flex items-center" onwheel={onWheel.bind(null, 'hour')}>
+<div data-jx-time class={cx(datePickerStyles.timeRoot)}>
+  <div role="group" aria-label="hour" class={cx(datePickerStyles.timeGroup)} onwheel={onWheel.bind(null, 'hour')}>
     <button
       type="button"
       data-jx-time-hour-minus
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class={'jx-date-nav-btn ' + cx(datePickerStyles.stepBtn)}
       aria-label="decrease hour"
       {disabled}
       onpointerdown={beginHold.bind(null, 'hour', -1)}
@@ -272,7 +290,7 @@
       type="text"
       inputmode="numeric"
       maxlength="2"
-      class="w-8 h-7 box-border bg-transparent border border-transparent text-center tabular-nums leading-none outline-none cursor-ns-resize text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1 disabled:cursor-not-allowed disabled:opacity-30"
+      class={cx(datePickerStyles.timeCell)}
       aria-label="hour"
       {disabled}
       value={hourDraft ?? hourText}
@@ -288,18 +306,18 @@
     <button
       type="button"
       data-jx-time-hour-plus
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class={'jx-date-nav-btn ' + cx(datePickerStyles.stepBtn)}
       aria-label="increase hour"
       {disabled}
       onpointerdown={beginHold.bind(null, 'hour', 1)}
     ><Icon name="plus" strokeWidth={2.5} /></button>
   </div>
-  <span aria-hidden="true" class="font-nav text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">:</span>
-  <div role="group" aria-label="minute" class="inline-flex items-center" onwheel={onWheel.bind(null, 'minute')}>
+  <span aria-hidden="true" class={cx(datePickerStyles.colon)}>:</span>
+  <div role="group" aria-label="minute" class={cx(datePickerStyles.timeGroup)} onwheel={onWheel.bind(null, 'minute')}>
     <button
       type="button"
       data-jx-time-minute-minus
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class={'jx-date-nav-btn ' + cx(datePickerStyles.stepBtn)}
       aria-label="decrease minute"
       {disabled}
       onpointerdown={beginHold.bind(null, 'minute', -1)}
@@ -310,7 +328,7 @@
       type="text"
       inputmode="numeric"
       maxlength="2"
-      class="w-8 h-7 box-border bg-transparent border border-transparent text-center tabular-nums leading-none outline-none cursor-ns-resize text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1 disabled:cursor-not-allowed disabled:opacity-30"
+      class={cx(datePickerStyles.timeCell)}
       aria-label="minute"
       {disabled}
       value={minuteDraft ?? minuteText}
@@ -326,7 +344,7 @@
     <button
       type="button"
       data-jx-time-minute-plus
-      class="jx-date-nav-btn inline-flex items-center justify-center w-7 h-7 p-0 border border-transparent bg-transparent text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+      class={'jx-date-nav-btn ' + cx(datePickerStyles.stepBtn)}
       aria-label="increase minute"
       {disabled}
       onpointerdown={beginHold.bind(null, 'minute', 1)}
@@ -338,7 +356,7 @@
   <button
     type="button"
     data-jx-time-mode
-    class="jx-date-nav-btn inline-flex items-center justify-center h-7 min-w-7 px-1 border border-transparent bg-transparent font-nav text-[10px] font-bold tracking-wide tabular-nums text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:text-terminal-foreground cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+    class={'jx-date-nav-btn ' + cx(datePickerStyles.stepBtn, datePickerStyles.modeBtn)}
     title="cycle hour format (24h → AM → PM)"
     aria-label="hour format"
     {disabled}

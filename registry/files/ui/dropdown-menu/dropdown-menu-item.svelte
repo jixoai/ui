@@ -27,6 +27,7 @@
   import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
   import { DropdownMenuDefaults } from './dropdown-menu-defaults.svelte';
+  import { dropdownMenuStyles } from './dropdown-menu.stylex';
   import './dropdown-menu.css';
 
   interface Props extends HTMLButtonAttributes {
@@ -53,6 +54,32 @@
     onclick?.(event);
     menu?.closeAndRestore();
   }
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // the item's paint ladder: body + the destructive/plain ink pair
+  // (the hover/walk/focus state machines live in dropdown-menu.css —
+  // the walk attribute is authored imperatively by the ROOT on any
+  // menuitem, including raw consumer items)
+  const ITEM_INK = {
+    plain: cx(dropdownMenuStyles.itemPlain),
+    destructive: cx(dropdownMenuStyles.itemDestructive),
+  } as const;
 </script>
 
 <button
@@ -60,8 +87,9 @@
   role="menuitem"
   data-density={d.density}
   class={cn(
-    'jx-menu-item flex w-full box-border items-center text-left font-sans transition-[background-color,color] duration-100 ease-out',
-    destructive ? 'jx-menu-item-destructive text-destructive' : 'bg-transparent text-inherit',
+    'jx-menu-item',
+    cx(dropdownMenuStyles.item),
+    destructive ? cn('jx-menu-item-destructive', ITEM_INK.destructive) : ITEM_INK.plain,
     className,
   )}
   onclick={handleActivate}

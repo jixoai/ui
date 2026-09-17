@@ -295,6 +295,7 @@ export interface PulseOptions {
   import Icon from '$lib/ui/icon';
   import type { Density } from '$lib/density.svelte';
   import { PressButtonDefaults } from './press-button-defaults.svelte';
+  import { pressButtonStyles } from './press-button.stylex';
   import './press-button.css';
 
   /* the REST LANE (floating-flesh-sweep, 2026-09-09 — the props
@@ -470,34 +471,43 @@ export interface PulseOptions {
   // are identical to the text pose. The forced-colors trio pins the
   // focus law for every rung: 2px Highlight, offset 2, never removed
   // (design §6 — the site ring var does not survive forced colors).
-  const focusForced = 'forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight]';
-  const base = $derived(
-    square
-      ? `inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium ${focusForced}`
-      : `inline-flex min-h-[var(--jx-hit)] items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium ${focusForced}`,
-  );
+  // The payload's own join (separator's serialize law) builds the
+  // atom groups below — the ladder's map stays collision-free by
+  // construction (variant grammar, openspec/changes/variant-grammar).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  const BASE_POSE = {
+    square: cx(pressButtonStyles.base, pressButtonStyles.baseSquare),
+    text: cx(pressButtonStyles.base, pressButtonStyles.baseText),
+  } as const;
   // the bordered, shadow-bearing body (link opts out entirely). The
   // frame contributes width + physics ONLY: every rung below supplies
-  // all three paint channels itself, so no two same-property utilities
-  // ever meet in one class list — named border-color utilities sort
-  // AFTER arbitrary ones in the sheet, and same-family utility order
-  // is not consumer-guaranteed; the map stays collision-free by
-  // construction (variant grammar, openspec/changes/variant-grammar).
-  // Each rung also carries its design §6 forced-colors degradation:
-  // fill → ButtonFace/ButtonText, tonal/outline → Canvas/CanvasText
-  // (the color-mix tints do NOT drop on their own — probed), ghost →
-  // transparent rest, ButtonFace/ButtonText hover.
-  const frame = 'jx-press border';
-  const variants = {
-    fill: `${frame} [background:var(--jx-fill)] [border-color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] forced-colors:bg-[ButtonFace] forced-colors:border-[ButtonText] forced-colors:text-[ButtonText]`,
-    tonal: `${frame} bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]`,
-    outline: `${frame} bg-transparent [border-color:var(--jx-outline)] text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]`,
-    // ghost keeps the box geometry (width-only border + transparent
-    // color) but presses without a shadow — r2 blocker fix: the width
-    // class is load-bearing, border-transparent alone computes to 0px
-    ghost: `jx-press border border-transparent bg-transparent hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] hover:text-[color:var(--jx-tonal)] [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none] forced-colors:bg-transparent forced-colors:border-transparent forced-colors:text-[CanvasText] forced-colors:hover:bg-[ButtonFace] forced-colors:hover:text-[ButtonText]`,
-    // link: the interaction exception — no frame, no press shadow, primary text
-    link: 'text-primary underline-offset-4 hover:underline forced-colors:text-[LinkText]',
+  // all three paint channels itself, so no two same-property atoms
+  // ever meet in one join. Each rung carries its design §6
+  // forced-colors degradation: fill → ButtonFace/ButtonText,
+  // tonal/outline → Canvas/CanvasText (the color-mix tints do NOT
+  // drop on their own — probed), ghost → transparent rest,
+  // ButtonFace/ButtonText hover. Ghost's none-trio pose customs and
+  // the flat pose live in press-button.css keyed on the data hooks
+  // (custom-property seams never ride atoms).
+  const VARIANT_CLASS = {
+    fill: cx(pressButtonStyles.frame, pressButtonStyles.fill),
+    tonal: cx(pressButtonStyles.frame, pressButtonStyles.tonal),
+    outline: cx(pressButtonStyles.frame, pressButtonStyles.outlineVar),
+    ghost: cx(pressButtonStyles.frame, pressButtonStyles.ghost),
+    link: cx(pressButtonStyles.link),
   } as const;
 
   // ---- the activation lock (the anchor contract's enforcement seam) --
@@ -523,23 +533,21 @@ export interface PulseOptions {
     }
   }
 
-  // THE FLAT POSE (raised={false}): the variant's own pose customs are
-  // stripped FIRST (ghost's none-trio would collide with the flat block
-  // — no two same-property utilities in one class list), then the flat
-  // block supplies all four seams: no rest shadow, no hover shadow,
-  // the press pose re-pointed to the engrave tier (an inset — pressed
-  // INTO the plane), and the press vector nulled (the body never
-  // moves; the inset alone creates the illusion). Link carries no
-  // jx-press: the strip is a no-op and the block is skipped.
-  const flatPose =
-    '[--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:var(--shadow-engrave)] [--jx-press-move:none]';
-  const variantClasses = $derived(
-    !resolvedRaised && resolvedVariant !== 'link'
-      ? `${variants[resolvedVariant].replace(/\s*\[--jx-press-shadow[^\]]*\]\s*/g, ' ')} ${flatPose}`
-      : variants[resolvedVariant],
+  // THE FLAT POSE (raised={false}): the flat block's four seams (no
+  // rest shadow, no hover shadow, the press pose re-pointed to the
+  // engrave tier, the press vector nulled) live in press-button.css
+  // keyed on [data-jx-press-flat] — the ghost none-trio it used to
+  // strip first is outranked there by pure source order, so the old
+  // string surgery is gone. Link carries no jx-press: the attr is a
+  // no-op and the rule is skipped. (String concat, not cn(): this
+  // family declares no $lib/utils edge — its closure is utils-free.)
+  const classes = $derived(
+    `${resolvedVariant === 'link' ? '' : 'jx-press '}${cx(
+      pressButtonStyles.base,
+      square ? pressButtonStyles.baseSquare : pressButtonStyles.baseText,
+      VARIANT_CLASS[resolvedVariant],
+    )}${className ? ` ${className}` : ''}`,
   );
-
-  const classes = $derived(`${base} ${variantClasses}${className ? ` ${className}` : ''}`);
   // #5 (2026-09-13): link.svelte's codified external law — ONLY an
   // absolute http(s) URL is external (no origin comparison: window.
   // location has no place in an SSR-safe registry component). The old
@@ -558,11 +566,11 @@ export interface PulseOptions {
     <!-- the bracket-cursor spinner, the spin family's glyph inlined
          (registry items stay dependency-free); keyframes + the
          reduced-motion static-frame freeze live in press-button.css -->
-    <span data-jx-press-spin="" class="jx-press-spin font-mono text-primary" aria-hidden="true">[&nbsp;<span class="jx-press-spin-frames relative inline-grid w-[1ch] text-center align-bottom"><i class="not-italic row-start-1 col-start-1 visible animate-[jx-press-spin-frame_800ms_steps(1)_infinite]">/</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:200ms]">—</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:400ms]">\\</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:600ms]">|</i></span>&nbsp;]</span>
+    <span data-jx-press-spin="" class={'jx-press-spin ' + cx(pressButtonStyles.spinner)} aria-hidden="true">[&nbsp;<span class={'jx-press-spin-frames ' + cx(pressButtonStyles.spinnerFrames)}><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameVisible)}>/</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>—</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>\\</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>|</i></span>&nbsp;]</span>
   {:else if leadingGlyph === 'check'}
     <!-- the one-shot success flash glyph (flash() painted it; it
          rests after 1.2s) -->
-    <span data-jx-press-check="" class="inline-flex flex-none items-center text-primary" aria-hidden="true">
+    <span data-jx-press-check="" class={cx(pressButtonStyles.checkGlyph)} aria-hidden="true">
       <Icon name="check" size={14} />
     </span>
   {/if}

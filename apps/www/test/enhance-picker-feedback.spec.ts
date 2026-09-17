@@ -21,6 +21,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
 import Calendar from '../src/lib/ui/date-picker/calendar.svelte';
+import { datePickerStyles } from '../src/lib/ui/date-picker/date-picker.stylex';
 import {
   composeDateTime,
   dayTimeLabel,
@@ -31,6 +32,21 @@ import {
 import DatepickerFeedbackHost from './fixtures/date-picker-feedback-host.svelte';
 import AsyncPressHost from './fixtures/async-press-host.svelte';
 import { createToastStore, type ToastItem } from '../src/lib/toast-store';
+
+// tailwindless Wave 1 (2026-09-17): the panel's utility payload rides
+// stylex atoms now — asserted through the same cx join the component
+// rides (the progressive-blur.spec precedent)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 // ---------------------------------------------------------------------------
 // calendar-math — the datetime vocabulary
@@ -314,9 +330,12 @@ describe('DatePicker · showTime', () => {
     // no time row, no lane; the calendar is a DIRECT child of the surface
     expect(rendered.container.querySelector('[data-jx-date-timerow]')).toBeNull();
     expect(rendered.container.querySelector('[data-jx-date-presets]')).toBeNull();
-    expect(rendered.container.querySelector('[data-jx-date-surface]')!.className).toBe(
-      'jx-surface-body px-3.5 py-3',
-    );
+    // W1: the surface keeps the body hook + its padding paint, now as
+    // the surfacePad atom member (full-string equality retired with
+    // the utilities)
+    const surface = rendered.container.querySelector('[data-jx-date-surface]')!;
+    expect(surface.className).toContain('jx-surface-body');
+    expect(surface.className).toContain(cx(datePickerStyles.surfacePad));
     expect(
       rendered.container.querySelector('[data-jx-date-surface] > [data-jx-calendar]'),
     ).not.toBeNull();

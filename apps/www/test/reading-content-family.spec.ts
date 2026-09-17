@@ -28,6 +28,19 @@ import { resolve } from 'node:path';
 import { render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it } from 'vitest';
+import { blockquoteStyles } from '../src/lib/ui/blockquote/blockquote.stylex';
+
+// tailwindless Wave 1 (2026-09-17): the rule channel rides
+// blockquote.css keyed on data-jx-blockquote-rule (shadow modes) and
+// blockquote.stylex.ts atoms (border modes) — the locks below read
+// the SOURCE for the css lane and atom membership for the atom lane
+const carries = (className: string, member: Record<string, unknown>): boolean =>
+  Object.entries(member).every(
+    ([key, value]) =>
+      key === '$$css' ||
+      (typeof value === 'string' && className.split(/\s+/).includes(value)),
+  );
+const bqCss = () => readFileSync(resolve('src/lib/ui/blockquote/blockquote.css'), 'utf8');
 
 import Blockquote from '../src/lib/ui/blockquote/blockquote.svelte';
 import Heading from '../src/lib/ui/heading/heading.svelte';
@@ -83,53 +96,66 @@ describe('blockquote', () => {
     const { container } = render(Blockquote, {});
     const root = container.querySelector('blockquote')!;
     expect(root.getAttribute('data-jx-blockquote-rule')).toBe('shadow-4');
-    expect(root.classList.contains('shadow-[inset_4px_0_0_color-mix(in_oklab,var(--jx-outline)_55%,transparent)]')).toBe(true);
+    // the shadow-4 rule paints from the css lane keyed on the rule hook
+    expect(bqCss()).toMatch(
+      /:where\(\[data-jx-blockquote='outline'\]\[data-jx-blockquote-rule='shadow-4'\]\)\s*\{[^}]*box-shadow: inset 4px 0 0 color-mix\(in oklab, var\(--jx-outline\) 55%, transparent\);/s,
+    );
     // ps honesty: the padding stays fixed across channels and sizes
-    expect(root.classList.contains('ps-[0.875rem]')).toBe(true);
-    // outline in shadow mode carries NO border at all — never a mixed
-    // border+shadow on one edge (the sole-source law)
-    expect(root.classList.contains('border-s')).toBe(false);
+    expect(carries(root.className, blockquoteStyles.outlineGround)).toBe(true);
+    // outline in shadow mode carries NO border atoms at all — never a
+    // mixed border+shadow on one edge (the sole-source law)
+    expect(carries(root.className, blockquoteStyles.ruleBorder4)).toBe(false);
     // forced-colors re-materialization rides the shadow modes (the
-    // entity law's "edge is structure" generalized)
-    expect(root.classList.contains('forced-colors:shadow-none')).toBe(true);
-    expect(root.classList.contains('forced-colors:border-s-[4px]')).toBe(true);
-    expect(root.classList.contains('forced-colors:border-[CanvasText]')).toBe(true);
+    // entity law's "edge is structure" generalized) — css lane
+    // (the bare rule selector exists only inside the forced-colors
+    // block — the painted rungs carry the variant compound instead)
+    expect(bqCss()).toMatch(
+      /:where\(\[data-jx-blockquote-rule='shadow-4'\]\)\s*\{[^}]*box-shadow: none;[^}]*border-inline-start-width: calc\(var\(--hairline\) \* 4\);/s,
+    );
+    expect(bqCss()).toMatch(
+      /:where\(\[data-jx-blockquote='outline'\]\[data-jx-blockquote-rule\^='shadow-'\]\)\s*\{[^}]*border-inline-start-color: CanvasText;/s,
+    );
   });
 
   it("rule='border' swaps the channel: border geometry + the rung's own border-color source", () => {
     const { container } = render(Blockquote, { props: { rule: 'border' } });
     const root = container.querySelector('blockquote')!;
     expect(root.getAttribute('data-jx-blockquote-rule')).toBe('border-4');
-    expect(root.classList.contains('border-s-4')).toBe(true);
-    expect(root.classList.contains('[border-color:color-mix(in_oklab,var(--jx-outline)_55%,transparent)]')).toBe(true);
-    expect(root.classList.contains('ps-[0.875rem]')).toBe(true);
-    // ONE channel per root — the shadow utilities never ride border mode
-    expect(root.className).not.toMatch(/shadow-\[inset/);
-    expect(root.className).not.toMatch(/forced-colors:shadow-none/);
+    // the border channel rides atoms: the widened start edge + the
+    // rung's own 55% tint
+    expect(carries(root.className, blockquoteStyles.ruleBorder4)).toBe(true);
+    expect(carries(root.className, blockquoteStyles.ruleBorderOutlineTint)).toBe(true);
+    expect(carries(root.className, blockquoteStyles.outlineGround)).toBe(true);
+    // ONE channel per root — the shadow css never rides border mode:
+    // the sheet keys shadows on rule='shadow-*' only (source gate)
+    expect(bqCss()).not.toMatch(/\[data-jx-blockquote-rule='border-4'\][^{]*\{[^}]*box-shadow/s);
   });
 
-  it('the ruleSize ladder 1/4/8 stamps compound hooks + the literal px utilities, ps fixed', () => {
-    const SHADOW_LADDER: ReadonlyArray<[1 | 4 | 8, string, string]> = [
-      [1, 'shadow-[inset_1px_0_0_color-mix(in_oklab,var(--jx-outline)_55%,transparent)]', 'forced-colors:border-s'],
-      [4, 'shadow-[inset_4px_0_0_color-mix(in_oklab,var(--jx-outline)_55%,transparent)]', 'forced-colors:border-s-[4px]'],
-      [8, 'shadow-[inset_8px_0_0_color-mix(in_oklab,var(--jx-outline)_55%,transparent)]', 'forced-colors:border-s-[8px]'],
-    ];
-    for (const [size, shadowClass, widthClass] of SHADOW_LADDER) {
+  it('the ruleSize ladder 1/4/8 stamps compound hooks + the px rungs, ps fixed', () => {
+    const css = bqCss();
+    for (const size of [1, 4, 8] as const) {
       const { container } = render(Blockquote, { props: { ruleSize: size } });
       const root = container.querySelector('blockquote')!;
       expect(root.getAttribute('data-jx-blockquote-rule'), String(size)).toBe(`shadow-${size}`);
-      expect(root.classList.contains(shadowClass), String(size)).toBe(true);
-      expect(root.classList.contains(widthClass), String(size)).toBe(true);
-      expect(root.classList.contains('forced-colors:shadow-none'), String(size)).toBe(true);
+      // the shadow rung + its forced-colors re-materialization are css
+      // lane, keyed on the exact rule hook (source gate)
+      expect(
+        css.match(
+          new RegExp(
+            `box-shadow: inset ${size}px 0 0 color-mix\\(in oklab, var\\(--jx-outline\\) 55%, transparent\\);`,
+          ),
+        ),
+        String(size),
+      ).toBeTruthy();
       // paint never moves geometry: ps identical at every size
-      expect(root.classList.contains('ps-[0.875rem]'), String(size)).toBe(true);
+      expect(carries(root.className, blockquoteStyles.outlineGround), String(size)).toBe(true);
     }
     for (const size of [4, 8] as const) {
       const { container } = render(Blockquote, { props: { rule: 'border', ruleSize: size } });
       const root = container.querySelector('blockquote')!;
-      expect(root.classList.contains(`border-s-${size}`), String(size)).toBe(true);
+      expect(carries(root.className, size === 4 ? blockquoteStyles.ruleBorder4 : blockquoteStyles.ruleBorder8), String(size)).toBe(true);
       expect(root.getAttribute('data-jx-blockquote-rule')).toBe(`border-${size}`);
-      expect(root.classList.contains('ps-[0.875rem]'), String(size)).toBe(true);
+      expect(carries(root.className, blockquoteStyles.outlineGround), String(size)).toBe(true);
     }
   });
 
@@ -139,21 +165,19 @@ describe('blockquote', () => {
     expect(root.getAttribute('data-jx-blockquote-rule')).toBe('shadow-4');
     // the alert box border STAYS (the tonal recipe) and the shadow rule
     // rides the box's own 45% mix — one hue source, jx-hue-* retunes all
-    expect(root.classList.contains('border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]')).toBe(true);
-    expect(
-      root.classList.contains('shadow-[inset_4px_0_0_color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]'),
-    ).toBe(true);
-    expect(root.classList.contains('forced-colors:shadow-none')).toBe(true);
-    expect(root.classList.contains('forced-colors:border-s-[4px]')).toBe(true);
-    // the box padding stays fixed too
-    expect(root.classList.contains('px-3.5')).toBe(true);
+    // the alert box border STAYS as the tonal ground atom and the
+    // shadow rule rides the box's own 45% mix from the css lane — one
+    // hue source, jx-hue-* retunes all
+    expect(carries(root.className, blockquoteStyles.tonalGround)).toBe(true);
+    expect(bqCss()).toMatch(
+      /:where\(\[data-jx-blockquote='tonal'\]\[data-jx-blockquote-rule='shadow-4'\]\)\s*\{[^}]*box-shadow: inset 4px 0 0 color-mix\(in oklab, var\(--jx-tonal\) 45%, transparent\);/s,
+    );
     // border mode on tonal: only the WIDTH joins — the box's own
     // border-color declaration is the single color source
     const border = render(Blockquote, { props: { variant: 'tonal', rule: 'border', ruleSize: 4 } });
     const bRoot = border.container.querySelector('blockquote')!;
-    expect(bRoot.classList.contains('border-s-4')).toBe(true);
-    expect(bRoot.className).not.toMatch(/shadow-\[inset/);
-    expect(bRoot.classList.contains('border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]')).toBe(true);
+    expect(carries(bRoot.className, blockquoteStyles.ruleBorder4)).toBe(true);
+    expect(carries(bRoot.className, blockquoteStyles.tonalGround)).toBe(true);
   });
 
   it('composes the alert label row and the cite attribution', () => {

@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
+
 
 /* jixoai accordion item — D1-exempt residue (tw4, 2026-08-24): ONLY
  * the pieces utilities cannot express — the native marker retirement
@@ -7,9 +8,29 @@
  * height:auto machinery behind its @supports gate, and the
  * reduced-motion kill (overrides the residue transitions, so it rides
  * UNLAYERED behind :where — the toggle/Part A precedent). The summary
- * line and body paint live as token utilities in the markup. */
+ * line and body paint live as token utilities in the markup.
+ *
+ * tailwindless one-shot W1 (2026-09-17): the summary's INK + state
+ * seams moved here from the markup utilities (hover:text-primary-text,
+ * focus-visible:outline-*, transition-colors) — the placement law: a
+ * lane-2 rule owns every property its state rules touch, or the atom
+ * tier (components.stylex, later in the F9 order) would shade the
+ * :hover. The rest of the summary/body paint rides the family's
+ * stylex atoms (accordion.stylex.ts). */
 
 @layer components {
+  /* the summary's ink + its state seams (native pseudos, zero-JS) */
+  :where(.jx-acc-summary) {
+    color: var(--foreground);
+    transition: color var(--motion-150) var(--motion-ease-out);
+  }
+  :where(.jx-acc-summary:hover) {
+    color: var(--primary-text);
+  }
+  :where(.jx-acc-summary:focus-visible) {
+    outline: 1px solid var(--ring);
+    outline-offset: -1px;
+  }
   /* retire the native marker everywhere (Safari needs the pair) */
   :where(.jx-acc-summary)::-webkit-details-marker {
     display: none;
@@ -27,7 +48,7 @@
     border-right: 1px solid currentColor;
     border-bottom: 1px solid currentColor;
     transform: rotate(45deg);
-    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform var(--motion-200) var(--motion-ease-nav);
   }
   :where(.jx-acc-item[open]) > :where(.jx-acc-summary)::after {
     transform: rotate(225deg);
@@ -44,8 +65,8 @@
       height: 0;
       overflow: clip;
       transition:
-        height 200ms cubic-bezier(0.22, 1, 0.36, 1),
-        content-visibility 200ms allow-discrete;
+        height var(--motion-200) var(--motion-ease-nav),
+        content-visibility var(--motion-200) allow-discrete;
     }
     :where(.jx-acc-item[open])::details-content {
       height: auto;
@@ -54,6 +75,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :where(.jx-acc-summary),
   :where(.jx-acc-summary)::after,
   :where(.jx-acc-item)::details-content {
     transition: none;

@@ -32,6 +32,50 @@
    the corners as-is, a round rim would render square). */
 
 @layer components {
+/* ── the tailwindless lane-2 seam (Wave 1, 2026-09-17) ──────────────
+   The button body rides press-button.stylex.ts atoms; four things
+   atoms cannot carry live here (all keyed on the family's own data
+   hooks, :where() zero specificity — consumer utilities keep
+   winning):
+   1. font-medium — NO weight token yet (reported MISSING:
+      --jx-weight-medium); applies to every rung including link;
+   2. ghost's none-trio press customs — custom-property seams;
+   3. the FLAT pose (raised={false}) — the four seams, AFTER ghost in
+      source order so the engrave re-point outranks ghost's none (the
+      old string-surgery strip is pure css order now);
+   4. the spinner frames' animation + per-frame delays — motion
+      literals (the reduced-motion kill below already targets this
+      selector UNLAYERED and keeps winning). */
+:where([data-jx-press-button]) {
+  font-weight: 500;
+}
+:where([data-jx-press-button='ghost']) {
+  --jx-press-shadow: none;
+  --jx-press-shadow-hover: none;
+  --jx-press-shadow-active: none;
+}
+:where([data-jx-press-flat]) {
+  --jx-press-shadow: none;
+  --jx-press-shadow-hover: none;
+  --jx-press-shadow-active: var(--shadow-engrave);
+  --jx-press-move: none;
+}
+:where(.jx-press-spin-frames i) {
+  animation-name: jx-press-spin-frame;
+  animation-duration: 800ms;
+  animation-timing-function: steps(1);
+  animation-iteration-count: infinite;
+}
+:where(.jx-press-spin-frames i:nth-child(2)) {
+  animation-delay: 200ms;
+}
+:where(.jx-press-spin-frames i:nth-child(3)) {
+  animation-delay: 400ms;
+}
+:where(.jx-press-spin-frames i:nth-child(4)) {
+  animation-delay: 600ms;
+}
+
 /* The effect scenery sits at NEGATIVE z-index under the in-flow label
    (the host carries relative z-0 — its own stacking context, stamped by
    the runtime), so nothing escapes and the label is never occluded. */

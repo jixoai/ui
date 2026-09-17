@@ -1,0 +1,338 @@
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
+  :root, .x1klgzij {
+    --jx-brand-hue: var(--brand-hue);
+    --jx-background: var(--background);
+    --jx-foreground: var(--foreground);
+    --jx-card: var(--card);
+    --jx-card-foreground: var(--card-foreground);
+    --jx-popover: var(--popover);
+    --jx-popover-foreground: var(--popover-foreground);
+    --jx-primary: var(--primary);
+    --jx-primary-foreground: var(--primary-foreground);
+    --jx-primary-text: var(--primary-text);
+    --jx-secondary: var(--secondary);
+    --jx-secondary-foreground: var(--secondary-foreground);
+    --jx-muted: var(--muted);
+    --jx-muted-foreground: var(--muted-foreground);
+    --jx-accent: var(--accent);
+    --jx-accent-foreground: var(--accent-foreground);
+    --jx-destructive: var(--destructive);
+    --jx-destructive-foreground: var(--destructive-foreground);
+    --jx-border: var(--border);
+    --jx-input: var(--input);
+    --jx-ring: var(--ring);
+    --jx-terminal: var(--terminal);
+    --jx-terminal-foreground: var(--terminal-foreground);
+    --jx-terminal-hover: var(--terminal-hover);
+    --jx-terminal-muted: var(--terminal-muted);
+    --jx-success: var(--success);
+    --jx-success-foreground: var(--success-foreground);
+    --jx-warning: var(--warning);
+    --jx-warning-foreground: var(--warning-foreground);
+    --jx-info: var(--info);
+    --jx-info-foreground: var(--info-foreground);
+    --jx-error: var(--error);
+    --jx-error-foreground: var(--error-foreground);
+    --jx-chart-1: var(--chart-1);
+    --jx-chart-2: var(--chart-2);
+    --jx-chart-3: var(--chart-3);
+    --jx-chart-4: var(--chart-4);
+    --jx-chart-5: var(--chart-5);
+    --jx-font-sans: var(--font-sans);
+    --jx-font-mono: var(--font-mono);
+    --jx-font-nav: var(--font-nav);
+    --jx-radius: var(--radius);
+    --jx-shadow-color: var(--shadow-color);
+    --jx-shadow-2xs: var(--shadow-2xs);
+    --jx-shadow-xs: var(--shadow-xs);
+    --jx-shadow-sm: var(--shadow-sm);
+    --jx-shadow: var(--shadow);
+    --jx-shadow-md: var(--shadow-md);
+    --jx-shadow-xs-press: var(--shadow-xs-press);
+    --jx-shadow-sm-press: var(--shadow-sm-press);
+    --jx-shadow-md-press: var(--shadow-md-press);
+    --jx-shadow-engrave: var(--shadow-engrave);
+    --jx-shadow-well: var(--shadow-well);
+    --jx-shadow-well-hover: var(--shadow-well-hover);
+    --jx-shadow-paper: var(--shadow-paper);
+    --jx-scrim: var(--scrim);
+    --jx-surface-shadow: var(--surface-shadow);
+    --jx-scrollbar-track: var(--scrollbar-track);
+    --jx-scrollbar-thumb: var(--scrollbar-thumb);
+    --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+    --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+    --jx-text-micro: var(--text-micro);
+    --jx-text-label: var(--text-label);
+    --jx-text-label-lg: var(--text-label-lg);
+    --jx-text-small: var(--text-small);
+    --jx-text-sm: var(--text-sm);
+    --jx-text-body-lg: var(--text-body-lg);
+    --jx-text-body-xl: var(--text-body-xl);
+    --jx-track-label: var(--track-label);
+    --jx-track-wide: var(--track-wide);
+    --jx-track-tight: var(--track-tight);
+    --jx-track-04: var(--track-04);
+    --jx-track-06: var(--track-06);
+    --jx-track-10: var(--track-10);
+    --jx-track-12: var(--track-12);
+    --jx-track-14: var(--track-14);
+    --jx-track-18: var(--track-18);
+    --jx-track-20: var(--track-20);
+    --jx-weight-medium: var(--weight-medium);
+    --jx-weight-semibold: var(--weight-semibold);
+    --jx-weight-bold: var(--weight-bold);
+    --jx-leading-none: var(--leading-none);
+    --jx-leading-12: var(--leading-12);
+    --jx-leading-tight: var(--leading-tight);
+    --jx-leading-14: var(--leading-14);
+    --jx-leading-145: var(--leading-145);
+    --jx-leading-15: var(--leading-15);
+    --jx-leading-155: var(--leading-155);
+    --jx-motion-100: var(--motion-100);
+    --jx-motion-150: var(--motion-150);
+    --jx-motion-200: var(--motion-200);
+    --jx-motion-hero: var(--motion-hero);
+    --jx-motion-ease-out: var(--motion-ease-out);
+    --jx-motion-ease-nav: var(--motion-ease-nav);
+    --jx-shell-w: var(--shell-w);
+    --jx-stage-w: var(--stage-w);
+    --jx-space-2: var(--space-2);
+    --jx-space-4: var(--space-4);
+    --jx-space-6: var(--space-6);
+    --jx-space-8: var(--space-8);
+    --jx-space-10: var(--space-10);
+    --jx-space-12: var(--space-12);
+    --jx-space-14: var(--space-14);
+    --jx-space-16: var(--space-16);
+    --jx-space-18: var(--space-18);
+    --jx-space-20: var(--space-20);
+    --jx-space-24: var(--space-24);
+    --jx-space-32: var(--space-32);
+    --jx-space-40: var(--space-40);
+    --jx-hairline: var(--hairline);
+  }
+}
+
+@layer components.stylex.priority2 {
+  .xsnn5ew {
+    gap: var(--space-12);
+  }
+
+  .xrmyqi1 {
+    gap: var(--space-40);
+  }
+
+  .xvueqy4 {
+    margin-inline: auto;
+  }
+
+  .xd3oyxg {
+    padding-block: var(--space-40);
+  }
+
+  .x18t9cuk {
+    padding-inline: var(--space-16);
+  }
+
+  @media (width >= 40rem) {
+    .x1912so7.x1912so7 {
+      padding-inline: var(--space-24);
+    }
+  }
+
+  @media (width >= 64rem) {
+    .x51g4ga.x51g4ga {
+      padding-inline: var(--space-32);
+    }
+  }
+
+  @container jx-hero (width >= 64rem) {
+    .x1vk29k2.x1vk29k2 {
+      gap: calc(var(--jx-unit) * 14);
+    }
+  }
+}
+
+@layer components.stylex.priority3 {
+  .x10dxy6d {
+    animation-delay: var(--jx-hero-delay, 0s);
+  }
+
+  .xcxh9cb {
+    animation-duration: var(--motion-hero, .48s);
+  }
+
+  .xskzprw {
+    animation-fill-mode: backwards;
+  }
+
+  .xisgonv {
+    animation-name: jx-hero-rise;
+  }
+
+  .xpazfxd {
+    animation-timing-function: var(--ease-hero, cubic-bezier(.22,1,.36,1));
+  }
+
+  .xowzrx4 {
+    color: var(--jx-muted-foreground);
+  }
+
+  .xzsf02u {
+    color: var(--primary-text);
+  }
+
+  .xs8mbfm {
+    column-gap: var(--space-24);
+  }
+
+  .x1nah20r {
+    container-name: jx-hero;
+  }
+
+  .x12h1iku {
+    container-type: inline-size;
+  }
+
+  .x78zum5 {
+    display: flex;
+  }
+
+  .xrvj5dj {
+    display: grid;
+  }
+
+  .x3nfvp2 {
+    display: inline-flex;
+  }
+
+  .x1a02dak {
+    flex-wrap: wrap;
+  }
+
+  .xzavzzj {
+    font-family: var(--jx-font-nav);
+  }
+
+  .x1cgc5wi {
+    font-size: clamp(2.4rem, 6cqi, 4.4rem);
+  }
+
+  .xzu602j {
+    font-size: var(--text-body-lg, .9375rem);
+  }
+
+  .x1kdkrmc {
+    font-size: var(--text-label-lg);
+  }
+
+  .x1ur3rz7 {
+    font-size: var(--text-label);
+  }
+
+  .x1hwzkk4 {
+    font-weight: var(--weight-bold, 700);
+  }
+
+  .x1m19o6m {
+    letter-spacing: var(--jx-track-label);
+  }
+
+  .x1bmy4wb {
+    letter-spacing: var(--track-14, .14em);
+  }
+
+  .x1lnymhi {
+    letter-spacing: var(--track-tight, -.02em);
+  }
+
+  .x1326c0u {
+    line-height: calc(var(--jx-unit) * 6);
+  }
+
+  .x4hu2pf {
+    line-height: var(--leading-12, 1.2);
+  }
+
+  .x1oi92fj {
+    row-gap: var(--space-8);
+  }
+
+  .xtvhhri {
+    text-transform: uppercase;
+  }
+
+  .x1w2vvpw {
+    text-wrap: balance;
+  }
+
+  .x1fzhlzt {
+    text-wrap: pretty;
+  }
+
+  @media (width >= 40rem) {
+    .x1yeutuy.x1yeutuy {
+      font-size: var(--text-body-xl, 1rem);
+    }
+
+    .xhxiwet.xhxiwet {
+      line-height: calc(var(--jx-unit) * 7);
+    }
+  }
+
+  @container jx-hero (width >= 64rem) {
+    .x18v8k8a.x18v8k8a {
+      align-items: end;
+    }
+
+    .x1k1qwqa.x1k1qwqa {
+      grid-template-columns: minmax(0, 1fr) minmax(10.5cm, 13cm);
+    }
+  }
+}
+
+@layer components.stylex.priority4 {
+  .x1cjdj1s {
+    margin-top: var(--space-16);
+  }
+
+  .xzeiv7b {
+    margin-top: var(--space-20);
+  }
+
+  .xqaceok {
+    margin-top: var(--space-32);
+  }
+
+  .x1rnnmso {
+    max-width: min(100%, 16cm);
+  }
+
+  .x1mh5om4 {
+    max-width: min(100%, 22cm);
+  }
+
+  .x29sf4j {
+    max-width: var(--jx-shell-w);
+  }
+
+  .xeuugli {
+    min-width: 0;
+  }
+
+  .xh8yej3 {
+    width: 100%;
+  }
+
+  @media (width >= 40rem) {
+    .x1xxhn2o.x1xxhn2o {
+      padding-top: calc(var(--jx-unit) * 14);
+    }
+  }
+}
+
+@layer utilities;
+/* buildId: 7119ccca8c08e569354ee25ccf3745534e92764eb2e7a0f2f9be5fa80bc54567 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

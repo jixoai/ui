@@ -12,6 +12,7 @@
     --jx-popover-foreground: var(--popover-foreground);
     --jx-primary: var(--primary);
     --jx-primary-foreground: var(--primary-foreground);
+    --jx-primary-text: var(--primary-text);
     --jx-secondary: var(--secondary);
     --jx-secondary-foreground: var(--secondary-foreground);
     --jx-muted: var(--muted);
@@ -67,16 +68,46 @@
     --jx-text-label: var(--text-label);
     --jx-text-label-lg: var(--text-label-lg);
     --jx-text-small: var(--text-small);
+    --jx-text-sm: var(--text-sm);
+    --jx-text-body-lg: var(--text-body-lg);
+    --jx-text-body-xl: var(--text-body-xl);
     --jx-track-label: var(--track-label);
     --jx-track-wide: var(--track-wide);
+    --jx-track-tight: var(--track-tight);
+    --jx-track-04: var(--track-04);
+    --jx-track-06: var(--track-06);
+    --jx-track-10: var(--track-10);
+    --jx-track-12: var(--track-12);
+    --jx-track-14: var(--track-14);
+    --jx-track-18: var(--track-18);
+    --jx-track-20: var(--track-20);
+    --jx-weight-medium: var(--weight-medium);
+    --jx-weight-semibold: var(--weight-semibold);
+    --jx-weight-bold: var(--weight-bold);
+    --jx-leading-none: var(--leading-none);
+    --jx-leading-12: var(--leading-12);
+    --jx-leading-tight: var(--leading-tight);
+    --jx-leading-14: var(--leading-14);
+    --jx-leading-145: var(--leading-145);
+    --jx-leading-15: var(--leading-15);
+    --jx-leading-155: var(--leading-155);
+    --jx-motion-100: var(--motion-100);
+    --jx-motion-150: var(--motion-150);
+    --jx-motion-200: var(--motion-200);
+    --jx-motion-hero: var(--motion-hero);
+    --jx-motion-ease-out: var(--motion-ease-out);
+    --jx-motion-ease-nav: var(--motion-ease-nav);
     --jx-shell-w: var(--shell-w);
     --jx-stage-w: var(--stage-w);
+    --jx-space-2: var(--space-2);
     --jx-space-4: var(--space-4);
     --jx-space-6: var(--space-6);
     --jx-space-8: var(--space-8);
     --jx-space-10: var(--space-10);
     --jx-space-12: var(--space-12);
+    --jx-space-14: var(--space-14);
     --jx-space-16: var(--space-16);
+    --jx-space-18: var(--space-18);
     --jx-space-20: var(--space-20);
     --jx-space-24: var(--space-24);
     --jx-space-32: var(--space-32);
@@ -86,4 +117,4 @@
 }
 
 @layer utilities;
-/* buildId: 10eaa095ab1529669335f17d32334f85db0e3dba504ea36826a8c22973f00253 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
+/* buildId: 7119ccca8c08e569354ee25ccf3745534e92764eb2e7a0f2f9be5fa80bc54567 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

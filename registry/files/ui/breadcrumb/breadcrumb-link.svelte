@@ -1,8 +1,10 @@
 <!--
   jixoai BreadcrumbLink (registry/files/ui/breadcrumb/breadcrumb-link.svelte,
   2026-08-25).
-  An ordinary trail link — muted, warming to the brand hue on hover,
-  real href so every input mode can use it.
+  An ordinary trail link — muted, warming to the brand hue on hover
+  (the atom's own :hover condition; the transition rides the
+  .jx-bc-link class in breadcrumb.css), real href so every input
+  mode can use it.
 
   child({ props }) contract (design.md, the typed form): when the
   consumer passes a `child` snippet the part does NOT render its own
@@ -14,6 +16,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { breadcrumbStyles } from './breadcrumb.stylex';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
   interface Props extends HTMLAnchorAttributes {
@@ -35,11 +38,26 @@
   // (no-opinion slot: no explicit prop, inherited else nothing)
   const d = $derived(BreadcrumbDefaults.resolve({}));
 
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
+
   const props = $derived({
-    class: cn(
-      'text-muted-foreground no-underline transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-2',
-      className,
-    ),
+    // hover/focus paint rides the atom's pseudo conditions; the
+    // 150ms color transition rides the .jx-bc-link class (motion
+    // literals live in breadcrumb.css — and the CLASS rides the
+    // string so the child({ props }) form keeps it)
+    class: cn(cx(breadcrumbStyles.link), 'jx-bc-link', className),
     href,
     ...rest,
   });

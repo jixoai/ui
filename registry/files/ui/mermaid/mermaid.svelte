@@ -72,6 +72,7 @@
     type MermaidConfig,
     type MermaidThemeMode,
   } from '$lib/mermaid-engine';
+  import { mermaidStyles } from './mermaid.stylex';
   import './mermaid.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -290,6 +291,22 @@
   // the trimmed ladder: an empty/whitespace name falls THROUGH (never a
   // nameless img), a localized diagram name rides second, 'Diagram' ships
   const accessibleName = $derived(name?.trim() || labels.diagram?.trim() || 'Diagram');
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <figure
@@ -299,16 +316,17 @@
   data-jx-mermaid
   data-state={dataState}
   class={cn(
-    'jx-mermaid bg-[color:var(--readonly-code-bg)] border border-[color:var(--readonly-code-border)] m-0 min-w-0',
+    'jx-mermaid',
+    cx(mermaidStyles.figure),
     className,
   )}
 >
   {#if name}
     <figcaption
       data-jx-mermaid-head
-      class="flex items-center gap-3 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.08em] bg-[color:var(--readonly-code-meta-bg)] border-b border-[color:var(--readonly-code-border)] text-[color:var(--readonly-code-meta-fg)]"
+      class={cx(mermaidStyles.caption)}
     >
-      <span data-jx-mermaid-file class="font-nav truncate">{name}</span>
+      <span data-jx-mermaid-file class={cx(mermaidStyles.captionFile)}>{name}</span>
     </figcaption>
   {/if}
   {#if dataState === 'error'}
@@ -317,10 +335,10 @@
     <div
       data-jx-mermaid-error
       role="status"
-      class="flex items-center gap-2 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.04em] border-b border-[color:var(--readonly-code-border)] text-[color:var(--error)]"
+      class={cx(mermaidStyles.error)}
     >
-      <span class="whitespace-nowrap">{renderErrorLabel}</span>
-      <span data-jx-mermaid-diagnostic class="truncate opacity-80">{diagnostic.split('\n')[0]}</span>
+      <span class={cx(mermaidStyles.errorLabel)}>{renderErrorLabel}</span>
+      <span data-jx-mermaid-diagnostic class={cx(mermaidStyles.errorDiagnostic)}>{diagnostic.split('\n')[0]}</span>
     </div>
   {/if}
   <!-- the TWO-AXIS pan viewport (the recorded scroll-run exemption):
@@ -337,29 +355,27 @@
   {#if copyable || zoomable}
     <div
       data-jx-mermaid-foot
-      class="flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
+      class={cx(mermaidStyles.foot)}
     >
-      <span class="flex items-center min-w-0">
+      <span class={cx(mermaidStyles.footLead)}>
         {#if copyable}
           <button
             type="button"
             class={cn(
-              'jx-press jx-mermaid-copy inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
-              '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-              copied
-                ? 'copied bg-secondary text-secondary-foreground hover:bg-secondary'
-                : 'hover:bg-muted',
+              'jx-press jx-mermaid-copy',
+              cx(mermaidStyles.copyBtn),
+              copied && `copied ${cx(mermaidStyles.copyBtnCopied)}`,
             )}
             onclick={copySource}
             aria-label={copied ? copiedLabel : copyLabel}
           >
             {#if copied}
-              <span data-jx-mermaid-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">
+              <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}>
                 <Icon name="check" size={12} strokeWidth={2.5} />
               </span>
               <span>{copiedLabel}</span>
             {:else}
-              <span data-jx-mermaid-icon class="inline-flex">
+              <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}>
                 <Icon name="copy" size={12} />
               </span>
               <span>{copyLabel}</span>
@@ -368,33 +384,33 @@
         {/if}
       </span>
       {#if zoomable}
-        <span data-jx-mermaid-zoom-controls class="flex items-center gap-1.5">
+        <span data-jx-mermaid-zoom-controls class={cx(mermaidStyles.zoomControls)}>
           <button
             type="button"
             data-jx-mermaid-zoom-out
-            class="jx-press jx-mermaid-zoom-btn inline-flex items-center bg-background border border-border text-foreground cursor-pointer p-[0.32rem] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] hover:bg-muted"
+            class="jx-press jx-mermaid-zoom-btn {cx(mermaidStyles.zoomBtn)}"
             onclick={() => stepZoom(-1)}
             aria-label={zoomOutLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex"><Icon name="minus" size={12} /></span>
+            <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}><Icon name="minus" size={12} /></span>
           </button>
           <button
             type="button"
             data-jx-mermaid-zoom-reset
-            class="jx-press jx-mermaid-zoom-btn inline-flex items-center bg-background border border-border text-foreground cursor-pointer p-[0.32rem] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] hover:bg-muted"
+            class="jx-press jx-mermaid-zoom-btn {cx(mermaidStyles.zoomBtn)}"
             onclick={() => (scale = 1)}
             aria-label={zoomResetLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex"><Icon name="rotateCcw" size={12} /></span>
+            <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}><Icon name="rotateCcw" size={12} /></span>
           </button>
           <button
             type="button"
             data-jx-mermaid-zoom-in
-            class="jx-press jx-mermaid-zoom-btn inline-flex items-center bg-background border border-border text-foreground cursor-pointer p-[0.32rem] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] hover:bg-muted"
+            class="jx-press jx-mermaid-zoom-btn {cx(mermaidStyles.zoomBtn)}"
             onclick={() => stepZoom(1)}
             aria-label={zoomInLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex"><Icon name="plus" size={12} /></span>
+            <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}><Icon name="plus" size={12} /></span>
           </button>
         </span>
       {/if}

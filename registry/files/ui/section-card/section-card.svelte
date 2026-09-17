@@ -46,8 +46,10 @@
 <script lang="ts">
   import { getContext, onDestroy, setContext } from 'svelte';
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
   import Separator from '../separator/separator.svelte';
   import './section-card.css';
+  import { sectionCardStyles } from './section-card.stylex';
   import { SectionCardDefaults, type SectionCardTone } from './section-card-defaults.svelte';
   import {
     NUMBERING_DOMAIN_KEY,
@@ -128,6 +130,22 @@
     floatScope,
     id,
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // ── the numbering tree (design §1/§1.1b) ─────────────────────────────
   // Immutable precondition (§1.2): numbering/floatScope/id are mount-
@@ -240,22 +258,18 @@
   // 'default' declared in SectionCardDefaults, auditable in one place)
   const d = $derived(SectionCardDefaults.resolve({ tone }));
 
-  const titleClassName = $derived(
-    d.tone === 'hero'
-      ? 'font-nav max-w-[24ch] text-balance text-[clamp(1.58rem,2.55vw,2.7rem)] tracking-normal leading-[1.2] sm:max-w-[22ch] lg:max-w-[24ch]'
-      : 'font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]',
-  );
-  const summaryClassName = $derived(
-    d.tone === 'hero'
-      ? 'max-w-[62ch] text-pretty text-[13px] leading-6 text-foreground/78 sm:text-[14px] sm:leading-6'
-      : 'max-w-[64ch] text-pretty [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground',
-  );
+  // tailwindless one-shot (2026-09-16): the title/summary voices ride
+  // the family's REGISTERED data-hook rules (section-card.css — the
+  // sizes/leadings/tracking hold no token step, so the atoms layer
+  // cannot carry them); the tone discriminator is the root's
+  // data-tone. Everything mappable is a stylex atom below.
 </script>
 
 <section
   data-jx-section
+  data-tone={d.tone}
   bind:this={sectionEl}
-  class={`border border-border bg-card shadow-2xs ${className}`}
+  class={cn(cx(sectionCardStyles.card), className)}
   id={frozen.id}
   data-family={family}
   data-region={region}
@@ -265,35 +279,33 @@
 >
   <div
     data-jx-section-header
-    class="flex flex-col [gap:calc(var(--jx-stack)_+_var(--jx-unit))] [padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_var(--jx-unit))]"
+    class={cx(sectionCardStyles.header)}
     data-region={headerRegion}
   >
     {#if eyebrow}
-      <p
-        class="font-nav text-primary-text [font-size:calc(var(--jx-text-secondary)_-_calc(var(--jx-unit)_/_4))] uppercase tracking-[0.24em]"
-      >
+      <p class={cx(sectionCardStyles.eyebrow)}>
         {eyebrow}
       </p>
     {/if}
-    <div class="flex flex-col [gap:calc(var(--jx-stack)_+_calc(var(--jx-unit)_/_2))]">
+    <div class={cx(sectionCardStyles.titleBlock)}>
       {#if headingLevel === 1 && number}
-        <h1 class={titleClassName}><span data-jx-number>{number}</span>{'\u00A0'}{title}</h1>
+        <h1 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h1>
       {:else if headingLevel === 1}
-        <h1 class={titleClassName}>{title}</h1>
+        <h1 data-jx-section-title="">{title}</h1>
       {:else if number}
-        <h2 class={titleClassName}><span data-jx-number>{number}</span>{'\u00A0'}{title}</h2>
+        <h2 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h2>
       {:else}
-        <h2 class={titleClassName}>{title}</h2>
+        <h2 data-jx-section-title="">{title}</h2>
       {/if}
       {#if summary}
-        <p class={summaryClassName}>{summary}</p>
+        <p data-jx-section-summary="">{summary}</p>
       {/if}
     </div>
   </div>
   <Separator data-jx-section-sep aria-hidden="true" />
   <div
     data-jx-section-body
-    class="[padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_calc(var(--jx-unit)_*_2))]"
+    class={cx(sectionCardStyles.body)}
   >
     {@render children()}
   </div>

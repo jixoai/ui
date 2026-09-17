@@ -448,12 +448,13 @@ describe('ButtonGroup · the cluster shadow (Owner 2026-09-04)', () => {
     const { container } = render(LawsHost);
     // the zone resolution's context face: the group WRITES the texture
     // default (raised=false) — the buttons adopt it with no prop
+    // (tailwindless W1: the flat seams live in press-button.css keyed
+    // on the data-jx-press-flat stamp — the card.spec dialect)
     const flat = container.querySelector('[data-testid="plain-group"] [data-jx-press-button]')!;
-    expect(flat.className).toContain('[--jx-press-shadow:none]');
-    expect(flat.className).toContain('[--jx-press-move:none]');
+    expect(flat.hasAttribute('data-jx-press-flat')).toBe(true);
+    expect(flat.className).toContain('press-button__pressButtonStyles');
     // explicit beats the zone — the escape hatch stays open
     const convex = container.querySelector('[data-testid="raised-child-group"] [data-jx-press-button]')!;
-    expect(convex.className).not.toContain('--jx-press-move');
-    expect(convex.className).not.toContain('engrave');
+    expect(convex.hasAttribute('data-jx-press-flat')).toBe(false);
   });
 });

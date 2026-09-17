@@ -73,6 +73,7 @@
   // (lib/highlight/context.svelte.ts stays a site-only module)
   import { HIGHLIGHT_KEY, type HighlightContextValue } from '$lib/highlight/context-key';
   import { DEFAULT_SHIKI_BACKEND } from '$lib/highlight/shiki';
+  import { codeCardStyles } from './code-card.stylex';
   import './code-card.css';
 
   interface Props {
@@ -328,13 +329,32 @@
       ro.disconnect();
     };
   });
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <figure
   data-kind="code"
   class={cn(
-    'jx-code-card bg-[color:var(--readonly-code-bg)] border border-[color:var(--readonly-code-border)] m-0 min-w-0',
-    fill && 'fill flex flex-col h-full',
+    'jx-code-card',
+    cx(codeCardStyles.card),
+    fill && 'fill',
+    fill && cx(codeCardStyles.cardFill),
     className,
   )}
   style={minHeight !== '' ? `min-height:${minHeight}` : ''}
@@ -342,16 +362,16 @@
   {#if filename || header}
     <figcaption
       data-jx-code-card-head
-      class="flex items-center gap-3 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.08em] bg-[color:var(--readonly-code-meta-bg)] border-b border-[color:var(--readonly-code-border)] text-[color:var(--readonly-code-meta-fg)]"
+      class={cx(codeCardStyles.head)}
     >
       {#if filename}
-        <span data-jx-code-card-file class="font-nav truncate">{filename}</span>
+        <span data-jx-code-card-file class={cx(codeCardStyles.file)}>{filename}</span>
       {/if}
-      <span data-jx-code-card-side class="flex items-center ml-auto min-w-0">
+      <span data-jx-code-card-side class={cx(codeCardStyles.side)}>
         {#if header}
           {@render header()}
         {:else}
-          <span data-jx-code-card-lang class="tracking-[0.14em] opacity-75 uppercase whitespace-nowrap">{lang}</span>
+          <span data-jx-code-card-lang class={cx(codeCardStyles.lang)}>{lang}</span>
         {/if}
       </span>
     </figcaption>
@@ -368,14 +388,18 @@
     data-jx-code-card-scroll
     data-hscroll-start={hScrollStart || undefined}
     data-hscroll-end={hScrollEnd || undefined}
-    class={cn('relative min-w-0', fill && 'flex flex-1 min-h-0 flex-col')}
+    class={cn(cx(codeCardStyles.scrollWrap), fill && cx(codeCardStyles.scrollWrapFill))}
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <pre
       bind:this={preEl}
       data-lang={lang}
       data-jx-code-card-pre
-      class={cn(maxHeight !== '' && 'vscroll overflow-y-auto', fill && 'flex-1 min-h-0 overflow-y-auto')}
+      class={cn(
+        maxHeight !== '' && 'vscroll',
+        maxHeight !== '' && cx(codeCardStyles.preMax),
+        fill && cx(codeCardStyles.preFill),
+      )}
       style={maxHeight !== '' ? `max-height:${maxHeight}` : ''}
       tabindex="0"
       aria-label={filename ? `${filename} code sample` : `${lang} code sample`}
@@ -395,9 +419,9 @@
     <ButtonVariantScope variant="ghost" raised={false}>
       <div
         data-jx-code-card-foot
-        class="flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
+        class={cx(codeCardStyles.foot)}
       >
-        <span class="flex items-center min-w-0">
+        <span class={cx(codeCardStyles.footSide)}>
           {#if footer}
             {@render footer()}
           {/if}
@@ -415,9 +439,7 @@
                the class -->
           <PressButton
             density="sm"
-            class="jx-code-card-copy{copied
-              ? ' jx-hue-success copied !bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] !text-[color:var(--jx-tonal)]'
-              : ''}"
+            class={'jx-code-card-copy' + (copied ? ' jx-hue-success copied' : '')}
             onclick={copyCode}
             ariaLabel={copied ? 'copied' : `copy ${filename || lang} sample`}
           >
@@ -425,12 +447,12 @@
               <!-- Icon component glyphs (full lucide copy geometry — the
                    hand-simplified variant retired 2026-08-29); the copied
                    check rides a strokier strokeWidth prop -->
-              <span data-jx-code-card-icon class="inline-flex">
+              <span data-jx-code-card-icon class={cx(codeCardStyles.iconWrap)}>
                 <Icon name="check" size={12} strokeWidth={2.5} />
               </span>
               <span>copied</span>
             {:else}
-              <span data-jx-code-card-icon class="inline-flex">
+              <span data-jx-code-card-icon class={cx(codeCardStyles.iconWrap)}>
                 <Icon name="copy" size={12} />
               </span>
               <span>copy</span>
