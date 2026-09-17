@@ -23,18 +23,18 @@
       是帧内 CSS px（pre-lens），iframe rect 是 post-lens 视口 px，
       两者只经实测缩放 k=rect.width/kitViewportWidth 相通**——
       placeCursor 与 resolveAttentionBox 的 kit 分支都要乘 k
-- [ ] 2.3 面板输入实时 admit（300ms debounce，P3）——B 线
-- [ ] 2.4 remote-caret 重写（参考 HTML 法）+ selection range 词表
-      与渲染（P4）——B 线
-- [ ] 2.5 nav/树彩带 Owner 语法统一模型（P5/P6）——C 线
+- [x] 2.3 面板输入实时 admit（300ms debounce，P3）——B 线（矩阵 P3/P8② 锁）
+- [x] 2.4 remote-caret 重写（零宽 span 镜像法）+ selection range 词表
+      与渲染（P4）——B 线（矩阵 P4 全绿）
+- [x] 2.5 nav/树彩带 Owner 语法统一模型（P5/P6）——C 线（矩阵 P5/P6 全绿）
 - [x] 2.6 延迟压缩（cursor 上报 rAF / gateway 合并窗 50→16ms /
       attention 节流 32ms 待 B 线落到面板，P7）
 
 ## 3. 验证与收口
 
-- [ ] 3.1 矩阵 P1-P7 全绿（含既有断言不回归）
-- [ ] 3.2 vision 子代理 ego-browser 双实例真机走查（七项逐条）
-- [ ] 3.3 全量 + validate + 提交推送
+- [x] 3.1 矩阵全绿 64/64（P1-P8 含既有断言不回归；final 轮）
+- [x] 3.2 vision 真机走查：5/7 符合，2 项发现已定根修复并回归锁（P8）
+- [x] 3.3 全量 556/556 + validate 绿 + 提交推送（d1fbd91d + 6cd2e96a）
 
 ## 血泪法则（本变更新增，后续任务必读）
 
