@@ -116,6 +116,12 @@ export interface StampRecord {
   readonly instanceCount: number;
   /** the nearest stamped ANCESTOR's usageIndex (nesting), null = root */
   readonly parentUsageIndex: number | null;
+  /** the stamp's NATIVE id attribute — the protocol componentId the
+   *  collab op lane addresses usages by (panel-collab /usage, id-first);
+   *  presence-visuals 2.1 surfaces it on the tree row so a remote
+   *  attention's componentId can light it. null = the element carries
+   *  no id (not yet ingested / foreign stamp) */
+  readonly componentId: string | null;
 }
 
 /** a tree node: a usage (all its iterations) with nested usages */
@@ -125,6 +131,10 @@ export interface SelectionTreeNode {
   readonly usageIndex: number;
   readonly instanceCount: number;
   readonly children: SelectionTreeNode[];
+  /** the usage's protocol componentId (first stamped instance that
+   *  carries one — iterations share the usage site's id; null = the
+   *  whole usage is unaddressed) */
+  readonly componentId: string | null;
 }
 
 /**
@@ -146,12 +156,21 @@ export function buildSelectionTree(records: readonly StampRecord[]): SelectionTr
         usageIndex: record.usageIndex,
         instanceCount: record.instanceCount,
         children: [],
+        componentId: record.componentId,
       });
     } else {
-      // iterations of the same usage share the count; keep the max seen
+      // iterations of the same usage share the count; keep the max seen.
+      // componentId: the FIRST stamped instance that carries one wins —
+      // records arrive in walk (document) order, later iterations only
+      // ever UPGRADE a null (an unaddressed usage whose later instance
+      // got ingested), never displace a settled id
       const existing = nodes.get(key)!;
-      if (record.instanceCount > existing.instanceCount) {
-        nodes.set(key, { ...existing, instanceCount: record.instanceCount });
+      if (record.instanceCount > existing.instanceCount || (existing.componentId === null && record.componentId !== null)) {
+        nodes.set(key, {
+          ...existing,
+          instanceCount: Math.max(existing.instanceCount, record.instanceCount),
+          componentId: existing.componentId ?? record.componentId,
+        });
       }
     }
   }
@@ -228,7 +247,11 @@ export function collectStampRecords(
     if (instance !== null && component !== null) {
       const usageIndex = Number(instance);
       if (Number.isInteger(usageIndex)) {
-        records.push({ frameId, component, usageIndex, instanceCount: countOf(usageIndex), parentUsageIndex });
+        // the NATIVE id attribute IS the protocol componentId (the op
+        // lane's id-first addressing) — canvas-doc and frame-doc stamps
+        // alike carry it on the stamped element itself
+        const componentId = element.getAttribute('id');
+        records.push({ frameId, component, usageIndex, instanceCount: countOf(usageIndex), parentUsageIndex, componentId });
         nextParent = usageIndex;
       }
     }

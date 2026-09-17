@@ -29,6 +29,8 @@ import {
 interface FakeElementSpec {
   component?: string;
   instance?: number;
+  /** the NATIVE id attribute — the protocol componentId (2.1) */
+  id?: string;
   children?: FakeElementSpec[];
 }
 
@@ -38,6 +40,7 @@ function fakeElement(spec: FakeElementSpec): WalkerElement {
     getAttribute(name: string): string | null {
       if (name === 'data-jx-component' && spec.component !== undefined) return spec.component;
       if (name === 'data-jx-instance' && spec.instance !== undefined) return String(spec.instance);
+      if (name === 'id' && spec.id !== undefined) return spec.id;
       return null;
     },
   };
@@ -212,4 +215,60 @@ test('per-frame collection: unknown id / mid-load frame walks empty, never throw
   const midLoad = fakeIframe('jixoai-design-frame-hero', null); // no body yet
   assert.deepEqual(collectFrameRecords([midLoad], 'hero'), []);
   assert.deepEqual(collectFrameRecords([], 'hero'), []);
+});
+
+/* ── 2.1: the protocol componentId rides the stamp records ─────────── */
+
+test('stamp walk: the native id attribute becomes componentId (null when absent)', () => {
+  const records = collectStampRecords(
+    fakeElement({
+      children: [
+        { component: 'press-button', instance: 1, id: 'a4' }, // ingested — addressed
+        { component: 'press-button', instance: 2 }, // never ingested — null
+      ],
+    }),
+    'hero',
+  );
+  assert.equal(records.length, 2);
+  assert.equal(records[0]!.componentId, 'a4');
+  assert.equal(records[1]!.componentId, null);
+});
+
+test('componentId collects from BOTH documents — canvas-doc stamps and in-frame stamps alike', () => {
+  const canvasBody: FakeElementSpec = {
+    children: [{ component: 'prototype-page', instance: 1, id: 'pg0' }],
+  };
+  // a stamp NESTED in the frame document carries its id on the in-frame
+  // element — the walk reads it where it lives
+  const frame = fakeIframe('jixoai-design-frame-hero-mobile-390-light', {
+    children: [{ component: 'card', instance: 1, id: 'c1', children: [{ component: 'badge', instance: 2, id: 'b7' }] }],
+  });
+  const records = collectCanvasRecords({ body: fakeElement(canvasBody) }, [frame]);
+  assert.equal(records.find((record) => record.component === 'prototype-page')!.componentId, 'pg0');
+  const card = records.find((record) => record.component === 'card')!;
+  assert.equal(card.frameId, 'hero-mobile-390-light');
+  assert.equal(card.componentId, 'c1');
+  assert.equal(records.find((record) => record.component === 'badge')!.componentId, 'b7');
+});
+
+test('tree rows carry componentId: first addressed iteration wins, null upgrades, never displaces', () => {
+  // THREE iterations of usage 2: the middle one carries the id — the
+  // collapsed tree row must still find it (upgrade-from-null in walk
+  // order), and a later NULL must never displace a settled id
+  const records = collectStampRecords(
+    fakeElement({
+      children: [
+        { component: 'card', instance: 1, id: 'first' },
+        { component: 'card', instance: 2 },
+        { component: 'card', instance: 2, id: 'middle' },
+        { component: 'card', instance: 2 },
+      ],
+    }),
+    null,
+  );
+  const tree = buildSelectionTree(records);
+  assert.equal(tree.length, 2);
+  assert.equal(tree[0]!.componentId, 'first'); // first usage: settled at once
+  assert.equal(tree[1]!.componentId, 'middle'); // second usage: upgraded by the middle iteration
+  assert.equal(tree[1]!.instanceCount, 3);
 });

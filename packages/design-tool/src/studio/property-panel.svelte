@@ -44,6 +44,20 @@
        expression props stay readonly ("edit in code") on the /usage
        skipped evidence, never guesswork.
 
+  PRESENCE (presence-visuals 2.3, 2026-09-17): the panel becomes a
+  presence surface BOTH ways. DOWN: remote players' panel foci
+  (presenceFoci — field-addressed, optional caret offset) light the
+  matching row with a box-shadow ring stack (one 2px layer per
+  player) + name chips, and a caret on a text field renders a
+  player-colored caret bar positioned by the hidden-mirror math
+  (remote-caret.ts) — the shell's overlay outline retires with this
+  change; these in-row renderings are the only presentation. UP: any
+  local input/textarea focus/select/input/keyup caret change
+  throttle-reports onPresenceAttention ({kind:'panel', field, digest
+  ≤40 chars, caret}) and leaving the panel reports null. The EDIT
+  intent above is untouched — presence only reads events and writes
+  inert decorations.
+
   Selection contract: B's DesignSelection (selection.ts) — the panel
   is a pure CONSUMER; the shell resolves selectionFile (a primitive).
 
@@ -231,6 +245,37 @@
     const match = /^t-(\d+)$/.exec(buffer);
     return match === null ? Number.MAX_SAFE_INTEGER : Number(match[1]);
   }
+
+  /* ── presence-visuals 2.3: the attention report vocabulary ─────────── */
+
+  /** the panel's presence attention payload — the store's PanelCaretFocus
+   *  shape verbatim (attention {kind:'panel'} + the optional caret) */
+  export interface PanelAttentionFocus {
+    readonly kind: 'panel';
+    readonly field: string;
+    readonly digest: string;
+    readonly caret?: number;
+  }
+
+  /** the digest leak law: the current value truncated to 40 chars with
+   *  an honest ellipsis — the remote side sees a hint, never the whole
+   *  buffer */
+  export const ATTENTION_DIGEST_MAX = 40;
+
+  export function digestOfValue(value: string): string {
+    return value.length > ATTENTION_DIGEST_MAX ? `${value.slice(0, ATTENTION_DIGEST_MAX)}…` : value;
+  }
+
+  /** caret moves stream — the UP lane collapses to one send per window
+   *  (leading fire + trailing flush of the LAST payload) */
+  export const ATTENTION_REPORT_THROTTLE_MS = 120;
+
+  /** the reportable field vocabulary: control ids the panel itself
+   *  addresses rows by — family auto-ids (segmented radios, readonly
+   *  spans) are NOT presence fields, they never report */
+  export function isReportableFieldId(id: string): boolean {
+    return id.startsWith('prop-') || id.startsWith('slot-text-');
+  }
 </script>
 
 <script lang="ts">
@@ -244,6 +289,18 @@
   import type { ItemFieldContext } from '#jixoai/list-item';
   import { onDestroy } from 'svelte';
   import { PanelCollabClient, fetchTransport, type PanelCollabSnapshot, type PanelUsageInfo } from './panel-collab.ts';
+  import { playerHueCss } from './presence-visuals.ts';
+  import { measureCaretMetrics } from './remote-caret.ts';
+
+  /** one remote player's panel focus (presence-visuals 2.3 — the shell
+   *  resolves attention frames into this list; the panel only consumes) */
+  interface RemotePanelFocus {
+    readonly playerId: string;
+    readonly name: string;
+    readonly colorHue: number;
+    readonly field: string;
+    readonly caret?: number;
+  }
 
   let {
     selection = null,
@@ -251,6 +308,8 @@
     metaUrlBase = '/__design__/api/meta',
     collabUrl = '/__design__/api/collab',
     presencePlayerId = null,
+    presenceFoci = [],
+    onPresenceAttention = undefined,
   }: {
     selection?: DesignSelection | null;
     /** the shell-resolved edit target (selection frameId → source file)
@@ -263,6 +322,14 @@
     /** the live presence identity (collab-presence §3): feeds the
      *  client's sessionHint so edits attribute to this Player */
     presencePlayerId?: string | null;
+    /** remote panel foci (presence-visuals 2.3): each entry lights the
+     *  row its field addresses; a caret offset renders the caret bar.
+     *  Empty/absent = today's panel, byte-identical */
+    presenceFoci?: readonly RemotePanelFocus[];
+    /** the UP report lane (presence-visuals 2.3): local caret/focus
+     *  changes throttle-flush here as {kind:'panel', field, digest,
+     *  caret}; null = the local player left the panel */
+    onPresenceAttention?: (focus: PanelAttentionFocus | null) => void;
   } = $props();
 
   // the presence hint rides whatever client is live (seeded or pending)
@@ -441,6 +508,7 @@
   // mirror poll, the subscription and the debounce timers die here
   onDestroy(() => {
     unmounted = true;
+    if (attentionTimer !== undefined) clearTimeout(attentionTimer); // the attention throttle's tail
     client?.dispose();
     client = null;
   });
@@ -506,12 +574,233 @@
   function rowSuspended(row: ControlRow): boolean {
     return file === null || conflictOn(row.prop);
   }
+
+  /* ── presence-visuals 2.3: the UP lane (local caret → attention) ────── */
+
+  function isFieldControl(
+    target: EventTarget | null,
+  ): target is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement {
+    return (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement
+    );
+  }
+
+  /** the digest source: checkboxes speak in their checked state (their
+   *  .value is the constant "on" — useless as a hint) */
+  function fieldValueOf(target: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement): string {
+    if (target instanceof HTMLInputElement && (target.type === 'checkbox' || target.type === 'radio')) {
+      return String(target.checked);
+    }
+    return target.value;
+  }
+
+  /** leading+trailing throttle: the first report fires at once, a burst
+   *  within the window collapses to its LAST payload on the trailing
+   *  edge — caret streams stay honest at ≤~8 sends/second */
+  let attentionTimer: ReturnType<typeof setTimeout> | undefined;
+  let attentionPending: PanelAttentionFocus | null = null;
+  let attentionHasPending = false;
+
+  function flushPanelAttention(): void {
+    if (!attentionHasPending) return;
+    attentionHasPending = false;
+    onPresenceAttention?.(attentionPending);
+  }
+
+  function reportPanelAttention(focus: PanelAttentionFocus | null): void {
+    attentionPending = focus;
+    attentionHasPending = true;
+    if (attentionTimer === undefined) {
+      flushPanelAttention();
+      attentionTimer = setTimeout(() => {
+        attentionTimer = undefined;
+        flushPanelAttention();
+      }, ATTENTION_REPORT_THROTTLE_MS);
+    }
+  }
+
+  /** focus/select/input/keyup over ANY panel control → the panel-focus
+   *  attention (field = the control's row id, caret when the control
+   *  is a text surface) */
+  function onPresenceFieldEvent(event: Event): void {
+    if (onPresenceAttention === undefined) return; // no lane wired — zero cost
+    const target = event.target;
+    if (!isFieldControl(target) || !isReportableFieldId(target.id)) return;
+    const selectionStart = (target as HTMLInputElement).selectionStart;
+    reportPanelAttention({
+      kind: 'panel',
+      field: target.id,
+      digest: digestOfValue(fieldValueOf(target)),
+      ...(typeof selectionStart === 'number' ? { caret: selectionStart } : {}),
+    });
+  }
+
+  /** blur → the null report; moving WITHIN the panel does not (the
+   *  incoming control's focusin re-reports — a null here would flash
+   *  between sibling rows) */
+  function onPresenceFieldBlur(event: FocusEvent): void {
+    if (onPresenceAttention === undefined) return;
+    if (
+      event.relatedTarget !== null &&
+      isFieldControl(event.relatedTarget) &&
+      isReportableFieldId(event.relatedTarget.id)
+    ) {
+      return;
+    }
+    reportPanelAttention(null);
+  }
+
+  /* ── presence-visuals 2.3: the DOWN lane (remote foci → row chrome) ── */
+
+  /** the shell's retired panelFocusRect resolution law, verbatim:
+   *  `#<field>`, then `prop-<field>`. The panel-zone fallback died
+   *  with the overlay — an unresolved field (foreign canvas, row not
+   *  rendered) lights NOTHING, never a wrong row */
+  function resolveFieldControl(field: string): HTMLElement | null {
+    return document.getElementById(field) ?? document.getElementById(`prop-${field}`);
+  }
+
+  function byPlayerId(a: RemotePanelFocus, b: RemotePanelFocus): number {
+    return a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0;
+  }
+
+  /** one inert decoration element with inline styles (scoped CSS never
+   *  reaches runtime-created nodes — the inline law) */
+  function inertElement(tag: string, styles: readonly string[], mark: string, playerId: string): HTMLElement {
+    const element = document.createElement(tag);
+    element.setAttribute('aria-hidden', 'true');
+    element.setAttribute(mark, playerId);
+    element.setAttribute('style', [...styles, 'pointer-events:none', 'z-index:4'].join(';'));
+    return element;
+  }
+
+  $effect(() => {
+    const foci = presenceFoci;
+    // rows remount on selection/seed changes — the decorations ride
+    // along (re-applied onto the fresh DOM; inert, so no flicker cost
+    // beyond the element churn)
+    void rows;
+    void slotRows;
+    void meta;
+
+    const undos: Array<() => void> = [];
+    const byRow = new Map<HTMLElement, RemotePanelFocus[]>();
+    for (const focus of foci) {
+      const control = resolveFieldControl(focus.field);
+      if (control === null) continue;
+      // the bar needs a RENDERABLE parent: a form control's content model
+      // (a textarea) is not the DOM — fall back through the row family to
+      // the control's own parent element, made a positioning context if the
+      // chain never provided one (the visuals-matrix caught the bar landing
+      // inside the textarea, computed-empty)
+      const row = (control.closest('.jx-item') as HTMLElement | null)
+        ?? (control.closest('[class*="item"], [class*="row"]') as HTMLElement | null)
+        ?? control.parentElement;
+      const list = byRow.get(row);
+      if (list === undefined) byRow.set(row, [focus]);
+      else list.push(focus);
+    }
+
+    const barOrdinals = new Map<HTMLElement, number>(); // bars on the SAME input stagger 2px apart
+    for (const [row, players] of byRow) {
+      const ordered = [...players].sort(byPlayerId);
+      const priorPosition = row.style.position;
+      row.style.position = 'relative'; // the chips/bars' containing block
+      // the ring: ONE box-shadow layer per player (2px each, stacked)
+      row.style.boxShadow = ordered
+        .map((player, index) => `0 0 0 ${2 * (index + 1)}px ${playerHueCss(player.colorHue)}`)
+        .join(', ');
+      row.setAttribute('data-jx-remote-focus', ordered.map((player) => player.playerId).join(' '));
+      // the name rack (top-right): one chip per player
+      const rack = inertElement('span', [
+        'position:absolute',
+        'top:-0.6875rem',
+        'right:0',
+        'display:inline-flex',
+        'gap:2px',
+        'font-size:0.625rem',
+        'line-height:1.4',
+        'white-space:nowrap',
+      ], 'data-jx-remote-chips', ordered.map((player) => player.playerId).join(' '));
+      for (const player of ordered) {
+        const chip = inertElement('span', [
+          'padding:0 0.25rem',
+          'border-radius:3px',
+          `background:hsl(${player.colorHue}, 85%, 45%, 0.92)`,
+          'color:#0d0c0b',
+        ], 'data-jx-remote-chip', player.playerId);
+        chip.textContent = player.name;
+        rack.appendChild(chip);
+      }
+      row.appendChild(rack);
+      // the caret bars: mirror-measured, player-colored, 2px staggered
+      const bars: HTMLElement[] = [];
+      const rowRect = row.getBoundingClientRect();
+      for (const player of ordered) {
+        if (player.caret === undefined) continue;
+        const control = resolveFieldControl(player.field);
+        if (control === null || !(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement)) {
+          continue; // a caret on a non-text control lights the ring only
+        }
+        const field = control;
+        const metrics = measureCaretMetrics(field, player.caret);
+        const fieldRect = field.getBoundingClientRect();
+        const ordinal = barOrdinals.get(field) ?? 0;
+        barOrdinals.set(field, ordinal + 1);
+        const bar = inertElement('div', [
+          'position:absolute',
+          `left:${fieldRect.left - rowRect.left + metrics.x + ordinal * 2}px`,
+          `top:${fieldRect.top - rowRect.top + metrics.y}px`,
+          'width:2px',
+          `height:${metrics.height}px`,
+          `background:${playerHueCss(player.colorHue)}`,
+        ], 'data-jx-remote-caret', player.playerId);
+        const tag = inertElement('span', [
+          'position:absolute',
+          'top:-0.8125rem',
+          'left:-1px',
+          'padding:0 2px',
+          'border-radius:2px',
+          'font-size:0.5625rem',
+          'white-space:nowrap',
+          `background:hsl(${player.colorHue}, 85%, 45%, 0.92)`,
+          'color:#0d0c0b',
+        ], 'data-jx-remote-caret-tag', player.playerId);
+        tag.textContent = player.name;
+        bar.appendChild(tag);
+        row.appendChild(bar);
+        bars.push(bar);
+      }
+      undos.push(() => {
+        row.style.position = priorPosition;
+        row.style.boxShadow = '';
+        row.removeAttribute('data-jx-remote-focus');
+        rack.remove();
+        for (const bar of bars) bar.remove();
+      });
+    }
+    return () => {
+      for (const undo of undos) undo();
+    };
+  });
 </script>
 
 <!-- the document-level .dark scope (studio-entry, #23) carries the
      family's tokens now — the panel's own local scope retired with it
      (one source: the whole studio paints the dark token set) -->
-<section class="panel">
+<!-- the presence seams ride DELEGATED events on the panel root (they
+     bubble: focusin/focusout/input/select/keyup) — one wiring for every
+     row the family renders, the EDIT handlers untouched -->
+<section
+  class="panel"
+  onfocusin={onPresenceFieldEvent}
+  onfocusout={onPresenceFieldBlur}
+  oninput={onPresenceFieldEvent}
+  onselect={onPresenceFieldEvent}
+  onkeyup={onPresenceFieldEvent}
+>
   <header class="panel-head">
     <span class="panel-title">props</span>
     {#if selection !== null}

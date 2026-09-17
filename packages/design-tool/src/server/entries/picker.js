@@ -157,6 +157,11 @@ const INDICATOR_CSS = [
   // crossing gaps/frames). Boxes ride the CLASSIC iOS CURVE
   // cubic-bezier(0.25, 0.1, 0.25, 1) — smooth, NO overshoot (Owner
   // 2026-09-14: the spring was too much); opacity fades plain ease.
+  // The COLOR LAW (presence-visuals ruling 1): the rings speak the
+  // page's primary — `--primary` (an oklch var re-hued per player via
+  // --brand-hue), NOT hardcoded blue/red. Selected = solid primary;
+  // hover = primary at half alpha; the badge derives from the same
+  // hue so the whole marker family stays one voice.
   `[data-jx-indicator] {`,
   `  position: absolute;`,
   `  top: 0; left: 0;`,
@@ -171,11 +176,11 @@ const INDICATOR_CSS = [
   `  transition: none;`,
   `}`,
   `[data-jx-indicator="hover"] {`,
-  `  border: 1.5px solid rgba(96, 140, 255, 0.55);`,
+  `  border: 1.5px solid color-mix(in oklab, var(--primary) 55%, transparent);`,
   `  border-radius: 2px;`,
   `}`,
   `[data-jx-indicator="selected"] {`,
-  `  border: 1.5px solid #e05656;`,
+  `  border: 1.5px solid var(--primary);`,
   `  border-radius: 2px;`,
   `}`,
   `[data-jx-indicator] .jx-indicator-badge {`,
@@ -185,9 +190,9 @@ const INDICATOR_CSS = [
   `  padding: 1px 5px;`,
   `  font: 10px/1.4 ui-monospace, 'SF Mono', Menlo, monospace;`,
   `  white-space: nowrap;`,
-  `  color: #ffe3e3;`,
-  `  background: #2a1214;`,
-  `  border: 1px solid #e05656;`,
+  `  color: var(--primary-foreground, #fff);`,
+  `  background: color-mix(in oklab, var(--primary) 88%, #000);`,
+  `  border: 1px solid var(--primary);`,
   `  border-radius: 3px;`,
   `}`,
 ].join('\n');

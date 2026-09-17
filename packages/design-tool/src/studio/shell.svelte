@@ -112,6 +112,7 @@
     type RemotePlayer,
     type SelfView,
   } from './presence-store.ts';
+  import { applyBrandHue, hslHueToOklchHue, playerHueCss, ribbonOf } from './presence-visuals.ts';
   import {
     FRAME_NAME_PREFIX,
     type DesignFrameSeams,
@@ -495,14 +496,52 @@
   const chipPlayers = $derived(
     presencePlayers.filter((player) => player.playerId !== presenceSelf?.playerId),
   );
-  /** shell-surface remote cursors (canvas-surface ones ride the canvas overlay) */
-  const shellCursors = $derived(
-    remotePlayers.filter((player) => player.cursor !== null && player.cursor.surface === 'shell'),
-  );
-  /** remote panel foci — each renders the 2px field-row outline */
+  /** remote panel foci — fed to the property panel's IN-PANEL rendering
+   *  (presence-visuals ruling 4: focusWithIn + caret live on the field
+   *  rows themselves; the shell overlay lane is retired) */
   const panelFoci = $derived(
-    remotePlayers.filter((player) => player.attention !== null && player.attention.kind === 'panel'),
+    remotePlayers
+      .filter((player) => player.attention !== null && player.attention.kind === 'panel')
+      .map((player) => {
+        const focus = player.attention as Extract<AttentionFocus, { kind: 'panel' }>;
+        return { playerId: player.playerId, name: player.name, colorHue: player.colorHue,
+                 field: focus.field, ...(focus.caret !== undefined ? { caret: focus.caret } : {}) };
+      }),
   );
+  /** remote tree attentions — the rainbow-ribbon feed (ruling 3) */
+  const remoteTreeAttentions = $derived(
+    remotePlayers
+      .filter((player) => player.attention !== null && player.attention.kind === 'canvas')
+      .map((player) => {
+        const focus = player.attention as Extract<AttentionFocus, { kind: 'canvas' }>;
+        return { playerId: player.playerId, colorHue: player.colorHue, componentId: focus.component, online: true };
+      }),
+  );
+  /** the nav ribbon: which canvas each remote player sits on (cursor's
+   *  canvas name; falls back to nothing — an attentionless player is
+   *  nowhere in particular) */
+  const navRibbons = $derived.by(() => {
+    const byCanvas = new Map<string, number[]>();
+    for (const player of remotePlayers) {
+      const canvas = player.cursor?.canvas;
+      if (canvas === undefined || player.hasMouse !== true) continue; // a mouseless player casts no nav light
+      const list = byCanvas.get(canvas) ?? [];
+      list.push(player.colorHue);
+      byCanvas.set(canvas, list);
+    }
+    return byCanvas;
+  });
+  /** the nav row's ribbon style (one calculation, one string — the
+   *  svelte @const law bars it from plain <li> children) */
+  function navRibbonStyle(canvasName: string): string | null {
+    const hues = navRibbons.get(canvasName) ?? [];
+    if (hues.length === 0) return null;
+    const ribbon = ribbonOf(hues);
+    if (ribbon === null) return null;
+    return ribbon.single
+      ? `border-inline-start: 3px solid ${ribbon.color};`
+      : `border-inline-start: 3px solid transparent; border-image: ${ribbon.image} 1;`;
+  }
   /** the chips list: SELF FIRST with the (you) mark, then the joining ordinal */
   const presenceChips = $derived.by(() => {
     const others = chipPlayers.map((player) => ({
@@ -556,6 +595,9 @@
    *  pattern): every snapshot change coalesces into one rAF post of
    *  the remote roster — cursors stream at ~50ms, the frame budget
    *  caps the traffic at one message per frame */
+  /** the live presence store (component-scoped so the panel's attention
+   *  uplink can reach it from the template; the lifecycle effect owns it) */
+  let presenceStoreRef: PresenceStore | null = null;
   let presenceFlushRaf = 0;
   function forwardPresenceToCanvas(snapshot: PresenceSnapshot): void {
     if (presenceFlushRaf !== 0) return;
@@ -564,9 +606,11 @@
       // async read — this callback never tracks the iframe seam
       const target = canvasIframe?.contentWindow ?? null;
       if (target === null) return;
+      const selfHueOklch = snapshot.self === null ? null : hslHueToOklchHue(snapshot.self.colorHue);
       target.postMessage(
         {
           type: 'jx-design:presence',
+          ...(selfHueOklch === null ? {} : { brandHueOklch: selfHueOklch }),
           players: snapshot.players
             .filter((player) => player.online && player.playerId !== snapshot.self?.playerId)
             .map((player) => ({
@@ -583,59 +627,7 @@
     });
   }
 
-  /* the panel-focus outline's target rect: the property panel's row
-     carries id `prop-<field>` (§1's field vocabulary); a missing row
-     (unselected, foreign canvas) falls back to the whole panel zone —
-     the outline keeps pointing at the PANEL, never at nothing */
-  interface PanelFocusView {
-    readonly playerId: string;
-    readonly name: string;
-    readonly colorHue: number;
-    readonly digest: string;
-    readonly x: number;
-    readonly y: number;
-    readonly w: number;
-    readonly h: number;
-  }
-  function panelFocusRect(field: string): { x: number; y: number; w: number; h: number } | null {
-    const row = document.getElementById(field) ?? document.getElementById(`prop-${field}`);
-    const target = row ?? document.querySelector('.studio-panel-zone');
-    if (target === null) return null;
-    const rect = target.getBoundingClientRect();
-    return { x: rect.left, y: rect.top, w: rect.width, h: rect.height };
-  }
-  function computePanelFocusViews(): PanelFocusView[] {
-    const views: PanelFocusView[] = [];
-    for (const player of panelFoci) {
-      const attention = player.attention as Extract<AttentionFocus, { kind: 'panel' }>;
-      const rect = panelFocusRect(attention.field);
-      if (rect === null) continue;
-      views.push({
-        playerId: player.playerId,
-        name: player.name,
-        colorHue: player.colorHue,
-        digest: attention.digest,
-        ...rect,
-      });
-    }
-    return views;
-  }
-  let panelFocusViews = $state<PanelFocusView[]>([]);
-  // the outline follows the focus (target changes glide); a panel
-  // SCROLL re-reads the rects in place (same target, new box)
-  $effect(() => {
-    void panelFoci;
-    panelFocusViews = computePanelFocusViews();
-  });
-  $effect(() => {
-    const onScroll = (): void => {
-      untrack(() => {
-        panelFocusViews = computePanelFocusViews();
-      });
-    };
-    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    return () => window.removeEventListener('scroll', onScroll, { capture: true } as EventListenerOptions);
-  });
+
 
   // the store's lifecycle: connect on mount, dispose on teardown. The
   // ws NEVER carries an edit — a dead gateway costs the indicators only
@@ -655,27 +647,38 @@
       forwardPresenceToCanvas(snapshot);
     });
     const offTail = store.on('journal-tail', () => rebaseAfterJournalTail());
+    presenceStoreRef = store;
     store.connect();
-    // shell-surface cursor: every pointermove over the studio chrome —
-    // the canvas surface rides the overlay's jx-design:local-cursor
-    // report (canvas-document coords, verbatim — no lens math here)
-    const onPointerMove = (event: PointerEvent): void => {
-      store.reportCursor('shell', event.clientX, event.clientY);
+    // the shell's own document rides the primary law too (ruling 1):
+    // the local player's hue re-paints the studio chrome's jixoai-ui
+    const applySelfHue = (snapshotNow: PresenceSnapshot): void => {
+      if (snapshotNow.self !== null) applyBrandHue(document, snapshotNow.self.colorHue);
     };
-    window.addEventListener('pointermove', onPointerMove, { capture: true, passive: true });
+    applySelfHue(store.snapshot());
+    // subscribe listeners are called with NO arguments — passing
+    // applySelfHue directly made snapshotNow undefined, threw on every
+    // notify, and aborted #onWelcome before #armPing (the gateway's 5s
+    // sweep then kicked the player into a reconnect loop — found by the
+    // E-matrix, 2026-09-17)
+    const unsubscribe2 = store.subscribe(() => applySelfHue(store.snapshot()));
+    // cursors are canvas-scoped (ruling 2): the ONLY uplink is the
+    // canvas overlay's jx-design:local-cursor report, forwarded with
+    // its own canvas name — nothing tracks the studio chrome
     const onMessage = (event: MessageEvent): void => {
-      const data = event.data as { type?: string; x?: unknown; y?: unknown } | null;
+      const data = event.data as { type?: string; canvas?: unknown; x?: unknown; y?: unknown } | null;
       if (data === null || typeof data !== 'object' || data.type !== 'jx-design:local-cursor') return;
+      if (typeof data.canvas !== 'string' || data.canvas.length === 0) return;
       if (typeof data.x !== 'number' || typeof data.y !== 'number') return;
       // async read — the listener body never tracks the iframe seam
       if (event.source !== (canvasIframe?.contentWindow ?? null)) return;
-      store.reportCursor('canvas', data.x, data.y);
+      store.reportCursor(data.canvas, 'canvas', data.x, data.y);
     };
     window.addEventListener('message', onMessage);
     return () => {
-      window.removeEventListener('pointermove', onPointerMove, { capture: true } as EventListenerOptions);
+      presenceStoreRef = null;
       window.removeEventListener('message', onMessage);
       offTail();
+      unsubscribe2();
       unsubscribe();
       store.dispose();
     };
@@ -760,7 +763,15 @@
                anchors — the canvas row is a family LINK row (name,
                selected, hover) and the drift toggle is its sibling,
                laid out by the row wrapper (layout, not chrome) -->
-          <div class="studio-canvas-row">
+          <div class="studio-canvas-row" data-nav-ribbon={entry.name}>
+            {#if navRibbonStyle(entry.name) !== null}
+              <span
+                class="studio-nav-ribbon"
+                data-jx-remote-ribbon={(navRibbons.get(entry.name) ?? []).length > 1 ? 'multi' : 'single'}
+                style={navRibbonStyle(entry.name) ?? ''}
+                aria-hidden="true"
+              ></span>
+            {/if}
             <Item
               class="studio-canvas"
               variant="default"
@@ -824,6 +835,8 @@
         iframe={canvasIframe}
         canvas={currentName}
         frames={current?.frames ?? []}
+        remoteAttentions={remoteTreeAttentions}
+        selfHue={presenceSelf?.colorHue ?? null}
         {selection}
         onSelect={(incoming) => { selection = incoming; persistSelection(); }}
         onAnchorFrame={(frameId) => {
@@ -851,7 +864,13 @@
        inactive one carries `hidden` so chat state survives switches -->
   <aside class="studio-inspector">
     <div class="studio-panel-zone">
-      <PropertyPanel {selection} {selectionFile} presencePlayerId={presenceSelf?.playerId ?? null} />
+      <PropertyPanel
+        {selection}
+        {selectionFile}
+        presencePlayerId={presenceSelf?.playerId ?? null}
+        presenceFoci={panelFoci}
+        onPresenceAttention={(focus) => presenceStoreRef?.reportAttention(focus === null ? null : focus)}
+      />
     </div>
     <div class="studio-tab-zone">
       <div class="studio-tabs" role="tablist" aria-label="inspector panels">
@@ -886,39 +905,6 @@
       </div>
     </div>
   </aside>
-
-  <!-- collab-presence §4: the SHELL indicator layer (fixed, inert) —
-       shell-surface remote cursors + the panel-focus outlines. The
-       canvas half lives in the canvas document's presence overlay -->
-  <div class="studio-remote-layer" aria-hidden="true">
-    {#each shellCursors as player (player.playerId)}
-      {@const cursor = player.cursor!}
-      <div
-        class="studio-remote-cursor"
-        data-jx-remote={`${player.playerId}:cursor`}
-        style:transform={`translate(${cursor.x}px, ${cursor.y}px)`}
-        style:opacity={player.hasMouse ? '1' : '0'}
-      >
-        <span class="studio-remote-cursor-dot" style:background={`hsl(${player.colorHue}, 85%, 45%)`}></span>
-        <span class="studio-remote-cursor-tag" style:background={`hsl(${player.colorHue}, 85%, 45%, 0.92)`}>{player.name}</span>
-      </div>
-    {/each}
-    {#each panelFocusViews as view (view.playerId)}
-      <div
-        class="studio-remote-panel-focus"
-        data-jx-remote={`${view.playerId}:panel-focus`}
-        style:border-color={`hsl(${view.colorHue}, 85%, 45%)`}
-        style:transform={`translate(${view.x}px, ${view.y}px)`}
-        style:width={`${view.w}px`}
-        style:height={`${view.h}px`}
-      >
-        <span class="studio-remote-panel-focus-badge" style:background={`hsl(${view.colorHue}, 85%, 45%, 0.92)`}>{view.name}</span>
-        {#if view.digest !== ''}
-          <span class="studio-remote-panel-focus-digest">{view.digest}</span>
-        {/if}
-      </div>
-    {/each}
-  </div>
 </div>
 
 <style>
@@ -1213,86 +1199,18 @@
   }
   /* the shell indicator layer: fixed over everything, pointer-inert —
      the same namespace grammar the canvas overlay speaks */
+  .studio-nav-ribbon {
+    flex: none;
+    align-self: stretch;
+    width: 3px;
+    min-height: 100%;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
   .studio-remote-layer {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 2147483646;
-  }
-  .studio-remote-cursor {
-    position: absolute;
-    top: 0;
-    left: 0;
-    /* 60ms linear — it tracks a ~50ms presence stream (the overlay law) */
-    transition: transform 60ms linear, opacity 140ms ease;
-    will-change: transform, opacity;
-  }
-  .studio-remote-cursor-dot {
-    position: absolute;
-    top: -4.5px;
-    left: -4.5px;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px rgba(13, 12, 11, 0.55);
-  }
-  .studio-remote-cursor-tag {
-    position: absolute;
-    top: -9px;
-    left: 8px;
-    padding: 1px 5px;
-    font-size: 10px;
-    line-height: 1.4;
-    white-space: nowrap;
-    border-radius: 3px;
-    color: #f5f1e8;
-  }
-  /* the panel-focus outline: 2px player hue over the field row, the
-     name badge top-right, the digest beneath it; target handovers ride
-     the classic 240ms curve (the picker glide family) */
-  .studio-remote-panel-focus {
-    position: absolute;
-    top: 0;
-    left: 0;
-    border: 2px solid;
-    border-radius: 3px;
-    box-sizing: border-box;
-    transition:
-      transform 240ms cubic-bezier(0.25, 0.1, 0.25, 1),
-      width 240ms cubic-bezier(0.25, 0.1, 0.25, 1),
-      height 240ms cubic-bezier(0.25, 0.1, 0.25, 1),
-      border-color 240ms ease,
-      opacity 140ms ease;
-    will-change: transform, width, height, opacity;
-  }
-  .studio-remote-panel-focus-badge {
-    position: absolute;
-    top: -17px;
-    right: -2px;
-    padding: 1px 5px;
-    font-size: 10px;
-    line-height: 1.4;
-    white-space: nowrap;
-    border-radius: 3px;
-    color: #f5f1e8;
-  }
-  .studio-remote-panel-focus-digest {
-    position: absolute;
-    top: -17px;
-    right: calc(100% + 4px);
-    padding: 1px 5px;
-    font-size: 10px;
-    line-height: 1.4;
-    white-space: nowrap;
-    border-radius: 3px;
-    color: #d9d4ca;
-    background: #1b1917ee;
-    border: 1px solid #262320;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .studio-remote-cursor,
-    .studio-remote-panel-focus {
-      transition: opacity 140ms ease; /* motion off — presence still reads */
-    }
   }
 </style>

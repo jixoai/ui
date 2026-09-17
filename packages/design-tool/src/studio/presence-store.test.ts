@@ -175,7 +175,7 @@ test('join/leave/presence/journal-tail parse to their frozen shapes', () => {
     JSON.stringify({
       type: 'presence',
       playerId: 'p2',
-      cursor: { surface: 'canvas', x: 12.5, y: -3 },
+      cursor: { canvas: 'welcome', surface: 'canvas', x: 12.5, y: -3 },
       attention: { kind: 'panel', field: 'prop-raised', digest: 'raised=false→true' },
       hasMouse: true,
     }),
@@ -272,7 +272,7 @@ test('join adds online; leave KEEPS the row offline (the chips show the state); 
   socket.receive({ type: 'join', player: { playerId: 'p2', name: 'dsh', kind: 'ai', colorHue: 146, hasMouse: false, attention: null } });
   assert.equal(store.snapshot().players[0]?.online, true);
 
-  socket.receive({ type: 'presence', playerId: 'p2', cursor: { surface: 'shell', x: 5, y: 6 }, attention: null, hasMouse: true });
+  socket.receive({ type: 'presence', playerId: 'p2', cursor: { canvas: 'welcome', surface: 'canvas', x: 5, y: 6 }, attention: null, hasMouse: true });
   assert.equal(store.snapshot().players[0]?.cursor?.x, 5);
 
   socket.receive({ type: 'leave', playerId: 'p2' });
@@ -380,19 +380,19 @@ test('self cursor reports ride the 50ms trailing throttle — the freshest point
   socket.receive({ type: 'welcome', playerId: 'p1', token: 't', colorHue: 73, players: [] });
   const before = socket.sent.length;
 
-  store.reportCursor('shell', 1, 1);
-  store.reportCursor('shell', 2, 2);
-  store.reportCursor('canvas', 3, 3);
+  store.reportCursor('welcome', 'canvas', 1, 1);
+  store.reportCursor('welcome', 'canvas', 2, 2);
+  store.reportCursor('welcome', 'canvas', 3, 3);
   assert.equal(socket.sent.length, before, 'nothing sends inside the throttle window');
 
   clock.advance(50);
   assert.equal(socket.sent.length, before + 1); // ONE frame
-  assert.deepEqual(JSON.parse(socket.sent[socket.sent.length - 1]), { type: 'cursor', surface: 'canvas', x: 3, y: 3 });
+  assert.deepEqual(JSON.parse(socket.sent[socket.sent.length - 1]), { type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 3, y: 3 });
 
   // the window re-arms per burst
-  store.reportCursor('shell', 9, 9);
+  store.reportCursor('welcome', 'canvas', 9, 9);
   clock.advance(50);
-  assert.deepEqual(JSON.parse(socket.sent[socket.sent.length - 1]), { type: 'cursor', surface: 'shell', x: 9, y: 9 });
+  assert.deepEqual(JSON.parse(socket.sent[socket.sent.length - 1]), { type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 9, y: 9 });
 });
 
 test('offline reports are dropped, not queued: the stream resumes on reconnect', () => {
@@ -402,7 +402,7 @@ test('offline reports are dropped, not queued: the stream resumes on reconnect',
   socket.open();
   socket.receive({ type: 'welcome', playerId: 'p1', token: 't', colorHue: 73, players: [] });
   socket.drop();
-  store.reportCursor('shell', 1, 1);
+  store.reportCursor('welcome', 'canvas', 1, 1);
   clock.advance(2000); // the pending throttle fires mid-offline
   const offlineSent = sockets()[0].sent.filter((frame) => frame.includes('cursor')).length;
   assert.equal(offlineSent, 0, 'no cursor leaves a dead socket');
@@ -411,9 +411,9 @@ test('offline reports are dropped, not queued: the stream resumes on reconnect',
   const next = sockets()[1];
   next.open();
   next.receive({ type: 'welcome', playerId: 'p1', token: 't', colorHue: 73, players: [] });
-  store.reportCursor('shell', 4, 4);
+  store.reportCursor('welcome', 'canvas', 4, 4);
   clock.advance(50);
-  assert.deepEqual(JSON.parse(next.sent[next.sent.length - 1]), { type: 'cursor', surface: 'shell', x: 4, y: 4 });
+  assert.deepEqual(JSON.parse(next.sent[next.sent.length - 1]), { type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 4, y: 4 });
 });
 
 test('attention and virtual-mouse send honestly (no throttle), only while online', () => {

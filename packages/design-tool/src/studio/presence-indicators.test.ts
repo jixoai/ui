@@ -69,14 +69,16 @@ test('shell: connect on mount, dispose on teardown — the effect owns the whole
 
 /* ── law 2: the cursor surface split ─────────────────────────────────── */
 
-test('shell: shell-surface pointermove reports viewport coords, throttled by the store', () => {
-  assert.match(shell, /store\.reportCursor\('shell', event\.clientX, event\.clientY\)/, 'the chrome reports shell cursors');
-  assert.match(shell, /window\.addEventListener\('pointermove', onPointerMove, \{ capture: true, passive: true \}\)/, 'the listener is capture-passive');
+test('shell: cursors are canvas-scoped — the chrome lane is RETIRED (ruling 2)', () => {
+  // nothing tracks the studio chrome anymore; cursors never spill onto the panels
+  assert.ok(!/reportCursor\('shell'/.test(shell), 'no shell-surface cursor uplink remains');
+  assert.ok(!/studio-remote-cursor[{\s]/.test(shell), 'no shell cursor overlay remains');
 });
 
-test('shell: the canvas overlay\'s local-cursor report becomes surface canvas, coordinates verbatim', () => {
-  const listener = shell.match(/data\.type !== 'jx-design:local-cursor'[\s\S]{0,400}store\.reportCursor\('canvas', data\.x, data\.y\)/);
-  assert.ok(listener !== null, 'the local-cursor message forwards as surface canvas with its own coordinates');
+test('shell: the canvas overlay\'s local-cursor forwards WITH its canvas name', () => {
+  const listener = shell.match(/data\.type !== 'jx-design:local-cursor'[\s\S]{0,400}store\.reportCursor\(data\.canvas, 'canvas', data\.x, data\.y\)/);
+  assert.ok(listener !== null, 'the report forwards canvas-scoped: name + surface + coords');
+  assert.match(shell, /typeof data\.canvas !== 'string' \|\| data\.canvas\.length === 0/, 'a nameless report is rejected');
   assert.match(shell, /event\.source !== \(canvasIframe\?\.contentWindow \?\? null\)/, 'only the live canvas iframe\'s reports count');
 });
 
@@ -178,32 +180,25 @@ test('canvas-entry: the overlay mounts alongside the picker — one import, one 
 
 /* ── laws 8–9: the shell document's own indicators ───────────────────── */
 
-test('shell: the panel focus resolves #<field>, falls back prop-<field>, then the panel zone', () => {
-  const fn = shell.match(/function panelFocusRect\(field: string\)[\s\S]*?\n  \}/);
-  assert.ok(fn !== null, 'panelFocusRect must exist');
-  assert.match(fn[0], /document\.getElementById\(field\)/, '§1\'s field vocabulary addresses the row directly');
-  assert.match(fn[0], /document\.getElementById\(`prop-\$\{field\}`\)/, 'the prop-prefixed row is the second try');
-  assert.match(fn[0], /querySelector\('\.studio-panel-zone'\)/, 'the panel zone is the honest fallback');
+test('shell: the panel focus lives IN the panel now — the shell overlay is RETIRED (ruling 4)', () => {
+  assert.ok(!/panelFocusRect/.test(shell), 'the shell-side rect machinery is gone');
+  assert.ok(!/:panel-focus`/.test(shell), 'no shell-side panel-focus namespace remains');
+  // the feed hands the property panel the foci (focusWithIn + caret render there)
+  assert.match(shell, /presenceFoci=\{panelFoci\}/, 'the panel receives the foci feed');
+  assert.match(shell, /onPresenceAttention=\{\(focus\) => presenceStoreRef\?\.reportAttention/, 'the attention uplink reaches the store');
 });
 
-test('shell: the panel-focus outline — 2px player hue, badge + digest, the 240ms handover curve', () => {
-  assert.match(shell, /data-jx-remote=\{`\$\{view\.playerId\}:panel-focus`\}/, 'the shell-side namespace kind');
-  assert.match(shell, /style:border-color=\{`hsl\(\$\{view\.colorHue\}, 85%, 45%\)`\}/, 'the 2px outline speaks the player hue');
-  assert.match(shell, /\{view\.digest\}/, 'the digest text renders');
-  const rule = shell.match(/\.studio-remote-panel-focus \{[\s\S]*?\}/);
-  assert.ok(rule !== null, 'the outline rule must exist');
-  assert.match(rule[0], /border: 2px solid/, '§4\'s 2px outline');
-  assert.match(rule[0], /transform 240ms cubic-bezier\(0\.25, 0\.1, 0\.25, 1\)/, 'target handovers glide on the family curve');
-  // a panel SCROLL re-reads the rects in place
-  assert.match(shell, /addEventListener\('scroll', onScroll, \{ capture: true, passive: true \}\)/, 'the scroll follow keeps the outline honest');
+test('shell: the primary law — the local player re-hues the studio chrome', () => {
+  assert.match(shell, /applyBrandHue\(document, snapshotNow\.self\.colorHue\)/, 'welcome/self-change applies the brand hue to the shell document');
+  assert.match(shell, /hslHueToOklchHue\(snapshot\.self\.colorHue\)/, 'the canvas broadcast carries the bridged oklch hue');
+  assert.match(shell, /brandHueOklch: selfHueOklch/, 'the presence message names it brandHueOklch');
 });
 
-test('shell: the shell-surface cursor speaks the same 60ms family', () => {
-  assert.match(shell, /data-jx-remote={`\$\{player\.playerId\}:cursor`}/, 'the shell cursor namespace');
-  const rule = shell.match(/\.studio-remote-cursor \{[\s\S]*?\}/);
-  assert.ok(rule !== null);
-  assert.match(rule[0], /transition: transform 60ms linear/, 'the ~50ms stream tracker');
-  assert.match(shell, /style:opacity=\{player\.hasMouse \? '1' : '0'\}/, 'mouseless players hide, not destroy');
+test('shell: the nav ribbon rides border-image (ruling 3)', () => {
+  assert.match(shell, /function navRibbonStyle/, 'the one-call style helper');
+  assert.match(shell, /border-image: \$\{ribbon\.image\} 1;/, 'the multi-player ribbon is a border-image gradient');
+  assert.match(shell, /border-inline-start: 3px solid \$\{ribbon\.color\};/, 'single player keeps the plain-color look');
+  assert.match(shell, /data-jx-remote-ribbon=\{[^}]*'multi' : 'single'\}/, 'the probe hook discriminates the modes');
 });
 
 test('shell: the chips — hue dot, self first with (you), the online count', () => {

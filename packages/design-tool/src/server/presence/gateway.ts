@@ -46,8 +46,11 @@ import { PresenceLedger, type PresenceKind } from './ledger.ts';
 /** the one upgrade path this gateway owns (design.md §1) */
 export const PRESENCE_WS_PATH = '/__design__/ws';
 
-/** a cursor report — document coordinates inside `surface` */
+/** a cursor report — document coordinates inside `surface`, naming the
+ *  CANVAS it lives on (cursors are canvas-scoped: a player on another
+ *  page is invisible — presence-visuals ruling 2) */
 export interface CursorState {
+  readonly canvas: string;
   readonly surface: string;
   readonly x: number;
   readonly y: number;
@@ -87,13 +90,17 @@ export type PresenceClientMessage = ClientCursor | ClientAttention | ClientVirtu
 
 interface ClientCursor {
   readonly type: 'cursor';
+  readonly canvas: string;
   readonly surface: string;
   readonly x: number;
   readonly y: number;
 }
 interface ClientAttention {
   readonly type: 'attention';
-  readonly focus: AttentionFocus;
+  /** null CLEARS the attention (a field blur reports null — the same
+   *  clear law cursors follow; the visuals-matrix caught the gateway
+   *  dropping it, leaving a stale focus forever) */
+  readonly focus: AttentionFocus | null;
 }
 interface ClientVirtualMouse {
   readonly type: 'virtual-mouse';
@@ -125,7 +132,8 @@ export function isValidFocus(value: unknown): value is AttentionFocus {
     return isStr(value.component) && value.component.length > 0 && (value.instance === null || Number.isInteger(value.instance)) && (value.frameId === null || isStr(value.frameId));
   }
   if (value.kind === 'panel') {
-    return isStr(value.field) && value.field.length > 0 && isStr(value.digest);
+    return isStr(value.field) && value.field.length > 0 && isStr(value.digest)
+      && (value.caret === undefined || (Number.isInteger(value.caret) && (value.caret as number) >= 0));
   }
   return false;
 }
@@ -138,9 +146,12 @@ export function parseClientMessage(value: unknown): PresenceClientMessage | unde
       return { type: 'ping' };
     case 'cursor':
       if (!isStr(value.surface) || value.surface.length === 0 || !isFiniteNumber(value.x) || !isFiniteNumber(value.y)) return undefined;
-      return { type: 'cursor', surface: value.surface, x: value.x, y: value.y };
+      if (!isStr(value.canvas) || value.canvas.length === 0) return undefined; // canvas-scoped since presence-visuals
+      return { type: 'cursor', canvas: value.canvas, surface: value.surface, x: value.x, y: value.y };
     case 'attention':
-      return isValidFocus(value.focus) ? { type: 'attention', focus: value.focus } : undefined;
+      return value.focus === null || isValidFocus(value.focus)
+        ? { type: 'attention', focus: value.focus === null ? null : value.focus }
+        : undefined;
     case 'virtual-mouse':
       return typeof value.enabled === 'boolean' ? { type: 'virtual-mouse', enabled: value.enabled } : undefined;
     default:
@@ -385,7 +396,7 @@ class PresenceGatewayImpl implements PresenceGateway {
           this.#send(ws, { type: 'pong' });
           break;
         case 'cursor':
-          player.cursor = { surface: message.surface, x: message.x, y: message.y };
+          player.cursor = { canvas: message.canvas, surface: message.surface, x: message.x, y: message.y };
           this.#armPresenceFlush(player);
           break;
         case 'attention':

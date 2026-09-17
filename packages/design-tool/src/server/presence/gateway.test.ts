@@ -403,24 +403,24 @@ test('presence: bursts collapse into one frame per merge window, latest state wi
   const joinOnAlice = alice.next('join'); // drain bob's join on alice's side
   await joinOnAlice.catch(() => undefined);
 
-  alice.send({ type: 'cursor', surface: 'canvas', x: 1, y: 1 });
-  alice.send({ type: 'cursor', surface: 'shell', x: 2, y: 2 });
+  alice.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 1, y: 1 });
+  alice.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 2, y: 2 });
   await wait(150);
   assert.equal(bob.countOf('presence'), 1, 'two rapid cursors collapsed into ONE presence frame');
   const burst = await bob.next('presence'); // consumes the burst frame
   assert.deepEqual(keysOf(burst), ['attention', 'cursor', 'hasMouse', 'playerId', 'type']);
-  assert.deepEqual(burst.cursor, { surface: 'shell', x: 2, y: 2 }, 'the LATEST state won the window');
+  assert.deepEqual(burst.cursor, { canvas: 'welcome', surface: 'canvas', x: 2, y: 2 }, 'the LATEST state won the window');
   assert.equal(burst.attention, null);
 
   alice.send({ type: 'attention', focus: { kind: 'canvas', component: 'press-button', instance: null, frameId: null } });
   const attentionFrame = await bob.next('presence');
   assert.deepEqual(attentionFrame.attention, { kind: 'canvas', component: 'press-button', instance: null, frameId: null });
-  assert.deepEqual(attentionFrame.cursor, { surface: 'shell', x: 2, y: 2 }, 'the merged frame carries the whole state');
+  assert.deepEqual(attentionFrame.cursor, { canvas: 'welcome', surface: 'canvas', x: 2, y: 2 }, 'the merged frame carries the whole state');
 
   // junk frames are ignored, the connection survives
   alice.ws.send('not json');
   alice.send({ type: 'bogus' });
-  alice.send({ type: 'cursor', surface: '', x: 0, y: 0 });
+  alice.send({ type: 'cursor', canvas: 'welcome', surface: '', x: 0, y: 0 });
   await wait(120);
   assert.equal(bob.countOf('presence'), 2, 'junk produced no frames');
   alice.send({ type: 'ping' });
@@ -572,13 +572,15 @@ test('parseClientMessage: junk ignored, valid frames narrowed', () => {
   assert.equal(parseClientMessage(undefined), undefined);
   assert.equal(parseClientMessage('nope'), undefined);
   assert.equal(parseClientMessage({ type: 'unknown' }), undefined);
-  assert.equal(parseClientMessage({ type: 'cursor', surface: '', x: 0, y: 0 }), undefined);
-  assert.equal(parseClientMessage({ type: 'cursor', surface: 'shell', x: Number.NaN, y: 0 }), undefined);
+  assert.equal(parseClientMessage({ type: 'cursor', canvas: 'welcome', surface: '', x: 0, y: 0 }), undefined);
+  assert.equal(parseClientMessage({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: Number.NaN, y: 0 }), undefined);
   assert.equal(parseClientMessage({ type: 'attention', focus: { kind: 'bogus' } }), undefined);
   assert.equal(parseClientMessage({ type: 'attention', focus: { kind: 'panel', field: '', digest: '' } }), undefined);
   assert.equal(parseClientMessage({ type: 'virtual-mouse', enabled: 'yes' }), undefined);
+  // attention null CLEARS (the field-blur law — the visuals-matrix catch)
+  assert.deepEqual(parseClientMessage({ type: 'attention', focus: null }), { type: 'attention', focus: null });
   assert.deepEqual(parseClientMessage({ type: 'ping' }), { type: 'ping' });
-  assert.deepEqual(parseClientMessage({ type: 'cursor', surface: 'shell', x: 1.5, y: -2 }), { type: 'cursor', surface: 'shell', x: 1.5, y: -2 });
+  assert.deepEqual(parseClientMessage({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 1.5, y: -2 }), { type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 1.5, y: -2 });
   assert.deepEqual(parseClientMessage({ type: 'attention', focus: { kind: 'canvas', component: 'press-button', instance: 2, frameId: 'hero' } }), {
     type: 'attention',
     focus: { kind: 'canvas', component: 'press-button', instance: 2, frameId: 'hero' },

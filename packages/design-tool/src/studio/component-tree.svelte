@@ -35,8 +35,18 @@
   source (canvas + per frame id) — the lazy-load smoke's evidence
   channel, installed like the studio's other window seams.
 
+  Multiplayer ribbon (presence-visuals 2.2): remote component
+  attentions (remoteAttentions — componentId-addressed, the stamp
+  walk's 2.1 native ids) light the matching usage row's inline-start
+  border — ONE player is the plain single color (today's look), N
+  players split it as a border-image ribbon in the LOCAL order (self
+  first, then playerId lexicographic). Self never lights a row (the
+  own-selection highlight keeps the current path); an absent/empty
+  prop is byte-identical to the tree before this change.
+
   Original need: Owner 2026-09-11 (design-studio-r2 T5); r3 issue #20
-  (2026-09-12 — the unified treeView + dynamic loading ruling).
+  (2026-09-12 — the unified treeView + dynamic loading ruling);
+  presence-visuals 2.2 (2026-09-17 — the multiplayer ribbon).
   Svelte 5 runes.
 -->
 <script lang="ts">
@@ -45,6 +55,7 @@
   import Spin from '#jixoai/spin';
   import TreeView, { type TreeItemCtx, type TreeNode } from '#jixoai/tree-view';
   import { recordsSignature } from './equivalence.ts';
+  import { ribbonOf, type RibbonStyle } from './presence-visuals.ts';
   import {
     FRAME_NAME_PREFIX,
     buildSelectionTree,
@@ -65,6 +76,18 @@
     | { readonly kind: 'canvas-group' }
     | { readonly kind: 'usage'; readonly node: SelectionTreeNode };
 
+  /** one remote player's component attention (presence-visuals 2.2 —
+   *  the SHELL resolves attention frames into this prop; the tree only
+   *  consumes) */
+  interface RemoteTreeAttention {
+    readonly playerId: string;
+    readonly colorHue: number;
+    /** the protocol componentId the player attends (null = attending
+     *  something unaddressed — lights nothing here) */
+    readonly componentId: string | null;
+    readonly online: boolean;
+  }
+
   let {
     iframe = null,
     canvas = null,
@@ -72,6 +95,8 @@
     selection = null,
     onSelect = (): void => {},
     onAnchorFrame = (): void => {},
+    remoteAttentions = [],
+    selfHue = null,
   }: {
     /** the live canvas iframe element (bind:this from the shell) */
     iframe?: HTMLIFrameElement | null;
@@ -85,6 +110,17 @@
     onSelect?: (selection: DesignSelection) => void;
     /** page-folder anchor: the shell points the preview src at #<frameId> */
     onAnchorFrame?: (frameId: string) => void;
+    /** remote component attentions (presence-visuals 2.2): a row whose
+     *  componentId matches an entry lights in that player's hue — one
+     *  player is today's plain single border-color, N players split the
+     *  border as a ribbon. Empty/absent = byte-identical current tree */
+    remoteAttentions?: readonly RemoteTreeAttention[];
+    /** the local player's hue — ribbonOf's LOCAL order anchor (self
+     *  first). Today self never lights a tree row remotely (the
+     *  own-selection highlight stays the current path), so the anchor
+     *  holds the contract for the shell's prop shape and the order
+     *  degenerates to the stable playerId lexicographic below */
+    selfHue?: number | null;
   } = $props();
 
   /* ── the records state: canvas layer eager, frame layers lazy ──────── */
@@ -160,7 +196,11 @@
         next = []; // mid-teardown — re-walked on the next poll/expand
       }
     }
-    const signature = recordsSignature(next);
+    // the gate reads the componentId tail TOO (2.1): ingest writes
+    // NATIVE ids onto stamped elements without touching data-jx-* —
+    // the stamp signature alone would hold a stale (unaddressed) walk
+    // and a remote ribbon would never find its row
+    const signature = `${recordsSignature(next)}|${JSON.stringify(next.map((record) => record.componentId))}`;
     if (signature !== frameGates[frameId]) {
       frameGates[frameId] = signature;
       frameRecords[frameId] = next;
@@ -271,6 +311,47 @@
       const seams = frame.contentWindow as (Window & DesignFrameSeams) | null;
       seams?.__jixoaiDesignHover?.(null);
     }
+  }
+
+  /* ── presence-visuals 2.2: the multiplayer ribbon ──────────────────── */
+
+  /** online remote attentions, keyed by the componentId they light */
+  const litRows = $derived.by(() => {
+    const byComponent = new Map<string, RemoteTreeAttention[]>();
+    for (const entry of remoteAttentions) {
+      if (!entry.online || entry.componentId === null) continue;
+      const list = byComponent.get(entry.componentId);
+      if (list === undefined) byComponent.set(entry.componentId, [entry]);
+      else list.push(entry);
+    }
+    return byComponent;
+  });
+
+  /** one row's remote lighting: the attendees (LOCAL order — self
+   *  first, then playerId lexicographic; today self never lights a row
+   *  so the order is the lexicographic one) and their ribbon */
+  function rowLighting(node: SelectionTreeNode): { ribbon: RibbonStyle | null; players: readonly string[] } {
+    void selfHue; // ribbonOf's local-order anchor — see the prop's law
+    const attendees = node.componentId === null ? undefined : litRows.get(node.componentId);
+    if (attendees === undefined || attendees.length === 0) return { ribbon: null, players: [] };
+    const ordered = [...attendees].sort((a, b) => (a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0));
+    return {
+      ribbon: ribbonOf(ordered.map((entry) => entry.colorHue)),
+      players: ordered.map((entry) => entry.playerId),
+    };
+  }
+
+  /**
+   * The row's inline-start border: unlit = '' (today's row, byte-equal);
+   * ONE player = the plain color (today's single-player shape, via
+   * ribbonOf's single path); N players = the border-image ribbon —
+   * border-image REPLACES border-color where set, so the multi path
+   * paints a transparent color and rides `border-image: <gradient> 1`.
+   */
+  function rowRibbonStyle(ribbon: RibbonStyle | null): string {
+    if (ribbon === null) return '';
+    if (ribbon.single) return `border-inline-start: 3px solid ${ribbon.color};`;
+    return `border-inline-start: 3px solid transparent; border-image: ${ribbon.image} 1;`;
   }
 
   function findUsagePath(
@@ -384,8 +465,11 @@
 {#snippet usageLabel(ctx: TreeItemCtx<TreeMeta>)}
   {#if ctx.node.meta?.kind === 'usage'}
     {@const node = ctx.node.meta.node}
+    {@const lighting = rowLighting(node)}
     <span
       class="tree-usage{ctx.id === selectedPath ? ' selected' : ''}{ctx.id === hoverPath ? ' hovered' : ''}"
+      style={rowRibbonStyle(lighting.ribbon)}
+      data-jx-remote-ribbon={lighting.players.length > 0 ? lighting.players.join(' ') : undefined}
       onmouseenter={() => hoverUsage(node)}
       onmouseleave={() => unhoverUsage()}
     >

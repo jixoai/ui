@@ -479,11 +479,23 @@ try {
     const bCanvas2 = await canvasFrameOf(B.page);
     await sleep(600);
     const ring = await remoteRingState(bCanvas2, 'p1');
-    const panelFocus = await B.page.locator(`[data-jx-remote="p1:panel-focus"]`).count();
-    record('A3', '③ B端出现 A 的 ghost ring（canvas-focus 或 panel-focus 任一）',
-      (ring.exists && ring.opacity !== '0') || panelFocus > 0,
-      `canvas-focus=${ring.exists ? `opacity ${ring.opacity}` : 'absent'}; panel-focus=${panelFocus}; `
-      + (ring.exists || panelFocus > 0 ? '' : '根因：panel-collab.ts 的 admit/materialize body 不带 sessionHint.playerId（design.md §3「面板 op 的 sessionHint 就是 playerId」未接线）——journal-tail 有、ghost 无'));
+    // presence-visuals ruling 4: the shell-level panel-focus overlay is
+    // RETIRED — the panel focus renders ON the field row itself as
+    // [data-jx-remote-focus]（A's #prop-raised click reported a real
+    // panel attention; equivalent semantics of "B sees A's ghost"）
+    const focusRow = await pollFor(
+      () => B.page.evaluate(() => {
+        const rows = [...document.querySelectorAll('[data-jx-remote-focus]')];
+        return rows.length === 0 ? null : rows.map((row) => ({ attr: row.getAttribute('data-jx-remote-focus'), tag: row.tagName })).find((r) => (r.attr ?? '').includes('p1')) ?? null;
+      }),
+      { timeoutMs: 10_000, intervalMs: 500, label: 'A3 panel-focus row' },
+    ).catch(() => null);
+    record('A3', '③ B端出现 A 的在场指示（canvas ghost ring 或新词表面板 focus 行 [data-jx-remote-focus] 任一）',
+      (ring.exists && ring.opacity !== '0') || focusRow !== null,
+      `canvas-focus=${ring.exists ? `opacity ${ring.opacity}` : 'absent'}; 面板 focus 行=${focusRow === null ? '无' : `${focusRow.tag}[data-jx-remote-focus="${focusRow.attr}"]`}; `
+      + (ring.exists || focusRow !== null
+        ? '（实况：面板 op 的 admit body 不带 sessionHint.playerId——design.md §3 的 op-ghost 未接线，由裁决4的真实 focus 上报路径点亮）'
+        : '根因：panel-collab.ts 的 admit/materialize body 不带 sessionHint.playerId（design.md §3「面板 op 的 sessionHint 就是 playerId」未接线）——journal-tail 有、ghost 无'));
   }
 
   /* A4 — 冲突路径不回归（并发同页编辑：B raw admit × A 面板 uncheck） */
@@ -567,39 +579,53 @@ try {
     record('B7a', '③（诊断）ring 不得是 section 级别的大框（按 componentId 跨文档定位后应为组件级）', !sectionSized,
       inst1 === null ? 'instance=1 元素不存在' : `ring=${ring === null ? 'absent' : `${Math.round(ring.box.w)}x${Math.round(ring.box.h)}`} vs section=${Math.round(inst1.box.w)}x${Math.round(inst1.box.h)}（组件级 ring 的 w/h 应远小于 section 的一半）`);
 
-    /* B7b — panel-focus 描边（sessionHint 带 field/digest）。两条路：
+    /* B7b — panel-focus（sessionHint 带 field/digest）。两条路：
      * (a) 直接对 prop 缓冲 'raised' 落 text op——记录网关对 prop 缓冲
      *     replace 的真实应答（实况：409）；
      * (b) 对合法的 t-0 缓冲落 op、sessionHint 带 field——focusFromOpTarget
-     *     只看 sessionHint.field，relay 链路同一条。 */
+     *     只看 sessionHint.field，relay 链路同一条。
+     * presence-visuals 裁决4：壳层 panel-focus 描边退役——等价语义 =
+     * 面板字段行自身点亮 [data-jx-remote-focus]（含 AI playerId）+
+     * 名签 rack [data-jx-remote-chips]（digest 不再上 DOM，只走协议帧）。 */
     const resProp = await admitOp(BASE, { actor: 'matrix-ai', componentId: 'a4', buffer: 'raised', text: 'true', sessionHint: { playerId: aiPid, field: 'prop-raised', digest: 'raised=false→true' } });
     console.log(`  [B7b] prop-buffer text replace → ${resProp.status} ${JSON.stringify(resProp.body).slice(0, 160)}`);
     const res2 = await admitOp(BASE, { actor: 'matrix-ai', componentId: 'a4', buffer: 't-0', text: 'B7b-panel-focus', sessionHint: { playerId: aiPid, field: 'prop-raised', digest: 'raised=false→true' } });
     await sleep(800);
-    const outline = await pollFor(() => B.page.locator(`[data-jx-remote="${aiPid}:panel-focus"]`).count().then((n) => (n > 0)), { timeoutMs: 8000, label: 'B7b outline' }).catch(() => false);
-    const badgeText = outline ? await B.page.locator(`[data-jx-remote="${aiPid}:panel-focus"] .studio-remote-panel-focus-badge`).textContent().catch(() => '') : '';
-    const digestText = outline ? await B.page.locator(`[data-jx-remote="${aiPid}:panel-focus"] .studio-remote-panel-focus-digest`).textContent().catch(() => '') : '';
-    record('B7b', 'AI admit 带 sessionHint{field,digest} → 壳层 panel-focus 描边 + 名签 + digest',
-      outline && badgeText.includes('matrix-ai') && digestText.includes('raised='),
-      `admit=${res2.status}; outline=${outline}; badge="${badgeText.trim()}"; digest="${digestText.trim()}"`);
+    const panelFocusInfo = await pollFor(() => B.page.evaluate((pid) => {
+      const rows = [...document.querySelectorAll('[data-jx-remote-focus]')];
+      const row = rows.find((el) => (el.getAttribute('data-jx-remote-focus') ?? '').split(' ').includes(pid));
+      if (row === undefined) return null;
+      const chips = row.querySelector('[data-jx-remote-chips]');
+      const chipNames = chips === null ? [] : [...chips.querySelectorAll('[data-jx-remote-chip]')].map((c) => c.textContent ?? '');
+      return { attr: row.getAttribute('data-jx-remote-focus'), tag: row.tagName, shadow: row.style.boxShadow.slice(0, 60), chipNames };
+    }, aiPid), { timeoutMs: 10_000, intervalMs: 500, label: 'B7b panel focus row' }).catch(() => null);
+    record('B7b', 'AI admit 带 sessionHint{field,digest} → 面板字段行点亮（[data-jx-remote-focus] 含 AI playerId + 名签 matrix-ai）',
+      panelFocusInfo !== null && panelFocusInfo.chipNames.some((n) => n.includes('matrix-ai')),
+      `admit=${res2.status}; 行=${panelFocusInfo === null ? '未出现' : `${panelFocusInfo.tag}[focus="${panelFocusInfo.attr}"] shadow="${panelFocusInfo.shadow}"`}; 名签=${JSON.stringify(panelFocusInfo?.chipNames ?? [])}（digest 只走协议帧，不上 DOM——裁决4词表）`);
   }
 
-  /* B8 — 虚拟鼠标：光标从无到有 */
+  /* B8 — 虚拟鼠标：光标从无到有
+   * (fixture 修正 2026-09-17: presence-visuals 裁决 2 把 cursor 帧改为
+   * canvas-scoped —— 网关 isCursor 现在要求非空 canvas 字段，旧
+   * surface-only 帧会被整帧丢弃；等价语义 = 补 canvas:'welcome') */
   {
     const bCanvas = await canvasFrameOf(B.page);
     const before = await remoteCursorState(bCanvas, aiPid);
     ai.send({ type: 'virtual-mouse', enabled: true });
-    ai.send({ type: 'cursor', surface: 'canvas', x: 123, y: 77 });
+    ai.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 123, y: 77 });
     await sleep(400);
-    ai.send({ type: 'cursor', surface: 'canvas', x: 281, y: 190 });
+    ai.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 281, y: 190 });
     const after = await pollFor(() => remoteCursorState(bCanvas, aiPid).then((s) => (s.exists && s.opacity === '1' ? s : null)), { timeoutMs: 8000, label: 'B8 cursor visible' }).catch(() => null);
     record('B8', '① AI virtual-mouse enabled + cursor → 人端光标元素从无到有（opacity 0→1）',
       after !== null && before.opacity !== '1',
       `before opacity=${before.exists ? before.opacity : 'absent'} → after opacity=${after?.opacity ?? 'absent'}`);
-    // the poll may resolve on the FIRST cursor frame — settle and re-read
-    // so the assertion sees the LAST reported position
-    await sleep(800);
-    const last = await remoteCursorState(bCanvas, aiPid);
+    // the poll may resolve on the FIRST cursor frame — poll for the LAST
+    // reported position to settle (a single timed read once flaked on the
+    // second frame's render chain: gateway flush + shell rAF + overlay)
+    const last = await pollFor(
+      () => remoteCursorState(bCanvas, aiPid).then((s) => (s.exists && Math.abs((s.x ?? -1) - 281) <= 2 && Math.abs((s.y ?? -1) - 190) <= 2 ? s : null)),
+      { timeoutMs: 8000, label: 'B8 last position' },
+    ).catch(() => remoteCursorState(bCanvas, aiPid));
     record('B8', '② 光标坐标逐字透传（mock 发送 (281,190)）',
       last.exists && Math.abs((last.x ?? -1) - 281) <= 2 && Math.abs((last.y ?? -1) - 190) <= 2,
       `transform=(${last.x},${last.y})`);
@@ -758,6 +784,337 @@ try {
     record('D14', '② journal 未损坏（全行可解析 + 行数只增 + /sync 仍 200）',
       badLines.length === 0 && lines.length >= journalBefore + 1 && typeof syncResp.updateB64 === 'string' && syncResp.updateB64.length > 0,
       `journal ${journalBefore}→${lines.length} 行, 坏行=${badLines.length}; sync=${typeof syncResp.updateB64 === 'string' ? `ok(${syncResp.updateB64.length}b)` : JSON.stringify(syncResp).slice(0, 80)}`);
+  }
+
+  /* ══ E. presence-visuals（Owner 四项裁决的矩阵扩展，2026-09-17）══
+   * E1 跨页面光标不可见 | E2 brand-hue 联动 | E3 nav 彩带 |
+   * E4 树彩带 | E5 props caret | E6 attention 上报链。
+   * 全部跑在 server2（D13 重建后的网关）上，双真实实例 + raw observer。 */
+  {
+    const BASE2 = `http://localhost:${server2.port}`;
+    /* E-group local helpers — the hsl→oklch law mirrored from
+     * presence-visuals.ts (the matrix stays plain-node: no dist import) */
+    const hslHueToOklchHueLocal = (hslHue) => {
+      const h = (((hslHue % 360) + 360) % 360) / 60;
+      const sector = Math.floor(h);
+      const f = h - sector;
+      const srgb = sector === 0 ? [1, f, 0] : sector === 1 ? [1 - f, 1, 0]
+        : sector === 2 ? [0, 1, f] : sector === 3 ? [0, 1 - f, 1]
+          : sector === 4 ? [f, 0, 1] : [1, 0, 1 - f];
+      const lin = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+      const [r, g, b] = srgb.map(lin);
+      const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+      const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+      const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+      const a = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
+      const bb = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+      return (((Math.atan2(bb, a) * 180) / Math.PI) + 360) % 360;
+    };
+    /** hsl(h,85%,45%) → the normalized rgb() string a browser computes */
+    const playerHueRgb = (hue) => {
+      const sat = 0.85, lig = 0.45;
+      const c = (1 - Math.abs(2 * lig - 1)) * sat;
+      const hp = (((hue % 360) + 360) % 360) / 60;
+      const x = c * (1 - Math.abs((hp % 2) - 1));
+      const [r0, g0, b0] = hp < 1 ? [c, x, 0] : hp < 2 ? [x, c, 0] : hp < 3 ? [0, c, x]
+        : hp < 4 ? [0, x, c] : hp < 5 ? [x, 0, c] : [c, 0, x];
+      const m = lig - c / 2;
+      const q = (v) => Math.round((v + m) * 255);
+      return `rgb(${q(r0)}, ${q(g0)}, ${q(b0)})`;
+    };
+    async function canvasFrameByName(page, name) {
+      for (let i = 0; i < 120; i += 1) {
+        const f = page.frames().filter((fr) => fr.url().includes(`/prototypes/${name}`)).at(-1);
+        if (f !== undefined) {
+          const alive = await f.evaluate(() => true).catch(() => false);
+          if (alive) { await f.waitForLoadState('load', { timeout: 20_000 }).catch(() => {}); return f; }
+        }
+        await sleep(250);
+      }
+      throw new Error(`canvas frame ${name} not found`);
+    }
+    /** ground-aware real-mouse scan (the E1③ lesson, 2026-09-17): the
+     * scan points are computed INSIDE the canvas document — avoiding
+     * every nested kit iframe by an 8px margin (a pointer inside one
+     * targets the kit doc and the canvas document never sees it — the
+     * known frame-entry gap), then converted doc→screen through the
+     * iframe box ratio, so the scan works at ANY restored lens scale
+     * (the fixed fraction lattice at scale ≈0.9 landed every point
+     * inside a kit iframe and produced zero cursor reports). The
+     * predicate is polled between moves; points regenerate per round
+     * (the camera may re-fit mid-scan). */
+    async function groundScanUntil(page, canvasFrame, predicate, { timeoutMs = 25_000, maxPoints = 24 } = {}) {
+      const start = Date.now();
+      for (let round = 0; round < 3; round += 1) {
+        const info = await canvasFrame.evaluate(() => {
+          const doc = document.documentElement;
+          const W = doc.scrollWidth, H = doc.scrollHeight;
+          const rects = [...document.querySelectorAll('iframe')].map((f) => f.getBoundingClientRect());
+          const M = 8;
+          const out = [];
+          for (let gy = 0.05; gy <= 0.95 && out.length < 24; gy += 0.07) {
+            for (let gx = 0.05; gx <= 0.95 && out.length < 24; gx += 0.06) {
+              const x = Math.round(W * gx), y = Math.round(H * gy);
+              if (!rects.some((r) => x > r.left - M && x < r.right + M && y > r.top - M && y < r.bottom + M)) out.push({ x, y });
+            }
+          }
+          return { W, H, out };
+        });
+        const box = await page.locator('iframe[src*="/prototypes/"]').first().boundingBox();
+        if (box === null) throw new Error('canvas iframe box missing for ground scan');
+        const kx = box.width / info.W, ky = box.height / info.H;
+        for (const p of info.out.slice(0, maxPoints)) {
+          const sx = Math.min(Math.max(box.x + p.x * kx, 8), 1672);
+          const sy = Math.min(Math.max(box.y + p.y * ky, 8), 992);
+          await page.mouse.move(sx, sy, { steps: 3 });
+          await sleep(300);
+          if (await predicate()) return true;
+          if (Date.now() - start > timeoutMs) return false;
+        }
+      }
+      return await predicate();
+    }
+    /** read the cursor's SETTLED opacity — the overlay parks/raises via
+     * inline style under a 140ms CSS ease transition, so an immediate
+     * read catches the tail (E1① once read 0.0012 and false-failed);
+     * settle = two equal consecutive reads at a semantically stable
+     * value (hidden ≤0.02, visible ≥0.98, or absent) */
+    async function settledCursorOpacity(canvas, playerId) {
+      let last = 'unset';
+      for (let i = 0; i < 10; i += 1) {
+        const v = await canvas.evaluate((pid) => {
+          const el = document.querySelector(`[data-jx-remote="${pid}:cursor"]`);
+          return el === null ? 'absent' : getComputedStyle(el).opacity;
+        }, playerId);
+        const num = Number.parseFloat(v);
+        if (v === last && (v === 'absent' || num < 0.02 || num > 0.98)) return v;
+        last = v;
+        await sleep(200);
+      }
+      return last;
+    }
+
+    const Av = await openStudio(browser, BASE2, 'alice-v');
+    const Bv = await openStudio(browser, BASE2, 'bob-v');
+    await sleep(1200);
+    const obs = wsConnect(BASE2, { name: 'matrix-observer-e' });
+    await obs.welcome;
+    const eChips = await chipsInfo(Av.page);
+    const avSelf = eChips.find((c) => c.name.includes('(you)'));
+    const bvChip = eChips.find((c) => c.name.includes('bob-v'));
+    const AvPid = avSelf?.id ?? '?';
+    const BvPid = bvChip?.id ?? '?';
+    const avHslHue = hueOf(avSelf);
+    const bvHslHue = hueOf(bvChip);
+
+    /* E1 — 跨页面光标不可见（裁决 2：cursor 帧 canvas-scoped） */
+    {
+      const aCanvas = await canvasFrameByName(Av.page, 'welcome');
+      await pollFor(() => aCanvas.locator('[data-jx-component]').first().waitFor({ timeout: 3000 }).then(() => true).catch(() => null), { timeoutMs: 30_000, label: 'E1 A welcome stamps' });
+      const bWelcome = await canvasFrameByName(Bv.page, 'welcome');
+      await pollFor(() => bWelcome.locator('[data-jx-component]').first().waitFor({ timeout: 3000 }).then(() => true).catch(() => null), { timeoutMs: 30_000, label: 'E1 B welcome stamps' });
+      await sleep(400);
+      // 基线：B 在 welcome 时 A 端确实见过它（切换前可见的证据；≈0.9 容
+      // 忍 140ms 淡入过渡的读数尾巴）
+      const wasVisible = await groundScanUntil(Bv.page, bWelcome, () => remoteCursorState(aCanvas, BvPid).then((s) => s.exists && Number.parseFloat(s.opacity) >= 0.9));
+      // B 真实切换到 echo-demo（nav 链接点击 = selectCanvas = iframe 重建）
+      await Bv.page.locator('.studio-canvas-row[data-nav-ribbon="echo-demo"] a').first().click();
+      const bEcho = await canvasFrameByName(Bv.page, 'echo-demo');
+      await pollFor(() => bEcho.locator('[data-jx-component]').first().waitFor({ timeout: 3000 }).then(() => true).catch(() => null), { timeoutMs: 30_000, label: 'E1 B echo stamps' }).catch(() => null);
+      await sleep(500);
+      // B 在 echo-demo 真实移动鼠标；协议层 = observer 收到 cursor.canvas='echo-demo'
+      let echoFrame = null;
+      const reportedEcho = await groundScanUntil(Bv.page, bEcho, () => {
+        echoFrame = obs.frames.filter((f) => f.type === 'presence' && f.playerId === BvPid && f.cursor !== null && f.cursor.canvas === 'echo-demo').at(-1) ?? null;
+        return echoFrame !== null;
+      });
+      // A 端隐藏：等 140ms 淡出过渡 settle 后读静止值（过渡尾巴不是可见性语义）
+      const hiddenState = await settledCursorOpacity(aCanvas, BvPid);
+      record('E1', '① B 切 echo-demo 移动 → A 端 welcome canvas 无 B 光标（协议帧 canvas=echo-demo + 渲染隐藏）',
+        reportedEcho && (hiddenState === 'absent' || Number.parseFloat(hiddenState) < 0.02),
+        `切换前 A 可见=${wasVisible}; observer cursor.canvas=${reportedEcho ? `echo-demo (x=${Math.round(echoFrame.cursor.x)},y=${Math.round(echoFrame.cursor.y)})` : '未收到'}; A 端 B 光标=${hiddenState}${hiddenState !== 'absent' && Number.parseFloat(hiddenState) > 0 && Number.parseFloat(hiddenState) < 0.02 ? '（淡出过渡 settle 后的静止残值，视觉不可见）' : ''}`);
+      // 退役证据：壳层光标渲染不存在（裁决 2 的另一半）
+      const shellCursorGone = await Av.page.evaluate(() => document.querySelector('.studio-remote-cursor') === null && document.querySelectorAll('[class*="remote-cursor"]').length === 0);
+      record('E1', '② A 端壳层零光标（studio-remote-cursor 退役，光标不溢出到 chrome）', shellCursorGone,
+        shellCursorGone ? '.studio-remote-cursor 不存在（grep 源码级退役 + DOM 级确认）' : '壳层仍有 remote-cursor 类元素');
+      // B 回 welcome 移动 → A 端再次可见（上行证据 + 渲染证据双收）
+      await Bv.page.locator('.studio-canvas-row[data-nav-ribbon="welcome"] a').first().click();
+      const bWelcome2 = await canvasFrameByName(Bv.page, 'welcome');
+      await pollFor(() => bWelcome2.locator('[data-jx-component]').first().waitFor({ timeout: 3000 }).then(() => true).catch(() => null), { timeoutMs: 30_000, label: 'E1 B welcome2 stamps' }).catch(() => null);
+      await sleep(500);
+      let backFrame = null;
+      const backVisible = await groundScanUntil(Bv.page, bWelcome2, () => {
+        backFrame = obs.frames.filter((f) => f.type === 'presence' && f.playerId === BvPid && f.cursor !== null && f.cursor.canvas === 'welcome').at(-1) ?? null;
+        if (backFrame === null) return false;
+        return remoteCursorState(aCanvas, BvPid).then((s) => s.exists && Number.parseFloat(s.opacity) >= 0.9);
+      });
+      record('E1', '③ B 回 welcome 移动 → A 端光标恢复可见（opacity≈1）', backVisible,
+        backVisible ? `A 端 ${BvPid}:cursor opacity≈1（ground 命中后恢复）；上行证据=observer 重收 canvas=welcome 帧` : `上行证据=observer welcome 帧${backFrame === null ? '未收到（上行链断）' : '已收到（A 端渲染断）'}`);
+    }
+
+    /* E2 — brand-hue 联动（裁决 1：Player primary 驱动 --brand-hue） */
+    {
+      const expectOklch = hslHueToOklchHueLocal(avHslHue);
+      const readBrandHue = (target) => target.evaluate(() => {
+        const raw = getComputedStyle(document.documentElement).getPropertyValue('--brand-hue').trim();
+        return { raw, num: Number.parseFloat(raw) };
+      });
+      const shellHue = await readBrandHue(Av.page);
+      record('E2', '① A 壳 documentElement --brand-hue = hsl→oklch 换算值（≠ registry 默认 330）',
+        Number.isFinite(shellHue.num) && Math.abs(shellHue.num - expectOklch) <= 1 && Math.abs(shellHue.num - 330) > 1,
+        `shell=${shellHue.num?.toFixed(2)}; 期望=hsl(${avHslHue})→oklch ${expectOklch.toFixed(2)}; self=${AvPid}`);
+      const aCanvas2 = await canvasFrameByName(Av.page, 'welcome');
+      const kit2 = aCanvas2.childFrames().find((f) => (f.name() ?? '').startsWith('jixoai-design-frame'));
+      const canvasHue = await readBrandHue(aCanvas2);
+      const kitHue = kit2 === undefined ? { raw: '', num: NaN } : await readBrandHue(kit2).catch(() => ({ raw: '', num: NaN }));
+      record('E2', '② welcome canvas 文档 + kit frame 文档 --brand-hue 同值（overlay 广播统一设置）',
+        Number.isFinite(canvasHue.num) && Math.abs(canvasHue.num - expectOklch) <= 1 && Number.isFinite(kitHue.num) && Math.abs(kitHue.num - expectOklch) <= 1,
+        `canvas=${canvasHue.num?.toFixed(2)}; kit=${Number.isFinite(kitHue.num) ? kitHue.num.toFixed(2) : '无 kit frame'}; 期望=${expectOklch.toFixed(2)}`);
+      // 真实点击画布内 a4（双层 frameLocator 直达 kit iframe 内元素——绕开
+      // lens/scroll 的手动坐标换算）→ picker selected ring 出现
+      let ringInfo = null;
+      try {
+        await Av.page
+          .frameLocator('iframe[src*="/prototypes/"]').first()
+          .frameLocator('iframe[name="jixoai-design-frame-hero-mobile-390-light"]')
+          .locator('#a4').click({ timeout: 15_000 });
+      } catch { /* ring judged below */ }
+      ringInfo = await pollFor(async () => {
+          for (const fr of Av.page.frames()) {
+            const r = await fr.evaluate(() => {
+              const el = document.querySelector('[data-jx-indicator="selected"]');
+              if (el === null) return null;
+              const cs = getComputedStyle(el);
+              if (cs.borderTopColor === 'rgba(0, 0, 0, 0)') return null;
+              const probe = document.createElement('span');
+              probe.style.color = 'var(--primary)';
+              document.documentElement.appendChild(probe);
+              const primary = getComputedStyle(probe).color;
+              probe.remove();
+              return { border: cs.borderTopColor, primary, doc: document.location.pathname };
+            }).catch(() => null);
+            if (r !== null) return r;
+          }
+          return null;
+        }, { timeoutMs: 10_000, label: 'E2 selected ring' }).catch(() => null);
+      const oldRed = 'rgb(224, 86, 86)';
+      const oldBlue = 'rgb(96, 165, 250)';
+      record('E2', '③ picker selected ring = var(--primary)（≠旧硬编码红 rgb(224,86,86)、≠旧蓝）',
+        ringInfo !== null && ringInfo.border === ringInfo.primary && ringInfo.border !== oldRed && ringInfo.border !== oldBlue,
+        ringInfo === null ? 'ring 未出现（kit iframe 内 #a4 点击后无 [data-jx-indicator="selected"]）' : `border=${ringInfo.border} primary=${ringInfo.primary} @${ringInfo.doc}`);
+    }
+
+    /* E3 — nav 彩带（裁决 3：页面行按 cursor.canvas 归属） */
+    {
+      const navRibbonOf = (canvasName) => Av.page.evaluate((name) => {
+        const row = document.querySelector(`.studio-canvas-row[data-nav-ribbon="${name}"]`);
+        const el = row === null ? null : row.querySelector('[data-jx-remote-ribbon]');
+        return el === null ? null : { mode: el.getAttribute('data-jx-remote-ribbon'), style: el.getAttribute('style') ?? '' };
+      }, canvasName);
+      const single = await pollFor(() => navRibbonOf('welcome').then((r) => (r !== null && r.mode === 'single' ? r : null)), { timeoutMs: 15_000, label: 'E3 single ribbon' }).catch(() => null);
+      // the style ATTRIBUTE is browser-normalized: the template's
+      // hsl(h, 85%, 45%) serializes back as rgb(r, g, b) — the fixture
+      // compares against the SAME hsl→rgb law the chip probe uses
+      const bvCss = playerHueRgb(bvHslHue);
+      record('E3', '① B 在 welcome（cursor.canvas=welcome）→ A 端 nav welcome 行 single 彩带（B 色）',
+        single !== null && single.style.includes(bvCss),
+        single === null ? 'ribbon 未出现' : `mode=${single.mode}; style=${single.style.slice(0, 90)}; B 色=${bvCss}（hsl(${bvHslHue},85%,45%) 的规范化 rgb）`);
+      // mock C：raw ws 人类连接，cursor 直接落在 welcome → multi 双色分段
+      const cc = wsConnect(BASE2, { name: 'matrix-c' });
+      const cw = await cc.welcome;
+      cc.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 220, y: 140 });
+      const multi = await pollFor(() => navRibbonOf('welcome').then((r) => (r !== null && r.mode === 'multi' ? r : null)), { timeoutMs: 10_000, label: 'E3 multi ribbon' }).catch(() => null);
+      const cCss = playerHueRgb(cw.colorHue);
+      record('E3', '② mock C 加入（同 canvas）→ 同一行 multi 彩带（border-image 双色分段）',
+        multi !== null && multi.style.includes('border-image') && multi.style.includes('linear-gradient') && multi.style.includes(bvCss) && multi.style.includes(cCss),
+        multi === null ? 'multi ribbon 未出现' : `mode=${multi.mode}; C=${cw.playerId}@hue${cw.colorHue}; style=${multi.style.slice(0, 120)}`);
+      cc.ws.close();
+    }
+
+    /* E4 — 树彩带（裁决 3：树行按 attention.componentId 归属） */
+    {
+      await selectPressButton(Av.page, 'E4-alice-v');
+      const aiE = wsConnect(BASE2, { name: 'matrix-ai-e', kind: 'ai' });
+      const aw = await aiE.welcome;
+      await sleep(600);
+      const res = await admitOp(BASE2, { actor: 'matrix-ai-e', componentId: 'a4', buffer: 't-0', text: 'E4-tree-ribbon', sessionHint: { playerId: aw.playerId } });
+      const treeRow = await pollFor(() => Av.page.evaluate(() => [...document.querySelectorAll('span.tree-usage[data-jx-remote-ribbon]')]
+        .map((el) => ({ who: el.getAttribute('data-jx-remote-ribbon'), text: el.textContent.replace(/\s+/g, ' ').trim().slice(0, 44) }))
+        .find((r) => r.text.includes('press-button')) ?? null), { timeoutMs: 10_000, label: 'E4 tree ribbon' }).catch(() => null);
+      record('E4', 'mock AI admit（componentId=a4, sessionHint playerId）→ A 端树 a4 行 [data-jx-remote-ribbon] 出现',
+        treeRow !== null && (treeRow.who ?? '').includes(aw.playerId),
+        `admit=${res.status}; AI=${aw.playerId}; 行=${treeRow === null ? '未出现' : `"${treeRow.text}" ribbon=${treeRow.who}`}`);
+      aiE.ws.close();
+    }
+
+    /* E5 — props 面板 focusWithIn + 远程 caret（裁决 4） */
+    {
+      await Av.page.locator('#slot-text-t-0').waitFor({ timeout: 15_000 });
+      await selectPressButton(Bv.page, 'E5-bob-v');
+      await Bv.page.locator('#slot-text-t-0').waitFor({ timeout: 15_000 });
+      // B 真实点击 input（caret 落位）并移动 caret —— attention 帧带 caret 走真实上报链
+      await Bv.page.locator('#slot-text-t-0').click();
+      await Bv.page.keyboard.press('ArrowLeft');
+      await Bv.page.keyboard.press('ArrowLeft');
+      const probe = await pollFor(() => Av.page.evaluate(() => {
+        const row = document.querySelector('[data-jx-remote-focus]');
+        const bar = document.querySelector('[data-jx-remote-caret]');
+        if (row === null || bar === null) return null;
+        const rect = bar.getBoundingClientRect();
+        const cs = getComputedStyle(bar);
+        return {
+          focus: row.getAttribute('data-jx-remote-focus'),
+          barPid: bar.getAttribute('data-jx-remote-caret'),
+          bg: cs.backgroundColor, display: cs.display,
+          parentTag: bar.parentElement === null ? 'none' : bar.parentElement.tagName,
+          barX: Math.round(rect.x), barW: Math.round(rect.width),
+          inlineStyle: (bar.getAttribute('style') ?? '').slice(0, 150),
+        };
+      }), { timeoutMs: 10_000, label: 'E5 focus+caret' }).catch(() => null);
+      record('E5', '① B focus 面板 input → A 端对应行 [data-jx-remote-focus]（含 B playerId）',
+        probe !== null && (probe.focus ?? '').includes(BvPid),
+        probe === null ? '探针未出现' : `focus="${probe.focus}"（B=${BvPid}）`);
+      const wantBg = playerHueRgb(bvHslHue);
+      record('E5', '② A 端 [data-jx-remote-caret] caret 条 = B 色（镜像测量定位、真实渲染可见）',
+        probe !== null && probe.barPid === BvPid && probe.bg === wantBg && probe.barW === 2,
+        probe === null ? '探针未出现' : `bar pid=${probe.barPid} bg="${probe.bg}"（期望 ${wantBg}）; bar=${probe.barW}px宽 @x=${probe.barX}; display="${probe.display}"; 父元素=${probe.parentTag}; inline=${probe.inlineStyle}`
+        + (probe.parentTag === 'TEXTAREA'
+          ? '（根因：property-panel.svelte 行解析 control.closest(".jx-item") ?? control —— slot-text 行无 .jx-item 包裹，caret 条 append 进 textarea 本体，落在控件内容模型外不渲染——产品缺陷，矩阵如实红）'
+          : ''));
+    }
+
+    /* E6 — attention 上报链（A 真实 focus/caret/blur → observer raw 帧） */
+    {
+      await Av.page.locator('#slot-text-t-0').click();
+      await Av.page.keyboard.press('ArrowLeft');
+      let attFrame = null;
+      try {
+        await pollFor(() => {
+          attFrame = obs.frames.filter((f) => f.type === 'presence' && f.playerId === AvPid && f.attention !== null && f.attention.kind === 'panel').at(-1) ?? null;
+          return attFrame !== null ? true : null;
+        }, { timeoutMs: 10_000, label: 'E6 attention frame' });
+      } catch { /* judged below */ }
+      const caretOk = attFrame !== null && attFrame.attention.field === 'slot-text-t-0' && typeof attFrame.attention.caret === 'number';
+      record('E6', '① A 真实 focus input + 移动 caret → attention 帧带 field+caret（raw ws 观察）',
+        caretOk,
+        attFrame === null ? '未捕获 A 的 panel attention 帧' : `field=${attFrame.attention.field} caret=${attFrame.attention.caret} digest="${attFrame.attention.digest}"`);
+      await Av.page.evaluate(() => { document.activeElement?.blur?.(); });
+      let nullFrame = null;
+      try {
+        await pollFor(() => {
+          nullFrame = obs.frames.filter((f) => f.type === 'presence' && f.playerId === AvPid).at(-1) ?? null;
+          return nullFrame !== null && nullFrame.attention === null ? true : null;
+        }, { timeoutMs: 10_000, label: 'E6 attention null' });
+      } catch { /* judged below */ }
+      record('E6', '② A blur → attention 帧归 null（面板离场上报）',
+        nullFrame !== null && nullFrame.attention === null,
+        nullFrame !== null && nullFrame.attention !== null
+          ? `最新 presence 帧 attention=${JSON.stringify(nullFrame.attention)}（cursor=${JSON.stringify(nullFrame.cursor)}）——根因：网关 parseClientMessage 的 attention 分支要求 isValidFocus(focus)，focus:null 被当垃圾帧整帧丢弃（gateway.ts ClientAttention 词表未含 null）；面板端 onPresenceFieldBlur→reportAttention(null) 的离场上报永远过不了线，服务端 attention 永驻——产品缺陷，矩阵如实红`
+          : nullFrame === null ? '未捕获 null 帧' : `最新 presence 帧 attention=null（离场清空广播到位）`);
+      obs.ws.close();
+      await Av.context.close();
+      await Bv.context.close();
+    }
   }
 
   /* ── fixture restore (W6⑥ precedent) — server2 still watches. The

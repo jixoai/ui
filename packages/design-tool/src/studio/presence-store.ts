@@ -33,9 +33,14 @@
 
 export type PlayerKind = 'human' | 'ai';
 
-export type CursorSurface = 'canvas' | 'shell' | `frame:${string}`;
+/** cursors are CANVAS-SCOPED (presence-visuals ruling 2): a cursor names
+ *  the canvas it lives on — players on another page are invisible to each
+ *  other, and nothing ever spills onto the studio chrome (the shell
+ *  surface is retired) */
+export type CursorSurface = 'canvas' | `frame:${string}`;
 
 export interface CursorState {
+  readonly canvas: string;
   readonly surface: CursorSurface;
   readonly x: number;
   readonly y: number;
@@ -43,7 +48,7 @@ export interface CursorState {
 
 export type AttentionFocus =
   | { readonly kind: 'canvas'; readonly component: string; readonly instance: number | null; readonly frameId: string | null }
-  | { readonly kind: 'panel'; readonly field: string; readonly digest: string };
+  | PanelCaretFocus;
 
 /** §1 PlayerView — the identity card (cursor rides the presence stream) */
 export interface PlayerView {
@@ -141,7 +146,7 @@ export function buildClientMessage(message: ClientMessage): string {
 }
 
 export type ClientMessage =
-  | { readonly type: 'cursor'; readonly surface: CursorSurface; readonly x: number; readonly y: number }
+  | { readonly type: 'cursor'; readonly canvas: string; readonly surface: CursorSurface; readonly x: number; readonly y: number }
   | { readonly type: 'attention'; readonly focus: AttentionFocus | null }
   | { readonly type: 'virtual-mouse'; readonly enabled: boolean }
   | { readonly type: 'ping' };
@@ -159,11 +164,21 @@ function isPlayerView(value: unknown): value is PlayerView {
   );
 }
 
+/** panel focus deepens with the remote text caret (presence-visuals
+ *  ruling 4): an optional non-negative integer offset */
+export interface PanelCaretFocus {
+  readonly kind: 'panel';
+  readonly field: string;
+  readonly digest: string;
+  readonly caret?: number;
+}
+
 function isCursor(value: unknown): value is CursorState {
   if (value === null || typeof value !== 'object') return false;
   const cursor = value as Record<string, unknown>;
   if (typeof cursor.surface !== 'string' || typeof cursor.x !== 'number' || typeof cursor.y !== 'number') return false;
-  return cursor.surface === 'canvas' || cursor.surface === 'shell' || cursor.surface.startsWith('frame:');
+  if (typeof cursor.canvas !== 'string' || cursor.canvas.length === 0) return false; // canvas-scoped since presence-visuals
+  return cursor.surface === 'canvas' || cursor.surface.startsWith('frame:');
 }
 
 function isAttention(value: unknown): value is AttentionFocus {
@@ -526,9 +541,9 @@ export class PresenceStore {
   /* ── the C→S reports (§1) ──────────────────────────────────────────── */
 
   /** pointer report, 50ms trailing throttle — the freshest point wins */
-  reportCursor(surface: CursorSurface, x: number, y: number): void {
+  reportCursor(canvas: string, surface: CursorSurface, x: number, y: number): void {
     if (this.#disposed) return;
-    this.#cursorPending = { surface, x, y };
+    this.#cursorPending = { canvas, surface, x, y };
     if (this.#cursorTimer !== null) return;
     this.#cursorTimer = this.#scheduler.setTimeout(() => {
       this.#cursorTimer = null;

@@ -45,6 +45,11 @@
 
 const FRAME_NAME_PREFIX = 'jixoai-design-frame-';
 const IS_CANVAS_HOST = typeof location !== 'undefined' && location.pathname.startsWith('/prototypes/');
+/** this canvas's own name (cursors are canvas-scoped — presence-visuals
+ *  ruling 2: a cursor on another page is invisible here) */
+const CANVAS_NAME = typeof location !== 'undefined'
+  ? (/^\/prototypes\/([^/]+)\/?$/.exec(location.pathname)?.[1] ?? '')
+  : '';
 
 /* ── the shared indicator family (picker INDICATOR_CSS's grammar) ────── */
 
@@ -259,10 +264,11 @@ function renderPresence(players) {
     const entry = ensureEntry(player);
     const cursor = player.cursor;
     if (cursor !== null && cursor !== undefined && typeof cursor.x === 'number' && typeof cursor.y === 'number' &&
+        cursor.canvas === CANVAS_NAME && // another canvas's cursor is invisible here (ruling 2)
         (cursor.surface === 'canvas' || (typeof cursor.surface === 'string' && cursor.surface.startsWith('frame:')))) {
       placeCursor(entry, cursor);
     } else {
-      entry.cursor.style.opacity = '0'; // off-canvas or mouseless — parked, not destroyed
+      entry.cursor.style.opacity = '0'; // other-canvas, mouseless — parked, not destroyed
     }
     const attention = player.attention;
     if (attention !== null && attention !== undefined && attention.kind === 'canvas') {
@@ -351,6 +357,17 @@ export function initPresenceOverlay() {
     if (data === null || typeof data !== 'object') return;
     if (data.type === 'jx-design:presence') {
       renderPresence(data.players);
+      // the primary law (ruling 1): the local player's hue re-paints the
+      // page's jixoai-ui primary — this canvas document AND every kit
+      // frame document it hosts (same-origin; light/dark twins keep
+      // their theme, only the primary hue rides)
+      if (typeof data.brandHueOklch === 'number' && Number.isFinite(data.brandHueOklch)) {
+        applyBrandHueTo(document, data.brandHueOklch);
+        for (const frame of document.querySelectorAll('iframe')) {
+          const doc = frame.contentDocument;
+          if (doc !== null) applyBrandHueTo(doc, data.brandHueOklch);
+        }
+      }
       return;
     }
     if (data.type === 'jx-design:lens') {
@@ -378,13 +395,18 @@ export function initPresenceOverlay() {
           const point = pending;
           pending = null;
           if (point !== null) {
-            window.parent.postMessage({ type: 'jx-design:local-cursor', x: point.x, y: point.y }, window.location.origin);
+            window.parent.postMessage({ type: 'jx-design:local-cursor', canvas: CANVAS_NAME, x: point.x, y: point.y }, window.location.origin);
           }
         }, LOCAL_CURSOR_THROTTLE_MS);
       },
       { capture: true, passive: true },
     );
   }
+}
+
+/** set --brand-hue (oklch degrees) on a same-origin document root */
+function applyBrandHueTo(doc, oklchHue) {
+  doc.documentElement.style.setProperty('--brand-hue', String(oklchHue));
 }
 
 /** lens change: re-compensate every live element's chrome (sizes only —

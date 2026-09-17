@@ -1,0 +1,58 @@
+preflight: hero seed raised={false} literal = true
+preflight: presence.json reset to an empty ledger (pre-test bytes saved for post-run restore)
+server up: pid=34498 port=52637 base=http://localhost:52637
+PASS  [A1] ① A端 chips：2 枚、alice(self)+bob、名字正确 — ["p1:alice (you)","p2:bob"]
+PASS  [A1] ② A端 色序 hue=73/146（p1/p2 的 dot style） — self p1@73 other p2@146 dot="rgb(170, 212, 17)"
+PASS  [A1] ③ B端 chips：self(bob)首位 + alice 在列（join 互见） — ["p2:bob (you)","p1:alice"]
+PASS  [A1] ④ B端 在线计数 2 online — text="2 online"
+PASS  [A1] ⑤ S→C 第六帧 {type:"pong"}（ping 应答；studio store 忽略之） — welcome playerId=p3 hue=219; pong={"type":"pong"}
+PASS  [A2] ① B端 canvas 文档出现 [data-jx-remote="p1:cursor"] 且可见 — opacity=1 transform=(1209.04,1255.5)（ground 命中 8 次）
+PASS  [A2] ② B端光标坐标随 A 移动方向一致（屏幕右下移 → doc 坐标右下移） — hit1 screen(845,608) → doc(1209.04,1255.5); hit2 screen(1075,816) → doc(2082.8,2036.6)
+PASS  [A3] ① A 勾选 RAISED → hero.svelte 落 raised={true}（W4 fs 断言复用） — fs diff seen (/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/design/prototypes/welcome/pages/hero.svelte)
+PASS  [A3] ② B端收到 journal-tail → /sync → 面板/画布更新（checkbox 镜像或 a4 boxShadow 变化） — checkbox=true; boxShadow unchanged (none → none)
+PASS  [A3] ②b B端 /sync POST 在编辑窗口内发生（journal-tail 即时拉取） — 2 sync POST in [click, fs+3s]; total syncs=2
+PASS  [A3] ③ B端出现 A 的在场指示（canvas ghost ring 或新词表面板 focus 行 [data-jx-remote-focus] 任一） — canvas-focus=opacity 0; 面板 focus 行=DIV[data-jx-remote-focus="p1"]; （实况：面板 op 的 admit body 不带 sessionHint.playerId——design.md §3 的 op-ghost 未接线，由裁决4的真实 focus 上报路径点亮）
+PASS  [A4] 并发 admit × 面板编辑：融合或冲突卡（§6 既有行为不回归） — agent admit=200; 融合=true（A4-agent-lane-text + raised={false}）; 冲突卡=0; bytesChanged=true
+PASS  [A5] ① B端 alice chip 进入离线表现（offline 态或从 chips 消失） — chip 保留且 offline=true
+PASS  [A5] ② B端 canvas 远程指示器淡出移除（p1 元素清零） — 剩余 [data-jx-remote^="p1:"] 元素=0
+PASS  [B6] ① 人端 chips 出现 AI Player（matrix-ai） — chip=p4:matrix-ai ·ai@hue292（DOM 无 kind 标记属性——chip 只有 playerId/name/dot；发现：kind 未暴露给 DOM，按名断言）
+PASS  [B6] ② AI 无可见光标（元素常驻但 opacity=0，virtual-mouse 未注册） — cursor 元素=exists opacity=0
+PASS  [B7a] ① 人端出现该 AI 的 canvas-focus ghost ring（元素存在、badge 含 AI 名） — admit=200; ring=opacity=0.55 badge="matrix-ai · a4"
+PASS  [B7a] ② ring box 与目标组件（a4 press-button，经 kit iframe 折算）重叠 — overlap ok; ring={"x":109.984375,"y":318.5,"w":135.203125,"h":40}
+PASS  [B7a] ③（诊断）ring 不得是 section 级别的大框（按 componentId 跨文档定位后应为组件级） — ring=135x40 vs section=2492x2348（组件级 ring 的 w/h 应远小于 section 的一半）
+  [B7b] prop-buffer text replace → 409 {"status":409,"code":"stale-cursor","opId":"matrix-ai:matrix:1789651630128:1brf","actor":"matrix-ai","target":{"componentId":"a4","buffer":"raised"},"canonicalF
+PASS  [B7b] AI admit 带 sessionHint{field,digest} → 面板字段行点亮（[data-jx-remote-focus] 含 AI playerId + 名签 matrix-ai） — admit=200; 行=DIV[focus="p4"] shadow="rgb(186, 17, 212) 0px 0px 0px 2px"; 名签=["matrix-ai"]（digest 只走协议帧，不上 DOM——裁决4词表）
+PASS  [B8] ① AI virtual-mouse enabled + cursor → 人端光标元素从无到有（opacity 0→1） — before opacity=0 → after opacity=1
+PASS  [B8] ② 光标坐标逐字透传（mock 发送 (281,190)） — transform=(281,190)
+PASS  [C9] ① 两 AI 的 op 全部落盘融合（hero.svelte 同时含 C9-one 与 C9-two） — admits=200/200; bytes: C9-one=true, C9-two=true
+PASS  [C9] ② 观察端（第三连接）收到两份 attention 且归属正确（ai-1→a4、ai-2→a5） — ai-1(p5)→{"kind":"canvas","component":"a4","instance":null,"frameId":null}; ai-2(p6)→{"kind":"canvas","component":"a5","instance":null,"frameId":null}
+PASS  [D10] 刷新后同 token 恢复同 playerId 同色号 — 刷新前 p2@hue146 → 刷新后 p2@hue146
+PASS  [D11] 新 context 新号新色（hue=(73*n)%360）且旧号不复用 — counter 7→8; carol chip=p8@hue224（期望 p8@224）; ledger row=p8
+PASS  [D12] ① WS 被持续掐断 → 自身 chip 进入 offline 态（presence 降级可见） — offline chip 数=2（routeWebSocket close；重连退避下每次尝试均被掐）
+PASS  [D12] ② WS 全断时编辑照常（勾选落盘，op 走 HTTP） — hero 落 raised={true}（fs 断言）
+server(main) pid=34498 stopped exit=143
+server2 up: pid=38229 port=53495
+PASS  [D13] ① 垃圾账本下重启 server → studio 照常起（/__design__/ 200 + 壳渲染） — probe page ok=true
+PASS  [D13] ② 网关重建账本（新连接 welcome + presence.json 恢复合法 + 重建日志） — welcome=p2@hue146; presence.json valid=true counter=2; 重建日志=true
+PASS  [D14] ① 同 baseFrontiers 两个过期 op → 一个 200 一个 409 — statuses=200,409; bodies=[null,null]
+PASS  [D14] ② journal 未损坏（全行可解析 + 行数只增 + /sync 仍 200） — journal 430→432 行, 坏行=0; sync=ok(13568b)
+PASS  [E1] ① B 切 echo-demo 移动 → A 端 welcome canvas 无 B 光标（协议帧 canvas=echo-demo + 渲染隐藏） — 切换前 A 可见=true; observer cursor.canvas=echo-demo (x=295,y=861); A 端 B 光标=0
+PASS  [E1] ② A 端壳层零光标（studio-remote-cursor 退役，光标不溢出到 chrome） — .studio-remote-cursor 不存在（grep 源码级退役 + DOM 级确认）
+PASS  [E1] ③ B 回 welcome 移动 → A 端光标恢复可见（opacity≈1） — A 端 p4:cursor opacity≈1（ground 命中后恢复）；上行证据=observer 重收 canvas=welcome 帧
+PASS  [E2] ① A 壳 documentElement --brand-hue = hsl→oklch 换算值（≠ registry 默认 330） — shell=262.26; 期望=hsl(219)→oklch 262.26; self=p3
+PASS  [E2] ② welcome canvas 文档 + kit frame 文档 --brand-hue 同值（overlay 广播统一设置） — canvas=262.26; kit=262.26; 期望=262.26
+PASS  [E2] ③ picker selected ring = var(--primary)（≠旧硬编码红 rgb(224,86,86)、≠旧蓝） — border=oklch(0.7044 0.1872 258.262) primary=oklch(0.7044 0.1872 258.262) @/prototypes/welcome/
+PASS  [E3] ① B 在 welcome（cursor.canvas=welcome）→ A 端 nav welcome 行 single 彩带（B 色） — mode=single; style=border-inline-start: 3px solid rgb(186, 17, 212);; B 色=rgb(186, 17, 212)（hsl(292,85%,45%) 的规范化 rgb）
+PASS  [E3] ② mock C 加入（同 canvas）→ 同一行 multi 彩带（border-image 双色分段） — mode=multi; C=p6@hue78; style=border-inline-start: 3px solid transparent; border-image: linear-gradient(rgb(186, 17, 212) 0%, rgb(154, 212, 17) 50%, r
+PASS  [E4] mock AI admit（componentId=a4, sessionHint playerId）→ A 端树 a4 行 [data-jx-remote-ribbon] 出现 — admit=200; AI=p7; 行="press-button #4" ribbon=p7
+PASS  [E5] ① B focus 面板 input → A 端对应行 [data-jx-remote-focus]（含 B playerId） — focus="p4"（B=p4）
+PASS  [E5] ② A 端 [data-jx-remote-caret] caret 条 = B 色（镜像测量定位、真实渲染可见） — bar pid=p4 bg="rgb(186, 17, 212)"（期望 rgb(186, 17, 212)）; bar=2px宽 @x=1397; display="block"; 父元素=DIV; inline=position:absolute;left:88.484375px;top:37.875px;width:2px;height:16.5px;background:hsl(292, 85%, 45%);pointer-events:none;z-index:4
+PASS  [E6] ① A 真实 focus input + 移动 caret → attention 帧带 field+caret（raw ws 观察） — field=slot-text-t-0 caret=13 digest="E4-tree-ribbon"
+PASS  [E6] ② A blur → attention 帧归 null（面板离场上报） — 最新 presence 帧 attention=null（离场清空广播到位）
+PASS  [FIX] fixture 契约保持：hero 带 raised={false} 字面量（无需 fs 回写） — a4 行：<PressButton id="a4" raised={false} variant="ghost">E4-tree-ribbon</PressButton>
+browser closed
+server2 pid=38229 stopped exit=143
+presence.json restored to pre-test bytes
+
+==== TDD-MATRIX SUMMARY ====
+46/46 passed
