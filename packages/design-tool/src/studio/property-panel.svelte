@@ -452,8 +452,20 @@
         // the last one, without waiting for Enter/blur
         const created = new PanelCollabClient(fetchTransport(collabUrl), { debounceMs: LIVE_INPUT_DEBOUNCE_MS });
         created.setPresenceHint(pendingPresencePlayerId);
+        // a peer's MATERIALIZE lands as a NEW `b:<componentId>:<buffer>`
+        // container on mirror import — but the panel's buffer list is a
+        // seed-time structure; without a reseed the new prop's row stays
+        // unrepresentable and the remote input never shows the commit
+        // (the walkthrough's finding A: remote popovertarget stayed
+        // empty while the file carried it). Every mirror change probes
+        // the schema's prop names for unseeded mirror buffers.
         const unsubscribe = created.subscribe(() => {
           usageState = created.snapshot();
+          const known = new Set((usageState.buffers ?? []).map((candidate) => candidate.buffer));
+          const grew = Object.keys(meta?.schema?.properties ?? {}).some(
+            (prop) => !known.has(prop) && created.mirrorCarriesUnseededBuffer(prop),
+          );
+          if (grew) void reseedAfterMaterialize();
         });
         // the mounted mirror poll (§1 canonical→mirror): keep the
         // panel's worldview current while it is open — agent turns and

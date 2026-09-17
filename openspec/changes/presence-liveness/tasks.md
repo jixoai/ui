@@ -54,15 +54,24 @@
 - [x] P1/P2/P4/P5/P6(单人)/P7 真机符合（截图 .zcode/presence/walkthrough/，
       10 张全过黑图校验；P7 实测光标全管线 127-156ms 中位 131ms，caret
       ~65ms，P5 像素级验证竖向分段 + self 首段）
-- [ ] **发现 A（P3 残口）**：popovertarget 类 prop 文本 input 实时链路
-      不通（打字+失焦 800ms 均不同步）——slot textarea（428-481ms）与
-      其余 prop 行正常。疑与发现 B 同根（地址缝）。
-- [ ] **发现 B（P6 真实链路缝）**：画布点击上报的 attention.component
-      对部分组件是帧实例 id（o2/p2），与树行 usage 的 componentId
-      （press-button 等）命名空间不匹配——树 multi 分段在真实 UI 中
-      仅对带协议 id 的组件（如 hero 的 a4）可达，mock/矩阵路径已证
-      渲染本身正确。下一迭代：统一 stamping 的 componentId 语义
-      （picker 各 emit 路径的 id 兜底/回退法则）。
+- [x] **发现 A（P3 残口）— 已修复（2026-09-18 复核定根）**：真实根因
+      是「对端 materialize 后本端面板不 reseed」——镜子里新 buffer 容器
+      已到，但面板的 buffer 列表是 seed 期结构，新 prop 行永不成为可表
+      示、远程输入框永远空。修复：面板 subscribe 每次镜像变化都探
+      `mirrorCarriesUnseededBuffer`（冻结字符集外的名字一律 false，
+      绝不抛——首个实现把 ariaLabel 探进了 slug 校验、整面板炸成
+      unavailable，这是探针自身的教训），发现增长即 reseed。回归锁：
+      矩阵 P8②（双端真实选中 p2，B 打字 → A 镜像；实测 162-347ms）。
+- [x] **发现 B（P6 真实链路缝）— 复核不成立 + 真缝另在（2026-09-18）**：
+      命名空间本就对齐（o2/p2/press-loading-light 全是 ingest 的合法
+      协议 id；probe 实证 attention='p2' → 树行点亮）。走查命中的是
+      两个真问题：(1) kit 帧内容加载竞态——空帧上的点击 promote 成容
+      器 id；(2) 折叠/晚渲染行的彩带同步缺口——ribbon map 先于行渲染
+      定型后，晚到的 li 不再被同步（修复：树根 MutationObserver 补同
+      步，childList-only 无回环）。回归锁：矩阵 P8①（真实点击 →
+      attention=p2 + badge + 树行 multi 含远程段）。矩阵学到的测量
+      法则：折叠下方的 kit 要先 scrollIntoView（y=1138>视口的点击打
+      在页底什么都选不中）。
 
 ## 3.5 提交
 

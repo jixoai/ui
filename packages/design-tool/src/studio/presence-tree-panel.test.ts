@@ -201,6 +201,16 @@ test('live typing admits at a 300ms debounce — Enter is an accelerator, never 
   assert.match(panel, /void commitRow\(row, target\.value\);/, 'a prop-text keystroke commits immediately');
 });
 
+test('peer materialize reseeds: the subscribe probes unseeded mirror buffers (finding A)', () => {
+  // the walkthrough's finding A root: a peer's materialize lands as a NEW
+  // mirror container the seed-time buffer list never knew — the subscribe
+  // must probe the schema's prop names via mirrorCarriesUnseededBuffer and
+  // reseed so the remote row becomes representable
+  assert.match(panel, /mirrorCarriesUnseededBuffer\(prop\)/, 'the subscribe probes unseeded mirror buffers');
+  assert.match(panel, /if \(grew\) void reseedAfterMaterialize\(\)/, 'growth triggers the reseed');
+  assert.match(panel, /const known = new Set\(\(usageState\.buffers \?\? \[\]\)\.map/, 'the known-buffer guard precedes the probe');
+});
+
 test('the journal-tail pull: the shell bumps a counter, the panel syncs its mirror on every bump', () => {
   assert.match(panel, /collabTail/, 'the prop is read');
   assert.match(panel, /void collabTail;\s*\n\s*if \(client !== null\) void client\.syncNow\(\)/, 'each bump pulls the mirror');

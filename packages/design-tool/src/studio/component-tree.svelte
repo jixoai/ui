@@ -398,6 +398,21 @@
     syncRowRibbons();
   });
 
+  // late-render healing (presence-liveness P8, 2026-09-18): the ribbon
+  // map can be FINAL before a row renders (remote attention arrives,
+  // THEN the folder expands — the map never changes again, so the
+  // rowRibbons effect above never re-runs for the new li). The registry
+  // tree owns the markup, so the sync OBSERVES the DOM: any row
+  // add/remove re-runs the idempotent sync. childList only — the sync's
+  // own attribute writes never fire it (no loop).
+  $effect(() => {
+    const root = treeRoot;
+    if (root === null) return;
+    const observer = new MutationObserver(() => syncRowRibbons());
+    observer.observe(root, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  });
+
   function findUsagePath(
     list: readonly TreeNode<TreeMeta>[],
     target: DesignSelection,

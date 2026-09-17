@@ -405,6 +405,21 @@ export class PanelCollabClient {
     return this.#doc.getText(containerKeyOf(info.componentId, buffer)).toString();
   }
 
+  /** does the MIRROR carry a buffer the seed-time list never knew? (a
+   *  peer's materialize lands as a new `b:<componentId>:<buffer>`
+   *  container on import — the panel reseeds when this flips true).
+   *  Names outside the frozen slug charset (camelCase schema props)
+   *  can never be protocol containers — they probe as false, never
+   *  throw: the seed's listener chain must survive every schema. */
+  mirrorCarriesUnseededBuffer(candidate: string): boolean {
+    const info = this.#info;
+    if (info === undefined) return false;
+    if (info.buffers.some((buffer) => buffer.buffer === candidate)) return false;
+    const slugLegal = NAMED_BUFFERS.has(candidate) || SLOT_BUFFER_RE.test(candidate) || SLUG_RE.test(`${PROP_BUFFER_PREFIX}${candidate}`);
+    if (!slugLegal) return false;
+    return this.#doc.getText(containerKeyOf(info.componentId, candidate)).length > 0;
+  }
+
   #notify(): void {
     for (const listener of [...this.#listeners]) listener();
   }
