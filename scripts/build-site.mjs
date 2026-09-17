@@ -202,6 +202,20 @@ function publishStylexPayload() {
   }
 }
 
+/** 5.6 The consumer-contract flip: swap the built payloads' .stylex.ts
+ * entries to compiled classModule + item css deliveries (the registry
+ * spec delta's compiled-item form — consumers owe ZERO engine
+ * tooling). Same implementation verify:shadcn-add runs, so the
+ * contract can never diverge between the two pipelines. */
+async function swapRegistryStylex() {
+  const { swapRegistryPayloads } = await import("./lib/registry-stylex-swap.mjs");
+  const { swapped, untouched } = swapRegistryPayloads(repoRoot, path.join(publicDir, "r"));
+  console.log(`[registry-stylex-swap] ${swapped.length} payload(s) swapped, ${untouched} untouched`);
+  if (swapped.length === 0) {
+    die("registry stylex swap touched ZERO payloads — the registry carries no .stylex.ts sources; the tailwindless contract regressed");
+  }
+}
+
 /** 6. AI-facing exports from the FINAL public/ (llms.txt, llms-full.txt,
  * per-page .md). Config lives here — inline, next to the pipeline it owns.
  * The generator only touches its declared outputs and fails loudly on
@@ -288,6 +302,13 @@ async function main() {
   buildRegistry();
   console.log("[build-site] 5.5/8 generating + publishing the compiled stylex payload → public/payload/stylex/");
   publishStylexPayload();
+  // 5.6 — the phase-1 consumer-contract flip (tailwindless one-shot
+  // W4): rewrite the built payloads' .stylex.ts entries to compiled
+  // classModule + item css deliveries — consumers owe ZERO engine
+  // tooling. MUST run after 5.5 (same-build law: the swap consumes
+  // the payload manifest both steps just derived).
+  console.log("[build-site] 5.6/8 registry stylex swap → compiled class constants + item css");
+  await swapRegistryStylex();
 
   // Fail BEFORE generating the index: an index whose registry link 404s
   // must never be written, and an artifact without its domain would

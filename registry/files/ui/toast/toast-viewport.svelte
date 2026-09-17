@@ -140,17 +140,22 @@
     class: className = '',
   }: Props = $props();
 
-  // the payload's own join (separator's serialize law): objects in
-  // dev, joined strings in payloads — never a raw interpolation
+  // the payload's own join (separator's serialize law): plain strings
+  // pass through whole; stylex objects contribute their string members
+  // ($$css dropped) — the canonical cx (tailwindless W4: this file's
+  // pre-canonical body spread STRING args per character — nested
+  // cx results and hook strings became single-letter garbage classes)
   const cx = (
-    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
       .filter(Boolean)
       .map((style) =>
-        Object.entries(style).flatMap(([key, value]) =>
-          key !== '$$css' && typeof value === 'string' ? [value] : [],
-        ).join(' '),
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
       )
       .join(' ');
 

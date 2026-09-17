@@ -8,7 +8,6 @@ import { canvasPlugin } from '@jixoai/ui-vite-plugin';
 import { defineSpinnerChannel } from '@jixoai/ui-vite-plugin/spinners';
 import { magecdnSpinners } from '@jixoai/ui-vite-plugin/spinners/magecdn';
 import { svgLoadersSpinners } from '@jixoai/ui-vite-plugin/spinners/svg-loaders';
-import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -288,7 +287,6 @@ function microlighterGrammarAssets(): Plugin {
 export default defineConfig({
   plugins: [
     sveltekit(),
-    tailwindcss(),
     ...jixoaiPlugins,
     // canvasPlugin (typography-context-and-parts §7): the canvas
     // same-source machinery — per-page virtual modules

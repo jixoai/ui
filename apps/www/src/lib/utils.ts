@@ -1,40 +1,48 @@
 /**
  * jixoai class-merge utility (registry/files/lib/utils.ts).
- * `cn()` is class-string HYGIENE: clsx joins conditionals,
- * tailwind-merge dedupes conflicting utilities inside one string.
- * It is NOT a cascade or specificity mechanism — override behavior
- * comes from the layer law (see the css-architecture spec).
+ * `cn()` is class-string HYGIENE: clsx joins conditionals, and the
+ * CLOSED-SET reducer below replaces earlier intent classes with
+ * later ones (the hue-injection replacement law — the one behavior
+ * tailwind-merge carried for this repo, now owned in 10 dependency-
+ * free lines; tailwindless one-shot W4, 2026-09-18: the engine's
+ * class-merger retired with the engine). It is NOT a cascade or
+ * specificity mechanism — override behavior comes from the layer
+ * law (see the css-architecture spec).
  *
- * hue-injection awareness (2026-08-27, hue-injection-utilities
- * change): the theme's @utility intent layer (jx-hue-* slots,
- * jx-pair-*) is registered as a dedupe group — literal class names,
- * a closed set by design (see the theme sheet) — so later intent
- * classes replace earlier ones exactly like the arbitrary-property
- * form. Cross-form mixing (jx-hue-error + [--jx-tonal:…]) is NOT
- * dedupable: the rule is one form per slot in a class list.
+ * The closed sets (the theme sheet's intent layer, a literal list by
+ * design): later jx-hue-* replaces earlier jx-hue-*; later jx-pair-*
+ * replaces earlier jx-pair-*. Cross-form mixing (jx-hue-error +
+ * [--jx-tonal:…]) is NOT dedupable: the rule is one form per slot in
+ * a class list.
  */
 import { clsx, type ClassValue } from 'clsx';
-import { extendTailwindMerge } from 'tailwind-merge';
 
-// the AdditionalClassGroupIds generic (tailwind-merge >= 3.6) keeps
-// the closed set type-checked — a future drift in these ids fails
-// compilation instead of hiding behind a cast
-const twMerge = extendTailwindMerge<'jx-hue' | 'jx-pair'>({
-  extend: {
-    classGroups: {
-      'jx-hue': [
-        'jx-hue-primary',
-        'jx-hue-neutral',
-        'jx-hue-error',
-        'jx-hue-success',
-        'jx-hue-warning',
-        'jx-hue-info',
-      ],
-      'jx-pair': ['jx-pair-destructive'],
-    },
-  },
-});
+const HUE = new Set(['jx-hue-primary', 'jx-hue-neutral', 'jx-hue-error', 'jx-hue-success', 'jx-hue-warning', 'jx-hue-info']);
+const PAIR = new Set(['jx-pair-destructive']);
+
+function lastWinsClosedSet(classes: string[]): string[] {
+  // exact duplicates fold to ONE copy (twMerge's identical-class
+  // behavior); closed-set conflicts keep ONLY the last member
+  const lastIdx = new Map<string, number>();
+  for (let i = 0; i < classes.length; i++) lastIdx.set(classes[i], i);
+  const survivors: { c: string; i: number }[] = [];
+  for (let i = 0; i < classes.length; i++) {
+    if (lastIdx.get(classes[i]) !== i) continue; // an identical later copy exists
+    survivors.push({ c: classes[i], i });
+  }
+  let lastHue: string | undefined;
+  let lastPair: string | undefined;
+  for (const s of survivors) {
+    if (HUE.has(s.c)) lastHue = s.c;
+    else if (PAIR.has(s.c)) lastPair = s.c;
+  }
+  return survivors
+    .filter((s) => (lastHue === undefined || !HUE.has(s.c) || s.c === lastHue) && (lastPair === undefined || !PAIR.has(s.c) || s.c === lastPair))
+    .map((s) => s.c);
+}
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  const joined = clsx(inputs);
+  const classes = joined ? joined.split(/\s+/) : [];
+  return lastWinsClosedSet(classes).join(' ');
 }

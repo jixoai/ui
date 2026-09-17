@@ -5690,7 +5690,7 @@
       "name": "utils",
       "type": "registry:lib",
       "title": "cn() class-merge utility",
-      "description": "cn() = clsx + tailwind-merge: class-string hygiene for utility-authored components (conditional join + conflicting-utility dedupe inside one string). NOT a cascade mechanism — override behavior comes from the layer law.",
+      "description": "cn() = clsx + the closed-set intent reducer: class-string hygiene (conditional join; later jx-hue-*/jx-pair-* intent classes replace earlier ones — the hue-injection replacement law, dependency-free since tailwindless W4). NOT a cascade mechanism — override behavior comes from the layer law.",
       "files": [
         {
           "path": "registry/files/lib/utils.ts",
@@ -5699,10 +5699,9 @@
         }
       ],
       "dependencies": [
-        "clsx",
-        "tailwind-merge"
+        "clsx"
       ],
-      "docs": "import { cn } from '$lib/utils'. npm deps clsx + tailwind-merge arrive via the item `dependencies` field.",
+      "docs": "import { cn } from '$lib/utils'. The npm dep clsx arrives via the item `dependencies` field (tailwind-merge retired with the Tailwind engine, tailwindless W4 2026-09-18).",
       "meta": {
         "group": "engines",
         "href": "/docs/components.html"

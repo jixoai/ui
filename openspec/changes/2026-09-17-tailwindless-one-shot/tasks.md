@@ -18,50 +18,59 @@
 - [x] 1.7 component-canvas surface twin + item entry (after 1.5)
 - [x] 1.8 Mirror manifest re-classification; registry payload
   rebuild; allowlist re-pin (decreases only)
-- [ ] 1.9 Full verify chain + spec battery; registry-payload-parity
+- [x] 1.9 Full verify chain + spec battery; registry-payload-parity
   regenerated; tree-view pre-existing + docs-structure pre-existing
   reds attributed (§Finding)
-- [ ] 1.10 W1 commit on tailwindless-site
+- [x] 1.10 W1 commit on tailwindless-site
 
 ## W1b — tail families (50 families, 891 occurrences)
 
-- [ ] 1b.1 Batch agents per the W1 protocol (playbook + the cx law +
+- [x] 1b.1 Batch agents per the W1 protocol (playbook + the cx law +
   the now-existing scale — no new seam proposals unless a value is
   genuinely absent)
-- [ ] 1b.2 Serial integration identical to W1 (entries, payload,
+- [x] 1b.2 Serial integration identical to W1 (entries, payload,
   re-pin, chain)
 
 ## W2 — blueprints + libs (156 files, 4,171 occurrences)
 
-- [ ] 2.1 Blueprint scenes (138 files, 3,825) — includes the
+- [x] 2.1 Blueprint scenes (138 files, 3,825) — includes the
   separator blueprint scene
-- [ ] 2.2 Libs (18 files, 346) — includes docs-sections-nav,
+- [x] 2.2 Libs (18 files, 346) — includes docs-sections-nav,
   a11y-table consumers, search-palette css residue
-- [ ] 2.3 Serial integration pass
+- [x] 2.3 Serial integration pass
 
 ## W3 — routes (140 files, 15,445 occurrences)
 
-- [ ] 3.1 Pattern-first: shared surface atoms for the recurring
+- [x] 3.1 Pattern-first: shared surface atoms for the recurring
   voices (eyebrow ×554, demo labels, shells) before per-page work
-- [ ] 3.2 Per-page migration — includes the separator docs page
+- [x] 3.2 Per-page migration — includes the separator docs page
   (44 identities)
-- [ ] 3.3 Serial integration pass
+- [x] 3.3 Serial integration pass
 
 ## W4 — engine removal + ZERO + the acceptance dossier
 
-- [ ] 4.1 app.css: drop the Tailwind @import / @theme /
+- [x] 4.1 app.css: drop the Tailwind @import / @theme /
   @custom-variant; jixoai.css `@utility jx-hue/jx-pair` → plain
   classes; both vite configs drop @tailwindcss/vite
-- [ ] 4.2 cn()/tailwind-merge seam retires; print dark:-stripping
+- [x] 4.2 cn()/tailwind-merge seam retires; print dark:-stripping
   re-homed; check-tw4-prereq + the registry tw4 prerequisite retire
   (registry spec delta recorded here)
-- [ ] 4.3 tailwindcss + plugins removed from every package.json;
+- [x] 4.3 tailwindcss + plugins removed from every package.json;
   lockfile regenerated; budget ZERO (`--pin` to empty)
-- [ ] 4.4 Remaining semantic hooks registered (jx-dp-*/jx-dsn-* …)
-- [ ] 4.5 Full gates: verify chain + www build + pilot/precedence
+- [x] 4.4 Remaining semantic hooks registered (jx-dp-*/jx-dsn-* …)
+- [x] 4.5 Full gates: verify chain + www build + pilot/precedence
   probes (fresh receipts) + spec corpus
-- [ ] 4.6 The unified acceptance dossier (the Owner's 大验收):
+- [x] 4.6 The unified acceptance dossier (the Owner's 大验收):
   per-wave receipts, the quality-leap inventory (what Context+tokens
   now owns that utilities hard-coded), the declines ledger, budget
   ZERO proof
 - [ ] 4.7 Final Codex gate; archive; merge to main; push
+
+<!-- Wave receipts (orchestrator, 2026-09-19): W1 = 8f50adc1 · W1b =
+     010c73db · W2 = b5e02b2a · W3 = 415eae08 (all pushed). W4 landed
+     the two structural handovers the deletion exposed — the preflight
+     handover (148 bytes-verbatim lines → the theme sheet's base layer;
+     pilot went 86/86) and the phase-1 consumer-contract flip
+     (registry-stylex-swap: 97 payloads deliver compiled .stylex.js +
+     .stylex.css; verify:shadcn-add 24/24). Acceptance dossier:
+     research/acceptance-dossier.md. -->

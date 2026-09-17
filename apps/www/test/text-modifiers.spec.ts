@@ -13,8 +13,11 @@
  *     residue), italic=false NEVER emits not-italic
  *   - explicit beats ambient, order-locked: modifier utilities land
  *     AFTER the form's own (weight='bold' replaces strong's
- *     font-semibold); the consumer class still merges LAST
- *     (not-italic kills em — the design's own interplay example)
+ *     font-semibold); the consumer class rides THROUGH whole — the
+ *     tailwind-merge seam RETIRED with the engine (tailwindless W4,
+ *     2026-09-19): TW-class conflict resolution no longer exists;
+ *     the closed-set (jx-hue/jx-pair) last-wins merge is cn()'s own
+ *     law, and the kernel's override path is atoms, not class wars
  *   - sugar ≡ base: the props ride the {...rest} spread untouched,
  *     never leaking to the DOM as attributes
  */
@@ -26,6 +29,7 @@ import Text from '../src/lib/ui/text/text.svelte';
 import P from '../src/lib/ui/text/p.svelte';
 import Strong from '../src/lib/ui/text/strong.svelte';
 import { textStyles } from '../src/lib/ui/text/text.stylex';
+import { cn } from '../src/lib/utils';
 
 // tailwindless one-shot W1b batch C (2026-09-17): the FORM's own
 // paint (font-semibold/italic/…) moved from utility strings to the
@@ -153,14 +157,21 @@ describe('text family — the modifier matrix', () => {
     expect(root.classList.contains('font-bold')).toBe(true);
   });
 
-  it('the consumer class still merges LAST (not-italic kills em; font-bold beats a modifier weight)', () => {
+  it('the consumer class rides THROUGH whole (the tailwind-merge seam retired; the closed set still last-wins)', () => {
     const em = render(Text, { props: { mark: 'em', class: 'not-italic' } });
     const emRoot = em.container.querySelector('em')!;
     expect(emRoot.classList.contains('not-italic')).toBe(true);
+    // NO TW-class conflict resolution anymore — a consumer's own
+    // engine (if any) resolves; BOTH classes ride the list verbatim
     const weighted = render(Text, { props: { weight: 'medium', class: 'font-bold' } });
     const wRoot = weighted.container.querySelector('p')!;
     expect(wRoot.classList.contains('font-bold')).toBe(true);
-    expect(wRoot.classList.contains('font-medium')).toBe(false);
+    expect(wRoot.classList.contains('font-medium')).toBe(true);
+    // the merge law that REMAINS is cn()'s closed set (tailwindless
+    // W4: hue/pair last-wins, identical duplicates collapse)
+    expect(cn('jx-hue-primary', 'jx-hue-error')).toBe('jx-hue-error');
+    expect(cn('jx-hue-error', 'jx-hue-primary')).toBe('jx-hue-primary');
+    expect(cn('jx-pair-destructive', 'jx-pair-destructive')).toBe('jx-pair-destructive');
   });
 
   it('sugar ≡ base: the modifier props ride the {...rest} spread untouched', () => {

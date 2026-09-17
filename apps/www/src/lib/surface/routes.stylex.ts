@@ -1058,17 +1058,6 @@ export const rt = stylex.create({
   // ── probe-folder-css (pfc…; 14 at pin) ────────────────────────────
   pfcPad: { padding: tokens['--jx-space-32'] },
   pfcProse: { maxWidth: '65ch' },
-  // the former TW util-pool probe seed, now plain geometry: the
-  // verify script's layer-law arm added p-8/text-primary at runtime
-  // (seeding died with the page's TW — seam reported to w3-c)
-  pfcPool: {
-    display: 'none',
-    padding: tokens['--jx-space-32'],
-    color: tokens['--jx-primary'],
-    borderWidth: 'calc(var(--jx-unit) * 2)',
-    borderStyle: 'solid',
-    borderColor: tokens['--jx-primary'],
-  },
 
   // ═══ Wave 3 batch B seats (w3-b; one slug per route; atoms never
   // cross files) ═════════════════════════════════════════════════

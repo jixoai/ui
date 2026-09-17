@@ -20,14 +20,16 @@ const HUE_TARGET: Record<(typeof HUES)[number], string> = {
 };
 
 describe('hue-injection utilities', () => {
-  it('the theme sheet carries every @utility of the closed set', () => {
+  it('the theme sheet carries every intent class of the closed set', () => {
+    // tailwindless W4: the intent layer retired the @utility syntax —
+    // plain utilities-tier classes now carry the same declarations
     for (const hue of HUES) {
-      expect(sheet, `@utility jx-hue-${hue}`).toMatch(
-        new RegExp(`@utility jx-hue-${hue} \\{ --jx-tonal: ${HUE_TARGET[hue].replace(/[()]/g, '\\$&')}; \\}`),
+      expect(sheet, `.jx-hue-${hue}`).toMatch(
+        new RegExp(`\\.jx-hue-${hue} \\{ --jx-tonal: ${HUE_TARGET[hue].replace(/[()]/g, '\\$&')}; \\}`),
       );
     }
     expect(sheet).toContain(
-      '@utility jx-pair-destructive {\n  --jx-fill: var(--destructive);\n  --jx-fill-ink: var(--destructive-foreground);\n}',
+      '.jx-pair-destructive {\n    --jx-fill: var(--destructive);\n    --jx-fill-ink: var(--destructive-foreground);\n  }',
     );
   });
 
@@ -42,12 +44,12 @@ describe('hue-injection utilities', () => {
 
   it('action/status split holds by construction: no jx-hue-destructive', () => {
     // destructive is an ACTION hue — only the PAIR may carry it
-    expect(sheet).not.toContain('@utility jx-hue-destructive');
+    expect(sheet).not.toContain('.jx-hue-destructive {');
   });
 
-  it('the @utility jx-* set is EXACTLY the closed set (no unlisted additions)', () => {
-    const declared = [...sheet.matchAll(/@utility (jx-[a-z-]+(?:-[a-z-]+)*)/g)].map((m) => m[1]);
-    expect(declared.sort()).toEqual(
+  it('the intent jx-* class set is EXACTLY the closed set (no unlisted additions)', () => {
+    const intent = [...sheet.matchAll(/^  \.(jx-hue-[a-z-]+|jx-pair-[a-z-]+) \{/gm)].map((m) => m[1]);
+    expect(intent.sort()).toEqual(
       [
         'jx-hue-primary',
         'jx-hue-neutral',

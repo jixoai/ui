@@ -446,6 +446,19 @@ if (!existsSync(join(root, 'public', 'payload', 'stylex', 'payload-manifest.json
   die('public/payload/stylex/payload-manifest.json missing after the publish step');
 }
 
+// ── 0.6 the phase-1 consumer-contract flip (tailwindless one-shot W4,
+// the registry spec delta's compiled-item form): rewrite the built
+// payloads' .stylex.ts entries to their compiled classModule + item
+// css deliveries — consumers owe ZERO styling-engine tooling. The
+// same step build-site runs after ITS publish; one implementation
+// (scripts/lib/registry-stylex-swap.mjs), so the two can't disagree.
+console.log('registry stylex swap (payloads → compiled class constants + item css)…');
+{
+  const { swapped, untouched } = await import('./lib/registry-stylex-swap.mjs').then((m) => m.swapRegistryPayloads(root, publicR));
+  console.log(`  ${swapped.length} payload(s) swapped, ${untouched} untouched`);
+  if (swapped.length === 0) die('registry stylex swap touched ZERO payloads — the registry carries no .stylex.ts sources; the tailwindless contract regressed');
+}
+
 // ── 1. scratch registry = the generated public/r payloads ──────────
 // the single-instance lock is already held (acquired before anything
 // touched the shared world — see acquireLock at the top); the scratch
@@ -512,7 +525,14 @@ const canonicalTargets = (itemNames) =>
   itemNames.flatMap((name) => {
     const item = byName.get(name);
     if (!item) die(`registry.json has no item ${name}`);
-    return (item.files ?? []).map((f) => targetToConsumer(f.target ?? '')).filter(Boolean);
+    return (item.files ?? [])
+      .map((f) => targetToConsumer(f.target ?? ''))
+      // the phase-1 consumer-contract flip (registry-stylex-swap):
+      // .stylex.ts sources DELIVER as compiled .stylex.js — expected
+      // consumer paths translate with the same law (the repo's
+      // registry.json stays the authoring source-of-record)
+      .map((p) => (p && p.endsWith('.stylex.ts') ? `${p.slice(0, -'.stylex.ts'.length)}.stylex.js` : p))
+      .filter(Boolean);
   });
 
 // ── 4. the CASES (data — extend by adding an entry) ────────────────
@@ -617,7 +637,6 @@ const CASES = [
     // data contract (pure-data virtual module, design D3).
     viteConfig: `import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 
 const ghosttyVirtualStub = {
@@ -637,7 +656,7 @@ const ghosttyVirtualStub = {
 };
 
 export default defineConfig({
-  plugins: [ghosttyVirtualStub, svelte(), tailwindcss()],
+  plugins: [ghosttyVirtualStub, svelte()], // tailwindless W4: the consumer contract is engine-free
   resolve: { alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
   build: { target: 'esnext' },
 });
@@ -998,13 +1017,11 @@ export default defineConfig({
   },
   {
     id: 'stylex-tokens',
-    // stylex-kernel-phase0 P0.4 (the registry delta's zero-engine
-    // clause): the stylex-adjacent lib item installs CLEAN — the theme
-    // sheet (its declared dependency) arrives for the css import, the
-    // typed module lands at @lib, and the consumer owes ZERO
-    // @stylexjs/* packages (this case ships the SOURCE module + the
-    // sheet; the compiled-payload lane LANDED in Gate-2 P1-2 and is
-    // covered by the stylex-compiled-payload case below)
+    // stylex-kernel-phase0 P0.4 → phase-1 flip (tailwindless one-shot
+    // W4): the stylex-adjacent lib item installs CLEAN in its COMPILED
+    // form — the theme sheet (its declared dependency) arrives for the
+    // css import, the compiled classModule + css carrier land at @lib,
+    // and the consumer owes ZERO @stylexjs/* packages
     items: ['tokens'],
     app: `<script lang="ts">
   // the documented install prerequisite: import the item/theme css —
@@ -1015,7 +1032,10 @@ export default defineConfig({
 <main class="bg-background text-foreground p-4">tokens installed clean</main>
 `,
     extraChecks(ctx) {
-      check('stylex-tokens: tokens.stylex.ts landed at @lib', ctx.exists('src/lib/tokens.stylex.ts'));
+      check('stylex-tokens: tokens landed at @lib as the compiled module (the phase-1 flip)', ctx.exists('src/lib/tokens.stylex.js'));
+      const mod = ctx.read('src/lib/tokens.stylex.js');
+      check('stylex-tokens: the compiled module carries zero engine imports (F11)', !/(?:from|import)\s*['"]@stylexjs\//.test(mod), 'clean');
+      check('stylex-tokens: the item css carrier landed (the sole styling wiring)', ctx.exists('src/lib/tokens.stylex.css'));
       const pkg = JSON.parse(ctx.read('package.json'));
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
       const stylexDeps = Object.keys(deps).filter((d) => d.startsWith('@stylexjs/'));
@@ -1564,8 +1584,6 @@ const consumerFiles = {
       '@sveltejs/vite-plugin-svelte': versions['@sveltejs/vite-plugin-svelte'],
       vite: versions.vite,
       typescript: versions.typescript,
-      '@tailwindcss/vite': versions['@tailwindcss/vite'],
-      tailwindcss: versions.tailwindcss,
       // EXACT, not a range: the add-side CLI contract is versioned — a
       // floating range made the same gate run different CLIs over time
       // (4.19.0 = the repo's pnpm resolution; the root npm package-lock
@@ -1591,11 +1609,10 @@ const consumerFiles = {
   }, null, 2),
   'vite.config.ts': `import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
-  plugins: [svelte(), tailwindcss()],
+  plugins: [svelte()], // tailwindless W4: zero-engine consumer — the payload contract
   resolve: { alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
   build: { target: 'esnext' },
 });
@@ -1612,8 +1629,7 @@ export default defineConfig({
   'svelte.config.js': `import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 export default { preprocess: vitePreprocess() };
 `,
-  'src/app.css': `@import 'tailwindcss';
-`,
+  'src/app.css': ``,
   'index.html': `<!doctype html>
 <html><head><meta charset="utf-8" /><title>clean-install consumer</title></head>
 <body><div id="app"></div><script type="module" src="/src/main.ts"></script></body></html>
@@ -1822,7 +1838,12 @@ for (const testCase of CASES) {
         .map((t) => {
           for (const [aliasKey, aliasPrefix] of Object.entries(consumerAliases)) {
             const head = `@${aliasKey}/`;
-            if (t.startsWith(head)) return `${physicalForAlias[aliasKey]}/${t.slice(head.length)}`;
+            if (t.startsWith(head)) {
+              // the same phase-1 flip translation wwwSide applies —
+              // .stylex.ts targets deliver as compiled .stylex.js
+              const tail = t.slice(head.length);
+              return `${physicalForAlias[aliasKey]}/${tail.endsWith('.stylex.ts') ? `${tail.slice(0, -'.stylex.ts'.length)}.stylex.js` : tail}`;
+            }
           }
           return null;
         })
@@ -1898,6 +1919,10 @@ for (const testCase of CASES) {
 
   console.log('  vite build (import resolution + svelte compile gate)…');
   const build = await runIn(dir, 'npx', ['vite', 'build'], { timeoutMs: 600_000, label: `case ${testCase.id}: vite build` });
+  // a failed build's full output outlives the wiped fixture dir —
+  // the 800-char check window only keeps the stack tail, which eats
+  // the actual error message
+  if (build.status !== 0) writeFileSync(`/tmp/shadcn-build-fail-${testCase.id}.log`, `${build.stdout}\n${build.stderr}`);
   check('consumer vite build passes', build.status === 0 && !build.timedOut, build.status === 0 ? '' : build.timedOut ? `TIMED OUT (600s group-budget), tail:\n${build.stdout.slice(-800)}` : `${build.stdout}\n${build.stderr}`.slice(-800));
   if (build.status === 0) await testCase.postBuild?.(ctx);
 }

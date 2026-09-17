@@ -350,7 +350,10 @@ describe('markdown face — declared-marker harvest (markdown-streaming)', () =>
     } finally {
       cleanup();
     }
-  });
+    // heavyweight integration (real component render + JSDOM harvest) —
+    // over the 5s default under full-battery load (tailwindless W4:
+    // the engine-free css pipeline shifted cold-transform timing)
+  }, 30_000);
 
   it('a markdown code fence harvests as code with its language (CodeCard marker chain)', async () => {
     const { render, cleanup } = await import('@testing-library/svelte');
@@ -368,7 +371,8 @@ describe('markdown face — declared-marker harvest (markdown-streaming)', () =>
     } finally {
       cleanup();
     }
-  });
+    // same heavyweight-integration class as the table harvest above
+  }, 30_000);
 });
 
 describe('the corpus artifact', () => {

@@ -1,18 +1,19 @@
-/* P0.1 folder-css contract probe (tw4-css-modularization, 2026-08-24).
- * Standard CSS only: @layer components + :where(), pseudo-element,
- * @container, token custom properties. NO @utility — a standalone css
- * file has no Tailwind compiler context (r1 B2 ruling).
+/* P0.1 folder-css contract probe (tw4-css-modularization, 2026-08-24;
+ * tailwindless W4, 2026-09-19). Standard CSS only: @layer components +
+ * :where(), pseudo-element, @container, token custom properties.
+ * NO @utility — a standalone css file has no engine context (r1 B2
+ * ruling), and the TW engine is retired outright.
  *
  * ORDER LAW (P0.1 finding): a standalone folder sheet can be injected
- * BEFORE the site's Tailwind entry in dev (vite dev style order).
- * CSS layer order follows FIRST declaration per name across sheets —
- * so a bare `@layer components` in an early sheet sorts components
- * BEFORE base, and preflight (`border: 0 solid`) beats the folder
- * rule. Every folder sheet therefore OPENS with the canonical layer
- * statement; registering names in the canonical order makes the sheet
+ * before the site's entry in dev (vite dev style order). CSS layer
+ * order follows FIRST declaration per name across sheets — so a bare
+ * `@layer components` in an early sheet sorts components before base,
+ * and preflight (`border: 0 solid`) beats the folder rule. Every
+ * folder sheet therefore OPENS with the canonical layer statement;
+ * registering names in the canonical order makes the sheet
  * order-independent. */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
 @layer components {
   :where(.jx-probe) {

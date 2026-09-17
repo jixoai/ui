@@ -37,12 +37,9 @@
     folder-css contract (route-side imports deduplicated to exactly one copy).
     It is not a docs page and is excluded from search indexing.
   </p>
-  <!-- the old TW util-pool seed (hidden p-8 text-primary border-8
-       border-primary) fed Tailwind's dev-mode on-demand scan; the
-       page is TW-free now (w3-c), so the seed is plain stylex
-       geometry — the script's layer-law arm (#6) that added those
-       utilities at runtime loses its engine-side emission (seam
-       reported to the orchestrator) -->
-  <div class={cx(rt.pfcPool)} data-probe="util-pool"></div>
+  <!-- the TW-era util-pool seed (hidden p-8 text-primary border-8
+       border-primary) fed Tailwind's dev-mode on-demand scan; it died
+       with the engine. The layer-law arm now rides the probe
+       component's own stylex atoms (?pad=32&ink=primary) -->
   <FolderCssProbe />
 </main>

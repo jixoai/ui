@@ -12,10 +12,12 @@
 //                 when the container shrinks below the threshold;
 //   5. single-load — the sheet appears EXACTLY once even though the
 //                 route ALSO imports it (duplicate-import probe);
-//   6. layer law — a consumer utility (p-8 / text-primary) added on
-//                 top of a :where() folder rule WINS (the specific
-//                 inversion defect this change removes, proven fixed
-//                 for folder css).
+//   6. layer law — a stylex ATOM applied over a :where() folder rule
+//                 WINS (the tailwindless engine's inversion proof;
+//                 the TW-era arm added engine-generated p-8 /
+//                 text-primary classes, which died with the engine —
+//                 the script now reloads with ?pad=32&ink=primary and
+//                 the probe component applies its own atoms);
 //
 // Usage:
 //   pnpm dev &               # server on :5199
@@ -124,29 +126,37 @@ const sheetsWithProbe = await page.evaluate(() => {
 });
 check('sheet loaded EXACTLY once (route + component both import it)', sheetsWithProbe === 1, `${sheetsWithProbe} sheet(s) carry the rules`);
 
-// 6. layer law — utility beats :where()
-const override = await page.evaluate(() => {
+// 6. layer law — a stylex atom beats :where() (the engine that
+//    replaced TW utilities). The probe component applies its own
+//    atoms (folder-css-probe.stylex) when the page loads with
+//    ?pad=32&ink=primary — read once per load, browser-side only.
+const before = await page.evaluate(() => {
   const root = document.querySelector('[data-probe="root"]');
   const lane = document.querySelector('[data-probe="lane"]');
-  const before = {
+  return {
     pad: getComputedStyle(root).getPropertyValue('padding-top'),
     color: getComputedStyle(lane).getPropertyValue('color'),
   };
-  root.classList.add('p-8');
-  lane.classList.add('text-primary');
-  const after = {
+});
+await page.goto(`http://localhost:${port}${path}?pad=32&ink=primary`, { waitUntil: 'networkidle' });
+await page.waitForFunction(
+  () => getComputedStyle(document.querySelector('[data-probe="root"]')).paddingTop === '32px',
+  { timeout: 5_000 },
+);
+const after = await page.evaluate(() => {
+  const root = document.querySelector('[data-probe="root"]');
+  const lane = document.querySelector('[data-probe="lane"]');
+  return {
     pad: getComputedStyle(root).getPropertyValue('padding-top'),
     color: getComputedStyle(lane).getPropertyValue('color'),
   };
-  return { before, after };
 });
 check(
-  'utility p-8 beats the :where() padding rule',
-  override.after.pad === '32px' && override.before.pad !== '32px',
-  `${override.before.pad} → ${override.after.pad}`,
+  'stylex atom beats the :where() padding rule',
+  before.pad !== '32px' && after.pad === '32px',
+  `${before.pad} → ${after.pad}`,
 );
-const laneColorChanged = override.before.color !== override.after.color;
-check('utility text-primary recolors the :where() lane', laneColorChanged, `${override.before.color} → ${override.after.color}`);
+check('stylex atom recolors the :where() lane', before.color !== after.color, `${before.color} → ${after.color}`);
 
 await browser.close();
 
