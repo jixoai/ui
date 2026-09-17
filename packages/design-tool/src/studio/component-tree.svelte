@@ -35,14 +35,19 @@
   source (canvas + per frame id) — the lazy-load smoke's evidence
   channel, installed like the studio's other window seams.
 
-  Multiplayer ribbon (presence-visuals 2.2): remote component
-  attentions (remoteAttentions — componentId-addressed, the stamp
-  walk's 2.1 native ids) light the matching usage row's inline-start
-  border — ONE player is the plain single color (today's look), N
-  players split it as a border-image ribbon in the LOCAL order (self
-  first, then playerId lexicographic). Self never lights a row (the
-  own-selection highlight keeps the current path); an absent/empty
-  prop is byte-identical to the tree before this change.
+  Multiplayer ribbon (presence-visuals 2.2 → presence-liveness P6, the
+  Owner syntax): remote component attentions (remoteAttentions —
+  componentId-addressed, the stamp walk's 2.1 native ids) AND the local
+  player's own selection light the matching usage row's inline-start
+  border — one player is the plain 2px single color (today's look), N
+  players split it VERTICALLY as the Owner's border-image gradient
+  (`linear-gradient(to bottom, …) 0 0 0 1 / 0 0 0 2px`) in the LOCAL
+  order (self first — own selection is one's own ribbon segment, then
+  the joining ordinal). The carry is ROW-LEVEL: `data-jx-remote-ribbon`
+  (value 'single' | 'multi') + the inline style land on the
+  li[data-path] itself, synced imperatively (the registry tree-view
+  owns the li markup); an unlit row is byte-identical to the tree
+  before this change.
 
   Original need: Owner 2026-09-11 (design-studio-r2 T5); r3 issue #20
   (2026-09-12 — the unified treeView + dynamic loading ruling);
@@ -113,13 +118,12 @@
     /** remote component attentions (presence-visuals 2.2): a row whose
      *  componentId matches an entry lights in that player's hue — one
      *  player is today's plain single border-color, N players split the
-     *  border as a ribbon. Empty/absent = byte-identical current tree */
+     *  border as the Owner's vertical border-image ribbon. Empty/absent
+     *  = byte-identical current tree */
     remoteAttentions?: readonly RemoteTreeAttention[];
-    /** the local player's hue — ribbonOf's LOCAL order anchor (self
-     *  first). Today self never lights a tree row remotely (the
-     *  own-selection highlight stays the current path), so the anchor
-     *  holds the contract for the shell's prop shape and the order
-     *  degenerates to the stable playerId lexicographic below */
+    /** the local player's hue — ribbonOf's LOCAL order anchor: the own
+     *  selection joins the ribbon as the self-first segment (P6), and
+     *  remotes follow in the joining ordinal */
     selfHue?: number | null;
   } = $props();
 
@@ -313,7 +317,7 @@
     }
   }
 
-  /* ── presence-visuals 2.2: the multiplayer ribbon ──────────────────── */
+  /* ── presence-liveness P6: the unified row ribbon (Owner syntax) ────── */
 
   /** online remote attentions, keyed by the componentId they light */
   const litRows = $derived.by(() => {
@@ -327,32 +331,72 @@
     return byComponent;
   });
 
-  /** one row's remote lighting: the attendees (LOCAL order — self
-   *  first, then playerId lexicographic; today self never lights a row
-   *  so the order is the lexicographic one) and their ribbon */
-  function rowLighting(node: SelectionTreeNode): { ribbon: RibbonStyle | null; players: readonly string[] } {
-    void selfHue; // ribbonOf's local-order anchor — see the prop's law
-    const attendees = node.componentId === null ? undefined : litRows.get(node.componentId);
-    if (attendees === undefined || attendees.length === 0) return { ribbon: null, players: [] };
-    const ordered = [...attendees].sort((a, b) => (a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0));
-    return {
-      ribbon: ribbonOf(ordered.map((entry) => entry.colorHue)),
-      players: ordered.map((entry) => entry.playerId),
+  /** usage rows by tree path (the same id space as li[data-path] and
+   *  selectedPath) — the ribbon map's row index */
+  const usageRowsByPath = $derived.by(() => {
+    const byPath = new Map<string, SelectionTreeNode>();
+    const walk = (list: readonly TreeNode<TreeMeta>[], parent: string): void => {
+      for (const node of list) {
+        const path = parent === '' ? node.name : `${parent}/${node.name}`;
+        if (node.meta?.kind === 'usage') byPath.set(path, node.meta.node);
+        if (node.children !== undefined) walk(node.children, path);
+      }
     };
+    walk(nodes, '');
+    return byPath;
+  });
+
+  /** the LOCAL order's attendee hues for one row: self first (own
+   *  selection = one's own ribbon segment, P6), then the remote
+   *  attentions in the joining ordinal (remoteAttentions arrives
+   *  roster-sorted from the shell — no re-sort here) */
+  function rowAttendeeHues(path: string, node: SelectionTreeNode): number[] {
+    const hues: number[] = [];
+    if (selfHue !== null && path === selectedPath) hues.push(selfHue);
+    const attendees = node.componentId === null ? undefined : litRows.get(node.componentId);
+    if (attendees !== undefined) for (const entry of attendees) hues.push(entry.colorHue);
+    return hues;
   }
 
-  /**
-   * The row's inline-start border: unlit = '' (today's row, byte-equal);
-   * ONE player = the plain color (today's single-player shape, via
-   * ribbonOf's single path); N players = the border-image ribbon —
-   * border-image REPLACES border-color where set, so the multi path
-   * paints a transparent color and rides `border-image: <gradient> 1`.
-   */
-  function rowRibbonStyle(ribbon: RibbonStyle | null): string {
-    if (ribbon === null) return '';
-    if (ribbon.single) return `border-inline-start: 3px solid ${ribbon.color};`;
-    return `border-inline-start: 3px solid transparent; border-image: ${ribbon.image} 1;`;
+  /** tree path → its ribbon (ribbonOf owns the Owner syntax wholesale:
+   *  single = the plain 2px player color, multi = the vertical
+   *  border-image gradient `… 0 0 0 1 / 0 0 0 2px`) */
+  const rowRibbons = $derived.by(() => {
+    const lit = new Map<string, RibbonStyle>();
+    for (const [path, node] of usageRowsByPath) {
+      const ribbon = ribbonOf(rowAttendeeHues(path, node));
+      if (ribbon !== null) lit.set(path, ribbon);
+    }
+    return lit;
+  });
+
+  /** the row-level carry (P6): `data-jx-remote-ribbon` (mode) and the
+   *  inline style land on the li[data-path] ROW ITSELF — the registry
+   *  tree-view owns the li markup, so the sync is imperative against
+   *  the rendered rows (idempotent add/remove; an unlit row reverts
+   *  byte-identical) */
+  let treeRoot = $state<HTMLElement | null>(null);
+  function syncRowRibbons(): void {
+    const root = treeRoot;
+    if (root === null) return;
+    for (const li of root.querySelectorAll('li[data-path]')) {
+      const ribbon = rowRibbons.get(li.getAttribute('data-path') ?? '');
+      if (ribbon === undefined) {
+        if (li.hasAttribute('data-jx-remote-ribbon')) {
+          li.removeAttribute('data-jx-remote-ribbon');
+          li.removeAttribute('style');
+        }
+      } else {
+        li.setAttribute('data-jx-remote-ribbon', ribbon.single ? 'single' : 'multi');
+        li.setAttribute('style', ribbon.style);
+      }
+    }
   }
+
+  $effect(() => {
+    rowRibbons;
+    syncRowRibbons();
+  });
 
   function findUsagePath(
     list: readonly TreeNode<TreeMeta>[],
@@ -422,6 +466,11 @@
     // the lazy walk: EVERY expansion collects (a reload may have aged
     // the records; the signature gate keeps it free when it has not)
     if (ctx.expanded && meta?.kind === 'page') walkFrame(meta.frameId);
+    // freshly revealed rows need their ribbon synced — tree-view's
+    // uncontrolled expansion is invisible to the derived graph, so the
+    // row-level carry re-runs on the next frame (after the DOM caught
+    // up; the walk above re-triggers the effect when records change)
+    requestAnimationFrame(() => syncRowRibbons());
   }
 
   function onSelectLeaf(ctx: TreeItemCtx<TreeMeta>): void {
@@ -465,11 +514,10 @@
 {#snippet usageLabel(ctx: TreeItemCtx<TreeMeta>)}
   {#if ctx.node.meta?.kind === 'usage'}
     {@const node = ctx.node.meta.node}
-    {@const lighting = rowLighting(node)}
+    <!-- the P6 ribbon rides the li[data-path] row itself (the sync
+         effect above) — the label span keeps only its own states -->
     <span
       class="tree-usage{ctx.id === selectedPath ? ' selected' : ''}{ctx.id === hoverPath ? ' hovered' : ''}"
-      style={rowRibbonStyle(lighting.ribbon)}
-      data-jx-remote-ribbon={lighting.players.length > 0 ? lighting.players.join(' ') : undefined}
       onmouseenter={() => hoverUsage(node)}
       onmouseleave={() => unhoverUsage()}
     >
@@ -484,7 +532,8 @@
   {/if}
 {/snippet}
 
-<section class="tree">
+<!-- bind:this feeds syncRowRibbons — the P6 ribbon's row-level carry -->
+<section class="tree" bind:this={treeRoot}>
   <header class="tree-head">{canvas ?? 'canvas'}</header>
   {#if frames.length === 0}
     <Empty

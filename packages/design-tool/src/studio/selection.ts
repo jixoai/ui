@@ -37,6 +37,10 @@ export interface DesignSelection {
   readonly iterationIndex: number | null;
   /** the registry item id (the data-jx-component value) */
   readonly component: string;
+  /** the protocol component id (the native id attribute; presence-liveness
+   *  P1: a selection IS the player's canvas attention — remote studios
+   *  render the selecting player's ring from this) */
+  readonly componentId?: string | null;
   /** how many DOM instances carry this usageIndex in the frame */
   readonly instanceCount: number;
 }

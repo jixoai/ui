@@ -426,7 +426,7 @@ function hostAncestorTarget() {
   const usageIndex = Number(container.getAttribute('data-jx-instance'));
   const component = container.getAttribute('data-jx-component');
   if (!Number.isInteger(usageIndex) || component === null) return null;
-  return { usageIndex, iterationIndex: null, component };
+  return { usageIndex, iterationIndex: null, component, componentId: container.getAttribute('id') };
 }
 
 export function initDesignPicker() {
@@ -527,6 +527,7 @@ export function initDesignPicker() {
           usageIndex,
           iterationIndex,
           component,
+          componentId: stamped.getAttribute('id'), // the protocol id (P1: selection IS attention)
           instanceCount: all.length,
         });
       }

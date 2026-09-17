@@ -179,6 +179,18 @@ export function containerKeyOf(componentId: string, buffer: string): string {
   return `b:${encodeComponentId(componentId)}:${bufferSlugOf(buffer)}`;
 }
 
+/**
+ * The buffer's PANEL FIELD id for the admit sessionHint
+ * (presence-liveness P3): a slot-text buffer reports as
+ * `slot-text-<buffer>` (the textarea's DOM id), a prop buffer as
+ * `prop-<buffer>` — so the gateway's op→attention relay lights the
+ * exact row the panel renders (the resolve law: #<field> then
+ * prop-<field>). The digest rule is unchanged.
+ */
+export function attentionFieldOf(buffer: string, how: string | undefined): string {
+  return how === 'template-text' ? `slot-text-${buffer}` : `prop-${buffer}`;
+}
+
 /* ── the text diff (one debounce window → one fragmented op) ──────────── */
 
 export interface TextDiff {
@@ -628,7 +640,7 @@ export class PanelCollabClient {
       timestamp: Date.now(),
       ...(this.#cursor !== undefined ? { syncCursor: this.#cursor } : {}),
       ...(this.#presenceHint !== null
-        ? { sessionHint: { playerId: this.#presenceHint.playerId, field: `prop-${buffer}`, digest: `${info.componentId} · ${buffer}=${diff.text}` } }
+        ? { sessionHint: { playerId: this.#presenceHint.playerId, field: attentionFieldOf(buffer, info.buffers.find((candidate) => candidate.buffer === buffer)?.how), digest: `${info.componentId} · ${buffer}=${diff.text}` } }
         : {}),
     };
   }

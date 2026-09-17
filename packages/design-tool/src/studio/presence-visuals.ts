@@ -11,7 +11,8 @@
  *   2. the RIBBON LAW — a row highlighted by N players becomes a
  *      rainbow ribbon: one player is the plain single color (today's
  *      look, unchanged); N players split the border evenly, in the
- *      LOCAL order (self first), via a border-image gradient.
+ *      LOCAL order (self first), via the Owner's border-image
+ *      VERTICAL gradient syntax (`… 0 0 0 1 / 0 0 0 2px`, P5/P6).
  *
  * Framework-agnostic pure functions — node-testable, no DOM.
  * Original need: presence-visuals task group 1 (2026-09-17).
@@ -65,29 +66,50 @@ export function applyBrandHue(document: Document, hslHue: number): void {
   document.documentElement.style.setProperty('--brand-hue', String(hslHueToOklchHue(hslHue)));
 }
 
-/* ── law 2: the multiplayer ribbon ───────────────────────────────────── */
+/* ── law 2: the multiplayer ribbon (the Owner syntax, P5/P6) ──────────── */
 
 export type RibbonStyle =
-  | { readonly single: true; readonly color: string }
-  | { readonly single: false; readonly image: string };
+  | { readonly single: true; readonly style: string }
+  | { readonly single: false; readonly style: string; readonly image: string };
 
 /**
- * The border-inline-start highlight for a row that N players attend.
- * Order is the CALLER's local view (self first, then joining ordinal).
- * One player → the plain color (today's single-player look, byte-equal
- * semantics); N players → an evenly split border-image gradient
- * (apply with `border-image: <image> 1`).
+ * The border-inline-start highlight for a row that N players attend —
+ * the Owner's border-image syntax verbatim (presence-liveness P5/P6,
+ * 2026-09-18: no horizontal rainbow):
+ *
+ *   single: border-inline-start: 2px solid <color>;
+ *           border-image: none;
+ *   multi:  border-inline-start: 2px solid <any>; (placeholder only)
+ *           border-image: linear-gradient(to bottom, …) 0 0 0 1 / 0 0 0 2px;
+ *
+ * Order is the CALLER's local view (self first, then the joining
+ * ordinal). One player keeps today's plain single-color look; N
+ * players split the border VERTICALLY into N equal hard-stop segments
+ * (segment i spans [i/N, (i+1)/N] — `red 0 33.33%, green 33.33%
+ * 66.66%, …`). `style` is the COMPLETE inline style for the carrying
+ * row; `image` (multi only) exposes the gradient for assertions.
+ * Browsers normalize the shorthand into the computed components
+ * border-image-slice '0 0 0 1' / border-image-width '0 0 0 2px'.
  */
 export function ribbonOf(hues: readonly number[]): RibbonStyle | null {
   if (hues.length === 0) return null;
-  if (hues.length === 1) return { single: true, color: playerHueCss(hues[0]) };
+  if (hues.length === 1) {
+    return {
+      single: true,
+      style: `border-inline-start: 2px solid ${playerHueCss(hues[0])}; border-image: none;`,
+    };
+  }
   const stops: string[] = [];
   const step = 100 / hues.length;
   hues.forEach((hue, index) => {
-    const from = `${(index * step).toFixed(4)}%`;
+    const from = index === 0 ? '0' : `${(index * step).toFixed(4)}%`;
     const to = `${((index + 1) * step).toFixed(4)}%`;
-    const color = playerHueCss(hue);
-    stops.push(index === 0 ? `${color} ${from}` : `${color} ${from} ${to}`);
+    stops.push(`${playerHueCss(hue)} ${from} ${to}`);
   });
-  return { single: false, image: `linear-gradient(to bottom, ${stops.join(', ')})` };
+  const image = `linear-gradient(to bottom, ${stops.join(', ')})`;
+  return {
+    single: false,
+    style: `border-inline-start: 2px solid transparent; border-image: ${image} 0 0 0 1 / 0 0 0 2px;`,
+    image,
+  };
 }

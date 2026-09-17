@@ -166,11 +166,13 @@ function isPlayerView(value: unknown): value is PlayerView {
 
 /** panel focus deepens with the remote text caret (presence-visuals
  *  ruling 4): an optional non-negative integer offset */
+/** panel focus carries the remote SELECTION (P4): {start, end} — equal
+ *  ends are a collapsed caret; a range is a selection highlight */
 export interface PanelCaretFocus {
   readonly kind: 'panel';
   readonly field: string;
   readonly digest: string;
-  readonly caret?: number;
+  readonly selection?: { readonly start: number; readonly end: number };
 }
 
 function isCursor(value: unknown): value is CursorState {
@@ -235,14 +237,43 @@ export function browserPresenceSocket(loc: { readonly protocol: string; readonly
       ? `${loc.protocol === 'https:' ? 'wss:' : 'ws:'}//${loc.host}${url}`
       : url;
     const ws = new WebSocket(absolute);
+    // a send while CONNECTING THROWS (InvalidStateError) — and the first
+    // throwback kills the caller: the selection→attention effect reports
+    // the moment the store lands, connect() has barely started, and the
+    // exception destroys the $effect forever (the P1 lesson, probe-proven
+    // 2026-09-18). Buffer pre-open frames and flush them on open; a send
+    // on a CLOSING/dead socket drops silently — presence reports are
+    // ephemeral and the reconnect's welcome rebuilds the world.
+    const preOpenQueue: string[] = [];
     return {
-      send: (text) => ws.send(text),
+      send: (text) => {
+        if (ws.readyState === WebSocket.CONNECTING) {
+          preOpenQueue.push(text);
+          return;
+        }
+        try {
+          ws.send(text);
+        } catch {
+          /* CLOSING or already dead — the reconnect cycle owns recovery */
+        }
+      },
       close: () => ws.close(),
       get onopen(): (() => void) | null {
         return ws.onopen as (() => void) | null;
       },
       set onopen(fn: (() => void) | null) {
-        ws.onopen = fn as unknown as WebSocket['onopen'];
+        ws.onopen = fn === null
+          ? null
+          : ((event) => {
+              for (const queued of preOpenQueue.splice(0)) {
+                try {
+                  ws.send(queued);
+                } catch {
+                  /* raced close — the rest of the queue dies with it */
+                }
+              }
+              (fn as unknown as (event: unknown) => void)(event);
+            }) as unknown as WebSocket['onopen'];
       },
       get onmessage(): ((event: { readonly data: string }) => void) | null {
         return ws.onmessage as unknown as ((event: { readonly data: string }) => void) | null;
@@ -289,7 +320,7 @@ type PresenceListener = (payload: unknown) => void;
 /* ── timing laws (§3/§4: 50ms cursor merge, 5s gateway timeout) ─────── */
 
 /** self-side cursor report throttle (trailing — the freshest point wins) */
-export const CURSOR_THROTTLE_MS = 50;
+export const CURSOR_THROTTLE_MS = 16;
 /** keep the gateway's 5s no-ping timeout fed with headroom */
 export const PING_INTERVAL_MS = 2500;
 /** reconnect backoff: 500ms·2^n, capped */

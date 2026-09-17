@@ -29,6 +29,7 @@ import assert from 'node:assert/strict';
 import {
   PRESENCE_TOKEN_KEY,
   PresenceStore,
+  browserPresenceSocket,
   buildClientMessage,
   buildPresenceUrl,
   defaultPlayerName,
@@ -482,4 +483,73 @@ test('snapshot orders players by joining ordinal (p2 before p10)', () => {
     store.snapshot().players.map((player) => player.playerId),
     ['p2', 'p3', 'p10'],
   );
+});
+
+/* ── the browser socket wrapper's pre-open law (presence-liveness P1) ──
+ * A send while CONNECTING throws InvalidStateError — and the throwback
+ * once destroyed the shell's selection→attention $effect on every fresh
+ * load (probe-proven 2026-09-18). The wrapper buffers pre-open frames
+ * and flushes them on open; sends on a dying socket drop silently. */
+test('browserPresenceSocket: pre-open sends buffer, flush on open, dying sends drop', () => {
+  const sent: string[] = [];
+  const socketsMade: FakeWebSocket[] = [];
+  const RealWebSocket = (globalThis as { WebSocket?: unknown }).WebSocket;
+  class FakeWebSocket {
+    static readonly CONNECTING = 0;
+    static readonly OPEN = 1;
+    static readonly CLOSING = 2;
+    static readonly CLOSED = 3;
+    readyState = 0;
+    url: string;
+    onopen: ((event?: unknown) => void) | null = null;
+    constructor(url: string) {
+      this.url = url;
+      socketsMade.push(this);
+    }
+    send(text: string): void {
+      if (this.readyState !== FakeWebSocket.OPEN) throw new Error('InvalidStateError: send while not open');
+      sent.push(text);
+    }
+    close(): void {
+      this.readyState = FakeWebSocket.CLOSED;
+    }
+  }
+  (globalThis as { WebSocket?: unknown }).WebSocket = FakeWebSocket;
+  try {
+    const factory = browserPresenceSocket({ protocol: 'http:', host: 'localhost:1' });
+    const sock = factory('/__design__/ws');
+    assert.equal(socketsMade.length, 1);
+    assert.equal(socketsMade[0].url, 'ws://localhost:1/__design__/ws', 'the relative path upgrades against the page origin');
+    let opened = false;
+    sock.onopen = () => {
+      opened = true;
+    };
+    // CONNECTING: buffered, never throws (the P1 killer)
+    sock.send('{"type":"attention","focus":null}');
+    sock.send('{"type":"cursor","canvas":"welcome","surface":"canvas","x":1,"y":2}');
+    assert.deepEqual(sent, [], 'nothing left the wire while connecting');
+    // open: the queue flushes IN ORDER, then the store's onopen runs
+    socketsMade[0].readyState = FakeWebSocket.OPEN;
+    sock.onopen?.({} as never);
+    assert.ok(opened, 'the store onopen handler ran');
+    assert.deepEqual(sent, ['{"type":"attention","focus":null}', '{"type":"cursor","canvas":"welcome","surface":"canvas","x":1,"y":2}'], 'the buffered frames flushed in order before the handler');
+    // CLOSING: the send drops silently (the reconnect cycle owns recovery)
+    socketsMade[0].readyState = FakeWebSocket.CLOSING;
+    sock.send('{"type":"attention","focus":null}');
+    assert.equal(sent.length, 2, 'a dying-socket send neither threw nor landed');
+    // late pre-open frames after a fresh wrapper are independent
+    const sock2 = factory('/__design__/ws');
+    let opened2 = false;
+    sock2.onopen = () => {
+      opened2 = true;
+    };
+    sock2.send('{"type":"ping"}');
+    assert.equal(socketsMade[1].readyState, 0);
+    socketsMade[1].readyState = FakeWebSocket.OPEN;
+    sock2.onopen?.({} as never);
+    assert.ok(opened2);
+    assert.equal(sent.at(-1), '{"type":"ping"}', 'the second wrapper buffers independently');
+  } finally {
+    (globalThis as { WebSocket?: unknown }).WebSocket = RealWebSocket;
+  }
 });

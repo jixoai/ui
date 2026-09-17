@@ -76,8 +76,13 @@ test('shell: cursors are canvas-scoped — the chrome lane is RETIRED (ruling 2)
 });
 
 test('shell: the canvas overlay\'s local-cursor forwards WITH its canvas name', () => {
-  const listener = shell.match(/data\.type !== 'jx-design:local-cursor'[\s\S]{0,400}store\.reportCursor\(data\.canvas, 'canvas', data\.x, data\.y\)/);
+  // presence-liveness P2: the surface rides the report verbatim — a kit
+  // frame's relay arrives as surface 'frame:<id>' and must survive the
+  // forward (the stale-bundle red taught this: 'canvas'-hardcoding breaks
+  // the frame offset on every remote renderer)
+  const listener = shell.match(/data\.type !== 'jx-design:local-cursor'[\s\S]{0,700}store\.reportCursor\(data\.canvas, surface as never, data\.x, data\.y\)/);
   assert.ok(listener !== null, 'the report forwards canvas-scoped: name + surface + coords');
+  assert.match(shell, /const surface = typeof data\.surface === 'string' && data\.surface\.length > 0 \? data\.surface : 'canvas'/, 'absent surface falls back to canvas, present surfaces pass through');
   assert.match(shell, /typeof data\.canvas !== 'string' \|\| data\.canvas\.length === 0/, 'a nameless report is rejected');
   assert.match(shell, /event\.source !== \(canvasIframe\?\.contentWindow \?\? null\)/, 'only the live canvas iframe\'s reports count');
 });
@@ -147,16 +152,22 @@ test('overlay: attention resolves by componentId ACROSS documents (own doc first
   assert.match(body, /\[id="\$\{CSS\.escape\(attention\.component\)\}"\]/, 'the protocol componentId resolves by the native id attribute');
   assert.match(body, /for \(const frame of document\.querySelectorAll\('iframe'\)\)/, 'kit iframes are searched in order');
   assert.match(body, /frame\.contentDocument/, 'same-origin document query');
-  assert.match(body, /rect\.left \+ box\.left \+ window\.scrollX/, 'the frame offset + scroll land in canvas-document coords');
+  // presence-liveness P2's coordinate law: kit CSS px → canvas-doc px
+  // through the measured lens scale k (pre/post-lens spaces meet only via k)
+  assert.match(body, /const k = kitW > 0 && rect\.width > 0 \? rect\.width \/ kitW : 1;/, 'the measured lens scale');
+  assert.match(body, /rect\.left \+ box\.left \* k \+ window\.scrollX/, 'the frame offset × k + scroll land in canvas-document coords');
   assert.match(body, /continue; \/\/ cross-origin — not ours/, 'cross-origin frames are skipped');
   assert.match(overlay, /never a wrong-element ring/, 'unresolvable ids fade out, never a wrong-element ring (the law comment)');
 });
 
-test('overlay: the local cursor reports UP in canvas-document coordinates, ~50ms throttled', () => {
+test('overlay: the local cursor reports UP in canvas-document coordinates, rAF-coalesced (P7)', () => {
   const up = overlay.match(/document\.addEventListener\(\s*'pointermove',[\s\S]*?\{ capture: true, passive: true \},\s*\);/);
   assert.ok(up !== null, 'the pointermove listener must exist');
   assert.match(up[0], /event\.clientX \+ window\.scrollX/, 'canvas-document coordinates (the picker emit law)');
-  assert.match(overlay, /LOCAL_CURSOR_THROTTLE_MS = 50/, 'the ~50ms throttle constant');
+  // presence-liveness P7: the report rides the frame cadence — one
+  // postMessage per rAF, the 50ms trailing throttle is retired
+  assert.match(up[0], /requestAnimationFrame/, 'rAF-coalesced (the game-grade latency budget)');
+  assert.ok(!/LOCAL_CURSOR_THROTTLE_MS = 50/.test(overlay), 'the 50ms throttle constant is gone');
   assert.match(overlay, /type: 'jx-design:local-cursor'/, 'the up-channel message type');
 });
 
@@ -185,7 +196,7 @@ test('shell: the panel focus lives IN the panel now — the shell overlay is RET
   assert.ok(!/:panel-focus`/.test(shell), 'no shell-side panel-focus namespace remains');
   // the feed hands the property panel the foci (focusWithIn + caret render there)
   assert.match(shell, /presenceFoci=\{panelFoci\}/, 'the panel receives the foci feed');
-  assert.match(shell, /onPresenceAttention=\{\(focus\) => presenceStoreRef\?\.reportAttention/, 'the attention uplink reaches the store');
+  assert.match(shell, /onPresenceAttention=\{\(focus\) => reportOwnAttention/, 'the attention uplink reaches the store');
 });
 
 test('shell: the primary law — the local player re-hues the studio chrome', () => {
@@ -194,11 +205,17 @@ test('shell: the primary law — the local player re-hues the studio chrome', ()
   assert.match(shell, /brandHueOklch: selfHueOklch/, 'the presence message names it brandHueOklch');
 });
 
-test('shell: the nav ribbon rides border-image (ruling 3)', () => {
+test('shell: the nav ribbon rides the Owner border-image syntax (P5)', () => {
   assert.match(shell, /function navRibbonStyle/, 'the one-call style helper');
-  assert.match(shell, /border-image: \$\{ribbon\.image\} 1;/, 'the multi-player ribbon is a border-image gradient');
-  assert.match(shell, /border-inline-start: 3px solid \$\{ribbon\.color\};/, 'single player keeps the plain-color look');
+  // ribbonOf owns the syntax wholesale — the shell never hand-rolls a
+  // border (the 3px solid / `… 1` shorthand forms are retired)
+  assert.match(shell, /return ribbon === null \? null : ribbon\.style;/, 'the row carries ribbonOf\'s complete Owner-syntax style');
+  assert.ok(!/border-inline-start: 3px/.test(shell), 'the 3px ribbon form is gone');
+  assert.ok(!/border-image: \$\{ribbon\.image\} 1;/.test(shell), 'the `1`-slice shorthand is gone');
   assert.match(shell, /data-jx-remote-ribbon=\{[^}]*'multi' : 'single'\}/, 'the probe hook discriminates the modes');
+  // self-first (P5③): the local cursor's canvas lights its own nav row
+  assert.match(shell, /ownCursor !== null && presenceSelf !== null/, 'the local player counts as a nav attendee, self first');
+  assert.match(shell, /ownCursor = data\.canvas;/, 'the local-cursor uplink mirrors the canvas into the nav ribbon');
 });
 
 test('shell: the chips — hue dot, self first with (you), the online count', () => {

@@ -44,19 +44,25 @@
        expression props stay readonly ("edit in code") on the /usage
        skipped evidence, never guesswork.
 
-  PRESENCE (presence-visuals 2.3, 2026-09-17): the panel becomes a
-  presence surface BOTH ways. DOWN: remote players' panel foci
-  (presenceFoci — field-addressed, optional caret offset) light the
-  matching row with a box-shadow ring stack (one 2px layer per
-  player) + name chips, and a caret on a text field renders a
-  player-colored caret bar positioned by the hidden-mirror math
-  (remote-caret.ts) — the shell's overlay outline retires with this
-  change; these in-row renderings are the only presentation. UP: any
-  local input/textarea focus/select/input/keyup caret change
-  throttle-reports onPresenceAttention ({kind:'panel', field, digest
-  ≤40 chars, caret}) and leaving the panel reports null. The EDIT
-  intent above is untouched — presence only reads events and writes
-  inert decorations.
+  PRESENCE (presence-visuals 2.3, 2026-09-17; presence-liveness
+  P3/P4, 2026-09-17): the panel becomes a presence surface BOTH ways.
+  DOWN: remote players' panel foci (presenceFoci — field-addressed,
+  optional selection {start,end}) light the matching row with a
+  box-shadow ring stack (one 2px layer per player) + name chips, and
+  a selection renders a player-colored caret bar at its end (the
+  zero-width span mirror math — remote-caret.ts) plus, on a range
+  (start≠end), the selection highlight rects; the shell's overlay
+  outline retires with this change; these in-row renderings are the
+  only presentation. UP: any local input/textarea focus/select/
+  input/keyup caret change throttle-reports onPresenceAttention
+  ({kind:'panel', field, digest ≤40 chars, selection}) with
+  selectionchange as the MAIN event (rAF-coalesced) over the
+  delegated fallback family, and leaving the panel reports null.
+  LIVE INPUT (P3): every typing event on a text surface admits
+  through the op lane's 300ms debounce window — Enter is an
+  accelerator, never the only commit path. The EDIT intent above is
+  untouched — presence only reads events and writes inert
+  decorations.
 
   Selection contract: B's DesignSelection (selection.ts) — the panel
   is a pure CONSUMER; the shell resolves selectionFile (a primitive).
@@ -249,12 +255,14 @@
   /* ── presence-visuals 2.3: the attention report vocabulary ─────────── */
 
   /** the panel's presence attention payload — the store's PanelCaretFocus
-   *  shape verbatim (attention {kind:'panel'} + the optional caret) */
+   *  shape verbatim (attention {kind:'panel'} + the optional selection:
+   *  equal ends are a collapsed caret, a range is a selection
+   *  highlight — presence-liveness P4) */
   export interface PanelAttentionFocus {
     readonly kind: 'panel';
     readonly field: string;
     readonly digest: string;
-    readonly caret?: number;
+    readonly selection?: { readonly start: number; readonly end: number };
   }
 
   /** the digest leak law: the current value truncated to 40 chars with
@@ -266,9 +274,16 @@
     return value.length > ATTENTION_DIGEST_MAX ? `${value.slice(0, ATTENTION_DIGEST_MAX)}…` : value;
   }
 
-  /** caret moves stream — the UP lane collapses to one send per window
-   *  (leading fire + trailing flush of the LAST payload) */
-  export const ATTENTION_REPORT_THROTTLE_MS = 120;
+  /** caret/selection moves stream — the UP lane collapses to one send
+   *  per window (leading fire + trailing flush of the LAST payload);
+   *  32ms is the P7 caret-report budget (~30 sends/second ceiling) */
+  export const ATTENTION_REPORT_THROTTLE_MS = 32;
+
+  /** live typing admits through the op lane at this debounce
+   *  (presence-liveness P3): every input event re-arms one 300ms
+   *  window per buffer — Enter is an accelerator, never the only
+   *  commit path */
+  export const LIVE_INPUT_DEBOUNCE_MS = 300;
 
   /** the reportable field vocabulary: control ids the panel itself
    *  addresses rows by — family auto-ids (segmented radios, readonly
@@ -290,16 +305,18 @@
   import { onDestroy } from 'svelte';
   import { PanelCollabClient, fetchTransport, type PanelCollabSnapshot, type PanelUsageInfo } from './panel-collab.ts';
   import { playerHueCss } from './presence-visuals.ts';
-  import { measureCaretMetrics } from './remote-caret.ts';
+  import { measureCaretMetrics, measureSelectionMetrics, selectionRects, trackFieldSelection } from './remote-caret.ts';
 
   /** one remote player's panel focus (presence-visuals 2.3 — the shell
-   *  resolves attention frames into this list; the panel only consumes) */
+   *  resolves attention frames into this list; the panel only consumes).
+   *  `selection` carries the remote caret/range (P4): equal ends are a
+   *  collapsed caret bar, a range adds the selection highlight */
   interface RemotePanelFocus {
     readonly playerId: string;
     readonly name: string;
     readonly colorHue: number;
     readonly field: string;
-    readonly caret?: number;
+    readonly selection?: { readonly start: number; readonly end: number };
   }
 
   let {
@@ -310,6 +327,7 @@
     presencePlayerId = null,
     presenceFoci = [],
     onPresenceAttention = undefined,
+    collabTail = 0,
   }: {
     selection?: DesignSelection | null;
     /** the shell-resolved edit target (selection frameId → source file)
@@ -323,13 +341,19 @@
      *  client's sessionHint so edits attribute to this Player */
     presencePlayerId?: string | null;
     /** remote panel foci (presence-visuals 2.3): each entry lights the
-     *  row its field addresses; a caret offset renders the caret bar.
-     *  Empty/absent = today's panel, byte-identical */
+     *  row its field addresses; a selection renders the caret bar and,
+     *  on a range, the highlight. Empty/absent = today's panel,
+     *  byte-identical */
     presenceFoci?: readonly RemotePanelFocus[];
     /** the UP report lane (presence-visuals 2.3): local caret/focus
      *  changes throttle-flush here as {kind:'panel', field, digest,
-     *  caret}; null = the local player left the panel */
+     *  selection}; null = the local player left the panel */
     onPresenceAttention?: (focus: PanelAttentionFocus | null) => void;
+    /** the journal-tail counter (presence-liveness P3): the shell bumps
+     *  this PRIMITIVE on every journal-tail frame so the mirror pulls
+     *  the canonical increment IMMEDIATELY (the 4s poll alone cannot
+     *  mirror a peer's live-typed admit in the 600ms budget) */
+    collabTail?: number;
   } = $props();
 
   // the presence hint rides whatever client is live (seeded or pending)
@@ -423,8 +447,10 @@
         if (current.file === null) return; // the unresolved-file read-only path
         // M7a: resolve the selection onto the protocol (id-first) and
         // seed the mirror client — the canonical projection is the
-        // seed, never a raw file read
-        const created = new PanelCollabClient(fetchTransport(collabUrl));
+        // seed, never a raw file read. The debounce window is P3's
+        // LIVE 300ms: every keystroke's setDesired admits ~300ms after
+        // the last one, without waiting for Enter/blur
+        const created = new PanelCollabClient(fetchTransport(collabUrl), { debounceMs: LIVE_INPUT_DEBOUNCE_MS });
         created.setPresenceHint(pendingPresencePlayerId);
         const unsubscribe = created.subscribe(() => {
           usageState = created.snapshot();
@@ -505,10 +531,12 @@
   }
 
   // unmount teardown (component lifecycle, not effect lifecycle): the
-  // mirror poll, the subscription and the debounce timers die here
+  // mirror poll, the subscription, the debounce timers and the
+  // selectionchange tracker die here
   onDestroy(() => {
     unmounted = true;
     if (attentionTimer !== undefined) clearTimeout(attentionTimer); // the attention throttle's tail
+    selectionTracker?.stop(); // the document-level selectionchange listener
     client?.dispose();
     client = null;
   });
@@ -521,6 +549,17 @@
       lastError = error;
       notice = error;
     }
+  });
+
+  // the journal-tail PULL (P3): every shell-side bump drags the live
+  // client's mirror forward immediately — a peer's live-typed admit
+  // lands in this panel's buffers within the 600ms budget instead of
+  // waiting on the 4s poll. `client` is a plain (non-reactive) let, so
+  // this effect re-runs on the PRIMITIVE counter only; failures are
+  // the poll's to retry (never fatal here)
+  $effect(() => {
+    void collabTail;
+    if (client !== null) void client.syncNow().catch(() => undefined);
   });
 
   async function commitProp(prop: string, value: RowValue): Promise<void> {
@@ -550,19 +589,67 @@
     await commitProp(row.prop, value);
   }
 
-  // the text rows' commit trigger: the CURRENT field value is the edit's payload
+  // the text rows' commit trigger: Enter FLUSHES now (an accelerator,
+  // never the only path — P3: every keystroke admits via the live
+  // debounce window below)
   function onTextEnter(row: ControlRow, event: KeyboardEvent): void {
     if (event.key !== 'Enter') return;
-    void commitRow(row, event.currentTarget.value);
+    void commitRow(row, event.currentTarget.value).then(() => {
+      client?.commitNow(row.prop);
+    });
+  }
+
+  /* ── the LIVE edit lane (presence-liveness P3) ──────────────────────── */
+
+  /**
+   * Every typing event on a text surface admits through the op lane:
+   * setDesired re-arms the client's 300ms debounce window (one net
+   * diff per window — the overlay law is untouched) and the admit
+   * rides the existing §4 channel with the panel's sessionHint. Enter
+   * and blur keep working as before; nothing waits on them.
+   */
+  function onLiveInput(target: HTMLInputElement | HTMLTextAreaElement): void {
+    if (target instanceof HTMLTextAreaElement) {
+      // slot-text rows: id = slot-text-<buffer>
+      if (!target.id.startsWith('slot-text-')) return;
+      const buffer = target.id.slice('slot-text-'.length);
+      if (file === null || conflictOn(buffer) || client === null) return;
+      client.setDesired(buffer, target.value);
+      return;
+    }
+    if (!target.id.startsWith('prop-')) return;
+    const prop = target.id.slice('prop-'.length);
+    const row = rows.find((candidate) => candidate.prop === prop);
+    if (row === undefined || rowSuspended(row)) return;
+    if (row.kind === 'text') {
+      void commitRow(row, target.value);
+      return;
+    }
+    if (row.kind === 'stepper') {
+      // direct typing in the number input: the honest numeric read,
+      // non-finite text (a half-typed '-') is not an edit yet
+      const n = target.value === '' ? undefined : Number(target.value);
+      if (n === undefined || Number.isFinite(n)) void commitRow(row, n);
+    }
+  }
+
+  /** the panel-root input dispatcher: the presence report AND the live
+   *  edit lane ride the same delegated event (one wiring for every row
+   * the family renders) */
+  function onPanelInput(event: Event): void {
+    const target = event.target;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) onLiveInput(target);
+    onPresenceFieldEvent(event);
   }
 
   /* ── slot text (the t-<n> buffer rows) ─────────────────────────────── */
 
-  /** Enter commits; Shift+Enter keeps the textarea's default newline */
+  /** Enter flushes immediately; Shift+Enter keeps the textarea's default newline */
   function onSlotTextKey(span: SlotTextSpan, event: KeyboardEvent): void {
     if (event.key !== 'Enter' || event.shiftKey) return;
     event.preventDefault();
     client?.setDesired(span.buffer, event.currentTarget.value);
+    void client?.commitNow(span.buffer);
   }
 
   /* ── the §6 conflict card actions ──────────────────────────────────── */
@@ -621,21 +708,54 @@
     }
   }
 
+  /** the attention payload of one field (shared by the delegated
+   *  events and the selectionchange tracker): the panel focus with the
+   *  field's CURRENT selection — {start, end}, equal ends are the
+   *  collapsed caret, a range is the selection highlight (P4) */
+  function attentionOfField(
+    target: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
+  ): PanelAttentionFocus {
+    const selectionStart = (target as HTMLInputElement).selectionStart;
+    const selectionEnd = (target as HTMLInputElement).selectionEnd;
+    return {
+      kind: 'panel',
+      field: target.id,
+      digest: digestOfValue(fieldValueOf(target)),
+      ...(typeof selectionStart === 'number' && typeof selectionEnd === 'number'
+        ? { selection: { start: selectionStart, end: selectionEnd } }
+        : {}),
+    };
+  }
+
   /** focus/select/input/keyup over ANY panel control → the panel-focus
-   *  attention (field = the control's row id, caret when the control
-   *  is a text surface) */
+   *  attention (field = the control's row id, selection when the
+   *  control is a text surface) — the FALLBACK family; selectionchange
+   *  is the main event */
   function onPresenceFieldEvent(event: Event): void {
     if (onPresenceAttention === undefined) return; // no lane wired — zero cost
     const target = event.target;
     if (!isFieldControl(target) || !isReportableFieldId(target.id)) return;
-    const selectionStart = (target as HTMLInputElement).selectionStart;
-    reportPanelAttention({
-      kind: 'panel',
-      field: target.id,
-      digest: digestOfValue(fieldValueOf(target)),
-      ...(typeof selectionStart === 'number' ? { caret: selectionStart } : {}),
-    });
+    reportPanelAttention(attentionOfField(target));
   }
+
+  /** the selectionchange MAIN event (P4): keyboard, mouse, paste and
+   *  undo selections all fire it on the document — the delegated
+   *  events above stay as the fallback family (the reference's
+   *  belt-and-braces). Reads rAF-coalesce in the tracker; the 32ms
+   *  throttle caps the wire. Mounted once (a wired lane is stable for
+   *  the component's lifetime), stopped on teardown */
+  const selectionTracker =
+    onPresenceAttention === undefined
+      ? null
+      : trackFieldSelection(
+          document,
+          () => {
+            const active = document.activeElement;
+            if (!(active instanceof HTMLInputElement) && !(active instanceof HTMLTextAreaElement)) return null;
+            return isReportableFieldId(active.id) ? active : null;
+          },
+          (field) => reportPanelAttention(attentionOfField(field)),
+        );
 
   /** blur → the null report; moving WITHIN the panel does not (the
    *  incoming control's focusin re-reports — a null here would flash
@@ -735,17 +855,22 @@
         rack.appendChild(chip);
       }
       row.appendChild(rack);
-      // the caret bars: mirror-measured, player-colored, 2px staggered
+      // the caret bars: zero-width-mirror-measured, player-colored,
+      // 2px staggered; a RANGE adds the selection highlight rects (P4)
       const bars: HTMLElement[] = [];
       const rowRect = row.getBoundingClientRect();
       for (const player of ordered) {
-        if (player.caret === undefined) continue;
+        const sel = player.selection;
+        if (sel === undefined) continue;
         const control = resolveFieldControl(player.field);
         if (control === null || !(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement)) {
           continue; // a caret on a non-text control lights the ring only
         }
         const field = control;
-        const metrics = measureCaretMetrics(field, player.caret);
+        // the bar rides the selection's END (the typing position for
+        // a collapsed selection; a range's far end — the vocabulary
+        // carries no direction, `end` is the honest default)
+        const metrics = measureCaretMetrics(field, sel.end);
         const fieldRect = field.getBoundingClientRect();
         const ordinal = barOrdinals.get(field) ?? 0;
         barOrdinals.set(field, ordinal + 1);
@@ -754,7 +879,7 @@
           `left:${fieldRect.left - rowRect.left + metrics.x + ordinal * 2}px`,
           `top:${fieldRect.top - rowRect.top + metrics.y}px`,
           'width:2px',
-          `height:${metrics.height}px`,
+          `height:${Math.max(metrics.height, 8)}px`,
           `background:${playerHueCss(player.colorHue)}`,
         ], 'data-jx-remote-caret', player.playerId);
         const tag = inertElement('span', [
@@ -772,6 +897,25 @@
         bar.appendChild(tag);
         row.appendChild(bar);
         bars.push(bar);
+        // the selection highlight: start≠end renders the range's rects
+        // (same line = one span; soft wraps/multi-line = tail + full
+        // lines + head — selectionRects' segmentation)
+        if (sel.start !== sel.end) {
+          const range = measureSelectionMetrics(field, sel.start, sel.end);
+          for (const rect of selectionRects(range.from, range.to, metrics.height, range.contentWidth)) {
+            const mark = inertElement('div', [
+              'position:absolute',
+              `left:${fieldRect.left - rowRect.left + rect.x}px`,
+              `top:${fieldRect.top - rowRect.top + rect.y}px`,
+              `width:${rect.width}px`,
+              `height:${rect.height}px`,
+              `background:hsl(${player.colorHue}, 85%, 45%, 0.25)`,
+              'border-radius:2px',
+            ], 'data-jx-remote-selection', player.playerId);
+            row.appendChild(mark);
+            bars.push(mark);
+          }
+        }
       }
       undos.push(() => {
         row.style.position = priorPosition;
@@ -792,12 +936,14 @@
      (one source: the whole studio paints the dark token set) -->
 <!-- the presence seams ride DELEGATED events on the panel root (they
      bubble: focusin/focusout/input/select/keyup) — one wiring for every
-     row the family renders, the EDIT handlers untouched -->
+     row the family renders, the EDIT handlers untouched; input drives
+     BOTH lanes: the live admit (P3) and the attention report (P4's
+     fallback family; selectionchange is the main event) -->
 <section
   class="panel"
   onfocusin={onPresenceFieldEvent}
   onfocusout={onPresenceFieldBlur}
-  oninput={onPresenceFieldEvent}
+  oninput={onPanelInput}
   onselect={onPresenceFieldEvent}
   onkeyup={onPresenceFieldEvent}
 >
@@ -987,9 +1133,11 @@
           <!-- the slot-text rows: the usage's own t-<n> buffers, one
                textarea per fragment; positional labels; every row
                honors the conflict-suspension and unresolved-file
-               read-only laws like the prop controls above -->
+               read-only laws like the prop controls above. Typing is
+               LIVE (300ms debounce admit, P3) — Enter only flushes
+               early; Shift+Enter keeps the newline -->
           <div class="slot-text">
-            <p class="slot-text-hint">slot 内容 · Enter 提交 · Shift+Enter 换行</p>
+            <p class="slot-text-hint">slot 内容 · 输入实时同步 · Shift+Enter 换行</p>
             {#each slotRows as span, index (span.buffer)}
               <label class="slot-text-label" for={`slot-text-${span.buffer}`}>{slotTextLabel(index, slotRows.length)}</label>
               <textarea

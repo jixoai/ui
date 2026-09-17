@@ -416,6 +416,22 @@
     persistSelection();
   }
 
+  // selection IS attention (presence-liveness P1): picking a component
+  // tells every studio WHERE this player works — the panel's field focus
+  // outranks it while held
+  $effect(() => {
+    const store = presenceStoreRef;
+    if (store === null) return;
+    if (panelFocusHeld) return; // the tie-break holds
+    if (selection === null) {
+      store.reportAttention(null);
+      return;
+    }
+    const id = selection.componentId ?? null;
+    if (id === null) return; // unaddressable picks stay local
+    store.reportAttention({ kind: 'canvas', component: id, instance: null, frameId: null });
+  });
+
   // the picker's up-call seam (GATE-0 relay, 2026-09-12): a window
   // property assigned INSIDE $.user_effect vanished between the
   // assignment and the next statement on fresh page loads (module-
@@ -497,15 +513,16 @@
     presencePlayers.filter((player) => player.playerId !== presenceSelf?.playerId),
   );
   /** remote panel foci — fed to the property panel's IN-PANEL rendering
-   *  (presence-visuals ruling 4: focusWithIn + caret live on the field
-   *  rows themselves; the shell overlay lane is retired) */
+   *  (presence-visuals ruling 4: focusWithIn + selection live on the
+   *  field rows themselves; the shell overlay lane is retired; the
+   *  selection {start,end} passthrough is presence-liveness P4) */
   const panelFoci = $derived(
     remotePlayers
       .filter((player) => player.attention !== null && player.attention.kind === 'panel')
       .map((player) => {
         const focus = player.attention as Extract<AttentionFocus, { kind: 'panel' }>;
         return { playerId: player.playerId, name: player.name, colorHue: player.colorHue,
-                 field: focus.field, ...(focus.caret !== undefined ? { caret: focus.caret } : {}) };
+                 field: focus.field, ...(focus.selection !== undefined ? { selection: focus.selection } : {}) };
       }),
   );
   /** remote tree attentions — the rainbow-ribbon feed (ruling 3) */
@@ -517,30 +534,36 @@
         return { playerId: player.playerId, colorHue: player.colorHue, componentId: focus.component, online: true };
       }),
   );
-  /** the nav ribbon: which canvas each remote player sits on (cursor's
-   *  canvas name; falls back to nothing — an attentionless player is
-   *  nowhere in particular) */
+  /** the nav ribbon: which canvas each player sits on — the local
+   *  cursor's canvas counts too (presence-liveness P5's self-first
+   *  law: ownCursor mirrors the jx-design:local-cursor uplink the
+   *  store already forwards; the store's own snapshot never carries
+   *  self, and a human always has a mouse, gateway §1) */
+  let ownCursor = $state<string | null>(null);
   const navRibbons = $derived.by(() => {
     const byCanvas = new Map<string, number[]>();
+    const light = (canvas: string, hue: number): void => {
+      const list = byCanvas.get(canvas) ?? [];
+      list.push(hue);
+      byCanvas.set(canvas, list);
+    };
+    // the LOCAL order is self first, then the joining ordinal (the
+    // remote roster arrives already ordinal-sorted from the snapshot)
+    if (ownCursor !== null && presenceSelf !== null) light(ownCursor, presenceSelf.colorHue);
     for (const player of remotePlayers) {
       const canvas = player.cursor?.canvas;
       if (canvas === undefined || player.hasMouse !== true) continue; // a mouseless player casts no nav light
-      const list = byCanvas.get(canvas) ?? [];
-      list.push(player.colorHue);
-      byCanvas.set(canvas, list);
+      light(canvas, player.colorHue);
     }
     return byCanvas;
   });
   /** the nav row's ribbon style (one calculation, one string — the
-   *  svelte @const law bars it from plain <li> children) */
+   *  svelte @const law bars it from plain <li> children): ribbonOf
+   *  owns the Owner syntax wholesale — single = the plain 2px player
+   *  color, multi = the vertical border-image gradient */
   function navRibbonStyle(canvasName: string): string | null {
-    const hues = navRibbons.get(canvasName) ?? [];
-    if (hues.length === 0) return null;
-    const ribbon = ribbonOf(hues);
-    if (ribbon === null) return null;
-    return ribbon.single
-      ? `border-inline-start: 3px solid ${ribbon.color};`
-      : `border-inline-start: 3px solid transparent; border-image: ${ribbon.image} 1;`;
+    const ribbon = ribbonOf(navRibbons.get(canvasName) ?? []);
+    return ribbon === null ? null : ribbon.style;
   }
   /** the chips list: SELF FIRST with the (you) mark, then the joining ordinal */
   const presenceChips = $derived.by(() => {
@@ -570,11 +593,18 @@
   /** the /sync rebase the journal-tail owes (§1): the panel's own 4s
    *  mirror poll keeps its client current — this lane adds the
    *  journal-tail's IMMEDIATE pull (serialized; a burst collapses to
-   *  the last queued pass). The editing lane never waits on it. */
+   *  the last queued pass). The editing lane never waits on it.
+   *  collabTailSeq (presence-liveness P3) is the same event's PRIMITIVE
+   *  hand-off to the property panel: every bump orders the panel
+   *  client's own mirror pull, so a peer's live-typed admit mirrors
+   *  inside the 600ms budget; $state so the prop feeds the panel's
+   *  sync effect. */
   const COLLAB_SYNC_URL = '/__design__/api/collab/sync';
   let collabSyncInFlight = false;
   let collabSyncQueued = false;
+  let collabTailSeq = $state(0);
   function rebaseAfterJournalTail(): void {
+    collabTailSeq += 1;
     if (collabSyncInFlight) {
       collabSyncQueued = true;
       return;
@@ -596,8 +626,21 @@
    *  the remote roster — cursors stream at ~50ms, the frame budget
    *  caps the traffic at one message per frame */
   /** the live presence store (component-scoped so the panel's attention
-   *  uplink can reach it from the template; the lifecycle effect owns it) */
-  let presenceStoreRef: PresenceStore | null = null;
+   *  uplink can reach it from the template; the lifecycle effect owns it).
+   *  $state — the selection→attention effect below reads it; a plain let
+   *  would strand that effect dead at mount (read-before-assign never
+   *  re-runs — the P1 lesson: three probes to find a dead effect) */
+  let presenceStoreRef = $state<PresenceStore | null>(null);
+  /** the attention priority law (presence-liveness P1): a field being
+   *  edited outranks the canvas selection; both outrank nothing. The
+   *  panel reports its focus through onPresenceAttention — this flag
+   *  holds the tie-break so a selection change never clobbers it;
+   *  $state so a blur (flag flip) lets the held selection reclaim */
+  let panelFocusHeld = $state(false);
+  function reportOwnAttention(panelFocus: AttentionFocus | null): void {
+    panelFocusHeld = panelFocus !== null;
+    presenceStoreRef?.reportAttention(panelFocus);
+  }
   let presenceFlushRaf = 0;
   function forwardPresenceToCanvas(snapshot: PresenceSnapshot): void {
     if (presenceFlushRaf !== 0) return;
@@ -671,7 +714,9 @@
       if (typeof data.x !== 'number' || typeof data.y !== 'number') return;
       // async read — the listener body never tracks the iframe seam
       if (event.source !== (canvasIframe?.contentWindow ?? null)) return;
-      store.reportCursor(data.canvas, 'canvas', data.x, data.y);
+      const surface = typeof data.surface === 'string' && data.surface.length > 0 ? data.surface : 'canvas';
+      ownCursor = data.canvas; // P5 self-first nav light
+      store.reportCursor(data.canvas, surface as never, data.x, data.y);
     };
     window.addEventListener('message', onMessage);
     return () => {
@@ -869,7 +914,8 @@
         {selectionFile}
         presencePlayerId={presenceSelf?.playerId ?? null}
         presenceFoci={panelFoci}
-        onPresenceAttention={(focus) => presenceStoreRef?.reportAttention(focus === null ? null : focus)}
+        onPresenceAttention={(focus) => reportOwnAttention(focus === null ? null : focus)}
+        collabTail={collabTailSeq}
       />
     </div>
     <div class="studio-tab-zone">
@@ -1202,7 +1248,10 @@
   .studio-nav-ribbon {
     flex: none;
     align-self: stretch;
-    width: 3px;
+    /* border-box: the 2px border-inline-start (ribbonOf's law) fills
+       the whole span — single paints the player color, multi paints
+       the vertical border-image gradient */
+    width: 2px;
     min-height: 100%;
     box-sizing: border-box;
     pointer-events: none;

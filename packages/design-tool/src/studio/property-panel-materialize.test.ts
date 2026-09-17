@@ -47,9 +47,10 @@ test('every control commits through the commitRow dispatcher — materialize fir
   assert.match(panel, /if \(landed\) await reseedAfterMaterialize\(\);/, 'a landed materialization reseeds');
   assert.match(panel, /await commitProp\(row\.prop, value\);/, 'ordinary rows keep the admit lane');
   // all control lanes dispatch through it (toggle/select/stepper/segmented
-  // in the template + the text row's Enter handler)
+  // in the template + the text row's Enter handler + the P3 LIVE input
+  // lane's text and stepper dispatches)
   const dispatches = panel.match(/void commitRow\(row, /g) ?? [];
-  assert.equal(dispatches.length, 5, `expected the dispatcher on every control lane, found ${dispatches.length}`);
+  assert.equal(dispatches.length, 7, `expected the dispatcher on every control lane, found ${dispatches.length}`);
   assert.match(panel, /function onTextEnter\(row: ControlRow, event: KeyboardEvent\)[\s\S]{0,200}void commitRow\(row, event\.currentTarget\.value\)/, 'Enter on a text row dispatches too');
 });
 

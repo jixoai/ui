@@ -37,30 +37,45 @@ test('the 73° presence ladder bridges to distinct oklch hues', () => {
   }
 });
 
-/* ── law 2: the ribbon ─────────────────────────────────────────────── */
+/* ── law 2: the ribbon (the Owner syntax, presence-liveness P5/P6) ──── */
 
 test('no players → no ribbon', () => {
   assert.equal(ribbonOf([]), null);
 });
 
-test('one player → the plain single color (today’s look)', () => {
-  assert.deepEqual(ribbonOf([73]), { single: true, color: playerHueCss(73) });
+test('one player → the plain single color, Owner single form (P5)', () => {
+  assert.deepEqual(ribbonOf([73]), {
+    single: true,
+    style: `border-inline-start: 2px solid ${playerHueCss(73)}; border-image: none;`,
+  });
   assert.equal(playerHueCss(73), 'hsl(73, 85%, 45%)');
 });
 
-test('two players split the border evenly, in the LOCAL order (self first)', () => {
+test('two players → the Owner border-image form (vertical halves, self first)', () => {
   const ribbon = ribbonOf([146, 73]); // local view: self (146) first
   assert.ok(ribbon !== null && !ribbon.single);
+  // the complete style: placeholder border + the verbatim slice/width tails
+  assert.ok(
+    ribbon.style.startsWith(`border-inline-start: 2px solid transparent; border-image: linear-gradient(to bottom, ${playerHueCss(146)}`),
+    ribbon.style,
+  );
+  assert.ok(ribbon.style.endsWith(') 0 0 0 1 / 0 0 0 2px;'), `the Owner slice/width tail: ${ribbon.style}`);
+  // the gradient: vertical, hard-stop halves, self first
   const image = ribbon.image;
   assert.ok(image.startsWith('linear-gradient(to bottom, '), image);
-  assert.ok(image.includes(playerHueCss(146)), 'the first segment is the local self');
-  assert.ok(image.includes('hsl(73, 85%, 45%)'), 'the second segment is the other player');
-  assert.ok(image.includes('50.0000%'), 'two equal halves');
+  assert.ok(
+    image.startsWith(`linear-gradient(to bottom, ${playerHueCss(146)} 0 50.0000%`),
+    'the first segment is the local self, hard-stopped at the half',
+  );
+  assert.ok(image.includes(`${playerHueCss(73)} 50.0000% 100.0000%`), 'the second segment closes the border');
 });
 
-test('three players split into thirds with hard stops', () => {
+test('three players → vertical thirds with hard stops', () => {
   const ribbon = ribbonOf([73, 146, 219]);
   assert.ok(ribbon !== null && !ribbon.single);
-  assert.ok(ribbon!.image.includes('33.3333%'), 'even thirds');
-  assert.ok(ribbon!.image.includes('66.6667%'), 'even thirds (upper bound)');
+  const image = ribbon.image;
+  assert.ok(image.includes(`${playerHueCss(73)} 0 33.3333%`), 'first third');
+  assert.ok(image.includes(`${playerHueCss(146)} 33.3333% 66.6667%`), 'middle third');
+  assert.ok(image.includes(`${playerHueCss(219)} 66.6667% 100.0000%`), 'last third');
+  assert.ok(ribbon.style.includes(' 0 0 0 1 / 0 0 0 2px;'), 'the Owner slice/width tail rides every multi ribbon');
 });

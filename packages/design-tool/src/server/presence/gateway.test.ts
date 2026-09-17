@@ -546,6 +546,53 @@ test('notifyCommit: journal-tail dedupes by seq; mappable actors relay attention
   await h.close();
 });
 
+test('notifyCommit preserves the live selection on the SAME field (P4: an admit never unrenders the remote caret), drops it on field changes', async (t) => {
+  const h = await harness(t);
+  const human = await connect(h.wsUrl, { name: 'owner' });
+  const humanWelcome = await human.next('welcome');
+  const observer = await connect(h.wsUrl, { name: 'watcher' });
+  await observer.next('welcome');
+
+  // the human reports a panel attention WITH a selection (the P4 uplink)
+  human.ws.send(
+    JSON.stringify({
+      type: 'attention',
+      focus: { kind: 'panel', field: 'slot-text-t-0', digest: 'Z', selection: { start: 4, end: 4 } },
+    }),
+  );
+  const live = await observer.next('presence');
+  assert.deepEqual(live.attention, { kind: 'panel', field: 'slot-text-t-0', digest: 'Z', selection: { start: 4, end: 4 } });
+
+  // the live-typed admit relays onto the SAME field ~300ms later — the
+  // selection must SURVIVE (a selection-less overwrite unrendered the
+  // remote caret mid-edit)
+  h.gateway.notifyCommit({
+    seq: 20,
+    actor: 'human',
+    target: { componentId: 'a4', buffer: 't-0' },
+    sessionHint: { playerId: String(humanWelcome.playerId), field: 'slot-text-t-0', digest: 'a4 · t-0=Z' },
+  });
+  await observer.next('journal-tail');
+  const kept = await observer.next('presence');
+  assert.deepEqual(kept.attention, { kind: 'panel', field: 'slot-text-t-0', digest: 'a4 · t-0=Z', selection: { start: 4, end: 4 } });
+
+  // a DIFFERENT field takes the op's focus fresh — a selection never
+  // leaks across fields
+  h.gateway.notifyCommit({
+    seq: 21,
+    actor: 'human',
+    target: { componentId: 'a4', buffer: 'raised' },
+    sessionHint: { playerId: String(humanWelcome.playerId), field: 'prop-raised', digest: 'a4 · raised=true' },
+  });
+  await observer.next('journal-tail');
+  const moved = await observer.next('presence');
+  assert.deepEqual(moved.attention, { kind: 'panel', field: 'prop-raised', digest: 'a4 · raised=true' });
+
+  human.close();
+  observer.close();
+  await h.close();
+});
+
 /* ── pure mapping functions ─────────────────────────────────────────────── */
 
 test('mapActorToPlayerId: the hint wins, then the actor binding, else no ghost', () => {

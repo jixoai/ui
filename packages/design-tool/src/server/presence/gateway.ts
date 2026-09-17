@@ -73,6 +73,9 @@ export interface PanelFocus {
   readonly kind: 'panel';
   readonly field: string;
   readonly digest: string;
+  /** the remote selection (P4): {start, end} in the field's value —
+   *  equal ends are a collapsed caret; a range is a selection highlight */
+  readonly selection?: { readonly start: number; readonly end: number };
 }
 
 /** the roster face (§1 PlayerView — cursor lives in the presence stream) */
@@ -132,8 +135,11 @@ export function isValidFocus(value: unknown): value is AttentionFocus {
     return isStr(value.component) && value.component.length > 0 && (value.instance === null || Number.isInteger(value.instance)) && (value.frameId === null || isStr(value.frameId));
   }
   if (value.kind === 'panel') {
-    return isStr(value.field) && value.field.length > 0 && isStr(value.digest)
-      && (value.caret === undefined || (Number.isInteger(value.caret) && (value.caret as number) >= 0));
+    if (!isStr(value.field) || value.field.length === 0 || !isStr(value.digest)) return false;
+    const sel = value.selection;
+    if (sel === undefined) return true;
+    return isObj(sel) && Number.isInteger(sel.start) && Number.isInteger(sel.end)
+      && sel.start >= 0 && sel.end >= 0 && sel.end >= sel.start;
   }
   return false;
 }
@@ -218,7 +224,8 @@ export function focusFromOpTarget(target: { readonly componentId: string; readon
 export interface PresenceGatewayOptions {
   /** the design workspace root — the ledger lives under its `.jx-collab/` */
   readonly designDir: string;
-  /** per-player presence merge window in ms (default 50 — design.md §3) */
+  /** per-player presence merge window in ms (presence-liveness P7: a
+   *  frame-budget window — cursor streams ride at rAF cadence now) */
   readonly presenceWindowMs?: number;
   /** offline timeout for missing pings in ms (default 5000 — design.md §2) */
   readonly offlineTimeoutMs?: number;
@@ -259,7 +266,10 @@ interface LivePlayer {
   silent: boolean;
 }
 
-const DEFAULT_PRESENCE_WINDOW_MS = 50;
+/** the presence merge window rides the frame cadence (16ms ≈ one rAF at
+ *  60Hz — presence-liveness P7's game-grade latency budget: cursor
+ *  end-to-end ≤100ms, and the gateway must not eat 50 of them) */
+const DEFAULT_PRESENCE_WINDOW_MS = 16;
 const DEFAULT_OFFLINE_TIMEOUT_MS = 5_000;
 
 class PresenceGatewayImpl implements PresenceGateway {
@@ -504,7 +514,19 @@ class PresenceGatewayImpl implements PresenceGateway {
     if (playerId === undefined) return; // 映射不到就只发 journal-tail，不造 ghost
     const player = this.#live.get(playerId);
     if (player === undefined) return;
-    player.attention = focusFromOpTarget(input.target, input.sessionHint);
+    const focus = focusFromOpTarget(input.target, input.sessionHint);
+    // presence-liveness P4: the op relay must not DROP the player's
+    // live selection — a live-typed admit lands ~300ms after the last
+    // keystroke's attention frame, and a selection-less overwrite here
+    // unrendered the remote caret mid-edit. The op still targets the
+    // SAME panel field → the last-reported selection is the truth;
+    // a different field takes the op's focus fresh (a selection never
+    // leaks across fields)
+    const prior = player.attention;
+    player.attention =
+      focus.kind === 'panel' && prior?.kind === 'panel' && prior.field === focus.field && prior.selection !== undefined
+        ? { ...focus, selection: prior.selection }
+        : focus;
     this.#flushPresenceNow(player);
   }
 

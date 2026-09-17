@@ -64,6 +64,29 @@ if (import.meta.hot) {
   import.meta.hot.on('jx-design:surface-reload', () => window.location.reload());
 }
 
+// the cursor relay (presence-liveness P2): the iframe is an event black
+// hole — the canvas host's pointermove dies at this boundary. A frame
+// relays ITS OWN pointer moves (frame-document coords = viewport + the
+// frame's own scroll, rAF-coalesced) under its BARE frame id — the
+// overlay's lookup grammar re-adds the jixoai-design-frame- prefix.
+if (window.parent !== window) {
+  let cursorRaf = 0;
+  let cursorPoint = null;
+  document.addEventListener('pointermove', (event) => {
+    cursorPoint = { x: event.clientX + window.scrollX, y: event.clientY + window.scrollY };
+    if (cursorRaf !== 0) return;
+    cursorRaf = requestAnimationFrame(() => {
+      cursorRaf = 0;
+      const point = cursorPoint;
+      cursorPoint = null;
+      const frameId = window.name.startsWith('jixoai-design-frame-') ? window.name.slice('jixoai-design-frame-'.length) : '';
+      if (point !== null && frameId !== '') {
+        window.parent.postMessage({ type: 'jx-design:frame-cursor', frameId, x: point.x, y: point.y }, window.location.origin);
+      }
+    });
+  }, { capture: true, passive: true });
+}
+
 // the wheel relay (#24 → #29, the Figma gesture set): wheel over the
 // design is the CANVAS's gesture — ⌘/Ctrl = cursor-anchored zoom,
 // plain/shift = pan. The frame is an event black hole to the studio —

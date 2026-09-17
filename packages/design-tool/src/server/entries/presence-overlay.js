@@ -173,14 +173,25 @@ function lensK() {
 
 /* ── placement ─────────────────────────────────────────────────────── */
 
-/** frame-surface coordinates resolve through the owning kit iframe */
+/** frame-surface coordinates resolve through the owning kit iframe.
+ *  The kit reports in ITS CSS pixels (pre-transform); the iframe's
+ *  rect is POST-lens-transform canvas-doc pixels — the two spaces
+ *  meet only through the measured scale k (rect.width / the kit
+ *  document's viewport width). Returns {x, y, k}; null parks the
+ *  cursor (the frame is gone). */
 function surfaceOffset(surface) {
-  if (typeof surface !== 'string' || !surface.startsWith('frame:')) return { x: 0, y: 0 };
+  if (typeof surface !== 'string' || !surface.startsWith('frame:')) return { x: 0, y: 0, k: 1 };
   const frameId = surface.slice('frame:'.length);
   const frame = document.querySelector(`iframe[name="${FRAME_NAME_PREFIX}${frameId}"]`);
   if (frame === null) return null; // frame gone — the cursor parks off-stage
   const rect = frame.getBoundingClientRect();
-  return { x: rect.left + window.scrollX, y: rect.top + window.scrollY };
+  let k = 1;
+  const kitDoc = frame.contentDocument;
+  if (kitDoc !== null) {
+    const kitW = kitDoc.documentElement.clientWidth;
+    if (kitW > 0 && rect.width > 0) k = rect.width / kitW;
+  }
+  return { x: rect.left + window.scrollX, y: rect.top + window.scrollY, k };
 }
 
 function placeCursor(entry, cursor) {
@@ -190,7 +201,7 @@ function placeCursor(entry, cursor) {
     return;
   }
   const k = lensK();
-  entry.cursor.style.transform = `translate(${cursor.x + offset.x}px, ${cursor.y + offset.y}px)`;
+  entry.cursor.style.transform = `translate(${offset.x + cursor.x * offset.k}px, ${offset.y + cursor.y * offset.k}px)`;
   entry.dot.style.width = entry.dot.style.height = `${9 * k}px`;
   entry.dot.style.top = entry.dot.style.left = `${-4.5 * k}px`;
   entry.tag.style.top = `${-9 * k}px`;
@@ -221,7 +232,11 @@ export function resolveAttentionBox(attention) {
     if (el === null) continue;
     const rect = frame.getBoundingClientRect();
     const box = el.getBoundingClientRect();
-    return { x: rect.left + box.left + window.scrollX, y: rect.top + box.top + window.scrollY, w: box.width, h: box.height };
+    // kit CSS px → canvas-doc px through the measured lens scale (the
+    // surfaceOffset law — pre/post-transform spaces meet only via k)
+    const kitW = doc.documentElement.clientWidth;
+    const k = kitW > 0 && rect.width > 0 ? rect.width / kitW : 1;
+    return { x: rect.left + box.left * k + window.scrollX, y: rect.top + box.top * k + window.scrollY, w: box.width * k, h: box.height * k };
   }
   return null;
 }
@@ -339,8 +354,6 @@ function alignStep() {
 
 /* ── the UP report (this document's own cursor) ────────────────────── */
 
-const LOCAL_CURSOR_THROTTLE_MS = 50;
-
 export function initPresenceOverlay() {
   if (!IS_CANVAS_HOST) return; // frames and standalone documents stay untouched
   if (!styleInjected) {
@@ -355,6 +368,16 @@ export function initPresenceOverlay() {
   window.addEventListener('message', (event) => {
     const data = event.data;
     if (data === null || typeof data !== 'object') return;
+    if (data.type === 'jx-design:frame-cursor') {
+      // a kit frame's own pointer (P2): forward it upstream as the local
+      // cursor — the frame's document coords ride surface frame:<id>,
+      // remote renderers add this iframe's offset (the report grammar)
+      if (typeof data.x !== 'number' || typeof data.y !== 'number' || typeof data.frameId !== 'string' || data.frameId === '') return;
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'jx-design:local-cursor', canvas: CANVAS_NAME, surface: `frame:${data.frameId}`, x: data.x, y: data.y }, window.location.origin);
+      }
+      return;
+    }
     if (data.type === 'jx-design:presence') {
       renderPresence(data.players);
       // the primary law (ruling 1): the local player's hue re-paints the
@@ -379,25 +402,26 @@ export function initPresenceOverlay() {
     }
   });
 
-  // the UP report: pointermove → ~50ms trailing throttle → parent. In
-  // canvas-document coordinates (clientX + scrollX): the receiving shell
-  // forwards them as surface 'canvas' untouched — no lens math anywhere
+  // the UP report: pointermove → rAF-coalesced (frame cadence, P7's
+  // game-grade latency budget) → parent. In canvas-document coordinates
+  // (clientX + scrollX): the receiving shell forwards them as surface
+  // 'canvas' untouched — no lens math anywhere
   if (window.parent !== window) {
-    let timer = 0;
+    let cursorRaf = 0;
     let pending = null;
     document.addEventListener(
       'pointermove',
       (event) => {
         pending = { x: event.clientX + window.scrollX, y: event.clientY + window.scrollY };
-        if (timer !== 0) return;
-        timer = setTimeout(() => {
-          timer = 0;
+        if (cursorRaf !== 0) return;
+        cursorRaf = requestAnimationFrame(() => {
+          cursorRaf = 0;
           const point = pending;
           pending = null;
           if (point !== null) {
             window.parent.postMessage({ type: 'jx-design:local-cursor', canvas: CANVAS_NAME, x: point.x, y: point.y }, window.location.origin);
           }
-        }, LOCAL_CURSOR_THROTTLE_MS);
+        });
       },
       { capture: true, passive: true },
     );
