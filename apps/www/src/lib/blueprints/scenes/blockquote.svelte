@@ -3,10 +3,25 @@
 <script lang="ts">
   import Blockquote from '$lib/ui/blockquote/blockquote.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
-  <div class="flex w-full max-w-[520px] flex-col gap-3">
+<div class={cx(bpA.blockquoteStage)}>
+  <div class={cx(bpA.blockquoteColumn)}>
     <Blockquote label="Stevens" cite="Thirteen Ways of Looking, XIII">
       It was evening all afternoon. It was snowing, and it was going to snow.
     </Blockquote>
@@ -14,7 +29,7 @@
       The streaming prefix never remounts while chunks arrive.
     </Blockquote>
   </div>
-  <div class="flex flex-wrap gap-2">
+  <div class={cx(bpA.blockquoteRow)}>
     <Badge>outline · tonal — frozen</Badge>
     <Badge>no fill / no ghost</Badge>
     <Badge>cite = footer &gt; cite</Badge>

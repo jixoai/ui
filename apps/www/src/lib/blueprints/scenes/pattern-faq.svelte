@@ -1,11 +1,27 @@
 <!-- pattern-faq blueprint: the man-page FAQ — command(section) head,
-     dotted leader, accordion disclosure, SEE ALSO close. -->
+     dotted leader, accordion disclosure, SEE ALSO close.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import PatternFaq from '$lib/ui/pattern-faq/pattern-faq.svelte';
   import AccordionItem from '$lib/ui/accordion/accordion-item.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-10">
+<div class={cx(bpB.patternFaqStage)}>
   <PatternFaq command="jixoai-ui-faq" section="7">
     <AccordionItem>
       {#snippet summary()}does it ship javascript?{/snippet}

@@ -1,15 +1,31 @@
 <!-- toggle blueprint: the inline-end switch — an on/off mix across the
-     size ramp, real bind:checked state. -->
+     size ramp, real bind:checked state.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Toggle from '$lib/ui/toggle/toggle.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   let notifications = $state(true);
   let digest = $state(false);
   let telemetry = $state(true);
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center p-10">
-  <div class="flex w-full max-w-[360px] flex-col gap-5">
+<div class={cx(bpB.toggleStage)}>
+  <div class={cx(bpB.toggleCol)}>
     <Toggle label="notifications" bind:checked={notifications} />
     <Toggle label="weekly digest" bind:checked={digest} />
     <Toggle label="telemetry" density="sm" bind:checked={telemetry} />

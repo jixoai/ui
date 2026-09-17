@@ -4,26 +4,41 @@
 <script lang="ts">
   import Anchor from '$lib/ui/anchor/anchor.svelte';
   import AnchorItem from '$lib/ui/anchor/anchor-item.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="grid h-full w-full grid-cols-[minmax(0,1fr)_11rem] items-start gap-8 p-10">
-  <div class="flex min-w-0 flex-col gap-3">
-    <h2 id="bp-anchor-what" class="font-mono text-sm">what it does</h2>
-    <p class="text-muted-foreground text-sm leading-6">
+<div class={cx(bpA.anchorStage)}>
+  <div class={cx(bpA.anchorColumn)}>
+    <h2 id="bp-anchor-what" class={cx(bpA.anchorHeading)}>what it does</h2>
+    <p class={cx(bpA.anchorBody)}>
       nav of real fragment links — native navigation, native smooth scrolling, no second pick
       algorithm.
     </p>
-    <h2 id="bp-anchor-pick" class="mt-2 font-mono text-sm">the line pick</h2>
-    <p class="text-muted-foreground text-sm leading-6">
+    <h2 id="bp-anchor-pick" class={cx(bpA.anchorHeading, bpA.anchorHeadingGap)}>the line pick</h2>
+    <p class={cx(bpA.anchorBody)}>
       the active link follows the one shared scroll-spy: which section owns the pick line.
     </p>
-    <h2 id="bp-anchor-lease" class="mt-2 font-mono text-sm">the lease</h2>
-    <p class="text-muted-foreground text-sm leading-6">
+    <h2 id="bp-anchor-lease" class={cx(bpA.anchorHeading, bpA.anchorHeadingGap)}>the lease</h2>
+    <p class={cx(bpA.anchorBody)}>
       scroll-margin-top is set on demand and restored — consumer markup is never permanently
       mutated.
     </p>
   </div>
-  <aside class="self-start pt-0.5">
+  <aside class={cx(bpA.anchorAside)}>
     <Anchor label="on this page" offset={8}>
       <AnchorItem href="#bp-anchor-what">what it does</AnchorItem>
       <AnchorItem href="#bp-anchor-pick">the line pick</AnchorItem>

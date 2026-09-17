@@ -580,7 +580,7 @@
             <span data-jx-combobox-chip-label class={cx(cbxStyles.chipLabel)}>{options.find((option) => option.value === member)?.label ?? member}</span>
             <button
               type="button"
-              class="jx-combobox-x {cx(cbxStyles.chipRemove)}"
+              class={cx(cbxStyles.chipRemove)}
               aria-label="remove {options.find((option) => option.value === member)?.label ?? member}"
               disabled={isDisabled}
               onmousedown={(event) => event.preventDefault()}
@@ -638,7 +638,7 @@
              input keeps focus. -->
         <button
           type="button"
-          class="jx-combobox-x {cx(cbxStyles.clearBtn)}"
+          class={cx(cbxStyles.clearBtn)}
           tabindex="-1"
           aria-label="clear selection"
           disabled={isDisabled}

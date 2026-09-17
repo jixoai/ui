@@ -143,7 +143,7 @@
           tabindex={flat === seatIndex ? 0 : -1}
           aria-selected={hex === selected ? 'true' : undefined}
           aria-label={hex}
-          class="jx-color-picker-swatch-cell {cx(colorPickerStyles.swatchCell)}"
+          class={cx(colorPickerStyles.swatchCell)}
           style:background={hex}
           onfocusin={onCellFocusin}
           onkeydown={onCellKeydown}

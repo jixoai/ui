@@ -11,8 +11,27 @@
      the arrow glyphs (←/↑) are gone (the blueprint fonts' latin subsets
      have no arrows; they painted as tofu boxes next to "the line" and
      "line pick"). build-blueprints' overflow probe fails the build if
-     any text run escapes the stage or overlaps another again. -->
+     any text run escapes the stage or overlaps another again.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms; the
+     picked/plain poses fold the former class: directive cluster into
+     ternary atoms in the cx slot.) -->
 <script lang="ts">
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const rows: { label: string; weight: string; picked: boolean }[] = [
     { label: '#above', weight: '0.00', picked: false },
     { label: '#straddling', weight: '0.42', picked: true },
@@ -20,61 +39,54 @@
   ];
 </script>
 
-<div class="flex h-full w-full items-center justify-center gap-10 p-10">
+<div class={cx(bpB.tocEngineStage)}>
   <!-- the tracked document and the line -->
-  <div class="border-primary/70 relative h-[236px] w-[264px] flex-none border-2 border-dashed">
-    <span class="bg-primary text-primary-foreground font-nav absolute top-0 left-0 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.14em]"
+  <div class={cx(bpB.tocEngineDoc)}>
+    <span class={cx(bpB.tocEngineViewportTag)}
       >viewport</span
     >
     <!-- the line -->
-    <div class="border-primary absolute inset-x-0 top-7 border-t-2"></div>
-    <span class="text-primary font-nav absolute top-[31px] right-1 text-[9px]">the line</span>
+    <div class={cx(bpB.tocEngineLine)}></div>
+    <span class={cx(bpB.tocEngineLineLabel)}>the line</span>
     <!-- block above the fold -->
-    <div class="border-border bg-muted/40 absolute inset-x-3 top-[44px] h-[36px] border pt-1 pl-2">
-      <span class="text-muted-foreground font-nav text-[9px]">#above · weight 0</span>
+    <div class={cx(bpB.tocEngineBlockAbove)}>
+      <span class={cx(bpB.tocEngineBlockTag)}>#above · weight 0</span>
     </div>
     <!-- straddling block: intersection shading; sized to HOLD its
          paragraph (title 15px + mt-2 8px + 3 lines × 16px + pt 4px
          = 75px of content in an 88px box) -->
-    <div class="border-border bg-muted/70 absolute inset-x-3 top-[84px] h-[88px] border pt-1 pl-2">
-      <span class="font-nav text-[10px]">#straddling · IoM 0.42</span>
-      <p class="text-muted-foreground mt-2 px-2 text-[10px] leading-4">
+    <div class={cx(bpB.tocEngineBlockStraddle)}>
+      <span class={cx(bpB.tocEngineBlockTitle)}>#straddling · IoM 0.42</span>
+      <p class={cx(bpB.tocEngineBlockBody)}>
         intersection ÷ min(block, viewport) — the line in a margin resolves DOWNWARD to this
         block.
       </p>
     </div>
     <!-- block below the fold -->
-    <div class="border-border bg-muted/40 absolute inset-x-3 bottom-2 h-[44px] border pt-1 pl-2">
-      <span class="text-muted-foreground font-nav text-[9px]">#below · weight 0</span>
+    <div class={cx(bpB.tocEngineBlockBelow)}>
+      <span class={cx(bpB.tocEngineBlockTag)}>#below · weight 0</span>
     </div>
   </div>
 
   <!-- the derived rail -->
-  <div class="flex w-[168px] flex-none flex-col gap-4">
-    <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]"
+  <div class={cx(bpB.tocEngineRail)}>
+    <span class={cx(bpB.tocEngineRailLabel)}
       >the derived rail</span
     >
     {#each rows as row (row.label)}
-      <div class="flex items-center gap-2.5">
+      <div class={cx(bpB.tocEngineRailRow)}>
         <span
-          class="h-2.5 w-2.5 flex-none border-2"
-          class:border-primary={row.picked}
-          class:bg-primary={row.picked}
-          class:border-border={!row.picked}
-          class:bg-transparent={!row.picked}
+          class={cx(bpB.tocEngineSwatch, row.picked ? bpB.tocEngineSwatchPicked : bpB.tocEngineSwatchPlain)}
         ></span>
         <span
-          class="font-nav text-[11px]"
-          class:text-primary={row.picked}
-          class:font-bold={row.picked}
-          class:text-muted-foreground={!row.picked}
+          class={cx(bpB.tocEngineRailItem, row.picked ? bpB.tocEngineRailItemPicked : bpB.tocEngineRailItemPlain)}
         >
           {row.label}
         </span>
-        <span class="text-muted-foreground font-nav ml-auto text-[9px]">{row.weight}</span>
+        <span class={cx(bpB.tocEngineRailWeight)}>{row.weight}</span>
       </div>
       {#if row.picked}
-        <span class="text-primary font-nav text-[9px] uppercase tracking-[0.14em]">line pick</span>
+        <span class={cx(bpB.tocEnginePick)}>line pick</span>
       {/if}
     {/each}
   </div>

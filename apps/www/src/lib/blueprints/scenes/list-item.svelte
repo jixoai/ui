@@ -24,12 +24,27 @@
   } from '$lib/ui/list-item';
   import Icon from '$lib/ui/icon';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   let fast = $state(true);
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-5 p-10">
-  <ItemGroup ruler="media-content-end" class="w-[34rem] max-w-full">
+<div class={cx(bpA.listItemStage)}>
+  <ItemGroup ruler="media-content-end" class={cx(bpA.listItemGroup)}>
     <Item href="#one">
       <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
       <ItemContent>
@@ -54,7 +69,7 @@
       <ItemEnd><ItemAfter>12:04</ItemAfter></ItemEnd>
     </Item>
   </ItemGroup>
-  <ItemGroup mode="plain" dividers="auto" density="sm" class="w-[34rem] max-w-full">
+  <ItemGroup mode="plain" dividers="auto" density="sm" class={cx(bpA.listItemGroup)}>
     <ItemToggle label="Fast builds" bind:checked={fast} />
   </ItemGroup>
 </div>

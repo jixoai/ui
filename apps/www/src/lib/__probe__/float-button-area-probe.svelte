@@ -21,6 +21,7 @@
 -->
 <script lang="ts">
   import FloatButton from '$lib/ui/float-button/float-button.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   type ProbeCorner = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   const CORNERS: ProbeCorner[] = ['bottom-right', 'bottom-left', 'top-right', 'top-left'];
@@ -31,19 +32,35 @@
     const c = new URLSearchParams(window.location.search).get('corner');
     if (CORNERS.includes(c as ProbeCorner)) corner = c as ProbeCorner;
   });
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <!-- zero-size marker: the probe's read-back guard (the stack itself
      is fixed to the viewport corners by the component's own law) -->
-<div data-probe-fab-area="" data-corner={corner} class="fixed left-0 top-0 h-0 w-0"></div>
+<div data-probe-fab-area="" data-corner={corner} class={cx(siteChrome.fbMarker)}></div>
 
 <FloatButton label="area probe" {corner}>
   <span aria-hidden="true">+</span>
   {#snippet actions()}
     <!-- block-stacked rows (the docs pages style .jx-fab-menu-item; the
          fixture styles its own rows) — deterministic panel width -->
-    <button type="button" role="menuitem" class="block w-full px-3 py-1.5 text-left text-sm" onclick={() => {}}>probe action one</button>
-    <button type="button" role="menuitem" class="block w-full px-3 py-1.5 text-left text-sm" onclick={() => {}}>probe action two</button>
-    <button type="button" role="menuitem" class="block w-full px-3 py-1.5 text-left text-sm" onclick={() => {}}>probe action three</button>
+    <button type="button" role="menuitem" class={cx(siteChrome.fbRow)} onclick={() => {}}>probe action one</button>
+    <button type="button" role="menuitem" class={cx(siteChrome.fbRow)} onclick={() => {}}>probe action two</button>
+    <button type="button" role="menuitem" class={cx(siteChrome.fbRow)} onclick={() => {}}>probe action three</button>
   {/snippet}
 </FloatButton>

@@ -6,14 +6,29 @@
   import InputGroupAddon from '$lib/ui/input-group/input-group-addon.svelte';
   import InputGroupInput from '$lib/ui/input-group/input-group-input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center gap-5 p-10">
-  <InputGroup label="repository url" class="w-[26rem]">
+<div class={cx(bpA.inputGroupStage)}>
+  <InputGroup label="repository url" class={cx(bpA.inputGroupField)}>
     <InputGroupAddon>https://</InputGroupAddon>
     <InputGroupInput name="bp-igroup-site" placeholder="github.com/owner/repo" />
   </InputGroup>
-  <InputGroup label="deploy target" class="w-[26rem]">
+  <InputGroup label="deploy target" class={cx(bpA.inputGroupField)}>
     <InputGroupAddon>--host=</InputGroupAddon>
     <InputGroupInput name="bp-igroup-host" value="production" />
     <InputGroupAddon align="inline-end">

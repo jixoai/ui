@@ -16,6 +16,7 @@
 -->
 <script lang="ts">
   import CopyIconButton from '$lib/copy-icon-button.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
   import { STAGE_H, STAGE_W } from '$lib/blueprints/stage';
 
   interface Props {
@@ -34,39 +35,51 @@
   let { name, type, summary, href, command }: Props = $props();
 
   let blueprintFailed = $state(false);
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <section
-  class="border-border bg-card shadow-xs relative grid grid-rows-subgrid row-span-2
-    transition-[transform,box-shadow,border-color] duration-150
-    hover:border-primary hover:shadow-sm
-    active:translate-x-px active:translate-y-px active:shadow-none
-    motion-reduce:transition-none"
+  class={cx(siteChrome.ocCard)}
   aria-label={name}
 >
   <!-- header: eyebrow + title; the summary stays in the access tree -->
-  <div class="border-border relative flex flex-col gap-3 border-b px-4 py-3 sm:px-5 sm:py-4">
-    <p class="text-primary font-nav text-[11px] uppercase tracking-[0.24em]">{type}</p>
-    <h3 class="font-nav text-balance text-[1.05rem] leading-tight tracking-tight sm:text-[1.22rem]">
+  <div class={cx(siteChrome.ocHeader)}>
+    <p class={cx(siteChrome.ocEyebrow)}>{type}</p>
+    <h3 class={cx(siteChrome.ocTitle)}>
       {name}
     </h3>
-    <p class="sr-only">{summary}</p>
+    <p class={cx(siteChrome.ocSummary)}>{summary}</p>
     {#if command}
       <!-- top-corner copy control: icon-only, tooltip carries the
            command. z-2 keeps it above the stretched link below. -->
-      <div class="pointer-events-none absolute top-2.5 right-2.5 z-[2] sm:top-3 sm:right-3">
+      <div class={cx(siteChrome.ocCopySlot)}>
         <CopyIconButton {command} />
       </div>
     {/if}
   </div>
 
   <!-- body: ONLY the blueprint -->
-  <div class="px-4 py-4 sm:px-5 sm:py-5">
+  <div class={cx(siteChrome.ocBody)}>
     {#if blueprintFailed}
       <!-- transitional hatch: a scene/blueprint that has not been
            generated yet (the catalog lock test makes this rare) -->
       <div
-        class="border-border/60 border"
+        class={cx(siteChrome.ocHatch)}
         style="aspect-ratio:{STAGE_W}/{STAGE_H};background:repeating-linear-gradient(45deg,transparent 0 10px,var(--border) 10px 11px);opacity:.35"
         aria-hidden="true"
       ></div>
@@ -78,7 +91,7 @@
         decoding="async"
         width={STAGE_W}
         height={STAGE_H}
-        class="border-border/60 h-auto w-full border"
+        class={cx(siteChrome.ocBlueprint)}
         onerror={() => (blueprintFailed = true)}
       />
     {/if}

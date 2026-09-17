@@ -3,46 +3,63 @@
      ownership) and ADOPTED into the scaffold's top layer, so it rides
      the immersive slide with the header by construction. The real portal
      needs the WebsiteScaffold context to exist around it, which the
-    fixed stage cannot host honestly — the diagram shows the mechanism. -->
+    fixed stage cannot host honestly — the diagram shows the mechanism.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms; the
+     muted/primary alpha channels ride color-mix stops.) -->
 <script lang="ts">
   import Icon from '$lib/ui/icon';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-center justify-center gap-5 p-10">
-  <div class="flex w-full items-stretch gap-4">
+<div class={cx(bpB.scaffoldFloatStage)}>
+  <div class={cx(bpB.scaffoldFloatRow)}>
     <!-- authoring position: where the consumer writes it -->
-    <div class="border-border flex flex-1 flex-col gap-2 border border-dashed p-3">
-      <span class="font-nav text-muted-foreground text-[9px] uppercase tracking-[0.2em]"
+    <div class={cx(bpB.scaffoldFloatSource)}>
+      <span class={cx(bpB.scaffoldFloatTag)}
         >consumer DOM · authoring position</span
       >
-      <div class="border-border bg-muted/50 mt-1 flex items-center gap-2 border px-2 py-1.5 opacity-70">
-        <span class="bg-primary h-2 w-2 flex-none"></span>
-        <span class="font-nav text-[10px]">float content — created here, owned by Svelte</span>
+      <div class={cx(bpB.scaffoldFloatFloat)}>
+        <span class={cx(bpB.scaffoldFloatDot)}></span>
+        <span class={cx(bpB.scaffoldFloatFloatLabel)}>float content — created here, owned by Svelte</span>
       </div>
-      <span class="font-nav text-muted-foreground text-[9px]">.jx-float-anchor — hidden, keeps the slot</span>
+      <span class={cx(bpB.scaffoldFloatAnchorNote)}>.jx-float-anchor — hidden, keeps the slot</span>
     </div>
 
-    <div class="text-muted-foreground flex items-center" aria-hidden="true">
+    <div class={cx(bpB.scaffoldFloatArrow)} aria-hidden="true">
       <Icon name="arrowRight" />
     </div>
 
     <!-- adoption target: the top layer -->
-    <div class="border-primary/60 flex flex-1 flex-col border p-3">
-      <span class="text-primary font-nav text-[9px] uppercase tracking-[0.2em]"
+    <div class={cx(bpB.scaffoldFloatTarget)}>
+      <span class={cx(bpB.scaffoldFloatTargetTag)}
         >.jx-top-layer · adoption target</span
       >
-      <div class="border-border bg-muted/60 mt-2 border px-2 py-1.5">
-        <span class="font-nav text-muted-foreground text-[10px]">.jx-scaffold-header</span>
+      <div class={cx(bpB.scaffoldFloatHeader)}>
+        <span class={cx(bpB.scaffoldFloatHeaderLabel)}>.jx-scaffold-header</span>
       </div>
-      <div class="border-primary mt-2 border px-2 py-2">
-        <div class="bg-primary text-primary-foreground font-nav inline-flex items-center gap-2 px-2 py-1 text-[10px]">
-          <span class="h-1.5 w-1.5 flex-none border border-current"></span>
+      <div class={cx(bpB.scaffoldFloatAdoptedFrame)}>
+        <div class={cx(bpB.scaffoldFloatAdopted)}>
+          <span class={cx(bpB.scaffoldFloatAdoptedDot)}></span>
           adopted node — rides the immersive slide
         </div>
       </div>
     </div>
   </div>
-  <p class="font-nav text-muted-foreground text-[10px] uppercase tracking-[0.18em]">
+  <p class={cx(bpB.scaffoldFloatCaption)}>
     scaffold-float — live DOM adoption, teardown returns the nodes
   </p>
 </div>

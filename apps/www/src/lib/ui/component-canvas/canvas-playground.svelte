@@ -320,7 +320,7 @@
   <div
     data-jx-canvas-dock-head
     data-dragging={dragging || undefined}
-    class={cn('jx-canvas-dock-head', cx(canvasStyles.dockHead))}
+    class={cx(canvasStyles.dockHead)}
     bind:this={headEl}
     onpointerdown={onHeadPointerDown}
     onpointermove={onHeadPointerMove}
@@ -333,7 +333,7 @@
            EVERY canvas demo (Owner amendment 2026-09-08) -->
       <div class={cx(canvasStyles.stretchRow)}>
         <span
-          class={cn('jx-canvas-dock-grip', cx(canvasStyles.grip))}
+          class={cx(canvasStyles.grip)}
           aria-hidden="true"
           data-jx-canvas-dock-grip
         >
@@ -444,7 +444,7 @@
       <!-- the internal scroll surface: capped block size + guttered thin
            scrollbar (the old pane's containment law, dock-sized); the
            output foot below stays pinned -->
-      <div data-jx-canvas-dock-scroll class={cn('jx-canvas-dock-scroll', cx(canvasStyles.dockScroll))}>
+      <div data-jx-canvas-dock-scroll class={cx(canvasStyles.dockScroll)}>
         <ItemGroup mode="plain" controlChrome="integrated" density="sm" data-jx-canvas-dock-group>
           {#if playground}
             <!-- escape-hatch precedence: the snippet renders and the schema

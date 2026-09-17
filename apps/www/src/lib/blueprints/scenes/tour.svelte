@@ -1,12 +1,28 @@
 <!-- tour blueprint: step 1 of 2 running against real targets in the
      scene — the anchor-name lease lands on the first row, the popover=manual
      panel shows itself on open (forceShowPopovers backs it up), and the
-     box-shadow hole tints around the target. -->
+     box-shadow hole tints around the target.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Tour from '$lib/ui/tour/tour.svelte';
   import type { TourStep } from '$lib/ui/tour/tour.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const steps: TourStep[] = [
     {
@@ -22,15 +38,15 @@
   ];
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="flex w-full max-w-[420px] flex-col gap-4 border border-border bg-card p-5">
-    <div id="bp-tour-workspace" class="flex flex-col gap-1">
-      <p class="font-mono text-xs text-muted-foreground">workspace</p>
-      <p class="text-sm font-medium">jixoai-labs/ui</p>
+<div class={cx(bpB.tourStage)} {@attach fromAction(forceShowPopovers)}>
+  <div class={cx(bpB.tourCard)}>
+    <div id="bp-tour-workspace" class={cx(bpB.tourTarget)}>
+      <p class={cx(bpB.tourLabel)}>workspace</p>
+      <p class={cx(bpB.tourValue)}>jixoai-labs/ui</p>
     </div>
-    <div id="bp-tour-hue" class="flex flex-col gap-1">
-      <p class="font-mono text-xs text-muted-foreground">brand hue</p>
-      <p class="text-sm font-medium">oklch(0.72 0.16 27)</p>
+    <div id="bp-tour-hue" class={cx(bpB.tourTarget)}>
+      <p class={cx(bpB.tourLabel)}>brand hue</p>
+      <p class={cx(bpB.tourValue)}>oklch(0.72 0.16 27)</p>
     </div>
   </div>
   <Tour {steps} open={true} startAt={0} />

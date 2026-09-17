@@ -252,7 +252,7 @@
 <div
   bind:this={rootEl}
   data-jx-color-picker-editor
-  class={cn('jx-color-picker-editor', cx(colorPickerStyles.editor), className)}
+  class={cn(cx(colorPickerStyles.editor), className)}
 >
   <!-- the SV pad and the hue rail are DECORATIVE input aids
        (aria-hidden, E-5 2026-09-02): they are pointer-only surfaces —

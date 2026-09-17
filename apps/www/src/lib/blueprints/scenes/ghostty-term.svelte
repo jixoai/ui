@@ -7,6 +7,7 @@
 <script lang="ts">
   import GhosttyTerm from '$lib/ui/ghostty-term/ghostty-term.svelte';
   import type { GhosttyTermHandle } from '$lib/ui/ghostty-term/ghostty-term.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   let term = $state<GhosttyTermHandle | undefined>(undefined);
   let booted = false;
@@ -25,10 +26,24 @@
     booted = true;
     term?.write(new TextEncoder().encode(SCENE));
   };
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col p-10">
-  <div class="min-h-0 w-full flex-1">
+<div class={cx(bpA.ghosttyTermStage)}>
+  <div class={cx(bpA.ghosttyTermBody)}>
     <GhosttyTerm bind:this={term} {onResize} />
   </div>
 </div>

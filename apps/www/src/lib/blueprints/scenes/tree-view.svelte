@@ -1,8 +1,24 @@
 <!-- tree-view blueprint: the file workbench pane — the ui/ branch
      expanded down to the leaves, tree-view.svelte selected (terminal
-     fill + primary edge), package.json at the root. -->
+     fill + primary edge), package.json at the root.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const leaf = (name: string): TreeNode => ({ name });
 
@@ -30,8 +46,8 @@
   const selected = 'src/lib/ui/tree-view.svelte';
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-10">
-  <div class="border-border bg-card w-full max-w-[360px] border p-4 shadow-2xs">
+<div class={cx(bpB.treeViewStage)}>
+  <div class={cx(bpB.treeViewPane)}>
     <TreeView {nodes} {defaultExpanded} {selected} />
   </div>
 </div>

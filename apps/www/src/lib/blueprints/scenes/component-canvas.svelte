@@ -8,6 +8,7 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const files: TreeFile[] = [
     {
@@ -22,11 +23,25 @@
       content: `<!-- the brutalist press-physics button: lifts on hover, presses back on active -->`,
     },
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-8">
+<div class={cx(bpA.componentCanvasStage)}>
   <ComponentCanvas title="press-button" files={files}>
-    <div class="flex items-center gap-3">
+    <div class={cx(bpA.componentCanvasDemo)}>
       <PressButton variant="fill">deploy</PressButton>
       <PressButton variant="outline">cancel</PressButton>
       <Badge>live demo</Badge>

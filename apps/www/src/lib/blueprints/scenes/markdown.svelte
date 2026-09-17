@@ -4,6 +4,23 @@
      AST → Table + native prose under the jx-pure scope. -->
 <script lang="ts">
   import Markdown from '$lib/ui/markdown/markdown.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  // the payload's own join (separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const source = `## Streaming, memoized
 
@@ -19,6 +36,6 @@ The frozen prefix never remounts while chunks arrive — \`code_block\`
 The tail mutates in place`;
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-10">
-  <Markdown class="w-full max-w-[520px]" {source} streaming />
+<div class={cx(bpA.markdownStage)}>
+  <Markdown class={cx(bpA.markdownFace)} {source} streaming />
 </div>

@@ -1,16 +1,32 @@
 <!-- tabs blueprint: the indicator system — a line row and a pill row,
      a glass row staged on a gradient chip, the trigger anatomy (icon
      lane · icon-only · stack) and the vertical pill sidebar. One live
-     value per strip; the panels are omitted to keep the card compact. -->
+     value per strip; the panels are omitted to keep the card compact.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Tabs from '$lib/ui/tabs/tabs.svelte';
   import TabsList from '$lib/ui/tabs/tabs-list.svelte';
   import TabsTrigger from '$lib/ui/tabs/tabs-trigger.svelte';
   import Icon from '$lib/ui/icon';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center gap-20 p-10">
-  <div class="flex min-w-0 flex-1 flex-col gap-10">
+<div class={cx(bpB.tabsStage)}>
+  <div class={cx(bpB.tabsCol)}>
     <Tabs value="deploy">
       <TabsList>
         <TabsTrigger value="build">build</TabsTrigger>
@@ -26,7 +42,7 @@
       </TabsList>
     </Tabs>
     <div
-      class="rounded-lg p-4"
+      class={cx(bpB.tabsGlassChip)}
       style="background: linear-gradient(115deg, oklch(0.8 0.15 260), oklch(0.8 0.15 300), oklch(0.84 0.13 145))"
     >
       <Tabs value="frost">
@@ -54,9 +70,9 @@
       </TabsList>
     </Tabs>
   </div>
-  <div class="flex-none">
+  <div class={cx(bpB.tabsSidebar)}>
     <Tabs value="overview">
-      <TabsList orientation="vertical" indicator="pill" class="min-w-40">
+      <TabsList orientation="vertical" indicator="pill" class={cx(bpB.tabsSidebarList)}>
         <TabsTrigger value="overview">overview</TabsTrigger>
         <TabsTrigger value="activity">activity</TabsTrigger>
         <TabsTrigger value="keys">keys</TabsTrigger>

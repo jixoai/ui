@@ -20,6 +20,7 @@
 -->
 <script lang="ts">
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   type ProbePlacement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
   const PLACEMENTS: ProbePlacement[] = [
@@ -38,24 +39,42 @@
     if (a === 'mid' || a === 'bottom' || a === 'right') at = a;
   });
 
-  // fixed-position wrapper: geometry independent of page flow, so the
-  // probe's viewport math is deterministic across arms (mid sits low
-  // enough that the TOP arms fit above the anchor — flip-block must
-  // stay a collision-arm concern, never a mid-geometry accident)
-  const pose = $derived(
-    at === 'mid' ? 'left-[560px] top-[320px]'
-    : at === 'bottom' ? 'left-[560px] bottom-[64px]'
-    : 'left-[1300px] top-[320px]',
-  );
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-probe-tooltip-area="" data-placement={placement} data-at={at} class="fixed {pose}">
+<!-- fixed-position wrapper: geometry independent of page flow, so the
+     probe's viewport math is deterministic across arms (mid sits low
+     enough that the TOP arms fit above the anchor — flip-block must
+     stay a collision-arm concern, never a mid-geometry accident) -->
+<div
+  data-probe-tooltip-area=""
+  data-placement={placement}
+  data-at={at}
+  class={cx(
+    siteChrome.tpFixed,
+    at === 'mid' ? siteChrome.tpMid : at === 'bottom' ? siteChrome.tpLow : siteChrome.tpFar,
+  )}
+>
   <!-- the tip text is DELIBERATELY long unbreakable tokens wrapping to
        multiple lines: min-content wider than the at=right region arms
        flip-inline, wrapped height taller than the at=bottom clearance
        arms flip-block — both collision flips must engage on this one
        fixture content -->
   <Tooltip id="probe-tip" text="positionareaprobegeomfix unbreakabletokensforallaxes keepthebubblemincontentwide flipblockandinlinebotharmed" arrow {placement}>
-    <span data-probe-tip-trigger="" class="inline-block w-28 py-2 text-center text-[13px] underline decoration-dotted">hover me</span>
+    <span data-probe-tip-trigger="" class={cx(siteChrome.tpTrigger)}>hover me</span>
   </Tooltip>
 </div>

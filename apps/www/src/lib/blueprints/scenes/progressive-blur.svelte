@@ -2,37 +2,56 @@
      list whose top edge diffuses. Satori paints no backdrop-filter, so
      the band is simulated as stacked translucent runs (the ladder
      schematic: lighter inner edge → denser at the scrollport edge) with
-     the real component present for structure. -->
+     the real component present for structure.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms; the
+     opacity ladder rides ternary atoms in the cx slot, the gradient
+     runs ride color-mix stops at Tailwind's own oklab interpolation.) -->
 <script lang="ts">
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const rows = [
     'accordion', 'alert', 'anchor', 'avatar', 'badge', 'card-grid',
     'carousel', 'checkbox', 'combobox', 'command', 'dialog', 'popover',
   ];
 </script>
 
-<div class="flex h-full w-full items-center justify-center gap-10 p-10">
-  <div class="flex w-[300px] flex-none flex-col gap-2">
-    <span class="font-nav text-muted-foreground text-[10px] uppercase tracking-[0.24em]"
+<div class={cx(bpB.progressiveBlurStage)}>
+  <div class={cx(bpB.progressiveBlurRail)}>
+    <span class={cx(bpB.progressiveBlurLabel)}
       >the docs rail · same-layer sticky</span
     >
-    <div class="border-border relative h-[210px] overflow-hidden border">
-      <div class="flex flex-col px-3 pt-6">
+    <div class={cx(bpB.progressiveBlurPort)}>
+      <div class={cx(bpB.progressiveBlurList)}>
         {#each rows as row, i (row)}
           <div
-            class={`text-muted-foreground font-mono py-[5px] text-[10.5px] ${i === 0 || i === 1 ? 'opacity-40' : 'opacity-80'}`}
+            class={cx(bpB.progressiveBlurRow, i === 0 || i === 1 ? bpB.progressiveBlurRowDim : bpB.progressiveBlurRowLift)}
           >
             {row}
           </div>
         {/each}
       </div>
       <!-- the ladder schematic: translucent runs stacking toward the edge -->
-      <div class="absolute inset-x-0 top-0 h-[70px]">
-        <div class="from-background/95 absolute inset-x-0 top-0 h-[58px] bg-gradient-to-b to-transparent"></div>
-        <div class="from-background/80 absolute inset-x-0 top-0 h-[46px] bg-gradient-to-b to-transparent"></div>
-        <div class="from-background/60 absolute inset-x-0 top-0 h-[34px] bg-gradient-to-b to-transparent"></div>
-        <div class="from-background/40 absolute inset-x-0 top-0 h-[22px] bg-gradient-to-b to-transparent"></div>
+      <div class={cx(bpB.progressiveBlurBand)}>
+        <div class={cx(bpB.progressiveBlurRun95)}></div>
+        <div class={cx(bpB.progressiveBlurRun80)}></div>
+        <div class={cx(bpB.progressiveBlurRun60)}></div>
+        <div class={cx(bpB.progressiveBlurRun40)}></div>
       </div>
-      <span class="text-primary font-nav absolute bottom-2 left-2.5 text-[9px]"
+      <span class={cx(bpB.progressiveBlurCaption)}
         >0.5 → 64px · reveal on scroll</span
       >
     </div>

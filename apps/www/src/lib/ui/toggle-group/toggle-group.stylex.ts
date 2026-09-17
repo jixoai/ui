@@ -11,8 +11,9 @@
 // halving must beat it by LAYER (unlayered), exactly as the old
 // utilities-layer form did. The [&>svg]:size descendant boundary
 // rides the same sheet (StyleX forbids descendant combinators).
-// .jx-tgroup-item / .jx-tgroup-content / .jx-html-tgroup stay STATIC
-// hook strings — the shared sheet's own keys.
+// .jx-tgroup-item / .jx-html-tgroup stay STATIC hook strings — the
+// shared sheet's own keys (the class-only .jx-tgroup-content twin
+// retired Wave 2: no law keyed it; the paint rides the content atom).
 //
 // Law mapping: the content lane's gap derives from the density ruler
 // (calc(var(--jx-gap) / 2), the chip's own spacing recipe verbatim);

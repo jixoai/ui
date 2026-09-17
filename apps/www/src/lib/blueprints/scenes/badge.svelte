@@ -5,21 +5,36 @@
 <script lang="ts">
   import Badge from '$lib/ui/badge/badge.svelte';
   import Icon from '$lib/ui/icon';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center gap-4 p-10">
-  <div class="flex flex-wrap items-center gap-3">
+<div class={cx(bpA.badgeStage)}>
+  <div class={cx(bpA.badgeRow)}>
     <Badge density="lg">tonal</Badge>
     <Badge variant="fill">fill</Badge>
     <Badge variant="outline">outline</Badge>
   </div>
-  <div class="flex flex-wrap items-center gap-3">
+  <div class={cx(bpA.badgeRow)}>
     <Badge>v0.1.0</Badge>
     <Badge class="jx-hue-neutral">draft</Badge>
     <Badge class="jx-hue-success">passing</Badge>
     <Badge class="jx-hue-error">failing</Badge>
   </div>
-  <div class="flex flex-wrap items-center gap-3">
+  <div class={cx(bpA.badgeRow)}>
     <Badge shape="pill">pill shape</Badge>
     <Badge shape="pill" class="jx-hue-success">
       {#snippet slotStart()}<Icon name="check" />{/snippet}

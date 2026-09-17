@@ -5,6 +5,7 @@
 <script lang="ts">
   import Icon from '$lib/ui/icon';
   import { ICON_NAMES } from '$lib/icon-set.gen';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   // a curated wall, not all 38 — the stage is 640×360
   const wall: typeof ICON_NAMES[number][] = [
@@ -31,18 +32,32 @@
     'upload',
     'x',
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-4 p-10">
-  <div class="font-nav text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+<div class={cx(bpA.iconSetStage)}>
+  <div class={cx(bpA.iconSetEyebrow)}>
     icon-set.gen · {ICON_NAMES.length} names · 1 inline chunk · 0 lazy — plugin-free by construction
   </div>
-  <div class="grid max-w-[30rem] grid-cols-11 items-center gap-x-2 gap-y-3">
+  <div class={cx(bpA.iconSetWall)}>
     {#each wall as name (name)}
-      <Icon {name} size={14} class="text-muted-foreground" />
+      <Icon {name} size={14} class={cx(bpA.iconSetGlyph)} />
     {/each}
   </div>
-  <div class="font-mono text-[10px] text-muted-foreground">
+  <div class={cx(bpA.iconSetFoot)}>
     getIcon() sync · loadIcon() cached · preloadIcons() ahead-of-mount
   </div>
 </div>

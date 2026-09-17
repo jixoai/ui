@@ -21,7 +21,24 @@
 <script lang="ts">
   import { getPrintPipeline } from './print-context';
   import { getMedium, PRINT_SIM_ATTR } from '../medium.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
   import type { PrintRunOptions } from './pipeline.svelte';
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   let {
     config,
@@ -94,25 +111,25 @@
 
 <div
   data-jx-print-controls
-  class="flex flex-wrap items-center gap-2 font-mono text-[11.5px] text-muted-foreground"
+  class={cx(siteChrome.pcBar)}
 >
-  <span class="font-semibold text-foreground">{label}</span>
+  <span class={cx(siteChrome.pcLabel)}>{label}</span>
   <button
     type="button"
-    class="jx-press cursor-pointer border border-border bg-background px-2.5 py-0.5 text-foreground [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+    class="jx-press {cx(siteChrome.pcSim)}"
     aria-pressed={simOpen}
     data-jx-print-sim-toggle={simOpen ? 'on' : 'off'}
     onclick={() => void toggleSim()}
   >{simOpen ? '退出打印预览' : '打印预览（sim）'}</button>
   <button
     type="button"
-    class="jx-press cursor-pointer border border-primary px-2.5 py-0.5 text-primary [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+    class="jx-press {cx(siteChrome.pcDirect)}"
     data-jx-print-direct
     onclick={() => void directPrint()}
   >打印 / 导出 PDF</button>
-  {#if statusText}<span data-jx-print-status class="opacity-80">{statusText}</span>{/if}
+  {#if statusText}<span data-jx-print-status class={cx(siteChrome.pcStatus)}>{statusText}</span>{/if}
   {#if medium}
-    <span data-jx-print-medium class="opacity-60">medium: {medium.medium}</span>
+    <span data-jx-print-medium class={cx(siteChrome.pcMedium)}>medium: {medium.medium}</span>
   {/if}
 </div>
 
@@ -131,12 +148,12 @@
      zero residue — the direct-print exit's carriers are the artifact
      metadata + the console) -->
 {#if pipeline && simOpen && pipeline.diagnostics.length > 0}
-  <ul data-jx-print-diagnostics class="mt-1 flex flex-col gap-0.5 font-mono text-[11px]">
+  <ul data-jx-print-diagnostics class={cx(siteChrome.pcDiagList)}>
     {#each pipeline.diagnostics as row, i (row.code + row.owner + row.message + i)}
       <li data-jx-print-diagnostic data-code={row.code}>
-        <b class="text-amber-600">{row.code}</b>
-        <span class="opacity-70"> {row.owner}</span>
-        <span class="opacity-50"> — {row.message}</span>
+        <b class={cx(siteChrome.pcDiagCode)}>{row.code}</b>
+        <span class={cx(siteChrome.pcDiagOwner)}> {row.owner}</span>
+        <span class={cx(siteChrome.pcDiagMessage)}> — {row.message}</span>
       </li>
     {/each}
   </ul>

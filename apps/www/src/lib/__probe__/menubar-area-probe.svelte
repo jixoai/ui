@@ -25,6 +25,7 @@
   import MenubarTrigger from '$lib/ui/menubar/menubar-trigger.svelte';
   import MenubarPanel from '$lib/ui/menubar/menubar-panel.svelte';
   import MenubarMenuItem from '$lib/ui/menubar/menubar-menu-item.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   type ProbeAt = 'top' | 'bottom';
   let at = $state<ProbeAt>('top');
@@ -35,12 +36,30 @@
     if (a === 'top' || a === 'bottom') at = a;
   });
 
-  // fixed-position wrapper: geometry independent of page flow, so the
-  // probe's viewport math is deterministic across arms
-  const pose = $derived(at === 'top' ? 'left-[80px] top-[120px]' : 'left-[80px] bottom-[48px]');
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-probe-menubar-area="" data-at={at} class="fixed {pose}">
+<!-- fixed-position wrapper: geometry independent of page flow, so the
+     probe's viewport math is deterministic across arms -->
+<div
+  data-probe-menubar-area=""
+  data-at={at}
+  class={cx(siteChrome.mbFixed, at === 'top' ? siteChrome.mbTop : siteChrome.mbLow)}
+>
   <Menubar label="probe bar">
     <MenubarItem id="probe-mb">
       <MenubarTrigger>Probe</MenubarTrigger>

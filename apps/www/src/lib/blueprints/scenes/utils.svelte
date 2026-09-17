@@ -1,13 +1,29 @@
-<!-- utils blueprint: the cn() class-string hygiene law. -->
+<!-- utils blueprint: the cn() class-string hygiene law.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import { cn } from '$lib/utils';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center gap-5 p-10 font-mono text-sm">
-  <div class="text-muted-foreground">// clsx joins · tailwind-merge dedupes</div>
-  <div class="rounded-none border border-border bg-muted px-2 py-1 shadow-2xs">
-    cn('<span class="text-accent">p-2</span>', '<span class="text-accent">p-4</span>')
+<div class={cx(bpB.utilsStage)}>
+  <div class={cx(bpB.utilsComment)}>// clsx joins · tailwind-merge dedupes</div>
+  <div class={cx(bpB.utilsCode)}>
+    cn('<span class={cx(bpB.utilsAccent)}>p-2</span>', '<span class={cx(bpB.utilsAccent)}>p-4</span>')
   </div>
-  <div class="text-primary">→ 'p-4'</div>
-  <div class="text-muted-foreground">// never a cascade mechanism — the layer law owns overrides</div>
+  <div class={cx(bpB.utilsResult)}>→ 'p-4'</div>
+  <div class={cx(bpB.utilsComment)}>// never a cascade mechanism — the layer law owns overrides</div>
 </div>

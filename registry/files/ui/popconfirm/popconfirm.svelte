@@ -269,7 +269,7 @@
       type="button"
       data-jx-pc-btn=""
       data-jx-pc-cancel=""
-      class="jx-pc-btn {cx(pcStyles.button)}"
+      class={cx(pcStyles.button)}
       bind:this={cancelEl}
       onclick={hide}
     >
@@ -282,7 +282,6 @@
       data-jx-pc-confirm-destructive={confirmTone === 'destructive' ? '' : undefined}
       data-jx-pc-confirm-primary={confirmTone !== 'destructive' ? '' : undefined}
       class={cn(
-        'jx-pc-btn',
         cx(pcStyles.button),
         confirmTone === 'destructive'
           ? cx(pcStyles.buttonDestructive)

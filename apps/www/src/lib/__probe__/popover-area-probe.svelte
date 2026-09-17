@@ -18,6 +18,7 @@
 -->
 <script lang="ts">
   import Popover from '$lib/ui/popover/popover.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   type ProbePlacement = 'bottom-start' | 'bottom-end';
   let placement = $state<ProbePlacement>('bottom-start');
@@ -27,11 +28,27 @@
     const p = new URLSearchParams(window.location.search).get('placement');
     if (p === 'bottom-start' || p === 'bottom-end') placement = p;
   });
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-probe-popover-area="" data-placement={placement} class="mt-[120px] w-fit pl-[176px]">
+<div data-probe-popover-area="" data-placement={placement} class={cx(siteChrome.poRoot)}>
   <Popover id="probe-pop" triggerLabel="area probe" {placement}>
-    <p class="w-64 text-[13px] leading-6">
+    <p class={cx(siteChrome.poPanel)}>
       position-area alignment probe panel — fixed-width content so the panel
       geometry is stable across runs and the primary/control deltas stay
       comparable.

@@ -2,7 +2,9 @@
      forced shown ({@attach fromAction(forceShowPopovers)} → showPopover on the popover=auto
      panel; the current section's trigger carries aria-current).
      (composition-first-apis 2026-08-25: Item/Trigger/Panel/Link parts
-     replace the items[] data + keyed panel snippet.) -->
+     replace the items[] data + keyed panel snippet.
+     tailwindless BP-B 2026-09-16: utilities → surface atoms, the
+     hover underline a pseudo value object on the link atom.) -->
 <script lang="ts">
   import NavigationMenu from '$lib/ui/navigation-menu/navigation-menu.svelte';
   import NavigationMenuItem from '$lib/ui/navigation-menu/navigation-menu-item.svelte';
@@ -12,21 +14,36 @@
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-8 p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="flex flex-col gap-3 opacity-60">
-    <Skeleton class="h-3 w-1/2"></Skeleton>
+<div class={cx(bpB.navigationMenuStage)} {@attach fromAction(forceShowPopovers)}>
+  <div class={cx(bpB.navigationMenuSkel)}>
+    <Skeleton class={cx(bpB.navigationMenuSkelBar)}></Skeleton>
   </div>
   <NavigationMenu label="site">
     <NavigationMenuItem>
       <NavigationMenuTrigger current>components</NavigationMenuTrigger>
       <NavigationMenuPanel>
-        <div class="flex min-w-44 flex-col gap-1">
-          <a class="text-sm hover:underline" href="#bp-navmenu">components · overview</a>
-          <a class="text-sm hover:underline" href="#bp-navmenu">dialog family</a>
-          <a class="text-sm hover:underline" href="#bp-navmenu">popover family</a>
-          <a class="text-sm hover:underline" href="#bp-navmenu">data displays</a>
+        <div class={cx(bpB.navigationMenuPanel)}>
+          <a class={cx(bpB.navigationMenuLink)} href="#bp-navmenu">components · overview</a>
+          <a class={cx(bpB.navigationMenuLink)} href="#bp-navmenu">dialog family</a>
+          <a class={cx(bpB.navigationMenuLink)} href="#bp-navmenu">popover family</a>
+          <a class={cx(bpB.navigationMenuLink)} href="#bp-navmenu">data displays</a>
         </div>
       </NavigationMenuPanel>
     </NavigationMenuItem>

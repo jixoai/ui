@@ -6,16 +6,31 @@
   import CardFooter from '$lib/ui/card/card-footer.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-4 p-10 opacity-70">
-  <Skeleton class="h-4 w-2/3"></Skeleton>
-  <Skeleton class="h-3 w-1/2"></Skeleton>
-  <Skeleton class="h-3 w-3/5"></Skeleton>
+<div class={cx(bpA.dialogStage)}>
+  <Skeleton class={cx(bpA.dialogSkeletonA)}></Skeleton>
+  <Skeleton class={cx(bpA.dialogSkeletonB)}></Skeleton>
+  <Skeleton class={cx(bpA.dialogSkeletonC)}></Skeleton>
 </div>
 
 <Dialog title="Delete workspace?" open={true}>
-  <p class="text-muted-foreground text-sm leading-6">
+  <p class={cx(bpA.dialogBody)}>
     This removes 3 deployments and their logs. The action cannot be undone.
   </p>
   {#snippet footer()}

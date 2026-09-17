@@ -3,12 +3,32 @@
      pipeline: static longhand atoms against typed tokens (the
      authoring law), verbatim var() values cascading from the sheet.
      The swatch table is built from STATIC sx() calls only, so the
-     compiled artifact carries zero runtime (the corpus pattern). -->
+     compiled artifact carries zero runtime (the corpus pattern).
+     (tailwindless BP-B 2026-09-16: the eyebrow's utilities join the
+     batch's surface module — bpB.tokensEyebrow, composed by the
+     canonical local cx.) -->
 <script lang="ts">
   import * as stylex from '@stylexjs/stylex';
   // RELATIVE import — the babel plugin's module resolution rejects
   // $lib aliases (the ssg lesson, spike-report §3)
   import { tokens } from '../../tokens.stylex';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  // the canonical local joiner (the separator serialize law,
+  // tailwindless BP-B 2026-09-16)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // class-string composition: 0.19.0 exposes no callable type on the
   // namespace (runtime-only call signature); attrs().class is the
@@ -66,8 +86,11 @@
   ] as const;
 </script>
 
-<div class="h-full w-full" {...stylex.attrs(s.board)}>
-  <div class="font-nav text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+<!-- tailwindless BP-B: the root's former `h-full w-full` class sat
+     BEFORE the attrs spread, whose own class key overwrote it (the
+     later spread wins) — dead paint, dropped rather than atomized -->
+<div {...stylex.attrs(s.board)}>
+  <div class={cx(bpB.tokensEyebrow)}>
     60 typed tokens · verbatim var() mirrors · the sheet stays the source
   </div>
   <div class={sx(s.row)}>

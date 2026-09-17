@@ -5,19 +5,34 @@
   import NumberingProvider from '$lib/ui/figure/numbering-provider.svelte';
   import Reference from '$lib/ui/reference/reference.svelte';
   import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <NumberingProvider>
-  <div class="flex h-full w-full flex-col justify-center gap-6 p-12">
+  <div class={cx(bpA.figureStage)}>
     <SectionCard numbering="decimal" title="Results" eyebrow="4" headingLevel={2}>
-      <div class="flex flex-col gap-5">
+      <div class={cx(bpA.figureColumn)}>
         <Figure kind="equation" id="eq-1" caption="the momentum balance">
-          <div class="font-mono text-[15px]">p&nbsp;=&nbsp;m&nbsp;·&nbsp;v</div>
+          <div class={cx(bpA.figureEquation)}>p&nbsp;=&nbsp;m&nbsp;·&nbsp;v</div>
         </Figure>
         <Figure kind="table" id="tbl-1" caption="measured vs predicted" citedIn={['§ 4.1']}>
-          <div class="font-mono text-[13px] text-muted-foreground">3 rows · 4 columns · Δ&thinsp;&lt;&thinsp;ε</div>
+          <div class={cx(bpA.figureNote)}>3 rows · 4 columns · Δ&thinsp;&lt;&thinsp;ε</div>
         </Figure>
-        <p class="text-[13px] text-muted-foreground">the bound of <Reference to="eq-1" /> follows from <Reference to="tbl-1" /></p>
+        <p class={cx(bpA.figureBound)}>the bound of <Reference to="eq-1" /> follows from <Reference to="tbl-1" /></p>
       </div>
     </SectionCard>
   </div>

@@ -4,6 +4,8 @@
      outer) exposed as a read-only projection; the medium def is
      read-only — a plugin targeting it is rejected at the type level. -->
 <script lang="ts">
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
   const defs = [
     { name: 'DENSITY_DEF', note: 'Density | undefined', readOnly: false },
     { name: 'HUE_DEF', note: 'number', readOnly: false },
@@ -14,49 +16,61 @@
     { hook: 'raw', note: 'never written back' },
     { hook: 'after', note: 'inner → outer' },
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-4 p-10">
-  <div class="font-nav text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+<div class={cx(bpA.contextPluginStage)}>
+  <div class={cx(bpA.contextPluginEyebrow)}>
     definePlugin · targets bind defs by identity (not by string)
   </div>
-  <div class="flex items-center justify-center gap-2.5">
-    <div class="flex flex-col gap-2">
+  <div class={cx(bpA.contextPluginBoard)}>
+    <div class={cx(bpA.contextPluginColumn)}>
       {#each defs as d (d.name)}
         <div
-          class="flex w-[11rem] flex-col gap-0.5 rounded-md border px-3 py-2 {d.readOnly
-            ? 'border-dashed border-border bg-transparent'
-            : 'border-border bg-card'}"
+          class={cx(bpA.contextPluginDefCard, d.readOnly ? bpA.contextPluginDefReadOnly : bpA.contextPluginDefMutable)}
         >
-          <span class="font-mono text-[12px]">{d.name}</span>
-          <span class="text-[10px] text-muted-foreground">{d.note}</span>
+          <span class={cx(bpA.contextPluginName)}>{d.name}</span>
+          <span class={cx(bpA.contextPluginNote)}>{d.note}</span>
           {#if d.readOnly}
-            <span class="text-[10px] text-muted-foreground">targets type-rejected</span>
+            <span class={cx(bpA.contextPluginNote)}>targets type-rejected</span>
           {/if}
         </div>
       {/each}
     </div>
-    <div class="flex w-[3rem] flex-col items-center gap-1 text-[10px] text-muted-foreground">
+    <div class={cx(bpA.contextPluginArrowColumn)}>
       <span>targets</span>
-      <span class="text-[13px]">→</span>
+      <span class={cx(bpA.contextPluginArrowGlyph)}>→</span>
       <span>identity</span>
     </div>
-    <div class="flex flex-col gap-2">
-      <div class="flex w-[10.5rem] flex-col gap-0.5 rounded-md border border-border bg-card px-3 py-2">
-        <span class="font-mono text-[12px]">printDensityPlugin</span>
-        <span class="font-mono text-[10px] text-muted-foreground">targets: [DENSITY_DEF]</span>
+    <div class={cx(bpA.contextPluginColumn)}>
+      <div class={cx(bpA.contextPluginCard)}>
+        <span class={cx(bpA.contextPluginName)}>printDensityPlugin</span>
+        <span class={cx(bpA.contextPluginNote)}>targets: [DENSITY_DEF]</span>
       </div>
       {#each onion as o (o.hook)}
-        <div class="flex w-[10.5rem] items-center justify-between rounded-md border border-border bg-card px-3 py-1.5">
-          <span class="font-mono text-[12px]">{o.hook}</span>
-          <span class="text-[10px] text-muted-foreground">{o.note}</span>
+        <div class={cx(bpA.contextPluginHookRow)}>
+          <span class={cx(bpA.contextPluginName)}>{o.hook}</span>
+          <span class={cx(bpA.contextPluginNote)}>{o.note}</span>
         </div>
       {/each}
     </div>
-    <div class="flex w-[1.25rem] items-center justify-center text-[13px] text-muted-foreground">→</div>
-    <div class="flex w-[6.5rem] flex-col gap-0.5 rounded-md border border-border bg-card px-3 py-2">
-      <span class="font-mono text-[12px]">exposed</span>
-      <span class="text-[10px] text-muted-foreground">the projection</span>
+    <div class={cx(bpA.contextPluginFlowArrow)}>→</div>
+    <div class={cx(bpA.contextPluginCard)}>
+      <span class={cx(bpA.contextPluginName)}>exposed</span>
+      <span class={cx(bpA.contextPluginNote)}>the projection</span>
     </div>
   </div>
 </div>

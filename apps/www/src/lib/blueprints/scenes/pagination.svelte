@@ -1,7 +1,8 @@
 <!-- pagination blueprint: the page window — page 4 of 30 with both
      ellipses and the active fill, and the first-page bound where
      ‹ prev renders as the honest disabled span. Composed parts over
-     the exported pageRange math. -->
+     the exported pageRange math.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Pagination from '$lib/ui/pagination/pagination.svelte';
   import PaginationContent from '$lib/ui/pagination/pagination-content.svelte';
@@ -11,11 +12,26 @@
   import PaginationNext from '$lib/ui/pagination/pagination-next.svelte';
   import PaginationEllipsis from '$lib/ui/pagination/pagination-ellipsis.svelte';
   import { pageRange } from '$lib/ui/pagination/pagination-range';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const href = (page: number): string => `/docs/components?page=${page}`;
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center gap-8 p-10">
+<div class={cx(bpB.paginationStage)}>
   {#each [{ current: 4, total: 30, label: 'registry items' }, { current: 1, total: 8, label: 'threads' }] as nav (nav.label)}
     <Pagination label={nav.label}>
       <PaginationContent>

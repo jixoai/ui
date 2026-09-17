@@ -6,24 +6,39 @@
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-6 p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="flex flex-col gap-3 opacity-60">
-    <Skeleton class="h-3 w-3/4"></Skeleton>
-    <Skeleton class="h-3 w-1/2"></Skeleton>
+<div class={cx(bpA.hoverCardStage)} {@attach fromAction(forceShowPopovers)}>
+  <div class={cx(bpA.hoverCardMuted)}>
+    <Skeleton class={cx(bpA.hoverCardSkeletonA)}></Skeleton>
+    <Skeleton class={cx(bpA.hoverCardSkeletonB)}></Skeleton>
   </div>
-  <p class="text-sm leading-6">
+  <p class={cx(bpA.hoverCardBody)}>
     release 77 was deployed by
     <HoverCard id="bp-hover-card" placement="bottom">
       {#snippet trigger()}
-        <a class="font-medium underline decoration-dotted underline-offset-4" href="#bp-hover-card">@grace</a>
+        <a class={cx(bpA.hoverCardTrigger)} href="#bp-hover-card">@grace</a>
       {/snippet}
-      <div class="flex items-start gap-3">
+      <div class={cx(bpA.hoverCardPeek)}>
         <Avatar name="Grace Hopper" size="lg" alt="" />
-        <div class="flex flex-col gap-1">
-          <p class="text-sm font-medium">Grace Hopper</p>
-          <p class="text-muted-foreground text-xs leading-5">
+        <div class={cx(bpA.hoverCardPeekColumn)}>
+          <p class={cx(bpA.hoverCardPeekName)}>Grace Hopper</p>
+          <p class={cx(bpA.hoverCardPeekNote)}>
             maintainer · 77 registry items published · last deploy 2h ago
           </p>
         </div>

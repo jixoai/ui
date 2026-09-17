@@ -566,7 +566,7 @@ export interface PulseOptions {
     <!-- the bracket-cursor spinner, the spin family's glyph inlined
          (registry items stay dependency-free); keyframes + the
          reduced-motion static-frame freeze live in press-button.css -->
-    <span data-jx-press-spin="" class={'jx-press-spin ' + cx(pressButtonStyles.spinner)} aria-hidden="true">[&nbsp;<span class={'jx-press-spin-frames ' + cx(pressButtonStyles.spinnerFrames)}><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameVisible)}>/</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>—</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>\\</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>|</i></span>&nbsp;]</span>
+    <span data-jx-press-spin="" class={cx(pressButtonStyles.spinner)} aria-hidden="true">[&nbsp;<span class={'jx-press-spin-frames ' + cx(pressButtonStyles.spinnerFrames)}><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameVisible)}>/</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>—</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>\\</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>|</i></span>&nbsp;]</span>
   {:else if leadingGlyph === 'check'}
     <!-- the one-shot success flash glyph (flash() painted it; it
          rests after 1.2s) -->

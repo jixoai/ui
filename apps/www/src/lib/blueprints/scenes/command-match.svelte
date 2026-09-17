@@ -1,25 +1,39 @@
 <!-- command-match blueprint: the frozen predicate — pure inclusion,
      never reorder; authored tree order is the walk order. -->
 <script lang="ts">
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
   const rows = [
     { label: 'Dialog', visible: true },
     { label: 'Command Palette', visible: true },
     { label: 'z-order helper', visible: false },
     { label: 'Popover', visible: true },
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-2.5 p-10">
-  <div class="font-nav text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+<div class={cx(bpA.commandMatchStage)}>
+  <div class={cx(bpA.commandMatchEyebrow)}>
     match(item, query) → boolean · visible/hidden only
   </div>
   {#each rows as r (r.label)}
     <div
-      class="max-w-[22rem] rounded-md border px-4 py-2 {r.visible
-        ? 'border-border bg-card'
-        : 'border-transparent bg-transparent opacity-40 line-through'}"
+      class={cx(bpA.commandMatchRow, r.visible ? bpA.commandMatchVisible : bpA.commandMatchHidden)}
     >
-      <span class="font-mono text-[13px]">{r.label}</span>
+      <span class={cx(bpA.commandMatchLabel)}>{r.label}</span>
     </div>
   {/each}
 </div>

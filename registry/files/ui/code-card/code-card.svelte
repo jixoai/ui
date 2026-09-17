@@ -353,7 +353,6 @@
   class={cn(
     'jx-code-card',
     cx(codeCardStyles.card),
-    fill && 'fill',
     fill && cx(codeCardStyles.cardFill),
     className,
   )}

@@ -6,10 +6,25 @@
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-6 p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="flex flex-wrap items-center gap-4">
+<div class={cx(bpA.iconButtonStage)} {@attach fromAction(forceShowPopovers)}>
+  <div class={cx(bpA.iconButtonRow)}>
     <IconButton text="deploy">
       {#snippet icon()}
         <svg
@@ -20,7 +35,7 @@
           stroke-linecap="round"
           stroke-linejoin="round"
           aria-hidden="true"
-          class="size-4"
+          class={cx(bpA.iconButtonIcon)}
         >
           <path d="m6 3 14 9-14 9Z" />
         </svg>
@@ -36,7 +51,7 @@
           stroke-linecap="round"
           stroke-linejoin="round"
           aria-hidden="true"
-          class="size-4"
+          class={cx(bpA.iconButtonIcon)}
         >
           <rect width="14" height="14" x="8" y="8" rx="2" />
           <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
@@ -53,7 +68,7 @@
           stroke-linecap="round"
           stroke-linejoin="round"
           aria-hidden="true"
-          class="size-4"
+          class={cx(bpA.iconButtonIcon)}
         >
           <path d="M7 17 17 7" />
           <path d="M7 7h10v10" />
@@ -61,8 +76,8 @@
       {/snippet}
     </IconButton>
   </div>
-  <div class="flex flex-col gap-3 opacity-60">
-    <Skeleton class="h-3 w-3/4"></Skeleton>
-    <Skeleton class="h-3 w-1/2"></Skeleton>
+  <div class={cx(bpA.iconButtonMuted)}>
+    <Skeleton class={cx(bpA.iconButtonSkeletonA)}></Skeleton>
+    <Skeleton class={cx(bpA.iconButtonSkeletonB)}></Skeleton>
   </div>
 </div>

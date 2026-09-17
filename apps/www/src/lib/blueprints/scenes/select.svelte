@@ -1,10 +1,26 @@
 <!-- select blueprint: the rich listbox forced open ({@attach fromAction(forceShowPopovers)})
      — the committed row carries the primary edge line, the trigger shows
-     the commit, one row stays disabled. -->
+     the commit, one row stays disabled.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Select, { type SelectOption } from '$lib/ui/select/select.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const options: SelectOption[] = [
     { value: 'node', label: 'node', description: 'node-pty backend — ConPTY on windows, forkpty elsewhere' },
@@ -16,8 +32,8 @@
   let runtime = $state('node');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="w-full max-w-[400px]">
+<div class={cx(bpB.selectStage)} {@attach fromAction(forceShowPopovers)}>
+  <div class={cx(bpB.selectCard)}>
     <Select id="bp-select" label="runtime" placeholder="pick a runtime…" bind:value={runtime} {options} />
   </div>
 </div>

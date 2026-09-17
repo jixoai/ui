@@ -4,10 +4,25 @@
   import BadgeIndicator from '$lib/ui/badge-indicator/badge-indicator.svelte';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center gap-8 p-10">
-  <div class="flex flex-wrap items-center gap-10">
+<div class={cx(bpA.badgeIndicatorStage)}>
+  <div class={cx(bpA.badgeIndicatorRow)}>
     <BadgeIndicator dot label="2 unread reviews">
       <Avatar name="Grace Hopper" size="lg" alt="" />
     </BadgeIndicator>
@@ -16,7 +31,7 @@
     </BadgeIndicator>
     <BadgeIndicator count={250} />
   </div>
-  <p class="text-muted-foreground text-sm">
+  <p class={cx(bpA.badgeIndicatorNote)}>
     dot paints brand presence; counts paint destructive and cap at 99+.
   </p>
 </div>

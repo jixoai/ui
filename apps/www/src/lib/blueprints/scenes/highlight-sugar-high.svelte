@@ -7,40 +7,58 @@
      9.9KB vs prism 14.6KB vs hljs 29.5KB. Terminal diagram idiom; no
      live component (the surface is lib-level). -->
 <script lang="ts">
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  // bar widths/fills map to REGISTERED atom identities at module scope
+  // (the producer law — never dynamic class strings)
   const bars = [
-    { label: 'sugar-high', kb: '9.9KB', w: 'w-[42px]', fill: 'bg-primary', labelCls: 'font-bold' },
-    { label: 'prism', kb: '14.6KB', w: 'w-[62px]', fill: 'bg-muted', labelCls: '' },
-    { label: 'highlight.js', kb: '29.5KB', w: 'w-[126px]', fill: 'bg-muted', labelCls: '' },
+    { label: 'sugar-high', kb: '9.9KB', width: bpA.highlightSugarHighBarW42, fill: bpA.highlightSugarHighBarFillPrimary, bold: true },
+    { label: 'prism', kb: '14.6KB', width: bpA.highlightSugarHighBarW62, fill: bpA.highlightSugarHighBarFillMuted, bold: false },
+    { label: 'highlight.js', kb: '29.5KB', width: bpA.highlightSugarHighBarW126, fill: bpA.highlightSugarHighBarFillMuted, bold: false },
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-8">
-  <div class="flex w-full max-w-2xl flex-col gap-3 border border-border bg-card p-6 font-mono text-[12px] leading-6">
-    <div class="flex items-center justify-between border-b border-border pb-3">
-      <span class="text-[13px] font-bold uppercase tracking-widest text-primary">highlight-sugar-high</span>
-      <span class="font-nav text-[11px] uppercase tracking-widest text-muted-foreground">the ~10KB engine</span>
+<div class={cx(bpA.highlightSugarHighStage)}>
+  <div class={cx(bpA.highlightSugarHighPanel)}>
+    <div class={cx(bpA.highlightSugarHighHead)}>
+      <span class={cx(bpA.highlightSugarHighTitle)}>highlight-sugar-high</span>
+      <span class={cx(bpA.highlightSugarHighSub)}>the ~10KB engine</span>
     </div>
-    <div class="flex flex-col gap-1">
-      <span class="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">direct output · no DOM dependency</span>
-      <div class="flex items-center gap-2.5">
-        <span class="text-[11px]">highlight(code, {'{'} lang {'}'})</span>
-        <span class="text-primary">-></span>
-        <span class="rounded-md border border-border bg-muted/40 px-2.5 py-1 text-[11px] font-bold">html string</span>
+    <div class={cx(bpA.highlightSugarHighOutBlock)}>
+      <span class={cx(bpA.highlightSugarHighOutLabel)}>direct output · no DOM dependency</span>
+      <div class={cx(bpA.highlightSugarHighOutRow)}>
+        <span class={cx(bpA.highlightSugarHighOutCode)}>highlight(code, {'{'} lang {'}'})</span>
+        <span class={cx(bpA.highlightSugarHighOutArrow)}>-></span>
+        <span class={cx(bpA.highlightSugarHighOutChip)}>html string</span>
       </div>
     </div>
-    <div class="flex flex-col gap-1.5">
-      <span class="text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+    <div class={cx(bpA.highlightSugarHighBars)}>
+      <span class={cx(bpA.highlightSugarHighBarsLabel)}
         >bundle weight (upstream README baseline, 2.2.2)</span
       >
       {#each bars as bar (bar.label)}
-        <div class="flex items-center gap-2.5">
-          <span class="w-[86px] flex-none text-[11px] {bar.labelCls}">{bar.label}</span>
-          <span class="h-[10px] flex-none rounded-[2px] {bar.w} {bar.fill}"></span>
-          <span class="text-[11px] text-muted-foreground">{bar.kb}</span>
+        <div class={cx(bpA.highlightSugarHighBarRow)}>
+          <span class={cx(bpA.highlightSugarHighBarLabel, bar.bold ? bpA.highlightSugarHighBarLabelBold : undefined)}>{bar.label}</span>
+          <span class={cx(bpA.highlightSugarHighBarTrack, bar.width, bar.fill)}></span>
+          <span class={cx(bpA.highlightSugarHighBarValue)}>{bar.kb}</span>
         </div>
       {/each}
     </div>
-    <div class="flex flex-col border-t border-border pt-3 text-[11px] leading-5 text-muted-foreground">
+    <div class={cx(bpA.highlightSugarHighFoot)}>
       <span>29 canonical languages · JS/TS/JSX native strength · markup output, survives print</span>
       <span>zero options — the engine itself is the minimal config (no langs channel)</span>
     </div>

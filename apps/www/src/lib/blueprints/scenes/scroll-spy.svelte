@@ -3,8 +3,28 @@
      line is the pick. Left: the targets with the line drawn in; right:
      the link list any consumer derives (the surface anchor.svelte
      renders). Composed as representative HTML: the engine itself is
-     DOM-read-only logic with no box of its own. -->
+     DOM-read-only logic with no box of its own.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms; the
+     holds/plain poses ride ternary atoms in the cx slot — the former
+     class: directive folds into the join, per the pilot's Svelte
+     pruning gotcha.) -->
 <script lang="ts">
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const targets: { id: string; holds: boolean }[] = [
     { id: 'install', holds: false },
     { id: 'tokens', holds: true },
@@ -12,37 +32,36 @@
   ];
 </script>
 
-<div class="flex h-full w-full items-center justify-center gap-10 p-10">
+<div class={cx(bpB.scrollSpyStage)}>
   <!-- the tracked targets and the line -->
-  <div class="border-border relative h-[236px] w-[248px] flex-none border">
-    <span class="font-nav text-muted-foreground absolute left-2 top-1.5 text-[9px] uppercase tracking-[0.2em]"
+  <div class={cx(bpB.scrollSpyBoard)}>
+    <span class={cx(bpB.scrollSpyBoardLabel)}
       >targets · capture-phase scroll</span
     >
-    <div class="mt-6 flex flex-col">
+    <div class={cx(bpB.scrollSpyStack)}>
       {#each targets as target (target.id)}
-        <div class={`border-border border-y px-3 py-4 ${target.holds ? 'bg-muted/60' : 'bg-transparent'}`}>
+        <div class={cx(bpB.scrollSpyRow, target.holds ? bpB.scrollSpyRowHeld : bpB.scrollSpyRowPlain)}>
           <span
-            class="font-nav text-muted-foreground text-[10px]"
-            class:text-foreground={target.holds}
+            class={cx(bpB.scrollSpyRowLabel, target.holds ? bpB.scrollSpyRowLabelHeld : undefined)}
             >#{target.id}{target.holds ? ' — holds the line' : ''}</span
           >
         </div>
       {/each}
     </div>
-    <div class="border-primary absolute inset-x-0 top-[92px] border-t-2"></div>
-    <span class="text-primary font-nav absolute right-1 top-[98px] text-[9px]">← offset 96</span>
+    <div class={cx(bpB.scrollSpyLine)}></div>
+    <span class={cx(bpB.scrollSpyLineLabel)}>← offset 96</span>
   </div>
 
   <!-- the derived pick list -->
-  <nav class="flex w-[150px] flex-none flex-col gap-3" aria-label="blueprint scroll spy">
-    <span class="font-nav text-muted-foreground text-[10px] uppercase tracking-[0.24em]">pick</span>
+  <nav class={cx(bpB.scrollSpyList)} aria-label="blueprint scroll spy">
+    <span class={cx(bpB.scrollSpyListLabel)}>pick</span>
     {#each targets as target (target.id)}
       {#if target.holds}
-        <span class="text-primary border-primary font-nav border-l-2 pl-2 text-[11px] font-bold"
+        <span class={cx(bpB.scrollSpyPickHeld)}
           >{target.id}</span
         >
       {:else}
-        <span class="font-nav text-muted-foreground pl-2 text-[11px]">{target.id}</span>
+        <span class={cx(bpB.scrollSpyPickPlain)}>{target.id}</span>
       {/if}
     {/each}
   </nav>

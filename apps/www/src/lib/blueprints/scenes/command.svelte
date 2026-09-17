@@ -9,12 +9,27 @@
   import CommandGroup from '$lib/ui/command/command-group.svelte';
   import CommandItem from '$lib/ui/command/command-item.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-4 p-10 opacity-70">
-  <Skeleton class="h-4 w-2/3"></Skeleton>
-  <Skeleton class="h-3 w-1/2"></Skeleton>
-  <Skeleton class="h-3 w-3/5"></Skeleton>
+<div class={cx(bpA.commandStage)}>
+  <Skeleton class={cx(bpA.commandSkeletonA)}></Skeleton>
+  <Skeleton class={cx(bpA.commandSkeletonB)}></Skeleton>
+  <Skeleton class={cx(bpA.commandSkeletonC)}></Skeleton>
 </div>
 
 <Command open={true} placeholder="type a command…" label="command palette">

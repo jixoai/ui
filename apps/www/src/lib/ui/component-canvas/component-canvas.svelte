@@ -506,7 +506,6 @@ let codeOpen = $state(false);
         data-theme={theme}
         data-density={dDensity}
         class={cn(
-          'jx-canvas-stage',
           cx(canvasStyles.stage),
           // theme sheet vocabulary, scoped to the stage subtree only: .dark
           // flips the token set (and dark: utilities) inside the demo;

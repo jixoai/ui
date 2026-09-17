@@ -42,8 +42,8 @@
 import * as stylex from '@stylexjs/stylex';
 
 /**
- * The typed theme table. 111 members (60 + the site voice scale's
- * 19 + the Wave 1 scale extension's 31 + W1b's 1, tailwindless one-shot),
+ * The typed theme table. 115 members (60 + the site voice scale's
+ * 19 + the Wave 1 scale extension's 31 + W1b's 1 + W2's 4, tailwindless one-shot),
  * order mirroring the sheet's own declaration order
  * (auditability); the doc comment inside each group names the
  * sheet law it mirrors.
@@ -154,6 +154,7 @@ export const tokens = stylex.defineVars({
   '--jx-text-sm': 'var(--text-sm)',
   '--jx-text-body-lg': 'var(--text-body-lg)',
   '--jx-text-body-xl': 'var(--text-body-xl)',
+  '--jx-text-lg': 'var(--text-lg)',
   '--jx-track-label': 'var(--track-label)',
   '--jx-track-wide': 'var(--track-wide)',
   '--jx-track-tight': 'var(--track-tight)',
@@ -194,7 +195,10 @@ export const tokens = stylex.defineVars({
   '--jx-space-18': 'var(--space-18)',
   '--jx-space-20': 'var(--space-20)',
   '--jx-space-24': 'var(--space-24)',
+  '--jx-space-28': 'var(--space-28)',
   '--jx-space-32': 'var(--space-32)',
   '--jx-space-40': 'var(--space-40)',
+  '--jx-space-48': 'var(--space-48)',
+  '--jx-space-80': 'var(--space-80)',
   '--jx-hairline': 'var(--hairline)',
 });

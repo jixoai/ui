@@ -5,6 +5,7 @@
      force, so the shot shows the closed trigger. -->
 <script lang="ts">
   import LanguageSwitcher from '$lib/ui/language-switcher/language-switcher.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const pairLocales = [
     { code: 'en', label: 'EN', href: '/en/blueprints' },
@@ -15,22 +16,34 @@
     { code: 'zh', label: '简体中文', href: '/zh/blueprints' },
     { code: 'ja', label: '日本語', href: '/ja/blueprints' },
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-10">
-  <div
-    class="border-border bg-terminal text-terminal-foreground flex w-full max-w-[440px] flex-col gap-4 border p-6"
-  >
-    <div class="flex items-center justify-between gap-4">
-      <span class="font-nav text-[10px] uppercase tracking-[0.24em] opacity-60">pair · en</span>
+<div class={cx(bpA.languageSwitcherStage)}>
+  <div class={cx(bpA.languageSwitcherPanel)}>
+    <div class={cx(bpA.languageSwitcherRow)}>
+      <span class={cx(bpA.languageSwitcherRowLabel)}>pair · en</span>
       <LanguageSwitcher variant="pair" current="en" locales={pairLocales} />
     </div>
-    <div class="border-terminal-foreground/10 flex items-center justify-between gap-4 border-t pt-4">
-      <span class="font-nav text-[10px] uppercase tracking-[0.24em] opacity-60">pair · zh</span>
+    <div class={cx(bpA.languageSwitcherRow, bpA.languageSwitcherDividerRow)}>
+      <span class={cx(bpA.languageSwitcherRowLabel)}>pair · zh</span>
       <LanguageSwitcher variant="pair" current="zh" locales={pairLocales} />
     </div>
-    <div class="border-terminal-foreground/10 flex items-center justify-between gap-4 border-t pt-4">
-      <span class="font-nav text-[10px] uppercase tracking-[0.24em] opacity-60">menu</span>
+    <div class={cx(bpA.languageSwitcherRow, bpA.languageSwitcherDividerRow)}>
+      <span class={cx(bpA.languageSwitcherRowLabel)}>menu</span>
       <LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={menuLocales} />
     </div>
   </div>

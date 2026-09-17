@@ -4,6 +4,7 @@
      carries the plain fallback paint with zero layout shift. -->
 <script lang="ts">
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const sample = `import { UniPty } from '@unipty/core';
 
@@ -12,8 +13,22 @@ const pty = unipty.spawn(['bash'], {
 });
 
 pty.resize(120, 36);`;
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-10">
-  <CodeCard class="w-full max-w-[520px]" filename="spawn.ts" lang="ts" code={sample} />
+<div class={cx(bpA.codeCardStage)}>
+  <CodeCard class={cx(bpA.codeCardCard)} filename="spawn.ts" lang="ts" code={sample} />
 </div>

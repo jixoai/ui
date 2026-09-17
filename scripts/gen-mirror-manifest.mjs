@@ -61,7 +61,6 @@ const UNREFERENCED_LIB = [
   // stale watchers live on this machine). Retire the copy + this
   // entry once the servers have reloaded — the loading law is
   // documented at the devMirrorSync call in apps/www/vite.config.ts.
-  { path: 'registry/files/lib/icon-table/icon-table.svelte', note: 'icons-docs — site-only ruling; on-disk relic pending dev-server reload' },
   // registry-standalone stream (2026-09-02): the registry package's own
   // kit/vite app needs the global Tailwind fan-in entry — a byte-copy of
   // apps/www/src/app.css living at the registry/files ROOT (outside the

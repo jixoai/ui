@@ -1,7 +1,8 @@
 <!-- steps blueprint: the wizard at step 2 of 4 — the done step is a link
      back (button marker with the check glyph), the current is aria-current,
      the future is inert. composition-first-apis: explicit ordinals, the
-     parts authored in the tree. -->
+     parts authored in the tree.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Steps, {
     StepsItem,
@@ -10,11 +11,26 @@
     StepsDescription,
     StepsSeparator,
   } from '$lib/ui/steps/index';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   let current = $state(1);
 </script>
 
-<div class="flex h-full w-full flex-col justify-center p-10">
+<div class={cx(bpB.stepsStage)}>
   <Steps density="lg" bind:current>
     <StepsItem step={0} label="connect" onclick={() => (current = 0)}>
       <StepsIndicator />

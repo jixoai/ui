@@ -7,39 +7,55 @@
      the shared facade registry. Terminal diagram idiom; no live
      component (the surface is lib-level). -->
 <script lang="ts">
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
   const lazy = ['grammar · ts.textmate', 'theme · css-variables', 'jixoai: --tok-* recipe'];
   const spans = ['<span', '  class="tok-kw">', '  const', '</span>'];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-8">
-  <div class="flex w-full max-w-2xl flex-col gap-3 border border-border bg-card p-6 font-mono text-[12px] leading-6">
-    <div class="flex items-center justify-between border-b border-border pb-3">
-      <span class="text-[13px] font-bold uppercase tracking-widest text-primary">highlight-shiki</span>
-      <span class="font-nav text-[11px] uppercase tracking-widest text-muted-foreground">the default engine</span>
+<div class={cx(bpA.highlightShikiStage)}>
+  <div class={cx(bpA.highlightShikiPanel)}>
+    <div class={cx(bpA.highlightShikiHead)}>
+      <span class={cx(bpA.highlightShikiTitle)}>highlight-shiki</span>
+      <span class={cx(bpA.highlightShikiSub)}>the default engine</span>
     </div>
-    <div class="flex items-center gap-3">
-      <div class="flex w-[164px] flex-none flex-col gap-1">
-        <span class="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">on demand (lazy chunk)</span>
+    <div class={cx(bpA.highlightShikiBoard)}>
+      <div class={cx(bpA.highlightShikiLazyCol)}>
+        <span class={cx(bpA.highlightShikiColLabel)}>on demand (lazy chunk)</span>
         {#each lazy as line (line)}
-          <span class="text-[11px] text-muted-foreground">{line}</span>
+          <span class={cx(bpA.highlightShikiLazyLine)}>{line}</span>
         {/each}
       </div>
-      <span class="text-primary">-></span>
-      <div class="flex flex-1 flex-col gap-1 rounded-md border border-border bg-muted/40 px-3 py-2">
-        <span class="text-[12px] font-bold">shiki()</span>
-        <span class="text-[11px]">highlight(el, code,</span>
-        <span class="text-[11px]">{'  { lang, theme })'}</span>
-        <span class="text-[10px] text-muted-foreground">DEFAULT_SHIKI_BACKEND · the stock singleton</span>
+      <span class={cx(bpA.highlightShikiArrow)}>-></span>
+      <div class={cx(bpA.highlightShikiAdapterCard)}>
+        <span class={cx(bpA.highlightShikiAdapterTitle)}>shiki()</span>
+        <span class={cx(bpA.highlightShikiAdapterLine)}>highlight(el, code,</span>
+        <span class={cx(bpA.highlightShikiAdapterLine)}>{'  { lang, theme })'}</span>
+        <span class={cx(bpA.highlightShikiCardNote)}>DEFAULT_SHIKI_BACKEND · the stock singleton</span>
       </div>
-      <span class="text-primary">-></span>
-      <div class="flex w-[140px] flex-none flex-col gap-1">
-        <span class="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">markup output</span>
+      <span class={cx(bpA.highlightShikiArrow)}>-></span>
+      <div class={cx(bpA.highlightShikiOutCol)}>
+        <span class={cx(bpA.highlightShikiColLabel)}>markup output</span>
         {#each spans as line (line)}
-          <span class="text-[11px]">{line}</span>
+          <span class={cx(bpA.highlightShikiOutLine)}>{line}</span>
         {/each}
       </div>
     </div>
-    <div class="flex flex-col border-t border-border pt-3 text-[11px] leading-5 text-muted-foreground">
+    <div class={cx(bpA.highlightShikiFoot)}>
       <span>TextMate-grade accuracy · markup survives print · code-card's pinned default</span>
       <span>shiki({'{'} langs {'}'}) slims the instance — an allowlist, never the shared registry</span>
     </div>

@@ -15,6 +15,7 @@
 <script lang="ts">
   import PlayNumber from './play-number.svelte';
   import PlaySegmented from './play-segmented.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   let {
     value = $bindable<'auto' | number>('auto'),
@@ -50,9 +51,25 @@
       custom = value;
     }
   });
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex items-center gap-2">
+<div class={cx(siteChrome.ptRow)}>
   <PlaySegmented bind:value={mode} options={MODES} />
   {#if mode === 'custom'}
     <PlayNumber bind:value={custom} {min} {max} {step} />

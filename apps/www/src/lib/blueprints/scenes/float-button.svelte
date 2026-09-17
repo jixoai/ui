@@ -5,14 +5,29 @@
   import FloatButton from '$lib/ui/float-button/float-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import Icon from '$lib/ui/icon';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-4 p-10">
-  <Skeleton class="h-4 w-2/3"></Skeleton>
-  <Skeleton class="h-3 w-1/2"></Skeleton>
-  <Skeleton class="h-3 w-3/5"></Skeleton>
+<div class={cx(bpA.floatButtonStage)}>
+  <Skeleton class={cx(bpA.floatButtonSkeletonA)}></Skeleton>
+  <Skeleton class={cx(bpA.floatButtonSkeletonB)}></Skeleton>
+  <Skeleton class={cx(bpA.floatButtonSkeletonC)}></Skeleton>
 </div>
 
 <FloatButton label="back to top">
-  <span class="-rotate-90 inline-flex" aria-hidden="true"><Icon name="arrowRight" /></span>
+  <span class={cx(bpA.floatButtonGlyph)} aria-hidden="true"><Icon name="arrowRight" /></span>
 </FloatButton>

@@ -14,6 +14,7 @@
 <script lang="ts">
   import Popover from '$lib/ui/popover/popover.svelte';
   import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
   import { currentHue, playing, toggleHuePlay, setHueManually } from '$lib/hue-runtime.svelte';
 
   let hue = $state(0);
@@ -31,6 +32,22 @@
     popEl.addEventListener('toggle', handler);
     return () => popEl.removeEventListener('toggle', handler);
   });
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <Popover id="hue-popover" triggerLabel="Brand hue & theme" placement="bottom-end">
@@ -38,17 +55,17 @@
     <button
       type="button"
       popovertarget="hue-popover"
-      class="jx-press jx-hue-trigger min-h-[var(--jx-hit)] min-w-[var(--jx-hit)]"
+      class="jx-press jx-hue-trigger {cx(siteChrome.hpHit)}"
       aria-label={isOpen ? 'Close brand hue & theme' : 'Brand hue & theme'}
       aria-expanded={isOpen}
     >
       {#if isOpen}
-        <svg class="h-[var(--jx-icon)] w-[var(--jx-icon)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <svg class={cx(siteChrome.hpIcon)} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
           <path d="M18 6 6 18" />
           <path d="m6 6 12 12" />
         </svg>
       {:else}
-        <svg class="h-[var(--jx-icon)] w-[var(--jx-icon)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg class={cx(siteChrome.hpIcon)} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 22a10 10 0 1 1 10-10c0 1.7-1.3 3-3 3h-2.4a2 2 0 0 0-1.4 3.4c.4.5.6 1.1.6 1.6a2 2 0 0 1-2 2Z" />
           <circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
           <circle cx="10.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
@@ -60,16 +77,16 @@
   {/snippet}
 
   <div bind:this={popEl} class="jx-hue-content">
-    <div class="flex flex-col gap-[var(--jx-gap)] p-[var(--jx-inset)]">
+    <div class={cx(siteChrome.hpStack)}>
       <!-- theme: the registry ThemeToggle, full variant, icons only -->
-      <div class="flex flex-col gap-2">
+      <div class={cx(siteChrome.hpSection)}>
         <p class="jx-hue-label">Theme</p>
         <ThemeToggle variant="full" hideLabels />
       </div>
 
       <!-- hue section -->
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between">
+      <div class={cx(siteChrome.hpSection)}>
+        <div class={cx(siteChrome.hpLabelRow)}>
           <p class="jx-hue-label">Brand hue</p>
           <code data-jx-hue-value>{hue}°</code>
         </div>
@@ -88,7 +105,7 @@
       </div>
 
       <!-- 24h auto-cycle -->
-      <div class="flex items-center justify-between gap-3">
+      <div class={cx(siteChrome.hpCycleRow)}>
         <p class="jx-hue-label">Auto cycle · 24h</p>
         <button
           type="button"
@@ -99,11 +116,11 @@
           aria-label={isPlaying ? 'Pause the hue cycle' : 'Play the hue cycle'}
         >
           {#if isPlaying}
-            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <svg class={cx(siteChrome.hpGlyph)} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M7 5h4v14H7zM13 5h4v14h-4z" />
             </svg>
           {:else}
-            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <svg class={cx(siteChrome.hpGlyph)} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
             </svg>
           {/if}

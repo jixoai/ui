@@ -103,7 +103,6 @@
   />
   <span
     class={cn(
-      'jx-tgroup-content',
       // flex only when lanes exist — text-only items keep the exact
       // anonymous-box rendering the shared sheet paints today
       (slotStart || slotEnd) && cx(toggleGroupStyles.content),

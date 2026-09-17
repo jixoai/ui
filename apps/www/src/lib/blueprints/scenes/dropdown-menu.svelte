@@ -6,18 +6,33 @@
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-5 p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="flex flex-col gap-3 opacity-60">
-    <Skeleton class="h-3 w-2/3"></Skeleton>
-    <Skeleton class="h-3 w-1/2"></Skeleton>
+<div class={cx(bpA.dropdownMenuStage)} {@attach fromAction(forceShowPopovers)}>
+  <div class={cx(bpA.dropdownMenuMuted)}>
+    <Skeleton class={cx(bpA.dropdownMenuSkeletonA)}></Skeleton>
+    <Skeleton class={cx(bpA.dropdownMenuSkeletonB)}></Skeleton>
   </div>
   <DropdownMenu id="bp-dropdown-menu" triggerLabel="workspace" placement="bottom-start">
     <DropdownMenuItem>rename workspace</DropdownMenuItem>
     <DropdownMenuItem>invite member</DropdownMenuItem>
     <DropdownMenuItem>transfer ownership</DropdownMenuItem>
-    <hr class="border-border my-1" />
+    <hr class={cx(bpA.dropdownMenuDivider)} />
     <DropdownMenuItem destructive>delete workspace</DropdownMenuItem>
   </DropdownMenu>
 </div>

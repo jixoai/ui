@@ -3,20 +3,35 @@
 <script lang="ts">
   import Link from '$lib/ui/link/link.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
-  <div class="flex w-full max-w-[520px] flex-col gap-3 text-[14px] leading-7">
-    <p class="m-0">
+<div class={cx(bpA.linkStage)}>
+  <div class={cx(bpA.linkColumn)}>
+    <p class={cx(bpA.linkPara)}>
       Read <Link href="/docs/components/markdown.html">the markdown page</Link> in this tab, or
       leave for <Link href="https://github.com/jixoai/ui">the repository</Link> in a new one.
     </p>
-    <p class="m-0 text-muted-foreground">
+    <p class={cx(bpA.linkParaMuted)}>
       The offset keeps the underline off the descenders —
       <Link href="https://commonmark.org">CommonMark</Link> inside muted prose.
     </p>
   </div>
-  <div class="flex flex-wrap gap-2">
+  <div class={cx(bpA.linkRow)}>
     <Badge>http(s) → target=_blank</Badge>
     <Badge>rel=noreferrer</Badge>
     <Badge>app routes same-tab</Badge>

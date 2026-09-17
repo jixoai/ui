@@ -151,6 +151,9 @@
     "registry/files/ui/toggle/toggle.stylex.ts",
     "registry/files/ui/tooltip/tooltip.stylex.ts",
     "registry/files/ui/website-scaffold/website-scaffold.stylex.ts",
-    "apps/www/src/lib/ui/density-demo/density-demo.stylex.ts"
+    "apps/www/src/lib/ui/density-demo/density-demo.stylex.ts",
+    "apps/www/src/lib/surface/blueprints-a.stylex.ts",
+    "apps/www/src/lib/surface/blueprints-b.stylex.ts",
+    "apps/www/src/lib/surface/site-chrome.stylex.ts"
   ]
 }

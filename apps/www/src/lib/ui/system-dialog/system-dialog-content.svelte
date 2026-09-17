@@ -169,7 +169,7 @@
   bind:this={panel}
   popover="manual"
   class={cn(
-    'jx-sysdlg jx-surface',
+    'jx-surface',
     cx(sysdlgStyles.panel),
     motion.supported && 'jx-waapi',
     className,

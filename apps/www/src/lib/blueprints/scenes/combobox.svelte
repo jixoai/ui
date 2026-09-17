@@ -5,6 +5,7 @@
   import Combobox, { type ComboboxOption } from '$lib/ui/combobox/combobox.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const options: ComboboxOption[] = [
     { value: 'node-pty', label: 'node-pty', description: 'conpty / forkpty addon' },
@@ -13,10 +14,24 @@
   ];
 
   let backend = $state('node-pty');
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="w-full max-w-[420px]">
+<div class={cx(bpA.comboboxStage)} {@attach fromAction(forceShowPopovers)}>
+  <div class={cx(bpA.comboboxFrame)}>
     <Combobox id="bp-combobox" label="backend" bind:value={backend} {options} />
   </div>
 </div>

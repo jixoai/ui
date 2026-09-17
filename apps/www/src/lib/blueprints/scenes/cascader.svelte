@@ -2,6 +2,7 @@
      ui — every select in the row carrying its committed pick. -->
 <script lang="ts">
   import Cascader from '$lib/ui/cascader/cascader.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const options = [
     {
@@ -22,8 +23,22 @@
   ];
 
   let path = $state(['registry', 'files', 'ui']);
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-10">
+<div class={cx(bpA.cascaderStage)}>
   <Cascader label="path" bind:value={path} {options} />
 </div>

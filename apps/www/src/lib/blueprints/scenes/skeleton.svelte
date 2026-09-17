@@ -1,15 +1,31 @@
-<!-- skeleton blueprint: the loading placeholder in a page-shaped layout. -->
+<!-- skeleton blueprint: the loading placeholder in a page-shaped layout.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col gap-4 p-10">
-  <Skeleton class="h-6 w-2/5"></Skeleton>
-  <Skeleton class="h-3 w-4/5"></Skeleton>
-  <Skeleton class="h-3 w-3/5"></Skeleton>
-  <div class="mt-2 flex gap-4">
-    <Skeleton class="h-24 w-1/2"></Skeleton>
-    <Skeleton class="h-24 w-1/2"></Skeleton>
+<div class={cx(bpB.skeletonStage)}>
+  <Skeleton class={cx(bpB.skeletonHead)}></Skeleton>
+  <Skeleton class={cx(bpB.skeletonLineA)}></Skeleton>
+  <Skeleton class={cx(bpB.skeletonLineB)}></Skeleton>
+  <div class={cx(bpB.skeletonPair)}>
+    <Skeleton class={cx(bpB.skeletonTile)}></Skeleton>
+    <Skeleton class={cx(bpB.skeletonTile)}></Skeleton>
   </div>
-  <Skeleton class="h-9 w-32"></Skeleton>
+  <Skeleton class={cx(bpB.skeletonTail)}></Skeleton>
 </div>

@@ -9,31 +9,47 @@
      component is one setContext line (not worth a stage — the tree is
      the story). -->
 <script lang="ts">
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
   const inside = ['lang="auto" · filename="main.ts"', 'lang="auto" · no filename -> L4', 'lang="ts" · untouched path'];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-8">
-  <div class="flex w-full max-w-2xl flex-col gap-3 border border-border bg-card p-6 font-mono text-[12px] leading-6">
-    <div class="flex items-center justify-between border-b border-border pb-3">
-      <span class="text-[13px] font-bold uppercase tracking-widest text-primary">highlight-detect-default</span>
-      <span class="font-nav text-[11px] uppercase tracking-widest text-muted-foreground">the children wrapper</span>
+<div class={cx(bpA.highlightDetectDefaultStage)}>
+  <div class={cx(bpA.highlightDetectDefaultPanel)}>
+    <div class={cx(bpA.highlightDetectDefaultHead)}>
+      <span class={cx(bpA.highlightDetectDefaultTitle)}>highlight-detect-default</span>
+      <span class={cx(bpA.highlightDetectDefaultSub)}>the children wrapper</span>
     </div>
-    <div class="flex items-center gap-3">
-      <div class="flex flex-1 flex-col gap-1 rounded-md border border-border bg-muted/40 px-3 py-2">
-        <span class="text-[12px] font-bold">&lt;HighlightDetectDefault&gt;</span>
-        <span class="text-[10px] text-muted-foreground">setContext(HIGHLIGHT_DETECT_KEY,</span>
-        <span class="text-[10px] text-muted-foreground">{'  { detector: defaultLangDetector() })'}</span>
-        <span class="text-[10px] text-muted-foreground">{'{@render children()}'}</span>
+    <div class={cx(bpA.highlightDetectDefaultBoard)}>
+      <div class={cx(bpA.highlightDetectDefaultCard)}>
+        <span class={cx(bpA.highlightDetectDefaultCardTitle)}>&lt;HighlightDetectDefault&gt;</span>
+        <span class={cx(bpA.highlightDetectDefaultCardLine)}>setContext(HIGHLIGHT_DETECT_KEY,</span>
+        <span class={cx(bpA.highlightDetectDefaultCardLine)}>{'  { detector: defaultLangDetector() })'}</span>
+        <span class={cx(bpA.highlightDetectDefaultCardLine)}>{'{@render children()}'}</span>
       </div>
-      <span class="text-primary">-></span>
-      <div class="flex flex-1 flex-col gap-1">
-        <span class="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">the wrapped subtree</span>
+      <span class={cx(bpA.highlightDetectDefaultArrow)}>-></span>
+      <div class={cx(bpA.highlightDetectDefaultSide)}>
+        <span class={cx(bpA.highlightDetectDefaultSideLabel)}>the wrapped subtree</span>
         {#each inside as line (line)}
-          <span class="text-[11px]">{line}</span>
+          <span class={cx(bpA.highlightDetectDefaultSideLine)}>{line}</span>
         {/each}
       </div>
     </div>
-    <div class="flex flex-col border-t border-border pt-3 text-[11px] leading-5 text-muted-foreground">
+    <div class={cx(bpA.highlightDetectDefaultFoot)}>
       <span>context spreads downward only · siblings outside untouched · nearest wrapper wins</span>
       <span>form ② = the same one line, hand-written at any subtree root (zero components)</span>
     </div>

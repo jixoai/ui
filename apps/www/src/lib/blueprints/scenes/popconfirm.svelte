@@ -1,17 +1,33 @@
 <!-- popconfirm blueprint: the light confirm bubble forced shown over its
-     trigger ({@attach fromAction(forceShowPopovers)} → showPopover on the popover=auto panel). -->
+     trigger ({@attach fromAction(forceShowPopovers)} → showPopover on the popover=auto panel).
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Popconfirm from '$lib/ui/popconfirm/popconfirm.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-5 p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="flex flex-col gap-3 opacity-60">
-    <Skeleton class="h-3 w-3/4"></Skeleton>
-    <Skeleton class="h-3 w-1/2"></Skeleton>
+<div class={cx(bpB.popconfirmStage)} {@attach fromAction(forceShowPopovers)}>
+  <div class={cx(bpB.popconfirmSkel)}>
+    <Skeleton class={cx(bpB.popconfirmSkelA)}></Skeleton>
+    <Skeleton class={cx(bpB.popconfirmSkelB)}></Skeleton>
   </div>
   <Popconfirm
     id="bp-popconfirm"

@@ -13,6 +13,8 @@
      carries zero detector bytes. Terminal diagram idiom; no live
      component (the surface is lib-level). -->
 <script lang="ts">
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
   const engines = [
     { factory: 'shiki()', model: 'markup' },
     { factory: 'prismjs()', model: 'markup' },
@@ -26,64 +28,75 @@
     { factory: 'betlangDetector()', model: 'L4 only' },
     { factory: '<HighlightDetectDefault>', model: 'children' },
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-8">
-  <div
-    class="flex w-full max-w-2xl flex-col gap-3 border border-[color:var(--border)] bg-[color:var(--card)] p-6 font-mono text-[13px] leading-6"
-  >
-    <div class="flex items-center justify-between border-b border-[color:var(--border)] pb-3">
-      <span class="font-bold uppercase tracking-widest text-[color:var(--primary)]">highlight</span>
-      <span class="text-[11px] uppercase tracking-widest text-[color:var(--muted-foreground)]"
+<div class={cx(bpA.highlightStage)}>
+  <div class={cx(bpA.highlightPanel)}>
+    <div class={cx(bpA.highlightHead)}>
+      <span class={cx(bpA.highlightTitle)}>highlight</span>
+      <span class={cx(bpA.highlightSub)}
         >the engine-agnostic contract</span
       >
     </div>
-    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-      <div class="flex flex-col gap-1">
-        <span class="text-[10px] uppercase tracking-[0.14em] text-[color:var(--muted-foreground)]"
+    <div class={cx(bpA.highlightGrid)}>
+      <div class={cx(bpA.highlightColumn)}>
+        <span class={cx(bpA.highlightColumnLabel)}
           >engine items (lazy-loaded)</span
         >
         {#each engines as engine (engine.factory)}
-          <div class="flex items-baseline justify-between gap-3">
-            <span class="text-[11px]">{engine.factory}</span>
+          <div class={cx(bpA.highlightEngineRow)}>
+            <span class={cx(bpA.highlightEngineName)}>{engine.factory}</span>
             <span
-              class="text-[10px] text-[color:var(--muted-foreground)]"
-              class:font-bold={engine.model === 'range'}>{engine.model}</span
+              class={cx(bpA.highlightEngineModel, engine.model === 'range' ? bpA.highlightEngineModelBold : undefined)}>{engine.model}</span
             >
           </div>
         {/each}
       </div>
-      <span class="text-[color:var(--primary)]">-></span>
-      <div class="flex flex-col gap-1">
-        <pre class="font-bold">HighlightBackend
+      <span class={cx(bpA.highlightArrow)}>-></span>
+      <div class={cx(bpA.highlightColumn)}>
+        <pre class={cx(bpA.highlightIfaceCode)}>HighlightBackend
   highlight(el, code, opts)</pre>
-        <pre class="text-[11px] text-[color:var(--muted-foreground)]">seam: HIGHLIGHT_KEY (plain getContext)
+        <pre class={cx(bpA.highlightIfaceNote)}>seam: HIGHLIGHT_KEY (plain getContext)
 resolve: backend prop
   -> context default -> app default</pre>
       </div>
     </div>
-    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-t border-[color:var(--border)] pt-3">
-      <div class="flex flex-col gap-1">
-        <span class="text-[10px] uppercase tracking-[0.14em] text-[color:var(--muted-foreground)]"
+    <div class={cx(bpA.highlightGrid, bpA.highlightGridDivided)}>
+      <div class={cx(bpA.highlightColumn)}>
+        <span class={cx(bpA.highlightColumnLabel)}
           >detection items (optional)</span
         >
         {#each detection as detector (detector.factory)}
-          <div class="flex items-baseline justify-between gap-3">
-            <span class="text-[11px]">{detector.factory}</span>
-            <span class="text-[10px] text-[color:var(--muted-foreground)]">{detector.model}</span>
+          <div class={cx(bpA.highlightEngineRow)}>
+            <span class={cx(bpA.highlightEngineName)}>{detector.factory}</span>
+            <span class={cx(bpA.highlightEngineModel)}>{detector.model}</span>
           </div>
         {/each}
       </div>
-      <span class="text-[color:var(--primary)]">-></span>
-      <div class="flex flex-col gap-1">
-        <pre class="font-bold">lang='auto'
+      <span class={cx(bpA.highlightArrow)}>-></span>
+      <div class={cx(bpA.highlightColumn)}>
+        <pre class={cx(bpA.highlightIfaceCode)}>lang='auto'
   detect({'{ code, filename }'})</pre>
-        <pre class="text-[11px] text-[color:var(--muted-foreground)]">rings: langDetector prop
+        <pre class={cx(bpA.highlightIfaceNote)}>rings: langDetector prop
   -> HIGHLIGHT_DETECT_KEY -> backend.detector
 null cascades · reject terminal</pre>
       </div>
     </div>
-    <div class="border-t border-[color:var(--border)] pt-3 text-[11px] leading-5 text-[color:var(--muted-foreground)]">
+    <div class={cx(bpA.highlightFoot)}>
       zero npm deps · zero engine imports ride the core · markup survives print, ranges do not (pin a markup backend for
       paper) · DLD = four-layer waterfall (filename -> shebang -> structure -> betlang), zero detector bytes until a card
       enters auto

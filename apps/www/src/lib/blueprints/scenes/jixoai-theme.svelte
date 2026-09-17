@@ -3,6 +3,8 @@
      chart-1 all derive from it) over the surfaces family, every swatch
      painted from the live CSS variables the sheet installs. -->
 <script lang="ts">
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
   const hueSamples: { hue: string; css: string }[] = [
     { hue: '210', css: 'oklch(0.6489 0.237 210)' },
     { hue: '109', css: 'oklch(0.6489 0.237 109)' },
@@ -16,40 +18,54 @@
     { name: 'border', css: 'var(--border)' },
     { name: 'card', css: 'var(--card)' },
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-7 p-10">
-  <div class="flex items-center gap-5">
-    <span class="font-nav text-muted-foreground w-[96px] flex-none text-[10px] uppercase tracking-[0.18em]"
+<div class={cx(bpA.jixoaiThemeStage)}>
+  <div class={cx(bpA.jixoaiThemeRow)}>
+    <span class={cx(bpA.jixoaiThemeRowLabel)}
       >--brand-hue</span
     >
-    <div class="flex flex-1 gap-3">
+    <div class={cx(bpA.jixoaiThemeSwatches)}>
       {#each hueSamples as sample (sample.hue)}
-        <div class="flex-1">
-          <div class="border-border h-11 w-full border" style="background: {sample.css}"></div>
-          <span class="font-nav text-muted-foreground mt-1 block text-[9px]">{sample.hue}</span>
+        <div class={cx(bpA.jixoaiThemeSwatch)}>
+          <div class={cx(bpA.jixoaiThemeChip)} style="background: {sample.css}"></div>
+          <span class={cx(bpA.jixoaiThemeChipLabel)}>{sample.hue}</span>
         </div>
       {/each}
     </div>
   </div>
-  <div class="flex items-center gap-5">
-    <span class="font-nav text-muted-foreground w-[96px] flex-none text-[10px] uppercase tracking-[0.18em]"
+  <div class={cx(bpA.jixoaiThemeRow)}>
+    <span class={cx(bpA.jixoaiThemeRowLabel)}
       >tokens</span
     >
-    <div class="grid flex-1 grid-cols-6 gap-3">
+    <div class={cx(bpA.jixoaiThemeGrid)}>
       {#each tokens as token (token.name)}
         <div>
-          <div class="border-border h-11 w-full border" style="background: {token.css}"></div>
-          <span class="font-nav text-muted-foreground mt-1 block text-[9px]">{token.name}</span>
+          <div class={cx(bpA.jixoaiThemeChip)} style="background: {token.css}"></div>
+          <span class={cx(bpA.jixoaiThemeChipLabel)}>{token.name}</span>
         </div>
       {/each}
     </div>
   </div>
-  <div class="flex items-center gap-5">
-    <span class="font-nav text-muted-foreground w-[96px] flex-none text-[10px] uppercase tracking-[0.18em]"
+  <div class={cx(bpA.jixoaiThemeRow)}>
+    <span class={cx(bpA.jixoaiThemeRowLabel)}
       >the law</span
     >
-    <p class="text-muted-foreground text-[11.5px] leading-5">
+    <p class={cx(bpA.jixoaiThemeLaw)}>
       one hue is the whole identity — OKLCH everywhere, radius 0, hard offset shadows; the sheet
       is plain CSS variables, nothing to hydrate.
     </p>

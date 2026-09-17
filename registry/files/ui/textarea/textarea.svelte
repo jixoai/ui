@@ -37,15 +37,14 @@
   (.jx-control-shell row+hover+focus+disabled+invalid+slotted,
   .jx-field/.jx-label/.jx-error) are CONSUMED from the jx-pure sheet's
   Part A (consume-only law; the shell only adds the column direction as
-  an inline utility). The chromeless lane mirrors from textarea.css
-  (.jx-textarea, @layer components :where() — the placeholder rides
-  Part A's --jx-placeholder mix); the hairline rows, count readout and
+  an inline utility). The chromeless lane rides the jx-pure sheet's
+  element law (:where(.jx-pure) textarea — the placeholder rides
+  Part A's --jx-placeholder mix; the class twin retired with
+  textarea.css); the hairline rows, count readout and
   outer slots stay inline (one-off wrappers).
   tailwindless one-shot Wave 1b batch A (2026-09-17): the one-off
   wrappers ride the family's stylex ATOMS (textarea.stylex.ts) joined
-  through cx() below; the shell adds its column direction as an atom
-  beside the consumed law class; .jx-textarea stays a consumed law
-  class.
+  through cx() below; the shell adds its column direction as an atom.
 -->
 <script lang="ts">
   import type { HTMLTextareaAttributes } from 'svelte/elements';
@@ -181,7 +180,6 @@
       value={controlled ? value : undefined}
       oninput={syncValue}
       data-jx-textarea
-      class="jx-textarea"
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
     ></textarea>

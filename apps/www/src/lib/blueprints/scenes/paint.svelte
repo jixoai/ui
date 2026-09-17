@@ -1,6 +1,24 @@
 <!-- paint blueprint: the axis ladder — zone value domains with link
-     fenced to PressButton's explicit prop. -->
+     fenced to PressButton's explicit prop.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms; the
+     zone/plain frame pose rides a ternary in the cx slot.) -->
 <script lang="ts">
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const tiers = [
     { name: 'fill', zone: true },
     { name: 'tonal', zone: true },
@@ -10,14 +28,14 @@
   ];
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-2.5 p-10">
-  <div class="font-nav text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+<div class={cx(bpB.paintStage)}>
+  <div class={cx(bpB.paintKey)}>
     PAINT_ZONE_KEY · newVariant ?? legacyVariant ?? own
   </div>
   {#each tiers as t (t.name)}
-    <div class="flex max-w-[22rem] items-center justify-between rounded-md border px-4 py-2 {t.zone ? 'border-border bg-card' : 'border-dashed border-border bg-transparent'}">
-      <span class="font-mono text-[13px]">{t.name}</span>
-      <span class="text-[11px] text-muted-foreground">{t.zone ? 'zone-able' : 'explicit-prop only'}</span>
+    <div class={cx(bpB.paintRow, t.zone ? bpB.paintRowZone : bpB.paintRowPlain)}>
+      <span class={cx(bpB.paintName)}>{t.name}</span>
+      <span class={cx(bpB.paintNote)}>{t.zone ? 'zone-able' : 'explicit-prop only'}</span>
     </div>
   {/each}
 </div>

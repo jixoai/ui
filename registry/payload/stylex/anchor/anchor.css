@@ -71,6 +71,7 @@
     --jx-text-sm: var(--text-sm);
     --jx-text-body-lg: var(--text-body-lg);
     --jx-text-body-xl: var(--text-body-xl);
+    --jx-text-lg: var(--text-lg);
     --jx-track-label: var(--track-label);
     --jx-track-wide: var(--track-wide);
     --jx-track-tight: var(--track-tight);
@@ -111,8 +112,11 @@
     --jx-space-18: var(--space-18);
     --jx-space-20: var(--space-20);
     --jx-space-24: var(--space-24);
+    --jx-space-28: var(--space-28);
     --jx-space-32: var(--space-32);
     --jx-space-40: var(--space-40);
+    --jx-space-48: var(--space-48);
+    --jx-space-80: var(--space-80);
     --jx-hairline: var(--hairline);
   }
 }
@@ -236,4 +240,4 @@
 }
 
 @layer utilities;
-/* buildId: 077eddbfa23601ef938bc175cf6f5893ed839e10ecf9696098b5a115debeaa34 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
+/* buildId: 7d8bb67bcc5beef8859cf82b33c794060d8194b509264c6570ab4ab974ef5ae3 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

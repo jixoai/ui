@@ -3,10 +3,26 @@
      (css-variables recipe bound to the --tok-* palette). Grammars and
      themes load on demand; the highlight resolves before serialization
      (the pass waits past network-idle), and the same <code> element
-     carries the escaped plain fallback until it does. -->
+     carries the escaped plain fallback until it does.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const sample = `import { highlightCode } from '@lib/shiki';
 
@@ -17,9 +33,9 @@ const html = await highlightCode(source, {
 });`;
 </script>
 
-<div class="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
-  <CodeCard class="w-full max-w-[520px]" filename="highlight.ts" lang="ts" code={sample} />
-  <div class="flex flex-wrap gap-2">
+<div class={cx(bpB.shikiStage)}>
+  <CodeCard class={cx(bpB.shikiCard)} filename="highlight.ts" lang="ts" code={sample} />
+  <div class={cx(bpB.shikiBadges)}>
     <Badge>on-demand grammars</Badge>
     <Badge>css-variables theme</Badge>
     <Badge>js engine · no wasm</Badge>

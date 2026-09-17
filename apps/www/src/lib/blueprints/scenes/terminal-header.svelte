@@ -3,7 +3,11 @@
      the nav pill group with the active item plus the switcher slot,
      floating over muted page context. Composition-first (2026-08-25):
      the nav is composed from the navigation-menu family — links-only
-     entries as bare NavigationMenuLinks with the pill paint. -->
+     entries as bare NavigationMenuLinks with the pill paint.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms — the
+     pill map resolves to atoms at module scope, the cn() seam and its
+     utility strings are gone; the lg:px-3 step rides a media value
+     object at Tailwind's own 64rem threshold.) -->
 <script lang="ts">
   import TerminalHeader from '$lib/ui/terminal-header/terminal-header.svelte';
   import NavigationMenu from '$lib/ui/navigation-menu/navigation-menu.svelte';
@@ -11,25 +15,40 @@
   import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import Icon from '$lib/ui/icon';
-  import { cn } from '$lib/utils';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // the bezel's pill paint over the family's base (the same law the
-  // site layout authors — padding + color utilities through cn())
+  // site layout authors — atoms joined through cx(), the hover pose a
+  // pseudo value object)
   const pill = (current: boolean): string =>
-    cn(
-      'px-2.5 py-1 lg:px-3',
-      current ? 'text-terminal-foreground' : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+    cx(
+      bpB.terminalHeaderPill,
+      current ? bpB.terminalHeaderPillCurrent : bpB.terminalHeaderPillDim,
     );
 </script>
 
-<div class="flex h-full w-full flex-col gap-8 p-10">
+<div class={cx(bpB.terminalHeaderStage)}>
   <TerminalHeader
     brand="jixoai-ui"
     domain="ui.jixoai.com"
     subtitle="the jixoai design language"
     switcherFrame={false}
   >
-    <NavigationMenu label="Primary" class="flex-nowrap items-center gap-0">
+    <NavigationMenu label="Primary" class={cx(bpB.terminalHeaderNav)}>
       <NavigationMenuLink href="/" current class={pill(true)}>Overview</NavigationMenuLink>
       <NavigationMenuLink href="/docs/components" class={pill(false)}>Components</NavigationMenuLink>
       <NavigationMenuLink href="/tokens" class={pill(false)}>Tokens</NavigationMenuLink>
@@ -37,7 +56,7 @@
         GitHub
         <span
           data-jx-ext
-          class="inline-flex flex-none ms-1 align-[-0.125em]"
+          class={cx(bpB.terminalHeaderExt)}
           aria-hidden="true"
         ><Icon name="externalLink" size={12} /></span>
       </NavigationMenuLink>
@@ -49,9 +68,9 @@
       <ThemeToggle variant="compact" />
     {/snippet}
   </TerminalHeader>
-  <div class="flex flex-col gap-3 opacity-60">
-    <Skeleton class="h-4 w-2/3"></Skeleton>
-    <Skeleton class="h-3 w-1/2"></Skeleton>
-    <Skeleton class="h-3 w-3/5"></Skeleton>
+  <div class={cx(bpB.terminalHeaderSkel)}>
+    <Skeleton class={cx(bpB.terminalHeaderSkelA)}></Skeleton>
+    <Skeleton class={cx(bpB.terminalHeaderSkelB)}></Skeleton>
+    <Skeleton class={cx(bpB.terminalHeaderSkelC)}></Skeleton>
   </div>
 </div>

@@ -2,16 +2,32 @@
      The antd concept mappings rendered with REAL components: the
      data-table mapping (Table), the status-chip mapping (Badge), the
      action mapping (PressButton). The watermark/flex-grid/typography
-     recipes are patterns, not components — the table IS their index. -->
+     recipes are patterns, not components — the table IS their index.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Table from '$lib/ui/table/table.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col gap-5 p-10">
-  <div class="flex flex-wrap items-center justify-between gap-3">
-    <h2 class="font-nav text-lg tracking-tight">antd concept → jixoai recipe</h2>
+<div class={cx(bpB.recipesStage)}>
+  <div class={cx(bpB.recipesHead)}>
+    <h2 class={cx(bpB.recipesTitle)}>antd concept → jixoai recipe</h2>
     <Badge>where wrapping stops</Badge>
   </div>
   <Table caption="the deliberate non-components" dense>
@@ -24,7 +40,7 @@
       <tr><td>Typography</td><td>token scale + font-nav</td><td>recipe</td></tr>
     </tbody>
   </Table>
-  <div class="flex flex-wrap gap-3">
+  <div class={cx(bpB.recipesRow)}>
     <PressButton variant="outline">tour contract</PressButton>
     <PressButton variant="outline">image preview</PressButton>
   </div>

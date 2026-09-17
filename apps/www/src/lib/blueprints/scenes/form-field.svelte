@@ -9,12 +9,27 @@
   import Select from '$lib/ui/select/select.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-10">
-  <form class="border-border bg-muted/30 flex w-full max-w-[400px] flex-col gap-5 border p-6">
-    <div class="flex items-center justify-between">
-      <span class="font-nav text-[11px] uppercase tracking-[0.24em]">deploy form</span>
+<div class={cx(bpA.formFieldStage)}>
+  <form class={cx(bpA.formFieldForm)}>
+    <div class={cx(bpA.formFieldHead)}>
+      <span class={cx(bpA.formFieldTitle)}>deploy form</span>
       <Badge>FormData</Badge>
     </div>
     <Input label="project" name="project" value="jixoai-www" />
@@ -27,8 +42,8 @@
         { value: 'production', label: 'production' },
       ]}
     />
-    <div class="mt-1 flex items-center justify-between gap-3">
-      <span class="font-nav text-muted-foreground text-[10px]"
+    <div class={cx(bpA.formFieldFoot)}>
+      <span class={cx(bpA.formFieldNote)}
         >&lt;jx-form-field&gt; · display: contents</span
       >
       <PressButton variant="fill" type="submit">submit</PressButton>

@@ -22,6 +22,7 @@
 <script lang="ts">
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   type ProbePlacement = 'bottom' | 'bottom-start' | 'bottom-end' | 'top' | 'top-start' | 'top-end';
   const PLACEMENTS: ProbePlacement[] = [
@@ -40,18 +41,36 @@
     if (a === 'mid' || a === 'bottom' || a === 'right') at = a;
   });
 
-  // fixed-position wrapper: geometry independent of page flow, so the
-  // probe's viewport math is deterministic across arms (mid sits low
-  // enough that the TOP arms fit above the anchor — flip-block must
-  // stay a collision-arm concern, never a mid-geometry accident)
-  const pose = $derived(
-    at === 'mid' ? 'left-[560px] top-[280px]'
-    : at === 'bottom' ? 'left-[560px] bottom-[48px]'
-    : 'left-[1300px] top-[280px]',
-  );
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-probe-dropdown-area="" data-placement={placement} data-at={at} class="fixed {pose}">
+<!-- fixed-position wrapper: geometry independent of page flow, so the
+     probe's viewport math is deterministic across arms (mid sits low
+     enough that the TOP arms fit above the anchor — flip-block must
+     stay a collision-arm concern, never a mid-geometry accident) -->
+<div
+  data-probe-dropdown-area=""
+  data-placement={placement}
+  data-at={at}
+  class={cx(
+    siteChrome.ddFixed,
+    at === 'mid' ? siteChrome.ddMid : at === 'bottom' ? siteChrome.ddLow : siteChrome.ddFar,
+  )}
+>
   <DropdownMenu id="probe-dd" triggerLabel="area probe" {placement}>
     {#each ['alpha — fixed-width row one', 'beta — fixed-width row two', 'gamma — fixed-width row three'] as row}
       <DropdownMenuItem onclick={() => {}}>{row}</DropdownMenuItem>

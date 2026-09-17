@@ -1079,6 +1079,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --text-sm: 0.875rem;        /* 14px — the sm: responsive step (W1) */
   --text-body-lg: 0.9375rem;  /* 15px — the summary/lead voice (W1) */
   --text-body-xl: 1rem;       /* 16px — the hero sm: step (W1) */
+  --text-lg: 1.125rem;        /* 18px — the recipes title voice (W2) */
   --track-label: 0.24em;      /* the eyebrow tracking */
   --track-wide: 0.08em;       /* the control-label tracking */
 
@@ -1134,8 +1135,11 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --space-18: calc(var(--jx-unit) * 4.5);
   --space-20: calc(var(--jx-unit) * 5);
   --space-24: calc(var(--jx-unit) * 6);
+  --space-28: calc(var(--jx-unit) * 7);
   --space-32: calc(var(--jx-unit) * 8);
   --space-40: calc(var(--jx-unit) * 10);
+  --space-48: calc(var(--jx-unit) * 12);
+  --space-80: calc(var(--jx-unit) * 20);
 
   /* the hairline frame weight (one weight everywhere a page draws a
      box; the timeline family's --jx-tl-stroke-w is the same law at
