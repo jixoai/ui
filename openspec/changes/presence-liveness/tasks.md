@@ -155,3 +155,15 @@ R2 报告 `.zcode/presence/codex-review-r2.md`：B1/B3/N1-N5 全部关闭
 - [x] r5 矩阵 65/65 全绿（回执 evidence/matrix-r5-65of65-p3-isolated.json，
       含 provenance：git=e2d52577 / matrix=9dbe3bb1 / studio=f0c98ed0 /
       chromium-1243）
+
+## 3.8 Codex R3 复核（2026-09-19）：8.5/10 PASS-TO-IMPLEMENT，零阻塞
+
+R3 报告 `.zcode/presence/codex-review-r3.md`（独立复跑：矩阵 65/65、
+P3 双轮真实基线 [354,321]ms、provenance 与 HEAD 一致、焦点 103/103、
+build/strict/diff-check 绿）。「无阻塞。后续只需 Owner 做视觉走查并
+裁决品味项；不建议继续扩大实现范围。」两个非阻塞审计项的处理：
+
+- [x] matrixSha256 存完整 64 位摘要（不再是 16 位前缀）
+- [x] 同树 curated 收据：收据的 gitSha 必须是包含「跑这份矩阵脚本」
+      的提交树——先提交脚本变更，再于干净树上复跑并 curate
+      （evidence/matrix-r6-65of65-same-tree.json，git=b268d16f 后继）

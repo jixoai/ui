@@ -28,4 +28,5 @@ loadavg、node/platform、门槛纪律声明。原始流水落
 
 - R1（`.zcode/presence/codex-review-r1.md`）：5.5/10 NEEDS-WORK，3 阻塞（B1 树点击断链 / B2 门槛放宽 / B3 caret 356ms）。
 - R2（`.zcode/presence/codex-review-r2.md`）：7.0/10，B1/B3/N1-N5 关闭；唯一剩余阻塞 = P3 独立实测 671ms + P3 双样本实现缺陷 + 回执 provenance 不完整。三者在 r5 前全部修正（本表末行 + 回执 provenance 字段）。
+- R3（`.zcode/presence/codex-review-r3.md`）：**8.5/10 PASS-TO-IMPLEMENT，零阻塞**（独立矩阵 65/65、P3 双轮 [354,321]ms、provenance 与 HEAD 一致）。两个非阻塞审计项已落实：matrixSha256 改完整 64 位摘要；curated 收据与提交树同源（见下）。
 - E6② 语义注记（R2 观察 3）：矩阵断言的是 blur 后最终 selection-reclaim；瞬态 null 帧会被 16ms latest-wins 合并窗折叠（设计使然），null 合法性由 gateway/store 单测覆盖。

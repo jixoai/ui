@@ -1976,7 +1976,7 @@ try {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const provenance = { gitSha: 'unknown', matrixSha256: 'unknown', studioManifest: null, browser: 'unknown', argv: process.argv.slice(1).map(String) };
   try { provenance.gitSha = execSync('git rev-parse HEAD', { cwd: REPO }).toString().trim(); } catch { /* worktree without git? keep unknown */ }
-  try { provenance.matrixSha256 = createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex').slice(0, 16); } catch { /* keep unknown */ }
+  try { provenance.matrixSha256 = createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'); } catch { /* keep unknown */ }
   try { const m = JSON.parse(readFileSync(join(REPO, 'packages/design-tool/dist-studio/build-manifest.json'), 'utf8')); provenance.studioManifest = { inputsHash: m.inputsHash, builtAt: m.builtAt, vite: m.vite, svelte: m.svelte }; } catch { /* keep null */ }
   try { const exe = chromium.executablePath(); provenance.browser = (exe.match(/chromium-\d+/) ?? [])[0] ?? exe.slice(-60); } catch { /* keep unknown */ }
   const receipt = {
