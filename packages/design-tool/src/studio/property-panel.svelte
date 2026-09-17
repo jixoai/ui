@@ -723,12 +723,15 @@
   /** the attention payload of one field (shared by the delegated
    *  events and the selectionchange tracker): the panel focus with the
    *  field's CURRENT selection — {start, end}, equal ends are the
-   *  collapsed caret, a range is the selection highlight (P4) */
+   *  collapsed caret, a range is the selection highlight (P4).
+   *  selectionStart is a text-surface property: input/textarea narrow
+   *  by instanceof, select controls carry no selection (no cast) */
   function attentionOfField(
     target: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
   ): PanelAttentionFocus {
-    const selectionStart = (target as HTMLInputElement).selectionStart;
-    const selectionEnd = (target as HTMLInputElement).selectionEnd;
+    const isTextSurface = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+    const selectionStart = isTextSurface ? target.selectionStart : null;
+    const selectionEnd = isTextSurface ? target.selectionEnd : null;
     return {
       kind: 'panel',
       field: target.id,

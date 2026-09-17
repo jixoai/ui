@@ -203,6 +203,31 @@ test('off-vocabulary frames drop to null — junk is never fatal', () => {
   ); // unknown surface
 });
 
+test('panel attention selection mirrors the gateway range guard (Codex R1 N2)', () => {
+  const frame = (selection: unknown): unknown =>
+    parseServerMessage(JSON.stringify({ type: 'presence', playerId: 'p1', cursor: null, hasMouse: true, attention: { kind: 'panel', field: 'prop-label', digest: 'x', ...(selection === undefined ? {} : { selection }) } }));
+  // the honest shapes pass
+  assert.ok((frame({ start: 3, end: 3 }) as { attention: unknown } | null) !== null, 'collapsed caret passes');
+  assert.ok((frame({ start: 2, end: 9 }) as { attention: unknown } | null) !== null, 'a range passes');
+  // the gateway's law, mirrored client-side: junk dies at the store
+  assert.equal(frame({ start: -1, end: 3 }), null, 'negative start drops');
+  assert.equal(frame({ start: 1.5, end: 3 }), null, 'non-integer start drops');
+  assert.equal(frame({ start: 9, end: 2 }), null, 'end before start drops');
+  assert.equal(frame({ start: 1 }), null, 'missing end drops');
+  assert.equal(frame('2-9'), null, 'non-object selection drops');
+  // canvas branch parity: empty component and fractional instance drop
+  assert.equal(
+    parseServerMessage(JSON.stringify({ type: 'presence', playerId: 'p1', cursor: null, hasMouse: true, attention: { kind: 'canvas', component: '', instance: null, frameId: null } })),
+    null,
+    'empty canvas component drops',
+  );
+  assert.equal(
+    parseServerMessage(JSON.stringify({ type: 'presence', playerId: 'p1', cursor: null, hasMouse: true, attention: { kind: 'canvas', component: 'a4', instance: 1.5, frameId: null } })),
+    null,
+    'fractional instance drops',
+  );
+});
+
 test('client frames serialize verbatim to the frozen §1 shapes', () => {
   assert.equal(buildClientMessage({ type: 'cursor', surface: 'canvas', x: 1, y: 2 }), '{"type":"cursor","surface":"canvas","x":1,"y":2}');
   assert.equal(

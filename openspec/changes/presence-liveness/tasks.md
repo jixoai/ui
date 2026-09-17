@@ -78,3 +78,57 @@
 - [x] 全量电池 556/556（走查前同棵树复跑）+ 矩阵 62/62（green5）
 - [x] openspec validate --strict 通过（archive 顺序注记：需
       collab-presence → presence-visuals 先归档）
+
+## 3.6 Codex 对抗复核 R1（2026-09-19，5.5/10 NEEDS-WORK → 修复迭代）
+
+复核报告 `.zcode/presence/codex-review-r1.md`（独立双跑矩阵：40/42
+fatal / 58/64；焦点单测/strict/build 亲证绿）。三个阻塞项 + 五个
+非阻塞观察，处理如下（抓重点，不过度迭代）：
+
+- [x] **B1 树点击断链（产品缺陷，deterministic）**：component-tree
+      的 pick() payload 漏 `componentId` ——树入口的 selection 永远
+      不带 protocol id，attention 断链。修复：payload 透传
+      `componentId: node.componentId`；矩阵新增 P1③（树行点击 →
+      observer 收 kind=canvas/component=<stamp id> → 对端 ring badge
+      命中同组件 + stamp 落画布核实）。
+- [x] **B2 门槛放宽 + 不可复现（TDD 诚信）**：上轮把 P1②/P3/P4② 抬到
+      500/1000/150ms —— 已回滚到 Owner 冻结预算 200/600/100 作硬断
+      言；噪声（loadavg/采样明细）进 evidence JSON 回执（矩阵自动落
+      .zcode/presence/runs/，curated 副本进本变更 evidence/）。稳定
+      性修复：D13② 重建三条件改 10s 轮询（一次性快照会读半途态）；
+      P 组整体 FATAL 防扩散 try/catch（单块崩溃不再吞掉 P4-P8+FIX）。
+- [x] **B3 P4 caret 长尾（356ms 实测超 150ms 门槛）**：根因 =
+      selectionchange 读取的纯 rAF hop 在 rAF 饥饿下无上界（重页面
+      一帧 300ms+）。修复：dualTrackSchedule（rAF + 8ms setTimeout
+      双轨单发，输家 no-op；node/ssr 无 rAF 时纯 net）。门槛回滚
+      100ms 硬断言。
+- [x] **N1 nav 彩带行本位**：ribbon 属性+style 移到 `.studio-canvas-row`
+      行元素自身（与树 li[data-path] 同律），子 span 与其 CSS 退役；
+      矩阵 P5①② 增加 on='row' 断言；E3/P5 读取器行优先、子兜底。
+- [x] **N2 客户端 range guard 镜像**：presence-store 的 isAttention
+      补齐 gateway isValidFocus 同律（panel selection 整数/非负/
+      end≥start；canvas component 非空、instance 整数）；单测
+      'panel attention selection mirrors the gateway range guard'。
+- [x] **N3 类型债**：shell 的 `surface as never` → 运行时收窄
+      （'canvas'/'frame:<id>' 词表外即拒）；panel 的
+      HTMLSelectElement→HTMLInputElement 强转 → instanceof 分支。
+      两者均有源码法单测更新。
+- [x] **N4 注释漂移**：三处 ~50ms 表述改实况（gateway 16ms 窗、
+      store 16ms 节流、overlay rAF 汇报）。
+- [x] **N5 全量电池 1 fail**：collab-host fs.watch 首事件超时——
+      Codex 亦判定为环境既有抖动、非 presence 改动；本轮三次电池
+      557/558→558/558→558/558（flake 实证），如实记录不美化。
+
+### R2 重验证（2026-09-19）
+
+- [x] 焦点单测 87/87（8 文件）+ 全量电池 558/558
+- [x] build:studio 重建（stale-bundle 法则）+ validate --strict
+- [x] 矩阵（Owner 预算硬门槛 200/600/100）：r2 61/65 → r3 64/65 →
+      **r4 65/65 全绿**（回执 curated 于 evidence/，含 loadavg 与采样
+      明细；关键采样：P1② 63ms、P1③ 树点击链 stamp=kit帧 ✓ badge
+      "alice-p · a4"、P3 357ms、P4② 23ms、P7② 73ms、P8② 347ms）
+- 本轮矩阵两条新法则（已写进矩阵注释）：(1) 树页面行点击触发 W1
+  锚定相机 tween——涉锚定的断言必须排在 P2 之后（r2 实测 -393px
+  lens 漂移）；(2) E6②「blur→null」与 selection-reclaim 设计矛盾
+  ——瞬态 null 可被 16ms 合并窗折叠（latest-wins），断言改确定性
+  reclaim 法则，真 null 路径由 P1 Escape 轮 + gateway 单测覆盖。

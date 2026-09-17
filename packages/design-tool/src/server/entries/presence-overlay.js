@@ -10,7 +10,8 @@
  * self-styled, same-origin only):
  *
  *   UP  (local cursor): pointermove over THIS canvas document,
- *      ~50ms trailing throttle, reported to the studio parent as
+ *      rAF-coalesced (one report per frame; the shell's store
+ *      throttles the wire at 16ms), reported to the studio parent as
  *      {type:'jx-design:local-cursor', x, y} in CANVAS-DOCUMENT
  *      coordinates (clientX + scrollX — the picker emit's coordinate
  *      law). The shell forwards it on the ws as surface 'canvas';
@@ -22,7 +23,8 @@
  *      message pattern — rAF-coalesced on the shell side). This
  *      document renders, per player, the shared-element pair:
  *        [data-jx-remote="<playerId>:cursor"]      the mouse dot +
- *          name tag (60ms linear glide — presence streams at ~50ms)
+ *          name tag (60ms linear glide — presence streams at the
+ *          16ms gateway window cadence)
  *        [data-jx-remote="<playerId>:canvas-focus"] the ghost ring
  *          (240ms classic-curve glide — the picker INDICATOR_CSS
  *          family), badge `<name> · <component>#<n>`, 1px player
@@ -57,7 +59,8 @@ const REMOTE_INDICATOR_CSS = [
   // the shared-element glide law (#48, verbatim from the picker): the
   // element never leaves the layout; boxes ride the classic iOS curve
   // 240ms, opacity fades plain ease. The cursor subclass shortens the
-  // box transition to 60ms linear — it tracks a ~50ms presence stream.
+  // box transition to 60ms linear — it tracks the 16ms-window
+  // presence stream with a small margin.
   `[data-jx-remote] {`,
   `  position: absolute;`,
   `  top: 0; left: 0;`,

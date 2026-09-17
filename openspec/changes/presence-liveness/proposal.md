@@ -45,6 +45,16 @@ vision 子代理真机走查**。
 3. **min-of-3**：同一探针采样三次取最小——机器上 73 个后台 Chrome
    的抖动曾让同代码在 334ms↔1305ms 间摆动（round-6/7 对照）；
    预算测的是产品能力，不是机器忙闲。
+4. **门槛纪律（Codex R1 B2 修正，2026-09-19）**：验收断言永远用
+   本节冻结的 Owner 预算（200/600/100）——环境噪声（loadavg、
+   采样明细）进 evidence 回执做诊断，不抬高验收线；矩阵每跑一轮
+   落一份 JSON 回执（.zcode/presence/runs/，curated 副本进本变更
+   evidence/ 目录）。
+5. **caret 读取双轨（Codex R1 B3 修正）**：selectionchange 的读取
+   合并由纯 rAF 改为 rAF+8ms setTimeout 双轨单发——rAF 饥饿（重
+   页面/满载机）下一帧可达 300ms+，而读取本身只是两次属性读；
+   32ms 线上节流已在下游合并突发，rAF 唯一职责是按 tick 折叠，
+   不得拥有长尾。
 
 产品链路的空载基线（双 context probe 实测）：gateway→渲染 ≈40ms；
 选中链合成事件探针 3/3 稳定（mount-null → a1 → null 无丢失）。

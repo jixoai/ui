@@ -323,8 +323,17 @@ export interface SelectionTracker {
  * lane's main event — keyboard, mouse, paste, undo, context-menu
  * selections all fire it; the panel's delegated events stay as the
  * FALLBACK family, the reference's belt-and-braces). Reads coalesce
- * to ONE per animation frame (the rAF throttle): a burst of
- * selectionchange events inside one frame answers one read.
+ * to ONE per tick (the scheduler's throttle): a burst of
+ * selectionchange events inside one tick answers one read.
+ *
+ * The default scheduler is DUAL-TRACK (P4 latency law): rAF first,
+ * with an 8ms setTimeout safety net — whichever fires first wins.
+ * A bare rAF hop is unbounded under rAF starvation (heavy page,
+ * loaded machine): one frame is 16ms idle but 300ms+ on a loaded
+ * studio, and the read itself is two property reads — the 32ms wire
+ * throttle downstream already coalesces bursts, so the rAF's ONLY
+ * job is per-tick read collapsing, and it must never be the
+ * long-tail's owner.
  *
  * `getActiveField` decides whether the document's active element is a
  * trackable text field (the panel's reportable-field law); the read
@@ -334,7 +343,7 @@ export function trackFieldSelection(
   host: SelectionHost,
   getActiveField: () => HTMLInputElement | HTMLTextAreaElement | null,
   onSelection: (field: HTMLInputElement | HTMLTextAreaElement, start: number, end: number) => void,
-  schedule: SelectionScheduler = (fn) => requestAnimationFrame(fn),
+  schedule: SelectionScheduler = dualTrackSchedule,
 ): SelectionTracker {
   let pending = false;
   const read = (): void => {
@@ -347,7 +356,7 @@ export function trackFieldSelection(
     onSelection(field, start, end);
   };
   const onSelectionChange = (): void => {
-    if (pending) return; // rAF-coalesced — one read per frame
+    if (pending) return; // one read per scheduler tick
     pending = true;
     schedule(read);
   };
@@ -357,4 +366,20 @@ export function trackFieldSelection(
       host.removeEventListener('selectionchange', onSelectionChange);
     },
   };
+}
+
+/** rAF with a bounded safety net (single-fire): the first of rAF or an
+ * 8ms timeout runs the read; the loser is a no-op. Keeps the common
+ * case on the frame clock while capping the starved-frame long tail */
+export function dualTrackSchedule(fn: () => void): void {
+  let done = false;
+  const run = (): void => {
+    if (done) return;
+    done = true;
+    fn();
+  };
+  // rAF only exists in a browsing context — outside one (node, ssr) the
+  // 8ms net carries the read alone; the transport-never-throws law
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run);
+  setTimeout(run, 8);
 }

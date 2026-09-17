@@ -20,7 +20,7 @@
  *   3. LIFECYCLE — connect with the sessionStorage token (reconnects
  *      resume the SAME identity: same playerId, same hue), exponential
  *      backoff (500ms·2^n capped at 15s), a ~2.5s ping keeping the
- *      gateway's 5s timeout fed, and a 50ms trailing throttle on
+ *      gateway's 5s timeout fed, and a 16ms trailing throttle on
  *      cursor reports. The WebSocket factory, the scheduler and the
  *      storage are all injected seams — the whole machine runs under
  *      node:test against structural fakes (the panel-collab style).
@@ -183,14 +183,27 @@ function isCursor(value: unknown): value is CursorState {
   return cursor.surface === 'canvas' || cursor.surface.startsWith('frame:');
 }
 
+/** the focus validator — the gateway's isValidFocus law, mirrored
+ *  client-side (Codex R1 N2: the inbound mirror must not be weaker
+ *  than the server's; a damaged presence frame must die at the store,
+ *  never reach the caret measurement) */
 function isAttention(value: unknown): value is AttentionFocus {
   if (value === null || typeof value !== 'object') return false;
   const attention = value as Record<string, unknown>;
   if (attention.kind === 'canvas') {
-    return typeof attention.component === 'string' && (attention.instance === null || typeof attention.instance === 'number') && (attention.frameId === null || typeof attention.frameId === 'string');
+    return typeof attention.component === 'string' && attention.component.length > 0
+      && (attention.instance === null || (typeof attention.instance === 'number' && Number.isInteger(attention.instance)))
+      && (attention.frameId === null || typeof attention.frameId === 'string');
   }
   if (attention.kind === 'panel') {
-    return typeof attention.field === 'string' && typeof attention.digest === 'string';
+    if (typeof attention.field !== 'string' || attention.field.length === 0 || typeof attention.digest !== 'string') return false;
+    const sel = attention.selection;
+    if (sel === undefined) return true;
+    if (sel === null || typeof sel !== 'object') return false;
+    const range = sel as Record<string, unknown>;
+    return typeof range.start === 'number' && Number.isInteger(range.start)
+      && typeof range.end === 'number' && Number.isInteger(range.end)
+      && range.start >= 0 && range.end >= 0 && range.end >= range.start;
   }
   return false;
 }
@@ -317,7 +330,7 @@ export interface PresenceStorage {
 export type PresenceEvent = 'join' | 'leave' | 'presence' | 'journal-tail' | 'status';
 type PresenceListener = (payload: unknown) => void;
 
-/* ── timing laws (§3/§4: 50ms cursor merge, 5s gateway timeout) ─────── */
+/* ── timing laws (§3/§4: 16ms cursor merge, 5s gateway timeout) ─────── */
 
 /** self-side cursor report throttle (trailing — the freshest point wins) */
 export const CURSOR_THROTTLE_MS = 16;
@@ -571,7 +584,7 @@ export class PresenceStore {
 
   /* ── the C→S reports (§1) ──────────────────────────────────────────── */
 
-  /** pointer report, 50ms trailing throttle — the freshest point wins */
+  /** pointer report, 16ms trailing throttle (CURSOR_THROTTLE_MS) — the freshest point wins */
   reportCursor(canvas: string, surface: CursorSurface, x: number, y: number): void {
     if (this.#disposed) return;
     this.#cursorPending = { canvas, surface, x, y };

@@ -258,9 +258,15 @@ test('the DOM seams: measureCaretX is the brief-named export, scroll offsets are
   assert.match(caretSource, /\(inputRect\.height - height\) \/ 2/);
 });
 
-test('the selectionchange tracker: document host, rAF coalesce, stop lane', () => {
+test('the selectionchange tracker: document host, per-tick coalesce, dual-track scheduler, stop lane', () => {
   assert.match(caretSource, /host\.addEventListener\('selectionchange', onSelectionChange\);/);
   assert.match(caretSource, /export function trackFieldSelection\(/);
-  assert.match(caretSource, /if \(pending\) return; \/\/ rAF-coalesced/);
+  assert.match(caretSource, /if \(pending\) return; \/\/ one read per scheduler tick/);
   assert.match(caretSource, /host\.removeEventListener\('selectionchange', onSelectionChange\);/);
+  // the dual-track law (Codex R1 B3): a bare rAF hop is unbounded under
+  // rAF starvation — the 8ms net caps the long tail, single-fire
+  assert.match(caretSource, /export function dualTrackSchedule\(fn: \(\) => void\): void \{/);
+  assert.match(caretSource, /setTimeout\(run, 8\);/);
+  assert.match(caretSource, /if \(done\) return;/);
+  assert.match(caretSource, /typeof requestAnimationFrame === 'function'\) requestAnimationFrame\(run\)/);
 });

@@ -20,7 +20,7 @@
  *      presence path (every other upgrade — Vite HMR included — passes
  *      through untouched). join/leave are immediate; cursor/attention/
  *      virtual-mouse merge into one presence frame per player per
- *      ~50ms window; missing pings sweep a player out after the
+ *      16ms merge window; missing pings sweep a player out after the
  *      offline timeout (leave broadcast + memory removal — the ledger
  *      identity survives for a same-token reconnect). WS is NEVER the
  *      edit path: op admission stays on HTTP, a gateway fault stays in
@@ -468,7 +468,7 @@ class PresenceGatewayImpl implements PresenceGateway {
     }
   }
 
-  /** the ~50ms merge window: bursts collapse into ONE presence frame (latest state wins) */
+  /** the 16ms merge window (DEFAULT_PRESENCE_WINDOW_MS): bursts collapse into ONE presence frame (latest state wins) */
   #armPresenceFlush(player: LivePlayer): void {
     if (player.flushHandle !== null) return;
     player.flushHandle = this.#scheduler.setTimeout(() => {

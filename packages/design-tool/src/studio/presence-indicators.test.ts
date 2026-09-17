@@ -79,10 +79,13 @@ test('shell: the canvas overlay\'s local-cursor forwards WITH its canvas name', 
   // presence-liveness P2: the surface rides the report verbatim — a kit
   // frame's relay arrives as surface 'frame:<id>' and must survive the
   // forward (the stale-bundle red taught this: 'canvas'-hardcoding breaks
-  // the frame offset on every remote renderer)
-  const listener = shell.match(/data\.type !== 'jx-design:local-cursor'[\s\S]{0,700}store\.reportCursor\(data\.canvas, surface as never, data\.x, data\.y\)/);
+  // the frame offset on every remote renderer). Codex R1 N3: the forward
+  // narrows surface at runtime (no `as never`) — 'canvas' or 'frame:<id>'
+  const listener = shell.match(/data\.type !== 'jx-design:local-cursor'[\s\S]{0,900}store\.reportCursor\(data\.canvas, surface, data\.x, data\.y\)/);
   assert.ok(listener !== null, 'the report forwards canvas-scoped: name + surface + coords');
-  assert.match(shell, /const surface = typeof data\.surface === 'string' && data\.surface\.length > 0 \? data\.surface : 'canvas'/, 'absent surface falls back to canvas, present surfaces pass through');
+  assert.ok(!/surface as never/.test(shell), 'the `as never` cast is retired');
+  assert.match(shell, /rawSurface !== 'canvas' && !rawSurface\.startsWith\('frame:'\)/, 'off-vocabulary surfaces die at the seam');
+  assert.match(shell, /const rawSurface = typeof data\.surface === 'string' && data\.surface\.length > 0 \? data\.surface : 'canvas'/, 'absent surface falls back to canvas, present surfaces pass through');
   assert.match(shell, /typeof data\.canvas !== 'string' \|\| data\.canvas\.length === 0/, 'a nameless report is rejected');
   assert.match(shell, /event\.source !== \(canvasIframe\?\.contentWindow \?\? null\)/, 'only the live canvas iframe\'s reports count');
 });
@@ -212,7 +215,10 @@ test('shell: the nav ribbon rides the Owner border-image syntax (P5)', () => {
   assert.match(shell, /return ribbon === null \? null : ribbon\.style;/, 'the row carries ribbonOf\'s complete Owner-syntax style');
   assert.ok(!/border-inline-start: 3px/.test(shell), 'the 3px ribbon form is gone');
   assert.ok(!/border-image: \$\{ribbon\.image\} 1;/.test(shell), 'the `1`-slice shorthand is gone');
-  assert.match(shell, /data-jx-remote-ribbon=\{[^}]*'multi' : 'single'\}/, 'the probe hook discriminates the modes');
+  // row-level contract (Codex R1 N1): the ROW element itself carries the
+  // probe hook — the child span is retired, mirroring the tree's li law
+  assert.match(shell, /data-jx-remote-ribbon=\{navRibbonStyle\(entry\.name\)[\s\S]*?'multi' : 'single'\)?\}/, 'the probe hook rides the row element and discriminates the modes');
+  assert.ok(!/studio-nav-ribbon/.test(shell), 'the child-span ribbon is retired');
   // self-first (P5③): the local cursor's canvas lights its own nav row
   assert.match(shell, /ownCursor !== null && presenceSelf !== null/, 'the local player counts as a nav attendee, self first');
   assert.match(shell, /ownCursor = data\.canvas;/, 'the local-cursor uplink mirrors the canvas into the nav ribbon');

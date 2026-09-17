@@ -456,6 +456,7 @@
       iterationIndex: null,
       component: node.component,
       instanceCount: node.instanceCount,
+      componentId: node.componentId,
     });
   }
 

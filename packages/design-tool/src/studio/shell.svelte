@@ -108,6 +108,7 @@
     PresenceStore,
     browserPresenceSocket,
     type AttentionFocus,
+    type CursorSurface,
     type PresenceSnapshot,
     type RemotePlayer,
     type SelfView,
@@ -714,9 +715,14 @@
       if (typeof data.x !== 'number' || typeof data.y !== 'number') return;
       // async read — the listener body never tracks the iframe seam
       if (event.source !== (canvasIframe?.contentWindow ?? null)) return;
-      const surface = typeof data.surface === 'string' && data.surface.length > 0 ? data.surface : 'canvas';
+      // runtime narrowing to the transport vocabulary (no `as never`):
+      // 'canvas' or a kit frame relay `frame:<id>` — anything else is
+      // a frame-content bug and dies here, at the seam
+      const rawSurface = typeof data.surface === 'string' && data.surface.length > 0 ? data.surface : 'canvas';
+      if (rawSurface !== 'canvas' && !rawSurface.startsWith('frame:')) return;
+      const surface: CursorSurface = rawSurface;
       ownCursor = data.canvas; // P5 self-first nav light
-      store.reportCursor(data.canvas, surface as never, data.x, data.y);
+      store.reportCursor(data.canvas, surface, data.x, data.y);
     };
     window.addEventListener('message', onMessage);
     return () => {
@@ -808,15 +814,16 @@
                anchors — the canvas row is a family LINK row (name,
                selected, hover) and the drift toggle is its sibling,
                laid out by the row wrapper (layout, not chrome) -->
-          <div class="studio-canvas-row" data-nav-ribbon={entry.name}>
-            {#if navRibbonStyle(entry.name) !== null}
-              <span
-                class="studio-nav-ribbon"
-                data-jx-remote-ribbon={(navRibbons.get(entry.name) ?? []).length > 1 ? 'multi' : 'single'}
-                style={navRibbonStyle(entry.name) ?? ''}
-                aria-hidden="true"
-              ></span>
-            {/if}
+          <!-- the ribbon rides the ROW ITSELF (the tree's li[data-path]
+               contract, unified): border-inline-start 2px, single =
+               player color, multi = the Owner vertical border-image
+               gradient — no child span -->
+          <div
+            class="studio-canvas-row"
+            data-nav-ribbon={entry.name}
+            data-jx-remote-ribbon={navRibbonStyle(entry.name) === null ? undefined : ((navRibbons.get(entry.name) ?? []).length > 1 ? 'multi' : 'single')}
+            style={navRibbonStyle(entry.name) ?? ''}
+          >
             <Item
               class="studio-canvas"
               variant="default"
@@ -1245,17 +1252,6 @@
   }
   /* the shell indicator layer: fixed over everything, pointer-inert —
      the same namespace grammar the canvas overlay speaks */
-  .studio-nav-ribbon {
-    flex: none;
-    align-self: stretch;
-    /* border-box: the 2px border-inline-start (ribbonOf's law) fills
-       the whole span — single paints the player color, multi paints
-       the vertical border-image gradient */
-    width: 2px;
-    min-height: 100%;
-    box-sizing: border-box;
-    pointer-events: none;
-  }
   .studio-remote-layer {
     position: fixed;
     inset: 0;
