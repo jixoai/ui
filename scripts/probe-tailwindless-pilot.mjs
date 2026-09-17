@@ -323,11 +323,13 @@ const receipt = {
     commitShort: commitSha.slice(0, 8),
     dirty: dirtyFiles.length ? { fileCount: dirtyFiles.length, files: dirtyFiles } : false,
     overwrote: overwrote.length ? overwrote : false,
-    provenance: {
+    provenance: null, // materialized at write time — the port is
+    // assigned by startServer, which runs AFTER this literal
+    _provenanceBuilder: () => ({
       before: `main server ${BEFORE_BASE} — READ-ONLY (HTTP GET + headless browsing only; never restarted/written/killed); serves main@${execFileSync('git', ['-C', MAIN_REPO, 'rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim()} (the pre-migration Tailwind page, prerendered build)`,
       after: `worktree dev server ${afterBase()} — vite dev over apps/www, branch ${execFileSync('git', ['-C', ROOT, 'branch', '--show-current'], { encoding: 'utf8' }).trim()}, HEAD ${commitSha} (meta.commit; dirty: ${dirtyFiles.length} files — see meta.dirty)`,
       ghosttyWasm: `JIXOAI_GHOSTTY_WASM_PATH=${GHOSTTY_WASM} (sha256 matches ghostty.pin.json "full"; the env override never writes any cache)`,
-    },
+    }),
   },
   server: { spawn: null, teardown: null },
   sides: { after: {}, before: {} },
@@ -364,7 +366,7 @@ const startServer = async () => {
   server.stdout.on('data', (d) => (log += d));
   server.stderr.on('data', (d) => (log += d));
   receipt.server.spawn = {
-    cmd: `${bin} dev --port 5198 --strictPort`,
+    cmd: `${bin} dev --port ${SERVER_PORT} --strictPort`,
     cwd: WWW,
     pid: server.pid,
     pgid: server.pid, // detached ⇒ child IS the group leader
@@ -438,7 +440,7 @@ const stopServer = async () => {
     evidence.killedBy += ' + SIGKILL (group)';
   } catch {}
   try {
-    evidence.portAfter = execFileSync('lsof', ['-ti', ':5198'], { encoding: 'utf8' }).trim() || '(empty — port free)';
+    evidence.portAfter = execFileSync('lsof', ['-ti', `:${SERVER_PORT ?? '?'}`], { encoding: 'utf8' }).trim() || '(empty — port free)';
   } catch {
     evidence.portAfter = '(empty — port free)';
   }
@@ -664,6 +666,8 @@ const writeReceipt = () => {
     return { path: rel, bytes: statSync(abs).size, sha256: sha256File(abs) };
   });
   receipt.summaryHash = summaryHashOf(receipt);
+  receipt.meta.provenance = receipt.meta._provenanceBuilder();
+  delete receipt.meta._provenanceBuilder;
   writeFileSync(RECEIPT, JSON.stringify(receipt, null, 2) + '\n');
 };
 

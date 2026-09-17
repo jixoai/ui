@@ -122,11 +122,13 @@ const receipt = {
     dirty: dirtyFiles.length ? { fileCount: dirtyFiles.length, files: dirtyFiles } : false,
     playwright: JSON.parse(readFileSync(join(ROOT, 'node_modules/playwright-core/package.json'), 'utf8')).version,
     chrome: CHROME,
-    provenance: {
+    provenance: null, // materialized at write time — the port is
+    // assigned by startServer, which runs AFTER this literal
+    _provenanceBuilder: () => ({
       after: `worktree dev server ${afterBase()} — vite dev over apps/www, HEAD ${commitSha} (meta.commit; dirty: ${dirtyFiles.length} files — see meta.dirty)`,
       ghosttyWasm: `JIXOAI_GHOSTTY_WASM_PATH=${GHOSTTY_WASM} (env override; never writes any cache)`,
       sheet: 'apps/www/src/lib/site/timeline-docs.css — @layer components { :where(.tl-*) { … } }',
-    },
+    }),
   },
   server: { spawn: null, teardown: null },
   rows: [],
@@ -159,7 +161,7 @@ const startServer = async () => {
   server.stdout.on('data', (d) => (log += d));
   server.stderr.on('data', (d) => (log += d));
   receipt.server.spawn = {
-    cmd: `${bin} dev --port 5198 --strictPort`,
+    cmd: `${bin} dev --port ${SERVER_PORT} --strictPort`,
     cwd: WWW,
     pid: server.pid,
     pgid: server.pid, // detached ⇒ child IS the group leader
@@ -228,7 +230,7 @@ const stopServer = async () => {
     evidence.killedBy += ' + SIGKILL (group)';
   } catch {}
   try {
-    evidence.portAfter = execFileSync('lsof', ['-ti', ':5198'], { encoding: 'utf8' }).trim() || '(empty — port free)';
+    evidence.portAfter = execFileSync('lsof', ['-ti', `:${SERVER_PORT ?? '?'}`], { encoding: 'utf8' }).trim() || '(empty — port free)';
   } catch {
     evidence.portAfter = '(empty — port free)';
   }
@@ -465,6 +467,8 @@ if (!OWNERSHIP_SELFTEST) try {
   // being persisted — probe-tailwindless-pilot.mjs --verify-receipt
   // recomputes it alongside the pilot receipt's own
   receipt.summaryHash = summaryHashOf(receipt);
+  receipt.meta.provenance = receipt.meta._provenanceBuilder();
+  delete receipt.meta._provenanceBuilder;
   writeFileSync(RECEIPT, JSON.stringify(receipt, null, 2) + '\n');
   console.log(`receipt → ${RECEIPT}`);
 }
