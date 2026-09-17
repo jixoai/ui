@@ -8,15 +8,18 @@
   viewport-top line.
 
   child({ props }) contract (design.md): the consumer may replace the
-  element; props carry the cn()-merged class (active paint included),
-  href, aria-current and any rest attributes.
+  element; props carry the joined class (active paint included), href,
+  aria-current and any rest attributes.
+  tailwindless one-shot Wave 1b batch A (2026-09-17): the paint rides
+  the family's stylex ATOMS (anchor.stylex.ts) joined through cx()
+  below — the active/idle spine walks a static two-member table.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
-  import { cn } from '$lib/utils';
   import { ANCHOR_KEY, type AnchorApi } from './anchor.svelte';
+  import { anchorStyles } from './anchor.stylex';
 
   interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
     /** in-page fragment, '#section-id' */
@@ -32,12 +35,30 @@
   const fragmentId = $derived(href.startsWith('#') ? href.slice(1) : '');
   const active = $derived(anchor !== undefined && fragmentId !== '' && anchor.activeId === fragmentId);
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const props = $derived({
     'data-jx-anchor-link': '',
     'data-jx-anchor-active': active ? '' : undefined,
-    class: cn(
-      '-ml-px flex min-h-[var(--jx-hit)] items-center border-l-2 px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.08em] no-underline transition-[color,border-color] duration-150 ease-out hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
-      active ? 'border-l-primary text-foreground' : 'border-l-transparent text-muted-foreground',
+    class: cx(
+      anchorStyles.link,
+      active ? anchorStyles.linkActive : anchorStyles.linkIdle,
       className,
     ),
     href,

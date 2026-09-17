@@ -34,6 +34,7 @@ import { describe, expect, it } from 'vitest';
 import Host from './fixtures/defaults-kbd-badge-chip-host.svelte';
 import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
 import { BadgeDefaults } from '../src/lib/ui/badge/badge-defaults.svelte';
+import { badgeStyles } from '../src/lib/ui/badge/badge.stylex';
 import { ChipDefaults } from '../src/lib/ui/chip/chip-defaults.svelte';
 import { KbdDefaults } from '../src/lib/ui/kbd/kbd-defaults.svelte';
 import { chipStyles } from '../src/lib/ui/chip/chip.stylex';
@@ -84,9 +85,9 @@ describe('bare — no providers', () => {
   it("the literal shape slots: own 'square' renders the site radius, explicit pill rounds fully", () => {
     const { container } = render(Host);
     const bare = byTestid(container, 'bare');
-    expect(bare.querySelector('[data-jx-badge]')!.className).toContain('rounded-(--radius)');
+    expect(bare.querySelector('[data-jx-badge]')!.className).toContain(cx(badgeStyles.square));
     expect(bare.querySelector('[data-jx-badge="tonal"] + [data-jx-badge]')!.className).toContain(
-      'rounded-full',
+      cx(badgeStyles.pill),
     );
     expect(bare.querySelector('[data-jx-chip]')!.className).toContain(cx(chipStyles.square));
     expect(bare.querySelector('button[data-jx-chip] ~ button[data-jx-chip]')!.className).toContain(

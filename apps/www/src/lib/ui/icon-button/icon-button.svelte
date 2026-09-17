@@ -45,6 +45,7 @@
   } from '$lib/ui/press-button/press-button.svelte';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
   import { IconButtonDefaults } from './icon-button-defaults.svelte';
+  import { iconButtonStyles } from './icon-button.stylex';
 
   /* the REST LANE (floating-flesh-sweep, 2026-09-09): forwarded
    * VERBATIM into the wrapped press-button — arbitrary attributes land
@@ -132,6 +133,23 @@
   // explicit props (its own slots then short-circuit on the explicit
   // lane — same ambient, same window, identical values on every path)
   const d = $derived(IconButtonDefaults.resolve({ variant, density }));
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 {#snippet control()}
@@ -149,7 +167,7 @@
     ariaLabel={iconOnly ? text : undefined}
     class={className}
   >
-    <span class="shrink-0" aria-hidden="true">{@render icon()}</span>
+    <span class={cx(iconButtonStyles.glyph)} aria-hidden="true">{@render icon()}</span>
     {#if !iconOnly}<span>{text}</span>{/if}
   </PressButton>
 {/snippet}

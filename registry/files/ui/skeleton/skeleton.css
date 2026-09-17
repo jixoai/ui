@@ -1,9 +1,14 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
-/* jixoai skeleton — D1-exempt residue (tw4, 2026-08-24): the pulse
- * keyframes (not expressible as utilities) and the reduced-motion kill
- * (overrides the animate utility — unlayered state-machine carve-out,
- * the Part A precedent). */
+/* jixoai skeleton — D1-exempt residue (tw4, 2026-08-24; tailwindless
+ * W1b batch C 2026-09-17: the animate utility joined its keyframes
+ * here — lane-2, the media-touched-property law): the pulse itself
+ * (1.4s ease-in-out infinite over the family keyframes; motion
+ * literals with no ladder step — reported MISSING
+ * --motion-1400/--motion-ease-in-out for serial promotion) and the
+ * reduced-motion kill that freezes it (unlayered state-machine
+ * carve-out, the Part A precedent — static muted block). The ground
+ * + the inset hairline ring ride skeleton.stylex.ts atoms. */
 
 @keyframes jx-skeleton-pulse {
   0%,
@@ -13,6 +18,10 @@
   50% {
     opacity: 0.45;
   }
+}
+
+:where(.jx-skeleton) {
+  animation: jx-skeleton-pulse 1.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

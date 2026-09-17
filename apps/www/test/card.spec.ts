@@ -20,6 +20,24 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import CardHost from './fixtures/card-host.svelte';
+import { cardStyles } from '../src/lib/ui/card/card.stylex';
+
+// tailwindless W1b (2026-09-17): the planar face, the head band, the
+// title voice and the body cell ride the family's stylex atoms —
+// asserted through the same cx join the components ride (utility-shaped
+// expectations went with the utilities; the LAWS they pinned live on as
+// atom-membership + atom-source assertions)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const cardCss = readFileSync(resolve('src/lib/ui/card/card.css'), 'utf8');
 const footCss = readFileSync(resolve('src/lib/ui/card/card-footer.css'), 'utf8');
@@ -160,9 +178,15 @@ describe('card-footer — the seats on the ruler (the css)', () => {
 });
 
 describe('card — padding is the ruler\'s law (tracks paint the inline axis; faces keep only block rhythms)', () => {
-  it('head face: py-2.5 only — the 14px inline inset arrives BY TRACK (dialog-header painted it by hand; the ruler paints it by law)', () => {
-    expect(headerSrc).toContain("class=\"jx-card-head-content {children ? '' : 'py-2.5'}{className ? ` ${className}` : ''}\"");
-    expect(headerSrc.replace(/<!--[\s\S]*?-->/g, '')).not.toContain('px-3.5');
+  it('head face: the block band only — the 14px inline inset arrives BY TRACK (dialog-header painted it by hand; the ruler paints it by law)', () => {
+    // the band rides the headBand atom (space-10 block rhythm); the
+    // inline inset never enters the class channel at all
+    expect(headerSrc).toContain('jx-card-head-content');
+    expect(headerSrc).toContain('cx(cardStyles.headBand)');
+    const atom = readFileSync(resolve('src/lib/ui/card/card.stylex.ts'), 'utf8');
+    const band = /headBand: \{([^}]*)\}/.exec(atom)?.[1] ?? '';
+    expect(band).toContain("paddingBlock: 'var(--space-10)'");
+    expect(band).not.toContain('paddingInline'); // BY TRACK, never a face utility
   });
   it('THE BAND LAWS (Owner r3+r4): foot text carries NO padding-block — it centers, never sizes; the cluster is a CARVED CELL that fills the band (stretch chain, native end to end)', () => {
     const markup = footerSrc.replace(/<!--[\s\S]*?-->/g, '');
@@ -177,10 +201,21 @@ describe('card — padding is the ruler\'s law (tracks paint the inline axis; fa
     );
   });
   it('the body cell keeps the VERBATIM gutter-compensating formula — SINGLE-SOURCED in the CardBody part since card-surface-kernel (the scroll ring owns its inline geometry — a dynamic scrollbar is invisible to tracks)', () => {
-    expect(bodySrc).toContain('py-3.5 px-[max(0.875rem-var(--jx-scrollbar-thin,0px),0px)]');
-    expect(cardSrc).not.toContain('px-[max(0.875rem');
+    // the formula rides the bodyCell atom (space-14 step against the
+    // probed thin scrollbar) — pinned at the atom source, and the
+    // card root never paints any inline padding
+    const atom = readFileSync(resolve('src/lib/ui/card/card.stylex.ts'), 'utf8');
+    expect(atom).toContain(
+      "paddingInline: 'max(var(--space-14) - var(--jx-scrollbar-thin, 0px), 0px)'",
+    );
+    expect(bodySrc).toContain('cx(cardStyles.bodyCell)');
+    expect(cardSrc).not.toContain('paddingInline');
+    expect(cardSrc).not.toContain('bodyCell');
   });
-  it('no sm: viewport paddings survive on the component surfaces', () => {
+  it('the root face is the atom trio (hairline border, card ground, 2xs shadow) and no sm: viewport paddings survive on the component surfaces', () => {
+    expect(cardSrc).toContain('cx(cardStyles.root)');
+    const atom = readFileSync(resolve('src/lib/ui/card/card.stylex.ts'), 'utf8');
+    expect(atom).toContain("boxShadow: tokens['--jx-shadow-2xs']");
     for (const src of [cardSrc, headerSrc, footerSrc]) {
       expect(src).not.toMatch(/\bsm:(px|py|p)-/);
     }

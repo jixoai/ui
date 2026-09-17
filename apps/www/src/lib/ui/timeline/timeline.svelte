@@ -79,6 +79,23 @@
   /** per-instance id source for the dot mask (the SMIL namespacing
    * law's id hygiene — every instance references its own def) */
   let uidCounter = 0;
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <script lang="ts">
@@ -95,6 +112,7 @@
     type TimelineSpineGeometry,
     type TimelineSpinePreset,
   } from './timeline-spine.svelte';
+  import { timelineStyles } from './timeline.stylex';
   import './timeline.css';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -337,7 +355,7 @@
       {/if}
     {/if}
   </svg>
-  <ol bind:this={listEl} data-jx-tl-list="" role="list" class="m-0 p-0 list-none">
+  <ol bind:this={listEl} data-jx-tl-list="" role="list" class={cx(timelineStyles.list)}>
     {@render children()}
   </ol>
 </div>

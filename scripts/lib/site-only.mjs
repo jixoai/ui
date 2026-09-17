@@ -31,6 +31,7 @@ export const SITE_ONLY = [
   { path: 'apps/www/src/lib/ui/a11y-table/a11y-table.stylex.ts', note: 'tailwindless W1: the a11y-table atom table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/density-demo/density-demo.svelte', note: 'docs-upgrade: all-scopes density wrapper (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/density-demo/index.ts', note: 'docs-upgrade: density-demo barrel (site-only)' },
+  { path: 'apps/www/src/lib/ui/density-demo/density-demo.stylex.ts', note: 'tailwindless W1b: the density wrapper atom table (site-only)' },
   { path: 'apps/www/src/lib/ui/props-table/props-table.svelte', note: 'docs-upgrade: API reference table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/props-table/index.ts', note: 'docs-upgrade: props-table barrel (site-only)' },
   { path: 'apps/www/src/lib/ui/props-table/props-table.css', note: 'tailwindless W1: the props-table lane-2 sheet (site-only docs infra)' },

@@ -29,6 +29,27 @@
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { TOGGLE_GROUP_KEY, type ToggleGroupApi } from './toggle-group.svelte';
+  import { toggleGroupStyles } from './toggle-group.stylex';
+  // the lane-2 residue: the label-side :has() halving + the slot
+  // lanes' svg sizing (toggle-group.css — see the sheet's header)
+  import './toggle-group.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLInputAttributes {
     /** the segment's identity — the value that joins the form payload */
@@ -62,11 +83,11 @@
 <label
   class={cn(
     // slot-lane law (badge dialect, 2026-09-01): a leading/trailing
-    // icon lane replaces its side's label inset — has() rides the
-    // label (the padding owner); the utility beats the shared
-    // components-layer paint by layer order
+    // icon lane replaces its side's label inset — the :has() halving
+    // rides the label (the padding owner) as lane-2 rules in
+    // toggle-group.css, beating the shared components-layer paint by
+    // layer order
     'jx-tgroup-item',
-    'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]',
     className,
   )}
 >
@@ -85,11 +106,11 @@
       'jx-tgroup-content',
       // flex only when lanes exist — text-only items keep the exact
       // anonymous-box rendering the shared sheet paints today
-      (slotStart || slotEnd) && 'inline-flex items-center gap-[calc(var(--jx-gap)/2)]',
+      (slotStart || slotEnd) && cx(toggleGroupStyles.content),
     )}
   >
-    {#if slotStart}<span data-icon="inline-start" class="inline-flex [&>svg]:size-[var(--jx-text-secondary)]">{@render slotStart()}</span>{/if}
+    {#if slotStart}<span data-icon="inline-start" class={cx(toggleGroupStyles.slotStart)}>{@render slotStart()}</span>{/if}
     {@render children()}
-    {#if slotEnd}<span data-icon="inline-end" class="inline-flex [&>svg]:size-[var(--jx-text-secondary)]">{@render slotEnd()}</span>{/if}
+    {#if slotEnd}<span data-icon="inline-end" class={cx(toggleGroupStyles.slotEnd)}>{@render slotEnd()}</span>{/if}
   </span>
 </label>

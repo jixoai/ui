@@ -55,6 +55,7 @@
   import { isDevMode, isStudioHost } from './context';
   import type { PrototypeTheme } from './context';
   import { installOverlayScrollbar } from './overlay-scrollbar';
+  import { prototypeKitStyles } from './prototype-kit.stylex';
 
   interface Props extends HTMLAttributes<HTMLElement> {
     /** DOM anchor id, unique within the canvas (dev warning on dup) */
@@ -230,6 +231,23 @@
   });
 
   const titleText = $derived(label ?? `${kind} frame: ${frameRef}`);
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <figure
@@ -237,13 +255,13 @@
   data-jx-prototype-frame={kind}
   data-jx-prototype-ref={frameRef}
   data-jx-prototype-theme={theme}
-  class={cn('m-0 flex flex-col gap-1', className)}
+  class={cn(cx(prototypeKitStyles.figure), className)}
   {...rest}
 >
   {#if label}
     <figcaption
       data-jx-prototype-label
-      class="font-mono text-xs tracking-wide text-muted-foreground uppercase"
+      class={cx(prototypeKitStyles.caption)}
     >
       {label}
     </figcaption>
@@ -259,7 +277,7 @@
   {:else}
     <div
       bind:this={shell}
-      class="overflow-hidden rounded-(--radius) border border-border"
+      class={cx(prototypeKitStyles.shell)}
       style:height="{effectiveHeight * scale}px"
       style:max-width={isStudioHost() ? undefined : '100%'}
     >
@@ -271,7 +289,7 @@
       >
         <iframe
           bind:this={iframeEl}
-          class="block border-0"
+          class={cx(prototypeKitStyles.iframe)}
           {src}
           title={titleText}
           name="jixoai-design-frame-{id}"

@@ -32,6 +32,24 @@
   } from '@tanstack/svelte-virtual';
   import type { Snippet } from 'svelte';
   import ScrollArea, { type ViewportScrollEvent } from '$lib/ui/scroll-area/scroll-area.svelte';
+  import { scrollVirtualStyles } from './scroll-virtual.stylex';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   type ScrollElement = HTMLDivElement;
   type ItemElement = HTMLDivElement;
@@ -146,7 +164,7 @@
 <ScrollArea bind:this={scrollAreaEl} {label} {onscroll} orientation={horizontal ? 'horizontal' : 'vertical'} class={className}>
   <div
     data-jx-sv-spacer
-    class="relative"
+    class={cx(scrollVirtualStyles.spacer)}
     style={horizontal
       ? `inline-size: ${$virtualizer.getTotalSize()}px; block-size: 100%`
       : `block-size: ${$virtualizer.getTotalSize()}px; inline-size: 100%`}

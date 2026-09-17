@@ -18,7 +18,25 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { skeletonStyles } from './skeleton.stylex';
   import './skeleton.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLAttributes<HTMLDivElement> {}
 
@@ -28,7 +46,7 @@
 <!-- aria-hidden lands after the spread: a placeholder block is scenery
      by contract — restProps (data-*, id…) pass through untouched -->
 <div
-  class={cn('jx-skeleton bg-muted shadow-[inset_0_0_0_1px_var(--border)] animate-[jx-skeleton-pulse_1.4s_ease-in-out_infinite]', className)}
+  class={cn(cx('jx-skeleton', skeletonStyles.base), className)}
   {...rest}
   aria-hidden="true"
 ></div>

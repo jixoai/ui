@@ -29,29 +29,47 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cardStyles } from './card.stylex';
 
   interface Props {
     /** The band's scroll authority (the host never scrolls). DEFAULT
         on: the cell is the ring with a stable both-edges gutter.
-        Declare false to assert the body fits — the authority and the
-        gutter reservation retire together. */
+        Declare false to assert the body fits — the authority and
+        the gutter reservation retire together. */
     scroll?: boolean;
     /** Appended to the cell (cn-less string concat, the family
         precedent) — the RHYTHM escape hatch: carriers with a tighter
         or looser beat than the kernel default (sheet's 18px drawer
-        rhythm) override the cell padding utilities here. */
+        rhythm) override the cell padding here (the consumer's own
+        class wins the cascade over the atom tier). */
     class?: string;
     /** Body content — enters at the cell's content axis. */
     children: Snippet;
   }
 
   let { scroll = true, class: className = '', children }: Props = $props();
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div data-jx-card-body data-jx-scroll={scroll ? undefined : 'off'}>
   <div
     data-jx-card-cell
-    class="min-w-0 py-3.5 px-[max(0.875rem-var(--jx-scrollbar-thin,0px),0px)] text-[13px] leading-[1.6] text-[color-mix(in_oklab,var(--card-foreground)_80%,transparent)]{className ? ` ${className}` : ''}"
+    class="{cx(cardStyles.bodyCell)}{className ? ` ${className}` : ''}"
   >
     {@render children()}
   </div>

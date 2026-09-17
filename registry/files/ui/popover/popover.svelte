@@ -61,6 +61,9 @@
 
   tw4 (2026-08-24): trigger/caret/scroll paint as token utilities (press
   poses ride --jx-press* custom-property utilities, verbatim law);
+  tailwindless one-shot Wave 1b batch A (2026-09-17): that paint rides
+  the family's stylex ATOMS (popover.stylex.ts) joined through cx()
+  below (press seams verbatim in the trigger atom);
   popover.css keeps the D1-exempt machinery — panel anchor geometry +
   flush margin (the @supports viewport-center fallback re-sets margin to
   auto in the same layer, so a margin utility is forbidden), the
@@ -71,9 +74,27 @@
   import type { Snippet } from 'svelte';
   import Icon from '$lib/ui/icon';
   import { createSurfaceMotion } from '$lib/surface-motion';
-  import { cn } from '$lib/utils';
   import { PopoverDefaults, type PopoverSurfaceVariant } from './popover-defaults.svelte';
+  import { popoverStyles } from './popover.stylex';
   import './popover.css';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /** marker interface for kernel-owned WAAPI animations */
   interface CSSElementAnimationLike extends Animation {
@@ -274,14 +295,14 @@
   }
 </script>
 
-<span class="jx-pop-anchor inline-flex" style="anchor-name: {anchorName}" bind:this={anchorEl}>
+<span class={cx('jx-pop-anchor', popoverStyles.anchor)} style="anchor-name: {anchorName}" bind:this={anchorEl}>
   {#if trigger}
     {@render trigger()}
   {:else}
     <button
       type="button"
       data-jx-pop-trigger=""
-      class="jx-press inline-flex cursor-pointer items-center gap-2.5 border border-border bg-background px-3.5 py-2.5 font-sans text-sm font-medium text-foreground [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)] hover:bg-muted"
+      class={cx('jx-press', popoverStyles.trigger)}
       popovertarget={id}
       bind:this={triggerEl}
       aria-expanded={open}
@@ -291,7 +312,7 @@
            + :popover-open (and kills its transition under reduced
            motion); the glyph is the Icon component's chevronDown,
            sized and re-stroked through its props -->
-      <span class="jx-pop-caret flex-none inline-flex transition-transform duration-150 ease-out">
+      <span class={cx('jx-pop-caret', popoverStyles.caret)}>
         <Icon name="chevronDown" size={13} strokeWidth={2.5} />
       </span>
     </button>
@@ -304,7 +325,7 @@
 <div
   {id}
   popover="auto"
-  class={cn('jx-pop jx-surface', motion.supported && 'jx-waapi', panelClass)}
+  class={cx('jx-pop jx-surface', motion.supported && 'jx-waapi', panelClass)}
   data-variant={d.variant}
   bind:this={panel}
   style="--jx-pop-gap: {gapValue || '0px'}; position-anchor: {anchorName}; --jx-surface-in-x: {dir.ix}; --jx-surface-in-y: {dir.iy}; --jx-surface-ox: {dir.ox}; --jx-surface-oy: {dir.oy}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"
@@ -321,7 +342,7 @@
   <div data-jx-pop-body="" class="jx-surface-body">
     <div
       data-jx-pop-scroll=""
-      class="max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-pop-pad,12px_14px)] [padding-inline:max(var(--jx-pop-pad-inline,14px)-var(--jx-scrollbar-thin,0px),0px)]"
+      class={cx(popoverStyles.scroll)}
     >
       {@render children()}
     </div>

@@ -80,9 +80,28 @@
 <script lang="ts">
   import { onDestroy, onMount, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
-  import { cn } from '$lib/utils';
+
   import type { Density } from '$lib/density.svelte';
   import { GhosttyTermDefaults } from './ghostty-term-defaults.svelte';
+  import { ghosttyTermStyles } from './ghostty-term.stylex';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
   // type-only: erased at compile time.
   import type { GhosttyOsc52Request, RowSnapshot } from '$lib/ghostty-vt';
   // VALUE import: the xterm-convention Terminal facade (owner directive
@@ -1529,22 +1548,19 @@
      because the canvas itself is aria-hidden) -->
 <div
   bind:this={rootEl}
-  class={cn(
-    'relative block w-full overflow-hidden bg-terminal text-terminal-foreground',
-    'outline-none focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
-    // the IME textarea takes over focus from the root (composition needs
-    // an editable surface) — the keyboard ring survives the dock because
-    // the root matches on its FOCUSED DESCENDANT (focus-visible carries
-    // through programmatic focus after keyboard interaction)
-    'has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-ring has-[:focus-visible]:-outline-offset-1',
+  class={cx(
+    ghosttyTermStyles.root,
     // auto mode FILLS its host (block-size:100%) and the canvas is
     // absolutely inset — sizing must not feed back through content flow
     // (otherwise the intrinsic grid height drives root height and the
     // host's definite height is ignored, owner acceptance 2026-08-28).
     // explicit cols/rows (or auto=false) keeps the intrinsic grid size.
-    !fixedGrid && 'h-full',
+    // (the IME textarea takes over focus from the root — the keyboard
+    // ring survives the dock through the root atom's :has(:focus-visible)
+    // form; focus-visible carries through programmatic focus)
+    !fixedGrid && ghosttyTermStyles.fill,
     // selection owns the pointer — native text selection stays off
-    selection && 'select-none',
+    selection && ghosttyTermStyles.selectNone,
     className,
   )}
   tabindex="0"
@@ -1564,7 +1580,7 @@
 >
   <canvas
     bind:this={canvasEl}
-    class={cn('block', !fixedGrid && 'absolute inset-0')}
+    class={cx(ghosttyTermStyles.canvas, !fixedGrid && ghosttyTermStyles.canvasInset)}
     aria-hidden="true"
   ></canvas>
 
@@ -1575,7 +1591,7 @@
        target; the ring stays on the root via has-[:focus-visible]. -->
   <textarea
     bind:this={imeEl}
-    class="sr-only"
+    class={cx(ghosttyTermStyles.sr)}
     style="pointer-events: none; outline: none;"
     tabindex="-1"
     aria-hidden="true"
@@ -1595,10 +1611,10 @@
     {@render children()}
   {:else if phase === 'error'}
     <div
-      class="p-4 font-mono text-[13px] leading-5 whitespace-pre-wrap break-words"
+      class={cx(ghosttyTermStyles.error)}
       role="status"
     >
-      <span class="text-primary mr-2" aria-hidden="true">$</span>ghostty-term: {errorMessage}
+      <span class={cx(ghosttyTermStyles.errorPrompt)} aria-hidden="true">$</span>ghostty-term: {errorMessage}
     </div>
   {/if}
 </div>

@@ -29,6 +29,7 @@ import { render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import { blockquoteStyles } from '../src/lib/ui/blockquote/blockquote.stylex';
+import { listStyles } from '../src/lib/ui/list/list.stylex';
 
 // tailwindless Wave 1 (2026-09-17): the rule channel rides
 // blockquote.css keyed on data-jx-blockquote-rule (shadow modes) and
@@ -231,51 +232,57 @@ describe('list', () => {
     expect(ol.container.querySelector('ol[data-jx-list="ol"]')).not.toBeNull();
   });
 
-  it('marker omitted keeps today\'s B8 byte-parity: list-disc on ul, list-decimal on ol', () => {
+  it('marker omitted keeps today\'s B8 byte-parity: disc on ul, decimal on ol (atoms)', () => {
+    // tailwindless one-shot W1b batch C (2026-09-17): the marker
+    // vocabulary + indent moved from utility strings to list.stylex
+    // atoms; the marker INK rides list.css's lane-2 rule (source-
+    // audited below)
     const ul = render(List, {});
     const ulEl = ul.container.querySelector('ul')!;
-    expect(ulEl.classList.contains('list-disc')).toBe(true);
-    expect(ulEl.classList.contains('ps-6')).toBe(true);
-    expect(ulEl.classList.contains('[&_li::marker]:text-muted-foreground')).toBe(true);
+    expect(carries(ulEl.className, listStyles.disc)).toBe(true);
+    expect(carries(ulEl.className, listStyles.indent)).toBe(true);
     const ol = render(List, { props: { ordered: true } });
-    expect(ol.container.querySelector('ol')!.classList.contains('list-decimal')).toBe(true);
+    expect(carries(ol.container.querySelector('ol')!.className, listStyles.decimal)).toBe(true);
+    const listCss = readFileSync(resolve('src/lib/ui/list/list.css'), 'utf8');
+    expect(listCss).toMatch(/:where\(\[data-jx-list\]\) li::marker\s*\{/);
+    expect(listCss).toContain('color: var(--muted-foreground)');
   });
 
-  it('each of the seven marker words stamps its utility on either root (marker overrides)', () => {
-    // probed map (TW 4.2.1): circle/square have NO core utility — the
-    // arbitrary [list-style:] form is the only honest spelling for them
-    const STAMPS: ReadonlyArray<[string, string]> = [
-      ['disc', 'list-disc'],
-      ['circle', '[list-style:circle]'],
-      ['square', '[list-style:square]'],
-      ['decimal', 'list-decimal'],
-      ['alpha', '[list-style:lower-alpha]'],
-      ['roman', '[list-style:lower-roman]'],
-      ['none', 'list-none'],
+  it('each of the seven marker words stamps its atom on either root (marker overrides)', () => {
+    // the TW4 core/arbitrary split collapsed — one atom map, the
+    // emitted rule is the same list-style-type declaration
+    const STAMPS: ReadonlyArray<[string, Record<string, unknown>]> = [
+      ['disc', listStyles.disc],
+      ['circle', listStyles.circle],
+      ['square', listStyles.square],
+      ['decimal', listStyles.decimal],
+      ['alpha', listStyles.alpha],
+      ['roman', listStyles.roman],
+      ['none', listStyles.none],
     ];
-    for (const [marker, utility] of STAMPS) {
+    for (const [marker, atom] of STAMPS) {
       const ul = render(List, { props: { marker } });
-      expect(ul.container.querySelector('ul')!.classList.contains(utility), marker).toBe(true);
+      expect(carries(ul.container.querySelector('ul')!.className, atom), marker).toBe(true);
       // the explicit marker overrides the per-element default on ol too
       const ol = render(List, { props: { marker, ordered: true } });
-      expect(ol.container.querySelector('ol')!.classList.contains(utility), marker).toBe(true);
+      expect(carries(ol.container.querySelector('ol')!.className, atom), marker).toBe(true);
     }
     // an explicit marker overrides ul's disc default symmetrically
     const ulDecimal = render(List, { props: { marker: 'decimal' } });
-    expect(ulDecimal.container.querySelector('ul')!.classList.contains('list-decimal')).toBe(true);
-    expect(ulDecimal.container.querySelector('ul')!.classList.contains('list-disc')).toBe(false);
+    expect(carries(ulDecimal.container.querySelector('ul')!.className, listStyles.decimal)).toBe(true);
+    expect(carries(ulDecimal.container.querySelector('ul')!.className, listStyles.disc)).toBe(false);
   });
 
-  it('nav mode wraps: nav[aria-label] > the list root, marker none + ps-0 defaults', () => {
+  it('nav mode wraps: nav[aria-label] > the list root, marker none + flush defaults', () => {
     const { container } = render(List, { props: { nav: 'Table of contents' } });
     const wrapper = container.querySelector('nav[data-jx-list-nav]')!;
     expect(wrapper).not.toBeNull();
     expect(wrapper.getAttribute('aria-label')).toBe('Table of contents');
     const ul = wrapper.querySelector('ul[data-jx-list="ul"]')!;
     expect(ul).not.toBeNull();
-    expect(ul.classList.contains('list-none')).toBe(true);
-    expect(ul.classList.contains('ps-0')).toBe(true);
-    expect(ul.classList.contains('ps-6')).toBe(false);
+    expect(carries(ul.className, listStyles.none)).toBe(true);
+    expect(carries(ul.className, listStyles.flush)).toBe(true);
+    expect(carries(ul.className, listStyles.indent)).toBe(false);
     // the class contract stays on the LIST element (the spec pin): the
     // consumer class lands there, never on the wrapper
     const withClass = render(List, { props: { nav: 'On this page', class: 'consumer-wins' } });
@@ -285,17 +292,17 @@ describe('list', () => {
     ).toBe(true);
   });
 
-  it('an explicit marker in nav mode overrides the none but NOT the ps-0', () => {
+  it('an explicit marker in nav mode overrides the none but NOT the flush', () => {
     const { container } = render(List, {
       props: { nav: 'Steps', marker: 'decimal', ordered: true },
     });
     const ol = container.querySelector('nav[data-jx-list-nav] ol[data-jx-list="ol"]')!;
-    expect(ol.classList.contains('list-decimal')).toBe(true);
-    expect(ol.classList.contains('list-none')).toBe(false);
-    // ps-0 STAYS — the structural indent belongs to document flow, a
+    expect(carries(ol.className, listStyles.decimal)).toBe(true);
+    expect(carries(ol.className, listStyles.none)).toBe(false);
+    // flush STAYS — the structural indent belongs to document flow, a
     // nav list is chrome
-    expect(ol.classList.contains('ps-0')).toBe(true);
-    expect(ol.classList.contains('ps-6')).toBe(false);
+    expect(carries(ol.className, listStyles.flush)).toBe(true);
+    expect(carries(ol.className, listStyles.indent)).toBe(false);
   });
 
   it('passes start/reversed through on the ordered root only', () => {

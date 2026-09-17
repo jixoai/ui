@@ -39,8 +39,26 @@
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
   import { resolveThemeScope } from '$lib/scroll-area-kit/core';
+  import { nativeScrollAreaStyles } from './native-scroll-area.stylex';
   import '$lib/scroll-area-kit/native-capability.css';
   import './native-scroll-area.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
   export type ScrollbarWidthTier = 'auto' | 'thin' | 'none';
@@ -111,22 +129,23 @@
     return () => mo.disconnect();
   });
 
-  // orientation → the scrollport's overflow law (deterministic branch)
-  const orientationUtilities = {
-    vertical: 'overflow-x-hidden overflow-y-auto',
-    horizontal: 'overflow-x-auto overflow-y-hidden',
-    both: 'overflow-x-auto overflow-y-auto',
+  // orientation → the scrollport's overflow law (deterministic branch):
+  // variant → atom group at module scope, runtime is a pure lookup
+  const orientationAtoms = {
+    vertical: nativeScrollAreaStyles.vertical,
+    horizontal: nativeScrollAreaStyles.horizontal,
+    both: nativeScrollAreaStyles.both,
   } as const;
 </script>
 
-<div class="jx-native-scroll-area relative" data-orientation={orientation}>
+<div class={cx('jx-native-scroll-area', nativeScrollAreaStyles.area)} data-orientation={orientation}>
   <!-- svelte-ignore a11y_no_noninteractive_tabindex (the WAI scrollable-
        region pattern: role=region + name + tabindex makes it a keyboard
        scroll surface — and the ONLY a11y surface here: the platform
        scrollbar is the accessibility contract, nothing custom mounts
        inside this box) -->
   <div
-    class={cn('jx-native-scroll jx-native-scroll-viewport', orientationUtilities[orientation], className)}
+    class={cn(cx('jx-native-scroll jx-native-scroll-viewport', orientationAtoms[orientation]), className)}
     data-orientation={orientation}
     data-width={scrollbarWidth === 'thin' ? undefined : scrollbarWidth}
     data-scheme={scheme}
@@ -138,7 +157,7 @@
     {style}
     {...restProps}
   >
-    <div data-jx-scroll-content class="h-full">
+    <div data-jx-scroll-content class={cx(nativeScrollAreaStyles.content)}>
       {@render children()}
     </div>
   </div>

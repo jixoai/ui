@@ -258,6 +258,11 @@
           "path": "registry/files/ui/list-item/list-item-defaults.svelte.ts",
           "target": "@ui/list-item/list-item-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list-item/item.stylex.ts",
+          "target": "@ui/list-item/item.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
@@ -504,6 +509,16 @@
           "path": "registry/files/ui/theme-toggle/theme-toggle-defaults.svelte.ts",
           "target": "@ui/theme-toggle/theme-toggle-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/theme-toggle/theme-toggle.stylex.ts",
+          "target": "@ui/theme-toggle/theme-toggle.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -514,7 +529,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/defaults"
+        "@jixoai/defaults",
+        "@jixoai/tokens"
       ],
       "docs": "Props: variant 'full'|'compact'|'icon'|'text', hideLabels? (full only), labels? { light, dark, system, groupAriaLabel? } — localize the mode vocabulary and the group aria name; absent = the shipped English, and the localStorage 'theme' value domain is never localized."
     },
@@ -590,6 +606,11 @@
           "path": "registry/files/ui/website-scaffold/index.ts",
           "target": "@ui/website-scaffold/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/website-scaffold/website-scaffold.stylex.ts",
+          "target": "@ui/website-scaffold/website-scaffold.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Slots: header (required), children (main), footer (optional). Import website-scaffold.css once. Publishes the jx-top-layer context (ordered multi-node adopt/release into .jx-float-slot) — scaffold-float portals through it and the toc rail self-mounts automatically. For route-typed transitions, wire useAutoTypes({ index: '/', components: '/components', ... }) in a render-blocking module in <head> (view-transitions-toolkit/navigation).",
@@ -630,6 +651,16 @@
           "path": "registry/files/ui/ghostty-term/ghostty-term-defaults.svelte.ts",
           "target": "@ui/ghostty-term/ghostty-term-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/ghostty-term/ghostty-term.stylex.ts",
+          "target": "@ui/ghostty-term/ghostty-term.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: cols, rows, auto (default true; explicit cols/rows fixes the grid), fontSize (px, finite positive), wasmUrl, theme {background,foreground}, onData(bytes), onResize({cols,rows}), density, class, children (overlay + error-face owner), ...rest. bind:this: write(bytes) / reset() / resizeTo(cols,rows) / snapshot(). Install prerequisite: the jixoai vite plugin (virtual:jixoai-ghostty).",
@@ -643,7 +674,8 @@
         "@jixoai/utils",
         "@jixoai/color-utils",
         "@jixoai/density",
-        "@jixoai/defaults"
+        "@jixoai/defaults",
+        "@jixoai/tokens"
       ],
       "dependencies": []
     },
@@ -809,6 +841,16 @@
           "path": "registry/files/ui/card-grid/card-grid.css",
           "target": "@ui/card-grid/card-grid.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/card-grid/card-grid.stylex.ts",
+          "target": "@ui/card-grid/card-grid.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: min (CSS length, default '320px'), foot (boolean, declares the third shared row for head/body/foot cards). Wrap cards as direct children; opt a child out with data-no-subgrid.",
@@ -818,7 +860,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -862,6 +905,16 @@
           "path": "registry/files/ui/card/index.ts",
           "target": "@ui/card/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/card/card.stylex.ts",
+          "target": "@ui/card/card.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title?, head? (flush head override), actions? (the inline-end slot — dialog's × seat), foot? (raw foot override; the standard face is CardFooter), scroll = true (body scroll authority; false retires it with the gutter), class?, children. CardHeader: title? / children. CardFooter: start? (inline-start seat), end? (raw inline-end), label, children (auto one ButtonGroup, leadingSeam).",
@@ -872,7 +925,8 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
-        "@jixoai/button-group"
+        "@jixoai/button-group",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -1045,6 +1099,16 @@
           "path": "registry/files/ui/textarea/textarea-defaults.svelte.ts",
           "target": "@ui/textarea/textarea-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/textarea/textarea.stylex.ts",
+          "target": "@ui/textarea/textarea.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1056,7 +1120,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/control-chrome"
+        "@jixoai/control-chrome",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -1112,6 +1177,16 @@
           "path": "registry/files/ui/dialog/dialog-defaults.svelte.ts",
           "target": "@ui/dialog/dialog-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/dialog/dialog.stylex.ts",
+          "target": "@ui/dialog/dialog.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title?, open ($bindable), variant?, class? (geometry-only), scroll? (default true — the body zone's scroll authority; false retires it with the stable both-edges gutter reservation), cancelGuard?; snippets children, head? (custom flush head, typically <DialogHeader>), footer? (the RAW full foot override — usually a <DialogFooter>: children auto-join one end-packed ButtonGroup with ghost seams and the leadingSeam bracket, ghost via the zone's Context scope; the end slot replaces the grouped arrangement). Escape goes through the cancel event and shares the animated close path.",
@@ -1129,7 +1204,8 @@
         "@jixoai/defaults",
         "@jixoai/density",
         "@jixoai/entity",
-        "@jixoai/popover"
+        "@jixoai/popover",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -1163,6 +1239,16 @@
           "path": "registry/files/ui/popover/popover-defaults.svelte.ts",
           "target": "@ui/popover/popover-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/popover/popover.stylex.ts",
+          "target": "@ui/popover/popover.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: id (required, links popovertarget), triggerLabel; snippet children. Inside a popover, a second popovertarget button closes it declaratively — still zero JS. Ships the WAAPI surface-motion kernel (lib/surface-motion.ts → @lib) — the panel's entry/exit timeline; clean consumers resolve $lib/surface-motion (Codex r1 blocking #2: the kernel was site-consumed only, breaking the install chain for every popover-dependent item).",
@@ -1175,7 +1261,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -1341,6 +1428,16 @@
           "path": "registry/files/ui/table/table-defaults.svelte.ts",
           "target": "@ui/table/table-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/table/table.stylex.ts",
+          "target": "@ui/table/table.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: caption?, dense=false, stack=true, style? (passthrough landing on the frame — the color-freedom seam); snippet children (write native thead/tbody/tfoot). Consumer cell opt-ins: data-label=\"…\" (stack-mode row label), data-sticky=\"start\"|\"end\" (pinned column in scroll mode — put it on the th AND its td's). Color freedom: override --jx-table-surface/head/hover/hairline/rule/edge per instance via style or CSS.",
@@ -1352,7 +1449,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -1483,6 +1581,16 @@
           "path": "registry/files/ui/heading/index.ts",
           "target": "@ui/heading/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/heading/heading.stylex.ts",
+          "target": "@ui/heading/heading.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: level? (1–6, default 2; out-of-range values clamp), id? (explicit address), children, class plus every heading attribute passthrough. Hook: data-jx-heading={clamped level}. No Defaults file — level is not a style prop.",
@@ -1492,7 +1600,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -1511,6 +1620,21 @@
           "path": "registry/files/ui/list/index.ts",
           "target": "@ui/list/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list/list.stylex.ts",
+          "target": "@ui/list/list.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/list/list.css",
+          "target": "@ui/list/list.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: ordered? (false → <ul>, true → <ol> with decimal markers), marker? ('disc'|'circle'|'square'|'decimal'|'alpha'|'roman'|'none' — omitted keeps the per-element platform default; in nav mode omitted defaults to none), nav? (string — the aria-label; presence wraps the list in <nav data-jx-list-nav> with marker none + ps-0), start? (ol-only passthrough — the first marker value), reversed? (ol-only passthrough — descending marker order, the start/reversed native pair), children (native <li> children or component trees rendering them), class plus every list attribute passthrough. Hooks: data-jx-list=\"ol\"|\"ul\" (the separator's data-orientation form) + data-jx-list-nav on the wrapper. No Defaults file — no public style prop.",
@@ -1520,7 +1644,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -1687,7 +1812,8 @@
       "title": "Prototype kit",
       "description": "The prototype standard's three declarative frame components (design-studio): PrototypeCanvas — a CSS grid container (gridCols/gridRows/gap; number → repeat(N, minmax(0,1fr)), string verbatim, omitted → adaptive auto-fill wrap) that nests freely and provides the prototype-folder context to its frames (explicit prop ?? inherited canvas ?? derived from the /prototypes/<name>/ canvas-page URL); PrototypePage — a declarative viewport iframe whose src is the design server's frame surface, /__design__/frame?p=<prototype>&f=<ref minus leading ./>&theme=<light|dark|auto>&w=<px>&h=<px> (real media/container queries follow the frame viewport; width overflow scales visually, the real viewport is never faked); PrototypeComponent — the same frame with adaptive content height (height is the initial value until same-origin measurement takes over; fill locks it — the URL carries &fill=0|1). Frame ids are DOM anchors (unique per canvas, dev warning on conflict, first wins). Outside a design-server host the frames render a visible \"requires the design server\" notice instead of a dead iframe.",
       "registryDependencies": [
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/tokens"
       ],
       "files": [
         {
@@ -1729,6 +1855,16 @@
           "path": "registry/files/ui/prototype-kit/index.ts",
           "target": "@ui/prototype-kit/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/prototype-kit/prototype-kit.stylex.ts",
+          "target": "@ui/prototype-kit/prototype-kit.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1761,6 +1897,11 @@
         {
           "path": "registry/files/ui/checkbox/checkbox-defaults.svelte.ts",
           "target": "@ui/checkbox/checkbox-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/checkbox/checkbox.stylex.ts",
+          "target": "@ui/checkbox/checkbox.stylex.ts",
           "type": "registry:file"
         }
       ],
@@ -1795,6 +1936,11 @@
         {
           "path": "registry/files/ui/radio/radio-defaults.svelte.ts",
           "target": "@ui/radio/radio-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/radio/radio.stylex.ts",
+          "target": "@ui/radio/radio.stylex.ts",
           "type": "registry:file"
         }
       ],
@@ -1831,6 +1977,11 @@
           "path": "registry/files/ui/toggle/toggle-defaults.svelte.ts",
           "target": "@ui/toggle/toggle-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toggle/toggle.stylex.ts",
+          "target": "@ui/toggle/toggle.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1865,6 +2016,16 @@
           "path": "registry/files/ui/native-select/native-select-defaults.svelte.ts",
           "target": "@ui/native-select/native-select-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/native-select/native-select.stylex.ts",
+          "target": "@ui/native-select/native-select.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -1876,7 +2037,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/control-chrome"
+        "@jixoai/control-chrome",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -1961,6 +2123,16 @@
           "path": "registry/files/ui/range/range-defaults.svelte.ts",
           "target": "@ui/range/range-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/range/range.stylex.ts",
+          "target": "@ui/range/range.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable), plus FULL native attribute passthrough (aria-label/title/data-* land on the input[type=range] itself — the Codex-round honesty pass). The control IS the native input: label[for] binding (never role=slider fiction), arrows/Home/End/PageUp/Down from the platform, stepped commits re-clamped into [min,max]; min/max are terminal snap points (a step-mismatched max stays native truth). The tick ruler rides the thumb's travel box (half-thumb inline inset): pointerdown snaps to the nearest mark, the wheel steps one notch at a time (ctrlKey pinch never hijacked).",
@@ -1968,7 +2140,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ],
       "meta": {
         "group": "data-entry",
@@ -2296,6 +2469,21 @@
           "path": "registry/files/ui/badge/badge-defaults.svelte.ts",
           "target": "@ui/badge/badge-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/badge/badge.stylex.ts",
+          "target": "@ui/badge/badge.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/badge/badge.css",
+          "target": "@ui/badge/badge.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: variant? ('fill'|'tonal'|'outline', default 'tonal'), shape? ('square'|'pill', default 'square'), slotStart?/slotEnd? (Snippet icon lanes with adaptive padding), density? (Density), plus every <span> attribute passthrough. Hue seam: class=\"jx-hue-error\" (intent utilities; arbitrary form for unlisted hues).",
@@ -2308,7 +2496,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/paint",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -2388,6 +2577,16 @@
           "path": "registry/files/ui/skeleton/skeleton-defaults.svelte.ts",
           "target": "@ui/skeleton/skeleton-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/skeleton/skeleton.stylex.ts",
+          "target": "@ui/skeleton/skeleton.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "meta": {
@@ -2398,7 +2597,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -2652,6 +2852,16 @@
           "path": "registry/files/ui/progress/progress-defaults.svelte.ts",
           "target": "@ui/progress/progress-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/progress/progress.stylex.ts",
+          "target": "@ui/progress/progress.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: value? (0..max; omitted = indeterminate), max? (default 1), label?, class?.",
@@ -2663,7 +2873,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -2692,6 +2903,16 @@
           "path": "registry/files/ui/tooltip/tooltip-defaults.svelte.ts",
           "target": "@ui/tooltip/tooltip-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/tooltip/tooltip.stylex.ts",
+          "target": "@ui/tooltip/tooltip.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: id?, text, placement? ('top' default), openDelay? (400), closeDelay? (100); children snippet = the trigger content.",
@@ -2703,7 +2924,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -2962,6 +3184,16 @@
           "path": "registry/files/ui/kbd/kbd-defaults.svelte.ts",
           "target": "@ui/kbd/kbd-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/kbd/kbd.stylex.ts",
+          "target": "@ui/kbd/kbd.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: any <kbd> attribute passthrough; children = the key label.",
@@ -2973,7 +3205,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -2990,7 +3223,8 @@
         "@jixoai/paint",
         "@jixoai/highlight",
         "@jixoai/highlight-microlighter",
-        "@jixoai/text"
+        "@jixoai/text",
+        "@jixoai/tokens"
       ],
       "files": [
         {
@@ -3011,6 +3245,16 @@
         {
           "path": "registry/files/ui/inline-code/inline-code.css",
           "target": "@ui/inline-code/inline-code.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/inline-code/inline-code.stylex.ts",
+          "target": "@ui/inline-code/inline-code.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
           "type": "registry:file"
         }
       ],
@@ -3089,6 +3333,16 @@
           "path": "registry/files/ui/link/index.ts",
           "target": "@ui/link/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/link/link.stylex.ts",
+          "target": "@ui/link/link.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: href (required — an absolute http(s) href makes the link external: target=_blank + rel=noreferrer), title? (advisory passthrough), icon? (Snippet | null — the suffix-icon lane, tri-state: undefined → the default externalLink glyph shown IFF external; null → the lane off; a snippet → custom glyph content), children, class plus every anchor attribute passthrough. Hooks: data-jx-link={external ? 'external' : 'internal'} + data-jx-link-icon on the lane span. No Defaults file — external-ness derives from href.",
@@ -3099,7 +3353,8 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon"
+        "@jixoai/icon",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -3168,6 +3423,16 @@
           "path": "registry/files/ui/text/index.ts",
           "target": "@ui/text/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/text/text.stylex.ts",
+          "target": "@ui/text/text.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: mark? ('p' default | 'strong' | 'em' | 'del' | 'mark' | 'ins' | 'sub' | 'sup' — the element vocabulary; a literal slot, own 'p', never zone-ambient), children, class plus the chosen element's attribute passthrough. Raw sugars: import Text, { P, Strong, Em, Del, Mark, Ins, Sub, Sup } from '@ui/text' — Text mark=\"x\" ≡ the x sugar (same element, same data-jx-text hook, same class-merge order). Hook: data-jx-text={form}.",
@@ -3179,7 +3444,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -3328,6 +3594,16 @@
           "path": "registry/files/ui/system-dialog/system-dialog.svelte.ts",
           "target": "@ui/system-dialog/system-dialog.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/system-dialog/system-dialog.stylex.ts",
+          "target": "@ui/system-dialog/system-dialog.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title, description (both required), open ($bindable), confirmLabel, confirmTone? ('destructive' default | 'primary'), onconfirm?, cancelLabel?, children? (extra body).",
@@ -3343,7 +3619,8 @@
         "@jixoai/defaults",
         "@jixoai/density",
         "@jixoai/separator",
-        "@jixoai/input"
+        "@jixoai/input",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -3428,6 +3705,16 @@
           "path": "registry/files/ui/hover-card/hover-card-defaults.svelte.ts",
           "target": "@ui/hover-card/hover-card-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/hover-card/hover-card.stylex.ts",
+          "target": "@ui/hover-card/hover-card.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: trigger (snippet), children (the card), placement? ('bottom' default), openDelay? (300), closeDelay? (200).",
@@ -3439,7 +3726,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -3519,6 +3807,16 @@
         {
           "path": "registry/files/ui/toggle-group/toggle-group-defaults.svelte.ts",
           "target": "@ui/toggle-group/toggle-group-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toggle-group/toggle-group.stylex.ts",
+          "target": "@ui/toggle-group/toggle-group.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/toggle-group/toggle-group.css",
+          "target": "@ui/toggle-group/toggle-group.css",
           "type": "registry:file"
         }
       ],
@@ -3932,6 +4230,16 @@
           "path": "registry/files/ui/descriptions/descriptions-defaults.svelte.ts",
           "target": "@ui/descriptions/descriptions-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/descriptions/descriptions.stylex.ts",
+          "target": "@ui/descriptions/descriptions.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({term, value?}[]), columns? (1-4, default 1), bordered?, value? (per-item rich cell snippet).",
@@ -3943,7 +4251,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -4053,6 +4362,16 @@
           "path": "registry/files/ui/spin/spin-defaults.svelte.ts",
           "target": "@ui/spin/spin-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/spin/spin.stylex.ts",
+          "target": "@ui/spin/spin.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: spinner? (SpinName | TextSpinnerName, default 'dots' — artifact lane first, text catalog second; a same-name svg spinner overrides the catalog entry), label? ('loading'), size? (number | string — ABSENT rides the density ruler's var(--jx-icon) via CSS; an explicit value or slot config pins width/height attributes; the text posture paints var(--jx-text)), interval? (number | 'auto', default 'auto' — the frame step; explicit > the Defaults slot > the spinner's hand-tuned catalog pair), linger? (number | 'auto', default 'auto' — the frame residue duration in ms; 0 hides at the handoff), lingerType? ('auto' | 'end' | 'start' | 'both', default 'auto' — the opacity animation mode; 'start' fades in through the previous frame's window completing exactly at the handoff, 'both' breathes; linger 0 collapses every type to the discrete blink), children? (wrapping posture), class?. The text lane is a flat CSS-animation engine (every frame rendered once, JS only fills animation parameters — compositor-smooth, DevTools-Animatable, reduced motion is a static media kill); the svg lane runs the artwork's own SMIL with per-instance id namespacing and dynamic-insertion activation kicks. All three timings ride the family's single Defaults contract — context/plugin injectable.",
@@ -4065,7 +4384,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/spin-set"
+        "@jixoai/spin-set",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -4089,6 +4409,16 @@
           "path": "registry/files/ui/statistic/statistic-defaults.svelte.ts",
           "target": "@ui/statistic/statistic-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/statistic/statistic.stylex.ts",
+          "target": "@ui/statistic/statistic.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: title (required), value (string|number — formatting is yours), prefix?/suffix? (snippets), trend? ('up'|'down').",
@@ -4100,7 +4430,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -4164,6 +4495,16 @@
           "path": "registry/files/ui/timeline/timeline-defaults.svelte.ts",
           "target": "@ui/timeline/timeline-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/timeline/timeline.stylex.ts",
+          "target": "@ui/timeline/timeline.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Timeline props: axis ('vertical'|'horizontal'), direction ('ltr'|'revert'|'interlaced'), animation ('none'|'view'|'scroll'), spine ('plain'|'dashed'|'beam' or a Snippet<[TimelineSpineGeometry]> — node centers in list-root coordinates in flow order, axis/direction/interlaced/rtl metadata, per-segment path data with the dot-edge phase anchor, the density scale). The VALUE contract (reui parity + beyond): defaultValue (default 1, decimals first-class), value (controlled), onValueChange; TimelineItem step (default DOM order + 1, strictly ascending — duplicates: the later node owns the milestone; inversions normalize with a dev warn); completed paints data-completed when step <= current (pending wins); the progress stroke draws along the measured path at fractional values (1.5 = halfway between nodes, 300ms dashoffset transition; animation='scroll' owns the stroke channel). TimelineDot: 8 logical snippet slots + center dot + children (the indicator-icon pattern), variant square/round/ring. Spine strokes: butt caps, weight = the dot border through the shared --jx-tl-stroke-w token (every dot variant included; the beam preset's glow is the one standing exemption). TimelineHeader: the plain wrapper (reui parity). No-JS floor: the plain per-item CSS line until hydration measures.",
@@ -4175,7 +4516,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -4295,6 +4637,16 @@
           "path": "registry/files/ui/cascader/cascader-defaults.svelte.ts",
           "target": "@ui/cascader/cascader-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/cascader/cascader.stylex.ts",
+          "target": "@ui/cascader/cascader.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: options (CascaderOption tree), name?, value ($bindable string[]), separator?, disabled?, label?, placeholder?.",
@@ -4303,7 +4655,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ],
       "meta": {
         "group": "data-entry",
@@ -4326,6 +4679,16 @@
           "path": "registry/files/ui/image/index.ts",
           "target": "@ui/image/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/image/image.stylex.ts",
+          "target": "@ui/image/image.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: alt (required), width/height (required intrinsic), fallback? (snippet), plus <img> passthrough.",
@@ -4336,7 +4699,8 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon"
+        "@jixoai/icon",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -4406,6 +4770,16 @@
           "path": "registry/files/ui/badge-indicator/index.ts",
           "target": "@ui/badge-indicator/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/badge-indicator/badge-indicator.stylex.ts",
+          "target": "@ui/badge-indicator/badge-indicator.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: dot?, count?, overflow? (99), showZero?, label? (required name in dot mode), children? (the host element).",
@@ -4415,7 +4789,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -4444,6 +4819,16 @@
           "path": "registry/files/ui/anchor/anchor-defaults.svelte.ts",
           "target": "@ui/anchor/anchor-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/anchor/anchor.stylex.ts",
+          "target": "@ui/anchor/anchor.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers).",
@@ -4452,7 +4837,8 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/density",
+        "@jixoai/tokens"
       ],
       "meta": {
         "group": "navigation",
@@ -4933,6 +5319,11 @@
           "path": "registry/files/ui/scroll-area/scroll-area.css",
           "target": "@ui/scroll-area/scroll-area.css",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scroll-area/scroll-area.stylex.ts",
+          "target": "@ui/scroll-area/scroll-area.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), radius? (number px | 'full' — default 0, the square-cut), width? ('auto' | 'thin' | 'wide' — default 'auto'; the chrome-width tiers), label?, pad? (CSS length — inline ring padding, keeps content clear of the thumb lane), class/style + restProps passthrough to the viewport, children snippet. The thumb's a11y contract (role=scrollbar, aria-controls → the viewport, aria-valuenow, aria-orientation, keyboard-draggable) is mounted by the kit's hand-drawn adapter. getViewport() feeds Toc scrollRoot / toc-outline root / toc-engine extents — the zero-boilerplate ToC pairing.",
@@ -4966,6 +5357,11 @@
         {
           "path": "registry/files/ui/native-scroll-area/native-scroll-area.css",
           "target": "@ui/native-scroll-area/native-scroll-area.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/native-scroll-area/native-scroll-area.stylex.ts",
+          "target": "@ui/native-scroll-area/native-scroll-area.stylex.ts",
           "type": "registry:file"
         }
       ],
@@ -5035,6 +5431,11 @@
           "path": "registry/files/ui/scroll-virtual/index.ts",
           "target": "@ui/scroll-virtual/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scroll-virtual/scroll-virtual.stylex.ts",
+          "target": "@ui/scroll-virtual/scroll-virtual.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: count, estimateSize? (px or per-index fn, default 48), overscan?, horizontal?, virtualOptions? (TanStack VirtualizerOptions passthrough), label?/class? (ScrollArea passthrough), children: Snippet<[VirtualItem]>. Instance: scrollToIndex/scrollToOffset/measure/getVirtualizer (the raw instance — or use @tanstack/svelte-virtual directly, the documented escape hatch).",
@@ -5072,6 +5473,11 @@
         {
           "path": "registry/files/ui/scroll-run/index.ts",
           "target": "@ui/scroll-run/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scroll-run/scroll-run.stylex.ts",
+          "target": "@ui/scroll-run/scroll-run.stylex.ts",
           "type": "registry:file"
         }
       ],
@@ -5143,6 +5549,11 @@
         {
           "path": "registry/files/ui/icon-button/icon-button-defaults.svelte.ts",
           "target": "@ui/icon-button/icon-button-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/icon-button/icon-button.stylex.ts",
+          "target": "@ui/icon-button/icon-button.stylex.ts",
           "type": "registry:file"
         }
       ],
@@ -5481,6 +5892,16 @@
           "path": "registry/files/ui/button-group/button-group-defaults.svelte.ts",
           "target": "@ui/button-group/button-group-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/button-group/button-group.stylex.ts",
+          "target": "@ui/button-group/button-group.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: label (REQUIRED aria name), orientation ('horizontal'|'vertical'), justify ('start'|'end'|'center'|'between'), density, class. ROLE LAW: root is role=group — actions keep their own tab stops and activation; the group adds NO selection semantics (joined selection is toggle-group's contract). Composition: children are plain PressButton/icon-button instances; ButtonGroupDivider inserts a 1px seam member. Paint: the shared seam lives in button-group.css keyed on the data-jx-bgroup hook (Tier-2 vocabulary consumed-only).",
@@ -5495,7 +5916,8 @@
         "@jixoai/separator",
         "@jixoai/scroll-run",
         "@jixoai/paint",
-        "@jixoai/defaults"
+        "@jixoai/defaults",
+        "@jixoai/tokens"
       ],
       "meta": {
         "group": "general",
@@ -5538,6 +5960,16 @@
           "path": "registry/files/ui/input-group/input-group-defaults.svelte.ts",
           "target": "@ui/input-group/input-group-defaults.svelte.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/input-group/input-group.stylex.ts",
+          "target": "@ui/input-group/input-group.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props (root): label (REQUIRED a11y name), name/value/bind:value forwarded to the InputGroupInput member, disabled (native propagation: input renders disabled, addons render inert), invalid, density, class. Members: InputGroupAddon (align 'inline-start'|'inline-end', decorative lane), InputGroupInput (the native input — its own name= submits through the input family contract, MULTIVALUE-ready via the form-field seam when composed so). The shell is a composition frame: children compose freely inside the lane; seams are the addons' hairlines, the shell carries exactly one border.",
@@ -5545,7 +5977,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/density",
-        "@jixoai/defaults"
+        "@jixoai/defaults",
+        "@jixoai/tokens"
       ],
       "meta": {
         "group": "data-entry",
@@ -5697,6 +6130,16 @@
           "path": "registry/files/ui/pattern-pricing/index.ts",
           "target": "@ui/pattern-pricing/index.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/pattern-pricing/pattern-pricing.stylex.ts",
+          "target": "@ui/pattern-pricing/pattern-pricing.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: tiers (readonly PricingTier[]: plan, command, recommended?, note?), children (the thead/tbody snippet — the Table contract), eyebrow?, caption?, class?. The heading stays out of the pattern; the page owns its h2.",
@@ -5710,7 +6153,8 @@
         "@jixoai/press-button",
         "@jixoai/badge",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon"
+        "@jixoai/icon",
+        "@jixoai/tokens"
       ]
     },
     {
@@ -5980,7 +6424,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/scroll-run",
         "@jixoai/icon",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/tokens"
       ],
       "files": [
         {
@@ -5996,6 +6441,16 @@
         {
           "path": "registry/files/ui/math-block/index.ts",
           "target": "@ui/math-block/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/math-block/math-block.stylex.ts",
+          "target": "@ui/math-block/math-block.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
           "type": "registry:file"
         }
       ],

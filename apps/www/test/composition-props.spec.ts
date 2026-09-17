@@ -80,7 +80,8 @@ describe('props discipline — consumer attributes flow to the part root', () =>
     expect(h2.tagName).toBe('H2');
     expect(h2.dataset.probeKind).toBe('system-dialog');
     expect(h2.className).toContain('probe-extra');
-    expect(h2.className).toContain('font-nav');
+    // tailwindless W1b-B: the title's nav voice rides the atom
+    expect(h2.className).toContain('system-dialog__sysdlgStyles.title');
     // the derived id (what Content's aria-labelledby points at) keeps
     // its family shape — consumer attributes never break the wire
     expect(h2.id).toMatch(/-title$/);

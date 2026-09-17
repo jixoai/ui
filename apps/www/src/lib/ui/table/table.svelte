@@ -45,10 +45,28 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { cn } from '$lib/utils';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
   import { TableDefaults } from './table-defaults.svelte';
+  import { tableStyles } from './table.stylex';
   import './table.css';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props {
     /** Density policy root: explicit ?? inherited ?? sm. */
@@ -107,14 +125,9 @@
 </script>
 
 <figure
-  class={cn(
-    'jx-table isolate m-0 overflow-x-auto border border-[color:var(--jx-table-rule)] rounded-(--radius) [container:jx-table_/_inline-size]',
-    '[--jx-table-surface:var(--background)]',
-    '[--jx-table-head:var(--muted)]',
-    '[--jx-table-hover:color-mix(in_oklab,var(--primary)_7%,var(--jx-table-surface))]',
-    '[--jx-table-hairline:color-mix(in_oklab,var(--border)_12%,transparent)]',
-    '[--jx-table-rule:color-mix(in_oklab,var(--border)_18%,transparent)]',
-    '[--jx-table-edge:color-mix(in_oklab,var(--border)_34%,transparent)]',
+  class={cx(
+    'jx-table',
+    tableStyles.frame,
     className,
   )}
   style={styleAttribute}
@@ -122,11 +135,11 @@
 >
   <table
     data-density={d.density}
-    class={cn('w-full min-w-fit border-separate border-spacing-0 [font-size:var(--jx-text)] [line-height:var(--jx-line)]', dense && 'dense')}
+    class={cx(tableStyles.table, dense && 'dense')}
     data-stack={stack ? undefined : 'off'}
   >
     {#if caption}
-      <caption class="caption-top [padding-block-end:var(--jx-stack)] text-start [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] text-muted-foreground">{caption}</caption>
+      <caption class={cx(tableStyles.caption)}>{caption}</caption>
     {/if}
     {@render children()}
   </table>

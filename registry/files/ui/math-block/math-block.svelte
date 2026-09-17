@@ -62,11 +62,29 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import type { KatexOptions } from 'katex';
   import Icon from '$lib/ui/icon';
-  import { cn } from '$lib/utils';
   import { renderTex } from '$lib/katex';
   import ScrollChrome from '../scroll-run/scroll-chrome.svelte';
   import { createScrollStamp, shadow, type ScrollStamp } from '../scroll-run/scroll-run.svelte';
+  import { mathBlockStyles } from './math-block.stylex';
   import './math-block.css';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLAttributes<HTMLElement> {
     /** TeX source (runtime string — rendered synchronously in display mode). */
@@ -303,9 +321,9 @@
   data-kind="math"
   data-jx-math-block=""
   data-fit={fitActive ? '' : undefined}
-  class={cn('m-0 min-w-0', className)}
+  class={cx(mathBlockStyles.figure, className)}
 >
-  <div class="jx-scroll-host grid [grid-template-columns:minmax(0,1fr)]" bind:this={hostEl}>
+  <div class={cx('jx-scroll-host', mathBlockStyles.host)} bind:this={hostEl}>
     <div data-jx-scroll-run="" data-axis="horizontal" class="scrollport" bind:this={runEl}>
       <div role="math" bind:this={mathEl}>{@html rendered}</div>
     </div>
@@ -319,17 +337,15 @@
   {#if copyable}
     <div
       data-jx-math-block-foot
-      class="flex items-center justify-end gap-3 pt-[0.3rem]"
+      class={cx(mathBlockStyles.foot)}
     >
       <button
         type="button"
         data-jx-math-block-copy
-        class={cn(
-          'jx-press inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
-          '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-          copied
-            ? 'copied bg-secondary text-secondary-foreground hover:bg-secondary'
-            : 'hover:bg-muted',
+        class={cx(
+          'jx-press',
+          mathBlockStyles.copy,
+          copied && cx('copied', mathBlockStyles.copyCopied),
         )}
         onclick={copyTex}
         aria-label={copied ? copiedLabel : copyLabel}
@@ -337,12 +353,12 @@
         {#if copied}
           <!-- the icon law's typed component; the copied check rides
                a strokier strokeWidth -->
-          <span data-jx-math-block-icon class="inline-flex">
+          <span data-jx-math-block-icon class={cx(mathBlockStyles.icon)}>
             <Icon name="check" size={12} strokeWidth={2.5} />
           </span>
           <span>{copiedLabel}</span>
         {:else}
-          <span data-jx-math-block-icon class="inline-flex">
+          <span data-jx-math-block-icon class={cx(mathBlockStyles.icon)}>
             <Icon name="copy" size={12} />
           </span>
           <span>{copyLabel}</span>

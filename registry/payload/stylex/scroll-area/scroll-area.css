@@ -1,0 +1,39 @@
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, utilities;
+@layer properties, theme, base, components;
+
+@layer components.stylex.priority1 {
+  .xish69e {
+    overscroll-behavior: contain;
+  }
+}
+
+@layer components.stylex.priority2 {
+  .x1n2onr6 {
+    position: relative;
+  }
+}
+
+@layer components.stylex.priority3 {
+  .x5yr21d {
+    height: 100%;
+  }
+
+  .xw2csxc {
+    overflow-x: auto;
+  }
+
+  .x6ikm8r {
+    overflow-x: hidden;
+  }
+
+  .x1odjw0f {
+    overflow-y: auto;
+  }
+
+  .x10wlt62 {
+    overflow-y: hidden;
+  }
+}
+
+@layer utilities;
+/* buildId: 077eddbfa23601ef938bc175cf6f5893ed839e10ecf9696098b5a115debeaa34 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

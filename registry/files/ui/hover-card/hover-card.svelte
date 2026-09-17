@@ -36,7 +36,25 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { HoverCardDefaults, type HoverCardSurfaceVariant } from './hover-card-defaults.svelte';
+  import { hoverCardStyles } from './hover-card.stylex';
   import './hover-card.css';
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props {
     id?: string;
@@ -147,7 +165,7 @@
 <span
   bind:this={anchorEl}
   data-jx-hover-anchor=""
-  class={cn('inline-flex', className)}
+  class={cn(cx(hoverCardStyles.anchor), className)}
   style="anchor-name: {anchorName}"
   onpointerenter={() => {
     clearTimeout(closeTimer);
@@ -169,7 +187,7 @@
   {id}
   popover="manual"
   class={cn(
-    'jx-hover-card jx-surface fixed w-fit max-w-[min(88vw,20rem)] text-[0.8125rem] leading-[1.55] text-popover-foreground',
+    cx('jx-hover-card jx-surface', hoverCardStyles.panel),
     motion.supported && 'jx-waapi',
   )}
   data-variant={d.variant}
@@ -187,7 +205,7 @@
   <div data-jx-hover-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- surface body (fill + ::after shadow); the popover element paints
        nothing (floating-surface law arch r3) -->
-  <div data-jx-hover-body="" class="jx-surface-body px-4 py-[0.875rem]">
+  <div data-jx-hover-body="" class={cx('jx-surface-body', hoverCardStyles.body)}>
     {@render children()}
   </div>
 </div>

@@ -42,8 +42,8 @@
 import * as stylex from '@stylexjs/stylex';
 
 /**
- * The typed theme table. 110 members (60 + the site voice scale's
- * 19 + the Wave 1 scale extension's 31, tailwindless one-shot),
+ * The typed theme table. 111 members (60 + the site voice scale's
+ * 19 + the Wave 1 scale extension's 31 + W1b's 1, tailwindless one-shot),
  * order mirroring the sheet's own declaration order
  * (auditability); the doc comment inside each group names the
  * sheet law it mirrors.
@@ -174,6 +174,7 @@ export const tokens = stylex.defineVars({
   '--jx-leading-145': 'var(--leading-145)',
   '--jx-leading-15': 'var(--leading-15)',
   '--jx-leading-155': 'var(--leading-155)',
+  '--jx-leading-16': 'var(--leading-16)',
   '--jx-motion-100': 'var(--motion-100)',
   '--jx-motion-150': 'var(--motion-150)',
   '--jx-motion-200': 'var(--motion-200)',

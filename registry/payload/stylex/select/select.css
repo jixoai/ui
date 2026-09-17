@@ -91,6 +91,7 @@
     --jx-leading-145: var(--leading-145);
     --jx-leading-15: var(--leading-15);
     --jx-leading-155: var(--leading-155);
+    --jx-leading-16: var(--leading-16);
     --jx-motion-100: var(--motion-100);
     --jx-motion-150: var(--motion-150);
     --jx-motion-200: var(--motion-200);
@@ -317,4 +318,4 @@
 }
 
 @layer utilities;
-/* buildId: 7119ccca8c08e569354ee25ccf3745534e92764eb2e7a0f2f9be5fa80bc54567 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
+/* buildId: 077eddbfa23601ef938bc175cf6f5893ed839e10ecf9696098b5a115debeaa34 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

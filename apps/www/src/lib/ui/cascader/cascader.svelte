@@ -14,14 +14,16 @@
   A partial path submits '' (never a half lie — the same law as
   input-otp). disabled blocks the whole chain after it.
 
-  tw4 (2026-08-24): pure utility migration for the static paint (group,
-  label, chain, select shells — the disabled dim rides the disabled:
-  variant); only the :focus outline law remains in cascader.css
-  (D1-exempt residue under the layer law).
+  tw4 (2026-08-24) → tailwindless W1b (2026-09-17): pure utility
+  migration for the static paint (group, label, chain, select shells —
+  the disabled dim rides the select atom's :disabled pose); only the
+  :focus outline law remains in cascader.css (D1-exempt residue under
+  the layer law).
 -->
 <script lang="ts">
   import '$lib/form-field';
   import { cn } from '$lib/utils';
+  import { cascaderStyles } from './cascader.stylex';
   import './cascader.css';
 
   export interface CascaderOption {
@@ -89,6 +91,23 @@
     // picking at level N truncates anything deeper, then appends
     value = [...value.slice(0, level), next];
   }
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <jx-form-field
@@ -100,14 +119,14 @@
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
-<div data-jx-cascader class={cn('flex flex-col gap-1.5 w-fit', className)} role="group" aria-label={label ?? 'cascade'}>
+<div data-jx-cascader class={cn(cx(cascaderStyles.group), className)} role="group" aria-label={label ?? 'cascade'}>
   {#if label}
-    <span data-jx-cascader-label class="font-nav text-xs tracking-[0.1em] uppercase text-muted-foreground" id="{autoId}-label">{label}</span>
+    <span data-jx-cascader-label class={cx(cascaderStyles.label)} id="{autoId}-label">{label}</span>
   {/if}
-  <div data-jx-cascader-chain class="flex flex-wrap gap-1.5" aria-labelledby={label ? `${autoId}-label` : undefined}>
+  <div data-jx-cascader-chain class={cx(cascaderStyles.chain)} aria-labelledby={label ? `${autoId}-label` : undefined}>
     {#each levels as levelOptions, level (level)}
       <select
-        class="jx-cascader-select py-[0.4375rem] px-[0.625rem] border border-border bg-background text-foreground font-mono text-[0.8125rem] rounded-(--radius) disabled:opacity-50"
+        class={cn('jx-cascader-select', cx(cascaderStyles.select))}
         disabled={isDisabled}
         aria-label="level {level + 1}"
         value={value[level] ?? ''}

@@ -36,6 +36,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { headingStyles } from './heading.stylex';
 
   interface Props extends HTMLAttributes<HTMLHeadingElement> {
     /** the heading level 1–6; out-of-range values clamp (rounded to
@@ -51,6 +52,23 @@
 
   let { level = 2, id, children, class: className = '', ...rest }: Props = $props();
 
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // clamp once, derive both consumers from it: the tag and the
   // valued hook never disagree
   const clamped = $derived(Math.min(6, Math.max(1, Math.round(level))));
@@ -60,12 +78,12 @@
   // — em, never rem: the ladder scales with the ambient preset
   const size = [
     null,
-    '[font-size:1.875em]',
-    '[font-size:1.5em]',
-    '[font-size:1.25em]',
-    '[font-size:1.125em]',
-    '[font-size:1em]',
-    '[font-size:1em]',
+    headingStyles.h1,
+    headingStyles.h2,
+    headingStyles.h3,
+    headingStyles.h4,
+    headingStyles.h5,
+    headingStyles.h6,
   ] as const;
 </script>
 
@@ -77,7 +95,7 @@
   this={tag}
   data-jx-heading={clamped}
   {id}
-  class={cn('font-bold leading-[1.25] text-[var(--jx-ty-ink,var(--foreground))]', size[clamped], className)}
+  class={cn(cx(headingStyles.base, size[clamped]), className)}
   {...rest}
 >
   {@render children?.()}

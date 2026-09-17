@@ -31,6 +31,21 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Snippet } from 'svelte';
 import Dialog from '../src/lib/ui/dialog/dialog.svelte';
 import CardFooter from '../src/lib/ui/card/card-footer.svelte';
+import { cardStyles } from '../src/lib/ui/card/card.stylex';
+
+// tailwindless W1b (2026-09-17): the head band rides the card family's
+// headBand atom — asserted through the same cx join CardHeader rides
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const css = readFileSync(resolve(process.cwd(), 'src/lib/ui/dialog/dialog.css'), 'utf8');
 const cardCss = readFileSync(resolve(process.cwd(), 'src/lib/ui/card/card.css'), 'utf8');
@@ -103,10 +118,10 @@ describe('the bands — borders retired, the kernel parts compose', () => {
       expect(el.className).not.toMatch(/border-[tb]/);
     }
     // the DEFAULT title row IS the Card family's CardHeader — it owns
-    // the block rhythm only (py-2.5; the inline inset arrives BY
-    // TRACK); a consumer head snippet renders RAW
+    // the block rhythm only (the headBand atom; the inline inset
+    // arrives BY TRACK); a consumer head snippet renders RAW
     const headRow = container.querySelector('.jx-card-head-content')!;
-    expect(headRow.className).toMatch(/py-2\.5/);
+    expect(headRow.className).toContain(cx(cardStyles.headBand));
     expect(headRow.className).not.toMatch(/px-/); // the track paints the inset
     expect(headRow.querySelector('h2[data-jx-card-title]')).not.toBeNull();
     const flushed = render(Dialog, { props: { head, children } });
@@ -121,8 +136,18 @@ describe('the bands — borders retired, the kernel parts compose', () => {
     const bodyBand = container.querySelector('[data-jx-card-body]')!;
     const bodyRow = bodyBand.querySelector('[data-jx-card-cell]')!;
     expect(bodyBand.hasAttribute('data-jx-scroll')).toBe(false); // default scroller
-    expect(bodyRow.className).toMatch(/py-3\.5/);
-    expect(bodyRow.className).toMatch(/px-\[max\(0\.875rem-var\(--jx-scrollbar-thin,0px\),0px\)\]/);
+    // tailwindless one-shot W1b (2026-09-17): the formula moved from
+    // utility strings into card.stylex's bodyCell atom (the parallel
+    // card-batch migration) — membership + the formula itself
+    expect(bodyRow.className).toContain('card__cardStyles.bodyCell');
+    const cardStylex = readFileSync(
+      resolve(process.cwd(), 'src/lib/ui/card/card.stylex.ts'),
+      'utf8',
+    );
+    expect(cardStylex).toContain("paddingBlock: 'var(--space-14)'");
+    expect(cardStylex).toContain(
+      "paddingInline: 'max(var(--space-14) - var(--jx-scrollbar-thin, 0px), 0px)'",
+    );
   });
 
   it('scroll={false} declares the body a non-scroller: the off-stamp, absent by default', () => {

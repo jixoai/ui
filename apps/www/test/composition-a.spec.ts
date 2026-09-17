@@ -703,8 +703,10 @@ describe('Descriptions family — term prop + children value', () => {
     expect(dl2.getAttribute('style')).toContain('--jx-desc-cols: 2');
     expect(dl2.hasAttribute('data-jx-desc-bordered')).toBe(true);
     expect(dl2.className).toContain('border');
-    expect(framed.container.querySelector('[data-jx-desc-cell]')!.className).toContain('border-b');
-    expect(framed.container.querySelector('[data-jx-desc-term]')!.className).toContain('bg-muted');
+    // tailwindless W1b-A: the bordered frame rides the cellBordered/
+    // termBordered atoms (utility seams retired with the utilities)
+    expect(framed.container.querySelector('[data-jx-desc-cell]')!.className).toContain('descriptions__descriptionsStyles.cellBordered');
+    expect(framed.container.querySelector('[data-jx-desc-term]')!.className).toContain('descriptions__descriptionsStyles.termBordered');
   });
 });
 

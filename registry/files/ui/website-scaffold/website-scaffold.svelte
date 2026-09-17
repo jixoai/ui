@@ -63,6 +63,24 @@
   import { onMount, setContext } from 'svelte';
   import './website-scaffold.css';
   import type { Snippet } from 'svelte';
+  import { scaffoldStyles } from './website-scaffold.stylex';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /** Semantic placement roles for adopted float nodes. The physical grid
    *  cell is resolved per container form by website-scaffold.css — one
@@ -193,7 +211,7 @@
 
   <div class="jx-shell" bind:this={shellEl}>
     <div class="jx-shell-body" bind:this={bodyEl}>
-      <main id="main" class="jx-page-main flex-1">
+      <main id="main" class={cx('jx-page-main', scaffoldStyles.main)}>
         {@render children()}
       </main>
       {#if footer}

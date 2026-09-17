@@ -51,8 +51,26 @@
   import type { HTMLInputAttributes } from 'svelte/elements';
   import type { Density } from '$lib/density.svelte';
   import { CheckboxDefaults } from './checkbox-defaults.svelte';
+  import { checkboxStyles } from './checkbox.stylex';
   import { cn } from '$lib/utils';
   import './checkbox.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLInputAttributes {
     /** same-row label; renders label[for] */
@@ -126,7 +144,7 @@
   <!-- bare posture: with no label/error to stack, the field wrapper
        is dead weight — a w-fit inline host instead (inside list-item end
        lanes the control must sit at inline-END, not stretch the lane) -->
-  <div data-density={d.density} class={cn(!label && !error ? 'inline-flex w-fit' : 'jx-field')}>
+  <div data-density={d.density} class={cn(!label && !error ? cx(checkboxStyles.host) : 'jx-field')}>
     <span
       data-jx-check
       data-jx-check-left={labelSide === 'left' ? '' : undefined}

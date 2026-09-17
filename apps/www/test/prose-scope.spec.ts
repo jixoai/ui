@@ -51,6 +51,7 @@ const proseCss = readFileSync(resolve(repoRoot, 'registry/files/ui/prose/prose.c
 const markdownCss = readFileSync(resolve(repoRoot, 'registry/files/ui/markdown/markdown.css'), 'utf8');
 const faceCss = readFileSync(resolve(repoRoot, 'registry/files/theme/jx-pure.css'), 'utf8');
 const headingSrc = readFileSync(resolve(repoRoot, 'registry/files/ui/heading/heading.svelte'), 'utf8');
+const headingStylexSrc = readFileSync(resolve(repoRoot, 'registry/files/ui/heading/heading.stylex.ts'), 'utf8');
 
 const byTestid = (container: HTMLElement, id: string) =>
   container.querySelector(`[data-testid="${id}"]`)!;
@@ -335,18 +336,20 @@ describe('nested prose', () => {
 // 5 · the heading consumption seam (F5)
 // =========================================================================
 describe('heading ink', () => {
-  it('the heading utility follows --jx-ty-ink with the foreground fallback', () => {
+  // tailwindless one-shot W1b batch C (2026-09-17): the ink seam moved
+  // from the markup's utility string into heading.stylex's base atom —
+  // membership + source audits replace the utility-string assertions
+  it('the heading atom follows --jx-ty-ink with the foreground fallback', () => {
     const { container } = render(Host);
-    const inkUtility = 'text-[var(--jx-ty-ink,var(--foreground))]';
     const scoped = byTestid(container, 'heading-wrap').querySelector('h2[data-jx-heading]')!;
-    // scoped: the region ships the token the utility resolves
-    expect(scoped.classList.contains(inkUtility)).toBe(true);
+    // scoped: the region ships the token the atom resolves
+    expect(scoped.className).toContain('heading__headingStyles.base');
     const host = byTestid(container, 'heading-wrap').querySelector('[data-jx-prose]')!;
     expect(styleOf(host)).toContain('--jx-ty-ink: var(--muted-foreground)');
     expect(styleOf(host)).toContain('color: var(--muted-foreground)');
-    // unscoped: the same utility, the fallback arm (no --jx-ty-ink anywhere)
+    // unscoped: the same atom, the fallback arm (no --jx-ty-ink anywhere)
     const unscoped = byTestid(container, 'heading-wrap').querySelectorAll('h2[data-jx-heading]')[1]!;
-    expect(unscoped.classList.contains(inkUtility)).toBe(true);
+    expect(unscoped.className).toContain('heading__headingStyles.base');
   });
 
   it('the consumer text utility overrides last-wins (dedup-verified F5)', () => {
@@ -355,14 +358,12 @@ describe('heading ink', () => {
       'h3[data-jx-heading]',
     )!;
     expect(overridden.classList.contains('text-primary')).toBe(true);
-    expect(
-      overridden.classList.contains('text-[var(--jx-ty-ink,var(--foreground))]'),
-    ).toBe(false);
   });
 
-  it('the edit is the ONE seam: heading.svelte carries the utility and not text-foreground', () => {
-    expect(headingSrc).toContain('text-[var(--jx-ty-ink,var(--foreground))]');
+  it('the edit is the ONE seam: the heading stylex module carries the var-fallback ink, never a bare foreground utility', () => {
+    expect(headingStylexSrc).toContain("'var(--jx-ty-ink, var(--foreground))'");
     expect(headingSrc).not.toMatch(/'text-foreground'|text-foreground'/);
+    expect(headingStylexSrc).not.toMatch(/'text-foreground'|text-foreground'/);
   });
 });
 

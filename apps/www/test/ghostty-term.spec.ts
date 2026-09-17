@@ -43,6 +43,23 @@ import type {
   RowSnapshot,
 } from '../../../registry/files/lib/ghostty-vt';
 import GhosttyTerm from '../../../registry/files/ui/ghostty-term/ghostty-term.svelte';
+import { ghosttyTermStyles } from '../src/lib/ui/ghostty-term/ghostty-term.stylex';
+
+// tailwindless one-shot Wave 1b batch A (2026-09-17): the root/canvas
+// paint rides stylex atoms now — membership asserted through the same
+// cx join the component rides (utility-shaped expectations went with
+// the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 // ---------------------------------------------------------------------------
 // loader seam: the vt-deps module (which owns the virtual:jixoai-ghostty
@@ -573,7 +590,7 @@ describe('ghostty-term root contract', () => {
       'aria-label': 'My session',
     });
     expect(term.root.className).toContain('consumer-extra');
-    expect(term.root.className).toContain('bg-terminal');
+    expect(term.root.className).toContain(cx(ghosttyTermStyles.root));
     expect(term.root.getAttribute('data-testid')).toBe('gt-root');
     expect(term.root.getAttribute('title')).toBe('shell');
     // rest overrides the default accessible name
@@ -594,13 +611,13 @@ describe('ghostty-term root contract', () => {
     // HOST height — the canvas may never drive root height through flow
     // (the 480px intrinsic-grid overflow regression)
     const auto = renderTerm();
-    expect(auto.root.className).toContain('h-full');
-    expect(auto.canvas.className).toContain('absolute');
+    expect(auto.root.className).toContain(cx(ghosttyTermStyles.fill));
+    expect(auto.canvas.className).toContain(cx(ghosttyTermStyles.canvasInset));
     mounted.pop()!.unmount();
 
     const fixed = renderTerm({ cols: 80, rows: 24 });
-    expect(fixed.root.className).not.toContain('h-full');
-    expect(fixed.canvas.className).not.toContain('absolute');
+    expect(fixed.root.className).not.toContain(cx(ghosttyTermStyles.fill));
+    expect(fixed.canvas.className).not.toContain(cx(ghosttyTermStyles.canvasInset));
   });
 });
 
@@ -963,7 +980,7 @@ describe('ghostty-term text selection', () => {
     const term = renderTerm({ cols: 8, rows: 2, selection: false });
     await waitFor(() => term.root.getAttribute('data-state') === 'ready');
     await settle();
-    expect(term.root.className).not.toContain('select-none');
+    expect(term.root.className).not.toContain(cx(ghosttyTermStyles.selectNone));
     const down = mouse(term.root, 'mousedown', 10, 0);
     expect(down.defaultPrevented).toBe(false);
     mouse(term.root, 'mousemove', 30, 0);
@@ -978,7 +995,7 @@ describe('ghostty-term text selection', () => {
     loader.impl = async () => vt;
     const term = renderTerm({ cols: 8, rows: 2 });
     await waitFor(() => term.root.getAttribute('data-state') === 'ready');
-    expect(term.root.className).toContain('select-none');
+    expect(term.root.className).toContain(cx(ghosttyTermStyles.selectNone));
   });
 });
 

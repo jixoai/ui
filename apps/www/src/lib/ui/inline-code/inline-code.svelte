@@ -224,6 +224,7 @@
   import { DEFAULT_MICROLIGHTER_BACKEND } from '$lib/highlight/microlighter';
   import { resolveTextStyle, type TextStyleProps } from '$lib/text-style.svelte';
   import { InlineCodeDefaults } from './inline-code-defaults.svelte';
+  import { inlineCodeStyles } from './inline-code.stylex';
   import './inline-code.css';
 
   interface Props extends HTMLAttributes<HTMLElement>, TextStyleProps {
@@ -276,35 +277,54 @@
 
   /**
    * The design.md §1 recipes + the §6 forced-colors degradation
-   * (Canvas/CanvasText; the 1px border survives on every rung).
-   * Paint law (batch D's TW4 probe, 2026-08-26): the base carries
-   * width-only `border`; each rung is the SOLE border-color source in
-   * its class list (a named .border-* would sort AFTER an arbitrary
-   * [border-color:…] and silently win), and the recipes ride TYPED
-   * arbitrary forms (bg-[color-mix(…)], border-[color:var(…)]) which
-   * emit @supports fallbacks to plain var(--jx-tonal) in engines
-   * without color-mix. The tonal rung carries the local neutral
-   * injection ([--jx-tonal:var(--muted-foreground)]) — parity with jx-pure's bare <code>
-   * law; a consumer's jx-hue-* replaces it through cn().
+   * (Canvas/CanvasText; the 1px border survives on every rung) — the
+   * family's ATOM table since tailwindless W1b (2026-09-17):
+   * inline-code.stylex.ts owns the rungs. The base carries the
+   * width-only border; each rung is the SOLE border-color source in
+   * its join (no co-existing border-color forms to race). The tonal
+   * rung carries the local neutral injection through the atom's
+   * '--jx-tonal' custom property — parity with jx-pure's bare <code>
+   * law; a consumer's jx-hue-* utility still wins (utilities sort
+   * after the atom tier), and cn() dedupe no longer applies (the
+   * consumer's arbitrary [--jx-tonal:…] class wins the cascade the
+   * same way).
    *
    * fused (design D2, 2026-09-08): the backdrop-fusion rung —
    * transparent ground, the width-only border painted transparent
-   * (currentColor would otherwise leak), and
-   * backdrop-contrast-[85%] pulling the backdrop toward mid — the
-   * Owner's acceptance tune (2026-09-08): 85 sits one notch quieter
-   * than the first-pass 75 (which matched the retired tonal default's
-   * band weight) and strictly above the separator's full ghost
-   * (contrast 0.5). Print drops
+   * (currentColor would otherwise leak), and contrast(85%) pulling
+   * the backdrop toward mid — the Owner's acceptance tune (2026-09-
+   * 08): 85 sits one notch quieter than the first-pass 75 (which
+   * matched the retired tonal default's band weight) and strictly
+   * above the separator's full ghost (contrast 0.5). Print drops
    * backdrop-filter to transparent (bare mono code — the separator's
    * own print posture); forced-colors keeps the CanvasText frame.
    */
-  const variantUtilities = {
-    fused:
-      'bg-transparent border-transparent backdrop-contrast-[85%] text-foreground forced-colors:border-[color:CanvasText]',
-    tonal:
-      '[--jx-tonal:var(--muted-foreground)] bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
-    outline:
-      'bg-transparent border-[color:var(--jx-outline)] text-foreground forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
+  // the payload's own join (separator's serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — Svelte's class interpolation stringifies
+  // objects, so composition goes through THIS joiner (all string
+  // values except $$css, space-joined — never a raw class={styles.x})
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // the ladder walks the family's ATOM members (tailwindless W1b):
+  // joined through cx below; the tint recipes and forced-colors
+  // degradations live in inline-code.stylex.ts
+  const VARIANT_ATOM: Record<InlineCodeVariant, string> = {
+    fused: cx(inlineCodeStyles.fused),
+    tonal: cx(inlineCodeStyles.tonal),
+    outline: cx(inlineCodeStyles.outline),
   } as const;
 
   /**
@@ -375,17 +395,18 @@
    * the formula rides inline-code.css's :where rule (the vision-pass
    * pivot — see codeVars below).
    */
-  const baseUtilities = $derived.by(() => {
-    const parts = ['inline-block'];
-    // the mono frame drops when an explicit family rides the kernel —
-    // same-property utility order is not guaranteed, so the twin is
-    // DROPPED, not outranked (the vision-pass family-cascade find)
-    if (family === undefined) parts.push('font-mono');
-    if (fontSize === undefined) parts.push('[font-size:var(--jx-text-secondary)]');
-    if (lineHeight === undefined) parts.push('[line-height:var(--jx-line-secondary)]');
-    parts.push('border', 'rounded-(--jx-chip-radius)', 'whitespace-nowrap');
-    return parts.join(' ');
-  });
+  // the base frame's ATOM JOIN (tailwindless W1b): the token twins
+  // are separate members, emitted ONLY when the matching modifier prop
+  // is absent (resolveTextStyle's utility still wins the sheet — the
+  // twin is DROPPED, not outranked; the twin-drop law unchanged)
+  const baseClasses = $derived(
+    cx(
+      inlineCodeStyles.base,
+      family === undefined ? inlineCodeStyles.mono : undefined,
+      fontSize === undefined ? inlineCodeStyles.fsSecondary : undefined,
+      lineHeight === undefined ? inlineCodeStyles.lhSecondary : undefined,
+    ),
+  );
 
   $effect(() => {
     // deps: the element mount + the lang prop + the resolved backend.
@@ -426,8 +447,8 @@
   data-density={d.density}
   style={codeVars}
   class={cn(
-    baseUtilities,
-    variantUtilities[d.variant],
+    baseClasses,
+    VARIANT_ATOM[d.variant],
     resolveTextStyle({ lineHeight, weight, italic, tracking, family, fontSize }),
     className,
   )}

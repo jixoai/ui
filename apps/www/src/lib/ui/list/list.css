@@ -1,0 +1,22 @@
+@layer properties, theme, base, components, utilities;
+
+/*
+ * list.css — the list family's tailwindless lane-2 residue
+ * (tailwindless one-shot Wave 1b batch C, 2026-09-17).
+ *
+ * The marker vocabulary + the structural indent ride list.stylex.ts
+ * atoms. What stays HERE is the ONE descendant+pseudo boundary the
+ * atoms cannot express: the marker ink — the B8 law's exact form
+ * (li::marker { color: var(--muted-foreground) }), @layer components
+ * + :where() per the placement law (the chip.css precedent): zero
+ * specificity, consumer utilities always win. Keyed on the family's
+ * own data-jx-list hook so the rule reaches exactly the lists the
+ * component renders (nested lists inherit the same law their roots
+ * re-stamp, matching the old descendant utility's reach).
+ */
+
+@layer components {
+  :where([data-jx-list]) li::marker {
+    color: var(--muted-foreground);
+  }
+}

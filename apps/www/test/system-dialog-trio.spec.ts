@@ -13,6 +13,22 @@ import { resolve } from 'node:path';
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import { alert, confirm, prompt } from '$lib/ui/system-dialog/system-dialog.svelte.ts';
+import { sysdlgStyles } from '$lib/ui/system-dialog/system-dialog.stylex';
+
+// tailwindless W1b (2026-09-17): the strip's bleed arithmetic rides the
+// family's stylex atoms — asserted through the same cx join the
+// component rides (utility-shaped expectations went with the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const here = import.meta.dirname;
 
@@ -94,7 +110,7 @@ describe('alert — the window.alert posture', () => {
     const strip = panel.querySelector('[data-jx-sysdlg-actions]')!;
     expect(strip.querySelector(':scope > hr, :scope > [data-jx-separator]')).not.toBeNull();
     const group = strip.querySelector(':scope > [data-jx-btngroup]')!;
-    expect(group.className).toContain('w-full');
+    expect(group.className).toContain(cx(sysdlgStyles.actionsFill));
     await fireEvent.click(panel.querySelector('[data-jx-sysdlg-cancel]')!);
   });
 });

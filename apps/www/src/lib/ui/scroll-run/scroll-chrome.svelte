@@ -37,10 +37,28 @@
   import type { ScrollEffect } from './scroll-run.svelte';
   import { nudgeRun } from './scroll-run.svelte';
   import ProgressiveBlur from '../progressive-blur/progressive-blur.svelte';
+  import { scrollChromeStyles } from './scroll-run.stylex';
   // the law sheet rides the chrome (every chrome consumer needs the
   // run/chip/veil rules; a chrome-less run consumer imports it
   // explicitly)
   import './scroll-run.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   let {
     scrollEffect,
@@ -138,7 +156,7 @@
        veils; each ENTERS by scroll-driven translate along the run's
        axis (the host's --jx-scroll-progress drives it), gated by the
        scroll-state verdict (the unlayered rules in scroll-run.css) -->
-  <div class="jx-scroll-veil-layer pointer-events-none grid [grid-area:1/1]">
+  <div class={cx('jx-scroll-veil-layer', scrollChromeStyles.veilLayer)}>
     {#if veilIsLadder}
       <!-- hold = 50: with snap retired there is no flush lane to cover —
            the ramp owns half the band and the peak the other half;
@@ -173,12 +191,12 @@
            vertical rules and collapse the auto-width bands to 0 (the
            vertical no-paint bug, caught live) -->
       <div
-        class="jx-scroll-shadow jx-scroll-veil [grid-area:1/1] [transform:translateZ(0)]"
+        class={cx('jx-scroll-shadow jx-scroll-veil', scrollChromeStyles.shadowVeil)}
         data-position="start"
         aria-hidden="true"
       ></div>
       <div
-        class="jx-scroll-shadow jx-scroll-veil [grid-area:1/1] [transform:translateZ(0)]"
+        class={cx('jx-scroll-shadow jx-scroll-veil', scrollChromeStyles.shadowVeil)}
         data-position="end"
         aria-hidden="true"
       ></div>

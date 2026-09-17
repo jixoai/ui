@@ -61,7 +61,25 @@
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import CardBody from './card-body.svelte';
   import CardHeader from './card-header.svelte';
+  import { cardStyles } from './card.stylex';
   import './card.css';
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props {
     /** Heading of the default head face; omit (with no head snippet)
@@ -102,7 +120,7 @@
   data-jx-card
   data-sep-head={hasHead ? '' : undefined}
   data-sep-foot={hasFoot ? '' : undefined}
-  class="border border-border bg-card shadow-2xs {className}"
+  class="{cx(cardStyles.root)} {className}"
 >
   {#if hasHead}
     <!-- the head zone RENTS the root's inline ruler (subgrid columns,

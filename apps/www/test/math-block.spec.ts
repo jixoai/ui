@@ -34,6 +34,23 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import MathBlock from '../src/lib/ui/math-block/math-block.svelte';
+import { mathBlockStyles } from '../src/lib/ui/math-block/math-block.stylex';
+
+// tailwindless one-shot Wave 1b batch A (2026-09-17): the host's grid
+// paint rides stylex atoms now — membership asserted through the same
+// cx join the component rides (utility-shaped expectations went with
+// the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const mathBlockCss = readFileSync(
   resolve(process.cwd(), 'src/lib/ui/math-block/math-block.css'),
@@ -90,7 +107,9 @@ describe('MathBlock · the sync render lane + structure', () => {
   it('rides the shared scroll-run contract: grid host, run hooks, shadow veil layer + chips from ScrollChrome', async () => {
     const { container } = render(MathBlock, { props: { tex: 'x' } });
     await tick();
-    expect(container.querySelector('.jx-scroll-host.grid')).not.toBeNull();
+    const host = container.querySelector('.jx-scroll-host')!;
+    expect(host).not.toBeNull();
+    expect(host.className).toContain(cx(mathBlockStyles.host));
     const run = container.querySelector('[data-jx-scroll-run][data-axis="horizontal"]')!;
     expect(run).not.toBeNull();
     // the shadow veil pair mounts (verdict-gated by the shared css, not by JS)

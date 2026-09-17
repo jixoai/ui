@@ -413,7 +413,7 @@ describe('Anchor family', () => {
     expect(link.getAttribute('aria-current')).toBe('location'); // state rides props
     expect(link.className).toContain('text-primary'); // consumer's utility wins
     expect(link.className).not.toContain('text-muted-foreground');
-    expect(link.className).toContain('border-l-primary'); // active paint from the part
+    expect(link.className).toContain('anchor__anchorStyles.linkActive'); // active paint from the part (tailwindless W1b-A: the pose rides the atom)
 
     targets.forEach((t) => t.remove());
   });

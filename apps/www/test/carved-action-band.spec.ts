@@ -27,6 +27,7 @@ import { describe, expect, it } from 'vitest';
 import type { Snippet } from 'svelte';
 import Sheet from '$lib/ui/sheet/sheet.svelte';
 import SystemDialogActions from '$lib/ui/system-dialog/system-dialog-actions.svelte';
+import { sysdlgStyles } from '$lib/ui/system-dialog/system-dialog.stylex';
 import { canvasStyles } from '$lib/surface/component-canvas.stylex';
 import CanvasSchemaHost from './fixtures/canvas-schema-host.svelte';
 import SheetFooterFace from './fixtures/sheet-footer-face.svelte';
@@ -84,8 +85,9 @@ describe('system-dialog — the anchored strip is carved, not padded', () => {
   it('the strip splits evenly under a REAL Separator rim (round 3: the ink law + 均分)', () => {
     const { container } = render(SystemDialogActions, { props: { children } });
     const strip = container.querySelector('[data-jx-sysdlg-actions]')!;
-    expect(strip.className).toContain('-mx-5');
-    expect(strip.className).toContain('-mb-[1.125rem]');
+    // W1b: the bleed arithmetic rides the actions atom (the cx join the
+    // component rides) — the -mx/-mb utilities retired with the ladder
+    expect(strip.className).toContain(cx(sysdlgStyles.actions));
     expect(strip.className).not.toContain('border-t'); // the rim is a Separator now
     // THE RIM: a real Separator instance — the contrast-ghost ink
     // engine Dialog's riding separators paint (a border-t token line
@@ -100,7 +102,7 @@ describe('system-dialog — the anchored strip is carved, not padded', () => {
     const group = strip.querySelector(':scope > [data-jx-btngroup]')!;
     expect(group).not.toBeNull();
     expect(group.getAttribute('aria-label')).toBe('Actions');
-    expect(group.className).toContain('w-full');
+    expect(group.className).toContain(cx(sysdlgStyles.actionsFill));
     // THE SPLIT IS A FLEX LAW (Owner r4): grid fr cannot express "equal
     // halves that fill, long labels floor wider" — an fr's unit comes
     // from the leftover AFTER intrinsic bases, so max-content-floored

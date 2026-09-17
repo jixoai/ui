@@ -24,7 +24,26 @@
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Table from '$lib/ui/table/table.svelte';
+  import { patternPricingStyles } from './pattern-pricing.stylex';
   import './pattern-pricing.css';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /** one tier's install strip — commands are payload, cards are paint */
   export interface PricingTier {
@@ -81,32 +100,31 @@
   }
 </script>
 
-<section data-jx-pattern-pricing="" class={`jx-pattern-pricing w-full ${className}`}>
-  <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary-text">{eyebrow}</p>
+<section data-jx-pattern-pricing="" class={cx('jx-pattern-pricing', patternPricingStyles.root, className)}>
+  <p class={cx(patternPricingStyles.eyebrow)}>{eyebrow}</p>
 
-  <div class="mt-4">
+  <div class={cx(patternPricingStyles.tableBand)}>
     <Table {caption}>
       {@render children()}
     </Table>
   </div>
 
-  <div
-    class="mt-6 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))]"
-  >
+  <div class={cx(patternPricingStyles.tiers)}>
     {#each tiers as tier (tier.plan)}
       <div
         data-jx-pattern-pricing-tier={tier.recommended ? 'recommended' : 'standard'}
-        class={`flex flex-col gap-3 border bg-card p-3 rounded-(--radius) ${
-          tier.recommended ? 'border-primary' : 'border-border'
-        }`}
+        class={cx(
+          patternPricingStyles.tier,
+          tier.recommended ? patternPricingStyles.tierRecommended : patternPricingStyles.tierStandard,
+        )}
       >
-        <div class="flex min-w-0 flex-wrap items-center gap-2">
+        <div class={cx(patternPricingStyles.tierHead)}>
           <Badge variant={tier.recommended ? 'fill' : 'outline'}>{tier.plan}</Badge>
           {#if tier.note}
-            <span class="font-nav text-[11px] tracking-[0.08em] text-muted-foreground">{tier.note}</span>
+            <span class={cx(patternPricingStyles.tierNote)}>{tier.note}</span>
           {/if}
         </div>
-        <CodeCard lang="bash" code={tier.command} copyable={false} class="min-w-0">
+        <CodeCard lang="bash" code={tier.command} copyable={false} class={cx(patternPricingStyles.minZero)}>
           {#snippet footer()}
             <PressButton
               variant={tier.recommended ? 'fill' : 'ghost'}
@@ -114,10 +132,10 @@
               ariaLabel={`${copiedPlan === tier.plan ? 'copied' : 'copy'} ${tier.command}`}
             >
               {#if copiedPlan === tier.plan}
-                <span class="inline-flex"><Icon name="check" size={14} strokeWidth={2.5} /></span>
+                <span class={cx(patternPricingStyles.inlineIcon)}><Icon name="check" size={14} strokeWidth={2.5} /></span>
                 <span>copied</span>
               {:else}
-                <span class="inline-flex"><Icon name="copy" size={14} /></span>
+                <span class={cx(patternPricingStyles.inlineIcon)}><Icon name="copy" size={14} /></span>
                 <span>copy add command</span>
               {/if}
             </PressButton>

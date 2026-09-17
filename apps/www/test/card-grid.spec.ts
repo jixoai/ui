@@ -23,6 +23,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import CardGridHost from './fixtures/card-grid-host.svelte';
+import { cardGridStyles } from '../src/lib/ui/card-grid/card-grid.stylex';
 
 // component css rides the svelte pipeline in vitest (the ?raw import
 // resolves empty here, unlike the kernel's plain-css ?raw) — read the
@@ -154,7 +155,29 @@ describe('card-grid — the DOM contract (rendered composition)', () => {
   it('the grid container keeps the auto-fit column grammar and no card carries subgrid utilities', () => {
     const { container } = render(CardGridHost);
     const grid = container.querySelector('.jx-card-grid')!;
-    expect(grid.className).toContain('grid-cols-[repeat(auto-fit');
+    // tailwindless one-shot W1b batch C (2026-09-17): the column law
+    // moved from the utility string into the family's stylex atom —
+    // the grammar itself is source-audited below; membership rides
+    // the atom hash the component joins
+    const cx = (
+      ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+    ): string =>
+      styles
+        .filter(Boolean)
+        .map((style) =>
+          Object.entries(style).flatMap(([key, value]) =>
+            key !== '$$css' && typeof value === 'string' ? [value] : [],
+          ).join(' '),
+        )
+        .join(' ');
+    expect(grid.className).toContain(cx(cardGridStyles.grid));
+    const atomSource = readFileSync(
+      resolve(process.cwd(), 'src/lib/ui/card-grid/card-grid.stylex.ts'),
+      'utf8',
+    );
+    expect(atomSource).toContain(
+      "'repeat(auto-fit, minmax(min(100%, var(--jx-grid-min)), 1fr))'",
+    );
     for (const card of grid.children) {
       // the subgrid law is card-grid.css's (D1 residue) — consumer
       // duplication once desynced the span (row-span-2 utilities)

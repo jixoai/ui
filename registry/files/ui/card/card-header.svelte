@@ -35,6 +35,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cardStyles } from './card.stylex';
 
   interface Props {
     /** Heading of the default title row; yields to children when given. */
@@ -53,14 +54,30 @@
   }
 
   let { title, children, class: className = '' }: Props = $props();
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div class="jx-card-head-face">
-  <div class="jx-card-head-content {children ? '' : 'py-2.5'}{className ? ` ${className}` : ''}">
+  <div class="jx-card-head-content{children ? '' : ` ${cx(cardStyles.headBand)}`}{className ? ` ${className}` : ''}">
     {#if children}
       {@render children()}
     {:else if title}
-      <h2 data-jx-card-title class="font-nav text-[15px] leading-[1.3] tracking-[0.01em]">{title}</h2>
+      <h2 data-jx-card-title class={cx(cardStyles.title)}>{title}</h2>
     {:else}
       <!-- untitled + contentless: keep the grid's content column honest
            (the action slot still renders beside it) -->

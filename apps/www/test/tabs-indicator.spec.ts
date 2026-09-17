@@ -455,10 +455,12 @@ describe('Tabs · layout contract', () => {
     expect(bands[0].getAttribute('data-position')).toBe('start');
     expect(bands[1].getAttribute('data-position')).toBe('end');
     // the bands carry the veil contract: width var + entrance + clip apply unchanged
+    // (tailwindless one-shot W1b batch C: the cell placement + the
+    // stacking promotion ride scroll-run's shadowVeil atom — dev names
+    // carry the member identity, the chip.spec dialect)
     for (const b of bands) {
       expect(b.className).toContain('jx-scroll-veil');
-      expect(b.className).toContain('[grid-area:1/1]');
-      expect(b.className).toContain('[transform:translateZ(0)]');
+      expect(b.className).toContain('scroll-run__scrollChromeStyles.shadowVeil');
       expect(b.getAttribute('aria-hidden')).toBe('true');
     }
     // no pblur ladder in the shadow mode

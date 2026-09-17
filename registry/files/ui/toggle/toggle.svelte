@@ -18,7 +18,25 @@
   import type { HTMLInputAttributes } from 'svelte/elements';
   import type { Density } from '$lib/density.svelte';
   import { ToggleDefaults } from './toggle-defaults.svelte';
+  import { toggleStyles } from './toggle.stylex';
   import { cn } from '$lib/utils';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLInputAttributes {
     /** toggle state; bindable (bind:checked) for controlled use */
@@ -64,7 +82,7 @@
   type="checkbox"
   role="switch"
   data-density={d.density}
-  class={cn('jx-html-switch', disabled && 'opacity-50 cursor-not-allowed', className)}
+  class={cn(cx('jx-html-switch', disabled && cx(toggleStyles.disabled)), className)}
   bind:checked
   {disabled}
   {...rest}

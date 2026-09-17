@@ -244,6 +244,7 @@
   import { createScrollStamp } from '../scroll-run/scroll-run.svelte';
   import ScrollChrome from '../scroll-run/scroll-chrome.svelte';
   import { ButtonGroupDefaults } from './button-group-defaults.svelte';
+  import { buttonGroupStyles } from './button-group.stylex';
   import './button-group.css';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -440,19 +441,40 @@
   // ZonePaintVariant) — no runtime narrowing lane exists
   providePaintZone(() => effectiveVariant);
 
-  const justifyClass = $derived(
-    orientation === 'vertical'
-      ? justify === 'center'
-        ? 'content-center'
-        : justify === 'end'
-          ? 'content-end'
-          : 'content-start'
-      : justify === 'center'
-        ? 'justify-center'
-        : justify === 'end'
-          ? 'justify-end'
-          : 'justify-start',
+  // cluster packing walks the atom members (the old justify/content
+  // utilities) — runtime is a pure lookup, joined through cx below
+  const JUSTIFY_ATOM = {
+    inline: {
+      start: buttonGroupStyles.justifyStart,
+      center: buttonGroupStyles.justifyCenter,
+      end: buttonGroupStyles.justifyEnd,
+    },
+    block: {
+      start: buttonGroupStyles.contentStart,
+      center: buttonGroupStyles.contentCenter,
+      end: buttonGroupStyles.contentEnd,
+    },
+  } as const;
+  const justifyAtom = $derived(
+    orientation === 'vertical' ? JUSTIFY_ATOM.block[justify] : JUSTIFY_ATOM.inline[justify],
   );
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // ── THE REAL-DOM SEAMS (Owner, 2026-09-04: "我更希望上真正的 DOM
   // 来做分割线") ─────────────────────────────────────────────────────
@@ -876,13 +898,11 @@
     aria-label={ariaLabel ?? label}
     bind:this={groupEl}
     class={cn(
-      'inline-grid max-w-full',
       // the flow law (see header): no-template flow COLUMN grows the
       // one implicit ROW with columns (the horizontal line); flow row
       // (the default) grows the one implicit COLUMN with rows (the
       // vertical stack) — pinned on Chromium, see the r13 rework probe
-      orientation === 'vertical' ? 'grid-flow-row auto-rows-auto items-stretch' : 'grid-flow-col auto-cols-auto items-stretch',
-      justifyClass,
+      cx(buttonGroupStyles.root, orientation === 'vertical' ? buttonGroupStyles.flowRow : buttonGroupStyles.flowCol, justifyAtom),
       className,
     )}
   >
@@ -898,7 +918,7 @@
            visible (button-group.css); an icon-only IconButton carrying
            the native popovertarget invoker — the group context reaches
            it too, so a ghost group gets a ghost ⋯ -->
-      <span bind:this={moreEl} data-jx-btngroup-more class="inline-flex">
+      <span bind:this={moreEl} data-jx-btngroup-more class={cx(buttonGroupStyles.more)}>
         <DropdownMenu id={menuId} placement="bottom-end">
           {#snippet trigger()}
             <IconButton iconOnly text={moreLabel} popovertarget={menuId}>
@@ -929,7 +949,7 @@
   <div
     bind:this={hostEl}
     data-jx-btngroup-host=""
-    class="jx-scroll-host inline-grid max-w-full [grid-template-columns:minmax(0,1fr)]"
+    class={cx('jx-scroll-host', buttonGroupStyles.host)}
     style={hostStyle}
   >
     {@render runRoot()}

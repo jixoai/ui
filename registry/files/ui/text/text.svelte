@@ -59,6 +59,24 @@
   import { cn } from '$lib/utils';
   import { resolveTextStyle, type TextStyleProps } from '$lib/text-style.svelte';
   import { TextDefaults, type TextMark } from './text-defaults.svelte';
+  import { textStyles } from './text.stylex';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLAttributes<HTMLElement>, TextStyleProps {
     /** the element vocabulary — prop value = sugar name = HTML
@@ -84,40 +102,35 @@
   // context, an element choice is never zone-ambient
   const d = $derived(TextDefaults.resolve({ mark }));
 
-  // the form map (design §1.5, verbatim) — element + own utilities
-  // per mark; '' means the member owns nothing on any channel (the
-  // semantic element alone IS the form)
+  // the form map (design §1.5, verbatim) — element + own ATOM group
+  // per mark (tailwindless W1b: the utility strings became the
+  // family's stylex atoms, text.stylex.ts); undefined means the
+  // member owns nothing on any channel (the semantic element alone IS
+  // the form) — cn() flattens the undefined away
   const forms = {
-    p: { element: 'p', utilities: '' },
-    strong: { element: 'strong', utilities: 'font-semibold' },
-    em: { element: 'em', utilities: 'italic' },
-    del: { element: 'del', utilities: 'line-through' },
-    mark: {
-      element: 'mark',
-      // the recorded override: the ground is a low-alpha primary tint
-      // (18% over transparent), the padding box mirrors the face's
-      // 0.05em/0.25em, the corner is the fleet 2px settle; forced
-      // colors drop to the Highlight system pair
-      utilities:
-        'bg-[color-mix(in_oklab,var(--primary)_18%,transparent)] px-[0.25em] py-[0.05em] rounded-[2px] forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]',
-    },
-    ins: { element: 'ins', utilities: 'underline' },
-    sub: { element: 'sub', utilities: '' },
-    sup: { element: 'sup', utilities: '' },
+    p: { element: 'p', atoms: undefined },
+    strong: { element: 'strong', atoms: textStyles.strong },
+    em: { element: 'em', atoms: textStyles.em },
+    del: { element: 'del', atoms: textStyles.del },
+    mark: { element: 'mark', atoms: textStyles.mark },
+    ins: { element: 'ins', atoms: textStyles.ins },
+    sub: { element: 'sub', atoms: undefined },
+    sup: { element: 'sup', atoms: undefined },
   } as const;
 </script>
 
-<!-- the merge order: the form's own utilities, then the modifier
-  kernel's classes, then the consumer class LAST — a modifier lands
-  AFTER its form (weight='bold' beats strong's own 600), the consumer
-  beats both (a not-italic class still wins); absent modifiers
-  contribute NOTHING (the absent-ambient law) -->
+<!-- the merge order: the form's own atoms, then the modifier
+  kernel's utility classes, then the consumer class LAST — a modifier
+  lands AFTER its form and rides the utilities LAYER (font-bold beats
+  strong's own 600 by layer order), the consumer beats both (a
+  not-italic utility still wins); absent modifiers contribute NOTHING
+  (the absent-ambient law) -->
 <svelte:element
   this={forms[d.mark].element}
   {...rest}
   data-jx-text={d.mark}
   class={cn(
-    forms[d.mark].utilities,
+    cx(forms[d.mark].atoms),
     resolveTextStyle({ lineHeight, weight, italic, tracking, family, fontSize }),
     className,
   )}

@@ -7,13 +7,34 @@
   hairline paint (cell bottom edge, muted term background + rule)
   derives from the root's `bordered` through context — one decision,
   painted everywhere.
+  tailwindless one-shot Wave 1b batch A (2026-09-17): the paint rides
+  the family's stylex ATOMS (descriptions.stylex.ts) joined through
+  cx() below.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
-  import { cn } from '$lib/utils';
   import { DESCRIPTIONS_KEY, type DescriptionsApi } from './descriptions.svelte';
+  import { descriptionsStyles } from './descriptions.stylex';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** the dt label */
@@ -29,17 +50,14 @@
 
 <div
   data-jx-desc-cell=""
-  class={cn('grid grid-cols-[minmax(7rem,12rem)_1fr] min-w-0', descriptions.bordered && 'border-b border-border', className)}
+  class={cx(descriptionsStyles.cell, descriptions.bordered && descriptionsStyles.cellBordered, className)}
   {...rest}
 >
   <dt
     data-jx-desc-term=""
-    class={cn(
-      'truncate [padding:var(--jx-gap)_var(--jx-inset)] font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.12em] uppercase text-muted-foreground',
-      descriptions.bordered && 'bg-muted border-r border-border',
-    )}
+    class={cx(descriptionsStyles.term, descriptions.bordered && descriptionsStyles.termBordered)}
   >{term}</dt>
-  <dd data-jx-desc-value="" class="m-0 [padding:var(--jx-gap)_var(--jx-inset)] [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-foreground min-w-0 [overflow-wrap:anywhere]">
+  <dd data-jx-desc-value="" class={cx(descriptionsStyles.value)}>
     {#if children}{@render children()}{:else}—{/if}
   </dd>
 </div>

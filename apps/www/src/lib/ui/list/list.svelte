@@ -66,6 +66,27 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { listStyles } from './list.stylex';
+  // the lane-2 residue: the marker ink (li::marker — a descendant
+  // boundary the atoms cannot express)
+  import './list.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /** the marker vocabulary — frozen small set, element-agnostic;
    *  lowercase only (upper = the escape hatch) */
@@ -110,27 +131,29 @@
   // where omitted means none (chrome list, no document-flow marker)
   const resolvedMarker = $derived(marker ?? (nav !== undefined ? 'none' : ordered ? 'decimal' : 'disc'));
 
-  // probed against the site's TW 4.2.1 compiler: circle/square have NO
-  // core utility (silent no-op) — the arbitrary [list-style:] form is
-  // the only honest spelling for them; disc/decimal/none ride core
-  // utilities (today's byte-parity stamps)
-  const MARKER_UTILITIES = {
-    disc: 'list-disc',
-    circle: '[list-style:circle]',
-    square: '[list-style:square]',
-    decimal: 'list-decimal',
-    alpha: '[list-style:lower-alpha]',
-    roman: '[list-style:lower-roman]',
-    none: 'list-none',
+  // the marker vocabulary as ATOMS (the old core-utility and
+  // arbitrary [list-style:] forms collapse into one map — the emitted
+  // rule is the same list-style-type declaration either way; the
+  // TW4 silent no-op hazard for circle/square retires with the
+  // engine itself)
+  const MARKER_ATOMS = {
+    disc: listStyles.disc,
+    circle: listStyles.circle,
+    square: listStyles.square,
+    decimal: listStyles.decimal,
+    alpha: listStyles.alpha,
+    roman: listStyles.roman,
+    none: listStyles.none,
   } as const;
 
-  // the B8 channels as utilities; the nav mode drops the structural
-  // indent (ps-0 stays even with an explicit marker — chrome list)
+  // the B8 channels; the nav mode drops the structural indent
+  // (ps-0 stays even with an explicit marker — chrome list)
   const listClass = $derived(
     cn(
-      MARKER_UTILITIES[resolvedMarker],
-      nav !== undefined ? 'ps-0' : 'ps-6',
-      '[&_li::marker]:text-muted-foreground',
+      cx(
+        MARKER_ATOMS[resolvedMarker],
+        nav !== undefined ? listStyles.flush : listStyles.indent,
+      ),
       className,
     ),
   );

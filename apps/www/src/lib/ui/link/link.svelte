@@ -53,6 +53,24 @@
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import Icon from '../icon/icon.svelte';
+  import { linkStyles } from './link.stylex';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLAnchorAttributes {
     /** the link target; an absolute http(s) href makes the link external */
@@ -81,14 +99,11 @@
   target={external ? '_blank' : undefined}
   rel={external ? 'noreferrer' : undefined}
   data-jx-link={external ? 'external' : 'internal'}
-  class={cn(
-    'text-primary [text-underline-offset:4px] hover:underline forced-colors:text-[LinkText]',
-    className,
-  )}
+  class={cn(cx(linkStyles.anchor), className)}
 >
   <!-- the lane rides directly after the children with NO intervening
        text node (the label-row adjacency discipline): the lane's own
-       ms-[0.2em] owns the whole gap — a stray space would stack a
+       atom gap owns the whole distance — a stray space would stack a
        font-dependent second gap on top of it -->
-  {@render children?.()}{#if external && icon !== null}<span data-jx-link-icon aria-hidden="true" class="ms-[0.2em] inline-flex flex-none align-[-0.125em]">{#if icon}{@render icon()}{:else}<Icon name="externalLink" size="0.8em" />{/if}</span>{/if}
+  {@render children?.()}{#if external && icon !== null}<span data-jx-link-icon aria-hidden="true" class={cx(linkStyles.iconLane)}>{#if icon}{@render icon()}{:else}<Icon name="externalLink" size="0.8em" />{/if}</span>{/if}
 </a>

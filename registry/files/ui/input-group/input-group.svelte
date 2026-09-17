@@ -70,7 +70,8 @@
   import { setContext } from 'svelte';
   import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
   import { InputGroupDefaults } from './input-group-defaults.svelte';
-  import { cn } from '$lib/utils';
+  import { inputGroupStyles } from './input-group.stylex';
+
   import './input-group.css';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -128,6 +129,25 @@
   // and lands the same value on every lane
   const d = $derived(InputGroupDefaults.resolve({ density }));
 
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   setContext<InputGroupApi>(INPUT_GROUP_KEY, {
     get disabled() {
       return disabled;
@@ -141,10 +161,7 @@
   data-jx-igroup
   data-density={d.density}
   aria-label={ariaLabel ?? label}
-  class={cn(
-    'flex items-stretch w-full max-w-full min-h-[var(--jx-hit)] border border-border rounded-none bg-background transition-[box-shadow] duration-150 ease-out',
-    className,
-  )}
+  class={cx(inputGroupStyles.root, className)}
 >
   {@render children()}
 </div>

@@ -48,6 +48,7 @@
     isStudioHost,
     type PrototypeKitContext,
   } from './context';
+  import { prototypeKitStyles } from './prototype-kit.stylex';
   import { installOverlayScrollbar } from './overlay-scrollbar';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -128,12 +129,29 @@
   );
   const rowsStyle = $derived(trackStyle(gridRows, undefined));
   const gapStyle = $derived(typeof gap === 'number' ? `${gap}px` : gap);
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <section
   data-jx-prototype-canvas
   aria-label={label}
-  class={cn('min-w-0', className)}
+  class={cn(cx(prototypeKitStyles.canvas), className)}
   style:display="grid"
   style:grid-template-columns={columnsStyle}
   style:grid-template-rows={rowsStyle}
@@ -143,7 +161,7 @@
   {#if label}
     <p
       data-jx-prototype-canvas-label
-      class="font-mono text-xs tracking-wide text-muted-foreground uppercase"
+      class={cx(prototypeKitStyles.caption)}
       style:grid-column="1 / -1"
     >
       {label}

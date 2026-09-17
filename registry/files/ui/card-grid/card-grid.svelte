@@ -52,7 +52,25 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
+  import { cardGridStyles } from './card-grid.stylex';
   import './card-grid.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props {
     /** Minimum column width before the grid collapses a column. */
@@ -98,7 +116,7 @@
 
 <div
   class={cn(
-    'jx-card-grid grid grid-cols-[repeat(auto-fit,minmax(min(100%,var(--jx-grid-min)),1fr))] gap-5 items-stretch',
+    cx('jx-card-grid', cardGridStyles.grid),
     className,
   )}
   style="--jx-grid-min: {min}"

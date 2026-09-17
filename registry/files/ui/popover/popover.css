@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
 @layer components {
 /* jixoai popover — D1-exempt residue (tw4, 2026-08-24): panel anchor
@@ -17,7 +17,8 @@
  * candidates (margin is a legal descriptor), out of scope here.
  * The scroll law's try-fallbacks + anchors-visible hide a panel whose
  * anchor scrolled away. Trigger/caret/scroll paint lives in the
- * markup. */
+ * family's stylex atoms (tailwindless one-shot Wave 1b batch A,
+ * 2026-09-17 — popover.stylex.ts). */
 .jx-pop {
   position: fixed;
   margin: var(--jx-pop-gap, 0px);

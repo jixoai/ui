@@ -24,8 +24,26 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
-  import { cn } from '$lib/utils';
   import { INPUT_GROUP_KEY, type InputGroupApi } from './input-group.svelte';
+  import { inputGroupStyles } from './input-group.stylex';
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** which lane the addon sits in — the seam faces the input:
@@ -45,9 +63,9 @@
   {...rest}
   data-jx-igroup-addon={align}
   inert={groupDisabled || undefined}
-  class={cn(
-    'flex flex-none items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] text-muted-foreground text-[length:var(--jx-text)]',
-    groupDisabled && 'opacity-50',
+  class={cx(
+    inputGroupStyles.addon,
+    groupDisabled && inputGroupStyles.addonDisabled,
     className,
   )}
 >

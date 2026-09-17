@@ -18,6 +18,11 @@
   change how the grid paints, never what renders) and stay on the
   root; `bordered` rides context down to the Items for their hairline
   paint.
+  tailwindless one-shot Wave 1b batch A (2026-09-17): the paint rides
+  the family's stylex ATOMS (descriptions.stylex.ts) joined through
+  cx() below; the narrow-container fallback stays lane-2 in
+  descriptions.css (.jx-desc hook, unlayered — it must beat the grid
+  atoms).
 -->
 <script lang="ts" module>
   /** context surface the family shares (import type where needed) */
@@ -34,9 +39,9 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
-  import { cn } from '$lib/utils';
   import type { Density } from '$lib/density.svelte';
   import { DescriptionsDefaults } from './descriptions-defaults.svelte';
+  import { descriptionsStyles } from './descriptions.stylex';
   import './descriptions.css';
 
   interface Props extends HTMLAttributes<HTMLDListElement> {
@@ -62,14 +67,33 @@
       return d.bordered;
     },
   });
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <dl
   data-jx-desc-bordered={d.bordered ? '' : undefined}
   data-density={d.density}
-  class={cn(
-    'jx-desc grid grid-cols-[repeat(var(--jx-desc-cols),minmax(0,1fr))] gap-0 m-0 @container',
-    d.bordered && 'border border-border bg-card',
+  class={cx(
+    'jx-desc',
+    descriptionsStyles.root,
+    d.bordered && descriptionsStyles.bordered,
     className,
   )}
   {...rest}

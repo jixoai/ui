@@ -48,6 +48,24 @@
   import type { Snippet } from 'svelte';
   import type { Density } from '$lib/density.svelte';
   import { NativeSelectDefaults } from './native-select-defaults.svelte';
+  import { nativeSelectStyles } from './native-select.stylex';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLSelectAttributes {
     /** field label; renders label[for] above the control */
@@ -95,14 +113,11 @@
 
 <div class="jx-field" data-density={d.density} data-self-inset="">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span class="jx-select-wrap relative block w-full max-w-full">
+  <span class={cx('jx-select-wrap', nativeSelectStyles.wrap)}>
     <select
       {id}
       bind:value
-      class={cn(
-        'jx-html-select scheme-light dark:scheme-dark',
-        className,
-      )}
+      class={cn(cx('jx-html-select', nativeSelectStyles.control), className)}
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
       data-chrome={chromeProp ?? ambientChrome ?? 'frame'}

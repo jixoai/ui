@@ -40,9 +40,27 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { type Density } from '$lib/density.svelte';
-  import { cn } from '$lib/utils';
   import { createScrollSpy } from '$lib/scroll-spy';
   import { AnchorDefaults } from './anchor-defaults.svelte';
+  import { anchorStyles } from './anchor.stylex';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLAttributes<HTMLElement> {
     /** density policy: explicit ?? ambient scope, else unstamped */
@@ -149,7 +167,7 @@
   bind:this={navEl}
   data-jx-anchor=""
   data-density={d.density}
-  class={cn('flex flex-col gap-[var(--jx-stack)] border-l border-border', className)}
+  class={cx(anchorStyles.rail, className)}
   aria-label={label}
   onclick={handleClick}
   {...rest}

@@ -74,6 +74,7 @@
   import { RangeDefaults } from './range-defaults.svelte';
   import { cn } from '$lib/utils';
   import RangeTick, { RANGE_TICK_CONTEXT, type RangeTickContext } from './range-tick.svelte';
+  import { rangeStyles } from './range.stylex';
   import './range.css';
 
   // native passthrough (the input.svelte law): the interface rides the
@@ -372,6 +373,23 @@
       ruler?.removeEventListener('wheel', onWheel);
     };
   });
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div
@@ -380,14 +398,14 @@
   class={cn('jx-field', className)}
 >
   {#if label || showValue}
-    <div data-jx-slider-head class="flex items-baseline justify-between gap-3">
+    <div data-jx-slider-head class={cx(rangeStyles.head)}>
       {#if label}
-        <label class={'jx-label' + (srLabel ? ' sr-only' : '')} for={id}>{label}</label>
+        <label class={cx('jx-label', srLabel ? rangeStyles.srOnly : undefined)} for={id}>{label}</label>
       {/if}
       {#if showValue}
         <span
           data-jx-slider-value
-          class={cn('jx-slider-value font-mono text-foreground tabular-nums', invalid && 'text-destructive')}
+          class={cn(cx('jx-slider-value', rangeStyles.value), invalid && cx(rangeStyles.valueInvalid))}
         >{display}</span>
       {/if}
     </div>

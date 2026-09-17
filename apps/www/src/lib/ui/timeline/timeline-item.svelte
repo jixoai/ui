@@ -33,6 +33,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { timelineStyles } from './timeline.stylex';
   import { TIMELINE_KEY, type TimelineApi } from './timeline.svelte';
 
   interface Props extends HTMLAttributes<HTMLLIElement> {
@@ -80,6 +81,23 @@
   const completed = $derived(
     api !== undefined && resolvedStep !== undefined && resolvedStep <= api.current,
   );
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <li
@@ -88,7 +106,7 @@
   data-jx-tl-pending={pending ? '' : undefined}
   data-completed={completed ? '' : undefined}
   data-step={step}
-  class={cn('min-w-0', className)}
+  class={cn(cx(timelineStyles.item), className)}
   {...rest}
 >
   <span data-jx-tl-line="" aria-hidden="true"></span>

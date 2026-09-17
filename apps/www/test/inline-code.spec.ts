@@ -28,7 +28,27 @@ import { resolve } from 'node:path';
 import { DEFAULT_MICROLIGHTER_BACKEND } from '../src/lib/highlight/microlighter';
 import type { HighlightBackend } from '../src/lib/highlight/backend';
 import { INLINE_LANGS, detectInlineLang } from '../src/lib/ui/inline-code/inline-code.svelte';
+import { inlineCodeStyles } from '../src/lib/ui/inline-code/inline-code.stylex';
 import InlineCodeHost from './fixtures/inline-code-host.svelte';
+
+// tailwindless W1b (2026-09-17): the ladder + base frame ride the
+// family's stylex atoms — asserted through the same cx join the chip
+// rides; recipes and forced-colors degradations pinned at the atom
+// SOURCE. The MODIFIER kernel (resolveTextStyle) still emits its
+// registered utility strings.
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
+const atomSource = () =>
+  readFileSync(resolve(import.meta.dirname, '../src/lib/ui/inline-code/inline-code.stylex.ts'), 'utf8');
 
 // ---- the CSS Custom Highlight API stub (the pre-gate's open state) --
 // jsdom ships neither CSS.highlights nor Highlight; the chip's PRE-GATE
@@ -92,17 +112,16 @@ describe('InlineCode', () => {
     const { container } = render(InlineCodeHost, { props: { text: 'x', lang: 'text' } });
     const code = container.querySelector('code')!;
     expect(code.getAttribute('data-jx-inline-code')).toBe('fused');
-    expect(code.className).toContain('bg-transparent');
-    // the width-only base border must be PAINTED transparent here
-    // (currentColor would leak through a colorless border)
-    expect(code.className).toContain('border-transparent');
-    expect(code.className).toContain('backdrop-contrast-[85%]');
-    expect(code.className).toContain('text-foreground');
-    // the fusion IS the frame: forced-colors keeps a visible border
-    expect(code.className).toContain('forced-colors:border-[color:CanvasText]');
+    expect(code.className).toContain(cx(inlineCodeStyles.fused));
+    const atom = atomSource();
+    // the width-only base border is PAINTED transparent on this rung
+    // (currentColor would leak through a colorless border); the fusion
+    // tunes contrast to 85; forced-colors keeps the CanvasText frame
+    expect(atom).toContain("borderColor: 'transparent'");
+    expect(atom).toContain("backdropFilter: 'contrast(85%)'");
+    expect(atom).toMatch(/fused:[\s\S]*?'@media \(forced-colors: active\)':\s*\{\s*borderColor: 'CanvasText',/);
     // no tonal paint survives on the default rung
-    expect(code.className).not.toContain('[--jx-tonal:');
-    expect(code.className).not.toContain('bg-[color-mix');
+    expect(code.className).not.toContain(cx(inlineCodeStyles.tonal));
   });
 
   it('tonal and outline stay available with their frozen recipes', () => {
@@ -111,27 +130,32 @@ describe('InlineCode', () => {
     });
     const tonalEl = tonal.container.querySelector('code')!;
     expect(tonalEl.getAttribute('data-jx-inline-code')).toBe('tonal');
-    expect(tonalEl.className).toContain('[--jx-tonal:var(--muted-foreground)]');
-    expect(tonalEl.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
-    expect(tonalEl.className).toContain(
-      'border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]',
-    );
+    expect(tonalEl.className).toContain(cx(inlineCodeStyles.tonal));
+    const atom = atomSource();
+    // the neutral injection + the frozen 12%/45% tint recipe at the
+    // atom source
+    expect(atom).toContain("'--jx-tonal': 'var(--muted-foreground)'");
+    expect(atom).toContain("backgroundColor: 'color-mix(in oklab, var(--jx-tonal) 12%, transparent)'");
+    expect(atom).toContain("borderColor: 'color-mix(in oklab, var(--jx-tonal) 45%, transparent)'");
 
     const outline = render(InlineCodeHost, {
       props: { text: 'x', lang: 'text', variant: 'outline' },
     });
     const outlineEl = outline.container.querySelector('code')!;
     expect(outlineEl.getAttribute('data-jx-inline-code')).toBe('outline');
-    expect(outlineEl.className).toContain('bg-transparent');
-    expect(outlineEl.className).toContain('border-[color:var(--jx-outline)]');
-    expect(outlineEl.className).not.toContain('[--jx-tonal:');
+    expect(outlineEl.className).toContain(cx(inlineCodeStyles.outline));
+    expect(atomSource()).toContain("borderColor: 'var(--jx-outline)'");
+    expect(outlineEl.className).not.toContain(cx(inlineCodeStyles.tonal));
   });
 
   it('radius rides the density chip token, never the fleet corner', () => {
     const { container } = render(InlineCodeHost, { props: { text: 'x', lang: 'text' } });
     const code = container.querySelector('code')!;
-    expect(code.className).toContain('rounded-(--jx-chip-radius)');
-    expect(code.className).not.toContain('rounded-(--radius)');
+    // the base frame's radius rides the DENSITY chip token — pinned at
+    // the atom source, never the fleet corner
+    expect(code.className).toContain(cx(inlineCodeStyles.base));
+    expect(atomSource()).toContain("borderRadius: 'var(--jx-chip-radius)'");
+    expect(atomSource()).not.toContain('var(--radius)');
   });
 
   it('padding-inline is owned by the css rule: no utility emitted, the formula lives in inline-code.css', () => {
@@ -209,18 +233,18 @@ describe('InlineCode', () => {
     expect(code.className).toContain('tracking-[-0.01em]');
     expect(code.className).toContain('[font-family:IBM_Plex_Mono]');
     expect(code.className).toContain('[font-size:12px]');
-    // conditional emission: the explicit utility must not race the
-    // base token twin — the twin is DROPPED, not outranked
-    expect(code.className).not.toContain('[font-size:var(--jx-text-secondary)]');
-    expect(code.className).not.toContain('[line-height:var(--jx-line-secondary)]');
+    // conditional emission: the explicit modifier drops the base's
+    // token-twin ATOM from the join — dropped, not outranked
+    expect(code.className).not.toContain(cx(inlineCodeStyles.fsSecondary));
+    expect(code.className).not.toContain(cx(inlineCodeStyles.lhSecondary));
 
     const plain = render(InlineCodeHost, { props: { text: 'x', lang: 'text' } });
     const plainEl = plain.container.querySelector('code')!;
-    expect(plainEl.className).toContain('[font-size:var(--jx-text-secondary)]');
-    expect(plainEl.className).toContain('[line-height:var(--jx-line-secondary)]');
+    expect(plainEl.className).toContain(cx(inlineCodeStyles.fsSecondary));
+    expect(plainEl.className).toContain(cx(inlineCodeStyles.lhSecondary));
   });
 
-  it("consumer ARBITRARY injection dedupes the tonal neutral default (cn same-form last-wins)", () => {
+  it("consumer ARBITRARY injection beats the tonal neutral default (utilities sort after the atom tier)", () => {
     const { container } = render(InlineCodeHost, {
       props: {
         text: 'x',
@@ -230,8 +254,12 @@ describe('InlineCode', () => {
       },
     });
     const code = container.querySelector('code')!;
+    // the W1b flip: the neutral default rides the tonal ATOM's custom
+    // property; the consumer's arbitrary utility still wins the PAINT
+    // (utilities sort after the atom tier) — the old cn same-form
+    // dedupe became cascade resolution
     expect(code.className).toContain('[--jx-tonal:var(--error)]');
-    expect(code.className).not.toContain('[--jx-tonal:var(--muted-foreground)]');
+    expect(code.className).toContain(cx(inlineCodeStyles.tonal));
   });
 
   it("consumer jx-hue-* utility coexists with the tonal default (sheet-order winner — the browser gate's call)", () => {
@@ -239,10 +267,10 @@ describe('InlineCode', () => {
       props: { text: 'x', lang: 'text', variant: 'tonal', consumerClass: 'jx-hue-error' },
     });
     const code = container.querySelector('code')!;
-    // utilities sort AFTER arbitrary properties in the sheet, so the
-    // consumer's hue wins the PAINT; jsdom asserts coexistence only
+    // utilities sort AFTER the atom tier, so the consumer's hue wins
+    // the PAINT; jsdom asserts coexistence only
     expect(code.className).toContain('jx-hue-error');
-    expect(code.className).toContain('[--jx-tonal:var(--muted-foreground)]');
+    expect(code.className).toContain(cx(inlineCodeStyles.tonal));
   });
 
   // ── the engine seam (design D1) ─────────────────────────────────

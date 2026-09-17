@@ -15,6 +15,11 @@
   bezel's currentColor color-mix paint rides arbitrary-value utilities;
   the segmented group's last-slot border and the data-active fill are
   JS-known, so conditional strings carry them.
+  tailwindless one-shot Wave 1b batch A (2026-09-17): the paint rides
+  the family's stylex ATOMS (theme-toggle.stylex.ts) joined through
+  cx() below — the last-slot rail and the data-active fill walk
+  conditional atom groups; the data-active attribute stays the valued
+  hook. Still zero css residue.
 
   Localization (2026-09-06, consumer-feedback-fixes P0-1): the mode
   vocabulary is a presentation payload, not structure — the OPTIONAL
@@ -31,8 +36,26 @@
 -->
 <script lang="ts">
   import Icon from '$lib/ui/icon';
-  import { cn } from '$lib/utils';
   import { ThemeToggleDefaults, type ThemeToggleVariant } from './theme-toggle-defaults.svelte';
+  import { themeToggleStyles } from './theme-toggle.stylex';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   type Theme = 'light' | 'dark' | 'system';
 
@@ -99,26 +122,22 @@
     return () => media.removeEventListener('change', onChange);
   });
 
-  // the bezel recipe theme-toggle/language-switcher share: 1px
-  // currentColor border, transparent fill, hover leans the border in
-  const bezel =
-    'inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_35%,transparent)] bg-transparent text-[11px] text-inherit transition-[color,border-color,background-color] duration-150 ease-out';
 </script>
 
 {#snippet iconFor(theme: Theme)}
   <!-- sun/moon/monitor glyphs through the Icon component; the wrapper
        keeps the data hook, the component owns the 13px box -->
   {#if theme === 'light'}
-    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="sun" size={13} /></span>
+    <span data-jx-theme-icon="" class={cx(themeToggleStyles.icon)}><Icon name="sun" size={13} /></span>
   {:else if theme === 'dark'}
-    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="moon" size={13} /></span>
+    <span data-jx-theme-icon="" class={cx(themeToggleStyles.icon)}><Icon name="moon" size={13} /></span>
   {:else}
-    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="monitor" size={13} /></span>
+    <span data-jx-theme-icon="" class={cx(themeToggleStyles.icon)}><Icon name="monitor" size={13} /></span>
   {/if}
 {/snippet}
 
 {#if d.variant === 'full'}
-  <div data-jx-theme-segmented="" class="font-nav inline-flex" role="group" aria-label={labels?.groupAriaLabel ?? 'Color theme'}>
+  <div data-jx-theme-segmented="" class={cx(themeToggleStyles.group)} role="group" aria-label={labels?.groupAriaLabel ?? 'Color theme'}>
     {#each ORDER as theme, index (theme)}
       <button
         type="button"
@@ -126,12 +145,11 @@
         aria-pressed={current === theme}
         aria-label={hideLabels ? LABEL[theme] : undefined}
         data-jx-theme-seg=""
-        class={cn(
-          'py-1',
-          bezel,
-          index === ORDER.length - 1 ? 'border-r' : 'border-r-0',
-          'px-[9px]',
-          current === theme && 'bg-[color-mix(in_oklab,currentColor_16%,transparent)]',
+        class={cx(
+          themeToggleStyles.bezel,
+          themeToggleStyles.seg,
+          index === ORDER.length - 1 ? themeToggleStyles.segRail : themeToggleStyles.segFlush,
+          current === theme && themeToggleStyles.segActive,
         )}
         data-active={current === theme || undefined}
       >
@@ -147,7 +165,7 @@
     type="button"
     onclick={cycle}
     data-jx-theme-btn=""
-    class={cn('font-nav px-2.5 py-1', bezel, 'hover:border-[color-mix(in_oklab,currentColor_70%,transparent)]')}
+    class={cx(themeToggleStyles.bezel, themeToggleStyles.cycle)}
     aria-label={`theme: ${current}`}
   >
     {#if d.variant === 'compact'}

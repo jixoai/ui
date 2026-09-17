@@ -36,6 +36,23 @@
   import SystemDialogCancel from './system-dialog-cancel.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import { SystemDialogDefaults, type SystemDialogTone } from './system-dialog-defaults.svelte';
+  import { sysdlgStyles } from './system-dialog.stylex';
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   export type SystemMode = 'alert' | 'confirm' | 'prompt';
 
@@ -88,10 +105,10 @@
 
   // the primary rung: the consumer recipe for the brand pair over the
   // fill rung (the family docs' own — the destructive default needs
-  // nothing, jx-pair-destructive already rides it)
-  const actionClass = $derived(
-    d.tone === 'primary' ? '[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]' : '',
-  );
+  // nothing, jx-pair-destructive already rides it; the pair rides the
+  // family's primaryPair atom since tailwindless W1b — the custom
+  // properties are identical, the carrier is the atom)
+  const actionClass = $derived(d.tone === 'primary' ? cx(sysdlgStyles.primaryPair) : '');
 
   function settle(value: boolean | string | null): void {
     if (settled) return;

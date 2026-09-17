@@ -153,6 +153,13 @@ const EASING_RE = /^(?:linear|ease|ease-in|ease-out|ease-in-out|step-start|step-
 const SHADOW_LENGTH_RE = /-?\d+(?:\.\d+)?(?:px|em|rem)\b/; // a pure var() fallback chain carries no lengths — it already eats tokens
 const COMPOSITE_DURATION_RE = /\b(?:[1-9]\d*|\d*[1-9]\d*)(?:\.\d+)?m?s\b/; // non-zero duration inside a shorthand
 const COMPOSITE_EASING_RE = /\b(?:linear|ease-in-out|ease-in|ease-out|ease|step-start|step-end)\b|cubic-bezier\s*\(|steps\s*\(/;
+// W1b fix (2026-09-17): strip var() references (seam form included —
+// the fallback IS the sanctioned seam law) before the composite
+// substring tests, else `var(--motion-ease-out)` — a LEGAL token
+// consumption — trips the easing word boundary inside the token NAME
+// (first seen as batch A's transition shorthands going red while
+// riding the promoted motion tokens).
+const STRIP_VAR_REFS = (value) => value.replace(/var\([^)]*\)/g, 'var()');
 
 // tier-2 key for a (prop, literal-text) pair, or null when the slot is
 // not theme-bound. `value` is the literal's TEXT — string literal or
@@ -171,7 +178,10 @@ function tier2KeyOf(prop, value) {
   if (prop === 'transitionDuration') return DURATION_RE.test(value) ? `${prop}:${value}` : null;
   if (prop === 'transitionTimingFunction') return EASING_RE.test(value) ? `${prop}:${value}` : null;
   if (prop === 'boxShadow') return SHADOW_LENGTH_RE.test(value) ? `${prop}:${value}` : null;
-  if (prop === 'transition') return COMPOSITE_DURATION_RE.test(value) || COMPOSITE_EASING_RE.test(value) ? `${prop}:${value}` : null; // 'none' passes
+  if (prop === 'transition') {
+    const stripped = STRIP_VAR_REFS(value);
+    return COMPOSITE_DURATION_RE.test(stripped) || COMPOSITE_EASING_RE.test(stripped) ? `${prop}:${value}` : null; // 'none' passes
+  }
   // Gate-5: the animation slot families (the Codex attack planted
   // animationDuration: 1ms and rode the coverage gap)
   if (prop === 'animationDuration' || prop === 'animationDelay') return DURATION_RE.test(value) ? `${prop}:${value}` : null;
@@ -503,10 +513,10 @@ const SEMANTIC_CLASS_NAMES = new Set(SEMANTIC_RULES.flatMap((r) => r.classes ?? 
 // resolveTextStyle() formsByFile census, 21 forms × the two mirror
 // sides).
 const RATCHET = {
-  files: 434, // pinned files[] entries — net-new unretired entries red here too
-  identities: 8721,
-  occurrences: 20891,
-  zones: { routes: 15445, 'site-libs': 4171, ui: 1275 },
+  files: 392, // pinned files[] entries — net-new unretired entries red here too
+  identities: 8009,
+  occurrences: 20094,
+  zones: { routes: 15445, 'site-libs': 4171, ui: 478 },
   forms: 42,
 };
 const RATCHET_ZONE_KEYS = ['routes', 'site-libs', 'ui'];

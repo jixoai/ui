@@ -9,8 +9,26 @@
 -->
 <script lang="ts">
   import { cn } from '$lib/utils';
+  import { itemStyles } from './item.stylex';
 
   let { class: className = '' }: { class?: string } = $props();
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<li role="presentation" data-slot="item-divider" class={cn('list-none m-0 p-0', className)}></li>
+<li role="presentation" data-slot="item-divider" class={cn(cx(itemStyles.divider), className)}></li>

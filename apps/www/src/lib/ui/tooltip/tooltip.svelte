@@ -123,7 +123,25 @@
   import { onDestroy } from 'svelte';
   import { cn } from '$lib/utils';
   import { TooltipDefaults, type TooltipSurfaceVariant } from './tooltip-defaults.svelte';
+  import { tooltipStyles } from './tooltip.stylex';
   import './tooltip.css';
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props {
     /** panel id (aria-describedby pairs the trigger wrapper to the tip);
@@ -660,7 +678,7 @@
      over whatever focusable trigger the consumer composed inside -->
 <span
   data-jx-tip-anchor=""
-  class={cn('inline-flex', className)}
+  class={cn(cx(tooltipStyles.anchor), className)}
   style="anchor-name: {anchorName}"
   aria-describedby={id}
   bind:this={anchorEl}
@@ -683,7 +701,7 @@
   {id}
   popover="manual"
   role="tooltip"
-  class="jx-tip jx-surface jx-waapi fixed w-fit max-w-[min(80vw,18rem)] text-xs leading-[1.5] text-center text-popover-foreground"
+  class={cx('jx-tip jx-surface jx-waapi', tooltipStyles.panel)}
   data-variant={d.variant}
   data-arrow={arrow ? '' : undefined}
   data-border-ring={arrow ? '' : undefined}
@@ -707,5 +725,5 @@
   <!-- surface body (fill + acrylic blur + silhouette mask); the popover
        element paints nothing (floating-surface law arch r3) and carries
        the border-ring ::before for the masked outline -->
-  <span class="jx-tip-body jx-surface-body block px-[9px] py-[5px]" bind:this={body}>{text}</span>
+  <span class={cx('jx-tip-body jx-surface-body', tooltipStyles.body)} bind:this={body}>{text}</span>
 </div>

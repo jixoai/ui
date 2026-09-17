@@ -23,8 +23,26 @@
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
-  import { cn } from '$lib/utils';
   import { INPUT_GROUP_KEY, type InputGroupApi } from './input-group.svelte';
+  import { inputGroupStyles } from './input-group.stylex';
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 
   interface Props extends HTMLInputAttributes {
     /** $bindable; bound ⇒ controlled, absent ⇒ purely uncontrolled */
@@ -56,7 +74,7 @@
 <input
   {...rest}
   data-jx-igroup-input
-  class={cn('jx-html-control-lane min-w-0 flex-1 px-[var(--jx-inset)] py-0', className)}
+  class={cx('jx-html-control-lane', inputGroupStyles.lane, className)}
   value={controlled ? value : undefined}
   disabled={effectiveDisabled || undefined}
   oninput={syncValue}

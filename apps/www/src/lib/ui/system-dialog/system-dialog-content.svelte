@@ -36,6 +36,7 @@
   import { cn } from '$lib/utils';
   import { SYSTEM_DIALOG_KEY, type SystemDialogApi } from './system-dialog.svelte';
   import { SystemDialogDefaults, type SystemDialogSurfaceVariant } from './system-dialog-defaults.svelte';
+  import { sysdlgStyles } from './system-dialog.stylex';
   import './system-dialog.css';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -79,6 +80,25 @@
   // density is the no-opinion axis slot — nothing stamps, the ambient
   // css scope channel keeps flowing)
   const d = $derived(SystemDialogDefaults.resolve({ variant }));
+
+  // the payload's own join (separator's serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — Svelte's class interpolation stringifies
+  // objects, so composition goes through THIS joiner (all string
+  // values except $$css, space-joined — never a raw class={styles.x})
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const api = getContext<SystemDialogApi>(SYSTEM_DIALOG_KEY);
 
@@ -149,7 +169,8 @@
   bind:this={panel}
   popover="manual"
   class={cn(
-    'jx-sysdlg jx-surface p-0 w-[min(24rem,calc(100vw-2rem))] text-popover-foreground rounded',
+    'jx-sysdlg jx-surface',
+    cx(sysdlgStyles.panel),
     motion.supported && 'jx-waapi',
     className,
   )}
@@ -171,7 +192,7 @@
   <!-- surface body (fill + ::after shadow) wraps ALL content; the
        popover element paints nothing (floating-surface law arch r3) -->
   <div data-jx-sysdlg-surface="" class="jx-surface-body">
-    <div data-jx-sysdlg-body="" class="flex flex-col gap-2.5 px-5 py-[1.125rem]">
+    <div data-jx-sysdlg-body="" class={cx(sysdlgStyles.body)}>
       {@render children?.()}
     </div>
   </div>

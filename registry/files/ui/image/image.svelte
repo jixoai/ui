@@ -21,6 +21,24 @@
   import type { HTMLImgAttributes } from 'svelte/elements';
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
+  import { imageStyles } from './image.stylex';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends Omit<HTMLImgAttributes, 'alt' | 'width' | 'height'> {
     /** the picture's meaning; "" marks it decorative */
@@ -71,7 +89,7 @@
        failure never shifts layout either -->
   <span
     data-jx-image-broken
-    class="box-border inline-flex items-center justify-center border border-dashed border-border bg-muted text-muted-foreground p-6"
+    class={cx(imageStyles.broken)}
     style="width: {typeof width === 'number' ? `${width}px` : width}; height: {typeof height === 'number' ? `${height}px` : height};"
     role={alt === '' ? undefined : 'img'}
     aria-label={alt === '' ? undefined : 'image unavailable'}
@@ -85,7 +103,7 @@
 {:else}
   <img
     data-jx-image
-    class={cn('max-w-full h-auto', className)}
+    class={cn(cx(imageStyles.img), className)}
     {alt}
     {width}
     {height}

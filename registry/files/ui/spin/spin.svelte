@@ -73,6 +73,7 @@
 <script module lang="ts">
   import { SPIN_NAMES, type SpinData, type SpinName } from '$lib/spin-set.gen';
   import { SPINNER_CATALOG, type TextSpinner, type TextSpinnerName } from './spin-catalog';
+  import { spinStyles } from './spin.stylex';
 
   /** the opacity animation mode (review round 5) — see frameKeyframes */
   type LingerType = 'end' | 'start' | 'both';
@@ -233,7 +234,6 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { cn } from '$lib/utils';
   import { getSpin } from '$lib/spin-set.gen';
   import { SpinDefaults } from './spin-defaults.svelte';
   import './spin.css';
@@ -358,6 +358,24 @@
       root = undefined;
     };
   });
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 {#snippet svgGlyph(data: SpinData)}
@@ -378,7 +396,7 @@
     stroke={data.n === 'fill' ? 'none' : 'currentColor'}
     aria-hidden="true"
     data-jx-spin-svg=""
-    class="text-primary"
+    class={cx(spinStyles.glyph)}
   >{@html scopedPayload}</svg>
 {/snippet}
 
@@ -390,7 +408,7 @@
        The cell holds the widest frame's advance width (whitespace-pre) -->
   <span
     data-jx-spin-cursor=""
-    class="relative inline-grid whitespace-pre font-mono text-[length:var(--jx-text)] text-primary"
+    class={cx(spinStyles.cursor)}
     style={text.font !== undefined ? `font-family: ${text.font}` : undefined}
     aria-hidden="true"
   >
@@ -407,8 +425,8 @@
        (a modal dim, never the retired hand-mixed background tint).
        isolate (stacking-isolation, 2026-09-09): the badge's z-[1] is
        this wrap's private rung — the spin is demo-able anywhere -->
-  <div data-jx-spin-wrap="" class={cn('grid isolate', className)} aria-busy="true">
-    <div data-jx-spin-live="" class="z-[1] [grid-area:1/1] place-self-center px-3.5 py-2 border border-border bg-popover shadow" role="status" aria-label={label}>
+  <div data-jx-spin-wrap="" class={cx(spinStyles.wrap, className)} aria-busy="true">
+    <div data-jx-spin-live="" class={cx(spinStyles.live)} role="status" aria-label={label}>
       {#if svgData}
         <!-- {#key} forces a FRESH <svg> element on every svg→svg switch
              (round 9): swapping {@html} payload INSIDE a persistent svg
@@ -424,13 +442,13 @@
         {@render textCursor()}
       {/if}
     </div>
-    <div data-jx-spin-content="" class="[grid-area:1/1]" aria-hidden="false">
+    <div data-jx-spin-content="" class={cx(spinStyles.content)} aria-hidden="false">
       {@render children()}
     </div>
-    <div data-jx-spin-scrim="" class="[grid-area:1/1] bg-(--scrim)" aria-hidden="true"></div>
+    <div data-jx-spin-scrim="" class={cx(spinStyles.scrim)} aria-hidden="true"></div>
   </div>
 {:else}
-  <span data-jx-spin-inline="" class={cn('inline-flex items-center text-[length:var(--jx-text)] text-primary', className)} role="status" aria-label={label}>
+  <span data-jx-spin-inline="" class={cx(spinStyles.inline, className)} role="status" aria-label={label}>
     {#if svgData}
       {#key svgData}
         {@render svgGlyph(svgData)}

@@ -16,10 +16,15 @@
   one property — the sheet's internal order must never be load-
   bearing); the hooks ride `data-jx-bi*` attributes (data-jx-hooks,
   2026-08-25 — no css ever defined the classes).
+  tailwindless one-shot Wave 1b batch A (2026-09-17): the paint rides
+  the family's stylex ATOMS (badge-indicator.stylex.ts) joined
+  through cx() below — two deterministic ATOM groups (one per idiom),
+  the corner placement a conditional group; the data-jx-bi* hooks
+  stay attributes (css-less anchors, unchanged). Still zero css.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { cn } from '$lib/utils';
+  import { badgeIndicatorStyles } from './badge-indicator.stylex';
 
   interface Props {
     /** the dot idiom — beats count when only presence matters */
@@ -47,24 +52,40 @@
     return count > overflow ? `${overflow}+` : String(count);
   });
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // two complete paints: the count chip (18px min box, destructive) and
   // the 10px primary presence dot — standalone drops the corner offsets
   // (a bare span is position:static already)
-  const chip = dot
-    ? 'w-2.5 min-w-2.5 h-2.5 p-0 box-border inline-flex items-center justify-center border border-background bg-primary font-mono text-[0.625rem] leading-none rounded-(--radius)'
-    : 'min-w-[1.125rem] h-[1.125rem] box-border px-1 py-0 inline-flex items-center justify-center border border-background bg-destructive text-destructive-foreground font-mono text-[0.625rem] leading-none rounded-(--radius)';
-  const placement = children ? 'absolute -top-1.5 -right-1.5' : '';
+  const chip = cx(badgeIndicatorStyles.base, dot ? badgeIndicatorStyles.dot : badgeIndicatorStyles.count);
+  const placement = children ? cx(badgeIndicatorStyles.anchored) : '';
 </script>
 
 {#if children}
-  <span data-jx-bi-wrap class={cn('relative inline-flex', className)}>
+  <span data-jx-bi-wrap class={cx(badgeIndicatorStyles.wrap, className)}>
     {@render children()}
     {#if visible}
       <span
         data-jx-bi
         data-jx-bi-dot={dot ? '' : undefined}
         data-jx-bi-standalone={children ? undefined : ''}
-        class={cn(chip, placement)}
+        class={cx(chip, placement)}
         role={dot ? 'img' : undefined}
         aria-label={dot ? (label ?? 'new activity') : `${text}`}
         >{text}</span
@@ -76,7 +97,7 @@
     data-jx-bi
     data-jx-bi-dot={dot ? '' : undefined}
     data-jx-bi-standalone={children ? undefined : ''}
-    class={cn(chip, placement, className)}
+    class={cx(chip, placement, className)}
     role={dot ? 'img' : undefined}
     aria-label={dot ? (label ?? 'new activity') : `${text}`}
     >{text}</span

@@ -41,15 +41,38 @@
   (.jx-textarea, @layer components :where() — the placeholder rides
   Part A's --jx-placeholder mix); the hairline rows, count readout and
   outer slots stay inline (one-off wrappers).
+  tailwindless one-shot Wave 1b batch A (2026-09-17): the one-off
+  wrappers ride the family's stylex ATOMS (textarea.stylex.ts) joined
+  through cx() below; the shell adds its column direction as an atom
+  beside the consumed law class; .jx-textarea stays a consumed law
+  class.
 -->
 <script lang="ts">
   import type { HTMLTextareaAttributes } from 'svelte/elements';
-  import { cn } from '$lib/utils';
   import { getContext } from 'svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import type { Snippet } from 'svelte';
   import type { Density } from '$lib/density.svelte';
   import { TextareaDefaults } from './textarea-defaults.svelte';
+  import { textareaStyles } from './textarea.stylex';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props extends HTMLTextareaAttributes {
     /** field label; renders label[for] above the control.
@@ -137,19 +160,19 @@
 
 <div class="jx-field" data-density={d.density}>
   {#if outerBlockStart}
-    <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
+    <div data-jx-outer data-jx-outer-start class={cx(textareaStyles.outerStart)}>{@render outerBlockStart()}</div>
   {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <!-- the shell owns the box law; the textarea inside is chromeless.
        Part A's shell law carries the box/hover/focus/disabled/invalid
        paint — the only component-owned geometry is the column direction -->
   <div
-    class={'jx-html-control-shell flex-col ' + className}
+    class={cx('jx-html-control-shell', textareaStyles.shellColumn, className)}
     class:jx-slotted={slotted}
     class:jx-invalid={invalid}
     data-chrome={chromeProp ?? ambientChrome ?? 'frame'}
   >
     {#if innerBlockStart}
-      <div data-jx-inner data-jx-inner-start class="flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-b border-border">{@render innerBlockStart()}</div>
+      <div data-jx-inner data-jx-inner-start class={cx(textareaStyles.inner, textareaStyles.innerStart)}>{@render innerBlockStart()}</div>
     {/if}
     <textarea
       {id}
@@ -163,16 +186,16 @@
       aria-describedby={describedBy}
     ></textarea>
     {#if innerBlockEnd || count}
-      <div data-jx-inner data-jx-inner-end class="flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-t border-border">
+      <div data-jx-inner data-jx-inner-end class={cx(textareaStyles.inner, textareaStyles.innerEnd)}>
         {#if innerBlockEnd}{@render innerBlockEnd()}{/if}
         {#if count}<span
           data-jx-count
-          class="ms-auto font-nav text-[11px] tracking-[0.08em]"
+          class={cx(textareaStyles.count)}
           aria-live={countNear ? 'polite' : 'off'}
           aria-atomic="true">{countLabel}</span>{/if}
       </div>
     {/if}
   </div>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
-    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class="text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
+    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class={cx(textareaStyles.outerEnd)}>{@render outerBlockEnd()}</div>{/if}
 </div>

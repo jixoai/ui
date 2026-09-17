@@ -64,8 +64,25 @@ import { ColorPickerDefaults } from '../src/lib/ui/color-picker/color-picker-def
 import { ToggleDefaults } from '../src/lib/ui/toggle/toggle-defaults.svelte';
 import { ToggleGroupDefaults } from '../src/lib/ui/toggle-group/toggle-group-defaults.svelte';
 import { DescriptionsDefaults } from '../src/lib/ui/descriptions/descriptions-defaults.svelte';
+import { descriptionsStyles } from '../src/lib/ui/descriptions/descriptions.stylex';
 
 import Descriptions from '../src/lib/ui/descriptions/descriptions.svelte';
+
+// tailwindless one-shot Wave 1b batch A (2026-09-17): the families'
+// paint rides stylex atoms now — membership asserted through the same
+// cx join the components ride (utility-shaped expectations went with
+// the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 import Select from '../src/lib/ui/select/select.svelte';
 
 const byTestid = (container: HTMLElement, id: string) =>
@@ -207,7 +224,7 @@ describe('bare — no providers', () => {
     });
     const frame = bordered.container.querySelector('dl')!;
     expect(frame.hasAttribute('data-jx-desc-bordered')).toBe(true);
-    expect(frame.className).toContain('border');
+    expect(frame.className).toContain(cx(descriptionsStyles.bordered));
   });
 });
 
@@ -290,6 +307,6 @@ describe('meta-protected families — the inline defaults stay, the contract lan
         children,
       },
     });
-    expect(framed.container.querySelector('dl')!.className).toContain('bg-card');
+    expect(framed.container.querySelector('dl')!.className).toContain(cx(descriptionsStyles.bordered));
   });
 });

@@ -1107,6 +1107,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --leading-145: 1.45;
   --leading-15: 1.5;
   --leading-155: 1.55;
+  --leading-16: 1.6;
 
   /* the motion family (W1) — the interaction durations + easings;
      hero is the one long rise, ease-nav the panel/drawer curve */

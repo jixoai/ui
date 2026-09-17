@@ -11,6 +11,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { timelineStyles } from './timeline.stylex';
 
   interface Props extends HTMLAttributes<HTMLParagraphElement> {
     class?: string;
@@ -18,8 +19,25 @@
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<p data-jx-tl-title="" class={cn('m-0 font-nav [font-size:var(--jx-text)] [line-height:var(--jx-line)] tracking-[0.08em] uppercase', className)} {...rest}>
+<p data-jx-tl-title="" class={cn(cx(timelineStyles.title), className)} {...rest}>
   {@render children()}
 </p>

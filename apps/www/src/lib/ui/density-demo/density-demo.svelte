@@ -8,6 +8,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { densityDemoStyles } from './density-demo.stylex';
 
   interface Props {
     children: Snippet;
@@ -16,15 +17,32 @@
   }
 
   let { children, scopes = ['xs', 'sm', 'default', 'lg'], class: className = '' }: Props = $props();
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class={cn('flex flex-wrap gap-[var(--jx-gap)]', className)}>
+<div class={cn(cx(densityDemoStyles.row), className)}>
   {#each scopes as scope (scope)}
-    <div class="flex-1 min-w-[200px]">
-      <span class="font-nav mb-[var(--jx-stack)] block text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em] text-muted-foreground">
+    <div class={cx(densityDemoStyles.cell)}>
+      <span class={cx(densityDemoStyles.label)}>
         {scope}
       </span>
-      <div data-density={scope} class="border border-border/50 p-[var(--jx-inset)]">
+      <div data-density={scope} class={cx(densityDemoStyles.scopeBox)}>
         {@render children()}
       </div>
     </div>

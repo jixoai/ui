@@ -16,10 +16,11 @@
   confirmTone law) — the fill rung ships with the DESTRUCTIVE PAIR
   injection (jx-pair-destructive — the theme's @Utility intent layer)
   as the local class default, exactly as before. Positive confirmations
-  flip the injection with the arbitrary pair (the escape hatch for
-  hues outside the closed set — and it still wins: jx-pair-destructive
-  sorts BEFORE arbitrary-property utilities in the TW utilities layer):
-    variant="fill" class="[--jx-fill:var(--primary)] [--jx-fill-ink:var(--primary-foreground)]"
+  flip the injection through the family's primaryPair atom (the host's
+  tone recipe — the same --jx-fill/--jx-fill-ink custom properties the
+  old arbitrary pair carried; a consumer's own arbitrary class still
+  wins: utilities sort AFTER the atom tier in the cascade):
+    variant="fill" + the host's primary tone (primaryPair)
     variant="tonal"    (brand tint, no injection needed)
 
   density rides DEFAULT — the carved strip's height IS the

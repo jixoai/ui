@@ -101,13 +101,22 @@ describe('hue-injection migration (in-repo call sites)', () => {
   it.each([
     'src/lib/ui/inline-code/inline-code.svelte',
     '../../registry/files/ui/inline-code/inline-code.svelte',
-  ])('%s ships the local neutral default as the ARBITRARY early slot (consumer-wins)', (p) => {
+  ])('%s ships the local neutral default as the tonal ATOM early slot (consumer-wins)', (p) => {
     const src = read(p);
-    expect(src).toContain(
-      "'[--jx-tonal:var(--muted-foreground)] bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]",
+    // tailwindless W1b: the neutral default rides the tonal ATOM's
+    // '--jx-tonal' custom property (inline-code.stylex.ts) — the
+    // consumer-wins contract unchanged: a consumer's arbitrary
+    // [--jx-tonal:…] utility sorts after the atom tier and wins the
+    // paint, the same resolution the cn dedupe used to deliver
+    expect(src).toContain("VARIANT_ATOM[d.variant]");
+    const atom = readFileSync(
+      resolve(process.cwd(), p.replace(/inline-code\.svelte$/, 'inline-code.stylex.ts')),
+      'utf8',
     );
-    // the r2 blocker fix: the utility form here would outrank every
-    // consumer's arbitrary injection — the early slot is the contract
+    expect(atom).toContain("'--jx-tonal': 'var(--muted-foreground)'");
+    expect(atom).toContain("backgroundColor: 'color-mix(in oklab, var(--jx-tonal) 12%, transparent)'");
+    // the r2 blocker fix stays law: the utility form here would
+    // outrank every consumer's arbitrary injection — never reintroduce
     expect(src).not.toContain("'jx-hue-neutral bg-[color-mix");
   });
 

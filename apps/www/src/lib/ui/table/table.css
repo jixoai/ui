@@ -1,9 +1,11 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 
 /* jixoai table — D1-exempt residue (tw4, 2026-08-24). The frame
  * paint, the --jx-table-* token surface, the container declaration
- * and the table/caption statics live as utilities in the markup.
- * What remains here is everything utilities cannot own:
+ * and the table/caption statics live in the family's stylex atoms
+ * (tailwindless one-shot Wave 1b batch A, 2026-09-17 —
+ * table.stylex.ts). What remains here is everything atoms cannot
+ * own:
  *   - the consumer-authored descendants (th/td/tbody/…) — a
  *     :global() descendant boundary (the children snippet authors
  *     those elements, so no markup of ours can carry their paint);
@@ -12,9 +14,10 @@
  *   - the hover/stack state machines and the reduced-motion kill.
  *
  * CASCADE CARVE-OUT (toggle/Part A precedent): rules that must
- * override the component's own utility paint — the stack law's
- * display/min-width/width on the table, which repaves the w-full
- * min-w-fit utilities — ride UNLAYERED behind :where(). The static
+ * override the component's own atom paint — the stack law's
+ * display/min-width/width on the table, which repaves the table
+ * atom's w-full min-w-fit — ride UNLAYERED behind :where() (the
+ * unlayered level beats every layer, atoms included). The static
  * descendant paint stays in @layer components so consumer utilities
  * on their own th/td always win. */
 

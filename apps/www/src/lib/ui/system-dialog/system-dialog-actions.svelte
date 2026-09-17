@@ -31,12 +31,30 @@
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import Separator from '$lib/ui/separator/separator.svelte';
   import { cn } from '$lib/utils';
+  import { sysdlgStyles } from './system-dialog.stylex';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     children: Snippet;
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <!-- THE ACTION-BAND ZONE (floating-flesh-sweep, 2026-09-09): ghost +
@@ -49,7 +67,7 @@
 <ButtonVariantScope variant="ghost" raised={false}>
   <div
     data-jx-sysdlg-actions=""
-    class={cn('mt-[8px] -mx-5 -mb-[1.125rem]', className)}
+    class={cn(cx(sysdlgStyles.actions), className)}
     {...rest}
   >
     <Separator aria-hidden="true" />
@@ -64,7 +82,7 @@
          strip, a long label floors its own cell wider, never a wrap.
          The seam machinery survives the swap (the injected 1px ink
          span stretches; the -1px junction collapse works in flex) -->
-    <ButtonGroup label="Actions" class="w-full" style="display:flex">
+    <ButtonGroup label="Actions" class={cx(sysdlgStyles.actionsFill)} style="display:flex">
       {@render children()}
     </ButtonGroup>
   </div>

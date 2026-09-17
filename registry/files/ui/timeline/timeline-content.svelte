@@ -9,6 +9,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { timelineStyles } from './timeline.stylex';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     class?: string;
@@ -16,8 +17,25 @@
   }
 
   let { class: className = '', children, ...rest }: Props = $props();
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-jx-tl-content="" class={cn('flex flex-col [gap:var(--jx-stack)] min-w-0', className)} {...rest}>
+<div data-jx-tl-content="" class={cn(cx(timelineStyles.content), className)} {...rest}>
   {@render children()}
 </div>

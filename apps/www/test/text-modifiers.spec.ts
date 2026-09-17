@@ -25,6 +25,24 @@ import { resolveTextStyle, type TextStyleProps } from '../src/lib/text-style.sve
 import Text from '../src/lib/ui/text/text.svelte';
 import P from '../src/lib/ui/text/p.svelte';
 import Strong from '../src/lib/ui/text/strong.svelte';
+import { textStyles } from '../src/lib/ui/text/text.stylex';
+
+// tailwindless one-shot W1b batch C (2026-09-17): the FORM's own
+// paint (font-semibold/italic/…) moved from utility strings to the
+// family's stylex atoms — form-membership assertions join through the
+// same cx the component rides; the MODIFIER kernel's emissions stay
+// utility strings (the registered producer's shape is frozen).
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 // =========================================================================
 // resolveTextStyle — the kernel, pure
@@ -116,26 +134,29 @@ describe('text family — the modifier matrix', () => {
       props: { mark: 'strong', italic: true, fontSize: '12px', lineHeight: 1.5 },
     });
     const root = container.querySelector('strong[data-jx-text="strong"]')!;
-    expect(root.classList.contains('font-semibold')).toBe(true);
+    // the form's own weight rides the strong ATOM (dev names carry
+    // the member identity — substring containment, the chip.spec
+    // dialect); the kernel's italic/size/leading stay utility strings
+    expect(root.className).toContain(cx(textStyles.strong));
     expect(root.classList.contains('italic')).toBe(true);
     expect(root.classList.contains('[font-size:12px]')).toBe(true);
     expect(root.classList.contains('leading-[1.5]')).toBe(true);
   });
 
   it("a modifier beats its form's own utility (modifiers land AFTER the form)", () => {
-    // weight='bold' replaces strong's own font-semibold — one
-    // tailwind-merge group, the later class wins
+    // weight='bold' replaces strong's own 600 — the modifier utility
+    // rides the utilities layer and beats the atom's components-layer
+    // declaration (the layer resolves the winner; the atom hash may
+    // still ride the class list)
     const { container } = render(Text, { props: { mark: 'strong', weight: 'bold' } });
     const root = container.querySelector('strong')!;
     expect(root.classList.contains('font-bold')).toBe(true);
-    expect(root.classList.contains('font-semibold')).toBe(false);
   });
 
   it('the consumer class still merges LAST (not-italic kills em; font-bold beats a modifier weight)', () => {
     const em = render(Text, { props: { mark: 'em', class: 'not-italic' } });
     const emRoot = em.container.querySelector('em')!;
     expect(emRoot.classList.contains('not-italic')).toBe(true);
-    expect(emRoot.classList.contains('italic')).toBe(false);
     const weighted = render(Text, { props: { weight: 'medium', class: 'font-bold' } });
     const wRoot = weighted.container.querySelector('p')!;
     expect(wRoot.classList.contains('font-bold')).toBe(true);

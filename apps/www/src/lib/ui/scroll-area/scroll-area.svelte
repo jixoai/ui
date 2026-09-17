@@ -60,6 +60,7 @@
   import { cn } from '$lib/utils';
   import { createHandDrawnScrollbar, type HandDrawnHandle } from '$lib/scroll-area-kit/hand-drawn.svelte';
   import type { OverflowVerdict } from '$lib/scroll-area-kit/core';
+  import { scrollAreaStyles } from './scroll-area.stylex';
   import './scroll-area.css';
 
   export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
@@ -182,16 +183,34 @@
     };
   });
 
-  // orientation → the scrollport's overflow law (deterministic branch)
-  const orientationUtilities = {
-    vertical: 'overflow-x-hidden overflow-y-auto',
-    horizontal: 'overflow-x-auto overflow-y-hidden',
-    both: 'overflow-x-auto overflow-y-auto',
+  // orientation → the scrollport's overflow law (deterministic branch;
+  // atom members joined through cx — the W1b flip)
+  const ORIENTATION_ATOM = {
+    vertical: scrollAreaStyles.viewportVertical,
+    horizontal: scrollAreaStyles.viewportHorizontal,
+    both: scrollAreaStyles.viewportBoth,
   } as const;
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div
-  class="jx-scroll-area relative"
+  class={cx('jx-scroll-area', scrollAreaStyles.region)}
   data-orientation={orientation}
   data-width={width}
   data-chrome={chromeOn ? 'on' : undefined}
@@ -205,7 +224,7 @@
        scroll surface — the platform's own arrows/PageUp/Home drive it) -->
   <div
     id={viewportId}
-    class={cn('jx-scroll-viewport overscroll-contain', orientationUtilities[orientation], className)}
+    class={cn(cx('jx-scroll-viewport', scrollAreaStyles.viewport, ORIENTATION_ATOM[orientation]), className)}
     role="region"
     aria-label={label}
     tabindex="0"
@@ -214,7 +233,7 @@
     style={[pad ? `--jx-scroll-pad: ${pad}` : null, style].filter(Boolean).join('; ') || undefined}
     {...restProps}
   >
-    <div data-jx-scroll-content class="h-full" bind:this={contentEl}>
+    <div data-jx-scroll-content class={cx(scrollAreaStyles.content)} bind:this={contentEl}>
       {@render children()}
     </div>
   </div>

@@ -1,0 +1,36 @@
+@layer properties, theme, base, components, utilities;
+
+/*
+ * toggle-group.css — the family's tailwindless lane-2 residue
+ * (tailwindless one-shot Wave 1b batch C, 2026-09-17).
+ *
+ * The segment paint (the shared jx-html-tgroup subtree law) lives in
+ * jixoai.css; the item atoms (content lane, slot frames) live in
+ * toggle-group.stylex.ts. What stays HERE is exactly what neither
+ * channel can express:
+ *
+ *   1. the slot-lane padding halving — :has() poses on the LABEL
+ *      (the padding owner), UNLAYERED so the halving beats the shared
+ *      components-layer paint by layer order, exactly as the old
+ *      utilities-layer has-[[data-icon=…]] form did (the slot-lane
+ *      law, badge dialect 2026-09-01);
+ *   2. the slot lanes' svg sizing — a descendant boundary StyleX
+ *      forbids in atoms (the chip.css precedent), @layer components
+ *      + :where() per the placement law: zero specificity, consumer
+ *      utilities always win.
+ */
+
+:where(.jx-tgroup-item:has([data-icon='inline-start'])) {
+  padding-inline-start: calc(var(--jx-inset) / 2);
+}
+:where(.jx-tgroup-item:has([data-icon='inline-end'])) {
+  padding-inline-end: calc(var(--jx-inset) / 2);
+}
+
+@layer components {
+  :where([data-jx-tgroup] [data-icon='inline-start'] > svg),
+  :where([data-jx-tgroup] [data-icon='inline-end'] > svg) {
+    width: var(--jx-text-secondary);
+    height: var(--jx-text-secondary);
+  }
+}

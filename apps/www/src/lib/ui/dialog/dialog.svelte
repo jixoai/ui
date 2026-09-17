@@ -67,7 +67,28 @@
   // can't see it, a real browser renders the fallback geometry)
   import '$lib/ui/card/card.css';
   import { DialogDefaults, type DialogSurfaceVariant } from './dialog-defaults.svelte';
+  import { dialogStyles } from './dialog.stylex';
   import './dialog.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev (dev names + the $$css marker) — Svelte's class
+  // interpolation stringifies objects, so composition goes through
+  // THIS joiner (all string values except $$css, space-joined; plain
+  // strings — the css hooks, the consumer's platformClass — pass
+  // through verbatim)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props {
     /** Heading shown in the header bar; omit for a chrome-less body. */
@@ -211,7 +232,12 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground {motion.supported ? 'jx-waapi' : ''} {platformClass}"
+  class={cx(
+    'jx-dialog jx-surface',
+    dialogStyles.platform,
+    motion.supported && 'jx-waapi',
+    platformClass,
+  )}
   data-variant={d.variant}
   data-jx-entity={entityDepth}
   aria-label={title}
@@ -234,7 +260,7 @@
     data-jx-card=""
     data-sep-head=""
     data-sep-foot={hasFoot ? '' : undefined}
-    class="max-h-[calc(100dvh-2rem)]"
+    class={cx(dialogStyles.heightCap)}
   >
     <!-- the head band is FLUSH (the r14 tuning): a consumer head
          snippet (the palette's search Input in a col-start-1
