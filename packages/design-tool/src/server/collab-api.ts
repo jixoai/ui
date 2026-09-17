@@ -57,6 +57,7 @@ import { treeItemsOf, projectSource } from './collab/bridge.ts';
 import { cliSync } from './collab/cli.ts';
 import type { CollabHost } from './collab-host.ts';
 import { MaterializeError, materializeProp } from './collab/prop-materialize.ts';
+import { findPresenceGateway, type SessionHint } from './presence/gateway.ts';
 import type {
   AdmissionResult,
   CommitReceipt,
@@ -377,6 +378,43 @@ async function driveProjection(host: CollabHost, page: string): Promise<string> 
   }
 }
 
+/* ── the collab-presence admission hook (design.md §3) ──────────────────── */
+
+/** narrow the panel's optional op-origin hint (untrusted body field) */
+function sessionHintOf(body: Record<string, unknown> | undefined): SessionHint | undefined {
+  if (body === undefined || !isObj(body.sessionHint)) return undefined;
+  const hint = body.sessionHint;
+  const playerId = isStr(hint.playerId) && hint.playerId.length > 0 ? hint.playerId : undefined;
+  const field = isStr(hint.field) && hint.field.length > 0 ? hint.field : undefined;
+  const digest = isStr(hint.digest) ? hint.digest : undefined;
+  if (playerId === undefined && field === undefined && digest === undefined) return undefined;
+  return { ...(playerId !== undefined ? { playerId } : {}), ...(field !== undefined ? { field } : {}), ...(digest !== undefined ? { digest } : {}) };
+}
+
+/**
+ * The commit-success notify (journal-tail + the actor→Player attention
+ * relay). Read-only on the commit result; a gateway fault stays in the
+ * gateway — the HTTP lane answers exactly as it would without presence.
+ * `input === undefined` is the journal-tail-only lane (undo faces).
+ */
+function notifyPresenceCommit(
+  host: CollabHost,
+  input: { actor: string; target: { componentId: string; buffer?: string }; sessionHint?: SessionHint } | undefined,
+): void {
+  try {
+    const gateway = findPresenceGateway(host.designDir);
+    if (gateway === undefined) return;
+    const seq = host.kernel.stats().journalSeq;
+    if (input === undefined) {
+      gateway.notifyJournalTail(seq);
+      return;
+    }
+    gateway.notifyCommit({ seq, ...input });
+  } catch {
+    /* presence is never the admission path */
+  }
+}
+
 /* ── the middleware ───────────────────────────────────────────────────── */
 
 export interface CollabApiResponse {
@@ -544,6 +582,11 @@ async function handleAdmit(host: CollabHost, body: unknown): Promise<CollabApiRe
   const result = await host.gate.admit(envelope);
   const page = pageOfTarget(host, envelope.target.componentId);
   const projection = result.status === 200 && page !== undefined ? await driveProjection(host, page) : undefined;
+  // collab-presence: the commit-success hook (journal-tail + the actor
+  // relay; the drive above already notified the tail — seq-deduped)
+  if (result.status === 200) {
+    notifyPresenceCommit(host, { actor: envelope.actor, target: envelope.target, sessionHint: sessionHintOf(isObj(body) ? body : undefined) });
+  }
   return {
     status: result.status,
     body: { ...admissionToJson(result), ...(projection !== undefined ? { projection } : {}) },
@@ -636,6 +679,21 @@ async function handleMaterialize(host: CollabHost, body: unknown): Promise<Colla
   if (receipt === undefined || receipt.status !== 200) {
     return { status: 500, body: { ok: false, reason: 'internal', message: 'the materialization committed but its receipt is unlocatable (internal)' } };
   }
+  // collab-presence: the composite lane's commit hook — the panel field
+  // it materialized IS the attention; the digest LAW (design.md §3):
+  // the client's hint digest wins — it leads with the component id
+  // (`a4 · raised=false`) so observers know WHICH component; the
+  // fallback matches the same shape
+  const hint = sessionHintOf(body);
+  notifyPresenceCommit(host, {
+    actor: PANEL_ACTOR,
+    target: { componentId: body.componentId, buffer: body.prop },
+    sessionHint: {
+      field: body.prop,
+      digest: hint?.digest !== undefined ? hint.digest : `${body.componentId} · ${body.prop}=${String(body.value)}`,
+      ...(hint?.playerId !== undefined ? { playerId: hint.playerId } : {}),
+    },
+  });
   return { status: 200, body: { ...receiptToJson(receipt), projection: outcome.kind } };
 }
 
@@ -682,6 +740,7 @@ async function handleUndo(host: CollabHost, body: unknown): Promise<CollabApiRes
     const result = await host.gate.giveUp({ targetOpId: body.targetOpId, actor, ...(opId !== undefined ? { opId } : {}), ...(syncCursor !== undefined ? { syncCursor } : {}) });
     const page = result.status === 200 ? pageOfTarget(host, result.target.componentId) : undefined;
     const projection = page !== undefined ? await driveProjection(host, page) : undefined;
+    if (result.status === 200) notifyPresenceCommit(host, undefined); // journal-tail only — undo carries no attention relay
     return { status: result.status, body: { ...admissionToJson(result), ...(projection !== undefined ? { projection } : {}) } };
   }
   if (mode === 'override-undo' || mode === 'override-redo') {
@@ -696,6 +755,7 @@ async function handleUndo(host: CollabHost, body: unknown): Promise<CollabApiRes
     const page = outcome.status === 'performed' ? pageOfTarget(host, outcome.receipt.target.componentId) : undefined;
     const projection = page !== undefined ? await driveProjection(host, page) : undefined;
     const receipt = outcome.status === 'performed' ? receiptToJson(outcome.receipt) : undefined;
+    if (outcome.status === 'performed') notifyPresenceCommit(host, undefined); // journal-tail only — undo carries no attention relay
     return {
       status: outcome.status === 'performed' ? 200 : 409,
       body: { ok: outcome.status === 'performed', mode, status: outcome.status, ...(receipt !== undefined ? { receipt } : {}), ...(projection !== undefined ? { projection } : {}) },

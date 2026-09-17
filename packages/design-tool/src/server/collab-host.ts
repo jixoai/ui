@@ -3,7 +3,7 @@
  * M6b: 协同内核接入 design server + dsh 写入迁轨; M6 收敛轮 2026-09-15:
  * the kernel gaps repaid, the synthesized-envelope lane RETIRED).
  *
- * Orthogonal intents (4):
+ * Orthogonal intents (5):
  *   1. HOSTING — one CollabKernel + one shared AdmissionGate + one
  *      ResyncStation per design workspace (`<root>/design`), opened
  *      through the frozen `openWorkspaceCollab` resolution
@@ -57,6 +57,12 @@
  *      design server's lane): every KNOWN page runs one §8 reconcile
  *      cycle at open — unhosted hand-edit drift lands, and cross-era
  *      `.jx-collab` tree meta realigns to the current planner.
+ *   5. PRESENCE JOURNAL-TAIL (collab-presence §3): every §8 cycle that
+ *      returns through the public drives notifies the presence
+ *      gateway's journal-tail with the kernel's CURRENT journal row
+ *      count — read-only on the commit result, deduped by seq inside
+ *      the gateway, and swallowed on any fault (presence is never the
+ *      edit path).
  *
  * Internal accessor only — NO new HTTP surface (panels are M7; the
  * server object exposes this host as `server.collab`).
@@ -82,6 +88,7 @@ import {
   type ProjectionFileAdapter,
   type StaleIngest,
 } from './collab/resync.ts';
+import { findPresenceGateway } from './presence/gateway.ts';
 
 /* ── page paths ────────────────────────────────────────────────────────── */
 
@@ -535,9 +542,16 @@ class CollabHostImpl implements CollabHost {
    * three-way base). A genuine 409 outcome (a pre-recorded observed
    * state that raced a canonical op) takes the envelope's rebase lane;
    * one §5.2 admission conflict mid-cycle retries once after a re-read,
-   * then surfaces.
+   * then surfaces. The presence journal-tail follows every return
+   * (deduped by seq inside the gateway — idempotent cycles are free).
    */
   async syncExternalChange(path: string): Promise<CollabSyncOutcome> {
+    const outcome = await this.#syncExternalCore(path);
+    this.#notifyJournalTail();
+    return outcome;
+  }
+
+  async #syncExternalCore(path: string): Promise<CollabSyncOutcome> {
     if (this.#disposed) return { page: path, kind: 'skipped', detail: 'host disposed' };
     const abs = this.#resolve(path);
     const page = this.#toPage(abs);
@@ -624,10 +638,18 @@ class CollabHostImpl implements CollabHost {
   }
 
   async resolveStale(stale: StaleIngest): Promise<IngestReport> {
-    return await this.station.rebase(stale);
+    const report = await this.station.rebase(stale);
+    this.#notifyJournalTail();
+    return report;
   }
 
   async reconcilePage(page: PagePath): Promise<CollabSyncOutcome> {
+    const outcome = await this.#reconcileCore(page);
+    this.#notifyJournalTail();
+    return outcome;
+  }
+
+  async #reconcileCore(page: PagePath): Promise<CollabSyncOutcome> {
     if (this.#disposed) return { page, kind: 'skipped', detail: 'host disposed' };
     const abs = this.#resolve(page);
     if (this.#toPage(abs) === null) return { page, kind: 'skipped', detail: 'not a design page (.svelte under the design root)' };
@@ -709,6 +731,21 @@ class CollabHostImpl implements CollabHost {
       } catch {
         /* the outcome lane already reported — the sweep never throws */
       }
+    }
+  }
+
+  /**
+   * The presence journal-tail (intent 5): read-only on the commit result —
+   * the kernel's CURRENT journal row count goes to the workspace's
+   * gateway when one is attached. Swallowed whole: a gateway fault (or
+   * no gateway at all — standalone hosts) never reaches the §8 lane.
+   */
+  #notifyJournalTail(): void {
+    if (this.#disposed) return;
+    try {
+      findPresenceGateway(this.designDir)?.notifyJournalTail(this.kernel.stats().journalSeq);
+    } catch {
+      /* presence is never the edit path */
     }
   }
 

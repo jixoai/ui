@@ -250,6 +250,7 @@
     selectionFile = null,
     metaUrlBase = '/__design__/api/meta',
     collabUrl = '/__design__/api/collab',
+    presencePlayerId = null,
   }: {
     selection?: DesignSelection | null;
     /** the shell-resolved edit target (selection frameId → source file)
@@ -259,7 +260,18 @@
     metaUrlBase?: string;
     /** the collab op lane base (M7a) — usage/admit/sync/undo */
     collabUrl?: string;
+    /** the live presence identity (collab-presence §3): feeds the
+     *  client's sessionHint so edits attribute to this Player */
+    presencePlayerId?: string | null;
   } = $props();
+
+  // the presence hint rides whatever client is live (seeded or pending)
+  let pendingPresencePlayerId: string | null = null;
+  $effect(() => {
+    const playerId = presencePlayerId ?? null;
+    pendingPresencePlayerId = playerId;
+    if (client !== null) client.setPresenceHint(playerId);
+  });
 
   let meta: MetaPayload | null = $state(null);
   let metaError: string | null = $state(null);
@@ -346,6 +358,7 @@
         // seed the mirror client — the canonical projection is the
         // seed, never a raw file read
         const created = new PanelCollabClient(fetchTransport(collabUrl));
+        created.setPresenceHint(pendingPresencePlayerId);
         const unsubscribe = created.subscribe(() => {
           usageState = created.snapshot();
         });

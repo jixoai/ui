@@ -1,0 +1,45 @@
+preflight: hero seed raised={false} literal = true
+preflight: presence.json reset to an empty ledger (pre-test bytes saved for post-run restore)
+server up: pid=58877 port=53429 base=http://localhost:53429
+PASS  [A1] ① A端 chips：2 枚、alice(self)+bob、名字正确 — ["p1:alice (you)","p2:bob"]
+PASS  [A1] ② A端 色序 hue=73/146（p1/p2 的 dot style） — self p1@73 other p2@146 dot="rgb(170, 212, 17)"
+PASS  [A1] ③ B端 chips：self(bob)首位 + alice 在列（join 互见） — ["p2:bob (you)","p1:alice"]
+PASS  [A1] ④ B端 在线计数 2 online — text="2 online"
+PASS  [A1] ⑤ S→C 第六帧 {type:"pong"}（ping 应答；studio store 忽略之） — welcome playerId=p3 hue=219; pong={"type":"pong"}
+PASS  [A2] ① B端 canvas 文档出现 [data-jx-remote="p1:cursor"] 且可见 — opacity=1 transform=(1076.96,1140.5)（ground 命中 9 次）
+PASS  [A2] ② B端光标坐标随 A 移动方向一致（屏幕右下移 → doc 坐标右下移） — hit1 screen(720,500) → doc(1076.96,1140.5); hit2 screen(845,608) → doc(1209.04,1255.5)
+PASS  [A3] ① A 勾选 RAISED → hero.svelte 落 raised={true}（W4 fs 断言复用） — fs diff seen (/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/design/prototypes/welcome/pages/hero.svelte)
+PASS  [A3] ② B端收到 journal-tail → /sync → 面板/画布更新（checkbox 镜像或 a4 boxShadow 变化） — checkbox=true; boxShadow unchanged (none → none)
+PASS  [A3] ②b B端 /sync POST 在编辑窗口内发生（journal-tail 即时拉取） — 2 sync POST in [click, fs+3s]; total syncs=2
+PASS  [A3] ③ B端出现 A 的 ghost ring（canvas-focus 或 panel-focus 任一） — canvas-focus=opacity 0; panel-focus=1; 
+PASS  [A4] 并发 admit × 面板编辑：融合或冲突卡（§6 既有行为不回归） — agent admit=200; 融合=true（A4-agent-lane-text + raised={false}）; 冲突卡=0; bytesChanged=true
+PASS  [A5] ① B端 alice chip 进入离线表现（offline 态或从 chips 消失） — chip 保留且 offline=true
+PASS  [A5] ② B端 canvas 远程指示器淡出移除（p1 元素清零） — 剩余 [data-jx-remote^="p1:"] 元素=0
+PASS  [B6] ① 人端 chips 出现 AI Player（matrix-ai） — chip=p4:matrix-ai ·ai@hue292（DOM 无 kind 标记属性——chip 只有 playerId/name/dot；发现：kind 未暴露给 DOM，按名断言）
+PASS  [B6] ② AI 无可见光标（元素常驻但 opacity=0，virtual-mouse 未注册） — cursor 元素=exists opacity=0
+PASS  [B7a] ① 人端出现该 AI 的 canvas-focus ghost ring（元素存在、badge 含 AI 名） — admit=200; ring=opacity=0.55 badge="matrix-ai · a4"
+PASS  [B7a] ② ring box 与目标组件（a4 press-button，经 kit iframe 折算）重叠 — overlap ok; ring={"x":109.984375,"y":318.5,"w":135.203125,"h":40}
+PASS  [B7a] ③（诊断）ring 不得是 section 级别的大框（按 componentId 跨文档定位后应为组件级） — ring=135x40 vs section=2492x2348（组件级 ring 的 w/h 应远小于 section 的一半）
+  [B7b] prop-buffer text replace → 409 {"status":409,"code":"stale-cursor","opId":"matrix-ai:matrix:1789606633484:icj8","actor":"matrix-ai","target":{"componentId":"a4","buffer":"raised"},"canonicalF
+PASS  [B7b] AI admit 带 sessionHint{field,digest} → 壳层 panel-focus 描边 + 名签 + digest — admit=200; outline=true; badge="matrix-ai"; digest="raised=false→true"
+PASS  [B8] ① AI virtual-mouse enabled + cursor → 人端光标元素从无到有（opacity 0→1） — before opacity=0 → after opacity=1
+PASS  [B8] ② 光标坐标逐字透传（mock 发送 (281,190)） — transform=(281,190)
+PASS  [C9] ① 两 AI 的 op 全部落盘融合（hero.svelte 同时含 C9-one 与 C9-two） — admits=200/200; bytes: C9-one=true, C9-two=true
+PASS  [C9] ② 观察端（第三连接）收到两份 attention 且归属正确（ai-1→a4、ai-2→a5） — ai-1(p5)→{"kind":"canvas","component":"a4","instance":null,"frameId":null}; ai-2(p6)→{"kind":"canvas","component":"a5","instance":null,"frameId":null}
+PASS  [D10] 刷新后同 token 恢复同 playerId 同色号 — 刷新前 p2@hue146 → 刷新后 p2@hue146
+PASS  [D11] 新 context 新号新色（hue=(73*n)%360）且旧号不复用 — counter 7→8; carol chip=p8@hue224（期望 p8@224）; ledger row=p8
+PASS  [D12] ① WS 被持续掐断 → 自身 chip 进入 offline 态（presence 降级可见） — offline chip 数=2（routeWebSocket close；重连退避下每次尝试均被掐）
+PASS  [D12] ② WS 全断时编辑照常（勾选落盘，op 走 HTTP） — hero 落 raised={true}（fs 断言）
+server(main) pid=58877 stopped exit=143
+server2 up: pid=61068 port=53837
+PASS  [D13] ① 垃圾账本下重启 server → studio 照常起（/__design__/ 200 + 壳渲染） — probe page ok=true
+PASS  [D13] ② 网关重建账本（新连接 welcome + presence.json 恢复合法 + 重建日志） — welcome=p2@hue146; presence.json valid=true counter=2; 重建日志=true
+PASS  [D14] ① 同 baseFrontiers 两个过期 op → 一个 200 一个 409 — statuses=200,409; bodies=[null,null]
+PASS  [D14] ② journal 未损坏（全行可解析 + 行数只增 + /sync 仍 200） — journal 353→355 行, 坏行=0; sync=ok(13568b)
+PASS  [FIX] fixture 契约保持：hero 带 raised={false} 字面量（无需 fs 回写） — a4 行：<PressButton id="a4" raised={false} variant="ghost">STALE-WINS-B</PressButton>
+browser closed
+server2 pid=61068 stopped exit=143
+presence.json restored to pre-test bytes
+
+==== TDD-MATRIX SUMMARY ====
+33/33 passed

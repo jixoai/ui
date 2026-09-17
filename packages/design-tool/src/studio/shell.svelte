@@ -105,6 +105,14 @@
   import PropertyPanel from './property-panel.svelte';
   import StageView from './stage-view.svelte';
   import {
+    PresenceStore,
+    browserPresenceSocket,
+    type AttentionFocus,
+    type PresenceSnapshot,
+    type RemotePlayer,
+    type SelfView,
+  } from './presence-store.ts';
+  import {
     FRAME_NAME_PREFIX,
     type DesignFrameSeams,
     type DesignHighlightTarget,
@@ -156,6 +164,13 @@
   let railTab: 'chat' | 'guide' = $state('chat');
   /** promotion drift status (r2 T11 contract; three-state as of r3 T0/ID6) */
   let promotions: PromotionsState = $state({ phase: 'loading' });
+
+  /* ── collab-presence §4: the shell's presence state (store-fed) ────── */
+
+  /** the store's snapshot copy — svelte renders this, never the store */
+  let presenceStatus = $state<import('./presence-store.ts').PresenceStatus>('idle');
+  let presenceSelf = $state<SelfView | null>(null);
+  let presencePlayers = $state<readonly RemotePlayer[]>([]);
 
   // #12 T0 layer 1 — source equivalence gates: the last ACCEPTED
   // signature per source. Non-reactive on purpose (never rendered);
@@ -468,6 +483,204 @@
     void refreshPromotions();
   }
 
+  /* ── collab-presence §4: the store wiring + the shell indicators ──── */
+
+  /** the remote players worth rendering indicators for (online, not
+   *  self) — the CHIP list keeps offline rows (design §4: the list
+   *  shows the offline state), the indicators do not */
+  const remotePlayers = $derived(
+    presencePlayers.filter((player) => player.online && player.playerId !== presenceSelf?.playerId),
+  );
+  /** every non-self player, online or not — the chips list */
+  const chipPlayers = $derived(
+    presencePlayers.filter((player) => player.playerId !== presenceSelf?.playerId),
+  );
+  /** shell-surface remote cursors (canvas-surface ones ride the canvas overlay) */
+  const shellCursors = $derived(
+    remotePlayers.filter((player) => player.cursor !== null && player.cursor.surface === 'shell'),
+  );
+  /** remote panel foci — each renders the 2px field-row outline */
+  const panelFoci = $derived(
+    remotePlayers.filter((player) => player.attention !== null && player.attention.kind === 'panel'),
+  );
+  /** the chips list: SELF FIRST with the (you) mark, then the joining ordinal */
+  const presenceChips = $derived.by(() => {
+    const others = chipPlayers.map((player) => ({
+      playerId: player.playerId,
+      name: player.name,
+      kind: player.kind,
+      colorHue: player.colorHue,
+      online: player.online,
+      isSelf: false,
+    }));
+    if (presenceSelf === null) return others;
+    return [
+      {
+        playerId: presenceSelf.playerId,
+        name: presenceSelf.name,
+        kind: presenceSelf.kind,
+        colorHue: presenceSelf.colorHue,
+        online: presenceStatus === 'online',
+        isSelf: true,
+      },
+      ...others.filter((chip) => chip.playerId !== presenceSelf.playerId),
+    ];
+  });
+  const presenceOnlineCount = $derived(presenceChips.filter((chip) => chip.online).length);
+
+  /** the /sync rebase the journal-tail owes (§1): the panel's own 4s
+   *  mirror poll keeps its client current — this lane adds the
+   *  journal-tail's IMMEDIATE pull (serialized; a burst collapses to
+   *  the last queued pass). The editing lane never waits on it. */
+  const COLLAB_SYNC_URL = '/__design__/api/collab/sync';
+  let collabSyncInFlight = false;
+  let collabSyncQueued = false;
+  function rebaseAfterJournalTail(): void {
+    if (collabSyncInFlight) {
+      collabSyncQueued = true;
+      return;
+    }
+    collabSyncInFlight = true;
+    void fetch(COLLAB_SYNC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+      .catch(() => undefined)
+      .finally(() => {
+        collabSyncInFlight = false;
+        if (collabSyncQueued) {
+          collabSyncQueued = false;
+          rebaseAfterJournalTail();
+        }
+      });
+  }
+
+  /** the DOWN broadcast to the canvas overlay (the lens-broadcast
+   *  pattern): every snapshot change coalesces into one rAF post of
+   *  the remote roster — cursors stream at ~50ms, the frame budget
+   *  caps the traffic at one message per frame */
+  let presenceFlushRaf = 0;
+  function forwardPresenceToCanvas(snapshot: PresenceSnapshot): void {
+    if (presenceFlushRaf !== 0) return;
+    presenceFlushRaf = requestAnimationFrame(() => {
+      presenceFlushRaf = 0;
+      // async read — this callback never tracks the iframe seam
+      const target = canvasIframe?.contentWindow ?? null;
+      if (target === null) return;
+      target.postMessage(
+        {
+          type: 'jx-design:presence',
+          players: snapshot.players
+            .filter((player) => player.online && player.playerId !== snapshot.self?.playerId)
+            .map((player) => ({
+              playerId: player.playerId,
+              name: player.name,
+              colorHue: player.colorHue,
+              hasMouse: player.hasMouse,
+              cursor: player.cursor,
+              attention: player.attention,
+            })),
+        },
+        window.location.origin,
+      );
+    });
+  }
+
+  /* the panel-focus outline's target rect: the property panel's row
+     carries id `prop-<field>` (§1's field vocabulary); a missing row
+     (unselected, foreign canvas) falls back to the whole panel zone —
+     the outline keeps pointing at the PANEL, never at nothing */
+  interface PanelFocusView {
+    readonly playerId: string;
+    readonly name: string;
+    readonly colorHue: number;
+    readonly digest: string;
+    readonly x: number;
+    readonly y: number;
+    readonly w: number;
+    readonly h: number;
+  }
+  function panelFocusRect(field: string): { x: number; y: number; w: number; h: number } | null {
+    const row = document.getElementById(field) ?? document.getElementById(`prop-${field}`);
+    const target = row ?? document.querySelector('.studio-panel-zone');
+    if (target === null) return null;
+    const rect = target.getBoundingClientRect();
+    return { x: rect.left, y: rect.top, w: rect.width, h: rect.height };
+  }
+  function computePanelFocusViews(): PanelFocusView[] {
+    const views: PanelFocusView[] = [];
+    for (const player of panelFoci) {
+      const attention = player.attention as Extract<AttentionFocus, { kind: 'panel' }>;
+      const rect = panelFocusRect(attention.field);
+      if (rect === null) continue;
+      views.push({
+        playerId: player.playerId,
+        name: player.name,
+        colorHue: player.colorHue,
+        digest: attention.digest,
+        ...rect,
+      });
+    }
+    return views;
+  }
+  let panelFocusViews = $state<PanelFocusView[]>([]);
+  // the outline follows the focus (target changes glide); a panel
+  // SCROLL re-reads the rects in place (same target, new box)
+  $effect(() => {
+    void panelFoci;
+    panelFocusViews = computePanelFocusViews();
+  });
+  $effect(() => {
+    const onScroll = (): void => {
+      untrack(() => {
+        panelFocusViews = computePanelFocusViews();
+      });
+    };
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => window.removeEventListener('scroll', onScroll, { capture: true } as EventListenerOptions);
+  });
+
+  // the store's lifecycle: connect on mount, dispose on teardown. The
+  // ws NEVER carries an edit — a dead gateway costs the indicators only
+  $effect(() => {
+    if (typeof window === 'undefined') return;
+    const urlName = new URLSearchParams(window.location.search).get('name');
+    const store = new PresenceStore({
+      socketFactory: browserPresenceSocket(window.location),
+      name: urlName ?? undefined,
+      storage: sessionStorage,
+    });
+    const unsubscribe = store.subscribe(() => {
+      const snapshot = store.snapshot();
+      presenceStatus = snapshot.status;
+      presenceSelf = snapshot.self;
+      presencePlayers = snapshot.players;
+      forwardPresenceToCanvas(snapshot);
+    });
+    const offTail = store.on('journal-tail', () => rebaseAfterJournalTail());
+    store.connect();
+    // shell-surface cursor: every pointermove over the studio chrome —
+    // the canvas surface rides the overlay's jx-design:local-cursor
+    // report (canvas-document coords, verbatim — no lens math here)
+    const onPointerMove = (event: PointerEvent): void => {
+      store.reportCursor('shell', event.clientX, event.clientY);
+    };
+    window.addEventListener('pointermove', onPointerMove, { capture: true, passive: true });
+    const onMessage = (event: MessageEvent): void => {
+      const data = event.data as { type?: string; x?: unknown; y?: unknown } | null;
+      if (data === null || typeof data !== 'object' || data.type !== 'jx-design:local-cursor') return;
+      if (typeof data.x !== 'number' || typeof data.y !== 'number') return;
+      // async read — the listener body never tracks the iframe seam
+      if (event.source !== (canvasIframe?.contentWindow ?? null)) return;
+      store.reportCursor('canvas', data.x, data.y);
+    };
+    window.addEventListener('message', onMessage);
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove, { capture: true } as EventListenerOptions);
+      window.removeEventListener('message', onMessage);
+      offTail();
+      unsubscribe();
+      store.dispose();
+    };
+  });
+
   // panel-edit events (#19, Owner walkthrough 2026-09-12): the reload
   // fallback is DEAD — HMR has carried every edit since the T0d spike
   // (proven by probe, GATE-0 and the Owner's own session), while the
@@ -487,6 +700,24 @@
       <span class="studio-dot"></span>
       jixoai design
     </header>
+    <!-- collab-presence §4: the Player chips — color dot (hue, 85%, 45%),
+         name, self first with the (you) mark, the online count beside -->
+    <div class="studio-presence" data-presence-chips aria-label="collaborators">
+      {#each presenceChips as chip (chip.playerId)}
+        <span class="studio-presence-chip" class:offline={!chip.online} data-presence-chip={chip.playerId} data-kind={chip.kind} title={chip.online ? 'online' : 'offline'}>
+          <span class="studio-presence-dot" style:background={`hsl(${chip.colorHue}, 85%, 45%)`}></span>
+          <span class="studio-presence-name">{chip.name}{chip.kind === 'ai' ? ' ·ai' : ''}{chip.isSelf ? ' (you)' : ''}</span>
+        </span>
+      {:else}
+        <!-- the store has not spoken: connecting is not absent -->
+        <span class="studio-presence-count">connecting…</span>
+      {/each}
+      {#if presenceChips.length > 0}
+        <span class="studio-presence-count" data-presence-online>{presenceOnlineCount} online</span>
+      {:else if presenceStatus === 'offline'}
+        <span class="studio-presence-count">offline — reconnecting</span>
+      {/if}
+    </div>
     {#if manifestError !== null}
       <!-- ID3 (r3 T1): a failed manifest is recoverable, not a dead
            end — retry re-fetches (the 4s poll self-heals transient
@@ -620,7 +851,7 @@
        inactive one carries `hidden` so chat state survives switches -->
   <aside class="studio-inspector">
     <div class="studio-panel-zone">
-      <PropertyPanel {selection} {selectionFile} />
+      <PropertyPanel {selection} {selectionFile} presencePlayerId={presenceSelf?.playerId ?? null} />
     </div>
     <div class="studio-tab-zone">
       <div class="studio-tabs" role="tablist" aria-label="inspector panels">
@@ -655,6 +886,39 @@
       </div>
     </div>
   </aside>
+
+  <!-- collab-presence §4: the SHELL indicator layer (fixed, inert) —
+       shell-surface remote cursors + the panel-focus outlines. The
+       canvas half lives in the canvas document's presence overlay -->
+  <div class="studio-remote-layer" aria-hidden="true">
+    {#each shellCursors as player (player.playerId)}
+      {@const cursor = player.cursor!}
+      <div
+        class="studio-remote-cursor"
+        data-jx-remote={`${player.playerId}:cursor`}
+        style:transform={`translate(${cursor.x}px, ${cursor.y}px)`}
+        style:opacity={player.hasMouse ? '1' : '0'}
+      >
+        <span class="studio-remote-cursor-dot" style:background={`hsl(${player.colorHue}, 85%, 45%)`}></span>
+        <span class="studio-remote-cursor-tag" style:background={`hsl(${player.colorHue}, 85%, 45%, 0.92)`}>{player.name}</span>
+      </div>
+    {/each}
+    {#each panelFocusViews as view (view.playerId)}
+      <div
+        class="studio-remote-panel-focus"
+        data-jx-remote={`${view.playerId}:panel-focus`}
+        style:border-color={`hsl(${view.colorHue}, 85%, 45%)`}
+        style:transform={`translate(${view.x}px, ${view.y}px)`}
+        style:width={`${view.w}px`}
+        style:height={`${view.h}px`}
+      >
+        <span class="studio-remote-panel-focus-badge" style:background={`hsl(${view.colorHue}, 85%, 45%, 0.92)`}>{view.name}</span>
+        {#if view.digest !== ''}
+          <span class="studio-remote-panel-focus-digest">{view.digest}</span>
+        {/if}
+      </div>
+    {/each}
+  </div>
 </div>
 
 <style>
@@ -903,5 +1167,132 @@
   }
   .studio-sep {
     flex: none;
+  }
+
+  /* ── collab-presence §4: the chips + the shell indicator layer ────── */
+
+  .studio-presence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .studio-presence-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.0625rem 0.375rem 0.0625rem 0.25rem;
+    border: 1px solid #262320;
+    border-radius: 3px;
+    font-size: 0.625rem;
+    line-height: 1.5;
+    color: #b9b2a6;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  .studio-presence-chip.offline {
+    opacity: 0.45;
+  }
+  .studio-presence-chip.offline .studio-presence-dot {
+    background: #4a443d !important;
+  }
+  .studio-presence-dot {
+    flex: none;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+  }
+  .studio-presence-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .studio-presence-count {
+    color: #8d8578;
+    font-size: 0.625rem;
+    white-space: nowrap;
+  }
+  /* the shell indicator layer: fixed over everything, pointer-inert —
+     the same namespace grammar the canvas overlay speaks */
+  .studio-remote-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2147483646;
+  }
+  .studio-remote-cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* 60ms linear — it tracks a ~50ms presence stream (the overlay law) */
+    transition: transform 60ms linear, opacity 140ms ease;
+    will-change: transform, opacity;
+  }
+  .studio-remote-cursor-dot {
+    position: absolute;
+    top: -4.5px;
+    left: -4.5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(13, 12, 11, 0.55);
+  }
+  .studio-remote-cursor-tag {
+    position: absolute;
+    top: -9px;
+    left: 8px;
+    padding: 1px 5px;
+    font-size: 10px;
+    line-height: 1.4;
+    white-space: nowrap;
+    border-radius: 3px;
+    color: #f5f1e8;
+  }
+  /* the panel-focus outline: 2px player hue over the field row, the
+     name badge top-right, the digest beneath it; target handovers ride
+     the classic 240ms curve (the picker glide family) */
+  .studio-remote-panel-focus {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 2px solid;
+    border-radius: 3px;
+    box-sizing: border-box;
+    transition:
+      transform 240ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      width 240ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      height 240ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      border-color 240ms ease,
+      opacity 140ms ease;
+    will-change: transform, width, height, opacity;
+  }
+  .studio-remote-panel-focus-badge {
+    position: absolute;
+    top: -17px;
+    right: -2px;
+    padding: 1px 5px;
+    font-size: 10px;
+    line-height: 1.4;
+    white-space: nowrap;
+    border-radius: 3px;
+    color: #f5f1e8;
+  }
+  .studio-remote-panel-focus-digest {
+    position: absolute;
+    top: -17px;
+    right: calc(100% + 4px);
+    padding: 1px 5px;
+    font-size: 10px;
+    line-height: 1.4;
+    white-space: nowrap;
+    border-radius: 3px;
+    color: #d9d4ca;
+    background: #1b1917ee;
+    border: 1px solid #262320;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .studio-remote-cursor,
+    .studio-remote-panel-focus {
+      transition: opacity 140ms ease; /* motion off — presence still reads */
+    }
   }
 </style>

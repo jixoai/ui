@@ -12,8 +12,10 @@
  *      /__design__/ studio SPA (host-owned design/studio.svelte),
  *      /__design__/frame ref-mounting surface (?p=&f=&theme=&w=&h=),
  *      /prototypes/<name>/ canvas pages — plus the API endpoints
- *      (manifest.json, knowledge.json, agent.json, chat SSE and the
- *      M7a collab op lane /__design__/api/collab/*).
+ *      (manifest.json, knowledge.json, agent.json, chat SSE, the
+ *      M7a collab op lane /__design__/api/collab/*, and the
+ *      collab-presence websocket /__design__/ws on the http server's
+ *      upgrade lane — path-scoped, Vite HMR passes untouched).
  *   3. module plumbing for split installs: the plugin set is imported
  *      through the probe's moduleRoot (this repo installs per-vehicle,
  *      not at the root), the stable virtual entry ids resolve to REAL
@@ -40,6 +42,7 @@ import { openCollabHost, viteWatcherAdapter, type CollabHost } from './collab-ho
 import { metaMiddleware } from './meta/endpoint.ts';
 import type { DesignHostInfo } from './probe.ts';
 import { probeDesignHost } from './probe.ts';
+import { attachPresenceGateway, type PresenceGateway } from './presence/gateway.ts';
 import { resolvePackageEntry } from './resolver.ts';
 import { scanPrototypes } from './manifest.ts';
 import { buildStampHmrPlugin, buildStampPlugin } from './stamp/index.ts';
@@ -324,7 +327,10 @@ async function importFromModuleRoot<T>(moduleRoot: string | null, spec: string):
  * release watcher routing) before the vite teardown. Internal
  * accessor only — no new HTTP surface (panels are M7).
  */
-export async function createDesignViteServer(rootInput: string, options: CreateDesignServerOptions = {}): Promise<ViteDevServer & { collab: CollabHost | undefined }> {
+export async function createDesignViteServer(
+  rootInput: string,
+  options: CreateDesignServerOptions = {},
+): Promise<ViteDevServer & { collab: CollabHost | undefined; presence: PresenceGateway | undefined }> {
   const root = resolve(rootInput);
   const host = probeDesignHost(root);
   const agent = options.agent ?? (await import('../agent/none.ts')).createNoneAgent();
@@ -480,14 +486,28 @@ export async function createDesignViteServer(rootInput: string, options: CreateD
     console.error(`[design-server] collab host failed to open (${host.designDir}): ${message} — collaborative lanes degraded; the studio/canvas surfaces are unaffected`);
   }
   collabCell.host = collab; // the late-binding cell — the API middleware reads this per request
-  // server.close() settles the collab host first (§8 never aborts a
-  // mid-flight cycle, watcher routing stops), then runs the vite teardown
+
+  // collab-presence: the WS presence gateway rides the SAME http server's
+  // upgrade lane. The listener is path-scoped (`/__design__/ws`) — Vite's
+  // own HMR websocket (and any other upgrade) passes through untouched.
+  // Deliberately INDEPENDENT of the collab host's fate: a degraded kernel
+  // (corrupt journal) still serves presence; only journal-tail goes quiet
+  // (no admits can commit without a host).
+  let presence: PresenceGateway | undefined;
+  if (server.httpServer !== null) {
+    presence = attachPresenceGateway(server.httpServer, { designDir: host.designDir });
+  } else {
+    console.error('[design-server] no http server to host the presence gateway — presence degraded (middleware-mode host?)');
+  }
+  // server.close() drops the upgrade lane first (no late ws may hit a
+  // closing wss), then settles the collab host, then runs the vite teardown
   const closeServer = server.close.bind(server);
   server.close = async (): Promise<void> => {
+    presence?.close();
     await collab?.dispose();
     await closeServer();
   };
-  return Object.assign(server, { collab });
+  return Object.assign(server, { collab, presence });
 }
 
 /* ── note on the retired #28 ws.send redirect (issue #18) ───────────────

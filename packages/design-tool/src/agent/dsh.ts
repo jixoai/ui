@@ -2,7 +2,7 @@
  * @jixoai/ui-design (agent) — the dsh adapter (T8, v0: headless
  * per-turn; M6b: file-system actor lane).
  *
- * Orthogonal intents (4):
+ * Orthogonal intents (5):
  * 1. One chat turn = ONE `dsh --profile headless <job>` run with cwd =
  *    the host root (the agent sees design/ and the whole project). The
  *    knowledge pack's systemPrompt rides as the job preamble (dsh
@@ -29,6 +29,10 @@
  *    file events carry them). When no kernel is hosted (standalone
  *    agent use) the legacy mtime-diff behavior stands unchanged. The
  *    turn-time SSE panel lock is deliberately untouched (M7).
+ * 5. PRESENCE (collab-presence §5) — session start registers the
+ *    workspace's server-held ai Player (name='dsh') on the presence
+ *    gateway when one is attached; the registration is advisory-only
+ *    and can never fail the turn.
  *
  * Original need: Owner 2026-09-11 (`jixoai-ui design` on the dsh base).
  * Experimental boundary: availability preflight (dshPreflight) lets the
@@ -42,6 +46,7 @@ import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { findCollabHost, type CollabHost, type CollabSyncOutcome } from '../server/collab-host.ts';
+import { findPresenceGateway } from '../server/presence/gateway.ts';
 import { loadKnowledgePack } from '../knowledge/knowledge.ts';
 import type { AgentEvent, DesignAgent } from './types.ts';
 
@@ -234,6 +239,16 @@ export function createDshAgent(hostRoot: string): DesignAgent {
   return {
     info: () => ({ kind: 'dsh', model }),
     async *chat(_sessionId: string, message: string): AsyncIterable<AgentEvent> {
+      // collab-presence §5: the server registers the workspace's ai
+      // Player at session start (idempotent — one 'dsh' identity whose
+      // color survives restarts; its writes then relay journal-tail
+      // through the host's §8 notify). Never fatal to the turn.
+      try {
+        findPresenceGateway(designDir)?.registerAiPlayer({ name: 'dsh', actor: 'dsh' });
+      } catch {
+        /* presence never takes the turn down */
+      }
+
       const bin = process.env.DSH_BIN ?? 'dsh';
       const before = snapshotPrototypes(hostRoot);
 

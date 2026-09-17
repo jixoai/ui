@@ -34,6 +34,7 @@ import { mount } from 'svelte';
 import 'virtual:jixoai-design/css';
 import 'virtual:jixoai-icons.css';
 import { initDesignPicker } from './picker.js';
+import { initPresenceOverlay } from './presence-overlay.js';
 
 const canvases = import.meta.glob('/design/prototypes/*/canvas.svelte');
 
@@ -57,6 +58,11 @@ const loader = key === null ? undefined : canvases[key];
 // the same activation law as frames (r2 T4; lazy per-click studio
 // walk as of r3 T6)
 initDesignPicker();
+
+// collab-presence §4: the canvas document's remote-presence half
+// (up: local cursor reports; down: remote cursors + ghost rings) —
+// self-gated to /prototypes/ hosts, inert everywhere else
+initPresenceOverlay();
 
 // the #28 surface half: a design-file full-reload retargeted by the
 // design server reaches the SURFACES as this event — the canvas page

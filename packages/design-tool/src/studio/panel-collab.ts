@@ -328,6 +328,15 @@ export class PanelCollabClient {
   readonly #committed = new Map<string, number>();
   readonly #inflight = new Set<string>();
   readonly #timers = new Map<string, unknown>();
+  /** the presence identity behind this panel (collab-presence §3): the
+   *  admit/materialize bodies carry sessionHint{playerId, field, digest}
+   *  so the gateway attributes the edit to the right Player's attention */
+  #presenceHint: { playerId: string } | null = null;
+
+  /** the shell feeds the live presence playerId (null while offline) */
+  setPresenceHint(playerId: string | null): void {
+    this.#presenceHint = playerId === null || playerId.length === 0 ? null : { playerId };
+  }
   #seq = 0;
   readonly #listeners = new Set<() => void>();
   #disposed = false;
@@ -618,6 +627,9 @@ export class PanelCollabClient {
       text: diff.text,
       timestamp: Date.now(),
       ...(this.#cursor !== undefined ? { syncCursor: this.#cursor } : {}),
+      ...(this.#presenceHint !== null
+        ? { sessionHint: { playerId: this.#presenceHint.playerId, field: `prop-${buffer}`, digest: `${info.componentId} · ${buffer}=${diff.text}` } }
+        : {}),
     };
   }
 
@@ -651,6 +663,9 @@ export class PanelCollabClient {
       opId: `panel:${this.#sessionId}:m${this.#seq}`,
       timestamp: Date.now(),
       ...(this.#cursor !== undefined ? { syncCursor: this.#cursor } : {}),
+      ...(this.#presenceHint !== null
+        ? { sessionHint: { playerId: this.#presenceHint.playerId, field: `prop-${prop}`, digest: `${info.componentId} · ${prop}=${String(value)}` } }
+        : {}),
     })) as MaterializeJson;
     if (json?.status === 200) {
       this.#import(json.updateB64);
