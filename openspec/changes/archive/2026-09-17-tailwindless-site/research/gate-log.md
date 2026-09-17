@@ -88,3 +88,14 @@
   both paths. Non-P0 trust boundary noted by the reviewer: local
   receipts are self-signed — CI signing/immutable manifest for
   formal releases (Pfinal consideration).
+- **Round 7 (tw-gate2) — GO 8.5/10**: the ownership blocker closed
+  with the reviewer's own reproductions — both --ownership-selftests
+  reject real HTTP-200 occupiers (owner vs spawn pids named); an
+  ISOLATED worktree run with the fixed 5198 pre-occupied saw the
+  probe pick its own random port, verify its spawn owned it, and
+  pass 25/25; all receipts verify (dual path); gate green; tree
+  clean; HEAD == origin. The four non-blocking evidence nits
+  (localhost:null provenance, hardcoded cmd text, teardown probing
+  the retired 5198, optional TOCTOU re-check) — the first three
+  closed post-verdict with receipts regenerated; the mid-collection
+  re-check stays a recorded follow-up. **P0 GATED — GO.**
