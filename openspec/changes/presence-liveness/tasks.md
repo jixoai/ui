@@ -132,3 +132,26 @@ fatal / 58/64；焦点单测/strict/build 亲证绿）。三个阻塞项 + 五�
   lens 漂移）；(2) E6②「blur→null」与 selection-reclaim 设计矛盾
   ——瞬态 null 可被 16ms 合并窗折叠（latest-wins），断言改确定性
   reclaim 法则，真 null 路径由 P1 Escape 轮 + gateway 单测覆盖。
+
+## 3.7 Codex R2 复核（2026-09-19，7.0/10）→ 唯一阻塞处理
+
+R2 报告 `.zcode/presence/codex-review-r2.md`：B1/B3/N1-N5 全部关闭
+（独立验证 103/103 焦点 + 558/558 全量 + 矩阵独立复跑）；唯一剩余
+阻塞 = P3 实时输入独立实测 671ms > 600ms + P3「2 轮取最小」实现
+缺陷（第二轮期待值用固定基线，上一轮字符已 live-commit，永不命中
+——min-of-2 实为 min-of-1）+ 回执 provenance 不完整。
+
+- [x] **P3 采样隔离**：每轮从 B 的真实当前值推导期待值（独立基线），
+      各轮起止值入 detail 审计——r5 实测双轮有效 [418,353]ms。
+- [x] **回执 provenance**：git SHA + 矩阵源码 sha256 + studio bundle
+      manifest（inputsHash/builtAt/vite/svelte）+ 浏览器构建 +
+      命令行，全部入 JSON 回执（r5 起生效）。
+- [x] **P3 独立 671ms 样本定性**：journal-tail → 立即 syncNow 是事件
+      驱动（property-panel.svelte:566-574，串行化+突发折叠；4s 轮询
+      仅兜底）——671ms 的长尾是 300ms debounce 定时器与 HTTP 跳在
+      负载下的拖尾（与 caret 的 rAF 饥饿同族），非链路结构缺陷；
+      r5 在 loadavg≈8.3 下双轮 353-418ms 过 600ms 硬门槛。若后续
+      安静机仍复现 >600ms，再优化 admit→mirror 链（R2 建议保留）。
+- [x] r5 矩阵 65/65 全绿（回执 evidence/matrix-r5-65of65-p3-isolated.json，
+      含 provenance：git=e2d52577 / matrix=9dbe3bb1 / studio=f0c98ed0 /
+      chromium-1243）

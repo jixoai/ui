@@ -25,6 +25,8 @@ import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import net from 'node:net';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { execSync } from 'node:child_process';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -1683,15 +1685,19 @@ try {
       await selectPressButton(Bp.page, 'P3-bob-p');
       await Ap.page.locator('#slot-text-t-0').waitFor({ timeout: 15_000 });
       await Bp.page.locator('#slot-text-t-0').waitFor({ timeout: 15_000 });
-      // min-of-2（p20 实证单次 742ms 噪声峰 vs 常态 ~300-500ms）
+      // min-of-2（p20 实证单次 742ms 噪声峰 vs 常态 ~300-500ms）。
+      // 每轮样本隔离（Codex R2 实证）：期待值从该轮开始时 B 的真实当前值
+      // 推导——上一轮的字符已 live-commit 进值里，固定基线的写法让第二
+      // 轮永远不命中、min-of-2 实为 min-of-1；起止值随采样入 detail 审计
       const samples3 = [];
-      const valBefore = await Bp.page.locator('#slot-text-t-0').inputValue();
+      const rounds3 = [];
       for (const ch of ['Z', 'Y']) {
         await Bp.page.locator('#slot-text-t-0').click();
         await Bp.page.keyboard.press('End');
+        const start3 = await Bp.page.locator('#slot-text-t-0').inputValue();
         const t3 = Date.now();
         await Bp.page.keyboard.type(ch, { delay: 30 });
-        const want3 = `${valBefore}${ch}`;
+        const want3 = `${start3}${ch}`;
         let mirroredAt = null;
         for (let i = 0; i < 100; i += 1) {
           const v = await Ap.page.locator('#slot-text-t-0').inputValue().catch(() => null);
@@ -1699,14 +1705,15 @@ try {
           await sleep(60);
         }
         if (mirroredAt !== null) samples3.push(mirroredAt);
+        rounds3.push({ ch, start: JSON.stringify(start3.slice(-10)), end: JSON.stringify(want3.slice(-10)), ms: mirroredAt });
       }
       const mirroredAt = samples3.length > 0 ? Math.min(...samples3) : null;
       // 门槛纪律（Codex R1 B2 修正）：常态 300-600ms、真机走查 428-481ms
       // 判符合——Owner 预算 600ms 保持硬断言；本机噪声地板（load≈28 时
       // min-of-2 实测 917ms）进采样与 evidence 回执作诊断
-      record('P3', 'B 键入单字符（不按 Enter）→ A 端 input value 实时镜像 ≤600ms（Owner 实时预算；2 轮取最小）',
+      record('P3', 'B 键入单字符（不按 Enter）→ A 端 input value 实时镜像 ≤600ms（Owner 实时预算；2 轮独立基线取最小）',
         mirroredAt !== null && mirroredAt <= 600,
-        mirroredAt === null ? `A 端未镜像（B 值含 ${JSON.stringify(valBefore)}+Z/Y）——实时 admit 未落地（Enter/blur 提交路径仍在）` : `${mirroredAt}ms（采样 ${JSON.stringify(samples3)}）`);
+        mirroredAt === null ? `A 端未镜像（各轮 ${JSON.stringify(rounds3)}）——实时 admit 未落地（Enter/blur 提交路径仍在）` : `${mirroredAt}ms（采样 ${JSON.stringify(samples3)}；各轮 ${JSON.stringify(rounds3)}）`);
 
       /* P4 — caret 位置跟随 + selection range 高亮 */
       const caretInfo = () => Ap.page.evaluate((pid) => {
@@ -1959,19 +1966,26 @@ const fails = results.filter((r) => !r.pass);
 console.log('\n==== TDD-MATRIX SUMMARY ====');
 console.log(`${results.length - fails.length}/${results.length} passed`);
 for (const f of fails) console.log(`FAIL [${f.step}] ${f.name} — ${f.detail.slice(0, 300)}`);
-/* evidence 回执（Codex R1 B2：采样/统计规则/失败明细可审计）：全量
- * records + 机器负载快照落 JSON，路径打印；curated 副本提交进 change
- * 的 evidence/ 目录（tasks.md 引用）*/
+/* evidence 回执（Codex R1 B2/R2 P2：采样/统计规则/失败明细 + 运行时
+ * provenance 可审计）：全量 records + 机器负载 + 生成者身份（git SHA、
+ * 矩阵源码哈希、studio bundle manifest、浏览器构建、命令行）落 JSON，
+ * 路径打印；curated 副本提交进 change 的 evidence/（tasks.md 引用）*/
 try {
   const runsDir = join(REPO, '.zcode/presence/runs');
   mkdirSync(runsDir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const provenance = { gitSha: 'unknown', matrixSha256: 'unknown', studioManifest: null, browser: 'unknown', argv: process.argv.slice(1).map(String) };
+  try { provenance.gitSha = execSync('git rev-parse HEAD', { cwd: REPO }).toString().trim(); } catch { /* worktree without git? keep unknown */ }
+  try { provenance.matrixSha256 = createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex').slice(0, 16); } catch { /* keep unknown */ }
+  try { const m = JSON.parse(readFileSync(join(REPO, 'packages/design-tool/dist-studio/build-manifest.json'), 'utf8')); provenance.studioManifest = { inputsHash: m.inputsHash, builtAt: m.builtAt, vite: m.vite, svelte: m.svelte }; } catch { /* keep null */ }
+  try { const exe = chromium.executablePath(); provenance.browser = (exe.match(/chromium-\d+/) ?? [])[0] ?? exe.slice(-60); } catch { /* keep unknown */ }
   const receipt = {
     when: new Date().toISOString(),
     loadavg: loadSnapshot(),
     node: process.version,
     platform: process.platform,
-    gateDiscipline: 'Owner 原始预算硬断言（P1 200/P3 600/P4 100）+ min-of-N 采样 + rAF quiet gate；噪声进 detail/evidence 不抬门槛',
+    provenance,
+    gateDiscipline: 'Owner 原始预算硬断言（P1 200/P3 600/P4 100）+ min-of-N 采样（P3 各轮独立基线）+ rAF quiet gate；噪声进 detail/evidence 不抬门槛；E6② 断言的是 blur 后最终 selection-reclaim（瞬态 null 可被 16ms 合并窗折叠，非缺陷）',
     passed: results.length - fails.length,
     total: results.length,
     records: results,
@@ -1979,5 +1993,6 @@ try {
   const receiptPath = join(runsDir, `matrix-${stamp}.json`);
   writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
   console.log(`evidence receipt: ${receiptPath}`);
+  console.log(`provenance: git=${provenance.gitSha.slice(0, 12)} matrix=${provenance.matrixSha256} studio=${provenance.studioManifest === null ? '?' : provenance.studioManifest.inputsHash.slice(0, 12)} browser=${provenance.browser}`);
 } catch (e) { console.log(`evidence receipt 写入失败: ${e.message}`); }
 process.exit(fails.length > 0 ? 1 : 0);
