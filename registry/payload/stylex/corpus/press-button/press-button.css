@@ -1,4 +1,4 @@
-@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, components.stylex.priority5, components.stylex.priority6, components.stylex.priority7, utilities;
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4, components.stylex.priority5, components.stylex.priority6, components.stylex.priority7;
 @layer properties, theme, base, components, components.stylex.priority1;
 
 @layer components.stylex.priority2 {
@@ -354,8 +354,6 @@
     position: absolute;
   }
 }
-
-@layer utilities;
 
 @keyframes xfeh6hy-B {
   0%, 24% {

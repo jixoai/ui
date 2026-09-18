@@ -213,7 +213,8 @@ const glassCss = readFileSync(resolve(process.cwd(), 'src/lib/ui/glass/glass.css
 
 describe('glass · the law sheet (glass.css, source-pinned)', () => {
   it('literal @layer wrapper — the scroll-run posture, zero-specificity :where()', () => {
-    expect(glassCss).toContain('@layer theme, base, components, utilities;');
+    // PFINAL (tailwindless W4-r2): the utilities tier died with the engine
+    expect(glassCss).toContain('@layer theme, base, components;');
     expect(glassCss).toContain('@layer components {');
     expect(glassCss).toMatch(/:where\(\[data-jx-effect='blur'\],\s*\[data-jx-effect='liquid-glass'\]\)/);
   });

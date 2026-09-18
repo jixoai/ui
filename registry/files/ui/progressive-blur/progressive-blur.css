@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
 /* jixoai progressive blur — D1-exempt residue (2026-08-25): the reveal

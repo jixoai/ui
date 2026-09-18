@@ -35,7 +35,7 @@
  *    --jx-code-fs / --jx-code-line through the style attribute (the
  *    only channel that carries runtime literals past the scanner).
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   /* ── the token palette: light ── */

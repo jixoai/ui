@@ -1,4 +1,4 @@
-@layer properties, theme, base, components, utilities;
+@layer properties, theme, base, components;
 
 /* jixoai table — D1-exempt residue (tw4, 2026-08-24). The frame
  * paint, the --jx-table-* token surface, the container declaration

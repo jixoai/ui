@@ -262,7 +262,8 @@ describe('MathBlock · errors never escape the boundary', () => {
 
 describe('MathBlock · math-block.css (source-pinned)', () => {
   it('carries the canonical layer prologue and :where() placement (the placement law)', () => {
-    expect(mathBlockCss.startsWith('@layer theme, base, components, utilities;')).toBe(true);
+    // PFINAL (tailwindless W4-r2): the utilities tier died with the engine
+    expect(mathBlockCss.startsWith('@layer theme, base, components;')).toBe(true);
     // every static rule opener inside @layer rides :where() — consumer utilities win
     const openers = mathBlockCss.match(/^ {2}[^\n]*\{ ?$/gm) ?? [];
     expect(openers.length).toBeGreaterThanOrEqual(1);

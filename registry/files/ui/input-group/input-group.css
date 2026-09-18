@@ -20,7 +20,7 @@
  * Everything here rides @layer components behind :where() — zero
  * specificity, so consumer utilities still win (the layer law).
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   /* ---- the shell's state machines (the input family's paint law) ---

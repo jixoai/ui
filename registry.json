@@ -123,14 +123,12 @@
         "href": "/docs/components/press-button.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
         "@jixoai/icon",
         "@jixoai/paint",
         "@jixoai/defaults",
-        "@jixoai/color-utils",
-        "@jixoai/tokens"
+        "@jixoai/color-utils"
       ]
     },
     {
@@ -333,7 +331,7 @@
         "@jixoai/separator",
         "@jixoai/defaults",
         "@jixoai/figure",
-        "@jixoai/tokens"
+        "@jixoai/utils"
       ]
     },
     {
@@ -346,7 +344,9 @@
         "group": "layout",
         "href": "/docs/components/figure.html"
       },
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ],
       "files": [
         {
           "path": "registry/files/ui/figure/figure.svelte",
@@ -381,7 +381,8 @@
         "href": "/docs/components/reference.html"
       },
       "registryDependencies": [
-        "@jixoai/figure"
+        "@jixoai/figure",
+        "@jixoai/jixoai-theme"
       ],
       "files": [
         {
@@ -432,8 +433,7 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
-        "@jixoai/navigation-menu",
-        "@jixoai/tokens"
+        "@jixoai/navigation-menu"
       ],
       "meta": {
         "group": "terminal",
@@ -480,8 +480,7 @@
       ],
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "terminal",
@@ -526,11 +525,9 @@
         "href": "/docs/components/theme-toggle.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/defaults",
-        "@jixoai/tokens"
+        "@jixoai/defaults"
       ],
       "docs": "Props: variant 'full'|'compact'|'icon'|'text', hideLabels? (full only), labels? { light, dark, system, groupAriaLabel? } — localize the mode vocabulary and the group aria name; absent = the shipped English, and the localStorage 'theme' value domain is never localized."
     },
@@ -618,7 +615,9 @@
         "group": "layout",
         "href": "/docs/components/website-scaffold.html"
       },
-      "registryDependencies": []
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -671,11 +670,9 @@
       "registryDependencies": [
         "@jixoai/ghostty-vt",
         "@jixoai/jixoai-theme",
-        "@jixoai/utils",
         "@jixoai/color-utils",
         "@jixoai/density",
-        "@jixoai/defaults",
-        "@jixoai/tokens"
+        "@jixoai/defaults"
       ],
       "dependencies": []
     },
@@ -719,8 +716,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ]
     },
     {
@@ -733,8 +729,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/utils",
-        "@jixoai/press-button",
-        "@jixoai/tokens"
+        "@jixoai/press-button"
       ],
       "files": [
         {
@@ -816,8 +811,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/defaults",
-        "@jixoai/tokens"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -860,8 +854,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ]
     },
     {
@@ -925,8 +918,7 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
-        "@jixoai/button-group",
-        "@jixoai/tokens"
+        "@jixoai/button-group"
       ]
     },
     {
@@ -1019,8 +1011,7 @@
         "@jixoai/icon-set",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/control-chrome",
-        "@jixoai/tokens"
+        "@jixoai/control-chrome"
       ],
       "meta": {
         "group": "data-entry",
@@ -1070,8 +1061,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -1116,12 +1106,10 @@
         "href": "/docs/components/textarea.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/control-chrome",
-        "@jixoai/tokens"
+        "@jixoai/control-chrome"
       ]
     },
     {
@@ -1131,7 +1119,8 @@
       "title": "Scaffold float portal",
       "description": "The consumer-side half of the WebsiteScaffold float provider: renders children into the scaffold's top layer (.jx-top-layer) through a real portal — nodes are created here (full Svelte ownership) and adopted into the provider's insertion point on mount. The float rides the top layer's immersive hide/reveal with the header by construction.",
       "registryDependencies": [
-        "@jixoai/website-scaffold"
+        "@jixoai/website-scaffold",
+        "@jixoai/jixoai-theme"
       ],
       "files": [
         {
@@ -1204,8 +1193,7 @@
         "@jixoai/defaults",
         "@jixoai/density",
         "@jixoai/entity",
-        "@jixoai/popover",
-        "@jixoai/tokens"
+        "@jixoai/popover"
       ]
     },
     {
@@ -1257,12 +1245,10 @@
         "href": "/docs/components/popover.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -1281,8 +1267,7 @@
         "@jixoai/utils",
         "@jixoai/icon",
         "@jixoai/button-group",
-        "@jixoai/press-button",
-        "@jixoai/tokens"
+        "@jixoai/press-button"
       ],
       "files": [
         {
@@ -1446,11 +1431,9 @@
         "href": "/docs/components/table.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -1561,8 +1544,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/paint",
-        "@jixoai/tokens"
+        "@jixoai/paint"
       ]
     },
     {
@@ -1600,8 +1582,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ]
     },
     {
@@ -1644,8 +1625,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ]
     },
     {
@@ -1725,8 +1705,7 @@
       "registryDependencies": [
         "@jixoai/icon",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-display",
@@ -1754,8 +1733,7 @@
         "@jixoai/density",
         "@jixoai/defaults",
         "@jixoai/separator",
-        "@jixoai/native-select",
-        "@jixoai/tokens"
+        "@jixoai/native-select"
       ],
       "files": [
         {
@@ -1813,7 +1791,7 @@
       "description": "The prototype standard's three declarative frame components (design-studio): PrototypeCanvas — a CSS grid container (gridCols/gridRows/gap; number → repeat(N, minmax(0,1fr)), string verbatim, omitted → adaptive auto-fill wrap) that nests freely and provides the prototype-folder context to its frames (explicit prop ?? inherited canvas ?? derived from the /prototypes/<name>/ canvas-page URL); PrototypePage — a declarative viewport iframe whose src is the design server's frame surface, /__design__/frame?p=<prototype>&f=<ref minus leading ./>&theme=<light|dark|auto>&w=<px>&h=<px> (real media/container queries follow the frame viewport; width overflow scales visually, the real viewport is never faked); PrototypeComponent — the same frame with adaptive content height (height is the initial value until same-origin measurement takes over; fill locks it — the URL carries &fill=0|1). Frame ids are DOM anchors (unique per canvas, dev warning on conflict, first wins). Outside a design-server host the frames render a visible \"requires the design server\" notice instead of a dead iframe.",
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ],
       "files": [
         {
@@ -2037,8 +2015,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/control-chrome",
-        "@jixoai/tokens"
+        "@jixoai/control-chrome"
       ]
     },
     {
@@ -2084,8 +2061,7 @@
         "@jixoai/utils",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/control-chrome",
-        "@jixoai/tokens"
+        "@jixoai/control-chrome"
       ],
       "meta": {
         "group": "data-entry",
@@ -2140,8 +2116,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -2218,8 +2193,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -2274,8 +2248,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -2340,8 +2313,7 @@
         "@jixoai/icon-button",
         "@jixoai/icon",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -2387,8 +2359,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -2440,8 +2411,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/control-chrome",
-        "@jixoai/tokens"
+        "@jixoai/control-chrome"
       ],
       "meta": {
         "group": "data-entry",
@@ -2492,12 +2462,10 @@
         "href": "/docs/components/badge.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/paint",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -2547,8 +2515,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -2597,8 +2564,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -2643,8 +2609,7 @@
         "@jixoai/tooltip",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/tokens"
+        "@jixoai/defaults"
       ],
       "docs": "Props: src?, name (required — fuels alt + initials + tooltip), size? ('sm'|'md'|'lg' = 24/32/40px; initials halve at sm), variant? ('bevel' default | 'rounded' | 'squircle'), tooltip? (true — full-name tooltip; false opts out), alt?, plus <img> attributes.",
       "meta": {
@@ -2700,8 +2665,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/paint",
-        "@jixoai/tokens"
+        "@jixoai/paint"
       ]
     },
     {
@@ -2754,8 +2718,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ]
     },
     {
@@ -2822,8 +2785,7 @@
         "@jixoai/scroll-run",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/glass",
-        "@jixoai/tokens"
+        "@jixoai/glass"
       ]
     },
     {
@@ -2870,11 +2832,9 @@
         "href": "/docs/components/progress.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -2924,8 +2884,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3010,8 +2969,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3067,8 +3025,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3159,8 +3116,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/dropdown-menu",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3202,11 +3158,9 @@
         "href": "/docs/components/kbd.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3223,8 +3177,7 @@
         "@jixoai/paint",
         "@jixoai/highlight",
         "@jixoai/highlight-microlighter",
-        "@jixoai/text",
-        "@jixoai/tokens"
+        "@jixoai/text"
       ],
       "files": [
         {
@@ -3313,8 +3266,7 @@
         "@jixoai/press-button",
         "@jixoai/defaults",
         "@jixoai/paint",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3353,8 +3305,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon",
-        "@jixoai/tokens"
+        "@jixoai/icon"
       ]
     },
     {
@@ -3444,8 +3395,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3519,8 +3469,7 @@
         "@jixoai/website-scaffold",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/glass",
-        "@jixoai/tokens"
+        "@jixoai/glass"
       ]
     },
     {
@@ -3619,8 +3568,7 @@
         "@jixoai/defaults",
         "@jixoai/density",
         "@jixoai/separator",
-        "@jixoai/input",
-        "@jixoai/tokens"
+        "@jixoai/input"
       ]
     },
     {
@@ -3675,8 +3623,7 @@
         "@jixoai/icon",
         "@jixoai/separator",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3726,8 +3673,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -3774,8 +3720,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -3873,8 +3818,7 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ]
     },
     {
@@ -3950,8 +3894,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/command-match",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4027,8 +3970,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4098,8 +4040,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4149,8 +4090,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4195,8 +4135,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4248,11 +4187,9 @@
         "href": "/docs/components/descriptions.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4327,8 +4264,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4380,12 +4316,10 @@
         "href": "/docs/components/spin.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
-        "@jixoai/spin-set",
-        "@jixoai/tokens"
+        "@jixoai/spin-set"
       ]
     },
     {
@@ -4427,11 +4361,9 @@
         "href": "/docs/components/statistic.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4516,8 +4448,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4562,8 +4493,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4603,8 +4533,7 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ],
       "meta": {
         "group": "data-entry",
@@ -4655,8 +4584,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ],
       "meta": {
         "group": "data-entry",
@@ -4699,8 +4627,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon",
-        "@jixoai/tokens"
+        "@jixoai/icon"
       ]
     },
     {
@@ -4750,8 +4677,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ]
     },
     {
@@ -4788,9 +4714,7 @@
         "href": "/docs/components/badge-indicator.html"
       },
       "registryDependencies": [
-        "@jixoai/utils",
-        "@jixoai/jixoai-theme",
-        "@jixoai/tokens"
+        "@jixoai/jixoai-theme"
       ]
     },
     {
@@ -4834,11 +4758,9 @@
       "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers).",
       "registryDependencies": [
         "@jixoai/scroll-spy",
-        "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
-        "@jixoai/tokens"
+        "@jixoai/density"
       ],
       "meta": {
         "group": "navigation",
@@ -4891,8 +4813,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/tokens"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -5324,6 +5245,11 @@
           "path": "registry/files/ui/scroll-area/scroll-area.stylex.ts",
           "target": "@ui/scroll-area/scroll-area.stylex.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scroll-area/scroll-area-defaults.svelte.ts",
+          "target": "@ui/scroll-area/scroll-area-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), radius? (number px | 'full' — default 0, the square-cut), width? ('auto' | 'thin' | 'wide' — default 'auto'; the chrome-width tiers), label?, pad? (CSS length — inline ring padding, keeps content clear of the thumb lane), class/style + restProps passthrough to the viewport, children snippet. The thumb's a11y contract (role=scrollbar, aria-controls → the viewport, aria-valuenow, aria-orientation, keyboard-draggable) is mounted by the kit's hand-drawn adapter. getViewport() feeds Toc scrollRoot / toc-outline root / toc-engine extents — the zero-boilerplate ToC pairing.",
@@ -5334,7 +5260,8 @@
       "registryDependencies": [
         "@jixoai/scroll-area-kit",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -5915,8 +5842,7 @@
         "@jixoai/separator",
         "@jixoai/scroll-run",
         "@jixoai/paint",
-        "@jixoai/defaults",
-        "@jixoai/tokens"
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "general",
@@ -5974,10 +5900,8 @@
       "docs": "Props (root): label (REQUIRED a11y name), name/value/bind:value forwarded to the InputGroupInput member, disabled (native propagation: input renders disabled, addons render inert), invalid, density, class. Members: InputGroupAddon (align 'inline-start'|'inline-end', decorative lane), InputGroupInput (the native input — its own name= submits through the input family contract, MULTIVALUE-ready via the form-field seam when composed so). The shell is a composition frame: children compose freely inside the lane; seams are the addons' hairlines, the shell carries exactly one border.",
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/utils",
         "@jixoai/density",
-        "@jixoai/defaults",
-        "@jixoai/tokens"
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "data-entry",
@@ -6051,8 +5975,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
-        "@jixoai/defaults",
-        "@jixoai/tokens"
+        "@jixoai/defaults"
       ],
       "dependencies": []
     },
@@ -6104,8 +6027,7 @@
         "@jixoai/input-otp",
         "@jixoai/press-button",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon",
-        "@jixoai/tokens"
+        "@jixoai/icon"
       ]
     },
     {
@@ -6152,8 +6074,7 @@
         "@jixoai/press-button",
         "@jixoai/badge",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon",
-        "@jixoai/tokens"
+        "@jixoai/icon"
       ]
     },
     {
@@ -6209,8 +6130,7 @@
         "@jixoai/terminal-card",
         "@jixoai/press-button",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon",
-        "@jixoai/tokens"
+        "@jixoai/icon"
       ]
     },
     {
@@ -6254,8 +6174,7 @@
       "registryDependencies": [
         "@jixoai/accordion",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon",
-        "@jixoai/tokens"
+        "@jixoai/icon"
       ]
     },
     {
@@ -6300,8 +6219,7 @@
         "@jixoai/press-button",
         "@jixoai/code-card",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon",
-        "@jixoai/tokens"
+        "@jixoai/icon"
       ]
     },
     {
@@ -6422,9 +6340,7 @@
         "@jixoai/katex",
         "@jixoai/jixoai-theme",
         "@jixoai/scroll-run",
-        "@jixoai/icon",
-        "@jixoai/utils",
-        "@jixoai/tokens"
+        "@jixoai/icon"
       ],
       "files": [
         {
@@ -6472,8 +6388,7 @@
         "@jixoai/mermaid-engine",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/utils",
-        "@jixoai/tokens"
+        "@jixoai/utils"
       ],
       "files": [
         {
@@ -6531,7 +6446,10 @@
         "group": "layout",
         "href": "/docs/components/prototype-flex.html",
         "alpha": true
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -6556,7 +6474,10 @@
         "group": "layout",
         "href": "/docs/components/prototype-grid.html",
         "alpha": true
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -6581,7 +6502,10 @@
         "group": "layout",
         "href": "/docs/components/prototype-waterfall.html",
         "alpha": true
-      }
+      },
+      "registryDependencies": [
+        "@jixoai/jixoai-theme"
+      ]
     }
   ]
 }

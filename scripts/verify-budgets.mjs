@@ -141,7 +141,20 @@ const BASELINES = {
   // (verify:shadcn-add clean-consumer probes, 22 cases green).
   // B-consumer-icons 857->858 measured under threshold (rebuild
   // jitter) — left at its baseline.
-  'B-source': 37636,
+  //
+  // re-recorded 2026-09-19 (tailwindless one-shot W4-r2): B-source
+  // 37636->41682 (+10.7%) — the PREFLIGHT HANDOVER lands the engine's
+  // invisible base layer (148 bytes-verbatim lines from the Owner's
+  // :5199 receipt: universal border-box + the zero slate, typography
+  // normalization, form-control inheritance) in the theme sheet's
+  // base layer, and the PFINAL flip retires the TW-era @theme mapping
+  // block (−54 lines) plus the utilities tier from every prelude.
+  // Net: the sheet now OWNS the canvas consumers were implicitly
+  // borrowing from the engine — the registry spec's "the theme sheet
+  // is the whole styling prerequisite" made literal. Receipted
+  // growth: base-layer law only, zero utility-layer leakage
+  // (B-consumer rows unchanged).
+  'B-source': 41682,
   'B-face': 13368,
   'B-consumer-vite': 3865,
   'B-consumer-icons': 857,

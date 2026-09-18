@@ -13,7 +13,7 @@
  * registering names in the canonical order makes the sheet
  * order-independent. */
 
-@layer properties, theme, base, components, utilities;
+@layer properties, theme, base, components;
 
 @layer components {
   :where(.jx-probe) {

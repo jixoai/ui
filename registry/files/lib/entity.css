@@ -32,7 +32,7 @@
  * must beat the shells' own paint regardless of sheet order, and the
  * two overrides outrank it by one class of specificity.
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   /* ── depth ≥1: the GROUND dissolves — the entity's surface IS the

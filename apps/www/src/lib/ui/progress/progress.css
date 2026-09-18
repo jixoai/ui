@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai progress — D1-exempt residue (tw4, 2026-08-24): ONLY the
  * native-progress pseudo-element resets (both engines paint

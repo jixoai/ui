@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai card css — THE STRUCTURAL KERNEL'S RULE SET
  * (card-surface-kernel, 2026-09-09): everything below anchors on the

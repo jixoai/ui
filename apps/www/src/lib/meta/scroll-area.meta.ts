@@ -23,7 +23,8 @@ export const meta = defineComponentMeta(
       },
       "radius": {
         "kind": "opaque",
-        "typeText": "number | 'full'"
+        "typeText": "number | 'full'",
+        "ambient": "own"
       },
       "width": {
         "kind": "enum",

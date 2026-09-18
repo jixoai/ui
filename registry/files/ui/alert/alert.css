@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai alert — D1-exempt residue (tw4, 2026-08-24): ONLY the
  * passed-through icon-glyph normalization remains — a descendant

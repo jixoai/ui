@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai input-otp — D1-exempt residue (tw4, 2026-08-24): slot, label
  * and error paint live as token utilities in the markup (filled /

@@ -1,4 +1,4 @@
-@layer properties, theme, base, components, utilities;
+@layer properties, theme, base, components;
 
 /* jixoai scroll-area — the HAND-DRAWN chrome's paint (rework,
  * 2026-09-15: always hand-drawn — the dual-mode variant era retired

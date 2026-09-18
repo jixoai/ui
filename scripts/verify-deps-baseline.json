@@ -1,6 +1,5 @@
 {
   "undeclared": [
-    "system-dialog -> @jixoai/popover",
     "breadcrumb -> @jixoai/icon",
     "color-picker -> @jixoai/popover",
     "combobox -> @jixoai/popover",
@@ -13,13 +12,13 @@
     "menubar -> @jixoai/popover",
     "popconfirm -> @jixoai/popover",
     "select -> @jixoai/popover",
+    "system-dialog -> @jixoai/popover",
     "tags-input -> @jixoai/popover",
     "toc -> @jixoai/utils",
     "tour -> @jixoai/popover"
   ],
   "dead": [
     "component-canvas -> @jixoai/shiki",
-    "press-button -> @jixoai/utils",
     "scaffold-float -> @jixoai/website-scaffold",
     "search-corpus -> @jixoai/llms-txt"
   ]

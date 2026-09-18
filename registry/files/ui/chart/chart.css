@@ -22,7 +22,7 @@
  * computes from the token-derived ramp. No density branching (the
  * aliases flow from the theme's density scopes).
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   /* ---- text-glyph runs: the mono lock (the grid is the metric) ---- */

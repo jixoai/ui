@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
 /* jixoai tour — D1-exempt residue (tw4, 2026-08-24): geometry only.

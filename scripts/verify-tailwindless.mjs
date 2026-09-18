@@ -2668,6 +2668,20 @@ function check(root, allowlistPath) {
     red.push('allowlist lost the jxCssUtilities freeze');
   }
 
+  // PFINAL negative (tailwindless one-shot W4-r2, the spec's frozen
+  // post-engine layer statement): the utilities tier DIED with the
+  // engine — no repo css prelude may mention it again. A stale
+  // utilities-tier statement re-registers a layer nothing of ours
+  // emits into, re-coupling the kernel to a consumer engine's tier.
+  for (const tree of ['apps/www/src', 'registry/files']) {
+    for (const rel of walkDir(join(root, tree), tree)) {
+      if (!rel.endsWith('.css')) continue;
+      const text = readFileSync(join(root, tree, rel), 'utf8');
+      const hit = text.match(/^@layer [^;{]*\butilities\b[;{]/m);
+      if (hit) red.push(`${tree}/${rel}: stale utilities-tier layer statement ('${hit[0].trim()}') — the tier died with the engine (PFINAL); the canonical prelude ends at components(.stylex.*)`);
+    }
+  }
+
   // .stylex.ts tier-2 literals (growth red; removal legal). Baseline =
   // the pinned block ∪ the explicit Gate-4 grandfather ledger, taking
   // the max per key (the ledger only backfills pre-extension keys).

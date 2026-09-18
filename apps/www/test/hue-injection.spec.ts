@@ -21,15 +21,17 @@ const HUE_TARGET: Record<(typeof HUES)[number], string> = {
 
 describe('hue-injection utilities', () => {
   it('the theme sheet carries every intent class of the closed set', () => {
-    // tailwindless W4: the intent layer retired the @utility syntax —
-    // plain utilities-tier classes now carry the same declarations
+    // tailwindless W4-r2 (PFINAL): the intent layer retired the
+    // @utility syntax AND the utilities tier — unlayered :where()
+    // hooks carry the same declarations (zero specificity, above
+    // every cascade layer)
     for (const hue of HUES) {
       expect(sheet, `.jx-hue-${hue}`).toMatch(
-        new RegExp(`\\.jx-hue-${hue} \\{ --jx-tonal: ${HUE_TARGET[hue].replace(/[()]/g, '\\$&')}; \\}`),
+        new RegExp(`:where\\(\\.jx-hue-${hue}\\) \\{ --jx-tonal: ${HUE_TARGET[hue].replace(/[()]/g, '\\$&')}; \\}`),
       );
     }
     expect(sheet).toContain(
-      '.jx-pair-destructive {\n    --jx-fill: var(--destructive);\n    --jx-fill-ink: var(--destructive-foreground);\n  }',
+      ':where(.jx-pair-destructive) {\n  --jx-fill: var(--destructive);\n  --jx-fill-ink: var(--destructive-foreground);\n}',
     );
   });
 
@@ -48,7 +50,7 @@ describe('hue-injection utilities', () => {
   });
 
   it('the intent jx-* class set is EXACTLY the closed set (no unlisted additions)', () => {
-    const intent = [...sheet.matchAll(/^  \.(jx-hue-[a-z-]+|jx-pair-[a-z-]+) \{/gm)].map((m) => m[1]);
+    const intent = [...sheet.matchAll(/^:where\(\.(jx-hue-[a-z-]+|jx-pair-[a-z-]+)\) \{/gm)].map((m) => m[1]);
     expect(intent.sort()).toEqual(
       [
         'jx-hue-primary',

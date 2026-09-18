@@ -17,9 +17,9 @@
  * before the first `npm run build`).
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const here = resolve(fileURLToPath(import.meta.url), '..');
@@ -81,5 +81,72 @@ describe('registry payload ↔ source parity', () => {
       }
     }
     expect(drift, `stale payloads — re-run the root npm run build (shadcn build + registry-stylex-swap): ${drift.join(', ')}`).toEqual([]);
+  });
+
+  it('the delivery set is CLOSED over the registry (nothing missing, nothing extra, exactly one owner carrier per item)', () => {
+    // the Codex r1 finding: iterating only EXISTING payloads cannot
+    // catch a payload that was never built, an orphan, or a misplaced
+    // css carrier. This test closes the set in BOTH directions.
+    const stylexItems = registry.items.filter((item) =>
+      (item.files ?? []).some((f) => f.path.endsWith('.stylex.ts')),
+    );
+    expect(stylexItems.length, 'the registry carries stylex sources').toBeGreaterThan(0);
+    for (const item of stylexItems) {
+      const payloadPath = resolve(repoRoot, 'public/r', `${item.name}.json`);
+      expect(existsSync(payloadPath), `${item.name}: no published payload — run shadcn build + the swap`).toBe(true);
+      const payload = JSON.parse(readFileSync(payloadPath, 'utf8')) as {
+        files: { path: string; content: string }[];
+      };
+      expect(
+        payload.files.some((f) => f.path.endsWith('.stylex.ts')),
+        `${item.name}: a raw .stylex.ts survived the swap`,
+      ).toBe(false);
+      const js = payload.files.filter((f) => f.path.endsWith('.stylex.js'));
+      const css = payload.files.filter((f) => f.path.endsWith('.stylex.css'));
+      expect(js.length, `${item.name}: expected the swapped module set`).toBeGreaterThan(0);
+      expect(css.length, `${item.name}: exactly ONE css carrier (the item's own module)`).toBe(1);
+      // the carrier resolves through the swap's ladder: stem-named,
+      // own-dir (registry/files[/ui]/<name>/), or the single-entry item
+      // (tokens → registry/files/lib/tokens.stylex.css) — never a
+      // foreign dep's module
+      const stem = item.name.split('/').at(-1)!;
+      const sources = (item.files ?? []).filter((f) => f.path.endsWith('.stylex.ts'));
+      const ladderOk =
+        css[0]!.path.endsWith(`/${stem}.stylex.css`) ||
+        css[0]!.path.startsWith(`registry/files/ui/${item.name}/`) ||
+        css[0]!.path.startsWith(`registry/files/${item.name}/`) ||
+        sources.length === 1;
+      expect(ladderOk, `${item.name}: the css carrier must resolve through the owner ladder, got ${css[0]!.path}`).toBe(true);
+      const carrier = js.find((f) => f.content.startsWith("import './"));
+      expect(carrier, `${item.name}: exactly one module wires the css (the leading relative import)`).toBeDefined();
+      const cssStem = css[0]!.path.split('/').at(-1)!.replace('.stylex.css', '');
+      expect(carrier!.path.endsWith(`/${cssStem}.stylex.js`), `${item.name}: the wiring module is the owner carrier (${cssStem}.stylex.js)`).toBe(true);
+      expect(
+        js.filter((f) => f.content.startsWith("import './")).length,
+        `${item.name}: no second wiring`,
+      ).toBe(1);
+    }
+    // reverse: every published payload with swapped modules maps back
+    // to a registry item that still carries the sources
+    const names = new Set(registry.items.map((i) => i.name));
+    const rDir = resolve(repoRoot, 'public/r');
+    for (const name of readdirSync(rDir)) {
+      if (!name.endsWith('.json') || name === 'registry.json') continue;
+      const payload = JSON.parse(readFileSync(join(rDir, name), 'utf8')) as {
+        name?: string;
+        files?: { path: string }[];
+      };
+      const items = payload.files ? [payload] : []; // index handled below
+      const candidates = payload.items ?? items;
+      for (const entry of candidates) {
+        if (!(entry.files ?? []).some((f: { path: string }) => f.path.endsWith('.stylex.js'))) continue;
+        expect(names.has(entry.name!), `orphan swapped payload '${entry.name}' (${name}) — no registry item owns it`).toBe(true);
+        const owner = registry.items.find((i) => i.name === entry.name!)!;
+        expect(
+          (owner.files ?? []).some((f) => f.path.endsWith('.stylex.ts')),
+          `${entry.name}: swapped delivery without sources in the registry`,
+        ).toBe(true);
+      }
+    }
   });
 });

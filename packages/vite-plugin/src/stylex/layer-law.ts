@@ -24,18 +24,20 @@
 //      canonical FULL statement at byte zero, listing EVERY priority
 //      layer the css carries (priority1..N, N = the highest layer the
 //      engine emitted for THIS css — the O1-H measurement of 1..3 was
-//      that corpus's special case, not the law) with `utilities`
-//      CONSTANTLY LAST. When the kernel css is first (or merged at the
-//      top of the consumer's entry — the single-file build), the
-//      statement wins the first-mention race outright.
+//      that corpus's special case, not the law). The utilities tier is
+//      GONE from the prelude since the engine died (PFINAL): the
+//      kernel emits nothing there, and a consumer's own utilities
+//      registration appends after our every mention — nesting keeps
+//      them winning.
 //
 // OWNERSHIP: the plugin bakes this statement (dev /virtual:stylex.css
 // and build assets); the payload generator stamps it at byte zero of
 // every item css. Authors NEVER hand-write it. The `useCSSLayers`
 // engine config ({ before: [properties, theme, base, components],
-// prefix: 'components.stylex', after: ['utilities'] }) rides the same
-// law — keep the two in lockstep (STYLEX_LAYER_* below + the pins in
-// vite-plugin.ts / scripts/lib/stylex-payload.mjs).
+// prefix: 'components.stylex', after: [] }) rides the same law —
+// keep the two in lockstep (STYLEX_LAYER_* below + the pins in
+// vite-plugin.ts / scripts/lib/stylex-payload.mjs). PFINAL: the
+// after-list is EMPTY — no utilities reservation anywhere.
 
 /** the engine layer prefix — nested under `components` (mechanic 1) */
 export const STYLEX_LAYER_PREFIX = 'components.stylex';
@@ -43,8 +45,16 @@ export const STYLEX_LAYER_PREFIX = 'components.stylex';
 /** the layers registered BEFORE the stylex tiers in the canonical statement */
 export const STYLEX_LAYERS_BEFORE: readonly string[] = ['properties', 'theme', 'base', 'components'] as const;
 
-/** the layer registered LAST — the law's constant (utilities eternally final) */
-export const STYLEX_LAYERS_AFTER: readonly string[] = ['utilities'] as const;
+/**
+ * The layer registered LAST — EMPTY since the engine died (PFINAL,
+ * tailwindless one-shot W4-r2, 2026-09-19): the kernel emits nothing
+ * into a utilities tier, so the prelude no longer reserves one. The
+ * nesting mechanic (components.stylex.* inside components) keeps
+ * consumer utilities winning under EITHER import order — a consumer's
+ * own utilities registration (their TW prelude, or an unlayered rule)
+ * appends after everything the kernel mentions, still above our paint.
+ */
+export const STYLEX_LAYERS_AFTER: readonly string[] = [] as const;
 
 /**
  * The canonical FULL layer statement for a css whose highest stylex
@@ -85,7 +95,7 @@ export interface CanonicalStatement {
  * against the ONE source (the bytes cannot drift between the two).
  */
 export const CANONICAL_STATEMENT_PATTERN =
-  '@layer properties, theme, base, components(?:, components\\.stylex\\.priority[0-9]+)*, utilities;';
+  '@layer properties, theme, base, components(?:, components\\.stylex\\.priority[0-9]+)*;';
 
 /**
  * Parse a css's opening statement as the canonical form. Returns null

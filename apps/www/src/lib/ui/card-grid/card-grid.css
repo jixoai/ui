@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai card-grid — D1-exempt residue (tw4, 2026-08-24). The grid
  * container's paint lives as utilities in the markup; what remains is

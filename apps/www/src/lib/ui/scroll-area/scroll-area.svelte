@@ -61,6 +61,7 @@
   import { createHandDrawnScrollbar, type HandDrawnHandle } from '$lib/scroll-area-kit/hand-drawn.svelte';
   import type { OverflowVerdict } from '$lib/scroll-area-kit/core';
   import { scrollAreaStyles } from './scroll-area.stylex';
+  import { ScrollAreaDefaults } from './scroll-area-defaults.svelte';
   import './scroll-area.css';
 
   export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
@@ -107,11 +108,15 @@
     ...restProps
   }: Props = $props();
 
+  // the family Defaults is the single read point (the A1 contract):
+  // absence IS the state — resolved undefined paints nothing and the
+  // sheet's 0px default applies (square-cut, the r2 default look)
+  const d = $derived(ScrollAreaDefaults.resolve({ radius }));
+
   // the thumb radius as a CSS value — stamped on the REGION (the
-  // sheet's var consumer); undefined paints nothing and the sheet's
-  // 0px default applies (square-cut, the r2 default look)
+  // sheet's var consumer)
   const thumbRadius = $derived(
-    radius === undefined ? undefined : radius === 'full' ? 'calc(infinity * 1px)' : `${radius}px`,
+    d.radius === undefined ? undefined : d.radius === 'full' ? 'calc(infinity * 1px)' : `${d.radius}px`,
   );
 
   const viewportId = `jx-scroll-viewport-${++nextViewportId}`;

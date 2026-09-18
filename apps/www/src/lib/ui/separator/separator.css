@@ -42,4 +42,4 @@
  * F9 canonical layer law) — the :where() guarantee the old selectors
  * carried, now held by layer physics.
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;

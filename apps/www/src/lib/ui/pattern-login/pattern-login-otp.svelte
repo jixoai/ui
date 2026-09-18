@@ -51,14 +51,16 @@
   // shipped payloads — composition goes through THIS joiner, never a
   // raw class={styles.x} interpolation
   const cx = (
-    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
       .filter(Boolean)
       .map((style) =>
-        Object.entries(style).flatMap(([key, value]) =>
-          key !== '$$css' && typeof value === 'string' ? [value] : [],
-        ).join(' '),
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
       )
       .join(' ');
 </script>

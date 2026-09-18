@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 @layer components {
   /* the activation lane (restored 2026-08-29, merge-alignment D5
      diagnosis): the V3 class-mount migration (226a699) deleted this

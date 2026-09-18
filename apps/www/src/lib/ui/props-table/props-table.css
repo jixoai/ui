@@ -8,7 +8,7 @@
  * components — consumer utilities in the later layer always win.
  * Owner: site (never a registry item — www-only family).
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   :where([data-jx-props-table-title]) {

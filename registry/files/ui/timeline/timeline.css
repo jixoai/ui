@@ -1,4 +1,4 @@
-@layer properties, theme, base, components, utilities;
+@layer properties, theme, base, components;
 
 /* jixoai timeline — the drawn-spine engine (W3 rework, Owner
  * 2026-09-15; grid-engine rebuild, 2026-09-01).

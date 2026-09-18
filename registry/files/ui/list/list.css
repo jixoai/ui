@@ -1,4 +1,4 @@
-@layer properties, theme, base, components, utilities;
+@layer properties, theme, base, components;
 
 /*
  * list.css — the list family's tailwindless lane-2 residue

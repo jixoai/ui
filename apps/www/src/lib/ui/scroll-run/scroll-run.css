@@ -67,7 +67,7 @@
  * UNLAYERED (cascade law: the layer's own grid utility beats a
  * layered display:none).
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   /* the run IS the scroller */

@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* a11y-table.css — the reference table's lane-2 residue
  * (tailwindless one-shot W1, 2026-09-17; www-only site component).

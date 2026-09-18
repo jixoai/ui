@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai math-block — the display math surface's own residue
  * (registry/files/ui/math-block/math-block.css, 2026-09-06 the

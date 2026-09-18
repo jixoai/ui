@@ -71,8 +71,22 @@ export function swapRegistryPayloads(root, rDir = join(root, 'public', 'r')) {
     }
     const stem = key.split('/').at(-1);
     const stylexEntries = files.filter((f) => f?.path?.match(STYLEX_TS));
-    // the css carrier: the item's OWN module (stem match); fallback first
-    const carrier = stylexEntries.find((f) => f.path.split('/').at(-1) === `${stem}.stylex.ts`) ?? stylexEntries[0];
+    // the css carrier: the item's OWN module — resolution ladder
+    // (measured against the live registry): 1) the stem-named entry,
+    // 2) an entry under the item's own directory, 3) the item's SINGLE
+    // stylex entry (e.g. tokens → registry/files/lib/tokens.stylex.ts).
+    // NO SILENT AMBIGUITY (the Codex r1 finding): multiple foreign
+    // entries without an owner = fail loud — wiring the css onto a
+    // dep's module would deliver the item css only while that dep
+    // rides along.
+    const ownDir = stylexEntries.filter((f) => f.path.startsWith(`registry/files/ui/${key}/`) || f.path.startsWith(`registry/files/${key}/`));
+    const carrier =
+      stylexEntries.find((f) => f.path.split('/').at(-1) === `${stem}.stylex.ts`) ??
+      ownDir[0] ??
+      (stylexEntries.length === 1 ? stylexEntries[0] : undefined);
+    if (!carrier) {
+      throw new Error(`registry-stylex-swap: item '${key}' has no resolvable owner carrier [${stylexEntries.map((f) => f.path).join(', ')}] — the css wiring must land on the item's OWN module (stem-named, own-dir, or single-entry)`);
+    }
     const carrierDir = carrier.path.split('/').slice(0, -1).join('/');
     const carrierStem = carrier.path.split('/').at(-1).replace(STYLEX_TS, '');
     const cssPath = `${carrierDir}/${carrierStem}.stylex.css`;

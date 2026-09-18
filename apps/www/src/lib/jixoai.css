@@ -939,60 +939,11 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   }
 }
 
-/* Tailwind v4 token → utility mapping (map EVERY token; unmapped tokens
-   silently yield dead utilities) and the dark variant. */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-terminal: var(--terminal);
-  --color-terminal-foreground: var(--terminal-foreground);
-  --color-terminal-hover: var(--terminal-hover);
-  --color-terminal-muted: var(--terminal-muted);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary-text: var(--primary-text);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-info: var(--info);
-  --color-info-foreground: var(--info-foreground);
-  --color-error: var(--error);
-  --color-error-foreground: var(--error-foreground);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-nav: var(--font-nav);
-  --radius: var(--radius);
-  --shadow-2xs: var(--shadow-2xs);
-  --shadow-xs: var(--shadow-xs);
-  --shadow-sm: var(--shadow-sm);
-  --shadow: var(--shadow);
-  --shadow-md: var(--shadow-md);
-  --shadow-engrave: var(--shadow-engrave);
-  --shadow-well: var(--shadow-well);
-  --shadow-well-hover: var(--shadow-well-hover);
-  --shadow-paper: var(--shadow-paper);
-}
+/* (tailwindless W4-r2, PFINAL) the TW-era theme-mapping block (the
+   "Tailwind v4 token to utility mapping" of the old header) died with
+   the engine — no engine at-rule survives anywhere in repo css.
+   TW-running consumers map their own utilities; this sheet's custom
+   properties are the whole token surface. */
 
 /* Reveal hooks, scroll-driven era (Owner approval, 2026-08-24): pure CSS.
    animation-timeline: view() resolves against the NEAREST scrollport
@@ -1341,21 +1292,20 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    jx-hue-destructive (destructive is an ACTION — the pair below),
    and the pair emits --jx-fill WITH --jx-fill-ink in one class, so
    the always-inject-both law is structural, not documentation. */
-/* tailwindless W4: the intent layer as PLAIN utilities-tier classes —
-   the @utility syntax retired with the engine; same declarations, same
-   layer position (the canonical statement's utilities tier rides
-   last, consumer engines still win by the placement law) */
-@layer utilities {
-  .jx-hue-primary { --jx-tonal: var(--primary); }
-  .jx-hue-neutral { --jx-tonal: var(--muted-foreground); }
-  .jx-hue-error { --jx-tonal: var(--error); }
-  .jx-hue-success { --jx-tonal: var(--success); }
-  .jx-hue-warning { --jx-tonal: var(--warning); }
-  .jx-hue-info { --jx-tonal: var(--info); }
-  .jx-pair-destructive {
-    --jx-fill: var(--destructive);
-    --jx-fill-ink: var(--destructive-foreground);
-  }
+/* tailwindless W4-r2 (PFINAL): the intent layer as UNLAYERED :where()
+   hooks — zero specificity, and unlayered paint beats every cascade
+   layer, so the hue/pair vars ride above atoms (the state-paint law)
+   and consumer engines still win by their own layers' nature. The
+   utilities tier died with the engine; nothing of ours lives there. */
+:where(.jx-hue-primary) { --jx-tonal: var(--primary); }
+:where(.jx-hue-neutral) { --jx-tonal: var(--muted-foreground); }
+:where(.jx-hue-error) { --jx-tonal: var(--error); }
+:where(.jx-hue-success) { --jx-tonal: var(--success); }
+:where(.jx-hue-warning) { --jx-tonal: var(--warning); }
+:where(.jx-hue-info) { --jx-tonal: var(--info); }
+:where(.jx-pair-destructive) {
+  --jx-fill: var(--destructive);
+  --jx-fill-ink: var(--destructive-foreground);
 }
 
 /* ── jx-html standard layer (native-contract-fusion V2 → css-laws V3,

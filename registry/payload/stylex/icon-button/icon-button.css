@@ -1,4 +1,4 @@
-@layer properties, theme, base, components, components.stylex.priority1, utilities;
+@layer properties, theme, base, components, components.stylex.priority1;
 @layer properties, theme, base, components;
 
 @layer components.stylex.priority1 {
@@ -6,6 +6,4 @@
     flex-shrink: 0;
   }
 }
-
-@layer utilities;
 /* buildId: 7d8bb67bcc5beef8859cf82b33c794060d8194b509264c6570ab4ab974ef5ae3 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

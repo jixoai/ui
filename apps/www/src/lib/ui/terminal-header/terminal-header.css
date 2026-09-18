@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai terminal-header — D1-exempt residue (tw4, 2026-08-24; narrowed
  * per Codex P3-r1 blocker 3). The bezel paint, bar/drawer statics live

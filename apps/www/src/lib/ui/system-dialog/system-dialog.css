@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai system-dialog — residue (tw4, 2026-08-24 → popover-engine
  * rebuild 2026-09-01). The panel is a popover="manual" element anchored

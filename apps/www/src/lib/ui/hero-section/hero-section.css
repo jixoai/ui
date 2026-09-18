@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai hero-section — D1-exempt residue (tw4, 2026-08-24): the rise
  * keyframes (not expressible as utilities) and the reduced-motion kill

@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai descriptions — D1-exempt residue (tw4, 2026-08-24). ONLY the
  * narrow-container fallback: one term/value pair per row once the dl's

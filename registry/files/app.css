@@ -1,9 +1,9 @@
 /* -------------------------------------------------------------------------
- * ui.jixoai.com site entry — the GLOBAL Tailwind fan-in context
- * (tw4 P2.2 three-way boundary, 2026-08-24):
- *   1. this file KEEPS the sole `@import 'tailwindcss'`, the theme
- *      imports, ALL global @theme/@custom-variant/@layer base rules
- *      and the import order;
+ * ui.jixoai.com site entry (tailwindless one-shot W4, 2026-09-18:
+ * the Tailwind engine RETIRED — no @import 'tailwindcss', no
+ * @theme/@custom-variant/@apply; the token sheet + the atom lane own
+ * every surface. The boundary shape holds:
+ *   1. this file carries the theme imports + the global base layer;
  *   2. site-only, non-compiler-context surfaces live in named modules:
  *      lib/site/docs-tables.css (+layout) and lib/site/token-lab.css
  *      (tokens.html);
@@ -20,7 +20,6 @@
  * surfaces are owned end-to-end by the registry code-card (Shiki tokens
  * through the component-scoped --tok-* palette).
  * ---------------------------------------------------------------------- */
-@import 'tailwindcss';
 @import './lib/jixoai.css';
 @import './lib/jx-pure.css';
 /* icons vocabulary (ICON-4 dogfood, 2026-09-02): the icon plugin's
@@ -43,16 +42,9 @@
    jx-html-tgroup jx-html-control jx-html-control-shell
    jx-html-control-lane */
 
-/* Tailwind mapping supplements — kill the default rounded scale (radius law:
- * 0 with bevel upgrade only); the registry sheet maps everything else. */
-@theme inline {
-  --radius-*: initial;
-  --radius: var(--radius);
-}
-
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border);
     corner-shape: bevel;
     accent-color: var(--primary);
   }
@@ -60,7 +52,9 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
     font-family: var(--font-mono);
   }
   .font-nav {

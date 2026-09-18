@@ -419,7 +419,8 @@ describe('Mermaid surface', () => {
   // ---- css-source laws (jsdom cannot compute them) ─────────────────────
 
   it('reserves the floor min-height through the documented token; the fade dies under reduced motion', () => {
-    expect(mermaidCss).toContain('@layer properties, theme, base, components, utilities;');
+    // PFINAL (tailwindless W4-r2): the utilities tier died with the engine
+    expect(mermaidCss).toContain('@layer properties, theme, base, components;');
     expect(mermaidCss).toContain('--jx-mermaid-floor-min: 6rem'); // consumer-tunable default
     expect(mermaidCss).toContain('min-height: var(--jx-mermaid-floor-min)');
     expect(mermaidCss).toMatch(/data-state='floor'/);

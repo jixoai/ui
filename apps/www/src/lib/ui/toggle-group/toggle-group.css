@@ -1,4 +1,4 @@
-@layer properties, theme, base, components, utilities;
+@layer properties, theme, base, components;
 
 /*
  * toggle-group.css — the family's tailwindless lane-2 residue
