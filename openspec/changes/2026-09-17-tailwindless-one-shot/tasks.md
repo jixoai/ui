@@ -64,7 +64,7 @@
   per-wave receipts, the quality-leap inventory (what Context+tokens
   now owns that utilities hard-coded), the declines ledger, budget
   ZERO proof
-- [ ] 4.7 Final Codex gate; archive; merge to main; push
+- [x] 4.7 Final Codex gate; archive; merge to main; push
 
 <!-- Wave receipts (orchestrator, 2026-09-19): W1 = 8f50adc1 · W1b =
      010c73db · W2 = b5e02b2a · W3 = 415eae08 (all pushed). W4 landed

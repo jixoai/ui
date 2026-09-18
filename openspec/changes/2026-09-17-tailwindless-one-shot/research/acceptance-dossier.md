@@ -1,8 +1,10 @@
 # The Tailwindless One-Shot — Acceptance Dossier (大验收)
 
 Change: `2026-09-17-tailwindless-one-shot` · Branch: `tailwindless-site` (worktree
-`ui-tailwindless`) · Program: W1 → W1b → W2 → W3 → W4 (+W4-r2, the Codex-gate
-round) · The Owner's one-shot ruling, 2026-09-17: delete the engine entirely,
+`ui-tailwindless`) · Program: W1 → W1b → W2 → W3 → W4 + the Codex-gate rounds
+(r2 the five blockers' repair, r2.5 the engine room, r3 the residuals, r4 the
+exactly-one teeth, r5 the freeze-then-bind receipts — final verdict **GO 9.4/10**) ·
+The Owner's one-shot ruling, 2026-09-17: delete the engine entirely,
 then prove the 1:1 — and let quality leap where the engine had been
 hard-coding.
 
@@ -13,9 +15,11 @@ hard-coding.
 
 The final Codex gate (gpt-5.6-terra, xhigh, 2h27m independent verification:
 re-ran the gates, re-derived the counts, byte-checked the twins, planted its
-own probes) returned **4.5/10 NO-GO** on five blockers — every one verified
-real against the change's own PFINAL spec text, every one closed in W4-r2
-(`4c6d5246`):
+own probes) returned **4.5/10 NO-GO** on five blockers, and walked its verdict up
+4.5 → 6.1 → 7.8 → 8.4 → **9.4 GO** across five evidence-hardening rounds — every one verified
+real against the change's own PFINAL spec text — the repair bodies landed in
+W4-r2 (`4c6d5246`) and their evidence chains closed through the r5
+freeze-then-bind receipts (`af3c1be2` → `1e1da45b` → `f46a7321`):
 
 1. **the registry workspace still ran the engine** (its vite config,
    manifest, app css) → retired;
