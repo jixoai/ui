@@ -140,24 +140,27 @@ manifest is stale. Harness assertions updated to the flipped contract
 compiled module + zero engine imports + the css carrier). **24/24
 clean-install cases green** (final run receipt below).
 
-## 4. Fresh probe receipts (bound to the clean `4c6d5246` tree, dirty=false)
+## 4. Fresh probe receipts (staggered clean-tree binding — each probe binds
+the commit BEFORE its own artifacts land)
 
 - **Pilot parity matrix — 86/86 GREEN** (`pilot-matrix-receipt.json`,
-  meta.commit=4c6d5246…, meta.dirty=false): viewports 375/768/1099/1100/1440 ×
+  meta.change=this change, meta.commit=e2a71056, meta.dirty=false;
+  `--verify-receipt` PASS: 10/10 artifacts sha256+bytes, commit ≤ HEAD,
+  tree clean outside research/): viewports 375/768/1099/1100/1440 ×
   screenshots + computed-style reads (grid tracks across the 1100px seam,
   eyebrow voice, hairline frame, body voice, no `[object Object]`),
   dark-scope parity, keyboard focus, forced-colors, print emulation —
   after ≡ before on every row.
 - **Precedence placement law — 25/25 GREEN** (`precedence-receipt.json`,
-  same binding): every `.tl-*` family in-layer under components in
+  meta.commit=aae9e59f, meta.dirty=false; `--verify-receipt` PASS): every `.tl-*` family in-layer under components in
   `:where()`, media seams intact, ZERO unlayered regressions, injected
   consumer utilities FLIP both probe values, native :hover seam alive —
   the cascade proof holds WITHOUT our utilities tier (PFINAL's
   dual-order condition: the injected consumer layer wins by nesting +
   first-mention, not by our reservation).
-- **folder-css contract — 8/8 GREEN** (same binding): item 6 proves **a
-  stylex atom beats a `:where()` folder rule** (8px→32px padding; lane
-  recolors gray→primary oklch).
+- **folder-css contract — 8/8 GREEN** (dev-server bound): item 6 proves
+  **a stylex atom beats a `:where()` folder rule** (8px→32px padding;
+  lane recolors gray→primary oklch).
 
 ## 5. The quality leap (beyond 1:1)
 
@@ -168,9 +171,13 @@ clean-install cases green** (final run receipt below).
 - **The joiner law** — one canonical cx (component-local, string-passthrough
   superset) across every module (24 modules / 61 import sites unified);
   no dependency, no engine, strings pass whole.
-- **Lane-2 discipline** — every sheet opens with the canonical five-layer
-  statement; state paints sit in `:where()` at zero specificity; the
-  precedence probe pins utilities-over-semantics forever.
+- **Lane-2 discipline** — every sheet opens with the canonical
+  post-engine statement (`@layer properties, theme, base, components;`
+  — PFINAL killed the utilities tier with the engine; stylex tiers
+  nest under `components`); state paints sit in `:where()` at zero
+  specificity or unlayered; the precedence probe pins
+  consumer-utilities-over-semantics forever (by nesting +
+  first-mention, not by our reservation).
 - **The registry grew teeth** — 144 items; +184 file entries through the
   waves; consumers receive compiled, zero-engine payloads with the canvas
   included (§3.1/3.2) — the "1:1 for consumers" the TW era never had.

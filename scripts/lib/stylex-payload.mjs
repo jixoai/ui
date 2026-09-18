@@ -90,7 +90,8 @@ if (!unpluginRoot) throw new Error('stylex-payload: cannot locate the @stylexjs/
 export const ENGINE_VERSION = `@stylexjs/unplugin@${JSON.parse(readFileSync(join(unpluginRoot, 'package.json'), 'utf8')).version}`;
 
 /** the F9 canonical layer law — imported from the BUILT plugin dist (single source, never re-typed) */
-const { canonicalLayerStatement, maxStylexPriority, STYLEX_LAYERS_AFTER, STYLEX_LAYERS_BEFORE, STYLEX_LAYER_PREFIX } = await import(pathToFileURL(join(vitePluginDir, 'dist/stylex/layer-law.js')).href);
+const { canonicalLayerStatement, countCanonicalStatements, maxStylexPriority, stripCanonicalStatements, STYLEX_LAYERS_AFTER, STYLEX_LAYERS_BEFORE, STYLEX_LAYER_PREFIX } = await import(pathToFileURL(join(vitePluginDir, 'dist/stylex/layer-law.js')).href);
+export { countCanonicalStatements, stripCanonicalStatements };
 
 // ── the item set ─────────────────────────────────────────────────────
 
@@ -349,18 +350,12 @@ export function artifactBytes(itemKey, buildId, { classModule, css }) {
   // the F9 statement at BYTE ZERO (the canonical layer law, dynamic
   // over the css's highest tier; PFINAL: no utilities — the tier died
   // with the engine); the stamp rides a trailing comment. The css's
-  // OWN leading sheet-form statement (a re-mention the engine emits)
-  // is stripped first — the artifact carries EXACTLY ONE canonical
-  // statement (the Codex r2 P2: the old double-open).
-  const deduped = stripLeadingSheetStatement(css);
+  // OWN leading canonical statement — sheet form OR tier-carrying
+  // (the Codex r3 P1: corpus items that already opened with a full
+  // canonical statement kept a second one under the narrow sheet-only
+  // strip) — is stripped first through the ONE tolerant matcher; the
+  // artifact carries EXACTLY ONE canonical statement.
+  const deduped = stripCanonicalStatements(css) || css;
   const cssBytes = `${canonicalLayerStatement(maxStylexPriority(css))}\n${deduped.replace(/\s*$/, '\n')}/* ${stampLines(buildId).join(' · ')} */\n`;
   return { classModule: classModuleBytes, css: cssBytes };
-}
-
-/** remove the css's OWN opening canonical sheet-form statement (the
- *  engine emits `@layer properties, theme, base, components;` ahead of
- *  its tiers — an inert re-mention once the full statement prepends) */
-function stripLeadingSheetStatement(css) {
-  const m = /^@layer\s+properties\s*,\s*theme\s*,\s*base\s*,\s*components\s*;\n?/.exec(css);
-  return m ? css.slice(m[0].length) : css;
 }

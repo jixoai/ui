@@ -46,6 +46,7 @@ import { fileURLToPath } from 'node:url';
 import {
   artifactBytes,
   artifactPaths,
+  countCanonicalStatements,
   derivePayload,
   ENGINE_VERSION,
   GENERATOR_VERSION,
@@ -75,6 +76,16 @@ const manifest = {
 for (const [key, derived] of sortedItems) {
   const bytes = artifactBytes(key, buildId, derived);
   const paths = artifactPaths(root, key);
+  // the exactly-one law (Codex r3 P1): every item css carries EXACTLY
+  // ONE canonical statement — the artifact's own byte-zero prelude.
+  // The tolerant counter catches a stale second prelude surviving the
+  // strip (sheet form or tier-carrying) at WRITE time, before any
+  // gate could self-consistently bless it.
+  const statementCount = countCanonicalStatements(bytes.css);
+  if (statementCount !== 1) {
+    console.error(`[gen:stylex-payload] item '${key}' css carries ${statementCount} canonical statements (exactly one is the law) — the strip missed a form`);
+    process.exit(1);
+  }
   manifest.items[key] = {
     classModule: { path: toPosix(root, paths.classModule), sha256: sha256(bytes.classModule) },
     css: { path: toPosix(root, paths.css), sha256: sha256(bytes.css) },
