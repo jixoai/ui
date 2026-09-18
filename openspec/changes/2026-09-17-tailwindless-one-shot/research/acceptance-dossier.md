@@ -144,7 +144,7 @@ clean-install cases green** (final run receipt below).
 the commit BEFORE its own artifacts land)
 
 - **Pilot parity matrix — 86/86 GREEN** (`pilot-matrix-receipt.json`,
-  meta.change=this change, meta.commit=e2a71056, meta.dirty=false;
+  meta.change=this change, meta.commit=af3c1be2 (the frozen code head), meta.dirty=false;
   `--verify-receipt` PASS: 10/10 artifacts sha256+bytes, commit ≤ HEAD,
   tree clean outside research/): viewports 375/768/1099/1100/1440 ×
   screenshots + computed-style reads (grid tracks across the 1100px seam,
@@ -152,7 +152,8 @@ the commit BEFORE its own artifacts land)
   dark-scope parity, keyboard focus, forced-colors, print emulation —
   after ≡ before on every row.
 - **Precedence placement law — 25/25 GREEN** (`precedence-receipt.json`,
-  meta.commit=aae9e59f, meta.dirty=false; `--verify-receipt` PASS): every `.tl-*` family in-layer under components in
+  meta.commit=1e1da45b (the verify-refresh binding), meta.dirty=false;
+  `--verify-receipt` PASS): every `.tl-*` family in-layer under components in
   `:where()`, media seams intact, ZERO unlayered regressions, injected
   consumer utilities FLIP both probe values, native :hover seam alive —
   the cascade proof holds WITHOUT our utilities tier (PFINAL's
