@@ -22,7 +22,8 @@ loadavg、node/platform、门槛纪律声明。原始流水落
 | matrix-r2-61of65-hard-gates.json | 61/65 | 200/600/100 硬门槛 | loadavg≈9-10 下 P1②(63-142ms)/P3(416ms)/P4②(21ms，双轨修复)/P7/P8 全过；4 失败均有定根：P1③ 脚本 bug（CSS.escape，链路本身已通：attention 帧已捕获）、P2①③ 本轮新增 P1③ 锚定相机 tween 干扰（已重排到 P2 后）、E6② 旧断言撞上 16ms 合并窗折叠瞬态 null（已改确定性 reclaim 法则） |
 | matrix-r3-64of65.json | 64/65 | 200/600/100 硬门槛 | P2 全绿（重排生效）、E6② reclaim 绿；唯一失败 = P1③ 的 stamp 探针查错了文档（外层 canvas 而非 kit 子帧）——attention=canvas/a4 已到、B ring badge 已命中，链路通，探针已修 |
 | matrix-r4-65of65-final.json | 65/65 | 200/600/100 硬门槛 | 终轮全绿。loadavg≈4.9-7.6。关键采样：P1② 63ms（min-of-3 [96,142,63]）、P1③ 树点击链路 stamp在kit帧=true + badge="alice-p · a4"、P3 357ms、P4② 23ms、P7① 38ms / ② 73ms、P8② 347ms、E6② reclaim=canvas/a4 |
-| matrix-r5-65of65-p3-isolated.json | 65/65 | 200/600/100 硬门槛 | Codex R2 修正后重跑：P3 采样改每轮独立基线（R2 实证旧写法第二轮永不命中、min-of-2 实为 min-of-1），双轮有效 [418,353]ms + 各轮起止值入档；回执新增 provenance（git SHA e2d52577、矩阵 sha256 9dbe3bb1、studio manifest f0c98ed0、chromium-1243）。loadavg≈8.3 下仍全绿 |
+| matrix-r5-65of65-p3-isolated.json | 65/65 | 200/600/100 硬门槛 | Codex R2 修正后重跑：P3 采样改每轮独立基线（R2 实证旧写法第二轮永不命中、min-of-2 实为 min-of-1），双轮有效 [418,353]ms + 各轮起止值入档；回执新增 provenance（git SHA e2d52577、矩阵 sha256 9dbe3bb1、studio manifest f0c98ed0、chromium-1243）。loadavg≈8.3 下仍全绿。历史注记（R3 观察 2）：本收据生成于提交前 dirty 树（gitSha 落后矩阵哈希一个提交）——后续同树收据见 r6 |
+| matrix-r6-65of65-same-tree.json | 65/65 | 200/600/100 硬门槛 | R3 后审计终轮：干净提交树 ab7f5998 上复跑（收据 gitSha=矩阵脚本所在提交，同树）；matrixSha256 为完整 64 位摘要 796a925…；P3 双轮 [353,351]ms。loadavg≈8.7 下全绿 |
 
 ## Codex 复核轮次
 
