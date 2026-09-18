@@ -310,9 +310,18 @@ export function createStylexEngine(
     const statement = canonicalLayerStatement(Math.max(maxStylexPriority(css), maxStylexPriority(current)));
     // Gate-2 r3 P1: the merged asset carries EXACTLY ONE canonical
     // statement — strip the incoming ones (semantically inert
-    // re-mentions) before prepending the fresh full statement
+    // re-mentions) before prepending the fresh full statement.
+    // PFINAL (W4-r2): the engine's own internal prelude
+    // (`@layer properties, theme, base, components;`) is now
+    // BYTE-IDENTICAL to the canonical sheet statement — the tolerant
+    // matcher strips it from the stylex output too (an inert
+    // re-mention: identical registrations, same order), so the baked
+    // asset still opens with exactly one.
     const cleaned = stripCanonicalStatements(current);
-    return cleaned ? `${statement}\n${cleaned}\n${css}` : `${statement}\n${css}`;
+    const engineCleaned = stripCanonicalStatements(css);
+    return cleaned || engineCleaned
+      ? `${statement}\n${cleaned}${cleaned && engineCleaned ? '\n' : ''}${engineCleaned}`
+      : `${statement}\n${css}`;
   };
 
   const isServerConsumer = (context: StylexHookContext): boolean =>
@@ -400,7 +409,13 @@ export function createStylexEngine(
       // the atoms) only re-bakes — duplicate rules render identically;
       // a false positive drops atoms, so the guard errs toward baking.
       const parsed = parseCanonicalStatement(current);
-      if (parsed && parsed.maxPriority >= maxStylexPriority(css) && current.includes(css)) {
+      // PFINAL (W4-r2): the bake embeds the engine output WITH its
+      // internal prelude stripped (byte-identical to the canonical
+      // sheet form now) — the guard accepts EITHER the raw collected
+      // bytes or that canonical-embedded form, so a COMPLETE previous
+      // bake still skips (the invariant the r2-P1 test pins)
+      const cssCanonical = stripCanonicalStatements(css) || css;
+      if (parsed && parsed.maxPriority >= maxStylexPriority(css) && (current.includes(css) || current.includes(cssCanonical))) {
         cssInjected = true;
         return;
       }

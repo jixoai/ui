@@ -92,7 +92,10 @@ describe('the stylex bridge law (phase 0 P0.2)', () => {
     // refactor moved the bytes; this pins them forever)
     expect(code).toMatch(/["']components\.stylex["']/);
     expect(code).toMatch(/["']properties["'],\s*["']theme["'],\s*["']base["'],\s*["']components["']/);
-    expect(code).toMatch(/["']utilities["']/);
+    // PFINAL (W4-r2): no utilities anywhere — the after-list is EMPTY
+    // (the shipped constant: [] as const) and the pattern ends at
+    // components(.stylex.*)
+    expect(code).not.toMatch(/["']utilities["']/);
     // the pattern's ESCAPED form — the dist file carries the string
     // literal's source bytes (backslashes doubled), so compare against
     // the JSON-escaped runtime value

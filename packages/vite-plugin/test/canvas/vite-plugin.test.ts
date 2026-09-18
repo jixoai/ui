@@ -194,20 +194,25 @@ describe('canvasPlugin through a real vite dev server', () => {
 
       // the HMR contract: a page edit + re-load re-extracts — the
       // virtual module watches the page (addWatchFile), so the change
-      // invalidates it through vite's module graph
+      // invalidates it through vite's module graph. vite 8.3's watcher
+      // invalidation settles slower under suite load — the wait budget
+      // is generous (measured: instant isolated, ~2s in-suite)
       await writeFile(
         pagePath,
         PAGE_SOURCE.replace('the extracted body', 'the EDITED body'),
         'utf8',
       );
-      await vi.waitFor(async () => {
-        const fresh = (await server.ssrLoadModule(`${pagePath}?t=${Date.now()}`)) as {
-          resolveRawCode: (id: string) => string;
-        };
-        expect(fresh.resolveRawCode('demo')).toBe(
-          '<Thing rule="shadow" ruleSize={4}>the EDITED body</Thing>',
-        );
-      });
+      await vi.waitFor(
+        async () => {
+          const fresh = (await server.ssrLoadModule(`${pagePath}?t=${Date.now()}`)) as {
+            resolveRawCode: (id: string) => string;
+          };
+          expect(fresh.resolveRawCode('demo')).toBe(
+            '<Thing rule="shadow" ruleSize={4}>the EDITED body</Thing>',
+          );
+        },
+        { timeout: 15_000, interval: 250 },
+      );
     } finally {
       await server.close();
       await writeFile(pagePath, PAGE_SOURCE, 'utf8');

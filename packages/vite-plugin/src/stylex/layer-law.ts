@@ -115,14 +115,19 @@ export function parseCanonicalStatement(css: string): CanonicalStatement | null 
 /**
  * The canonical statement's SEMANTIC pattern — whitespace/minification
  * tolerant (Gate-2 r4: real vite re-serializes an entry sheet's
- * statement as `@layer properties,theme,base,components,utilities;` —
- * semantically identical, byte-different). Layer names, their ORDER,
- * and the trailing utilities stay strict; tier numbers are not
- * required consecutive here (the stripped statement's registrations
- * are always re-covered by the prepended full statement's superset).
+ * statement as `@layer properties,theme,base,components;` —
+ * semantically identical, byte-different). Layer names and their
+ * ORDER stay strict; tier numbers are not required consecutive here
+ * (the stripped statement's registrations are always re-covered by
+ * the prepended full statement's superset). PFINAL (W4-r2): the
+ * utilities tier is GONE from the canonical form — but the strip/
+ * count matchers also accept the RETIRED five-layer variant (an
+ * optional trailing utilities), because re-mentions are semantically
+ * inert and legacy-form statements in merged inputs must still be
+ * removed for the exactly-one law.
  */
 const CANONICAL_STATEMENT_TOLERANT =
-  '@layer\\s*properties\\s*,\\s*theme\\s*,\\s*base\\s*,\\s*components(?:\\s*,\\s*components\\.stylex\\.priority[0-9]+)*\\s*,\\s*utilities\\s*;';
+  '@layer\\s*properties\\s*,\\s*theme\\s*,\\s*base\\s*,\\s*components(?:\\s*,\\s*components\\.stylex\\.priority[0-9]+)*(?:\\s*,\\s*utilities)?\\s*;';
 
 /**
  * Remove EVERY canonical-form statement from a css (Gate-2 r3 P1: the

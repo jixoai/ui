@@ -109,7 +109,11 @@ describe('jixoai() build', () => {
       default?: unknown;
     };
     expect(mod.url.endsWith(`assets/ghostty-vt-${pinSha16}.wasm`)).toBe(true);
-    expect(new URL(mod.url).protocol).toBe('file:');
+    // vite 8.3 emits the asset URL RELATIVE in lib mode (8.2 absolute) —
+    // both are the same emitted asset; resolve relative forms against
+    // the module's own directory before asserting the file protocol
+    const resolved = mod.url.startsWith('file:') ? mod.url : new URL(mod.url, `${pathToFileURL(entry).href.split('/').slice(0, -1).join('/')}/`).href;
+    expect(new URL(resolved).protocol).toBe('file:');
     expect(mod.sha256).toBe(pinSha);
     expect(mod.variant).toBe('full');
     expect(mod.buildInfo).toBe(pinBuildInfo);
