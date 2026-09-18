@@ -41,8 +41,8 @@ import { chromium } from 'playwright-core';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const fixtureDir = join(root, '.agents/fixtures/tailwindless-consumer');
-const receiptPath = join(root, 'openspec/changes/2026-09-17-tailwindless-site/research/consumer-receipt.json');
-const screenshotPath = join(root, 'openspec/changes/2026-09-17-tailwindless-site/research/consumer-separator.png');
+const receiptPath = join(root, 'openspec/changes/2026-09-17-tailwindless-one-shot/research/consumer-receipt.json');
+const screenshotPath = join(root, 'openspec/changes/2026-09-17-tailwindless-one-shot/research/consumer-separator.png');
 
 const fail = (msg) => {
   console.error(`\n✗ probe-tailwindless-consumer FAILED — ${msg}`);

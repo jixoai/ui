@@ -2682,6 +2682,25 @@ function check(root, allowlistPath) {
     }
   }
 
+  // PFINAL enclave (W4-r3): the design-tool studio is the ONE frozen
+  // Tailwind-consumer css (spec: "keeps the engine fan-in BY DESIGN");
+  // the ONLY @import 'tailwindcss' allowed anywhere in repo css is
+  // that exact file — a second one is a new engine coupling.
+  {
+    const ENCLAVE = 'packages/design-tool/src/studio/studio-static.css';
+    for (const tree of ['apps/www/src', 'registry/files', 'packages']) {
+      for (const rel of walkDir(join(root, tree), tree)) {
+        if (!rel.endsWith('.css')) continue;
+        const p = `${tree}/${rel}`;
+        if (p === ENCLAVE) continue;
+        const text = readFileSync(join(root, p), 'utf8');
+        if (/^@import\s+['"]tailwindcss['"]/m.test(text)) {
+          red.push(`${p}: @import 'tailwindcss' outside the frozen design-tool enclave (${ENCLAVE}) — the engine died everywhere else (PFINAL)`);
+        }
+      }
+    }
+  }
+
   // .stylex.ts tier-2 literals (growth red; removal legal). Baseline =
   // the pinned block ∪ the explicit Gate-4 grandfather ledger, taking
   // the max per key (the ledger only backfills pre-extension keys).

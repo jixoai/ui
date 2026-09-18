@@ -1,5 +1,4 @@
 @layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2;
-@layer properties, theme, base, components;
 
 @layer components.stylex.priority1 {
   .x3nfvp2 {

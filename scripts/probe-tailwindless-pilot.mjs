@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // probe-tailwindless-pilot — the P0 acceptance matrix probe
-// (openspec change 2026-09-17-tailwindless-site, task 4.1).
+// (openspec change 2026-09-17-tailwindless-one-shot, task 4.1).
 //
 // Parity matrix, NOT a smoke test: every after-side numeric/color
 // reading must EQUAL the before-side reading, or the row is RED.
@@ -50,8 +50,8 @@
 //     edited summary or meta.commit is red
 //   · artifact bind — exactly the 10 matrix shots, unique paths, byte
 //     size + sha256 per file (exists-only is spoofable)
-// Receipt: openspec/changes/2026-09-17-tailwindless-site/research/pilot-matrix-receipt.json
-// Shots:   openspec/changes/2026-09-17-tailwindless-site/research/matrix/{after|before}-w{375|768|1099|1100|1440}.png
+// Receipt: openspec/changes/2026-09-17-tailwindless-one-shot/research/pilot-matrix-receipt.json
+// Shots:   openspec/changes/2026-09-17-tailwindless-one-shot/research/matrix/{after|before}-w{375|768|1099|1100|1440}.png
 //
 // Artifact placement (Gate-4 fix, 2026-09-16): products land IN the
 // change's research/ dir (receipt + matrix/); a stale artifact found
@@ -66,11 +66,11 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WWW = join(ROOT, 'apps/www');
-const RESEARCH = join(ROOT, 'openspec/changes/2026-09-17-tailwindless-site/research');
+const RESEARCH = join(ROOT, 'openspec/changes/2026-09-17-tailwindless-one-shot/research');
 const MATRIX_DIR = join(RESEARCH, 'matrix');
 const RECEIPT = join(RESEARCH, 'pilot-matrix-receipt.json');
 const PRECEDENCE_RECEIPT = join(RESEARCH, 'precedence-receipt.json');
-const RESEARCH_REL = 'openspec/changes/2026-09-17-tailwindless-site/research';
+const RESEARCH_REL = 'openspec/changes/2026-09-17-tailwindless-one-shot/research';
 
 // Gate-6 ownership law: the probe must measure ITS OWN server. Three
 // defenses — (1) the spawned child's exit/error is watched (a vite
@@ -310,7 +310,7 @@ if (existsSync(MATRIX_DIR)) overwrote.push(...readdirSync(MATRIX_DIR).map((f) =>
 
 const receipt = {
   meta: {
-    change: '2026-09-17-tailwindless-site',
+    change: '2026-09-17-tailwindless-one-shot',
     task: '4.1 — the P0 acceptance matrix (pinned probe)',
     runAt: new Date().toISOString(),
     generatedAt: new Date().toISOString(),

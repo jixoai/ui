@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // probe-tailwindless-precedence — the lane-2 placement-law probe
-// (openspec change 2026-09-17-tailwindless-site, Gate-4 fix
+// (openspec change 2026-09-17-tailwindless-one-shot, Gate-4 fix
 // 2026-09-16, blocker 3).
 //
 // What Codex Gate-4 flagged: the timeline docs page authored its
@@ -45,7 +45,7 @@
 // since, e.g. this change's own probe-code commits — goes red there).
 //
 // Run: node scripts/probe-tailwindless-precedence.mjs
-// Receipt: openspec/changes/2026-09-17-tailwindless-site/research/precedence-receipt.json
+// Receipt: openspec/changes/2026-09-17-tailwindless-one-shot/research/precedence-receipt.json
 
 import { chromium } from 'playwright-core';
 import { spawn, execFileSync } from 'node:child_process';
@@ -56,7 +56,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WWW = join(ROOT, 'apps/www');
-const RESEARCH = join(ROOT, 'openspec/changes/2026-09-17-tailwindless-site/research');
+const RESEARCH = join(ROOT, 'openspec/changes/2026-09-17-tailwindless-one-shot/research');
 const RECEIPT = join(RESEARCH, 'precedence-receipt.json');
 
 // Gate-6 ownership law: the probe must measure ITS OWN server. Three
@@ -112,7 +112,7 @@ const dirtyFiles = execFileSync('git', ['-C', ROOT, 'status', '--porcelain'], { 
 
 const receipt = {
   meta: {
-    change: '2026-09-17-tailwindless-site',
+    change: '2026-09-17-tailwindless-one-shot',
     task: 'Gate-4 fix (2026-09-16) — lane-2 precedence probe: semantic sheet placement + consumer-utility override',
     runAt: new Date().toISOString(),
     page: PAGE_PATH,

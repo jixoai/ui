@@ -672,9 +672,13 @@ export default defineConfig({
       // vite-plugin supply chain (pin manifest + resolver), never the registry
       const wasmHits = walkFilesNamed(join(ctx.dir, 'src'), (name) => name.endsWith('.wasm'));
       check('ghostty-term: zero wasm payloads in src/', wasmHits.length === 0, wasmHits.map((p) => p.slice(ctx.dir.length)).join(', ') || 'none');
-      const frozen = ['src/lib/ghostty-vt.ts', 'src/lib/jixoai.css', 'src/lib/utils.ts', 'src/lib/color-utils.ts', 'src/lib/density.svelte.ts'];
+      // the frozen closure — MINUS utils.ts: the cn seam retired with the
+      // engine (tailwindless W4; ghostty-term no longer imports $lib/utils,
+      // the deps gate holds the edge dead) — utils.ts stopped arriving
+      const frozen = ['src/lib/ghostty-vt.ts', 'src/lib/jixoai.css', 'src/lib/color-utils.ts', 'src/lib/density.svelte.ts'];
       const missing = frozen.filter((f) => !ctx.exists(f));
       check('ghostty-term: frozen dependency closure arrived', missing.length === 0, missing.join(', ') || 'complete');
+      check('ghostty-term: the retired cn seam stays retired (utils.ts never arrives)', !ctx.exists('src/lib/utils.ts'));
     },
     postBuild(ctx) {
       // impl-r2 #4: the virtual-module contract is named-exports-only —
@@ -1108,7 +1112,15 @@ export default defineConfig({
       check('stylex-compiled-payload: every stylex tier arrives nested under components (zero top-level escapes)', escaped.length === 0, escaped.join(', ') || 'clean');
       const compIdx = topLevel.indexOf('components');
       const utilIdx = topLevel.indexOf('utilities');
-      check('stylex-compiled-payload: the consumer build keeps components before utilities (first mention)', compIdx !== -1 && utilIdx !== -1 && compIdx < utilIdx, topLevel.join(' < '));
+      // PFINAL: OUR css no longer mentions a utilities tier (it died
+      // with the engine) — a consumer's OWN utilities registration is
+      // welcome and must land after components, but is no longer
+      // REQUIRED to appear
+      check(
+        'stylex-compiled-payload: components first; a consumer utilities tier (when present) lands after it',
+        compIdx !== -1 && (utilIdx === -1 || compIdx < utilIdx),
+        topLevel.join(' < '),
+      );
       const atom = (ctx.read('src/stylex-payload/code-card.styles.js').match(/"(x[0-9a-z]{4,12})"/) ?? [])[1];
       check('stylex-compiled-payload: built css carries the item atom rules', !!atom && built.includes(`.${atom}`), `.${atom ?? 'none'}`);
     },

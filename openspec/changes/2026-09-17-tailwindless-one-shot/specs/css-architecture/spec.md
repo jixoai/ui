@@ -54,7 +54,13 @@ handling; `check-tw4-prereq.mjs` and the registry install
 prerequisite RETIRED (the registry spec's consumer contract flips:
 migrated items need the jixoai theme sheet ONLY); `tailwindcss`
 absent from production `package.json` files (design-tool and test
-fixtures' scope frozen by explicit decision before Pfinal); the
+fixtures' scope frozen by explicit decision before Pfinal — the
+design-tool studio is the ONE frozen Tailwind-CONSUMER enclave: its
+`packages/design-tool/src/studio/studio-static.css` keeps the engine
+fan-in BY DESIGN, exactly the way any external consumer may; the
+repo-css cleanliness conditions apply to every OTHER css, and the
+tailwindless gate pins the enclave as an allowlist of exactly one
+file — a second `@import 'tailwindcss'` anywhere else is red); the
 tailwindless gate runs with an EMPTY allowlist; the stylex payload's
 layer contract re-proven post-Tailwind (dual import-order browser
 probe — the cascade proof must not keep assuming the utilities layer

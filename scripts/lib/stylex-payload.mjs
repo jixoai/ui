@@ -347,8 +347,20 @@ export function artifactBytes(itemKey, buildId, { classModule, css }) {
   ].join('\n');
   const classModuleBytes = `${header}\n${classModule}\n`;
   // the F9 statement at BYTE ZERO (the canonical layer law, dynamic
-  // over the css's highest tier — utilities constantly last); the
-  // stamp rides a trailing comment
-  const cssBytes = `${canonicalLayerStatement(maxStylexPriority(css))}\n${css.replace(/\s*$/, '\n')}/* ${stampLines(buildId).join(' · ')} */\n`;
+  // over the css's highest tier; PFINAL: no utilities — the tier died
+  // with the engine); the stamp rides a trailing comment. The css's
+  // OWN leading sheet-form statement (a re-mention the engine emits)
+  // is stripped first — the artifact carries EXACTLY ONE canonical
+  // statement (the Codex r2 P2: the old double-open).
+  const deduped = stripLeadingSheetStatement(css);
+  const cssBytes = `${canonicalLayerStatement(maxStylexPriority(css))}\n${deduped.replace(/\s*$/, '\n')}/* ${stampLines(buildId).join(' · ')} */\n`;
   return { classModule: classModuleBytes, css: cssBytes };
+}
+
+/** remove the css's OWN opening canonical sheet-form statement (the
+ *  engine emits `@layer properties, theme, base, components;` ahead of
+ *  its tiers — an inert re-mention once the full statement prepends) */
+function stripLeadingSheetStatement(css) {
+  const m = /^@layer\s+properties\s*,\s*theme\s*,\s*base\s*,\s*components\s*;\n?/.exec(css);
+  return m ? css.slice(m[0].length) : css;
 }
