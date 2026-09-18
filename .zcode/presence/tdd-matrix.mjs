@@ -505,7 +505,8 @@ const seedOk = /raised=\{false\}/.test(heroBytesPre);
 console.log(`preflight: hero seed raised={false} literal = ${seedOk}`);
 if (!seedOk) console.log('  FIX THE FIXTURE: hand-set raised={false} on the a4 press-button before running (W4 contract)');
 
-/* the ledger reset: fresh counter so the hue law reads 73/146/219…
+/* the ledger reset: fresh counter so the hue law reads the wheel pick
+ * (73 -> 252 -> 343… walkthrough R2)
  * (the .jx-collab dir may legitimately not exist after a sanctioned
  * W4-style journal reset — lay it down first) */
 mkdirSync(dirname(PRESENCE_JSON), { recursive: true });
@@ -534,8 +535,8 @@ try {
       JSON.stringify(aChips.map((c) => `${c.id}:${c.name}`)));
     const self = aChips.find((c) => c.name.includes('(you)'));
     const other = aChips.find((c) => !c.name.includes('(you)'));
-    record('A1', '② A端 色序 hue=73/146（p1/p2 的 dot style）',
-      self !== undefined && other !== undefined && hueOf(self) === 73 && hueOf(other) === 146 && self.id === 'p1' && other.id === 'p2',
+    record('A1', '② A端 色序 hue=73/252（轮盘法：对面偏置非正对）（p1/p2 的 dot style）',
+      self !== undefined && other !== undefined && hueOf(self) === 73 && hueOf(other) === 252 && self.id === 'p1' && other.id === 'p2',
       `self ${self?.id}@${hueOf(self)} other ${other?.id}@${hueOf(other)} dot="${self?.dot}"`);
     const bSelf = bChips[0];
     record('A1', '③ B端 chips：self(bob)首位 + alice 在列（join 互见）',
@@ -867,12 +868,20 @@ try {
     const Cctx = await openStudio(browser, BASE, 'carol');
     const carol = (await chipsInfo(Cctx.page)).find((c) => c.name.includes('carol'));
     const expectedId = `p${ledgerBefore.counter + 1}`;
-    const expectedHue = (73 * (ledgerBefore.counter + 1)) % 360;
     const ledgerAfter = JSON.parse(readFileSync(PRESENCE_JSON, 'utf8'));
     const carolRow = ledgerAfter.players.find((p) => p.name === 'carol');
-    record('D11', '新 context 新号新色（hue=(73*n)%360）且旧号不复用',
-      carol !== undefined && carol.id === expectedId && hueOf(carol) === expectedHue && carolRow !== undefined && !knownIds.has(expectedId),
-      `counter ${ledgerBefore.counter}→${ledgerAfter.counter}; carol chip=${carol?.id}@hue${carol ? hueOf(carol) : '?'}（期望 ${expectedId}@${expectedHue}）; ledger row=${carolRow ? carolRow.playerId : '无'}`);
+    // 轮盘法（walkthrough R2）：新色对在场色（A/B chips）最小圆周距离
+    // ≥40° 且与任一都不正对；具体值由在场集合决定，不再硬编码步进
+    const cd = (a, b) => { const raw = Math.abs(((a % 360) + 360) % 360 - ((b % 360) + 360) % 360); return Math.min(raw, 360 - raw); };
+    // A 的 context 已被 A5 用例关闭——在场色读 B 的 chips（bob self +
+    // alice 离线行仍带原色相，轮盘距离检查照样成立）
+    const dChips = await chipsInfo(B.page);
+    const liveHues = [hueOf(dChips.find((c) => c.name.includes('alice')) ?? dChips[0]), hueOf(dChips.find((c) => c.name.includes('bob')) ?? dChips[1])].filter((h) => typeof h === 'number');
+    const carolHue = carol ? hueOf(carol) : null;
+    const wheelOk = carolHue !== null && liveHues.length >= 1 && liveHues.every((h) => cd(h, carolHue) >= 40 && cd(h, carolHue) !== 180);
+    record('D11', '新 context 新号且旧号不复用；新色走轮盘法（对在场色 ≥40° 且不正对）',
+      carol !== undefined && carol.id === expectedId && wheelOk && carolRow !== undefined && carolRow.colorHue === carolHue && !knownIds.has(expectedId),
+      `counter ${ledgerBefore.counter}→${ledgerAfter.counter}; carol chip=${carol?.id}@hue${carolHue}（在场 ${JSON.stringify(liveHues)}）; ledger row=${carolRow ? carolRow.playerId : '无'}`);
     await Cctx.context.close();
   }
 
@@ -994,6 +1003,23 @@ try {
     const BvPid = bvChip?.id ?? '?';
     const avHslHue = hueOf(avSelf);
     const bvHslHue = hueOf(bvChip);
+    /* A1 — the wheel-opposite hue law (walkthrough R2 主1): D13 rebuilt
+     * the ledger empty, D14 minted the two stale actors (73, 252) — so
+     * alice-v MUST mint 343 (max-min vs {73,252}, not exactly antipodal
+     * to either) and bob-v 162 against {…,343}; the observer join keeps
+     * >=40 degrees from every recent hue */
+    {
+      const cd = (a, b) => { const raw = Math.abs(((a % 360) + 360) % 360 - ((b % 360) + 360) % 360); return Math.min(raw, 360 - raw); };
+      const obsE = wsConnect(BASE2, { name: 'r2-hue-probe' });
+      const obsEw = await obsE.welcome;
+      const rosterHues = obsEw.players?.filter((pl) => pl.playerId !== obsEw.playerId).map((pl) => pl.colorHue) ?? [];
+      obsE.ws.close();
+      const a1ok = avHslHue === 343 && bvHslHue === 162
+        && rosterHues.every((h) => cd(h, obsEw.colorHue) >= 40 && cd(h, obsEw.colorHue) !== 180);
+      record('A1', '色相轮盘法：首二人 73→252（D14 已占），alice-v=343 / bob-v=162（对面偏置 max-min），新加入者对全体 ≥40° 且不正对',
+        a1ok,
+        `alice-v=${avHslHue}（期望343）; bob-v=${bvHslHue}（期望162）; probe=${obsEw.colorHue} 对 ${JSON.stringify(rosterHues)}`);
+    }
 
     /* E1 — 跨页面光标不可见（裁决 2：cursor 帧 canvas-scoped） */
     {
@@ -1918,6 +1944,163 @@ try {
         pErr instanceof Error ? `${pErr.message}\n${(pErr.stack ?? '').split('\n').slice(0, 4).join('\n')}` : String(pErr));
     }
 
+
+  /* ══ R2. presence-walkthrough-r2（Owner 走查六项，2026-09-19）═══════
+   * A2 kit 定位选中 | A3 彩带槽位独占 | A4 晚来者快照 |
+   * A5 箭头光标+blend | A6 badge 半透明背景。双真实实例 + raw observer。 */
+  {
+    const BASE2 = `http://localhost:${server2.port}`;
+    const Ra = await openStudio(browser, BASE2, 'r2-alice');
+    const Rb = await openStudio(browser, BASE2, 'r2-bob');
+    await sleep(1200);
+    const obsR = wsConnect(BASE2, { name: 'r2-observer' });
+    await obsR.welcome;
+    const rChips = await chipsInfo(Ra.page);
+    const raSelf = rChips.find((c) => c.name.includes('(you)'));
+    const RaPid = raSelf?.id ?? '?';
+    const rCanvasA = await canvasFrameByName(Ra.page, 'welcome');
+    const rCanvasB = await canvasFrameByName(Rb.page, 'welcome');
+    await pollFor(() => rCanvasA.locator('[data-jx-component]').first().waitFor({ timeout: 3000 }).then(() => true).catch(() => null), { timeoutMs: 30_000, label: 'R2 A stamps' });
+    // B 端 kits 也要就绪：ring 放置虽已有 retry 法则，先等内容更稳
+    await pollFor(() => rCanvasB.locator('[data-jx-component]').first().waitFor({ timeout: 3000 }).then(() => true).catch(() => null), { timeoutMs: 30_000, label: 'R2 B stamps' });
+    await pollFor(async () => {
+      const fd = rCanvasB.childFrames().find((f) => f.name() === 'jixoai-design-frame-hero-desktop-1280-dark') ?? null;
+      return fd === null ? null : fd.locator('[data-jx-component]').first().waitFor({ timeout: 2000 }).then(() => true).catch(() => null);
+    }, { timeoutMs: 30_000, intervalMs: 400, label: 'R2 B desktop kit' });
+    await sleep(400);
+
+    /* A2 — 同 id 双 kit：desktop kit 内点击 #a4 → attention 带
+     * frameId=hero-desktop-1280-dark，对端 ring 落在 desktop kit 内 */
+    {
+      const KIT_D = 'jixoai-design-frame-hero-desktop-1280-dark';
+      let a2ok = false;
+      let a2diag = '未执行';
+      try {
+        await rCanvasA.evaluate((name) => {
+          const f = document.querySelector(`iframe[name="${name}"]`);
+          f?.scrollIntoView({ block: 'center' });
+        }, KIT_D).catch(() => {});
+        await sleep(600);
+        const desktopFrame = rCanvasA.childFrames().find((f) => f.name() === KIT_D) ?? null;
+        if (desktopFrame === null) throw new Error('desktop kit frame 未解析');
+        await desktopFrame.locator('[data-jx-component]').first().waitFor({ timeout: 20_000 }).catch(() => {});
+        const box = await desktopFrame.locator('#a4').boundingBox();
+        if (box === null) throw new Error('#a4 (desktop) boundingBox missing');
+        await Ra.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        await Ra.page.mouse.down();
+        await Ra.page.mouse.up();
+        const attR = await pollFor(() => {
+          const f = obsR.frames.filter((x) => x.type === 'presence' && x.playerId === RaPid && x.attention !== null && x.attention.kind === 'canvas').at(-1) ?? null;
+          return f !== null ? f.attention : null;
+        }, { timeoutMs: 8000, intervalMs: 60, label: 'A2 attention' }).catch(() => null);
+        if (attR === null) {
+          a2diag = 'observer 未收到 canvas attention';
+        } else if (attR.frameId !== 'hero-desktop-1280-dark') {
+          a2diag = `attention.frameId=${JSON.stringify(attR.frameId)}（期望 hero-desktop-1280-dark——shell 未透传 selection.frameId）`;
+        } else {
+          const ringR = await pollFor(() => remoteRingState(rCanvasB, RaPid), { timeoutMs: 4000, intervalMs: 80, label: 'A2 ring' }).catch(() => null);
+          if (ringR === null || !ringR.exists) {
+            a2diag = `attention 帧正确但 B 端 ring 未出现（${JSON.stringify(attR)}）`;
+          } else {
+            // 收敛轮询：align 循环每帧精化 ring 位形——读到落位为止
+            const geomOf = () => rCanvasB.evaluate((pid) => {
+              const ring = document.querySelector(`[data-jx-remote="${pid}:canvas-focus"]`);
+              const desktop = document.querySelector('iframe[name="jixoai-design-frame-hero-desktop-1280-dark"]');
+              const mobile = document.querySelector('iframe[name="jixoai-design-frame-hero-mobile-390-light"]');
+              const r = ring?.getBoundingClientRect();
+              const d = desktop?.getBoundingClientRect();
+              const m = mobile?.getBoundingClientRect();
+              return r && d && m ? { rx: r.x, ry: r.y, rw: r.width, rh: r.height, dx: d.x, dy: d.y, dw: d.width, dh: d.height, mx: m.x, my: m.y, mw: m.width, mh: m.height } : null;
+            }, RaPid).catch(() => null);
+            const landed = await pollFor(async () => {
+              const g = await geomOf();
+              if (g === null || g.rw === 0) return null;
+              const inD = g.rx >= g.dx - 2 && g.rx + g.rw <= g.dx + g.dw + 2 && g.ry >= g.dy - 2 && g.ry + g.rh <= g.dy + g.dh + 2;
+              const inM = g.rx >= g.mx - 2 && g.rx + g.rw <= g.mx + g.mw + 2 && g.ry >= g.my - 2 && g.ry + g.rh <= g.my + g.mh + 2;
+              return inD && !inM ? g : null;
+            }, { timeoutMs: 5000, intervalMs: 150, label: 'A2 ring in desktop kit' }).catch(() => null);
+            const geom = landed ?? (await geomOf());
+            if (geom === null) {
+              a2diag = 'ring/desktop/mobile 几何读取失败';
+            } else {
+              const inDesktop = geom.rx >= geom.dx - 2 && geom.rx + geom.rw <= geom.dx + geom.dw + 2 && geom.ry >= geom.dy - 2 && geom.ry + geom.rh <= geom.dy + geom.dh + 2;
+              const inMobile = geom.rx >= geom.mx - 2 && geom.rx + geom.rw <= geom.mx + geom.mw + 2 && geom.ry >= geom.my - 2 && geom.ry + geom.rh <= geom.my + geom.mh + 2;
+              a2ok = inDesktop && !inMobile;
+              a2diag = `ring=(${Math.round(geom.rx)},${Math.round(geom.ry)},${Math.round(geom.rw)}x${Math.round(geom.rh)}) desktop=(${Math.round(geom.dx)},${Math.round(geom.dy)},${Math.round(geom.dw)}x${Math.round(geom.dh)}) mobile=(${Math.round(geom.mx)},${Math.round(geom.my)},${Math.round(geom.mw)}x${Math.round(geom.mh)}) → 落desktop=${inDesktop} 落mobile=${inMobile}`;
+            }
+          }
+        }
+      } catch (e2) {
+        a2diag = `执行异常: ${e2 instanceof Error ? e2.message.split('\n')[0] : String(e2)}`;
+      }
+      record('A2', 'desktop kit 内点击 #a4 → attention.frameId=desktop 变体，对端 ring 落在 desktop kit 的 box 内（同 id 双 kit 定位）',
+        a2ok, a2diag);
+    }
+
+    /* A4/A5/A6 — 光标停驻后：晚来者快照渲染 + 箭头形状/blend + badge 背景 */
+    {
+      // A 先停一个光标（此后不再动）
+      const boxA = await rCanvasA.locator('body').boundingBox();
+      if (boxA !== null) {
+        await Ra.page.mouse.move(boxA.x + 30, boxA.y + 30); // canvas blank face (30,30) — outside every kit, deterministic surface
+      }
+      await sleep(700); // 上报+广播收敛；A 从此静止
+      const Rc = await openStudio(browser, BASE2, 'r2-carol');
+      const rCanvasC = await canvasFrameByName(Rc.page, 'welcome');
+      const snapLate = await pollFor(() => rCanvasC.evaluate((pid) => {
+        const el = document.querySelector(`[data-jx-remote="${pid}:cursor"]`);
+        if (el === null || el.style.opacity === '0') return null;
+        return true;
+      }, RaPid), { timeoutMs: 5000, intervalMs: 100, label: 'A4 late-joiner cursor' }).catch(() => null);
+      record('A4', 'A 光标停驻且静止 → 晚加入的 C 端 3s 内渲染 A 的光标（welcome 快照，无新动作依赖）',
+        snapLate === true,
+        snapLate === true ? '快照渲染到位' : 'C 端未见 A 光标（welcome roster 不带 cursor？）');
+      // A5：箭头形状 + blend（在 B 端读——B 一直在场）
+      const shape = await rCanvasB.evaluate((pid) => {
+        const cur = document.querySelector(`[data-jx-remote="${pid}:cursor"]`);
+        const arrow = cur?.querySelector('.jx-remote-arrow');
+        const svg = arrow?.querySelector('svg path, svg polygon');
+        const tag = cur?.querySelector('.jx-remote-tag');
+        if (arrow === null || svg === null || tag === null) return null;
+        const csArrow = getComputedStyle(arrow);
+        const csTag = getComputedStyle(tag);
+        return { blend: csArrow.mixBlendMode, tagBlend: csTag.mixBlendMode, tagBg: csTag.backgroundColor, hasDot: cur.querySelector('.jx-remote-dot') !== null };
+      }, RaPid).catch(() => null);
+      record('A5', '远程光标为箭头形状（SVG path）+ 箭头层 mix-blend-mode:difference；名签不混合',
+        shape !== null && shape.blend === 'difference' && shape.tagBlend === 'normal' && shape.hasDot === false,
+        shape === null ? 'arrow/svg/tag 读取失败（结构缺失？）' : `blend=${shape.blend}; tagBlend=${shape.tagBlend}; dot残留=${shape.hasDot}`);
+      // A6：badge/名签半透明背景（ring badge 需要 A 有 attention——A2 已选中）
+      const badgeBg = await rCanvasB.evaluate((pid) => {
+        const badge = document.querySelector(`[data-jx-remote="${pid}:canvas-focus"] .jx-remote-badge`);
+        return badge === null ? null : { bg: getComputedStyle(badge).backgroundColor, color: getComputedStyle(badge).color };
+      }, RaPid).catch(() => null);
+      const tagBgOk = shape !== null && shape.tagBg !== 'rgba(0, 0, 0, 0)';
+      const badgeOk = badgeBg !== null && badgeBg.bg !== 'rgba(0, 0, 0, 0)';
+      record('A6', '光标名签与 ring badge 均有半透明玩家色背景（hsl 空格+斜杠语法——旧逗号混写是非法 CSS 被 Chrome 静默丢弃）',
+        tagBgOk && badgeOk,
+        `tagBg=${shape?.tagBg ?? '?'}; badgeBg=${badgeBg?.bg ?? '?'}（badge 文字色 ${badgeBg?.color ?? '?'}）`);
+      // A3：彩带槽位独占（Ra 的当前 nav 行 selected 且带 ribbon）
+      const slot = await Ra.page.evaluate(() => {
+        const row = document.querySelector('.studio-canvas-row[data-nav-ribbon="welcome"]');
+        if (row === null) return null;
+        const item = row.querySelector(".jx-item[data-selected='true']");
+        return {
+          ribbon: row.getAttribute('data-jx-remote-ribbon'),
+          selected: item !== null,
+          shadow: item === null ? null : getComputedStyle(item).boxShadow,
+          rowStartW: getComputedStyle(row).borderInlineStartWidth,
+        };
+      }).catch(() => null);
+      record('A3', '选中 nav 行带彩带时：行内 .jx-item 的 inset 强调边抑制（boxShadow:none），彩带独占左 2px 槽位',
+        slot !== null && slot.selected && slot.ribbon !== null && slot.shadow === 'none' && slot.rowStartW === '2px',
+        slot === null ? 'welcome 行读取失败' : `selected=${slot.selected}; ribbon=${slot.ribbon}; shadow=${slot.shadow}; 行左边宽=${slot.rowStartW}`);
+      await Rc.context.close();
+    }
+
+    obsR.ws.close();
+    await Ra.context.close();
+    await Rb.context.close();
+  }
     obsP.ws.close();
     await Ap.context.close();
     await Bp.context.close();

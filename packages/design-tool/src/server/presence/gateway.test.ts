@@ -44,7 +44,7 @@ import {
   PRESENCE_WS_PATH,
   type PresenceGateway,
 } from './gateway.ts';
-import { hueOfCounter, PresenceLedger } from './ledger.ts';
+import { PresenceLedger } from './ledger.ts';
 
 /* ── scaffolding ────────────────────────────────────────────────────────── */
 
@@ -186,8 +186,18 @@ async function connect(url: string, query: { name?: string; kind?: 'human' | 'ai
   return client;
 }
 
+/**
+ * The join-time snapshot burst (walkthrough R2): a newcomer receives one
+ * presence frame per already-live player, right after welcome — idle
+ * players re-emit nothing on their own. Tests that assert on ACTION
+ * frames drain the burst first (it is fully logged by welcome time).
+ */
+const drainSnapshotBurst = async (client: Client, liveCount: number): Promise<void> => {
+  for (let i = 0; i < liveCount; i += 1) await client.next('presence');
+};
+
 const keysOf = (message: Msg): string[] => Object.keys(message).sort();
-const viewKeys = ['attention', 'colorHue', 'hasMouse', 'kind', 'name', 'playerId'];
+const viewKeys = ['attention', 'colorHue', 'cursor', 'hasMouse', 'kind', 'name', 'playerId'];
 
 const wait = (ms: number): Promise<void> => new Promise((resolveWait) => setTimeout(resolveWait, ms));
 
@@ -231,7 +241,7 @@ test('vocabulary: welcome / join / leave carry the frozen §1 shapes', async (t)
 
 /* ── the identity law (§2) ──────────────────────────────────────────────── */
 
-test('色律: hues follow the join order (73/146/219), a same-token reconnect restores the identity, a tokenless rejoin takes a fresh number', async (t) => {
+test('色律: the wheel-opposite pick (73/252/343/162), a same-token reconnect restores the identity, a tokenless rejoin takes a fresh number', async (t) => {
   const h = await harness(t);
   const first = await connect(h.wsUrl);
   const w1 = await first.next('welcome');
@@ -240,11 +250,11 @@ test('色律: hues follow the join order (73/146/219), a same-token reconnect re
   const second = await connect(h.wsUrl);
   const w2 = await second.next('welcome');
   assert.equal(w2.playerId, 'p2');
-  assert.equal(w2.colorHue, 146);
+  assert.equal(w2.colorHue, 252, 'opposite-biased, not exactly antipodal');
   const third = await connect(h.wsUrl);
   const w3 = await third.next('welcome');
   assert.equal(w3.playerId, 'p3');
-  assert.equal(w3.colorHue, 219);
+  assert.equal(w3.colorHue, 343);
 
   const token1 = String(w1.token);
   first.close();
@@ -262,7 +272,7 @@ test('色律: hues follow the join order (73/146/219), a same-token reconnect re
   const fourth = await connect(h.wsUrl);
   const w4 = await fourth.next('welcome');
   assert.equal(w4.playerId, 'p4', 'a tokenless join NEVER reuses a spent number');
-  assert.equal(w4.colorHue, (73 * 4) % 360);
+  assert.equal(w4.colorHue, 162, 'the recent-persisted TTL keeps the uninterrupted sequence across quick rejoins');
 
   const persisted = JSON.parse(readFileSync(join(h.designDir, '.jx-collab', 'presence.json'), 'utf8')) as { counter: number; players: Msg[] };
   assert.equal(persisted.counter, 4);
@@ -272,6 +282,36 @@ test('色律: hues follow the join order (73/146/219), a same-token reconnect re
   again.close();
   fourth.close();
   second.close();
+  await h.close();
+});
+
+test('join-time snapshot: a newcomer welcome roster carries parked cursors and attentions (walkthrough R2)', async (t) => {
+  const h = await harness(t);
+  const alice = await connect(h.wsUrl, { name: 'alice' });
+  await alice.next('welcome');
+  // alice parks her cursor and an attention, then goes idle — NO
+  // further frames; a newcomer must still see her state at once
+  alice.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 120, y: 88 });
+  alice.send({ type: 'attention', focus: { kind: 'canvas', component: 'a4', instance: null, frameId: 'hero-desktop-1280-dark' } });
+  await wait(120); // the 16ms merge window flushes
+
+  const bob = await connect(h.wsUrl, { name: 'bob' });
+  const wBob = await bob.next('welcome');
+  const aliceView = (wBob.players as Msg[]).find((view) => view.name === 'alice')!;
+  assert.deepEqual(aliceView.cursor, { canvas: 'welcome', surface: 'canvas', x: 120, y: 88 }, 'the parked cursor rides the roster');
+  assert.equal((aliceView.attention as Msg).component, 'a4', 'the parked attention rides the roster');
+  assert.equal((aliceView.attention as Msg).frameId, 'hero-desktop-1280-dark', 'the kit-addressed frameId survives the roster round-trip');
+  // the presence burst: one frame per pre-existing live player, right
+  // after welcome — the idle-player re-emit the Owner asked for
+  const burstFrame = await bob.next('presence');
+  assert.equal(burstFrame.playerId, aliceView.playerId, 'the burst relays alice');
+  assert.deepEqual(burstFrame.cursor, { canvas: 'welcome', surface: 'canvas', x: 120, y: 88 }, 'the burst carries the parked cursor');
+  assert.equal((burstFrame.attention as Msg).component, 'a4', 'the burst carries the parked attention');
+  await wait(80);
+  assert.equal(bob.countOf('presence'), 1, 'exactly ONE burst frame (alice was the only live player)');
+
+  alice.close();
+  bob.close();
   await h.close();
 });
 
@@ -290,7 +330,7 @@ test('counter persists across gateway instances over the same workspace', async 
   const third = await connect(h.wsUrl);
   const w3 = await third.next('welcome');
   assert.equal(w3.playerId, 'p3', 'the reopened gateway continues the persisted counter');
-  assert.equal(w3.colorHue, 219);
+  assert.equal(w3.colorHue, 343);
   third.close();
   reopened.close();
   await h.close();
@@ -322,11 +362,7 @@ test('fail-stop ledger: corrupted presence.json (malformed JSON and schema alike
   }
 });
 
-test('ledger unit law: hueOfCounter and the ledger-facing schema (no sockets)', (t) => {
-  assert.equal(hueOfCounter(1), 73);
-  assert.equal(hueOfCounter(2), 146);
-  assert.equal(hueOfCounter(3), 219);
-  assert.equal(hueOfCounter(5), (73 * 5) % 360);
+test('ledger unit law: the ledger-facing schema (no sockets)', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'jx-presence-ledger-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const ledger = new PresenceLedger(join(root, 'design'));
@@ -400,13 +436,14 @@ test('presence: bursts collapse into one frame per merge window, latest state wi
   await alice.next('welcome');
   const bob = await connect(h.wsUrl, { name: 'bob' });
   await bob.next('welcome');
+  await drainSnapshotBurst(bob, 1); // alice's parked state (null cursor)
   const joinOnAlice = alice.next('join'); // drain bob's join on alice's side
   await joinOnAlice.catch(() => undefined);
 
   alice.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 1, y: 1 });
   alice.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 2, y: 2 });
   await wait(150);
-  assert.equal(bob.countOf('presence'), 1, 'two rapid cursors collapsed into ONE presence frame');
+  assert.equal(bob.countOf('presence'), 2, 'the snapshot burst + ONE merged presence frame (two rapid cursors collapsed)');
   const burst = await bob.next('presence'); // consumes the burst frame
   assert.deepEqual(keysOf(burst), ['attention', 'cursor', 'hasMouse', 'playerId', 'type']);
   assert.deepEqual(burst.cursor, { canvas: 'welcome', surface: 'canvas', x: 2, y: 2 }, 'the LATEST state won the window');
@@ -422,7 +459,7 @@ test('presence: bursts collapse into one frame per merge window, latest state wi
   alice.send({ type: 'bogus' });
   alice.send({ type: 'cursor', canvas: 'welcome', surface: '', x: 0, y: 0 });
   await wait(120);
-  assert.equal(bob.countOf('presence'), 2, 'junk produced no frames');
+  assert.equal(bob.countOf('presence'), 3, 'junk produced no frames (burst + merged + attention)');
   alice.send({ type: 'ping' });
   assert.equal((await alice.next('pong')).type, 'pong');
 
@@ -530,6 +567,7 @@ test('notifyCommit: journal-tail dedupes by seq; mappable actors relay attention
   // a sessionHint playerId → the panel attention relay (visible to OTHERS)
   const observer = await connect(h.wsUrl, { name: 'watcher' });
   await observer.next('welcome');
+  await drainSnapshotBurst(observer, 2); // human + dsh parked states
   h.gateway.notifyCommit({
     seq: 12,
     actor: 'human',
@@ -552,6 +590,7 @@ test('notifyCommit preserves the live selection on the SAME field (P4: an admit 
   const humanWelcome = await human.next('welcome');
   const observer = await connect(h.wsUrl, { name: 'watcher' });
   await observer.next('welcome');
+  await drainSnapshotBurst(observer, 1); // human's parked state
 
   // the human reports a panel attention WITH a selection (the P4 uplink)
   human.ws.send(
@@ -710,6 +749,7 @@ test('integration: /admit commit notifies journal-tail and relays the hinted pan
   const aliceWelcome = await alice.next('welcome');
   const bob = await connect(wsUrl, { name: 'bob' });
   await bob.next('welcome');
+  await drainSnapshotBurst(bob, 1); // alice's parked state
 
   // adopt the page first (the §8 cycle lands identity + buffers), then
   // build the browser panel's own mirror (collab-api.test.ts's lane):

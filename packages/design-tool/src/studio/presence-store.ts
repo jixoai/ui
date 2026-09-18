@@ -57,6 +57,10 @@ export interface PlayerView {
   readonly kind: PlayerKind;
   readonly colorHue: number;
   readonly hasMouse: boolean;
+  /** the join-time snapshot (walkthrough R2): the roster carries each
+   *  player's parked cursor so a newcomer renders idle players without
+   *  waiting for their next move; optional for older gateways */
+  readonly cursor?: CursorState | null;
   readonly attention: AttentionFocus | null;
 }
 
@@ -154,14 +158,19 @@ export type ClientMessage =
 function isPlayerView(value: unknown): value is PlayerView {
   if (value === null || typeof value !== 'object') return false;
   const player = value as Record<string, unknown>;
-  return (
+  if (
     typeof player.playerId === 'string' &&
     typeof player.name === 'string' &&
     (player.kind === 'human' || player.kind === 'ai') &&
     typeof player.colorHue === 'number' &&
     typeof player.hasMouse === 'boolean' &&
     (player.attention === null || player.attention === undefined || isAttention(player.attention))
-  );
+  ) {
+    // the snapshot cursor (walkthrough R2): validated when present, its
+    // absence tolerated — the roster degrades to attention-only
+    return player.cursor === null || player.cursor === undefined || isCursor(player.cursor);
+  }
+  return false;
 }
 
 /** panel focus deepens with the remote text caret (presence-visuals
@@ -517,7 +526,7 @@ export class PresenceStore {
         break;
       case 'join': {
         if (this.#self !== null && message.player.playerId === this.#self.playerId) return;
-        this.#players.set(message.player.playerId, { ...message.player, cursor: null, online: true });
+        this.#players.set(message.player.playerId, { ...message.player, cursor: message.player.cursor ?? null, online: true });
         this.#notify();
         this.#emit('join', message.player);
         break;
@@ -558,11 +567,13 @@ export class PresenceStore {
     }
     this.#self = { playerId: message.playerId, name: this.#name, kind: this.#kind, colorHue: message.colorHue };
     // the server's table is the truth: rebuild wholesale (reconnects may
-    // have missed joins/leaves)
+    // have missed joins/leaves). The roster's parked cursors ride along
+    // (the join-time snapshot — walkthrough R2: idle players render at
+    // once, no waiting for their next move)
     this.#players.clear();
     for (const player of message.players) {
       if (player.playerId === message.playerId) continue;
-      this.#players.set(player.playerId, { ...player, cursor: null, online: true });
+      this.#players.set(player.playerId, { ...player, cursor: player.cursor ?? null, online: true });
     }
     this.#attempt = 0;
     this.#status = 'online';

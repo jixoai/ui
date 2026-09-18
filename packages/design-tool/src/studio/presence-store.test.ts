@@ -288,6 +288,29 @@ test('connect: the URL carries name+kind+token; welcome sets self, rebuilds the 
   assert.equal(clock.pending() > 0, true); // the ping chain is armed
 });
 
+test('welcome snapshot: parked roster cursors seed the table at once (walkthrough R2)', () => {
+  const { store, sockets } = makeStore();
+  store.connect();
+  const socket = sockets()[0];
+  socket.open();
+  socket.receive({
+    type: 'welcome',
+    playerId: 'p3',
+    token: 't',
+    colorHue: 343,
+    players: [
+      { playerId: 'p1', name: 'owner', kind: 'human', colorHue: 73, hasMouse: true, attention: null, cursor: { canvas: 'welcome', surface: 'canvas', x: 120, y: 88 } },
+      { playerId: 'p2', name: 'dsh', kind: 'ai', colorHue: 252, hasMouse: false, attention: null }, // no cursor — tolerated
+      { playerId: 'p9', name: 'junk', kind: 'human', colorHue: 10, hasMouse: true, attention: null, cursor: { surface: 'bogus', x: 0, y: 0 } }, // dropped whole
+    ],
+  });
+  const snap = store.snapshot();
+  assert.equal(snap.players.length, 2, 'the junk-cursor row drops, the cursorless row stays');
+  const owner = snap.players.find((player) => player.playerId === 'p1')!;
+  assert.deepEqual(owner.cursor, { canvas: 'welcome', surface: 'canvas', x: 120, y: 88 }, 'the parked cursor lands in the table without any presence frame');
+  assert.equal(snap.players.find((player) => player.playerId === 'p2')?.cursor, null);
+});
+
 test('join adds online; leave KEEPS the row offline (the chips show the state); rejoin flips it back', () => {
   const { store, sockets } = makeStore();
   store.connect();

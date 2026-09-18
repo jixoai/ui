@@ -59,14 +59,68 @@ export interface PresenceIdentity {
 /** the on-disk name, inside the design workspace's collab dir */
 const PRESENCE_FILE = 'presence.json';
 
+/** how long a departed player's hue still constrains new mints — the
+ *  reconnect window (a quick leave→rejoin must not mint a near-duplicate
+ *  of the departed hue; a stale record from yesterday must not constrain
+ *  forever) */
+export const PERSISTED_HUE_TTL_MS = 15 * 60_000;
+
 /** token → the stored hash form (`sha256:<hex>`) */
 export const hashToken = (token: string): string => `sha256:${createHash('sha256').update(token).digest('hex')}`;
 
 /** a fresh 32-hex-char token (design.md §1: 随机 32hex) */
 const mintToken = (): string => randomBytes(16).toString('hex');
 
-/** the color law: hue = (73 * counter) % 360 — the join order IS the color */
-export const hueOfCounter = (counter: number): number => (73 * counter) % 360;
+/** the color law (walkthrough R2, Owner 2026-09-19): the wheel-opposite
+ * pick — a newcomer lands on the FAR side of the color wheel, never a
+ * fixed step from the previous join (the old 73·counter law put every
+ * adjacent pair 73° apart — 相邻太相似). The pick maximizes the minimum
+ * circular distance to every live hue, skips candidates exactly
+ * antipodal to one (Owner: 选到对面的色，当然不是正对面), and breaks
+ * ties toward the antipode of the most recent joiner. The first player
+ * anchors on the brand hue 73. */
+export const BRAND_ANCHOR_HUE = 73;
+
+/** circular hue distance on the 360° wheel (both directions considered) */
+export const circularHueDistance = (a: number, b: number): number => {
+  const na = ((Math.round(a) % 360) + 360) % 360;
+  const nb = ((Math.round(b) % 360) + 360) % 360;
+  const raw = Math.abs(na - nb);
+  return Math.min(raw, 360 - raw);
+};
+
+/** the wheel-opposite pick (pure, deterministic): `existing` = the live
+ *  hues at mint time, `latest` = the most recent joiner's hue (ties
+ *  break toward its antipode) */
+export function pickHue(existing: readonly number[], latest?: number): number {
+  const live = existing.filter((hue) => Number.isFinite(hue)).map((hue) => ((Math.round(hue) % 360) + 360) % 360);
+  if (live.length === 0) return BRAND_ANCHOR_HUE;
+  const anchor = latest === undefined ? live[live.length - 1]! : ((Math.round(latest) % 360) + 360) % 360;
+  const antipode = (anchor + 180) % 360;
+  let best = -1;
+  let bestMinDist = -1; // distance to the nearest live hue (maximized)
+  let bestAntipodeDist = Infinity; // distance to the anchor's antipode (minimized on ties)
+  for (let hue = 0; hue < 360; hue += 1) {
+    let minDist = 360;
+    let antipodal = false; // exactly 180 from ANY live hue — never that
+    for (const e of live) {
+      const d = circularHueDistance(hue, e);
+      if (d === 180) {
+        antipodal = true;
+        break;
+      }
+      if (d < minDist) minDist = d;
+    }
+    if (antipodal) continue;
+    const antipodeDist = circularHueDistance(hue, antipode);
+    if (minDist > bestMinDist || (minDist === bestMinDist && antipodeDist < bestAntipodeDist)) {
+      best = hue;
+      bestMinDist = minDist;
+      bestAntipodeDist = antipodeDist;
+    }
+  }
+  return best < 0 ? BRAND_ANCHOR_HUE : best; // unreachable with live non-empty; the anchor keeps it total
+}
 
 /* ── runtime schema checks (store.ts posture — persisted input is untrusted) ── */
 
@@ -147,18 +201,23 @@ export class PresenceLedger {
     writeFileSync(this.#file, `${JSON.stringify(this.#state, null, 2)}\n`);
   }
 
-  /** mint the next identity under the counter law (counter 只增不减) */
-  #mint(name: string | undefined, kind: PresenceKind): PresenceIdentity {
+  /** mint the next identity under the counter law (counter 只增不减);
+   *  the hue rides the wheel-opposite pick against the live set PLUS
+   *  recently-seen persisted records (a quick leave→rejoin must not
+   *  mint a near-duplicate of the departed hue) */
+  #mint(name: string | undefined, kind: PresenceKind, liveHues?: { readonly existing: readonly number[]; readonly latest?: number }): PresenceIdentity {
     const token = mintToken();
     this.#state.counter += 1;
     const counter = this.#state.counter;
     const now = Date.now();
+    const recentCutoff = now - PERSISTED_HUE_TTL_MS;
+    const persistedHues = this.#state.players.filter((row) => row.lastSeen >= recentCutoff).map((row) => row.colorHue);
     const record: PresencePlayerRecord = {
       playerId: `p${counter}`,
       name: name ?? `player-${counter}`,
       kind,
       tokenHash: hashToken(token),
-      colorHue: hueOfCounter(counter),
+      colorHue: pickHue([...(liveHues?.existing ?? []), ...persistedHues], liveHues?.latest),
       firstSeen: now,
       lastSeen: now,
     };
@@ -171,9 +230,10 @@ export class PresenceLedger {
    * The connection-time identity resolution (design.md §1): a token hit
    * restores the SAME identity (id + hue + name); a miss or absence
    * mints a NEW one and issues a fresh token (token 是身份凭据 —
-   * dev-level auth, not a password).
+   * dev-level auth, not a password). `liveHues` feeds the wheel-opposite
+   * pick on mint (the gateway's live roster at connect time).
    */
-  restoreOrCreate(query: { name?: string; kind: PresenceKind; token?: string }): PresenceIdentity {
+  restoreOrCreate(query: { name?: string; kind: PresenceKind; token?: string }, liveHues?: { readonly existing: readonly number[]; readonly latest?: number }): PresenceIdentity {
     if (query.token !== undefined && query.token.length > 0) {
       const hash = hashToken(query.token);
       const hit = this.#state.players.find((player) => player.tokenHash === hash);
@@ -183,7 +243,7 @@ export class PresenceLedger {
         return { record: hit, token: query.token };
       }
     }
-    return this.#mint(query.name !== undefined && query.name.length > 0 ? query.name : undefined, query.kind);
+    return this.#mint(query.name !== undefined && query.name.length > 0 ? query.name : undefined, query.kind, liveHues);
   }
 
   /**
@@ -192,14 +252,14 @@ export class PresenceLedger {
    * survives restarts; otherwise mint. The token of a server-held
    * player is never disclosed — no one connects as it.
    */
-  ensureServerPlayer(name: string): PresencePlayerRecord {
+  ensureServerPlayer(name: string, liveHues?: { readonly existing: readonly number[]; readonly latest?: number }): PresencePlayerRecord {
     const hit = this.#state.players.find((player) => player.kind === 'ai' && player.name === name);
     if (hit !== undefined) {
       hit.lastSeen = Date.now();
       this.#persist();
       return hit;
     }
-    return this.#mint(name, 'ai').record;
+    return this.#mint(name, 'ai', liveHues).record;
   }
 
   /** identity lookup by playerId (read-only) */

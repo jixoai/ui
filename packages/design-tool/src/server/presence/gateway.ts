@@ -78,13 +78,16 @@ export interface PanelFocus {
   readonly selection?: { readonly start: number; readonly end: number };
 }
 
-/** the roster face (§1 PlayerView — cursor lives in the presence stream) */
+/** the roster face (§1 PlayerView; walkthrough R2: cursor rides the
+ *  roster too — the join-time snapshot, so a newcomer renders idle
+ *  players without waiting for their next move) */
 export interface PlayerView {
   readonly playerId: string;
   readonly name: string;
   readonly kind: PresenceKind;
   readonly colorHue: number;
   readonly hasMouse: boolean;
+  readonly cursor: CursorState | null;
   readonly attention: AttentionFocus | null;
 }
 
@@ -350,7 +353,14 @@ class PresenceGatewayImpl implements PresenceGateway {
 
     let identity;
     try {
-      identity = this.#ledger.restoreOrCreate({ name, kind, token: tokenParam });
+      // the wheel-opposite pick (walkthrough R2): a minting newcomer is
+      // colored against the LIVE roster — max-min circular distance,
+      // opposite-biased, never exactly antipodal
+      const liveHues = [...this.#live.values()].map((player) => player.colorHue);
+      identity = this.#ledger.restoreOrCreate(
+        { name, kind, token: tokenParam },
+        { existing: liveHues, latest: liveHues[liveHues.length - 1] },
+      );
     } catch (error) {
       // ledger fs failure degrades THIS connection only — never the server
       const message = error instanceof Error ? error.message : String(error);
@@ -389,6 +399,14 @@ class PresenceGatewayImpl implements PresenceGateway {
     // full roster; the roster is told about the newcomer immediately
     this.#send(ws, { type: 'welcome', playerId: player.playerId, token: identity.token, colorHue: player.colorHue, players: this.#views() });
     this.#broadcast({ type: 'join', player: this.#viewOf(player) }, player.playerId);
+    // the join-time snapshot burst (walkthrough R2): one presence frame
+    // per existing live player, sent to the NEWCOMER only — idle players
+    // re-emit nothing on their own, so without this the late joiner's
+    // canvas stays empty until someone moves (Owner: 需要主动推送状态快照)
+    for (const existing of this.#live.values()) {
+      if (existing.playerId === player.playerId) continue;
+      this.#send(ws, { type: 'presence', playerId: existing.playerId, cursor: existing.cursor, attention: existing.attention, hasMouse: existing.hasMouse });
+    }
 
     ws.on('message', (data) => {
       player.lastPing = this.#clock(); // any frame is liveness — ping is the keepalive floor
@@ -437,7 +455,7 @@ class PresenceGatewayImpl implements PresenceGateway {
   /* ── broadcast laws (§3) ─────────────────────────────────────────────── */
 
   #viewOf(player: LivePlayer): PlayerView {
-    return { playerId: player.playerId, name: player.name, kind: player.kind, colorHue: player.colorHue, hasMouse: player.hasMouse, attention: player.attention };
+    return { playerId: player.playerId, name: player.name, kind: player.kind, colorHue: player.colorHue, hasMouse: player.hasMouse, cursor: player.cursor, attention: player.attention };
   }
 
   #views(): PlayerView[] {
@@ -533,7 +551,8 @@ class PresenceGatewayImpl implements PresenceGateway {
   registerAiPlayer(input: { readonly name: string; readonly actor: string }): string {
     let record;
     try {
-      record = this.#ledger.ensureServerPlayer(input.name);
+      const liveHues = [...this.#live.values()].map((player) => player.colorHue);
+      record = this.#ledger.ensureServerPlayer(input.name, { existing: liveHues, latest: liveHues[liveHues.length - 1] });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`[design-presence] server player registration failed (${message})`);

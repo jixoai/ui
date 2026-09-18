@@ -74,12 +74,19 @@ const REMOTE_INDICATOR_CSS = [
   `[data-jx-remote$=":cursor"] {`,
   `  transition: transform 60ms linear, opacity 140ms ease;`,
   `}`,
-  `[data-jx-remote$=":cursor"] .jx-remote-dot {`,
+  `[data-jx-remote$=":cursor"] .jx-remote-arrow {`,
   `  position: absolute;`,
-  `  top: -4px; left: -4px;`,
-  `  width: 9px; height: 9px;`,
-  `  border-radius: 50%;`,
-  `  box-shadow: 0 0 0 1px rgba(13, 12, 11, 0.55);`,
+  `  top: 0; left: 0;`,
+  `  transform-origin: 0 0;`,
+  `  display: block;`,
+  `  line-height: 0;`,
+  `  /* walkthrough R2 blend law: the arrow inverts what it covers, */`,
+  `  /* canvas content stays visible; the tag never blends (readable) */`,
+  `  mix-blend-mode: difference;`,
+  `  pointer-events: none;`,
+  `}`,
+  `[data-jx-remote$=":cursor"] .jx-remote-arrow svg {`,
+  `  display: block;`,
   `}`,
   `[data-jx-remote$=":cursor"] .jx-remote-tag {`,
   `  position: absolute;`,
@@ -101,6 +108,7 @@ const REMOTE_INDICATOR_CSS = [
   `  font: 10px/1.4 ui-monospace, 'SF Mono', Menlo, monospace;`,
   `  white-space: nowrap;`,
   `  border-radius: 3px;`,
+  `  color: #f5f1e8;`,
   `}`,
 ].join('\n');
 
@@ -120,14 +128,23 @@ function ensureEntry(player) {
   const cursor = document.createElement('div');
   cursor.setAttribute('data-jx-remote', `${player.playerId}:cursor`);
   cursor.setAttribute('aria-hidden', 'true');
-  const dot = document.createElement('span');
-  dot.className = 'jx-remote-dot';
-  dot.style.background = `hsl(${hue}, 85%, 45%)`;
+  // the pointer-shaped cursor (walkthrough R2): a real mouse arrow —
+  // tip at (0,0) so the transform lands the TIP on the reported point;
+  // the arrow layer blends (difference) so canvas content shows
+  // through, the name tag does not (readability first)
+  const arrow = document.createElement('span');
+  arrow.className = 'jx-remote-arrow';
+  arrow.innerHTML =
+    `<svg viewBox="0 0 14 20" width="14" height="20" aria-hidden="true" focusable="false">` +
+    `<path d="M1 1 L1 16.2 L4.7 12.8 L7.2 18.4 L9.3 17.5 L6.9 12.2 L12 12.1 Z" ` +
+    `fill="hsl(${hue} 85% 45%)" stroke="rgba(13, 12, 11, 0.65)" stroke-width="1" stroke-linejoin="round"/></svg>`;
   const tag = document.createElement('span');
   tag.className = 'jx-remote-tag';
-  tag.style.background = `hsl(${hue}, 85%, 45% / 0.92)`;
+  // space+slash syntax — the legacy `h, s%, l% / a` mix is INVALID css
+  // and Chrome silently dropped it (the walkthrough's unreadable ids)
+  tag.style.background = `hsl(${hue} 85% 45% / 0.92)`;
   tag.textContent = player.name;
-  cursor.appendChild(dot);
+  cursor.appendChild(arrow);
   cursor.appendChild(tag);
 
   const ring = document.createElement('div');
@@ -136,12 +153,12 @@ function ensureEntry(player) {
   ring.style.borderColor = `hsl(${hue}, 70%, 55%)`;
   const badge = document.createElement('span');
   badge.className = 'jx-remote-badge';
-  badge.style.background = `hsl(${hue}, 70%, 55% / 0.92)`;
+  badge.style.background = `hsl(${hue} 70% 55% / 0.92)`;
   ring.appendChild(badge);
 
   document.documentElement.appendChild(cursor);
   document.documentElement.appendChild(ring);
-  entry = { cursor, dot, tag, ring, badge, attention: null, ringKey: null, hasMouse: player.hasMouse === true };
+  entry = { cursor, arrow, tag, ring, badge, attention: null, ringKey: null, hasMouse: player.hasMouse === true };
   roster.set(player.playerId, entry);
   // a fast leave→join re-creates the entry: cancel any pending retire
   // timer holding the PREVIOUS generation's elements (its capture would
@@ -200,13 +217,14 @@ function surfaceOffset(surface) {
 function placeCursor(entry, cursor) {
   const offset = surfaceOffset(cursor.surface);
   if (offset === null) {
+    entry.parkedCursor = cursor; // the kit iframe is not there YET — the align loop retries when it lands
     entry.cursor.style.opacity = '0';
     return;
   }
+  entry.parkedCursor = null;
   const k = lensK();
   entry.cursor.style.transform = `translate(${offset.x + cursor.x * offset.k}px, ${offset.y + cursor.y * offset.k}px)`;
-  entry.dot.style.width = entry.dot.style.height = `${9 * k}px`;
-  entry.dot.style.top = entry.dot.style.left = `${-4.5 * k}px`;
+  entry.arrow.style.transform = `scale(${k})`; // tip rides (0,0) — the reported point
   entry.tag.style.top = `${-9 * k}px`;
   entry.tag.style.left = `${8 * k}px`;
   entry.tag.style.fontSize = `${10 * k}px`;
@@ -216,10 +234,12 @@ function placeCursor(entry, cursor) {
 
 /** the attention target's canvas-document box. The focus carries the
  *  protocol componentId (the native `id` attribute stamped into the
- *  source at ingest) — resolved by `[id=…]` in THIS document first,
- *  then inside every kit iframe (same-origin), adding the iframe
- *  offset. Unresolvable ids return null (the ring fades out — the
- *  badge keeps the id legible, never a wrong-element ring). */
+ *  source at ingest) — resolved by `[id=…]` in THIS document first;
+ *  kit iframes come next, the attention's frameId FIRST among them
+ *  (the same id lives in multiple kits — mobile/desktop variants),
+ *  same-origin, adding the iframe offset. Unresolvable ids return
+ *  null (the ring fades out — the badge keeps the id legible, never
+ *  a wrong-element ring). */
 export function resolveAttentionBox(attention) {
   if (attention === null || attention.kind !== 'canvas') return null;
   const idSelector = `[id="${CSS.escape(attention.component)}"]`;
@@ -228,7 +248,19 @@ export function resolveAttentionBox(attention) {
     const rect = own.getBoundingClientRect();
     return { x: rect.left + window.scrollX, y: rect.top + window.scrollY, w: rect.width, h: rect.height };
   }
+  // the kit-addressed resolution (walkthrough R2): the same component id
+  // exists in MULTIPLE kits (mobile/desktop variants of one file) — the
+  // attention's frameId names the kit the pick happened in; resolve
+  // THERE first and only fall back to the DOM-order scan on a miss
+  const frames = [];
+  if (typeof attention.frameId === 'string' && attention.frameId.length > 0) {
+    const named = document.querySelector(`iframe[name="${FRAME_NAME_PREFIX}${attention.frameId}"]`);
+    if (named !== null) frames.push(named);
+  }
   for (const frame of document.querySelectorAll('iframe')) {
+    if (!frames.includes(frame)) frames.push(frame);
+  }
+  for (const frame of frames) {
     const doc = frame.contentDocument;
     if (doc === null) continue; // cross-origin — not ours
     const el = doc.querySelector(idSelector);
@@ -290,7 +322,11 @@ function renderPresence(players) {
     }
     const attention = player.attention;
     if (attention !== null && attention !== undefined && attention.kind === 'canvas') {
-      if (entry.attention === null || boxKeyOfAttention(entry.attention) !== boxKeyOfAttention(attention)) {
+      // the retry law (walkthrough R2): a placement that FAILED (the kit
+      // iframe not loaded yet — placeRing left ringKey null) re-attempts
+      // on every later frame; the idempotence skip only covers a ring
+      // that actually rendered
+      if (entry.attention === null || entry.ringKey === null || boxKeyOfAttention(entry.attention) !== boxKeyOfAttention(attention)) {
         placeRing(entry, player.name, attention);
       } else {
         entry.attention = attention; // same target — the align loop owns refinements
@@ -320,7 +356,7 @@ let alignRaf = 0;
 
 function hasAlignWork() {
   for (const entry of roster.values()) {
-    if (entry.attention !== null) return true;
+    if (entry.attention !== null || entry.parkedCursor !== null) return true;
   }
   return false;
 }
@@ -333,6 +369,7 @@ function ensureAlignLoop() {
 function alignStep() {
   alignRaf = 0;
   for (const entry of roster.values()) {
+    if (entry.parkedCursor !== null) placeCursor(entry, entry.parkedCursor); // the kit landed — retry the parked cursor
     const attention = entry.attention;
     if (attention === null) continue;
     const box = resolveAttentionBox(attention);
@@ -441,8 +478,7 @@ function applyBrandHueTo(doc, oklchHue) {
 function rechrome() {
   const k = lensK();
   for (const entry of roster.values()) {
-    entry.dot.style.width = entry.dot.style.height = `${9 * k}px`;
-    entry.dot.style.top = entry.dot.style.left = `${-4.5 * k}px`;
+    entry.arrow.style.transform = `scale(${k})`;
     entry.tag.style.top = `${-9 * k}px`;
     entry.tag.style.left = `${8 * k}px`;
     entry.tag.style.fontSize = `${10 * k}px`;

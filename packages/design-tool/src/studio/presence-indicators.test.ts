@@ -153,14 +153,20 @@ test('overlay: attention resolves by componentId ACROSS documents (own doc first
   const body = resolve[0];
   assert.match(body, /CSS\.escape\(attention\.component\)/, 'the componentId is selector-escaped (the injection guard)');
   assert.match(body, /\[id="\$\{CSS\.escape\(attention\.component\)\}"\]/, 'the protocol componentId resolves by the native id attribute');
-  assert.match(body, /for \(const frame of document\.querySelectorAll\('iframe'\)\)/, 'kit iframes are searched in order');
+  // walkthrough R2: the attention's frameId names the kit the pick
+  // happened in — the named kit is searched FIRST (same id in multiple
+  // kits must never resolve to DOM-order kit #1), the full scan is the
+  // fallback
+  assert.match(body, /iframe\[name="\$\{FRAME_NAME_PREFIX\}\$\{attention\.frameId\}"\]/, 'the kit-addressed lookup targets the named kit iframe');
+  assert.match(body, /for \(const frame of document\.querySelectorAll\('iframe'\)\)/, 'the DOM-order scan remains as the fallback');
+  assert.match(body, /if \(!frames\.includes\(frame\)\) frames\.push\(frame\);/, 'no duplicate scans');
   assert.match(body, /frame\.contentDocument/, 'same-origin document query');
   // presence-liveness P2's coordinate law: kit CSS px → canvas-doc px
   // through the measured lens scale k (pre/post-lens spaces meet only via k)
   assert.match(body, /const k = kitW > 0 && rect\.width > 0 \? rect\.width \/ kitW : 1;/, 'the measured lens scale');
   assert.match(body, /rect\.left \+ box\.left \* k \+ window\.scrollX/, 'the frame offset × k + scroll land in canvas-document coords');
   assert.match(body, /continue; \/\/ cross-origin — not ours/, 'cross-origin frames are skipped');
-  assert.match(overlay, /never a wrong-element ring/, 'unresolvable ids fade out, never a wrong-element ring (the law comment)');
+  assert.match(overlay, /wrong-element ring/, 'unresolvable ids fade out, never a wrong-element ring (the law comment)');
 });
 
 test('overlay: the local cursor reports UP in canvas-document coordinates, rAF-coalesced (P7)', () => {

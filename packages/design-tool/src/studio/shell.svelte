@@ -430,7 +430,29 @@
     }
     const id = selection.componentId ?? null;
     if (id === null) return; // unaddressable picks stay local
-    store.reportAttention({ kind: 'canvas', component: id, instance: null, frameId: null });
+    // the kit-addressed selection (walkthrough R2): the same component id
+    // lives in MULTIPLE kits (mobile/desktop variants of one file) — the
+    // source kit rides the attention so the remote ring lands in the kit
+    // the pick happened in, never blindly in DOM-order kit #1
+    store.reportAttention({ kind: 'canvas', component: id, instance: null, frameId: selection.frameId ?? null });
+  });
+
+  // the canvas-mount re-push (walkthrough R2 A4): the roster forward is
+  // edge-triggered on store notifies — when the canvas iframe lands
+  // AFTER welcome (slow first manifest pull), that forward dropped on a
+  // null target and idle players never reached the overlay (the late
+  // joiner saw nothing until someone moved). Every iframe bind re-sends
+  // the current roster snapshot — and again on the iframe's LOAD: at
+  // bind the document is often still about:blank, and messages posted
+  // there die with it.
+  $effect(() => {
+    const target = canvasIframe;
+    const storeNow = presenceStoreRef;
+    if (target === null || storeNow === null) return;
+    forwardPresenceToCanvas(storeNow.snapshot());
+    const onCanvasLoad = (): void => forwardPresenceToCanvas(storeNow.snapshot());
+    target.addEventListener('load', onCanvasLoad);
+    return () => target.removeEventListener('load', onCanvasLoad);
   });
 
   // the picker's up-call seam (GATE-0 relay, 2026-09-12): a window
@@ -1121,6 +1143,16 @@
     display: flex;
     align-items: center;
     gap: 0.375rem;
+  }
+  /* the ribbon slot law (walkthrough R2): when a nav row carries the
+     presence ribbon, the ribbon OWNS the left 2px slot — the family
+     Item's selected inset accent would otherwise double it into an
+     8-physical-px slab (vision-measured). The selected BACKGROUND
+     stays; unribboned selected rows keep the family look untouched.
+     :global — .jx-item is the host family's element (child component),
+     a scoped descendant selector gets pruned by Svelte as unused */
+  .studio-canvas-row[data-jx-remote-ribbon] :global(.jx-item[data-selected='true']) {
+    box-shadow: none;
   }
   /* r3 T4: the canvas/frame rows are family link rows (the Item
      supplies row chrome, hover, selected, focus). Residual CSS here
