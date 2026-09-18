@@ -198,7 +198,7 @@ the commit BEFORE its own artifacts land)
   has-* utilities without re-pin) — out of scope for this change, receipts
   in the wave notes.
 
-## 7. Gate receipts (final chain, post W4-r2 `4c6d5246`)
+## 7. Gate receipts (final chain — the W4-r4 code freeze; receipts bind last)
 
 - verify:tailwindless — **GREEN, pin 0/0/0, + the PFINAL negative tooth**
   (a stale utilities-tier prelude anywhere in repo css is red; teeth

@@ -355,7 +355,10 @@ export function artifactBytes(itemKey, buildId, { classModule, css }) {
   // canonical statement kept a second one under the narrow sheet-only
   // strip) — is stripped first through the ONE tolerant matcher; the
   // artifact carries EXACTLY ONE canonical statement.
-  const deduped = stripCanonicalStatements(css) || css;
+  // no || css fallback: an input that is ONLY a canonical prelude strips
+  // to empty — correct (the artifact's own byte-zero statement replaces it);
+  // the old fallback would have re-emitted the double the law forbids
+  const deduped = stripCanonicalStatements(css);
   const cssBytes = `${canonicalLayerStatement(maxStylexPriority(css))}\n${deduped.replace(/\s*$/, '\n')}/* ${stampLines(buildId).join(' · ')} */\n`;
   return { classModule: classModuleBytes, css: cssBytes };
 }
