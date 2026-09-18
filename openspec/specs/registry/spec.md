@@ -237,14 +237,19 @@ wiring is importing the item CSS (exactly the jixoai.css import
 consumers perform today). Consumers MAY run Tailwind, StyleX, or any
 engine for their OWN markup — that is a consumer choice, never a
 kernel prerequisite; the canonical layer law keeps consumer
-utilities above kernel paint either way. TRANSITIONAL: LEGACY
-utility-first items (not yet migrated) keep the standing TW4
-prerequisite and check-tw4-prereq applies to THEM until their
-migration lands; the gate's applicability narrows as the phase train
-advances and retires with the last legacy item. The zero-engine
-assertion in verify:shadcn-add checks the clean consumer's lockfile
-for @stylexjs/stylex, @stylexjs/unplugin, AND @stylexjs/babel-plugin
-— all three must be absent.
+utilities above kernel paint either way. The one-shot migration
+(the tailwindless program's W1..W4 train) migrates every legacy
+utility-first item: the TW4 prerequisite and
+`scripts/check-tw4-prereq.mjs` RETIRE with it — the jixoai theme
+sheet (+ each item's payload CSS) is the whole styling prerequisite;
+utility-authored UI items SHALL declare `@jixoai/jixoai-theme` in
+`registryDependencies` uniformly so the token sheet arrives with the
+component. The zero-engine assertion in verify:shadcn-add checks the
+clean consumer's lockfile for @stylexjs/stylex, @stylexjs/unplugin,
+AND @stylexjs/babel-plugin — all three must be absent. Items whose
+runtime needs a build-time-resolved binary asset keep the
+wasm-asset prerequisite unchanged (see the original requirement
+text in the spec history for the full wasm chain freeze).
 
 #### Scenario: namespace registration
 
@@ -256,12 +261,10 @@ for @stylexjs/stylex, @stylexjs/unplugin, AND @stylexjs/babel-plugin
 #### Scenario: a clean consumer installs a compiled payload item
 
 - GIVEN a fresh consumer project with no styling engine installed
-- WHEN it shadcn-adds a COMPILED PAYLOAD item (post-migration) and
-  imports the item CSS
+- WHEN it shadcn-adds any migrated item and imports the item CSS
 - THEN the components render correctly and the lockfile gains none
   of @stylexjs/stylex, @stylexjs/unplugin, @stylexjs/babel-plugin;
-  a LEGACY item meanwhile keeps the standing TW4 prerequisite
-  (transitional applicability)
+  no item carries a Tailwind prerequisite anymore
 
 #### Scenario: a Tailwind consumer overrides kernel paint
 

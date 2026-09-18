@@ -726,6 +726,17 @@ become REGISTERED semantic rules (lane-2 sheets with owner + selector
 family + declaration scope recorded in the sheet's intent comment) —
 never an unregistered utility lookalike.
 
+THE JOINER LAW (Wave 1 ruling, 2026-09-17): a `.stylex.ts` module's
+only legal exports are `stylex.create` results — the class joiner
+(`cx`) lives INSIDE each consuming component's script (the separator
+serialize law), never exported from the module. The canonical joiner
+tolerates plain strings (passthrough whole — a pre-joined group
+string must not explode per-character through `Object.entries`),
+stylex dev objects (string members joined, `$$css` dropped), and
+falsy values. The gate's per-export verification keeps zero helper
+exceptions (the STYLEX_MODULE_HELPERS registry stays empty; its
+machinery and selftests remain for future deliberate use).
+
 Dynamic class producers (any code path building class strings —
 `cn()`, `resolveTextStyle`, slot resolvers) are REGISTERED in the
 gate's source with an enumeration of the identities they may emit;
@@ -741,7 +752,13 @@ handling; `check-tw4-prereq.mjs` and the registry install
 prerequisite RETIRED (the registry spec's consumer contract flips:
 migrated items need the jixoai theme sheet ONLY); `tailwindcss`
 absent from production `package.json` files (design-tool and test
-fixtures' scope frozen by explicit decision before Pfinal); the
+fixtures' scope frozen by explicit decision before Pfinal — the
+design-tool studio is the ONE frozen Tailwind-CONSUMER enclave: its
+`packages/design-tool/src/studio/studio-static.css` keeps the engine
+fan-in BY DESIGN, exactly the way any external consumer may; the
+repo-css cleanliness conditions apply to every OTHER css, and the
+tailwindless gate pins the enclave as an allowlist of exactly one
+file — a second `@import 'tailwindcss'` anywhere else is red); the
 tailwindless gate runs with an EMPTY allowlist; the stylex payload's
 layer contract re-proven post-Tailwind (dual import-order browser
 probe — the cascade proof must not keep assuming the utilities layer
@@ -778,8 +795,15 @@ prelude is red).
 - WHEN it renders
 - THEN the families style correctly through atoms + tokens alone —
   the fixture is the standing receipt that migration increments
-  shrink the hard binding, and it grows one family per completed
-  phase until it covers the registry
+
+#### Scenario: the joiner stays component-local
+
+- GIVEN any migrated family's `.stylex.ts` module
+- WHEN the gate classifies its exports
+- THEN every export is a `stylex.create` result — an exported joiner
+  (or any other non-create export) is rogue-red, and each consuming
+  component carries the canonical local `cx` (string-passthrough
+  superset form) in its own script
 
 #### Scenario: the engine's retirement is total
 
