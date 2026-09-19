@@ -374,7 +374,7 @@
   // 'default' — the design-frozen migration path for the terminal's
   // always-concrete cell math (explicit ?? ambient scope ?? 'default';
   // the plugin chain rides the terminal value inside the slot)
-  const d = $derived(GhosttyTermDefaults.resolve({ density }));
+  const d = $derived(GhosttyTermDefaults.resolve({ density, theme }));
   const resolvedDensity: Density = $derived(d.density ?? 'default');
 
   let warnedFontSize = '';
@@ -484,9 +484,9 @@
     const token = (name: string): string =>
       probeEl === null ? '' : getComputedStyle(probeEl).getPropertyValue(name).trim();
     shell = {
-      bg: toCanvasColor(theme?.background ?? token('--terminal'), 'rgb(0, 0, 0)'),
-      fg: toCanvasColor(theme?.foreground ?? token('--terminal-foreground'), 'rgb(255, 255, 255)'),
-      selectionBg: theme?.selectionBackground !== undefined ? toCanvasColor(theme.selectionBackground, 'rgb(255, 255, 255)') : undefined,
+      bg: toCanvasColor(d.theme?.background ?? token('--terminal'), 'rgb(0, 0, 0)'),
+      fg: toCanvasColor(d.theme?.foreground ?? token('--terminal-foreground'), 'rgb(255, 255, 255)'),
+      selectionBg: d.theme?.selectionBackground !== undefined ? toCanvasColor(d.theme.selectionBackground, 'rgb(255, 255, 255)') : undefined,
       selectionFg: theme?.selectionForeground !== undefined ? toCanvasColor(theme.selectionForeground, 'rgb(0, 0, 0)') : undefined,
       cursor: theme?.cursor !== undefined ? toCanvasColor(theme.cursor, 'rgb(255, 255, 255)') : undefined,
       cursorAccent: theme?.cursorAccent !== undefined ? toCanvasColor(theme.cursorAccent, 'rgb(0, 0, 0)') : undefined,

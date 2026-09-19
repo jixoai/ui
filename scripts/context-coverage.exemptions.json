@@ -101,6 +101,42 @@
       "kind": "no-style",
       "prop": "inset",
       "reason": "The inset contract's IMPLEMENTING part (2026-09-05 contract, dfe91725): item-end stamps the contract and owns --jx-item-end-inset — the word hits the vocabulary but carries no ambient slot semantics here (the family's ambient axis set has no inset slot BY design; enforcement is local: non-negative px, negative is a margin wearing the wrong name)."
+    },
+    {
+      "path": "registry/files/ui/pattern-hero-set/pattern-hero-set.svelte",
+      "kind": "passthrough",
+      "prop": "theme",
+      "reason": "Pure passthrough (context round 2 census, vocabulary v2): the pattern composes TerminalCard and forwards its theme prop VERBATIM — <TerminalCard {theme} /> — never reading or restating it. Resolving through a PatternHeroSetDefaults would manufacture inheritance the composition forbids (the button-variant-scope precedent); TerminalCardDefaults.theme remains the audited ambient face."
+    },
+    {
+      "path": "registry/files/ui/prototype-kit/frame-view.svelte",
+      "kind": "no-style",
+      "prop": "theme",
+      "reason": "Not a style prop of THIS component (vocabulary v2 census): frame-view renders the studio IFRAME wrapper and stamps data-jx-prototype-theme — the attribute is the FRAMED document's environment channel (auto = follow the host), consumed inside the frame, never by frame-view's own paint. The alpha lane (layout-family spec: inline-style posture, studio-owned vocabulary) joins the ambient economy only if/when it leaves alpha."
+    },
+    {
+      "path": "registry/files/ui/prototype-kit/prototype-component.svelte",
+      "kind": "passthrough",
+      "prop": "theme",
+      "reason": "Forwards its theme (own 'auto') verbatim to FrameView — the framed document's environment channel, not this component's style (see the frame-view no-style entry)."
+    },
+    {
+      "path": "registry/files/ui/prototype-kit/prototype-page.svelte",
+      "kind": "passthrough",
+      "prop": "theme",
+      "reason": "Forwards its theme (own 'auto') into buildFrameUrl — the FRAMED document's environment channel rides the frame URL (&theme=…), never this component's own paint (the frame-view no-style entry's URL-side twin)."
+    },
+    {
+      "path": "registry/files/ui/component-canvas/component-canvas.svelte",
+      "kind": "bindable",
+      "prop": "theme",
+      "reason": "PAGE-OWNED $bindable stage preview theme (the family's own doc: \"Stage preview theme — PAGE-OWNED (bindable). Projects data-theme + the sheet's dark/jx-light vocabulary, scoped to the stage subtree only; sibling canvases never re-theme\"). A Defaults slot would manufacture ambient inheritance the stage contract explicitly forbids — the page that owns the canvas owns its theme; the dock head's icon button is the single flip seam."
+    },
+    {
+      "path": "registry/files/ui/component-canvas/canvas-playground.svelte",
+      "kind": "bindable",
+      "prop": "theme",
+      "reason": "The bind:theme chain's playground half — the dock carries the same PAGE-OWNED $bindable (bind:theme through CanvasPlayground); see the component-canvas entry."
     }
   ]
 }
