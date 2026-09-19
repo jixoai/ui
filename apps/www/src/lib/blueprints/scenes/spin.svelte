@@ -5,6 +5,7 @@
 <script lang="ts">
   import Spin from '$lib/ui/spin';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -21,10 +22,10 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.spinStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.spinStage)}>
   <Spin label="loading checks" />
   <Spin spinner="blocks-wave" label="building" size={24} />
   <Spin label="building" class={cx(bpB.spinFramed)}>
     <div class={cx(bpB.spinBody)}>building apps/www…</div>
   </Spin>
-</div>
+</Stack>

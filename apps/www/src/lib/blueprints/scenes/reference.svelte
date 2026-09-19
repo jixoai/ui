@@ -6,6 +6,7 @@
   import Reference from '$lib/ui/reference/reference.svelte';
   import Figure from '$lib/ui/figure/figure.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,7 +24,7 @@
 </script>
 
 <NumberingProvider>
-  <div class={cx(bpB.referenceStage)}>
+  <Stack direction="column" justify="center" gap="20" class={cx(bpB.referenceStage)}>
     <SectionCard numbering="decimal" title="Discussion" headingLevel={2}>
       <div class={cx(bpB.referenceBody)}>
         <p>the balance of <Reference to="eq-d" /> holds throughout</p>
@@ -37,5 +38,5 @@
     </Figure>
     <SectionCard id="sec-m" title="Methods" headingLevel={3}>the procedure</SectionCard>
     <SectionCard id="sec-n" title="Notation" headingLevel={3}>the glossary</SectionCard>
-  </div>
+  </Stack>
 </NumberingProvider>

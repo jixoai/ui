@@ -4,6 +4,7 @@
 <script lang="ts">
   import Anchor from '$lib/ui/anchor/anchor.svelte';
   import AnchorItem from '$lib/ui/anchor/anchor-item.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const cx = (
@@ -22,7 +23,7 @@
 </script>
 
 <div class={cx(bpA.anchorStage)}>
-  <div class={cx(bpA.anchorColumn)}>
+  <Stack direction="column" gap="12" class={cx(bpA.anchorColumn)}>
     <h2 id="bp-anchor-what" class={cx(bpA.anchorHeading)}>what it does</h2>
     <p class={cx(bpA.anchorBody)}>
       nav of real fragment links — native navigation, native smooth scrolling, no second pick
@@ -37,7 +38,7 @@
       scroll-margin-top is set on demand and restored — consumer markup is never permanently
       mutated.
     </p>
-  </div>
+  </Stack>
   <aside class={cx(bpA.anchorAside)}>
     <Anchor label="on this page" offset={8}>
       <AnchorItem href="#bp-anchor-what">what it does</AnchorItem>

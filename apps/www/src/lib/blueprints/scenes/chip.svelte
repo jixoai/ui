@@ -26,7 +26,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.chipStage)}>
+<Stack direction="column" align="start" justify="center" gap="16" class={cx(bpA.chipStage)}>
   <Stack align="center" wrap gap="12">
     <Chip>tonal</Chip>
     <Chip variant="fill">fill</Chip>
@@ -45,4 +45,4 @@
       bevel ink
     </Chip>
   </Stack>
-</div>
+</Stack>

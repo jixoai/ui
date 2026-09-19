@@ -40,7 +40,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.componentCanvasStage)}>
+<Stack align="center" justify="center" class={cx(bpA.componentCanvasStage)}>
   <ComponentCanvas title="press-button" files={files}>
     <Stack align="center" gap="12">
       <PressButton variant="fill">deploy</PressButton>
@@ -48,4 +48,4 @@
       <Badge>live demo</Badge>
     </Stack>
   </ComponentCanvas>
-</div>
+</Stack>

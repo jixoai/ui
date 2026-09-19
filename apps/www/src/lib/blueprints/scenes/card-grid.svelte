@@ -5,6 +5,7 @@
 <script lang="ts">
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const cx = (
@@ -22,7 +23,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.cardGridStage)}>
+<Stack align="center" justify="center" class={cx(bpA.cardGridStage)}>
   <CardGrid min="240px" class={cx(bpA.cardGridGrid)}>
     <SectionCard
       eyebrow="card 01"
@@ -45,4 +46,4 @@
       </ul>
     </SectionCard>
   </CardGrid>
-</div>
+</Stack>

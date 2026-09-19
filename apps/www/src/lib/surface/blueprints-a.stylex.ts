@@ -93,12 +93,8 @@ export const bpA = stylex.create({
 
   // ══ alert ══════════════════════════════════════════════════════
   alertStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
 
@@ -113,10 +109,7 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   anchorColumn: {
-    display: 'flex',
     minWidth: 0,
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
   },
   anchorHeading: {
     fontFamily: tokens['--jx-font-mono'],
@@ -133,26 +126,16 @@ export const bpA = stylex.create({
 
   // ══ avatar ═════════════════════════════════════════════════════
   avatarStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
   avatarRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-20'] },
 
   // ══ badge-indicator ════════════════════════════════════════════
   badgeIndicatorStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-32'],
     padding: tokens['--jx-space-40'],
   },
   badgeIndicatorNote: {
@@ -163,43 +146,27 @@ export const bpA = stylex.create({
 
   // ══ badge ══════════════════════════════════════════════════════
   badgeStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
 
   // ══ blockquote ═════════════════════════════════════════════════
   blockquoteStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   blockquoteColumn: {
-    display: 'flex',
     width: '100%',
     maxWidth: '520px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
   },
   blockquoteRow: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
 
   // ══ breadcrumb ═════════════════════════════════════════════════
   breadcrumbStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
 
@@ -216,11 +183,8 @@ export const bpA = stylex.create({
 
   // ══ card-grid ══════════════════════════════════════════════════
   cardGridStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   cardGridGrid: { width: '100%' },
@@ -238,11 +202,8 @@ export const bpA = stylex.create({
 
   // ══ card ═══════════════════════════════════════════════════════
   cardStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   cardFrame: { width: '100%', maxWidth: '340px' },
@@ -261,11 +222,8 @@ export const bpA = stylex.create({
 
   // ══ carousel ═══════════════════════════════════════════════════
   carouselStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   carouselSlide: {
@@ -293,11 +251,8 @@ export const bpA = stylex.create({
 
   // ══ cascader ═══════════════════════════════════════════════════
   cascaderStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
 
@@ -314,10 +269,7 @@ export const bpA = stylex.create({
   },
   chartRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-40'] },
   chartColumn: {
-    display: 'flex',
     minWidth: 0,
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
   },
   chartLabel: {
     color: tokens['--jx-muted-foreground'],
@@ -327,41 +279,26 @@ export const bpA = stylex.create({
 
   // ══ checkbox ═══════════════════════════════════════════════════
   checkboxStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   checkboxColumn: {
-    display: 'flex',
     width: '100%',
     maxWidth: '380px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-16'],
   },
 
   // ══ chip ═══════════════════════════════════════════════════════
   chipStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
 
   // ══ code-card ══════════════════════════════════════════════════
   codeCardStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   codeCardCard: { width: '100%', maxWidth: '520px' },
@@ -379,12 +316,8 @@ export const bpA = stylex.create({
 
   // ══ color-utils ════════════════════════════════════════════════
   colorUtilsStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   colorUtilsPanel: {
@@ -435,12 +368,8 @@ export const bpA = stylex.create({
 
   // ══ command-match ══════════════════════════════════════════════
   commandMatchStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-10'],
     padding: tokens['--jx-space-40'],
   },
   commandMatchEyebrow: {
@@ -487,22 +416,15 @@ export const bpA = stylex.create({
 
   // ══ component-canvas ═══════════════════════════════════════════
   componentCanvasStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
 
   // ══ context-plugin ═════════════════════════════════════════════
   contextPluginStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   contextPluginEyebrow: {
@@ -587,12 +509,8 @@ export const bpA = stylex.create({
 
   // ══ control-chrome ═════════════════════════════════════════════
   controlChromeStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   controlChromeEyebrow: {
@@ -655,12 +573,8 @@ export const bpA = stylex.create({
 
   // ══ defaults ═══════════════════════════════════════════════════
   defaultsStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   defaultsEyebrow: {
@@ -691,12 +605,8 @@ export const bpA = stylex.create({
 
   // ══ density ════════════════════════════════════════════════════
   densityStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   densityEyebrow: {
@@ -710,11 +620,8 @@ export const bpA = stylex.create({
 
   // ══ descriptions ═══════════════════════════════════════════════
   descriptionsStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   descriptionsLabel: {
@@ -772,22 +679,15 @@ export const bpA = stylex.create({
 
   // ══ empty ══════════════════════════════════════════════════════
   emptyStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
 
   // ══ entity ═════════════════════════════════════════════════════
   entityStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   entityEyebrow: {
@@ -826,12 +726,8 @@ export const bpA = stylex.create({
 
   // ══ figure ═════════════════════════════════════════════════════
   figureStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: 'calc(var(--jx-unit) * 12)',
   },
   figureEquation: {
@@ -850,23 +746,16 @@ export const bpA = stylex.create({
 
   // ══ file-input ═════════════════════════════════════════════════
   fileInputStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   fileInputFrame: { width: '100%', maxWidth: '440px' },
 
   // ══ float-button ═══════════════════════════════════════════════
   floatButtonStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   floatButtonSkeletonA: { height: 'calc(var(--jx-unit) * 4)', width: '66.666667%' },
@@ -876,11 +765,8 @@ export const bpA = stylex.create({
 
   // ══ form-field ═════════════════════════════════════════════════
   formFieldStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   formFieldForm: {
@@ -903,10 +789,6 @@ export const bpA = stylex.create({
   },
   formFieldFoot: {
     marginTop: tokens['--jx-space-4'],
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: tokens['--jx-space-12'],
   },
   formFieldNote: {
     fontFamily: tokens['--jx-font-nav'],
@@ -916,22 +798,16 @@ export const bpA = stylex.create({
 
   // ══ ghostty-term ═══════════════════════════════════════════════
   ghosttyTermStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
     padding: tokens['--jx-space-40'],
   },
   ghosttyTermBody: { minHeight: 0, width: '100%', flex: '1 1 0%' },
 
   // ══ ghostty-vt ═════════════════════════════════════════════════
   ghosttyVtStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   ghosttyVtPanel: {
@@ -964,19 +840,12 @@ export const bpA = stylex.create({
 
   // ══ glass — the schematic band (simulation colors, see header) ═
   glassStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   glassBand: {
-    display: 'flex',
     width: '520px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
   },
   glassEyebrow: {
     fontFamily: tokens['--jx-font-nav'],
@@ -1076,21 +945,13 @@ export const bpA = stylex.create({
 
   // ══ heading ════════════════════════════════════════════════════
   headingStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   headingColumn: {
-    display: 'flex',
     width: '100%',
     maxWidth: '520px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-8'],
   },
   headingRow: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
 
@@ -1100,11 +961,8 @@ export const bpA = stylex.create({
 
   // ══ highlight-detect-default ═══════════════════════════════════
   highlightDetectDefaultStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightDetectDefaultPanel: {
@@ -1168,10 +1026,7 @@ export const bpA = stylex.create({
   },
   highlightDetectDefaultArrow: { color: tokens['--jx-primary'] },
   highlightDetectDefaultSide: {
-    display: 'flex',
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   highlightDetectDefaultSideLabel: {
     fontSize: tokens['--jx-text-micro'],
@@ -1194,11 +1049,8 @@ export const bpA = stylex.create({
 
   // ══ highlight-highlightjs ══════════════════════════════════════
   highlightHighlightjsStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightHighlightjsPanel: {
@@ -1295,11 +1147,8 @@ export const bpA = stylex.create({
 
   // ══ highlight-lang-detector ════════════════════════════════════
   highlightLangDetectorStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightLangDetectorPanel: {
@@ -1375,11 +1224,8 @@ export const bpA = stylex.create({
 
   // ══ highlight-microlighter ═════════════════════════════════════
   highlightMicrolighterStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightMicrolighterPanel: {
@@ -1421,11 +1267,8 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightMicrolighterNodeCol: {
-    display: 'flex',
     width: '158px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   highlightMicrolighterColLabel: {
     fontSize: tokens['--jx-text-micro'],
@@ -1454,11 +1297,8 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightMicrolighterPaintCol: {
-    display: 'flex',
     width: '132px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   highlightMicrolighterArrow: { color: tokens['--jx-primary'] },
   highlightMicrolighterFoot: {
@@ -1475,11 +1315,8 @@ export const bpA = stylex.create({
 
   // ══ highlight-prismjs ══════════════════════════════════════════
   highlightPrismjsStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightPrismjsPanel: {
@@ -1572,11 +1409,8 @@ export const bpA = stylex.create({
 
   // ══ highlight-shiki ════════════════════════════════════════════
   highlightShikiStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightShikiPanel: {
@@ -1618,11 +1452,8 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightShikiLazyCol: {
-    display: 'flex',
     width: '164px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   highlightShikiColLabel: {
     fontSize: tokens['--jx-text-micro'],
@@ -1657,11 +1488,8 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightShikiOutCol: {
-    display: 'flex',
     width: '140px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   highlightShikiOutLine: { fontSize: tokens['--jx-text-label'] },
   highlightShikiArrow: { color: tokens['--jx-primary'] },
@@ -1679,11 +1507,8 @@ export const bpA = stylex.create({
 
   // ══ highlight-sugar-high ═══════════════════════════════════════
   highlightSugarHighStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightSugarHighPanel: {
@@ -1783,11 +1608,8 @@ export const bpA = stylex.create({
 
   // ══ highlight-tree-sitter ══════════════════════════════════════
   highlightTreeSitterStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightTreeSitterPanel: {
@@ -1829,11 +1651,8 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightTreeSitterTreeCol: {
-    display: 'flex',
     width: '172px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   highlightTreeSitterColLabel: {
     fontSize: tokens['--jx-text-micro'],
@@ -1861,11 +1680,8 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightTreeSitterPaintCol: {
-    display: 'flex',
     width: '152px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   highlightTreeSitterArrow: { color: tokens['--jx-primary'] },
   highlightTreeSitterFoot: {
@@ -1882,11 +1698,8 @@ export const bpA = stylex.create({
 
   // ══ highlight (the contract itself) ════════════════════════════
   highlightStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   highlightPanel: {
@@ -2025,12 +1838,8 @@ export const bpA = stylex.create({
 
   // ══ icon-set ═══════════════════════════════════════════════════
   iconSetStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   iconSetEyebrow: {
@@ -2057,12 +1866,8 @@ export const bpA = stylex.create({
 
   // ══ icon ═══════════════════════════════════════════════════════
   iconStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   iconEyebrow: {
@@ -2088,22 +1893,15 @@ export const bpA = stylex.create({
 
   // ══ image ══════════════════════════════════════════════════════
   imageStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   imageCover: { width: '100%' },
   imageRow: { display: 'flex', gap: tokens['--jx-space-16'] },
   imageThumb: {
-    display: 'flex',
     minWidth: 0,
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-6'],
   },
   imageCaption: {
     fontFamily: tokens['--jx-font-mono'],
@@ -2114,49 +1912,30 @@ export const bpA = stylex.create({
 
   // ══ inline-code ════════════════════════════════════════════════
   inlineCodeStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
 
   // ══ input-group ════════════════════════════════════════════════
   inputGroupStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   inputGroupField: { width: '26rem' },
 
   // ══ input-otp ══════════════════════════════════════════════════
   inputOtpStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
 
   // ══ input ══════════════════════════════════════════════════════
   inputStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
 
@@ -2197,10 +1976,7 @@ export const bpA = stylex.create({
     fontSize: tokens['--jx-text-micro'],
   },
   jixoaiThemeGrid: {
-    display: 'grid',
     flex: '1 1 0%',
-    gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
-    gap: tokens['--jx-space-12'],
   },
   jixoaiThemeLaw: {
     color: tokens['--jx-muted-foreground'],
@@ -2222,13 +1998,8 @@ export const bpA = stylex.create({
 
   // ══ katex ═════════════════════════════════════════════════════
   katexStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   katexBlock: { width: '100%', maxWidth: '520px' },
@@ -2236,13 +2007,8 @@ export const bpA = stylex.create({
 
   // ══ kbd ═══════════════════════════════════════════════════════
   kbdStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   kbdRow: {
@@ -2256,11 +2022,8 @@ export const bpA = stylex.create({
 
   // ══ language-switcher ══════════════════════════════════════════
   languageSwitcherStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   languageSwitcherPanel: {
@@ -2292,13 +2055,8 @@ export const bpA = stylex.create({
 
   // ══ link ══════════════════════════════════════════════════════
   linkStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   linkColumn: {
@@ -2316,25 +2074,16 @@ export const bpA = stylex.create({
 
   // ══ list-item ═════════════════════════════════════════════════
   listItemStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   listItemGroup: { width: '34rem', maxWidth: '100%' },
 
   // ══ list ══════════════════════════════════════════════════════
   listStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   listRow: {
@@ -2348,11 +2097,8 @@ export const bpA = stylex.create({
 
   // ══ llms-txt ══════════════════════════════════════════════════
   llmsTxtStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   llmsTxtPanel: {
@@ -2412,11 +2158,8 @@ export const bpA = stylex.create({
   // between the two alphabetical halves; swept by the orchestrator
   // at W2 integration, 2026-09-18) ═════════════════════════════════
   markdownStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   markdownFace: { width: '100%', maxWidth: '520px' },
@@ -2424,11 +2167,8 @@ export const bpA = stylex.create({
   // ══ boot-splash (the FOUC round, 2026-09-19; the coverage-debt
   // sweep R6 — every catalog entry renders) ═══════════════════════
   bootSplashStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   // the transform box: position:fixed resolves against a transformed

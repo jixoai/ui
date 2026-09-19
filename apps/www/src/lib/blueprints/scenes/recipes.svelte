@@ -26,7 +26,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.recipesStage)}>
+<Stack direction="column" gap="20" class={cx(bpB.recipesStage)}>
   <Stack align="center" justify="between" wrap gap="12">
     <h2 class={cx(bpB.recipesTitle)}>antd concept → jixoai recipe</h2>
     <Badge>where wrapping stops</Badge>
@@ -45,4 +45,4 @@
     <PressButton variant="outline">tour contract</PressButton>
     <PressButton variant="outline">image preview</PressButton>
   </div>
-</div>
+</Stack>

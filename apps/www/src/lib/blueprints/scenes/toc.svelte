@@ -7,6 +7,7 @@
 <script lang="ts">
   import Toc from '$lib/ui/toc/toc.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,7 +24,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.tocStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.tocStage)}>
   <article class={cx(bpB.tocArticle)}>
     <div class={cx(bpB.tocGroup)} data-family="bp-toc-law">
       <section id="bp-toc-law" class={cx(bpB.tocSection)} data-region="bp-toc-law">
@@ -63,4 +64,4 @@
       ]}
     />
   </aside>
-</div>
+</Stack>

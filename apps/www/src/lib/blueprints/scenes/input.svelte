@@ -2,6 +2,7 @@
 <script lang="ts">
   import Input from '$lib/ui/input/input.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -18,7 +19,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.inputStage)}>
+<Stack direction="column" justify="center" gap="24" class={cx(bpA.inputStage)}>
   <Input label="Registry name" value="press-button" />
   <Input label="Hue (oklch)" placeholder="27" error="hue must be 0–360" />
-</div>
+</Stack>

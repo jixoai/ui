@@ -2,6 +2,7 @@
      ambient beats own, one Defaults object per family. -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const ladder = [
     { row: 'explicit', note: 'variant="fill"' },
@@ -24,7 +25,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.defaultsStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.defaultsStage)}>
   <div class={cx(bpA.defaultsEyebrow)}>
     DefaultsSlot · resolve({ '{'} variant {'}' }) → one line per family
   </div>
@@ -34,4 +35,4 @@
       <span class={cx(bpA.defaultsNote)}>{l.note}</span>
     </div>
   {/each}
-</div>
+</Stack>

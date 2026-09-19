@@ -7,6 +7,7 @@
   import MathBlock from '$lib/ui/math-block/math-block.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,11 +24,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.katexStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpA.katexStage)}>
   <MathBlock class={cx(bpA.katexBlock)} copyable={false} tex={'e^{i\\pi} + 1 = 0'} />
   <div class={cx(bpA.katexRow)}>
     <Badge>isomorphic renderToString</Badge>
     <Badge>fonts ride the npm css</Badge>
     <Badge>MathML a11y path</Badge>
   </div>
-</div>
+</Stack>

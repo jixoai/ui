@@ -6,6 +6,7 @@
      (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -31,7 +32,7 @@
   ];
 </script>
 
-<div class={cx(bpB.scrollVirtualStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.scrollVirtualStage)}>
   <!-- the window over the full list -->
   <div class={cx(bpB.scrollVirtualBoard)}>
     <span class={cx(bpB.scrollVirtualBoardLabel)}
@@ -54,7 +55,7 @@
   </div>
 
   <!-- the wiring facts -->
-  <div class={cx(bpB.scrollVirtualFacts)}>
+  <Stack direction="column" gap="10" class={cx(bpB.scrollVirtualFacts)}>
     <span class={cx(bpB.scrollVirtualFactsLabel)}
       >@tanstack/svelte-virtual · dom wiring only</span
     >
@@ -64,5 +65,5 @@
         <span class={cx(bpB.scrollVirtualFactValue)}>{value}</span>
       </div>
     {/each}
-  </div>
-</div>
+  </Stack>
+</Stack>

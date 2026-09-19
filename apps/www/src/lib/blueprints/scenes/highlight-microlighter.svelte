@@ -30,19 +30,19 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightMicrolighterStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightMicrolighterStage)}>
   <div class={cx(bpA.highlightMicrolighterPanel)}>
     <div class={cx(bpA.highlightMicrolighterHead)}>
       <span class={cx(bpA.highlightMicrolighterTitle)}>highlight-microlighter</span>
       <span class={cx(bpA.highlightMicrolighterSub)}>zero markup · ranges</span>
     </div>
     <Stack align="center" gap="12">
-      <div class={cx(bpA.highlightMicrolighterNodeCol)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightMicrolighterNodeCol)}>
         <span class={cx(bpA.highlightMicrolighterColLabel)}>the element</span>
         {#each node as line (line)}
           <span class={cx(bpA.highlightMicrolighterNodeLine, line !== node[0] ? bpA.highlightMicrolighterNodeLineMuted : undefined)}>{line}</span>
         {/each}
-      </div>
+      </Stack>
       <span class={cx(bpA.highlightMicrolighterArrow)}>-></span>
       <div class={cx(bpA.highlightMicrolighterRangesCard)}>
         {#each ranges as line (line)}
@@ -51,16 +51,16 @@
         <span class={cx(bpA.highlightMicrolighterCardNote)}>Custom Highlight API · ranges over the text</span>
       </div>
       <span class={cx(bpA.highlightMicrolighterArrow)}>-></span>
-      <div class={cx(bpA.highlightMicrolighterPaintCol)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightMicrolighterPaintCol)}>
         <span class={cx(bpA.highlightMicrolighterColLabel)}>the paint</span>
         {#each paint as line (line)}
           <span class={cx(bpA.highlightMicrolighterNodeLine, line !== paint[0] ? bpA.highlightMicrolighterNodeLineMuted : undefined)}>{line}</span>
         {/each}
-      </div>
+      </Stack>
     </Stack>
     <div class={cx(bpA.highlightMicrolighterFoot)}>
       <span>feature-gated (no API -> reject before the DOM) · whole-document rescan per paint</span>
       <span>ranges do NOT survive the print freeze — pin a markup backend for paper</span>
     </div>
   </div>
-</div>
+</Stack>

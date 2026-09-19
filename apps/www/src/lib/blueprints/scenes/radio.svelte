@@ -4,6 +4,7 @@
 <script lang="ts">
   import Radio from '$lib/ui/radio/radio.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,11 +21,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.radioStage)}>
-  <div class={cx(bpB.radioCol)}>
+<Stack direction="column" align="start" justify="center" class={cx(bpB.radioStage)}>
+  <Stack direction="column" gap="16" class={cx(bpB.radioCol)}>
     <span class={cx(bpB.radioLabel)}>plan</span>
     <Radio label="free — public projects" name="bp-plan" />
     <Radio label="pro — private registries" name="bp-plan" checked />
     <Radio label="team — sso + audit log" name="bp-plan" />
-  </div>
-</div>
+  </Stack>
+</Stack>

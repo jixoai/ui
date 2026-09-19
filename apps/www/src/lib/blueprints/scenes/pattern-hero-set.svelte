@@ -4,6 +4,7 @@
 <script lang="ts">
   import PatternHeroSet from '$lib/ui/pattern-hero-set/pattern-hero-set.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,11 +21,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.patternHeroSetStage)}>
+<Stack align="center" justify="center" class={cx(bpB.patternHeroSetStage)}>
   <PatternHeroSet
     eyebrow="jixoai-ui"
     summary="the terminal-native component registry — zero runtime deps, one physics."
     copyCommand="npx jixoai-ui init"
     barTitle="~/dev/app"
   />
-</div>
+</Stack>

@@ -3,6 +3,7 @@
      deterministic). sm carries the halved one-code-point block. -->
 <script lang="ts">
   import Avatar from '$lib/ui/avatar/avatar.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const variants = ['bevel', 'rounded', 'squircle'] as const;
@@ -22,7 +23,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.avatarStage)}>
+<Stack direction="column" align="center" justify="center" gap="24" class={cx(bpA.avatarStage)}>
   {#each variants as variant (variant)}
     <div class={cx(bpA.avatarRow)}>
       <Avatar name="JX AoI" {variant} size="sm" tooltip={false} />
@@ -30,4 +31,4 @@
       <Avatar name="JX AoI" {variant} size="lg" tooltip={false} />
     </div>
   {/each}
-</div>
+</Stack>

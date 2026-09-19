@@ -33,7 +33,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.languageSwitcherStage)}>
+<Stack align="center" justify="center" class={cx(bpA.languageSwitcherStage)}>
   <div class={cx(bpA.languageSwitcherPanel)}>
     <Stack align="center" justify="between" gap="16">
       <span class={cx(bpA.languageSwitcherRowLabel)}>pair · en</span>
@@ -48,4 +48,4 @@
       <LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={menuLocales} />
     </Stack>
   </div>
-</div>
+</Stack>

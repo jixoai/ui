@@ -3,6 +3,7 @@
 <script lang="ts">
   import Progress from '$lib/ui/progress/progress.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -19,7 +20,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.progressStage)}>
+<Stack direction="column" justify="center" gap="32" class={cx(bpB.progressStage)}>
   <Progress label="publishing registry" value={0.7} />
   <Progress label="indexing" />
-</div>
+</Stack>

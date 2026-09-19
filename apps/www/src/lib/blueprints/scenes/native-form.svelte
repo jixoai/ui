@@ -6,6 +6,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -34,7 +35,7 @@
   });
 </script>
 
-<div class={cx(bpB.nativeFormStage)}>
+<Stack direction="column" justify="center" gap="32" class={cx(bpB.nativeFormStage)}>
   <div class="jx-field">
     <label class="jx-label" for="bp-native-form-text">Registry name</label>
     <input id="bp-native-form-text" class="jx-control" bind:this={textEl} placeholder="name" />
@@ -51,4 +52,4 @@
       aria-label="coverage"
     />
   </div>
-</div>
+</Stack>

@@ -29,8 +29,8 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.glassStage)}>
-  <div class={cx(bpA.glassBand)}>
+<Stack direction="column" align="center" justify="center" class={cx(bpA.glassStage)}>
+  <Stack direction="column" gap="12" class={cx(bpA.glassBand)}>
     <span class={cx(bpA.glassEyebrow)}
       >the visual band · gradient text + 24px grid</span
     >
@@ -65,5 +65,5 @@
         <span class={cx(bpA.glassKnob)}>{row}</span>
       {/each}
     </Stack>
-  </div>
-</div>
+  </Stack>
+</Stack>

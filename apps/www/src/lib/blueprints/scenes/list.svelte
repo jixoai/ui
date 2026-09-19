@@ -4,6 +4,7 @@
   import List from '$lib/ui/list/list.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,7 +21,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.listStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpA.listStage)}>
   <div class={cx(bpA.listRow)}>
     <List>
       <li>prefix keys freeze</li>
@@ -38,4 +39,4 @@
     <Badge>styles the list, never the row</Badge>
     <Badge>start = ol passthrough</Badge>
   </div>
-</div>
+</Stack>

@@ -5,6 +5,7 @@
 <script lang="ts">
   import TagsInput, { type Tag } from '$lib/ui/tags-input/tags-input.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -36,9 +37,9 @@
   ]);
 </script>
 
-<div class={cx(bpB.tagsInputStage)}>
-  <div class={cx(bpB.tagsInputCol)}>
+<Stack direction="column" justify="center" class={cx(bpB.tagsInputStage)}>
+  <Stack direction="column" gap="24" class={cx(bpB.tagsInputCol)}>
     <TagsInput id="bp-tags" label="stack" {suggestions} bind:tags={stack} />
     <TagsInput id="bp-tags-cap" label="targets" maxTags={3} bind:tags={targets} />
-  </div>
-</div>
+  </Stack>
+</Stack>

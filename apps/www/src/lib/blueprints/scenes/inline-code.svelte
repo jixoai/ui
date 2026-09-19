@@ -22,7 +22,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.inlineCodeStage)}>
+<Stack direction="column" align="start" justify="center" gap="16" class={cx(bpA.inlineCodeStage)}>
   <Stack align="center" wrap gap="12">
     <InlineCode>var(--jx-hit)</InlineCode>
     <InlineCode variant="outline">--jx-tonal</InlineCode>
@@ -36,4 +36,4 @@
     <InlineCode>detectInlineLang('npm i')</InlineCode>
     <InlineCode>{'{#snippet slotStart()}'}</InlineCode>
   </Stack>
-</div>
+</Stack>

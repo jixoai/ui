@@ -2,6 +2,7 @@
      never reorder; authored tree order is the walk order. -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const rows = [
     { label: 'Dialog', visible: true },
@@ -25,7 +26,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.commandMatchStage)}>
+<Stack direction="column" justify="center" gap="10" class={cx(bpA.commandMatchStage)}>
   <div class={cx(bpA.commandMatchEyebrow)}>
     match(item, query) → boolean · visible/hidden only
   </div>
@@ -36,4 +37,4 @@
       <span class={cx(bpA.commandMatchLabel)}>{r.label}</span>
     </div>
   {/each}
-</div>
+</Stack>

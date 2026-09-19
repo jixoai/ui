@@ -3,6 +3,7 @@
      prev/next arrows are the component's own honest controls. -->
 <script lang="ts">
   import Carousel from '$lib/ui/carousel/carousel.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const cx = (
@@ -20,7 +21,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.carouselStage)}>
+<Stack direction="column" justify="center" class={cx(bpA.carouselStage)}>
   <Carousel label="registry drops" slideWidth="58%">
     <figure class={cx(bpA.carouselSlide)}>
       <span class={cx(bpA.carouselIndex)}>01</span>
@@ -35,4 +36,4 @@
       <span class={cx(bpA.carouselCaption)}>native popover panels</span>
     </figure>
   </Carousel>
-</div>
+</Stack>

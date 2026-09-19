@@ -9,6 +9,7 @@
 <script lang="ts">
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -25,17 +26,17 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.websiteScaffoldStage)}>
+<Stack direction="column" justify="center" class={cx(bpB.websiteScaffoldStage)}>
   <div class={cx(bpB.websiteScaffoldFrame)}>
     <!-- .jx-shell-host: the named container -->
-    <div class={cx(bpB.websiteScaffoldHostBar)}>
+    <Stack align="center" justify="between" class={cx(bpB.websiteScaffoldHostBar)}>
       <span class={cx(bpB.websiteScaffoldHostKey)}
         >.jx-shell-host · container: jx-shell · 100dvh · overflow clip</span
       >
       <span class={cx(bpB.websiteScaffoldHostForms)}
         >forms: ≥1200 rail+content+toc · 900–1199 +toc · &lt;900 tocbar row</span
       >
-    </div>
+    </Stack>
 
     <!-- the one grid: two layers, same columns -->
     <div class={cx(bpB.websiteScaffoldGridFrame)}>
@@ -94,4 +95,4 @@
       >
     </div>
   </div>
-</div>
+</Stack>

@@ -22,7 +22,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.badgeIndicatorStage)}>
+<Stack direction="column" align="start" justify="center" gap="32" class={cx(bpA.badgeIndicatorStage)}>
   <Stack align="center" wrap gap="40">
     <BadgeIndicator dot label="2 unread reviews">
       <Avatar name="Grace Hopper" size="lg" alt="" />
@@ -35,4 +35,4 @@
   <p class={cx(bpA.badgeIndicatorNote)}>
     dot paints brand presence; counts paint destructive and cap at 99+.
   </p>
-</div>
+</Stack>

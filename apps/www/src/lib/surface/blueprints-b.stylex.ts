@@ -66,13 +66,8 @@ import { tokens } from '../tokens.stylex';
 export const bpB = stylex.create({
   // ── math-block: the figure stage ──────────────────────────────
   mathBlockStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   mathBlockFrame: { width: '100%', maxWidth: '520px' },
@@ -80,13 +75,8 @@ export const bpB = stylex.create({
 
   // ── math-inline: the prose stage ───────────────────────────────
   mathInlineStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   mathInlineBody: {
@@ -99,12 +89,8 @@ export const bpB = stylex.create({
 
   // ── menubar: the app bar, File menu forced open ────────────────
   menubarStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-32'],
     padding: tokens['--jx-space-40'],
   },
   menubarSkel: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-12'], opacity: 0.6 },
@@ -121,25 +107,15 @@ export const bpB = stylex.create({
 
   // ── mermaid-engine / mermaid: the diagram stages (twin shapes) ──
   mermaidEngineStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-12'],
     padding: tokens['--jx-space-24'],
   },
   mermaidEngineFrame: { width: '100%', maxWidth: '480px' },
   mermaidEngineBadges: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
   mermaidStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-12'],
     padding: tokens['--jx-space-24'],
   },
   mermaidFrame: { width: '100%', maxWidth: '480px' },
@@ -147,31 +123,21 @@ export const bpB = stylex.create({
 
   // ── native-form: the Tier-1 sheet-styled stage ─────────────────
   nativeFormStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-32'],
     padding: tokens['--jx-space-40'],
   },
   nativeFormPair: { display: 'flex', alignItems: 'flex-end', gap: tokens['--jx-space-24'] },
 
   // ── native-select: the platform picker stage ───────────────────
   nativeSelectStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   nativeSelectGrid: {
-    display: 'grid',
     width: '100%',
     maxWidth: '520px',
-    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-    gap: tokens['--jx-space-32'],
   },
 
   // ── navigation-menu: the site bar, panel forced shown ──────────
@@ -192,10 +158,7 @@ export const bpB = stylex.create({
   },
   navigationMenuSkelBar: { height: '12px', width: '50%' },
   navigationMenuPanel: {
-    display: 'flex',
     minWidth: '11rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   navigationMenuLink: {
     fontSize: tokens['--jx-text-sm'],
@@ -205,41 +168,26 @@ export const bpB = stylex.create({
 
   // ── number-input: the steppers stage ───────────────────────────
   numberInputStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   numberInputCol: {
-    display: 'flex',
     width: '100%',
     maxWidth: '320px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-24'],
   },
 
   // ── pagination: the page-window stage ──────────────────────────
   paginationStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-32'],
     padding: tokens['--jx-space-40'],
   },
 
   // ── paint: the axis ladder ─────────────────────────────────────
   paintStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-10'],
     padding: tokens['--jx-space-40'],
   },
   paintKey: {
@@ -275,43 +223,28 @@ export const bpB = stylex.create({
   // ── pattern-cta/faq/hero-set/login/pricing: the twin center
   //    stages (identical bodies — stylex content-dedupes the class) ──
   patternCtaStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   patternFaqStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   patternHeroSetStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   patternLoginStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   patternPricingStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
 
@@ -356,12 +289,8 @@ export const bpB = stylex.create({
 
   // ── press-button: the variant row ──────────────────────────────
   pressButtonStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
   pressButtonSkel: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-12'] },
@@ -370,31 +299,20 @@ export const bpB = stylex.create({
 
   // ── progress: determinate + indeterminate bars ─────────────────
   progressStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-32'],
     padding: tokens['--jx-space-40'],
   },
 
   // ── progressive-blur: the docs-rail ladder schematic ───────────
   progressiveBlurStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   progressiveBlurRail: {
-    display: 'flex',
     width: '300px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-8'],
   },
   progressiveBlurLabel: {
     fontFamily: tokens['--jx-font-nav'],
@@ -469,13 +387,8 @@ export const bpB = stylex.create({
 
   // ── prose: the reading region ──────────────────────────────────
   proseStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   proseRegion: { width: '100%', maxWidth: '520px' },
@@ -483,20 +396,13 @@ export const bpB = stylex.create({
 
   // ── radio: the one-name group ──────────────────────────────────
   radioStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   radioCol: {
-    display: 'flex',
     width: '100%',
     maxWidth: '360px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-16'],
   },
   radioLabel: {
     fontFamily: tokens['--jx-font-nav'],
@@ -509,28 +415,19 @@ export const bpB = stylex.create({
 
   // ── range: the mid-commit sliders ──────────────────────────────
   rangeStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   rangeCol: {
-    display: 'flex',
     width: '100%',
     maxWidth: '440px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-32'],
   },
 
   // ── recipes: the guide's own subject ───────────────────────────
   recipesStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   // text-lg = 18px (no step — the ruler calc, seam-reported) with
@@ -545,12 +442,8 @@ export const bpB = stylex.create({
 
   // ── reference: the 引 resolution matrix ────────────────────────
   referenceStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: 'calc(var(--space-40) + var(--space-8))',
   },
   referenceBody: {
@@ -564,24 +457,16 @@ export const bpB = stylex.create({
 
   // ── result: the page-level outcome ─────────────────────────────
   resultStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   resultCard: { width: '100%', maxWidth: '440px' },
 
   // ── scaffold-float: the portal adoption diagram ────────────────
   scaffoldFloatStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   scaffoldFloatRow: {
@@ -704,20 +589,13 @@ export const bpB = stylex.create({
 
   // ── scroll-area: hand-drawn law + platform sibling ─────────────
   scrollAreaStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   scrollAreaRail: {
-    display: 'flex',
     width: '300px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-8'],
   },
   scrollAreaLabel: {
     fontFamily: tokens['--jx-font-nav'],
@@ -800,13 +678,8 @@ export const bpB = stylex.create({
 
   // ── scroll-run: the strip mid-travel, verdict stamped ──────────
   scrollRunStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   scrollRunLabel: {
@@ -916,12 +789,8 @@ export const bpB = stylex.create({
 
   // ── scroll-spy: the plain line-pick ────────────────────────────
   scrollSpyStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   scrollSpyBoard: {
@@ -945,8 +814,6 @@ export const bpB = stylex.create({
   },
   scrollSpyStack: {
     marginTop: tokens['--jx-space-24'],
-    display: 'flex',
-    flexDirection: 'column',
   },
   scrollSpyRow: {
     borderColor: tokens['--jx-border'],
@@ -1013,12 +880,8 @@ export const bpB = stylex.create({
 
   // ── scroll-virtual: the window ─────────────────────────────────
   scrollVirtualStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   scrollVirtualBoard: {
@@ -1097,11 +960,8 @@ export const bpB = stylex.create({
     fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
   },
   scrollVirtualFacts: {
-    display: 'flex',
     width: '300px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-10'],
   },
   scrollVirtualFactsLabel: {
     fontFamily: tokens['--jx-font-nav'],
@@ -1125,12 +985,8 @@ export const bpB = stylex.create({
 
   // ── scrollbar-measure: the shadow-DOM probe ────────────────────
   scrollbarMeasureStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   scrollbarMeasureChamber: {
@@ -1221,11 +1077,8 @@ export const bpB = stylex.create({
     fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
   },
   scrollbarMeasureVars: {
-    display: 'flex',
     width: '330px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
   },
   scrollbarMeasureVarsLabel: {
     fontFamily: tokens['--jx-font-nav'],
@@ -1255,11 +1108,8 @@ export const bpB = stylex.create({
 
   // ── search-corpus: the structured harvest ──────────────────────
   searchCorpusStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   searchCorpusCard: {
@@ -1317,11 +1167,8 @@ export const bpB = stylex.create({
 
   // ── section-card: the content atom ─────────────────────────────
   sectionCardStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   sectionCardCard: { width: '100%', maxWidth: '420px' },
@@ -1340,12 +1187,8 @@ export const bpB = stylex.create({
 
   // ── separator: thematic break + vertical posture ───────────────
   separatorStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   separatorText: { fontSize: tokens['--jx-text-sm'], lineHeight: tokens['--jx-space-20'] },
@@ -1391,13 +1234,8 @@ export const bpB = stylex.create({
 
   // ── shiki: the lib's consumer surface ──────────────────────────
   shikiStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   shikiCard: { width: '100%', maxWidth: '520px' },
@@ -1405,11 +1243,8 @@ export const bpB = stylex.create({
 
   // ── skeleton: the page-shaped placeholder ──────────────────────
   skeletonStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   skeletonHead: { height: '24px', width: '40%' },
@@ -1417,20 +1252,14 @@ export const bpB = stylex.create({
   skeletonLineB: { height: '12px', width: '60%' },
   skeletonPair: {
     marginTop: tokens['--jx-space-8'],
-    display: 'flex',
-    gap: tokens['--jx-space-16'],
   },
   skeletonTile: { height: '96px', width: '50%' },
   skeletonTail: { height: '36px', width: '128px' },
 
   // ── spin: the one-name lane in three postures ──────────────────
   spinStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   spinFramed: {
@@ -1447,23 +1276,16 @@ export const bpB = stylex.create({
 
   // ── statistic: three metric readouts ───────────────────────────
   statisticStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   statisticDivider: { backgroundColor: tokens['--jx-border'], height: '56px', width: 'var(--hairline)' },
 
   // ── steps: the wizard at step 2 of 4 ───────────────────────────
   stepsStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
 
@@ -1484,11 +1306,8 @@ export const bpB = stylex.create({
 
   // ── table: a dense semantic table ──────────────────────────────
   tableStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
 
@@ -1502,11 +1321,8 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   tabsCol: {
-    display: 'flex',
     minWidth: 0,
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-40'],
   },
   tabsGlassChip: { borderRadius: 0, padding: tokens['--jx-space-16'] },
   tabsSidebar: { flex: 'none' },
@@ -1514,39 +1330,27 @@ export const bpB = stylex.create({
 
   // ── tags-input: chips bound ────────────────────────────────────
   tagsInputStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   tagsInputCol: {
-    display: 'flex',
     width: '100%',
     maxWidth: '460px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-24'],
   },
 
   // ── terminal-card: the Broadside hero terminal ─────────────────
   terminalCardStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   terminalCardCard: { width: '100%', maxWidth: '480px' },
 
   // ── terminal-footer: the ghost wordmark close ──────────────────
   terminalFooterStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
     padding: tokens['--jx-space-32'],
   },
   terminalFooterSkel: {
@@ -1560,11 +1364,8 @@ export const bpB = stylex.create({
 
   // ── terminal-header: the CRT nav bar ───────────────────────────
   terminalHeaderStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-32'],
     padding: tokens['--jx-space-40'],
   },
   terminalHeaderNav: { flexWrap: 'nowrap', alignItems: 'center', gap: 0 },
@@ -1602,13 +1403,8 @@ export const bpB = stylex.create({
 
   // ── text: the mark matrix ──────────────────────────────────────
   textStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   textBody: {
@@ -1622,22 +1418,16 @@ export const bpB = stylex.create({
 
   // ── textarea: the slotted shell ────────────────────────────────
   textareaStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   textareaCard: { width: '100%', maxWidth: '480px' },
 
   // ── theme-toggle: four variants on the bezel ───────────────────
   themeToggleStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   themeToggleBezel: {
@@ -1673,11 +1463,8 @@ export const bpB = stylex.create({
 
   // ── timeline: the activity stream ──────────────────────────────
   timelineStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   timelineBody: {
@@ -1688,12 +1475,8 @@ export const bpB = stylex.create({
 
   // ── toast: the corner viewport ─────────────────────────────────
   toastStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   toastSkel: {
@@ -1708,12 +1491,8 @@ export const bpB = stylex.create({
 
   // ── toc-engine: the geometry engine diagram ────────────────────
   tocEngineStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   tocEngineDoc: {
@@ -1804,11 +1583,8 @@ export const bpB = stylex.create({
     paddingInlineStart: tokens['--jx-space-8'],
   },
   tocEngineRail: {
-    display: 'flex',
     width: '168px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-16'],
   },
   tocEngineRailLabel: {
     color: tokens['--jx-muted-foreground'],
@@ -1851,12 +1627,8 @@ export const bpB = stylex.create({
 
   // ── toc-outline: the metadata export ───────────────────────────
   tocOutlineStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   tocOutlineRoot: {
@@ -1928,11 +1700,8 @@ export const bpB = stylex.create({
     fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
   },
   tocOutlineRail: {
-    display: 'flex',
     width: '300px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-10'],
   },
   tocOutlineRailLabel: {
     fontFamily: tokens['--jx-font-nav'],
@@ -1974,12 +1743,8 @@ export const bpB = stylex.create({
 
   // ── toc: the Combo ToC in a miniature docs page ────────────────
   tocStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-40'],
     padding: tokens['--jx-space-40'],
   },
   tocArticle: {
@@ -2011,33 +1776,21 @@ export const bpB = stylex.create({
 
   // ── toggle-group: the joined-button set ────────────────────────
   toggleGroupStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
   toggleGroupCol: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-8'] },
 
   // ── toggle: the inline-end switch ──────────────────────────────
   toggleStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   toggleCol: {
-    display: 'flex',
     width: '100%',
     maxWidth: '360px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-20'],
   },
 
   // ── tokens: the typed-mirror board's eyebrow (the phase-0 pilot
@@ -2120,22 +1873,16 @@ export const bpB = stylex.create({
 
   // ── transfer: mid-move between the fieldsets ───────────────────
   transferStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   transferFull: { width: '100%' },
 
   // ── tree-view: the file workbench pane ─────────────────────────
   treeViewStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   treeViewPane: {
@@ -2151,12 +1898,8 @@ export const bpB = stylex.create({
 
   // ── typography: the scope lib's plugin chain ───────────────────
   typographyStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
   typographyKey: {
@@ -2230,11 +1973,8 @@ export const bpB = stylex.create({
 
   // ── website-scaffold: the grid shell diagram ───────────────────
   websiteScaffoldStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   websiteScaffoldFrame: {
@@ -2244,9 +1984,6 @@ export const bpB = stylex.create({
     borderStyle: 'solid',
   },
   websiteScaffoldHostBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     padding: tokens['--jx-space-12'],
     paddingBottom: tokens['--jx-space-8'],
   },
@@ -2362,11 +2099,8 @@ export const bpB = stylex.create({
   // 2026-09-19 — every catalog entry renders. Stage shells only:
   // pure flow composes the Stack family in scene markup) ══════════
   stackStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   stackLabel: {
@@ -2396,11 +2130,8 @@ export const bpB = stylex.create({
 
   // ══ grid (the Layout family; the coverage sweep) ═══════════════
   gridStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   gridLabel: {
@@ -2454,11 +2185,8 @@ export const bpB = stylex.create({
 
   // ══ spin-set (the loader pack; the coverage sweep) ═════════════
   spinSetStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   spinSetLabel: {
@@ -2478,11 +2206,8 @@ export const bpB = stylex.create({
   // ══ prototype-flex / prototype-grid / prototype-waterfall /
   // prototype-kit (the prototype family; the coverage sweep) ══════
   prototypeFlexStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   prototypeFlexLabel: {
@@ -2503,11 +2228,8 @@ export const bpB = stylex.create({
     fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
   },
   prototypeGridStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   prototypeGridLabel: {
@@ -2556,11 +2278,8 @@ export const bpB = stylex.create({
     fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
   },
   prototypeWaterfallStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   prototypeWaterfallLabel: {
@@ -2591,11 +2310,8 @@ export const bpB = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 4)',
   },
   prototypeKitStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
   prototypeKitCard: {
@@ -2618,11 +2334,8 @@ export const bpB = stylex.create({
   // ══ native-scroll-area / scroll-area-kit (the scroll family; the
   // coverage sweep — the kit's split staged beside its consumers) ══
   nativeScrollAreaStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   nativeScrollAreaRail: { width: '280px' },
@@ -2649,11 +2362,8 @@ export const bpB = stylex.create({
     fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
   },
   scrollAreaKitStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   scrollAreaKitRail: { width: '280px' },

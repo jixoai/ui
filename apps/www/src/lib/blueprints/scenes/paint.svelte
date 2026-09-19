@@ -4,6 +4,7 @@
      zone/plain frame pose rides a ternary in the cx slot.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -28,7 +29,7 @@
   ];
 </script>
 
-<div class={cx(bpB.paintStage)}>
+<Stack direction="column" justify="center" gap="10" class={cx(bpB.paintStage)}>
   <div class={cx(bpB.paintKey)}>
     PAINT_ZONE_KEY · newVariant ?? legacyVariant ?? own
   </div>
@@ -38,4 +39,4 @@
       <span class={cx(bpB.paintNote)}>{t.zone ? 'zone-able' : 'explicit-prop only'}</span>
     </div>
   {/each}
-</div>
+</Stack>

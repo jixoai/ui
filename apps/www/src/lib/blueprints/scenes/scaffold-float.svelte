@@ -9,6 +9,7 @@
 <script lang="ts">
   import Icon from '$lib/ui/icon';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -25,7 +26,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.scaffoldFloatStage)}>
+<Stack direction="column" align="center" justify="center" gap="20" class={cx(bpB.scaffoldFloatStage)}>
   <div class={cx(bpB.scaffoldFloatRow)}>
     <!-- authoring position: where the consumer writes it -->
     <div class={cx(bpB.scaffoldFloatSource)}>
@@ -62,4 +63,4 @@
   <p class={cx(bpB.scaffoldFloatCaption)}>
     scaffold-float — live DOM adoption, teardown returns the nodes
   </p>
-</div>
+</Stack>

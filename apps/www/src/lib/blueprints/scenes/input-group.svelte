@@ -7,6 +7,7 @@
   import InputGroupInput from '$lib/ui/input-group/input-group-input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,7 +24,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.inputGroupStage)}>
+<Stack direction="column" align="start" justify="center" gap="20" class={cx(bpA.inputGroupStage)}>
   <InputGroup label="repository url" class={cx(bpA.inputGroupField)}>
     <InputGroupAddon>https://</InputGroupAddon>
     <InputGroupInput name="bp-igroup-site" placeholder="github.com/owner/repo" />
@@ -35,4 +36,4 @@
       <PressButton variant="tonal">check</PressButton>
     </InputGroupAddon>
   </InputGroup>
-</div>
+</Stack>

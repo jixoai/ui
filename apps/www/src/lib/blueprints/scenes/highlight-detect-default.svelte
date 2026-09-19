@@ -29,7 +29,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightDetectDefaultStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightDetectDefaultStage)}>
   <div class={cx(bpA.highlightDetectDefaultPanel)}>
     <div class={cx(bpA.highlightDetectDefaultHead)}>
       <span class={cx(bpA.highlightDetectDefaultTitle)}>highlight-detect-default</span>
@@ -43,16 +43,16 @@
         <span class={cx(bpA.highlightDetectDefaultCardLine)}>{'{@render children()}'}</span>
       </div>
       <span class={cx(bpA.highlightDetectDefaultArrow)}>-></span>
-      <div class={cx(bpA.highlightDetectDefaultSide)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightDetectDefaultSide)}>
         <span class={cx(bpA.highlightDetectDefaultSideLabel)}>the wrapped subtree</span>
         {#each inside as line (line)}
           <span class={cx(bpA.highlightDetectDefaultSideLine)}>{line}</span>
         {/each}
-      </div>
+      </Stack>
     </Stack>
     <div class={cx(bpA.highlightDetectDefaultFoot)}>
       <span>context spreads downward only · siblings outside untouched · nearest wrapper wins</span>
       <span>form ② = the same one line, hand-written at any subtree root (zero components)</span>
     </div>
   </div>
-</div>
+</Stack>

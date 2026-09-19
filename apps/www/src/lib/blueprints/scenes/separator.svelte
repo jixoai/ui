@@ -3,6 +3,7 @@
 <script lang="ts">
   import Separator from '$lib/ui/separator/separator.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -19,7 +20,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.separatorStage)}>
+<Stack direction="column" justify="center" gap="20" class={cx(bpB.separatorStage)}>
   <p class={cx(bpB.separatorText)}>section one</p>
   <Separator />
   <div class={cx(bpB.separatorPair)}>
@@ -27,4 +28,4 @@
     <Separator orientation="vertical" class={cx(bpB.separatorVertical)} />
     <span class={cx(bpB.separatorText)}>right</span>
   </div>
-</div>
+</Stack>

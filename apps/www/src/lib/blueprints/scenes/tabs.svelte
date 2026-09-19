@@ -9,6 +9,7 @@
   import TabsTrigger from '$lib/ui/tabs/tabs-trigger.svelte';
   import Icon from '$lib/ui/icon';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -26,7 +27,7 @@
 </script>
 
 <div class={cx(bpB.tabsStage)}>
-  <div class={cx(bpB.tabsCol)}>
+  <Stack direction="column" gap="40" class={cx(bpB.tabsCol)}>
     <Tabs value="deploy">
       <TabsList>
         <TabsTrigger value="build">build</TabsTrigger>
@@ -69,7 +70,7 @@
         <TabsTrigger value="logs">logs</TabsTrigger>
       </TabsList>
     </Tabs>
-  </div>
+  </Stack>
   <div class={cx(bpB.tabsSidebar)}>
     <Tabs value="overview">
       <TabsList orientation="vertical" indicator="pill" class={cx(bpB.tabsSidebarList)}>

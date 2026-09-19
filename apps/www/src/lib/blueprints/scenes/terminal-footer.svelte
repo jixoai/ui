@@ -8,6 +8,7 @@
   import TerminalFooterColumn from '$lib/ui/terminal-footer/terminal-footer-column.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -24,7 +25,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.terminalFooterStage)}>
+<Stack direction="column" justify="between" class={cx(bpB.terminalFooterStage)}>
   <div class={cx(bpB.terminalFooterSkel)}>
     <Skeleton class={cx(bpB.terminalFooterSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.terminalFooterSkelB)}></Skeleton>
@@ -35,4 +36,4 @@
       <a href="/r/registry.json">Registry JSON</a>
     </TerminalFooterColumn>
   </TerminalFooter>
-</div>
+</Stack>

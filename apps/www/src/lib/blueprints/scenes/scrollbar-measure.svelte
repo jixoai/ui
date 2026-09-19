@@ -5,6 +5,7 @@
      (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -27,7 +28,7 @@
   ];
 </script>
 
-<div class={cx(bpB.scrollbarMeasureStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.scrollbarMeasureStage)}>
   <!-- the measurement chamber -->
   <div class={cx(bpB.scrollbarMeasureChamber)}>
     <span class={cx(bpB.scrollbarMeasureLabel)}
@@ -51,7 +52,7 @@
   </div>
 
   <!-- the published variables -->
-  <div class={cx(bpB.scrollbarMeasureVars)}>
+  <Stack direction="column" gap="12" class={cx(bpB.scrollbarMeasureVars)}>
     <span class={cx(bpB.scrollbarMeasureVarsLabel)}
       >:root inline style · one-shot, then removed</span
     >
@@ -62,5 +63,5 @@
       </div>
       <span class={cx(bpB.scrollbarMeasureVarNote)}>{row.note}</span>
     {/each}
-  </div>
-</div>
+  </Stack>
+</Stack>

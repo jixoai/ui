@@ -33,7 +33,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightSugarHighStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightSugarHighStage)}>
   <div class={cx(bpA.highlightSugarHighPanel)}>
     <div class={cx(bpA.highlightSugarHighHead)}>
       <span class={cx(bpA.highlightSugarHighTitle)}>highlight-sugar-high</span>
@@ -64,4 +64,4 @@
       <span>zero options — the engine itself is the minimal config (no langs channel)</span>
     </div>
   </div>
-</div>
+</Stack>

@@ -3,6 +3,7 @@
 <script lang="ts">
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -19,13 +20,13 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.skeletonStage)}>
+<Stack direction="column" gap="16" class={cx(bpB.skeletonStage)}>
   <Skeleton class={cx(bpB.skeletonHead)}></Skeleton>
   <Skeleton class={cx(bpB.skeletonLineA)}></Skeleton>
   <Skeleton class={cx(bpB.skeletonLineB)}></Skeleton>
-  <div class={cx(bpB.skeletonPair)}>
+  <Stack gap="16" class={cx(bpB.skeletonPair)}>
     <Skeleton class={cx(bpB.skeletonTile)}></Skeleton>
     <Skeleton class={cx(bpB.skeletonTile)}></Skeleton>
-  </div>
+  </Stack>
   <Skeleton class={cx(bpB.skeletonTail)}></Skeleton>
-</div>
+</Stack>

@@ -28,7 +28,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightHighlightjsStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightHighlightjsStage)}>
   <div class={cx(bpA.highlightHighlightjsPanel)}>
     <div class={cx(bpA.highlightHighlightjsHead)}>
       <span class={cx(bpA.highlightHighlightjsTitle)}>highlight-highlightjs</span>
@@ -53,4 +53,4 @@
       <span>highlightJs({'{'} langs {'}'}) = the flagship slim channel vs the full bundle</span>
     </div>
   </div>
-</div>
+</Stack>

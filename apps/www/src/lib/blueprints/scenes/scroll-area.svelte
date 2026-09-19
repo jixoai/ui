@@ -9,6 +9,7 @@
      row opacity ladder rides ternary atoms in the cx slot.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -27,9 +28,9 @@
   const rows = ['layout shell', 'release notes', 'terminal log', 'data table', 'command palette'];
 </script>
 
-<div class={cx(bpB.scrollAreaStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.scrollAreaStage)}>
   <!-- the hand-drawn law (scroll-area) -->
-  <div class={cx(bpB.scrollAreaRail)}>
+  <Stack direction="column" gap="8" class={cx(bpB.scrollAreaRail)}>
     <span class={cx(bpB.scrollAreaLabel)}
       >scroll-area · hand-drawn, always</span
     >
@@ -49,10 +50,10 @@
         >capsule · idle fade · the four pins</span
       >
     </div>
-  </div>
+  </Stack>
 
   <!-- the platform sibling (native-scroll-area) -->
-  <div class={cx(bpB.scrollAreaRail)}>
+  <Stack direction="column" gap="8" class={cx(bpB.scrollAreaRail)}>
     <span class={cx(bpB.scrollAreaLabel)}
       >native-scroll-area · the platform bar</span
     >
@@ -73,5 +74,5 @@
         >stable gutter · scoped scheme · no drawn chrome</span
       >
     </div>
-  </div>
-</div>
+  </Stack>
+</Stack>

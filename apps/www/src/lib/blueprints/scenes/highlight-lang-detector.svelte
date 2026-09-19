@@ -35,7 +35,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightLangDetectorStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightLangDetectorStage)}>
   <div class={cx(bpA.highlightLangDetectorPanel)}>
     <div class={cx(bpA.highlightLangDetectorHead)}>
       <span class={cx(bpA.highlightLangDetectorTitle)}>highlight-lang-detector</span>
@@ -58,4 +58,4 @@
       <span>optional capability: a bare code-card install carries zero DLD bytes</span>
     </div>
   </div>
-</div>
+</Stack>

@@ -7,6 +7,7 @@
   import { createToastStore } from '$lib/toast-store';
   import { onMount } from 'svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -30,12 +31,12 @@
   });
 </script>
 
-<div class={cx(bpB.toastStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpB.toastStage)}>
   <div class={cx(bpB.toastSkel)}>
     <Skeleton class={cx(bpB.toastSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.toastSkelB)}></Skeleton>
     <Skeleton class={cx(bpB.toastSkelC)}></Skeleton>
   </div>
-</div>
+</Stack>
 
 <ToastViewport store={toast} />

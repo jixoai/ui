@@ -4,6 +4,7 @@
 <script lang="ts">
   import Range from '$lib/ui/range/range.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,9 +24,9 @@
   let gain = $state(6);
 </script>
 
-<div class={cx(bpB.rangeStage)}>
-  <div class={cx(bpB.rangeCol)}>
+<Stack direction="column" justify="center" class={cx(bpB.rangeStage)}>
+  <Stack direction="column" gap="32" class={cx(bpB.rangeCol)}>
     <Range label="volume" min={0} max={100} bind:value={volume} />
     <Range label="gain" min={0} max={10} step={0.5} ticks bind:value={gain} />
-  </div>
-</div>
+  </Stack>
+</Stack>

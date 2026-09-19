@@ -2,6 +2,7 @@
      ui — every select in the row carrying its committed pick. -->
 <script lang="ts">
   import Cascader from '$lib/ui/cascader/cascader.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const options = [
@@ -39,6 +40,6 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.cascaderStage)}>
+<Stack align="center" justify="center" class={cx(bpA.cascaderStage)}>
   <Cascader label="path" bind:value={path} {options} />
-</div>
+</Stack>

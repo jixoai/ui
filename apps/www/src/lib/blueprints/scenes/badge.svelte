@@ -23,7 +23,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.badgeStage)}>
+<Stack direction="column" align="start" justify="center" gap="16" class={cx(bpA.badgeStage)}>
   <Stack align="center" wrap gap="12">
     <Badge density="lg">tonal</Badge>
     <Badge variant="fill">fill</Badge>
@@ -42,4 +42,4 @@
       checks passing
     </Badge>
   </Stack>
-</div>
+</Stack>

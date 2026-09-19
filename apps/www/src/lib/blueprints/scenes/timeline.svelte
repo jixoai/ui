@@ -12,6 +12,7 @@
     TimelineTitle,
   } from '$lib/ui/timeline/index';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -28,7 +29,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.timelineStage)}>
+<Stack direction="column" justify="center" class={cx(bpB.timelineStage)}>
   <Timeline density="lg">
     <TimelineItem>
       <TimelineDot>
@@ -71,4 +72,4 @@
       </TimelineContent>
     </TimelineItem>
   </Timeline>
-</div>
+</Stack>

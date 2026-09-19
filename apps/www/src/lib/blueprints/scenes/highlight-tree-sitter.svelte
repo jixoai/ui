@@ -29,19 +29,19 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightTreeSitterStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightTreeSitterStage)}>
   <div class={cx(bpA.highlightTreeSitterPanel)}>
     <div class={cx(bpA.highlightTreeSitterHead)}>
       <span class={cx(bpA.highlightTreeSitterTitle)}>highlight-tree-sitter</span>
       <span class={cx(bpA.highlightTreeSitterSub)}>tree + query captures</span>
     </div>
     <Stack align="center" gap="12">
-      <div class={cx(bpA.highlightTreeSitterTreeCol)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightTreeSitterTreeCol)}>
         <span class={cx(bpA.highlightTreeSitterColLabel)}>source -> the tree</span>
         {#each tree as line (line)}
           <span class={cx(bpA.highlightTreeSitterTreeLine)}>{line}</span>
         {/each}
-      </div>
+      </Stack>
       <span class={cx(bpA.highlightTreeSitterArrow)}>-></span>
       <div class={cx(bpA.highlightTreeSitterQueryCard)}>
         <span class={cx(bpA.highlightTreeSitterColLabel)}>.scm captures</span>
@@ -51,17 +51,17 @@
         <span class={cx(bpA.highlightTreeSitterCardNote)}>queries ride the item (MIT)</span>
       </div>
       <span class={cx(bpA.highlightTreeSitterArrow)}>-></span>
-      <div class={cx(bpA.highlightTreeSitterPaintCol)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightTreeSitterPaintCol)}>
         <span class={cx(bpA.highlightTreeSitterColLabel)}>paint + wasm</span>
         {#each assets as line (line)}
           <span class={cx(bpA.highlightTreeSitterTreeLine)}>{line}</span>
         {/each}
         <span class={cx(bpA.highlightTreeSitterCardNote)}>--tok-token-* spans</span>
-      </div>
+      </Stack>
     </Stack>
     <div class={cx(bpA.highlightTreeSitterFoot)}>
       <span>markup output · print survives · incremental reparse, not a rescan</span>
       <span>treeSitter({'{'} langs, wasmBase {'}'}) — supply chain = the lockfile (npm-hosted wasm)</span>
     </div>
   </div>
-</div>
+</Stack>

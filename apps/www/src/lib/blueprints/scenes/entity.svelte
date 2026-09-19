@@ -25,7 +25,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.entityStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.entityStage)}>
   <div class={cx(bpA.entityEyebrow)}>
     entity law · border = objecthood · the well edge is structure
   </div>
@@ -52,4 +52,4 @@
       </label>
     </div>
   </Stack>
-</div>
+</Stack>

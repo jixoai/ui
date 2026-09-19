@@ -6,6 +6,7 @@
   import MathInline from '$lib/ui/math-inline/math-inline.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -22,7 +23,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.mathInlineStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpB.mathInlineStage)}>
   <p class={cx(bpB.mathInlineBody)}>
     A Gaussian beam narrows to a waist where
     <MathInline tex={'w_0 = \\sqrt{\\lambda / (\\pi \\mathrm{NA})}'} />, the
@@ -35,4 +36,4 @@
     <Badge>zero chrome</Badge>
     <Badge>baseline-true inline</Badge>
   </div>
-</div>
+</Stack>

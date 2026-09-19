@@ -5,6 +5,7 @@
      hardcoded offsets). No wasm load here — the surface, not a race. -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const surface = [
     'loadGhosttyVT({ url | bytes })',
@@ -28,7 +29,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.ghosttyVtStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpA.ghosttyVtStage)}>
   <div class={cx(bpA.ghosttyVtPanel)}>
     <div class={cx(bpA.ghosttyVtComment)}>// one manifest, zero hardcoded offsets</div>
     <div class={cx(bpA.ghosttyVtHead)}>
@@ -43,4 +44,4 @@
       GhosttyVTError with cause — typed failure, no message sniffing
     </div>
   </div>
-</div>
+</Stack>

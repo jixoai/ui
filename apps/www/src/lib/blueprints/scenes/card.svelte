@@ -5,6 +5,7 @@
   import Card from '$lib/ui/card/card.svelte';
   import CardFooter from '$lib/ui/card/card-footer.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const cx = (
@@ -22,7 +23,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.cardStage)}>
+<Stack align="center" justify="center" class={cx(bpA.cardStage)}>
   <div class={cx(bpA.cardFrame)}>
     <Card title="Deploy hooks.">
       {#snippet foot()}
@@ -41,4 +42,4 @@
       </ul>
     </Card>
   </div>
-</div>
+</Stack>

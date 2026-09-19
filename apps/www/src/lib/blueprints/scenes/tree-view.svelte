@@ -5,6 +5,7 @@
 <script lang="ts">
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -46,8 +47,8 @@
   const selected = 'src/lib/ui/tree-view.svelte';
 </script>
 
-<div class={cx(bpB.treeViewStage)}>
+<Stack align="center" justify="center" class={cx(bpB.treeViewStage)}>
   <div class={cx(bpB.treeViewPane)}>
     <TreeView {nodes} {defaultExpanded} {selected} />
   </div>
-</div>
+</Stack>

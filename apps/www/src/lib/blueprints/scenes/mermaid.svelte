@@ -7,6 +7,7 @@
   import Mermaid from '$lib/ui/mermaid/mermaid.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -25,11 +26,11 @@
   const source = 'flowchart LR\n  floor --> svg --> zoom';
 </script>
 
-<div class={cx(bpB.mermaidStage)}>
+<Stack direction="column" align="center" justify="center" gap="12" class={cx(bpB.mermaidStage)}>
   <Mermaid class={cx(bpB.mermaidFrame)} copyable={false} zoomable={false} {source} />
   <div class={cx(bpB.mermaidBadges)}>
     <Badge>source-first floor</Badge>
     <Badge>theme follow</Badge>
     <Badge>zoom · pure transform</Badge>
   </div>
-</div>
+</Stack>

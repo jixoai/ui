@@ -34,7 +34,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightPrismjsStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightPrismjsStage)}>
   <div class={cx(bpA.highlightPrismjsPanel)}>
     <div class={cx(bpA.highlightPrismjsHead)}>
       <span class={cx(bpA.highlightPrismjsTitle)}>highlight-prismjs</span>
@@ -66,4 +66,4 @@
       <span>prism 1.30 no longer ships svelte/vue — reject with a hint, card falls back to plain text</span>
     </div>
   </div>
-</div>
+</Stack>

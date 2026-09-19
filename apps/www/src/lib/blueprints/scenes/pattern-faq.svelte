@@ -5,6 +5,7 @@
   import PatternFaq from '$lib/ui/pattern-faq/pattern-faq.svelte';
   import AccordionItem from '$lib/ui/accordion/accordion-item.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -21,7 +22,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.patternFaqStage)}>
+<Stack align="center" justify="center" class={cx(bpB.patternFaqStage)}>
   <PatternFaq command="jixoai-ui-faq" section="7">
     <AccordionItem>
       {#snippet summary()}does it ship javascript?{/snippet}
@@ -39,4 +40,4 @@
       tier, no per-component branching.
     </AccordionItem>
   </PatternFaq>
-</div>
+</Stack>

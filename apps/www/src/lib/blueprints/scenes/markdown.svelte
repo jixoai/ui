@@ -5,6 +5,7 @@
 <script lang="ts">
   import Markdown from '$lib/ui/markdown/markdown.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   // the payload's own join (separator serialize law): plain strings
   // pass through whole; dev objects contribute their string members ($$css dropped).
@@ -36,6 +37,6 @@ The frozen prefix never remounts while chunks arrive — \`code_block\`
 The tail mutates in place`;
 </script>
 
-<div class={cx(bpA.markdownStage)}>
+<Stack align="center" justify="center" class={cx(bpA.markdownStage)}>
   <Markdown class={cx(bpA.markdownFace)} {source} streaming />
-</div>
+</Stack>

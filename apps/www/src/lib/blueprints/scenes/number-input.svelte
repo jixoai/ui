@@ -4,6 +4,7 @@
 <script lang="ts">
   import NumberInput from '$lib/ui/number-input/number-input.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,9 +24,9 @@
   let timeout = $state(2.5);
 </script>
 
-<div class={cx(bpB.numberInputStage)}>
-  <div class={cx(bpB.numberInputCol)}>
+<Stack direction="column" justify="center" class={cx(bpB.numberInputStage)}>
+  <Stack direction="column" gap="24" class={cx(bpB.numberInputCol)}>
     <NumberInput label="workers" min={1} max={16} bind:value={workers} />
     <NumberInput label="timeout (s)" min={0.5} max={5} step={0.5} bind:value={timeout} />
-  </div>
-</div>
+  </Stack>
+</Stack>

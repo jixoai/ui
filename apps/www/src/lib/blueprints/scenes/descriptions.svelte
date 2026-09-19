@@ -5,6 +5,7 @@
   import Descriptions, { DescriptionsItem } from '$lib/ui/descriptions/index';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -21,7 +22,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.descriptionsStage)}>
+<Stack direction="column" justify="center" class={cx(bpA.descriptionsStage)}>
   <p class={cx(bpA.descriptionsLabel)}>registry · workspace ws-77</p>
   <div class={cx(bpA.descriptionsFrame)}>
     <Descriptions density="lg" columns={2} bordered>
@@ -34,4 +35,4 @@
       </DescriptionsItem>
     </Descriptions>
   </div>
-</div>
+</Stack>

@@ -8,6 +8,7 @@
   import BreadcrumbPage from '$lib/ui/breadcrumb/breadcrumb-page.svelte';
   import BreadcrumbSeparator from '$lib/ui/breadcrumb/breadcrumb-separator.svelte';
   import BreadcrumbCollapse from '$lib/ui/breadcrumb/breadcrumb-collapse.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const cx = (
@@ -25,7 +26,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.breadcrumbStage)}>
+<Stack align="center" justify="center" class={cx(bpA.breadcrumbStage)}>
   <Breadcrumb>
     <BreadcrumbList>
       <BreadcrumbItem>
@@ -47,4 +48,4 @@
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>
-</div>
+</Stack>

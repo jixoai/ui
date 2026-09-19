@@ -7,6 +7,7 @@
      surface atoms.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,7 +24,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.searchCorpusStage)}>
+<Stack align="center" justify="center" class={cx(bpB.searchCorpusStage)}>
   <div class={cx(bpB.searchCorpusCard)}>
     <div class={cx(bpB.searchCorpusHead)}>
       <span class={cx(bpB.searchCorpusTitle)}>search-corpus</span>
@@ -46,4 +47,4 @@
       engine-pluggable (minisearch ▸ fuse ▸ …) · Intl.Segmenter CJK · byte-deterministic
     </div>
   </div>
-</div>
+</Stack>

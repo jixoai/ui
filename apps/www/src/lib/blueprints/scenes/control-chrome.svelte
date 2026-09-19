@@ -2,6 +2,7 @@
      two chrome resolutions, the provider key between them. -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const axis = [
     { row: 'frame', note: 'the default — border + surface, a control reads as an object' },
@@ -23,7 +24,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.controlChromeStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.controlChromeStage)}>
   <div class={cx(bpA.controlChromeEyebrow)}>
     CONTROL_CHROME_KEY · explicit ?? ambient ?? 'frame'
   </div>
@@ -36,4 +37,4 @@
     </div>
   {/each}
   <div class={cx(bpA.controlChromeFoot)}>providers: item-field / item-group · readers: the control families</div>
-</div>
+</Stack>

@@ -4,6 +4,7 @@
      carries the plain fallback paint with zero layout shift. -->
 <script lang="ts">
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const sample = `import { UniPty } from '@unipty/core';
@@ -29,6 +30,6 @@ pty.resize(120, 36);`;
       .join(' ');
 </script>
 
-<div class={cx(bpA.codeCardStage)}>
+<Stack align="center" justify="center" class={cx(bpA.codeCardStage)}>
   <CodeCard class={cx(bpA.codeCardCard)} filename="spawn.ts" lang="ts" code={sample} />
-</div>
+</Stack>

@@ -4,6 +4,7 @@
 <script lang="ts">
   import Statistic from '$lib/ui/statistic/statistic.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,11 +21,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.statisticStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.statisticStage)}>
   <Statistic density="lg" title="weekly deploys" value="128" trend="up" />
   <div class={cx(bpB.statisticDivider)}></div>
   {#snippet ms()}ms{/snippet}
   <Statistic title="p95 latency" value="412" suffix={ms} />
   <div class={cx(bpB.statisticDivider)}></div>
   <Statistic title="failed deploys" value="3" trend="down" />
-</div>
+</Stack>

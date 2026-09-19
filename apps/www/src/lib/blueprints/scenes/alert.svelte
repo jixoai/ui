@@ -2,6 +2,7 @@
      injection as inline notice rows. -->
 <script lang="ts">
   import Alert from '$lib/ui/alert/alert.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const cx = (
@@ -19,8 +20,8 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.alertStage)}>
+<Stack direction="column" justify="center" gap="20" class={cx(bpA.alertStage)}>
   <Alert variant="tonal" title="Deployed">ui.jixoai.com is live — 77 registry items published.</Alert>
   <Alert title="Heads up">The preview cache rebuilds nightly.</Alert>
   <Alert variant="tonal" class="jx-hue-error" title="Build failed">entry "ghost" has no registry item.</Alert>
-</div>
+</Stack>

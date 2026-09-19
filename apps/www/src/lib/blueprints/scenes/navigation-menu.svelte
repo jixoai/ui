@@ -15,6 +15,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -39,12 +40,12 @@
     <NavigationMenuItem>
       <NavigationMenuTrigger current>components</NavigationMenuTrigger>
       <NavigationMenuPanel>
-        <div class={cx(bpB.navigationMenuPanel)}>
+        <Stack direction="column" gap="4" class={cx(bpB.navigationMenuPanel)}>
           <a class={cx(bpB.navigationMenuLink)} href="#bp-navmenu">components · overview</a>
           <a class={cx(bpB.navigationMenuLink)} href="#bp-navmenu">dialog family</a>
           <a class={cx(bpB.navigationMenuLink)} href="#bp-navmenu">popover family</a>
           <a class={cx(bpB.navigationMenuLink)} href="#bp-navmenu">data displays</a>
-        </div>
+        </Stack>
       </NavigationMenuPanel>
     </NavigationMenuItem>
     <NavigationMenuLink href="#bp-navmenu">recipes</NavigationMenuLink>

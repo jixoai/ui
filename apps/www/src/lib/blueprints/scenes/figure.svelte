@@ -24,7 +24,7 @@
 </script>
 
 <NumberingProvider>
-  <div class={cx(bpA.figureStage)}>
+  <Stack direction="column" justify="center" gap="24" class={cx(bpA.figureStage)}>
     <SectionCard numbering="decimal" title="Results" eyebrow="4" headingLevel={2}>
       <Stack direction="column" gap="20">
         <Figure kind="equation" id="eq-1" caption="the momentum balance">
@@ -36,5 +36,5 @@
         <p class={cx(bpA.figureBound)}>the bound of <Reference to="eq-1" /> follows from <Reference to="tbl-1" /></p>
       </Stack>
     </SectionCard>
-  </div>
+  </Stack>
 </NumberingProvider>

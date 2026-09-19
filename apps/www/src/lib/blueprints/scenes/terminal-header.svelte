@@ -16,6 +16,7 @@
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import Icon from '$lib/ui/icon';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -41,7 +42,7 @@
     );
 </script>
 
-<div class={cx(bpB.terminalHeaderStage)}>
+<Stack direction="column" gap="32" class={cx(bpB.terminalHeaderStage)}>
   <TerminalHeader
     brand="jixoai-ui"
     domain="ui.jixoai.com"
@@ -73,4 +74,4 @@
     <Skeleton class={cx(bpB.terminalHeaderSkelB)}></Skeleton>
     <Skeleton class={cx(bpB.terminalHeaderSkelC)}></Skeleton>
   </div>
-</div>
+</Stack>

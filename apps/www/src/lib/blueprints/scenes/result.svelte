@@ -5,6 +5,7 @@
   import Result from '$lib/ui/result/result.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -21,7 +22,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.resultStage)}>
+<Stack align="center" justify="center" class={cx(bpB.resultStage)}>
   <div class={cx(bpB.resultCard)}>
     <Result density="lg"
       status="success"
@@ -34,4 +35,4 @@
       {/snippet}
     </Result>
   </div>
-</div>
+</Stack>

@@ -6,6 +6,7 @@
 <script lang="ts">
   import FileInput from '$lib/ui/file-input/file-input.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   let files = $state<File[]>([
     new File(['export function press() {}'], 'press-button.svelte', { type: 'text/plain' }),
@@ -27,8 +28,8 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.fileInputStage)}>
+<Stack direction="column" justify="center" class={cx(bpA.fileInputStage)}>
   <div class={cx(bpA.fileInputFrame)}>
     <FileInput id="bp-file" label="evidence" multiple bind:files={files} />
   </div>
-</div>
+</Stack>

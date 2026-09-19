@@ -25,6 +25,7 @@
   import Icon from '$lib/ui/icon';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   let fast = $state(true);
 
@@ -43,7 +44,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.listItemStage)}>
+<Stack direction="column" justify="center" gap="20" class={cx(bpA.listItemStage)}>
   <ItemGroup ruler="media-content-end" class={cx(bpA.listItemGroup)}>
     <Item href="#one">
       <ItemMedia variant="icon"><Icon name="folder" /></ItemMedia>
@@ -72,4 +73,4 @@
   <ItemGroup mode="plain" dividers="auto" density="sm" class={cx(bpA.listItemGroup)}>
     <ItemToggle label="Fast builds" bind:checked={fast} />
   </ItemGroup>
-</div>
+</Stack>

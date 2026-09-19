@@ -4,6 +4,7 @@
 <script lang="ts">
   import Toggle from '$lib/ui/toggle/toggle.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -24,10 +25,10 @@
   let telemetry = $state(true);
 </script>
 
-<div class={cx(bpB.toggleStage)}>
-  <div class={cx(bpB.toggleCol)}>
+<Stack direction="column" align="start" justify="center" class={cx(bpB.toggleStage)}>
+  <Stack direction="column" gap="20" class={cx(bpB.toggleCol)}>
     <Toggle label="notifications" bind:checked={notifications} />
     <Toggle label="weekly digest" bind:checked={digest} />
     <Toggle label="telemetry" density="sm" bind:checked={telemetry} />
-  </div>
-</div>
+  </Stack>
+</Stack>

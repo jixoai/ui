@@ -7,6 +7,7 @@
 <script lang="ts">
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,7 +24,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.terminalCardStage)}>
+<Stack align="center" justify="center" class={cx(bpB.terminalCardStage)}>
   <div class={cx(bpB.terminalCardCard)}>
     <TerminalCard
       barTitle="quick-start — zsh"
@@ -31,4 +32,4 @@
       outputs={['terminal-card.svelte → src/lib/ui/', 'settled render · static cursor']}
     />
   </div>
-</div>
+</Stack>

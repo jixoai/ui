@@ -23,7 +23,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.pressButtonStage)}>
+<Stack direction="column" justify="center" gap="24" class={cx(bpB.pressButtonStage)}>
   <Stack align="center" wrap gap="16">
     <PressButton variant="fill" {@attach pressEffect(shimmer())}>Deploy</PressButton>
     <PressButton variant="tonal" class="jx-hue-neutral">Invite</PressButton>
@@ -37,4 +37,4 @@
     <Skeleton class={cx(bpB.pressButtonSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.pressButtonSkelB)}></Skeleton>
   </div>
-</div>
+</Stack>

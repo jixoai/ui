@@ -22,7 +22,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.themeToggleStage)}>
+<Stack align="center" justify="center" class={cx(bpB.themeToggleStage)}>
   <div class={cx(bpB.themeToggleBezel)}>
     <Stack align="center" justify="between" gap="16">
       <span class={cx(bpB.themeToggleLabel)}>full</span>
@@ -41,4 +41,4 @@
       <ThemeToggle variant="text" />
     </div>
   </div>
-</div>
+</Stack>

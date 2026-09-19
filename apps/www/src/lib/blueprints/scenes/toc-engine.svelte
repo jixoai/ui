@@ -17,6 +17,7 @@
      ternary atoms in the cx slot.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -39,7 +40,7 @@
   ];
 </script>
 
-<div class={cx(bpB.tocEngineStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.tocEngineStage)}>
   <!-- the tracked document and the line -->
   <div class={cx(bpB.tocEngineDoc)}>
     <span class={cx(bpB.tocEngineViewportTag)}
@@ -69,7 +70,7 @@
   </div>
 
   <!-- the derived rail -->
-  <div class={cx(bpB.tocEngineRail)}>
+  <Stack direction="column" gap="16" class={cx(bpB.tocEngineRail)}>
     <span class={cx(bpB.tocEngineRailLabel)}
       >the derived rail</span
     >
@@ -89,5 +90,5 @@
         <span class={cx(bpB.tocEnginePick)}>line pick</span>
       {/if}
     {/each}
-  </div>
-</div>
+  </Stack>
+</Stack>

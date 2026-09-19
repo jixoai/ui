@@ -4,6 +4,7 @@
 <script lang="ts">
   import PatternCta from '$lib/ui/pattern-cta/pattern-cta.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,7 +21,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.patternCtaStage)}>
+<Stack align="center" justify="center" class={cx(bpB.patternCtaStage)}>
   <PatternCta
     heading="ship it today"
     summary="one init, every atom, zero runtime dependencies."
@@ -28,4 +29,4 @@
     secondaryLabel="read the docs"
     secondaryHref="/docs.html"
   />
-</div>
+</Stack>

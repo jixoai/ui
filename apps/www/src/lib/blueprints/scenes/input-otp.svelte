@@ -3,6 +3,7 @@
 <script lang="ts">
   import InputOtp from '$lib/ui/input-otp/input-otp.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   let code = $state('482');
   let backup = $state('904177');
@@ -22,7 +23,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.inputOtpStage)}>
+<Stack direction="column" align="start" justify="center" gap="24" class={cx(bpA.inputOtpStage)}>
   <InputOtp label="one-time code" bind:value={code} />
   <InputOtp label="backup code" bind:value={backup} error="code expired — request a new one" />
-</div>
+</Stack>

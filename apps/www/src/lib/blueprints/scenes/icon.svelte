@@ -25,7 +25,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.iconStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.iconStage)}>
   <div class={cx(bpA.iconEyebrow)}>
     &lt;Icon name&gt; · size / strokeWidth — per-instance, no wrapper classes
   </div>
@@ -52,4 +52,4 @@
     <Icon name="braces" size={14} />
     <span class={cx(bpA.iconNameRowLabel)}>name: IconName — typo ⇒ compile error</span>
   </div>
-</div>
+</Stack>

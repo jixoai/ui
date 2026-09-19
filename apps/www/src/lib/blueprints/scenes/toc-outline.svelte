@@ -6,6 +6,7 @@
      level-3 indent pose rides a conditional atom in the cx slot.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -29,7 +30,7 @@
   ];
 </script>
 
-<div class={cx(bpB.tocOutlineStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.tocOutlineStage)}>
   <!-- the content root -->
   <div class={cx(bpB.tocOutlineRoot)}>
     <span class={cx(bpB.tocOutlineRootLabel)}
@@ -48,7 +49,7 @@
   </div>
 
   <!-- the derived outline -->
-  <div class={cx(bpB.tocOutlineRail)}>
+  <Stack direction="column" gap="10" class={cx(bpB.tocOutlineRail)}>
     <span class={cx(bpB.tocOutlineRailLabel)}
       >derived · zero handwritten ids</span
     >
@@ -62,5 +63,5 @@
     <span class={cx(bpB.tocOutlineFoot)}
       >toc-engine eats extents directly — no data-region markup</span
     >
-  </div>
-</div>
+  </Stack>
+</Stack>

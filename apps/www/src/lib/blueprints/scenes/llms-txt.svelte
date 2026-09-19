@@ -4,6 +4,7 @@
      terminal diagram idiom; no live component (it is a build tool). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,7 +21,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.llmsTxtStage)}>
+<Stack align="center" justify="center" class={cx(bpA.llmsTxtStage)}>
   <div class={cx(bpA.llmsTxtPanel)}>
     <div class={cx(bpA.llmsTxtHead)}>
       <span class={cx(bpA.llmsTxtTitle)}>llms-txt</span>
@@ -42,4 +43,4 @@ llms-full.txt   (capped)
       absolute URLs · declared outputs only · byte-deterministic
     </div>
   </div>
-</div>
+</Stack>

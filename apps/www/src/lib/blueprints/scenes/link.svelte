@@ -4,6 +4,7 @@
   import Link from '$lib/ui/link/link.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,7 +21,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.linkStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpA.linkStage)}>
   <div class={cx(bpA.linkColumn)}>
     <p class={cx(bpA.linkPara)}>
       Read <Link href="/docs/components/markdown.html">the markdown page</Link> in this tab, or
@@ -36,4 +37,4 @@
     <Badge>rel=noreferrer</Badge>
     <Badge>app routes same-tab</Badge>
   </div>
-</div>
+</Stack>

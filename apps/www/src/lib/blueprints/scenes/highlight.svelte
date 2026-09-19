@@ -45,7 +45,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightStage)}>
   <div class={cx(bpA.highlightPanel)}>
     <div class={cx(bpA.highlightHead)}>
       <span class={cx(bpA.highlightTitle)}>highlight</span>
@@ -103,4 +103,4 @@ null cascades · reject terminal</pre>
       enters auto
     </div>
   </div>
-</div>
+</Stack>

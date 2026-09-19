@@ -4,6 +4,7 @@
      Shows the conversion lattice every surface rides on. -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const lattice = [
     { from: 'oklch(L C H)', arrow: '→', to: 'parseColor()', note: 'hex · hsl · oklch in' },
@@ -27,7 +28,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.colorUtilsStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpA.colorUtilsStage)}>
   <div class={cx(bpA.colorUtilsPanel)}>
     <div class={cx(bpA.colorUtilsComment)}>// one-hue law lives in OKLCH; the canvas speaks rgb</div>
     {#each lattice as row (row.from)}
@@ -40,4 +41,4 @@
     {/each}
     <div class={cx(bpA.colorUtilsComment, bpA.colorUtilsTail)}>// parseColor never throws — null is the contract</div>
   </div>
-</div>
+</Stack>

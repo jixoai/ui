@@ -8,6 +8,7 @@
      runs ride color-mix stops at Tailwind's own oklab interpolation.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -29,8 +30,8 @@
   ];
 </script>
 
-<div class={cx(bpB.progressiveBlurStage)}>
-  <div class={cx(bpB.progressiveBlurRail)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.progressiveBlurStage)}>
+  <Stack direction="column" gap="8" class={cx(bpB.progressiveBlurRail)}>
     <span class={cx(bpB.progressiveBlurLabel)}
       >the docs rail · same-layer sticky</span
     >
@@ -55,5 +56,5 @@
         >0.5 → 64px · reveal on scroll</span
       >
     </div>
-  </div>
-</div>
+  </Stack>
+</Stack>

@@ -8,6 +8,7 @@
   import GhosttyTerm from '$lib/ui/ghostty-term/ghostty-term.svelte';
   import type { GhosttyTermHandle } from '$lib/ui/ghostty-term/ghostty-term.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   let term = $state<GhosttyTermHandle | undefined>(undefined);
   let booted = false;
@@ -42,8 +43,8 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.ghosttyTermStage)}>
+<Stack direction="column" class={cx(bpA.ghosttyTermStage)}>
   <div class={cx(bpA.ghosttyTermBody)}>
     <GhosttyTerm bind:this={term} {onResize} />
   </div>
-</div>
+</Stack>

@@ -4,6 +4,8 @@
 <script lang="ts">
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
+  import Grid from '$lib/ui/grid';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -22,8 +24,8 @@
   let plan = $state('pro');
 </script>
 
-<div class={cx(bpB.nativeSelectStage)}>
-  <div class={cx(bpB.nativeSelectGrid)}>
+<Stack direction="column" justify="center" class={cx(bpB.nativeSelectStage)}>
+  <Grid cols={2} gap="32" class={cx(bpB.nativeSelectGrid)}>
     <NativeSelect id="bp-native-select" label="plan" bind:value={plan}>
       <option value="free">free</option>
       <option value="pro">pro</option>
@@ -35,5 +37,5 @@
       <option>npm/rc</option>
       <option>jsr/latest</option>
     </NativeSelect>
-  </div>
-</div>
+  </Grid>
+</Stack>

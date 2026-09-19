@@ -9,6 +9,7 @@
      opacity/ink ladders ride ternary atoms in the cx slot.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -30,7 +31,7 @@
   ];
 </script>
 
-<div class={cx(bpB.scrollRunStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpB.scrollRunStage)}>
   <span class={cx(bpB.scrollRunLabel)}
     >the run IS the scroller · verdict start-closed</span
   >
@@ -65,4 +66,4 @@
   <span class={cx(bpB.scrollRunCaption)}
     >--jx-edge-* consumed squared · chips gated by data-jx-scroll-state</span
   >
-</div>
+</Stack>

@@ -3,6 +3,7 @@
 <script lang="ts">
   import Blockquote from '$lib/ui/blockquote/blockquote.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const cx = (
@@ -20,18 +21,18 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.blockquoteStage)}>
-  <div class={cx(bpA.blockquoteColumn)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpA.blockquoteStage)}>
+  <Stack direction="column" gap="12" class={cx(bpA.blockquoteColumn)}>
     <Blockquote label="Stevens" cite="Thirteen Ways of Looking, XIII">
       It was evening all afternoon. It was snowing, and it was going to snow.
     </Blockquote>
     <Blockquote variant="tonal" class="jx-hue-info" label="Note">
       The streaming prefix never remounts while chunks arrive.
     </Blockquote>
-  </div>
+  </Stack>
   <div class={cx(bpA.blockquoteRow)}>
     <Badge>outline · tonal — frozen</Badge>
     <Badge>no fill / no ghost</Badge>
     <Badge>cite = footer &gt; cite</Badge>
   </div>
-</div>
+</Stack>

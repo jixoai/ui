@@ -12,6 +12,7 @@
     StepsSeparator,
   } from '$lib/ui/steps/index';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -30,7 +31,7 @@
   let current = $state(1);
 </script>
 
-<div class={cx(bpB.stepsStage)}>
+<Stack direction="column" justify="center" class={cx(bpB.stepsStage)}>
   <Steps density="lg" bind:current>
     <StepsItem step={0} label="connect" onclick={() => (current = 0)}>
       <StepsIndicator />
@@ -57,4 +58,4 @@
       <StepsSeparator />
     </StepsItem>
   </Steps>
-</div>
+</Stack>

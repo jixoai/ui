@@ -13,6 +13,7 @@
   import PaginationEllipsis from '$lib/ui/pagination/pagination-ellipsis.svelte';
   import { pageRange } from '$lib/ui/pagination/pagination-range';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -31,7 +32,7 @@
   const href = (page: number): string => `/docs/components?page=${page}`;
 </script>
 
-<div class={cx(bpB.paginationStage)}>
+<Stack direction="column" align="start" justify="center" gap="32" class={cx(bpB.paginationStage)}>
   {#each [{ current: 4, total: 30, label: 'registry items' }, { current: 1, total: 8, label: 'threads' }] as nav (nav.label)}
     <Pagination label={nav.label}>
       <PaginationContent>
@@ -53,4 +54,4 @@
       </PaginationContent>
     </Pagination>
   {/each}
-</div>
+</Stack>

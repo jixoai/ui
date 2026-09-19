@@ -4,6 +4,7 @@
 <script lang="ts">
   import Transfer from '$lib/ui/transfer/transfer.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -32,8 +33,8 @@
   let release = $state(['dialog', 'toast']);
 </script>
 
-<div class={cx(bpB.transferStage)}>
+<Stack align="center" justify="center" class={cx(bpB.transferStage)}>
   <div class={cx(bpB.transferFull)}>
     <Transfer {options} bind:value={release} sourceTitle="library" targetTitle="release" />
   </div>
-</div>
+</Stack>

@@ -4,6 +4,7 @@
 <script lang="ts">
   import PatternPricing from '$lib/ui/pattern-pricing/pattern-pricing.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,7 +21,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.patternPricingStage)}>
+<Stack align="center" justify="center" class={cx(bpB.patternPricingStage)}>
   <PatternPricing
     eyebrow="$ plan --compare"
     tiers={[
@@ -42,4 +43,4 @@
       </table>
     {/snippet}
   </PatternPricing>
-</div>
+</Stack>

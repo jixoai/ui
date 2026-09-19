@@ -24,7 +24,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.typographyStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpB.typographyStage)}>
   <div class={cx(bpB.typographyKey)}>
     TypoScope · the value domain, never a variant axis
   </div>
@@ -53,4 +53,4 @@
     <Badge>nearest setter wins</Badge>
     <Badge>zero hue slots touched</Badge>
   </Stack>
-</div>
+</Stack>

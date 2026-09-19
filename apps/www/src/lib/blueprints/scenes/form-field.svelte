@@ -27,7 +27,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.formFieldStage)}>
+<Stack align="center" justify="center" class={cx(bpA.formFieldStage)}>
   <form class={cx(bpA.formFieldForm)}>
     <Stack align="center" justify="between">
       <span class={cx(bpA.formFieldTitle)}>deploy form</span>
@@ -43,11 +43,11 @@
         { value: 'production', label: 'production' },
       ]}
     />
-    <div class={cx(bpA.formFieldFoot)}>
+    <Stack align="center" justify="between" gap="12" class={cx(bpA.formFieldFoot)}>
       <span class={cx(bpA.formFieldNote)}
         >&lt;jx-form-field&gt; · display: contents</span
       >
       <PressButton variant="fill" type="submit">submit</PressButton>
-    </div>
+    </Stack>
   </form>
-</div>
+</Stack>

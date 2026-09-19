@@ -9,6 +9,7 @@
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -33,11 +34,11 @@ const html = await highlightCode(source, {
 });`;
 </script>
 
-<div class={cx(bpB.shikiStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpB.shikiStage)}>
   <CodeCard class={cx(bpB.shikiCard)} filename="highlight.ts" lang="ts" code={sample} />
   <div class={cx(bpB.shikiBadges)}>
     <Badge>on-demand grammars</Badge>
     <Badge>css-variables theme</Badge>
     <Badge>js engine · no wasm</Badge>
   </div>
-</div>
+</Stack>

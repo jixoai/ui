@@ -8,6 +8,7 @@
   import { P, Strong } from '$lib/ui/text';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -24,7 +25,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.proseStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpB.proseStage)}>
   <Prose class={cx(bpB.proseRegion)}>
     <Heading level={2}>The reading region</Heading>
     <P>
@@ -37,4 +38,4 @@
     <Badge>absence IS the state</Badge>
     <Badge>sovereignty by cascade</Badge>
   </div>
-</div>
+</Stack>

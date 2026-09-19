@@ -4,6 +4,7 @@
 <script lang="ts">
   import Textarea from '$lib/ui/textarea/textarea.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -22,11 +23,11 @@
   let notes = $state('Publish the form family: nineteen controls, one box law, zero dependencies.');
 </script>
 
-<div class={cx(bpB.textareaStage)}>
+<Stack direction="column" justify="center" class={cx(bpB.textareaStage)}>
   <div class={cx(bpB.textareaCard)}>
     <Textarea id="bp-textarea" label="release notes" rows={6} maxlength={280} count bind:value={notes}>
       {#snippet innerBlockStart()}<span>bold</span><span>italic</span><span>code</span>{/snippet}
       {#snippet innerBlockEnd()}<span>draft</span>{/snippet}
     </Textarea>
   </div>
-</div>
+</Stack>

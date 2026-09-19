@@ -5,6 +5,7 @@
   import Text, { Strong, Em, Del, Mark, Ins, Sub, Sup } from '$lib/ui/text';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -21,7 +22,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.textStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpB.textStage)}>
   <p class={cx(bpB.textBody)}>
     <Text>Plain paragraph, <Strong>strong</Strong> at the 600 settle, <Em>stress</Em>,
     <Del>struck</Del>, <Mark>highlighted</Mark>, <Ins>inserted</Ins>, H<Sub>2</Sub>O, and
@@ -32,4 +33,4 @@
     <Badge>mark = literal slot (own 'p')</Badge>
     <Badge>face-composing</Badge>
   </div>
-</div>
+</Stack>

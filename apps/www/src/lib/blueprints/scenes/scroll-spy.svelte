@@ -10,6 +10,7 @@
      pruning gotcha.) -->
 <script lang="ts">
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -32,13 +33,13 @@
   ];
 </script>
 
-<div class={cx(bpB.scrollSpyStage)}>
+<Stack align="center" justify="center" gap="40" class={cx(bpB.scrollSpyStage)}>
   <!-- the tracked targets and the line -->
   <div class={cx(bpB.scrollSpyBoard)}>
     <span class={cx(bpB.scrollSpyBoardLabel)}
       >targets · capture-phase scroll</span
     >
-    <div class={cx(bpB.scrollSpyStack)}>
+    <Stack direction="column" class={cx(bpB.scrollSpyStack)}>
       {#each targets as target (target.id)}
         <div class={cx(bpB.scrollSpyRow, target.holds ? bpB.scrollSpyRowHeld : bpB.scrollSpyRowPlain)}>
           <span
@@ -47,7 +48,7 @@
           >
         </div>
       {/each}
-    </div>
+    </Stack>
     <div class={cx(bpB.scrollSpyLine)}></div>
     <span class={cx(bpB.scrollSpyLineLabel)}>← offset 96</span>
   </div>
@@ -65,4 +66,4 @@
       {/if}
     {/each}
   </nav>
-</div>
+</Stack>

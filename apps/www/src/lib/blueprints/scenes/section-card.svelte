@@ -4,6 +4,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -20,7 +21,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.sectionCardStage)}>
+<Stack align="center" justify="center" class={cx(bpB.sectionCardStage)}>
   <div class={cx(bpB.sectionCardCard)}>
     <SectionCard headingLevel={2} eyebrow="registry" title="section-card" summary="The content atom of the site grammar: bordered card, header block with eyebrow, title, summary.">
       <div class={cx(bpB.sectionCardBadges)}>
@@ -29,4 +30,4 @@
       </div>
     </SectionCard>
   </div>
-</div>
+</Stack>

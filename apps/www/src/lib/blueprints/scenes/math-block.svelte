@@ -7,6 +7,7 @@
   import MathBlock from '$lib/ui/math-block/math-block.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,11 +24,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.mathBlockStage)}>
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpB.mathBlockStage)}>
   <MathBlock class={cx(bpB.mathBlockFrame)} copyable={false} tex={'\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}'} />
   <div class={cx(bpB.mathBlockBadges)}>
     <Badge>sync SSR · zero flash</Badge>
     <Badge>scroll-run strip</Badge>
     <Badge>copy TeX source</Badge>
   </div>
-</div>
+</Stack>

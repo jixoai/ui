@@ -4,6 +4,7 @@
      painted from the live CSS variables the sheet installs. -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Grid from '$lib/ui/grid';
 
   const hueSamples: { hue: string; css: string }[] = [
     { hue: '210', css: 'oklch(0.6489 0.237 210)' },
@@ -52,14 +53,14 @@
     <span class={cx(bpA.jixoaiThemeRowLabel)}
       >tokens</span
     >
-    <div class={cx(bpA.jixoaiThemeGrid)}>
+    <Grid cols={6} gap="12" class={cx(bpA.jixoaiThemeGrid)}>
       {#each tokens as token (token.name)}
         <div>
           <div class={cx(bpA.jixoaiThemeChip)} style="background: {token.css}"></div>
           <span class={cx(bpA.jixoaiThemeChipLabel)}>{token.name}</span>
         </div>
       {/each}
-    </div>
+    </Grid>
   </div>
   <div class={cx(bpA.jixoaiThemeRow)}>
     <span class={cx(bpA.jixoaiThemeRowLabel)}

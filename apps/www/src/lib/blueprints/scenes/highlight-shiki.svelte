@@ -28,19 +28,19 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.highlightShikiStage)}>
+<Stack align="center" justify="center" class={cx(bpA.highlightShikiStage)}>
   <div class={cx(bpA.highlightShikiPanel)}>
     <div class={cx(bpA.highlightShikiHead)}>
       <span class={cx(bpA.highlightShikiTitle)}>highlight-shiki</span>
       <span class={cx(bpA.highlightShikiSub)}>the default engine</span>
     </div>
     <Stack align="center" gap="12">
-      <div class={cx(bpA.highlightShikiLazyCol)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightShikiLazyCol)}>
         <span class={cx(bpA.highlightShikiColLabel)}>on demand (lazy chunk)</span>
         {#each lazy as line (line)}
           <span class={cx(bpA.highlightShikiLazyLine)}>{line}</span>
         {/each}
-      </div>
+      </Stack>
       <span class={cx(bpA.highlightShikiArrow)}>-></span>
       <div class={cx(bpA.highlightShikiAdapterCard)}>
         <span class={cx(bpA.highlightShikiAdapterTitle)}>shiki()</span>
@@ -49,16 +49,16 @@
         <span class={cx(bpA.highlightShikiCardNote)}>DEFAULT_SHIKI_BACKEND · the stock singleton</span>
       </div>
       <span class={cx(bpA.highlightShikiArrow)}>-></span>
-      <div class={cx(bpA.highlightShikiOutCol)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightShikiOutCol)}>
         <span class={cx(bpA.highlightShikiColLabel)}>markup output</span>
         {#each spans as line (line)}
           <span class={cx(bpA.highlightShikiOutLine)}>{line}</span>
         {/each}
-      </div>
+      </Stack>
     </Stack>
     <div class={cx(bpA.highlightShikiFoot)}>
       <span>TextMate-grade accuracy · markup survives print · code-card's pinned default</span>
       <span>shiki({'{'} langs {'}'}) slims the instance — an allowlist, never the shared registry</span>
     </div>
   </div>
-</div>
+</Stack>

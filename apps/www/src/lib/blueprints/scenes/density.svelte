@@ -3,6 +3,7 @@
 <script lang="ts">
   import { ItemGroup, Item, ItemContent, ItemTitle, ItemEnd, ItemAfter } from '$lib/ui/list-item';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -19,7 +20,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.densityStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.densityStage)}>
   <div class={cx(bpA.densityEyebrow)}>
     U = 4px · T = 13px · rows 24/28/32/40/48
   </div>
@@ -33,4 +34,4 @@
       </Item>
     </ItemGroup>
   {/each}
-</div>
+</Stack>

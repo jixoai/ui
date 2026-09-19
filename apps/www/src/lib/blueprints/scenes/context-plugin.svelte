@@ -33,7 +33,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.contextPluginStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.contextPluginStage)}>
   <div class={cx(bpA.contextPluginEyebrow)}>
     definePlugin · targets bind defs by identity (not by string)
   </div>
@@ -74,4 +74,4 @@
       <span class={cx(bpA.contextPluginNote)}>the projection</span>
     </div>
   </Stack>
-</div>
+</Stack>

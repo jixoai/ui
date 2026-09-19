@@ -2,6 +2,7 @@
 <script lang="ts">
   import Kbd from '$lib/ui/kbd/kbd.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -18,7 +19,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.kbdStage)}>
+<Stack direction="column" align="start" justify="center" gap="20" class={cx(bpA.kbdStage)}>
   <div class={cx(bpA.kbdRow)}>
     <Kbd density="lg">⌘</Kbd><Kbd density="lg">K</Kbd>
     <span class={cx(bpA.kbdNote)}>open the command surface</span>
@@ -27,4 +28,4 @@
     <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>P</Kbd>
     <span class={cx(bpA.kbdNote)}>preview deployment</span>
   </div>
-</div>
+</Stack>

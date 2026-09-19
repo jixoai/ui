@@ -2,6 +2,7 @@
      unchecked, indeterminate, and a disabled checked row. -->
 <script lang="ts">
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
+  import Stack from '$lib/ui/stack';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
 
   const cx = (
@@ -19,11 +20,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.checkboxStage)}>
-  <div class={cx(bpA.checkboxColumn)}>
+<Stack direction="column" align="start" justify="center" class={cx(bpA.checkboxStage)}>
+  <Stack direction="column" gap="16" class={cx(bpA.checkboxColumn)}>
     <Checkbox label="deploy on push" checked />
     <Checkbox label="preview deployments" />
     <Checkbox label="all environments" indeterminate />
     <Checkbox label="legacy webhooks (deprecated)" checked disabled />
-  </div>
-</div>
+  </Stack>
+</Stack>

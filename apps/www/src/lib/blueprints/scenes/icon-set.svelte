@@ -6,6 +6,7 @@
   import Icon from '$lib/ui/icon';
   import { ICON_NAMES } from '$lib/icon-set.gen';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   // a curated wall, not all 38 — the stage is 640×360
   const wall: typeof ICON_NAMES[number][] = [
@@ -48,7 +49,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.iconSetStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.iconSetStage)}>
   <div class={cx(bpA.iconSetEyebrow)}>
     icon-set.gen · {ICON_NAMES.length} names · 1 inline chunk · 0 lazy — plugin-free by construction
   </div>
@@ -60,4 +61,4 @@
   <div class={cx(bpA.iconSetFoot)}>
     getIcon() sync · loadIcon() cached · preloadIcons() ahead-of-mount
   </div>
-</div>
+</Stack>
