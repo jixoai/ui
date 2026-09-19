@@ -38,7 +38,9 @@
 
 - [x] 3.1 焦点单测 + 全量电池 + build:studio + validate --strict
 - [x] 3.2 矩阵 71/71（A1-A6 新组 + 既有 65 项不回归；r7 65/71 → r8 崩（D11 读已关的 A）→ r9 68/71 → r10 71/71，三轮失败全部定根见 evidence/README）
-- [ ] 3.3 Codex 复核（同 agent presence-review）→ 处理结论
+- [x] 3.3 Codex 复核（7.8/10，P1 parkedCursor 未初始化）→ 已处理：
+      P1 修复 + PAGEERROR 硬门禁 + 宿主碰撞断言 + 阈值收紧 + TTL 测试
+      + applyBrandHueTo 守卫；矩阵 71/71（含零异常门禁）、电池 569/569
 - [ ] 3.4 提交推送，交 Owner 复验（含真箭头/彩带槽位的视觉终验）
 
 ## 4. 迭代中发现的产品 bug（r7-r10 轮，一并修复）

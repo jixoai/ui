@@ -1980,6 +1980,17 @@ try {
           const f = document.querySelector(`iframe[name="${name}"]`);
           f?.scrollIntoView({ block: 'center' });
         }, KIT_D).catch(() => {});
+        // 宿主文档同 id 碰撞（Codex r2w 非阻塞 1）：ring 在 B 端解析——
+        // B 的宿主文档放一个诱饵 #a4，命名的 kit 必须赢过它
+        await rCanvasB.evaluate(() => {
+          if (document.getElementById('a4') === null) {
+            const decoy = document.createElement('div');
+            decoy.id = 'a4';
+            decoy.setAttribute('data-a2-decoy', 'true');
+            decoy.style.cssText = 'position:absolute;left:0;top:0;width:50px;height:20px;pointer-events:none;';
+            document.body.appendChild(decoy);
+          }
+        }).catch(() => {});
         await sleep(600);
         const desktopFrame = rCanvasA.childFrames().find((f) => f.name() === KIT_D) ?? null;
         if (desktopFrame === null) throw new Error('desktop kit frame 未解析');
@@ -2033,8 +2044,9 @@ try {
       } catch (e2) {
         a2diag = `执行异常: ${e2 instanceof Error ? e2.message.split('\n')[0] : String(e2)}`;
       }
-      record('A2', 'desktop kit 内点击 #a4 → attention.frameId=desktop 变体，对端 ring 落在 desktop kit 的 box 内（同 id 双 kit 定位）',
+      record('A2', 'desktop kit 内点击 #a4 → attention.frameId=desktop 变体，对端 ring 落在 desktop kit 的 box 内（同 id 双 kit + 宿主诱饵定位）',
         a2ok, a2diag);
+      await rCanvasB.evaluate(() => document.querySelector('[data-a2-decoy]')?.remove()).catch(() => {});
     }
 
     /* A4/A5/A6 — 光标停驻后：晚来者快照渲染 + 箭头形状/blend + badge 背景 */
@@ -2146,6 +2158,13 @@ try {
 }
 
 const fails = results.filter((r) => !r.pass);
+/* pageerror 硬门禁（Codex r2w P1 教训：placeCursor 的 undefined 崩溃让
+ * 71/71 报绿——运行时异常必须计入失败，console-error 摘要不再只是报告）*/
+const errorPages = [...pageErrors.entries()].filter(([, errs]) => errs.length > 0);
+const toleratedNoise = /ResizeObserver loop|favicon/i;
+const realErrors = errorPages.map(([label, errs]) => [label, errs.filter((e) => !toleratedNoise.test(e))]).filter(([, errs]) => errs.length > 0);
+results.push({ step: 'PAGEERROR', name: '页面运行时零异常门禁（presence 轮回归不得被断言绿灯掩盖）', pass: realErrors.length === 0, detail: realErrors.length === 0 ? `零异常（${[...pageErrors.values()].reduce((n, e) => n + e.length, 0)} 条原始捕获全部属容忍名单或为空）` : realErrors.map(([label, errs]) => `${label}: ${errs.length} 条，首条 ${errs[0].split('\n')[0].slice(0, 160)}`).join(' | ') });
+if (realErrors.length > 0) fails.push(results[results.length - 1]);
 console.log('\n==== TDD-MATRIX SUMMARY ====');
 console.log(`${results.length - fails.length}/${results.length} passed`);
 for (const f of fails) console.log(`FAIL [${f.step}] ${f.name} — ${f.detail.slice(0, 300)}`);

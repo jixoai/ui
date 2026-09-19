@@ -158,7 +158,7 @@ function ensureEntry(player) {
 
   document.documentElement.appendChild(cursor);
   document.documentElement.appendChild(ring);
-  entry = { cursor, arrow, tag, ring, badge, attention: null, ringKey: null, hasMouse: player.hasMouse === true };
+  entry = { cursor, arrow, tag, ring, badge, attention: null, ringKey: null, parkedCursor: null, hasMouse: player.hasMouse === true };
   roster.set(player.playerId, entry);
   // a fast leave→join re-creates the entry: cancel any pending retire
   // timer holding the PREVIOUS generation's elements (its capture would
@@ -234,31 +234,26 @@ function placeCursor(entry, cursor) {
 
 /** the attention target's canvas-document box. The focus carries the
  *  protocol componentId (the native `id` attribute stamped into the
- *  source at ingest) — resolved by `[id=…]` in THIS document first;
- *  kit iframes come next, the attention's frameId FIRST among them
- *  (the same id lives in multiple kits — mobile/desktop variants),
- *  same-origin, adding the iframe offset. Unresolvable ids return
- *  null (the ring fades out — the badge keeps the id legible, never
- *  a wrong-element ring). */
+ *  source at ingest) — same-origin, adding the iframe offset. When the
+ *  attention carries a frameId, the NAMED kit resolves FIRST (the same
+ *  id lives in multiple kits — mobile/desktop variants — and a host-doc
+ *  id collision must not steal a kit-addressed pick), then the host
+ *  document, then every kit iframe. Unresolvable ids return null (the
+ *  ring fades out — the badge keeps the id legible, never a
+ *  wrong-element ring). */
 export function resolveAttentionBox(attention) {
   if (attention === null || attention.kind !== 'canvas') return null;
   const idSelector = `[id="${CSS.escape(attention.component)}"]`;
-  const own = document.querySelector(idSelector);
-  if (own !== null) {
-    const rect = own.getBoundingClientRect();
-    return { x: rect.left + window.scrollX, y: rect.top + window.scrollY, w: rect.width, h: rect.height };
-  }
   // the kit-addressed resolution (walkthrough R2): the same component id
   // exists in MULTIPLE kits (mobile/desktop variants of one file) — the
   // attention's frameId names the kit the pick happened in; resolve
-  // THERE first and only fall back to the DOM-order scan on a miss
+  // THERE first (Codex r2w: ahead of the host document too — a host-doc
+  // id collision must not steal a kit-addressed pick), then the host
+  // document, then the DOM-order scan as the fallback
   const frames = [];
   if (typeof attention.frameId === 'string' && attention.frameId.length > 0) {
     const named = document.querySelector(`iframe[name="${FRAME_NAME_PREFIX}${attention.frameId}"]`);
     if (named !== null) frames.push(named);
-  }
-  for (const frame of document.querySelectorAll('iframe')) {
-    if (!frames.includes(frame)) frames.push(frame);
   }
   for (const frame of frames) {
     const doc = frame.contentDocument;
@@ -268,7 +263,26 @@ export function resolveAttentionBox(attention) {
     const rect = frame.getBoundingClientRect();
     const box = el.getBoundingClientRect();
     // kit CSS px → canvas-doc px through the measured lens scale (the
-    // surfaceOffset law — pre/post-transform spaces meet only via k)
+    // surfaceOffset law — pre/post-lens spaces meet only via k)
+    const kitW = doc.documentElement.clientWidth;
+    const k = kitW > 0 && rect.width > 0 ? rect.width / kitW : 1;
+    return { x: rect.left + box.left * k + window.scrollX, y: rect.top + box.top * k + window.scrollY, w: box.width * k, h: box.height * k };
+  }
+  const own = document.querySelector(idSelector);
+  if (own !== null) {
+    const rect = own.getBoundingClientRect();
+    return { x: rect.left + window.scrollX, y: rect.top + window.scrollY, w: rect.width, h: rect.height };
+  }
+  for (const frame of document.querySelectorAll('iframe')) {
+    if (frames.includes(frame)) continue; // the named miss is not retried
+    const doc = frame.contentDocument;
+    if (doc === null) continue; // cross-origin — not ours
+    const el = doc.querySelector(idSelector);
+    if (el === null) continue;
+    const rect = frame.getBoundingClientRect();
+    const box = el.getBoundingClientRect();
+    // kit CSS px → canvas-doc px through the measured lens scale (the
+    // surfaceOffset law — pre/post-lens spaces meet only via k)
     const kitW = doc.documentElement.clientWidth;
     const k = kitW > 0 && rect.width > 0 ? rect.width / kitW : 1;
     return { x: rect.left + box.left * k + window.scrollX, y: rect.top + box.top * k + window.scrollY, w: box.width * k, h: box.height * k };
@@ -319,6 +333,7 @@ function renderPresence(players) {
       placeCursor(entry, cursor);
     } else {
       entry.cursor.style.opacity = '0'; // other-canvas, mouseless — parked, not destroyed
+      entry.parkedCursor = null; // not waiting on a kit — no retry intent
     }
     const attention = player.attention;
     if (attention !== null && attention !== undefined && attention.kind === 'canvas') {
@@ -470,7 +485,9 @@ export function initPresenceOverlay() {
 
 /** set --brand-hue (oklch degrees) on a same-origin document root */
 function applyBrandHueTo(doc, oklchHue) {
-  doc.documentElement.style.setProperty('--brand-hue', String(oklchHue));
+  const root = doc.documentElement; // null mid-teardown (about:blank lifecycle) — skip, the next broadcast repaints
+  if (root === null) return;
+  root.style.setProperty('--brand-hue', String(oklchHue));
 }
 
 /** lens change: re-compensate every live element's chrome (sizes only —

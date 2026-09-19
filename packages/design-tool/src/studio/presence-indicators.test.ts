@@ -153,13 +153,16 @@ test('overlay: attention resolves by componentId ACROSS documents (own doc first
   const body = resolve[0];
   assert.match(body, /CSS\.escape\(attention\.component\)/, 'the componentId is selector-escaped (the injection guard)');
   assert.match(body, /\[id="\$\{CSS\.escape\(attention\.component\)\}"\]/, 'the protocol componentId resolves by the native id attribute');
-  // walkthrough R2: the attention's frameId names the kit the pick
-  // happened in — the named kit is searched FIRST (same id in multiple
-  // kits must never resolve to DOM-order kit #1), the full scan is the
-  // fallback
-  assert.match(body, /iframe\[name="\$\{FRAME_NAME_PREFIX\}\$\{attention\.frameId\}"\]/, 'the kit-addressed lookup targets the named kit iframe');
-  assert.match(body, /for \(const frame of document\.querySelectorAll\('iframe'\)\)/, 'the DOM-order scan remains as the fallback');
-  assert.match(body, /if \(!frames\.includes\(frame\)\) frames\.push\(frame\);/, 'no duplicate scans');
+  // walkthrough R2 + Codex r2w: the attention's frameId names the kit the
+  // pick happened in — the named kit resolves FIRST (ahead of the host
+  // document: a host-doc id collision must not steal a kit-addressed
+  // pick), then the host document, then the DOM-order scan (which skips
+  // the already-missed named kit)
+  const namedLoop = body.indexOf('iframe[name="${FRAME_NAME_PREFIX}${attention.frameId}"]');
+  const hostQuery = body.indexOf('const own = document.querySelector(idSelector)');
+  const scanLoop = body.indexOf("for (const frame of document.querySelectorAll('iframe'))");
+  assert.ok(namedLoop >= 0 && hostQuery > namedLoop && scanLoop > hostQuery, 'resolution order: named kit, then host document, then the scan');
+  assert.match(body, /if \(frames\.includes\(frame\)\) continue; \/\/ the named miss is not retried/, 'the scan skips the already-missed named kit');
   assert.match(body, /frame\.contentDocument/, 'same-origin document query');
   // presence-liveness P2's coordinate law: kit CSS px → canvas-doc px
   // through the measured lens scale k (pre/post-lens spaces meet only via k)

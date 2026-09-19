@@ -1,0 +1,461 @@
+{
+  "when": "2026-09-19T00:10:38.751Z",
+  "loadavg": [
+    6.5,
+    4.6,
+    3.5
+  ],
+  "node": "v24.21.0",
+  "platform": "darwin",
+  "provenance": {
+    "gitSha": "61030d97723f86639f8612bb7ca1eeae811f990a",
+    "matrixSha256": "4bc636bda89def71eb23b148e9eac67144b9aab043bbb3c4a7d7ab04f64788ef",
+    "studioManifest": {
+      "inputsHash": "6a27dca45aa34b0f456526a48d1d3e90408a5ac38d978033c52a750008d12cbc",
+      "builtAt": "2026-09-18T22:12:42.581Z",
+      "vite": "8.2.2",
+      "svelte": "5.56.9"
+    },
+    "browser": "chromium-1243",
+    "argv": [
+      "/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/.zcode/presence/tdd-matrix.mjs"
+    ]
+  },
+  "gateDiscipline": "Owner 原始预算硬断言（P1 200/P3 600/P4 100）+ min-of-N 采样（P3 各轮独立基线）+ rAF quiet gate；噪声进 detail/evidence 不抬门槛；E6② 断言的是 blur 后最终 selection-reclaim（瞬态 null 可被 16ms 合并窗折叠，非缺陷）",
+  "passed": 72,
+  "total": 72,
+  "records": [
+    {
+      "step": "A1",
+      "name": "① A端 chips：2 枚、alice(self)+bob、名字正确",
+      "pass": true,
+      "detail": "[\"p1:alice (you)\",\"p2:bob\"]"
+    },
+    {
+      "step": "A1",
+      "name": "② A端 色序 hue=73/252（轮盘法：对面偏置非正对）（p1/p2 的 dot style）",
+      "pass": true,
+      "detail": "self p1@73 other p2@252 dot=\"rgb(170, 212, 17)\""
+    },
+    {
+      "step": "A1",
+      "name": "③ B端 chips：self(bob)首位 + alice 在列（join 互见）",
+      "pass": true,
+      "detail": "[\"p2:bob (you)\",\"p1:alice\"]"
+    },
+    {
+      "step": "A1",
+      "name": "④ B端 在线计数 2 online",
+      "pass": true,
+      "detail": "text=\"2 online\""
+    },
+    {
+      "step": "A1",
+      "name": "⑤ S→C 第六帧 {type:\"pong\"}（ping 应答；studio store 忽略之）",
+      "pass": true,
+      "detail": "welcome playerId=p3 hue=343; pong={\"type\":\"pong\"}"
+    },
+    {
+      "step": "A2",
+      "name": "① B端 canvas 文档出现 [data-jx-remote=\"p1:cursor\"] 且可见",
+      "pass": true,
+      "detail": "opacity=1 transform=(432,120)（ground 命中 15 次）"
+    },
+    {
+      "step": "A2",
+      "name": "② B端光标坐标随 A 移动方向一致（屏幕右下移 → doc 坐标右下移）",
+      "pass": true,
+      "detail": "hit1 screen(452,93) → doc(432,120); hit2 screen(797,409) → doc(1346,958)"
+    },
+    {
+      "step": "A3",
+      "name": "① A 勾选 RAISED → hero.svelte 落 raised={true}（W4 fs 断言复用）",
+      "pass": true,
+      "detail": "fs diff seen (/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/design/prototypes/welcome/pages/hero.svelte)"
+    },
+    {
+      "step": "A3",
+      "name": "② B端收到 journal-tail → /sync → 面板/画布更新（checkbox 镜像或 a4 boxShadow 变化）",
+      "pass": true,
+      "detail": "checkbox=true; boxShadow unchanged (none → none)"
+    },
+    {
+      "step": "A3",
+      "name": "②b B端 /sync POST 在编辑窗口内发生（journal-tail 即时拉取）",
+      "pass": true,
+      "detail": "2 sync POST in [click, fs+3s]; total syncs=2"
+    },
+    {
+      "step": "A3",
+      "name": "③ B端出现 A 的在场指示（canvas ghost ring 或新词表面板 focus 行 [data-jx-remote-focus] 任一）",
+      "pass": true,
+      "detail": "canvas-focus=opacity 0; 面板 focus 行=DIV[data-jx-remote-focus=\"p1\"]; （实况：面板 op 的 admit body 不带 sessionHint.playerId——design.md §3 的 op-ghost 未接线，由裁决4的真实 focus 上报路径点亮）"
+    },
+    {
+      "step": "A4",
+      "name": "并发 admit × 面板编辑：融合或冲突卡（§6 既有行为不回归）",
+      "pass": true,
+      "detail": "agent admit=200; 融合=true（A4-agent-lane-text + raised={false}）; 冲突卡=0; bytesChanged=true"
+    },
+    {
+      "step": "A5",
+      "name": "① B端 alice chip 进入离线表现（offline 态或从 chips 消失）",
+      "pass": true,
+      "detail": "chip 保留且 offline=true"
+    },
+    {
+      "step": "A5",
+      "name": "② B端 canvas 远程指示器淡出移除（p1 元素清零）",
+      "pass": true,
+      "detail": "剩余 [data-jx-remote^=\"p1:\"] 元素=0"
+    },
+    {
+      "step": "B6",
+      "name": "① 人端 chips 出现 AI Player（matrix-ai）",
+      "pass": true,
+      "detail": "chip=p4:matrix-ai ·ai@hue162（DOM 无 kind 标记属性——chip 只有 playerId/name/dot；发现：kind 未暴露给 DOM，按名断言）"
+    },
+    {
+      "step": "B6",
+      "name": "② AI 无可见光标（元素常驻但 opacity=0，virtual-mouse 未注册）",
+      "pass": true,
+      "detail": "cursor 元素=exists opacity=0"
+    },
+    {
+      "step": "B7a",
+      "name": "① 人端出现该 AI 的 canvas-focus ghost ring（元素存在、badge 含 AI 名）",
+      "pass": true,
+      "detail": "admit=200; ring=opacity=0.55 badge=\"matrix-ai · a4\""
+    },
+    {
+      "step": "B7a",
+      "name": "② ring box 与目标组件（a4 press-button，经 kit iframe 折算）重叠",
+      "pass": true,
+      "detail": "overlap ok; ring={\"x\":109.984375,\"y\":318.5,\"w\":135.203125,\"h\":40}"
+    },
+    {
+      "step": "B7a",
+      "name": "③（诊断）ring 不得是 section 级别的大框（按 componentId 跨文档定位后应为组件级）",
+      "pass": true,
+      "detail": "ring=135x40 vs section=2492x2348（组件级 ring 的 w/h 应远小于 section 的一半）"
+    },
+    {
+      "step": "B7b",
+      "name": "AI admit 带 sessionHint{field,digest} → 面板字段行点亮（[data-jx-remote-focus] 含 AI playerId + 名签 matrix-ai）",
+      "pass": true,
+      "detail": "admit=200; 行=DIV[focus=\"p4\"] shadow=\"rgb(17, 212, 154) 0px 0px 0px 2px\"; 名签=[\"matrix-ai\"]（digest 只走协议帧，不上 DOM——裁决4词表）"
+    },
+    {
+      "step": "B8",
+      "name": "① AI virtual-mouse enabled + cursor → 人端光标元素从无到有（opacity 0→1）",
+      "pass": true,
+      "detail": "before opacity=0 → after opacity=1"
+    },
+    {
+      "step": "B8",
+      "name": "② 光标坐标逐字透传（mock 发送 (281,190)）",
+      "pass": true,
+      "detail": "transform=(281,190)"
+    },
+    {
+      "step": "C9",
+      "name": "① 两 AI 的 op 全部落盘融合（hero.svelte 同时含 C9-one 与 C9-two）",
+      "pass": true,
+      "detail": "admits=200/200; bytes: C9-one=true, C9-two=true"
+    },
+    {
+      "step": "C9",
+      "name": "② 观察端（第三连接）收到两份 attention 且归属正确（ai-1→a4、ai-2→a5）",
+      "pass": true,
+      "detail": "ai-1(p5)→{\"kind\":\"canvas\",\"component\":\"a4\",\"instance\":null,\"frameId\":null}; ai-2(p6)→{\"kind\":\"canvas\",\"component\":\"a5\",\"instance\":null,\"frameId\":null}"
+    },
+    {
+      "step": "D10",
+      "name": "刷新后同 token 恢复同 playerId 同色号",
+      "pass": true,
+      "detail": "刷新前 p2@hue252 → 刷新后 p2@hue252"
+    },
+    {
+      "step": "D11",
+      "name": "新 context 新号且旧号不复用；新色走轮盘法（对在场色 ≥40° 且不正对）",
+      "pass": true,
+      "detail": "counter 7→8; carol chip=p8@hue117（在场 [252,252]）; ledger row=p8"
+    },
+    {
+      "step": "D12",
+      "name": "① WS 被持续掐断 → 自身 chip 进入 offline 态（presence 降级可见）",
+      "pass": true,
+      "detail": "offline chip 数=2（routeWebSocket close；重连退避下每次尝试均被掐）"
+    },
+    {
+      "step": "D12",
+      "name": "② WS 全断时编辑照常（勾选落盘，op 走 HTTP）",
+      "pass": true,
+      "detail": "hero 落 raised={true}（fs 断言）"
+    },
+    {
+      "step": "D13",
+      "name": "① 垃圾账本下重启 server → studio 照常起（/__design__/ 200 + 壳渲染）",
+      "pass": true,
+      "detail": "probe page ok=true"
+    },
+    {
+      "step": "D13",
+      "name": "② 网关重建账本（新连接 welcome + presence.json 恢复合法 + 重建日志）",
+      "pass": true,
+      "detail": "welcome=p2@hue252; presence.json valid=true counter=2; 重建日志=true"
+    },
+    {
+      "step": "D14",
+      "name": "① 同 baseFrontiers 两个过期 op → 一个 200 一个 409",
+      "pass": true,
+      "detail": "statuses=200,409; bodies=[null,null]"
+    },
+    {
+      "step": "D14",
+      "name": "② journal 未损坏（全行可解析 + 行数只增 + /sync 仍 200）",
+      "pass": true,
+      "detail": "journal 87→91 行, 坏行=0; sync=ok(7324b)"
+    },
+    {
+      "step": "A1",
+      "name": "色相轮盘法：首二人 73→252（D14 已占），alice-v=343 / bob-v=162（对面偏置 max-min），新加入者对全体 ≥40° 且不正对",
+      "pass": true,
+      "detail": "alice-v=343（期望343）; bob-v=162（期望162）; probe=207 对 [343,162,298]"
+    },
+    {
+      "step": "E1",
+      "name": "① B 切 echo-demo 移动 → A 端 welcome canvas 无 B 光标（协议帧 canvas=echo-demo + 渲染隐藏）",
+      "pass": true,
+      "detail": "切换前 A 可见=true; observer cursor.canvas=echo-demo (x=87,y=861); A 端 B 光标=0"
+    },
+    {
+      "step": "E1",
+      "name": "② A 端壳层零光标（studio-remote-cursor 退役，光标不溢出到 chrome）",
+      "pass": true,
+      "detail": ".studio-remote-cursor 不存在（grep 源码级退役 + DOM 级确认）"
+    },
+    {
+      "step": "E1",
+      "name": "③ B 回 welcome 移动 → A 端光标恢复可见（opacity≈1）",
+      "pass": true,
+      "detail": "A 端 p4:cursor opacity≈1（ground 命中后恢复）；上行证据=observer 重收 canvas=welcome 帧"
+    },
+    {
+      "step": "E2",
+      "name": "① A 壳 documentElement --brand-hue = hsl→oklch 换算值（≠ registry 默认 330）",
+      "pass": true,
+      "detail": "shell=18.85; 期望=hsl(343)→oklch 18.85; self=p3"
+    },
+    {
+      "step": "E2",
+      "name": "② welcome canvas 文档 + kit frame 文档 --brand-hue 同值（overlay 广播统一设置）",
+      "pass": true,
+      "detail": "canvas=18.85; kit=18.85; 期望=18.85"
+    },
+    {
+      "step": "E2",
+      "name": "③ picker selected ring = var(--primary)（≠旧硬编码红 rgb(224,86,86)、≠旧蓝）",
+      "pass": true,
+      "detail": "border=oklch(0.7044 0.1872 14.8515) primary=oklch(0.7044 0.1872 14.8515) @/prototypes/welcome/"
+    },
+    {
+      "step": "E3",
+      "name": "① B 在 welcome（cursor.canvas=welcome）→ A 端 nav welcome 行彩带含 B 色（self-counts：E2 的 kit 点击使首态为 multi）",
+      "pass": true,
+      "detail": "mode=multi; style=border-inline-start: 2px solid transparent; border-image: linear-gradient(rgb(212, 17, 72); B 色=rgb(17, 212, 154)（hsl(162,85%,45%) 的规范化 rgb）"
+    },
+    {
+      "step": "E3",
+      "name": "② mock C 加入（同 canvas）→ 同一行 multi 彩带竖向分段（B 与 C 的色相俱在；±2° 容差）",
+      "pass": true,
+      "detail": "C=p7@hue28; B hue=162; hues=[343,343,162,162,28,28]; style=border-inline-start: 2px solid transparent; border-image: linear-gradient(rgb(212, 17, 72) 0px, rgb(212, 17, 72) 33.3333%, rgb(17, 212, 154) 33.3333%, rgb(17, 212, 154) 66.6667%, rgb(212, 108, 17) 66.6667%, rgb(212, 108, 17) 100%) 0 0 0 1 /"
+    },
+    {
+      "step": "E4",
+      "name": "mock AI admit（componentId=a4, sessionHint playerId）→ A 端树 a4 行 [data-jx-remote-ribbon] 出现（C 线词表：mode 值 + AI 色在行样式）",
+      "pass": true,
+      "detail": "admit=200; AI=p8@hsl(117, 85%, 45%); 行=\"press-button #4\" mode=multi; style=border-inline-start: 2px solid transparent; border-image: linear-gradient(to bottom, hsl(343, 85%, 45%) 0 50.0000%, hsl(117, 85%, 45%) 50.0000% 100.0000%) 0 0 0 1 / 0 0 0 2px;"
+    },
+    {
+      "step": "E5",
+      "name": "① B focus 面板 input → A 端对应行 [data-jx-remote-focus]（含 B playerId）",
+      "pass": true,
+      "detail": "focus=\"p4\"（B=p4）"
+    },
+    {
+      "step": "E5",
+      "name": "② A 端 [data-jx-remote-caret] caret 条 = B 色（镜像测量定位、真实渲染可见）",
+      "pass": true,
+      "detail": "bar pid=p4 bg=\"rgb(17, 212, 154)\"（期望 rgb(17, 212, 154)）; bar=2px宽 @x=1397; display=\"block\"; 父元素=DIV; inline=position:absolute;left:88.484375px;top:45.875px;width:2px;height:13px;background:hsl(162, 85%, 45%);pointer-events:none;z-index:4"
+    },
+    {
+      "step": "E6",
+      "name": "① A 真实 focus input + 移动 caret → attention 帧带 field+selection{start,end}（raw ws 观察；B 线词表）",
+      "pass": true,
+      "detail": "field=slot-text-t-0 selection={\"start\":13,\"end\":13} digest=\"E4-tree-ribbon\""
+    },
+    {
+      "step": "E6",
+      "name": "② A blur → attention 回落到 selection（reclaim 法则：面板放手后远端见 canvas/<选中组件>；瞬态 null 可被 16ms 合并窗折叠，非缺陷）",
+      "pass": true,
+      "detail": "reclaim={\"kind\":\"canvas\",\"component\":\"a4\",\"instance\":null,\"frameId\":\"hero-mobile-390-light\"}（a4）；blur 前最后 panel field=slot-text-t-0"
+    },
+    {
+      "step": "P7",
+      "name": "① mock cursor 帧 → B 端 overlay transform 落位 ≤100ms（提案端到端预算；16ms 网关窗 + 广播 + rAF；页内打点，空载 probe 实测 ≈40ms）",
+      "pass": true,
+      "detail": "发出→落位 = 42ms（3 次采样 [43,42,123] 取最小）"
+    },
+    {
+      "step": "P7",
+      "name": "② A 真实鼠标（canvas 地面）→ B 端光标落位 ≤100ms（全链：rAF 上报 + 16ms 节流 + ws + 网关窗 + 广播 + 渲染；页内打点 + 观察者 surface 核实；多点位采样取最小）",
+      "pass": true,
+      "detail": "跳点→落位 = 66ms（采样 [85,66,66,68]）"
+    },
+    {
+      "step": "P1",
+      "name": "① A 点击 kit 内 #a4 → B 端 [data-jx-remote=\":canvas-focus\"] ring 出现且 badge 含 a4（选中即注意力）",
+      "pass": true,
+      "detail": "badge=\"alice-p · a4\""
+    },
+    {
+      "step": "P1",
+      "name": "② click→ring ≤200ms（Owner 选中同步预算；页内打点 + 3 轮取最小）",
+      "pass": true,
+      "detail": "84ms（采样 [84,153,88]）"
+    },
+    {
+      "step": "P2",
+      "name": "① 指针在 kit iframe 内部移动 → B 端光标持续跟随（≥2 个不同落点 + 可见）",
+      "pass": true,
+      "detail": "样本=10 个; 首尾位移=(-58,253)px; opacity 峰值=1.00"
+    },
+    {
+      "step": "P2",
+      "name": "② 协议层：帧内上报以 surface=frame:<id> 走 cursor 帧（canvas 仍 = welcome）",
+      "pass": true,
+      "detail": "surface=frame:hero-mobile-390-light (136,549)"
+    },
+    {
+      "step": "P2",
+      "name": "③ 帧内光标落位精度：B 端页空间位置与 A 指针偏差 ≤3px（iframe offset 折算后）",
+      "pass": true,
+      "detail": "偏差=(0, 0)px"
+    },
+    {
+      "step": "P1",
+      "name": "③ A 点击树 usage 行 → observer 收 attention kind=canvas/component=<stamp id>，B 端 ring badge 命中同组件（树入口的选中即注意力）",
+      "pass": true,
+      "detail": "attention={\"kind\":\"canvas\",\"component\":\"a4\",\"instance\":null,\"frameId\":\"hero-mobile-390-light\"}; stamp在A kit帧=true; B ring=badge=\"alice-p · a4\""
+    },
+    {
+      "step": "P5",
+      "name": "① 单玩家 nav 彩带 = 现状样式（border-inline-start 2px solid 玩家色，无 border-image；本端在画布时该玩家是 self；彩带在行元素上）",
+      "pass": true,
+      "detail": "on=row; startW=2px color=rgb(131, 17, 212)（期望 self rgb(131, 17, 212)）; src=none"
+    },
+    {
+      "step": "P5",
+      "name": "② 多玩家 nav 彩带 = Owner 原式 border-image（竖向 linear-gradient + slice 0 0 0 1 / width 0 0 0 2px；彩带在行元素上）",
+      "pass": true,
+      "detail": "on=row; slice=0 0 0 1; width=0 0 0 2px; startW=2px; vertical=true; src=linear-gradient(rgb(131, 17, 212) 0px, rgb(131, 17, 212) 33.3333%, rgb(17, 212, 79) 33.3333%, rgb(17, 212, 79)"
+    },
+    {
+      "step": "P5",
+      "name": "③ 本端顺序法则：渐变首段 = 自己的色（self first），他人色依次排列",
+      "pass": true,
+      "detail": "self=rgb(131, 17, 212) 在 位16; m1=rgb(17, 212, 79) 位67; m2=rgb(212, 17, 147) 位121"
+    },
+    {
+      "step": "P6",
+      "name": "① 自身选中行（P1 已选 a4）：single 彩带 = self 色 2px 竖边（border-image:none）",
+      "pass": true,
+      "detail": "onRow=true; startW=2px; color=rgb(131, 17, 212)（期望 rgb(131, 17, 212)）; src=none"
+    },
+    {
+      "step": "P6",
+      "name": "② AI attention 同组件 → 选中行升级 multi（Owner 原式 border-image；self 首段色相 + AI 色相俱在，±2°）",
+      "pass": true,
+      "detail": "slice=0 0 0 1; width=0 0 0 2px; hues=[275,275,184,184]（self 期望 275 首位, AI 期望 184）; src=linear-gradient(rgb(131, 17, 212) 0px, rgb(131, 17, 212) 50%, rgb(17, 199, 212) 50%, rgb(17, 199, 212) 100%)"
+    },
+    {
+      "step": "P3",
+      "name": "B 键入单字符（不按 Enter）→ A 端 input value 实时镜像 ≤600ms（Owner 实时预算；2 轮独立基线取最小）",
+      "pass": true,
+      "detail": "353ms（采样 [356,353]；各轮 [{\"ch\":\"Z\",\"start\":\"\\\"ree-ribbon\\\"\",\"end\":\"\\\"ee-ribbonZ\\\"\",\"ms\":356},{\"ch\":\"Y\",\"start\":\"\\\"ee-ribbonZ\\\"\",\"end\":\"\\\"e-ribbonZY\\\"\",\"ms\":353}]）"
+    },
+    {
+      "step": "P4",
+      "name": "① B 聚焦 input → A 端 [data-jx-remote-caret] 2px 竖条可见、且不在 input/textarea 内容模型里（E5② 根因不复犯）",
+      "pass": true,
+      "detail": "w=2px h=13px inControl=false"
+    },
+    {
+      "step": "P4",
+      "name": "② B 移动 caret（End↔Home 两程取最小）→ A 端 caret 条位置跟随 ≤100ms（Owner caret 预算）",
+      "pass": true,
+      "detail": "53ms（采样 [53]）"
+    },
+    {
+      "step": "P4",
+      "name": "③ B 拖选 range（Shift+End）→ A 端 [data-jx-remote-selection] 高亮段渲染 + attention 帧带 selection{start,end}",
+      "pass": true,
+      "detail": "高亮=106px; 协议={\"start\":0,\"end\":16}"
+    },
+    {
+      "step": "P8",
+      "name": "① A 点击 press-loading kit 内 #p2 → attention=p2 + badge ✓ + B 端树行（点击后）multi 含远程段（真实链路全链证明）",
+      "pass": true,
+      "detail": "attention=p2 ✓; badge=\"alice-p · p2\"; B 行点击后 mode=\"multi\"（multi=self+alice 远程段）; 被动点亮=否（满负载晚渲染，信息位）; kids=1"
+    },
+    {
+      "step": "P8",
+      "name": "② B 在 popovertarget input 打字（无 Enter）→ A 端 600ms 内镜像（走查发现 A 的回归锁；2 轮取最小）",
+      "pass": true,
+      "detail": "346ms（采样 [346,351]）"
+    },
+    {
+      "step": "A2",
+      "name": "desktop kit 内点击 #a4 → attention.frameId=desktop 变体，对端 ring 落在 desktop kit 的 box 内（同 id 双 kit + 宿主诱饵定位）",
+      "pass": true,
+      "detail": "ring=(1584,1315,151x40) desktop=(1235,1153,1280x793) mobile=(25,85,390x844) → 落desktop=true 落mobile=false"
+    },
+    {
+      "step": "A4",
+      "name": "A 光标停驻且静止 → 晚加入的 C 端 3s 内渲染 A 的光标（welcome 快照，无新动作依赖）",
+      "pass": true,
+      "detail": "快照渲染到位"
+    },
+    {
+      "step": "A5",
+      "name": "远程光标为箭头形状（SVG path）+ 箭头层 mix-blend-mode:difference；名签不混合",
+      "pass": true,
+      "detail": "blend=difference; tagBlend=normal; dot残留=false"
+    },
+    {
+      "step": "A6",
+      "name": "光标名签与 ring badge 均有半透明玩家色背景（hsl 空格+斜杠语法——旧逗号混写是非法 CSS 被 Chrome 静默丢弃）",
+      "pass": true,
+      "detail": "tagBg=rgba(102, 212, 17, 0.92); badgeBg=rgba(130, 221, 60, 0.92)（badge 文字色 rgb(245, 241, 232)）"
+    },
+    {
+      "step": "A3",
+      "name": "选中 nav 行带彩带时：行内 .jx-item 的 inset 强调边抑制（boxShadow:none），彩带独占左 2px 槽位",
+      "pass": true,
+      "detail": "selected=true; ribbon=multi; shadow=none; 行左边宽=2px"
+    },
+    {
+      "step": "FIX",
+      "name": "fixture 契约保持：hero 带 raised={false} 字面量（无需 fs 回写）",
+      "pass": true,
+      "detail": "a4 行：<PressButton id=\"a4\" raised={false} variant=\"ghost\" popovertarget=\"WW\">P6-tree-ribbonZY</PressButton>"
+    },
+    {
+      "step": "PAGEERROR",
+      "name": "页面运行时零异常门禁（presence 轮回归不得被断言绿灯掩盖）",
+      "pass": true,
+      "detail": "零异常（0 条原始捕获全部属容忍名单或为空）"
+    }
+  ]
+}

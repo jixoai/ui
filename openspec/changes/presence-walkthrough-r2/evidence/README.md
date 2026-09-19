@@ -24,3 +24,9 @@ Owner 走查（2026-09-19）六项反馈的矩阵断言组（A1-A6）+ 既有 65
 5. **走查服务器共享 journal 污染矩阵**：5199 端口的走查实例与矩阵
    同写 design/.jx-collab/presence.json（D11 counter 18→8 异象）。
    法则：矩阵运行期间不得有共享 journal 的常驻服务。
+
+| matrix-71of71-p1-fixed.json | 72/72 | 同上 + PAGEERROR 硬门禁（恒记录绿行） | Codex r2w P1（parkedCursor 未初始化 → align 循环每帧对 undefined 崩溃、绿灯掩盖）修复后：ensureEntry 补 parkedCursor:null、跨画布停靠清记忆、applyBrandHueTo 空守卫（历史噪声一并清零）、解析顺序改 frameId-kit → 宿主 → 全扫（宿主诱饵断言）；矩阵新增零异常硬门禁（含 ResizeObserver/favicon 容忍名单）。569/569 电池 |
+
+## Codex 走查轮复核（2026-09-19）
+
+- `.zcode/presence/codex-review-r2w.md`：7.8/10 NEEDS-WORK。P1 阻塞 = parkedCursor 未初始化（上文已修 + 门禁）；非阻塞 = A2 宿主碰撞边界（已修+断言）、pickHue 阈值收紧（前 6 人相邻 ≥90°，已改）、TTL 直接测试（已补，9/9）、applyBrandHueTo 历史噪声（已修）。

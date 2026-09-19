@@ -10,7 +10,10 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { BRAND_ANCHOR_HUE, circularHueDistance, pickHue } from './ledger.ts';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, dirname } from 'node:path';
+import { BRAND_ANCHOR_HUE, PERSISTED_HUE_TTL_MS, PresenceLedger, circularHueDistance, pickHue } from './ledger.ts';
 
 const joinSequence = (joins: number): number[] => {
   const hues: number[] = [];
@@ -36,12 +39,15 @@ test('pickHue: the second player lands opposite, never exactly antipodal', () =>
 });
 
 test('pickHue: consecutive joiners stay dissimilar (the Owner complaint)', () => {
-  // the old 73-step law put EVERY adjacent pair 73 degrees apart; the
-  // wheel law's worst adjacent pair across 12 joins is 89 (join 8)
+  // the spec's law: the FIRST SIX identities keep adjacent joins >= 90
+  // degrees; beyond that the wheel's physics takes over (the worst pair
+  // across 12 joins is 89, at join 8) — 85 keeps that locked without
+  // over-promising
   const hues = joinSequence(12);
   for (let i = 1; i < hues.length; i += 1) {
     const d = circularHueDistance(hues[i]!, hues[i - 1]!);
-    assert.ok(d >= 85, `joiners ${i}→${i + 1} (${hues[i - 1]}→${hues[i]}) only ${d}° apart`);
+    const floor = i <= 5 ? 90 : 85; // joins 2-6 are within the first six identities
+    assert.ok(d >= floor, `joiners ${i}→${i + 1} (${hues[i - 1]}→${hues[i]}) only ${d}° apart (floor ${floor})`);
   }
 });
 
@@ -77,4 +83,27 @@ test('circularHueDistance: the wheel metric (wraps both ways, normalizes input)'
   assert.equal(circularHueDistance(90, 270), 180);
   assert.equal(circularHueDistance(-90, 270), 0); // -90 ≡ 270
   assert.equal(circularHueDistance(360 + 73, 73), 0);
+});
+
+test('PERSISTED_HUE_TTL: a fresh record constrains the next mint, a stale one does not', () => {
+  const make = (lastSeenAgo: number) => {
+    const root = mkdtempSync(join(tmpdir(), 'jx-presence-ttl-'));
+    const file = join(root, 'design', '.jx-collab', 'presence.json');
+    mkdirSync(dirname(file), { recursive: true });
+    const first = new PresenceLedger(join(root, 'design')).restoreOrCreate({ name: 'a', kind: 'human' });
+    // backdate the persisted record beyond (or within) the TTL window
+    const state = JSON.parse(readFileSync(file, 'utf8')) as { players: { lastSeen: number }[] };
+    state.players[0]!.lastSeen = Date.now() - lastSeenAgo;
+    writeFileSync(file, JSON.stringify(state));
+    const ledger = new PresenceLedger(join(root, 'design'));
+    const second = ledger.restoreOrCreate({ name: 'b', kind: 'human' });
+    return { firstHue: first.record.colorHue, secondHue: second.record.colorHue };
+  };
+  // fresh (within TTL): the second mint lands opposite the first
+  const fresh = make(60_000);
+  assert.equal(fresh.firstHue, 73);
+  assert.equal(circularHueDistance(fresh.firstHue, fresh.secondHue), 179, `fresh record constrains: ${fresh.secondHue}`);
+  // stale (beyond TTL): the record frees its hue — the next mint anchors anew
+  const stale = make(PERSISTED_HUE_TTL_MS + 60_000);
+  assert.equal(stale.secondHue, 73, 'a stale record no longer constrains the wheel');
 });
