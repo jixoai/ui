@@ -18,7 +18,7 @@ export const meta = defineComponentMeta(
       },
       "theme": {
         "kind": "string",
-        "default": "jixoai"
+        "ambient": "own"
       },
       "backend": {
         "kind": "opaque",

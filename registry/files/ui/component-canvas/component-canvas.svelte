@@ -122,6 +122,7 @@
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import { canvasStyles } from '$lib/surface/component-canvas.stylex';
+  import { tokenScope } from '$lib/tokens.stylex';
   import './component-canvas.css';
 
   /** Demo code file for the code drawer: name may carry a path. */
@@ -284,16 +285,23 @@
   // the payload's own join (the separator serialize law): plain strings
   // pass through whole; dev objects contribute their string members ($$css dropped).
   const cx = (
-    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+    // `object` (not a keyed shape): stylex's Theme products (the
+    // same-map createTheme stamp) are branded interfaces with NO
+    // index signature — their runtime truth IS the compiled styles
+    // map ({<varGroupHash>: 'cls1 cls2', $$css: true}); the joiner
+    // narrows by VALUE typeof, the parameter just admits the shape
+    ...styles: (object | undefined | string)[]
   ): string =>
     styles
       .filter(Boolean)
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
-              key !== '$$css' && typeof value === 'string' ? [value] : [],
-            ).join(' '),
+          : style === undefined
+            ? ''
+            : Object.entries(style).flatMap(([key, value]) =>
+                key !== '$$css' && typeof value === 'string' ? [value] : [],
+              ).join(' '),
       )
       .join(' ');
 
@@ -507,12 +515,23 @@ let codeOpen = $state(false);
         data-density={dDensity}
         class={cn(
           cx(canvasStyles.stage),
-          // theme sheet vocabulary, scoped to the stage subtree only: .dark
-          // flips the token set (and dark: utilities) inside the demo;
-          // .jx-light pins light tokens even under a dark docs page.
-          // text-foreground re-anchors inherit-based demo text onto the
-          // STAGE's scoped token — the scope classes redefine tokens only,
-          // so without it inherited color stays the page's (2026-09-01)
+          // cx(tokenScope): the vars-group theme class — the stage's
+          // --jx-* atoms (its color, and every demo component's ink)
+          // re-resolve against THIS stage's scope instead of :root's
+          // frozen page-theme literal (the island law, 2026-09-19:
+          // the sheet vocabulary below flips the BACKGROUND (plain
+          // var(--muted)/var(--background) channels re-resolve under
+          // .dark/.jx-light), but the --jx-* channel was frozen —
+          // the Owner caught it as 'bg flips, text color doesn't')
+          cx(tokenScope),
+          // theme sheet vocabulary, scoped to the stage subtree only:
+          // .dark flips the token set inside the demo; .jx-light pins
+          // light tokens even under a dark docs page. Both scope
+          // classes pair with the tokenScope stamp above — vocabulary
+          // AND typed mirror flip together (the 2026-09-01
+          // text-foreground re-anchor was this same law's tailwind
+          // era; the utility died with the engine, the stamp is the
+          // tailwindless form)
           theme === 'dark' ? 'dark' : 'jx-light',
           stage === 'center' && cx(canvasStyles.stageCenter),
           stage === 'start' && cx(canvasStyles.stageStart),

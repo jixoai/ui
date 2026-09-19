@@ -73,6 +73,7 @@
     type MermaidThemeMode,
   } from '$lib/mermaid-engine';
   import { mermaidStyles } from './mermaid.stylex';
+  import { MermaidDefaults } from './mermaid-defaults.svelte';
   import './mermaid.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -96,7 +97,7 @@
   let {
     source,
     name,
-    theme = 'auto',
+    theme,
     backdrop = true,
     copyable = true,
     zoomable = true,
@@ -105,6 +106,12 @@
     class: className = '',
     ...rest
   }: Props = $props();
+
+  // the family Defaults is the single read point (context-defaults
+  // round 2): theme rides its literal slot — own 'auto' (resolve
+  // against the figure's effective scope) lives in the contract,
+  // never a destructure default
+  const d = $derived(MermaidDefaults.resolve({ theme }));
 
   // rest spreads BEFORE the component's own stamps (Svelte: later
   // attributes win) — consumer data-testid/title/aria-*/handlers pass
@@ -140,7 +147,7 @@
     dataState = 'rendering';
     renderDiagram(source, {
       id: ids.next(),
-      theme,
+      theme: d.theme,
       config,
       themeRoot: root,
     })
@@ -186,7 +193,7 @@
     const viewport = viewportEl;
     const root = figureEl;
     if (!viewport || !root) return;
-    const tokens = readThemeTokens(root, theme === 'auto' ? undefined : resolveTheme(theme));
+    const tokens = readThemeTokens(root, d.theme === 'auto' ? undefined : resolveTheme(d.theme));
     if (!(backdrop && isDarkHex(tokens.background))) {
       viewport.removeAttribute('data-jx-mermaid-veil');
       viewport.style.removeProperty('--jx-mermaid-veil-ground');

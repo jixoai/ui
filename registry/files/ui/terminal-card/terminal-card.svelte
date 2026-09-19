@@ -37,6 +37,9 @@
   import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
   import { terminalCardStyles } from './terminal-card.stylex';
+  import { TerminalCardDefaults } from './terminal-card-defaults.svelte';
+  import { watchTerminalScope } from '$lib/terminal-scope.svelte';
+  import { tokenScope } from '../../tokens.stylex';
   import './terminal-card.css';
 
   interface Props {
@@ -47,38 +50,45 @@
     speed?: number;
   }
 
-  let { barTitle, command, outputs, theme = 'dark', speed = 1 }: Props = $props();
+  let { barTitle, command, outputs, theme, speed = 1 }: Props = $props();
+
+  // the family Defaults is the single read point (context-defaults
+  // round 2): theme rides its literal slot — own 'dark' (the bezel
+  // law) lives in the contract, never a destructure default
+  const d = $derived(TerminalCardDefaults.resolve({ theme }));
+
+  // scoped token class: dark (default lock) or jx-light
+  // (css-defined) — the SHARED resolution (lib/terminal-scope: one
+  // law, one implementation). Held as the OBJECT: the watch's scope
+  // is a getter — destructuring would copy the value once and kill
+  // reactivity
+  const scopeWatch = watchTerminalScope(() => d.theme);
 
   // the payload's own join (separator's serialize law): objects in
   // dev, joined strings in payloads — never a raw interpolation
   const cx = (
-    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+    // `object` (not a keyed shape): stylex's Theme products (the
+    // same-map createTheme stamp) are branded interfaces with NO
+    // index signature — their runtime truth IS the compiled styles
+    // map ({<varGroupHash>: 'cls1 cls2', $$css: true}); the joiner
+    // narrows by VALUE typeof, the parameter just admits the shape
+    ...styles: (object | undefined | string)[]
   ): string =>
     styles
       .filter(Boolean)
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
-              key !== '$$css' && typeof value === 'string' ? [value] : [],
-            ).join(' '),
+          : style === undefined
+            ? ''
+            : Object.entries(style).flatMap(([key, value]) =>
+                key !== '$$css' && typeof value === 'string' ? [value] : [],
+              ).join(' '),
       )
       .join(' ');
 
-  // scoped token class: dark (default lock) or jx-light (css-defined)
-  let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
-
-  $effect(() => {
-    if (theme !== 'system') {
-      scope = theme === 'light' ? 'light' : 'dark';
-      return;
-    }
-    const media = matchMedia('(prefers-color-scheme: dark)');
-    const apply = () => (scope = media.matches ? 'dark' : 'light');
-    apply();
-    media.addEventListener('change', apply);
-    return () => media.removeEventListener('change', apply);
-  });
+  // scoped token class: dark (default lock) or jx-light — retired
+  // into the shared watch above
 
   // Prerendered/no-JS output shows the settled terminal; hydration
   // restarts the typing story.
@@ -130,11 +140,15 @@
 <div
   data-jx-terminal
   class={cn(
-    cx(
-      terminalCardStyles.card,
-      scope === 'dark' ? terminalCardStyles.schemeDark : terminalCardStyles.schemeLight,
-    ),
-    scope === 'dark' ? 'dark' : 'jx-light',
+    cx(terminalCardStyles.card),
+    // cx(tokenScope): the vars-group theme class — the --jx-* map
+    // re-resolves against THIS card's own scope (the .dark island),
+    // not :root's frozen light literals (the bezel law the header
+    // carries since the scope-stamp round; the card joins it here)
+    cx(tokenScope),
+    scopeWatch.scope === 'dark'
+      ? `dark ${cx(terminalCardStyles.schemeDark)}`
+      : `jx-light ${cx(terminalCardStyles.schemeLight)}`,
   )}
 >
   <div class={cx(terminalCardStyles.bar)}>

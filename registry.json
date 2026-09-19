@@ -410,6 +410,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/terminal-header/terminal-header-defaults.svelte.ts",
+          "target": "@ui/terminal-header/terminal-header-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/terminal-header/index.ts",
           "target": "@ui/terminal-header/index.ts",
           "type": "registry:file"
@@ -425,6 +430,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/lib/terminal-scope.svelte.ts",
+          "target": "@lib/terminal-scope.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/tokens.stylex.ts",
           "target": "@lib/tokens.stylex.ts",
           "type": "registry:file"
@@ -433,7 +443,8 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
-        "@jixoai/navigation-menu"
+        "@jixoai/navigation-menu",
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "terminal",
@@ -689,6 +700,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/terminal-card/terminal-card-defaults.svelte.ts",
+          "target": "@ui/terminal-card/terminal-card-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/terminal-card/index.ts",
           "target": "@ui/terminal-card/index.ts",
           "type": "registry:file"
@@ -704,6 +720,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/lib/terminal-scope.svelte.ts",
+          "target": "@lib/terminal-scope.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/tokens.stylex.ts",
           "target": "@lib/tokens.stylex.ts",
           "type": "registry:file"
@@ -716,7 +737,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -1267,12 +1289,18 @@
         "@jixoai/utils",
         "@jixoai/icon",
         "@jixoai/button-group",
-        "@jixoai/press-button"
+        "@jixoai/press-button",
+        "@jixoai/defaults"
       ],
       "files": [
         {
           "path": "registry/files/ui/code-card/code-card.svelte",
           "target": "@ui/code-card/code-card.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/code-card/code-card-defaults.svelte.ts",
+          "target": "@ui/code-card/code-card-defaults.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -6388,12 +6416,18 @@
         "@jixoai/mermaid-engine",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/defaults"
       ],
       "files": [
         {
           "path": "registry/files/ui/mermaid/mermaid.svelte",
           "target": "@ui/mermaid/mermaid.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/mermaid/mermaid-defaults.svelte.ts",
+          "target": "@ui/mermaid/mermaid-defaults.svelte.ts",
           "type": "registry:file"
         },
         {

@@ -58,6 +58,7 @@
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { cn } from '$lib/utils';
+  import { CodeCardDefaults } from './code-card-defaults.svelte';
   import type { HighlightBackend } from '$lib/highlight/backend';
   import {
     AUTO_LANG,
@@ -137,7 +138,7 @@
   let {
     code,
     lang = 'ts',
-    theme = 'jixoai',
+    theme,
     backend,
     langDetector,
     filename = '',
@@ -149,6 +150,12 @@
     minHeight = '',
     class: className = '',
   }: Props = $props();
+
+  // the family Defaults is the single read point (context-defaults
+  // round 2): theme rides its open slot — own 'jixoai' (the
+  // zero-download css-variables theme) lives in the contract, never
+  // a destructure default
+  const d = $derived(CodeCardDefaults.resolve({ theme }));
 
   // backend resolution: prop → context default → stock shiki. The
   // context is captured ONCE at init (Svelte's getContext phase); its
@@ -198,7 +205,7 @@
           if (detected === null) return; // detection miss: plain + warned
           effectiveLang = detected;
         }
-        await backendNow.highlight(el, source, { lang: effectiveLang, theme });
+        await backendNow.highlight(el, source, { lang: effectiveLang, theme: d.theme });
       } catch (error: unknown) {
         // unknown lang/theme or a backend failure: keep the plain sample
         // on screen and say why in the console

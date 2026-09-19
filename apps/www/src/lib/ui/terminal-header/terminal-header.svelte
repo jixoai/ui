@@ -57,6 +57,8 @@
   import { cn } from '$lib/utils';
   import NavigationMenuIndicator from '../navigation-menu/navigation-menu-indicator.svelte';
   import { thStyles } from './terminal-header.stylex';
+  import { TerminalHeaderDefaults } from './terminal-header-defaults.svelte';
+  import { watchTerminalScope } from '$lib/terminal-scope.svelte';
   import { tokenScope } from '../../tokens.stylex';
   import './terminal-header.css';
 
@@ -96,7 +98,7 @@
     domain,
     subtitle,
     homeHref = '/',
-    theme = 'dark',
+    theme,
     logo,
     switcher,
     switcherFrame = true,
@@ -107,20 +109,17 @@
     ...rest
   }: Props = $props();
 
-  // scoped token class: dark (default lock) or jx-light (css-defined)
-  let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
+  // the family Defaults is the single read point (context-defaults
+  // round 2): theme rides its literal slot — own 'dark' (the bezel
+  // law) lives in the contract, never a destructure default
+  const d = $derived(TerminalHeaderDefaults.resolve({ theme }));
 
-  $effect(() => {
-    if (theme !== 'system') {
-      scope = theme === 'light' ? 'light' : 'dark';
-      return;
-    }
-    const media = matchMedia('(prefers-color-scheme: dark)');
-    const apply = () => (scope = media.matches ? 'dark' : 'light');
-    apply();
-    media.addEventListener('change', apply);
-    return () => media.removeEventListener('change', apply);
-  });
+  // scoped token class: dark (default lock) or jx-light (css-defined)
+  // — the SHARED resolution (lib/terminal-scope: one law, one
+  // implementation; the header and card no longer carry twin
+  // effects). Held as the OBJECT: the watch's scope is a getter —
+  // destructuring would copy the value once and kill reactivity
+  const scopeWatch = watchTerminalScope(() => d.theme);
 
   let headerEl = $state<HTMLElement | null>(null);
 
@@ -173,16 +172,23 @@
   // shipped payloads — composition goes through THIS joiner, never a
   // raw class={styles.x} interpolation
   const cx = (
-    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+    // `object` (not a keyed shape): stylex's Theme products (the
+    // same-map createTheme stamp) are branded interfaces with NO
+    // index signature — their runtime truth IS the compiled styles
+    // map ({<varGroupHash>: 'cls1 cls2', $$css: true}); the joiner
+    // narrows by VALUE typeof, the parameter just admits the shape
+    ...styles: (object | undefined | string)[]
   ): string =>
     styles
       .filter(Boolean)
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
-              key !== '$$css' && typeof value === 'string' ? [value] : [],
-            ).join(' '),
+          : style === undefined
+            ? ''
+            : Object.entries(style).flatMap(([key, value]) =>
+                key !== '$$css' && typeof value === 'string' ? [value] : [],
+              ).join(' '),
       )
       .join(' ');
 </script>
@@ -204,7 +210,7 @@
     // bezel's own .dark cascade instead of :root's frozen light
     // literals (W4-r6: the lost dark-bezel regression)
     cx(tokenScope),
-    scope === 'dark' ? `dark ${cx(thStyles.schemeDark)}` : `jx-light ${cx(thStyles.schemeLight)}`,
+    scopeWatch.scope === 'dark' ? `dark ${cx(thStyles.schemeDark)}` : `jx-light ${cx(thStyles.schemeLight)}`,
     className,
   )}
   {...rest}

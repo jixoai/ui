@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-19T09:29:37.760Z",
+  "generatedAt": "2026-09-19T10:44:05.807Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -508,8 +508,15 @@
           "source": "registry/files/ui/terminal-header/terminal-header.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
           "target": "@ui/terminal-header/terminal-header.svelte",
-          "sourceSha": "be316b28bf8b8851fd285327ea4967fbd9100e2a16aec723fbabb9ec3144a606",
-          "mirrorSha": "be316b28bf8b8851fd285327ea4967fbd9100e2a16aec723fbabb9ec3144a606"
+          "sourceSha": "e853927c5b0839239cf887e5988f0f4f7c86a553cbc12a97d5082b23234216ef",
+          "mirrorSha": "e853927c5b0839239cf887e5988f0f4f7c86a553cbc12a97d5082b23234216ef"
+        },
+        {
+          "source": "registry/files/ui/terminal-header/terminal-header-defaults.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header-defaults.svelte.ts",
+          "target": "@ui/terminal-header/terminal-header-defaults.svelte.ts",
+          "sourceSha": "5ab6397b9971912c72efcc29e9c1fefa7ab731dcc5dc7e0b727046c78b5ed474",
+          "mirrorSha": "5ab6397b9971912c72efcc29e9c1fefa7ab731dcc5dc7e0b727046c78b5ed474"
         },
         {
           "source": "registry/files/ui/terminal-header/index.ts",
@@ -531,6 +538,13 @@
           "target": "@ui/terminal-header/terminal-header.stylex.ts",
           "sourceSha": "b955584779dfb084349e26381f687fb94670cb8d36a05247cd0ae96af440b3af",
           "mirrorSha": "b955584779dfb084349e26381f687fb94670cb8d36a05247cd0ae96af440b3af"
+        },
+        {
+          "source": "registry/files/lib/terminal-scope.svelte.ts",
+          "mirror": "apps/www/src/lib/terminal-scope.svelte.ts",
+          "target": "@lib/terminal-scope.svelte.ts",
+          "sourceSha": "4d7da1c68cce585d55f3596f9e0e9046ad1101ed02db9d1d8b203f5508ea6e2b",
+          "mirrorSha": "4d7da1c68cce585d55f3596f9e0e9046ad1101ed02db9d1d8b203f5508ea6e2b"
         },
         {
           "sharedClaimOf": "press-button",
@@ -769,8 +783,15 @@
           "source": "registry/files/ui/terminal-card/terminal-card.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-card/terminal-card.svelte",
           "target": "@ui/terminal-card/terminal-card.svelte",
-          "sourceSha": "642e1d85af7861692c50311d1e9f911b59cdcf604d2b5ee08dc8c31722dbbd44",
-          "mirrorSha": "642e1d85af7861692c50311d1e9f911b59cdcf604d2b5ee08dc8c31722dbbd44"
+          "sourceSha": "b88ccfb684603f84d734d694da0dfc41d7012a762b837693f599bc2f3abcc09e",
+          "mirrorSha": "b88ccfb684603f84d734d694da0dfc41d7012a762b837693f599bc2f3abcc09e"
+        },
+        {
+          "source": "registry/files/ui/terminal-card/terminal-card-defaults.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/terminal-card/terminal-card-defaults.svelte.ts",
+          "target": "@ui/terminal-card/terminal-card-defaults.svelte.ts",
+          "sourceSha": "2a05df8b88a1bb703f0d58a6b7208bc53b11641dca40aaaf145d8603ba77468b",
+          "mirrorSha": "2a05df8b88a1bb703f0d58a6b7208bc53b11641dca40aaaf145d8603ba77468b"
         },
         {
           "source": "registry/files/ui/terminal-card/index.ts",
@@ -792,6 +813,10 @@
           "target": "@ui/terminal-card/terminal-card.stylex.ts",
           "sourceSha": "6c8cb26e9dedcbe4b93f6e644ae2ce713dfc1f565eae44f2d6bc993f4093d3f7",
           "mirrorSha": "6c8cb26e9dedcbe4b93f6e644ae2ce713dfc1f565eae44f2d6bc993f4093d3f7"
+        },
+        {
+          "sharedClaimOf": "terminal-header",
+          "source": "registry/files/lib/terminal-scope.svelte.ts"
         },
         {
           "sharedClaimOf": "press-button",
@@ -1273,8 +1298,15 @@
           "source": "registry/files/ui/code-card/code-card.svelte",
           "mirror": "apps/www/src/lib/ui/code-card/code-card.svelte",
           "target": "@ui/code-card/code-card.svelte",
-          "sourceSha": "ea1a952816c1651864f7668ff22c7487cd214a4b52b85e074dea807b61a74ac8",
-          "mirrorSha": "ea1a952816c1651864f7668ff22c7487cd214a4b52b85e074dea807b61a74ac8"
+          "sourceSha": "ceae78a2ec2ed38a09f50006562d62b9d3db5f5e9d2ecce49ade8f65c4f84246",
+          "mirrorSha": "ceae78a2ec2ed38a09f50006562d62b9d3db5f5e9d2ecce49ade8f65c4f84246"
+        },
+        {
+          "source": "registry/files/ui/code-card/code-card-defaults.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/code-card/code-card-defaults.svelte.ts",
+          "target": "@ui/code-card/code-card-defaults.svelte.ts",
+          "sourceSha": "bfb1af1ad1d7017feb04b27fa9f1892bdfc893ce6f842edc16a458a057cdadca",
+          "mirrorSha": "bfb1af1ad1d7017feb04b27fa9f1892bdfc893ce6f842edc16a458a057cdadca"
         },
         {
           "source": "registry/files/ui/code-card/index.ts",
@@ -1643,8 +1675,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
-          "sourceSha": "fe38df46306161dde8936bfe9eefc188c8b315d07ea5ea6fa1f944b8cf72fb90",
-          "mirrorSha": "fe38df46306161dde8936bfe9eefc188c8b315d07ea5ea6fa1f944b8cf72fb90"
+          "sourceSha": "bba96ffaae43a322a1e89f867c0a06eb5501cb015123ca443e3ffc69ce583ef6",
+          "mirrorSha": "bba96ffaae43a322a1e89f867c0a06eb5501cb015123ca443e3ffc69ce583ef6"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-playground.svelte",
@@ -5895,8 +5927,15 @@
           "source": "registry/files/ui/mermaid/mermaid.svelte",
           "mirror": "apps/www/src/lib/ui/mermaid/mermaid.svelte",
           "target": "@ui/mermaid/mermaid.svelte",
-          "sourceSha": "f8984ef4ba90164519935ae11ee042d179cd741890b3485d88e2e5d88dfda887",
-          "mirrorSha": "f8984ef4ba90164519935ae11ee042d179cd741890b3485d88e2e5d88dfda887"
+          "sourceSha": "813c81d5a667c249d69d42ffe30d3cbc408f9de1f0e22815003d6dc979a265aa",
+          "mirrorSha": "813c81d5a667c249d69d42ffe30d3cbc408f9de1f0e22815003d6dc979a265aa"
+        },
+        {
+          "source": "registry/files/ui/mermaid/mermaid-defaults.svelte.ts",
+          "mirror": "apps/www/src/lib/ui/mermaid/mermaid-defaults.svelte.ts",
+          "target": "@ui/mermaid/mermaid-defaults.svelte.ts",
+          "sourceSha": "1b56be5bc022a54c3adf362bd14573d65db82a78b832a937d5022b4b58b15f7f",
+          "mirrorSha": "1b56be5bc022a54c3adf362bd14573d65db82a78b832a937d5022b4b58b15f7f"
         },
         {
           "source": "registry/files/ui/mermaid/mermaid.css",
