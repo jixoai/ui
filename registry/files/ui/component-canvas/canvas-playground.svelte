@@ -85,6 +85,8 @@
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
   import { canvasStyles } from '$lib/surface/component-canvas.stylex';
+  import { stackStyles } from '$lib/ui/stack';
+  import { gridStyles } from '$lib/ui/grid';
   import type { ControlRow, PlayOutput } from './canvas-schema.svelte';
 
   interface Props {
@@ -293,7 +295,7 @@
 {/snippet}
 {#snippet chevronGlyph()}
   <span
-    class={cn('jx-canvas-chevron', cx(canvasStyles.chevron), !open ? cx(canvasStyles.chevronRight) : '')}
+    class={cn('jx-canvas-chevron', cx(stackStyles.baseInline), !open ? cx(canvasStyles.chevronRight) : '')}
     aria-hidden="true"
   >
     <Icon name="chevronDown" size={12} />
@@ -320,7 +322,7 @@
   <div
     data-jx-canvas-dock-head
     data-dragging={dragging || undefined}
-    class={cx(canvasStyles.dockHead)}
+    class={cx(stackStyles.base, stackStyles.alignStretch, stackStyles.justifyBetween, stackStyles.gap8)}
     bind:this={headEl}
     onpointerdown={onHeadPointerDown}
     onpointermove={onHeadPointerMove}
@@ -331,7 +333,7 @@
     <ButtonVariantScope variant="ghost" raised={false}>
       <!-- the chrome cluster: [grip, theme, size] — the standard row on
            EVERY canvas demo (Owner amendment 2026-09-08) -->
-      <div class={cx(canvasStyles.stretchRow)}>
+      <div class={cx(stackStyles.base, stackStyles.alignStretch)}>
         <span
           class={cx(canvasStyles.grip)}
           aria-hidden="true"
@@ -394,7 +396,7 @@
              (Owner r10: the select↔toggle boundary is a cell boundary
              like any other; the elastic breathing sits between the
              select and THIS group's seam) -->
-        <div class={cx(canvasStyles.stretchRow)}>
+        <div class={cx(stackStyles.base, stackStyles.alignStretch)}>
           <Separator orientation="vertical" aria-hidden="true" />
           <IconButton
             icon={chevronGlyph}
@@ -428,8 +430,8 @@
   <div
     class={cn(
       'jx-canvas-dock-collapse',
-      cx(canvasStyles.dockCollapse),
-      open && cx(canvasStyles.dockCollapseOpen),
+      cx(gridStyles.base, gridStyles.rowsCollapse),
+      open && cx(gridStyles.rowsOpen),
     )}
     id={bodyId}
     data-open={open || undefined}
@@ -590,7 +592,7 @@
              compact chrome scale. Page-owned onreset wins; schema mode
              falls back to schema defaults -->
         <ButtonVariantScope variant="ghost" raised={false}>
-          <div data-jx-canvas-dock-foot class={cx(canvasStyles.dockFoot)}>
+          <div data-jx-canvas-dock-foot class={cx(stackStyles.base, stackStyles.column)}>
             <!-- the rim: a Separator instance at SOLID ink (the
                  ghost's blind spot on the dock's uniform ground) -->
             <Separator variant="solid" aria-hidden="true" />

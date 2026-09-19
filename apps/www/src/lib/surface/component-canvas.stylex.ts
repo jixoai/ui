@@ -143,9 +143,14 @@ export const canvasStyles = stylex.create({
     backgroundColor: 'color-mix(in oklab, var(--muted) 42%, var(--background))',
     color: tokens['--jx-foreground'],
   },
-  stageFill: { flexWrap: 'wrap', alignItems: 'stretch', justifyContent: 'stretch' },
-  stageCenter: { flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' },
-  stageStart: { flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start' },
+  // (layout-family round 3) — this surface's FLOW layout moved to
+  // the Layout family: $lib/ui/stack + $lib/ui/grid (token-bound
+  // atoms; the two consumers compose them per-axis). The three
+  // bespoke survivors below are NOT flow boxes: demoScope/rowScope
+  // are display:contents SCOPE MARKERS (structural seams the docs
+  // lint and the print pipeline key on), rimWrapHidden is a STATE
+  // gate (display:none), and chevronDown/chevronRight are rotation
+  // states — none of these is arrangement.
   demoScope: { display: 'contents' },
 
   // ── the code bar ──
@@ -179,7 +184,6 @@ export const canvasStyles = stylex.create({
     whiteSpace: 'nowrap',
   },
   codeToggleOpen: { backgroundColor: tokens['--jx-muted'] },
-  chevron: { display: 'inline-flex' },
   chevronDown: { transform: 'rotate(180deg)' },
   chevronRight: { transform: 'rotate(-90deg)' },
   count: {
@@ -187,7 +191,6 @@ export const canvasStyles = stylex.create({
     fontFamily: tokens['--jx-font-mono'],
     fontSize: tokens['--jx-text-micro'],
   },
-  codeActions: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-12'] },
   copyUsage: {
     display: 'inline-flex',
     width: 'calc(var(--jx-unit) * 6)',
@@ -210,7 +213,6 @@ export const canvasStyles = stylex.create({
     display: 'grid',
     gridTemplateRows: '0fr',
   },
-  drawerOpen: { gridTemplateRows: '1fr' },
   drawerClip: { minHeight: 0, overflow: 'hidden' },
   codePanels: { display: 'flex', flexDirection: 'column', maxHeight: '28rem' },
   treePane: {
@@ -235,13 +237,6 @@ export const canvasStyles = stylex.create({
     boxShadow: tokens['--jx-shadow-xs'],
     color: tokens['--jx-foreground'],
   },
-  dockHead: {
-    display: 'flex',
-    alignItems: 'stretch',
-    justifyContent: 'space-between',
-    gap: tokens['--jx-space-8'],
-  },
-  stretchRow: { display: 'flex', alignItems: 'stretch' },
   grip: {
     display: 'flex',
     alignItems: 'center',
@@ -250,8 +245,6 @@ export const canvasStyles = stylex.create({
   },
   rimWrap: { flexShrink: 0 },
   rimWrapHidden: { display: 'none' },
-  dockCollapse: { display: 'grid', gridTemplateRows: '0fr' },
-  dockCollapseOpen: { gridTemplateRows: '1fr' },
   dockClip: { display: 'flex', minHeight: 0, flexDirection: 'column', overflow: 'hidden' },
   dockScroll: {
     paddingInline: tokens['--jx-space-8'],
@@ -290,7 +283,6 @@ export const canvasStyles = stylex.create({
     minWidth: 0,
     overflowWrap: 'anywhere',
   },
-  dockFoot: { display: 'flex', flexDirection: 'column' },
 
   // ── the dock's density select (bare chrome; its --jx-icon/--jx-inset
   // channel overrides + hover ink ride component-canvas.css) ──

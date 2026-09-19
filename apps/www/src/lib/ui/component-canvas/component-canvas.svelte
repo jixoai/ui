@@ -122,6 +122,8 @@
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import { canvasStyles } from '$lib/surface/component-canvas.stylex';
+  import Stack, { stackStyles } from '$lib/ui/stack';
+  import { gridStyles } from '$lib/ui/grid';
   import { tokenScope } from '$lib/tokens.stylex';
   import './component-canvas.css';
 
@@ -533,9 +535,9 @@ let codeOpen = $state(false);
           // era; the utility died with the engine, the stamp is the
           // tailwindless form)
           theme === 'dark' ? 'dark' : 'jx-light',
-          stage === 'center' && cx(canvasStyles.stageCenter),
-          stage === 'start' && cx(canvasStyles.stageStart),
-          stage === 'fill' && cx(canvasStyles.stageFill),
+          stage === 'center' && cx(stackStyles.wrap, stackStyles.alignCenter, stackStyles.justifyCenter),
+          stage === 'start' && cx(stackStyles.wrap, stackStyles.alignStart, stackStyles.justifyStart),
+          stage === 'fill' && cx(stackStyles.wrap, stackStyles.alignStretch, stackStyles.justifyStretch),
         )}
         aria-label={stageLabel ?? `${title} demo`}
       >
@@ -587,7 +589,7 @@ let codeOpen = $state(false);
       onclick={() => (codeOpen = !codeOpen)}
     >
       <span
-        class={cn('jx-canvas-chevron', cx(canvasStyles.chevron), codeOpen ? cx(canvasStyles.chevronDown) : '')}
+        class={cn('jx-canvas-chevron', cx(stackStyles.baseInline), codeOpen ? cx(canvasStyles.chevronDown) : '')}
         aria-hidden="true"
       >
         <Icon name="chevronDown" size={13} />
@@ -595,7 +597,7 @@ let codeOpen = $state(false);
       <span>Code</span>
       <span class={cx(canvasStyles.count)}>· {files.length}</span>
     </button>
-    <div data-jx-canvas-code-actions class={cx(canvasStyles.codeActions)}>
+    <Stack align="center" gap="12" data-jx-canvas-code-actions>
       {#if usageFile}
         <button
           type="button"
@@ -607,14 +609,14 @@ let codeOpen = $state(false);
           <Icon name={copiedUsage ? 'check' : 'copy'} size={12} />
         </button>
       {/if}
-    </div>
+    </Stack>
   </div>
 
   <div
     class={cn(
       'jx-canvas-code-drawer',
       cx(canvasStyles.drawer),
-      codeOpen && cx(canvasStyles.drawerOpen),
+      codeOpen && cx(gridStyles.rowsOpen),
     )}
     id={drawerId}
     role="region"

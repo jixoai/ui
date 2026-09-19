@@ -323,10 +323,6 @@
     align-items: flex-start;
   }
 
-  .x1qjc9v5 {
-    align-items: stretch;
-  }
-
   .xkh2ocl {
     align-self: stretch;
   }
@@ -435,24 +431,12 @@
     grid-template-rows: 0fr;
   }
 
-  .x1tu4anv {
-    grid-template-rows: 1fr;
-  }
-
   .xl56j7k {
     justify-content: center;
   }
 
-  .x1nhvcw1 {
-    justify-content: flex-start;
-  }
-
   .x1qughib {
     justify-content: space-between;
-  }
-
-  .x1szn6h9 {
-    justify-content: stretch;
   }
 
   .x1i21sxh {
@@ -593,4 +577,4 @@
     width: calc(var(--jx-unit) * 6);
   }
 }
-/* buildId: f6558fb12906568c70cc330f4e3cb1a3cd4765df5da5bf5a7ace526ad3b96eed · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
+/* buildId: 5aad4b01f9f2defbbd38278058b3b1d716b47c915721252c1b34ae2218f2c0af · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

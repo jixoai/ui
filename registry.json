@@ -1761,7 +1761,9 @@
         "@jixoai/density",
         "@jixoai/defaults",
         "@jixoai/separator",
-        "@jixoai/native-select"
+        "@jixoai/native-select",
+        "@jixoai/stack",
+        "@jixoai/grid"
       ],
       "files": [
         {
@@ -2544,6 +2546,82 @@
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "stack",
+      "type": "registry:ui",
+      "title": "Stack",
+      "description": "The Layout family's FLOW primitive: one-dimensional arrangement (row/column) over the site's typed space ladder — every gap is a --jx-space-N rung (token-bound stylex atoms, 16 rungs 2..80), the axis vocabulary is the closed CSS set (align start/center/end/baseline/stretch; justify start/center/end/between/stretch). A Stack paints NOTHING else — layout only. Props are structural (never-ambient; no Defaults contract — outside the context gate's paint vocabulary by classification).",
+      "docs": "Props: direction? (row default | column), gap? ('2'|'4'|'6'|'8'|'10'|'12'|'14'|'16'|'18'|'20'|'24'|'28'|'32'|'40'|'48'|'80' — the sheet's space ladder), align?, justify?, wrap?, inline?. Omitted props add nothing (omission transparency); rest spreads before the component's own stamp (replace-not-merge). The atom table ships with the family — surface modules compose per-axis through cx() (the component-canvas round-3 precedent).",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/stack.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/stack/stack.svelte",
+          "target": "@ui/stack/stack.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/stack/index.ts",
+          "target": "@ui/stack/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/stack/stack.stylex.ts",
+          "target": "@ui/stack/stack.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "grid",
+      "type": "registry:ui",
+      "title": "Grid",
+      "description": "The Layout family's GRID primitive: two-dimensional track arrangement over the typed space ladder. Numeric cols compile to the blowout-proof repeat(N, minmax(0, 1fr)) atom (the grid-law vocabulary); the rows lane carries the DISCLOSURE vocabulary (collapse = 0fr, open = 1fr — the 0fr-to-1fr collapse every drawer rides; grid-template-rows animates, height:auto never does). Bespoke track forms stay in surface modules — an open string domain cannot be pre-atomized.",
+      "docs": "Props: cols? (1..12 — equal tracks, minmax(0,1fr) form), rows? ('collapse' | 'open'), gap? (the space ladder rungs). Structural props, never-ambient (the stack twin's classification).",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/grid.html"
+      },
+      "registryDependencies": [
+        "@jixoai/utils",
+        "@jixoai/jixoai-theme"
+      ],
+      "files": [
+        {
+          "path": "registry/files/ui/grid/grid.svelte",
+          "target": "@ui/grid/grid.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/grid/index.ts",
+          "target": "@ui/grid/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/grid/grid.stylex.ts",
+          "target": "@ui/grid/grid.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/tokens.stylex.ts",
+          "target": "@lib/tokens.stylex.ts",
+          "type": "registry:file"
+        }
       ]
     },
     {

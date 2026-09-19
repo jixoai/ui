@@ -155,6 +155,8 @@
     "apps/www/src/lib/surface/blueprints-a.stylex.ts",
     "apps/www/src/lib/surface/blueprints-b.stylex.ts",
     "apps/www/src/lib/surface/site-chrome.stylex.ts",
-    "apps/www/src/lib/surface/routes.stylex.ts"
+    "apps/www/src/lib/surface/routes.stylex.ts",
+    "registry/files/ui/stack/stack.stylex.ts",
+    "registry/files/ui/grid/grid.stylex.ts"
   ]
 }

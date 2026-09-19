@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-19T10:44:05.807Z",
+  "generatedAt": "2026-09-19T11:19:46.716Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -48,6 +48,8 @@
     "tags-input": "registry/files/ui/tags-input/tags-input.svelte",
     "badge": "registry/files/ui/badge/badge.svelte",
     "separator": "registry/files/ui/separator/separator.svelte",
+    "stack": "registry/files/ui/stack/stack.svelte",
+    "grid": "registry/files/ui/grid/grid.svelte",
     "skeleton": "registry/files/ui/skeleton/skeleton.svelte",
     "avatar": "registry/files/ui/avatar/avatar.svelte",
     "alert": "registry/files/ui/alert/alert.svelte",
@@ -1675,15 +1677,15 @@
           "source": "registry/files/ui/component-canvas/component-canvas.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
-          "sourceSha": "bba96ffaae43a322a1e89f867c0a06eb5501cb015123ca443e3ffc69ce583ef6",
-          "mirrorSha": "bba96ffaae43a322a1e89f867c0a06eb5501cb015123ca443e3ffc69ce583ef6"
+          "sourceSha": "03b67c62037ddbc97f661fbc9140546db3f1ffb48bd1b065d78e31077b61ad87",
+          "mirrorSha": "03b67c62037ddbc97f661fbc9140546db3f1ffb48bd1b065d78e31077b61ad87"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-playground.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/canvas-playground.svelte",
           "target": "@ui/component-canvas/canvas-playground.svelte",
-          "sourceSha": "a1533b82ab94fa4b7e740bc87be77a8a3263bf6dc0bb4a132c252099cfcff2ba",
-          "mirrorSha": "a1533b82ab94fa4b7e740bc87be77a8a3263bf6dc0bb4a132c252099cfcff2ba"
+          "sourceSha": "26570041089c9389fbe4f0fa3da46c12e046adc2f9760c0563959f52bf23302a",
+          "mirrorSha": "26570041089c9389fbe4f0fa3da46c12e046adc2f9760c0563959f52bf23302a"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-schema.svelte.ts",
@@ -1717,8 +1719,8 @@
           "source": "registry/files/surface/component-canvas.stylex.ts",
           "mirror": "apps/www/src/lib/surface/component-canvas.stylex.ts",
           "target": "@lib/surface/component-canvas.stylex.ts",
-          "sourceSha": "e30a813b99f07158d7308dfbfd573c2e5d50d3d5ac3691247e01d86017fdeef9",
-          "mirrorSha": "e30a813b99f07158d7308dfbfd573c2e5d50d3d5ac3691247e01d86017fdeef9"
+          "sourceSha": "211595073340928f8f76780c1ee54e223d0457e3591d6e3ea8a41475a172fe1e",
+          "mirrorSha": "211595073340928f8f76780c1ee54e223d0457e3591d6e3ea8a41475a172fe1e"
         },
         {
           "sharedClaimOf": "press-button",
@@ -2414,6 +2416,70 @@
           "target": "@ui/separator/separator-defaults.svelte.ts",
           "sourceSha": "e1edc2f01ecf025856217d6acd1429d270247ea7c9b11e31cb040736ebe6ca99",
           "mirrorSha": "e1edc2f01ecf025856217d6acd1429d270247ea7c9b11e31cb040736ebe6ca99"
+        },
+        {
+          "sharedClaimOf": "press-button",
+          "source": "registry/files/tokens.stylex.ts"
+        }
+      ]
+    },
+    {
+      "itemName": "stack",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/stack/stack.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/stack/stack.svelte",
+          "mirror": "apps/www/src/lib/ui/stack/stack.svelte",
+          "target": "@ui/stack/stack.svelte",
+          "sourceSha": "e508c907e8217f61c04705f4944c874ac5b017b8fd911a60aabf615314a191d4",
+          "mirrorSha": "e508c907e8217f61c04705f4944c874ac5b017b8fd911a60aabf615314a191d4"
+        },
+        {
+          "source": "registry/files/ui/stack/index.ts",
+          "mirror": "apps/www/src/lib/ui/stack/index.ts",
+          "target": "@ui/stack/index.ts",
+          "sourceSha": "216d7cb139d7438bde60ffa087a4921adbcc9cce40e9edb27d9d6e1054ea1069",
+          "mirrorSha": "216d7cb139d7438bde60ffa087a4921adbcc9cce40e9edb27d9d6e1054ea1069"
+        },
+        {
+          "source": "registry/files/ui/stack/stack.stylex.ts",
+          "mirror": "apps/www/src/lib/ui/stack/stack.stylex.ts",
+          "target": "@ui/stack/stack.stylex.ts",
+          "sourceSha": "d39fc61e1ee1abb350b2ba745612881d6dcf433b07113ff621298829f9b6e820",
+          "mirrorSha": "d39fc61e1ee1abb350b2ba745612881d6dcf433b07113ff621298829f9b6e820"
+        },
+        {
+          "sharedClaimOf": "press-button",
+          "source": "registry/files/tokens.stylex.ts"
+        }
+      ]
+    },
+    {
+      "itemName": "grid",
+      "type": "registry:ui",
+      "canonicalMain": "registry/files/ui/grid/grid.svelte",
+      "files": [
+        {
+          "source": "registry/files/ui/grid/grid.svelte",
+          "mirror": "apps/www/src/lib/ui/grid/grid.svelte",
+          "target": "@ui/grid/grid.svelte",
+          "sourceSha": "bee0f047694a6d65f556607392e1962915d0e43855970cc5ac874829aa2aa502",
+          "mirrorSha": "bee0f047694a6d65f556607392e1962915d0e43855970cc5ac874829aa2aa502"
+        },
+        {
+          "source": "registry/files/ui/grid/index.ts",
+          "mirror": "apps/www/src/lib/ui/grid/index.ts",
+          "target": "@ui/grid/index.ts",
+          "sourceSha": "afa0a516f99c63f7b24d0fa18b910afde6de1d3fea814ff74c7dad48602dd540",
+          "mirrorSha": "afa0a516f99c63f7b24d0fa18b910afde6de1d3fea814ff74c7dad48602dd540"
+        },
+        {
+          "source": "registry/files/ui/grid/grid.stylex.ts",
+          "mirror": "apps/www/src/lib/ui/grid/grid.stylex.ts",
+          "target": "@ui/grid/grid.stylex.ts",
+          "sourceSha": "9568a6c163724c56291a69ea2e67b7e209a72fd2b477e586d46965d61c292bb8",
+          "mirrorSha": "9568a6c163724c56291a69ea2e67b7e209a72fd2b477e586d46965d61c292bb8"
         },
         {
           "sharedClaimOf": "press-button",
