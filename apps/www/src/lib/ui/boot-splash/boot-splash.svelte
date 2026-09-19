@@ -169,9 +169,13 @@
       justify-content: center;
       gap: 1rem;
       /* the grounds are HARDCODED pairs — the token sheet may not
-         have arrived yet; both schemes carry their own ink */
+         have arrived yet; both schemes carry their own ink. The mark
+         stroke follows (2026-09-20): a logo's outline must read on
+         EITHER ground, so the layer exposes the matching stroke var
+         (light grounds → dark stroke, dark grounds → white) */
       background: oklch(1 0 0);
       color: oklch(0.2 0 0);
+      --jx-boot-splash-mark: oklch(0.2 0 0 / 0.85);
       /* the mask is VISUAL-ONLY: it never eats input — a fast click
          during the boot window passes through to the (unstyled but
          functional) page beneath (the km gate's dock-flip click was
@@ -185,7 +189,22 @@
       .jx-boot-splash-layer {
         background: oklch(0.145 0 0);
         color: oklch(0.9551 0 0);
+        --jx-boot-splash-mark: oklch(1 0 0 / 0.85);
       }
+    }
+    /* the site-class bridge (2026-09-20): a host that drives its theme
+       by class (html.dark) syncs the mask WITHOUT waiting for any
+       stylesheet — this rule rides the same inline head block and its
+       class specificity out-ranks the media query. Class-THEMED hosts
+       under a cross-wise OS scheme sync through .dark; the one edge
+       (explicitly-light page + dark OS) is the host's one-liner (a
+       matching light rule on its own root class) — the component
+       cannot know every theme vocabulary */
+    .dark .jx-boot-splash-layer,
+    :root.dark .jx-boot-splash-layer {
+      background: oklch(0.145 0 0);
+      color: oklch(0.9551 0 0);
+      --jx-boot-splash-mark: oklch(1 0 0 / 0.85);
     }
     .jx-boot-splash-title { font-size: 1rem; letter-spacing: 0.08em; }
     .jx-boot-splash-subtitle { font-size: 0.8125rem; opacity: 0.72; letter-spacing: 0.04em; }
@@ -220,12 +239,14 @@
   >
     {#if logo}
       {@render logo()}
-    {/if}
-    {#if loading}
+    {:else if loading}
       {@render loading()}
     {:else}
       <!-- the default: a hardcoded SMIL arc spinner — animateTransform
-           rides the SVG itself, zero css dependency by construction -->
+           rides the SVG itself, zero css dependency by construction.
+           A LOGO takes the lane (2026-09-20): the brand mark IS the
+           liveness signal — a spinner under it reads as duplication;
+           pass the loading snippet to force it back -->
       <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
         <circle cx="14" cy="14" r="10" fill="none" stroke="currentColor" stroke-opacity="0.2" stroke-width="2.5"></circle>
         <path d="M 14 4 A 10 10 0 0 1 24 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">

@@ -689,13 +689,51 @@
   {#snippet splash()}
     <!-- the FOUC mask (Owner design, 2026-09-19): styles ride the HTML
          itself (inline + the head-carried block), so this paints before
-         any async stylesheet and dismisses on fonts.ready (4s cap) -->
+         any async stylesheet and dismisses on fonts.ready (4s cap).
+         The LOGO slot (Owner ask, 2026-09-20): the site's rainbow
+         swatch fan, the same six squares the terminal header carries
+         (centers stride 7, rotational symmetry, bell sizes) — rendered
+         ZERO-CSS-DEPENDENT for the splash law: attributes inline, the
+         breath is SMIL (animate opacity), never the header's
+         jx-logo-breath class (that sheet may not have arrived yet) -->
     <BootSplash
       title="jixoai-ui"
       subtitle="the terminal design language"
       description="loading the style sheet…"
       exit="blur-out"
-    />
+    >
+      {#snippet logo()}
+        <svg viewBox="0 0 48 48" width="64" height="64" aria-hidden="true">
+          {#each [
+              { hue: 356, size: 11, center: 6.5 },
+              { hue: 56, size: 14.5, center: 13.5 },
+              { hue: 116, size: 18, center: 20.5 },
+              { hue: 176, size: 18, center: 27.5 },
+              { hue: 236, size: 14.5, center: 34.5 },
+              { hue: 296, size: 11, center: 41.5 },
+            ] as swatch, i (swatch.hue)}
+            {@const pos = swatch.center - swatch.size / 2}
+            <rect
+              x={pos}
+              y={pos}
+              width={swatch.size}
+              height={swatch.size}
+              fill="oklch(0.7044 0.1872 {swatch.hue})"
+              stroke="var(--jx-boot-splash-mark, oklch(1 0 0 / 0.85))"
+              stroke-width="1"
+            >
+              <animate
+                attributeName="opacity"
+                values="1;0.55;1"
+                dur="3.6s"
+                begin={i * -600 + 'ms'}
+                repeatCount="indefinite"
+              />
+            </rect>
+          {/each}
+        </svg>
+      {/snippet}
+    </BootSplash>
   {/snippet}
   {#snippet chrome()}
     <!-- static chrome (SSR-stable): the catalog tree + the page toc —
