@@ -416,7 +416,11 @@ check(
 // header snippet; vision r4's stranded "→ the layer, assembled").
 const paperProjection = await page.evaluate(() => {
   const out = document.querySelector('[data-print-output]');
-  const cards = [...out.querySelectorAll('section.bg-card')];
+  // section cards: the tailwindless DOM (W1, 2026-09-17) stamps
+  // data-jx-section — the bg-card utility class died with the engine;
+  // the census keys the STAMP (the component's own contract, and
+  // kernel-print.css §6 keys the same)
+  const cards = [...out.querySelectorAll('section[data-jx-section]')];
   // purely typographic (2026-09-03): sides always gone; top may be a
   // continuation dash; the section's own end hairline is RETIRED —
   // bottom reads none, or a cut dash on a split half
@@ -435,11 +439,11 @@ const paperProjection = await page.evaluate(() => {
   // row-ruler pattern): the clone carries the real element, every
   // stamped header zone must sit flush above one (width checks, not
   // style: tw preflight defaults border-style to solid at width 0)
-  const headers = [...out.querySelectorAll("section.bg-card > div[data-break-after='avoid']")];
+  const headers = [...out.querySelectorAll("section[data-jx-section] > div[data-break-after='avoid']")];
   const headersBorderless = headers.filter(
     (h) => getComputedStyle(h).borderBottomWidth === '0px',
   ).length;
-  const seps = [...out.querySelectorAll('section.bg-card > [data-jx-section-sep]')];
+  const seps = [...out.querySelectorAll('section[data-jx-section] > [data-jx-section-sep]')];
   const separatorTracks = seps.filter((s) => {
     const cs = getComputedStyle(s);
     return cs.display !== 'none' && cs.height === '1px' && /contrast/.test(cs.backdropFilter);
@@ -486,14 +490,14 @@ const paperProjection = await page.evaluate(() => {
     return { total: els.length, kept: els.filter((el) => el.getAttribute(attr) === 'avoid').length };
   };
   const h2 = stamped('.pagedjs_page h2', 'data-break-after');
-  const cardHead = stamped('.pagedjs_page section.bg-card > div:first-child', 'data-break-after');
+  const cardHead = stamped('.pagedjs_page section[data-jx-section] > div:first-child', 'data-break-after');
   const codeHead = stamped('.pagedjs_page .jx-code-card > figcaption', 'data-break-after');
   const codeFoot = stamped('.pagedjs_page [data-jx-code-card-foot]', 'data-break-before');
   // pagedjs's chunking REBUILDS split sections — a continuation half's
   // first child is body content that never saw the parse-time stamp;
   // the stamped count must equal the SOURCE's real header count
   const source = document.querySelector('[data-print-source]');
-  const cardHeadSource = source ? source.querySelectorAll('section.bg-card > div:first-child').length : 0;
+  const cardHeadSource = source ? source.querySelectorAll('section[data-jx-section] > div:first-child').length : 0;
   // GEOMETRY: at a cut edge exactly one line may draw — every same-y
   // (±3px) x-overlapping pair where BOTH sides are systemic (a split
   // marker or the card hairline) is a doubled cut; a dash adjacent to
@@ -511,7 +515,7 @@ const paperProjection = await page.evaluate(() => {
       lines.push({
         page: pageNo(el), y: Math.round(side === 'top' ? r.top : r.bottom),
         x0: Math.round(r.left), x1: Math.round(r.right), style: st,
-        systemic: el.hasAttribute('data-split-to') || el.hasAttribute('data-split-from') || el.matches('section.bg-card'),
+        systemic: el.hasAttribute('data-split-to') || el.hasAttribute('data-split-from') || el.matches('section[data-jx-section]'),
         el: el.tagName.toLowerCase(),
       });
     }

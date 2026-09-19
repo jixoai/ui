@@ -27,10 +27,27 @@ import { describe, expect, it } from 'vitest';
 import type { Snippet } from 'svelte';
 import Sheet from '$lib/ui/sheet/sheet.svelte';
 import SystemDialogActions from '$lib/ui/system-dialog/system-dialog-actions.svelte';
+import { sysdlgStyles } from '$lib/ui/system-dialog/system-dialog.stylex';
+import { canvasStyles } from '$lib/surface/component-canvas.stylex';
 import CanvasSchemaHost from './fixtures/canvas-schema-host.svelte';
 import SheetFooterFace from './fixtures/sheet-footer-face.svelte';
 
 const here = import.meta.dirname;
+
+// tailwindless Wave 1 (2026-09-17): the canvas chrome's utility payload
+// rides stylex atoms now — asserted through the same cx join the
+// component rides (the progressive-blur.spec precedent)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 /** the empty-snippet children every slot-bearing component accepts */
 const children = (() => {}) as unknown as Snippet;
@@ -68,8 +85,9 @@ describe('system-dialog — the anchored strip is carved, not padded', () => {
   it('the strip splits evenly under a REAL Separator rim (round 3: the ink law + 均分)', () => {
     const { container } = render(SystemDialogActions, { props: { children } });
     const strip = container.querySelector('[data-jx-sysdlg-actions]')!;
-    expect(strip.className).toContain('-mx-5');
-    expect(strip.className).toContain('-mb-[1.125rem]');
+    // W1b: the bleed arithmetic rides the actions atom (the cx join the
+    // component rides) — the -mx/-mb utilities retired with the ladder
+    expect(strip.className).toContain(cx(sysdlgStyles.actions));
     expect(strip.className).not.toContain('border-t'); // the rim is a Separator now
     // THE RIM: a real Separator instance — the contrast-ghost ink
     // engine Dialog's riding separators paint (a border-t token line
@@ -84,7 +102,7 @@ describe('system-dialog — the anchored strip is carved, not padded', () => {
     const group = strip.querySelector(':scope > [data-jx-btngroup]')!;
     expect(group).not.toBeNull();
     expect(group.getAttribute('aria-label')).toBe('Actions');
-    expect(group.className).toContain('w-full');
+    expect(group.className).toContain(cx(sysdlgStyles.actionsFill));
     // THE SPLIT IS A FLEX LAW (Owner r4): grid fr cannot express "equal
     // halves that fill, long labels floor wider" — an fr's unit comes
     // from the leftover AFTER intrinsic bases, so max-content-floored
@@ -149,7 +167,7 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     // shrink-0 (no flex squeeze)
     const rimHost = collapse.previousElementSibling!;
     expect(rimHost.tagName).toBe('DIV');
-    expect(rimHost.className).toContain('shrink-0');
+    expect(rimHost.className).toContain(cx(canvasStyles.rimWrap));
     const rim = rimHost.querySelector('hr');
     expect(rim).not.toBeNull();
     expect(rim.getAttribute('aria-hidden')).toBe('true');
@@ -175,7 +193,7 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     expect(canvasCss).toMatch(/\[data-jx-canvas-dock-scroll\][^}]*flex: 1 1 auto/s);
     expect(canvasCss).toMatch(/\[data-jx-canvas-dock-scroll\][^}]*min-block-size: 0/s);
     const clip = render(CanvasSchemaHost).container.querySelector('[data-jx-canvas-dock-clip]')!;
-    expect(clip.className).toContain('flex-col');
+    expect(clip.className).toContain(cx(canvasStyles.dockClip));
   });
 
   it('the borderless-chrome law: no framed controls in the dock sheets (round 3, S1)', () => {
@@ -203,7 +221,7 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     const { container } = render(CanvasSchemaHost);
     const head = container.querySelector('[data-jx-canvas-dock-head]')!;
     // the band stretches its controls — no py padding floating them
-    expect(head.className).toContain('items-stretch');
+    expect(head.className).toContain(cx(canvasStyles.dockHead));
     // the hand-drawn chrome retired into zone IconButtons: the stamps
     // ride the rest lane onto real button roots, aria-pressed and
     // aria-expanded/controls survive the move
@@ -215,13 +233,20 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     expect(toggle.getAttribute('aria-controls')).toBeTruthy();
     // the one non-press cell: a borderless select stretched to the band
     const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-density-select]')!;
-    expect(select.className).toContain('self-stretch');
+    expect(select.className).toContain(cx(canvasStyles.dockDensity));
     // the border/bg utilities RETIRED (r13): bare chrome paints the
     // frame away itself, and the lane drivers scope to the chrome
     // rhythm (r14) — consumers never touch the lane's internals
     expect(select.getAttribute('data-chrome')).toBe('bare');
-    expect(select.className).toContain('[--jx-icon:0.875rem]');
-    expect(select.className).toContain('[--jx-inset:0.5rem]');
+    // W1: the --jx-icon/--jx-inset kernel channels cannot ride atoms —
+    // they live in component-canvas.css keyed on the density lane
+    const canvasCss = readFileSync(
+      resolve(here, '../src/lib/ui/component-canvas/component-canvas.css'),
+      'utf8',
+    );
+    expect(canvasCss).toMatch(
+      /:where\(\.jx-canvas-dock-density\)\s*\{[^}]*--jx-icon:\s*0\.875rem;[^}]*--jx-inset:\s*0\.5rem;/s,
+    );
     // THE TOOLBAR SEAMS (Owner r7 — the ask all along): vertical solid
     // Separators between the chrome cells (grip|theme|select), the
     // band's own height, the same ink as the rims

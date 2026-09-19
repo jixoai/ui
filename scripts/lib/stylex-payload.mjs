@@ -105,14 +105,33 @@ export function deriveItemSet(root) {
   const registryStylexFiles = new Set();
   const itemSet = new Map();
 
+  // DATA MODULES (tailwindless W4-r6): a `.stylex.ts` making no stylex.*
+  // calls is a plain token MAP — it delivers as SOURCE (data, zero
+  // imports), never through the compile pipeline, exactly like every
+  // other .ts in the payloads. (The lane's first customer WAS
+  // tokens.stylex.ts as a bare map; since the scope-stamp round the
+  // tokens module carries real defineVars/createTheme calls and rides
+  // the COMPILED lane — the isData test stays as the guard for any
+  // future pure-map module, line-anchored so prose never trips it.)
+  const isDataModule = (abs) => {
+    const code = readFileSync(abs, 'utf8');
+    // LINE-ANCHORED (prose-proof): doc comments naming the engine never
+    // make a module a kernel module — an import line or a call does
+    const hasImport = /^\s*import\b[^\n]*@stylexjs\/stylex/m.test(code);
+    const hasCall = /stylex\.(create|defineVars|vars|include|createTheme)\s*\(/.test(code);
+    return !hasImport && !hasCall;
+  };
+
   for (const item of items) {
     const sources = (item.files ?? [])
       .map((f) => f.path)
       .filter((p) => p.endsWith('.stylex.ts'))
       .map((p) => resolve(root, p));
     if (sources.length === 0) continue;
-    sources.forEach((s) => registryStylexFiles.add(s));
-    itemSet.set(item.name, { kind: 'registry', sources });
+    const liveSources = sources.filter((abs) => !isDataModule(abs));
+    if (liveSources.length === 0) continue; // a pure data item rides as source
+    liveSources.forEach((s) => registryStylexFiles.add(s));
+    itemSet.set(item.name, { kind: 'registry', sources: liveSources });
   }
 
   const ledgerPath = join(root, 'research/migration-ledger.json');
@@ -128,6 +147,7 @@ export function deriveItemSet(root) {
     if (!file.endsWith('.stylex.ts')) continue; // css sheets belong to the authoring gate, not the compiled corpus
     const abs = resolve(root, file);
     if (registryStylexFiles.has(abs)) continue; // owned by a registry item above (e.g. tokens.stylex.ts)
+    if (isDataModule(abs)) continue; // data maps ride as source, never compiled
     // SITE-SURFACE boundary (tailwindless-site P0, 2026-09-17): apps/www/
     // src/lib/surface/** modules are www-internal atom tables — authored
     // under the transform root, listed in the ledger for the AUTHORING
@@ -267,9 +287,17 @@ export function serializeTable(name, table) {
     return `export const ${name} = Object.freeze({\n${entries.join(',\n')},\n});`;
   }
   const atoms = Object.entries(table).map(([atom, decls]) => {
-    const classes = Object.entries(decls)
-      .filter(([k]) => k !== '$$css')
-      .map(([, v]) => v);
+    // compiled style tables come in two shapes: declaration maps
+    // ({ltr: 'x1 x2', $$css: true}) and — the same-map createTheme
+    // scope stamp (W4-r6) — a FLAT class string riding the var-group
+    // key ({xbpgcew: 'xr8vvpl xbpgcew', $$css: true}). Object.entries
+    // on the flat string would enumerate CHARACTERS (the per-char
+    // garbage first caught in the published tokens artifact).
+    const classes = typeof decls === 'string'
+      ? [decls]
+      : Object.entries(decls)
+          .filter(([k]) => k !== '$$css')
+          .map(([, v]) => v);
     return `  ${JSON.stringify(atom)}: ${JSON.stringify(classes.join(' '))}`;
   });
   return `export const ${name} = Object.freeze({\n${atoms.join(',\n')},\n});`;

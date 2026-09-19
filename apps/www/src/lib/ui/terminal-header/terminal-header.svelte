@@ -57,6 +57,7 @@
   import { cn } from '$lib/utils';
   import NavigationMenuIndicator from '../navigation-menu/navigation-menu-indicator.svelte';
   import { thStyles } from './terminal-header.stylex';
+  import { tokenScope } from '../../tokens.stylex';
   import './terminal-header.css';
 
   interface Props extends HTMLAttributes<HTMLElement> {
@@ -195,6 +196,14 @@
   class={cn(
     'jx-nav',
     cx(thStyles.bezel),
+    // cx(tokenScope): the same-map createTheme's theme class — in the
+    // compile lane it lands as a styles OBJECT ({xbpgcew: 'xr8… xb…'}),
+    // so it goes through THE joiner, never a raw .theme read (that's
+    // the runtime-injection lane's shape). The class RE-DECLARES every
+    // --jx-* member on THIS bezel, so the map re-resolves against the
+    // bezel's own .dark cascade instead of :root's frozen light
+    // literals (W4-r6: the lost dark-bezel regression)
+    cx(tokenScope),
     scope === 'dark' ? `dark ${cx(thStyles.schemeDark)}` : `jx-light ${cx(thStyles.schemeLight)}`,
     className,
   )}

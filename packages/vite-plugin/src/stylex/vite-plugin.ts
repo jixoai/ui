@@ -120,6 +120,12 @@ export interface StylexEngineHooks {
 // not exported through the package exports map; the EXACT pin makes a
 // local literal safe, and dev wiring drift fails loudly at sight)
 const DEV_CSS_PATH = '/virtual:stylex.css';
+/** the importable dev-css module id (the app graph wires it — the
+ *  virtual:jixoai-icons.css precedent). A JS fetcher, NOT a frozen css
+ *  module: the collected css fills AS the kernel modules transform, so
+ *  a load()-time snapshot races the graph — the fetcher always reads
+ *  the live middleware and re-pulls on ws update events. */
+const DEV_CSS_MODULE_ID = 'virtual:jixoai-stylex-dev';
 
 const CSS_ENTRY_TRAP_WARNING =
   '[jixoai-stylex] the build produced stylex CSS but NO css asset exists to ' +
@@ -255,9 +261,23 @@ export function createStylexEngine(
   // The layer config rides the F9 law (layer-law.ts): tiers nest under
   // `components` + before/after anchor the engine's own statement —
   // keep in lockstep with scripts/lib/stylex-payload.mjs's pins.
+  //
+  // DEV RUNS THE BUILD LANE (tailwindless W4-r6, 2026-09-19): the old
+  // serve pins (dev:true + runtimeInjection:true) rely on the stylex
+  // RUNTIME injecting rules as stylex(...)/props() calls execute — but
+  // the canonical cx joiner reads class STRINGS off the created object
+  // and never calls the runtime API, so in serve the client injected
+  // READABLE-named rules while SSR emitted HASHED classnames (the
+  // compile lane) — hydration kept the SSR names and every atom rule
+  // went dead in dev (the bezel lost its dark ground; 885 readable
+  // rules in the data-stylex tag matched nothing). Compile-time
+  // collection (dev:false + runtimeInjection:false, the payload
+  // compiler's exact pins) keeps SSR/client/built on ONE naming lane —
+  // hashed classes everywhere, rules in the collected css the dev
+  // middleware serves at DEV_CSS_PATH.
   const engine = stylexVite({
-    dev: ctx.command === 'serve',
-    runtimeInjection: ctx.command === 'serve',
+    dev: false,
+    runtimeInjection: false,
     debug: true,
     propertyValidationMode: 'throw',
     useCSSLayers: {
@@ -341,10 +361,51 @@ export function createStylexEngine(
     },
 
     resolveId(id) {
+      // THE DEV CSS MODULE (W4-r6): the app imports this id (the same
+      // wiring pattern as virtual:jixoai-icons.css) so the compiled atom
+      // css reaches SvelteKit's dev shell — which serves html from its
+      // own middleware, where html injection and the upstream runtime
+      // lane both cannot
+      if (id === DEV_CSS_MODULE_ID) return DEV_CSS_MODULE_ID;
       return engine.resolveId?.(id) ?? null;
     },
 
     load(id) {
+      if (id === DEV_CSS_MODULE_ID) {
+        // in BUILD the payload rides generateBundle's bake (exactly-one
+        // statement law) — the module is a no-op, never a second lane
+        if (ctx.command !== 'serve') return 'export {}; /* stylex: baked by generateBundle */';
+        // the fetcher (upstream's DEV_RUNTIME pattern): pull the LIVE
+        // middleware css into a style tag; re-pull on the engine's
+        // stylex:css-update ws event and after every HMR update. SSR
+        // (no document) is a no-op — the css is a client concern.
+        return `
+if (typeof document === 'undefined') {
+  // ssr: the dev css is a client concern
+} else {
+  const STYLE_ID = '__jixoai_stylex_dev__';
+  const ensure = () => {
+    let el = document.getElementById(STYLE_ID);
+    if (!el) { el = document.createElement('style'); el.id = STYLE_ID; document.head.appendChild(el); }
+    return el;
+  };
+  let last = '';
+  const update = async () => {
+    try {
+      const r = await fetch('${DEV_CSS_PATH}?t=' + Date.now(), { cache: 'no-store' });
+      const css = await r.text();
+      if (css !== last) { ensure().textContent = css; last = css; }
+    } catch {}
+  };
+  void update();
+  if (import.meta.hot) {
+    import.meta.hot.on('stylex:css-update', update);
+    import.meta.hot.on('vite:afterUpdate', () => setTimeout(update, 200));
+  }
+}
+export {};
+`;
+      }
       return engine.load?.(id) ?? null;
     },
 
@@ -361,26 +422,30 @@ export function createStylexEngine(
     },
 
     handleHotUpdate(ctx_) {
+      // a kernel module changed → the collected css changed: invalidate
+      // the dev css module so the next graph run re-loads it
+      const mod = ctx_.server?.moduleGraph?.getModuleById?.(DEV_CSS_MODULE_ID);
+      if (mod) ctx_.server.moduleGraph.invalidateModule(mod);
       engine.handleHotUpdate?.(ctx_);
     },
 
       configureServer(server) {
-      // the F9 statement rides the DEV virtual css too — dev layer
-      // order should read the same law as prod (registered BEFORE the
-      // engine's own middleware so THIS handler answers DEV_CSS_PATH)
-      server.middlewares.use((req, res, next) => {
-        if ((req.url ?? '').split('?')[0] !== DEV_CSS_PATH) {
-          next();
-          return;
-        }
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/css');
-        res.setHeader('Cache-Control', 'no-store');
-        const css = collectCss();
-        res.end(`${canonicalLayerStatement(maxStylexPriority(css))}\n${css}`);
-      });
-      engine.configureServer?.(server);
-    },
+        // the F9 statement rides the DEV virtual css too — dev layer
+        // order should read the same law as prod (registered BEFORE the
+        // engine's own middleware so THIS handler answers DEV_CSS_PATH)
+        server.middlewares.use((req, res, next) => {
+          if ((req.url ?? '').split('?')[0] !== DEV_CSS_PATH) {
+            next();
+            return;
+          }
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'text/css');
+          res.setHeader('Cache-Control', 'no-store');
+          const css = collectCss();
+          res.end(`${canonicalLayerStatement(maxStylexPriority(css))}\n${css}`);
+        });
+        engine.configureServer?.(server);
+      },
 
     generateBundle(_options, bundle) {
       // kit builds client AND server environments through this plugin —

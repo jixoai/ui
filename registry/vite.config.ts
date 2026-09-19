@@ -286,7 +286,7 @@ function microlighterGrammarAssets(): Plugin {
 
 export default defineConfig({
   plugins: [
-    sveltekit(), // tailwindless W4-r2: the registry workspace is engine-free
+    sveltekit(),
     ...jixoaiPlugins,
     // canvasPlugin (typography-context-and-parts §7): the canvas
     // same-source machinery — per-page virtual modules

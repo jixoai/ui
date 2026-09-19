@@ -118,6 +118,124 @@
     --jx-space-80: var(--space-80);
     --jx-hairline: var(--hairline);
   }
+
+  .xr8vvpl.xr8vvpl, .xr8vvpl.xr8vvpl:root {
+    --jx-accent: var(--accent);
+    --jx-accent-foreground: var(--accent-foreground);
+    --jx-background: var(--background);
+    --jx-border: var(--border);
+    --jx-brand-hue: var(--brand-hue);
+    --jx-card: var(--card);
+    --jx-card-foreground: var(--card-foreground);
+    --jx-chart-1: var(--chart-1);
+    --jx-chart-2: var(--chart-2);
+    --jx-chart-3: var(--chart-3);
+    --jx-chart-4: var(--chart-4);
+    --jx-chart-5: var(--chart-5);
+    --jx-destructive: var(--destructive);
+    --jx-destructive-foreground: var(--destructive-foreground);
+    --jx-error: var(--error);
+    --jx-error-foreground: var(--error-foreground);
+    --jx-font-mono: var(--font-mono);
+    --jx-font-nav: var(--font-nav);
+    --jx-font-sans: var(--font-sans);
+    --jx-foreground: var(--foreground);
+    --jx-hairline: var(--hairline);
+    --jx-info: var(--info);
+    --jx-info-foreground: var(--info-foreground);
+    --jx-input: var(--input);
+    --jx-leading-12: var(--leading-12);
+    --jx-leading-14: var(--leading-14);
+    --jx-leading-145: var(--leading-145);
+    --jx-leading-15: var(--leading-15);
+    --jx-leading-155: var(--leading-155);
+    --jx-leading-16: var(--leading-16);
+    --jx-leading-none: var(--leading-none);
+    --jx-leading-tight: var(--leading-tight);
+    --jx-motion-100: var(--motion-100);
+    --jx-motion-150: var(--motion-150);
+    --jx-motion-200: var(--motion-200);
+    --jx-motion-ease-nav: var(--motion-ease-nav);
+    --jx-motion-ease-out: var(--motion-ease-out);
+    --jx-motion-hero: var(--motion-hero);
+    --jx-muted: var(--muted);
+    --jx-muted-foreground: var(--muted-foreground);
+    --jx-popover: var(--popover);
+    --jx-popover-foreground: var(--popover-foreground);
+    --jx-primary: var(--primary);
+    --jx-primary-foreground: var(--primary-foreground);
+    --jx-primary-text: var(--primary-text);
+    --jx-radius: var(--radius);
+    --jx-ring: var(--ring);
+    --jx-scrim: var(--scrim);
+    --jx-scrollbar-thumb: var(--scrollbar-thumb);
+    --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+    --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+    --jx-scrollbar-track: var(--scrollbar-track);
+    --jx-secondary: var(--secondary);
+    --jx-secondary-foreground: var(--secondary-foreground);
+    --jx-shadow: var(--shadow);
+    --jx-shadow-2xs: var(--shadow-2xs);
+    --jx-shadow-color: var(--shadow-color);
+    --jx-shadow-engrave: var(--shadow-engrave);
+    --jx-shadow-md: var(--shadow-md);
+    --jx-shadow-md-press: var(--shadow-md-press);
+    --jx-shadow-paper: var(--shadow-paper);
+    --jx-shadow-sm: var(--shadow-sm);
+    --jx-shadow-sm-press: var(--shadow-sm-press);
+    --jx-shadow-well: var(--shadow-well);
+    --jx-shadow-well-hover: var(--shadow-well-hover);
+    --jx-shadow-xs: var(--shadow-xs);
+    --jx-shadow-xs-press: var(--shadow-xs-press);
+    --jx-shell-w: var(--shell-w);
+    --jx-space-10: var(--space-10);
+    --jx-space-12: var(--space-12);
+    --jx-space-14: var(--space-14);
+    --jx-space-16: var(--space-16);
+    --jx-space-18: var(--space-18);
+    --jx-space-2: var(--space-2);
+    --jx-space-20: var(--space-20);
+    --jx-space-24: var(--space-24);
+    --jx-space-28: var(--space-28);
+    --jx-space-32: var(--space-32);
+    --jx-space-4: var(--space-4);
+    --jx-space-40: var(--space-40);
+    --jx-space-48: var(--space-48);
+    --jx-space-6: var(--space-6);
+    --jx-space-8: var(--space-8);
+    --jx-space-80: var(--space-80);
+    --jx-stage-w: var(--stage-w);
+    --jx-success: var(--success);
+    --jx-success-foreground: var(--success-foreground);
+    --jx-surface-shadow: var(--surface-shadow);
+    --jx-terminal: var(--terminal);
+    --jx-terminal-foreground: var(--terminal-foreground);
+    --jx-terminal-hover: var(--terminal-hover);
+    --jx-terminal-muted: var(--terminal-muted);
+    --jx-text-body-lg: var(--text-body-lg);
+    --jx-text-body-xl: var(--text-body-xl);
+    --jx-text-label: var(--text-label);
+    --jx-text-label-lg: var(--text-label-lg);
+    --jx-text-lg: var(--text-lg);
+    --jx-text-micro: var(--text-micro);
+    --jx-text-sm: var(--text-sm);
+    --jx-text-small: var(--text-small);
+    --jx-track-04: var(--track-04);
+    --jx-track-06: var(--track-06);
+    --jx-track-10: var(--track-10);
+    --jx-track-12: var(--track-12);
+    --jx-track-14: var(--track-14);
+    --jx-track-18: var(--track-18);
+    --jx-track-20: var(--track-20);
+    --jx-track-label: var(--track-label);
+    --jx-track-tight: var(--track-tight);
+    --jx-track-wide: var(--track-wide);
+    --jx-warning: var(--warning);
+    --jx-warning-foreground: var(--warning-foreground);
+    --jx-weight-bold: var(--weight-bold);
+    --jx-weight-medium: var(--weight-medium);
+    --jx-weight-semibold: var(--weight-semibold);
+  }
 }
 
 @layer components.stylex.priority2 {
@@ -255,4 +373,4 @@
     min-width: 0;
   }
 }
-/* buildId: 7d8bb67bcc5beef8859cf82b33c794060d8194b509264c6570ab4ab974ef5ae3 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
+/* buildId: f6558fb12906568c70cc330f4e3cb1a3cd4765df5da5bf5a7ace526ad3b96eed · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */

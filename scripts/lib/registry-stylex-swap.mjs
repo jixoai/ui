@@ -65,12 +65,35 @@ export function swapRegistryPayloads(root, rDir = join(root, 'public', 'r')) {
     const files = item.files;
     if (!Array.isArray(files) || !files.some((f) => f?.path?.match(STYLEX_TS))) return false;
     const key = item.name;
+    // DATA MODULES (tailwindless W4-r6): a `.stylex.ts` making no
+    // stylex.* calls and importing nothing engine-side is a plain
+    // token MAP — it delivers as SOURCE (like every other .ts in the
+    // payloads): a PURE-data item passes through untouched; inside a
+    // compiled item the data entry also stays source (the compiled
+    // module imports it at runtime). (The lane's first customer WAS
+    // tokens.stylex.ts as a bare map; since the scope-stamp round the
+    // tokens module carries real defineVars/createTheme calls and
+    // rides the COMPILED lane — this stays as the guard for future
+    // pure-map modules, line-anchored so prose never trips it.)
+    const stylexSources = files.filter((f) => f?.path?.match(STYLEX_TS));
+    const readSrc = (f) => (existsSync(join(root, f.path)) ? readFileSync(join(root, f.path), 'utf8') : '');
+    const isData = (f) => {
+      const code = readSrc(f);
+      // LINE-ANCHORED (prose-proof): a real module has an import line or
+      // a call site; doc comments mentioning the engine never count
+      const hasImport = /^\s*import\b[^\n]*@stylexjs\/stylex/m.test(code);
+      const hasCall = /stylex\.(create|defineVars|vars|include|createTheme)\s*\(/.test(code);
+      return !hasImport && !hasCall;
+    };
     const art = artifacts.get(key);
     if (!art) {
+      if (stylexSources.length > 0 && stylexSources.every(isData)) return false; // pure data item — source delivery
       throw new Error(`registry-stylex-swap: payload item '${key}' carries .stylex.ts sources but the compiled payload has no '${key}' entry — regenerate the payload (gen-stylex-payload) before the swap`);
     }
     const stem = key.split('/').at(-1);
-    const stylexEntries = files.filter((f) => f?.path?.match(STYLEX_TS));
+    // compiled entries only — data deps ride as source
+    const stylexEntries = stylexSources.filter((f) => !isData(f));
+    if (stylexEntries.length === 0) return false; // shouldn't happen (manifest said compiled), but stay honest
     // the css carrier: the item's OWN module — resolution ladder
     // (measured against the live registry): 1) the stem-named entry,
     // 2) an entry under the item's own directory, 3) the item's SINGLE
@@ -96,6 +119,10 @@ export function swapRegistryPayloads(root, rDir = join(root, 'public', 'r')) {
     for (const f of files) {
       if (!f?.path?.match(STYLEX_TS)) {
         swappedFiles.push(f);
+        continue;
+      }
+      if (isData(f)) {
+        swappedFiles.push(f); // the data dep rides as source (the compiled module imports it)
         continue;
       }
       const isCarrier = f === carrier;

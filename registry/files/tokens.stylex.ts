@@ -48,7 +48,7 @@ import * as stylex from '@stylexjs/stylex';
  * (auditability); the doc comment inside each group names the
  * sheet law it mirrors.
  */
-export const tokens = stylex.defineVars({
+const tokenMap = {
   // the ONE per-project value (sheet: --brand-hue; hue drifts -4° dark)
   '--jx-brand-hue': 'var(--brand-hue)',
 
@@ -201,4 +201,19 @@ export const tokens = stylex.defineVars({
   '--jx-space-48': 'var(--space-48)',
   '--jx-space-80': 'var(--space-80)',
   '--jx-hairline': 'var(--hairline)',
-});
+} as const;
+
+export const tokens = stylex.defineVars(tokenMap);
+
+/**
+ * The SCOPE STAMP (tailwindless W4-r6): @stylexjs/stylex 0.19 has no
+ * stylex.vars() — the same-map createTheme is the 0.19-native form.
+ * It hands back the vars group's THEME CLASS to stamp on scoped-
+ * island roots (the terminal bezel's .dark lock, terminal cards,
+ * any re-scoped surface): the class RE-DECLARES every --jx-* member
+ * on the island's own root, so `--jx-x: var(--x)` re-resolves against
+ * the ISLAND's cascade there instead of staying the frozen :root
+ * literal defineVars computed (the bezel regression the Owner
+ * caught: a .dark island painted light tokens).
+ */
+export const tokenScope = stylex.createTheme(tokens, tokenMap);

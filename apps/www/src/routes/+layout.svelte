@@ -18,6 +18,11 @@
   // see vite.config.ts for why this is a JS import, not an app.css
   // @import)
   import 'virtual:jixoai-icons.css';
+  // the stylex atoms' dev css (tailwindless W4-r6): a fetcher module
+  // pulling the live collected css from the plugin's dev middleware —
+  // in build it is a no-op (generateBundle's bake owns the payload),
+  // so it is never a duplicate emission lane
+  import 'virtual:jixoai-stylex-dev';
   // site-only docs surfaces (tw4 P2.2): tables + pill serve several routes
   import '$lib/site/docs-tables.css';
   // scrollbar law (2026-08-22): side-effect probe publishes the measured

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-18T05:16:42.042Z",
+  "generatedAt": "2026-09-19T09:29:37.760Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -134,8 +134,8 @@
           "source": "registry/files/lib/tokens.stylex.ts",
           "mirror": "apps/www/src/lib/tokens.stylex.ts",
           "target": "@lib/tokens.stylex.ts",
-          "sourceSha": "cf733dcdc704dbc0207d201e8072becb5a2d7783ff962e6865ccda6c1b23fb12",
-          "mirrorSha": "cf733dcdc704dbc0207d201e8072becb5a2d7783ff962e6865ccda6c1b23fb12"
+          "sourceSha": "bf2e5f84fc384b87f641412b3f425641c0db57dec7958a86ad61ef84882e87d5",
+          "mirrorSha": "bf2e5f84fc384b87f641412b3f425641c0db57dec7958a86ad61ef84882e87d5"
         }
       ]
     },
@@ -210,8 +210,8 @@
           "source": "registry/files/tokens.stylex.ts",
           "mirror": "apps/www/src/lib/tokens.stylex.ts",
           "target": "@lib/tokens.stylex.ts",
-          "sourceSha": "cf733dcdc704dbc0207d201e8072becb5a2d7783ff962e6865ccda6c1b23fb12",
-          "mirrorSha": "cf733dcdc704dbc0207d201e8072becb5a2d7783ff962e6865ccda6c1b23fb12"
+          "sourceSha": "bf2e5f84fc384b87f641412b3f425641c0db57dec7958a86ad61ef84882e87d5",
+          "mirrorSha": "bf2e5f84fc384b87f641412b3f425641c0db57dec7958a86ad61ef84882e87d5"
         }
       ]
     },
@@ -508,8 +508,8 @@
           "source": "registry/files/ui/terminal-header/terminal-header.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
           "target": "@ui/terminal-header/terminal-header.svelte",
-          "sourceSha": "d5c2c008142bd65bc5a8bf10a1d1e48b91796e76848639c22a75244b72ff651a",
-          "mirrorSha": "d5c2c008142bd65bc5a8bf10a1d1e48b91796e76848639c22a75244b72ff651a"
+          "sourceSha": "be316b28bf8b8851fd285327ea4967fbd9100e2a16aec723fbabb9ec3144a606",
+          "mirrorSha": "be316b28bf8b8851fd285327ea4967fbd9100e2a16aec723fbabb9ec3144a606"
         },
         {
           "source": "registry/files/ui/terminal-header/index.ts",

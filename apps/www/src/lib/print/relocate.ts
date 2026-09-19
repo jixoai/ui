@@ -364,7 +364,7 @@ export async function awaitSettledLayout(
  * a separator, not a box) and row-ruled tables ride their own row
  * hairlines — neither dashes. Keep in sync with kernel-print.css §7
  * (the dash rules key the stamp) */
-const SPLIT_BLOCK_SELECTOR = '.jx-code-card, section.bg-card[data-jx-print="boxed"]';
+const SPLIT_BLOCK_SELECTOR = '.jx-code-card, section[data-jx-section][data-jx-print="boxed"]';
 /** the dash owner stamp — the kernel's dash rules key on it */
 const SPLIT_DASH_ATTR = 'data-jx-split-dash';
 

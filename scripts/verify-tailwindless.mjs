@@ -92,6 +92,19 @@ const { parse: svelteParse } = wwwRequire('svelte/compiler');
 const ts = wwwRequire('typescript');
 
 const ALLOWLIST_REL = 'openspec/changes/2026-09-17-tailwindless-one-shot/research/tailwindless-allowlist.json';
+// the one-shot change ARCHIVED at the phase-1 wrap: the frozen archive
+// copy became the allowlist's canonical home (archives are history —
+// never written). --check prefers a live forward copy if a future
+// change re-opens one, else reads the archive; --pin always writes
+// the LIVE path (so re-pinning can never mutate the archive).
+const ALLOWLIST_ARCHIVE_REL = 'openspec/changes/archive/2026-09-17-tailwindless-one-shot/research/tailwindless-allowlist.json';
+const allowlistPathFor = (root) => {
+  const live = join(root, ALLOWLIST_REL);
+  if (existsSync(live)) return live;
+  const archived = join(root, ALLOWLIST_ARCHIVE_REL);
+  if (existsSync(archived)) return archived;
+  return live; // neither exists: report against the live path (the --pin target)
+};
 const TEXT_STYLE_REL = 'registry/files/lib/text-style.svelte.ts';
 const TEXT_STYLE_MIRROR_REL = 'apps/www/src/lib/text-style.svelte.ts';
 const JX_CSS_REL = 'apps/www/src/lib/jixoai.css';
@@ -3064,9 +3077,9 @@ const root = REAL_ROOT;
 if (mode === '--pin') {
   pin(root, join(root, ALLOWLIST_REL), '2026-09-17');
 } else if (mode === '--check') {
-  const allowlistPath = join(root, ALLOWLIST_REL);
+  const allowlistPath = allowlistPathFor(root);
   if (!existsSync(allowlistPath)) {
-    console.error(`[tailwindless] ✗ allowlist missing: ${ALLOWLIST_REL} — run --pin first`);
+    console.error(`[tailwindless] ✗ allowlist missing: ${ALLOWLIST_REL} (archive fallback ${ALLOWLIST_ARCHIVE_REL} absent too) — run --pin first`);
     process.exit(1);
   }
   const { ok } = check(root, allowlistPath);
