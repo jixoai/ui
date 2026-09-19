@@ -109,7 +109,14 @@
       from var(--jx-shimmer-angle),
       var(--shimmer-base, currentColor) 0deg,
       var(--shimmer-base, currentColor) var(--shimmer-shine-start, 280deg),
-      var(--shimmer-shine) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg) / 2),
+      /* the PLATFORM stop set (the frozen-frame contrast fix,
+         2026-09-19): a soft two-slope peak reads at 1.1–1.7:1 along
+         most of its arc on a 1px ring — the visible shine collapsed
+         to the peak pixel alone. The arc now spends its middle third
+         at FULL saturation (a ~6px solid band on the reference 228px
+         perimeter) with thirds ramping in and out */
+      var(--shimmer-shine) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg) / 3),
+      var(--shimmer-shine) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg) * 2 / 3),
       var(--shimmer-base, currentColor) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg)),
       var(--shimmer-base, currentColor) 360deg
     ) !important;
@@ -273,7 +280,16 @@
 @property --jx-shimmer-angle {
   syntax: '<angle>';
   inherits: false;
-  initial-value: 0deg;
+  /* the FROZEN-FRAME DESIGN ANGLE (the r8 freeze law meets the
+     contrast fix, 2026-09-19): the reduced-motion freeze lands here,
+     and at 0deg the shine arc's center (shine-start 280deg + half the
+     30deg width = 295deg) sat on the TOP-LEFT CORNER — corner
+     curvature compressed the arc into a directionless blob. 65deg
+     puts the frozen arc's center at 0deg = straight-up, mid-edge of
+     the top run: the frozen pose reads as an arc ON the ring. The
+     running spin starts here too (to 360deg, linear — loop-start is
+     arbitrary by construction) */
+  initial-value: 65deg;
 }
 
 /* the shimmer cadence, r9: ONE uniform revolution — the reference's
