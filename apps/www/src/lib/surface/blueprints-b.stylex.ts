@@ -33,6 +33,12 @@
 //     sheet's own density-text physics (T=13px, U=4px); 10/11/12/
 //     12.5/14/15px are exact voice steps; 13px is the --jx-text-base
 //     kernel channel (plain var string — the cycle law).
+//     AMENDMENT (the audit's named-gap fill, 2026-09-19): the 9px
+//     voice gained its rung — --jx-text-caption (var(--text-caption),
+//     theme-side 0.5625rem). The 26 caption atoms' calc(base−U)
+//     became token reads; pixels unchanged; the var() is also the
+//     master switch for any future merge into micro (10px) — one
+//     value, all 26.
 //   - tracking: 0.24/0.2/0.18/0.14/0.1em are exact steps;
 //     `tracking-tight` (-0.025em) rides --track-tight (-0.02em, the
 //     W1 nearest-step remap — seam-reported).
@@ -365,7 +371,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     bottom: tokens['--jx-space-8'],
     left: tokens['--jx-space-10'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
 
   // ── prose: the reading region ──────────────────────────────────
@@ -461,7 +467,7 @@ export const bpB = stylex.create({
   scaffoldFloatTag: {
     ...LABEL_VOICE,
     color: tokens['--jx-muted-foreground'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-20'],
   },
   scaffoldFloatFloat: {
@@ -483,7 +489,7 @@ export const bpB = stylex.create({
   scaffoldFloatAnchorNote: {
     fontFamily: tokens['--jx-font-nav'],
     color: tokens['--jx-muted-foreground'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   scaffoldFloatArrow: {
     color: tokens['--jx-muted-foreground'],
@@ -497,7 +503,7 @@ export const bpB = stylex.create({
   scaffoldFloatTargetTag: {
     ...LABEL_VOICE,
     color: tokens['--jx-primary'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-20'],
   },
   scaffoldFloatHeader: {
@@ -619,7 +625,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     bottom: tokens['--jx-space-8'],
     left: tokens['--jx-space-10'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
 
   // ── scroll-run: the strip mid-travel, verdict stamped ──────────
@@ -721,7 +727,7 @@ export const bpB = stylex.create({
   scrollRunCaption: {
     color: tokens['--jx-primary'],
     fontFamily: tokens['--jx-font-nav'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
 
   // ── scroll-spy: the plain line-pick ────────────────────────────
@@ -744,7 +750,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     left: tokens['--jx-space-8'],
     top: tokens['--jx-space-6'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-20'],
   },
   scrollSpyStack: {
@@ -780,7 +786,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     right: tokens['--jx-space-4'],
     top: '98px',
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   scrollSpyList: {
     display: 'flex',
@@ -832,7 +838,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     left: tokens['--jx-space-8'],
     top: tokens['--jx-space-6'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-20'],
   },
   scrollVirtualFaded: {
@@ -880,7 +886,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     right: tokens['--jx-space-6'],
     top: '76px',
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   scrollVirtualOverscanDown: {
     color: tokens['--jx-primary'],
@@ -888,7 +894,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     bottom: tokens['--jx-space-6'],
     right: tokens['--jx-space-6'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   scrollVirtualFacts: {
     width: '300px',
@@ -929,7 +935,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     left: tokens['--jx-space-8'],
     top: tokens['--jx-space-6'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-20'],
   },
   scrollbarMeasureRow: {
@@ -950,7 +956,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     bottom: tokens['--jx-space-4'],
     left: tokens['--jx-space-4'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   scrollbarMeasureThinBar: {
     backgroundColor: tokens['--jx-primary'],
@@ -995,7 +1001,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     bottom: tokens['--jx-space-8'],
     right: tokens['--jx-space-8'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   scrollbarMeasureVars: {
     width: '330px',
@@ -1391,7 +1397,7 @@ export const bpB = stylex.create({
     left: 0,
     paddingInline: tokens['--jx-space-6'],
     paddingBlock: tokens['--jx-space-2'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-14'],
   },
   tocEngineLine: {
@@ -1408,7 +1414,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     top: '31px',
     right: tokens['--jx-space-4'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   tocEngineBlockAbove: {
     ...MUTED_MIX_40, ...HAIRLINE,
@@ -1423,7 +1429,7 @@ export const bpB = stylex.create({
   tocEngineBlockTag: {
     color: tokens['--jx-muted-foreground'],
     fontFamily: tokens['--jx-font-nav'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   tocEngineBlockStraddle: {
     ...HAIRLINE,
@@ -1486,12 +1492,12 @@ export const bpB = stylex.create({
     color: tokens['--jx-muted-foreground'],
     fontFamily: tokens['--jx-font-nav'],
     marginInlineStart: 'auto',
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   tocEnginePick: {
     ...LABEL_VOICE,
     color: tokens['--jx-primary'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-14'],
   },
 
@@ -1515,7 +1521,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     left: tokens['--jx-space-8'],
     top: tokens['--jx-space-6'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-20'],
   },
   tocOutlineTree: {
@@ -1559,7 +1565,7 @@ export const bpB = stylex.create({
     position: 'absolute',
     bottom: tokens['--jx-space-8'],
     left: tokens['--jx-space-12'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   tocOutlineRail: {
     width: '300px',
@@ -1590,7 +1596,7 @@ export const bpB = stylex.create({
   tocOutlineRowLevel: {
     color: tokens['--jx-muted-foreground'],
     marginInlineStart: 'auto',
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   tocOutlineFoot: {
     color: tokens['--jx-muted-foreground'],
@@ -1810,13 +1816,13 @@ export const bpB = stylex.create({
   websiteScaffoldHostKey: {
     ...LABEL_VOICE,
     color: tokens['--jx-muted-foreground'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-20'],
   },
   websiteScaffoldHostForms: {
     ...LABEL_VOICE,
     color: tokens['--jx-primary'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-20'],
   },
   websiteScaffoldGridFrame: {
@@ -1840,13 +1846,13 @@ export const bpB = stylex.create({
   websiteScaffoldZoneKey: {
     ...LABEL_VOICE,
     color: tokens['--jx-muted-foreground'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
     letterSpacing: tokens['--jx-track-18'],
   },
   websiteScaffoldZoneValue: {
     color: tokens['--jx-primary'],
     fontFamily: tokens['--jx-font-nav'],
-    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit))',
+    fontSize: tokens['--jx-text-caption'],
   },
   websiteScaffoldHeaderBand: {
     ...HAIRLINE,

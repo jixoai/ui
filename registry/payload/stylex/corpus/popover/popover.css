@@ -63,6 +63,7 @@
     --jx-scrollbar-thumb: var(--scrollbar-thumb);
     --jx-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
     --jx-scrollbar-thumb-active: var(--scrollbar-thumb-active);
+    --jx-text-caption: var(--text-caption);
     --jx-text-micro: var(--text-micro);
     --jx-text-label: var(--text-label);
     --jx-text-label-lg: var(--text-label-lg);
@@ -119,7 +120,7 @@
     --jx-hairline: var(--hairline);
   }
 
-  .xr8vvpl.xr8vvpl, .xr8vvpl.xr8vvpl:root {
+  .x13ei35y.x13ei35y, .x13ei35y.x13ei35y:root {
     --jx-accent: var(--accent);
     --jx-accent-foreground: var(--accent-foreground);
     --jx-background: var(--background);
@@ -214,6 +215,7 @@
     --jx-terminal-muted: var(--terminal-muted);
     --jx-text-body-lg: var(--text-body-lg);
     --jx-text-body-xl: var(--text-body-xl);
+    --jx-text-caption: var(--text-caption);
     --jx-text-label: var(--text-label);
     --jx-text-label-lg: var(--text-label-lg);
     --jx-text-lg: var(--text-lg);
@@ -443,4 +445,4 @@
     max-height: 72vh;
   }
 }
-/* buildId: 0ce7cb9fd93bfb6d0c326c10126a270111182c0d8894fc9ce51d327ff7ca2ee0 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
+/* buildId: b3ad961302de84899611d87ca5d0c5c564f205140fe2b2a2409e6feb8bf37b44 · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
