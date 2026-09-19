@@ -5,6 +5,7 @@
      read-only — a plugin targeting it is rejected at the type level. -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const defs = [
     { name: 'DENSITY_DEF', note: 'Density | undefined', readOnly: false },
@@ -36,8 +37,8 @@
   <div class={cx(bpA.contextPluginEyebrow)}>
     definePlugin · targets bind defs by identity (not by string)
   </div>
-  <div class={cx(bpA.contextPluginBoard)}>
-    <div class={cx(bpA.contextPluginColumn)}>
+  <Stack align="center" justify="center" gap="10">
+    <Stack direction="column" gap="8">
       {#each defs as d (d.name)}
         <div
           class={cx(bpA.contextPluginDefCard, d.readOnly ? bpA.contextPluginDefReadOnly : bpA.contextPluginDefMutable)}
@@ -49,13 +50,13 @@
           {/if}
         </div>
       {/each}
-    </div>
+    </Stack>
     <div class={cx(bpA.contextPluginArrowColumn)}>
       <span>targets</span>
       <span class={cx(bpA.contextPluginArrowGlyph)}>→</span>
       <span>identity</span>
     </div>
-    <div class={cx(bpA.contextPluginColumn)}>
+    <Stack direction="column" gap="8">
       <div class={cx(bpA.contextPluginCard)}>
         <span class={cx(bpA.contextPluginName)}>printDensityPlugin</span>
         <span class={cx(bpA.contextPluginNote)}>targets: [DENSITY_DEF]</span>
@@ -66,11 +67,11 @@
           <span class={cx(bpA.contextPluginNote)}>{o.note}</span>
         </div>
       {/each}
-    </div>
+    </Stack>
     <div class={cx(bpA.contextPluginFlowArrow)}>→</div>
     <div class={cx(bpA.contextPluginCard)}>
       <span class={cx(bpA.contextPluginName)}>exposed</span>
       <span class={cx(bpA.contextPluginNote)}>the projection</span>
     </div>
-  </div>
+  </Stack>
 </div>

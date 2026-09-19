@@ -8,6 +8,7 @@
      diagram idiom; no live component (the surface is lib-level). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const tree = ['(program', '  (lexical_declaration', '    (variable_declarator', '      (identifier))))'];
   const queries = ['("keyword" @tok-kw)', '(identifier @tok-var)'];
@@ -34,7 +35,7 @@
       <span class={cx(bpA.highlightTreeSitterTitle)}>highlight-tree-sitter</span>
       <span class={cx(bpA.highlightTreeSitterSub)}>tree + query captures</span>
     </div>
-    <div class={cx(bpA.highlightTreeSitterBoard)}>
+    <Stack align="center" gap="12">
       <div class={cx(bpA.highlightTreeSitterTreeCol)}>
         <span class={cx(bpA.highlightTreeSitterColLabel)}>source -> the tree</span>
         {#each tree as line (line)}
@@ -57,7 +58,7 @@
         {/each}
         <span class={cx(bpA.highlightTreeSitterCardNote)}>--tok-token-* spans</span>
       </div>
-    </div>
+    </Stack>
     <div class={cx(bpA.highlightTreeSitterFoot)}>
       <span>markup output · print survives · incremental reparse, not a rescan</span>
       <span>treeSitter({'{'} langs, wasmBase {'}'}) — supply chain = the lockfile (npm-hosted wasm)</span>

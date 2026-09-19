@@ -5,6 +5,7 @@
 <script lang="ts">
   import Icon from '$lib/ui/icon';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const sizes = [12, 16, 24, 32] as const;
   const strokes = [1.5, 2, 2.5] as const;
@@ -28,20 +29,20 @@
   <div class={cx(bpA.iconEyebrow)}>
     &lt;Icon name&gt; · size / strokeWidth — per-instance, no wrapper classes
   </div>
-  <div class={cx(bpA.iconSizeRow)}>
+  <Stack align="end" gap="16">
     {#each sizes as s (s)}
-      <div class={cx(bpA.iconCell)}>
+      <Stack direction="column" align="center" gap="8">
         <Icon name="search" size={s} />
         <span class={cx(bpA.iconCellLabel)}>{s}</span>
-      </div>
+      </Stack>
     {/each}
-  </div>
+  </Stack>
   <div class={cx(bpA.iconStrokeRow)}>
     {#each strokes as sw (sw)}
-      <div class={cx(bpA.iconCell)}>
+      <Stack direction="column" align="center" gap="8">
         <Icon name="check" size={20} strokeWidth={sw} />
         <span class={cx(bpA.iconCellLabel)}>sw {sw}</span>
-      </div>
+      </Stack>
     {/each}
   </div>
   <div class={cx(bpA.iconNameRow)}>

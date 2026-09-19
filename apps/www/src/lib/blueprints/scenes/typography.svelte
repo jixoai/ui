@@ -7,6 +7,7 @@
 <script lang="ts">
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -27,7 +28,7 @@
   <div class={cx(bpB.typographyKey)}>
     TypoScope · the value domain, never a variant axis
   </div>
-  <div class={cx(bpB.typographyChain)}>
+  <Stack align="center" justify="center" gap="10">
     <div class={cx(bpB.typographyNode)}>
       <span class={cx(bpB.typographyNodeName)}>TypoScope</span>
       <span class={cx(bpB.typographyNodeNote)}>11 absentSlot fields</span>
@@ -46,10 +47,10 @@
       <span class={cx(bpB.typographyNodeName)}>resolveTypoStyle</span>
       <span class={cx(bpB.typographyNodeNote)}>pure: vars + presence attrs</span>
     </div>
-  </div>
-  <div class={cx(bpB.typographyBadges)}>
+  </Stack>
+  <Stack align="center" justify="center" wrap gap="8">
     <Badge>absence IS the state</Badge>
     <Badge>nearest setter wins</Badge>
     <Badge>zero hue slots touched</Badge>
-  </div>
+  </Stack>
 </div>

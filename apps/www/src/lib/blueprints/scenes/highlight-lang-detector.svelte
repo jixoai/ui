@@ -11,6 +11,7 @@
      surface is lib-level). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const layers = [
     { id: 'L1', name: 'filename', reads: 'ext + basename tables', out: 'typescript' },
@@ -40,17 +41,17 @@
       <span class={cx(bpA.highlightLangDetectorTitle)}>highlight-lang-detector</span>
       <span class={cx(bpA.highlightLangDetectorSub)}>the DLD waterfall</span>
     </div>
-    <div class={cx(bpA.highlightLangDetectorLayers)}>
+    <Stack direction="column" gap="4">
       {#each layers as layer (layer.id)}
-        <div class={cx(bpA.highlightLangDetectorLayerRow)}>
+        <Stack align="baseline" gap="12">
           <span class={cx(bpA.highlightLangDetectorLayerId)}>{layer.id}</span>
           <span class={cx(bpA.highlightLangDetectorLayerName)}>{layer.name}</span>
           <span class={cx(bpA.highlightLangDetectorLayerReads)}>{layer.reads}</span>
           <span class={cx(bpA.highlightLangDetectorLayerOut)}>{'->'} {layer.out}</span>
-        </div>
+        </Stack>
       {/each}
       <span class={cx(bpA.highlightLangDetectorLayersNote)}>hit short-circuits · every layer its own lazy module · miss falls through</span>
-    </div>
+    </Stack>
     <div class={cx(bpA.highlightLangDetectorFoot)}>
       <span>detect({'{ code, filename }'}) -> {'{ lang, source, confidence? }'} · null = no opinion (cascade)</span>
       <span>framework-free · wasm rides @jixoai/ui-betlang-wasm (npm, betlang =0.1.1)</span>

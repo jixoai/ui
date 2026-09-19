@@ -10,6 +10,7 @@
      the story). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const inside = ['lang="auto" · filename="main.ts"', 'lang="auto" · no filename -> L4', 'lang="ts" · untouched path'];
 
@@ -34,7 +35,7 @@
       <span class={cx(bpA.highlightDetectDefaultTitle)}>highlight-detect-default</span>
       <span class={cx(bpA.highlightDetectDefaultSub)}>the children wrapper</span>
     </div>
-    <div class={cx(bpA.highlightDetectDefaultBoard)}>
+    <Stack align="center" gap="12">
       <div class={cx(bpA.highlightDetectDefaultCard)}>
         <span class={cx(bpA.highlightDetectDefaultCardTitle)}>&lt;HighlightDetectDefault&gt;</span>
         <span class={cx(bpA.highlightDetectDefaultCardLine)}>setContext(HIGHLIGHT_DETECT_KEY,</span>
@@ -48,7 +49,7 @@
           <span class={cx(bpA.highlightDetectDefaultSideLine)}>{line}</span>
         {/each}
       </div>
-    </div>
+    </Stack>
     <div class={cx(bpA.highlightDetectDefaultFoot)}>
       <span>context spreads downward only · siblings outside untouched · nearest wrapper wins</span>
       <span>form ② = the same one line, hand-written at any subtree root (zero components)</span>

@@ -8,6 +8,7 @@
      component (the surface is lib-level). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const lazy = ['grammar · ts.textmate', 'theme · css-variables', 'jixoai: --tok-* recipe'];
   const spans = ['<span', '  class="tok-kw">', '  const', '</span>'];
@@ -33,7 +34,7 @@
       <span class={cx(bpA.highlightShikiTitle)}>highlight-shiki</span>
       <span class={cx(bpA.highlightShikiSub)}>the default engine</span>
     </div>
-    <div class={cx(bpA.highlightShikiBoard)}>
+    <Stack align="center" gap="12">
       <div class={cx(bpA.highlightShikiLazyCol)}>
         <span class={cx(bpA.highlightShikiColLabel)}>on demand (lazy chunk)</span>
         {#each lazy as line (line)}
@@ -54,7 +55,7 @@
           <span class={cx(bpA.highlightShikiOutLine)}>{line}</span>
         {/each}
       </div>
-    </div>
+    </Stack>
     <div class={cx(bpA.highlightShikiFoot)}>
       <span>TextMate-grade accuracy · markup survives print · code-card's pinned default</span>
       <span>shiki({'{'} langs {'}'}) slims the instance — an allowlist, never the shared registry</span>

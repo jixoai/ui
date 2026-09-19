@@ -7,6 +7,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -24,7 +25,7 @@
 </script>
 
 <div class={cx(bpA.iconButtonStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpA.iconButtonRow)}>
+  <Stack align="center" wrap gap="16">
     <IconButton text="deploy">
       {#snippet icon()}
         <svg
@@ -75,7 +76,7 @@
         </svg>
       {/snippet}
     </IconButton>
-  </div>
+  </Stack>
   <div class={cx(bpA.iconButtonMuted)}>
     <Skeleton class={cx(bpA.iconButtonSkeletonA)}></Skeleton>
     <Skeleton class={cx(bpA.iconButtonSkeletonB)}></Skeleton>

@@ -12,7 +12,11 @@
 // member is `<sceneCamel><Element>` and belongs to exactly one scene;
 // recurring utility bodies repeat per scene deliberately (stylex
 // content-hashes identical declarations to one class; provenance
-// stays per-scene). The module's ONLY export is this stylex.create
+// stays per-scene) — EXCEPT pure flow (the Layout-family adoption,
+// 2026-09-19, R6 slice 1): display/flexDirection/align/justify/gap/
+// wrap bodies compose the Stack family in the scene markup, never a
+// table member (5 atoms retired here; `1fr auto 1fr` and asymmetric
+// minmax tracks stay — Grid's law is equal tracks only). The module's ONLY export is this stylex.create
 // result — the cx joiner lives inside each consuming scene (the
 // separator serialize law; a .stylex.ts module never exports it).
 //
@@ -360,12 +364,6 @@ export const bpB = stylex.create({
     gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
-  pressButtonRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: tokens['--jx-space-16'],
-  },
   pressButtonSkel: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-12'] },
   pressButtonSkelA: { height: '12px', width: '75%' },
   pressButtonSkelB: { height: '12px', width: '50%' },
@@ -534,13 +532,6 @@ export const bpB = stylex.create({
     flexDirection: 'column',
     gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
-  },
-  recipesHead: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: tokens['--jx-space-12'],
   },
   // text-lg = 18px (no step — the ruler calc, seam-reported) with
   // Tailwind's own 28px line-height; tracking-tight → --track-tight
@@ -1662,12 +1653,6 @@ export const bpB = stylex.create({
     borderStyle: 'solid',
     padding: tokens['--jx-space-24'],
   },
-  themeToggleRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: tokens['--jx-space-16'],
-  },
   themeToggleRowDivided: {
     borderColor: 'color-mix(in oklab, var(--terminal-foreground) 10%, transparent)',
     display: 'flex',
@@ -2181,12 +2166,6 @@ export const bpB = stylex.create({
     letterSpacing: tokens['--jx-track-20'],
     color: tokens['--jx-muted-foreground'],
   },
-  typographyChain: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-10'],
-  },
   typographyNode: {
     display: 'flex',
     width: '10.5rem',
@@ -2219,13 +2198,6 @@ export const bpB = stylex.create({
     justifyContent: 'center',
     fontSize: 'var(--jx-text-base)',
     color: tokens['--jx-muted-foreground'],
-  },
-  typographyBadges: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-8'],
   },
 
   // ── utils: the cn() hygiene law diagram ────────────────────────
@@ -2385,4 +2357,333 @@ export const bpB = stylex.create({
     paddingInline: tokens['--jx-space-8'],
   },
   websiteScaffoldFoot: { padding: tokens['--jx-space-12'], paddingTop: tokens['--jx-space-8'] },
+
+  // ══ stack (the Layout family; the coverage-debt sweep R6,
+  // 2026-09-19 — every catalog entry renders. Stage shells only:
+  // pure flow composes the Stack family in scene markup) ══════════
+  stackStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-40'],
+  },
+  stackLabel: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+  },
+  stackCell: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 40%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    paddingInline: tokens['--jx-space-8'],
+    paddingBlock: tokens['--jx-space-4'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+    whiteSpace: 'nowrap',
+  },
+  stackBar: {
+    borderColor: tokens['--jx-border'],
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-8'],
+  },
+  stackBarTitle: { fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)' },
+
+  // ══ grid (the Layout family; the coverage sweep) ═══════════════
+  gridStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-40'],
+  },
+  gridLabel: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+  },
+  gridCell: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 40%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-8'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+    textAlign: 'center',
+  },
+  gridCellWide: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 40%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-8'],
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  gridCellTitle: {
+    display: 'block',
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  gridCellToken: {
+    display: 'block',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontFamily: tokens['--jx-font-mono'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+  },
+  gridLane: {
+    borderColor: tokens['--jx-border'],
+    backgroundColor: 'color-mix(in oklab, var(--muted) 30%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-8'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+
+  // ══ spin-set (the loader pack; the coverage sweep) ═════════════
+  spinSetStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-40'],
+  },
+  spinSetLabel: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+  spinSetChip: {
+    fontFamily: tokens['--jx-font-mono'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+  },
+
+  // ══ prototype-flex / prototype-grid / prototype-waterfall /
+  // prototype-kit (the prototype family; the coverage sweep) ══════
+  prototypeFlexStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-40'],
+  },
+  prototypeFlexLabel: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+  },
+  prototypeFlexCell: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 40%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    paddingInline: tokens['--jx-space-8'],
+    paddingBlock: tokens['--jx-space-4'],
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  prototypeGridStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-40'],
+  },
+  prototypeGridLabel: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+  },
+  prototypeGridCell: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 40%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-6'],
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+    textAlign: 'center',
+  },
+  prototypeGridAreaRail: {
+    gridArea: 'rail',
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 40%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-6'],
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  prototypeGridAreaMain: {
+    gridArea: 'main',
+    borderColor: tokens['--jx-border'],
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-6'],
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  prototypeGridAreaFoot: {
+    gridArea: 'foot',
+    borderColor: tokens['--jx-border'],
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-6'],
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  prototypeWaterfallStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-32'],
+  },
+  prototypeWaterfallLabel: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+  },
+  prototypeWaterfallCard: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 30%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-8'],
+    breakInside: 'avoid',
+  },
+  prototypeWaterfallTitle: {
+    display: 'block',
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  prototypeWaterfallLine: {
+    display: 'block',
+    color: tokens['--jx-muted-foreground'],
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: tokens['--jx-text-micro'],
+    lineHeight: 'calc(var(--jx-unit) * 4)',
+  },
+  prototypeKitStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-32'],
+  },
+  prototypeKitCard: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 30%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    padding: tokens['--jx-space-8'],
+  },
+  prototypeKitTitle: {
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  prototypeKitLine: {
+    color: tokens['--jx-muted-foreground'],
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: tokens['--jx-text-micro'],
+  },
+
+  // ══ native-scroll-area / scroll-area-kit (the scroll family; the
+  // coverage sweep — the kit's split staged beside its consumers) ══
+  nativeScrollAreaStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-40'],
+  },
+  nativeScrollAreaRail: { width: '280px' },
+  nativeScrollAreaLabel: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+  },
+  nativeScrollAreaPort: {
+    borderColor: tokens['--jx-border'],
+    position: 'relative',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+  },
+  nativeScrollAreaRow: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 40%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    paddingInline: tokens['--jx-space-8'],
+    paddingBlock: tokens['--jx-space-6'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  scrollAreaKitStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-40'],
+  },
+  scrollAreaKitRail: { width: '280px' },
+  scrollAreaKitLabel: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+  },
+  scrollAreaKitPort: {
+    borderColor: tokens['--jx-border'],
+    position: 'relative',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+  },
+  scrollAreaKitFill: { height: '170px' },
+  scrollAreaKitRow: {
+    borderColor: 'color-mix(in oklab, var(--border) 40%, transparent)',
+    backgroundColor: 'color-mix(in oklab, var(--muted) 40%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    paddingInline: tokens['--jx-space-8'],
+    paddingBlock: tokens['--jx-space-6'],
+    fontSize: 'calc(var(--jx-text-base) - var(--jx-unit) * 0.625)',
+  },
+  scrollAreaKitNote: {
+    color: tokens['--jx-muted-foreground'],
+    fontFamily: tokens['--jx-font-mono'],
+    fontSize: tokens['--jx-text-micro'],
+    textAlign: 'center',
+  },
 });

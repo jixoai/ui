@@ -6,6 +6,7 @@
      1px runs — the schematic posture, structure real. -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   // deterministic grid runs — satori-safe (absolute positioning, solid
   // 1px fills), exactly the band's 24px rhythm at scene scale
@@ -59,10 +60,10 @@
         >d(s) = T.x/T.y · (H·thickness + bezel)</span
       >
     </div>
-    <div class={cx(bpA.glassKnobRow)}>
+    <Stack align="center" justify="between">
       {#each knobRows as row (row)}
         <span class={cx(bpA.glassKnob)}>{row}</span>
       {/each}
-    </div>
+    </Stack>
   </div>
 </div>

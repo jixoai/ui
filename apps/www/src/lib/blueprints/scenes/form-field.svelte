@@ -10,6 +10,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -28,10 +29,10 @@
 
 <div class={cx(bpA.formFieldStage)}>
   <form class={cx(bpA.formFieldForm)}>
-    <div class={cx(bpA.formFieldHead)}>
+    <Stack align="center" justify="between">
       <span class={cx(bpA.formFieldTitle)}>deploy form</span>
       <Badge>FormData</Badge>
-    </div>
+    </Stack>
     <Input label="project" name="project" value="jixoai-www" />
     <Select
       label="environment"

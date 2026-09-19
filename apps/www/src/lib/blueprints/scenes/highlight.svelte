@@ -14,6 +14,7 @@
      component (the surface is lib-level). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const engines = [
     { factory: 'shiki()', model: 'markup' },
@@ -53,48 +54,48 @@
       >
     </div>
     <div class={cx(bpA.highlightGrid)}>
-      <div class={cx(bpA.highlightColumn)}>
+      <Stack direction="column" gap="4">
         <span class={cx(bpA.highlightColumnLabel)}
           >engine items (lazy-loaded)</span
         >
         {#each engines as engine (engine.factory)}
-          <div class={cx(bpA.highlightEngineRow)}>
+          <Stack align="baseline" justify="between" gap="12">
             <span class={cx(bpA.highlightEngineName)}>{engine.factory}</span>
             <span
               class={cx(bpA.highlightEngineModel, engine.model === 'range' ? bpA.highlightEngineModelBold : undefined)}>{engine.model}</span
             >
-          </div>
+          </Stack>
         {/each}
-      </div>
+      </Stack>
       <span class={cx(bpA.highlightArrow)}>-></span>
-      <div class={cx(bpA.highlightColumn)}>
+      <Stack direction="column" gap="4">
         <pre class={cx(bpA.highlightIfaceCode)}>HighlightBackend
   highlight(el, code, opts)</pre>
         <pre class={cx(bpA.highlightIfaceNote)}>seam: HIGHLIGHT_KEY (plain getContext)
 resolve: backend prop
   -> context default -> app default</pre>
-      </div>
+      </Stack>
     </div>
     <div class={cx(bpA.highlightGrid, bpA.highlightGridDivided)}>
-      <div class={cx(bpA.highlightColumn)}>
+      <Stack direction="column" gap="4">
         <span class={cx(bpA.highlightColumnLabel)}
           >detection items (optional)</span
         >
         {#each detection as detector (detector.factory)}
-          <div class={cx(bpA.highlightEngineRow)}>
+          <Stack align="baseline" justify="between" gap="12">
             <span class={cx(bpA.highlightEngineName)}>{detector.factory}</span>
             <span class={cx(bpA.highlightEngineModel)}>{detector.model}</span>
-          </div>
+          </Stack>
         {/each}
-      </div>
+      </Stack>
       <span class={cx(bpA.highlightArrow)}>-></span>
-      <div class={cx(bpA.highlightColumn)}>
+      <Stack direction="column" gap="4">
         <pre class={cx(bpA.highlightIfaceCode)}>lang='auto'
   detect({'{ code, filename }'})</pre>
         <pre class={cx(bpA.highlightIfaceNote)}>rings: langDetector prop
   -> HIGHLIGHT_DETECT_KEY -> backend.detector
 null cascades · reject terminal</pre>
-      </div>
+      </Stack>
     </div>
     <div class={cx(bpA.highlightFoot)}>
       zero npm deps · zero engine imports ride the core · markup survives print, ranges do not (pin a markup backend for

@@ -8,6 +8,7 @@
      idiom; no live component (the surface is lib-level). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   // the chain rows map to REGISTERED atom identities (module scope),
   // never dynamic class strings
@@ -39,27 +40,27 @@
       <span class={cx(bpA.highlightPrismjsTitle)}>highlight-prismjs</span>
       <span class={cx(bpA.highlightPrismjsSub)}>the classic markup engine</span>
     </div>
-    <div class={cx(bpA.highlightPrismjsChain)}>
+    <Stack direction="column" gap="8">
       <span class={cx(bpA.highlightPrismjsChainLabel)}
         >the grammar chain (dependency-ordered lazy loads)</span
       >
-      <div class={cx(bpA.highlightPrismjsChainRow)}>
+      <Stack align="center" gap="10">
         {#each chain as link, i (link.grammar)}
           {#if i > 0}<span class={cx(bpA.highlightPrismjsChainArrow)}>-></span>{/if}
           <span class={cx(bpA.highlightPrismjsChainLink, link.hot ? bpA.highlightPrismjsChainLinkHot : undefined)}>{link.grammar}</span>
         {/each}
         <span class={cx(bpA.highlightPrismjsChainNote)}>classed spans · token classes in the DOM</span>
-      </div>
-    </div>
-    <div class={cx(bpA.highlightPrismjsChain)}>
+      </Stack>
+    </Stack>
+    <Stack direction="column" gap="8">
       <span class={cx(bpA.highlightPrismjsChainLabel)}>the theme lane</span>
-      <div class={cx(bpA.highlightPrismjsThemeRow)}>
+      <Stack align="center" gap="10">
         <span class={cx(bpA.highlightPrismjsThemeChip)}
           >prism.min.css (lazy stylesheet)</span
         >
         <span class={cx(bpA.highlightPrismjsThemeNote)}>one active theme per document · last requested wins</span>
-      </div>
-    </div>
+      </Stack>
+    </Stack>
     <div class={cx(bpA.highlightPrismjsFoot)}>
       <span>markup output · survives print · prismjs({'{'} langs {'}'}) slims the instance</span>
       <span>prism 1.30 no longer ships svelte/vue — reject with a hint, card falls back to plain text</span>

@@ -6,6 +6,7 @@
 <script lang="ts">
   import LanguageSwitcher from '$lib/ui/language-switcher/language-switcher.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const pairLocales = [
     { code: 'en', label: 'EN', href: '/en/blueprints' },
@@ -34,17 +35,17 @@
 
 <div class={cx(bpA.languageSwitcherStage)}>
   <div class={cx(bpA.languageSwitcherPanel)}>
-    <div class={cx(bpA.languageSwitcherRow)}>
+    <Stack align="center" justify="between" gap="16">
       <span class={cx(bpA.languageSwitcherRowLabel)}>pair · en</span>
       <LanguageSwitcher variant="pair" current="en" locales={pairLocales} />
-    </div>
-    <div class={cx(bpA.languageSwitcherRow, bpA.languageSwitcherDividerRow)}>
+    </Stack>
+    <Stack align="center" justify="between" gap="16" class={cx(bpA.languageSwitcherDividerRow)}>
       <span class={cx(bpA.languageSwitcherRowLabel)}>pair · zh</span>
       <LanguageSwitcher variant="pair" current="zh" locales={pairLocales} />
-    </div>
-    <div class={cx(bpA.languageSwitcherRow, bpA.languageSwitcherDividerRow)}>
+    </Stack>
+    <Stack align="center" justify="between" gap="16" class={cx(bpA.languageSwitcherDividerRow)}>
       <span class={cx(bpA.languageSwitcherRowLabel)}>menu</span>
       <LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={menuLocales} />
-    </div>
+    </Stack>
   </div>
 </div>

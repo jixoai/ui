@@ -5,6 +5,7 @@
 <script lang="ts">
   import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -22,17 +23,17 @@
 </script>
 
 <div class={cx(bpA.inlineCodeStage)}>
-  <div class={cx(bpA.inlineCodeRow)}>
+  <Stack align="center" wrap gap="12">
     <InlineCode>var(--jx-hit)</InlineCode>
     <InlineCode variant="outline">--jx-tonal</InlineCode>
-  </div>
-  <div class={cx(bpA.inlineCodeRow)}>
+  </Stack>
+  <Stack align="center" wrap gap="12">
     <InlineCode lang="ts">const ink = tokens.length</InlineCode>
     <InlineCode lang="css">{'.jx-press { box-shadow: var(--jx-press-shadow) }'}</InlineCode>
     <InlineCode lang="bash">npm run build:site</InlineCode>
-  </div>
-  <div class={cx(bpA.inlineCodeRow)}>
+  </Stack>
+  <Stack align="center" wrap gap="12">
     <InlineCode>detectInlineLang('npm i')</InlineCode>
     <InlineCode>{'{#snippet slotStart()}'}</InlineCode>
-  </div>
+  </Stack>
 </div>

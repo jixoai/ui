@@ -5,6 +5,7 @@
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -22,7 +23,7 @@
 </script>
 
 <div class={cx(bpA.badgeIndicatorStage)}>
-  <div class={cx(bpA.badgeIndicatorRow)}>
+  <Stack align="center" wrap gap="40">
     <BadgeIndicator dot label="2 unread reviews">
       <Avatar name="Grace Hopper" size="lg" alt="" />
     </BadgeIndicator>
@@ -30,7 +31,7 @@
       <PressButton variant="outline">inbox</PressButton>
     </BadgeIndicator>
     <BadgeIndicator count={250} />
-  </div>
+  </Stack>
   <p class={cx(bpA.badgeIndicatorNote)}>
     dot paints brand presence; counts paint destructive and cap at 99+.
   </p>

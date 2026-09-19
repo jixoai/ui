@@ -9,6 +9,7 @@
   import Badge from '$lib/ui/badge/badge.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -26,10 +27,10 @@
 </script>
 
 <div class={cx(bpB.recipesStage)}>
-  <div class={cx(bpB.recipesHead)}>
+  <Stack align="center" justify="between" wrap gap="12">
     <h2 class={cx(bpB.recipesTitle)}>antd concept → jixoai recipe</h2>
     <Badge>where wrapping stops</Badge>
-  </div>
+  </Stack>
   <Table caption="the deliberate non-components" dense>
     <thead>
       <tr><th>antd</th><th>jixoai</th><th>kind</th></tr>

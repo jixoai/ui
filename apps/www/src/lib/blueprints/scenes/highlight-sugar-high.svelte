@@ -8,6 +8,7 @@
      live component (the surface is lib-level). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   // bar widths/fills map to REGISTERED atom identities at module scope
   // (the producer law — never dynamic class strings)
@@ -38,26 +39,26 @@
       <span class={cx(bpA.highlightSugarHighTitle)}>highlight-sugar-high</span>
       <span class={cx(bpA.highlightSugarHighSub)}>the ~10KB engine</span>
     </div>
-    <div class={cx(bpA.highlightSugarHighOutBlock)}>
+    <Stack direction="column" gap="4">
       <span class={cx(bpA.highlightSugarHighOutLabel)}>direct output · no DOM dependency</span>
-      <div class={cx(bpA.highlightSugarHighOutRow)}>
+      <Stack align="center" gap="10">
         <span class={cx(bpA.highlightSugarHighOutCode)}>highlight(code, {'{'} lang {'}'})</span>
         <span class={cx(bpA.highlightSugarHighOutArrow)}>-></span>
         <span class={cx(bpA.highlightSugarHighOutChip)}>html string</span>
-      </div>
-    </div>
-    <div class={cx(bpA.highlightSugarHighBars)}>
+      </Stack>
+    </Stack>
+    <Stack direction="column" gap="6">
       <span class={cx(bpA.highlightSugarHighBarsLabel)}
         >bundle weight (upstream README baseline, 2.2.2)</span
       >
       {#each bars as bar (bar.label)}
-        <div class={cx(bpA.highlightSugarHighBarRow)}>
+        <Stack align="center" gap="10">
           <span class={cx(bpA.highlightSugarHighBarLabel, bar.bold ? bpA.highlightSugarHighBarLabelBold : undefined)}>{bar.label}</span>
           <span class={cx(bpA.highlightSugarHighBarTrack, bar.width, bar.fill)}></span>
           <span class={cx(bpA.highlightSugarHighBarValue)}>{bar.kb}</span>
-        </div>
+        </Stack>
       {/each}
-    </div>
+    </Stack>
     <div class={cx(bpA.highlightSugarHighFoot)}>
       <span>29 canonical languages · JS/TS/JSX native strength · markup output, survives print</span>
       <span>zero options — the engine itself is the minimal config (no langs channel)</span>

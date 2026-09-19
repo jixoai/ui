@@ -9,6 +9,7 @@
   import { pressEffect } from '$lib/ui/press-button';
   import Icon from '$lib/ui/icon';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -26,22 +27,22 @@
 </script>
 
 <div class={cx(bpA.chipStage)}>
-  <div class={cx(bpA.chipRow)}>
+  <Stack align="center" wrap gap="12">
     <Chip>tonal</Chip>
     <Chip variant="fill">fill</Chip>
     <Chip variant="outline">outline</Chip>
     <Chip variant="ghost">ghost</Chip>
-  </div>
-  <div class={cx(bpA.chipRow)}>
+  </Stack>
+  <Stack align="center" wrap gap="12">
     <Chip class="jx-hue-neutral">filter: all</Chip>
     <Chip class="jx-hue-success">deployed</Chip>
     <Chip class="jx-hue-error">failed</Chip>
-  </div>
-  <div class={cx(bpA.chipRow)}>
+  </Stack>
+  <Stack align="center" wrap gap="12">
     <Chip shape="pill" onclick={() => {}}>pill</Chip>
     <Chip shape="pill" {@attach pressEffect(ripple({ shape: 'bevel' }))} onclick={() => {}}>
       {#snippet slotStart()}<Icon name="check" />{/snippet}
       bevel ink
     </Chip>
-  </div>
+  </Stack>
 </div>

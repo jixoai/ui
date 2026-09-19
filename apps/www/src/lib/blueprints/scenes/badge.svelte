@@ -6,6 +6,7 @@
   import Badge from '$lib/ui/badge/badge.svelte';
   import Icon from '$lib/ui/icon';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,22 +24,22 @@
 </script>
 
 <div class={cx(bpA.badgeStage)}>
-  <div class={cx(bpA.badgeRow)}>
+  <Stack align="center" wrap gap="12">
     <Badge density="lg">tonal</Badge>
     <Badge variant="fill">fill</Badge>
     <Badge variant="outline">outline</Badge>
-  </div>
-  <div class={cx(bpA.badgeRow)}>
+  </Stack>
+  <Stack align="center" wrap gap="12">
     <Badge>v0.1.0</Badge>
     <Badge class="jx-hue-neutral">draft</Badge>
     <Badge class="jx-hue-success">passing</Badge>
     <Badge class="jx-hue-error">failing</Badge>
-  </div>
-  <div class={cx(bpA.badgeRow)}>
+  </Stack>
+  <Stack align="center" wrap gap="12">
     <Badge shape="pill">pill shape</Badge>
     <Badge shape="pill" class="jx-hue-success">
       {#snippet slotStart()}<Icon name="check" />{/snippet}
       checks passing
     </Badge>
-  </div>
+  </Stack>
 </div>

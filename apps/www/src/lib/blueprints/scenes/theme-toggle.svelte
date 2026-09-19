@@ -5,6 +5,7 @@
 <script lang="ts">
   import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,10 +24,10 @@
 
 <div class={cx(bpB.themeToggleStage)}>
   <div class={cx(bpB.themeToggleBezel)}>
-    <div class={cx(bpB.themeToggleRow)}>
+    <Stack align="center" justify="between" gap="16">
       <span class={cx(bpB.themeToggleLabel)}>full</span>
       <ThemeToggle variant="full" />
-    </div>
+    </Stack>
     <div class={cx(bpB.themeToggleRowDivided)}>
       <span class={cx(bpB.themeToggleLabel)}>compact</span>
       <ThemeToggle variant="compact" />

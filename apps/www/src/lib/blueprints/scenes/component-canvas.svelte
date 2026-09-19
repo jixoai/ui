@@ -9,6 +9,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const files: TreeFile[] = [
     {
@@ -41,10 +42,10 @@
 
 <div class={cx(bpA.componentCanvasStage)}>
   <ComponentCanvas title="press-button" files={files}>
-    <div class={cx(bpA.componentCanvasDemo)}>
+    <Stack align="center" gap="12">
       <PressButton variant="fill">deploy</PressButton>
       <PressButton variant="outline">cancel</PressButton>
       <Badge>live demo</Badge>
-    </div>
+    </Stack>
   </ComponentCanvas>
 </div>

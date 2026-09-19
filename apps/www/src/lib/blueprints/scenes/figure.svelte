@@ -6,6 +6,7 @@
   import Reference from '$lib/ui/reference/reference.svelte';
   import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -25,7 +26,7 @@
 <NumberingProvider>
   <div class={cx(bpA.figureStage)}>
     <SectionCard numbering="decimal" title="Results" eyebrow="4" headingLevel={2}>
-      <div class={cx(bpA.figureColumn)}>
+      <Stack direction="column" gap="20">
         <Figure kind="equation" id="eq-1" caption="the momentum balance">
           <div class={cx(bpA.figureEquation)}>p&nbsp;=&nbsp;m&nbsp;·&nbsp;v</div>
         </Figure>
@@ -33,7 +34,7 @@
           <div class={cx(bpA.figureNote)}>3 rows · 4 columns · Δ&thinsp;&lt;&thinsp;ε</div>
         </Figure>
         <p class={cx(bpA.figureBound)}>the bound of <Reference to="eq-1" /> follows from <Reference to="tbl-1" /></p>
-      </div>
+      </Stack>
     </SectionCard>
   </div>
 </NumberingProvider>

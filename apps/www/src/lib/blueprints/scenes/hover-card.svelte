@@ -7,6 +7,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -34,15 +35,15 @@
       {#snippet trigger()}
         <a class={cx(bpA.hoverCardTrigger)} href="#bp-hover-card">@grace</a>
       {/snippet}
-      <div class={cx(bpA.hoverCardPeek)}>
+      <Stack align="start" gap="12">
         <Avatar name="Grace Hopper" size="lg" alt="" />
-        <div class={cx(bpA.hoverCardPeekColumn)}>
+        <Stack direction="column" gap="4">
           <p class={cx(bpA.hoverCardPeekName)}>Grace Hopper</p>
           <p class={cx(bpA.hoverCardPeekNote)}>
             maintainer · 77 registry items published · last deploy 2h ago
           </p>
-        </div>
-      </div>
+        </Stack>
+      </Stack>
     </HoverCard>
     — 3 commits ahead of main.
   </p>

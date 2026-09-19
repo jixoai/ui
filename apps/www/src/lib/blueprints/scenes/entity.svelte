@@ -6,6 +6,7 @@
   import Input from '$lib/ui/input/input.svelte';
   import { provideEntity } from '$lib/entity.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const depth = provideEntity();
 
@@ -28,7 +29,7 @@
   <div class={cx(bpA.entityEyebrow)}>
     entity law · border = objecthood · the well edge is structure
   </div>
-  <div class={cx(bpA.entityBoard)}>
+  <Stack align="start" wrap gap="24">
     <label class={cx(bpA.entityLabel)}>
       <span class={cx(bpA.entityLabelNote)}>page level (depth 0)</span>
       <Input type="text" value="owns its edge" />
@@ -50,5 +51,5 @@
         <Input type="text" value="the inset alone" data-dissolve-border />
       </label>
     </div>
-  </div>
+  </Stack>
 </div>

@@ -6,6 +6,7 @@
   import { pressEffect } from '$lib/ui/press-button';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,7 +24,7 @@
 </script>
 
 <div class={cx(bpB.pressButtonStage)}>
-  <div class={cx(bpB.pressButtonRow)}>
+  <Stack align="center" wrap gap="16">
     <PressButton variant="fill" {@attach pressEffect(shimmer())}>Deploy</PressButton>
     <PressButton variant="tonal" class="jx-hue-neutral">Invite</PressButton>
     <PressButton variant="outline" {@attach pressEffect(rainbow())}>Cancel</PressButton>
@@ -31,7 +32,7 @@
     <PressButton variant="fill" class="jx-pair-destructive">
       Delete
     </PressButton>
-  </div>
+  </Stack>
   <div class={cx(bpB.pressButtonSkel)}>
     <Skeleton class={cx(bpB.pressButtonSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.pressButtonSkelB)}></Skeleton>

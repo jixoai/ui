@@ -12,6 +12,15 @@
 // scene's own member prefix (accordion*…llmsTxt*) — one scene, one
 // prefix, zero member collisions; near-identical stage wrappers are
 // deliberately NOT deduped across prefixes (edits stay scene-local).
+// EXCEPTION (the Layout-family adoption, 2026-09-19, R6 slice 1):
+// PURE FLOW never lands in this table anymore — a member whose every
+// property is display/flexDirection/align/justify/gap/wrap composes
+// the Stack family instead (<Stack direction|align|justify|gap|wrap>;
+// equal-track grids would compose <Grid cols>). The slice retired 33
+// such atoms here (+5 in the BP-B sibling; 53 flow usages across 27
+// scenes); the remaining grid members are NON-equal tracks (`1fr auto
+// 1fr` chains) — structural geometry Grid's equal-track law
+// deliberately does not own.
 //
 // Lane split: BP-A's scenes carry ZERO state/media/descendant
 // utilities (verified by scan) — no lane-2 sheet is needed; every
@@ -146,12 +155,6 @@ export const bpA = stylex.create({
     gap: tokens['--jx-space-32'],
     padding: tokens['--jx-space-40'],
   },
-  badgeIndicatorRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: tokens['--jx-space-40'],
-  },
   badgeIndicatorNote: {
     color: tokens['--jx-muted-foreground'],
     fontSize: 'var(--jx-text-sm)',
@@ -168,12 +171,6 @@ export const bpA = stylex.create({
     justifyContent: 'center',
     gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
-  },
-  badgeRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
   },
 
   // ══ blockquote ═════════════════════════════════════════════════
@@ -357,12 +354,6 @@ export const bpA = stylex.create({
     gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
   },
-  chipRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
-  },
 
   // ══ code-card ══════════════════════════════════════════════════
   codeCardStage: {
@@ -503,11 +494,6 @@ export const bpA = stylex.create({
     justifyContent: 'center',
     padding: tokens['--jx-space-32'],
   },
-  componentCanvasDemo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
-  },
 
   // ══ context-plugin ═════════════════════════════════════════════
   contextPluginStage: {
@@ -525,17 +511,6 @@ export const bpA = stylex.create({
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-20'],
     color: tokens['--jx-muted-foreground'],
-  },
-  contextPluginBoard: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-10'],
-  },
-  contextPluginColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-8'],
   },
   contextPluginDefCard: {
     display: 'flex',
@@ -822,12 +797,6 @@ export const bpA = stylex.create({
     letterSpacing: tokens['--jx-track-20'],
     color: tokens['--jx-muted-foreground'],
   },
-  entityBoard: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    gap: tokens['--jx-space-24'],
-  },
   entityLabel: {
     display: 'flex',
     width: '13rem',
@@ -864,11 +833,6 @@ export const bpA = stylex.create({
     justifyContent: 'center',
     gap: tokens['--jx-space-24'],
     padding: 'calc(var(--jx-unit) * 12)',
-  },
-  figureColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-20'],
   },
   figureEquation: {
     fontFamily: tokens['--jx-font-mono'],
@@ -930,11 +894,6 @@ export const bpA = stylex.create({
     flexDirection: 'column',
     gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-24'],
-  },
-  formFieldHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   formFieldTitle: {
     fontFamily: tokens['--jx-font-nav'],
@@ -1109,11 +1068,6 @@ export const bpA = stylex.create({
     right: tokens['--jx-space-10'],
     fontSize: tokens['--jx-text-micro'],
   },
-  glassKnobRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   glassKnob: {
     color: tokens['--jx-muted-foreground'],
     fontFamily: tokens['--jx-font-mono'],
@@ -1190,11 +1144,6 @@ export const bpA = stylex.create({
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-10'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightDetectDefaultBoard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
   },
   highlightDetectDefaultCard: {
     display: 'flex',
@@ -1289,11 +1238,6 @@ export const bpA = stylex.create({
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-10'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightHighlightjsBoard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-16'],
   },
   highlightHighlightjsCard: {
     display: 'flex',
@@ -1396,16 +1340,6 @@ export const bpA = stylex.create({
     letterSpacing: tokens['--jx-track-10'],
     color: tokens['--jx-muted-foreground'],
   },
-  highlightLangDetectorLayers: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
-  },
-  highlightLangDetectorLayerRow: {
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: tokens['--jx-space-12'],
-  },
   highlightLangDetectorLayerId: {
     width: '22px',
     flex: 'none',
@@ -1485,11 +1419,6 @@ export const bpA = stylex.create({
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-10'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightMicrolighterBoard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
   },
   highlightMicrolighterNodeCol: {
     display: 'flex',
@@ -1591,21 +1520,11 @@ export const bpA = stylex.create({
     letterSpacing: tokens['--jx-track-10'],
     color: tokens['--jx-muted-foreground'],
   },
-  highlightPrismjsChain: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-8'],
-  },
   highlightPrismjsChainLabel: {
     fontSize: tokens['--jx-text-micro'],
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-14'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightPrismjsChainRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-10'],
   },
   highlightPrismjsChainLink: {
     borderRadius: 0,
@@ -1625,11 +1544,6 @@ export const bpA = stylex.create({
     marginInlineStart: tokens['--jx-space-12'],
     fontSize: tokens['--jx-text-label'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightPrismjsThemeRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-10'],
   },
   highlightPrismjsThemeChip: {
     borderRadius: 0,
@@ -1702,11 +1616,6 @@ export const bpA = stylex.create({
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-10'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightShikiBoard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
   },
   highlightShikiLazyCol: {
     display: 'flex',
@@ -1815,21 +1724,11 @@ export const bpA = stylex.create({
     letterSpacing: tokens['--jx-track-10'],
     color: tokens['--jx-muted-foreground'],
   },
-  highlightSugarHighOutBlock: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
-  },
   highlightSugarHighOutLabel: {
     fontSize: tokens['--jx-text-micro'],
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-14'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightSugarHighOutRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-10'],
   },
   highlightSugarHighOutCode: { fontSize: tokens['--jx-text-label'] },
   highlightSugarHighOutArrow: { color: tokens['--jx-primary'] },
@@ -1844,21 +1743,11 @@ export const bpA = stylex.create({
     fontSize: tokens['--jx-text-label'],
     fontWeight: tokens['--jx-weight-bold'],
   },
-  highlightSugarHighBars: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-6'],
-  },
   highlightSugarHighBarsLabel: {
     fontSize: tokens['--jx-text-micro'],
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-14'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightSugarHighBarRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-10'],
   },
   highlightSugarHighBarLabel: {
     width: '86px',
@@ -1938,11 +1827,6 @@ export const bpA = stylex.create({
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-10'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightTreeSitterBoard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
   },
   highlightTreeSitterTreeCol: {
     display: 'flex',
@@ -2047,22 +1931,11 @@ export const bpA = stylex.create({
     alignItems: 'center',
     gap: tokens['--jx-space-16'],
   },
-  highlightColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
-  },
   highlightColumnLabel: {
     fontSize: tokens['--jx-text-micro'],
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-14'],
     color: tokens['--jx-muted-foreground'],
-  },
-  highlightEngineRow: {
-    display: 'flex',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: tokens['--jx-space-12'],
   },
   highlightEngineName: { fontSize: tokens['--jx-text-label'] },
   highlightEngineModel: {
@@ -2119,16 +1992,6 @@ export const bpA = stylex.create({
     textDecoration: 'underline dotted',
     textUnderlineOffset: tokens['--jx-space-4'],
   },
-  hoverCardPeek: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: tokens['--jx-space-12'],
-  },
-  hoverCardPeekColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
-  },
   hoverCardPeekName: {
     fontSize: 'var(--jx-text-sm)',
     lineHeight: 'calc(var(--jx-unit) * 5)',
@@ -2149,12 +2012,6 @@ export const bpA = stylex.create({
     justifyContent: 'center',
     gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
-  },
-  iconButtonRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: tokens['--jx-space-16'],
   },
   iconButtonIcon: { width: 'calc(var(--jx-unit) * 4)', height: 'calc(var(--jx-unit) * 4)' },
   iconButtonMuted: {
@@ -2215,17 +2072,6 @@ export const bpA = stylex.create({
     letterSpacing: tokens['--jx-track-20'],
     color: tokens['--jx-muted-foreground'],
   },
-  iconSizeRow: {
-    display: 'flex',
-    alignItems: 'flex-end',
-    gap: tokens['--jx-space-16'],
-  },
-  iconCell: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: tokens['--jx-space-8'],
-  },
   iconCellLabel: {
     fontFamily: tokens['--jx-font-mono'],
     fontSize: tokens['--jx-text-micro'],
@@ -2276,12 +2122,6 @@ export const bpA = stylex.create({
     justifyContent: 'center',
     gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
-  },
-  inlineCodeRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
   },
 
   // ══ input-group ════════════════════════════════════════════════
@@ -2436,12 +2276,6 @@ export const bpA = stylex.create({
     gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-24'],
   },
-  languageSwitcherRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: tokens['--jx-space-16'],
-  },
   languageSwitcherRowLabel: {
     fontFamily: tokens['--jx-font-nav'],
     fontSize: tokens['--jx-text-micro'],
@@ -2586,4 +2420,39 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   markdownFace: { width: '100%', maxWidth: '520px' },
+
+  // ══ boot-splash (the FOUC round, 2026-09-19; the coverage-debt
+  // sweep R6 — every catalog entry renders) ═══════════════════════
+  bootSplashStage: {
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: tokens['--jx-space-40'],
+  },
+  // the transform box: position:fixed resolves against a transformed
+  // ancestor (the CSS containment law) — the layer clips into the
+  // card instead of veiling the gallery page
+  bootSplashFrame: {
+    overflow: 'hidden',
+    transform: 'translate(0, 0)',
+    height: '190px',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    borderColor: tokens['--jx-border'],
+  },
+  bootSplashNotes: { justifyContent: 'center' },
+  bootSplashChip: {
+    fontFamily: tokens['--jx-font-nav'],
+    color: tokens['--jx-muted-foreground'],
+    borderColor: 'color-mix(in oklab, var(--border) 50%, transparent)',
+    borderWidth: 'var(--hairline)',
+    borderStyle: 'solid',
+    paddingInline: tokens['--jx-space-8'],
+    paddingBlock: tokens['--jx-space-4'],
+    fontSize: tokens['--jx-text-micro'],
+    letterSpacing: tokens['--jx-track-label'],
+    textTransform: 'uppercase',
+  },
 });

@@ -8,6 +8,7 @@
      live component (the surface is lib-level). -->
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const core = ['lib/core', '(no languages inside)', '+ registerLanguage', 'ts · js · css · bash'];
   const gap = ['tsx · jsx', 'svelte · vue', '-> reject', 'use shiki'];
@@ -33,7 +34,7 @@
       <span class={cx(bpA.highlightHighlightjsTitle)}>highlight-highlightjs</span>
       <span class={cx(bpA.highlightHighlightjsSub)}>core + selective registration</span>
     </div>
-    <div class={cx(bpA.highlightHighlightjsBoard)}>
+    <Stack align="center" gap="16">
       <div class={cx(bpA.highlightHighlightjsCard)}>
         {#each core as line, i (line)}
           <span class={cx(bpA.highlightHighlightjsCardLine, i === 0 ? bpA.highlightHighlightjsCardLineBold : undefined)}>{line}</span>
@@ -46,7 +47,7 @@
           <span class={cx(bpA.highlightHighlightjsGapLine)}>{line}</span>
         {/each}
       </div>
-    </div>
+    </Stack>
     <div class={cx(bpA.highlightHighlightjsFoot)}>
       <span>markup output · survives print · hljs-* classes map to --tok-* (zero download)</span>
       <span>highlightJs({'{'} langs {'}'}) = the flagship slim channel vs the full bundle</span>
