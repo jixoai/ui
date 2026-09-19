@@ -187,11 +187,14 @@ export const thStyles = stylex.create({
 
   // ── the mobile drawer: 0fr→1fr collapse (drawerOpen AFTER drawer —
   //    the emission-order law makes the open rung win) ──
+  // (the wedge round, 2026-09-19): the 0fr→1fr motion LEFT the CSS
+  // transition engine — fr-transitions freeze at currentTime 0 in
+  // Chrome 146 (the clock-freeze receipt in lib/disclosure-motion);
+  // the component drives the same curve through the rAF lane, the
+  // atoms carry only the semantic endpoints
   drawer: {
     display: 'grid',
     gridTemplateRows: '0fr',
-    transitionProperty: 'grid-template-rows',
-    transitionDuration: 'var(--motion-200, 200ms)',
     '@media (min-width: 40rem)': {
       display: 'none',
     },

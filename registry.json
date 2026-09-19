@@ -430,6 +430,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/lib/disclosure-motion.ts",
+          "target": "@lib/disclosure-motion.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/lib/terminal-scope.svelte.ts",
           "target": "@lib/terminal-scope.svelte.ts",
           "type": "registry:file"
@@ -1799,6 +1804,11 @@
         {
           "path": "registry/files/surface/component-canvas.stylex.ts",
           "target": "@lib/surface/component-canvas.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/lib/disclosure-motion.ts",
+          "target": "@lib/disclosure-motion.ts",
           "type": "registry:file"
         },
         {

@@ -59,6 +59,7 @@
   import { thStyles } from './terminal-header.stylex';
   import { TerminalHeaderDefaults } from './terminal-header-defaults.svelte';
   import { watchTerminalScope } from '$lib/terminal-scope.svelte';
+  import { animateGridDisclosure } from '$lib/disclosure-motion';
   import { tokenScope } from '../../tokens.stylex';
   import './terminal-header.css';
 
@@ -120,6 +121,28 @@
   // effects). Held as the OBJECT: the watch's scope is a getter —
   // destructuring would copy the value once and kill reactivity
   const scopeWatch = watchTerminalScope(() => d.theme);
+
+  // the mobile drawer's 0fr→1fr motion rides the rAF lane
+  // (lib/disclosure-motion — the Chrome 146 clock-freeze receipt);
+  // the atoms carry the endpoints, this lane interpolates. Mount =
+  // resting state, no entrance frames
+  let drawerEl = $state<HTMLElement | null>(null);
+  let prevDrawerOpen: boolean | undefined;
+  // $effect.pre: measure the OLD endpoint BEFORE the class flip —
+  // with the css transition retired, the class change is instant,
+  // and the post-update effect would read the FINAL state as the
+  // motion's start; the .pre lane sees the pre-flip track, then the
+  // frames' inline interpolation takes over past the flip
+  $effect.pre(() => {
+    const state = open;
+    const el = drawerEl;
+    if (prevDrawerOpen === undefined || !el) {
+      prevDrawerOpen = state;
+      return;
+    }
+    animateGridDisclosure(el, state);
+    prevDrawerOpen = state;
+  });
 
   let headerEl = $state<HTMLElement | null>(null);
 
@@ -305,6 +328,7 @@
          bar; the inner scroller bounds it to the viewport so every link
          stays reachable -->
     <div
+      bind:this={drawerEl}
       class={cn(cx(thStyles.drawer), open && cx(thStyles.drawerOpen))}
     >
       <div class={cx(thStyles.drawerClip)}>

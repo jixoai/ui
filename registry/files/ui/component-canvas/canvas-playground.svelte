@@ -87,6 +87,7 @@
   import { canvasStyles } from '$lib/surface/component-canvas.stylex';
   import { stackStyles } from '$lib/ui/stack';
   import { gridStyles } from '$lib/ui/grid';
+  import { animateGridDisclosure } from '$lib/disclosure-motion';
   import type { ControlRow, PlayOutput } from './canvas-schema.svelte';
 
   interface Props {
@@ -166,6 +167,30 @@
   // 默认展开 (the Owner ruling): the dock mounts expanded; one click
   // collapses it to the head chip (the body goes inert)
   let open = $state(true);
+  let collapseEl = $state<HTMLElement | null>(null);
+
+  // the 0fr→1fr motion rides the rAF lane (lib/disclosure-motion —
+  // the Chrome 146 clock-freeze receipt: fr-transitions inside
+  // scroll-revealed sections randomly freeze at currentTime 0
+  // forever; the classes keep the semantic endpoints, this lane
+  // interpolates inline and clears at rest). First run (mount) is
+  // the resting state — no entrance frames
+  let prevOpen: boolean | undefined;
+  // $effect.pre: measure the OLD endpoint BEFORE the class flip —
+  // with the css transition retired, the class change is instant,
+  // and the post-update effect would read the FINAL state as the
+  // motion's start; the .pre lane sees the pre-flip track, then the
+  // frames' inline interpolation takes over past the flip
+  $effect.pre(() => {
+    const state = open;
+    const el = collapseEl;
+    if (prevOpen === undefined || !el) {
+      prevOpen = state;
+      return;
+    }
+    animateGridDisclosure(el, state);
+    prevOpen = state;
+  });
 
   // ---- schema state machine (migrated from the canvas, 2026-09-08) ----
   // values initialize from the schema's defaults when the page binds
@@ -428,6 +453,7 @@
     <Separator variant="solid" aria-hidden="true" />
   </div>
   <div
+    bind:this={collapseEl}
     class={cn(
       'jx-canvas-dock-collapse',
       cx(gridStyles.base, gridStyles.rowsCollapse),

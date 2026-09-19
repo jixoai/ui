@@ -124,6 +124,7 @@
   import { canvasStyles } from '$lib/surface/component-canvas.stylex';
   import Stack, { stackStyles } from '$lib/ui/stack';
   import { gridStyles } from '$lib/ui/grid';
+  import { animateGridDisclosure } from '$lib/disclosure-motion';
   import { tokenScope } from '$lib/tokens.stylex';
   import './component-canvas.css';
 
@@ -399,6 +400,27 @@
 const dDensity = $derived(ComponentCanvasDefaults.resolve({ density }).density);
 
 let codeOpen = $state(false);
+  let drawerEl = $state<HTMLElement | null>(null);
+
+  // the 0fr→1fr motion rides the rAF lane (lib/disclosure-motion —
+  // the Chrome 146 clock-freeze receipt; classes keep the endpoints,
+  // the lane interpolates inline). Mount = resting state, no frames
+  let prevCodeOpen: boolean | undefined;
+  // $effect.pre: measure the OLD endpoint BEFORE the class flip —
+  // with the css transition retired, the class change is instant,
+  // and the post-update effect would read the FINAL state as the
+  // motion's start; the .pre lane sees the pre-flip track, then the
+  // frames' inline interpolation takes over past the flip
+  $effect.pre(() => {
+    const state = codeOpen;
+    const el = drawerEl;
+    if (prevCodeOpen === undefined || !el) {
+      prevCodeOpen = state;
+      return;
+    }
+    animateGridDisclosure(el, state);
+    prevCodeOpen = state;
+  });
 
   // ---- drawer shape (Owner revert 2026-09-01) ----------------------------
   // ONE shape: the tree pane, every file count. The two-file tabs floor
@@ -613,6 +635,7 @@ let codeOpen = $state(false);
   </div>
 
   <div
+    bind:this={drawerEl}
     class={cn(
       'jx-canvas-code-drawer',
       cx(canvasStyles.drawer),

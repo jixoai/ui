@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-19T11:19:46.716Z",
+  "generatedAt": "2026-09-19T11:51:01.352Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -510,8 +510,8 @@
           "source": "registry/files/ui/terminal-header/terminal-header.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.svelte",
           "target": "@ui/terminal-header/terminal-header.svelte",
-          "sourceSha": "e853927c5b0839239cf887e5988f0f4f7c86a553cbc12a97d5082b23234216ef",
-          "mirrorSha": "e853927c5b0839239cf887e5988f0f4f7c86a553cbc12a97d5082b23234216ef"
+          "sourceSha": "d8211d79efe69cbcf4dbcd28b36c71c4a4ad9037ce822057e18f9e9f0d591631",
+          "mirrorSha": "d8211d79efe69cbcf4dbcd28b36c71c4a4ad9037ce822057e18f9e9f0d591631"
         },
         {
           "source": "registry/files/ui/terminal-header/terminal-header-defaults.svelte.ts",
@@ -538,8 +538,15 @@
           "source": "registry/files/ui/terminal-header/terminal-header.stylex.ts",
           "mirror": "apps/www/src/lib/ui/terminal-header/terminal-header.stylex.ts",
           "target": "@ui/terminal-header/terminal-header.stylex.ts",
-          "sourceSha": "b955584779dfb084349e26381f687fb94670cb8d36a05247cd0ae96af440b3af",
-          "mirrorSha": "b955584779dfb084349e26381f687fb94670cb8d36a05247cd0ae96af440b3af"
+          "sourceSha": "0770e8f4e3e2de535a3ac2f900cd6f1334114887e9c5cf1ae26c5a15386d1a42",
+          "mirrorSha": "0770e8f4e3e2de535a3ac2f900cd6f1334114887e9c5cf1ae26c5a15386d1a42"
+        },
+        {
+          "source": "registry/files/lib/disclosure-motion.ts",
+          "mirror": "apps/www/src/lib/disclosure-motion.ts",
+          "target": "@lib/disclosure-motion.ts",
+          "sourceSha": "433d47d27370adb52a52022e9e4ae300435d85121f73c3ec731e18756317a35f",
+          "mirrorSha": "433d47d27370adb52a52022e9e4ae300435d85121f73c3ec731e18756317a35f"
         },
         {
           "source": "registry/files/lib/terminal-scope.svelte.ts",
@@ -1677,15 +1684,15 @@
           "source": "registry/files/ui/component-canvas/component-canvas.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.svelte",
           "target": "@ui/component-canvas/component-canvas.svelte",
-          "sourceSha": "03b67c62037ddbc97f661fbc9140546db3f1ffb48bd1b065d78e31077b61ad87",
-          "mirrorSha": "03b67c62037ddbc97f661fbc9140546db3f1ffb48bd1b065d78e31077b61ad87"
+          "sourceSha": "ab7d5466f268856e581d5a8cad604f9b9ee7be97e2f780f7c286e4d5c9b99732",
+          "mirrorSha": "ab7d5466f268856e581d5a8cad604f9b9ee7be97e2f780f7c286e4d5c9b99732"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-playground.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/canvas-playground.svelte",
           "target": "@ui/component-canvas/canvas-playground.svelte",
-          "sourceSha": "26570041089c9389fbe4f0fa3da46c12e046adc2f9760c0563959f52bf23302a",
-          "mirrorSha": "26570041089c9389fbe4f0fa3da46c12e046adc2f9760c0563959f52bf23302a"
+          "sourceSha": "02d25c6160e9b64e9b67453391e6d8c676c3365131eb83cdf195f6c78b57b4b3",
+          "mirrorSha": "02d25c6160e9b64e9b67453391e6d8c676c3365131eb83cdf195f6c78b57b4b3"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-schema.svelte.ts",
@@ -1712,8 +1719,8 @@
           "source": "registry/files/ui/component-canvas/component-canvas.css",
           "mirror": "apps/www/src/lib/ui/component-canvas/component-canvas.css",
           "target": "@ui/component-canvas/component-canvas.css",
-          "sourceSha": "bb0999adaf1aca608f05ccde1cbafa24cbef4402c17d478224c5ffcb2d741047",
-          "mirrorSha": "bb0999adaf1aca608f05ccde1cbafa24cbef4402c17d478224c5ffcb2d741047"
+          "sourceSha": "1fc10d88520111b7661daea90f11fbf36a079e336cd19d1d5642fccd503bc26d",
+          "mirrorSha": "1fc10d88520111b7661daea90f11fbf36a079e336cd19d1d5642fccd503bc26d"
         },
         {
           "source": "registry/files/surface/component-canvas.stylex.ts",
@@ -1721,6 +1728,10 @@
           "target": "@lib/surface/component-canvas.stylex.ts",
           "sourceSha": "211595073340928f8f76780c1ee54e223d0457e3591d6e3ea8a41475a172fe1e",
           "mirrorSha": "211595073340928f8f76780c1ee54e223d0457e3591d6e3ea8a41475a172fe1e"
+        },
+        {
+          "sharedClaimOf": "terminal-header",
+          "source": "registry/files/lib/disclosure-motion.ts"
         },
         {
           "sharedClaimOf": "press-button",

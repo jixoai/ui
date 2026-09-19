@@ -387,10 +387,13 @@
 :where(.jx-canvas-chevron) {
   transition: transform var(--motion-150) var(--motion-ease-out);
 }
-:where(.jx-canvas-code-drawer),
-:where(.jx-canvas-dock-collapse) {
-  transition: grid-template-rows var(--motion-200) var(--motion-ease-nav);
-}
+/* (the wedge round, 2026-09-19): the two disclosures' 0fr→1fr motion
+   left the CSS transition engine — fr-transitions freeze at
+   currentTime 0 forever in Chrome 146 while a scroll-driven reveal
+   animation is active up-tree (the clock-freeze receipt,
+   lib/disclosure-motion.ts); the components drive the same
+   --motion-200 curve through the rAF lane, the classes carry the
+   semantic endpoints */
 
 /* the chrome optical nudge (pt-[0.1rem]) and the voices' weights */
 :where([data-jx-canvas-head-actions]) {
