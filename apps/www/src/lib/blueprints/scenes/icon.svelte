@@ -37,14 +37,14 @@
       </Stack>
     {/each}
   </Stack>
-  <div class={cx(bpA.iconStrokeRow)}>
+  <Stack align="center" gap="16" }>
     {#each strokes as sw (sw)}
       <Stack direction="column" align="center" gap="8">
         <Icon name="check" size={20} strokeWidth={sw} />
         <span class={cx(bpA.iconCellLabel)}>sw {sw}</span>
       </Stack>
     {/each}
-  </div>
+  </Stack>
   <Stack align="center" gap="12" class={cx(bpA.iconNameRow)} }>
     <Icon name="folderOpen" size={14} />
     <Icon name="chevronRight" size={14} />

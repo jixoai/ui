@@ -32,9 +32,9 @@
       <Link href="https://commonmark.org">CommonMark</Link> inside muted prose.
     </p>
   </Stack>
-  <div class={cx(bpA.linkRow)}>
+  <Stack wrap gap="8" }>
     <Badge>http(s) → target=_blank</Badge>
     <Badge>rel=noreferrer</Badge>
     <Badge>app routes same-tab</Badge>
-  </div>
+  </Stack>
 </Stack>

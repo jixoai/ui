@@ -26,9 +26,9 @@
 
 <Stack direction="column" align="center" justify="center" gap="16" class={cx(bpA.katexStage)}>
   <MathBlock class={cx(bpA.katexBlock)} copyable={false} tex={'e^{i\\pi} + 1 = 0'} />
-  <div class={cx(bpA.katexRow)}>
+  <Stack wrap gap="8" }>
     <Badge>isomorphic renderToString</Badge>
     <Badge>fonts ride the npm css</Badge>
     <Badge>MathML a11y path</Badge>
-  </div>
+  </Stack>
 </Stack>

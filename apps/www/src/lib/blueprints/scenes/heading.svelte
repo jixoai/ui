@@ -28,9 +28,9 @@
     <Heading level={3}>The subsection</Heading>
     <Heading level={4}>The minor label</Heading>
   </Stack>
-  <div class={cx(bpA.headingRow)}>
+  <Stack wrap gap="8" }>
     <Badge>em ladder · 1.875em → 1em</Badge>
     <Badge>level = the element</Badge>
     <Badge>zero own margins</Badge>
-  </div>
+  </Stack>
 </Stack>

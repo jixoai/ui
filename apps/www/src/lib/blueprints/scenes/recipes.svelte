@@ -41,8 +41,8 @@
       <tr><td>Typography</td><td>token scale + font-nav</td><td>recipe</td></tr>
     </tbody>
   </Table>
-  <div class={cx(bpB.recipesRow)}>
+  <Stack wrap gap="12" }>
     <PressButton variant="outline">tour contract</PressButton>
     <PressButton variant="outline">image preview</PressButton>
-  </div>
+  </Stack>
 </Stack>

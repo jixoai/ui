@@ -26,7 +26,7 @@
 
 <Stack align="center" justify="center" gap="40" class={cx(bpB.tocStage)}>
   <article class={cx(bpB.tocArticle)}>
-    <div class={cx(bpB.tocGroup)} data-family="bp-toc-law">
+    <Stack direction="column" gap="16" } data-family="bp-toc-law">
       <section id="bp-toc-law" class={cx(bpB.tocSection)} data-region="bp-toc-law">
         <h2 class={cx(bpB.tocH2)}>the rule tracker</h2>
         <p class={cx(bpB.tocBody)}>
@@ -40,7 +40,7 @@
           intersection ÷ min(block, viewport) — saturates to 1 in both directions.
         </p>
       </section>
-    </div>
+    </Stack>
     <section id="bp-toc-rail" class={cx(bpB.tocSection)} data-region="bp-toc-rail">
       <h2 class={cx(bpB.tocH2)}>two surfaces, one engine</h2>
       <p class={cx(bpB.tocBody)}>

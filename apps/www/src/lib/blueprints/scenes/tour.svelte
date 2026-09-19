@@ -41,14 +41,14 @@
 
 <Stack direction="column" align="start" justify="center" class={cx(bpB.tourStage)} } {@attach fromAction(forceShowPopovers)}>
   <Stack direction="column" gap="16" class={cx(bpB.tourCard)} }>
-    <div id="bp-tour-workspace" class={cx(bpB.tourTarget)}>
+    <Stack id="bp-tour-workspace" direction="column" gap="4" }>
       <p class={cx(bpB.tourLabel)}>workspace</p>
       <p class={cx(bpB.tourValue)}>jixoai-labs/ui</p>
-    </div>
-    <div id="bp-tour-hue" class={cx(bpB.tourTarget)}>
+    </Stack>
+    <Stack id="bp-tour-hue" direction="column" gap="4" }>
       <p class={cx(bpB.tourLabel)}>brand hue</p>
       <p class={cx(bpB.tourValue)}>oklch(0.72 0.16 27)</p>
-    </div>
+    </Stack>
   </Stack>
   <Tour {steps} open={true} startAt={0} />
 </Stack>

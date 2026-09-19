@@ -31,9 +31,9 @@
     <MathInline tex={'z_R = \\pi w_0^2 / \\lambda'} />, and the Gouy phase
     shifts by <MathInline tex={'\\arctan(z / z_R)'} /> along the axis.
   </p>
-  <div class={cx(bpB.mathInlineBadges)}>
+  <Stack wrap gap="8" }>
     <Badge>inherits prose ink</Badge>
     <Badge>zero chrome</Badge>
     <Badge>baseline-true inline</Badge>
-  </div>
+  </Stack>
 </Stack>

@@ -24,10 +24,10 @@
 <Stack align="center" justify="center" class={cx(bpB.sectionCardStage)}>
   <div class={cx(bpB.sectionCardCard)}>
     <SectionCard headingLevel={2} eyebrow="registry" title="section-card" summary="The content atom of the site grammar: bordered card, header block with eyebrow, title, summary.">
-      <div class={cx(bpB.sectionCardBadges)}>
+      <Stack gap="12" }>
         <Badge>ui</Badge>
         <Badge>radius 0</Badge>
-      </div>
+      </Stack>
     </SectionCard>
   </div>
 </Stack>

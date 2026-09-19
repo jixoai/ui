@@ -30,12 +30,12 @@
     <Skeleton class={cx(bpB.tooltipSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.tooltipSkelB)}></Skeleton>
   </Stack>
-  <div class={cx(bpB.tooltipRow)}>
+  <Stack align="center" gap="24" }>
     <Tooltip id="bp-tip-1" text="Run the deploy pipeline" placement="top">
       <span class={cx(bpB.tooltipTrigger)}>deploy</span>
     </Tooltip>
     <Tooltip id="bp-tip-2" text="Keyboard shortcut" placement="top">
       <span class={cx(bpB.tooltipIconFrame)}><Kbd>⌘K</Kbd></span>
     </Tooltip>
-  </div>
+  </Stack>
 </Stack>

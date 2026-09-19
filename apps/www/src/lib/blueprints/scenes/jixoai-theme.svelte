@@ -5,6 +5,7 @@
 <script lang="ts">
   import { bpA } from '$lib/surface/blueprints-a.stylex';
   import Grid from '$lib/ui/grid';
+  import Stack from '$lib/ui/stack';
 
   const hueSamples: { hue: string; css: string }[] = [
     { hue: '210', css: 'oklch(0.6489 0.237 210)' },
@@ -36,20 +37,20 @@
 </script>
 
 <div class={cx(bpA.jixoaiThemeStage)}>
-  <div class={cx(bpA.jixoaiThemeRow)}>
+  <Stack align="center" gap="20" }>
     <span class={cx(bpA.jixoaiThemeRowLabel)}
       >--brand-hue</span
     >
-    <div class={cx(bpA.jixoaiThemeSwatches)}>
+    <Stack gap="12" class={cx(bpA.jixoaiThemeSwatches)} }>
       {#each hueSamples as sample (sample.hue)}
         <div class={cx(bpA.jixoaiThemeSwatch)}>
           <div class={cx(bpA.jixoaiThemeChip)} style="background: {sample.css}"></div>
           <span class={cx(bpA.jixoaiThemeChipLabel)}>{sample.hue}</span>
         </div>
       {/each}
-    </div>
-  </div>
-  <div class={cx(bpA.jixoaiThemeRow)}>
+    </Stack>
+  </Stack>
+  <Stack align="center" gap="20" }>
     <span class={cx(bpA.jixoaiThemeRowLabel)}
       >tokens</span
     >
@@ -61,8 +62,8 @@
         </div>
       {/each}
     </Grid>
-  </div>
-  <div class={cx(bpA.jixoaiThemeRow)}>
+  </Stack>
+  <Stack align="center" gap="20" }>
     <span class={cx(bpA.jixoaiThemeRowLabel)}
       >the law</span
     >
@@ -70,5 +71,5 @@
       one hue is the whole identity — OKLCH everywhere, radius 0, hard offset shadows; the sheet
       is plain CSS variables, nothing to hydrate.
     </p>
-  </div>
+  </Stack>
 </div>

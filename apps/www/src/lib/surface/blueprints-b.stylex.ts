@@ -71,7 +71,7 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   mathBlockFrame: { width: '100%', maxWidth: '520px' },
-  mathBlockBadges: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ── math-inline: the prose stage ───────────────────────────────
   mathInlineStage: {
@@ -85,7 +85,7 @@ export const bpB = stylex.create({
     fontSize: tokens['--jx-text-body-xl'],
     lineHeight: 'calc(var(--space-24) + var(--space-4))',
   },
-  mathInlineBadges: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ── menubar: the app bar, File menu forced open ────────────────
   menubarStage: {
@@ -93,10 +93,10 @@ export const bpB = stylex.create({
     width: '100%',
     padding: tokens['--jx-space-40'],
   },
-  menubarSkel: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-12'], opacity: 0.6 },
+  menubarSkel: { opacity: 0.6 },
   menubarSkelA: { height: '12px', width: '66.666667%' },
   menubarSkelB: { height: '12px', width: '50%' },
-  menubarPanel: { display: 'flex', minWidth: '10rem', flexDirection: 'column' },
+  menubarPanel: { minWidth: '10rem' },
   menubarItem: {
     paddingInline: tokens['--jx-space-10'],
     paddingBlock: tokens['--jx-space-4'],
@@ -112,14 +112,14 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-24'],
   },
   mermaidEngineFrame: { width: '100%', maxWidth: '480px' },
-  mermaidEngineBadges: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
   mermaidStage: {
     height: '100%',
     width: '100%',
     padding: tokens['--jx-space-24'],
   },
   mermaidFrame: { width: '100%', maxWidth: '480px' },
-  mermaidBadges: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ── native-form: the Tier-1 sheet-styled stage ─────────────────
   nativeFormStage: {
@@ -127,7 +127,7 @@ export const bpB = stylex.create({
     width: '100%',
     padding: tokens['--jx-space-40'],
   },
-  nativeFormPair: { display: 'flex', alignItems: 'flex-end', gap: tokens['--jx-space-24'] },
+
 
   // ── native-select: the platform picker stage ───────────────────
   nativeSelectStage: {
@@ -269,7 +269,7 @@ export const bpB = stylex.create({
     width: '100%',
     padding: tokens['--jx-space-40'],
   },
-  pressButtonSkel: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-12'] },
+
   pressButtonSkelA: { height: '12px', width: '75%' },
   pressButtonSkelB: { height: '12px', width: '50%' },
 
@@ -366,7 +366,7 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   proseRegion: { width: '100%', maxWidth: '520px' },
-  proseBadges: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ── radio: the one-name group ──────────────────────────────────
   radioStage: {
@@ -412,7 +412,7 @@ export const bpB = stylex.create({
     lineHeight: 'calc(var(--space-24) + var(--space-4))',
     letterSpacing: tokens['--jx-track-tight'],
   },
-  recipesRow: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-12'] },
+
 
   // ── reference: the 引 resolution matrix ────────────────────────
   referenceStage: {
@@ -1104,7 +1104,7 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   sectionCardCard: { width: '100%', maxWidth: '420px' },
-  sectionCardBadges: { display: 'flex', gap: tokens['--jx-space-12'] },
+
 
   // ── select: the rich listbox stage ─────────────────────────────
   selectStage: {
@@ -1121,7 +1121,7 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   separatorText: { fontSize: tokens['--jx-text-sm'], lineHeight: tokens['--jx-space-20'] },
-  separatorPair: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-20'] },
+
   separatorVertical: { height: '32px' },
 
   // ── sheet: the right drawer over a muted page ──────────────────
@@ -1139,7 +1139,7 @@ export const bpB = stylex.create({
     fontSize: tokens['--jx-text-sm'],
     lineHeight: tokens['--jx-space-24'],
   },
-  sheetForm: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-8'] },
+
   sheetFormLabel: {
     fontFamily: tokens['--jx-font-mono'],
     fontSize: tokens['--jx-text-label-lg'],
@@ -1164,7 +1164,7 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   shikiCard: { width: '100%', maxWidth: '520px' },
-  shikiBadges: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ── skeleton: the page-shaped placeholder ──────────────────────
   skeletonStage: {
@@ -1329,7 +1329,7 @@ export const bpB = stylex.create({
     fontSize: tokens['--jx-text-body-xl'],
     lineHeight: tokens['--jx-space-32'],
   },
-  textBadges: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ── textarea: the slotted shell ────────────────────────────────
   textareaStage: {
@@ -1498,7 +1498,7 @@ export const bpB = stylex.create({
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-label'],
   },
-  tocEngineRailRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-10'] },
+
   tocEngineSwatch: {
     height: '10px',
     width: '10px',
@@ -1650,7 +1650,7 @@ export const bpB = stylex.create({
     flexDirection: 'column',
     gap: tokens['--jx-space-20'],
   },
-  tocGroup: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-16'] },
+
   tocSection: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-8'] },
   tocH2: {
     fontFamily: tokens['--jx-font-nav'],
@@ -1676,7 +1676,7 @@ export const bpB = stylex.create({
     width: '100%',
     padding: tokens['--jx-space-40'],
   },
-  toggleGroupCol: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-8'] },
+
 
   // ── toggle: the inline-end switch ──────────────────────────────
   toggleStage: {
@@ -1710,7 +1710,7 @@ export const bpB = stylex.create({
   },
   tooltipSkelA: { height: '12px', width: '50%' },
   tooltipSkelB: { height: '12px', width: '66.666667%' },
-  tooltipRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-24'] },
+
   tooltipTrigger: {
     borderColor: tokens['--jx-border'],
     backgroundColor: tokens['--jx-background'],
@@ -1740,7 +1740,7 @@ export const bpB = stylex.create({
     backgroundColor: tokens['--jx-card'],
     padding: tokens['--jx-space-20'],
   },
-  tourTarget: { display: 'flex', flexDirection: 'column', gap: tokens['--jx-space-4'] },
+
   tourLabel: {
     fontFamily: tokens['--jx-font-mono'],
     fontSize: tokens['--jx-text-label-lg'],
@@ -1886,7 +1886,7 @@ export const bpB = stylex.create({
     borderStyle: 'dashed',
     padding: tokens['--jx-space-8'],
   },
-  websiteScaffoldChromeBar: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+
   websiteScaffoldZoneKey: {
     fontFamily: tokens['--jx-font-nav'],
     color: tokens['--jx-muted-foreground'],

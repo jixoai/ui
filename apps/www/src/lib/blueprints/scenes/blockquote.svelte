@@ -30,9 +30,9 @@
       The streaming prefix never remounts while chunks arrive.
     </Blockquote>
   </Stack>
-  <div class={cx(bpA.blockquoteRow)}>
+  <Stack wrap gap="8" }>
     <Badge>outline · tonal — frozen</Badge>
     <Badge>no fill / no ghost</Badge>
     <Badge>cite = footer &gt; cite</Badge>
-  </div>
+  </Stack>
 </Stack>

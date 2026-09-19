@@ -40,7 +40,7 @@
     <label class="jx-label" for="bp-native-form-text">Registry name</label>
     <input id="bp-native-form-text" class="jx-control" bind:this={textEl} placeholder="name" />
   </div>
-  <div class={cx(bpB.nativeFormPair)}>
+  <Stack align="end" gap="24" }>
     <label class="jx-color-shell" for="bp-native-form-color">
       <input id="bp-native-form-color" class="jx-color-swatch" type="color" bind:this={colorEl} />
     </label>
@@ -51,5 +51,5 @@
       bind:this={rangeEl}
       aria-label="coverage"
     />
-  </div>
+  </Stack>
 </Stack>

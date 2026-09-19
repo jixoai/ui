@@ -28,9 +28,9 @@
 
 <Stack direction="column" align="center" justify="center" gap="12" class={cx(bpB.mermaidEngineStage)}>
   <Mermaid class={cx(bpB.mermaidEngineFrame)} copyable={false} zoomable={false} {source} />
-  <div class={cx(bpB.mermaidEngineBadges)}>
+  <Stack wrap gap="8" }>
     <Badge>lazy singleton</Badge>
     <Badge>token-derived hex</Badge>
     <Badge>strict sanitize</Badge>
-  </div>
+  </Stack>
 </Stack>

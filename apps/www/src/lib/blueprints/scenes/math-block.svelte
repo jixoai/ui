@@ -26,9 +26,9 @@
 
 <Stack direction="column" align="center" justify="center" gap="16" class={cx(bpB.mathBlockStage)}>
   <MathBlock class={cx(bpB.mathBlockFrame)} copyable={false} tex={'\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}'} />
-  <div class={cx(bpB.mathBlockBadges)}>
+  <Stack wrap gap="8" }>
     <Badge>sync SSR · zero flash</Badge>
     <Badge>scroll-run strip</Badge>
     <Badge>copy TeX source</Badge>
-  </div>
+  </Stack>
 </Stack>

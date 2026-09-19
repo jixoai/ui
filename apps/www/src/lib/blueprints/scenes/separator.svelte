@@ -23,9 +23,9 @@
 <Stack direction="column" justify="center" gap="20" class={cx(bpB.separatorStage)}>
   <p class={cx(bpB.separatorText)}>section one</p>
   <Separator />
-  <div class={cx(bpB.separatorPair)}>
+  <Stack align="center" gap="20" }>
     <span class={cx(bpB.separatorText)}>left</span>
     <Separator orientation="vertical" class={cx(bpB.separatorVertical)} />
     <span class={cx(bpB.separatorText)}>right</span>
-  </div>
+  </Stack>
 </Stack>

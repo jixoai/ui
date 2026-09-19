@@ -30,7 +30,7 @@
     labels={['mon', 'tue', 'wed', 'thu', 'fri']}
     cells={18}
   />
-  <div class={cx(bpA.chartRow)}>
+  <Stack align="center" gap="40" }>
     <Stack direction="column" gap="12" class={cx(bpA.chartColumn)}>
       <span class={cx(bpA.chartLabel)}>lead latency</span>
       <ChartSparkline label="lead latency trend" data={[2, 4, 3, 6, 5, 8, 7]} cells="braille" />
@@ -38,5 +38,5 @@
       <ChartSparkline label="cycle time trend" data={[8, 7, 7, 5, 6, 3, 2]} cells="block" />
     </Stack>
     <ChartDonut label="bundle share by layer" data={[46, 27, 17, 10]} />
-  </div>
+  </Stack>
 </div>

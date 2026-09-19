@@ -25,10 +25,10 @@
 
 <Stack direction="column" align="center" justify="center" gap="24" class={cx(bpA.avatarStage)}>
   {#each variants as variant (variant)}
-    <div class={cx(bpA.avatarRow)}>
+    <Stack align="center" gap="20" }>
       <Avatar name="JX AoI" {variant} size="sm" tooltip={false} />
       <Avatar name="JX AoI" {variant} size="md" tooltip={false} />
       <Avatar name="JX AoI" {variant} size="lg" tooltip={false} />
-    </div>
+    </Stack>
   {/each}
 </Stack>

@@ -32,12 +32,12 @@
   <Stack direction="column" align="start" gap="16" class={cx(bpA.colorUtilsPanel)} }>
     <div class={cx(bpA.colorUtilsComment)}>// one-hue law lives in OKLCH; the canvas speaks rgb</div>
     {#each lattice as row (row.from)}
-      <div class={cx(bpA.colorUtilsRow)}>
+      <Stack align="center" gap="12" }>
         <span class={cx(bpA.colorUtilsNode)}>{row.from}</span>
         <span class={cx(bpA.colorUtilsArrow)}>{row.arrow}</span>
         <span class={cx(bpA.colorUtilsChip)}>{row.to}</span>
         <span class={cx(bpA.colorUtilsNote)}>{row.note}</span>
-      </div>
+      </Stack>
     {/each}
     <div class={cx(bpA.colorUtilsComment, bpA.colorUtilsTail)}>// parseColor never throws — null is the contract</div>
   </Stack>

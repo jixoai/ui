@@ -27,7 +27,7 @@
 </script>
 
 <Stack direction="column" align="start" justify="center" gap="24" class={cx(bpB.toggleGroupStage)}>
-  <div class={cx(bpB.toggleGroupCol)}>
+  <Stack direction="column" gap="8" }>
     <ToggleGroup name="bp-tgroup-align" label="alignment" type="single" bind:value={align}>
       <ToggleGroupItem value="left">left</ToggleGroupItem>
       <ToggleGroupItem value="center">center</ToggleGroupItem>
@@ -39,5 +39,5 @@
       <ToggleGroupItem value="mono">mono</ToggleGroupItem>
       <ToggleGroupItem value="underline">underline</ToggleGroupItem>
     </ToggleGroup>
-  </div>
+  </Stack>
 </Stack>

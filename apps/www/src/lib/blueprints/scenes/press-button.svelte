@@ -33,8 +33,8 @@
       Delete
     </PressButton>
   </Stack>
-  <div class={cx(bpB.pressButtonSkel)}>
+  <Stack direction="column" gap="12" }>
     <Skeleton class={cx(bpB.pressButtonSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.pressButtonSkelB)}></Skeleton>
-  </div>
+  </Stack>
 </Stack>

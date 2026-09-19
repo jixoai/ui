@@ -36,9 +36,9 @@ const html = await highlightCode(source, {
 
 <Stack direction="column" align="center" justify="center" gap="16" class={cx(bpB.shikiStage)}>
   <CodeCard class={cx(bpB.shikiCard)} filename="highlight.ts" lang="ts" code={sample} />
-  <div class={cx(bpB.shikiBadges)}>
+  <Stack wrap gap="8" }>
     <Badge>on-demand grammars</Badge>
     <Badge>css-variables theme</Badge>
     <Badge>js engine · no wasm</Badge>
-  </div>
+  </Stack>
 </Stack>

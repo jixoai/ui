@@ -33,9 +33,9 @@
       keeps its settle inside the region, and the P lane rides the residue sheet at (0,2,0).
     </P>
   </Prose>
-  <div class={cx(bpB.proseBadges)}>
+  <Stack wrap gap="8" }>
     <Badge>11 absentSlot knobs</Badge>
     <Badge>absence IS the state</Badge>
     <Badge>sovereignty by cascade</Badge>
-  </div>
+  </Stack>
 </Stack>

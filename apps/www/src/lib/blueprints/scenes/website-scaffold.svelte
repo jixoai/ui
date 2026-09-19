@@ -43,12 +43,12 @@
       <div class={cx(bpB.websiteScaffoldGrid)}>
         <!-- chrome plane -->
         <div class={cx(bpB.websiteScaffoldChrome)}>
-          <div class={cx(bpB.websiteScaffoldChromeBar)}>
+          <Stack align="center" justify="between" }>
             <span class={cx(bpB.websiteScaffoldZoneKey)}
               >.jx-top-layer — column-subgrid · rows [header][tocbar][stage] · z-40 · pointer-events: none→auto</span
             >
             <span class={cx(bpB.websiteScaffoldZoneValue)}>site-header vt-name</span>
-          </div>
+          </Stack>
           <div class={cx(bpB.websiteScaffoldHeaderBand)}>
             <span class={cx(bpB.websiteScaffoldBandText)}
               >.jx-scaffold-header — the nav band · scroll ↓ translateY(-101%) ↑ back</span

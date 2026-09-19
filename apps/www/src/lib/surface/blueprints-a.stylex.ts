@@ -151,7 +151,7 @@ export const bpA = stylex.create({
     width: '100%',
     padding: tokens['--jx-space-40'],
   },
-  avatarRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-20'] },
+
 
   // ══ badge-indicator ════════════════════════════════════════════
   badgeIndicatorStage: {
@@ -182,7 +182,7 @@ export const bpA = stylex.create({
     width: '100%',
     maxWidth: '520px',
   },
-  blockquoteRow: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ══ breadcrumb ═════════════════════════════════════════════════
   breadcrumbStage: {
@@ -288,7 +288,7 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
     fontFamily: tokens['--jx-font-mono'],
   },
-  chartRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-40'] },
+
   chartColumn: {
     minWidth: 0,
   },
@@ -343,7 +343,7 @@ export const bpA = stylex.create({
     fontSize: 'var(--jx-text-base)',
   },
   colorUtilsComment: { color: tokens['--jx-muted-foreground'] },
-  colorUtilsRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-12'] },
+
   colorUtilsNode: {
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
@@ -909,7 +909,7 @@ export const bpA = stylex.create({
     width: '100%',
     maxWidth: '520px',
   },
-  headingRow: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ══ hero-section ═══════════════════════════════════════════════
   heroSectionClip: { height: '100%', width: '100%', overflow: 'hidden' },
@@ -1736,7 +1736,7 @@ export const bpA = stylex.create({
     fontSize: tokens['--jx-text-micro'],
     color: tokens['--jx-muted-foreground'],
   },
-  iconStrokeRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-16'] },
+
   iconNameRow: {
     color: tokens['--jx-muted-foreground'],
   },
@@ -1749,7 +1749,7 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   imageCover: { width: '100%' },
-  imageRow: { display: 'flex', gap: tokens['--jx-space-16'] },
+
   imageThumb: {
     minWidth: 0,
     flex: '1 1 0%',
@@ -1800,7 +1800,7 @@ export const bpA = stylex.create({
     gap: 'calc(var(--jx-unit) * 7)',
     padding: tokens['--jx-space-40'],
   },
-  jixoaiThemeRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-20'] },
+
   jixoaiThemeRowLabel: {
     fontFamily: tokens['--jx-font-nav'],
     color: tokens['--jx-muted-foreground'],
@@ -1810,7 +1810,7 @@ export const bpA = stylex.create({
     textTransform: 'uppercase',
     letterSpacing: tokens['--jx-track-18'],
   },
-  jixoaiThemeSwatches: { display: 'flex', flex: '1 1 0%', gap: tokens['--jx-space-12'] },
+  jixoaiThemeSwatches: { flex: '1 1 0%' },
   jixoaiThemeSwatch: { flex: '1 1 0%' },
   jixoaiThemeChip: {
     height: 'calc(var(--jx-unit) * 11)',
@@ -1854,7 +1854,7 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   katexBlock: { width: '100%', maxWidth: '520px' },
-  katexRow: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ══ kbd ═══════════════════════════════════════════════════════
   kbdStage: {
@@ -1912,7 +1912,7 @@ export const bpA = stylex.create({
   },
   linkPara: { margin: 0 },
   linkParaMuted: { margin: 0, color: tokens['--jx-muted-foreground'] },
-  linkRow: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ══ list-item ═════════════════════════════════════════════════
   listItemStage: {
@@ -1935,7 +1935,7 @@ export const bpA = stylex.create({
     justifyContent: 'center',
     gap: 'calc(var(--jx-unit) * 14)',
   },
-  listBadgeRow: { display: 'flex', flexWrap: 'wrap', gap: tokens['--jx-space-8'] },
+
 
   // ══ llms-txt ══════════════════════════════════════════════════
   llmsTxtStage: {

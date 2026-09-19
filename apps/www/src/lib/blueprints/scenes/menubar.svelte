@@ -43,15 +43,15 @@
 </script>
 
 <Stack direction="column" justify="center" gap="32" class={cx(bpB.menubarStage)}>
-  <div class={cx(bpB.menubarSkel)}>
+  <Stack direction="column" gap="12" class={cx(bpB.menubarSkel)} }>
     <Skeleton class={cx(bpB.menubarSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.menubarSkelB)}></Skeleton>
-  </div>
+  </Stack>
   <Menubar label="app">
     <MenubarItem id="file">
       <MenubarTrigger>File</MenubarTrigger>
       <MenubarPanel>
-        <div class={cx(bpB.menubarPanel)}>
+        <Stack direction="column" class={cx(bpB.menubarPanel)} }>
           <button type="button" role="menuitem" class={cx(bpB.menubarItem)}>
             new workspace
           </button>
@@ -61,33 +61,33 @@
           <button type="button" role="menuitem" class={cx(bpB.menubarItem)}>
             export snapshot
           </button>
-        </div>
+        </Stack>
       </MenubarPanel>
     </MenubarItem>
     <MenubarItem id="edit">
       <MenubarTrigger>Edit</MenubarTrigger>
       <MenubarPanel>
-        <div class={cx(bpB.menubarPanel)}>
+        <Stack direction="column" class={cx(bpB.menubarPanel)} }>
           <button type="button" role="menuitem" class={cx(bpB.menubarItem)}>
             rename
           </button>
           <button type="button" role="menuitem" class={cx(bpB.menubarItem)}>
             duplicate
           </button>
-        </div>
+        </Stack>
       </MenubarPanel>
     </MenubarItem>
     <MenubarItem id="view">
       <MenubarTrigger>View</MenubarTrigger>
       <MenubarPanel>
-        <div class={cx(bpB.menubarPanel)}>
+        <Stack direction="column" class={cx(bpB.menubarPanel)} }>
           <button type="button" role="menuitem" class={cx(bpB.menubarItem)}>
             toggle tree
           </button>
           <button type="button" role="menuitem" class={cx(bpB.menubarItem)}>
             split editor
           </button>
-        </div>
+        </Stack>
       </MenubarPanel>
     </MenubarItem>
   </Menubar>

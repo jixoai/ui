@@ -30,7 +30,7 @@
 
 <Stack direction="column" justify="center" gap="16" class={cx(bpA.imageStage)}>
   <Image src={COVER_SRC} alt="abstract gray ridgeline cover" width={480} height={240} class={cx(bpA.imageCover)} />
-  <div class={cx(bpA.imageRow)}>
+  <Stack gap="16" }>
     <Stack direction="column" gap="6" class={cx(bpA.imageThumb)}>
       <Image src={THUMB_A_SRC} alt="framed gray thumbnail" width={224} height={140} class={cx(bpA.imageCover)} />
       <p class={cx(bpA.imageCaption)}>registry cover</p>
@@ -39,5 +39,5 @@
       <Image src={THUMB_B_SRC} alt="angular gray thumbnail" width={224} height={140} class={cx(bpA.imageCover)} />
       <p class={cx(bpA.imageCaption)}>og card</p>
     </Stack>
-  </div>
+  </Stack>
 </Stack>

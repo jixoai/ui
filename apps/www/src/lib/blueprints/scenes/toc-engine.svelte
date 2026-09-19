@@ -75,7 +75,7 @@
       >the derived rail</span
     >
     {#each rows as row (row.label)}
-      <div class={cx(bpB.tocEngineRailRow)}>
+      <Stack align="center" gap="10" }>
         <span
           class={cx(bpB.tocEngineSwatch, row.picked ? bpB.tocEngineSwatchPicked : bpB.tocEngineSwatchPlain)}
         ></span>
@@ -85,7 +85,7 @@
           {row.label}
         </span>
         <span class={cx(bpB.tocEngineRailWeight)}>{row.weight}</span>
-      </div>
+      </Stack>
       {#if row.picked}
         <span class={cx(bpB.tocEnginePick)}>line pick</span>
       {/if}

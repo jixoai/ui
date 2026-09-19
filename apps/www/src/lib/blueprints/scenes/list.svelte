@@ -34,9 +34,9 @@
       <li>start shifts the run</li>
     </List>
   </div>
-  <div class={cx(bpA.listBadgeRow)}>
+  <Stack wrap gap="8" }>
     <Badge>disc | decimal</Badge>
     <Badge>styles the list, never the row</Badge>
     <Badge>start = ol passthrough</Badge>
-  </div>
+  </Stack>
 </Stack>

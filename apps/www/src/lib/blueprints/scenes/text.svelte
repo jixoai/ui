@@ -28,9 +28,9 @@
     <Del>struck</Del>, <Mark>highlighted</Mark>, <Ins>inserted</Ins>, H<Sub>2</Sub>O, and
     x<Sup>2</Sup> — the whole family in one flow.</Text>
   </p>
-  <div class={cx(bpB.textBadges)}>
+  <Stack wrap gap="8" }>
     <Badge>8 forms · one vocabulary</Badge>
     <Badge>mark = literal slot (own 'p')</Badge>
     <Badge>face-composing</Badge>
-  </div>
+  </Stack>
 </Stack>

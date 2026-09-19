@@ -28,9 +28,9 @@
 
 <Stack direction="column" align="center" justify="center" gap="12" class={cx(bpB.mermaidStage)}>
   <Mermaid class={cx(bpB.mermaidFrame)} copyable={false} zoomable={false} {source} />
-  <div class={cx(bpB.mermaidBadges)}>
+  <Stack wrap gap="8" }>
     <Badge>source-first floor</Badge>
     <Badge>theme follow</Badge>
     <Badge>zoom · pure transform</Badge>
-  </div>
+  </Stack>
 </Stack>

@@ -34,12 +34,12 @@
   <p class={cx(bpB.sheetBody)}>
     Rename the workspace or hand it over — changes apply to every member on next sign-in.
   </p>
-  <div class={cx(bpB.sheetForm)}>
+  <Stack direction="column" gap="8" }>
     <p class={cx(bpB.sheetFormLabel)}>name</p>
     <p class={cx(bpB.sheetFieldValue)}>jixoai-labs/ui</p>
     <p class={cx(bpB.sheetFormLabel)}>brand hue</p>
     <p class={cx(bpB.sheetFieldValue)}>oklch(0.72 0.16 27)</p>
-  </div>
+  </Stack>
   {#snippet footer()}
     <!-- the carved action band: ghost (the zone's default) + fill -->
     <CardFooter>
