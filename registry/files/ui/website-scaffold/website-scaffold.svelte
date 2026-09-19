@@ -98,6 +98,12 @@
 
   interface Props {
     header: Snippet;
+    /** the BOOT SPLASH seat (the FOUC round, 2026-09-19 — Owner
+     *  design): rendered at the HOST ROOT, above every layer, before
+     *  the shell — the splash's own styles ride the HTML itself
+     *  (inline attributes + a head-carried style block), so it paints
+     *  before any async stylesheet and masks the unstyled window */
+    splash?: Snippet;
     /** Static chrome, SSR-stable (Owner + Codex ruling, 2026-08-24): the
      *  toc rail and the catalog tree render HERE — authored in their final
      *  position from the first paint, never moved by hydration. Dynamic
@@ -108,7 +114,7 @@
     footer?: Snippet;
   }
 
-  let { header, chrome, children, footer }: Props = $props();
+  let { header, splash, chrome, children, footer }: Props = $props();
 
   // dynamic float plane state — the ORDERED set of adopted nodes
   // (scaffold-float portals; static chrome never passes through here)
@@ -207,6 +213,9 @@
 </script>
 
 <div class="jx-shell-host" bind:this={hostEl} data-hidden={hidden || undefined}>
+  {#if splash}
+    {@render splash()}
+  {/if}
   <a href="#main" class="jx-skip-link">Skip to content</a>
 
   <div class="jx-shell" bind:this={shellEl}>

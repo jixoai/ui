@@ -223,7 +223,11 @@
   // trigger nothing. Explicit pins observe nothing (the engine's local
   // wrapper owns the sheet read). Debounced; disconnected on cleanup.
   $effect(() => {
-    if (theme !== 'auto') return;
+    // d.theme, NEVER the raw prop: since the Defaults round the 'auto'
+    // default lives in the contract — the raw prop is undefined for auto
+    // instances and gating on it would never mount the observer (the
+    // km-gate regression: scoped flips stopped re-rendering autos)
+    if (d.theme !== 'auto') return;
     const root = figureEl;
     if (!root) return;
     let timer: ReturnType<typeof setTimeout> | undefined;

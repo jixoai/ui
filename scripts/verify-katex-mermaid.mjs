@@ -145,6 +145,13 @@ try {
     // every REAL assertion below keys on waitForSelector/settled anyway
     await page.goto(`${BASE}/docs/components/mermaid.html`, { timeout: 90_000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
+    // the boot splash (2026-09-19) may still cover the first window —
+    // wait it out before any REAL-coordinate interaction (its
+    // dismissal rides fonts.ready + a hard 4s cap)
+    await page
+      .waitForSelector('[data-jx-splash="layer"]', { timeout: 6_000 })
+      .then(() => page.waitForSelector('[data-jx-splash="layer"]', { hidden: true, timeout: 8_000 }))
+      .catch(() => {});
 
     // 1. the lazy engine loads and the instances render (generous
     //    budget: ~1MB engine, several instances through the serial queue)
@@ -251,6 +258,10 @@ try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     await page.goto(`${BASE}/docs/components/math-block.html`, { timeout: 90_000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
+    await page
+      .waitForSelector('[data-jx-splash="layer"]', { timeout: 6_000 })
+      .then(() => page.waitForSelector('[data-jx-splash="layer"]', { hidden: true, timeout: 8_000 }))
+      .catch(() => {});
 
     // real KaTeX markup in the SERVED DOM (the sync SSR lane — these
     // arrive with the prerendered bytes, no waiting on hydration)

@@ -1376,10 +1376,19 @@ const SEMANTIC_CLASS_NAMES = new Set(SEMANTIC_RULES.flatMap((r) => r.classes ?? 
 // resolveTextStyle() formsByFile census, 21 forms × the two mirror
 // sides).
 const RATCHET = {
-  files: 0, // ZERO (2026-09-18, W3 close): the migration is complete —
-  identities: 0, // any class identity anywhere is red unless atoms,
-  occurrences: 0, // tokens, registered semantics, or registered
-  zones: { routes: 0, 'site-libs': 0, ui: 0 }, // producers own it
+  // ONE deliberate carve (2026-09-19, the FOUC round, Owner design):
+  // boot-splash carries 6 HARDCODED head-carried classes — the
+  // zero-css-file law DEMANDS them (the splash must paint before any
+  // stylesheet; its vocabulary rides the HTML itself). The carve is
+  // ui-zone only, sized to exactly the family's six identities,
+  // review-visible here per the gate-source law. Everything else
+  // stays ZERO: the migration is complete — any OTHER class identity
+  // anywhere is red unless atoms, tokens, registered semantics, or
+  // registered producers own it
+  files: 1,
+  identities: 6,
+  occurrences: 6,
+  zones: { routes: 0, 'site-libs': 0, ui: 6 },
   forms: 42,
 };
 const RATCHET_ZONE_KEYS = ['routes', 'site-libs', 'ui'];

@@ -37,6 +37,7 @@
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
   import WebsiteScaffold from '$lib/ui/website-scaffold/website-scaffold.svelte';
+  import BootSplash from '$lib/ui/boot-splash/boot-splash.svelte';
   import TerminalFooter from '$lib/ui/terminal-footer/terminal-footer.svelte';
   import TerminalFooterColumn from '$lib/ui/terminal-footer/terminal-footer-column.svelte';
   import TerminalHeader from '$lib/ui/terminal-header/terminal-header.svelte';
@@ -685,6 +686,17 @@
 {/snippet}
 
 <WebsiteScaffold>
+  {#snippet splash()}
+    <!-- the FOUC mask (Owner design, 2026-09-19): styles ride the HTML
+         itself (inline + the head-carried block), so this paints before
+         any async stylesheet and dismisses on fonts.ready (4s cap) -->
+    <BootSplash
+      title="jixoai-ui"
+      subtitle="the terminal design language"
+      description="loading the style sheet…"
+      exit="blur-out"
+    />
+  {/snippet}
   {#snippet chrome()}
     <!-- static chrome (SSR-stable): the catalog tree + the page toc —
          authored in their final grid cells from the first paint -->

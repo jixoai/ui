@@ -2636,6 +2636,31 @@
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "boot-splash",
+      "type": "registry:ui",
+      "title": "BootSplash",
+      "description": "The FOUC mask (Owner design, 2026-09-19): a splash layer whose styles CANNOT be late — every style rides the HTML itself (inline style attributes + a <style> block carried inside <svelte:head>, which SSR renders INLINE into the document — never an async chunk). It paints before any stylesheet and masks the unstyled window (async css delivery, the dev lane's JS-fetcher stylex css, slow-network waterfalls, late fonts). Slots: logo, loading (default: a hardcoded SMIL SVG spinner — zero css by construction; compose a spin-pack loader here), title, subtitle, description (progress or time-consuming copy). Exit vocabulary: opacity-out | blur-out | none (keyframes in the same head block; reduced-motion skips; a <noscript> rule never traps the page). Dismissal: revealOn fonts | load | manual, with a timeoutMs cap and a minMs display floor. website-scaffold carries the splash seat at its host root.",
+      "docs": "Props: logo?, loading?, title?, subtitle?, description?, exit? ('opacity-out' | 'blur-out' | 'none', default opacity-out), revealOn? ('fonts' | 'load' | 'manual', default fonts), timeoutMs? (default 4000), minMs? (default 350), durationMs? (default 350), open? (bindable). Zero css-file dependency by law — mount it inside WebsiteScaffold's splash snippet; the SSR'd HTML carries everything the layer needs at first paint.",
+      "meta": {
+        "group": "layout",
+        "href": "/docs/components/boot-splash.html"
+      },
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/files/ui/boot-splash/boot-splash.svelte",
+          "target": "@ui/boot-splash/boot-splash.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/boot-splash/index.ts",
+          "target": "@ui/boot-splash/index.ts",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
       "name": "skeleton",
       "type": "registry:ui",
       "title": "Skeleton",
