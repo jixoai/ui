@@ -130,6 +130,21 @@
   animation: jx-shimmer-spin var(--shimmer-speed, 3000ms) linear infinite;
 }
 
+/* THE EFFECT-HOST STACKING POSE (the overflow round, 2026-09-20):
+   every effect host (pulse/rainbow/ripple mounts) carries
+   position: relative + z-index: 0 — the negative-z effect layers
+   resolve against the HOST and stay under the in-flow label. This
+   was once stamped as the UTILITY classes relative/z-0; the
+   tailwindless sweep deleted those rules and the stamps went mute —
+   computed position: static, every absolute layer resolved against
+   a foreign containing block, and the sonar/glow geometry spilled
+   far outside its host. The pose is FAMILY-OWNED now, behind
+   :where() so consumer utilities keep winning (the layer law). */
+:where(.jx-fx-host) {
+  position: relative;
+  z-index: 0;
+}
+
 /* pulse — sonar rings cast by a silhouette copy of the body. r4 ruling
    4: opacity fades DURING the expansion — box-shadow spread and opacity
    at MATCHED percentages inside ONE keyframe set per variant (see the

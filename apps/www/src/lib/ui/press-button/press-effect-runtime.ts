@@ -335,10 +335,18 @@ function rimClipCss(): string {
   return borderAreaSupported() ? 'padding-box, border-area' : 'padding-box, border-box';
 }
 
-/** the stacking pose the effect hosts carry as utilities (relative z-0
- *  keeps the negative-z layers under the in-flow label); the runtime
- *  stamps the same classes itself */
-const HOST_CLASSES = ['relative', 'z-0'];
+/** the stacking pose the effect hosts carry (relative z-0 keeps the
+ *  negative-z layers under the in-flow label). THE TAILWINDLESS
+ *  LESSON (the overflow round, 2026-09-20): this list once read
+ *  ['relative', 'z-0'] — UTILITY class names whose rules the
+ *  tailwindless migration deleted from production css, so the stamps
+ *  went mute (computed position: static), every absolute effect
+ *  layer resolved against a foreign containing block, and the
+ *  pulse/glow geometry spilled far outside its host. Dynamic class
+ *  stamps must reference rules the FAMILY owns — the semantic
+ *  jx-fx-host class below, lawed in press-button.css behind :where()
+ *  (zero specificity: consumer utilities keep winning) */
+const HOST_CLASSES = ['jx-fx-host'];
 
 /** each kernel's own custom properties — the stamp/strip pairs that
  *  keep the runtime coexisting with consumer styles (the liquid-glass

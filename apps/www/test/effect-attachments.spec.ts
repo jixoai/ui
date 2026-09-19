@@ -487,12 +487,12 @@ describe('pressEffect · mount stamps + teardown cleans (the r5 ring recipes)', 
     expect(glow).toBeTruthy();
     expect(glow!.getAttribute('style')).toBeNull();
     expect(el.querySelector('.jx-rainbow-ring')).toBeNull();
-    expect(el.className).toContain('relative');
+    expect(el.className).toContain('jx-fx-host');
     detach();
     expect(el.hasAttribute('data-jx-rainbow-host')).toBe(false);
     expect(el.querySelector('.jx-rainbow-glow')).toBeNull();
     expect(el.getAttribute('style')).toBeNull();
-    expect(el.classList.contains('relative')).toBe(false);
+    expect(el.classList.contains('jx-fx-host')).toBe(false);
   });
 
   it('rainbow: the host inline style is BYTE-IDENTICAL through mount+teardown (paint rides the class)', () => {
@@ -891,8 +891,8 @@ describe('pressEffect · the self-listened gesture surface (ripple, the svg engi
     // THE ANCHOR LAW (the IAB catch): the host carries the positioned
     // pose, the sheet sizes + clips the seat (inherit radius, hidden
     // overflow — the r6 clipPath chase is dead)
-    expect(el.classList.contains('relative')).toBe(true);
-    expect(el.classList.contains('z-0')).toBe(true);
+    expect(el.classList.contains('jx-fx-host')).toBe(true);
+    // the z-0 half of the old utility pair rides inside .jx-fx-host's rule now
     expect(layer.querySelector('defs')).toBeNull(); // soft defaults to 0: NO filter def
     expect(layer.querySelector('g')!.getAttribute('filter')).toBeNull();
     detach();
