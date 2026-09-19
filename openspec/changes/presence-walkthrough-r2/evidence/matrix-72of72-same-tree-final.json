@@ -1,14 +1,14 @@
 {
-  "when": "2026-09-19T00:10:38.751Z",
+  "when": "2026-09-19T00:32:39.725Z",
   "loadavg": [
-    6.5,
-    4.6,
-    3.5
+    8.3,
+    4.4,
+    3.6
   ],
   "node": "v24.21.0",
   "platform": "darwin",
   "provenance": {
-    "gitSha": "61030d97723f86639f8612bb7ca1eeae811f990a",
+    "gitSha": "e20b3168b8606784e0c7ded948272029901b2efb",
     "matrixSha256": "4bc636bda89def71eb23b148e9eac67144b9aab043bbb3c4a7d7ab04f64788ef",
     "studioManifest": {
       "inputsHash": "6a27dca45aa34b0f456526a48d1d3e90408a5ac38d978033c52a750008d12cbc",
@@ -215,7 +215,7 @@
       "step": "D14",
       "name": "② journal 未损坏（全行可解析 + 行数只增 + /sync 仍 200）",
       "pass": true,
-      "detail": "journal 87→91 行, 坏行=0; sync=ok(7324b)"
+      "detail": "journal 121→123 行, 坏行=0; sync=ok(9336b)"
     },
     {
       "step": "A1",
@@ -305,13 +305,13 @@
       "step": "P7",
       "name": "① mock cursor 帧 → B 端 overlay transform 落位 ≤100ms（提案端到端预算；16ms 网关窗 + 广播 + rAF；页内打点，空载 probe 实测 ≈40ms）",
       "pass": true,
-      "detail": "发出→落位 = 42ms（3 次采样 [43,42,123] 取最小）"
+      "detail": "发出→落位 = 43ms（3 次采样 [49,43,54] 取最小）"
     },
     {
       "step": "P7",
       "name": "② A 真实鼠标（canvas 地面）→ B 端光标落位 ≤100ms（全链：rAF 上报 + 16ms 节流 + ws + 网关窗 + 广播 + 渲染；页内打点 + 观察者 surface 核实；多点位采样取最小）",
       "pass": true,
-      "detail": "跳点→落位 = 66ms（采样 [85,66,66,68]）"
+      "detail": "跳点→落位 = 72ms（采样 [127,82,73,72]）"
     },
     {
       "step": "P1",
@@ -323,7 +323,7 @@
       "step": "P1",
       "name": "② click→ring ≤200ms（Owner 选中同步预算；页内打点 + 3 轮取最小）",
       "pass": true,
-      "detail": "84ms（采样 [84,153,88]）"
+      "detail": "81ms（采样 [81,139,91]）"
     },
     {
       "step": "P2",
@@ -383,7 +383,7 @@
       "step": "P3",
       "name": "B 键入单字符（不按 Enter）→ A 端 input value 实时镜像 ≤600ms（Owner 实时预算；2 轮独立基线取最小）",
       "pass": true,
-      "detail": "353ms（采样 [356,353]；各轮 [{\"ch\":\"Z\",\"start\":\"\\\"ree-ribbon\\\"\",\"end\":\"\\\"ee-ribbonZ\\\"\",\"ms\":356},{\"ch\":\"Y\",\"start\":\"\\\"ee-ribbonZ\\\"\",\"end\":\"\\\"e-ribbonZY\\\"\",\"ms\":353}]）"
+      "detail": "337ms（采样 [373,337]；各轮 [{\"ch\":\"Z\",\"start\":\"\\\"ree-ribbon\\\"\",\"end\":\"\\\"ee-ribbonZ\\\"\",\"ms\":373},{\"ch\":\"Y\",\"start\":\"\\\"ee-ribbonZ\\\"\",\"end\":\"\\\"e-ribbonZY\\\"\",\"ms\":337}]）"
     },
     {
       "step": "P4",
@@ -395,7 +395,7 @@
       "step": "P4",
       "name": "② B 移动 caret（End↔Home 两程取最小）→ A 端 caret 条位置跟随 ≤100ms（Owner caret 预算）",
       "pass": true,
-      "detail": "53ms（采样 [53]）"
+      "detail": "21ms（采样 [21]）"
     },
     {
       "step": "P4",
@@ -413,13 +413,13 @@
       "step": "P8",
       "name": "② B 在 popovertarget input 打字（无 Enter）→ A 端 600ms 内镜像（走查发现 A 的回归锁；2 轮取最小）",
       "pass": true,
-      "detail": "346ms（采样 [346,351]）"
+      "detail": "342ms（采样 [446,342]）"
     },
     {
       "step": "A2",
       "name": "desktop kit 内点击 #a4 → attention.frameId=desktop 变体，对端 ring 落在 desktop kit 的 box 内（同 id 双 kit + 宿主诱饵定位）",
       "pass": true,
-      "detail": "ring=(1584,1315,151x40) desktop=(1235,1153,1280x793) mobile=(25,85,390x844) → 落desktop=true 落mobile=false"
+      "detail": "ring=(1757,1459,151x40) desktop=(1235,1153,1280x793) mobile=(25,85,390x844) → 落desktop=true 落mobile=false"
     },
     {
       "step": "A4",
