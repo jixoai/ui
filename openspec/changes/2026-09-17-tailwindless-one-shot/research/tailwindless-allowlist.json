@@ -1,0 +1,1632 @@
+{
+  "exclusions": {
+    "astBoundary": "Svelte AST class=/class: attributes (Text chunks + positional string-literal fragments of expressions, each-scope bindings resolved) + TS AST string literals inside cn()/clsx() calls and template compositions + REGISTERED producers (cn(), clsx(), resolveTextStyle(), stylex runtime seam) at class positions; everything else (plain string vars, imported helpers, props) is producer territory — props are caller-supplied (counted in the caller file), unregistered producers are red",
+    "codeFences": [
+      "CodeBlock `code` prop (component-name blacklist — never a class position)",
+      "backtick usage/demo strings assigned to consts and passed as content/code/files props in docs pages",
+      "ComponentCanvas tree-file content values (sample code, not runtime markup)"
+    ]
+  },
+  "files": [
+    {
+      "identities": {
+        "jx-boot-splash-desc": 1,
+        "jx-boot-splash-exit-blur": 1,
+        "jx-boot-splash-exit-opacity": 1,
+        "jx-boot-splash-layer": 1,
+        "jx-boot-splash-subtitle": 1,
+        "jx-boot-splash-title": 1
+      },
+      "path": "registry/files/ui/boot-splash/boot-splash.svelte",
+      "zone": "ui"
+    }
+  ],
+  "generator": "scripts/verify-tailwindless.mjs --pin",
+  "jxCssUtilities": {
+    "count": 0,
+    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "names": [],
+    "perFile": [
+      {
+        "names": [],
+        "rel": "apps/www/src/lib/jixoai.css"
+      },
+      {
+        "names": [],
+        "rel": "registry/files/theme/jixoai.css"
+      }
+    ]
+  },
+  "pinnedAt": "2026-09-17",
+  "producers": [
+    {
+      "id": "cn()",
+      "legal": [
+        "<passthrough — cn() emits only what callers pass; its legal set IS the pinned global identity union, counted per file at every call site>"
+      ],
+      "module": "apps/www/src/lib/utils.ts (mirror registry/files/lib/utils.ts)",
+      "retiresAt": "P2 (cn() seam retirement)"
+    },
+    {
+      "id": "clsx()",
+      "legal": [
+        "<passthrough — same contract as cn()>"
+      ],
+      "module": "clsx package, via cn() and (rare) direct call sites",
+      "retiresAt": "P2"
+    },
+    {
+      "formsByFile": [
+        {
+          "forms": [
+            "[font-family:…]",
+            "[font-size:…]",
+            "font-[…]",
+            "font-black",
+            "font-bold",
+            "font-extrabold",
+            "font-extralight",
+            "font-light",
+            "font-medium",
+            "font-normal",
+            "font-semibold",
+            "font-thin",
+            "italic",
+            "leading-[…]",
+            "tracking-[…]",
+            "tracking-normal",
+            "tracking-tight",
+            "tracking-tighter",
+            "tracking-wide",
+            "tracking-wider",
+            "tracking-widest"
+          ],
+          "rel": "registry/files/lib/text-style.svelte.ts"
+        },
+        {
+          "forms": [
+            "[font-family:…]",
+            "[font-size:…]",
+            "font-[…]",
+            "font-black",
+            "font-bold",
+            "font-extrabold",
+            "font-extralight",
+            "font-light",
+            "font-medium",
+            "font-normal",
+            "font-semibold",
+            "font-thin",
+            "italic",
+            "leading-[…]",
+            "tracking-[…]",
+            "tracking-normal",
+            "tracking-tight",
+            "tracking-tighter",
+            "tracking-wide",
+            "tracking-wider",
+            "tracking-widest"
+          ],
+          "rel": "apps/www/src/lib/text-style.svelte.ts"
+        }
+      ],
+      "id": "resolveTextStyle()",
+      "legal": [
+        "[font-family:…]",
+        "[font-size:…]",
+        "font-[…]",
+        "font-black",
+        "font-bold",
+        "font-extrabold",
+        "font-extralight",
+        "font-light",
+        "font-medium",
+        "font-normal",
+        "font-semibold",
+        "font-thin",
+        "italic",
+        "leading-[…]",
+        "tracking-[…]",
+        "tracking-normal",
+        "tracking-tight",
+        "tracking-tighter",
+        "tracking-wide",
+        "tracking-wider",
+        "tracking-widest"
+      ],
+      "module": "registry/files/lib/text-style.svelte.ts (mirror apps/www/src/lib/text-style.svelte.ts)",
+      "retiresAt": "P3 (the bracket emissions leading-[…]/font-[…]/tracking-[…]/[font-family:…]/[font-size:…] retire with P3; named forms migrate to token steps)"
+    },
+    {
+      "id": "stylex runtime seam",
+      "legal": [
+        "<stylex atom classnames — engine-generated hash names, pattern-exempt: the destination lane, not Tailwind identities>"
+      ],
+      "module": "@stylexjs/stylex namespace imports (stylex.create / stylex.attrs(...).class, incl. local sx wrappers)",
+      "retiresAt": "never (destination mechanism)"
+    }
+  ],
+  "semantics": [
+    {
+      "class": "pill",
+      "id": "pill",
+      "owner": "apps/www/src/lib/site/docs-tables.css",
+      "registeredAt": "2026-09-17 (pre-existing site rule; registered by tailwindless-site P0 task 3.3)",
+      "scope": "inline-flex chip: ground/border/ink tint recipe, radius, measure",
+      "selector": ":where(.pill) — the catalog pill chip"
+    },
+    {
+      "class": "tl-shell",
+      "id": "tl-shell",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
+      "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
+      "scope": "measure + rhythm: max-width, centered, padding-inline/block steps; registered media seams sm(40rem)/lg(64rem) re-pin the inline step",
+      "selector": ".tl-shell — the docs page shell"
+    },
+    {
+      "class": "tl-eyebrow",
+      "id": "tl-eyebrow",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
+      "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
+      "scope": "typography role: font-nav, primary ink, label size, uppercase, label tracking",
+      "selector": ".tl-eyebrow — the canvas demo label voice (span)"
+    },
+    {
+      "class": "tl-body",
+      "id": "tl-body",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
+      "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
+      "scope": "typography role: small size + muted ink",
+      "selector": ".tl-body — the demo body voice (p, ul)"
+    },
+    {
+      "class": "tl-col",
+      "id": "tl-col",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
+      "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
+      "scope": "layout: flex column with the 8px label-to-stage gap",
+      "selector": ".tl-col — the demo column (label over stage)"
+    },
+    {
+      "class": "tl-frame",
+      "id": "tl-frame",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
+      "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
+      "scope": "box: hairline-weight solid border on the border color role (padding composed as atoms)",
+      "selector": ".tl-frame — the bordered demo frame"
+    },
+    {
+      "class": "tl-grid-3",
+      "id": "tl-grid-3",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
+      "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
+      "scope": "layout: grid, 24px gutter; registered media seam min-1100px flips to 3 equal tracks (breakpoint-parity law: viewport seam stays a viewport media rule)",
+      "selector": ".tl-grid-3 — the three-up demo grid"
+    },
+    {
+      "class": "tl-grid-matrix",
+      "id": "tl-grid-matrix",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
+      "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
+      "scope": "layout: grid, 24px gutter; registered media seams min-900px (2 tracks) and min-1300px (3 tracks)",
+      "selector": ".tl-grid-matrix — the geometry matrix grid"
+    },
+    {
+      "class": "tl-ctl",
+      "classes": [
+        "tl-ctl",
+        "tl-ctl--primary"
+      ],
+      "id": "tl-ctl",
+      "owner": "apps/www/src/lib/site/timeline-docs.css",
+      "registeredAt": "2026-09-17 (tailwindless-site P0 pilot, task 3.3)",
+      "scope": "control: radius/border/background/padding + the control-label voice; hover seams are NATIVE pseudos (outline variant → muted ground, primary variant → 0.9 opacity)",
+      "selector": ".tl-ctl (+ .tl-ctl--primary accent) — the stepper control button"
+    },
+    {
+      "classes": [
+        "jx-probe",
+        "jx-probe-box",
+        "jx-probe-frame",
+        "jx-probe-lane"
+      ],
+      "id": "folder-css-probe-4",
+      "owner": "apps/www/src/lib/__probe__/folder-css-probe.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "prompt"
+      ],
+      "id": "code-block-1",
+      "owner": "apps/www/src/lib/code-block.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-hue-content",
+        "jx-hue-label",
+        "jx-hue-play",
+        "jx-hue-range",
+        "jx-hue-trigger"
+      ],
+      "id": "hue-popover-5",
+      "owner": "apps/www/src/lib/components/hue-popover.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-card-link"
+      ],
+      "id": "overview-card-1",
+      "owner": "apps/www/src/lib/overview-card.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-play-help",
+        "jx-play-seg"
+      ],
+      "id": "playground-2",
+      "owner": "apps/www/src/lib/playground/playground.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "dim"
+      ],
+      "id": "docs-tables-1",
+      "owner": "apps/www/src/lib/site/docs-tables.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "hue-slider",
+        "swatch",
+        "swatch-chip"
+      ],
+      "id": "token-lab-3",
+      "owner": "apps/www/src/lib/site/token-lab.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-a11y-heading"
+      ],
+      "id": "a11y-table-1",
+      "owner": "apps/www/src/lib/ui/a11y-table/a11y-table.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-acc-item",
+        "jx-acc-summary"
+      ],
+      "id": "accordion-item-2",
+      "owner": "apps/www/src/lib/ui/accordion/accordion-item.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-accordion"
+      ],
+      "id": "accordion-1",
+      "owner": "apps/www/src/lib/ui/accordion/accordion.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-alert-icon"
+      ],
+      "id": "alert-1",
+      "owner": "apps/www/src/lib/ui/alert/alert.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-bc-link"
+      ],
+      "id": "breadcrumb-1",
+      "owner": "apps/www/src/lib/ui/breadcrumb/breadcrumb.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-card-end-action-slot",
+        "jx-card-foot-cluster",
+        "jx-card-foot-end",
+        "jx-card-foot-grid",
+        "jx-card-foot-start",
+        "jx-card-head-content",
+        "jx-card-head-face"
+      ],
+      "id": "card-7",
+      "owner": "apps/www/src/lib/ui/card/card.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-carousel-track"
+      ],
+      "id": "carousel-1",
+      "owner": "apps/www/src/lib/ui/carousel/carousel.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-cascader-select"
+      ],
+      "id": "cascader-1",
+      "owner": "apps/www/src/lib/ui/cascader/cascader.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-chart-area",
+        "jx-chart-glyphs",
+        "jx-chart-grid",
+        "jx-chart-mark",
+        "jx-chart-path",
+        "jx-chart-seg",
+        "jx-chart-table",
+        "jx-chart-track"
+      ],
+      "id": "chart-8",
+      "owner": "apps/www/src/lib/ui/chart/chart.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-check-lane"
+      ],
+      "id": "checkbox-1",
+      "owner": "apps/www/src/lib/ui/checkbox/checkbox.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "copied",
+        "jx-code-card"
+      ],
+      "id": "code-card-2",
+      "owner": "apps/www/src/lib/ui/code-card/code-card.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-color-picker-panel",
+        "jx-color-picker-sv",
+        "jx-color-picker-swatches",
+        "jx-color-picker-trigger"
+      ],
+      "id": "color-picker-4",
+      "owner": "apps/www/src/lib/ui/color-picker/color-picker.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-combobox-check",
+        "jx-combobox-chevron",
+        "jx-combobox-option",
+        "jx-combobox-panel",
+        "jx-combobox-shell",
+        "jx-combobox-toggle",
+        "jx-combobox-x-glyph"
+      ],
+      "id": "combobox-7",
+      "owner": "apps/www/src/lib/ui/combobox/combobox.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-command"
+      ],
+      "id": "command-1",
+      "owner": "apps/www/src/lib/ui/command/command.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-canvas-chevron",
+        "jx-canvas-code-drawer",
+        "jx-canvas-code-panels",
+        "jx-canvas-code-toggle",
+        "jx-canvas-code-view",
+        "jx-canvas-copy-usage",
+        "jx-canvas-dock-collapse",
+        "jx-canvas-head-text",
+        "jx-canvas-install",
+        "jx-canvas-scroll",
+        "jx-canvas-stage-row",
+        "jx-canvas-tree",
+        "jx-item"
+      ],
+      "id": "component-canvas-13",
+      "owner": "apps/www/src/lib/ui/component-canvas/component-canvas.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-date-active",
+        "jx-date-chevron",
+        "jx-date-day",
+        "jx-date-fill",
+        "jx-date-grid",
+        "jx-date-nav-btn",
+        "jx-date-off",
+        "jx-date-panel",
+        "jx-date-trigger"
+      ],
+      "id": "date-picker-9",
+      "owner": "apps/www/src/lib/ui/date-picker/date-picker.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-docs-pager",
+        "jx-docs-pager-direction",
+        "jx-docs-pager-label",
+        "jx-docs-pager-next",
+        "jx-docs-pager-related",
+        "jx-docs-pager-title",
+        "jx-docs-pager-wrap",
+        "jx-dp-chip",
+        "jx-dp-ico",
+        "jx-dp-qual"
+      ],
+      "id": "docs-pager-10",
+      "owner": "apps/www/src/lib/ui/docs-pager.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-dsn"
+      ],
+      "id": "docs-sections-nav-1",
+      "owner": "apps/www/src/lib/ui/docs-sections-nav.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-dsn-bar",
+        "jx-dsn-bar-label",
+        "jx-dsn-bar-row",
+        "jx-dsn-bar-search",
+        "jx-dsn-clear",
+        "jx-dsn-count",
+        "jx-dsn-current",
+        "jx-dsn-empty",
+        "jx-dsn-expand",
+        "jx-dsn-expand-head",
+        "jx-dsn-group",
+        "jx-dsn-group-label",
+        "jx-dsn-head",
+        "jx-dsn-input",
+        "jx-dsn-link",
+        "jx-dsn-link-row",
+        "jx-dsn-link-title",
+        "jx-dsn-list",
+        "jx-dsn-rail",
+        "jx-dsn-search",
+        "jx-dsn-sub",
+        "jx-dsn-title",
+        "jx-dsn-toggle"
+      ],
+      "id": "docs-sections-nav-23",
+      "owner": "apps/www/src/lib/ui/docs-sections-nav.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-menu",
+        "jx-menu-anchor",
+        "jx-menu-caret",
+        "jx-menu-item",
+        "jx-menu-item-destructive",
+        "jx-menu-trigger"
+      ],
+      "id": "dropdown-menu-6",
+      "owner": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-file",
+        "jx-file-clear",
+        "jx-file-icon",
+        "jx-file-over",
+        "jx-file-remove",
+        "jx-file-row",
+        "jx-file-trigger",
+        "jx-file-zone",
+        "jx-file-zone-glyph",
+        "jx-file-zone-title"
+      ],
+      "id": "file-input-10",
+      "owner": "apps/www/src/lib/ui/file-input/file-input.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-fab-menu"
+      ],
+      "id": "float-button-1",
+      "owner": "apps/www/src/lib/ui/float-button/float-button.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-hero-step"
+      ],
+      "id": "hero-section-1",
+      "owner": "apps/www/src/lib/ui/hero-section/hero-section.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-otp-complete",
+        "jx-otp-slot"
+      ],
+      "id": "input-otp-2",
+      "owner": "apps/www/src/lib/ui/input-otp/input-otp.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-clearable",
+        "jx-floating",
+        "jx-floating-label",
+        "jx-html-clear",
+        "jx-html-control-lane",
+        "jx-html-control-shell",
+        "jx-html-select",
+        "jx-input-prefix-icon-button",
+        "jx-input-reveal",
+        "jx-input-suffix-icon-button",
+        "jx-invalid",
+        "jx-number-shell",
+        "jx-picker-overlay",
+        "jx-picker-panel"
+      ],
+      "id": "input-14",
+      "owner": "apps/www/src/lib/ui/input/input.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-item-field-description",
+        "jx-item-field-error",
+        "jx-item-field-icon",
+        "jx-item-field-label",
+        "jx-item-group",
+        "jx-item-group-label"
+      ],
+      "id": "item-6",
+      "owner": "apps/www/src/lib/ui/list-item/item.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-pure",
+        "no-jx-pure"
+      ],
+      "id": "markdown-2",
+      "owner": "apps/www/src/lib/ui/markdown/markdown.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "scrollport"
+      ],
+      "id": "math-block-1",
+      "owner": "apps/www/src/lib/ui/math-block/math-block.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-menubar-menu-item",
+        "jx-menubar-panel",
+        "jx-menubar-trigger"
+      ],
+      "id": "menubar-3",
+      "owner": "apps/www/src/lib/ui/menubar/menubar.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-mermaid",
+        "jx-mermaid-copy",
+        "jx-mermaid-zoom-btn"
+      ],
+      "id": "mermaid-3",
+      "owner": "apps/www/src/lib/ui/mermaid/mermaid.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-num",
+        "jx-num-btn",
+        "jx-num-input"
+      ],
+      "id": "number-input-3",
+      "owner": "apps/www/src/lib/ui/number-input/number-input.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-pattern-cta"
+      ],
+      "id": "pattern-cta-1",
+      "owner": "apps/www/src/lib/ui/pattern-cta/pattern-cta.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-man-label",
+        "jx-man-leader",
+        "jx-man-row"
+      ],
+      "id": "pattern-faq-3",
+      "owner": "apps/www/src/lib/ui/pattern-faq/pattern-faq.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-hero-marquee-track"
+      ],
+      "id": "pattern-hero-set-1",
+      "owner": "apps/www/src/lib/ui/pattern-hero-set/pattern-hero-set.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-pattern-login"
+      ],
+      "id": "pattern-login-1",
+      "owner": "apps/www/src/lib/ui/pattern-login/pattern-login.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-pc"
+      ],
+      "id": "popconfirm-1",
+      "owner": "apps/www/src/lib/ui/popconfirm/popconfirm.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-surface"
+      ],
+      "id": "popover-1",
+      "owner": "apps/www/src/lib/ui/popover/popover.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-press-spin-frames"
+      ],
+      "id": "press-button-1",
+      "owner": "apps/www/src/lib/ui/press-button/press-button.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-pblur",
+        "jx-pblur-layer"
+      ],
+      "id": "progressive-blur-2",
+      "owner": "apps/www/src/lib/ui/progressive-blur/progressive-blur.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-field",
+        "jx-range-tick",
+        "jx-slider-ticks"
+      ],
+      "id": "range-3",
+      "owner": "apps/www/src/lib/ui/range/range.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-scroll-thumb",
+        "jx-scroll-track",
+        "x",
+        "y"
+      ],
+      "id": "scroll-area-4",
+      "owner": "apps/www/src/lib/ui/scroll-area/scroll-area.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-scroll-host"
+      ],
+      "id": "scroll-run-1",
+      "owner": "apps/www/src/lib/ui/scroll-run/scroll-run.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-search-heading"
+      ],
+      "id": "search-palette-1",
+      "owner": "apps/www/src/lib/ui/search-palette.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-flight"
+      ],
+      "id": "search-palette-1",
+      "owner": "apps/www/src/lib/ui/search-palette.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-sel-chevron",
+        "jx-sel-list",
+        "jx-sel-option",
+        "jx-sel-panel",
+        "jx-sel-trigger"
+      ],
+      "id": "select-5",
+      "owner": "apps/www/src/lib/ui/select/select.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "closing",
+        "jx-sheet"
+      ],
+      "id": "sheet-2",
+      "owner": "apps/www/src/lib/ui/sheet/sheet.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-spin-frame"
+      ],
+      "id": "spin-1",
+      "owner": "apps/www/src/lib/ui/spin/spin.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-tabs-horizontal",
+        "jx-tabs-run"
+      ],
+      "id": "tabs-trigger-2",
+      "owner": "apps/www/src/lib/ui/tabs/tabs-trigger.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-tags-flash",
+        "jx-tags-panel",
+        "jx-tags-remove",
+        "jx-tags-shell",
+        "jx-tags-suggestion",
+        "jx-tags-tag"
+      ],
+      "id": "tags-input-6",
+      "owner": "apps/www/src/lib/ui/tags-input/tags-input.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-out",
+        "jx-out-shown"
+      ],
+      "id": "terminal-card-2",
+      "owner": "apps/www/src/lib/ui/terminal-card/terminal-card.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-footer-ghost"
+      ],
+      "id": "terminal-footer-1",
+      "owner": "apps/www/src/lib/ui/terminal-footer/terminal-footer.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-bar",
+        "jx-caret",
+        "jx-group",
+        "jx-light",
+        "jx-nav",
+        "jx-pop",
+        "jx-sub-link"
+      ],
+      "id": "terminal-header-7",
+      "owner": "apps/www/src/lib/ui/terminal-header/terminal-header.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-press",
+        "jx-toast",
+        "jx-toast-leaving",
+        "paused"
+      ],
+      "id": "toast-4",
+      "owner": "apps/www/src/lib/ui/toast/toast.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-cursor",
+        "jx-spine",
+        "jx-spine-fill",
+        "jx-toc",
+        "jx-toc-aside",
+        "jx-toc-desktop",
+        "jx-toc-mobile",
+        "jx-toc-title",
+        "jx-toggle",
+        "jx-viewport"
+      ],
+      "id": "toc-10",
+      "owner": "apps/www/src/lib/ui/toc/toc.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-tgroup-item"
+      ],
+      "id": "toggle-group-1",
+      "owner": "apps/www/src/lib/ui/toggle-group/toggle-group.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-tip-shadow"
+      ],
+      "id": "tooltip-1",
+      "owner": "apps/www/src/lib/ui/tooltip/tooltip.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-tour",
+        "jx-tour-hole",
+        "jx-tour-hole-anchored"
+      ],
+      "id": "tour-3",
+      "owner": "apps/www/src/lib/ui/tour/tour.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-tr-move",
+        "jx-tr-movers",
+        "jx-tr-row",
+        "jx-tr-search",
+        "jx-transfer"
+      ],
+      "id": "transfer-5",
+      "owner": "apps/www/src/lib/ui/transfer/transfer.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-tree",
+        "jx-tree-caret",
+        "jx-tree-check",
+        "jx-tree-group",
+        "jx-tree-lines",
+        "jx-tree-row",
+        "jx-tree-suffix",
+        "jx-tree-typeicon",
+        "selected"
+      ],
+      "id": "tree-view-9",
+      "owner": "apps/www/src/lib/ui/tree-view/tree-view.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-chrome-slot",
+        "jx-float-slot",
+        "jx-scaffold-header",
+        "jx-shell",
+        "jx-shell-body",
+        "jx-shell-host",
+        "jx-skip-link",
+        "jx-top-layer"
+      ],
+      "id": "website-scaffold-8",
+      "owner": "apps/www/src/lib/ui/website-scaffold/website-scaffold.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-logo-breath"
+      ],
+      "id": "+layout-1",
+      "owner": "apps/www/src/routes/+layout.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "bp-stage"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/blueprints.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-anchor-demo-aside"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/docs/components/anchor.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-grid-hint"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/docs/components/card-grid.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-demo-num",
+        "jx-demo-slide"
+      ],
+      "id": "+page-2",
+      "owner": "apps/www/src/routes/docs/components/carousel.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "desc-card",
+        "desc-card-head",
+        "desc-frame-rig"
+      ],
+      "id": "+page-3",
+      "owner": "apps/www/src/routes/docs/components/descriptions.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-fab-menu-item",
+        "jx-fab-stage"
+      ],
+      "id": "+page-2",
+      "owner": "apps/www/src/routes/docs/components/float-button.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "doc-link-glyph"
+      ],
+      "id": "doc-link-1",
+      "owner": "apps/www/src/routes/docs/components/markdown.html/doc-link.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-demo-nav-link"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/docs/components/navigation-menu.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-try-cell",
+        "jx-try-grid",
+        "jx-try-on",
+        "pop-row",
+        "pop-row-destructive"
+      ],
+      "id": "+page-5",
+      "owner": "apps/www/src/routes/docs/components/popover.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-float-diagram"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/docs/components/scaffold-float.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-log",
+        "jx-log-line",
+        "jx-matrix-doc",
+        "jx-meta-item",
+        "jx-meta-rail"
+      ],
+      "id": "+page-5",
+      "owner": "apps/www/src/routes/docs/components/scroll-area.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-vrow"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/docs/components/scroll-virtual.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "badge",
+        "doc-link",
+        "frame-rig",
+        "meter",
+        "meter-fill",
+        "meter-value",
+        "prio",
+        "who",
+        "who-host",
+        "who-name"
+      ],
+      "id": "+page-10",
+      "owner": "apps/www/src/routes/docs/components/table.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-tour-demo-grid",
+        "jx-tour-quadrant-grid",
+        "tour-dot",
+        "tour-dot-on",
+        "tour-place-left",
+        "tour-place-right",
+        "tour-place-top",
+        "tour-scroll-surface"
+      ],
+      "id": "+page-8",
+      "owner": "apps/www/src/routes/docs/components/tour.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-demo-act",
+        "jx-tree-pane"
+      ],
+      "id": "+page-2",
+      "owner": "apps/www/src/routes/docs/components/tree-view.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-arch-diagram"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/docs/components/website-scaffold.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "fx-band",
+        "fx-color",
+        "fx-color-input",
+        "fx-color-token",
+        "fx-colors",
+        "fx-host",
+        "fx-host-fill",
+        "fx-host-pill",
+        "fx-host-tile",
+        "fx-stage",
+        "fx-stage-band",
+        "glass-band",
+        "glass-band-bg",
+        "glass-band-grid",
+        "glass-band-text",
+        "glass-band-text-track",
+        "glass-box",
+        "glass-chip",
+        "glass-chrome",
+        "glass-content",
+        "glass-ink",
+        "glass-live",
+        "glass-meta"
+      ],
+      "id": "+page-23",
+      "owner": "apps/www/src/routes/docs/effects.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "demo-glyph",
+        "jx-derivation-diagram"
+      ],
+      "id": "+page-2",
+      "owner": "apps/www/src/routes/docs/icons.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-sample-index"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/docs/llms-txt.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-wm-layer",
+        "jx-wm-stage"
+      ],
+      "id": "+page-2",
+      "owner": "apps/www/src/routes/docs/recipes.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-inv-cmd",
+        "jx-inv-docs",
+        "jx-inv-name",
+        "jx-invhead",
+        "jx-invrow",
+        "jx-invtable"
+      ],
+      "id": "+page-6",
+      "owner": "apps/www/src/routes/docs/registry.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "p-stage"
+      ],
+      "id": "+page-1",
+      "owner": "apps/www/src/routes/prototypes/list-item-fusion/+page.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "fusion",
+        "fusion-context",
+        "fusion-ladder",
+        "fusion-narrow",
+        "fusion-pane-mid",
+        "fusion-pane-mid2",
+        "p-ladder-caption"
+      ],
+      "id": "fusion-7",
+      "owner": "apps/www/src/routes/prototypes/list-item-fusion/lib/fusion.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "p-section",
+        "p-section-hint",
+        "p-section-title"
+      ],
+      "id": "section-3",
+      "owner": "apps/www/src/routes/prototypes/list-item-fusion/lib/section.svelte",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-clear-glyph",
+        "jx-html-checkbox",
+        "jx-html-input",
+        "jx-html-radio",
+        "jx-html-range",
+        "jx-html-tgroup",
+        "jx-surface-body",
+        "jx-surface-shadow",
+        "jx-waapi"
+      ],
+      "id": "jixoai-9",
+      "owner": "registry/files/theme/jixoai.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-button",
+        "jx-color-expand",
+        "jx-color-shell",
+        "jx-color-swatch",
+        "jx-control",
+        "jx-error",
+        "jx-error-mark",
+        "jx-label",
+        "jx-slider",
+        "jx-slotted",
+        "jx-switch-lg",
+        "jx-switch-sm"
+      ],
+      "id": "jx-pure-12",
+      "owner": "registry/files/theme/jx-pure.css",
+      "registeredAt": "2026-09-18 (W2 mass registration, derived)",
+      "scope": "the owner sheet owns the hook paint laws (the W2 derivation)",
+      "selector": "derived — every class above appears as a selector in the owner sheet"
+    },
+    {
+      "classes": [
+        "jx-hue-error",
+        "jx-hue-info",
+        "jx-hue-success"
+      ],
+      "id": "jx-hue-error",
+      "owner": "registry/files/theme/jixoai.css",
+      "registeredAt": "2026-09-18 (W2 manual registration)",
+      "scope": "the STATUS injection vocabulary — engine-generated @utility family (jx-hue-primary/neutral/error/…); W4 converts the @utility to plain classes, the vocabulary stays",
+      "selector": "manual entry — the STATUS injection vocabulary — engine-generated @utility family"
+    },
+    {
+      "classes": [
+        "vscroll"
+      ],
+      "id": "vscroll",
+      "owner": "apps/www/test/code-card.spec.ts",
+      "registeredAt": "2026-09-18 (W2 manual registration)",
+      "scope": "documented semantic hook, spec-consumed (the scroll affordance lane)",
+      "selector": "manual entry — documented semantic hook, spec-consumed"
+    },
+    {
+      "classes": [
+        "jx-tabs-vertical"
+      ],
+      "id": "jx-tabs-vertical",
+      "owner": "apps/www/test/tabs-indicator.spec.ts",
+      "registeredAt": "2026-09-18 (W2 manual registration)",
+      "scope": "documented semantic hook, spec-consumed (the vertical posture stamp)",
+      "selector": "manual entry — documented semantic hook, spec-consumed"
+    },
+    {
+      "classes": [
+        "jx-tab-selected"
+      ],
+      "id": "jx-tab-selected",
+      "owner": "apps/www/test/tabs-indicator.spec.ts",
+      "registeredAt": "2026-09-18 (W2 manual registration)",
+      "scope": "documented semantic hook, spec-consumed (selection stamp; paint moved to the inkSelected atom)",
+      "selector": "manual entry — documented semantic hook, spec-consumed"
+    },
+    {
+      "classes": [
+        "jx-canvas-output"
+      ],
+      "id": "jx-canvas-output",
+      "owner": "apps/www/test/canvas-playground.spec.ts",
+      "registeredAt": "2026-09-18 (W2 manual registration)",
+      "scope": "documented semantic hook, spec-consumed (the playground output lane)",
+      "selector": "manual entry — documented semantic hook, spec-consumed"
+    },
+    {
+      "classes": [
+        "jx-sheet-"
+      ],
+      "id": "jx-sheet-",
+      "owner": "apps/www/src/lib/ui/sheet/sheet.css",
+      "registeredAt": "2026-09-18 (W2 manual registration)",
+      "scope": "the static stem of the `jx-sheet-${side}` template block — sheet.css owns the .jx-sheet-{side}[open] laws",
+      "selector": "manual entry — the static stem of the `jx-sheet-${side}` template block — sheet.css owns the .jx-sheet-{side}[open] laws"
+    },
+    {
+      "classes": [
+        "data-table",
+        "table-scroll"
+      ],
+      "id": "docs-tables-laws",
+      "owner": "apps/www/src/lib/site/docs-tables.css",
+      "registeredAt": "2026-09-18 (W3 final sweep)",
+      "scope": "the docs tables sheet owns both (the pill precedent, same sheet)",
+      "selector": "the :where(.data-table)/:where(.table-scroll) family — the W3-sweep derivation"
+    },
+    {
+      "classes": [
+        "demo-cell",
+        "caret",
+        "row-selected",
+        "odd",
+        "active"
+      ],
+      "id": "w3-sweep-page-hooks",
+      "owner": "apps/www/src/routes/docs/components/table.html/+page.svelte + scroll-virtual.html + scroll-area.html",
+      "registeredAt": "2026-09-18 (W3 final sweep)",
+      "scope": "demo-cell is the CardGrid demo marker paired with data-no-subgrid (no css owner by design); caret/row-selected key the table page styles; odd/active key the scroll pages",
+      "selector": "manual entry — page <style> keys + the CardGrid demo-grid semantic marker"
+    },
+    {
+      "classes": [
+        "jx-ext-ico",
+        "jx-ico-18",
+        "input-fg-hi"
+      ],
+      "id": "w3-page-hooks",
+      "owner": "apps/www/src/routes/+layout.svelte (the first two) + apps/www/src/routes/docs/components/input.html/+page.svelte",
+      "registeredAt": "2026-09-18 (W3 integration)",
+      "scope": "page <style> keyed hooks minted by the W3 batches (the svg-size lanes and the foreground !important escape — the W2 derivation pattern applied to the wave its own pages created)",
+      "selector": "manual entry — W3 page-scoped <style> keys"
+    },
+    {
+      "classes": [
+        "dark"
+      ],
+      "id": "dark-scope",
+      "owner": "registry/files/theme/jixoai.css",
+      "registeredAt": "2026-09-18 (W2 manual registration — the ui zone closer)",
+      "scope": "terminal surfaces force the dark scope locally (the bar is always dark — component-canvas, terminal-card, terminal-header stamp class=dark; the sheet owns the .dark block)",
+      "selector": "manual entry — the theme dark-scope stamp"
+    },
+    {
+      "classes": [
+        "jx-range"
+      ],
+      "id": "jx-range",
+      "owner": "apps/www/src/lib/ui/range/range.css",
+      "registeredAt": "2026-09-18 (W2 manual registration)",
+      "scope": "the family stem (the mount rides data-jx-range; range.css owns the .jx-range-tick ladder)",
+      "selector": "manual entry — the family stem"
+    }
+  ],
+  "stylexTier2Literals": {
+    "apps/www/src/lib/__probe__/stylex-corpus/code-card.stylex.ts": {
+      "borderBottomWidth:1px": 1,
+      "borderTopWidth:1px": 1,
+      "borderWidth:1px": 1,
+      "fontSize:11px": 1,
+      "fontSize:12.5px": 1,
+      "gap:0.75rem": 2,
+      "letterSpacing:0.08em": 1,
+      "letterSpacing:0.14em": 1,
+      "lineHeight:1.6": 1,
+      "paddingBlock:0.32rem": 1,
+      "paddingBlock:0.875rem": 1,
+      "paddingBottom:0.3rem": 1,
+      "paddingInline:0.75rem": 1,
+      "paddingInlineEnd:0.5rem": 1,
+      "paddingInlineStart:0.75rem": 1,
+      "paddingTop:0.3rem": 1,
+      "transitionDuration:150ms": 2,
+      "transitionTimingFunction:ease-out": 2
+    },
+    "apps/www/src/lib/__probe__/stylex-corpus/demo.stylex.ts": {
+      "borderBottomWidth:1px": 1,
+      "borderWidth:1px": 2,
+      "fontSize:11.5px": 1,
+      "fontSize:11px": 2,
+      "fontSize:12px": 2,
+      "fontSize:15px": 1,
+      "fontWeight:600": 1,
+      "gap:12px": 3,
+      "gap:20px": 1,
+      "gap:8px": 2,
+      "letterSpacing:0.08em": 1,
+      "lineHeight:1.6": 1,
+      "padding:16px": 2,
+      "paddingBottom:12px": 1
+    },
+    "apps/www/src/lib/__probe__/stylex-corpus/popover.stylex.ts": {
+      "borderWidth:1px": 2,
+      "fontSize:0.875rem": 1,
+      "fontWeight:500": 1,
+      "gap:0.625rem": 1,
+      "paddingBlock:0.625rem": 1,
+      "paddingInline:0.875rem": 1,
+      "transition:translate 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out": 1,
+      "transitionDuration:150ms": 1,
+      "transitionTimingFunction:ease-out": 1
+    },
+    "apps/www/src/lib/__probe__/stylex-corpus/press-button.stylex.ts": {
+      "animationDelay:200ms": 1,
+      "animationDelay:400ms": 1,
+      "animationDelay:600ms": 1,
+      "animationDuration:800ms": 1,
+      "animationTimingFunction:steps(1)": 1,
+      "borderWidth:1px": 2,
+      "fontWeight:500": 1,
+      "transition:translate 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out": 1
+    },
+    "apps/www/src/lib/__probe__/stylex-corpus/prose.stylex.ts": {
+      "lineHeight:1.6": 1
+    },
+    "apps/www/src/lib/__probe__/stylex-corpus/range.stylex.ts": {
+      "fontWeight:700": 1,
+      "gap:0.375rem": 2,
+      "gap:0.75rem": 1,
+      "gap:2px": 1,
+      "margin:-1px": 1,
+      "marginBlockStart:0.125rem": 1,
+      "marginInlineEnd:0.35em": 1
+    },
+    "apps/www/src/lib/__probe__/stylex-corpus/switch.stylex.ts": {
+      "borderWidth:1px": 1,
+      "boxShadow:0 0 0 1px var(--jx-border) inset": 1,
+      "boxShadow:0 0 0 1px var(--jx-primary) inset": 1
+    }
+  },
+  "version": 1
+}
