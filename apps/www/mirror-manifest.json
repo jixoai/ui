@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-19T18:29:49.170Z",
+  "generatedAt": "2026-09-19T21:38:48.851Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -2508,8 +2508,8 @@
           "source": "registry/files/ui/boot-splash/boot-splash.svelte",
           "mirror": "apps/www/src/lib/ui/boot-splash/boot-splash.svelte",
           "target": "@ui/boot-splash/boot-splash.svelte",
-          "sourceSha": "1e306b583c2eb5fadc61ea039a1bb2ee9a5923d118682d9941bc300bdd5c3e41",
-          "mirrorSha": "1e306b583c2eb5fadc61ea039a1bb2ee9a5923d118682d9941bc300bdd5c3e41"
+          "sourceSha": "dd1b074245cf086b6ec82710728de3428943eae3a03cf131d84c8d70f47bc3f7",
+          "mirrorSha": "dd1b074245cf086b6ec82710728de3428943eae3a03cf131d84c8d70f47bc3f7"
         },
         {
           "source": "registry/files/ui/boot-splash/index.ts",

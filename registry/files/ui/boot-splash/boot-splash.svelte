@@ -207,8 +207,13 @@
       --jx-boot-splash-mark: oklch(1 0 0 / 0.85);
     }
     .jx-boot-splash-title { font-size: 1rem; letter-spacing: 0.08em; }
-    .jx-boot-splash-subtitle { font-size: 0.8125rem; opacity: 0.72; letter-spacing: 0.04em; }
-    .jx-boot-splash-desc { font-size: 0.75rem; opacity: 0.55; }
+    /* the text tiers' opacities are WCAG-run (the walkthrough polish,
+       2026-09-20): desc at 0.55 read ~3.9:1 on light grounds (under
+       the AA 4.5 line) and was the darkest read on dark — 0.68 clears
+       AA on both grounds; subtitle rides 0.8 to keep the ladder
+       monotone [1.0 · 0.8 · 0.68] instead of crowding the desc */
+    .jx-boot-splash-subtitle { font-size: 0.8125rem; opacity: 0.8; letter-spacing: 0.04em; }
+    .jx-boot-splash-desc { font-size: 0.75rem; opacity: 0.68; }
     /* the exit vocabulary (Owner spec) */
     @keyframes jx-boot-splash-opacity-out { to { opacity: 0; } }
     @keyframes jx-boot-splash-blur-out {
