@@ -143,6 +143,7 @@ const tokenMap = {
   // precisely so these typed keys can exist (the cycle law above);
   // 13px body text stays --jx-text-base, a kernel channel the map
   // must never wrap.
+  '--jx-text-caption': 'var(--text-caption)',
   '--jx-text-micro': 'var(--text-micro)',
   '--jx-text-label': 'var(--text-label)',
   '--jx-text-label-lg': 'var(--text-label-lg)',
