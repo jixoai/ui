@@ -69,9 +69,9 @@
       <ThemeToggle variant="compact" />
     {/snippet}
   </TerminalHeader>
-  <div class={cx(bpB.terminalHeaderSkel)}>
+  <Stack direction="column" gap="12" class={cx(bpB.terminalHeaderSkel)} }>
     <Skeleton class={cx(bpB.terminalHeaderSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.terminalHeaderSkelB)}></Skeleton>
     <Skeleton class={cx(bpB.terminalHeaderSkelC)}></Skeleton>
-  </div>
+  </Stack>
 </Stack>

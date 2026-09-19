@@ -8,6 +8,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -24,11 +25,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.popconfirmStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpB.popconfirmSkel)}>
+<Stack direction="column" justify="center" gap="20" class={cx(bpB.popconfirmStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpB.popconfirmSkel)} }>
     <Skeleton class={cx(bpB.popconfirmSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.popconfirmSkelB)}></Skeleton>
-  </div>
+  </Stack>
   <Popconfirm
     id="bp-popconfirm"
     title="Delete this row?"
@@ -38,4 +39,4 @@
   >
     <PressButton variant="outline">delete row 3</PressButton>
   </Popconfirm>
-</div>
+</Stack>

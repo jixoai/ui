@@ -22,7 +22,7 @@
 </script>
 
 <Stack direction="column" align="center" justify="center" gap="16" class={cx(bpA.linkStage)}>
-  <div class={cx(bpA.linkColumn)}>
+  <Stack direction="column" gap="12" class={cx(bpA.linkColumn)} }>
     <p class={cx(bpA.linkPara)}>
       Read <Link href="/docs/components/markdown.html">the markdown page</Link> in this tab, or
       leave for <Link href="https://github.com/jixoai/ui">the repository</Link> in a new one.
@@ -31,7 +31,7 @@
       The offset keeps the underline off the descenders —
       <Link href="https://commonmark.org">CommonMark</Link> inside muted prose.
     </p>
-  </div>
+  </Stack>
   <div class={cx(bpA.linkRow)}>
     <Badge>http(s) → target=_blank</Badge>
     <Badge>rel=noreferrer</Badge>

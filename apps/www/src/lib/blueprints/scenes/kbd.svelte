@@ -20,12 +20,12 @@
 </script>
 
 <Stack direction="column" align="start" justify="center" gap="20" class={cx(bpA.kbdStage)}>
-  <div class={cx(bpA.kbdRow)}>
+  <Stack align="center" gap="8" class={cx(bpA.kbdRow)} }>
     <Kbd density="lg">⌘</Kbd><Kbd density="lg">K</Kbd>
     <span class={cx(bpA.kbdNote)}>open the command surface</span>
-  </div>
-  <div class={cx(bpA.kbdRow)}>
+  </Stack>
+  <Stack align="center" gap="8" class={cx(bpA.kbdRow)} }>
     <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>P</Kbd>
     <span class={cx(bpA.kbdNote)}>preview deployment</span>
-  </div>
+  </Stack>
 </Stack>

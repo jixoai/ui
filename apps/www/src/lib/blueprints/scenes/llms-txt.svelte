@@ -22,13 +22,13 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.llmsTxtStage)}>
-  <div class={cx(bpA.llmsTxtPanel)}>
-    <div class={cx(bpA.llmsTxtHead)}>
+  <Stack direction="column" gap="12" class={cx(bpA.llmsTxtPanel)} }>
+    <Stack align="center" justify="between" class={cx(bpA.llmsTxtHead)} }>
       <span class={cx(bpA.llmsTxtTitle)}>llms-txt</span>
       <span class={cx(bpA.llmsTxtSub)}
         >the AI export pass</span
       >
-    </div>
+    </Stack>
     <div class={cx(bpA.llmsTxtGrid)}>
       <pre class={cx(bpA.llmsTxtInputPre)}>dist/
 ├── index.html
@@ -42,5 +42,5 @@ llms-full.txt   (capped)
     <div class={cx(bpA.llmsTxtFoot)}>
       absolute URLs · declared outputs only · byte-deterministic
     </div>
-  </div>
+  </Stack>
 </Stack>

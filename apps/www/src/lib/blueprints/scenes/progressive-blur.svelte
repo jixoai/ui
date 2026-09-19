@@ -36,7 +36,7 @@
       >the docs rail · same-layer sticky</span
     >
     <div class={cx(bpB.progressiveBlurPort)}>
-      <div class={cx(bpB.progressiveBlurList)}>
+      <Stack direction="column" class={cx(bpB.progressiveBlurList)} }>
         {#each rows as row, i (row)}
           <div
             class={cx(bpB.progressiveBlurRow, i === 0 || i === 1 ? bpB.progressiveBlurRowDim : bpB.progressiveBlurRowLift)}
@@ -44,7 +44,7 @@
             {row}
           </div>
         {/each}
-      </div>
+      </Stack>
       <!-- the ladder schematic: translucent runs stacking toward the edge -->
       <div class={cx(bpB.progressiveBlurBand)}>
         <div class={cx(bpB.progressiveBlurRun95)}></div>

@@ -29,7 +29,7 @@
 </script>
 
 <Stack align="center" justify="center" gap="40" class={cx(bpA.colorUtilsStage)}>
-  <div class={cx(bpA.colorUtilsPanel)}>
+  <Stack direction="column" align="start" gap="16" class={cx(bpA.colorUtilsPanel)} }>
     <div class={cx(bpA.colorUtilsComment)}>// one-hue law lives in OKLCH; the canvas speaks rgb</div>
     {#each lattice as row (row.from)}
       <div class={cx(bpA.colorUtilsRow)}>
@@ -40,5 +40,5 @@
       </div>
     {/each}
     <div class={cx(bpA.colorUtilsComment, bpA.colorUtilsTail)}>// parseColor never throws — null is the contract</div>
-  </div>
+  </Stack>
 </Stack>

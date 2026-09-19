@@ -3,6 +3,7 @@
 <script lang="ts">
   import { cn } from '$lib/utils';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -19,11 +20,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.utilsStage)}>
+<Stack direction="column" align="start" justify="center" gap="20" class={cx(bpB.utilsStage)} }>
   <div class={cx(bpB.utilsComment)}>// clsx joins · tailwind-merge dedupes</div>
   <div class={cx(bpB.utilsCode)}>
     cn('<span class={cx(bpB.utilsAccent)}>p-2</span>', '<span class={cx(bpB.utilsAccent)}>p-4</span>')
   </div>
   <div class={cx(bpB.utilsResult)}>→ 'p-4'</div>
   <div class={cx(bpB.utilsComment)}>// never a cascade mechanism — the layer law owns overrides</div>
-</div>
+</Stack>

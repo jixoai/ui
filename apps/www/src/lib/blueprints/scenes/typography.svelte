@@ -29,24 +29,24 @@
     TypoScope · the value domain, never a variant axis
   </div>
   <Stack align="center" justify="center" gap="10">
-    <div class={cx(bpB.typographyNode)}>
+    <Stack direction="column" gap="2" class={cx(bpB.typographyNode)} }>
       <span class={cx(bpB.typographyNodeName)}>TypoScope</span>
       <span class={cx(bpB.typographyNodeNote)}>11 absentSlot fields</span>
-    </div>
-    <div class={cx(bpB.typographyApply)}>
+    </Stack>
+    <Stack direction="column" align="center" gap="4" class={cx(bpB.typographyApply)} }>
       <span>apply</span>
       <span class={cx(bpB.typographyApplyArrow)}>→</span>
       <span>chain</span>
-    </div>
-    <div class={cx(bpB.typographyNode)}>
+    </Stack>
+    <Stack direction="column" gap="2" class={cx(bpB.typographyNode)} }>
       <span class={cx(bpB.typographyNodeName)}>TYPOGRAPHY_DEF</span>
       <span class={cx(bpB.typographyNodeNote)}>plugins target by identity</span>
-    </div>
-    <div class={cx(bpB.typographyArrow)}>→</div>
-    <div class={cx(bpB.typographyNode)}>
+    </Stack>
+    <Stack align="center" justify="center" class={cx(bpB.typographyArrow)} }>→</Stack>
+    <Stack direction="column" gap="2" class={cx(bpB.typographyNode)} }>
       <span class={cx(bpB.typographyNodeName)}>resolveTypoStyle</span>
       <span class={cx(bpB.typographyNodeNote)}>pure: vars + presence attrs</span>
-    </div>
+    </Stack>
   </Stack>
   <Stack align="center" justify="center" wrap gap="8">
     <Badge>absence IS the state</Badge>

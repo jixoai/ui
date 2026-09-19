@@ -32,10 +32,10 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.navigationMenuStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpB.navigationMenuSkel)}>
+<Stack direction="column" justify="center" gap="32" class={cx(bpB.navigationMenuStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpB.navigationMenuSkel)} }>
     <Skeleton class={cx(bpB.navigationMenuSkelBar)}></Skeleton>
-  </div>
+  </Stack>
   <NavigationMenu label="site">
     <NavigationMenuItem>
       <NavigationMenuTrigger current>components</NavigationMenuTrigger>
@@ -51,4 +51,4 @@
     <NavigationMenuLink href="#bp-navmenu">recipes</NavigationMenuLink>
     <NavigationMenuLink href="#bp-navmenu">laws</NavigationMenuLink>
   </NavigationMenu>
-</div>
+</Stack>

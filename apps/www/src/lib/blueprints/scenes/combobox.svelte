@@ -6,6 +6,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const options: ComboboxOption[] = [
     { value: 'node-pty', label: 'node-pty', description: 'conpty / forkpty addon' },
@@ -30,8 +31,8 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.comboboxStage)} {@attach fromAction(forceShowPopovers)}>
+<Stack direction="column" justify="center" class={cx(bpA.comboboxStage)} } {@attach fromAction(forceShowPopovers)}>
   <div class={cx(bpA.comboboxFrame)}>
     <Combobox id="bp-combobox" label="backend" bind:value={backend} {options} />
   </div>
-</div>
+</Stack>

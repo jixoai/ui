@@ -8,6 +8,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -24,12 +25,12 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.popoverStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpB.popoverSkel)}>
+<Stack direction="column" justify="center" gap="20" class={cx(bpB.popoverStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpB.popoverSkel)} }>
     <Skeleton class={cx(bpB.popoverSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.popoverSkelB)}></Skeleton>
-  </div>
+  </Stack>
   <Popover id="bp-popover" triggerLabel="Share">
     <p class={cx(bpB.popoverBody)}>Link copied to the clipboard — visible to anyone with the URL.</p>
   </Popover>
-</div>
+</Stack>

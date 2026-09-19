@@ -30,7 +30,7 @@
 </script>
 
 <Stack align="center" justify="center" gap="40" class={cx(bpA.ghosttyVtStage)}>
-  <div class={cx(bpA.ghosttyVtPanel)}>
+  <Stack direction="column" align="start" gap="16" class={cx(bpA.ghosttyVtPanel)} }>
     <div class={cx(bpA.ghosttyVtComment)}>// one manifest, zero hardcoded offsets</div>
     <div class={cx(bpA.ghosttyVtHead)}>
       ghostty_type_json()
@@ -43,5 +43,5 @@
     <div class={cx(bpA.ghosttyVtComment, bpA.ghosttyVtGap)}>
       GhosttyVTError with cause — typed failure, no message sniffing
     </div>
-  </div>
+  </Stack>
 </Stack>

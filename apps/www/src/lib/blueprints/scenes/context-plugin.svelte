@@ -51,27 +51,27 @@
         </div>
       {/each}
     </Stack>
-    <div class={cx(bpA.contextPluginArrowColumn)}>
+    <Stack direction="column" align="center" gap="4" class={cx(bpA.contextPluginArrowColumn)} }>
       <span>targets</span>
       <span class={cx(bpA.contextPluginArrowGlyph)}>→</span>
       <span>identity</span>
-    </div>
+    </Stack>
     <Stack direction="column" gap="8">
-      <div class={cx(bpA.contextPluginCard)}>
+      <Stack direction="column" gap="2" class={cx(bpA.contextPluginCard)} }>
         <span class={cx(bpA.contextPluginName)}>printDensityPlugin</span>
         <span class={cx(bpA.contextPluginNote)}>targets: [DENSITY_DEF]</span>
-      </div>
+      </Stack>
       {#each onion as o (o.hook)}
-        <div class={cx(bpA.contextPluginHookRow)}>
+        <Stack align="center" justify="between" class={cx(bpA.contextPluginHookRow)} }>
           <span class={cx(bpA.contextPluginName)}>{o.hook}</span>
           <span class={cx(bpA.contextPluginNote)}>{o.note}</span>
-        </div>
+        </Stack>
       {/each}
     </Stack>
-    <div class={cx(bpA.contextPluginFlowArrow)}>→</div>
-    <div class={cx(bpA.contextPluginCard)}>
+    <Stack align="center" justify="center" class={cx(bpA.contextPluginFlowArrow)} }>→</Stack>
+    <Stack direction="column" gap="2" class={cx(bpA.contextPluginCard)} }>
       <span class={cx(bpA.contextPluginName)}>exposed</span>
       <span class={cx(bpA.contextPluginNote)}>the projection</span>
-    </div>
+    </Stack>
   </Stack>
 </Stack>

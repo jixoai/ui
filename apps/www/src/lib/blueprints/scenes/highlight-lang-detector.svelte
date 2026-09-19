@@ -36,11 +36,11 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.highlightLangDetectorStage)}>
-  <div class={cx(bpA.highlightLangDetectorPanel)}>
-    <div class={cx(bpA.highlightLangDetectorHead)}>
+  <Stack direction="column" gap="12" class={cx(bpA.highlightLangDetectorPanel)} }>
+    <Stack align="center" justify="between" class={cx(bpA.highlightLangDetectorHead)} }>
       <span class={cx(bpA.highlightLangDetectorTitle)}>highlight-lang-detector</span>
       <span class={cx(bpA.highlightLangDetectorSub)}>the DLD waterfall</span>
-    </div>
+    </Stack>
     <Stack direction="column" gap="4">
       {#each layers as layer (layer.id)}
         <Stack align="baseline" gap="12">
@@ -52,10 +52,10 @@
       {/each}
       <span class={cx(bpA.highlightLangDetectorLayersNote)}>hit short-circuits · every layer its own lazy module · miss falls through</span>
     </Stack>
-    <div class={cx(bpA.highlightLangDetectorFoot)}>
+    <Stack direction="column" class={cx(bpA.highlightLangDetectorFoot)} }>
       <span>detect({'{ code, filename }'}) -> {'{ lang, source, confidence? }'} · null = no opinion (cascade)</span>
       <span>framework-free · wasm rides @jixoai/ui-betlang-wasm (npm, betlang =0.1.1)</span>
       <span>optional capability: a bare code-card install carries zero DLD bytes</span>
-    </div>
-  </div>
+    </Stack>
+  </Stack>
 </Stack>

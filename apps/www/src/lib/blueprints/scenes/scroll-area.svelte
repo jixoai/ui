@@ -35,7 +35,7 @@
       >scroll-area · hand-drawn, always</span
     >
     <div class={cx(bpB.scrollAreaPort)}>
-      <div class={cx(bpB.scrollAreaListPad)}>
+      <Stack direction="column" class={cx(bpB.scrollAreaListPad)} }>
         {#each rows as row, i (row)}
           <div
             class={cx(bpB.scrollAreaRow, i === 2 ? bpB.scrollAreaRowLit : bpB.scrollAreaRowDim)}
@@ -43,7 +43,7 @@
             {row}
           </div>
         {/each}
-      </div>
+      </Stack>
       <!-- the capsule thumb — full radius over full-width content -->
       <div class={cx(bpB.scrollAreaThumb)}></div>
       <span class={cx(bpB.scrollAreaCaption)}
@@ -58,7 +58,7 @@
       >native-scroll-area · the platform bar</span
     >
     <div class={cx(bpB.scrollAreaPort)}>
-      <div class={cx(bpB.scrollAreaListSlim)}>
+      <Stack direction="column" class={cx(bpB.scrollAreaListSlim)} }>
         {#each rows as row, i (row)}
           <div
             class={cx(bpB.scrollAreaRow, i === 2 ? bpB.scrollAreaRowLit : bpB.scrollAreaRowFaint)}
@@ -66,7 +66,7 @@
             {row}
           </div>
         {/each}
-      </div>
+      </Stack>
       <!-- the platform bar + the mirrored reserved gutter -->
       <div class={cx(bpB.scrollAreaBar)}></div>
       <div class={cx(bpB.scrollAreaGutter)}></div>

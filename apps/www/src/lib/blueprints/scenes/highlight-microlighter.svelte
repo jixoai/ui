@@ -31,11 +31,11 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.highlightMicrolighterStage)}>
-  <div class={cx(bpA.highlightMicrolighterPanel)}>
-    <div class={cx(bpA.highlightMicrolighterHead)}>
+  <Stack direction="column" gap="12" class={cx(bpA.highlightMicrolighterPanel)} }>
+    <Stack align="center" justify="between" class={cx(bpA.highlightMicrolighterHead)} }>
       <span class={cx(bpA.highlightMicrolighterTitle)}>highlight-microlighter</span>
       <span class={cx(bpA.highlightMicrolighterSub)}>zero markup · ranges</span>
-    </div>
+    </Stack>
     <Stack align="center" gap="12">
       <Stack direction="column" gap="4" class={cx(bpA.highlightMicrolighterNodeCol)}>
         <span class={cx(bpA.highlightMicrolighterColLabel)}>the element</span>
@@ -44,12 +44,12 @@
         {/each}
       </Stack>
       <span class={cx(bpA.highlightMicrolighterArrow)}>-></span>
-      <div class={cx(bpA.highlightMicrolighterRangesCard)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightMicrolighterRangesCard)} }>
         {#each ranges as line (line)}
           <span class={cx(bpA.highlightMicrolighterRangesLine)}>{line}</span>
         {/each}
         <span class={cx(bpA.highlightMicrolighterCardNote)}>Custom Highlight API · ranges over the text</span>
-      </div>
+      </Stack>
       <span class={cx(bpA.highlightMicrolighterArrow)}>-></span>
       <Stack direction="column" gap="4" class={cx(bpA.highlightMicrolighterPaintCol)}>
         <span class={cx(bpA.highlightMicrolighterColLabel)}>the paint</span>
@@ -58,9 +58,9 @@
         {/each}
       </Stack>
     </Stack>
-    <div class={cx(bpA.highlightMicrolighterFoot)}>
+    <Stack direction="column" class={cx(bpA.highlightMicrolighterFoot)} }>
       <span>feature-gated (no API -> reject before the DOM) · whole-document rescan per paint</span>
       <span>ranges do NOT survive the print freeze — pin a markup backend for paper</span>
-    </div>
-  </div>
+    </Stack>
+  </Stack>
 </Stack>

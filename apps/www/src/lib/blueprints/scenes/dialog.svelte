@@ -7,6 +7,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,11 +24,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.dialogStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.dialogStage)} }>
   <Skeleton class={cx(bpA.dialogSkeletonA)}></Skeleton>
   <Skeleton class={cx(bpA.dialogSkeletonB)}></Skeleton>
   <Skeleton class={cx(bpA.dialogSkeletonC)}></Skeleton>
-</div>
+</Stack>
 
 <Dialog title="Delete workspace?" open={true}>
   <p class={cx(bpA.dialogBody)}>

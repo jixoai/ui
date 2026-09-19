@@ -26,10 +26,10 @@
 </script>
 
 <Stack direction="column" justify="between" class={cx(bpB.terminalFooterStage)}>
-  <div class={cx(bpB.terminalFooterSkel)}>
+  <Stack direction="column" gap="12" class={cx(bpB.terminalFooterSkel)} }>
     <Skeleton class={cx(bpB.terminalFooterSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.terminalFooterSkelB)}></Skeleton>
-  </div>
+  </Stack>
   <TerminalFooter ghost="JIXOAI" copyright="© 2026 jixoai · MIT">
     <TerminalFooterColumn title="project">
       <a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer">GitHub</a>

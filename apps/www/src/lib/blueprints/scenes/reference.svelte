@@ -26,12 +26,12 @@
 <NumberingProvider>
   <Stack direction="column" justify="center" gap="20" class={cx(bpB.referenceStage)}>
     <SectionCard numbering="decimal" title="Discussion" headingLevel={2}>
-      <div class={cx(bpB.referenceBody)}>
+      <Stack direction="column" gap="12" class={cx(bpB.referenceBody)} }>
         <p>the balance of <Reference to="eq-d" /> holds throughout</p>
         <p>the procedure lives in <Reference to="sec-m" /></p>
         <p>for notation see <Reference to="sec-n" /></p>
         <p class={cx(bpB.referenceBroken)}>a broken one renders <Reference to="eq-x" /> loudly</p>
-      </div>
+      </Stack>
     </SectionCard>
     <Figure kind="equation" id="eq-d" caption="the balance">
       <div class={cx(bpB.referenceFormula)}>Σ&nbsp;F&nbsp;=&nbsp;0</div>

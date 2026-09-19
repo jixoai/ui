@@ -8,6 +8,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -24,11 +25,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.tooltipStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpB.tooltipSkel)}>
+<Stack direction="column" justify="center" gap="24" class={cx(bpB.tooltipStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpB.tooltipSkel)} }>
     <Skeleton class={cx(bpB.tooltipSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.tooltipSkelB)}></Skeleton>
-  </div>
+  </Stack>
   <div class={cx(bpB.tooltipRow)}>
     <Tooltip id="bp-tip-1" text="Run the deploy pipeline" placement="top">
       <span class={cx(bpB.tooltipTrigger)}>deploy</span>
@@ -37,4 +38,4 @@
       <span class={cx(bpB.tooltipIconFrame)}><Kbd>⌘K</Kbd></span>
     </Tooltip>
   </div>
-</div>
+</Stack>

@@ -24,7 +24,7 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.iconButtonStage)} {@attach fromAction(forceShowPopovers)}>
+<Stack direction="column" justify="center" gap="24" class={cx(bpA.iconButtonStage)} } {@attach fromAction(forceShowPopovers)}>
   <Stack align="center" wrap gap="16">
     <IconButton text="deploy">
       {#snippet icon()}
@@ -77,8 +77,8 @@
       {/snippet}
     </IconButton>
   </Stack>
-  <div class={cx(bpA.iconButtonMuted)}>
+  <Stack direction="column" gap="12" class={cx(bpA.iconButtonMuted)} }>
     <Skeleton class={cx(bpA.iconButtonSkeletonA)}></Skeleton>
     <Skeleton class={cx(bpA.iconButtonSkeletonB)}></Skeleton>
-  </div>
-</div>
+  </Stack>
+</Stack>

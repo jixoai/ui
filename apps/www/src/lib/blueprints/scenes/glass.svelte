@@ -43,19 +43,19 @@
       {/each}
       <!-- the gradient-text headline schematic: two runs fading like the
            white → pink → cyan clip -->
-      <div class={cx(bpA.glassHeadlineBox)}>
+      <Stack direction="column" gap="4" class={cx(bpA.glassHeadlineBox)} }>
         <span class={cx(bpA.glassHeadline)}>liquid glass</span>
         <span class={cx(bpA.glassSub)}>refraction — the lens bends what sits behind it</span>
-      </div>
+      </Stack>
       <!-- the lens pill schematic: translucent run + the rim ring -->
-      <div class={cx(bpA.glassLensRow)}>
-        <div class={cx(bpA.glassLens)}>
+      <Stack align="center" gap="12" class={cx(bpA.glassLensRow)} }>
+        <Stack align="center" class={cx(bpA.glassLens)} }>
           <span class={cx(bpA.glassLensLabel)}>lens · displacement + specular</span>
-        </div>
-        <div class={cx(bpA.glassFrost)}>
+        </Stack>
+        <Stack align="center" class={cx(bpA.glassFrost)} }>
           <span class={cx(bpA.glassFrostLabel)}>frost — blur()</span>
-        </div>
-      </div>
+        </Stack>
+      </Stack>
       <span class={cx(bpA.glassFormula)}
         >d(s) = T.x/T.y · (H·thickness + bezel)</span
       >

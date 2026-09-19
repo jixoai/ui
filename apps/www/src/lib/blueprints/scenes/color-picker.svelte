@@ -6,6 +6,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   let brand = $state('#007924');
 
@@ -24,8 +25,8 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.colorPickerStage)} {@attach fromAction(forceShowPopovers)}>
+<Stack direction="column" justify="center" class={cx(bpA.colorPickerStage)} } {@attach fromAction(forceShowPopovers)}>
   <div class={cx(bpA.colorPickerFrame)}>
     <ColorPicker id="bp-color" label="brand" bind:value={brand} />
   </div>
-</div>
+</Stack>

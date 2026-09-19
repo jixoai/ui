@@ -7,6 +7,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,11 +24,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.dropdownMenuStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpA.dropdownMenuMuted)}>
+<Stack direction="column" justify="center" gap="20" class={cx(bpA.dropdownMenuStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpA.dropdownMenuMuted)} }>
     <Skeleton class={cx(bpA.dropdownMenuSkeletonA)}></Skeleton>
     <Skeleton class={cx(bpA.dropdownMenuSkeletonB)}></Skeleton>
-  </div>
+  </Stack>
   <DropdownMenu id="bp-dropdown-menu" triggerLabel="workspace" placement="bottom-start">
     <DropdownMenuItem>rename workspace</DropdownMenuItem>
     <DropdownMenuItem>invite member</DropdownMenuItem>
@@ -35,4 +36,4 @@
     <hr class={cx(bpA.dropdownMenuDivider)} />
     <DropdownMenuItem destructive>delete workspace</DropdownMenuItem>
   </DropdownMenu>
-</div>
+</Stack>

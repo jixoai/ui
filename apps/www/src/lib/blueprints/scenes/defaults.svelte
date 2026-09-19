@@ -30,9 +30,9 @@
     DefaultsSlot · resolve({ '{'} variant {'}' }) → one line per family
   </div>
   {#each ladder as l (l.row)}
-    <div class={cx(bpA.defaultsRow)}>
+    <Stack align="center" justify="between" class={cx(bpA.defaultsRow)} }>
       <span class={cx(bpA.defaultsName)}>{l.row}</span>
       <span class={cx(bpA.defaultsNote)}>{l.note}</span>
-    </div>
+    </Stack>
   {/each}
 </Stack>

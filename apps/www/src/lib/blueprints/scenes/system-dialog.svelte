@@ -6,6 +6,7 @@
   import SystemDialog from '$lib/ui/system-dialog/system-dialog.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -22,11 +23,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.systemDialogStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpB.systemDialogStage)} }>
   <Skeleton class={cx(bpB.systemDialogSkelA)}></Skeleton>
   <Skeleton class={cx(bpB.systemDialogSkelB)}></Skeleton>
   <Skeleton class={cx(bpB.systemDialogSkelC)}></Skeleton>
-</div>
+</Stack>
 
 <SystemDialog
   title="Purge deployment logs?"

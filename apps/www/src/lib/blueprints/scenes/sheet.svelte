@@ -7,6 +7,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -23,11 +24,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpB.sheetStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpB.sheetStage)} }>
   <Skeleton class={cx(bpB.sheetSkelA)}></Skeleton>
   <Skeleton class={cx(bpB.sheetSkelB)}></Skeleton>
   <Skeleton class={cx(bpB.sheetSkelC)}></Skeleton>
-</div>
+</Stack>
 
 <Sheet title="edit workspace" side="right" size="22rem" open={true}>
   <p class={cx(bpB.sheetBody)}>

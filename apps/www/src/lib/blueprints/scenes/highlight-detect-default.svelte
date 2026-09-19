@@ -30,18 +30,18 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.highlightDetectDefaultStage)}>
-  <div class={cx(bpA.highlightDetectDefaultPanel)}>
-    <div class={cx(bpA.highlightDetectDefaultHead)}>
+  <Stack direction="column" gap="12" class={cx(bpA.highlightDetectDefaultPanel)} }>
+    <Stack align="center" justify="between" class={cx(bpA.highlightDetectDefaultHead)} }>
       <span class={cx(bpA.highlightDetectDefaultTitle)}>highlight-detect-default</span>
       <span class={cx(bpA.highlightDetectDefaultSub)}>the children wrapper</span>
-    </div>
+    </Stack>
     <Stack align="center" gap="12">
-      <div class={cx(bpA.highlightDetectDefaultCard)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightDetectDefaultCard)} }>
         <span class={cx(bpA.highlightDetectDefaultCardTitle)}>&lt;HighlightDetectDefault&gt;</span>
         <span class={cx(bpA.highlightDetectDefaultCardLine)}>setContext(HIGHLIGHT_DETECT_KEY,</span>
         <span class={cx(bpA.highlightDetectDefaultCardLine)}>{'  { detector: defaultLangDetector() })'}</span>
         <span class={cx(bpA.highlightDetectDefaultCardLine)}>{'{@render children()}'}</span>
-      </div>
+      </Stack>
       <span class={cx(bpA.highlightDetectDefaultArrow)}>-></span>
       <Stack direction="column" gap="4" class={cx(bpA.highlightDetectDefaultSide)}>
         <span class={cx(bpA.highlightDetectDefaultSideLabel)}>the wrapped subtree</span>
@@ -50,9 +50,9 @@
         {/each}
       </Stack>
     </Stack>
-    <div class={cx(bpA.highlightDetectDefaultFoot)}>
+    <Stack direction="column" class={cx(bpA.highlightDetectDefaultFoot)} }>
       <span>context spreads downward only · siblings outside untouched · nearest wrapper wins</span>
       <span>form ② = the same one line, hand-written at any subtree root (zero components)</span>
-    </div>
-  </div>
+    </Stack>
+  </Stack>
 </Stack>

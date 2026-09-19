@@ -73,20 +73,20 @@
             <span class={cx(bpB.websiteScaffoldBandText)}
               >main#main <span class={cx(bpB.websiteScaffoldBandMuted)}>— column-subgrid · [content] column</span></span
             >
-            <div class={cx(bpB.websiteScaffoldMainBody)}>
+            <Stack direction="column" gap="6" class={cx(bpB.websiteScaffoldMainBody)} }>
               <Skeleton class={cx(bpB.websiteScaffoldSkelA)}></Skeleton>
               <Skeleton class={cx(bpB.websiteScaffoldSkelB)}></Skeleton>
-            </div>
+            </Stack>
           </div>
           <div class={cx(bpB.websiteScaffoldFootBand)}>
             <span class={cx(bpB.websiteScaffoldBandMuted)}>footer — in the content flow</span>
           </div>
         </div>
-        <div class={cx(bpB.websiteScaffoldTocCol)}>
+        <Stack align="center" class={cx(bpB.websiteScaffoldTocCol)} }>
           <span class={cx(bpB.websiteScaffoldZoneKey)}
             >[toc] 15rem — shared column, both layers subgrid it</span
           >
-        </div>
+        </Stack>
       </div>
     </div>
     <div class={cx(bpB.websiteScaffoldFoot)}>

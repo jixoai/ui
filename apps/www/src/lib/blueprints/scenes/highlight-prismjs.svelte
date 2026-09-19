@@ -35,11 +35,11 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.highlightPrismjsStage)}>
-  <div class={cx(bpA.highlightPrismjsPanel)}>
-    <div class={cx(bpA.highlightPrismjsHead)}>
+  <Stack direction="column" gap="12" class={cx(bpA.highlightPrismjsPanel)} }>
+    <Stack align="center" justify="between" class={cx(bpA.highlightPrismjsHead)} }>
       <span class={cx(bpA.highlightPrismjsTitle)}>highlight-prismjs</span>
       <span class={cx(bpA.highlightPrismjsSub)}>the classic markup engine</span>
-    </div>
+    </Stack>
     <Stack direction="column" gap="8">
       <span class={cx(bpA.highlightPrismjsChainLabel)}
         >the grammar chain (dependency-ordered lazy loads)</span
@@ -61,9 +61,9 @@
         <span class={cx(bpA.highlightPrismjsThemeNote)}>one active theme per document · last requested wins</span>
       </Stack>
     </Stack>
-    <div class={cx(bpA.highlightPrismjsFoot)}>
+    <Stack direction="column" class={cx(bpA.highlightPrismjsFoot)} }>
       <span>markup output · survives print · prismjs({'{'} langs {'}'}) slims the instance</span>
       <span>prism 1.30 no longer ships svelte/vue — reject with a hint, card falls back to plain text</span>
-    </div>
-  </div>
+    </Stack>
+  </Stack>
 </Stack>

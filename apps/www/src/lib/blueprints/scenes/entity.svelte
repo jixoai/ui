@@ -34,7 +34,7 @@
       <span class={cx(bpA.entityLabelNote)}>page level (depth 0)</span>
       <Input type="text" value="owns its edge" />
     </label>
-    <div class={cx(bpA.entityPanel)} data-jx-entity={depth}>
+    <Stack direction="column" gap="12" class={cx(bpA.entityPanel)} } data-jx-entity={depth}>
       <div class={cx(bpA.entityEyebrow)}>
         the entity (depth 1) — one solid object
       </div>
@@ -50,6 +50,6 @@
         <span class={cx(bpA.entityLabelNote)}>opt-out (data-dissolve-border)</span>
         <Input type="text" value="the inset alone" data-dissolve-border />
       </label>
-    </div>
+    </Stack>
   </Stack>
 </Stack>

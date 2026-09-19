@@ -7,6 +7,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   // a month away from "today" keeps the today ring out of the frame —
   // the panel view follows the committed value, not the clock
@@ -27,12 +28,12 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.datePickerStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpA.datePickerMuted)}>
+<Stack direction="column" justify="center" gap="20" class={cx(bpA.datePickerStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpA.datePickerMuted)} }>
     <Skeleton class={cx(bpA.datePickerSkeletonA)}></Skeleton>
     <Skeleton class={cx(bpA.datePickerSkeletonB)}></Skeleton>
-  </div>
+  </Stack>
   <div class={cx(bpA.datePickerFrame)}>
     <DatePicker id="bp-date" label="deploy date" bind:value={deploy} />
   </div>
-</div>
+</Stack>

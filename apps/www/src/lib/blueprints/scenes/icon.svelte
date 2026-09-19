@@ -45,11 +45,11 @@
       </Stack>
     {/each}
   </div>
-  <div class={cx(bpA.iconNameRow)}>
+  <Stack align="center" gap="12" class={cx(bpA.iconNameRow)} }>
     <Icon name="folderOpen" size={14} />
     <Icon name="chevronRight" size={14} />
     <Icon name="fileCode" size={14} />
     <Icon name="braces" size={14} />
     <span class={cx(bpA.iconNameRowLabel)}>name: IconName — typo ⇒ compile error</span>
-  </div>
+  </Stack>
 </Stack>

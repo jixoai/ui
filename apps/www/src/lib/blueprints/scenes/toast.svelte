@@ -32,11 +32,11 @@
 </script>
 
 <Stack direction="column" justify="center" gap="16" class={cx(bpB.toastStage)}>
-  <div class={cx(bpB.toastSkel)}>
+  <Stack direction="column" gap="12" class={cx(bpB.toastSkel)} }>
     <Skeleton class={cx(bpB.toastSkelA)}></Skeleton>
     <Skeleton class={cx(bpB.toastSkelB)}></Skeleton>
     <Skeleton class={cx(bpB.toastSkelC)}></Skeleton>
-  </div>
+  </Stack>
 </Stack>
 
 <ToastViewport store={toast} />

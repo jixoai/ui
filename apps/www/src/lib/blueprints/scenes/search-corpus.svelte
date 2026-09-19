@@ -25,13 +25,13 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpB.searchCorpusStage)}>
-  <div class={cx(bpB.searchCorpusCard)}>
-    <div class={cx(bpB.searchCorpusHead)}>
+  <Stack direction="column" gap="12" class={cx(bpB.searchCorpusCard)} }>
+    <Stack align="center" justify="between" class={cx(bpB.searchCorpusHead)} }>
       <span class={cx(bpB.searchCorpusTitle)}>search-corpus</span>
       <span class={cx(bpB.searchCorpusTag)}
         >structure, not guesses</span
       >
-    </div>
+    </Stack>
     <div class={cx(bpB.searchCorpusGrid)}>
       <pre class={cx(bpB.searchCorpusTree)}>dist/*.html
 ├── h2/h3 (the tree law)
@@ -46,5 +46,5 @@
     <div class={cx(bpB.searchCorpusFoot)}>
       engine-pluggable (minisearch ▸ fuse ▸ …) · Intl.Segmenter CJK · byte-deterministic
     </div>
-  </div>
+  </Stack>
 </Stack>

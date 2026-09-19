@@ -27,25 +27,25 @@
 </script>
 
 <Stack direction="column" align="center" justify="center" gap="20" class={cx(bpB.scaffoldFloatStage)}>
-  <div class={cx(bpB.scaffoldFloatRow)}>
+  <Stack align="stretch" gap="16" class={cx(bpB.scaffoldFloatRow)} }>
     <!-- authoring position: where the consumer writes it -->
-    <div class={cx(bpB.scaffoldFloatSource)}>
+    <Stack direction="column" gap="8" class={cx(bpB.scaffoldFloatSource)} }>
       <span class={cx(bpB.scaffoldFloatTag)}
         >consumer DOM · authoring position</span
       >
-      <div class={cx(bpB.scaffoldFloatFloat)}>
+      <Stack align="center" gap="8" class={cx(bpB.scaffoldFloatFloat)} }>
         <span class={cx(bpB.scaffoldFloatDot)}></span>
         <span class={cx(bpB.scaffoldFloatFloatLabel)}>float content — created here, owned by Svelte</span>
-      </div>
+      </Stack>
       <span class={cx(bpB.scaffoldFloatAnchorNote)}>.jx-float-anchor — hidden, keeps the slot</span>
-    </div>
+    </Stack>
 
-    <div class={cx(bpB.scaffoldFloatArrow)} aria-hidden="true">
+    <Stack align="center" class={cx(bpB.scaffoldFloatArrow)} } aria-hidden="true">
       <Icon name="arrowRight" />
-    </div>
+    </Stack>
 
     <!-- adoption target: the top layer -->
-    <div class={cx(bpB.scaffoldFloatTarget)}>
+    <Stack direction="column" class={cx(bpB.scaffoldFloatTarget)} }>
       <span class={cx(bpB.scaffoldFloatTargetTag)}
         >.jx-top-layer · adoption target</span
       >
@@ -53,13 +53,13 @@
         <span class={cx(bpB.scaffoldFloatHeaderLabel)}>.jx-scaffold-header</span>
       </div>
       <div class={cx(bpB.scaffoldFloatAdoptedFrame)}>
-        <div class={cx(bpB.scaffoldFloatAdopted)}>
+        <Stack inline align="center" gap="8" class={cx(bpB.scaffoldFloatAdopted)} }>
           <span class={cx(bpB.scaffoldFloatAdoptedDot)}></span>
           adopted node — rides the immersive slide
-        </div>
+        </Stack>
       </div>
-    </div>
-  </div>
+    </Stack>
+  </Stack>
   <p class={cx(bpB.scaffoldFloatCaption)}>
     scaffold-float — live DOM adoption, teardown returns the nodes
   </p>

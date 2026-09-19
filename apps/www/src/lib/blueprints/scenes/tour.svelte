@@ -9,6 +9,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -38,8 +39,8 @@
   ];
 </script>
 
-<div class={cx(bpB.tourStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpB.tourCard)}>
+<Stack direction="column" align="start" justify="center" class={cx(bpB.tourStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="16" class={cx(bpB.tourCard)} }>
     <div id="bp-tour-workspace" class={cx(bpB.tourTarget)}>
       <p class={cx(bpB.tourLabel)}>workspace</p>
       <p class={cx(bpB.tourValue)}>jixoai-labs/ui</p>
@@ -48,6 +49,6 @@
       <p class={cx(bpB.tourLabel)}>brand hue</p>
       <p class={cx(bpB.tourValue)}>oklch(0.72 0.16 27)</p>
     </div>
-  </div>
+  </Stack>
   <Tour {steps} open={true} startAt={0} />
-</div>
+</Stack>

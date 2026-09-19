@@ -36,14 +36,14 @@
     <span class={cx(bpB.tocOutlineRootLabel)}
       >content root · plain headings</span
     >
-    <div class={cx(bpB.tocOutlineTree)}>
+    <Stack direction="column" gap="8" class={cx(bpB.tocOutlineTree)} }>
       <span class={cx(bpB.tocOutlineH2)}>Install</span>
-      <div class={cx(bpB.tocOutlineH3Nest)}>
+      <Stack direction="column" gap="6" class={cx(bpB.tocOutlineH3Nest)} }>
         <span class={cx(bpB.tocOutlineH3)}>wiring</span>
         <span class={cx(bpB.tocOutlineH3)}>theming</span>
-      </div>
+      </Stack>
       <span class={cx(bpB.tocOutlineH2Spaced)}>Deploy</span>
-    </div>
+    </Stack>
     <div class={cx(bpB.tocOutlineExtent)}></div>
     <span class={cx(bpB.tocOutlineExtentLabel)}>extent = h2 → next h2</span>
   </div>
@@ -54,11 +54,11 @@
       >derived · zero handwritten ids</span
     >
     {#each outline as entry (entry.id)}
-      <div class={cx(bpB.tocOutlineRow, entry.level === 3 ? bpB.tocOutlineRowNested : undefined)}>
+      <Stack align="baseline" gap="8" class={cx(bpB.tocOutlineRow, entry.level === 3 ? bpB.tocOutlineRowNested : undefined)} }>
         <code class={cx(bpB.tocOutlineRowId)}>#{entry.id}</code>
         <span class={cx(bpB.tocOutlineRowLabel)}>{entry.label}</span>
         <span class={cx(bpB.tocOutlineRowLevel)}>h{entry.level}</span>
-      </div>
+      </Stack>
     {/each}
     <span class={cx(bpB.tocOutlineFoot)}
       >toc-engine eats extents directly — no data-region markup</span

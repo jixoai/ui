@@ -46,13 +46,13 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.highlightStage)}>
-  <div class={cx(bpA.highlightPanel)}>
-    <div class={cx(bpA.highlightHead)}>
+  <Stack direction="column" gap="12" class={cx(bpA.highlightPanel)} }>
+    <Stack align="center" justify="between" class={cx(bpA.highlightHead)} }>
       <span class={cx(bpA.highlightTitle)}>highlight</span>
       <span class={cx(bpA.highlightSub)}
         >the engine-agnostic contract</span
       >
-    </div>
+    </Stack>
     <div class={cx(bpA.highlightGrid)}>
       <Stack direction="column" gap="4">
         <span class={cx(bpA.highlightColumnLabel)}
@@ -102,5 +102,5 @@ null cascades · reject terminal</pre>
       paper) · DLD = four-layer waterfall (filename -> shebang -> structure -> betlang), zero detector bytes until a card
       enters auto
     </div>
-  </div>
+  </Stack>
 </Stack>

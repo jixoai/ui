@@ -34,9 +34,9 @@
     PAINT_ZONE_KEY · newVariant ?? legacyVariant ?? own
   </div>
   {#each tiers as t (t.name)}
-    <div class={cx(bpB.paintRow, t.zone ? bpB.paintRowZone : bpB.paintRowPlain)}>
+    <Stack align="center" justify="between" class={cx(bpB.paintRow, t.zone ? bpB.paintRowZone : bpB.paintRowPlain)} }>
       <span class={cx(bpB.paintName)}>{t.name}</span>
       <span class={cx(bpB.paintNote)}>{t.zone ? 'zone-able' : 'explicit-prop only'}</span>
-    </div>
+    </Stack>
   {/each}
 </Stack>

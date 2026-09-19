@@ -34,7 +34,7 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.languageSwitcherStage)}>
-  <div class={cx(bpA.languageSwitcherPanel)}>
+  <Stack direction="column" gap="16" class={cx(bpA.languageSwitcherPanel)} }>
     <Stack align="center" justify="between" gap="16">
       <span class={cx(bpA.languageSwitcherRowLabel)}>pair · en</span>
       <LanguageSwitcher variant="pair" current="en" locales={pairLocales} />
@@ -47,5 +47,5 @@
       <span class={cx(bpA.languageSwitcherRowLabel)}>menu</span>
       <LanguageSwitcher variant="menu" current="en" ariaLabel="Language" locales={menuLocales} />
     </Stack>
-  </div>
+  </Stack>
 </Stack>

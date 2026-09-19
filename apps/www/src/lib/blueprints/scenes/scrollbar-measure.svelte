@@ -34,7 +34,7 @@
     <span class={cx(bpB.scrollbarMeasureLabel)}
       >jx-scrollbar-measure · shadow dom</span
     >
-    <div class={cx(bpB.scrollbarMeasureRow)}>
+    <Stack gap="12" class={cx(bpB.scrollbarMeasureRow)} }>
       <div class={cx(bpB.scrollbarMeasureCell)}>
         <span class={cx(bpB.scrollbarMeasureCellLabel)}>thin</span>
         <div class={cx(bpB.scrollbarMeasureThinBar)}></div>
@@ -45,7 +45,7 @@
         <div class={cx(bpB.scrollbarMeasureAutoBar)}></div>
         <div class={cx(bpB.scrollbarMeasureRulerWide)}></div>
       </div>
-    </div>
+    </Stack>
     <span class={cx(bpB.scrollbarMeasureCaption)}
       >offsetWidth − clientWidth</span
     >
@@ -57,10 +57,10 @@
       >:root inline style · one-shot, then removed</span
     >
     {#each widths as row (row.key)}
-      <div class={cx(bpB.scrollbarMeasureVarRow)}>
+      <Stack align="baseline" justify="between" class={cx(bpB.scrollbarMeasureVarRow)} }>
         <code class={cx(bpB.scrollbarMeasureVarKey)}>{row.key}</code>
         <code class={cx(bpB.scrollbarMeasureVarValue)}>{row.value}</code>
-      </div>
+      </Stack>
       <span class={cx(bpB.scrollbarMeasureVarNote)}>{row.note}</span>
     {/each}
   </Stack>

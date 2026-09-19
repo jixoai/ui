@@ -10,6 +10,7 @@
   import CommandItem from '$lib/ui/command/command-item.svelte';
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -26,11 +27,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.commandStage)}>
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.commandStage)} }>
   <Skeleton class={cx(bpA.commandSkeletonA)}></Skeleton>
   <Skeleton class={cx(bpA.commandSkeletonB)}></Skeleton>
   <Skeleton class={cx(bpA.commandSkeletonC)}></Skeleton>
-</div>
+</Stack>
 
 <Command open={true} placeholder="type a command…" label="command palette">
   <CommandInput />

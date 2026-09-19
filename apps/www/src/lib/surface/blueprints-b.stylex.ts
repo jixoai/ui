@@ -142,18 +142,11 @@ export const bpB = stylex.create({
 
   // ── navigation-menu: the site bar, panel forced shown ──────────
   navigationMenuStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-32'],
     padding: tokens['--jx-space-40'],
   },
   navigationMenuSkel: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   navigationMenuSkelBar: { height: '12px', width: '50%' },
@@ -198,10 +191,7 @@ export const bpB = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   paintRow: {
-    display: 'flex',
     maxWidth: '22rem',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     paddingInline: tokens['--jx-space-16'],
@@ -250,18 +240,11 @@ export const bpB = stylex.create({
 
   // ── popconfirm: the confirm bubble stage ───────────────────────
   popconfirmStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   popconfirmSkel: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   popconfirmSkelA: { height: '12px', width: '75%' },
@@ -269,18 +252,11 @@ export const bpB = stylex.create({
 
   // ── popover: the anchored panel stage ──────────────────────────
   popoverStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   popoverSkel: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   popoverSkelA: { height: '12px', width: '75%' },
@@ -330,8 +306,6 @@ export const bpB = stylex.create({
     borderStyle: 'solid',
   },
   progressiveBlurList: {
-    display: 'flex',
-    flexDirection: 'column',
     paddingInline: tokens['--jx-space-12'],
     paddingTop: tokens['--jx-space-24'],
   },
@@ -447,9 +421,6 @@ export const bpB = stylex.create({
     padding: 'calc(var(--space-40) + var(--space-8))',
   },
   referenceBody: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     fontSize: 'calc(var(--jx-text-base) + var(--jx-unit) * 0.125)',
   },
   referenceBroken: { color: tokens['--jx-muted-foreground'] },
@@ -470,17 +441,11 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   scaffoldFloatRow: {
-    display: 'flex',
     width: '100%',
-    alignItems: 'stretch',
-    gap: tokens['--jx-space-16'],
   },
   scaffoldFloatSource: {
     borderColor: tokens['--jx-border'],
-    display: 'flex',
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-8'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'dashed',
     padding: tokens['--jx-space-12'],
@@ -496,9 +461,6 @@ export const bpB = stylex.create({
     borderColor: tokens['--jx-border'],
     backgroundColor: 'color-mix(in oklab, var(--muted) 50%, transparent)',
     marginTop: tokens['--jx-space-4'],
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-8'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     paddingInline: tokens['--jx-space-8'],
@@ -519,14 +481,10 @@ export const bpB = stylex.create({
   },
   scaffoldFloatArrow: {
     color: tokens['--jx-muted-foreground'],
-    display: 'flex',
-    alignItems: 'center',
   },
   scaffoldFloatTarget: {
     borderColor: 'color-mix(in oklab, var(--primary) 60%, transparent)',
-    display: 'flex',
     flex: '1 1 0%',
-    flexDirection: 'column',
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     padding: tokens['--jx-space-12'],
@@ -564,9 +522,6 @@ export const bpB = stylex.create({
     backgroundColor: tokens['--jx-primary'],
     color: tokens['--jx-primary-foreground'],
     fontFamily: tokens['--jx-font-nav'],
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-8'],
     paddingInline: tokens['--jx-space-8'],
     paddingBlock: tokens['--jx-space-4'],
     fontSize: tokens['--jx-text-micro'],
@@ -612,16 +567,12 @@ export const bpB = stylex.create({
     borderStyle: 'solid',
   },
   scrollAreaListPad: {
-    display: 'flex',
     height: '100%',
-    flexDirection: 'column',
     paddingInline: tokens['--jx-space-14'],
     paddingBlock: tokens['--jx-space-8'],
   },
   scrollAreaListSlim: {
-    display: 'flex',
     height: '100%',
-    flexDirection: 'column',
     paddingInline: tokens['--jx-space-8'],
     paddingBlock: tokens['--jx-space-8'],
   },
@@ -698,8 +649,6 @@ export const bpB = stylex.create({
     borderStyle: 'solid',
   },
   scrollRunRun: {
-    display: 'flex',
-    gap: tokens['--jx-space-8'],
     paddingInline: tokens['--jx-space-12'],
     paddingBlock: tokens['--jx-space-12'],
   },
@@ -770,12 +719,9 @@ export const bpB = stylex.create({
     gridRowStart: 1,
     marginBlock: 'auto',
     marginInlineEnd: 'calc(var(--space-8) * -1)',
-    display: 'flex',
     height: '26px',
     width: '26px',
     flex: 'none',
-    alignItems: 'center',
-    justifyContent: 'center',
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     boxShadow: tokens['--jx-shadow-2xs'],
@@ -972,9 +918,6 @@ export const bpB = stylex.create({
   },
   scrollVirtualFactRow: {
     borderColor: tokens['--jx-border'],
-    display: 'flex',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     paddingInline: tokens['--jx-space-12'],
@@ -1010,8 +953,6 @@ export const bpB = stylex.create({
   },
   scrollbarMeasureRow: {
     marginTop: tokens['--jx-space-24'],
-    display: 'flex',
-    gap: tokens['--jx-space-12'],
     paddingInline: tokens['--jx-space-12'],
   },
   scrollbarMeasureCell: {
@@ -1089,9 +1030,6 @@ export const bpB = stylex.create({
   },
   scrollbarMeasureVarRow: {
     borderColor: tokens['--jx-border'],
-    display: 'flex',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     paddingInline: tokens['--jx-space-12'],
@@ -1113,11 +1051,8 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   searchCorpusCard: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1128,9 +1063,6 @@ export const bpB = stylex.create({
     lineHeight: tokens['--jx-space-24'],
   },
   searchCorpusHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1176,11 +1108,8 @@ export const bpB = stylex.create({
 
   // ── select: the rich listbox stage ─────────────────────────────
   selectStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   selectCard: { width: '100%', maxWidth: '400px' },
@@ -1197,12 +1126,8 @@ export const bpB = stylex.create({
 
   // ── sheet: the right drawer over a muted page ──────────────────
   sheetStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
     opacity: 0.7,
   },
@@ -1291,12 +1216,8 @@ export const bpB = stylex.create({
 
   // ── system-dialog: the destructive decision ────────────────────
   systemDialogStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
     opacity: 0.7,
   },
@@ -1354,9 +1275,6 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   terminalFooterSkel: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.5,
   },
   terminalFooterSkelA: { height: '12px', width: '50%' },
@@ -1370,9 +1288,6 @@ export const bpB = stylex.create({
   },
   terminalHeaderNav: { flexWrap: 'nowrap', alignItems: 'center', gap: 0 },
   terminalHeaderSkel: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   terminalHeaderSkelA: { height: '16px', width: '66.666667%' },
@@ -1434,21 +1349,14 @@ export const bpB = stylex.create({
     borderColor: tokens['--jx-border'],
     backgroundColor: tokens['--jx-terminal'],
     color: tokens['--jx-terminal-foreground'],
-    display: 'flex',
     width: '100%',
     maxWidth: '440px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-16'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     padding: tokens['--jx-space-24'],
   },
   themeToggleRowDivided: {
     borderColor: 'color-mix(in oklab, var(--terminal-foreground) 10%, transparent)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: tokens['--jx-space-16'],
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     paddingTop: tokens['--jx-space-16'],
@@ -1480,9 +1388,6 @@ export const bpB = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   toastSkel: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   toastSkelA: { height: '16px', width: '66.666667%' },
@@ -1652,9 +1557,6 @@ export const bpB = stylex.create({
   },
   tocOutlineTree: {
     marginTop: 'calc(var(--space-24) + var(--space-4))',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-8'],
     paddingInline: tokens['--jx-space-16'],
   },
   tocOutlineH2: {
@@ -1671,9 +1573,6 @@ export const bpB = stylex.create({
   tocOutlineH3Nest: {
     borderColor: 'color-mix(in oklab, var(--border) 50%, transparent)',
     marginInlineStart: tokens['--jx-space-8'],
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-6'],
     borderLeftWidth: 'var(--hairline)',
     borderLeftStyle: 'solid',
     paddingInlineStart: tokens['--jx-space-12'],
@@ -1712,9 +1611,6 @@ export const bpB = stylex.create({
   },
   tocOutlineRow: {
     borderColor: tokens['--jx-border'],
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: tokens['--jx-space-8'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     paddingInline: tokens['--jx-space-12'],
@@ -1805,18 +1701,11 @@ export const bpB = stylex.create({
 
   // ── tooltip: hover-intent tips forced shown ────────────────────
   tooltipStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
   tooltipSkel: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   tooltipSkelA: { height: '12px', width: '50%' },
@@ -1838,20 +1727,13 @@ export const bpB = stylex.create({
 
   // ── tour: step 1 of 2 against real targets ─────────────────────
   tourStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   tourCard: {
-    display: 'flex',
     width: '100%',
     maxWidth: '420px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-16'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1910,10 +1792,7 @@ export const bpB = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   typographyNode: {
-    display: 'flex',
     width: '10.5rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-2'],
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -1925,33 +1804,21 @@ export const bpB = stylex.create({
   typographyNodeName: { fontFamily: tokens['--jx-font-mono'], fontSize: tokens['--jx-text-label-lg'] },
   typographyNodeNote: { fontSize: tokens['--jx-text-micro'], color: tokens['--jx-muted-foreground'] },
   typographyApply: {
-    display: 'flex',
     width: '3rem',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: tokens['--jx-space-4'],
     fontSize: tokens['--jx-text-micro'],
     color: tokens['--jx-muted-foreground'],
   },
   typographyApplyArrow: { fontSize: 'var(--jx-text-base)' },
   typographyArrow: {
-    display: 'flex',
     width: '1.25rem',
-    alignItems: 'center',
-    justifyContent: 'center',
     fontSize: 'var(--jx-text-base)',
     color: tokens['--jx-muted-foreground'],
   },
 
   // ── utils: the cn() hygiene law diagram ────────────────────────
   utilsStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
     fontFamily: tokens['--jx-font-mono'],
     fontSize: tokens['--jx-text-sm'],
@@ -2072,9 +1939,6 @@ export const bpB = stylex.create({
   },
   websiteScaffoldMainBody: {
     marginTop: tokens['--jx-space-6'],
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-6'],
     padding: tokens['--jx-space-8'],
     paddingInlineStart: tokens['--jx-space-16'],
   },
@@ -2087,8 +1951,6 @@ export const bpB = stylex.create({
   },
   websiteScaffoldTocCol: {
     borderColor: tokens['--jx-border'],
-    display: 'flex',
-    alignItems: 'center',
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     paddingInline: tokens['--jx-space-8'],

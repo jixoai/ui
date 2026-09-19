@@ -23,22 +23,22 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpB.themeToggleStage)}>
-  <div class={cx(bpB.themeToggleBezel)}>
+  <Stack direction="column" gap="16" class={cx(bpB.themeToggleBezel)} }>
     <Stack align="center" justify="between" gap="16">
       <span class={cx(bpB.themeToggleLabel)}>full</span>
       <ThemeToggle variant="full" />
     </Stack>
-    <div class={cx(bpB.themeToggleRowDivided)}>
+    <Stack align="center" justify="between" gap="16" class={cx(bpB.themeToggleRowDivided)} }>
       <span class={cx(bpB.themeToggleLabel)}>compact</span>
       <ThemeToggle variant="compact" />
-    </div>
-    <div class={cx(bpB.themeToggleRowDivided)}>
+    </Stack>
+    <Stack align="center" justify="between" gap="16" class={cx(bpB.themeToggleRowDivided)} }>
       <span class={cx(bpB.themeToggleLabel)}>icon</span>
       <ThemeToggle variant="icon" />
-    </div>
-    <div class={cx(bpB.themeToggleRowDivided)}>
+    </Stack>
+    <Stack align="center" justify="between" gap="16" class={cx(bpB.themeToggleRowDivided)} }>
       <span class={cx(bpB.themeToggleLabel)}>text</span>
       <ThemeToggle variant="text" />
-    </div>
-  </div>
+    </Stack>
+  </Stack>
 </Stack>

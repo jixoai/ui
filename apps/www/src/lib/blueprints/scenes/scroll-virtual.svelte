@@ -60,10 +60,10 @@
       >@tanstack/svelte-virtual · dom wiring only</span
     >
     {#each facts as [key, value] (key)}
-      <div class={cx(bpB.scrollVirtualFactRow)}>
+      <Stack align="baseline" justify="between" class={cx(bpB.scrollVirtualFactRow)} }>
         <code class={cx(bpB.scrollVirtualFactKey)}>{key}</code>
         <span class={cx(bpB.scrollVirtualFactValue)}>{value}</span>
-      </div>
+      </Stack>
     {/each}
   </Stack>
 </Stack>

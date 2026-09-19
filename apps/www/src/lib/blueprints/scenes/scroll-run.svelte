@@ -38,7 +38,7 @@
   <!-- the host: one grid cell stacking run + veil + chips -->
   <div class={cx(bpB.scrollRunHost)}>
     <!-- the run mid-travel (overflow clamped for the static stage) -->
-    <div class={cx(bpB.scrollRunRun)} data-jx-scroll-run="" data-axis="horizontal">
+    <Stack gap="8" class={cx(bpB.scrollRunRun)} } data-jx-scroll-run="" data-axis="horizontal">
       {#each members as member, i (member)}
         <div
           class={cx(
@@ -50,7 +50,7 @@
           {member}
         </div>
       {/each}
-    </div>
+    </Stack>
     <!-- the veil schematic: translucent runs ramping toward the open edge -->
     <div class={cx(bpB.scrollRunVeil)}>
       <div class={cx(bpB.scrollRunVeilA)}></div>
@@ -59,9 +59,9 @@
       <div class={cx(bpB.scrollRunVeilD)}></div>
     </div>
     <!-- the open direction's frosted chip (a real button in the DOM) -->
-    <div class={cx(bpB.scrollRunChipBtn)}>
+    <Stack align="center" justify="center" class={cx(bpB.scrollRunChipBtn)} }>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class={cx(bpB.scrollRunIcon)}><path d="m9 18 6-6-6-6" /></svg>
-    </div>
+    </Stack>
   </div>
   <span class={cx(bpB.scrollRunCaption)}
     >--jx-edge-* consumed squared · chips gated by data-jx-scroll-state</span

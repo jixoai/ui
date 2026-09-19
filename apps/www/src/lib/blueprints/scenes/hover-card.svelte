@@ -24,11 +24,11 @@
       .join(' ');
 </script>
 
-<div class={cx(bpA.hoverCardStage)} {@attach fromAction(forceShowPopovers)}>
-  <div class={cx(bpA.hoverCardMuted)}>
+<Stack direction="column" justify="center" gap="24" class={cx(bpA.hoverCardStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpA.hoverCardMuted)} }>
     <Skeleton class={cx(bpA.hoverCardSkeletonA)}></Skeleton>
     <Skeleton class={cx(bpA.hoverCardSkeletonB)}></Skeleton>
-  </div>
+  </Stack>
   <p class={cx(bpA.hoverCardBody)}>
     release 77 was deployed by
     <HoverCard id="bp-hover-card" placement="bottom">
@@ -47,4 +47,4 @@
     </HoverCard>
     — 3 commits ahead of main.
   </p>
-</div>
+</Stack>

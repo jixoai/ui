@@ -34,11 +34,11 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.highlightSugarHighStage)}>
-  <div class={cx(bpA.highlightSugarHighPanel)}>
-    <div class={cx(bpA.highlightSugarHighHead)}>
+  <Stack direction="column" gap="12" class={cx(bpA.highlightSugarHighPanel)} }>
+    <Stack align="center" justify="between" class={cx(bpA.highlightSugarHighHead)} }>
       <span class={cx(bpA.highlightSugarHighTitle)}>highlight-sugar-high</span>
       <span class={cx(bpA.highlightSugarHighSub)}>the ~10KB engine</span>
-    </div>
+    </Stack>
     <Stack direction="column" gap="4">
       <span class={cx(bpA.highlightSugarHighOutLabel)}>direct output · no DOM dependency</span>
       <Stack align="center" gap="10">
@@ -59,9 +59,9 @@
         </Stack>
       {/each}
     </Stack>
-    <div class={cx(bpA.highlightSugarHighFoot)}>
+    <Stack direction="column" class={cx(bpA.highlightSugarHighFoot)} }>
       <span>29 canonical languages · JS/TS/JSX native strength · markup output, survives print</span>
       <span>zero options — the engine itself is the minimal config (no langs channel)</span>
-    </div>
-  </div>
+    </Stack>
+  </Stack>
 </Stack>

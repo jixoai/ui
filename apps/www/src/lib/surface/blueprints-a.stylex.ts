@@ -22,6 +22,27 @@
 // 1fr` chains) — structural geometry Grid's equal-track law
 // deliberately does not own.
 //
+// THE STAY LEDGER (the component-side research verdict, R6 slice 3,
+// 2026-09-19): flow may legitimately REMAIN in a member when its
+// usage cannot ride the family — recorded so future sweeps do not
+// relitigate:
+//   - SEMANTIC ELEMENTS (ul/label/form/nav/figure/article/span): the
+//     carrier's semantics outrank the div migration; a span's
+//     display:block or an ul's flex row stays atom-local (Stack
+//     renders a div — swapping would trade layout vocabulary for
+//     lost semantics).
+//   - COMPONENT-ROOT STAGE SHELLS (e.g. accordionStage on <Accordion
+//     class={…}>): the flow is STAGE vocabulary (center a 640×360
+//     canvas), not component vocabulary — components take no layout
+//     props (structural props are never-ambient; the family owns
+//     flow), and wrapping the component in a Stack adds DOM for zero
+//     visual gain. The atom carries it, scene-local.
+//   - SCENE-CONTRACT ZONES (jx-pure): that scene EXISTS to show the
+//     componentless face (zero JS, bare markup) — its atoms never
+//     migrate.
+//   - UNEXPRESSABLE/OFF-LADDER flow (alignItems on grid walls,
+//     calc() gaps): the family vocabulary does not reach them.
+//
 // Lane split: BP-A's scenes carry ZERO state/media/descendant
 // utilities (verified by scan) — no lane-2 sheet is needed; every
 // value lands here in lane 1. Scenes join atoms through their own
@@ -305,11 +326,8 @@ export const bpA = stylex.create({
 
   // ══ color-picker ═══════════════════════════════════════════════
   colorPickerStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   colorPickerFrame: { width: '100%', maxWidth: '300px' },
@@ -321,10 +339,6 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   colorUtilsPanel: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: tokens['--jx-space-16'],
     fontFamily: tokens['--jx-font-mono'],
     fontSize: 'var(--jx-text-base)',
   },
@@ -357,11 +371,8 @@ export const bpA = stylex.create({
 
   // ══ combobox ═══════════════════════════════════════════════════
   comboboxStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
     padding: tokens['--jx-space-40'],
   },
   comboboxFrame: { width: '100%', maxWidth: '420px' },
@@ -401,12 +412,8 @@ export const bpA = stylex.create({
 
   // ══ command ════════════════════════════════════════════════════
   commandStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
     opacity: 0.7,
   },
@@ -463,20 +470,13 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   contextPluginArrowColumn: {
-    display: 'flex',
     width: '3rem',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: tokens['--jx-space-4'],
     fontSize: tokens['--jx-text-micro'],
     color: tokens['--jx-muted-foreground'],
   },
   contextPluginArrowGlyph: { fontSize: 'var(--jx-text-base)' },
   contextPluginCard: {
-    display: 'flex',
     width: '10.5rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-2'],
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -486,10 +486,7 @@ export const bpA = stylex.create({
     paddingBlock: tokens['--jx-space-8'],
   },
   contextPluginHookRow: {
-    display: 'flex',
     width: '10.5rem',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -499,10 +496,7 @@ export const bpA = stylex.create({
     paddingBlock: tokens['--jx-space-6'],
   },
   contextPluginFlowArrow: {
-    display: 'flex',
     width: '1.25rem',
-    alignItems: 'center',
-    justifyContent: 'center',
     fontSize: 'var(--jx-text-base)',
     color: tokens['--jx-muted-foreground'],
   },
@@ -553,18 +547,11 @@ export const bpA = stylex.create({
 
   // ══ date-picker ════════════════════════════════════════════════
   datePickerStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   datePickerMuted: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   datePickerSkeletonA: { height: 'calc(var(--jx-unit) * 3)', width: '50%' },
@@ -585,10 +572,7 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   defaultsRow: {
-    display: 'flex',
     maxWidth: '22rem',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -634,12 +618,8 @@ export const bpA = stylex.create({
 
   // ══ dialog ═════════════════════════════════════════════════════
   dialogStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-40'],
     opacity: 0.7,
   },
@@ -654,18 +634,11 @@ export const bpA = stylex.create({
 
   // ══ dropdown-menu ══════════════════════════════════════════════
   dropdownMenuStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-20'],
     padding: tokens['--jx-space-40'],
   },
   dropdownMenuMuted: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   dropdownMenuSkeletonA: { height: 'calc(var(--jx-unit) * 3)', width: '66.666667%' },
@@ -712,10 +685,7 @@ export const bpA = stylex.create({
     fontSize: tokens['--jx-text-label'],
   },
   entityPanel: {
-    display: 'flex',
     width: '22rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -811,10 +781,6 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   ghosttyVtPanel: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: tokens['--jx-space-16'],
     fontFamily: tokens['--jx-font-mono'],
     fontSize: 'var(--jx-text-base)',
   },
@@ -879,9 +845,6 @@ export const bpA = stylex.create({
     position: 'absolute',
     left: tokens['--jx-space-16'],
     top: tokens['--jx-space-16'],
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
   },
   glassHeadline: {
     fontSize: tokens['--jx-text-body-xl'],
@@ -896,15 +859,10 @@ export const bpA = stylex.create({
     position: 'absolute',
     bottom: tokens['--jx-space-24'],
     left: tokens['--jx-space-16'],
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
   },
   glassLens: {
-    display: 'flex',
     height: '40px',
     width: '190px',
-    alignItems: 'center',
     borderRadius: 'calc(var(--jx-unit) * 5)',
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -917,10 +875,8 @@ export const bpA = stylex.create({
     color: 'color-mix(in oklab, #fff 90%, transparent)',
   },
   glassFrost: {
-    display: 'flex',
     height: '40px',
     width: '130px',
-    alignItems: 'center',
     borderRadius: 'calc(var(--jx-unit) * 5)',
     backgroundColor: 'color-mix(in oklab, #fff 5%, transparent)',
     paddingInline: tokens['--jx-space-12'],
@@ -966,11 +922,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightDetectDefaultPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -981,9 +934,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightDetectDefaultHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1004,10 +954,7 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightDetectDefaultCard: {
-    display: 'flex',
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -1036,8 +983,6 @@ export const bpA = stylex.create({
   },
   highlightDetectDefaultSideLine: { fontSize: tokens['--jx-text-label'] },
   highlightDetectDefaultFoot: {
-    display: 'flex',
-    flexDirection: 'column',
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1054,11 +999,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightHighlightjsPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1069,9 +1011,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightHighlightjsHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1092,10 +1031,7 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightHighlightjsCard: {
-    display: 'flex',
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -1111,11 +1047,8 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightHighlightjsGapCard: {
-    display: 'flex',
     width: '178px',
     flex: 'none',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'dashed',
@@ -1134,8 +1067,6 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightHighlightjsFoot: {
-    display: 'flex',
-    flexDirection: 'column',
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1152,11 +1083,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightLangDetectorPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1167,9 +1095,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightLangDetectorHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1211,8 +1136,6 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightLangDetectorFoot: {
-    display: 'flex',
-    flexDirection: 'column',
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1229,11 +1152,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightMicrolighterPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1244,9 +1164,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightMicrolighterHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1279,10 +1196,7 @@ export const bpA = stylex.create({
   highlightMicrolighterNodeLine: { fontSize: tokens['--jx-text-label'] },
   highlightMicrolighterNodeLineMuted: { color: tokens['--jx-muted-foreground'] },
   highlightMicrolighterRangesCard: {
-    display: 'flex',
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -1302,8 +1216,6 @@ export const bpA = stylex.create({
   },
   highlightMicrolighterArrow: { color: tokens['--jx-primary'] },
   highlightMicrolighterFoot: {
-    display: 'flex',
-    flexDirection: 'column',
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1320,11 +1232,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightPrismjsPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1335,9 +1244,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightPrismjsHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1396,8 +1302,6 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightPrismjsFoot: {
-    display: 'flex',
-    flexDirection: 'column',
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1414,11 +1318,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightShikiPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1429,9 +1330,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightShikiHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1466,10 +1364,7 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightShikiAdapterCard: {
-    display: 'flex',
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -1494,8 +1389,6 @@ export const bpA = stylex.create({
   highlightShikiOutLine: { fontSize: tokens['--jx-text-label'] },
   highlightShikiArrow: { color: tokens['--jx-primary'] },
   highlightShikiFoot: {
-    display: 'flex',
-    flexDirection: 'column',
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1512,11 +1405,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightSugarHighPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1527,9 +1417,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightSugarHighHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1595,8 +1482,6 @@ export const bpA = stylex.create({
     color: tokens['--jx-muted-foreground'],
   },
   highlightSugarHighFoot: {
-    display: 'flex',
-    flexDirection: 'column',
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1613,11 +1498,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightTreeSitterPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1628,9 +1510,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightTreeSitterHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1662,10 +1541,7 @@ export const bpA = stylex.create({
   },
   highlightTreeSitterTreeLine: { fontSize: tokens['--jx-text-label'] },
   highlightTreeSitterQueryCard: {
-    display: 'flex',
     flex: '1 1 0%',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-4'],
     borderRadius: 0,
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
@@ -1685,8 +1561,6 @@ export const bpA = stylex.create({
   },
   highlightTreeSitterArrow: { color: tokens['--jx-primary'] },
   highlightTreeSitterFoot: {
-    display: 'flex',
-    flexDirection: 'column',
     borderTopWidth: 'var(--hairline)',
     borderTopStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1703,11 +1577,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   highlightPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1718,9 +1589,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   highlightHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -1780,18 +1648,11 @@ export const bpA = stylex.create({
 
   // ══ hover-card ═════════════════════════════════════════════════
   hoverCardStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
   hoverCardMuted: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   hoverCardSkeletonA: { height: 'calc(var(--jx-unit) * 3)', width: '75%' },
@@ -1818,19 +1679,12 @@ export const bpA = stylex.create({
 
   // ══ icon-button ════════════════════════════════════════════════
   iconButtonStage: {
-    display: 'flex',
     height: '100%',
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: tokens['--jx-space-24'],
     padding: tokens['--jx-space-40'],
   },
   iconButtonIcon: { width: 'calc(var(--jx-unit) * 4)', height: 'calc(var(--jx-unit) * 4)' },
   iconButtonMuted: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     opacity: 0.6,
   },
   iconButtonSkeletonA: { height: 'calc(var(--jx-unit) * 3)', width: '75%' },
@@ -1884,9 +1738,6 @@ export const bpA = stylex.create({
   },
   iconStrokeRow: { display: 'flex', alignItems: 'center', gap: tokens['--jx-space-16'] },
   iconNameRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-12'],
     color: tokens['--jx-muted-foreground'],
   },
   iconNameRowLabel: { fontFamily: tokens['--jx-font-mono'], fontSize: tokens['--jx-text-micro'] },
@@ -2012,9 +1863,6 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   kbdRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens['--jx-space-8'],
     fontSize: 'var(--jx-text-sm)',
     lineHeight: 'calc(var(--jx-unit) * 5)',
   },
@@ -2032,11 +1880,8 @@ export const bpA = stylex.create({
     borderColor: tokens['--jx-border'],
     backgroundColor: tokens['--jx-terminal'],
     color: tokens['--jx-terminal-foreground'],
-    display: 'flex',
     width: '100%',
     maxWidth: '440px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-16'],
     padding: tokens['--jx-space-24'],
   },
   languageSwitcherRowLabel: {
@@ -2060,11 +1905,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-40'],
   },
   linkColumn: {
-    display: 'flex',
     width: '100%',
     maxWidth: '520px',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     fontSize: 'var(--jx-text-sm)',
     lineHeight: 'calc(var(--jx-unit) * 7)',
   },
@@ -2102,11 +1944,8 @@ export const bpA = stylex.create({
     padding: tokens['--jx-space-32'],
   },
   llmsTxtPanel: {
-    display: 'flex',
     width: '100%',
     maxWidth: '42rem',
-    flexDirection: 'column',
-    gap: tokens['--jx-space-12'],
     borderWidth: 'var(--hairline)',
     borderStyle: 'solid',
     borderColor: tokens['--jx-border'],
@@ -2117,9 +1956,6 @@ export const bpA = stylex.create({
     lineHeight: 'calc(var(--jx-unit) * 6)',
   },
   llmsTxtHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 'var(--hairline)',
     borderBottomStyle: 'solid',
     borderColor: tokens['--jx-border'],

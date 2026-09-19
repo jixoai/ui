@@ -29,28 +29,28 @@
 </script>
 
 <Stack align="center" justify="center" class={cx(bpA.highlightHighlightjsStage)}>
-  <div class={cx(bpA.highlightHighlightjsPanel)}>
-    <div class={cx(bpA.highlightHighlightjsHead)}>
+  <Stack direction="column" gap="12" class={cx(bpA.highlightHighlightjsPanel)} }>
+    <Stack align="center" justify="between" class={cx(bpA.highlightHighlightjsHead)} }>
       <span class={cx(bpA.highlightHighlightjsTitle)}>highlight-highlightjs</span>
       <span class={cx(bpA.highlightHighlightjsSub)}>core + selective registration</span>
-    </div>
+    </Stack>
     <Stack align="center" gap="16">
-      <div class={cx(bpA.highlightHighlightjsCard)}>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightHighlightjsCard)} }>
         {#each core as line, i (line)}
           <span class={cx(bpA.highlightHighlightjsCardLine, i === 0 ? bpA.highlightHighlightjsCardLineBold : undefined)}>{line}</span>
         {/each}
         <span class={cx(bpA.highlightHighlightjsCardNote)}>register ONLY what you ship</span>
-      </div>
-      <div class={cx(bpA.highlightHighlightjsGapCard)}>
+      </Stack>
+      <Stack direction="column" gap="4" class={cx(bpA.highlightHighlightjsGapCard)} }>
         <span class={cx(bpA.highlightHighlightjsGapLabel)}>not in hljs 11.12</span>
         {#each gap as line (line)}
           <span class={cx(bpA.highlightHighlightjsGapLine)}>{line}</span>
         {/each}
-      </div>
+      </Stack>
     </Stack>
-    <div class={cx(bpA.highlightHighlightjsFoot)}>
+    <Stack direction="column" class={cx(bpA.highlightHighlightjsFoot)} }>
       <span>markup output · survives print · hljs-* classes map to --tok-* (zero download)</span>
       <span>highlightJs({'{'} langs {'}'}) = the flagship slim channel vs the full bundle</span>
-    </div>
-  </div>
+    </Stack>
+  </Stack>
 </Stack>

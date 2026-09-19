@@ -7,6 +7,7 @@
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
   import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
 
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
@@ -32,8 +33,8 @@
   let runtime = $state('node');
 </script>
 
-<div class={cx(bpB.selectStage)} {@attach fromAction(forceShowPopovers)}>
+<Stack direction="column" justify="center" class={cx(bpB.selectStage)} } {@attach fromAction(forceShowPopovers)}>
   <div class={cx(bpB.selectCard)}>
     <Select id="bp-select" label="runtime" placeholder="pick a runtime…" bind:value={runtime} {options} />
   </div>
-</div>
+</Stack>
