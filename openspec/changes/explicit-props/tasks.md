@@ -15,6 +15,12 @@
       pipeline freeze §17, alias-as-var-indirection §12, zero-class degrade
       §14, the slot-honesty + context/cascade laws §1, the var() fallback
       law §3) — re-review before W1
+- [x] 0.6 Codex r2 blockers folded (6.3/10: units unified to §0.1 across
+      docs+specs, the density coefficient carrier frozen with precedence +
+      legacy mapping, query keys branded + overload + diagnostics, §17's
+      concrete interfaces + inventory/ledger/fixtures, the registry
+      artifact chain, the ratchet receipt bound to exact constants, the
+      degrade consumption chain, census receipts reproducible)
 
 ## W1 — token core (theme + slot helpers)
 
@@ -35,6 +41,9 @@
       stay absolute under em-scaling — probe receipt)
 - [ ] 1.7 `context-coverage.config.json` synced to the eight-axis supply set
       (design §11 — the coverage gate knows every context key)
+- [ ] 1.8 the density coefficient carrier lands: every kernel channel
+      splits base/effective per the frozen §4 pattern; precedence +
+      legacy-alias mapping + computed-style probe receipts
 
 ## W2 — plugin layer
 
@@ -53,7 +62,10 @@
 - [ ] 2.7 alias-as-var-indirection receipt: a consumer override of
       `--jx-<axis>-<alias>` remaps a named step with zero resolver code
 
-## W3 — component migration (batched, the 0.4 map)
+## W3 — component migration (batched, the 0.4 map; EVERY batch closes on
+its own gate — slot-surface lint green for its families + doc pages
+rendering the shared section + svelte-check clean — before the next batch
+opens; a batch is the rollback unit)
 
 - [ ] 3.1 batch A — the 16 native families: collision rule (destructured prop
       wins, rest forwards), axis surface, supply set
@@ -84,7 +96,9 @@
 
 - [ ] 5.1 `verify:explicit-props` (design §16.1: axis surface + carrier law +
       broadcast duty + native forwarding ban)
-- [ ] 5.2 existing gates adapted; tailwindless ratchet receipt: UNMOVED
+- [ ] 5.2 existing gates adapted; tailwindless ratchet receipt asserts the
+      exact constants (files=2 · identities=7 · occurrences=7 ·
+      zones{routes:1, site-libs:0, ui:6} · forms=42)
 - [ ] 5.3 full verify-all green in the MAIN dir (Owner ruling: no worktree)
 - [ ] 5.4 shadcn-add clean-consumer receipt: named steps resolve + an alias
       override remaps, pure CSS, no resolver runtime (design §12)

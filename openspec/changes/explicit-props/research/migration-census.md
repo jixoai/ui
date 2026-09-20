@@ -5,11 +5,14 @@
 
 ## Totals
 
-- 115 families under `apps/www/src/lib/ui/`; 110 hand-written doc pages.
-- ~60 `*-defaults.svelte.ts` files consume `densitySlot` today (the fleet
-  law carries over verbatim — those files gain five sibling slots).
-- Density channels (`--jx-gap/--jx-stack/--jx-inset/--jx-hit/…`) consumed in
-  112 files — UNCHANGED by this change (kernel untouched).
+- 115 families under `apps/www/src/lib/ui/` (dirs; +8 loose site files);
+  110 hand-written doc pages.
+- ~60 `*-defaults.svelte.ts` files consume `densitySlot` today (72 defaults
+  files total; the fleet law carries over verbatim — those files gain five
+  sibling slots).
+- Density channels consumed in 115 files (receipt command in proposal.md —
+  the nine-channel explicit grep) — UNCHANGED by this change (kernel
+  untouched).
 
 ## Batch A — native collision families (16, design §1 rule)
 

@@ -4,10 +4,13 @@
 
 The component canvas meta pipeline (component-metadata-gen → two-zone meta →
 schema IR → schema2form) SHALL inject the shared universal-props block into
-every family's generated zone, and the playground controls SHALL offer
-per-axis editors (enum select incl. `auto`, number spinner with the axis'
-unit, a query() condition editor). The drift gate (`--check`) SHALL fail
-when the injected block goes stale.
+every family's generated zone per the FROZEN interfaces (design §17:
+`UniversalAxisDoc`, `ControlHint` additions `axis-enum`/`axis-number`/
+`query-editor`, `ComponentMeta.universal`, the 115-family
+`universal-props.inventory.json` + exemption ledger, and the committed
+normal-family + exempt-family fixtures under the change's `research/`).
+The drift gate (`--check`) SHALL fail with the frozen one-line-per-divergence
+format when any of artifact/injection/inventory diverges.
 
 #### Scenario: playground edits an axis live
 

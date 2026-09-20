@@ -29,10 +29,19 @@ black overlays).
 
 Each axis' named steps SHALL live as typed token members remappable through
 the plugin alias tables (`[$alias]: value`), with the per-axis number-lane
-units fixed (size/radius/density → px, elevation → dp, color → hue degrees
-through the fixed oklch primary formula). The micro-typography rungs
-(`--text-caption` 9px, `--text-micro` 10px) SHALL stay absolute (rem), never
-em-scaled by the size axis.
+units frozen per design §0.1 (size/radius → px, density/motion →
+coefficient, elevation → dp, color → hue degrees through the fixed oklch
+primary formula). The micro-typography rungs (`--text-caption` 9px,
+`--text-micro` 10px) SHALL stay absolute (rem), never em-scaled by the
+size axis.
+
+#### Scenario: the density coefficient composes over a rung
+
+- GIVEN `density={0.75}` (number lane) inside an ambient `sm` scope
+- THEN every kernel channel computes its base rung value × 0.75 via the
+  frozen pattern (`calc(var(--jx-<channel>-base) * 0.75)`), a named lane
+  resolves to the exact rung with coefficient 1, and a computed-style probe
+  on `--jx-gap` shows the composed value
 
 #### Scenario: a plugin remaps a named step
 

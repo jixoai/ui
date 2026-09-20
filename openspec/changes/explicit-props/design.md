@@ -12,8 +12,9 @@
 > - `auto` — RESERVED LITERAL: inherit (the resolved context flows; may not
 >   be remapped or shadowed). `auto` is the DEFAULT of every axis;
 > - `${number}` — RESERVED LITERAL: exact-value escape. The unit is defined
->   PER AXIS (§1–§8): px for size/radius/density, dp for elevation, hue
->   degrees for color, intensity coefficient for motion;
+>   PER AXIS (§0.1): px for size/radius, coefficient for density/motion,
+>   dp for elevation, hue degrees for color; shape/theme have no number
+>   lane;
 > - `query({ [condition]: <lane value> })` — responsive/container-conditional
 >   values, §9. Usable on ANY axis, wraps ANY lane.
 
@@ -59,8 +60,11 @@ LAWS:
   card.svelte renders snippets directly under root today, no reset
   wrapper). The law: family PARTS scale with the root; slotted content
   follows plain inheritance; a family MAY offer a reset wrapper escape
-  (`font-size: var(--jx-size-slot-reset, 1em)`) where composition demands
-  it. Never claim slotted content is un-scaled — it is not.
+  (`font-size: var(--jx-size-base, 1rem)`) where composition demands
+  it. The reset target is the SHEET BASE, not `1em` (which would inherit
+  the scaled size — Codex r2): `font-size: var(--jx-size-base, 1rem)`,
+  where `--jx-size-base` is the theme's un-scaled base. Never claim slotted
+  content is un-scaled — it is not.
 - **Context vs cascade** (Codex r1 B8): the Svelte context (ambient slot)
   carries the INTENT; the CSS custom properties carry the RENDER. They are
   two channels of one resolution: the slot resolves the lane, stamps the
@@ -114,10 +118,22 @@ LAWS:
   `2xs|xs|sm|default|lg` alongside (legacy names keep working everywhere;
   the kernel channels `--jx-gap/--jx-stack/--jx-inset/--jx-hit/…` are
   UNCHANGED).
-- `${number}`: a scale coefficient (1 = default) applied over the kernel
-  channels via calc expressions.
-- `auto`: inherit — this is EXACTLY today's `densitySlot` (`explicit ??
-  ambient ?? own`, 「无意见不盖章」); the fleet law survives verbatim.
+- `auto`: inherit — EXACTLY today's `densitySlot` (`explicit ?? ambient ??
+  own`, 「无意见不盖章」); the fleet law survives verbatim.
+- **The coefficient carrier, frozen** (Codex r2 B2 — the number lane is
+  IMPLEMENTABLE, not aspirational): the kernel channels split into base
+  and effective —
+  `--jx-gap-base` etc. carry the rung values (the existing five-rung scope
+  blocks define them, unchanged); the effective channels become
+  `--jx-gap: calc(var(--jx-gap-base) * var(--jx-density-coefficient, 1))`
+  (every channel in the §11 census list, one pattern). The component root
+  stamps `--jx-density-coefficient` when the number lane is used.
+  **Precedence**: a NAMED lane sets the rung scope AND resets the
+  coefficient to 1 (explicit rung = exact rung, never double-scaled); the
+  NUMBER lane sets the coefficient and leaves the rung at ambient; `auto`
+  stamps neither (inherit both). SSR: static strings, no computation.
+  **Legacy mapping**: `2xs|xs|sm|default|lg` are aliases onto the existing
+  rung scopes VERBATIM (zero migration for the 60 slot consumers).
 - **Orthogonality ruling**: `size` owns font-size; `density` owns
   line-height coefficient + gaps. They never fight over the same property.
 
@@ -204,10 +220,21 @@ LAWS:
 
 ```ts
 // the public API (ships from the kernel lib; the component props accept
-// the return value on every axis)
-type QueryKey = string;                    // "sm" | "@md" | "@sm/card" …
-type AxisQuery<T> = { readonly $query: true; readonly cases: [QueryKey, T][]; readonly base: T };
-declare function query<T>(cases: Record<QueryKey, T>, base?: T): AxisQuery<T>;
+// the return value on every axis). Keys are BRANDED — the grammar is
+// enforced by the type AND diagnosed at build/runtime (Codex r2 B4):
+//   media:    "sm" | "md" | "lg" | <registered viewport scale name>
+//   container:"@sm" | "@md" | … | "@sm/card" (size-first, slash, name)
+// duplicate keys, unknown scale names, or unordered-mixed scales are
+// BUILD ERRORS listing the offending key and the registered scale table.
+type AxisName = 'size' | 'shape' | 'radius' | 'density' | 'color' | 'theme' | 'elevation' | 'motion';
+type QueryKey = `${'' | '@'}${string}` | `@${string}/${string}`;   // validated, not free-form intent
+type QueryCase<T> = readonly [key: QueryKey, value: T];
+interface AxisQuery<T> { readonly $query: true; readonly axis: AxisName; readonly cases: readonly QueryCase<T>[]; readonly base: T }
+declare function query<T>(cases: Record<QueryKey, T>): AxisQuery<T | undefined> & { readonly base: undefined };
+declare function query<T>(cases: Record<QueryKey, T>, base: T): AxisQuery<T>;
+// overloads: omitting base yields base: undefined → the consumer renders
+// the AXIS DEFAULT (auto) unconditionally first; a bare string/number lane
+// value never needs query()
 ```
 
 - **Parse**: the object-literal form is sugar; `query()` normalizes to an
@@ -273,9 +300,12 @@ query fuel). Generalized slot helpers land in `defaults.svelte.ts` beside
 `densitySlot` (`sizeSlot`, `radiusSlot`, `colorSlot`, `shapeSlot`,
 `elevationSlot`, `motionSlot` — same `explicit ?? ambient ?? own` fleet
 law, same 「无意见不盖章」). Explicit prop > ambient context > own default,
-and the CSS carrier always mirrors the resolved lane (SSR-safe static
-strings). This protocol enters the component-authoring living spec as a
-Requirement.
+and the CSS carrier always mirrors the resolved lane as STATIC STRINGS
+PER RENDER (Codex r2: "computed once" was wrong wording — the value is
+static within a render and SSR-safe, but a runtime context change (e.g.
+the JS-mutable theme system) re-renders and re-stamps, exactly like
+today's reactive density getter). This protocol enters the
+component-authoring living spec as a Requirement.
 
 ## §12 The plugin layer
 
@@ -318,9 +348,19 @@ contradiction with §10's zero-class-identity law): the kernel ships the
 ladder twice, gated by CSS itself —
 
 ```css
-@supports (corner-shape: bevel)      { :root { --jx-shape-scoop: scoop; … } }
-@supports not (corner-shape: bevel)  { :root { --jx-shape-scoop: square; … } }
+@supports (corner-shape: bevel)      { :root { --jx-shape-scoop: scoop;  --jx-radius-factor: 1; } }
+@supports not (corner-shape: bevel)  { :root { --jx-shape-scoop: square; --jx-radius-factor: 1; } }
+/* squircle only: factor 2 in the first block, 1 in the second — the ×2
+   law and its degrade reversal ride the SAME var */
 ```
+
+**The consumption chain is frozen** (Codex r2 — families read the ladder,
+never the capability): family CSS writes
+`corner-shape: var(--jx-corner-<n>)` (the alias vars, composed from the
+ladder at the plugin sheet) and
+`border-radius: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor, 1))`
+— so capability verdict, alias choice, squircle ×2 and degrade reversal
+are all pure var composition, one auditable chain, zero branches.
 
 No runtime detection, no class identities, the ratchet stays unmoved, and
 the squircle ×2 factor rides the same vars (`--jx-radius-factor: 2` vs `1`)
@@ -349,33 +389,54 @@ or files their exemption in the gate's exception ledger with reasons.
    broadcast duty — consumers stamp the supply set; (d) native families
    never forward owned props.
 2. `verify:mirror` / stylex-payload / tailwindless — UNCHANGED behavior
-   expected (ratchet unmoved; the W5 receipt proves it).
+   expected. **The ratchet receipt binds the EXACT constants** (Codex r2):
+   `files=2, identities=7, occurrences=7, zones={routes:1, site-libs:0,
+   ui:6}, forms=42` — W5 asserts these verbatim against
+   `scripts/verify-tailwindless.mjs`'s RATCHET; any drift is red, not
+   "reviewed".
 3. Meta drift gate (`component-metadata-gen --check`) extended: the shared
    universal block is generated, not hand-copied.
 4. verify-all green; vision walkthrough rounds gated on pinned-phase
    captures (the splash-fan capture discipline: pin, assert same-moment,
    then judge).
 
-## §17 The meta/IR pipeline freeze (W4's contract — Codex r1 B4)
+## §17 The meta/IR pipeline freeze (W4's contract — Codex r1 B4, r2 B5)
 
-The W4 docs/canvas wave implements THIS, not an improvisation:
+The W4 docs/canvas wave implements THIS, not an improvisation. The
+interfaces are frozen HERE (types verbatim; W4 transcribes them):
 
-1. **One shared artifact**: `apps/www/src/lib/universal-props.schema.ts`
-   (mirror: `registry/files/lib/`) — the axis grammar types, the alias
-   defaults, the query() key grammar, and the PropsTable/docs metadata
-   (labels, descriptions) as ONE generated-from-hand source. Nothing else
-   hand-copies the vocabulary.
-2. **Generator merge rule**: `component-metadata-gen.mjs` (today: same-file
-   `interface Props` parsing, defaults read from sibling
-   `*-defaults.svelte.ts`, EMPTY on missing defaults) gains a final merge
-   step — inject the universal block into EVERY family's generated zone,
-   with a pinned **115-family inventory + exemption ledger**
-   (`no-style`/pass-through families, e.g. pure containers, listed with
-   reasons; a family absent from both is a gate failure, closing the
-   empty-on-missing-defaults hole).
-3. **IR extension**: `schema/ir.ts` gains `ControlHint` values per axis
-   (enum-select incl. `auto`, number spinner with the axis' unit, and a
-   `query-editor` composite) + a `universal` block on `ComponentMeta`;
-   `schema2form`/`canvas-playground` render from those.
-4. **Drift gate**: `--check` fails on any divergence between the shared
-   artifact, the injected blocks, and the inventory (W5 wires it).
+```ts
+// universal-props.schema.ts — the ONE shared artifact (www + registry mirror)
+export interface UniversalAxisDoc {
+  axis: 'size' | 'shape' | 'radius' | 'density' | 'color' | 'theme' | 'elevation' | 'motion';
+  label: string;                       // PropsTable display
+  description: string;                 // one-line docs prose
+  namedSteps: readonly string[];       // the DOCUMENTED vocabulary
+  numberUnit: 'px' | 'coefficient' | 'dp' | 'hue' | null;
+  rawLane: boolean;                    // color only, true
+}
+export const UNIVERSAL_AXES: readonly UniversalAxisDoc[] = [/* 8 rows */];
+
+// ir.ts additions (ControlHint gains):
+type ControlHint = /* existing */ | 'axis-enum' | 'axis-number' | 'query-editor';
+// ComponentMeta gains:
+interface ComponentMeta { /* existing */ universal: readonly UniversalAxisDoc[]; }
+```
+
+1. **Generator merge rule**: `component-metadata-gen.mjs` (today: same-file
+   `interface Props` parsing, defaults from sibling `*-defaults.svelte.ts`,
+   EMPTY on missing defaults) gains a FINAL merge step —
+   `meta.universal = UNIVERSAL_AXES` for every family whose directory
+   appears in the inventory. Merge precedence: generated zone owns the
+   injection; hand-authored annotations may only CURATE (labels/descriptions
+   overrides), never delete the block.
+2. **The inventory + exemption ledger**
+   (`universal-props.inventory.json`, beside the schema):
+   `{ families: string[115], exemptions: { family: string, reason: string }[] }`
+   — a family in NEITHER list is a gate failure (this closes the
+   empty-on-missing-defaults hole Codex flagged).
+3. **`--check` failure format** (the drift gate): one line per divergence —
+   `<family>: <field> expected <value> got <value>` — plus a summary count;
+   exit 1.
+4. **Fixtures** (committed under `research/`): one NORMAL family's expected
+   merged meta + one EXEMPT family's (block absent, ledger entry present).

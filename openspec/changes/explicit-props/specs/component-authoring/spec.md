@@ -7,9 +7,10 @@ Every registry component family SHALL expose the eight universal props —
 through the shared slot helpers (the `densitySlot` precedent generalized:
 `explicit ?? ambient ?? own`, 无意见不盖章). The grammar is uniform: `named`
 (plugin alias table) | `auto` (inherit, the default) | `${number}` (exact
-value, unit per axis: px / dp / hue-degrees), with the orthogonal
-`query({...})` wrapper for media/container-conditional values. `auto` and
-number literals SHALL NOT be remappable by any alias table.
+value, units per design §0.1: px / coefficient / dp / hue-degrees; shape
+and theme enum-only), with the orthogonal `query({...})` wrapper for
+media/container-conditional values. `auto` and number literals SHALL NOT
+be remappable by any alias table.
 
 #### Scenario: a nested component inherits by default
 

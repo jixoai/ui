@@ -46,12 +46,15 @@ design system. 显式的不是值，而是「我要偏离上下文」这个意�
 
 ## The landscape (the pinned baseline, census 2026-09-21)
 
-> Census receipts (Codex r1 note): family/page counts from directory
-> listing (`apps/www/src/lib/ui/*` = 115, doc pages = 110);
-> "~60 densitySlot consumers" = `*-defaults.svelte.ts` grep (72 defaults
-> files exist, 60 consume the slot); "112 density-channel consumers" =
-> `rg -l 'var\(--jx-(gap|stack|inset|hit|…)' apps/www/src` — any recount
-> re-runs these commands, numbers are not folklore.
+> Census receipts (Codex r1/r2 — REPRODUCIBLE, run from repo root; r2
+> replaced the pseudo-ellipsis with the full channel list):
+> ```sh
+> find apps/www/src/lib/ui -mindepth 1 -maxdepth 1 -type d | wc -l   # 115 family dirs (+8 loose site files)
+> ls -d apps/www/src/routes/docs/components/*.html | wc -l            # 110 pages
+> ls apps/www/src/lib/ui/**/*-defaults.svelte.ts | wc -l              # 72 defaults files
+> grep -rl densitySlot apps/www/src/lib/ui --include='*-defaults.svelte.ts' | wc -l   # 60 slot consumers
+> grep -rlE 'var\(--jx-(gap|stack|inset|hit|text|leading|line|icon|chip-radius)' apps/www/src | wc -l   # 115 channel-consumer files
+> ```
 
 - **115 component families** under `apps/www/src/lib/ui/`; **110 hand-written
   doc pages** under `apps/www/src/routes/docs/components/*.html/`.
