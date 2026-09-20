@@ -36,9 +36,10 @@
 //     AMENDMENT (the audit's named-gap fill, 2026-09-19): the 9px
 //     voice gained its rung — --jx-text-caption (var(--text-caption),
 //     theme-side 0.5625rem). The 26 caption atoms' calc(base−U)
-//     became token reads; pixels unchanged; the var() is also the
-//     master switch for any future merge into micro (10px) — one
-//     value, all 26.
+//     became token reads; pixels unchanged; the var() remains the
+//     master switch (one value, all 26) — the merge question is
+//     SETTLED (2026-09-21 Owner ruling): caption keeps its 9px
+//     lane, micro stays 10px.
 //   - tracking: 0.24/0.2/0.18/0.14/0.1em are exact steps;
 //     `tracking-tight` (-0.025em) rides --track-tight (-0.02em, the
 //     W1 nearest-step remap — seam-reported).
