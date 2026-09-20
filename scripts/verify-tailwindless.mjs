@@ -1376,19 +1376,26 @@ const SEMANTIC_CLASS_NAMES = new Set(SEMANTIC_RULES.flatMap((r) => r.classes ?? 
 // resolveTextStyle() formsByFile census, 21 forms × the two mirror
 // sides).
 const RATCHET = {
-  // ONE deliberate carve (2026-09-19, the FOUC round, Owner design):
-  // boot-splash carries 6 HARDCODED head-carried classes — the
-  // zero-css-file law DEMANDS them (the splash must paint before any
-  // stylesheet; its vocabulary rides the HTML itself). The carve is
-  // ui-zone only, sized to exactly the family's six identities,
-  // review-visible here per the gate-source law. Everything else
-  // stays ZERO: the migration is complete — any OTHER class identity
-  // anywhere is red unless atoms, tokens, registered semantics, or
-  // registered producers own it
-  files: 1,
-  identities: 6,
-  occurrences: 6,
-  zones: { routes: 0, 'site-libs': 0, ui: 6 },
+  // TWO deliberate carves, both the same law:
+  // (1) 2026-09-19, the FOUC round, Owner design: boot-splash carries
+  //   6 HARDCODED head-carried classes (ui zone) — the zero-css-file
+  //   law DEMANDS them (the splash must paint before any stylesheet;
+  //   its vocabulary rides the HTML itself), sized to exactly the
+  //   family's six identities, review-visible here per the gate-source
+  //   law.
+  // (2) 2026-09-21, the closing round's dark-fan desaturation: the
+  //   splash LOGO snippet (site-side, +layout.svelte, routes zone)
+  //   gains ONE head-carried class — jx-splash-fan, the saturate()
+  //   hook for the dark-ground treatment; it rides the layout's own
+  //   SSR-inlined head block by the same zero-css-file law (a compiled
+  //   sheet could be late; the splash cannot wait).
+  // Everything else stays ZERO: the migration is complete — any OTHER
+  //   class identity anywhere is red unless atoms, tokens, registered
+  //   semantics, or registered producers own it
+  files: 2,
+  identities: 7,
+  occurrences: 7,
+  zones: { routes: 1, 'site-libs': 0, ui: 6 },
   forms: 42,
 };
 const RATCHET_ZONE_KEYS = ['routes', 'site-libs', 'ui'];

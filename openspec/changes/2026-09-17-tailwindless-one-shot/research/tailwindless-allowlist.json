@@ -10,6 +10,13 @@
   "files": [
     {
       "identities": {
+        "jx-splash-fan": 1
+      },
+      "path": "apps/www/src/routes/+layout.svelte",
+      "zone": "routes"
+    },
+    {
+      "identities": {
         "jx-boot-splash-desc": 1,
         "jx-boot-splash-exit-blur": 1,
         "jx-boot-splash-exit-opacity": 1,
