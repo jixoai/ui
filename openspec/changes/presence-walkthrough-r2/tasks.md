@@ -55,3 +55,20 @@
       元素后代
 - [x] 4.5 矩阵法则：运行期间不得有共享 journal 的常驻服务（5199
       走查实例与矩阵互写 presence.json）
+
+## 5. 启动事故（2026-09-20，非 presence 代码问题）
+
+- [x] 5.1 定根：worktree 的根/apps-www 两级 node_modules 是指向主仓的
+      符号链接（9/11 建）；主仓升级 vite 8.3.0 + 重建 vite-plugin 后
+      连带炸掉 worktree 的 design server（依赖扫描加载主仓 vite）。
+      另发现 registry 的 `file:` 插件链接多一层 `../`，一直静默指向
+      worktree 外的游荡拷贝（被暖缓存掩盖）。
+- [x] 5.2 自立修复：断符号链接；root `pnpm install --frozen-lockfile`
+      + `apps/www npm ci` + registry 链接修正（3 层 ../，指回 worktree
+      自己的 packages）；重建 `packages/vite-plugin` dist + build:studio。
+- [x] 5.3 验证：design server 干净启动（studio/canvas 200）；冷缓存
+      首启有一次 vite 扫描警告（对插件 virtual/alias 产物 Skipping
+      pre-bundling——服务照常、二次启动起干净，已记入 AGENTS 法则）；
+      依赖变更后矩阵回归 **72/72**（含 PAGEERROR 零异常门禁）。
+- 法则沉淀：~/.zcode/AGENTS.md「worktree 的 node_modules 禁止符号
+  链接进主仓」。
