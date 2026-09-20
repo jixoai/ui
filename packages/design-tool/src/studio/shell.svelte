@@ -27,7 +27,8 @@
        r3 issue #21: the preview tab DELEGATES to StageView
        (stage-view.svelte) — the zoom/pan/fit camera is its own file,
        this shell keeps only the iframe seam (canvasIframe) for the
-       tree; no sixth intent lands here.
+       tree. (The sixth intent — settings + boot-park — arrived with
+       walkthrough-r4; see its entry below for why it lives here.)
     2. the CONSTANT three-column grid (r3 T2, ID1/ID10): nav 15rem |
        stage 1fr | inspector 24rem — the columns never move with
        selection (no .studio-with-panel fourth column; the stage

@@ -177,32 +177,44 @@
   }
 
   /** runtime decoder for every settings response (the fetch boundary —
-   *  no `payload as SettingsDoc` leaps; field-level so a malformed route
-   *  entry dies HERE as a rejection, not later in a derived as a pageerror.
-   *  Codex r4-2 P2-3) */
+   *  no `payload as SettingsDoc` leaps; field-level down to optional model
+   *  fields, matching the server's own gates so a malformed entry dies
+   *  HERE as a rejection, never later in a derived as a pageerror. Codex
+   *  r4-2/r4-3 P2-3 — the `efforts: {}` shape really crashed the panel) */
   function asSettingsDoc(value: unknown): SettingsDoc | null {
     if (typeof value !== 'object' || value === null) return null;
     const doc = value as Record<string, unknown>;
     if (doc.configVersion !== 1 || !Array.isArray(doc.modelRoutes) || typeof doc.revision !== 'number') return null;
     const presence = doc.keyPresence;
     if (typeof presence !== 'object' || presence === null) return null;
-    for (const [k, v] of Object.entries(presence)) {
-      if (typeof k !== 'string' || typeof v !== 'boolean') return null;
+    for (const v of Object.values(presence)) {
+      if (typeof v !== 'boolean') return null;
     }
     for (const route of doc.modelRoutes) {
       if (typeof route !== 'object' || route === null) return null;
       const r = route as Record<string, unknown>;
-      if (typeof r.provider !== 'string' || typeof r.baseURL !== 'string' || !Array.isArray(r.models)) return null;
+      if (typeof r.provider !== 'string' || r.provider === '') return null;
+      if (typeof r.baseURL !== 'string' || !/^https?:\/\//.test(r.baseURL)) return null;
       if (r.api !== undefined && typeof r.api !== 'string') return null;
+      if (!Array.isArray(r.models) || r.models.length === 0) return null;
       for (const model of r.models) {
         if (typeof model !== 'object' || model === null) return null;
         const m = model as Record<string, unknown>;
-        if (typeof m.id !== 'string') return null;
+        if (typeof m.id !== 'string' || m.id === '') return null;
+        if (m.name !== undefined && typeof m.name !== 'string') return null;
+        if (m.efforts !== undefined && (!Array.isArray(m.efforts) || !m.efforts.every((e) => typeof e === 'string' && (THINKING_LEVELS as readonly string[]).includes(e)))) return null;
+        for (const numField of ['contextWindow', 'maxOutputTokens'] as const) {
+          const n = m[numField];
+          if (n !== undefined && (typeof n !== 'number' || !Number.isInteger(n) || n <= 0)) return null;
+        }
       }
     }
     const active = doc.model;
     if (active !== null && active !== undefined) {
-      if (typeof active !== 'object' || typeof (active as Record<string, unknown>).provider !== 'string' || typeof (active as Record<string, unknown>).model !== 'string') return null;
+      if (typeof active !== 'object') return null;
+      const a = active as Record<string, unknown>;
+      if (typeof a.provider !== 'string' || a.provider === '' || typeof a.model !== 'string' || a.model === '') return null;
+      if (a.reasoningEffort !== undefined && !(typeof a.reasoningEffort === 'string' && (THINKING_LEVELS as readonly string[]).includes(a.reasoningEffort))) return null;
     }
     return value as SettingsDoc;
   }
@@ -273,6 +285,13 @@
 
   async function save(): Promise<void> {
     if (doc === null || selectedRoute === null || saving) return;
+    // explicit validity check at the commit edge — the disabled button is
+    // UX, this is the law (Codex r4-3 P2-3: never lean on a UI prior)
+    const models = modelsDraft.map((entry) => normalizedModel(entry));
+    if (models.some((entry) => entry === null)) {
+      rejection = 'a model entry is invalid — fix the highlighted fields (id, numbers, effort levels) before saving';
+      return;
+    }
     saving = true;
     rejection = null;
     try {
@@ -282,7 +301,7 @@
               ...route,
               baseURL: baseURLDraft.trim(),
               api: apiDraft,
-              models: modelsDraft.map((entry) => normalizedModel(entry)!),
+              models,
             }
           : route,
       );

@@ -18,9 +18,9 @@
  * The design tool's app-scoped home: `~/.jixoai-design/dsh-home`
  * (the skill-creator isolation law — never read the user's ~/.dsh).
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync, chmodSync, renameSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 import YAML from 'yaml';
 
@@ -104,6 +104,58 @@ function dshCredentialsYaml(): string {
   return join(designDshHome(), '.credentials.yaml');
 }
 
+/* ── cross-process write discipline (Codex r4-3 P2-2) ────────────────
+ * Two design servers (or a server racing an external writer) share these
+ * files; fixed `.tmp` names cross-rename into ENOENT and unlocked
+ * read-modify-write loses whole keys. Every RMW cycle rides an O_EXCL
+ * lockfile (stale locks are broken after 5s) and every replacement uses
+ * a UNIQUE temp name — the kernel's credentials-local `withFileLock`
+ * pattern, hand-rolled without a new dependency. */
+
+/** a per-writer temp sibling of `file` — two concurrent writers never
+ *  collide on the staging path */
+function uniqueTmp(file: string): string {
+  return `${file}.${process.pid}.${Math.random().toString(36).slice(2, 8)}.tmp`;
+}
+
+/** a bounded busy-wait (the whole lane is synchronous code) */
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+/** serialize a read-modify-write cycle across processes */
+function withBridgeLock<T>(file: string, run: () => T): T {
+  const lock = `${file}.lock`;
+  mkdirSync(dirname(file), { recursive: true });
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      closeSync(openSync(lock, 'wx'));
+      break;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+      // break a stale lock (holder died mid-cycle); the 5s budget is far
+      // above any honest hold time for these small files
+      try {
+        if (Date.now() - statSync(lock).mtimeMs > 5000) rmSync(lock, { force: true });
+      } catch { /* lock vanished — retry takes it */ }
+      if (attempt > 400) throw new Error(`bridge lock contention on ${file}`);
+      sleepSync(25);
+    }
+  }
+  try {
+    return run();
+  } finally {
+    rmSync(lock, { force: true });
+  }
+}
+
+/** write-then-rename with a unique staging name */
+function atomicWrite(file: string, text: string, mode?: number): void {
+  const target = uniqueTmp(file);
+  writeFileSync(target, text, mode === undefined ? {} : { mode });
+  renameSync(target, file);
+}
+
 /** route provider → the DSH credential ref name (skill-creator's law:
  *  settings.yaml's apiKeyEnv and .credentials.yaml's refs key agree) */
 export function dshRouteApiKeyEnv(provider: string): string {
@@ -167,22 +219,24 @@ export function loadRouteCredential(provider: string): string | null {
 
 function writeCredentialsFile(map: Record<string, string>): void {
   mkdirSync(designStewardDir(), { recursive: true });
-  const target = credentialsFile() + '.tmp';
-  writeFileSync(target, `${JSON.stringify(map, null, 2)}\n`, { mode: 0o600 });
-  renameSync(target, credentialsFile());
+  atomicWrite(credentialsFile(), `${JSON.stringify(map, null, 2)}\n`, 0o600);
   try { chmodSync(credentialsFile(), 0o600); } catch { /* best-effort on odd fs */ }
 }
 
 export function setRouteCredential(provider: string, key: string | null): void {
-  let map: Record<string, string> = {};
-  try {
-    const parsed: unknown = JSON.parse(readFileSync(credentialsFile(), 'utf8'));
-    if (isObj(parsed)) map = parsed as Record<string, string>;
-  } catch { /* fresh */ }
-  if (key === null) delete map[provider];
-  else map[provider] = key;
-  writeCredentialsFile(map);
-  syncDshRouteCredential(provider, key);
+  // one cross-process cycle: both faces re-read INSIDE the lock, so a
+  // concurrent writer's keys can no longer be lost to a stale read
+  withBridgeLock(dshCredentialsYaml(), () => {
+    let map: Record<string, string> = {};
+    try {
+      const parsed: unknown = JSON.parse(readFileSync(credentialsFile(), 'utf8'));
+      if (isObj(parsed)) map = parsed as Record<string, string>;
+    } catch { /* fresh */ }
+    if (key === null) delete map[provider];
+    else map[provider] = key;
+    writeCredentialsFile(map);
+    syncDshRouteCredential(provider, key);
+  });
 }
 
 /** the API-safe view: routes + active model + per-route key presence */
@@ -202,14 +256,16 @@ export function settingsView(): DshSettings & { readonly keyPresence: Readonly<R
  *  after — the private face is the truth; a YAML miss self-heals next write) */
 export function saveDshSettings(next: DshSettings): DshSettings {
   if (!validSettings(next)) throw new Error('invalid dsh settings payload');
-  const current = loadDshSettings();
-  const bumped: DshSettings = { ...next, revision: current.revision + 1 };
-  mkdirSync(designStewardDir(), { recursive: true });
-  const target = settingsFile() + '.tmp';
-  writeFileSync(target, `${JSON.stringify(bumped, null, 2)}\n`);
-  renameSync(target, settingsFile());
-  syncDshModelRoutes(bumped.modelRoutes, bumped.model);
-  return bumped;
+  // the whole revision-bump + both-face write is one locked cycle — two
+  // servers can no longer read the same revision and clobber each other
+  return withBridgeLock(dshSettingsYaml(), () => {
+    const current = loadDshSettings();
+    const bumped: DshSettings = { ...next, revision: current.revision + 1 };
+    mkdirSync(designStewardDir(), { recursive: true });
+    atomicWrite(settingsFile(), `${JSON.stringify(bumped, null, 2)}\n`);
+    syncDshModelRoutes(bumped.modelRoutes, bumped.model);
+    return bumped;
+  });
 }
 
 /* ── the DSH face (structured YAML — the `yaml` package owns all escaping
@@ -270,9 +326,7 @@ function syncDshModelRoutes(routes: readonly DshModelRoute[], model: DshActiveMo
   else next['agent-default-model'] = savedSelection;
   const text = YAML.stringify(next);
   YAML.parse(text); // the transaction gate — unparseable output is a bug, not a save
-  const target = dshSettingsYaml() + '.tmp';
-  writeFileSync(target, text);
-  renameSync(target, dshSettingsYaml());
+  atomicWrite(dshSettingsYaml(), text);
 }
 
 /**
@@ -305,12 +359,13 @@ function syncDshRouteCredential(provider: string, key: string | null): void {
   const ref = dshRouteApiKeyEnv(provider);
   if (key === null) delete refs[ref];
   else refs[ref] = key;
+  // `records` is version-1 vocabulary owned by OTHER dsh components
+  // (tagged api-key records) — it rides through untouched (Codex r4-3 P2-1)
   const doc: Record<string, unknown> = { version: 1, refs };
+  if (isObj(parsedTop['records'])) doc['records'] = parsedTop['records'];
   const text = YAML.stringify(doc);
   YAML.parse(text); // the transaction gate
-  const target = dshCredentialsYaml() + '.tmp';
-  writeFileSync(target, text, { mode: 0o600 });
-  renameSync(target, dshCredentialsYaml());
+  atomicWrite(dshCredentialsYaml(), text, 0o600);
   try { chmodSync(dshCredentialsYaml(), 0o600); } catch { /* best-effort */ }
 }
 

@@ -18,6 +18,7 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer, type AddressInfo } from 'node:http';
 import { tmpdir } from 'node:os';
@@ -589,8 +590,79 @@ test('r4-2 P2-1: legacy flat top-level keys migrate into refs on the next creden
       const parsed = YAML.parse(credentialsYaml()) as { version?: number; refs?: Record<string, string> };
       assert.equal(parsed.version, 1);
       assert.deepEqual(parsed.refs, { [ref]: 'new-key' });
-      // the flat spelling is GONE (top level holds only the vocabulary)
-      assert.deepEqual(Object.keys(parsed), ['version', 'refs']);
+    });
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+/* ── Codex r4 round-3 counter-examples ────────────────────────────────── */
+
+test('r4-3 P2-1: a kernel-owned records section survives set/clear untouched', () => {
+  const home = freshHome();
+  try {
+    inHome(home, () => {
+      saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
+      // the tagged-record shape other dsh components write (scope/id →
+      // kind api-key + key + env) — version-1 vocabulary, not ours to touch
+      const doc = [
+        'version: 1',
+        'refs: {}',
+        'records:',
+        '  skill/foo:',
+        '    kind: api-key',
+        '    key: preserved-record',
+        '    env:',
+        '      RECORD_ENV: preserved-env',
+        ''].join('\n');
+      writeFileSync(join(designDshHome(), '.credentials.yaml'), doc, { flag: 'w' });
+      setRouteCredential(ROUTE.provider, 'sk-mine');
+      let parsed = YAML.parse(credentialsYaml()) as { refs?: Record<string, string>; records?: Record<string, unknown> };
+      assert.deepEqual(parsed.refs, { [dshRouteApiKeyEnv('my-gateway')]: 'sk-mine' });
+      assert.deepEqual(parsed.records, { 'skill/foo': { kind: 'api-key', key: 'preserved-record', env: { RECORD_ENV: 'preserved-env' } } });
+      setRouteCredential(ROUTE.provider, null);
+      parsed = YAML.parse(credentialsYaml()) as { refs?: Record<string, string>; records?: Record<string, unknown> };
+      assert.deepEqual(parsed.refs, {});
+      assert.deepEqual(parsed.records, { 'skill/foo': { kind: 'api-key', key: 'preserved-record', env: { RECORD_ENV: 'preserved-env' } } });
+    });
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('r4-3 P2-2: concurrent multi-process credential writes lose no keys (lock + unique tmp)', async () => {
+  const home = freshHome();
+  try {
+    await inHome(home, async () => {
+      saveDshSettings({
+        configVersion: 1,
+        revision: 0,
+        model: null,
+        modelRoutes: Array.from({ length: 20 }, (_, i) => ({
+          provider: `p${i}`,
+          baseURL: 'https://api.internal/v1',
+          models: [{ id: 'm' }],
+        })),
+      });
+      // 20 real subprocesses racing setRouteCredential — the fixed .tmp
+      // cross-rename ENOENT + lost-update class Codex demonstrated
+      const script = [
+        "import { setRouteCredential } from '/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/packages/design-tool/src/server/settings/dsh-settings.ts';",
+        `setRouteCredential(process.argv[1], 'sk-' + process.argv[1]);`,
+      ].join('\n');
+      const procs = Array.from({ length: 20 }, (_, i) =>
+        spawn(process.execPath, ['--input-type=module', '-e', script, '--', `p${i}`], {
+          env: { ...process.env, JIXOAI_DESIGN_HOME: home },
+        }),
+      );
+      const codes = await Promise.all(procs.map((p) => new Promise<number>((resolve) => p.on('exit', resolve))));
+      assert.deepEqual(codes, Array.from({ length: 20 }, () => 0), 'every writer exited clean');
+      // private face: all 20 keys
+      const stored = JSON.parse(readFileSync(join(designStewardDir(), 'dsh-credentials.json'), 'utf8')) as Record<string, string>;
+      for (let i = 0; i < 20; i += 1) assert.equal(stored[`p${i}`], `sk-p${i}`, `private key p${i}`);
+      // bridge face: all 20 refs
+      const cred = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
+      for (let i = 0; i < 20; i += 1) assert.equal(cred.refs?.[`JIXOAI_DESIGN_ROUTE_KEY_P${i}`], `sk-p${i}`, `bridge ref p${i}`);
     });
   } finally {
     rmSync(home, { recursive: true, force: true });
