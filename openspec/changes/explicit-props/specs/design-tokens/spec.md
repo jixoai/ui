@@ -12,7 +12,9 @@ black overlays).
 
 #### Scenario: elevation levels resolve to the paired recipe
 
-- GIVEN `elevation="level3"` (6dp) on a surface
+- GIVEN `elevation="level3"` — the mapping is FROZEN: `level-1 → −1dp ·
+  level0 → 0dp · level1 → 1dp · level2 → 3dp · level3 → 6dp · level4 →
+  8dp · level5 → 12dp`
 - THEN light renders the 6dp shadow recipe on its surface role, and dark
   renders the corresponding surface-container step with that level's weaker
   shadow

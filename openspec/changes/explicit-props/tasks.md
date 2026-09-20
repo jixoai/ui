@@ -5,10 +5,16 @@
 - [ ] 0.1 change docs written (proposal/design/tasks/spec deltas) — THIS commit
 - [ ] 0.2 Codex reviews the change docs (herdr, gpt-5.6-terra/xhigh) → blocking
       findings folded back; ≥8/10 with no blockers before W1 starts
-- [ ] 0.3 research/tailwind-container-syntax.md — the named-container key
-      grammar resolved against Tailwind v4's source (design §9)
-- [ ] 0.4 research/migration-census.md — the 115-family batch list + the 16
+- [x] 0.3 research/tailwind-container-syntax.md — the named-container key
+      grammar resolved against Tailwind v4's source (design §9):
+      `@sm/card` (size-first, own --container-* scale)
+- [x] 0.4 research/migration-census.md — the 115-family batch list + the 16
       native families + the 4 rename families (§13) pinned as the W3 map
+- [x] 0.5 Codex r1 blockers folded (NO-GO 4.5/10 → the type table §0, the
+      eight-axis supply set §11, the query interface freeze §9.1, the meta
+      pipeline freeze §17, alias-as-var-indirection §12, zero-class degrade
+      §14, the slot-honesty + context/cascade laws §1, the var() fallback
+      law §3) — re-review before W1
 
 ## W1 — token core (theme + slot helpers)
 
@@ -27,6 +33,8 @@
       rungs re-exposed as aliases; `density.svelte.ts` mirror pair updated
 - [ ] 1.6 fixed micro-typography exemption verified (caption 9px / micro 10px
       stay absolute under em-scaling — probe receipt)
+- [ ] 1.7 `context-coverage.config.json` synced to the eight-axis supply set
+      (design §11 — the coverage gate knows every context key)
 
 ## W2 — plugin layer
 
@@ -39,6 +47,11 @@
       key grammar per research/0.3; container-supply build warning
 - [ ] 2.4 motion map: intensity → surface-motion/press-effect/SMIL presets
 - [ ] 2.5 plugin test battery (the vite-plugin suite pattern, 500+ precedent)
+- [ ] 2.6 the registered exceptions absorbed: press-effect-runtime's inline
+      CSS.supports + avatar's component degrade route through the ladder
+      vars (or exemption-ledgered with reasons) — design §14
+- [ ] 2.7 alias-as-var-indirection receipt: a consumer override of
+      `--jx-<axis>-<alias>` remaps a named step with zero resolver code
 
 ## W3 — component migration (batched, the 0.4 map)
 
@@ -52,10 +65,12 @@
 - [ ] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …)
 - [ ] 3.6 avatar/icon/spin mapping verified (aliases + number lanes)
 
-## W4 — canvas + docs
+## W4 — canvas + docs (the §17 pipeline freeze is the contract)
 
-- [ ] 4.1 meta pipeline: shared universal-props IR block injected into every
-      family meta (generated zone; --check drift gate extended)
+- [ ] 4.1 the shared artifact `universal-props.schema.ts` (grammar types +
+      alias defaults + query key grammar + docs metadata, ONE source) +
+      generator merge rule (inject into every generated zone) + the
+      115-family inventory & exemption ledger (design §17)
 - [ ] 4.2 schema2form/playground: per-axis control hints (enum select, number
       spinner, query editor); componentCanvas controls adapted
 - [ ] 4.3 PropsTable: the universal section rendered from the ONE shared
@@ -71,6 +86,8 @@
       broadcast duty + native forwarding ban)
 - [ ] 5.2 existing gates adapted; tailwindless ratchet receipt: UNMOVED
 - [ ] 5.3 full verify-all green in the MAIN dir (Owner ruling: no worktree)
+- [ ] 5.4 shadcn-add clean-consumer receipt: named steps resolve + an alias
+      override remaps, pure CSS, no resolver runtime (design §12)
 
 ## W6 — acceptance (multi-round, release-ready NOT released)
 

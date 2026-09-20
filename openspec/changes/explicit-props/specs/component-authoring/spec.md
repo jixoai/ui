@@ -28,10 +28,12 @@ number literals SHALL NOT be remappable by any alias table.
 ### Requirement: the broadcast protocol — 吃也供
 
 A component that consumes an axis' context SHALL ALSO supply its resolved
-value downward on its root: `--jx-size-effective`, `--jx-radius-effective` +
-`--jx-inset-effective` (the concentric pair), `--jx-shape-effective`, the
-density scope stamp, and `container-type` where the family is a layout
-container. A non-contributing container breaks the chain and is a lint error.
+value downward on its root — for ALL EIGHT axes (the frozen supply table,
+design §11: size/shape/radius/density carry effective vars or the density
+stamp; color carries the resolved value var; theme carries the class scope;
+elevation and motion carry their effective vars), plus `container-type`
+where the family is a layout container. A non-contributing consumer breaks
+the chain and is a lint error.
 
 #### Scenario: concentric radius across a container boundary
 

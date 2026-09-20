@@ -46,6 +46,13 @@ design system. 显式的不是值，而是「我要偏离上下文」这个意�
 
 ## The landscape (the pinned baseline, census 2026-09-21)
 
+> Census receipts (Codex r1 note): family/page counts from directory
+> listing (`apps/www/src/lib/ui/*` = 115, doc pages = 110);
+> "~60 densitySlot consumers" = `*-defaults.svelte.ts` grep (72 defaults
+> files exist, 60 consume the slot); "112 density-channel consumers" =
+> `rg -l 'var\(--jx-(gap|stack|inset|hit|…)' apps/www/src` — any recount
+> re-runs these commands, numbers are not folklore.
+
 - **115 component families** under `apps/www/src/lib/ui/`; **110 hand-written
   doc pages** under `apps/www/src/routes/docs/components/*.html/`.
 - **Near-universal today**: `density?: Density` via `densitySlot`
@@ -67,12 +74,15 @@ design system. 显式的不是值，而是「我要偏离上下文」这个意�
   playground controls. Universal props ride THIS pipeline (one shared IR
   block injected per family), NOT per-page edits.
 
-## What the eight axes are (spec of record: design.md §1–§9)
+## What the eight axes are (spec of record: design.md §1–§17)
 
 `size · shape · radius · density · color · theme · elevation · motion` — one
 grammar: `named | auto | ${number}` + the orthogonal `query({...})` wrapper.
-Full contract, migration mapping, degrade rules and gate plan in
-[design.md](./design.md).
+The change docs carry the OWNER-SETTLED INTENT plus the frozen engineering
+contracts (per-axis type table §0, supply set §11, query API §9.1, degrade
+vars §14, meta pipeline §17); anything still marked research lands in its
+wave before implementation depends on it. Full contract, migration mapping,
+degrade rules and gate plan in [design.md](./design.md).
 
 ## Waves (serial integration, the tailwindless protocol)
 

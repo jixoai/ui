@@ -18,8 +18,24 @@
 >   values, §9. Usable on ANY axis, wraps ANY lane.
 
 The axes: `size · shape · radius · density · color · theme · elevation ·
-motion`. `shape` and `theme` are enum-only (no number lane — their domains
-are not numeric).
+motion`. The per-axis TYPE CONTRACT (frozen — Codex r1 B1):
+
+| axis | value type | number unit | raw lane | default |
+|---|---|---|---|---|
+| size | `small \| medium \| large \| auto \| ${number}` | px (root font-size) | — | auto |
+| shape | `round \| scoop \| bevel \| notch \| square \| squircle \| auto` | none (enum-only) | — | auto |
+| radius | `small \| medium \| large \| auto \| ${number}` | px | — | auto |
+| density | `small \| medium \| large \| auto \| ${number}` **+ legacy aliases** | **coefficient** (1 = default, NOT px) | — | auto |
+| color | `primary \| secondary \| <semantic> \| <plugin-named> \| auto \| ${number} \| ${color}` | hue degrees (oklch primary formula) | yes (raw color) | auto |
+| theme | `light \| dark \| system \| auto` | none (enum-only) | — | auto |
+| elevation | `level-1 \| level0 \| level1 \| level2 \| level3 \| level4 \| level5 \| auto \| ${number}` | dp (exact) | — | auto |
+| motion | `reduced \| subtle \| normal \| expressive \| auto \| ${number}` | intensity coefficient | — | auto |
+
+**The elevation mapping is EXPLICIT** (Owner's `level${-1~5}` = M3's
+`level0..level5` with one prepended concave rung):
+
+`level-1 → −1dp · level0 → 0dp · level1 → 1dp · level2 → 3dp · level3 →
+6dp · level4 → 8dp · level5 → 12dp`
 
 ## §1 size — the base scale (root font-size; children em)
 
@@ -38,8 +54,19 @@ LAWS:
 - **Fixed micro-typography is EXEMPT from em-scaling**: `--text-caption`
   (9px) and `--text-micro` (10px) are absolute semantic rungs (the 2026-09-21
   caption ruling) — they ride rem, never em.
-- **slot boundary = scaling boundary**: slotted user content is NOT re-scaled
-  (a feature; document it).
+- **slot 边界的诚实法则** (Codex r1 B8): slotted content renders INSIDE
+  the root, so it INHERITS the scaled font-size naturally (CSS cascade —
+  card.svelte renders snippets directly under root today, no reset
+  wrapper). The law: family PARTS scale with the root; slotted content
+  follows plain inheritance; a family MAY offer a reset wrapper escape
+  (`font-size: var(--jx-size-slot-reset, 1em)`) where composition demands
+  it. Never claim slotted content is un-scaled — it is not.
+- **Context vs cascade** (Codex r1 B8): the Svelte context (ambient slot)
+  carries the INTENT; the CSS custom properties carry the RENDER. They are
+  two channels of one resolution: the slot resolves the lane, stamps the
+  carrier vars as static strings (SSR-safe: no hydration mismatch — vars
+  are data, computed once at render). Nested override = inner slot wins,
+  exactly like `densitySlot` today.
 - **Native collision rule**: on native-element wrappers (`<input>`, `<select>`
   …), the component's `size` prop is consumed by the family and NEVER
   forwarded; the native attribute keeps working only via explicit rest
@@ -70,10 +97,14 @@ LAWS:
 - **Concentric auto — broadcast, not query**: every component root SUPPLIES
   `--jx-radius-effective` (its own resolved radius, ×2 applied if squircle)
   and its effective inset. A child resolving `auto` computes
-  `max(0px, calc(var(--jx-radius-effective) - var(--jx-inset-effective)))` —
-  one CSS expression, zero runtime probing, and 「无合适容器」vanishes as a
-  concept (max() is the fallback). With borders, the arc center concedes
-  `calc(border-width / 2)`.
+  `max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px)))`
+  — **the `var()` fallbacks are LOAD-BEARING** (Codex r1 B9): with no
+  supplying ancestor the whole `calc()` would be invalid at computed-value
+  time (max() does NOT rescue undefined vars — IACVT applies), so every
+  effective var carries an explicit fallback and the root sheet defines
+  invariants (`:root { --jx-radius-effective: 0px; --jx-inset-effective: 0px }`).
+  Zero runtime probing; 「无合适容器」vanishes as a concept. With borders,
+  the arc center concedes `calc(border-width / 2)`.
 - `square` (resolved) ⇒ the radius lane is inert by definition.
 
 ## §4 density — spacing/leading scale (renamed from `compact`, Owner-agreed)
@@ -148,8 +179,12 @@ LAWS:
 - Keys: media conditions are bare (`sm | md | lg | …` — the responsive
   vocabulary, xs|sm|md|lg RESERVED for this use, Owner-ruled); container
   conditions carry `@` (`@sm | @md | …`, Tailwind v4's @container
-  convention) and may address a NAMED container (syntax follows Tailwind
-  v4's named-container design — resolved in W2 against the Tailwind source).
+  convention) and address a NAMED container as `@sm/card` — size first,
+  then `/`, then the container name (Tailwind v4's own order; verified
+  against the shipped tailwindcss 4.3.3 bundle, see
+  research/tailwind-container-syntax.md). Container sizes ride their OWN
+  `--container-*` scale (Tailwind: `@sm` = 24rem vs viewport `sm` = 40rem —
+  the two scales must not collapse into one).
 - Values: any lane value of the wrapped axis (named/auto/number).
 - **Semantics: min-width ladder, later keys override at wider matches**
   (mobile-first). Container keys resolve against the NEAREST qualifying
@@ -164,6 +199,40 @@ LAWS:
 - **Container supply duty** (broadcast protocol §11): trees that use `@` keys
   need an ancestor with `container-type`; contributors of containers MUST
   stamp it. The build warns when an `@` key has no qualifying ancestor.
+
+### §9.1 The query() interface freeze (Codex r1 B3 — W2 implements THIS)
+
+```ts
+// the public API (ships from the kernel lib; the component props accept
+// the return value on every axis)
+type QueryKey = string;                    // "sm" | "@md" | "@sm/card" …
+type AxisQuery<T> = { readonly $query: true; readonly cases: [QueryKey, T][]; readonly base: T };
+declare function query<T>(cases: Record<QueryKey, T>, base?: T): AxisQuery<T>;
+```
+
+- **Parse**: the object-literal form is sugar; `query()` normalizes to an
+  ordered `cases` array (insertion order = the ladder) + an optional
+  unconditional `base` (default: the axis default, `auto`).
+- **Compile output** (the desugarer, W2): per consumer instance, custom
+  property re-assignment blocks — media keys → `@media (min-width: …)`,
+  container keys → `@container [<name>] (min-width: …)` — emitted in ladder
+  order onto the component's scoped selector. Sizes resolve from the TWO
+  scales: viewport `sm` and the `--container-*` namespace (they never
+  collapse, per research/tailwind-container-syntax.md).
+- **SSR first paint**: the server renders `base` (or the first unconditional
+  lane) as the inline var value — a correct-if-unresponsive first paint.
+- **The JS shim shell** (the Owner's 垫片 lane): a progressive module
+  (`universal-props/query-shim`) loaded ONLY when (a) the build could not
+  desugar (dynamic keys, exotic conditions) or (b) a consumer tree failed
+  the container-supply check at runtime audit. The shim re-applies the
+  ladder with a ResizeObserver per unresolved `@` key — idempotent, no
+  hydration mismatch (it only writes vars post-paint).
+- **Missing named container** (`@sm/card` with no `container-name: card`
+  ancestor): the case never matches (CSS semantics); the build warns, the
+  shim logs once in dev.
+- **Test matrix** (W2 gate): desugar snapshots × {media, container, named,
+  ladder-order, base-default} + shim parity cases + SSR snapshot + the
+  no-container warning.
 
 ## §10 The carrier law — CSS expressions, not classes
 
@@ -184,31 +253,47 @@ is the canonical example). Consequences:
 ## §11 The broadcast protocol — 「吃也供」(the authoring law)
 
 A component that CONSUMES an axis' context MUST ALSO SUPPLY its resolved
-value downward. The supply set (stamped on every family root):
+value downward. The COMPLETE supply set, all eight axes (Codex r1 B2 —
+this table is the frozen contract; W1 implements it and syncs
+`context-coverage.config.json`):
 
-1. `--jx-size-effective` — the resolved root font-size (em base for children);
-2. `--jx-radius-effective` + `--jx-inset-effective` — the concentric pair;
-3. `--jx-shape-effective` — for the ×2 law and degrade composition;
-4. the resolved density scope (today's data-density stamp, unchanged);
-5. `container-type` where the family is a layout container (canvas, cards,
-   panels) — the `@` query fuel.
+| axis | context key (Svelte) | carrier stamped on root | root-sheet invariant |
+|---|---|---|---|
+| size | `jx.size` | `--jx-size-effective` (font-size + the var) | `:root{--jx-size-effective:1rem}` |
+| shape | `jx.shape` | `--jx-shape-effective` | `:root{--jx-shape-effective:round}` |
+| radius | `jx.radius` | `--jx-radius-effective` + `--jx-inset-effective` | both `0px` (§3 fallback law) |
+| density | `jx.density` (today's) | the `data-density` scope stamp (unchanged) | `default` rung |
+| color | `jx.color` | `--jx-color-effective` (a resolved hue/color value) | `var(--primary)` |
+| theme | `jx.theme` | the `.dark` class scope (existing bridge) | OS/media default |
+| elevation | `jx.elevation` | `--jx-elevation-effective` (level number) | `0` |
+| motion | `jx.motion` | `--jx-motion-effective` (intensity) | `normal` |
 
-Generalized slot helpers land in `defaults.svelte.ts` beside `densitySlot`
-(`sizeSlot`, `radiusSlot`, `colorSlot`, … — same `explicit ?? ambient ?? own`
-fleet law, same 「无意见不盖章」). This protocol enters the component-authoring
-living spec as a Requirement.
+Plus `container-type` where the family is a layout container (the `@`
+query fuel). Generalized slot helpers land in `defaults.svelte.ts` beside
+`densitySlot` (`sizeSlot`, `radiusSlot`, `colorSlot`, `shapeSlot`,
+`elevationSlot`, `motionSlot` — same `explicit ?? ambient ?? own` fleet
+law, same 「无意见不盖章」). Explicit prop > ambient context > own default,
+and the CSS carrier always mirrors the resolved lane (SSR-safe static
+strings). This protocol enters the component-authoring living spec as a
+Requirement.
 
 ## §12 The plugin layer
 
 - **Alias tables** (per axis): `[$alias]: value` rows; `auto` and numbers are
   reserved literals and SHALL NOT be remappable (Owner ruling). Defaults
   ship the documented vocabularies (§1–§8) + legacy density names.
+  **The alias mechanism is a CSS-VAR INDIRECTION, by design** (Codex r1 B5):
+  a named step never inlines its value at use sites — it resolves to
+  `var(--jx-<axis>-<alias>)`, and the kernel CSS defines the values. A
+  plugin remap = redefining those vars (a tiny generated sheet). This makes
+  the registry consumer story PURE CSS: a clean shadcn-add install receives
+  the kernel files (vars + ladder), remaps by overriding vars, and needs NO
+  runtime resolver — the W5 shadcn-add gate proves a clean consumer
+  resolving named steps with alias overrides end-to-end.
 - **@supports verdicts**: corner-shape (and any future capability) detected
-  ONCE at the plugin/build layer; degrade classes/vars stamped globally;
-  components carry ZERO detection code.
-- **query() compile + shim**: the desugarer (media/container blocks over
-  custom props) + the JS shell (registered as a progressive module, loaded
-  only where needed).
+  ONCE at the plugin/build layer — the verdict rewrites the ladder vars
+  inside `@supports` blocks (see §14); components carry ZERO detection code.
+- **query() compile + shim**: per the frozen interface, §9.1.
 - **Motion map**: intensity → per-kernel curve/duration presets.
 
 ## §13 Migration mapping (old → new; additive by default)
@@ -224,9 +309,28 @@ living spec as a Requirement.
 
 ## §14 Degrade general rule
 
-Any new-CSS capability: plugin-level @supports verdict, one global stamp,
-documented fallback table (§2's is the first instance). A degrade is a
-DESIGNED state with receipts, never silent luck.
+Any new-CSS capability: plugin-level @supports verdict, one global
+treatment, documented fallback table (§2's is the first instance). A
+degrade is a DESIGNED state with receipts, never silent luck.
+
+**The verdict stamps VARS, never classes** (Codex r1 B6 — this closes the
+contradiction with §10's zero-class-identity law): the kernel ships the
+ladder twice, gated by CSS itself —
+
+```css
+@supports (corner-shape: bevel)      { :root { --jx-shape-scoop: scoop; … } }
+@supports not (corner-shape: bevel)  { :root { --jx-shape-scoop: square; … } }
+```
+
+No runtime detection, no class identities, the ratchet stays unmoved, and
+the squircle ×2 factor rides the same vars (`--jx-radius-factor: 2` vs `1`)
+so its degrade reversal is automatic.
+
+**Existing component-level probes are REGISTERED EXCEPTIONS, absorbed in
+W2** (Codex r1 B7): `press-effect-runtime.ts`'s inline
+`CSS.supports('corner-shape','bevel')` and avatar's component-CSS degrade
+predate the verdict layer — W2 either routes them through the ladder vars
+or files their exemption in the gate's exception ledger with reasons.
 
 ## §15 未裁决项 — coordinator dispositions (flag to Owner at review)
 
@@ -251,3 +355,27 @@ DESIGNED state with receipts, never silent luck.
 4. verify-all green; vision walkthrough rounds gated on pinned-phase
    captures (the splash-fan capture discipline: pin, assert same-moment,
    then judge).
+
+## §17 The meta/IR pipeline freeze (W4's contract — Codex r1 B4)
+
+The W4 docs/canvas wave implements THIS, not an improvisation:
+
+1. **One shared artifact**: `apps/www/src/lib/universal-props.schema.ts`
+   (mirror: `registry/files/lib/`) — the axis grammar types, the alias
+   defaults, the query() key grammar, and the PropsTable/docs metadata
+   (labels, descriptions) as ONE generated-from-hand source. Nothing else
+   hand-copies the vocabulary.
+2. **Generator merge rule**: `component-metadata-gen.mjs` (today: same-file
+   `interface Props` parsing, defaults read from sibling
+   `*-defaults.svelte.ts`, EMPTY on missing defaults) gains a final merge
+   step — inject the universal block into EVERY family's generated zone,
+   with a pinned **115-family inventory + exemption ledger**
+   (`no-style`/pass-through families, e.g. pure containers, listed with
+   reasons; a family absent from both is a gate failure, closing the
+   empty-on-missing-defaults hole).
+3. **IR extension**: `schema/ir.ts` gains `ControlHint` values per axis
+   (enum-select incl. `auto`, number spinner with the axis' unit, and a
+   `query-editor` composite) + a `universal` block on `ComponentMeta`;
+   `schema2form`/`canvas-playground` render from those.
+4. **Drift gate**: `--check` fails on any divergence between the shared
+   artifact, the injected blocks, and the inventory (W5 wires it).

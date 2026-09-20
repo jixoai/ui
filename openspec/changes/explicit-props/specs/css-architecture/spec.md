@@ -12,16 +12,21 @@ shell is the sanctioned fallback lane only).
 #### Scenario: concentric radius is one expression, zero probing
 
 - GIVEN `radius="auto"` inside a supplying container
-- THEN the resolved value is a single CSS expression evaluated by the
-  cascade, with `max()` as the no-container fallback
+- THEN the resolved value is a single CSS expression with EXPLICIT var()
+  fallbacks (`max(0px, calc(var(--jx-radius-effective, 0px) -
+  var(--jx-inset-effective, 0px)))` — undefined vars would void the whole
+  calc under IACVT, so the fallbacks are load-bearing), evaluated by the
+  cascade, with the root sheet carrying the `0px` invariants
 
 ### Requirement: plugin-level degrade verdicts
 
 Capability-dependent lanes (today: `corner-shape`, Chromium-only) SHALL
-degrade through ONE plugin-wide `@supports` verdict with a documented
-fallback table — shape: `scoop|bevel|notch → square`, `squircle → round`
-(with the ×2 radius law applying only while squircle is live and reversing
-on degrade). Components SHALL carry no detection code.
+degrade through ONE plugin-wide `@supports` verdict expressed as VARIABLE
+re-assignment inside `@supports` blocks — never stamped classes (the
+zero-class-identity carrier law stays intact), never per-component runtime
+detection. The documented fallback table: shape `scoop|bevel|notch →
+square`, `squircle → round` (the ×2 radius factor rides the same vars, so
+its reversal on degrade is automatic).
 
 #### Scenario: the degrade path is the main path
 

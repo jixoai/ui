@@ -11,9 +11,11 @@ re-describing per-component size vocabularies.
 #### Scenario: a consumer resolves an alias from the registry
 
 - GIVEN the shipped registry data
-- WHEN a consumer resolves `density="compact-era"` (a legacy alias)
-- THEN it resolves identically to the plugin alias table's registration (the
-  legacy name maps onto the kernel rung, never 404s)
+- WHEN a consumer resolves `density="lg"` (a legacy rung name) or a name a
+  plugin registered
+- THEN it resolves identically to the kernel's var indirection
+  (`--jx-density-lg`) — named steps never inline values, so consumer-side
+  overrides need no resolver runtime
 
 #### Scenario: shadcn-add carries the contract
 
