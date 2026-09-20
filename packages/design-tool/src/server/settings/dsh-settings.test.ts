@@ -19,9 +19,12 @@
 
 import { strict as assert } from 'node:assert';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { createServer, type AddressInfo } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+
+import YAML from 'yaml';
 
 import {
   activeBridgeRoute,
@@ -113,7 +116,7 @@ test('persisted input is untrusted — a corrupt file degrades to empty, never c
 
 /* ── the DSH face (settings.yaml) ─────────────────────────────────────── */
 
-test('the bridge writes the kernel-native llm-pi-ai whitelist (id + contextWindow only)', () => {
+test('the bridge writes the kernel-native llm-pi-ai whitelist — models PARSE as an array (Codex r4 P1-1)', () => {
   const home = freshHome();
   try {
     inHome(home, () => {
@@ -123,9 +126,26 @@ test('the bridge writes the kernel-native llm-pi-ai whitelist (id + contextWindo
       assert.match(yaml, new RegExp(`apiKeyEnv: '${dshRouteApiKeyEnv('my-gateway')}'`));
       assert.match(yaml, /api: 'anthropic-messages'/);
       assert.match(yaml, /baseURL: 'https:\/\/api\.example\.com\/anthropic'/);
-      assert.match(yaml, /\{ id: 'glm-5\.3', contextWindow: 200000 \}/);
-      // the kernel rejects unknown provider keys — name/efforts/maxOutputTokens MUST NOT cross the bridge
-      assert.doesNotMatch(yaml, /name:|efforts:|maxOutputTokens:/);
+      // the load-bearing shape: a REAL parse (the `yaml` package, the same
+      // parser family the kernel uses) must see models as an ARRAY of
+      // {id, contextWindow[, reasoningEfforts]} — a bare flow map parses
+      // as a single mapping and the route dies at kernel boot
+      const parsed = YAML.parse(yaml) as { 'llm-pi-ai'?: { providers?: Record<string, { apiKeyEnv?: string; baseURL?: string; models?: unknown[] }> } };
+      const bridgeRoute = parsed['llm-pi-ai']?.providers?.['my-gateway'];
+      assert.ok(bridgeRoute, 'provider block parses');
+      assert.equal(bridgeRoute!.apiKeyEnv, dshRouteApiKeyEnv('my-gateway'));
+      assert.ok(Array.isArray(bridgeRoute!.models), 'models is an ARRAY');
+      assert.deepEqual(
+        bridgeRoute!.models,
+        [
+          { id: 'glm-5.3', contextWindow: 200000, reasoningEfforts: { low: 'low', high: 'high' } },
+          { id: 'glm-5.3-flash', contextWindow: 131072 },
+        ],
+        'declared efforts ride the kernel-legal reasoningEfforts dict (wire = level name)',
+      );
+      // the kernel rejects unknown provider keys — name/maxOutputTokens
+      // MUST NOT cross the bridge (efforts crosses only as reasoningEfforts)
+      assert.doesNotMatch(yaml, /name:|maxOutputTokens:/);
     });
   } finally {
     rmSync(home, { recursive: true, force: true });
@@ -142,11 +162,11 @@ test('the bridge writes the agent-default-model saved-selection section (effort 
         model: { provider: ROUTE.provider, model: 'glm-5.3', reasoningEffort: 'high' },
         modelRoutes: [ROUTE],
       });
-      const yaml = settingsYaml();
-      assert.match(yaml, /agent-default-model:\n  provider: 'my-gateway'\n  model: 'glm-5\.3'\n  reasoningEffort: 'high'/);
+      const parsed = YAML.parse(settingsYaml()) as { 'agent-default-model'?: Record<string, unknown> };
+      assert.deepEqual(parsed['agent-default-model'], { provider: 'my-gateway', model: 'glm-5.3', reasoningEffort: 'high' });
       // a null model drops the section (the kernel row default stands)
       saveDshSettings({ configVersion: 1, revision: 1, model: null, modelRoutes: [ROUTE] });
-      assert.doesNotMatch(settingsYaml(), /agent-default-model:/);
+      assert.equal('agent-default-model' in (YAML.parse(settingsYaml()) as Record<string, unknown>), false);
     });
   } finally {
     rmSync(home, { recursive: true, force: true });
@@ -260,6 +280,18 @@ test('the API lane saves, echoes the bumped view, and gates referential integrit
         modelRoutes: [{ ...API_ROUTE_BODY, models: [{ id: 'm1', efforts: ['low', 'high'] }] }],
       });
       assert.equal(effortGate.status, 400);
+      // the kernel's fixed effort vocabulary — a non-level effort name is
+      // rejected at the door (it would poison the whole provider profile)
+      const levelGate = await resolveDshSettingsApiRequest('dsh.json', 'POST', {
+        model: { provider: 'api-route', model: 'm1', reasoningEffort: 'turbo' },
+        modelRoutes: [{ ...API_ROUTE_BODY, models: [{ id: 'm1', efforts: ['turbo'] }] }],
+      });
+      assert.equal(levelGate.status, 400);
+      const levelGate2 = await resolveDshSettingsApiRequest('dsh.json', 'POST', {
+        model: null,
+        modelRoutes: [{ ...API_ROUTE_BODY, models: [{ id: 'm1', efforts: ['low', 'warp'] }] }],
+      });
+      assert.equal(levelGate2.status, 400);
     });
   } finally {
     rmSync(home, { recursive: true, force: true });
@@ -306,6 +338,111 @@ test('the credential lane writes through both faces; the test lane honors the ba
       // unknown provider
       const unknown = await resolveDshSettingsApiRequest('dsh-test', 'POST', { provider: 'ghost' });
       assert.equal(unknown.status, 400);
+    });
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+/* ── Codex r4 counter-examples — each one was a live P1 ───────────────── */
+
+test('P1-2: clearing via an OMITTED key field is a 200 clear (not a 400)', async () => {
+  const home = freshHome();
+  try {
+    await inHome(home, async () => {
+      await resolveDshSettingsApiRequest('dsh.json', 'POST', { model: null, modelRoutes: [API_ROUTE_BODY] });
+      await resolveDshSettingsApiRequest('dsh-credential', 'POST', { provider: 'api-route', key: 'sk-api-1' });
+      // the panel's clear button shape: {provider} with NO key field
+      const clear = await resolveDshSettingsApiRequest('dsh-credential', 'POST', { provider: 'api-route' });
+      assert.equal(clear.status, 200);
+      assert.equal((clear.body as { keyPresence: Record<string, boolean> }).keyPresence['api-route'], false);
+      // all three faces dropped the secret: private JSON, kernel refs, view
+      const privateFace = readFileSync(join(designStewardDir(), 'dsh-credentials.json'), 'utf8');
+      assert.equal(privateFace.includes('sk-api-1'), false);
+      assert.equal(credentialsYaml().includes('sk-api-1'), false);
+    });
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('P1-3: an upstream that echoes the key in its error body never leaks it into detail', async () => {
+  const home = freshHome();
+  // a mock gateway that reflects the Authorization header in the body —
+  // the exact disclosure vector Codex demonstrated
+  const upstream = createServer((req, res) => {
+    const auth = req.headers.authorization ?? '';
+    res.statusCode = 401;
+    res.end(`invalid token ${auth}`);
+  });
+  await new Promise<void>((resolve) => upstream.listen(0, '127.0.0.1', resolve));
+  const port = (upstream.address() as AddressInfo).port;
+  try {
+    await inHome(home, async () => {
+      const route = { ...API_ROUTE_BODY, baseURL: `http://127.0.0.1:${port}/v1` };
+      await resolveDshSettingsApiRequest('dsh.json', 'POST', { model: null, modelRoutes: [route] });
+      await resolveDshSettingsApiRequest('dsh-credential', 'POST', { provider: route.provider, key: 'sk-LEAK-123' });
+      const probe = await resolveDshSettingsApiRequest('dsh-test', 'POST', { provider: route.provider });
+      assert.equal(probe.status, 200);
+      const result = JSON.stringify(probe.body);
+      assert.equal(result.includes('sk-LEAK-123'), false);
+      assert.match(result, /HTTP 401/);
+    });
+  } finally {
+    upstream.close();
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('P1-5: private faces alone never ride the bridge — a dead/corrupt dsh-home means fallback', async () => {
+  const home = freshHome();
+  try {
+    await inHome(home, async () => {
+      // the full happy path first: bridge is live, query answers
+      await resolveDshSettingsApiRequest('dsh.json', 'POST', {
+        model: { provider: API_ROUTE_BODY.provider, model: 'm1' },
+        modelRoutes: [API_ROUTE_BODY],
+      });
+      await resolveDshSettingsApiRequest('dsh-credential', 'POST', { provider: 'api-route', key: 'sk-live' });
+      assert.notEqual(activeBridgeRoute(), null);
+      // fault A: the bridge settings.yaml vanishes (sync never landed /
+      // deleted) — the private faces stay intact
+      rmSync(join(designDshHome(), 'settings.yaml'));
+      assert.equal(activeBridgeRoute(), null, 'missing bridge settings → null');
+      // restore via a fresh save, then fault B: corrupt yaml
+      await resolveDshSettingsApiRequest('dsh.json', 'POST', {
+        model: { provider: 'api-route', model: 'm1' },
+        modelRoutes: [API_ROUTE_BODY],
+      });
+      writeFileSync(join(designDshHome(), 'settings.yaml'), 'llm-pi-ai: [unclosed', { flag: 'w' });
+      assert.equal(activeBridgeRoute(), null, 'unparseable bridge settings → null');
+      // fault C: settings fine but the credential ref is gone
+      await resolveDshSettingsApiRequest('dsh.json', 'POST', {
+        model: { provider: 'api-route', model: 'm1' },
+        modelRoutes: [API_ROUTE_BODY],
+      });
+      writeFileSync(join(designDshHome(), '.credentials.yaml'), 'version: 1\nrefs: {}\n', { flag: 'w' });
+      assert.equal(activeBridgeRoute(), null, 'credential ref missing → null');
+      // and the self-heal: a clean credential write brings the bridge back
+      await resolveDshSettingsApiRequest('dsh-credential', 'POST', { provider: 'api-route', key: 'sk-live' });
+      assert.notEqual(activeBridgeRoute(), null, 're-synced bridge → live again');
+    });
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('P2-2: a cold-start clear still writes the canonical empty version-1 document', () => {
+  const home = freshHome();
+  try {
+    inHome(home, () => {
+      saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
+      // clear on a home whose credentials file does not exist yet
+      setRouteCredential(ROUTE.provider, null);
+      const raw = credentialsYaml();
+      const parsed = YAML.parse(raw) as { version?: number; refs?: Record<string, string> };
+      assert.equal(parsed.version, 1);
+      assert.deepEqual(parsed.refs, {});
     });
   } finally {
     rmSync(home, { recursive: true, force: true });

@@ -22,6 +22,8 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync, chmodSync
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
+import YAML from 'yaml';
+
 /* ── the config shape (skill-creator-v2 contracts, field-for-field) ─── */
 
 export const DSH_ROUTE_API_PROTOCOLS = [
@@ -36,6 +38,16 @@ export const DSH_ROUTE_API_PROTOCOLS = [
   'openai-responses',
 ] as const;
 export type DshRouteApiProtocol = (typeof DSH_ROUTE_API_PROTOCOLS)[number];
+
+/**
+ * The kernel's FIXED reasoning-effort vocabulary (dsh-llm-pi-ai's
+ * THINKING_LEVELS, in escalation order). A model entry offers levels via
+ * its `reasoningEfforts` dict; the agent-default-model's saved effort
+ * must be one of these or the kernel refuses the whole profile
+ * (UNSUPPORTED_REASONING_EFFORT — live smoke evidence, 2026-09-21).
+ */
+export const DSH_THINKING_LEVELS = ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'] as const;
+export type DshThinkingLevel = (typeof DSH_THINKING_LEVELS)[number];
 
 export interface DshModelEntry {
   readonly id: string;
@@ -115,7 +127,7 @@ function validRoute(v: unknown): v is DshModelRoute {
   if (!Array.isArray(v.models) || v.models.length === 0) return false;
   return v.models.every((m) => isObj(m) && isStr(m.id)
     && (m.name === undefined || isStr(m.name))
-    && (m.efforts === undefined || (Array.isArray(m.efforts) && m.efforts.every(isStr)))
+    && (m.efforts === undefined || (Array.isArray(m.efforts) && m.efforts.every((e) => (DSH_THINKING_LEVELS as readonly string[]).includes(e))))
     && (m.contextWindow === undefined || isInt(m.contextWindow))
     && (m.maxOutputTokens === undefined || isInt(m.maxOutputTokens)));
 }
@@ -127,7 +139,8 @@ function validSettings(v: unknown): v is DshSettings {
   if (!Array.isArray(v.modelRoutes) || !v.modelRoutes.every(validRoute)) return false;
   const m = v.model;
   if (m === null || m === undefined) return true;
-  return isObj(m) && isStr(m.provider) && isStr(m.model) && (m.reasoningEffort === undefined || isStr(m.reasoningEffort));
+  return isObj(m) && isStr(m.provider) && isStr(m.model)
+    && (m.reasoningEffort === undefined || (DSH_THINKING_LEVELS as readonly string[]).includes(m.reasoningEffort));
 }
 
 export function loadDshSettings(): DshSettings {
@@ -207,10 +220,21 @@ const yq = (value: string): string => `'${value.replaceAll(/'/g, "''")}'`;
 function emitProvidersYaml(routes: readonly DshModelRoute[]): string {
   if (routes.length === 0) return '';
   const blocks = routes.map((route) => {
+    // BLOCK sequence items — the kernel's pi-ai profile parses `models`
+    // as an ARRAY; a bare flow map `{ id: … }` (no `- `) would parse as a
+    // single mapping and the route would die at kernel boot (Codex r4 P1-1)
     const models = route.models.map((m) => {
-      const fields = [`id: ${yq(m.id)}`];
-      if (m.contextWindow !== undefined) fields.push(`contextWindow: ${m.contextWindow}`);
-      return `        { ${fields.join(', ')} }`;
+      const lines = [`        - id: ${yq(m.id)}`];
+      if (m.contextWindow !== undefined) lines.push(`          contextWindow: ${m.contextWindow}`);
+      // the saved effort must be OFFERED by the model or the kernel
+      // rejects the whole profile (UNSUPPORTED_REASONING_EFFORT, live
+      // smoke 2026-09-21); the dict's value is the wire spelling — the
+      // level's own name is the honest dispatch for custom gateways
+      if (m.efforts !== undefined && m.efforts.length > 0) {
+        lines.push('          reasoningEfforts:');
+        for (const level of m.efforts) lines.push(`            ${level}: ${level}`);
+      }
+      return lines.join('\n');
     });
     const api = route.api !== undefined ? `\n      api: ${yq(route.api)}` : '';
     return `    ${yq(route.provider)}:\n      apiKeyEnv: ${yq(dshRouteApiKeyEnv(route.provider))}${api}\n      baseURL: ${yq(route.baseURL)}\n      models:\n${models.join('\n')}`;
@@ -236,17 +260,17 @@ function replaceTopLevelSection(raw: string, section: string, replacement: strin
   const kept: string[] = [];
   let skipping = false;
   for (const line of lines) {
-    if (!line.startsWith(' ') && line.trimEnd().endsWith(':')) {
-      const name = line.trimEnd().slice(0, -1);
-      skipping = name === section;
+    if (line === '' || line.startsWith(' ')) {
       if (!skipping) kept.push(line);
       continue;
     }
-    if (line.startsWith(' ') || line.trim() === '') {
-      if (!skipping) kept.push(line);
-    } else if (!skipping && line.trim() !== '') {
-      kept.push(line); // a top-level scalar — keep as-is
-    }
+    // a top-level line's key is everything before the first ':' — this
+    // also recognizes a CORRUPT fragment of the target section (e.g.
+    // `llm-pi-ai: [unclosed`) so the rewrite heals it instead of
+    // preserving unparseable residue (Codex r4 P1-5, fault-B residue)
+    const key = line.includes(':') ? line.slice(0, line.indexOf(':')) : null;
+    skipping = key === section;
+    if (!skipping) kept.push(line);
   }
   const body = kept.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd();
   return replacement.length === 0 ? `${body}\n` : `${body}\n${replacement}`;
@@ -278,12 +302,19 @@ function syncDshRouteCredential(provider: string, key: string | null): void {
     next = raw.replace(refRe, `  ${ref}: ${yq(key)}`);
   } else {
     const block = `version: 1\nrefs:\n  ${ref}: ${yq(key)}\n`;
-    const hasRefs = /^refs:$/m.test(raw);
+    // fold the canonical empty form (`refs: {}`) into block form first —
+    // appending under a flow map would produce duplicate keys
+    const prepared = raw.replace(/^refs: \{\}\s*$/m, 'refs:');
+    const hasRefs = /^refs:$/m.test(prepared);
     next = hasRefs
-      ? raw.replace(/^refs:$/m, (m) => `${m}\n  ${ref}: ${yq(key)}`)
-      : `${raw.trim()}\n${block}`;
+      ? prepared.replace(/^refs:$/m, (m) => `${m}\n  ${ref}: ${yq(key)}`)
+      : `${prepared.trim()}\n${block}`;
     if (!/^version: 1$/m.test(next)) next = `version: 1\n${next.replace(/^version:.*$\n?/m, '')}`;
   }
+  // the canonical EMPTY document — a cold-start clear must not leave a
+  // bare newline (Codex r4 P2-2): version + empty refs, still parseable
+  if (!/^version: 1$/m.test(next)) next = 'version: 1\nrefs: {}\n';
+  else if (!/^refs:/m.test(next)) next = `${next.replace(/\n$/, '')}\nrefs: {}\n`;
   const target = dshCredentialsYaml() + '.tmp';
   writeFileSync(target, next.endsWith('\n') ? next : `${next}\n`, { mode: 0o600 });
   renameSync(target, dshCredentialsYaml());
@@ -299,9 +330,16 @@ export interface RouteTestResult {
 }
 
 /** probe a route's endpoint with its key — /v1/models is the broad
- *  compatibility surface across the protocol family */
+ *  compatibility surface across the protocol family.
+ *
+ *  NON-DISCLOSURE LAW (Codex r4 P1-3): the upstream body NEVER crosses
+ *  into `detail` — gateways echo request headers (the key) in error
+ *  bodies, and detail rides the API + panel verbatim. Status code +
+ *  latency only; the stored key is scrubbed from every detail string
+ *  as the belt-and-braces pass. */
 export async function testRouteConnection(route: DshModelRoute): Promise<RouteTestResult> {
   const key = loadRouteCredential(route.provider);
+  const scrub = (text: string): string => (key !== null ? text.replaceAll(key, 'sk-***') : text);
   const started = Date.now();
   try {
     const url = new URL('v1/models', route.baseURL.endsWith('/') ? route.baseURL : `${route.baseURL}/`);
@@ -310,17 +348,20 @@ export async function testRouteConnection(route: DshModelRoute): Promise<RouteTe
       signal: AbortSignal.timeout(10_000),
     });
     const latencyMs = Date.now() - started;
-    if (response.ok) return { ok: true, latencyMs, detail: `${response.status} in ${latencyMs}ms` };
-    const body = await response.text().catch(() => '');
-    return { ok: false, latencyMs, detail: `HTTP ${response.status}${body.length > 0 ? ` — ${body.slice(0, 140)}` : ''}` };
+    if (response.ok) return { ok: true, latencyMs, detail: scrub(`${response.status} in ${latencyMs}ms`) };
+    return { ok: false, latencyMs, detail: scrub(`HTTP ${response.status} in ${latencyMs}ms`) };
   } catch (cause) {
-    return { ok: false, detail: cause instanceof Error ? cause.message : String(cause) };
+    return { ok: false, detail: scrub(cause instanceof Error ? cause.message : String(cause)) };
   }
 }
 
-/** the dsh adapter's bridge query: is there a fully-configured active route?
- *  (active model set + route exists + key stored → the spawn can ride
- *  DSH_HOME; otherwise the adapter falls back to its env+patch legacy) */
+/** the dsh adapter's bridge query: is there a fully-configured active route
+ *  whose BRIDGE FACE is actually live? Private faces alone are not enough
+ *  (Codex r4 P1-5: a failed dsh-home sync — e.g. the path is a regular
+ *  file — leaves the private model+key intact while the kernel face is
+ *  missing; riding DSH_HOME then spawns a dead turn). The query verifies
+ *  both bridge files exist, parse, and still carry the active provider/
+ *  model/key ref; ANY gap → null → the adapter falls back to env+patch. */
 export function activeBridgeRoute(): { route: DshModelRoute; model: string; effort?: string; dshHome: string } | null {
   const settings = loadDshSettings();
   const active = settings.model;
@@ -328,5 +369,26 @@ export function activeBridgeRoute(): { route: DshModelRoute; model: string; effo
   const route = settings.modelRoutes.find((candidate) => candidate.provider === active.provider);
   if (route === undefined || !route.models.some((m) => m.id === active.model)) return null;
   if (loadRouteCredential(active.provider) === null) return null;
+  // bridge face: settings.yaml parses and carries the active provider+model
+  let bridge: unknown;
+  try {
+    bridge = YAML.parse(readFileSync(dshSettingsYaml(), 'utf8'));
+  } catch {
+    return null; // missing or unparseable — the sync never landed
+  }
+  if (!isObj(bridge)) return null;
+  const llm = bridge['llm-pi-ai'];
+  const providers = isObj(llm) && isObj(llm['providers']) ? llm['providers'] : null;
+  const bridgeRoute = providers !== null && isObj(providers[active.provider]) ? providers[active.provider] : null;
+  if (bridgeRoute === null) return null;
+  const bridgeModels = Array.isArray(bridgeRoute['models']) ? bridgeRoute['models'] : null;
+  if (bridgeModels === null || !bridgeModels.some((m) => isObj(m) && m['id'] === active.model)) return null;
+  // bridge face: the credential ref is present in the kernel's document
+  try {
+    const cred = readFileSync(dshCredentialsYaml(), 'utf8');
+    if (!cred.includes(dshRouteApiKeyEnv(active.provider))) return null;
+  } catch {
+    return null;
+  }
   return { route, model: active.model, ...(active.reasoningEffort !== undefined ? { effort: active.reasoningEffort } : {}), dshHome: designDshHome() };
 }

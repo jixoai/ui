@@ -22,6 +22,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import {
   DSH_ROUTE_API_PROTOCOLS,
+  DSH_THINKING_LEVELS,
   loadDshSettings,
   saveDshSettings,
   setRouteCredential,
@@ -33,6 +34,8 @@ import {
   type DshSettings,
 } from './dsh-settings.ts';
 
+/** the lane's mount base — every route below it is ours
+ *  (`${DSH_SETTINGS_API_BASE}/dsh.json` | `…/dsh-credential` | `…/dsh-test`) */
 export const DSH_SETTINGS_API_BASE = '/__design__/api/settings';
 
 const isObj = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -51,6 +54,8 @@ function modelFromJson(value: unknown, field: string): DshModelEntry {
   }
   if (value.efforts !== undefined) {
     if (!isStrArr(value.efforts)) throw new RequestError(`${field}.efforts must be an array of non-empty strings`);
+    const illegal = value.efforts.filter((level) => !(DSH_THINKING_LEVELS as readonly string[]).includes(level));
+    if (illegal.length > 0) throw new RequestError(`${field}.efforts entries must be kernel thinking levels (${DSH_THINKING_LEVELS.join(', ')}); got ${illegal.join(', ')}`);
     entry = { ...entry, efforts: value.efforts };
   }
   if (value.contextWindow !== undefined) {
@@ -89,6 +94,9 @@ function activeFromJson(value: unknown): DshActiveModel | null {
   const base: DshActiveModel = { provider: value.provider, model: value.model };
   if (value.reasoningEffort === undefined) return base;
   if (!isStr(value.reasoningEffort)) throw new RequestError('model.reasoningEffort must be a non-empty string');
+  if (!(DSH_THINKING_LEVELS as readonly string[]).includes(value.reasoningEffort)) {
+    throw new RequestError(`model.reasoningEffort must be a kernel thinking level (${DSH_THINKING_LEVELS.join(', ')})`);
+  }
   return { ...base, reasoningEffort: value.reasoningEffort };
 }
 
@@ -114,8 +122,17 @@ class RequestError extends Error {}
 
 /* ── the route resolver (pure — the in-process test surface) ─────────── */
 
+/** one lane answer: the HTTP status + the JSON body verbatim */
 export interface ApiResponse { readonly status: number; readonly body: unknown }
 
+/**
+ * Resolve one settings-lane request. `route` is the bare segment after
+ * `/__design__/api/settings/` (`dsh.json` | `dsh-credential` |
+ * `dsh-test`); `body` is the PARSED JSON (undefined for GET). Returns
+ * the view envelope (GET/POST dsh.json, credential), the probe result
+ * (dsh-test), or a `{ok:false, reason, message}` 400/404/500 — never
+ * throws for request-shape faults.
+ */
 export async function resolveDshSettingsApiRequest(route: string, method: string, body: unknown): Promise<ApiResponse> {
   try {
     if (route === 'dsh.json' && method === 'GET') {
@@ -129,8 +146,11 @@ export async function resolveDshSettingsApiRequest(route: string, method: string
     }
     if (route === 'dsh-credential' && method === 'POST') {
       if (!isObj(body) || !isStr(body.provider)) throw new RequestError('provider (non-empty string) is required');
-      if (body.key !== null && !(isStr(body.key))) throw new RequestError('key must be a non-empty string or null');
-      setRouteCredential(body.provider, body.key ?? null);
+      // omitted key === explicit null === clear (the panel's clear button
+      // sends {provider} — `undefined !== null` was rejecting it, Codex r4 P1-2)
+      const key = body.key === undefined || body.key === null ? null : body.key;
+      if (key !== null && !(isStr(key))) throw new RequestError('key must be a non-empty string or null');
+      setRouteCredential(body.provider, key);
       return { status: 200, body: settingsView() };
     }
     if (route === 'dsh-test' && method === 'POST') {
@@ -157,6 +177,12 @@ export async function resolveDshSettingsApiRequest(route: string, method: string
 
 /* ── the connect middleware (create.ts mounts it before studio assets) ── */
 
+/**
+ * The connect middleware for the settings lane: GET/POST bodies are
+ * collected with a 256KB cap, parsed, and handed to the resolver; GETs
+ * pass straight through. Non-lane paths/methods fall to `next()` —
+ * the studio's static assets keep ownership of everything else.
+ */
 export function dshSettingsApiMiddleware(): (req: IncomingMessage, res: ServerResponse, next: () => void) => void {
   return (req, res, next) => {
     const pathname = (req.url ?? '').split('?')[0]!;

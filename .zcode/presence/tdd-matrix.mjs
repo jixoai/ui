@@ -2184,11 +2184,14 @@ try {
         await sleep(20);
       }
       const head8 = await Rb.page.evaluate(() => document.querySelector('.tree-head')?.textContent ?? '');
-      record('A8', 'C 零鼠标移动 boot → B 端 welcome 彩带含 C 色（park effect ≤600ms）+ 树标题 = layers',
-        at8 !== null && at8 <= 600 && head8 === 'layers',
+      // Codex r4 P2-1：C 的 boot 同时必须把 B 的 welcome 行推成 multi
+      // （常驻彩带法则的正向断言——不只跟踪 C 色出现）
+      const mode8 = await Rb.page.evaluate(() => document.querySelector('.studio-canvas-row[data-nav-ribbon="welcome"]')?.getAttribute('data-jx-remote-ribbon') ?? '');
+      record('A8', 'C 零鼠标移动 boot → B 端 welcome 彩带含 C 色（park effect ≤600ms）且行转 multi + 树标题 = layers',
+        at8 !== null && at8 <= 600 && head8 === 'layers' && mode8 === 'multi',
         at8 === null
           ? `C 色 ${carolCss} 未出现在 B 的 welcome 行（style="${style8.slice(0, 90)}"）`
-          : `${at8}ms；tree-head="${head8}"`);
+          : `${at8}ms；mode=${mode8}；tree-head="${head8}"`);
       await rc3.context.close();
       await sleep(400);
     }

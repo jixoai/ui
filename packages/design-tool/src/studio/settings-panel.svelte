@@ -39,12 +39,27 @@
     'openai-codex-responses',
   ] as const;
 
+  /** the kernel's fixed reasoning-effort vocabulary (contracts twin) —
+   *  efforts outside this set make the kernel refuse the whole profile */
+  const THINKING_LEVELS = ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'] as const;
+
   interface ModelEntry {
     id: string;
     name?: string;
     efforts?: string[];
     contextWindow?: number;
     maxOutputTokens?: number;
+  }
+  /** the editable draft: optional fields are ALWAYS initialized ('' rather
+   *  than undefined) — the registry Input is uncontrolled while its bound
+   *  value is null/undefined (input.svelte's `controlled = value != null`),
+   *  which would swallow the first keystroke into a fresh field */
+  interface ModelDraftEntry {
+    id: string;
+    name?: string;
+    efforts?: string[];
+    contextWindow?: number | string;
+    maxOutputTokens?: number | string;
   }
   interface ModelRoute {
     provider: string;
@@ -92,7 +107,7 @@
 
   let baseURLDraft = $state('');
   let apiDraft = $state<string>(API_PROTOCOLS[0]);
-  let modelsDraft = $state<ModelEntry[]>([]);
+  let modelsDraft = $state<ModelDraftEntry[]>([]);
   let activeProvider = $state('');
   let activeModel = $state('');
   let activeEffort = $state('');
@@ -115,11 +130,54 @@
     selectedRoute !== null && (baseURLDraft.trim() !== selectedRoute.baseURL || apiDraft !== (selectedRoute.api ?? API_PROTOCOLS[0])),
   );
   const modelsDirty = $derived(selectedRoute !== null && canonical(modelsDraft) !== canonical(selectedRoute.models));
+  const modelsValid = $derived(modelsDraft.length > 0 && modelsDraft.every((entry) => normalizedModel(entry) !== null));
   const activeDirty = $derived(activeSelection() !== null);
-  const saveDisabled = $derived(saving || !(endpointDirty || modelsDirty || activeDirty));
+  const saveDisabled = $derived(saving || !modelsValid || !(endpointDirty || modelsDirty || activeDirty));
 
-  function canonical(models: ModelEntry[]): string {
-    return JSON.stringify(models.map((entry) => ({ ...entry, efforts: entry.efforts ?? [] })));
+  /** dirty comparison through the SAME normalizer the save uses — an
+   *  empty-string draft field and its absent stored twin must compare
+   *  equal, or a freshly opened tab would look eternally dirty */
+  function canonical(models: readonly (ModelEntry | ModelDraftEntry)[]): string {
+    return JSON.stringify(models.map((entry) => normalizedModel(entry) ?? { ...entry, efforts: entry.efforts ?? [] }));
+  }
+
+  /** typed-UI boundary (Codex r4 P1-4): the registry Input syncs number
+   *  fields back as STRINGS (its oninput writes el.value) — parse strictly
+   *  at the commit edge: empty → undefined, anything not a finite positive
+   *  integer → null (= invalid, blocks save) */
+  function coercePositiveInt(value: unknown): number | undefined | null {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(String(value).trim());
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+  }
+
+  /** one model entry in its POSTable shape; null = invalid (blocks save) */
+  function normalizedModel(entry: ModelEntry | ModelDraftEntry): ModelEntry | null {
+    const contextWindow = coercePositiveInt(entry.contextWindow);
+    const maxOutputTokens = coercePositiveInt(entry.maxOutputTokens);
+    if (contextWindow === null || maxOutputTokens === null) return null;
+    const id = entry.id.trim();
+    if (id === '') return null;
+    // efforts are the kernel's fixed vocabulary — an illegal level would
+    // make the kernel refuse the whole provider profile
+    if (entry.efforts !== undefined && entry.efforts.some((level) => !(THINKING_LEVELS as readonly string[]).includes(level))) return null;
+    const name = entry.name === undefined ? '' : entry.name.trim();
+    return {
+      id,
+      ...(name !== '' ? { name } : {}),
+      ...(entry.efforts !== undefined && entry.efforts.length > 0 ? { efforts: entry.efforts } : {}),
+      ...(contextWindow !== undefined ? { contextWindow } : {}),
+      ...(maxOutputTokens !== undefined ? { maxOutputTokens } : {}),
+    };
+  }
+
+  /** runtime decoder for every settings response (the fetch boundary —
+   *  no `payload as SettingsDoc` leaps; Codex r4 P2-3) */
+  function asSettingsDoc(value: unknown): SettingsDoc | null {
+    if (typeof value !== 'object' || value === null) return null;
+    const doc = value as Record<string, unknown>;
+    if (doc.configVersion !== 1 || !Array.isArray(doc.modelRoutes) || typeof doc.keyPresence !== 'object' || doc.keyPresence === null) return null;
+    return value as SettingsDoc;
   }
 
   function activeSelection(): ActiveModel | null {
@@ -140,7 +198,13 @@
   function initDrafts(route: ModelRoute): void {
     baseURLDraft = route.baseURL;
     apiDraft = route.api ?? API_PROTOCOLS[0];
-    modelsDraft = route.models.map((entry) => ({ ...entry, efforts: entry.efforts ? [...entry.efforts] : undefined }));
+    modelsDraft = route.models.map((entry) => ({
+      id: entry.id,
+      name: entry.name ?? '',
+      efforts: entry.efforts ? [...entry.efforts] : undefined,
+      contextWindow: entry.contextWindow ?? '',
+      maxOutputTokens: entry.maxOutputTokens ?? '',
+    }));
     keyDraft = '';
     keyVisible = false;
     testResult = null;
@@ -158,7 +222,9 @@
     try {
       const response = await fetch(settingsUrl, { headers: { accept: 'application/json' } });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      doc = (await response.json()) as SettingsDoc;
+      const next = asSettingsDoc(await response.json());
+      if (next === null) throw new Error('unexpected settings payload');
+      doc = next;
       loadError = null;
       // rail normalization: drop selections that no longer exist
       if (selected !== null && !routes.some((route) => route.provider === selected)) selected = null;
@@ -189,10 +255,7 @@
               ...route,
               baseURL: baseURLDraft.trim(),
               api: apiDraft,
-              models: modelsDraft.map((entry) => ({
-                ...entry,
-                efforts: entry.efforts !== undefined && entry.efforts.length > 0 ? entry.efforts : undefined,
-              })),
+              models: modelsDraft.map((entry) => normalizedModel(entry)!),
             }
           : route,
       );
@@ -207,7 +270,9 @@
         const message = typeof payload === 'object' && payload !== null && 'message' in payload ? String((payload as { message: unknown }).message) : `HTTP ${response.status}`;
         throw new Error(message);
       }
-      doc = payload as SettingsDoc;
+      const next = asSettingsDoc(payload);
+      if (next === null) throw new Error('unexpected settings payload');
+      doc = next;
       savedFlash = true;
       if (savedTimer !== null) clearTimeout(savedTimer);
       savedTimer = setTimeout(() => (savedFlash = false), 1600);
@@ -223,17 +288,21 @@
     keyBusy = true;
     rejection = null;
     try {
+      // key rides EXPLICITLY (null included) — the API treats omitted and
+      // null alike now, but the explicit form is the contract (Codex r4 P1-2)
       const response = await fetch(`${settingsUrl.replace(/dsh\.json$/, 'dsh-credential')}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ provider: selected, ...(key !== null ? { key } : {}) }),
+        body: JSON.stringify({ provider: selected, key }),
       });
       const payload: unknown = await response.json();
       if (!response.ok) {
         const message = typeof payload === 'object' && payload !== null && 'message' in payload ? String((payload as { message: unknown }).message) : `HTTP ${response.status}`;
         throw new Error(message);
       }
-      doc = payload as SettingsDoc;
+      const next = asSettingsDoc(payload);
+      if (next === null) throw new Error('unexpected settings payload');
+      doc = next;
       if (key !== null) keyDraft = '';
     } catch (cause) {
       rejection = cause instanceof Error ? cause.message : String(cause);
@@ -260,6 +329,9 @@
       if (!response.ok) {
         const message = typeof payload === 'object' && payload !== null && 'message' in payload ? String((payload as { message: unknown }).message) : `HTTP ${response.status}`;
         throw new Error(message);
+      }
+      if (typeof payload !== 'object' || payload === null || typeof (payload as { ok?: unknown }).ok !== 'boolean' || typeof (payload as { detail?: unknown }).detail !== 'string') {
+        throw new Error('unexpected test payload');
       }
       testResult = payload as { ok: boolean; latencyMs?: number; detail: string };
     } catch (cause) {
@@ -291,7 +363,9 @@
         const message = typeof payload === 'object' && payload !== null && 'message' in payload ? String((payload as { message: unknown }).message) : `HTTP ${response.status}`;
         throw new Error(message);
       }
-      doc = payload as SettingsDoc;
+      const next = asSettingsDoc(payload);
+      if (next === null) throw new Error('unexpected settings payload');
+      doc = next;
       selected = null;
     } catch (cause) {
       rejection = cause instanceof Error ? cause.message : String(cause);
@@ -335,7 +409,9 @@
         const message = typeof payload === 'object' && payload !== null && 'message' in payload ? String((payload as { message: unknown }).message) : `HTTP ${response.status}`;
         throw new Error(message);
       }
-      doc = payload as SettingsDoc;
+      const next = asSettingsDoc(payload);
+      if (next === null) throw new Error('unexpected settings payload');
+      doc = next;
       newOpen = false;
       newProvider = '';
       newBaseURL = '';
@@ -494,14 +570,14 @@
                     </label>
                     <label class="dsh-field">
                       <span class="dsh-label">effort</span>
-                      {#if effortOptions.length > 0}
-                        <select class="dsh-select" bind:value={activeEffort}>
-                          <option value="">default</option>
-                          {#each effortOptions as effort (effort)}<option value={effort}>{effort}</option>{/each}
-                        </select>
-                      {:else}
-                        <Input placeholder="default (free text)" bind:value={activeEffort} />
-                      {/if}
+                      <!-- a select over the model's DECLARED efforts only —
+                           the kernel rejects an effort the model does not
+                           offer (UNSUPPORTED_REASONING_EFFORT); models with
+                           no declared efforts run at provider default -->
+                      <select class="dsh-select" bind:value={activeEffort}>
+                        <option value="">default</option>
+                        {#each effortOptions as effort (effort)}<option value={effort}>{effort}</option>{/each}
+                      </select>
                     </label>
                   </div>
                 </div>
@@ -562,9 +638,9 @@
                         </label>
                       </div>
                       <label class="dsh-field">
-                        <span class="dsh-label">efforts (comma-separated)</span>
+                        <span class="dsh-label">efforts (comma-separated, {THINKING_LEVELS.join('/')})</span>
                         <Input
-                          placeholder="low, high, max"
+                          placeholder="low, high"
                           value={model.efforts?.join(', ') ?? ''}
                           oninput={(event) => {
                             const raw = (event.currentTarget as HTMLInputElement).value;
@@ -589,7 +665,7 @@
                   <button
                     type="button"
                     class="dsh-ghost dsh-add-model"
-                    onclick={() => (modelsDraft = [...modelsDraft, { id: '' }])}
+                    onclick={() => (modelsDraft = [...modelsDraft, { id: '', name: '', contextWindow: '', maxOutputTokens: '' }])}
                   >+ add model</button>
                 </div>
               </div>

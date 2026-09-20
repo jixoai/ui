@@ -2,7 +2,8 @@
   @jixoai/ui-design (studio) — the default studio shell (T4 + r2
   T4/T5/T6 selection integration + T8 panel mount + T11 updates badge).
 
-  Intents (5, a single-surface compromise — layout is not split out):
+  Intents (6, a single-surface compromise — layout is not split out; the
+  sixth is walkthrough-r4's settings entry + dialog mount):
     1. navigator + preview grid: list canvases from the manifest, show
        the selected canvas in a full-width iframe tab; frame ids deep-
        link by appending #<id> to the iframe src (canvas anchors are
@@ -58,6 +59,13 @@
        the badge paint is the badge item (jx-hue-warning tonal); the
        family ships no interactive badge (span only) — the toggle
        stays a chrome-less button carrying it (ledger Q2).
+    6. the settings entry + dialog mount (walkthrough-r4 2026-09-21):
+       the nav-bottom footer row opens settings-panel.svelte — the
+       dsh Model settings dialog (skill-creator-v2 port). The shell
+       owns ONLY the entry + the fixed-chrome mount; the dialog's
+       state machine lives in its own file. Also here: the boot/
+       reconnect presence park effect (the online edge reports the
+       current canvas — see the effect's comment near selectCanvas).
 
   Original need: Owner 2026-09-11 (design-studio T4; design-studio-r2
   T4/T5/T8/T11). r3 P1 (issue #10): the dogfooding MAIN PATH — this
