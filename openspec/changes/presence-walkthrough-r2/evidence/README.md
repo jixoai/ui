@@ -30,3 +30,5 @@ Owner 走查（2026-09-19）六项反馈的矩阵断言组（A1-A6）+ 既有 65
 ## Codex 走查轮复核（2026-09-19）
 
 - `.zcode/presence/codex-review-r2w.md`：首轮 7.8/10 NEEDS-WORK（P1 = parkedCursor 未初始化）；P1 处理后快审 **9.6/10 PASS，零阻塞**——焦点 65/65、当前 HEAD 同树矩阵 72/72（A2 几何 + PAGEERROR 门禁全过，运行时零捕获）。终版回执即评审者自己的独立回执（provenance e20b3168）。
+
+| matrix-73of73-navswitch.json | 73/73 | 同上 + A7 页面切换即 presence | 走查第三轮修复后：A7（跳页后完全不动，A 的色相 138ms 完成 welcome→echo 迁移）。已知矩阵环境遗留：server2 上早组（P 组）连接的滞留在册光与 A7 定律无关（断言按 A 的色相成员资格判定）；真实使用（新服务器）无此现象，探针实证干净 |

@@ -415,6 +415,21 @@
     // the selection addressed the PREVIOUS canvas's frames — gone
     selection = null;
     persistSelection();
+    // canvas membership IS presence state (walkthrough-r3, Owner
+    // 2026-09-21): the nav light rides the cursor frame's canvas field,
+    // which only flows from pointermove over the canvas DOCUMENT — a
+    // page switch (mouse on the studio chrome, the old iframe already
+    // unmounted, the new one still compiling) emits NOTHING without
+    // this report, and every remote's nav ribbon keeps the STALE page
+    // until the player happens to move (measured: >10s). The park rides
+    // the last known pointer coords; the first real pointermove over
+    // the new canvas corrects them.
+    const store = presenceStoreRef;
+    if (store !== null) {
+      const park = lastLocalCursor ?? { x: 0, y: 0 };
+      store.reportCursor(name, 'canvas', park.x, park.y);
+    }
+    ownCursor = name; // the self-first nav light flips at once too
   }
 
   // selection IS attention (presence-liveness P1): picking a component
@@ -563,6 +578,10 @@
    *  store already forwards; the store's own snapshot never carries
    *  self, and a human always has a mouse, gateway §1) */
   let ownCursor = $state<string | null>(null);
+  /** the last local pointer coords seen on the cursor uplink — the
+   *  canvas-switch park rides them (selectCanvas); plain cache, never
+   *  rendered */
+  let lastLocalCursor: { x: number; y: number } | null = null;
   const navRibbons = $derived.by(() => {
     const byCanvas = new Map<string, number[]>();
     const light = (canvas: string, hue: number): void => {
@@ -744,6 +763,7 @@
       if (rawSurface !== 'canvas' && !rawSurface.startsWith('frame:')) return;
       const surface: CursorSurface = rawSurface;
       ownCursor = data.canvas; // P5 self-first nav light
+      lastLocalCursor = { x: data.x, y: data.y }; // the switch-park cache
       store.reportCursor(data.canvas, surface, data.x, data.y);
     };
     window.addEventListener('message', onMessage);

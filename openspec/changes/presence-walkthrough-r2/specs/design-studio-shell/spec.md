@@ -91,3 +91,15 @@ MUST 保留。无彩带的选中行 MUST 保持 family 现状不变。
 
 - **WHEN** 选中 nav 行无任何 presence 彩带
 - **THEN** family 选中态原样（inset 2px 0 0 --primary + 背景）
+
+### Requirement: Canvas-Switch Presence Report
+
+页面切换本身就是 presence 事件：selectCanvas MUST 立即上报一个以新
+canvas 为域的光标帧（park 坐标 = 最近一次本地上行坐标，缺省 0,0），
+且本端 nav 自亮 MUST 即时翻转。远端 nav 彩带跟随页面切换 MUST NOT
+依赖玩家在新画布上的下一次鼠标移动。
+
+#### Scenario: 跳页后静止，对端即时跟随
+
+- **WHEN** A 点击 nav 从 welcome 跳到 echo-demo，此后鼠标完全不动
+- **THEN** B 端 nav 彩带在 500ms 内点亮 echo-demo 行并熄灭 welcome 行

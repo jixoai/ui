@@ -72,3 +72,20 @@
       依赖变更后矩阵回归 **72/72**（含 PAGEERROR 零异常门禁）。
 - 法则沉淀：~/.zcode/AGENTS.md「worktree 的 node_modules 禁止符号
   链接进主仓」。
+
+## 6. 走查第三轮发现：页面切换的 presence 断层（2026-09-21，Owner）
+
+- [x] 6.1 定根（Owner 判断正确，是架构断层非传输延迟）：nav 彩带只由
+      光标帧的 canvas 字段承载；光标帧只从画布文档 pointermove 产生；
+      selectCanvas 原实现不发任何 presence 帧——跳页时鼠标在 chrome、
+      旧 iframe 已卸载、新 iframe 按需编译中，归属信息无帧可乘。探针
+      实证：跳页后 10s 静止，对端彩带停在旧页（welcome=single,
+      echo=null）。
+- [x] 6.2 修复：selectCanvas 立即 `reportCursor(新页, 'canvas', park)`，
+      park = 最近本地上行坐标（新增 lastLocalCursor 缓存），本端
+      ownCursor 同步翻转。探针复跑：194ms 跟到。
+- [x] 6.3 回归锁：矩阵 A7（跳页后完全不动 → A 的色相 ≤500ms 完成
+      welcome→echo 迁移；实测 138ms，矩阵 73/73）；spec delta 增
+      Canvas-Switch Presence Report 需求。已知项：矩阵 server2 上
+      早组连接滞留在册的遗留光与本定律无关（断言按色相成员资格
+      判定，真实新服务器无此现象）。

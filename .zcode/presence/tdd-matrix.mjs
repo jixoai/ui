@@ -2109,6 +2109,41 @@ try {
       await Rc.context.close();
     }
 
+
+    /* A7 — 页面切换即 presence（walkthrough-r3，Owner 2026-09-21：跳页后
+     * 对端 nav 高亮停在旧页「要过一会儿才切」。根因：nav 彩带只由光标帧
+     * 的 canvas 字段承载，而光标帧只从画布 pointermove 产生——切换时鼠标
+     * 在 chrome 上、旧 iframe 已卸载、新 iframe 还在编译，没有任何帧发出。
+     * 修复：selectCanvas 立即上报 canvas 归属（park 坐标）。本断言：点击
+     * nav 后【完全不动鼠标】，对端彩带必须 ≤500ms 跟到新页） */
+    {
+      // A 的色相成员资格法则：跳页后 A 的色必须出现在 echo 行、离开
+      // welcome 行（本断言只跟踪 A 的成员资格——矩阵 server2 的早组
+      // 滞留光与该定律无关，不作为失败条件）
+      const styleOf = (canvas) => Rb.page.evaluate((want) => document.querySelector(`.studio-canvas-row[data-nav-ribbon="${want}"]`)?.getAttribute('style') ?? '', canvas);
+      const aCss7 = playerHueRgb(hueOf(raSelf));
+      const beforeWelcome = await styleOf('welcome');
+      await Ra.page.locator('.studio-canvas-row[data-nav-ribbon="echo-demo"] a').first().click();
+      const t7 = Date.now();
+      let at7 = null;
+      let afterEcho = '';
+      let afterWelcome = '';
+      for (let i = 0; i < 60; i += 1) {
+        afterEcho = await styleOf('echo-demo');
+        afterWelcome = await styleOf('welcome');
+        if (afterEcho.includes(aCss7) && !afterWelcome.includes(aCss7)) { at7 = Date.now() - t7; break; }
+        await sleep(50);
+      }
+      record('A7', 'A 点击 nav 跳 echo-demo 后完全不动 → B 端 nav 彩带 ≤500ms 跟随（A 的色进 echo 行、离 welcome 行；页面切换即 presence）',
+        at7 !== null && at7 <= 500 && beforeWelcome.includes(aCss7),
+        at7 === null
+          ? `A 色 ${aCss7} 未完成迁移（echo 含=${afterEcho.includes(aCss7)}, welcome 含=${afterWelcome.includes(aCss7)}）`
+          : `${at7}ms（A 色 ${aCss7}: welcome→echo 迁移完成）`);
+      // A 回到 welcome，避免影响后续（FIX 契约无关，纯卫生）
+      await Ra.page.locator('.studio-canvas-row[data-nav-ribbon="welcome"] a').first().click();
+      await sleep(600);
+    }
+
     obsR.ws.close();
     await Ra.context.close();
     await Rb.context.close();
