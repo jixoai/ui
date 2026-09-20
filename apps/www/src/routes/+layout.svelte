@@ -685,6 +685,31 @@
   </div>
 {/snippet}
 
+<!-- the splash fan's dark-ground desaturation (2026-09-21 polish):
+     the six squares ride the system's dark-profile primaries (C 0.1872),
+     which glare on the splash's near-black ground when output direct.
+     The treatment is PRESENTATION-LAYER — saturate() on the fan alone,
+     the swatch values stay the header-identical resource — and it rides
+     THIS head-inline block, never the compiled sheet, because the splash
+     law demands first-paint availability (the boot-splash block's own
+     vehicle; SSR bakes it into every page's HTML). The 0.78 ratio is the
+     theme's own light→dark chroma step (0.237 → 0.1872, ×0.79) applied
+     once more — the system's desaturation grammar, not a hand-picked
+     number. Media-query + class-bridge cover the same two dark lanes
+     the splash grounds use; the one edge (explicitly-light page + dark
+     OS) is the host one-liner the boot-splash block already documents. -->
+<svelte:head>
+  <style data-jx-splash-fan="">
+    @media (prefers-color-scheme: dark) {
+      .jx-splash-fan { filter: saturate(0.78); }
+    }
+    .dark .jx-splash-fan,
+    :root.dark .jx-splash-fan {
+      filter: saturate(0.78);
+    }
+  </style>
+</svelte:head>
+
 <WebsiteScaffold>
   {#snippet splash()}
     <!-- the FOUC mask (Owner design, 2026-09-19): styles ride the HTML
@@ -703,7 +728,7 @@
       exit="blur-out"
     >
       {#snippet logo()}
-        <svg viewBox="0 0 48 48" width="64" height="64" aria-hidden="true">
+        <svg class="jx-splash-fan" viewBox="0 0 48 48" width="64" height="64" aria-hidden="true">
           {#each [
               { hue: 356, size: 11, center: 6.5 },
               { hue: 56, size: 14.5, center: 13.5 },
