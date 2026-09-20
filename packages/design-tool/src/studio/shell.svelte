@@ -103,6 +103,7 @@
   } from './equivalence.ts';
   import GuidePanel from './guide-panel.svelte';
   import PropertyPanel from './property-panel.svelte';
+  import SettingsPanel from './settings-panel.svelte';
   import StageView from './stage-view.svelte';
   import {
     PresenceStore,
@@ -164,6 +165,10 @@
    *  stay MOUNTED — the inactive side gets the hidden attribute, so
    *  chat state (draft, message flow, streaming) survives switches */
   let railTab: 'chat' | 'guide' = $state('chat');
+
+  // the settings dialog (design-settings-panel S5): the nav-bottom gear
+  // entry opens it; the dialog itself is fixed chrome over the studio
+  let settingsOpen = $state(false);
   /** promotion drift status (r2 T11 contract; three-state as of r3 T0/ID6) */
   let promotions: PromotionsState = $state({ phase: 'loading' });
 
@@ -450,6 +455,25 @@
     // source kit rides the attention so the remote ring lands in the kit
     // the pick happened in, never blindly in DOM-order kit #1
     store.reportAttention({ kind: 'canvas', component: id, instance: null, frameId: selection.frameId ?? null });
+  });
+
+  // the boot/reconnect park (walkthrough-r4, the page-switch family):
+  // a freshly-opened studio (hash-landed canvas) and a reconnected one
+  // both start with NO membership on the wire — remotes see no nav
+  // light until the first move (the same semantic gap as the switch
+  // report, one origin earlier). Every transition to online parks the
+  // CURRENT canvas at once; the canvas reads stay untracked so this
+  // fires on the status edge only (switches own their own report).
+  $effect(() => {
+    if (presenceStatus !== 'online') return;
+    // the store bind may lose the race with the online edge (mount
+    // order) — reading it REACTIVELY retries the park when it lands
+    const store = presenceStoreRef;
+    const canvas = untrack(() => currentName);
+    if (store === null || canvas === null) return;
+    const park = untrack(() => lastLocalCursor) ?? { x: 0, y: 0 };
+    store.reportCursor(canvas, 'canvas', park.x, park.y);
+    ownCursor = canvas;
   });
 
   // the canvas-mount re-push (walkthrough R2 A4): the roster forward is
@@ -939,6 +963,23 @@
         }}
       />
     {/key}
+    <!-- the settings entry (design-settings-panel): pinned at the nav's
+         bottom edge — the dsh model routes panel opens over the studio -->
+    <footer class="studio-nav-foot">
+      <Item
+        variant="default"
+        density="sm"
+        href="#settings"
+        onclick={(event) => {
+          event.preventDefault();
+          settingsOpen = true;
+        }}
+      >
+        <ItemContent wrap="truncate">
+          <ItemTitle>settings</ItemTitle>
+        </ItemContent>
+      </Item>
+    </footer>
   </nav>
 
   <!-- r3 issue #21: the stage is StageView — the camera (zoom/pan/fit)
@@ -1000,6 +1041,11 @@
       </div>
     </div>
   </aside>
+
+  <!-- the settings dialog (fixed chrome over the studio — S5) -->
+  {#if settingsOpen}
+    <SettingsPanel onclose={() => (settingsOpen = false)} />
+  {/if}
 </div>
 
 <style>
@@ -1082,6 +1128,13 @@
     padding: 1rem 0.75rem;
     border-right: 1px solid #262320;
     min-height: 0;
+  }
+  /* the settings entry pins to the nav's bottom edge (the free flex
+       space sits between the tree and this footer) */
+  .studio-nav-foot {
+    margin-top: auto;
+    border-top: 1px solid #262320;
+    padding-top: 0.625rem;
   }
   .studio-brand {
     display: flex;

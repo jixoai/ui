@@ -1633,18 +1633,35 @@ try {
         const cs = getComputedStyle(el);
         return { mode: el.getAttribute('data-jx-remote-ribbon'), on: el === row ? 'row' : 'child', src: cs.borderImageSource, slice: cs.borderImageSlice, width: cs.borderImageWidth, startW: cs.borderInlineStartWidth, startColor: cs.borderInlineStartColor };
       }, name);
-      // ①（C-line 修订 2026-09-18）：P2 后 A 的指针就在 welcome 的 kit 内
-      // ——本端合法计入，单人态说的是 self 自己的色（Owner 法则 self 恒在
-      // 榜首）。在 m1 连接前探测；期望 selfCss5。
+      // ①（walkthrough-r4 修订 2026-09-21）：boot-park 法则落地后每个
+      // 在场浏览器都在自己的画布上常驻彩带（A/B 停在 welcome），welcome
+      // 的「单人态」不复存在。单人语法改由一个临时第三页在自己的页面
+      // 上验证：carol-p 点 nav 跳 echo-demo（selectCanvas 立即 park），
+      // 她页面的 echo-demo 行必须是 single self 色。A/B 全程不动——
+      // P8 复用的 canvas 句柄不受画布重载影响。
+      const Cc = await openStudio(browser, BASE2, 'carol-p');
+      const ccChips = await chipsInfo(Cc.page);
+      const ccSelf = ccChips.find((c) => c.name.includes('(you)'));
+      const ccCss5 = playerHueRgb(hueOf(ccSelf ?? { dot: '' }));
+      // ②③ 的 self-first 断言仍以 A 页为准（A 的指针在 welcome kit 内）
       const selfCss5 = playerHueRgb(apHslHue);
-      const single5 = await pollFor(() => navRib('welcome').then((r) => (r !== null && r.mode === 'single' ? r : null)), { timeoutMs: 10_000, label: 'P5 single' }).catch(() => null);
+      await Cc.page.locator('.studio-canvas-row[data-nav-ribbon="echo-demo"] a').first().click();
+      const single5 = await pollFor(() => Cc.page.evaluate((n) => {
+        const row = document.querySelector(`.studio-canvas-row[data-nav-ribbon="${n}"]`);
+        const el = row === null ? null : row.hasAttribute('data-jx-remote-ribbon') ? row : row.querySelector('[data-jx-remote-ribbon]');
+        if (el === null) return null;
+        const cs = getComputedStyle(el);
+        return { mode: el.getAttribute('data-jx-remote-ribbon'), on: el === row ? 'row' : 'child', src: cs.borderImageSource, startW: cs.borderInlineStartWidth, startColor: cs.borderInlineStartColor };
+      }, 'echo-demo').then((r) => (r !== null && r.mode === 'single' ? r : null)), { timeoutMs: 10_000, label: 'P5 single' }).catch(() => null);
+      await Cc.context.close();
+      await sleep(600);
       const m1 = wsConnect(BASE2, { name: 'matrix-rib-1' });
       const w1 = await m1.welcome;
       m1.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 30, y: 30 });
       const m1Css = playerHueRgb(w1.colorHue);
-      record('P5', '① 单玩家 nav 彩带 = 现状样式（border-inline-start 2px solid 玩家色，无 border-image；本端在画布时该玩家是 self；彩带在行元素上）',
-        single5 !== null && single5.on === 'row' && single5.startW === '2px' && single5.startColor === selfCss5 && single5.src === 'none',
-        single5 === null ? 'single 彩带未出现（本端 ownCursor 未计入？）' : `on=${single5.on}; startW=${single5.startW} color=${single5.startColor}（期望 self ${selfCss5}）; src=${single5.src}`);
+      record('P5', '① 单玩家 nav 彩带 = 现状样式（border-inline-start 2px solid 玩家色，无 border-image；carol-p 独占 echo-demo 时该行是她的 self 色；彩带在行元素上）',
+        single5 !== null && single5.on === 'row' && single5.startW === '2px' && single5.startColor === ccCss5 && single5.src === 'none',
+        single5 === null ? 'single 彩带未出现（carol-p 的 park 未计入？）' : `on=${single5.on}; startW=${single5.startW} color=${single5.startColor}（期望 carol ${ccCss5}）; src=${single5.src}`);
       const m2 = wsConnect(BASE2, { name: 'matrix-rib-2' });
       const w2 = await m2.welcome;
       m2.send({ type: 'cursor', canvas: 'welcome', surface: 'canvas', x: 40, y: 40 });
@@ -1798,7 +1815,11 @@ try {
      *    → A 端 ≤600ms 镜像 */
     {
       const PL = 'jixoai-design-frame-press-loading-light';
-      const plKit = aCanvasP.childFrames().find((f) => f.name() === PL);
+      // walkthrough-r4：P5① 的 nav 切换（echo-demo→welcome）会重载 welcome
+      // 画布帧——P 组开头解析的 aCanvasP 已是尸体（R2 round-3 FATAL 同族），
+      // 此处重解析后再找 kit
+      const aCanvasP8 = await canvasFrameByName(Ap.page, 'welcome').catch(() => aCanvasP);
+      const plKit = aCanvasP8.childFrames().find((f) => f.name() === PL);
       if (plKit === undefined) {
         record('P8', '①② 真实链路（press-loading kit）', false, `kit frame ${PL} 不在（加载竞态？）`);
       } else {
@@ -2142,6 +2163,34 @@ try {
       // A 回到 welcome，避免影响后续（FIX 契约无关，纯卫生）
       await Ra.page.locator('.studio-canvas-row[data-nav-ribbon="welcome"] a').first().click();
       await sleep(600);
+    }
+
+    /* A8 — boot park + layers 标题（walkthrough-r4 同族断层修复，Owner
+     * 2026-09-21：boot/reconnect 是「切页不上报」的同族缺口。shell 的
+     * park effect 在 presence online 边沿立即上报 canvas 归属——新开
+     * 浏览器【全程零鼠标移动】也必须让对端看到彩带。另：树标题固定
+     * layers（左下 title 的 UI 修正）） */
+    {
+      const rc3 = await openStudio(browser, BASE2, 'r3-carol');
+      const carolChips = await chipsInfo(rc3.page);
+      const carolSelf = carolChips.find((c) => c.name.includes('(you)'));
+      const carolCss = playerHueRgb(hueOf(carolSelf ?? { dot: '' }));
+      const t8 = Date.now();
+      let at8 = null;
+      let style8 = '';
+      for (let i = 0; i < 30; i += 1) {
+        style8 = await Rb.page.evaluate(() => document.querySelector('.studio-canvas-row[data-nav-ribbon="welcome"]')?.getAttribute('style') ?? '');
+        if (style8.includes(carolCss)) { at8 = Date.now() - t8; break; }
+        await sleep(20);
+      }
+      const head8 = await Rb.page.evaluate(() => document.querySelector('.tree-head')?.textContent ?? '');
+      record('A8', 'C 零鼠标移动 boot → B 端 welcome 彩带含 C 色（park effect ≤600ms）+ 树标题 = layers',
+        at8 !== null && at8 <= 600 && head8 === 'layers',
+        at8 === null
+          ? `C 色 ${carolCss} 未出现在 B 的 welcome 行（style="${style8.slice(0, 90)}"）`
+          : `${at8}ms；tree-head="${head8}"`);
+      await rc3.context.close();
+      await sleep(400);
     }
 
     obsR.ws.close();

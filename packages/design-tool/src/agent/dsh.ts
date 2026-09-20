@@ -47,6 +47,7 @@ import { fileURLToPath } from 'node:url';
 
 import { findCollabHost, type CollabHost, type CollabSyncOutcome } from '../server/collab-host.ts';
 import { findPresenceGateway } from '../server/presence/gateway.ts';
+import { activeBridgeRoute } from '../server/settings/dsh-settings.ts';
 import { loadKnowledgePack } from '../knowledge/knowledge.ts';
 import type { AgentEvent, DesignAgent } from './types.ts';
 
@@ -102,6 +103,35 @@ export function designSpawnEnv(hostRoot: string): NodeJS.ProcessEnv {
     env.DSH_HOME = home;
   }
   return env;
+}
+
+/**
+ * The settings-panel bridge mode (design-settings-panel S4, walkthrough-r4
+ * 2026-09-21 — skill-creator-v2's kernel-usage pattern): when the panel
+ * holds a fully-configured active route (model + provider + key), the
+ * spawn rides the app-scoped DSH_HOME (`~/.jixoai-design/dsh-home`) whose
+ * settings.yaml the bridge keeps in the kernel's NATIVE shape — the
+ * `llm-pi-ai` providers section plus the `agent-default-model` saved
+ * selection (dsh-agent-default-model's settings namespace; the headless
+ * kernel reads it at Agent creation) — and `.credentials.yaml` carries the
+ * key refs. NO patch overlay: the panel IS the provider truth. Resolved
+ * PER TURN so panel edits land on the next chat without a server restart;
+ * a missing active route falls back to the legacy env+patch lane.
+ */
+function resolveSpawnPlan(hostRoot: string, patchFile: string): { readonly args: readonly string[]; readonly env: NodeJS.ProcessEnv; readonly model: string } {
+  const bridge = activeBridgeRoute();
+  if (bridge !== null) {
+    return {
+      args: ['--profile', 'headless'],
+      env: { ...process.env, DSH_HOME: bridge.dshHome },
+      model: `${bridge.model}${bridge.effort !== undefined ? ` (${bridge.effort})` : ''} @ ${bridge.route.provider}`,
+    };
+  }
+  return {
+    args: ['--profile', 'headless', '--patch', patchFile],
+    env: designSpawnEnv(hostRoot),
+    model: process.env.JIXOAI_DESIGN_LLM_MODEL ?? DEFAULT_LLM_MODEL,
+  };
 }
 
 const INSTALL_HINT =
@@ -233,11 +263,12 @@ export function composeDshJob(message: string): string {
 }
 
 export function createDshAgent(hostRoot: string): DesignAgent {
-  const model = process.env.JIXOAI_DESIGN_LLM_MODEL ?? DEFAULT_LLM_MODEL;
   const patchFile = renderDesignPatch();
   const designDir = join(hostRoot, 'design');
   return {
-    info: () => ({ kind: 'dsh', model }),
+    // model is resolved PER TURN (bridge mode may activate/deactivate
+    // between info polls — the panel's active selection is the truth)
+    info: () => ({ kind: 'dsh', model: resolveSpawnPlan(hostRoot, patchFile).model }),
     async *chat(_sessionId: string, message: string): AsyncIterable<AgentEvent> {
       // collab-presence §5: the server registers the workspace's ai
       // Player at session start (idempotent — one 'dsh' identity whose
@@ -253,12 +284,15 @@ export function createDshAgent(hostRoot: string): DesignAgent {
       const before = snapshotPrototypes(hostRoot);
 
       yield { type: 'tool', name: 'dsh-headless', state: 'start' };
+      // per-turn plan: the settings bridge wins when the panel holds a
+      // live active route; the legacy env+patch lane is the fallback
+      const plan = resolveSpawnPlan(hostRoot, patchFile);
       const child = spawn(
         bin,
-        ['--profile', 'headless', '--patch', patchFile, composeDshJob(message)],
+        [...plan.args, composeDshJob(message)],
         {
           cwd: hostRoot,
-          env: designSpawnEnv(hostRoot),
+          env: plan.env,
         },
       );
 

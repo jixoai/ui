@@ -207,7 +207,10 @@ function surfaceOffset(surface) {
   const rect = frame.getBoundingClientRect();
   let k = 1;
   const kitDoc = frame.contentDocument;
-  if (kitDoc !== null) {
+  // documentElement is null mid-(re)load (about:blank transition) — the
+  // lens falls back to 1 and a later frame re-measures (applyBrandHueTo's
+  // null-guard family; matrix PAGEERROR gate caught the live race)
+  if (kitDoc !== null && kitDoc.documentElement !== null) {
     const kitW = kitDoc.documentElement.clientWidth;
     if (kitW > 0 && rect.width > 0) k = rect.width / kitW;
   }
@@ -258,6 +261,7 @@ export function resolveAttentionBox(attention) {
   for (const frame of frames) {
     const doc = frame.contentDocument;
     if (doc === null) continue; // cross-origin — not ours
+    if (doc.documentElement === null) continue; // mid-(re)load — the ring retry re-scans later
     const el = doc.querySelector(idSelector);
     if (el === null) continue;
     const rect = frame.getBoundingClientRect();
@@ -277,6 +281,7 @@ export function resolveAttentionBox(attention) {
     if (frames.includes(frame)) continue; // the named miss is not retried
     const doc = frame.contentDocument;
     if (doc === null) continue; // cross-origin — not ours
+    if (doc.documentElement === null) continue; // mid-(re)load — the ring retry re-scans later
     const el = doc.querySelector(idSelector);
     if (el === null) continue;
     const rect = frame.getBoundingClientRect();

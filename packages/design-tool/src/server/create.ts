@@ -38,6 +38,7 @@ import { agentMiddleware } from '../agent/sse.ts';
 import { loadKnowledgePack } from '../knowledge/knowledge.ts';
 import { promotionStatus } from '../pipeline/promote.ts';
 import { collabApiMiddleware } from './collab-api.ts';
+import { dshSettingsApiMiddleware } from './settings/dsh-settings-api.ts';
 import { openCollabHost, viteWatcherAdapter, type CollabHost } from './collab-host.ts';
 import { metaMiddleware } from './meta/endpoint.ts';
 import type { DesignHostInfo } from './probe.ts';
@@ -138,6 +139,10 @@ function designSurfacesPlugin(host: DesignHostInfo, agent: DesignAgent, collab: 
       // retired with the panel's migration)
       server.middlewares.use(metaMiddleware(host));
       server.middlewares.use(collabApiMiddleware(() => collab.host));
+
+      // the settings panel's dsh lane (design-settings-panel S2): GET/
+      // POST settings + credential set/clear + connection test
+      server.middlewares.use(dshSettingsApiMiddleware());
 
       server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
         const pathname = (req.url ?? '').split('?')[0]!;

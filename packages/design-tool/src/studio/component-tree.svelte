@@ -550,7 +550,9 @@
 
 <!-- bind:this feeds syncRowRibbons — the P6 ribbon's row-level carry -->
 <section class="tree" bind:this={treeRoot}>
-  <header class="tree-head">{canvas ?? 'canvas'}</header>
+  <!-- the section title (Owner walkthrough-r4): reads as LAYERS — the
+       pages/components tree's identity, not the canvas name -->
+  <header class="tree-head">layers</header>
   {#if frames.length === 0}
     <Empty
       density="xs"
