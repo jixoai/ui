@@ -124,7 +124,12 @@
   const keyPresent = $derived(selected !== null && (doc?.keyPresence[selected] ?? false));
   const activeRoute = $derived(routes.find((route) => route.provider === activeProvider) ?? null);
   const activeModelEntry = $derived(activeRoute?.models.find((entry) => entry.id === activeModel) ?? null);
-  const effortOptions = $derived(activeModelEntry?.efforts ?? []);
+  // the effort select's options read the DRAFT when the model is open in
+  // the editor (its capabilities ARE the draft's — a cleared efforts list
+  // is the capability being REMOVED, and the normalization effect drops
+  // the saved selection with it); other routes fall back to the saved entry
+  const activeModelDraft = $derived(modelsDraft.find((entry) => entry.id === activeModel) ?? null);
+  const effortOptions = $derived(activeModelDraft !== null ? (activeModelDraft.efforts ?? []) : (activeModelEntry?.efforts ?? []));
 
   const endpointDirty = $derived(
     selectedRoute !== null && (baseURLDraft.trim() !== selectedRoute.baseURL || apiDraft !== (selectedRoute.api ?? API_PROTOCOLS[0])),
@@ -172,11 +177,33 @@
   }
 
   /** runtime decoder for every settings response (the fetch boundary —
-   *  no `payload as SettingsDoc` leaps; Codex r4 P2-3) */
+   *  no `payload as SettingsDoc` leaps; field-level so a malformed route
+   *  entry dies HERE as a rejection, not later in a derived as a pageerror.
+   *  Codex r4-2 P2-3) */
   function asSettingsDoc(value: unknown): SettingsDoc | null {
     if (typeof value !== 'object' || value === null) return null;
     const doc = value as Record<string, unknown>;
-    if (doc.configVersion !== 1 || !Array.isArray(doc.modelRoutes) || typeof doc.keyPresence !== 'object' || doc.keyPresence === null) return null;
+    if (doc.configVersion !== 1 || !Array.isArray(doc.modelRoutes) || typeof doc.revision !== 'number') return null;
+    const presence = doc.keyPresence;
+    if (typeof presence !== 'object' || presence === null) return null;
+    for (const [k, v] of Object.entries(presence)) {
+      if (typeof k !== 'string' || typeof v !== 'boolean') return null;
+    }
+    for (const route of doc.modelRoutes) {
+      if (typeof route !== 'object' || route === null) return null;
+      const r = route as Record<string, unknown>;
+      if (typeof r.provider !== 'string' || typeof r.baseURL !== 'string' || !Array.isArray(r.models)) return null;
+      if (r.api !== undefined && typeof r.api !== 'string') return null;
+      for (const model of r.models) {
+        if (typeof model !== 'object' || model === null) return null;
+        const m = model as Record<string, unknown>;
+        if (typeof m.id !== 'string') return null;
+      }
+    }
+    const active = doc.model;
+    if (active !== null && active !== undefined) {
+      if (typeof active !== 'object' || typeof (active as Record<string, unknown>).provider !== 'string' || typeof (active as Record<string, unknown>).model !== 'string') return null;
+    }
     return value as SettingsDoc;
   }
 
@@ -456,7 +483,10 @@
     if (route !== undefined && !route.models.some((entry) => entry.id === activeModel)) {
       activeModel = route.models[0]?.id ?? '';
       activeEffort = '';
-    } else if (route !== undefined && effortOptions.length > 0 && !effortOptions.includes(activeEffort)) {
+    } else if (route !== undefined && !effortOptions.includes(activeEffort)) {
+      // capability REMOVED (efforts cleared or no longer offering the
+      // saved level) — the saved effort must drop with it (Codex r4-2
+      // P1-1: a stranded effort gets the profile refused at spawn time)
       activeEffort = '';
     }
   });

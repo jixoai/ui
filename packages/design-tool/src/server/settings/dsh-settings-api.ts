@@ -23,6 +23,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   DSH_ROUTE_API_PROTOCOLS,
   DSH_THINKING_LEVELS,
+  dshRouteApiKeyEnv,
   loadDshSettings,
   saveDshSettings,
   setRouteCredential,
@@ -100,19 +101,59 @@ function activeFromJson(value: unknown): DshActiveModel | null {
   return { ...base, reasoningEffort: value.reasoningEffort };
 }
 
+/** control characters can break the bridge's YAML scalars even quoted —
+ *  rejected at the door (Codex r4-2 P2-2's provider/baseURL newline case) */
+function assertCleanString(value: string, field: string): void {
+  if (/[\u0000-\u001f\u007f]/.test(value)) throw new RequestError(`${field} must not contain control characters`);
+}
+
 function settingsFromBody(value: unknown): DshSettings {
   if (!isObj(value)) throw new RequestError('body must be a JSON object');
   if (!Array.isArray(value.modelRoutes)) throw new RequestError('modelRoutes (array) is required');
   const modelRoutes = value.modelRoutes.map((route, index) => routeFromJson(route, `modelRoutes[${index}]`));
+  // UNIQUENESS gates (Codex r4-2 P1-3): duplicate providers/model ids/
+  // efforts would emit duplicate YAML mappings the kernel cannot parse,
+  // and providers collapsing onto ONE credential ref (a-b vs a_b) would
+  // cross-wire their keys on the bridge
+  const providersSeen = new Set<string>();
+  const refOwners = new Map<string, string>();
+  for (const route of modelRoutes) {
+    assertCleanString(route.provider, 'provider');
+    assertCleanString(route.baseURL, 'baseURL');
+    if (providersSeen.has(route.provider)) throw new RequestError(`duplicate provider "${route.provider}" in modelRoutes`);
+    providersSeen.add(route.provider);
+    const ref = dshRouteApiKeyEnv(route.provider);
+    const owner = refOwners.get(ref);
+    if (owner !== undefined) throw new RequestError(`providers "${owner}" and "${route.provider}" collapse onto the same credential ref ${ref} — rename one`);
+    refOwners.set(ref, route.provider);
+    const idsSeen = new Set<string>();
+    for (const entry of route.models) {
+      assertCleanString(entry.id, 'models[].id');
+      if (entry.name !== undefined) assertCleanString(entry.name, 'models[].name');
+      if (idsSeen.has(entry.id)) throw new RequestError(`duplicate model id "${entry.id}" in route "${route.provider}"`);
+      idsSeen.add(entry.id);
+      if (entry.efforts !== undefined) {
+        const levelsSeen = new Set<string>();
+        for (const level of entry.efforts) {
+          if (levelsSeen.has(level)) throw new RequestError(`duplicate effort "${level}" on model "${entry.id}"`);
+          levelsSeen.add(level);
+        }
+      }
+    }
+  }
   const model = activeFromJson(value.model);
   // the active model must reference a route we are saving (referential
   // integrity at the door — the bridge query relies on it)
   if (model !== null) {
     const route = modelRoutes.find((candidate) => candidate.provider === model.provider);
     if (route === undefined) throw new RequestError(`model.provider "${model.provider}" has no route in modelRoutes`);
-    if (!route.models.some((entry) => entry.id === model.model)) throw new RequestError(`model.model "${model.model}" is not in route "${model.provider}".models`);
-    if (model.reasoningEffort !== undefined && route.models.some((entry) => entry.id === model.model && entry.efforts !== undefined && !entry.efforts.includes(model.reasoningEffort!))) {
-      throw new RequestError(`model.reasoningEffort "${model.reasoningEffort}" is not offered by "${model.model}"`);
+    const entry = route.models.find((candidate) => candidate.id === model.model);
+    if (entry === undefined) throw new RequestError(`model.model "${model.model}" is not in route "${model.provider}".models`);
+    // UNIFORM effort law (Codex r4-2 P1-1): a saved effort requires the
+    // model to DECLARE efforts including it — an undeclared capability
+    // gets the whole profile refused by the kernel at spawn time
+    if (model.reasoningEffort !== undefined && (entry.efforts === undefined || !entry.efforts.includes(model.reasoningEffort))) {
+      throw new RequestError(`model.reasoningEffort "${model.reasoningEffort}" is not offered by "${model.model}" (the model must declare it in efforts)`);
     }
   }
   return { configVersion: 1, revision: loadDshSettings().revision, model, modelRoutes };
