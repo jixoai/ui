@@ -19,7 +19,7 @@
 
 import { strict as assert } from 'node:assert';
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer, type AddressInfo } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -29,6 +29,8 @@ import YAML from 'yaml';
 
 import {
   activeBridgeRoute,
+  atomicWrite,
+  BridgeLockError,
   dshRouteApiKeyEnv,
   designDshHome,
   designStewardDir,
@@ -36,6 +38,7 @@ import {
   saveDshSettings,
   setRouteCredential,
   settingsView,
+  withBridgeLock,
   type DshModelRoute,
   type DshSettings,
 } from './dsh-settings.ts';
@@ -663,6 +666,111 @@ test('r4-3 P2-2: concurrent multi-process credential writes lose no keys (lock +
       // bridge face: all 20 refs
       const cred = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
       for (let i = 0; i < 20; i += 1) assert.equal(cred.refs?.[`JIXOAI_DESIGN_ROUTE_KEY_P${i}`], `sk-p${i}`, `bridge ref p${i}`);
+    });
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+/* ── Codex r4 round-4 — the stale-lock ABA family ─────────────────────── */
+
+test('r4-4 P1: a mid-cycle lock theft aborts the fenced write and never unlinks the foreign lock', () => {
+  const home = freshHome();
+  try {
+    inHome(home, () => {
+      const target = join(home, 'fence-target.json');
+      const lock = `${target}.lock`;
+      assert.throws(
+        () =>
+          withBridgeLock(target, () => {
+            // the stall window: another writer takes the lock over —
+            // replace our token with a foreign one outright
+            writeFileSync(lock, 'someone-else', { flag: 'w' });
+            // the fenced write: tmp stages fine, the RENAME must refuse
+            atomicWrite(target, '{"stale":true}\n');
+          }),
+        (error: unknown) => error instanceof BridgeLockError,
+        'the stalled owner must abort with BridgeLockError',
+      );
+      // the fenced rename never landed and the foreign lock SURVIVES (the
+      // ABA fence — release only unlinks our own token)
+      assert.equal(existsSync(target), false, 'the fenced rename never landed');
+      assert.equal(readFileSync(lock, 'utf8'), 'someone-else', 'the foreign lock must not be unlinked');
+      rmSync(lock, { force: true });
+    });
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('r4-4 P1: the real stalled-writer takeover — the resumed old writer loses to the new owner', async () => {
+  const home = freshHome();
+  try {
+    await inHome(home, async () => {
+      saveDshSettings({
+        configVersion: 1,
+        revision: 0,
+        model: null,
+        modelRoutes: [
+          { provider: 'a', baseURL: 'https://a.example/', models: [{ id: 'm' }] },
+          { provider: 'b', baseURL: 'https://b.example/', models: [{ id: 'm' }] },
+        ],
+      });
+      // writer A acquires the credential lock and parks inside the cycle
+      // (the SIGSTOP stand-in); past the stale TTL, B takes over and
+      // lands; A resumes and its fenced rename must ABORT
+      const script = [
+        "import { writeFileSync, existsSync } from 'node:fs';",
+        "import { createRequire } from 'node:module';",
+        "const req = createRequire(import.meta.url);",
+        "const m = req('/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/packages/design-tool/src/server/settings/dsh-settings.ts');",
+        "const home = process.argv[1];",
+        "const cred = home + '/dsh-home/.credentials.yaml';",
+        "m.withBridgeLock(cred, () => {",
+        "  writeFileSync(home + '/stopped', 'stalled');",
+        "  while (!existsSync(home + '/resume')) {}", // parked past the stale TTL
+        "  m.atomicWrite(cred, 'version: 1\\nrefs:\\n  OLD: stale-clobber\\n');", // must hit the fence
+        "});",
+        "process.exit(0);",
+      ].join('\n');
+      const stalled = spawn(process.execPath, ['--input-type=module', '-e', script, '--', home], {
+        env: { ...process.env, JIXOAI_DESIGN_HOME: home },
+      });
+      for (let i = 0; i < 100 && !existsSync(join(home, 'stopped')); i += 1) await new Promise((r) => setTimeout(r, 50));
+      assert.equal(existsSync(join(home, 'stopped')), true, 'A parked inside the lock');
+      await new Promise((r) => setTimeout(r, 5400)); // past LOCK_STALE_MS
+      setRouteCredential('b', 'sk-new-b');
+      const credB = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
+      assert.equal(credB.refs?.JIXOAI_DESIGN_ROUTE_KEY_B, 'sk-new-b', 'B landed while A stalled');
+      // resume A — its stale write must ABORT at the fence
+      writeFileSync(join(home, 'resume'), 'go');
+      const codeA = await new Promise<number | null>((resolve) => stalled.on('exit', resolve));
+      assert.notEqual(codeA, 0, 'the resumed stale writer must fail, not exit clean');
+      const credAfter = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
+      assert.equal(credAfter.refs?.JIXOAI_DESIGN_ROUTE_KEY_B, 'sk-new-b', "B's key survives A's resumed write");
+      assert.equal(credAfter.refs?.OLD, undefined, "A's stale payload never landed");
+    });
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('r4-4 P2-2: lock contention beyond the budget surfaces as 503, not a silent stall', async () => {
+  const home = freshHome();
+  try {
+    await inHome(home, async () => {
+      saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [API_ROUTE_BODY] });
+      // a FRESH foreign lock (mtime now — no stale takeover possible)
+      const lock = `${join(designDshHome(), 'settings.yaml')}.lock`;
+      mkdirSync(designDshHome(), { recursive: true });
+      writeFileSync(lock, 'someone-else', { flag: 'w' });
+      const started = Date.now();
+      const response = await resolveDshSettingsApiRequest('dsh.json', 'POST', { model: null, modelRoutes: [API_ROUTE_BODY] });
+      const waited = Date.now() - started;
+      assert.equal(response.status, 503);
+      assert.equal((response.body as { reason: string }).reason, 'lock-timeout');
+      assert.ok(waited < 7000, `bounded wait (~5s budget), took ${waited}ms`);
+      rmSync(lock, { force: true });
     });
   } finally {
     rmSync(home, { recursive: true, force: true });

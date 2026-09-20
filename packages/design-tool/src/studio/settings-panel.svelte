@@ -286,11 +286,16 @@
   async function save(): Promise<void> {
     if (doc === null || selectedRoute === null || saving) return;
     // explicit validity check at the commit edge — the disabled button is
-    // UX, this is the law (Codex r4-3 P2-3: never lean on a UI prior)
-    const models = modelsDraft.map((entry) => normalizedModel(entry));
-    if (models.some((entry) => entry === null)) {
-      rejection = 'a model entry is invalid — fix the highlighted fields (id, numbers, effort levels) before saving';
-      return;
+    // UX, this is the law; the loop builds a typed array (no `.some()`
+    // narrowing leap, Codex r4-4 P2-1)
+    const models: ModelEntry[] = [];
+    for (const entry of modelsDraft) {
+      const normalized = normalizedModel(entry);
+      if (normalized === null) {
+        rejection = 'a model entry is invalid — fix the highlighted fields (id, numbers, effort levels) before saving';
+        return;
+      }
+      models.push(normalized);
     }
     saving = true;
     rejection = null;

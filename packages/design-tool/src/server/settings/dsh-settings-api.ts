@@ -21,6 +21,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import {
+  BridgeLockError,
   DSH_ROUTE_API_PROTOCOLS,
   DSH_THINKING_LEVELS,
   dshRouteApiKeyEnv,
@@ -212,6 +213,9 @@ export async function resolveDshSettingsApiRequest(route: string, method: string
     return { status: 404, body: { ok: false, reason: 'not-found', message: route } };
   } catch (error) {
     if (error instanceof RequestError) return { status: 400, body: { ok: false, reason: 'bad-request', message: error.message } };
+    // lock contention is TRANSIENT and bounded (~5s worst wait) — the
+    // honest answer is 503 + retry guidance, not a 500 (Codex r4-4 P2-2)
+    if (error instanceof BridgeLockError) return { status: 503, body: { ok: false, reason: 'lock-timeout', message: `${error.message} — another writer holds the settings lock; retry shortly`, retryAfterMs: 1000 } };
     return { status: 500, body: { ok: false, reason: 'internal', message: error instanceof Error ? error.message : String(error) } };
   }
 }

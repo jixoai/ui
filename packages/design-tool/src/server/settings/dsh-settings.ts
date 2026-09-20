@@ -104,13 +104,27 @@ function dshCredentialsYaml(): string {
   return join(designDshHome(), '.credentials.yaml');
 }
 
-/* ── cross-process write discipline (Codex r4-3 P2-2) ────────────────
+/* ── cross-process write discipline (Codex r4-3 P2-2, r4-4 P1) ────────
  * Two design servers (or a server racing an external writer) share these
  * files; fixed `.tmp` names cross-rename into ENOENT and unlocked
  * read-modify-write loses whole keys. Every RMW cycle rides an O_EXCL
- * lockfile (stale locks are broken after 5s) and every replacement uses
- * a UNIQUE temp name — the kernel's credentials-local `withFileLock`
- * pattern, hand-rolled without a new dependency. */
+ * lockfile carrying a random OWNER TOKEN: stale takeover claims the path
+ * by ATOMIC RENAME (only one breaker wins), a stalled owner re-checks its
+ * token before EVERY rename (write fencing — a stolen cycle aborts
+ * instead of clobbering the new owner's data), and release only unlinks
+ * the lock while it still carries OUR token (the ABA fence). */
+
+/** the lock's total wait budget — the sync lane stalls at most this long
+ *  before answering a typed error the API maps to 503 + Retry-After.
+ *  Deliberately BELOW the stale TTL: a waiter gives up before its lock
+ *  becomes takeover-eligible, so it never races the breaker role */
+const LOCK_WAIT_MS = 4000;
+/** a holder stalled longer than this is presumed dead and broken */
+const LOCK_STALE_MS = 5000;
+
+/** raised when the lock could not be taken within the budget (the API
+ *  lane answers 503 + Retry-After, never a silent long stall) */
+export class BridgeLockError extends Error {}
 
 /** a per-writer temp sibling of `file` — two concurrent writers never
  *  collide on the staging path */
@@ -123,37 +137,71 @@ function sleepSync(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
+/**
+ * The write fence active for THIS process's in-flight locked cycle (JS is
+ * single-threaded — at most one cycle runs at a time). atomicWrite calls
+ * it right before the rename lands: if our lock was stolen while we were
+ * stalled, the rename is refused instead of clobbering the new owner.
+ */
+let activeFence: (() => void) | null = null;
+
+/** write-then-rename with a unique staging name, fenced against a lost
+ *  lock ownership race (rename refuses when our token no longer holds) */
+export function atomicWrite(file: string, text: string, mode?: number): void {
+  const target = uniqueTmp(file);
+  writeFileSync(target, text, mode === undefined ? {} : { mode });
+  activeFence?.();
+  renameSync(target, file);
+}
+
 /** serialize a read-modify-write cycle across processes */
-function withBridgeLock<T>(file: string, run: () => T): T {
+export function withBridgeLock<T>(file: string, run: () => T): T {
   const lock = `${file}.lock`;
+  const token = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`;
   mkdirSync(dirname(file), { recursive: true });
-  for (let attempt = 0; ; attempt += 1) {
+  const stillOurs = (): boolean => {
     try {
-      closeSync(openSync(lock, 'wx'));
+      return readFileSync(lock, 'utf8') === token;
+    } catch {
+      return false;
+    }
+  };
+  const started = Date.now();
+  for (;;) {
+    try {
+      writeFileSync(lock, token, { flag: 'wx' });
       break;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-      // break a stale lock (holder died mid-cycle); the 5s budget is far
-      // above any honest hold time for these small files
-      try {
-        if (Date.now() - statSync(lock).mtimeMs > 5000) rmSync(lock, { force: true });
-      } catch { /* lock vanished — retry takes it */ }
-      if (attempt > 400) throw new Error(`bridge lock contention on ${file}`);
-      sleepSync(25);
     }
+    // stale takeover: ONLY the writer whose atomic rename wins the claim
+    // breaks the lock — a plain unlink would let two breakers through
+    try {
+      const st = statSync(lock);
+      if (Date.now() - st.mtimeMs > LOCK_STALE_MS) {
+        const aside = `${lock}.stale.${token}`;
+        renameSync(lock, aside); // ENOENT → another breaker won → retry
+        rmSync(aside, { force: true });
+        continue;
+      }
+    } catch { /* lock vanished or the claim raced — loop */ }
+    if (Date.now() - started > LOCK_WAIT_MS) throw new BridgeLockError(`bridge lock contention on ${file}`);
+    sleepSync(25);
   }
+  const previousFence = activeFence;
+  activeFence = (): void => {
+    if (!stillOurs()) throw new BridgeLockError(`bridge lock ownership lost on ${file} — aborting the write instead of clobbering the new owner`);
+  };
   try {
-    return run();
+    const result = run();
+    // a completed cycle whose ownership was stolen mid-flight must still
+    // not report success — the final commit check mirrors the fence
+    activeFence();
+    return result;
   } finally {
-    rmSync(lock, { force: true });
+    activeFence = previousFence;
+    if (stillOurs()) rmSync(lock, { force: true }); // the ABA fence — never unlink a foreign lock
   }
-}
-
-/** write-then-rename with a unique staging name */
-function atomicWrite(file: string, text: string, mode?: number): void {
-  const target = uniqueTmp(file);
-  writeFileSync(target, text, mode === undefined ? {} : { mode });
-  renameSync(target, file);
 }
 
 /** route provider → the DSH credential ref name (skill-creator's law:
