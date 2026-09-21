@@ -36,15 +36,20 @@ dialog, sheet, popover, tooltip, hover-card, popconfirm, system-dialog,
 dropdown-menu, menubar, navigation-menu, toast, scaffold-float,
 float-button, glass, progressive-blur, terminal-card/header/footer.
 
-## Batch D — long tail (the rest, ~15/round)
+## Batch D — long tail (the rest, ~15/round; families NOT already in A/B/C)
 
-carousel, cascader (UI shell beyond native mode), chart, code-card, color-
-utils, command, descriptions, empty, figure, grid, hero-section, language-
-switcher, list, list-item, markdown, math-block/inline, mermaid, pagination,
-pattern-* (cta/faq/hero-set/login/pricing), progress, prose, prototype-*,
-reference, result, scroll-*, section-card, select, stack, statistic, steps,
-table, tabs, tags-input, timeline, toc, token-table, tour, transfer,
-tree-view, website-scaffold, props-table, a11y-table, docs infra…
+carousel, chart, code-card, color-utils, command, descriptions, empty,
+figure, grid, hero-section, language-switcher, list, list-item, markdown,
+math-block, math-inline, mermaid, pagination, pattern-* (cta/faq/hero-set/
+login/pricing), progress, prose, prototype-* (flex/grid/kit/waterfall),
+reference, result, scroll-area, scroll-run, scroll-virtual, section-card,
+select, stack, statistic, steps, table, tabs, timeline, toc, token-table,
+tour, transfer, tree-view, website-scaffold, props-table, a11y-table,
+density-demo, docs infra loose files (docs-pager, docs-sections-nav,
+search-palette).
+
+> The canonical partition is `universal-props.inventory.json` (W0, task
+> 0.7) — this section is the draft map; on conflict the inventory wins.
 
 ## The one-off prop mappings (design §13)
 

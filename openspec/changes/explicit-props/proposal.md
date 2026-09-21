@@ -60,8 +60,8 @@ design system. 显式的不是值，而是「我要偏离上下文」这个意�
   doc pages** under `apps/www/src/routes/docs/components/*.html/`.
 - **Near-universal today**: `density?: Density` via `densitySlot`
   (`explicit ?? ambient ?? own`, the 「无意见不盖章」fleet law) — ~60
-  `*-defaults.svelte.ts` consumers; density channels consumed in **112
-  files**. THE INHERITANCE MECHANISM ALREADY EXISTS at fleet scale (ambient
+  `*-defaults.svelte.ts` consumers; density channels consumed in **115
+  files** (the nine-channel receipt, proposal's census block). THE INHERITANCE MECHANISM ALREADY EXISTS at fleet scale (ambient
   slots) — this change GENERALIZES it, it does not invent it.
 - **No `size` vocabulary to retire at scale** — the feared `lg|default|xs|xss`
   migration is actually the DENSITY rung names (`Density = 'lg'|'default'|'sm'|

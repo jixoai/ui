@@ -19,7 +19,9 @@
 >   values, §9. Usable on ANY axis, wraps ANY lane.
 
 The axes: `size · shape · radius · density · color · theme · elevation ·
-motion`. The per-axis TYPE CONTRACT (frozen — Codex r1 B1):
+motion`.
+
+### §0.1 The per-axis type table (frozen — Codex r1 B1, r3 audit)
 
 | axis | value type | number unit | raw lane | default |
 |---|---|---|---|---|
@@ -69,8 +71,9 @@ LAWS:
   carries the INTENT; the CSS custom properties carry the RENDER. They are
   two channels of one resolution: the slot resolves the lane, stamps the
   carrier vars as static strings (SSR-safe: no hydration mismatch — vars
-  are data, computed once at render). Nested override = inner slot wins,
-  exactly like `densitySlot` today.
+  are data, static within a render; a runtime context change re-renders
+  and re-stamps, the reactive-density precedent). Nested override = inner
+  slot wins, exactly like `densitySlot` today.
 - **Native collision rule**: on native-element wrappers (`<input>`, `<select>`
   …), the component's `size` prop is consumed by the family and NEVER
   forwarded; the native attribute keeps working only via explicit rest
@@ -220,21 +223,25 @@ LAWS:
 
 ```ts
 // the public API (ships from the kernel lib; the component props accept
-// the return value on every axis). Keys are BRANDED — the grammar is
-// enforced by the type AND diagnosed at build/runtime (Codex r2 B4):
-//   media:    "sm" | "md" | "lg" | <registered viewport scale name>
-//   container:"@sm" | "@md" | … | "@sm/card" (size-first, slash, name)
-// duplicate keys, unknown scale names, or unordered-mixed scales are
-// BUILD ERRORS listing the offending key and the registered scale table.
+// the return value on every axis). The DEFAULT scales are literal unions;
+// plugin-registered scales widen them at BUILD time (Codex r3 B3 — the
+// grammar rejects free-form strings):
+type ViewportScale = 'xs' | 'sm' | 'md' | 'lg';            // the registered default table
+type ContainerScale = '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';  // --container-* scale
+declare const brand: unique symbol;
+export type MediaQueryKey  = ViewportScale & { [brand]?: 'media' };
+export type ContainerQueryKey = `${'@'}${ContainerScale}` | `@${ContainerScale}/${string}` & { [brand]?: 'container' };
+export type QueryKey = MediaQueryKey | ContainerQueryKey;
+// unknown scale names / duplicate keys / '@name' without '/' in a named
+// context = BUILD errors listing the offending key AND the registered
+// scale tables (the plugin's registration is the compiler's dictionary).
 type AxisName = 'size' | 'shape' | 'radius' | 'density' | 'color' | 'theme' | 'elevation' | 'motion';
-type QueryKey = `${'' | '@'}${string}` | `@${string}/${string}`;   // validated, not free-form intent
 type QueryCase<T> = readonly [key: QueryKey, value: T];
 interface AxisQuery<T> { readonly $query: true; readonly axis: AxisName; readonly cases: readonly QueryCase<T>[]; readonly base: T }
 declare function query<T>(cases: Record<QueryKey, T>): AxisQuery<T | undefined> & { readonly base: undefined };
 declare function query<T>(cases: Record<QueryKey, T>, base: T): AxisQuery<T>;
 // overloads: omitting base yields base: undefined → the consumer renders
-// the AXIS DEFAULT (auto) unconditionally first; a bare string/number lane
-// value never needs query()
+// the AXIS DEFAULT (auto) unconditionally first
 ```
 
 - **Parse**: the object-literal form is sugar; `query()` normalizes to an
@@ -248,12 +255,15 @@ declare function query<T>(cases: Record<QueryKey, T>, base: T): AxisQuery<T>;
   collapse, per research/tailwind-container-syntax.md).
 - **SSR first paint**: the server renders `base` (or the first unconditional
   lane) as the inline var value — a correct-if-unresponsive first paint.
-- **The JS shim shell** (the Owner's 垫片 lane): a progressive module
-  (`universal-props/query-shim`) loaded ONLY when (a) the build could not
-  desugar (dynamic keys, exotic conditions) or (b) a consumer tree failed
-  the container-supply check at runtime audit. The shim re-applies the
-  ladder with a ResizeObserver per unresolved `@` key — idempotent, no
-  hydration mismatch (it only writes vars post-paint).
+- **The JS shim shell** (the Owner's 垫片 lane), module API frozen:
+  `import { auditTree, mountQueryShim } from '@jixoai/ui-vite-plugin/universal-props/query-shim'`
+  — `auditTree(root)` walks the DOM for `[data-jx-query]` instances whose
+  `@` keys lack a qualifying ancestor container (dev-mode console warning,
+  the build-time check's runtime twin); `mountQueryShim(instance)` installs
+  one ResizeObserver per unresolved `@` key, writing the winning lane's
+  vars post-paint (idempotent, no hydration mismatch — it only rewrites
+  vars AFTER hydration). Load condition: dynamic `import()` ONLY where the
+  build flagged un-desugarable cases (emitted as a per-route manifest).
 - **Missing named container** (`@sm/card` with no `container-name: card`
   ancestor): the case never matches (CSS semantics); the build warns, the
   shim logs once in dev.
@@ -274,8 +284,14 @@ is the canonical example). Consequences:
   vocabulary only).
 - SSR/zero-JS by construction (values are data in the cascade); the JS shim
   of §9 is the only runtime surface, and it is a fallback.
-- stylex/tokens pipeline compatibility: the axes land as typed token members
-  + slot helpers, not as per-component style objects.
+- **The stylex closure** (Codex r3 note): per-INSTANCE values cannot be
+  static atoms — the split is: the axis THEME surface (alias defaults,
+  ladder, composition layers) lands as typed token members consumed by
+  atoms/lane-2 sheets exactly like today's channels; the per-instance
+  resolved values arrive as INLINE `style` attribute vars on the family
+  root (Svelte template strings — SSR-safe, the press-effect/props-table
+  inline-var precedents). stylex never sees instance values; it consumes
+  the vars they define.
 
 ## §11 The broadcast protocol — 「吃也供」(the authoring law)
 
@@ -289,14 +305,18 @@ this table is the frozen contract; W1 implements it and syncs
 | size | `jx.size` | `--jx-size-effective` (font-size + the var) | `:root{--jx-size-effective:1rem}` |
 | shape | `jx.shape` | `--jx-shape-effective` | `:root{--jx-shape-effective:round}` |
 | radius | `jx.radius` | `--jx-radius-effective` + `--jx-inset-effective` | both `0px` (§3 fallback law) |
-| density | `jx.density` (today's) | the `data-density` scope stamp (unchanged) | `default` rung |
+| density | `jx.density` (today's) | the `data-density` scope stamp + `--jx-density-coefficient` (default 1) | `default` rung · coefficient 1 |
 | color | `jx.color` | `--jx-color-effective` (a resolved hue/color value) | `var(--primary)` |
 | theme | `jx.theme` | the `.dark` class scope (existing bridge) | OS/media default |
 | elevation | `jx.elevation` | `--jx-elevation-effective` (level number) | `0` |
 | motion | `jx.motion` | `--jx-motion-effective` (intensity) | `normal` |
 
 Plus `container-type` where the family is a layout container (the `@`
-query fuel). Generalized slot helpers land in `defaults.svelte.ts` beside
+query fuel). **The honest W1 delta** (Codex r3 B2): today's theme knows
+NEITHER the `-base` split nor the coefficient — W1 converts the existing
+five-rung scope blocks to define the `-base` channels and adds the
+effective-channel composition layer verbatim per §4's frozen pattern; the
+supply row above is the POST-W1 contract. Generalized slot helpers land in `defaults.svelte.ts` beside
 `densitySlot` (`sizeSlot`, `radiusSlot`, `colorSlot`, `shapeSlot`,
 `elevationSlot`, `motionSlot` — same `explicit ?? ambient ?? own` fleet
 law, same 「无意见不盖章」). Explicit prop > ambient context > own default,
@@ -348,23 +368,38 @@ contradiction with §10's zero-class-identity law): the kernel ships the
 ladder twice, gated by CSS itself —
 
 ```css
-@supports (corner-shape: bevel)      { :root { --jx-shape-scoop: scoop;  --jx-radius-factor: 1; } }
-@supports not (corner-shape: bevel)  { :root { --jx-shape-scoop: square; --jx-radius-factor: 1; } }
-/* squircle only: factor 2 in the first block, 1 in the second — the ×2
-   law and its degrade reversal ride the SAME var */
+/* the ladder — per-shape factors, NOT one global factor (Codex r3 B4) */
+@supports (corner-shape: bevel) {
+  :root {
+    --jx-radius-factor-round: 1;
+    --jx-radius-factor-squircle: 2;   /* the ×2 law, live */
+    --jx-shape-scoop: scoop;          /* alias ladder intact */
+  }
+}
+@supports not (corner-shape: bevel) {
+  :root {
+    --jx-radius-factor-round: 1;
+    --jx-radius-factor-squircle: 1;   /* degrade reversal, same var */
+    --jx-shape-scoop: square;
+  }
+}
 ```
 
-**The consumption chain is frozen** (Codex r2 — families read the ladder,
-never the capability): family CSS writes
-`corner-shape: var(--jx-corner-<n>)` (the alias vars, composed from the
-ladder at the plugin sheet) and
-`border-radius: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor, 1))`
-— so capability verdict, alias choice, squircle ×2 and degrade reversal
-are all pure var composition, one auditable chain, zero branches.
+**The consumption chain is frozen** (Codex r2/r3 — families read the
+ladder, never the capability): the SHAPE lane resolution stamps, as a
+static per-render string,
+`--jx-radius-factor-effective: var(--jx-radius-factor-<resolved-shape>)`
+(the resolved literal picks the alias) — family CSS then writes
+`corner-shape: var(--jx-corner-<n>)` (composed from the alias ladder) and
+`border-radius: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))`.
+Capability verdict, alias choice, squircle ×2 and degrade reversal are
+pure var composition, one auditable chain, zero branches: supported +
+squircle → r×2; degraded + squircle → r×1 round; round → r×1 always.
 
 No runtime detection, no class identities, the ratchet stays unmoved, and
-the squircle ×2 factor rides the same vars (`--jx-radius-factor: 2` vs `1`)
-so its degrade reversal is automatic.
+the ×2 law rides the PER-SHAPE factor vars
+(`--jx-radius-factor-squircle: 2` supported vs `1` degraded) so its
+reversal is automatic.
 
 **Existing component-level probes are REGISTERED EXCEPTIONS, absorbed in
 W2** (Codex r1 B7): `press-effect-runtime.ts`'s inline
@@ -415,12 +450,24 @@ export interface UniversalAxisDoc {
   numberUnit: 'px' | 'coefficient' | 'dp' | 'hue' | null;
   rawLane: boolean;                    // color only, true
 }
-export const UNIVERSAL_AXES: readonly UniversalAxisDoc[] = [/* 8 rows */];
+// The shipped rows, verbatim (§0.1 is the source; labels/descriptions are
+// the curated docs strings, editable ONLY here):
+export const UNIVERSAL_AXES: readonly UniversalAxisDoc[] = [
+  { axis: 'size',      label: 'Size',      description: 'the base scale — root font-size; parts size in em',            namedSteps: ['small', 'medium', 'large'],   numberUnit: 'px',         rawLane: false },
+  { axis: 'shape',     label: 'Shape',     description: 'corner geometry (CSS corner-shape; §14 degrade table)',        namedSteps: ['round', 'scoop', 'bevel', 'notch', 'square', 'squircle'], numberUnit: null, rawLane: false },
+  { axis: 'radius',    label: 'Radius',    description: 'corner size; auto = the concentric broadcast (§3)',            namedSteps: ['small', 'medium', 'large'],   numberUnit: 'px',         rawLane: false },
+  { axis: 'density',   label: 'Density',   description: 'spacing/leading scale over the kernel channels (§4)',          namedSteps: ['small', 'medium', 'large'],   numberUnit: 'coefficient', rawLane: false },
+  { axis: 'color',     label: 'Color',     description: 'the hue axis of the fixed oklch primary system (§5)',           namedSteps: ['primary', 'secondary', 'error', 'warn', 'success', 'info'], numberUnit: 'hue', rawLane: true },
+  { axis: 'theme',     label: 'Theme',     description: 'light/dark profile; system = the JS-mutable global (§6)',       namedSteps: ['light', 'dark', 'system'],    numberUnit: null,         rawLane: false },
+  { axis: 'elevation', label: 'Elevation', description: 'official M3 levels over the surface ladder (§7)',              namedSteps: ['level-1', 'level0', 'level1', 'level2', 'level3', 'level4', 'level5'], numberUnit: 'dp', rawLane: false },
+  { axis: 'motion',    label: 'Motion',    description: 'intensity across the motion kernels (§8)',                     namedSteps: ['reduced', 'subtle', 'normal', 'expressive'], numberUnit: 'coefficient', rawLane: false },
+];
 
-// ir.ts additions (ControlHint gains):
-type ControlHint = /* existing */ | 'axis-enum' | 'axis-number' | 'query-editor';
+// ir.ts additions — ControlHint's existing members transcribe verbatim at
+// W4; the CONTRACT is the three additions:
+type ControlHint = /* …the existing union, verbatim at W4… */ | 'axis-enum' | 'axis-number' | 'query-editor';
 // ComponentMeta gains:
-interface ComponentMeta { /* existing */ universal: readonly UniversalAxisDoc[]; }
+interface ComponentMeta { /* …existing fields untouched… */ universal: readonly UniversalAxisDoc[]; }
 ```
 
 1. **Generator merge rule**: `component-metadata-gen.mjs` (today: same-file
@@ -431,10 +478,14 @@ interface ComponentMeta { /* existing */ universal: readonly UniversalAxisDoc[];
    injection; hand-authored annotations may only CURATE (labels/descriptions
    overrides), never delete the block.
 2. **The inventory + exemption ledger**
-   (`universal-props.inventory.json`, beside the schema):
+   (`universal-props.inventory.json`, beside the schema — **created in W0,
+   not W4**, so W3 batches consume a canonical list; Codex r3 B7):
    `{ families: string[115], exemptions: { family: string, reason: string }[] }`
-   — a family in NEITHER list is a gate failure (this closes the
-   empty-on-missing-defaults hole Codex flagged).
+   — unique, sorted, exhaustive against the 115-dir census; a family in
+   NEITHER list is a gate failure (this closes the
+   empty-on-missing-defaults hole Codex flagged). The two fixtures (one
+   normal family's expected merged meta + one exempt family's) commit
+   beside it in W0 as the frozen expectations.
 3. **`--check` failure format** (the drift gate): one line per divergence —
    `<family>: <field> expected <value> got <value>` — plus a summary count;
    exit 1.

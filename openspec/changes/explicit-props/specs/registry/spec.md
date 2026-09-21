@@ -3,15 +3,29 @@
 ### Requirement: the universal contract in the registry data model
 
 The registry SHALL ship the alias ladder as a CONCRETE artifact chain
-(Codex r2 B6 — not deferred to W5): the shared schema
-(`registry/files/lib/universal-props.schema.ts` + the mirror) generates
-`universal-props.css` (the `--jx-<axis>-<alias>` var definitions + the
-@supports ladder), the kernel lib item CARRIES both files in its
-`files[]`, dependent items gain the `registryDependencies` edge, and a
-clean `shadcn add` installs them at the documented `@lib/` targets. The
-clean-consumer receipt asserts: install lands the CSS, a named step
-resolves through the var (not an inlined value), and a consumer override
-of the var remaps it — pure CSS, no resolver runtime.
+(Codex r2 B6, r3 sharpened — not deferred to W5). The frozen entries:
+
+```jsonc
+// registry.json — the kernel lib item (new):
+{
+  "name": "universal-props", "type": "registry:lib",
+  "files": [
+    { "path": "registry/files/lib/universal-props.schema.ts", "target": "@lib/universal-props.schema.ts" },
+    { "path": "registry/files/lib/universal-props.css",      "target": "@lib/universal-props.css" }
+  ]
+}
+// every migrated ui item gains:
+"registryDependencies": ["universal-props", "tokens", "jixoai-theme"]
+```
+
+`universal-props.css` is GENERATED from the schema (the
+`--jx-<axis>-<alias>` definitions + the §14 @supports ladder + the §4
+density composition layer). The clean-consumer receipt (task 5.4) asserts
+three things verbatim: (1) `shadcn add` lands both files at `src/lib/…`
+(the @lib targets); (2) a rendered named step REFERENCES the var
+(computed style shows `var(--jx-size-large)`, never an inlined remap
+value); (3) overriding the var in the consumer's css flips the rendered
+size — pure CSS, no resolver runtime.
 
 #### Scenario: a consumer resolves an alias from the registry
 

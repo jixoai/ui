@@ -43,9 +43,16 @@ size axis.
   resolves to the exact rung with coefficient 1, and a computed-style probe
   on `--jx-gap` shows the composed value
 
-#### Scenario: a plugin remaps a named step
+#### Scenario: the three lanes resolve distinctly (Codex r3 — never blur them)
 
-- GIVEN a consumer plugin registering `size: { large: 20 }`
-- WHEN `size="large"` renders
-- THEN the resolved root font-size follows the remap; `auto` and `42`
-  (number) behave identically to the shipped defaults
+- GIVEN a plugin registering `size: { large: 20 }` and an ambient `large`
+  context
+- WHEN `size` is omitted (or `auto`)
+- THEN the effective size inherits the ambient resolved value — identical
+  to what the tree already renders
+- WHEN `size="large"` is set explicitly
+- THEN the root font-size is the REMAPPED alias value (20px), driven
+  through `var(--jx-size-large)` (the plugin's remap redefines the var)
+- WHEN `size={42}` is set (number lane)
+- THEN the root font-size is EXACTLY 42px — the number lane is the
+  exact-value escape and NEVER follows alias tables
