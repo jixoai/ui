@@ -59,6 +59,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Empty density="small">…</Empty>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/empty-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -113,6 +119,20 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'figure', value: 'empty root', description: 'Groups the no-data message.' }, { name: 'figcaption', value: 'title + description', description: 'Keeps the message discoverable.' }, { name: 'aria-hidden', value: 'illustration', description: 'Prevents decorative art from interrupting the message.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Empty title="no results" /></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. Migrated contract: the no-data state is flat content — the axes are all no-own, the supply chain is the point."
+    >
+      <ComponentCanvas title="Empty · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>The empty state forwards the ambient tree.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Empty props"><PropsTable props={[{ name: 'title', type: 'string', description: 'No-data heading.', required: true }, { name: 'description', type: 'string', description: 'Optional supporting copy.' }, { name: 'illustration', type: 'Snippet', description: 'Replaces the default illustration.' }, { name: 'actions', type: 'Snippet', description: 'Renders recovery actions.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
   </div>
 </div>

@@ -12,17 +12,46 @@
  *     registered in lib/shiki rides; non-shiki backends map it into
  *     their own vocabulary) — no closed union exists to enumerate,
  *     so the explicit type argument carries the domain (the
- *     absentSlot discipline's open cousin).
+ *     absentSlot discipline's open cousin). NOTE (W3-D1): this
+ *     literal OWNS the `theme` prop name — the shiki theme name
+ *     space is a different value space than the axis (and
+ *     'light'/'dark' are legal shiki themes, so the lanes genuinely
+ *     collide) — the universal theme axis is therefore LEFT OUT (the
+ *     terminal bezel twins' precedent; §13 rules no rename, flagged
+ *     for the orchestrator dossier): the contract carries SEVEN
+ *     lanes, the theme lane forwards ambient.
+ *   - the seven universal axes (§0/§11, W3-D1, all no-own):
+ *     density · size · shape · radius · color · elevation · motion —
+ *     the eight-axis surface minus the colliding theme name. The
+ *     card's flat readonly surface paints nothing a rung could step;
+ *     the supply chain is the point.
  *
  * 惰性律: construction captures own only; context reads happen at
  * resolve time inside the consumer's $derived window. This file is a
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineOpenSlot } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineOpenSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const codeCardThemeSlot = defineOpenSlot<string>('jixoai');
 
 export const CodeCardDefaults = defineComponentDefaults({
   theme: codeCardThemeSlot,
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

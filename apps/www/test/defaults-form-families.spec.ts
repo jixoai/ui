@@ -212,16 +212,18 @@ describe('the nineteen contract surfaces', () => {
     });
   });
 
-  it('descriptions declares { bordered, density }, literal bordered owns false', () => {
+  it('descriptions declares { bordered, density } + the seven axis members (W3-D1), literal bordered owns false', () => {
     expect(Object.isFrozen(DescriptionsDefaults.slots)).toBe(true);
-    expect(Object.keys(DescriptionsDefaults.slots).sort()).toEqual(['bordered', 'density']);
+    expect(Object.keys(DescriptionsDefaults.slots).sort()).toEqual(
+      ['bordered', ...axisSurface([...UNIVERAL_AXES])].sort(),
+    );
     expect(resolveInWindow(() => DescriptionsDefaults.resolve({}))).toEqual({
       bordered: false,
-      density: undefined,
+      ...autoProjection([...UNIVERAL_AXES]),
     });
     expect(resolveInWindow(() => DescriptionsDefaults.resolve({ bordered: true }))).toEqual({
       bordered: true,
-      density: undefined,
+      ...autoProjection([...UNIVERAL_AXES]),
     });
   });
 

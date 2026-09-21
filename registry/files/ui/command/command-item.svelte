@@ -21,6 +21,7 @@
 -->
 <script lang="ts">
   import { getContext } from 'svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { CommandDefaults } from './command-defaults.svelte';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
@@ -117,7 +118,7 @@
   aria-disabled={disabled || undefined}
   aria-label={children ? label : undefined}
   data-jx-command-item=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   data-jx-command-item-disabled={disabled ? '' : undefined}
   data-jx-command-item-active={active ? '' : undefined}
   hidden={!visible}

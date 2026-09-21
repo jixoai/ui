@@ -140,6 +140,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Command density="small">…</Command>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/command-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -250,5 +256,19 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the dialog root from its input, list, groups, empty state, and items."><CodeBlock code={usage} lang="svelte" meta="Command usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The input owns focus while the active option is announced through aria-activedescendant."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move through visible, enabled options.' }, { key: 'Home / End', action: 'Jump to the first or last option.' }, { key: 'Enter', action: 'Run the active option and close by default.' }, { key: 'Escape', action: 'Close the dialog and restore focus.' }]} aria={[{ name: 'role', value: 'combobox / listbox / option', description: 'Exposes the command palette interaction model.' }, { name: 'aria-activedescendant', value: 'option id', description: 'Announces the active option while input retains focus.' }, { name: 'aria-expanded', value: 'true', description: 'Indicates the open listbox state.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The palette uses shared density tokens for its input, options, and empty state."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><Command><CommandInput placeholder="find" /><CommandList><CommandItem label="Open">Open</CommandItem></CommandList></Command></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. Own elevation level4 (the modal rung — the batch C dialog law: the palette is a native showModal() dialog); the shell's corner paint lives in the stylex atom (the consumed-radius swap is a payload-rebuild change, census-recorded)."
+    >
+      <ComponentCanvas title="Command · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>⌘K palette: the eight axes resolve on the top-layered dialog (self-carried), the list parts re-stamp through the same contract.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root props control lifecycle and matching; item props provide the searchable command contract."><PropsTable title="Command" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Bindable dialog open state.', bindable: true }, { name: 'hotkey', type: 'boolean', default: 'false', description: 'Opt into ⌘K / Ctrl+K handling.' }, { name: 'match', type: 'CommandMatch', description: 'Visibility-only matching predicate.' }, { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close after a successful item selection.' }, { name: 'label', type: 'string', default: "'command palette'", description: 'Accessible dialog and combobox label.' }]} /><div class={cx(rt.mt20)}><PropsTable title="CommandItem" props={[{ name: 'label', type: 'string', required: true, description: 'Match text and accessible name.' }, { name: 'keywords', type: 'string', description: 'Additional match text.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Renders but never walks or activates.' }, { name: 'onselect', type: '() => void', description: 'Runs once when selected.' }]} /></div></SectionCard></div>
 </div>

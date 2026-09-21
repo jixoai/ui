@@ -19,15 +19,54 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { GridDefaults } from './grid-defaults.svelte';
   import { gridStyles, type GridGap } from './grid.stylex';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** equal track count — the blowout-proof repeat(N, minmax(0,1fr)) */
     cols?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
     /** the disclosure lane: collapse (0fr) | open (1fr) */
     rows?: 'collapse' | 'open';
     /** the typed space ladder rung (token-bound) */
     gap?: GridGap;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the flow's contents */
     children?: Snippet;
   }
@@ -36,10 +75,31 @@
     cols,
     rows,
     gap,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     children,
     ...rest
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D1 — FIRST-TIME contract, all
+  // no-own: cols/rows/gap stay STRUCTURAL; the axes are the paint/
+  // kinetic surface a layout container forwards)
+  const d = $derived(
+    GridDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
 
   // the payload's own join (the serialize law)
   const cx = (
@@ -103,6 +163,14 @@
   );
 </script>
 
-<div class={cn(tracks, className)} {...rest} data-jx-grid="">
+<div
+  class={cn(tracks, className)}
+  bind:this={uniRoot}
+  {...rest}
+  data-jx-grid=""
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
   {@render children?.()}
 </div>

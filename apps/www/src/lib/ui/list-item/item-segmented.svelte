@@ -28,6 +28,7 @@
   import type { ItemFieldContext } from './item-field.svelte';
   import type { ItemLayout, ItemVariant } from './index';
   import type { Density } from '$lib/density.svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { ListItemDefaults } from './list-item-defaults.svelte';
 
   type ControlProps = Omit<
@@ -117,7 +118,7 @@
   {id}
   labelMode="text"
   variant={d.variant}
-  density={d.density}
+  density={densityRungOf(d.density)}
   {layout}
   {fit}
   {inset}

@@ -101,6 +101,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Grid size="medium">…</Grid>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/grid-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -224,6 +230,20 @@ ${close}
       <PropsTable props={[{ name: '--jx-space-2 … 80', type: '16 rungs', default: 'the sheet ladder', description: 'Every gap atom resolves one rung — the identical ladder stack rides.' }]} />
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: cols/rows/gap stay STRUCTURAL props — the axes are the paint/kinetic surface a layout container forwards."
+    >
+      <ComponentCanvas title="Grid · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>The layout primitive forwards the tree's axes to its tenants.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Four structural props plus the HTML rest — all optional, all never-ambient (the same ruling as stack: a track count has nothing meaningful to inherit).">
       <PropsTable props={[

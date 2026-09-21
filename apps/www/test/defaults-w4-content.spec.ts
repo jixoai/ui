@@ -262,17 +262,36 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
       variant: 'fused',
       density: undefined,
     });
+    // W3-D1 (explicit-props, task 3.4): chart's contract gained the
+    // seven non-size axis members (the `size` key stays the donut
+    // diameter OPEN literal, own 96; density rides the bridged axis
+    // slot — own 'auto', not the legacy slot's undefined);
+    // ListItemDefaults gained the seven non-density members beside
+    // its literals. Statistic keeps its legacy slot (undefined)
     expect(resolveInWindow(() => ChartDefaults.resolve({}))).toEqual({
       variant: 'fill',
-      density: undefined,
+      density: 'auto',
       size: 96,
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
     expect(resolveInWindow(() => StatisticDefaults.resolve({}))).toEqual({ density: undefined });
     expect(resolveInWindow(() => ListItemDefaults.resolve({}))).toEqual({
       variant: 'auto',
-      density: undefined,
+      density: 'auto',
       inset: false,
       tone: 'muted',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
   });
 
@@ -296,7 +315,20 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
       motion: 'auto',
     });
     expect(ThemeToggleDefaults.resolve({})).toEqual({ variant: 'compact' });
-    expect(LanguageSwitcherDefaults.resolve({})).toEqual({ variant: 'pair' });
+    // W3-D1 (explicit-props, task 3.4): the switcher's contract
+    // gained the eight universal axes (all no-own — density joins
+    // fresh; variant keeps its 'pair' own)
+    expect(resolveInWindow(() => LanguageSwitcherDefaults.resolve({}))).toEqual({
+      variant: 'pair',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
     expect(TourDefaults.resolve({})).toEqual({ variant: 'auto' });
   });
 });

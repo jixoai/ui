@@ -42,6 +42,22 @@
   import { getContext } from 'svelte';
   import type { Snippet } from 'svelte';
   import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { FigureDefaults } from './figure-defaults.svelte';
+  import {
     FIGURE_LABELS,
     NUMBERING_DOMAIN_KEY,
     createDomainRegistry,
@@ -63,12 +79,61 @@
     caption?: string;
     /** manual cited-in annotations — static display strings, see the header gap note */
     citedIn?: string[];
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     /** the content slot — required semantics; an empty slot warns once in dev */
     children: Snippet;
   }
 
-  let { kind, id, caption, citedIn, class: className = '', children }: Props = $props();
+  let {
+    kind,
+    id,
+    caption,
+    citedIn,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+    children,
+  }: Props = $props();
+
+  // ── the eight-axis surface (W3-D1 — FIRST-TIME contract, all
+  // no-own: document content, the supply chain is the point). The
+  // structural props (kind/id/caption/citedIn) are mount-time
+  // parameters by law — the axes are orthogonal paint/kinetic lanes
+  const d = $derived(
+    FigureDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  const rootStyle = $derived(carriers || undefined);
 
   // ── the nearest counting domain (init-time read — structural context) ──
   const domain = getContext<NumberingDomain>(NUMBERING_DOMAIN_KEY);
@@ -103,6 +168,9 @@
   //    fires (a component-internal detail, not a second signal law). ──
   const rec: FigureRecord = { kind, ...(id !== undefined ? { id } : {}) };
   let figureEl: HTMLElement | undefined = $state();
+  // the query() anchor sits AFTER the anchor state declaration (the
+  // W3-C TDZ kernel note — the getter stays lazy either way)
+  provideQueryAnchor(() => figureEl ?? null);
 
   $effect(() => {
     if (figureEl) rec.el = figureEl;
@@ -175,6 +243,9 @@
   {id}
   data-number={numberDisplay ?? undefined}
   data-cited-in={citedIn && citedIn.length > 0 ? JSON.stringify(citedIn) : undefined}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={className}
 >
   <!-- the §1.1c frozen caption shape (the byte-snapshot anchor): label

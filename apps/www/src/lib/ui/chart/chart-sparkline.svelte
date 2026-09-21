@@ -23,14 +23,27 @@
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
-  import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { chartStyles } from './chart.stylex';
   import { ChartDefaults } from './chart-defaults.svelte';
   import { sparkBlocks, sparkBraille } from './chart.svelte';
   import './chart.css';
 
-  interface Props extends HTMLAttributes<HTMLSpanElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLSpanElement>, 'color'> {
     /** the series (a value-domain payload) */
     data: readonly number[];
     /** REQUIRED accessible name (role="img"); no default by contract */
@@ -39,7 +52,26 @@
     cells?: 'block' | 'braille';
     /** opt-in visually-hidden data table fallback */
     table?: boolean;
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -49,14 +81,30 @@
     cells = 'braille',
     table = false,
     density,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.4): density rides the no-opinion axis slot (the
-  // ensemble provides, the glyph stamps)
-  const d = $derived(ChartDefaults.resolve({ density }));
+  // economy 3.4 + W3-D1): the seven non-size universal axes resolve
+  // one record (the contract's `size` key is the donut diameter
+  // literal; the sparkline carries no size opinion — the axis
+  // forwards ambient through the supply below)
+  const d = $derived(
+    ChartDefaults.resolve({ density, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLSpanElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
   const glyphs = $derived(cells === 'block' ? sparkBlocks(data) : sparkBraille(data));
   // the payload's own join (separator's serialize law): objects in
   // dev, joined strings in payloads — never a raw interpolation
@@ -78,10 +126,13 @@
 
 <span
   {...rest}
+  bind:this={uniRoot}
   role="img"
   aria-label={label}
   data-jx-chart-sparkline={cells}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={cn('jx-chart-glyphs', cx(chartStyles.spark), className)}
 >{glyphs}</span>
 

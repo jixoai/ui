@@ -34,6 +34,22 @@
   import type { Snippet } from 'svelte';
   import { fromAction } from 'svelte/attachments';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { CarouselDefaults } from './carousel-defaults.svelte';
   import { carouselStyles } from './carousel.stylex';
   import './carousel.css';
 
@@ -45,6 +61,31 @@
     slideWidth?: string;
     /** hide the dots (the buttons stay) */
     dots?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query(). NOTE the scroll-paging itself is
+     *  NATIVE (CSS scroll-snap) — the axis supplies the channel for
+     *  descendants; the platform's momentum is never re-mapped */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     /** the slides — any element each; direct children of the track */
     children: Snippet;
@@ -57,11 +98,31 @@
     label = 'carousel',
     slideWidth = '100%',
     dots = true,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
     children,
     prevLabel = '‹',
     nextLabel = '›',
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D1 — FIRST-TIME contract, all
+  // no-own: the scroller is native chrome, the supply chain is the
+  // point)
+  const d = $derived(
+    CarouselDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   // the payload's own join (separator's serialize law): objects in
   // dev, joined strings in payloads — never a raw interpolation
@@ -181,7 +242,17 @@
   }
 </script>
 
-<div data-jx-carousel="" class={cn(cx(carouselStyles.root), className)} role="region" aria-roledescription="carousel" aria-label={label}>
+<div
+  bind:this={uniRoot}
+  data-jx-carousel=""
+  class={cn(cx(carouselStyles.root), className)}
+  role="region"
+  aria-roledescription="carousel"
+  aria-label={label}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
   <!-- the window is a ONE-CELL GRID (CR-2 P1-3, 2026-09-02): the track
        is the base layer, the arrows are grid items of the same cell —
        self-center + justify-self per side, hung 1rem outside the cell

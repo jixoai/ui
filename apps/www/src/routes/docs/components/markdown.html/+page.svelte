@@ -438,6 +438,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Markdown density="auto">…</Markdown>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/markdown-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -800,6 +806,20 @@ ${close}
 
 <div class={cx(rt.shellFlush)}>
   <!-- api: the props table + the floor -->
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the typography presets own the prose scale through their OWN tokens; the legacy density bridge keeps feeding nested chrome from the preset, and the root NEVER stamps a rung for the preset (the founding law, spec-pinned) — only an explicit lane does."
+    >
+      <ComponentCanvas title="Markdown · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Prose typography keeps its preset law; the axes ride additively on the root.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"

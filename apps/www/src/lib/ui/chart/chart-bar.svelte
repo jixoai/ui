@@ -26,14 +26,27 @@
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
-  import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { chartStyles } from './chart.stylex';
   import { ChartDefaults } from './chart-defaults.svelte';
   import { barRun, seriesBounds, type ChartVariant } from './chart.svelte';
   import './chart.css';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** the series — one row per datum (a value-domain payload, the
      *  chart family's whole contract) */
     data: readonly number[];
@@ -49,7 +62,26 @@
     values?: boolean;
     /** opt-in visually-hidden data table fallback */
     table?: boolean;
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -62,14 +94,31 @@
     values = true,
     table = false,
     density,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.4): variant rides a literal slot (own 'fill'), density
-  // the no-opinion axis slot (the ensemble provides, the glyph stamps)
-  const d = $derived(ChartDefaults.resolve({ variant, density }));
+  // economy 3.4 + W3-D1): variant rides a literal slot (own 'fill'),
+  // the seven non-size universal axes resolve one record — the
+  // contract's `size` key is the donut diameter literal, and the bar
+  // carries no size opinion of its own (the size axis forwards
+  // ambient through the supply below)
+  const d = $derived(
+    ChartDefaults.resolve({ variant, density, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
   const max = $derived(seriesBounds(data)?.max ?? 0);
   const run = $derived((v: number) => barRun(v, max, cells));
 
@@ -101,10 +150,13 @@
 
 <div
   {...rest}
+  bind:this={uniRoot}
   role="img"
   aria-label={label}
   data-jx-chart-bar={d.variant}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={cn(cx(chartStyles.barRoot), className)}
 >
   {#each data as v, i (i)}

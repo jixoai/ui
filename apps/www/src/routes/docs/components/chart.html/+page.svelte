@@ -126,6 +126,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Chart size="medium">…</Chart>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/chart-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -500,6 +506,20 @@ ${close}
           headers and one row per datum — visually hidden, machine-honest.
         </p>
       </div>
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The ensemble ROOT carries the size axis whole; the glyphs ride the icon §13 law (a NUMBER is the size number lane verbatim — the donut diameter literal keeps the name)."
+    >
+      <ComponentCanvas title="Chart · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Deterministic display primitives: zero runtime, the axes ride the family root only.</p></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

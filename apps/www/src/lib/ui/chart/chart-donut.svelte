@@ -26,19 +26,37 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { chartStyles } from './chart.stylex';
   import { ChartDefaults } from './chart-defaults.svelte';
   import { donutGeometry } from './chart.svelte';
   import './chart.css';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** the segment values (composition shares of the total) */
     data: readonly number[];
     /** REQUIRED accessible name (role="img"); no default by contract */
     label: string;
-    /** the ring's outer size in px */
+    /** the ring's outer size in px — the open literal (own 96).
+     *  §13/W3-D1 (the icon/spin ruling, same semantics): a NUMBER is
+     *  ALSO the universal size axis' number lane verbatim — an
+     *  explicit number stamps the §1 carrier (the glyph takes no
+     *  font-size opinion it was not given); named/auto stay
+     *  unadopted on the svg glyph */
     size?: number;
     /** the stroke thickness in px */
     thickness?: number;
@@ -46,7 +64,26 @@
     children?: Snippet;
     /** opt-in visually-hidden data table fallback */
     table?: boolean;
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -58,15 +95,43 @@
     children,
     table = false,
     density,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.4): size rides a literal slot (own 96px), density the
-  // no-opinion axis slot (the ensemble provides, the glyph stamps)
-  const d = $derived(ChartDefaults.resolve({ size, density }));
+  // economy 3.4 + W3-D1): size rides a literal slot (own 96px), the
+  // seven other universal axes resolve one record. The §1 number
+  // lane rides the size fragment VERBATIM (the icon law): only an
+  // explicit number stamps the carrier — the resolved default 96
+  // stays the glyph's own geometry, never a font-size opinion
+  const d = $derived(
+    ChartDefaults.resolve({ size, density, shape, radius, color, theme, elevation, motion }),
+  );
   const geo = $derived(donutGeometry(data, d.size, thickness));
+  const carriers = $derived(
+    stampCarriersForLanes({ ...d, size: typeof size === 'number' ? size : undefined }),
+  );
+  provideUniversalLanes({
+    density,
+    size: typeof size === 'number' ? size : undefined,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+  });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
   // the payload's own join (separator's serialize law): objects in
   // dev, joined strings in payloads — never a raw interpolation
   const cx = (
@@ -87,10 +152,13 @@
 
 <div
   {...rest}
+  bind:this={uniRoot}
   role="img"
   aria-label={label}
   data-jx-chart-donut=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={cn(cx(chartStyles.grid), className)}
 >
   <svg viewBox="0 0 {d.size} {d.size}" width={d.size} height={d.size} fill="none" aria-hidden="true" class={cx(chartStyles.stacked)}>

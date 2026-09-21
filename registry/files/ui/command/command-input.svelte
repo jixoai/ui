@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import { getContext } from 'svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { CommandDefaults } from './command-defaults.svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
@@ -61,7 +62,7 @@
 <input
   bind:this={el}
   data-jx-command-input=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={cn(cx(commandStyles.input), className)}
   type="text"
   role="combobox"

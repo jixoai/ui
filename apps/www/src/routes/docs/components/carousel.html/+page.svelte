@@ -56,6 +56,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Carousel density="small">…</Carousel>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/carousel-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -141,6 +147,20 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Slides are any direct children — figures, cards, sections; the browser is the animator."><CodeBlock code={usage} lang="svelte" meta="Carousel usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The region names itself, the track is the keyboard surface, and every control is a real button."><A11yTable keys={[{ key: '← / →', action: 'Page the track back/forward when it holds focus (mandatory snap eats the native ~40px arrow scroll)' }, { key: 'Tab', action: 'Moves focus through arrows, track, and dots — all real buttons' }, { key: 'Enter / Space', action: 'Activate the focused arrow or dot button' }]} aria={[{ name: 'role', value: 'region + aria-roledescription="carousel"', description: 'On the root; aria-label defaults to the label prop.' }, { name: 'aria-label', value: 'previous slide / next slide / go to slide n', description: 'On the arrows and each dot — they command, they never navigate.' }, { name: 'aria-current', value: "'true'", description: 'On the active dot; the dots follow the nearest snap slide.' }, { name: 'tabindex', value: '0', description: 'On the track — the scroll region is the keyboard surface.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="One geometry token — the slide width; chrome (arrows, dots) is fixed micro geometry."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo><Carousel label="density sample"><figure class="jx-demo-slide">01 xs→lg</figure><figure class="jx-demo-slide">02 fixed chrome</figure><figure class="jx-demo-slide">03 native scroll</figure></Carousel></DensityDemo><TokenTable tokens={[{ name: '--jx-slide-w', default: '100% (slideWidth prop)', source: 'component', description: 'Slide width inside the snap track.' }, { name: 'track gap', default: '12px (gap-3)', source: 'structural' }, { name: 'arrow box', default: '32px (size-8)', source: 'structural' }, { name: 'dot', default: '8px (size-2)', source: 'structural' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the scroller is NATIVE chrome (CSS scroll-snap does the paging, the platform the motion) — the supply chain is the point."
+    >
+      <ComponentCanvas title="Carousel · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Native scroller: the axes forward through the track; slides adopt the tree.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Seven props; JS only reads the scroll position — the dots stay honest."><PropsTable props={[{ name: 'label', type: 'string', default: "'carousel'", description: 'The region’s aria-label.' }, { name: 'slideWidth', type: 'string', default: "'100%'", description: 'Slide width inside the track; any CSS length — <100% peeks neighbors.' }, { name: 'dots', type: 'boolean', default: 'true', description: 'Show the dot row (the arrows stay either way).' }, { name: 'children', type: 'Snippet', default: '—', description: 'The slides — any element each; direct children of the track.' }, { name: 'prevLabel', type: 'string', default: "'‹'", description: 'Prev arrow label.' }, { name: 'nextLabel', type: 'string', default: "'›'", description: 'Next arrow label.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the root.' }]} /></SectionCard></div>
 </div>
 

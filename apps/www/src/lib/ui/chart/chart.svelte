@@ -292,8 +292,23 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
+  import { getDensityContext, provideDensity, resolveDensity } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { chartStyles } from './chart.stylex';
   import { ChartDefaults } from './chart-defaults.svelte';
   import './chart.css';
@@ -301,12 +316,33 @@
   interface Props {
     /** density policy: explicit, inherited — provided to the subtree
      *  so chart ensembles adopt one tier */
-    density?: Density;
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1) — the ROOT carries the axis WHOLE
+     *  (named · auto · px number · query()): no legacy size prop
+     *  lives at the ensemble root (the donut's diameter literal is
+     *  the glyph's own prop) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     children: Snippet;
   }
 
-  let { density, class: className = '', children }: Props = $props();
+  let { density, size, shape, radius, color, theme, elevation, motion, class: className = '', children }: Props = $props();
 
   // The CAPTURE is load-bearing and eager (r11 provider contract, the
   // button-group form): getDensityContext() rides the $derived.by
@@ -314,18 +350,50 @@
   // provideDensity writes the key — so it captures the PARENT's
   // context (not the ensemble's own). Reading it lazily (in the
   // $derived initializer body, or the getter itself) would resolve
-  // the very getter it feeds — derived_references_self.
+  // the very getter it feeds — derived_references_self. W3-D1: the
+  // lane narrows at the legacy edge (the input-group law — the
+  // legacy channel keeps its five-rung spelling; the universal
+  // density axis rides provideUniversalLanes below).
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
   // the family Defaults is the single read point for the STAMP
-  // (context-defaults-economy 3.4): the slot's ambient read lands on
-  // this ensemble's own provided policy — exactly what the glyphs
-  // below see, one resolution for the whole subtree
-  const d = $derived(ChartDefaults.resolve({ density }));
+  // (context-defaults-economy 3.4 + W3-D1): the slot's ambient read
+  // lands on this ensemble's own provided policy — exactly what the
+  // glyphs below see, one resolution for the whole subtree. The size
+  // axis rides the record EXPLICITLY (the contract's `size` key is
+  // the donut diameter literal — the root's axis lane feeds the
+  // carriers/supply directly, never the literal slot); a query()
+  // carrier cannot cross the resolved-lane record (the anchor unwrap
+  // rides the slot seam) — it stamps nothing here and keeps flowing
+  // through the supply's own unwrap
+  const d = $derived(
+    ChartDefaults.resolve({ density, shape, radius, color, theme, elevation, motion }),
+  );
+  const sizeLane = $derived(typeof size === 'object' ? undefined : size);
+  const carriers = $derived(stampCarriersForLanes({ ...d, size: sizeLane }));
+  // DENSITY rides the bridged provideDensity write above (it is
+  // reactive — the object literal here would SNAPSHOT the prop at
+  // init and freeze the explicit lane over the bridge); this supply
+  // carries the other seven axes
+  // (the supply takes the RAW prop — it unwraps query carriers
+  // itself through the anchor seam)
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 </script>
 
-<div data-jx-chart="" data-density={d.density} class={cn(chartStyles.contents, className)}>
+<div
+  bind:this={uniRoot}
+  data-jx-chart=""
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  class={cn(chartStyles.contents, className)}
+>
   {@render children()}
 </div>

@@ -347,7 +347,21 @@ describe('in-window unit resolution — the own-defaults projection', () => {
         elevation: 'level2',
         motion: 'auto',
       },
-      { variant: 'auto', density: undefined },
+      // W3-D1 (explicit-props, task 3.4): command's contract gained
+      // the seven non-variant axis members — density rides the
+      // bridged lane (silent 'auto'), elevation carries the modal's
+      // OWN level4 (the batch C dialog law)
+      {
+        variant: 'auto',
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level4',
+        motion: 'auto',
+      },
     ]);
   });
 });

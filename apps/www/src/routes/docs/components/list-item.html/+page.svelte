@@ -605,7 +605,13 @@ ${close}
   <Item><ItemContent><ItemTitle>auto</ItemTitle><ItemDescription>resolved from context</ItemDescription></ItemContent></Item>
 </div>`;
 
-  // ToC outline: pairs with +page.ts, in page order.</script>
+  // ToC outline: pairs with +page.ts, in page order.  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<ItemGroup radius={20} density="small">…</ItemGroup>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/list-item-universal.svelte', content: universalUsage },
+  ];
+
+</script>
 
 <svelte:head>
   <title>List item · jixoai-ui</title>
@@ -1254,6 +1260,20 @@ ${close}
     </SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'a', value: 'href rows', description: 'Use href for navigable rows.' }, { name: 'selected', value: 'visual only', description: 'Does not emit aria-selected; add selection semantics to the owning pattern.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Item variant="outline"><ItemContent><ItemTitle>density row</ItemTitle><ItemDescription>scoped</ItemDescription></ItemContent></Item></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-row-min', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-gap-content', default: 'density scale', source: 'density' }, { name: '--jx-gap-end', default: 'density scale', source: 'density' }, { name: '--jx-media-gutter', default: 'density scale', source: 'density' }, { name: '--jx-image', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-icon-optical', default: '0px', source: 'component' }, { name: '--jx-unit', default: 'density scale', source: 'density' }, { name: '--jx-avatar-md', default: 'image scale', source: 'component' }, { name: '--jx-item-column-gap', default: 'gap', source: 'component' }, { name: '--jx-item-row-gap', default: 'stack', source: 'component' }, { name: '--jx-item-media-size', default: 'image', source: 'component' }, { name: '--jx-item-media-gutter', default: 'media gutter', source: 'component' }, { name: '--jx-item-content-gap', default: 'gap-content', source: 'component' }, { name: '--jx-item-end-gap', default: 'gap-end', source: 'component' }]} /></div></SectionCard></div>
-    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Item props"><PropsTable props={[{ name: 'variant', type: "'auto' | 'default' | 'outline' | 'muted'", default: "'auto' · Own default, not ambient", description: 'Controls visual chrome (auto resolves it from the group policy). Defaults: literal slot — own \'auto\', ambient when a table freeze lands.' }, { name: 'layout', type: 'ItemLayout', default: "'auto'", description: 'Selects row layout mode.' }, { name: 'selected', type: 'boolean', default: 'false', description: 'Visual selection state only.' }, { name: 'href', type: 'string', description: 'Renders the root as an anchor.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit tier ?? the ItemGroup provider / ambient scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
+    <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The §3 CONCENTRIC chain joined the family: the frame supplies --jx-radius-effective (an explicit lane makes the group the anchor), rows at radius='auto' compute max(0px, R − P) × the §14 factor (item.css swapped its var(--radius) literals for the consumed form — the batch B card law)."
+    >
+      <ComponentCanvas title="ItemGroup · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><ItemGroup radius={20} label="concentric"><Item variant="outline"><ItemContent><ItemTitle>radius="auto" computes R − P</ItemTitle></ItemContent></Item><Item variant="outline" radius="auto"><ItemContent><ItemTitle>the auto row follows the frame</ItemTitle></ItemContent></Item></ItemGroup></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Item props"><PropsTable props={[{ name: 'variant', type: "'auto' | 'default' | 'outline' | 'muted'", default: "'auto' · Own default, not ambient", description: 'Controls visual chrome (auto resolves it from the group policy). Defaults: literal slot — own \'auto\', ambient when a table freeze lands.' }, { name: 'layout', type: 'ItemLayout', default: "'auto'", description: 'Selects row layout mode.' }, { name: 'selected', type: 'boolean', default: 'false', description: 'Visual selection state only.' }, { name: 'href', type: 'string', description: 'Renders the root as an anchor.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit tier ?? the ItemGroup provider / ambient scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
   </div>
 </div>

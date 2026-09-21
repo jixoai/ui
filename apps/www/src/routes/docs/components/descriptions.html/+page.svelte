@@ -176,7 +176,13 @@ ${close}
 <Descriptions columns={2} bordered>
   <DescriptionsItem term="status">live</DescriptionsItem>
   <DescriptionsItem term="scope">public</DescriptionsItem>
-</Descriptions>`;</script>
+</Descriptions>`;  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Descriptions density="small">…</Descriptions>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/descriptions-universal.svelte', content: universalUsage },
+  ];
+
+</script>
 
 <svelte:head>
   <title>Descriptions · jixoai-ui</title>
@@ -414,6 +420,20 @@ ${close}
   <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Description layouts" summary="Descriptions is a semantic dl: choose one or more term/value pairs per row and opt into the bordered treatment."><ComponentCanvas title="descriptions · types" files={[{ name: 'descriptions-types-demo.svelte', content: descriptionsTypesDemo, kind: 'usage' }]} stage="fill"><div class={cx(rt.deGridMd2)}><div class={cx(rt.panel)}><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div><div class={cx(rt.panel)}><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div></div></ComponentCanvas></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'dl', value: 'Descriptions root', description: 'Preserves description-list semantics — wrappers add chrome, never list content.' }, { name: 'dt', value: 'term', description: 'Names each property.' }, { name: 'dd', value: 'value', description: 'Contains the corresponding value.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Descriptions><DescriptionsItem term="density">scoped</DescriptionsItem></Descriptions></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-desc-cols', default: 'columns prop', source: 'structural' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. Migrated contract: bordered keeps its literal slot; the enterprise detail grid is flat content — the axes are all no-own."
+    >
+      <ComponentCanvas title="Descriptions · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>The dl grid forwards the ambient tree; an explicit lane stamps the carriers.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Descriptions props"><PropsTable props={[{ name: 'columns', type: 'number', default: '1', description: 'Term/value pairs per row.' }, { name: 'bordered', type: 'boolean', default: 'false', description: 'Paints hairline cell borders. Defaults: literal slot — own false, not ambient.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">

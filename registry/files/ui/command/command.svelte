@@ -123,17 +123,36 @@
 
 <script lang="ts">
   import { onDestroy, setContext, untrack } from 'svelte';
-  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import { provideDensity, resolveDensity, getDensityContext } from '$lib/density.svelte';
   import type { Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { CommandDefaults, type CommandSurfaceVariant } from './command-defaults.svelte';
   import { commandStyles } from './command.stylex';
   import './command.css';
 
-  interface Props extends HTMLAttributes<HTMLDialogElement> {
-    density?: Density;
+  interface Props extends Omit<HTMLAttributes<HTMLDialogElement>, 'color'> {
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — provided to the palette's subtree */
+    density?: DensityLane | QueryResult<DensityLane>;
     /** bindable open state — same lifecycle contract as dialog */
     open?: boolean;
     onopenchange?: (open: boolean) => void;
@@ -155,6 +174,31 @@
         contract own 'auto' (CommandDefaults — a declared own, not
         ambient) */
     variant?: CommandSurfaceVariant;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast. NOTE: the shell's own corner paint lives in the
+     *     stylex atom (the payload lane) — the axis SUPPLIES the
+     *     carrier chain and stamps on the top-layered root; swapping
+     *     the atom's borderRadius for the consumed form is a
+     *     payload-rebuild change this batch defers (census-recorded) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — own level4 (the modal rung, the batch C dialog
+     *  law); the consumption pair rides the theme's .jx-surface-body
+     *  law (shadow recipe + the paired ladder rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     children: Snippet;
   }
@@ -172,7 +216,15 @@
     match,
     closeOnSelect = true,
     variant,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     children,
     ...rest
   }: Props = $props();
@@ -185,31 +237,69 @@
   // evaluated read would resolve the key to the palette's OWN write
   // and self-reference through the very getter it feeds
   // (derived_references_self, pinned in defaults-buttons.spec). The
-  // CommandApi below keeps exposing this resolved value — the family
-  // STATE context is untouched by the migration
+  // W3-D1 universal lane narrows at the legacy edge (the input-group
+  // law): the legacy channel keeps its five-rung spelling — 'auto',
+  // the coefficient number and query() carriers never carry a legacy
+  // rung. The CommandApi below keeps exposing this resolved value —
+  // the family STATE context is untouched by the migration
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.2) — ON TOP
-  // of the provider lane (the button-group law): the density slot's
-  // ambient read resolves the key to this palette's OWN write, whose
-  // getter is the captured-parent resolution above, so the chain
-  // TERMINATES (it never re-enters this derived) and lands the same
-  // values on every lane; variant's own 'auto' lives in
-  // CommandDefaults, auditable in one place
-  const d = $derived(CommandDefaults.resolve({ variant, density }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2 + W3-D1)
+  // — ON TOP of the provider lane (the button-group law): the
+  // density slot's ambient read resolves the key to this palette's
+  // OWN write, whose getter is the captured-parent resolution above,
+  // so the chain TERMINATES (it never re-enters this derived) and
+  // lands the same values on every lane; variant's own 'auto' and
+  // the modal's own elevation level4 live in CommandDefaults,
+  // auditable in one place
+  const d = $derived(
+    CommandDefaults.resolve({
+      variant,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  // the universal density supply rides the bridged provideDensity
+  // write above — it is reactive, while the object literal here
+  // would SNAPSHOT the prop at init and freeze the explicit lane
+  // over the bridge; this supply carries the other seven axes
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
+  // §7's consumption pair: the resolved level's shadow recipe + the
+  // PAIRED ladder-rung surface, through the level-table indirection
+  // (the .jx-surface-body law consumes both channels)
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const rootStyle = $derived(
+    [carriers, elevationConsumed, style].filter(Boolean).join('; ') || undefined,
+  );
 
   let dialog = $state<HTMLDialogElement | null>(null);
+  // the query() anchor sits AFTER the anchor state declaration (the
+  // W3-C TDZ kernel note)
+  provideQueryAnchor(() => dialog ?? null);
   let inputEl = $state<HTMLInputElement | null>(null);
   let query = $state('');
   let activeId = $state('');
 
-  // the shared declarative motion kernel (r29) — same law as popover
-  const motion = createSurfaceMotion(() => dialog);
+  // the shared declarative motion kernel (r29) — same law as
+  // popover. RENAMED panelMotion (W3-D1): the local `motion` name
+  // now belongs to the §8 axis lane — the local yields to the axis
+  // (the dialog/popover panelMotion precedent)
+  const panelMotion = createSurfaceMotion(() => dialog);
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
 
   const matcher = $derived(match ?? defaultCommandMatch);
 
@@ -331,8 +421,8 @@
       if (dialog && !dialog.open) dialog.showModal();
       query = '';
       activeId = '';
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
       requestAnimationFrame(() => {
         if (!dialog?.open) return;
         inputEl?.focus();
@@ -394,9 +484,9 @@
 
   const shut = (): void => {
     if (!dialog || !dialog.open) return;
-    motion.stopTracking();
+    panelMotion.stopTracking();
     dialog.classList.remove('jx-rest');
-    motion.play(0);
+    panelMotion.play(0);
     dialog.close();
   };
 </script>
@@ -406,12 +496,14 @@
   class={cn(
     'jx-command jx-surface',
     cx(commandStyles.shell),
-    motion.supported && 'jx-waapi',
+    panelMotion.supported && 'jx-waapi',
     className,
   )}
   data-variant={d.variant}
   {...rest}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   aria-label={label}
   oncancel={handleCancel}
   onclose={handleClose}

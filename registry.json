@@ -369,12 +369,18 @@
         "href": "/docs/components/figure.html"
       },
       "registryDependencies": [
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ],
       "files": [
         {
           "path": "registry/files/ui/figure/figure.svelte",
           "target": "@ui/figure/figure.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/figure/figure-defaults.svelte.ts",
+          "target": "@ui/figure/figure-defaults.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -785,7 +791,8 @@
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/utils",
-        "@jixoai/press-button"
+        "@jixoai/press-button",
+        "@jixoai/defaults"
       ],
       "files": [
         {
@@ -796,6 +803,11 @@
         {
           "path": "registry/files/ui/hero-section/hero-section.svelte",
           "target": "@ui/hero-section/hero-section.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/hero-section/hero-section-defaults.svelte.ts",
+          "target": "@ui/hero-section/hero-section-defaults.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -1537,12 +1549,18 @@
         "@jixoai/separator",
         "@jixoai/table",
         "@jixoai/text",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/defaults"
       ],
       "files": [
         {
           "path": "registry/files/ui/markdown/markdown.svelte",
           "target": "@ui/markdown/markdown.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/markdown/markdown-defaults.svelte.ts",
+          "target": "@ui/markdown/markdown-defaults.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -1679,6 +1697,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/list/list-defaults.svelte.ts",
+          "target": "@ui/list/list-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/list/index.ts",
           "target": "@ui/list/index.ts",
           "type": "registry:file"
@@ -1706,7 +1729,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -2644,12 +2668,18 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ],
       "files": [
         {
           "path": "registry/files/ui/grid/grid.svelte",
           "target": "@ui/grid/grid.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/grid/grid-defaults.svelte.ts",
+          "target": "@ui/grid/grid-defaults.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -3963,6 +3993,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/carousel/carousel-defaults.svelte.ts",
+          "target": "@ui/carousel/carousel-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/carousel/index.ts",
           "target": "@ui/carousel/index.ts",
           "type": "registry:file"
@@ -3990,7 +4025,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -4306,8 +4342,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -4360,8 +4395,7 @@
       },
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -6491,12 +6525,18 @@
       "registryDependencies": [
         "@jixoai/katex",
         "@jixoai/jixoai-theme",
-        "@jixoai/utils"
+        "@jixoai/utils",
+        "@jixoai/defaults"
       ],
       "files": [
         {
           "path": "registry/files/ui/math-inline/math-inline.svelte",
           "target": "@ui/math-inline/math-inline.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/math-inline/math-inline-defaults.svelte.ts",
+          "target": "@ui/math-inline/math-inline-defaults.svelte.ts",
           "type": "registry:file"
         },
         {
@@ -6524,12 +6564,18 @@
         "@jixoai/katex",
         "@jixoai/jixoai-theme",
         "@jixoai/scroll-run",
-        "@jixoai/icon"
+        "@jixoai/icon",
+        "@jixoai/defaults"
       ],
       "files": [
         {
           "path": "registry/files/ui/math-block/math-block.svelte",
           "target": "@ui/math-block/math-block.svelte",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/math-block/math-block-defaults.svelte.ts",
+          "target": "@ui/math-block/math-block-defaults.svelte.ts",
           "type": "registry:file"
         },
         {

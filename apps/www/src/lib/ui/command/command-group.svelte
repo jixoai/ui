@@ -11,6 +11,7 @@
 -->
 <script lang="ts">
   import { setContext } from 'svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { CommandDefaults } from './command-defaults.svelte';
   import { commandStyles } from './command.stylex';
   import type { Snippet } from 'svelte';
@@ -48,7 +49,7 @@
       .join(' ');
 </script>
 
-<div data-jx-command-group="" data-density={d.density} class={cn(className)} {...rest}>
+<div data-jx-command-group="" data-density={densityRungOf(d.density)} class={cn(className)} {...rest}>
   {#if heading}
     <p
       data-jx-command-group-heading=""

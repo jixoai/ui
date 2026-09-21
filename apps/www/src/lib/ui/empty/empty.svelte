@@ -23,27 +23,83 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
-  import { type Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { EmptyDefaults } from './empty-defaults.svelte';
   import { emptyStyles } from './empty.stylex';
 
   interface Props {
-    /** density policy: explicit ?? ambient scope, else unstamped */
-    density?: Density;
     title: string;
     description?: string;
     /** custom illustration — defaults to the terminal empty-listing */
     illustration?: Snippet;
     actions?: Snippet;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
-  let { density, title, description, illustration, actions, class: className = '' }: Props = $props();
-  // the family Defaults is the single read point (context-defaults-
-  // economy 3.2): the density slot resolves explicit ?? ambient
-  // scope; no opinion stamps nothing, the ambient css scope channel
-  // keeps flowing
-  const d = $derived(EmptyDefaults.resolve({ density }));
+  let {
+    title,
+    description,
+    illustration,
+    actions,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+  }: Props = $props();
+
+  // ── the eight-axis surface (W3-D1 — the migrated contract, all
+  // no-own: the no-data state is flat content; the supply chain is
+  // the point)
+  const d = $derived(
+    EmptyDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   // the payload's own join (separator's serialize law): every string
   // declaration except the $$css marker, space-joined — atoms are
@@ -63,7 +119,14 @@
       .join(' ');
 </script>
 
-<figure data-jx-empty="" data-density={d.density} class={cn(cx(emptyStyles.figure), className)}>
+<figure
+  bind:this={uniRoot}
+  data-jx-empty=""
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+  class={cn(cx(emptyStyles.figure), className)}
+>
   <div data-jx-empty-art="" class={cx(emptyStyles.art)} aria-hidden="true">
     {#if illustration}
       {@render illustration()}

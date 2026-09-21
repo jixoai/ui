@@ -31,8 +31,24 @@
   import type { KatexOptions } from 'katex';
   import { cn } from '$lib/utils';
   import { renderTex } from '$lib/katex';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { MathInlineDefaults } from './math-inline-defaults.svelte';
 
-  interface Props extends HTMLAttributes<HTMLSpanElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLSpanElement>, 'color'> {
     /** TeX source (runtime string, rendered synchronously in inline mode). */
     tex: string;
     /** KaTeX macros — merged per key over the site-level registerMacros table. */
@@ -41,6 +57,30 @@
     strict?: KatexOptions['strict'];
     /** KaTeX trust passthrough (boolean | handler). */
     trust?: KatexOptions['trust'];
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). The engine's em scale is
+     *  outside the supply set (the span itself paints nothing) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -48,9 +88,29 @@
     macros,
     strict,
     trust,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     ...rest
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D1 — FIRST-TIME contract, all
+  // no-own: the span paints nothing, the supply chain is the point)
+  const d = $derived(
+    MathInlineDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLSpanElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
 
   /**
    * SYNC RENDER (the lane ruling): the markup IS the paint — prerender
@@ -79,4 +139,13 @@
   }
 </script>
 
-<span {...rest} data-jx-math-inline="" role="math" class={cn(className)}>{@html rendered}</span>
+<span
+  {...rest}
+  bind:this={uniRoot}
+  data-jx-math-inline=""
+  role="math"
+  class={cn(className)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>{@html rendered}</span>

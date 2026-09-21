@@ -14,6 +14,7 @@
 -->
 <script lang="ts">
   import { getContext, onDestroy } from 'svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { CommandDefaults } from './command-defaults.svelte';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
@@ -66,7 +67,7 @@
 <div
   bind:this={el}
   data-jx-command-list=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={cn(cx(commandStyles.list), className)}
   {...rest}
   id={cmd.listId}

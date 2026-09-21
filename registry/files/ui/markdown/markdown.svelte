@@ -33,11 +33,27 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { getDensityContext, provideDensity, type Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { MarkdownDefaults } from './markdown-defaults.svelte';
   import { createMarkdownParser, type MarkdownComponents, type MarkdownTypography } from './parse';
   import MarkdownNode from './markdown-node.svelte';
   import './markdown.css';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** Markdown source — a value-domain payload (the code-card precedent). */
     source: string;
     /** Opt-in streaming face: cursor + tail-key semantics (default: a static, final document). */
@@ -52,6 +68,30 @@
     typography?: MarkdownTypography;
     /** Per-node-type renderer overrides — trusted application code (design §3.3). */
     components?: MarkdownComponents;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — additive over the preset's own legacy
+     *  bridge below, never replacing the typography mapping */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -59,6 +99,14 @@
     streaming = false,
     typography = 'standard',
     components,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
     style,
     children,
@@ -70,13 +118,35 @@
   const parser = createMarkdownParser();
   const parsed = $derived(parser(source, streaming));
 
+  // ── the eight-axis surface (W3-D1 — FIRST-TIME contract, all
+  // no-own): the typography presets own the prose scale through
+  // their own tokens; the axes ride ADDITIVELY (an explicit density
+  // lane stamps the §4 carriers for the universal channel without
+  // touching the preset's mapping below)
+  const d = $derived(
+    MarkdownDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
+  // the founding law (pinned by the prose-trio spec): the root never
+  // stamps a density rung for the PRESET's bridge — the face's CSS
+  // density adoption keeps riding the ambient scope channel; only an
+  // EXPLICIT axis lane is the family's own opinion and stamps
+  const rootDensityRung = $derived(density === undefined ? undefined : densityRungOf(d.density));
+
   // ---- the density lane: the typography preset maps onto the ambient
   // slot for CONTEXT-consuming nested chrome (the table.svelte
   // inherit-then-provide pattern, capture EAGER before the provide):
   // compact → sm, standard → default, relaxed → lg. Only the JS context
   // lane — the root never stamps data-density, so the face's CSS density
   // adoption (var(--jx-text) on the scope root) stays untouched by this
-  // hand; the preset owns typography through its own tokens.
+  // hand; the preset owns typography through its own tokens. W3-D1: the
+  // PRESET keeps this legacy mapping verbatim (an explicit density
+  // axis lane never rewrites the preset's own typography mapping — it
+  // rides the universal carriers above, a separate channel).
   const TYPOGRAPHY_DENSITY: Record<MarkdownTypography, Density> = {
     compact: 'sm',
     standard: 'default',
@@ -89,11 +159,14 @@
 </script>
 
 <div
+  bind:this={uniRoot}
   class={cn('jx-pure', className)}
   data-jx-markdown
   data-jx-typography={typography}
   data-jx-markdown-streaming={streaming ? '' : undefined}
-  {style}
+  data-density={rootDensityRung}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   {...rest}
 >
   {#each parsed.blocks as block (block.key)}

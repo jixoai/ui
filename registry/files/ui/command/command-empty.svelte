@@ -11,6 +11,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { CommandDefaults } from './command-defaults.svelte';
   import { commandStyles } from './command.stylex';
   import { cn } from '$lib/utils';
@@ -44,7 +45,7 @@
 
 <div
   data-jx-command-empty=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={cn(cx(commandStyles.empty), className)}
   role="status"
   {...rest}

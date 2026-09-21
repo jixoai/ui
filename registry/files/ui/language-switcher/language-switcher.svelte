@@ -51,6 +51,21 @@
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import {
     LanguageSwitcherDefaults,
     type LanguageSwitcherVariant,
   } from './language-switcher-defaults.svelte';
@@ -68,9 +83,47 @@
     locales: readonly SwitcherLocale[];
     current: string;
     ariaLabel?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
+    class?: string;
   }
 
-  let { variant, locales, current, ariaLabel = 'Language' }: Props = $props();
+  let {
+    variant,
+    locales,
+    current,
+    ariaLabel = 'Language',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+  }: Props = $props();
 
   // the payload's own join (the separator serialize law): plain strings
   // pass through whole; dev objects contribute their string members ($$css dropped).
@@ -89,9 +142,27 @@
       .join(' ');
 
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.4): variant rides a literal slot (own 'pair', never
-  // reads context — a structural selector, not a paint rung)
-  const d = $derived(LanguageSwitcherDefaults.resolve({ variant }));
+  // economy 3.4 + W3-D1): variant rides a literal slot (own 'pair',
+  // never reads context — a structural selector, not a paint rung);
+  // the eight universal axes resolve one record, all no-own
+  const d = $derived(
+    LanguageSwitcherDefaults.resolve({
+      variant,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   // $props.id() must live in its own top-level initializer (compiler law)
   const autoId = $props.id();
@@ -117,7 +188,14 @@
   const anchor = `--jx-lang-${autoId}`;
 </script>
 
-<div data-jx-lang="" class={cx(langStyles.root)}>
+<div
+  bind:this={uniRoot}
+  data-jx-lang=""
+  class={cn(cx(langStyles.root), className)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
   <!-- glyphs through the Icon component; sizing/stroke overrides are
        its props (16px / sw 2 defaults) -->
   <span class={cx(langStyles.iconLane)}><Icon name="languages" size={14} /></span>

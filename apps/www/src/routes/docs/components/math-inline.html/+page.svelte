@@ -115,6 +115,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<MathInline size="medium">…</MathInline>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/math-inline-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -248,6 +254,20 @@ ${close}
       />
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the span paints nothing (prose currentColor; the engine css rides $lib/katex)."
+    >
+      <ComponentCanvas title="MathInline · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Inline math: the span forwards the tree's axes.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"

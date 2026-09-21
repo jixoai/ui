@@ -18,11 +18,13 @@
  *     The union is the variant slot's values tuple (slot-values-first:
  *     values IS the type source, no separate union declaration);
  *     index.ts re-exports it so the public surface keeps its shape.
- *   - density: the no-opinion axis slot. ItemGroup is the family's
- *     density PROVIDER (the r11 eager-capture inherit-then-provide
- *     form); Items and adapters resolve through this slot — explicit
- *     ?? the group's (or any ancestor's) opinion, else unstamped so
- *     the ambient css scope channel keeps flowing (fleet law).
+ *   - density: the universal §4 axis slot (W3-D1 — the legacy
+ *     densitySlot semantics ride the bridged lane). ItemGroup is the
+ *     family's density PROVIDER (the r11 eager-capture
+ *     inherit-then-provide form, narrowed at the legacy edge);
+ *     Items and adapters resolve through this slot — explicit ?? the
+ *     group's (or any ancestor's) opinion, else unstamped so the
+ *     ambient css scope channel keeps flowing (fleet law).
  *   - inset: the LITERAL family (own false) — ItemGroup's fixed
  *     0.75rem inline margins flag, boolean-only by contract; a
  *     boolean is a CLOSED two-value domain, so the slot takes the
@@ -30,6 +32,11 @@
  *     (class b per the design's coverage table).
  *   - tone: the LITERAL family (own 'muted') — ItemAfter's trailing
  *     metadata voice; no axis (class b).
+ *   - the seven other universal axes (§0/§11, W3-D1, all no-own):
+ *     size · shape · radius · color · theme · elevation · motion —
+ *     ItemGroup and the standalone Item row carry the surface (the
+ *     §3 concentric swap rides item.css's corner paint); adapters
+ *     forward through the widened union untouched.
  *
  * item-media's variant prop ('default' | 'icon' | 'image') is a
  * content-type discriminator, not a style rung — it rides the
@@ -40,8 +47,18 @@
  * a member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const listItemVariantSlot = defineLiteralSlot(['auto', 'default', 'outline', 'muted'], 'auto');
 
@@ -62,7 +79,14 @@ export type ItemTone = ReturnType<typeof listItemToneSlot>;
 
 export const ListItemDefaults = defineComponentDefaults({
   variant: listItemVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
   inset: listItemInsetSlot,
   tone: listItemToneSlot,
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

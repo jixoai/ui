@@ -66,6 +66,12 @@
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<List size="medium">…</List>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/list-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -305,6 +311,20 @@
           { name: 'data-jx-list-nav', value: 'presence', description: 'Hook on the wrapper when nav mode is active — only the landmark attributes ride it, never classes.' },
         ]}
       />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the B8 marker channels and the no-margins rhythm law own the paint — the axes ride the LIST element (the nav wrapper is a landmark shell)."
+    >
+      <ComponentCanvas title="List · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>The prose list forwards the axes; marker/indent laws unchanged.</p></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

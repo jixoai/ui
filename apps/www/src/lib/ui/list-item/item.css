@@ -369,21 +369,37 @@
      construction) */
   :where(.jx-item) {
     --jx-item-fill: color-mix(in oklab, var(--foreground) 3.5%, var(--background));
+    /* ── the §3/§14 radius + shape consumption (explicit-props W3-D1)
+       The CONCENTRIC LAW: the row's corner geometry reads the §11
+       carrier chain, never a literal. --jx-radius-consumed is
+       stamped by the component per render (the explicit lane:
+       radius-effective × the §14 factor; auto: §3's max(0px, R − P)
+       × the factor against the row's ancestors — the group frame's
+       carrier supplies R; the var() fallbacks are load-bearing, a
+       bare row resolves 0px through the root sheet's invariants,
+       IACVT never reaches the property). corner-shape rides the
+       §14 alias ladder, round by default (the batch B card law, the
+       row's dialect). */
+    corner-shape: var(--jx-shape-effective, round);
+    border-radius: var(
+      --jx-radius-consumed,
+      calc(
+        max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+        var(--jx-radius-factor-effective, 1)
+      )
+    );
   }
   :where(.jx-item[data-item-chrome='surface']) {
     border: 1px solid var(--border);
     background: var(--jx-item-fill);
     box-shadow: var(--shadow-2xs);
-    border-radius: var(--radius);
   }
   :where(.jx-item[data-item-chrome='outline']) {
     border: 1px solid var(--border);
     background: var(--jx-item-fill);
-    border-radius: var(--radius);
   }
   :where(.jx-item[data-item-chrome='muted']) {
     background: var(--jx-item-fill);
-    border-radius: var(--radius);
   }
   /* chrome="none" (grouped auto) and chrome="default" (explicit
      transparent escape hatch) paint nothing — the group owns the
@@ -411,15 +427,29 @@
   :where(.jx-item-group) {
     width: 100%;
     min-width: 0;
+    /* ── the §3/§14 radius + shape consumption (explicit-props W3-D1)
+       the frame's corner reads the same chain (the component stamps
+       --jx-radius-consumed per render; the fallback below is the
+       auto form verbatim — a bare group resolves 0px through the
+       root sheet's invariants). The frame SUPPLIES its resolved
+       radius downward by the carrier stamp (§11) — rows at
+       radius="auto" compute the concentric R − P against it (rows
+       sit flush: the root sheet's 0px inset invariant governs P) */
+    corner-shape: var(--jx-shape-effective, round);
+    border-radius: var(
+      --jx-radius-consumed,
+      calc(
+        max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+        var(--jx-radius-factor-effective, 1)
+      )
+    );
   }
   :where(.jx-item-group[data-mode='default']) {
     border: 1px solid var(--border);
-    border-radius: var(--radius);
     box-shadow: var(--shadow-xs);
   }
   :where(.jx-item-group[data-mode='muted']) {
     background: var(--jx-item-fill);
-    border-radius: var(--radius);
   }
   /* plain: the host owns the surface — nothing painted here */
   :where(.jx-item-group[data-inset='true']) {
