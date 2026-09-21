@@ -74,6 +74,22 @@
   import type { Snippet } from 'svelte';
   import Icon from '$lib/ui/icon';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { PopoverDefaults, type PopoverSurfaceVariant } from './popover-defaults.svelte';
   import { popoverStyles } from './popover.stylex';
   import './popover.css';
@@ -132,6 +148,34 @@
     trigger?: Snippet;
     panelClass?: string;
     onToggle?: (open: boolean) => void;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size — an explicit lane
+     *  makes the panel the CONCENTRIC ANCHOR (the carrier stamps
+     *  --jx-radius-effective on the top-layer root — self-carried
+     *  across the promotion, the batch C portal law); auto consumes
+     *  the broadcast against the panel's own ancestors */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level2 = the anchored panel's historic z-feel (3dp) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     children: Snippet;
   }
 
@@ -145,15 +189,41 @@
     trigger,
     panelClass = '',
     onToggle,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     children,
   }: Props = $props();
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.2): one line —
-  // the family contract resolves the panel's style props (variant's
-  // own 'auto' lives in PopoverDefaults, auditable in one place;
-  // density is the no-opinion axis slot — nothing stamps, the ambient
-  // css scope channel keeps flowing)
-  const d = $derived(PopoverDefaults.resolve({ variant }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2 + W3-C):
+  // one record — variant's own 'auto' and the panel's own elevation
+  // level2 live in PopoverDefaults; the seven other axes are no-own
+  // (the ambient context flows through the top-layered panel, which
+  // stays a DOM descendant at its authored position)
+  const d = $derived(
+    PopoverDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (PORTAL LAW, W3-C: the carriers stamp the PANEL — the promoted
+  // root is self-carried; the anchor wrapper's ancestors never span
+  // the promotion)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair: the resolved level's shadow recipe + the
+  // PAIRED ladder-rung surface, through the level-table indirection
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
 
   // PHYSICAL placement map (r23): when tryFallbacks drives the try
   // chain, the INITIAL position is written with physical anchor()
@@ -228,6 +298,7 @@
   );
 
   let panel = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => panel ?? null);
   // DIRECTION STATE (r25): the four vector props live in reactive
   // state and render through the style template — the kernel used to
   // write them imperatively via setProperty, and every Svelte style
@@ -256,12 +327,12 @@
     open = panel?.matches(':popover-open') ?? false;
     triggerEl?.setAttribute('aria-expanded', String(open));
     if (open && panel) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     } else {
       panel?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
     }
     onToggle?.(open);
   }
@@ -271,7 +342,7 @@
   // (--jx-p); every visible property is a CSS formula of it (the
   // declarative motion law in jixoai.css). The kernel here only wires
   // the popover's toggle seam and live anchor
-  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
+  const panelMotion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 
   // imperative handle (bind:this) — thin native passthroughs, nothing more
   export function show(source?: HTMLElement): void {
@@ -325,10 +396,27 @@
 <div
   {id}
   popover="auto"
-  class={cx('jx-pop jx-surface', motion.supported && 'jx-waapi', panelClass)}
+  class={cx('jx-pop jx-surface', panelMotion.supported && 'jx-waapi', panelClass)}
   data-variant={d.variant}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   bind:this={panel}
-  style="--jx-pop-gap: {gapValue || '0px'}; position-anchor: {anchorName}; --jx-surface-in-x: {dir.ix}; --jx-surface-in-y: {dir.iy}; --jx-surface-ox: {dir.ox}; --jx-surface-oy: {dir.oy}; {tryFallbacks ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};` : `inset-area: ${area}; position-area: ${area};`}"
+  style={[
+    carriers,
+    radiusConsumed,
+    elevationConsumed,
+    `--jx-pop-gap: ${gapValue || '0px'}`,
+    `position-anchor: ${anchorName}`,
+    `--jx-surface-in-x: ${dir.ix}`,
+    `--jx-surface-in-y: ${dir.iy}`,
+    `--jx-surface-ox: ${dir.ox}`,
+    `--jx-surface-oy: ${dir.oy}`,
+    tryFallbacks
+      ? `${physical}; position-try: ${tryFallbacks}; position-try-fallbacks: ${tryFallbacks};`
+      : `inset-area: ${area}; position-area: ${area};`,
+  ]
+    .filter(Boolean)
+    .join('; ')}
   ontoggle={onPanelToggle}
 >
   <!-- jx-surface-body = THE SURFACE (fill + acrylic blur + the ::after

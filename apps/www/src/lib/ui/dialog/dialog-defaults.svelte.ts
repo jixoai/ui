@@ -20,6 +20,16 @@
  *            top-layered <dialog>, which stays a DOM descendant for
  *            cascade purposes); the slot declares the family
  *            density-manageable without manufacturing an opinion.
+ *   elevation (W3-C) the ONE own on the overlay surface: the modal's
+ *            historic z-feel mapped onto the §7 level table — level4
+ *            (8dp, M3's dialog rung). The consumption pair composes
+ *            the theme's level table (shadow recipe + the paired
+ *            ladder-rung surface); an explicit lane overrides, auto
+ *            inherits the tree's opinion.
+ *   size · shape · radius · color · theme · motion (W3-C): the other
+ *            universal axes, all no-own — a modal panel takes its
+ *            opinions from its ancestors and supplies them, resolved,
+ *            downward through the top layer.
  *
  * zone/entity wiring stays OUT (the frozen pilot decision, X2-11):
  * Dialog's ghost ButtonVariantScope usage is untouched in place — the
@@ -27,8 +37,18 @@
  * (task 1.2).
  */
 
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 /**
  * The floating-surface paint variant — the family grammar, single-sourced
@@ -40,5 +60,12 @@ export type DialogSurfaceVariant = ReturnType<typeof dialogSurfaceVariantSlot>;
 
 export const DialogDefaults = defineComponentDefaults({
   variant: dialogSurfaceVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot('level4'),
+  motion: motionAxisSlot(),
 });

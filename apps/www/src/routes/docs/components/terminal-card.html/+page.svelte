@@ -96,6 +96,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<TerminalCard barTitle="jixoai/ui — zsh" command="deploy" outputs={[...]} size={14} />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/terminal-card-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -214,5 +220,20 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="command as a plain string; outputs surface line by line after the typing completes — replay by re-mounting."><CodeBlock code={usage} lang="svelte" meta="TerminalCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The settled terminal is real text in the markup; the entrance is decoration hidden from readers."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'On the traffic-light dots and the static block cursor — pure scenery' }, { name: 'prerendered output', value: 'settled', description: 'typed = command in markup: the full command + outputs are real text before any JS' }, { name: 'prefers-reduced-motion', value: 'instant', description: 'Returns before the first timer — the card renders fully settled' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint: the bezel is fixed chrome. The scoped token class swaps dark for the light CRT shell; one rhythm divides by speed."><div class={cx(rt.col24)}><DensityDemo><TerminalCard barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['one-shot typing · static cursor']} /></DensityDemo><TokenTable tokens={[{ name: 'jx-light', default: 'scoped token class', source: 'component', description: 'theme="light" swaps the dark lock for the light CRT shell' }, { name: 'type rhythm', default: '42ms + 0-40ms jitter / 110ms outputs', source: 'component', description: 'Every delay divides by the speed multiplier (default 1, clamped ≥ 0.25)' }, { name: 'shadow', default: '6px hard offset', source: 'component' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The bezel carries SEVEN lanes: its `theme` prop is the SHELL lock (own-before-ambient, dark-locked regardless of the tree) — NOT the theme axis' ambient-first law; §13 rules no rename, so the theme axis forwards ambient, unadopted (the ghostty-term precedent). Elevation carries NO own — the bezel's 6px hard offset shadow is its own documented law; an explicit lane steps the §7 table over it."
+    >
+      <ComponentCanvas title="TerminalCard · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><TerminalCard barTitle="universal · zsh" command="jixoai deploy --axes" outputs={['eight axes · resolved in one record', 'theme axis forwarded ambient (the shell lock owns the name)']} /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the TerminalCard Props interface — title, command, outputs, theme, pace."><PropsTable props={[{ name: 'barTitle', type: 'string', default: '—', description: 'Title-bar text (e.g. "quick-start — zsh").', required: true }, { name: 'command', type: 'string', default: '—', description: 'The one large typed command.', required: true }, { name: 'outputs', type: 'readonly string[]', default: '—', description: 'Lines surfacing one by one after the typing completes.', required: true }, { name: 'theme', type: "'dark' | 'light' | 'system'", default: "'dark'", description: 'Bezel shell; dark-locked by default, light/system opt into the CRT shell.' }, { name: 'speed', type: 'number', default: '1', description: 'Divides every delay; clamped ≥ 0.25 — read on mount, re-mount to apply.' }]} /></SectionCard></div>
 </div>

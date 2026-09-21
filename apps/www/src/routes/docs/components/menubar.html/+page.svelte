@@ -108,6 +108,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<Menubar label="actions" elevation="level3">…</Menubar>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/menubar-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -202,5 +208,24 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="MenubarItem owns the stable id; Trigger and Panel derive their paired ids from it."><CodeBlock code={usage} lang="svelte" meta="Menubar usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The application menu follows menubar and menu keyboard patterns with a roving top-level tab stop."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move across top-level menus or within an open panel.' }, { key: 'Home / End', action: 'Jump to the first or last menu.' }, { key: 'Escape', action: 'Close the panel and return focus to its trigger.' }]} aria={[{ name: 'role', value: 'menubar / menuitem / menu', description: 'Exposes the application menu hierarchy.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs each trigger with its panel.' }, { name: 'aria-haspopup', value: 'menu', description: 'Identifies triggers that open a menu.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The bar and its menu items consume the shared density rhythm plus a bar gap."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><Menubar label="density"><MenubarItem id="density-file"><MenubarTrigger>File</MenubarTrigger><MenubarPanel><MenubarMenuItem>Open</MenubarMenuItem></MenubarPanel></MenubarItem></Menubar></DensityDemo><TokenTable tokens={[{ name: '--jx-bar-gap', default: '8px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The BAR resolves the axes (all no-own — chrome never manufactures opinions); its floating PANEL rides the family's own elevation level2 (3dp, the menu rung) through the §11 supply, which the panel's top-layer promotion cannot cut (context follows the component tree)."
+    >
+      <ComponentCanvas title="Menubar · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}>
+          <Menubar label="universal axes">
+            <MenubarItem><MenubarTrigger>File</MenubarTrigger><MenubarPanel>…panel rides the family resolution…</MenubarPanel></MenubarItem>
+          </Menubar>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The family is intentionally split into root, item, trigger, panel, and leaf props."><PropsTable title="Menubar" props={[{ name: 'label', type: 'string', default: "'menu bar'", description: 'Accessible menubar landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint for every panel in the bar. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }]} /><div class={cx(rt.mt20)}><PropsTable title="MenubarItem / MenubarMenuItem" props={[{ name: 'id', type: 'string', description: 'Stable id owned by MenubarItem.' }, { name: 'href', type: 'string', description: 'Renders a navigating menu item when provided.' }, { name: 'onselect', type: '(event: MouseEvent) => void', description: 'Runs an action before the panel closes.' }]} /></div></SectionCard></div>
 </div>

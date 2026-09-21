@@ -30,8 +30,19 @@
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot, defineOpenSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  defineOpenSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const navigationMenuSurfaceVariantSlot = defineLiteralSlot(['solid', 'acrylic', 'auto'], 'auto');
 
@@ -52,7 +63,14 @@ export const navigationMenuInsetSlot = defineOpenSlot<number>(0);
 export type NavigationMenuSurfaceVariant = ReturnType<typeof navigationMenuSurfaceVariantSlot>;
 
 export const NavigationMenuDefaults = defineComponentDefaults({
-  density: densitySlot(),
+  density: densityAxisSlot(),
   variant: navigationMenuSurfaceVariantSlot,
   inset: navigationMenuInsetSlot,
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot('level2'),
+  motion: motionAxisSlot(),
 });

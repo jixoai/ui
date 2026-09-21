@@ -5,6 +5,7 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import FloatButton from '$lib/ui/float-button/float-button.svelte';
+  import Icon from '$lib/ui/icon';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
@@ -85,6 +86,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<FloatButton label="Actions" corner="bottom-right" elevation="level4">…</FloatButton>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/float-button-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <style>
@@ -310,6 +317,21 @@ ${close}
   </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="FloatButton usage" /></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The fab carries its OWN elevation — level3 (6dp, M3's FAB rung); the MENU panel rides the family resolution. The carriers stamp the family root (the stack wrapper / the fixed button); the panel's promotion keeps the DOM, so the stamps inherit down."
+    >
+      <ComponentCanvas title="FloatButton · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><FloatButton label="Compose · level3 default" corner="bottom-right"><Icon name="plus" /></FloatButton></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="FloatButton owns position and popover wiring while leaving command content to the caller.">
       <PropsTable props={[

@@ -33,20 +33,88 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { TerminalFooterDefaults } from './terminal-footer-defaults.svelte';
   import { terminalFooterStyles } from './terminal-footer.stylex';
   import './terminal-footer.css';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     /** the ghost wordmark (decorative, aria-hidden) */
     ghost: string;
     /** the © row text (defaults to the live year) */
     copyright?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge). UNLIKE the terminal
+     * bezel (header/card), the footer carries NO shell-theme literal
+     * — the name is free, the axis joins whole */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query(). NO own — the footer is flat page chrome */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     children: Snippet;
   }
 
-  let { ghost, copyright, class: className = '', children, ...rest }: Props = $props();
+  let {
+    ghost,
+    copyright,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+    style = '',
+    children,
+    ...rest
+  }: Props = $props();
   const year = new Date().getFullYear();
+
+  // ── the eight-axis surface (W3-C — FIRST-TIME contract, all
+  // no-own: the footer is flat page chrome, the supply chain is the
+  // point)
+  const d = $derived(
+    TerminalFooterDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
 
   // the payload's own join (separator's serialize law): objects in
   // dev, joined strings in payloads — never a raw interpolation
@@ -70,7 +138,11 @@
      padding steps and their sm/lg seams) lives in terminal-footer.css —
      media rules cannot re-pin atoms (the F9 layer order) -->
 <footer
+  bind:this={uniRoot}
   data-jx-terminal-footer=""
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={className}
   {...rest}
 >

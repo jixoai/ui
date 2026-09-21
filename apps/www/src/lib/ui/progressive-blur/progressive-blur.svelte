@@ -45,6 +45,22 @@
 -->
 <script lang="ts">
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { ProgressiveBlurDefaults } from './progressive-blur-defaults.svelte';
   import { pblurStyles } from './progressive-blur.stylex';
   import './progressive-blur.css';
 
@@ -69,6 +85,31 @@
   /** band law shared by both dialects — size, ladder and reveal are
    *  dialect-free */
   interface ProgressiveBlurBandProps {
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query(). NO own — the band is a FLAT subtractive veil by
+     *  design (the 减色墨律's own child); an explicit lane or the
+     *  ambient tree's flows to the carriers */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** band size along its hang axis — any definite CSS length
         (px/rem); % unsupported */
     height?: string;
@@ -130,8 +171,30 @@
     reveal = 'static',
     pin = 'sticky',
     hold = 0,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: ProgressiveBlurProps = $props();
+
+  // ── the eight-axis surface (W3-C): the band's FIRST-TIME Defaults
+  // contract — all no-own (a flat subtractive veil carries no surface
+  // opinions; the supply chain is the point). The carriers stamp BOTH
+  // dialect roots (grid + sticky) — whichever renders is the family
+  // root for the §11 broadcast
+  const d = $derived(
+    ProgressiveBlurDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   /** which edges render: 'both' = the block pair, 'inline' = the
    *  inline pair (start+end) — the horizontal-overflow strip shape.
@@ -249,10 +312,13 @@
         edge === 'bottom' && cx(pblurStyles.gridBottom),
         className,
       )}
-      style="{edge === 'top' || edge === 'bottom' ? 'height' : 'width'}: {height}"
+      style="{edge === 'top' || edge === 'bottom' ? 'height' : 'width'}: {height}{rootStyle ? `; ${rootStyle}` : ''}"
+      bind:this={uniRoot}
       data-jx-pblur=""
       data-position={edge}
       data-variant={reveal}
+      data-density={densityRungOf(d.density)}
+      class:dark={d.theme === 'dark'}
       aria-hidden="true"
     >
       {#each levels as _, i (i)}
@@ -279,9 +345,13 @@
         edge === 'end' && cx(pblurStyles.endEdge),
         className,
       )}
+      bind:this={uniRoot}
       data-jx-pblur=""
       data-position={edge}
       data-variant={reveal}
+      data-density={densityRungOf(d.density)}
+      class:dark={d.theme === 'dark'}
+      style={rootStyle}
       aria-hidden="true"
     >
       {#if edge === 'top' || edge === 'bottom'}

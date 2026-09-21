@@ -91,6 +91,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<TerminalFooter ghost="JIXOAI/UI" theme="dark">…columns…</TerminalFooter>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/terminal-footer-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -205,5 +211,20 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the footer from column parts; ghost and copyright are the shell's own strings."><CodeBlock code={usage} lang="svelte" meta="TerminalFooter usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The ghost is decorative by declaration; the real content is the composed landmark and its free links."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the column links in composed order' }]} aria={[{ name: 'aria-hidden', value: 'true', description: 'On the ghost wordmark + select-none — pure sign-off, never information' }, { name: 'footer', value: 'landmark', description: 'The root is a real footer element' }, { name: 'target/rel', value: 'yours', description: 'External link attributes are authored by the caller on the free anchors' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Viewport-scaled chrome, not density-scaled: the ghost breathes by 11vw; the paint is three text-stroke declarations with an @supports fallback."><div class={cx(rt.col24)}><DensityDemo><TerminalFooter ghost="JIXOAI-UI" copyright="© 2026 jixoai · MIT"><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a></TerminalFooterColumn></TerminalFooter></DensityDemo><TokenTable tokens={[{ name: 'ghost scale', default: 'clamp(3rem, 11vw, 9rem)', source: 'component' }, { name: '-webkit-text-stroke', default: '1px border @ 55%', source: 'color' }, { name: '@supports fallback', default: '35% border-tinted fill', source: 'color' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own — the footer is flat page chrome. Unlike the terminal bezel twins (header/card, whose shell-theme literal owns the `theme` name), the footer carries NO theme literal — the theme axis joins WHOLE."
+    >
+      <ComponentCanvas title="TerminalFooter · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Flat chrome, whole axes: the theme axis joins here (no shell literal owns the name).</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the TerminalFooter and TerminalFooterColumn Props interfaces."><PropsTable props={[{ name: 'ghost', type: 'string', default: '—', description: 'The ghost wordmark (decorative, aria-hidden).', required: true }, { name: 'copyright', type: 'string', default: '© {live year}', description: 'The © row text.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The meta row — compose TerminalFooterColumn parts.', required: true }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough (footer root / column root).' }, { name: 'Column: title', type: 'string', default: '—', description: 'The column heading; omit for an untitled link stack.' }, { name: 'Column: children', type: 'Snippet', default: '—', description: 'FREE link children — anchors are yours to author.', required: true }]} /></SectionCard></div>
 </div>

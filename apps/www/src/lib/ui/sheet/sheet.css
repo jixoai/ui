@@ -17,6 +17,24 @@
  * popover's did (all-animated-styling-to-WAAPI ruling). */
 
 @layer components {
+  /* ── the §3/§14 radius + shape consumption (explicit-props W3-C):
+     the drawer's silhouette — --jx-radius-consumed is stamped per
+     render by the component (explicit lane: radius-effective × the
+     §14 factor; auto: the §3 concentric calc × the factor against
+     the panel's OWN ancestors; the fallback below is the auto form
+     verbatim — the root sheet's invariants close it, IACVT never
+     lands). corner-shape rides the §14 alias ladder, round default */
+  :where(.jx-sheet) {
+    corner-shape: var(--jx-shape-effective, round);
+    border-radius: var(
+      --jx-radius-consumed,
+      calc(
+        max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+        var(--jx-radius-factor-effective, 1)
+      )
+    );
+  }
+
   /* x-glyph scale — a descendant boundary utilities never own */
   :where(.jx-sheet-x) svg {
     width: 0.875rem;

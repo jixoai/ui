@@ -20,7 +20,17 @@
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const terminalHeaderThemeSlot = defineLiteralSlot(['dark', 'light', 'system'], 'dark');
 
@@ -35,4 +45,14 @@ export type TerminalHeaderTheme = ReturnType<typeof terminalHeaderThemeSlot>;
 
 export const TerminalHeaderDefaults = defineComponentDefaults({
   theme: terminalHeaderThemeSlot,
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  // W3-C: NO themeAxisSlot — the bezel theme literal owns the name
+  // (the unruled-collision law, the ghostty-term precedent); the
+  // theme axis forwards ambient, unadopted
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

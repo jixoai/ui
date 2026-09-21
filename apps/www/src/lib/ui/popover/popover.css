@@ -31,6 +31,21 @@
   padding: 0;
   font-size: 13px;
   color: var(--popover-foreground);
+  /* ── the §3/§14 radius + shape consumption (explicit-props W3-C):
+     --jx-radius-consumed is stamped per render by the component
+     (explicit lane: radius-effective × the §14 factor; auto: the §3
+     concentric calc × the factor against the panel's OWN ancestors —
+     the fallback below, the auto form verbatim; the root sheet's
+     invariants close it, IACVT never lands). corner-shape rides the
+     §14 alias ladder, round default */
+  corner-shape: var(--jx-shape-effective, round);
+  border-radius: var(
+    --jx-radius-consumed,
+    calc(
+      max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+      var(--jx-radius-factor-effective, 1)
+    )
+  );
 }
 /* Engines without the FULL anchored-positioning set: authored
    viewport-center — the v1 visual, never worse. The check is JOINT

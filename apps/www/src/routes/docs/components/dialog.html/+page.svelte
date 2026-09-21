@@ -280,6 +280,28 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<!-- the §7 elevation × surface-ladder ladder (light, shadows lead) -->
+<Dialog title="level4 · the modal default" bind:open={u1}>…</Dialog>
+<Dialog title="level3 · one rung down" elevation="level3" bind:open={u2}>…</Dialog>
+<!-- the number lane: exact dp snaps DOWN to the enclosing rung -->
+<Dialog title="6dp · the number lane" elevation={6} bind:open={u3}>…</Dialog>
+<!-- the concave rung: inset shadow + the deepest surface -->
+<Dialog title="level-1 · the concave" elevation="level-1" bind:open={u4}>…</Dialog>
+<!-- the concentric anchor: radius 20 supplies --jx-radius-effective
+     through the top layer; children at auto compute max(0px, R − P) -->
+<Dialog title="radius 20 · the anchor" radius={20} bind:open={u5}>
+  <PressButton radius="auto">auto radius — 6px</PressButton>
+</Dialog>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/dialog-universal.svelte', content: universalUsage },
+  ];
+  let u1 = $state(false);
+  let u2 = $state(false);
+  let u3 = $state(false);
+  let u4 = $state(false);
+  let u5 = $state(false);
+  let u6 = $state(false);
 </script>
 
 <svelte:head>
@@ -745,6 +767,34 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same animated close."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role, focus trap, and Escape are the platform's."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class={cx(rt.col20)}><p class={cx(rt.bodyMuted)}>the trigger inherits the density scope, the surface inherits through the DOM tree — flip the canvas dock's density select (xs / sm / default / lg) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that select.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The modal carries its OWN elevation — level4 (8dp, M3's dialog rung): the theme's level table pairs every level's shadow recipe with a surface-ladder rung (§7, shadows lead in light). An explicit lane or a dp number steps the pair; the carriers stamp the top-layered root itself (the promotion moves paint, not DOM — the batch C portal law), so a radius opinion anchors the concentric law for everything inside."
+    >
+      <ComponentCanvas title="Dialog · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.wrap12)}>
+          <PressButton onclick={() => (u1 = true)}>level4 · default</PressButton>
+          <PressButton onclick={() => (u2 = true)}>level3</PressButton>
+          <PressButton onclick={() => (u3 = true)}>elevation=&#123;6&#125;</PressButton>
+          <PressButton onclick={() => (u4 = true)}>level-1 · concave</PressButton>
+          <PressButton onclick={() => (u5 = true)}>radius 20 · concentric</PressButton>
+          <PressButton onclick={() => (u6 = true)}>dark · theme axis</PressButton>
+        </div>
+        <Dialog title="level4 · the modal default" variant="solid" bind:open={u1}><p class={cx(rt.text13)}>The own level: 8dp shadow recipe + the surface-container-high rung.</p></Dialog>
+        <Dialog title="level3 · one rung down" variant="solid" elevation="level3" bind:open={u2}><p class={cx(rt.text13)}>6dp + the surface-container rung.</p></Dialog>
+        <Dialog title="6dp · the number lane" variant="solid" elevation={6} bind:open={u3}><p class={cx(rt.text13)}>Exact dp snaps down to the enclosing table rung — 6dp IS level3.</p></Dialog>
+        <Dialog title="level-1 · the concave" variant="solid" elevation="level-1" bind:open={u4}><p class={cx(rt.text13)}>The inset 1px shadow over the deepest ladder rung — 可填充的凹陷.</p></Dialog>
+        <Dialog title="radius 20 · the concentric anchor" radius={20} bind:open={u5}><p class={cx(rt.pb8, rt.text13)}>children at radius="auto" compute max(0px, 20 − 14) = 6px — the §3 law through the top layer.</p><PressButton radius="auto">auto radius</PressButton></Dialog>
+        <Dialog title="dark · the theme axis" variant="solid" theme="dark" bind:open={u6}><p class={cx(rt.text13)}>In dark the surface rungs STEP (shadows are weak there) — the level4 pair resolves surface-container-high's dark value.</p></Dialog>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props — the platform owns every behavior; the component owns state binding, zone presence, and the zone variant scopes. The footer snippet is the RAW full override of the foot zone; the head/footer content faces are the composition components below."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading of the default title row (rendered through CardHeader); omit for a chrome-less body. Still names the dialog (aria-label) when a head snippet replaces the visible row.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint; auto defers to the environment’s transparency preference. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'class', type: 'string', default: "''", description: 'Geometry-only utilities appended after the law’s own (a consumer’s anchor/width, a scroll-ring cap); the platform still paints nothing.' }, { name: 'scroll', type: 'boolean', default: 'true', description: 'The body zone’s scroll authority (the panel never scrolls). false asserts the body fits — the scroll authority and the stable both-edges gutter reservation retire together.' }, { name: 'head', type: 'Snippet', default: '—', description: 'Replaces the visible title row — typically a CardHeader wrapping custom content; the × close still rides the head grid’s end slot.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body — the only scrollable zone.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'The RAW full override of the foot zone — its standard content is a CardFooter (buttons auto-joined in one end-packed group, ghost by the zone’s scope).' }, { name: 'cancelGuard', type: '() => boolean', default: '—', description: 'Consulted on the native cancel request (Escape); returning true holds the dialog open (e.g. through an IME composition).' }]} /></SectionCard></div>
   <div id="composition" data-reveal=""><SectionCard family="composition" headerRegion="composition" eyebrow="api" title="CardHeader · CardFooter — the zone content faces" summary="The slot architecture belongs to the zones' content, carried by components (r14-9): Dialog renders the zones and writes the ghost variant scopes; these two are what the zones usually show. CardHeader is also Dialog's internal default — the untitled title row has exactly one source."><PropsTable props={[{ name: 'CardHeader · title', type: 'string', default: '—', description: 'The default title row (padded chrome bar); yields to children.' }, { name: 'CardHeader · children', type: 'Snippet', default: '—', description: 'Custom head content, FLUSH edge-to-edge — owns its own geometry (the palette’s Input).' }, { name: 'CardFooter · children', type: 'Snippet', default: '—', description: 'The action buttons — auto-joined in ONE ButtonGroup packed at inline-end; ghost inherited from the Dialog zone scope, an explicit variant wins; ghost seams rule the buttons.' }, { name: 'CardFooter · end', type: 'Snippet', default: '—', description: 'Raw inline-end content: present, it replaces the grouped arrangement entirely — the opt-out for non-button content or a custom cluster, bracket and all.' }, { name: 'CardFooter · opening line', type: 'structural', default: 'leadingSeam', description: 'The actions region’s boundary — the ButtonGroup’s leadingSeam capability: the first button’s own flush seam pseudo (r14-13), not a sibling element; gone with the group under the end face.' }, { name: 'CardFooter · label', type: 'string', default: "'Dialog footer'", description: 'The ButtonGroup’s accessible name.' }]} /></SectionCard></div>
 </div>

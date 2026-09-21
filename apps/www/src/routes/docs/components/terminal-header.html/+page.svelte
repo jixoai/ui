@@ -128,6 +128,12 @@ two tiers
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<TerminalHeader brand="jixoai" domain="ui" density="small" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/terminal-header-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -254,5 +260,20 @@ two tiers
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Render once per site in the shell's header slot; compose the nav from the navigation-menu family."><CodeBlock code={usage} lang="svelte" meta="TerminalHeader usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A banner landmark whose panels stay the browser's popovers; the drawer is a disclosure with Escape."><A11yTable keys={[{ key: 'Tab', action: 'Brand, the family roving pill walk, switcher — in wing order' }, { key: 'Escape', action: 'Closes the drawer and any open panel (popover=auto native behavior)' }]} aria={[{ name: 'aria-current', value: 'page', description: 'The indicator repaints from the DOM — the header never sees your nav data' }, { name: 'banner', value: 'landmark', description: 'The bar renders once per site; a second instance would duplicate the primary navigation' }, { name: 'popover', value: 'auto', description: 'Panels get light dismiss + top layer from the platform; the header adds only closeAll() cleanup' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Fixed chrome, no density scaling: the bezel speaks the surface tokens; the pill pads and panel pads are the css-band variables."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.flex, rt.itemsCenter, rt.justifyBetween, rt.frame, rt.bgMuted40, rt.px12, rt.py8)}><span class={cx(rt.fontNav, rt.text11, rt.upper, rt.thdTrack20)}>brand wing</span><span class={cx(rt.fontMono, rt.text11)}>pill wing</span></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: 'panel block pad', source: 'component' }, { name: '--jx-pop-pad-inline', default: 'panel inline pad', source: 'component' }, { name: '--jx-panel-pad', default: 'subpanel pad', source: 'component' }, { name: '--jx-surface-solid-fill', default: 'solid bezel fill', source: 'color' }, { name: '--jx-surface-acrylic-fill', default: 'acrylic bezel fill', source: 'color' }, { name: '--jx-surface-border-color', default: 'bezel border', source: 'color' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The bezel bar carries SEVEN lanes: its `theme` prop is the SHELL lock (own-before-ambient), not the theme axis — §13 rules no rename, the axis forwards ambient (the ghostty-term precedent). The bar itself is flat chrome: elevation carries no own."
+    >
+      <ComponentCanvas title="TerminalHeader · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>The header resolves the record once; the composed nav and switcher read the §11 supply through the component tree.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the TerminalHeader Props interface — brand strings, bezel lock, four snippet seams, and the switcher frame law."><PropsTable props={[{ name: 'brand', type: 'string', default: '—', description: 'The wordmark line of the brand block.', required: true }, { name: 'domain', type: 'string', default: '—', description: 'Second brand line (the domain).' }, { name: 'subtitle', type: 'string', default: '—', description: 'Third brand line — desktop tier only.' }, { name: 'homeHref', type: 'string', default: '—', description: "The brand block's link target." }, { name: 'theme', type: "'dark' | 'light' | 'system'", default: "'dark'", description: 'Bezel theme lock.' }, { name: 'logo', type: 'Snippet', default: '—', description: 'The brand mark (logo slot).' }, { name: 'switcher', type: 'Snippet', default: '—', description: 'Right-wing control slot (theme toggle, hue switcher…).' }, { name: 'switcherFrame', type: 'boolean', default: 'true', description: 'Wrap the switcher slot in the bezel frame (border + p-0.5, the 38px outer band shared with the pill box); opt out for controls carrying their own frame.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The desktop nav slot — compose NavigationMenu parts here.' }, { name: 'drawer', type: 'Snippet', default: '—', description: "The mobile drawer's contents (the stacked tier's nav)." }, { name: 'open', type: 'boolean', default: '—', description: "The drawer's open state; bind:open is your reset signal.", bindable: true }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the bar root.' }]} /></SectionCard></div>
 </div>

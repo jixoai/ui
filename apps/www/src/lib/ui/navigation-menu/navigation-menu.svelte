@@ -48,12 +48,12 @@
 
   /** the bar's context surface: state + behavior, never membership order */
   export interface NavigationMenuApi {
-    readonly density: import('$lib/density.svelte').Density | undefined;
+    readonly density: import('$lib/defaults.svelte').DensityRung | undefined;
   /** the OPINION behind the resolution — undefined when the bar fell
       back to 'default' (triggers/panels stamp ONLY this, so a bar with
       no density opinion rides the ambient css scope — e.g. a chrome
       band — instead of re-scoping its subtree) */
-  readonly densityOpinion: import('$lib/density.svelte').Density | undefined;
+  readonly densityOpinion: import('$lib/defaults.svelte').DensityLane | undefined;
     /** first-wins registry for the arrow-walk glide; key = `${itemId}-panel` */
     register(panelId: string, anchorName: string, handles: NavigationMenuPanelHandles): void;
     /** identity-guarded: only the winning registrant can remove itself */
@@ -78,23 +78,76 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
-  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import { provideDensity, resolveDensity, getDensityContext } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { navMenuStyles } from './navigation-menu.stylex';
 import { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './navigation-menu-defaults.svelte';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
-    density?: Density;
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
+    density?: DensityLane | QueryResult<DensityLane>;
     /** nav landmark label */
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: NavigationMenuSurfaceVariant;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level2 = the nav panel's historic z-feel (3dp, the menu rung —
+     *  the NAV itself is chrome, never elevated) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     children: Snippet;
   }
 
-  let { label = 'site', density, variant, class: className = '', children, ...rest }: Props = $props();
+  let {
+    label = 'site',
+    density,
+    variant,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+    style = '',
+    children,
+    ...rest
+  }: Props = $props();
 
   // the payload's own join (the separator serialize law): plain strings
   // pass through whole; dev objects contribute their string members ($$css dropped).
@@ -131,8 +184,12 @@ import { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './nav
   // key to the nav's OWN write and self-reference through the very
   // getter it feeds (derived_references_self — the pre-3.3 bare capture
   // this replaces). The returned getters read ONLY the captured object
+  // The W3 universal lane narrows at the legacy edge (the input-group
+  // law): 'auto'/number/query lanes carry no legacy rung — the rung
+  // stays ambient (§4), the coefficient rides the carriers on the root
+  const legacyDensityLane = $derived(densityRungOf(density));
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   // context is an OPINION channel too: the provider is ALWAYS on and
   // carries the honest opinion (undefined = none flows down — consumed
@@ -140,21 +197,46 @@ import { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './nav
   // would not survive density prop rerenders in either direction
   // (Codex r2 P1)
   const densityOpinion = $derived.by(
-    ((inherited) => () => density ?? inherited?.density)(getDensityContext()),
+    ((inherited) => () => legacyDensityLane ?? inherited?.density)(getDensityContext()),
   );
   provideDensity(() => densityOpinion);
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
-  // TOP of the provider lane as the family's single audited read point:
-  // the density slot's ambient read resolves the key to the nav's own
-  // write, whose getter is the captured-parent opinion above, so the
-  // chain TERMINATES; variant resolves through the literal slot (own
-  // 'auto' declared in NavigationMenuDefaults, auditable in one place)
-  const d = $derived(NavigationMenuDefaults.resolve({ density, variant }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3 + W3-C),
+  // riding ON TOP of the provider lane as the family's single audited
+  // read point: the density slot's ambient read resolves the key to
+  // the nav's own write, whose getter is the captured-parent opinion
+  // above, so the chain TERMINATES; variant resolves through the
+  // literal slot (own 'auto' declared in NavigationMenuDefaults); the
+  // panel's own elevation level2 rides the same record
+  const d = $derived(
+    NavigationMenuDefaults.resolve({ density, variant, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (the nav root's ANCESTORS are the candidate containers). The
+  // universal density supply rides the bridged provideDensity write
+  // above; this supply carries the other seven axes downward — the
+  // PANEL (a top-layer promotion) reads them through the context
+  // supply, which follows the COMPONENT tree, never the promotion
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair + the solid-fill bridge (rides the nav root;
+  // the PANEL reads it through the DOM inheritance a promotion keeps)
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const rootStyle = $derived(
+    [carriers, radiusConsumed, elevationConsumed, style].filter(Boolean).join('; ') || undefined,
+  );
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
   let navEl = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => navEl ?? null);
   /** open state mirrors ONLY the panels' native toggle seam — the
       native toggle event covers click, light dismiss, Escape and
       one-at-a-time, so aria-expanded never lies */
@@ -269,7 +351,9 @@ import { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './nav
   data-jx-navmenu=""
   class={cn(cx(navMenuStyles.bar), className)}
   {...rest}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   aria-label={label}
   onkeydown={handleKeydown}
 >

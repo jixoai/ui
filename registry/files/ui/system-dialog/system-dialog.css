@@ -30,8 +30,29 @@
        (the split strip's end cells) pairs concentrically through
        var(--jx-corner) instead of poking past the curve. The inner
        engrave shadow follows the button's own radius natively — the
-       reason clipping was ruled out (it would shear the shadow too) */
-    --jx-corner: var(--radius, 0px);
+       reason clipping was ruled out (it would shear the shadow too).
+       W3-C: the corner context and the panel's own silhouette both
+       ride the §3/§14 consumed chain — --jx-radius-consumed is
+       stamped per render by the component (explicit lane:
+       radius-effective × the factor; auto: the concentric calc × the
+       factor against the panel's OWN ancestors — the fallback below,
+       the auto form verbatim; the root sheet's invariants close it).
+       corner-shape rides the §14 alias ladder, round default */
+    --jx-corner: var(
+      --jx-radius-consumed,
+      calc(
+        max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+        var(--jx-radius-factor-effective, 1)
+      )
+    );
+    corner-shape: var(--jx-shape-effective, round);
+    border-radius: var(
+      --jx-radius-consumed,
+      calc(
+        max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+        var(--jx-radius-factor-effective, 1)
+      )
+    );
   }
 
   /* Engines without the full anchored-positioning set (JOINT check —

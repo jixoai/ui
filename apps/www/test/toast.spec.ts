@@ -282,7 +282,9 @@ describe('toast — material × effect × countdown', () => {
     // card hook + the .jx-press law)
     const pressCss = readFileSync('src/lib/ui/toast/toast.css', 'utf8');
     expect(pressCss).toContain(':where([data-jx-toast].jx-press)');
-    expect(pressCss).toContain('--jx-press-shadow: var(--shadow);');
+    // W3-C §7: the rest pose composes the elevation recipe first (the
+    // viewport's own level3 — the snackbar rung), falling to --shadow
+    expect(pressCss).toContain('--jx-press-shadow: var(--jx-elevation-shadow, var(--shadow));');
     expect(pressCss).toContain('--jx-press-shadow-hover: var(--shadow-md);');
     // the close slot is the named icon (R3-3), never a literal symbol
     expect(toast.querySelector('[data-jx-toast-dismiss] [data-jx-icon]')).toBeTruthy();

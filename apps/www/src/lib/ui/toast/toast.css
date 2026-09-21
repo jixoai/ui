@@ -52,11 +52,23 @@
   }
 
   /* ── the press physics tuning (float tier — from the markup's
-     arbitrary-property utilities; the .jx-press law sheet reads them) ── */
+     arbitrary-property utilities; the .jx-press law sheet reads them).
+     W3-C §7: the REST pose rides the elevation level's shadow recipe
+     when the viewport resolved one (own level3, the snackbar rung);
+     the hover/active poses stay the press law's own ── */
   :where([data-jx-toast].jx-press) {
-    --jx-press-shadow: var(--shadow);
+    --jx-press-shadow: var(--jx-elevation-shadow, var(--shadow));
     --jx-press-shadow-hover: var(--shadow-md);
     --jx-press-shadow-active: var(--shadow-md-press);
+  }
+
+  /* ── the §7 surface pairing (W3-C): the neutral popover material's
+     ground STEPS the ladder rung when the viewport resolved an
+     elevation (own level3) — a role step per the 减色墨律, never a
+     tint overlay; tonal/glass own their grounds (the variant and
+     material opinions outrank the neutral rung) ── */
+  :where([data-jx-toast][data-material='popover']) {
+    background-color: var(--jx-elevation-surface, var(--jx-popover));
   }
 
   /* ── the glass material's tuning vars (the law sheet paints off

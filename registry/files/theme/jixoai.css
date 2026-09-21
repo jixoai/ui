@@ -854,10 +854,10 @@
    acrylic rule had been overriding them all along) */
 .jx-surface.jx-surface.jx-waapi .jx-surface-body {
   /* (0,4,0) — the variant acrylic rule (0,3,0) sits later in the file
-   and was winning the cascade all along; every "lazy paint" theory in
-   the r26 probe session was this misdiagnosis) */
+     and was winning the cascade all along; every "lazy paint" theory in
+     the r26 probe session was this misdiagnosis) */
   background: oklch(
-    from var(--jx-surface-solid-fill, var(--popover))
+    from var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)))
     l c h / calc(1 - clamp(calc((var(--jx-p) - 0.5) * 2), 0, 1) * 0.28)
   );
 }
@@ -876,7 +876,7 @@
 }
 /* solid keeps an opaque fill — its formula IS the end state */
 .jx-surface.jx-surface.jx-waapi[data-variant='solid'] .jx-surface-body {
-  background: var(--jx-surface-solid-fill, var(--popover));
+  background: var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)));
 }
 /* SOLID never defocuses: the variant is the opaque, static-weight
    material — a blurred solid panel reads as broken glass, and the
@@ -932,13 +932,22 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 
 /* THE SURFACE: the panel's direct child — fill + border + blur. The
    radius rides the inheritance chain so the fill, the border, and the
-   shadow share one silhouette. */
+   shadow share one silhouette.
+   The §7 elevation × surface-ladder pairing (explicit-props W3-C):
+   a resolved level's PAIR feeds BOTH channels — the M3 shadow recipe
+   as this element's box-shadow, and the ladder-rung surface as the
+   fill chain's HEAD (the rung composes WITH --jx-surface-solid-fill /
+   --popover: an unresolved elevation paints exactly the historic
+   ground, a resolved one steps the rung — 减色墨律, never a tint
+   overlay). The leading var is absent for every no-opinion family,
+   so the chain is a pure extension with an unchanged tail. */
 .jx-surface-body {
   position: relative;
   border: 1px solid var(--jx-surface-border-color, var(--border));
   border-radius: inherit;
   corner-shape: inherit;
-  background: var(--jx-surface-solid-fill, var(--popover));
+  background: var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)));
+  box-shadow: var(--jx-elevation-shadow, none);
 }
 
 /* the scroll+padding ring inside the surface body (scrolling
@@ -1043,7 +1052,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    then exactly solid */
 @media (prefers-reduced-transparency: reduce) {
   .jx-surface[data-variant='auto'] .jx-surface-body {
-    background: var(--jx-surface-solid-fill, var(--popover));
+    background: var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -1052,7 +1061,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
      reduced transparency (blur died, tint stayed — Codex P0). This
      override matches the formula's specificity and comes later */
   .jx-surface.jx-surface.jx-waapi[data-variant='auto'] .jx-surface-body {
-    background: var(--jx-surface-solid-fill, var(--popover));
+    background: var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)));
   }
 }
 

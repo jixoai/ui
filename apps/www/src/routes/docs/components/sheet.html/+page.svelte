@@ -53,7 +53,7 @@ ${close}
   {/snippet}
 </Sheet>`;
 
-  const canvasUsage = `<Sheet bind:open title="Filters" {side} size="24rem">
+  const canvasUsage = `<Sheet bind:open title="Filters" {side} width="24rem">
   <!-- body -->
 </Sheet>`;
 
@@ -78,6 +78,16 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<!-- the §13 rename: a css WIDTH is 'width'; 'size' is the scale axis -->
+<Sheet bind:open title="Filters" side="right" width="24rem">…</Sheet>
+<!-- the §7 pair: the drawer's own level4, an explicit lane steps it -->
+<Sheet bind:open title="Compact" width="18rem" elevation="level2">…</Sheet>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/sheet-universal.svelte', content: universalUsage },
+  ];
+  let su = $state(false);
+  let su2 = $state(false);
 </script>
 
 <svelte:head>
@@ -168,5 +178,25 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Backdrop click is deliberately not wired — sheet content is often a form; close via ×, Escape, or your own footer action."><CodeBlock code={usage} lang="svelte" meta="Sheet usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog carries the modal contract; title is REQUIRED — it is the dialog's accessible name."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the drawer — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted to share the 200ms animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer actions)' }]} aria={[{ name: 'aria-label', value: 'title (required)', description: 'On the dialog element — the title is the REQUIRED accessible name.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; focus trap and top layer are native.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The drawer extent rides --jx-sheet-size; timing is a declared 200ms exception to the dialog family's 120ms."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo><div class={cx(rt.col12)}><PressButton onclick={() => (open = true)}>open sheet</PressButton><span class={cx(rt.text125, rt.inkMuted)}>the trigger inherits scope; the drawer surface inherits through the DOM tree.</span></div></DensityDemo><TokenTable tokens={[{ name: '--jx-sheet-size', default: '24rem (size prop)', source: 'component', description: 'Panel extent along the docked axis; side panels cap at 92vw.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Body scrollbar compensation in the scroll ring.' }, { name: 'slide timing', default: '200ms (declared exception)', source: 'structural' }, { name: 'top/bottom cap', default: '85dvh', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Eight props; the same bind:open lifecycle and close path as dialog.svelte."><PropsTable props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state — same contract as dialog.svelte.', bindable: true }, { name: 'side', type: "'left' | 'right' | 'top' | 'bottom'", default: "'right'", description: 'The edge the panel docks to; slides along that edge’s axis.' }, { name: 'title', type: 'string', default: '—', description: 'REQUIRED a11y: the dialog’s name (aria-label target).', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'Panel body.', required: true }, { name: 'header', type: 'Snippet', default: '—', description: 'Optional header row content beyond the title + ×.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Optional sticky footer action row.' }, { name: 'size', type: 'string', default: "'24rem' · Own default, not ambient", description: 'Drawer extent along the docked axis (CSS length).' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }]} /></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The drawer carries its OWN elevation — level4 (8dp, the dialog rung it docks beside). §13 RENAME (W3-C): the css-width prop is width now — never size; the freed name belongs to the universal size lane (root font-size)."
+    >
+      <ComponentCanvas title="Sheet · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.wrap12)}>
+          <PressButton onclick={() => (su = true)}>width 24rem · level4 default</PressButton>
+          <PressButton onclick={() => (su2 = true)}>width 18rem · level2</PressButton>
+        </div>
+        <Sheet bind:open={su} title="Filters" side="right"><p class={cx(rt.text13)}>width defaults to the contract own 24rem; the drawer rides its own elevation level4 (8dp).</p></Sheet>
+        <Sheet bind:open={su2} title="Compact" side="right" width="18rem" elevation="level2"><p class={cx(rt.text13)}>An explicit width lane and an explicit elevation lane — the §13 rename keeps size free for the scale axis.</p></Sheet>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Eight props; the same bind:open lifecycle and close path as dialog.svelte."><PropsTable props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state — same contract as dialog.svelte.', bindable: true }, { name: 'side', type: "'left' | 'right' | 'top' | 'bottom'", default: "'right'", description: 'The edge the panel docks to; slides along that edge’s axis.' }, { name: 'title', type: 'string', default: '—', description: 'REQUIRED a11y: the dialog’s name (aria-label target).', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'Panel body.', required: true }, { name: 'header', type: 'Snippet', default: '—', description: 'Optional header row content beyond the title + ×.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Optional sticky footer action row.' }, { name: 'width', type: 'string', default: "'24rem' · Own default, not ambient", description: 'Drawer extent along the docked axis (CSS length). §13 RENAME (W3-C): the prop was `size` — a css width is not the scale axis; the freed name belongs to the universal size lane (root font-size).' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }]} /></SectionCard></div>
 </div>

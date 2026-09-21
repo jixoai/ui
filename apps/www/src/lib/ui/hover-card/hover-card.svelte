@@ -35,6 +35,22 @@
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { HoverCardDefaults, type HoverCardSurfaceVariant } from './hover-card-defaults.svelte';
   import { hoverCardStyles } from './hover-card.stylex';
   import './hover-card.css';
@@ -71,6 +87,34 @@
         contract own 'auto' (HoverCardDefaults — a declared own, not
         ambient) */
     variant?: HoverCardSurfaceVariant;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size — an explicit lane
+     *  makes the card the CONCENTRIC ANCHOR (the carrier stamps
+     *  --jx-radius-effective on the top-layer root — self-carried
+     *  across the promotion, the batch C portal law); auto consumes
+     *  the broadcast against the panel's own ancestors */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level2 = the peek card's historic z-feel (3dp) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -84,15 +128,39 @@
     openDelay = 300,
     closeDelay = 200,
     variant,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.2): one line —
-  // the family contract resolves the panel's style props (variant's
-  // own 'auto' lives in HoverCardDefaults, auditable in one place;
-  // density is the no-opinion axis slot — nothing stamps, the ambient
-  // css scope channel keeps flowing)
-  const d = $derived(HoverCardDefaults.resolve({ variant }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2 + W3-C):
+  // one record — variant's own 'auto' and the peek card's own
+  // elevation level2 live in HoverCardDefaults; the seven other axes
+  // are no-own (the ambient context flows through the top-layered
+  // panel, which stays a DOM descendant at its authored position)
+  const d = $derived(
+    HoverCardDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (PORTAL LAW, W3-C: the carriers stamp the PANEL — the promoted
+  // root is self-carried)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair + the solid-fill bridge
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
 
   // id is mount-stable by contract; $derived keeps the name truthful
   const anchorName = $derived(`--jx-hover-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -105,6 +173,7 @@
 
   let anchorEl = $state<HTMLElement | null>(null);
   let panel = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => panel ?? null);
   let openTimer: ReturnType<typeof setTimeout> | undefined;
   let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -115,7 +184,7 @@
 
   // the shared declarative motion kernel (r29) — same law as popover;
   // the live axis measures panel↔anchor (the trigger wrapper)
-  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
+  const panelMotion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 
   function clearTimers(): void {
     clearTimeout(openTimer);
@@ -126,16 +195,16 @@
     clearTimers();
     if (popoverApi(panel) && !panel!.matches(':popover-open')) {
       panel!.showPopover();
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     }
   }
   function close(): void {
     clearTimers();
     if (popoverApi(panel) && panel!.matches(':popover-open')) {
       panel!.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       panel!.hidePopover();
     }
   }
@@ -153,7 +222,7 @@
 
   onDestroy(() => {
     clearTimers();
-    motion.destroy();
+    panelMotion.destroy();
   });
 </script>
 
@@ -188,11 +257,22 @@
   popover="manual"
   class={cn(
     cx('jx-hover-card jx-surface', hoverCardStyles.panel),
-    motion.supported && 'jx-waapi',
+    panelMotion.supported && 'jx-waapi',
   )}
   data-variant={d.variant}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   bind:this={panel}
-  style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
+  style={[
+    carriers,
+    radiusConsumed,
+    elevationConsumed,
+    `position-anchor: ${anchorName}`,
+    `inset-area: ${area}`,
+    `position-area: ${area}`,
+  ]
+    .filter(Boolean)
+    .join('; ')}
   onpointerenter={() => clearTimeout(closeTimer)}
   onpointerleave={scheduleClose}
   onfocusin={() => clearTimeout(closeTimer)}

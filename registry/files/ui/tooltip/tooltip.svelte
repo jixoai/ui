@@ -122,6 +122,22 @@
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TooltipDefaults, type TooltipSurfaceVariant } from './tooltip-defaults.svelte';
   import { tooltipStyles } from './tooltip.stylex';
   import './tooltip.css';
@@ -170,6 +186,32 @@
         (TooltipDefaults — a declared own, not ambient). */
     variant?: TooltipSurfaceVariant;
     class?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast. NOTE: an arrow tip's silhouette is MASK-cut — the
+     *  radius composes with the notch mask, it never replaces it */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level1 = the hover hint's historic z-feel (1dp) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the trigger content; the wrapper span carries the anchoring */
     children: Snippet;
   }
@@ -185,15 +227,40 @@
     closeDelay = 100,
     variant,
     class: className = '',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     children,
   }: Props = $props();
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.2): one line —
-  // the family contract resolves the panel's style props (variant's
-  // own 'auto' lives in TooltipDefaults, auditable in one place;
-  // density is the no-opinion axis slot — nothing stamps, the ambient
-  // css scope channel keeps flowing)
-  const d = $derived(TooltipDefaults.resolve({ variant }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2 + W3-C):
+  // one record — variant's own 'auto' and the tip's own elevation
+  // level1 live in TooltipDefaults; the seven other axes are no-own
+  // (the ambient context flows through the top-layered panel, which
+  // stays a DOM descendant at its authored position)
+  const d = $derived(
+    TooltipDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (PORTAL LAW, W3-C: the carriers stamp the PANEL — the promoted
+  // root is self-carried)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair + the solid-fill bridge (the kernel's
+  // resolveVar read of --jx-surface-solid-fill lands on the rung)
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
 
   // id is mount-stable by contract; $derived keeps the name truthful
   const anchorName = $derived(`--jx-tip-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -229,6 +296,7 @@
   );
 
   let panel = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => panel ?? null);
   let anchorEl = $state<HTMLElement | null>(null);
   let body = $state<HTMLElement | null>(null);
   let openTimer: ReturnType<typeof setTimeout> | undefined;
@@ -705,8 +773,19 @@
   data-variant={d.variant}
   data-arrow={arrow ? '' : undefined}
   data-border-ring={arrow ? '' : undefined}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   bind:this={panel}
-  style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
+  style={[
+    carriers,
+    radiusConsumed,
+    elevationConsumed,
+    `position-anchor: ${anchorName}`,
+    `inset-area: ${area}`,
+    `position-area: ${area}`,
+  ]
+    .filter(Boolean)
+    .join('; ')}
   ontoggle={onTipToggle}
   onpointerenter={() => {
     onPanel = true;

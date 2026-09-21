@@ -19,6 +19,21 @@
   width: fit-content;
   min-width: 10rem;
   color: var(--popover-foreground);
+  /* ── the §3/§14 radius + shape consumption (explicit-props W3-C):
+     the carriers ride the BAR root (the §11 supply — the panel is a
+     top-layer PROMOTION, which moves paint, not DOM: the stamps
+     inherit down); --jx-radius-consumed is the component's per-render
+     stamp (explicit lane: radius-effective × the §14 factor; auto:
+     the §3 concentric calc × the factor — the fallback below, the
+     auto form verbatim). corner-shape rides the §14 alias ladder */
+  corner-shape: var(--jx-shape-effective, round);
+  border-radius: var(
+    --jx-radius-consumed,
+    calc(
+      max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+      var(--jx-radius-factor-effective, 1)
+    )
+  );
 }
 .jx-menubar-trigger,
 .jx-menubar-menu-item {

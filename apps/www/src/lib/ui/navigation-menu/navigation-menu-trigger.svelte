@@ -28,6 +28,7 @@
     NAVIGATION_MENU_ITEM_KEY,
     type NavigationMenuItemApi,
   } from './navigation-menu-item.svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { navMenuStyles } from './navigation-menu.stylex';
 
   interface Props extends HTMLButtonAttributes {
@@ -70,7 +71,7 @@
 <button
   type="button"
   data-jx-navmenu-trigger=""
-  data-density={bar.densityOpinion}
+  data-density={densityRungOf(bar.densityOpinion)}
   aria-haspopup="true"
   aria-current={current ? 'true' : undefined}
   class={cn(

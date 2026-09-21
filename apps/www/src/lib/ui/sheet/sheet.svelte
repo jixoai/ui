@@ -55,6 +55,22 @@
   import CardBody from '$lib/ui/card/card-body.svelte';
   import CardHeader from '$lib/ui/card/card-header.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { SheetDefaults, type SheetSurfaceVariant } from './sheet-defaults.svelte';
   import { sheetStyles } from './sheet.stylex';
   // THE STICKER'S RULE SET (the load-bearing import — stamping
@@ -75,11 +91,42 @@
     header?: Snippet;
     /** optional sticky footer (action row) */
     footer?: Snippet;
-    /** drawer width for left/right (CSS length); default 24rem */
-    size?: string;
+    /** drawer width for left/right (CSS length); default 24rem.
+     *  RENAMED from `size` (explicit-props §13, W3-C): a css WIDTH is
+     *  not the scale axis — the freed name now belongs to the
+     *  universal size lane below */
+    width?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: SheetSurfaceVariant;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size — an explicit lane
+     *  makes the drawer the CONCENTRIC ANCHOR (the carrier stamps
+     *  --jx-radius-effective on the top-layered root — self-carried
+     *  across the promotion, the batch C portal law); auto consumes
+     *  the broadcast against the panel's own ancestors */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level4 = the drawer's historic z-feel (8dp, the dialog rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -89,16 +136,51 @@
     children,
     header,
     footer,
-    size,
+    width,
     variant,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
   }: Props = $props();
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 2.2): one line —
-  // variant and size resolve through the family contract (owns 'auto'
-  // and '24rem' live in SheetDefaults, auditable in one place; density
-  // is the no-opinion axis slot — nothing stamps, the ambient css
-  // scope channel keeps flowing)
-  const d = $derived(SheetDefaults.resolve({ variant, size }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 2.2 + W3-C):
+  // one record — variant/width resolve their declared owns ('auto' /
+  // '24rem' live in SheetDefaults, auditable in one place); the eight
+  // universal axes ride the same record (elevation's own level4 is the
+  // drawer's historic z-feel on the §7 table)
+  const d = $derived(
+    SheetDefaults.resolve({ variant, width, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (PORTAL LAW, W3-C: the carriers stamp the top-layered root — the
+  // resolved axes are self-carried across the promotion)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideQueryAnchor(() => dialog ?? null);
+  // §3/§14 radius consumption — the card's law, the drawer's dialect
+  // (the fallback is the auto concentric form verbatim; a bare sheet
+  // resolves 0px through the root sheet's invariants)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair: the resolved level's shadow recipe + the
+  // PAIRED ladder-rung surface, through the level-table indirection
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const rootStyle = $derived(
+    [
+      carriers,
+      radiusConsumed,
+      elevationConsumed,
+      `--jx-sheet-size: ${d.width}`,
+    ].filter(Boolean).join('; ') || undefined,
+  );
 
   let dialog = $state<HTMLDialogElement | null>(null);
   let closing = $state(false);
@@ -197,8 +279,10 @@
     closing && 'closing',
   )}
   data-variant={d.variant}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   aria-label={title}
-  style="--jx-sheet-size: {d.size}"
   onclose={handleClose}
   oncancel={handleCancel}
 >

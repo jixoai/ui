@@ -43,23 +43,62 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { onDestroy, setContext } from 'svelte';
-  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import { provideDensity, resolveDensity, getDensityContext } from '$lib/density.svelte';
   import Icon from '$lib/ui/icon';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { DropdownMenuDefaults, type DropdownMenuSurfaceVariant } from './dropdown-menu-defaults.svelte';
   import { dropdownMenuStyles } from './dropdown-menu.stylex';
   import './dropdown-menu.css';
 
   interface Props {
     id: string;
-    density?: Density;
+    density?: DensityLane | QueryResult<DensityLane>;
     /** trigger button label (ignored when `trigger` snippet given) */
     triggerLabel?: string;
     placement?: 'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start';
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: DropdownMenuSurfaceVariant;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size — an explicit lane
+     *  makes the menu the CONCENTRIC ANCHOR; auto consumes the
+     *  broadcast against the panel's own ancestors */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level2 = the menu panel's historic z-feel (3dp, M3's menu
+     *  rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     trigger?: Snippet;
     panelClass?: string;
     onToggle?: (open: boolean) => void;
@@ -72,6 +111,13 @@
     triggerLabel = '',
     placement = 'bottom-end',
     variant,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     trigger,
     panelClass = '',
     onToggle,
@@ -86,19 +132,45 @@
   // context object; a lazily-evaluated read would resolve the key to
   // the menu's OWN write and self-reference through the very getter it
   // feeds (derived_references_self — the pre-3.3 bare capture this
-  // replaces). The returned getter reads ONLY the captured object
+  // replaces). The returned getter reads ONLY the captured object.
+  // The W3 universal lane narrows at the legacy edge (the input-group
+  // law): 'auto'/number/query lanes carry no legacy rung — the rung
+  // stays ambient (§4), the coefficient rides the carriers on the root
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
-  // TOP of the provider lane as the family's single audited read point:
-  // the density slot's ambient read resolves the key to the menu's own
-  // write, whose getter is the captured-parent resolution above, so the
-  // chain TERMINATES; variant resolves through the literal slot (own
-  // 'auto' declared in DropdownMenuDefaults, auditable in one place)
-  const d = $derived(DropdownMenuDefaults.resolve({ density, variant }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3 + W3-C),
+  // riding ON TOP of the provider lane as the family's single audited
+  // read point: the density slot's ambient read resolves the key to
+  // the menu's own write, whose getter is the captured-parent
+  // resolution above, so the chain TERMINATES; variant resolves
+  // through the literal slot (own 'auto' declared in
+  // DropdownMenuDefaults); the menu's own elevation level2 rides the
+  // same record (the §7 historic z-feel mapping)
+  const d = $derived(
+    DropdownMenuDefaults.resolve({ density, variant, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (PORTAL LAW, W3-C: the carriers stamp the PANEL — the promoted
+  // root is self-carried). The universal density supply rides the
+  // bridged provideDensity write above; this supply carries the other
+  // seven axes downward
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair + the solid-fill bridge
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
 
   // id is mount-stable by contract (popover ids + CSS anchors are wired
   // once); $derived keeps the anchor name truthful if it ever flips
@@ -124,6 +196,7 @@
   );
 
   let panel = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => panel ?? null);
   let triggerEl = $state<HTMLButtonElement | null>(null);
   let anchorEl = $state<HTMLElement | null>(null);
   let open = $state(false);
@@ -227,7 +300,7 @@
   // rAF is a browser global — onDestroy also fires during SSR destroys
   onDestroy(() => {
     if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(focusFrame);
-    motion.destroy();
+    panelMotion.destroy();
   });
 
   function onPanelToggle(): void {
@@ -235,8 +308,8 @@
     triggerEl?.setAttribute('aria-expanded', String(open));
     onToggle?.(open);
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
       cancelAnimationFrame(focusFrame);
       focusFrame = requestAnimationFrame(() => {
         // the panel may already be closing again (fast Escape) — never
@@ -247,8 +320,8 @@
       });
     } else {
       panel?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       cancelAnimationFrame(focusFrame);
       if (restoreFocus) triggerEl?.focus();
       restoreFocus = false;
@@ -260,7 +333,7 @@
   // (--jx-p); every visible property is a CSS formula of it (the
   // declarative motion law in jixoai.css). The kernel here only wires
   // the menu's toggle seam and the live anchor wrapper
-  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
+  const panelMotion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 
   // the payload's own join (separator's serialize law): every string
   // declaration except the $$css marker, space-joined — atoms are
@@ -280,7 +353,7 @@
       .join(' ');
 </script>
 
-<span bind:this={anchorEl} data-density={d.density} class={cn('jx-menu-anchor', cx(dropdownMenuStyles.anchor))} style="anchor-name: {anchorName}">
+<span bind:this={anchorEl} data-density={densityRungOf(d.density)} class={cn('jx-menu-anchor', cx(dropdownMenuStyles.anchor))} style="anchor-name: {anchorName}">
   {#if trigger}
     {@render trigger()}
   {:else}
@@ -308,11 +381,21 @@
   popover="auto"
   role="menu"
   tabindex="-1"
-  class={cn('jx-menu jx-surface', motion.supported && 'jx-waapi', panelClass)}
+  class={cn('jx-menu jx-surface', panelMotion.supported && 'jx-waapi', panelClass)}
   data-variant={d.variant}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   bind:this={panel}
-  style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
+  style={[
+    carriers,
+    radiusConsumed,
+    elevationConsumed,
+    `position-anchor: ${anchorName}`,
+    `inset-area: ${area}`,
+    `position-area: ${area}`,
+  ]
+    .filter(Boolean)
+    .join('; ')}
   ontoggle={onPanelToggle}
   onkeydown={handleKeydown}
 >

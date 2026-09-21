@@ -26,14 +26,22 @@
   import { getContext } from 'svelte';
   import type { Density } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    type DensityLane,
+    type QueryResult,
+  } from '$lib/defaults.svelte';
   import { DropdownMenuDefaults } from './dropdown-menu-defaults.svelte';
   import { dropdownMenuStyles } from './dropdown-menu.stylex';
   import './dropdown-menu.css';
 
-  interface Props extends HTMLButtonAttributes {
+  interface Props extends Omit<HTMLButtonAttributes, 'color'> {
     /** destructive paint: red text, destructive hover fill */
     destructive?: boolean;
-    density?: Density;
+    /** the universal §4 lane (W3-C — the legacy rung spellings ride
+     *  the lane's aliases verbatim); an explicit prop beats the menu
+     *  root's provided tier */
+    density?: DensityLane | QueryResult<DensityLane>;
     children: Snippet;
     class?: string;
   }
@@ -85,7 +93,7 @@
 <button
   type="button"
   role="menuitem"
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={cn(
     'jx-menu-item',
     cx(dropdownMenuStyles.item),

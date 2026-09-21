@@ -61,9 +61,11 @@ describe('the provider families\' contract surfaces', () => {
       [TabsDefaults, ['density']],
       [TableDefaults, ['density']],
       [BreadcrumbDefaults, ['density']],
-      [MenubarDefaults, ['density', 'variant']],
-      [DropdownMenuDefaults, ['density', 'variant']],
-      [NavigationMenuDefaults, ['density', 'inset', 'variant']],
+      // W3-C: the trio joined the eight-axis surface (the panel's own
+      // elevation level2 rides the same record — the menu rung)
+      [MenubarDefaults, ['color', 'density', 'elevation', 'motion', 'radius', 'shape', 'size', 'theme', 'variant']],
+      [DropdownMenuDefaults, ['color', 'density', 'elevation', 'motion', 'radius', 'shape', 'size', 'theme', 'variant']],
+      [NavigationMenuDefaults, ['color', 'density', 'elevation', 'inset', 'motion', 'radius', 'shape', 'size', 'theme', 'variant']],
     ] as const) {
       expect(Object.isFrozen(defaults.slots)).toBe(true);
       expect(Object.keys(defaults.slots).sort()).toEqual([...keys].sort());
@@ -100,10 +102,52 @@ describe('the provider families\' contract surfaces', () => {
       { density: undefined },
       { density: undefined },
       { density: 'sm' },
-      { density: undefined, variant: 'auto' },
-      { density: undefined, variant: 'solid' },
-      { density: undefined, variant: 'auto', inset: 0 },
-      { density: undefined, variant: 'auto', inset: 2 },
+      {
+        density: 'auto',
+        variant: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        variant: 'solid',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        variant: 'auto',
+        inset: 0,
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        variant: 'auto',
+        inset: 2,
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
     ]);
   });
 });

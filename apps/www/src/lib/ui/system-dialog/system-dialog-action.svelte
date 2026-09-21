@@ -35,6 +35,17 @@
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import {
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { SYSTEM_DIALOG_KEY, type SystemDialogApi } from './system-dialog.svelte';
   import {
     SystemDialogDefaults,
@@ -46,10 +57,37 @@
      *  tonal | outline. Omitted → the contract own 'fill'
      *  (SystemDialogDefaults.actionVariant — a declared own, not ambient) */
     variant?: SystemDialogActionVariant;
+    /** the eight-axis surface (W3-C fold): explicit lanes forward to
+     *  the PressButton core verbatim — the part's own opinion beats
+     *  the Content panel's §11 supply; absent lanes resolve auto
+     *  against that supply (the ambient context, which follows the
+     *  COMPONENT tree through the panel, never the promotion) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    size?: SizeLane | QueryResult<SizeLane>;
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    color?: ColorLane | QueryResult<ColorLane>;
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    motion?: MotionLane | QueryResult<MotionLane>;
     children: Snippet;
   }
 
-  let { variant, class: className = '', children, onclick, ...rest }: Props = $props();
+  let {
+    variant,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+    children,
+    onclick,
+    ...rest
+  }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
   // economy 3.2): the action's ladder prop rides its OWN slot
@@ -63,6 +101,14 @@
 <PressButton
   {...rest}
   variant={d.actionVariant}
+  {density}
+  {size}
+  {shape}
+  {radius}
+  {color}
+  {theme}
+  {elevation}
+  {motion}
   data-jx-sysdlg-action=""
   data-jx-system-dialog-action={d.actionVariant}
   class={`${d.actionVariant === 'fill' ? 'jx-pair-destructive' : ''}${className ? ` ${className}` : ''}`}

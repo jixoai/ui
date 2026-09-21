@@ -201,53 +201,76 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     return holder.value;
   };
 
-  it('the floating-surface trio: own auto, no density opinion (ambient silent, no throw)', () => {
+  it('the floating-surface trio: own auto + own elevation levels (W3-C), axes silent-auto', () => {
     expect(resolveInWindow(() => TooltipDefaults.resolve({}))).toEqual({
       variant: 'auto',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level1',
+      motion: 'auto',
     });
-    expect(resolveInWindow(() => PopoverDefaults.resolve({}))).toEqual({
+    expect(resolveInWindow(() => PopoverDefaults.resolve({}))).toMatchObject({
       variant: 'auto',
-      density: undefined,
+      elevation: 'level2',
     });
-    expect(resolveInWindow(() => HoverCardDefaults.resolve({ variant: 'solid' }))).toEqual({
+    expect(resolveInWindow(() => HoverCardDefaults.resolve({ variant: 'solid' }))).toMatchObject({
       variant: 'solid',
-      density: undefined,
+      elevation: 'level2',
     });
   });
 
-  it('Alert: frozen own outline; system-dialog: the two-vocabulary split', () => {
+  it('Alert: frozen own outline; system-dialog: the two-vocabulary split + the level3 own', () => {
     expect(resolveInWindow(() => AlertDefaults.resolve({}))).toEqual({
       variant: 'outline',
       density: undefined,
     });
     // tone rides the contract since c46d357b (the confirm rung's paint
     // family, own 'destructive') — re-recorded here when
-    // spin-ora-svg-lane V1 re-ran this battery
+    // spin-ora-svg-lane V1 re-ran this battery; W3-C adds the eight
+    // axes with the alert's own elevation level3 (6dp — one rung under
+    // the modal dialog)
     expect(resolveInWindow(() => SystemDialogDefaults.resolve({}))).toEqual({
       variant: 'auto',
       actionVariant: 'fill',
       tone: 'destructive',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level3',
+      motion: 'auto',
     });
-    expect(resolveInWindow(() => SystemDialogDefaults.resolve({ actionVariant: 'tonal' }))).toEqual({
+    expect(resolveInWindow(() => SystemDialogDefaults.resolve({ actionVariant: 'tonal' }))).toMatchObject({
       variant: 'auto',
       actionVariant: 'tonal',
       tone: 'destructive',
-      density: undefined,
+      elevation: 'level3',
     });
   });
 
-  it('toast: a push IS the explicit lane — own outline/popover, no density opinion', () => {
+  it('toast: a push IS the explicit lane — own outline/popover; the viewport axis surface (level3 own)', () => {
     expect(resolveInWindow(() => ToastDefaults.resolve({}))).toEqual({
       variant: 'outline',
       material: 'popover',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level3',
+      motion: 'auto',
     });
-    expect(resolveInWindow(() => ToastDefaults.resolve({ variant: 'tonal', material: 'glass' }))).toEqual({
+    expect(resolveInWindow(() => ToastDefaults.resolve({ variant: 'tonal', material: 'glass' }))).toMatchObject({
       variant: 'tonal',
       material: 'glass',
-      density: undefined,
+      elevation: 'level3',
     });
   });
 
@@ -311,7 +334,19 @@ describe('in-window unit resolution — the own-defaults projection', () => {
         elevation: 'auto',
         motion: 'auto',
       },
-      { variant: 'auto', density: undefined },
+      // popconfirm W3-C: the eight axes joined the confirm bubble's
+      // contract (own level2, the anchored menu rung)
+      {
+        variant: 'auto',
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
       { variant: 'auto', density: undefined },
     ]);
   });

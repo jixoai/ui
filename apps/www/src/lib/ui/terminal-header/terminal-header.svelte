@@ -55,6 +55,20 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
   import NavigationMenuIndicator from '../navigation-menu/navigation-menu-indicator.svelte';
   import { thStyles } from './terminal-header.stylex';
   import { TerminalHeaderDefaults } from './terminal-header-defaults.svelte';
@@ -63,7 +77,7 @@
   import { tokenScope } from '../../tokens.stylex';
   import './terminal-header.css';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     /** the wordmark line of the brand block */
     brand: string;
     /** second brand line (the domain) */
@@ -91,6 +105,27 @@
     /** the mobile drawer's open state (bind:open) — the consumer's
         reset signal: closing clears its own drawer state */
     open?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query(). NO own — the bezel is flat chrome (its depth is the
+     *  page shell's own law); an explicit lane flows to the carriers */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -105,15 +140,35 @@
     switcherFrame = true,
     drawer,
     open = $bindable(false),
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     children,
     ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults
   // round 2): theme rides its literal slot — own 'dark' (the bezel
-  // law) lives in the contract, never a destructure default
-  const d = $derived(TerminalHeaderDefaults.resolve({ theme }));
+  // law) lives in the contract, never a destructure default.
+  // W3-C: the seven non-theme axes ride the same record — the THEME
+  // axis is DELIBERATELY ABSENT (the unruled-collision law, the
+  // terminal-card/ghostty-term precedent): the bezel theme is the
+  // SHELL lock (own-before-ambient), not the axis' ambient-first law.
+  // The theme lane forwards ambient, unadopted
+  const d = $derived(
+    TerminalHeaderDefaults.resolve({ theme, density, size, shape, radius, color, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  const rootStyle = $derived(
+    [carriers, style].filter(Boolean).join('; ') || undefined,
+  );
 
   // scoped token class: dark (default lock) or jx-light (css-defined)
   // — the SHARED resolution (lib/terminal-scope: one law, one
@@ -145,6 +200,7 @@
   });
 
   let headerEl = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => headerEl ?? null);
 
   /* -----------------------------------------------------------------
    * Navigation cleanup (consumers call this from their router hook —
@@ -222,6 +278,8 @@
      and in-demo uses keep the ladder private too -->
 <header
   bind:this={headerEl}
+  data-density={densityRungOf(d.density)}
+  style={rootStyle}
   class={cn(
     'jx-nav',
     cx(thStyles.bezel),

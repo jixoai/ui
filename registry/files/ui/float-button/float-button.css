@@ -16,6 +16,18 @@
   width: fit-content;
   min-width: 9rem;
   color: var(--popover-foreground);
+  /* ── the §3/§14 radius + shape consumption (explicit-props W3-C):
+     the carriers ride the family root (the §11 supply — the panel's
+     promotion keeps the DOM, the stamps inherit down); the fallback
+     is the auto concentric form verbatim ── */
+  corner-shape: var(--jx-shape-effective, round);
+  border-radius: var(
+    --jx-radius-consumed,
+    calc(
+      max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+      var(--jx-radius-factor-effective, 1)
+    )
+  );
 }
 .jx-fab-menu::backdrop {
   background: transparent;

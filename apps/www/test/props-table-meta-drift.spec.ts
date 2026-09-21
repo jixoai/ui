@@ -211,7 +211,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'popover',
     meta: popoverMeta,
     docs: POPOVER_DOCS,
-    renderedOrder: ['id', 'triggerLabel', 'placement', 'variant', 'tryFallbacks', 'gap', 'trigger', 'panelClass', 'onToggle', 'children', 'bind:this'],
+    renderedOrder: ['id', 'triggerLabel', 'placement', 'variant', 'tryFallbacks', 'gap', 'trigger', 'panelClass', 'onToggle', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'children', 'bind:this'],
   },
   {
     name: 'checkbox',
@@ -235,7 +235,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'toast',
     meta: toastViewportMeta,
     docs: TOAST_VIEWPORT_DOCS,
-    renderedOrder: ['store', 'maxVisible', 'pos', 'expand', 'gap', 'swipeDirections', 'class'],
+    renderedOrder: ['store', 'maxVisible', 'pos', 'expand', 'gap', 'swipeDirections', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'class'],
   },
   {
     name: 'combobox',
@@ -270,7 +270,17 @@ describe('props-table meta migration — zero content drift (pilot nine)', () =>
   // W3 batch B: card-grid and text join the eight-axis surface (the
   // same intended, additive drift — their legacy rows survive, the
   // axis rows ride the ambient-scope marker in the shared section)
-  const UNIVERSAL_PILOTS = new Set(['checkbox', 'combobox', 'date-picker', 'card-grid', 'text']);
+  const UNIVERSAL_PILOTS = new Set([
+    'checkbox',
+    'combobox',
+    'date-picker',
+    'card-grid',
+    'text',
+    // W3 batch C: popover + toast-viewport join the eight-axis surface
+    // (the overlays batch — the same intended, additive drift)
+    'popover',
+    'toast',
+  ]);
   for (const pilot of PILOTS) {
     it(`${pilot.name}: every legacy row's content survives byte-for-byte`, () => {
       const rendered = propsFromMeta(pilot.meta, pilot.docs);

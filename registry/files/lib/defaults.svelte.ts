@@ -820,9 +820,78 @@ export function stampCarriersForLanes(lanes: UniversalLanes): string {
  */
 export type DensityRung = Exclude<DensityLane, 'small' | 'medium' | 'large' | 'auto' | number>;
 
-export function densityRungOf(lane: DensityLane | undefined): DensityRung | undefined {
-  if (lane === undefined || lane === 'auto' || typeof lane === 'number') return undefined;
+export function densityRungOf(
+  lane: DensityLane | QueryResult<DensityLane> | undefined,
+): DensityRung | undefined {
+  // a query() carrier NEVER carries a legacy rung (§4's degrade: the
+  // rung stays ambient until the engine resolves the lane — W3-C
+  // widened the param so the legacy edges can pass the prop verbatim)
+  if (lane === undefined || lane === 'auto' || typeof lane === 'number' || typeof lane === 'object')
+    return undefined;
   return lane as DensityRung;
+}
+
+/**
+ * The §7 level-table KEY for a resolved elevation lane — the var
+ * fragment the consumption pair composes through (W3 batch C). Named
+ * lanes map VERBATIM onto the table (the theme's NAME LAW:
+ * `--jx-elevation-level-1-*` is the −1dp concave, `levelN` positives
+ * carry no inner hyphen). The NUMBER lane (exact dp) snaps DOWN to
+ * the enclosing table rung — the §14 degrade-ladder honesty: an
+ * exact dp between rungs never rounds UP to a shadow deeper than
+ * asked (dp ≥ 12 → level5; dp < 0 joins the concave). undefined and
+ * 'auto' carry no opinion → undefined, nothing composes.
+ */
+export type ElevationLevelKey =
+  | 'level-1'
+  | 'level0'
+  | 'level1'
+  | 'level2'
+  | 'level3'
+  | 'level4'
+  | 'level5';
+
+export function elevationLevelKeyOf(lane: ElevationLane | undefined): ElevationLevelKey | undefined {
+  if (lane === undefined || lane === 'auto') return undefined;
+  if (typeof lane === 'string') return lane;
+  if (lane < 0) return 'level-1';
+  if (lane === 0) return 'level0';
+  if (lane < 3) return 'level1';
+  if (lane < 6) return 'level2';
+  if (lane < 8) return 'level3';
+  if (lane < 12) return 'level4';
+  return 'level5';
+}
+
+/**
+ * The §7 ELEVATION × SURFACE-LADDER consumption pair (W3 batch C's
+ * batch gate): §10 CSS expressions through the level table's §12
+ * var-indirection — the per-level shadow recipe plus the PAIRED
+ * ladder-rung surface, never an inlined recipe value (a plugin
+ * remap of either table member rides the indirection verbatim). ''
+ * when the lane carries no opinion ('auto'/absent — the ambient
+ * carriers keep flowing, the family paints its historic ground).
+ */
+export function elevationPairOf(lane: ElevationLane | undefined): string {
+  const key = elevationLevelKeyOf(lane);
+  if (key === undefined) return '';
+  return [
+    `--jx-elevation-shadow: var(--jx-elevation-${key}-shadow)`,
+    `--jx-elevation-surface: var(--jx-elevation-${key}-surface)`,
+  ].join('; ');
+}
+
+/**
+ * The jx-surface flavor of the §7 pair (W3-C): the generic pair PLUS
+ * the solid-fill bridge — `--jx-surface-solid-fill` is the floating-
+ * surface law's fill channel (the theme formulas AND the motion
+ * kernels' direct var reads resolve through it), so a resolved level
+ * feeds it from the ladder rung. '' when the lane carries no opinion
+ * (the historic ground keeps painting, zero delta).
+ */
+export function elevationSurfaceOf(lane: ElevationLane | undefined): string {
+  const pair = elevationPairOf(lane);
+  return pair === '' ? '' : `${pair}; --jx-surface-solid-fill: var(--jx-elevation-surface)`;
 }
 
 /**

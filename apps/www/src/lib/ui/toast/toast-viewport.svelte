@@ -96,6 +96,22 @@
   } from '$lib/toast-store';
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { toastStyles as tst } from './toast.stylex';
   import ScaffoldFloat from '$lib/ui/scaffold-float/scaffold-float.svelte';
   import type { TopLayerApi } from '$lib/ui/website-scaffold/website-scaffold.svelte';
@@ -126,6 +142,32 @@
      *  resolved per POSTURE from the slot vocabulary (the growth law:
      *  a drag dismisses toward the stack's nearest screen edges) */
     swipeDirections?: readonly SwipeDirection[];
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level3 = the notification's historic z-feel (6dp, M3's
+     *  snackbar rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** extra classes on the stack */
     class?: string;
   }
@@ -137,8 +179,35 @@
     expand = false,
     gap = 8,
     swipeDirections,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (W3-C — the viewport owns the surface):
+  // the eight universal axes resolve in ONE record here, in the
+  // VIEWPORT's component window (the mount context — where the
+  // consumer's ambient flows), and the carriers stamp the STACK root —
+  // PORTAL LAW: the stack adopts into the scaffold's float plane
+  // (a REAL portal — the DOM moves), so a trigger ancestor's CSS
+  // carriers never span the adoption; the stamps make the resolved
+  // axes SELF-CARRIED on the portal root. Svelte CONTEXT (the
+  // snippet children's ambient) follows the component tree and needs
+  // no such bridge. Own elevation level3 = the snackbar rung
+  const d = $derived(
+    ToastDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §7's consumption pair + the solid-fill bridge (rides the stack
+  // root; the cards read it through the portal-local inheritance)
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
 
   // the payload's own join (separator's serialize law): plain strings
   // pass through whole; stylex objects contribute their string members
@@ -166,6 +235,7 @@
   let items = $state<ToastItem[]>([]);
   /** the stack container (bind:this) — the touch lift's outside check */
   let stackEl = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => stackEl ?? null);
   /** dismissed snapshots still painting their exit frame, by id */
   let leavingItems = $state<ToastItem[]>([]);
   /** the unified hold: ids currently frozen (hover/focus can overlap —
@@ -765,7 +835,9 @@
       topLevel ? '' : (STANDALONE_POS_CLASS[pos] ?? STANDALONE_POS_CLASS['right-bottom']),
       className,
     )}
-    style={`gap: ${gap}px; --jx-toast-gap: ${gap}px; --jx-toast-extend: ${stackExtend}px`}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={`gap: ${gap}px; --jx-toast-gap: ${gap}px; --jx-toast-extend: ${stackExtend}px${elevationConsumed ? `; ${elevationConsumed}` : ''}${carriers ? `; ${carriers}` : ''}`}
     role="group"
     aria-label="notifications"
     onpointerenter={stackPointerEnter}

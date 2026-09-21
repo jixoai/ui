@@ -75,6 +75,13 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<DropdownMenu id="m1" triggerLabel="level2 · default">…</DropdownMenu>
+<DropdownMenu id="m2" triggerLabel="level4" elevation="level4">…</DropdownMenu>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/dropdown-menu-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -175,5 +182,23 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose a trigger with menu items; separators remain native hr elements."><CodeBlock code={usage} lang="svelte" meta="DropdownMenu usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The menu follows the ARIA menu keyboard contract while keeping light dismiss native."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between menu items and wrap at the ends.' }, { key: 'Home / End', action: 'Jump to the first or last enabled item.' }, { key: 'Enter / Space', action: 'Activate the focused item and close the menu.' }, { key: 'Escape', action: 'Close and restore focus to the trigger.' }]} aria={[{ name: 'role', value: 'menu / menuitem', description: 'Exposes the menu and its actionable items.' }, { name: 'data-walk-active', value: '(paint-only)', description: 'The keyboard walk’s highlight — a visual state attribute on the walked item; it never rewrites aria-current (a static aria-current="page" on a raw item is the author’s semantics and stays).' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Density scopes keep menu hit targets and type rhythm aligned."><div class={cx(rt.col20)}><DensityDemo scopes={['xs', 'default', 'lg']}><DropdownMenu id="density-menu" triggerLabel="actions"><DropdownMenuItem>Rename</DropdownMenuItem></DropdownMenu></DensityDemo><TokenTable tokens={[{ name: '--jx-menu-gap', default: '8px', source: 'component' }, { name: '--jx-menu-pad', default: '4px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-scrollbar-thin', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The menu panel carries its OWN elevation — level2 (3dp, M3's menu rung); the density lane rides the inherit-then-provide provider (the input-group narrowing at the legacy edge)."
+    >
+      <ComponentCanvas title="DropdownMenu · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.wrap12)}>
+          <DropdownMenu id="univ-default" triggerLabel="level2 · default"><DropdownMenuItem>level2 · 3dp + surface-container-low</DropdownMenuItem></DropdownMenu>
+          <DropdownMenu id="univ-l4" triggerLabel="level4" elevation="level4"><DropdownMenuItem>level4 · 8dp + surface-container-high</DropdownMenuItem></DropdownMenu>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root and item props define the menu surface and its selection behavior."><PropsTable title="DropdownMenu" props={[{ name: 'id', type: 'string', required: true, description: 'Stable id used to wire the trigger and popover panel.' }, { name: 'triggerLabel', type: 'string', default: "''", description: 'Label for the default trigger.' }, { name: 'placement', type: "'bottom' | 'bottom-end' | 'bottom-start' | 'top' | 'top-end' | 'top-start'", default: "'bottom-end'", description: 'Anchor placement for the panel.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'onToggle', type: '(open: boolean) => void', description: 'Receives native open-state changes.' }]} /><div class={cx(rt.mt20)}><PropsTable title="DropdownMenuItem" props={[{ name: 'destructive', type: 'boolean', default: 'false', description: 'Uses destructive paint while preserving menuitem semantics.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></div></SectionCard></div>
 </div>

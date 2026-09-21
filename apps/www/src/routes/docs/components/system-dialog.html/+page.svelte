@@ -141,6 +141,15 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<SystemDialog bind:open onconfirm={run}>
+  <SystemDialogTrigger>rotate keys…</SystemDialogTrigger>
+  <SystemDialogContent elevation="level4">…</SystemDialogContent>
+</SystemDialog>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/system-dialog-universal.svelte', content: universalUsage },
+  ];
+  let sd = $state(false);
 </script>
 
 <svelte:head>
@@ -278,5 +287,33 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Root owns bind:open + the onconfirm seam; Title and Description are parts — an alert without words is not an alert."><CodeBlock code={usage} lang="svelte" meta="SystemDialog usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="APG alertdialog law on the popover base: focus lands on Cancel on open, Escape cancels through the component-owned handler (keydown lives on the panel — Escape cancels while focus is inside it; a user who tabbed back to the page has left the question), hiding the popover restores focus to the invoker (a removed invoker deliberately leaves focus on the body — focus is never steered into dead markup); Tab is free — the anchored alert is non-modal by the popover-engine ruling."><A11yTable keys={[{ key: 'Escape', action: 'Cancels — SCOPED to the panel: the keydown handler lives on the popover itself, so it fires while focus is inside the panel; the component-owned keydown is prevented and runs through the state close (manual popover — no light dismiss)' }, { key: 'Tab', action: 'Free — the anchored alert is non-modal (popover base: no focus trap); hiding the popover restores focus to the invoker, or to the body if the invoker was removed while open' }, { key: 'Enter / Space', action: 'Activates the focused button — Cancel (focused on open) or Action' }]} aria={[{ name: 'role', value: 'alertdialog', description: 'On Content (the popover panel div).' }, { name: 'aria-labelledby', value: '{uid}-title', description: 'Points at the deterministic id Title renders; derived from the root uid.' }, { name: 'aria-describedby', value: '{uid}-desc', description: 'Points at the deterministic id Description renders.' }, { name: 'aria-haspopup', value: 'dialog', description: 'On the Trigger button.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the Trigger; mirrors the open state.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface inherits density through the DOM tree; motion runs on one animated custom property."><div class={cx(rt.col20)}><DensityDemo><SystemDialog><SystemDialogTrigger class={cx(rt.sdGhostBtn)}>delete pipeline…</SystemDialogTrigger><SystemDialogContent><SystemDialogTitle>delete the pipeline?</SystemDialogTitle><SystemDialogDescription>density scopes resize the trigger rhythm; the surface inherits scope from its DOM position.</SystemDialogDescription><SystemDialogActions><SystemDialogCancel>cancel</SystemDialogCancel><SystemDialogAction>delete pipeline</SystemDialogAction></SystemDialogActions></SystemDialogContent></SystemDialog></DensityDemo><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The surface-motion progress driving open/close.' }, { name: '--scrim', default: 'semi-transparent black/white', source: 'color', description: '::backdrop scrim — never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Surface entry offset (translate-in).' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: 'surface width', default: 'min(28rem, 100vw − 2rem)', source: 'structural' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The system alert carries its OWN elevation — level3 (6dp — one rung under the modal dialog; it rises beside its trigger, not over the page). The carriers stamp the promoted panel root; the Action/Cancel parts resolve against the §11 supply through the Svelte context, which follows the component tree, never the promotion."
+    >
+      <ComponentCanvas title="SystemDialog · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.wrap12)}>
+          <PressButton onclick={() => (sd = true)}>level3 · default</PressButton>
+        </div>
+        <SystemDialog bind:open={sd} onconfirm={() => {}}>
+          <SystemDialogTrigger>rotate keys…</SystemDialogTrigger>
+          <SystemDialogContent>
+            <SystemDialogTitle>Rotate every key?</SystemDialogTitle>
+            <SystemDialogDescription>All sessions re-authenticate. The own elevation is level3 — 6dp, one rung under the modal dialog.</SystemDialogDescription>
+            <SystemDialogActions>
+              <SystemDialogCancel>cancel</SystemDialogCancel>
+              <SystemDialogAction>rotate keys</SystemDialogAction>
+            </SystemDialogActions>
+          </SystemDialogContent>
+        </SystemDialog>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The family's parts, each with its own props; all button/element parts forward their native HTML attributes."><div class={cx(rt.col24)}><PropsTable title="SystemDialog (root)" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Controlled open state (bind:open); the root renders no element.', bindable: true }, { name: 'onconfirm', type: '() => void', default: '—', description: 'The confirm seam: runs on SystemDialogAction, then the dialog closes.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The family parts.' }]} /><PropsTable title="SystemDialogTrigger" props={[{ name: 'child', type: 'Snippet<[{ props }]>', default: '—', description: 'Replacement-element escape: spread {...props} on your own button.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Trigger label; spreads HTMLButtonAttributes.' }]} /><PropsTable title="SystemDialogContent" props={[{ name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint; auto falls back to solid under reduced transparency. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'pose', type: "'anchored' | 'center'", default: "'anchored'", description: 'The panel’s posture: anchored rides CSS Anchor Positioning against the trigger; center (the system trio) drops the anchor chain and lets the UA popover centering own the panel — the window.confirm posture.' }, { name: 'focusLanding', type: "'cancel' | 'none'", default: "'cancel'", description: 'Where focus lands on open: cancel (the APG safe-landing law, falling back to the action when no cancel exists) or none (the caller owns the landing — the prompt form focuses its input).' }, { name: 'children', type: 'Snippet', default: '—', description: 'Title, Description, free body, and the Actions row; spreads HTMLAttributes (a popover panel div).' }]} /><PropsTable title="SystemDialogAction / Cancel / Title / Description / Actions" props={[{ name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'fill' · Own default, not ambient", description: 'Action only: the confirm paint on the ladder — fill ships with the destructive pair injected (the opt-out loud path); flip the injection to the brand pair or switch to tonal for positive confirmations. Own default, not ambient (the action ladder is outside the paint zone’s frozen availability table).' }, { name: 'children', type: 'Snippet', default: '—', description: 'Shared by all five parts; each spreads its native element attributes.' }, { name: 'id (Title/Description)', type: 'string', default: '{uid}-title / -desc', description: 'Deterministic derived ids Content’s aria wiring points at.' }]} /></div></SectionCard></div>
 </div>

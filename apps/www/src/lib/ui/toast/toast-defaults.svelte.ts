@@ -36,8 +36,18 @@
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import { TOAST_MATERIAL_VALUES, TOAST_VARIANT_VALUES } from '$lib/toast-store';
 
 export const toastVariantSlot = defineLiteralSlot(TOAST_VARIANT_VALUES, 'outline');
@@ -47,5 +57,12 @@ export const toastMaterialSlot = defineLiteralSlot(TOAST_MATERIAL_VALUES, 'popov
 export const ToastDefaults = defineComponentDefaults({
   variant: toastVariantSlot,
   material: toastMaterialSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot('level3'),
+  motion: motionAxisSlot(),
 });

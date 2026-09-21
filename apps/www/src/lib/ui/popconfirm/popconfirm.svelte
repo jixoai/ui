@@ -46,15 +46,31 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { onDestroy } from 'svelte';
-  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import { provideDensity, resolveDensity, getDensityContext } from '$lib/density.svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { PopconfirmDefaults, type PopconfirmSurfaceVariant } from './popconfirm-defaults.svelte';
   import { pcStyles } from './popconfirm.stylex';
   import './popconfirm.css';
 
-  interface Props extends HTMLAttributes<HTMLSpanElement> {
-    density?: Density;
+  interface Props extends Omit<HTMLAttributes<HTMLSpanElement>, 'color'> {
+    density?: DensityLane | QueryResult<DensityLane>;
     id?: string;
     /** the question — one line, past-tense verb ("Delete this row?");
      *  DEFAULT rendering only (a content snippet replaces it) */
@@ -77,6 +93,28 @@
         contract own 'auto' (PopconfirmDefaults — a declared own, not
         ambient) */
     variant?: PopconfirmSurfaceVariant;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size — an explicit lane
+     *  makes the bubble the CONCENTRIC ANCHOR; auto consumes the
+     *  broadcast against the panel's own ancestors */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level2 = the confirm bubble's historic z-feel (3dp) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** replaces the title/description area (the caller owns semantics) */
     content?: Snippet;
     /** replaces the confirm/cancel action row */
@@ -100,6 +138,13 @@
     confirmTone = 'destructive',
     placement = 'top',
     variant,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     content,
     actions,
     children,
@@ -114,20 +159,44 @@
   // the key — so it captures the PARENT's context object. A lazily-
   // evaluated read would resolve the key to the panel's OWN write and
   // self-reference through the very getter it feeds
-  // (derived_references_self, pinned in defaults-buttons.spec)
+  // (derived_references_self, pinned in defaults-buttons.spec).
+  // The W3 universal lane narrows at the legacy edge (the input-group
+  // law): 'auto'/number/query lanes carry no legacy rung — the rung
+  // stays ambient (§4), the coefficient rides the carriers on the root
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.2) — ON TOP
-  // of the provider lane (the button-group law): the density slot's
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.2 + W3-C) — ON
+  // TOP of the provider lane (the button-group law): the density slot's
   // ambient read resolves the key to this panel's OWN write, whose
   // getter is the captured-parent resolution above, so the chain
   // TERMINATES (it never re-enters this derived) and lands the same
-  // values on every lane; variant's own 'auto' lives in
-  // PopconfirmDefaults, auditable in one place
-  const d = $derived(PopconfirmDefaults.resolve({ variant, density }));
+  // values on every lane; variant's own 'auto' and the bubble's own
+  // elevation level2 live in PopconfirmDefaults, auditable in one place
+  const d = $derived(
+    PopconfirmDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (PORTAL LAW, W3-C: the carriers stamp the PANEL — the promoted
+  // root is self-carried). The universal density supply rides the
+  // bridged provideDensity write above; this supply carries the other
+  // seven axes downward
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair + the solid-fill bridge
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
 
   const anchorName = $derived(`--jx-pc-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
   const area = $derived(
@@ -136,8 +205,23 @@
     : placement === 'left' ? 'left'
     : 'right'
   );
+  // the panel's composed style: the §11 carriers + the §3/§7
+  // consumption stamps + the anchor geometry (position-try law verbatim)
+  const panelStyle = $derived(
+    [
+      carriers,
+      radiusConsumed,
+      elevationConsumed,
+      `position-anchor: ${anchorName}`,
+      `inset-area: ${area}`,
+      `position-area: ${area}`,
+    ]
+      .filter(Boolean)
+      .join('; '),
+  );
 
   let panel = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => panel ?? null);
   let anchorEl = $state<HTMLElement | null>(null);
   let cancelEl = $state<HTMLButtonElement | null>(null);
   let confirmed = false;
@@ -180,8 +264,8 @@
     isOpen = open;
     if (open) {
       confirmed = false;
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
       requestAnimationFrame(() => {
         if (typeof requestAnimationFrame === 'function' && panel?.matches(':popover-open')) {
           cancelEl?.focus();
@@ -189,8 +273,8 @@
       });
     } else {
       panel?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       if (!confirmed) oncancel?.();
     }
   }
@@ -198,9 +282,9 @@
   // ── MOTION KERNEL — the shared declarative half (r29): see
   // lib/surface-motion.ts. Wired at the toggle seam above; the live
   // axis measures panel↔anchor (the trigger wrapper)
-  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
+  const panelMotion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
 
   // the payload's own join (the separator serialize law): every
   // stylex.create member is an OBJECT in dev and the joined string in
@@ -226,7 +310,7 @@
   data-jx-pc-anchor=""
   class={cn(cx(pcStyles.anchor), className)}
   {...rest}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   style="anchor-name: {anchorName}"
 >
   {#if children}{@render children()}{/if}
@@ -241,12 +325,13 @@
   class={cn(
     'jx-pc jx-surface',
     cx(pcStyles.panel),
-    motion.supported && 'jx-waapi',
+    panelMotion.supported && 'jx-waapi',
   )}
   data-variant={d.variant}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   bind:this={panel}
-  style="position-anchor: {anchorName}; inset-area: {area}; position-area: {area};"
+  style={panelStyle}
   ontoggle={handleToggle}
 >
   <!-- the REAL shadow layer: a DOM child because pseudo-elements are

@@ -64,6 +64,12 @@ ${close}
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<ScaffoldFloat area="float" size={14} radius="large">…floats…</ScaffoldFloat>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/scaffold-float-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -197,6 +203,21 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Author the float anywhere in the page; the provider adopts the live node on mount."><CodeBlock code={usage} lang="svelte" meta="ScaffoldFloat usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The portal is a DOM move, not a visual layer change: reading order and focus follow the authored semantics."><A11yTable keys={[{ key: 'Tab', action: 'Focus order is unaffected — the moved node keeps its listeners, focus, and scroll state' }]} aria={[{ name: 'aria-label', value: 'yours', description: 'Label the floated content yourself (e.g. aside aria-label="On this page")' }, { name: 'role', value: 'inherited', description: 'The portal adds no roles; the adopted subtree keeps its authored semantics' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint and no tokens of its own — the portal moves your node; the paint is entirely the floated content's."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.sfTint)}>● deploy passing — main #142</div></DensityDemo><TokenTable tokens={[{ name: 'jx-top-layer', default: 'context key', source: 'structural', description: 'The adopt/release contract consumed from the website-scaffold provider' }, { name: '.jx-float-slot', default: 'adoption order', source: 'structural', description: 'Destination cell inside the top layer; children order = adoption order' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. THE PORTAL CARRIER: the content div is adopted into the scaffold's top layer (a REAL portal — the DOM moves), so CSS custom-property inheritance from the authoring position does not reach the adopted subtree. The axes resolve HERE, in the consumer's context, and the carriers stamp the portal wrapper — self-carried across the adoption. Svelte context needs no bridge; only the CSS channel did. All no-own: placement chrome forwards opinions, it manufactures none."
+    >
+      <ComponentCanvas title="ScaffoldFloat · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Composed inside a website-scaffold: everything floated through this portal reads the axis tree continuously — the wrapper re-stamps the resolved carriers on the adopted root.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScaffoldFloat Props interface — a children snippet plus one semantic role."><PropsTable props={[{ name: 'children', type: 'Snippet', default: '—', description: 'The floated content; the live DOM node is adopted into the top layer on mount.', required: true }, { name: 'area', type: "TopLayerArea: 'toc' | 'tree' | 'float'", default: "'float'", description: 'Semantic placement role; the shell grid resolves the cell.' }]} /></SectionCard></div>
 </div>
 

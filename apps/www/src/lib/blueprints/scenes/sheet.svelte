@@ -30,7 +30,7 @@
   <Skeleton class={cx(bpB.sheetSkelC)}></Skeleton>
 </Stack>
 
-<Sheet title="edit workspace" side="right" size="22rem" open={true}>
+<Sheet title="edit workspace" side="right" width="22rem" open={true}>
   <p class={cx(bpB.sheetBody)}>
     Rename the workspace or hand it over — changes apply to every member on next sign-in.
   </p>

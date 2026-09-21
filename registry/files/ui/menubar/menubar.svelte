@@ -81,19 +81,57 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
-  import { provideDensity, resolveDensity, getDensityContext, type Density } from '$lib/density.svelte';
+  import { provideDensity, resolveDensity, getDensityContext } from '$lib/density.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { MenubarDefaults, type MenubarSurfaceVariant } from './menubar-defaults.svelte';
   import { menubarStyles } from './menubar.stylex';
   import './menubar.css';
 
-  interface Props extends HTMLAttributes<HTMLUListElement> {
-    density?: Density;
+  interface Props extends Omit<HTMLAttributes<HTMLUListElement>, 'color'> {
+    density?: DensityLane | QueryResult<DensityLane>;
     /** menubar landmark label — announced to assistive tech */
     label?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: MenubarSurfaceVariant;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level2 = the bar's floating panel's historic z-feel (3dp, the
+     *  menu rung — the BAR itself is chrome, never elevated) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     children: Snippet;
   }
@@ -102,7 +140,15 @@
     label = 'menu bar',
     density,
     variant,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     children,
     ...rest
   }: Props = $props();
@@ -131,23 +177,53 @@
   // context object; a lazily-evaluated read would resolve the key to
   // the bar's OWN write and self-reference through the very getter it
   // feeds (derived_references_self — the pre-3.3 bare capture this
-  // replaces). The returned getter reads ONLY the captured object
+  // replaces). The returned getter reads ONLY the captured object.
+  // The W3 universal lane narrows at the legacy edge (the input-group
+  // law): 'auto'/number/query lanes carry no legacy rung — the rung
+  // stays ambient (§4), the coefficient rides the carriers on the root
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
-  // TOP of the provider lane as the family's single audited read point:
-  // the density slot's ambient read resolves the key to the bar's own
-  // write, whose getter is the captured-parent resolution above, so the
-  // chain TERMINATES; variant resolves through the literal slot (own
-  // 'auto' declared in MenubarDefaults, auditable in one place)
-  const d = $derived(MenubarDefaults.resolve({ density, variant }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3 + W3-C),
+  // riding ON TOP of the provider lane as the family's single audited
+  // read point: the density slot's ambient read resolves the key to
+  // the bar's own write, whose getter is the captured-parent
+  // resolution above, so the chain TERMINATES; variant resolves
+  // through the literal slot (own 'auto' declared in MenubarDefaults);
+  // the panel's own elevation level2 rides the same record
+  const d = $derived(
+    MenubarDefaults.resolve({ density, variant, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (the bar root's ANCESTORS are the candidate containers). The
+  // universal density supply rides the bridged provideDensity write
+  // above; this supply carries the other seven axes downward — the
+  // PANEL (a top-layer promotion) reads them through the Svelte
+  // context, which follows the COMPONENT tree, never the promotion
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair + the solid-fill bridge (rides the bar root;
+  // the PANEL reads it through the context supply — the promotion is
+  // paint, not DOM)
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const rootStyle = $derived([carriers, radiusConsumed, elevationConsumed, style].filter(Boolean).join('; ') || undefined);
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
   let barEl = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => barEl ?? null);
   let openPanelId = $state('');
   /** the roving tab stop FOLLOWS arrow focus; '' = unresolved (the
    *  empty-state law: every trigger renders tabbable until the bar
@@ -325,7 +401,9 @@
   data-jx-menubar=""
   class={cn(cx(menubarStyles.bar), className)}
   {...rest}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   role="menubar"
   aria-label={label}
   onkeydown={handleBarKeydown}

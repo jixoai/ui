@@ -36,6 +36,21 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationPairOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
   import { terminalCardStyles } from './terminal-card.stylex';
   import { TerminalCardDefaults } from './terminal-card-defaults.svelte';
   import { watchTerminalScope } from '$lib/terminal-scope.svelte';
@@ -48,14 +63,74 @@
     outputs: readonly string[];
     theme?: 'dark' | 'light' | 'system';
     speed?: number;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query(). NO own — the bezel's 6px hard offset shadow is its
+     *  own documented law (the elevation grammar's terminal
+     *  exemption); an explicit lane steps the §7 table */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
-  let { barTitle, command, outputs, theme, speed = 1 }: Props = $props();
+  let {
+    barTitle,
+    command,
+    outputs,
+    theme,
+    speed = 1,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
+  }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults
   // round 2): theme rides its literal slot — own 'dark' (the bezel
-  // law) lives in the contract, never a destructure default
-  const d = $derived(TerminalCardDefaults.resolve({ theme }));
+  // law) lives in the contract, never a destructure default.
+  // W3-C: the seven non-theme axes ride the same record — the THEME
+  // axis is DELIBERATELY ABSENT (the unruled-collision law): the
+  // bezel theme is the SHELL lock (own-before-ambient, dark-locked
+  // regardless of the tree), NOT the theme axis' ambient-first law —
+  // a §13 rename would be required to adopt it, and none is ruled.
+  // The theme lane therefore forwards ambient, unadopted
+  const d = $derived(
+    TerminalCardDefaults.resolve({ theme, density, size, shape, radius, color, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair — the GENERIC form (no jx-surface bridge):
+  // the bezel consumes the pair in terminal-card.css
+  const elevationConsumed = $derived(elevationPairOf(d.elevation));
+  const rootStyle = $derived(
+    [carriers, radiusConsumed, elevationConsumed].filter(Boolean).join('; ') || undefined,
+  );
 
   // scoped token class: dark (default lock) or jx-light
   // (css-defined) — the SHARED resolution (lib/terminal-scope: one
@@ -138,7 +213,10 @@
 </script>
 
 <div
+  bind:this={uniRoot}
   data-jx-terminal
+  data-density={densityRungOf(d.density)}
+  style={rootStyle}
   class={cn(
     cx(terminalCardStyles.card),
     // cx(tokenScope): the vars-group theme class — the --jx-* map

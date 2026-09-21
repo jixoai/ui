@@ -52,7 +52,7 @@ ${'</' + 'script'}
      registry:lib, not a wrapper around a chart library -->`;
 
   const sidebar = `<!-- sidebar = sheet + your nav, not a 40-file framework -->
-<Sheet bind:open title="Contents" side="left" size="18rem">
+<Sheet bind:open title="Contents" side="left" width="18rem">
   {#each sections as s (s.id)}
     <a class="side-link" href="#{s.id}" aria-current={s.id === active ? 'page' : undefined}
       onclick={() => (open = false)}>{s.label}</a>

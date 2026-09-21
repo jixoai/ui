@@ -153,6 +153,12 @@ ${close}
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<NavigationMenu label="site" elevation="level3">…</NavigationMenu>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/navigation-menu-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -288,5 +294,24 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Keep navigation links in panels; actions belong in dropdown-menu."><CodeBlock code={usage} lang="svelte" meta="NavigationMenu usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The bar exposes one roving tab stop and keeps every destination a real link."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between top-level triggers and wrap.' }, { key: 'Enter / Space', action: 'Open the focused trigger panel.' }, { key: 'Escape', action: 'Close the panel and restore focus to its trigger.' }]} aria={[{ name: 'aria-current', value: 'page / true', description: 'Marks the current destination.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs a trigger with its panel.' }, { name: 'aria-expanded', value: 'boolean', description: 'Mirrors the native popover toggle state.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Navigation links and panels inherit shared density tokens; the panel adds popover padding tokens."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><NavigationMenu label="density"><NavigationMenuLink href="/docs">docs</NavigationMenuLink></NavigationMenu></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: '12px 14px', source: 'component' }, { name: '--jx-pop-pad-inline', default: '14px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The NAV resolves the axes (all no-own); its floating PANELS ride the family's own elevation level2 (3dp, the menu rung) through the §11 supply — the promotion moves paint, not DOM."
+    >
+      <ComponentCanvas title="NavigationMenu · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}>
+          <NavigationMenu label="universal axes">
+            <NavigationMenuItem><NavigationMenuTrigger>Docs</NavigationMenuTrigger><NavigationMenuPanel>…panels ride the family resolution…</NavigationMenuPanel></NavigationMenuItem>
+          </NavigationMenu>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root, item, trigger, panel, and link parts keep navigation composition explicit."><PropsTable title="NavigationMenu" props={[{ name: 'label', type: 'string', default: "'site'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint for every panel in the bar. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'inset', type: 'number', default: '0', description: 'NavigationMenuIndicator hug inset per edge (px). Defaults: literal slot — own 0, not ambient; breathing inside the entry is a declared decision.' }]} /><div class={cx(rt.mt20)}><PropsTable title="NavigationMenuTrigger / Link" props={[{ name: 'current', type: 'boolean', default: 'false', description: 'Paints the current section and sets aria-current.' }, { name: 'href', type: 'string', description: 'Destination for a navigation link.' }, { name: 'id', type: 'string', description: 'Stable item id used to pair trigger and panel.' }]} /></div></SectionCard></div>
 </div>

@@ -247,6 +247,15 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<Popover id="p-default" triggerLabel="level2 · default">…</Popover>
+<Popover id="p-l3" triggerLabel="level3" elevation="level3">…</Popover>
+<Popover id="p-dp" triggerLabel="8dp" elevation={8}>…</Popover>
+<Popover id="p-concave" triggerLabel="level-1" elevation="level-1">…</Popover>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/popover-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -529,6 +538,26 @@ ${close}
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Light dismiss, Escape, and top-layer focus order are the browser's; one native toggle seam mirrors aria-expanded."><A11yTable keys={[{ key: 'Enter / Space', action: 'Toggle the panel from the popovertarget trigger (native button)' }, { key: 'Escape', action: 'Close the panel; focus returns to the trigger' }, { key: 'Tab', action: 'Moves through the panel body content while open' }]} aria={[{ name: 'aria-expanded', value: 'true/false', description: 'On the default trigger — mirrored live from :popover-open by the toggle seam.' }, { name: 'popover', value: '"auto"', description: 'Light dismiss (outside click / focus loss) and one-at-a-time are native.' }, { name: 'position-visibility', value: 'anchors-visible', description: 'A panel whose anchor scrolled away hides instead of floating stale.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The anchored panel rides the shared motion kernel; the scroll ring's padding is token-overridable."><div class={cx(rt.col20)}><DensityDemo><Popover id="density-pop" triggerLabel="density"><p class={cx(rt.pvW52, rt.text125, rt.lead6)}>The trigger rhythm follows the scope; the panel pad rides --jx-pop-pad tokens.</p></Popover></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-pop-gap', default: '0px (gap prop)', source: 'component', description: 'Anchor gap with margin semantics; 0 = the flush law.' }, { name: '--jx-pop-pad / -inline', default: '12px 14px / 14px', source: 'component', description: 'The scroll ring’s padding; consumer-overridable.' }, { name: '--jx-surface-in-x/y · -ox/-oy', default: 'direction vectors', source: 'component', description: 'Slide-in and shadow offsets, measured live against the anchor.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Stable-gutter scrollbar compensation in the scroll ring.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The anchored panel carries its OWN elevation — level2 (3dp, M3's menu rung): the theme's level table pairs the shadow recipe with the ladder rung; an explicit lane or a dp number steps both. The carriers stamp the promoted panel root — self-carried across the top layer."
+    >
+      <ComponentCanvas title="Popover · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.wrap12)}>
+          <Popover id="univ-default" triggerLabel="level2 · default"><p class={cx(rt.text13)}>3dp + the surface-container-low rung.</p></Popover>
+          <Popover id="univ-l3" triggerLabel="level3" elevation="level3"><p class={cx(rt.text13)}>6dp + the surface-container rung.</p></Popover>
+          <Popover id="univ-dp" triggerLabel="8dp" elevation={8}><p class={cx(rt.text13)}>Exact dp snaps down — 8dp IS level4.</p></Popover>
+          <Popover id="univ-concave" triggerLabel="level-1" elevation="level-1"><p class={cx(rt.text13)}>The concave: inset shadow + the deepest rung.</p></Popover>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Ten props plus the bind:this imperative handle — no controlled state model."><PropsTable meta={popoverMeta} docs={POPOVER_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from

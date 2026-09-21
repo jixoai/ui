@@ -516,11 +516,17 @@
           "path": "registry/files/tokens.stylex.ts",
           "target": "@lib/tokens.stylex.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/terminal-footer/terminal-footer-defaults.svelte.ts",
+          "target": "@ui/terminal-footer/terminal-footer-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "registryDependencies": [
-        "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/defaults",
+        "@jixoai/jixoai-theme",
+        "@jixoai/utils"
       ],
       "meta": {
         "group": "terminal",
@@ -1179,8 +1185,9 @@
       "title": "Scaffold float portal",
       "description": "The consumer-side half of the WebsiteScaffold float provider: renders children into the scaffold's top layer (.jx-top-layer) through a real portal — nodes are created here (full Svelte ownership) and adopted into the provider's insertion point on mount. The float rides the top layer's immersive hide/reveal with the header by construction.",
       "registryDependencies": [
-        "@jixoai/website-scaffold",
-        "@jixoai/jixoai-theme"
+        "@jixoai/defaults",
+        "@jixoai/jixoai-theme",
+        "@jixoai/website-scaffold"
       ],
       "files": [
         {
@@ -1191,6 +1198,11 @@
         {
           "path": "registry/files/ui/scaffold-float/index.ts",
           "target": "@ui/scaffold-float/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/scaffold-float/scaffold-float-defaults.svelte.ts",
+          "target": "@ui/scaffold-float/scaffold-float-defaults.svelte.ts",
           "type": "registry:file"
         }
       ],
@@ -1251,7 +1263,6 @@
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/entity",
         "@jixoai/popover"
       ]
@@ -1307,8 +1318,7 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -3049,8 +3059,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -3637,7 +3646,6 @@
         "@jixoai/icon",
         "@jixoai/website-scaffold",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/glass"
       ]
     },
@@ -3735,7 +3743,6 @@
         "@jixoai/press-button",
         "@jixoai/button-group",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/separator",
         "@jixoai/input"
       ]
@@ -3791,8 +3798,7 @@
         "@jixoai/icon-button",
         "@jixoai/icon",
         "@jixoai/separator",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -3841,8 +3847,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -5667,8 +5672,9 @@
       "title": "Progressive blur",
       "description": "The scroll-edge blur atom (Magic UI port, 2026-08-25): stacked masked backdrop-filter bands ramp blur from clear at the inner edge to the full stack at the scrollport edge — content scrolling under its OWN container's edge diffuses instead of slicing. The overlay root is a sticky h-0 pin (zero layout impact, glued to the scrollport edge; abspos-in-scroller scrolls away), so the whole component is markup + css, zero JS. jixoai extension: reveal='scroll' fades the ladder in with the CSS scroll timeline (nothing blurs at rest) — @supports-gated, degrading to no effect. pin='grid' (2026-09-01): a position-free dialect for one-cell grid hosts (start/end/inline positions, gradients aim physically, documented LTR) with a hold option (the outer share of the band, %, that keeps the ladder's peak instead of ramping — for strips whose readable content parks inboard of a control lane). Grid-dialect paint law (empirical, Chromium 152): the band painted after the scroller and a no-op translateZ(0) compositor isolation per band — without these a veil at the scroll-origin edge samples a dead backdrop and only the first band after the scroller paints; the ladder layers themselves stay pure grid items of the band.",
       "registryDependencies": [
-        "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/defaults",
+        "@jixoai/jixoai-theme",
+        "@jixoai/utils"
       ],
       "files": [
         {
@@ -5689,6 +5695,11 @@
         {
           "path": "registry/files/ui/progressive-blur/progressive-blur.stylex.ts",
           "target": "@ui/progressive-blur/progressive-blur.stylex.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/progressive-blur/progressive-blur-defaults.svelte.ts",
+          "target": "@ui/progressive-blur/progressive-blur-defaults.svelte.ts",
           "type": "registry:file"
         }
       ],

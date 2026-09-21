@@ -53,6 +53,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<ProgressiveBlur pin="grid" position="top" density="small" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/progressive-blur-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -192,5 +198,20 @@ backdrop-filter: blur(levels[i]px);`}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Mount the band as an EARLY child of the scroll container, before the sticky head it sits under."><CodeBlock code={usage} lang="svelte" meta="ProgressiveBlur usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Pure scenery: the band is aria-hidden, pointer-events-none decoration over the scroller's real content."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'The band is decoration; screen readers skip it entirely' }, { name: 'pointer-events', value: 'none', description: 'The band never intercepts pointer input over the scrolling content' }, { name: 'scroll()', value: '@supports-gated', description: 'Engines without scroll timelines keep the resting clean state — never a wrongly-painted band' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint — the band is dimensionless chrome; its one token tunes the scroll-in ramp distance."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.prScroll40)}><ProgressiveBlur position="top" reveal="scroll" height="4rem" class={cx(rt.prZ5)} /><div class={cx(rt.prPinnedHead)}>pinned head</div><ul class={cx(rt.flex, rt.col, rt.gap4, rt.p12)} role="list">{#each rows.slice(0, 8) as row (row)}<li class={cx(rt.prRow)}>{row}</li>{/each}</ul></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pblur-ramp', default: '72px', source: 'component', description: 'Scroll distance of the reveal fade-in (scroll timeline range)' }, { name: 'height', default: "'6rem'", source: 'component', description: 'Band height — any definite CSS length; % unsupported' }]} /></div></SectionCard></div>
+  
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. A FLAT subtractive veil by design (the 减色墨律's own child): the band's FIRST-TIME Defaults contract carries all eight axes with NO owns — no elevation rung, nothing to stamp absent an explicit lane. The supply chain is the point: the axis tree stays continuous through a band."
+    >
+      <ComponentCanvas title="ProgressiveBlur · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)} style="position: relative; height: 120px; overflow: auto;"><p class={cx(rt.text13)}>…scrolls…</p><ProgressiveBlur pin="grid" position="bottom" height="4rem" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ProgressiveBlurProps interface (a dialect-discriminated union); the component ships no script at all."><PropsTable props={[{ name: 'pin', type: "'sticky' | 'grid'", default: "'sticky'", description: 'How the band pins to its edge. sticky = the zero-layout sticky root inside a scroller (any edge); grid = a position-free item of the host one-cell grid (grid-area 1/1 + justify-self per edge, inline edges only).' }, { name: 'position', type: "'top' | 'bottom' | 'both' | 'start' | 'end' | 'inline'", default: "'bottom'", description: 'Which scrollport edge(s) the band hangs from: both = the block pair, inline = the start+end pair (the horizontal-overflow strip). Narrows to start | end under pin=grid — other combos are compile-time errors (the runtime fallback is start).' }, { name: 'hold', type: 'number', default: '0', description: 'Grid dialect only: the outer share of the band (0–100, clamped) that holds the ladder peak instead of ramping — the ramp compresses into the inboard (100-hold)% for strips whose readable content parks inboard of the clip edge.' }, { name: 'height', type: 'string', default: "'6rem'", description: 'Band size along its hang axis — any definite CSS length (px/rem); % unsupported.' }, { name: 'blurLevels', type: 'number[]', default: '[0.5, 1, 2, 4, 8, 16, 32, 64]', description: 'Per-layer blur px, inner-edge first; at least 2 levels (fewer falls back to the default ladder).' }, { name: 'reveal', type: "'static' | 'scroll'", default: "'static'", description: 'static = always painted; scroll = fades in with the nearest scroller (@supports-gated; inline edges keep the always-painted static law).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to each pinned root.' }]} /></SectionCard></div>
 </div>
