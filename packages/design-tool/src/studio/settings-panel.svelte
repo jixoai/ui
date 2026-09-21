@@ -23,8 +23,13 @@
 -->
 <script lang="ts">
   import { untrack } from 'svelte';
-  import Input from '#jixoai/input';
   import Badge from '#jixoai/badge';
+  import Dialog from '#jixoai/dialog';
+  import Input from '#jixoai/input';
+  import NativeSelect from '#jixoai/native-select';
+  import PressButton from '#jixoai/press-button';
+  import { CardFooter } from '#jixoai/card';
+  import { Item, ItemContent, ItemTitle } from '#jixoai/list-item';
 
   /** the API protocols the kernel's pi-ai family speaks (contracts twin) */
   const API_PROTOCOLS = [
@@ -89,6 +94,13 @@
     settingsUrl = '/__design__/api/settings/dsh.json',
     onclose,
   }: Props = $props();
+
+  /** the native <dialog>'s bindable open — mounted OPEN; any close path
+   *  (Esc via cancel, the × seat) notifies the shell through onclose */
+  let open = $state(true);
+  $effect(() => {
+    if (!open) onclose();
+  });
 
   /* ── document state ─────────────────────────────────────────────── */
 
@@ -516,69 +528,70 @@
   });
 </script>
 
-<svelte:window onkeydown={(event) => { if (event.key === 'Escape') onclose(); }} />
+<!-- the r4-style pass (Owner 2026-09-21: "怎么风格都对不上"): every
+     interactive face is a REGISTRY component now — Dialog (native
+     <dialog>: focus trap, Esc, scrim, the card structural kernel),
+     PressButton, NativeSelect, the Item rail, Input, Badge. Studio CSS
+     keeps ONLY layout geometry (rail width, the form grid) and the
+     studio's status ink — no hand-rolled chrome remains -->
+<Dialog title="settings" bind:open class="dsh-dialog">
+  <p class="dsh-sub">dsh model routes — changes apply to the agent's next turn, no restart</p>
 
-<div class="dsh-backdrop" onclick={onclose}>
-  <section
-    class="dsh-panel"
-    role="dialog"
-    aria-modal="true"
-    aria-label="model settings"
-    onclick={(event) => event.stopPropagation()}
-  >
-    <header class="dsh-head">
-      <span class="dsh-title">settings</span>
-      <span class="dsh-sub">dsh model routes — changes apply to the agent's next turn, no restart</span>
-      <button type="button" class="dsh-close" onclick={onclose} aria-label="close settings">close</button>
-    </header>
-
-    {#if loadError !== null}
-      <p class="dsh-error" role="alert">settings failed: {loadError} <button type="button" class="dsh-link" onclick={() => void load()}>retry</button></p>
-    {:else if doc === null}
-      <p class="dsh-muted">loading…</p>
-    {:else}
-      <div class="dsh-body">
-        <!-- the rail: one row per route + new -->
-        <aside class="dsh-rail" role="listbox" aria-label="model routes">
-          {#each routes as route (route.provider)}
-            {@const active = doc.model?.provider === route.provider}
-            {@const hasKey = doc.keyPresence[route.provider] === true}
-            <button
-              type="button"
-              role="option"
-              aria-selected={!newOpen && selected === route.provider}
-              class="dsh-rail-row"
-              class:is-selected={!newOpen && selected === route.provider}
-              onclick={() => {
-                selected = route.provider;
-                newOpen = false;
-              }}
-              title="{route.provider} — {route.baseURL}"
-            >
-              <span class="dsh-avatar" aria-hidden="true">{route.provider.slice(0, 1).toUpperCase()}</span>
-              <span class="dsh-rail-name">{route.provider}</span>
-              {#if !hasKey}<span class="dsh-key-dot" title="API key missing"></span>{/if}
-              {#if active}<Badge variant="tonal" class="jx-hue-success dsh-active-badge">active</Badge>{/if}
-            </button>
-          {/each}
-          <button
-            type="button"
-            class="dsh-rail-new"
-            class:is-selected={newOpen}
-            aria-selected={newOpen}
-            role="option"
+  {#if loadError !== null}
+    <p class="dsh-error" role="alert">settings failed: {loadError} <PressButton variant="link" onclick={() => void load()}>retry</PressButton></p>
+  {:else if doc === null}
+    <p class="dsh-muted">loading…</p>
+  {:else}
+    <div class="dsh-body">
+      <!-- the rail: one Item row per route + new -->
+      <div class="dsh-rail" role="listbox" aria-label="model routes">
+        {#each routes as route (route.provider)}
+          {@const active = doc.model?.provider === route.provider}
+          {@const hasKey = doc.keyPresence[route.provider] === true}
+          <Item
+            class="dsh-rail-row"
+            variant="default"
+            density="sm"
+            selected={!newOpen && selected === route.provider}
             onclick={() => {
-              newOpen = true;
-              selected = null;
+              selected = route.provider;
+              newOpen = false;
             }}
-          >+ new route</button>
-        </aside>
+            title="{route.provider} — {route.baseURL}"
+          >
+            <ItemContent wrap="truncate">
+              <ItemTitle>
+                <span class="dsh-rail-line">
+                  <span class="dsh-rail-name">{route.provider}</span>
+                  {#if !hasKey}<span class="dsh-key-dot" title="API key missing"></span>{/if}
+                  {#if active}<Badge variant="tonal" class="jx-hue-success">active</Badge>{/if}
+                </span>
+              </ItemTitle>
+            </ItemContent>
+          </Item>
+        {/each}
+        <Item
+          class="dsh-rail-new"
+          variant="default"
+          density="sm"
+          selected={newOpen}
+          onclick={() => {
+            newOpen = true;
+            selected = null;
+          }}
+        >
+          <ItemContent wrap="truncate">
+            <ItemTitle>+ new route</ItemTitle>
+          </ItemContent>
+        </Item>
+      </div>
 
-        <!-- the detail -->
-        <div class="dsh-detail">
-          {#if newOpen}
-            <div class="dsh-block">
-              <p class="dsh-block-title">new route</p>
+      <!-- the detail -->
+      <div class="dsh-detail">
+        {#if newOpen}
+          <div class="dsh-block">
+            <p class="dsh-block-title">new route</p>
+            <div class="dsh-grid">
               <label class="dsh-field">
                 <span class="dsh-label">provider</span>
                 <Input placeholder="my-gateway" bind:value={newProvider} />
@@ -587,319 +600,202 @@
                 <span class="dsh-label">baseURL</span>
                 <Input placeholder="https://api.example.com/anthropic" bind:value={newBaseURL} />
               </label>
-              <label class="dsh-field">
-                <span class="dsh-label">api</span>
-                <select class="dsh-select" bind:value={newApi}>
+            </div>
+            <NativeSelect label="api" bind:value={newApi}>
+              {#each API_PROTOCOLS as protocol (protocol)}<option value={protocol}>{protocol}</option>{/each}
+            </NativeSelect>
+            <label class="dsh-field">
+              <span class="dsh-label">first model id</span>
+              <Input placeholder="glm-5.3" bind:value={newModelId} />
+            </label>
+            <div class="dsh-actions">
+              <PressButton variant="fill" disabled={!newValid || saving} onclick={() => void createRoute()}>create</PressButton>
+              <PressButton onclick={() => (newOpen = false)}>cancel</PressButton>
+            </div>
+          </div>
+        {:else if selectedRoute !== null}
+          {#key selectedRoute.provider}
+            {@const hasKey = doc.keyPresence[selectedRoute.provider] === true}
+            <!-- active model -->
+            <div class="dsh-block">
+              <p class="dsh-block-title">active model</p>
+              <div class="dsh-grid">
+                <NativeSelect label="provider" bind:value={activeProvider}>
+                  {#each routes as route (route.provider)}<option value={route.provider}>{route.provider}</option>{/each}
+                </NativeSelect>
+                <NativeSelect label="model" bind:value={activeModel}>
+                  {#each activeRoute?.models ?? [] as entry (entry.id)}<option value={entry.id}>{entry.name ?? entry.id}</option>{/each}
+                </NativeSelect>
+                <!-- a select over the model's DECLARED efforts only — the
+                     kernel rejects an effort the model does not offer
+                     (UNSUPPORTED_REASONING_EFFORT); models with no
+                     declared efforts run at provider default -->
+                <NativeSelect label="effort" bind:value={activeEffort}>
+                  <option value="">default</option>
+                  {#each effortOptions as effort (effort)}<option value={effort}>{effort}</option>{/each}
+                </NativeSelect>
+              </div>
+            </div>
+
+            <!-- credential -->
+            <div class="dsh-block">
+              <p class="dsh-block-title">credential {#if hasKey}<span class="dsh-ok">· key stored</span>{/if}</p>
+              <div class="dsh-cred">
+                <Input
+                  type={keyVisible ? 'text' : 'password'}
+                  placeholder={hasKey ? 'stored — paste a new key to replace' : 'paste the API key'}
+                  bind:value={keyDraft}
+                />
+                <PressButton onclick={() => (keyVisible = !keyVisible)} aria-label="toggle key visibility">{keyVisible ? 'hide' : 'show'}</PressButton>
+                <PressButton disabled={keyDraft.trim() === '' || keyBusy} onclick={() => void writeKey(keyDraft.trim())}>save key</PressButton>
+                {#if hasKey}<PressButton disabled={keyBusy} onclick={() => void writeKey(null)}>clear</PressButton>{/if}
+              </div>
+            </div>
+
+            <!-- endpoint -->
+            <div class="dsh-block">
+              <p class="dsh-block-title">endpoint</p>
+              <div class="dsh-grid">
+                <label class="dsh-field dsh-span2">
+                  <span class="dsh-label">baseURL</span>
+                  <Input placeholder="https://api.example.com/anthropic" bind:value={baseURLDraft} />
+                </label>
+                <NativeSelect label="api" bind:value={apiDraft}>
                   {#each API_PROTOCOLS as protocol (protocol)}<option value={protocol}>{protocol}</option>{/each}
-                </select>
-              </label>
-              <label class="dsh-field">
-                <span class="dsh-label">first model id</span>
-                <Input placeholder="glm-5.3" bind:value={newModelId} />
-              </label>
-              <div class="dsh-actions">
-                <button type="button" class="dsh-primary" disabled={!newValid || saving} onclick={() => void createRoute()}>create</button>
-                <button type="button" class="dsh-ghost" onclick={() => (newOpen = false)}>cancel</button>
+                </NativeSelect>
               </div>
             </div>
-          {:else if selectedRoute !== null}
-            {#key selectedRoute.provider}
-              {@const hasKey = doc.keyPresence[selectedRoute.provider] === true}
-              <div class="dsh-scroll">
-                <!-- active model -->
-                <div class="dsh-block">
-                  <p class="dsh-block-title">active model</p>
+
+            <!-- models -->
+            <div class="dsh-block">
+              <p class="dsh-block-title">models</p>
+              {#each modelsDraft as model, index (index)}
+                <div class="dsh-model">
                   <div class="dsh-grid">
                     <label class="dsh-field">
-                      <span class="dsh-label">provider</span>
-                      <select class="dsh-select" bind:value={activeProvider}>
-                        {#each routes as route (route.provider)}<option value={route.provider}>{route.provider}</option>{/each}
-                      </select>
+                      <span class="dsh-label">id</span>
+                      <Input bind:value={model.id} />
                     </label>
                     <label class="dsh-field">
-                      <span class="dsh-label">model</span>
-                      <select class="dsh-select" bind:value={activeModel}>
-                        {#each activeRoute?.models ?? [] as entry (entry.id)}<option value={entry.id}>{entry.name ?? entry.id}</option>{/each}
-                      </select>
+                      <span class="dsh-label">name</span>
+                      <Input bind:value={model.name} placeholder={model.id} />
                     </label>
                     <label class="dsh-field">
-                      <span class="dsh-label">effort</span>
-                      <!-- a select over the model's DECLARED efforts only —
-                           the kernel rejects an effort the model does not
-                           offer (UNSUPPORTED_REASONING_EFFORT); models with
-                           no declared efforts run at provider default -->
-                      <select class="dsh-select" bind:value={activeEffort}>
-                        <option value="">default</option>
-                        {#each effortOptions as effort (effort)}<option value={effort}>{effort}</option>{/each}
-                      </select>
+                      <span class="dsh-label">context</span>
+                      <Input type="number" min="1" bind:value={model.contextWindow} placeholder="200000" />
+                    </label>
+                    <label class="dsh-field">
+                      <span class="dsh-label">max out</span>
+                      <Input type="number" min="1" bind:value={model.maxOutputTokens} placeholder="8192" />
                     </label>
                   </div>
-                </div>
-
-                <!-- credential -->
-                <div class="dsh-block">
-                  <p class="dsh-block-title">credential {#if hasKey}<span class="dsh-ok">· key stored</span>{/if}</p>
-                  <div class="dsh-cred">
+                  <label class="dsh-field">
+                    <span class="dsh-label">efforts (comma-separated, {THINKING_LEVELS.join('/')})</span>
                     <Input
-                      type={keyVisible ? 'text' : 'password'}
-                      placeholder={hasKey ? 'stored — paste a new key to replace' : 'paste the API key'}
-                      bind:value={keyDraft}
+                      placeholder="low, high"
+                      value={model.efforts?.join(', ') ?? ''}
+                      oninput={(event) => {
+                        const raw = (event.currentTarget as HTMLInputElement).value;
+                        modelsDraft[index] = {
+                          ...model,
+                          efforts: raw.trim() === '' ? undefined : raw.split(',').map((part) => part.trim()).filter((part) => part !== ''),
+                        };
+                      }}
                     />
-                    <button type="button" class="dsh-ghost" onclick={() => (keyVisible = !keyVisible)} aria-label="toggle key visibility">{keyVisible ? 'hide' : 'show'}</button>
-                    <button type="button" class="dsh-ghost" disabled={keyDraft.trim() === '' || keyBusy} onclick={() => void writeKey(keyDraft.trim())}>save key</button>
-                    {#if hasKey}<button type="button" class="dsh-ghost" disabled={keyBusy} onclick={() => void writeKey(null)}>clear</button>{/if}
+                  </label>
+                  <div class="dsh-model-actions">
+                    {#if modelsDraft.length > 1}
+                      <PressButton onclick={() => (modelsDraft = modelsDraft.filter((_, i) => i !== index))}>remove model</PressButton>
+                    {/if}
                   </div>
                 </div>
-
-                <!-- endpoint -->
-                <div class="dsh-block">
-                  <p class="dsh-block-title">endpoint</p>
-                  <div class="dsh-grid">
-                    <label class="dsh-field dsh-span2">
-                      <span class="dsh-label">baseURL</span>
-                      <Input placeholder="https://api.example.com/anthropic" bind:value={baseURLDraft} />
-                    </label>
-                    <label class="dsh-field">
-                      <span class="dsh-label">api</span>
-                      <select class="dsh-select" bind:value={apiDraft}>
-                        {#each API_PROTOCOLS as protocol (protocol)}<option value={protocol}>{protocol}</option>{/each}
-                      </select>
-                    </label>
-                  </div>
-                </div>
-
-                <!-- models -->
-                <div class="dsh-block">
-                  <p class="dsh-block-title">models</p>
-                  {#each modelsDraft as model, index (index)}
-                    <div class="dsh-model">
-                      <div class="dsh-grid">
-                        <label class="dsh-field">
-                          <span class="dsh-label">id</span>
-                          <Input bind:value={model.id} />
-                        </label>
-                        <label class="dsh-field">
-                          <span class="dsh-label">name</span>
-                          <Input bind:value={model.name} placeholder={model.id} />
-                        </label>
-                        <label class="dsh-field">
-                          <span class="dsh-label">context</span>
-                          <Input type="number" min="1" bind:value={model.contextWindow} placeholder="200000" />
-                        </label>
-                        <label class="dsh-field">
-                          <span class="dsh-label">max out</span>
-                          <Input type="number" min="1" bind:value={model.maxOutputTokens} placeholder="8192" />
-                        </label>
-                      </div>
-                      <label class="dsh-field">
-                        <span class="dsh-label">efforts (comma-separated, {THINKING_LEVELS.join('/')})</span>
-                        <Input
-                          placeholder="low, high"
-                          value={model.efforts?.join(', ') ?? ''}
-                          oninput={(event) => {
-                            const raw = (event.currentTarget as HTMLInputElement).value;
-                            modelsDraft[index] = {
-                              ...model,
-                              efforts: raw.trim() === '' ? undefined : raw.split(',').map((part) => part.trim()).filter((part) => part !== ''),
-                            };
-                          }}
-                        />
-                      </label>
-                      <div class="dsh-model-actions">
-                        {#if modelsDraft.length > 1}
-                          <button
-                            type="button"
-                            class="dsh-ghost"
-                            onclick={() => (modelsDraft = modelsDraft.filter((_, i) => i !== index))}
-                          >remove model</button>
-                        {/if}
-                      </div>
-                    </div>
-                  {/each}
-                  <button
-                    type="button"
-                    class="dsh-ghost dsh-add-model"
-                    onclick={() => (modelsDraft = [...modelsDraft, { id: '', name: '', contextWindow: '', maxOutputTokens: '' }])}
-                  >+ add model</button>
-                </div>
-              </div>
-
-              <footer class="dsh-foot">
-                <button type="button" class="dsh-ghost" disabled={testing} onclick={() => void testConnection()}>test{testing ? '…' : ''}</button>
-                {#if testResult !== null}
-                  <span class={testResult.ok ? 'dsh-ok' : 'dsh-error-inline'}>{testResult.ok ? 'ok' : 'failed'} — {testResult.detail}</span>
-                {/if}
-                <span class="dsh-foot-spacer"></span>
-                {#if savedFlash}<span class="dsh-ok">saved</span>{/if}
-                <button type="button" class="dsh-danger" disabled={saving} onclick={() => void removeRoute()}>remove route</button>
-                <button type="button" class="dsh-primary" disabled={saveDisabled} onclick={() => void save()}>save</button>
-              </footer>
-            {/key}
-          {:else}
-            <div class="dsh-onboard">
-              <p class="dsh-onboard-title">add your first model route</p>
-              <p class="dsh-muted">point at any OpenAI/Anthropic-compatible endpoint — the route feeds the design agent's dsh kernel directly.</p>
-              <button type="button" class="dsh-primary" onclick={() => (newOpen = true)}>+ new route</button>
+              {/each}
+              <PressButton class="dsh-add-model" onclick={() => (modelsDraft = [...modelsDraft, { id: '', name: '', contextWindow: '', maxOutputTokens: '' }])}>+ add model</PressButton>
             </div>
-          {/if}
-        </div>
+          {/key}
+        {:else}
+          <div class="dsh-onboard">
+            <p class="dsh-onboard-title">add your first model route</p>
+            <p class="dsh-muted">point at any OpenAI/Anthropic-compatible endpoint — the route feeds the design agent's dsh kernel directly.</p>
+            <PressButton variant="fill" onclick={() => (newOpen = true)}>+ new route</PressButton>
+          </div>
+        {/if}
       </div>
-      {#if rejection !== null}
-        <p class="dsh-error" role="alert">{rejection}</p>
-      {/if}
+    </div>
+    {#if rejection !== null}
+      <p class="dsh-error" role="alert">{rejection}</p>
     {/if}
-  </section>
-</div>
+  {/if}
+
+  {#snippet footer()}
+    <CardFooter>
+      {#if !newOpen && selectedRoute !== null}
+        <PressButton disabled={testing} onclick={() => void testConnection()}>test{testing ? '…' : ''}</PressButton>
+        {#if testResult !== null}
+          <span class={testResult.ok ? 'dsh-ok' : 'dsh-error-inline'}>{testResult.ok ? 'ok' : 'failed'} — {testResult.detail}</span>
+        {/if}
+        <span class="dsh-foot-spacer"></span>
+        {#if savedFlash}<span class="dsh-ok">saved</span>{/if}
+        <PressButton class="dsh-remove" disabled={saving} onclick={() => void removeRoute()}>remove route</PressButton>
+        <PressButton variant="fill" disabled={saveDisabled} onclick={() => void save()}>save</PressButton>
+      {:else}
+        <span class="dsh-foot-spacer"></span>
+      {/if}
+    </CardFooter>
+  {/snippet}
+</Dialog>
 
 <style>
-  .dsh-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    background: rgb(12 11 10 / 0.62);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
+  /* layout geometry ONLY — the interactive chrome is registry's */
+  .dsh-dialog {
+    width: min(46rem, 100%);
   }
-  .dsh-panel {
-    display: flex;
-    flex-direction: column;
-    width: min(680px, 100%);
-    max-height: min(600px, 100%);
-    background: #141312;
-    border: 1px solid #262320;
-    border-radius: 6px;
-    box-shadow: 0 18px 48px rgb(0 0 0 / 0.5);
-  }
-  .dsh-head {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #262320;
-  }
-  .dsh-title {
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.6875rem;
-    color: #ded8cc;
+  :global(.dsh-dialog) {
+    width: min(46rem, 100%);
   }
   .dsh-sub {
-    flex: 1;
-    min-width: 0;
+    margin: 0 0 0.75rem;
     font-size: 0.6875rem;
-    color: #6f6759;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .dsh-close {
-    font-size: 0.6875rem;
-    color: #b9b2a6;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  .dsh-close:hover {
-    color: #ded8cc;
+    color: var(--muted-foreground, #6f6759);
   }
   .dsh-body {
-    display: flex;
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: 0 1rem;
     min-height: 0;
-    flex: 1;
   }
   .dsh-rail {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    width: 176px;
-    flex-shrink: 0;
-    padding: 0.5rem;
-    border-right: 1px solid #262320;
-    overflow-y: auto;
+    min-width: 0;
+    border-right: 1px solid var(--border, #262320);
+    padding-right: 0.5rem;
   }
-  .dsh-rail-row,
-  .dsh-rail-new {
-    display: flex;
+  .dsh-rail-line {
+    display: inline-flex;
     align-items: center;
-    gap: 0.4375rem;
-    width: 100%;
-    padding: 0.375rem 0.5rem;
-    background: none;
-    border: none;
-    border-radius: 4px;
-    color: #b9b2a6;
-    font-size: 0.75rem;
-    text-align: left;
-    cursor: pointer;
-  }
-  .dsh-rail-row:hover,
-  .dsh-rail-new:hover {
-    background: #1b1917;
-    color: #ded8cc;
-  }
-  .dsh-rail-row.is-selected,
-  .dsh-rail-new.is-selected {
-    background: #1b1917;
-    color: #ded8cc;
+    gap: 0.375rem;
+    min-width: 0;
   }
   .dsh-rail-name {
-    flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .dsh-avatar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
-    background: #2a2724;
-    color: #ded8cc;
-    font-size: 9px;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
   .dsh-key-dot {
+    flex: none;
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #d9a25f;
-    flex-shrink: 0;
-  }
-  .dsh-active-badge {
-    font-size: 9px;
-    flex-shrink: 0;
-  }
-  .dsh-rail-new {
-    color: #6f6759;
-    border-top: 1px dashed #262320;
-    border-radius: 0;
-    margin-top: 0.375rem;
-    padding-top: 0.5rem;
+    background: var(--warning, #d9a25f);
   }
   .dsh-detail {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    flex: 1;
-  }
-  .dsh-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0.75rem 1rem;
-  }
-  .dsh-block {
-    padding-bottom: 0.875rem;
-  }
-  .dsh-block + .dsh-block {
-    border-top: 1px solid #201e1b;
-    padding-top: 0.75rem;
+    gap: 1rem;
   }
   .dsh-block-title {
     margin: 0 0 0.5rem;
@@ -907,37 +803,25 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-size: 0.625rem;
-    color: #6f6759;
+    color: var(--muted-foreground, #6f6759);
   }
   .dsh-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.5rem;
-  }
-  .dsh-span2 {
-    grid-column: span 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 0.75rem;
   }
   .dsh-field {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
     min-width: 0;
-    font-size: 0.6875rem;
+  }
+  .dsh-span2 {
+    grid-column: span 2;
   }
   .dsh-label {
-    color: #6f6759;
-  }
-  .dsh-select {
-    width: 100%;
-    padding: 0.3125rem 0.5rem;
-    background: #1b1917;
-    border: 1px solid #262320;
-    border-radius: 3px;
-    color: #ded8cc;
-    font-size: 0.75rem;
-  }
-  .dsh-select:focus-visible {
-    outline: 1px solid #4a453e;
+    font-size: 0.6875rem;
+    color: var(--muted-foreground, #6f6759);
   }
   .dsh-cred {
     display: flex;
@@ -949,92 +833,36 @@
     min-width: 0;
   }
   .dsh-model {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     padding: 0.5rem 0;
   }
   .dsh-model + .dsh-model {
-    border-top: 1px dashed #262320;
-  }
-  .dsh-model .dsh-grid {
-    margin-bottom: 0.5rem;
+    border-top: 1px dashed var(--border, #262320);
   }
   .dsh-model-actions {
     display: flex;
     justify-content: flex-end;
   }
-  .dsh-add-model {
-    margin-top: 0.25rem;
-  }
-  .dsh-actions,
-  .dsh-foot {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
   .dsh-actions {
-    padding: 0.5rem 1rem 0.875rem;
-  }
-  .dsh-foot {
-    padding: 0.625rem 1rem;
-    border-top: 1px solid #262320;
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
   }
   .dsh-foot-spacer {
     flex: 1;
   }
-  .dsh-primary,
-  .dsh-ghost,
-  .dsh-danger {
-    font-size: 0.6875rem;
-    border-radius: 3px;
-    padding: 0.3125rem 0.75rem;
-    cursor: pointer;
-    border: 1px solid #262320;
-    background: none;
-  }
-  .dsh-primary {
-    background: #ded8cc;
-    border-color: #ded8cc;
-    color: #141312;
-    font-weight: 600;
-  }
-  .dsh-primary:disabled {
-    background: #26241f;
-    border-color: #26241f;
-    color: #6f6759;
-    cursor: not-allowed;
-  }
-  .dsh-ghost {
-    color: #b9b2a6;
-  }
-  .dsh-ghost:hover:not(:disabled) {
-    background: #1b1917;
-    color: #ded8cc;
-  }
-  .dsh-ghost:disabled {
-    color: #4a453e;
-    cursor: not-allowed;
-  }
-  .dsh-danger {
-    color: #e08585;
-  }
-  .dsh-danger:hover:not(:disabled) {
-    background: rgb(224 133 133 / 0.12);
-  }
-  .dsh-danger:disabled {
-    color: #5c4444;
-    cursor: not-allowed;
-  }
   .dsh-ok {
-    color: #a9c4a9;
+    color: var(--success, #a9c4a9);
     font-size: 0.6875rem;
   }
   .dsh-error,
   .dsh-error-inline {
-    color: #e08585;
+    color: var(--destructive, #e08585);
   }
   .dsh-error {
-    margin: 0;
-    padding: 0.5rem 1rem;
-    border-top: 1px solid #262320;
+    margin: 0.5rem 0 0;
     font-size: 0.6875rem;
   }
   .dsh-error-inline {
@@ -1042,17 +870,11 @@
   }
   .dsh-muted {
     margin: 0;
-    padding: 0.75rem 1rem;
-    color: #6f6759;
+    color: var(--muted-foreground, #6f6759);
     font-size: 0.75rem;
   }
-  .dsh-link {
-    background: none;
-    border: none;
-    color: #ded8cc;
-    cursor: pointer;
-    font-size: 0.6875rem;
-    text-decoration: underline;
+  .dsh-remove :global(*) {
+    color: var(--destructive, #e08585);
   }
   .dsh-onboard {
     display: flex;
@@ -1066,10 +888,8 @@
     margin: 0;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #ded8cc;
   }
   .dsh-onboard .dsh-muted {
-    padding: 0;
     max-width: 340px;
   }
 </style>

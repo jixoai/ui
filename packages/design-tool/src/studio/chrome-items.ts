@@ -52,6 +52,12 @@
  *   snippet extension, component/tree-view-caret); the native
  *   chevron look rides Icon
  *
+ * - dialog + native-select + card (walkthrough-r4 style lane,
+ *   2026-09-21): the settings panel's chrome — the dsh-routes overlay
+ *   rides the registry Dialog surface, its forms ride NativeSelect,
+ *   and the footer bar rides CardFooter; the panel's hand-written
+ *   dialog/buttons/selects chrome retired with the restyle
+ *
  * T4 (tree, navigator) appends its items here.
  */
 export const STUDIO_CHROME_ITEMS: readonly string[] = [
@@ -68,4 +74,7 @@ export const STUDIO_CHROME_ITEMS: readonly string[] = [
   'tree-view',
   'icon',
   'spin',
+  'dialog',
+  'native-select',
+  'card',
 ] as const;
