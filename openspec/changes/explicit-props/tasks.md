@@ -176,12 +176,13 @@ before the next batch opens; a batch is the rollback unit)
       W6-dossier-flagged; glass = no-component-root material lib,
       exemption-ledger candidate for 4.6; own-elevation mapping table in
       the census; orchestrator gates re-run green)
-- [ ] 3.4 batch D — composite/long-tail (the rest of the 115), batched ~15/round —
-      D1 LANDED 3e8c38ec + the fleet-wide provider-snapshot sweep 2b28536c;
-      D2 LANDED 45aeb6ff; D3 LANDED c6959e78 (zero deviations);
-      D4 LANDED a946d336 (siteOnly four + docs infra + the completeness
-      sweep) — **the sweep found 13 never-listed holes → D5 IN FLIGHT
-      (the hole round, all 13 incl. component-canvas; W3 closes on it)**
+- [x] 3.4 batch D — composite/long-tail (the rest of the 115), batched ~15/round —
+      D1 3e8c38ec (+ sweep 2b28536c) · D2 45aeb6ff · D3 c6959e78 ·
+      D4 a946d336 (siteOnly four + docs infra + the completeness sweep
+      that found the 13 holes) · D5 f3a82dce (the hole round) —
+      **115/115 ZERO HOLES: W3 CLOSES** (105 surface · 4 siteOnly ·
+      4 context-only · 1 engine-wrapper · 1 rootless-lib; the batch
+      receipts + every deviation live in the census LANDED paragraphs)
 - [x] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …) —
       CLOSED: sheet LANDED with batch C (09d64fb0), prose LANDED with D2
       (45aeb6ff); avatar/icon/spin were 3.6 (done)

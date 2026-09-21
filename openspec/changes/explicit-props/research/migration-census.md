@@ -210,6 +210,24 @@ vars).
 
 ## W3 CLOSE — the fleet completeness receipt (D4's sweep, orchestrator-verified)
 
+LANDED D5 (f3a82dce; probe-w3d5-spot 11/11 — accordion radius 20 →
+nested auto Card computes 6px through the family anchor, theme-toggle's
+§6 global flip proven live and unentangled; gates re-run green — mirror
+794, 2·7·7, 16+3, `Type Errors: no errors`, suite EXACTLY 86/2784).
+**THE FLEET: 115/115, ZERO HOLES — W3 CLOSES.** Final single-class
+census: **105 surface · 4 siteOnly · 4 context-only (icon-button,
+scroll-run, pattern-hero-set family-level, highlight-detect-default —
+the rootless check found a component wrapper, not a lib) · 1
+engine-wrapper (scroll-virtual) · 1 rootless-lib (glass)**. Late folds:
+component-canvas carries SIX lanes (theme + density LEFT OUT — the
+stage-preview BINDABLES own the prop names and two-way typing pins
+them; §13 no-rename law; W6-dossier-flagged); accordion's content is
+native-details IN-FLOW — no portal boundary (the brief's assumption
+corrected honestly); alert/anchor/inline-code/skeleton retired their
+declaration-only density postures. Standing-debt note for W5:
+registry-payload-parity's ~125 stale public/r payloads accumulated
+across D1-D4 — a root build:registry + stylex-swap clears it.
+
 LANDED D4 (a946d336; probe-w3d4-spot 11/11 — palette ⌘K portal
 self-carried at `--jx-elevation-effective: 8`, density-demo dogfoods the
 explicit lane, props-table's own surface minimal-additive with its 3
