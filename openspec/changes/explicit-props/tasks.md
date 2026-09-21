@@ -178,8 +178,9 @@ before the next batch opens; a batch is the rollback unit)
       the census; orchestrator gates re-run green)
 - [ ] 3.4 batch D — composite/long-tail (the rest of the 115), batched ~15/round —
       D1 LANDED 3e8c38ec + the fleet-wide provider-snapshot sweep 2b28536c;
-      D2 LANDED 45aeb6ff (prose's rename with it); D3 IN FLIGHT (scroll-run →
-      website-scaffold); D4 remains (siteOnly four + docs infra)
+      D2 LANDED 45aeb6ff; D3 LANDED c6959e78 (ZERO deviations — first batch
+      fully on existing rulings; select/tour level2 + portal law);
+      D4 IN FLIGHT (siteOnly four + docs infra — the W3 closer)
 - [x] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …) —
       CLOSED: sheet LANDED with batch C (09d64fb0), prose LANDED with D2
       (45aeb6ff); avatar/icon/spin were 3.6 (done)

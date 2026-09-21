@@ -187,6 +187,25 @@ EXACTLY 86/2784 the standing set). Outcomes, census-recorded:
 - The consumer-merge law, spec-pinned via prototype-layout: carriers
   JOIN the consumer's `style` attr — never replace it.
 
+LANDED D3 (c6959e78; probe-w3d3-spot 14/14 — statistic size-18,
+section-card radius 20 → auto Card 6px, select's PORTAL (trigger +
+promoted panel both self-carried, §7 pair resolving, Escape closes),
+table's named step via the ladder var; orchestrator gates re-run green —
+mirror 789 pairs, tailwindless 2·7·7 unmoved, meta/context/deps 16+3,
+`Type Errors: no errors`, suite EXACTLY 86/2784 the standing set).
+**ZERO deviations — the first batch landed entirely on existing
+rulings.** Structural records: scroll-run is the second NO-ROOT
+fragment dialect (context-only supply); scroll-virtual forwards to the
+composed ScrollArea (radius NUMBER lane only — the chart analogy's
+third instance; named radius cannot cross ScrollArea's
+`number | 'full'` edge); select + tour carry own elevation **level2**
+with the portal law (trigger AND promoted panel stamp); table + tabs
+encode the provider-snapshot law verbatim; toc/transfer/tree-view/
+stack first-time no-own. Receipt-authoring law (D3's §7 lesson): assert
+the DECLARATION in the style attr + a non-empty computed recipe — never
+the computed value of an unregistered custom property (it substitutes
+vars).
+
 ## The one-off prop mappings (design §13)
 
 | family | today | action |
